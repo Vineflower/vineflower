@@ -217,6 +217,7 @@ public class NestedClassProcessor {
       if (setEnclosing.contains(node.classStruct.qualifiedName)) {
         node.nested.add(child);
         child.parent = node;
+        Collections.sort(node.nested);
 
         return true;
       }

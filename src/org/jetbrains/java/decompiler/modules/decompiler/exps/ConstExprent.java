@@ -256,15 +256,15 @@ public class ConstExprent extends Exprent {
           }
         }
         else if (Float.isNaN(floatVal)) {
-          return new TextBuffer("0.0F / 0.0");
+          return new TextBuffer("0.0F / 0.0F");
         }
         else if (floatVal == Float.POSITIVE_INFINITY) {
-          return new TextBuffer("1.0F / 0.0");
+          return new TextBuffer("1.0F / 0.0F");
         }
         else if (floatVal == Float.NEGATIVE_INFINITY) {
-          return new TextBuffer("-1.0F / 0.0");
+          return new TextBuffer("-1.0F / 0.0F");
         }
-        return new TextBuffer(value.toString()).append('F');
+        return new TextBuffer(trimZeros(value.toString())).append('F');
 
       case CodeConstants.TYPE_DOUBLE:
         double doubleVal = (Double)value;
@@ -312,7 +312,7 @@ public class ConstExprent extends Exprent {
         else if (doubleVal == Double.NEGATIVE_INFINITY) {
           return new TextBuffer("-1.0 / 0.0");
         }
-        return new TextBuffer(value.toString());
+        return new TextBuffer(trimZeros(value.toString()));
 
       case CodeConstants.TYPE_NULL:
         return new TextBuffer("null");
@@ -329,6 +329,18 @@ public class ConstExprent extends Exprent {
     }
 
     throw new RuntimeException("invalid constant type: " + constType);
+  }
+  
+  // Different JVM implementations/version display Floats and Doubles with different number of trailing zeros.
+  // This trims them all down to only the necessary amount.
+  private static String trimZeros(String value) {
+      int i = value.length() - 1;
+      while (i >= 0 && value.charAt(i) == '0') {
+          i--;
+      }
+      if (value.charAt(i) == '.')
+        i++;
+      return value.substring(0, i + 1);
   }
 
   public boolean isNull() {

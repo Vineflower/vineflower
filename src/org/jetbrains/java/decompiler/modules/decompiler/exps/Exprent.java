@@ -15,7 +15,10 @@ import org.jetbrains.java.decompiler.struct.match.MatchEngine;
 import org.jetbrains.java.decompiler.struct.match.MatchNode;
 import org.jetbrains.java.decompiler.struct.match.MatchNode.RuleValue;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
@@ -131,6 +134,38 @@ public class Exprent implements IMatchable {
     }
   }
 
+  public static List<? extends Exprent> sortIndexed(List<? extends Exprent> lst) {
+      List<Exprent> ret = new ArrayList<Exprent>();
+      List<VarExprent> defs = new ArrayList<VarExprent>();
+
+      Comparator<VarExprent> comp = new Comparator<VarExprent>() {
+        public int compare(VarExprent o1, VarExprent o2) {
+          return o1.getIndex() - o2.getIndex();
+        }
+      };
+
+      for (Exprent exp : lst) {
+        boolean isDef = exp instanceof VarExprent && ((VarExprent)exp).isDefinition();
+        if (!isDef) {
+          if (defs.size() > 0) {
+            Collections.sort(defs, comp);
+            ret.addAll(defs);
+            defs.clear();
+          }
+          ret.add(exp);
+        }
+        else {
+          defs.add((VarExprent)exp);
+        }
+      }
+
+      if (defs.size() > 0) {
+        Collections.sort(defs, comp);
+        ret.addAll(defs);
+      }
+      return ret;
+    }
+  
   // *****************************************************************************
   // IMatchable implementation
   // *****************************************************************************
