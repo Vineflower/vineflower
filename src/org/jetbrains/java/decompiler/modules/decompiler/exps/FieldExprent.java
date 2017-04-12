@@ -22,8 +22,8 @@ import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.TextUtil;
 
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.List;
-import java.util.Set;
 
 public class FieldExprent extends Exprent {
   private final String name;
@@ -33,15 +33,15 @@ public class FieldExprent extends Exprent {
   private final FieldDescriptor descriptor;
   private boolean forceQualified = false;
 
-  public FieldExprent(LinkConstant cn, Exprent instance, Set<Integer> bytecodeOffsets) {
+  public FieldExprent(LinkConstant cn, Exprent instance, BitSet bytecodeOffsets) {
     this(cn.elementname, cn.classname, instance == null, instance, FieldDescriptor.parseDescriptor(cn.descriptor), bytecodeOffsets);
   }
 
-  public FieldExprent(String name, String classname, boolean isStatic, Exprent instance, FieldDescriptor descriptor, Set<Integer> bytecodeOffsets) {
+  public FieldExprent(String name, String classname, boolean isStatic, Exprent instance, FieldDescriptor descriptor, BitSet bytecodeOffsets) {
     this(name, classname, isStatic, instance, descriptor, bytecodeOffsets, false);
   }
 
-  public FieldExprent(String name, String classname, boolean isStatic, Exprent instance, FieldDescriptor descriptor, Set<Integer> bytecodeOffsets, boolean forceQualified) {
+  public FieldExprent(String name, String classname, boolean isStatic, Exprent instance, FieldDescriptor descriptor, BitSet bytecodeOffsets, boolean forceQualified) {
     super(EXPRENT_FIELD);
     this.name = name;
     this.classname = classname;
@@ -193,6 +193,12 @@ public class FieldExprent extends Exprent {
 
   public void forceQualified(boolean value) {
     this.forceQualified = value;
+  }
+
+  @Override
+  public void getBytecodeRange(BitSet values) {
+    measureBytecode(values, instance);
+    measureBytecode(values);
   }
 
   // *****************************************************************************

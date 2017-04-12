@@ -27,6 +27,7 @@ import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.TextUtil;
 
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.List;
 
 public class VarExprent extends Exprent {
@@ -37,21 +38,20 @@ public class VarExprent extends Exprent {
   private VarType varType;
   private boolean definition = false;
   private final VarProcessor processor;
-  private final int visibleOffset;
   private int version = 0;
   private boolean classDef = false;
   private boolean stack = false;
 
   public VarExprent(int index, VarType varType, VarProcessor processor) {
-    this(index, varType, processor, -1);
+    this(index, varType, processor, null);
   }
 
-  public VarExprent(int index, VarType varType, VarProcessor processor, int visibleOffset) {
+  public VarExprent(int index, VarType varType, VarProcessor processor, BitSet bytecode) {
     super(EXPRENT_VAR);
     this.index = index;
     this.varType = varType;
     this.processor = processor;
-    this.visibleOffset = visibleOffset;
+    this.addBytecodeOffsets(bytecode);
   }
 
   @Override
@@ -71,7 +71,7 @@ public class VarExprent extends Exprent {
 
   @Override
   public Exprent copy() {
-    VarExprent var = new VarExprent(index, getVarType(), processor, visibleOffset);
+    VarExprent var = new VarExprent(index, getVarType(), processor, bytecode);
     var.setDefinition(definition);
     var.setVersion(version);
     var.setClassDef(classDef);
@@ -120,7 +120,7 @@ public class VarExprent extends Exprent {
     if (attr != null && processor != null) {
       Integer origIndex = processor.getVarOriginalIndex(index);
       if (origIndex != null) {
-        String name = attr.getName(origIndex, visibleOffset);
+        String name = attr.getName(origIndex, bytecode == null ? -1 : bytecode.nextSetBit(0));
         if (name != null && TextUtil.isValidIdentifier(name, method.getBytecodeVersion())) {
           return name;
         }
@@ -137,6 +137,7 @@ public class VarExprent extends Exprent {
         if (processor != null) {
           originalIndex = processor.getVarOriginalIndex(index);
         }
+        int visibleOffset = bytecode == null ? -1 : bytecode.length();
         if (originalIndex != null) {
           // first try from signature
           if (DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_GENERIC_SIGNATURES)) {
@@ -179,6 +180,11 @@ public class VarExprent extends Exprent {
     return index == ve.getIndex() &&
            version == ve.getVersion() &&
            InterpreterUtil.equalObjects(getVarType(), ve.getVarType()); // FIXME: varType comparison redundant?
+  }
+
+  @Override
+  public void getBytecodeRange(BitSet values) {
+    measureBytecode(values);
   }
 
   public int getIndex() {

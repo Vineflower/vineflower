@@ -31,6 +31,7 @@ class TypeAnnotations {
 class 'pkg/TypeAnnotations' {
    method 'm1 ()I' {
       0      13
+      1      13
       2      13
    }
 

@@ -6,6 +6,7 @@ package org.jetbrains.java.decompiler.modules.decompiler.exps;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 
+import java.util.BitSet;
 import java.util.List;
 
 public class AssertExprent extends Exprent {
@@ -38,5 +39,11 @@ public class AssertExprent extends Exprent {
     }
 
     return buffer;
+  }
+
+  @Override
+  public void getBytecodeRange(BitSet values) {
+    measureBytecode(values, parameters);
+    measureBytecode(values);
   }
 }

@@ -29,6 +29,7 @@ class TestInnerClassConstructor {
 class 'pkg/TestInnerClassConstructor' {
    method 'l ()V' {
       5      4
+      6      4
       c      5
    }
 
@@ -40,25 +41,45 @@ class 'pkg/TestInnerClassConstructor' {
 
    method 'n (Ljava/lang/String;)V' {
       0      12
+      1      12
+      2      12
       a      12
+      b      12
+      f      12
       13      12
+      14      12
+      15      12
       16      12
+      17      12
+      18      12
       19      13
    }
 }
 
 class 'pkg/TestInnerClassConstructor$Another' {
    method '<init> (Lpkg/TestInnerClassConstructor;II)V' {
+      9      17
+      11      17
       15      17
+      16      17
+      1a      17
       1e      17
+      1f      17
+      20      17
       21      17
+      22      17
+      23      17
       24      18
    }
 }
 
 class 'pkg/TestInnerClassConstructor$Inner' {
    method '<init> (Lpkg/TestInnerClassConstructor;Ljava/lang/String;)V' {
+      9      23
+      a      23
       b      23
+      c      23
+      d      23
       e      24
    }
 }

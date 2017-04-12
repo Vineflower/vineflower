@@ -10,6 +10,7 @@ import org.jetbrains.java.decompiler.util.ListStack;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.List;
 import java.util.Set;
 
@@ -64,7 +65,7 @@ public class IfExprent extends Exprent {
 
   private Exprent condition;
 
-  public IfExprent(int ifType, ListStack<Exprent> stack, Set<Integer> bytecodeOffsets) {
+  public IfExprent(int ifType, ListStack<Exprent> stack, BitSet bytecodeOffsets) {
     this(null, bytecodeOffsets);
 
     if (ifType <= IF_LE) {
@@ -82,7 +83,7 @@ public class IfExprent extends Exprent {
     }
   }
 
-  private IfExprent(Exprent condition, Set<Integer> bytecodeOffsets) {
+  private IfExprent(Exprent condition, BitSet bytecodeOffsets) {
     super(EXPRENT_IF);
     this.condition = condition;
 
@@ -134,5 +135,11 @@ public class IfExprent extends Exprent {
 
   public void setCondition(Exprent condition) {
     this.condition = condition;
+  }
+
+  @Override
+  public void getBytecodeRange(BitSet values) {
+    measureBytecode(values, condition);
+    measureBytecode(values);
   }
 }

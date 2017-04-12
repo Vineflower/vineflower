@@ -38,27 +38,64 @@ public class TestInnerSignature<A, B, C> {
 
 class 'pkg/TestInnerSignature' {
    method '<init> (Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)V' {
-      6      8
-      b      9
-      10      10
-      13      11
+      4      6
+      5      6
+      6      6
+      7      6
+      8      6
+      9      7
+      a      7
+      b      7
+      c      7
+      d      7
+      e      8
+      f      8
+      10      8
+      11      8
+      12      8
+      13      9
    }
 }
 
 class 'TestInnerSignature$Inner' {
    method '<init> (LTestInnerSignature;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)V' {
+      9      17
+      a      17
       b      17
+      c      17
+      d      17
+      e      18
+      f      18
       10      18
+      11      18
+      12      18
+      13      19
+      14      19
+      15      19
       16      19
+      17      19
+      18      19
       19      20
    }
 }
 
 class 'TestInnerSignature$InnerStatic' {
    method '<init> (Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)V' {
+      4      29
+      5      29
       6      29
+      7      29
+      8      29
+      9      30
+      a      30
       b      30
+      c      30
+      d      30
+      e      31
+      f      31
       10      31
+      11      31
+      12      31
       13      32
    }
 }

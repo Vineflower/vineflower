@@ -89,6 +89,12 @@ public final class MergeHelper {
           if (ifedge.getType() == StatEdge.TYPE_BREAK) {
             ifexpr.negateIf();
           }
+
+          if (stat.getConditionExprent() != null) {
+            ifexpr.getCondition().addBytecodeOffsets(stat.getConditionExprent().bytecode);
+          }
+          ifexpr.getCondition().addBytecodeOffsets(lastif.getHeadexprent().bytecode);
+
           stat.setConditionExprent(ifexpr.getCondition());
           lastif.getFirst().removeSuccessor(ifedge);
           lastif.removeSuccessor(elseedge);
@@ -143,6 +149,12 @@ public final class MergeHelper {
               // negate condition (while header)
               IfExprent ifexpr = (IfExprent)firstif.getHeadexprent().copy();
               ifexpr.negateIf();
+
+              if (stat.getConditionExprent() != null) {
+                ifexpr.getCondition().addBytecodeOffsets(stat.getConditionExprent().bytecode);
+              }
+              ifexpr.getCondition().addBytecodeOffsets(firstif.getHeadexprent().bytecode);
+
               stat.setConditionExprent(ifexpr.getCondition());
 
               // remove edges
@@ -181,7 +193,12 @@ public final class MergeHelper {
               stat.setLooptype(DoStatement.LOOP_WHILE);
 
               // no need to negate the while condition
-              stat.setConditionExprent(((IfExprent)firstif.getHeadexprent().copy()).getCondition());
+              IfExprent ifexpr = (IfExprent)firstif.getHeadexprent().copy();
+              if (stat.getConditionExprent() != null) {
+                ifexpr.getCondition().addBytecodeOffsets(stat.getConditionExprent().bytecode);
+              }
+              ifexpr.getCondition().addBytecodeOffsets(firstif.getHeadexprent().bytecode);
+              stat.setConditionExprent(ifexpr.getCondition());
 
               // remove edges
               StatEdge ifedge = firstif.getIfEdge();
@@ -333,9 +350,17 @@ public final class MergeHelper {
 
       stat.setLooptype(DoStatement.LOOP_FOR);
       if (hasinit) {
-        stat.setInitExprent(preData.getExprents().remove(preData.getExprents().size() - 1));
+        Exprent exp = preData.getExprents().remove(preData.getExprents().size() - 1);
+        if (stat.getInitExprent() != null) {
+          exp.addBytecodeOffsets(stat.getInitExprent().bytecode);
+        }
+        stat.setInitExprent(exp);
       }
-      stat.setIncExprent(lastData.getExprents().remove(lastData.getExprents().size() - 1));
+      Exprent exp = lastData.getExprents().remove(lastData.getExprents().size() - 1);
+      if (stat.getIncExprent() != null) {
+        exp.addBytecodeOffsets(stat.getIncExprent().bytecode);
+      }
+      stat.setIncExprent(exp);
     }
 
     if (lastData.getExprents().isEmpty()) {

@@ -313,6 +313,7 @@ public class FinallyProcessor {
       }
     }
 
+    final int store_length = var <= 3 ? 1 : var <= 128 ? 2 : 4;
     // disable semaphore at statement exit points
     for (BasicBlock block : setTry) {
       List<BasicBlock> lstSucc = block.getSuccs();
@@ -322,8 +323,8 @@ public class FinallyProcessor {
         if (dest != graph.getLast() && !setCopy.contains(dest)) {
           // disable semaphore
           SimpleInstructionSequence seq = new SimpleInstructionSequence();
-          seq.addInstruction(Instruction.create(CodeConstants.opc_bipush, false, CodeConstants.GROUP_GENERAL, bytecode_version, new int[]{0}), -1);
-          seq.addInstruction(Instruction.create(CodeConstants.opc_istore, false, CodeConstants.GROUP_GENERAL, bytecode_version, new int[]{var}), -1);
+          seq.addInstruction(Instruction.create(CodeConstants.opc_bipush, false, CodeConstants.GROUP_GENERAL, bytecode_version, new int[]{0}, 1), -1);
+          seq.addInstruction(Instruction.create(CodeConstants.opc_istore, false, CodeConstants.GROUP_GENERAL, bytecode_version, new int[]{var}, store_length), -1);
 
           // build a separate block
           BasicBlock newblock = new BasicBlock(++graph.last_id);
@@ -352,8 +353,8 @@ public class FinallyProcessor {
 
     // enable semaphore at the statement entrance
     SimpleInstructionSequence seq = new SimpleInstructionSequence();
-    seq.addInstruction(Instruction.create(CodeConstants.opc_bipush, false, CodeConstants.GROUP_GENERAL, bytecode_version, new int[]{1}), -1);
-    seq.addInstruction(Instruction.create(CodeConstants.opc_istore, false, CodeConstants.GROUP_GENERAL, bytecode_version, new int[]{var}), -1);
+    seq.addInstruction(Instruction.create(CodeConstants.opc_bipush, false, CodeConstants.GROUP_GENERAL, bytecode_version, new int[]{1}, 1), -1);
+    seq.addInstruction(Instruction.create(CodeConstants.opc_istore, false, CodeConstants.GROUP_GENERAL, bytecode_version, new int[]{var}, store_length), -1);
 
     BasicBlock newhead = new BasicBlock(++graph.last_id);
     newhead.setSeq(seq);
@@ -362,8 +363,8 @@ public class FinallyProcessor {
 
     // initialize semaphor with false
     seq = new SimpleInstructionSequence();
-    seq.addInstruction(Instruction.create(CodeConstants.opc_bipush, false, CodeConstants.GROUP_GENERAL, bytecode_version, new int[]{0}), -1);
-    seq.addInstruction(Instruction.create(CodeConstants.opc_istore, false, CodeConstants.GROUP_GENERAL, bytecode_version, new int[]{var}), -1);
+    seq.addInstruction(Instruction.create(CodeConstants.opc_bipush, false, CodeConstants.GROUP_GENERAL, bytecode_version, new int[]{0}, 1), -1);
+    seq.addInstruction(Instruction.create(CodeConstants.opc_istore, false, CodeConstants.GROUP_GENERAL, bytecode_version, new int[]{var}, store_length), -1);
 
     BasicBlock newheadinit = new BasicBlock(++graph.last_id);
     newheadinit.setSeq(seq);

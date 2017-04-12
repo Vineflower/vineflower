@@ -46,12 +46,12 @@ public abstract class TestAnonymousClass {
 
    void foo(int var1) throws Exception {
       if (var1 > 0) {// 10
-         TestAnonymousClass.I var2 = new TestAnonymousClass.I() {
+         TestAnonymousClass.I var2 = new TestAnonymousClass.I() {// 11
             public void foo() throws Exception {
                boolean var1 = true;// 13
                boolean var2 = true;// 14
             }// 15
-         };// 11
+         };
          var2.foo();// 17
       } else {
          System.out.println(5);// 21
@@ -158,10 +158,18 @@ class 'pkg/TestAnonymousClass$1' {
 
 class 'pkg/TestAnonymousClass' {
    method 'foo (I)V' {
+      0      47
       1      47
-      c      53
+      c      48
+      d      54
       e      54
+      f      54
+      10      54
+      11      54
+      12      54
       16      56
+      17      56
+      18      56
       19      56
       1a      56
       1d      59
@@ -192,7 +200,11 @@ class 'pkg/TestAnonymousClass$Inner$1' {
 
 class 'pkg/TestAnonymousClass$InnerRecursive' {
    method '<init> (Lpkg/TestAnonymousClass$InnerRecursive;)V' {
+      4      86
+      5      86
       6      86
+      7      86
+      8      86
       9      87
    }
 
@@ -203,7 +215,7 @@ class 'pkg/TestAnonymousClass$InnerRecursive' {
 
 Lines mapping:
 10 <-> 48
-11 <-> 54
+11 <-> 49
 13 <-> 51
 14 <-> 52
 15 <-> 53

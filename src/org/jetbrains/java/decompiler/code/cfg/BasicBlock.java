@@ -190,4 +190,19 @@ public class BasicBlock implements IGraphNode {
   public List<BasicBlock> getPredExceptions() {
     return predExceptions;
   }
+
+  public int getStartInstruction() {
+      if (seq.isEmpty()) {
+          return 0;
+      }
+      return instrOldOffsets.get(0);
+  }
+
+  public int getEndInstruction() {
+      if (seq.isEmpty()) {
+          return 0;
+      }
+      int end = seq.getLastInstr().length;
+      return end + instrOldOffsets.get(size() -1);
+  }
 }

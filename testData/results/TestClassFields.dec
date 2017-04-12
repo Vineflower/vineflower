@@ -17,8 +17,12 @@ public class TestClassFields {
 class 'pkg/TestClassFields' {
    method '<clinit> ()V' {
       11      8
+      12      8
+      13      8
       14      8
       17      8
+      18      8
+      19      8
       20      9
    }
 }
