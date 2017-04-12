@@ -11,6 +11,7 @@ import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.extern.IIdentifierRenamer;
 import org.jetbrains.java.decompiler.main.rels.ClassWrapper;
 import org.jetbrains.java.decompiler.main.rels.LambdaProcessor;
+import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.main.rels.NestedClassProcessor;
 import org.jetbrains.java.decompiler.main.rels.NestedMemberAccess;
 import org.jetbrains.java.decompiler.modules.decompiler.SwitchHelper;
@@ -445,6 +446,7 @@ public class ClassesProcessor implements CodeConstants {
   private static void destroyWrappers(ClassNode node) {
     node.wrapper = null;
     node.classStruct.releaseResources();
+    node.classStruct.getMethods().forEach(m -> m.clearVariableNamer());
 
     for (ClassNode nd : node.nested) {
       destroyWrappers(nd);
@@ -503,7 +505,7 @@ public class ClassesProcessor implements CodeConstants {
 
       anonymousClassType = new VarType(lambda_class_name, true);
 
-      boolean is_method_reference = (content_class_name != classStruct.qualifiedName);
+      boolean is_method_reference = !classStruct.qualifiedName.equals(content_class_name);
       if (!is_method_reference) { // content method in the same class, check synthetic flag
         StructMethod mt = classStruct.getMethod(content_method_name, content_method_descriptor);
         is_method_reference = !mt.isSynthetic(); // if not synthetic -> method reference

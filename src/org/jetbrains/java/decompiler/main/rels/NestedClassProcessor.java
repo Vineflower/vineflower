@@ -545,7 +545,11 @@ public class NestedClassProcessor {
         Map<VarVersionPair, VarType> mapNewTypes = new HashMap<>();  // local var types
         Map<VarVersionPair, LocalVariable> mapNewLVTs = new HashMap<>(); // local var table entries
 
-        Map<Integer, VarVersionPair> mapParamsToNewVars = new HashMap<>();
+        if (enclosingMethod != null) {
+          method.methodStruct.getVariableNamer().addParentContext(enclosingMethod.methodStruct.getVariableNamer());
+        }
+
+        final Map<Integer, VarVersionPair> mapParamsToNewVars = new HashMap<>();
         if (method.synthParameters != null) {
           int index = 0, varIndex = 1;
           MethodDescriptor md = MethodDescriptor.parseDescriptor(method.methodStruct.getDescriptor());

@@ -7,6 +7,7 @@ import org.jetbrains.java.decompiler.main.collectors.ImportCollector;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarProcessor;
+import org.jetbrains.java.decompiler.main.extern.IVariableNamingFactory;
 import org.jetbrains.java.decompiler.modules.renamer.PoolInterceptor;
 import org.jetbrains.java.decompiler.struct.StructContext;
 
@@ -19,12 +20,14 @@ public class DecompilerContext {
   public static final String CURRENT_CLASS_NODE = "CURRENT_CLASS_NODE";
   public static final String CURRENT_METHOD_WRAPPER = "CURRENT_METHOD_WRAPPER";
   public static final String CURRENT_VAR_PROCESSOR = "CURRENT_VAR_PROCESSOR";
+  public static final String RENAMER_FACTORY = "RENAMER_FACTORY";
 
-  public final Map<String, Object> properties;
-  public final IFernflowerLogger logger;
-  public final StructContext structContext;
-  public final ClassesProcessor classProcessor;
-  public final PoolInterceptor poolInterceptor;
+  private final Map<String, Object> properties;
+  private final IFernflowerLogger logger;
+  private final StructContext structContext;
+  private final ClassesProcessor classProcessor;
+  private final PoolInterceptor poolInterceptor;
+  private final IVariableNamingFactory renamerFactory;
   private ImportCollector importCollector;
   private VarProcessor varProcessor;
   private CounterContainer counterContainer;
@@ -34,7 +37,8 @@ public class DecompilerContext {
                            IFernflowerLogger logger,
                            StructContext structContext,
                            ClassesProcessor classProcessor,
-                           PoolInterceptor interceptor) {
+                           PoolInterceptor interceptor,
+                           IVariableNamingFactory renamerFactory) {
     Objects.requireNonNull(properties);
     Objects.requireNonNull(logger);
     Objects.requireNonNull(structContext);
@@ -45,6 +49,7 @@ public class DecompilerContext {
     this.structContext = structContext;
     this.classProcessor = classProcessor;
     this.poolInterceptor = interceptor;
+    this.renamerFactory = renamerFactory;
     this.counterContainer = new CounterContainer();
   }
 
@@ -110,6 +115,10 @@ public class DecompilerContext {
 
   public static PoolInterceptor getPoolInterceptor() {
     return getCurrentContext().poolInterceptor;
+  }
+
+  public static IVariableNamingFactory getNamingFactory() {
+    return getCurrentContext().renamerFactory;
   }
 
   public static ImportCollector getImportCollector() {

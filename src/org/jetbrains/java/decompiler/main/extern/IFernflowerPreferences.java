@@ -52,6 +52,8 @@ public interface IFernflowerPreferences {
   String LINE_SEPARATOR_WIN = "\r\n";
   String LINE_SEPARATOR_UNX = "\n";
 
+  String USE_JAD_VARNAMING = "jvn";
+
   Map<String, Object> DEFAULTS = getDefaults();
 
   static Map<String, Object> getDefaults() {
@@ -95,6 +97,7 @@ public interface IFernflowerPreferences {
     defaults.put(UNIT_TEST_MODE, "0");
     defaults.put(DUMP_ORIGINAL_LINES, "0");
     defaults.put(THREADS, String.valueOf(Runtime.getRuntime().availableProcessors()));
+    defaults.put(USE_JAD_VARNAMING, "0");
 
     return Collections.unmodifiableMap(defaults);
   }
