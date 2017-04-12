@@ -3,16 +3,14 @@ package pkg;
 public class TestClassFields {
    private static int[] sizes;
    private static String[] names = new String[]{"name1", "name2"};
-   private static final int SIZE;
+   private static final int SIZE = TestClassFields.Inner.staticMutable;
 
    static {
-      sizes = new int[names.length];// 15
-      TestClassFields.Inner.staticMutable = 3;// 17
-      SIZE = TestClassFields.Inner.staticMutable;// 18
-   }// 19
+      sizes = new int[names.length];// 14
+   }// 17
 
    private static class Inner {
-      private static int staticMutable;
+      private static int staticMutable = 3;
    }
 }
 
@@ -21,17 +19,13 @@ class 'pkg/TestClassFields' {
       11      8
       14      8
       17      8
-      1b      9
-      1f      10
-      22      10
-      25      11
+      20      9
    }
 }
 
 Lines mapping:
-15 <-> 9
+14 <-> 9
 17 <-> 10
-18 <-> 11
-19 <-> 12
 Not mapped:
-14
+9
+16

@@ -31,18 +31,24 @@ public class FieldExprent extends Exprent {
   private final boolean isStatic;
   private Exprent instance;
   private final FieldDescriptor descriptor;
+  private boolean forceQualified = false;
 
   public FieldExprent(LinkConstant cn, Exprent instance, Set<Integer> bytecodeOffsets) {
     this(cn.elementname, cn.classname, instance == null, instance, FieldDescriptor.parseDescriptor(cn.descriptor), bytecodeOffsets);
   }
 
   public FieldExprent(String name, String classname, boolean isStatic, Exprent instance, FieldDescriptor descriptor, Set<Integer> bytecodeOffsets) {
+    this(name, classname, isStatic, instance, descriptor, bytecodeOffsets, false);
+  }
+
+  public FieldExprent(String name, String classname, boolean isStatic, Exprent instance, FieldDescriptor descriptor, Set<Integer> bytecodeOffsets, boolean forceQualified) {
     super(EXPRENT_FIELD);
     this.name = name;
     this.classname = classname;
     this.isStatic = isStatic;
     this.instance = instance;
     this.descriptor = descriptor;
+    this.forceQualified = forceQualified;
 
     addBytecodeOffsets(bytecodeOffsets);
   }
@@ -89,7 +95,7 @@ public class FieldExprent extends Exprent {
 
     if (isStatic) {
       ClassNode node = (ClassNode)DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS_NODE);
-      if (node == null || !classname.equals(node.classStruct.qualifiedName) || isAmbiguous()) {
+      if (node == null || !classname.equals(node.classStruct.qualifiedName) || isAmbiguous() || forceQualified) {
         buf.append(DecompilerContext.getImportCollector().getShortNameInClassContext(ExprProcessor.buildJavaClassName(classname)));
         buf.append(".");
       }
@@ -183,6 +189,10 @@ public class FieldExprent extends Exprent {
 
   public String getName() {
     return name;
+  }
+
+  public void forceQualified(boolean value) {
+    this.forceQualified = value;
   }
 
   // *****************************************************************************
