@@ -2,21 +2,26 @@
 package org.jetbrains.java.decompiler.modules.decompiler.vars;
 
 import org.jetbrains.java.decompiler.main.collectors.VarNamesCollector;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.struct.StructMethod;
+import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribute.LocalVariable;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
+import org.jetbrains.java.decompiler.util.StartEndPair;
 import org.jetbrains.java.decompiler.util.TextUtil;
 
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 public class VarProcessor {
   private final VarNamesCollector varNamesCollector = new VarNamesCollector();
   private final StructMethod method;
   private final MethodDescriptor methodDescriptor;
   private Map<VarVersionPair, String> mapVarNames = new HashMap<>();
+  private Map<VarVersionPair, LocalVariable> mapVarLVTs = new HashMap<>();
   private VarVersionsProcessor varVersions;
   private final Map<VarVersionPair, String> thisVars = new HashMap<>();
   private final Set<VarVersionPair> externalVars = new HashSet<>();
@@ -37,12 +42,12 @@ public class VarProcessor {
     new VarDefinitionHelper(root, method, this).setVarDefinitions();
   }
 
-  public void setDebugVarNames(Map<Integer, String> mapDebugVarNames) {
+  public void setDebugVarNames(Map<VarVersionPair, String> mapDebugVarNames) {
     if (varVersions == null) {
       return;
     }
 
-    Map<Integer, Integer> mapOriginalVarIndices = varVersions.getMapOriginalVarIndices();
+    Map<Integer, VarVersionPair> mapOriginalVarIndices = varVersions.getMapOriginalVarIndices();
 
     List<VarVersionPair> listVars = new ArrayList<>(mapVarNames.keySet());
     listVars.sort(Comparator.comparingInt(o -> o.var));
@@ -52,18 +57,20 @@ public class VarProcessor {
     for (VarVersionPair pair : listVars) {
       String name = mapVarNames.get(pair);
 
-      Integer index = mapOriginalVarIndices.get(pair.var);
-      if (index != null) {
-        String debugName = mapDebugVarNames.get(index);
+      boolean lvtName = false;
+      VarVersionPair key = mapOriginalVarIndices.get(pair.var);
+      if (key != null) {
+        String debugName = mapDebugVarNames.get(key);
         if (debugName != null && TextUtil.isValidIdentifier(debugName, method.getBytecodeVersion())) {
           name = debugName;
+          lvtName = true;
         }
       }
 
       Integer counter = mapNames.get(name);
       mapNames.put(name, counter == null ? counter = 0 : ++counter);
 
-      if (counter > 0) {
+      if (counter > 0 && !lvtName) {
         name += String.valueOf(counter);
       }
 
@@ -72,7 +79,11 @@ public class VarProcessor {
   }
 
   public Integer getVarOriginalIndex(int index) {
-    return varVersions == null ? null : varVersions.getMapOriginalVarIndices().get(index);
+    if (varVersions == null) {
+      return null;
+    }
+    final VarVersionPair pair = varVersions.getMapOriginalVarIndices().get(index);
+    return pair == null ? null : pair.var;
   }
 
   public void refreshVarNames(VarNamesCollector vc) {
@@ -91,7 +102,9 @@ public class VarProcessor {
   }
 
   public void setVarType(VarVersionPair pair, VarType type) {
-    varVersions.setVarType(pair, type);
+    if (varVersions != null) {
+      varVersions.setVarType(pair, type);
+    }
   }
 
   public String getVarName(VarVersionPair pair) {
@@ -120,5 +133,69 @@ public class VarProcessor {
 
   public Set<VarVersionPair> getExternalVars() {
     return externalVars;
+  }
+
+  public List<LocalVariable> getCandidates(int origindex) {
+    if (!hasLVT())
+        return null;
+    return method.getLocalVariableAttr().matchingVars(origindex).collect(Collectors.toList());
+  }
+
+  public void findLVT(VarExprent exprent, int start) {
+    if (!hasLVT())
+      return;
+
+    LocalVariable lvt = method.getLocalVariableAttr().getVariables()
+      .filter(v -> v.getVersion().var == exprent.getIndex() && v.getStart() == start).findFirst().orElse(null);
+
+    if (lvt != null) {
+      exprent.setLVT(lvt);
+    }
+  }
+
+  public void copyVarInfo(VarVersionPair from, VarVersionPair to) {
+    setVarName(to, getVarName(from));
+    setVarFinal(to, getVarFinal(from));
+    setVarType(to, getVarType(from));
+    varVersions.getMapOriginalVarIndices().put(to.var, varVersions.getMapOriginalVarIndices().get(from.var));
+  }
+
+  public boolean hasLVT() {
+    return method.getLocalVariableAttr() != null;
+  }
+  
+
+  public Map<Integer, LocalVariable> getLocalVariables(Statement stat) {
+    if (!hasLVT() || stat == null)
+      return new HashMap<>();
+
+    final StartEndPair sep = stat.getStartEndRange(); 
+    final Set<Integer> blacklist = new HashSet<>();
+    Map<Integer, LocalVariable> ret = method.getLocalVariableAttr().getVariables().filter(lv -> lv.getEnd() > sep.start && lv.getStart() <= sep.end)
+      .collect(Collectors.toMap(lv -> lv.getVersion().var, lv -> lv,
+        (lv1, lv2) -> 
+        {
+          //System.out.println("DUPLICATE INDEX FOR SCOPE: (" +sep +") " + lv1.toString() + " " + lv2.toString());
+          blacklist.add(lv1.getVersion().var);
+          return lv1;
+        }
+      ));
+
+    for (Integer b : blacklist)
+      ret.remove(b);
+
+    return ret;
+  }
+
+  public VarVersionsProcessor getVarVersions() {
+    return varVersions;
+  }
+
+  public void setVarLVT(VarVersionPair var, LocalVariable lvt) {
+    mapVarLVTs.put(var, lvt);
+  }
+
+  public LocalVariable getVarLVT(VarVersionPair var) {
+    return mapVarLVTs.get(var);
   }
 }

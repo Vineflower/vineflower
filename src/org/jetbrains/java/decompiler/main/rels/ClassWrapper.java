@@ -8,7 +8,6 @@ import org.jetbrains.java.decompiler.main.collectors.VarNamesCollector;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
@@ -20,7 +19,6 @@ import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.VBStyleCollection;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class ClassWrapper {
@@ -144,8 +142,9 @@ public class ClassWrapper {
           StructLocalVariableTableAttribute attr = mt.getLocalVariableAttr();
           if (attr != null) {
             // only param names here
-            varProc.setDebugVarNames(attr.getMapParamNames());
+            varProc.setDebugVarNames(attr.getMapNames());
 
+            /*
             // the rest is here
             methodWrapper.getOrBuildGraph().iterateExprents(exprent -> {
               List<Exprent> lst = exprent.getAllExprents(true);
@@ -161,6 +160,7 @@ public class ClassWrapper {
                 });
               return 0;
             });
+            */
           }
         }
       }

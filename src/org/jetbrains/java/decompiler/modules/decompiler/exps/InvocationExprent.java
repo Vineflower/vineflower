@@ -458,7 +458,7 @@ public class InvocationExprent extends Exprent {
     UNBOXING_METHODS.put("charValue", "java/lang/Character");
   }
 
-  private boolean isUnboxingCall() {
+  public boolean isUnboxingCall() {
     return !isStatic && lstParameters.size() == 0 && classname.equals(UNBOXING_METHODS.get(name));
   }
 

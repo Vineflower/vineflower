@@ -41,7 +41,7 @@ public final class CatchStatement extends Statement {
       if (setHandlers.contains(stat)) {
         stats.addWithKey(stat, stat.id);
         exctstrings.add(new ArrayList<>(edge.getExceptions()));
-
+        
         vars.add(new VarExprent(DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.VAR_COUNTER),
                                 new VarType(CodeConstants.TYPE_OBJECT, 0, edge.getExceptions().get(0)),
                                 // FIXME: for now simply the first type. Should get the first common superclass when possible.
