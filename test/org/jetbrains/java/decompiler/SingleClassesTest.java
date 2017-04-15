@@ -14,9 +14,11 @@ public class SingleClassesTest extends SingleClassesTestBase {
       IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
       IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
       IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
+      IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "1"
     };
   }
 
+  @Test public void testGenerics() { doTest("pkg/TestGenerics"); }
   @Test public void testEnhancedForLoops() { doTest("pkg/TestEnhancedForLoops"); }
   @Test public void testPrimitiveNarrowing() { doTest("pkg/TestPrimitiveNarrowing"); }
   @Test public void testClassFields() { doTest("pkg/TestClassFields"); }

@@ -10,6 +10,8 @@ import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
+import org.jetbrains.java.decompiler.struct.StructClass;
+import org.jetbrains.java.decompiler.struct.StructField;
 import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribute;
 import org.jetbrains.java.decompiler.struct.consts.LinkConstant;
 import org.jetbrains.java.decompiler.struct.gen.FieldDescriptor;
@@ -23,7 +25,9 @@ import org.jetbrains.java.decompiler.util.TextUtil;
 
 import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public class FieldExprent extends Exprent {
   private final String name;
@@ -56,6 +60,26 @@ public class FieldExprent extends Exprent {
   @Override
   public VarType getExprType() {
     return descriptor.type;
+  }
+
+  @Override
+  public VarType getInferredExprType(VarType upperBound) {
+    StructClass cl = DecompilerContext.getStructContext().getClass(classname);
+    Map<String, Map<VarType, VarType>> types = cl == null ? Collections.emptyMap() : cl.getAllGenerics();
+
+    StructField ft = null;
+    while(cl != null) {
+      ft = cl.getField(name, descriptor.descriptorString);
+      if (ft != null)
+        break;
+      cl = cl.superClass == null ? null : DecompilerContext.getStructContext().getClass((String)cl.superClass.value);
+    }
+
+    if (ft != null && ft.getSignature() != null) {
+      return ft.getSignature().type.remap(types.getOrDefault(cl.qualifiedName, Collections.emptyMap()));
+    }
+
+    return getExprType();
   }
 
   @Override

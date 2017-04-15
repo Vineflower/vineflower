@@ -126,6 +126,7 @@ public final class DoStatement extends Statement {
         break;
       case LOOP_FOREACH:
         buf.appendIndent(indent).append("for(").append(initExprent.get(0).toJava(indent, tracer));
+        incExprent.get(0).getInferredExprType(null); //TODO: Find a better then null? For now just calls it to clear casts if needed
         buf.append(" : ").append(incExprent.get(0).toJava(indent, tracer)).append(") {").appendLineSeparator();
         tracer.incrementCurrentSourceLine();
         buf.append(ExprProcessor.jmpWrapper(first, indent + 1, true, tracer));

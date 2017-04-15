@@ -4,6 +4,8 @@
 package org.jetbrains.java.decompiler.modules.decompiler.exps;
 
 import org.jetbrains.java.decompiler.code.CodeConstants;
+import org.jetbrains.java.decompiler.util.TextBuffer;
+import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
@@ -186,6 +188,7 @@ public class FunctionExprent extends Exprent {
   private int funcType;
   private VarType implicitType;
   private final List<Exprent> lstOperands;
+  private boolean needsCast = true;
 
   public FunctionExprent(int funcType, ListStack<Exprent> stack, BitSet bytecodeOffsets) {
     this(funcType, new ArrayList<>(), bytecodeOffsets);
@@ -292,6 +295,46 @@ public class FunctionExprent extends Exprent {
 
     return exprType;
   }
+
+  @Override
+  public VarType getInferredExprType(VarType upperBound) {
+    if (funcType == FUNCTION_CAST) {
+      this.needsCast = true;
+      VarType right = lstOperands.get(0).getInferredExprType(upperBound);
+      VarType cast = lstOperands.get(1).getExprType();
+
+      if (upperBound != null && upperBound.isGeneric()) {
+        Map<VarType, List<VarType>> names = this.getNamedGenerics();
+        int arrayDim = 0;
+
+        if (upperBound.arrayDim == right.arrayDim) {
+          arrayDim = upperBound.arrayDim;
+          upperBound = upperBound.resizeArrayDim(0);
+          right = right.resizeArrayDim(0);
+        }
+
+        List<VarType> types = names.get(right);
+        if (types == null) {
+          types = names.get(upperBound);
+        }
+
+        if (types != null) {
+          boolean anyMatch = false; //TODO: allMatch instead of anyMatch?
+          for (VarType type : types) {
+            anyMatch |= DecompilerContext.getStructContext().instanceOf(type.value, cast.value);
+          }
+          if (anyMatch) {
+            this.needsCast = false;
+          }
+        }
+      }
+      else { //TODO: Capture generics to make cast better?
+        this.needsCast = right.type == CodeConstants.TYPE_NULL || !DecompilerContext.getStructContext().instanceOf(right.value, cast.value);
+      }
+    }
+    return getExprType();
+  }
+
 
   @Override
   public int getExprentUse() {
@@ -521,6 +564,9 @@ public class FunctionExprent extends Exprent {
       case FUNCTION_NEG:
         return wrapOperandString(lstOperands.get(0), true, indent, tracer).prepend("-");
       case FUNCTION_CAST:
+        if (!needsCast) {
+          return lstOperands.get(0).toJava(indent, tracer);
+        }
         return lstOperands.get(1).toJava(indent, tracer).enclose("(", ")").append(wrapOperandString(lstOperands.get(0), true, indent, tracer));
       case FUNCTION_ARRAY_LENGTH:
         Exprent arr = lstOperands.get(0);

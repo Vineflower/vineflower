@@ -54,6 +54,11 @@ public class AssignmentExprent extends Exprent {
   }
 
   @Override
+  public VarType getInferredExprType(VarType upperBounds) {
+    return left.getInferredExprType(upperBounds);
+  }
+
+  @Override
   public CheckTypesResult checkExprTypeBounds() {
     CheckTypesResult result = new CheckTypesResult();
 
@@ -93,13 +98,13 @@ public class AssignmentExprent extends Exprent {
 
   @Override
   public TextBuffer toJava(int indent, BytecodeMappingTracer tracer) {
-    VarType leftType = left.getExprType();
-    VarType rightType = right.getExprType();
+    VarType leftType = left.getInferredExprType(null);
+    VarType rightType = right.getInferredExprType(leftType);
 
     boolean fieldInClassInit = false, hiddenField = false;
     if (left.type == Exprent.EXPRENT_FIELD) { // first assignment to a final field. Field name without "this" in front of it
-      FieldExprent field = (FieldExprent)left;
-      ClassNode node = ((ClassNode)DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS_NODE));
+      FieldExprent field = (FieldExprent) left;
+      ClassNode node = ((ClassNode) DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS_NODE));
       if (node != null) {
         StructField fd = node.classStruct.getField(field.getName(), field.getDescriptor().descriptorString);
         if (fd != null) {
@@ -120,9 +125,8 @@ public class AssignmentExprent extends Exprent {
     TextBuffer buffer = new TextBuffer();
 
     if (fieldInClassInit) {
-      buffer.append(((FieldExprent)left).getName());
-    }
-    else {
+      buffer.append(((FieldExprent) left).getName());
+    } else {
       buffer.append(left.toJava(indent, tracer));
     }
 
@@ -135,23 +139,28 @@ public class AssignmentExprent extends Exprent {
     // This is an incredibly hacky fix for booleans being assigned to integer values.
     // Certain cases will cause decompiled code to output "int i = true;` for nonzero constant values and this is a highly naive way to fix it.
     // We check if the buffer containing the variable name starts with "int " and then re-resolve the textbuffer with the int representation instead.
+    // TODO(SC79): Test and remove
     if (this.right.type == EXPRENT_CONST && buffer.toString().startsWith("int ")) {
-      res = new TextBuffer(String.valueOf((int)((ConstExprent)this.right).getValue()));
+      res = new TextBuffer(String.valueOf((int) ((ConstExprent) this.right).getValue()));
     }
 
     if (condType == CONDITION_NONE &&
-        !leftType.isSuperset(rightType) &&
-        (rightType.equals(VarType.VARTYPE_OBJECT) || leftType.type != CodeConstants.TYPE_OBJECT)) {
+      !leftType.isSuperset(rightType) &&
+      (rightType.equals(VarType.VARTYPE_OBJECT) || leftType.type != CodeConstants.TYPE_OBJECT)) {
       if (right.getPrecedence() >= FunctionExprent.getPrecedence(FunctionExprent.FUNCTION_CAST)) {
         res.enclose("(", ")");
       }
 
       res.prepend("(" + ExprProcessor.getCastTypeName(leftType) + ")");
+      if (condType == CONDITION_NONE) {
+        this.wrapInCast(leftType, rightType, res, right.getPrecedence());
+      }
+
+      buffer.append(condType == CONDITION_NONE ? " = " : OPERATORS[condType]).append(res);
+
+      tracer.addMapping(bytecode);
+
     }
-
-    buffer.append(condType == CONDITION_NONE ? " = " : OPERATORS[condType]).append(res);
-
-    tracer.addMapping(bytecode);
 
     return buffer;
   }
