@@ -177,6 +177,11 @@ public class MethodProcessorRunnable implements Runnable {
       //}
     }
 
+    // this has to be done after all inlining is done so the case values do not get reverted
+    if (SwitchHelper.simplifySwitches(root)) {
+      SequenceHelper.condenseSequences(root); // remove empty blocks
+    }
+
     ExitHelper.removeRedundantReturns(root);
 
     SecondaryFunctionsHelper.identifySecondaryFunctions(root, varProc);

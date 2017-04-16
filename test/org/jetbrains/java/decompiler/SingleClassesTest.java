@@ -81,6 +81,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
           "pkg/SharedName2", "pkg/SharedName3", "pkg/SharedName4", "pkg/NonSharedName",
           "pkg/TestClashNameParent", "ext/TestClashNameParent","pkg/TestClashNameIface", "ext/TestClashNameIface"); }
   @Test public void testSwitchOnEnum() { doTest("pkg/TestSwitchOnEnum");}
+  @Test public void testSwitchOnStrings() { doTest("pkg/TestSwitchOnStrings");}
   @Test public void testVarArgCalls() { doTest("pkg/TestVarArgCalls"); }
   @Test public void testLambdaParams() { doTest("pkg/TestLambdaParams"); }
   @Test public void testInterfaceMethods() { doTest("pkg/TestInterfaceMethods"); }
@@ -101,7 +102,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
   @Test public void testPackageInfo() { doTest("pkg/package-info"); }
 
   // TODO: fix all below
-  //@Test public void testSwitchOnStrings() { doTest("pkg/TestSwitchOnStrings");}
   //@Test public void testUnionType() { doTest("pkg/TestUnionType"); }
   //@Test public void testInnerClassConstructor2() { doTest("pkg/TestInner2"); }
   //@Test public void testInUse() { doTest("pkg/TestInUse"); }

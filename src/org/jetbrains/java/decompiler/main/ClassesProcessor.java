@@ -13,6 +13,7 @@ import org.jetbrains.java.decompiler.main.rels.ClassWrapper;
 import org.jetbrains.java.decompiler.main.rels.LambdaProcessor;
 import org.jetbrains.java.decompiler.main.rels.NestedClassProcessor;
 import org.jetbrains.java.decompiler.main.rels.NestedMemberAccess;
+import org.jetbrains.java.decompiler.modules.decompiler.SwitchHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.InvocationExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.struct.StructClass;
@@ -402,14 +403,33 @@ public class ClassesProcessor implements CodeConstants {
       return;
     }
 
+    List<ClassNode> nestedCopy = new ArrayList<>(node.nested);
+
+    for (ClassNode nd : node.nested) {
+      if (shouldInitEarly(nd)) {
+        initWrappers(nd);
+        nestedCopy.remove(nd);
+      }
+    }
+
     ClassWrapper wrapper = new ClassWrapper(node.classStruct);
     wrapper.init();
 
     node.wrapper = wrapper;
 
-    for (ClassNode nd : node.nested) {
+    for (ClassNode nd : nestedCopy) {
       initWrappers(nd);
     }
+  }
+
+  private static boolean shouldInitEarly(ClassNode node) {
+    if (node.classStruct.hasModifier(CodeConstants.ACC_SYNTHETIC)) {
+      if (node.classStruct.getMethods().size() == 1 && node.classStruct.getMethods().get(0).getName().equals(CodeConstants.CLINIT_NAME)) {
+        return node.classStruct.getFields().stream()
+          .allMatch( stField -> stField.getDescriptor().equals("[I") && stField.hasModifier(SwitchHelper.STATIC_FINAL_SYNTHETIC));
+      }
+    }
+    return false;
   }
 
   private static void addClassNameToImport(ClassNode node, ImportCollector imp) {

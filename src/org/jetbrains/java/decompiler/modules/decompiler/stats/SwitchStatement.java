@@ -106,7 +106,6 @@ public final class SwitchStatement extends Statement {
 
   @Override
   public TextBuffer toJava(int indent, BytecodeMappingTracer tracer) {
-    SwitchHelper.simplify(this);
 
     TextBuffer buf = new TextBuffer();
     buf.append(ExprProcessor.listToJava(varDefinitions, indent, tracer));

@@ -21,9 +21,31 @@ public enum TestEnum {
       this("?", (TestEnum.Type)null);// 36
    }
 
-   private TestEnum(@Deprecated String var3, TestEnum.Type var4) {
-      this.s = var3;// 37
+   private TestEnum(@Deprecated String s, TestEnum.Type t) {
+      this.s = s;// 37
    }
+
+   private void testSwitch() {
+      switch(this) {// 40
+      case E1:
+         System.out.println("E1");// 42
+         break;// 43
+      case E2:
+         System.out.println("E2");// 45
+         break;// 46
+      case E3:
+         System.out.println("E3");// 48
+         break;// 49
+      case E4:
+         System.out.println("E4");// 51
+      }
+
+      switch(TestEnum.Type.ODD) {// 55
+      case ODD:
+         System.out.println("ODD");// 57
+      default:
+      }
+   }// 59
 
    private static enum Type {
       ODD,
@@ -66,6 +88,67 @@ class 'pkg/TestEnum' {
       a      24
       b      25
    }
+
+   method 'testSwitch ()V' {
+      0      28
+      1      28
+      2      28
+      3      28
+      4      28
+      5      28
+      6      28
+      8      28
+      28      30
+      29      30
+      2a      30
+      2b      30
+      2c      30
+      2d      30
+      2e      30
+      2f      30
+      30      31
+      33      33
+      34      33
+      35      33
+      36      33
+      37      33
+      38      33
+      39      33
+      3a      33
+      3b      34
+      3e      36
+      3f      36
+      40      36
+      41      36
+      42      36
+      43      36
+      44      36
+      45      36
+      46      37
+      49      39
+      4a      39
+      4b      39
+      4c      39
+      4d      39
+      4e      39
+      51      42
+      52      42
+      53      42
+      54      42
+      55      42
+      56      42
+      57      42
+      58      42
+      59      42
+      5b      42
+      6c      44
+      6d      44
+      6e      44
+      6f      44
+      70      44
+      71      44
+      74      47
+   }
 }
 
 Lines mapping:
@@ -74,3 +157,14 @@ Lines mapping:
 32 <-> 18
 36 <-> 21
 37 <-> 25
+40 <-> 29
+42 <-> 31
+43 <-> 32
+45 <-> 34
+46 <-> 35
+48 <-> 37
+49 <-> 38
+51 <-> 40
+55 <-> 43
+57 <-> 45
+59 <-> 48

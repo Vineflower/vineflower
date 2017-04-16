@@ -35,4 +35,26 @@ public enum TestEnum {
 
   private TestEnum() { this("?", null); }
   private TestEnum(@Deprecated String s, Type t) { this.s = s; }
+
+  private void testSwitch() {
+    switch (this) {
+      case E1:
+        System.out.println("E1");
+        break;
+      case E2:
+        System.out.println("E2");
+        break;
+      case E3:
+        System.out.println("E3");
+        break;
+      case E4:
+        System.out.println("E4");
+        break;
+    }
+
+    switch (Type.ODD) {
+      case ODD:
+        System.out.println("ODD");
+    }
+  }
 }
