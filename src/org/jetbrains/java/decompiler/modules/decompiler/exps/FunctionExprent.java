@@ -621,6 +621,19 @@ public class FunctionExprent extends Exprent {
     }
 
     if (funcType <= FUNCTION_I2S) {
+      // We can't directly cast some object types, so we need to make sure the unboxing happens.
+      // The types seem to be inconsistant but there is no harm in forcing the unboxing when not strictly needed.
+      // Type   | Works | Doesn't
+      // Integer| LFD   | BCS
+      // Long   | FD    | I
+      // Float  | D     | IL
+      // Double |       | ILF
+      if (lstOperands.get(0).type == Exprent.EXPRENT_INVOCATION) {
+        InvocationExprent inv = (InvocationExprent)lstOperands.get(0);
+        if (inv.isUnboxingCall()) {
+          inv.forceUnboxing(true);
+        }
+      }
       return wrapOperandString(lstOperands.get(0), true, indent, tracer).prepend("(" + ExprProcessor.getTypeName(
         TYPES[funcType - FUNCTION_I2L]) + ")");
     }
