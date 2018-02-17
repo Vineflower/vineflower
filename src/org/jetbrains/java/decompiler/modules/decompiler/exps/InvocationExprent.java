@@ -406,6 +406,7 @@ public class InvocationExprent extends Exprent {
         isEnum = newNode.classStruct.hasModifier(CodeConstants.ACC_ENUM) && DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_ENUM);
       }
     }
+    ClassNode currCls = ((ClassNode)DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS_NODE));
     List<StructMethod> matches = getMatchedDescriptors();
     BitSet setAmbiguousParameters = getAmbiguousParameters(matches);
     StructMethod desc = null;
@@ -466,7 +467,7 @@ public class InvocationExprent extends Exprent {
           if (stClass != null) {
             nextMethod:
             for (StructMethod mt : stClass.getMethods()) {
-              if (name.equals(mt.getName())) {
+              if (name.equals(mt.getName()) && (currCls == null || canAccess(currCls.classStruct, mt))) {
                 MethodDescriptor md = MethodDescriptor.parseDescriptor(mt.getDescriptor());
                 if (md.params.length == descriptor.params.length) {
                   for (int x = 0; x < md.params.length; x++) {
@@ -500,7 +501,7 @@ public class InvocationExprent extends Exprent {
         else if (inv.isUnboxingCall() && !inv.shouldForceUnboxing()) {
           StructClass stClass = DecompilerContext.getStructContext().getClass(classname);
           for (StructMethod mt : stClass.getMethods()) {
-            if (name.equals(mt.getName()) && !stringDescriptor.equals(mt.getDescriptor())) {
+            if (name.equals(mt.getName()) && (currCls == null || canAccess(currCls.classStruct, mt)) && !stringDescriptor.equals(mt.getDescriptor())) {
               MethodDescriptor md = MethodDescriptor.parseDescriptor(mt.getDescriptor());
               if (md.params.length == descriptor.params.length) {
                 if (md.params[i].type == CodeConstants.TYPE_OBJECT) {
@@ -514,6 +515,22 @@ public class InvocationExprent extends Exprent {
           }
         }
       }
+    }
+
+    if (instance != null && !genArgs.isEmpty()) {
+        StructClass stClass = DecompilerContext.getStructContext().getClass(classname);
+        StructMethod me = stClass.getMethodRecursive(getName(), getStringDescriptor());
+        if (me != null && me.getSignature() != null) {
+            for (int x = 0; x < types.length; x++) {
+                VarType type = me.getSignature().parameterTypes.get(x);
+                if (type.isGeneric()) {
+                    VarType _new = type.remap(genArgs);
+                    if (_new != type) {
+                        types[x] = _new;
+                    }
+                }
+            }
+        }
     }
 
 
@@ -678,25 +695,96 @@ public class InvocationExprent extends Exprent {
 
   private List<StructMethod> getMatchedDescriptors() {
     List<StructMethod> matches = new ArrayList<>();
+    ClassNode currCls = ((ClassNode)DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS_NODE));
     StructClass cl = DecompilerContext.getStructContext().getClass(classname);
     if (cl == null) return matches;
 
-    nextMethod:
-    for (StructMethod mt : cl.getMethods()) {
-      if (name.equals(mt.getName())) {
-        MethodDescriptor md = MethodDescriptor.parseDescriptor(mt.getDescriptor());
-        if (md.params.length == descriptor.params.length) {
-          for (int i = 0; i < md.params.length; i++) {
-            if (md.params[i].typeFamily != descriptor.params[i].typeFamily) {
-              continue nextMethod;
-            }
+    Set<String> visited = new HashSet<>();
+    Queue<StructClass> que = new ArrayDeque<>();
+    que.add(cl);
+
+    while (!que.isEmpty()) {
+      StructClass cls = que.poll();
+      if (cls == null)
+          continue;
+
+      for (StructMethod mt : cls.getMethods()) {
+        if (name.equals(mt.getName())) {
+          MethodDescriptor md = MethodDescriptor.parseDescriptor(mt.getDescriptor());
+          if (matches(md.params, descriptor.params) && (currCls == null || canAccess(currCls.classStruct, mt))) {
+            matches.add(mt);
           }
-          matches.add(mt);
         }
       }
+
+      if (cls == cl && !matches.isEmpty()) {
+        return matches;
+      }
+
+      visited.add(cls.qualifiedName);
+      if (cls.superClass != null && !visited.contains(cls.superClass.value)) {
+        StructClass tmp = DecompilerContext.getStructContext().getClass((String)cls.superClass.value);
+        if (tmp != null) {
+          que.add(tmp);
+        }
+      }
+
+      for (String intf : cls.getInterfaceNames()) {
+        if (!visited.contains(intf)) {
+          StructClass tmp = DecompilerContext.getStructContext().getClass(intf);
+          if (tmp != null) {
+            que.add(tmp);
+          }
+        }
+      }
+
     }
 
     return matches;
+  }
+
+  private boolean matches(VarType[] left, VarType[] right) {
+    if (left.length == right.length) {
+      for (int i = 0; i < left.length; i++) {
+        if (left[i].typeFamily != right[i].typeFamily) {
+          return false;
+        }
+      }
+      return true;
+    }
+    return false;
+  }
+
+  private boolean canAccess(StructClass currCls, StructMethod mt) {
+    if (mt.hasModifier(CodeConstants.ACC_PUBLIC)) {
+      return true;
+    }
+    else if (mt.hasModifier(CodeConstants.ACC_PRIVATE)) {
+      return mt.getClassQualifiedName().equals(currCls.qualifiedName);
+    }
+    else if (mt.hasModifier(CodeConstants.ACC_PROTECTED)) {
+      boolean samePackage = isInSamePackage(currCls.qualifiedName, mt.getClassQualifiedName());
+      return samePackage || DecompilerContext.getStructContext().instanceOf(currCls.qualifiedName, mt.getClassQualifiedName());
+    }
+    else {
+      return isInSamePackage(currCls.qualifiedName, mt.getClassQualifiedName());
+    }
+  }
+
+  private boolean isInSamePackage(String class1, String class2) {
+    int pos1 = class1.lastIndexOf('/');
+    int pos2 = class2.lastIndexOf('/');
+    if (pos1 != pos2) {
+      return false;
+    }
+
+    if (pos1 == -1) {
+      return true;
+    }
+
+    String pkg1 = class1.substring(0, pos1);
+    String pkg2 = class2.substring(0, pos2);
+    return pkg1.equals(pkg2);
   }
 
   private BitSet getAmbiguousParameters(List<StructMethod> matches) {

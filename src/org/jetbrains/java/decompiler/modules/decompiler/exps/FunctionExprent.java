@@ -7,6 +7,8 @@ import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
+import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger.Severity;
+import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
@@ -303,11 +305,11 @@ public class FunctionExprent extends Exprent {
       VarType right = lstOperands.get(0).getInferredExprType(upperBound);
       VarType cast = lstOperands.get(1).getExprType();
 
-      if (upperBound != null && upperBound.isGeneric()) {
+      if (upperBound != null && (upperBound.isGeneric() || right.isGeneric())) {
         Map<VarType, List<VarType>> names = this.getNamedGenerics();
         int arrayDim = 0;
 
-        if (upperBound.arrayDim == right.arrayDim) {
+        if (upperBound.arrayDim == right.arrayDim && upperBound.arrayDim > 0) {
           arrayDim = upperBound.arrayDim;
           upperBound = upperBound.resizeArrayDim(0);
           right = right.resizeArrayDim(0);
@@ -326,6 +328,15 @@ public class FunctionExprent extends Exprent {
           if (anyMatch) {
             this.needsCast = false;
           }
+        }
+        else {
+            this.needsCast = right.type == CodeConstants.TYPE_NULL || !DecompilerContext.getStructContext().instanceOf(right.value, upperBound.value);
+        }
+        if (!this.needsCast) {
+          if (arrayDim > 0) {
+            right = right.resizeArrayDim(arrayDim);
+          }
+          return right;
         }
       }
       else { //TODO: Capture generics to make cast better?
@@ -638,7 +649,7 @@ public class FunctionExprent extends Exprent {
         TYPES[funcType - FUNCTION_I2L]) + ")");
     }
 
-    //		return "<unknown function>";
+    //        return "<unknown function>";
     throw new RuntimeException("invalid function");
   }
 
@@ -719,7 +730,7 @@ public class FunctionExprent extends Exprent {
     measureBytecode(values, lstOperands);
     measureBytecode(values);
   }
-  
+
   // *****************************************************************************
   // IMatchable implementation
   // *****************************************************************************
