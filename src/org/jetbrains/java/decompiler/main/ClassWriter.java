@@ -900,7 +900,9 @@ public class ClassWriter {
             }
 
             if ((flags & (CodeConstants.ACC_ABSTRACT | CodeConstants.ACC_NATIVE)) != 0) {
-              parameterName = methodWrapper.methodStruct.getVariableNamer().renameAbstractParameter(parameterName, index);
+              String newParameterName = methodWrapper.methodStruct.getVariableNamer().renameAbstractParameter(parameterName, index);
+              parameterName = !newParameterName.equals(parameterName) ? newParameterName : DecompilerContext.getStructContext().renameAbstractParameter(methodWrapper.methodStruct.getClassQualifiedName(), mt.getName(), mt.getDescriptor(), index - (((flags & CodeConstants.ACC_STATIC) == 0) ? 1 : 0), parameterName);
+
             }
 
             buffer.append(parameterName == null ? "param" + index : parameterName); // null iff decompiled with errors
