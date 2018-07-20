@@ -101,7 +101,7 @@ public class ConsoleDecompiler implements IBytecodeProvider, IResultSaver {
     }
 
     File destination = new File(args[args.length - 1]);
-    if (!destination.isDirectory()) {
+    if (!destination.isDirectory() && (sources.size() > 1 || !sources.get(0).isFile())) {
       System.out.println("error: destination '" + destination + "' is not a directory");
       return;
     }
@@ -141,7 +141,7 @@ public class ConsoleDecompiler implements IBytecodeProvider, IResultSaver {
 
   protected ConsoleDecompiler(File destination, Map<String, Object> options, IFernflowerLogger logger) {
     root = destination;
-    engine = new Fernflower(this, this, options, logger);
+    engine = new Fernflower(this, root.isDirectory() ? this : new SingleFileSaver(destination), options, logger);
   }
 
   public void addSource(File source) {
