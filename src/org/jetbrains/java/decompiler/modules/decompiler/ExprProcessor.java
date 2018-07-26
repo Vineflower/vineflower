@@ -617,6 +617,20 @@ public class ExprProcessor implements CodeConstants {
           break;
         case opc_pop:
           stack.pop();
+          // check for synthetic getClass calls added by the compiler
+          // see https://stackoverflow.com/a/20130641
+          if (i > 0) {
+            Exprent last = exprlist.get(exprlist.size() - 1);
+            if (last.type == Exprent.EXPRENT_ASSIGNMENT && ((AssignmentExprent)last).getRight().type == Exprent.EXPRENT_INVOCATION) {
+              InvocationExprent invocation = (InvocationExprent)((AssignmentExprent)last).getRight();
+              if (i + 1 < seq.length() && !invocation.isStatic() && invocation.getName().equals("getClass") && invocation.getStringDescriptor().equals("()Ljava/lang/Class;")) {
+                int nextOpc = seq.getInstr(i + 1).opcode;
+                if (nextOpc >= opc_aconst_null && nextOpc <= opc_ldc2_w) {
+                  invocation.setSyntheticGetClass();
+                }
+              }
+            }
+          }
           break;
         case opc_pop2:
           if (stack.getByOffset(-1).getExprType().stackSize == 1) {

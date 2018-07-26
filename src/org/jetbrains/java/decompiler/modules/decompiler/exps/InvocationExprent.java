@@ -61,6 +61,7 @@ public class InvocationExprent extends Exprent {
   private List<VarType> genericArgs = new ArrayList<>();
   private boolean forceBoxing = false;
   private boolean forceUnboxing = false;
+  private boolean isSyntheticGetClass = false;
 
   public InvocationExprent() {
     super(EXPRENT_INVOCATION);
@@ -161,6 +162,7 @@ public class InvocationExprent extends Exprent {
 
     addBytecodeOffsets(expr.bytecode);
     bootstrapArguments = expr.getBootstrapArguments();
+    isSyntheticGetClass = expr.isSyntheticGetClass();
   }
 
   @Override
@@ -966,6 +968,14 @@ public class InvocationExprent extends Exprent {
 
   public List<PooledConstant> getBootstrapArguments() {
     return bootstrapArguments;
+  }
+
+  public void setSyntheticGetClass() {
+    isSyntheticGetClass = true;
+  }
+
+  public boolean isSyntheticGetClass() {
+    return isSyntheticGetClass;
   }
 
   @Override

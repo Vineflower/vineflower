@@ -71,6 +71,10 @@ public class SimplifyExprentsHelper {
           if (changed) {
             break;
           }
+
+          if (!st.getStats().isEmpty() && hasQualifiedNewGetClass(st, st.getStats().get(0))) {
+            break;
+          }
         }
 
         res |= changed;
@@ -505,21 +509,43 @@ public class SimplifyExprentsHelper {
     return false;
   }
 
+  private static boolean hasQualifiedNewGetClass(Statement parent, Statement child) {
+    if (child.type == Statement.TYPE_BASICBLOCK && child.getExprents() != null && !child.getExprents().isEmpty()) {
+      Exprent firstExpr = child.getExprents().get(child.getExprents().size() - 1);
+
+      if (parent.type == Statement.TYPE_IF) {
+        if (isQualifiedNewGetClass(firstExpr, ((IfStatement)parent).getHeadexprent().getCondition())) {
+          child.getExprents().remove(firstExpr);
+          return true;
+        }
+      }
+      // TODO DoStatements ?
+    }
+    return false;
+  }
+
   private static boolean isQualifiedNewGetClass(Exprent first, Exprent second) {
     if (first.type == Exprent.EXPRENT_INVOCATION) {
       InvocationExprent invocation = (InvocationExprent)first;
 
-      if (!invocation.isStatic() && invocation.getInstance().type == Exprent.EXPRENT_VAR && invocation.getName().equals("getClass") &&
-          invocation.getStringDescriptor().equals("()Ljava/lang/Class;")) {
+      if (!invocation.isStatic() &&
+           invocation.getName().equals("getClass") && invocation.getStringDescriptor().equals("()Ljava/lang/Class;")) {
 
-        List<Exprent> lstExprents = second.getAllExprents();
+        if (invocation.isSyntheticGetClass()) {
+          return true;
+        }
+
+        LinkedList<Exprent> lstExprents = new LinkedList<>();
         lstExprents.add(second);
 
-        for (Exprent expr : lstExprents) {
+        while (!lstExprents.isEmpty()){
+          Exprent expr = lstExprents.removeFirst();
+          lstExprents.addAll(expr.getAllExprents());
           if (expr.type == Exprent.EXPRENT_NEW) {
             NewExprent newExpr = (NewExprent)expr;
             if (newExpr.getConstructor() != null && !newExpr.getConstructor().getLstParameters().isEmpty() &&
-                newExpr.getConstructor().getLstParameters().get(0).equals(invocation.getInstance())) {
+              (newExpr.getConstructor().getLstParameters().get(0).equals(invocation.getInstance()) ||
+                newExpr.getConstructor().getLstParameters().get(0).getExprType().equals(invocation.getInstance().getExprType()))) {
 
               String classname = newExpr.getNewType().value;
               ClassNode node = DecompilerContext.getClassProcessor().getMapRootClasses().get(classname);
