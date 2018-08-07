@@ -4,6 +4,8 @@ package org.jetbrains.java.decompiler.modules.decompiler.stats;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
+import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.modules.decompiler.DecHelper;
@@ -14,12 +16,19 @@ import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.List;
 import java.util.Set;
 
 public final class CatchStatement extends Statement {
+  public static final int NORMAL = 0;
+  public static final int RESORCES = 1;
+
   private final List<List<String>> exctstrings = new ArrayList<>();
   private final List<VarExprent> vars = new ArrayList<>();
+  private final List<Exprent> resources = new ArrayList<>();
+
+  private int tryType;
 
   // *****************************************************************************
   // constructors
@@ -27,6 +36,7 @@ public final class CatchStatement extends Statement {
 
   private CatchStatement() {
     type = TYPE_TRYCATCH;
+    tryType = NORMAL;
   }
 
   private CatchStatement(Statement head, Statement next, Set<Statement> setHandlers) {
@@ -141,8 +151,25 @@ public final class CatchStatement extends Statement {
       tracer.incrementCurrentSourceLine();
     }
 
-    buf.appendIndent(indent).append("try {").appendLineSeparator();
-    tracer.incrementCurrentSourceLine();
+    if (tryType == NORMAL) {
+      buf.appendIndent(indent).append("try {").appendLineSeparator();
+      tracer.incrementCurrentSourceLine();
+    }
+    else {
+      buf.appendIndent(indent).append("try (");
+
+      if (resources.size() > 1) {
+        buf.appendLineSeparator();
+        tracer.incrementCurrentSourceLine();
+        buf.append(ExprProcessor.listToJava(resources, indent + 1, tracer));
+        buf.appendIndent(indent);
+      }
+      else {
+        buf.append(resources.get(0).toJava(indent + 1, tracer));
+      }
+      buf.append(") {").appendLineSeparator();
+      tracer.incrementCurrentSourceLine();
+    }
 
     buf.append(ExprProcessor.jmpWrapper(first, indent + 1, true, tracer));
     buf.appendIndent(indent).append("}");
@@ -179,6 +206,15 @@ public final class CatchStatement extends Statement {
     return buf;
   }
 
+  public List<Object> getSequentialObjects() {
+
+    List<Object> lst = new ArrayList<>(resources);
+    lst.addAll(stats);
+    lst.addAll(vars);
+
+    return lst;
+  }
+
   @Override
   public Statement getSimpleCopy() {
     CatchStatement cs = new CatchStatement();
@@ -193,11 +229,35 @@ public final class CatchStatement extends Statement {
     return cs;
   }
 
+  public void getOffset(BitSet values) {
+    super.getOffset(values);
+
+    for (Exprent exp : this.getResources()) {
+      exp.getBytecodeRange(values);
+    }
+  }
+
   // *****************************************************************************
   // getter and setter methods
   // *****************************************************************************
 
+  public List<List<String>> getExctStrings() {
+    return exctstrings;
+  }
+
   public List<VarExprent> getVars() {
     return vars;
+  }
+
+  public int getTryType() {
+    return tryType;
+  }
+
+  public void setTryType(int tryType) {
+    this.tryType = tryType;
+  }
+
+  public List<Exprent> getResources() {
+    return resources;
   }
 }

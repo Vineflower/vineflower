@@ -126,6 +126,13 @@ public class FlattenStatementsHelper {
           case Statement.TYPE_TRYCATCH:
             DirectNode firstnd = new DirectNode(DirectNode.NODE_TRY, stat, stat.id + "_try");
 
+            if (stat.type == Statement.TYPE_TRYCATCH) {
+              CatchStatement catchStat = (CatchStatement)stat;
+              if (catchStat.getTryType() == CatchStatement.RESORCES) {
+                firstnd.exprents = catchStat.getResources();
+              }
+            }
+
             mapDestinationNodes.put(stat.id, new String[]{firstnd.id, null});
             graph.nodes.putWithKey(firstnd, firstnd.id);
 
