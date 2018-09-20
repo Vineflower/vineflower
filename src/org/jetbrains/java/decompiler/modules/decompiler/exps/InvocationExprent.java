@@ -804,7 +804,8 @@ public class InvocationExprent extends Exprent {
       if (md.params.length == lstParameters.size()) {
         boolean exact = true;
         for (int i = 0; i < md.params.length; i++) {
-          if (!md.params[i].equals(lstParameters.get(i).getExprType())) {
+          Exprent exp = lstParameters.get(i);
+          if (!md.params[i].equals(exp.getExprType()) || (exp.type == EXPRENT_NEW && ((NewExprent)exp).isLambda() && !((NewExprent)exp).isMethodReference())) {
             exact = false;
             missed.set(i);
           }
@@ -818,7 +819,8 @@ public class InvocationExprent extends Exprent {
       boolean failed = false;
       MethodDescriptor md = MethodDescriptor.parseDescriptor(mtt.getDescriptor());
       for (int i = 0; i < lstParameters.size(); i++) {
-        VarType ptype = lstParameters.get(i).getExprType();
+        Exprent exp = lstParameters.get(i);
+        VarType ptype = exp.getExprType();
         if (!missed.get(i)) {
           if (!md.params[i].equals(ptype)) {
             failed = true;
@@ -826,6 +828,17 @@ public class InvocationExprent extends Exprent {
           }
         }
         else {
+          if (exp.type == EXPRENT_NEW) {
+            NewExprent newExp = (NewExprent)exp;
+            if (newExp.isLambda() && !newExp.isMethodReference() && !DecompilerContext.getStructContext().instanceOf(md.params[i].value, exp.getExprType().value)) {
+              StructClass pcls = DecompilerContext.getStructContext().getClass(md.params[i].value);
+              if (pcls != null && pcls.getMethod(newExp.getLambdaMethodKey()) == null) {
+                failed = true;
+                break;
+              }
+              continue;
+            }
+          }
           if (md.params[i].type == CodeConstants.TYPE_OBJECT) {
             if (ptype.type != CodeConstants.TYPE_NULL) {
               if (!DecompilerContext.getStructContext().instanceOf(ptype.value, md.params[i].value)) {
@@ -853,7 +866,10 @@ public class InvocationExprent extends Exprent {
 
         GenericMethodDescriptor gen = mtt.getSignature(); //TODO: Find synthetic flags for params, as Enum generic signatures do no contain the String,int params
         if (gen != null && gen.parameterTypes.size() > i && gen.parameterTypes.get(i).isGeneric()) {
-          break;
+          Exprent exp = lstParameters.get(i);
+          if (exp.type != EXPRENT_NEW || !((NewExprent)exp).isLambda() || ((NewExprent)exp).isMethodReference()) {
+            break;
+          }
         }
 
         MethodDescriptor md = MethodDescriptor.parseDescriptor(mtt.getDescriptor());

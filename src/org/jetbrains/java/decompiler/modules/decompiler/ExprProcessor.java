@@ -910,6 +910,9 @@ public class ExprProcessor implements CodeConstants {
       (castNull && rightType.type == CodeConstants.TYPE_NULL && !UNDEFINED_TYPE_STRING.equals(getTypeName(leftType))) ||
       (castNarrowing && isIntConstant(exprent) && isNarrowedIntType(leftType));
 
+    boolean castLambda = !cast && exprent.type == Exprent.EXPRENT_NEW && !leftType.equals(rightType) &&
+                          lambdaNeedsCast(leftType, (NewExprent)exprent);
+
     boolean quote = cast && exprent.getPrecedence() >= FunctionExprent.getPrecedence(FunctionExprent.FUNCTION_CAST);
 
     // cast instead to 'byte' / 'short' when int constant is used as a value for 'Byte' / 'Short'
@@ -923,6 +926,8 @@ public class ExprProcessor implements CodeConstants {
     }
 
     if (cast) buffer.append('(').append(getCastTypeName(leftType)).append(')');
+
+    if (castLambda) buffer.append('(').append(getCastTypeName(rightType)).append(')');
 
     if (quote) buffer.append('(');
 
@@ -955,5 +960,13 @@ public class ExprProcessor implements CodeConstants {
   private static boolean isNarrowedIntType(VarType type) {
     return VarType.VARTYPE_INT.isStrictSuperset(type) ||
            type.equals(VarType.VARTYPE_BYTE_OBJ) || type.equals(VarType.VARTYPE_SHORT_OBJ);
+  }
+
+  private static boolean lambdaNeedsCast(VarType left, NewExprent exprent) {
+    if (exprent.isLambda() && !exprent.isMethodReference()) {
+      StructClass cls = DecompilerContext.getStructContext().getClass(left.value);
+      return cls == null || cls.getMethod(exprent.getLambdaMethodKey()) == null;
+    }
+    return false;
   }
 }
