@@ -5,6 +5,16 @@ compileJava {
   targetCompatibility '1.8'
 }
 
+group = 'org.jetbrains'
+archivesBaseName = 'intellij-fernflower'
+
+version = '1.0.0'
+
+def ENV = System.getenv()
+if (ENV.BUILD_NUMBER) {
+    version = version + "." + "${ENV.BUILD_NUMBER}"
+}
+
 sourceSets {
   main.java.srcDirs 'src'
   test.java.srcDirs 'test'
@@ -17,8 +27,9 @@ dependencies {
 }
 
 jar {
-  archiveName 'fernflower.jar'
   manifest {
     attributes 'Main-Class': 'org.jetbrains.java.decompiler.main.decompiler.ConsoleDecompiler'
   }
 }
+
+apply from: 'https://github.com/FabricMC/fabric-docs/raw/master/gradle/maven.gradle'
