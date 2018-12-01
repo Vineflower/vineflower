@@ -199,7 +199,7 @@ public class ConsoleDecompiler implements IBytecodeProvider, IResultSaver {
 
   @Override
   public void saveDirEntry(String path, String archiveName, String entryName) {
-    saveClassEntry(path, archiveName, null, entryName, null);
+    saveClassEntry(path, archiveName, null, entryName, null, null);
   }
 
   @Override
@@ -227,7 +227,7 @@ public class ConsoleDecompiler implements IBytecodeProvider, IResultSaver {
   }
 
   @Override
-  public void saveClassEntry(String path, String archiveName, String qualifiedName, String entryName, String content) {
+  public void saveClassEntry(String path, String archiveName, String qualifiedName, String entryName, String content, int[] mapping) {
     String file = new File(getAbsolutePath(path), archiveName).getPath();
 
     if (!checkEntry(entryName, file)) {

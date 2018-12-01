@@ -131,7 +131,11 @@ public class ContextUnit {
           String entryName = decompiledData.getClassEntryName(cl, classEntries.get(i));
           if (entryName != null) {
             String content = decompiledData.getClassContent(cl);
-            resultSaver.saveClassEntry(archivePath, filename, cl.qualifiedName, entryName, content);
+            int[] mapping = null;
+            if (DecompilerContext.getOption(IFernflowerPreferences.BYTECODE_SOURCE_MAPPING)) {
+              mapping = DecompilerContext.getBytecodeSourceMapper().getOriginalLinesMapping();
+            }
+            resultSaver.saveClassEntry(archivePath, filename, cl.qualifiedName, entryName, content, mapping);
           }
         }
 
