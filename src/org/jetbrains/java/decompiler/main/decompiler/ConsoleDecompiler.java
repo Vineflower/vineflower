@@ -80,7 +80,6 @@ public class ConsoleDecompiler implements IBytecodeProvider, IResultSaver {
     }
 
     decompiler.decompileContext();
-    decompiler.closeAllArchives();
   }
 
   @SuppressWarnings("UseOfSystemOutOrSystemErr")
@@ -100,7 +99,6 @@ public class ConsoleDecompiler implements IBytecodeProvider, IResultSaver {
 
   private final File root;
   private final Fernflower engine;
-  private final Map<String, FileOutputStream> mapArchiveFileStreams = new HashMap<>();
   private final Map<String, ZipOutputStream> mapArchiveStreams = new HashMap<>();
   private final Map<String, Set<String>> mapArchiveEntries = new HashMap<>();
 
@@ -192,7 +190,6 @@ public class ConsoleDecompiler implements IBytecodeProvider, IResultSaver {
 
       FileOutputStream fileStream = new FileOutputStream(file);
       ZipOutputStream zipStream = manifest != null ? new JarOutputStream(fileStream, manifest) : new ZipOutputStream(fileStream);
-      mapArchiveFileStreams.put(file.getPath(), fileStream);
       mapArchiveStreams.put(file.getPath(), zipStream);
     }
     catch (IOException ex) {
@@ -267,24 +264,9 @@ public class ConsoleDecompiler implements IBytecodeProvider, IResultSaver {
     try {
       mapArchiveEntries.remove(file);
       mapArchiveStreams.remove(file).close();
-      mapArchiveFileStreams.remove(file).close();
     }
     catch (IOException ex) {
       DecompilerContext.getLogger().writeMessage("Cannot close " + file, IFernflowerLogger.Severity.WARN);
     }
-  }
-
-  public void closeAllArchives() {
-    for (String file : mapArchiveEntries.keySet()) {
-      try {
-        mapArchiveStreams.remove(file).close();
-        mapArchiveFileStreams.remove(file).close();
-      }
-      catch (IOException ex) {
-        DecompilerContext.getLogger().writeMessage("Cannot close " + file, IFernflowerLogger.Severity.WARN);
-      }
-    }
-
-    mapArchiveEntries.clear();
   }
 }
