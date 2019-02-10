@@ -32,4 +32,13 @@ jar {
   }
 }
 
+task sourceJar(type:Jar) {
+  classifier = "sources"
+  from sourceSets.main.allSource
+}
+
+artifacts {
+  archives sourceJar
+}
+
 apply from: 'https://github.com/FabricMC/fabric-docs/raw/master/gradle/maven.gradle'
