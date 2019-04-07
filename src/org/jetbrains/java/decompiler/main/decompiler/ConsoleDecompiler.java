@@ -1,6 +1,7 @@
 // Copyright 2000-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.main.decompiler;
 
+import net.fabricmc.fernflower.api.IFabricResultSaver;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.Fernflower;
 import org.jetbrains.java.decompiler.main.extern.IBytecodeProvider;
@@ -199,7 +200,7 @@ public class ConsoleDecompiler implements IBytecodeProvider, IResultSaver {
 
   @Override
   public void saveDirEntry(String path, String archiveName, String entryName) {
-    saveClassEntry(path, archiveName, null, entryName, null, null);
+    saveClassEntry(path, archiveName, null, entryName, null);
   }
 
   @Override
@@ -227,7 +228,7 @@ public class ConsoleDecompiler implements IBytecodeProvider, IResultSaver {
   }
 
   @Override
-  public void saveClassEntry(String path, String archiveName, String qualifiedName, String entryName, String content, int[] mapping) {
+  public void saveClassEntry(String path, String archiveName, String qualifiedName, String entryName, String content) {
     String file = new File(getAbsolutePath(path), archiveName).getPath();
 
     if (!checkEntry(entryName, file)) {

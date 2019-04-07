@@ -1,6 +1,7 @@
 // Copyright 2000-2017 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.struct;
 
+import net.fabricmc.fernflower.api.IFabricResultSaver;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.extern.IResultSaver;
@@ -135,7 +136,11 @@ public class ContextUnit {
             if (DecompilerContext.getOption(IFernflowerPreferences.BYTECODE_SOURCE_MAPPING)) {
               mapping = DecompilerContext.getBytecodeSourceMapper().getOriginalLinesMapping();
             }
-            resultSaver.saveClassEntry(archivePath, filename, cl.qualifiedName, entryName, content, mapping);
+            if (resultSaver instanceof IFabricResultSaver) {
+              ((IFabricResultSaver) resultSaver).saveClassEntry(archivePath, filename, cl.qualifiedName, entryName, content, mapping);
+            } else {
+              resultSaver.saveClassEntry(archivePath, filename, cl.qualifiedName, entryName, content);
+            }
           }
         }
 
