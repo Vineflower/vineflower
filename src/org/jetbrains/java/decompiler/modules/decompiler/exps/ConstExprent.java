@@ -3,6 +3,7 @@ package org.jetbrains.java.decompiler.modules.decompiler.exps;
 
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
 import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
@@ -126,6 +127,12 @@ public class ConstExprent extends Exprent {
     this.value = value;
     this.boolPermitted = boolPermitted;
     addBytecodeOffsets(bytecodeOffsets);
+
+    if (constType.equals(VarType.VARTYPE_CLASS) && value != null) {
+      String stringVal = value.toString();
+      List<VarType> args = Collections.singletonList(new VarType(stringVal, !stringVal.startsWith("[")));
+      this.constType = new GenericType(constType.type, constType.arrayDim, constType.value, null, args, GenericType.WILDCARD_NO);
+    }
   }
 
   private static VarType guessType(int val, boolean boolPermitted) {

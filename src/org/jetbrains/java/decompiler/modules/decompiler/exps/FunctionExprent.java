@@ -343,6 +343,11 @@ public class FunctionExprent extends Exprent {
         this.needsCast = right.type == CodeConstants.TYPE_NULL || !DecompilerContext.getStructContext().instanceOf(right.value, cast.value);
       }
     }
+    else if (funcType == FUNCTION_IIF) {
+      // TODO return common generic type?
+      lstOperands.get(1).getInferredExprType(upperBound);
+      lstOperands.get(2).getInferredExprType(upperBound);
+    }
     return getExprType();
   }
 
@@ -723,6 +728,16 @@ public class FunctionExprent extends Exprent {
 
   public void setImplicitType(VarType implicitType) {
     this.implicitType = implicitType;
+  }
+
+  public boolean doesCast() {
+    return needsCast;
+  }
+
+  public void setInvocationInstance() {
+    if (funcType == FUNCTION_CAST) {
+      lstOperands.get(0).setInvocationInstance();
+    }
   }
 
   @Override

@@ -5,7 +5,16 @@ import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.ClassWriter;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.main.rels.ClassWrapper;
+import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
+import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.DummyExitStatement;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
+import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.consts.PrimitiveConstant;
+import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
+import org.jetbrains.java.decompiler.struct.gen.generics.GenericMethodDescriptor;
+import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
@@ -21,9 +30,13 @@ import org.jetbrains.java.decompiler.util.ListStack;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 public class NewExprent extends Exprent {
   private InvocationExprent constructor;
@@ -37,6 +50,7 @@ public class NewExprent extends Exprent {
   private boolean methodReference = false;
   private boolean enumConst;
   private List<VarType> genericArgs = new ArrayList<>();
+  private VarType inferredLambdaType = null;
 
   public NewExprent(VarType newType, ListStack<Exprent> stack, int arrayDim, BitSet bytecodeOffsets) {
     this(newType, getDimensions(arrayDim, stack), bytecodeOffsets);
@@ -79,18 +93,162 @@ public class NewExprent extends Exprent {
   @Override
   public VarType getInferredExprType(VarType upperBound) {
     genericArgs.clear();
-    if (newType.type == CodeConstants.TYPE_OBJECT && newType.arrayDim == 0) {
+    if (!lambda && newType.type == CodeConstants.TYPE_OBJECT) {
       StructClass node = DecompilerContext.getStructContext().getClass(newType.value);
 
       if (node != null && node.getSignature() != null) {
-        GenericClassDescriptor sig = node.getSignature();
-        VarType _new = this.gatherGenerics(upperBound, sig.genericType, sig.fparameters, genericArgs);
-        if (sig.genericType != _new) {
-          return _new;
+        if (anonymous) {
+          if (VarType.VARTYPE_OBJECT.equals(node.getSignature().superclass) && !node.getSignature().superinterfaces.isEmpty()) {
+            return node.getSignature().superinterfaces.get(0);
+          }
+          return node.getSignature().superclass;
+        }
+        else if (newType.arrayDim == 0 && !node.getSignature().fparameters.isEmpty()) {
+          GenericClassDescriptor sig = node.getSignature();
+          if (constructor != null) {
+            VarType ret = constructor.getInferredExprType(upperBound);
+            return ret.type != CodeConstants.TYPE_VOID ? ret : getExprType();
+          }
+          else {
+            Map<VarType, VarType> genericsMap = new HashMap<>();
+            this.gatherGenerics(upperBound, sig.genericType, genericsMap);
+            this.getGenericArgs(sig.fparameters, genericsMap, genericArgs);
+            VarType _new = sig.genericType.remap(genericsMap);
+            if (sig.genericType != _new) {
+              return _new;
+            }
+          }
+        }
+      }
+      else if (newType.arrayDim > 0 && !lstArrayElements.isEmpty() && newType.value.equals(VarType.VARTYPE_OBJECT.value)) {
+        VarType first = lstArrayElements.get(0).getInferredExprType(null);
+        if (first.type == CodeConstants.TYPE_GENVAR) {
+          boolean matches = true;
+          for (int i = 1; i < lstArrayElements.size(); ++i) {
+            VarType type = lstArrayElements.get(i).getInferredExprType(null);
+            if (!type.equals(first)) {
+              matches = false;
+              break;
+            }
+          }
+          if (matches) {
+            return first.resizeArrayDim(newType.arrayDim);
+          }
         }
       }
     }
-    
+
+    if (lambda) {
+      ClassNode node = DecompilerContext.getClassProcessor().getMapRootClasses().get(newType.value);
+
+      if (node != null) {
+
+        VarType classType = node.anonymousClassType;
+        StructClass cls = DecompilerContext.getStructContext().getClass(classType.value);
+        MethodDescriptor desc = MethodDescriptor.parseDescriptor(node.lambdaInformation.method_descriptor);
+        StructClass methodCls = DecompilerContext.getStructContext().getClass(node.lambdaInformation.content_class_name);
+
+        if (cls != null && cls.getSignature() != null && methodCls != null) {
+          StructMethod refMethod = cls.getMethod(getLambdaMethodKey());
+          StructMethod method = methodCls.getMethod(node.lambdaInformation.content_method_name, node.lambdaInformation.content_method_descriptor);
+
+          if (method != null && refMethod != null && refMethod.getSignature() != null) {
+            GenericType ret = cls.getSignature().genericType;
+
+            HashMap<VarType, VarType> genericsMap = new HashMap<>();
+            Map<VarType, List<VarType>> named = getNamedGenerics();
+
+            gatherGenerics(upperBound, ret, genericsMap);
+
+            HashMap<VarType, VarType> instanceMap = new HashMap<>();
+            if (isMethodReference() && methodCls.getSignature() != null) {
+              VarType first = ret.getArguments().get(0);
+              if (constructor.getInstance() != null) {
+                VarType instanceType = constructor.getInstance().getInferredExprType(null);
+                if (instanceType.isGeneric()) {
+                  methodCls.getSignature().genericType.mapGenVarsTo((GenericType)instanceType, instanceMap);
+                }
+              }
+              else if (method.getSignature() != null) {
+                for (int i = 0; i < method.getSignature().parameterTypes.size(); ++i) {
+                  VarType mtype = method.getSignature().parameterTypes.get(i);
+                  VarType rtype = refMethod.getSignature().parameterTypes.get(i);
+                  if (mtype.type == CodeConstants.TYPE_GENVAR && rtype.type == CodeConstants.TYPE_GENVAR) {
+                    if (genericsMap.containsKey(rtype)) {
+                      instanceMap.put(mtype, genericsMap.get(rtype));
+                    }
+                  }
+                }
+              }
+            }
+
+            // generated lambda methods have no generic info, so only map to generic var parameters
+            List<VarType> types = method.getSignature() != null ? method.getSignature().parameterTypes : Arrays.asList(desc.params);
+            for (int i = 0; i < types.size(); ++i) {
+              if (refMethod.getSignature().parameterTypes.get(i).type == CodeConstants.TYPE_GENVAR) {
+                if (!genericsMap.containsKey(refMethod.getSignature().parameterTypes.get(i))) {
+                  VarType realType = types.get(i);
+                  StructClass typeCls = DecompilerContext.getStructContext().getClass(realType.value);
+                  if (typeCls != null && typeCls.getSignature() != null && !realType.equals(typeCls.getSignature().genericType)) {
+                    realType = typeCls.getSignature().genericType.resizeArrayDim(realType.arrayDim);
+                  }
+                  genericsMap.put(refMethod.getSignature().parameterTypes.get(i), realType);
+                }
+              }
+            }
+
+            if (refMethod.getSignature().returnType.type == CodeConstants.TYPE_GENVAR) {
+              VarType key = refMethod.getSignature().returnType;
+              if (method.getName().equals(CodeConstants.INIT_NAME)) {
+                if (methodCls.getSignature() != null) {
+                  genericsMap.put(key, methodCls.getSignature().genericType);
+                }
+                else {
+                  genericsMap.put(key, GenericType.parse("L" + methodCls.qualifiedName + ";"));
+                }
+              }
+              else if (method.getSignature() != null || !desc.ret.equals(VarType.VARTYPE_OBJECT)) {
+                VarType current = genericsMap.get(key);
+                VarType returnType = method.getSignature() != null ? method.getSignature().returnType.remap(instanceMap) : desc.ret;
+                StructClass retCls = returnType == null ? null : DecompilerContext.getStructContext().getClass(returnType.value);
+
+                if (!isMethodReference() && retCls != null && retCls.getSignature() != null && !retCls.getSignature().genericType.equalsExact(returnType)) {
+                  VarType retUB = current != null && current.equals(returnType) ? current : returnType;
+                  VarType realType = getLambdaReturnType(node, refMethod, retUB, genericsMap);
+                  if (realType != null) {
+                    returnType = realType;
+                  }
+                }
+
+                boolean add = current == null || returnType == null || returnType.isGeneric() ||
+                  (!returnType.equals(genericsMap.get(key)) && (current.type != CodeConstants.TYPE_GENVAR || !named.containsKey(current)));
+                if (add) {
+                  genericsMap.put(key, returnType);
+                }
+              }
+            }
+
+            ret.getAllGenericVars().forEach(from -> {
+              genericsMap.putIfAbsent(from, GenericType.DUMMY_VAR);
+            });
+
+            if (!genericsMap.isEmpty()) {
+              VarType _new = ret.remap(genericsMap);
+              if (_new != ret) {
+                if (!_new.isGeneric() || !((GenericType)_new).hasUnknownGenericType(named.keySet())) {
+                  inferredLambdaType = _new;
+                }
+                return _new;
+              }
+            }
+          }
+        }
+        else {
+          inferredLambdaType = classType;
+        }
+      }
+    }
+
     return getExprType();
   }
 
@@ -214,30 +372,13 @@ public class NewExprent extends Exprent {
         }
       }
 
-      appendParameters(buf, genericArgs);
-      buf.append('(');
-
       if (!lambda && constructor != null) {
-        List<Exprent> parameters = constructor.getLstParameters();
-        List<VarVersionPair> mask = child.getWrapper().getMethodWrapper(CodeConstants.INIT_NAME, constructor.getStringDescriptor()).synthParameters;
-        if (mask == null) {
-          InvocationExprent superCall = child.superInvocation;
-          mask = ExprUtil.getSyntheticParametersMask(superCall.getClassname(), superCall.getStringDescriptor(), parameters.size());
-        }
-
-        int start = enumConst ? 2 : 0;
-        boolean firstParam = true;
-        for (int i = start; i < parameters.size(); i++) {
-          if (mask == null || mask.get(i) == null) {
-            if (!firstParam) {
-              buf.append(", ");
-            }
-
-            ExprProcessor.getCastedExprent(parameters.get(i), constructor.getDescriptor().params[i], buf, indent, true, tracer);
-
-            firstParam = false;
-          }
-        }
+        appendParameters(buf, constructor.getGenericArgs());
+        buf.append('(').append(constructor.appendParamList(indent, tracer));
+      }
+      else {
+        appendParameters(buf, genericArgs);
+        buf.append('(');
       }
 
       buf.append(')');
@@ -250,6 +391,7 @@ public class NewExprent extends Exprent {
         if (!DecompilerContext.getOption(IFernflowerPreferences.LAMBDA_TO_ANONYMOUS_CLASS)) {
           buf.setLength(0);  // remove the usual 'new <class>()', it will be replaced with lambda style '() ->'
         }
+        setLambdaGenericTypes();
         Exprent methodObject = constructor == null ? null : constructor.getInstance();
         TextBuffer clsBuf = new TextBuffer();
         new ClassWriter().classLambdaToJava(child, clsBuf, methodObject, indent, tracer);
@@ -301,35 +443,10 @@ public class NewExprent extends Exprent {
       }
 
       if (constructor != null) {
-        List<Exprent> parameters = constructor.getLstParameters();
-        List<VarVersionPair> mask = ExprUtil.getSyntheticParametersMask(constructor.getClassname(), constructor.getStringDescriptor(), parameters.size());
-
         int start = enumConst ? 2 : 0;
-        if (!enumConst || start < parameters.size()) {
-          appendParameters(buf, genericArgs);
-          buf.append('(');
-
-          boolean firstParam = true;
-          for (int i = start; i < parameters.size(); i++) {
-            if (mask == null || mask.get(i) == null) {
-              Exprent expr = parameters.get(i);
-              VarType leftType = constructor.getDescriptor().params[i];
-
-              if (i == parameters.size() - 1 && expr.getExprType() == VarType.VARTYPE_NULL && probablySyntheticParameter(leftType.value)) {
-                break;  // skip last parameter of synthetic constructor call
-              }
-
-              if (!firstParam) {
-                buf.append(", ");
-              }
-
-              ExprProcessor.getCastedExprent(expr, leftType, buf, indent, true, false, true, true, tracer);
-
-              firstParam = false;
-            }
-          }
-
-          buf.append(')');
+        if (!enumConst || start < constructor.getLstParameters().size()) {
+          appendParameters(buf, constructor.getGenericArgs());
+          buf.append('(').append(constructor.appendParamList(indent, tracer)).append(')');
         }
       }
     }
@@ -389,7 +506,8 @@ public class NewExprent extends Exprent {
     return buf;
   }
 
-  private static boolean probablySyntheticParameter(String className) {
+  // TODO move to InvocationExprent
+  public static boolean probablySyntheticParameter(String className) {
     ClassNode node = DecompilerContext.getClassProcessor().getMapRootClasses().get(className);
     return node != null && node.type == ClassNode.CLASS_ANONYMOUS;
   }
@@ -425,6 +543,158 @@ public class NewExprent extends Exprent {
     }
 
     return null;
+  }
+
+  private static VarType getLambdaReturnType(ClassNode node, StructMethod desc, VarType upperBound, Map<VarType, VarType> genericsMap) {
+    ClassWrapper wrapper = node.getWrapper();
+    Map<String, VarType> inferredLambdaTypes = Exprent.inferredLambdaTypes.get();
+
+    if (wrapper != null) {
+      MethodWrapper mt = wrapper.getMethodWrapper(node.lambdaInformation.content_method_name, node.lambdaInformation.content_method_descriptor);
+
+      if (mt != null && mt.root != null) {
+        List<String> paramNames = new ArrayList<>();
+
+        MethodDescriptor md_content = MethodDescriptor.parseDescriptor(node.lambdaInformation.content_method_descriptor);
+        MethodDescriptor md_lambda = MethodDescriptor.parseDescriptor(node.lambdaInformation.method_descriptor);
+
+        int index = node.lambdaInformation.is_content_method_static ? 0 : 1;
+        int start_index = md_content.params.length - md_lambda.params.length;
+
+        int j = 0;
+        for (int i = 0; i < md_content.params.length; i++) {
+          if (i >= start_index) {
+            VarVersionPair vpp = new VarVersionPair(index, 0);
+            VarType curType = mt.varproc.getVarType(vpp);
+            VarType infType = desc.getSignature().parameterTypes.get(j++).remap(genericsMap);
+
+            if (infType != null && !infType.equals(VarType.VARTYPE_VOID)) {
+              if (!curType.equals(infType) || (infType.isGeneric() && !((GenericType)infType).equalsExact(curType))) {
+                String varName = mt.varproc.getVarName(vpp);
+                paramNames.add(varName);
+                inferredLambdaTypes.put(varName, infType);
+              }
+            }
+          }
+          index += md_content.params[i].stackSize;
+        }
+
+        DummyExitStatement dummyExit = mt.root.getDummyExit();
+
+        for (StatEdge edge : dummyExit.getAllPredecessorEdges()) {
+          Statement source = edge.getSource();
+          List<Exprent> lstExpr = source.getExprents();
+
+          if (lstExpr != null && !lstExpr.isEmpty()) {
+            Exprent expr = lstExpr.get(lstExpr.size() - 1);
+            if (expr.type == Exprent.EXPRENT_EXIT) {
+              ExitExprent ex = (ExitExprent)expr;
+              if (ex.getExitType() == ExitExprent.EXIT_RETURN) {
+                VarType realRetType = ex.getValue().getInferredExprType(upperBound);
+                if (realRetType.isGeneric()) {
+                  paramNames.forEach(inferredLambdaTypes::remove);
+                  return realRetType;
+                }
+              }
+            }
+          }
+        }
+
+        paramNames.forEach(inferredLambdaTypes::remove);
+      }
+    }
+    return null;
+  }
+
+  private void setLambdaGenericTypes() {
+    if (inferredLambdaType != null) {
+      ClassNode node = DecompilerContext.getClassProcessor().getMapRootClasses().get(newType.value);
+      StructClass cls = DecompilerContext.getStructContext().getClass(inferredLambdaType.value);
+
+      if (node != null && cls != null) {
+        StructMethod desc = cls.getMethod(getLambdaMethodKey());
+        ClassWrapper wrapper = node.getWrapper();
+        MethodWrapper methodWrapper = wrapper != null ? wrapper.getMethodWrapper(node.lambdaInformation.content_method_name, node.lambdaInformation.content_method_descriptor) : null;
+
+        if (desc != null && desc.getSignature() != null && methodWrapper != null && methodWrapper.root != null) {
+          if (!desc.getClassQualifiedName().equals(inferredLambdaType.value)) {
+            StructClass candidate = DecompilerContext.getStructContext().getClass(desc.getClassQualifiedName());
+            if (candidate.getSignature() != null) {
+              cls = candidate;
+              inferredLambdaType = GenericType.getGenericSuperType(inferredLambdaType, candidate.getSignature().genericType);
+            }
+          }
+
+          Map<VarType, VarType> tempMap = new HashMap<>();
+          if (inferredLambdaType.isGeneric()) {
+            cls.getSignature().genericType.mapGenVarsTo((GenericType)inferredLambdaType, tempMap);
+          }
+
+          MethodDescriptor md_content = MethodDescriptor.parseDescriptor(node.lambdaInformation.content_method_descriptor);
+          MethodDescriptor md_lambda = MethodDescriptor.parseDescriptor(node.lambdaInformation.method_descriptor);
+
+          int index = node.lambdaInformation.is_content_method_static ? 0 : 1;
+          int start_index = md_content.params.length - md_lambda.params.length;
+
+          int j = 0;
+          for (int i = 0; i < md_content.params.length; i++) {
+            if (i >= start_index) {
+              VarVersionPair vpp = new VarVersionPair(index, 0);
+              VarType curType = methodWrapper.varproc.getVarType(vpp);
+              VarType infType = desc.getSignature().parameterTypes.get(j++).remap(tempMap);
+
+              if (infType != null && !infType.equals(VarType.VARTYPE_VOID)) {
+                if (!curType.equals(infType) || (infType.isGeneric() && !((GenericType)infType).equalsExact(curType))) {
+                  methodWrapper.varproc.setVarType(vpp, infType);
+                  String paramName = methodWrapper.varproc.getVarName(vpp);
+
+                  LinkedList<ClassNode> nested = new LinkedList<>(node.nested);
+                  while (!nested.isEmpty()) {
+                    ClassNode childNode = nested.removeFirst();
+                    nested.addAll(childNode.nested);
+
+                    if (childNode.type == ClassNode.CLASS_LAMBDA && !childNode.lambdaInformation.is_method_reference) {
+                      MethodWrapper enclosedMethod = wrapper.getMethodWrapper(childNode.lambdaInformation.content_method_name, childNode.lambdaInformation.content_method_descriptor);
+
+                      if (enclosedMethod != null && paramName.equals(enclosedMethod.varproc.getVarName(vpp))) {
+                        enclosedMethod.varproc.setVarType(vpp, infType);
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            index += md_content.params[i].stackSize;
+          }
+
+          VarType curType = md_content.ret;
+          VarType infType = desc.getSignature().returnType.remap(tempMap);
+
+          if (infType != null && !infType.equals(VarType.VARTYPE_VOID)) {
+            if (!curType.equals(infType) || (infType.isGeneric() && !((GenericType)infType).equalsExact(curType))) {
+              GenericMethodDescriptor genDesc = new GenericMethodDescriptor(Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), infType, Collections.emptyList());
+              DummyExitStatement dummyExit = methodWrapper.root.getDummyExit();
+
+              for (StatEdge edge : dummyExit.getAllPredecessorEdges()) {
+                Statement source = edge.getSource();
+                List<Exprent> lstExpr = source.getExprents();
+
+                if (lstExpr != null && !lstExpr.isEmpty()) {
+                  Exprent expr = lstExpr.get(lstExpr.size() - 1);
+                  if (expr.type == Exprent.EXPRENT_EXIT) {
+                    ExitExprent ex = (ExitExprent)expr;
+                    if (ex.getExitType() == ExitExprent.EXIT_RETURN) {
+                      ex.getMethodDescriptor().genericInfo = genDesc;
+                      break; // desc var should be the same for all returns
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   }
 
   @Override
@@ -530,5 +800,11 @@ public class NewExprent extends Exprent {
       return InterpreterUtil.makeUniqueKey(node.lambdaInformation.method_name, descriptor);
     }
     return "";
+  }
+
+  public void setInvocationInstance() {
+    if (constructor != null) {
+      constructor.setInvocationInstance();
+    }
   }
 }

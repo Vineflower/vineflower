@@ -19,6 +19,7 @@ import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.VBStyleCollection;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -350,5 +351,29 @@ public class StructClass extends StructMember {
 
     this.genericHiarachy = ret.isEmpty() ? Collections.emptyMap() : ret;
     return this.genericHiarachy;
+  }
+
+  private List<StructClass> superClasses;
+  public List<StructClass> getAllSuperClasses() {
+    if (superClasses != null) {
+      return superClasses;
+    }
+
+    List<StructClass> classList = new ArrayList<>();
+    StructContext context = DecompilerContext.getStructContext();
+
+    if (this.superClass != null) {
+      StructClass cl = context.getClass(this.superClass.getString());
+      while (cl != null) {
+        classList.add(cl);
+        if (cl.superClass == null) {
+          break;
+        }
+        cl = context.getClass(cl.superClass.getString());
+      }
+    }
+
+    superClasses = classList;
+    return superClasses;
   }
 }

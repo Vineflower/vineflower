@@ -209,6 +209,24 @@ public class StructContext {
     return false;
   }
 
+  public StructClass getFirstCommonClass(String firstclass, String secondclass) {
+    StructClass fcls = this.getClass(firstclass);
+    StructClass scls = this.getClass(secondclass);
+
+    if (fcls != null && scls != null) {
+      List<StructClass> clsList = scls.getAllSuperClasses();
+      while (fcls != null) {
+        if (clsList.contains(fcls)) {
+          return fcls;
+        }
+
+        fcls = fcls.superClass == null ? null : this.getClass(fcls.superClass.getString());
+      }
+    }
+
+    return null;
+  }
+
   public void loadAbstractMetadata(String string) {
     for (String line : string.split("\n")) {
       String[] pts = line.split(" ");

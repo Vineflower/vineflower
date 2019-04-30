@@ -423,8 +423,10 @@ public class VarType {  // TODO: optimize switch
   }
 
   public VarType remap(Map<VarType, VarType> map) {
-    if (map.containsKey(this)) {
-      return map.get(this);
+    VarType key = arrayDim == 0 ? this : this.resizeArrayDim(0);
+    if (map.containsKey(key)) {
+      VarType ret = map.get(key);
+      return arrayDim == 0 || ret == null ? ret : ret.resizeArrayDim(ret.arrayDim + arrayDim);
     }
     return this;
   }

@@ -43,6 +43,17 @@ public class ArrayExprent extends Exprent {
   }
 
   @Override
+  public VarType getInferredExprType(VarType upperBound) {
+    VarType exprType = array.getInferredExprType(upperBound);
+    if (exprType.equals(VarType.VARTYPE_NULL)) {
+      return hardType.copy();
+    }
+    else {
+      return exprType.decreaseArrayDim();
+    }
+  }
+
+  @Override
   public int getExprentUse() {
     return array.getExprentUse() & index.getExprentUse() & Exprent.MULTIPLE_USES;
   }

@@ -54,6 +54,8 @@ public abstract class Exprent implements IMatchable {
   public static final int EXPRENT_ANNOTATION = 13;
   public static final int EXPRENT_ASSERT = 14;
 
+  protected static ThreadLocal<Map<String, VarType>> inferredLambdaTypes = ThreadLocal.withInitial(HashMap::new);
+
   public final int type;
   public final int id;
   public BitSet bytecode = null;  // offsets of bytecode instructions decompiled to this exprent
@@ -198,30 +200,26 @@ public abstract class Exprent implements IMatchable {
       return ret;
     }
 
-  protected VarType gatherGenerics(VarType upperBound, VarType ret, List<String> fparams, List<VarType> genericArgs) {
-    Map<VarType, VarType> map = new HashMap<>();
-
+  protected void gatherGenerics(VarType upperBound, VarType ret, Map<VarType, VarType> genericsMap) {
     // List<T> -> List<String>
-    if (upperBound != null && upperBound.isGeneric() && ret.isGeneric()) {
-      List<VarType> leftArgs = ((GenericType)upperBound).getArguments();
-      List<VarType> rightArgs = ((GenericType)ret).getArguments();
-      if (leftArgs.size() == rightArgs.size() && rightArgs.size() == fparams.size()) {
-        for (int i = 0; i < leftArgs.size(); i++) {
-          VarType left = leftArgs.get(i);
-          VarType right = rightArgs.get(i);
-          if (left != null && right.value.equals(fparams.get(i))) {
-            genericArgs.add(left);
-            map.put(right, left);
-          } else {
-            genericArgs.clear();
-            map.clear();
-            break;
-          }
-        }
+    if (upperBound != null && upperBound.isGeneric() && ret.isGeneric() && upperBound.arrayDim == ret.arrayDim) {
+      int left = ((GenericType)upperBound).getArguments().size();
+      int right = ((GenericType)ret).getArguments().size();
+      if (left == right) {
+        ((GenericType)ret).mapGenVarsTo((GenericType)upperBound, genericsMap);
       }
     }
+  }
 
-    return map.isEmpty() ? ret : ret.remap(map);
+  protected void getGenericArgs(List<String> fparams, Map<VarType, VarType> genericsMap, List<VarType> genericArgs) {
+    for (String type : fparams) {
+      VarType arg = genericsMap.get(GenericType.parse("T" + type + ";"));
+      if (arg == null || (arg.isGeneric() && ((GenericType)arg).getWildcard() != GenericType.WILDCARD_NO)) {
+        genericArgs.clear();
+        break;
+      }
+      genericArgs.add(arg);
+    }
   }
 
   protected void appendParameters(TextBuffer buf, List<VarType> genericArgs) {
@@ -244,22 +242,27 @@ public abstract class Exprent implements IMatchable {
     ClassNode class_ = (ClassNode)DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS_NODE);
     MethodWrapper method = (MethodWrapper)DecompilerContext.getProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
 
-    //TODO: Loop enclosing classes?
-    GenericClassDescriptor cls = class_ == null ? null : class_.classStruct.getSignature();
-    if (cls != null) {
-      for (int x = 0; x < cls.fparameters.size(); x++) {
-        ret.put(GenericType.parse("T" + cls.fparameters.get(x) + ";"), cls.fbounds.get(x));
+    while (true) {
+      GenericClassDescriptor cls = class_ == null ? null : class_.classStruct.getSignature();
+      if (cls != null) {
+        for (int x = 0; x < cls.fparameters.size(); x++) {
+          ret.put(GenericType.parse("T" + cls.fparameters.get(x) + ";"), cls.fbounds.get(x));
+        }
       }
-    }
 
-    //TODO: Loop enclosing method?
-    GenericMethodDescriptor mtd = method == null ? null : method.methodStruct.getSignature();
-    if (mtd != null) {
-      for (int x = 0; x < mtd.typeParameters.size(); x++) {
-        ret.put(GenericType.parse("T" + mtd.typeParameters.get(x) + ";"), mtd.typeParameterBounds.get(x));
+      GenericMethodDescriptor mtd = method == null ? null : method.methodStruct.getSignature();
+      if (mtd != null) {
+        for (int x = 0; x < mtd.typeParameters.size(); x++) {
+          ret.put(GenericType.parse("T" + mtd.typeParameters.get(x) + ";"), mtd.typeParameterBounds.get(x));
+        }
       }
-    }
 
+      if (class_ == null) {
+        break;
+      }
+      method = class_.enclosingMethod == null ? null : class_.parent.getWrapper().getMethods().getWithKey(class_.enclosingMethod);
+      class_ = class_.parent;
+    }
     return ret;
   }
 
@@ -310,6 +313,8 @@ public abstract class Exprent implements IMatchable {
 
     buf.prepend("(" + ExprProcessor.getCastTypeName(left) + ")");
   }
+
+  public void setInvocationInstance() {}
 
   // *****************************************************************************
   // IMatchable implementation

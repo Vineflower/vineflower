@@ -16,6 +16,7 @@ import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribu
 import org.jetbrains.java.decompiler.struct.consts.LinkConstant;
 import org.jetbrains.java.decompiler.struct.gen.FieldDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
+import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
 import org.jetbrains.java.decompiler.struct.match.MatchEngine;
 import org.jetbrains.java.decompiler.struct.match.MatchNode;
 import org.jetbrains.java.decompiler.struct.match.MatchNode.RuleValue;
@@ -26,6 +27,7 @@ import org.jetbrains.java.decompiler.util.TextUtil;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -76,7 +78,28 @@ public class FieldExprent extends Exprent {
     }
 
     if (ft != null && ft.getSignature() != null) {
-      return ft.getSignature().type.remap(types.getOrDefault(cl.qualifiedName, Collections.emptyMap()));
+      VarType ret =  ft.getSignature().type.remap(types.getOrDefault(cl.qualifiedName, Collections.emptyMap()));
+
+      if (instance != null && cl.getSignature() != null) {
+        VarType instType = instance.getInferredExprType(null);
+
+        if (instType.isGeneric() && instType.type != CodeConstants.TYPE_GENVAR) {
+          GenericType ginstance = (GenericType)instType;
+
+          cl = DecompilerContext.getStructContext().getClass(instType.value);
+          if (cl != null && cl.getSignature() != null) {
+            Map<VarType, VarType> tempMap = new HashMap<>();
+            cl.getSignature().genericType.mapGenVarsTo(ginstance, tempMap);
+            VarType _new = ret.remap(tempMap);
+
+            if (_new != null) {
+              ret = _new;
+            }
+          }
+        }
+      }
+
+      return ret;
     }
 
     return getExprType();
