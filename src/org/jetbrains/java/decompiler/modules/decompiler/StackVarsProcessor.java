@@ -2,6 +2,8 @@
 package org.jetbrains.java.decompiler.modules.decompiler;
 
 import org.jetbrains.java.decompiler.code.CodeConstants;
+import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
+import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.DoStatement;
@@ -13,12 +15,15 @@ import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionsGraph;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructMethod;
+import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
+import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.FastSparseSetFactory.FastSparseSet;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.SFormsFastMapDirect;
 
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 public class StackVarsProcessor {
   public void simplifyStackVars(RootStatement root, StructMethod mt, StructClass cl) {
@@ -27,11 +32,12 @@ public class StackVarsProcessor {
 
     while (true) {
       boolean found = false;
+      boolean first = ssau == null;
 
       SSAConstructorSparseEx ssa = new SSAConstructorSparseEx();
       ssa.splitVariables(root, mt);
 
-      SimplifyExprentsHelper sehelper = new SimplifyExprentsHelper(ssau == null);
+      SimplifyExprentsHelper sehelper = new SimplifyExprentsHelper(first);
       while (sehelper.simplifyStackVarsStatement(root, setReorderedIfs, ssa, cl)) {
         found = true;
       }
@@ -42,6 +48,10 @@ public class StackVarsProcessor {
 
       ssau = new SSAUConstructorSparseEx();
       ssau.splitVariables(root, mt);
+
+      if (first) {
+        setEffectivelyFinalVars(root, ssau, new HashMap<>());
+      }
 
       if (iterateStatements(root, ssau)) {
         found = true;
@@ -265,7 +275,7 @@ public class StackVarsProcessor {
       }
     }
 
-    if (left == null) {
+    if (left == null || left.isEffectivelyFinal()) {
       return new int[]{-1, changed};
     }
 
@@ -443,7 +453,7 @@ public class StackVarsProcessor {
       }
     }
 
-    if (left == null) {
+    if (left == null || left.isEffectivelyFinal()) {
       return new Object[]{null, changed, false};
     }
 
@@ -662,5 +672,165 @@ public class StackVarsProcessor {
     }
 
     return map;
+  }
+
+  private static void setEffectivelyFinalVars(Statement stat, SSAUConstructorSparseEx ssau, Map<VarVersionPair, VarExprent> varLookupMap) {
+    if (stat.getExprents() != null && !stat.getExprents().isEmpty()) {
+      for (int i = 0; i < stat.getExprents().size(); ++i) {
+        setEffectivelyFinalVars(stat.getExprents().get(i), ssau, i, stat.getExprents(), varLookupMap);
+      }
+    }
+
+    for (Statement st : stat.getStats()) {
+      setEffectivelyFinalVars(st, ssau, varLookupMap);
+    }
+  }
+
+  private static void setEffectivelyFinalVars(Exprent exprent, SSAUConstructorSparseEx ssau, int index, List<Exprent> list, Map<VarVersionPair, VarExprent> varLookupMap) {
+    if (exprent.type == Exprent.EXPRENT_ASSIGNMENT) {
+      AssignmentExprent assign = (AssignmentExprent)exprent;
+      if (assign.getLeft().type == Exprent.EXPRENT_VAR) {
+        VarExprent var = (VarExprent)assign.getLeft();
+        varLookupMap.put(var.getVarVersionPair(), var);
+      }
+    }
+    else if (exprent.type == Exprent.EXPRENT_NEW) {
+      NewExprent newExpr = (NewExprent)exprent;
+      if (newExpr.isAnonymous()) {
+        ClassNode node = DecompilerContext.getClassProcessor().getMapRootClasses().get(newExpr.getNewType().value);
+
+        if (node != null) {
+          if (!newExpr.isLambda()) {
+            for (StructMethod mt : node.classStruct.getMethods()) {
+              if (mt.getName().equals(CodeConstants.INIT_NAME)) {
+                List<VarType> paramTypes = Arrays.asList(MethodDescriptor.parseDescriptor(mt.getDescriptor()).params);
+
+                for (int i = Math.max(0, index - paramTypes.size()); i < index; ++i) {
+                  Exprent temp = list.get(i);
+                  if (temp.type == Exprent.EXPRENT_ASSIGNMENT) {
+                    Exprent left = ((AssignmentExprent)temp).getLeft();
+                    if (left.type == Exprent.EXPRENT_VAR) {
+                      VarExprent leftVar = (VarExprent)left;
+                      if (leftVar.getLVT() != null && paramTypes.contains(leftVar.getLVT().getVarType())) {
+                        leftVar.setEffectivelyFinal(true);
+                      }
+                    }
+                  }
+                }
+                break;
+              }
+            }
+          }
+          else if (!newExpr.isMethodReference()) {
+            MethodDescriptor mdLambda = MethodDescriptor.parseDescriptor(node.lambdaInformation.method_descriptor);
+            MethodDescriptor mdContent = MethodDescriptor.parseDescriptor(node.lambdaInformation.content_method_descriptor);
+            int paramOffset = node.lambdaInformation.is_content_method_static ? 0 : 1;
+            int varsCount = mdContent.params.length - mdLambda.params.length;
+
+            for (int i = 0; i < varsCount; ++i) {
+              Exprent param = newExpr.getConstructor().getLstParameters().get(paramOffset + i);
+              if (param.type == Exprent.EXPRENT_VAR) {
+                VarExprent paramVar = (VarExprent)param;
+                VarVersionPair vvp = paramVar.getVarVersionPair();
+                VarVersionNode vvnode = ssau.getSsuversions().nodes.getWithKey(vvp);
+
+                while (true) {
+                  VarVersionNode next = null;
+                  if (vvnode.var >= VarExprent.STACK_BASE) {
+                    vvnode = vvnode.preds.iterator().next().source;
+                    VarVersionPair nextVVP = ssau.getVarAssignmentMap().get(new VarVersionPair(vvnode.var, vvnode.version));
+                    next = ssau.getSsuversions().nodes.getWithKey(nextVVP);
+
+                    if (nextVVP != null && nextVVP.var < 0) { // TODO check if field is final?
+                      vvp = nextVVP;
+                      break;
+                    }
+                  }
+                  else {
+                    final int j = i;
+                    final int varIndex = vvnode.var;
+                    final int varVersion = vvnode.version;
+                    List<VarVersionNode> roots = getRoots(vvnode);
+                    List<VarVersionNode> allRoots = ssau.getSsuversions().nodes.stream()
+                                                          .distinct()
+                                                          .filter(n -> n.var == varIndex && n.preds.isEmpty())
+                                                          .filter(n -> {
+                                                            if (n.lvt != null) {
+                                                              return mdContent.params[j].equals(new VarType(n.lvt.getDescriptor()));
+                                                            }
+                                                            return n.version > varVersion;
+                                                          })
+                                                          .collect(Collectors.toList());
+
+                    if (roots.size() >= allRoots.size()) {
+                      if (roots.size() == 1) {
+                        vvnode = roots.get(0);
+                        vvp = new VarVersionPair(vvnode.var, vvnode.version);
+                        VarVersionPair nextVVP = ssau.getVarAssignmentMap().get(vvp);
+                        next = ssau.getSsuversions().nodes.getWithKey(nextVVP);
+                        if (nextVVP != null && nextVVP.var < 0) {
+                          vvp = nextVVP;
+                          break;
+                        }
+                      }
+                      else if (roots.size() == 2) {
+                        VarVersionNode first = roots.get(0);
+                        VarVersionNode second = roots.get(1);
+
+                        // check for an if-else var definition
+                        if (first.lvt != null && second.lvt != null && first.lvt.getVersion().equals(second.lvt.getVersion())) {
+                          vvp = first.lvt.getVersion();
+                          break;
+                        }
+                      }
+                    }
+                  }
+
+                  if (next == null) {
+                    break;
+                  }
+                  vvnode = next;
+                }
+
+                VarExprent var = varLookupMap.get(vvp);
+                if (var != null) {
+                  var.setEffectivelyFinal(true);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    for (Exprent ex : exprent.getAllExprents()) {
+      setEffectivelyFinalVars(ex, ssau, index, list, varLookupMap);
+    }
+  }
+
+  private static List<VarVersionNode> getRoots(VarVersionNode vvnode) {
+    List<VarVersionNode> ret = new ArrayList<>();
+    Set<VarVersionNode> visited = new HashSet<>();
+    LinkedList<VarVersionNode> queue = new LinkedList<>();
+
+    queue.add(vvnode);
+    visited.add(vvnode);
+
+    while (!queue.isEmpty()) {
+      VarVersionNode next = queue.removeFirst();
+
+      if (next.preds.isEmpty()) {
+        ret.add(next);
+      }
+      else {
+        next.preds.forEach(vvn -> {
+          if (visited.add(vvn.source)) {
+            queue.add(vvn.source);
+          }
+        });
+      }
+    }
+
+    return ret;
   }
 }

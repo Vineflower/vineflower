@@ -238,7 +238,7 @@ public class SSAConstructorSparseEx {
       Integer varindex = vardest.getIndex();
       FastSparseSet<Integer> vers = varmap.get(varindex);
 
-      int cardinality = vers.getCardinality();
+      int cardinality = vers != null ? vers.getCardinality() : 0;
       if (cardinality == 1) { // == 1
         // set version
         Integer it = vers.iterator().next();
@@ -263,7 +263,17 @@ public class SSAConstructorSparseEx {
           // create new phi node
           phi.put(new VarVersionPair(varindex, nextver), vers);
         }
-      } // 0 means uninitialized variable, which is impossible
+      } // 0 means uninitialized variable
+      else if (cardinality == 0) {
+        if (vardest.getVersion() != 0) {
+          setCurrentVar(varmap, varindex, vardest.getVersion());
+        }
+        else {
+          Integer nextver = getNextFreeVersion(varindex);
+          vardest.setVersion(nextver);
+          setCurrentVar(varmap, varindex, nextver);
+        }
+      }
     }
   }
 

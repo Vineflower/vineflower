@@ -172,10 +172,11 @@ public class MethodProcessorRunnable implements Runnable {
       if (DecompilerContext.getOption(IFernflowerPreferences.IDEA_NOT_NULL_ANNOTATION)) {
         if (IdeaNotNullHelper.removeHardcodedChecks(root, mt)) {
           SequenceHelper.condenseSequences(root);
-          stackProc.simplifyStackVars(root, mt, cl);
-          varProc.setVarVersions(root);
         }
       }
+
+      stackProc.simplifyStackVars(root, mt, cl);
+      varProc.setVarVersions(root);
 
       LabelHelper.identifyLabels(root);
 

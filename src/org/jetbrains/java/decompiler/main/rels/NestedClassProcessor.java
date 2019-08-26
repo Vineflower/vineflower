@@ -263,6 +263,9 @@ public class NestedClassProcessor {
                 if (param.type == Exprent.EXPRENT_VAR) {
                   mapNewNames.put(varVersion, enclosingMethod.varproc.getVarName(new VarVersionPair((VarExprent)param)));
                   lvts.put(varVersion, ((VarExprent)param).getLVT());
+                  if (enclosingMethod.varproc.getVarFinal((new VarVersionPair((VarExprent)param))) == VarTypeProcessor.VAR_NON_FINAL) {
+                    //DecompilerContext.getLogger().writeMessage("Lambda in " + parent.simpleName + "." + enclosingMethod.methodStruct.getName() + " given non-final var " + ((VarExprent)param).getName() + "!", IFernflowerLogger.Severity.ERROR);
+                  }
                 }
               }
               else {

@@ -11,6 +11,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.ConstExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.ExitExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FieldExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.InvocationExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.NewExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
@@ -226,6 +227,7 @@ public class VarDefinitionHelper {
 
     mergeVars(root);
     propogateLVTs(root);
+    setNonFinal(root, new HashSet<>());
   }
 
 
@@ -1123,5 +1125,80 @@ public class VarDefinitionHelper {
       }
     }
     return false;
+  }
+
+  private void setNonFinal(Statement stat, Set<VarVersionPair> unInitialized) {
+    if (stat.getExprents() != null && !stat.getExprents().isEmpty()) {
+      for (Exprent exp : stat.getExprents()) {
+        if (exp.type == Exprent.EXPRENT_VAR) {
+          unInitialized.add(new VarVersionPair((VarExprent)exp));
+        }
+        else {
+          setNonFinal(exp, unInitialized);
+        }
+      }
+    }
+
+    if (!stat.getVarDefinitions().isEmpty()) {
+      if (stat.type != Statement.TYPE_DO) {
+        for (Exprent var : stat.getVarDefinitions()) {
+          unInitialized.add(new VarVersionPair((VarExprent)var));
+        }
+      }
+    }
+
+    if (stat.type == Statement.TYPE_DO) {
+      DoStatement dostat = (DoStatement)stat;
+      if (dostat.getInitExprentList() != null) {
+        setNonFinal(dostat.getInitExprent(), unInitialized);
+      }
+      if (dostat.getIncExprentList() != null) {
+        setNonFinal(dostat.getIncExprent(), unInitialized);
+      }
+    }
+    else if (stat.type == Statement.TYPE_IF) {
+      IfStatement ifstat = (IfStatement)stat;
+      if (ifstat.getIfstat() != null && ifstat.getElsestat() != null) {
+        setNonFinal(ifstat.getFirst(), unInitialized);
+        setNonFinal(ifstat.getIfstat(), new HashSet<>(unInitialized));
+        setNonFinal(ifstat.getElsestat(), unInitialized);
+        return;
+      }
+    }
+
+    for (Statement st : stat.getStats()) {
+      setNonFinal(st, unInitialized);
+    }
+  }
+
+  private void setNonFinal(Exprent exp, Set<VarVersionPair> unInitialized) {
+    VarExprent var = null;
+
+    if (exp == null) {
+      return;
+    }
+
+    if (exp.type == Exprent.EXPRENT_ASSIGNMENT) {
+      AssignmentExprent assign = (AssignmentExprent)exp;
+      if (assign.getLeft().type == Exprent.EXPRENT_VAR) {
+        var = (VarExprent)assign.getLeft();
+      }
+    }
+    else if (exp.type == Exprent.EXPRENT_FUNCTION) {
+      FunctionExprent func = (FunctionExprent)exp;
+      if (func.getFuncType() >= FunctionExprent.FUNCTION_IMM && func.getFuncType() <= FunctionExprent.FUNCTION_PPI) {
+        if (func.getLstOperands().get(0).type == Exprent.EXPRENT_VAR) {
+          var = (VarExprent)func.getLstOperands().get(0);
+        }
+      }
+    }
+
+    if (var != null && !var.isDefinition() && !unInitialized.remove(var.getVarVersionPair())) {
+      var.getProcessor().setVarFinal(var.getVarVersionPair(), VarTypeProcessor.VAR_NON_FINAL);
+    }
+
+    for (Exprent ex : exp.getAllExprents()) {
+      setNonFinal(ex, unInitialized);
+    }
   }
 }

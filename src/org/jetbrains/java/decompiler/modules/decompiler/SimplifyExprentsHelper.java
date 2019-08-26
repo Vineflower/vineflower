@@ -132,6 +132,11 @@ public class SimplifyExprentsHelper {
       }
 
       Exprent next = list.get(index + 1);
+      if (isAssignmentReturn(current, next)) {
+        list.remove(index);
+        res = true;
+        continue;
+      }
 
       // constructor invocation
       if (isConstructorInvocationRemote(list, index)) {
@@ -337,6 +342,27 @@ public class SimplifyExprentsHelper {
     }
 
     return 0;
+  }
+
+  private static boolean isAssignmentReturn(Exprent first, Exprent second) {
+    //If assignment then exit.
+    if (first.type == Exprent.EXPRENT_ASSIGNMENT && second.type == Exprent.EXPRENT_EXIT) {
+      AssignmentExprent assignment = (AssignmentExprent) first;
+      ExitExprent exit = (ExitExprent) second;
+      //if simple assign and exit is return and return isn't void
+      if (assignment.getCondType() == AssignmentExprent.CONDITION_NONE && exit.getExitType() == ExitExprent.EXIT_RETURN && exit.getValue() != null) {
+        if (assignment.getLeft().type == Exprent.EXPRENT_VAR && exit.getValue().type == Exprent.EXPRENT_VAR) {
+          VarExprent assignmentLeft = (VarExprent) assignment.getLeft();
+          VarExprent exitValue = (VarExprent) exit.getValue();
+          //If the assignment before the return is immediately used in the return, inline it.
+          if (assignmentLeft.equals(exitValue) && !assignmentLeft.isStack() && !exitValue.isStack()) {
+            exit.replaceExprent(exitValue, assignment.getRight());
+            return true;
+          }
+        }
+      }
+    }
+    return false;
   }
 
   private static boolean isTrivialStackAssignment(Exprent first) {

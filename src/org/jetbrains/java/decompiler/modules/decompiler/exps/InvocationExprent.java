@@ -166,6 +166,11 @@ public class InvocationExprent extends Exprent {
     addBytecodeOffsets(expr.bytecode);
     bootstrapArguments = expr.getBootstrapArguments();
     isSyntheticGetClass = expr.isSyntheticGetClass();
+
+    if (invocationTyp == INVOKE_DYNAMIC && !isStatic && instance != null && !lstParameters.isEmpty()) {
+      // method reference, instance and first param are expected to be the same var object
+      instance = lstParameters.get(0);
+    }
   }
 
   @Override
