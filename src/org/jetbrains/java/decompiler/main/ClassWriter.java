@@ -1,6 +1,7 @@
 // Copyright 2000-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.main;
 
+import net.fabricmc.fernflower.api.IFabricJavadocProvider;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
@@ -31,9 +32,11 @@ import java.util.*;
 
 public class ClassWriter {
   private final PoolInterceptor interceptor;
+  private final IFabricJavadocProvider javadocProvider;
 
   public ClassWriter() {
     interceptor = DecompilerContext.getPoolInterceptor();
+    javadocProvider = (IFabricJavadocProvider) DecompilerContext.getProperty(IFabricJavadocProvider.PROPERTY_NAME);
   }
 
   private static void invokeProcessors(ClassNode node) {
@@ -292,6 +295,10 @@ public class ClassWriter {
       appendComment(buffer, "synthetic class", indent);
     }
 
+    if (javadocProvider != null) {
+      appendJavadoc(buffer, javadocProvider.getClassDoc(cl), indent);
+    }
+
     appendAnnotations(buffer, indent, cl, -1);
 
     buffer.appendIndent(indent);
@@ -381,6 +388,9 @@ public class ClassWriter {
       appendComment(buffer, "synthetic field", indent);
     }
 
+    if (javadocProvider != null) {
+      appendJavadoc(buffer, javadocProvider.getFieldDoc(cl, fd), indent);
+    }
     appendAnnotations(buffer, indent, fd, TypeAnnotation.FIELD);
 
     buffer.appendIndent(indent);
@@ -609,6 +619,9 @@ public class ClassWriter {
         appendComment(buffer, "bridge method", indent);
       }
 
+      if (javadocProvider != null) {
+        appendJavadoc(buffer, javadocProvider.getMethodDoc(cl, mt), indent);
+      }
       appendAnnotations(buffer, indent, mt, TypeAnnotation.METHOD_RETURN_TYPE);
 
       buffer.appendIndent(indent);
@@ -941,6 +954,15 @@ public class ClassWriter {
 
   private static void appendComment(TextBuffer buffer, String comment, int indent) {
     buffer.appendIndent(indent).append("// $FF: ").append(comment).appendLineSeparator();
+  }
+
+  private static void appendJavadoc(TextBuffer buffer, String javaDoc, int indent) {
+    if (javaDoc == null) return;
+    buffer.appendIndent(indent).append("/**").appendLineSeparator();
+    for (String s : javaDoc.split("\n")) {
+      buffer.appendIndent(indent).append(" * ").append(s).appendLineSeparator();
+    }
+    buffer.appendIndent(indent).append(" */").appendLineSeparator();
   }
 
   private static final StructGeneralAttribute.Key[] ANNOTATION_ATTRIBUTES = {
