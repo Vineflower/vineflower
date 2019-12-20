@@ -14,7 +14,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
       IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
       IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
       IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
-      IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "1"
+      IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "1",
+      IFernflowerPreferences.INLINE_SIMPLE_LAMBDAS, "0"
     };
   }
 
