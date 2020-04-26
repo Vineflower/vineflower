@@ -42,6 +42,7 @@ public interface IFernflowerPreferences {
   String NEW_LINE_SEPARATOR = "nls";
   String INDENT_STRING = "ind";
   String BANNER = "ban";
+  String THREADS = "thr";
 
   String DUMP_ORIGINAL_LINES = "__dump_original_lines__";
   String UNIT_TEST_MODE = "__unit_test_mode__";
@@ -89,6 +90,7 @@ public interface IFernflowerPreferences {
     defaults.put(BANNER, "");
     defaults.put(UNIT_TEST_MODE, "0");
     defaults.put(DUMP_ORIGINAL_LINES, "0");
+    defaults.put(THREADS, String.valueOf(Runtime.getRuntime().availableProcessors()));
 
     return Collections.unmodifiableMap(defaults);
   }

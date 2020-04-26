@@ -11,7 +11,10 @@ import org.jetbrains.java.decompiler.util.DataInputFullStream;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.*;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
@@ -126,25 +129,56 @@ public class ContextUnit {
           }
         }
 
+        final List<Future<?>> futures = new LinkedList<>();
+        final ExecutorService decompileExecutor = Executors.newFixedThreadPool(Integer.parseInt((String) DecompilerContext.getProperty(IFernflowerPreferences.THREADS)));
+        final DecompilerContext rootContext = DecompilerContext.getCurrentContext();
+
         // classes
         for (int i = 0; i < classes.size(); i++) {
           StructClass cl = classes.get(i);
           String entryName = decompiledData.getClassEntryName(cl, classEntries.get(i));
           if (entryName != null) {
-            String content = decompiledData.getClassContent(cl);
-            int[] mapping = null;
-            if (DecompilerContext.getOption(IFernflowerPreferences.BYTECODE_SOURCE_MAPPING)) {
-              mapping = DecompilerContext.getBytecodeSourceMapper().getOriginalLinesMapping();
-            }
-            if (resultSaver instanceof IFabricResultSaver) {
-              ((IFabricResultSaver) resultSaver).saveClassEntry(archivePath, filename, cl.qualifiedName, entryName, content, mapping);
-            } else {
-              resultSaver.saveClassEntry(archivePath, filename, cl.qualifiedName, entryName, content);
-            }
+            futures.add(decompileExecutor.submit(() -> {
+              setContext(rootContext);
+              String content = decompiledData.getClassContent(cl);
+              int[] mapping = null;
+              if (DecompilerContext.getOption(IFernflowerPreferences.BYTECODE_SOURCE_MAPPING)) {
+                mapping = DecompilerContext.getBytecodeSourceMapper().getOriginalLinesMapping();
+              }
+              if (resultSaver instanceof IFabricResultSaver) {
+                ((IFabricResultSaver) resultSaver).saveClassEntry(archivePath, filename, cl.qualifiedName, entryName, content, mapping);
+              } else {
+                resultSaver.saveClassEntry(archivePath, filename, cl.qualifiedName, entryName, content);
+              }
+            }));
+          }
+        }
+
+        decompileExecutor.shutdown();
+
+        for (Future<?> future : futures) {
+          try {
+            future.get();
+          } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
           }
         }
 
         resultSaver.closeArchive(archivePath, filename);
+    }
+  }
+
+  public void setContext(DecompilerContext rootContext) {
+    DecompilerContext current = DecompilerContext.getCurrentContext();
+    if (current == null) {
+      current = new DecompilerContext(
+        new HashMap<>(rootContext.properties),
+        rootContext.logger,
+        rootContext.structContext,
+        rootContext.classProcessor,
+        rootContext.poolInterceptor
+      );
+      DecompilerContext.setCurrentContext(current);
     }
   }
 

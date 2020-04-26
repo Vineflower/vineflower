@@ -1,5 +1,6 @@
 // Copyright 2000-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 apply plugin: 'java'
+apply plugin: 'maven-publish'
 
 compileJava {
   sourceCompatibility '1.8'
@@ -9,7 +10,7 @@ compileJava {
 group = 'org.jetbrains'
 archivesBaseName = 'intellij-fernflower'
 
-version = '1.1.0'
+version = '1.2.0'
 
 def ENV = System.getenv()
 if (ENV.BUILD_NUMBER) {
@@ -38,8 +39,24 @@ task sourceJar(type:Jar) {
   from sourceSets.main.allSource
 }
 
-artifacts {
-  archives sourceJar
-}
+publishing {
+  publications {
+    mavenJava(MavenPublication) {
+      from components.java
+      artifact(sourceJar)
+    }
+  }
 
-apply from: 'https://github.com/FabricMC/fabric-docs/raw/master/gradle/maven.gradle'
+  // select the repositories you want to publish to
+  repositories {
+    if (project.hasProperty('mavenPass')) {
+      maven {
+        url = "http://mavenupload.modmuss50.me/"
+        credentials {
+          username = "buildslave"
+          password = project.getProperty('mavenPass')
+        }
+      }
+    }
+  }
+}
