@@ -107,7 +107,13 @@ public class FieldExprent extends Exprent {
 
   @Override
   public int getExprentUse() {
-    return 0; // multiple references to a field considered dangerous in a multithreaded environment, thus no Exprent.MULTIPLE_USES set here
+    //Revert the following line it produces messy code as follows:
+    //-            this.field_225230_a[l + i1 * this.field_225231_b] &= 16777215;
+    //+            int[] aint = this.field_225230_a;
+    //+            int j1 = l + i1 * this.field_225231_b;
+    //+            aint[j1] &= 16777215;
+    //return 0; // multiple references to a field considered dangerous in a multithreaded environment, thus no Exprent.MULTIPLE_USES set here
+    return instance == null ? Exprent.MULTIPLE_USES : instance.getExprentUse() & Exprent.MULTIPLE_USES;
   }
 
   @Override
