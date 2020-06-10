@@ -461,6 +461,7 @@ public class ClassWriter {
     boolean isEnum = DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_ENUM) && (flags & CodeConstants.ACC_ENUM) != 0;
     boolean isInterface = (flags & CodeConstants.ACC_INTERFACE) != 0;
     boolean isAnnotation = (flags & CodeConstants.ACC_ANNOTATION) != 0;
+    boolean isModuleInfo = (flags & CodeConstants.ACC_MODULE) != 0 && cl.hasAttribute(StructGeneralAttribute.ATTRIBUTE_MODULE);
 
     if (isDeprecated) {
       appendDeprecation(buffer, indent);
