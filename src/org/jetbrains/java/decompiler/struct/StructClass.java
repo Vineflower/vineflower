@@ -2,6 +2,8 @@
 package org.jetbrains.java.decompiler.struct;
 
 import org.jetbrains.java.decompiler.code.CodeConstants;
+import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
+import org.jetbrains.java.decompiler.struct.attr.StructRecordAttribute;
 import org.jetbrains.java.decompiler.struct.consts.ConstantPool;
 import org.jetbrains.java.decompiler.struct.consts.PrimitiveConstant;
 import org.jetbrains.java.decompiler.struct.lazy.LazyLoader;
@@ -10,6 +12,7 @@ import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.VBStyleCollection;
 
 import java.io.IOException;
+import java.util.List;
 
 /*
   class_file {
@@ -132,6 +135,15 @@ public class StructClass extends StructMember {
     return pool;
   }
 
+  /**
+   * @return list of record components; null if this class is not a record
+   */
+  public List<StructRecordComponent> getRecordComponents() {
+    StructRecordAttribute recordAttr = getAttribute(StructGeneralAttribute.ATTRIBUTE_RECORD);
+    if (recordAttr == null) return null;
+    return recordAttr.getComponents();
+  }
+
   public int[] getInterfaces() {
     return interfaces;
   }
@@ -166,7 +178,7 @@ public class StructClass extends StructMember {
   }
 
   public int getBytecodeVersion() {
-    return majorVersion < CodeConstants.BYTECODE_JAVA_LE_4 ? CodeConstants.BYTECODE_JAVA_LE_4 : majorVersion;
+    return Math.max(majorVersion, CodeConstants.BYTECODE_JAVA_LE_4);
   }
 
   @Override

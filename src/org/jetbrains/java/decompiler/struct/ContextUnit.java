@@ -1,4 +1,4 @@
-// Copyright 2000-2017 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
+// Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.struct;
 
 import net.fabricmc.fernflower.api.IFabricResultSaver;
@@ -96,6 +96,9 @@ public class ContextUnit {
         // classes
         for (int i = 0; i < classes.size(); i++) {
           StructClass cl = classes.get(i);
+          if (!cl.isOwn()) {
+            continue;
+          }
           String entryName = decompiledData.getClassEntryName(cl, classEntries.get(i));
           if (entryName != null) {
             String content = decompiledData.getClassContent(cl);
