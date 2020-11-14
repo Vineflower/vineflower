@@ -7,15 +7,13 @@ compileJava {
   targetCompatibility '1.8'
 }
 
-group = 'org.jetbrains'
-archivesBaseName = 'intellij-fernflower'
+group = 'net.fabricmc'
+archivesBaseName = 'fabric-fernflower'
 
-version = '1.2.1'
+version = '1.3.0'
 
 def ENV = System.getenv()
-if (ENV.BUILD_NUMBER) {
-    version = version + "." + "${ENV.BUILD_NUMBER}"
-}
+version = version + (ENV.GITHUB_ACTIONS ? "" : "+local")
 
 sourceSets {
   main.java.srcDirs 'src'
@@ -39,6 +37,14 @@ task sourceJar(type:Jar) {
   from sourceSets.main.allSource
 }
 
+tasks.withType(JavaCompile).configureEach {
+  it.options.encoding = "UTF-8"
+
+  if (JavaVersion.current().isJava9Compatible()) {
+    it.options.release = 8
+  }
+}
+
 publishing {
   publications {
     mavenJava(MavenPublication) {
@@ -49,12 +55,12 @@ publishing {
 
   // select the repositories you want to publish to
   repositories {
-    if (project.hasProperty('mavenPass')) {
+    if (ENV.MAVEN_URL) {
       maven {
-        url = "http://mavenupload.modmuss50.me/"
+        url ENV.MAVEN_URL
         credentials {
-          username = "buildslave"
-          password = project.getProperty('mavenPass')
+          username ENV.MAVEN_USERNAME
+          password ENV.MAVEN_PASSWORD
         }
       }
     }
