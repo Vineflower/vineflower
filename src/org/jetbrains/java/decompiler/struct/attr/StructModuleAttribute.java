@@ -1,13 +1,13 @@
-// Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
+// Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.struct.attr;
+
+import org.jetbrains.java.decompiler.struct.consts.ConstantPool;
+import org.jetbrains.java.decompiler.util.DataInputFullStream;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import org.jetbrains.java.decompiler.struct.consts.ConstantPool;
-import org.jetbrains.java.decompiler.util.DataInputFullStream;
 
 public class StructModuleAttribute extends StructGeneralAttribute {
   public String moduleName;

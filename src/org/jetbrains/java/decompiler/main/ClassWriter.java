@@ -1,4 +1,4 @@
-// Copyright 2000-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
+// Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.main;
 
 import net.fabricmc.fernflower.api.IFabricJavadocProvider;
@@ -355,7 +355,7 @@ public class ClassWriter {
     }
 
     for (String uses : moduleAttribute.uses) {
-      String className = internalClassNameToJava(uses);
+      String className = ExprProcessor.buildJavaClassName(uses);
 
       buffer.appendIndent(1)
         .append("uses ")
@@ -365,7 +365,7 @@ public class ClassWriter {
     }
 
     for (StructModuleAttribute.ProvidesEntry provides : moduleAttribute.provides) {
-      String interfaceName = internalClassNameToJava(provides.interfaceName);
+      String interfaceName = ExprProcessor.buildJavaClassName(provides.interfaceName);
 
       buffer.appendIndent(1)
         .append("provides ")
@@ -375,7 +375,7 @@ public class ClassWriter {
 
       int lastIndex = provides.implementationNames.size() - 1;
       for (int i = 0; i < provides.implementationNames.size(); i++) {
-        String className = internalClassNameToJava(provides.implementationNames.get(i));
+        String className = ExprProcessor.buildJavaClassName(provides.implementationNames.get(i));
         char separator = i == lastIndex ? ';' : ',';
 
         buffer.appendIndent(2)
@@ -385,12 +385,7 @@ public class ClassWriter {
       }
     }
   }
-
-  private static String internalClassNameToJava(String internal) {
-    // TODO: replace both at once...?
-    return internal.replace('/', '.').replace('$', '.');
-  }
-
+  
   private static void addTracer(StructClass cls, StructMethod method, BytecodeMappingTracer tracer) {
     StructLineNumberTableAttribute table = method.getAttribute(StructGeneralAttribute.ATTRIBUTE_LINE_NUMBER_TABLE);
     tracer.setLineNumberTable(table);
@@ -473,10 +468,21 @@ public class ClassWriter {
     else if (components != null) {
       buffer.append("record ");
     }
+    else if (isModuleInfo) {
+      StructModuleAttribute moduleAttribute = cl.getAttribute(StructGeneralAttribute.ATTRIBUTE_MODULE);
+
+      if ((moduleAttribute.moduleFlags & CodeConstants.ACC_OPEN) != 0) {
+        buffer.append("open ");
+      }
+
+      buffer.append("module ");
+      buffer.append(moduleAttribute.moduleName);
+    }
     else {
       buffer.append("class ");
     }
 
+    // Handled above
     if (!isModuleInfo) {
       buffer.append(node.simpleName);
     }
