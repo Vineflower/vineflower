@@ -207,15 +207,15 @@ public class ConstExprent extends Exprent {
           }
         }
         else if (Double.isNaN(doubleVal)) {
-          return new TextBuffer("0.0D / 0.0");
+          return new TextBuffer("0.0 / 0.0");
         }
         else if (doubleVal == Double.POSITIVE_INFINITY) {
-          return new TextBuffer("1.0D / 0.0");
+          return new TextBuffer("1.0 / 0.0");
         }
         else if (doubleVal == Double.NEGATIVE_INFINITY) {
-          return new TextBuffer("-1.0D / 0.0");
+          return new TextBuffer("-1.0 / 0.0");
         }
-        return new TextBuffer(value.toString()).append('D');
+        return new TextBuffer(value.toString());
 
       case CodeConstants.TYPE_NULL:
         return new TextBuffer("null");
