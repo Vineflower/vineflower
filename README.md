@@ -1,3 +1,14 @@
+### Quiltflower
+
+Quiltflower is a fork of Fernflower adding additional features for use with the Quilt toolchain.
+
+Changes include:
+- Javadoc application
+- Multithreading
+- Handful of other fixes
+
+When pulling from upstream, use https://github.com/fesh0r/fernflower
+
 ### About Fernflower
 
 Fernflower is the first actually working analytical decompiler for Java and 

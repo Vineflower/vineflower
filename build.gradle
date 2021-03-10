@@ -7,8 +7,8 @@ compileJava {
   targetCompatibility '1.8'
 }
 
-group = 'net.fabricmc'
-archivesBaseName = 'fabric-fernflower'
+group = 'org.quiltmc'
+archivesBaseName = 'quiltflower'
 
 version = '1.3.0'
 
@@ -40,6 +40,7 @@ task sourceJar(type:Jar) {
 tasks.withType(JavaCompile).configureEach {
   it.options.encoding = "UTF-8"
 
+  // Target JDK 8
   if (JavaVersion.current().isJava9Compatible()) {
     it.options.release = 8
   }
