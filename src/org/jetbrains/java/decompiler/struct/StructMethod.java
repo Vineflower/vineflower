@@ -39,7 +39,7 @@ public class StructMethod extends StructMember {
       attributes.putAll(code.codeAttributes);
     }
 
-    return new StructMethod(accessFlags, attributes, values[0], values[1], bytecodeVersion, own ? code : null);
+    return new StructMethod(accessFlags, attributes, values[0], values[1], bytecodeVersion, own ? code : null, clQualifiedName);
   }
 
   private static final int[] opr_iconst = {-1, 0, 1, 2, 3, 4, 5};
@@ -55,13 +55,15 @@ public class StructMethod extends StructMember {
   private final int codeFullLength;
   private InstructionSequence seq = null;
   private boolean expanded = false;
+  private final String classQualifiedName;
 
   private StructMethod(int accessFlags,
                        Map<String, StructGeneralAttribute> attributes,
                        String name,
                        String descriptor,
                        int bytecodeVersion,
-                       StructCodeAttribute code) {
+                       StructCodeAttribute code,
+                       String classQualifiedName) {
     super(accessFlags, attributes);
     this.name = name;
     this.descriptor = descriptor;
@@ -74,6 +76,7 @@ public class StructMethod extends StructMember {
     else {
       this.localVariables = this.codeLength = this.codeFullLength = -1;
     }
+    this.classQualifiedName = classQualifiedName;
   }
 
   public void expandData(StructClass classStruct) throws IOException {
@@ -370,5 +373,9 @@ public class StructMethod extends StructMember {
   @Override
   public String toString() {
     return name;
+  }
+
+  public String getClassQualifiedName() {
+    return classQualifiedName;
   }
 }
