@@ -205,6 +205,13 @@ public class ConstExprent extends Exprent {
           else if (doubleVal == Double.MIN_VALUE) {
             return new FieldExprent("MIN_VALUE", "java/lang/Double", true, null, FieldDescriptor.DOUBLE_DESCRIPTOR, bytecode).toJava(0, tracer);
           }
+
+          float floatRepresentation = (float) doubleVal;
+          if (floatRepresentation == doubleVal) {
+            if (Float.toString(floatRepresentation).length() < Double.toString(doubleVal).length()) {
+              return new TextBuffer(Float.toString(floatRepresentation)).append("F");
+            }
+          }
         }
         else if (Double.isNaN(doubleVal)) {
           return new TextBuffer("0.0 / 0.0");
