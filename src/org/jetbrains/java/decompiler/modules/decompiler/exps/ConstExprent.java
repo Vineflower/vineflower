@@ -19,9 +19,13 @@ import java.util.*;
 import java.util.Map.Entry;
 
 public class ConstExprent extends Exprent {
-  private static final Map<Integer, String> CHAR_ESCAPES;
+  private static final Map<Integer, String> CHAR_ESCAPES = new HashMap<>();
+  private static final Map<Double, String> UNINLINED_DOUBLES = new HashMap<>();
+  private static final Map<Float, String> UNINLINED_FLOATS = new HashMap<>();
+
+  private static final double[][] UNIT_CIRCLE = {{2.0, 3.0}, {3.0, 4.0}, {5.0, 6.0}, {7.0, 6.0}, {5.0, 4.0}, {4.0, 3.0}, {3.0, 2.0}, {5.0, 3.0}, {7.0, 4.0}, {11.0, 6.0}};
+
   static {
-    CHAR_ESCAPES = new HashMap<>();
     CHAR_ESCAPES.put(0x8, "\\b");   /* \u0008: backspace BS */
     CHAR_ESCAPES.put(0x9, "\\t");   /* \u0009: horizontal tab HT */
     CHAR_ESCAPES.put(0xA, "\\n");   /* \u000a: linefeed LF */
@@ -30,6 +34,77 @@ public class ConstExprent extends Exprent {
     //CHAR_ESCAPES.put(0x22, "\\\""); /* \u0022: double quote " */
     CHAR_ESCAPES.put(0x27, "\\'"); /* \u0027: single quote ' */
     CHAR_ESCAPES.put(0x5C, "\\\\"); /* \u005c: backslash \ */
+
+    // Store float and double values that need to get uninlined.
+    // These values are better represented by their original values, to improve code readability.
+    // Some values need multiple float versions, as they can vary slightly due to where the cast to float is placed.
+
+    // Positive and negative e
+    UNINLINED_DOUBLES.put(Math.E, "Math.E");
+    UNINLINED_FLOATS.put((float) Math.E, "(float) Math.E");
+
+    UNINLINED_DOUBLES.put(-Math.E, "-Math.E");
+    UNINLINED_FLOATS.put((float) -Math.E, "(float) -Math.E");
+
+    // Positive and negative pi
+    UNINLINED_DOUBLES.put(Math.PI, "Math.PI");
+    UNINLINED_FLOATS.put((float) Math.PI, "(float) Math.PI");
+
+    UNINLINED_DOUBLES.put(-Math.PI, "-Math.PI");
+    UNINLINED_FLOATS.put((float) -Math.PI, "(float) -Math.PI");
+
+    // Positive and negative pi divisors
+    for (int i = 2; i <= 20; i++) {
+      UNINLINED_DOUBLES.put(Math.PI / i, "Math.PI / " + i);
+      UNINLINED_FLOATS.put((float) Math.PI / i, "(float) Math.PI / " + i);
+      UNINLINED_FLOATS.put((float) (Math.PI / i), "(float) (Math.PI / " + i + ")");
+
+      UNINLINED_DOUBLES.put(-Math.PI / i, "-Math.PI / " + i);
+      UNINLINED_FLOATS.put((float) -Math.PI / i, "(float) -Math.PI / " + i);
+      UNINLINED_FLOATS.put((float) (-Math.PI / i), "(float) (-Math.PI / " + i + ")");
+    }
+
+    // Positive and negative pi multipliers
+    for (int i = 2; i <= 20; i++) {
+      UNINLINED_DOUBLES.put(Math.PI * i, "Math.PI * " + i);
+      UNINLINED_FLOATS.put((float) Math.PI * i, "(float) Math.PI * " + i);
+      UNINLINED_FLOATS.put((float) (Math.PI * i), "(float) (Math.PI * " + i + ")");
+
+      UNINLINED_DOUBLES.put(-Math.PI * i, "-Math.PI * " + i);
+      UNINLINED_FLOATS.put((float) -Math.PI * i, "(float) -Math.PI * " + i);
+      UNINLINED_FLOATS.put((float) -Math.PI * i, "(float) (-Math.PI * " + i + ")");
+    }
+
+    // Extra pi values on the unit circle
+    for (double[] doubles : UNIT_CIRCLE) {
+      double numerator = doubles[0];
+      double denominator = doubles[1];
+
+      UNINLINED_DOUBLES.put(Math.PI * (numerator / denominator), "(Math.PI * " + numerator + " / " + denominator + ")");
+      UNINLINED_FLOATS.put((float) (Math.PI * (numerator / denominator)), "(float) (Math.PI * " + numerator + " / " + denominator + ")");
+      UNINLINED_FLOATS.put((float) Math.PI * ((float)numerator / (float)denominator), "((float) Math.PI * " + (float)numerator + "F / " + (float)denominator + "F)");
+
+      UNINLINED_DOUBLES.put(-Math.PI * (numerator / denominator), "(-Math.PI * " + numerator + " / " + denominator + ")");
+      UNINLINED_FLOATS.put((float) (-Math.PI * (numerator / denominator)), "(float) (-Math.PI * " + numerator + " / " + denominator + ")");
+      UNINLINED_FLOATS.put((float) -Math.PI * ((float)numerator / (float)denominator), "((float) -Math.PI * " + (float)numerator + "F / " + (float)denominator + "F)");
+    }
+
+    // Positive and negative 180 / pi
+    UNINLINED_DOUBLES.put(180.0 / Math.PI, "180.0 / Math.PI");
+    UNINLINED_FLOATS.put((float) (180.0F / Math.PI), "(float) (180.0F / Math.PI)");
+    UNINLINED_FLOATS.put((180.0F / (float) Math.PI), " (180.0F / (float) Math.PI)");
+
+    UNINLINED_DOUBLES.put(-180.0 / Math.PI, "-180.0 / Math.PI");
+    UNINLINED_FLOATS.put((float) (-180.0F / Math.PI), "(float) (-180.0F / Math.PI)");
+    UNINLINED_FLOATS.put((-180.0F / (float) Math.PI), "(-180.0F / (float) Math.PI)");
+
+    // Positive and negative pi / 180
+    // Since this is a floating point number divided by a whole fraction it doesn't need a reordered cast version
+    UNINLINED_DOUBLES.put(Math.PI / 180.0, "Math.PI / 180.0");
+    UNINLINED_FLOATS.put((float) (Math.PI / 180.0F), "(float) (Math.PI / 180.0F)");
+
+    UNINLINED_DOUBLES.put(-Math.PI / 180.0, "-Math.PI / 180.0");
+    UNINLINED_FLOATS.put((float) (-Math.PI / 180.0F), "(float) (-Math.PI / 180.0F)");
   }
 
   private VarType constType;
@@ -175,6 +250,9 @@ public class ConstExprent extends Exprent {
           else if (floatVal == Float.MIN_VALUE) {
             return new FieldExprent("MIN_VALUE", "java/lang/Float", true, null, FieldDescriptor.FLOAT_DESCRIPTOR, bytecode).toJava(0, tracer);
           }
+          else if (UNINLINED_FLOATS.containsKey(floatVal)) {
+            return new TextBuffer(UNINLINED_FLOATS.get(floatVal));
+          }
         }
         else if (Float.isNaN(floatVal)) {
           return new TextBuffer("0.0F / 0.0");
@@ -205,11 +283,21 @@ public class ConstExprent extends Exprent {
           else if (doubleVal == Double.MIN_VALUE) {
             return new FieldExprent("MIN_VALUE", "java/lang/Double", true, null, FieldDescriptor.DOUBLE_DESCRIPTOR, bytecode).toJava(0, tracer);
           }
+          else if (UNINLINED_DOUBLES.containsKey(doubleVal)) {
+            return new TextBuffer(UNINLINED_DOUBLES.get(doubleVal));
+          }
 
+          // Try to convert the double representation of the value to the float representation, to output the cleanest version of the value.
           float floatRepresentation = (float) doubleVal;
           if (floatRepresentation == doubleVal) {
             if (Float.toString(floatRepresentation).length() < Double.toString(doubleVal).length()) {
-              return new TextBuffer(Float.toString(floatRepresentation)).append("F");
+              // Check the uninlined values to see if we have one of those
+              if (UNINLINED_FLOATS.containsKey(floatRepresentation)) {
+                return new TextBuffer(UNINLINED_FLOATS.get(floatRepresentation));
+              } else {
+                // Return the standard representation if the value is not able to be uninlined
+                return new TextBuffer(Float.toString(floatRepresentation)).append("F");
+              }
             }
           }
         }
@@ -384,7 +472,6 @@ public class ConstExprent extends Exprent {
   private static boolean isPrintableAscii(int c) {
     return c >= 32 && c < 127;
   }
-
 
   public Object getValue() {
     return value;
