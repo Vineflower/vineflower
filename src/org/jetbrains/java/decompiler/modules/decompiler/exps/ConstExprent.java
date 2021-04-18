@@ -23,6 +23,8 @@ public class ConstExprent extends Exprent {
   private static final Map<Double, String> UNINLINED_DOUBLES = new HashMap<>();
   private static final Map<Float, String> UNINLINED_FLOATS = new HashMap<>();
 
+  private static final double[][] UNIT_CIRCLE = {{2.0, 3.0}, {3.0, 4.0}, {5.0, 6.0}, {7.0, 6.0}, {5.0, 4.0}, {4.0, 3.0}, {3.0, 2.0}, {5.0, 3.0}, {7.0, 4.0}, {11.0, 6.0}};
+
   static {
     CHAR_ESCAPES.put(0x8, "\\b");   /* \u0008: backspace BS */
     CHAR_ESCAPES.put(0x9, "\\t");   /* \u0009: horizontal tab HT */
@@ -50,28 +52,34 @@ public class ConstExprent extends Exprent {
     UNINLINED_DOUBLES.put(-Math.PI, "-Math.PI");
     UNINLINED_FLOATS.put((float) -Math.PI, "(float) -Math.PI");
 
-    // Positive pi divisors
+    // Positive and negative pi divisors
     for (int i = 2; i < 20; i++) {
       UNINLINED_DOUBLES.put(Math.PI / i, "Math.PI / " + i);
       UNINLINED_FLOATS.put((float) Math.PI / i, "(float) (Math.PI / " + i + ")");
-    }
 
-    // Negative pi divisors
-    for (int i = 2; i < 20; i++) {
       UNINLINED_DOUBLES.put(-Math.PI / i, "-Math.PI / " + i);
       UNINLINED_FLOATS.put((float) -Math.PI / i, "(float) (-Math.PI / " + i + ")");
     }
 
-    // Positive pi multipliers
+    // Positive and negative pi multipliers
     for (int i = 2; i < 20; i++) {
       UNINLINED_DOUBLES.put(Math.PI * i, "Math.PI * " + i);
       UNINLINED_FLOATS.put((float) Math.PI * i, "(float) (Math.PI * " + i + ")");
-    }
 
-    // Negative pi multipliers
-    for (int i = 2; i < 20; i++) {
       UNINLINED_DOUBLES.put(-Math.PI * i, "-Math.PI * " + i);
       UNINLINED_FLOATS.put((float) -Math.PI * i, "(float) (-Math.PI * " + i + ")");
+    }
+
+    // Extra pi values on the unit circle
+    for (double[] doubles : UNIT_CIRCLE) {
+      double numerator = doubles[0];
+      double denominator = doubles[1];
+
+      UNINLINED_DOUBLES.put(Math.PI * (numerator / denominator), "(Math.PI * " + numerator + " / " + denominator + ")");
+      UNINLINED_FLOATS.put((float) (Math.PI * (numerator / denominator)), "(float) (Math.PI * " + (float)numerator + "F / " + (float)denominator + "F)");
+
+      UNINLINED_DOUBLES.put(-Math.PI * (numerator / denominator), "(-Math.PI * " + numerator + " / " + denominator + ")");
+      UNINLINED_FLOATS.put((float) (-Math.PI * (numerator / denominator)), "(float) (-Math.PI * " + (float)numerator + "F / " + (float)denominator + "F)");
     }
 
     // Positive and negative 180 / pi
@@ -277,7 +285,7 @@ public class ConstExprent extends Exprent {
               if (UNINLINED_FLOATS.containsKey(floatRepresentation)) {
                 return new TextBuffer(UNINLINED_FLOATS.get(floatRepresentation));
               } else {
-                // Return the standard representation if we don't
+                // Return the standard representation if the value is not able to be uninlined
                 return new TextBuffer(Float.toString(floatRepresentation)).append("F");
               }
             }
