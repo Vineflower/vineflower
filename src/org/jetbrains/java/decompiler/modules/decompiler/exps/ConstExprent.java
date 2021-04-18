@@ -37,6 +37,7 @@ public class ConstExprent extends Exprent {
 
     // Store float and double values that need to get uninlined.
     // These values are better represented by their original values, to improve code readability.
+    // Some values need multiple float versions, as they can vary slightly due to where the cast to float is placed.
 
     // Positive and negative e
     UNINLINED_DOUBLES.put(Math.E, "Math.E");
@@ -53,20 +54,24 @@ public class ConstExprent extends Exprent {
     UNINLINED_FLOATS.put((float) -Math.PI, "(float) -Math.PI");
 
     // Positive and negative pi divisors
-    for (int i = 2; i < 20; i++) {
+    for (int i = 2; i <= 20; i++) {
       UNINLINED_DOUBLES.put(Math.PI / i, "Math.PI / " + i);
-      UNINLINED_FLOATS.put((float) Math.PI / i, "(float) (Math.PI / " + i + ")");
+      UNINLINED_FLOATS.put((float) Math.PI / i, "(float) Math.PI / " + i);
+      UNINLINED_FLOATS.put((float) (Math.PI / i), "(float) (Math.PI / " + i + ")");
 
       UNINLINED_DOUBLES.put(-Math.PI / i, "-Math.PI / " + i);
-      UNINLINED_FLOATS.put((float) -Math.PI / i, "(float) (-Math.PI / " + i + ")");
+      UNINLINED_FLOATS.put((float) -Math.PI / i, "(float) -Math.PI / " + i);
+      UNINLINED_FLOATS.put((float) (-Math.PI / i), "(float) (-Math.PI / " + i + ")");
     }
 
     // Positive and negative pi multipliers
-    for (int i = 2; i < 20; i++) {
+    for (int i = 2; i <= 20; i++) {
       UNINLINED_DOUBLES.put(Math.PI * i, "Math.PI * " + i);
-      UNINLINED_FLOATS.put((float) Math.PI * i, "(float) (Math.PI * " + i + ")");
+      UNINLINED_FLOATS.put((float) Math.PI * i, "(float) Math.PI * " + i);
+      UNINLINED_FLOATS.put((float) (Math.PI * i), "(float) (Math.PI * " + i + ")");
 
       UNINLINED_DOUBLES.put(-Math.PI * i, "-Math.PI * " + i);
+      UNINLINED_FLOATS.put((float) -Math.PI * i, "(float) -Math.PI * " + i);
       UNINLINED_FLOATS.put((float) -Math.PI * i, "(float) (-Math.PI * " + i + ")");
     }
 
@@ -76,20 +81,25 @@ public class ConstExprent extends Exprent {
       double denominator = doubles[1];
 
       UNINLINED_DOUBLES.put(Math.PI * (numerator / denominator), "(Math.PI * " + numerator + " / " + denominator + ")");
-      UNINLINED_FLOATS.put((float) (Math.PI * (numerator / denominator)), "(float) (Math.PI * " + (float)numerator + "F / " + (float)denominator + "F)");
+      UNINLINED_FLOATS.put((float) (Math.PI * (numerator / denominator)), "(float) (Math.PI * " + numerator + " / " + denominator + ")");
+      UNINLINED_FLOATS.put((float) Math.PI * ((float)numerator / (float)denominator), "((float) Math.PI * " + (float)numerator + "F / " + (float)denominator + "F)");
 
       UNINLINED_DOUBLES.put(-Math.PI * (numerator / denominator), "(-Math.PI * " + numerator + " / " + denominator + ")");
-      UNINLINED_FLOATS.put((float) (-Math.PI * (numerator / denominator)), "(float) (-Math.PI * " + (float)numerator + "F / " + (float)denominator + "F)");
+      UNINLINED_FLOATS.put((float) (-Math.PI * (numerator / denominator)), "(float) (-Math.PI * " + numerator + " / " + denominator + ")");
+      UNINLINED_FLOATS.put((float) -Math.PI * ((float)numerator / (float)denominator), "((float) -Math.PI * " + (float)numerator + "F / " + (float)denominator + "F)");
     }
 
     // Positive and negative 180 / pi
     UNINLINED_DOUBLES.put(180.0 / Math.PI, "180.0 / Math.PI");
     UNINLINED_FLOATS.put((float) (180.0F / Math.PI), "(float) (180.0F / Math.PI)");
+    UNINLINED_FLOATS.put((180.0F / (float) Math.PI), " (180.0F / (float) Math.PI)");
 
     UNINLINED_DOUBLES.put(-180.0 / Math.PI, "-180.0 / Math.PI");
     UNINLINED_FLOATS.put((float) (-180.0F / Math.PI), "(float) (-180.0F / Math.PI)");
+    UNINLINED_FLOATS.put((-180.0F / (float) Math.PI), "(-180.0F / (float) Math.PI)");
 
     // Positive and negative pi / 180
+    // Since this is a floating point number divided by a whole fraction it doesn't need a reordered cast version
     UNINLINED_DOUBLES.put(Math.PI / 180.0, "Math.PI / 180.0");
     UNINLINED_FLOATS.put((float) (Math.PI / 180.0F), "(float) (Math.PI / 180.0F)");
 
