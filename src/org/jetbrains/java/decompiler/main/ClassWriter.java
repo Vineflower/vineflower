@@ -97,7 +97,11 @@ public class ClassWriter {
         MethodDescriptor md_lambda = MethodDescriptor.parseDescriptor(node.lambdaInformation.method_descriptor);
 
         if (!lambdaToAnonymous) {
-          buffer.append('(');
+          boolean lambdaParametersNeedParentheses = md_lambda.params.length != 1;
+
+          if (lambdaParametersNeedParentheses) {
+            buffer.append('(');
+          }
 
           boolean firstParameter = true;
           int index = node.lambdaInformation.is_content_method_static ? 0 : 1;
@@ -118,7 +122,10 @@ public class ClassWriter {
             index += md_content.params[i].stackSize;
           }
 
-          buffer.append(") ->");
+          if (lambdaParametersNeedParentheses) {
+            buffer.append(")");
+          }
+          buffer.append(" ->");
         }
 
         buffer.append(" {").appendLineSeparator();

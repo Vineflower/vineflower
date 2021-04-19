@@ -14,7 +14,7 @@ public class TestClassLambda {
    public void testLambda() {
       List var1 = Arrays.asList(1, 2, 3, 4, 5, 6, 7);// 29
       int var2 = (int)Math.random();// 30
-      var1.forEach((var2x) -> {// 32
+      var1.forEach(var2x -> {// 32
          int var3 = 2 * var2x;// 33
          System.out.println(var3 + var2 + this.field);// 34
       });// 35
@@ -53,7 +53,7 @@ public class TestClassLambda {
       ArrayList var1 = new ArrayList();// 62
       int var2 = var1.size() * 2;// 63
       int var3 = var1.size() * 5;// 64
-      var1.removeIf((var2x) -> {// 65
+      var1.removeIf(var2x -> {// 65
          return var2 >= var2x.length() && var2x.length() <= var3;
       });
    }// 66

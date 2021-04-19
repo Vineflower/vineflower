@@ -5,13 +5,13 @@ import java.util.function.Function;
 public class TestLambdaParams {
    public static void toCollection(Object var0) {
       Object var1 = null;// 23
-      Function var2 = (var1x) -> {
+      Function var2 = var1x -> {
          return var0;
       };// 24
-      Function var3 = (var1x) -> {
+      Function var3 = var1x -> {
          return var1;
       };// 25
-      Function var4 = (var0x) -> {
+      Function var4 = var0x -> {
          return var0x;
       };// 26
    }// 27
