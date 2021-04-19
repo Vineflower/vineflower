@@ -29,8 +29,10 @@ public final class IntHelper {
    */
   public static String adjustedIntRepresentation(int value) {
     // Check against the special int values to see if we're one of those, and return
-    if (SPECIAL_VALUES.containsKey(value)) {
-      return SPECIAL_VALUES.get(value);
+    String specialValue = SPECIAL_VALUES.get(value);
+
+    if (specialValue != null) {
+      return specialValue;
     }
 
     // Return the standard representation if we're not one of those
