@@ -38,6 +38,7 @@ public class ConstExprent extends Exprent {
     // Store float and double values that need to get uninlined.
     // These values are better represented by their original values, to improve code readability.
     // Some values need multiple float versions, as they can vary slightly due to where the cast to float is placed.
+    // This patch is based on work in ForgeFlower submitted by Pokechu22.
 
     // Positive and negative e
     UNINLINED_DOUBLES.put(Math.E, "Math.E");
@@ -288,6 +289,7 @@ public class ConstExprent extends Exprent {
           }
 
           // Try to convert the double representation of the value to the float representation, to output the cleanest version of the value.
+          // This patch is based on work in ForgeFlower submitted by Pokechu22.
           float floatRepresentation = (float) doubleVal;
           if (floatRepresentation == doubleVal) {
             if (Float.toString(floatRepresentation).length() < Double.toString(doubleVal).length()) {
