@@ -132,6 +132,13 @@ public class AssignmentExprent extends Exprent {
 
     TextBuffer res = right.toJava(indent, tracer);
 
+    // This is an incredibly hacky fix for booleans being assigned to integer values.
+    // Certain cases will cause decompiled code to output "int i = true;` for nonzero constant values and this is a highly naive way to fix it.
+    // We check if the buffer containing the variable name starts with "int " and then re-resolve the textbuffer with the int representation instead.
+    if (this.right.type == EXPRENT_CONST && buffer.toString().startsWith("int ")) {
+      res = new TextBuffer(String.valueOf((int)((ConstExprent)this.right).getValue()));
+    }
+
     if (condType == CONDITION_NONE &&
         !leftType.isSuperset(rightType) &&
         (rightType.equals(VarType.VARTYPE_OBJECT) || leftType.type != CodeConstants.TYPE_OBJECT)) {
