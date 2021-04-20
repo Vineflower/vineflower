@@ -10,6 +10,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.match.MatchEngine;
 import org.jetbrains.java.decompiler.struct.match.MatchNode;
+import org.jetbrains.java.decompiler.util.IntHelper;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.ListStack;
 import org.jetbrains.java.decompiler.util.TextBuffer;
@@ -433,10 +434,64 @@ public class FunctionExprent extends Exprent {
   public TextBuffer toJava(int indent, BytecodeMappingTracer tracer) {
     tracer.addMapping(bytecode);
 
-    if (funcType <= FUNCTION_USHR) {
-      return wrapOperandString(lstOperands.get(0), false, indent, tracer)
+    // If we're an unsigned right shift or lower, this function can be represented as a single leftHand + functionType + rightHand operation.
+    if (this.funcType <= FUNCTION_USHR) {
+      // Minecraft specific hot fix: If we're bitwise and-ing by a char value, we can assume that it's wrong behavior.
+      // We check for this and then fix it by resetting the param to be an int instead of a char.
+      // This fixes cases where "& 65535" and "& 0xFFFF" get wrongly decompiled as "& '\uffff'".
+      if (this.funcType == FUNCTION_AND) {
+        Exprent left = this.lstOperands.get(0);
+        Exprent right = this.lstOperands.get(1);
+
+        // Checks to see if the right expression is a constant and then adjust the type from char to int if the left is an int.
+        // Failing that, check the left hand side and then do the same.
+        if (right.type == EXPRENT_CONST) {
+          ((ConstExprent) right).adjustConstType(left.getExprType());
+        } else if (left.type == EXPRENT_CONST) {
+          ((ConstExprent) left).adjustConstType(right.getExprType());
+        }
+      }
+
+      // Check for special cased integers on the right and left hand side, and then return if they are found.
+      // This only applies to bitwise and as well as bitwise or functions.
+      if (this.funcType == FUNCTION_AND || this.funcType == FUNCTION_OR) {
+        Exprent left = this.lstOperands.get(0);
+        Exprent right = this.lstOperands.get(1);
+
+        // Initialize the operands with the defaults
+        TextBuffer leftOperand = wrapOperandString(this.lstOperands.get(0), false, indent, tracer);
+        TextBuffer rightOperand = wrapOperandString(this.lstOperands.get(1), true, indent, tracer);
+
+        boolean ret = false;
+
+        // Check if the right is an int constant and adjust accordingly
+        if (right.type == EXPRENT_CONST && right.getExprType() == VarType.VARTYPE_INT) {
+          Integer value = (Integer) ((ConstExprent)right).getValue();
+          rightOperand = new TextBuffer(IntHelper.adjustedIntRepresentation(value));
+
+          ret = true;
+        }
+
+        // Check if the left is an int constant and adjust accordingly
+        if (left.type == EXPRENT_CONST && left.getExprType() == VarType.VARTYPE_INT) {
+          Integer value = (Integer) ((ConstExprent)left).getValue();
+          leftOperand = new TextBuffer(IntHelper.adjustedIntRepresentation(value));
+
+          ret = true;
+        }
+
+        // If either or both sides were an int constant, return here. Otherwise, fall back to default behavior.
+        if (ret) {
+          return leftOperand
+            .append(OPERATORS[this.funcType])
+            .append(rightOperand);
+        }
+      }
+
+      // Return the applied operands and operators.
+      return wrapOperandString(this.lstOperands.get(0), false, indent, tracer)
         .append(OPERATORS[funcType])
-        .append(wrapOperandString(lstOperands.get(1), true, indent, tracer));
+        .append(wrapOperandString(this.lstOperands.get(1), true, indent, tracer));
     }
 
       // try to determine more accurate type for 'char' literals
