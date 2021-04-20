@@ -40,6 +40,9 @@ public class SingleClassesLiteralTest {
   @Test
   public void testNotFloatPrecision() { doTest("pkg/TestNotFloatPrecision"); }
 
+  @Test
+  public void testConstantUninlining() { doTest("pkg/TestConstantUninlining"); }
+
   private void doTest(String testFile, String... companionFiles) {
     ConsoleDecompiler decompiler = fixture.getDecompiler();
 
