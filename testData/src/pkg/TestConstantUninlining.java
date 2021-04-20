@@ -24,6 +24,7 @@ class TestConstantUninlining {
   static final float FPITwentieth = (float) Math.PI / 20.0f;
   static final float FPIThreeHalves = (float) Math.PI * 3.0f / 2.0f;
   static final float FPITwoThirds = (float) Math.PI * 2.0f / 3.0f;
+  static final float FPIThreeFifths = (float) Math.PI * 3.0f / 5.0f;
   static final float FPIOver180 = (float) Math.PI / 180.0f;
 
   static final float FE = (float) Math.E;
@@ -34,6 +35,7 @@ class TestConstantUninlining {
   static final double DPITwentieth = Math.PI / 20.0;
   static final double DPIThreeHalves = Math.PI * 3.0 / 2.0;
   static final double DPITwoThirds = Math.PI * 2.0 / 3.0;
+  static final double DPIThreeFifths = Math.PI * 3.0 / 5.0;
   static final double DPIOver180 = Math.PI / 180.0;
 
   static final double DE = Math.E;

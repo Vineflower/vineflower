@@ -24,8 +24,6 @@ public class ConstExprent extends Exprent {
   private static final Map<Double, String> UNINLINED_DOUBLES = new HashMap<>();
   private static final Map<Float, String> UNINLINED_FLOATS = new HashMap<>();
 
-  private static final double[][] UNIT_CIRCLE = {{2.0, 3.0}, {3.0, 4.0}, {5.0, 6.0}, {7.0, 6.0}, {5.0, 4.0}, {4.0, 3.0}, {3.0, 2.0}, {5.0, 3.0}, {7.0, 4.0}, {11.0, 6.0}};
-
   static {
     CHAR_ESCAPES.put(0x8, "\\b");   /* \u0008: backspace BS */
     CHAR_ESCAPES.put(0x9, "\\t");   /* \u0009: horizontal tab HT */
@@ -78,17 +76,19 @@ public class ConstExprent extends Exprent {
     }
 
     // Extra pi values on the unit circle
-    for (double[] doubles : UNIT_CIRCLE) {
-      double numerator = doubles[0];
-      double denominator = doubles[1];
+    for (double numerator = 2; numerator < 13; numerator++) {
+      for (double denominator = 2; denominator < 13; denominator++) {
+        double gcd = gcd(numerator, denominator);
+        if (gcd == 1) {
+          UNINLINED_DOUBLES.put(Math.PI * (numerator / denominator), "(Math.PI * " + numerator + " / " + denominator + ")");
+          UNINLINED_FLOATS.put((float) (Math.PI * (numerator / denominator)), "(float) (Math.PI * " + numerator + " / " + denominator + ")");
+          UNINLINED_FLOATS.put((float) Math.PI * ((float) numerator / (float) denominator), "((float) Math.PI * " + (float) numerator + "F / " + (float) denominator + "F)");
 
-      UNINLINED_DOUBLES.put(Math.PI * (numerator / denominator), "(Math.PI * " + numerator + " / " + denominator + ")");
-      UNINLINED_FLOATS.put((float) (Math.PI * (numerator / denominator)), "(float) (Math.PI * " + numerator + " / " + denominator + ")");
-      UNINLINED_FLOATS.put((float) Math.PI * ((float)numerator / (float)denominator), "((float) Math.PI * " + (float)numerator + "F / " + (float)denominator + "F)");
-
-      UNINLINED_DOUBLES.put(-Math.PI * (numerator / denominator), "(-Math.PI * " + numerator + " / " + denominator + ")");
-      UNINLINED_FLOATS.put((float) (-Math.PI * (numerator / denominator)), "(float) (-Math.PI * " + numerator + " / " + denominator + ")");
-      UNINLINED_FLOATS.put((float) -Math.PI * ((float)numerator / (float)denominator), "((float) -Math.PI * " + (float)numerator + "F / " + (float)denominator + "F)");
+          UNINLINED_DOUBLES.put(-Math.PI * (numerator / denominator), "(-Math.PI * " + numerator + " / " + denominator + ")");
+          UNINLINED_FLOATS.put((float) (-Math.PI * (numerator / denominator)), "(float) (-Math.PI * " + numerator + " / " + denominator + ")");
+          UNINLINED_FLOATS.put((float) -Math.PI * ((float) numerator / (float) denominator), "((float) -Math.PI * " + (float) numerator + "F / " + (float) denominator + "F)");
+        }
+      }
     }
 
     // Positive and negative 180 / pi
@@ -161,6 +161,10 @@ public class ConstExprent extends Exprent {
     else {
       return VarType.VARTYPE_INT;
     }
+  }
+
+  private static double gcd(double a, double b) {
+    return b == 0 ? a : gcd(b, a%b);
   }
 
   @Override
