@@ -47,7 +47,7 @@ public final class SwitchHelper {
       FieldExprent arrayField = (FieldExprent)array.getArray();
       ClassesProcessor.ClassNode classNode =
         DecompilerContext.getClassProcessor().getMapRootClasses().get(arrayField.getClassname());
-      if (classNode != null) {
+      if (classNode != null && classNode.getWrapper() != null) {
         MethodWrapper wrapper = classNode.getWrapper().getMethodWrapper(CodeConstants.CLINIT_NAME, "()V");
         if (wrapper != null && wrapper.root != null) {
           wrapper.getOrBuildGraph().iterateExprents(exprent -> {
@@ -166,13 +166,26 @@ public final class SwitchHelper {
           return field.getName().startsWith("$SwitchMap") || //This is non-standard but we don't have any more information so..
             (index instanceof InvocationExprent && ((InvocationExprent) index).getName().equals("ordinal"));
         }
-        
-        StructField stField = classNode.getWrapper().getClassStruct().getField(field.getName(), field.getDescriptor().descriptorString);
+
+        StructField stField;
+        if (classNode.getWrapper() == null) { // I have no idea why this happens, according to debug tests it doesn't even return null
+          stField = classNode.classStruct.getField(field.getName(), field.getDescriptor().descriptorString);
+        } else {
+          stField = classNode.getWrapper().getClassStruct().getField(field.getName(), field.getDescriptor().descriptorString);
+        }
+
         if ((stField.getAccessFlags() & STATIC_FINAL_SYNTHETIC) != STATIC_FINAL_SYNTHETIC) {
           return false;
         }
-        
-        if ((classNode.getWrapper().getClassStruct().getAccessFlags() & CodeConstants.ACC_SYNTHETIC) == CodeConstants.ACC_SYNTHETIC) {
+
+        boolean isSyncheticClass;
+        if (classNode.getWrapper() == null) {
+          isSyncheticClass = (classNode.classStruct.getAccessFlags() & CodeConstants.ACC_SYNTHETIC) == CodeConstants.ACC_SYNTHETIC;
+        } else {
+          isSyncheticClass = (classNode.getWrapper().getClassStruct().getAccessFlags() & CodeConstants.ACC_SYNTHETIC) == CodeConstants.ACC_SYNTHETIC;
+        }
+
+        if (isSyncheticClass) {
           return true; //TODO: Find a way to check the structure of the initalizer?
           //Exprent init = classNode.getWrapper().getStaticFieldInitializers().getWithKey(InterpreterUtil.makeUniqueKey(field.getName(), field.getDescriptor().descriptorString));
           //Above is null because we haven't preocess the class yet?

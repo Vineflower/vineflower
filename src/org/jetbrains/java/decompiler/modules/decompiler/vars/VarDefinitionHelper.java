@@ -657,7 +657,7 @@ public class VarDefinitionHelper {
       return null;
     }
 
-    int index = varproc.getVarOriginalIndex(var.getIndex());
+    Integer index = varproc.getVarOriginalIndex(var.getIndex());
     VarVersionPair new_ = this_vars.get(index);
     if (new_ != null) {
       VarVersionPair old = new VarVersionPair(var);

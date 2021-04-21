@@ -102,6 +102,9 @@ public final class LoopExtractHelper {
       IfStatement lastif = (IfStatement)last;
       if (lastif.iftype == IfStatement.IFTYPE_IF && lastif.getIfstat() != null) {
         Statement ifstat = lastif.getIfstat();
+        if (lastif.getAllSuccessorEdges().isEmpty()) {
+          return false;
+        }
         StatEdge elseedge = lastif.getAllSuccessorEdges().get(0);
 
         if (elseedge.getType() == StatEdge.TYPE_CONTINUE && elseedge.closure == stat) {
