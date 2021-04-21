@@ -11,6 +11,7 @@ import org.jetbrains.java.decompiler.main.extern.IVariableNamingFactory;
 import org.jetbrains.java.decompiler.modules.renamer.PoolInterceptor;
 import org.jetbrains.java.decompiler.struct.StructContext;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -22,12 +23,12 @@ public class DecompilerContext {
   public static final String CURRENT_VAR_PROCESSOR = "CURRENT_VAR_PROCESSOR";
   public static final String RENAMER_FACTORY = "RENAMER_FACTORY";
 
-  private final Map<String, Object> properties;
-  private final IFernflowerLogger logger;
-  private final StructContext structContext;
-  private final ClassesProcessor classProcessor;
-  private final PoolInterceptor poolInterceptor;
-  private final IVariableNamingFactory renamerFactory;
+  public final Map<String, Object> properties;
+  public final IFernflowerLogger logger;
+  public final StructContext structContext;
+  public final ClassesProcessor classProcessor;
+  public final PoolInterceptor poolInterceptor;
+  public final IVariableNamingFactory renamerFactory;
   private ImportCollector importCollector;
   private VarProcessor varProcessor;
   private CounterContainer counterContainer;

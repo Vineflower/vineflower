@@ -742,14 +742,17 @@ public class InvocationExprent extends Exprent {
         // types, and check unboxing as needed. Currently it causes some false forces
         else if (inv.isUnboxingCall() && !inv.shouldForceUnboxing()) {
           StructClass stClass = DecompilerContext.getStructContext().getClass(classname);
-          for (StructMethod mt : stClass.getMethods()) {
-            if (name.equals(mt.getName()) && (currCls == null || canAccess(currCls.classStruct, mt)) && !stringDescriptor.equals(mt.getDescriptor())) {
-              MethodDescriptor md = MethodDescriptor.parseDescriptor(mt.getDescriptor());
-              if (md.params.length == descriptor.params.length) {
-                if (md.params[i].type == CodeConstants.TYPE_OBJECT) {
-                  if (DecompilerContext.getStructContext().instanceOf(inv.getInstance().getExprType().value, md.params[i].value)) {
-                    inv.forceUnboxing(true);
-                    break;
+
+          if (stClass != null) {
+            for (StructMethod mt : stClass.getMethods()) {
+              if (name.equals(mt.getName()) && (currCls == null || canAccess(currCls.classStruct, mt)) && !stringDescriptor.equals(mt.getDescriptor())) {
+                MethodDescriptor md = MethodDescriptor.parseDescriptor(mt.getDescriptor());
+                if (md.params.length == descriptor.params.length) {
+                  if (md.params[i].type == CodeConstants.TYPE_OBJECT) {
+                    if (DecompilerContext.getStructContext().instanceOf(inv.getInstance().getExprType().value, md.params[i].value)) {
+                      inv.forceUnboxing(true);
+                      break;
+                    }
                   }
                 }
               }
