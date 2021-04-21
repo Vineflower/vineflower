@@ -7,7 +7,7 @@ public class TestClassCast {
    public void test(List var1) {
       Object var2 = var1;// 22
       if (var1 != null) {// 23
-         ((List)(var2 = new ArrayList(var1))).add("23");// 24
+         ((List<String>)(var2 = new ArrayList(var1))).add("23");// 24
       }
 
       System.out.println(((List)var2).size());// 26

@@ -21,22 +21,12 @@ public class TestMethodParametersAttr {
 
    }// 39
 
-   abstract static class C4 {
-      abstract void m1(int p51);
+   class C1 {
+      C1(int p11) {
+      }// 24
 
-      abstract void m2(final int p52);
-   }
-
-   abstract class C3 {
-      abstract void m1(int p51);
-
-      abstract void m2(final int p52);
-   }
-
-   interface I1 {
-      void m1(int p41);
-
-      void m2(final int p42);
+      void m(int p12) {
+      }// 25
    }
 
    static class C2 {
@@ -50,12 +40,22 @@ public class TestMethodParametersAttr {
       }// 31
    }
 
-   class C1 {
-      C1(int p11) {
-      }// 24
+   abstract class C3 {
+      abstract void m1(int p51);
 
-      void m(int p12) {
-      }// 25
+      abstract void m2(final int p52);
+   }
+
+   abstract static class C4 {
+      abstract void m1(int p51);
+
+      abstract void m2(final int p52);
+   }
+
+   interface I1 {
+      void m1(int p41);
+
+      void m2(final int p42);
    }
 }
 
@@ -87,27 +87,27 @@ class 'decompiler/TestMethodParametersAttr$1Local' {
    }
 }
 
-class 'decompiler/TestMethodParametersAttr$C2' {
-   method '<init> (I)V' {
-      4      43
-   }
-
-   method 'm1 (I)V' {
-      0      46
-   }
-
-   method 'm2 (I)V' {
-      0      49
-   }
-}
-
 class 'decompiler/TestMethodParametersAttr$C1' {
    method '<init> (Ldecompiler/TestMethodParametersAttr;I)V' {
-      9      54
+      9      25
    }
 
    method 'm (I)V' {
-      0      57
+      0      28
+   }
+}
+
+class 'decompiler/TestMethodParametersAttr$C2' {
+   method '<init> (I)V' {
+      4      33
+   }
+
+   method 'm1 (I)V' {
+      0      36
+   }
+
+   method 'm2 (I)V' {
+      0      39
    }
 }
 
@@ -115,11 +115,11 @@ Lines mapping:
 19 <-> 5
 20 <-> 8
 21 <-> 11
-24 <-> 55
-25 <-> 58
-29 <-> 44
-30 <-> 47
-31 <-> 50
+24 <-> 26
+25 <-> 29
+29 <-> 34
+30 <-> 37
+31 <-> 40
 36 <-> 16
 37 <-> 19
 39 <-> 22

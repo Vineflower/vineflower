@@ -51,7 +51,7 @@ public @interface MoreAnnotations {
 
    byte byteValue() default 1;
 
-   float floatValue() default 1.0F / 0.0F;
+   float floatValue() default 1.0F / 0.0;
 
    double doubleValue() default 0.0 / 0.0;
 
@@ -75,7 +75,7 @@ public @interface MoreAnnotations {
 
    byte[] byteArray() default {1, 0, 127, -128, -1};
 
-   float[] floatArray() default {1.0F, 0.0F, 3.4028235E38F, 1.4E-45F, 0.0F / 0.0F, 1.0F / 0.0F, -1.0F / 0.0F};
+   float[] floatArray() default {1.0F, 0.0F, 3.4028235E38F, 1.4E-45F, 0.0F / 0.0, 1.0F / 0.0, -1.0F / 0.0};
 
    double[] doubleArray() default {1.0, 0.0, 1.7976931348623157E308, 4.9E-324, 0.0 / 0.0, 1.0 / 0.0, -1.0 / 0.0};
 

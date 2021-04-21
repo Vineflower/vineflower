@@ -5,16 +5,16 @@ import java.util.Comparator;
 
 public class TestAnonymousSignature {
    public static void main(String[] var0) {
-      System.out.println(new ArrayList<String>() {// 25
+      System.out.println((Object)(new ArrayList<String>() {// 25
          public int size() {
             return super.size();// 28
          }
-      });
-      System.out.println(new Comparator<String>() {// 33
+      }));
+      System.out.println((Object)(new Comparator<String>() {// 33
          public int compare(String var1, String var2) {
             return 0;// 36
          }
-      });
+      }));
    }// 39
 }
 

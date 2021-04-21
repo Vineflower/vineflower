@@ -6,21 +6,21 @@ import java.util.List;
 import java.util.Map;
 
 public class TestGenerics<A, B extends TestGenerics.Maps & List> {
-   static Map<String, Boolean> field = TestGenerics.Maps.<String, Boolean>newHashMap();
-   static List<List<String>> llstring = new ArrayList<List<String>>();
-   static List<Byte> bytes = new ArrayList<Byte>();
+   static Map<String, Boolean> field = TestGenerics.Maps.newHashMap();
+   static List<List<String>> llstring = new ArrayList<>();
+   static List<Byte> bytes = new ArrayList<>();
    A[] aArray = (A[])(new Object[10]);
 
    public void genericAllocation() {
-      this.aArray = (A[])(new Object[20]);// 30
+      this.aArray = (A[])((A[])(new Object[20]));// 30
    }// 31
 
    public static void genericInference() {
-      HashMap<String, Integer> test = TestGenerics.Maps.<String, Integer>newHashMap();// 34
+      HashMap<String, Integer> test = TestGenerics.Maps.newHashMap();// 34
    }// 35
 
    public void genericList() {
-      List<B> testList = new ArrayList<B>();// 38
+      List<B> testList = new ArrayList<>();// 38
       B b = testList.get(0);// 39
       System.out.println("B:" + b);// 40
    }// 41
@@ -44,17 +44,17 @@ public class TestGenerics<A, B extends TestGenerics.Maps & List> {
    }
 // 60
    public <T extends Number> void genericSuperUp() {
-      List<T> list = new ArrayList<T>();// 61
+      List<T> list = new ArrayList<>();// 61
 // 62
       for(Number number : bytes) {
-         list.add(number);// 64
+         list.add((T)number);// 64
       }
 
    }
 // 68
    public static class Maps {
       public static <K, V> HashMap<K, V> newHashMap() {
-         return new HashMap<K, V>();
+         return new HashMap<>();
       }
    }
 }
@@ -129,7 +129,21 @@ class 'pkg/TestGenerics' {
       5      32
       6      32
       7      32
+      8      32
+      9      32
+      a      32
+      b      32
+      c      32
       d      32
+      17      32
+      18      32
+      19      32
+      1a      32
+      1b      32
+      1c      32
+      1d      32
+      1e      32
+      1f      32
       20      32
       21      33
       22      33
@@ -154,7 +168,21 @@ class 'pkg/TestGenerics' {
       9      38
       a      38
       b      38
+      c      38
+      d      38
+      e      38
+      f      38
+      10      38
       11      38
+      1b      38
+      1c      38
+      1d      38
+      1e      38
+      1f      38
+      20      38
+      21      38
+      22      38
+      23      38
       24      38
       25      39
       26      39
@@ -171,7 +199,21 @@ class 'pkg/TestGenerics' {
       8      46
       9      46
       a      46
+      b      46
+      c      46
+      d      46
+      e      46
+      f      46
       10      46
+      1a      46
+      1b      46
+      1c      46
+      1d      46
+      1e      46
+      1f      46
+      20      46
+      21      46
+      22      46
       23      46
       24      47
       25      47

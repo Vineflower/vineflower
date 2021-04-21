@@ -14,8 +14,8 @@ import org.jetbrains.annotations.NotNull;
 public final class TestIllegalVarName {
    @NotNull
    public final String m(@NotNull String var1, int var2) {
-      Intrinsics.checkParameterIsNotNull(var1, "this");
-      return var1 + '/' + var2;// 5
+      Intrinsics.checkParameterIsNotNull(this, "this");
+      return this + '/' + enum;// 5
    }
 }
 

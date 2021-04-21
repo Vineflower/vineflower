@@ -54,7 +54,7 @@ public abstract class TestAnonymousClass {
          };
          var2.foo();// 17
       } else {
-         System.out.println(5);// 21
+         System.out.println((int)5);// 21
       }
 
    }// 23

@@ -19,18 +19,32 @@ public record TestRecordAnno(@RC @TA int x, int y) {
 
 class 'records/TestRecordAnno' {
    method '<init> (II)V' {
+      4      4
+      5      4
       6      4
+      7      4
+      8      4
+      9      5
+      a      5
       b      5
+      c      5
+      d      5
       e      6
    }
 
    method 'x ()I' {
+      0      10
       1      10
+      2      10
+      3      10
       4      10
    }
 
    method 'y ()I' {
+      0      15
       1      15
+      2      15
+      3      15
       4      15
    }
 }

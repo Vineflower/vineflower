@@ -41,7 +41,7 @@ public class TestClassTypes {
    public void testAssignmentType(List var1) {
       Object var2 = var1;// 61
       if (var1 != null) {// 63
-         ((List)(var2 = new ArrayList(var1))).add("23");// 64
+         ((List<String>)(var2 = new ArrayList(var1))).add("23");// 64
       }
 
       System.out.println(((List)var2).size());// 67

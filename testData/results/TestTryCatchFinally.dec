@@ -4,7 +4,7 @@ public class TestTryCatchFinally {
    public void test1(String var1) {
       try {
          System.out.println("sout1");// 24
-      } catch (Exception var2) {
+      } catch (Exception var9) {
          try {
             System.out.println("sout2");// 27
          } catch (Exception var8) {// 28
@@ -27,8 +27,7 @@ public class TestTryCatchFinally {
 
    public int test(String var1) {
       try {
-         int var2 = Integer.parseInt(var1);// 51
-         return var2;
+         return Integer.parseInt(var1);// 51
       } catch (Exception var6) {// 52
          System.out.println("Error" + var6);// 53
       } finally {
@@ -54,62 +53,60 @@ class 'pkg/TestTryCatchFinally' {
       18      8
       19      8
       1f      9
-      2b      13
-      2c      13
-      2d      13
-      2e      13
-      2f      13
-      30      13
-      31      13
-      38      16
+      2b      12
+      2c      12
+      2d      12
+      2e      12
+      2f      12
+      30      12
+      31      12
+      38      15
    }
 
    method 'foo (I)I' {
-      0      19
-      1      19
-      2      19
-      c      20
-      d      21
-      e      21
-      f      21
-      12      22
-      13      22
-      1b      24
+      0      18
+      1      18
+      2      18
+      c      19
+      d      20
+      e      20
+      f      20
+      12      21
+      13      21
+      1b      23
    }
 
    method 'test (Ljava/lang/String;)I' {
-      0      30
-      1      30
-      2      30
-      3      30
-      4      30
-      d      31
-      e      31
-      f      32
-      10      33
-      11      33
-      12      33
-      1a      33
-      1b      33
-      23      33
-      24      33
-      25      33
-      26      33
-      31      38
-      32      38
-      33      38
-      34      35
-      35      35
-      36      35
-      37      35
-      38      35
-      39      35
-      3a      38
-      3b      38
-      3c      38
-      3d      38
-      3e      38
-      3f      38
+      0      29
+      1      29
+      2      29
+      3      29
+      e      29
+      f      30
+      10      31
+      11      31
+      12      31
+      1a      31
+      1b      31
+      23      31
+      24      31
+      25      31
+      26      31
+      31      36
+      32      36
+      33      36
+      34      33
+      35      33
+      36      33
+      37      33
+      38      33
+      39      33
+      3a      36
+      3b      36
+      3c      36
+      3d      36
+      3e      36
+      3f      36
    }
 }
 
@@ -125,11 +122,11 @@ Lines mapping:
 42 <-> 22
 45 <-> 24
 51 <-> 30
-52 <-> 32
-53 <-> 33
-55 <-> 35
-56 <-> 38
-57 <-> 38
+52 <-> 31
+53 <-> 32
+55 <-> 34
+56 <-> 37
+57 <-> 37
 Not mapped:
 25
 32

@@ -22,7 +22,7 @@ public class TestClassSimpleBytecodeMapping {
       try {
          Integer.parseInt(var1);// 34
       } catch (Exception var6) {// 35
-         System.out.println(var6);// 36
+         System.out.println((Object)var6);// 36
       } finally {
          System.out.println("Finally");// 38
       }

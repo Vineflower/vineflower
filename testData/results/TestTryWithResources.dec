@@ -12,7 +12,6 @@ public class TestTryWithResources {
       try (FileSystem var0 = FileSystems.getFileSystem(TestTryWithResources.class.getResource("NOT").toURI())) {// 13
          var0.getPath("PATH", "TO", "FILE");// 14
       } catch (IOException | URISyntaxException var13) {// 16
-         ;
       }
 
    }// 17
@@ -24,7 +23,6 @@ public class TestTryWithResources {
       ) {
          var2.read();// 22
       } catch (IOException | URISyntaxException var32) {// 24
-         ;
       }
 
    }// 25
@@ -34,12 +32,9 @@ public class TestTryWithResources {
          try (InputStream var2 = Files.newInputStream(var0.getPath("PATH", "TO", "FILE"))) {// 29
             var2.read();// 30
          } catch (IOException var34) {// 32
-            ;
          } catch (Exception var35) {// 33
-            ;
          }
       } catch (IOException | URISyntaxException var38) {// 35
-         ;
       }
 
    }// 36
@@ -72,83 +67,83 @@ class 'pkg/TestTryWithResources' {
       22      12
       23      12
       6d      13
-      6e      17
+      6e      16
    }
 
    method 'test2 ()V' {
-      0      21
-      1      21
-      2      21
-      3      21
-      4      21
-      5      21
-      6      21
-      7      21
-      8      21
-      9      21
-      a      21
-      b      21
-      c      21
-      d      21
-      10      22
-      11      22
-      12      22
-      19      22
-      1a      22
-      1e      22
-      1f      22
-      21      22
-      22      22
-      23      22
-      28      22
-      29      22
-      2a      22
-      2b      22
-      2e      24
-      2f      24
-      30      24
-      31      24
-      c9      25
-      ca      29
+      0      20
+      1      20
+      2      20
+      3      20
+      4      20
+      5      20
+      6      20
+      7      20
+      8      20
+      9      20
+      a      20
+      b      20
+      c      20
+      d      20
+      10      21
+      11      21
+      12      21
+      19      21
+      1a      21
+      1e      21
+      1f      21
+      21      21
+      22      21
+      23      21
+      28      21
+      29      21
+      2a      21
+      2b      21
+      2e      23
+      2f      23
+      30      23
+      31      23
+      c9      24
+      ca      27
    }
 
    method 'test3 ()V' {
-      0      32
-      1      32
-      2      32
-      3      32
-      4      32
-      5      32
-      6      32
-      7      32
-      8      32
-      9      32
-      a      32
-      b      32
-      c      32
-      d      32
-      10      33
-      11      33
-      12      33
-      19      33
-      1a      33
-      1e      33
-      1f      33
-      21      33
-      22      33
-      23      33
-      28      33
-      29      33
-      2a      33
-      2b      33
-      2e      34
-      2f      34
-      30      34
-      31      34
-      82      35
-      86      37
-      d1      40
-      d2      44
+      0      30
+      1      30
+      2      30
+      3      30
+      4      30
+      5      30
+      6      30
+      7      30
+      8      30
+      9      30
+      a      30
+      b      30
+      c      30
+      d      30
+      10      31
+      11      31
+      12      31
+      19      31
+      1a      31
+      1e      31
+      1f      31
+      21      31
+      22      31
+      23      31
+      28      31
+      29      31
+      2a      31
+      2b      31
+      2e      32
+      2f      32
+      30      32
+      31      32
+      82      33
+      86      34
+      d1      36
+      d2      39
    }
 }
 
@@ -156,19 +151,19 @@ Lines mapping:
 13 <-> 12
 14 <-> 13
 16 <-> 14
-17 <-> 18
-20 <-> 22
-21 <-> 23
-22 <-> 25
-24 <-> 26
-25 <-> 30
-28 <-> 33
-29 <-> 34
-30 <-> 35
-32 <-> 36
-33 <-> 38
-35 <-> 41
-36 <-> 45
+17 <-> 17
+20 <-> 21
+21 <-> 22
+22 <-> 24
+24 <-> 25
+25 <-> 28
+28 <-> 31
+29 <-> 32
+30 <-> 33
+32 <-> 34
+33 <-> 35
+35 <-> 37
+36 <-> 40
 Not mapped:
 15
 23
