@@ -353,13 +353,13 @@ public class ConstExprent extends Exprent {
       // Check for special values that can't be used directly in code
       // (and we can't replace with the constant due to the user requesting not to)
       if (Float.isNaN(floatVal)) {
-        return new TextBuffer("0.0F / 0.0");
+        return new TextBuffer("0.0F / 0.0F");
       }
       else if (floatVal == Float.POSITIVE_INFINITY) {
-        return new TextBuffer("1.0F / 0.0");
+        return new TextBuffer("1.0F / 0.0F");
       }
       else if (floatVal == Float.NEGATIVE_INFINITY) {
-        return new TextBuffer("-1.0F / 0.0");
+        return new TextBuffer("-1.0F / 0.0F");
       }
     }
     return new TextBuffer(trimZeros(Float.toString(floatVal))).append('F');
