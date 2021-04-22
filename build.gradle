@@ -68,11 +68,6 @@ task sourceJar(type:Jar) {
 
 tasks.withType(JavaCompile).configureEach {
   it.options.encoding = "UTF-8"
-
-  // Target JDK 8
-  if (JavaVersion.current().isJava9Compatible()) {
-    it.options.release = 8
-  }
 }
 
 publishing {
