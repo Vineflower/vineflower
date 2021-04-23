@@ -5,6 +5,7 @@ import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.ClassesProcessor;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
+import org.jetbrains.java.decompiler.main.rels.ClassWrapper;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
@@ -45,21 +46,23 @@ public final class SwitchHelper {
       Map<Exprent, Exprent> mapping = new HashMap<>(caseValues.size());
       ArrayExprent array = (ArrayExprent)value;
       FieldExprent arrayField = (FieldExprent)array.getArray();
-      ClassesProcessor.ClassNode classNode =
-        DecompilerContext.getClassProcessor().getMapRootClasses().get(arrayField.getClassname());
-      if (classNode != null && classNode.getWrapper() != null) {
-        MethodWrapper wrapper = classNode.getWrapper().getMethodWrapper(CodeConstants.CLINIT_NAME, "()V");
-        if (wrapper != null && wrapper.root != null) {
-          wrapper.getOrBuildGraph().iterateExprents(exprent -> {
-            if (exprent instanceof AssignmentExprent) {
-              AssignmentExprent assignment = (AssignmentExprent)exprent;
-              Exprent left = assignment.getLeft();
-              if (left.type == Exprent.EXPRENT_ARRAY && ((ArrayExprent)left).getArray().equals(arrayField)) {
-                mapping.put(assignment.getRight(), ((InvocationExprent)((ArrayExprent)left).getIndex()).getInstance());
+      ClassesProcessor.ClassNode classNode = DecompilerContext.getClassProcessor().getMapRootClasses().get(arrayField.getClassname());
+      if (classNode != null) {
+        ClassWrapper classWrapper = classNode.getWrapper();
+        if (classWrapper != null) {
+          MethodWrapper wrapper = classWrapper.getMethodWrapper(CodeConstants.CLINIT_NAME, "()V");
+          if (wrapper != null && wrapper.root != null) {
+            wrapper.getOrBuildGraph().iterateExprents(exprent -> {
+              if (exprent instanceof AssignmentExprent) {
+                AssignmentExprent assignment = (AssignmentExprent) exprent;
+                Exprent left = assignment.getLeft();
+                if (left.type == Exprent.EXPRENT_ARRAY && ((ArrayExprent) left).getArray().equals(arrayField)) {
+                  mapping.put(assignment.getRight(), ((InvocationExprent) ((ArrayExprent) left).getIndex()).getInstance());
+                }
               }
-            }
-            return 0;
-          });
+              return 0;
+            });
+          }
         }
       }
 
