@@ -511,46 +511,33 @@ public class FunctionExprent extends Exprent {
         }
       }
 
+      // Initialize the operands with the defaults
+      TextBuffer leftOperand = wrapOperandString(this.lstOperands.get(0), false, indent, tracer);
+      TextBuffer rightOperand = wrapOperandString(this.lstOperands.get(1), true, indent, tracer);
+
       // Check for special cased integers on the right and left hand side, and then return if they are found.
       // This only applies to bitwise and as well as bitwise or functions.
       if (this.funcType == FUNCTION_AND || this.funcType == FUNCTION_OR) {
         Exprent left = this.lstOperands.get(0);
         Exprent right = this.lstOperands.get(1);
 
-        // Initialize the operands with the defaults
-        TextBuffer leftOperand = wrapOperandString(this.lstOperands.get(0), false, indent, tracer);
-        TextBuffer rightOperand = wrapOperandString(this.lstOperands.get(1), true, indent, tracer);
-
-        boolean ret = false;
-
         // Check if the right is an int constant and adjust accordingly
         if (right.type == EXPRENT_CONST && right.getExprType() == VarType.VARTYPE_INT) {
           Integer value = (Integer) ((ConstExprent)right).getValue();
           rightOperand = new TextBuffer(IntHelper.adjustedIntRepresentation(value));
-
-          ret = true;
         }
 
         // Check if the left is an int constant and adjust accordingly
         if (left.type == EXPRENT_CONST && left.getExprType() == VarType.VARTYPE_INT) {
           Integer value = (Integer) ((ConstExprent)left).getValue();
           leftOperand = new TextBuffer(IntHelper.adjustedIntRepresentation(value));
-
-          ret = true;
-        }
-
-        // If either or both sides were an int constant, return here. Otherwise, fall back to default behavior.
-        if (ret) {
-          return leftOperand
-            .append(OPERATORS[this.funcType])
-            .append(rightOperand);
         }
       }
 
       // Return the applied operands and operators.
-      return wrapOperandString(this.lstOperands.get(0), false, indent, tracer)
+      return leftOperand
         .append(OPERATORS[funcType])
-        .append(wrapOperandString(this.lstOperands.get(1), true, indent, tracer));
+        .append(rightOperand);
     }
 
       // try to determine more accurate type for 'char' literals
