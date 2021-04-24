@@ -131,6 +131,7 @@ public final class DoStatement extends Statement {
         tracer.incrementCurrentSourceLine();
         buf.append(ExprProcessor.jmpWrapper(first, indent + 1, true, tracer));
         buf.appendIndent(indent).append("}").appendLineSeparator();
+        tracer.incrementCurrentSourceLine();
     }
 
     return buf;
