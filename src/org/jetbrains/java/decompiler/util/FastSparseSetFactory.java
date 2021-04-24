@@ -94,7 +94,12 @@ public class FastSparseSetFactory<E> {
     }
 
     public FastSparseSet<E> getCopy() {
-      return new FastSparseSet<>(factory, data.clone(), next.clone());
+      int[] newData = new int[this.data.length];
+      int[] newNext = new int[this.next.length];
+      System.arraycopy(this.data, 0, newData, 0, newData.length);
+      System.arraycopy(this.next, 0, newNext, 0, newNext.length);
+
+      return new FastSparseSet<>(factory, newData, newNext);
     }
 
     private int[] ensureCapacity(int index) {

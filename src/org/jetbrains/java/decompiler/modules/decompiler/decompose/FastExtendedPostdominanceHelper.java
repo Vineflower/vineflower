@@ -66,18 +66,21 @@ public class FastExtendedPostdominanceHelper {
   private void filterOnDominance(DominatorTreeExceptionFilter filter) {
 
     DominatorEngine engine = filter.getDomEngine();
+    LinkedList<Statement> stack = new LinkedList<>();
+    LinkedList<FastFixedSet<Integer>> stackPath = new LinkedList<>();
+    Set<Statement> setVisited = new HashSet<>();
 
     for (Integer head : new HashSet<>(mapExtPostdominators.keySet())) {
 
       FastFixedSet<Integer> setPostdoms = mapExtPostdominators.get(head);
 
-      LinkedList<Statement> stack = new LinkedList<>();
-      LinkedList<FastFixedSet<Integer>> stackPath = new LinkedList<>();
+      stack.clear();
+      stackPath.clear();
 
       stack.add(statement.getStats().getWithKey(head));
       stackPath.add(factory.spawnEmptySet());
 
-      Set<Statement> setVisited = new HashSet<>();
+      setVisited.clear();
 
       setVisited.add(stack.getFirst());
 
@@ -250,10 +253,12 @@ public class FastExtendedPostdominanceHelper {
   }
 
   private void iterateReachability(IReachabilityAction action, int edgetype) {
+    HashMap<Integer, FastFixedSet<Integer>> mapSets = new HashMap<>();
+
     while (true) {
       boolean iterate = false;
 
-      HashMap<Integer, FastFixedSet<Integer>> mapSets = new HashMap<>();
+      mapSets.clear();
 
       for (Statement stat : lstReversePostOrderList) {
 
