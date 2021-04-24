@@ -1062,6 +1062,9 @@ public class InvocationExprent extends Exprent {
         boolean exact = true;
         for (int i = 0; i < md.params.length; i++) {
           Exprent exp = lstParameters.get(i);
+          // Check if the current parameters and method descriptor are of the same type, or if the descriptor's type is a superset of the parameter's type.
+          // This check ensures that parameters that can be safely passed don't have an unneeded cast on them, such as System.out.println((int)5);.
+          // TODO: The root cause of the above issue seems to be threading related- When debugging line by line it doesn't cast, but when running normally it does. More digging needs to be done to figure out why this happens.
           if ((!(md.params[i].equals(exp.getExprType()) || md.params[i].isSuperset(exp.getExprType()))) || (exp.type == EXPRENT_NEW && ((NewExprent) exp).isLambda() && !((NewExprent) exp).isMethodReference())) {
             exact = false;
             missed.set(i);

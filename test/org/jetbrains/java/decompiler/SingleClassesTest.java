@@ -51,7 +51,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
   @Test public void testSynchronizedMapping() { doTest("pkg/TestSynchronizedMapping"); }
   @Test public void testAbstractMethods() { doTest("pkg/TestAbstractMethods"); }
   @Test public void testLocalClass() { doTest("pkg/TestLocalClass"); }
-  // TODO: int cast of constant, needs fixing
   @Test public void testAnonymousClass() { doTest("pkg/TestAnonymousClass"); }
   @Test public void testThrowException() { doTest("pkg/TestThrowException"); }
   @Test public void testInnerLocal() { doTest("pkg/TestInnerLocal"); }
@@ -91,7 +90,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
   @Test public void testVarArgCalls() { doTest("pkg/TestVarArgCalls"); }
   @Test public void testLambdaParams() { doTest("pkg/TestLambdaParams"); }
   @Test public void testInterfaceMethods() { doTest("pkg/TestInterfaceMethods"); }
-  // TODO: casts on the int -> object
   @Test public void testConstType() { doTest("pkg/TestConstType"); }
   @Test public void testPop2OneDoublePop2() { doTest("pkg/TestPop2OneDoublePop2"); }
   @Test public void testPop2OneLongPop2() { doTest("pkg/TestPop2OneLongPop2"); }
