@@ -30,32 +30,32 @@ public class TestConstType {
    public void printalot() {
       System.out.println('a');// 31
       System.out.println('\t');// 32
-      System.out.println((int)0);// 34
-      System.out.println((int)65);// 35
-      System.out.println((int)120);// 36
-      System.out.println((int)32760);// 37
-      System.out.println((int)32761);// 38
-      System.out.println((int)35000);// 39
-      System.out.println((int)50000);// 40
+      System.out.println(0);// 34
+      System.out.println(65);// 35
+      System.out.println(120);// 36
+      System.out.println(32760);// 37
+      System.out.println(32761);// 38
+      System.out.println(35000);// 39
+      System.out.println(50000);// 40
       System.out.println(128000);// 41
-      System.out.println((int)60793);// 42
-      System.out.println((int)60737);// 43
-      System.out.println((int)60777);// 44
-      System.out.println((int)60785);// 45
-      System.out.println((int)60835);// 46
-      System.out.println((int)60843);// 47
-      System.out.println((int)60851);// 48
-      System.out.println((int)60859);// 49
+      System.out.println(60793);// 42
+      System.out.println(60737);// 43
+      System.out.println(60777);// 44
+      System.out.println(60785);// 45
+      System.out.println(60835);// 46
+      System.out.println(60843);// 47
+      System.out.println(60851);// 48
+      System.out.println(60859);// 49
       System.out.println(1048576);// 50
-      System.out.println((int)49152);// 51
-      System.out.println((int)44100);// 52
-      System.out.println((int)44101);// 53
-      System.out.println((int)44102);// 54
-      System.out.println((int)44103);// 55
-      System.out.println((int)60000);// 56
-      System.out.println((int)64000);// 57
-      System.out.println((int)65000);// 58
-      System.out.println((int)45000);// 59
+      System.out.println(49152);// 51
+      System.out.println(44100);// 52
+      System.out.println(44101);// 53
+      System.out.println(44102);// 54
+      System.out.println(44103);// 55
+      System.out.println(60000);// 56
+      System.out.println(64000);// 57
+      System.out.println(65000);// 58
+      System.out.println(45000);// 59
    }// 60
 
    public char guessType(int val) {

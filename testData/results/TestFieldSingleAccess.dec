@@ -6,7 +6,7 @@ public final class TestFieldSingleAccess {
    public final void test() {
       Integer var10000 = this.field;
       if (this.field != null) {
-         System.out.println((Object)var10000);
+         System.out.println(var10000);
       }
 
    }

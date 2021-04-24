@@ -58,7 +58,7 @@ public final class TestSuspendLambdaKt {
                }
 
                String var2 = "SL1";// 4
-               System.out.println((Object)var2);
+               System.out.println(var2);
                return Unit.INSTANCE;// 5
             default:
                throw new IllegalStateException("call to 'resume' before 'invoke' with coroutine");

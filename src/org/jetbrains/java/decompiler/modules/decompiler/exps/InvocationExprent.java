@@ -1062,7 +1062,7 @@ public class InvocationExprent extends Exprent {
         boolean exact = true;
         for (int i = 0; i < md.params.length; i++) {
           Exprent exp = lstParameters.get(i);
-          if (!md.params[i].equals(exp.getExprType()) || (exp.type == EXPRENT_NEW && ((NewExprent)exp).isLambda() && !((NewExprent)exp).isMethodReference())) {
+          if ((!(md.params[i].equals(exp.getExprType()) || md.params[i].isSuperset(exp.getExprType()))) || (exp.type == EXPRENT_NEW && ((NewExprent) exp).isLambda() && !((NewExprent) exp).isMethodReference())) {
             exact = false;
             missed.set(i);
           }
