@@ -107,10 +107,9 @@ public class SingleClassesTest extends SingleClassesTestBase {
   @Test public void testFieldSingleAccess() { doTest("pkg/TestFieldSingleAccess"); }
   @Test public void testPackageInfo() { doTest("pkg/package-info"); }
 
-  // TODO: fix all below
-  //@Test public void testUnionType() { doTest("pkg/TestUnionType"); }
-  //@Test public void testInnerClassConstructor2() { doTest("pkg/TestInner2"); }
-  //@Test public void testInUse() { doTest("pkg/TestInUse"); }
+  @Test public void testUnionType() { doTest("pkg/TestUnionType"); }
+  @Test public void testInnerClassConstructor2() { doTest("pkg/TestInner2"); }
+  @Test public void testInUse() { doTest("pkg/TestInUse"); }
 
   @Test public void testGroovyClass() { doTest("pkg/TestGroovyClass"); }
   @Test public void testGroovyTrait() { doTest("pkg/TestGroovyTrait"); }
