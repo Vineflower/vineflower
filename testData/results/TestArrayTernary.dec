@@ -1,0 +1,74 @@
+package pkg;
+
+public class TestArrayTernary {
+   public void test(boolean var1) {
+      int[] var2 = new int[]{1, 2, 3, 4};// 5
+      int[] var3 = new int[]{4, 3, 2, 1};// 6
+      (var1 ? var2 : var3)[0] = var1 ? 33 : (var2[var1 ? 3 : 2] == var3[3] ? 2 : 4);// 8
+      (var1 ? var2 : var3)[1] = (var1 ? var3 : var2)[0] + (var1 ? var3 : var2)[0];// 9
+   }// 10
+}
+
+class 'pkg/TestArrayTernary' {
+   method 'test (Z)V' {
+      5      4
+      9      4
+      d      4
+      11      4
+      13      4
+      19      5
+      1d      5
+      21      5
+      25      5
+      27      5
+      28      6
+      29      6
+      2c      6
+      30      6
+      31      6
+      32      6
+      33      6
+      36      6
+      37      6
+      3b      6
+      3c      6
+      3d      6
+      40      6
+      44      6
+      45      6
+      46      6
+      47      6
+      48      6
+      49      6
+      4c      6
+      50      6
+      51      6
+      52      7
+      53      7
+      56      7
+      5a      7
+      5b      7
+      5c      7
+      5d      7
+      60      7
+      64      7
+      65      7
+      66      7
+      67      7
+      68      7
+      6b      7
+      6f      7
+      70      7
+      71      7
+      72      7
+      73      7
+      74      8
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 6
+8 <-> 7
+9 <-> 8
+10 <-> 9

@@ -1,0 +1,95 @@
+package pkg;
+
+public class TestNestedLambdas {
+   public void test() {
+      int x = accept(i -> {// 6
+         if (i == 0) {// 7
+            accept(j -> {// 8
+               return j == 0 ? accept(k -> {// 9 10
+                  return i + j;
+               }) : i * j;// 12
+            });
+         }
+
+         return i;// 17
+      });
+      System.out.println(x);// 20
+   }// 21
+
+   private static int accept(TestNestedLambdas.Func func) {
+      return func.get(0);// 24
+   }
+
+   @FunctionalInterface
+   private interface Func {
+      int get(int var1);
+   }
+}
+
+class 'pkg/TestNestedLambdas' {
+   method 'lambda$null$0 (III)I' {
+      0      8
+      1      8
+      2      8
+      3      8
+   }
+
+   method 'lambda$null$1 (II)I' {
+      0      7
+      1      7
+      b      7
+      c      7
+      d      7
+      f      9
+      10      9
+      11      9
+   }
+
+   method 'lambda$test$2 (I)I' {
+      0      5
+      1      5
+      a      6
+      b      6
+      c      6
+      e      13
+      f      13
+   }
+
+   method 'test ()V' {
+      5      4
+      6      4
+      7      4
+      8      4
+      9      15
+      a      15
+      b      15
+      c      15
+      d      15
+      e      15
+      f      15
+      10      16
+   }
+
+   method 'accept (Lpkg/TestNestedLambdas$Func;)I' {
+      0      19
+      1      19
+      2      19
+      3      19
+      4      19
+      5      19
+      6      19
+      7      19
+   }
+}
+
+Lines mapping:
+6 <-> 5
+7 <-> 6
+8 <-> 7
+9 <-> 8
+10 <-> 8
+12 <-> 10
+17 <-> 14
+20 <-> 16
+21 <-> 17
+24 <-> 20

@@ -124,4 +124,73 @@ public class SingleClassesTest extends SingleClassesTestBase {
   @Test public void testRecordGenericVararg() { doTest("records/TestRecordGenericVararg"); }
   @Test public void testRecordAnno() { doTest("records/TestRecordAnno"); }
   @Test public void testTryWithResources() { doTest("pkg/TestTryWithResources"); }
+  // TODO: The (double) in front of the (int) should be removed
+  @Test public void testMultiCast() { doTest("pkg/TestMultiCast"); }
+  // TODO: Fails to decompile
+//  @Test public void testNestedLoops() { doTest("pkg/TestNestedLoops"); }
+  // TODO: The ternary here needs to be removed
+  @Test public void testNestedLambdas() { doTest("pkg/TestNestedLambdas"); }
+  @Test public void testSwitchAssign() { doTest("pkg/TestSwitchAssign"); }
+  @Test public void testSwitchReturn() { doTest("pkg/TestSwitchReturn"); }
+  // TODO: Turned into for loops
+  @Test public void testWhileCondition() { doTest("pkg/TestWhileCondition"); }
+  @Test public void testLocalScopes() { doTest("pkg/TestLocalScopes"); }
+  @Test public void testInterfaceSubclass() { doTest("pkg/TestInterfaceSubclass"); }
+  @Test public void testGenericStatic() { doTest("pkg/TestGenericStatic"); }
+  @Test public void testAssignmentInLoop() { doTest("pkg/TestAssignmentInLoop"); }
+  @Test public void testArrays() { doTest("pkg/TestArrays"); }
+  @Test public void testArrayForeach() { doTest("pkg/TestArrayForeach"); }
+  // TODO: I'm pretty sure this test opened the gates of hell somewhere. We need to figure out what's causing that
+  @Test public void testTernaryCall() { doTest("pkg/TestTernaryCall"); }
+
+  @Test public void testAnonymousObject() { doTest("pkg/TestAnonymousObject"); }
+  @Test public void testArrayAssignmentEquals() { doTest("pkg/TestArrayAssignmentEquals"); }
+  // TODO: Loop becomes infinte loop where it should be assignment in loop
+  @Test public void testArrayCopy() { doTest("pkg/TestArrayCopy"); }
+  @Test public void testArrayDoWhile() { doTest("pkg/TestArrayDoWhile"); }
+  // TODO: Creating a new object where the array should be set to null
+  @Test public void testArrayNull1() { doTest("pkg/TestArrayNull1"); }
+  // TODO: Object should be int[], cast where there shouldn't be
+  @Test public void testArrayNull2() { doTest("pkg/TestArrayNull2"); }
+  // TODO: Redefinition of array, extra cast
+  @Test public void testArrayNullAccess() { doTest("pkg/TestArrayNullAccess"); }
+  @Test public void testArrayTernary() { doTest("pkg/TestArrayTernary"); }
+  // TODO: Do while loops become standard while loops
+  @Test public void testAssignmentInDoWhile() { doTest("pkg/TestAssignmentInDoWhile"); }
+  // TODO: Assignment of a = a is removed
+  @Test public void testBooleanAssignment() { doTest("pkg/TestBooleanAssignment"); }
+  // TODO: intValue() call where there shouldn't be
+  @Test public void testBoxingConstructor() { doTest("pkg/TestBoxingConstructor"); }
+  @Test public void testCastPrimitiveToObject() { doTest("pkg/TestCastPrimitiveToObject"); }
+  @Test public void testDoWhileTrue() { doTest("pkg/TestDoWhileTrue"); }
+  @Test public void testExtraClass() { doTest("pkg/TestExtraClass"); }
+  // TODO: Object foreach should be generic
+  @Test public void testGenericMapInput() { doTest("pkg/TestGenericMapInput"); }
+  @Test public void testGenericNull() { doTest("pkg/TestGenericNull"); }
+  @Test public void testInlineAssignments() { doTest("pkg/TestInlineAssignments"); }
+  // TODO: Cast of (Func) is removed
+  @Test public void testInterfaceLambdaCast() { doTest("pkg/TestInterfaceLambdaCast"); }
+  // TODO: Local scope is removed, replaced with boolean cast
+  @Test public void testLocalScopeClash() { doTest("pkg/TestLocalScopeClash"); }
+  @Test public void testMultiBoolean() { doTest("pkg/TestMultiBoolean"); }
+  @Test public void testNestedFor() { doTest("pkg/TestNestedFor"); }
+  @Test public void testNestedLoops() { doTest("pkg/TestNestedLoops"); }
+  @Test public void testNestedLoops2() { doTest("pkg/TestNestedLoops2"); }
+  // TODO: Object[] becomes <unknown>
+  @Test public void testObjectArrays() { doTest("pkg/TestObjectArrays"); }
+  @Test public void testOverloadedNull() { doTest("pkg/TestOverloadedNull"); }
+  @Test public void testReturnIf() { doTest("pkg/TestReturnIf"); }
+  // TODO: Shift equals is broken, and bitwise should be x & (x >> 2)
+  @Test public void testShiftAssignmentInCall() { doTest("pkg/TestShiftAssignmentInCall"); }
+  @Test public void testSplitColorComponents() { doTest("pkg/TestSplitColorComponents"); }
+  // TODO: extra casts on assignment
+  @Test public void testStaticBlockNull() { doTest("pkg/TestStaticBlockNull"); }
+  @Test public void testStringLiteral() { doTest("pkg/TestStringLiteral"); }
+  @Test public void testSwitchStringHashcodeCollision() { doTest("pkg/TestSwitchStringHashcodeCollision"); }
+  // TODO: Assignment of o = new Object() is removed
+  @Test public void testSynchronized() { doTest("pkg/TestSynchronized"); }
+  // TODO: Assignment of o = null is removed, synchronize on null is invalid
+  @Test public void testSynchronizeNull() { doTest("pkg/TestSynchronizeNull"); }
+  @Test public void testWhileIterator() { doTest("pkg/TestWhileIterator"); }
+
 }

@@ -1,0 +1,36 @@
+package pkg;
+
+public class TestSynchronizeNull {
+   public void test() {
+      new Object();
+      Object var2 = null;// 6
+      synchronized(null) {
+         System.out.println("Hi");// 7
+      }
+   }// 9
+}
+
+class 'pkg/TestSynchronizeNull' {
+   method 'test ()V' {
+      8      5
+      c      5
+      d      6
+      e      7
+      f      7
+      10      7
+      11      7
+      12      7
+      13      7
+      14      7
+      15      7
+      20      9
+   }
+}
+
+Lines mapping:
+6 <-> 6
+7 <-> 8
+9 <-> 10
+Not mapped:
+5
+8
