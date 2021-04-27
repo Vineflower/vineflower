@@ -127,7 +127,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
   // TODO: The (double) in front of the (int) should be removed
   @Test public void testMultiCast() { doTest("pkg/TestMultiCast"); }
   // TODO: Fails to decompile
-//  @Test public void testNestedLoops() { doTest("pkg/TestNestedLoops"); }
+  @Test public void testNestedLoops() { doTest("pkg/TestNestedLoops"); }
   // TODO: The ternary here needs to be removed
   @Test public void testNestedLambdas() { doTest("pkg/TestNestedLambdas"); }
   @Test public void testSwitchAssign() { doTest("pkg/TestSwitchAssign"); }
@@ -174,7 +174,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
   @Test public void testLocalScopeClash() { doTest("pkg/TestLocalScopeClash"); }
   @Test public void testMultiBoolean() { doTest("pkg/TestMultiBoolean"); }
   @Test public void testNestedFor() { doTest("pkg/TestNestedFor"); }
-  @Test public void testNestedLoops() { doTest("pkg/TestNestedLoops"); }
   @Test public void testNestedLoops2() { doTest("pkg/TestNestedLoops2"); }
   // TODO: Object[] becomes <unknown>
   @Test public void testObjectArrays() { doTest("pkg/TestObjectArrays"); }
