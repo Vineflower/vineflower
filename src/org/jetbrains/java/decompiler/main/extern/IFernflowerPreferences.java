@@ -35,6 +35,10 @@ public interface IFernflowerPreferences {
   String IGNORE_INVALID_BYTECODE = "iib";
   String VERIFY_ANONYMOUS_CLASSES = "vac";
 
+  String INCLUDE_ENTIRE_CLASSPATH = "iec";
+  String EXPLICIT_GENERIC_ARGUMENTS = "ega";
+  String INLINE_SIMPLE_LAMBDAS = "isl";
+
   String LOG_LEVEL = "log";
   String MAX_PROCESSING_METHOD = "mpm";
   String RENAME_ENTITIES = "ren";
@@ -49,6 +53,10 @@ public interface IFernflowerPreferences {
 
   String LINE_SEPARATOR_WIN = "\r\n";
   String LINE_SEPARATOR_UNX = "\n";
+
+  String USE_JAD_VARNAMING = "jvn";
+
+  String SKIP_EXTRA_FILES = "sef";
 
   Map<String, Object> DEFAULTS = getDefaults();
 
@@ -82,6 +90,10 @@ public interface IFernflowerPreferences {
     defaults.put(IGNORE_INVALID_BYTECODE, "0");
     defaults.put(VERIFY_ANONYMOUS_CLASSES, "0");
 
+    defaults.put(INCLUDE_ENTIRE_CLASSPATH, "0");
+    defaults.put(EXPLICIT_GENERIC_ARGUMENTS, "0");
+    defaults.put(INLINE_SIMPLE_LAMBDAS, "1");
+
     defaults.put(LOG_LEVEL, IFernflowerLogger.Severity.INFO.name());
     defaults.put(MAX_PROCESSING_METHOD, "0");
     defaults.put(RENAME_ENTITIES, "0");
@@ -91,6 +103,8 @@ public interface IFernflowerPreferences {
     defaults.put(UNIT_TEST_MODE, "0");
     defaults.put(DUMP_ORIGINAL_LINES, "0");
     defaults.put(THREADS, String.valueOf(Runtime.getRuntime().availableProcessors()));
+    defaults.put(USE_JAD_VARNAMING, "0");
+    defaults.put(SKIP_EXTRA_FILES, "0");
 
     return Collections.unmodifiableMap(defaults);
   }

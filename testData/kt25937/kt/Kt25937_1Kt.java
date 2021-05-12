@@ -37,8 +37,7 @@ public final class Kt25937_1Kt {
          @NotNull
          public final Continuation<Unit> create(@NotNull Continuation<?> completion) {
             Intrinsics.checkParameterIsNotNull(completion, "completion");
-            Function1 var2 = new <anonymous constructor>(completion);
-            return var2;
+            return new <anonymous constructor>(completion);
          }
 
          public final Object invoke(Object var1) {

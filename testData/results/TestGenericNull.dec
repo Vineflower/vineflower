@@ -1,0 +1,21 @@
+package pkg;
+
+public abstract class TestGenericNull<T> {
+   public abstract T get();
+
+   public class Int extends TestGenericNull<Integer> {
+      public Integer get() {
+         return null;// 10
+      }
+   }
+}
+
+class 'pkg/TestGenericNull$Int' {
+   method 'get ()Ljava/lang/Integer;' {
+      0      7
+      1      7
+   }
+}
+
+Lines mapping:
+10 <-> 8

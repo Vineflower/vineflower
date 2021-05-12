@@ -1,0 +1,51 @@
+package pkg;
+
+public class TestSwitchAssign {
+   public void test(int x) {
+      int assign = 1;// 5
+      switch(x) {// 6
+      case 1:
+      case 3:
+      case 5:
+         assign = 3;// 10
+         break;// 11
+      case 2:
+      case 4:
+      case 6:
+         assign = 4;// 15
+      }
+
+      System.out.println(assign);// 19
+   }// 20
+}
+
+class 'pkg/TestSwitchAssign' {
+   method 'test (I)V' {
+      0      4
+      1      4
+      2      5
+      3      5
+      28      9
+      29      9
+      2a      10
+      2d      14
+      2e      14
+      2f      17
+      30      17
+      31      17
+      32      17
+      33      17
+      34      17
+      35      17
+      36      18
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 6
+10 <-> 10
+11 <-> 11
+15 <-> 15
+19 <-> 18
+20 <-> 19

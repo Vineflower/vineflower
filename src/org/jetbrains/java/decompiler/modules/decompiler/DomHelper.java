@@ -9,6 +9,8 @@ import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.modules.decompiler.decompose.FastExtendedPostdominanceHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.deobfuscator.IrreducibleCFGDeobfuscator;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
+import org.jetbrains.java.decompiler.struct.StructMethod;
+import org.jetbrains.java.decompiler.util.DotExporter;
 import org.jetbrains.java.decompiler.util.FastFixedSetFactory;
 import org.jetbrains.java.decompiler.util.FastFixedSetFactory.FastFixedSet;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
@@ -189,21 +191,16 @@ public final class DomHelper {
     return ret;
   }
 
-  public static RootStatement parseGraph(ControlFlowGraph graph) {
+  public static RootStatement parseGraph(ControlFlowGraph graph, StructMethod mt) {
 
     RootStatement root = graphToStatement(graph);
 
-    if (!processStatement(root, new HashMap<>())) {
-
-      //			try {
-      //				DotExporter.toDotFile(root.getFirst().getStats().get(13), new File("c:\\Temp\\stat1.dot"));
-      //			} catch (Exception ex) {
-      //				ex.printStackTrace();
-      //			}
+    if (!processStatement(root, new LinkedHashMap<>())) {
+      DotExporter.toDotFile(graph, mt, "parseGraphFail", true);
       throw new RuntimeException("parsing failure!");
     }
 
-    LabelHelper.lowContinueLabels(root, new HashSet<>());
+    LabelHelper.lowContinueLabels(root, new LinkedHashSet<>());
 
     SequenceHelper.condenseSequences(root);
     root.buildMonitorFlags();
@@ -466,11 +463,11 @@ public final class DomHelper {
 
         boolean same = (post == head);
 
-        HashSet<Statement> setNodes = new HashSet<>();
+        HashSet<Statement> setNodes = new LinkedHashSet<>();
         HashSet<Statement> setPreds = new HashSet<>();
 
         // collect statement nodes
-        HashSet<Statement> setHandlers = new HashSet<>();
+        HashSet<Statement> setHandlers = new LinkedHashSet<>();
         setHandlers.add(head);
         while (true) {
 
@@ -615,7 +612,7 @@ public final class DomHelper {
               set.removeAll(setOldNodes);
 
               if (setOldNodes.contains(key)) {
-                mapExtPost.computeIfAbsent(newid, k -> new HashSet<>()).addAll(set);
+                mapExtPost.computeIfAbsent(newid, k -> new LinkedHashSet<>()).addAll(set);
                 mapExtPost.remove(key);
               }
               else {

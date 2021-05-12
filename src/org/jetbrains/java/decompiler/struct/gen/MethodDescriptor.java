@@ -2,18 +2,30 @@
 package org.jetbrains.java.decompiler.struct.gen;
 
 import org.jetbrains.java.decompiler.code.CodeConstants;
+import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
+import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
+import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
+import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
+import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
+import org.jetbrains.java.decompiler.struct.StructMethod;
+import org.jetbrains.java.decompiler.struct.gen.generics.GenericMethodDescriptor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public final class MethodDescriptor {
   public final VarType[] params;
   public final VarType ret;
+  private final String descriptor;
+  public GenericMethodDescriptor genericInfo;
 
-  private MethodDescriptor(VarType[] params, VarType ret) {
+  private MethodDescriptor(VarType[] params, VarType ret, String descriptor) {
     this.params = params;
     this.ret = ret;
+    this.descriptor = descriptor;
   }
 
   public static MethodDescriptor parseDescriptor(String descriptor) {
@@ -60,7 +72,42 @@ public final class MethodDescriptor {
 
     VarType ret = new VarType(descriptor.substring(parenth + 1));
 
-    return new MethodDescriptor(params, ret);
+    return new MethodDescriptor(params, ret, descriptor);
+  }
+
+  public static MethodDescriptor parseDescriptor(StructMethod struct, ClassNode node) {
+    MethodDescriptor md = MethodDescriptor.parseDescriptor(struct.getDescriptor());
+
+    GenericMethodDescriptor sig = struct.getSignature();
+    if (sig != null) {
+      if (node != null) {
+        MethodWrapper methodWrapper = node.getWrapper().getMethodWrapper(struct.getName(), struct.getDescriptor());
+        boolean init = CodeConstants.INIT_NAME.equals(struct.getName()) && node.type != ClassNode.CLASS_ANONYMOUS;
+        long actualParams = md.params.length;
+        List<VarVersionPair> sigFields = methodWrapper == null ? null : methodWrapper.synthParameters;
+        if (sigFields != null) {
+          actualParams = sigFields.stream().filter(Objects::isNull).count();
+        }
+        else if (init) {
+          // && isEnum
+          if (DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_ENUM) && DecompilerContext.getStructContext().getClass(struct.getClassQualifiedName()).hasModifier(CodeConstants.ACC_ENUM)) {
+            actualParams -= 2;
+          }
+        }
+        if (actualParams != sig.parameterTypes.size()) {
+          String message = "Inconsistent generic signature in method " + struct.getName() + " " + struct.getDescriptor() + " in " + struct.getClassQualifiedName();
+          DecompilerContext.getLogger().writeMessage(message, IFernflowerLogger.Severity.WARN);
+          sig = null;
+        }
+      }
+      md.addGenericDescriptor(sig);
+    }
+
+    return md;
+  }
+
+  public void addGenericDescriptor(GenericMethodDescriptor desc) {
+    this.genericInfo = desc;
   }
 
   public String buildNewDescriptor(NewClassNameBuilder builder) {
@@ -68,8 +115,7 @@ public final class MethodDescriptor {
 
     VarType[] newParams;
     if (params.length > 0) {
-      newParams = new VarType[params.length];
-      System.arraycopy(params, 0, newParams, 0, params.length);
+      newParams = params.clone();
       for (int i = 0; i < params.length; i++) {
         VarType substitute = buildNewType(params[i], builder);
         if (substitute != null) {
@@ -109,6 +155,11 @@ public final class MethodDescriptor {
       }
     }
     return null;
+  }
+
+  @Override
+  public String toString() {
+    return this.descriptor;
   }
 
   @Override

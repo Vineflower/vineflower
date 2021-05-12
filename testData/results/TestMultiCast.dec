@@ -1,0 +1,34 @@
+package pkg;
+
+public class TestMultiCast {
+   public void test(double arg1, double arg2) {
+      useNumbers((double)((int)arg1), (double)((int)arg2));// 5
+   }// 6
+
+   private static void useNumbers(double arg1, double arg2) {
+   }// 10
+}
+
+class 'pkg/TestMultiCast' {
+   method 'test (DD)V' {
+      0      4
+      1      4
+      2      4
+      3      4
+      4      4
+      5      4
+      6      4
+      7      4
+      8      4
+      9      5
+   }
+
+   method 'useNumbers (DD)V' {
+      0      8
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 6
+10 <-> 9

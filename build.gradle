@@ -1,4 +1,4 @@
-// Copyright 2000-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
+// Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 apply plugin: 'java'
 apply plugin: 'maven-publish'
 
@@ -18,17 +18,46 @@ version = version + (ENV.GITHUB_ACTIONS ? "" : "+local")
 sourceSets {
   main.java.srcDirs 'src'
   test.java.srcDirs 'test'
+  // We need specific java9+ versions of certain classes, so we have a separate source set for them
+  java9.java.srcDirs 'java9'
 }
 
 repositories { mavenCentral() }
+
 dependencies {
   testCompile 'junit:junit:4.12'
   testCompile 'org.assertj:assertj-core:3.12.2'
+
+  // Java 9 classes need the main source set
+  java9Implementation sourceSets.main.output
+}
+
+java.toolchain {
+  languageVersion = JavaLanguageVersion.of(8)
+}
+
+tasks.withType(JavaCompile) {
+  options.deprecation = true
+}
+
+// Compile the java 9 classes
+compileJava9Java {
+  javaCompiler = javaToolchains.compilerFor {
+    languageVersion = JavaLanguageVersion.of(9)
+  }
 }
 
 jar {
+  // put the java 9 source set into the jar to make a multi-release jar
+  into('META-INF/versions/9') {
+    from sourceSets.java9.output
+  }
+
   manifest {
-    attributes 'Main-Class': 'org.jetbrains.java.decompiler.main.decompiler.ConsoleDecompiler'
+    attributes (
+      'Multi-Release': 'true',
+      'Main-Class': 'org.jetbrains.java.decompiler.main.decompiler.ConsoleDecompiler'
+    )
   }
 }
 
@@ -39,11 +68,6 @@ task sourceJar(type:Jar) {
 
 tasks.withType(JavaCompile).configureEach {
   it.options.encoding = "UTF-8"
-
-  // Target JDK 8
-  if (JavaVersion.current().isJava9Compatible()) {
-    it.options.release = 8
-  }
 }
 
 publishing {

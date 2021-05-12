@@ -13,3 +13,11 @@ jobs:
       - uses: actions/checkout@v1
       - uses: gradle/wrapper-validation-action@v1
       - run: ./gradlew build --stacktrace
+      - name: Archive test results
+        if: "${{ always() }}"
+        uses: actions/upload-artifact@v2
+        with:
+          name: "test-results-${{ matrix.os }}"
+          path: |
+            build/reports/
+            */build/reports/

@@ -31,7 +31,8 @@ public final class IfHelper {
           res |= mergeAllIfsRec(st, setReorderedIfs);
 
           // collapse composed if's
-          if (changed = mergeIfs(st, setReorderedIfs)) {
+          if (mergeIfs(st, setReorderedIfs)) {
+            changed = true;
             break;
           }
         }
@@ -75,21 +76,25 @@ public final class IfHelper {
             continue;
           }
 
-          if (updated = collapseIfIf(rtnode)) {
+          if (collapseIfIf(rtnode)) {
+            updated = true;
             break;
           }
 
           if (!setReorderedIfs.contains(stat.id)) {
-            if (updated = collapseIfElse(rtnode)) {
+            if (collapseIfElse(rtnode)) {
+              updated = true;
               break;
             }
 
-            if (updated = collapseElse(rtnode)) {
+            if (collapseElse(rtnode)) {
+              updated = true;
               break;
             }
           }
 
-          if (updated = reorderIf((IfStatement)stat)) {
+          if (reorderIf((IfStatement)stat)) {
+            updated = true;
             setReorderedIfs.add(stat.id);
             break;
           }
@@ -109,7 +114,7 @@ public final class IfHelper {
   private static boolean collapseIfIf(IfNode rtnode) {
     if (rtnode.edgetypes.get(0) == 0) {
       IfNode ifbranch = rtnode.succs.get(0);
-      if (ifbranch.succs.size() == 2) {
+      if (ifbranch.succs.size() == 2 && rtnode.succs.size() >= 2) {
 
         // if-if branch
         if (ifbranch.succs.get(1).value == rtnode.succs.get(1).value) {
@@ -181,7 +186,7 @@ public final class IfHelper {
   private static boolean collapseIfElse(IfNode rtnode) {
     if (rtnode.edgetypes.get(0) == 0) {
       IfNode ifbranch = rtnode.succs.get(0);
-      if (ifbranch.succs.size() == 2) {
+      if (ifbranch.succs.size() == 2 && rtnode.succs.size() >= 2) {
         // if-else branch
         if (ifbranch.succs.get(0).value == rtnode.succs.get(1).value) {
 
@@ -230,7 +235,7 @@ public final class IfHelper {
   }
 
   private static boolean collapseElse(IfNode rtnode) {
-    if (rtnode.edgetypes.get(1) == 0) {
+    if (rtnode.edgetypes.size() >= 2 && rtnode.edgetypes.get(1) == 0) {
       IfNode elsebranch = rtnode.succs.get(1);
       if (elsebranch.succs.size() == 2) {
 
@@ -363,7 +368,11 @@ public final class IfHelper {
     }
 
     // else branch
-    StatEdge edge = stat.getAllSuccessorEdges().get(0);
+    List<StatEdge> successorEdges = stat.getAllSuccessorEdges();
+    if (successorEdges.isEmpty()) {
+      return res;
+    }
+    StatEdge edge = successorEdges.get(0);
     Statement elsechild = edge.getDestination();
     IfNode elsenode = new IfNode(elsechild);
 
@@ -440,10 +449,9 @@ public final class IfHelper {
         if (sttemp == ifstat) {
           break;
         }
-        else {
-          if (elsedirectpath = existsPath(sttemp, next)) {
-            break;
-          }
+        else if (existsPath(sttemp, next)) {
+          elsedirectpath = true;
+          break;
         }
       }
     }
@@ -494,7 +502,7 @@ public final class IfHelper {
 
       ifstat.iftype = IfStatement.IFTYPE_IFELSE;
     }
-    else if (ifdirect && (!elsedirect || (noifstat && !noelsestat))) {  // if - then
+    else if (ifdirect && (!elsedirect || (noifstat && !noelsestat)) && !ifstat.getAllSuccessorEdges().isEmpty()) {  // if - then
 
       // negate the if condition
       IfExprent statexpr = ifstat.getHeadexprent();

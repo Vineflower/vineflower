@@ -11,9 +11,13 @@ import org.jetbrains.java.decompiler.util.InterpreterUtil;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
@@ -21,6 +25,38 @@ import java.util.zip.ZipOutputStream;
 public class ConsoleDecompiler implements IBytecodeProvider, IResultSaver {
   @SuppressWarnings("UseOfSystemOutOrSystemErr")
   public static void main(String[] args) {
+    List<String> params = new ArrayList<String>();
+    for (int x = 0; x < args.length; x++) {
+      if (args[x].startsWith("-cfg")) {
+        String path = null;
+        if (args[x].startsWith("-cfg=")) {
+          path = args[x].substring(5);
+        }
+        else if (args.length > x+1) {
+          path = args[++x];
+        }
+        else {
+          System.out.println("Must specify a file when using -cfg argument.");
+          return;
+        }
+        Path file = Paths.get(path);
+        if (!Files.exists(file)) {
+          System.out.println("error: missing config '" + path + "'");
+          return;
+        }
+        try (Stream<String> stream = Files.lines(file)) {
+          stream.forEach(params::add);
+        } catch (IOException e) {
+          System.out.println("error: Failed to read config file '" + path + "'");
+          throw new RuntimeException(e);
+        }
+      }
+      else {
+        params.add(args[x]);
+      }
+    }
+    args = params.toArray(new String[params.size()]);
+
     if (args.length < 2) {
       System.out.println(
         "Usage: java -jar fernflower.jar [-<option>=<value>]* [<source>]+ <destination>\n" +
@@ -31,6 +67,7 @@ public class ConsoleDecompiler implements IBytecodeProvider, IResultSaver {
     Map<String, Object> mapOptions = new HashMap<>();
     List<File> sources = new ArrayList<>();
     List<File> libraries = new ArrayList<>();
+    Set<String> whitelist = new HashSet<>();
 
     boolean isOption = true;
     for (int i = 0; i < args.length - 1; ++i) { // last parameter - destination
@@ -53,6 +90,9 @@ public class ConsoleDecompiler implements IBytecodeProvider, IResultSaver {
         if (arg.startsWith("-e=")) {
           addPath(libraries, arg.substring(3));
         }
+        else if (arg.startsWith("-only=")) {
+          whitelist.add(arg.substring(6));
+        }
         else {
           addPath(sources, arg);
         }
@@ -65,7 +105,7 @@ public class ConsoleDecompiler implements IBytecodeProvider, IResultSaver {
     }
 
     File destination = new File(args[args.length - 1]);
-    if (!destination.isDirectory()) {
+    if (!destination.isDirectory() && (sources.size() > 1 || !sources.get(0).isFile())) {
       System.out.println("error: destination '" + destination + "' is not a directory");
       return;
     }
@@ -78,6 +118,9 @@ public class ConsoleDecompiler implements IBytecodeProvider, IResultSaver {
     }
     for (File source : sources) {
       decompiler.addSource(source);
+    }
+    for (String prefix : whitelist) {
+      decompiler.addWhitelist(prefix);
     }
 
     decompiler.decompileContext();
@@ -105,7 +148,7 @@ public class ConsoleDecompiler implements IBytecodeProvider, IResultSaver {
 
   protected ConsoleDecompiler(File destination, Map<String, Object> options, IFernflowerLogger logger) {
     root = destination;
-    engine = new Fernflower(this, this, options, logger);
+    engine = new Fernflower(this, root.isDirectory() ? this : new SingleFileSaver(destination), options, logger);
   }
 
   public void addSource(File source) {
@@ -114,6 +157,10 @@ public class ConsoleDecompiler implements IBytecodeProvider, IResultSaver {
 
   public void addLibrary(File library) {
     engine.addLibrary(library);
+  }
+
+  public void addWhitelist(String prefix) {
+    engine.addWhitelist(prefix);
   }
 
   public void decompileContext() {

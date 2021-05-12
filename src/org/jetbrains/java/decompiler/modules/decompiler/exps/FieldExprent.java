@@ -10,10 +10,13 @@ import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
+import org.jetbrains.java.decompiler.struct.StructClass;
+import org.jetbrains.java.decompiler.struct.StructField;
 import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribute;
 import org.jetbrains.java.decompiler.struct.consts.LinkConstant;
 import org.jetbrains.java.decompiler.struct.gen.FieldDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
+import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
 import org.jetbrains.java.decompiler.struct.match.MatchEngine;
 import org.jetbrains.java.decompiler.struct.match.MatchNode;
 import org.jetbrains.java.decompiler.struct.match.MatchNode.RuleValue;
@@ -22,8 +25,11 @@ import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.TextUtil;
 
 import java.util.ArrayList;
+import java.util.BitSet;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 public class FieldExprent extends Exprent {
   private final String name;
@@ -31,18 +37,24 @@ public class FieldExprent extends Exprent {
   private final boolean isStatic;
   private Exprent instance;
   private final FieldDescriptor descriptor;
+  private boolean forceQualified = false;
 
-  public FieldExprent(LinkConstant cn, Exprent instance, Set<Integer> bytecodeOffsets) {
+  public FieldExprent(LinkConstant cn, Exprent instance, BitSet bytecodeOffsets) {
     this(cn.elementname, cn.classname, instance == null, instance, FieldDescriptor.parseDescriptor(cn.descriptor), bytecodeOffsets);
   }
 
-  public FieldExprent(String name, String classname, boolean isStatic, Exprent instance, FieldDescriptor descriptor, Set<Integer> bytecodeOffsets) {
+  public FieldExprent(String name, String classname, boolean isStatic, Exprent instance, FieldDescriptor descriptor, BitSet bytecodeOffsets) {
+    this(name, classname, isStatic, instance, descriptor, bytecodeOffsets, false);
+  }
+
+  public FieldExprent(String name, String classname, boolean isStatic, Exprent instance, FieldDescriptor descriptor, BitSet bytecodeOffsets, boolean forceQualified) {
     super(EXPRENT_FIELD);
     this.name = name;
     this.classname = classname;
     this.isStatic = isStatic;
     this.instance = instance;
     this.descriptor = descriptor;
+    this.forceQualified = forceQualified;
 
     addBytecodeOffsets(bytecodeOffsets);
   }
@@ -53,8 +65,55 @@ public class FieldExprent extends Exprent {
   }
 
   @Override
+  public VarType getInferredExprType(VarType upperBound) {
+    StructClass cl = DecompilerContext.getStructContext().getClass(classname);
+    Map<String, Map<VarType, VarType>> types = cl == null ? Collections.emptyMap() : cl.getAllGenerics();
+
+    StructField ft = null;
+    while(cl != null) {
+      ft = cl.getField(name, descriptor.descriptorString);
+      if (ft != null)
+        break;
+      cl = cl.superClass == null ? null : DecompilerContext.getStructContext().getClass((String)cl.superClass.value);
+    }
+
+    if (ft != null && ft.getSignature() != null) {
+      VarType ret =  ft.getSignature().type.remap(types.getOrDefault(cl.qualifiedName, Collections.emptyMap()));
+
+      if (instance != null && cl.getSignature() != null) {
+        VarType instType = instance.getInferredExprType(null);
+
+        if (instType.isGeneric() && instType.type != CodeConstants.TYPE_GENVAR) {
+          GenericType ginstance = (GenericType)instType;
+
+          cl = DecompilerContext.getStructContext().getClass(instType.value);
+          if (cl != null && cl.getSignature() != null) {
+            Map<VarType, VarType> tempMap = new HashMap<>();
+            cl.getSignature().genericType.mapGenVarsTo(ginstance, tempMap);
+            VarType _new = ret.remap(tempMap);
+
+            if (_new != null) {
+              ret = _new;
+            }
+          }
+        }
+      }
+
+      return ret;
+    }
+
+    return getExprType();
+  }
+
+  @Override
   public int getExprentUse() {
-    return 0; // multiple references to a field considered dangerous in a multithreaded environment, thus no Exprent.MULTIPLE_USES set here
+    //Revert the following line it produces messy code as follows:
+    //-            this.field_225230_a[l + i1 * this.field_225231_b] &= 16777215;
+    //+            int[] aint = this.field_225230_a;
+    //+            int j1 = l + i1 * this.field_225231_b;
+    //+            aint[j1] &= 16777215;
+    //return 0; // multiple references to a field considered dangerous in a multithreaded environment, thus no Exprent.MULTIPLE_USES set here
+    return instance == null ? Exprent.MULTIPLE_USES : instance.getExprentUse() & Exprent.MULTIPLE_USES;
   }
 
   @Override
@@ -89,7 +148,7 @@ public class FieldExprent extends Exprent {
 
     if (isStatic) {
       ClassNode node = (ClassNode)DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS_NODE);
-      if (node == null || !classname.equals(node.classStruct.qualifiedName) || isAmbiguous()) {
+      if (node == null || !classname.equals(node.classStruct.qualifiedName) || isAmbiguous() || forceQualified) {
         buf.append(DecompilerContext.getImportCollector().getShortNameInClassContext(ExprProcessor.buildJavaClassName(classname)));
         buf.append(".");
       }
@@ -183,6 +242,16 @@ public class FieldExprent extends Exprent {
 
   public String getName() {
     return name;
+  }
+
+  public void forceQualified(boolean value) {
+    this.forceQualified = value;
+  }
+
+  @Override
+  public void getBytecodeRange(BitSet values) {
+    measureBytecode(values, instance);
+    measureBytecode(values);
   }
 
   // *****************************************************************************

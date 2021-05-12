@@ -14,6 +14,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
+import org.jetbrains.java.decompiler.util.DotExporter;
 import org.jetbrains.java.decompiler.util.FastSparseSetFactory;
 import org.jetbrains.java.decompiler.util.FastSparseSetFactory.FastSparseSet;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
@@ -22,6 +23,7 @@ import org.jetbrains.java.decompiler.util.SFormsFastMapDirect;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map.Entry;
 
 public class SSAConstructorSparseEx {
@@ -52,11 +54,9 @@ public class SSAConstructorSparseEx {
     FlattenStatementsHelper flatthelper = new FlattenStatementsHelper();
     DirectGraph dgraph = flatthelper.buildDirectGraph(root);
 
-    // try {
-    // DotExporter.toDotFile(dgraph, new File("c:\\Temp\\gr12_my.dot"));
-    // } catch(Exception ex) {ex.printStackTrace();}
+    DotExporter.toDotFile(dgraph, mt, "ssaSplitVariables");
 
-    HashSet<Integer> setInit = new HashSet<>();
+    List<Integer> setInit = new ArrayList<>();
     for (int i = 0; i < 64; i++) {
       setInit.add(i);
     }
@@ -67,20 +67,19 @@ public class SSAConstructorSparseEx {
 
     setCatchMaps(root, dgraph, flatthelper);
 
+    int itteration = 1;
     HashSet<String> updated = new HashSet<>();
     do {
       // System.out.println("~~~~~~~~~~~~~ \r\n"+root.toJava());
-      ssaStatements(dgraph, updated);
+      ssaStatements(dgraph, updated, mt, itteration++);
       // System.out.println("~~~~~~~~~~~~~ \r\n"+root.toJava());
     }
     while (!updated.isEmpty());
   }
 
-  private void ssaStatements(DirectGraph dgraph, HashSet<String> updated) {
+  private void ssaStatements(DirectGraph dgraph, HashSet<String> updated, StructMethod mt, int itteration) {
 
-    // try {
-    // DotExporter.toDotFile(dgraph, new File("c:\\Temp\\gr1_my.dot"));
-    // } catch(Exception ex) {ex.printStackTrace();}
+    DotExporter.toDotFile(dgraph, mt, "ssaStatements_" + itteration, outVarVersions);
 
     for (DirectNode node : dgraph.nodes) {
 
@@ -239,7 +238,7 @@ public class SSAConstructorSparseEx {
       Integer varindex = vardest.getIndex();
       FastSparseSet<Integer> vers = varmap.get(varindex);
 
-      int cardinality = vers.getCardinality();
+      int cardinality = vers != null ? vers.getCardinality() : 0;
       if (cardinality == 1) { // == 1
         // set version
         Integer it = vers.iterator().next();
@@ -264,7 +263,17 @@ public class SSAConstructorSparseEx {
           // create new phi node
           phi.put(new VarVersionPair(varindex, nextver), vers);
         }
-      } // 0 means uninitialized variable, which is impossible
+      } // 0 means uninitialized variable
+      else if (cardinality == 0) {
+        if (vardest.getVersion() != 0) {
+          setCurrentVar(varmap, varindex, vardest.getVersion());
+        }
+        else {
+          Integer nextver = getNextFreeVersion(varindex);
+          vardest.setVersion(nextver);
+          setCurrentVar(varmap, varindex, nextver);
+        }
+      }
     }
   }
 

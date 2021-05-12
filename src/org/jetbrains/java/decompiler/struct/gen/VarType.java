@@ -1,7 +1,10 @@
 // Copyright 2000-2017 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.struct.gen;
 
+import java.util.Map;
+
 import org.jetbrains.java.decompiler.code.CodeConstants;
+import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 
 public class VarType {  // TODO: optimize switch
@@ -49,7 +52,7 @@ public class VarType {  // TODO: optimize switch
     this(type, arrayDim, value, getFamily(type, arrayDim), getStackSize(type, arrayDim), false);
   }
 
-  private VarType(int type, int arrayDim, String value, int typeFamily, int stackSize, boolean falseBoolean) {
+  protected VarType(int type, int arrayDim, String value, int typeFamily, int stackSize, boolean falseBoolean) {
     this.type = type;
     this.arrayDim = arrayDim;
     this.value = value;
@@ -141,7 +144,7 @@ public class VarType {  // TODO: optimize switch
     }
   }
 
-  private static int getStackSize(int type, int arrayDim) {
+  protected static int getStackSize(int type, int arrayDim) {
     if (arrayDim > 0) {
       return 1;
     }
@@ -158,7 +161,7 @@ public class VarType {  // TODO: optimize switch
     }
   }
 
-  private static int getFamily(int type, int arrayDim) {
+  protected static int getFamily(int type, int arrayDim) {
     if (arrayDim > 0) {
       return CodeConstants.TYPE_FAMILY_OBJECT;
     }
@@ -257,6 +260,15 @@ public class VarType {  // TODO: optimize switch
     }
 
     return res;
+  }
+
+  @Override
+  public int hashCode() {
+    int result = 1;
+    result = 37 * result + type;
+    result = 37 * result + arrayDim;
+    result = 37 * result + (value == null ? 0 : value.hashCode());
+    return result;
   }
 
   @Override
@@ -404,5 +416,18 @@ public class VarType {  // TODO: optimize switch
       default:
         throw new IllegalArgumentException("Invalid type: " + c);
     }
+  }
+
+  public boolean isGeneric() {
+    return false;
+  }
+
+  public VarType remap(Map<VarType, VarType> map) {
+    VarType key = arrayDim == 0 ? this : this.resizeArrayDim(0);
+    if (map.containsKey(key)) {
+      VarType ret = map.get(key);
+      return arrayDim == 0 || ret == null ? ret : ret.resizeArrayDim(ret.arrayDim + arrayDim);
+    }
+    return this;
   }
 }

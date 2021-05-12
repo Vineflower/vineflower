@@ -71,6 +71,10 @@ public class SimplifyExprentsHelper {
           if (changed) {
             break;
           }
+
+          if (!st.getStats().isEmpty() && hasQualifiedNewGetClass(st, st.getStats().get(0))) {
+            break;
+          }
         }
 
         res |= changed;
@@ -128,6 +132,11 @@ public class SimplifyExprentsHelper {
       }
 
       Exprent next = list.get(index + 1);
+      if (isAssignmentReturn(current, next)) {
+        list.remove(index);
+        res = true;
+        continue;
+      }
 
       // constructor invocation
       if (isConstructorInvocationRemote(list, index)) {
@@ -335,6 +344,27 @@ public class SimplifyExprentsHelper {
     return 0;
   }
 
+  private static boolean isAssignmentReturn(Exprent first, Exprent second) {
+    //If assignment then exit.
+    if (first.type == Exprent.EXPRENT_ASSIGNMENT && second.type == Exprent.EXPRENT_EXIT) {
+      AssignmentExprent assignment = (AssignmentExprent) first;
+      ExitExprent exit = (ExitExprent) second;
+      //if simple assign and exit is return and return isn't void
+      if (assignment.getCondType() == AssignmentExprent.CONDITION_NONE && exit.getExitType() == ExitExprent.EXIT_RETURN && exit.getValue() != null) {
+        if (assignment.getLeft().type == Exprent.EXPRENT_VAR && exit.getValue().type == Exprent.EXPRENT_VAR) {
+          VarExprent assignmentLeft = (VarExprent) assignment.getLeft();
+          VarExprent exitValue = (VarExprent) exit.getValue();
+          //If the assignment before the return is immediately used in the return, inline it.
+          if (assignmentLeft.equals(exitValue) && !assignmentLeft.isStack() && !exitValue.isStack()) {
+            exit.replaceExprent(exitValue, assignment.getRight());
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
+
   private static boolean isTrivialStackAssignment(Exprent first) {
     if (first.type == Exprent.EXPRENT_ASSIGNMENT) {
       AssignmentExprent asf = (AssignmentExprent)first;
@@ -505,21 +535,43 @@ public class SimplifyExprentsHelper {
     return false;
   }
 
+  private static boolean hasQualifiedNewGetClass(Statement parent, Statement child) {
+    if (child.type == Statement.TYPE_BASICBLOCK && child.getExprents() != null && !child.getExprents().isEmpty()) {
+      Exprent firstExpr = child.getExprents().get(child.getExprents().size() - 1);
+
+      if (parent.type == Statement.TYPE_IF) {
+        if (isQualifiedNewGetClass(firstExpr, ((IfStatement)parent).getHeadexprent().getCondition())) {
+          child.getExprents().remove(firstExpr);
+          return true;
+        }
+      }
+      // TODO DoStatements ?
+    }
+    return false;
+  }
+
   private static boolean isQualifiedNewGetClass(Exprent first, Exprent second) {
     if (first.type == Exprent.EXPRENT_INVOCATION) {
       InvocationExprent invocation = (InvocationExprent)first;
 
-      if (!invocation.isStatic() && invocation.getInstance().type == Exprent.EXPRENT_VAR && invocation.getName().equals("getClass") &&
-          invocation.getStringDescriptor().equals("()Ljava/lang/Class;")) {
+      if (!invocation.isStatic() &&
+           invocation.getName().equals("getClass") && invocation.getStringDescriptor().equals("()Ljava/lang/Class;")) {
 
-        List<Exprent> lstExprents = second.getAllExprents();
+        if (invocation.isSyntheticGetClass()) {
+          return true;
+        }
+
+        LinkedList<Exprent> lstExprents = new LinkedList<>();
         lstExprents.add(second);
 
-        for (Exprent expr : lstExprents) {
+        while (!lstExprents.isEmpty()){
+          Exprent expr = lstExprents.removeFirst();
+          lstExprents.addAll(expr.getAllExprents());
           if (expr.type == Exprent.EXPRENT_NEW) {
             NewExprent newExpr = (NewExprent)expr;
             if (newExpr.getConstructor() != null && !newExpr.getConstructor().getLstParameters().isEmpty() &&
-                newExpr.getConstructor().getLstParameters().get(0).equals(invocation.getInstance())) {
+              (newExpr.getConstructor().getLstParameters().get(0).equals(invocation.getInstance()) ||
+                newExpr.getConstructor().getLstParameters().get(0).getExprType().equals(invocation.getInstance().getExprType()))) {
 
               String classname = newExpr.getNewType().value;
               ClassNode node = DecompilerContext.getClassProcessor().getMapRootClasses().get(classname);
@@ -638,7 +690,7 @@ public class SimplifyExprentsHelper {
     if (stat.type == Statement.TYPE_IF && stat.getExprents() == null) {
       IfStatement statement = (IfStatement)stat;
       Exprent ifHeadExpr = statement.getHeadexprent();
-      Set<Integer> ifHeadExprBytecode = (ifHeadExpr == null ? null : ifHeadExpr.bytecode);
+      BitSet ifHeadExprBytecode = (ifHeadExpr == null ? null : ifHeadExpr.bytecode);
 
       if (statement.iftype == IfStatement.IFTYPE_IFELSE) {
         Statement ifStatement = statement.getIfstat();
@@ -719,7 +771,7 @@ public class SimplifyExprentsHelper {
                                                                                Arrays.asList(
                                                                                  statement.getHeadexprent().getCondition(),
                                                                                  ifExit.getValue(),
-                                                                                 elseExit.getValue()), ifHeadExprBytecode), ifExit.getRetType(), ifHeadExprBytecode));
+                                                                                 elseExit.getValue()), ifHeadExprBytecode), ifExit.getRetType(), ifHeadExprBytecode, ifExit.getMethodDescriptor()));
               statement.setExprents(data);
 
               StatEdge retEdge = ifStatement.getAllSuccessorEdges().get(0);

@@ -4,6 +4,7 @@ package org.jetbrains.java.decompiler.modules.decompiler.vars;
 import org.jetbrains.java.decompiler.modules.decompiler.decompose.GenericDominatorEngine;
 import org.jetbrains.java.decompiler.modules.decompiler.decompose.IGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.decompose.IGraphNode;
+import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribute.LocalVariable;
 import org.jetbrains.java.decompiler.util.VBStyleCollection;
 
 import java.util.*;
@@ -14,8 +15,12 @@ public class VarVersionsGraph {
   private GenericDominatorEngine engine;
 
   public VarVersionNode createNode(VarVersionPair ver) {
+    return createNode(ver, null);
+  }
+
+  public VarVersionNode createNode(VarVersionPair ver, LocalVariable lvt) {
     VarVersionNode node;
-    nodes.addWithKey(node = new VarVersionNode(ver.var, ver.version), ver);
+    nodes.addWithKey(node = new VarVersionNode(ver.var, ver.version, lvt), ver);
     return node;
   }
 

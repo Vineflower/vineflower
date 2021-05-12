@@ -2,6 +2,7 @@
 package org.jetbrains.java.decompiler.main.rels;
 
 import org.jetbrains.java.decompiler.code.CodeConstants;
+import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
@@ -11,8 +12,11 @@ import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectNode;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.BasicBlockStatement;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.CatchStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.DoStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.SequenceStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarTypeProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
@@ -21,8 +25,10 @@ import org.jetbrains.java.decompiler.struct.StructField;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.attr.StructEnclosingMethodAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
+import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribute.LocalVariable;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
+import org.jetbrains.java.decompiler.util.DotExporter;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 
 import java.util.*;
@@ -85,6 +91,125 @@ public class NestedClassProcessor {
       processClass(root, child);
     }
   }
+  /**
+   * When Java introduced Enums they aded the ability to use them in Switch statements.
+   * This was done in a purely syntax sugar way using the old switch on int methods.
+   * The compiler creates a synthetic class with a static int array field.
+   * To support enums changing post compile, It initializes this field with a length of the current enum length.
+   * And then for every referenced enum value it adds a mapping in the form of:
+   *   try {
+   *     field[Enum.VALUE.ordinal()] = 1;
+   *   } catch (FieldNotFoundException e) {}
+   *
+   * If a class has multiple switches on multiple enums, the compiler adds the init and try list to the BEGINNING of the static initalizer.
+   * But they add the field to the END of the fields list.
+   */
+  /*
+  private void gatherEnumSwitchMaps(ClassNode node) {
+    for (ClassNode child : node.nested) {
+      gatherEnumSwitchMaps(child);
+    }
+
+    MethodWrapper clinit = node.getWrapper().getMethodWrapper("<clinit>", "()V");
+    if (clinit == null || clinit.root == null || clinit.root.getFirst().type != Statement.TYPE_SEQUENCE) {
+      return;
+    }
+
+    final int STATIC_FINAL_SYNTHETIC = CodeConstants.ACC_STATIC | CodeConstants.ACC_STATIC | CodeConstants.ACC_FINAL | CodeConstants.ACC_SYNTHETIC;
+    Set<String> potentialFields = new HashSet<String>();
+    for (StructField fd : node.classStruct.getFields()) {
+      if ((fd.getAccessFlags() & STATIC_FINAL_SYNTHETIC) == STATIC_FINAL_SYNTHETIC && "[I".equals(fd.getDescriptor())) {
+        potentialFields.add(fd.getName());
+      }
+    }
+
+    if (potentialFields.size() == 0) {
+      return;
+    }
+
+    SequenceStatement seq = (SequenceStatement)clinit.root.getFirst();
+    for (int x = 0; x < seq.getStats().size();) {
+      Statement stat = seq.getStats().get(x);
+      if (stat.type != Statement.TYPE_BASICBLOCK || stat.getExprents() == null || stat.getExprents().size() != 1 || stat.getExprents().get(0).type != Exprent.EXPRENT_ASSIGNMENT) {
+        break;
+      }
+      AssignmentExprent ass = (AssignmentExprent)stat.getExprents().get(0);
+      if (ass.getLeft().type != Exprent.EXPRENT_FIELD || ass.getRight().type != Exprent.EXPRENT_NEW) {
+        break;
+      }
+      FieldExprent mapField = (FieldExprent)ass.getLeft();
+      NewExprent _new = ((NewExprent)ass.getRight());
+      if (!mapField.getClassname().equals(node.classStruct.qualifiedName) || !potentialFields.contains(mapField.getName()) ||
+          _new.getNewType().type != CodeConstants.TYPE_INT || _new.getNewType().arrayDim != 1 ||
+          _new.getLstDims().size() != 1 || _new.getLstDims().get(0).type != Exprent.EXPRENT_FUNCTION) {
+        break;
+      }
+      FunctionExprent func = (FunctionExprent)_new.getLstDims().get(0);
+      if (func.getFuncType() != FunctionExprent.FUNCTION_ARRAY_LENGTH || func.getLstOperands().size() != 1 || func.getLstOperands().get(0).type != Exprent.EXPRENT_INVOCATION) {
+        break;
+      }
+      InvocationExprent invoc = (InvocationExprent)func.getLstOperands().get(0);
+      if (!"values".equals(invoc.getName()) || !("()[L" + invoc.getClassname() + ";").equals(invoc.getStringDescriptor())) {
+        break;
+      }
+
+      String fieldName = mapField.getName();
+      String enumName = invoc.getClassname();
+      Map<Integer, String> idToName = new HashMap<Integer, String>();
+
+      boolean replace = false;
+      int y = x;
+      while (++y < seq.getStats().size()) {
+        if (seq.getStats().get(y).type != Statement.TYPE_TRYCATCH) {
+          break;
+        }
+        CatchStatement _try = (CatchStatement)seq.getStats().get(y);
+        Statement first = _try.getFirst();
+        List<Exprent> exprents = first.getExprents();
+        if (_try.getVars().size() != 1 || !"java/lang/NoSuchFieldError".equals(_try.getVars().get(0).getVarType().value) ||
+            first.type != Statement.TYPE_BASICBLOCK || exprents == null || exprents.size() != 1 || exprents.get(0).type != Exprent.EXPRENT_ASSIGNMENT) {
+          break;
+        }
+        ass = (AssignmentExprent)exprents.get(0);
+        if (ass.getRight().type != Exprent.EXPRENT_CONST || (!(((ConstExprent)ass.getRight()).getValue() instanceof Integer)) ||
+            ass.getLeft().type != Exprent.EXPRENT_ARRAY){
+          break;
+        }
+        ArrayExprent array = (ArrayExprent)ass.getLeft();
+        if (array.getArray().type != Exprent.EXPRENT_FIELD || !array.getArray().equals(mapField) || array.getIndex().type != Exprent.EXPRENT_INVOCATION) {
+          break;
+        }
+        invoc = (InvocationExprent)array.getIndex();
+        if (!enumName.equals(invoc.getClassname()) || !"ordinal".equals(invoc.getName()) || !"()I".equals(invoc.getStringDescriptor()) ||
+            invoc.getInstance().type != Exprent.EXPRENT_FIELD) {
+          break;
+        }
+
+        FieldExprent enumField = (FieldExprent)invoc.getInstance();
+        if (!enumName.equals(enumField.getClassname()) || !enumField.isStatic()) {
+          break;
+        }
+
+        idToName.put((Integer)((ConstExprent)ass.getRight()).getValue(), enumField.getName());
+        seq.replaceStatement(_try, getNewEmptyStatement());
+        replace = true;
+      }
+
+      if (replace) {
+        seq.replaceStatement(seq.getStats().get(x), getNewEmptyStatement());
+        node.classStruct.getEnumSwitchMap().put(fieldName, idToName);
+        node.getWrapper().getHiddenMembers().add(InterpreterUtil.makeUniqueKey(fieldName, "[I"));
+      }
+      x = y;
+    }
+  }*/
+
+  private Statement getNewEmptyStatement() {
+    BasicBlockStatement bstat = new BasicBlockStatement(new BasicBlock(
+      DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.STATEMENT_COUNTER)));
+    bstat.setExprents(new ArrayList<Exprent>());
+    return bstat;
+  }
 
   private static void setLambdaVars(ClassNode parent, ClassNode child) {
     if (child.lambdaInformation.is_method_reference) { // method reference, no code and no parameters
@@ -112,6 +237,7 @@ public class NestedClassProcessor {
     }
 
     Map<VarVersionPair, String> mapNewNames = new HashMap<>();
+    Map<VarVersionPair, LocalVariable> lvts = new HashMap<>();
 
     enclosingMethod.getOrBuildGraph().iterateExprents(exprent -> {
       List<Exprent> lst = exprent.getAllExprents(true);
@@ -136,6 +262,10 @@ public class NestedClassProcessor {
 
                 if (param.type == Exprent.EXPRENT_VAR) {
                   mapNewNames.put(varVersion, enclosingMethod.varproc.getVarName(new VarVersionPair((VarExprent)param)));
+                  lvts.put(varVersion, ((VarExprent)param).getLVT());
+                  if (enclosingMethod.varproc.getVarFinal((new VarVersionPair((VarExprent)param))) == VarTypeProcessor.VAR_NON_FINAL) {
+                    //DecompilerContext.getLogger().writeMessage("Lambda in " + parent.simpleName + "." + enclosingMethod.methodStruct.getName() + " given non-final var " + ((VarExprent)param).getName() + "!", IFernflowerLogger.Severity.ERROR);
+                  }
                 }
               }
               else {
@@ -155,12 +285,30 @@ public class NestedClassProcessor {
     Set<String> setNewOuterNames = new HashSet<>(mapNewNames.values());
     setNewOuterNames.removeAll(method.setOuterVarNames);
 
-    method.varproc.refreshVarNames(new VarNamesCollector(setNewOuterNames));
+    //method.varproc.refreshVarNames(new VarNamesCollector(setNewOuterNames));
     method.setOuterVarNames.addAll(setNewOuterNames);
 
     for (Entry<VarVersionPair, String> entry : mapNewNames.entrySet()) {
-      method.varproc.setVarName(entry.getKey(), entry.getValue());
+      VarVersionPair pair = entry.getKey();
+      LocalVariable lvt = lvts.get(pair);
+
+      method.varproc.setVarName(pair, entry.getValue());
+      if (lvt != null) {
+        method.varproc.setVarLVT(pair, lvt);
+      }
     }
+
+    method.getOrBuildGraph().iterateExprentsDeep(exp -> {
+      if (exp.type == Exprent.EXPRENT_VAR) {
+        VarExprent var = (VarExprent)exp;
+        LocalVariable lv = lvts.get(var.getVarVersionPair());
+        if (lv != null)
+          var.setLVT(lv);
+        else if (mapNewNames.containsKey(var.getVarVersionPair()))
+          var.setLVT(null);
+      }
+      return 0;
+    });
   }
 
   private static void checkNotFoundClasses(ClassNode root, ClassNode node) {
@@ -217,6 +365,7 @@ public class NestedClassProcessor {
       if (setEnclosing.contains(node.classStruct.qualifiedName)) {
         node.nested.add(child);
         child.parent = node;
+        Collections.sort(node.nested);
 
         return true;
       }
@@ -259,6 +408,7 @@ public class NestedClassProcessor {
       // iterate enclosing class
       for (MethodWrapper method : node.getWrapper().getMethods()) {
         if (method.root != null) { // neither abstract, nor native
+          DotExporter.toDotFile(method.getOrBuildGraph(), method.methodStruct, "computeLocalVars");
           method.getOrBuildGraph().iterateExprents(exprent -> {
             List<Exprent> lst = exprent.getAllExprents(true);
             lst.add(exprent);
@@ -396,8 +546,13 @@ public class NestedClassProcessor {
       if (method.root != null) { // neither abstract nor native
         Map<VarVersionPair, String> mapNewNames = new HashMap<>();  // local var names
         Map<VarVersionPair, VarType> mapNewTypes = new HashMap<>();  // local var types
+        Map<VarVersionPair, LocalVariable> mapNewLVTs = new HashMap<>(); // local var table entries
 
-        Map<Integer, VarVersionPair> mapParamsToNewVars = new HashMap<>();
+        if (enclosingMethod != null) {
+          method.methodStruct.getVariableNamer().addParentContext(enclosingMethod.methodStruct.getVariableNamer());
+        }
+
+        final Map<Integer, VarVersionPair> mapParamsToNewVars = new HashMap<>();
         if (method.synthParameters != null) {
           int index = 0, varIndex = 1;
           MethodDescriptor md = MethodDescriptor.parseDescriptor(method.methodStruct.getDescriptor());
@@ -410,15 +565,17 @@ public class NestedClassProcessor {
 
               String varName = null;
               VarType varType = null;
+              LocalVariable varLVT = null;
 
               if (child.type != ClassNode.CLASS_MEMBER) {
                 varName = enclosingMethod.varproc.getVarName(pair);
                 varType = enclosingMethod.varproc.getVarType(pair);
+                varLVT = enclosingMethod.varproc.getVarLVT(pair);
 
                 enclosingMethod.varproc.setVarFinal(pair, VarTypeProcessor.VAR_EXPLICIT_FINAL);
               }
 
-              if (pair.var == -1 || "this".equals(varName)) {
+              if (pair.var == -1 || "this".equals(varName) || (varLVT != null && "this".equals(varLVT.getName()))) {
                 if (parent.simpleName == null) {
                   // anonymous enclosing class, no access to this
                   varName = VarExprent.VAR_NAMELESS_ENCLOSURE;
@@ -426,11 +583,15 @@ public class NestedClassProcessor {
                 else {
                   varName = parent.simpleName + ".this";
                 }
+                if (varLVT != null) {
+                  varLVT = varLVT.rename(varName);
+                }
                 method.varproc.getThisVars().put(newVar, parent.classStruct.qualifiedName);
               }
 
               mapNewNames.put(newVar, varName);
               mapNewTypes.put(newVar, varType);
+              mapNewLVTs.put(newVar, varLVT);
             }
 
             varIndex += md.params[index++].stackSize;
@@ -446,17 +607,19 @@ public class NestedClassProcessor {
 
             String varName = null;
             VarType varType = null;
+            LocalVariable varLVT = null;
 
             if (classNode.type != ClassNode.CLASS_MEMBER) {
               MethodWrapper enclosing_method = classNode.parent.getWrapper().getMethods().getWithKey(classNode.enclosingMethod);
 
               varName = enclosing_method.varproc.getVarName(entry.getValue());
               varType = enclosing_method.varproc.getVarType(entry.getValue());
+              varLVT = enclosing_method.varproc.getVarLVT(entry.getValue());
 
               enclosing_method.varproc.setVarFinal(entry.getValue(), VarTypeProcessor.VAR_EXPLICIT_FINAL);
             }
 
-            if (entry.getValue().var == -1 || "this".equals(varName)) {
+            if (entry.getValue().var == -1 || "this".equals(varName) || (varLVT != null && "this".equals(varLVT.getName()))) {
               if (classNode.parent.simpleName == null) {
                 // anonymous enclosing class, no access to this
                 varName = VarExprent.VAR_NAMELESS_ENCLOSURE;
@@ -464,11 +627,15 @@ public class NestedClassProcessor {
               else {
                 varName = classNode.parent.simpleName + ".this";
               }
+              if (varLVT != null) {
+                varLVT = varLVT.rename(varName);
+              }
               method.varproc.getThisVars().put(newVar, classNode.parent.classStruct.qualifiedName);
             }
 
             mapNewNames.put(newVar, varName);
             mapNewTypes.put(newVar, varType);
+            mapNewLVTs.put(newVar, varLVT);
 
             // hide synthetic field
             if (classNode == child) { // fields higher up the chain were already handled with their classes
@@ -487,16 +654,20 @@ public class NestedClassProcessor {
         for (Entry<VarVersionPair, String> entry : mapNewNames.entrySet()) {
           VarVersionPair pair = entry.getKey();
           VarType type = mapNewTypes.get(pair);
+          LocalVariable lvt = mapNewLVTs.get(pair);
 
           method.varproc.setVarName(pair, entry.getValue());
           if (type != null) {
             method.varproc.setVarType(pair, type);
           }
+          if (lvt != null) {
+            method.varproc.setVarLVT(pair, lvt);
+          }
         }
 
-        method.getOrBuildGraph().iterateExprents(new DirectGraph.ExprentIterator() {
+        iterateExprents(method.getOrBuildGraph(), new ExprentIteratorWithReplace() {
           @Override
-          public int processExprent(Exprent exprent) {
+          public Exprent processExprent(Exprent exprent) {
             if (exprent.type == Exprent.EXPRENT_ASSIGNMENT) {
               AssignmentExprent assignExpr = (AssignmentExprent)exprent;
               if (assignExpr.getLeft().type == Exprent.EXPRENT_FIELD) {
@@ -504,7 +675,7 @@ public class NestedClassProcessor {
                 String qName = child.classStruct.qualifiedName;
                 if (fExpr.getClassname().equals(qName) &&  // process this class only
                     mapFieldsToNewVars.containsKey(InterpreterUtil.makeUniqueKey(qName, fExpr.getName(), fExpr.getDescriptor().descriptorString))) {
-                  return 2;
+                  return null;
                 }
               }
             }
@@ -516,13 +687,13 @@ public class NestedClassProcessor {
               if (invokeExpr.getFunctype() == InvocationExprent.TYP_INIT) {
                 // invocation of the super constructor in an anonymous class
                 child.superInvocation = invokeExpr; // FIXME: save original names of parameters
-                return 2;
+                return null;
               }
             }
 
-            replaceExprent(exprent);
+            Exprent ret = replaceExprent(exprent);
 
-            return 0;
+            return ret == null ? exprent : ret;
           }
 
           private Exprent replaceExprent(Exprent exprent) {
@@ -531,7 +702,12 @@ public class NestedClassProcessor {
               if (mapParamsToNewVars.containsKey(varIndex)) {
                 VarVersionPair newVar = mapParamsToNewVars.get(varIndex);
                 method.varproc.getExternalVars().add(newVar);
-                return new VarExprent(newVar.var, method.varproc.getVarType(newVar), method.varproc);
+                VarExprent ret = new VarExprent(newVar.var, method.varproc.getVarType(newVar), method.varproc, exprent.bytecode);
+                LocalVariable lvt = method.varproc.getVarLVT(newVar);
+                if (lvt != null) {
+                  ret.setLVT(lvt);
+                }
+                return ret;
               }
             }
             else if (exprent.type == Exprent.EXPRENT_FIELD) {
@@ -539,10 +715,15 @@ public class NestedClassProcessor {
               String key = InterpreterUtil.makeUniqueKey(fExpr.getClassname(), fExpr.getName(), fExpr.getDescriptor().descriptorString);
               if (mapFieldsToNewVars.containsKey(key)) {
                 //if(fExpr.getClassname().equals(child.classStruct.qualifiedName) &&
-                //		mapFieldsToNewVars.containsKey(key)) {
+                //        mapFieldsToNewVars.containsKey(key)) {
                 VarVersionPair newVar = mapFieldsToNewVars.get(key);
                 method.varproc.getExternalVars().add(newVar);
-                return new VarExprent(newVar.var, method.varproc.getVarType(newVar), method.varproc);
+                VarExprent ret = new VarExprent(newVar.var, method.varproc.getVarType(newVar), method.varproc, exprent.bytecode);
+                LocalVariable lvt = method.varproc.getVarLVT(newVar);
+                if (lvt != null) {
+                  ret.setLVT(lvt);
+                }
+                return ret;
               }
             }
 
@@ -874,7 +1055,7 @@ public class NestedClassProcessor {
           res = classname.equals(((InvocationExprent)expr).getClassname());
           break;
         case Exprent.EXPRENT_NEW:
-          VarType newType = expr.getExprType();
+          VarType newType = ((NewExprent)expr).getNewType();
           res = newType.type == CodeConstants.TYPE_OBJECT && classname.equals(newType.value);
           break;
         case Exprent.EXPRENT_VAR:
@@ -916,6 +1097,43 @@ public class NestedClassProcessor {
     @Override
     public int hashCode() {
       return fieldKey.hashCode() + varPair.hashCode();
+    }
+  }
+
+  private static interface ExprentIteratorWithReplace {
+    // null - remove exprent
+    // ret != exprent - replace exprent with ret
+    Exprent processExprent(Exprent exprent);
+  }
+
+  private static void iterateExprents(DirectGraph graph, ExprentIteratorWithReplace iter) {
+    LinkedList<DirectNode> stack = new LinkedList<DirectNode>();
+    stack.add(graph.first);
+
+    HashSet<DirectNode> setVisited = new HashSet<DirectNode>();
+
+    while (!stack.isEmpty()) {
+
+      DirectNode node = stack.removeFirst();
+
+      if (setVisited.contains(node)) {
+        continue;
+      }
+      setVisited.add(node);
+
+      for (int i = 0; i < node.exprents.size(); i++) {
+        Exprent res = iter.processExprent(node.exprents.get(i));
+
+        if (res == null) {
+          node.exprents.remove(i);
+          i--;
+        }
+        else if (res != node.exprents.get(i)) {
+          node.exprents.set(i, res);
+        }
+      }
+
+      stack.addAll(node.succs);
     }
   }
 }

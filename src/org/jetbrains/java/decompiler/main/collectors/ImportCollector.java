@@ -1,4 +1,4 @@
-// Copyright 2000-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
+// Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.main.collectors;
 
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
@@ -20,7 +20,7 @@ public class ImportCollector {
   private final Set<String> setNotImportedNames = new HashSet<>();
   // set of field names in this class and all its predecessors.
   private final Set<String> setFieldNames = new HashSet<>();
-  private final Set<String> setInnerClassNames = new HashSet<>();
+  private final Map<String, Map<String, String>> mapInnerClassNames = new HashMap<>();
   private final String currentPackageSlash;
   private final String currentPackagePoint;
 
@@ -38,36 +38,18 @@ public class ImportCollector {
     }
 
     Map<String, StructClass> classes = DecompilerContext.getStructContext().getClasses();
-    LinkedList<String> queue = new LinkedList<>();
     StructClass currentClass = root.classStruct;
     while (currentClass != null) {
-      if (currentClass.superClass != null) {
-        queue.add(currentClass.superClass.getString());
-      }
-
-      Collections.addAll(queue, currentClass.getInterfaceNames());
-
       // all field names for the current class ..
       for (StructField f : currentClass.getFields()) {
         setFieldNames.add(f.getName());
       }
 
-      // .. all inner classes for the current class ..
-      StructInnerClassesAttribute attribute = currentClass.getAttribute(StructGeneralAttribute.ATTRIBUTE_INNER_CLASSES);
-      if (attribute != null) {
-        for (StructInnerClassesAttribute.Entry entry : attribute.getEntries()) {
-          if (entry.enclosingName != null && entry.enclosingName.equals(currentClass.qualifiedName)) {
-            setInnerClassNames.add(entry.simpleName);
-          }
-        }
-      }
-
       // .. and traverse through parent.
-      currentClass = !queue.isEmpty() ? classes.get(queue.removeFirst()) : null;
-      while (currentClass == null && !queue.isEmpty()) {
-        currentClass = classes.get(queue.removeFirst());
-      }
+      currentClass = currentClass.superClass != null ? classes.get(currentClass.superClass.getString()) : null;
     }
+
+    collectConflictingShortNames(root, new HashMap<>());
   }
 
   /**
@@ -132,8 +114,31 @@ public class ImportCollector {
     // 3) inner class with the same short name in the current class, a super class, or an implemented interface
     boolean existsDefaultClass =
       (context.getClass(currentPackageSlash + shortName) != null && !packageName.equals(currentPackagePoint)) || // current package
-      (context.getClass(shortName) != null && !currentPackagePoint.isEmpty()) || // default package
-      setInnerClassNames.contains(shortName); // inner class
+      (context.getClass(shortName) != null && !currentPackagePoint.isEmpty());
+
+    ClassNode currCls = (ClassNode)DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS_NODE);
+    String mapKey = currCls == null ? "" : currCls.classStruct.qualifiedName;
+    Map<String, String> innerClassNames = mapInnerClassNames.getOrDefault(mapKey, new HashMap<>());
+    if (!existsDefaultClass && innerClassNames.containsKey(shortName) && !innerClassNames.get(shortName).equals(fullName)) {
+      // if the class being accessed is also an inner class
+      // attempt to import the outer class and reference OuterClass.InnerClass
+      if (context.getClass(packageName.replace('.', '/') + "$" + shortName) != null) {
+        lastDot = fullName.lastIndexOf(".", lastDot - 1);
+        if (lastDot >= 0) {
+          result = fullName.substring(lastDot + 1);
+          shortName = packageName.substring(lastDot + 1);
+          packageName = packageName.substring(0, lastDot);
+
+          if (innerClassNames.containsKey(shortName)  && !innerClassNames.get(shortName).equals(packageName + '.' + shortName)) {
+            existsDefaultClass = true;
+            result = null;
+          }
+        }
+      }
+      else {
+        existsDefaultClass = true;
+      }
+    }
 
     if (existsDefaultClass ||
         (mapSimpleNames.containsKey(shortName) && !packageName.equals(mapSimpleNames.get(shortName)))) {
@@ -150,21 +155,14 @@ public class ImportCollector {
     return result == null ? shortName : result;
   }
 
-  public int writeImports(TextBuffer buffer) {
-    int importLinesWritten = 0;
-
+  public void writeImports(TextBuffer buffer, boolean addSeparator) {
     List<String> imports = packImports();
-
-    for (String s : imports) {
-      buffer.append("import ");
-      buffer.append(s);
-      buffer.append(';');
-      buffer.appendLineSeparator();
-
-      importLinesWritten++;
+    for (String line : imports) {
+      buffer.append("import ").append(line).append(';').appendLineSeparator();
     }
-
-    return importLinesWritten;
+    if (addSeparator && !imports.isEmpty()) {
+      buffer.appendLineSeparator();
+    }
   }
 
   private List<String> packImports() {
@@ -180,5 +178,44 @@ public class ImportCollector {
       .sorted(Map.Entry.<String, String>comparingByValue().thenComparing(Map.Entry.comparingByKey()))
       .map(ent -> ent.getValue() + "." + ent.getKey())
       .collect(Collectors.toList());
+  }
+
+  private void collectConflictingShortNames(ClassNode root, Map<String, String> rootNames) {
+    Map<String, String> names = new HashMap<>(rootNames);
+    getSuperClassInnerClasses(root, names);
+    mapInnerClassNames.put(root.classStruct.qualifiedName, names);
+
+    for (ClassNode nested : root.nested) {
+      collectConflictingShortNames(nested, names);
+    }
+  }
+
+  private void getSuperClassInnerClasses(ClassNode node, Map<String, String> names) {
+    Map<String, StructClass> classes = DecompilerContext.getStructContext().getClasses();
+    LinkedList<String> queue = new LinkedList<>();
+    StructClass currentClass = node.classStruct;
+    while (currentClass != null) {
+      if (currentClass.superClass != null) {
+        queue.add(currentClass.superClass.getString());
+      }
+
+      Collections.addAll(queue, currentClass.getInterfaceNames());
+
+      // .. all inner classes for the current class ..
+      StructInnerClassesAttribute attribute = currentClass.getAttribute(StructGeneralAttribute.ATTRIBUTE_INNER_CLASSES);
+      if (attribute != null) {
+        for (StructInnerClassesAttribute.Entry entry : attribute.getEntries()) {
+          if (entry.enclosingName != null && entry.enclosingName.equals(currentClass.qualifiedName)) {
+            names.put(entry.simpleName, entry.innerName.replace('/', '.').replace('$', '.'));
+          }
+        }
+      }
+
+      // .. and traverse through parent.
+      currentClass = !queue.isEmpty() ? classes.get(queue.removeFirst()) : null;
+      while (currentClass == null && !queue.isEmpty()) {
+        currentClass = classes.get(queue.removeFirst());
+      }
+    }
   }
 }

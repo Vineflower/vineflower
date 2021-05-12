@@ -2,8 +2,7 @@ public class TestMethodReferenceSameName {
    TestMethodReferenceSameName.R1 r;
 
    private void foo() {
-      TestMethodReferenceSameName.R1 var10000 = this.r;// 5
-      (var10000::foo).run();
+      (this.r::foo).run();// 5
    }// 6
 
    class R1 {
@@ -14,19 +13,22 @@ public class TestMethodReferenceSameName {
 
 class 'TestMethodReferenceSameName' {
    method 'foo ()V' {
-      1      4
-      e      5
-      13      6
+      e      4
+      f      4
+      10      4
+      11      4
+      12      4
+      13      5
    }
 }
 
 class 'TestMethodReferenceSameName$R1' {
    method 'foo ()V' {
-      0      10
+      0      9
    }
 }
 
 Lines mapping:
 5 <-> 5
-6 <-> 7
-9 <-> 11
+6 <-> 6
+9 <-> 10

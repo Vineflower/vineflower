@@ -126,6 +126,13 @@ public class FlattenStatementsHelper {
           case Statement.TYPE_TRYCATCH:
             DirectNode firstnd = new DirectNode(DirectNode.NODE_TRY, stat, stat.id + "_try");
 
+            if (stat.type == Statement.TYPE_TRYCATCH) {
+              CatchStatement catchStat = (CatchStatement)stat;
+              if (catchStat.getTryType() == CatchStatement.RESORCES) {
+                firstnd.exprents = catchStat.getResources();
+              }
+            }
+
             mapDestinationNodes.put(stat.id, new String[]{firstnd.id, null});
             graph.nodes.putWithKey(firstnd, firstnd.id);
 
@@ -201,6 +208,7 @@ public class FlattenStatementsHelper {
                 sourcenode = node;
                 break;
               case DoStatement.LOOP_FOR:
+              case DoStatement.LOOP_FOREACH:
                 DirectNode nodeinit = new DirectNode(DirectNode.NODE_INIT, stat, stat.id + "_init");
                 if (dostat.getInitExprent() != null) {
                   nodeinit.exprents = dostat.getInitExprentList();
@@ -208,7 +216,9 @@ public class FlattenStatementsHelper {
                 graph.nodes.putWithKey(nodeinit, nodeinit.id);
 
                 DirectNode nodecond = new DirectNode(DirectNode.NODE_CONDITION, stat, stat.id + "_cond");
-                nodecond.exprents = dostat.getConditionExprentList();
+                if (looptype != DoStatement.LOOP_FOREACH) {
+                  nodecond.exprents = dostat.getConditionExprentList();
+                }
                 graph.nodes.putWithKey(nodecond, nodecond.id);
 
                 DirectNode nodeinc = new DirectNode(DirectNode.NODE_INCREMENT, stat, stat.id + "_inc");
@@ -273,7 +283,7 @@ public class FlattenStatementsHelper {
               node = graph.nodes.getWithKey(mapDestinationNodes.get(stat.getFirst().id)[0]);
               mapDestinationNodes.put(stat.id, new String[]{node.id, null});
 
-              if (stat.type == Statement.TYPE_IF && ((IfStatement)stat).iftype == IfStatement.IFTYPE_IF) {
+              if (stat.type == Statement.TYPE_IF && ((IfStatement)stat).iftype == IfStatement.IFTYPE_IF && !stat.getAllSuccessorEdges().isEmpty()) {
                 lstSuccEdges.add(stat.getSuccessorEdges(Statement.STATEDGE_DIRECT_ALL).get(0));  // exactly one edge
                 sourcenode = tailexprlst.get(0) == null ? node : graph.nodes.getWithKey(node.id + "_tail");
               }

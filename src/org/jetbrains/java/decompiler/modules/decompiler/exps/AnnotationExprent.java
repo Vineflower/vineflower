@@ -9,6 +9,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 
+import java.util.BitSet;
 import java.util.List;
 
 public class AnnotationExprent extends Exprent {
@@ -94,5 +95,11 @@ public class AnnotationExprent extends Exprent {
     return className.equals(ann.className) &&
            InterpreterUtil.equalLists(parNames, ann.parNames) &&
            InterpreterUtil.equalLists(parValues, ann.parValues);
+  }
+  
+  @Override
+  public void getBytecodeRange(BitSet values) {
+    measureBytecode(values, parValues);
+    measureBytecode(values);
   }
 }

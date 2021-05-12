@@ -1,4 +1,4 @@
-// Copyright 2000-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
+// Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.main;
 
 import org.jetbrains.java.decompiler.code.CodeConstants;
@@ -11,8 +11,10 @@ import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.extern.IIdentifierRenamer;
 import org.jetbrains.java.decompiler.main.rels.ClassWrapper;
 import org.jetbrains.java.decompiler.main.rels.LambdaProcessor;
+import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.main.rels.NestedClassProcessor;
 import org.jetbrains.java.decompiler.main.rels.NestedMemberAccess;
+import org.jetbrains.java.decompiler.modules.decompiler.SwitchHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.InvocationExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.struct.StructClass;
@@ -35,20 +37,47 @@ public class ClassesProcessor implements CodeConstants {
   public static final int AVERAGE_CLASS_SIZE = 16 * 1024;
 
   private final StructContext context;
-  private final Map<String, ClassNode> mapRootClasses = new ConcurrentHashMap<>();
+  private final Map<String, ClassNode> mapRootClasses = new HashMap<>();
+  private final Set<String> whitelist = new HashSet<>();
 
   private static class Inner {
     private String simpleName;
     private int type;
     private int accessFlags;
+    private String source;
 
     private static boolean equal(Inner o1, Inner o2) {
       return o1.type == o2.type && o1.accessFlags == o2.accessFlags && InterpreterUtil.equalObjects(o1.simpleName, o2.simpleName);
+    }
+
+    @Override
+    public String toString() {
+      return simpleName + " " + ClassWriter.getModifiers(accessFlags) + " " + getType() + " " + source;
+    }
+
+    private String getType() {
+        return type == ClassNode.CLASS_ANONYMOUS ? "ANONYMOUS" : type == ClassNode.CLASS_LAMBDA ? "LAMBDA" : type == ClassNode.CLASS_LOCAL ? "LOCAL" : type == ClassNode.CLASS_MEMBER ? "MEMBER" : type == ClassNode.CLASS_ROOT ? "ROOT" : "UNKNOWN(" + type +")";
     }
   }
 
   public ClassesProcessor(StructContext context) {
     this.context = context;
+  }
+
+  public void addWhitelist(String prefix) {
+    this.whitelist.add(prefix);
+  }
+
+  public boolean isWhitelisted(String cls) {
+    if (this.whitelist.isEmpty())
+      return true;
+
+    for (String prefix : this.whitelist) {
+      if (cls.startsWith(prefix))
+        return true;
+    }
+
+    return false;
   }
 
   public void loadClasses(IIdentifierRenamer renamer) {
@@ -87,6 +116,32 @@ public class ClassesProcessor implements CodeConstants {
               rec.simpleName = simpleName;
               rec.type = entry.simpleNameIdx == 0 ? ClassNode.CLASS_ANONYMOUS : entry.outerNameIdx == 0 ? ClassNode.CLASS_LOCAL : ClassNode.CLASS_MEMBER;
               rec.accessFlags = entry.accessFlags;
+              rec.source = cl.qualifiedName;
+
+              // nested class type
+              if (entry.innerName != null) {
+                if (entry.simpleName == null) {
+                  rec.type = ClassNode.CLASS_ANONYMOUS;
+                }
+                else {
+                  StructClass in = context.getClass(entry.innerName);
+                  if (in == null) { // A referenced library that was not added to the context, make assumptions
+                      rec.type = ClassNode.CLASS_MEMBER;
+                  }
+                  else {
+                    StructEnclosingMethodAttribute attr = in.getAttribute(StructGeneralAttribute.ATTRIBUTE_ENCLOSING_METHOD);
+                    if (attr != null && attr.getMethodName() != null) {
+                      rec.type = ClassNode.CLASS_LOCAL;
+                    }
+                    else {
+                      rec.type = ClassNode.CLASS_MEMBER;
+                    }
+                  }
+                }
+              }
+              else { // This should never happen as inner_class and outer_class are NOT optional, make assumptions
+                rec.type = ClassNode.CLASS_MEMBER;
+              }
 
               // enclosing class
               String enclClassName = entry.outerNameIdx != 0 ? entry.enclosingName : cl.qualifiedName;
@@ -106,6 +161,13 @@ public class ClassesProcessor implements CodeConstants {
                 else if (!Inner.equal(existingRec, rec)) {
                   String message = "Inconsistent inner class entries for " + innerName + "!";
                   DecompilerContext.getLogger().writeMessage(message, IFernflowerLogger.Severity.WARN);
+                  DecompilerContext.getLogger().writeMessage("  Old: " + existingRec.toString(), IFernflowerLogger.Severity.WARN);
+                  DecompilerContext.getLogger().writeMessage("  New: " + rec.toString(), IFernflowerLogger.Severity.WARN);
+                  int oldPriority = existingRec.source.equals(innerName) ? 1 : existingRec.source.equals(enclClassName) ? 2 : 3;
+                  int newPriority = rec.source.equals(innerName) ? 1 : rec.source.equals(enclClassName) ? 2 : 3;
+                  if (newPriority < oldPriority) {
+                      mapInnerClasses.put(innerName, rec);
+                  }
                 }
 
                 // reference to the nested class
@@ -117,9 +179,11 @@ public class ClassesProcessor implements CodeConstants {
           }
         }
 
-        ClassNode node = new ClassNode(ClassNode.CLASS_ROOT, cl);
-        node.access = cl.getAccessFlags();
-        mapRootClasses.put(cl.qualifiedName, node);
+        if (isWhitelisted(cl.qualifiedName)) {
+          ClassNode node = new ClassNode(ClassNode.CLASS_ROOT, cl);
+          node.access = cl.getAccessFlags();
+          mapRootClasses.put(cl.qualifiedName, node);
+        }
       }
     }
 
@@ -205,6 +269,7 @@ public class ClassesProcessor implements CodeConstants {
                 stack.add(nestedClass);
               }
             }
+            Collections.sort(superNode.nested);
           }
         }
       }
@@ -246,7 +311,7 @@ public class ClassesProcessor implements CodeConstants {
       }
 
       try {
-        mt.expandData();
+        mt.expandData(enclosingCl);
 
         InstructionSequence seq = mt.getInstructionSequence();
         if (seq != null) {
@@ -303,55 +368,65 @@ public class ClassesProcessor implements CodeConstants {
       return;
     }
 
+    boolean packageInfo = cl.isSynthetic() && "package-info".equals(root.simpleName);
+    boolean moduleInfo = cl.hasModifier(CodeConstants.ACC_MODULE) && cl.hasAttribute(StructGeneralAttribute.ATTRIBUTE_MODULE);
+
     DecompilerContext.getLogger().startReadingClass(cl.qualifiedName);
     try {
       ImportCollector importCollector = new ImportCollector(root);
       DecompilerContext.startClass(importCollector);
 
-      new LambdaProcessor().processClass(root);
+      if (packageInfo) {
+        ClassWriter.packageInfoToJava(cl, buffer);
 
-      // add simple class names to implicit import
-      addClassnameToImport(root, importCollector);
-
-      // build wrappers for all nested classes (that's where actual processing takes place)
-      initWrappers(root);
-
-      new NestedClassProcessor().processClass(root, root);
-
-      new NestedMemberAccess().propagateMemberAccess(root);
-
-      TextBuffer classBuffer = new TextBuffer(AVERAGE_CLASS_SIZE);
-      new ClassWriter().classToJava(root, classBuffer, 0, null);
-
-      int index = cl.qualifiedName.lastIndexOf("/");
-      if (index >= 0) {
-        String packageName = cl.qualifiedName.substring(0, index).replace('/', '.');
-
-        buffer.append("package ");
-        buffer.append(packageName);
-        buffer.append(";");
-        buffer.appendLineSeparator();
-        buffer.appendLineSeparator();
+        importCollector.writeImports(buffer, false);
       }
+      else if (moduleInfo) {
+        TextBuffer moduleBuffer = new TextBuffer(AVERAGE_CLASS_SIZE);
+        ClassWriter.moduleInfoToJava(cl, moduleBuffer);
 
-      int import_lines_written = importCollector.writeImports(buffer);
-      if (import_lines_written > 0) {
-        buffer.appendLineSeparator();
+        importCollector.writeImports(buffer, true);
+
+        buffer.append(moduleBuffer);
       }
+      else {
+        new LambdaProcessor().processClass(root);
 
-      int offsetLines = buffer.countLines();
+        // add simple class names to implicit import
+        addClassNameToImport(root, importCollector);
 
-      buffer.append(classBuffer);
+        // build wrappers for all nested classes (that's where actual processing takes place)
+        initWrappers(root);
 
-      if (DecompilerContext.getOption(IFernflowerPreferences.BYTECODE_SOURCE_MAPPING)) {
-        BytecodeSourceMapper mapper = DecompilerContext.getBytecodeSourceMapper();
-        mapper.addTotalOffset(offsetLines);
-        if (DecompilerContext.getOption(IFernflowerPreferences.DUMP_ORIGINAL_LINES)) {
-          buffer.dumpOriginalLineNumbers(mapper.getOriginalLinesMapping());
+        new NestedClassProcessor().processClass(root, root);
+
+        new NestedMemberAccess().propagateMemberAccess(root);
+
+        TextBuffer classBuffer = new TextBuffer(AVERAGE_CLASS_SIZE);
+        new ClassWriter().classToJava(root, classBuffer, 0, null);
+
+        int index = cl.qualifiedName.lastIndexOf('/');
+        if (index >= 0) {
+          String packageName = cl.qualifiedName.substring(0, index).replace('/', '.');
+          buffer.append("package ").append(packageName).append(';').appendLineSeparator().appendLineSeparator();
         }
-        if (DecompilerContext.getOption(IFernflowerPreferences.UNIT_TEST_MODE)) {
-          buffer.appendLineSeparator();
-          mapper.dumpMapping(buffer, true);
+
+        importCollector.writeImports(buffer, true);
+
+        int offsetLines = buffer.countLines();
+
+        buffer.append(classBuffer);
+
+        if (DecompilerContext.getOption(IFernflowerPreferences.BYTECODE_SOURCE_MAPPING)) {
+          BytecodeSourceMapper mapper = DecompilerContext.getBytecodeSourceMapper();
+          mapper.addTotalOffset(offsetLines);
+          if (DecompilerContext.getOption(IFernflowerPreferences.DUMP_ORIGINAL_LINES)) {
+            buffer.dumpOriginalLineNumbers(mapper.getOriginalLinesMapping());
+          }
+          if (DecompilerContext.getOption(IFernflowerPreferences.UNIT_TEST_MODE)) {
+            buffer.appendLineSeparator();
+            mapper.dumpMapping(buffer, true);
+          }
         }
       }
     }
@@ -366,29 +441,49 @@ public class ClassesProcessor implements CodeConstants {
       return;
     }
 
+    List<ClassNode> nestedCopy = new ArrayList<>(node.nested);
+
+    for (ClassNode nd : node.nested) {
+      if (shouldInitEarly(nd)) {
+        initWrappers(nd);
+        nestedCopy.remove(nd);
+      }
+    }
+
     ClassWrapper wrapper = new ClassWrapper(node.classStruct);
     wrapper.init();
 
     node.wrapper = wrapper;
 
-    for (ClassNode nd : node.nested) {
+    for (ClassNode nd : nestedCopy) {
       initWrappers(nd);
     }
   }
 
-  private static void addClassnameToImport(ClassNode node, ImportCollector imp) {
+  private static boolean shouldInitEarly(ClassNode node) {
+    if (node.classStruct.hasModifier(CodeConstants.ACC_SYNTHETIC)) {
+      if (node.classStruct.getMethods().size() == 1 && node.classStruct.getMethods().get(0).getName().equals(CodeConstants.CLINIT_NAME)) {
+        return node.classStruct.getFields().stream()
+          .allMatch( stField -> stField.getDescriptor().equals("[I") && stField.hasModifier(SwitchHelper.STATIC_FINAL_SYNTHETIC));
+      }
+    }
+    return false;
+  }
+
+  private static void addClassNameToImport(ClassNode node, ImportCollector imp) {
     if (node.simpleName != null && node.simpleName.length() > 0) {
       imp.getShortName(node.type == ClassNode.CLASS_ROOT ? node.classStruct.qualifiedName : node.simpleName, false);
     }
 
     for (ClassNode nd : node.nested) {
-      addClassnameToImport(nd, imp);
+      addClassNameToImport(nd, imp);
     }
   }
 
   private static void destroyWrappers(ClassNode node) {
     node.wrapper = null;
     node.classStruct.releaseResources();
+    node.classStruct.getMethods().forEach(m -> m.clearVariableNamer());
 
     for (ClassNode nd : node.nested) {
       destroyWrappers(nd);
@@ -400,7 +495,7 @@ public class ClassesProcessor implements CodeConstants {
   }
 
 
-  public static class ClassNode {
+  public static class ClassNode implements Comparable<ClassNode> {
     public static final int CLASS_ROOT = 0;
     public static final int CLASS_MEMBER = 1;
     public static final int CLASS_ANONYMOUS = 2;
@@ -447,7 +542,7 @@ public class ClassesProcessor implements CodeConstants {
 
       anonymousClassType = new VarType(lambda_class_name, true);
 
-      boolean is_method_reference = (content_class_name != classStruct.qualifiedName);
+      boolean is_method_reference = !classStruct.qualifiedName.equals(content_class_name);
       if (!is_method_reference) { // content method in the same class, check synthetic flag
         StructMethod mt = classStruct.getMethod(content_method_name, content_method_descriptor);
         is_method_reference = !mt.isSynthetic(); // if not synthetic -> method reference
@@ -480,6 +575,12 @@ public class ClassesProcessor implements CodeConstants {
         node = node.parent;
       }
       return node.wrapper;
+    }
+
+    @Override
+    public int compareTo(ClassNode o) {
+      //TODO: Take line numbers into account?
+      return this.classStruct.qualifiedName.compareTo(o.classStruct.qualifiedName);
     }
 
     public static class LambdaInformation {

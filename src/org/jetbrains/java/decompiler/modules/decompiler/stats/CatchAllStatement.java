@@ -2,6 +2,7 @@
 package org.jetbrains.java.decompiler.modules.decompiler.stats;
 
 import org.jetbrains.java.decompiler.code.CodeConstants;
+import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
@@ -52,7 +53,7 @@ public final class CatchAllStatement extends Statement {
         post = edge.getDestination();
       }
     }
-
+    
     vars.add(new VarExprent(DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.VAR_COUNTER),
                             new VarType(CodeConstants.TYPE_OBJECT, 0, "java/lang/Throwable"),
                             DecompilerContext.getVarProcessor()));

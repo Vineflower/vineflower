@@ -1,4 +1,4 @@
-// Copyright 2000-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
+// Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler.exps;
 
 import org.jetbrains.java.decompiler.code.CodeConstants;
@@ -9,16 +9,21 @@ import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
+import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarTypeProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
+import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribute;
+import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribute.LocalVariable;
 import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTypeTableAttribute;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericFieldDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericMain;
+import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
 import org.jetbrains.java.decompiler.struct.match.MatchEngine;
 import org.jetbrains.java.decompiler.struct.match.MatchNode;
 import org.jetbrains.java.decompiler.struct.match.MatchNode.RuleValue;
@@ -27,10 +32,11 @@ import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.TextUtil;
 
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class VarExprent extends Exprent {
-
   public static final int STACK_BASE = 10000;
   public static final String VAR_NAMELESS_ENCLOSURE = "<VAR_NAMELESS_ENCLOSURE>";
 
@@ -38,25 +44,42 @@ public class VarExprent extends Exprent {
   private VarType varType;
   private boolean definition = false;
   private final VarProcessor processor;
-  private final int visibleOffset;
   private int version = 0;
   private boolean classDef = false;
   private boolean stack = false;
+  private LocalVariable lvt = null;
+  private boolean isEffectivelyFinal = false;
 
   public VarExprent(int index, VarType varType, VarProcessor processor) {
-    this(index, varType, processor, -1);
+    this(index, varType, processor, null);
   }
 
-  public VarExprent(int index, VarType varType, VarProcessor processor, int visibleOffset) {
+  public VarExprent(int index, VarType varType, VarProcessor processor, BitSet bytecode) {
     super(EXPRENT_VAR);
     this.index = index;
     this.varType = varType;
     this.processor = processor;
-    this.visibleOffset = visibleOffset;
+    this.addBytecodeOffsets(bytecode);
   }
 
   @Override
   public VarType getExprType() {
+    return getVarType();
+  }
+
+  @Override
+  public VarType getInferredExprType(VarType upperBound) {
+    if (lvt != null && lvt.getSignature() != null) {
+      // TODO; figure out why it's crashing, ugly fix for now
+      try {
+        return GenericType.parse(lvt.getSignature());
+      } catch (StringIndexOutOfBoundsException ex) {
+        ex.printStackTrace();
+      }
+    }
+    else if (lvt != null) {
+      return lvt.getVarType();
+    }
     return getVarType();
   }
 
@@ -72,11 +95,13 @@ public class VarExprent extends Exprent {
 
   @Override
   public Exprent copy() {
-    VarExprent var = new VarExprent(index, getVarType(), processor, visibleOffset);
+    VarExprent var = new VarExprent(index, getVarType(), processor, bytecode);
     var.setDefinition(definition);
     var.setVersion(version);
     var.setClassDef(classDef);
     var.setStack(stack);
+    var.setLVT(lvt);
+    var.setEffectivelyFinal(isEffectivelyFinal);
     return var;
   }
 
@@ -93,10 +118,6 @@ public class VarExprent extends Exprent {
     }
     else {
       VarVersionPair varVersion = getVarVersionPair();
-      String name = null;
-      if (processor != null) {
-        name = processor.getVarName(varVersion);
-      }
 
       if (definition) {
         if (processor != null && processor.getVarFinal(varVersion) == VarTypeProcessor.VAR_EXPLICIT_FINAL) {
@@ -106,7 +127,7 @@ public class VarExprent extends Exprent {
         buffer.append(" ");
       }
 
-      buffer.append(name == null ? ("var" + index + (this.version == 0 ? "" : "_" + this.version)) : name);
+      buffer.append(getName());
     }
 
     return buffer;
@@ -116,28 +137,46 @@ public class VarExprent extends Exprent {
     return new VarVersionPair(index, version);
   }
 
+  /*
   public String getDebugName(StructMethod method) {
     StructLocalVariableTableAttribute attr = method.getLocalVariableAttr();
     if (attr != null && processor != null) {
       Integer origIndex = processor.getVarOriginalIndex(index);
       if (origIndex != null) {
-        String name = attr.getName(origIndex, visibleOffset);
-        if (name != null && TextUtil.isValidIdentifier(name, method.getClassStruct().getBytecodeVersion())) {
+        String name = attr.getName(origIndex, bytecode == null ? -1 : bytecode.nextSetBit(0));
+        if (name != null && TextUtil.isValidIdentifier(name, method.getBytecodeVersion())) {
           return name;
         }
       }
     }
     return null;
   }
+  */
 
   private void appendDefinitionType(TextBuffer buffer) {
     if (DecompilerContext.getOption(IFernflowerPreferences.USE_DEBUG_VAR_NAMES)) {
+
+      if (lvt != null) {
+        if (DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_GENERIC_SIGNATURES)) {
+          if (lvt.getSignature() != null) {
+            GenericFieldDescriptor descriptor = GenericMain.parseFieldSignature(lvt.getSignature());
+            if (descriptor != null) {
+              buffer.append(ExprProcessor.getCastTypeName(descriptor.type));
+              return;
+            }
+          }
+        }
+        buffer.append(ExprProcessor.getCastTypeName(getVarType()));
+        return;
+      }
+
       MethodWrapper method = (MethodWrapper)DecompilerContext.getProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
       if (method != null) {
         Integer originalIndex = null;
         if (processor != null) {
           originalIndex = processor.getVarOriginalIndex(index);
         }
+        int visibleOffset = bytecode == null ? -1 : bytecode.length();
         if (originalIndex != null) {
           // first try from signature
           if (DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_GENERIC_SIGNATURES)) {
@@ -148,7 +187,7 @@ public class VarExprent extends Exprent {
               if (signature != null) {
                 GenericFieldDescriptor descriptor = GenericMain.parseFieldSignature(signature);
                 if (descriptor != null) {
-                  buffer.append(GenericMain.getGenericCastTypeName(descriptor.type));
+                  buffer.append(ExprProcessor.getCastTypeName(descriptor.type));
                   return;
                 }
               }
@@ -182,6 +221,11 @@ public class VarExprent extends Exprent {
            InterpreterUtil.equalObjects(getVarType(), ve.getVarType()); // FIXME: varType comparison redundant?
   }
 
+  @Override
+  public void getBytecodeRange(BitSet values) {
+    measureBytecode(values);
+  }
+
   public int getIndex() {
     return index;
   }
@@ -191,9 +235,27 @@ public class VarExprent extends Exprent {
   }
 
   public VarType getVarType() {
+    if (DecompilerContext.getOption(IFernflowerPreferences.USE_DEBUG_VAR_NAMES) && lvt != null) {
+      return new VarType(lvt.getDescriptor());
+    }
+
     VarType vt = null;
     if (processor != null) {
-      vt = processor.getVarType(getVarVersionPair());
+      String name = processor.getVarName(getVarVersionPair());
+      vt = Exprent.inferredLambdaTypes.get().get(name);
+      if (vt == null) {
+        vt = processor.getVarType(getVarVersionPair());
+        if (processor.getThisVars().containsKey(getVarVersionPair())) {
+          String qaulName = processor.getThisVars().get(getVarVersionPair());
+          StructClass cls = DecompilerContext.getStructContext().getClass(qaulName);
+          if (cls.getSignature() != null) {
+            vt = cls.getSignature().genericType;
+          }
+          else if (vt == null) {
+            vt = new VarType(CodeConstants.TYPE_OBJECT, 0, qaulName);
+          }
+        }
+      }
     }
 
     if (vt == null || (varType != null && varType.type != CodeConstants.TYPE_UNKNOWN)) {
@@ -241,6 +303,101 @@ public class VarExprent extends Exprent {
 
   public void setStack(boolean stack) {
     this.stack = stack;
+  }
+
+  public void setLVT(LocalVariable var) {
+    this.lvt = var;
+    if (processor != null && lvt != null) {
+      processor.setVarType(getVarVersionPair(), lvt.getVarType());
+    }
+  }
+
+  public LocalVariable getLVT() {
+    return lvt;
+  }
+
+  public void setEffectivelyFinal(boolean isEffectivelyFinal) {
+    this.isEffectivelyFinal = isEffectivelyFinal;
+  }
+
+  public boolean isEffectivelyFinal() {
+    return this.isEffectivelyFinal;
+  }
+
+  public String getName() {
+    VarVersionPair pair = getVarVersionPair();
+    if (lvt != null)
+      return lvt.getName();
+
+    if (processor != null) {
+      String ret = processor.getVarName(pair);
+      if (ret != null)
+        return ret;
+    }
+
+    return pair.version == 0 ? "var" + pair.var : "var" + pair.var + "_" + version;
+  }
+
+  @Override
+  public CheckTypesResult checkExprTypeBounds() {
+    if (lvt != null) {
+      CheckTypesResult ret = new CheckTypesResult();
+      ret.addMinTypeExprent(this, lvt.getVarType());
+      return ret;
+    }
+    return null;
+  }
+
+  public boolean isVarReferenced(Statement stat, VarExprent... whitelist) {
+    if (stat.getExprents() == null) {
+      for (Object obj : stat.getSequentialObjects()) {
+        if (obj instanceof Statement) {
+          if (isVarReferenced((Statement)obj, whitelist)) {
+            return true;
+          }
+        }
+        else if (obj instanceof Exprent) {
+          if (isVarReferenced((Exprent)obj, whitelist)) {
+            return true;
+          }
+        }
+      }
+    }
+    else {
+      for (Exprent exp : stat.getExprents()) {
+        if (isVarReferenced(exp, whitelist)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  public boolean isVarReferenced(Exprent exp, VarExprent... whitelist) {
+    List<Exprent> lst = exp.getAllExprents(true);
+    lst.add(exp);
+    lst = lst.stream().filter(e -> e != this && e.type == Exprent.EXPRENT_VAR &&
+      getVarVersionPair().equals(((VarExprent)e).getVarVersionPair()))
+        .collect(Collectors.toList());
+
+    for (Exprent var : lst) {
+      boolean allowed = false;
+      for (VarExprent white : whitelist) {
+        if (var == white) {
+          allowed = true;
+          break;
+        }
+      }
+      if (!allowed) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  @Override
+  public String toString() {
+    return "VarExprent[" + index + ',' + version +"]";
   }
 
   // *****************************************************************************

@@ -3,6 +3,19 @@ package pkg;
 import java.util.*;
 
 public class TestPrimitives {
+  private void testInvalidUnboxing() {
+    List<Integer> lst = null;
+    lst.remove(Integer.valueOf(0));
+    this.<Short>genericBoxing((short)0);
+    int a = genericReturn(lst);
+    List<Byte> b = null;
+    this.genericParameter(b, (byte)0);
+    this.genericParameter(lst, 0);
+  }
+
+  private <T> void genericBoxing(T value) {}
+  private <T> T genericReturn(List<T> value) { return value.get(0); }
+  private <T> void genericParameter(List<T> p, T v) {}
 
   public void printAll() {
     printBoolean(true);

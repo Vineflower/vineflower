@@ -1,4 +1,4 @@
-// Copyright 2000-2017 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
+// Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.struct.consts;
 
 import org.jetbrains.java.decompiler.code.CodeConstants;
@@ -87,6 +87,9 @@ public class ConstantPool implements NewClassNameBuilder {
           pool.add(new LinkConstant(tag, in.readUnsignedByte(), in.readUnsignedShort()));
           nextPass[2].set(i);
           break;
+
+        default:
+          throw new RuntimeException("Invalid Constant Pool entry #" + i + " Type: " + tag);
       }
     }
 
@@ -106,7 +109,8 @@ public class ConstantPool implements NewClassNameBuilder {
     int size = in.readUnsignedShort();
 
     for (int i = 1; i < size; i++) {
-      switch (in.readUnsignedByte()) {
+      byte tag = (byte)in.readUnsignedByte();
+      switch (tag) {
         case CodeConstants.CONSTANT_Utf8:
           in.readUTF();
           break;
@@ -130,11 +134,17 @@ public class ConstantPool implements NewClassNameBuilder {
         case CodeConstants.CONSTANT_Class:
         case CodeConstants.CONSTANT_String:
         case CodeConstants.CONSTANT_MethodType:
+        case CodeConstants.CONSTANT_Module:
+        case CodeConstants.CONSTANT_Package:
           in.discard(2);
           break;
 
         case CodeConstants.CONSTANT_MethodHandle:
           in.discard(3);
+          break;
+
+        default:
+            throw new RuntimeException("Invalid Constant Pool entry #" + i + " Type: " + tag);
       }
     }
   }
@@ -212,8 +222,8 @@ public class ConstantPool implements NewClassNameBuilder {
     String newName = interceptor.getName(vt.value);
     if (newName != null) {
       StringBuilder buffer = new StringBuilder();
-
       if (vt.arrayDim > 0) {
+        // No functional change, just a revert for J8 compatibility
         for (int i = 0; i < vt.arrayDim; i++) {
           buffer.append('[');
         }
@@ -223,7 +233,6 @@ public class ConstantPool implements NewClassNameBuilder {
       else {
         buffer.append(newName);
       }
-
       return buffer.toString();
     }
 

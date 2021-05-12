@@ -1,0 +1,154 @@
+package pkg;
+
+import java.util.Random;
+
+public class TestObjectArrays {
+   public void test() {
+      Object[][] var1 = new Object[3][];// 7
+
+      for(<unknown> var5_1 : var1) {// 9
+         for(Object var9 : var5_1) {// 10
+            System.out.println(var9);// 11
+         }
+      }
+
+      var1[0] = new Object[]{1, new int[]{1, 2, 3}, "hi"};// 15
+      var1[1] = new Object[]{new Object() {// 16
+         int x = 3;
+         int hashcode;
+
+         {
+            this.x *= 3 * this.x;// 20
+            System.out.println("Hi!");// 21
+            this.x += 224;// 25
+            this.hashcode = (new Random()).nextInt() + this.x;// 28
+         }
+
+         public int hashCode() {
+            return this.hashcode;// 32
+         }
+      }};
+   }// 36
+}
+
+class 'pkg/TestObjectArrays$1' {
+   method '<init> (Lpkg/TestObjectArrays;)V' {
+      e      20
+      13      20
+      14      20
+      15      20
+      16      20
+      17      20
+      18      20
+      1a      20
+      1b      20
+      1c      20
+      1d      21
+      1e      21
+      1f      21
+      20      21
+      21      21
+      22      21
+      23      21
+      24      21
+      25      22
+      2a      22
+      2b      22
+      2c      22
+      2e      22
+      2f      22
+      30      22
+      31      23
+      39      23
+      3a      23
+      3b      23
+      3c      23
+      3d      23
+      3e      23
+      3f      23
+      40      23
+      41      23
+      42      23
+      43      23
+      44      24
+   }
+
+   method 'hashCode ()I' {
+      0      27
+      1      27
+      2      27
+      3      27
+      4      27
+   }
+}
+
+class 'pkg/TestObjectArrays' {
+   method 'test ()V' {
+      0      6
+      4      6
+      5      8
+      6      8
+      9      8
+      b      8
+      c      8
+      17      8
+      18      8
+      19      9
+      1a      9
+      1b      9
+      1c      9
+      20      9
+      21      9
+      23      9
+      24      9
+      31      9
+      32      9
+      33      10
+      34      10
+      35      10
+      36      10
+      37      10
+      38      10
+      39      10
+      3a      10
+      3b      9
+      3c      9
+      3d      9
+      41      8
+      42      8
+      43      8
+      47      14
+      48      14
+      4f      14
+      50      14
+      51      14
+      52      14
+      5b      14
+      5f      14
+      63      14
+      68      14
+      69      14
+      6b      14
+      6c      15
+      6d      15
+      7d      15
+      7e      30
+   }
+}
+
+Lines mapping:
+7 <-> 7
+9 <-> 9
+10 <-> 10
+11 <-> 11
+15 <-> 15
+16 <-> 16
+20 <-> 21
+21 <-> 22
+25 <-> 23
+28 <-> 24
+32 <-> 28
+36 <-> 31
+Not mapped:
+17
+18

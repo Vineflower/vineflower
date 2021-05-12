@@ -1,14 +1,14 @@
-// Copyright 2000-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
+// Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.main.rels;
 
 import org.jetbrains.java.decompiler.code.CodeConstants;
+import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.main.collectors.VarNamesCollector;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
@@ -20,7 +20,6 @@ import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.VBStyleCollection;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class ClassWrapper {
@@ -45,7 +44,7 @@ public class ClassWrapper {
     for (StructMethod mt : classStruct.getMethods()) {
       DecompilerContext.getLogger().startMethod(mt.getName() + " " + mt.getDescriptor());
 
-      MethodDescriptor md = MethodDescriptor.parseDescriptor(mt.getDescriptor());
+      MethodDescriptor md = MethodDescriptor.parseDescriptor(mt, null);
       VarProcessor varProc = new VarProcessor(mt, md);
       DecompilerContext.startMethod(varProc);
 
@@ -59,10 +58,10 @@ public class ClassWrapper {
       try {
         if (mt.containsCode()) {
           if (maxSec == 0 || testMode) {
-            root = MethodProcessorRunnable.codeToJava(mt, md, varProc);
+            root = MethodProcessorRunnable.codeToJava(classStruct, mt, md, varProc);
           }
           else {
-            MethodProcessorRunnable mtProc = new MethodProcessorRunnable(mt, md, varProc, DecompilerContext.getCurrentContext());
+            MethodProcessorRunnable mtProc = new MethodProcessorRunnable(classStruct, mt, md, varProc, DecompilerContext.getCurrentContext());
 
             Thread mtThread = new Thread(mtProc, "Java decompiler");
             long stopAt = System.currentTimeMillis() + maxSec * 1000L;
@@ -144,8 +143,9 @@ public class ClassWrapper {
           StructLocalVariableTableAttribute attr = mt.getLocalVariableAttr();
           if (attr != null) {
             // only param names here
-            varProc.setDebugVarNames(attr.getMapParamNames());
+            varProc.setDebugVarNames(attr.getMapNames());
 
+            /*
             // the rest is here
             methodWrapper.getOrBuildGraph().iterateExprents(exprent -> {
               List<Exprent> lst = exprent.getAllExprents(true);
@@ -161,6 +161,7 @@ public class ClassWrapper {
                 });
               return 0;
             });
+            */
           }
         }
       }

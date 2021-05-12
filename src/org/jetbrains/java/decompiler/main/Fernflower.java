@@ -10,7 +10,9 @@ import org.jetbrains.java.decompiler.struct.IDecompiledData;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructContext;
 import org.jetbrains.java.decompiler.struct.lazy.LazyLoader;
+import org.jetbrains.java.decompiler.util.JADNameProvider;
 import org.jetbrains.java.decompiler.util.TextBuffer;
+import org.jetbrains.java.decompiler.util.ClasspathScanner;
 
 import java.io.File;
 import java.util.HashMap;
@@ -51,8 +53,34 @@ public class Fernflower implements IDecompiledData {
       converter = null;
     }
 
-    DecompilerContext context = new DecompilerContext(properties, logger, structContext, classProcessor, interceptor);
+    IVariableNamingFactory renamerFactory = null;
+    String factoryClazz = (String) properties.get(DecompilerContext.RENAMER_FACTORY);
+    if (factoryClazz != null) {
+      try {
+        renamerFactory = Class.forName(factoryClazz).asSubclass(IVariableNamingFactory.class).getDeclaredConstructor().newInstance();
+      } catch (Exception e) {
+        logger.writeMessage("Error loading renamer factory class: " + factoryClazz, e);
+      }
+    }
+    if (renamerFactory == null) {
+      if("1".equals(properties.get(IFernflowerPreferences.USE_JAD_VARNAMING))) {
+        renamerFactory = new JADNameProvider.JADNameProviderFactory();
+      } else {
+        renamerFactory = new IdentityRenamerFactory();
+      }
+    }
+
+    DecompilerContext context = new DecompilerContext(properties, logger, structContext, classProcessor, interceptor, renamerFactory);
     DecompilerContext.setCurrentContext(context);
+
+    String vendor = System.getProperty("java.vendor", "missing vendor");
+    String javaVersion = System.getProperty("java.version", "missing java version");
+    String jvmVersion = System.getProperty("java.vm.version", "missing jvm version");
+    logger.writeMessage(String.format("JVM info: %s - %s - %s", vendor, javaVersion, jvmVersion), IFernflowerLogger.Severity.INFO);
+
+    if (DecompilerContext.getOption(IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH)) {
+      ClasspathScanner.addAllClasspath(structContext);
+    }
   }
 
   private static IIdentifierRenamer loadHelper(String className, IFernflowerLogger logger) {
@@ -87,6 +115,10 @@ public class Fernflower implements IDecompiledData {
     structContext.saveContext();
   }
 
+  public void addWhitelist(String prefix) {
+    classProcessor.addWhitelist(prefix);
+  }
+
   public void clearContext() {
     DecompilerContext.setCurrentContext(null);
   }
@@ -94,7 +126,7 @@ public class Fernflower implements IDecompiledData {
   @Override
   public String getClassEntryName(StructClass cl, String entryName) {
     ClassNode node = classProcessor.getMapRootClasses().get(cl.qualifiedName);
-    if (node.type != ClassNode.CLASS_ROOT) {
+    if (node == null || node.type != ClassNode.CLASS_ROOT) {
       return null;
     }
     else if (converter != null) {

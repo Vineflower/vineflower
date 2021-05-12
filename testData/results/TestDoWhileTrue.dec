@@ -1,0 +1,35 @@
+package pkg;
+
+public class TestDoWhileTrue {
+   public void test() {
+      int var1 = 0;// 5
+
+      do {
+         ++var1;// 7
+      } while(var1 < 100);// 8
+
+   }// 12
+}
+
+class 'pkg/TestDoWhileTrue' {
+   method 'test ()V' {
+      0      4
+      1      4
+      2      7
+      3      7
+      4      7
+      5      8
+      6      8
+      7      8
+      8      8
+      e      10
+   }
+}
+
+Lines mapping:
+5 <-> 5
+7 <-> 8
+8 <-> 9
+12 <-> 11
+Not mapped:
+9

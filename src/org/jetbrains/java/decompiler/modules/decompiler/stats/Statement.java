@@ -16,6 +16,7 @@ import org.jetbrains.java.decompiler.struct.match.IMatchable;
 import org.jetbrains.java.decompiler.struct.match.MatchEngine;
 import org.jetbrains.java.decompiler.struct.match.MatchNode;
 import org.jetbrains.java.decompiler.struct.match.MatchNode.RuleValue;
+import org.jetbrains.java.decompiler.util.StartEndPair;
 import org.jetbrains.java.decompiler.util.VBStyleCollection;
 
 import java.util.*;
@@ -469,6 +470,10 @@ public class Statement implements IMatchable {
     return false;
   }
 
+  public TextBuffer toJava() {
+    return toJava(0, BytecodeMappingTracer.DUMMY);
+  }
+
   public TextBuffer toJava(int indent, BytecodeMappingTracer tracer) {
     throw new RuntimeException("not implemented");
   }
@@ -802,6 +807,14 @@ public class Statement implements IMatchable {
     this.parent = parent;
   }
 
+  public Statement getTopParent() {
+    Statement ret = this;
+    while (ret.getParent() != null) {
+      ret = ret.getParent();
+    }
+    return ret;
+  }
+
   public HashSet<StatEdge> getLabelEdges() {  // FIXME: why HashSet?
     return labelEdges;
   }
@@ -828,8 +841,42 @@ public class Statement implements IMatchable {
 
   // helper methods
   public String toString() {
-    return id.toString();
+    return String.format("{%d}:%d", type, id);
   }
+
+  //TODO: Cleanup/cache?
+  public void getOffset(BitSet values) {
+    if (this instanceof DummyExitStatement && ((DummyExitStatement)this).bytecode != null)
+      values.or(((DummyExitStatement)this).bytecode);
+    if (this.getExprents() != null) {
+      for (Exprent e : this.getExprents()) {
+        e.getBytecodeRange(values);
+      }
+    } else {
+      for (Object obj : this.getSequentialObjects()) {
+        if (obj == null) {
+          //Humm? Skip it
+        } else if (obj instanceof Statement) {
+          ((Statement)obj).getOffset(values);
+        } else if (obj instanceof Exprent) {
+          ((Exprent)obj).getBytecodeRange(values);
+        } else {
+          System.out.println("WTF?" + obj.getClass());
+        }
+      }
+    }
+  }
+
+  private StartEndPair endpoints;
+  public StartEndPair getStartEndRange() {
+    if (endpoints == null) {
+      BitSet set = new BitSet();
+      getOffset(set);
+      endpoints = new StartEndPair(set.nextSetBit(0), set.length() - 1);
+    }
+    return endpoints;
+  }
+
 
   // *****************************************************************************
   // IMatchable implementation

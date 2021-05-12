@@ -4,6 +4,7 @@ package org.jetbrains.java.decompiler.modules.decompiler.stats;
 import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.util.TextBuffer;
+import org.jetbrains.java.decompiler.util.StartEndPair;
 
 public class RootStatement extends Statement {
   private final DummyExitStatement dummyExit;
@@ -25,5 +26,10 @@ public class RootStatement extends Statement {
 
   public DummyExitStatement getDummyExit() {
     return dummyExit;
+  }
+
+  @Override
+  public StartEndPair getStartEndRange() {
+    return StartEndPair.join(first.getStartEndRange(), dummyExit != null ? dummyExit.getStartEndRange() : null);
   }
 }

@@ -23,6 +23,7 @@ public class TestInUse {
 class 'pkg/TestInUse' {
    method 'getInt ()I' {
       0      4
+      1      4
       2      4
    }
 
@@ -33,12 +34,21 @@ class 'pkg/TestInUse' {
       3      9
       4      10
       5      10
+      6      13
       7      13
+      8      13
+      9      13
       a      13
+      c      14
       e      14
       f      15
+      10      15
+      11      15
+      12      16
       13      16
+      14      16
       15      16
+      18      18
       19      18
    }
 }

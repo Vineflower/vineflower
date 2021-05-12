@@ -4,7 +4,11 @@
 package org.jetbrains.java.decompiler.modules.decompiler.exps;
 
 import org.jetbrains.java.decompiler.code.CodeConstants;
+import org.jetbrains.java.decompiler.util.TextBuffer;
+import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
+import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger.Severity;
+import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
@@ -186,8 +190,9 @@ public class FunctionExprent extends Exprent {
   private int funcType;
   private VarType implicitType;
   private final List<Exprent> lstOperands;
+  private boolean needsCast = true;
 
-  public FunctionExprent(int funcType, ListStack<Exprent> stack, Set<Integer> bytecodeOffsets) {
+  public FunctionExprent(int funcType, ListStack<Exprent> stack, BitSet bytecodeOffsets) {
     this(funcType, new ArrayList<>(), bytecodeOffsets);
 
     if (funcType >= FUNCTION_BIT_NOT && funcType <= FUNCTION_PPI && funcType != FUNCTION_CAST && funcType != FUNCTION_INSTANCEOF) {
@@ -203,7 +208,7 @@ public class FunctionExprent extends Exprent {
     }
   }
 
-  public FunctionExprent(int funcType, List<Exprent> operands, Set<Integer> bytecodeOffsets) {
+  public FunctionExprent(int funcType, List<Exprent> operands, BitSet bytecodeOffsets) {
     super(EXPRENT_FUNCTION);
     this.funcType = funcType;
     this.lstOperands = operands;
@@ -211,7 +216,7 @@ public class FunctionExprent extends Exprent {
     addBytecodeOffsets(bytecodeOffsets);
   }
 
-  public FunctionExprent(int funcType, Exprent operand, Set<Integer> bytecodeOffsets) {
+  public FunctionExprent(int funcType, Exprent operand, BitSet bytecodeOffsets) {
     this(funcType, new ArrayList<>(1), bytecodeOffsets);
     lstOperands.add(operand);
   }
@@ -292,6 +297,60 @@ public class FunctionExprent extends Exprent {
 
     return exprType;
   }
+
+  @Override
+  public VarType getInferredExprType(VarType upperBound) {
+    if (funcType == FUNCTION_CAST) {
+      this.needsCast = true;
+      VarType right = lstOperands.get(0).getInferredExprType(upperBound);
+      VarType cast = lstOperands.get(1).getExprType();
+
+      if (upperBound != null && (upperBound.isGeneric() || right.isGeneric())) {
+        Map<VarType, List<VarType>> names = this.getNamedGenerics();
+        int arrayDim = 0;
+
+        if (upperBound.arrayDim == right.arrayDim && upperBound.arrayDim > 0) {
+          arrayDim = upperBound.arrayDim;
+          upperBound = upperBound.resizeArrayDim(0);
+          right = right.resizeArrayDim(0);
+        }
+
+        List<VarType> types = names.get(right);
+        if (types == null) {
+          types = names.get(upperBound);
+        }
+
+        if (types != null) {
+          boolean anyMatch = false; //TODO: allMatch instead of anyMatch?
+          for (VarType type : types) {
+            anyMatch |= DecompilerContext.getStructContext().instanceOf(type.value, cast.value);
+          }
+          if (anyMatch) {
+            this.needsCast = false;
+          }
+        }
+        else {
+            this.needsCast = right.type == CodeConstants.TYPE_NULL || !DecompilerContext.getStructContext().instanceOf(right.value, upperBound.value);
+        }
+        if (!this.needsCast) {
+          if (arrayDim > 0) {
+            right = right.resizeArrayDim(arrayDim);
+          }
+          return right;
+        }
+      }
+      else { //TODO: Capture generics to make cast better?
+        this.needsCast = right.type == CodeConstants.TYPE_NULL || !DecompilerContext.getStructContext().instanceOf(right.value, cast.value);
+      }
+    }
+    else if (funcType == FUNCTION_IIF) {
+      // TODO return common generic type?
+      lstOperands.get(1).getInferredExprType(upperBound);
+      lstOperands.get(2).getInferredExprType(upperBound);
+    }
+    return getExprType();
+  }
+
 
   @Override
   public int getExprentUse() {
@@ -452,46 +511,33 @@ public class FunctionExprent extends Exprent {
         }
       }
 
+      // Initialize the operands with the defaults
+      TextBuffer leftOperand = wrapOperandString(this.lstOperands.get(0), false, indent, tracer);
+      TextBuffer rightOperand = wrapOperandString(this.lstOperands.get(1), true, indent, tracer);
+
       // Check for special cased integers on the right and left hand side, and then return if they are found.
       // This only applies to bitwise and as well as bitwise or functions.
       if (this.funcType == FUNCTION_AND || this.funcType == FUNCTION_OR) {
         Exprent left = this.lstOperands.get(0);
         Exprent right = this.lstOperands.get(1);
 
-        // Initialize the operands with the defaults
-        TextBuffer leftOperand = wrapOperandString(this.lstOperands.get(0), false, indent, tracer);
-        TextBuffer rightOperand = wrapOperandString(this.lstOperands.get(1), true, indent, tracer);
-
-        boolean ret = false;
-
         // Check if the right is an int constant and adjust accordingly
         if (right.type == EXPRENT_CONST && right.getExprType() == VarType.VARTYPE_INT) {
           Integer value = (Integer) ((ConstExprent)right).getValue();
           rightOperand = new TextBuffer(IntHelper.adjustedIntRepresentation(value));
-
-          ret = true;
         }
 
         // Check if the left is an int constant and adjust accordingly
         if (left.type == EXPRENT_CONST && left.getExprType() == VarType.VARTYPE_INT) {
           Integer value = (Integer) ((ConstExprent)left).getValue();
           leftOperand = new TextBuffer(IntHelper.adjustedIntRepresentation(value));
-
-          ret = true;
-        }
-
-        // If either or both sides were an int constant, return here. Otherwise, fall back to default behavior.
-        if (ret) {
-          return leftOperand
-            .append(OPERATORS[this.funcType])
-            .append(rightOperand);
         }
       }
 
       // Return the applied operands and operators.
-      return wrapOperandString(this.lstOperands.get(0), false, indent, tracer)
+      return leftOperand
         .append(OPERATORS[funcType])
-        .append(wrapOperandString(this.lstOperands.get(1), true, indent, tracer));
+        .append(rightOperand);
     }
 
       // try to determine more accurate type for 'char' literals
@@ -521,6 +567,9 @@ public class FunctionExprent extends Exprent {
       case FUNCTION_NEG:
         return wrapOperandString(lstOperands.get(0), true, indent, tracer).prepend("-");
       case FUNCTION_CAST:
+        if (!needsCast) {
+          return lstOperands.get(0).toJava(indent, tracer);
+        }
         return lstOperands.get(1).toJava(indent, tracer).enclose("(", ")").append(wrapOperandString(lstOperands.get(0), true, indent, tracer));
       case FUNCTION_ARRAY_LENGTH:
         Exprent arr = lstOperands.get(0);
@@ -575,11 +624,24 @@ public class FunctionExprent extends Exprent {
     }
 
     if (funcType <= FUNCTION_I2S) {
+      // We can't directly cast some object types, so we need to make sure the unboxing happens.
+      // The types seem to be inconsistant but there is no harm in forcing the unboxing when not strictly needed.
+      // Type   | Works | Doesn't
+      // Integer| LFD   | BCS
+      // Long   | FD    | I
+      // Float  | D     | IL
+      // Double |       | ILF
+      if (lstOperands.get(0).type == Exprent.EXPRENT_INVOCATION) {
+        InvocationExprent inv = (InvocationExprent)lstOperands.get(0);
+        if (inv.isUnboxingCall()) {
+          inv.forceUnboxing(true);
+        }
+      }
       return wrapOperandString(lstOperands.get(0), true, indent, tracer).prepend("(" + ExprProcessor.getTypeName(
         TYPES[funcType - FUNCTION_I2L]) + ")");
     }
 
-    //		return "<unknown function>";
+    //        return "<unknown function>";
     throw new RuntimeException("invalid function");
   }
 
@@ -653,6 +715,22 @@ public class FunctionExprent extends Exprent {
 
   public void setImplicitType(VarType implicitType) {
     this.implicitType = implicitType;
+  }
+
+  public boolean doesCast() {
+    return needsCast;
+  }
+
+  public void setInvocationInstance() {
+    if (funcType == FUNCTION_CAST) {
+      lstOperands.get(0).setInvocationInstance();
+    }
+  }
+
+  @Override
+  public void getBytecodeRange(BitSet values) {
+    measureBytecode(values, lstOperands);
+    measureBytecode(values);
   }
 
   // *****************************************************************************

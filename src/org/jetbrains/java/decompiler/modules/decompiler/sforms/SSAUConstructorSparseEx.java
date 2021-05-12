@@ -11,6 +11,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionsGraph;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
+import org.jetbrains.java.decompiler.util.DotExporter;
 import org.jetbrains.java.decompiler.util.FastSparseSetFactory;
 import org.jetbrains.java.decompiler.util.FastSparseSetFactory.FastSparseSet;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
@@ -66,12 +67,17 @@ public class SSAUConstructorSparseEx {
   // set factory
   private FastSparseSetFactory<Integer> factory;
 
+  // track assignments for finding effectively final vars (left var, right var)
+  private HashMap<VarVersionPair, VarVersionPair> varAssignmentMap = new HashMap<>();
+
   public void splitVariables(RootStatement root, StructMethod mt) {
 
     FlattenStatementsHelper flatthelper = new FlattenStatementsHelper();
     DirectGraph dgraph = flatthelper.buildDirectGraph(root);
 
-    HashSet<Integer> setInit = new HashSet<>();
+    DotExporter.toDotFile(dgraph, mt, "ssauSplitVariables");
+    
+    List<Integer> setInit = new ArrayList<>();
     for (int i = 0; i < 64; i++) {
       setInit.add(i);
     }
@@ -81,25 +87,24 @@ public class SSAUConstructorSparseEx {
 
     setCatchMaps(root, dgraph, flatthelper);
 
-    //		try {
-    //			DotExporter.toDotFile(dgraph, new File("c:\\Temp\\gr12_my.dot"));
-    //		} catch(Exception ex) {ex.printStackTrace();}
-
+    int itteration = 1;
     HashSet<String> updated = new HashSet<>();
     do {
       //			System.out.println("~~~~~~~~~~~~~ \r\n"+root.toJava());
-      ssaStatements(dgraph, updated, false);
+      ssaStatements(dgraph, updated, false, mt, itteration++);
       //			System.out.println("~~~~~~~~~~~~~ \r\n"+root.toJava());
     }
     while (!updated.isEmpty());
 
 
-    ssaStatements(dgraph, updated, true);
+    ssaStatements(dgraph, updated, true, mt, itteration++);
 
     ssuversions.initDominators();
   }
 
-  private void ssaStatements(DirectGraph dgraph, HashSet<String> updated, boolean calcLiveVars) {
+  private void ssaStatements(DirectGraph dgraph, HashSet<String> updated, boolean calcLiveVars, StructMethod mt, int itteration) {
+
+    DotExporter.toDotFile(dgraph, mt, "ssauStatements_" + itteration);
 
     for (DirectNode node : dgraph.nodes) {
 
@@ -289,7 +294,7 @@ public class SSAUConstructorSparseEx {
         varassign.setVersion(nextver);
 
         // ssu graph
-        ssuversions.createNode(new VarVersionPair(varindex, nextver));
+        ssuversions.createNode(new VarVersionPair(varindex, nextver), varassign.getLVT());
 
         setCurrentVar(varmap, varindex, nextver);
       }
@@ -298,6 +303,17 @@ public class SSAUConstructorSparseEx {
           varMapToGraph(new VarVersionPair(varindex.intValue(), varassign.getVersion()), varmap);
         }
         setCurrentVar(varmap, varindex, varassign.getVersion());
+      }
+
+      AssignmentExprent assexpr = (AssignmentExprent)expr;
+      if (assexpr.getRight().type == Exprent.EXPRENT_VAR) {
+        VarVersionPair rightpaar = ((VarExprent)assexpr.getRight()).getVarVersionPair();
+        varAssignmentMap.put(varassign.getVarVersionPair(), rightpaar);
+      }
+      else if (assexpr.getRight().type == Exprent.EXPRENT_FIELD) {
+        int index = mapFieldVars.get(((FieldExprent)assexpr.getRight()).id);
+        VarVersionPair rightpaar = new VarVersionPair(index, 0);
+        varAssignmentMap.put(varassign.getVarVersionPair(), rightpaar);
       }
     }
     else if (expr.type == Exprent.EXPRENT_FUNCTION) { // MM or PP function
@@ -354,7 +370,7 @@ public class SSAUConstructorSparseEx {
 
       FastSparseSet<Integer> vers = varmap.get(varindex);
 
-      int cardinality = vers.getCardinality();
+      int cardinality = vers != null ? vers.getCardinality() : 0;
       if (cardinality == 1) { // size == 1
         if (current_vers != 0) {
           if (calcLiveVars) {
@@ -402,7 +418,21 @@ public class SSAUConstructorSparseEx {
         }
 
         createOrUpdatePhiNode(new VarVersionPair(varindex, current_vers), vers, stat);
-      } // vers.size() == 0 means uninitialized variable, which is impossible
+      } // vers.size() == 0 means uninitialized variable
+      else if (cardinality == 0) {
+        if (current_vers != 0) {
+          if (calcLiveVars) {
+            varMapToGraph(new VarVersionPair(varindex.intValue(), vardest.getVersion()), varmap);
+          }
+          setCurrentVar(varmap, varindex, vardest.getVersion());
+        }
+        else {
+          Integer usever = getNextFreeVersion(varindex, stat);
+          vardest.setVersion(usever);
+          ssuversions.createNode(new VarVersionPair(varindex, usever), vardest.getLVT());
+          setCurrentVar(varmap, varindex, usever);
+        }
+      }
     }
   }
 
@@ -816,5 +846,9 @@ public class SSAUConstructorSparseEx {
 
   public HashMap<Integer, Integer> getMapFieldVars() {
     return mapFieldVars;
+  }
+
+  public HashMap<VarVersionPair, VarVersionPair> getVarAssignmentMap() {
+    return varAssignmentMap;
   }
 }

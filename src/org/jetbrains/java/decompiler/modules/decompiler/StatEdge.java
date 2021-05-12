@@ -35,6 +35,8 @@ public class StatEdge {
 
   public boolean explicit = true;
 
+  public boolean canInline = true;
+
   public StatEdge(int type, Statement source, Statement destination, Statement closure) {
     this(type, source, destination);
     this.closure = closure;

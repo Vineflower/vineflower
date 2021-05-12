@@ -1,0 +1,89 @@
+package pkg;
+
+public interface TestInterfaceSubclass {
+   void doThing();
+
+   int doOtherThing();
+
+   public abstract static class AbstractClass implements TestInterfaceSubclass {
+      public abstract double doDoubleThing();
+   }
+
+   public static class Multiple extends TestInterfaceSubclass.AbstractClass implements TestInterfaceSubclass {
+      public void doThing() {
+         System.out.println("Hello");// 29
+      }// 30
+
+      public int doOtherThing() {
+         return 1;// 34
+      }
+
+      public double doDoubleThing() {
+         return 2.452;// 39
+      }
+   }
+
+   public static class Subclass implements TestInterfaceSubclass {
+      public void doThing() {
+         System.out.println("Hi");// 12
+      }// 13
+
+      public int doOtherThing() {
+         return 0;// 17
+      }
+   }
+}
+
+class 'pkg/TestInterfaceSubclass$Multiple' {
+   method 'doThing ()V' {
+      0      13
+      1      13
+      2      13
+      3      13
+      4      13
+      5      13
+      6      13
+      7      13
+      8      14
+   }
+
+   method 'doOtherThing ()I' {
+      0      17
+      1      17
+   }
+
+   method 'doDoubleThing ()D' {
+      0      21
+      1      21
+      2      21
+      3      21
+   }
+}
+
+class 'pkg/TestInterfaceSubclass$Subclass' {
+   method 'doThing ()V' {
+      0      27
+      1      27
+      2      27
+      3      27
+      4      27
+      5      27
+      6      27
+      7      27
+      8      28
+   }
+
+   method 'doOtherThing ()I' {
+      0      31
+      1      31
+   }
+}
+
+Lines mapping:
+12 <-> 28
+13 <-> 29
+17 <-> 32
+29 <-> 14
+30 <-> 15
+34 <-> 18
+39 <-> 22

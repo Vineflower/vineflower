@@ -10,15 +10,15 @@ import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.List;
-import java.util.Set;
 
 public class SwitchExprent extends Exprent {
 
   private Exprent value;
   private List<List<Exprent>> caseValues = new ArrayList<>();
 
-  public SwitchExprent(Exprent value, Set<Integer> bytecodeOffsets) {
+  public SwitchExprent(Exprent value, BitSet bytecodeOffsets) {
     super(EXPRENT_SWITCH);
     this.value = value;
 
@@ -98,6 +98,22 @@ public class SwitchExprent extends Exprent {
 
     SwitchExprent sw = (SwitchExprent)o;
     return InterpreterUtil.equalObjects(value, sw.getValue());
+  }
+
+  @Override
+  public void getBytecodeRange(BitSet values) {
+    if (caseValues != null && !caseValues.isEmpty()) {
+      for (List<Exprent> l : caseValues) {
+        if (l != null && !l.isEmpty()) {
+          for (Exprent e : l) {
+            if (e != null)
+              e.getBytecodeRange(values);
+          }
+        }
+      }
+    }
+    measureBytecode(values, value);
+    measureBytecode(values);
   }
 
   public Exprent getValue() {

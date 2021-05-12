@@ -16,6 +16,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.FieldExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.SwitchExprent;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.TextBuffer;
+import org.jetbrains.java.decompiler.util.StartEndPair;
 
 import java.util.*;
 
@@ -63,7 +64,15 @@ public final class SwitchStatement extends Statement {
 
     default_edge = head.getSuccessorEdges(Statement.STATEDGE_DIRECT_ALL).get(0);
 
-    for (Statement st : lstNodes) {
+    //We need to use set above in case we have multiple edges to the same node. But HashSets iterator is not ordered, so sort
+    List<Statement> sorted = new ArrayList<>(lstNodes);
+    Collections.sort(sorted, new Comparator<Statement>() {
+      @Override
+      public int compare(Statement o1, Statement o2) {
+        return o1.id - o2.id;
+      }
+    });
+    for (Statement st : sorted) {
       stats.addWithKey(st, st.id);
     }
   }
@@ -97,7 +106,6 @@ public final class SwitchStatement extends Statement {
 
   @Override
   public TextBuffer toJava(int indent, BytecodeMappingTracer tracer) {
-    SwitchHelper.simplify(this);
 
     TextBuffer buf = new TextBuffer();
     buf.append(ExprProcessor.listToJava(varDefinitions, indent, tracer));
@@ -198,6 +206,17 @@ public final class SwitchStatement extends Statement {
     default_edge = first.getSuccessorEdges(Statement.STATEDGE_DIRECT_ALL).get(0);
 
     sortEdgesAndNodes();
+  }
+
+  @Override
+  public StartEndPair getStartEndRange() {
+    StartEndPair[] sepairs = new StartEndPair[caseStatements.size() + 1];
+    int i = 0;
+    sepairs[i++] = super.getStartEndRange();
+    for (Statement st : caseStatements) {
+      sepairs[i++] = st.getStartEndRange();
+    }
+    return StartEndPair.join(sepairs);
   }
 
   // *****************************************************************************

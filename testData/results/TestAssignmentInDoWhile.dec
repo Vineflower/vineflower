@@ -1,0 +1,301 @@
+package pkg;
+
+public class TestAssignmentInDoWhile {
+   public void testPP() {
+      int var1 = 3;// 5
+
+      while(var1 < 50 && var1++ < 100) {// 7 12
+      }
+
+      System.out.println("Hi");// 13
+   }// 14
+
+   public void testPE() {
+      int var1 = 3;// 17
+
+      while(var1 < 50) {// 19
+         var1 += 2;// 24
+         if (var1 >= 100) {
+            break;
+         }
+      }
+
+      System.out.println("Hi");// 25
+   }// 26
+
+   public void testPEArray() {
+      int[] var1 = new int[100];// 29
+      int var2 = 3;// 31
+
+      while(var2 < 50) {// 33
+         int var10001 = var1[var2];
+         int var10000 = var2 + var1[var2];// 38
+         var2 += var10001;
+         if (var10000 >= 100) {
+            break;
+         }
+      }
+
+      System.out.println("Hi");// 39
+   }// 40
+
+   public void testPEArrayBitMask() {
+      int[] var1 = new int[100];// 43
+      int var2 = 3;// 45
+
+      while(var2 < 50 && (var2 = var2 + (var1[var2] & 7)) < 100) {// 47 52
+      }
+
+      System.out.println("Hi");// 53
+   }// 54
+
+   public void testPEArrayAnd() {
+      int[] var1 = new int[100];// 57
+      int var2 = 3;// 59
+
+      while(var2 < 50) {// 61
+         int var10001 = var1[var2];
+         int var10000 = var2 + var1[var2];// 66
+         var2 += var10001;
+         if (var10000 >= 100 || var2 <= 10) {
+            break;
+         }
+      }
+
+      System.out.println("Hi");// 67
+   }// 68
+
+   public void testPEArrayOr() {
+      int[] var1 = new int[100];// 71
+      int var2 = 3;// 73
+
+      while(var2 < 50) {// 75
+         int var10001 = var1[var2];
+         int var10000 = var2 + var1[var2];// 80
+         var2 += var10001;
+         if (var10000 >= 100 && var2 <= 10) {
+            break;
+         }
+      }
+
+      System.out.println("Hi");// 81
+   }// 82
+}
+
+class 'pkg/TestAssignmentInDoWhile' {
+   method 'testPP ()V' {
+      0      4
+      1      4
+      2      6
+      3      6
+      4      6
+      5      6
+      9      6
+      a      6
+      b      6
+      c      6
+      d      6
+      e      6
+      11      9
+      12      9
+      13      9
+      14      9
+      15      9
+      16      9
+      17      9
+      18      9
+      19      10
+   }
+
+   method 'testPE ()V' {
+      0      13
+      1      13
+      2      15
+      3      15
+      4      15
+      5      15
+      8      16
+      9      16
+      a      16
+      b      17
+      c      17
+      d      17
+      e      17
+      11      22
+      12      22
+      13      22
+      14      22
+      15      22
+      16      22
+      17      22
+      18      22
+      19      23
+   }
+
+   method 'testPEArray ()V' {
+      0      26
+      1      26
+      4      26
+      5      27
+      6      27
+      7      29
+      8      29
+      9      29
+      a      29
+      d      31
+      e      30
+      f      30
+      10      30
+      11      31
+      13      32
+      14      33
+      15      33
+      16      33
+      19      38
+      1a      38
+      1b      38
+      1c      38
+      1d      38
+      1e      38
+      1f      38
+      20      38
+      21      39
+   }
+
+   method 'testPEArrayBitMask ()V' {
+      0      42
+      1      42
+      4      42
+      5      43
+      6      43
+      7      45
+      8      45
+      9      45
+      a      45
+      d      45
+      e      45
+      f      45
+      10      45
+      11      45
+      12      45
+      13      45
+      14      45
+      16      45
+      17      45
+      18      45
+      19      45
+      1c      48
+      1d      48
+      1e      48
+      1f      48
+      20      48
+      21      48
+      22      48
+      23      48
+      24      49
+   }
+
+   method 'testPEArrayAnd ()V' {
+      0      52
+      1      52
+      4      52
+      5      53
+      6      53
+      7      55
+      8      55
+      9      55
+      a      55
+      d      57
+      e      56
+      f      56
+      10      56
+      11      57
+      13      58
+      14      59
+      15      59
+      16      59
+      19      59
+      1a      59
+      1b      59
+      1c      59
+      1f      64
+      20      64
+      21      64
+      22      64
+      23      64
+      24      64
+      25      64
+      26      64
+      27      65
+   }
+
+   method 'testPEArrayOr ()V' {
+      0      68
+      1      68
+      4      68
+      5      69
+      6      69
+      7      71
+      8      71
+      9      71
+      a      71
+      d      73
+      e      72
+      f      72
+      10      72
+      11      73
+      13      74
+      14      75
+      15      75
+      16      75
+      19      75
+      1a      75
+      1b      75
+      1c      75
+      1f      80
+      20      80
+      21      80
+      22      80
+      23      80
+      24      80
+      25      80
+      26      80
+      27      81
+   }
+}
+
+Lines mapping:
+5 <-> 5
+7 <-> 7
+12 <-> 7
+13 <-> 10
+14 <-> 11
+17 <-> 14
+19 <-> 16
+24 <-> 17
+25 <-> 23
+26 <-> 24
+29 <-> 27
+31 <-> 28
+33 <-> 30
+38 <-> 32
+39 <-> 39
+40 <-> 40
+43 <-> 43
+45 <-> 44
+47 <-> 46
+52 <-> 46
+53 <-> 49
+54 <-> 50
+57 <-> 53
+59 <-> 54
+61 <-> 56
+66 <-> 58
+67 <-> 65
+68 <-> 66
+71 <-> 69
+73 <-> 70
+75 <-> 72
+80 <-> 74
+81 <-> 81
+82 <-> 82

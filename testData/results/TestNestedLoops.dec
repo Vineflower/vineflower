@@ -1,0 +1,8 @@
+package pkg;
+
+public class TestNestedLoops {
+   public void test() {
+      // $FF: Couldn't be decompiled
+   }
+}
+
