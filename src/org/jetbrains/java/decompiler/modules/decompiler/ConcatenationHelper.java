@@ -8,10 +8,7 @@ import org.jetbrains.java.decompiler.struct.consts.PrimitiveConstant;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.BitSet;
-import java.util.List;
+import java.util.*;
 
 public final class ConcatenationHelper {
 
@@ -46,6 +43,20 @@ public final class ConcatenationHelper {
         List<Exprent> parameters = extractParameters(iex.getBootstrapArguments(), iex);
         if (parameters.size() >= 2) {
           return createConcatExprent(parameters, expr.bytecode);
+        }
+
+        // In specific edge cases, such as when empty strings are concatenated with non string variables, the parameter size will be 1.
+        // Leaving this out produces a case where the decompiler produces a self-concat, such as `variable.makeConcatWithConstants(variable)` which is not ideal.
+        if (parameters.size() == 1) {
+          Exprent exprent = parameters.get(0);
+
+          // If the expression's type isn't a string, concat together an empty string
+          if (exprent.getExprType() != VarType.VARTYPE_STRING) {
+            // TODO: Currently this is always `variable + ""` but this should ideally put it in the right order. It also makes more sense to bring this behavior into #extractParameters.
+            return new FunctionExprent(FunctionExprent.FUNCTION_STR_CONCAT, Arrays.asList(exprent, new ConstExprent(VarType.VARTYPE_STRING, "", expr.bytecode)), expr.bytecode);
+          }
+
+          return exprent;
         }
       }
     }
