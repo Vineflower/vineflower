@@ -1,6 +1,6 @@
 ### Quiltflower
 
-Quiltflower is a fork of Fernflower adding additional features for use with the Quilt toolchain.
+Quiltflower is a fork of Fernflower and ForgeFlower adding additional features for use with the Quilt toolchain.
 
 Changes include:
 - Javadoc application
@@ -8,6 +8,11 @@ Changes include:
 - Handful of other fixes
 
 When pulling from upstream, use https://github.com/fesh0r/fernflower
+
+#### Special Thanks
+* Jetbrains- For maintaining Fernflower
+* Forge Team- For maintaining ForgeFlower
+* CFR- For it's large suite of very useful tests
 
 ### About Fernflower
 
