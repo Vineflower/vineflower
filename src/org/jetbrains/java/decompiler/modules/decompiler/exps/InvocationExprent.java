@@ -342,7 +342,7 @@ public class InvocationExprent extends Exprent {
 
           int j = 0;
           for (int i = start; i < lstParameters.size(); ++i) {
-            if (mask == null || mask.get(i) != null) {
+            if (mask == null || mask.get(i) != null && this.desc.getSignature().parameterTypes.size() >= this.lstParameters.size()) {
               VarType paramType = desc.getSignature().parameterTypes.get(j++);
               if (paramType.isGeneric()) {
 
