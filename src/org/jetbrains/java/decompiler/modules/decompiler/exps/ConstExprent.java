@@ -345,10 +345,6 @@ public class ConstExprent extends Exprent {
       else if (floatVal == -Float.MIN_VALUE) {
         return new FieldExprent("MIN_VALUE", "java/lang/Float", true, null, FieldDescriptor.FLOAT_DESCRIPTOR, bytecode).toJava(0, tracer).prepend("-");
       }
-      // Math constants
-      else if (floatVal == (float)Math.E) {
-        return new FieldExprent("E", "java/lang/Math", true, null, FieldDescriptor.DOUBLE_DESCRIPTOR, bytecode).toJava(0, tracer).prepend("(float)");
-      }
       else if (UNINLINED_FLOATS.containsKey(floatVal)) {
         return new TextBuffer(UNINLINED_FLOATS.get(floatVal));
       }
