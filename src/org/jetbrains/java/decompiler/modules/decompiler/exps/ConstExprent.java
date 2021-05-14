@@ -43,25 +43,25 @@ public class ConstExprent extends Exprent {
     // This patch is based on work in ForgeFlower submitted by Pokechu22.
 
     // Positive and negative e
-    UNINLINED_DOUBLES.put(Math.E, (tracer, bytecode) -> new FieldExprent("E", "java/lang/Math", true, null, FieldDescriptor.INTEGER_DESCRIPTOR, bytecode).toJava(0, tracer));
-    UNINLINED_DOUBLES.put(-Math.E, (tracer, bytecode) -> new FieldExprent("E", "java/lang/Math", true, null, FieldDescriptor.INTEGER_DESCRIPTOR, bytecode).toJava(0, tracer).prepend("-"));
+    UNINLINED_DOUBLES.put(Math.E, (tracer, bytecode) -> getDouble(tracer, bytecode, "E", "java/lang/Math"));
+    UNINLINED_DOUBLES.put(-Math.E, (tracer, bytecode) -> getDouble(tracer, bytecode, "E", "java/lang/Math").prepend("-"));
 
     // Positive and negative pi
-    UNINLINED_DOUBLES.put(Math.PI, (tracer, bytecode) -> new FieldExprent("PI", "java/lang/Math", true, null, FieldDescriptor.INTEGER_DESCRIPTOR, bytecode).toJava(0, tracer));
-    UNINLINED_DOUBLES.put(-Math.PI, (tracer, bytecode) -> new FieldExprent("PI", "java/lang/Math", true, null, FieldDescriptor.INTEGER_DESCRIPTOR, bytecode).toJava(0, tracer).prepend("-"));
+    UNINLINED_DOUBLES.put(Math.PI, ConstExprent::getPiDouble);
+    UNINLINED_DOUBLES.put(-Math.PI, (tracer, bytecode) -> getPiDouble(tracer, bytecode).prepend("-"));
 
     // Positive and negative pi divisors
     for (int i = 2; i <= 20; i++) {
       int finalI = i;
-      UNINLINED_DOUBLES.put(Math.PI / i, (tracer, bytecode) -> new FieldExprent("PI", "java/lang/Math", true, null, FieldDescriptor.INTEGER_DESCRIPTOR, bytecode).toJava(0, tracer).append(" / "+ finalI));
-      UNINLINED_DOUBLES.put(-Math.PI / i, (tracer, bytecode) -> new FieldExprent("PI", "java/lang/Math", true, null, FieldDescriptor.INTEGER_DESCRIPTOR, bytecode).toJava(0, tracer).append(" / "+ finalI).prepend("-"));
+      UNINLINED_DOUBLES.put(Math.PI / i, (tracer, bytecode) -> getPiDouble(tracer, bytecode).append(" / "+ finalI));
+      UNINLINED_DOUBLES.put(-Math.PI / i, (tracer, bytecode) -> getPiDouble(tracer, bytecode).append(" / "+ finalI).prepend("-"));
     }
 
     // Positive and negative pi multipliers
     for (int i = 2; i <= 20; i++) {
       int finalI = i;
-      UNINLINED_DOUBLES.put(Math.PI * i, (tracer, bytecode) -> new FieldExprent("PI", "java/lang/Math", true, null, FieldDescriptor.INTEGER_DESCRIPTOR, bytecode).toJava(0, tracer).append(" * "+ finalI));
-      UNINLINED_DOUBLES.put(-Math.PI * i, (tracer, bytecode) -> new FieldExprent("PI", "java/lang/Math", true, null, FieldDescriptor.INTEGER_DESCRIPTOR, bytecode).toJava(0, tracer).append(" * "+ finalI).prepend("-"));
+      UNINLINED_DOUBLES.put(Math.PI * i, (tracer, bytecode) -> getPiDouble(tracer, bytecode).append(" * "+ finalI));
+      UNINLINED_DOUBLES.put(-Math.PI * i, (tracer, bytecode) -> getPiDouble(tracer, bytecode).append(" * "+ finalI).prepend("-"));
     }
 
     // Extra pi values on the unit circle
@@ -71,33 +71,47 @@ public class ConstExprent extends Exprent {
         if (gcd == 1) {
           double finalNumerator = numerator;
           double finalDenominator = denominator;
-          UNINLINED_DOUBLES.put(Math.PI * (numerator / denominator), (tracer, bytecode) -> new FieldExprent("PI", "java/lang/Math", true, null, FieldDescriptor.INTEGER_DESCRIPTOR, bytecode).toJava(0, tracer).append(" * " + finalNumerator + " / " + finalDenominator));
-          UNINLINED_DOUBLES.put(-Math.PI * (numerator / denominator), (tracer, bytecode) -> new FieldExprent("PI", "java/lang/Math", true, null, FieldDescriptor.INTEGER_DESCRIPTOR, bytecode).toJava(0, tracer).append(" * " + finalNumerator + " / " + finalDenominator).prepend("-"));
+          UNINLINED_DOUBLES.put(Math.PI * (numerator / denominator), (tracer, bytecode) -> getPiDouble(tracer, bytecode).append(" * " + finalNumerator + " / " + finalDenominator));
+          UNINLINED_DOUBLES.put(-Math.PI * (numerator / denominator), (tracer, bytecode) -> getPiDouble(tracer, bytecode).append(" * " + finalNumerator + " / " + finalDenominator).prepend("-"));
 
           if ((float) Math.PI * (float) numerator / (float) denominator != (float) (Math.PI * numerator / denominator)) {
-            UNINLINED_FLOATS.put((float) Math.PI * ((float) numerator / (float) denominator), (tracer, bytecode) -> new FieldExprent("PI", "java/lang/Math", true, null, FieldDescriptor.INTEGER_DESCRIPTOR, bytecode).toJava(0, tracer).append(" * " + finalNumerator + "F / " + finalDenominator + "F").prepend("(float) "));
-            UNINLINED_FLOATS.put((float) -Math.PI * ((float) numerator / (float) denominator), (tracer, bytecode) -> new FieldExprent("PI", "java/lang/Math", true, null, FieldDescriptor.INTEGER_DESCRIPTOR, bytecode).toJava(0, tracer).append(" * " + finalNumerator + "F / " + finalDenominator + "F").prepend("(float) -"));
+            UNINLINED_FLOATS.put((float) Math.PI * ((float) numerator / (float) denominator), (tracer, bytecode) -> getPiDouble(tracer, bytecode).append(" * " + finalNumerator + "F / " + finalDenominator + "F").prepend("(float) "));
+            UNINLINED_FLOATS.put((float) -Math.PI * ((float) numerator / (float) denominator), (tracer, bytecode) -> getPiDouble(tracer, bytecode).append(" * " + finalNumerator + "F / " + finalDenominator + "F").prepend("(float) -"));
           }
         }
       }
     }
 
     // Positive and negative 180 / pi
-    UNINLINED_DOUBLES.put(180.0 / Math.PI, (tracer, bytecode) -> new FieldExprent("PI", "java/lang/Math", true, null, FieldDescriptor.INTEGER_DESCRIPTOR, bytecode).toJava(0, tracer).prepend("180.0 / "));
-    UNINLINED_DOUBLES.put(-180.0 / Math.PI, (tracer, bytecode) -> new FieldExprent("PI", "java/lang/Math", true, null, FieldDescriptor.INTEGER_DESCRIPTOR, bytecode).toJava(0, tracer).prepend("-180.0 / "));
+    UNINLINED_DOUBLES.put(180.0 / Math.PI, (tracer, bytecode) -> getPiDouble(tracer, bytecode).prepend("180.0 / "));
+    UNINLINED_DOUBLES.put(-180.0 / Math.PI, (tracer, bytecode) -> getPiDouble(tracer, bytecode).prepend("-180.0 / "));
 
-    UNINLINED_DOUBLES.put(Math.PI / 180.0, (tracer, bytecode) -> new FieldExprent("PI", "java/lang/Math", true, null, FieldDescriptor.INTEGER_DESCRIPTOR, bytecode).toJava(0, tracer).append(" / 180.0"));
-    UNINLINED_DOUBLES.put(-Math.PI / 180.0, (tracer, bytecode) -> new FieldExprent("PI", "java/lang/Math", true, null, FieldDescriptor.INTEGER_DESCRIPTOR, bytecode).toJava(0, tracer).append(" / 180.0").prepend("-"));
+    // Positive and negative pi / 180
+    UNINLINED_DOUBLES.put(Math.PI / 180.0, (tracer, bytecode) -> getPiDouble(tracer, bytecode).append(" / 180.0"));
+    UNINLINED_DOUBLES.put(-Math.PI / 180.0, (tracer, bytecode) -> getPiDouble(tracer, bytecode).append(" / 180.0").prepend("-"));
 
     UNINLINED_DOUBLES.forEach((key, valueFunction) -> {
       UNINLINED_FLOATS.put(key.floatValue(), (tracer, bytecode) -> {
-        TextBuffer doubleValue = valueFunction.apply(tracer,bytecode);
+        TextBuffer doubleValue = valueFunction.apply(tracer, bytecode);
         if (doubleValue.count(" ", 0) > 0) { // As long as all uninlined double values with more than one expression have a space in it, this'll work.
           doubleValue.prepend("(").append(")");
         }
         return doubleValue.prepend("(float) ");
       });
     });
+
+    // Double and Float constants
+    UNINLINED_DOUBLES.put(Double.POSITIVE_INFINITY, ((tracer, bytecode) -> getDouble(tracer, bytecode, "POSITIVE_INFINITY", "java/lang/Double")));
+    UNINLINED_DOUBLES.put(Double.NEGATIVE_INFINITY, ((tracer, bytecode) -> getDouble(tracer, bytecode, "NEGATIVE_INFINITY", "java/lang/Double")));
+    UNINLINED_DOUBLES.put(Double.MAX_VALUE, ((tracer, bytecode) -> getDouble(tracer, bytecode, "MAX_VALUE", "java/lang/Double")));
+    UNINLINED_DOUBLES.put(Double.MIN_NORMAL, ((tracer, bytecode) -> getDouble(tracer, bytecode, "MIN_NORMAL", "java/lang/Double")));
+    UNINLINED_DOUBLES.put(Double.MIN_VALUE, ((tracer, bytecode) -> getDouble(tracer, bytecode, "MIN_VALUE", "java/lang/Double")));
+
+    UNINLINED_FLOATS.put(Float.POSITIVE_INFINITY, ((tracer, bytecode) -> getFloat(tracer, bytecode, "POSITIVE_INFINITY", "java/lang/Float")));
+    UNINLINED_FLOATS.put(Float.NEGATIVE_INFINITY, ((tracer, bytecode) -> getFloat(tracer, bytecode, "NEGATIVE_INFINITY", "java/lang/Float")));
+    UNINLINED_FLOATS.put(Float.MAX_VALUE, ((tracer, bytecode) -> getFloat(tracer, bytecode, "MAX_VALUE", "java/lang/Float")));
+    UNINLINED_FLOATS.put(Float.MIN_NORMAL, ((tracer, bytecode) -> getFloat(tracer, bytecode, "MIN_NORMAL", "java/lang/Float")));
+    UNINLINED_FLOATS.put(Float.MIN_VALUE, ((tracer, bytecode) -> getFloat(tracer, bytecode, "MIN_VALUE", "java/lang/Float")));
   }
 
   private VarType constType;
@@ -236,28 +250,35 @@ public class ConstExprent extends Exprent {
         return new TextBuffer(value.toString()).append('L');
 
       case CodeConstants.TYPE_FLOAT:
-        return createFloat(literal, (Float)value, tracer);
+        float floatVal = (Float)value;
+        if (!literal) {
+          if (Float.isNaN(floatVal)) {
+            return new FieldExprent("NaN", "java/lang/Float", true, null, FieldDescriptor.FLOAT_DESCRIPTOR, bytecode).toJava(0, tracer);
+          }
+          else if (UNINLINED_FLOATS.containsKey(floatVal)) {
+            return UNINLINED_FLOATS.get(floatVal).apply(tracer, bytecode);
+          }
+        }
+        else {
+          // Check for special values that can't be used directly in code
+          // (and we can't replace with the constant due to the user requesting not to)
+          if (Float.isNaN(floatVal)) {
+            return new TextBuffer("0.0F / 0.0F");
+          }
+          else if (floatVal == Float.POSITIVE_INFINITY) {
+            return new TextBuffer("1.0F / 0.0F");
+          }
+          else if (floatVal == Float.NEGATIVE_INFINITY) {
+            return new TextBuffer("-1.0F / 0.0F");
+          }
+        }
+        return new TextBuffer(trimZeros(Float.toString(floatVal))).append('F');
 
       case CodeConstants.TYPE_DOUBLE:
         double doubleVal = (Double)value;
         if (!literal) {
           if (Double.isNaN(doubleVal)) {
             return new FieldExprent("NaN", "java/lang/Double", true, null, FieldDescriptor.DOUBLE_DESCRIPTOR, bytecode).toJava(0, tracer);
-          }
-          else if (doubleVal == Double.POSITIVE_INFINITY) {
-            return new FieldExprent("POSITIVE_INFINITY", "java/lang/Double", true, null, FieldDescriptor.DOUBLE_DESCRIPTOR, bytecode).toJava(0, tracer);
-          }
-          else if (doubleVal == Double.NEGATIVE_INFINITY) {
-            return new FieldExprent("NEGATIVE_INFINITY", "java/lang/Double", true, null, FieldDescriptor.DOUBLE_DESCRIPTOR, bytecode).toJava(0, tracer);
-          }
-          else if (doubleVal == Double.MAX_VALUE) {
-            return new FieldExprent("MAX_VALUE", "java/lang/Double", true, null, FieldDescriptor.DOUBLE_DESCRIPTOR, bytecode).toJava(0, tracer);
-          }
-          else if (doubleVal == Double.MIN_NORMAL) {
-            return new FieldExprent("MIN_NORMAL", "java/lang/Double", true, null, FieldDescriptor.DOUBLE_DESCRIPTOR, bytecode).toJava(0, tracer);
-          }
-          else if (doubleVal == Double.MIN_VALUE) {
-            return new FieldExprent("MIN_VALUE", "java/lang/Double", true, null, FieldDescriptor.DOUBLE_DESCRIPTOR, bytecode).toJava(0, tracer);
           }
           else if (UNINLINED_DOUBLES.containsKey(doubleVal)) {
             return UNINLINED_DOUBLES.get(doubleVal).apply(tracer, bytecode);
@@ -306,63 +327,16 @@ public class ConstExprent extends Exprent {
     throw new RuntimeException("invalid constant type: " + constType);
   }
 
-  private TextBuffer createFloat(boolean literal, float floatVal, BytecodeMappingTracer tracer) {
-    if (!literal) {
-      // Float constants, some of which can't be represented directly
-      if (Float.isNaN(floatVal)) {
-        return new FieldExprent("NaN", "java/lang/Float", true, null, FieldDescriptor.FLOAT_DESCRIPTOR, bytecode).toJava(0, tracer);
-      }
-      else if (floatVal == Float.POSITIVE_INFINITY) {
-        return new FieldExprent("POSITIVE_INFINITY", "java/lang/Float", true, null, FieldDescriptor.FLOAT_DESCRIPTOR, bytecode).toJava(0, tracer);
-      }
-      else if (floatVal == Float.NEGATIVE_INFINITY) {
-        return new FieldExprent("NEGATIVE_INFINITY", "java/lang/Float", true, null, FieldDescriptor.FLOAT_DESCRIPTOR, bytecode).toJava(0, tracer);
-      }
-      else if (floatVal == Float.MAX_VALUE) {
-        return new FieldExprent("MAX_VALUE", "java/lang/Float", true, null, FieldDescriptor.FLOAT_DESCRIPTOR, bytecode).toJava(0, tracer);
-      }
-      else if (floatVal == Float.MIN_NORMAL) {
-        return new FieldExprent("MIN_NORMAL", "java/lang/Float", true, null, FieldDescriptor.FLOAT_DESCRIPTOR, bytecode).toJava(0, tracer);
-      }
-      else if (floatVal == Float.MIN_VALUE) {
-        return new FieldExprent("MIN_VALUE", "java/lang/Float", true, null, FieldDescriptor.FLOAT_DESCRIPTOR, bytecode).toJava(0, tracer);
-      }
-      else if (floatVal == -Float.MAX_VALUE) {
-        return new FieldExprent("MAX_VALUE", "java/lang/Float", true, null, FieldDescriptor.FLOAT_DESCRIPTOR, bytecode).toJava(0, tracer).prepend("-");
-      }
-      else if (floatVal == -Float.MIN_NORMAL) {
-        return new FieldExprent("MIN_NORMAL", "java/lang/Float", true, null, FieldDescriptor.FLOAT_DESCRIPTOR, bytecode).toJava(0, tracer).prepend("-");
-      }
-      else if (floatVal == -Float.MIN_VALUE) {
-        return new FieldExprent("MIN_VALUE", "java/lang/Float", true, null, FieldDescriptor.FLOAT_DESCRIPTOR, bytecode).toJava(0, tracer).prepend("-");
-      }
-      else if (UNINLINED_FLOATS.containsKey(floatVal)) {
-        return UNINLINED_FLOATS.get(floatVal).apply(tracer, bytecode);
-      }
-    }
-    else {
-      // Check for special values that can't be used directly in code
-      // (and we can't replace with the constant due to the user requesting not to)
-      if (Float.isNaN(floatVal)) {
-        return new TextBuffer("0.0F / 0.0F");
-      }
-      else if (floatVal == Float.POSITIVE_INFINITY) {
-        return new TextBuffer("1.0F / 0.0F");
-      }
-      else if (floatVal == Float.NEGATIVE_INFINITY) {
-        return new TextBuffer("-1.0F / 0.0F");
-      }
-    }
-    return new TextBuffer(trimZeros(Float.toString(floatVal))).append('F');
+  private static TextBuffer getPiDouble(BytecodeMappingTracer tracer, BitSet bytecode) {
+    return getDouble(tracer, bytecode, "PI", "java/lang/Math");
   }
 
-  private TextBuffer getPiDouble(BytecodeMappingTracer tracer) {
-    return new FieldExprent("PI", "java/lang/Math", true, null, FieldDescriptor.DOUBLE_DESCRIPTOR, bytecode).toJava(0, tracer);
+  private static TextBuffer getDouble(BytecodeMappingTracer tracer, BitSet bytecode, String name, String className) {
+    return new FieldExprent(name, className, true, null, FieldDescriptor.DOUBLE_DESCRIPTOR, bytecode).toJava(0, tracer);
   }
 
-  private TextBuffer getPiFloat(BytecodeMappingTracer tracer) {
-    // java.lang.Math doesn't have a float version of pi, unfortunately
-    return getPiDouble(tracer).prepend("(float)");
+  private static TextBuffer getFloat(BytecodeMappingTracer tracer, BitSet bytecode, String name, String className) {
+    return new FieldExprent(name, className, true, null, FieldDescriptor.FLOAT_DESCRIPTOR, bytecode).toJava(0, tracer);
   }
 
   // Different JVM implementations/version display Floats and Doubles with different number of trailing zeros.
