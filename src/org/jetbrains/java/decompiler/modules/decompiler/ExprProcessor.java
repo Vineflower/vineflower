@@ -25,7 +25,6 @@ import org.jetbrains.java.decompiler.struct.consts.PrimitiveConstant;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.TextUtil;
-import org.jetbrains.java.decompiler.struct.gen.generics.GenericMain;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
 
 import java.util.*;
@@ -617,16 +616,26 @@ public class ExprProcessor implements CodeConstants {
           break;
         case opc_pop:
           stack.pop();
-          // check for synthetic getClass calls added by the compiler
+          // check for synthetic getClass and requireNonNull calls added by the compiler
           // see https://stackoverflow.com/a/20130641
           if (i > 0) {
             Exprent last = exprlist.get(exprlist.size() - 1);
+            // Our heuristic is checking for an assignment and the type of the assignment is an invocation.
+            // This roughly corresponds to a pattern of DUP [nullcheck] POP.
             if (last.type == Exprent.EXPRENT_ASSIGNMENT && ((AssignmentExprent)last).getRight().type == Exprent.EXPRENT_INVOCATION) {
-              InvocationExprent invocation = (InvocationExprent)((AssignmentExprent)last).getRight();
-              if (i + 1 < seq.length() && !invocation.isStatic() && invocation.getName().equals("getClass") && invocation.getStringDescriptor().equals("()Ljava/lang/Class;")) {
-                int nextOpc = seq.getInstr(i + 1).opcode;
-                if (nextOpc >= opc_aconst_null && nextOpc <= opc_ldc2_w) {
-                  invocation.setSyntheticGetClass();
+              InvocationExprent invocation = (InvocationExprent) ((AssignmentExprent) last).getRight();
+
+              // Check to make sure there's still more opcodes after this one
+              if (i + 1 < seq.length()) {
+                // Match either this.getClass() or Objects.requireNonNull([value]);
+                if ((!invocation.isStatic() && invocation.getName().equals("getClass") && invocation.getStringDescriptor().equals("()Ljava/lang/Class;")) // J8
+                  || (invocation.isStatic() && invocation.getClassname().equals("java/util/Objects") && invocation.getName().equals("requireNonNull") && invocation.getStringDescriptor().equals("(Ljava/lang/Object;)Ljava/lang/Object;"))) { // J9+
+
+                  // Ensure that these null checks are constant loads, LDC opcodes, null loads, or bi/sipushes.
+                  int nextOpc = seq.getInstr(i + 1).opcode;
+                  if (nextOpc >= opc_aconst_null && nextOpc <= opc_ldc2_w) {
+                    invocation.setSyntheticNullCheck();
+                  }
                 }
               }
             }

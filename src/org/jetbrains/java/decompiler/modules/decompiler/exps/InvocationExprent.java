@@ -66,7 +66,7 @@ public class InvocationExprent extends Exprent {
   private boolean isInvocationInstance = false;
   private boolean forceBoxing = false;
   private boolean forceUnboxing = false;
-  private boolean isSyntheticGetClass = false;
+  private boolean isSyntheticNullCheck = false;
 
   public InvocationExprent() {
     super(EXPRENT_INVOCATION);
@@ -167,7 +167,7 @@ public class InvocationExprent extends Exprent {
 
     addBytecodeOffsets(expr.bytecode);
     bootstrapArguments = expr.getBootstrapArguments();
-    isSyntheticGetClass = expr.isSyntheticGetClass();
+    isSyntheticNullCheck = expr.isSyntheticNullCheck();
 
     if (invocationTyp == INVOKE_DYNAMIC && !isStatic && instance != null && !lstParameters.isEmpty()) {
       // method reference, instance and first param are expected to be the same var object
@@ -1402,12 +1402,12 @@ public class InvocationExprent extends Exprent {
     return bootstrapArguments;
   }
 
-  public void setSyntheticGetClass() {
-    isSyntheticGetClass = true;
+  public void setSyntheticNullCheck() {
+    isSyntheticNullCheck = true;
   }
 
-  public boolean isSyntheticGetClass() {
-    return isSyntheticGetClass;
+  public boolean isSyntheticNullCheck() {
+    return isSyntheticNullCheck;
   }
 
   public List<VarType> getGenericArgs() {
