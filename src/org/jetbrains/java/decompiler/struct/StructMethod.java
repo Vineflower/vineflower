@@ -65,8 +65,7 @@ public class StructMethod extends StructMember {
   private final String descriptor;
   private final int bytecodeVersion;
   private final int localVariables;
-  private final int codeLength;
-  private final int codeFullLength;
+  private final byte[] codeAndExceptions;
   private InstructionSequence seq = null;
   private boolean expanded = false;
   private final String classQualifiedName;
@@ -87,35 +86,34 @@ public class StructMethod extends StructMember {
     this.bytecodeVersion = bytecodeVersion;
     if (code != null) {
       this.localVariables = code.localVariables;
-      this.codeLength = code.codeLength;
-      this.codeFullLength = code.codeFullLength;
-    }
-    else {
-      this.localVariables = this.codeLength = this.codeFullLength = -1;
+      this.codeAndExceptions = code.codeAndExceptionData;
+    } else {
+      this.localVariables = -1;
+      this.codeAndExceptions = null;
     }
     this.classQualifiedName = classQualifiedName;
     this.signature = signature;
   }
 
   public void expandData(StructClass classStruct) throws IOException {
-    if (codeLength >= 0 && !expanded) {
-      byte[] code = classStruct.getLoader().loadBytecode(classStruct, this, codeFullLength);
-      seq = parseBytecode(new DataInputFullStream(code), codeLength, classStruct.getPool());
+    if (codeAndExceptions != null && !expanded) {
+      seq = parseBytecode(new DataInputFullStream(codeAndExceptions), classStruct.getPool());
       expanded = true;
     }
   }
 
   public void releaseResources() {
-    if (codeLength >= 0 && expanded) {
+    if (codeAndExceptions != null && expanded) {
       seq = null;
       expanded = false;
     }
   }
 
   @SuppressWarnings("AssignmentToForLoopParameter")
-  private InstructionSequence parseBytecode(DataInputFullStream in, int length, ConstantPool pool) throws IOException {
+  private InstructionSequence parseBytecode(DataInputFullStream in, ConstantPool pool) throws IOException {
     VBStyleCollection<Instruction, Integer> instructions = new VBStyleCollection<>();
 
+    int length = in.readInt();
     for (int i = 0; i < length; ) {
       int offset = i;
 
@@ -373,7 +371,7 @@ public class StructMethod extends StructMember {
   }
 
   public boolean containsCode() {
-    return codeLength >= 0;
+    return codeAndExceptions != null;
   }
 
   public int getLocalVariables() {

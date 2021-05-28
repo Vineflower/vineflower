@@ -5,7 +5,10 @@ import org.jetbrains.java.decompiler.struct.StructMember;
 import org.jetbrains.java.decompiler.struct.consts.ConstantPool;
 import org.jetbrains.java.decompiler.util.DataInputFullStream;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Map;
 
 /*
@@ -25,19 +28,25 @@ import java.util.Map;
 */
 public class StructCodeAttribute extends StructGeneralAttribute {
   public int localVariables = 0;
-  public int codeLength = 0;
-  public int codeFullLength = 0;
+  public byte[] codeAndExceptionData;
   public Map<String, StructGeneralAttribute> codeAttributes;
 
   @Override
   public void initContent(DataInputFullStream data, ConstantPool pool) throws IOException {
     data.discard(2);
     localVariables = data.readUnsignedShort();
-    codeLength = data.readInt();
-    data.discard(codeLength);
+    byte[] codeData = new byte[data.readInt()];
+    data.readFully(codeData);
     int excLength = data.readUnsignedShort();
-    data.discard(excLength * 8);
-    codeFullLength = codeLength + excLength * 8 + 2;
+    byte[] exceptionData = new byte[excLength * 8];
+    data.readFully(exceptionData);
+    ByteArrayOutputStream baos = new ByteArrayOutputStream(codeData.length + 2 + exceptionData.length);
+    DataOutputStream d = new DataOutputStream(baos);
+    d.writeInt(codeData.length);
+    d.write(codeData);
+    d.writeShort(excLength);
+    d.write(exceptionData);
+    codeAndExceptionData = baos.toByteArray();
     codeAttributes = StructMember.readAttributes(data, pool);
   }
 }
