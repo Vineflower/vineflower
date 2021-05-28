@@ -115,8 +115,6 @@ public class ConstExprent extends Exprent {
     UNINLINED_DOUBLES.put(Double.MAX_VALUE, ((tracer, bytecode) -> getDouble(tracer, bytecode, "MAX_VALUE", "java/lang/Double")));
     UNINLINED_DOUBLES.put(Double.MIN_NORMAL, ((tracer, bytecode) -> getDouble(tracer, bytecode, "MIN_NORMAL", "java/lang/Double")));
     UNINLINED_DOUBLES.put(Double.MIN_VALUE, ((tracer, bytecode) -> getDouble(tracer, bytecode, "MIN_VALUE", "java/lang/Double")));
-    UNINLINED_DOUBLES.put(-Double.POSITIVE_INFINITY, ((tracer, bytecode) -> getDouble(tracer, bytecode, "POSITIVE_INFINITY", "java/lang/Double").prepend("-")));
-    UNINLINED_DOUBLES.put(-Double.NEGATIVE_INFINITY, ((tracer, bytecode) -> getDouble(tracer, bytecode, "NEGATIVE_INFINITY", "java/lang/Double").prepend("-")));
     UNINLINED_DOUBLES.put(-Double.MAX_VALUE, ((tracer, bytecode) -> getDouble(tracer, bytecode, "MAX_VALUE", "java/lang/Double").prepend("-")));
     UNINLINED_DOUBLES.put(-Double.MIN_NORMAL, ((tracer, bytecode) -> getDouble(tracer, bytecode, "MIN_NORMAL", "java/lang/Double").prepend("-")));
     UNINLINED_DOUBLES.put(-Double.MIN_VALUE, ((tracer, bytecode) -> getDouble(tracer, bytecode, "MIN_VALUE", "java/lang/Double").prepend("-")));
@@ -126,8 +124,6 @@ public class ConstExprent extends Exprent {
     UNINLINED_FLOATS.put(Float.MAX_VALUE, ((tracer, bytecode) -> getFloat(tracer, bytecode, "MAX_VALUE", "java/lang/Float")));
     UNINLINED_FLOATS.put(Float.MIN_NORMAL, ((tracer, bytecode) -> getFloat(tracer, bytecode, "MIN_NORMAL", "java/lang/Float")));
     UNINLINED_FLOATS.put(Float.MIN_VALUE, ((tracer, bytecode) -> getFloat(tracer, bytecode, "MIN_VALUE", "java/lang/Float")));
-    UNINLINED_FLOATS.put(-Float.POSITIVE_INFINITY, ((tracer, bytecode) -> getFloat(tracer, bytecode, "POSITIVE_INFINITY", "java/lang/Float").prepend("-")));
-    UNINLINED_FLOATS.put(-Float.NEGATIVE_INFINITY, ((tracer, bytecode) -> getFloat(tracer, bytecode, "NEGATIVE_INFINITY", "java/lang/Float").prepend("-")));
     UNINLINED_FLOATS.put(-Float.MAX_VALUE, ((tracer, bytecode) -> getFloat(tracer, bytecode, "MAX_VALUE", "java/lang/Float").prepend("-")));
     UNINLINED_FLOATS.put(-Float.MIN_NORMAL, ((tracer, bytecode) -> getFloat(tracer, bytecode, "MIN_NORMAL", "java/lang/Float").prepend("-")));
     UNINLINED_FLOATS.put(-Float.MIN_VALUE, ((tracer, bytecode) -> getFloat(tracer, bytecode, "MIN_VALUE", "java/lang/Float").prepend("-")));
