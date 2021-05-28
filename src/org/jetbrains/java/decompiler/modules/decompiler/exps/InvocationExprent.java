@@ -194,7 +194,7 @@ public class InvocationExprent extends Exprent {
     StructClass mthCls = DecompilerContext.getStructContext().getClass(classname);
 
     if (desc != null && mthCls != null) {
-      boolean isNew = functype == TYP_INIT && mthCls.getSignature() != null;
+      boolean isNew = functype == TYP_INIT;
       boolean isGenNew = isNew && mthCls.getSignature() != null;
       if (desc.getSignature() != null || isGenNew) {
         Map<VarType, List<VarType>> named = getNamedGenerics();
@@ -342,7 +342,7 @@ public class InvocationExprent extends Exprent {
 
           int j = 0;
           for (int i = start; i < lstParameters.size(); ++i) {
-            if ((mask == null || mask.get(i) != null) && this.desc.getSignature().parameterTypes.size() >= this.lstParameters.size()) {
+            if ((mask == null || mask.get(i) == null)) {
               VarType paramType = desc.getSignature().parameterTypes.get(j++);
               if (paramType.isGeneric()) {
 
