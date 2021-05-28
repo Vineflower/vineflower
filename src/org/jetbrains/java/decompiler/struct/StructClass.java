@@ -233,10 +233,6 @@ public class StructClass extends StructMember {
     return own;
   }
 
-  public LazyLoader getLoader() {
-    return loader;
-  }
-
   public boolean isVersion5() {
     return (majorVersion > CodeConstants.BYTECODE_JAVA_LE_4 ||
             (majorVersion == CodeConstants.BYTECODE_JAVA_LE_4 && minorVersion > 0)); // FIXME: check second condition
