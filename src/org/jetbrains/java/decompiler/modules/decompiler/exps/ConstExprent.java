@@ -86,9 +86,18 @@ public class ConstExprent extends Exprent {
     UNINLINED_DOUBLES.put(180.0 / Math.PI, (tracer, bytecode) -> getPiDouble(tracer, bytecode).prepend("180.0 / "));
     UNINLINED_DOUBLES.put(-180.0 / Math.PI, (tracer, bytecode) -> getPiDouble(tracer, bytecode).prepend("-180.0 / "));
 
+    UNINLINED_FLOATS.put((float)(180.0F / Math.PI), (tracer, bytecode) -> getPiDouble(tracer, bytecode).prepend("180.0F / "));
+    UNINLINED_FLOATS.put((float)(-180.0F / Math.PI), (tracer, bytecode) -> getPiDouble(tracer, bytecode).prepend("-180.0F / "));
+
+    UNINLINED_FLOATS.put((float)(180.0F / (float)Math.PI), (tracer, bytecode) -> getPiDouble(tracer, bytecode).prepend("180.0F / (float)"));
+    UNINLINED_FLOATS.put((float)(-180.0F / (float)Math.PI), (tracer, bytecode) -> getPiDouble(tracer, bytecode).prepend("-180.0F / (float)"));
+
     // Positive and negative pi / 180
     UNINLINED_DOUBLES.put(Math.PI / 180.0, (tracer, bytecode) -> getPiDouble(tracer, bytecode).append(" / 180.0"));
     UNINLINED_DOUBLES.put(-Math.PI / 180.0, (tracer, bytecode) -> getPiDouble(tracer, bytecode).append(" / 180.0").prepend("-"));
+
+    UNINLINED_FLOATS.put((float)(Math.PI / 180.0), (tracer, bytecode) -> getPiDouble(tracer, bytecode).append(" / 180.0").prepend("(float) "));
+    UNINLINED_FLOATS.put((float)(-Math.PI / 180.0), (tracer, bytecode) -> getPiDouble(tracer, bytecode).append(" / 180.0").prepend("-").prepend("(float) "));
 
     UNINLINED_DOUBLES.forEach((key, valueFunction) -> {
       UNINLINED_FLOATS.put(key.floatValue(), (tracer, bytecode) -> {
