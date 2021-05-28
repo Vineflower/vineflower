@@ -181,6 +181,10 @@ public class ClassWrapper {
     return methods.getWithKey(InterpreterUtil.makeUniqueKey(name, descriptor));
   }
 
+  public MethodWrapper getMethodWrapper(int index) {
+    return methods.get(index);
+  }
+
   public StructClass getClassStruct() {
     return classStruct;
   }
