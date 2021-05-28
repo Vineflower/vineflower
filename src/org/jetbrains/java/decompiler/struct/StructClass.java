@@ -3,6 +3,7 @@ package org.jetbrains.java.decompiler.struct;
 
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructGenericSignatureAttribute;
@@ -82,7 +83,12 @@ public class StructClass extends StructMember {
     VBStyleCollection<StructMethod, String>methods = new VBStyleCollection<>(length);
     for (int i = 0; i < length; i++) {
       StructMethod method = StructMethod.create(in, pool, qualifiedName, bytecodeVersion, own);
-      methods.addWithKey(method, InterpreterUtil.makeUniqueKey(method.getName(), method.getDescriptor()));
+      String key = InterpreterUtil.makeUniqueKey(method.getName(), method.getDescriptor());
+      if (methods.containsKey(key)) {
+        String fullName = qualifiedName + "." + method.getName() + method.getDescriptor();
+        DecompilerContext.getLogger().writeMessage("Duplicate method " + fullName, IFernflowerLogger.Severity.WARN);
+      }
+      methods.addWithKey(method, key);
     }
 
     Map<String, StructGeneralAttribute> attributes = readAttributes(in, pool);
