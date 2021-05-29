@@ -37,7 +37,7 @@ public class ImportCollector {
       currentPackagePoint = "";
     }
 
-    Map<String, StructClass> classes = DecompilerContext.getStructContext().getClasses();
+    StructContext ctx = DecompilerContext.getStructContext();
     StructClass currentClass = root.classStruct;
     while (currentClass != null) {
       // all field names for the current class ..
@@ -46,7 +46,7 @@ public class ImportCollector {
       }
 
       // .. and traverse through parent.
-      currentClass = currentClass.superClass != null ? classes.get(currentClass.superClass.getString()) : null;
+      currentClass = currentClass.superClass != null ? ctx.getClass(currentClass.superClass.getString()) : null;
     }
 
     collectConflictingShortNames(root, new HashMap<>());
@@ -191,7 +191,7 @@ public class ImportCollector {
   }
 
   private void getSuperClassInnerClasses(ClassNode node, Map<String, String> names) {
-    Map<String, StructClass> classes = DecompilerContext.getStructContext().getClasses();
+    StructContext ctx = DecompilerContext.getStructContext();
     LinkedList<String> queue = new LinkedList<>();
     StructClass currentClass = node.classStruct;
     while (currentClass != null) {
@@ -212,9 +212,9 @@ public class ImportCollector {
       }
 
       // .. and traverse through parent.
-      currentClass = !queue.isEmpty() ? classes.get(queue.removeFirst()) : null;
+      currentClass = !queue.isEmpty() ? ctx.getClass(queue.removeFirst()) : null;
       while (currentClass == null && !queue.isEmpty()) {
-        currentClass = classes.get(queue.removeFirst());
+        currentClass = ctx.getClass(queue.removeFirst());
       }
     }
   }
