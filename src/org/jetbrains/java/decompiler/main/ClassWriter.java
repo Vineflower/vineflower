@@ -25,6 +25,7 @@ import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.gen.generics.*;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.TextBuffer;
+import org.jetbrains.java.decompiler.util.VBStyleCollection;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -269,7 +270,9 @@ public class ClassWriter {
       startLine += buffer.countLines(start_class_def);
 
       // methods
-      for (StructMethod mt : cl.getMethods()) {
+      VBStyleCollection<StructMethod, String> methods = cl.getMethods();
+      for (int i = 0; i < methods.size(); i++) {
+        StructMethod mt = methods.get(i);
         boolean hide = mt.isSynthetic() && DecompilerContext.getOption(IFernflowerPreferences.REMOVE_SYNTHETIC) ||
                        mt.hasModifier(CodeConstants.ACC_BRIDGE) && DecompilerContext.getOption(IFernflowerPreferences.REMOVE_BRIDGE) ||
                        wrapper.getHiddenMembers().contains(InterpreterUtil.makeUniqueKey(mt.getName(), mt.getDescriptor()));
@@ -282,7 +285,7 @@ public class ClassWriter {
           startLine++;
         }
         BytecodeMappingTracer method_tracer = new BytecodeMappingTracer(startLine);
-        boolean methodSkipped = !methodToJava(node, mt, buffer, indent + 1, method_tracer);
+        boolean methodSkipped = !methodToJava(node, mt, i, buffer, indent + 1, method_tracer);
         if (!methodSkipped) {
           hasContent = true;
           addTracer(cl, mt, method_tracer);
@@ -793,10 +796,11 @@ public class ClassWriter {
     return res.append("/* $FF was: ").append(name).append("*/").toString();
   }
 
-  private boolean methodToJava(ClassNode node, StructMethod mt, TextBuffer buffer, int indent, BytecodeMappingTracer tracer) {
+  private boolean methodToJava(ClassNode node, StructMethod mt, int methodIndex, TextBuffer buffer, int indent, BytecodeMappingTracer tracer) {
     ClassWrapper wrapper = node.getWrapper();
     StructClass cl = wrapper.getClassStruct();
-    MethodWrapper methodWrapper = wrapper.getMethodWrapper(mt.getName(), mt.getDescriptor());
+    // Get method by index, this keeps duplicate methods (with the same key) separate
+    MethodWrapper methodWrapper = wrapper.getMethodWrapper(methodIndex);
 
     boolean hideMethod = false;
     int start_index_method = buffer.length();
@@ -1010,7 +1014,7 @@ public class ClassWriter {
         buffer.append('{').appendLineSeparator();
         tracer.incrementCurrentSourceLine();
 
-        RootStatement root = wrapper.getMethodWrapper(mt.getName(), mt.getDescriptor()).root;
+        RootStatement root = methodWrapper.root;
 
         if (root != null && !methodWrapper.decompiledWithErrors) { // check for existence
           try {

@@ -105,50 +105,6 @@ public class ConstantPool implements NewClassNameBuilder {
     interceptor = DecompilerContext.getPoolInterceptor();
   }
 
-  public static void skipPool(DataInputFullStream in) throws IOException {
-    int size = in.readUnsignedShort();
-
-    for (int i = 1; i < size; i++) {
-      byte tag = (byte)in.readUnsignedByte();
-      switch (tag) {
-        case CodeConstants.CONSTANT_Utf8:
-          in.readUTF();
-          break;
-
-        case CodeConstants.CONSTANT_Integer:
-        case CodeConstants.CONSTANT_Float:
-        case CodeConstants.CONSTANT_Fieldref:
-        case CodeConstants.CONSTANT_Methodref:
-        case CodeConstants.CONSTANT_InterfaceMethodref:
-        case CodeConstants.CONSTANT_NameAndType:
-        case CodeConstants.CONSTANT_InvokeDynamic:
-          in.discard(4);
-          break;
-
-        case CodeConstants.CONSTANT_Long:
-        case CodeConstants.CONSTANT_Double:
-          in.discard(8);
-          i++;
-          break;
-
-        case CodeConstants.CONSTANT_Class:
-        case CodeConstants.CONSTANT_String:
-        case CodeConstants.CONSTANT_MethodType:
-        case CodeConstants.CONSTANT_Module:
-        case CodeConstants.CONSTANT_Package:
-          in.discard(2);
-          break;
-
-        case CodeConstants.CONSTANT_MethodHandle:
-          in.discard(3);
-          break;
-
-        default:
-            throw new RuntimeException("Invalid Constant Pool entry #" + i + " Type: " + tag);
-      }
-    }
-  }
-
   public String[] getClassElement(int elementType, String className, int nameIndex, int descriptorIndex) {
     String elementName = ((PrimitiveConstant)getConstant(nameIndex)).getString();
     String descriptor = ((PrimitiveConstant)getConstant(descriptorIndex)).getString();
