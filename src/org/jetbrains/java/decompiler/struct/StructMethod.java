@@ -39,7 +39,7 @@ public class StructMethod extends StructMember {
 
     String[] values = pool.getClassElement(ConstantPool.METHOD, clQualifiedName, nameIndex, descriptorIndex);
 
-    Map<String, StructGeneralAttribute> attributes = readAttributes(in, pool);
+    Map<String, StructGeneralAttribute> attributes = readAttributes(in, pool, own);
     StructCodeAttribute code = (StructCodeAttribute)attributes.remove(StructGeneralAttribute.ATTRIBUTE_CODE.name);
     if (code != null) {
       attributes.putAll(code.codeAttributes);

@@ -2,6 +2,7 @@
 package org.jetbrains.java.decompiler.struct;
 
 import org.jetbrains.java.decompiler.code.CodeConstants;
+import org.jetbrains.java.decompiler.struct.attr.StructCodeAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTypeTableAttribute;
@@ -45,6 +46,10 @@ public abstract class StructMember {
   }
 
   public static Map<String, StructGeneralAttribute> readAttributes(DataInputFullStream in, ConstantPool pool) throws IOException {
+    return readAttributes(in, pool, true);
+  }
+
+  public static Map<String, StructGeneralAttribute> readAttributes(DataInputFullStream in, ConstantPool pool, boolean readCode) throws IOException {
     int length = in.readUnsignedShort();
     Map<String, StructGeneralAttribute> attributes = new HashMap<>(length);
 
@@ -54,7 +59,7 @@ public abstract class StructMember {
 
       StructGeneralAttribute attribute = StructGeneralAttribute.createAttribute(name);
       int attLength = in.readInt();
-      if (attribute == null) {
+      if (attribute == null || (!readCode && attribute instanceof StructCodeAttribute)) {
         in.discard(attLength);
       }
       else {
