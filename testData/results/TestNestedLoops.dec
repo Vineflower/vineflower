@@ -1,8 +1,97 @@
 package pkg;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class TestNestedLoops {
    public void test() {
-      // $FF: Couldn't be decompiled
+      List<String> list = new ArrayList<>();// 8
+      int i = 0;// 9
+
+      while(true) {
+         while(i >= 10) {// 11
+         }
+
+         for(String s : list) {// 12
+            for(int j = 0; j < 20; ++j) {// 13
+               do {
+                  s.substring(j);// 15
+               } while(s.length() < j);// 16
+            }
+         }
+
+         ++i;// 19
+      }
    }
 }
 
+class 'pkg/TestNestedLoops' {
+   method 'test ()V' {
+      7      7
+      8      8
+      9      8
+      a      11
+      b      11
+      c      11
+      d      11
+      10      14
+      11      14
+      12      14
+      13      14
+      14      14
+      15      14
+      16      14
+      20      14
+      21      14
+      22      14
+      23      14
+      24      14
+      25      14
+      26      14
+      27      14
+      28      14
+      29      14
+      2a      14
+      2b      15
+      2c      15
+      2d      15
+      2e      15
+      2f      15
+      30      15
+      31      15
+      32      15
+      35      17
+      36      17
+      37      17
+      38      17
+      39      17
+      3a      17
+      3b      17
+      3d      18
+      3e      18
+      3f      18
+      40      18
+      41      18
+      42      18
+      43      18
+      44      18
+      47      15
+      48      15
+      49      15
+      50      22
+      51      22
+      52      22
+   }
+}
+
+Lines mapping:
+8 <-> 8
+9 <-> 9
+11 <-> 12
+12 <-> 15
+13 <-> 16
+15 <-> 18
+16 <-> 19
+19 <-> 23
+Not mapped:
+18
