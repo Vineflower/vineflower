@@ -6,6 +6,7 @@ package org.jetbrains.java.decompiler.modules.decompiler.exps;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
@@ -136,6 +137,14 @@ public abstract class Exprent implements IMatchable {
 
   public TextBuffer toJava(int indent, BytecodeMappingTracer tracer) {
     throw new RuntimeException("not implemented");
+  }
+
+  /**
+   * Run when an ExitExprent is called with a standard return that is not of type void.
+   * @param descriptor The descriptor of the method
+   */
+  protected void onReturn(MethodDescriptor descriptor) {
+
   }
 
   public void replaceExprent(Exprent oldExpr, Exprent newExpr) { }

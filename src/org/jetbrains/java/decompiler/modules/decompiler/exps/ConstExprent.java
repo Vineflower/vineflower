@@ -3,6 +3,7 @@ package org.jetbrains.java.decompiler.modules.decompiler.exps;
 
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
 import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
@@ -411,6 +412,13 @@ public class ConstExprent extends Exprent {
     }
 
     return buffer.toString();
+  }
+
+  @Override
+  protected void onReturn(MethodDescriptor descriptor) {
+    // Make sure this constant is in line with the expected return type of the method we're returning from.
+    // This fixes a case where the aggressive char selector can result in returning unicode chars when integers were expected.
+    this.adjustConstType(descriptor.ret);
   }
 
   @Override

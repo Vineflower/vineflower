@@ -190,5 +190,5 @@ public class SingleClassesTest extends SingleClassesTestBase {
   // TODO: Assignment of o = null is removed, synchronize on null is invalid
   @Test public void testSynchronizeNull() { doTest("pkg/TestSynchronizeNull"); }
   @Test public void testWhileIterator() { doTest("pkg/TestWhileIterator"); }
-
+  @Test public void testReturnTernaryChar() { doTest("pkg/TestReturnTernaryChar"); }
 }
