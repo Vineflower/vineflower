@@ -10,24 +10,29 @@ public interface TestInterfaceSubclass {
    }
 
    public static class Multiple extends TestInterfaceSubclass.AbstractClass implements TestInterfaceSubclass {
+      @Override
       public void doThing() {
          System.out.println("Hello");// 29
       }// 30
 
+      @Override
       public int doOtherThing() {
          return 1;// 34
       }
 
+      @Override
       public double doDoubleThing() {
          return 2.452;// 39
       }
    }
 
    public static class Subclass implements TestInterfaceSubclass {
+      @Override
       public void doThing() {
          System.out.println("Hi");// 12
       }// 13
 
+      @Override
       public int doOtherThing() {
          return 0;// 17
       }
@@ -36,54 +41,54 @@ public interface TestInterfaceSubclass {
 
 class 'pkg/TestInterfaceSubclass$Multiple' {
    method 'doThing ()V' {
-      0      13
-      1      13
-      2      13
-      3      13
-      4      13
-      5      13
-      6      13
-      7      13
-      8      14
+      0      14
+      1      14
+      2      14
+      3      14
+      4      14
+      5      14
+      6      14
+      7      14
+      8      15
    }
 
    method 'doOtherThing ()I' {
-      0      17
-      1      17
+      0      19
+      1      19
    }
 
    method 'doDoubleThing ()D' {
-      0      21
-      1      21
-      2      21
-      3      21
+      0      24
+      1      24
+      2      24
+      3      24
    }
 }
 
 class 'pkg/TestInterfaceSubclass$Subclass' {
    method 'doThing ()V' {
-      0      27
-      1      27
-      2      27
-      3      27
-      4      27
-      5      27
-      6      27
-      7      27
-      8      28
+      0      31
+      1      31
+      2      31
+      3      31
+      4      31
+      5      31
+      6      31
+      7      31
+      8      32
    }
 
    method 'doOtherThing ()I' {
-      0      31
-      1      31
+      0      36
+      1      36
    }
 }
 
 Lines mapping:
-12 <-> 28
-13 <-> 29
-17 <-> 32
-29 <-> 14
-30 <-> 15
-34 <-> 18
-39 <-> 22
+12 <-> 32
+13 <-> 33
+17 <-> 37
+29 <-> 15
+30 <-> 16
+34 <-> 20
+39 <-> 25

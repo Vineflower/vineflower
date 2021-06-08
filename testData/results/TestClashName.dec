@@ -26,6 +26,7 @@ public class TestClashName extends ext.TestClashNameParent implements TestClashN
       return var1 + var2 + var3;// 78
    }
 
+   @Override
    public void f() {
    }// 82
 }
@@ -68,7 +69,7 @@ class 'pkg/TestClashName' {
    }
 
    method 'f ()V' {
-      0      29
+      0      30
    }
 }
 
@@ -79,4 +80,4 @@ Lines mapping:
 76 <-> 24
 77 <-> 25
 78 <-> 26
-82 <-> 30
+82 <-> 31

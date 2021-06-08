@@ -6,6 +6,7 @@ import java.util.Comparator;
 public class TestAnonymousSignature {
    public static void main(String[] var0) {
       System.out.println(new ArrayList<String>() {// 25
+         @Override
          public int size() {
             return super.size();// 28
          }
@@ -20,17 +21,17 @@ public class TestAnonymousSignature {
 
 class 'pkg/TestAnonymousSignature$1' {
    method 'size ()I' {
-      1      9
-      2      9
-      3      9
-      4      9
+      1      10
+      2      10
+      3      10
+      4      10
    }
 }
 
 class 'pkg/TestAnonymousSignature$2' {
    method 'compare (Ljava/lang/String;Ljava/lang/String;)I' {
-      0      14
-      1      14
+      0      15
+      1      15
    }
 }
 
@@ -42,19 +43,19 @@ class 'pkg/TestAnonymousSignature' {
       a      7
       b      7
       c      7
-      d      12
-      e      12
-      f      12
-      17      12
-      18      12
-      19      12
-      1a      17
+      d      13
+      e      13
+      f      13
+      17      13
+      18      13
+      19      13
+      1a      18
    }
 }
 
 Lines mapping:
 25 <-> 8
-28 <-> 10
-33 <-> 13
-36 <-> 15
-39 <-> 18
+28 <-> 11
+33 <-> 14
+36 <-> 16
+39 <-> 19
