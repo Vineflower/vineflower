@@ -853,7 +853,7 @@ public class ClassWriter {
       if (!CodeConstants.INIT_NAME.equals(mt.getName()) && !mt.hasModifier(CodeConstants.ACC_STATIC)) {
         // Search superclasses for methods that match the name and descriptor of this one.
         // Make sure not to search the current class otherwise it will return the current method itself!
-        boolean isOverride = searchForMethod(cl, mt.getName(), md, false);
+        boolean isOverride = methodHasMatch(cl, mt.getName(), md, false);
         if (isOverride) {
           buffer.appendIndent(indent);
           buffer.append("@Override");
@@ -1208,7 +1208,21 @@ public class ClassWriter {
   }
 
   // Returns true if a method with the given name and descriptor matches in the inheritance tree of the superclass.
-  private static boolean searchForMethod(StructClass cl, String name, MethodDescriptor md, boolean search) {
+
+  /**
+   * <p>Finds whether a method with the given name and descriptor has a match anywhere in the inheritance tree of a
+   * class.</p>
+   *
+   * <p>This runs recursively, searching down each branch of the inheritance tree. The first use of this method
+   * should have {@code searchThisClass} false. The recursive calls will have it set to true.</p>
+   *
+   * @param cl the class to search
+   * @param name the name of the method
+   * @param md the descriptor of the method
+   * @param searchThisClass whether this class ({@code cl}) should be searched, or just its superclasses/interfaces.
+   * @return {@code true} if a match was found, {@code false} otherwise.
+   */
+  private static boolean methodHasMatch(StructClass cl, String name, MethodDescriptor md, boolean searchThisClass) {
     // Didn't find the class or the library containing the class wasn't loaded, can't search
     if (cl == null) {
       return false;
@@ -1216,12 +1230,11 @@ public class ClassWriter {
 
     VBStyleCollection<StructMethod, String> methods = cl.getMethods();
 
-    if (search) {
+    if (searchThisClass) {
       // If we're allowed to search, iterate through the methods and try to find matches
       for (StructMethod method : methods) {
         // Match against name, descriptor, and whether or not the found method is static.
-        // TODO: We are not handling generics or superclass parameters and return types
-        if (md.equals(MethodDescriptor.parseDescriptor(method.getDescriptor())) && name.equals(method.getName()) && !method.hasModifier(CodeConstants.ACC_STATIC)) {
+        if (name.equals(method.getName()) && !method.hasModifier(CodeConstants.ACC_STATIC) && methodDescriptorsMatch(md, MethodDescriptor.parseDescriptor(method.getDescriptor()))) {
           return true;
         }
       }
@@ -1231,7 +1244,7 @@ public class ClassWriter {
     if (cl.superClass != null) {
       StructClass superClass = DecompilerContext.getStructContext().getClass((String)cl.superClass.value);
 
-      boolean foundInSuperClass = searchForMethod(superClass, name, md, true);
+      boolean foundInSuperClass = methodHasMatch(superClass, name, md, true);
 
       if (foundInSuperClass) {
         return true;
@@ -1242,7 +1255,7 @@ public class ClassWriter {
     for (String ifaceName : cl.getInterfaceNames()) {
       StructClass iface = DecompilerContext.getStructContext().getClass(ifaceName);
 
-      boolean foundInIface = searchForMethod(iface, name, md, true);
+      boolean foundInIface = methodHasMatch(iface, name, md, true);
 
       if (foundInIface) {
         return true;
@@ -1251,6 +1264,44 @@ public class ClassWriter {
 
     // We didn't manage to find anything, return
     return false;
+  }
+
+  //TODO: Work out why this works with generics, and if there are cases where it breaks
+  /**
+   * <p>Determines whether a method's signature is a subsignature of another.</p>
+   *
+   * <p>The signature of a method m1 is a subsignature of the signature of a method m2 if either (<a href="https://docs.oracle.com/javase/specs/jls/se7/html/jls-8.html#jls-8.4.2">source</a>):</p>
+   * <ul>
+   * <li>m2 has the same signature as m1, or</li>
+   * <li>the signature of m1 is the same as the erasure of the signature of m2.</li>
+   * </ul>
+   *
+   * @param md the descriptor of the method to check against the super-method
+   * @param superMd the descriptor of the super-method
+   * @return whether or not the first method's signature is a subsignature of the second's
+   */
+  private static boolean methodDescriptorsMatch(MethodDescriptor md, MethodDescriptor superMd) {
+    if (md.equals(superMd)) {
+      return true;
+    }
+    if (!Arrays.equals(md.params, superMd.params)) {
+      return false;
+    }
+    /*
+     * https://docs.oracle.com/javase/specs/jls/se16/html/jls-8.html#jls-8.4.5
+     *  A method declaration d1 with return type R1 is return-type-substitutable for another method d2 with return type R2 iff any of the following is true:
+     *   - If R1 is void then R2 is void.
+     *   - If R1 is a primitive type then R2 is identical to R1.
+     *   - If R1 is a reference type then one of the following is true:
+     *     - R1, adapted to the type parameters of d2 (§8.4.4), is a subtype of R2.
+     *     - R1 can be converted to a subtype of R2 by unchecked conversion (§5.1.9).
+     *     - d1 does not have the same signature as d2 (§8.4.2), and R1 = |R2|.
+     */
+    if (superMd.ret.type == CodeConstants.TYPE_OBJECT) {
+      return DecompilerContext.getStructContext().instanceOf(md.ret.value, superMd.ret.value);
+    } else {
+      return superMd.ret.type == md.ret.type;
+    }
   }
 
   private static void appendParameterAnnotations(TextBuffer buffer, StructMethod mt, int param) {

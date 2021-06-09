@@ -4,6 +4,7 @@ public abstract class TestGenericNull<T> {
    public abstract T get();
 
    public class Int extends TestGenericNull<Integer> {
+      @Override
       public Integer get() {
          return null;// 10
       }
@@ -12,10 +13,10 @@ public abstract class TestGenericNull<T> {
 
 class 'pkg/TestGenericNull$Int' {
    method 'get ()Ljava/lang/Integer;' {
-      0      7
-      1      7
+      0      8
+      1      8
    }
 }
 
 Lines mapping:
-10 <-> 8
+10 <-> 9

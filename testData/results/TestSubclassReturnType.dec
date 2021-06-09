@@ -1,0 +1,35 @@
+package pkg;
+
+public interface TestSubclassReturnType {
+   TestSubclassReturnType get();
+
+   public static class A implements TestSubclassReturnType {
+      @Override
+      public TestSubclassReturnType.A get() {
+         return new TestSubclassReturnType.A();// 8
+      }
+   }
+
+   public static class B extends TestSubclassReturnType.A {
+      @Override
+      public TestSubclassReturnType.B get() {
+         return new TestSubclassReturnType.B();// 15
+      }
+   }
+}
+
+class 'pkg/TestSubclassReturnType$A' {
+   method 'get ()Lpkg/TestSubclassReturnType$A;' {
+      7      8
+   }
+}
+
+class 'pkg/TestSubclassReturnType$B' {
+   method 'get ()Lpkg/TestSubclassReturnType$B;' {
+      7      15
+   }
+}
+
+Lines mapping:
+8 <-> 9
+15 <-> 16
