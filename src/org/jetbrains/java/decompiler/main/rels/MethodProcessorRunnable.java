@@ -218,6 +218,9 @@ public class MethodProcessorRunnable implements Runnable {
 
     varProc.setVarDefinitions(root);
 
+    // Make sure to update assignments after setting the var definitions!
+    SecondaryFunctionsHelper.updateAssignments(root);
+
     // must be the last invocation, because it makes the statement structure inconsistent
     // FIXME: new edge type needed
     LabelHelper.replaceContinueWithBreak(root);
