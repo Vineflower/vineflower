@@ -581,7 +581,7 @@ public class SimplifyExprentsHelper {
             NewExprent newExpr = (NewExprent)expr;
             if (newExpr.getConstructor() != null && !newExpr.getConstructor().getLstParameters().isEmpty() &&
               (newExpr.getConstructor().getLstParameters().get(0).equals(target) ||
-                newExpr.getConstructor().getLstParameters().get(0).getExprType().equals(target.getExprType()))) {
+                isUnambiguouslySameParam(invocation.isStatic(), target, newExpr.getConstructor().getLstParameters()))) {
 
               String classname = newExpr.getNewType().value;
               ClassNode node = DecompilerContext.getClassProcessor().getMapRootClasses().get(classname);
@@ -595,6 +595,27 @@ public class SimplifyExprentsHelper {
     }
 
     return false;
+  }
+
+  private static boolean isUnambiguouslySameParam(boolean isStatic, Exprent target, List<Exprent> parameters) {
+    boolean firstParamOfSameType = parameters.get(0).getExprType().equals(target.getExprType());
+    if (!isStatic) { // X.getClass()/J8, this is less likely to overlap with legitimate use
+      return firstParamOfSameType;
+    }
+    // Calling Objects.requireNonNull and discarding the result is a common pattern in normal code, so we have to be a bit more
+    // cautious about stripping calls when a constructor takes parameters of the instance type
+    // ex. given a class X, `Objects.requireNonNull(someInstanceOfX); new X(someInstanceOfX)` should not have the rNN stripped.
+    if (!firstParamOfSameType) {
+      return false;
+    }
+
+    for (int i = 1; i < parameters.size(); i++) {
+      if (parameters.get(i).getExprType().equals(target.getExprType())) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   // propagate (var = new X) forward to the <init> invocation
