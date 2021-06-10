@@ -43,9 +43,12 @@ public class LazyLoader {
     }
   }
 
+  public byte[] getClassBytes(String externalPath, String internalPath) throws IOException {
+    return provider.getBytecode(externalPath, internalPath);
+  }
+
   public DataInputFullStream getClassStream(String externalPath, String internalPath) throws IOException {
-    byte[] bytes = provider.getBytecode(externalPath, internalPath);
-    return new DataInputFullStream(bytes);
+    return new DataInputFullStream(getClassBytes(externalPath, internalPath));
   }
 
   public DataInputFullStream getClassStream(String qualifiedClassName) throws IOException {

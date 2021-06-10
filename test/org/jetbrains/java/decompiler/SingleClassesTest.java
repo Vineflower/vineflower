@@ -5,8 +5,6 @@ import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.junit.Test;
 
 public class SingleClassesTest extends SingleClassesTestBase {
-  protected DecompilerTestFixture fixture;
-  
   @Override
   protected String[] getDecompilerOptions() {
     return new String[] {
@@ -14,13 +12,11 @@ public class SingleClassesTest extends SingleClassesTestBase {
       IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
       IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
       IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
-      IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "1",
+      IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "0",
       IFernflowerPreferences.INLINE_SIMPLE_LAMBDAS, "0"
     };
   }
 
-  // TODO: reevaluate behavior, especially with casting
-  @Test public void testGenerics() { doTest("pkg/TestGenerics"); }
   @Test public void testEnhancedForLoops() { doTest("pkg/TestEnhancedForLoops"); }
   @Test public void testPrimitiveNarrowing() { doTest("pkg/TestPrimitiveNarrowing"); }
   @Test public void testClassFields() { doTest("pkg/TestClassFields"); }
@@ -28,10 +24,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
   @Test public void testClassLambda() { doTest("pkg/TestClassLambda"); }
   @Test public void testClassLoop() { doTest("pkg/TestClassLoop"); }
   @Test public void testClassSwitch() { doTest("pkg/TestClassSwitch"); }
-  @Test public void testClassTypes() { doTest("pkg/TestClassTypes"); }
   @Test public void testClassVar() { doTest("pkg/TestClassVar"); }
   @Test public void testClassNestedInitializer() { doTest("pkg/TestClassNestedInitializer"); }
-  @Test public void testClassCast() { doTest("pkg/TestClassCast"); }
   @Test public void testDeprecations() { doTest("pkg/TestDeprecations"); }
   @Test public void testExtendsList() { doTest("pkg/TestExtendsList"); }
   @Test public void testMethodParameters() { doTest("pkg/TestMethodParameters"); }
@@ -56,9 +50,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
   @Test public void testInnerLocal() { doTest("pkg/TestInnerLocal"); }
   @Test public void testInnerSignature() { doTest("pkg/TestInnerSignature"); }
   @Test public void testAnonymousSignature() { doTest("pkg/TestAnonymousSignature"); }
-  @Test public void testLocalsSignature() { doTest("pkg/TestLocalsSignature"); }
   @Test public void testParameterizedTypes() { doTest("pkg/TestParameterizedTypes"); }
-  @Test public void testShadowing() { doTest("pkg/TestShadowing", "pkg/Shadow", "ext/Shadow", "pkg/TestShadowingSuperClass"); }
   @Test public void testStringConcat() { doTest("pkg/TestStringConcat"); }
   @Test public void testJava9StringConcat() { doTest("java9/TestJava9StringConcat"); }
   @Test public void testJava9ModuleInfo() { doTest("java9/module-info"); }
@@ -74,20 +66,17 @@ public class SingleClassesTest extends SingleClassesTestBase {
   @Test public void testSyntheticAccess() { doTest("pkg/TestSyntheticAccess"); }
   @Test public void testIllegalVarName() { doTest("pkg/TestIllegalVarName"); }
   @Test public void testIffSimplification() { doTest("pkg/TestIffSimplification"); }
-  @Test public void testKotlinConstructor() { doTest("pkg/TestKotlinConstructorKt"); }
   @Test public void testAsserts() { doTest("pkg/TestAsserts"); }
   @Test public void testLocalsNames() { doTest("pkg/TestLocalsNames"); }
   @Test public void testAnonymousParamNames() { doTest("pkg/TestAnonymousParamNames"); }
   @Test public void testAnonymousParams() { doTest("pkg/TestAnonymousParams"); }
   @Test public void testAccessReplace() { doTest("pkg/TestAccessReplace"); }
   @Test public void testStringLiterals() { doTest("pkg/TestStringLiterals"); }
-  @Test public void testPrimitives() { doTest("pkg/TestPrimitives"); }
   @Test public void testClashName() { doTest("pkg/TestClashName", "pkg/SharedName1",
           "pkg/SharedName2", "pkg/SharedName3", "pkg/SharedName4", "pkg/NonSharedName",
           "pkg/TestClashNameParent", "ext/TestClashNameParent","pkg/TestClashNameIface", "ext/TestClashNameIface"); }
   @Test public void testSwitchOnEnum() { doTest("pkg/TestSwitchOnEnum");}
   @Test public void testSwitchOnStrings() { doTest("pkg/TestSwitchOnStrings");}
-  @Test public void testVarArgCalls() { doTest("pkg/TestVarArgCalls"); }
   @Test public void testLambdaParams() { doTest("pkg/TestLambdaParams"); }
   @Test public void testInterfaceMethods() { doTest("pkg/TestInterfaceMethods"); }
   @Test public void testConstType() { doTest("pkg/TestConstType"); }
@@ -107,7 +96,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
   @Test public void testFieldSingleAccess() { doTest("pkg/TestFieldSingleAccess"); }
   @Test public void testPackageInfo() { doTest("pkg/package-info"); }
 
-  @Test public void testUnionType() { doTest("pkg/TestUnionType"); }
   @Test public void testInnerClassConstructor2() { doTest("pkg/TestInner2"); }
   @Test public void testInUse() { doTest("pkg/TestInUse"); }
 
@@ -116,17 +104,14 @@ public class SingleClassesTest extends SingleClassesTestBase {
   // TODO: This class fails to decompile
 //  @Test public void testPrivateClasses() { doTest("pkg/PrivateClasses"); }
   @Test public void testSuspendLambda() { doTest("pkg/TestSuspendLambdaKt"); }
-  @Test public void testNamedSuspendFun2Kt() { doTest("pkg/TestNamedSuspendFun2Kt"); }
   @Test public void testGenericArgs() { doTest("pkg/TestGenericArgs"); }
   @Test public void testRecordEmpty() { doTest("records/TestRecordEmpty"); }
   @Test public void testRecordSimple() { doTest("records/TestRecordSimple"); }
   @Test public void testRecordVararg() { doTest("records/TestRecordVararg"); }
   @Test public void testRecordGenericVararg() { doTest("records/TestRecordGenericVararg"); }
   @Test public void testRecordAnno() { doTest("records/TestRecordAnno"); }
-  @Test public void testTryWithResources() { doTest("pkg/TestTryWithResources"); }
   // TODO: The (double) in front of the (int) should be removed
   @Test public void testMultiCast() { doTest("pkg/TestMultiCast"); }
-  @Test public void testNestedLoops() { doTest("pkg/TestNestedLoops"); }
   // TODO: The ternary here needs to be removed
   @Test public void testNestedLambdas() { doTest("pkg/TestNestedLambdas"); }
   @Test public void testSwitchAssign() { doTest("pkg/TestSwitchAssign"); }
@@ -158,8 +143,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
   @Test public void testAssignmentInDoWhile() { doTest("pkg/TestAssignmentInDoWhile"); }
   // TODO: Assignment of a = a is removed
   @Test public void testBooleanAssignment() { doTest("pkg/TestBooleanAssignment"); }
-  // TODO: intValue() call where there shouldn't be
-  @Test public void testBoxingConstructor() { doTest("pkg/TestBoxingConstructor"); }
   @Test public void testCastPrimitiveToObject() { doTest("pkg/TestCastPrimitiveToObject"); }
   @Test public void testDoWhileTrue() { doTest("pkg/TestDoWhileTrue"); }
   @Test public void testExtraClass() { doTest("pkg/TestExtraClass"); }
