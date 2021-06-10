@@ -153,7 +153,7 @@ public class StructContext {
       public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {
         String name = path.toString().substring(1);
         if (name.endsWith(".class")) {
-          addClass(unit, name.substring(0, name.length() - 6), file.getAbsolutePath(), path.toString(), isOwn, path);
+          addClass(unit, name.substring(0, name.length() - 6), file.getAbsolutePath(), path.toString().substring(1), isOwn, path);
         } else {
           if ("META-INF/MANIFEST.MF".equals(name)) {
             unit.setManifest(new Manifest(Files.newInputStream(path)));
@@ -165,7 +165,7 @@ public class StructContext {
 
       @Override
       public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-        unit.addDirEntry(dir.toString());
+        unit.addDirEntry(dir.toString().substring(1));
         return FileVisitResult.CONTINUE;
       }
     });
