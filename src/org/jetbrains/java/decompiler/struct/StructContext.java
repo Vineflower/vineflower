@@ -164,8 +164,9 @@ public class StructContext {
       }
 
       @Override
-      public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-        unit.addDirEntry(dir.toString().substring(1));
+      public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+        String dirStr = dir.toString();
+        if (dirStr.length() > 1) unit.addDirEntry(dirStr.substring(1));
         return FileVisitResult.CONTINUE;
       }
     });
