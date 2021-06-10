@@ -32,5 +32,11 @@ public class SingleClassesEntireClasspathTest extends SingleClassesTestBase {
   @Test public void testNamedSuspendFun2Kt() { doTest("pkg/TestNamedSuspendFun2Kt"); }
   @Test public void testTryWithResources() { doTest("pkg/TestTryWithResources"); }
   @Test public void testNestedLoops() { doTest("pkg/TestNestedLoops"); }
-
+  @Test public void testAnonymousClass() { doTest("pkg/TestAnonymousClass"); }
+  // TODO: Object[] becomes <unknown>
+  @Test public void testObjectArrays() { doTest("pkg/TestObjectArrays"); }
+  @Test public void testAnonymousParams() { doTest("pkg/TestAnonymousParams"); }
+  @Test public void testThrowException() { doTest("pkg/TestThrowException"); }
+  @Test public void testSimpleBytecodeMapping() { doTest("pkg/TestClassSimpleBytecodeMapping"); }
+  @Test public void testAnonymousSignature() { doTest("pkg/TestAnonymousSignature"); }
 }

@@ -41,15 +41,11 @@ public class SingleClassesTest extends SingleClassesTestBase {
   @Test public void testTryCatchFinally() { doTest("pkg/TestTryCatchFinally"); }
   @Test public void testAmbiguousCall() { doTest("pkg/TestAmbiguousCall"); }
   @Test public void testAmbiguousCallWithDebugInfo() { doTest("pkg/TestAmbiguousCallWithDebugInfo"); }
-  @Test public void testSimpleBytecodeMapping() { doTest("pkg/TestClassSimpleBytecodeMapping"); }
   @Test public void testSynchronizedMapping() { doTest("pkg/TestSynchronizedMapping"); }
   @Test public void testAbstractMethods() { doTest("pkg/TestAbstractMethods"); }
   @Test public void testLocalClass() { doTest("pkg/TestLocalClass"); }
-  @Test public void testAnonymousClass() { doTest("pkg/TestAnonymousClass"); }
-  @Test public void testThrowException() { doTest("pkg/TestThrowException"); }
   @Test public void testInnerLocal() { doTest("pkg/TestInnerLocal"); }
   @Test public void testInnerSignature() { doTest("pkg/TestInnerSignature"); }
-  @Test public void testAnonymousSignature() { doTest("pkg/TestAnonymousSignature"); }
   @Test public void testParameterizedTypes() { doTest("pkg/TestParameterizedTypes"); }
   @Test public void testStringConcat() { doTest("pkg/TestStringConcat"); }
   @Test public void testJava9StringConcat() { doTest("java9/TestJava9StringConcat"); }
@@ -69,7 +65,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
   @Test public void testAsserts() { doTest("pkg/TestAsserts"); }
   @Test public void testLocalsNames() { doTest("pkg/TestLocalsNames"); }
   @Test public void testAnonymousParamNames() { doTest("pkg/TestAnonymousParamNames"); }
-  @Test public void testAnonymousParams() { doTest("pkg/TestAnonymousParams"); }
   @Test public void testAccessReplace() { doTest("pkg/TestAccessReplace"); }
   @Test public void testStringLiterals() { doTest("pkg/TestStringLiterals"); }
   @Test public void testClashName() { doTest("pkg/TestClashName", "pkg/SharedName1",
@@ -157,8 +152,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
   @Test public void testMultiBoolean() { doTest("pkg/TestMultiBoolean"); }
   @Test public void testNestedFor() { doTest("pkg/TestNestedFor"); }
   @Test public void testNestedLoops2() { doTest("pkg/TestNestedLoops2"); }
-  // TODO: Object[] becomes <unknown>
-  @Test public void testObjectArrays() { doTest("pkg/TestObjectArrays"); }
   @Test public void testOverloadedNull() { doTest("pkg/TestOverloadedNull"); }
   @Test public void testReturnIf() { doTest("pkg/TestReturnIf"); }
   // TODO: Shift equals is broken, and bitwise should be x & (x >> 2)
