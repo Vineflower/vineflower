@@ -1,6 +1,7 @@
 // Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.main;
 
+import jdk.internal.org.objectweb.asm.tree.ClassNode;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.Instruction;
 import org.jetbrains.java.decompiler.code.InstructionSequence;
@@ -159,10 +160,12 @@ public class ClassesProcessor implements CodeConstants {
                   mapInnerClasses.put(innerName, rec);
                 }
                 else if (!Inner.equal(existingRec, rec)) {
-                  String message = "Inconsistent inner class entries for " + innerName + "!";
-                  DecompilerContext.getLogger().writeMessage(message, IFernflowerLogger.Severity.WARN);
-                  DecompilerContext.getLogger().writeMessage("  Old: " + existingRec.toString(), IFernflowerLogger.Severity.WARN);
-                  DecompilerContext.getLogger().writeMessage("  New: " + rec.toString(), IFernflowerLogger.Severity.WARN);
+                  if (DecompilerContext.getOption(IFernflowerPreferences.WARN_INCONSISTENT_INNER_CLASSES)) {
+                    String message = "Inconsistent inner class entries for " + innerName + "!";
+                    DecompilerContext.getLogger().writeMessage(message, IFernflowerLogger.Severity.WARN);
+                    DecompilerContext.getLogger().writeMessage("  Old: " + existingRec.toString(), IFernflowerLogger.Severity.WARN);
+                    DecompilerContext.getLogger().writeMessage("  New: " + rec.toString(), IFernflowerLogger.Severity.WARN);
+                  }
                   int oldPriority = existingRec.source.equals(innerName) ? 1 : existingRec.source.equals(enclClassName) ? 2 : 3;
                   int newPriority = rec.source.equals(innerName) ? 1 : rec.source.equals(enclClassName) ? 2 : 3;
                   if (newPriority < oldPriority) {
