@@ -9,6 +9,9 @@ Changes include:
 
 When pulling from upstream, use https://github.com/fesh0r/fernflower
 
+### Contributing
+To contribute, please check out CONTRIBUTING.md and ARCHITECTURE.md!
+
 #### Special Thanks
 * Jetbrains- For maintaining Fernflower
 * Forge Team- For maintaining ForgeFlower
