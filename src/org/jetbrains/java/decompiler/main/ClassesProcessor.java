@@ -37,7 +37,7 @@ public class ClassesProcessor implements CodeConstants {
   public static final int AVERAGE_CLASS_SIZE = 16 * 1024;
 
   private final StructContext context;
-  private final Map<String, ClassNode> mapRootClasses = new HashMap<>();
+  private final Map<String, ClassNode> mapRootClasses = new ConcurrentHashMap<>();
   private final Set<String> whitelist = new HashSet<>();
 
   private static class Inner {
