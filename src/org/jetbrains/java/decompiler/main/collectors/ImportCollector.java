@@ -37,9 +37,11 @@ public class ImportCollector {
       currentPackagePoint = "";
     }
 
+    Set<StructClass> processedClasses = new HashSet<>();
     StructContext ctx = DecompilerContext.getStructContext();
     StructClass currentClass = root.classStruct;
     while (currentClass != null) {
+      processedClasses.add(currentClass);
       // all field names for the current class ..
       for (StructField f : currentClass.getFields()) {
         setFieldNames.add(f.getName());
@@ -47,6 +49,14 @@ public class ImportCollector {
 
       // .. and traverse through parent.
       currentClass = currentClass.superClass != null ? ctx.getClass(currentClass.superClass.getString()) : null;
+
+      // Class already processed, skipping.
+
+      // This may be sign of circularity in the class hierarchy but in most cases this mean that same interface
+      // are listed as implemented several times in the class hierarchy.
+      if (currentClass != null && processedClasses.contains(currentClass)) {
+        currentClass = null;
+      }
     }
 
     collectConflictingShortNames(root, new HashMap<>());
