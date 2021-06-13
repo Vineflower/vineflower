@@ -248,6 +248,10 @@ public class StructClass extends StructMember {
     return majorVersion >= CodeConstants.BYTECODE_JAVA_8;
   }
 
+  public boolean isVersion(int minVersion) {
+    return majorVersion >= minVersion;
+  }
+
   @Override
   public String toString() {
     return qualifiedName;

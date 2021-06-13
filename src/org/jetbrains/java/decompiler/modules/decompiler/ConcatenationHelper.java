@@ -3,6 +3,7 @@ package org.jetbrains.java.decompiler.modules.decompiler;
 
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.struct.consts.PooledConstant;
 import org.jetbrains.java.decompiler.struct.consts.PrimitiveConstant;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
@@ -19,6 +20,38 @@ public final class ConcatenationHelper {
   private static final VarType builderType = new VarType(CodeConstants.TYPE_OBJECT, 0, "java/lang/StringBuilder");
   private static final VarType bufferType = new VarType(CodeConstants.TYPE_OBJECT, 0, "java/lang/StringBuffer");
 
+  public static void simplifyStringConcat(Statement stat) {
+    for (Statement s : stat.getStats()) {
+      simplifyStringConcat(s);
+    }
+
+    if (stat.getExprents() != null) {
+      for (int i = 0; i < stat.getExprents().size(); ++i) {
+        Exprent ret = simplifyStringConcat(stat.getExprents().get(i));
+        if (ret != null) {
+          stat.getExprents().set(i, ret);
+        }
+      }
+    }
+  }
+
+  private static Exprent simplifyStringConcat(Exprent exprent) {
+    for (Exprent cexp : exprent.getAllExprents()) {
+      Exprent ret = simplifyStringConcat(cexp);
+      if (ret != null) {
+        exprent.replaceExprent(cexp, ret);
+      }
+    }
+
+    if (exprent.type == Exprent.EXPRENT_INVOCATION) {
+      Exprent ret = ConcatenationHelper.contractStringConcat(exprent);
+      if (!exprent.equals(ret)) {
+        return ret;
+      }
+    }
+
+    return null;
+  }
 
   public static Exprent contractStringConcat(Exprent expr) {
 

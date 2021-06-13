@@ -150,6 +150,10 @@ public class MethodProcessorRunnable implements Runnable {
     }
     while (new PPandMMHelper(varProc).findPPandMM(root));
 
+    if (cl.isVersion(CodeConstants.BYTECODE_JAVA_9)) {
+      ConcatenationHelper.simplifyStringConcat(root);
+    }
+
     while (true) {
       LabelHelper.cleanUpEdges(root);
 
