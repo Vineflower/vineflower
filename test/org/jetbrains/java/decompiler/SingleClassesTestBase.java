@@ -18,6 +18,9 @@ package org.jetbrains.java.decompiler;
 import org.jetbrains.java.decompiler.main.decompiler.ConsoleDecompiler;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
+import org.junit.rules.Timeout;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -39,6 +42,13 @@ public class SingleClassesTestBase {
     fixture = new DecompilerTestFixture();
     fixture.setUp(getDecompilerOptions());
   }
+
+  /*
+   * Set individual test duration time limit to 60 seconds.
+   * This will help us to test bugs hanging decompiler.
+   */
+  @Rule
+  public Timeout globalTimeout = Timeout.seconds(60);
 
   @After
   public void tearDown() {

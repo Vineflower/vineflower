@@ -172,4 +172,5 @@ public class SingleClassesTest extends SingleClassesTestBase {
   @Test public void testInfiniteLoop() { doTest("pkg/TestInfiniteLoop"); }
   // TODO: many problems, wrong else if placement, wrong promotion of while to for, wrong control flow with infinite loop
   @Test public void testIfLoop() { doTest("pkg/TestIfLoop"); }
+  @Test public void testInheritanceChainCycle() { doTest("pkg/TestInheritanceChainCycle"); }
 }
