@@ -41,22 +41,27 @@ public final class ConcatenationHelper {
       }
       else if ("makeConcatWithConstants".equals(iex.getName())) { // java 9 style
         List<Exprent> parameters = extractParameters(iex.getBootstrapArguments(), iex);
-        if (parameters.size() >= 2) {
-          return createConcatExprent(parameters, expr.bytecode);
+
+        // Check if we need to add an empty string to the param list to convert from objects or primitives to strings.
+        boolean addEmptyString = true;
+        for (int index = 0; index < parameters.size() && index < 2; index++) {
+          // If we hit a string, we know that we don't need to add an empty string to the list, so quit processing.
+          if (parameters.get(index).getExprType().equals(VarType.VARTYPE_STRING)) {
+            addEmptyString = false;
+            break;
+          }
         }
 
-        // In specific edge cases, such as when empty strings are concatenated with non string variables, the parameter size will be 1.
-        // Leaving this out produces a case where the decompiler produces a self-concat, such as `variable.makeConcatWithConstants(variable)` which is not ideal.
-        if (parameters.size() == 1) {
-          Exprent exprent = parameters.get(0);
+        // If we need to add an empty string to the param list, do so here
+        if (addEmptyString) {
+          // Make single variable concat nicer by appending the string at the end
+          int index = parameters.size() == 1 ? 1 : 0;
 
-          // If the expression's type isn't a string, concat together an empty string
-          if (exprent.getExprType() != VarType.VARTYPE_STRING) {
-            // TODO: Currently this is always `variable + ""` but this should ideally put it in the right order. It also makes more sense to bring this behavior into #extractParameters.
-            return new FunctionExprent(FunctionExprent.FUNCTION_STR_CONCAT, Arrays.asList(exprent, new ConstExprent(VarType.VARTYPE_STRING, "", expr.bytecode)), expr.bytecode);
-          }
+          parameters.add(index, new ConstExprent(VarType.VARTYPE_STRING, "", expr.bytecode));
+        }
 
-          return exprent;
+        if (parameters.size() >= 2) {
+          return createConcatExprent(parameters, expr.bytecode);
         }
       }
     }
