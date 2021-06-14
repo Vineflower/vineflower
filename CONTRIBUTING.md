@@ -3,7 +3,7 @@ Welcome! Thank you for taking an interest in contributing to Quiltflower.
 
 ## Before making a pull request
 * Please read the [Quilt Code Of Conduct](https://quiltmc.org/community/code-of-conduct.html) first!
-* The ARCHITECTURE.md file in the repository contains technical information on how Quiltflower is structured. Reading that will greatly help with familiarizing yourself with the codebase and with PR development.
+* The [ARCHITECTURE.md](./ARCHITECTURE.md) file in the repository contains technical information on how Quiltflower is structured. Reading that will greatly help with familiarizing yourself with the codebase and with PR development.
 * It's highly recommended to talk about the changes you are making [on the Quilt toolchain discord](https://discord.quiltmc.org/toolchain) before submitting them.
 * Check out the issue tracker and roadmap! You can find good things to contribute there.
 
@@ -32,7 +32,7 @@ FernFlower is a very complex and involved bit of software, and there's a lot goi
 * Graph theory comes up frequently in the statement analysis portion of FernFlower. It's useful knowing about [Basic Blocks](https://en.wikipedia.org/wiki/Basic_block), [Control Flow Graphs](https://en.wikipedia.org/wiki/Control-flow_graph), and [Dominators.](https://en.wikipedia.org/wiki/Dominator_(graph_theory))
 * [Static Single Assignment Form](https://en.wikipedia.org/wiki/Static_single_assignment_form) is also used widely to track variables and their versions within the decompilation stages.
 * The [Java Language Specification](https://docs.oracle.com/javase/specs/jls/se16/html/), while dense, is a good source of information regarding language features.
-* The ARCHITECTURE.md file in the repository contains important information about how FernFlower is structured.
+* The [ARCHITECTURE.md](./ARCHITECTURE.md) file in the repository contains important information about how FernFlower is structured.
 * The [Discord server](https://discord.quiltmc.org/toolchain) contains many people who have worked with the code before, so any remaining questions are best asked there.
 
 ## License

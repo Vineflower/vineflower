@@ -10,7 +10,7 @@ Changes include:
 When pulling from upstream, use https://github.com/fesh0r/fernflower
 
 ### Contributing
-To contribute, please check out CONTRIBUTING.md and ARCHITECTURE.md!
+To contribute, please check out [CONTRIBUTING.md](./CONTRIBUTING.md) and [ARCHITECTURE.md](./ARCHITECTURE.md)!
 
 #### Special Thanks
 * Jetbrains- For maintaining Fernflower
