@@ -431,4 +431,60 @@ public final class SecondaryFunctionsHelper {
 
     return null;
   }
+
+  /**
+   * Simplifies assignment exprents that can be represented as a compound assignment.
+   * Example: "a = a + b" becomes "a += b"
+   * Iterates recursively through every statement within the statement and all assignments possible.
+   * See: <a href="https://docs.oracle.com/javase/specs/jls/se16/html/jls-15.html#jls-15.26.2">JLS-15.26.2</a>
+   *
+   * @param stat The provided statement
+   */
+  public static void updateAssignments(Statement stat) {
+    // Get all sequential objects if the statement doesn't have exprents
+    List<Object> objects = new ArrayList<>(stat.getExprents() == null ? stat.getSequentialObjects() : stat.getExprents());
+
+    for (Object obj : objects) {
+      if (obj instanceof Statement) {
+        // If the object is a statement, recurse
+        updateAssignments((Statement) obj);
+      } else if (obj instanceof Exprent) {
+        // If the statement is an exprent, start processing
+        Exprent exprent = (Exprent) obj;
+
+        if (exprent.type == Exprent.EXPRENT_ASSIGNMENT) {
+          AssignmentExprent assignment = (AssignmentExprent) exprent;
+
+          List<Exprent> params = exprent.getAllExprents();
+
+          // Get params of the assignment exprent
+          Exprent lhs = params.get(0);
+          Exprent rhs = params.get(1);
+
+          // We only want expressions that are standard assignments where the left hand side is a variable and the right hand side is a function.
+          if (assignment.getCondType() == -1 && lhs.type == Exprent.EXPRENT_VAR && rhs.type == Exprent.EXPRENT_FUNCTION) {
+            VarExprent lhsVar = (VarExprent) lhs;
+            FunctionExprent rhsFunc = (FunctionExprent) rhs;
+
+            List<Exprent> funcParams = rhsFunc.getAllExprents();
+
+            // Make sure that the function is a mathematical or bit shift function
+            if (rhsFunc.getFuncType() <= FunctionExprent.FUNCTION_USHR && funcParams.get(0).type == Exprent.EXPRENT_VAR) {
+              // Get the left hand side of the function
+              VarExprent lhsVarFunc = (VarExprent) funcParams.get(0);
+
+              // Check if the left hand side of the assignment and the left hand side of the function are the same variable
+              // TODO: maybe we should be checking for var version equality too?
+              if (lhsVar.getIndex() == lhsVarFunc.getIndex()) {
+                // If all the checks succeed, set the assignment to be a compound assignment and
+                assignment.setCondType(rhsFunc.getFuncType());
+                assignment.setRight(funcParams.get(1));
+                // TODO: doesn't hit all instances, see ClientWorld
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 }

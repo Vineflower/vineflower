@@ -7,6 +7,7 @@ import java.io.InputStream;
 public class TestAnonymousParams {
    void foo(InputStream in, final int a) throws IOException {
       FilterInputStream filterInputStream = new FilterInputStream(in) {// 24
+         @Override
          public int read() throws IOException {
             return a;// 27
          }
@@ -17,10 +18,10 @@ public class TestAnonymousParams {
 
 class 'pkg/TestAnonymousParams$1' {
    method 'read ()I' {
-      1      10
-      2      10
-      3      10
-      4      10
+      1      11
+      2      11
+      3      11
+      4      11
    }
 }
 
@@ -28,16 +29,16 @@ class 'pkg/TestAnonymousParams' {
    method 'foo (Ljava/io/InputStream;I)V' {
       5      8
       a      8
-      b      13
-      c      13
-      d      13
-      e      13
-      10      14
+      b      14
+      c      14
+      d      14
+      e      14
+      10      15
    }
 }
 
 Lines mapping:
 24 <-> 9
-27 <-> 11
-30 <-> 14
-31 <-> 15
+27 <-> 12
+30 <-> 15
+31 <-> 16

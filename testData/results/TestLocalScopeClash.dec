@@ -12,13 +12,13 @@ public class TestLocalScopeClash {
       ++var3;// 15
       this.acceptInt(var3);// 16
       ++var3;// 17
-      var3 = var3 | 7;// 18
+      var3 |= 7;// 18
       var3 = 1 ^ var3;// 19
-      var3 = var3 * 2;// 20
-      var3 = var3 + 2;// 21
+      var3 *= 2;// 20
+      var3 += 2;// 21
       this.acceptInt(var3);// 22
       var3 = var1 & var1 & var2;// 25 26
-      var3 = var3 ^ (var3 || var2);// 27
+      var3 ^= var3 || var2;// 27
       this.acceptBoolean((boolean)var3);// 28
    }// 30
 }
@@ -46,22 +46,16 @@ class 'pkg/TestLocalScopeClash' {
       c      12
       d      13
       f      13
-      11      14
       12      14
       13      14
-      14      14
       15      14
       16      15
       17      15
       18      15
       19      15
-      1a      16
       1b      16
-      1c      16
       1d      16
-      1e      17
       1f      17
-      20      17
       21      17
       22      18
       23      18
@@ -73,10 +67,8 @@ class 'pkg/TestLocalScopeClash' {
       2c      19
       2d      19
       2e      19
-      2f      20
       30      20
       34      20
-      3d      20
       3e      20
       3f      21
       40      21

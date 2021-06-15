@@ -8,26 +8,26 @@ import org.jetbrains.java.decompiler.struct.gen.generics.GenericMain;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericMethodDescriptor;
 import org.jetbrains.java.decompiler.struct.lazy.LazyLoader;
 import org.jetbrains.java.decompiler.util.DataInputFullStream;
-import org.jetbrains.java.decompiler.util.InterpreterUtil;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.jar.JarFile;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
+import java.io.UncheckedIOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.*;
+import java.util.jar.Manifest;
 
 public class StructContext {
   private final IResultSaver saver;
   private final IDecompiledData decompiledData;
   private final LazyLoader loader;
   private final Map<String, ContextUnit> units = new HashMap<>();
-  private final Map<String, StructClass> classes = new HashMap<>();
+  private final Map<String, ClassProvider> classes = new HashMap<>();
+  private final Map<String, StructClass> ownClasses = new HashMap<>();
   private final Map<String, List<String>> abstractNames = new HashMap<>();
+  private final Map<File, FileSystem> zipFiles = new HashMap<>();
 
   public StructContext(IResultSaver saver, IDecompiledData decompiledData, LazyLoader loader) {
     this.saver = saver;
@@ -39,11 +39,16 @@ public class StructContext {
   }
 
   public StructClass getClass(String name) {
-    return classes.get(name);
+    ClassProvider provider = classes.get(name);
+    if (provider == null) {
+      return null;
+    }
+    return provider.get();
   }
 
   public void reloadContext() throws IOException {
-    for (ContextUnit unit : units.values()) {
+    for (Map.Entry<String, ContextUnit> e : units.entrySet()) {
+      ContextUnit unit = e.getValue();
       for (StructClass cl : unit.getClasses()) {
         classes.remove(cl.qualifiedName);
       }
@@ -52,7 +57,7 @@ public class StructContext {
 
       // adjust global class collection
       for (StructClass cl : unit.getClasses()) {
-        classes.put(cl.qualifiedName, cl);
+        classes.put(cl.qualifiedName, new ClassProvider(cl));
       }
     }
   }
@@ -111,17 +116,7 @@ public class StructContext {
       }
 
       if (filename.endsWith(".class")) {
-        try (DataInputFullStream in = loader.getClassStream(file.getAbsolutePath(), null)) {
-          StructClass cl = StructClass.create(in, isOwn, loader);
-          classes.put(cl.qualifiedName, cl);
-          unit.addClass(cl, filename);
-          loader.addClassLink(cl.qualifiedName, new LazyLoader.Link(file.getAbsolutePath(), null));
-        }
-        catch (IOException ex) {
-          String message = "Corrupted class file: " + file;
-          DecompilerContext.getLogger().writeMessage(message, ex);
-          throw new RuntimeException(ex);
-        }
+        addClass(unit, null, path, filename, isOwn, () -> loader.getClassBytes(file.getAbsolutePath(), null));
       }
       else {
         unit.addOtherEntry(file.getAbsolutePath(), filename);
@@ -129,58 +124,86 @@ public class StructContext {
     }
   }
 
-  private void addArchive(String path, File file, int type, boolean isOwn) throws IOException {
-    DecompilerContext.getLogger().writeMessage("Adding Archive: " + file.getAbsolutePath(), Severity.INFO);
-    try (ZipFile archive = type == ContextUnit.TYPE_JAR ? new JarFile(file) : new ZipFile(file)) {
-      Enumeration<? extends ZipEntry> entries = archive.entries();
-      while (entries.hasMoreElements()) {
-        ZipEntry entry = entries.nextElement();
-
-        ContextUnit unit = units.get(path + "/" + file.getName());
-        if (unit == null) {
-          unit = new ContextUnit(type, path, file.getName(), isOwn, saver, decompiledData);
-          if (type == ContextUnit.TYPE_JAR) {
-            unit.setManifest(((JarFile)archive).getManifest());
-          }
-          units.put(path + "/" + file.getName(), unit);
+  private FileSystem getZipFileSystem(File file) throws IOException {
+    try {
+      return zipFiles.computeIfAbsent(file, f -> {
+        URI uri = null;
+        try {
+          uri = new URI("jar:file", null, f.toURI().getPath(), null);
+          return FileSystems.newFileSystem(uri, Collections.emptyMap());
+        } catch (FileSystemAlreadyExistsException e) {
+          return FileSystems.getFileSystem(uri);
+        } catch (URISyntaxException e) {
+          throw new RuntimeException(e);
+        } catch (IOException e) {
+          throw new UncheckedIOException(e);
         }
-
-        String name = entry.getName();
-        if (!entry.isDirectory()) {
-          if (name.endsWith(".class")) {
-            byte[] bytes = InterpreterUtil.getBytes(archive, entry);
-            DecompilerContext.getLogger().writeMessage("  Loading Class: " + name, Severity.INFO);
-            StructClass cl = StructClass.create(new DataInputFullStream(bytes), isOwn, loader);
-            classes.put(cl.qualifiedName, cl);
-            unit.addClass(cl, name);
-            loader.addClassLink(cl.qualifiedName, new LazyLoader.Link(file.getAbsolutePath(), name));
-          }
-          else {
-            unit.addOtherEntry(file.getAbsolutePath(), name);
-          }
-        }
-        else {
-          unit.addDirEntry(name);
-        }
-      }
+      });
+    } catch (UncheckedIOException e) {
+      throw e.getCause();
     }
   }
 
-  public void addData(String path, String cls, byte[] data, boolean isOwn) throws IOException {
-        ContextUnit unit = units.get(path);
-        if (unit == null) {
-          unit = new ContextUnit(ContextUnit.TYPE_FOLDER, path, cls, isOwn, saver, decompiledData);
-          units.put(path, unit);
+  private void addArchive(String externalPath, File file, int type, boolean isOwn) throws IOException {
+    DecompilerContext.getLogger().writeMessage("Adding Archive: " + file.getAbsolutePath(), Severity.INFO);
+    FileSystem fs = getZipFileSystem(file);
+    ContextUnit unit = units.computeIfAbsent(externalPath + "/" + file.getName(), k -> new ContextUnit(type, externalPath, file.getName(), isOwn, saver, decompiledData));
+    Files.walkFileTree(fs.getPath("/"), new SimpleFileVisitor<Path>() {
+      @Override
+      public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {
+        String name = path.toString().substring(1);
+        if (name.endsWith(".class")) {
+          addClass(unit, name.substring(0, name.length() - 6), file.getAbsolutePath(), path.toString().substring(1), isOwn, path);
+        } else {
+          if ("META-INF/MANIFEST.MF".equals(name)) {
+            unit.setManifest(new Manifest(Files.newInputStream(path)));
+          }
+          unit.addOtherEntry(file.getAbsolutePath(), name);
         }
+        return FileVisitResult.CONTINUE;
+      }
 
-        StructClass cl = StructClass.create(new DataInputFullStream(data), isOwn, loader);
-        classes.put(cl.qualifiedName, cl);
-        unit.addClass(cl, cls);
-        loader.addClassLink(cl.qualifiedName, new LazyLoader.Link(path, cls, data));
+      @Override
+      public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+        String dirStr = dir.toString();
+        if (dirStr.length() > 1) unit.addDirEntry(dirStr.substring(1));
+        return FileVisitResult.CONTINUE;
+      }
+    });
   }
 
-  public Map<String, StructClass> getClasses() {
-    return classes;
+  private void addClass(ContextUnit unit, String name, String externalPath, String internalPath, boolean isOwn, Path path) {
+    addClass(name, isOwn, new ClassProvider(unit, externalPath, internalPath, isOwn, () -> Files.readAllBytes(path)));
+  }
+
+  private void addClass(ContextUnit unit, String name, String externalPath, String internalPath, boolean isOwn, ClassSupplier supplier) {
+    addClass(name, isOwn, new ClassProvider(unit, externalPath, internalPath, isOwn, supplier));
+  }
+
+  private void addClass(String name, boolean isOwn, ClassProvider provider) {
+    if (name == null || name.isEmpty()) {
+      name = provider.get().qualifiedName;
+    }
+    classes.put(name, provider);
+    if (isOwn) ownClasses.put(name, provider.get());
+  }
+
+  public void addData(String path, String cls, byte[] data, boolean isOwn) throws IOException {
+    ContextUnit unit = units.get(path);
+    if (unit == null) {
+      unit = new ContextUnit(ContextUnit.TYPE_FOLDER, path, cls, isOwn, saver, decompiledData);
+      units.put(path, unit);
+    }
+
+    addClass(unit, cls.substring(0, cls.length() - 6), path, cls, isOwn, () -> data);
+  }
+
+  public Map<String, StructClass> getOwnClasses() {
+    return ownClasses;
+  }
+
+  public boolean hasClass(String name) {
+    return classes.containsKey(name);
   }
 
   public boolean instanceOf(String valclass, String refclass) {
@@ -245,5 +268,57 @@ public class StructContext {
   public String renameAbstractParameter(String className, String methodName, String descriptor, int index, String _default) {
     List<String> params = this.abstractNames.get(className + ' ' + methodName + ' ' + descriptor);
     return params != null && index < params.size() ? params.get(index) : _default;
+  }
+
+  class ClassProvider {
+    final ContextUnit unit;
+    private final String externalPath;
+    private final String internalPath;
+    private volatile ClassSupplier supplier;
+    private final boolean own;
+    private StructClass value;
+
+    ClassProvider(ContextUnit unit, String externalPath, String internalPath, boolean own, ClassSupplier supplier) {
+      this.unit = unit;
+      this.externalPath = externalPath;
+      this.internalPath = internalPath;
+      this.own = own;
+      this.supplier = supplier;
+    }
+
+    ClassProvider(StructClass value) {
+      this.unit = null;
+      this.externalPath = null;
+      this.internalPath = null;
+      this.supplier = null;
+      this.own = value.isOwn();
+      this.value = value;
+    }
+
+    public StructClass get() {
+      StructClass v = value;
+      if (v != null) return v;
+      synchronized (this) {
+        if (supplier == null) return value;
+        try {
+          DecompilerContext.getLogger().writeMessage("  Loading Class: " + internalPath, Severity.INFO);
+          byte[] data = supplier.get();
+          StructClass cl = StructClass.create(new DataInputFullStream(data), own, loader);
+          unit.addClass(cl, internalPath);
+          loader.addClassLink(cl.qualifiedName, new LazyLoader.Link(externalPath, internalPath, data));
+          value = cl;
+          supplier = null;
+          return cl;
+        } catch (IOException ex) {
+          String message = "Corrupted class file: " + internalPath;
+          DecompilerContext.getLogger().writeMessage(message, ex);
+          throw new RuntimeException(ex);
+        }
+      }
+    }
+  }
+
+  interface ClassSupplier {
+    byte[] get() throws IOException;
   }
 }

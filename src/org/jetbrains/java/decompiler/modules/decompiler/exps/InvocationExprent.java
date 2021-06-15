@@ -66,7 +66,7 @@ public class InvocationExprent extends Exprent {
   private boolean isInvocationInstance = false;
   private boolean forceBoxing = false;
   private boolean forceUnboxing = false;
-  private boolean isSyntheticGetClass = false;
+  private boolean isSyntheticNullCheck = false;
 
   public InvocationExprent() {
     super(EXPRENT_INVOCATION);
@@ -167,7 +167,7 @@ public class InvocationExprent extends Exprent {
 
     addBytecodeOffsets(expr.bytecode);
     bootstrapArguments = expr.getBootstrapArguments();
-    isSyntheticGetClass = expr.isSyntheticGetClass();
+    isSyntheticNullCheck = expr.isSyntheticNullCheck();
 
     if (invocationTyp == INVOKE_DYNAMIC && !isStatic && instance != null && !lstParameters.isEmpty()) {
       // method reference, instance and first param are expected to be the same var object
@@ -194,7 +194,7 @@ public class InvocationExprent extends Exprent {
     StructClass mthCls = DecompilerContext.getStructContext().getClass(classname);
 
     if (desc != null && mthCls != null) {
-      boolean isNew = functype == TYP_INIT && mthCls.getSignature() != null;
+      boolean isNew = functype == TYP_INIT;
       boolean isGenNew = isNew && mthCls.getSignature() != null;
       if (desc.getSignature() != null || isGenNew) {
         Map<VarType, List<VarType>> named = getNamedGenerics();
@@ -342,7 +342,7 @@ public class InvocationExprent extends Exprent {
 
           int j = 0;
           for (int i = start; i < lstParameters.size(); ++i) {
-            if (mask == null || mask.get(i) != null) {
+            if ((mask == null || mask.get(i) == null)) {
               VarType paramType = desc.getSignature().parameterTypes.get(j++);
               if (paramType.isGeneric()) {
 
@@ -1402,12 +1402,12 @@ public class InvocationExprent extends Exprent {
     return bootstrapArguments;
   }
 
-  public void setSyntheticGetClass() {
-    isSyntheticGetClass = true;
+  public void setSyntheticNullCheck() {
+    isSyntheticNullCheck = true;
   }
 
-  public boolean isSyntheticGetClass() {
-    return isSyntheticGetClass;
+  public boolean isSyntheticNullCheck() {
+    return isSyntheticNullCheck;
   }
 
   public List<VarType> getGenericArgs() {

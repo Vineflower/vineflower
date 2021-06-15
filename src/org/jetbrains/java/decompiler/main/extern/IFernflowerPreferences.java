@@ -58,6 +58,8 @@ public interface IFernflowerPreferences {
 
   String SKIP_EXTRA_FILES = "sef";
 
+  String WARN_INCONSISTENT_INNER_CLASSES = "win";
+
   Map<String, Object> DEFAULTS = getDefaults();
 
   static Map<String, Object> getDefaults() {
@@ -105,6 +107,7 @@ public interface IFernflowerPreferences {
     defaults.put(THREADS, String.valueOf(Runtime.getRuntime().availableProcessors()));
     defaults.put(USE_JAD_VARNAMING, "0");
     defaults.put(SKIP_EXTRA_FILES, "0");
+    defaults.put(WARN_INCONSISTENT_INNER_CLASSES, "1");
 
     return Collections.unmodifiableMap(defaults);
   }

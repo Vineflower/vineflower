@@ -24,6 +24,7 @@ public class TestObjectArrays {
             this.hashcode = (new Random()).nextInt() + this.x;// 28
          }
 
+         @Override
          public int hashCode() {
             return this.hashcode;// 32
          }
@@ -74,11 +75,11 @@ class 'pkg/TestObjectArrays$1' {
    }
 
    method 'hashCode ()I' {
-      0      27
-      1      27
-      2      27
-      3      27
-      4      27
+      0      28
+      1      28
+      2      28
+      3      28
+      4      28
    }
 }
 
@@ -132,7 +133,7 @@ class 'pkg/TestObjectArrays' {
       6c      15
       6d      15
       7d      15
-      7e      30
+      7e      31
    }
 }
 
@@ -147,8 +148,8 @@ Lines mapping:
 21 <-> 22
 25 <-> 23
 28 <-> 24
-32 <-> 28
-36 <-> 31
+32 <-> 29
+36 <-> 32
 Not mapped:
 17
 18

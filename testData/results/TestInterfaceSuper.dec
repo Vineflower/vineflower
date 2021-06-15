@@ -5,6 +5,7 @@ public interface TestInterfaceSuper {
    }// 4
 
    public static class Impl implements TestInterfaceSuper {
+      @Override
       public void defaultMethod() {
          TestInterfaceSuper.super.defaultMethod();// 8
       }// 9
@@ -19,14 +20,14 @@ class 'pkg/TestInterfaceSuper' {
 
 class 'pkg/TestInterfaceSuper$Impl' {
    method 'defaultMethod ()V' {
-      1      8
-      2      8
-      3      8
-      4      9
+      1      9
+      2      9
+      3      9
+      4      10
    }
 }
 
 Lines mapping:
 4 <-> 5
-8 <-> 9
-9 <-> 10
+8 <-> 10
+9 <-> 11

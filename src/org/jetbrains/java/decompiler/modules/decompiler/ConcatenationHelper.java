@@ -3,15 +3,13 @@ package org.jetbrains.java.decompiler.modules.decompiler;
 
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.struct.consts.PooledConstant;
 import org.jetbrains.java.decompiler.struct.consts.PrimitiveConstant;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.BitSet;
-import java.util.List;
+import java.util.*;
 
 public final class ConcatenationHelper {
 
@@ -22,6 +20,38 @@ public final class ConcatenationHelper {
   private static final VarType builderType = new VarType(CodeConstants.TYPE_OBJECT, 0, "java/lang/StringBuilder");
   private static final VarType bufferType = new VarType(CodeConstants.TYPE_OBJECT, 0, "java/lang/StringBuffer");
 
+  public static void simplifyStringConcat(Statement stat) {
+    for (Statement s : stat.getStats()) {
+      simplifyStringConcat(s);
+    }
+
+    if (stat.getExprents() != null) {
+      for (int i = 0; i < stat.getExprents().size(); ++i) {
+        Exprent ret = simplifyStringConcat(stat.getExprents().get(i));
+        if (ret != null) {
+          stat.getExprents().set(i, ret);
+        }
+      }
+    }
+  }
+
+  private static Exprent simplifyStringConcat(Exprent exprent) {
+    for (Exprent cexp : exprent.getAllExprents()) {
+      Exprent ret = simplifyStringConcat(cexp);
+      if (ret != null) {
+        exprent.replaceExprent(cexp, ret);
+      }
+    }
+
+    if (exprent.type == Exprent.EXPRENT_INVOCATION) {
+      Exprent ret = ConcatenationHelper.contractStringConcat(exprent);
+      if (!exprent.equals(ret)) {
+        return ret;
+      }
+    }
+
+    return null;
+  }
 
   public static Exprent contractStringConcat(Exprent expr) {
 
@@ -44,6 +74,25 @@ public final class ConcatenationHelper {
       }
       else if ("makeConcatWithConstants".equals(iex.getName())) { // java 9 style
         List<Exprent> parameters = extractParameters(iex.getBootstrapArguments(), iex);
+
+        // Check if we need to add an empty string to the param list to convert from objects or primitives to strings.
+        boolean addEmptyString = true;
+        for (int index = 0; index < parameters.size() && index < 2; index++) {
+          // If we hit a string, we know that we don't need to add an empty string to the list, so quit processing.
+          if (parameters.get(index).getExprType().equals(VarType.VARTYPE_STRING)) {
+            addEmptyString = false;
+            break;
+          }
+        }
+
+        // If we need to add an empty string to the param list, do so here
+        if (addEmptyString) {
+          // Make single variable concat nicer by appending the string at the end
+          int index = parameters.size() == 1 ? 1 : 0;
+
+          parameters.add(index, new ConstExprent(VarType.VARTYPE_STRING, "", expr.bytecode));
+        }
+
         if (parameters.size() >= 2) {
           return createConcatExprent(parameters, expr.bytecode);
         }

@@ -155,7 +155,7 @@ public class IdentifierConverter implements NewClassNameBuilder {
         String classname = helper.getNextClassName(classOldFullName, ConverterHelper.getSimpleClassName(classOldFullName));
         classNewFullName = ConverterHelper.replaceSimpleClassName(classOldFullName, classname);
       }
-      while (context.getClasses().containsKey(classNewFullName));
+      while (context.hasClass(classNewFullName));
 
       interceptor.addName(classOldFullName, classNewFullName);
     }
@@ -295,16 +295,12 @@ public class IdentifierConverter implements NewClassNameBuilder {
 
   private void buildInheritanceTree() {
     Map<String, ClassWrapperNode> nodes = new HashMap<>();
-    Map<String, StructClass> classes = context.getClasses();
+    Map<String, StructClass> classes = context.getOwnClasses();
 
     List<ClassWrapperNode> rootClasses = new ArrayList<>();
     List<ClassWrapperNode> rootInterfaces = new ArrayList<>();
 
     for (StructClass cl : classes.values()) {
-      if (!cl.isOwn()) {
-        continue;
-      }
-
       LinkedList<StructClass> stack = new LinkedList<>();
       LinkedList<ClassWrapperNode> stackSubNodes = new LinkedList<>();
 

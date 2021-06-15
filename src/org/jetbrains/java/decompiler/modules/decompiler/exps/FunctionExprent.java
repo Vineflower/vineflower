@@ -4,6 +4,7 @@
 package org.jetbrains.java.decompiler.modules.decompiler.exps;
 
 import org.jetbrains.java.decompiler.code.CodeConstants;
+import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
@@ -351,6 +352,14 @@ public class FunctionExprent extends Exprent {
     return getExprType();
   }
 
+  @Override
+  protected void onReturn(MethodDescriptor descriptor) {
+    // Only adjust return types if we're a ternary statement to handle the single case we're targeting.
+    if (this.funcType == FUNCTION_IIF) {
+      this.lstOperands.get(1).onReturn(descriptor);
+      this.lstOperands.get(2).onReturn(descriptor);
+    }
+  }
 
   @Override
   public int getExprentUse() {
@@ -495,10 +504,10 @@ public class FunctionExprent extends Exprent {
 
     // If we're an unsigned right shift or lower, this function can be represented as a single leftHand + functionType + rightHand operation.
     if (this.funcType <= FUNCTION_USHR) {
-      // Minecraft specific hot fix: If we're bitwise and-ing by a char value, we can assume that it's wrong behavior.
+      // Minecraft specific hot fix: If we're doing arithmetic or bitwise math by a char value, we can assume that it's wrong behavior.
       // We check for this and then fix it by resetting the param to be an int instead of a char.
       // This fixes cases where "& 65535" and "& 0xFFFF" get wrongly decompiled as "& '\uffff'".
-      if (this.funcType == FUNCTION_AND) {
+      if (this.funcType <= FUNCTION_XOR) {
         Exprent left = this.lstOperands.get(0);
         Exprent right = this.lstOperands.get(1);
 

@@ -37,7 +37,7 @@ public class ClassesProcessor implements CodeConstants {
   public static final int AVERAGE_CLASS_SIZE = 16 * 1024;
 
   private final StructContext context;
-  private final Map<String, ClassNode> mapRootClasses = new HashMap<>();
+  private final Map<String, ClassNode> mapRootClasses = new ConcurrentHashMap<>();
   private final Set<String> whitelist = new HashSet<>();
 
   private static class Inner {
@@ -90,8 +90,8 @@ public class ClassesProcessor implements CodeConstants {
     boolean verifyAnonymousClasses = DecompilerContext.getOption(IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES);
 
     // create class nodes
-    for (StructClass cl : context.getClasses().values()) {
-      if (cl.isOwn() && !mapRootClasses.containsKey(cl.qualifiedName)) {
+    for (StructClass cl : context.getOwnClasses().values()) {
+      if (!mapRootClasses.containsKey(cl.qualifiedName)) {
         if (bDecompileInner) {
           StructInnerClassesAttribute inner = cl.getAttribute(StructGeneralAttribute.ATTRIBUTE_INNER_CLASSES);
 
@@ -152,17 +152,19 @@ public class ClassesProcessor implements CodeConstants {
                 continue;  // not a real inner class
               }
 
-              StructClass enclosingClass = context.getClasses().get(enclClassName);
+              StructClass enclosingClass = context.getClass(enclClassName);
               if (enclosingClass != null && enclosingClass.isOwn()) { // own classes only
                 Inner existingRec = mapInnerClasses.get(innerName);
                 if (existingRec == null) {
                   mapInnerClasses.put(innerName, rec);
                 }
                 else if (!Inner.equal(existingRec, rec)) {
-                  String message = "Inconsistent inner class entries for " + innerName + "!";
-                  DecompilerContext.getLogger().writeMessage(message, IFernflowerLogger.Severity.WARN);
-                  DecompilerContext.getLogger().writeMessage("  Old: " + existingRec.toString(), IFernflowerLogger.Severity.WARN);
-                  DecompilerContext.getLogger().writeMessage("  New: " + rec.toString(), IFernflowerLogger.Severity.WARN);
+                  if (DecompilerContext.getOption(IFernflowerPreferences.WARN_INCONSISTENT_INNER_CLASSES)) {
+                    String message = "Inconsistent inner class entries for " + innerName + "!";
+                    DecompilerContext.getLogger().writeMessage(message, IFernflowerLogger.Severity.WARN);
+                    DecompilerContext.getLogger().writeMessage("  Old: " + existingRec.toString(), IFernflowerLogger.Severity.WARN);
+                    DecompilerContext.getLogger().writeMessage("  New: " + rec.toString(), IFernflowerLogger.Severity.WARN);
+                  }
                   int oldPriority = existingRec.source.equals(innerName) ? 1 : existingRec.source.equals(enclClassName) ? 2 : 3;
                   int newPriority = rec.source.equals(innerName) ? 1 : rec.source.equals(enclClassName) ? 2 : 3;
                   if (newPriority < oldPriority) {

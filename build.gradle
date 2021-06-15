@@ -10,7 +10,7 @@ compileJava {
 group = 'org.quiltmc'
 archivesBaseName = 'quiltflower'
 
-version = '1.4.0'
+version = '1.5.0'
 
 def ENV = System.getenv()
 version = version + (ENV.GITHUB_ACTIONS ? "" : "+local")
@@ -25,8 +25,8 @@ sourceSets {
 repositories { mavenCentral() }
 
 dependencies {
-  testCompile 'junit:junit:4.12'
-  testCompile 'org.assertj:assertj-core:3.12.2'
+  testImplementation 'junit:junit:4.12'
+  testImplementation 'org.assertj:assertj-core:3.12.2'
 
   // Java 9 classes need the main source set
   java9Implementation sourceSets.main.output

@@ -25,6 +25,7 @@ import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.gen.generics.*;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.TextBuffer;
+import org.jetbrains.java.decompiler.util.VBStyleCollection;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -269,7 +270,9 @@ public class ClassWriter {
       startLine += buffer.countLines(start_class_def);
 
       // methods
-      for (StructMethod mt : cl.getMethods()) {
+      VBStyleCollection<StructMethod, String> methods = cl.getMethods();
+      for (int i = 0; i < methods.size(); i++) {
+        StructMethod mt = methods.get(i);
         boolean hide = mt.isSynthetic() && DecompilerContext.getOption(IFernflowerPreferences.REMOVE_SYNTHETIC) ||
                        mt.hasModifier(CodeConstants.ACC_BRIDGE) && DecompilerContext.getOption(IFernflowerPreferences.REMOVE_BRIDGE) ||
                        wrapper.getHiddenMembers().contains(InterpreterUtil.makeUniqueKey(mt.getName(), mt.getDescriptor()));
@@ -282,7 +285,7 @@ public class ClassWriter {
           startLine++;
         }
         BytecodeMappingTracer method_tracer = new BytecodeMappingTracer(startLine);
-        boolean methodSkipped = !methodToJava(node, mt, buffer, indent + 1, method_tracer);
+        boolean methodSkipped = !methodToJava(node, mt, i, buffer, indent + 1, method_tracer);
         if (!methodSkipped) {
           hasContent = true;
           addTracer(cl, mt, method_tracer);
@@ -793,10 +796,11 @@ public class ClassWriter {
     return res.append("/* $FF was: ").append(name).append("*/").toString();
   }
 
-  private boolean methodToJava(ClassNode node, StructMethod mt, TextBuffer buffer, int indent, BytecodeMappingTracer tracer) {
+  private boolean methodToJava(ClassNode node, StructMethod mt, int methodIndex, TextBuffer buffer, int indent, BytecodeMappingTracer tracer) {
     ClassWrapper wrapper = node.getWrapper();
     StructClass cl = wrapper.getClassStruct();
-    MethodWrapper methodWrapper = wrapper.getMethodWrapper(mt.getName(), mt.getDescriptor());
+    // Get method by index, this keeps duplicate methods (with the same key) separate
+    MethodWrapper methodWrapper = wrapper.getMethodWrapper(methodIndex);
 
     boolean hideMethod = false;
     int start_index_method = buffer.length();
@@ -842,7 +846,20 @@ public class ClassWriter {
       if (javadocProvider != null) {
         appendJavadoc(buffer, javadocProvider.getMethodDoc(cl, mt), indent);
       }
+
       appendAnnotations(buffer, indent, mt, TypeAnnotation.METHOD_RETURN_TYPE);
+
+      // Try append @Override after all other annotations
+      if (!CodeConstants.INIT_NAME.equals(mt.getName()) && !CodeConstants.CLINIT_NAME.equals(mt.getName()) && !mt.hasModifier(CodeConstants.ACC_STATIC)  && !mt.hasModifier(CodeConstants.ACC_PRIVATE)) {
+        // Search superclasses for methods that match the name and descriptor of this one.
+        // Make sure not to search the current class otherwise it will return the current method itself!
+        boolean isOverride = searchForMethod(cl, mt.getName(), md, false);
+        if (isOverride) {
+          buffer.appendIndent(indent);
+          buffer.append("@Override");
+          buffer.appendLineSeparator();
+        }
+      }
 
       buffer.appendIndent(indent);
 
@@ -1010,7 +1027,7 @@ public class ClassWriter {
         buffer.append('{').appendLineSeparator();
         tracer.incrementCurrentSourceLine();
 
-        RootStatement root = wrapper.getMethodWrapper(mt.getName(), mt.getDescriptor()).root;
+        RootStatement root = methodWrapper.root;
 
         if (root != null && !methodWrapper.decompiledWithErrors) { // check for existence
           try {
@@ -1188,6 +1205,52 @@ public class ClassWriter {
     }
 
     appendTypeAnnotations(buffer, indent, mb, targetType, -1, filter);
+  }
+
+  // Returns true if a method with the given name and descriptor matches in the inheritance tree of the superclass.
+  private static boolean searchForMethod(StructClass cl, String name, MethodDescriptor md, boolean search) {
+    // Didn't find the class or the library containing the class wasn't loaded, can't search
+    if (cl == null) {
+      return false;
+    }
+
+    VBStyleCollection<StructMethod, String> methods = cl.getMethods();
+
+    if (search) {
+      // If we're allowed to search, iterate through the methods and try to find matches
+      for (StructMethod method : methods) {
+        // Match against name, descriptor, and whether or not the found method is static.
+        // TODO: We are not handling generics or superclass parameters and return types
+        if (md.equals(MethodDescriptor.parseDescriptor(method.getDescriptor())) && name.equals(method.getName()) && !method.hasModifier(CodeConstants.ACC_STATIC)) {
+          return true;
+        }
+      }
+    }
+
+    // If we have a superclass that's not Object, search that as well
+    if (cl.superClass != null) {
+      StructClass superClass = DecompilerContext.getStructContext().getClass((String)cl.superClass.value);
+
+      boolean foundInSuperClass = searchForMethod(superClass, name, md, true);
+
+      if (foundInSuperClass) {
+        return true;
+      }
+    }
+
+    // Search all of the interfaces implemented by this class for the method
+    for (String ifaceName : cl.getInterfaceNames()) {
+      StructClass iface = DecompilerContext.getStructContext().getClass(ifaceName);
+
+      boolean foundInIface = searchForMethod(iface, name, md, true);
+
+      if (foundInIface) {
+        return true;
+      }
+    }
+
+    // We didn't manage to find anything, return
+    return false;
   }
 
   private static void appendParameterAnnotations(TextBuffer buffer, StructMethod mt, int param) {

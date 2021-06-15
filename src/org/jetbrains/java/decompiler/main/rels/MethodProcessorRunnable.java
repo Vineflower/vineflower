@@ -150,6 +150,10 @@ public class MethodProcessorRunnable implements Runnable {
     }
     while (new PPandMMHelper(varProc).findPPandMM(root));
 
+    if (cl.isVersion(CodeConstants.BYTECODE_JAVA_9)) {
+      ConcatenationHelper.simplifyStringConcat(root);
+    }
+
     while (true) {
       LabelHelper.cleanUpEdges(root);
 
@@ -217,6 +221,9 @@ public class MethodProcessorRunnable implements Runnable {
     cleanSynchronizedVar(root);
 
     varProc.setVarDefinitions(root);
+
+    // Make sure to update assignments after setting the var definitions!
+    SecondaryFunctionsHelper.updateAssignments(root);
 
     // must be the last invocation, because it makes the statement structure inconsistent
     // FIXME: new edge type needed

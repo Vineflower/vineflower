@@ -8,6 +8,7 @@ public class TestThrowException {
          throw new IllegalArgumentException("xxx");// 10
       } else {
          this.r = new Runnable() {// 12
+            @Override
             public void run() {
                boolean var1 = true;// 15
             }// 16
@@ -18,9 +19,9 @@ public class TestThrowException {
 
 class 'pkg/TestThrowException$1' {
    method 'run ()V' {
-      0      11
-      1      11
-      2      12
+      0      12
+      1      12
+      2      13
    }
 }
 
@@ -35,7 +36,7 @@ class 'pkg/TestThrowException' {
       1b      9
       1c      9
       1d      9
-      1e      15
+      1e      16
    }
 }
 
@@ -43,8 +44,8 @@ Lines mapping:
 9 <-> 7
 10 <-> 8
 12 <-> 10
-15 <-> 12
-16 <-> 13
-18 <-> 16
+15 <-> 13
+16 <-> 14
+18 <-> 17
 Not mapped:
 8

@@ -37,16 +37,26 @@ public class ImportCollector {
       currentPackagePoint = "";
     }
 
-    Map<String, StructClass> classes = DecompilerContext.getStructContext().getClasses();
+    Set<StructClass> processedClasses = new HashSet<>();
+    StructContext ctx = DecompilerContext.getStructContext();
     StructClass currentClass = root.classStruct;
     while (currentClass != null) {
+      processedClasses.add(currentClass);
       // all field names for the current class ..
       for (StructField f : currentClass.getFields()) {
         setFieldNames.add(f.getName());
       }
 
       // .. and traverse through parent.
-      currentClass = currentClass.superClass != null ? classes.get(currentClass.superClass.getString()) : null;
+      currentClass = currentClass.superClass != null ? ctx.getClass(currentClass.superClass.getString()) : null;
+
+      // Class already processed, skipping.
+
+      // This may be sign of circularity in the class hierarchy but in most cases this mean that same interface
+      // are listed as implemented several times in the class hierarchy.
+      if (currentClass != null && processedClasses.contains(currentClass)) {
+        currentClass = null;
+      }
     }
 
     collectConflictingShortNames(root, new HashMap<>());
@@ -191,10 +201,12 @@ public class ImportCollector {
   }
 
   private void getSuperClassInnerClasses(ClassNode node, Map<String, String> names) {
-    Map<String, StructClass> classes = DecompilerContext.getStructContext().getClasses();
+    StructContext ctx = DecompilerContext.getStructContext();
+    Set<StructClass> processedClasses = new HashSet<>();
     LinkedList<String> queue = new LinkedList<>();
     StructClass currentClass = node.classStruct;
     while (currentClass != null) {
+      processedClasses.add(currentClass);
       if (currentClass.superClass != null) {
         queue.add(currentClass.superClass.getString());
       }
@@ -212,10 +224,17 @@ public class ImportCollector {
       }
 
       // .. and traverse through parent.
-      currentClass = !queue.isEmpty() ? classes.get(queue.removeFirst()) : null;
-      while (currentClass == null && !queue.isEmpty()) {
-        currentClass = classes.get(queue.removeFirst());
-      }
+      do {
+        currentClass = queue.isEmpty() ? null : ctx.getClass(queue.removeFirst());
+
+        if (currentClass != null && processedClasses.contains(currentClass)) {
+          // Class already processed, skipping.
+
+          // This may be sign of circularity in the class hierarchy but in most cases this mean that same interface
+          // are listed as implemented several times in the class hierarchy.
+          currentClass = null;
+        }
+      } while (currentClass == null && !queue.isEmpty());
     }
   }
 }
