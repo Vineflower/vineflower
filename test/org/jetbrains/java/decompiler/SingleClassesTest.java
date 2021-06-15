@@ -48,9 +48,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
   @Test public void testInnerSignature() { doTest("pkg/TestInnerSignature"); }
   @Test public void testParameterizedTypes() { doTest("pkg/TestParameterizedTypes"); }
   @Test public void testStringConcat() { doTest("pkg/TestStringConcat"); }
-  @Test public void testJava9StringConcat() { doTest("java9/TestJava9StringConcat"); }
-  @Test public void testJava9ModuleInfo() { doTest("java9/module-info"); }
-  @Test public void testJava11StringConcat() { doTest("java11/TestJava11StringConcat"); }
   @Test public void testMethodReferenceSameName() { doTest("pkg/TestMethodReferenceSameName"); }
   @Test public void testMethodReferenceLetterClass() { doTest("pkg/TestMethodReferenceLetterClass"); }
   @Test public void testConstructorReference() { doTest("pkg/TestConstructorReference"); }
@@ -124,7 +121,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
 
   @Test public void testAnonymousObject() { doTest("pkg/TestAnonymousObject"); }
   @Test public void testArrayAssignmentEquals() { doTest("pkg/TestArrayAssignmentEquals"); }
-  // TODO: Loop becomes infinte loop where it should be assignment in loop
+  // TODO: Loop becomes infinite loop where it should be assignment in loop
   @Test public void testArrayCopy() { doTest("pkg/TestArrayCopy"); }
   @Test public void testArrayDoWhile() { doTest("pkg/TestArrayDoWhile"); }
   // TODO: Creating a new object where the array should be set to null
@@ -173,4 +170,16 @@ public class SingleClassesTest extends SingleClassesTestBase {
   // TODO: many problems, wrong else if placement, wrong promotion of while to for, wrong control flow with infinite loop
   @Test public void testIfLoop() { doTest("pkg/TestIfLoop"); }
   @Test public void testInheritanceChainCycle() { doTest("pkg/TestInheritanceChainCycle"); }
+
+  // Java 9 tests
+  @Test public void testJava9StringConcat() { doTest("java9/TestJava9StringConcat"); }
+  @Test public void testJava9ModuleInfo() { doTest("java9/module-info"); }
+
+  // Java 11 tests
+  @Test public void testJava11StringConcat() { doTest("java11/TestJava11StringConcat"); }
+
+  // Java 16 tests
+  @Test public void testPatternMatching() { doTest("java16/TestPatternMatching"); }
+  @Test public void testPatternMatchingFake() { doTest("java16/TestPatternMatchingFake"); }
+  @Test public void testPatternMatchingInteger() { doTest("java16/TestPatternMatchingInteger"); }
 }
