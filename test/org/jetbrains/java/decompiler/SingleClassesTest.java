@@ -180,6 +180,9 @@ public class SingleClassesTest extends SingleClassesTestBase {
 
   // Java 16 tests
   @Test public void testPatternMatching() { doTest("java16/TestPatternMatching"); }
+  // TODO: rename this
   @Test public void testPatternMatchingFake() { doTest("java16/TestPatternMatchingFake"); }
   @Test public void testPatternMatchingInteger() { doTest("java16/TestPatternMatchingInteger"); }
+  // TODO: testNoInit is wrong
+  @Test public void testPatternMatchingMerge() { doTest("java16/TestPatternMatchingMerge"); }
 }

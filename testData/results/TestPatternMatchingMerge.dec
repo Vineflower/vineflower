@@ -1,0 +1,56 @@
+package java16;
+
+public class TestPatternMatchingMerge {
+   public void test(Object var1) {
+      String var2 = "hi";// 5
+      if (var1 instanceof String) {// 7
+         var2 = (String)var1;// 8
+      }
+
+   }// 10
+
+   public void testNoInit(Object var1) {
+      if (var1 instanceof String var2) {// 14 15
+         ;
+      }
+
+   }// 17
+}
+
+class 'java16/TestPatternMatchingMerge' {
+   method 'test (Ljava/lang/Object;)V' {
+      0      4
+      1      4
+      2      4
+      3      5
+      4      5
+      5      5
+      6      5
+      7      5
+      a      6
+      b      6
+      c      6
+      d      6
+      e      6
+      f      9
+   }
+
+   method 'testNoInit (Ljava/lang/Object;)V' {
+      0      12
+      1      12
+      2      12
+      3      12
+      4      12
+      b      12
+      c      16
+   }
+}
+
+Lines mapping:
+5 <-> 5
+7 <-> 6
+8 <-> 7
+10 <-> 10
+14 <-> 13
+15 <-> 13
+17 <-> 17

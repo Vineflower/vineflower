@@ -11,10 +11,7 @@ import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.modules.code.DeadCodeHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.*;
 import org.jetbrains.java.decompiler.modules.decompiler.deobfuscator.ExceptionDeobfuscator;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.AssignmentExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.MonitorExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.SynchronizedStatement;
@@ -173,6 +170,8 @@ public class MethodProcessorRunnable implements Runnable {
         }
       }
 
+      // Dev note: Pattern matching used to run here, to allow for ternary creation but it created corrupted <unknown> variables
+
       if (DecompilerContext.getOption(IFernflowerPreferences.IDEA_NOT_NULL_ANNOTATION)) {
         if (IdeaNotNullHelper.removeHardcodedChecks(root, mt)) {
           SequenceHelper.condenseSequences(root);
@@ -181,6 +180,11 @@ public class MethodProcessorRunnable implements Runnable {
 
       stackProc.simplifyStackVars(root, mt, cl);
       varProc.setVarVersions(root);
+
+      // TODO: needs to be earlier
+      if (cl.isVersion(CodeConstants.BYTECODE_JAVA_16)) {
+        PatternMatchProcessor.matchInstanceof(root);
+      }
 
       LabelHelper.identifyLabels(root);
 

@@ -476,7 +476,7 @@ public final class SecondaryFunctionsHelper {
               // Check if the left hand side of the assignment and the left hand side of the function are the same variable
               // TODO: maybe we should be checking for var version equality too?
               if (lhsVar.getIndex() == lhsVarFunc.getIndex()) {
-                // If all the checks succeed, set the assignment to be a compound assignment and
+                // If all the checks succeed, set the assignment to be a compound assignment and set the right hand side to be the 2nd part of the function
                 assignment.setCondType(rhsFunc.getFuncType());
                 assignment.setRight(funcParams.get(1));
                 // TODO: doesn't hit all instances, see ClientWorld

@@ -6,7 +6,9 @@ import org.jetbrains.java.decompiler.modules.decompiler.DecHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.IfExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.struct.match.IMatchable;
 import org.jetbrains.java.decompiler.struct.match.MatchEngine;
 import org.jetbrains.java.decompiler.struct.match.MatchNode;
@@ -36,6 +38,7 @@ public final class IfStatement extends Statement {
   private StatEdge elseedge;
 
   private boolean negated = false;
+  private boolean patternMatched = false;
 
   private final List<Exprent> headexprent = new ArrayList<>(1); // contains IfExprent
 
@@ -193,6 +196,9 @@ public final class IfStatement extends Statement {
     TextBuffer buf = new TextBuffer();
 
     buf.append(ExprProcessor.listToJava(varDefinitions, indent, tracer));
+
+    // TODO: fix the root cause of this instead of placing a bandaid over the symptom
+    postProcessPatternMatch();
     buf.append(first.toJava(indent, tracer));
 
     if (isLabeled()) {
@@ -270,7 +276,6 @@ public final class IfStatement extends Statement {
 
   @Override
   public void initExprents() {
-
     IfExprent ifexpr = (IfExprent)first.getExprents().remove(first.getExprents().size() - 1);
 
     if (negated) {
@@ -299,7 +304,6 @@ public final class IfStatement extends Statement {
 
   @Override
   public void replaceStatement(Statement oldstat, Statement newstat) {
-
     super.replaceStatement(oldstat, newstat);
 
     if (ifstat == oldstat) {
@@ -332,7 +336,6 @@ public final class IfStatement extends Statement {
 
   @Override
   public Statement getSimpleCopy() {
-
     IfStatement is = new IfStatement();
     is.iftype = this.iftype;
     is.negated = this.negated;
@@ -342,7 +345,6 @@ public final class IfStatement extends Statement {
 
   @Override
   public void initSimpleCopy() {
-
     first = stats.get(0);
 
     List<StatEdge> lstSuccs = first.getSuccessorEdges(STATEDGE_DIRECT_ALL);
@@ -354,6 +356,44 @@ public final class IfStatement extends Statement {
     if (iftype == IFTYPE_IFELSE) {
       elseedge = lstSuccs.get(negated ? 1 : 0);
       elsestat = stats.get(2);
+    }
+  }
+
+  private void postProcessPatternMatch() {
+    Exprent condition = this.getHeadexprent().getCondition();
+
+    if (condition.type != Exprent.EXPRENT_FUNCTION) {
+      return;
+    }
+
+    if (this.first.type != Statement.TYPE_BASICBLOCK) {
+      return;
+    }
+
+    List<Exprent> exprents = this.getHeadexprent().getAllExprents();
+
+    for (Exprent exprent : exprents) {
+
+      if (exprent.type == Exprent.EXPRENT_FUNCTION) {
+        FunctionExprent iof = (FunctionExprent) exprent;
+
+        if (iof.getFuncType() == FunctionExprent.FUNCTION_INSTANCEOF) {
+
+          if (iof.getLstOperands().size() > 2) {
+            VarExprent matchedVar = (VarExprent) iof.getLstOperands().get(2);
+
+            for (Exprent exp : this.first.getExprents()) {
+              if (exp.type == Exprent.EXPRENT_VAR) {
+                if (matchedVar.getVarVersionPair().equals(((VarExprent)exp).getVarVersionPair())) {
+
+                  this.first.getExprents().remove(exp);
+                  break;
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
 
@@ -407,6 +447,14 @@ public final class IfStatement extends Statement {
 
   public StatEdge getElseEdge() {
     return elseedge;
+  }
+
+  public boolean isPatternMatched() {
+    return patternMatched;
+  }
+
+  public void setPatternMatched(boolean patternMatched) {
+    this.patternMatched = patternMatched;
   }
 
   @Override
