@@ -1,0 +1,47 @@
+package records;
+
+public class TestRecordInner {
+   public TestRecordInner.Rec create(int var1) {
+      return new TestRecordInner.Rec(var1);// 7
+   }
+
+   private static record Rec(int x) {
+      private Rec(int x) {
+         this.x = var1;
+      }
+
+      public int x() {
+         return this.x;// 4
+      }
+   }
+}
+
+class 'records/TestRecordInner' {
+   method 'create (I)Lrecords/TestRecordInner$Rec;' {
+      4      4
+      8      4
+   }
+}
+
+class 'records/TestRecordInner$Rec' {
+   method '<init> (I)V' {
+      4      9
+      5      9
+      6      9
+      7      9
+      8      9
+      9      10
+   }
+
+   method 'x ()I' {
+      0      13
+      1      13
+      2      13
+      3      13
+      4      13
+   }
+}
+
+Lines mapping:
+4 <-> 14
+7 <-> 5
