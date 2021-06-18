@@ -528,7 +528,7 @@ public class ExprProcessor implements CodeConstants {
         case opc_invokestatic:
         case opc_invokeinterface:
         case opc_invokedynamic:
-          if (instr.opcode != opc_invokedynamic || instr.bytecodeVersion >= CodeConstants.BYTECODE_JAVA_7) {
+          if (instr.opcode != opc_invokedynamic || instr.bytecodeVersion.hasInvokeDynamic()) {
             LinkConstant invoke_constant = pool.getLinkConstant(instr.operand(0));
 
             List<PooledConstant> bootstrap_arguments = null;

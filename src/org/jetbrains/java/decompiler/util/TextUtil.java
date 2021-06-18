@@ -1,6 +1,7 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.util;
 
+import org.jetbrains.java.decompiler.code.BytecodeVersion;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.ClassesProcessor;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
@@ -49,7 +50,7 @@ public final class TextUtil {
     return "\\u" + sTemp;
   }
 
-  public static boolean isValidIdentifier(String id, int version) {
+  public static boolean isValidIdentifier(String id, BytecodeVersion version) {
     return isJavaIdentifier(id) && !isKeyword(id, version);
   }
 
@@ -67,8 +68,8 @@ public final class TextUtil {
     return true;
   }
 
-  private static boolean isKeyword(String id, int version) {
-    return KEYWORDS.contains(id) || version >= CodeConstants.BYTECODE_JAVA_5 && "enum".equals(id);
+  private static boolean isKeyword(String id, BytecodeVersion version) {
+    return KEYWORDS.contains(id) || version.hasEnums() && "enum".equals(id);
   }
 
   public static String getInstructionName(int opcode) {
