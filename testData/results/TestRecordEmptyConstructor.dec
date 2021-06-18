@@ -5,10 +5,6 @@ public record TestRecordEmptyConstructor(int val) {
       System.out.println(var1);// 5
       this.val = var1;// 4
    }// 6
-
-   public int val() {
-      return this.val;// 3
-   }
 }
 
 class 'records/TestRecordEmptyConstructor' {
@@ -27,18 +23,9 @@ class 'records/TestRecordEmptyConstructor' {
       f      5
       10      6
    }
-
-   method 'val ()I' {
-      0      9
-      1      9
-      2      9
-      3      9
-      4      9
-   }
 }
 
 Lines mapping:
-3 <-> 10
 4 <-> 6
 5 <-> 5
 6 <-> 7

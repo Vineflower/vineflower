@@ -7,11 +7,7 @@ public class TestRecordInner {
 
    private static record Rec(int x) {
       private Rec(int x) {
-         this.x = var1;
-      }
-
-      public int x() {
-         return this.x;// 4
+         this.x = var1;// 4
       }
    }
 }
@@ -32,16 +28,8 @@ class 'records/TestRecordInner$Rec' {
       8      9
       9      10
    }
-
-   method 'x ()I' {
-      0      13
-      1      13
-      2      13
-      3      13
-      4      13
-   }
 }
 
 Lines mapping:
-4 <-> 14
+4 <-> 10
 7 <-> 5

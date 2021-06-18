@@ -2,16 +2,8 @@ package records;
 
 public record TestRecordSimple(int x, int y) {
    public TestRecordSimple(int x, int y) {
-      this.x = x;
+      this.x = x;// 3
       this.y = y;
-   }
-
-   public int x() {
-      return this.x;
-   }
-
-   public int y() {
-      return this.y;// 3
    }
 }
 
@@ -29,23 +21,7 @@ class 'records/TestRecordSimple' {
       d      5
       e      6
    }
-
-   method 'x ()I' {
-      0      9
-      1      9
-      2      9
-      3      9
-      4      9
-   }
-
-   method 'y ()I' {
-      0      13
-      1      13
-      2      13
-      3      13
-      4      13
-   }
 }
 
 Lines mapping:
-3 <-> 14
+3 <-> 5
