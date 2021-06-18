@@ -1,0 +1,5 @@
+package java16preview;
+
+non-sealed class PermittedSubClassD extends PermittedSubClassC {
+}
+

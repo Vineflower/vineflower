@@ -1,0 +1,5 @@
+package java16preview;
+
+sealed class PermittedSubClassA extends TestSealedClasses permits PermittedSubClassB {
+}
+

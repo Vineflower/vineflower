@@ -25,6 +25,10 @@ public final class BytecodeVersion implements Comparable<BytecodeVersion> {
     return major >= MAJOR_9;
   }
 
+  public boolean hasSealedClasses() {
+    return previewReleased(MAJOR_15, MAJOR_17);
+  }
+
   private boolean previewFrom(int previewStart) {
     return major >= previewStart && minor == PREVIEW;
   }

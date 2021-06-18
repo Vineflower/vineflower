@@ -466,6 +466,10 @@ public class ClassWriter {
     boolean isInterface = (flags & CodeConstants.ACC_INTERFACE) != 0;
     boolean isAnnotation = (flags & CodeConstants.ACC_ANNOTATION) != 0;
     boolean isModuleInfo = (flags & CodeConstants.ACC_MODULE) != 0 && cl.hasAttribute(StructGeneralAttribute.ATTRIBUTE_MODULE);
+    StructPermittedSubclassesAttribute permittedSubClassesAttr = cl.getAttribute(StructGeneralAttribute.ATTRIBUTE_PERMITTED_SUBCLASSES);
+    List<String> permittedSubClasses = permittedSubClassesAttr != null ? permittedSubClassesAttr.getClasses() : Collections.emptyList();
+    boolean isSealed = permittedSubClassesAttr != null && !permittedSubClasses.isEmpty();
+    boolean isNonSealed = !isSealed && cl.getVersion().hasSealedClasses() && isSuperClassSealed(cl);
 
     if (isDeprecated) {
       appendDeprecation(buffer, indent);
@@ -503,6 +507,11 @@ public class ClassWriter {
 
     appendModifiers(buffer, flags, CLASS_ALLOWED, isInterface, CLASS_EXCLUDED);
 
+    if (isSealed) {
+      buffer.append("sealed ");
+    } else if (isNonSealed) {
+      buffer.append("non-sealed ");
+    }
     if (isEnum) {
       buffer.append("enum ");
     }
@@ -573,7 +582,34 @@ public class ClassWriter {
       }
     }
 
+    if (isSealed) {
+      buffer.append("permits ");
+      for (int i = 0; i < permittedSubClasses.size(); i++) {
+        if (i > 0) {
+          buffer.append(", ");
+        }
+        buffer.append(ExprProcessor.getCastTypeName(new VarType(permittedSubClasses.get(i), true)));
+      }
+      buffer.append(' ');
+    }
+
     buffer.append('{').appendLineSeparator();
+  }
+
+  private static boolean isSuperClassSealed(StructClass cl) {
+    if (cl.superClass != null) {
+      StructClass superClass = DecompilerContext.getStructContext().getClass((String) cl.superClass.value);
+      if (superClass != null && superClass.hasAttribute(StructGeneralAttribute.ATTRIBUTE_PERMITTED_SUBCLASSES)) {
+        return true;
+      }
+    }
+    for (String iface : cl.getInterfaceNames()) {
+      StructClass ifaceClass = DecompilerContext.getStructContext().getClass(iface);
+      if (ifaceClass != null && ifaceClass.hasAttribute(StructGeneralAttribute.ATTRIBUTE_PERMITTED_SUBCLASSES)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private static boolean isVarArgRecord(StructClass cl) {

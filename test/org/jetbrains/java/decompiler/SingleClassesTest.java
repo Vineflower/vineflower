@@ -173,4 +173,31 @@ public class SingleClassesTest extends SingleClassesTestBase {
   // TODO: many problems, wrong else if placement, wrong promotion of while to for, wrong control flow with infinite loop
   @Test public void testIfLoop() { doTest("pkg/TestIfLoop"); }
   @Test public void testInheritanceChainCycle() { doTest("pkg/TestInheritanceChainCycle"); }
+  @Test public void testSealedClasses() {
+    doTest("java16preview/TestSealedClasses");
+  }
+  @Test public void testSealedClassesA() {
+    doTest("java16preview/PermittedSubClassA", "java16preview/TestSealedClasses");
+  }
+  @Test public void testSealedClassesB() {
+    doTest("java16preview/PermittedSubClassB", "java16preview/PermittedSubClassA", "java16preview/TestSealedClasses");
+  }
+  @Test public void testSealedInterfaces() {
+    doTest("java16preview/TestSealedInterfaces");
+  }
+  @Test public void testSealedInterfacesA() {
+    doTest("java16preview/PermittedSubInterfaceA", "java16preview/TestSealedInterfaces");
+  }
+  @Test public void testSealedInterfacesB() {
+    doTest("java16preview/PermittedSubInterfaceB", "java16preview/PermittedSubInterfaceA", "java16preview/TestSealedInterfaces");
+  }
+  @Test public void testSealedInterfacesC() {
+    doTest("java16preview/PermittedSubClassC", "java16preview/TestSealedInterfaces");
+  }
+  @Test public void testSealedInterfacesD() {
+    doTest("java16preview/PermittedSubClassD", "java16preview/PermittedSubClassC", "java16preview/TestSealedInterfaces");
+  }
+  @Test public void testSealedInterfacesE() {
+    doTest("java16preview/PermittedSubClassE", "java16preview/TestSealedInterfaces");
+  }
 }
