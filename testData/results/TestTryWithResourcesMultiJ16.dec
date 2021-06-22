@@ -1,0 +1,100 @@
+package java16;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Scanner;
+
+public class TestTryWithResourcesMultiJ16 {
+   public void testMulti(File var1) throws IOException {
+      Scanner var2 = new Scanner(var1);
+
+      try {
+         FileWriter var3 = new FileWriter(var1);
+
+         try {
+            var2.next();// 11
+            var3.write("hello");// 12
+         } catch (Throwable var8) {
+            try {
+               var3.close();
+            } catch (Throwable var7) {
+               var8.addSuppressed(var7);
+            }
+
+            throw var8;
+         }
+
+         var3.close();
+      } catch (Throwable var9) {
+         try {
+            var2.close();
+         } catch (Throwable var6) {
+            var9.addSuppressed(var6);
+         }
+
+         throw var9;
+      }
+
+      var2.close();// 13
+   }// 10
+}
+
+class 'java16/TestTryWithResourcesMultiJ16' {
+   method 'testMulti (Ljava/io/File;)V' {
+      4      9
+      8      9
+      d      12
+      11      12
+      12      15
+      13      15
+      14      15
+      15      15
+      17      16
+      18      16
+      19      16
+      1a      16
+      1d      27
+      1e      27
+      1f      27
+      20      27
+      26      19
+      27      19
+      2d      20
+      33      21
+      38      24
+      39      38
+      3a      38
+      3b      38
+      3c      38
+      3d      39
+      3e      39
+      3f      39
+      40      39
+      41      30
+      42      30
+      43      39
+      44      39
+      45      39
+      46      39
+      47      39
+      48      31
+      49      39
+      4a      39
+      4b      39
+      4c      39
+      4d      32
+      4e      39
+      4f      39
+      50      39
+      51      35
+   }
+}
+
+Lines mapping:
+10 <-> 40
+11 <-> 16
+12 <-> 17
+13 <-> 39
+Not mapped:
+14

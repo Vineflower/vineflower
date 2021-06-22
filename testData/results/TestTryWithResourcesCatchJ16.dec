@@ -1,0 +1,135 @@
+package java16;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
+
+public class TestTryWithResourcesCatchJ16 {
+   public void test(File var1) {
+      try {
+         Scanner var2 = new Scanner(var1);
+
+         try {
+            var2.next();// 10
+         } catch (Throwable var6) {
+            try {
+               var2.close();
+            } catch (Throwable var5) {
+               var6.addSuppressed(var5);// 9
+            }
+
+            throw var6;
+         }
+
+         var2.close();
+      } catch (FileNotFoundException var7) {// 11
+         var7.printStackTrace();// 12
+      }
+
+   }// 14
+
+   public void testFunc(File var1) {
+      try {
+         Scanner var2 = this.create(var1);
+
+         try {
+            var2.next();// 18
+         } catch (Throwable var6) {// 17
+            if (var2 != null) {
+               try {
+                  var2.close();
+               } catch (Throwable var5) {
+                  var6.addSuppressed(var5);
+               }
+            }
+
+            throw var6;
+         }
+
+         if (var2 != null) {
+            var2.close();
+         }
+      } catch (FileNotFoundException var7) {// 19
+         var7.printStackTrace();// 20
+      }
+
+   }// 22
+
+   private Scanner create(File var1) throws FileNotFoundException {
+      return new Scanner(var1);// 25
+   }
+}
+
+class 'java16/TestTryWithResourcesCatchJ16' {
+   method 'test (Ljava/io/File;)V' {
+      4      9
+      8      9
+      9      12
+      a      12
+      b      12
+      c      12
+      e      23
+      f      23
+      10      23
+      11      23
+      16      15
+      17      15
+      1d      16
+      22      17
+      26      20
+      2a      24
+      2c      25
+      2f      28
+   }
+
+   method 'testFunc (Ljava/io/File;)V' {
+      0      32
+      1      32
+      2      32
+      3      32
+      4      32
+      5      32
+      6      35
+      7      35
+      8      35
+      9      35
+      b      48
+      c      48
+      f      49
+      10      49
+      11      49
+      12      49
+      16      36
+      17      37
+      18      37
+      1b      39
+      1c      39
+      22      40
+      27      41
+      2b      45
+      2f      51
+      31      52
+      34      55
+   }
+
+   method 'create (Ljava/io/File;)Ljava/util/Scanner;' {
+      4      58
+      8      58
+   }
+}
+
+Lines mapping:
+9 <-> 18
+10 <-> 13
+11 <-> 25
+12 <-> 26
+14 <-> 29
+17 <-> 37
+18 <-> 36
+19 <-> 52
+20 <-> 53
+22 <-> 56
+25 <-> 59
+Not mapped:
+13
+21
