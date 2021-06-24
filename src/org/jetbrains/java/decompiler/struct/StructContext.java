@@ -184,8 +184,18 @@ public class StructContext {
     if (name == null || name.isEmpty()) {
       name = provider.get().qualifiedName;
     }
+
+    StructClass cl = provider.get();
+    String className = cl.qualifiedName.substring(cl.qualifiedName.lastIndexOf('/') + 1);
+    if (!className.equals(name)) {
+      DecompilerContext.getLogger().writeMessage("Inconsistent class name and class file! Expected " + className + ".class but found " + name + ".class!", Severity.WARN);
+
+      name = className;
+    }
+    // TODO: change the name of the created .java file too
+
     classes.put(name, provider);
-    if (isOwn) ownClasses.put(name, provider.get());
+    if (isOwn) ownClasses.put(name, cl);
   }
 
   public void addData(String path, String cls, byte[] data, boolean isOwn) throws IOException {
