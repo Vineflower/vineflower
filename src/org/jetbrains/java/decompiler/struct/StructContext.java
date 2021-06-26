@@ -186,13 +186,14 @@ public class StructContext {
     }
 
     StructClass cl = provider.get();
-    String className = cl.qualifiedName.substring(cl.qualifiedName.lastIndexOf('/') + 1);
-    if (!className.equals(name)) {
-      DecompilerContext.getLogger().writeMessage("Inconsistent class name and class file! Expected " + className + ".class but found " + name + ".class!", Severity.WARN);
-
-      name = className;
-    }
-    // TODO: change the name of the created .java file too
+    // TODO: fix this properly
+//    String className = cl.qualifiedName.substring(cl.qualifiedName.lastIndexOf('/') + 1);
+//    if (!className.equals(name)) {
+//      DecompilerContext.getLogger().writeMessage("Inconsistent class name and class file! Expected " + className + ".class but found " + name + ".class!", Severity.WARN);
+//
+//      name = className;
+//    }
+//    // TODO: change the name of the created .java file too
 
     classes.put(name, provider);
     if (isOwn) ownClasses.put(name, cl);
