@@ -184,8 +184,7 @@ public class StructContext {
     if (name == null || name.isEmpty()) {
       name = provider.get().qualifiedName;
     }
-
-    StructClass cl = provider.get();
+    
     // TODO: fix this properly
 //    String className = cl.qualifiedName.substring(cl.qualifiedName.lastIndexOf('/') + 1);
 //    if (!className.equals(name)) {
@@ -196,7 +195,7 @@ public class StructContext {
 //    // TODO: change the name of the created .java file too
 
     classes.put(name, provider);
-    if (isOwn) ownClasses.put(name, cl);
+    if (isOwn) ownClasses.put(name, provider.get());
   }
 
   public void addData(String path, String cls, byte[] data, boolean isOwn) throws IOException {
