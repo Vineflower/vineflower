@@ -39,4 +39,7 @@ public class SingleClassesEntireClasspathTest extends SingleClassesTestBase {
   @Test public void testThrowException() { doTest("pkg/TestThrowException"); }
   @Test public void testSimpleBytecodeMapping() { doTest("pkg/TestClassSimpleBytecodeMapping"); }
   @Test public void testAnonymousSignature() { doTest("pkg/TestAnonymousSignature"); }
+  @Test public void testTryWithResourcesJ16() { doTest("java16/TestTryWithResourcesJ16"); }
+  @Test public void testTryWithResourcesCatchJ16() { doTest("java16/TestTryWithResourcesCatchJ16"); }
+  @Test public void testTryWithResourcesMultiJ16() { doTest("java16/TestTryWithResourcesMultiJ16"); }
 }

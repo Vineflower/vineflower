@@ -173,7 +173,4 @@ public class SingleClassesTest extends SingleClassesTestBase {
   // TODO: many problems, wrong else if placement, wrong promotion of while to for, wrong control flow with infinite loop
   @Test public void testIfLoop() { doTest("pkg/TestIfLoop"); }
   @Test public void testInheritanceChainCycle() { doTest("pkg/TestInheritanceChainCycle"); }
-  @Test public void testTryWithResourcesJ16() { doTest("java16/TestTryWithResourcesJ16"); }
-  @Test public void testTryWithResourcesCatchJ16() { doTest("java16/TestTryWithResourcesCatchJ16"); }
-  @Test public void testTryWithResourcesMultiJ16() { doTest("java16/TestTryWithResourcesMultiJ16"); }
 }

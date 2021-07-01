@@ -7,21 +7,10 @@ import java.util.Scanner;
 public class TestTryWithResourcesCatchJ16 {
    public void test(File var1) {
       try {
-         Scanner var2 = new Scanner(var1);
-
-         try {
+         try (Scanner var2 = new Scanner(var1)) {// 9
             var2.next();// 10
-         } catch (Throwable var6) {
-            try {
-               var2.close();
-            } catch (Throwable var5) {
-               var6.addSuppressed(var5);// 9
-            }
-
-            throw var6;
          }
 
-         var2.close();
       } catch (FileNotFoundException var7) {// 11
          var7.printStackTrace();// 12
       }
@@ -30,20 +19,8 @@ public class TestTryWithResourcesCatchJ16 {
 
    public void testFunc(File var1) {
       try {
-         Scanner var2 = this.create(var1);
-
-         try {
+         try (Scanner var2 = this.create(var1)) {// 17
             var2.next();// 18
-         } catch (Throwable var6) {// 17
-            if (var2 != null) {
-               try {
-                  var2.close();
-               } catch (Throwable var5) {
-                  var6.addSuppressed(var5);
-               }
-            }
-
-            throw var6;
          }
 
          if (var2 != null) {
@@ -64,72 +41,55 @@ class 'java16/TestTryWithResourcesCatchJ16' {
    method 'test (Ljava/io/File;)V' {
       4      9
       8      9
-      9      12
-      a      12
-      b      12
-      c      12
-      e      23
-      f      23
-      10      23
-      11      23
-      16      15
-      17      15
-      1d      16
-      22      17
-      26      20
-      2a      24
-      2c      25
-      2f      28
+      9      10
+      a      10
+      b      10
+      c      10
+      2a      13
+      2c      14
+      2f      17
    }
 
    method 'testFunc (Ljava/io/File;)V' {
-      0      32
-      1      32
-      2      32
-      3      32
-      4      32
-      5      32
-      6      35
-      7      35
-      8      35
-      9      35
-      b      48
-      c      48
-      f      49
-      10      49
-      11      49
-      12      49
-      16      36
-      17      37
-      18      37
-      1b      39
-      1c      39
-      22      40
-      27      41
-      2b      45
-      2f      51
-      31      52
-      34      55
+      0      21
+      1      21
+      2      21
+      3      21
+      4      21
+      5      21
+      6      22
+      7      22
+      8      22
+      9      22
+      b      25
+      c      25
+      f      26
+      10      26
+      11      26
+      12      26
+      2f      28
+      31      29
+      34      32
    }
 
    method 'create (Ljava/io/File;)Ljava/util/Scanner;' {
-      4      58
-      8      58
+      4      35
+      8      35
    }
 }
 
 Lines mapping:
-9 <-> 18
-10 <-> 13
-11 <-> 25
-12 <-> 26
-14 <-> 29
-17 <-> 37
-18 <-> 36
-19 <-> 52
-20 <-> 53
-22 <-> 56
-25 <-> 59
+9 <-> 10
+10 <-> 11
+11 <-> 14
+12 <-> 15
+14 <-> 18
+17 <-> 22
+18 <-> 23
+19 <-> 29
+20 <-> 30
+22 <-> 33
+25 <-> 36
 Not mapped:
 13
 21

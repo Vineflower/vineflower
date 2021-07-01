@@ -184,7 +184,7 @@ public class MethodProcessorRunnable implements Runnable {
 
       LabelHelper.identifyLabels(root);
 
-      if (TryHelper.enhanceTryStats(root)) {
+      if (TryHelper.enhanceTryStats(root, cl)) {
         continue;
       }
 

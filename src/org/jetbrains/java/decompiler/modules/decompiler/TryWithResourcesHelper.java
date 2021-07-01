@@ -1,0 +1,344 @@
+package org.jetbrains.java.decompiler.modules.decompiler;
+
+import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
+import org.jetbrains.java.decompiler.struct.gen.VarType;
+
+import java.util.ArrayList;
+
+public final class TryWithResourcesHelper {
+  // Make try with resources with the old style bytecode (J8)
+  public static boolean makeTryWithResource(CatchAllStatement finallyStat) {
+    Statement handler = finallyStat.getHandler();
+
+    // The finally block has a specific statement structure we can check for
+    if (handler.getStats().size() != 2) {
+      return false;
+    }
+
+    Statement toCheck = finallyStat.getHandler().getFirst();
+    if (toCheck.type != Statement.TYPE_IF || ((IfStatement)toCheck).getIfstat().type != Statement.TYPE_IF) {
+      return false;
+    }
+
+    toCheck = ((IfStatement)toCheck).getIfstat();
+
+    if (((IfStatement)toCheck).getElsestat() == null) {
+      return false;
+    }
+
+    Statement elseBlock = ((IfStatement)toCheck).getElsestat();
+    VarExprent var = null;
+
+    if (elseBlock.getExprents() != null && elseBlock.getExprents().size() == 1) {
+      Exprent exp = elseBlock.getExprents().get(0);
+
+      if (isCloseable(exp)) {
+        var = (VarExprent)((InvocationExprent)exp).getInstance();
+      }
+    }
+
+    if (var != null) {
+      AssignmentExprent ass = null;
+      BasicBlockStatement initBlock = null;
+      for (StatEdge edge : finallyStat.getAllPredecessorEdges()) {
+        if (edge.getDestination().equals(finallyStat) && edge.getSource().type == Statement.TYPE_BASICBLOCK) {
+          ass = findResourceDef(var, edge.getSource());
+          if (ass != null) {
+            initBlock = (BasicBlockStatement)edge.getSource();
+            break;
+          }
+        }
+      }
+
+      if (ass != null) {
+        Statement stat = finallyStat.getParent();
+        Statement stat2 = finallyStat.getFirst();
+
+        if (stat2.type == Statement.TYPE_TRYCATCH) {
+          CatchStatement child = (CatchStatement)stat2;
+
+          AssignmentExprent resourceDef = (AssignmentExprent)ass.copy();
+          if (ass.getRight().getExprType().equals(VarType.VARTYPE_NULL)) {
+            if (child.getFirst() != null) {
+              fixResourceAssignment(resourceDef, child.getFirst());
+            }
+          }
+
+          if (resourceDef.getRight().getExprType().equals(VarType.VARTYPE_NULL)) {
+            return false;
+          }
+
+          child.setTryType(CatchStatement.RESOURCES);
+          initBlock.getExprents().remove(ass);
+          child.getResources().add(0, resourceDef);
+
+          if (!finallyStat.getVarDefinitions().isEmpty()) {
+            child.getVarDefinitions().addAll(0, finallyStat.getVarDefinitions());
+          }
+
+          stat.replaceStatement(finallyStat, child);
+          removeRedundantThrow(initBlock, child);
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
+  // Make try with resources with the new style bytecode (J11+)
+  // It doesn't use finally blocks, and is just a try catch
+  public static boolean makeTryWithResourceJ11(CatchStatement tryStatement) {
+    // Doesn't have a catch block, probably already processed
+    if (tryStatement.getStats().size() < 2) {
+      return false;
+    }
+
+    Statement inner = tryStatement.getStats().get(1); // Get catch block
+
+    VarExprent closeable = null;
+
+    boolean nullable = false;
+
+    if (inner.type == Statement.TYPE_SEQUENCE) {
+      // Replace dummy inner with real inner
+      inner = inner.getStats().get(0);
+
+      // If the catch statement contains a simple try catch, then it's a nonnull resource
+      if (inner.type == Statement.TYPE_TRYCATCH) {
+        Statement inTry = inner.getStats().get(0);
+
+        if (inTry.type == Statement.TYPE_BASICBLOCK) {
+          Exprent first = inTry.getExprents().get(0);
+
+          if (isCloseable(first)) {
+            closeable = (VarExprent) ((InvocationExprent)first).getInstance();
+          }
+        }
+      }
+
+      // Nullable resource, contains null checks
+      if (inner.type == Statement.TYPE_IF) {
+        Exprent ifCase = ((IfStatement)inner).getHeadexprent().getCondition();
+
+        // Will look like "if (!(!(var != null)))"
+        Exprent temp = ifCase;
+
+        while (temp.type == Exprent.EXPRENT_FUNCTION) {
+          FunctionExprent func = (FunctionExprent) temp;
+
+          if (func.getFuncType() == FunctionExprent.FUNCTION_BOOL_NOT) {
+            // If it's a bool not, keep going
+            temp = func.getLstOperands().get(0);
+          } else if (func.getFuncType() == FunctionExprent.FUNCTION_NE) {
+            Exprent check = func.getLstOperands().get(0);
+
+            if (check.type != Exprent.EXPRENT_VAR) {
+              break;
+            }
+
+            // Make sure it's checking against null
+            if (func.getLstOperands().get(1).getExprType().equals(VarType.VARTYPE_NULL)) {
+              // Ensured that the if stat is a null check
+
+              inner = ((IfStatement)inner).getIfstat();
+
+              if (inner.type == Statement.TYPE_TRYCATCH) {
+                Statement inTry = inner.getStats().get(0);
+
+                if (inTry.type == Statement.TYPE_BASICBLOCK) {
+                  Exprent first = inTry.getExprents().get(0);
+
+                  if (isCloseable(first)) {
+                    closeable = (VarExprent) ((InvocationExprent)first).getInstance();
+                    nullable = true;
+
+                    // Double check that the variables in the null check and the closeable match
+                    if (!closeable.getVarVersionPair().equals(((VarExprent)check).getVarVersionPair())) {
+                      closeable = null;
+                    }
+                  }
+                }
+              }
+            }
+
+
+            break;
+          } else {
+            break;
+          }
+        }
+      }
+    }
+
+    if (closeable == null) {
+      return false;
+    }
+
+    // Find basic block that contains the resource assignment
+    for (StatEdge edge : tryStatement.getAllPredecessorEdges()) {
+      if (edge.getDestination().equals(tryStatement) && edge.getSource().type == Statement.TYPE_BASICBLOCK) {
+        AssignmentExprent assignment = findResourceDef(closeable, edge.getSource());
+
+        // Remove the resource assignment from the basic block
+        if (assignment != null) {
+          edge.getSource().getExprents().remove(assignment);
+
+          // Set the try statement type
+          tryStatement.setTryType(CatchStatement.RESOURCES);
+
+          // Add resource assignment to try
+          tryStatement.getResources().add(0, assignment);
+
+          // Destroy catch block
+          tryStatement.getStats().remove(1);
+
+          // Remove outer close()
+          Statement parent = tryStatement.getParent();
+
+          for (int i = 0; i < parent.getStats().size(); i++) {
+            Statement stat = parent.getStats().get(i);
+
+            if (stat == tryStatement) {
+              continue;
+            }
+
+            if (nullable) {
+              // Check for if statement that contains a null check and a close()
+              if (stat.type == Statement.TYPE_IF) {
+                IfStatement ifStat = (IfStatement) stat;
+                Exprent condition = ifStat.getHeadexprent().getCondition();
+
+                if (condition.type == Exprent.EXPRENT_FUNCTION) {
+                  FunctionExprent func = (FunctionExprent) condition;
+
+                  // Ensure the exprent is the one we want to remove
+                  if (func.getFuncType() == FunctionExprent.FUNCTION_NE && func.getLstOperands().get(0).type == Exprent.EXPRENT_VAR && func.getLstOperands().get(1).getExprType().equals(VarType.VARTYPE_NULL)) {
+                    if (((VarExprent)func.getLstOperands().get(0)).getVarVersionPair().equals(closeable.getVarVersionPair())) {
+                      // Remove if stat here
+                      // TODO: figure out how to replace all the edge nodes properly so that nothing points towards the if statement or the basic block inside
+                    }
+                  }
+                }
+              }
+            } else {
+              if (stat.getExprents() != null) {
+                for (Exprent exprent : new ArrayList<>(stat.getExprents())) {
+                  // Check and remove the close exprent
+                  if (exprent.type == Exprent.EXPRENT_INVOCATION && ((VarExprent) ((InvocationExprent) exprent).getInstance()).getVarVersionPair().equals(closeable.getVarVersionPair()) && isCloseable(exprent)) {
+                    stat.getExprents().remove(exprent);
+                  }
+                }
+              }
+            }
+          }
+
+          break;
+        }
+      }
+    }
+
+    // TODO: this doesn't recurse at the moment
+    return false;
+  }
+
+  // TODO: flatten trys in the other class
+
+  private static AssignmentExprent findResourceDef(VarExprent var, Statement prevStatement) {
+    for (Exprent exp : prevStatement.getExprents()) {
+      if (exp.type == Exprent.EXPRENT_ASSIGNMENT) {
+        AssignmentExprent ass = (AssignmentExprent)exp;
+        if (ass.getLeft().type == Exprent.EXPRENT_VAR) { // cannot use equals as var's varType may be unknown and not match
+          VarExprent left = (VarExprent)ass.getLeft();
+          if (left.getVarVersionPair().equals(var.getVarVersionPair())) {
+            return ass;
+          }
+        }
+      }
+    }
+
+    return null;
+  }
+
+  private static boolean isCloseable(Exprent exp) {
+    if (exp.type == Exprent.EXPRENT_INVOCATION) {
+      InvocationExprent invocExp = (InvocationExprent)exp;
+      if (invocExp.getName().equals("close") && invocExp.getStringDescriptor().equals("()V")) {
+        if (invocExp.getInstance() != null && invocExp.getInstance().type == Exprent.EXPRENT_VAR) {
+          return DecompilerContext.getStructContext().instanceOf(invocExp.getClassname(), "java/lang/AutoCloseable");
+        }
+      }
+    }
+
+    return false;
+  }
+
+  private static void fixResourceAssignment(AssignmentExprent ass, Statement statement) {
+    if (statement.getExprents() != null) {
+      for (Exprent exp : statement.getExprents()) {
+        if (exp.type == Exprent.EXPRENT_ASSIGNMENT) {
+          AssignmentExprent toRemove = (AssignmentExprent)exp;
+          if (ass.getLeft().equals(toRemove.getLeft()) && !toRemove.getRight().getExprType().equals(VarType.VARTYPE_NULL)) {
+            ass.setRight(toRemove.getRight());
+            statement.getExprents().remove(toRemove);
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  private static boolean removeRedundantThrow(BasicBlockStatement initBlock, CatchStatement catchStat) {
+    if (catchStat.getStats().size() > 1) {
+      boolean removed = false;
+      Statement temp = null;
+      int i = 1;
+      for (; i < catchStat.getStats().size(); ++i) {
+        temp = catchStat.getStats().get(i);
+
+        if (temp.type == Statement.TYPE_BASICBLOCK && temp.getExprents() != null) {
+          if (temp.getExprents().size() >= 2 && catchStat.getVars().get(i - 1).getVarType().value.equals("java/lang/Throwable")) {
+            if (temp.getExprents().get(temp.getExprents().size() - 1).type == Exprent.EXPRENT_EXIT) {
+              ExitExprent exitExprent = (ExitExprent)temp.getExprents().get(temp.getExprents().size() - 1);
+              if (exitExprent.getExitType() == ExitExprent.EXIT_THROW && exitExprent.getValue().equals(catchStat.getVars().get(i - 1))) {
+
+                catchStat.getExctStrings().remove(i - 1);
+                catchStat.getVars().remove(i - 1);
+                catchStat.getStats().remove(i);
+
+                for (StatEdge edge : temp.getAllPredecessorEdges()) {
+                  edge.getSource().removeSuccessor(edge);
+                }
+
+                for (StatEdge edge : temp.getAllSuccessorEdges()) {
+                  edge.getDestination().removePredecessor(edge);
+                }
+
+                removed = true;
+                break;
+              }
+            }
+          }
+        }
+      }
+
+      if (removed && temp.getExprents().get(temp.getExprents().size() - 2).type == Exprent.EXPRENT_ASSIGNMENT) {
+        AssignmentExprent assignmentExp = (AssignmentExprent)temp.getExprents().get(temp.getExprents().size() - 2);
+        if (assignmentExp.getLeft().getExprType().value.equals("java/lang/Throwable")) {
+          for (Exprent exprent : initBlock.getExprents()) {
+            if (exprent.type == Exprent.EXPRENT_ASSIGNMENT) {
+              AssignmentExprent toRemove = (AssignmentExprent)exprent;
+              if (toRemove.getLeft().equals(assignmentExp.getLeft())) {
+                initBlock.getExprents().remove(toRemove);
+                return true;
+              }
+            }
+          }
+        }
+      }
+    }
+    return false;
+  }
+}
