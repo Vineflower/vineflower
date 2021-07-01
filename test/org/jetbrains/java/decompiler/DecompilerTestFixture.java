@@ -15,8 +15,11 @@ import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.arrayContaining;
+import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DecompilerTestFixture {
   private File testDataDir;
@@ -26,22 +29,22 @@ public class DecompilerTestFixture {
   private boolean cleanup = true;
 
   public void setUp(String... optionPairs) throws IOException {
-    assertThat(optionPairs.length % 2).isEqualTo(0);
+    assertEquals(0, optionPairs.length % 2);
 
     testDataDir = new File("testData");
     if (!isTestDataDir(testDataDir)) testDataDir = new File("community/plugins/java-decompiler/engine/testData");
     if (!isTestDataDir(testDataDir)) testDataDir = new File("plugins/java-decompiler/engine/testData");
     if (!isTestDataDir(testDataDir)) testDataDir = new File("../community/plugins/java-decompiler/engine/testData");
     if (!isTestDataDir(testDataDir)) testDataDir = new File("../plugins/java-decompiler/engine/testData");
-    assertTrue("current dir: " + new File("").getAbsolutePath(), isTestDataDir(testDataDir));
+    assertTrue(isTestDataDir(testDataDir), "current dir: " + new File("").getAbsolutePath());
     testDataDir = testDataDir.getAbsoluteFile();
 
     //noinspection SSBasedInspection
     tempDir = File.createTempFile("decompiler_test_", "_dir");
-    assertThat(tempDir.delete()).isTrue();
+    assertTrue(tempDir.delete());
 
     targetDir = new File(tempDir, "decompiled");
-    assertThat(targetDir.mkdirs()).isTrue();
+    assertTrue(targetDir.mkdirs());
 
     Map<String, Object> options = new HashMap<>();
     options.put(IFernflowerPreferences.LOG_LEVEL, "warn");
@@ -104,13 +107,13 @@ public class DecompilerTestFixture {
   public static void assertFilesEqual(File expected, File actual) {
     if (expected.isDirectory()) {
       String[] children = Objects.requireNonNull(expected.list());
-      assertThat(actual.list()).contains(children);
+      assertThat(actual.list(), arrayContainingInAnyOrder(children));
       for (String name : children) {
         assertFilesEqual(new File(expected, name), new File(actual, name));
       }
     }
     else {
-      assertThat(getContent(actual)).isEqualTo(getContent(expected));
+      assertEquals(getContent(expected), getContent(actual));
     }
   }
 

@@ -16,7 +16,8 @@
 package org.jetbrains.java.decompiler;
 
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
@@ -35,6 +36,7 @@ public class LVTTest extends SingleClassesTestBase {
   }
 
   @Override
+  @BeforeEach
   public void setUp() throws IOException {
       super.setUp();
       fixture.setCleanup(false);

@@ -16,7 +16,7 @@
 package org.jetbrains.java.decompiler;
 
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class JADTest extends SingleClassesTestBase {
 
@@ -29,6 +29,7 @@ public class JADTest extends SingleClassesTestBase {
       };
     }
 
-    @Test public void testClassFields() { doTest("pkg/TestJADNaming"); }
+    @Test
+    public void testClassFields() { doTest("pkg/TestJADNaming"); }
 
 }

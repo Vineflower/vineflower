@@ -16,20 +16,22 @@
 package org.jetbrains.java.decompiler;
 
 import org.jetbrains.java.decompiler.main.decompiler.ConsoleDecompiler;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.rules.Timeout;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Timeout;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static org.jetbrains.java.decompiler.DecompilerTestFixture.assertFilesEqual;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+/*
+ * Set individual test duration time limit to 60 seconds.
+ * This will help us to test bugs hanging decompiler.
+ */
+@Timeout(60)
 public class SingleClassesTestBase {
   protected DecompilerTestFixture fixture;
   
@@ -37,25 +39,17 @@ public class SingleClassesTestBase {
     return new String[] {};
   }
 
-  @Before
+  @BeforeEach
   public void setUp() throws IOException {
     fixture = new DecompilerTestFixture();
     fixture.setUp(getDecompilerOptions());
   }
 
-  /*
-   * Set individual test duration time limit to 60 seconds.
-   * This will help us to test bugs hanging decompiler.
-   */
-  @Rule
-  public Timeout globalTimeout = Timeout.seconds(60);
-
-  @After
+  @AfterEach
   public void tearDown() {
     fixture.tearDown();
     fixture = null;
   }
-
 
   protected void doTest(String testFile, String... companionFiles) {
     ConsoleDecompiler decompiler = fixture.getDecompiler();

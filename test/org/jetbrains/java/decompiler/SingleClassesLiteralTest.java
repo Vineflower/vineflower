@@ -2,9 +2,9 @@ package org.jetbrains.java.decompiler;
 
 import org.jetbrains.java.decompiler.main.decompiler.ConsoleDecompiler;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,12 +13,12 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.jetbrains.java.decompiler.DecompilerTestFixture.assertFilesEqual;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SingleClassesLiteralTest {
   private DecompilerTestFixture fixture;
 
-  @Before
+  @BeforeEach
   public void setUp() throws IOException {
     fixture = new DecompilerTestFixture();
     fixture.setUp(IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
@@ -28,7 +28,7 @@ public class SingleClassesLiteralTest {
       IFernflowerPreferences.LITERALS_AS_IS, "0");
   }
 
-  @After
+  @AfterEach
   public void tearDown() {
     fixture.tearDown();
     fixture = null;

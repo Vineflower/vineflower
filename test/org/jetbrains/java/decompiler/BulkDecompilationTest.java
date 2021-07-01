@@ -3,9 +3,9 @@ package org.jetbrains.java.decompiler;
 
 import org.jetbrains.java.decompiler.main.decompiler.ConsoleDecompiler;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.*;
 import java.util.Enumeration;
@@ -13,18 +13,18 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import static org.jetbrains.java.decompiler.DecompilerTestFixture.assertFilesEqual;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BulkDecompilationTest {
   private DecompilerTestFixture fixture;
 
-  @Before
+  @BeforeEach
   public void setUp() throws IOException {
     fixture = new DecompilerTestFixture();
     fixture.setUp();
   }
 
-  @After
+  @AfterEach
   public void tearDown() {
     fixture.tearDown();
     fixture = null;

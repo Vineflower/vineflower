@@ -25,8 +25,9 @@ sourceSets {
 repositories { mavenCentral() }
 
 dependencies {
-  testImplementation 'junit:junit:4.12'
-  testImplementation 'org.assertj:assertj-core:3.12.2'
+  testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.2'
+  testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.2'
+  testImplementation 'org.hamcrest:hamcrest:2.2'
 
   // Java 9 classes need the main source set
   java9Implementation sourceSets.main.output
@@ -38,6 +39,10 @@ java.toolchain {
 
 tasks.withType(JavaCompile) {
   options.deprecation = true
+}
+
+test {
+  useJUnitPlatform()
 }
 
 // Compile the java 9 classes

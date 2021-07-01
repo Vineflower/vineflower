@@ -1,7 +1,7 @@
 package org.jetbrains.java.decompiler;
 
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class SingleClassesEntireClasspathTest extends SingleClassesTestBase {
   @Override
