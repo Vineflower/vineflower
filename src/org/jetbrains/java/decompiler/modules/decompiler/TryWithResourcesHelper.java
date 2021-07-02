@@ -164,7 +164,6 @@ public final class TryWithResourcesHelper {
               }
             }
 
-
             break;
           } else {
             break;
@@ -216,9 +215,50 @@ public final class TryWithResourcesHelper {
 
                   // Ensure the exprent is the one we want to remove
                   if (func.getFuncType() == FunctionExprent.FUNCTION_NE && func.getLstOperands().get(0).type == Exprent.EXPRENT_VAR && func.getLstOperands().get(1).getExprType().equals(VarType.VARTYPE_NULL)) {
-                    if (((VarExprent)func.getLstOperands().get(0)).getVarVersionPair().equals(closeable.getVarVersionPair())) {
-                      // Remove if stat here
-                      // TODO: figure out how to replace all the edge nodes properly so that nothing points towards the if statement or the basic block inside
+                    if (func.getLstOperands().get(0).type == Exprent.EXPRENT_VAR && ((VarExprent)func.getLstOperands().get(0)).getVarVersionPair().equals(closeable.getVarVersionPair())) {
+                      // First start by removing the contents of the if statement.
+                      // This block's connections need to be removed first before we can move onto the statement itself.
+
+                      // Contents of the if statement
+                      Statement ifBlock = ifStat.getIfstat();
+
+                      // Disconnect edges to and from the inside of block's contents
+                      for (StatEdge suc : ifBlock.getAllSuccessorEdges()) {
+                        ifBlock.removeSuccessor(suc);
+                      }
+
+                      // Disconnect predecessors
+                      for (StatEdge pred : ifBlock.getAllPredecessorEdges()) {
+                        // Disconnect successors from pred to the block
+                        pred.getSource().removeSuccessor(pred);
+                        // TODO: should be removing empty predecessor basic block?
+                        ifBlock.removePredecessor(pred);
+                      }
+
+                      // Remove inner block from the statement
+                      ifStat.getStats().removeWithKey(ifBlock.id);
+
+                      // Start processing the actual if statement
+
+                      // Get successor, which will be connected to predecessors in place of the if statement
+                      StatEdge successor = ifStat.getAllSuccessorEdges().get(0);
+
+                      for (StatEdge pred : ifStat.getAllPredecessorEdges()) {
+                        Statement predStat = pred.getSource();
+                        // Disconnect if stat's predecessor from the stat
+                        predStat.removeSuccessor(pred);
+
+                        // Connect predecessor of if stat to it's successor, circumventing it
+                        StatEdge newEdge = new StatEdge(StatEdge.TYPE_REGULAR, predStat, successor.getDestination());
+                        predStat.addSuccessor(newEdge);
+                      }
+
+                      // Remove successor from if stat, as we've made the control go from it's predecessors to it's successor
+                      ifStat.removeSuccessor(successor);
+                      successor.getDestination().removePredecessor(successor); // TODO: is this needed?
+
+                      // Remove if statement containing close() check- finally we're done!
+                      parent.getStats().removeWithKey(ifStat.id);
                     }
                   }
                 }
@@ -226,9 +266,14 @@ public final class TryWithResourcesHelper {
             } else {
               if (stat.getExprents() != null) {
                 for (Exprent exprent : new ArrayList<>(stat.getExprents())) {
+
                   // Check and remove the close exprent
-                  if (exprent.type == Exprent.EXPRENT_INVOCATION && ((VarExprent) ((InvocationExprent) exprent).getInstance()).getVarVersionPair().equals(closeable.getVarVersionPair()) && isCloseable(exprent)) {
-                    stat.getExprents().remove(exprent);
+                  if (exprent.type == Exprent.EXPRENT_INVOCATION) {
+                  Exprent inst = ((InvocationExprent) exprent).getInstance();
+
+                    if (inst.type == Exprent.EXPRENT_VAR && ((VarExprent)inst).getVarVersionPair().equals(closeable.getVarVersionPair()) && isCloseable(exprent)) {
+                      stat.getExprents().remove(exprent);
+                    }
                   }
                 }
               }

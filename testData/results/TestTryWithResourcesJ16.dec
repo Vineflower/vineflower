@@ -17,10 +17,6 @@ public class TestTryWithResourcesJ16 {
          var2.next();// 18
       }
 
-      if (var2 != null) {// 19
-         var2.close();
-      }
-
    }// 20
 
    private Scanner create(File var1) throws FileNotFoundException {
@@ -70,18 +66,12 @@ class 'java16/TestTryWithResourcesJ16' {
       7      16
       8      16
       9      16
-      b      19
-      c      19
-      f      20
-      10      20
-      11      20
-      12      20
-      2c      23
+      2c      19
    }
 
    method 'create (Ljava/io/File;)Ljava/util/Scanner;' {
-      4      26
-      8      26
+      4      22
+      8      22
    }
 }
 
@@ -91,8 +81,8 @@ Lines mapping:
 13 <-> 13
 17 <-> 16
 18 <-> 17
-19 <-> 20
-20 <-> 24
-23 <-> 27
+20 <-> 20
+23 <-> 23
 Not mapped:
 14
+19
