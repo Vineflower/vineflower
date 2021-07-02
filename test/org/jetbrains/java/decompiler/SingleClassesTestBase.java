@@ -18,7 +18,6 @@ package org.jetbrains.java.decompiler;
 import org.jetbrains.java.decompiler.main.decompiler.ConsoleDecompiler;
 import org.junit.jupiter.api.*;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
@@ -27,6 +26,7 @@ import java.util.*;
 
 import static org.jetbrains.java.decompiler.DecompilerTestFixture.assertFilesEqual;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 /*
  * Set individual test duration time limit to 60 seconds.
@@ -92,17 +92,25 @@ public abstract class SingleClassesTestBase {
     return tests;
   }
 
+  protected Path getClassFile(String name) {
+    return fixture.getTestDataDir().resolve("classes/" + name + ".class");
+  }
+
+  protected Path getReferenceFile(String testName) {
+    return fixture.getTestDataDir().resolve("results/" + testName + ".dec");
+  }
+
   protected void doTest(String testFile, String... companionFiles) {
     ConsoleDecompiler decompiler = fixture.getDecompiler();
 
-    Path classFile = fixture.getTestDataDir().resolve("classes/" + testFile + ".class");
+    Path classFile = getClassFile(testFile);
     assertTrue(Files.isRegularFile(classFile));
     for (Path file : collectClasses(classFile)) {
       decompiler.addSource(file.toFile());
     }
 
     for (String companionFile : companionFiles) {
-      Path companionClassFile = fixture.getTestDataDir().resolve("classes/" + companionFile + ".class");
+      Path companionClassFile = getClassFile(companionFile);
       assertTrue(Files.isRegularFile(companionClassFile));
       for (Path file : collectClasses(companionClassFile)) {
         decompiler.addSource(file.toFile());
@@ -115,9 +123,19 @@ public abstract class SingleClassesTestBase {
     String testName = testFileName.substring(0, testFileName.length() - 6);
     Path decompiledFile = fixture.getTargetDir().resolve(testName + ".java");
     assertTrue(Files.isRegularFile(decompiledFile));
-    Path referenceFile = fixture.getTestDataDir().resolve("results/" + testName + ".dec");
-    assertTrue(Files.isRegularFile(referenceFile));
-    assertFilesEqual(referenceFile, decompiledFile);
+    Path referenceFile = getReferenceFile(testName);
+    if (!Files.exists(referenceFile)) {
+      try {
+        Files.copy(decompiledFile, referenceFile);
+      } catch (IOException e) {
+        throw new UncheckedIOException(e);
+      }
+      //noinspection ConstantConditions
+      assumeTrue(false, referenceFile.getFileName() + " was not present yet");
+    } else {
+      assertTrue(Files.isRegularFile(referenceFile));
+      assertFilesEqual(referenceFile, decompiledFile);
+    }
   }
 
   private static List<Path> collectClasses(Path classFile) {
