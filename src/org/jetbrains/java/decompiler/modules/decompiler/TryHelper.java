@@ -7,6 +7,8 @@ import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.struct.StructClass;
 
+import java.util.ArrayList;
+
 public class TryHelper {
   public static boolean enhanceTryStats(RootStatement root, StructClass cl) {
     boolean ret = makeTryWithResourceRec(cl, root);
@@ -32,8 +34,7 @@ public class TryHelper {
       }
     }
 
-    for (int i = 0; i < stat.getStats().size(); i++) {
-      Statement st = stat.getStats().get(i);
+    for (Statement st : new ArrayList<>(stat.getStats())) {
       if (makeTryWithResourceRec(cl, st)) {
         return true;
       }

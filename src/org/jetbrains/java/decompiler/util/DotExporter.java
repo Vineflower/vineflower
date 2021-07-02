@@ -3,11 +3,7 @@ package org.jetbrains.java.decompiler.util;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.Map.Entry;
 
 import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
@@ -33,20 +29,30 @@ public class DotExporter {
 
     buffer.append("digraph G {\r\n");
 
-    for(Statement st : stat.getStats()) {
+    List<Statement> stats = new ArrayList<>();
+    findAllStats(stats, stat);
+    for(Statement st : stats) {
 
       String sourceid = st.id + (st.getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty()?"":"000000");
 
-      buffer.append(sourceid+" [shape=box,label=\""+sourceid+"\"];\r\n");
+//      buffer.append(sourceid+" [shape=box,label=\""+sourceid+"\"];\r\n");
+      buffer.append(sourceid+" [shape=box,label=\""+ st.id + " (" + getStatType(st) + ")\r\n" + st.toJava() + "\"];\r\n");
 
-      for(StatEdge edge : st.getSuccessorEdges(Statement.STATEDGE_DIRECT_ALL)) {
+      for(StatEdge edge : st.getSuccessorEdges(Statement.STATEDGE_ALL)) {
         String destid = edge.getDestination().id + (edge.getDestination().getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty()?"":"000000");
 
         buffer.append(sourceid+"->"+destid+";\r\n");
 
-        if(!stat.getStats().contains(edge.getDestination())) {
-          buffer.append(destid+" [label=\""+destid+"\"];\r\n");
-        }
+//        if(!stat.getStats().contains(edge.getDestination())) {
+//          buffer.append(destid+" [label=\""+destid+"\"];\r\n");
+//        }
+      }
+
+      for(StatEdge edge : st.getPredecessorEdges(Statement.STATEDGE_ALL)) {
+        // TODO: exception preds probably don't work right
+        String destid = edge.getSource().id + (edge.getDestination().getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty() ? "" : "000000");
+
+        buffer.append(sourceid + "->" + destid + " [color=blue];\r\n");
       }
 
       for(StatEdge edge : st.getSuccessorEdges(StatEdge.TYPE_EXCEPTION)) {
@@ -54,15 +60,41 @@ public class DotExporter {
 
         buffer.append(sourceid+" -> "+destid+" [style=dotted];\r\n");
 
-        if(!stat.getStats().contains(edge.getDestination())) {
-          buffer.append(destid+" [label=\""+destid+"\"];\r\n");
-        }
+//        if(!stat.getStats().contains(edge.getDestination())) {
+//          buffer.append(destid+" [label=\""+destid+"\"];\r\n");
+//        }
       }
     }
 
     buffer.append("}");
 
     return buffer.toString();
+  }
+
+  private static String getStatType(Statement st) {
+    switch (st.type) {
+      case 0: return "General";
+      case 2: return "If";
+      case 5: return "Do";
+      case 6: return "Switch";
+      case 7: return "Try Catch";
+      case 8: return "Basic Block";
+      case 10: return "Synchronized";
+      case 11: return "Placeholder";
+      case 12: return "Catch All";
+      case 13: return "Root";
+      case 14: return "Dummy Exit";
+      case 15: return "Sequence";
+      default: return "Unknown";
+    }
+  }
+
+  private static void findAllStats(List<Statement> list, Statement root) {
+    for (Statement stat : root.getStats()) {
+      list.add(stat);
+
+      findAllStats(list, stat);
+    }
   }
 
 
@@ -185,6 +217,13 @@ public class DotExporter {
       '_' + suffix + ".dot");
   }
 
+  private static File getFile(String name) {
+    File root = new File(DOTS_FOLDER);
+    if (!root.isDirectory())
+      root.mkdirs();
+    return new File(root,name + ".dot");
+  }
+
   public static void toDotFile(DirectGraph dgraph, StructMethod mt, String suffix) {
     toDotFile(dgraph, mt, suffix, null);
   }
@@ -205,6 +244,18 @@ public class DotExporter {
       return;
     try{
       BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(mt, suffix)));
+      out.write(toDotFormat(stat).getBytes());
+      out.close();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  public static void toDotFile(Statement stat, String name) {
+    if (!DUMP_DOTS)
+      return;
+    try{
+      BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(name)));
       out.write(toDotFormat(stat).getBytes());
       out.close();
     } catch (Exception e) {
