@@ -1,0 +1,59 @@
+package pkg;
+
+public class TestArrayDoWhile {
+   public int[] test() {
+      int[] array = new int[10];// 5
+      int i = 1;// 6
+
+      do {
+         array[i - 1] = i;// 8
+         array[array.length - i] = i * 4;// 9
+         ++i;// 10
+      } while(i < array.length);// 11
+
+      return array;// 13
+   }
+}
+
+class 'pkg/TestArrayDoWhile' {
+   method 'test ()[I' {
+      0      4
+      1      4
+      4      4
+      5      5
+      6      5
+      7      8
+      8      8
+      9      8
+      a      8
+      b      8
+      c      8
+      d      9
+      e      9
+      f      9
+      10      9
+      11      9
+      12      9
+      13      9
+      14      9
+      15      9
+      16      10
+      17      10
+      18      10
+      19      11
+      1a      11
+      1b      11
+      1c      11
+      1f      13
+      20      13
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 6
+8 <-> 9
+9 <-> 10
+10 <-> 11
+11 <-> 12
+13 <-> 14

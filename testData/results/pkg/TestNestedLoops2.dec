@@ -1,0 +1,56 @@
+package pkg;
+
+public class TestNestedLoops2 {
+   public int foo(int i, int j) {
+      while(true) {
+         System.out.println("hi");// 6
+
+         try {
+            while(i < j) {// 8
+               i = j++ / i;// 9
+            }
+
+            return j;// 17
+         } catch (RuntimeException var4) {// 11
+            i = 10;// 12
+         }
+      }
+   }
+}
+
+class 'pkg/TestNestedLoops2' {
+   method 'foo (II)I' {
+      0      5
+      1      5
+      2      5
+      3      5
+      4      5
+      5      5
+      8      8
+      9      8
+      a      8
+      e      9
+      f      9
+      10      9
+      11      9
+      12      9
+      13      9
+      1a      13
+      1b      14
+      1c      14
+      1d      14
+      21      12
+      22      12
+   }
+}
+
+Lines mapping:
+6 <-> 6
+8 <-> 9
+9 <-> 10
+11 <-> 14
+12 <-> 15
+17 <-> 13
+Not mapped:
+13
+14

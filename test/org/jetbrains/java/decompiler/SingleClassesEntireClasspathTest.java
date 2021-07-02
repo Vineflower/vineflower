@@ -18,26 +18,26 @@ public class SingleClassesEntireClasspathTest extends SingleClassesTestBase {
   @Override
   protected void registerAll() {
     // TODO: reevaluate behavior, especially with casting
-    register("TestGenerics");
-    register("TestClassTypes");
-    register("TestClassCast");
+    register(8, "TestGenerics");
+    register(8, "TestClassTypes");
+    register(8, "TestClassCast");
     // TODO: intValue() call where there shouldn't be
-    register("TestBoxingConstructor");
-    register("TestLocalsSignature");
-    register("TestShadowing", "Shadow", "ext/Shadow", "TestShadowingSuperClass");
-    register("TestPrimitives");
-    register("TestKotlinConstructorKt");
-    register("TestVarArgCalls");
-    register("TestUnionType");
-    register("TestNamedSuspendFun2Kt");
-    register("TestTryWithResources");
-    register("TestNestedLoops");
-    register("TestAnonymousClass");
+    register(8, "TestBoxingConstructor");
+    register(8, "TestLocalsSignature");
+    register(8, "TestShadowing", "Shadow", "ext/Shadow", "TestShadowingSuperClass");
+    register(8, "TestPrimitives");
+    register(-1, "TestKotlinConstructorKt");
+    register(8, "TestVarArgCalls");
+    register(8, "TestUnionType");
+    register(-1, "TestNamedSuspendFun2Kt");
+    register(8, "TestTryWithResources");
+    register(8, "TestNestedLoops");
+    register(8, "TestAnonymousClass");
     // TODO: Object[] becomes <unknown>
-    register("TestObjectArrays");
-    register("TestAnonymousParams");
-    register("TestThrowException");
-    register("TestClassSimpleBytecodeMapping");
-    register("TestAnonymousSignature");
+    register(8, "TestObjectArrays");
+    register(8, "TestAnonymousParams");
+    register(8, "TestThrowException");
+    register(8, "TestClassSimpleBytecodeMapping");
+    register(8, "TestAnonymousSignature");
   }
 }

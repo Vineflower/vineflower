@@ -1,0 +1,74 @@
+package pkg;
+
+public class TestSynchronized {
+   public void test1() {
+      synchronized(this) {// 5
+         ;
+      }
+   }// 8
+
+   public void test2() {
+      synchronized(new Object()) {// 11
+         ;
+      }
+   }// 14
+
+   public void test3() {
+      Object o;
+      synchronized(new Object()) {// 18
+         o = new Object();// 19
+         System.out.println(o);// 20
+      }// 21
+
+      System.out.println(o);// 22
+   }// 23
+}
+
+class 'pkg/TestSynchronized' {
+   method 'test1 ()V' {
+      0      4
+      3      4
+      e      7
+   }
+
+   method 'test2 ()V' {
+      9      10
+      14      13
+   }
+
+   method 'test3 ()V' {
+      b      17
+      13      18
+      14      19
+      15      19
+      16      19
+      17      19
+      18      19
+      19      19
+      1a      19
+      1c      20
+      25      22
+      26      22
+      27      22
+      28      22
+      29      22
+      2a      22
+      2b      22
+      2c      23
+   }
+}
+
+Lines mapping:
+5 <-> 5
+8 <-> 8
+11 <-> 11
+14 <-> 14
+18 <-> 18
+19 <-> 19
+20 <-> 20
+21 <-> 21
+22 <-> 23
+23 <-> 24
+Not mapped:
+7
+13

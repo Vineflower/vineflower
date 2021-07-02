@@ -16,8 +16,8 @@ public class SingleClassesLiteralTest extends SingleClassesTestBase {
 
   @Override
   protected void registerAll() {
-    register("TestFloatPrecision");
-    register("TestNotFloatPrecision");
-    register("TestConstantUninlining");
+    register(8, "TestFloatPrecision");
+    register(8, "TestNotFloatPrecision");
+    register(8, "TestConstantUninlining");
   }
 }

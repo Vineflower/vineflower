@@ -1,0 +1,45 @@
+package pkg;
+
+public class TestInfiniteLoop {
+   public void test() {
+      // $FF: Couldn't be decompiled
+   }
+
+   public int testRet() {
+      // $FF: Couldn't be decompiled
+   }
+
+   public int test2() {
+      // $FF: Couldn't be decompiled
+   }
+
+   public int test3() {
+      // $FF: Couldn't be decompiled
+   }
+
+   public int testIf(int i) {
+      while(i != 3) {// 36
+      }
+
+      return 1;// 37
+   }
+}
+
+class 'pkg/TestInfiniteLoop' {
+   method 'testIf (I)I' {
+      0      20
+      1      20
+      2      20
+      5      23
+      6      23
+   }
+}
+
+Lines mapping:
+36 <-> 21
+37 <-> 24
+Not mapped:
+5
+11
+18
+27

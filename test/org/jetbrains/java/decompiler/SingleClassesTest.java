@@ -18,163 +18,162 @@ public class SingleClassesTest extends SingleClassesTestBase {
 
   @Override
   protected void registerAll() {
-    register("TestEnhancedForLoops");
-    register("TestPrimitiveNarrowing");
-    register("TestClassFields");
-    register("TestInterfaceFields");
-    register("TestClassLambda");
-    register("TestClassLoop");
-    register("TestClassSwitch");
-    register("TestClassVar");
-    register("TestClassNestedInitializer");
-    register("TestDeprecations");
-    register("TestExtendsList");
-    register("TestMethodParameters");
-    register("TestMethodParametersAttr");
-    register("TestCodeConstructs");
-    register("TestConstants");
-    register("TestEnum");
-    register("TestDebugSymbols");
-    registerRaw("InvalidMethodSignature");
-    register("TestAnonymousClassConstructor");
-    register("TestInnerClassConstructor");
-    register("v11/TestInnerClassConstructor");
-    register("TestTryCatchFinally");
-    register("TestAmbiguousCall");
-    register("TestAmbiguousCallWithDebugInfo");
-    register("TestSynchronizedMapping");
-    register("TestAbstractMethods");
-    register("TestLocalClass");
-    register("TestInnerLocal");
-    register("TestInnerSignature");
-    register("TestParameterizedTypes");
-    register("TestStringConcat");
-    register("java9/TestJava9StringConcat");
-    register("java9/module-info");
-    register("java11/TestJava11StringConcat");
-    register("TestMethodReferenceSameName");
-    register("TestMethodReferenceLetterClass");
-    register("TestConstructorReference");
-    register("TestMemberAnnotations");
-    register("MoreAnnotations");
-    register("TypeAnnotations");
-    register("TestStaticNameClash");
-    register("TestExtendingSubclass");
-    register("TestSyntheticAccess");
-    register("TestIllegalVarName");
-    register("TestIffSimplification");
-    register("TestAsserts");
-    register("TestLocalsNames");
-    register("TestAnonymousParamNames");
-    register("TestAccessReplace");
-    register("TestStringLiterals");
+    register(8, "TestEnhancedForLoops");
+    register(8, "TestPrimitiveNarrowing");
+    register(8, "TestClassFields");
+    register(8, "TestInterfaceFields");
+    register(8, "TestClassLambda");
+    register(8, "TestClassLoop");
+    register(8, "TestClassSwitch");
+    register(8, "TestClassVar");
+    register(8, "TestClassNestedInitializer");
+    register(8, "TestDeprecations");
+    register(8, "TestExtendsList");
+    register(8, "TestMethodParameters");
+    register(8, "TestMethodParametersAttr");
+    register(8, "TestCodeConstructs");
+    register(8, "TestConstants");
+    register(8, "TestEnum");
+    register(8, "TestDebugSymbols");
+    registerRaw(-1, "InvalidMethodSignature");
+    register(8, "TestAnonymousClassConstructor");
+    register(8, "TestInnerClassConstructor");
+    register(-1, "v11/TestInnerClassConstructor");
+    register(8, "TestTryCatchFinally");
+    register(8, "TestAmbiguousCall");
+    register(8, "TestSynchronizedMapping");
+    register(8, "TestAbstractMethods");
+    register(8, "TestLocalClass");
+    register(8, "TestInnerLocal");
+    register(8, "TestInnerSignature");
+    register(8, "TestParameterizedTypes");
+    register(8, "TestStringConcat");
+    register(9, "TestJava9StringConcat");
+    registerRaw(9, "module-info");
+    register(11, "TestJava11StringConcat");
+    register(8, "TestMethodReferenceSameName");
+    register(8, "TestMethodReferenceLetterClass");
+    register(8, "TestConstructorReference");
+    register(8, "TestMemberAnnotations");
+    register(8, "MoreAnnotations");
+    register(8, "TypeAnnotations");
+    register(8, "TestStaticNameClash");
+    register(8, "TestExtendingSubclass");
+    register(8, "TestSyntheticAccess");
+    register(-1, "TestIllegalVarName");
+    register(8, "TestIffSimplification");
+    register(8, "TestAsserts");
+    register(8, "TestLocalsNames");
+    register(8, "TestAnonymousParamNames");
+    register(8, "TestAccessReplace");
+    register(8, "TestStringLiterals");
 
-    register("TestClassFields");
-    register("TestClashName", "SharedName1",
+    register(8, "TestClassFields");
+    register(8, "TestClashName", "SharedName1",
       "SharedName2", "SharedName3", "SharedName4", "NonSharedName",
       "TestClashNameParent", "ext/TestClashNameParent","TestClashNameIface", "ext/TestClashNameIface");
-    register("TestSwitchOnEnum");
-    register("TestSwitchOnStrings");
-    register("TestLambdaParams");
-    register("TestInterfaceMethods");
-    register("TestConstType");
-    register("TestPop2OneDoublePop2");
-    register("TestPop2OneLongPop2");
-    register("TestPop2TwoIntPop2");
-    register("TestPop2TwoIntTwoPop");
-    register("TestSuperInner", "TestSuperInnerBase");
-    register("TestMissingConstructorCallGood");
-    register("TestMissingConstructorCallBad");
-    register("TestEmptyBlocks");
-    register("TestInvertedFloatComparison");
-    register("TestPrivateEmptyConstructor");
+    register(8, "TestSwitchOnEnum");
+    register(8, "TestSwitchOnStrings");
+    register(8, "TestLambdaParams");
+    register(8, "TestInterfaceMethods");
+    register(8, "TestConstType");
+    register(-1, "TestPop2OneDoublePop2");
+    register(-1, "TestPop2OneLongPop2");
+    register(-1, "TestPop2TwoIntPop2");
+    register(-1, "TestPop2TwoIntTwoPop");
+    register(8, "TestSuperInner", "TestSuperInnerBase");
+    register(-1, "TestMissingConstructorCallGood");
+    register(-1, "TestMissingConstructorCallBad");
+    register(8, "TestEmptyBlocks");
+    register(8, "TestInvertedFloatComparison");
+    register(8, "TestPrivateEmptyConstructor");
     // TODO: the local variable name there is wildly mangled
-    register("TestSynchronizedUnprotected");
-    register("TestInterfaceSuper");
-    register("TestFieldSingleAccess");
-    register("package-info");
+    register(-1, "TestSynchronizedUnprotected");
+    register(8, "TestInterfaceSuper");
+    register(-1, "TestFieldSingleAccess");
+    register(8, "package-info");
 
-    register("TestInner2");
-    register("TestInUse");
+    register(8, "TestInner2");
+    register(8, "TestInUse");
 
-    register("TestGroovyClass");
-    register("TestGroovyTrait");
+    register(-1, "TestGroovyClass");
+    register(-1, "TestGroovyTrait");
     // TODO: This class fails to decompile
 //  register("PrivateClasses");
-    register("TestSuspendLambdaKt");
-    register("TestGenericArgs");
-    register("records/TestRecordEmpty");
-    register("records/TestRecordSimple");
-    register("records/TestRecordVararg");
-    register("records/TestRecordGenericVararg");
-    register("records/TestRecordAnno");
+    register(-1, "TestSuspendLambdaKt");
+    register(8, "TestGenericArgs");
+    register(-1, "records/TestRecordEmpty");
+    register(-1, "records/TestRecordSimple");
+    register(-1, "records/TestRecordVararg");
+    register(-1, "records/TestRecordGenericVararg");
+    register(-1, "records/TestRecordAnno");
     // TODO: The (double) in front of the (int) should be removed
-    register("TestMultiCast");
+    register(8, "TestMultiCast");
     // TODO: The ternary here needs to be removed
-    register("TestNestedLambdas");
-    register("TestSwitchAssign");
-    register("TestSwitchReturn");
+    register(8, "TestNestedLambdas");
+    register(8, "TestSwitchAssign");
+    register(8, "TestSwitchReturn");
     // TODO: Turned into for loops
-    register("TestWhileCondition");
-    register("TestLocalScopes");
-    register("TestInterfaceSubclass");
-    register("TestGenericStatic");
-    register("TestAssignmentInLoop");
-    register("TestArrays");
-    register("TestArrayForeach");
+    register(8, "TestWhileCondition");
+    register(8, "TestLocalScopes");
+    register(8, "TestInterfaceSubclass");
+    register(8, "TestGenericStatic");
+    register(8, "TestAssignmentInLoop");
+    register(8, "TestArrays");
+    register(8, "TestArrayForeach");
     // TODO: I'm pretty sure this test opened the gates of hell somewhere. We need to figure out what's causing that
-    register("TestTernaryCall");
+    register(8, "TestTernaryCall");
 
-    register("TestAnonymousObject");
-    register("TestArrayAssignmentEquals");
+    register(8, "TestAnonymousObject");
+    register(8, "TestArrayAssignmentEquals");
     // TODO: Loop becomes infinte loop where it should be assignment in loop
-    register("TestArrayCopy");
-    register("TestArrayDoWhile");
+    register(8, "TestArrayCopy");
+    register(8, "TestArrayDoWhile");
     // TODO: Creating a new object where the array should be set to null
-    register("TestArrayNull1");
+    register(8, "TestArrayNull1");
     // TODO: Object should be int[], cast where there shouldn't be
-    register("TestArrayNull2");
+    register(8, "TestArrayNull2");
     // TODO: Redefinition of array, extra cast
-    register("TestArrayNullAccess");
-    register("TestArrayTernary");
+    register(8, "TestArrayNullAccess");
+    register(8, "TestArrayTernary");
     // TODO: Do while loops become standard while loops
-    register("TestAssignmentInDoWhile");
+    register(8, "TestAssignmentInDoWhile");
     // TODO: Assignment of a = a is removed
-    register("TestBooleanAssignment");
-    register("TestCastPrimitiveToObject");
-    register("TestDoWhileTrue");
-    register("TestExtraClass");
+    register(8, "TestBooleanAssignment");
+    register(8, "TestCastPrimitiveToObject");
+    register(8, "TestDoWhileTrue");
+    register(8, "TestExtraClass");
     // TODO: Object foreach should be generic
-    register("TestGenericMapInput");
-    register("TestGenericNull");
-    register("TestInlineAssignments");
+    register(8, "TestGenericMapInput");
+    register(8, "TestGenericNull");
+    register(8, "TestInlineAssignments");
     // TODO: Cast of (Func) is removed
-    register("TestInterfaceLambdaCast");
+    register(8, "TestInterfaceLambdaCast");
     // TODO: Local scope is removed, replaced with boolean cast
-    register("TestLocalScopeClash");
-    register("TestMultiBoolean");
-    register("TestNestedFor");
-    register("TestNestedLoops2");
-    register("TestOverloadedNull");
-    register("TestReturnIf");
+    register(8, "TestLocalScopeClash");
+    register(8, "TestMultiBoolean");
+    register(8, "TestNestedFor");
+    register(8, "TestNestedLoops2");
+    register(8, "TestOverloadedNull");
+    register(8, "TestReturnIf");
     // TODO: Shift equals is broken, and bitwise should be x & (x >> 2)
-    register("TestShiftAssignmentInCall");
-    register("TestSplitColorComponents");
+    register(8, "TestShiftAssignmentInCall");
+    register(8, "TestSplitColorComponents");
     // TODO: extra casts on assignment
-    register("TestStaticBlockNull");
-    register("TestStringLiteral");
-    register("TestSwitchStringHashcodeCollision");
+    register(8, "TestStaticBlockNull");
+    register(8, "TestStringLiteral");
+    register(8, "TestSwitchStringHashcodeCollision");
     // TODO: Assignment of o = new Object() is removed
-    register("TestSynchronized");
+    register(8, "TestSynchronized");
     // TODO: Assignment of o = null is removed, synchronize on null is invalid
-    register("TestSynchronizeNull");
-    register("TestWhileIterator");
-    register("TestReturnTernaryChar");
-    register("TestCompoundAssignment");
+    register(8, "TestSynchronizeNull");
+    register(8, "TestWhileIterator");
+    register(8, "TestReturnTernaryChar");
+    register(8, "TestCompoundAssignment");
     // TODO: Fails to decompile empty infinite loop
-    register("TestInfiniteLoop");
+    register(8, "TestInfiniteLoop");
     // TODO: many problems, wrong else if placement, wrong promotion of while to for, wrong control flow with infinite loop
-    register("TestIfLoop");
-    register("TestInheritanceChainCycle");
+    register(8, "TestIfLoop");
+    register(-1, "TestInheritanceChainCycle");
   }
 }

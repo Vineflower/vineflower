@@ -1,0 +1,193 @@
+package pkg;
+
+public class TestClassSimpleBytecodeMapping {
+   public int test() {
+      System.out.println("before");// 12
+      this.run(new Runnable() {// 14
+         @Override
+         public void run() {
+            System.out.println("Runnable");// 17
+         }// 18
+      });
+      this.test2("1");// 21
+      if (Math.random() > 0.0) {// 23
+         System.out.println("0");// 24
+         return 0;// 25
+      } else {
+         System.out.println("1");// 27
+         return 1;// 28
+      }
+   }
+
+   public void test2(String a) {
+      try {
+         Integer.parseInt(a);// 34
+      } catch (Exception var6) {// 35
+         System.out.println(var6);// 36
+      } finally {
+         System.out.println("Finally");// 38
+      }
+
+   }// 40
+
+   void run(Runnable r) {
+      r.run();// 49
+   }// 50
+
+   public class InnerClass {
+      public void print() {
+         System.out.println("Inner");// 44
+      }// 45
+   }
+
+   public class InnerClass2 {
+      public void print() {
+         System.out.println("Inner2");// 54
+      }// 55
+   }
+}
+
+class 'pkg/TestClassSimpleBytecodeMapping$1' {
+   method 'run ()V' {
+      0      8
+      1      8
+      2      8
+      3      8
+      4      8
+      5      8
+      6      8
+      7      8
+      8      9
+   }
+}
+
+class 'pkg/TestClassSimpleBytecodeMapping' {
+   method 'test ()I' {
+      0      4
+      1      4
+      2      4
+      3      4
+      4      4
+      5      4
+      6      4
+      7      4
+      8      5
+      11      5
+      12      5
+      13      5
+      14      11
+      15      11
+      16      11
+      17      11
+      18      11
+      19      11
+      1a      12
+      1b      12
+      1c      12
+      1d      12
+      1e      12
+      1f      12
+      22      13
+      23      13
+      24      13
+      25      13
+      26      13
+      27      13
+      28      13
+      29      13
+      2a      14
+      2b      14
+      2c      16
+      2d      16
+      2e      16
+      2f      16
+      30      16
+      31      16
+      32      16
+      33      16
+      34      17
+      35      17
+   }
+
+   method 'test2 (Ljava/lang/String;)V' {
+      0      23
+      1      23
+      2      23
+      3      23
+      10      24
+      11      25
+      12      25
+      13      25
+      15      25
+      23      27
+      24      27
+      25      27
+      26      27
+      27      27
+      28      27
+      2e      30
+   }
+
+   method 'run (Ljava/lang/Runnable;)V' {
+      0      33
+      1      33
+      2      33
+      3      33
+      4      33
+      5      33
+      6      34
+   }
+}
+
+class 'pkg/TestClassSimpleBytecodeMapping$InnerClass' {
+   method 'print ()V' {
+      0      38
+      1      38
+      2      38
+      3      38
+      4      38
+      5      38
+      6      38
+      7      38
+      8      39
+   }
+}
+
+class 'pkg/TestClassSimpleBytecodeMapping$InnerClass2' {
+   method 'print ()V' {
+      0      44
+      1      44
+      2      44
+      3      44
+      4      44
+      5      44
+      6      44
+      7      44
+      8      45
+   }
+}
+
+Lines mapping:
+12 <-> 5
+14 <-> 6
+17 <-> 9
+18 <-> 10
+21 <-> 12
+23 <-> 13
+24 <-> 14
+25 <-> 15
+27 <-> 17
+28 <-> 18
+34 <-> 24
+35 <-> 25
+36 <-> 26
+38 <-> 28
+40 <-> 31
+44 <-> 39
+45 <-> 40
+49 <-> 34
+50 <-> 35
+54 <-> 45
+55 <-> 46
+Not mapped:
+39

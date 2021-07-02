@@ -45,6 +45,22 @@ test {
   useJUnitPlatform()
 }
 
+[8, 9, 11].forEach {version ->
+  def sourceSet = sourceSets.create("testDataJava${version}") {
+    it.java.srcDirs file("testData/src/java${version}")
+  }
+  def task = tasks.create(name: "compileTestDataJava${version}", type: JavaCompile) {
+    source = sourceSet.java
+    destinationDir = file("testData/classes/java${version}")
+    classpath = files("testData/classes/java${version}")
+    javaCompiler = javaToolchains.compilerFor {
+      languageVersion = JavaLanguageVersion.of(version)
+    }
+    //it.options.compilerArgs += ["-g:source", "-g:lines"]
+  }
+  test.dependsOn(task)
+}
+
 // Compile the java 9 classes
 compileJava9Java {
   javaCompiler = javaToolchains.compilerFor {

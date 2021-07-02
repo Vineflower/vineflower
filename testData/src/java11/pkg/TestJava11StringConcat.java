@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2017 JetBrains s.r.o.
+ * Copyright 2000-2014 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,22 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jetbrains.java.decompiler;
+package pkg;
 
-import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
-
-public class JADTest extends SingleClassesTestBase {
-  @Override
-  protected String[] getDecompilerOptions() {
-    return new String[] {
-      IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
-      IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
-      IFernflowerPreferences.USE_JAD_VARNAMING, "1"
-    };
+public class TestJava11StringConcat {
+  public String test1(String prefix, int a) {
+    return prefix + a;
   }
 
-  @Override
-  protected void registerAll() {
-    register(8, "TestJADNaming");
+  public String test2(String var, int b, Object c) {
+    return "(" + var + "-" + b + "---" + c + ")";
   }
 }

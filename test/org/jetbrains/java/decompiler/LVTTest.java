@@ -17,7 +17,6 @@ package org.jetbrains.java.decompiler;
 
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
@@ -44,12 +43,12 @@ public class LVTTest extends SingleClassesTestBase {
 
   @Override
   protected void registerAll() {
-    register("TestLVT");
-    register("TestLVTScoping");
+    register(8, "TestLVT");
+    register(8, "TestLVTScoping");
     // TODO: int is decompiling as <unknown>
     // register("pkg/TestLVTComplex");
-    register("TestVarType");
-    register("TestLoopMerging");
+    register(8, "TestVarType");
+    register(8, "TestLoopMerging");
     // TODO: this is not decompiling properly, needs a look
     // register("pkg/TestPPMM");
   }

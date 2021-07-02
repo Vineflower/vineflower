@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2017 JetBrains s.r.o.
+ * Copyright 2000-2016 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,22 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jetbrains.java.decompiler;
+package pkg;
 
-import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
+public class TestMethodReferenceSameName {
+  R1 r;
 
-public class JADTest extends SingleClassesTestBase {
-  @Override
-  protected String[] getDecompilerOptions() {
-    return new String[] {
-      IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
-      IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
-      IFernflowerPreferences.USE_JAD_VARNAMING, "1"
-    };
+  private void foo() {
+    ((Runnable)r::foo).run();
   }
 
-  @Override
-  protected void registerAll() {
-    register(8, "TestJADNaming");
+  class R1 {
+    void foo() {}
   }
 }

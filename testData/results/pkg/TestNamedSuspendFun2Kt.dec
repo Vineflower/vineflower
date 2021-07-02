@@ -1,0 +1,412 @@
+import TestNamedSuspendFun2Kt.foo2.1;
+import kotlin.Metadata;
+import kotlin.SuccessOrFailure.Failure;
+import kotlin.coroutines.Continuation;
+import kotlin.coroutines.intrinsics.IntrinsicsKt;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+@Metadata(
+   mv = {1, 1, 11},
+   bv = {1, 0, 2},
+   k = 2,
+   xi = 2,
+   d1 = {"\u0000\n\n\u0000\n\u0002\u0010\b\n\u0002\b\u0002\u001a\u0011\u0010\u0000\u001a\u00020\u0001H\u0086@ø\u0001\u0000¢\u0006\u0002\u0010\u0002\u001a\u0011\u0010\u0003\u001a\u00020\u0001H\u0086@ø\u0001\u0000¢\u0006\u0002\u0010\u0002\u0082\u0002\u0004\n\u0002\b\u0019"},
+   d2 = {"bar", "", "(Lkotlin/coroutines/Continuation;)Ljava/lang/Object;", "foo2"}
+)
+public final class TestNamedSuspendFun2Kt {
+   @Nullable
+   public static final Object foo2(@NotNull Continuation<? super Integer> var0) {
+      1 var3;
+      label463: {
+         if (var0 instanceof 1) {
+            var3 = (1)var0;
+            if ((var3.getLabel() & -2147483648) != 0) {
+               var3.setLabel(var3.getLabel() - -2147483648);
+               break label463;
+            }
+         }
+
+         var3 = new 1(var0);
+      }
+
+      Object var4;
+      Throwable var10000;
+      label486: {
+         int x;
+         label452: {
+            Object var2 = var3.data;
+            var4 = IntrinsicsKt.getCOROUTINE_SUSPENDED();
+            switch(var3.label) {
+            case 0:
+               if (var2 instanceof Failure) {
+                  throw ((Failure)var2).exception;
+               }
+               break;
+            case 1:
+               try {
+                  if (var2 instanceof Failure) {
+                     throw ((Failure)var2).exception;
+                  }
+
+                  var10000 = (Throwable)(Throwable)var2;
+               } catch (Throwable var18) {
+                  var10000 = var18;
+                  boolean var10001 = false;
+                  break label486;
+               }
+
+               try {
+                  x = ((Number)var10000).intValue();// 6
+                  if (x == 0) {
+                     break label452;
+                  }
+               } catch (Throwable var19) {
+                  var10000 = var19;
+                  boolean var25 = false;
+                  break label486;
+               }
+
+               var3.label = 3;
+               if (bar(var3) == var4) {
+                  return var4;
+               }
+               break;
+            case 2:
+               x = var3.I$0;
+               if (var2 instanceof Failure) {
+                  throw ((Failure)var2).exception;
+               }
+
+               return 1;// 2 3 8 9 11
+            case 3:
+               if (var2 instanceof Failure) {
+                  throw ((Failure)var2).exception;
+               }
+               break;
+            case 4:
+               Throwable x = (Throwable)var3.L$0;
+               if (var2 instanceof Failure) {
+                  throw ((Failure)var2).exception;
+               }
+
+               throw x;
+            default:
+               throw new IllegalStateException("call to 'resume' before 'invoke' with coroutine");
+            }
+
+            while(true) {
+               try {
+                  var3.label = 1;
+                  var10000 = (Throwable)(Throwable)bar(var3);// 5
+               } catch (Throwable var17) {
+                  var10000 = var17;
+                  boolean var26 = false;
+                  break label486;
+               }
+
+               if (var10000 == var4) {
+                  return var4;
+               }
+
+               try {
+                  x = ((Number)var10000).intValue();
+                  if (x == 0) {
+                     break;
+                  }
+               } catch (Throwable var20) {
+                  var10000 = var20;
+                  boolean var27 = false;
+                  break label486;
+               }
+
+               var3.label = 3;
+               if (bar(var3) == var4) {
+                  return var4;
+               }
+            }
+         }
+
+         var3.I$0 = x;
+         var3.label = 2;
+         if (bar(var3) == var4) {
+            return var4;
+         }
+
+         return 1;
+      }
+
+      Throwable x = var10000;
+      var3.L$0 = x;
+      var3.label = 4;
+      if (bar(var3) == var4) {
+         return var4;
+      } else {
+         throw x;
+      }
+   }
+
+   @Nullable
+   public static final Object bar(@NotNull Continuation<? super Integer> var0) {
+      return 0;// 14
+   }
+}
+
+class 'TestNamedSuspendFun2Kt' {
+   method 'foo2 (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;' {
+      0      21
+      1      21
+      2      21
+      3      21
+      4      21
+      7      22
+      8      22
+      9      22
+      a      22
+      b      22
+      c      23
+      d      23
+      e      23
+      f      23
+      10      23
+      11      23
+      12      23
+      13      23
+      16      24
+      18      24
+      19      24
+      1a      24
+      1b      24
+      1c      24
+      1d      24
+      1e      24
+      1f      24
+      20      24
+      21      25
+      28      29
+      2c      29
+      2d      37
+      2e      37
+      2f      37
+      30      37
+      31      37
+      32      38
+      33      38
+      34      38
+      35      38
+      36      38
+      37      39
+      38      39
+      39      39
+      3a      39
+      3b      39
+      5c      41
+      5e      41
+      5f      41
+      60      41
+      61      41
+      64      42
+      65      42
+      66      42
+      67      42
+      68      42
+      69      42
+      6a      42
+      6d      100
+      6e      99
+      6f      99
+      70      99
+      71      99
+      72      99
+      73      100
+      77      107
+      78      107
+      79      107
+      7c      108
+      7d      108
+      7e      108
+      7f      47
+      81      47
+      82      47
+      83      47
+      84      47
+      87      48
+      88      48
+      89      48
+      8a      48
+      8b      48
+      8c      48
+      8d      48
+      8f      51
+      90      59
+      91      59
+      92      59
+      93      59
+      94      59
+      95      59
+      96      59
+      97      60
+      98      60
+      9b      131
+      9c      129
+      9d      129
+      9e      129
+      9f      129
+      a0      129
+      a1      130
+      a2      130
+      a3      130
+      a4      130
+      a5      130
+      a6      131
+      a7      131
+      a8      131
+      aa      131
+      ab      131
+      ac      131
+      af      132
+      b0      132
+      b1      132
+      b2      75
+      b3      75
+      b4      75
+      b5      75
+      b6      75
+      b7      76
+      b9      76
+      ba      76
+      bb      76
+      bc      76
+      bf      77
+      c0      77
+      c1      77
+      c2      77
+      c3      77
+      c4      77
+      c5      77
+      c9      80
+      ca      80
+      cb      80
+      cc      70
+      cd      69
+      ce      69
+      cf      69
+      d0      69
+      d1      69
+      d2      70
+      d3      70
+      d4      70
+      d5      80
+      d6      70
+      d7      70
+      d8      70
+      d9      80
+      da      80
+      db      71
+      dc      71
+      dd      71
+      de      80
+      df      80
+      e0      80
+      e1      80
+      e2      80
+      e3      80
+      e4      80
+      e5      80
+      e6      80
+      e7      80
+      e8      80
+      e9      80
+      ea      80
+      eb      80
+      ec      80
+      ed      80
+      ee      80
+      ef      80
+      f0      80
+      f1      80
+      f2      80
+      f3      80
+      f4      80
+      f5      80
+      f6      80
+      f7      80
+      f8      80
+      f9      80
+      fa      80
+      fb      80
+      fc      80
+      fd      80
+      fe      80
+      ff      80
+      100      80
+      101      80
+      102      80
+      103      80
+      104      80
+      105      80
+      106      80
+      107      80
+      108      80
+      109      80
+      10a      80
+      10b      80
+      10c      80
+      10d      80
+      10e      80
+      10f      80
+      110      80
+      111      80
+      112      80
+      113      80
+      114      80
+      115      80
+      116      80
+      117      80
+      118      80
+      119      80
+      11a      80
+      11b      80
+      11c      80
+      11d      80
+      11e      80
+      11f      80
+      120      80
+      121      80
+      122      80
+      123      80
+      124      80
+      125      80
+      126      80
+      127      80
+      128      80
+      129      80
+      12a      80
+      12b      80
+      12c      80
+      12d      80
+      133      94
+      134      94
+      138      94
+   }
+
+   method 'bar (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;' {
+      0      150
+      1      150
+      2      150
+      3      150
+      4      150
+   }
+}
+
+Lines mapping:
+2 <-> 81
+3 <-> 81
+5 <-> 101
+6 <-> 60
+8 <-> 81
+9 <-> 81
+11 <-> 81
+14 <-> 151
+Not mapped:
+4

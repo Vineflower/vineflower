@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
  */
 @Timeout(60)
 public abstract class SingleClassesTestBase {
-  protected final Map<String, List<String>> testDefinitions = new LinkedHashMap<>();
+  protected final List<TestDefinition> testDefinitions = new ArrayList<>();
   protected DecompilerTestFixture fixture;
   
   protected String[] getDecompilerOptions() {
@@ -43,14 +43,14 @@ public abstract class SingleClassesTestBase {
 
   protected abstract void registerAll();
 
-  protected void register(String testClass, String ...others) {
+  protected void register(int version, String testClass, String... others) {
     List<String> othersList = new ArrayList<>(others.length);
     for (String other : others) othersList.add(getFullClassName(other));
-    testDefinitions.put(getFullClassName(testClass), othersList);
+    testDefinitions.add(new TestDefinition(version, getFullClassName(testClass), othersList));
   }
 
-  protected void registerRaw(String testClass, String ...others) {
-    testDefinitions.put(testClass, Arrays.asList(others));
+  protected void registerRaw(int version, String testClass, String ...others) {
+    testDefinitions.add(new TestDefinition(version, testClass, Arrays.asList(others)));
   }
 
   private static String getFullClassName(String className) {
@@ -77,41 +77,41 @@ public abstract class SingleClassesTestBase {
     testDefinitions.clear();
     registerAll();
     List<DynamicTest> tests = new ArrayList<>();
-    for (Map.Entry<String, List<String>> def : testDefinitions.entrySet()) {
-      String testFile = def.getKey();
-      String name = testFile;
+    for (TestDefinition def : testDefinitions) {
+      String name = def.testClass;
       int slash = name.lastIndexOf('/');
       if (slash >= 0) name = name.substring(slash + 1);
-      String[] others = def.getValue().toArray(new String[0]);
+      name = (def.version < 0 ? "Custom: " : "Java " + def.version + ": ") + name;
       tests.add(DynamicTest.dynamicTest(name, () -> {
         setUp();
-        doTest(testFile, others);
+        doTest(def.version, def.testClass, def.others.toArray(new String[0]));
         tearDown();
       }));
     }
     return tests;
   }
 
-  protected Path getClassFile(String name) {
-    return fixture.getTestDataDir().resolve("classes/" + name + ".class");
+  protected Path getClassFile(int version, String name) {
+    String versionDir = version < 0 ? "custom" : "java" + version;
+    return fixture.getTestDataDir().resolve("classes/" + versionDir + "/" + name + ".class");
   }
 
-  protected Path getReferenceFile(String testName) {
-    return fixture.getTestDataDir().resolve("results/" + testName + ".dec");
+  protected Path getReferenceFile(String testClass) {
+    return fixture.getTestDataDir().resolve("results/" + testClass + ".dec");
   }
 
-  protected void doTest(String testFile, String... companionFiles) {
+  protected void doTest(int version, String testFile, String... companionFiles) {
     ConsoleDecompiler decompiler = fixture.getDecompiler();
 
-    Path classFile = getClassFile(testFile);
-    assertTrue(Files.isRegularFile(classFile));
+    Path classFile = getClassFile(version, testFile);
+    assertTrue(Files.isRegularFile(classFile), classFile + " should exist");
     for (Path file : collectClasses(classFile)) {
       decompiler.addSource(file.toFile());
     }
 
     for (String companionFile : companionFiles) {
-      Path companionClassFile = getClassFile(companionFile);
-      assertTrue(Files.isRegularFile(companionClassFile));
+      Path companionClassFile = getClassFile(version, companionFile);
+      assertTrue(Files.isRegularFile(companionClassFile), companionFile + " should exist");
       for (Path file : collectClasses(companionClassFile)) {
         decompiler.addSource(file.toFile());
       }
@@ -123,9 +123,10 @@ public abstract class SingleClassesTestBase {
     String testName = testFileName.substring(0, testFileName.length() - 6);
     Path decompiledFile = fixture.getTargetDir().resolve(testName + ".java");
     assertTrue(Files.isRegularFile(decompiledFile));
-    Path referenceFile = getReferenceFile(testName);
+    Path referenceFile = getReferenceFile(testFile);
     if (!Files.exists(referenceFile)) {
       try {
+        Files.createDirectories(referenceFile.getParent());
         Files.copy(decompiledFile, referenceFile);
       } catch (IOException e) {
         throw new UncheckedIOException(e);
@@ -153,5 +154,17 @@ public abstract class SingleClassesTestBase {
     }
 
     return files;
+  }
+
+  private static class TestDefinition {
+    public final int version;
+    public final String testClass;
+    public final List<String> others;
+
+    public TestDefinition(int version, String testClass, List<String> others) {
+      this.version = version;
+      this.testClass = testClass;
+      this.others = others;
+    }
   }
 }
