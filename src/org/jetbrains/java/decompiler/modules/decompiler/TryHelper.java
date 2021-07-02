@@ -12,25 +12,33 @@ import java.util.ArrayList;
 public class TryHelper {
   public static boolean enhanceTryStats(RootStatement root, StructClass cl) {
     boolean ret = makeTryWithResourceRec(cl, root);
+
     if (ret) {
-      SequenceHelper.condenseSequences(root);
-      if (collapseTryRec(root)) {
+      if (cl.isVersion(CodeConstants.BYTECODE_JAVA_11)) {
         SequenceHelper.condenseSequences(root);
+      } else {
+        SequenceHelper.condenseSequences(root);
+        if (collapseTryRec(root)) {
+          SequenceHelper.condenseSequences(root);
+        }
       }
     }
+
     return ret;
   }
 
   private static boolean makeTryWithResourceRec(StructClass cl, Statement stat) {
-    if (stat.type == Statement.TYPE_CATCHALL && ((CatchAllStatement)stat).isFinally()) {
-      if (TryWithResourcesHelper.makeTryWithResource((CatchAllStatement)stat)) {
-        return true;
+    if (cl.isVersion(CodeConstants.BYTECODE_JAVA_11)) {
+      if (stat.type == Statement.TYPE_TRYCATCH) {
+        if (TryWithResourcesHelper.makeTryWithResourceJ11((CatchStatement) stat)) {
+          return true;
+        }
       }
-    }
-
-    if (stat.type == Statement.TYPE_TRYCATCH && cl.isVersion(CodeConstants.BYTECODE_JAVA_11)) {
-      if (TryWithResourcesHelper.makeTryWithResourceJ11((CatchStatement) stat)) {
-        return true;
+    } else {
+      if (stat.type == Statement.TYPE_CATCHALL && ((CatchAllStatement) stat).isFinally()) {
+        if (TryWithResourcesHelper.makeTryWithResource((CatchAllStatement) stat)) {
+          return true;
+        }
       }
     }
 

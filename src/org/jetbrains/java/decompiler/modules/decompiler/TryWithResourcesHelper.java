@@ -181,7 +181,7 @@ public final class TryWithResourcesHelper {
       if (edge.getDestination().equals(tryStatement) && edge.getSource().type == Statement.TYPE_BASICBLOCK) {
         AssignmentExprent assignment = findResourceDef(closeable, edge.getSource());
 
-        // Remove the resource assignment from the basic block
+        // Remove the resource assignment from the basic block and finish processing
         if (assignment != null) {
           edge.getSource().getExprents().remove(assignment);
 
@@ -280,12 +280,11 @@ public final class TryWithResourcesHelper {
             }
           }
 
-          break;
+          return true;
         }
       }
     }
 
-    // TODO: this doesn't recurse at the moment
     return false;
   }
 

@@ -10,7 +10,6 @@ public class TestTryWithResourcesCatchJ16 {
          try (Scanner var2 = new Scanner(var1)) {// 9
             var2.next();// 10
          }
-
       } catch (FileNotFoundException var7) {// 11
          var7.printStackTrace();// 12
       }
@@ -40,43 +39,43 @@ class 'java16/TestTryWithResourcesCatchJ16' {
       a      10
       b      10
       c      10
-      2a      13
-      2c      14
-      2f      17
+      2a      12
+      2c      13
+      2f      16
    }
 
    method 'testFunc (Ljava/io/File;)V' {
-      0      21
-      1      21
-      2      21
-      3      21
-      4      21
-      5      21
-      6      22
-      7      22
-      8      22
-      9      22
-      31      25
-      34      27
+      0      20
+      1      20
+      2      20
+      3      20
+      4      20
+      5      20
+      6      21
+      7      21
+      8      21
+      9      21
+      31      24
+      34      26
    }
 
    method 'create (Ljava/io/File;)Ljava/util/Scanner;' {
-      4      30
-      8      30
+      4      29
+      8      29
    }
 }
 
 Lines mapping:
 9 <-> 10
 10 <-> 11
-11 <-> 14
-12 <-> 15
-14 <-> 18
-17 <-> 22
-18 <-> 23
-20 <-> 26
-22 <-> 28
-25 <-> 31
+11 <-> 13
+12 <-> 14
+14 <-> 17
+17 <-> 21
+18 <-> 22
+20 <-> 25
+22 <-> 27
+25 <-> 30
 Not mapped:
 13
 19
