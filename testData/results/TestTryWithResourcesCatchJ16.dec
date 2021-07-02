@@ -6,10 +6,8 @@ import java.util.Scanner;
 
 public class TestTryWithResourcesCatchJ16 {
    public void test(File var1) {
-      try {
-         try (Scanner var2 = new Scanner(var1)) {// 9
-            var2.next();// 10
-         }
+      try (Scanner var2 = new Scanner(var1)) {// 9
+         var2.next();// 10
       } catch (FileNotFoundException var7) {// 11
          var7.printStackTrace();// 12
       }
@@ -17,10 +15,8 @@ public class TestTryWithResourcesCatchJ16 {
    }// 14
 
    public void testFunc(File var1) {
-      try {
-         try (Scanner var2 = this.create(var1)) {// 17
-            var2.next();// 18
-         }
+      try (Scanner var2 = this.create(var1)) {// 17
+         var2.next();// 18
       } catch (FileNotFoundException var7) {
          var7.printStackTrace();// 20
       }
@@ -33,49 +29,49 @@ public class TestTryWithResourcesCatchJ16 {
 
 class 'java16/TestTryWithResourcesCatchJ16' {
    method 'test (Ljava/io/File;)V' {
-      4      9
-      8      9
-      9      10
-      a      10
-      b      10
-      c      10
-      2a      12
-      2c      13
-      2f      16
+      4      8
+      8      8
+      9      9
+      a      9
+      b      9
+      c      9
+      2a      10
+      2c      11
+      2f      14
    }
 
    method 'testFunc (Ljava/io/File;)V' {
-      0      20
-      1      20
-      2      20
-      3      20
-      4      20
-      5      20
-      6      21
-      7      21
-      8      21
-      9      21
-      31      24
-      34      26
+      0      17
+      1      17
+      2      17
+      3      17
+      4      17
+      5      17
+      6      18
+      7      18
+      8      18
+      9      18
+      31      20
+      34      22
    }
 
    method 'create (Ljava/io/File;)Ljava/util/Scanner;' {
-      4      29
-      8      29
+      4      25
+      8      25
    }
 }
 
 Lines mapping:
-9 <-> 10
-10 <-> 11
-11 <-> 13
-12 <-> 14
-14 <-> 17
-17 <-> 21
-18 <-> 22
-20 <-> 25
-22 <-> 27
-25 <-> 30
+9 <-> 9
+10 <-> 10
+11 <-> 11
+12 <-> 12
+14 <-> 15
+17 <-> 18
+18 <-> 19
+20 <-> 21
+22 <-> 23
+25 <-> 26
 Not mapped:
 13
 19

@@ -7,7 +7,7 @@ import org.jetbrains.java.decompiler.struct.gen.VarType;
 
 import java.util.ArrayList;
 
-public final class TryWithResourcesHelper {
+public final class TryWithResourcesProcessor {
   // Make try with resources with the old style bytecode (J8)
   public static boolean makeTryWithResource(CatchAllStatement finallyStat) {
     Statement handler = finallyStat.getHandler();
