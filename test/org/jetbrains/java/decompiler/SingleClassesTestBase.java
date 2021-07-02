@@ -20,6 +20,9 @@ import org.junit.jupiter.api.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 
 import static org.jetbrains.java.decompiler.DecompilerTestFixture.assertFilesEqual;
@@ -92,39 +95,43 @@ public abstract class SingleClassesTestBase {
   protected void doTest(String testFile, String... companionFiles) {
     ConsoleDecompiler decompiler = fixture.getDecompiler();
 
-    File classFile = new File(fixture.getTestDataDir(), "/classes/" + testFile + ".class");
-    assertTrue(classFile.isFile());
-    for (File file : collectClasses(classFile)) {
-      decompiler.addSource(file);
+    Path classFile = fixture.getTestDataDir().resolve("classes/" + testFile + ".class");
+    assertTrue(Files.isRegularFile(classFile));
+    for (Path file : collectClasses(classFile)) {
+      decompiler.addSource(file.toFile());
     }
 
     for (String companionFile : companionFiles) {
-      File companionClassFile = new File(fixture.getTestDataDir(), "/classes/" + companionFile + ".class");
-      assertTrue(companionClassFile.isFile());
-      for (File file : collectClasses(companionClassFile)) {
-        decompiler.addSource(file);
+      Path companionClassFile = fixture.getTestDataDir().resolve("classes/" + companionFile + ".class");
+      assertTrue(Files.isRegularFile(companionClassFile));
+      for (Path file : collectClasses(companionClassFile)) {
+        decompiler.addSource(file.toFile());
       }
     }
 
     decompiler.decompileContext();
 
-    String testName = classFile.getName().substring(0, classFile.getName().length() - 6);
-    File decompiledFile = new File(fixture.getTargetDir(), testName + ".java");
-    assertTrue(decompiledFile.isFile());
-    File referenceFile = new File(fixture.getTestDataDir(), "results/" + testName + ".dec");
-    assertTrue(referenceFile.isFile());
+    String testFileName = classFile.getFileName().toString();
+    String testName = testFileName.substring(0, testFileName.length() - 6);
+    Path decompiledFile = fixture.getTargetDir().resolve(testName + ".java");
+    assertTrue(Files.isRegularFile(decompiledFile));
+    Path referenceFile = fixture.getTestDataDir().resolve("results/" + testName + ".dec");
+    assertTrue(Files.isRegularFile(referenceFile));
     assertFilesEqual(referenceFile, decompiledFile);
   }
 
-  private static List<File> collectClasses(File classFile) {
-    List<File> files = new ArrayList<>();
+  private static List<Path> collectClasses(Path classFile) {
+    List<Path> files = new ArrayList<>();
     files.add(classFile);
 
-    File parent = classFile.getParentFile();
+    Path parent = classFile.getParent();
     if (parent != null) {
-      final String pattern = classFile.getName().replace(".class", "") + "\\$.+\\.class";
-      File[] inner = parent.listFiles((dir, name) -> name.matches(pattern));
-      if (inner != null) Collections.addAll(files, inner);
+      final String pattern = classFile.getFileName().toString().replace(".class", "") + "\\$.+\\.class";
+      try {
+        Files.list(parent).filter(p -> p.getFileName().toString().matches(pattern)).forEach(files::add);
+      } catch (IOException e) {
+        throw new UncheckedIOException(e);
+      }
     }
 
     return files;
