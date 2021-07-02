@@ -32,6 +32,10 @@ dependencies {
   java9Implementation sourceSets.main.output
 }
 
+test {
+  systemProperty "DOT_EXPORT_DIR", System.getProperty("DOT_EXPORT_DIR", null)
+}
+
 java.toolchain {
   languageVersion = JavaLanguageVersion.of(8)
 }
