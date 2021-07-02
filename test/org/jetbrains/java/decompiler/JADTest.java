@@ -16,20 +16,19 @@
 package org.jetbrains.java.decompiler;
 
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
-import org.junit.jupiter.api.Test;
 
 public class JADTest extends SingleClassesTestBase {
+  @Override
+  protected String[] getDecompilerOptions() {
+    return new String[] {
+      IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
+      IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
+      IFernflowerPreferences.USE_JAD_VARNAMING, "1"
+    };
+  }
 
-    @Override
-    protected String[] getDecompilerOptions() {
-      return new String[] {
-        IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
-        IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
-        IFernflowerPreferences.USE_JAD_VARNAMING, "1"
-      };
-    }
-
-    @Test
-    public void testClassFields() { doTest("pkg/TestJADNaming"); }
-
+  @Override
+  protected void registerAll() {
+    register("TestJADNaming");
+  }
 }

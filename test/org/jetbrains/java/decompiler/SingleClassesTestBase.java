@@ -16,9 +16,7 @@
 package org.jetbrains.java.decompiler;
 
 import org.jetbrains.java.decompiler.main.decompiler.ConsoleDecompiler;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,11 +30,29 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * This will help us to test bugs hanging decompiler.
  */
 @Timeout(60)
-public class SingleClassesTestBase {
+public abstract class SingleClassesTestBase {
+  protected final Map<String, List<String>> testDefinitions = new LinkedHashMap<>();
   protected DecompilerTestFixture fixture;
   
   protected String[] getDecompilerOptions() {
     return new String[] {};
+  }
+
+  protected abstract void registerAll();
+
+  protected void register(String testClass, String ...others) {
+    List<String> othersList = new ArrayList<>(others.length);
+    for (String other : others) othersList.add(getFullClassName(other));
+    testDefinitions.put(getFullClassName(testClass), othersList);
+  }
+
+  protected void registerRaw(String testClass, String ...others) {
+    testDefinitions.put(testClass, Arrays.asList(others));
+  }
+
+  private static String getFullClassName(String className) {
+    if (!className.contains("/")) return "pkg/" + className;
+    return className;
   }
 
   @BeforeEach
@@ -47,8 +63,30 @@ public class SingleClassesTestBase {
 
   @AfterEach
   public void tearDown() {
+    if (fixture == null) return;
     fixture.tearDown();
     fixture = null;
+  }
+
+  @TestFactory
+  @DisplayName("Test single classes")
+  public List<DynamicTest> testRegistered() {
+    testDefinitions.clear();
+    registerAll();
+    List<DynamicTest> tests = new ArrayList<>();
+    for (Map.Entry<String, List<String>> def : testDefinitions.entrySet()) {
+      String testFile = def.getKey();
+      String name = testFile;
+      int slash = name.lastIndexOf('/');
+      if (slash >= 0) name = name.substring(slash + 1);
+      String[] others = def.getValue().toArray(new String[0]);
+      tests.add(DynamicTest.dynamicTest(name, () -> {
+        setUp();
+        doTest(testFile, others);
+        tearDown();
+      }));
+    }
+    return tests;
   }
 
   protected void doTest(String testFile, String... companionFiles) {
