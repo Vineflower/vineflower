@@ -197,6 +197,7 @@ public final class TryWithResourcesProcessor {
           // Remove outer close()
           Statement parent = tryStatement.getParent();
 
+          boolean processed = false;
           for (int i = 0; i < parent.getStats().size(); i++) {
             Statement stat = parent.getStats().get(i);
 
@@ -212,6 +213,17 @@ public final class TryWithResourcesProcessor {
 
                 if (condition.type == Exprent.EXPRENT_FUNCTION) {
                   FunctionExprent func = (FunctionExprent) condition;
+
+                  // This can sometimes be double inverted negative conditions too, handle that case
+                  while (func.getFuncType() == FunctionExprent.FUNCTION_BOOL_NOT) {
+                    Exprent expr = func.getLstOperands().get(0);
+
+                    if (expr.type == Exprent.EXPRENT_FUNCTION) {
+                      func = (FunctionExprent) expr;
+                    } else {
+                      break;
+                    }
+                  }
 
                   // Ensure the exprent is the one we want to remove
                   if (func.getFuncType() == FunctionExprent.FUNCTION_NE && func.getLstOperands().get(0).type == Exprent.EXPRENT_VAR && func.getLstOperands().get(1).getExprType().equals(VarType.VARTYPE_NULL)) {
@@ -231,7 +243,6 @@ public final class TryWithResourcesProcessor {
                       for (StatEdge pred : ifBlock.getAllPredecessorEdges()) {
                         // Disconnect successors from pred to the block
                         pred.getSource().removeSuccessor(pred);
-                        // TODO: should be removing empty predecessor basic block?
                         ifBlock.removePredecessor(pred);
                       }
 
@@ -259,6 +270,8 @@ public final class TryWithResourcesProcessor {
 
                       // Remove if statement containing close() check- finally we're done!
                       parent.getStats().removeWithKey(ifStat.id);
+
+                      processed = true;
                     }
                   }
                 }
@@ -273,6 +286,8 @@ public final class TryWithResourcesProcessor {
 
                     if (inst.type == Exprent.EXPRENT_VAR && ((VarExprent)inst).getVarVersionPair().equals(closeable.getVarVersionPair()) && isCloseable(exprent)) {
                       stat.getExprents().remove(exprent);
+
+                      processed = true;
                     }
                   }
                 }
@@ -280,15 +295,15 @@ public final class TryWithResourcesProcessor {
             }
           }
 
-          return true;
+          if (processed) {
+            return true;
+          }
         }
       }
     }
 
     return false;
   }
-
-  // TODO: flatten trys in the other class
 
   private static AssignmentExprent findResourceDef(VarExprent var, Statement prevStatement) {
     for (Exprent exp : prevStatement.getExprents()) {
