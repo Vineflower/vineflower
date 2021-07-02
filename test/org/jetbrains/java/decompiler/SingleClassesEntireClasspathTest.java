@@ -42,4 +42,11 @@ public class SingleClassesEntireClasspathTest extends SingleClassesTestBase {
   @Test public void testTryWithResourcesJ16() { doTest("java16/TestTryWithResourcesJ16"); }
   @Test public void testTryWithResourcesCatchJ16() { doTest("java16/TestTryWithResourcesCatchJ16"); }
   @Test public void testTryWithResourcesMultiJ16() { doTest("java16/TestTryWithResourcesMultiJ16"); }
+  @Test public void testTryWithResourcesFinallyJ16() { doTest("java16/TestTryWithResourcesFinallyJ16"); }
+  @Test public void testTryWithResourcesCatchFinallyJ16() { doTest("java16/TestTryWithResourcesCatchFinallyJ16"); }
+  // TODO: returning in finally causes broken control flow and undecompileable methods
+  @Test public void testTryWithResourcesReturnJ16() { doTest("java16/TestTryWithResourcesReturnJ16"); }
+  @Test public void testTryWithResourcesNestedJ16() { doTest("java16/TestTryWithResourcesNestedJ16"); }
+  // TODO: extra casts, var type reverted to object
+  @Test public void testTryWithResourcesNullJ16() { doTest("java16/TestTryWithResourcesNullJ16"); }
 }
