@@ -2,6 +2,8 @@ package org.jetbrains.java.decompiler;
 
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 
+import static org.jetbrains.java.decompiler.SingleClassesTestBase.TestDefinition.Version.*;
+
 public class SingleClassesEntireClasspathTest extends SingleClassesTestBase {
   @Override
   protected String[] getDecompilerOptions() {
@@ -18,26 +20,26 @@ public class SingleClassesEntireClasspathTest extends SingleClassesTestBase {
   @Override
   protected void registerAll() {
     // TODO: reevaluate behavior, especially with casting
-    register(8, "TestGenerics");
-    register(8, "TestClassTypes");
-    register(8, "TestClassCast");
+    register(JAVA_8, "TestGenerics");
+    register(JAVA_8, "TestClassTypes");
+    register(JAVA_8, "TestClassCast");
     // TODO: intValue() call where there shouldn't be
-    register(8, "TestBoxingConstructor");
-    register(8, "TestLocalsSignature");
-    register(8, "TestShadowing", "Shadow", "ext/Shadow", "TestShadowingSuperClass");
-    register(8, "TestPrimitives");
-    register(-1, "TestKotlinConstructorKt");
-    register(8, "TestVarArgCalls");
-    register(8, "TestUnionType");
-    register(-1, "TestNamedSuspendFun2Kt");
-    register(8, "TestTryWithResources");
-    register(8, "TestNestedLoops");
-    register(8, "TestAnonymousClass");
+    register(JAVA_8, "TestBoxingConstructor");
+    register(JAVA_8, "TestLocalsSignature");
+    register(JAVA_8, "TestShadowing", "Shadow", "ext/Shadow", "TestShadowingSuperClass");
+    register(JAVA_8, "TestPrimitives");
+    register(KOTLIN, "TestKotlinConstructorKt");
+    register(JAVA_8, "TestVarArgCalls");
+    register(JAVA_8, "TestUnionType");
+    register(KOTLIN, "TestNamedSuspendFun2Kt");
+    register(JAVA_8, "TestTryWithResources");
+    register(JAVA_8, "TestNestedLoops");
+    register(JAVA_8, "TestAnonymousClass");
     // TODO: Object[] becomes <unknown>
-    register(8, "TestObjectArrays");
-    register(8, "TestAnonymousParams");
-    register(8, "TestThrowException");
-    register(8, "TestClassSimpleBytecodeMapping");
-    register(8, "TestAnonymousSignature");
+    register(JAVA_8, "TestObjectArrays");
+    register(JAVA_8, "TestAnonymousParams");
+    register(JAVA_8, "TestThrowException");
+    register(JAVA_8, "TestClassSimpleBytecodeMapping");
+    register(JAVA_8, "TestAnonymousSignature");
   }
 }

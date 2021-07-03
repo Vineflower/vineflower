@@ -17,6 +17,8 @@ package org.jetbrains.java.decompiler;
 
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 
+import static org.jetbrains.java.decompiler.SingleClassesTestBase.TestDefinition.Version.*;
+
 public class JADTest extends SingleClassesTestBase {
   @Override
   protected String[] getDecompilerOptions() {
@@ -29,6 +31,6 @@ public class JADTest extends SingleClassesTestBase {
 
   @Override
   protected void registerAll() {
-    register(8, "TestJADNaming");
+    register(JAVA_8, "TestJADNaming");
   }
 }

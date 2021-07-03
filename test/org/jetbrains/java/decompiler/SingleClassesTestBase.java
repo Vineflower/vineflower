@@ -43,13 +43,13 @@ public abstract class SingleClassesTestBase {
 
   protected abstract void registerAll();
 
-  protected void register(int version, String testClass, String... others) {
+  protected void register(TestDefinition.Version version, String testClass, String... others) {
     List<String> othersList = new ArrayList<>(others.length);
     for (String other : others) othersList.add(getFullClassName(other));
     testDefinitions.add(new TestDefinition(version, getFullClassName(testClass), othersList));
   }
 
-  protected void registerRaw(int version, String testClass, String ...others) {
+  protected void registerRaw(TestDefinition.Version version, String testClass, String ...others) {
     testDefinitions.add(new TestDefinition(version, testClass, Arrays.asList(others)));
   }
 
@@ -81,7 +81,7 @@ public abstract class SingleClassesTestBase {
       String name = def.testClass;
       int slash = name.lastIndexOf('/');
       if (slash >= 0) name = name.substring(slash + 1);
-      name = (def.version < 0 ? "Custom: " : "Java " + def.version + ": ") + name;
+      name = def.version + ": " + name;
       tests.add(DynamicTest.dynamicTest(name, () -> {
         setUp();
         doTest(def.version, def.testClass, def.others.toArray(new String[0]));
@@ -91,16 +91,15 @@ public abstract class SingleClassesTestBase {
     return tests;
   }
 
-  protected Path getClassFile(int version, String name) {
-    String versionDir = version < 0 ? "custom" : "java" + version;
-    return fixture.getTestDataDir().resolve("classes/" + versionDir + "/" + name + ".class");
+  protected Path getClassFile(TestDefinition.Version version, String name) {
+    return fixture.getTestDataDir().resolve("classes/" + version.directory + "/" + name + ".class");
   }
 
   protected Path getReferenceFile(String testClass) {
     return fixture.getTestDataDir().resolve("results/" + testClass + ".dec");
   }
 
-  protected void doTest(int version, String testFile, String... companionFiles) {
+  protected void doTest(TestDefinition.Version version, String testFile, String... companionFiles) {
     ConsoleDecompiler decompiler = fixture.getDecompiler();
 
     Path classFile = getClassFile(version, testFile);
@@ -156,15 +155,44 @@ public abstract class SingleClassesTestBase {
     return files;
   }
 
-  private static class TestDefinition {
-    public final int version;
+  static class TestDefinition {
+    public final Version version;
     public final String testClass;
     public final List<String> others;
 
-    public TestDefinition(int version, String testClass, List<String> others) {
+    public TestDefinition(Version version, String testClass, List<String> others) {
       this.version = version;
       this.testClass = testClass;
       this.others = others;
+    }
+
+    enum Version {
+      CUSTOM("custom", "Custom"),
+      JAVA_8(8),
+      JAVA_9(9),
+      JAVA_11(11),
+      JAVA_16(16),
+      GROOVY("groovy", "Groovy"),
+      KOTLIN("kt", "Kotlin"),
+      JASM("jasm", "Custom (jasm)"),
+      ;
+
+      public final String directory;
+      public final String display;
+
+      Version(String directory, String display) {
+        this.directory = directory;
+        this.display = display;
+      }
+
+      Version(int javaVersion) {
+        this("java" + javaVersion, "Java " + javaVersion);
+      }
+
+      @Override
+      public String toString() {
+        return display;
+      }
     }
   }
 }
