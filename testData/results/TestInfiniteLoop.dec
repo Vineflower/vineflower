@@ -2,44 +2,139 @@ package pkg;
 
 public class TestInfiniteLoop {
    public void test() {
-      // $FF: Couldn't be decompiled
+      while(true) {
+      }
    }
 
    public int testRet() {
-      // $FF: Couldn't be decompiled
+      while(true) {
+      }
    }
 
    public int test2() {
-      // $FF: Couldn't be decompiled
+      while(true) {
+      }
    }
 
    public int test3() {
-      // $FF: Couldn't be decompiled
+      while(true) {
+      }
+   }
+
+   public void test4() {
+      while(true) {
+      }
    }
 
    public int testIf(int var1) {
-      while(var1 != 3) {// 36
+      while(var1 != 3) {// 42
       }
 
-      return 1;// 37
+      return 1;// 43
+   }
+
+   public void testSuccessor1() {
+      boolean var1 = false;// 49
+
+      while(true) {
+      }
+   }
+
+   public void testSuccessor2(int var1) {
+      boolean var2 = false;// 56
+      if (var1 == 0) {// 57
+         var2 = true;// 58
+      }
+
+      while(true) {
+      }
+   }
+
+   public void testSuccessor3(int var1) {
+      int var2 = 0;// 67
+      if (var1 > 0) {// 69
+         --var2;// 70
+         --var1;// 71
+
+         while(true) {
+         }
+      }
+
+   }// 77
+
+   public void testSuccessor4(int var1) {
+      var1 += 2;// 80
+      --var1;// 83
+
+      while(true) {
+      }
    }
 }
 
 class 'pkg/TestInfiniteLoop' {
    method 'testIf (I)I' {
-      0      20
-      1      20
-      2      20
-      5      23
-      6      23
+      0      29
+      1      29
+      2      29
+      5      32
+      6      32
+   }
+
+   method 'testSuccessor1 ()V' {
+      0      36
+      1      36
+   }
+
+   method 'testSuccessor2 (I)V' {
+      0      43
+      1      43
+      2      44
+      3      44
+      6      45
+      7      45
+   }
+
+   method 'testSuccessor3 (I)V' {
+      0      53
+      1      53
+      2      54
+      3      54
+      6      55
+      7      55
+      8      55
+      9      56
+      f      62
+   }
+
+   method 'testSuccessor4 (I)V' {
+      0      65
+      1      65
+      2      65
+      3      66
    }
 }
 
 Lines mapping:
-36 <-> 21
-37 <-> 24
+42 <-> 30
+43 <-> 33
+49 <-> 37
+56 <-> 44
+57 <-> 45
+58 <-> 46
+67 <-> 54
+69 <-> 55
+70 <-> 56
+71 <-> 57
+77 <-> 63
+80 <-> 66
+83 <-> 67
 Not mapped:
 5
 11
 18
 27
+37
+50
+61
+73
+84
