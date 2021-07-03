@@ -45,7 +45,7 @@ test {
   useJUnitPlatform()
 }
 
-[8, 9, 11].forEach {version ->
+[8, 9, 11, 16].forEach {version ->
   def sourceSet = sourceSets.create("testDataJava${version}") {
     it.java.srcDirs file("testData/src/java${version}")
   }

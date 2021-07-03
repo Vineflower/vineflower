@@ -1,4 +1,4 @@
-package records;
+package pkg;
 
 public record TestRecordEmpty() {
    public int hashCode() {
@@ -6,7 +6,7 @@ public record TestRecordEmpty() {
    }
 }
 
-class 'records/TestRecordEmpty' {
+class 'pkg/TestRecordEmpty' {
    method 'hashCode ()I' {
       0      4
       1      4

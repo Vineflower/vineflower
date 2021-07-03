@@ -1,4 +1,4 @@
-package records;
+package pkg;
 
 public record TestRecordEmpty() {
   public int hashCode() {

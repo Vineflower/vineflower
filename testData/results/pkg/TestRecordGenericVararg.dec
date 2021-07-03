@@ -1,4 +1,4 @@
-package records;
+package pkg;
 
 public record TestRecordGenericVararg<T>(T first, T... other) {
    @SafeVarargs
@@ -16,7 +16,7 @@ public record TestRecordGenericVararg<T>(T first, T... other) {
    }
 }
 
-class 'records/TestRecordGenericVararg' {
+class 'pkg/TestRecordGenericVararg' {
    method '<init> (Ljava/lang/Object;[Ljava/lang/Object;)V' {
       4      5
       5      5

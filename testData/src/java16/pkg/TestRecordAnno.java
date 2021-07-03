@@ -1,4 +1,4 @@
-package records;
+package pkg;
 
 import java.lang.annotation.*;
 

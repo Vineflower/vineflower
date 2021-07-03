@@ -2,6 +2,4 @@
 /.gradle/
 /build/
 /out/
-/testData/classes/java8/
-/testData/classes/java9/
-/testData/classes/java11/
+/testData/classes/java*/

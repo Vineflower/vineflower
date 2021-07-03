@@ -1,4 +1,4 @@
-package records;
+package pkg;
 
 public record TestRecordGenericVararg<T>(T first, T... other) {
   @SafeVarargs

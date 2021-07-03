@@ -102,11 +102,11 @@ public class SingleClassesTest extends SingleClassesTestBase {
 //  register("PrivateClasses");
     register(-1, "TestSuspendLambdaKt");
     register(8, "TestGenericArgs");
-    register(-1, "records/TestRecordEmpty");
-    register(-1, "records/TestRecordSimple");
-    register(-1, "records/TestRecordVararg");
-    register(-1, "records/TestRecordGenericVararg");
-    register(-1, "records/TestRecordAnno");
+    register(16, "TestRecordEmpty");
+    register(16, "TestRecordSimple");
+    register(16, "TestRecordVararg");
+    register(16, "TestRecordGenericVararg");
+    register(16, "TestRecordAnno");
     // TODO: The (double) in front of the (int) should be removed
     register(8, "TestMultiCast");
     // TODO: The ternary here needs to be removed

@@ -1,4 +1,4 @@
-package records;
+package pkg;
 
 public record TestRecordVararg(int x, int[]... y) {
    public TestRecordVararg(int x, int[]... y) {
@@ -15,7 +15,7 @@ public record TestRecordVararg(int x, int[]... y) {
    }
 }
 
-class 'records/TestRecordVararg' {
+class 'pkg/TestRecordVararg' {
    method '<init> (I[[I)V' {
       4      4
       5      4

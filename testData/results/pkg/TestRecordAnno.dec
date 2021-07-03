@@ -1,4 +1,4 @@
-package records;
+package pkg;
 
 public record TestRecordAnno(@RC @TA int x, int y) {
    public TestRecordAnno(@TA int x, @P int y) {
@@ -17,7 +17,7 @@ public record TestRecordAnno(@RC @TA int x, int y) {
    }
 }
 
-class 'records/TestRecordAnno' {
+class 'pkg/TestRecordAnno' {
    method '<init> (II)V' {
       4      4
       5      4
