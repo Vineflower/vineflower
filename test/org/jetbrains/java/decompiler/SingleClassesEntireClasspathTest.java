@@ -49,4 +49,6 @@ public class SingleClassesEntireClasspathTest extends SingleClassesTestBase {
   @Test public void testTryWithResourcesNestedJ16() { doTest("java16/TestTryWithResourcesNestedJ16"); }
   // TODO: extra casts, var type reverted to object
   @Test public void testTryWithResourcesNullJ16() { doTest("java16/TestTryWithResourcesNullJ16"); }
+  // TODO: doesn't make try with resources block
+  @Test public void testTryWithResourcesOuterJ16() { doTest("java16/TestTryWithResourcesOuterJ16"); }
 }
