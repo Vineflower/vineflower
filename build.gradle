@@ -1,3 +1,5 @@
+import org.jetbrains.java.decompiler.build.JasmCompile
+
 // Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 apply plugin: 'java'
 apply plugin: 'maven-publish'
@@ -60,6 +62,13 @@ test {
   }
   test.dependsOn(task)
 }
+
+task compileTestDataJasm(type: JasmCompile) {
+  source = fileTree("testData/src/jasm/")
+  destinationDir = file("testData/classes/jasm/")
+  options.compilerArgs += ["-g"]
+}
+test.dependsOn(compileTestDataJasm)
 
 // Compile the java 9 classes
 compileJava9Java {
