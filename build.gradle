@@ -2,6 +2,7 @@ import org.jetbrains.java.decompiler.build.JasmCompile
 
 // Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 apply plugin: 'java'
+apply plugin: 'groovy'
 apply plugin: 'maven-publish'
 
 compileJava {
@@ -22,6 +23,7 @@ sourceSets {
   test.java.srcDirs 'test'
   // We need specific java9+ versions of certain classes, so we have a separate source set for them
   java9.java.srcDirs 'java9'
+  testDataGroovy.groovy.srcDirs files("testData/src/groovy/")
 }
 
 repositories { mavenCentral() }
@@ -33,6 +35,7 @@ dependencies {
 
   // Java 9 classes need the main source set
   java9Implementation sourceSets.main.output
+  testDataGroovyImplementation 'org.codehaus.groovy:groovy:3.0.8'
 }
 
 java.toolchain {
@@ -69,6 +72,14 @@ task compileTestDataJasm(type: JasmCompile) {
   options.compilerArgs += ["-g"]
 }
 test.dependsOn(compileTestDataJasm)
+
+task compileTestDataGroovy(type: GroovyCompile) {
+  source = sourceSets.testDataGroovy.groovy
+  groovyClasspath = sourceSets.testDataGroovy.compileClasspath
+  destinationDir = file("testData/classes/groovy")
+  classpath = files("testData/classes/groovy")
+}
+test.dependsOn(compileTestDataGroovy)
 
 // Compile the java 9 classes
 compileJava9Java {
