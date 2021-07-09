@@ -1,0 +1,90 @@
+package java16;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
+
+public class TestTryWithResourcesFinallyJ16 {
+   public void test(File var1) throws FileNotFoundException {
+      try (Scanner var2 = new Scanner(var1)) {// 9
+         var2.next();// 10
+      } finally {
+         System.out.println("Hello");// 12
+      }
+
+   }// 13
+
+   public void testFunc(File var1) throws FileNotFoundException {
+      try (Scanner var2 = this.create(var1)) {// 17
+         var2.next();// 18
+      } finally {
+         System.out.println("Hello");// 20
+      }
+
+   }// 21
+
+   private Scanner create(File var1) throws FileNotFoundException {
+      return new Scanner(var1);// 25
+   }
+}
+
+class 'java16/TestTryWithResourcesFinallyJ16' {
+   method 'test (Ljava/io/File;)V' {
+      4      8
+      8      8
+      9      9
+      a      9
+      b      9
+      c      9
+      2f      14
+      32      11
+      33      11
+      34      11
+      35      11
+      36      11
+      37      11
+      38      11
+   }
+
+   method 'testFunc (Ljava/io/File;)V' {
+      0      17
+      1      17
+      2      17
+      3      17
+      4      17
+      5      17
+      6      18
+      7      18
+      8      18
+      9      18
+      34      23
+      37      20
+      38      20
+      39      20
+      3a      20
+      3b      20
+      3c      20
+      3d      20
+   }
+
+   method 'create (Ljava/io/File;)Ljava/util/Scanner;' {
+      4      26
+      8      26
+   }
+}
+
+Lines mapping:
+9 <-> 9
+10 <-> 10
+12 <-> 12
+13 <-> 15
+17 <-> 18
+18 <-> 19
+20 <-> 21
+21 <-> 24
+25 <-> 27
+Not mapped:
+11
+14
+19
+22
