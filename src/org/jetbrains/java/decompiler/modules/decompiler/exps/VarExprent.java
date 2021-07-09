@@ -248,7 +248,7 @@ public class VarExprent extends Exprent {
         if (processor.getThisVars().containsKey(getVarVersionPair())) {
           String qaulName = processor.getThisVars().get(getVarVersionPair());
           StructClass cls = DecompilerContext.getStructContext().getClass(qaulName);
-          if (cls.getSignature() != null) {
+          if (cls != null && cls.getSignature() != null) {
             vt = cls.getSignature().genericType;
           }
           else if (vt == null) {

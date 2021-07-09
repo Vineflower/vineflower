@@ -19,6 +19,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.vars.VarProcessor;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
+import org.jetbrains.java.decompiler.util.DotExporter;
 
 import java.io.IOException;
 
@@ -118,6 +119,7 @@ public class MethodProcessorRunnable implements Runnable {
     }
 
     RootStatement root = DomHelper.parseGraph(graph, mt);
+    DotExporter.toDotFile(root, mt, "initialStat");
 
     FinallyProcessor fProc = new FinallyProcessor(md, varProc);
     while (fProc.iterateGraph(cl, mt, root, graph)) {
@@ -137,6 +139,7 @@ public class MethodProcessorRunnable implements Runnable {
     ExprProcessor proc = new ExprProcessor(md, varProc);
     proc.processStatement(root, cl);
 
+
     SequenceHelper.condenseSequences(root);
 
     StackVarsProcessor stackProc = new StackVarsProcessor();
@@ -144,8 +147,7 @@ public class MethodProcessorRunnable implements Runnable {
     do {
       stackProc.simplifyStackVars(root, mt, cl);
       varProc.setVarVersions(root);
-    }
-    while (new PPandMMHelper(varProc).findPPandMM(root));
+    } while (new PPandMMHelper(varProc).findPPandMM(root));
 
     if (cl.isVersion(CodeConstants.BYTECODE_JAVA_9)) {
       ConcatenationHelper.simplifyStringConcat(root);
@@ -188,7 +190,7 @@ public class MethodProcessorRunnable implements Runnable {
 
       LabelHelper.identifyLabels(root);
 
-      if (TryHelper.enhanceTryStats(root)) {
+      if (TryHelper.enhanceTryStats(root, cl)) {
         continue;
       }
 
@@ -232,6 +234,8 @@ public class MethodProcessorRunnable implements Runnable {
     // must be the last invocation, because it makes the statement structure inconsistent
     // FIXME: new edge type needed
     LabelHelper.replaceContinueWithBreak(root);
+
+    DotExporter.toDotFile(root, mt, "finalStatement");
 
     mt.releaseResources();
 
