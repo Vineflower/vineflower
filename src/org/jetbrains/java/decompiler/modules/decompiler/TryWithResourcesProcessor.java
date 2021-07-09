@@ -6,7 +6,14 @@ import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
+/**
+ * Processes try catch statements to turns them into try-with-resources statements wherever possible.
+ * Including the entire classpath is generally needed for this to work as it needs to know which classes implement AutoCloseable.
+ *
+ * @author ForgeFlower devs, SuperCoder79
+ */
 public final class TryWithResourcesProcessor {
   // Make try with resources with the old style bytecode (J8)
   public static boolean makeTryWithResource(CatchAllStatement finallyStat) {
@@ -110,6 +117,7 @@ public final class TryWithResourcesProcessor {
       if (inner.type == Statement.TYPE_TRYCATCH) {
         Statement inTry = inner.getStats().get(0);
 
+        // Catch block contains a basic block inside which has the closeable invocation
         if (inTry.type == Statement.TYPE_BASICBLOCK) {
           Exprent first = inTry.getExprents().get(0);
 
@@ -123,65 +131,59 @@ public final class TryWithResourcesProcessor {
       if (inner.type == Statement.TYPE_IF) {
         Exprent ifCase = ((IfStatement)inner).getHeadexprent().getCondition();
 
-        // Will look like "if (!(!(var != null)))"
-        Exprent temp = ifCase;
+        if (ifCase.type == Exprent.EXPRENT_FUNCTION) {
+          // Will look like "if (!(!(var != null)))"
+          FunctionExprent func = unwrapNegations((FunctionExprent) ifCase);
 
-        while (temp.type == Exprent.EXPRENT_FUNCTION) {
-          FunctionExprent func = (FunctionExprent) temp;
+          Exprent check = func.getLstOperands().get(0);
 
-          if (func.getFuncType() == FunctionExprent.FUNCTION_BOOL_NOT) {
-            // If it's a bool not, keep going
-            temp = func.getLstOperands().get(0);
-          } else if (func.getFuncType() == FunctionExprent.FUNCTION_NE) {
-            Exprent check = func.getLstOperands().get(0);
+          // If it's not a var, end processing early
+          if (check.type != Exprent.EXPRENT_VAR) {
+            return false;
+          }
 
-            if (check.type != Exprent.EXPRENT_VAR) {
-              break;
-            }
+          // Make sure it's checking against null
+          if (func.getLstOperands().get(1).getExprType().equals(VarType.VARTYPE_NULL)) {
+            // Ensured that the if stat is a null check
 
-            // Make sure it's checking against null
-            if (func.getLstOperands().get(1).getExprType().equals(VarType.VARTYPE_NULL)) {
-              // Ensured that the if stat is a null check
+            inner = ((IfStatement)inner).getIfstat();
 
-              inner = ((IfStatement)inner).getIfstat();
+            // Process try catch inside of if statement
+            if (inner.type == Statement.TYPE_TRYCATCH) {
+              Statement inTry = inner.getStats().get(0);
 
-              if (inner.type == Statement.TYPE_TRYCATCH) {
-                Statement inTry = inner.getStats().get(0);
+              if (inTry.type == Statement.TYPE_BASICBLOCK) {
+                Exprent first = inTry.getExprents().get(0);
 
-                if (inTry.type == Statement.TYPE_BASICBLOCK) {
-                  Exprent first = inTry.getExprents().get(0);
+                // Check for closable invocation
+                if (isCloseable(first)) {
+                  closeable = (VarExprent) ((InvocationExprent)first).getInstance();
+                  nullable = true;
 
-                  if (isCloseable(first)) {
-                    closeable = (VarExprent) ((InvocationExprent)first).getInstance();
-                    nullable = true;
-
-                    // Double check that the variables in the null check and the closeable match
-                    if (!closeable.getVarVersionPair().equals(((VarExprent)check).getVarVersionPair())) {
-                      closeable = null;
-                    }
+                  // Double check that the variables in the null check and the closeable match
+                  if (!closeable.getVarVersionPair().equals(((VarExprent)check).getVarVersionPair())) {
+                    closeable = null;
                   }
                 }
               }
             }
-
-            break;
-          } else {
-            break;
           }
         }
       }
     }
 
+    // Didn't find an autocloseable, return early
     if (closeable == null) {
       return false;
     }
 
     // Find basic block that contains the resource assignment
     for (StatEdge edge : tryStatement.getAllPredecessorEdges()) {
+      // Find predecessors that lead towards the target try statement
       if (edge.getDestination().equals(tryStatement) && edge.getSource().type == Statement.TYPE_BASICBLOCK) {
         AssignmentExprent assignment = findResourceDef(closeable, edge.getSource());
 
-        // Remove the resource assignment from the basic block and finish processing
+        // Remove the resource assignment from the basic block and further process
         if (assignment != null) {
           edge.getSource().getExprents().remove(assignment);
 
@@ -197,10 +199,11 @@ public final class TryWithResourcesProcessor {
           // Remove outer close()
           Statement parent = tryStatement.getParent();
 
-          boolean processed = false;
+          boolean processedClose = false;
           for (int i = 0; i < parent.getStats().size(); i++) {
             Statement stat = parent.getStats().get(i);
 
+            // Exclude our statement from processing
             if (stat == tryStatement) {
               continue;
             }
@@ -212,22 +215,14 @@ public final class TryWithResourcesProcessor {
                 Exprent condition = ifStat.getHeadexprent().getCondition();
 
                 if (condition.type == Exprent.EXPRENT_FUNCTION) {
-                  FunctionExprent func = (FunctionExprent) condition;
-
                   // This can sometimes be double inverted negative conditions too, handle that case
-                  while (func.getFuncType() == FunctionExprent.FUNCTION_BOOL_NOT) {
-                    Exprent expr = func.getLstOperands().get(0);
-
-                    if (expr.type == Exprent.EXPRENT_FUNCTION) {
-                      func = (FunctionExprent) expr;
-                    } else {
-                      break;
-                    }
-                  }
+                  FunctionExprent func = unwrapNegations((FunctionExprent) condition);
 
                   // Ensure the exprent is the one we want to remove
                   if (func.getFuncType() == FunctionExprent.FUNCTION_NE && func.getLstOperands().get(0).type == Exprent.EXPRENT_VAR && func.getLstOperands().get(1).getExprType().equals(VarType.VARTYPE_NULL)) {
                     if (func.getLstOperands().get(0).type == Exprent.EXPRENT_VAR && ((VarExprent)func.getLstOperands().get(0)).getVarVersionPair().equals(closeable.getVarVersionPair())) {
+                      // TODO: add APIs to do this automatically
+
                       // First start by removing the contents of the if statement.
                       // This block's connections need to be removed first before we can move onto the statement itself.
 
@@ -271,38 +266,63 @@ public final class TryWithResourcesProcessor {
                       // Remove if statement containing close() check- finally we're done!
                       parent.getStats().removeWithKey(ifStat.id);
 
-                      processed = true;
+                      processedClose = true;
                     }
                   }
                 }
               }
             } else {
               if (stat.getExprents() != null) {
-                for (Exprent exprent : new ArrayList<>(stat.getExprents())) {
+                Iterator<Exprent> itr = stat.getExprents().iterator();
+
+                while (itr.hasNext()) {
+                  Exprent exprent = itr.next();
 
                   // Check and remove the close exprent
                   if (exprent.type == Exprent.EXPRENT_INVOCATION) {
-                  Exprent inst = ((InvocationExprent) exprent).getInstance();
+                    Exprent inst = ((InvocationExprent) exprent).getInstance();
 
+                    // Ensure the var exprent we want to remove is the right one
                     if (inst.type == Exprent.EXPRENT_VAR && ((VarExprent)inst).getVarVersionPair().equals(closeable.getVarVersionPair()) && isCloseable(exprent)) {
-                      stat.getExprents().remove(exprent);
+                      itr.remove(); // Remove tested exprent
 
-                      processed = true;
+                      processedClose = true;
                     }
                   }
                 }
               }
             }
+
+            // Processed close, break out of loop to prevent multiple close() exprents from being removed
+            if (processedClose) {
+              break;
+            }
           }
 
-          if (processed) {
+          if (processedClose) {
             return true;
+          } else {
+            // TODO: not processing the close() but also transforming the try block is invalid- leave a source level comment here
           }
         }
       }
     }
 
     return false;
+  }
+
+  private static FunctionExprent unwrapNegations(FunctionExprent func) {
+    while (func.getFuncType() == FunctionExprent.FUNCTION_BOOL_NOT) {
+      Exprent expr = func.getLstOperands().get(0);
+
+      if (expr.type == Exprent.EXPRENT_FUNCTION) {
+        func = (FunctionExprent) expr;
+      } else {
+        break;
+      }
+    }
+
+    return func;
   }
 
   private static AssignmentExprent findResourceDef(VarExprent var, Statement prevStatement) {

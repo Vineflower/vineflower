@@ -23,52 +23,168 @@ public class DotExporter {
   private static final boolean DUMP_DOTS = DOTS_FOLDER != null && !DOTS_FOLDER.trim().isEmpty();
   // http://graphs.grevian.org/graph is a nice visualizer for the outputed dots.
 
+  // Outputs a statement and as much of its information as possible into a dot formatted string.
+  // Nodes represent statements, their id, their type, and their code.
+  // Black arrows represent a statement's successors.
+  // Dotted arrows represent a statement's exception successors.
+  // Blue arrows represent a statement's predecessors. The arrow points towards the predecessor.
+  // Red arrows represent the statement tree. The arrows points to the statement's children.
+  // Statements with no successors or predecessors (but still contained in the tree) will be in a subgraph titled "Isolated statements".
+  // Statements that aren't found will be circular, and will have a message stating so.
+  // Nodes with green borders are the canonical exit of method, but these may not always be emitted.
   private static String toDotFormat(Statement stat) {
-
     StringBuffer buffer = new StringBuffer();
+    List<String> subgraph = new ArrayList<>();
+    Set<Integer> visitedNodes = new HashSet<>();
+    Set<Integer> exits = new HashSet<>();
+    Set<Integer> referenced = new HashSet<>();
 
     buffer.append("digraph G {\r\n");
 
     List<Statement> stats = new ArrayList<>();
+    stats.add(stat);
     findAllStats(stats, stat);
+
     for(Statement st : stats) {
+      String sourceId = st.id + (st.getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty()?"":"000000");
 
-      String sourceid = st.id + (st.getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty()?"":"000000");
-
-//      buffer.append(sourceid+" [shape=box,label=\""+sourceid+"\"];\r\n");
-      buffer.append(sourceid+" [shape=box,label=\""+ st.id + " (" + getStatType(st) + ")\r\n" + st.toJava() + "\"];\r\n");
-
+      boolean edges = false;
       for(StatEdge edge : st.getSuccessorEdges(Statement.STATEDGE_ALL)) {
-        String destid = edge.getDestination().id + (edge.getDestination().getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty()?"":"000000");
+        String destId = edge.getDestination().id + (edge.getDestination().getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty()?"":"000000");
 
-        buffer.append(sourceid+"->"+destid+";\r\n");
+        String edgeType = getEdgeType(edge);
 
-//        if(!stat.getStats().contains(edge.getDestination())) {
-//          buffer.append(destid+" [label=\""+destid+"\"];\r\n");
-//        }
+        buffer.append(sourceId + "->" + destId + (edgeType != null ? "[label=\"" + edgeType + "\"]" : "") + ";\r\n");
+
+        // TODO: why are some returns break edges instead of returns?
+        if (edge.getType() == StatEdge.TYPE_FINALLYEXIT || edge.getType() == StatEdge.TYPE_BREAK) {
+          exits.add(edge.getDestination().id);
+        }
+
+        referenced.add(edge.getDestination().id);
+
+        edges = true;
       }
 
       for(StatEdge edge : st.getPredecessorEdges(Statement.STATEDGE_ALL)) {
-        // TODO: exception preds probably don't work right
-        String destid = edge.getSource().id + (edge.getDestination().getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty() ? "" : "000000");
+        String destId = edge.getSource().id + (edge.getSource().getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty() ? "" : "000000");
 
-        buffer.append(sourceid + "->" + destid + " [color=blue];\r\n");
+        String edgeType = getEdgeType(edge);
+
+        buffer.append(sourceId + "->" + destId + "[color=blue" + (edgeType != null ? ",fontcolor=blue,label=\"" + edgeType + "\"" : "") + "];\r\n");
+
+        referenced.add(edge.getSource().id);
+
+        edges = true;
       }
 
       for(StatEdge edge : st.getSuccessorEdges(StatEdge.TYPE_EXCEPTION)) {
-        String destid = edge.getDestination().id + (edge.getDestination().getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty()?"":"000000");
+        String destId = edge.getDestination().id + (edge.getDestination().getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty()?"":"000000");
 
-        buffer.append(sourceid+" -> "+destid+" [style=dotted];\r\n");
+        buffer.append(sourceId + " -> " + destId + " [style=dotted];\r\n");
+        referenced.add(edge.getDestination().id);
 
-//        if(!stat.getStats().contains(edge.getDestination())) {
-//          buffer.append(destid+" [label=\""+destid+"\"];\r\n");
-//        }
+        edges = true;
       }
+
+      // Graph tree
+      for (Statement s : st.getStats()) {
+        String destId = s.id + (s.getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty()?"":"000000");
+
+        buffer.append(sourceId + " -> " + destId + " [color=red];\r\n");
+        referenced.add(s.id);
+      }
+
+      visitedNodes.add(st.id);
+
+      String node = sourceId + " [shape=box,label=\"" + st.id + " (" + getStatType(st) + ")\r\n" + toJava(st) + "\"" + (st == stat ? ",color=red" : "") + "];\r\n";
+      if (edges || st == stat) {
+        buffer.append(node);
+      } else {
+        subgraph.add(node);
+      }
+    }
+
+    // Exits
+    for (Integer exit : exits) {
+      if (!visitedNodes.contains(exit)) {
+        buffer.append(exit + " [color=green,label=\"" + exit + " (Canonical Return)\"];\r\n");
+      }
+
+      referenced.remove(exit);
+    }
+
+    referenced.removeAll(visitedNodes);
+
+    // Unresolved statement references
+    for (Integer integer : referenced) {
+      buffer.append(integer + " [color=red,label=\"" + integer + " (Unknown statement!)\"];\r\n");
+    }
+
+    if (subgraph.size() > 0) {
+      buffer.append("subgraph cluster_non_parented {\r\n\tlabel=\"Isolated statements\";\r\n");
+
+      for (String s : subgraph) {
+        buffer.append("\t"+s);
+      }
+
+      buffer.append("\t}\r\n");
     }
 
     buffer.append("}");
 
     return buffer.toString();
+  }
+
+  private static String statementHierarchy(Statement stat) {
+    StringBuffer buffer = new StringBuffer();
+
+    buffer.append("digraph G {\r\n");
+
+    buffer.append("subgraph cluster_root {\r\n");
+
+    buffer.append(stat.id + " [shape=box,label=\"" + stat.id + " (" + getStatType(stat) + ")\r\n" + toJava(stat) + "\"" + "];\r\n");
+
+    recursivelyGraphStatement(buffer, stat);
+
+    buffer.append("}\r\n");
+
+    buffer.append("}");
+
+    return buffer.toString();
+  }
+
+  private static void recursivelyGraphStatement(StringBuffer buffer, Statement statement) {
+    buffer.append("subgraph cluster_" + statement.id + " {\r\n");
+    buffer.append("label=\"" + statement.id + " (" + getStatType(statement) + ")\r\n" + toJava(statement) + "\"" + ";\r\n");
+
+    for (Statement stat : statement.getStats()) {
+      buffer.append(stat.id + " [shape=box,label=\"" + stat.id + " (" + getStatType(stat) + ")\r\n" + toJava(stat) + "\"" + "];\r\n");
+
+      recursivelyGraphStatement(buffer, stat);
+    }
+
+
+    buffer.append("}\r\n");
+  }
+
+  private static String toJava(Statement statement) {
+    try {
+      return statement.toJava().toString();
+    } catch (Exception e) {
+      return "Could not get content";
+    }
+  }
+
+  private static String getEdgeType(StatEdge edge) {
+    switch (edge.getType()) {
+      case StatEdge.TYPE_REGULAR: return null;
+      case StatEdge.TYPE_EXCEPTION: return "Exception";
+      case StatEdge.TYPE_BREAK: return "Break";
+      case StatEdge.TYPE_CONTINUE: return "Continue";
+      case StatEdge.TYPE_FINALLYEXIT: return "Finally Exit";
+      default: return "Unknown Edge (composite?)";
+    }
   }
 
   private static String getStatType(Statement st) {
@@ -245,6 +361,18 @@ public class DotExporter {
     try{
       BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(mt, suffix)));
       out.write(toDotFormat(stat).getBytes());
+      out.close();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  public static void statementHierarchyToDot(Statement stat, StructMethod mt, String suffix) {
+    if (!DUMP_DOTS)
+      return;
+    try{
+      BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(mt, suffix)));
+      out.write(statementHierarchy(stat).getBytes());
       out.close();
     } catch (Exception e) {
       e.printStackTrace();
