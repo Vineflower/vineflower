@@ -139,7 +139,6 @@ public class MethodProcessorRunnable implements Runnable {
     ExprProcessor proc = new ExprProcessor(md, varProc);
     proc.processStatement(root, cl);
 
-
     SequenceHelper.condenseSequences(root);
 
     StackVarsProcessor stackProc = new StackVarsProcessor();

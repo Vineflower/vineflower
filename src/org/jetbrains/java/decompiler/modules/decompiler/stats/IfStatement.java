@@ -197,8 +197,6 @@ public final class IfStatement extends Statement {
 
     buf.append(ExprProcessor.listToJava(varDefinitions, indent, tracer));
 
-    // TODO: fix the root cause of this instead of placing a bandaid over the symptom
-    postProcessPatternMatch();
     buf.append(first.toJava(indent, tracer));
 
     if (isLabeled()) {
@@ -356,44 +354,6 @@ public final class IfStatement extends Statement {
     if (iftype == IFTYPE_IFELSE) {
       elseedge = lstSuccs.get(negated ? 1 : 0);
       elsestat = stats.get(2);
-    }
-  }
-
-  private void postProcessPatternMatch() {
-    Exprent condition = this.getHeadexprent().getCondition();
-
-    if (condition.type != Exprent.EXPRENT_FUNCTION) {
-      return;
-    }
-
-    if (this.first.type != Statement.TYPE_BASICBLOCK) {
-      return;
-    }
-
-    List<Exprent> exprents = this.getHeadexprent().getAllExprents();
-
-    for (Exprent exprent : exprents) {
-
-      if (exprent.type == Exprent.EXPRENT_FUNCTION) {
-        FunctionExprent iof = (FunctionExprent) exprent;
-
-        if (iof.getFuncType() == FunctionExprent.FUNCTION_INSTANCEOF) {
-
-          if (iof.getLstOperands().size() > 2) {
-            VarExprent matchedVar = (VarExprent) iof.getLstOperands().get(2);
-
-            for (Exprent exp : this.first.getExprents()) {
-              if (exp.type == Exprent.EXPRENT_VAR) {
-                if (matchedVar.getVarVersionPair().equals(((VarExprent)exp).getVarVersionPair())) {
-
-                  this.first.getExprents().remove(exp);
-                  break;
-                }
-              }
-            }
-          }
-        }
-      }
     }
   }
 

@@ -10,8 +10,8 @@ public class TestPatternMatchingMerge {
    }// 10
 
    public void testNoInit(Object var1) {
-      if (var1 instanceof String var2) {// 14 15
-         ;
+      if (var1 instanceof String) {// 14
+         String var2 = (String)var1;// 15
       }
 
    }// 17
@@ -41,7 +41,11 @@ class 'java16/TestPatternMatchingMerge' {
       2      12
       3      12
       4      12
-      b      12
+      7      13
+      8      13
+      9      13
+      a      13
+      b      13
       c      16
    }
 }
@@ -52,5 +56,5 @@ Lines mapping:
 8 <-> 7
 10 <-> 10
 14 <-> 13
-15 <-> 13
+15 <-> 14
 17 <-> 17

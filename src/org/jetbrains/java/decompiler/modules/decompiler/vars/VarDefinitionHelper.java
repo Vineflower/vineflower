@@ -116,6 +116,22 @@ public class VarDefinitionHelper {
         for (Exprent exp : ((CatchStatement)st).getResources()) {
           lstVars.add((VarExprent)((AssignmentExprent)exp).getLeft());
         }
+      } else if (st.type == Statement.TYPE_IF) {
+        lstVars = new ArrayList<>();
+
+        List<Exprent> conditionList = ((IfStatement)st).getHeadexprent().getCondition().getAllExprents(true);
+        conditionList.add(((IfStatement)st).getHeadexprent().getCondition());
+
+        for (Exprent condition : conditionList) {
+          if (condition.type == Exprent.EXPRENT_FUNCTION) {
+            FunctionExprent func = ((FunctionExprent)condition);
+
+            // Pattern match variable is implicitly defined
+            if (func.getFuncType() == FunctionExprent.FUNCTION_INSTANCEOF && func.getLstOperands().size() > 2) {
+              lstVars.add((VarExprent) func.getLstOperands().get(2));
+            }
+          }
+        }
       }
 
       if (lstVars != null) {
