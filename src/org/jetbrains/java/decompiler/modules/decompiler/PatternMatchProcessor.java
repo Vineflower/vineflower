@@ -18,25 +18,29 @@ import java.util.List;
  * @author SuperCoder79
  */
 public final class PatternMatchProcessor {
-  public static void matchInstanceof(RootStatement root) {
-    matchInstanceofRec(root, root);
+  public static boolean matchInstanceof(RootStatement root) {
+    return matchInstanceofRec(root, root);
   }
 
-  private static void matchInstanceofRec(Statement statement, RootStatement root) {
+  private static boolean matchInstanceofRec(Statement statement, RootStatement root) {
     for (Statement stat : statement.getStats()) {
-      matchInstanceofRec(stat, root);
+      if (matchInstanceofRec(stat, root)) {
+        return true;
+      }
     }
 
     if (statement instanceof IfStatement) {
-      handleIf((IfStatement) statement, root);
+      return handleIf((IfStatement) statement, root);
     }
+
+    return false;
   }
 
-  private static void handleIf(IfStatement statement, RootStatement root) {
+  private static boolean handleIf(IfStatement statement, RootStatement root) {
     Exprent condition = statement.getHeadexprent().getCondition();
 
     if (condition.type != Exprent.EXPRENT_FUNCTION) {
-      return;
+      return false;
     }
 
     FunctionExprent func = (FunctionExprent) condition;
@@ -45,6 +49,7 @@ public final class PatternMatchProcessor {
 
     // TODO: need to properly analyze the scope around instanceof to handle negations
 
+    boolean updated = false;
     loop:
     for (Exprent exprent : exprents) {
       if (exprent.type == Exprent.EXPRENT_FUNCTION) {
@@ -95,6 +100,8 @@ public final class PatternMatchProcessor {
                       // Add the exprent to the instanceof exprent and remove it from the inside of the if statement
                       iof.getLstOperands().add(2, left);
                       statement.getIfstat().getExprents().remove(0);
+
+                      updated = true;
                     }
                   }
                 }
@@ -104,6 +111,8 @@ public final class PatternMatchProcessor {
         }
       }
     }
+
+    return updated;
   }
 
   // Finds all assignments and their associated variables in a statement's predecessors.

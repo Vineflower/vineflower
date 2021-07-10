@@ -171,8 +171,6 @@ public class MethodProcessorRunnable implements Runnable {
         }
       }
 
-      // Dev note: Pattern matching used to run here, to allow for ternary creation but it created corrupted <unknown> variables
-
       if (DecompilerContext.getOption(IFernflowerPreferences.IDEA_NOT_NULL_ANNOTATION)) {
         if (IdeaNotNullHelper.removeHardcodedChecks(root, mt)) {
           SequenceHelper.condenseSequences(root);
@@ -182,9 +180,10 @@ public class MethodProcessorRunnable implements Runnable {
       stackProc.simplifyStackVars(root, mt, cl);
       varProc.setVarVersions(root);
 
-      // TODO: needs to be earlier
       if (cl.isVersion(CodeConstants.BYTECODE_JAVA_16)) {
-        PatternMatchProcessor.matchInstanceof(root);
+        if (PatternMatchProcessor.matchInstanceof(root)) {
+          continue;
+        }
       }
 
       LabelHelper.identifyLabels(root);

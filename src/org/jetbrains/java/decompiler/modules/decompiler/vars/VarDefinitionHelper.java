@@ -132,6 +132,24 @@ public class VarDefinitionHelper {
             }
           }
         }
+      } else if (st.type == Statement.TYPE_BASICBLOCK) {
+        if (st.getExprents().size() > 0) {
+          lstVars = new ArrayList<>();
+          List<Exprent> exps = st.getExprents();
+
+          for (Exprent exp : exps) {
+            List<Exprent> inner = exp.getAllExprents(true);
+            inner.add(exp);
+
+            for (Exprent exprent : inner) {
+              if (exprent.type == Exprent.EXPRENT_FUNCTION && ((FunctionExprent) exprent).getFuncType() == FunctionExprent.FUNCTION_INSTANCEOF) {
+                if (((FunctionExprent) exprent).getLstOperands().size() > 2) {
+                  lstVars.add((VarExprent) ((FunctionExprent) exprent).getLstOperands().get(2));
+                }
+              }
+            }
+          }
+        }
       }
 
       if (lstVars != null) {
