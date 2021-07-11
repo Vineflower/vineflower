@@ -6,6 +6,7 @@ package org.jetbrains.java.decompiler.modules.decompiler.stats;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.InstructionSequence;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
@@ -544,6 +545,15 @@ public class Statement implements IMatchable {
     }
 
     oldstat.getLabelEdges().clear();
+  }
+
+  /**
+   * Gets the implicitly defined variables in this statement.
+   *
+   * @return A list of {@link VarExprent}s that are implicitly defined. Can be null or empty if none exist.
+   */
+  public List<VarExprent> getImplicitlyDefinedVars() {
+    return null;
   }
 
 

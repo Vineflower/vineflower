@@ -106,51 +106,7 @@ public class VarDefinitionHelper {
     while (!stack.isEmpty()) {
       Statement st = stack.removeFirst();
 
-      List<VarExprent> lstVars = null;
-      if (st.type == Statement.TYPE_CATCHALL) {
-        lstVars = ((CatchAllStatement)st).getVars();
-      }
-      else if (st.type == Statement.TYPE_TRYCATCH) {
-        lstVars = new ArrayList<>(((CatchStatement)st).getVars());
-        // resource vars must also be included
-        for (Exprent exp : ((CatchStatement)st).getResources()) {
-          lstVars.add((VarExprent)((AssignmentExprent)exp).getLeft());
-        }
-      } else if (st.type == Statement.TYPE_IF) {
-        lstVars = new ArrayList<>();
-
-        List<Exprent> conditionList = ((IfStatement)st).getHeadexprent().getCondition().getAllExprents(true);
-        conditionList.add(((IfStatement)st).getHeadexprent().getCondition());
-
-        for (Exprent condition : conditionList) {
-          if (condition.type == Exprent.EXPRENT_FUNCTION) {
-            FunctionExprent func = ((FunctionExprent)condition);
-
-            // Pattern match variable is implicitly defined
-            if (func.getFuncType() == FunctionExprent.FUNCTION_INSTANCEOF && func.getLstOperands().size() > 2) {
-              lstVars.add((VarExprent) func.getLstOperands().get(2));
-            }
-          }
-        }
-      } else if (st.type == Statement.TYPE_BASICBLOCK) {
-        if (st.getExprents().size() > 0) {
-          lstVars = new ArrayList<>();
-          List<Exprent> exps = st.getExprents();
-
-          for (Exprent exp : exps) {
-            List<Exprent> inner = exp.getAllExprents(true);
-            inner.add(exp);
-
-            for (Exprent exprent : inner) {
-              if (exprent.type == Exprent.EXPRENT_FUNCTION && ((FunctionExprent) exprent).getFuncType() == FunctionExprent.FUNCTION_INSTANCEOF) {
-                if (((FunctionExprent) exprent).getLstOperands().size() > 2) {
-                  lstVars.add((VarExprent) ((FunctionExprent) exprent).getLstOperands().get(2));
-                }
-              }
-            }
-          }
-        }
-      }
+      List<VarExprent> lstVars = st.getImplicitlyDefinedVars();
 
       if (lstVars != null) {
         for (VarExprent var : lstVars) {

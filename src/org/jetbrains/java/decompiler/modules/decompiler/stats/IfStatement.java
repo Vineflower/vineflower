@@ -418,6 +418,27 @@ public final class IfStatement extends Statement {
   }
 
   @Override
+  public List<VarExprent> getImplicitlyDefinedVars() {
+    List<VarExprent> vars = new ArrayList<>();
+
+    List<Exprent> conditionList = getHeadexprent().getCondition().getAllExprents(true);
+    conditionList.add(getHeadexprent().getCondition());
+
+    for (Exprent condition : conditionList) {
+      if (condition.type == Exprent.EXPRENT_FUNCTION) {
+        FunctionExprent func = ((FunctionExprent)condition);
+
+        // Pattern match variable is implicitly defined
+        if (func.getFuncType() == FunctionExprent.FUNCTION_INSTANCEOF && func.getLstOperands().size() > 2) {
+          vars.add((VarExprent) func.getLstOperands().get(2));
+        }
+      }
+    }
+
+    return vars;
+  }
+
+  @Override
   public StartEndPair getStartEndRange() {
     return StartEndPair.join(super.getStartEndRange(), 
       ifstat != null ? ifstat.getStartEndRange() : null, 

@@ -65,31 +65,7 @@ public class VarTypeProcessor {
     while (!stack.isEmpty()) {
       Statement stat = stack.removeFirst();
 
-      List<VarExprent> lstVars = null;
-      if (stat.type == Statement.TYPE_CATCHALL) {
-        lstVars = ((CatchAllStatement)stat).getVars();
-      }
-      else if (stat.type == Statement.TYPE_TRYCATCH) {
-        lstVars = ((CatchStatement)stat).getVars();
-      } else if (stat.type == Statement.TYPE_BASICBLOCK) {
-        if (stat.getExprents().size() > 0) {
-          lstVars = new ArrayList<>();
-          List<Exprent> exps = stat.getExprents();
-
-          for (Exprent exp : exps) {
-            List<Exprent> inner = exp.getAllExprents(true);
-            inner.add(exp);
-
-            for (Exprent exprent : inner) {
-              if (exprent.type == Exprent.EXPRENT_FUNCTION && ((FunctionExprent) exprent).getFuncType() == FunctionExprent.FUNCTION_INSTANCEOF) {
-                if (((FunctionExprent) exprent).getLstOperands().size() > 2) {
-                  lstVars.add((VarExprent) ((FunctionExprent) exprent).getLstOperands().get(2));
-                }
-              }
-            }
-          }
-        }
-      }
+      List<VarExprent> lstVars = stat.getImplicitlyDefinedVars();
 
       if (lstVars != null) {
         for (VarExprent var : lstVars) {
