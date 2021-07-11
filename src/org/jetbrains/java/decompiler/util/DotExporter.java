@@ -11,6 +11,7 @@ import org.jetbrains.java.decompiler.code.cfg.ControlFlowGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectNode;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionNode;
@@ -87,11 +88,30 @@ public class DotExporter {
         edges = true;
       }
 
+      // Special case if edges
+      // TODO: add labels onto existing successors
+
       // Graph tree
       for (Statement s : st.getStats()) {
         String destId = s.id + (s.getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty()?"":"000000");
 
-        buffer.append(sourceId + " -> " + destId + " [color=red];\r\n");
+        String label = "";
+
+        if (s == st.getFirst()) {
+          label = "First";
+        }
+
+        if (st.type == Statement.TYPE_IF) {
+          IfStatement ifs = (IfStatement) st;
+          if (s == ifs.getIfstat()) {
+            label = "If stat";
+          }
+          if (s == ifs.getElsestat()) {
+            label = "Else stat";
+          }
+        }
+
+        buffer.append(sourceId + " -> " + destId + " [color=red" + (!label.equals("") ? ",fontcolor=red,label=\"" + label + "\"" : "") + "];\r\n");
         referenced.add(s.id);
       }
 
@@ -207,7 +227,21 @@ public class DotExporter {
 
   private static void findAllStats(List<Statement> list, Statement root) {
     for (Statement stat : root.getStats()) {
-      list.add(stat);
+      if (!list.contains(stat)) {
+        list.add(stat);
+      }
+
+      if (stat.type == Statement.TYPE_IF) {
+        IfStatement ifs = (IfStatement) stat;
+
+        if (ifs.getIfstat() != null && !list.contains(ifs.getIfstat())) {
+          list.add(ifs.getIfstat());
+        }
+
+        if (ifs.getElsestat() != null && !list.contains(ifs.getElsestat())) {
+          list.add(ifs.getElsestat());
+        }
+      }
 
       findAllStats(list, stat);
     }
