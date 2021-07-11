@@ -22,7 +22,7 @@ import java.util.Set;
 
 public final class CatchStatement extends Statement {
   public static final int NORMAL = 0;
-  public static final int RESORCES = 1;
+  public static final int RESOURCES = 1;
 
   private final List<List<String>> exctstrings = new ArrayList<>();
   private final List<VarExprent> vars = new ArrayList<>();

@@ -38,6 +38,10 @@ dependencies {
   testDataGroovyImplementation 'org.codehaus.groovy:groovy:3.0.8'
 }
 
+test {
+  systemProperty "DOT_EXPORT_DIR", System.getProperty("DOT_EXPORT_DIR", null)
+}
+
 java.toolchain {
   languageVersion = JavaLanguageVersion.of(8)
 }

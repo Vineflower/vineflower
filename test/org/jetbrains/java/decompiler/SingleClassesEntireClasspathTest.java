@@ -41,5 +41,17 @@ public class SingleClassesEntireClasspathTest extends SingleClassesTestBase {
     register(JAVA_8, "TestThrowException");
     register(JAVA_8, "TestClassSimpleBytecodeMapping");
     register(JAVA_8, "TestAnonymousSignature");
+    register(JAVA_16, "TestTryWithResourcesJ16");
+    register(JAVA_16, "TestTryWithResourcesCatchJ16");
+    register(JAVA_16, "TestTryWithResourcesMultiJ16");
+    register(JAVA_16, "TestTryWithResourcesFinallyJ16");
+    register(JAVA_16, "TestTryWithResourcesCatchFinallyJ16");
+    // TODO: returning in finally causes broken control flow and undecompileable methods
+    register(JAVA_16, "TestTryWithResourcesReturnJ16");
+    register(JAVA_16, "TestTryWithResourcesNestedJ16");
+    // TODO: extra casts, var type reverted to object
+    register(JAVA_16, "TestTryWithResourcesNullJ16");
+    // TODO: doesn't make try with resources block
+    register(JAVA_16, "TestTryWithResourcesOuterJ16");
   }
 }

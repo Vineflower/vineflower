@@ -128,7 +128,7 @@ public class FlattenStatementsHelper {
 
             if (stat.type == Statement.TYPE_TRYCATCH) {
               CatchStatement catchStat = (CatchStatement)stat;
-              if (catchStat.getTryType() == CatchStatement.RESORCES) {
+              if (catchStat.getTryType() == CatchStatement.RESOURCES) {
                 firstnd.exprents = catchStat.getResources();
               }
             }
