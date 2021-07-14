@@ -170,8 +170,11 @@ public class SingleClassesTest extends SingleClassesTestBase {
   @Test public void testCompoundAssignment() { doTest("pkg/TestCompoundAssignment"); }
   // TODO: Fails to decompile empty infinite loop
   @Test public void testInfiniteLoop() { doTest("pkg/TestInfiniteLoop"); }
-  // TODO: many problems, wrong else if placement, wrong promotion of while to for, wrong control flow with infinite loop
   @Test public void testIfLoop() { doTest("pkg/TestIfLoop"); }
   @Test public void testInheritanceChainCycle() { doTest("pkg/TestInheritanceChainCycle"); }
   @Test public void testNextGaussian() { doTest("pkg/TestNextGaussian"); }
+  // TODO: Clean up control flow with continue and break
+  @Test public void testLoopBreak() { doTest("pkg/TestLoopBreak"); }
+  @Test public void testLoopBreak2() { doTest("pkg/TestLoopBreak2"); }
+  @Test public void testSimpleWhile() { doTest("pkg/TestSimpleWhile"); }
 }

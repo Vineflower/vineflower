@@ -30,21 +30,40 @@ public class DotExporter {
   // Dotted arrows represent a statement's exception successors.
   // Blue arrows represent a statement's predecessors. The arrow points towards the predecessor.
   // Red arrows represent the statement tree. The arrows points to the statement's children.
+  // Black arrows with a diamond head represent a statement's closure, or the statement that it's enclosed in.
+  // Purple arrows with a bar head represent a statement's neighbors. TODO: needs backwards as well
   // Statements with no successors or predecessors (but still contained in the tree) will be in a subgraph titled "Isolated statements".
   // Statements that aren't found will be circular, and will have a message stating so.
   // Nodes with green borders are the canonical exit of method, but these may not always be emitted.
-  private static String toDotFormat(Statement stat) {
+  private static String toDotFormat(Statement stat, String name) {
     StringBuffer buffer = new StringBuffer();
     List<String> subgraph = new ArrayList<>();
     Set<Integer> visitedNodes = new HashSet<>();
     Set<Integer> exits = new HashSet<>();
     Set<Integer> referenced = new HashSet<>();
 
-    buffer.append("digraph G {\r\n");
+    buffer.append("digraph " + name + " {\r\n");
 
     List<Statement> stats = new ArrayList<>();
     stats.add(stat);
     findAllStats(stats, stat);
+
+    // Pre process
+    Map<StatEdge, String> extraData = new HashMap<>();
+
+    for (Statement st : stats) {
+      if (st.type == Statement.TYPE_IF) {
+        IfStatement ifs = (IfStatement) st;
+
+        if (ifs.getIfEdge() != null) {
+          extraData.put(ifs.getIfEdge(), "If Edge");
+        }
+
+        if (ifs.getElseEdge() != null) {
+          extraData.put(ifs.getElseEdge(), "If Edge");
+        }
+      }
+    }
 
     for(Statement st : stats) {
       String sourceId = st.id + (st.getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty()?"":"000000");
@@ -55,7 +74,20 @@ public class DotExporter {
 
         String edgeType = getEdgeType(edge);
 
+        // Add extra edge data
+        // TODO do same for predecessors?
+        for (Entry<StatEdge, String> entry : extraData.entrySet()) {
+          if (edge.getSource().id.equals(entry.getKey().getSource().id) && edge.getDestination().id.equals(entry.getKey().getDestination().id)) {
+            edgeType = edgeType == null ? entry.getValue() : edgeType + " (" + entry.getValue() + ")";
+          }
+        }
+
         buffer.append(sourceId + "->" + destId + (edgeType != null ? "[label=\"" + edgeType + "\"]" : "") + ";\r\n");
+
+        if (edge.closure != null) {
+          String clsId = edge.closure.id + (edge.getDestination().getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty()?"":"000000");
+          buffer.append(sourceId + "->" + clsId + " [arrowhead=diamond,label=\"Closure\"];\r\n");
+        }
 
         // TODO: why are some returns break edges instead of returns?
         if (edge.getType() == StatEdge.TYPE_FINALLYEXIT || edge.getType() == StatEdge.TYPE_BREAK) {
@@ -65,6 +97,11 @@ public class DotExporter {
         referenced.add(edge.getDestination().id);
 
         edges = true;
+      }
+
+      for (Statement neighbour : st.getNeighbours(Statement.STATEDGE_ALL, Statement.DIRECTION_FORWARD)) {
+        String destId = neighbour.id + (neighbour.getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty()?"":"000000");
+        buffer.append(sourceId + "->" + destId + " [arrowhead=tee,color=purple];\r\n");
       }
 
       for(StatEdge edge : st.getPredecessorEdges(Statement.STATEDGE_ALL)) {
@@ -92,6 +129,7 @@ public class DotExporter {
       // TODO: add labels onto existing successors
 
       // Graph tree
+      boolean foundFirst = false;
       for (Statement s : st.getStats()) {
         String destId = s.id + (s.getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty()?"":"000000");
 
@@ -99,6 +137,7 @@ public class DotExporter {
 
         if (s == st.getFirst()) {
           label = "First";
+          foundFirst = true;
         }
 
         if (st.type == Statement.TYPE_IF) {
@@ -111,8 +150,13 @@ public class DotExporter {
           }
         }
 
-        buffer.append(sourceId + " -> " + destId + " [color=red" + (!label.equals("") ? ",fontcolor=red,label=\"" + label + "\"" : "") + "];\r\n");
+        buffer.append(sourceId + " -> " + destId + " [arrowhead=vee,color=red" + (!label.equals("") ? ",fontcolor=red,label=\"" + label + "\"" : "") + "];\r\n");
         referenced.add(s.id);
+      }
+
+      if (!foundFirst && st.getFirst() != null) {
+        String destId = st.getFirst().id + (st.getFirst().getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty()?"":"000000");
+        buffer.append(sourceId + "->" + destId + " [arrowhead=vee,color=red,fontcolor=red,label=\"Dangling First statement!\"];\r\n");
       }
 
       visitedNodes.add(st.id);
@@ -394,7 +438,7 @@ public class DotExporter {
       return;
     try{
       BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(mt, suffix)));
-      out.write(toDotFormat(stat).getBytes());
+      out.write(toDotFormat(stat, suffix).getBytes());
       out.close();
     } catch (Exception e) {
       e.printStackTrace();
@@ -418,7 +462,7 @@ public class DotExporter {
       return;
     try{
       BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(name)));
-      out.write(toDotFormat(stat).getBytes());
+      out.write(toDotFormat(stat, name).getBytes());
       out.close();
     } catch (Exception e) {
       e.printStackTrace();

@@ -79,6 +79,7 @@ public class MethodProcessorRunnable implements Runnable {
     mt.expandData(cl);
     InstructionSequence seq = mt.getInstructionSequence();
     ControlFlowGraph graph = new ControlFlowGraph(seq);
+    DotExporter.toDotFile(graph, mt, "cfgConstructed", true);
 
     DeadCodeHelper.removeDeadBlocks(graph);
     graph.inlineJsr(cl, mt);
@@ -122,6 +123,7 @@ public class MethodProcessorRunnable implements Runnable {
     }
 
     RootStatement root = DomHelper.parseGraph(graph, mt);
+    DotExporter.toDotFile(graph, mt, "cfgParsed", true);
     DotExporter.toDotFile(root, mt, "initialStat");
 
     FinallyProcessor fProc = new FinallyProcessor(md, varProc);
@@ -141,7 +143,7 @@ public class MethodProcessorRunnable implements Runnable {
 
     ExprProcessor proc = new ExprProcessor(md, varProc);
     proc.processStatement(root, cl);
-
+    DotExporter.toDotFile(root, mt, "initialProcessStat");
 
     SequenceHelper.condenseSequences(root);
 
