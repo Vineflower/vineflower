@@ -197,7 +197,7 @@ public final class MergeHelper {
           //else { // fix infinite loops
 
           StatEdge elseEdge = firstif.getAllSuccessorEdges().get(0);
-          boolean directlyConnectedToExit = directlyConnectedToExit(elseEdge.getDestination());
+          boolean directlyConnectedToExit = directlyConnectedToExit(stat, elseEdge.getDestination().getParent(), elseEdge.getDestination());
 
           if (isDirectPath(stat, elseEdge.getDestination()) || directlyConnectedToExit) {
             // exit condition identified
@@ -216,10 +216,13 @@ public final class MergeHelper {
                 // Skip first statement as that is the if that contains the while loop condition
                 for (int idx = 1; idx < firstStat.getStats().size(); idx++) {
                   Statement st = firstStat.getStats().get(idx);
-                  // Remove the statement from the loop body
-                  firstStat.getStats().removeWithKey(st.id);
                   // Add to temp list
                   toAdd.add(st);
+                }
+
+                for (Statement st : toAdd) {
+                  // Remove the statement from the loop body
+                  firstStat.getStats().removeWithKey(st.id);
                 }
 
                 VBStyleCollection<Statement, Integer> stats = stat.getParent().getStats();
@@ -256,6 +259,7 @@ public final class MergeHelper {
                   seq.setAllParent();
                   // Add to the while loop's parent
                   stats.addWithKeyAndIndex(idx, seq, seq.id);
+                  // TODO: should we be updating closures?
 
                   if (replaceFirst) {
                     // Update first statement of parent
@@ -321,9 +325,26 @@ public final class MergeHelper {
   }
 
   // Returns whether the statement has a single connection to the exitpoint of the method
-  private static boolean directlyConnectedToExit(Statement endStat) {
+  private static boolean directlyConnectedToExit(Statement loop, Statement parent, Statement endStat) {
     List<StatEdge> successors = endStat.getAllSuccessorEdges();
-    return successors.size() == 1 && successors.get(0).getDestination().type == Statement.TYPE_DUMMYEXIT;
+
+    // Make sure that there is only one successor from this statement, to indicate a direct path
+    if (successors.size() == 1) {
+      StatEdge successor = successors.get(0);
+      Statement destination = successor.getDestination();
+
+      // If the destination is connected to the exit and the successor's closure points to our current loop, then we have successfully found a direct path to the exit
+      if (destination.type == Statement.TYPE_DUMMYEXIT && successor.closure == loop) {
+        return true;
+      }
+
+      // If we didn't find a direct path but the destination contained within the parent statement (i.e a neighbor of ours) then check that too [TestLoopBreakException]
+      if (parent.containsStatement(destination)) {
+        return directlyConnectedToExit(loop, parent, destination);
+      }
+    }
+
+    return false;
   }
 
   public static boolean isDirectPath(Statement stat, Statement endstat) {

@@ -177,4 +177,5 @@ public class SingleClassesTest extends SingleClassesTestBase {
   @Test public void testLoopBreak() { doTest("pkg/TestLoopBreak"); }
   @Test public void testLoopBreak2() { doTest("pkg/TestLoopBreak2"); }
   @Test public void testSimpleWhile() { doTest("pkg/TestSimpleWhile"); }
+  @Test public void testLoopBreakException() { doTest("pkg/TestLoopBreakException"); }
 }
