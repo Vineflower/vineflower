@@ -400,6 +400,8 @@ public class ClassesProcessor implements CodeConstants {
         // build wrappers for all nested classes (that's where actual processing takes place)
         initWrappers(root);
 
+        // TODO: need to wrap around with try catch as failure here can break the entire class
+
         new NestedClassProcessor().processClass(root, root);
 
         new NestedMemberAccess().propagateMemberAccess(root);
