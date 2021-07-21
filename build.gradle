@@ -1,6 +1,11 @@
+// Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
+
 import org.jetbrains.java.decompiler.build.JasmCompile
 
-// Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
+plugins {
+  id 'org.jetbrains.kotlin.jvm' version '1.5.21'
+}
+
 apply plugin: 'java'
 apply plugin: 'groovy'
 apply plugin: 'maven-publish'
@@ -24,6 +29,9 @@ sourceSets {
   // We need specific java9+ versions of certain classes, so we have a separate source set for them
   java9.java.srcDirs 'java9'
   testDataGroovy.groovy.srcDirs files("testData/src/groovy/")
+  testDataKotlin {
+    kotlin.srcDirs files("testData/src/kt/")
+  }
 }
 
 repositories { mavenCentral() }
@@ -36,6 +44,8 @@ dependencies {
   // Java 9 classes need the main source set
   java9Implementation sourceSets.main.output
   testDataGroovyImplementation 'org.codehaus.groovy:groovy:3.0.8'
+  testDataKotlinImplementation platform('org.jetbrains.kotlin:kotlin-bom')
+  testDataKotlinImplementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
 }
 
 test {
@@ -84,6 +94,11 @@ task compileTestDataGroovy(type: GroovyCompile) {
   classpath = files("testData/classes/groovy")
 }
 test.dependsOn(compileTestDataGroovy)
+
+compileTestDataKotlinKotlin {
+  destinationDir = file("testData/classes/kt")
+}
+test.dependsOn(compileTestDataKotlinKotlin)
 
 // Compile the java 9 classes
 compileJava9Java {

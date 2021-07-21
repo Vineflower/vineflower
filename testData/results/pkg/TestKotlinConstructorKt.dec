@@ -1,120 +1,134 @@
+package pkg;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import kotlin.Metadata;
-import kotlin.TypeCastException;
 import kotlin.collections.CollectionsKt;
 
 @Metadata(
-   mv = {1, 1, 1},
-   bv = {1, 0, 0},
+   mv = {1, 5, 1},
    k = 2,
-   d1 = {"\u0000\u0016\n\u0000\n\u0002\u0010 \n\u0002\u0018\u0002\n\u0000\n\u0002\u0010\u001e\n\u0002\u0010\u000e\n\u0000\u001a\u001c\u0010\u0000\u001a\b\u0012\u0004\u0012\u00020\u00020\u00012\f\u0010\u0003\u001a\b\u0012\u0004\u0012\u00020\u00050\u0004H\u0002¨\u0006\u0006"},
-   d2 = {"foo", "", "LMapping;", "list", "", "", "module1"}
+   xi = 48,
+   d1 = {"\u0000\u0016\n\u0000\n\u0002\u0010 \n\u0002\u0018\u0002\n\u0000\n\u0002\u0010\u001e\n\u0002\u0010\u000e\n\u0000\u001a\u001e\u0010\u0000\u001a\b\u0012\u0004\u0012\u00020\u00020\u00012\u000e\u0010\u0003\u001a\n\u0012\u0006\u0012\u0004\u0018\u00010\u00050\u0004H\u0002¨\u0006\u0006"},
+   d2 = {"foo", "", "Lpkg/Mapping;", "list", "", "", "quiltflower_testDataKotlin"}
 )
 public final class TestKotlinConstructorKt {
    private static final List<Mapping> foo(Collection<String> list) {
-      Iterable $receiver$iv = list;// 2
-      Collection destination$iv$iv = new ArrayList(CollectionsKt.collectionSizeOrDefault($receiver$iv, 10));
+      Iterable $this$map$iv = list;
+      int $i$f$map = 0;
+      Collection destination$iv$iv = new ArrayList(CollectionsKt.collectionSizeOrDefault($this$map$iv, 10));
+      int $i$f$mapTo = 0;
 
-      for(Object item$iv$iv : $receiver$iv) {// 10 11
+      for(Object item$iv$iv : $this$map$iv) {// 12 13
          String it = (String)item$iv$iv;
+         int $i$a$-map-TestKotlinConstructorKt$foo$1 = 0;
          Mapping var10000 = new Mapping;
-         if (it == null) {// 3
-            throw new TypeCastException("null cannot be cast to non-null type kotlin.String");
+         if (it == null) {// 5
+            throw new NullPointerException("null cannot be cast to non-null type kotlin.String");
          }
 
          var10000.<init>(it);
          Mapping var11 = var10000;
-         destination$iv$iv.add(var11);// 12
+         destination$iv$iv.add(var11);// 14
       }
 
-      return CollectionsKt.toList((List)destination$iv$iv);// 4 13
+      return CollectionsKt.toList((List)destination$iv$iv);// 4 6 15
    }
 }
 
-class 'TestKotlinConstructorKt' {
+class 'pkg/TestKotlinConstructorKt' {
    method 'foo (Ljava/util/Collection;)Ljava/util/List;' {
-      0      16
-      1      16
-      2      16
-      3      16
-      4      16
-      6      19
-      c      17
-      d      17
-      e      17
-      f      17
-      10      17
-      11      17
-      15      17
-      16      17
-      17      17
-      18      17
-      1b      19
-      1c      19
-      1d      19
-      1e      19
-      1f      19
-      20      19
-      21      19
-      2c      19
-      2d      19
-      2e      19
-      2f      19
-      30      19
-      31      19
-      32      19
-      33      19
-      34      19
-      35      28
-      36      20
-      37      20
-      38      20
-      39      20
-      3a      20
-      3b      20
-      3c      20
-      43      22
-      44      22
-      46      22
-      4d      23
-      4e      23
-      52      23
-      53      26
-      54      26
-      55      26
-      56      26
-      57      26
-      58      26
+      0      17
+      1      17
+      2      17
+      3      17
+      4      17
+      5      18
+      6      18
+      7      22
+      d      19
+      e      19
+      f      19
+      10      19
+      11      19
+      12      19
+      16      19
+      17      19
+      18      19
+      19      19
+      1a      19
+      1b      20
+      1c      20
+      1d      20
+      1f      22
+      20      22
+      21      22
+      22      22
+      23      22
+      24      22
+      25      22
+      30      22
+      31      22
+      32      22
+      33      22
+      34      22
+      35      22
+      36      22
+      37      22
+      38      22
+      39      32
+      3a      32
+      3b      23
+      3c      23
+      3d      23
+      3e      23
+      3f      23
+      40      23
+      41      23
+      44      24
+      45      24
+      46      24
+      4b      26
+      4c      26
+      4d      26
+      54      27
+      55      27
       59      27
-      5a      27
-      5d      28
-      5e      28
-      5f      28
-      60      28
-      61      28
-      62      28
-      63      28
-      68      31
-      69      31
-      6a      31
-      6b      31
-      6c      31
-      6d      31
-      6e      31
-      6f      31
-      70      31
-      71      31
-      72      31
+      5a      30
+      5b      30
+      5c      30
+      5d      30
+      5e      30
+      5f      31
+      60      31
+      63      32
+      64      32
+      65      32
+      66      32
+      67      32
+      68      32
+      69      32
+      6e      35
+      6f      35
+      70      35
+      71      35
+      72      35
+      74      35
+      75      35
+      76      35
+      77      35
+      78      35
+      79      35
+      7a      35
    }
 }
 
 Lines mapping:
-2 <-> 17
-3 <-> 23
-4 <-> 32
-10 <-> 20
-11 <-> 20
-12 <-> 29
-13 <-> 32
+4 <-> 36
+5 <-> 27
+6 <-> 36
+12 <-> 23
+13 <-> 23
+14 <-> 33
+15 <-> 36

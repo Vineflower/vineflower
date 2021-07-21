@@ -1,4 +1,4 @@
-
+package pkg
 suspend fun foo2(): Int {
     while (true) {
         try {

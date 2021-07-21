@@ -1,95 +1,115 @@
-import TestNamedSuspendFun2Kt.foo2.1;
+package pkg;
+
 import kotlin.Metadata;
-import kotlin.SuccessOrFailure.Failure;
+import kotlin.ResultKt;
 import kotlin.coroutines.Continuation;
 import kotlin.coroutines.intrinsics.IntrinsicsKt;
+import kotlin.coroutines.jvm.internal.Boxing;
+import kotlin.coroutines.jvm.internal.ContinuationImpl;
+import kotlin.coroutines.jvm.internal.DebugMetadata;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @Metadata(
-   mv = {1, 1, 11},
-   bv = {1, 0, 2},
+   mv = {1, 5, 1},
    k = 2,
-   xi = 2,
-   d1 = {"\u0000\n\n\u0000\n\u0002\u0010\b\n\u0002\b\u0002\u001a\u0011\u0010\u0000\u001a\u00020\u0001H\u0086@ø\u0001\u0000¢\u0006\u0002\u0010\u0002\u001a\u0011\u0010\u0003\u001a\u00020\u0001H\u0086@ø\u0001\u0000¢\u0006\u0002\u0010\u0002\u0082\u0002\u0004\n\u0002\b\u0019"},
-   d2 = {"bar", "", "(Lkotlin/coroutines/Continuation;)Ljava/lang/Object;", "foo2"}
+   xi = 48,
+   d1 = {"\u0000\n\n\u0000\n\u0002\u0010\b\n\u0002\b\u0003\u001a\u0011\u0010\u0000\u001a\u00020\u0001H\u0086@ø\u0001\u0000¢\u0006\u0002\u0010\u0002\u001a\u0011\u0010\u0003\u001a\u00020\u0001H\u0086@ø\u0001\u0000¢\u0006\u0002\u0010\u0002\u0082\u0002\u0004\n\u0002\b\u0019¨\u0006\u0004"},
+   d2 = {"bar", "", "(Lkotlin/coroutines/Continuation;)Ljava/lang/Object;", "foo2", "quiltflower_testDataKotlin"}
 )
 public final class TestNamedSuspendFun2Kt {
    @Nullable
    public static final Object foo2(@NotNull Continuation<? super Integer> var0) {
-      1 var3;
-      label463: {
-         if (var0 instanceof 1) {
-            var3 = (1)var0;
-            if ((var3.getLabel() & -2147483648) != 0) {
-               var3.setLabel(var3.getLabel() - -2147483648);
-               break label463;
+      Continuation $continuation;
+
+      @DebugMetadata(
+         f = "TestNamedSuspendFun2.kt",
+         l = {5, 8, 8, 8},
+         i = {},
+         s = {},
+         n = {},
+         m = "foo2",
+         c = "pkg.TestNamedSuspendFun2Kt"
+      )
+      @Metadata(
+         mv = {1, 5, 1},
+         k = 3,
+         xi = 48
+      )
+      final class NamelessClass_1 extends ContinuationImpl {
+         Object L$0;
+         int label;
+
+         NamelessClass_1(Continuation<? super NamelessClass_1> $completion) {
+            super($completion);
+         }
+
+         @Nullable
+         @Override
+         public final Object invokeSuspend(@NotNull Object $result) {
+            this.result = $result;
+            this.label |= -2147483648;
+            return TestNamedSuspendFun2Kt.foo2(this);
+         }
+      }
+
+      label381: {
+         if (var0 instanceof NamelessClass_1) {
+            $continuation = (NamelessClass_1)var0;
+            if (($continuation.label & -2147483648) != 0) {
+               $continuation.label -= -2147483648;
+               break label381;
             }
          }
 
-         var3 = new 1(var0);
+         $continuation = new NamelessClass_1(var0);
       }
 
       Object var4;
-      Throwable var10000;
-      label486: {
-         int x;
-         label452: {
-            Object var2 = var3.data;
+      label403: {
+         Throwable var10000;
+         label370: {
+            Object $result = $continuation.result;
             var4 = IntrinsicsKt.getCOROUTINE_SUSPENDED();
-            switch(var3.label) {
+            switch($continuation.label) {
             case 0:
-               if (var2 instanceof Failure) {
-                  throw ((Failure)var2).exception;
-               }
+               ResultKt.throwOnFailure($result);
                break;
             case 1:
                try {
-                  if (var2 instanceof Failure) {
-                     throw ((Failure)var2).exception;
-                  }
-
-                  var10000 = (Throwable)(Throwable)var2;
-               } catch (Throwable var18) {
-                  var10000 = var18;
+                  ResultKt.throwOnFailure($result);
+                  var10000 = (Throwable)(Throwable)$result;
+               } catch (Throwable var19) {
+                  var10000 = var19;
                   boolean var10001 = false;
-                  break label486;
+                  break label370;
                }
 
                try {
-                  x = ((Number)var10000).intValue();// 6
-                  if (x == 0) {
-                     break label452;
+                  int x = ((Number)var10000).intValue();// 5
+                  if (x == 0) {// 6
+                     break label403;
                   }
-               } catch (Throwable var19) {
-                  var10000 = var19;
+               } catch (Throwable var17) {
+                  var10000 = var17;
                   boolean var25 = false;
-                  break label486;
+                  break label370;
                }
 
-               var3.label = 3;
-               if (bar(var3) == var4) {
+               $continuation.label = 3;
+               if (bar($continuation) == var4) {
                   return var4;
                }
                break;
             case 2:
-               x = var3.I$0;
-               if (var2 instanceof Failure) {
-                  throw ((Failure)var2).exception;
-               }
-
-               return 1;// 2 3 8 9 11
+               ResultKt.throwOnFailure($result);
+               return Boxing.boxInt(1);// 2 8 9 11
             case 3:
-               if (var2 instanceof Failure) {
-                  throw ((Failure)var2).exception;
-               }
+               ResultKt.throwOnFailure($result);
                break;
             case 4:
-               Throwable x = (Throwable)var3.L$0;
-               if (var2 instanceof Failure) {
-                  throw ((Failure)var2).exception;
-               }
-
+               Throwable x = (Throwable)$continuation.L$0;
+               ResultKt.throwOnFailure($result);
                throw x;
             default:
                throw new IllegalStateException("call to 'resume' before 'invoke' with coroutine");
@@ -97,12 +117,12 @@ public final class TestNamedSuspendFun2Kt {
 
             while(true) {
                try {
-                  var3.label = 1;
-                  var10000 = (Throwable)(Throwable)bar(var3);// 5
-               } catch (Throwable var17) {
-                  var10000 = var17;
+                  $continuation.label = 1;
+                  var10000 = (Throwable)(Throwable)bar($continuation);// 4
+               } catch (Throwable var18) {
+                  var10000 = var18;
                   boolean var26 = false;
-                  break label486;
+                  break;
                }
 
                if (var10000 == var4) {
@@ -110,303 +130,262 @@ public final class TestNamedSuspendFun2Kt {
                }
 
                try {
-                  x = ((Number)var10000).intValue();
-                  if (x == 0) {
-                     break;
+                  int var22 = ((Number)var10000).intValue();
+                  if (var22 == 0) {
+                     break label403;
                   }
                } catch (Throwable var20) {
                   var10000 = var20;
                   boolean var27 = false;
-                  break label486;
+                  break;
                }
 
-               var3.label = 3;
-               if (bar(var3) == var4) {
+               $continuation.label = 3;
+               if (bar($continuation) == var4) {
                   return var4;
                }
             }
          }
 
-         var3.I$0 = x;
-         var3.label = 2;
-         if (bar(var3) == var4) {
+         Throwable x = var10000;
+         $continuation.L$0 = x;
+         $continuation.label = 4;
+         if (bar($continuation) == var4) {
             return var4;
          }
 
-         return 1;
-      }
-
-      Throwable x = var10000;
-      var3.L$0 = x;
-      var3.label = 4;
-      if (bar(var3) == var4) {
-         return var4;
-      } else {
          throw x;
       }
+
+      $continuation.label = 2;
+      return bar($continuation) == var4 ? var4 : Boxing.boxInt(1);
    }
 
    @Nullable
-   public static final Object bar(@NotNull Continuation<? super Integer> var0) {
-      return 0;// 14
+   public static final Object bar(@NotNull Continuation<? super Integer> $completion) {
+      return Boxing.boxInt(0);// 14
    }
 }
 
-class 'TestNamedSuspendFun2Kt' {
+class 'pkg/TestNamedSuspendFun2Kt$foo2$1' {
+   method '<init> (Lkotlin/coroutines/Continuation;)V' {
+      1      43
+      2      43
+      3      43
+      4      43
+      5      44
+   }
+
+   method 'invokeSuspend (Ljava/lang/Object;)Ljava/lang/Object;' {
+      0      49
+      1      49
+      2      49
+      3      49
+      4      49
+      5      50
+      a      50
+      b      50
+      d      50
+      e      50
+      f      50
+      10      51
+      11      51
+      12      51
+      13      51
+      14      51
+      15      51
+      16      51
+      17      51
+   }
+}
+
+class 'pkg/TestNamedSuspendFun2Kt' {
    method 'foo2 (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;' {
-      0      21
-      1      21
-      2      21
-      3      21
-      4      21
-      7      22
-      8      22
-      9      22
-      a      22
-      b      22
-      c      23
-      d      23
-      e      23
-      f      23
-      10      23
-      11      23
-      12      23
-      13      23
-      16      24
-      18      24
-      19      24
-      1a      24
-      1b      24
-      1c      24
-      1d      24
-      1e      24
-      1f      24
-      20      24
-      21      25
-      28      29
-      2c      29
-      2d      37
-      2e      37
-      2f      37
-      30      37
-      31      37
-      32      38
-      33      38
-      34      38
-      35      38
-      36      38
-      37      39
-      38      39
-      39      39
-      3a      39
-      3b      39
-      5c      41
-      5e      41
-      5f      41
-      60      41
-      61      41
-      64      42
-      65      42
-      66      42
-      67      42
-      68      42
-      69      42
-      6a      42
-      6d      100
-      6e      99
-      6f      99
-      70      99
-      71      99
-      72      99
-      73      100
-      77      107
-      78      107
-      79      107
-      7c      108
-      7d      108
-      7e      108
-      7f      47
-      81      47
-      82      47
-      83      47
-      84      47
-      87      48
-      88      48
-      89      48
-      8a      48
-      8b      48
-      8c      48
-      8d      48
-      8f      51
-      90      59
-      91      59
-      92      59
-      93      59
-      94      59
-      95      59
-      96      59
-      97      60
-      98      60
-      9b      131
-      9c      129
-      9d      129
-      9e      129
-      9f      129
-      a0      129
-      a1      130
-      a2      130
-      a3      130
-      a4      130
-      a5      130
-      a6      131
-      a7      131
-      a8      131
-      aa      131
-      ab      131
-      ac      131
-      af      132
-      b0      132
-      b1      132
-      b2      75
-      b3      75
-      b4      75
-      b5      75
-      b6      75
-      b7      76
-      b9      76
-      ba      76
-      bb      76
-      bc      76
-      bf      77
-      c0      77
-      c1      77
-      c2      77
-      c3      77
-      c4      77
-      c5      77
-      c9      80
-      ca      80
-      cb      80
-      cc      70
-      cd      69
-      ce      69
-      cf      69
-      d0      69
-      d1      69
-      d2      70
-      d3      70
-      d4      70
-      d5      80
-      d6      70
-      d7      70
-      d8      70
-      d9      80
-      da      80
-      db      71
-      dc      71
-      dd      71
-      de      80
-      df      80
-      e0      80
-      e1      80
-      e2      80
-      e3      80
-      e4      80
-      e5      80
-      e6      80
-      e7      80
-      e8      80
-      e9      80
-      ea      80
-      eb      80
-      ec      80
-      ed      80
-      ee      80
-      ef      80
-      f0      80
-      f1      80
-      f2      80
-      f3      80
-      f4      80
-      f5      80
-      f6      80
-      f7      80
-      f8      80
-      f9      80
-      fa      80
-      fb      80
-      fc      80
-      fd      80
-      fe      80
-      ff      80
-      100      80
-      101      80
-      102      80
-      103      80
-      104      80
-      105      80
-      106      80
-      107      80
-      108      80
-      109      80
-      10a      80
-      10b      80
-      10c      80
-      10d      80
-      10e      80
-      10f      80
-      110      80
-      111      80
-      112      80
-      113      80
-      114      80
-      115      80
-      116      80
-      117      80
-      118      80
-      119      80
-      11a      80
-      11b      80
-      11c      80
-      11d      80
-      11e      80
-      11f      80
-      120      80
-      121      80
-      122      80
-      123      80
-      124      80
-      125      80
-      126      80
-      127      80
-      128      80
-      129      80
-      12a      80
-      12b      80
-      12c      80
-      12d      80
-      133      94
-      134      94
-      138      94
+      0      56
+      1      56
+      2      56
+      3      56
+      4      56
+      7      57
+      8      57
+      9      57
+      a      57
+      b      57
+      c      58
+      d      58
+      e      58
+      f      58
+      10      58
+      11      58
+      12      58
+      13      58
+      16      59
+      1b      59
+      1c      59
+      1e      59
+      1f      59
+      20      59
+      21      60
+      28      64
+      2c      64
+      2d      71
+      2e      71
+      2f      71
+      30      71
+      31      71
+      32      72
+      33      72
+      34      72
+      35      72
+      36      72
+      37      73
+      38      73
+      39      73
+      3a      73
+      3b      73
+      5c      75
+      5d      75
+      62      120
+      63      119
+      64      119
+      65      119
+      66      119
+      67      119
+      68      120
+      6c      127
+      6d      127
+      6e      127
+      71      128
+      72      128
+      73      128
+      75      79
+      76      79
+      77      79
+      78      79
+      79      80
+      7a      88
+      7b      88
+      7c      88
+      7d      88
+      7e      88
+      7f      88
+      80      88
+      81      89
+      82      89
+      85      160
+      86      159
+      87      159
+      88      159
+      89      159
+      8a      159
+      8b      160
+      8c      160
+      8d      160
+      8f      160
+      90      160
+      91      160
+      94      160
+      95      160
+      97      104
+      98      104
+      99      104
+      9a      104
+      9d      105
+      9e      105
+      9f      105
+      a0      99
+      a1      98
+      a2      98
+      a3      98
+      a4      98
+      a5      98
+      a6      99
+      a7      99
+      a8      99
+      a9      105
+      aa      99
+      ab      99
+      ac      99
+      ad      105
+      ae      105
+      af      100
+      b0      100
+      b1      100
+      b2      105
+      b3      105
+      b4      105
+      b5      105
+      b6      105
+      b7      105
+      b8      105
+      b9      105
+      ba      105
+      bb      105
+      bc      105
+      bd      105
+      be      105
+      bf      105
+      c0      105
+      c1      105
+      c2      105
+      c3      105
+      c4      105
+      c5      105
+      c6      105
+      c7      105
+      c8      105
+      c9      105
+      ca      105
+      cb      105
+      cc      105
+      cd      105
+      ce      105
+      cf      105
+      d0      105
+      d1      105
+      d2      105
+      d3      105
+      d4      105
+      d5      105
+      d6      105
+      d7      105
+      d8      105
+      d9      105
+      da      105
+      db      105
+      dc      105
+      dd      105
+      de      105
+      df      105
+      e0      105
+      e1      105
+      e2      105
+      e3      105
+      e4      105
+      e5      105
+      e6      105
+      ec      114
+      ed      114
+      f1      114
    }
 
    method 'bar (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;' {
-      0      150
-      1      150
-      2      150
-      3      150
-      4      150
+      0      165
+      1      165
+      2      165
+      3      165
+      4      165
    }
 }
 
 Lines mapping:
-2 <-> 81
-3 <-> 81
-5 <-> 101
-6 <-> 60
-8 <-> 81
-9 <-> 81
-11 <-> 81
-14 <-> 151
+2 <-> 106
+4 <-> 121
+5 <-> 89
+6 <-> 90
+8 <-> 106
+9 <-> 106
+11 <-> 106
+14 <-> 166
 Not mapped:
-4
+3
