@@ -49,6 +49,7 @@ dependencies {
 }
 
 test {
+  useJUnitPlatform()
   systemProperty "DOT_EXPORT_DIR", System.getProperty("DOT_EXPORT_DIR", null)
 }
 
@@ -58,10 +59,6 @@ java.toolchain {
 
 tasks.withType(JavaCompile) {
   options.deprecation = true
-}
-
-test {
-  useJUnitPlatform()
 }
 
 [8, 9, 11, 16].forEach {version ->

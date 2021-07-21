@@ -23,6 +23,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.stream.Stream;
 
 import static org.jetbrains.java.decompiler.DecompilerTestFixture.assertFilesEqual;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -73,22 +74,31 @@ public abstract class SingleClassesTestBase {
 
   @TestFactory
   @DisplayName("Test single classes")
-  public List<DynamicTest> testRegistered() {
+  public Stream<DynamicContainer> testRegistered() {
     testDefinitions.clear();
     registerAll();
-    List<DynamicTest> tests = new ArrayList<>();
+    Map<TestDefinition.Version, List<DynamicTest>> tests = new EnumMap<>(TestDefinition.Version.class);
     for (TestDefinition def : testDefinitions) {
       String name = def.testClass;
       int slash = name.lastIndexOf('/');
       if (slash >= 0) name = name.substring(slash + 1);
-      name = def.version + ": " + name;
-      tests.add(DynamicTest.dynamicTest(name, () -> {
+      Path classFile = getClassFile(def.version, def.testClass);
+      DynamicTest test = DynamicTest.dynamicTest(name, classFile.toUri(), () -> {
         setUp();
         doTest(def.version, def.testClass, def.others.toArray(new String[0]));
         tearDown();
-      }));
+      });
+      tests.computeIfAbsent(def.version, k -> new ArrayList<>()).add(test);
     }
-    return tests;
+    Path baseDir = fixture.getTestDataDir().resolve("classes/");
+    return tests.entrySet().stream().map(e -> {
+      TestDefinition.Version version = e.getKey();
+      return DynamicContainer.dynamicContainer(
+        version.toString(),
+        baseDir.resolve(version.directory).toUri(),
+        e.getValue().stream()
+      );
+    });
   }
 
   protected Path getClassFile(TestDefinition.Version version, String name) {
