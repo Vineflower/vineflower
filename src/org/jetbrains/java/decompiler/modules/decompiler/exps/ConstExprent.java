@@ -415,13 +415,6 @@ public class ConstExprent extends Exprent {
   }
 
   @Override
-  protected void onReturn(MethodDescriptor descriptor) {
-    // Make sure this constant is in line with the expected return type of the method we're returning from.
-    // This fixes a case where the aggressive char selector can result in returning unicode chars when integers were expected.
-    this.adjustConstType(descriptor.ret);
-  }
-
-  @Override
   public boolean equals(Object o) {
     if (o == this) return true;
     if (!(o instanceof ConstExprent)) return false;
