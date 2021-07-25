@@ -29,9 +29,7 @@ sourceSets {
   // We need specific java9+ versions of certain classes, so we have a separate source set for them
   java9.java.srcDirs 'java9'
   testDataGroovy.groovy.srcDirs files("testData/src/groovy/")
-  testDataKotlin {
-    kotlin.srcDirs files("testData/src/kt/")
-  }
+  testDataKotlin.kotlin.srcDirs files("testData/src/kt/")
 }
 
 repositories { mavenCentral() }
@@ -65,14 +63,11 @@ tasks.withType(JavaCompile) {
   def sourceSet = sourceSets.create("testDataJava${version}") {
     it.java.srcDirs file("testData/src/java${version}")
   }
-  def task = tasks.create(name: "compileTestDataJava${version}", type: JavaCompile) {
-    source = sourceSet.java
+  def task = tasks.getByName("compileTestDataJava${version}Java") {
     destinationDir = file("testData/classes/java${version}")
-    classpath = files("testData/classes/java${version}")
     javaCompiler = javaToolchains.compilerFor {
       languageVersion = JavaLanguageVersion.of(version)
     }
-    //it.options.compilerArgs += ["-g:source", "-g:lines"]
   }
   test.dependsOn(task)
 }
@@ -84,13 +79,10 @@ task compileTestDataJasm(type: JasmCompile) {
 }
 test.dependsOn(compileTestDataJasm)
 
-task compileTestDataGroovy(type: GroovyCompile) {
-  source = sourceSets.testDataGroovy.groovy
-  groovyClasspath = sourceSets.testDataGroovy.compileClasspath
+compileTestDataGroovyGroovy {
   destinationDir = file("testData/classes/groovy")
-  classpath = files("testData/classes/groovy")
 }
-test.dependsOn(compileTestDataGroovy)
+test.dependsOn(compileTestDataGroovyGroovy)
 
 compileTestDataKotlinKotlin {
   destinationDir = file("testData/classes/kt")
