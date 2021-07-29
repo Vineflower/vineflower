@@ -27,6 +27,8 @@ import org.jetbrains.java.decompiler.util.DotExporter;
 import java.io.IOException;
 
 public class MethodProcessorRunnable implements Runnable {
+  public static ThreadLocal<RootStatement> debugCurrentlyDecompiling = ThreadLocal.withInitial(() -> null);
+  public static ThreadLocal<ControlFlowGraph> debugCurrentCFG = ThreadLocal.withInitial(() -> null);
   public final Object lock = new Object();
 
   private final StructClass klass;
@@ -74,11 +76,15 @@ public class MethodProcessorRunnable implements Runnable {
   }
 
   public static RootStatement codeToJava(StructClass cl, StructMethod mt, MethodDescriptor md, VarProcessor varProc) throws IOException {
+    debugCurrentlyDecompiling.set(null);
+    debugCurrentCFG.set(null);
+
     boolean isInitializer = CodeConstants.CLINIT_NAME.equals(mt.getName()); // for now static initializer only
 
     mt.expandData(cl);
     InstructionSequence seq = mt.getInstructionSequence();
     ControlFlowGraph graph = new ControlFlowGraph(seq);
+    debugCurrentCFG.set(graph);
     DotExporter.toDotFile(graph, mt, "cfgConstructed", true);
 
     DeadCodeHelper.removeDeadBlocks(graph);
@@ -123,12 +129,14 @@ public class MethodProcessorRunnable implements Runnable {
     }
 
     RootStatement root = DomHelper.parseGraph(graph, mt);
+    debugCurrentlyDecompiling.set(root);
     DotExporter.toDotFile(graph, mt, "cfgParsed", true);
     DotExporter.toDotFile(root, mt, "initialStat");
 
     FinallyProcessor fProc = new FinallyProcessor(md, varProc);
     while (fProc.iterateGraph(cl, mt, root, graph)) {
       root = DomHelper.parseGraph(graph, mt);
+      debugCurrentlyDecompiling.set(root);
     }
 
     // remove synchronized exception handler

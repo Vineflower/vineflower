@@ -21,7 +21,9 @@ import org.jetbrains.java.decompiler.util.FastSparseSetFactory.FastSparseSet;
 
 public class DotExporter {
   private static final String DOTS_FOLDER = System.getProperty("DOT_EXPORT_DIR", null);
+  private static final String DOTS_ERROR_FOLDER = System.getProperty("DOT_ERROR_EXPORT_DIR", null);
   private static final boolean DUMP_DOTS = DOTS_FOLDER != null && !DOTS_FOLDER.trim().isEmpty();
+  private static final boolean DUMP_ERROR_DOTS = DOTS_ERROR_FOLDER != null && !DOTS_ERROR_FOLDER.trim().isEmpty();
   // http://graphs.grevian.org/graph is a nice visualizer for the outputed dots.
 
   // Outputs a statement and as much of its information as possible into a dot formatted string.
@@ -35,7 +37,7 @@ public class DotExporter {
   // Statements with no successors or predecessors (but still contained in the tree) will be in a subgraph titled "Isolated statements".
   // Statements that aren't found will be circular, and will have a message stating so.
   // Nodes with green borders are the canonical exit of method, but these may not always be emitted.
-  private static String toDotFormat(Statement stat, String name) {
+  private static String statToDot(Statement stat, String name) {
     StringBuffer buffer = new StringBuffer();
     List<String> subgraph = new ArrayList<>();
     Set<Integer> visitedNodes = new HashSet<>();
@@ -292,7 +294,7 @@ public class DotExporter {
   }
 
 
-  private static String toDotFormat(ControlFlowGraph graph, boolean showMultipleEdges) {
+  private static String cfgToDot(ControlFlowGraph graph, boolean showMultipleEdges) {
 
     StringBuffer buffer = new StringBuffer();
 
@@ -332,7 +334,7 @@ public class DotExporter {
     return buffer.toString();
   }
 
-  private static String toDotFormat(VarVersionsGraph graph) {
+  private static String varsToDot(VarVersionsGraph graph) {
 
     StringBuffer buffer = new StringBuffer();
 
@@ -355,7 +357,7 @@ public class DotExporter {
     return buffer.toString();
   }
 
-  private static String toDotFormat(DirectGraph graph, Map<String, SFormsFastMapDirect> vars) {
+  private static String digraphToDot(DirectGraph graph, Map<String, SFormsFastMapDirect> vars) {
 
     StringBuffer buffer = new StringBuffer();
 
@@ -401,8 +403,8 @@ public class DotExporter {
     return id;
   }
 
-  private static File getFile(StructMethod mt, String suffix) {
-    File root = new File(DOTS_FOLDER + mt.getClassQualifiedName());
+  private static File getFile(String folder, StructMethod mt, String suffix) {
+    File root = new File(folder + mt.getClassQualifiedName());
     if (!root.isDirectory())
       root.mkdirs();
     return new File(root,
@@ -411,8 +413,8 @@ public class DotExporter {
       '_' + suffix + ".dot");
   }
 
-  private static File getFile(String name) {
-    File root = new File(DOTS_FOLDER);
+  private static File getFile(String folder, String name) {
+    File root = new File(folder);
     if (!root.isDirectory())
       root.mkdirs();
     return new File(root,name + ".dot");
@@ -425,8 +427,8 @@ public class DotExporter {
     if (!DUMP_DOTS)
       return;
     try{
-      BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(mt, suffix)));
-      out.write(toDotFormat(dgraph, vars).getBytes());
+      BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(DOTS_FOLDER, mt, suffix)));
+      out.write(digraphToDot(dgraph, vars).getBytes());
       out.close();
     } catch (Exception e) {
       e.printStackTrace();
@@ -437,8 +439,8 @@ public class DotExporter {
     if (!DUMP_DOTS)
       return;
     try{
-      BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(mt, suffix)));
-      out.write(toDotFormat(stat, suffix).getBytes());
+      BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(DOTS_FOLDER, mt, suffix)));
+      out.write(statToDot(stat, suffix).getBytes());
       out.close();
     } catch (Exception e) {
       e.printStackTrace();
@@ -449,7 +451,7 @@ public class DotExporter {
     if (!DUMP_DOTS)
       return;
     try{
-      BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(mt, suffix)));
+      BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(DOTS_FOLDER, mt, suffix)));
       out.write(statementHierarchy(stat).getBytes());
       out.close();
     } catch (Exception e) {
@@ -461,8 +463,32 @@ public class DotExporter {
     if (!DUMP_DOTS)
       return;
     try{
-      BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(name)));
-      out.write(toDotFormat(stat, name).getBytes());
+      BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(DOTS_FOLDER, name)));
+      out.write(statToDot(stat, name).getBytes());
+      out.close();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  public static void errorToDotFile(Statement stat, StructMethod mt, String suffix) {
+    if (!DUMP_ERROR_DOTS)
+      return;
+    try{
+      BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(DOTS_ERROR_FOLDER, mt, suffix)));
+      out.write(statToDot(stat, suffix).getBytes());
+      out.close();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  public static void errorToDotFile(Statement stat, String name) {
+    if (!DUMP_ERROR_DOTS)
+      return;
+    try {
+      BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(DOTS_ERROR_FOLDER, name)));
+      out.write(statToDot(stat, name).getBytes());
       out.close();
     } catch (Exception e) {
       e.printStackTrace();
@@ -473,8 +499,8 @@ public class DotExporter {
     if (!DUMP_DOTS)
       return;
     try{
-      BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(mt, suffix)));
-      out.write(toDotFormat(graph).getBytes());
+      BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(DOTS_FOLDER, mt, suffix)));
+      out.write(varsToDot(graph).getBytes());
       out.close();
     } catch (Exception e) {
       e.printStackTrace();
@@ -485,8 +511,20 @@ public class DotExporter {
     if (!DUMP_DOTS)
       return;
     try{
-      BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(mt, suffix)));
-      out.write(toDotFormat(graph, showMultipleEdges).getBytes());
+      BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(DOTS_FOLDER, mt, suffix)));
+      out.write(cfgToDot(graph, showMultipleEdges).getBytes());
+      out.close();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  public static void errorToDotFile(ControlFlowGraph graph, StructMethod mt, String suffix) {
+    if (!DUMP_ERROR_DOTS)
+      return;
+    try{
+      BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(DOTS_ERROR_FOLDER, mt, suffix)));
+      out.write(cfgToDot(graph, true).getBytes());
       out.close();
     } catch (Exception e) {
       e.printStackTrace();

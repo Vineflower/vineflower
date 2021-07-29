@@ -225,47 +225,7 @@ public final class MergeHelper {
                   firstStat.getStats().removeWithKey(st.id);
                 }
 
-                VBStyleCollection<Statement, Integer> stats = stat.getParent().getStats();
-
-                // If the while loop is in a sequence, simply add onto the sequence
-                if (stat.getParent().type == Statement.TYPE_SEQUENCE) {
-                  int i = 0;
-
-                  for (Statement st : toAdd) {
-                    i++;
-                    // Add sequentially after while loop
-                    stats.addWithKeyAndIndex(stats.indexOf(stat) + i, st, st.id);
-                  }
-                } else {
-                  // If it's not part of a sequence statement, we need to synthesize one and replace the loop with it
-
-                  // Add while loop to the beginning of the new sequence
-                  toAdd.add(0, stat);
-
-                  // Old index of the while loop
-                  int idx = stats.getIndexByKey(stat.id);
-                  // Remove while loop from it's parent
-                  stats.removeWithKey(stat.id);
-
-                  Statement parent = stat.getParent();
-                  // If the parent's first statement points towards the while loop, we need to update it
-                  boolean replaceFirst = parent.getFirst() == stat;
-
-                  // Construct new sequence out of the while loop and it's non loop content
-                  SequenceStatement seq = new SequenceStatement(toAdd);
-                  // Set parent of sequence to be the while loop's parent
-                  seq.setParent(parent);
-                  // Set parent to it's children
-                  seq.setAllParent();
-                  // Add to the while loop's parent
-                  stats.addWithKeyAndIndex(idx, seq, seq.id);
-                  // TODO: should we be updating closures?
-
-                  if (replaceFirst) {
-                    // Update first statement of parent
-                    parent.setFirst(seq);
-                  }
-                }
+                liftToParent(stat, toAdd);
               }
             }
 
@@ -318,10 +278,116 @@ public final class MergeHelper {
 
             return true;
           }
+        } else {
+          Statement parent = firstif.getParent();
+
+          // TODO: arbitrary ternary support, currently it only works on simple ternaries
+
+          if (firstif.getIfstat().type == Statement.TYPE_IF && firstif.getElsestat().type == Statement.TYPE_IF) {
+            if (((IfStatement) firstif.getIfstat()).getIfstat() == null && ((IfStatement) firstif.getElsestat()).getIfstat() == null) {
+              StatEdge ifEdge = ((IfStatement) firstif.getIfstat()).getIfEdge();
+              StatEdge elseEdge = ((IfStatement) firstif.getElsestat()).getIfEdge();
+
+              if (ifEdge.closure == parent && elseEdge.closure == parent) {
+                // Condition has inlined the exitpoint of the method in the parent sequence statement
+                stat.setLooptype(DoStatement.LOOP_WHILE);
+
+                // This breaks out of the sequence and not the loop so we don't need to invert
+                Exprent ternary = new FunctionExprent(FunctionExprent.FUNCTION_IIF, Arrays.asList(
+                  firstif.getHeadexprent().getCondition(),
+                  ((IfStatement) firstif.getIfstat()).getHeadexprent().getCondition(),
+                  ((IfStatement) firstif.getElsestat()).getHeadexprent().getCondition()
+                ), null);
+
+                stat.setConditionExprent(ternary);
+                // Need to add break edge towards successor to the loop
+                // Make sure that the edge is reset so the destination exists but the metadata is gone, as it would point to removed statements
+                ifEdge.closure = null;
+                ifEdge.labeled = false;
+                ifEdge.explicit = false;
+                stat.addSuccessor(ifEdge);
+
+                SequenceHelper.destroyStatementContent(firstif, true);
+
+                List<Statement> toAdd = new ArrayList<>();
+                for (int i = 1; i < parent.getStats().size(); i++) {
+                  toAdd.add(parent.getStats().get(i));
+                }
+
+                liftToParent(stat, toAdd);
+                LabelHelper.lowClosures(stat);
+
+                // TODO: if statement sequence still exists, but is empty
+
+                return true;
+
+              } else if (ifEdge.closure == stat && elseEdge.closure == stat) {
+                // Simple condition, just remove the if statement and replace with ternary
+                stat.setLooptype(DoStatement.LOOP_WHILE);
+                Exprent ternary = new FunctionExprent(FunctionExprent.FUNCTION_IIF, Arrays.asList(
+                  firstif.getHeadexprent().getCondition(),
+                  ((IfStatement) firstif.getIfstat()).getHeadexprent().negateIf().getCondition(),
+                  ((IfStatement) firstif.getElsestat()).getHeadexprent().negateIf().getCondition()
+                ), null);
+
+                stat.setConditionExprent(ternary);
+                // Need to add break edge towards successor to the loop
+                // Either edges could work here, we pick the first one to keep it simple
+                stat.addSuccessor(ifEdge);
+
+                SequenceHelper.destroyStatementContent(firstif, true);
+                LabelHelper.lowClosures(stat);
+
+                return true;
+              }
+            }
+          }
         }
       }
     }
+
     return false;
+  }
+
+  private static void liftToParent(DoStatement stat, List<Statement> toAdd) {
+    VBStyleCollection<Statement, Integer> stats = stat.getParent().getStats();
+    if (stat.getParent().type == Statement.TYPE_SEQUENCE) {
+      int i = 0;
+
+      for (Statement st : toAdd) {
+        i++;
+        // Add sequentially after while loop
+        stats.addWithKeyAndIndex(stats.indexOf(stat) + i, st, st.id);
+      }
+    } else {
+      // If it's not part of a sequence statement, we need to synthesize one and replace the loop with it
+
+      // Add while loop to the beginning of the new sequence
+      toAdd.add(0, stat);
+
+      // Old index of the while loop
+      int idx = stats.getIndexByKey(stat.id);
+      // Remove while loop from it's parent
+      stats.removeWithKey(stat.id);
+
+      Statement par = stat.getParent();
+      // If the parent's first statement points towards the while loop, we need to update it
+      boolean replaceFirst = par.getFirst() == stat;
+
+      // Construct new sequence out of the while loop and it's non loop content
+      SequenceStatement seq = new SequenceStatement(toAdd);
+      // Set parent of sequence to be the while loop's parent
+      seq.setParent(par);
+      // Set parent to it's children
+      seq.setAllParent();
+      // Add to the while loop's parent
+      stats.addWithKeyAndIndex(idx, seq, seq.id);
+
+      if (replaceFirst) {
+        // Update first statement of parent
+        par.setFirst(seq);
+      }
+    }
   }
 
   // Returns whether the statement has a single connection to the exitpoint of the method

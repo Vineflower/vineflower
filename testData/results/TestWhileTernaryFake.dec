@@ -1,0 +1,47 @@
+package pkg;
+
+public class TestWhileTernaryFake {
+   public void test2(boolean var1, int var2, int var3) {
+      while(var1 ? var2 < var3 : var3 > var2) {// 6 7 10
+         System.out.println(var2 * var3);// 14
+         ++var2;// 15
+      }
+
+   }// 17
+}
+
+class 'pkg/TestWhileTernaryFake' {
+   method 'test2 (ZII)V' {
+      0      4
+      4      4
+      5      4
+      6      4
+      c      4
+      d      4
+      e      4
+      14      5
+      15      5
+      16      5
+      17      5
+      18      5
+      19      5
+      1a      5
+      1b      5
+      1c      5
+      1d      6
+      1e      6
+      1f      6
+      23      9
+   }
+}
+
+Lines mapping:
+6 <-> 5
+7 <-> 5
+10 <-> 5
+14 <-> 6
+15 <-> 7
+17 <-> 10
+Not mapped:
+8
+11
