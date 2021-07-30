@@ -360,6 +360,24 @@ public final class MergeHelper {
         return;
       }
 
+      // We don't want to make for loops that have an empty body.
+      // The nature of the for loop filter makes it so any loop that contains the pattern "1) assignment 2) loop 3) assignment" will become a for loop.
+      // Break out of the loop if we find that the third assignment is the only expression in the basic block.
+
+      // First filter to make sure that the loop body (includes the last assignment) has a single statement.
+      if (stat.getFirst().getStats().size() == 1) {
+        Statement firstStat = stat.getFirst().getStats().get(0);
+
+        // Then filter to make sure the loop body is a basic block (Seems like it always is- but it never hurts to double check!)
+        if (firstStat.type == Statement.TYPE_BASICBLOCK) {
+
+          // Last filter to make sure the basic block only has the final third assignment. If so, break out to make a while loop instead as it will produce cleaner output.
+          if (firstStat.getExprents().size() == 1) {
+            return;
+          }
+        }
+      }
+
       stat.setLooptype(DoStatement.LOOP_FOR);
       if (hasinit) {
         Exprent exp = preData.getExprents().remove(preData.getExprents().size() - 1);
