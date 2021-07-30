@@ -173,4 +173,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
   // TODO: many problems, wrong else if placement, wrong promotion of while to for, wrong control flow with infinite loop
   @Test public void testIfLoop() { doTest("pkg/TestIfLoop"); }
   @Test public void testInheritanceChainCycle() { doTest("pkg/TestInheritanceChainCycle"); }
+  @Test public void testRecordEmptyConstructor() { doTest("records/TestRecordEmptyConstructor"); }
+  @Test public void testRecordInner() { doTest("records/TestRecordInner"); }
+  @Test public void testRecordMixup() { doTest("records/TestRecordMixup"); }
 }
