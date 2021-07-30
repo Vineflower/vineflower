@@ -216,6 +216,7 @@ public class MethodProcessorRunnable implements Runnable {
       SequenceHelper.condenseSequences(root); // remove empty blocks
     }
 
+    ExitHelper.adjustReturnType(root, md);
     ExitHelper.removeRedundantReturns(root);
 
     SecondaryFunctionsHelper.identifySecondaryFunctions(root, varProc);

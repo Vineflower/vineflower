@@ -353,15 +353,6 @@ public class FunctionExprent extends Exprent {
   }
 
   @Override
-  protected void onReturn(MethodDescriptor descriptor) {
-    // Only adjust return types if we're a ternary statement to handle the single case we're targeting.
-    if (this.funcType == FUNCTION_IIF) {
-      this.lstOperands.get(1).onReturn(descriptor);
-      this.lstOperands.get(2).onReturn(descriptor);
-    }
-  }
-
-  @Override
   public int getExprentUse() {
     if (funcType >= FUNCTION_IMM && funcType <= FUNCTION_PPI) {
       return 0;
