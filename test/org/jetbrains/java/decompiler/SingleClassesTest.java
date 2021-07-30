@@ -189,5 +189,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestWhileTernary1");
     register(JAVA_8, "TestWhileTernary2");
     register(JAVA_8, "TestWhileTernaryFake");
+    register(JAVA_8, "TestWhileTernary3");
+    register(JAVA_8, "TestWhileTernary4");
+    register(JAVA_8, "TestWhileTernary5");
   }
 }

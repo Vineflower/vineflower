@@ -288,7 +288,8 @@ public final class MergeHelper {
               StatEdge ifEdge = ((IfStatement) firstif.getIfstat()).getIfEdge();
               StatEdge elseEdge = ((IfStatement) firstif.getElsestat()).getIfEdge();
 
-              if (ifEdge.closure == parent && elseEdge.closure == parent) {
+              if (ifEdge.closure == parent && elseEdge.closure == parent
+              || (ifEdge.closure == stat && elseEdge.closure == stat && ifEdge.getType() == StatEdge.TYPE_CONTINUE)) {
                 // Condition has inlined the exitpoint of the method in the parent sequence statement
                 stat.setLooptype(DoStatement.LOOP_WHILE);
 
@@ -317,7 +318,27 @@ public final class MergeHelper {
                 liftToParent(stat, toAdd);
                 LabelHelper.lowClosures(stat);
 
-                // TODO: if statement sequence still exists, but is empty
+                // Remove sequence successors
+                for (StatEdge suc : parent.getAllSuccessorEdges()) {
+                  parent.removeSuccessor(suc);
+                }
+
+                // Remove sequence from parent
+                parent.getParent().getStats().removeWithKey(parent.id);
+
+
+                if (parent.getParent().getStats().size() > 0) {
+                  // Update first
+                  parent.getParent().setFirst(parent.getParent().getStats().get(0));
+                } else {
+                  // If the loop is empty, construct a synthetic basic block
+                  BasicBlockStatement bstat = new BasicBlockStatement(new BasicBlock(
+                    DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.STATEMENT_COUNTER)));
+                  bstat.setExprents(new ArrayList<>());
+
+                  parent.getParent().getStats().add(bstat);
+                  parent.getParent().setFirst(bstat);
+                }
 
                 return true;
 
