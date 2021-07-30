@@ -169,11 +169,19 @@ public class SingleClassesTest extends SingleClassesTestBase {
   @Test public void testReturnTernaryChar() { doTest("pkg/TestReturnTernaryChar"); }
   @Test public void testCompoundAssignment() { doTest("pkg/TestCompoundAssignment"); }
   @Test public void testInfiniteLoop() { doTest("pkg/TestInfiniteLoop"); }
-  // TODO: many problems, wrong else if placement, wrong promotion of while to for, wrong control flow with infinite loop
   @Test public void testIfLoop() { doTest("pkg/TestIfLoop"); }
   @Test public void testInheritanceChainCycle() { doTest("pkg/TestInheritanceChainCycle"); }
   @Test public void testRecordEmptyConstructor() { doTest("records/TestRecordEmptyConstructor"); }
   @Test public void testRecordInner() { doTest("records/TestRecordInner"); }
   @Test public void testRecordMixup() { doTest("records/TestRecordMixup"); }
   @Test public void testMultiAssignmentInStaticBlock() { doTest("pkg/TestMultiAssignmentInStaticBlock"); }
+  @Test public void testNextGaussian() { doTest("pkg/TestNextGaussian"); }
+  // TODO: Clean up control flow with continue and break
+  @Test public void testLoopBreak() { doTest("pkg/TestLoopBreak"); }
+  @Test public void testLoopBreak2() { doTest("pkg/TestLoopBreak2"); }
+  @Test public void testSimpleWhile() { doTest("pkg/TestSimpleWhile"); }
+  @Test public void testLoopBreakException() { doTest("pkg/TestLoopBreakException"); }
+  @Test public void testWhileTernary1() { doTest("pkg/TestWhileTernary1"); }
+  @Test public void testWhileTernary2() { doTest("pkg/TestWhileTernary2"); }
+  @Test public void testWhileTernaryFake() { doTest("pkg/TestWhileTernaryFake"); }
 }

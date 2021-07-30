@@ -12,11 +12,9 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.IfExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.InvocationExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
+import org.jetbrains.java.decompiler.util.VBStyleCollection;
 
-import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public final class MergeHelper {
   public static void enhanceLoops(Statement root) {
@@ -27,7 +25,7 @@ public final class MergeHelper {
   private static boolean enhanceLoopsRec(Statement stat) {
     boolean res = false;
 
-    for (Statement st : stat.getStats()) {
+    for (Statement st : new ArrayList<>(stat.getStats())) {
       if (st.getExprents() == null) {
         res |= enhanceLoopsRec(st);
       }
@@ -197,68 +195,225 @@ public final class MergeHelper {
             }
           }
           //else { // fix infinite loops
-            StatEdge elseedge = firstif.getAllSuccessorEdges().get(0);
-            if (isDirectPath(stat, elseedge.getDestination())) {
-              // exit condition identified
-              stat.setLooptype(DoStatement.LOOP_WHILE);
 
-              // no need to negate the while condition
-              IfExprent ifexpr = (IfExprent)firstif.getHeadexprent().copy();
-              if (stat.getConditionExprent() != null) {
-                ifexpr.getCondition().addBytecodeOffsets(stat.getConditionExprent().bytecode);
-              }
-              ifexpr.getCondition().addBytecodeOffsets(firstif.getHeadexprent().bytecode);
-              stat.setConditionExprent(ifexpr.getCondition());
+          StatEdge elseEdge = firstif.getAllSuccessorEdges().get(0);
+          boolean directlyConnectedToExit = directlyConnectedToExit(stat, elseEdge.getDestination().getParent(), elseEdge.getDestination());
 
-              // remove edges
-              StatEdge ifedge = firstif.getIfEdge();
-              firstif.getFirst().removeSuccessor(ifedge);
-              firstif.removeSuccessor(elseedge);
+          if (isDirectPath(stat, elseEdge.getDestination()) || directlyConnectedToExit) {
+            // exit condition identified
+            stat.setLooptype(DoStatement.LOOP_WHILE);
 
-              if (stat.getAllSuccessorEdges().isEmpty()) {
+            // Lift sequences
+            // Loops that are directly connected to the exit have statements inside that need to lifted out of the loop
+            if (directlyConnectedToExit) {
+              // Statement contained within loop
+              Statement firstStat = stat.getFirst();
 
-                elseedge.setSource(stat);
-                if (elseedge.closure == stat) {
-                  elseedge.closure = stat.getParent();
-                }
-                stat.addSuccessor(elseedge);
-              }
+              // Make sure the inside of the loop is a sequence that has at least the if statement and another block
+              if (firstStat.type == Statement.TYPE_SEQUENCE && firstStat.getStats().size() > 1) {
+                List<Statement> toAdd = new ArrayList<>();
 
-              if (firstif.getIfstat() == null) {
-                BasicBlockStatement bstat = new BasicBlockStatement(new BasicBlock(
-                  DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.STATEMENT_COUNTER)));
-                bstat.setExprents(new ArrayList<>());
-
-                ifedge.setSource(bstat);
-                bstat.addSuccessor(ifedge);
-
-                stat.replaceStatement(firstif, bstat);
-              }
-              else {
-                // replace the if statement with its content
-                first.getParent().replaceStatement(first, firstif.getIfstat());
-
-                // lift closures
-                for (StatEdge prededge : elseedge.getDestination().getPredecessorEdges(StatEdge.TYPE_BREAK)) {
-                  if (stat.containsStatementStrict(prededge.closure)) {
-                    stat.addLabeledEdge(prededge);
-                  }
+                // Skip first statement as that is the if that contains the while loop condition
+                for (int idx = 1; idx < firstStat.getStats().size(); idx++) {
+                  Statement st = firstStat.getStats().get(idx);
+                  // Add to temp list
+                  toAdd.add(st);
                 }
 
-                LabelHelper.lowClosures(stat);
-              }
+                for (Statement st : toAdd) {
+                  // Remove the statement from the loop body
+                  firstStat.getStats().removeWithKey(st.id);
+                }
 
-              return true;
+                liftToParent(stat, toAdd);
+              }
             }
-          //}
+
+            // no need to negate the while condition
+            IfExprent ifexpr = (IfExprent)firstif.getHeadexprent().copy();
+            if (stat.getConditionExprent() != null) {
+              ifexpr.getCondition().addBytecodeOffsets(stat.getConditionExprent().bytecode);
+            }
+            ifexpr.getCondition().addBytecodeOffsets(firstif.getHeadexprent().bytecode);
+            stat.setConditionExprent(ifexpr.getCondition());
+
+            // remove edges
+            StatEdge ifedge = firstif.getIfEdge();
+            firstif.getFirst().removeSuccessor(ifedge);
+            firstif.removeSuccessor(elseEdge);
+
+            if (stat.getAllSuccessorEdges().isEmpty()) {
+              elseEdge.setSource(stat);
+              if (elseEdge.closure == stat) {
+                elseEdge.closure = stat.getParent();
+              }
+              stat.addSuccessor(elseEdge);
+            }
+
+            if (firstif.getIfstat() == null) {
+              BasicBlockStatement bstat = new BasicBlockStatement(new BasicBlock(
+                DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.STATEMENT_COUNTER)));
+              bstat.setExprents(new ArrayList<>());
+
+              ifedge.setSource(bstat);
+              bstat.addSuccessor(ifedge);
+
+              // TODO: has the potential of breaking if firstif isn't found due to our changes
+              stat.replaceStatement(firstif, bstat);
+            }
+            else {
+              // replace the if statement with its content
+              first.getParent().replaceStatement(first, firstif.getIfstat());
+
+              // lift closures
+              for (StatEdge prededge : elseEdge.getDestination().getPredecessorEdges(StatEdge.TYPE_BREAK)) {
+
+                if (stat.containsStatementStrict(prededge.closure)) {
+                  stat.addLabeledEdge(prededge);
+                }
+              }
+
+              LabelHelper.lowClosures(stat);
+            }
+
+            return true;
+          }
+        } else {
+          Statement parent = firstif.getParent();
+
+          // TODO: arbitrary ternary support, currently it only works on simple ternaries
+
+          if (firstif.getIfstat().type == Statement.TYPE_IF && firstif.getElsestat().type == Statement.TYPE_IF) {
+            if (((IfStatement) firstif.getIfstat()).getIfstat() == null && ((IfStatement) firstif.getElsestat()).getIfstat() == null) {
+              StatEdge ifEdge = ((IfStatement) firstif.getIfstat()).getIfEdge();
+              StatEdge elseEdge = ((IfStatement) firstif.getElsestat()).getIfEdge();
+
+              if (ifEdge.closure == parent && elseEdge.closure == parent) {
+                // Condition has inlined the exitpoint of the method in the parent sequence statement
+                stat.setLooptype(DoStatement.LOOP_WHILE);
+
+                // This breaks out of the sequence and not the loop so we don't need to invert
+                Exprent ternary = new FunctionExprent(FunctionExprent.FUNCTION_IIF, Arrays.asList(
+                  firstif.getHeadexprent().getCondition(),
+                  ((IfStatement) firstif.getIfstat()).getHeadexprent().getCondition(),
+                  ((IfStatement) firstif.getElsestat()).getHeadexprent().getCondition()
+                ), null);
+
+                stat.setConditionExprent(ternary);
+                // Need to add break edge towards successor to the loop
+                // Make sure that the edge is reset so the destination exists but the metadata is gone, as it would point to removed statements
+                ifEdge.closure = null;
+                ifEdge.labeled = false;
+                ifEdge.explicit = false;
+                stat.addSuccessor(ifEdge);
+
+                SequenceHelper.destroyStatementContent(firstif, true);
+
+                List<Statement> toAdd = new ArrayList<>();
+                for (int i = 1; i < parent.getStats().size(); i++) {
+                  toAdd.add(parent.getStats().get(i));
+                }
+
+                liftToParent(stat, toAdd);
+                LabelHelper.lowClosures(stat);
+
+                // TODO: if statement sequence still exists, but is empty
+
+                return true;
+
+              } else if (ifEdge.closure == stat && elseEdge.closure == stat) {
+                // Simple condition, just remove the if statement and replace with ternary
+                stat.setLooptype(DoStatement.LOOP_WHILE);
+                Exprent ternary = new FunctionExprent(FunctionExprent.FUNCTION_IIF, Arrays.asList(
+                  firstif.getHeadexprent().getCondition(),
+                  ((IfStatement) firstif.getIfstat()).getHeadexprent().negateIf().getCondition(),
+                  ((IfStatement) firstif.getElsestat()).getHeadexprent().negateIf().getCondition()
+                ), null);
+
+                stat.setConditionExprent(ternary);
+                // Need to add break edge towards successor to the loop
+                // Either edges could work here, we pick the first one to keep it simple
+                stat.addSuccessor(ifEdge);
+
+                SequenceHelper.destroyStatementContent(firstif, true);
+                LabelHelper.lowClosures(stat);
+
+                return true;
+              }
+            }
+          }
         }
       }
     }
+
+    return false;
+  }
+
+  private static void liftToParent(DoStatement stat, List<Statement> toAdd) {
+    VBStyleCollection<Statement, Integer> stats = stat.getParent().getStats();
+    if (stat.getParent().type == Statement.TYPE_SEQUENCE) {
+      int i = 0;
+
+      for (Statement st : toAdd) {
+        i++;
+        // Add sequentially after while loop
+        stats.addWithKeyAndIndex(stats.indexOf(stat) + i, st, st.id);
+      }
+    } else {
+      // If it's not part of a sequence statement, we need to synthesize one and replace the loop with it
+
+      // Add while loop to the beginning of the new sequence
+      toAdd.add(0, stat);
+
+      // Old index of the while loop
+      int idx = stats.getIndexByKey(stat.id);
+      // Remove while loop from it's parent
+      stats.removeWithKey(stat.id);
+
+      Statement par = stat.getParent();
+      // If the parent's first statement points towards the while loop, we need to update it
+      boolean replaceFirst = par.getFirst() == stat;
+
+      // Construct new sequence out of the while loop and it's non loop content
+      SequenceStatement seq = new SequenceStatement(toAdd);
+      // Set parent of sequence to be the while loop's parent
+      seq.setParent(par);
+      // Set parent to it's children
+      seq.setAllParent();
+      // Add to the while loop's parent
+      stats.addWithKeyAndIndex(idx, seq, seq.id);
+
+      if (replaceFirst) {
+        // Update first statement of parent
+        par.setFirst(seq);
+      }
+    }
+  }
+
+  // Returns whether the statement has a single connection to the exitpoint of the method
+  private static boolean directlyConnectedToExit(Statement loop, Statement parent, Statement endStat) {
+    List<StatEdge> successors = endStat.getAllSuccessorEdges();
+
+    // Make sure that there is only one successor from this statement, to indicate a direct path
+    if (successors.size() == 1) {
+      StatEdge successor = successors.get(0);
+      Statement destination = successor.getDestination();
+
+      // If the destination is connected to the exit and the successor's closure points to our current loop, then we have successfully found a direct path to the exit
+      if (destination.type == Statement.TYPE_DUMMYEXIT && successor.closure == loop) {
+        return true;
+      }
+
+      // If we didn't find a direct path but the destination contained within the parent statement (i.e a neighbor of ours) then check that too [TestLoopBreakException]
+      if (parent.containsStatement(destination)) {
+        return directlyConnectedToExit(loop, parent, destination);
+      }
+    }
+
     return false;
   }
 
   public static boolean isDirectPath(Statement stat, Statement endstat) {
-
     Set<Statement> setStat = stat.getNeighboursSet(Statement.STATEDGE_DIRECT_ALL, Statement.DIRECTION_FORWARD);
     if (setStat.isEmpty()) {
       Statement parent = stat.getParent();

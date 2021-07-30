@@ -1,0 +1,49 @@
+package pkg;
+
+public class TestLoopBreak {
+   public void test(int var1) {
+      while(var1 > 10) {// 5
+         ++var1;// 6
+         if (var1 != 15) {// 8
+            System.out.println(0);// 12
+            continue;
+         }
+         break;
+      }
+
+   }// 14
+}
+
+class 'pkg/TestLoopBreak' {
+   method 'test (I)V' {
+      0      4
+      1      4
+      2      4
+      3      4
+      6      5
+      7      5
+      8      5
+      9      6
+      a      6
+      b      6
+      c      6
+      12      7
+      13      7
+      14      7
+      15      7
+      16      7
+      17      7
+      18      7
+      19      8
+      1c      13
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 6
+8 <-> 7
+12 <-> 8
+14 <-> 14
+Not mapped:
+9

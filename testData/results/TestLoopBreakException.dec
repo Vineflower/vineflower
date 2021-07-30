@@ -1,0 +1,62 @@
+package pkg;
+
+public class TestLoopBreakException {
+   public boolean test(int var1) {
+      while(var1 > 10) {// 5
+         ++var1;// 6
+         if (var1 != 15) {// 8
+            System.out.println(0);// 12
+            return true;// 14
+         }
+      }
+
+      if (var1 > 4) {// 17
+         return false;// 18
+      } else {
+         throw new RuntimeException();// 21
+      }
+   }
+}
+
+class 'pkg/TestLoopBreakException' {
+   method 'test (I)Z' {
+      0      4
+      1      4
+      2      4
+      3      4
+      6      5
+      7      5
+      8      5
+      9      6
+      a      6
+      b      6
+      c      6
+      12      7
+      13      7
+      14      7
+      15      7
+      16      7
+      17      7
+      18      7
+      19      8
+      1a      8
+      1b      12
+      1c      12
+      1d      12
+      20      13
+      21      13
+      29      15
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 6
+8 <-> 7
+12 <-> 8
+14 <-> 9
+17 <-> 13
+18 <-> 14
+21 <-> 16
+Not mapped:
+9
