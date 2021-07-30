@@ -60,6 +60,11 @@ tasks.withType(JavaCompile) {
   options.deprecation = true
 }
 
+task testDataClasses {
+  group = 'build'
+}
+testClasses.dependsOn(testDataClasses)
+
 [8, 9, 11, 16].forEach {version ->
   def sourceSet = sourceSets.create("testDataJava${version}") {
     it.java.srcDirs file("testData/src/java${version}")
@@ -70,7 +75,7 @@ tasks.withType(JavaCompile) {
       languageVersion = JavaLanguageVersion.of(version)
     }
   }
-  test.dependsOn(task)
+  testDataClasses.dependsOn("testDataJava${version}Classes")
 }
 
 task compileTestDataJasm(type: JasmCompile) {
@@ -78,17 +83,21 @@ task compileTestDataJasm(type: JasmCompile) {
   destinationDir = file("testData/classes/jasm/")
   options.compilerArgs += ["-g"]
 }
-test.dependsOn(compileTestDataJasm)
+task testDataJasmClasses {
+  group = 'build'
+}
+testDataJasmClasses.dependsOn(compileTestDataJasm)
+testDataClasses.dependsOn(testDataJasmClasses)
 
 compileTestDataGroovyGroovy {
   destinationDir = file("testData/classes/groovy")
 }
-test.dependsOn(compileTestDataGroovyGroovy)
+testDataClasses.dependsOn(testDataGroovyClasses)
 
 compileTestDataKotlinKotlin {
   destinationDir = file("testData/classes/kt")
 }
-test.dependsOn(compileTestDataKotlinKotlin)
+testDataClasses.dependsOn(testDataKotlinClasses)
 
 // Compile the java 9 classes
 compileJava9Java {
