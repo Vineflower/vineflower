@@ -176,4 +176,5 @@ public class SingleClassesTest extends SingleClassesTestBase {
   @Test public void testRecordEmptyConstructor() { doTest("records/TestRecordEmptyConstructor"); }
   @Test public void testRecordInner() { doTest("records/TestRecordInner"); }
   @Test public void testRecordMixup() { doTest("records/TestRecordMixup"); }
+  @Test public void testMultiAssignmentInStaticBlock() { doTest("pkg/TestMultiAssignmentInStaticBlock"); }
 }

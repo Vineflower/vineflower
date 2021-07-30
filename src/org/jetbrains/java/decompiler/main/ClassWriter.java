@@ -40,6 +40,8 @@ public class ClassWriter {
   }
 
   private static void invokeProcessors(ClassNode node) {
+    // TODO: need to wrap around with try catch as failure here can break the entire class
+
     ClassWrapper wrapper = node.getWrapper();
     StructClass cl = wrapper.getClassStruct();
 
