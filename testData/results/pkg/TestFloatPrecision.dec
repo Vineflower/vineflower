@@ -1,0 +1,21 @@
+package pkg;
+
+public class TestFloatPrecision {
+   public void test() {
+      double x = 0.2F;// 5
+   }// 6
+}
+
+class 'pkg/TestFloatPrecision' {
+   method 'test ()V' {
+      0      4
+      1      4
+      2      4
+      3      4
+      4      5
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 6
