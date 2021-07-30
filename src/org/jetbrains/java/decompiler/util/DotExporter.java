@@ -11,6 +11,7 @@ import org.jetbrains.java.decompiler.code.cfg.ControlFlowGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectNode;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionNode;
@@ -20,7 +21,9 @@ import org.jetbrains.java.decompiler.util.FastSparseSetFactory.FastSparseSet;
 
 public class DotExporter {
   private static final String DOTS_FOLDER = System.getProperty("DOT_EXPORT_DIR", null);
+  private static final String DOTS_ERROR_FOLDER = System.getProperty("DOT_ERROR_EXPORT_DIR", null);
   private static final boolean DUMP_DOTS = DOTS_FOLDER != null && !DOTS_FOLDER.trim().isEmpty();
+  private static final boolean DUMP_ERROR_DOTS = DOTS_ERROR_FOLDER != null && !DOTS_ERROR_FOLDER.trim().isEmpty();
   // http://graphs.grevian.org/graph is a nice visualizer for the outputed dots.
 
   // Outputs a statement and as much of its information as possible into a dot formatted string.
@@ -29,21 +32,40 @@ public class DotExporter {
   // Dotted arrows represent a statement's exception successors.
   // Blue arrows represent a statement's predecessors. The arrow points towards the predecessor.
   // Red arrows represent the statement tree. The arrows points to the statement's children.
+  // Black arrows with a diamond head represent a statement's closure, or the statement that it's enclosed in.
+  // Purple arrows with a bar head represent a statement's neighbors. TODO: needs backwards as well
   // Statements with no successors or predecessors (but still contained in the tree) will be in a subgraph titled "Isolated statements".
   // Statements that aren't found will be circular, and will have a message stating so.
   // Nodes with green borders are the canonical exit of method, but these may not always be emitted.
-  private static String toDotFormat(Statement stat) {
+  private static String statToDot(Statement stat, String name) {
     StringBuffer buffer = new StringBuffer();
     List<String> subgraph = new ArrayList<>();
     Set<Integer> visitedNodes = new HashSet<>();
     Set<Integer> exits = new HashSet<>();
     Set<Integer> referenced = new HashSet<>();
 
-    buffer.append("digraph G {\r\n");
+    buffer.append("digraph " + name + " {\r\n");
 
     List<Statement> stats = new ArrayList<>();
     stats.add(stat);
     findAllStats(stats, stat);
+
+    // Pre process
+    Map<StatEdge, String> extraData = new HashMap<>();
+
+    for (Statement st : stats) {
+      if (st.type == Statement.TYPE_IF) {
+        IfStatement ifs = (IfStatement) st;
+
+        if (ifs.getIfEdge() != null) {
+          extraData.put(ifs.getIfEdge(), "If Edge");
+        }
+
+        if (ifs.getElseEdge() != null) {
+          extraData.put(ifs.getElseEdge(), "If Edge");
+        }
+      }
+    }
 
     for(Statement st : stats) {
       String sourceId = st.id + (st.getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty()?"":"000000");
@@ -54,7 +76,20 @@ public class DotExporter {
 
         String edgeType = getEdgeType(edge);
 
+        // Add extra edge data
+        // TODO do same for predecessors?
+        for (Entry<StatEdge, String> entry : extraData.entrySet()) {
+          if (edge.getSource().id.equals(entry.getKey().getSource().id) && edge.getDestination().id.equals(entry.getKey().getDestination().id)) {
+            edgeType = edgeType == null ? entry.getValue() : edgeType + " (" + entry.getValue() + ")";
+          }
+        }
+
         buffer.append(sourceId + "->" + destId + (edgeType != null ? "[label=\"" + edgeType + "\"]" : "") + ";\r\n");
+
+        if (edge.closure != null) {
+          String clsId = edge.closure.id + (edge.getDestination().getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty()?"":"000000");
+          buffer.append(sourceId + "->" + clsId + " [arrowhead=diamond,label=\"Closure\"];\r\n");
+        }
 
         // TODO: why are some returns break edges instead of returns?
         if (edge.getType() == StatEdge.TYPE_FINALLYEXIT || edge.getType() == StatEdge.TYPE_BREAK) {
@@ -64,6 +99,11 @@ public class DotExporter {
         referenced.add(edge.getDestination().id);
 
         edges = true;
+      }
+
+      for (Statement neighbour : st.getNeighbours(Statement.STATEDGE_ALL, Statement.DIRECTION_FORWARD)) {
+        String destId = neighbour.id + (neighbour.getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty()?"":"000000");
+        buffer.append(sourceId + "->" + destId + " [arrowhead=tee,color=purple];\r\n");
       }
 
       for(StatEdge edge : st.getPredecessorEdges(Statement.STATEDGE_ALL)) {
@@ -87,12 +127,38 @@ public class DotExporter {
         edges = true;
       }
 
+      // Special case if edges
+      // TODO: add labels onto existing successors
+
       // Graph tree
+      boolean foundFirst = false;
       for (Statement s : st.getStats()) {
         String destId = s.id + (s.getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty()?"":"000000");
 
-        buffer.append(sourceId + " -> " + destId + " [color=red];\r\n");
+        String label = "";
+
+        if (s == st.getFirst()) {
+          label = "First";
+          foundFirst = true;
+        }
+
+        if (st.type == Statement.TYPE_IF) {
+          IfStatement ifs = (IfStatement) st;
+          if (s == ifs.getIfstat()) {
+            label = "If stat";
+          }
+          if (s == ifs.getElsestat()) {
+            label = "Else stat";
+          }
+        }
+
+        buffer.append(sourceId + " -> " + destId + " [arrowhead=vee,color=red" + (!label.equals("") ? ",fontcolor=red,label=\"" + label + "\"" : "") + "];\r\n");
         referenced.add(s.id);
+      }
+
+      if (!foundFirst && st.getFirst() != null) {
+        String destId = st.getFirst().id + (st.getFirst().getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty()?"":"000000");
+        buffer.append(sourceId + "->" + destId + " [arrowhead=vee,color=red,fontcolor=red,label=\"Dangling First statement!\"];\r\n");
       }
 
       visitedNodes.add(st.id);
@@ -207,14 +273,28 @@ public class DotExporter {
 
   private static void findAllStats(List<Statement> list, Statement root) {
     for (Statement stat : root.getStats()) {
-      list.add(stat);
+      if (!list.contains(stat)) {
+        list.add(stat);
+      }
+
+      if (stat.type == Statement.TYPE_IF) {
+        IfStatement ifs = (IfStatement) stat;
+
+        if (ifs.getIfstat() != null && !list.contains(ifs.getIfstat())) {
+          list.add(ifs.getIfstat());
+        }
+
+        if (ifs.getElsestat() != null && !list.contains(ifs.getElsestat())) {
+          list.add(ifs.getElsestat());
+        }
+      }
 
       findAllStats(list, stat);
     }
   }
 
 
-  private static String toDotFormat(ControlFlowGraph graph, boolean showMultipleEdges) {
+  private static String cfgToDot(ControlFlowGraph graph, boolean showMultipleEdges) {
 
     StringBuffer buffer = new StringBuffer();
 
@@ -254,7 +334,7 @@ public class DotExporter {
     return buffer.toString();
   }
 
-  private static String toDotFormat(VarVersionsGraph graph) {
+  private static String varsToDot(VarVersionsGraph graph) {
 
     StringBuffer buffer = new StringBuffer();
 
@@ -277,7 +357,7 @@ public class DotExporter {
     return buffer.toString();
   }
 
-  private static String toDotFormat(DirectGraph graph, Map<String, SFormsFastMapDirect> vars) {
+  private static String digraphToDot(DirectGraph graph, Map<String, SFormsFastMapDirect> vars) {
 
     StringBuffer buffer = new StringBuffer();
 
@@ -323,8 +403,8 @@ public class DotExporter {
     return id;
   }
 
-  private static File getFile(StructMethod mt, String suffix) {
-    File root = new File(DOTS_FOLDER + mt.getClassQualifiedName());
+  private static File getFile(String folder, StructMethod mt, String suffix) {
+    File root = new File(folder + mt.getClassQualifiedName());
     if (!root.isDirectory())
       root.mkdirs();
     return new File(root,
@@ -333,8 +413,8 @@ public class DotExporter {
       '_' + suffix + ".dot");
   }
 
-  private static File getFile(String name) {
-    File root = new File(DOTS_FOLDER);
+  private static File getFile(String folder, String name) {
+    File root = new File(folder);
     if (!root.isDirectory())
       root.mkdirs();
     return new File(root,name + ".dot");
@@ -347,8 +427,8 @@ public class DotExporter {
     if (!DUMP_DOTS)
       return;
     try{
-      BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(mt, suffix)));
-      out.write(toDotFormat(dgraph, vars).getBytes());
+      BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(DOTS_FOLDER, mt, suffix)));
+      out.write(digraphToDot(dgraph, vars).getBytes());
       out.close();
     } catch (Exception e) {
       e.printStackTrace();
@@ -359,8 +439,8 @@ public class DotExporter {
     if (!DUMP_DOTS)
       return;
     try{
-      BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(mt, suffix)));
-      out.write(toDotFormat(stat).getBytes());
+      BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(DOTS_FOLDER, mt, suffix)));
+      out.write(statToDot(stat, suffix).getBytes());
       out.close();
     } catch (Exception e) {
       e.printStackTrace();
@@ -371,7 +451,7 @@ public class DotExporter {
     if (!DUMP_DOTS)
       return;
     try{
-      BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(mt, suffix)));
+      BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(DOTS_FOLDER, mt, suffix)));
       out.write(statementHierarchy(stat).getBytes());
       out.close();
     } catch (Exception e) {
@@ -383,8 +463,32 @@ public class DotExporter {
     if (!DUMP_DOTS)
       return;
     try{
-      BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(name)));
-      out.write(toDotFormat(stat).getBytes());
+      BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(DOTS_FOLDER, name)));
+      out.write(statToDot(stat, name).getBytes());
+      out.close();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  public static void errorToDotFile(Statement stat, StructMethod mt, String suffix) {
+    if (!DUMP_ERROR_DOTS)
+      return;
+    try{
+      BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(DOTS_ERROR_FOLDER, mt, suffix)));
+      out.write(statToDot(stat, suffix).getBytes());
+      out.close();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  public static void errorToDotFile(Statement stat, String name) {
+    if (!DUMP_ERROR_DOTS)
+      return;
+    try {
+      BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(DOTS_ERROR_FOLDER, name)));
+      out.write(statToDot(stat, name).getBytes());
       out.close();
     } catch (Exception e) {
       e.printStackTrace();
@@ -395,8 +499,8 @@ public class DotExporter {
     if (!DUMP_DOTS)
       return;
     try{
-      BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(mt, suffix)));
-      out.write(toDotFormat(graph).getBytes());
+      BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(DOTS_FOLDER, mt, suffix)));
+      out.write(varsToDot(graph).getBytes());
       out.close();
     } catch (Exception e) {
       e.printStackTrace();
@@ -407,8 +511,20 @@ public class DotExporter {
     if (!DUMP_DOTS)
       return;
     try{
-      BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(mt, suffix)));
-      out.write(toDotFormat(graph, showMultipleEdges).getBytes());
+      BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(DOTS_FOLDER, mt, suffix)));
+      out.write(cfgToDot(graph, showMultipleEdges).getBytes());
+      out.close();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  public static void errorToDotFile(ControlFlowGraph graph, StructMethod mt, String suffix) {
+    if (!DUMP_ERROR_DOTS)
+      return;
+    try{
+      BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(DOTS_ERROR_FOLDER, mt, suffix)));
+      out.write(cfgToDot(graph, true).getBytes());
       out.close();
     } catch (Exception e) {
       e.printStackTrace();

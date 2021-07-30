@@ -35,12 +35,15 @@ public class ControlFlowGraph implements CodeConstants {
   private Map<BasicBlock, BasicBlock> subroutines;
 
   private final Set<BasicBlock> finallyExits = new HashSet<>();
+  private final InstructionSequence sequence;
 
   // *****************************************************************************
   // constructors
   // *****************************************************************************
 
   public ControlFlowGraph(InstructionSequence seq) {
+    this.sequence = seq;
+
     buildBlocks(seq);
   }
 
@@ -814,5 +817,9 @@ public class ControlFlowGraph implements CodeConstants {
 
   public Set<BasicBlock> getFinallyExits() {
     return finallyExits;
+  }
+
+  public InstructionSequence getSequence() {
+    return sequence;
   }
 }

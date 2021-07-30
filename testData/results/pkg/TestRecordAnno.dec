@@ -2,18 +2,8 @@ package pkg;
 
 public record TestRecordAnno(@RC @TA int x, int y) {
    public TestRecordAnno(@TA int x, @P int y) {
-      this.x = x;
+      this.x = x;// 5
       this.y = y;
-   }
-
-   @TA
-   public int x() {
-      return this.x;
-   }
-
-   @M
-   public int y() {
-      return this.y;// 5
    }
 }
 
@@ -31,23 +21,7 @@ class 'pkg/TestRecordAnno' {
       d      5
       e      6
    }
-
-   method 'x ()I' {
-      0      10
-      1      10
-      2      10
-      3      10
-      4      10
-   }
-
-   method 'y ()I' {
-      0      15
-      1      15
-      2      15
-      3      15
-      4      15
-   }
 }
 
 Lines mapping:
-5 <-> 16
+5 <-> 5

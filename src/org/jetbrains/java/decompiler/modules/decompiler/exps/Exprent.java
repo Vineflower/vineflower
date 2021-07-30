@@ -139,14 +139,6 @@ public abstract class Exprent implements IMatchable {
     throw new RuntimeException("not implemented");
   }
 
-  /**
-   * Run when an ExitExprent is called with a standard return that is not of type void.
-   * @param descriptor The descriptor of the method
-   */
-  protected void onReturn(MethodDescriptor descriptor) {
-
-  }
-
   public void replaceExprent(Exprent oldExpr, Exprent newExpr) { }
 
   public void addBytecodeOffsets(BitSet bytecodeOffsets) {

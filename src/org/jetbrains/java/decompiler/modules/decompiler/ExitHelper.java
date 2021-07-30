@@ -4,9 +4,11 @@ package org.jetbrains.java.decompiler.modules.decompiler;
 import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.ConstExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.ExitExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
+import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -222,6 +224,33 @@ public final class ExitHelper {
               // remove redundant return
               dummyExit.addBytecodeOffsets(ex.bytecode);
               lstExpr.remove(lstExpr.size() - 1);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Fixes chars being returned when ints are required
+  public static void adjustReturnType(RootStatement root, MethodDescriptor desc) {
+    // Get all statements with returns
+    for (StatEdge retEdge : root.getDummyExit().getAllPredecessorEdges()) {
+      Statement ret = retEdge.getSource();
+
+      // Get all exprent in statement
+      List<Exprent> exprents = ret.getExprents();
+      if (exprents != null && !exprents.isEmpty()) {
+        // Get return exprent
+        Exprent expr = exprents.get(exprents.size() - 1);
+        if (expr.type == Exprent.EXPRENT_EXIT) {
+          ExitExprent ex = (ExitExprent) expr;
+
+          List<Exprent> exitExprents = ex.getAllExprents(true);
+
+          // If any of the return expression has constants, adjust them to the return type of the method
+          for (Exprent exprent : exitExprents) {
+            if (exprent.type == Exprent.EXPRENT_CONST) {
+              ((ConstExprent)exprent).adjustConstType(desc.ret);
             }
           }
         }

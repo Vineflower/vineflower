@@ -73,7 +73,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestClassFields");
     register(JAVA_8, "TestClashName", "SharedName1",
       "SharedName2", "SharedName3", "SharedName4", "NonSharedName",
-      "TestClashNameParent", "ext/TestClashNameParent","TestClashNameIface", "ext/TestClashNameIface");
+      "TestClashNameParent", "ext/TestClashNameParent", "TestClashNameIface", "ext/TestClashNameIface");
     register(JAVA_8, "TestSwitchOnEnum");
     register(JAVA_8, "TestSwitchOnStrings");
     register(JAVA_8, "TestLambdaParams");
@@ -125,7 +125,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestArrayForeach");
     // TODO: I'm pretty sure this test opened the gates of hell somewhere. We need to figure out what's causing that
     register(JAVA_8, "TestTernaryCall");
-
     register(JAVA_8, "TestAnonymousObject");
     register(JAVA_8, "TestArrayAssignmentEquals");
     // TODO: Loop becomes infinte loop where it should be assignment in loop
@@ -172,11 +171,23 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestWhileIterator");
     register(JAVA_8, "TestReturnTernaryChar");
     register(JAVA_8, "TestCompoundAssignment");
-    // TODO: Fails to decompile empty infinite loop
     register(JAVA_8, "TestInfiniteLoop");
     // TODO: many problems, wrong else if placement, wrong promotion of while to for, wrong control flow with infinite loop
     register(JAVA_8, "TestIfLoop");
     // Be careful when touching this class file, your IDE might freeze
     register(JASM, "TestInheritanceChainCycle");
+    register(JAVA_16, "TestRecordEmptyConstructor");
+    register(JAVA_16, "TestRecordInner");
+    register(JAVA_16, "TestRecordMixup");
+    register(JAVA_8, "TestMultiAssignmentInStaticBlock");
+    register(JAVA_8, "TestNextGaussian");
+    // TODO: Clean up control flow with continue and break
+    register(JAVA_8, "TestLoopBreak");
+    register(JAVA_8, "TestLoopBreak2");
+    register(JAVA_8, "TestSimpleWhile");
+    register(JAVA_8, "TestLoopBreakException");
+    register(JAVA_8, "TestWhileTernary1");
+    register(JAVA_8, "TestWhileTernary2");
+    register(JAVA_8, "TestWhileTernaryFake");
   }
 }

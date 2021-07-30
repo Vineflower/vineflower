@@ -9,7 +9,10 @@ public class TestEmptyBlocks {
       } catch (Exception var1) {// 25
       }
 
-      for(int i = 0; i < 5; ++i) {// 29
+      int i = 0;// 29
+
+      while(i < 5) {
+         ++i;
       }
 
       while((new Random()).nextBoolean()) {// 33
@@ -28,20 +31,20 @@ class 'pkg/TestEmptyBlocks' {
       5      8
       6      11
       7      11
-      8      11
-      9      11
-      a      11
-      d      11
-      e      11
-      f      11
-      1a      14
-      1b      14
-      1c      14
-      2a      17
-      2b      17
-      2c      17
-      2d      17
-      30      20
+      8      13
+      9      13
+      a      13
+      d      14
+      e      14
+      f      14
+      1a      17
+      1b      17
+      1c      17
+      2a      20
+      2b      20
+      2c      20
+      2d      20
+      30      23
    }
 }
 
@@ -49,8 +52,8 @@ Lines mapping:
 24 <-> 8
 25 <-> 9
 29 <-> 12
-33 <-> 15
-37 <-> 18
-40 <-> 21
+33 <-> 18
+37 <-> 21
+40 <-> 24
 Not mapped:
 27
