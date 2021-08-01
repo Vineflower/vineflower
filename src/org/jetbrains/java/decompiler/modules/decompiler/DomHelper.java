@@ -196,8 +196,8 @@ public final class DomHelper {
     RootStatement root = graphToStatement(graph);
 
     if (!processStatement(root, new LinkedHashMap<>())) {
-      DotExporter.toDotFile(graph, mt, "parseGraphFail", true);
-      DotExporter.toDotFile(root, mt, "parseGraphFailStat");
+      DotExporter.errorToDotFile(graph, mt, "parseGraphFail");
+      DotExporter.errorToDotFile(root, mt, "parseGraphFailStat");
       throw new RuntimeException("parsing failure!");
     }
 

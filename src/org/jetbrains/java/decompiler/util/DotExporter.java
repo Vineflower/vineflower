@@ -8,9 +8,11 @@ import java.util.Map.Entry;
 
 import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.code.cfg.ControlFlowGraph;
+import org.jetbrains.java.decompiler.code.cfg.ExceptionRangeCFG;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectNode;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.BasicBlockStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionEdge;
@@ -99,6 +101,12 @@ public class DotExporter {
         referenced.add(edge.getDestination().id);
 
         edges = true;
+      }
+
+      for (StatEdge labelEdge : st.getLabelEdges()) {
+        String src = labelEdge.getSource().id + (labelEdge.getSource().getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty()?"":"000000");;
+        String destId = labelEdge.getDestination().id + (labelEdge.getDestination().getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty()?"":"000000");
+        buffer.append(src + "->" + destId + " [color=orange,label=\"Label Edge (Contained by " + st.id + ")\"];\r\n");
       }
 
       for (Statement neighbour : st.getNeighbours(Statement.STATEDGE_ALL, Statement.DIRECTION_FORWARD)) {
@@ -260,7 +268,7 @@ public class DotExporter {
       case 5: return "Do";
       case 6: return "Switch";
       case 7: return "Try Catch";
-      case 8: return "Basic Block";
+      case 8: return "Basic Block #" + ((BasicBlockStatement)st).getBlock().id;
       case 10: return "Synchronized";
       case 11: return "Placeholder";
       case 12: return "Catch All";
@@ -294,39 +302,58 @@ public class DotExporter {
   }
 
 
-  private static String cfgToDot(ControlFlowGraph graph, boolean showMultipleEdges) {
+  private static String cfgToDot(String name, ControlFlowGraph graph, boolean showMultipleEdges) {
 
     StringBuffer buffer = new StringBuffer();
 
-    buffer.append("digraph G {\r\n");
+    buffer.append("digraph " + name + " {\r\n");
 
     List<BasicBlock> blocks = graph.getBlocks();
-    for(int i=0;i<blocks.size();i++) {
-      BasicBlock block = (BasicBlock)blocks.get(i);
-
-      buffer.append(block.id+" [shape=box,label=\""+block.id+"\"];\r\n");
-
+    for (BasicBlock block : blocks) {
+      buffer.append(block.id + " [shape=box,label=\"Block " + block.id + "\n" + block.getSeq() + "\"];\r\n");
 
       List<BasicBlock> suc = block.getSuccs();
-      if(!showMultipleEdges) {
-        HashSet<BasicBlock> set = new HashSet<BasicBlock>();
-        set.addAll(suc);
-        suc = Collections.list(Collections.enumeration(set));
-      }
-      for(int j=0;j<suc.size();j++) {
-        buffer.append(block.id+"->"+((BasicBlock)suc.get(j)).id+";\r\n");
+      List<BasicBlock> preds = block.getPreds();
+
+//      if(!showMultipleEdges) {
+//        HashSet<BasicBlock> set = new HashSet<>();
+//        set.addAll(suc);
+//        suc = Collections.list(Collections.enumeration(set));
+//      }
+
+      for (BasicBlock basicBlock : suc) {
+        buffer.append(block.id + " -> " + basicBlock.id + ";\r\n");
       }
 
+      for (BasicBlock pred : preds) {
+        buffer.append(block.id + " -> " + pred.id + " [color=blue];\r\n");
+      }
 
       suc = block.getSuccExceptions();
-      if(!showMultipleEdges) {
-        HashSet<BasicBlock> set = new HashSet<BasicBlock>();
-        set.addAll(suc);
-        suc = Collections.list(Collections.enumeration(set));
+      preds = block.getPredExceptions();
+
+//      if(!showMultipleEdges) {
+//        HashSet<BasicBlock> set = new HashSet<>();
+//        set.addAll(suc);
+//        suc = Collections.list(Collections.enumeration(set));
+//      }
+
+      for (int j = 0; j < suc.size(); j++) {
+        buffer.append(block.id + " -> " + suc.get(j).id + " [style=dotted];\r\n");
       }
-      for(int j=0;j<suc.size();j++) {
-        buffer.append(block.id+" -> "+((BasicBlock)suc.get(j)).id+" [style=dotted];\r\n");
+
+      for (BasicBlock pred : preds) {
+        buffer.append(block.id + " -> " + pred.id + " [color=blue,style=dotted];\r\n");
       }
+    }
+
+    for (int i = 0; i < graph.getExceptions().size(); i++) {
+      ExceptionRangeCFG ex = graph.getExceptions().get(i);
+      buffer.append("subgraph cluster_ex_" + i + " {\r\n\tlabel=\"Exception range for Block " + ex.getHandler().id + " \";\r\n");
+      for (BasicBlock bb : ex.getProtectedRange()) {
+        buffer.append("\t" + bb.id + ";\r\n");
+      }
+      buffer.append("\t}\r\n");
     }
 
     buffer.append("}");
@@ -374,7 +401,7 @@ public class DotExporter {
         List<Entry<Integer, FastSparseSet<Integer>>> lst = map.entryList();
         if (lst != null) {
           for (Entry<Integer, FastSparseSet<Integer>> entry : lst) {
-             label.append("\\n").append(entry.getKey());
+            label.append("\\n").append(entry.getKey());
             Set<Integer> set = entry.getValue().toPlainSet();
             label.append("=").append(set.toString());
           }
@@ -409,8 +436,8 @@ public class DotExporter {
       root.mkdirs();
     return new File(root,
       mt.getName().replace('<', '.').replace('>', '_') +
-      mt.getDescriptor().replace('/', '.') +
-      '_' + suffix + ".dot");
+        mt.getDescriptor().replace('/', '.') +
+        '_' + suffix + ".dot");
   }
 
   private static File getFile(String folder, String name) {
@@ -512,7 +539,7 @@ public class DotExporter {
       return;
     try{
       BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(DOTS_FOLDER, mt, suffix)));
-      out.write(cfgToDot(graph, showMultipleEdges).getBytes());
+      out.write(cfgToDot(suffix, graph, showMultipleEdges).getBytes());
       out.close();
     } catch (Exception e) {
       e.printStackTrace();
@@ -524,7 +551,7 @@ public class DotExporter {
       return;
     try{
       BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(DOTS_ERROR_FOLDER, mt, suffix)));
-      out.write(cfgToDot(graph, true).getBytes());
+      out.write(cfgToDot(suffix, graph, true).getBytes());
       out.close();
     } catch (Exception e) {
       e.printStackTrace();
