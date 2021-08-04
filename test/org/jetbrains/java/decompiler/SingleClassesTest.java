@@ -192,5 +192,10 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestWhileTernary3");
     register(JAVA_8, "TestWhileTernary4");
     register(JAVA_8, "TestWhileTernary5");
+    register(JAVA_8, "TestTryLoop");
+    register(JAVA_8, "TestTryLoopRecompile");
+    register(JAVA_8, "TestTryLoopSimpleFinally");
+    // TODO: Still doesn't properly decompile, loop needs to be in the try block
+    register(JAVA_8, "TestTryLoopReturnFinally");
   }
 }

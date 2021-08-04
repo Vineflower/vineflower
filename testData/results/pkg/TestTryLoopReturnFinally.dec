@@ -1,0 +1,69 @@
+package pkg;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
+
+public class TestTryLoopReturnFinally {
+   private boolean field;
+
+   public void test(File file) {
+      while(true) {
+         try {
+            if (!this.field) {// 12
+               break;
+            }
+
+            if (file != null) {// 13
+               new Scanner(file);// 17
+               continue;// 18
+            }
+         } catch (FileNotFoundException var6) {// 19
+            var6.printStackTrace();// 20
+            break;
+         } finally {
+            System.out.println("Finally");// 22
+         }
+
+         return;// 14
+      }
+
+   }// 24
+}
+
+class 'pkg/TestTryLoopReturnFinally' {
+   method 'test (Ljava/io/File;)V' {
+      0      12
+      1      12
+      2      12
+      3      12
+      4      12
+      7      16
+      8      16
+      13      27
+      18      17
+      1d      18
+      2b      20
+      2d      21
+      3b      24
+      3c      24
+      3d      24
+      3e      24
+      3f      24
+      40      24
+      46      30
+   }
+}
+
+Lines mapping:
+12 <-> 13
+13 <-> 17
+14 <-> 28
+17 <-> 18
+18 <-> 19
+19 <-> 21
+20 <-> 22
+22 <-> 25
+24 <-> 31
+Not mapped:
+23

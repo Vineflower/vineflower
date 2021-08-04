@@ -47,6 +47,17 @@ public final class DomHelper {
       return root;
     }
 
+    // Check if the first block in the graph is covered by an exception range.
+    // If it is, we need to avoid setting the edge type to continue, as that causes problems later down the line.
+    // TODO: should this be a fernflower preference?
+    boolean firstIsException = false;
+    for (ExceptionRangeCFG exception : graph.getExceptions()) {
+      if (exception.getProtectedRange().contains(firstblock)) {
+        firstIsException = true;
+        break;
+      }
+    }
+
     for (BasicBlock block : blocks) {
       Statement stat = stats.getWithKey(block.id);
 
@@ -54,8 +65,9 @@ public final class DomHelper {
         Statement stsucc = stats.getWithKey(succ.id);
 
         int type;
-        if (stsucc == firstst) {
+        if (stsucc == firstst && !firstIsException) {
           type = StatEdge.TYPE_CONTINUE;
+          stsucc = general;
         }
         else if (graph.getFinallyExits().contains(block)) {
           type = StatEdge.TYPE_FINALLYEXIT;
@@ -69,7 +81,7 @@ public final class DomHelper {
           type = StatEdge.TYPE_REGULAR;
         }
 
-        stat.addSuccessor(new StatEdge(type, stat, (type == StatEdge.TYPE_CONTINUE) ? general : stsucc,
+        stat.addSuccessor(new StatEdge(type, stat, stsucc,
                                        (type == StatEdge.TYPE_REGULAR) ? null : general));
       }
 

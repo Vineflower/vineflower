@@ -244,7 +244,7 @@ public class DotExporter {
 
   private static String toJava(Statement statement) {
     try {
-      return statement.toJava().toString();
+      return statement.toJava().toString().replace("\"", "\\\"");
     } catch (Exception e) {
       return "Could not get content";
     }
