@@ -1,0 +1,140 @@
+package pkg;
+
+public class TestTernaryConstantSimplification {
+   public boolean ternaryNotAnd(boolean bl, boolean bl2) {
+      return !bl && bl2;// 5
+   }
+
+   public boolean ifOr(boolean bl, boolean bl2) {
+      return bl || bl2;// 9 12
+   }
+
+   public boolean ternaryNotOr(boolean bl, boolean bl2) {
+      return !bl || bl2;// 17
+   }
+
+   public boolean ternaryAnd(boolean bl, boolean bl2) {
+      return bl && bl2;// 21
+   }
+
+   public boolean redundantIf(boolean bl) {
+      return bl;// 25
+   }
+
+   public boolean redundantTernary(boolean bl) {
+      return bl;// 33
+   }
+
+   public boolean nestedIf(boolean bl, boolean bl2) {
+      if (bl) {// 37
+         return bl2 || bl;// 38 41
+      } else {
+         return true;// 44
+      }
+   }
+
+   public boolean nestedTernary(boolean bl, boolean bl2) {
+      return !bl || bl2;// 49
+   }
+
+   public boolean nestedIfs(boolean bl, boolean bl2, boolean bl3) {
+      if (bl) {// 53
+         return !bl2 && bl3;// 54 57
+      } else {
+         return bl3 || bl2;// 60 63
+      }
+   }
+}
+
+class 'pkg/TestTernaryConstantSimplification' {
+   method 'ternaryNotAnd (ZZ)Z' {
+      0      4
+      1      4
+      8      4
+      9      4
+   }
+
+   method 'ifOr (ZZ)Z' {
+      0      8
+      1      8
+      6      8
+   }
+
+   method 'ternaryNotOr (ZZ)Z' {
+      0      12
+      1      12
+      4      12
+      9      12
+   }
+
+   method 'ternaryAnd (ZZ)Z' {
+      0      16
+      1      16
+      4      16
+      9      16
+   }
+
+   method 'redundantIf (Z)Z' {
+      0      20
+      1      20
+   }
+
+   method 'redundantTernary (Z)Z' {
+      0      24
+      9      24
+   }
+
+   method 'nestedIf (ZZ)Z' {
+      0      28
+      1      28
+      4      29
+      5      29
+      a      29
+      c      31
+      d      31
+   }
+
+   method 'nestedTernary (ZZ)Z' {
+      0      36
+      1      36
+      4      36
+      11      36
+   }
+
+   method 'nestedIfs (ZZZ)Z' {
+      0      40
+      1      40
+      4      41
+      5      41
+      a      41
+      c      43
+      d      43
+      12      43
+   }
+}
+
+Lines mapping:
+5 <-> 5
+9 <-> 9
+12 <-> 9
+17 <-> 13
+21 <-> 17
+25 <-> 21
+33 <-> 25
+37 <-> 29
+38 <-> 30
+41 <-> 30
+44 <-> 32
+49 <-> 37
+53 <-> 41
+54 <-> 42
+57 <-> 42
+60 <-> 44
+63 <-> 44
+Not mapped:
+10
+26
+28
+39
+55
+61
