@@ -21,4 +21,13 @@ public class TestSynchronized {
         }
         System.out.println(o);
     }
+
+  public void test4() {
+    Object o;
+    synchronized (o = 1) {
+      o = 1;
+      System.out.println(o);
+    }
+    System.out.println(o);
+  }
 }

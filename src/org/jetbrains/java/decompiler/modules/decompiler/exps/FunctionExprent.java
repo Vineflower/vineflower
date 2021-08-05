@@ -85,6 +85,7 @@ public class FunctionExprent extends Exprent {
   public static final int FUNCTION_GT = 46;
   public static final int FUNCTION_LE = 47;
 
+  // Boolean && and ||, TODO rename
   public static final int FUNCTION_CADD = 48;
   public static final int FUNCTION_COR = 49;
 

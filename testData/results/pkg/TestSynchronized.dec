@@ -22,6 +22,16 @@ public class TestSynchronized {
 
       System.out.println(o);// 22
    }// 23
+
+   public void test4() {
+      Integer o;
+      synchronized(1) {// 27
+         o = 1;// 28
+         System.out.println(o);// 29
+      }// 30
+
+      System.out.println(o);// 31
+   }// 32
 }
 
 class 'pkg/TestSynchronized' {
@@ -56,6 +66,35 @@ class 'pkg/TestSynchronized' {
       2b      22
       2c      23
    }
+
+   method 'test4 ()V' {
+      0      27
+      1      27
+      2      27
+      3      27
+      8      27
+      9      28
+      a      28
+      b      28
+      c      28
+      d      28
+      e      29
+      f      29
+      10      29
+      11      29
+      12      29
+      13      29
+      14      29
+      16      30
+      1f      32
+      20      32
+      21      32
+      22      32
+      23      32
+      24      32
+      25      32
+      26      33
+   }
 }
 
 Lines mapping:
@@ -69,6 +108,12 @@ Lines mapping:
 21 <-> 21
 22 <-> 23
 23 <-> 24
+27 <-> 28
+28 <-> 29
+29 <-> 30
+30 <-> 31
+31 <-> 33
+32 <-> 34
 Not mapped:
 7
 13

@@ -325,9 +325,9 @@ public class DotExporter {
         buffer.append(block.id + " -> " + basicBlock.id + ";\r\n");
       }
 
-      for (BasicBlock pred : preds) {
-        buffer.append(block.id + " -> " + pred.id + " [color=blue];\r\n");
-      }
+//      for (BasicBlock pred : preds) {
+//        buffer.append(block.id + " -> " + pred.id + " [color=blue];\r\n");
+//      }
 
       suc = block.getSuccExceptions();
       preds = block.getPredExceptions();
@@ -342,9 +342,9 @@ public class DotExporter {
         buffer.append(block.id + " -> " + suc.get(j).id + " [style=dotted];\r\n");
       }
 
-      for (BasicBlock pred : preds) {
-        buffer.append(block.id + " -> " + pred.id + " [color=blue,style=dotted];\r\n");
-      }
+//      for (BasicBlock pred : preds) {
+//        buffer.append(block.id + " -> " + pred.id + " [color=blue,style=dotted];\r\n");
+//      }
     }
 
     for (int i = 0; i < graph.getExceptions().size(); i++) {

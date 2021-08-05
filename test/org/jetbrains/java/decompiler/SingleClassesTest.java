@@ -197,5 +197,15 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestTryLoopSimpleFinally");
     // TODO: Still doesn't properly decompile, loop needs to be in the try block
     register(JAVA_8, "TestTryLoopReturnFinally");
+    register(JAVA_8, "TestOperatorPrecedence");
+    register(JAVA_8, "TestMultipleStaticBlocks");
+    register(JAVA_8, "TestTrySynchronized");
+    // TODO: fields must be placed after enum members
+    register(JASM, "TestEnumStaticField");
+    // Noted to say this would produce different code each time but it does not from testing
+    register(JASM, "TestIrreducible");
+    register(JAVA_8, "TestForContinue");
+    // TODO: this needs a flat statement structure
+    register(JAVA_8, "TestExceptionElse");
   }
 }

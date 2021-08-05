@@ -1,0 +1,26 @@
+/**
+ * This code can be assembled with <a href="https://wiki.openjdk.java.net/display/CodeTools/asmtools">asmtools</a>
+ * using <code>asmtools jasm -g *.jasm</code> command line.
+ */
+package  pkg;
+
+// WARNING: This isn't a proper enum! It's the bare minimum to fix this bug.
+super public final enum TestEnumStaticField extends "java/lang/Enum"
+	version 52:0
+{
+
+public static Field field:"Ljava/lang/Integer;";
+public static enum Field TEST_1:TestEnumStaticField;
+public static enum Field TEST_2:TestEnumStaticField;
+
+private Method "<init>":"(Ljava/lang/String;I)V"
+	stack 3 locals 3
+{
+		aload_0;
+		aload_1;
+		iload_2;
+		invokespecial	Method java/lang/Enum."<init>":"(Ljava/lang/String;I)V";
+		return;
+}
+
+} // end Class TestEnumStaticField

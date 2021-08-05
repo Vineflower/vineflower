@@ -34,6 +34,18 @@ public class TestTernaryCall {
 
       var10000.println(var10001);
    }// 6
+
+   public void test2(boolean a, boolean b, boolean c) {
+      if (b) {// 9
+         if (!c) {
+            return;// 12
+         }
+      } else if (!a) {
+         return;
+      }
+
+      System.out.println(c);// 10
+   }
 }
 
 class 'pkg/TestTernaryCall' {
@@ -60,8 +72,26 @@ class 'pkg/TestTernaryCall' {
       28      34
       29      35
    }
+
+   method 'test2 (ZZZ)V' {
+      0      38
+      1      38
+      4      39
+      5      39
+      b      42
+      c      42
+      f      46
+      10      46
+      11      46
+      12      46
+      13      46
+      16      40
+   }
 }
 
 Lines mapping:
 5 <-> 11
 6 <-> 36
+9 <-> 39
+10 <-> 47
+12 <-> 41
