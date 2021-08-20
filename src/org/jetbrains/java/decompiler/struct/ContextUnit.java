@@ -58,6 +58,9 @@ public class ContextUnit {
   }
 
   public void addDirEntry(String entry) {
+    if (entry.lastIndexOf('/') != entry.length() - 1) {
+      throw new IllegalArgumentException(entry + " is not a valid folder name. Folders have to end with a slash otherwise archive managers will treat them as files.");
+    }
     dirEntries.add(entry);
   }
 

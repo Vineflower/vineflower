@@ -247,6 +247,9 @@ public class ConsoleDecompiler implements IBytecodeProvider, IResultSaver {
 
   @Override
   public void saveDirEntry(String path, String archiveName, String entryName) {
+    if (entryName.lastIndexOf('/') != entryName.length() - 1) {
+      throw new IllegalArgumentException(entryName + " is not a valid folder name. Folders have to end with a slash otherwise archive managers will treat them as files.");
+    }
     saveClassEntry(path, archiveName, null, entryName, null);
   }
 
