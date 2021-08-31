@@ -1,7 +1,5 @@
 package pkg;
 
-import java.lang.ref.WeakReference;
-
 public class TestMisc {
   // TODO: move to another test class
   public static void a(String s) {
