@@ -1,8 +1,7 @@
 package pkg;
 
-public class TestMisc {
-  // TODO: move to another test class
-  public static void a(String s) {
+public class TestThrowLoop {
+  public static void test(String s) {
     int l = s.length();
     int x = 0;
 
@@ -18,17 +17,5 @@ public class TestMisc {
         throw new IllegalArgumentException();
       }
     }
-  }
-
-  // TODO: move to another test class
-  public static void b(long[] l) {
-    long x;
-
-    x = l[0];
-    for (int i = 0; i < 1; i++) {
-      x <<= 1;
-    }
-
-    x = l[1];
   }
 }

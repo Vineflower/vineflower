@@ -209,6 +209,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestExceptionElse");
     register(JAVA_8, "TestGenericCasts");
     register(JAVA_8, "TestNativeMethods");
-    register(JAVA_8, "TestMisc");
+    register(JAVA_8, "TestThrowLoop");
+    register(JAVA_8, "TestShiftLoop");
   }
 }
