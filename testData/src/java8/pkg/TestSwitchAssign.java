@@ -18,4 +18,22 @@ public class TestSwitchAssign {
 
         System.out.println(assign);
     }
+
+  public void test1(String s) {
+    int assign;
+    switch (s) {
+      case "a":
+      default:
+        assign = 3;
+        break;
+      case "0":
+        assign = -2;
+        break;
+      case "?":
+        assign = 999;
+        break;
+    }
+
+    System.out.println(assign);
+  }
 }

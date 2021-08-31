@@ -1,0 +1,177 @@
+package pkg;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Function;
+
+public class TestGenericCasts {
+   public void test1(Consumer<String> c) {
+      c.accept((Object)null);// 10
+   }// 11
+
+   public void test2(Function<String, List<String>> f) {
+      String s = "123abc";// 14
+      ((List)f.apply(s)).remove(s);// 15
+      List<String> l = (List)f.apply(s.toUpperCase());// 16
+   }// 17
+
+   public void test3(List<List<String>> l) {
+      for(int i = l.size() - 1; i >= 0; --i) {// 20
+         for(String s : (List)l.get(i)) {// 21
+            System.out.println(s);// 22
+         }
+      }
+
+   }// 25
+
+   public void test4(Collection<String> c) {
+      if (c instanceof List) {// 28
+         ((List)c).sort(String::compareTo);// 29
+      }
+
+      System.out.println(c);// 31
+   }// 32
+}
+
+class 'pkg/TestGenericCasts' {
+   method 'test1 (Ljava/util/function/Consumer;)V' {
+      0      9
+      1      9
+      2      9
+      3      9
+      4      9
+      5      9
+      6      9
+      7      10
+   }
+
+   method 'test2 (Ljava/util/function/Function;)V' {
+      0      13
+      1      13
+      2      13
+      3      14
+      4      14
+      5      14
+      6      14
+      7      14
+      8      14
+      9      14
+      a      14
+      b      14
+      c      14
+      d      14
+      e      14
+      f      14
+      10      14
+      11      14
+      12      14
+      14      15
+      15      15
+      16      15
+      17      15
+      18      15
+      19      15
+      1a      15
+      1b      15
+      1c      15
+      1d      15
+      1e      15
+      1f      15
+      20      15
+      21      15
+      22      16
+   }
+
+   method 'test3 (Ljava/util/List;)V' {
+      0      19
+      1      19
+      2      19
+      3      19
+      4      19
+      5      19
+      6      19
+      7      19
+      8      19
+      9      19
+      a      19
+      d      20
+      e      20
+      f      20
+      10      20
+      11      20
+      12      20
+      13      20
+      14      20
+      15      20
+      16      20
+      17      20
+      18      20
+      19      20
+      1a      20
+      1b      20
+      1c      20
+      26      20
+      27      20
+      28      20
+      29      20
+      2a      20
+      2b      20
+      2c      20
+      2d      20
+      2e      20
+      2f      20
+      30      20
+      31      21
+      32      21
+      33      21
+      34      21
+      35      21
+      36      21
+      37      21
+      38      21
+      3c      19
+      3d      19
+      3e      19
+      42      25
+   }
+
+   method 'test4 (Ljava/util/Collection;)V' {
+      0      28
+      1      28
+      2      28
+      3      28
+      4      28
+      7      29
+      8      29
+      9      29
+      a      29
+      10      29
+      15      32
+      16      32
+      17      32
+      18      32
+      19      32
+      1a      32
+      1b      32
+      1c      33
+   }
+}
+
+Lines mapping:
+10 <-> 10
+11 <-> 11
+14 <-> 14
+15 <-> 15
+16 <-> 16
+17 <-> 17
+20 <-> 20
+21 <-> 21
+22 <-> 22
+25 <-> 26
+28 <-> 29
+29 <-> 30
+31 <-> 33
+32 <-> 34
+Not mapped:
+23

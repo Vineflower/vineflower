@@ -30,4 +30,22 @@ public class TestSynchronized {
     }
     System.out.println(o);
   }
+
+  public void test5(int i) {
+    try {
+      while (true) {
+        synchronized(this) {
+          while (i >= i) {
+            wait();
+          }
+        }
+
+        synchronized(this) {
+          notifyAll();
+        }
+      }
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
 }
