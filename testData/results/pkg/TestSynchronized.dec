@@ -32,6 +32,10 @@ public class TestSynchronized {
 
       System.out.println(o);// 31
    }// 32
+
+   public void test5(int param1) {
+      // $FF: Couldn't be decompiled
+   }
 }
 
 class 'pkg/TestSynchronized' {
@@ -117,3 +121,12 @@ Lines mapping:
 Not mapped:
 7
 13
+37
+38
+39
+41
+43
+44
+45
+47
+48
