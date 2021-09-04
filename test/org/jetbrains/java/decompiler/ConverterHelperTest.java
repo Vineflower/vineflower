@@ -4,9 +4,9 @@ package org.jetbrains.java.decompiler;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.extern.IIdentifierRenamer.Type;
 import org.jetbrains.java.decompiler.modules.renamer.ConverterHelper;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ConverterHelperTest {
   private static final String VALID_CLASS_NAME = "ValidClassName";
@@ -83,6 +83,6 @@ public class ConverterHelperTest {
     boolean result = new ConverterHelper().toBeRenamed(elementType, className, element, descriptor);
     String assertionMessage = shallBeRenamed ? "Identifier { %s, %s, %s, %s } shall be renamed" : "Identifier { %s, %s, %s, %s } shall not be renamed";
 
-    assertTrue(String.format(assertionMessage, elementType.toString(), className, element, descriptor), result == shallBeRenamed);
+    assertEquals(result, shallBeRenamed, String.format(assertionMessage, elementType.toString(), className, element, descriptor));
   }
 }

@@ -1,5 +1,0 @@
-package java16preview;
-
-sealed class TestSealedClasses permits PermittedSubClassA {
-}
-

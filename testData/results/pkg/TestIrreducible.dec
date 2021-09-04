@@ -1,0 +1,98 @@
+package pkg;
+
+public final class TestIrreducible {
+   public static int field;
+
+   public static void test() {
+      if (field == 1) {// 24 25 26
+         System.out.println("2");
+      } else {
+         System.out.println("x is not 1");// 29 30 31
+         if (field != 0) {// 32 33
+            System.out.println("x is not 0");// 36 37 38
+            System.out.println("1");
+            System.out.println("2");// 44 45 46
+         }
+      }
+
+      while(true) {
+         System.out.println("3");// 48 49 50
+         System.out.println("1");// 40 41 42
+         System.out.println("2");
+      }
+   }
+}
+
+class 'pkg/TestIrreducible' {
+   method 'test ()V' {
+      0      6
+      1      6
+      2      6
+      3      6
+      4      6
+      a      9
+      b      9
+      c      9
+      d      9
+      e      9
+      f      9
+      10      9
+      11      9
+      12      10
+      13      10
+      14      10
+      15      10
+      1b      11
+      1c      11
+      1d      11
+      1e      11
+      1f      11
+      20      11
+      23      19
+      24      19
+      25      19
+      26      19
+      27      19
+      28      19
+      2b      13
+      2c      13
+      2d      13
+      2e      13
+      2f      13
+      30      13
+      33      18
+      34      18
+      35      18
+      36      18
+      37      18
+      38      18
+      39      18
+      3a      18
+   }
+}
+
+Lines mapping:
+24 <-> 7
+25 <-> 7
+26 <-> 7
+29 <-> 10
+30 <-> 10
+31 <-> 10
+32 <-> 11
+33 <-> 11
+36 <-> 12
+37 <-> 12
+38 <-> 12
+40 <-> 20
+41 <-> 20
+42 <-> 20
+44 <-> 14
+45 <-> 14
+46 <-> 14
+48 <-> 19
+49 <-> 19
+50 <-> 19
+Not mapped:
+27
+34
+51

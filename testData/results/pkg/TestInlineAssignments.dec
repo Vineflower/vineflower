@@ -1,0 +1,93 @@
+package pkg;
+
+public class TestInlineAssignments {
+   private TestInlineAssignments(int i) {
+   }// 6
+
+   public void testCall(int a) {
+      this.accept(a);// 10
+      System.out.println(a == a);// 11
+   }// 12
+
+   public void testConstructor(int a) {
+      new TestInlineAssignments(a);// 16
+      System.out.println(a == a);// 17
+   }// 18
+
+   public void testArray(int a) {
+      int[] array = new int[a];// 22
+      System.out.println(a == a);// 23
+   }// 24
+
+   public void accept(int i) {
+   }// 28
+}
+
+class 'pkg/TestInlineAssignments' {
+   method '<init> (I)V' {
+      4      4
+   }
+
+   method 'testCall (I)V' {
+      0      7
+      1      7
+      4      7
+      5      7
+      6      7
+      7      8
+      8      8
+      9      8
+      b      8
+      c      8
+      14      8
+      15      8
+      16      8
+      17      9
+   }
+
+   method 'testConstructor (I)V' {
+      4      12
+      b      13
+      c      13
+      d      13
+      f      13
+      10      13
+      18      13
+      19      13
+      1a      13
+      1b      14
+   }
+
+   method 'testArray (I)V' {
+      0      17
+      5      17
+      6      18
+      7      18
+      8      18
+      a      18
+      b      18
+      13      18
+      14      18
+      15      18
+      16      19
+   }
+
+   method 'accept (I)V' {
+      0      22
+   }
+}
+
+Lines mapping:
+6 <-> 5
+10 <-> 8
+11 <-> 9
+12 <-> 10
+16 <-> 13
+17 <-> 14
+18 <-> 15
+22 <-> 18
+23 <-> 19
+24 <-> 20
+28 <-> 23
+Not mapped:
+4

@@ -16,7 +16,9 @@
 package org.jetbrains.java.decompiler;
 
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+
+import static org.jetbrains.java.decompiler.SingleClassesTestBase.TestDefinition.Version.*;
 
 import java.io.IOException;
 
@@ -35,17 +37,21 @@ public class LVTTest extends SingleClassesTestBase {
   }
 
   @Override
+  @BeforeEach
   public void setUp() throws IOException {
       super.setUp();
       fixture.setCleanup(false);
   }
 
-  @Test public void testLVT() { doTest("pkg/TestLVT"); }
-  @Test public void testScoping() { doTest("pkg/TestLVTScoping"); }
-  // TODO: int is decompiling as <unknown>
-//  @Test public void testLVTComplex() { doTest("pkg/TestLVTComplex"); }
-  @Test public void testVarType() { doTest("pkg/TestVarType"); }
-  @Test public void testLoopMerging() { doTest("pkg/TestLoopMerging"); }
-  // TODO: this is not decompiling properly, needs a look
-//  @Test public void testPPMM() { doTest("pkg/TestPPMM"); }
+  @Override
+  protected void registerAll() {
+    register(JAVA_8, "TestLVT");
+    register(JAVA_8, "TestLVTScoping");
+    // TODO: int is decompiling as <unknown>
+    // register(JAVA_8, "TestLVTComplex");
+    register(JAVA_8, "TestVarType");
+    register(JAVA_8, "TestLoopMerging");
+    // TODO: this is not decompiling properly, needs a look
+    // register(JAVA_8, "TestPPMM");
+  }
 }

@@ -1,0 +1,8 @@
+package pkg;
+
+public class TestShiftLoop {
+   public static void test(long[] l) {
+      // $FF: Couldn't be decompiled
+   }
+}
+

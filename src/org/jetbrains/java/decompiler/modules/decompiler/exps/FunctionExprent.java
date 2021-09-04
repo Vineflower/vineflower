@@ -85,6 +85,7 @@ public class FunctionExprent extends Exprent {
   public static final int FUNCTION_GT = 46;
   public static final int FUNCTION_LE = 47;
 
+  // Boolean && and ||, TODO rename
   public static final int FUNCTION_CADD = 48;
   public static final int FUNCTION_COR = 49;
 
@@ -350,15 +351,6 @@ public class FunctionExprent extends Exprent {
       lstOperands.get(2).getInferredExprType(upperBound);
     }
     return getExprType();
-  }
-
-  @Override
-  protected void onReturn(MethodDescriptor descriptor) {
-    // Only adjust return types if we're a ternary statement to handle the single case we're targeting.
-    if (this.funcType == FUNCTION_IIF) {
-      this.lstOperands.get(1).onReturn(descriptor);
-      this.lstOperands.get(2).onReturn(descriptor);
-    }
   }
 
   @Override

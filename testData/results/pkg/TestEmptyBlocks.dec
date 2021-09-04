@@ -1,0 +1,59 @@
+package pkg;
+
+import java.util.Random;
+
+public class TestEmptyBlocks {
+   public static void foo() {
+      try {
+         boolean i = false;// 24
+      } catch (Exception var1) {// 25
+      }
+
+      int i = 0;// 29
+
+      while(i < 5) {
+         ++i;
+      }
+
+      while((new Random()).nextBoolean()) {// 33
+      }
+
+      if ((new Random()).nextBoolean()) {// 37
+      }
+
+   }// 40
+}
+
+class 'pkg/TestEmptyBlocks' {
+   method 'foo ()V' {
+      0      7
+      1      7
+      5      8
+      6      11
+      7      11
+      8      13
+      9      13
+      a      13
+      d      14
+      e      14
+      f      14
+      1a      17
+      1b      17
+      1c      17
+      2a      20
+      2b      20
+      2c      20
+      2d      20
+      30      23
+   }
+}
+
+Lines mapping:
+24 <-> 8
+25 <-> 9
+29 <-> 12
+33 <-> 18
+37 <-> 21
+40 <-> 24
+Not mapped:
+27

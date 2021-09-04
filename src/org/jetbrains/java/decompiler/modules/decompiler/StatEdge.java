@@ -86,4 +86,9 @@ public class StatEdge {
   //	public void setException(String exception) {
   //		this.exception = exception;
   //	}
+
+  @Override
+  public String toString() {
+    return this.type + ": " + this.source.toString() + " -> " + this.destination.toString() + ((this.closure == null) ? "" : " (" + this.closure + ")") + ((this.exceptions == null) ? "" : " Exceptions: " + this.exceptions);
+  }
 }

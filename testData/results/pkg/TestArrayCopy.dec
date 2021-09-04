@@ -1,0 +1,70 @@
+package pkg;
+
+public class TestArrayCopy {
+   public void test(int[] a) {
+      int len = a.length;// 6
+      int[] c = new int[len];// 7
+      int i = 0;// 8
+
+      while(true) {
+         int var10001 = c[i];
+         int var10000 = i + c[i];// 9
+         i += var10001;
+         if (var10000 >= len) {
+            return;// 12
+         }
+
+         System.arraycopy(c, i, a, len, len - i);// 10
+      }
+   }
+}
+
+class 'pkg/TestArrayCopy' {
+   method 'test ([I)V' {
+      2      4
+      3      4
+      4      4
+      5      5
+      8      5
+      9      5
+      a      6
+      b      6
+      c      6
+      d      10
+      e      10
+      f      9
+      10      9
+      11      9
+      12      9
+      13      9
+      14      10
+      16      11
+      17      11
+      18      12
+      19      12
+      1c      16
+      1d      16
+      1e      16
+      1f      16
+      20      16
+      21      16
+      22      16
+      23      16
+      24      16
+      25      16
+      26      16
+      27      16
+      28      16
+      2c      13
+   }
+}
+
+Lines mapping:
+6 <-> 5
+7 <-> 6
+8 <-> 7
+9 <-> 11
+10 <-> 17
+12 <-> 14
+Not mapped:
+5

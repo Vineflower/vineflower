@@ -1,0 +1,8 @@
+package pkg;
+
+public class TestThrowLoop {
+   public static void test(String param0) {
+      // $FF: Couldn't be decompiled
+   }
+}
+

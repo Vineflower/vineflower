@@ -1,0 +1,54 @@
+/**
+ * This code can be assembled with <a href="https://wiki.openjdk.java.net/display/CodeTools/asmtools">asmtools</a>
+ * using <code>asmtools jasm -g *.jasm</code> command line.
+ */
+package  pkg;
+
+super public final class TestIrreducible
+	version 52:0
+{
+
+public static Field field:I;
+
+public Method "<init>":"()V"
+	stack 1 locals 1
+{
+		aload_0;
+		invokespecial	Method java/lang/Object."<init>":"()V";
+		return;
+}
+
+public static Method test:"()V"
+	stack 2 locals 1
+{
+		getstatic	Field field:I;
+		iconst_1;
+		if_icmpne L1;
+		goto L2;
+  L1:
+    getstatic	Field java/lang/System.out:"Ljava/io/PrintStream;";
+    ldc "x is not 1";
+    invokevirtual	Method java/io/PrintStream.println:"(Ljava/lang/Object;)V";
+    getstatic	Field field:I;
+    ifne L3;
+    goto L4;
+  L3:
+    getstatic	Field java/lang/System.out:"Ljava/io/PrintStream;";
+    ldc "x is not 0";
+    invokevirtual	Method java/io/PrintStream.println:"(Ljava/lang/Object;)V";
+  L5:
+    getstatic	Field java/lang/System.out:"Ljava/io/PrintStream;";
+    ldc "1";
+    invokevirtual	Method java/io/PrintStream.println:"(Ljava/lang/Object;)V";
+  L2:
+    getstatic	Field java/lang/System.out:"Ljava/io/PrintStream;";
+    ldc "2";
+    invokevirtual	Method java/io/PrintStream.println:"(Ljava/lang/Object;)V";
+  L4:
+    getstatic	Field java/lang/System.out:"Ljava/io/PrintStream;";
+    ldc "3";
+    invokevirtual	Method java/io/PrintStream.println:"(Ljava/lang/Object;)V";
+    goto L5;
+}
+
+} // end Class TestIrreducible

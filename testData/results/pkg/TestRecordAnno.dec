@@ -1,0 +1,27 @@
+package pkg;
+
+public record TestRecordAnno(@RC @TA int x, int y) {
+   public TestRecordAnno(@TA int x, @P int y) {
+      this.x = x;// 5
+      this.y = y;
+   }
+}
+
+class 'pkg/TestRecordAnno' {
+   method '<init> (II)V' {
+      4      4
+      5      4
+      6      4
+      7      4
+      8      4
+      9      5
+      a      5
+      b      5
+      c      5
+      d      5
+      e      6
+   }
+}
+
+Lines mapping:
+5 <-> 5

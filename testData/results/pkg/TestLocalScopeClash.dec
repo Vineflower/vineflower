@@ -1,0 +1,98 @@
+package pkg;
+
+public class TestLocalScopeClash {
+   void acceptInt(int i) {
+   }// 6
+
+   void acceptBoolean(boolean b) {
+   }// 10
+
+   void test(boolean a, boolean b) {
+      int i = 32767;// 14
+      ++i;// 15
+      this.acceptInt(i);// 16
+      ++i;// 17
+      i |= 7;// 18
+      i = 1 ^ i;// 19
+      i *= 2;// 20
+      i += 2;// 21
+      this.acceptInt(i);// 22
+      i = a & a & b;// 25 26
+      i ^= i || b;// 27
+      this.acceptBoolean((boolean)i);// 28
+   }// 30
+}
+
+class 'pkg/TestLocalScopeClash' {
+   method 'acceptInt (I)V' {
+      0      4
+   }
+
+   method 'acceptBoolean (Z)V' {
+      0      7
+   }
+
+   method 'test (ZZ)V' {
+      0      10
+      1      10
+      2      10
+      3      10
+      4      11
+      6      11
+      8      12
+      9      12
+      a      12
+      b      12
+      c      12
+      d      13
+      f      13
+      12      14
+      13      14
+      15      14
+      16      15
+      17      15
+      18      15
+      19      15
+      1b      16
+      1d      16
+      1f      17
+      21      17
+      22      18
+      23      18
+      24      18
+      25      18
+      26      18
+      27      19
+      2b      19
+      2c      19
+      2d      19
+      2e      19
+      30      20
+      34      20
+      3e      20
+      3f      21
+      40      21
+      41      21
+      42      21
+      43      21
+      44      22
+   }
+}
+
+Lines mapping:
+6 <-> 5
+10 <-> 8
+14 <-> 11
+15 <-> 12
+16 <-> 13
+17 <-> 14
+18 <-> 15
+19 <-> 16
+20 <-> 17
+21 <-> 18
+22 <-> 19
+25 <-> 20
+26 <-> 20
+27 <-> 21
+28 <-> 22
+30 <-> 23

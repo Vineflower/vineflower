@@ -1,0 +1,1293 @@
+package pkg;
+
+import java.util.HashMap;
+import java.util.List;
+
+public class TestPrimitives {
+   private void testInvalidUnboxing() {
+      List<Integer> lst = null;// 7
+      lst.remove(Integer.valueOf(0));// 8
+      this.genericBoxing((short)0);// 9
+      int a = this.genericReturn(lst);// 10
+      List<Byte> b = null;// 11
+      this.genericParameter(b, (byte)0);// 12
+      this.genericParameter(lst, 0);// 13
+   }// 14
+
+   private <T> void genericBoxing(T value) {
+   }// 16
+
+   private <T> T genericReturn(List<T> value) {
+      return value.get(0);// 17
+   }
+
+   private <T> void genericParameter(List<T> p, T v) {
+   }// 18
+
+   public void printAll() {
+      this.printBoolean(true);// 21
+      this.printByte((byte)123);// 22
+      this.printShort((short)257);// 23
+      this.printInt(123);// 24
+      this.printLong(123L);// 25
+      this.printFloat(1.23F);// 26
+      this.printDouble(1.23);// 27
+      this.printChar('Z');// 28
+      this.printBooleanBoxed(true);// 30
+      this.printByteBoxed((byte)123);// 31
+      this.printShortBoxed((short)257);// 32
+      this.printIntBoxed(1);// 33
+      this.printIntBoxed(40000);// 34
+      this.printLongBoxed(123L);// 35
+      this.printFloatBoxed(1.23F);// 36
+      this.printDoubleBoxed(1.23);// 37
+      this.printCharBoxed('Z');// 38
+      this.printBoolean(Boolean.valueOf("true"));// 40
+      this.printByte(Byte.valueOf("123"));// 41
+      this.printShort(Short.valueOf("257"));// 42
+      this.printInt(Integer.valueOf("123"));// 43
+      this.printLong(Long.valueOf("123"));// 44
+      this.printFloat(Float.valueOf("1.23"));// 45
+      this.printDouble(Double.valueOf("1.23"));// 46
+      this.printChar(new Character('Z'));// 47
+      this.printInt(this.getInteger());// 49
+      this.printChar(this.getCharacter());// 50
+      System.out.printf("%b, %d, %d, %d, %c, %d", true, 1, 213, 40000, 'c', 42L);// 52
+      System.out.printf("%b, %d, %d, %d", this.getBoolean(), this.getByte(), this.getShort(), this.getInt());// 53
+      new TestPrimitives(false, (byte)123, (short)257, 40000, 123L, 3.14F, 1.618, 'A');// 55
+      new TestPrimitives('A', 1.618, 3.14F, 123L, 40000, (short)257, (byte)123, false);// 56
+      new TestPrimitives(Boolean.valueOf("false"), Byte.valueOf("123"), Short.valueOf("257"), Integer.valueOf("40000"), Long.valueOf("123"), Float.valueOf("3.14"), Double.valueOf("1.618"), new Character('A'));// 57 58
+   }// 59
+
+   private TestPrimitives(boolean bool, byte b, short s, int i, long l, float f, double d, char c) {
+      System.out.printf("%b, %d, %d, %d, %d, %.2f, %.2f, %c", bool, b, s, i, l, f, d, c);// 62
+   }// 63
+
+   private TestPrimitives(Character c, Double d, Float f, Long l, Integer i, Short s, Byte b, Boolean bool) {
+      System.out.printf("%b, %d, %d, %d, %d, %.2f, %.2f, %c", bool, b, s, i, l, f, d, c);// 66
+   }// 67
+
+   public void printBoolean(boolean b) {
+      System.out.printf("%b", b);// 70
+   }// 71
+
+   public void printByte(byte b) {
+      System.out.printf("%d", b);// 74
+   }// 75
+
+   public void printShort(short s) {
+      System.out.printf("%d", s);// 78
+   }// 79
+
+   public void printInt(int i) {
+      System.out.printf("%d", i);// 82
+   }// 83
+
+   public void printLong(long l) {
+      System.out.printf("%d", l);// 86
+   }// 87
+
+   public void printFloat(float f) {
+      System.out.printf("%f", f);// 90
+   }// 91
+
+   public void printDouble(double d) {
+      System.out.printf("%f", d);// 94
+   }// 95
+
+   public void printChar(char c) {
+      System.out.printf("%c", c);// 98
+   }// 99
+
+   public void printBooleanBoxed(Boolean b) {
+      System.out.printf("%b", b);// 103
+   }// 104
+
+   public void printByteBoxed(Byte b) {
+      System.out.printf("%d", b);// 107
+   }// 108
+
+   public void printShortBoxed(Short s) {
+      System.out.printf("%d", s);// 111
+   }// 112
+
+   public void printIntBoxed(Integer i) {
+      System.out.printf("%d", i);// 115
+   }// 116
+
+   public void printLongBoxed(Long l) {
+      System.out.printf("%d", l);// 119
+   }// 120
+
+   public void printFloatBoxed(Float f) {
+      System.out.printf("%f", f);// 123
+   }// 124
+
+   public void printDoubleBoxed(Double d) {
+      System.out.printf("%f", d);// 127
+   }// 128
+
+   public void printCharBoxed(Character c) {
+      System.out.printf("%c", c);// 131
+   }// 132
+
+   public boolean getBoolean() {
+      return false;// 136
+   }
+
+   public byte getByte() {
+      return -128;// 140
+   }
+
+   public short getShort() {
+      return -32768;// 144
+   }
+
+   public int getInt() {
+      return 42;// 148
+   }
+
+   public Integer getInteger() {
+      return 40000;// 152
+   }
+
+   public Character getCharacter() {
+      return 'Z';// 156
+   }
+
+   public void printNarrowed() {
+      this.printByte((byte)this.getInt());// 160
+      this.printShort((short)this.getInt());// 161
+   }// 162
+
+   public void constructor() {
+      new Byte((byte)1);// 165
+   }// 166
+
+   private boolean compare(char c) {
+      boolean res = c > -1;// 169
+      res = c > 0;// 170
+      res = c > 1;// 171
+      res = c > '\b';// 172
+      res = c > '\t';// 173
+      res = c > '\n';// 174
+      res = c > '\f';// 175
+      res = c > '\r';// 176
+      res = c > ' ';// 177
+      res = c > 'a';// 178
+      res = c > 'Z';// 179
+      res = c > 127;// 180
+      return c > 255;// 181 182
+   }
+
+   void testAutoBoxingCallRequired(boolean value) {
+      Boolean.valueOf(value).hashCode();// 186
+   }// 187
+
+   void testCastRequired() {
+      HashMap<String, Byte> map = new HashMap<>();// 190
+      map.put("test", (byte)0);// 191
+   }// 192
+}
+
+class 'pkg/TestPrimitives' {
+   method 'testInvalidUnboxing ()V' {
+      0      7
+      1      7
+      2      8
+      3      8
+      4      8
+      5      8
+      6      8
+      7      8
+      8      8
+      9      8
+      a      8
+      b      8
+      d      9
+      e      9
+      f      9
+      10      9
+      11      9
+      12      9
+      13      9
+      14      9
+      15      10
+      16      10
+      17      10
+      18      10
+      19      10
+      1d      10
+      1e      10
+      1f      10
+      20      10
+      21      11
+      22      11
+      23      12
+      24      12
+      25      12
+      26      12
+      27      12
+      28      12
+      29      12
+      2a      12
+      2b      12
+      2c      13
+      2d      13
+      2e      13
+      2f      13
+      30      13
+      31      13
+      32      13
+      33      13
+      34      13
+      35      14
+   }
+
+   method 'genericBoxing (Ljava/lang/Object;)V' {
+      0      17
+   }
+
+   method 'genericReturn (Ljava/util/List;)Ljava/lang/Object;' {
+      0      20
+      1      20
+      2      20
+      3      20
+      4      20
+      5      20
+      6      20
+      7      20
+   }
+
+   method 'genericParameter (Ljava/util/List;Ljava/lang/Object;)V' {
+      0      24
+   }
+
+   method 'printAll ()V' {
+      0      27
+      1      27
+      2      27
+      3      27
+      4      27
+      5      28
+      6      28
+      7      28
+      8      28
+      9      28
+      a      28
+      b      29
+      c      29
+      d      29
+      e      29
+      f      29
+      10      29
+      11      29
+      12      30
+      13      30
+      14      30
+      15      30
+      16      30
+      17      30
+      18      31
+      19      31
+      1a      31
+      1b      31
+      1c      31
+      1d      31
+      1e      31
+      1f      32
+      20      32
+      21      32
+      22      32
+      23      32
+      24      32
+      25      33
+      26      33
+      27      33
+      28      33
+      29      33
+      2a      33
+      2b      33
+      2c      34
+      2d      34
+      2e      34
+      2f      34
+      30      34
+      31      34
+      32      35
+      33      35
+      34      35
+      35      35
+      36      35
+      37      35
+      38      35
+      39      35
+      3a      36
+      3b      36
+      3c      36
+      3d      36
+      3e      36
+      3f      36
+      40      36
+      41      36
+      42      36
+      43      37
+      44      37
+      45      37
+      46      37
+      47      37
+      48      37
+      49      37
+      4a      37
+      4b      37
+      4c      37
+      4d      38
+      4e      38
+      4f      38
+      50      38
+      51      38
+      52      38
+      53      38
+      54      38
+      55      39
+      56      39
+      57      39
+      58      39
+      59      39
+      5a      39
+      5b      39
+      5c      39
+      5d      39
+      5e      40
+      5f      40
+      60      40
+      61      40
+      62      40
+      63      40
+      64      40
+      65      40
+      66      40
+      67      40
+      68      41
+      69      41
+      6a      41
+      6b      41
+      6c      41
+      6d      41
+      6e      41
+      6f      41
+      70      41
+      71      42
+      72      42
+      73      42
+      74      42
+      75      42
+      76      42
+      77      42
+      78      42
+      79      42
+      7a      42
+      7b      43
+      7c      43
+      7d      43
+      7e      43
+      7f      43
+      80      43
+      81      43
+      82      43
+      83      43
+      84      44
+      85      44
+      86      44
+      87      44
+      88      44
+      89      44
+      8a      44
+      8b      44
+      8c      44
+      8d      44
+      8e      44
+      8f      44
+      90      45
+      91      45
+      92      45
+      93      45
+      94      45
+      95      45
+      96      45
+      97      45
+      98      45
+      99      45
+      9a      45
+      9b      45
+      9c      46
+      9d      46
+      9e      46
+      9f      46
+      a0      46
+      a1      46
+      a2      46
+      a3      46
+      a4      46
+      a5      46
+      a6      46
+      a7      46
+      a8      47
+      a9      47
+      aa      47
+      ab      47
+      ac      47
+      ad      47
+      ae      47
+      af      47
+      b0      47
+      b1      47
+      b2      47
+      b3      47
+      b4      48
+      b5      48
+      b6      48
+      b7      48
+      b8      48
+      b9      48
+      ba      48
+      bb      48
+      bc      48
+      bd      48
+      be      48
+      bf      48
+      c0      49
+      c1      49
+      c2      49
+      c3      49
+      c4      49
+      c5      49
+      c6      49
+      c7      49
+      c8      49
+      c9      49
+      ca      49
+      cb      49
+      cc      50
+      cd      50
+      ce      50
+      cf      50
+      d0      50
+      d1      50
+      d2      50
+      d3      50
+      d4      50
+      d5      50
+      d6      50
+      d7      50
+      d8      51
+      dd      51
+      de      51
+      e2      51
+      e3      51
+      e4      51
+      e5      51
+      e6      51
+      e7      51
+      e8      52
+      e9      52
+      ea      52
+      eb      52
+      ec      52
+      ed      52
+      ee      52
+      ef      52
+      f0      52
+      f1      52
+      f2      52
+      f3      53
+      f4      53
+      f5      53
+      f6      53
+      f7      53
+      f8      53
+      f9      53
+      fa      53
+      fb      53
+      fc      53
+      fd      53
+      fe      54
+      ff      54
+      100      54
+      101      54
+      102      54
+      10a      54
+      10b      54
+      10c      54
+      10d      54
+      111      54
+      112      54
+      113      54
+      114      54
+      118      54
+      119      54
+      11a      54
+      11b      54
+      11c      54
+      11d      54
+      121      54
+      122      54
+      123      54
+      124      54
+      125      54
+      129      54
+      12a      54
+      12b      54
+      12c      54
+      12d      54
+      131      54
+      132      54
+      133      54
+      134      54
+      135      54
+      136      54
+      138      54
+      139      54
+      13a      54
+      13c      55
+      13d      55
+      13e      55
+      13f      55
+      140      55
+      147      55
+      148      55
+      149      55
+      14a      55
+      14b      55
+      14c      55
+      14d      55
+      151      55
+      152      55
+      153      55
+      154      55
+      155      55
+      156      55
+      157      55
+      15b      55
+      15c      55
+      15d      55
+      15e      55
+      15f      55
+      160      55
+      161      55
+      165      55
+      166      55
+      167      55
+      168      55
+      169      55
+      16a      55
+      16b      55
+      16d      55
+      16e      55
+      16f      55
+      175      56
+      176      56
+      177      56
+      178      56
+      179      56
+      17a      56
+      17b      56
+      17c      56
+      17d      56
+      17e      56
+      17f      56
+      180      56
+      181      56
+      182      56
+      183      56
+      184      56
+      185      56
+      186      56
+      18f      57
+      190      57
+      191      57
+      192      57
+      193      57
+      194      57
+      195      57
+      196      57
+      197      57
+      198      57
+      199      57
+      19a      57
+      19b      57
+      19c      57
+      19d      57
+      19e      57
+      19f      57
+      1a0      57
+      1a1      57
+      1a2      57
+      1a3      57
+      1a4      57
+      1a5      57
+      1a6      57
+      1a7      57
+      1a8      57
+      1a9      57
+      1aa      57
+      1ab      57
+      1ac      57
+      1ad      57
+      1ae      57
+      1af      57
+      1b0      57
+      1b1      57
+      1b2      57
+      1b3      57
+      1b4      57
+      1b5      57
+      1b6      57
+      1b7      57
+      1b8      57
+      1c1      58
+      1c2      58
+      1c3      58
+      1c4      58
+      1c5      58
+      1c6      58
+      1c7      58
+      1c8      58
+      1c9      58
+      1ca      58
+      1cb      58
+      1cc      58
+      1cd      58
+      1ce      58
+      1cf      58
+      1d0      58
+      1d1      58
+      1d2      58
+      1d3      58
+      1d4      58
+      1d5      58
+      1d6      58
+      1d7      58
+      1d8      58
+      1d9      58
+      1da      58
+      1db      58
+      1dc      58
+      1dd      58
+      1de      58
+      1df      58
+      1e0      58
+      1e1      58
+      1e2      58
+      1e3      58
+      1e4      58
+      1e5      58
+      1e6      58
+      1e7      58
+      1e8      58
+      1e9      58
+      1ea      58
+      1eb      58
+      1ec      58
+      1ed      58
+      1ee      58
+      1ef      58
+      1f0      58
+      1f1      58
+      1f2      58
+      1f3      58
+      1f4      58
+      1f5      58
+      1f6      58
+      1f7      58
+      1f8      58
+      1fd      58
+      1fe      58
+      202      58
+      203      58
+      204      58
+      209      59
+   }
+
+   method '<init> (ZBSIJFDC)V' {
+      4      62
+      5      62
+      6      62
+      7      62
+      8      62
+      10      62
+      11      62
+      12      62
+      13      62
+      17      62
+      18      62
+      19      62
+      1a      62
+      1e      62
+      1f      62
+      20      62
+      21      62
+      25      62
+      26      62
+      27      62
+      28      62
+      29      62
+      2d      62
+      2e      62
+      2f      62
+      30      62
+      31      62
+      35      62
+      36      62
+      37      62
+      38      62
+      39      62
+      3e      62
+      3f      62
+      40      62
+      41      62
+      42      62
+      47      62
+      48      62
+      49      62
+      4a      62
+      4b      62
+      4d      62
+      4e      62
+      4f      62
+      51      63
+   }
+
+   method '<init> (Ljava/lang/Character;Ljava/lang/Double;Ljava/lang/Float;Ljava/lang/Long;Ljava/lang/Integer;Ljava/lang/Short;Ljava/lang/Byte;Ljava/lang/Boolean;)V' {
+      4      66
+      5      66
+      6      66
+      7      66
+      8      66
+      10      66
+      11      66
+      15      66
+      16      66
+      1a      66
+      1b      66
+      1f      66
+      20      66
+      24      66
+      25      66
+      29      66
+      2e      66
+      33      66
+      35      66
+      36      66
+      37      66
+      39      67
+   }
+
+   method 'printBoolean (Z)V' {
+      0      70
+      1      70
+      2      70
+      3      70
+      4      70
+      b      70
+      c      70
+      d      70
+      e      70
+      10      70
+      11      70
+      12      70
+      14      71
+   }
+
+   method 'printByte (B)V' {
+      0      74
+      1      74
+      2      74
+      3      74
+      4      74
+      b      74
+      c      74
+      d      74
+      e      74
+      10      74
+      11      74
+      12      74
+      14      75
+   }
+
+   method 'printShort (S)V' {
+      0      78
+      1      78
+      2      78
+      3      78
+      4      78
+      b      78
+      c      78
+      d      78
+      e      78
+      10      78
+      11      78
+      12      78
+      14      79
+   }
+
+   method 'printInt (I)V' {
+      0      82
+      1      82
+      2      82
+      3      82
+      4      82
+      b      82
+      c      82
+      d      82
+      e      82
+      10      82
+      11      82
+      12      82
+      14      83
+   }
+
+   method 'printLong (J)V' {
+      0      86
+      1      86
+      2      86
+      3      86
+      4      86
+      b      86
+      c      86
+      d      86
+      e      86
+      10      86
+      11      86
+      12      86
+      14      87
+   }
+
+   method 'printFloat (F)V' {
+      0      90
+      1      90
+      2      90
+      3      90
+      4      90
+      b      90
+      c      90
+      d      90
+      e      90
+      10      90
+      11      90
+      12      90
+      14      91
+   }
+
+   method 'printDouble (D)V' {
+      0      94
+      1      94
+      2      94
+      3      94
+      4      94
+      b      94
+      c      94
+      d      94
+      e      94
+      10      94
+      11      94
+      12      94
+      14      95
+   }
+
+   method 'printChar (C)V' {
+      0      98
+      1      98
+      2      98
+      3      98
+      4      98
+      b      98
+      c      98
+      d      98
+      e      98
+      10      98
+      11      98
+      12      98
+      14      99
+   }
+
+   method 'printBooleanBoxed (Ljava/lang/Boolean;)V' {
+      0      102
+      1      102
+      2      102
+      3      102
+      4      102
+      b      102
+      d      102
+      e      102
+      f      102
+      11      103
+   }
+
+   method 'printByteBoxed (Ljava/lang/Byte;)V' {
+      0      106
+      1      106
+      2      106
+      3      106
+      4      106
+      b      106
+      d      106
+      e      106
+      f      106
+      11      107
+   }
+
+   method 'printShortBoxed (Ljava/lang/Short;)V' {
+      0      110
+      1      110
+      2      110
+      3      110
+      4      110
+      b      110
+      d      110
+      e      110
+      f      110
+      11      111
+   }
+
+   method 'printIntBoxed (Ljava/lang/Integer;)V' {
+      0      114
+      1      114
+      2      114
+      3      114
+      4      114
+      b      114
+      d      114
+      e      114
+      f      114
+      11      115
+   }
+
+   method 'printLongBoxed (Ljava/lang/Long;)V' {
+      0      118
+      1      118
+      2      118
+      3      118
+      4      118
+      b      118
+      d      118
+      e      118
+      f      118
+      11      119
+   }
+
+   method 'printFloatBoxed (Ljava/lang/Float;)V' {
+      0      122
+      1      122
+      2      122
+      3      122
+      4      122
+      b      122
+      d      122
+      e      122
+      f      122
+      11      123
+   }
+
+   method 'printDoubleBoxed (Ljava/lang/Double;)V' {
+      0      126
+      1      126
+      2      126
+      3      126
+      4      126
+      b      126
+      d      126
+      e      126
+      f      126
+      11      127
+   }
+
+   method 'printCharBoxed (Ljava/lang/Character;)V' {
+      0      130
+      1      130
+      2      130
+      3      130
+      4      130
+      b      130
+      d      130
+      e      130
+      f      130
+      11      131
+   }
+
+   method 'getBoolean ()Z' {
+      0      134
+      1      134
+   }
+
+   method 'getByte ()B' {
+      0      138
+      1      138
+      2      138
+   }
+
+   method 'getShort ()S' {
+      0      142
+      1      142
+      2      142
+      3      142
+   }
+
+   method 'getInt ()I' {
+      0      146
+      1      146
+      2      146
+   }
+
+   method 'getInteger ()Ljava/lang/Integer;' {
+      0      150
+      1      150
+      2      150
+      3      150
+      4      150
+      5      150
+   }
+
+   method 'getCharacter ()Ljava/lang/Character;' {
+      0      154
+      1      154
+      2      154
+      3      154
+      4      154
+      5      154
+   }
+
+   method 'printNarrowed ()V' {
+      0      158
+      1      158
+      2      158
+      3      158
+      4      158
+      5      158
+      6      158
+      7      158
+      8      158
+      9      159
+      a      159
+      b      159
+      c      159
+      d      159
+      e      159
+      f      159
+      10      159
+      11      159
+      12      160
+   }
+
+   method 'constructor ()V' {
+      4      163
+      9      164
+   }
+
+   method 'compare (C)Z' {
+      0      167
+      1      167
+      2      167
+      a      167
+      b      168
+      c      168
+      14      168
+      15      169
+      16      169
+      17      169
+      1f      169
+      20      170
+      21      170
+      22      170
+      23      170
+      2b      170
+      2c      171
+      2d      171
+      2e      171
+      2f      171
+      37      171
+      38      172
+      39      172
+      3a      172
+      3b      172
+      43      172
+      44      173
+      45      173
+      46      173
+      47      173
+      4f      173
+      50      174
+      51      174
+      52      174
+      53      174
+      5b      174
+      5c      175
+      5d      175
+      5e      175
+      5f      175
+      67      175
+      68      176
+      69      176
+      6a      176
+      6b      176
+      73      176
+      74      177
+      75      177
+      76      177
+      77      177
+      7f      177
+      80      178
+      81      178
+      82      178
+      83      178
+      8b      178
+      8c      179
+      8d      179
+      8e      179
+      8f      179
+      90      179
+      9a      179
+   }
+
+   method 'testAutoBoxingCallRequired (Z)V' {
+      0      183
+      1      183
+      2      183
+      3      183
+      4      183
+      5      183
+      6      183
+      8      184
+   }
+
+   method 'testCastRequired ()V' {
+      7      187
+      8      188
+      9      188
+      a      188
+      b      188
+      c      188
+      d      188
+      e      188
+      f      188
+      10      188
+      11      188
+      13      189
+   }
+}
+
+Lines mapping:
+7 <-> 8
+8 <-> 9
+9 <-> 10
+10 <-> 11
+11 <-> 12
+12 <-> 13
+13 <-> 14
+14 <-> 15
+16 <-> 18
+17 <-> 21
+18 <-> 25
+21 <-> 28
+22 <-> 29
+23 <-> 30
+24 <-> 31
+25 <-> 32
+26 <-> 33
+27 <-> 34
+28 <-> 35
+30 <-> 36
+31 <-> 37
+32 <-> 38
+33 <-> 39
+34 <-> 40
+35 <-> 41
+36 <-> 42
+37 <-> 43
+38 <-> 44
+40 <-> 45
+41 <-> 46
+42 <-> 47
+43 <-> 48
+44 <-> 49
+45 <-> 50
+46 <-> 51
+47 <-> 52
+49 <-> 53
+50 <-> 54
+52 <-> 55
+53 <-> 56
+55 <-> 57
+56 <-> 58
+57 <-> 59
+58 <-> 59
+59 <-> 60
+62 <-> 63
+63 <-> 64
+66 <-> 67
+67 <-> 68
+70 <-> 71
+71 <-> 72
+74 <-> 75
+75 <-> 76
+78 <-> 79
+79 <-> 80
+82 <-> 83
+83 <-> 84
+86 <-> 87
+87 <-> 88
+90 <-> 91
+91 <-> 92
+94 <-> 95
+95 <-> 96
+98 <-> 99
+99 <-> 100
+103 <-> 103
+104 <-> 104
+107 <-> 107
+108 <-> 108
+111 <-> 111
+112 <-> 112
+115 <-> 115
+116 <-> 116
+119 <-> 119
+120 <-> 120
+123 <-> 123
+124 <-> 124
+127 <-> 127
+128 <-> 128
+131 <-> 131
+132 <-> 132
+136 <-> 135
+140 <-> 139
+144 <-> 143
+148 <-> 147
+152 <-> 151
+156 <-> 155
+160 <-> 159
+161 <-> 160
+162 <-> 161
+165 <-> 164
+166 <-> 165
+169 <-> 168
+170 <-> 169
+171 <-> 170
+172 <-> 171
+173 <-> 172
+174 <-> 173
+175 <-> 174
+176 <-> 175
+177 <-> 176
+178 <-> 177
+179 <-> 178
+180 <-> 179
+181 <-> 180
+182 <-> 180
+186 <-> 184
+187 <-> 185
+190 <-> 188
+191 <-> 189
+192 <-> 190
+Not mapped:
+61
+65

@@ -2,6 +2,7 @@
 package org.jetbrains.java.decompiler.main.rels;
 
 import org.jetbrains.java.decompiler.code.CodeConstants;
+import org.jetbrains.java.decompiler.code.cfg.ControlFlowGraph;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
@@ -16,6 +17,7 @@ import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribute;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
+import org.jetbrains.java.decompiler.util.DotExporter;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.VBStyleCollection;
 
@@ -122,9 +124,17 @@ public class ClassWrapper {
         }
       }
       catch (Throwable t) {
-        String message = "Method " + mt.getName() + " " + mt.getDescriptor() + " couldn't be decompiled.";
+        String message = "Method " + mt.getName() + " " + mt.getDescriptor() + " in class " + classStruct.qualifiedName + " couldn't be decompiled.";
         DecompilerContext.getLogger().writeMessage(message, IFernflowerLogger.Severity.WARN, t);
         isError = true;
+        RootStatement rootStat = MethodProcessorRunnable.debugCurrentlyDecompiling.get();
+        if (rootStat != null) {
+          DotExporter.errorToDotFile(rootStat, mt, "fail");
+        }
+        ControlFlowGraph graph = MethodProcessorRunnable.debugCurrentCFG.get();
+        if (graph != null) {
+          DotExporter.errorToDotFile(graph, mt, "failCFG");
+        }
       }
 
       MethodWrapper methodWrapper = new MethodWrapper(root, varProc, mt, counter);

@@ -1,5 +1,0 @@
-package java16preview;
-
-non-sealed interface PermittedSubInterfaceB extends PermittedSubInterfaceA {
-}
-
