@@ -33,7 +33,7 @@ public class LambdaProcessor {
     ClassesProcessor clProcessor = DecompilerContext.getClassProcessor();
     StructClass cl = node.classStruct;
 
-    if (!cl.isVersion8()) { // lambda beginning with Java 8
+    if (!cl.getVersion().hasLambdas()) { // lambda beginning with Java 8
       return;
     }
 

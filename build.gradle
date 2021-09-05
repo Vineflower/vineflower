@@ -78,6 +78,20 @@ testClasses.dependsOn(testDataClasses)
   testDataClasses.dependsOn("testDataJava${version}Classes")
 }
 
+[16].forEach {version ->
+  def sourceSet = sourceSets.create("testDataJava${version}Preview") {
+    it.java.srcDirs file("testData/src/java${version}preview")
+  }
+  def task = tasks.getByName("compileTestDataJava${version}PreviewJava") {
+    destinationDir = file("testData/classes/java${version}preview")
+    javaCompiler = javaToolchains.compilerFor {
+      languageVersion = JavaLanguageVersion.of(version)
+    }
+    options.compilerArgs = ["--enable-preview"]
+  }
+  testDataClasses.dependsOn("testDataJava${version}PreviewClasses")
+}
+
 task compileTestDataJasm(type: JasmCompile) {
   source = fileTree("testData/src/jasm/")
   destinationDir = file("testData/classes/jasm/")

@@ -6,7 +6,7 @@ public class SwitchInstruction extends Instruction {
   private int[] values;
   private int defaultDestination;
 
-  public SwitchInstruction(int opcode, int group, boolean wide, int bytecodeVersion, int[] operands, int length) {
+  public SwitchInstruction(int opcode, int group, boolean wide, BytecodeVersion bytecodeVersion, int[] operands, int length) {
     super(opcode, group, wide, bytecodeVersion, operands, length);
   }
 

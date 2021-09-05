@@ -182,6 +182,7 @@ public abstract class SingleClassesTestBase {
       JAVA_9(9),
       JAVA_11(11),
       JAVA_16(16),
+      JAVA_16_PREVIEW(16, true),
       GROOVY("groovy", "Groovy"),
       KOTLIN("kt", "Kotlin"),
       JASM("jasm", "Custom (jasm)"),
@@ -196,7 +197,11 @@ public abstract class SingleClassesTestBase {
       }
 
       Version(int javaVersion) {
-        this("java" + javaVersion, "Java " + javaVersion);
+        this(javaVersion, false);
+      }
+
+      Version(int javaVersion, boolean preview) {
+        this("java" + javaVersion + (preview ? "preview" : ""), "Java " + javaVersion + (preview ? " Preview" : ""));
       }
 
       @Override

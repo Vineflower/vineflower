@@ -1,6 +1,7 @@
 // Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.struct;
 
+import org.jetbrains.java.decompiler.code.BytecodeVersion;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
@@ -54,7 +55,7 @@ public class StructClass extends StructMember {
     in.discard(4);
     int minorVersion = in.readUnsignedShort();
     int majorVersion = in.readUnsignedShort();
-    int bytecodeVersion = Math.max(majorVersion, CodeConstants.BYTECODE_JAVA_LE_4);
+    BytecodeVersion bytecodeVersion = new BytecodeVersion(majorVersion, minorVersion);
 
     ConstantPool pool = new ConstantPool(in);
 
@@ -111,8 +112,7 @@ public class StructClass extends StructMember {
   public final PrimitiveConstant superClass;
   private final boolean own;
   private final LazyLoader loader;
-  private final int minorVersion;
-  private final int majorVersion;
+  private final BytecodeVersion version;
   private final int[] interfaces;
   private final String[] interfaceNames;
   private final VBStyleCollection<StructField, String> fields;
@@ -139,13 +139,16 @@ public class StructClass extends StructMember {
     this.superClass = superClass;
     this.own = own;
     this.loader = loader;
-    this.minorVersion = minorVersion;
-    this.majorVersion = majorVersion;
+    this.version = new BytecodeVersion(majorVersion, minorVersion);
     this.interfaces = interfaces;
     this.interfaceNames = interfaceNames;
     this.fields = fields;
     this.methods = methods;
     this.signature = signature;
+  }
+
+  public BytecodeVersion getVersion() {
+    return version;
   }
 
   public boolean hasField(String name, String descriptor) {
@@ -237,19 +240,6 @@ public class StructClass extends StructMember {
 
   public boolean isOwn() {
     return own;
-  }
-
-  public boolean isVersion5() {
-    return (majorVersion > CodeConstants.BYTECODE_JAVA_LE_4 ||
-            (majorVersion == CodeConstants.BYTECODE_JAVA_LE_4 && minorVersion > 0)); // FIXME: check second condition
-  }
-
-  public boolean isVersion8() {
-    return majorVersion >= CodeConstants.BYTECODE_JAVA_8;
-  }
-
-  public boolean isVersion(int minVersion) {
-    return majorVersion >= minVersion;
   }
 
   @Override

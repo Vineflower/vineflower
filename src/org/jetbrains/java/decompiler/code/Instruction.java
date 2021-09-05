@@ -5,7 +5,7 @@ import org.jetbrains.java.decompiler.util.TextUtil;
 import static org.jetbrains.java.decompiler.code.CodeConstants.*;
 
 public class Instruction implements CodeConstants {
-  public static Instruction create(int opcode, boolean wide, int group, int bytecodeVersion, int[] operands, int length) {
+  public static Instruction create(int opcode, boolean wide, int group, BytecodeVersion bytecodeVersion, int[] operands, int length) {
     if (opcode >= opc_ifeq && opcode <= opc_if_acmpne ||
         opcode == opc_ifnull || opcode == opc_ifnonnull ||
         opcode == opc_jsr || opcode == opc_jsr_w ||
@@ -31,12 +31,12 @@ public class Instruction implements CodeConstants {
   public final int opcode;
   public final int group;
   public final boolean wide;
-  public final int bytecodeVersion;
+  public final BytecodeVersion bytecodeVersion;
   public final int length;
 
   protected final int[] operands;
 
-  public Instruction(int opcode, int group, boolean wide, int bytecodeVersion, int[] operands, int length) {
+  public Instruction(int opcode, int group, boolean wide, BytecodeVersion bytecodeVersion, int[] operands, int length) {
     this.opcode = opcode;
     this.group = group;
     this.wide = wide;

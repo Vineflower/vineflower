@@ -1,5 +1,6 @@
 package org.jetbrains.java.decompiler.modules.decompiler;
 
+import org.jetbrains.java.decompiler.code.BytecodeVersion;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.CatchAllStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.CatchStatement;
@@ -17,7 +18,7 @@ public class TryHelper {
     boolean ret = makeTryWithResourceRec(cl, root);
 
     if (ret) {
-      if (cl.isVersion(CodeConstants.BYTECODE_JAVA_11)) {
+      if (cl.getVersion().major >= BytecodeVersion.MAJOR_11) {
         SequenceHelper.condenseSequences(root);
 
         if (mergeTrys(root)) {
@@ -36,7 +37,7 @@ public class TryHelper {
   }
 
   private static boolean makeTryWithResourceRec(StructClass cl, Statement stat) {
-    if (cl.isVersion(CodeConstants.BYTECODE_JAVA_11)) {
+    if (cl.getVersion().major >= BytecodeVersion.MAJOR_11) {
       if (stat.type == Statement.TYPE_TRYCATCH) {
         if (TryWithResourcesProcessor.makeTryWithResourceJ11((CatchStatement) stat)) {
           return true;
