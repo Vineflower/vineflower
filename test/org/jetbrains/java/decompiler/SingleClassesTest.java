@@ -211,6 +211,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestNativeMethods");
     register(JAVA_8, "TestThrowLoop");
     register(JAVA_8, "TestShiftLoop");
+    register(JASM, "TestDoubleCast");
 
     register(JAVA_16_PREVIEW, "TestSealedClasses");
     register(JAVA_16_PREVIEW, "PermittedSubClassA", "TestSealedClasses");
