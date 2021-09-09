@@ -179,10 +179,11 @@ public abstract class SingleClassesTestBase {
     enum Version {
       CUSTOM("custom", "Custom"),
       JAVA_8(8),
+      JAVA_8_NODEBUG(8, "nodebug", "No Debug Info"),
       JAVA_9(9),
       JAVA_11(11),
       JAVA_16(16),
-      JAVA_16_PREVIEW(16, true),
+      JAVA_16_PREVIEW(16, "preview", "Preview"),
       GROOVY("groovy", "Groovy"),
       KOTLIN("kt", "Kotlin"),
       JASM("jasm", "Custom (jasm)"),
@@ -197,11 +198,11 @@ public abstract class SingleClassesTestBase {
       }
 
       Version(int javaVersion) {
-        this(javaVersion, false);
+        this(javaVersion, "", "");
       }
 
-      Version(int javaVersion, boolean preview) {
-        this("java" + javaVersion + (preview ? "preview" : ""), "Java " + javaVersion + (preview ? " Preview" : ""));
+      Version(int javaVersion, String suffix, String display) {
+        this("java" + javaVersion + suffix, "Java " + javaVersion + (!display.isEmpty() ? " " + display : ""));
       }
 
       @Override
