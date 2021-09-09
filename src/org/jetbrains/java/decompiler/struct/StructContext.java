@@ -165,8 +165,8 @@ public class StructContext {
 
       @Override
       public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
-        String dirStr = dir.toString() + "/"; // We are saving folders, not files here Path#toString() treats the path as a file by default.
-        if (dirStr.length() > 2) unit.addDirEntry(dirStr.substring(1));
+        String dirStr = dir.toString();
+        if (dirStr.length() > 1) unit.addDirEntry(dirStr.substring(1));
         return FileVisitResult.CONTINUE;
       }
     });
