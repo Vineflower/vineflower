@@ -1,0 +1,23 @@
+package pkg;
+
+public class TestLocalInterface {
+   public void test(int i) {
+      @FunctionalInterface
+      abstract class IntToString {
+         String apply(int var1);
+      }
+
+      IntToString intToString = Integer::toString;// 10
+   }// 11
+}
+
+class 'pkg/TestLocalInterface' {
+   method 'test (I)V' {
+      5      9
+      6      10
+   }
+}
+
+Lines mapping:
+10 <-> 10
+11 <-> 11

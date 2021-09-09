@@ -1,0 +1,34 @@
+package pkg;
+
+public interface TestPrivateInterfaceMethod {
+   private default int foo() {
+      return 20;// 5
+   }
+
+   default int bar() {
+      return this.foo() + 9;// 9
+   }
+}
+
+class 'pkg/TestPrivateInterfaceMethod' {
+   method 'foo ()I' {
+      0      4
+      1      4
+      2      4
+   }
+
+   method 'bar ()I' {
+      0      8
+      1      8
+      2      8
+      3      8
+      4      8
+      5      8
+      6      8
+      7      8
+   }
+}
+
+Lines mapping:
+5 <-> 5
+9 <-> 9
