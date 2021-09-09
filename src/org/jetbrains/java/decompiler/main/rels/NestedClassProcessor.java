@@ -217,6 +217,7 @@ public class NestedClassProcessor {
     }
 
     MethodWrapper method = parent.getWrapper().getMethods().getWithKey(child.lambdaInformation.content_method_key);
+    if (method.varproc.nestedProcessed) return;
     MethodWrapper enclosingMethod = parent.getWrapper().getMethods().getWithKey(child.enclosingMethod);
 
     MethodDescriptor md_lambda = MethodDescriptor.parseDescriptor(child.lambdaInformation.method_descriptor);
@@ -236,6 +237,9 @@ public class NestedClassProcessor {
       method.varproc.setVarName(new VarVersionPair(0, 0), parent.simpleName + ".this");
     }
 
+    Set<String> usedBefore = enclosingMethod.varproc.getVarNamesCollector().getUsedNames();
+    VarNamesCollector enclosingCollector = new VarNamesCollector(usedBefore);
+
     Map<VarVersionPair, String> mapNewNames = new HashMap<>();
     Map<VarVersionPair, LocalVariable> lvts = new HashMap<>();
 
@@ -246,8 +250,6 @@ public class NestedClassProcessor {
       for (Exprent expr : lst) {
         if (expr.type == Exprent.EXPRENT_NEW) {
           NewExprent new_expr = (NewExprent)expr;
-
-          VarNamesCollector enclosingCollector = new VarNamesCollector(enclosingMethod.varproc.getVarNames());
 
           if (new_expr.isLambda() && lambda_class_type.equals(new_expr.getNewType())) {
             InvocationExprent inv_dynamic = new_expr.getConstructor();
@@ -287,6 +289,7 @@ public class NestedClassProcessor {
 
     //method.varproc.refreshVarNames(new VarNamesCollector(setNewOuterNames));
     method.setOuterVarNames.addAll(setNewOuterNames);
+    method.varproc.getVarNamesCollector().addNames(enclosingCollector.getUsedNames());
 
     for (Entry<VarVersionPair, String> entry : mapNewNames.entrySet()) {
       VarVersionPair pair = entry.getKey();
@@ -309,6 +312,7 @@ public class NestedClassProcessor {
       }
       return 0;
     });
+    method.varproc.nestedProcessed = true;
   }
 
   private static void checkNotFoundClasses(ClassNode root, ClassNode node) {
