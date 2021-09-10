@@ -5,9 +5,9 @@ public final class TestDoubleCast {
    private Object[] array;
 
    public void testMethod() {
-      (TestDoubleCast)this.field.testMethod();// 24 25 26 27 28
+      ((TestDoubleCast)this.field).testMethod();// 24 25 26 27 28
       ((TestDoubleCast)this.field).testMethod();// 29 30 31 32
-      (TestDoubleCast)this.array[0].testMethod();// 33 34 35 36 37 38 39
+      ((TestDoubleCast)this.array[0]).testMethod();// 33 34 35 36 37 38 39
       ((TestDoubleCast)this.array[0]).testMethod();// 40 41 42 43 44 45
    }// 46
 }
