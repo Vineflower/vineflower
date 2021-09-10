@@ -18,6 +18,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.stats.DoStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.SequenceStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
+import org.jetbrains.java.decompiler.modules.decompiler.vars.VarProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarTypeProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.struct.StructClass;
@@ -47,6 +48,14 @@ public class NestedClassProcessor {
     if (node.nested.isEmpty()) {
       return;
     }
+
+    // lambdas can be direct children and children of other lambdas at the same time,
+    // remove those from the set of direct children, so they don't get processed before their parent
+    Set<ClassNode> doubleNested = new HashSet<>();
+    for (ClassNode nested : node.nested) {
+      doubleNested.addAll(nested.getAllNested());
+    }
+    node.nested.removeAll(doubleNested);
 
     if (node.type != ClassNode.CLASS_LAMBDA) {
       computeLocalVarsAndDefinitions(node);
@@ -217,7 +226,11 @@ public class NestedClassProcessor {
     }
 
     MethodWrapper method = parent.getWrapper().getMethods().getWithKey(child.lambdaInformation.content_method_key);
-    if (method.varproc.nestedProcessed) return;
+    VarProcessor varProc = method.varproc;
+    if (varProc.nestedProcessed) {
+      DecompilerContext.getLogger().writeMessage(parent.classStruct.qualifiedName + "." + method + " processed twice", IFernflowerLogger.Severity.WARN);
+      return;
+    }
     MethodWrapper enclosingMethod = parent.getWrapper().getMethods().getWithKey(child.enclosingMethod);
 
     MethodDescriptor md_lambda = MethodDescriptor.parseDescriptor(child.lambdaInformation.method_descriptor);
@@ -233,15 +246,29 @@ public class NestedClassProcessor {
 
     // this pointer
     if (!is_static_lambda_content && DecompilerContext.getOption(IFernflowerPreferences.LAMBDA_TO_ANONYMOUS_CLASS)) {
-      method.varproc.getThisVars().put(new VarVersionPair(0, 0), parent_class_name);
-      method.varproc.setVarName(new VarVersionPair(0, 0), parent.simpleName + ".this");
+      varProc.getThisVars().put(new VarVersionPair(0, 0), parent_class_name);
+      varProc.setVarName(new VarVersionPair(0, 0), parent.simpleName + ".this");
     }
 
-    Set<String> usedBefore = enclosingMethod.varproc.getVarNamesCollector().getUsedNames();
+    // collect all previously used names, excluding "this"
+    VarProcessor enclosingVarProc = enclosingMethod.varproc;
+    Set<String> usedBefore = new HashSet<>(enclosingVarProc.getVarNamesCollector().getUsedNames());
+    usedBefore.addAll(enclosingVarProc.getVarNames());
+    for (VarVersionPair thisVar : enclosingVarProc.getThisVars().keySet()) {
+      usedBefore.remove(enclosingVarProc.getVarName(thisVar));
+    }
     VarNamesCollector enclosingCollector = new VarNamesCollector(usedBefore);
 
     Map<VarVersionPair, String> mapNewNames = new HashMap<>();
     Map<VarVersionPair, LocalVariable> lvts = new HashMap<>();
+
+    // rename colliding local variables
+    for (VarVersionPair local : varProc.getUsedVarVersions()) {
+      String name = varProc.getVarName(local);
+      if (usedBefore.contains(name) && !"this".equals(name)) {
+        mapNewNames.put(local, enclosingCollector.getFreeName(name));
+      }
+    }
 
     enclosingMethod.getOrBuildGraph().iterateExprents(exprent -> {
       List<Exprent> lst = exprent.getAllExprents(true);
@@ -263,15 +290,15 @@ public class NestedClassProcessor {
                 Exprent param = inv_dynamic.getLstParameters().get(param_index + i);
 
                 if (param.type == Exprent.EXPRENT_VAR) {
-                  mapNewNames.put(varVersion, enclosingMethod.varproc.getVarName(new VarVersionPair((VarExprent)param)));
+                  mapNewNames.put(varVersion, enclosingVarProc.getVarName(new VarVersionPair((VarExprent)param)));
                   lvts.put(varVersion, ((VarExprent)param).getLVT());
-                  if (enclosingMethod.varproc.getVarFinal((new VarVersionPair((VarExprent)param))) == VarTypeProcessor.VAR_NON_FINAL) {
+                  if (enclosingVarProc.getVarFinal((new VarVersionPair((VarExprent)param))) == VarTypeProcessor.VAR_NON_FINAL) {
                     //DecompilerContext.getLogger().writeMessage("Lambda in " + parent.simpleName + "." + enclosingMethod.methodStruct.getName() + " given non-final var " + ((VarExprent)param).getName() + "!", IFernflowerLogger.Severity.ERROR);
                   }
                 }
               }
-              else {
-                mapNewNames.put(varVersion, enclosingCollector.getFreeName(method.varproc.getVarName(varVersion)));
+              else if (!mapNewNames.containsKey(varVersion)) {
+                mapNewNames.put(varVersion, enclosingCollector.getFreeName(varProc.getVarName(varVersion)));
               }
 
               varIndex += md_content.params[i].stackSize;
@@ -287,17 +314,16 @@ public class NestedClassProcessor {
     Set<String> setNewOuterNames = new HashSet<>(mapNewNames.values());
     setNewOuterNames.removeAll(method.setOuterVarNames);
 
-    //method.varproc.refreshVarNames(new VarNamesCollector(setNewOuterNames));
     method.setOuterVarNames.addAll(setNewOuterNames);
-    method.varproc.getVarNamesCollector().addNames(enclosingCollector.getUsedNames());
+    varProc.getVarNamesCollector().addNames(enclosingCollector.getUsedNames());
 
     for (Entry<VarVersionPair, String> entry : mapNewNames.entrySet()) {
       VarVersionPair pair = entry.getKey();
       LocalVariable lvt = lvts.get(pair);
 
-      method.varproc.setVarName(pair, entry.getValue());
+      varProc.setVarName(pair, entry.getValue());
       if (lvt != null) {
-        method.varproc.setVarLVT(pair, lvt);
+        varProc.setVarLVT(pair, lvt);
       }
     }
 
@@ -312,7 +338,7 @@ public class NestedClassProcessor {
       }
       return 0;
     });
-    method.varproc.nestedProcessed = true;
+    varProc.nestedProcessed = true;
   }
 
   private static void checkNotFoundClasses(ClassNode root, ClassNode node) {

@@ -116,6 +116,10 @@ public class VarProcessor {
     mapVarNames.put(pair, name);
   }
 
+  public Set<VarVersionPair> getUsedVarVersions() {
+    return mapVarNames != null ? mapVarNames.keySet() : Collections.emptySet();
+  }
+
   public Collection<String> getVarNames() {
     return mapVarNames != null ? mapVarNames.values() : Collections.emptySet();
   }

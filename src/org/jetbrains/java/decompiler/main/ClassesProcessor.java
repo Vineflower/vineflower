@@ -581,6 +581,14 @@ public class ClassesProcessor implements CodeConstants {
       return node.wrapper;
     }
 
+    public Set<ClassNode> getAllNested() {
+      Set<ClassNode> nested = new LinkedHashSet<>(this.nested);
+      for (ClassNode child : this.nested) {
+        nested.addAll(child.getAllNested());
+      }
+      return nested;
+    }
+
     @Override
     public int compareTo(ClassNode o) {
       //TODO: Take line numbers into account?
