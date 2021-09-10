@@ -195,45 +195,50 @@ public class ControlFlowGraph implements CodeConstants {
 
     short[] states = findStartInstructions(instrseq);
 
-    Map<Integer, BasicBlock> mapInstrBlocks = new HashMap<>();
-    VBStyleCollection<BasicBlock, Integer> colBlocks = createBasicBlocks(states, instrseq, mapInstrBlocks);
+    Map<Integer, BasicBlock> mapInstrBlocks = createBasicBlocks(states, instrseq);
 
-    blocks = colBlocks;
-
-    connectBlocks(colBlocks, mapInstrBlocks);
+    connectBlocks(mapInstrBlocks);
 
     setExceptionEdges(instrseq, mapInstrBlocks);
 
     setSubroutineEdges();
-
-    setFirstAndLastBlocks();
   }
 
-  private static short[] findStartInstructions(InstructionSequence seq) {
 
+  /**
+   * creates essentially a bitmap marking which instructions are the start of a block.<br/>
+   * starts are:
+   * <ul>
+   *   <li> begin of the method </li>
+   *   <li> begin of an exception range </li>
+   *   <li> begin of an exception handler </li>
+   *   <li> first statement after an exception range </li>
+   *   <li> jump targets </li>
+   *   <li> switch branches & default </li>
+   *   <li> instructions after a return, throw or after a jump</li>
+   * </ul>
+   */
+  private static short[] findStartInstructions(InstructionSequence seq) {
     int len = seq.length();
     short[] inststates = new short[len];
 
-    Set<Integer> excSet = new HashSet<>();
-
+    // exception blocks
     for (ExceptionHandler handler : seq.getExceptionTable().getHandlers()) {
-      excSet.add(handler.from_instr);
-      excSet.add(handler.to_instr);
-      excSet.add(handler.handler_instr);
+      inststates[handler.from_instr] = 1;
+      inststates[handler.handler_instr] = 1;
+
+      if (handler.to_instr < len) {
+        inststates[handler.to_instr] = 1;
+      }
     }
 
 
     for (int i = 0; i < len; i++) {
-
-      // exception blocks
-      if (excSet.contains(i)) {
-        inststates[i] = 1;
-      }
-
       Instruction instr = seq.getInstr(i);
       switch (instr.group) {
         case GROUP_JUMP:
           inststates[((JumpInstruction)instr).destination] = 1;
+          // fallthrough
         case GROUP_RETURN:
           if (i + 1 < len) {
             inststates[i + 1] = 1;
@@ -249,6 +254,7 @@ public class ControlFlowGraph implements CodeConstants {
           if (i + 1 < len) {
             inststates[i + 1] = 1;
           }
+          break;
       }
     }
 
@@ -259,11 +265,17 @@ public class ControlFlowGraph implements CodeConstants {
   }
 
 
-  private VBStyleCollection<BasicBlock, Integer> createBasicBlocks(short[] startblock,
-                                                                   InstructionSequence instrseq,
-                                                                   Map<Integer, BasicBlock> mapInstrBlocks) {
+  /**
+   * @param startblock     inout, starts as a flag of which instruction is a
+   *                       new block, returns as the cumulative sum list
+   *                       representing the instruction index -> block id mapping
+   */
+  private Map<Integer, BasicBlock> createBasicBlocks(
+    short[] startblock,
+    InstructionSequence instrseq) {
+    Map<Integer, BasicBlock> mapInstrBlocks = new HashMap<>();
 
-    VBStyleCollection<BasicBlock, Integer> col = new VBStyleCollection<>();
+    this.blocks = new VBStyleCollection<>();
 
     InstructionSequence currseq = null;
     List<Integer> lstOffs = null;
@@ -281,7 +293,8 @@ public class ControlFlowGraph implements CodeConstants {
         currseq = currentBlock.getSeq();
         lstOffs = currentBlock.getInstrOldOffsets();
 
-        col.addWithKey(currentBlock, currentBlock.id);
+        // index: $i, key: $i+1, value BasicBlock(id = $i + 1)
+        this.blocks.addWithKey(currentBlock, currentBlock.id);
 
         blockoffset = instrseq.getOffset(i);
       }
@@ -289,48 +302,78 @@ public class ControlFlowGraph implements CodeConstants {
       startblock[i] = counter;
       mapInstrBlocks.put(i, currentBlock);
 
+      // can't throw npe cause startblock[0] == 1 is always true
+      assert currseq != null && lstOffs != null;
       currseq.addInstruction(instrseq.getInstr(i), instrseq.getOffset(i) - blockoffset);
       lstOffs.add(instrseq.getOffset(i));
     }
 
+    this.first = this.blocks.get(0);
+    this.last = new BasicBlock(++counter);
+    mapInstrBlocks.put(len, this.last);
+
     last_id = counter;
 
-    return col;
+    return mapInstrBlocks;
   }
 
 
-  private static void connectBlocks(List<BasicBlock> lstbb, Map<Integer, BasicBlock> mapInstrBlocks) {
+  /**
+   * @param mapInstrBlocks mapping of instruction -> block
+   */
+  private void connectBlocks(Map<Integer, BasicBlock> mapInstrBlocks) {
+    for (int i = 0; i < this.blocks.size(); i++) {
 
-    for (int i = 0; i < lstbb.size(); i++) {
-
-      BasicBlock block = lstbb.get(i);
+      BasicBlock block = this.blocks.get(i);
       Instruction instr = block.getLastInstruction();
 
-      boolean fallthrough = instr.canFallThrough();
-      BasicBlock bTemp;
-
       switch (instr.group) {
-        case GROUP_JUMP:
-          int dest = ((JumpInstruction)instr).destination;
-          bTemp = mapInstrBlocks.get(dest);
-          block.addSuccessor(bTemp);
+        case GROUP_JUMP: {
+          int dest = ((JumpInstruction) instr).destination;
+
+          block.addSuccessor(mapInstrBlocks.get(dest));
+
+          // note further code depends on the fact that the fall through case
+          // comes after the conditional jump in the successor list
+          if (instr.canFallThrough()) {
+            if (i >= this.blocks.size() - 1) {
+              continue;
+            }
+            block.addSuccessor(this.blocks.get(i + 1));
+          }
 
           break;
-        case GROUP_SWITCH:
-          SwitchInstruction sinstr = (SwitchInstruction)instr;
-          int[] dests = sinstr.getDestinations();
+        }
+        case GROUP_SWITCH: {
+          SwitchInstruction swInstr = (SwitchInstruction) instr;
 
-          bTemp = mapInstrBlocks.get(((SwitchInstruction)instr).getDefaultDestination());
-          block.addSuccessor(bTemp);
-          for (int dest1 : dests) {
-            bTemp = mapInstrBlocks.get(dest1);
-            block.addSuccessor(bTemp);
+          // Note: further code relies on the fact that the default branch comes before the other branches
+          int defaultDestination = swInstr.getDefaultDestination();
+          block.addSuccessor(mapInstrBlocks.get(defaultDestination));
+
+          for (int destination : swInstr.getDestinations()) {
+            block.addSuccessor(mapInstrBlocks.get(destination));
           }
-      }
 
-      if (fallthrough && i < lstbb.size() - 1) {
-        BasicBlock defaultBlock = lstbb.get(i + 1);
-        block.addSuccessor(defaultBlock);
+          break;
+        }
+        case GROUP_RETURN: {
+          this.last.addPredecessor(block);
+          break;
+        }
+        case GROUP_GENERAL:
+        case GROUP_INVOCATION:
+        case GROUP_FIELDACCESS: {
+          if (i >= this.blocks.size() - 1) {
+            continue;
+          }
+          BasicBlock nextBlock = this.blocks.get(i + 1);
+          block.addSuccessor(nextBlock);
+          break;
+        }
+        default: {
+          throw new IllegalStateException("Unknown instruction group");
+        }
       }
     }
   }
@@ -341,9 +384,13 @@ public class ControlFlowGraph implements CodeConstants {
 
     Map<String, ExceptionRangeCFG> mapRanges = new HashMap<>();
 
+    // + 1 cause block id are 1 indexed
+    int endInstructionBlocks = this.blocks.size() + 1;
+
     for (ExceptionHandler handler : instrseq.getExceptionTable().getHandlers()) {
 
       BasicBlock from = instrBlocks.get(handler.from_instr);
+      // NOTE: to_instr can be this.blocks.size
       BasicBlock to = instrBlocks.get(handler.to_instr);
       BasicBlock handle = instrBlocks.get(handler.handler_instr);
 
@@ -362,9 +409,7 @@ public class ControlFlowGraph implements CodeConstants {
           block.addSuccessorException(handle);
         }
 
-        ExceptionRangeCFG range = new ExceptionRangeCFG(protectedRange, handle, handler.exceptionClass == null
-                                                                                ? null
-                                                                                : Collections.singletonList(handler.exceptionClass));
+        ExceptionRangeCFG range = new ExceptionRangeCFG(protectedRange, handle, handler.exceptionClass);
         mapRanges.put(key, range);
 
         exceptions.add(range);
@@ -724,19 +769,6 @@ public class ControlFlowGraph implements CodeConstants {
         point.getStack().push(new VarType(CodeConstants.TYPE_OBJECT, 0, null));
 
         removeJsrInstructions(pool, suc, point);
-      }
-    }
-  }
-
-  private void setFirstAndLastBlocks() {
-
-    first = blocks.get(0);
-
-    last = new BasicBlock(++last_id);
-
-    for (BasicBlock block : blocks) {
-      if (block.getSuccs().isEmpty()) {
-        last.addPredecessor(block);
       }
     }
   }

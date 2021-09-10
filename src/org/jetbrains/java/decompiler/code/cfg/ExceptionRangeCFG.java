@@ -21,6 +21,16 @@ public class ExceptionRangeCFG {
     }
   }
 
+  public ExceptionRangeCFG(List<BasicBlock> protectedRange, BasicBlock handler, String exceptionType) {
+    this.protectedRange = protectedRange;
+    this.handler = handler;
+
+    if (exceptionType != null) {
+      this.exceptionTypes = new ArrayList<>();
+      this.exceptionTypes.add(exceptionType);
+    }
+  }
+
   public boolean isCircular() {
     return protectedRange.contains(handler);
   }

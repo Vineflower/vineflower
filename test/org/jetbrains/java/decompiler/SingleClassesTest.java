@@ -231,5 +231,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16_PREVIEW, "PermittedSubClassE", "TestSealedInterfaces");
 
     register(JAVA_8_NODEBUG, "TestDuplicateLocals");
+    register(JASM, "TestBackwardsExceptionHandler");
+    register(JASM, "TestLeakyMethod");
   }
 }
