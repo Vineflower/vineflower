@@ -184,7 +184,7 @@ public class StructContext {
     if (name == null || name.isEmpty()) {
       name = provider.get().qualifiedName;
     }
-    
+
     // TODO: fix this properly
 //    String className = cl.qualifiedName.substring(cl.qualifiedName.lastIndexOf('/') + 1);
 //    if (!className.equals(name)) {
