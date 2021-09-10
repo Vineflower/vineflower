@@ -1,9 +1,20 @@
 package pkg;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 public class TestDuplicateLocals {
+   public static final Function<Object, Predicate<Object>> A = var0 -> {
+      return var0x -> {
+         return true;
+      };
+   };
+   private int i = 42;
+
    public void test1(List<List<Object>> var1) {
       System.out.println(var1);
       var1.forEach(var0 -> {
@@ -27,10 +38,10 @@ public class TestDuplicateLocals {
    public void test3(List<List<Object>> var1) {
       System.out.println(var1);
       var1.forEach(var0 -> {
-         int var1 = var0.size();
+         int var1x = var0.size();
          System.out.println(var0);
-         var0.forEach(var1x -> {
-            System.out.println(var1);
+         var0.forEach(var1xx -> {
+            System.out.println(var1x);
          });
       });
    }
@@ -44,100 +55,100 @@ public class TestDuplicateLocals {
          });
       });
    }
+
+   public static void test5(Optional<Object> var0) {
+      var0.ifPresent(var0x -> {
+         System.out.println(var0x);
+      });
+   }
+
+   public void test6(Optional<Object> var1) {
+      var1.ifPresent(var1x -> {
+         System.out.println(this.i + " " + var1x);
+      });
+   }
+
+   public static Integer test7(int var0) {
+      return (Integer)(new HashMap()).computeIfAbsent(var0, var0x -> {
+         return var0x + 1;
+      });
+   }
+
+   public class Inner {
+      public Integer test7(int var1) {
+         return (Integer)(new HashMap()).computeIfAbsent(var1, var1x -> {
+            return var1x + TestDuplicateLocals.this.i;
+         });
+      }
+   }
+
+   interface Inner2 {
+      TestDuplicateLocals.Inner2 A = var0 -> {
+         return var0x -> {
+            return true;
+         };
+      };
+
+      Predicate<Object> getPredicate(Object var1);
+   }
 }
 
 class 'pkg/TestDuplicateLocals' {
-   method 'lambda$null$0 (Ljava/util/List;Ljava/lang/Object;)V' {
-      0      11
-      1      11
-      2      11
-      3      11
-      4      11
-      5      11
-      6      11
-      7      12
+   method 'lambda$null$0 (Ljava/lang/Object;)Z' {
+      0      12
+      1      12
    }
 
-   method 'lambda$test1$1 (Ljava/util/List;)V' {
-      2      9
-      3      9
-      4      9
-      5      9
-      6      9
-      7      9
-      8      9
-      9      10
-      10      10
-      11      10
-      12      10
-      13      10
-      14      10
-      15      13
+   method 'lambda$static$1 (Ljava/lang/Object;)Ljava/util/function/Predicate;' {
+      5      11
+   }
+
+   method 'lambda$null$2 (Ljava/util/List;Ljava/lang/Object;)V' {
+      0      22
+      1      22
+      2      22
+      3      22
+      4      22
+      5      22
+      6      22
+      7      23
+   }
+
+   method 'lambda$test1$3 (Ljava/util/List;)V' {
+      2      20
+      3      20
+      4      20
+      5      20
+      6      20
+      7      20
+      8      20
+      9      21
+      10      21
+      11      21
+      12      21
+      13      21
+      14      21
+      15      24
    }
 
    method 'test1 (Ljava/util/List;)V' {
-      0      7
-      1      7
-      2      7
-      3      7
-      4      7
-      5      7
-      6      7
-      7      8
-      d      8
-      e      8
-      f      8
-      10      8
-      11      8
-      12      14
+      0      18
+      1      18
+      2      18
+      3      18
+      4      18
+      5      18
+      6      18
+      7      19
+      d      19
+      e      19
+      f      19
+      10      19
+      11      19
+      12      25
    }
 
-   method 'lambda$null$2 (Ljava/lang/Object;)V' {
-      0      21
-      1      21
-      2      21
-      3      21
-      4      21
-      5      21
-      6      21
-      7      22
-   }
-
-   method 'lambda$test2$3 (Ljava/util/List;)V' {
-      0      19
-      1      19
-      2      19
-      3      19
-      4      19
-      5      19
-      6      19
-      7      20
-      d      20
-      e      20
-      f      20
-      10      20
-      11      20
-      12      23
-   }
-
-   method 'test2 (Ljava/util/List;)V' {
-      0      17
-      1      17
-      2      17
-      3      17
-      4      17
-      5      17
-      6      17
-      7      18
-      d      18
-      e      18
-      f      18
-      10      18
-      11      18
-      12      24
-   }
-
-   method 'lambda$null$4 (ILjava/lang/Object;)V' {
+   method 'lambda$null$4 (Ljava/lang/Object;)V' {
       0      32
       1      32
       2      32
@@ -148,59 +159,52 @@ class 'pkg/TestDuplicateLocals' {
       7      33
    }
 
-   method 'lambda$test3$5 (Ljava/util/List;)V' {
-      0      29
-      1      29
-      2      29
-      3      29
-      4      29
-      5      29
-      6      29
-      7      30
-      8      30
-      9      30
-      a      30
-      b      30
-      c      30
-      d      30
+   method 'lambda$test2$5 (Ljava/util/List;)V' {
+      0      30
+      1      30
+      2      30
+      3      30
+      4      30
+      5      30
+      6      30
+      7      31
+      d      31
       e      31
-      15      31
-      16      31
-      17      31
-      18      31
-      19      31
-      1a      34
+      f      31
+      10      31
+      11      31
+      12      34
    }
 
-   method 'test3 (Ljava/util/List;)V' {
-      0      27
-      1      27
-      2      27
-      3      27
-      4      27
-      5      27
-      6      27
-      7      28
-      d      28
-      e      28
-      f      28
-      10      28
-      11      28
+   method 'test2 (Ljava/util/List;)V' {
+      0      28
+      1      28
+      2      28
+      3      28
+      4      28
+      5      28
+      6      28
+      7      29
+      d      29
+      e      29
+      f      29
+      10      29
+      11      29
       12      35
    }
 
-   method 'lambda$null$6 (Ljava/lang/String;Ljava/lang/String;Ljava/util/List;)V' {
-      0      42
-      1      42
-      2      42
-      3      42
-      4      42
-      5      42
-      6      42
-      7      43
+   method 'lambda$null$6 (ILjava/lang/Object;)V' {
+      0      43
+      1      43
+      2      43
+      3      43
+      4      43
+      5      43
+      6      43
+      7      44
    }
 
-   method 'lambda$test4$7 (Ljava/util/Map;Ljava/lang/String;Ljava/util/List;)V' {
+   method 'lambda$test3$7 (Ljava/util/List;)V' {
       0      40
       1      40
       2      40
@@ -209,15 +213,22 @@ class 'pkg/TestDuplicateLocals' {
       5      40
       6      40
       7      41
-      e      41
-      f      41
-      10      41
-      11      41
-      12      41
-      13      44
+      8      41
+      9      41
+      a      41
+      b      41
+      c      41
+      d      41
+      e      42
+      15      42
+      16      42
+      17      42
+      18      42
+      19      42
+      1a      45
    }
 
-   method 'test4 (Ljava/util/Map;)V' {
+   method 'test3 (Ljava/util/List;)V' {
       0      38
       1      38
       2      38
@@ -226,12 +237,176 @@ class 'pkg/TestDuplicateLocals' {
       5      38
       6      38
       7      39
+      d      39
       e      39
       f      39
       10      39
       11      39
-      12      39
-      13      45
+      12      46
+   }
+
+   method 'lambda$null$8 (Ljava/lang/String;Ljava/lang/String;Ljava/util/List;)V' {
+      0      53
+      1      53
+      2      53
+      3      53
+      4      53
+      5      53
+      6      53
+      7      54
+   }
+
+   method 'lambda$test4$9 (Ljava/util/Map;Ljava/lang/String;Ljava/util/List;)V' {
+      0      51
+      1      51
+      2      51
+      3      51
+      4      51
+      5      51
+      6      51
+      7      52
+      e      52
+      f      52
+      10      52
+      11      52
+      12      52
+      13      55
+   }
+
+   method 'test4 (Ljava/util/Map;)V' {
+      0      49
+      1      49
+      2      49
+      3      49
+      4      49
+      5      49
+      6      49
+      7      50
+      e      50
+      f      50
+      10      50
+      11      50
+      12      50
+      13      56
+   }
+
+   method 'lambda$test5$10 (Ljava/lang/Object;)V' {
+      0      60
+      1      60
+      2      60
+      3      60
+      4      60
+      5      60
+      6      60
+      7      61
+   }
+
+   method 'test5 (Ljava/util/Optional;)V' {
+      0      59
+      6      59
+      7      59
+      8      59
+      9      62
+   }
+
+   method 'lambda$test6$11 (Ljava/lang/Object;)V' {
+      0      66
+      1      66
+      2      66
+      a      66
+      b      66
+      c      66
+      d      66
+      11      66
+      12      66
+      16      66
+      1a      66
+      1b      66
+      1c      66
+      1d      66
+      1e      66
+      1f      66
+      20      67
+   }
+
+   method 'test6 (Ljava/util/Optional;)V' {
+      0      65
+      7      65
+      8      65
+      9      65
+      a      68
+   }
+
+   method 'lambda$test7$12 (Ljava/lang/Integer;)Ljava/lang/Integer;' {
+      0      72
+      1      72
+      2      72
+      3      72
+      4      72
+      5      72
+      6      72
+      7      72
+      8      72
+      9      72
+   }
+
+   method 'test7 (I)Ljava/lang/Integer;' {
+      7      71
+      8      71
+      9      71
+      a      71
+      10      71
+      11      71
+      12      71
+      13      71
+      14      71
+      15      71
+      16      71
+   }
+}
+
+class 'pkg/TestDuplicateLocals$Inner' {
+   method 'lambda$test7$0 (Ljava/lang/Integer;)Ljava/lang/Integer;' {
+      0      79
+      1      79
+      2      79
+      3      79
+      5      79
+      6      79
+      7      79
+      8      79
+      9      79
+      a      79
+      b      79
+      c      79
+      d      79
+      e      79
+      f      79
+   }
+
+   method 'test7 (I)Ljava/lang/Integer;' {
+      7      78
+      8      78
+      9      78
+      a      78
+      11      78
+      12      78
+      13      78
+      14      78
+      15      78
+      16      78
+      17      78
+   }
+}
+
+class 'pkg/TestDuplicateLocals$Inner2' {
+   method 'lambda$null$0 (Ljava/lang/Object;)Z' {
+      0      87
+      1      87
+   }
+
+   method 'lambda$static$1 (Ljava/lang/Object;)Ljava/util/function/Predicate;' {
+      5      86
    }
 }
 
