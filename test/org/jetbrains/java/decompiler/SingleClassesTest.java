@@ -207,5 +207,23 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestForContinue");
     // TODO: this needs a flat statement structure
     register(JAVA_8, "TestExceptionElse");
+    register(JAVA_8, "TestGenericCasts");
+    register(JAVA_8, "TestNativeMethods");
+    register(JAVA_8, "TestThrowLoop");
+    register(JAVA_8, "TestShiftLoop");
+    // TODO: this currently decompiles into invalid syntax
+    register(JASM, "TestDoubleCast");
+
+    register(JAVA_16_PREVIEW, "TestSealedClasses");
+    register(JAVA_16_PREVIEW, "PermittedSubClassA", "TestSealedClasses");
+    register(JAVA_16_PREVIEW, "PermittedSubClassB", "PermittedSubClassA", "TestSealedClasses");
+    register(JAVA_16_PREVIEW, "TestSealedInterfaces");
+    register(JAVA_16_PREVIEW, "PermittedSubInterfaceA", "TestSealedInterfaces");
+    register(JAVA_16_PREVIEW, "PermittedSubInterfaceB", "PermittedSubInterfaceA", "TestSealedInterfaces");
+    register(JAVA_16_PREVIEW, "PermittedSubClassC", "TestSealedInterfaces");
+    register(JAVA_16_PREVIEW, "PermittedSubClassD", "PermittedSubClassC", "TestSealedInterfaces");
+    register(JAVA_16_PREVIEW, "PermittedSubClassE", "TestSealedInterfaces");
+
+    register(JAVA_8_NODEBUG, "TestDuplicateLocals");
   }
 }

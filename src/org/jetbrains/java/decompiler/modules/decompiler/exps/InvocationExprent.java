@@ -592,8 +592,33 @@ public class InvocationExprent extends Exprent {
 
           TextBuffer res = instance.toJava(indent, tracer);
 
-          boolean skippedCast = instance.type == EXPRENT_FUNCTION &&
-            ((FunctionExprent)instance).getFuncType() == FunctionExprent.FUNCTION_CAST && !((FunctionExprent)instance).doesCast();
+          boolean skippedCast = false;
+
+          if (instance.type == EXPRENT_FUNCTION && ((FunctionExprent)instance).getFuncType() == FunctionExprent.FUNCTION_CAST) {
+            skippedCast = !((FunctionExprent) instance).doesCast();
+
+            // Fixes issue where ((Obj)(Obj)o).m() would become (Obj)o.m(), when it should be ((Obj)o).m()
+            // This happens when there are two checkcast opcodes in succession [TestDoubleCast], so this unwraps casts of the same var type
+            // Does this happen with regular bytecode created by javac?
+            if (skippedCast) {
+              // Unwrap same casts
+              VarType castType = this.instance.getExprType();
+
+              // Get inner cast if it exists
+              Exprent exp = ((FunctionExprent) instance).getLstOperands().get(0);
+              while (exp.type == EXPRENT_FUNCTION && ((FunctionExprent) exp).getFuncType() == FunctionExprent.FUNCTION_CAST) {
+                if (exp.getExprType().equals(castType)) {
+                  // If we are of the same type as the current cast, Update the values and iterate deeper
+                  skippedCast = !((FunctionExprent) exp).doesCast();
+                  List<Exprent> ops = ((FunctionExprent) exp).getLstOperands();
+                  exp = ops.get(0);
+                } else {
+                  // If it's not the same cast type, break
+                  break;
+                }
+              }
+            }
+          }
 
           if (rightType.equals(VarType.VARTYPE_OBJECT) && !leftType.equals(rightType)) {
             buf.append("((").append(ExprProcessor.getCastTypeName(leftType)).append(")");

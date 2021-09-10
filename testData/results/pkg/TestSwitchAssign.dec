@@ -17,6 +17,10 @@ public class TestSwitchAssign {
 
       System.out.println(assign);// 19
    }// 20
+
+   public void test1(String s) {
+      // $FF: Couldn't be decompiled
+   }
 }
 
 class 'pkg/TestSwitchAssign' {
@@ -49,3 +53,12 @@ Lines mapping:
 15 <-> 15
 19 <-> 18
 20 <-> 19
+Not mapped:
+24
+27
+28
+30
+31
+33
+37
+38

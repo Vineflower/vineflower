@@ -461,7 +461,7 @@ public final class InstructionImpact {
         stack.pop();
       case CodeConstants.opc_invokestatic:
       case CodeConstants.opc_invokedynamic:
-        if (instr.opcode != CodeConstants.opc_invokedynamic || instr.bytecodeVersion >= CodeConstants.BYTECODE_JAVA_7) {
+        if (instr.opcode != CodeConstants.opc_invokedynamic || instr.bytecodeVersion.hasInvokeDynamic()) {
           ck = pool.getLinkConstant(instr.operand(0));
           MethodDescriptor md = MethodDescriptor.parseDescriptor(ck.descriptor);
           for (int i = 0; i < md.params.length; i++) {

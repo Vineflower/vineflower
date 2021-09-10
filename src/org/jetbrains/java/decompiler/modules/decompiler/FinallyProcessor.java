@@ -1,10 +1,7 @@
 // Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler;
 
-import org.jetbrains.java.decompiler.code.CodeConstants;
-import org.jetbrains.java.decompiler.code.Instruction;
-import org.jetbrains.java.decompiler.code.InstructionSequence;
-import org.jetbrains.java.decompiler.code.SimpleInstructionSequence;
+import org.jetbrains.java.decompiler.code.*;
 import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.code.cfg.ControlFlowGraph;
 import org.jetbrains.java.decompiler.code.cfg.ExceptionRangeCFG;
@@ -48,7 +45,7 @@ public class FinallyProcessor {
   }
 
   public boolean iterateGraph(StructClass cl, StructMethod mt, RootStatement root, ControlFlowGraph graph) {
-    int bytecodeVersion = mt.getBytecodeVersion();
+    BytecodeVersion bytecodeVersion = mt.getBytecodeVersion();
 
     LinkedList<Statement> stack = new LinkedList<>();
     stack.add(root);
@@ -296,7 +293,7 @@ public class FinallyProcessor {
                                       BasicBlock handler,
                                       int var,
                                       Record information,
-                                      int bytecode_version) {
+                                      BytecodeVersion bytecode_version) {
     Set<BasicBlock> setCopy = new HashSet<>(setTry);
 
     int finallytype = information.firstCode;

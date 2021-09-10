@@ -80,7 +80,7 @@ public class SingleFileSaver implements IResultSaver {
   }
 
   @Override
-  public void saveClassEntry(String path, String archiveName, String qualifiedName, String entryName, String content) {
+  public synchronized void saveClassEntry(String path, String archiveName, String qualifiedName, String entryName, String content) {
     if (!checkEntry(entryName))
         return;
 

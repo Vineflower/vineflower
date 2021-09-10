@@ -32,7 +32,7 @@ import static org.jetbrains.java.decompiler.code.CodeConstants.*;
   }
 */
 public class StructMethod extends StructMember {
-  public static StructMethod create(DataInputFullStream in, ConstantPool pool, String clQualifiedName, int bytecodeVersion, boolean own) throws IOException {
+  public static StructMethod create(DataInputFullStream in, ConstantPool pool, String clQualifiedName, BytecodeVersion bytecodeVersion, boolean own) throws IOException {
     int accessFlags = in.readUnsignedShort();
     int nameIndex = in.readUnsignedShort();
     int descriptorIndex = in.readUnsignedShort();
@@ -63,7 +63,7 @@ public class StructMethod extends StructMember {
 
   private final String name;
   private final String descriptor;
-  private final int bytecodeVersion;
+  private final BytecodeVersion bytecodeVersion;
   private final int localVariables;
   private final byte[] codeAndExceptions;
   private InstructionSequence seq = null;
@@ -76,7 +76,7 @@ public class StructMethod extends StructMember {
                        Map<String, StructGeneralAttribute> attributes,
                        String name,
                        String descriptor,
-                       int bytecodeVersion,
+                       BytecodeVersion bytecodeVersion,
                        StructCodeAttribute code,
                        String classQualifiedName,
                        GenericMethodDescriptor signature) {
@@ -200,7 +200,7 @@ public class StructMethod extends StructMember {
             }
             break;
           case opc_invokedynamic:
-            if (bytecodeVersion >= CodeConstants.BYTECODE_JAVA_7) { // instruction unused in Java 6 and before
+            if (bytecodeVersion.hasInvokeDynamic()) { // instruction unused in Java 6 and before
               operands.add(in.readUnsignedShort());
               in.discard(2);
               group = GROUP_INVOCATION;
@@ -366,7 +366,7 @@ public class StructMethod extends StructMember {
     return descriptor;
   }
 
-  public int getBytecodeVersion() {
+  public BytecodeVersion getBytecodeVersion() {
     return bytecodeVersion;
   }
 

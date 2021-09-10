@@ -254,7 +254,14 @@ public class ConstExprent extends Exprent {
         return new TextBuffer(value.toString());
 
       case CodeConstants.TYPE_LONG:
-        long longVal = (Long)value;
+
+        long longVal;
+        if (this.value instanceof Integer) {
+          longVal = (long) (Integer) value; // TODO: figure out how this can be an int!
+        } else {
+          longVal = (Long)value;
+        }
+
         if (!literal) {
           if (longVal == Long.MAX_VALUE) {
             return new FieldExprent("MAX_VALUE", "java/lang/Long", true, null, FieldDescriptor.LONG_DESCRIPTOR, bytecode).toJava(0, tracer);

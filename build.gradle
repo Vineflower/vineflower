@@ -65,18 +65,23 @@ task testDataClasses {
 }
 testClasses.dependsOn(testDataClasses)
 
-[8, 9, 11, 16].forEach {version ->
-  def sourceSet = sourceSets.create("testDataJava${version}") {
-    it.java.srcDirs file("testData/src/java${version}")
+void createJavaTestDataSet(int version, String suffix = "", List<String> compilerArgs = []) {
+  sourceSets.create("testDataJava${version}${suffix}") {
+    it.java.srcDirs file("testData/src/java${version}${suffix.toLowerCase()}")
   }
-  def task = tasks.getByName("compileTestDataJava${version}Java") {
-    destinationDir = file("testData/classes/java${version}")
+  tasks.getByName("compileTestDataJava${version}${suffix}Java") {
+    destinationDir = file("testData/classes/java${version}${suffix.toLowerCase()}")
     javaCompiler = javaToolchains.compilerFor {
       languageVersion = JavaLanguageVersion.of(version)
     }
+    options.compilerArgs = compilerArgs
   }
-  testDataClasses.dependsOn("testDataJava${version}Classes")
+  testDataClasses.dependsOn("testDataJava${version}${suffix}Classes")
 }
+
+[8, 9, 11, 16].forEach { version -> createJavaTestDataSet(version) }
+[16].forEach { version -> createJavaTestDataSet(version, "Preview", ["--enable-preview"]) }
+[8].forEach { version -> createJavaTestDataSet(version, "NoDebug", ["-g:none"])}
 
 task compileTestDataJasm(type: JasmCompile) {
   source = fileTree("testData/src/jasm/")
