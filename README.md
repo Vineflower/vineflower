@@ -51,10 +51,10 @@ Fernflower is licenced under the [Apache Licence Version 2.0](http://www.apache.
 
 ### Command-line options
 
-With the exception of mpm and urc the value of 1 means the option is activated, 0 - deactivated. Default 
+With the exception of mpm, urc, ind, thr and log, the value of 1 means the option is activated, 0 - deactivated. Default 
 value, if any, is given between parentheses.
 
-Typically, the following options will be changed by user, if any: hes, hdc, dgs, mpm, ren, urc 
+Typically, the following options will be changed by user, if any: hes, hdc, dgs, mpm, ren, urc, ind, thr
 The rest of options can be left as they are: they are aimed at professional reverse engineers.
 
 - rbr (1): hide bridge methods
