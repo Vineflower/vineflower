@@ -1,6 +1,11 @@
 // Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.code;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 @SuppressWarnings({"unused", "SpellCheckingInspection"})
 public interface CodeConstants {
   // ----------------------------------------------------------------------
@@ -325,4 +330,67 @@ public interface CodeConstants {
 
   String CLINIT_NAME = "<clinit>";
   String INIT_NAME = "<init>";
+
+  // JVMS 2.9.3 Signature Polymorphic Methods
+  class SignaturePolymorphic {
+    // methods returning Object
+    static Set<String> VAR_HANDLE_RETURN_POLYMORPHIC = new HashSet<>(Arrays.asList(
+      "get",
+      "getVolatile",
+      "getOpaque",
+      "getAcquire"
+    ));
+
+    // methods returning void or boolean
+    static Set<String> VAR_HANDLE_PARAMETER_POLYMORPHIC = new HashSet<>(Arrays.asList(
+      "set",
+      "setVolatile",
+      "setOpaque",
+      "setRelease",
+      "compareAndSet",
+      "weakCompareAndSetPlain",
+      "weakCompareAndSet",
+      "weakCompareAndSetAcquire",
+      "weakCompareAndSetRelease"
+    ));
+
+    static {
+      String[] base = {
+        "compareAndExchange",
+        "getAndSet",
+        "getAndAdd",
+        "getAndBitwiseOr",
+        "getAndBitwiseAnd",
+        "getAndBitwiseXor"
+      };
+      for (String b : base) {
+        VAR_HANDLE_RETURN_POLYMORPHIC.add(b);
+        VAR_HANDLE_RETURN_POLYMORPHIC.add(b + "Acquire");
+        VAR_HANDLE_RETURN_POLYMORPHIC.add(b + "Release");
+      }
+      VAR_HANDLE_PARAMETER_POLYMORPHIC.addAll(VAR_HANDLE_RETURN_POLYMORPHIC);
+      VAR_HANDLE_PARAMETER_POLYMORPHIC = Collections.unmodifiableSet(VAR_HANDLE_PARAMETER_POLYMORPHIC);
+      VAR_HANDLE_RETURN_POLYMORPHIC = Collections.unmodifiableSet(VAR_HANDLE_RETURN_POLYMORPHIC);
+    }
+  }
+
+  static boolean isSignaturePolymorphic(String classname, String name, boolean checkReturn) {
+    if ("java/lang/invoke/MethodHandle".equals(classname)) {
+      return "invokeExact".equals(name) || "invoke".equals(name);
+    }
+    if ("java/lang/invoke/VarHandle".equals(classname)) {
+      return checkReturn
+        ? SignaturePolymorphic.VAR_HANDLE_RETURN_POLYMORPHIC.contains(name)
+        : SignaturePolymorphic.VAR_HANDLE_PARAMETER_POLYMORPHIC.contains(name);
+    }
+    return false;
+  }
+
+  static boolean isReturnPolymorphic(String classname, String name) {
+    return isSignaturePolymorphic(classname, name, true);
+  }
+
+  static boolean areParametersPolymorphic(String classname, String name) {
+    return isSignaturePolymorphic(classname, name, false);
+  }
 }

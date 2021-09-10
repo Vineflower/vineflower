@@ -546,6 +546,11 @@ public class InvocationExprent extends Exprent {
         }
       }
 
+      // Signature polymorphic methods returning Object require a cast to the return type in the descriptor
+      if (CodeConstants.isReturnPolymorphic(classname, name) && !descriptor.ret.equals(VarType.VARTYPE_VOID)) {
+        buf.append('(').append(ExprProcessor.getCastTypeName(descriptor.ret)).append(')');
+      }
+
       if (functype == TYP_GENERAL) {
         if (super_qualifier != null) {
           TextUtil.writeQualifiedSuper(buf, super_qualifier);
@@ -1078,6 +1083,13 @@ public class InvocationExprent extends Exprent {
     }
 
     BitSet missed = new BitSet(lstParameters.size());
+
+    // treat signature polymorphic methods as always ambiguous
+    // even if we have the classes available and think they are accepting Object...
+    if (CodeConstants.areParametersPolymorphic(classname, name)) {
+      missed.set(0, lstParameters.size());
+      return missed;
+    }
 
     // check if a call is unambiguous
     StructMethod mt = cl.getMethod(InterpreterUtil.makeUniqueKey(name, stringDescriptor));
