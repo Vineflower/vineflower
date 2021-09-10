@@ -34,6 +34,7 @@ public interface IFernflowerPreferences {
   String BYTECODE_SOURCE_MAPPING = "bsm";
   String IGNORE_INVALID_BYTECODE = "iib";
   String VERIFY_ANONYMOUS_CLASSES = "vac";
+  String TERNARY_CONSTANT_SIMPLIFICATION = "tcs";
 
   String INCLUDE_ENTIRE_CLASSPATH = "iec";
   String EXPLICIT_GENERIC_ARGUMENTS = "ega";
@@ -91,6 +92,7 @@ public interface IFernflowerPreferences {
     defaults.put(BYTECODE_SOURCE_MAPPING, "0");
     defaults.put(IGNORE_INVALID_BYTECODE, "0");
     defaults.put(VERIFY_ANONYMOUS_CLASSES, "0");
+    defaults.put(TERNARY_CONSTANT_SIMPLIFICATION, "0");
 
     defaults.put(INCLUDE_ENTIRE_CLASSPATH, "0");
     defaults.put(EXPLICIT_GENERIC_ARGUMENTS, "0");
