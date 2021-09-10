@@ -213,6 +213,12 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestShiftLoop");
     // TODO: this currently decompiles into invalid syntax
     register(JASM, "TestDoubleCast");
+    // TODO: this should have an enum
+    register(JAVA_16, "TestLocalEnum");
+    // TODO: this should have an interface
+    register(JAVA_16, "TestLocalInterface");
+    // TODO: private methods shouldn't have explicit default modifier
+    register(JAVA_9, "TestPrivateInterfaceMethod");
 
     register(JAVA_16_PREVIEW, "TestSealedClasses");
     register(JAVA_16_PREVIEW, "PermittedSubClassA", "TestSealedClasses");
