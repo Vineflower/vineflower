@@ -25,6 +25,7 @@ public class VarProcessor {
   private VarVersionsProcessor varVersions;
   private final Map<VarVersionPair, String> thisVars = new HashMap<>();
   private final Set<VarVersionPair> externalVars = new HashSet<>();
+  public boolean nestedProcessed;
 
   public VarProcessor(StructMethod mt, MethodDescriptor md) {
     method = mt;

@@ -223,5 +223,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16_PREVIEW, "PermittedSubClassC", "TestSealedInterfaces");
     register(JAVA_16_PREVIEW, "PermittedSubClassD", "PermittedSubClassC", "TestSealedInterfaces");
     register(JAVA_16_PREVIEW, "PermittedSubClassE", "TestSealedInterfaces");
+
+    register(JAVA_8_NODEBUG, "TestDuplicateLocals");
   }
 }

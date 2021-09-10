@@ -1,0 +1,238 @@
+package pkg;
+
+import java.util.List;
+import java.util.Map;
+
+public class TestDuplicateLocals {
+   public void test1(List<List<Object>> var1) {
+      System.out.println(var1);
+      var1.forEach(var0 -> {
+         System.out.println(var0);
+         var0.forEach(var1x -> {
+            System.out.println(var0);
+         });
+      });
+   }
+
+   public static void test2(List<List<Object>> var0) {
+      System.out.println(var0);
+      var0.forEach(var0x -> {
+         System.out.println(var0x);
+         var0x.forEach(var0xx -> {
+            System.out.println(var0xx);
+         });
+      });
+   }
+
+   public void test3(List<List<Object>> var1) {
+      System.out.println(var1);
+      var1.forEach(var0 -> {
+         int var1 = var0.size();
+         System.out.println(var0);
+         var0.forEach(var1x -> {
+            System.out.println(var1);
+         });
+      });
+   }
+
+   public void test4(Map<String, List<Object>> var1) {
+      System.out.println(var1);
+      var1.forEach((var1x, var2) -> {
+         System.out.println(var1x);
+         var1.forEach((var1xx, var2x) -> {
+            System.out.println(var1x);
+         });
+      });
+   }
+}
+
+class 'pkg/TestDuplicateLocals' {
+   method 'lambda$null$0 (Ljava/util/List;Ljava/lang/Object;)V' {
+      0      11
+      1      11
+      2      11
+      3      11
+      4      11
+      5      11
+      6      11
+      7      12
+   }
+
+   method 'lambda$test1$1 (Ljava/util/List;)V' {
+      2      9
+      3      9
+      4      9
+      5      9
+      6      9
+      7      9
+      8      9
+      9      10
+      10      10
+      11      10
+      12      10
+      13      10
+      14      10
+      15      13
+   }
+
+   method 'test1 (Ljava/util/List;)V' {
+      0      7
+      1      7
+      2      7
+      3      7
+      4      7
+      5      7
+      6      7
+      7      8
+      d      8
+      e      8
+      f      8
+      10      8
+      11      8
+      12      14
+   }
+
+   method 'lambda$null$2 (Ljava/lang/Object;)V' {
+      0      21
+      1      21
+      2      21
+      3      21
+      4      21
+      5      21
+      6      21
+      7      22
+   }
+
+   method 'lambda$test2$3 (Ljava/util/List;)V' {
+      0      19
+      1      19
+      2      19
+      3      19
+      4      19
+      5      19
+      6      19
+      7      20
+      d      20
+      e      20
+      f      20
+      10      20
+      11      20
+      12      23
+   }
+
+   method 'test2 (Ljava/util/List;)V' {
+      0      17
+      1      17
+      2      17
+      3      17
+      4      17
+      5      17
+      6      17
+      7      18
+      d      18
+      e      18
+      f      18
+      10      18
+      11      18
+      12      24
+   }
+
+   method 'lambda$null$4 (ILjava/lang/Object;)V' {
+      0      32
+      1      32
+      2      32
+      3      32
+      4      32
+      5      32
+      6      32
+      7      33
+   }
+
+   method 'lambda$test3$5 (Ljava/util/List;)V' {
+      0      29
+      1      29
+      2      29
+      3      29
+      4      29
+      5      29
+      6      29
+      7      30
+      8      30
+      9      30
+      a      30
+      b      30
+      c      30
+      d      30
+      e      31
+      15      31
+      16      31
+      17      31
+      18      31
+      19      31
+      1a      34
+   }
+
+   method 'test3 (Ljava/util/List;)V' {
+      0      27
+      1      27
+      2      27
+      3      27
+      4      27
+      5      27
+      6      27
+      7      28
+      d      28
+      e      28
+      f      28
+      10      28
+      11      28
+      12      35
+   }
+
+   method 'lambda$null$6 (Ljava/lang/String;Ljava/lang/String;Ljava/util/List;)V' {
+      0      42
+      1      42
+      2      42
+      3      42
+      4      42
+      5      42
+      6      42
+      7      43
+   }
+
+   method 'lambda$test4$7 (Ljava/util/Map;Ljava/lang/String;Ljava/util/List;)V' {
+      0      40
+      1      40
+      2      40
+      3      40
+      4      40
+      5      40
+      6      40
+      7      41
+      e      41
+      f      41
+      10      41
+      11      41
+      12      41
+      13      44
+   }
+
+   method 'test4 (Ljava/util/Map;)V' {
+      0      38
+      1      38
+      2      38
+      3      38
+      4      38
+      5      38
+      6      38
+      7      39
+      e      39
+      f      39
+      10      39
+      11      39
+      12      39
+      13      45
+   }
+}
+
+Lines mapping:
