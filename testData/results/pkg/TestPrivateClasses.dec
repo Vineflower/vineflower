@@ -1,0 +1,147 @@
+package pkg;
+
+class TestPrivateClasses {
+   private static final Runnable R1 = new Runnable() {
+      public void run() {
+         // $FF: Couldn't be decompiled
+      }
+   };
+   private final Runnable R2 = new Runnable() {
+      public void run() {
+         // $FF: Couldn't be decompiled
+      }// 17
+   };// 18
+
+   public static void m1(final String s) {
+      // $FF: Couldn't be decompiled// 22
+   }// 69
+// 70
+   public void m2(final String s) {
+      // $FF: Couldn't be decompiled// 117
+   }// 74 118
+
+   private interface Callable<T> {
+      T call();// 122 164
+   }// 165
+}
+
+class 'pkg/TestPrivateClasses$1$1NonCapturingLocalR1' {// 169
+   method '<init> (Lpkg/TestPrivateClasses$1;Ljava/lang/String;)V' {
+      9      11
+      a      11
+      b      11
+      c      11
+      d      11
+      e      12
+   }
+
+   method 'toString ()Ljava/lang/String;' {
+      0      15
+      1      15
+      2      15
+      3      15
+      4      15
+   }
+}
+
+class 'pkg/TestPrivateClasses$2$1NonCapturingLocalR2' {
+   method '<init> (Lpkg/TestPrivateClasses$2;Ljava/lang/String;)V' {
+      9      16
+      a      16
+      b      16
+      c      16
+      d      16
+      e      17
+   }
+
+   method 'toString ()Ljava/lang/String;' {
+      0      20
+      1      20
+      2      20
+      3      20
+      4      20
+   }
+}
+
+class 'pkg/TestPrivateClasses$1NonCapturingLocalM1' {
+   method '<init> (Ljava/lang/String;)V' {
+      4      19
+      5      19
+      6      19
+      7      19
+      8      19
+      9      20
+   }
+
+   method 'toString ()Ljava/lang/String;' {
+      0      23
+      1      23
+      2      23
+      3      23
+      4      23
+   }
+}
+
+class 'pkg/TestPrivateClasses$1NonCapturingLocalM2' {
+   method '<init> (Lpkg/TestPrivateClasses;Ljava/lang/String;)V' {
+      9      23
+      a      23
+      b      23
+      c      23
+      d      23
+      e      24
+   }
+
+   method 'toString ()Ljava/lang/String;' {
+      0      27
+      1      27
+      2      27
+      3      27
+      4      27
+   }
+}
+
+Lines mapping:
+17 <-> 12
+18 <-> 13
+22 <-> 16
+69 <-> 17
+70 <-> 18
+74 <-> 21
+117 <-> 20
+118 <-> 21
+122 <-> 24
+164 <-> 24
+165 <-> 25
+169 <-> 28
+Not mapped:
+11
+16
+39
+40
+42
+49
+56
+57
+63
+68
+91
+92
+94
+101
+108
+109
+116
+139
+140
+142
+149
+156
+157
+163
+186
+187
+189
+196
+203
+204
