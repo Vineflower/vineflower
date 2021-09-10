@@ -1,6 +1,6 @@
 package pkg;
 
-public class TestTernaryConstantSimplification {
+public class TestReturnTernaryConstantSimplification {
   public boolean ternaryNotAnd(boolean bl, boolean bl2) {
     return bl ? false : bl2;
   }

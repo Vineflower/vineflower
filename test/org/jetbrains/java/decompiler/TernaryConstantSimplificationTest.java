@@ -19,6 +19,8 @@ public class TernaryConstantSimplificationTest extends SingleClassesTestBase {
 
   @Override
   protected void registerAll() {
-    register(JAVA_8, "TestTernaryConstantSimplification");
+    register(JAVA_8, "TestReturnTernaryConstantSimplification");
+    // TODO: ifOr, redundantIf, nestedIf and nestedIfs aren't reduced to a ternary that would be simplified
+    register(JAVA_8, "TestAssignmentTernaryConstantSimplification");
   }
 }
