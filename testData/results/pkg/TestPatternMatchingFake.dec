@@ -1,54 +1,54 @@
-package java16;
+package pkg;
 
 public class TestPatternMatchingFake {
-   public void test1(Object var1) {
-      if (var1 instanceof Integer var2) {// 5 6
-         System.out.println(1 + var2);// 7
+   public void test1(Object obj) {
+      if (obj instanceof Integer i) {// 5 6
+         System.out.println(1 + i);// 7
       }
 
-      if (var1 instanceof Integer var4) {// 10
-         System.out.println(1 + var4);// 11
+      if (obj instanceof Integer i) {// 10
+         System.out.println(1 + i);// 11
       }
 
    }// 13
 
-   public void test1A(Object var1) {
-      if (var1 instanceof Integer var2) {// 16 17
-         System.out.println(1 + var2);// 18
+   public void test1A(Object obj) {
+      if (obj instanceof Integer i) {// 16 17
+         System.out.println(1 + i);// 18
       }
 
    }// 20
 
-   public void test1B(Object var1) {
-      if (var1 instanceof Integer var2) {// 23
-         System.out.println(1 + var2);// 24
+   public void test1B(Object obj) {
+      if (obj instanceof Integer i) {// 23
+         System.out.println(1 + i);// 24
       }
 
    }// 26
 
-   public void test2(Object var1) {
-      if (var1 instanceof Integer) {// 29
-         System.out.println(1 + (Integer)var1);// 30
+   public void test2(Object obj) {
+      if (obj instanceof Integer) {// 29
+         System.out.println(1 + (Integer)obj);// 30
       }
 
-      if (var1 instanceof Integer var2) {// 33
-         System.out.println(1 + var2);// 34
+      if (obj instanceof Integer i) {// 33
+         System.out.println(1 + i);// 34
       }
 
    }// 36
 
-   public void testClash(Object var1) {
-      if (var1 instanceof String var2) {// 39
-         System.out.println(var2.length());// 40 42 43 44
+   public void testClash(Object obj) {
+      if (obj instanceof String s) {// 39
+         System.out.println(s.length());// 40 42 43 44
       } else {
-         byte var3 = 0;
-         System.out.println(var3);
+         int s = 0;
+         System.out.println(s);
       }
 
    }// 46
 }
 
-class 'java16/TestPatternMatchingFake' {
+class 'pkg/TestPatternMatchingFake' {
    method 'test1 (Ljava/lang/Object;)V' {
       0      4
       1      4

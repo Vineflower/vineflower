@@ -1,27 +1,27 @@
-package java16;
+package pkg;
 
 public class TestPatternMatching {
-   public void testSimple(Object var1) {
-      if (var1 instanceof String var2) {// 5
-         System.out.println(var2.length());// 6
+   public void testSimple(Object obj) {
+      if (obj instanceof String str) {// 5
+         System.out.println(str.length());// 6
       }
 
    }// 8
 
-   public void testCompound(Object var1) {
-      if (var1 instanceof String) {// 11
-         String var2 = (String)var1;
-         if (var2.contains("hi")) {
-            System.out.println(var2.length());// 12
+   public void testCompound(Object obj) {
+      if (obj instanceof String) {// 11
+         String str = (String)obj;
+         if (str.contains("hi")) {
+            System.out.println(str.length());// 12
          }
       }
 
    }// 14
 
-   public boolean testReturn(Object var1) {
-      if (var1 instanceof String) {// 17
-         String var2 = (String)var1;
-         if (var2.length() > 5) {
+   public boolean testReturn(Object obj) {
+      if (obj instanceof String) {// 17
+         String s = (String)obj;
+         if (s.length() > 5) {
             return true;
          }
       }
@@ -29,39 +29,37 @@ public class TestPatternMatching {
       return false;
    }
 
-   public int testReturnTernary(Object var1) {
-      return var1 instanceof String var2 ? var2.length() : 0;// 21
+   public int testReturnTernary(Object obj) {
+      return obj instanceof String s ? s.length() : 0;// 21
    }
 
-   public int testReturnTernaryComplex(Object var1) {
-      if (var1 instanceof String) {// 25
-         String var2 = (String)var1;
-         if (var2.length() > 5) {
+   public int testReturnTernaryComplex(Object obj) {
+      if (obj instanceof String) {// 25
+         String s = (String)obj;
+         if (s.length() > 5) {
             return 4;
          }
       }
 
-      return !(var1 instanceof Integer) ? 1 : 4;
+      return !(obj instanceof Integer) ? 1 : 4;
    }
 
-   public void testLoop(Object var1) {
-      while(true) {
-         if (var1 instanceof String) {// 29
-            String var2 = (String)var1;
-            if (var2.length() > 10) {
-               var2 = var2.substring(1);// 30
-               var1 = var2.substring(1);// 31
-               System.out.println(var2);// 33
-               continue;
-            }
+   public void testLoop(Object obj) {
+      while(obj instanceof String) {// 29
+         String s = (String)obj;
+         if (s.length() > 10) {
+            s = s.substring(1);// 30
+            obj = s.substring(1);// 31
+            System.out.println(s);// 33
+            continue;
          }
-
-         return;// 35
+         break;
       }
-   }
+
+   }// 35
 }
 
-class 'java16/TestPatternMatching' {
+class 'pkg/TestPatternMatching' {
    method 'testSimple (Ljava/lang/Object;)V' {
       0      4
       3      4
@@ -171,42 +169,41 @@ class 'java16/TestPatternMatching' {
    }
 
    method 'testLoop (Ljava/lang/Object;)V' {
-      0      48
-      3      48
-      4      48
-      5      48
-      6      48
-      a      49
-      b      49
-      c      49
-      d      49
-      e      50
-      f      50
-      10      50
-      11      50
-      12      50
-      13      50
-      14      50
-      17      51
-      18      51
-      19      51
-      1a      51
-      1b      51
-      1c      51
-      1d      52
-      1e      52
-      1f      52
-      20      52
-      21      52
-      22      52
-      23      53
-      24      53
-      25      53
-      26      53
-      27      53
-      28      53
-      29      53
-      2a      54
+      0      47
+      3      47
+      4      47
+      5      47
+      a      48
+      b      48
+      c      48
+      d      48
+      e      49
+      f      49
+      10      49
+      11      49
+      12      49
+      13      49
+      14      49
+      17      50
+      18      50
+      19      50
+      1a      50
+      1b      50
+      1c      50
+      1d      51
+      1e      51
+      1f      51
+      20      51
+      21      51
+      22      51
+      23      52
+      24      52
+      25      52
+      26      52
+      27      52
+      28      52
+      29      52
+      2a      53
       2d      58
    }
 }
@@ -221,8 +218,8 @@ Lines mapping:
 17 <-> 22
 21 <-> 33
 25 <-> 37
-29 <-> 49
-30 <-> 52
-31 <-> 53
-33 <-> 54
+29 <-> 48
+30 <-> 51
+31 <-> 52
+33 <-> 53
 35 <-> 59

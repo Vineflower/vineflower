@@ -1,4 +1,4 @@
-package java16;
+package pkg;
 
 public class TestPatternMatchingInteger {
     public int testSimple(Object obj) {

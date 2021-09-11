@@ -1,41 +1,41 @@
-package java16;
+package pkg;
 
 public class TestPatternMatchingInteger {
-   public int testSimple(Object var1) {
-      return var1 instanceof Integer var2 ? var2 + 1 : 1;// 5 6 9
+   public int testSimple(Object obj) {
+      return obj instanceof Integer i ? i + 1 : 1;// 5 6 9
    }
 
-   public int testMulti(Object var1, Object var2) {
-      if (var1 instanceof Integer) {// 13
-         Integer var3 = (Integer)var1;
-         if (var2 instanceof Integer var6) {
-            return var3 + var6;// 14
+   public int testMulti(Object a, Object b) {
+      if (a instanceof Integer) {// 13
+         Integer ai = (Integer)a;
+         if (b instanceof Integer bi) {
+            return ai + bi;// 14
          }
       }
 
-      if (var1 instanceof Integer var5) {// 15
-         return var5;// 16
+      if (a instanceof Integer ai) {// 15
+         return ai;// 16
       } else {
-         return var2 instanceof Integer var4 ? var4 : 0;// 17 18 21
+         return b instanceof Integer bi ? bi : 0;// 17 18 21
       }
    }
 
-   public int testMultiDifferent(Object var1, Object var2) {
-      if (var1 instanceof Integer) {// 25
-         Integer var3 = (Integer)var1;
-         if (var2 instanceof String var4) {
-            return var3 + var4.length();// 26
+   public int testMultiDifferent(Object a, Object b) {
+      if (a instanceof Integer) {// 25
+         Integer i = (Integer)a;
+         if (b instanceof String s) {
+            return i + s.length();// 26
          }
       }
 
       return 0;// 29
    }
 
-   public void testDeMorgan(Object var1) {
-      if (var1 instanceof Integer) {// 33
-         Integer var2 = (Integer)var1;
-         if (var2 >= 1 && var2 >= 41) {
-            System.out.println(var2);// 36
+   public void testDeMorgan(Object obj) {
+      if (obj instanceof Integer) {// 33
+         Integer i = (Integer)obj;
+         if (i >= 1 && i >= 41) {
+            System.out.println(i);// 36
             return;// 38
          }
       }
@@ -44,7 +44,7 @@ public class TestPatternMatchingInteger {
    }
 }
 
-class 'java16/TestPatternMatchingInteger' {
+class 'pkg/TestPatternMatchingInteger' {
    method 'testSimple (Ljava/lang/Object;)I' {
       0      4
       3      4
@@ -127,12 +127,12 @@ class 'java16/TestPatternMatchingInteger' {
       e      24
       f      24
       10      24
-      11      25
-      16      25
+      11      24
+      12      25
       17      25
       18      25
       19      25
-      21      25
+      1a      25
       22      25
       23      26
       24      26
