@@ -596,7 +596,15 @@ public class FunctionExprent extends Exprent {
       case FUNCTION_MMI:
         return wrapOperandString(lstOperands.get(0), true, indent, tracer).prepend("--");
       case FUNCTION_INSTANCEOF:
-        return wrapOperandString(lstOperands.get(0), true, indent, tracer).append(" instanceof ").append(wrapOperandString(lstOperands.get(1), true, indent, tracer));
+        TextBuffer buffer = wrapOperandString(lstOperands.get(0), true, indent, tracer).append(" instanceof ").append(wrapOperandString(lstOperands.get(1), true, indent, tracer));
+
+        if (this.lstOperands.size() > 2) {
+          // Pattern instanceof creation- only happens when we have more than 2 exprents
+          buffer.append(" ");
+          ((VarExprent)this.lstOperands.get(2)).setDefinition(false);
+          buffer.append(wrapOperandString(this.lstOperands.get(2), true, indent, tracer));
+        }
+        return buffer;
       case FUNCTION_LCMP: // shouldn't appear in the final code
         return wrapOperandString(lstOperands.get(0), true, indent, tracer).prepend("__lcmp__(")
                  .append(", ")

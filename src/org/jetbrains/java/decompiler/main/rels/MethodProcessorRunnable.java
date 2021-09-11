@@ -11,10 +11,7 @@ import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.modules.code.DeadCodeHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.*;
 import org.jetbrains.java.decompiler.modules.decompiler.deobfuscator.ExceptionDeobfuscator;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.AssignmentExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.MonitorExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.SynchronizedStatement;
@@ -193,6 +190,12 @@ public class MethodProcessorRunnable implements Runnable {
 
       stackProc.simplifyStackVars(root, mt, cl);
       varProc.setVarVersions(root);
+
+      if (cl.getVersion().hasIfPatternMatching()) {
+        if (PatternMatchProcessor.matchInstanceof(root)) {
+          continue;
+        }
+      }
 
       LabelHelper.identifyLabels(root);
 

@@ -108,17 +108,7 @@ public class VarDefinitionHelper {
     while (!stack.isEmpty()) {
       Statement st = stack.removeFirst();
 
-      List<VarExprent> lstVars = null;
-      if (st.type == Statement.TYPE_CATCHALL) {
-        lstVars = ((CatchAllStatement)st).getVars();
-      }
-      else if (st.type == Statement.TYPE_TRYCATCH) {
-        lstVars = new ArrayList<>(((CatchStatement)st).getVars());
-        // resource vars must also be included
-        for (Exprent exp : ((CatchStatement)st).getResources()) {
-          lstVars.add((VarExprent)((AssignmentExprent)exp).getLeft());
-        }
-      }
+      List<VarExprent> lstVars = st.getImplicitlyDefinedVars();
 
       if (lstVars != null) {
         for (VarExprent var : lstVars) {

@@ -234,5 +234,12 @@ public class SingleClassesTest extends SingleClassesTestBase {
 
     register(JAVA_8, "TestMethodHandles");
     register(JAVA_9, "TestVarHandles");
+
+    register(JAVA_16, "TestPatternMatching");
+    // TODO: rename this
+    register(JAVA_16, "TestPatternMatchingFake");
+    register(JAVA_16, "TestPatternMatchingInteger");
+    // TODO: testNoInit is wrong
+    register(JAVA_16, "TestPatternMatchingMerge");
   }
 }

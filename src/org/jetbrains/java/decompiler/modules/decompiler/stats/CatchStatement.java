@@ -4,6 +4,7 @@ package org.jetbrains.java.decompiler.modules.decompiler.stats;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.AssignmentExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
@@ -13,7 +14,6 @@ import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
-import org.jetbrains.java.decompiler.util.TextBuffer;
 
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -259,5 +259,17 @@ public final class CatchStatement extends Statement {
 
   public List<Exprent> getResources() {
     return resources;
+  }
+
+  @Override
+  public List<VarExprent> getImplicitlyDefinedVars() {
+    List<VarExprent> vars = new ArrayList<>(getVars());
+
+    // resource vars must also be included
+    for (Exprent exp : getResources()) {
+      vars.add((VarExprent)((AssignmentExprent)exp).getLeft());
+    }
+
+    return vars;
   }
 }

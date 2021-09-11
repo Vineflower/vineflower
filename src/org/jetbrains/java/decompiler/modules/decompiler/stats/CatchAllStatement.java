@@ -211,4 +211,9 @@ public final class CatchAllStatement extends Statement {
   public List<VarExprent> getVars() {
     return vars;
   }
+
+  @Override
+  public List<VarExprent> getImplicitlyDefinedVars() {
+    return this.vars;
+  }
 }
