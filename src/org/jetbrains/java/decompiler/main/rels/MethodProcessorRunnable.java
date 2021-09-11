@@ -191,9 +191,11 @@ public class MethodProcessorRunnable implements Runnable {
       stackProc.simplifyStackVars(root, mt, cl);
       varProc.setVarVersions(root);
 
-      if (cl.getVersion().hasIfPatternMatching()) {
-        if (PatternMatchProcessor.matchInstanceof(root)) {
-          continue;
+      if (DecompilerContext.getOption(IFernflowerPreferences.PATTERN_MATCHING)) {
+        if (cl.getVersion().hasIfPatternMatching()) {
+          if (PatternMatchProcessor.matchInstanceof(root)) {
+            continue;
+          }
         }
       }
 

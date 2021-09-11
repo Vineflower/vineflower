@@ -86,6 +86,7 @@ The rest of options can be left as they are: they are aimed at professional reve
 - iib (0): ignore invalid bytecode
 - vac (0): verify that anonymous classes can be anonymous
 - tcs (0): simplify boolean constants in ternary operations
+- pam (0): decompile pattern matching
 - isl (1): inline simple lambdas
 - jvn (0): use jad variable naming
 - sef (0): skip copying non-class files from the input folder or file to the output
