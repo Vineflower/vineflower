@@ -1,0 +1,545 @@
+package pkg;
+
+import java.io.PrintStream;
+import java.util.Random;
+
+public class TestSwitchExpression {
+   public void test1(int x) {
+      String var10000;
+      switch(x) {// 7
+      case 1:
+         var10000 = "January";// 8
+         break;
+      case 2:
+         var10000 = "February";// 9
+         break;
+      case 3:
+         var10000 = "March";// 10
+         break;
+      case 4:
+         var10000 = "April";// 11
+         break;
+      case 5:
+         var10000 = "May";// 12
+         break;
+      case 6:
+         var10000 = "June";// 13
+         break;
+      case 7:
+         var10000 = "July";// 14
+         break;
+      case 8:
+         var10000 = "August";// 15
+         break;
+      case 9:
+         var10000 = "September";// 16
+         break;
+      case 10:
+         var10000 = "October";// 17
+         break;
+      case 11:
+         var10000 = "November";// 18
+         break;
+      case 12:
+         var10000 = "December";// 19
+         break;
+      default:
+         throw new IllegalStateException("Unexpected value: " + x);// 20
+      }
+
+      String month = var10000;
+      System.out.println(month);// 22
+   }// 23
+
+   public void test2(int x) {
+      String var10000;
+      switch(x) {// 26
+      case 1:
+      case 3:
+      case 5:
+      case 7:
+      case 9:
+      case 11:
+         var10000 = "Odd";// 27
+         break;
+      case 2:
+      case 4:
+      case 6:
+      case 8:
+      case 10:
+      case 12:
+         var10000 = "Even";// 28
+         break;
+      default:
+         throw new IllegalStateException("Unexpected value: " + x);// 29
+      }
+
+      String a = var10000;
+      System.out.println(a);// 31
+   }// 32
+
+   public void test3(int x) {
+      Random var10000;
+      switch(x) {// 35
+      case -5:
+      case -4:
+      case -3:
+      case -2:
+      case -1:
+         int seed = x >> 2;// 42
+         var10000 = new Random((long)seed);// 43
+         break;
+      case 0:
+      default:
+         throw new IllegalStateException("Unexpected value: " + x);// 45
+      case 1:
+      case 2:
+      case 3:
+      case 4:
+      case 5:
+         long seed = System.currentTimeMillis() - (long)(x * 1000);// 37
+         var10000 = new Random(seed);// 38
+         break;
+      case 6:
+      case 7:
+      case 8:
+      case 9:
+      case 10:
+         var10000 = new Random();
+      }
+
+      Random random = var10000;
+      System.out.println(random.nextInt());// 47
+   }// 48
+
+   public void test4(TestSwitchExpression.Direction direction) {
+      PrintStream var10000 = System.out;// 51
+      TestSwitchExpression.Direction var10001;
+      switch(direction) {
+      case NORTH:
+         var10001 = TestSwitchExpression.Direction.SOUTH;// 53
+         break;
+      case SOUTH:
+         var10001 = TestSwitchExpression.Direction.NORTH;// 55
+         break;
+      case EAST:
+         var10001 = TestSwitchExpression.Direction.WEST;// 57
+         break;
+      case WEST:
+         var10001 = TestSwitchExpression.Direction.EAST;// 59
+         break;
+      case UP:
+         var10001 = TestSwitchExpression.Direction.DOWN;// 61
+         break;
+      case DOWN:
+         var10001 = TestSwitchExpression.Direction.UP;// 63
+         break;
+      default:
+         throw new IncompatibleClassChangeError();
+      }
+
+      var10000.println(var10001);
+   }// 65
+
+   public void test5(String directionStr) {
+      String var3 = directionStr.toLowerCase();// 68
+      String var10000;
+      switch(var3) {
+      case "north":
+      case "south":
+         var10000 = "y";// 71
+         break;
+      case "east":
+      case "west":
+         var10000 = "x";// 74
+         break;
+      case "up":
+      case "down":
+         var10000 = "z";// 77
+         break;
+      default:
+         throw new IllegalStateException("Unexpected value: " + directionStr);// 79
+      }
+
+      String axis = var10000;
+      System.out.println(axis);// 81
+   }// 82
+
+   public void test6(TestSwitchExpression.Direction direction) {
+      int a = 1;// 85
+      switch(direction) {
+      case NORTH:
+         a |= direction.ordinal();// 88
+      case SOUTH:
+         a += 12;// 90
+      case EAST:
+         a *= 8;// 92
+      case WEST:
+         a ^= 128;// 94
+      case UP:
+         a /= 5;// 96
+      default:
+         int x = Integer.hashCode(a);// 86 98
+         System.out.println(x);// 100
+      }
+   }// 101
+
+   public void test7(TestSwitchExpression.Direction direction) {
+      PrintStream var10000 = System.out;// 104
+      byte var10001;
+      switch(direction) {
+      case NORTH:
+      case EAST:
+      case UP:
+         var10001 = -1;// 108
+         break;
+      case SOUTH:
+      case WEST:
+      case DOWN:
+         var10001 = 1;// 112
+         break;
+      default:
+         throw new IncompatibleClassChangeError();
+      }
+
+      var10000.println(var10001);
+   }// 114
+
+   public static enum Direction {
+      NORTH,
+      SOUTH,
+      EAST,
+      WEST,
+      UP,
+      DOWN;
+   }
+}
+
+class 'pkg/TestSwitchExpression' {
+   method 'test1 (I)V' {
+      0      8
+      1      8
+      40      10
+      41      10
+      42      11
+      45      13
+      46      13
+      47      14
+      4a      16
+      4b      16
+      4c      17
+      4f      19
+      50      19
+      51      20
+      54      22
+      55      22
+      56      23
+      59      25
+      5a      25
+      5b      26
+      5e      28
+      5f      28
+      60      29
+      63      31
+      64      31
+      65      32
+      68      34
+      69      34
+      6a      35
+      6d      37
+      6e      37
+      6f      38
+      72      40
+      73      40
+      74      41
+      77      43
+      78      43
+      79      44
+      80      46
+      81      46
+      82      46
+      83      46
+      84      46
+      85      46
+      89      46
+      8a      49
+      8b      50
+      8c      50
+      8d      50
+      8e      50
+      8f      50
+      90      50
+      91      50
+      92      51
+   }
+
+   method 'test2 (I)V' {
+      0      55
+      1      55
+      40      62
+      41      62
+      42      63
+      45      70
+      46      70
+      47      71
+      4e      73
+      4f      73
+      50      73
+      51      73
+      52      73
+      53      73
+      57      73
+      58      76
+      59      77
+      5a      77
+      5b      77
+      5c      77
+      5d      77
+      5e      77
+      5f      77
+      60      78
+   }
+
+   method 'test3 (I)V' {
+      0      82
+      1      82
+      50      99
+      51      99
+      52      99
+      53      99
+      54      99
+      55      99
+      56      99
+      57      99
+      58      99
+      59      99
+      5a      99
+      5f      100
+      63      101
+      70      88
+      71      88
+      72      88
+      73      88
+      78      89
+      79      89
+      7d      90
+      84      93
+      85      93
+      86      93
+      87      93
+      88      93
+      89      93
+      8d      93
+      8e      110
+      8f      111
+      90      111
+      91      111
+      92      111
+      93      111
+      94      111
+      95      111
+      96      111
+      97      111
+      98      111
+      99      112
+   }
+
+   method 'test4 (Lpkg/TestSwitchExpression$Direction;)V' {
+      0      115
+      1      115
+      2      115
+      6      117
+      b      117
+      30      119
+      31      119
+      32      119
+      33      120
+      36      122
+      37      122
+      38      122
+      39      123
+      3c      125
+      3d      125
+      3e      125
+      3f      126
+      42      128
+      43      128
+      44      128
+      45      129
+      48      131
+      49      131
+      4a      131
+      4b      132
+      4e      134
+      4f      134
+      50      134
+      51      135
+      5b      137
+      5c      140
+      5d      140
+      5e      140
+      5f      141
+   }
+
+   method 'test5 (Ljava/lang/String;)V' {
+      0      144
+      1      144
+      2      144
+      3      144
+      4      144
+      8      146
+      49      147
+      4a      147
+      58      148
+      59      148
+      67      151
+      68      151
+      76      152
+      77      152
+      85      155
+      86      155
+      94      156
+      95      156
+      a1      146
+      c8      149
+      c9      149
+      ca      150
+      cd      153
+      ce      153
+      cf      154
+      d2      157
+      d3      157
+      d4      158
+      db      160
+      dc      160
+      dd      160
+      de      160
+      df      160
+      e0      160
+      e4      160
+      e5      163
+      e6      164
+      e7      164
+      e8      164
+      e9      164
+      ea      164
+      eb      164
+      ec      164
+      ed      165
+   }
+
+   method 'test6 (Lpkg/TestSwitchExpression$Direction;)V' {
+      0      168
+      1      168
+      5      169
+      a      169
+      2d      171
+      2e      171
+      2f      171
+      30      171
+      32      171
+      33      173
+      37      175
+      38      175
+      3a      175
+      3c      177
+      3d      177
+      3e      177
+      40      177
+      42      179
+      44      179
+      45      181
+      46      181
+      47      181
+      48      181
+      49      181
+      4a      182
+      4b      182
+      4c      182
+      4d      182
+      4e      182
+      4f      182
+      50      182
+      51      184
+   }
+
+   method 'test7 (Lpkg/TestSwitchExpression$Direction;)V' {
+      0      187
+      1      187
+      2      187
+      6      189
+      b      189
+      30      193
+      31      194
+      34      198
+      35      199
+      3f      201
+      40      204
+      41      204
+      42      204
+      43      205
+   }
+}
+
+Lines mapping:
+7 <-> 9
+8 <-> 11
+9 <-> 14
+10 <-> 17
+11 <-> 20
+12 <-> 23
+13 <-> 26
+14 <-> 29
+15 <-> 32
+16 <-> 35
+17 <-> 38
+18 <-> 41
+19 <-> 44
+20 <-> 47
+22 <-> 51
+23 <-> 52
+26 <-> 56
+27 <-> 63
+28 <-> 71
+29 <-> 74
+31 <-> 78
+32 <-> 79
+35 <-> 83
+37 <-> 100
+38 <-> 101
+42 <-> 89
+43 <-> 90
+45 <-> 94
+47 <-> 112
+48 <-> 113
+51 <-> 116
+53 <-> 120
+55 <-> 123
+57 <-> 126
+59 <-> 129
+61 <-> 132
+63 <-> 135
+65 <-> 142
+68 <-> 145
+71 <-> 150
+74 <-> 154
+77 <-> 158
+79 <-> 161
+81 <-> 165
+82 <-> 166
+85 <-> 169
+86 <-> 182
+88 <-> 172
+90 <-> 174
+92 <-> 176
+94 <-> 178
+96 <-> 180
+98 <-> 182
+100 <-> 183
+101 <-> 185
+104 <-> 188
+108 <-> 194
+112 <-> 199
+114 <-> 206
+Not mapped:
+40

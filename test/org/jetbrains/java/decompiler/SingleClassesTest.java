@@ -219,6 +219,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16, "TestLocalInterface");
     // TODO: private methods shouldn't have explicit default modifier
     register(JAVA_9, "TestPrivateInterfaceMethod");
+    register(JAVA_16, "TestSwitchExpression");
 
     register(JAVA_16_PREVIEW, "TestSealedClasses");
     register(JAVA_16_PREVIEW, "PermittedSubClassA", "TestSealedClasses");
