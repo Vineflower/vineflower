@@ -2,35 +2,38 @@
 package org.jetbrains.java.decompiler.util;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 public class ListStack<T> extends ArrayList<T> {
-  protected int pointer = 0;
-
   public ListStack() {
     super();
   }
 
-  public ListStack(ArrayList<? extends T> list) {
+  public ListStack(Collection<? extends T> list) {
     super(list);
+  }
+
+  private int pointer() {
+    return this.size() - 1;
   }
 
   @Override
   @SuppressWarnings("MethodDoesntCallSuperMethod")
   public ListStack<T> clone() {
-    ListStack<T> copy = new ListStack<>(this);
-    copy.pointer = this.pointer;
-    return copy;
+    return new ListStack<>(this);
   }
 
   public void push(T item) {
     this.add(item);
-    pointer++;
+  }
+
+  public T peek() {
+    return this.get(this.pointer());
   }
 
   public T pop() {
-    pointer--;
-    T o = this.get(pointer);
-    this.remove(pointer);
+    T o = this.peek();
+    this.remove(this.pointer());
     return o;
   }
 
@@ -43,29 +46,14 @@ public class ListStack<T> extends ArrayList<T> {
   }
 
   public void removeMultiple(int count) {
-    while (count > 0) {
-      pointer--;
-      this.remove(pointer);
-      count--;
-    }
-  }
-
-  public int getPointer() {
-    return pointer;
+    this.pop(count);
   }
 
   public T getByOffset(int offset) {
-    return this.get(pointer + offset);
+    return this.get(this.size() + offset);
   }
 
   public void insertByOffset(int offset, T item) {
-    this.add(pointer + offset, item);
-    pointer++;
-  }
-
-  @Override
-  public void clear() {
-    super.clear();
-    pointer = 0;
+    this.add(this.size() + offset, item);
   }
 }

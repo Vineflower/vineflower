@@ -6,6 +6,7 @@ import org.jetbrains.java.decompiler.code.Instruction;
 import org.jetbrains.java.decompiler.code.InstructionSequence;
 import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.util.ListStack;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
@@ -223,7 +224,7 @@ public class ExprProcessor implements CodeConstants {
   }
 
   private static PrimitiveExprsList copyVarExprents(PrimitiveExprsList data) {
-    ExprentStack stack = data.getStack();
+    ListStack<Exprent> stack = data.getStack();
     copyEntries(stack);
     return data;
   }
@@ -274,7 +275,7 @@ public class ExprProcessor implements CodeConstants {
 
     BasicBlock block = stat.getBlock();
 
-    ExprentStack stack = data.getStack();
+    ListStack<Exprent> stack = data.getStack();
     List<Exprent> exprlist = data.getLstExprents();
 
     InstructionSequence seq = block.getSeq();
@@ -654,11 +655,11 @@ public class ExprProcessor implements CodeConstants {
     }
   }
 
-  private void pushEx(ExprentStack stack, List<Exprent> exprlist, Exprent exprent) {
+  private void pushEx(ListStack<Exprent> stack, List<Exprent> exprlist, Exprent exprent) {
     pushEx(stack, exprlist, exprent, null);
   }
 
-  private void pushEx(ExprentStack stack, List<Exprent> exprlist, Exprent exprent, VarType vartype) {
+  private void pushEx(ListStack<Exprent> stack, List<Exprent> exprlist, Exprent exprent, VarType vartype) {
     int varindex = VarExprent.STACK_BASE + stack.size();
     VarExprent var = new VarExprent(varindex, vartype == null ? exprent.getExprType() : vartype, varProcessor);
     var.setStack(true);
@@ -667,7 +668,7 @@ public class ExprProcessor implements CodeConstants {
     stack.push(var.copy());
   }
 
-  private void insertByOffsetEx(int offset, ExprentStack stack, List<Exprent> exprlist, int copyoffset) {
+  private void insertByOffsetEx(int offset, ListStack<Exprent> stack, List<Exprent> exprlist, int copyoffset) {
 
     int base = VarExprent.STACK_BASE + stack.size();
 
