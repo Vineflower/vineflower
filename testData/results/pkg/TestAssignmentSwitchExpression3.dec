@@ -1,0 +1,97 @@
+package pkg;
+
+import java.util.Random;
+
+public class TestAssignmentSwitchExpression3 {
+   public void test(int x) {
+      Random var10000;
+      switch(x) {// 7
+      case -5:
+      case -4:
+      case -3:
+      case -2:
+      case -1:
+         int seed = x >> 2;// 14
+         var10000 = new Random((long)seed);// 15
+         break;
+      case 0:
+      default:
+         throw new IllegalStateException("Unexpected value: " + x);// 17
+      case 1:
+      case 2:
+      case 3:
+      case 4:
+      case 5:
+         long seed = System.currentTimeMillis() - (long)(x * 1000);// 9
+         var10000 = new Random(seed);// 10
+         break;
+      case 6:
+      case 7:
+      case 8:
+      case 9:
+      case 10:
+         var10000 = new Random();
+      }
+
+      Random random = var10000;
+      System.out.println(random.nextInt());// 19
+   }// 20
+}
+
+class 'pkg/TestAssignmentSwitchExpression3' {
+   method 'test (I)V' {
+      0      7
+      1      7
+      50      24
+      51      24
+      52      24
+      53      24
+      54      24
+      55      24
+      56      24
+      57      24
+      58      24
+      59      24
+      5a      24
+      5f      25
+      63      26
+      70      13
+      71      13
+      72      13
+      73      13
+      78      14
+      79      14
+      7d      15
+      84      18
+      85      18
+      86      18
+      87      18
+      88      18
+      89      18
+      8d      18
+      8e      35
+      8f      36
+      90      36
+      91      36
+      92      36
+      93      36
+      94      36
+      95      36
+      96      36
+      97      36
+      98      36
+      99      37
+   }
+}
+
+Lines mapping:
+7 <-> 8
+9 <-> 25
+10 <-> 26
+14 <-> 14
+15 <-> 15
+17 <-> 19
+19 <-> 37
+20 <-> 38
+Not mapped:
+12
