@@ -1,0 +1,71 @@
+/**
+ * This code can be assembled with <a href="https://wiki.openjdk.java.net/display/CodeTools/asmtools">asmtools</a>
+ * using <code>asmtools jasm -g *.jasm</code> command line.
+ */
+package  pkg;
+
+super public class TestIllegalMethodNames
+    version 52:0
+{
+public Method "<init>":"()V"
+    stack 1 locals 1
+{
+        aload_0;
+        invokespecial    Method java/lang/Object."<init>":"()V";
+        return;
+
+}
+public Method (I)V:"(I)V"
+    stack 3 locals 2
+{
+        aload_0;
+        invokevirtual    Method ()V:"()V";
+        getstatic    Field java/lang/System.out:"Ljava/io/PrintStream;";
+        aload_0;
+        iload_1;
+        invokevirtual    Method (I)Z:"(I)Z";
+        invokevirtual    Method java/io/PrintStream.println:"(Z)V";
+        return;
+
+}
+public Method ()V:"()V"
+    stack 2 locals 1
+{
+        getstatic    Field java/lang/System.out:"Ljava/io/PrintStream;";
+        aload_0;
+        invokevirtual    Method ()I:"()I";
+        invokevirtual    Method java/io/PrintStream.println:"(I)V";
+        return;
+
+}
+public Method ()I:"()I"
+    stack 1 locals 1
+{
+        bipush    13;
+        ireturn;
+
+}
+public Method (I)Z:"(I)Z"
+    stack 2 locals 2
+{
+        iload_1;
+        aload_0;
+        invokevirtual    Method ()I:"()I";
+        if_icmpgt    L12;
+        iconst_1;
+        goto    L13;
+    L12:    stack_frame_type same;
+        iconst_0;
+    L13:    stack_frame_type stack1;
+        stack_map int;
+        ireturn;
+
+}
+public Method __V:"()V"
+    stack 0 locals 1
+{
+        return;
+
+}
+
+} // end Class TestIllegalMethodNames

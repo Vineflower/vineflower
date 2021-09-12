@@ -233,5 +233,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
 
     register(JAVA_8, "TestMethodHandles");
     register(JAVA_9, "TestVarHandles");
+    // TODO: fix duplicate naming, propagate renames to all method calls
+    register(JASM, "TestIllegalMethodNames");
   }
 }
