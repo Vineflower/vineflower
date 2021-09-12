@@ -217,6 +217,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16, "TestLocalEnum");
     // TODO: this should have an interface
     register(JAVA_16, "TestLocalInterface");
+    register(JAVA_16, "TestLocalRecord");
     // TODO: private methods shouldn't have explicit default modifier
     register(JAVA_9, "TestPrivateInterfaceMethod");
 
