@@ -13,10 +13,6 @@ public class ListStack<T> extends ArrayList<T> {
     super(list);
   }
 
-  private int pointer() {
-    return this.size() - 1;
-  }
-
   @Override
   @SuppressWarnings("MethodDoesntCallSuperMethod")
   public ListStack<T> clone() {
@@ -28,13 +24,11 @@ public class ListStack<T> extends ArrayList<T> {
   }
 
   public T peek() {
-    return this.get(this.pointer());
+    return this.get(this.size() - 1);
   }
 
   public T pop() {
-    T o = this.peek();
-    this.remove(this.pointer());
-    return o;
+    return this.remove(this.size() - 1);
   }
 
   public T pop(int count) {
