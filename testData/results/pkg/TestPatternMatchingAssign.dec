@@ -1,0 +1,37 @@
+package pkg;
+
+public class TestPatternMatchingAssign {
+   public void test(Object o) {
+      if (o instanceof String s) {// 5
+         String var4 = "hello";// 6
+         System.out.println(var4);// 7
+      }
+
+   }// 9
+}
+
+class 'pkg/TestPatternMatchingAssign' {
+   method 'test (Ljava/lang/Object;)V' {
+      0      4
+      3      4
+      4      4
+      5      4
+      6      4
+      d      4
+      e      5
+      f      5
+      10      5
+      11      6
+      12      6
+      13      6
+      14      6
+      15      6
+      18      9
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 6
+7 <-> 7
+9 <-> 10
