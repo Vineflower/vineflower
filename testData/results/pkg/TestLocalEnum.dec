@@ -2,7 +2,7 @@ package pkg;
 
 public class TestLocalEnum {
    public void test(int i) {
-      final class Type extends Enum<Type> {
+      enum Type {
          VALID,
          INVALID;
       }

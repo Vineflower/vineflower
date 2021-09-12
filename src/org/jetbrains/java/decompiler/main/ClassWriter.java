@@ -509,6 +509,11 @@ public class ClassWriter {
       // remove abstract and final flags (JLS 8.9 Enums)
       flags &= ~CodeConstants.ACC_ABSTRACT;
       flags &= ~CodeConstants.ACC_FINAL;
+
+      // remove implicit static flag for local enums (JLS 14.3 Local class and interface declarations)
+      if (node.type == ClassNode.CLASS_LOCAL) {
+        flags &= ~CodeConstants.ACC_STATIC;
+      }
     }
 
     List<StructRecordComponent> components = cl.getRecordComponents();

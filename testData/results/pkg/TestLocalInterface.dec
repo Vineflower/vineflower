@@ -3,7 +3,7 @@ package pkg;
 public class TestLocalInterface {
    public void test(int i) {
       @FunctionalInterface
-      abstract class IntToString {
+      interface IntToString {
          String apply(int var1);
       }
 
