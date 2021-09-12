@@ -218,13 +218,23 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16, "TestLocalRecord");
     // TODO: private methods shouldn't have explicit default modifier
     register(JAVA_9, "TestPrivateInterfaceMethod");
+
     register(JAVA_16, "TestAssignmentSwitchExpression1");
     register(JAVA_16, "TestAssignmentSwitchExpression2");
     register(JAVA_16, "TestAssignmentSwitchExpression3");
     register(JAVA_16, "TestAssignmentSwitchExpression4");
+    register(JAVA_16, "TestAssignmentSwitchExpression5");
+    register(JAVA_16, "TestAssignmentSwitchExpression6");
     register(JAVA_16, "TestInlineSwitchExpression1");
     register(JAVA_16, "TestInlineSwitchExpression2");
     register(JAVA_16, "TestInlineSwitchExpression3");
+    register(JAVA_16, "TestInlineSwitchExpression4");
+    register(JAVA_16, "TestReturnSwitchExpression1");
+    register(JAVA_16, "TestReturnSwitchExpression2");
+    register(JAVA_16, "TestReturnSwitchExpression3");
+    register(JAVA_16, "TestReturnSwitchExpression4");
+    register(JAVA_16, "TestConstructorSwitchExpression1");
+    register(JAVA_16, "TestConstructorSwitchExpression2");
 
     register(JAVA_16_PREVIEW, "TestSealedClasses");
     register(JAVA_16_PREVIEW, "PermittedSubClassA", "TestSealedClasses");
@@ -242,5 +252,9 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_9, "TestVarHandles");
     // TODO: fix duplicate naming, propagate renames to all method calls
     register(JASM, "TestIllegalMethodNames");
+    register(JAVA_8, "TestSwitchOnlyDefault");
+    register(JAVA_8, "TestSwitchEmpty");
+    // TODO: putting default before case breaks
+    register(JAVA_8, "TestSwitchDefaultBefore");
   }
 }

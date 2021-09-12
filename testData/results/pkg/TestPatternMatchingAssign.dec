@@ -1,13 +1,13 @@
 package pkg;
 
 public class TestPatternMatchingAssign {
-   public void test(Object o) {
-      if (o instanceof String s) {// 5
-         String var4 = "hello";// 6
-         System.out.println(var4);// 7
+   public void test(Object var1) {
+      if (var1 instanceof String var2) {
+         String var4 = "hello";
+         System.out.println(var4);
       }
 
-   }// 9
+   }
 }
 
 class 'pkg/TestPatternMatchingAssign' {
@@ -31,7 +31,3 @@ class 'pkg/TestPatternMatchingAssign' {
 }
 
 Lines mapping:
-5 <-> 5
-6 <-> 6
-7 <-> 7
-9 <-> 10

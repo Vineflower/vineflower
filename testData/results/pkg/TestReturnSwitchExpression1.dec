@@ -1,0 +1,40 @@
+package pkg;
+
+public class TestReturnSwitchExpression1 {
+   public String test(int i) {
+      String var10000;
+      switch(i) {
+      case 1:
+         var10000 = "1";// 6
+         break;
+      case 2:
+         var10000 = "2";// 7
+         break;
+      default:
+         var10000 = "Unknown";// 8
+      }
+
+      return var10000;// 5
+   }
+}
+
+class 'pkg/TestReturnSwitchExpression1' {
+   method 'test (I)Ljava/lang/String;' {
+      0      5
+      1      5
+      1c      7
+      1d      7
+      1e      8
+      21      10
+      22      10
+      23      11
+      26      13
+      28      16
+   }
+}
+
+Lines mapping:
+5 <-> 17
+6 <-> 8
+7 <-> 11
+8 <-> 14

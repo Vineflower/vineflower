@@ -1,0 +1,68 @@
+package pkg;
+
+public class TestSwitchDefaultBefore {
+   public void test(String s) {
+      // $FF: Couldn't be decompiled
+   }
+
+   public void test2(int i) {
+      switch(i) {// 20
+      case 1:
+         System.out.println(1);// 22
+         break;// 23
+      case 2:
+         System.out.println(2);// 25
+         break;// 26
+      case 3:
+      default:
+         System.out.println(3);// 29
+      }
+
+   }// 32
+}
+
+class 'pkg/TestSwitchDefaultBefore' {
+   method 'test2 (I)V' {
+      0      8
+      1      8
+      1c      10
+      1d      10
+      1e      10
+      1f      10
+      20      10
+      21      10
+      22      10
+      23      11
+      26      13
+      27      13
+      28      13
+      29      13
+      2a      13
+      2b      13
+      2c      13
+      2d      14
+      30      17
+      31      17
+      32      17
+      33      17
+      34      17
+      37      20
+   }
+}
+
+Lines mapping:
+20 <-> 9
+22 <-> 11
+23 <-> 12
+25 <-> 14
+26 <-> 15
+29 <-> 18
+32 <-> 21
+Not mapped:
+5
+7
+8
+10
+11
+14
+17
