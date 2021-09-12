@@ -23,7 +23,7 @@ public class SingleClassesPatternMatchTest extends SingleClassesTestBase {
     register(JAVA_16, "TestPatternMatching");
     // TODO: rename this
     register(JAVA_16, "TestPatternMatchingFake");
-    register(JAVA_16, "TestPatternMatchingInteger");
+    registerFailable(JAVA_16, "TestPatternMatchingInteger");
     // TODO: testNoInit is wrong
     register(JAVA_16, "TestPatternMatchingMerge");
   }
