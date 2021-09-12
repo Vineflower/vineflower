@@ -1,6 +1,7 @@
 // Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.main;
 
+import org.jetbrains.java.decompiler.code.BytecodeVersion;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.Instruction;
 import org.jetbrains.java.decompiler.code.InstructionSequence;
@@ -260,7 +261,15 @@ public class ClassesProcessor implements CodeConstants {
                 }
                 else if (nestedNode.type == ClassNode.CLASS_LOCAL) {
                   // only abstract and final are permitted (a common compiler bug)
-                  nestedNode.access &= (CodeConstants.ACC_ABSTRACT | CodeConstants.ACC_FINAL);
+                  int allowedFlags = CodeConstants.ACC_ABSTRACT | CodeConstants.ACC_FINAL;
+                  // in java 16 we have local interfaces and enums
+                  if (scl.getVersion().major >= BytecodeVersion.MAJOR_16) {
+                    allowedFlags |= CodeConstants.ACC_INTERFACE | CodeConstants.ACC_ENUM;
+                    if ((nestedNode.access & ACC_ENUM) != 0) {
+                      allowedFlags |= CodeConstants.ACC_STATIC;
+                    }
+                  }
+                  nestedNode.access &= allowedFlags;
                 }
 
                 superNode.nested.add(nestedNode);

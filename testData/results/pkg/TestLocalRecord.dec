@@ -1,0 +1,90 @@
+package pkg;
+
+public class TestLocalRecord {
+   public void test(int i) {
+      record Color(int red, int green, int blue) {
+         Color(int red, int green, int blue) {
+            this.red = red;// 5
+            this.green = green;
+            this.blue = blue;
+         }
+      }
+
+      Color color = new Color((i >> 16 & 0xFF) / 255, (i >> 8 & 0xFF) / 255, (i & 0xFF) / 255);// 6
+      System.out.println(color);// 7
+   }// 8
+}
+
+class 'pkg/TestLocalRecord$1Color' {
+   method '<init> (III)V' {
+      4      6
+      5      6
+      6      6
+      7      6
+      8      6
+      9      7
+      a      7
+      b      7
+      c      7
+      d      7
+      e      8
+      f      8
+      10      8
+      11      8
+      12      8
+      13      9
+   }
+}
+
+class 'pkg/TestLocalRecord' {
+   method 'test (I)V' {
+      4      12
+      5      12
+      6      12
+      7      12
+      8      12
+      9      12
+      a      12
+      b      12
+      c      12
+      d      12
+      e      12
+      f      12
+      10      12
+      11      12
+      12      12
+      13      12
+      14      12
+      15      12
+      16      12
+      17      12
+      18      12
+      19      12
+      1a      12
+      1b      12
+      1c      12
+      1d      12
+      1e      12
+      1f      12
+      20      12
+      21      12
+      22      12
+      23      12
+      24      12
+      28      12
+      29      13
+      2a      13
+      2b      13
+      2c      13
+      2d      13
+      2e      13
+      2f      13
+      30      14
+   }
+}
+
+Lines mapping:
+5 <-> 7
+6 <-> 13
+7 <-> 14
+8 <-> 15
