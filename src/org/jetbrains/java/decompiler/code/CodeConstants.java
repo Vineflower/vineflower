@@ -31,6 +31,7 @@ public interface CodeConstants {
   int TYPE_SHORTCHAR = 16;
   int TYPE_UNKNOWN = 17;
   int TYPE_GENVAR = 18;
+  int TYPE_PRIMITIVE_OBJECT = 19;
 
   // ----------------------------------------------------------------------
   // VARIABLE TYPE FAMILIES
@@ -73,7 +74,14 @@ public interface CodeConstants {
   // ----------------------------------------------------------------------
 
   int ACC_SUPER = 0x0020;
+  int ACC_PRIMITIVE = 0x0100;
   int ACC_INTERFACE = 0x0200;
+
+  // ----------------------------------------------------------------------
+  // JAVA FLAGS ATTRIBUTE
+  // ----------------------------------------------------------------------
+
+  int ACC_REF_DEFAULT = 0x0001;
 
   // ----------------------------------------------------------------------
   // INSTRUCTION GROUPS
@@ -328,6 +336,9 @@ public interface CodeConstants {
   int opc_ifnonnull = 199;
   int opc_goto_w = 200;
   int opc_jsr_w = 201;
+  int opc_breakpoint = 202;
+  int opc_defaultvalue = 203;
+  int opc_withfield = 204;
 
   String CLINIT_NAME = "<clinit>";
   String INIT_NAME = "<init>";

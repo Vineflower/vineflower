@@ -48,7 +48,7 @@ public final class MethodDescriptor {
               indexFrom = index;
             }
             break;
-          case 'L':
+          case 'L': case 'Q':
             ind = parameters.indexOf(";", index);
             lst.add(parameters.substring(indexFrom < 0 ? index : indexFrom, ind + 1));
             index = ind;

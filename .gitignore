@@ -5,6 +5,7 @@
 /buildSrc/build/
 /out/
 /testData/classes/java*/
+!/testData/classes/java18valhalla/
 /testData/classes/jasm/
 /testData/classes/groovy/
 /testData/classes/kt/

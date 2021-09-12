@@ -278,6 +278,9 @@ public final class TextUtil {
     "ifnull",
     "ifnonnull",
     "goto_w",
-    "jsr_w"
+    "jsr_w",
+    "breakpoint",
+    "defaultvalue",
+    "withfield"
   };
 }

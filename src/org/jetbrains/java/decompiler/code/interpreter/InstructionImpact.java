@@ -279,6 +279,9 @@ public final class InstructionImpact {
     {{CodeConstants.TYPE_OBJECT}, null},                                //		public final static int		opc_ifnonnull = 199;
     {null, null},                                                                        //		public final static int		opc_goto_w = 200;
     {null, {CodeConstants.TYPE_ADDRESS}},                        //		public final static int		opc_jsr_w = 201;
+    null, // breakpoint 202
+    {null, {CodeConstants.TYPE_OBJECT}}, // defaultvalue 203
+    null, // withfield 204
   };
 
   private static final int[] arr_type = new int[]{
@@ -323,6 +326,7 @@ public final class InstructionImpact {
   //	null,			//		public final static int		opc_checkcast = 192;
   //	null,			//		public final static int		opc_instanceof = 193;
   //	null, 			//		public final static int		opc_multianewarray = 197;
+  //	null, 			//		public final static int		opc_withfield = 204;
 
 
   public static void stepTypes(DataPoint data, Instruction instr, ConstantPool pool) {
@@ -462,6 +466,7 @@ public final class InstructionImpact {
       case CodeConstants.opc_putfield:
         stack.pop();
       case CodeConstants.opc_putstatic:
+      case CodeConstants.opc_withfield:
         ck = pool.getLinkConstant(instr.operand(0));
         var1 = new VarType(ck.descriptor);
         stack.pop(var1.stackSize);

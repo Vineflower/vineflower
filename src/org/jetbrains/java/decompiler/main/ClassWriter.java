@@ -455,6 +455,8 @@ public class ClassWriter {
     List<String> permittedSubClasses = permittedSubClassesAttr != null ? permittedSubClassesAttr.getClasses() : Collections.emptyList();
     boolean isSealed = permittedSubClassesAttr != null && !permittedSubClasses.isEmpty();
     boolean isNonSealed = !isSealed && cl.getVersion().hasSealedClasses() && isSuperClassSealed(cl);
+    boolean isPrimitive = cl.hasModifier(CodeConstants.ACC_PRIMITIVE);
+    int javaFlags = cl.hasAttribute(StructGeneralAttribute.ATTRIBUTE_JAVA_FLAGS) ? cl.getAttribute(StructGeneralAttribute.ATTRIBUTE_JAVA_FLAGS).getFlags() : 0;
 
     if (isDeprecated) {
       appendDeprecation(buffer, indent);
@@ -495,7 +497,7 @@ public class ClassWriter {
       flags &= ~CodeConstants.ACC_FINAL;
     }
 
-    appendModifiers(buffer, flags, CLASS_ALLOWED, isInterface, CLASS_EXCLUDED);
+    appendModifiers(buffer, flags, CLASS_ALLOWED, true, isInterface, CLASS_EXCLUDED);
 
     if (isSealed) {
       buffer.append("sealed ");
@@ -528,6 +530,10 @@ public class ClassWriter {
       buffer.append("class ");
     }
     buffer.append(node.simpleName);
+
+    if (isPrimitive && (javaFlags & CodeConstants.ACC_REF_DEFAULT) != 0) {
+      buffer.append(".val");
+    }
 
     GenericClassDescriptor descriptor = cl.getSignature();
     if (descriptor != null && !descriptor.fparameters.isEmpty()) {
@@ -622,7 +628,11 @@ public class ClassWriter {
     buffer.appendIndent(indent);
 
     if (!isEnum) {
-      appendModifiers(buffer, fd.getAccessFlags(), FIELD_ALLOWED, isInterface, FIELD_EXCLUDED);
+      int flags = fd.getAccessFlags();
+      if (cl.hasModifier(CodeConstants.ACC_PRIMITIVE) && (flags & CodeConstants.ACC_STATIC) == 0) {
+        flags &= ~CodeConstants.ACC_FINAL;
+      }
+      appendModifiers(buffer, flags, FIELD_ALLOWED, false, isInterface, FIELD_EXCLUDED);
     }
 
     Map.Entry<VarType, GenericFieldDescriptor> fieldTypeData = getFieldTypeData(fd);
@@ -804,6 +814,7 @@ public class ClassWriter {
       boolean isInterface = cl.hasModifier(CodeConstants.ACC_INTERFACE);
       boolean isAnnotation = cl.hasModifier(CodeConstants.ACC_ANNOTATION);
       boolean isEnum = cl.hasModifier(CodeConstants.ACC_ENUM) && DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_ENUM);
+      boolean isPrimitive = cl.hasModifier(CodeConstants.ACC_PRIMITIVE);
       boolean isDeprecated = mt.hasAttribute(StructGeneralAttribute.ATTRIBUTE_DEPRECATED);
       boolean clInit = false, init = false, dInit = false;
 
@@ -815,6 +826,10 @@ public class ClassWriter {
       }
       if (CodeConstants.CLINIT_NAME.equals(mt.getName())) {
         flags &= CodeConstants.ACC_STATIC; // ignore all modifiers except 'static' in a static initializer
+      }
+      // primitive class constructors are static, but they don't have the static keyword in source code
+      if (isPrimitive && CodeConstants.INIT_NAME.equals(mt.getName())) {
+        flags &= ~CodeConstants.ACC_STATIC;
       }
 
       if (isDeprecated) {
@@ -856,7 +871,7 @@ public class ClassWriter {
 
       buffer.appendIndent(indent);
 
-      appendModifiers(buffer, flags, METHOD_ALLOWED, isInterface, METHOD_EXCLUDED);
+      appendModifiers(buffer, flags, METHOD_ALLOWED, false, isInterface, METHOD_EXCLUDED);
 
       if (isInterface && !mt.hasModifier(CodeConstants.ACC_STATIC) && mt.containsCode() && (flags & CodeConstants.ACC_PRIVATE) == 0) {
         // 'default' modifier (Java 8)
@@ -933,7 +948,7 @@ public class ClassWriter {
             appendParameterAnnotations(buffer, mt, paramCount);
 
             if (methodParameters != null && i < methodParameters.size()) {
-              appendModifiers(buffer, methodParameters.get(i).myAccessFlags, CodeConstants.ACC_FINAL, isInterface, 0);
+              appendModifiers(buffer, methodParameters.get(i).myAccessFlags, CodeConstants.ACC_FINAL, false, isInterface, 0);
             }
             else if (methodWrapper.varproc.getVarFinal(new VarVersionPair(index, 0)) == VarTypeProcessor.VAR_EXPLICIT_FINAL) {
               buffer.append("final ");
@@ -1294,6 +1309,7 @@ public class ClassWriter {
   }
 
   private static final Map<Integer, String> MODIFIERS;
+  private static final Map<Integer, String> CLASS_MODIFIERS;
   static {
     MODIFIERS = new LinkedHashMap<>();
     MODIFIERS.put(CodeConstants.ACC_PUBLIC, "public");
@@ -1307,11 +1323,13 @@ public class ClassWriter {
     MODIFIERS.put(CodeConstants.ACC_VOLATILE, "volatile");
     MODIFIERS.put(CodeConstants.ACC_SYNCHRONIZED, "synchronized");
     MODIFIERS.put(CodeConstants.ACC_NATIVE, "native");
+    CLASS_MODIFIERS = new LinkedHashMap<>(MODIFIERS);
+    CLASS_MODIFIERS.put(CodeConstants.ACC_PRIMITIVE, "primitive");
   }
 
   private static final int CLASS_ALLOWED =
     CodeConstants.ACC_PUBLIC | CodeConstants.ACC_PROTECTED | CodeConstants.ACC_PRIVATE | CodeConstants.ACC_ABSTRACT |
-    CodeConstants.ACC_STATIC | CodeConstants.ACC_FINAL | CodeConstants.ACC_STRICT;
+    CodeConstants.ACC_STATIC | CodeConstants.ACC_FINAL | CodeConstants.ACC_STRICT | CodeConstants.ACC_PRIMITIVE;
   private static final int FIELD_ALLOWED =
     CodeConstants.ACC_PUBLIC | CodeConstants.ACC_PROTECTED | CodeConstants.ACC_PRIVATE | CodeConstants.ACC_STATIC |
     CodeConstants.ACC_FINAL | CodeConstants.ACC_TRANSIENT | CodeConstants.ACC_VOLATILE;
@@ -1326,12 +1344,16 @@ public class ClassWriter {
 
   private static final int ACCESSIBILITY_FLAGS = CodeConstants.ACC_PUBLIC | CodeConstants.ACC_PROTECTED | CodeConstants.ACC_PRIVATE;
 
-  private static void appendModifiers(TextBuffer buffer, int flags, int allowed, boolean isInterface, int excluded) {
+  private static void appendModifiers(TextBuffer buffer, int flags, int allowed, boolean isClass, boolean isInterface, int excluded) {
     flags &= allowed;
     if (!isInterface) excluded = 0;
-    for (int modifier : MODIFIERS.keySet()) {
+    if ((flags & CodeConstants.ACC_PRIMITIVE) != 0) {
+      flags &= ~CodeConstants.ACC_FINAL;
+    }
+    Map<Integer, String> names = isClass ? CLASS_MODIFIERS : MODIFIERS;
+    for (int modifier : names.keySet()) {
       if ((flags & modifier) == modifier && (modifier & excluded) == 0) {
-        buffer.append(MODIFIERS.get(modifier)).append(' ');
+        buffer.append(names.get(modifier)).append(' ');
       }
     }
   }

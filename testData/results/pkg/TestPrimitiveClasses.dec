@@ -1,0 +1,95 @@
+package pkg;
+
+public class TestPrimitiveClasses {
+   static void takesRef(TestPrimitiveClasses.VT r) {
+      System.out.println(r.value);// 15
+   }// 16
+
+   static void takesVal(TestPrimitiveClasses.VT v) {
+      System.out.println(v.value);// 19
+   }// 20
+
+   static void takesDefault(TestPrimitiveClasses.VT t) {
+      System.out.println(t.value);// 23
+   }// 24
+
+   static primitive class VT {
+      int value;
+
+      public VT(int value) {
+         TestPrimitiveClasses.VT $value = (TestPrimitiveClasses.VT)(TestPrimitiveClasses.VT)TestPrimitiveClasses.VT.default;// 9
+         $value.value = value;// 10
+         return $value;// 11
+      }
+   }
+}
+
+class 'pkg/TestPrimitiveClasses' {
+   method 'takesRef (Lpkg/TestPrimitiveClasses$VT;)V' {
+      0      4
+      1      4
+      2      4
+      3      4
+      4      4
+      5      4
+      6      4
+      7      4
+      8      4
+      9      4
+      a      5
+   }
+
+   method 'takesVal (Qpkg/TestPrimitiveClasses$VT;)V' {
+      0      8
+      1      8
+      2      8
+      3      8
+      4      8
+      5      8
+      6      8
+      7      8
+      8      8
+      9      8
+      a      9
+   }
+
+   method 'takesDefault (Qpkg/TestPrimitiveClasses$VT;)V' {
+      0      12
+      1      12
+      2      12
+      3      12
+      4      12
+      5      12
+      6      12
+      7      12
+      8      12
+      9      12
+      a      13
+   }
+}
+
+class 'pkg/TestPrimitiveClasses$VT' {
+   method '<init> (I)Qpkg/TestPrimitiveClasses$VT;' {
+      0      19
+      1      19
+      2      19
+      3      19
+      4      20
+      5      20
+      7      20
+      8      20
+      9      20
+      c      21
+   }
+}
+
+Lines mapping:
+9 <-> 20
+10 <-> 21
+11 <-> 22
+15 <-> 5
+16 <-> 6
+19 <-> 9
+20 <-> 10
+23 <-> 13
+24 <-> 14

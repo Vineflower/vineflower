@@ -96,4 +96,5 @@ public final class BytecodeVersion implements Comparable<BytecodeVersion> {
   public static final int MAJOR_15 = 59;
   public static final int MAJOR_16 = 60;
   public static final int MAJOR_17 = 61;
+  public static final int MAJOR_18 = 62;
 }

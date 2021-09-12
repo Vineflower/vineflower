@@ -7,6 +7,7 @@ import org.jetbrains.java.decompiler.code.InstructionSequence;
 import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.util.ListStack;
+import org.jetbrains.java.decompiler.struct.gen.FieldDescriptor;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
@@ -536,11 +537,15 @@ public class ExprProcessor implements CodeConstants {
           break;
         case opc_putstatic:
         case opc_putfield:
+        case opc_withfield:
           Exprent valfield = stack.pop();
-          Exprent exprfield =
+          FieldExprent exprfield =
             new FieldExprent(pool.getLinkConstant(instr.operand(0)), instr.opcode == opc_putstatic ? null : stack.pop(),
                              bytecode_offsets);
           exprlist.add(new AssignmentExprent(exprfield, valfield, bytecode_offsets));
+          if (instr.opcode == opc_withfield) {
+            stack.push(exprfield.getInstance());
+          }
           break;
         case opc_invokevirtual:
         case opc_invokespecial:
@@ -566,10 +571,14 @@ public class ExprProcessor implements CodeConstants {
             }
           }
           break;
+        case opc_defaultvalue:
+          VarType primType = new VarType(pool.getPrimitiveConstant(instr.operand(0)).getString(), true);
+          pushEx(stack, exprlist, new FieldExprent("default", getCastTypeName(primType), true, null, FieldDescriptor.parseDescriptor(primType.value), bytecode_offsets));
+          break;
         case opc_new:
         case opc_anewarray:
         case opc_multianewarray:
-          int dimensions = (instr.opcode == opc_new) ? 0 : (instr.opcode == opc_anewarray) ? 1 : instr.operand(1);
+          int dimensions = (instr.opcode == opc_new || instr.opcode == opc_defaultvalue) ? 0 : (instr.opcode == opc_anewarray) ? 1 : instr.operand(1);
           VarType arrType = new VarType(pool.getPrimitiveConstant(instr.operand(0)).getString(), true);
           if (instr.opcode != opc_multianewarray) {
             arrType = arrType.resizeArrayDim(arrType.arrayDim + dimensions);
@@ -734,7 +743,7 @@ public class ExprProcessor implements CodeConstants {
     else if (tp == CodeConstants.TYPE_GENVAR && type.isGeneric()) {
       return type.value;
     }
-    else if (tp == CodeConstants.TYPE_OBJECT) {
+    else if (tp == CodeConstants.TYPE_OBJECT || tp == CodeConstants.TYPE_PRIMITIVE_OBJECT) {
       if (type.isGeneric()) {
         return ((GenericType)type).getCastName();
       }

@@ -181,12 +181,14 @@ public class StructMethod extends StructMember {
           case opc_ldc2_w:
           case opc_getstatic:
           case opc_putstatic:
+          case opc_withfield:
           case opc_getfield:
           case opc_putfield:
           case opc_invokevirtual:
           case opc_invokespecial:
           case opc_invokestatic:
           case opc_new:
+          case opc_defaultvalue:
           case opc_anewarray:
           case opc_checkcast:
           case opc_instanceof:

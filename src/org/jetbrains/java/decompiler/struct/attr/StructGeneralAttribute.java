@@ -37,6 +37,8 @@ public class StructGeneralAttribute {
   public static final Key<StructModuleAttribute> ATTRIBUTE_MODULE = new Key<>("Module");
   public static final Key<StructRecordAttribute> ATTRIBUTE_RECORD = new Key<>("Record");
   public static final Key<StructPermittedSubclassesAttribute> ATTRIBUTE_PERMITTED_SUBCLASSES = new Key<>("PermittedSubclasses");
+  public static final Key<StructJavaFlagsAttribute> ATTRIBUTE_JAVA_FLAGS = new Key<>("JavaFlags");
+
 
   @SuppressWarnings("unused")
   public static class Key<T extends StructGeneralAttribute> {
@@ -104,6 +106,9 @@ public class StructGeneralAttribute {
     }
     else if (ATTRIBUTE_PERMITTED_SUBCLASSES.name.equals(name)) {
       return new StructPermittedSubclassesAttribute();
+    }
+    else if (ATTRIBUTE_JAVA_FLAGS.name.equals(name)) {
+      return new StructJavaFlagsAttribute();
     }
     else {
       return null; // unsupported attribute

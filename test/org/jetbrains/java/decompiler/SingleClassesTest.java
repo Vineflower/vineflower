@@ -263,7 +263,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: "3;" is generally not considered valid java code, fix ternaries not being simplified
     register(JAVA_8, "TestNestedTernaryAssign");
     register(JAVA_8, "TestNestedTernaryCondition");
-	
+
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatching1");
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatching2");
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatching3");
@@ -282,5 +282,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8_NODEBUG, "TestDoubleNestedClass");
     // TODO: The two 'z' cases should either be renamed or be surrounded with {}
     register(JAVA_8, "TestDuplicateSwitchLocals");
+
+    register(JAVA_18_VALHALLA, "TestPrimitiveClasses");
+    register(JAVA_18_VALHALLA, "TestRefDefaultPrimitiveClasses");
   }
 }

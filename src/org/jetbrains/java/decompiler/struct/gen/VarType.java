@@ -83,7 +83,12 @@ public class VarType {  // TODO: optimize switch
             value = signature.substring(i + 1, signature.length() - 1);
             break loop;
           }
-
+        case 'Q':
+          if (signature.charAt(signature.length() - 1) == ';') {
+            type = CodeConstants.TYPE_PRIMITIVE_OBJECT;
+            value = signature.substring(i + 1, signature.length() - 1);
+            break loop;
+          }
         default:
           value = signature.substring(i);
           if ((clType && i == 0) || value.length() > 1) {
@@ -138,6 +143,7 @@ public class VarType {  // TODO: optimize switch
         return "U";
       case CodeConstants.TYPE_NULL:
       case CodeConstants.TYPE_OBJECT:
+      case CodeConstants.TYPE_PRIMITIVE_OBJECT:
         return null;
       default:
         throw new RuntimeException("Invalid type");
@@ -184,6 +190,7 @@ public class VarType {  // TODO: optimize switch
         return CodeConstants.TYPE_FAMILY_BOOLEAN;
       case CodeConstants.TYPE_NULL:
       case CodeConstants.TYPE_OBJECT:
+      case CodeConstants.TYPE_PRIMITIVE_OBJECT:
         return CodeConstants.TYPE_FAMILY_OBJECT;
       default:
         return CodeConstants.TYPE_FAMILY_UNKNOWN;
