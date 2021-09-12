@@ -256,5 +256,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestSwitchEmpty");
     // TODO: putting default before case breaks
     register(JAVA_8, "TestSwitchDefaultBefore");
+    // TODO: fix all the <unknown>s
+    register(JAVA_8_NODEBUG, "TestIterationOverGenericsWithoutLvt");
   }
 }
