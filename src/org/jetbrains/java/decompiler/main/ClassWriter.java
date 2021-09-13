@@ -987,7 +987,7 @@ public class ClassWriter {
         //    index++;
 
         for (int i = start; i < md.params.length; i++) {
-          VarType parameterType = hasDescriptor ? descriptor.parameterTypes.get(paramCount) : md.params[i];
+          VarType parameterType = hasDescriptor && paramCount < descriptor.parameterTypes.size() ? descriptor.parameterTypes.get(paramCount) : md.params[i];
           if (mask == null || mask.get(i) == null) {
             if (paramCount > 0) {
               buffer.append(", ");

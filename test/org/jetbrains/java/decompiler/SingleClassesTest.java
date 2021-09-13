@@ -100,7 +100,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
 
     register(GROOVY, "TestGroovyClass");
     register(GROOVY, "TestGroovyTrait");
-    // TODO: This class fails to decompile
     register(JAVA_8, "TestPrivateClasses");
     register(KOTLIN, "TestSuspendLambdaKt");
     register(JAVA_8, "TestGenericArgs");
