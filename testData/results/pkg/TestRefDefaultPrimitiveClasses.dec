@@ -17,9 +17,7 @@ public class TestRefDefaultPrimitiveClasses {
       int value;
 
       public VT(int value) {
-         TestRefDefaultPrimitiveClasses.VT $value = (TestRefDefaultPrimitiveClasses.VT)(TestRefDefaultPrimitiveClasses.VT)TestRefDefaultPrimitiveClasses.VT.default;// 9
          $value.value = value;// 10
-         return $value;// 11
       }
    }
 }
@@ -70,26 +68,22 @@ class 'pkg/TestRefDefaultPrimitiveClasses' {
 
 class 'pkg/TestRefDefaultPrimitiveClasses$VT' {
    method '<init> (I)Qpkg/TestRefDefaultPrimitiveClasses$VT;' {
-      0      19
-      1      19
-      2      19
-      3      19
-      4      20
-      5      20
-      7      20
-      8      20
-      9      20
-      c      21
+      4      19
+      5      19
+      7      19
+      8      19
+      9      19
    }
 }
 
 Lines mapping:
-9 <-> 20
-10 <-> 21
-11 <-> 22
+10 <-> 20
 15 <-> 5
 16 <-> 6
 19 <-> 9
 20 <-> 10
 23 <-> 13
 24 <-> 14
+Not mapped:
+9
+11

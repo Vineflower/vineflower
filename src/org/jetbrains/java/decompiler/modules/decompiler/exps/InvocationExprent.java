@@ -524,7 +524,7 @@ public class InvocationExprent extends Exprent {
       ((InvocationExprent) instance).markUsingBoxingResult();
     }
 
-    if (isStatic || invocationTyp == INVOKE_DYNAMIC || invocationTyp == CONSTANT_DYNAMIC) {
+    if ((isStatic && functype != TYP_INIT) || invocationTyp == INVOKE_DYNAMIC || invocationTyp == CONSTANT_DYNAMIC) {
       if (isBoxingCall() && canIgnoreBoxing && !forceBoxing) {
         // process general "boxing" calls, e.g. 'Object[] data = { true }' or 'Byte b = 123'
         // here 'byte' and 'short' values do not need an explicit narrowing type cast
@@ -724,7 +724,15 @@ public class InvocationExprent extends Exprent {
         else if (instance != null) {
           buf.append(instance.toJava(indent, tracer)).append(".<init>(");
         }
-        else {
+        else if (isStatic) {
+          MethodWrapper method = (MethodWrapper) DecompilerContext.getProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
+          ClassNode node = (ClassNode)DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS_NODE);
+          if (isPrimitiveClassConstructor(method) && node.classStruct.qualifiedName.equals(classname)) {
+            buf.append("this(");
+          } else {
+            buf.append("new ").append(DecompilerContext.getImportCollector().getShortNameInClassContext(ExprProcessor.buildJavaClassName(classname))).append('(');
+          }
+        } else {
           throw new RuntimeException("Unrecognized invocation of " + CodeConstants.INIT_NAME);
         }
     }
@@ -749,6 +757,10 @@ public class InvocationExprent extends Exprent {
       VarType cls = new VarType(((LinkConstant) arg).classname);
       buf.append(ExprProcessor.getCastTypeName(cls)).append("::").append(((LinkConstant) arg).elementname);
     }
+  }
+
+  private static boolean isPrimitiveClassConstructor(MethodWrapper method) {
+    return CodeConstants.INIT_NAME.equals(method.methodStruct.getName()) && method.methodStruct.hasModifier(CodeConstants.ACC_STATIC);
   }
 
   public TextBuffer appendParamList(int indent, BytecodeMappingTracer tracer) {

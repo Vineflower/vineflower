@@ -19,14 +19,7 @@ import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public final class InitializerProcessor {
   public static void extractInitializers(ClassWrapper wrapper) {
@@ -61,23 +54,32 @@ public final class InitializerProcessor {
         if (firstData == null) {
           return;
         }
+        boolean primitive = wrapper.getClassStruct().hasModifier(CodeConstants.ACC_PRIMITIVE) && method.methodStruct.hasModifier(CodeConstants.ACC_STATIC);
 
         int index = 0;
         List<Exprent> lstExprents = firstData.getExprents();
 
-        for (Exprent exprent : lstExprents) {
+        for (ListIterator<Exprent> it = lstExprents.listIterator(); it.hasNext();) {
+          Exprent exprent = it.next();
           int action = 0;
 
           if (exprent.type == Exprent.EXPRENT_ASSIGNMENT) {
             AssignmentExprent assignExpr = (AssignmentExprent)exprent;
-            if (assignExpr.getLeft().type == Exprent.EXPRENT_FIELD && assignExpr.getRight().type == Exprent.EXPRENT_VAR) {
-              FieldExprent fExpr = (FieldExprent)assignExpr.getLeft();
+            Exprent left = assignExpr.getLeft();
+            Exprent right = assignExpr.getRight();
+            if (left.type == Exprent.EXPRENT_FIELD && right.type == Exprent.EXPRENT_VAR) {
+              FieldExprent fExpr = (FieldExprent)left;
               if (fExpr.getClassname().equals(wrapper.getClassStruct().qualifiedName)) {
                 StructField structField = wrapper.getClassStruct().getField(fExpr.getName(), fExpr.getDescriptor().descriptorString);
                 if (structField != null && structField.hasModifier(CodeConstants.ACC_FINAL)) {
                   action = 1;
                 }
               }
+            } else if (primitive && left.type == Exprent.EXPRENT_VAR && isDefaultValue(right)) {
+              // this = <class>.default; in a primitive class constructor
+              VarExprent varExprent = (VarExprent) left;
+              it.remove();
+              action = 1;
             }
           }
           else if (index > 0 && exprent.type == Exprent.EXPRENT_INVOCATION &&
@@ -93,8 +95,27 @@ public final class InitializerProcessor {
 
           index++;
         }
+
+        if (primitive) {
+          for (ListIterator<Exprent> it = lstExprents.listIterator(); it.hasNext();) {
+            Exprent exprent = it.next();
+            if (exprent.type == Exprent.EXPRENT_EXIT) {
+              // return this; in a primitive class constructor
+              ExitExprent exitExprent = (ExitExprent) exprent;
+              if (exitExprent.getValue().type == Exprent.EXPRENT_VAR) {
+                it.remove();
+              }
+            }
+          }
+        }
       }
     }
+  }
+
+  private static boolean isDefaultValue(Exprent expr) {
+    if (expr.type != Exprent.EXPRENT_FIELD) return false;
+    FieldExprent fieldExprent = ((FieldExprent) expr);
+    return fieldExprent.isStatic() && "default".equals(fieldExprent.getName());
   }
 
   private static void hideEmptySuper(ClassWrapper wrapper) {

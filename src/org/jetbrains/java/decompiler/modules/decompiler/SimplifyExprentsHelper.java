@@ -706,7 +706,7 @@ public class SimplifyExprentsHelper {
 
     if (exprent.type == Exprent.EXPRENT_INVOCATION) {
       InvocationExprent in = (InvocationExprent)exprent;
-      if (in.getFunctype() == InvocationExprent.TYP_INIT && in.getInstance().type == Exprent.EXPRENT_NEW) {
+      if (in.getFunctype() == InvocationExprent.TYP_INIT && in.getInstance() != null && in.getInstance().type == Exprent.EXPRENT_NEW) {
         NewExprent newExpr = (NewExprent)in.getInstance();
         newExpr.setConstructor(in);
         in.setInstance(null);

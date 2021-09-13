@@ -2,9 +2,9 @@
 package org.jetbrains.java.decompiler.struct.gen;
 
 import java.util.Map;
+import java.util.Objects;
 
 import org.jetbrains.java.decompiler.code.CodeConstants;
-import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 
 public class VarType {  // TODO: optimize switch
@@ -224,7 +224,7 @@ public class VarType {  // TODO: optimize switch
   }
 
   public boolean isSuperset(VarType val) {
-    return this.equals(val) || this.isStrictSuperset(val);
+    return this.equals(val) || equalObjects(this, val) || this.isStrictSuperset(val);
   }
 
   public boolean isStrictSuperset(VarType val) {
@@ -261,8 +261,13 @@ public class VarType {  // TODO: optimize switch
         if (valType == CodeConstants.TYPE_NULL) {
           return true;
         }
-        else if (this.equals(VARTYPE_OBJECT)) {
-          return valType == CodeConstants.TYPE_OBJECT && !val.equals(VARTYPE_OBJECT);
+        if (this.equals(VARTYPE_OBJECT)) {
+          return isObject(valType) && !equalObjects(val, VARTYPE_OBJECT);
+        }
+        break;
+      case CodeConstants.TYPE_PRIMITIVE_OBJECT:
+        if (equalObjects(this, VARTYPE_OBJECT)) {
+          return isObject(valType) && !equalObjects(val, VARTYPE_OBJECT);
         }
     }
 
@@ -292,6 +297,18 @@ public class VarType {  // TODO: optimize switch
     return type == vt.type && arrayDim == vt.arrayDim && InterpreterUtil.equalObjects(value, vt.value);
   }
 
+  public boolean isObject() {
+    return isObject(type);
+  }
+
+  public static boolean isObject(int type) {
+    return type == CodeConstants.TYPE_OBJECT || type == CodeConstants.TYPE_PRIMITIVE_OBJECT;
+  }
+
+  private static boolean equalObjects(VarType a, VarType b) {
+    return isObject(a.type) && isObject(b.type) && a.arrayDim == b.arrayDim && Objects.equals(a.value, b.value);
+  }
+
   @Override
   public String toString() {
     StringBuilder res = new StringBuilder();
@@ -300,8 +317,9 @@ public class VarType {  // TODO: optimize switch
     }
     if (type == CodeConstants.TYPE_OBJECT) {
       res.append('L').append(value).append(';');
-    }
-    else {
+    } else if (type == CodeConstants.TYPE_PRIMITIVE_OBJECT) {
+      res.append('Q').append(value).append(';');
+    } else {
       res.append(value);
     }
     return res.toString();

@@ -2,24 +2,53 @@ package pkg;
 
 public class TestPrimitiveClasses {
    static void takesRef(TestPrimitiveClasses.VT r) {
-      System.out.println(r.value);// 15
-   }// 16
+      System.out.println(r.value);// 32
+   }// 33
 
    static void takesVal(TestPrimitiveClasses.VT v) {
-      System.out.println(v.value);// 19
-   }// 20
+      System.out.println(v.value);// 36
+   }// 37
 
    static void takesDefault(TestPrimitiveClasses.VT t) {
-      System.out.println(t.value);// 23
-   }// 24
+      System.out.println(t.value);// 40
+   }// 41
+
+   static TestPrimitiveClasses.VT test1() {
+      return new TestPrimitiveClasses.VT(42);// 44
+   }
+
+   static TestPrimitiveClasses.VT test2() {
+      return TestPrimitiveClasses.VT.default;// 48
+   }
+
+   static primitive record PrimitiveRecord(float value) {
+      PrimitiveRecord(float value) {
+         $value.value = value;// 51
+      }
+   }
 
    static primitive class VT {
       int value;
 
+      TestPrimitiveClasses.VT negate() {
+         return negative(this);// 23
+      }
+
+      static TestPrimitiveClasses.VT negative(TestPrimitiveClasses.VT x) {
+         return new TestPrimitiveClasses.VT(x.value);// 27
+      }
+
       public VT(int value) {
-         TestPrimitiveClasses.VT $value = (TestPrimitiveClasses.VT)(TestPrimitiveClasses.VT)TestPrimitiveClasses.VT.default;// 9
          $value.value = value;// 10
-         return $value;// 11
+      }
+
+      public VT(long value) {
+         TestPrimitiveClasses.VT $value = this((int)value);// 13
+         System.out.println(this(73));// 15
+      }
+
+      public VT(boolean value) {
+         TestPrimitiveClasses.VT $value = this(value ? 1 : 0);// 18 19
       }
    }
 }
@@ -66,30 +95,116 @@ class 'pkg/TestPrimitiveClasses' {
       9      12
       a      13
    }
+
+   method 'test1 ()Qpkg/TestPrimitiveClasses$VT;' {
+      0      16
+      1      16
+      2      16
+      3      16
+      4      16
+      5      16
+   }
+
+   method 'test2 ()Qpkg/TestPrimitiveClasses$VT;' {
+      0      20
+      1      20
+      2      20
+      3      20
+   }
+}
+
+class 'pkg/TestPrimitiveClasses$PrimitiveRecord' {
+   method '<init> (F)Qpkg/TestPrimitiveClasses$PrimitiveRecord;' {
+      4      25
+      5      25
+      7      25
+      8      25
+      9      25
+   }
 }
 
 class 'pkg/TestPrimitiveClasses$VT' {
+   method 'negate ()Qpkg/TestPrimitiveClasses$VT;' {
+      0      33
+      1      33
+      2      33
+      3      33
+      4      33
+   }
+
+   method 'negative (Qpkg/TestPrimitiveClasses$VT;)Qpkg/TestPrimitiveClasses$VT;' {
+      0      37
+      1      37
+      2      37
+      3      37
+      4      37
+      5      37
+      6      37
+      7      37
+   }
+
    method '<init> (I)Qpkg/TestPrimitiveClasses$VT;' {
-      0      19
-      1      19
-      2      19
-      3      19
-      4      20
-      5      20
-      7      20
-      8      20
-      9      20
-      c      21
+      4      41
+      5      41
+      7      41
+      8      41
+      9      41
+   }
+
+   method '<init> (J)Qpkg/TestPrimitiveClasses$VT;' {
+      0      45
+      1      45
+      2      45
+      3      45
+      4      45
+      5      45
+      6      46
+      7      46
+      8      46
+      9      46
+      a      46
+      b      46
+      c      46
+      d      46
+      e      46
+      f      46
+      10      46
+      11      46
+      12      46
+      13      46
+   }
+
+   method '<init> (Z)Qpkg/TestPrimitiveClasses$VT;' {
+      0      50
+      1      50
+      4      50
+      8      50
+      9      50
+      a      50
+      b      50
+      c      50
    }
 }
 
 Lines mapping:
-9 <-> 20
-10 <-> 21
-11 <-> 22
-15 <-> 5
-16 <-> 6
-19 <-> 9
-20 <-> 10
-23 <-> 13
-24 <-> 14
+10 <-> 42
+13 <-> 46
+15 <-> 47
+18 <-> 51
+19 <-> 51
+23 <-> 34
+27 <-> 38
+32 <-> 5
+33 <-> 6
+36 <-> 9
+37 <-> 10
+40 <-> 13
+41 <-> 14
+44 <-> 17
+48 <-> 21
+51 <-> 26
+Not mapped:
+9
+11
+16
+20
