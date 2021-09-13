@@ -1,0 +1,54 @@
+package pkg;
+
+import java.util.List;
+
+public class TestIterationOverGenericsWithoutLvt1 {
+   public void test(List<Object> var1) {
+      int var2 = 0;
+
+      for(<unknown> var4_1 : var1) {
+         ++var2;
+         System.out.println(var4_1.hashCode());
+      }
+
+   }
+}
+
+class 'pkg/TestIterationOverGenericsWithoutLvt1' {
+   method 'test (Ljava/util/List;)V' {
+      0      6
+      1      6
+      2      8
+      3      8
+      4      8
+      5      8
+      6      8
+      7      8
+      8      8
+      12      8
+      13      8
+      14      8
+      15      8
+      16      8
+      17      8
+      18      8
+      19      8
+      1a      9
+      1b      9
+      1c      9
+      1d      10
+      1e      10
+      1f      10
+      20      10
+      21      10
+      22      10
+      23      10
+      24      10
+      25      10
+      26      10
+      27      10
+      2b      13
+   }
+}
+
+Lines mapping:

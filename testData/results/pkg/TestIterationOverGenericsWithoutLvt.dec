@@ -1,0 +1,221 @@
+package pkg;
+
+import java.util.Collection;
+import java.util.List;
+
+public class TestIterationOverGenericsWithoutLvt {
+   public void test1(List<? extends Number> var1) {
+      int var2 = -1;
+
+      for(<unknown> var4_1 : var1) {
+         if (var4_1.intValue() > var2) {
+            var2 = var4_1.intValue();
+         }
+      }
+
+      System.out.println(var2);
+   }
+
+   public <T extends List<T>> void test2(List<T> var1) {
+      for(Object var3 : var1) {
+         this.test2((List<T>)var3);
+      }
+
+   }
+
+   public <T extends Collection<?>> void test3(Collection<? extends T> var1) {
+      for(<unknown> var3_1 : var1) {
+         for(Object var5 : var3_1) {
+            System.out.println(var5);
+         }
+      }
+
+   }
+
+   public <T extends Comparable<T>> void test4(Iterable<T> var1) {
+      Object var2 = null;
+
+      for(Object var4 : var1) {
+         if (var2 == null) {
+            var2 = var4;
+         } else {
+            int var5 = ((Comparable)var2).compareTo(var4);
+            var2 = var5 >= 0 ? var2 : var4;
+         }
+      }
+
+      System.out.println(var2);
+   }
+}
+
+class 'pkg/TestIterationOverGenericsWithoutLvt' {
+   method 'test1 (Ljava/util/List;)V' {
+      0      7
+      1      7
+      2      9
+      3      9
+      4      9
+      5      9
+      6      9
+      7      9
+      8      9
+      12      9
+      13      9
+      14      9
+      15      9
+      16      9
+      17      9
+      18      9
+      19      9
+      1a      9
+      1b      9
+      1c      9
+      1d      10
+      1e      10
+      1f      10
+      20      10
+      21      10
+      22      10
+      23      10
+      26      11
+      27      11
+      28      11
+      29      11
+      2a      11
+      2b      11
+      2f      15
+      30      15
+      31      15
+      32      15
+      33      15
+      34      15
+      35      15
+      36      16
+   }
+
+   method 'test2 (Ljava/util/List;)V' {
+      0      19
+      1      19
+      2      19
+      3      19
+      4      19
+      5      19
+      6      19
+      10      19
+      11      19
+      12      19
+      13      19
+      14      19
+      15      19
+      16      19
+      17      19
+      18      19
+      19      19
+      1a      20
+      1b      20
+      1c      20
+      1d      20
+      1e      20
+      22      23
+   }
+
+   method 'test3 (Ljava/util/Collection;)V' {
+      0      26
+      1      26
+      2      26
+      3      26
+      4      26
+      5      26
+      6      26
+      10      26
+      11      26
+      12      26
+      13      26
+      14      26
+      15      26
+      16      26
+      17      26
+      18      26
+      19      26
+      1a      27
+      1b      27
+      1c      27
+      1d      27
+      1e      27
+      1f      27
+      20      27
+      21      27
+      2c      27
+      2d      27
+      2e      27
+      2f      27
+      30      27
+      31      27
+      32      27
+      33      27
+      34      27
+      35      28
+      36      28
+      37      28
+      38      28
+      39      28
+      3a      28
+      3b      28
+      3c      28
+      43      32
+   }
+
+   method 'test4 (Ljava/lang/Iterable;)V' {
+      0      35
+      1      35
+      2      37
+      3      37
+      4      37
+      5      37
+      6      37
+      7      37
+      8      37
+      12      37
+      13      37
+      14      37
+      15      37
+      16      37
+      17      37
+      18      37
+      19      37
+      1a      37
+      1b      37
+      1c      37
+      1d      38
+      1e      38
+      21      39
+      22      39
+      23      39
+      27      41
+      28      41
+      29      41
+      2a      41
+      2b      41
+      2c      41
+      2d      41
+      2e      41
+      2f      41
+      30      41
+      31      42
+      32      42
+      33      42
+      36      42
+      3a      42
+      3c      42
+      40      46
+      41      46
+      42      46
+      43      46
+      44      46
+      45      46
+      46      46
+      47      47
+   }
+}
+
+Lines mapping:
