@@ -4,8 +4,8 @@ import java.util.List;
 
 public class TestIterationOverGenericsWithoutLvt1 {
    public void test(List<Object> var1) {
-      for(<unknown> var3_1 : var1) {
-         System.out.println(var3_1.hashCode());
+      for(Object var3 : var1) {
+         System.out.println(var3.hashCode());
       }
 
    }

@@ -460,6 +460,11 @@ public class InvocationExprent extends Exprent {
   public CheckTypesResult checkExprTypeBounds() {
     CheckTypesResult result = new CheckTypesResult();
 
+    if (instance != null) {
+      result.addMinTypeExprent(instance, VarType.getMinTypeInFamily(instance.getExprType().typeFamily));
+      result.addMaxTypeExprent(instance, instance.getExprType());
+    }
+
     for (int i = 0; i < lstParameters.size(); i++) {
       Exprent parameter = lstParameters.get(i);
 

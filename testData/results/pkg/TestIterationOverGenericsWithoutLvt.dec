@@ -7,9 +7,9 @@ public class TestIterationOverGenericsWithoutLvt {
    public void test1(List<? extends Number> var1) {
       int var2 = -1;
 
-      for(<unknown> var4_1 : var1) {
-         if (var4_1.intValue() > var2) {
-            var2 = var4_1.intValue();
+      for(Object var4 : var1) {
+         if (((Number)var4).intValue() > var2) {
+            var2 = ((Number)var4).intValue();
          }
       }
 

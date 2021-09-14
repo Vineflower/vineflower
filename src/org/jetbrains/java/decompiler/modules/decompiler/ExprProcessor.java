@@ -730,7 +730,7 @@ public class ExprProcessor implements CodeConstants {
       return ret;
     }
 
-    throw new RuntimeException("invalid type");
+    throw new RuntimeException("invalid type: " + tp);
   }
 
   public static String getCastTypeName(VarType type) {

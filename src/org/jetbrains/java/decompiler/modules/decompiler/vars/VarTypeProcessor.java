@@ -138,7 +138,7 @@ public class VarTypeProcessor {
       }
 
       for (CheckTypesResult.ExprentTypePair entry : result.getLstMinTypeExprents()) {
-        res &= changeExprentType(entry.exprent, entry.type, 0);
+        res &= changeExprentType(entry.exprent, entry.type.type == CodeConstants.TYPE_UNKNOWN ? VarType.VARTYPE_NULL : entry.type, 0);
       }
     }
 
