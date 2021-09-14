@@ -263,7 +263,7 @@ public class ClassesProcessor implements CodeConstants {
                   // only abstract and final are permitted (a common compiler bug)
                   int allowedFlags = CodeConstants.ACC_ABSTRACT | CodeConstants.ACC_FINAL;
                   // in java 16 we have local interfaces and enums
-                  if (scl.getVersion().major >= BytecodeVersion.MAJOR_16) {
+                  if (scl.getVersion().hasLocalEnumsAndInterfaces()) {
                     allowedFlags |= CodeConstants.ACC_INTERFACE | CodeConstants.ACC_ENUM;
                     if ((nestedNode.access & ACC_ENUM) != 0) {
                       allowedFlags |= CodeConstants.ACC_STATIC;

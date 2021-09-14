@@ -18,7 +18,7 @@ public class TryHelper {
     boolean ret = makeTryWithResourceRec(cl, root);
 
     if (ret) {
-      if (cl.getVersion().major >= BytecodeVersion.MAJOR_11) {
+      if (cl.getVersion().hasNewTryWithResources()) {
         SequenceHelper.condenseSequences(root);
 
         if (mergeTrys(root)) {
@@ -37,7 +37,7 @@ public class TryHelper {
   }
 
   private static boolean makeTryWithResourceRec(StructClass cl, Statement stat) {
-    if (cl.getVersion().major >= BytecodeVersion.MAJOR_11) {
+    if (cl.getVersion().hasNewTryWithResources()) {
       if (stat.type == Statement.TYPE_TRYCATCH) {
         if (TryWithResourcesProcessor.makeTryWithResourceJ11((CatchStatement) stat)) {
           return true;

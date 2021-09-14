@@ -2,7 +2,6 @@
 package org.jetbrains.java.decompiler.main;
 
 import net.fabricmc.fernflower.api.IFabricJavadocProvider;
-import org.jetbrains.java.decompiler.code.BytecodeVersion;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
@@ -50,7 +49,7 @@ public class ClassWriter {
     InitializerProcessor.hideInitalizers(wrapper);
 
     if (node.type == ClassNode.CLASS_ROOT &&
-        cl.getVersion().major < BytecodeVersion.MAJOR_5 &&
+        cl.getVersion().has14ClassReferences() &&
         DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_CLASS_1_4)) {
       ClassReference14Processor.processClassReferences(node);
     }
