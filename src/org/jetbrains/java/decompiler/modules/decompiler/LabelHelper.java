@@ -398,7 +398,7 @@ public final class LabelHelper {
         if (stlast.getExprents() != null && stlast.getExprents().isEmpty() && !stlast.getAllSuccessorEdges().isEmpty()) {
           if (!stlast.getAllSuccessorEdges().get(0).explicit) {
             List<StatEdge> lstEdges = swst.getCaseEdges().get(last);
-            lstEdges.remove(swst.getDefault_edge());
+            lstEdges.remove(swst.getDefaultEdge());
 
             if (lstEdges.isEmpty()) {
               swst.getCaseStatements().remove(last);

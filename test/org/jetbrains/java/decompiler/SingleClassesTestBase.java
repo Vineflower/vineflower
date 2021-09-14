@@ -92,7 +92,8 @@ public abstract class SingleClassesTestBase {
       int slash = name.lastIndexOf('/');
       if (slash >= 0) name = name.substring(slash + 1);
       Path classFile = getClassFile(def.version, def.testClass);
-      DynamicTest test = DynamicTest.dynamicTest(name, classFile.toUri(), () -> {
+      Path ref = getReferenceFile(def.testClass);
+      DynamicTest test = DynamicTest.dynamicTest(name, Files.exists(ref) ? ref.toUri() : classFile.toUri(), () -> {
         setUp();
         doTest(def.version, def.testClass, def.others.toArray(new String[0]));
         tearDown();
