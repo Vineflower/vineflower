@@ -180,7 +180,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16, "TestRecordMixup");
     register(JAVA_8, "TestMultiAssignmentInStaticBlock");
     register(JAVA_8, "TestNextGaussian");
-    // TODO: Clean up control flow with continue and break
     register(JAVA_8, "TestLoopBreak");
     register(JAVA_8, "TestLoopBreak2");
     register(JAVA_8, "TestSimpleWhile");
@@ -210,12 +209,10 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestNativeMethods");
     register(JAVA_8, "TestThrowLoop");
     register(JAVA_8, "TestShiftLoop");
-    // TODO: this currently decompiles into invalid syntax
     register(JASM, "TestDoubleCast");
     register(JAVA_16, "TestLocalEnum");
     register(JAVA_16, "TestLocalInterface");
     register(JAVA_16, "TestLocalRecord");
-    // TODO: private methods shouldn't have explicit default modifier
     register(JAVA_9, "TestPrivateInterfaceMethod");
 
     register(JAVA_16, "TestAssignmentSwitchExpression1");
@@ -253,7 +250,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JASM, "TestIllegalMethodNames");
     register(JAVA_8, "TestSwitchOnlyDefault");
     register(JAVA_8, "TestSwitchEmpty");
-    // TODO: putting default before case breaks
     register(JAVA_8, "TestSwitchDefaultBefore");
     // TODO: fix all the <unknown>s
     register(JAVA_8_NODEBUG, "TestIterationOverGenericsWithoutLvt");
