@@ -107,6 +107,8 @@ public class VarTypeProcessor {
     return graph.iterateExprents(exprent -> checkTypeExprent(exprent) ? 0 : 1);
   }
 
+  // true -> Do nothing
+  // false -> cancel iteration
   private boolean checkTypeExprent(Exprent exprent) {
 
     for (Exprent expr : exprent.getAllExprents()) {
@@ -144,6 +146,8 @@ public class VarTypeProcessor {
   }
 
 
+  // true -> Do nothing
+  // false -> cancel iteration
   private boolean changeExprentType(Exprent exprent, VarType newType, int minMax) {
     boolean res = true;
 
