@@ -202,6 +202,7 @@ public abstract class SingleClassesTestBase {
       JAVA_16(16),
       JAVA_16_PREVIEW(16, "preview", "Preview"),
       JAVA_16_NODEBUG(16, "nodebug", "No Debug Info"),
+      JAVA_17(17),
       GROOVY("groovy", "Groovy"),
       KOTLIN("kt", "Kotlin"),
       JASM("jasm", "Custom (jasm)"),
