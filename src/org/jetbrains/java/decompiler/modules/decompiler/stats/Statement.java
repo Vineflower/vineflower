@@ -503,6 +503,9 @@ public class Statement implements IMatchable {
   }
 
   public void replaceStatement(Statement oldstat, Statement newstat) {
+    if (!stats.containsKey(oldstat.id)) {
+      throw new IllegalStateException("Cannot replace " + oldstat + " with " + newstat + " because it wasn't found in " + stats);
+    }
 
     for (StatEdge edge : oldstat.getAllPredecessorEdges()) {
       oldstat.removePredecessor(edge);

@@ -380,6 +380,7 @@ public final class MergeHelper {
         // Add sequentially after while loop
         stats.addWithKeyAndIndex(stats.indexOf(stat) + i, st, st.id);
       }
+      stat.getParent().setAllParent();
     } else {
       // If it's not part of a sequence statement, we need to synthesize one and replace the loop with it
 
