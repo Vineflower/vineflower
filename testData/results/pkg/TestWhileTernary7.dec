@@ -1,0 +1,44 @@
+package pkg;
+
+public class TestWhileTernary7 {
+   public void test(boolean condition, int a, int b) {
+      for(int i = 0; condition ? a < i : b < i; ++i) {// 5
+         System.out.println("Test");// 6
+      }
+
+   }// 8
+}
+
+class 'pkg/TestWhileTernary7' {
+   method 'test (ZII)V' {
+      0      4
+      1      4
+      2      4
+      3      4
+      7      4
+      8      4
+      9      4
+      a      4
+      10      4
+      11      4
+      12      4
+      13      4
+      16      5
+      17      5
+      18      5
+      19      5
+      1a      5
+      1b      5
+      1c      5
+      1d      5
+      1e      4
+      1f      4
+      20      4
+      24      8
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 6
+8 <-> 9

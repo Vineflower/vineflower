@@ -190,6 +190,11 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestWhileTernary3");
     register(JAVA_8, "TestWhileTernary4");
     register(JAVA_8, "TestWhileTernary5");
+    // TODO: do-while loop fails to inline ternary
+    register(JAVA_8, "TestWhileTernary6");
+    register(JAVA_8, "TestWhileTernary7");
+    // TODO: complex ternaries are not supported
+    register(JAVA_8, "TestWhileTernary8");
     register(JAVA_8, "TestTryLoop");
     register(JAVA_8, "TestTryLoopRecompile");
     register(JAVA_8, "TestTryLoopSimpleFinally");
@@ -254,5 +259,9 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: fix all the <unknown>s
     register(JAVA_8_NODEBUG, "TestIterationOverGenericsWithoutLvt");
     register(JAVA_8_NODEBUG, "TestIterationOverGenericsWithoutLvt1");
+
+
+    // TODO: "3;" is generally not considered valid java code, fix ternaries not being simplified
+    register(JAVA_8, "TestNestedTernaryAssign");
   }
 }
