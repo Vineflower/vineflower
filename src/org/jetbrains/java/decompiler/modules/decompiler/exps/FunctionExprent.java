@@ -70,6 +70,7 @@ public class FunctionExprent extends Exprent {
   public final static int FUNCTION_IPP = 34;
   public final static int FUNCTION_PPI = 35;
 
+  // Ternaries (inline if)
   public final static int FUNCTION_IIF = 36;
 
   public final static int FUNCTION_LCMP = 37;
