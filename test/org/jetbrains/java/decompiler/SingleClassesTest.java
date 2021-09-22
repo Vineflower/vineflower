@@ -263,5 +263,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
 
     // TODO: "3;" is generally not considered valid java code, fix ternaries not being simplified
     register(JAVA_8, "TestNestedTernaryAssign");
+    register(JAVA_8, "TestNestedTernaryCondition");
   }
 }
