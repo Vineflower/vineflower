@@ -1,0 +1,210 @@
+package pkg;
+
+public class TestSwitchPatternMatching5 {
+   static void test(TestSwitchPatternMatching5.Shape s) {
+      TestSwitchPatternMatching5.Shape var1 = s;// 5
+      byte var2 = 0;
+
+      while(true) {
+         switch(var1.typeSwitch<invokedynamic>(var1, var2)) {
+         case -1:
+            System.out.println("null");// 15
+            return;// 19
+         case 0:
+            TestSwitchPatternMatching5.Triangle t = (TestSwitchPatternMatching5.Triangle)var1;// 6
+            if (!(t.calculateArea() > 150.0)) {
+               var2 = 1;
+               break;
+            }
+
+            System.out.println("Larger triangle");// 7
+            return;
+         case 1:
+            TestSwitchPatternMatching5.Triangle t = (TestSwitchPatternMatching5.Triangle)var1;// 8
+            if (!(t.calculateArea() > 50.0)) {
+               var2 = 2;
+               break;
+            }
+
+            System.out.println("Smaller triangle");// 9
+            return;
+         case 2:
+            TestSwitchPatternMatching5.Triangle t = (TestSwitchPatternMatching5.Triangle)var1;// 10
+            if (!(t.calculateArea() > 100.0)) {
+               var2 = 3;
+               break;
+            }
+
+            System.out.println("Large triangle");// 11
+            return;
+         case 3:
+            TestSwitchPatternMatching5.Triangle t = (TestSwitchPatternMatching5.Triangle)var1;// 12
+            System.out.println("Small triangle");// 13
+            return;
+         default:
+            System.out.println("Non-triangle");// 17
+            return;
+         }
+      }
+   }
+
+   private abstract class Shape {
+      abstract double calculateArea();
+   }
+
+   private class Triangle extends TestSwitchPatternMatching5.Shape {
+      @Override
+      double calculateArea() {
+         return 0.0;// 29
+      }
+   }
+}
+
+class 'pkg/TestSwitchPatternMatching5' {
+   method 'test (Lpkg/TestSwitchPatternMatching5$Shape;)V' {
+      0      4
+      1      4
+      2      5
+      3      5
+      4      8
+      5      8
+      6      8
+      7      8
+      8      8
+      9      8
+      a      8
+      b      8
+      2c      13
+      2d      13
+      2e      13
+      2f      13
+      30      13
+      31      14
+      32      14
+      33      14
+      34      14
+      35      14
+      36      14
+      37      14
+      38      14
+      39      14
+      3c      15
+      3d      15
+      3e      16
+      41      19
+      42      19
+      43      19
+      44      19
+      45      19
+      46      19
+      47      19
+      48      19
+      4c      22
+      4d      22
+      4e      22
+      4f      22
+      50      22
+      51      22
+      52      23
+      53      23
+      54      23
+      55      23
+      56      23
+      57      23
+      58      23
+      59      23
+      5a      23
+      5b      23
+      5e      24
+      5f      24
+      60      25
+      63      28
+      64      28
+      65      28
+      66      28
+      67      28
+      68      28
+      69      28
+      6a      28
+      6e      31
+      6f      31
+      70      31
+      71      31
+      72      31
+      73      31
+      74      32
+      75      32
+      76      32
+      77      32
+      78      32
+      79      32
+      7a      32
+      7b      32
+      7c      32
+      7d      32
+      80      33
+      81      33
+      82      34
+      85      37
+      86      37
+      87      37
+      88      37
+      89      37
+      8a      37
+      8b      37
+      8c      37
+      90      40
+      91      40
+      92      40
+      93      40
+      94      40
+      95      40
+      96      41
+      97      41
+      98      41
+      99      41
+      9a      41
+      9b      41
+      9c      41
+      9d      41
+      a1      10
+      a2      10
+      a3      10
+      a4      10
+      a5      10
+      a6      10
+      a7      10
+      a8      10
+      ac      44
+      ad      44
+      ae      44
+      af      44
+      b0      44
+      b1      44
+      b2      44
+      b3      44
+      b7      11
+   }
+}
+
+class 'pkg/TestSwitchPatternMatching5$Triangle' {
+   method 'calculateArea ()D' {
+      0      57
+      1      57
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 14
+7 <-> 20
+8 <-> 23
+9 <-> 29
+10 <-> 32
+11 <-> 38
+12 <-> 41
+13 <-> 42
+15 <-> 11
+17 <-> 45
+19 <-> 12
+29 <-> 58

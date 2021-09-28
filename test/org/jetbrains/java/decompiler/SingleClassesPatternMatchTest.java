@@ -2,8 +2,7 @@ package org.jetbrains.java.decompiler;
 
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 
-import static org.jetbrains.java.decompiler.SingleClassesTestBase.TestDefinition.Version.JAVA_16;
-import static org.jetbrains.java.decompiler.SingleClassesTestBase.TestDefinition.Version.JAVA_16_NODEBUG;
+import static org.jetbrains.java.decompiler.SingleClassesTestBase.TestDefinition.Version.*;
 
 public class SingleClassesPatternMatchTest extends SingleClassesTestBase {
   @Override
@@ -24,7 +23,7 @@ public class SingleClassesPatternMatchTest extends SingleClassesTestBase {
     register(JAVA_16, "TestPatternMatching");
     // TODO: rename this
     register(JAVA_16, "TestPatternMatchingFake");
-    registerFailable(JAVA_16, "TestPatternMatchingInteger");
+    register(JAVA_17, "TestPatternMatchingInteger");
     // TODO: testNoInit is wrong
     register(JAVA_16, "TestPatternMatchingMerge");
     // TODO: local variables aren't merged properly, bring out of nodebug when they are

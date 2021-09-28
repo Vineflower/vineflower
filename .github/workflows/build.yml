@@ -4,10 +4,10 @@ jobs:
   build:
     strategy:
       matrix:
-        java: [8-jdk, 11-jdk, 15-jdk]
+        java: [8, 11, 17]
     runs-on: ubuntu-20.04
     container:
-      image: openjdk:${{ matrix.java }}
+      image: openjdk:${{ matrix.java }}-jdk
       options: --user root
     steps:
       - uses: actions/checkout@v1
@@ -17,7 +17,22 @@ jobs:
         if: "${{ always() }}"
         uses: actions/upload-artifact@v2
         with:
-          name: "test-results-${{ matrix.os }}"
+          name: "test-results-java${{ matrix.java }}"
           path: |
             build/reports/
             */build/reports/
+            build/test-results/**/*.xml
+  publish-test-results:
+    runs-on: ubuntu-latest
+    needs: [build]
+    if: success() || failure()
+    steps:
+      - name: Download Artifacts
+        uses: actions/download-artifact@v2
+        with:
+          path: artifacts
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v1.19
+        with:
+          check_name: Test Results
+          files: artifacts/**/*.xml

@@ -1,0 +1,83 @@
+package pkg;
+
+import java.util.Objects;
+
+public class TestSwitchPatternMatching1 {
+   public void test(Object o) {
+      Objects.requireNonNull(o);// 5
+      byte var3 = 0;
+      switch(((Class)o).typeSwitch<invokedynamic>(o, var3)) {
+      case 0:
+         Integer i = (Integer)o;// 6
+         System.out.println(i);
+         break;
+      case 1:
+         String s = (String)o;// 7
+         System.out.println(s);
+         break;
+      default:
+         System.out.println("Default");// 8
+      }
+
+   }// 10
+}
+
+class 'pkg/TestSwitchPatternMatching1' {
+   method 'test (Ljava/lang/Object;)V' {
+      0      6
+      2      6
+      3      6
+      4      6
+      7      7
+      8      7
+      a      8
+      b      8
+      c      8
+      d      8
+      e      8
+      f      8
+      10      8
+      2d      10
+      2e      10
+      2f      10
+      30      10
+      31      10
+      32      11
+      33      11
+      34      11
+      35      11
+      36      11
+      37      11
+      38      11
+      39      11
+      3a      12
+      3e      14
+      3f      14
+      40      14
+      41      14
+      42      14
+      43      15
+      44      15
+      45      15
+      46      15
+      47      15
+      48      15
+      49      15
+      4a      15
+      4b      16
+      4e      18
+      4f      18
+      50      18
+      51      18
+      52      18
+      53      18
+      56      21
+   }
+}
+
+Lines mapping:
+5 <-> 7
+6 <-> 11
+7 <-> 15
+8 <-> 19
+10 <-> 22

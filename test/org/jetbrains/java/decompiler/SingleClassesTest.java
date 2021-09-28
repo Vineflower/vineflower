@@ -260,9 +260,20 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8_NODEBUG, "TestIterationOverGenericsWithoutLvt");
     register(JAVA_8_NODEBUG, "TestIterationOverGenericsWithoutLvt1");
 
-
     // TODO: "3;" is generally not considered valid java code, fix ternaries not being simplified
     register(JAVA_8, "TestNestedTernaryAssign");
     register(JAVA_8, "TestNestedTernaryCondition");
+	
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatching1");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatching2");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatching3");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatching4");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatching5");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingInstanceof1");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingInstanceof2");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingReturn1");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingReturn2");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingConstructor1");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingConstructor2");
   }
 }
