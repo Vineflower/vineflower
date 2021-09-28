@@ -1,0 +1,134 @@
+package pkg;
+
+public class TestSwitchPatternMatching2 {
+   static void testTriangle(TestSwitchPatternMatching2.Shape s) {
+      TestSwitchPatternMatching2.Shape var1 = s;// 5
+      byte var2 = 0;
+
+      while(true) {
+         switch(var1.typeSwitch<invokedynamic>(var1, var2)) {
+         case -1:
+            System.out.println("null");// 11
+            return;// 15
+         case 0:
+            TestSwitchPatternMatching2.Triangle t = (TestSwitchPatternMatching2.Triangle)var1;// 6
+            if (!(t.calculateArea() > 100.0)) {
+               var2 = 1;
+               break;
+            }
+
+            System.out.println("Large triangle");// 7
+            return;
+         case 1:
+            TestSwitchPatternMatching2.Triangle t = (TestSwitchPatternMatching2.Triangle)var1;// 8
+            System.out.println("Small triangle");// 9
+            return;
+         default:
+            System.out.println("Non-triangle");// 13
+            return;
+         }
+      }
+   }
+
+   private abstract class Shape {
+      abstract double calculateArea();
+   }
+
+   private class Triangle extends TestSwitchPatternMatching2.Shape {
+      @Override
+      double calculateArea() {
+         return 0.0;// 25
+      }
+   }
+}
+
+class 'pkg/TestSwitchPatternMatching2' {
+   method 'testTriangle (Lpkg/TestSwitchPatternMatching2$Shape;)V' {
+      0      4
+      1      4
+      2      5
+      3      5
+      4      8
+      5      8
+      6      8
+      7      8
+      8      8
+      9      8
+      a      8
+      b      8
+      24      13
+      25      13
+      26      13
+      27      13
+      28      13
+      29      14
+      2a      14
+      2b      14
+      2c      14
+      2d      14
+      2e      14
+      2f      14
+      30      14
+      31      14
+      34      15
+      35      15
+      36      16
+      39      19
+      3a      19
+      3b      19
+      3c      19
+      3d      19
+      3e      19
+      3f      19
+      40      19
+      44      22
+      45      22
+      46      22
+      47      22
+      48      22
+      49      22
+      4a      23
+      4b      23
+      4c      23
+      4d      23
+      4e      23
+      4f      23
+      50      23
+      51      23
+      55      10
+      56      10
+      57      10
+      58      10
+      59      10
+      5a      10
+      5b      10
+      5c      10
+      60      26
+      61      26
+      62      26
+      63      26
+      64      26
+      65      26
+      66      26
+      67      26
+      6b      11
+   }
+}
+
+class 'pkg/TestSwitchPatternMatching2$Triangle' {
+   method 'calculateArea ()D' {
+      0      39
+      1      39
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 14
+7 <-> 20
+8 <-> 23
+9 <-> 24
+11 <-> 11
+13 <-> 27
+15 <-> 12
+25 <-> 40

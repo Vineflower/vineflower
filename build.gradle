@@ -80,7 +80,7 @@ void createJavaTestDataSet(int version, String suffix = "", List<String> compile
 }
 
 [8, 9, 11, 16, 17].forEach { version -> createJavaTestDataSet(version) }
-[16].forEach { version -> createJavaTestDataSet(version, "Preview", ["--enable-preview"]) }
+[16, 17].forEach { version -> createJavaTestDataSet(version, "Preview", ["--enable-preview"]) }
 [8, 16].forEach { version -> createJavaTestDataSet(version, "NoDebug", ["-g:none"])}
 
 task compileTestDataJasm(type: JasmCompile) {

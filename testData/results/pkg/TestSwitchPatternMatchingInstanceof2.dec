@@ -1,0 +1,134 @@
+package pkg;
+
+import java.util.Objects;
+
+public class TestSwitchPatternMatchingInstanceof2 {
+   public void test(Object o) {
+      Objects.requireNonNull(o);// 5
+      Object var2 = o;
+      byte var3 = 0;
+
+      while(true) {
+         switch(((Class)var2).typeSwitch<invokedynamic>(var2, var3)) {
+         case 0:
+            Number n = (Number)var2;// 6
+            if (n instanceof Integer) {
+               Integer i = (Integer)n;
+               System.out.println(i);
+               return;// 11
+            }
+
+            var3 = 1;
+            break;
+         case 1:
+            Number n = (Number)var2;// 7
+            System.out.println(n);
+            return;
+         case 2:
+            String s = (String)var2;// 8
+            System.out.println(s);
+            return;
+         default:
+            System.out.println("Default");// 9
+            return;
+         }
+      }
+   }
+}
+
+class 'pkg/TestSwitchPatternMatchingInstanceof2' {
+   method 'test (Ljava/lang/Object;)V' {
+      0      6
+      2      6
+      3      6
+      4      6
+      6      7
+      7      8
+      8      8
+      9      11
+      a      11
+      b      11
+      c      11
+      d      11
+      e      11
+      f      11
+      10      11
+      2c      13
+      2d      13
+      2e      13
+      2f      13
+      30      13
+      31      13
+      32      14
+      33      14
+      34      14
+      35      14
+      36      14
+      37      14
+      3a      15
+      3b      15
+      3c      15
+      3d      15
+      3e      15
+      3f      15
+      40      15
+      41      16
+      42      16
+      43      16
+      44      16
+      45      16
+      46      16
+      47      16
+      48      16
+      49      16
+      4a      16
+      4b      16
+      4c      16
+      4d      16
+      54      23
+      55      23
+      56      23
+      57      23
+      58      23
+      59      23
+      5a      24
+      5b      24
+      5c      24
+      5d      24
+      5e      24
+      5f      24
+      60      24
+      61      24
+      65      27
+      66      27
+      67      27
+      68      27
+      69      27
+      6a      27
+      6b      28
+      6c      28
+      6d      28
+      6e      28
+      6f      28
+      70      28
+      71      28
+      72      28
+      76      31
+      77      31
+      78      31
+      79      31
+      7a      31
+      7b      31
+      7c      31
+      7d      31
+      81      17
+   }
+}
+
+Lines mapping:
+5 <-> 7
+6 <-> 14
+7 <-> 24
+8 <-> 28
+9 <-> 32
+11 <-> 18

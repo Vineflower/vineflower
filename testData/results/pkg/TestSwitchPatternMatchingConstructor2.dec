@@ -1,0 +1,103 @@
+package pkg;
+
+import java.util.Objects;
+
+public class TestSwitchPatternMatchingConstructor2 {
+   private TestSwitchPatternMatchingConstructor2(String s) {
+      System.out.println(s);// 5
+   }// 6
+
+   private TestSwitchPatternMatchingConstructor2(Object s) {
+      byte var3 = 0;
+      String var10001;
+      switch(((Class)s).typeSwitch<invokedynamic>(s, var3)) {
+      case -1:
+         var10001 = "null";// 10
+         break;
+      default:
+         var10001 = "Non-triangle";// 11
+      }
+
+      this(var10001);// 9
+   }// 13
+
+   private TestSwitchPatternMatchingConstructor2(Object s, boolean unused) {
+      Objects.requireNonNull(s);
+      byte var4 = 0;
+      switch(((Class)s).typeSwitch<invokedynamic>(s, var4)) {
+      default:
+         this("Non-triangle");// 16 17
+      }
+   }// 19
+}
+
+class 'pkg/TestSwitchPatternMatchingConstructor2' {
+   method '<init> (Ljava/lang/String;)V' {
+      4      6
+      5      6
+      6      6
+      7      6
+      8      6
+      9      6
+      a      6
+      b      7
+   }
+
+   method '<init> (Ljava/lang/Object;)V' {
+      1      12
+      3      10
+      4      10
+      6      12
+      7      12
+      8      12
+      9      12
+      a      12
+      b      12
+      c      12
+      20      14
+      21      14
+      22      15
+      25      17
+      27      20
+      28      20
+      29      20
+      2a      21
+   }
+
+   method '<init> (Ljava/lang/Object;Z)V' {
+      1      24
+      3      24
+      4      24
+      5      24
+      8      25
+      9      25
+      a      25
+      c      26
+      d      26
+      e      26
+      f      26
+      10      26
+      11      26
+      12      26
+      13      26
+      1c      28
+      1d      28
+      1e      28
+      1f      28
+      20      28
+      21      30
+   }
+}
+
+Lines mapping:
+5 <-> 7
+6 <-> 8
+9 <-> 21
+10 <-> 15
+11 <-> 18
+13 <-> 22
+16 <-> 29
+17 <-> 29
+19 <-> 31
+Not mapped:
+4
