@@ -107,7 +107,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16, "TestRecordSimple");
     register(JAVA_16, "TestRecordVararg");
     register(JAVA_16, "TestRecordGenericVararg");
-    // TODO: Move annotations from the constructor and getters to the components
     register(JAVA_16, "TestRecordAnno");
     // TODO: The (double) in front of the (int) should be removed
     register(JAVA_8, "TestMultiCast");

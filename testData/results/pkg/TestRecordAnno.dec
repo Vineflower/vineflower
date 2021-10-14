@@ -1,5 +1,5 @@
 package pkg;
 
-public record TestRecordAnno(@RC @TA int x, int y) {
+public record TestRecordAnno(@RC @TA int x, @M @P int y) {
 }
 
