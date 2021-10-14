@@ -532,12 +532,14 @@ public class ExprProcessor implements CodeConstants {
           if (instr.opcode != opc_invokedynamic || instr.bytecodeVersion.hasInvokeDynamic()) {
             LinkConstant invoke_constant = pool.getLinkConstant(instr.operand(0));
 
+            LinkConstant bootstrapMethod = null;
             List<PooledConstant> bootstrap_arguments = null;
             if (instr.opcode == opc_invokedynamic && bootstrap != null) {
+              bootstrapMethod = bootstrap.getMethodReference(invoke_constant.index1);
               bootstrap_arguments = bootstrap.getMethodArguments(invoke_constant.index1);
             }
 
-            InvocationExprent exprinv = new InvocationExprent(instr.opcode, invoke_constant, bootstrap_arguments, stack, bytecode_offsets);
+            InvocationExprent exprinv = new InvocationExprent(instr.opcode, invoke_constant, bootstrapMethod, bootstrap_arguments, stack, bytecode_offsets);
             if (exprinv.getDescriptor().ret.type == CodeConstants.TYPE_VOID) {
               exprlist.add(exprinv);
             }

@@ -1,5 +1,6 @@
 package pkg;
 
+import java.lang.runtime.SwitchBootstraps;
 import java.util.Objects;
 
 public class TestSwitchPatternMatchingInstanceof1 {
@@ -9,7 +10,7 @@ public class TestSwitchPatternMatchingInstanceof1 {
       byte var3 = 0;
 
       while(true) {
-         switch(((Class)var2).typeSwitch<invokedynamic>(var2, var3)) {
+         switch(SwitchBootstraps.typeSwitch<"typeSwitch",String,Integer,String>(var2, var3)) {
          case 0:
             String s = (String)var2;// 6
             if (o instanceof Integer) {
@@ -38,95 +39,95 @@ public class TestSwitchPatternMatchingInstanceof1 {
 
 class 'pkg/TestSwitchPatternMatchingInstanceof1' {
    method 'test (Ljava/lang/Object;)V' {
-      0      6
-      2      6
-      3      6
-      4      6
-      6      7
-      7      8
-      8      8
-      9      11
-      a      11
-      b      11
-      c      11
-      d      11
-      e      11
-      f      11
-      10      11
-      2c      13
-      2d      13
-      2e      13
-      2f      13
-      30      13
-      31      13
-      32      14
-      33      14
-      34      14
-      35      14
-      36      14
-      39      15
-      3a      15
-      3b      15
-      3c      15
-      3d      15
-      3e      15
-      3f      16
-      40      16
-      41      16
-      42      16
-      43      16
-      44      16
-      45      16
-      46      16
-      47      16
-      48      16
-      49      16
-      4a      16
-      4b      16
-      52      23
-      53      23
-      54      23
-      55      23
-      56      23
-      57      23
-      58      24
-      59      24
-      5a      24
-      5b      24
-      5c      24
-      5d      24
-      5e      24
-      5f      24
-      63      27
-      64      27
-      65      27
-      66      27
-      67      27
-      68      27
-      69      28
-      6a      28
-      6b      28
-      6c      28
-      6d      28
-      6e      28
-      6f      28
-      70      28
-      74      31
-      75      31
-      76      31
-      77      31
-      78      31
-      79      31
-      7a      31
-      7b      31
-      7f      17
+      0      7
+      2      7
+      3      7
+      4      7
+      6      8
+      7      9
+      8      9
+      9      12
+      a      12
+      b      12
+      c      12
+      d      12
+      e      12
+      f      12
+      10      12
+      2c      14
+      2d      14
+      2e      14
+      2f      14
+      30      14
+      31      14
+      32      15
+      33      15
+      34      15
+      35      15
+      36      15
+      39      16
+      3a      16
+      3b      16
+      3c      16
+      3d      16
+      3e      16
+      3f      17
+      40      17
+      41      17
+      42      17
+      43      17
+      44      17
+      45      17
+      46      17
+      47      17
+      48      17
+      49      17
+      4a      17
+      4b      17
+      52      24
+      53      24
+      54      24
+      55      24
+      56      24
+      57      24
+      58      25
+      59      25
+      5a      25
+      5b      25
+      5c      25
+      5d      25
+      5e      25
+      5f      25
+      63      28
+      64      28
+      65      28
+      66      28
+      67      28
+      68      28
+      69      29
+      6a      29
+      6b      29
+      6c      29
+      6d      29
+      6e      29
+      6f      29
+      70      29
+      74      32
+      75      32
+      76      32
+      77      32
+      78      32
+      79      32
+      7a      32
+      7b      32
+      7f      18
    }
 }
 
 Lines mapping:
-5 <-> 7
-6 <-> 14
-7 <-> 24
-8 <-> 28
-9 <-> 32
-11 <-> 18
+5 <-> 8
+6 <-> 15
+7 <-> 25
+8 <-> 29
+9 <-> 33
+11 <-> 19

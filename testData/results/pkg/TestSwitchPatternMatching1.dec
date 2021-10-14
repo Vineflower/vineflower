@@ -1,12 +1,13 @@
 package pkg;
 
+import java.lang.runtime.SwitchBootstraps;
 import java.util.Objects;
 
 public class TestSwitchPatternMatching1 {
    public void test(Object o) {
       Objects.requireNonNull(o);// 5
       byte var3 = 0;
-      switch(((Class)o).typeSwitch<invokedynamic>(o, var3)) {
+      switch(SwitchBootstraps.typeSwitch<"typeSwitch",Integer,String>(o, var3)) {
       case 0:
          Integer i = (Integer)o;// 6
          System.out.println(i);
@@ -24,60 +25,60 @@ public class TestSwitchPatternMatching1 {
 
 class 'pkg/TestSwitchPatternMatching1' {
    method 'test (Ljava/lang/Object;)V' {
-      0      6
-      2      6
-      3      6
-      4      6
-      7      7
-      8      7
-      a      8
-      b      8
-      c      8
-      d      8
-      e      8
-      f      8
-      10      8
-      2d      10
-      2e      10
-      2f      10
-      30      10
-      31      10
-      32      11
-      33      11
-      34      11
-      35      11
-      36      11
-      37      11
-      38      11
-      39      11
-      3a      12
-      3e      14
-      3f      14
-      40      14
-      41      14
-      42      14
-      43      15
-      44      15
-      45      15
-      46      15
-      47      15
-      48      15
-      49      15
-      4a      15
-      4b      16
-      4e      18
-      4f      18
-      50      18
-      51      18
-      52      18
-      53      18
-      56      21
+      0      7
+      2      7
+      3      7
+      4      7
+      7      8
+      8      8
+      a      9
+      b      9
+      c      9
+      d      9
+      e      9
+      f      9
+      10      9
+      2d      11
+      2e      11
+      2f      11
+      30      11
+      31      11
+      32      12
+      33      12
+      34      12
+      35      12
+      36      12
+      37      12
+      38      12
+      39      12
+      3a      13
+      3e      15
+      3f      15
+      40      15
+      41      15
+      42      15
+      43      16
+      44      16
+      45      16
+      46      16
+      47      16
+      48      16
+      49      16
+      4a      16
+      4b      17
+      4e      19
+      4f      19
+      50      19
+      51      19
+      52      19
+      53      19
+      56      22
    }
 }
 
 Lines mapping:
-5 <-> 7
-6 <-> 11
-7 <-> 15
-8 <-> 19
-10 <-> 22
+5 <-> 8
+6 <-> 12
+7 <-> 16
+8 <-> 20
+10 <-> 23

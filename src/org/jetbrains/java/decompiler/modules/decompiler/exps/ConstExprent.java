@@ -378,7 +378,7 @@ public class ConstExprent extends Exprent {
     return CodeConstants.TYPE_NULL == constType.type;
   }
 
-  private static String convertStringToJava(String value, boolean ascii) {
+  public static String convertStringToJava(String value, boolean ascii) {
     char[] arr = value.toCharArray();
     StringBuilder buffer = new StringBuilder(arr.length);
 

@@ -1,5 +1,6 @@
 package pkg;
 
+import java.lang.runtime.SwitchBootstraps;
 import java.util.Objects;
 
 public class TestSwitchPatternMatchingConstructor2 {
@@ -10,7 +11,7 @@ public class TestSwitchPatternMatchingConstructor2 {
    private TestSwitchPatternMatchingConstructor2(Object s) {
       byte var3 = 0;
       String var10001;
-      switch(((Class)s).typeSwitch<invokedynamic>(s, var3)) {
+      switch(SwitchBootstraps.typeSwitch<"typeSwitch">(s, var3)) {
       case -1:
          var10001 = "null";// 10
          break;
@@ -24,7 +25,7 @@ public class TestSwitchPatternMatchingConstructor2 {
    private TestSwitchPatternMatchingConstructor2(Object s, boolean unused) {
       Objects.requireNonNull(s);
       byte var4 = 0;
-      switch(((Class)s).typeSwitch<invokedynamic>(s, var4)) {
+      switch(SwitchBootstraps.typeSwitch<"typeSwitch">(s, var4)) {
       default:
          this("Non-triangle");// 16 17
       }
@@ -33,71 +34,71 @@ public class TestSwitchPatternMatchingConstructor2 {
 
 class 'pkg/TestSwitchPatternMatchingConstructor2' {
    method '<init> (Ljava/lang/String;)V' {
-      4      6
-      5      6
-      6      6
-      7      6
-      8      6
-      9      6
-      a      6
-      b      7
+      4      7
+      5      7
+      6      7
+      7      7
+      8      7
+      9      7
+      a      7
+      b      8
    }
 
    method '<init> (Ljava/lang/Object;)V' {
-      1      12
-      3      10
-      4      10
-      6      12
-      7      12
-      8      12
-      9      12
-      a      12
-      b      12
-      c      12
-      20      14
-      21      14
-      22      15
-      25      17
-      27      20
-      28      20
-      29      20
-      2a      21
+      1      13
+      3      11
+      4      11
+      6      13
+      7      13
+      8      13
+      9      13
+      a      13
+      b      13
+      c      13
+      20      15
+      21      15
+      22      16
+      25      18
+      27      21
+      28      21
+      29      21
+      2a      22
    }
 
    method '<init> (Ljava/lang/Object;Z)V' {
-      1      24
-      3      24
-      4      24
-      5      24
-      8      25
-      9      25
-      a      25
-      c      26
-      d      26
-      e      26
-      f      26
-      10      26
-      11      26
-      12      26
-      13      26
-      1c      28
-      1d      28
-      1e      28
-      1f      28
-      20      28
-      21      30
+      1      25
+      3      25
+      4      25
+      5      25
+      8      26
+      9      26
+      a      26
+      c      27
+      d      27
+      e      27
+      f      27
+      10      27
+      11      27
+      12      27
+      13      27
+      1c      29
+      1d      29
+      1e      29
+      1f      29
+      20      29
+      21      31
    }
 }
 
 Lines mapping:
-5 <-> 7
-6 <-> 8
-9 <-> 21
-10 <-> 15
-11 <-> 18
-13 <-> 22
-16 <-> 29
-17 <-> 29
-19 <-> 31
+5 <-> 8
+6 <-> 9
+9 <-> 22
+10 <-> 16
+11 <-> 19
+13 <-> 23
+16 <-> 30
+17 <-> 30
+19 <-> 32
 Not mapped:
 4
