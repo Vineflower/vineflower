@@ -335,9 +335,15 @@ public class ClassWriter {
     DecompilerContext.getLogger().endWriteClass();
   }
 
+  private static boolean hasAnnotations(StructMethod mt) {
+    return mt.getAttribute(StructGeneralAttribute.ATTRIBUTE_RUNTIME_INVISIBLE_ANNOTATIONS) != null ||
+      mt.getAttribute(StructGeneralAttribute.ATTRIBUTE_RUNTIME_VISIBLE_ANNOTATIONS) != null;
+  }
+
   private static boolean isHiddenRecordMethod(StructClass cl, StructMethod mt, RootStatement root) {
     if (cl.getRecordComponents() == null) return false;
-    return isSyntheticRecordMethod(mt, root) || isDefaultRecordMethod(mt, root);
+    return isSyntheticRecordMethod(mt, root) || isDefaultRecordMethod(mt, root) ||
+      (mt.getName().equals("<init>") && !hasAnnotations(mt) && isDefaultRecordConstructor(cl, root));
   }
 
   private static Exprent getSimpleReturnValue(RootStatement root) {
@@ -373,6 +379,32 @@ public class ClassWriter {
     Exprent instance = fieldExprent.getInstance();
     if (!(instance instanceof VarExprent)) return false;
     return ((VarExprent) instance).getIndex() == 0 && fieldExprent.getName().equals(mt.getName());
+  }
+
+  private static boolean isDefaultRecordConstructor(StructClass cl, RootStatement root) {
+    List<StructRecordComponent> components = cl.getRecordComponents();
+    if (components == null) return false;
+    Statement block = root.getFirst();
+    if (!(block instanceof BasicBlockStatement)) return false;
+    List<Exprent> exprents = block.getExprents();
+    if (exprents.size() != components.size()) return false;
+    int lastIndex = 0;
+    for (int i = 0; i < components.size(); i++) {
+      StructRecordComponent component = components.get(i);
+      Exprent assignment = exprents.get(i);
+      if (!(assignment instanceof AssignmentExprent)) return false;
+      Exprent left = ((AssignmentExprent) assignment).getLeft();
+      if (!(left instanceof FieldExprent)) return false;
+      if (!component.getName().equals(((FieldExprent) left).getName())) return false;
+      Exprent fieldInstance = ((FieldExprent) left).getInstance();
+      if (!(fieldInstance instanceof VarExprent) || ((VarExprent) fieldInstance).getIndex() != 0) return false;
+      Exprent right = ((AssignmentExprent) assignment).getRight();
+      if (!(right instanceof VarExprent)) return false;
+      int index = ((VarExprent) right).getIndex();
+      if (index <= lastIndex) return false;
+      lastIndex = index;
+    }
+    return true;
   }
 
   public static void packageInfoToJava(StructClass cl, TextBuffer buffer) {
