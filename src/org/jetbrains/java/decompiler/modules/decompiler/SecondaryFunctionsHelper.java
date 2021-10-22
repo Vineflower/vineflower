@@ -429,6 +429,20 @@ public final class SecondaryFunctionsHelper {
               Exprent newexpr = fparam.getLstOperands().get(0);
               Exprent retexpr = propagateBoolNot(newexpr);
               return retexpr == null ? newexpr : retexpr;
+            case FunctionExprent.FUNCTION_IIF:
+              // Wrap branches
+              FunctionExprent fex1 = new FunctionExprent(FunctionExprent.FUNCTION_BOOL_NOT, fparam.getLstOperands().get(1), null);
+              FunctionExprent fex2 = new FunctionExprent(FunctionExprent.FUNCTION_BOOL_NOT, fparam.getLstOperands().get(2), null);
+
+              // Propagate both branches
+              Exprent ex1 = propagateBoolNot(fex1);
+              Exprent ex2 = propagateBoolNot(fex2);
+
+              // Set both branches to new version if it was created, or old if it wasn't
+              fparam.getLstOperands().set(1, ex1 == null ? fex1 : ex1);
+              fparam.getLstOperands().set(2, ex2 == null ? fex2 : ex2);
+
+              return fparam;
             case FunctionExprent.FUNCTION_CADD:
             case FunctionExprent.FUNCTION_COR:
               List<Exprent> operands = fparam.getLstOperands();

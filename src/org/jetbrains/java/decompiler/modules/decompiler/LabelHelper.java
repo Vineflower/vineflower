@@ -129,7 +129,7 @@ public final class LabelHelper {
       if (edge.getType() == StatEdge.TYPE_BREAK) {  // FIXME: ?
         for (Statement st : stat.getStats()) {
           if (st.containsStatementStrict(edge.getSource())) {
-            if (MergeHelper.isDirectPath(st, edge.getDestination())) {
+            if (MergeHelper.isDirectPath(st, edge.getDestination()) && edge.canInline) {
               st.addLabeledEdge(edge);
             }
           }
@@ -345,6 +345,10 @@ public final class LabelHelper {
               }
             }
 
+            if (edge.closure != null && edge.closure.type == Statement.TYPE_DO && stat.type == Statement.TYPE_IF && edge.getDestination().type == Statement.TYPE_DUMMYEXIT) {
+              continue;
+            }
+
             edge.explicit = false;
           }
           implfound = true;
@@ -453,6 +457,7 @@ public final class LabelHelper {
     return sets;
   }
 
+  // Handles switches in loops, so switch breaks don't become continues
   public static void replaceContinueWithBreak(Statement stat) {
 
     if (stat.type == Statement.TYPE_DO) {

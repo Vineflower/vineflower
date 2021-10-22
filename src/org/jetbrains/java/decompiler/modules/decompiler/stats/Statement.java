@@ -24,7 +24,10 @@ import java.util.*;
 import java.util.Map.Entry;
 
 public class Statement implements IMatchable {
+  // All edge types
   public static final int STATEDGE_ALL = 0x80000000;
+  // All edge types minus exceptions
+  // Exception edges are implicit from try contents to catch handlers, so they don't represent control flow
   public static final int STATEDGE_DIRECT_ALL = 0x40000000;
 
   public static final int DIRECTION_BACKWARD = 0;
@@ -806,8 +809,8 @@ public class Statement implements IMatchable {
 
     // FIXME: default switch
 
-    return type == TYPE_BASICBLOCK || (type == TYPE_IF &&
-                                                        ((IfStatement)this).iftype == IfStatement.IFTYPE_IF) ||
+    return type == TYPE_BASICBLOCK ||
+      (type == TYPE_IF && ((IfStatement)this).iftype == IfStatement.IFTYPE_IF) ||
                   (type == TYPE_DO && ((DoStatement)this).getLooptype() != DoStatement.LOOP_DO);
   }
 
