@@ -322,6 +322,24 @@ public class ExprProcessor implements CodeConstants {
           if (cn instanceof PrimitiveConstant) {
             pushEx(stack, exprlist, new ConstExprent(consts[cn.type - CONSTANT_Integer], ((PrimitiveConstant)cn).value, bytecode_offsets));
           }
+          else if (cn instanceof LinkConstant && cn.type == CodeConstants.CONSTANT_Dynamic) {
+            LinkConstant invoke_constant = (LinkConstant) cn;
+
+            LinkConstant bootstrapMethod = null;
+            List<PooledConstant> bootstrap_arguments = null;
+            if (bootstrap != null) {
+              bootstrapMethod = bootstrap.getMethodReference(invoke_constant.index1);
+              bootstrap_arguments = bootstrap.getMethodArguments(invoke_constant.index1);
+            }
+
+            InvocationExprent exprinv = new InvocationExprent(instr.opcode, invoke_constant, bootstrapMethod, bootstrap_arguments, stack, bytecode_offsets);
+            if (exprinv.getDescriptor().ret.type == CodeConstants.TYPE_VOID) {
+              exprlist.add(exprinv);
+            }
+            else {
+              pushEx(stack, exprlist, exprinv);
+            }
+          }
           else if (cn instanceof LinkConstant) {
             //TODO: for now treat Links as Strings
             pushEx(stack, exprlist, new ConstExprent(VarType.VARTYPE_STRING, ((LinkConstant)cn).elementname, bytecode_offsets));

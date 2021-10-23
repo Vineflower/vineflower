@@ -79,6 +79,7 @@ public class ConstantPool implements NewClassNameBuilder {
         case CodeConstants.CONSTANT_Methodref:
         case CodeConstants.CONSTANT_InterfaceMethodref:
         case CodeConstants.CONSTANT_InvokeDynamic:
+        case CodeConstants.CONSTANT_Dynamic:
           pool.add(new LinkConstant(tag, in.readUnsignedShort(), in.readUnsignedShort()));
           nextPass[1].set(i);
           break;

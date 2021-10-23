@@ -8,6 +8,7 @@ import org.jetbrains.java.decompiler.struct.consts.LinkConstant;
 import org.jetbrains.java.decompiler.struct.consts.PooledConstant;
 import org.jetbrains.java.decompiler.struct.consts.PrimitiveConstant;
 import org.jetbrains.java.decompiler.struct.gen.DataPoint;
+import org.jetbrains.java.decompiler.struct.gen.FieldDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.ListStack;
@@ -402,6 +403,16 @@ public final class InstructionImpact {
             break;
           case CodeConstants.CONSTANT_MethodHandle:
             stack.push(new VarType(((LinkConstant)constant).descriptor));
+            break;
+          case CodeConstants.CONSTANT_Dynamic:
+            ck = pool.getLinkConstant(instr.operand(0));
+            FieldDescriptor fd = FieldDescriptor.parseDescriptor(ck.descriptor);
+            if (fd.type.type != CodeConstants.TYPE_VOID) {
+              stack.push(fd.type);
+              if (fd.type.stackSize == 2) {
+                stack.push(new VarType(CodeConstants.TYPE_GROUP2EMPTY));
+              }
+            }
             break;
         }
         break;

@@ -41,6 +41,7 @@ public class InvocationExprent extends Exprent {
   public static final int INVOKE_STATIC = 3;
   public static final int INVOKE_INTERFACE = 4;
   public static final int INVOKE_DYNAMIC = 5;
+  public static final int CONSTANT_DYNAMIC = 6;
 
   public static final int TYP_GENERAL = 1;
   public static final int TYP_INIT = 2;
@@ -105,6 +106,14 @@ public class InvocationExprent extends Exprent {
 
         classname = bootstrapMethod.classname; // dummy class name
         invokeDynamicClassSuffix = "##Lambda_" + cn.index1 + "_" + cn.index2;
+        break;
+      case CodeConstants.opc_ldc:
+      case CodeConstants.opc_ldc_w:
+      case CodeConstants.opc_ldc2_w:
+        invocationTyp = CONSTANT_DYNAMIC;
+        classname = bootstrapMethod.classname; // dummy class name
+        invokeDynamicClassSuffix = "##Condy_" + cn.index1 + "_" + cn.index2;
+        break;
     }
 
     if (CodeConstants.INIT_NAME.equals(name)) {
@@ -115,13 +124,16 @@ public class InvocationExprent extends Exprent {
     }
 
     stringDescriptor = cn.descriptor;
-    descriptor = MethodDescriptor.parseDescriptor(cn.descriptor);
+    if (invocationTyp == CONSTANT_DYNAMIC) {
+      stringDescriptor = "()" + stringDescriptor;
+    }
+    descriptor = MethodDescriptor.parseDescriptor(stringDescriptor);
 
     for (VarType ignored : descriptor.params) {
       lstParameters.add(0, stack.pop());
     }
 
-    if (opcode == CodeConstants.opc_invokedynamic) {
+    if (opcode == CodeConstants.opc_invokedynamic || invocationTyp == CONSTANT_DYNAMIC) {
       int dynamicInvocationType = -1;
       if (bootstrapArguments != null) {
         if (bootstrapArguments.size() > 1) { // INVOKEDYNAMIC is used not only for lambdas
@@ -512,12 +524,16 @@ public class InvocationExprent extends Exprent {
       ((InvocationExprent) instance).markUsingBoxingResult();
     }
 
-    if (isStatic || invocationTyp == INVOKE_DYNAMIC) {
+    if (isStatic || invocationTyp == INVOKE_DYNAMIC || invocationTyp == CONSTANT_DYNAMIC) {
       if (isBoxingCall() && canIgnoreBoxing && !forceBoxing) {
         // process general "boxing" calls, e.g. 'Object[] data = { true }' or 'Byte b = 123'
         // here 'byte' and 'short' values do not need an explicit narrowing type cast
         ExprProcessor.getCastedExprent(lstParameters.get(0), descriptor.params[0], buf, indent, false, false, true, false, tracer);
         return buf;
+      }
+
+      if (invocationTyp == CONSTANT_DYNAMIC) {
+        buf.append('(').append(ExprProcessor.getCastTypeName(descriptor.ret)).append(')');
       }
 
       ClassNode node = (ClassNode)DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS_NODE);
@@ -671,9 +687,14 @@ public class InvocationExprent extends Exprent {
           this.appendParameters(buf, genericArgs);
         }
 
-        if (invocationTyp == INVOKE_DYNAMIC) {
+        if (invocationTyp == INVOKE_DYNAMIC || invocationTyp == CONSTANT_DYNAMIC) {
           if (bootstrapMethod == null) {
-            buf.append("<").append(name).append(">invokedynamic");
+            buf.append("<").append(name);
+            if (invocationTyp == INVOKE_DYNAMIC) {
+              buf.append(">invokedynamic");
+            } else {
+              buf.append(">ldc");
+            }
           } else {
             buf.append(bootstrapMethod.elementname);
             buf.append("<\"").append(name).append('"');
