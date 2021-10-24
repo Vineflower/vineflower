@@ -38,6 +38,7 @@ public interface IFernflowerPreferences {
   String PATTERN_MATCHING = "pam";
 
   String INCLUDE_ENTIRE_CLASSPATH = "iec";
+  String INCLUDE_JAVA_RUNTIME = "jrt";
   String EXPLICIT_GENERIC_ARGUMENTS = "ega";
   String INLINE_SIMPLE_LAMBDAS = "isl";
 
@@ -97,6 +98,7 @@ public interface IFernflowerPreferences {
     defaults.put(PATTERN_MATCHING, "0");
 
     defaults.put(INCLUDE_ENTIRE_CLASSPATH, "0");
+    defaults.put(INCLUDE_JAVA_RUNTIME, "0");
     defaults.put(EXPLICIT_GENERIC_ARGUMENTS, "0");
     defaults.put(INLINE_SIMPLE_LAMBDAS, "1");
 
