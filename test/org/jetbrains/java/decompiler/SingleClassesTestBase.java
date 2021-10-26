@@ -24,6 +24,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static org.jetbrains.java.decompiler.DecompilerTestFixture.assertFilesEqual;
@@ -172,9 +173,9 @@ public abstract class SingleClassesTestBase {
 
     Path parent = classFile.getParent();
     if (parent != null) {
-      final String pattern = classFile.getFileName().toString().replace(".class", "") + "\\$.+\\.class";
+      final Pattern pattern = Pattern.compile(classFile.getFileName().toString().replace(".class", "") + "\\$.+\\.class");
       try {
-        Files.list(parent).filter(p -> p.getFileName().toString().matches(pattern)).forEach(files::add);
+        Files.list(parent).filter(p -> pattern.matcher(p.getFileName().toString()).matches()).forEach(files::add);
       } catch (IOException e) {
         throw new UncheckedIOException(e);
       }
