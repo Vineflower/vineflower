@@ -27,8 +27,11 @@ import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.attr.StructEnclosingMethodAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribute.LocalVariable;
+import org.jetbrains.java.decompiler.struct.consts.LinkConstant;
+import org.jetbrains.java.decompiler.struct.consts.PooledConstant;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
+import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
 import org.jetbrains.java.decompiler.util.DotExporter;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 
@@ -1082,20 +1085,19 @@ public class NestedClassProcessor {
           res = classname.equals(((FieldExprent)expr).getClassname());
           break;
         case Exprent.EXPRENT_INVOCATION:
-          res = classname.equals(((InvocationExprent)expr).getClassname());
+          res = containsType(((InvocationExprent) expr), classType);
           break;
         case Exprent.EXPRENT_NEW:
-          VarType newType = ((NewExprent)expr).getNewType();
-          res = newType.type == CodeConstants.TYPE_OBJECT && classname.equals(newType.value);
+          NewExprent newExpr = (NewExprent) expr;
+          VarType newType = newExpr.getNewType();
+          res = newType.type == CodeConstants.TYPE_OBJECT && classname.equals(newType.value) || containsType(newExpr.getConstructor(), classType);
           break;
         case Exprent.EXPRENT_VAR:
           VarExprent varExpr = (VarExprent)expr;
           if (varExpr.isDefinition()) {
-            VarType varType = varExpr.getVarType();
-            if (classType.equals(varType) || (varType.arrayDim > 0 && classType.value.equals(varType.value))) {
-              res = true;
-            }
+            res = containsType(varExpr.getInferredExprType(null), classType);
           }
+          break;
       }
 
       if (res) {
@@ -1103,6 +1105,31 @@ public class NestedClassProcessor {
       }
     }
 
+    return false;
+  }
+
+  private static boolean containsType(InvocationExprent haystack, VarType needle) {
+    if (haystack == null) return false;
+    if (needle.value.equals(haystack.getClassname())) return true;
+    List<PooledConstant> bootstrapArgs = haystack.getBootstrapArguments();
+    if (bootstrapArgs == null) return false;
+    for (PooledConstant bootstrapArg : bootstrapArgs) {
+      if (bootstrapArg instanceof LinkConstant && needle.value.equals(((LinkConstant) bootstrapArg).classname)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private static boolean containsType(VarType haystack, VarType needle) {
+    if (needle.equals(haystack) || (haystack.arrayDim > 0 && haystack.value.equals(needle.value))) {
+      return true;
+    }
+    if (haystack.isGeneric()) {
+      for (VarType arg : ((GenericType) haystack).getArguments()) {
+        if (containsType(arg, needle)) return true;
+      }
+    }
     return false;
   }
 

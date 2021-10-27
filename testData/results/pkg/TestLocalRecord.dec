@@ -1,63 +1,111 @@
 package pkg;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class TestLocalRecord {
    public void test(int i) {
       record Color(int red, int green, int blue) {
       }
 
-      Color color = new Color((i >> 16 & 0xFF) / 255, (i >> 8 & 0xFF) / 255, (i & 0xFF) / 255);// 6
-      System.out.println(color);// 7
-   }// 8
+      Color color = new Color((i >> 16 & 0xFF) / 255, (i >> 8 & 0xFF) / 255, (i & 0xFF) / 255);// 9
+      System.out.println(color);// 10
+   }// 11
+
+   public void test2() {
+      record R() {
+      }
+
+      List<R> list = new ArrayList();// 15
+      list.add(new R());// 16
+   }// 17
+
+   public void test3() {
+      record R() {
+         static void nop() {
+         }// 21
+      }
+
+      Runnable nop = R::nop;// 23
+   }// 24
 }
 
 class 'pkg/TestLocalRecord' {
    method 'test (I)V' {
-      4      7
-      5      7
-      6      7
-      7      7
-      8      7
-      9      7
-      a      7
-      b      7
-      c      7
-      d      7
-      e      7
-      f      7
-      10      7
-      11      7
-      12      7
-      13      7
-      14      7
-      15      7
-      16      7
-      17      7
-      18      7
-      19      7
-      1a      7
-      1b      7
-      1c      7
-      1d      7
-      1e      7
-      1f      7
-      20      7
-      21      7
-      22      7
-      23      7
-      24      7
-      28      7
-      29      8
-      2a      8
-      2b      8
-      2c      8
-      2d      8
-      2e      8
-      2f      8
-      30      9
+      4      10
+      5      10
+      6      10
+      7      10
+      8      10
+      9      10
+      a      10
+      b      10
+      c      10
+      d      10
+      e      10
+      f      10
+      10      10
+      11      10
+      12      10
+      13      10
+      14      10
+      15      10
+      16      10
+      17      10
+      18      10
+      19      10
+      1a      10
+      1b      10
+      1c      10
+      1d      10
+      1e      10
+      1f      10
+      20      10
+      21      10
+      22      10
+      23      10
+      24      10
+      28      10
+      29      11
+      2a      11
+      2b      11
+      2c      11
+      2d      11
+      2e      11
+      2f      11
+      30      12
+   }
+
+   method 'test2 ()V' {
+      7      18
+      8      19
+      10      19
+      11      19
+      12      19
+      13      19
+      14      19
+      16      20
+   }
+
+   method 'test3 ()V' {
+      5      28
+      6      29
+   }
+}
+
+class 'pkg/TestLocalRecord$2R' {
+   method 'nop ()V' {
+      0      25
    }
 }
 
 Lines mapping:
-6 <-> 8
-7 <-> 9
-8 <-> 10
+9 <-> 11
+10 <-> 12
+11 <-> 13
+15 <-> 19
+16 <-> 20
+17 <-> 21
+21 <-> 26
+23 <-> 29
+24 <-> 30
