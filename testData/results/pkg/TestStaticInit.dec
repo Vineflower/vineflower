@@ -1,0 +1,26 @@
+package pkg;
+
+import java.util.function.Supplier;
+
+public class TestStaticInit {
+   static final Supplier<TestStaticInit> X = () -> {
+      return TestStaticInit.Inner.Y;// 7
+   };
+   static final TestStaticInit Y = null;
+
+   static class Inner {
+      static final TestStaticInit Y = null;
+   }
+}
+
+class 'pkg/TestStaticInit' {
+   method 'lambda$static$0 ()Lpkg/TestStaticInit;' {
+      0      6
+      1      6
+      2      6
+      3      6
+   }
+}
+
+Lines mapping:
+7 <-> 7

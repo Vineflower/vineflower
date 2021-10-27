@@ -277,5 +277,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingConstructor2");
 
     register(JASM, "TestCondy");
+
+    register(JAVA_8, "TestStaticInit");
   }
 }

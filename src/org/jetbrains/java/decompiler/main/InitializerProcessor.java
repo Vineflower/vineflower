@@ -422,7 +422,7 @@ public final class InitializerProcessor {
         switch (e.type) {
           case Exprent.EXPRENT_FIELD:
             FieldExprent fe = (FieldExprent)e;
-            if (fe.isStatic() && cl.hasField(fe.getName(), fe.getDescriptor().descriptorString)) {
+            if (cl.qualifiedName.equals(fe.getClassname()) && fe.isStatic() && cl.hasField(fe.getName(), fe.getDescriptor().descriptorString)) {
               String key = InterpreterUtil.makeUniqueKey(fe.getName(), fe.getDescriptor().descriptorString);
               if (fe.getInstance() == null && cl.getFields().getIndexByKey(key) > fidx) {
                 return false;
