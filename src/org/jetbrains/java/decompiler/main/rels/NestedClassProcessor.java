@@ -1122,6 +1122,7 @@ public class NestedClassProcessor {
   }
 
   private static boolean containsType(VarType haystack, VarType needle) {
+    if (haystack == null || needle == null) return false;
     if (needle.equals(haystack) || (haystack.arrayDim > 0 && haystack.value.equals(needle.value))) {
       return true;
     }
