@@ -2,6 +2,7 @@ package pkg;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 public class TestLocalRecord {
   public void test(int i) {
@@ -21,5 +22,10 @@ public class TestLocalRecord {
       static void nop() {}
     }
     Runnable nop = R::nop;
+  }
+
+  public void test4() {
+    record R() {}
+    Supplier<R> constr = () -> new R();
   }
 }

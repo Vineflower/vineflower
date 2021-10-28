@@ -571,6 +571,14 @@ public class ClassesProcessor implements CodeConstants {
       this.classStruct = classStruct;
 
       simpleName = classStruct.qualifiedName.substring(classStruct.qualifiedName.lastIndexOf('/') + 1);
+      StructEnclosingMethodAttribute enclosingMethodAttr = classStruct.getAttribute(StructGeneralAttribute.ATTRIBUTE_ENCLOSING_METHOD);
+      if (enclosingMethodAttr != null) {
+        String name = enclosingMethodAttr.getMethodName();
+        String desc = enclosingMethodAttr.getMethodDescriptor();
+        if (name != null && desc != null) {
+          this.enclosingMethod = InterpreterUtil.makeUniqueKey(name, desc);
+        }
+      }
     }
 
     public ClassNode getClassNode(String qualifiedName) {

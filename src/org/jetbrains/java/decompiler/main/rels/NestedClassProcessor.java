@@ -492,8 +492,10 @@ public class NestedClassProcessor {
                     }
 
                     mapVarFieldPairs.get(refClassName).put(constructor.getStringDescriptor(), pairMask);
-                    nestedClassNode.enclosingMethod =
-                      InterpreterUtil.makeUniqueKey(method.methodStruct.getName(), method.methodStruct.getDescriptor());
+                    if (nestedClassNode.enclosingMethod == null) {
+                      nestedClassNode.enclosingMethod =
+                        InterpreterUtil.makeUniqueKey(method.methodStruct.getName(), method.methodStruct.getDescriptor());
+                    }
                   }
                 }
               }
