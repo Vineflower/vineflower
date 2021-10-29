@@ -280,5 +280,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
 
     register(JAVA_8, "TestStaticInit");
     register(JAVA_8_NODEBUG, "TestDoubleNestedClass");
+    // TODO: The two 'z' cases should either be renamed or be surrounded with {}
+    register(JAVA_8, "TestDuplicateSwitchLocals");
   }
 }
