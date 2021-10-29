@@ -279,5 +279,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JASM, "TestCondy");
 
     register(JAVA_8, "TestStaticInit");
+    register(JAVA_8_NODEBUG, "TestDoubleNestedClass");
   }
 }

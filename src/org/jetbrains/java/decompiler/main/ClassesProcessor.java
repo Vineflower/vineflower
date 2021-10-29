@@ -46,14 +46,15 @@ public class ClassesProcessor implements CodeConstants {
     private int type;
     private int accessFlags;
     private String source;
+    private String enclosingName;
 
     private static boolean equal(Inner o1, Inner o2) {
-      return o1.type == o2.type && o1.accessFlags == o2.accessFlags && InterpreterUtil.equalObjects(o1.simpleName, o2.simpleName);
+      return o1.type == o2.type && o1.accessFlags == o2.accessFlags && InterpreterUtil.equalObjects(o1.simpleName, o2.simpleName) && InterpreterUtil.equalObjects(o1.enclosingName, o2.enclosingName);
     }
 
     @Override
     public String toString() {
-      return simpleName + " " + ClassWriter.getModifiers(accessFlags) + " " + getType() + " " + source;
+      return simpleName + " " + ClassWriter.getModifiers(accessFlags) + " " + getType() + " of " + enclosingName;
     }
 
     private String getType() {
@@ -119,6 +120,18 @@ public class ClassesProcessor implements CodeConstants {
               rec.accessFlags = entry.accessFlags;
               rec.source = cl.qualifiedName;
 
+              if (entry.enclosingName != null) {
+                rec.enclosingName = entry.enclosingName;
+              } else {
+                StructClass in = context.getClass(entry.innerName);
+                if (in != null) {
+                  StructEnclosingMethodAttribute attr = in.getAttribute(StructGeneralAttribute.ATTRIBUTE_ENCLOSING_METHOD);
+                  if (attr != null) {
+                    rec.enclosingName = attr.getClassName();
+                  }
+                }
+              }
+
               // nested class type
               if (entry.innerName != null) {
                 if (entry.simpleName == null) {
@@ -160,16 +173,19 @@ public class ClassesProcessor implements CodeConstants {
                   mapInnerClasses.put(innerName, rec);
                 }
                 else if (!Inner.equal(existingRec, rec)) {
+                  int oldPriority = existingRec.source.equals(innerName) ? 1 : existingRec.source.equals(enclClassName) ? 2 : 3;
+                  int newPriority = rec.source.equals(innerName) ? 1 : rec.source.equals(enclClassName) ? 2 : 3;
                   if (DecompilerContext.getOption(IFernflowerPreferences.WARN_INCONSISTENT_INNER_CLASSES)) {
                     String message = "Inconsistent inner class entries for " + innerName + "!";
                     DecompilerContext.getLogger().writeMessage(message, IFernflowerLogger.Severity.WARN);
-                    DecompilerContext.getLogger().writeMessage("  Old: " + existingRec.toString(), IFernflowerLogger.Severity.WARN);
-                    DecompilerContext.getLogger().writeMessage("  New: " + rec.toString(), IFernflowerLogger.Severity.WARN);
+                    DecompilerContext.getLogger().writeMessage("  " + existingRec.source + ": " + existingRec, IFernflowerLogger.Severity.WARN);
+                    DecompilerContext.getLogger().writeMessage("  " + rec.source + ": " + rec, IFernflowerLogger.Severity.WARN);
+                    if (newPriority < oldPriority) {
+                      DecompilerContext.getLogger().writeMessage("Changing mapping to " + innerName + " -> " + rec, IFernflowerLogger.Severity.WARN);
+                    }
                   }
-                  int oldPriority = existingRec.source.equals(innerName) ? 1 : existingRec.source.equals(enclClassName) ? 2 : 3;
-                  int newPriority = rec.source.equals(innerName) ? 1 : rec.source.equals(enclClassName) ? 2 : 3;
                   if (newPriority < oldPriority) {
-                      mapInnerClasses.put(innerName, rec);
+                    mapInnerClasses.put(innerName, rec);
                   }
                 }
 
@@ -221,6 +237,11 @@ public class ClassesProcessor implements CodeConstants {
                   continue;
                 }
 
+                Inner rec = mapInnerClasses.get(nestedClass);
+                if (!scl.qualifiedName.equals(rec.enclosingName)) {
+                  continue;
+                }
+
                 if (!setVisited.add(nestedClass)) {
                   continue;
                 }
@@ -231,14 +252,19 @@ public class ClassesProcessor implements CodeConstants {
                   continue;
                 }
 
-                Inner rec = mapInnerClasses.get(nestedClass);
-
                 //if ((Integer)arr[2] == ClassNode.CLASS_MEMBER) {
                   // FIXME: check for consistent naming
                 //}
 
                 nestedNode.simpleName = rec.simpleName;
                 nestedNode.type = rec.type;
+                // anonymous classes inside of lambdas report the outer method as the enclosing method
+                // clear it here, so it gets set to the lambda method later
+                // this is crucial for naming the local variables correctly
+                // FIXME: figure out a better way of detecting when this information is incorrect and when not
+                if (nestedNode.type == ClassNode.CLASS_ANONYMOUS) {
+                  nestedNode.enclosingMethod = null;
+                }
                 nestedNode.access = rec.accessFlags;
 
                 // sanity checks of the class supposed to be anonymous
