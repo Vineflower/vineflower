@@ -492,7 +492,8 @@ public class NestedClassProcessor {
                     }
 
                     mapVarFieldPairs.get(refClassName).put(constructor.getStringDescriptor(), pairMask);
-                    if (nestedClassNode.enclosingMethod == null) {
+                    // If there was no EnclosingMethod attribute or it was invalid, replace it
+                    if (nestedClassNode.enclosingMethod == null || node.getWrapper().getMethods().getWithKey(nestedClassNode.enclosingMethod) == null) {
                       nestedClassNode.enclosingMethod =
                         InterpreterUtil.makeUniqueKey(method.methodStruct.getName(), method.methodStruct.getDescriptor());
                     }
@@ -572,9 +573,32 @@ public class NestedClassProcessor {
     }
   }
 
+  private static MethodWrapper findEnclosingMethod(ClassNode child) {
+    if (child.enclosingMethod == null) return null;
+    if (child.parent != null) {
+      MethodWrapper fromParent = child.parent.getWrapper().getMethods().getWithKey(child.enclosingMethod);
+      if (fromParent != null) {
+        return fromParent;
+      }
+    }
+    for (String enclosingClassName : child.enclosingClasses) {
+      ClassNode enclosingClass = DecompilerContext.getClassProcessor().getMapRootClasses().get(enclosingClassName);
+      if (enclosingClass != null) {
+        MethodWrapper fromEnclosing = enclosingClass.getWrapper().getMethods().getWithKey(child.enclosingMethod);
+        if (fromEnclosing != null) {
+          return fromEnclosing;
+        }
+      }
+    }
+    if (child.type != ClassNode.CLASS_MEMBER) {
+      DecompilerContext.getLogger().writeMessage("Couldn't find enclosing method \"" + child.enclosingMethod + "\" of " + child.classStruct.qualifiedName + " in " + child.enclosingClasses, IFernflowerLogger.Severity.WARN);
+    }
+    return null;
+  }
+
   private static void insertLocalVars(ClassNode parent, ClassNode child) {
     // enclosing method, is null iff member class
-    MethodWrapper enclosingMethod = parent.getWrapper().getMethods().getWithKey(child.enclosingMethod);
+    MethodWrapper enclosingMethod = findEnclosingMethod(child);
 
     // iterate all child methods
     for (MethodWrapper method : child.getWrapper().getMethods()) {
@@ -645,7 +669,7 @@ public class NestedClassProcessor {
             LocalVariable varLVT = null;
 
             if (classNode.type != ClassNode.CLASS_MEMBER) {
-              MethodWrapper enclosing_method = classNode.parent.getWrapper().getMethods().getWithKey(classNode.enclosingMethod);
+              MethodWrapper enclosing_method = findEnclosingMethod(classNode);
 
               varName = enclosing_method.varproc.getVarName(entry.getValue());
               varType = enclosing_method.varproc.getVarType(entry.getValue());
