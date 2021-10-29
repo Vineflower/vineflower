@@ -395,18 +395,16 @@ public final class InitializerProcessor {
           }
           break;
         case Exprent.EXPRENT_NEW:
-          if (!isNewExprentIndependent((NewExprent)expr, cl, fidx)) {
-            return false;
-          }
+          qualifyFieldReferences((NewExprent)expr, cl, fidx);
+          break;
       }
     }
 
     return true;
   }
 
-  // Verifies that a lambda used to initialize a static field does not reference
-  // another static field defined later in the class
-  private static boolean isNewExprentIndependent(NewExprent nexpr, StructClass cl, int fidx) {
+  // Qualifies field references to future static fields in lambdas
+  private static void qualifyFieldReferences(NewExprent nexpr, StructClass cl, int fidx) {
     boolean isStatic = cl.getFields().get(fidx).hasModifier(CodeConstants.ACC_STATIC);
     if (isStatic && nexpr.isLambda() && !nexpr.isMethodReference()) {
       ClassNode child = DecompilerContext.getClassProcessor().getMapRootClasses().get(nexpr.getNewType().value);
@@ -418,25 +416,23 @@ public final class InitializerProcessor {
           s.add(e);
         return 0;
       });
-      return s.stream().allMatch(e -> {
+      for (Exprent e : s) {
         switch (e.type) {
           case Exprent.EXPRENT_FIELD:
             FieldExprent fe = (FieldExprent)e;
             if (cl.qualifiedName.equals(fe.getClassname()) && fe.isStatic() && cl.hasField(fe.getName(), fe.getDescriptor().descriptorString)) {
               String key = InterpreterUtil.makeUniqueKey(fe.getName(), fe.getDescriptor().descriptorString);
               if (fe.getInstance() == null && cl.getFields().getIndexByKey(key) > fidx) {
-                return false;
+                fe.forceQualified(true);
               }
             }
             break;
           case Exprent.EXPRENT_NEW:
-            return isNewExprentIndependent((NewExprent)e, cl, fidx);
+            qualifyFieldReferences((NewExprent)e, cl, fidx);
+            break;
         }
-
-        return true;
-      });
+      }
     }
 
-    return true;
   }
 }
