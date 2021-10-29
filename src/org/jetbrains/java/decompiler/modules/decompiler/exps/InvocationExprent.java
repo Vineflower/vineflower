@@ -606,7 +606,7 @@ public class InvocationExprent extends Exprent {
 
                 if (func.getLstOperands().get(0).type == Exprent.EXPRENT_VAR) {
                   VarType inferred = func.getLstOperands().get(0).getInferredExprType(leftType);
-                  skipCast = inferred.type != CodeConstants.TYPE_OBJECT ||
+                  skipCast = (inferred.type != CodeConstants.TYPE_OBJECT && inferred.type != CodeConstants.TYPE_GENVAR) ||
                     DecompilerContext.getStructContext().instanceOf(inferred.value, this.classname);
                 } else if (this.classname.equals(_const.getConstType().value)) {
                   skipCast = true;
