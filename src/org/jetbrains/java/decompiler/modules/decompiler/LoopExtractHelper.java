@@ -7,6 +7,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.stats.DoStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.SequenceStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
+import org.jetbrains.java.decompiler.util.DotExporter;
 import sun.security.pkcs11.wrapper.CK_SSL3_KEY_MAT_OUT;
 
 import java.util.ArrayList;
@@ -173,12 +174,33 @@ public final class LoopExtractHelper {
           } else {
             // not extern statement- last viability check to try and produce a viable loopable structure
 
-
-            if (stat.getStats().size() == 1 && !stat.getSuccessorEdges(StatEdge.TYPE_REGULAR).isEmpty()) {
-              List<StatEdge> continues = firstif.getIfstat().getSuccessorEdges(StatEdge.TYPE_CONTINUE);
+            if (stat.getStats().size() == 1) {
+              List<StatEdge> continues = ifstat.getSuccessorEdges(StatEdge.TYPE_CONTINUE);
+              boolean newDest = false;
+              Statement removeFrom = null;
+              if (ifstat.type == Statement.TYPE_SEQUENCE) {
+                removeFrom = ifstat.getStats().getLast();
+                continues.addAll(ifstat.getStats().getLast().getSuccessorEdges(StatEdge.TYPE_CONTINUE));
+                newDest = true;
+              }
 
               if (continues.size() == 1 && continues.get(0).getDestination() == stat) {
-                extractIfBlockIntoLoop(stat, firstif);
+                Statement check = stat;
+
+                while (check.getSuccessorEdges(StatEdge.TYPE_REGULAR).isEmpty()) {
+                  check = check.getParent();
+
+                  // Reached top- can't go anywhere
+                  if (check == null) {
+                    return false;
+                  }
+                }
+
+                extractIfBlockIntoLoop(stat, firstif, check.getSuccessorEdges(StatEdge.TYPE_REGULAR).get(0).getDestination());
+
+                if (newDest) {
+                  removeFrom.removeSuccessor(continues.get(0));
+                }
 
                 return true;
               }
@@ -259,7 +281,8 @@ public final class LoopExtractHelper {
     }
   }
 
-  private static void extractIfBlockIntoLoop(DoStatement loop, IfStatement ifStat) {
+  // Moves the body of the if statement to be after the if statement in the loop.
+  private static void extractIfBlockIntoLoop(DoStatement loop, IfStatement ifStat, Statement destination) {
     // If body is the target we want to extract
     Statement target = ifStat.getIfstat();
     // Edge from head to if body
@@ -268,14 +291,17 @@ public final class LoopExtractHelper {
     // Remove if body
     ifStat.setIfstat(null);
     // Add break, remove if statement
+    ifedge.getDestination().removePredecessor(ifedge);
     ifedge.getSource().changeEdgeType(Statement.DIRECTION_FORWARD, ifedge, StatEdge.TYPE_BREAK);
     ifedge.closure = loop;
     ifStat.getStats().removeWithKey(target.id);
 
-    ifedge.setDestination(loop.getSuccessorEdges(StatEdge.TYPE_REGULAR).get(0).getDestination());
+    ifedge.setDestination(destination);
+    destination.addPredecessor(ifedge);
 
     // label the break edge
     loop.addLabeledEdge(ifedge);
+    ifStat.setIfEdge(ifedge);
 
     SequenceStatement block = new SequenceStatement(Arrays.asList(ifStat, target));
     loop.replaceStatement(ifStat, block);

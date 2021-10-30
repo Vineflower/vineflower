@@ -146,13 +146,15 @@ public class MethodProcessorRunnable implements Runnable {
       root = DomHelper.parseGraph(graph, mt);
       decompileRecord.add("ProcessFinally_" + finallyProcessed, root);
 
+      debugCurrentCFG.set(graph);
       debugCurrentlyDecompiling.set(root);
     }
 
     // remove synchronized exception handler
     // not until now because of comparison between synchronized statements in the finally cycle
-    DomHelper.removeSynchronizedHandler(root);
-    decompileRecord.add("RemoveSynchronizedHandler", root);
+    if (DomHelper.removeSynchronizedHandler(root)) {
+      decompileRecord.add("RemoveSynchronizedHandler", root);
+    }
 
     //		LabelHelper.lowContinueLabels(root, new HashSet<StatEdge>());
 
@@ -185,6 +187,10 @@ public class MethodProcessorRunnable implements Runnable {
     if (cl.getVersion().hasIndyStringConcat()) {
       ConcatenationHelper.simplifyStringConcat(root);
       decompileRecord.add("SimplifyStringConcat", root);
+    }
+
+    if (TernaryProcessor.processTernary(root)) {
+      decompileRecord.add("ProcessTernary", root);
     }
 
     // Main loop
@@ -294,29 +300,39 @@ public class MethodProcessorRunnable implements Runnable {
       decompileRecord.add("CondenseSequences_SS", root);
     }
 
-    ExitHelper.adjustReturnType(root, md);
-    decompileRecord.add("AdjustReturnType", root);
+    // Makes constant returns the same type as the method descriptor
+    if (ExitHelper.adjustReturnType(root, md)) {
+      decompileRecord.add("AdjustReturnType", root);
+    }
 
-    ExitHelper.removeRedundantReturns(root);
-    decompileRecord.add("RedundantReturns", root);
+    // Remove returns that don't need to exist
+    if (ExitHelper.removeRedundantReturns(root)) {
+      decompileRecord.add("RedundantReturns", root);
+    }
 
-    SecondaryFunctionsHelper.identifySecondaryFunctions(root, varProc);
-    decompileRecord.add("IdentifySecondary", root);
+    // Apply post processing transformations
+    if (SecondaryFunctionsHelper.identifySecondaryFunctions(root, varProc)) {
+      decompileRecord.add("IdentifySecondary", root);
+    }
 
-    cleanSynchronizedVar(root);
-    decompileRecord.add("ClearSynchronized", root);
+    // Improve synchronized monitor assignments
+    if (SynchronizedHelper.cleanSynchronizedVar(root)) {
+      decompileRecord.add("ClearSynchronized", root);
+    }
 
     varProc.setVarDefinitions(root);
     decompileRecord.add("SetVarDefinitions", root);
 
     // Make sure to update assignments after setting the var definitions!
-    SecondaryFunctionsHelper.updateAssignments(root);
-    decompileRecord.add("UpdateAssignments", root);
+    if (SecondaryFunctionsHelper.updateAssignments(root)) {
+      decompileRecord.add("UpdateAssignments", root);
+    }
 
     // must be the last invocation, because it makes the statement structure inconsistent
     // FIXME: new edge type needed
-    LabelHelper.replaceContinueWithBreak(root);
-    decompileRecord.add("ReplaceContinues", root);
+    if (LabelHelper.replaceContinueWithBreak(root)) {
+      decompileRecord.add("ReplaceContinues", root);
+    }
 
     DotExporter.toDotFile(root, mt, "finalStatement");
 
@@ -336,30 +352,5 @@ public class MethodProcessorRunnable implements Runnable {
 
   public boolean isFinished() {
     return finished;
-  }
-
-  public static void cleanSynchronizedVar(Statement stat) {
-    for (Statement st : stat.getStats()) {
-      cleanSynchronizedVar(st);
-    }
-
-    if (stat.type == Statement.TYPE_SYNCRONIZED) {
-      SynchronizedStatement sync = (SynchronizedStatement)stat;
-      if (sync.getHeadexprentList().get(0).type == Exprent.EXPRENT_MONITOR) {
-        MonitorExprent mon = (MonitorExprent)sync.getHeadexprentList().get(0);
-        for (Exprent e : sync.getFirst().getExprents()) {
-          if (e.type == Exprent.EXPRENT_ASSIGNMENT) {
-            AssignmentExprent ass = (AssignmentExprent)e;
-            if (ass.getLeft().type == Exprent.EXPRENT_VAR) {
-              VarExprent var = (VarExprent)ass.getLeft();
-              if (ass.getRight().equals(mon.getValue()) && !var.isVarReferenced(stat.getParent())) {
-                sync.getFirst().getExprents().remove(e);
-                break;
-              }
-            }
-          }
-        }
-      }
-    }
   }
 }

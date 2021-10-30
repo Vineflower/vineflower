@@ -204,7 +204,9 @@ public final class IfStatement extends Statement {
       tracer.incrementCurrentSourceLine();
     }
 
-    buf.appendIndent(indent).append(headexprent.get(0).toJava(indent, tracer)).append(" {").appendLineSeparator();
+    Exprent condition = headexprent.get(0);
+    // Condition can be null in early processing stages
+    buf.appendIndent(indent).append((condition == null ? "if <null condition>" : condition.toJava(indent, tracer).toString())).append(" {").appendLineSeparator();
     tracer.incrementCurrentSourceLine();
 
     if (ifstat == null) {
@@ -221,7 +223,7 @@ public final class IfStatement extends Statement {
         }
 
         if (ifedge.labeled) {
-          buf.append(" label").append(ifedge.closure.id.toString());
+          buf.append(" label").append(ifedge.closure == null ? "<unknownclosure>" : ifedge.closure.id.toString());
         }
       }
       if(semicolon) {
@@ -237,7 +239,7 @@ public final class IfStatement extends Statement {
 
     if (elsestat != null) {
       if (elsestat.type == Statement.TYPE_IF
-          && elsestat.varDefinitions.isEmpty() && elsestat.getFirst().getExprents().isEmpty() &&
+          && elsestat.varDefinitions.isEmpty() && (elsestat.getFirst().getExprents() != null && elsestat.getFirst().getExprents().isEmpty()) &&
           !elsestat.isLabeled() &&
           (elsestat.getSuccessorEdges(STATEDGE_DIRECT_ALL).isEmpty()
            || !elsestat.getSuccessorEdges(STATEDGE_DIRECT_ALL).get(0).explicit)) { // else if

@@ -72,6 +72,7 @@ public final class LabelHelper {
     }
   }
 
+  // Removes any breaks and continues from statements that can't have edges to basic blocks
   private static void removeNonImmediateEdges(Statement stat) {
 
     for (Statement st : stat.getStats()) {
@@ -129,7 +130,7 @@ public final class LabelHelper {
       if (edge.getType() == StatEdge.TYPE_BREAK) {  // FIXME: ?
         for (Statement st : stat.getStats()) {
           if (st.containsStatementStrict(edge.getSource())) {
-            if (MergeHelper.isDirectPath(st, edge.getDestination()) && edge.canInline) {
+            if (MergeHelper.isDirectPath(st, edge.getDestination())) {
               st.addLabeledEdge(edge);
             }
           }
@@ -142,6 +143,7 @@ public final class LabelHelper {
     }
   }
 
+  // Makes all edges explicit and labeled for further processing
   private static void resetAllEdges(Statement stat) {
 
     for (Statement st : stat.getStats()) {
@@ -154,6 +156,7 @@ public final class LabelHelper {
     }
   }
 
+  // Removes the labels on edges that are returns as they cannot be labeled
   private static void setRetEdgesUnlabeled(RootStatement root) {
     Statement exit = root.getDummyExit();
     for (StatEdge edge : exit.getAllPredecessorEdges()) {
@@ -458,7 +461,8 @@ public final class LabelHelper {
   }
 
   // Handles switches in loops, so switch breaks don't become continues
-  public static void replaceContinueWithBreak(Statement stat) {
+  public static boolean replaceContinueWithBreak(Statement stat) {
+    boolean res = false;
 
     if (stat.type == Statement.TYPE_DO) {
 
@@ -474,14 +478,17 @@ public final class LabelHelper {
             edge.getSource().changeEdgeType(Statement.DIRECTION_FORWARD, edge, StatEdge.TYPE_BREAK);
             edge.labeled = false;
             minclosure.addLabeledEdge(edge);
+            res = true;
           }
         }
       }
     }
 
     for (Statement st : stat.getStats()) {
-      replaceContinueWithBreak(st);
+      res |= replaceContinueWithBreak(st);
     }
+
+    return res;
   }
 
   private static Statement getMinContinueClosure(StatEdge edge) {

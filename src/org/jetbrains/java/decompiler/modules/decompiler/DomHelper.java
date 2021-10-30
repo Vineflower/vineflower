@@ -19,8 +19,6 @@ import org.jetbrains.java.decompiler.util.VBStyleCollection;
 import java.util.*;
 
 public final class DomHelper {
-
-
   private static RootStatement graphToStatement(ControlFlowGraph graph, StructMethod mt) {
 
     VBStyleCollection<Statement, Integer> stats = new VBStyleCollection<>();
@@ -224,15 +222,19 @@ public final class DomHelper {
     return root;
   }
 
-  public static void removeSynchronizedHandler(Statement stat) {
+  public static boolean removeSynchronizedHandler(Statement stat) {
+    boolean res = false;
 
     for (Statement st : stat.getStats()) {
-      removeSynchronizedHandler(st);
+      res |= removeSynchronizedHandler(st);
     }
 
     if (stat.type == Statement.TYPE_SYNCRONIZED) {
       ((SynchronizedStatement)stat).removeExc();
+      res = true;
     }
+
+    return res;
   }
 
 

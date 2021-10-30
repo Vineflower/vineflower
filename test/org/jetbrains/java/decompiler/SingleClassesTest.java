@@ -184,17 +184,21 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestLoopBreak2");
     register(JAVA_8, "TestSimpleWhile");
     register(JAVA_8, "TestLoopBreakException");
+
     register(JAVA_8, "TestWhileTernary1");
     register(JAVA_8, "TestWhileTernary2");
     register(JAVA_8, "TestWhileTernaryFake");
     register(JAVA_8, "TestWhileTernary3");
     register(JAVA_8, "TestWhileTernary4");
     register(JAVA_8, "TestWhileTernary5");
-    // TODO: do-while loop fails to inline ternary
     register(JAVA_8, "TestWhileTernary6");
     register(JAVA_8, "TestWhileTernary7");
     // TODO: complex ternaries are not supported
     register(JAVA_8, "TestWhileTernary8");
+    register(JAVA_8, "TestWhileTernary9");
+    // TODO: continue still exists in loop
+    register(JAVA_8, "TestWhileTernary10");
+
     register(JAVA_8, "TestTryLoop");
     register(JAVA_8, "TestTryLoopRecompile");
     register(JAVA_8, "TestTryLoopSimpleFinally");
@@ -277,6 +281,10 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingConstructor2");
 
     register(JAVA_8, "TestIfTernary1");
+    // TODO: multiple labels still present
+    register(JAVA_8, "TestIfTernary2");
+    register(JAVA_8, "TestIfTernary3");
+    register(JAVA_8, "TestIfTernaryReturn");
 
     register(JAVA_8, "TestSimpleIf");
   }

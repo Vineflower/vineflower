@@ -272,8 +272,8 @@ public class DotExporter {
     try {
       String java = statement.toJava().toString().replace("\"", "\\\"");
       if (statement instanceof BasicBlockStatement) {
-        if (statement.getExprents().isEmpty()) {
-          java = "<empty basic block>\n" + java;
+        if (statement.getExprents() == null || statement.getExprents().isEmpty()) {
+          java = "<" + (statement.getExprents() == null ? "null" : "empty") + " basic block>\n" + java;
         }
       }
 

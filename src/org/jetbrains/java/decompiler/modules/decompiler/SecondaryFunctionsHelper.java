@@ -488,14 +488,15 @@ public final class SecondaryFunctionsHelper {
    *
    * @param stat The provided statement
    */
-  public static void updateAssignments(Statement stat) {
+  public static boolean updateAssignments(Statement stat) {
+    boolean res = false;
     // Get all sequential objects if the statement doesn't have exprents
     List<Object> objects = new ArrayList<>(stat.getExprents() == null ? stat.getSequentialObjects() : stat.getExprents());
 
     for (Object obj : objects) {
       if (obj instanceof Statement) {
         // If the object is a statement, recurse
-        updateAssignments((Statement) obj);
+        res |= updateAssignments((Statement) obj);
       } else if (obj instanceof Exprent) {
         // If the statement is an exprent, start processing
         Exprent exprent = (Exprent) obj;
@@ -528,11 +529,15 @@ public final class SecondaryFunctionsHelper {
                 assignment.setCondType(rhsFunc.getFuncType());
                 assignment.setRight(funcParams.get(1));
                 // TODO: doesn't hit all instances, see ClientWorld
+
+                res = true;
               }
             }
           }
         }
       }
     }
+
+    return res;
   }
 }

@@ -1,0 +1,172 @@
+package pkg;
+
+import java.util.stream.Stream;
+
+public class TestWhileTernary10 {
+   public double test(boolean condition, int n, Stream<Double> doubles) {
+      double[] ds = new double[]{(double)n};// 7
+
+      for(int i = 0; condition ? i >= n : n >= i; ++i) {// 9
+         for(int j = 0; j < n; ++j) {// 10
+            System.out.println(1);// 11
+            if (j > i) {// 13
+               ++j;// 14
+            }
+         }
+         continue;
+      }
+
+      doubles.forEach(d -> {// 19
+         ds[0] -= d;
+      });
+      return ds[0];// 20
+   }
+
+   public double test1(boolean condition, int n, Stream<Double> doubles) {
+      double[] ds = new double[]{(double)n};// 24
+
+      for(int i = 0; condition ? i >= n : n >= i; ++i) {// 26
+         ds[0] += (double)i;// 27
+      }
+
+      doubles.forEach(d -> {// 30
+         ds[0] -= d;
+      });
+      return ds[0];// 31
+   }
+}
+
+class 'pkg/TestWhileTernary10' {
+   method 'lambda$test$0 ([DLjava/lang/Double;)V' {
+      0      19
+      1      19
+      4      19
+      5      19
+      6      19
+      7      19
+      9      19
+      a      20
+   }
+
+   method 'test (ZILjava/util/stream/Stream;)D' {
+      5      6
+      6      6
+      8      6
+      9      6
+      a      8
+      b      8
+      c      8
+      d      8
+      11      8
+      12      8
+      13      8
+      14      8
+      1a      8
+      1b      8
+      1c      8
+      1d      8
+      20      9
+      21      9
+      22      9
+      23      9
+      24      9
+      25      9
+      26      9
+      29      10
+      2a      10
+      2b      10
+      2c      10
+      2d      10
+      2e      10
+      2f      10
+      30      11
+      31      11
+      32      11
+      33      11
+      34      11
+      37      12
+      3a      9
+      3b      9
+      3c      9
+      40      8
+      41      8
+      42      8
+      46      18
+      4e      18
+      4f      18
+      50      18
+      51      18
+      52      18
+      53      21
+      54      21
+      55      21
+      56      21
+      57      21
+   }
+
+   method 'lambda$test1$1 ([DLjava/lang/Double;)V' {
+      0      32
+      1      32
+      4      32
+      5      32
+      6      32
+      7      32
+      9      32
+      a      33
+   }
+
+   method 'test1 (ZILjava/util/stream/Stream;)D' {
+      5      25
+      6      25
+      8      25
+      9      25
+      a      27
+      b      27
+      c      27
+      d      27
+      11      27
+      12      27
+      13      27
+      14      27
+      1a      27
+      1b      27
+      1c      27
+      1d      27
+      20      28
+      21      28
+      22      28
+      25      28
+      26      28
+      27      28
+      29      28
+      2a      27
+      2b      27
+      2c      27
+      30      31
+      38      31
+      39      31
+      3a      31
+      3b      31
+      3c      31
+      3d      34
+      3e      34
+      3f      34
+      40      34
+      41      34
+   }
+}
+
+Lines mapping:
+7 <-> 7
+9 <-> 9
+10 <-> 10
+11 <-> 11
+13 <-> 12
+14 <-> 13
+19 <-> 19
+20 <-> 22
+24 <-> 26
+26 <-> 28
+27 <-> 29
+30 <-> 32
+31 <-> 35

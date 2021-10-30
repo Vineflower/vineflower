@@ -3,16 +3,14 @@ package pkg;
 public class TestWhileTernary6 {
    public void test(boolean condition, int a, int b) {
       while(true) {
-         label18: {
-            System.out.println(a);// 6
-            ++b;// 7
-            if (a > 3) {// 9
-               --a;// 10
-            }
+         System.out.println(a);// 6
+         ++b;// 7
+         if (a > 3) {// 9
+            --a;// 10
+         }
 
-            if (condition ? a >= b : b <= a) {// 13
-               return;// 14
-            }
+         if (condition ? a >= b : b <= a) {// 13
+            return;// 14
          }
       }
    }
@@ -20,36 +18,36 @@ public class TestWhileTernary6 {
 
 class 'pkg/TestWhileTernary6' {
    method 'test (ZII)V' {
-      0      6
-      1      6
-      2      6
-      3      6
-      4      6
-      5      6
-      6      6
-      7      7
-      8      7
-      9      7
-      a      8
-      b      8
-      c      8
-      f      9
-      12      12
-      13      12
-      16      12
-      17      12
-      18      12
-      1e      12
-      1f      12
-      20      12
-      23      13
+      0      5
+      1      5
+      2      5
+      3      5
+      4      5
+      5      5
+      6      5
+      7      6
+      8      6
+      9      6
+      a      7
+      b      7
+      c      7
+      f      8
+      12      11
+      13      11
+      16      11
+      17      11
+      18      11
+      1e      11
+      1f      11
+      20      11
+      23      12
    }
 }
 
 Lines mapping:
-6 <-> 7
-7 <-> 8
-9 <-> 9
-10 <-> 10
-13 <-> 13
-14 <-> 14
+6 <-> 6
+7 <-> 7
+9 <-> 8
+10 <-> 9
+13 <-> 12
+14 <-> 13
