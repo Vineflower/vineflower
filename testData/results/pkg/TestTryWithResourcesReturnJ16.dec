@@ -37,6 +37,11 @@ public class TestTryWithResourcesReturnJ16 {
 
    public Scanner testFinallyNested(File param1) {
       // $FF: Couldn't be decompiled
+      // java.lang.RuntimeException: parsing failure!
+      //   at org.jetbrains.java.decompiler.modules.decompiler.DomHelper.parseGraph(DomHelper.java:213)
+      //   at org.jetbrains.java.decompiler.main.rels.MethodProcessorRunnable.codeToJava(MethodProcessorRunnable.java:135)
+      //
+      // Bytecode:
       // 00: new java/util/Scanner
       // 03: dup
       // 04: aload 1
@@ -125,8 +130,8 @@ class 'pkg/TestTryWithResourcesReturnJ16' {
    }
 
    method 'create (Ljava/io/File;)Ljava/util/Scanner;' {
-      4      92
-      8      92
+      4      97
+      8      97
    }
 }
 
@@ -137,7 +142,7 @@ Lines mapping:
 16 <-> 23
 21 <-> 28
 24 <-> 32
-41 <-> 93
+41 <-> 98
 Not mapped:
 11
 17

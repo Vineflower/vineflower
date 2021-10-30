@@ -40,6 +40,13 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class ClassWriter {
+  private static final Set<String> ERROR_DUMP_STOP_POINTS = new HashSet<>(Arrays.asList(
+    "Fernflower.decompileContext",
+    "MethodProcessorRunnable.codeToJava",
+    "ClassWriter.methodToJava",
+    "ClassWriter.methodLambdaToJava",
+    "ClassWriter.classLambdaToJava"
+  ));
   private final PoolInterceptor interceptor;
   private final IFabricJavadocProvider javadocProvider;
 
@@ -152,7 +159,7 @@ public class ClassWriter {
           buffer.append(" ->");
 
           RootStatement root = wrapper.getMethodWrapper(mt.getName(), mt.getDescriptor()).root;
-          if (DecompilerContext.getOption(IFernflowerPreferences.INLINE_SIMPLE_LAMBDAS) && !methodWrapper.decompiledWithErrors && root != null) {
+          if (DecompilerContext.getOption(IFernflowerPreferences.INLINE_SIMPLE_LAMBDAS) && methodWrapper.decompileError == null && root != null) {
             Statement firstStat = root.getFirst();
             if (firstStat.type == Statement.TYPE_BASICBLOCK && firstStat.getExprents() != null && firstStat.getExprents().size() == 1) {
               Exprent firstExpr = firstStat.getExprents().get(0);
@@ -181,7 +188,7 @@ public class ClassWriter {
                   DecompilerContext.getLogger().writeMessage("Method " + mt.getName() + " " + mt.getDescriptor() + " in class " + node.classStruct.qualifiedName + " couldn't be written.",
                     IFernflowerLogger.Severity.WARN,
                     ex);
-                  methodWrapper.decompiledWithErrors = true;
+                  methodWrapper.decompileError = ex;
                   buffer.append(" // $FF: Couldn't be decompiled");
                 }
                 finally {
@@ -742,7 +749,7 @@ public class ClassWriter {
       }
 
       RootStatement root = classWrapper.getMethodWrapper(mt.getName(), mt.getDescriptor()).root;
-      if (!methodWrapper.decompiledWithErrors) {
+      if (methodWrapper.decompileError == null) {
         if (root != null) { // check for existence
           try {
             buffer.append(root.toJava(indent, tracer));
@@ -750,12 +757,12 @@ public class ClassWriter {
           catch (Throwable t) {
             String message = "Method " + mt.getName() + " " + mt.getDescriptor() + " in class " + lambdaNode.classStruct.qualifiedName + " couldn't be written.";
             DecompilerContext.getLogger().writeMessage(message, IFernflowerLogger.Severity.WARN, t);
-            methodWrapper.decompiledWithErrors = true;
+            methodWrapper.decompileError = t;
           }
         }
       }
 
-      if (methodWrapper.decompiledWithErrors) {
+      if (methodWrapper.decompileError != null) {
         dumpError(buffer, methodWrapper, indent, tracer);
       }
 
@@ -1029,7 +1036,7 @@ public class ClassWriter {
 
         RootStatement root = methodWrapper.root;
 
-        if (root != null && !methodWrapper.decompiledWithErrors) { // check for existence
+        if (root != null && methodWrapper.decompileError == null) { // check for existence
           try {
             // to restore in case of an exception
             BytecodeMappingTracer codeTracer = new BytecodeMappingTracer(tracer.getCurrentSourceLine());
@@ -1051,11 +1058,11 @@ public class ClassWriter {
           catch (Throwable t) {
             String message = "Method " + mt.getName() + " " + mt.getDescriptor() + " in class " + node.classStruct.qualifiedName + " couldn't be written.";
             DecompilerContext.getLogger().writeMessage(message, IFernflowerLogger.Severity.WARN, t);
-            methodWrapper.decompiledWithErrors = true;
+            methodWrapper.decompileError = t;
           }
         }
 
-        if (methodWrapper.decompiledWithErrors) {
+        if (methodWrapper.decompileError != null) {
           dumpError(buffer, methodWrapper, indent + 1, tracer);
         }
         else if (root != null) {
@@ -1082,21 +1089,59 @@ public class ClassWriter {
     lines.add("$FF: Couldn't be decompiled");
     if (DecompilerContext.getOption(IFernflowerPreferences.DUMP_BYTECODE_ON_ERROR)) {
       try {
+        collectErrorLines(wrapper.decompileError, lines);
+        lines.add("");
+        lines.add("Bytecode:");
         collectBytecode(wrapper, lines);
       } catch (Exception e) {
-        lines.add("Error collecting bytecode: ");
-        StringWriter sw = new StringWriter();
-        e.printStackTrace(new PrintWriter(sw));
-        lines.addAll(Arrays.asList(sw.toString().split("\n")));
+        lines.add("Error collecting bytecode:");
+        collectErrorLines(e, lines);
       } finally {
         wrapper.methodStruct.releaseResources();
       }
     }
     for (String line : lines) {
       buffer.appendIndent(indent);
-      buffer.append("// ").append(line);
+      buffer.append("//");
+      if (!line.isEmpty()) buffer.append(' ').append(line);
       buffer.appendLineSeparator();
       tracer.incrementCurrentSourceLine();
+    }
+  }
+
+  private static void collectErrorLines(Throwable error, List<String> lines) {
+    StackTraceElement[] stack = error.getStackTrace();
+    List<StackTraceElement> filteredStack = new ArrayList<>();
+    boolean hasSeenOwnClass = false;
+    for (StackTraceElement e : stack) {
+      String className = e.getClassName();
+      boolean isOwnClass = className.startsWith("org.jetbrains.java.decompiler");
+      if (isOwnClass) {
+        hasSeenOwnClass = true;
+      } else if (hasSeenOwnClass) {
+        break;
+      }
+      filteredStack.add(e);
+      if (isOwnClass) {
+        String simpleName = className.substring(className.lastIndexOf('.') + 1);
+        if (ERROR_DUMP_STOP_POINTS.contains(simpleName + "." + e.getMethodName())) {
+          break;
+        }
+      }
+    }
+    if (filteredStack.isEmpty()) return;
+    lines.add(error.toString());
+    for (StackTraceElement e : filteredStack) {
+      lines.add("  at " + e);
+    }
+    Throwable cause = error.getCause();
+    if (cause != null) {
+      List<String> causeLines = new ArrayList<>();
+      collectErrorLines(cause, causeLines);
+      if (!causeLines.isEmpty()) {
+        lines.add("Caused by: " + causeLines.get(0));
+        lines.addAll(causeLines.subList(1, causeLines.size()));
+      }
     }
   }
 

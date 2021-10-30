@@ -40,7 +40,7 @@ public final class InitializerProcessor {
       String message = "Method " + mt.getName() + " " + mt.getDescriptor() + " in class " + wrapper.getClassStruct().qualifiedName + " couldn't be written.";
       DecompilerContext.getLogger().writeMessage(message, IFernflowerLogger.Severity.WARN, t);
 
-      method.decompiledWithErrors = true;
+      method.decompileError = t;
     }
 
     extractDynamicInitializers(wrapper);

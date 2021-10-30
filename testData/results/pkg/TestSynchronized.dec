@@ -35,6 +35,11 @@ public class TestSynchronized {
 
    public void test5(int param1) {
       // $FF: Couldn't be decompiled
+      // java.lang.RuntimeException: parsing failure!
+      //   at org.jetbrains.java.decompiler.modules.decompiler.DomHelper.parseGraph(DomHelper.java:213)
+      //   at org.jetbrains.java.decompiler.main.rels.MethodProcessorRunnable.codeToJava(MethodProcessorRunnable.java:128)
+      //
+      // Bytecode:
       // 00: aload 0
       // 01: dup
       // 02: astore 2
