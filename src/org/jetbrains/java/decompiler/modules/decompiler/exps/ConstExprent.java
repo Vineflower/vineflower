@@ -463,13 +463,10 @@ public class ConstExprent extends Exprent {
       case CodeConstants.TYPE_SHORT:
       case CodeConstants.TYPE_SHORTCHAR:
       case CodeConstants.TYPE_INT:
-        return (Integer)value == 1;
       case CodeConstants.TYPE_LONG:
-        return ((Long)value).intValue() == 1;
       case CodeConstants.TYPE_DOUBLE:
-        return ((Double)value).intValue() == 1;
       case CodeConstants.TYPE_FLOAT:
-        return ((Float)value).intValue() == 1;
+        return ((Number)value).intValue() == 1;
     }
 
     return false;

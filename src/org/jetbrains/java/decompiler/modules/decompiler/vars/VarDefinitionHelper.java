@@ -129,14 +129,14 @@ public class VarDefinitionHelper {
 
     for (Entry<Integer, Statement> en : mapVarDefStatements.entrySet()) {
       Statement stat = en.getValue();
-      Integer index = en.getKey();
+      int index = en.getKey();
 
       if (implDefVars.contains(index)) {
         // already implicitly defined
         continue;
       }
 
-      varproc.setVarName(new VarVersionPair(index.intValue(), 0), vc.getFreeName(index));
+      varproc.setVarName(new VarVersionPair(index, 0), vc.getFreeName(index));
 
       // special case for
       if (stat.type == Statement.TYPE_DO) {
@@ -159,7 +159,7 @@ public class VarDefinitionHelper {
         else if (dstat.getLooptype() == DoStatement.LOOP_FOREACH) {
           if (dstat.getInitExprent() != null && dstat.getInitExprent().type == Exprent.EXPRENT_VAR) {
             VarExprent var = (VarExprent)dstat.getInitExprent();
-            if (var.getIndex() == index.intValue()) {
+            if (var.getIndex() == index) {
               var.setDefinition(true);
               continue;
             }
@@ -205,10 +205,10 @@ public class VarDefinitionHelper {
       }
 
       if (!defset) {
-        VarExprent var = new VarExprent(index, varproc.getVarType(new VarVersionPair(index.intValue(), 0)), varproc);
+        VarExprent var = new VarExprent(index, varproc.getVarType(new VarVersionPair(index, 0)), varproc);
         var.setDefinition(true);
 
-        LocalVariable lvt = findLVT(index.intValue(), stat);
+        LocalVariable lvt = findLVT(index, stat);
         if (lvt != null) {
           var.setLVT(lvt);
         }
@@ -271,7 +271,7 @@ public class VarDefinitionHelper {
     return var.getIndex() == index ? var.getLVT() : null;
   }
 
-  private Statement findFirstBlock(Statement stat, Integer varindex) {
+  private Statement findFirstBlock(Statement stat, int varindex) {
 
     LinkedList<Statement> stack = new LinkedList<>();
     stack.add(stat);
@@ -402,7 +402,7 @@ public class VarDefinitionHelper {
     return res;
   }
 
-  private boolean setDefinition(Exprent expr, Integer index) {
+  private boolean setDefinition(Exprent expr, int index) {
     if (expr.type == Exprent.EXPRENT_ASSIGNMENT) {
       Exprent left = ((AssignmentExprent)expr).getLeft();
       if (left.type == Exprent.EXPRENT_VAR) {

@@ -78,9 +78,8 @@ public abstract class InstructionSequence {
   }
 
   public int getPointerByAbsOffset(int offset) {
-    Integer absoffset = offset;
-    if (collinstr.containsKey(absoffset)) {
-      return collinstr.getIndexByKey(absoffset);
+    if (collinstr.containsKey(offset)) {
+      return collinstr.getIndexByKey(offset);
     }
     else {
       return -1;
@@ -88,7 +87,7 @@ public abstract class InstructionSequence {
   }
 
   public int getPointerByRelOffset(int offset) {
-    Integer absoffset = collinstr.getKey(pointer) + offset;
+    int absoffset = collinstr.getKey(pointer) + offset;
     if (collinstr.containsKey(absoffset)) {
       return collinstr.getIndexByKey(absoffset);
     }
@@ -121,7 +120,7 @@ public abstract class InstructionSequence {
 
     for (int i = 0; i < collinstr.size(); i++) {
     buf.append(TextUtil.getIndentString(indent));
-      buf.append(collinstr.getKey(i).intValue());
+      buf.append((int) collinstr.getKey(i));
       buf.append(": ");
       buf.append(collinstr.get(i).toString());
       buf.append(new_line_separator);

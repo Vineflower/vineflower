@@ -193,7 +193,7 @@ public final class DomHelper {
 
       lstPosts.sort(Comparator.comparing(mapSortOrder::get));
 
-      if (lstPosts.size() > 1 && lstPosts.get(0).intValue() == st.id) {
+      if (lstPosts.size() > 1 && (int) lstPosts.get(0) == st.id) {
         lstPosts.add(lstPosts.remove(0));
       }
 
@@ -436,7 +436,7 @@ public final class DomHelper {
       // tail statements
       Set<Integer> setFirst = mapExtPost.get(stat.getFirst().id);
       if (setFirst != null) {
-        for (Integer id : setFirst) {
+        for (int id : setFirst) {
           List<Integer> lst = vbPost.getWithKey(id);
           if (lst == null) {
             vbPost.addWithKey(lst = new ArrayList<>(), id);
@@ -451,7 +451,7 @@ public final class DomHelper {
 
     for (int k = 0; k < vbPost.size(); k++) {
 
-      Integer headid = vbPost.getKey(k);
+      int headid = vbPost.getKey(k);
       List<Integer> posts = vbPost.get(k);
 
       if (!mapExtPost.containsKey(headid) &&
@@ -463,8 +463,8 @@ public final class DomHelper {
 
       Set<Integer> setExtPosts = mapExtPost.get(headid);
 
-      for (Integer postId : posts) {
-        if (!postId.equals(headid) && !setExtPosts.contains(postId)) {
+      for (int postId : posts) {
+        if (postId != headid && !setExtPosts.contains(postId)) {
           continue;
         }
 
@@ -618,7 +618,7 @@ public final class DomHelper {
 
             Integer newid = result.id;
 
-            for (Integer key : new ArrayList<>(mapExtPost.keySet())) {
+            for (int key : new ArrayList<>(mapExtPost.keySet())) {
               Set<Integer> set = mapExtPost.get(key);
 
               int oldsize = set.size();

@@ -186,7 +186,7 @@ public class VarProcessor {
         }
       ));
 
-    for (Integer b : blacklist)
+    for (int b : blacklist)
       ret.remove(b);
 
     return ret;

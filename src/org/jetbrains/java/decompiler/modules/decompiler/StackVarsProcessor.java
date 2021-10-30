@@ -612,8 +612,8 @@ public class StackVarsProcessor {
 
       boolean isdom = true;
 
-      for (Integer livever : liveverset) {
-        VarVersionNode node = ssuversions.nodes.getWithKey(new VarVersionPair(ent.getKey().intValue(), livever.intValue()));
+      for (int livever : liveverset) {
+        VarVersionNode node = ssuversions.nodes.getWithKey(new VarVersionPair(ent.getKey(), livever));
 
         if (!ssuversions.isDominatorSet(node, domset)) {
           isdom = false;
@@ -644,8 +644,8 @@ public class StackVarsProcessor {
         if (leftvar.var != varindex) {
           if (mapLiveVars.containsKey(varindex)) {
             Set<VarVersionPair> verset = new HashSet<>();
-            for (Integer vers : mapLiveVars.get(varindex)) {
-              verset.add(new VarVersionPair(varindex, vers.intValue()));
+            for (int vers : mapLiveVars.get(varindex)) {
+              verset.add(new VarVersionPair(varindex, vers));
             }
             map.put(varindex, verset);
           }
@@ -662,8 +662,8 @@ public class StackVarsProcessor {
           int varindex = ssau.getMapFieldVars().get(expr.id);
           if (mapLiveVars.containsKey(varindex)) {
             Set<VarVersionPair> verset = new HashSet<>();
-            for (Integer vers : mapLiveVars.get(varindex)) {
-              verset.add(new VarVersionPair(varindex, vers.intValue()));
+            for (int vers : mapLiveVars.get(varindex)) {
+              verset.add(new VarVersionPair(varindex, vers));
             }
             map.put(varindex, verset);
           }

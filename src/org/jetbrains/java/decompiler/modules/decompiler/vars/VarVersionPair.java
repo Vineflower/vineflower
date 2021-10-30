@@ -13,11 +13,6 @@ public class VarVersionPair {
     this.version = version;
   }
 
-  public VarVersionPair(Integer var, Integer version) {
-    this.var = var;
-    this.version = version;
-  }
-
   public VarVersionPair(VarExprent var) {
     this.var = var.getIndex();
     this.version = var.getVersion();
