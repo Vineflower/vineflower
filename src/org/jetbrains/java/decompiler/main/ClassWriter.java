@@ -3,6 +3,8 @@ package org.jetbrains.java.decompiler.main;
 
 import net.fabricmc.fernflower.api.IFabricJavadocProvider;
 import org.jetbrains.java.decompiler.code.CodeConstants;
+import org.jetbrains.java.decompiler.code.Instruction;
+import org.jetbrains.java.decompiler.code.InstructionSequence;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
@@ -18,6 +20,9 @@ import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.modules.renamer.PoolInterceptor;
 import org.jetbrains.java.decompiler.struct.*;
 import org.jetbrains.java.decompiler.struct.attr.*;
+import org.jetbrains.java.decompiler.struct.consts.ConstantPool;
+import org.jetbrains.java.decompiler.struct.consts.LinkConstant;
+import org.jetbrains.java.decompiler.struct.consts.PooledConstant;
 import org.jetbrains.java.decompiler.struct.consts.PrimitiveConstant;
 import org.jetbrains.java.decompiler.struct.gen.FieldDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
@@ -25,12 +30,23 @@ import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.gen.generics.*;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.TextBuffer;
+import org.jetbrains.java.decompiler.util.TextUtil;
 import org.jetbrains.java.decompiler.util.VBStyleCollection;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class ClassWriter {
+  private static final Set<String> ERROR_DUMP_STOP_POINTS = new HashSet<>(Arrays.asList(
+    "Fernflower.decompileContext",
+    "MethodProcessorRunnable.codeToJava",
+    "ClassWriter.methodToJava",
+    "ClassWriter.methodLambdaToJava",
+    "ClassWriter.classLambdaToJava"
+  ));
   private final PoolInterceptor interceptor;
   private final IFabricJavadocProvider javadocProvider;
 
@@ -143,7 +159,7 @@ public class ClassWriter {
           buffer.append(" ->");
 
           RootStatement root = wrapper.getMethodWrapper(mt.getName(), mt.getDescriptor()).root;
-          if (DecompilerContext.getOption(IFernflowerPreferences.INLINE_SIMPLE_LAMBDAS) && !methodWrapper.decompiledWithErrors && root != null) {
+          if (DecompilerContext.getOption(IFernflowerPreferences.INLINE_SIMPLE_LAMBDAS) && methodWrapper.decompileError == null && root != null) {
             Statement firstStat = root.getFirst();
             if (firstStat.type == Statement.TYPE_BASICBLOCK && firstStat.getExprents() != null && firstStat.getExprents().size() == 1) {
               Exprent firstExpr = firstStat.getExprents().get(0);
@@ -172,7 +188,7 @@ public class ClassWriter {
                   DecompilerContext.getLogger().writeMessage("Method " + mt.getName() + " " + mt.getDescriptor() + " in class " + node.classStruct.qualifiedName + " couldn't be written.",
                     IFernflowerLogger.Severity.WARN,
                     ex);
-                  methodWrapper.decompiledWithErrors = true;
+                  methodWrapper.decompileError = ex;
                   buffer.append(" // $FF: Couldn't be decompiled");
                 }
                 finally {
@@ -733,7 +749,7 @@ public class ClassWriter {
       }
 
       RootStatement root = classWrapper.getMethodWrapper(mt.getName(), mt.getDescriptor()).root;
-      if (!methodWrapper.decompiledWithErrors) {
+      if (methodWrapper.decompileError == null) {
         if (root != null) { // check for existence
           try {
             buffer.append(root.toJava(indent, tracer));
@@ -741,15 +757,13 @@ public class ClassWriter {
           catch (Throwable t) {
             String message = "Method " + mt.getName() + " " + mt.getDescriptor() + " in class " + lambdaNode.classStruct.qualifiedName + " couldn't be written.";
             DecompilerContext.getLogger().writeMessage(message, IFernflowerLogger.Severity.WARN, t);
-            methodWrapper.decompiledWithErrors = true;
+            methodWrapper.decompileError = t;
           }
         }
       }
 
-      if (methodWrapper.decompiledWithErrors) {
-        buffer.appendIndent(indent);
-        buffer.append("// $FF: Couldn't be decompiled");
-        buffer.appendLineSeparator();
+      if (methodWrapper.decompileError != null) {
+        dumpError(buffer, methodWrapper, indent, tracer);
       }
 
       if (root != null) {
@@ -1022,7 +1036,7 @@ public class ClassWriter {
 
         RootStatement root = methodWrapper.root;
 
-        if (root != null && !methodWrapper.decompiledWithErrors) { // check for existence
+        if (root != null && methodWrapper.decompileError == null) { // check for existence
           try {
             // to restore in case of an exception
             BytecodeMappingTracer codeTracer = new BytecodeMappingTracer(tracer.getCurrentSourceLine());
@@ -1044,15 +1058,12 @@ public class ClassWriter {
           catch (Throwable t) {
             String message = "Method " + mt.getName() + " " + mt.getDescriptor() + " in class " + node.classStruct.qualifiedName + " couldn't be written.";
             DecompilerContext.getLogger().writeMessage(message, IFernflowerLogger.Severity.WARN, t);
-            methodWrapper.decompiledWithErrors = true;
+            methodWrapper.decompileError = t;
           }
         }
 
-        if (methodWrapper.decompiledWithErrors) {
-          buffer.appendIndent(indent + 1);
-          buffer.append("// $FF: Couldn't be decompiled");
-          buffer.appendLineSeparator();
-          tracer.incrementCurrentSourceLine();
+        if (methodWrapper.decompileError != null) {
+          dumpError(buffer, methodWrapper, indent + 1, tracer);
         }
         else if (root != null) {
           tracer.addMapping(root.getDummyExit().bytecode);
@@ -1071,6 +1082,186 @@ public class ClassWriter {
     //tracer.setCurrentSourceLine(buffer.countLines(start_index_method));
 
     return !hideMethod;
+  }
+
+  private static void dumpError(TextBuffer buffer, MethodWrapper wrapper, int indent, BytecodeMappingTracer tracer) {
+    List<String> lines = new ArrayList<>();
+    lines.add("$FF: Couldn't be decompiled");
+    if (DecompilerContext.getOption(IFernflowerPreferences.DUMP_BYTECODE_ON_ERROR)) {
+      try {
+        collectErrorLines(wrapper.decompileError, lines);
+        lines.add("");
+        lines.add("Bytecode:");
+        collectBytecode(wrapper, lines);
+      } catch (Exception e) {
+        lines.add("Error collecting bytecode:");
+        collectErrorLines(e, lines);
+      } finally {
+        wrapper.methodStruct.releaseResources();
+      }
+    }
+    for (String line : lines) {
+      buffer.appendIndent(indent);
+      buffer.append("//");
+      if (!line.isEmpty()) buffer.append(' ').append(line);
+      buffer.appendLineSeparator();
+      tracer.incrementCurrentSourceLine();
+    }
+  }
+
+  private static void collectErrorLines(Throwable error, List<String> lines) {
+    StackTraceElement[] stack = error.getStackTrace();
+    List<StackTraceElement> filteredStack = new ArrayList<>();
+    boolean hasSeenOwnClass = false;
+    for (StackTraceElement e : stack) {
+      String className = e.getClassName();
+      boolean isOwnClass = className.startsWith("org.jetbrains.java.decompiler");
+      if (isOwnClass) {
+        hasSeenOwnClass = true;
+      } else if (hasSeenOwnClass) {
+        break;
+      }
+      filteredStack.add(e);
+      if (isOwnClass) {
+        String simpleName = className.substring(className.lastIndexOf('.') + 1);
+        if (ERROR_DUMP_STOP_POINTS.contains(simpleName + "." + e.getMethodName())) {
+          break;
+        }
+      }
+    }
+    if (filteredStack.isEmpty()) return;
+    lines.add(error.toString());
+    for (StackTraceElement e : filteredStack) {
+      lines.add("  at " + e);
+    }
+    Throwable cause = error.getCause();
+    if (cause != null) {
+      List<String> causeLines = new ArrayList<>();
+      collectErrorLines(cause, causeLines);
+      if (!causeLines.isEmpty()) {
+        lines.add("Caused by: " + causeLines.get(0));
+        lines.addAll(causeLines.subList(1, causeLines.size()));
+      }
+    }
+  }
+
+  private static void collectBytecode(MethodWrapper wrapper, List<String> lines) throws IOException {
+    ClassNode classNode = (ClassNode)DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS_NODE);
+    StructMethod method = wrapper.methodStruct;
+    InstructionSequence instructions = method.getInstructionSequence();
+    if (instructions == null) {
+      method.expandData(classNode.classStruct);
+      instructions = method.getInstructionSequence();
+    }
+    int lastOffset = instructions.getOffset(instructions.length() - 1);
+    int digits = 8 - Integer.numberOfLeadingZeros(lastOffset) / 4;
+    ConstantPool pool = classNode.classStruct.getPool();
+    StructBootstrapMethodsAttribute bootstrap = classNode.classStruct.getAttribute(StructGeneralAttribute.ATTRIBUTE_BOOTSTRAP_METHODS);
+
+    for (int idx = 0; idx < instructions.length(); idx++) {
+      int offset = instructions.getOffset(idx);
+      Instruction instr = instructions.getInstr(idx);
+      StringBuilder sb = new StringBuilder();
+      String offHex = Integer.toHexString(offset);
+      for (int i = offHex.length(); i < digits; i++) sb.append('0');
+      sb.append(offHex).append(": ");
+      if (instr.wide) {
+        sb.append("wide ");
+      }
+      sb.append(TextUtil.getInstructionName(instr.opcode));
+      switch (instr.group) {
+        case CodeConstants.GROUP_INVOCATION: {
+          sb.append(' ');
+          if (instr.opcode == CodeConstants.opc_invokedynamic && bootstrap != null) {
+            appendBootstrapCall(sb, pool.getLinkConstant(instr.operand(0)), bootstrap);
+          } else {
+            appendConstant(sb, pool.getConstant(instr.operand(0)));
+          }
+          for (int i = 1; i < instr.operandsCount(); i++) {
+            sb.append(' ').append(instr.operand(i));
+          }
+          break;
+        }
+        case CodeConstants.GROUP_FIELDACCESS: {
+          sb.append(' ');
+          appendConstant(sb, pool.getConstant(instr.operand(0)));
+          break;
+        }
+        case CodeConstants.GROUP_JUMP: {
+          sb.append(' ');
+          int dest = offset + instr.operand(0);
+          String destHex = Integer.toHexString(dest);
+          for (int i = destHex.length(); i < digits; i++) sb.append('0');
+          sb.append(destHex);
+          break;
+        }
+        default: {
+          switch (instr.opcode) {
+            case CodeConstants.opc_new:
+            case CodeConstants.opc_checkcast:
+            case CodeConstants.opc_instanceof:
+            case CodeConstants.opc_ldc:
+            case CodeConstants.opc_ldc_w:
+            case CodeConstants.opc_ldc2_w: {
+              sb.append(' ');
+              PooledConstant constant = pool.getConstant(instr.operand(0));
+              if (constant.type == CodeConstants.CONSTANT_Dynamic && bootstrap != null) {
+                appendBootstrapCall(sb, (LinkConstant) constant, bootstrap);
+              } else {
+                appendConstant(sb, constant);
+              }
+              break;
+            }
+            default: {
+              for (int i = 0; i < instr.operandsCount(); i++) {
+                sb.append(' ').append(instr.operand(i));
+              }
+            }
+          }
+        }
+      }
+      lines.add(sb.toString());
+    }
+  }
+
+  private static void appendBootstrapCall(StringBuilder sb, LinkConstant target, StructBootstrapMethodsAttribute bootstrap) {
+    sb.append(target.elementname).append(' ').append(target.descriptor);
+
+    LinkConstant bsm = bootstrap.getMethodReference(target.index1);
+    List<PooledConstant> bsmArgs = bootstrap.getMethodArguments(target.index1);
+
+    sb.append(" bsm=");
+    appendConstant(sb, bsm);
+    sb.append(" args=[ ");
+    boolean first = true;
+    for (PooledConstant arg : bsmArgs) {
+      if (!first) sb.append(", ");
+      first = false;
+      appendConstant(sb, arg);
+    }
+    sb.append(" ]");
+  }
+
+  private static void appendConstant(StringBuilder sb, PooledConstant constant) {
+    if (constant == null) {
+      sb.append("<null constant>");
+      return;
+    }
+    if (constant instanceof PrimitiveConstant) {
+      PrimitiveConstant prim = ((PrimitiveConstant) constant);
+      Object value = prim.value;
+      String stringValue = String.valueOf(value);
+      if (prim.type == CodeConstants.CONSTANT_Class) {
+        sb.append(stringValue);
+      } else if (prim.type == CodeConstants.CONSTANT_String) {
+        sb.append('"').append(ConstExprent.convertStringToJava(stringValue, false)).append('"');
+      } else {
+        sb.append(stringValue);
+      }
+    } else if (constant instanceof LinkConstant) {
+      LinkConstant linkConstant = (LinkConstant) constant;
+      sb.append(linkConstant.classname).append('.').append(linkConstant.elementname).append(' ').append(linkConstant.descriptor);
+    }
   }
 
   private static boolean hideConstructor(ClassNode node, boolean init, boolean throwsExceptions, int paramCount, int methodAccessFlags) {

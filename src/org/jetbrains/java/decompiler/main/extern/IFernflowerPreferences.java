@@ -62,6 +62,7 @@ public interface IFernflowerPreferences {
   String SKIP_EXTRA_FILES = "sef";
 
   String WARN_INCONSISTENT_INNER_CLASSES = "win";
+  String DUMP_BYTECODE_ON_ERROR = "dbe";
 
   Map<String, Object> DEFAULTS = getDefaults();
 
@@ -114,6 +115,7 @@ public interface IFernflowerPreferences {
     defaults.put(USE_JAD_VARNAMING, "0");
     defaults.put(SKIP_EXTRA_FILES, "0");
     defaults.put(WARN_INCONSISTENT_INNER_CLASSES, "1");
+    defaults.put(DUMP_BYTECODE_ON_ERROR, "1");
 
     return Collections.unmodifiableMap(defaults);
   }

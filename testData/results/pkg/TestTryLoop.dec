@@ -22,6 +22,39 @@ public class TestTryLoop {
 
    public boolean hasNext(Path param1, Iterator<File> param2) {
       // $FF: Couldn't be decompiled
+      // java.lang.RuntimeException: computing post reverse post order failed!
+      //   at org.jetbrains.java.decompiler.modules.decompiler.stats.Statement.getPostReversePostOrderList(Statement.java:450)
+      //   at org.jetbrains.java.decompiler.modules.decompiler.stats.Statement.getPostReversePostOrderList(Statement.java:431)
+      //   at org.jetbrains.java.decompiler.modules.decompiler.DomHelper.findSimpleStatements(DomHelper.java:597)
+      //   at org.jetbrains.java.decompiler.modules.decompiler.DomHelper.processStatement(DomHelper.java:366)
+      //   at org.jetbrains.java.decompiler.modules.decompiler.DomHelper.processStatement(DomHelper.java:315)
+      //   at org.jetbrains.java.decompiler.modules.decompiler.DomHelper.parseGraph(DomHelper.java:210)
+      //   at org.jetbrains.java.decompiler.main.rels.MethodProcessorRunnable.codeToJava(MethodProcessorRunnable.java:128)
+      //
+      // Bytecode:
+      // 00: aload 1
+      // 01: bipush 0
+      // 02: anewarray 7
+      // 05: invokestatic java/nio/file/Files.exists (Ljava/nio/file/Path;[Ljava/nio/file/LinkOption;)Z
+      // 08: ifeq 17
+      // 0b: aload 2
+      // 0c: invokeinterface java/util/Iterator.next ()Ljava/lang/Object; 1
+      // 11: checkcast java/io/File
+      // 14: astore 3
+      // 15: bipush 1
+      // 16: ireturn
+      // 17: bipush 0
+      // 18: ireturn
+      // 19: astore 4
+      // 1b: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 1e: bipush 1
+      // 1f: invokevirtual java/io/PrintStream.println (I)V
+      // 22: goto 00
+      // 25: astore 4
+      // 27: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 2a: bipush 2
+      // 2b: invokevirtual java/io/PrintStream.println (I)V
+      // 2e: goto 00
    }
 }
 
