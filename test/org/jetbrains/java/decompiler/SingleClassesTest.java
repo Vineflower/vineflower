@@ -289,5 +289,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestSimpleIf");
     //TODO: figure out why there's no successor
     register(JAVA_8, "TestInlineNoSuccessor");
+
+    register(JAVA_8, "TestEnumArrayStaticInit");
   }
 }

@@ -219,6 +219,10 @@ public final class InitializerProcessor {
                   } else { //inlineInitializers
                     if (assignExpr.getRight() instanceof NewExprent){
                       NewExprent newExprent = (NewExprent) assignExpr.getRight();
+                      if (newExprent.getConstructor() == null) {
+                        continue;
+                      }
+
                       Exprent instance = newExprent.getConstructor().getInstance();
                       if (instance instanceof VarExprent && nonFieldAssigns.containsKey(((VarExprent) instance).getIndex())){
                         AssignmentExprent nonFieldAssignment = nonFieldAssigns.remove(((VarExprent) instance).getIndex());
