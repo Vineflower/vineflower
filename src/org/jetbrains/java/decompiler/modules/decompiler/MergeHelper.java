@@ -204,15 +204,11 @@ public final class MergeHelper {
 
           StatEdge elseEdge = firstif.getAllSuccessorEdges().get(0);
           boolean directlyConnectedToExit = directlyConnectedToExit(stat, elseEdge.getDestination().getParent(), elseEdge.getDestination());
-
           if (isDirectPath(stat, elseEdge.getDestination()) || directlyConnectedToExit) {
             // FIXME: This is horrible and bad!! Needs an extraction step before loop merging!!
             if (isIif(firstif.getHeadexprent().getCondition())) {
               return false;
             }
-
-            // exit condition identified
-            stat.setLooptype(DoStatement.LOOP_WHILE);
 
             // Lift sequences
             // Loops that are directly connected to the exit have statements inside that need to lifted out of the loop
@@ -222,6 +218,13 @@ public final class MergeHelper {
 
               // Make sure the inside of the loop is a sequence that has at least the if statement and another block
               if (firstStat.type == Statement.TYPE_SEQUENCE && firstStat.getStats().size() > 1) {
+                // Get continues
+                List<StatEdge> continues = firstStat.getStats().getLast().getSuccessorEdges(StatEdge.TYPE_CONTINUE);
+                if (!continues.isEmpty() && continues.get(0).getDestination() == stat) {
+                  // Cannot make loop- continue would be lifted to the outside of the loop! [TestInlineNoSuccessor]
+                  return false;
+                }
+
                 List<Statement> toAdd = new ArrayList<>();
 
                 // Skip first statement as that is the if that contains the while loop condition
@@ -239,6 +242,9 @@ public final class MergeHelper {
                 liftToParent(stat, toAdd);
               }
             }
+
+            // exit condition identified
+            stat.setLooptype(DoStatement.LOOP_WHILE);
 
             // no need to negate the while condition
             IfExprent ifexpr = (IfExprent)firstif.getHeadexprent().copy();
