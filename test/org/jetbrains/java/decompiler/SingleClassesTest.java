@@ -7,19 +7,73 @@ import static org.jetbrains.java.decompiler.SingleClassesTestBase.TestDefinition
 
 public class SingleClassesTest extends SingleClassesTestBase {
   @Override
-  protected String[] getDecompilerOptions() {
-    return new String[] {
+  protected void registerAll() {
+    registerSet("Default", this::registerDefault,
       IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
       IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
       IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
       IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
       IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "0",
       IFernflowerPreferences.INLINE_SIMPLE_LAMBDAS, "0"
-    };
+    );
+    registerSet("Entire Classpath", this::registerEntireClassPath,
+      IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
+      IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
+      IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
+      IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
+      IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "1",
+      IFernflowerPreferences.INLINE_SIMPLE_LAMBDAS, "0"
+    );
+    registerSet("Java Runtime", this::registerJavaRuntime,
+      IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
+      IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
+      IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
+      IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
+      IFernflowerPreferences.INCLUDE_JAVA_RUNTIME, "1",
+      IFernflowerPreferences.INLINE_SIMPLE_LAMBDAS, "0"
+    );
+    registerSet("Literals", this::registerLiterals,
+      IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
+      IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
+      IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
+      IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
+      IFernflowerPreferences.LITERALS_AS_IS, "0"
+    );
+    registerSet("Pattern Matching", this::registerPatternMatching,
+      IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
+      IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
+      IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
+      IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
+      IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "0",
+      IFernflowerPreferences.INLINE_SIMPLE_LAMBDAS, "0",
+      IFernflowerPreferences.PATTERN_MATCHING, "1"
+    );
+    registerSet("Ternary Constant Simplification", this::registerTernaryConstantSimplification,
+      IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
+      IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
+      IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
+      IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
+      IFernflowerPreferences.LITERALS_AS_IS, "0",
+      IFernflowerPreferences.TERNARY_CONSTANT_SIMPLIFICATION, "1"
+    );
+    registerSet("LVT", this::registerLVT,
+      IFernflowerPreferences.DECOMPILE_INNER,"1",
+      IFernflowerPreferences.DECOMPILE_GENERIC_SIGNATURES,"1",
+      IFernflowerPreferences.ASCII_STRING_CHARACTERS,"1",
+      IFernflowerPreferences.LOG_LEVEL, "TRACE",
+      IFernflowerPreferences.REMOVE_SYNTHETIC, "1",
+      IFernflowerPreferences.REMOVE_BRIDGE, "1",
+      IFernflowerPreferences.USE_DEBUG_VAR_NAMES, "1"
+    );
+    registerSet("JAD Naming", () -> {
+      register(JAVA_8, "TestJADNaming");
+    },IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
+      IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
+      IFernflowerPreferences.USE_JAD_VARNAMING, "1"
+    );
   }
 
-  @Override
-  protected void registerAll() {
+  private void registerDefault() {
     register(JAVA_8, "TestEnhancedForLoops");
     register(JAVA_8, "TestPrimitiveNarrowing");
     register(JAVA_8, "TestClassFields");
@@ -298,5 +352,81 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestInlineNoSuccessor");
 
     register(JAVA_8, "TestEnumArrayStaticInit");
+  }
+
+  private void registerEntireClassPath() {
+    // These have better results with the kotlin standard library from the classpath
+    register(KOTLIN, "TestKotlinConstructorKt");
+    register(KOTLIN, "TestNamedSuspendFun2Kt");
+  }
+
+  private void registerJavaRuntime() {
+    // TODO: reevaluate behavior, especially with casting
+    register(JAVA_8, "TestGenerics");
+    register(JAVA_8, "TestClassTypes");
+    register(JAVA_8, "TestClassCast");
+    // TODO: intValue() call where there shouldn't be
+    register(JAVA_8, "TestBoxingConstructor");
+    register(JAVA_8, "TestLocalsSignature");
+    register(JAVA_8, "TestShadowing", "Shadow", "ext/Shadow", "TestShadowingSuperClass");
+    register(JAVA_8, "TestPrimitives");
+    register(JAVA_8, "TestVarArgCalls");
+    register(JAVA_8, "TestUnionType");
+    register(JAVA_8, "TestTryWithResources");
+    register(JAVA_8, "TestNestedLoops");
+    register(JAVA_8, "TestAnonymousClass");
+    // TODO: Object[] becomes <unknown>
+    register(JAVA_8, "TestObjectArrays");
+    register(JAVA_8, "TestAnonymousParams");
+    register(JAVA_8, "TestThrowException");
+    register(JAVA_8, "TestClassSimpleBytecodeMapping");
+    register(JAVA_8, "TestAnonymousSignature");
+    register(JAVA_16, "TestTryWithResourcesJ16");
+    register(JAVA_16, "TestTryWithResourcesCatchJ16");
+    register(JAVA_16, "TestTryWithResourcesMultiJ16");
+    register(JAVA_16, "TestTryWithResourcesFinallyJ16");
+    register(JAVA_16, "TestTryWithResourcesCatchFinallyJ16");
+    // TODO: returning in finally causes broken control flow and undecompileable methods
+    register(JAVA_16, "TestTryWithResourcesReturnJ16");
+    register(JAVA_16, "TestTryWithResourcesNestedJ16");
+    // TODO: extra casts, var type reverted to object
+    register(JAVA_16, "TestTryWithResourcesNullJ16");
+    // TODO: doesn't make try with resources block
+    register(JAVA_16, "TestTryWithResourcesOuterJ16");
+  }
+
+  private void registerLiterals() {
+    register(JAVA_8, "TestFloatPrecision");
+    register(JAVA_8, "TestNotFloatPrecision");
+    register(JAVA_8, "TestConstantUninlining");
+  }
+
+  private void registerPatternMatching() {
+    register(JAVA_16, "TestPatternMatching");
+    // TODO: rename this
+    register(JAVA_16, "TestPatternMatchingFake");
+    register(JAVA_17, "TestPatternMatchingInteger");
+    // TODO: testNoInit is wrong
+    register(JAVA_16, "TestPatternMatchingMerge");
+    // TODO: local variables aren't merged properly, bring out of nodebug when they are
+    register(JAVA_16_NODEBUG, "TestPatternMatchingAssign");
+    register(JAVA_16, "TestPatternMatchingLocalCapture");
+  }
+
+  private void registerTernaryConstantSimplification() {
+    register(JAVA_8, "TestReturnTernaryConstantSimplification");
+    // TODO: ifOr, redundantIf, nestedIf and nestedIfs aren't reduced to a ternary that would be simplified
+    register(JAVA_8, "TestAssignmentTernaryConstantSimplification");
+  }
+
+  private void registerLVT() {
+    register(JAVA_8, "TestLVT");
+    register(JAVA_8, "TestLVTScoping");
+    // TODO: int is decompiling as <unknown>
+    // register(JAVA_8, "TestLVTComplex");
+    register(JAVA_8, "TestVarType");
+    register(JAVA_8, "TestLoopMerging");
+    // TODO: this is not decompiling properly, needs a look
+    // register(JAVA_8, "TestPPMM");
   }
 }
