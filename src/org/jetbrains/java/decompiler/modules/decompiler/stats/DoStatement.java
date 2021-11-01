@@ -10,10 +10,10 @@ import org.jetbrains.java.decompiler.util.TextBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-
+// Loop statement
 public final class DoStatement extends Statement {
 
-  public static final int LOOP_DO = 0;
+  public static final int LOOP_DO = 0; // Infinite loop, while (true) {...}
   public static final int LOOP_DOWHILE = 1;
   public static final int LOOP_WHILE = 2;
   public static final int LOOP_FOR = 3;

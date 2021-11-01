@@ -24,6 +24,7 @@ public class EliminateLoopsHelper {
       Set<Integer> setReorderedIfs = new HashSet<>();
 
       SimplifyExprentsHelper sehelper = new SimplifyExprentsHelper(false);
+      // TODO: what problems does SSA being null cause?
       while(sehelper.simplifyStackVarsStatement(root, setReorderedIfs, null, cl)) {
         SequenceHelper.condenseSequences(root);
       }

@@ -13,4 +13,23 @@ class TestAmbiguousCall {
     m1(re, "RE");
     m1((IllegalArgumentException)re, "IAE");
   }
+
+  void m2(int i) {}
+  void m2(String s) {}
+
+  <T extends Comparable<T>> void test2(T value) {
+    if (value instanceof Integer) {
+      m2((Integer) value);
+    } else {
+      m2(value.toString());
+    }
+  }
+
+  void test3(Object value) {
+    if (value instanceof Integer) {
+      m2((Integer) value);
+    } else {
+      m2(value.toString());
+    }
+  }
 }

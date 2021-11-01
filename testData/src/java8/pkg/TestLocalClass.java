@@ -2,6 +2,7 @@ package pkg;
 
 import java.lang.Override;
 import java.lang.Runnable;
+import java.util.function.Supplier;
 
 public abstract class TestLocalClass {
   void foo() {
@@ -22,5 +23,10 @@ public abstract class TestLocalClass {
 
   void zoo() {
     int a =5;
+  }
+
+  void bar() {
+    class C {}
+    Supplier<C> constr = () -> new C();
   }
 }

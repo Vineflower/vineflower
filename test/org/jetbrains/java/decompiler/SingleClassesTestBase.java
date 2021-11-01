@@ -17,12 +17,14 @@ package org.jetbrains.java.decompiler;
 
 import org.jetbrains.java.decompiler.main.decompiler.ConsoleDecompiler;
 import org.junit.jupiter.api.*;
+import org.opentest4j.AssertionFailedError;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static org.jetbrains.java.decompiler.DecompilerTestFixture.assertFilesEqual;
@@ -36,6 +38,7 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
 @Timeout(60)
 public abstract class SingleClassesTestBase {
   protected final List<TestDefinition> testDefinitions = new ArrayList<>();
+  protected final List<String> failable = new ArrayList<>();
   protected DecompilerTestFixture fixture;
   
   protected String[] getDecompilerOptions() {
@@ -48,6 +51,13 @@ public abstract class SingleClassesTestBase {
     List<String> othersList = new ArrayList<>(others.length);
     for (String other : others) othersList.add(getFullClassName(other));
     testDefinitions.add(new TestDefinition(version, getFullClassName(testClass), othersList));
+  }
+
+  @Deprecated
+  // Temporary fix for inconsistent javac code generation
+  protected void registerFailable(TestDefinition.Version version, String testClass, String... others) {
+    register(version, testClass, others);
+    failable.add(getFullClassName(testClass));
   }
 
   protected void registerRaw(TestDefinition.Version version, String testClass, String ...others) {
@@ -83,7 +93,8 @@ public abstract class SingleClassesTestBase {
       int slash = name.lastIndexOf('/');
       if (slash >= 0) name = name.substring(slash + 1);
       Path classFile = getClassFile(def.version, def.testClass);
-      DynamicTest test = DynamicTest.dynamicTest(name, classFile.toUri(), () -> {
+      Path ref = getReferenceFile(def.testClass);
+      DynamicTest test = DynamicTest.dynamicTest(name, Files.exists(ref) ? ref.toUri() : classFile.toUri(), () -> {
         setUp();
         doTest(def.version, def.testClass, def.others.toArray(new String[0]));
         tearDown();
@@ -143,8 +154,16 @@ public abstract class SingleClassesTestBase {
       //noinspection ConstantConditions
       assumeTrue(false, referenceFile.getFileName() + " was not present yet");
     } else {
-      assertTrue(Files.isRegularFile(referenceFile));
-      assertFilesEqual(referenceFile, decompiledFile);
+      try {
+        assertTrue(Files.isRegularFile(referenceFile));
+        assertFilesEqual(referenceFile, decompiledFile);
+      } catch (AssertionFailedError e) {
+        if (this.failable.contains(testFile)) {
+          assumeTrue(false, referenceFile.getFileName() + " failed but was ignored");
+        } else {
+          throw e;
+        }
+      }
     }
   }
 
@@ -154,9 +173,9 @@ public abstract class SingleClassesTestBase {
 
     Path parent = classFile.getParent();
     if (parent != null) {
-      final String pattern = classFile.getFileName().toString().replace(".class", "") + "\\$.+\\.class";
+      final Pattern pattern = Pattern.compile(classFile.getFileName().toString().replace(".class", "") + "\\$.+\\.class");
       try {
-        Files.list(parent).filter(p -> p.getFileName().toString().matches(pattern)).forEach(files::add);
+        Files.list(parent).filter(p -> pattern.matcher(p.getFileName().toString()).matches()).forEach(files::add);
       } catch (IOException e) {
         throw new UncheckedIOException(e);
       }
@@ -184,6 +203,9 @@ public abstract class SingleClassesTestBase {
       JAVA_11(11),
       JAVA_16(16),
       JAVA_16_PREVIEW(16, "preview", "Preview"),
+      JAVA_16_NODEBUG(16, "nodebug", "No Debug Info"),
+      JAVA_17(17),
+      JAVA_17_PREVIEW(17, "preview", "Preview"),
       GROOVY("groovy", "Groovy"),
       KOTLIN("kt", "Kotlin"),
       JASM("jasm", "Custom (jasm)"),

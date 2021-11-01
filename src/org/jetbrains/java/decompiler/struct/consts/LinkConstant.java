@@ -49,7 +49,7 @@ public class LinkConstant extends PooledConstant {
       descriptor = ref_info.descriptor;
     }
     else {
-      if (type != CONSTANT_InvokeDynamic) {
+      if (type != CONSTANT_InvokeDynamic && type != CONSTANT_Dynamic) {
         classname = pool.getPrimitiveConstant(index1).getString();
       }
 

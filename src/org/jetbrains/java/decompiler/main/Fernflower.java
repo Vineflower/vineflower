@@ -11,6 +11,7 @@ import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructContext;
 import org.jetbrains.java.decompiler.struct.lazy.LazyLoader;
 import org.jetbrains.java.decompiler.util.JADNameProvider;
+import org.jetbrains.java.decompiler.util.JrtFinder;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.ClasspathScanner;
 
@@ -80,6 +81,8 @@ public class Fernflower implements IDecompiledData {
 
     if (DecompilerContext.getOption(IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH)) {
       ClasspathScanner.addAllClasspath(structContext);
+    } else if (DecompilerContext.getOption(IFernflowerPreferences.INCLUDE_JAVA_RUNTIME)) {
+      JrtFinder.addJrt(structContext);
     }
   }
 

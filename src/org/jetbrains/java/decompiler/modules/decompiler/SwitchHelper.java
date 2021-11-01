@@ -12,6 +12,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.SwitchStatement;
 import org.jetbrains.java.decompiler.struct.StructField;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -233,7 +234,7 @@ public final class SwitchHelper {
           boolean matches = true;
 
           for (int i = 0; matches && i < first.getCaseStatements().size(); ++i) {
-            if (!first.getCaseEdges().get(i).contains(first.getDefault_edge())) {
+            if (!first.getCaseEdges().get(i).contains(first.getDefaultEdge())) {
               Statement curr = first.getCaseStatements().get(i);
               while (matches && curr != null) {
                 if (curr.type == Statement.TYPE_IF) {

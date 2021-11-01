@@ -6,6 +6,7 @@ import org.jetbrains.java.decompiler.code.Instruction;
 import org.jetbrains.java.decompiler.code.InstructionSequence;
 import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.util.ListStack;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
@@ -223,7 +224,7 @@ public class ExprProcessor implements CodeConstants {
   }
 
   private static PrimitiveExprsList copyVarExprents(PrimitiveExprsList data) {
-    ExprentStack stack = data.getStack();
+    ListStack<Exprent> stack = data.getStack();
     copyEntries(stack);
     return data;
   }
@@ -274,7 +275,7 @@ public class ExprProcessor implements CodeConstants {
 
     BasicBlock block = stat.getBlock();
 
-    ExprentStack stack = data.getStack();
+    ListStack<Exprent> stack = data.getStack();
     List<Exprent> exprlist = data.getLstExprents();
 
     InstructionSequence seq = block.getSeq();
@@ -320,6 +321,24 @@ public class ExprProcessor implements CodeConstants {
           PooledConstant cn = pool.getConstant(instr.operand(0));
           if (cn instanceof PrimitiveConstant) {
             pushEx(stack, exprlist, new ConstExprent(consts[cn.type - CONSTANT_Integer], ((PrimitiveConstant)cn).value, bytecode_offsets));
+          }
+          else if (cn instanceof LinkConstant && cn.type == CodeConstants.CONSTANT_Dynamic) {
+            LinkConstant invoke_constant = (LinkConstant) cn;
+
+            LinkConstant bootstrapMethod = null;
+            List<PooledConstant> bootstrap_arguments = null;
+            if (bootstrap != null) {
+              bootstrapMethod = bootstrap.getMethodReference(invoke_constant.index1);
+              bootstrap_arguments = bootstrap.getMethodArguments(invoke_constant.index1);
+            }
+
+            InvocationExprent exprinv = new InvocationExprent(instr.opcode, invoke_constant, bootstrapMethod, bootstrap_arguments, stack, bytecode_offsets);
+            if (exprinv.getDescriptor().ret.type == CodeConstants.TYPE_VOID) {
+              exprlist.add(exprinv);
+            }
+            else {
+              pushEx(stack, exprlist, exprinv);
+            }
           }
           else if (cn instanceof LinkConstant) {
             //TODO: for now treat Links as Strings
@@ -531,12 +550,14 @@ public class ExprProcessor implements CodeConstants {
           if (instr.opcode != opc_invokedynamic || instr.bytecodeVersion.hasInvokeDynamic()) {
             LinkConstant invoke_constant = pool.getLinkConstant(instr.operand(0));
 
+            LinkConstant bootstrapMethod = null;
             List<PooledConstant> bootstrap_arguments = null;
             if (instr.opcode == opc_invokedynamic && bootstrap != null) {
+              bootstrapMethod = bootstrap.getMethodReference(invoke_constant.index1);
               bootstrap_arguments = bootstrap.getMethodArguments(invoke_constant.index1);
             }
 
-            InvocationExprent exprinv = new InvocationExprent(instr.opcode, invoke_constant, bootstrap_arguments, stack, bytecode_offsets);
+            InvocationExprent exprinv = new InvocationExprent(instr.opcode, invoke_constant, bootstrapMethod, bootstrap_arguments, stack, bytecode_offsets);
             if (exprinv.getDescriptor().ret.type == CodeConstants.TYPE_VOID) {
               exprlist.add(exprinv);
             }
@@ -654,11 +675,11 @@ public class ExprProcessor implements CodeConstants {
     }
   }
 
-  private void pushEx(ExprentStack stack, List<Exprent> exprlist, Exprent exprent) {
+  private void pushEx(ListStack<Exprent> stack, List<Exprent> exprlist, Exprent exprent) {
     pushEx(stack, exprlist, exprent, null);
   }
 
-  private void pushEx(ExprentStack stack, List<Exprent> exprlist, Exprent exprent, VarType vartype) {
+  private void pushEx(ListStack<Exprent> stack, List<Exprent> exprlist, Exprent exprent, VarType vartype) {
     int varindex = VarExprent.STACK_BASE + stack.size();
     VarExprent var = new VarExprent(varindex, vartype == null ? exprent.getExprType() : vartype, varProcessor);
     var.setStack(true);
@@ -667,7 +688,7 @@ public class ExprProcessor implements CodeConstants {
     stack.push(var.copy());
   }
 
-  private void insertByOffsetEx(int offset, ExprentStack stack, List<Exprent> exprlist, int copyoffset) {
+  private void insertByOffsetEx(int offset, ListStack<Exprent> stack, List<Exprent> exprlist, int copyoffset) {
 
     int base = VarExprent.STACK_BASE + stack.size();
 
@@ -729,7 +750,7 @@ public class ExprProcessor implements CodeConstants {
       return ret;
     }
 
-    throw new RuntimeException("invalid type");
+    throw new RuntimeException("invalid type: " + tp);
   }
 
   public static String getCastTypeName(VarType type) {

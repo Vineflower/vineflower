@@ -68,7 +68,7 @@ public class DominatorEngine {
 
       boolean changed = false;
 
-      for (Integer id : lstIds) {
+      for (int id : lstIds) {
 
         Statement stat = statement.getStats().getWithKey(id);
         Integer idom = null;

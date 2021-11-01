@@ -8,7 +8,7 @@ import static org.jetbrains.java.decompiler.SingleClassesTestBase.TestDefinition
 public class SingleClassesTest extends SingleClassesTestBase {
   @Override
   protected String[] getDecompilerOptions() {
-    return new String[] {
+    return new String[]{
       IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
       IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
       IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
@@ -100,7 +100,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
 
     register(GROOVY, "TestGroovyClass");
     register(GROOVY, "TestGroovyTrait");
-    // TODO: This class fails to decompile
     register(JAVA_8, "TestPrivateClasses");
     register(KOTLIN, "TestSuspendLambdaKt");
     register(JAVA_8, "TestGenericArgs");
@@ -181,22 +180,25 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16, "TestRecordMixup");
     register(JAVA_8, "TestMultiAssignmentInStaticBlock");
     register(JAVA_8, "TestNextGaussian");
-    // TODO: Clean up control flow with continue and break
     register(JAVA_8, "TestLoopBreak");
     register(JAVA_8, "TestLoopBreak2");
     register(JAVA_8, "TestSimpleWhile");
     register(JAVA_8, "TestLoopBreakException");
+
     register(JAVA_8, "TestWhileTernary1");
     register(JAVA_8, "TestWhileTernary2");
     register(JAVA_8, "TestWhileTernaryFake");
     register(JAVA_8, "TestWhileTernary3");
     register(JAVA_8, "TestWhileTernary4");
     register(JAVA_8, "TestWhileTernary5");
-    register(JAVA_8, "TestTryLoop");
-    register(JAVA_8, "TestTryLoopRecompile");
-    register(JAVA_8, "TestTryLoopSimpleFinally");
-    // TODO: Still doesn't properly decompile, loop needs to be in the try block
-    register(JAVA_8, "TestTryLoopReturnFinally");
+    register(JAVA_8, "TestWhileTernary6");
+    register(JAVA_8, "TestWhileTernary7");
+    // TODO: complex ternaries are not supported
+    register(JAVA_8, "TestWhileTernary8");
+    register(JAVA_8, "TestWhileTernary9");
+    // TODO: continue still exists in loop
+    register(JAVA_8, "TestWhileTernary10");
+
     register(JAVA_8, "TestOperatorPrecedence");
     register(JAVA_8, "TestMultipleStaticBlocks");
     register(JAVA_8, "TestTrySynchronized");
@@ -211,14 +213,28 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestNativeMethods");
     register(JAVA_8, "TestThrowLoop");
     register(JAVA_8, "TestShiftLoop");
-    // TODO: this currently decompiles into invalid syntax
     register(JASM, "TestDoubleCast");
-    // TODO: this should have an enum
     register(JAVA_16, "TestLocalEnum");
-    // TODO: this should have an interface
     register(JAVA_16, "TestLocalInterface");
-    // TODO: private methods shouldn't have explicit default modifier
+    register(JAVA_16, "TestLocalRecord");
     register(JAVA_9, "TestPrivateInterfaceMethod");
+
+    register(JAVA_16, "TestAssignmentSwitchExpression1");
+    register(JAVA_16, "TestAssignmentSwitchExpression2");
+    register(JAVA_16, "TestAssignmentSwitchExpression3");
+    register(JAVA_16, "TestAssignmentSwitchExpression4");
+    register(JAVA_16, "TestAssignmentSwitchExpression5");
+    register(JAVA_16, "TestAssignmentSwitchExpression6");
+    register(JAVA_16, "TestInlineSwitchExpression1");
+    register(JAVA_16, "TestInlineSwitchExpression2");
+    register(JAVA_16, "TestInlineSwitchExpression3");
+    register(JAVA_16, "TestInlineSwitchExpression4");
+    register(JAVA_16, "TestReturnSwitchExpression1");
+    register(JAVA_16, "TestReturnSwitchExpression2");
+    register(JAVA_16, "TestReturnSwitchExpression3");
+    register(JAVA_16, "TestReturnSwitchExpression4");
+    register(JAVA_16, "TestConstructorSwitchExpression1");
+    register(JAVA_16, "TestConstructorSwitchExpression2");
 
     register(JAVA_16_PREVIEW, "TestSealedClasses");
     register(JAVA_16_PREVIEW, "PermittedSubClassA", "TestSealedClasses");
@@ -231,7 +247,53 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16_PREVIEW, "PermittedSubClassE", "TestSealedInterfaces");
 
     register(JAVA_8_NODEBUG, "TestDuplicateLocals");
+
+    register(JAVA_8, "TestMethodHandles");
+    register(JAVA_9, "TestVarHandles");
+    // TODO: fix duplicate naming, propagate renames to all method calls
+    register(JASM, "TestIllegalMethodNames");
+    register(JAVA_8, "TestSwitchOnlyDefault");
+    register(JAVA_8, "TestSwitchEmpty");
+    register(JAVA_8, "TestSwitchDefaultBefore");
+    // TODO: fix all the <unknown>s
+    register(JAVA_8_NODEBUG, "TestIterationOverGenericsWithoutLvt");
+    register(JAVA_8_NODEBUG, "TestIterationOverGenericsWithoutLvt1");
+
+    // TODO: "3;" is generally not considered valid java code, fix ternaries not being simplified
+    register(JAVA_8, "TestNestedTernaryAssign");
+    register(JAVA_8, "TestNestedTernaryCondition");
+
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatching1");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatching2");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatching3");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatching4");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatching5");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingInstanceof1");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingInstanceof2");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingReturn1");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingReturn2");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingConstructor1");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingConstructor2");
+
+    register(JASM, "TestCondy");
     register(JASM, "TestBackwardsExceptionHandler");
     register(JASM, "TestLeakyMethod");
+
+    register(JAVA_8, "TestStaticInit");
+    register(JAVA_8_NODEBUG, "TestDoubleNestedClass");
+    // TODO: The two 'z' cases should either be renamed or be surrounded with {}
+    register(JAVA_8, "TestDuplicateSwitchLocals");
+
+    register(JAVA_8, "TestIfTernary1");
+    // TODO: multiple labels still present
+    register(JAVA_8, "TestIfTernary2");
+    register(JAVA_8, "TestIfTernary3");
+    register(JAVA_8, "TestIfTernaryReturn");
+
+    register(JAVA_8, "TestSimpleIf");
+    //TODO: figure out why there's no successor
+    register(JAVA_8, "TestInlineNoSuccessor");
+
+    register(JAVA_8, "TestEnumArrayStaticInit");
   }
 }

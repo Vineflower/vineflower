@@ -153,7 +153,7 @@ public class ImportCollector {
     if (existsDefaultClass ||
         (mapSimpleNames.containsKey(shortName) && !packageName.equals(mapSimpleNames.get(shortName)))) {
       //  don't return full name because if the class is a inner class, full name refers to the parent full name, not the child full name
-      return result == null ? fullName : (packageName + "." + result);
+      return result == null ? fullName : ((!packageName.isEmpty() ? (packageName + ".") : "") + result);
     }
     else if (!mapSimpleNames.containsKey(shortName)) {
       mapSimpleNames.put(shortName, packageName);

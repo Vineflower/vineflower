@@ -5,6 +5,7 @@ import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
+import org.jetbrains.java.decompiler.main.collectors.ImportCollector;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.ClasspathHelper;
@@ -16,6 +17,7 @@ import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.consts.LinkConstant;
 import org.jetbrains.java.decompiler.struct.consts.PooledConstant;
+import org.jetbrains.java.decompiler.struct.consts.PrimitiveConstant;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericMethodDescriptor;
@@ -39,6 +41,7 @@ public class InvocationExprent extends Exprent {
   public static final int INVOKE_STATIC = 3;
   public static final int INVOKE_INTERFACE = 4;
   public static final int INVOKE_DYNAMIC = 5;
+  public static final int CONSTANT_DYNAMIC = 6;
 
   public static final int TYP_GENERAL = 1;
   public static final int TYP_INIT = 2;
@@ -60,6 +63,7 @@ public class InvocationExprent extends Exprent {
   private String invokeDynamicClassSuffix;
   private int invocationTyp = INVOKE_VIRTUAL;
   private List<Exprent> lstParameters = new ArrayList<>();
+  private LinkConstant bootstrapMethod;
   private List<PooledConstant> bootstrapArguments;
   private List<VarType> genericArgs = new ArrayList<>();
   private Map<VarType, VarType> genericsMap = new HashMap<>();
@@ -74,6 +78,7 @@ public class InvocationExprent extends Exprent {
 
   public InvocationExprent(int opcode,
                            LinkConstant cn,
+                           LinkConstant bootstrapMethod,
                            List<PooledConstant> bootstrapArguments,
                            ListStack<? extends Exprent> stack,
                            BitSet bytecodeOffsets) {
@@ -81,6 +86,7 @@ public class InvocationExprent extends Exprent {
 
     name = cn.elementname;
     classname = cn.classname;
+    this.bootstrapMethod = bootstrapMethod;
     this.bootstrapArguments = bootstrapArguments;
     switch (opcode) {
       case CodeConstants.opc_invokestatic:
@@ -98,8 +104,16 @@ public class InvocationExprent extends Exprent {
       case CodeConstants.opc_invokedynamic:
         invocationTyp = INVOKE_DYNAMIC;
 
-        classname = "java/lang/Class"; // dummy class name
+        classname = bootstrapMethod.classname; // dummy class name
         invokeDynamicClassSuffix = "##Lambda_" + cn.index1 + "_" + cn.index2;
+        break;
+      case CodeConstants.opc_ldc:
+      case CodeConstants.opc_ldc_w:
+      case CodeConstants.opc_ldc2_w:
+        invocationTyp = CONSTANT_DYNAMIC;
+        classname = bootstrapMethod.classname; // dummy class name
+        invokeDynamicClassSuffix = "##Condy_" + cn.index1 + "_" + cn.index2;
+        break;
     }
 
     if (CodeConstants.INIT_NAME.equals(name)) {
@@ -110,13 +124,16 @@ public class InvocationExprent extends Exprent {
     }
 
     stringDescriptor = cn.descriptor;
-    descriptor = MethodDescriptor.parseDescriptor(cn.descriptor);
+    if (invocationTyp == CONSTANT_DYNAMIC) {
+      stringDescriptor = "()" + stringDescriptor;
+    }
+    descriptor = MethodDescriptor.parseDescriptor(stringDescriptor);
 
     for (VarType ignored : descriptor.params) {
       lstParameters.add(0, stack.pop());
     }
 
-    if (opcode == CodeConstants.opc_invokedynamic) {
+    if (opcode == CodeConstants.opc_invokedynamic || invocationTyp == CONSTANT_DYNAMIC) {
       int dynamicInvocationType = -1;
       if (bootstrapArguments != null) {
         if (bootstrapArguments.size() > 1) { // INVOKEDYNAMIC is used not only for lambdas
@@ -166,6 +183,7 @@ public class InvocationExprent extends Exprent {
     ExprProcessor.copyEntries(lstParameters);
 
     addBytecodeOffsets(expr.bytecode);
+    bootstrapMethod = expr.getBootstrapMethod();
     bootstrapArguments = expr.getBootstrapArguments();
     isSyntheticNullCheck = expr.isSyntheticNullCheck();
 
@@ -460,6 +478,11 @@ public class InvocationExprent extends Exprent {
   public CheckTypesResult checkExprTypeBounds() {
     CheckTypesResult result = new CheckTypesResult();
 
+    if (instance != null) {
+      result.addMinTypeExprent(instance, VarType.getMinTypeInFamily(instance.getExprType().typeFamily));
+      result.addMaxTypeExprent(instance, instance.getExprType());
+    }
+
     for (int i = 0; i < lstParameters.size(); i++) {
       Exprent parameter = lstParameters.get(i);
 
@@ -501,12 +524,16 @@ public class InvocationExprent extends Exprent {
       ((InvocationExprent) instance).markUsingBoxingResult();
     }
 
-    if (isStatic) {
+    if (isStatic || invocationTyp == INVOKE_DYNAMIC || invocationTyp == CONSTANT_DYNAMIC) {
       if (isBoxingCall() && canIgnoreBoxing && !forceBoxing) {
         // process general "boxing" calls, e.g. 'Object[] data = { true }' or 'Byte b = 123'
         // here 'byte' and 'short' values do not need an explicit narrowing type cast
         ExprProcessor.getCastedExprent(lstParameters.get(0), descriptor.params[0], buf, indent, false, false, true, false, tracer);
         return buf;
+      }
+
+      if (invocationTyp == CONSTANT_DYNAMIC) {
+        buf.append('(').append(ExprProcessor.getCastTypeName(descriptor.ret)).append(')');
       }
 
       ClassNode node = (ClassNode)DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS_NODE);
@@ -546,6 +573,11 @@ public class InvocationExprent extends Exprent {
         }
       }
 
+      // Signature polymorphic methods returning Object require a cast to the return type in the descriptor
+      if (CodeConstants.isReturnPolymorphic(classname, name) && !descriptor.ret.equals(VarType.VARTYPE_VOID)) {
+        buf.append('(').append(ExprProcessor.getCastTypeName(descriptor.ret)).append(')');
+      }
+
       if (functype == TYP_GENERAL) {
         if (super_qualifier != null) {
           TextUtil.writeQualifiedSuper(buf, super_qualifier);
@@ -574,7 +606,7 @@ public class InvocationExprent extends Exprent {
 
                 if (func.getLstOperands().get(0).type == Exprent.EXPRENT_VAR) {
                   VarType inferred = func.getLstOperands().get(0).getInferredExprType(leftType);
-                  skipCast = inferred.type != CodeConstants.TYPE_OBJECT ||
+                  skipCast = (inferred.type != CodeConstants.TYPE_OBJECT && inferred.type != CodeConstants.TYPE_GENVAR) ||
                     DecompilerContext.getStructContext().instanceOf(inferred.value, this.classname);
                 } else if (this.classname.equals(_const.getConstType().value)) {
                   skipCast = true;
@@ -655,10 +687,27 @@ public class InvocationExprent extends Exprent {
           this.appendParameters(buf, genericArgs);
         }
 
-        buf.append(name);
-        if (invocationTyp == INVOKE_DYNAMIC) {
-          buf.append("<invokedynamic>");
+        if (invocationTyp == INVOKE_DYNAMIC || invocationTyp == CONSTANT_DYNAMIC) {
+          if (bootstrapMethod == null) {
+            buf.append("<").append(name);
+            if (invocationTyp == INVOKE_DYNAMIC) {
+              buf.append(">invokedynamic");
+            } else {
+              buf.append(">ldc");
+            }
+          } else {
+            buf.append(bootstrapMethod.elementname);
+            buf.append("<\"").append(name).append('"');
+            for (PooledConstant arg : bootstrapArguments) {
+              buf.append(',');
+              appendBootstrapArgument(buf, arg);
+            }
+            buf.append('>');
+          }
+        } else {
+          buf.append(name);
         }
+
         buf.append("(");
         break;
 
@@ -682,6 +731,24 @@ public class InvocationExprent extends Exprent {
 
     buf.append(appendParamList(indent, tracer)).append(')');
     return buf;
+  }
+
+  private static void appendBootstrapArgument(TextBuffer buf, PooledConstant arg) {
+    if (arg instanceof PrimitiveConstant) {
+      PrimitiveConstant prim = ((PrimitiveConstant) arg);
+      Object value = prim.value;
+      String stringValue = String.valueOf(value);
+      if (prim.type == CodeConstants.CONSTANT_Class) {
+        buf.append(ExprProcessor.getCastTypeName(new VarType(stringValue)));
+      } else if (prim.type == CodeConstants.CONSTANT_String) {
+        buf.append('"').append(ConstExprent.convertStringToJava(stringValue, false)).append('"');
+      } else {
+        buf.append(stringValue);
+      }
+    } else if (arg instanceof LinkConstant) {
+      VarType cls = new VarType(((LinkConstant) arg).classname);
+      buf.append(ExprProcessor.getCastTypeName(cls)).append("::").append(((LinkConstant) arg).elementname);
+    }
   }
 
   public TextBuffer appendParamList(int indent, BytecodeMappingTracer tracer) {
@@ -1079,6 +1146,13 @@ public class InvocationExprent extends Exprent {
 
     BitSet missed = new BitSet(lstParameters.size());
 
+    // treat signature polymorphic methods as always ambiguous
+    // even if we have the classes available and think they are accepting Object...
+    if (CodeConstants.areParametersPolymorphic(classname, name)) {
+      missed.set(0, lstParameters.size());
+      return missed;
+    }
+
     // check if a call is unambiguous
     StructMethod mt = cl.getMethod(InterpreterUtil.makeUniqueKey(name, stringDescriptor));
     if (mt != null) {
@@ -1421,6 +1495,10 @@ public class InvocationExprent extends Exprent {
 
   public String getInvokeDynamicClassSuffix() {
     return invokeDynamicClassSuffix;
+  }
+
+  public LinkConstant getBootstrapMethod() {
+    return bootstrapMethod;
   }
 
   public List<PooledConstant> getBootstrapArguments() {

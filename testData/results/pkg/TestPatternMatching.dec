@@ -1,0 +1,225 @@
+package pkg;
+
+public class TestPatternMatching {
+   public void testSimple(Object obj) {
+      if (obj instanceof String str) {// 5
+         System.out.println(str.length());// 6
+      }
+
+   }// 8
+
+   public void testCompound(Object obj) {
+      if (obj instanceof String) {// 11
+         String str = (String)obj;
+         if (str.contains("hi")) {
+            System.out.println(str.length());// 12
+         }
+      }
+
+   }// 14
+
+   public boolean testReturn(Object obj) {
+      if (obj instanceof String) {// 17
+         String s = (String)obj;
+         if (s.length() > 5) {
+            return true;
+         }
+      }
+
+      return false;
+   }
+
+   public int testReturnTernary(Object obj) {
+      return obj instanceof String s ? s.length() : 0;// 21
+   }
+
+   public int testReturnTernaryComplex(Object obj) {
+      if (obj instanceof String) {// 25
+         String s = (String)obj;
+         if (s.length() > 5) {
+            return 4;
+         }
+      }
+
+      return !(obj instanceof Integer) ? 1 : 4;
+   }
+
+   public void testLoop(Object obj) {
+      while(obj instanceof String) {// 29
+         String s = (String)obj;
+         if (s.length() > 10) {
+            s = s.substring(1);// 30
+            obj = s.substring(1);// 31
+            System.out.println(s);// 33
+            continue;
+         }
+         break;
+      }
+
+   }// 35
+}
+
+class 'pkg/TestPatternMatching' {
+   method 'testSimple (Ljava/lang/Object;)V' {
+      0      4
+      3      4
+      4      4
+      5      4
+      6      4
+      d      4
+      e      5
+      f      5
+      10      5
+      11      5
+      12      5
+      13      5
+      14      5
+      15      5
+      18      8
+   }
+
+   method 'testCompound (Ljava/lang/Object;)V' {
+      0      11
+      3      11
+      4      11
+      5      11
+      6      11
+      a      12
+      b      12
+      c      12
+      d      12
+      e      13
+      f      13
+      10      13
+      11      13
+      12      13
+      13      13
+      14      13
+      17      14
+      18      14
+      19      14
+      1a      14
+      1b      14
+      1c      14
+      1d      14
+      1e      14
+      21      18
+   }
+
+   method 'testReturn (Ljava/lang/Object;)Z' {
+      0      21
+      3      21
+      4      21
+      5      21
+      6      21
+      a      22
+      b      22
+      c      22
+      d      22
+      e      23
+      f      23
+      10      23
+      11      23
+      12      23
+      13      23
+      16      24
+      1a      28
+      1b      24
+   }
+
+   method 'testReturnTernary (Ljava/lang/Object;)I' {
+      0      32
+      3      32
+      4      32
+      5      32
+      6      32
+      d      32
+      e      32
+      f      32
+      10      32
+      11      32
+      15      32
+      16      32
+   }
+
+   method 'testReturnTernaryComplex (Ljava/lang/Object;)I' {
+      0      36
+      3      36
+      4      36
+      5      36
+      6      36
+      a      37
+      b      37
+      c      37
+      d      37
+      e      38
+      f      38
+      10      38
+      11      38
+      12      38
+      13      38
+      16      43
+      17      43
+      18      43
+      19      43
+      1a      43
+      1d      39
+      21      43
+      22      39
+   }
+
+   method 'testLoop (Ljava/lang/Object;)V' {
+      0      47
+      3      47
+      4      47
+      5      47
+      a      48
+      b      48
+      c      48
+      d      48
+      e      49
+      f      49
+      10      49
+      11      49
+      12      49
+      13      49
+      14      49
+      17      50
+      18      50
+      19      50
+      1a      50
+      1b      50
+      1c      50
+      1d      51
+      1e      51
+      1f      51
+      20      51
+      21      51
+      22      51
+      23      52
+      24      52
+      25      52
+      26      52
+      27      52
+      28      52
+      29      52
+      2a      53
+      2d      58
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 6
+8 <-> 9
+11 <-> 12
+12 <-> 15
+14 <-> 19
+17 <-> 22
+21 <-> 33
+25 <-> 37
+29 <-> 48
+30 <-> 51
+31 <-> 52
+33 <-> 53
+35 <-> 59

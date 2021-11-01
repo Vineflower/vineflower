@@ -1,4 +1,4 @@
-// Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
+// Copyright 2000_2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.main.rels;
 
 import org.jetbrains.java.decompiler.code.CodeConstants;
@@ -11,10 +11,7 @@ import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.modules.code.DeadCodeHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.*;
 import org.jetbrains.java.decompiler.modules.decompiler.deobfuscator.ExceptionDeobfuscator;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.AssignmentExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.MonitorExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.SynchronizedStatement;
@@ -29,6 +26,7 @@ import java.io.IOException;
 public class MethodProcessorRunnable implements Runnable {
   public static ThreadLocal<RootStatement> debugCurrentlyDecompiling = ThreadLocal.withInitial(() -> null);
   public static ThreadLocal<ControlFlowGraph> debugCurrentCFG = ThreadLocal.withInitial(() -> null);
+  public static ThreadLocal<DecompileRecord> debugCurrentDecompileRecord = ThreadLocal.withInitial(() -> null);
   public final Object lock = new Object();
 
   private final StructClass klass;
@@ -78,6 +76,7 @@ public class MethodProcessorRunnable implements Runnable {
   public static RootStatement codeToJava(StructClass cl, StructMethod mt, MethodDescriptor md, VarProcessor varProc) throws IOException {
     debugCurrentlyDecompiling.set(null);
     debugCurrentCFG.set(null);
+    debugCurrentDecompileRecord.set(null);
 
     boolean isInitializer = CodeConstants.CLINIT_NAME.equals(mt.getName()); // for now static initializer only
 
@@ -128,91 +127,167 @@ public class MethodProcessorRunnable implements Runnable {
       ExceptionDeobfuscator.insertDummyExceptionHandlerBlocks(graph, mt.getBytecodeVersion());
     }
 
+    DecompileRecord decompileRecord = new DecompileRecord(mt);
+    debugCurrentDecompileRecord.set(decompileRecord);
+
     RootStatement root = DomHelper.parseGraph(graph, mt);
+
+    decompileRecord.add("Initial", root);
+
     debugCurrentlyDecompiling.set(root);
     DotExporter.toDotFile(graph, mt, "cfgParsed", true);
-    DotExporter.toDotFile(root, mt, "initialStat");
 
     FinallyProcessor fProc = new FinallyProcessor(md, varProc);
+    int finallyProcessed = 0;
+
     while (fProc.iterateGraph(cl, mt, root, graph)) {
+      finallyProcessed++;
+
       root = DomHelper.parseGraph(graph, mt);
+      decompileRecord.add("ProcessFinally_" + finallyProcessed, root);
+
+      debugCurrentCFG.set(graph);
       debugCurrentlyDecompiling.set(root);
     }
 
     // remove synchronized exception handler
     // not until now because of comparison between synchronized statements in the finally cycle
-    DomHelper.removeSynchronizedHandler(root);
+    if (DomHelper.removeSynchronizedHandler(root)) {
+      decompileRecord.add("RemoveSynchronizedHandler", root);
+    }
 
     //		LabelHelper.lowContinueLabels(root, new HashSet<StatEdge>());
 
     SequenceHelper.condenseSequences(root);
+    decompileRecord.add("CondenseSequences", root);
 
     ClearStructHelper.clearStatements(root);
+    decompileRecord.add("ClearStatements", root);
 
+    // Put exprents in statements
     ExprProcessor proc = new ExprProcessor(md, varProc);
     proc.processStatement(root, cl);
-    DotExporter.toDotFile(root, mt, "initialProcessStat");
+    decompileRecord.add("ProcessStatement", root);
 
     SequenceHelper.condenseSequences(root);
+    decompileRecord.add("CondenseSequences_1", root);
 
     StackVarsProcessor stackProc = new StackVarsProcessor();
 
+    // Process and simplify variables on the stack
+    int stackVarsProcessed = 0;
     do {
+      stackVarsProcessed++;
+
       stackProc.simplifyStackVars(root, mt, cl);
+      decompileRecord.add("SimplifyStackVars_PPMM_" + stackVarsProcessed, root);
+
       varProc.setVarVersions(root);
+      decompileRecord.add("SetVarVersions_PPMM_" + stackVarsProcessed, root);
     } while (new PPandMMHelper(varProc).findPPandMM(root));
 
+    // Process invokedynamic string concat
     if (cl.getVersion().hasIndyStringConcat()) {
       ConcatenationHelper.simplifyStringConcat(root);
+      decompileRecord.add("SimplifyStringConcat", root);
     }
 
-    while (true) {
-      LabelHelper.cleanUpEdges(root);
+    // Process ternary values
+    if (DecompilerContext.getOption(IFernflowerPreferences.TERNARY_CONDITIONS)) {
+      if (TernaryProcessor.processTernary(root)) {
+        decompileRecord.add("ProcessTernary", root);
+      }
+    }
 
+    // Main loop
+    while (true) {
+      decompileRecord.incrementMainLoop();
+      decompileRecord.add("Start", root);
+
+      LabelHelper.cleanUpEdges(root);
+      decompileRecord.add("CleanupEdges", root);
+
+      // Merge loop
       while (true) {
+        decompileRecord.incrementMergeLoop();
+        decompileRecord.add("MergeLoopStart", root);
+
         if (EliminateLoopsHelper.eliminateLoops(root, cl)) {
+          decompileRecord.add("EliminateLoops", root);
           continue;
         }
 
         MergeHelper.enhanceLoops(root);
+        decompileRecord.add("EnhanceLoops", root);
 
         if (LoopExtractHelper.extractLoops(root)) {
+          decompileRecord.add("ExtractLoops", root);
           continue;
         }
 
-        if (!IfHelper.mergeAllIfs(root)) {
+        if (IfHelper.mergeAllIfs(root)) {
+          decompileRecord.add("MergeAllIfs", root);
+          // Continues with merge loop
+        } else {
           break;
         }
       }
 
+      decompileRecord.resetMergeLoop();
+      decompileRecord.add("MergeLoopEnd", root);
+
       if (DecompilerContext.getOption(IFernflowerPreferences.IDEA_NOT_NULL_ANNOTATION)) {
         if (IdeaNotNullHelper.removeHardcodedChecks(root, mt)) {
+          decompileRecord.add("RemoveIdeaNull", root);
           SequenceHelper.condenseSequences(root);
+          decompileRecord.add("CondenseSequences_RIN", root);
         }
       }
 
       stackProc.simplifyStackVars(root, mt, cl);
+      decompileRecord.add("SimplifyStackVars", root);
+
       varProc.setVarVersions(root);
+      decompileRecord.add("SetVarVersions", root);
+
+      if (DecompilerContext.getOption(IFernflowerPreferences.PATTERN_MATCHING)) {
+        if (cl.getVersion().hasIfPatternMatching()) {
+          if (PatternMatchProcessor.matchInstanceof(root)) {
+            decompileRecord.add("MatchIfInstanceof", root);
+            continue;
+          }
+        }
+      }
 
       LabelHelper.identifyLabels(root);
+      decompileRecord.add("IdentifyLabels", root);
 
       if (TryHelper.enhanceTryStats(root, cl)) {
+        decompileRecord.add("EnhanceTry", root);
         continue;
       }
 
       if (InlineSingleBlockHelper.inlineSingleBlocks(root)) {
+        decompileRecord.add("InlineSingleBlocks", root);
         continue;
       }
 
       // this has to be done last so it does not screw up the formation of for loops
       if (MergeHelper.makeDoWhileLoops(root)) {
+        decompileRecord.add("MatchDoWhile", root);
+
         LabelHelper.cleanUpEdges(root);
+        decompileRecord.add("CleanupEdges_MDW", root);
+
         LabelHelper.identifyLabels(root);
+        decompileRecord.add("IdentifyLabels_MDW", root);
       }
 
       // initializer may have at most one return point, so no transformation of method exits permitted
       if (isInitializer || !ExitHelper.condenseExits(root)) {
         break;
+      } else {
+        decompileRecord.add("CondenseExits", root);
       }
 
       // FIXME: !!
@@ -220,29 +295,55 @@ public class MethodProcessorRunnable implements Runnable {
       //  break;
       //}
     }
+    decompileRecord.resetMainLoop();
+    decompileRecord.add("MainLoopEnd", root);
 
     // this has to be done after all inlining is done so the case values do not get reverted
     if (SwitchHelper.simplifySwitches(root)) {
+      decompileRecord.add("SimplifySwitches", root);
+
       SequenceHelper.condenseSequences(root); // remove empty blocks
+      decompileRecord.add("CondenseSequences_SS", root);
     }
 
-    ExitHelper.adjustReturnType(root, md);
-    ExitHelper.removeRedundantReturns(root);
+    // Makes constant returns the same type as the method descriptor
+    if (ExitHelper.adjustReturnType(root, md)) {
+      decompileRecord.add("AdjustReturnType", root);
+    }
 
-    SecondaryFunctionsHelper.identifySecondaryFunctions(root, varProc);
+    // Remove returns that don't need to exist
+    if (ExitHelper.removeRedundantReturns(root)) {
+      decompileRecord.add("RedundantReturns", root);
+    }
 
-    cleanSynchronizedVar(root);
+    // Apply post processing transformations
+    if (SecondaryFunctionsHelper.identifySecondaryFunctions(root, varProc)) {
+      decompileRecord.add("IdentifySecondary", root);
+    }
+
+    // Improve synchronized monitor assignments
+    if (SynchronizedHelper.cleanSynchronizedVar(root)) {
+      decompileRecord.add("ClearSynchronized", root);
+    }
 
     varProc.setVarDefinitions(root);
+    decompileRecord.add("SetVarDefinitions", root);
 
     // Make sure to update assignments after setting the var definitions!
-    SecondaryFunctionsHelper.updateAssignments(root);
+    if (SecondaryFunctionsHelper.updateAssignments(root)) {
+      decompileRecord.add("UpdateAssignments", root);
+    }
 
     // must be the last invocation, because it makes the statement structure inconsistent
     // FIXME: new edge type needed
-    LabelHelper.replaceContinueWithBreak(root);
+    if (LabelHelper.replaceContinueWithBreak(root)) {
+      decompileRecord.add("ReplaceContinues", root);
+    }
 
     DotExporter.toDotFile(root, mt, "finalStatement");
+
+    // Debug print the decompile record
+    DotExporter.toDotFile(decompileRecord, mt, "decompileRecord", false);
 
     mt.releaseResources();
 
@@ -257,30 +358,5 @@ public class MethodProcessorRunnable implements Runnable {
 
   public boolean isFinished() {
     return finished;
-  }
-
-  public static void cleanSynchronizedVar(Statement stat) {
-    for (Statement st : stat.getStats()) {
-      cleanSynchronizedVar(st);
-    }
-
-    if (stat.type == Statement.TYPE_SYNCRONIZED) {
-      SynchronizedStatement sync = (SynchronizedStatement)stat;
-      if (sync.getHeadexprentList().get(0).type == Exprent.EXPRENT_MONITOR) {
-        MonitorExprent mon = (MonitorExprent)sync.getHeadexprentList().get(0);
-        for (Exprent e : sync.getFirst().getExprents()) {
-          if (e.type == Exprent.EXPRENT_ASSIGNMENT) {
-            AssignmentExprent ass = (AssignmentExprent)e;
-            if (ass.getLeft().type == Exprent.EXPRENT_VAR) {
-              VarExprent var = (VarExprent)ass.getLeft();
-              if (ass.getRight().equals(mon.getValue()) && !var.isVarReferenced(stat.getParent())) {
-                sync.getFirst().getExprents().remove(e);
-                break;
-              }
-            }
-          }
-        }
-      }
-    }
   }
 }

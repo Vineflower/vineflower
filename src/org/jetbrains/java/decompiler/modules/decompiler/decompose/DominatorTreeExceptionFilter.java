@@ -96,9 +96,9 @@ public class DominatorTreeExceptionFilter {
 
     Set<Integer> children = mapTreeBranches.get(id);
     if (children != null) {
-      for (Integer childid : children) {
+      for (int childid : children) {
         Map<Integer, Integer> mapChild = buildExceptionDoms(childid);
-        for (Integer handler : mapChild.keySet()) {
+        for (int handler : mapChild.keySet()) {
           map.put(handler, map.containsKey(handler) ? id : mapChild.get(handler));
         }
       }

@@ -1,0 +1,212 @@
+package pkg;
+
+public class TestPatternMatchingInteger {
+   public int testSimple(Object obj) {
+      return obj instanceof Integer i ? i + 1 : 1;// 5 6 9
+   }
+
+   public int testMulti(Object a, Object b) {
+      if (a instanceof Integer) {// 13
+         Integer ai = (Integer)a;
+         if (b instanceof Integer bi) {
+            return ai + bi;// 14
+         }
+      }
+
+      if (a instanceof Integer ai) {// 15
+         return ai;// 16
+      } else {
+         return b instanceof Integer bi ? bi : 0;// 17 18 21
+      }
+   }
+
+   public int testMultiDifferent(Object a, Object b) {
+      if (a instanceof Integer) {// 25
+         Integer i = (Integer)a;
+         if (b instanceof String s) {
+            return i + s.length();// 26
+         }
+      }
+
+      return 0;// 29
+   }
+
+   public void testDeMorgan(Object obj) {
+      if (obj instanceof Integer) {// 33
+         Integer i = (Integer)obj;
+         if (i >= 1 && i >= 41) {
+            System.out.println(i);// 36
+            return;// 38
+         }
+      }
+
+      System.out.println("i");// 34
+   }
+}
+
+class 'pkg/TestPatternMatchingInteger' {
+   method 'testSimple (Ljava/lang/Object;)I' {
+      0      4
+      1      4
+      2      4
+      3      4
+      4      4
+      b      4
+      c      4
+      d      4
+      e      4
+      f      4
+      10      4
+      11      4
+      13      4
+   }
+
+   method 'testMulti (Ljava/lang/Object;Ljava/lang/Object;)I' {
+      0      8
+      1      8
+      2      8
+      3      8
+      4      8
+      7      9
+      8      9
+      9      9
+      a      9
+      b      9
+      c      10
+      d      10
+      e      10
+      f      10
+      10      10
+      17      10
+      18      10
+      19      11
+      1a      11
+      1b      11
+      1c      11
+      1d      11
+      1e      11
+      1f      11
+      20      11
+      21      11
+      22      11
+      23      11
+      24      15
+      25      15
+      26      15
+      27      15
+      28      15
+      2f      15
+      30      15
+      31      16
+      32      16
+      33      16
+      34      16
+      35      16
+      36      16
+      37      18
+      38      18
+      39      18
+      3a      18
+      3b      18
+      42      18
+      43      18
+      44      18
+      45      18
+      46      18
+      47      18
+      48      18
+      4a      18
+   }
+
+   method 'testMultiDifferent (Ljava/lang/Object;Ljava/lang/Object;)I' {
+      0      23
+      1      23
+      2      23
+      3      23
+      4      23
+      7      24
+      8      24
+      9      24
+      a      24
+      b      24
+      c      25
+      d      25
+      e      25
+      f      25
+      10      25
+      17      25
+      18      25
+      19      26
+      1a      26
+      1b      26
+      1c      26
+      1d      26
+      1e      26
+      1f      26
+      20      26
+      21      26
+      22      26
+      23      26
+      24      30
+      25      30
+   }
+
+   method 'testDeMorgan (Ljava/lang/Object;)V' {
+      0      34
+      1      34
+      2      34
+      3      34
+      4      34
+      7      35
+      8      35
+      9      35
+      a      35
+      b      35
+      c      36
+      d      36
+      e      36
+      f      36
+      10      36
+      11      36
+      14      36
+      15      36
+      16      36
+      17      36
+      18      36
+      19      36
+      1a      36
+      1d      42
+      1e      42
+      1f      42
+      20      42
+      21      42
+      22      42
+      23      42
+      24      42
+      28      37
+      29      37
+      2a      37
+      2b      37
+      2c      37
+      2f      38
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 5
+9 <-> 5
+13 <-> 9
+14 <-> 12
+15 <-> 16
+16 <-> 17
+17 <-> 19
+18 <-> 19
+21 <-> 19
+25 <-> 24
+26 <-> 27
+29 <-> 31
+33 <-> 35
+34 <-> 43
+36 <-> 38
+38 <-> 39

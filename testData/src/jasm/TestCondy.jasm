@@ -1,0 +1,38 @@
+package pkg;
+
+super public class TestCondy
+	version 55:0
+{
+public static Method testNull:"()Ljava/lang/String;"
+	stack 1 locals 0
+{
+  ldc Dynamic REF_invokeStatic:java/lang/invoke/ConstantBootstraps.nullConstant:"(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/Class;)Ljava/lang/Object;":null:"Ljava/lang/String;";
+  areturn;
+}
+
+public static Method testNull:"()Lpkg/FakeEnum;"
+	stack 1 locals 0
+{
+  ldc Dynamic REF_invokeStatic:java/lang/invoke/ConstantBootstraps.enumConstant:"(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/Class;)Ljava/lang/Enum;":FOO:"Lpkg/FakeEnum;";
+  areturn;
+}
+
+public static Method "test":"(I)Ljava/nio/file/StandardOpenOption;"
+  stack 2 locals 1
+{
+  ldc Dynamic REF_invokeStatic:
+    Method pkg/TestConstantDynamic.getValues:"(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/Class;)[Ljava/lang/Object;":
+    EnumC$Values:
+    "[Ljava/nio/file/StandardOpenOption;";
+  iload 0;
+  aaload;
+  areturn;
+}
+
+public static Method getValues:"(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/Class;)[Ljava/nio/file/StandardOpenOption;"
+  stack 1 locals 3
+{
+  invokestatic Method java/nio/file/StandardOpenOption.values:"()[Ljava/nio/file/StandardOpenOption;";
+  areturn;
+}
+}

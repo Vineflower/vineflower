@@ -4,7 +4,7 @@ import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 
 import static org.jetbrains.java.decompiler.SingleClassesTestBase.TestDefinition.Version.*;
 
-public class TernaryConstantSimplificationTest extends SingleClassesTestBase {
+public class SingleClassesTernarySimplificationTest extends SingleClassesTestBase {
   @Override
   protected String[] getDecompilerOptions() {
     return new String[] {

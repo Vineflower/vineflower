@@ -70,7 +70,7 @@ public class FastExtendedPostdominanceHelper {
     LinkedList<FastFixedSet<Integer>> stackPath = new LinkedList<>();
     Set<Statement> setVisited = new HashSet<>();
 
-    for (Integer head : new HashSet<>(mapExtPostdominators.keySet())) {
+    for (int head : new HashSet<>(mapExtPostdominators.keySet())) {
 
       FastFixedSet<Integer> setPostdoms = mapExtPostdominators.get(head);
 
@@ -123,7 +123,7 @@ public class FastExtendedPostdominanceHelper {
   }
 
   private void filterOnExceptionRanges(DominatorTreeExceptionFilter filter) {
-    for (Integer head : new HashSet<>(mapExtPostdominators.keySet())) {
+    for (int head : new HashSet<>(mapExtPostdominators.keySet())) {
       FastFixedSet<Integer> set = mapExtPostdominators.get(head);
       for (Iterator<Integer> it = set.iterator(); it.hasNext(); ) {
         if (!filter.acceptStatementPair(head, it.next())) {
@@ -157,7 +157,7 @@ public class FastExtendedPostdominanceHelper {
         lstPredSets.add(setPred);
       }
 
-      for (Integer id : setReachability) {
+      for (int id : setReachability) {
 
         FastFixedSet<Integer> setReachabilityCopy = setReachability.getCopy();
 
@@ -176,7 +176,7 @@ public class FastExtendedPostdominanceHelper {
           }
         }
 
-        if (nodeid != id.intValue()) {
+        if (nodeid != id) {
           setIntersection.add(nodeid);
         }
         else {
@@ -224,7 +224,7 @@ public class FastExtendedPostdominanceHelper {
       Integer nodeid = node.id;
       FastFixedSet<Integer> setReachability = mapSets.get(nodeid);
 
-      for (Integer id : setReachability) {
+      for (int id : setReachability) {
         mapExtPostdominators.get(id).add(nodeid);
       }
 

@@ -12,6 +12,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.IfExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.InvocationExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
+import org.jetbrains.java.decompiler.util.DotExporter;
 import org.jetbrains.java.decompiler.util.VBStyleCollection;
 
 import java.util.*;
@@ -188,7 +189,12 @@ public final class MergeHelper {
                 // precondition: sequence must contain more than one statement!
                 Statement sequence = firstif.getParent();
                 sequence.getStats().removeWithKey(firstif.id);
-                sequence.setFirst(sequence.getStats().get(0));
+
+                if (!sequence.getStats().isEmpty()) {
+                  sequence.setFirst(sequence.getStats().get(0));
+                } else {
+                  SequenceHelper.destroyAndFlattenStatement(sequence);
+                }
               }
 
               return true;
@@ -198,10 +204,11 @@ public final class MergeHelper {
 
           StatEdge elseEdge = firstif.getAllSuccessorEdges().get(0);
           boolean directlyConnectedToExit = directlyConnectedToExit(stat, elseEdge.getDestination().getParent(), elseEdge.getDestination());
-
           if (isDirectPath(stat, elseEdge.getDestination()) || directlyConnectedToExit) {
-            // exit condition identified
-            stat.setLooptype(DoStatement.LOOP_WHILE);
+            // FIXME: This is horrible and bad!! Needs an extraction step before loop merging!!
+            if (isIif(firstif.getHeadexprent().getCondition())) {
+              return false;
+            }
 
             // Lift sequences
             // Loops that are directly connected to the exit have statements inside that need to lifted out of the loop
@@ -211,6 +218,13 @@ public final class MergeHelper {
 
               // Make sure the inside of the loop is a sequence that has at least the if statement and another block
               if (firstStat.type == Statement.TYPE_SEQUENCE && firstStat.getStats().size() > 1) {
+                // Get continues
+                List<StatEdge> continues = firstStat.getStats().getLast().getSuccessorEdges(StatEdge.TYPE_CONTINUE);
+                if (!continues.isEmpty() && continues.get(0).getDestination() == stat) {
+                  // Cannot make loop- continue would be lifted to the outside of the loop! [TestInlineNoSuccessor]
+                  return false;
+                }
+
                 List<Statement> toAdd = new ArrayList<>();
 
                 // Skip first statement as that is the if that contains the while loop condition
@@ -228,6 +242,9 @@ public final class MergeHelper {
                 liftToParent(stat, toAdd);
               }
             }
+
+            // exit condition identified
+            stat.setLooptype(DoStatement.LOOP_WHILE);
 
             // no need to negate the while condition
             IfExprent ifexpr = (IfExprent)firstif.getHeadexprent().copy();
@@ -278,96 +295,24 @@ public final class MergeHelper {
 
             return true;
           }
-        } else {
-          Statement parent = firstif.getParent();
-
-          // TODO: arbitrary ternary support, currently it only works on simple ternaries
-
-          if (firstif.getIfstat().type == Statement.TYPE_IF && firstif.getElsestat().type == Statement.TYPE_IF) {
-            if (((IfStatement) firstif.getIfstat()).getIfstat() == null && ((IfStatement) firstif.getElsestat()).getIfstat() == null) {
-              StatEdge ifEdge = ((IfStatement) firstif.getIfstat()).getIfEdge();
-              StatEdge elseEdge = ((IfStatement) firstif.getElsestat()).getIfEdge();
-
-              if (ifEdge.closure == parent && elseEdge.closure == parent
-              || (ifEdge.closure == stat && elseEdge.closure == stat && ifEdge.getType() == StatEdge.TYPE_CONTINUE)) {
-                // Condition has inlined the exitpoint of the method in the parent sequence statement
-                stat.setLooptype(DoStatement.LOOP_WHILE);
-
-                // This breaks out of the sequence and not the loop so we don't need to invert
-                Exprent ternary = new FunctionExprent(FunctionExprent.FUNCTION_IIF, Arrays.asList(
-                  firstif.getHeadexprent().getCondition(),
-                  ((IfStatement) firstif.getIfstat()).getHeadexprent().getCondition(),
-                  ((IfStatement) firstif.getElsestat()).getHeadexprent().getCondition()
-                ), null);
-
-                stat.setConditionExprent(ternary);
-                // Need to add break edge towards successor to the loop
-                // Make sure that the edge is reset so the destination exists but the metadata is gone, as it would point to removed statements
-                ifEdge.closure = null;
-                ifEdge.labeled = false;
-                ifEdge.explicit = false;
-                stat.addSuccessor(ifEdge);
-
-                SequenceHelper.destroyStatementContent(firstif, true);
-
-                List<Statement> toAdd = new ArrayList<>();
-                for (int i = 1; i < parent.getStats().size(); i++) {
-                  toAdd.add(parent.getStats().get(i));
-                }
-
-                liftToParent(stat, toAdd);
-                LabelHelper.lowClosures(stat);
-
-                // Remove sequence successors
-                for (StatEdge suc : parent.getAllSuccessorEdges()) {
-                  parent.removeSuccessor(suc);
-                }
-
-                // Remove sequence from parent
-                parent.getParent().getStats().removeWithKey(parent.id);
-
-
-                if (parent.getParent().getStats().size() > 0) {
-                  // Update first
-                  parent.getParent().setFirst(parent.getParent().getStats().get(0));
-                } else {
-                  // If the loop is empty, construct a synthetic basic block
-                  BasicBlockStatement bstat = new BasicBlockStatement(new BasicBlock(
-                    DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.STATEMENT_COUNTER)));
-                  bstat.setExprents(new ArrayList<>());
-
-                  parent.getParent().getStats().add(bstat);
-                  parent.getParent().setFirst(bstat);
-                }
-
-                return true;
-
-              } else if (ifEdge.closure == stat && elseEdge.closure == stat) {
-                // Simple condition, just remove the if statement and replace with ternary
-                stat.setLooptype(DoStatement.LOOP_WHILE);
-                Exprent ternary = new FunctionExprent(FunctionExprent.FUNCTION_IIF, Arrays.asList(
-                  firstif.getHeadexprent().getCondition(),
-                  ((IfStatement) firstif.getIfstat()).getHeadexprent().negateIf().getCondition(),
-                  ((IfStatement) firstif.getElsestat()).getHeadexprent().negateIf().getCondition()
-                ), null);
-
-                stat.setConditionExprent(ternary);
-                // Need to add break edge towards successor to the loop
-                // Either edges could work here, we pick the first one to keep it simple
-                stat.addSuccessor(ifEdge);
-
-                SequenceHelper.destroyStatementContent(firstif, true);
-                LabelHelper.lowClosures(stat);
-
-                return true;
-              }
-            }
-          }
         }
       }
     }
 
     return false;
+  }
+
+  private static boolean isIif(Exprent exprent) {
+    if (exprent.type != Exprent.EXPRENT_FUNCTION) {
+      return false;
+    }
+
+    Exprent check = exprent;
+    while (check.type == Exprent.EXPRENT_FUNCTION && ((FunctionExprent)check).getFuncType() == FunctionExprent.FUNCTION_BOOL_NOT) {
+      check = ((FunctionExprent)check).getLstOperands().get(0);
+    }
+
+    return check.type == Exprent.EXPRENT_FUNCTION && ((FunctionExprent)check).getFuncType() == FunctionExprent.FUNCTION_IIF;
   }
 
   private static void liftToParent(DoStatement stat, List<Statement> toAdd) {
@@ -380,6 +325,8 @@ public final class MergeHelper {
         // Add sequentially after while loop
         stats.addWithKeyAndIndex(stats.indexOf(stat) + i, st, st.id);
       }
+
+      stat.getParent().setAllParent();
     } else {
       // If it's not part of a sequence statement, we need to synthesize one and replace the loop with it
 

@@ -1,0 +1,86 @@
+package pkg;
+
+public class TestIfTernaryReturn {
+   public int test(boolean condition, int a, int b) {
+      if (condition ? a >= b : b <= a) {// 5
+         return -1;// 9
+      }
+
+      return 1;// 6
+   }
+
+   public int test1(boolean condition, int a, int b) {
+      if (condition) {// 13
+         if (a == 4) {// 14
+            System.out.println(2);// 15
+            return 4;// 16
+         }
+      } else if (b == 5) {// 19
+         System.out.println(4);// 20
+         return 3;// 21
+      }
+
+      return -1;// 25
+   }
+}
+
+class 'pkg/TestIfTernaryReturn' {
+   method 'test (ZII)I' {
+      0      4
+      1      4
+      4      4
+      5      4
+      6      4
+      c      4
+      d      4
+      e      4
+      11      8
+      12      8
+      13      5
+      14      5
+   }
+
+   method 'test1 (ZII)I' {
+      0      12
+      1      12
+      4      13
+      5      13
+      6      13
+      9      14
+      a      14
+      b      14
+      c      14
+      d      14
+      e      14
+      f      14
+      10      15
+      11      15
+      12      17
+      13      17
+      14      17
+      17      18
+      18      18
+      19      18
+      1a      18
+      1b      18
+      1c      18
+      1d      18
+      1e      19
+      1f      19
+      20      22
+      21      22
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 9
+9 <-> 6
+13 <-> 13
+14 <-> 14
+15 <-> 15
+16 <-> 16
+19 <-> 18
+20 <-> 19
+21 <-> 20
+25 <-> 23

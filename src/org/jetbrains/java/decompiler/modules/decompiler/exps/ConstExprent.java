@@ -378,7 +378,7 @@ public class ConstExprent extends Exprent {
     return CodeConstants.TYPE_NULL == constType.type;
   }
 
-  private static String convertStringToJava(String value, boolean ascii) {
+  public static String convertStringToJava(String value, boolean ascii) {
     char[] arr = value.toCharArray();
     StringBuilder buffer = new StringBuilder(arr.length);
 
@@ -463,13 +463,10 @@ public class ConstExprent extends Exprent {
       case CodeConstants.TYPE_SHORT:
       case CodeConstants.TYPE_SHORTCHAR:
       case CodeConstants.TYPE_INT:
-        return (Integer)value == 1;
       case CodeConstants.TYPE_LONG:
-        return ((Long)value).intValue() == 1;
       case CodeConstants.TYPE_DOUBLE:
-        return ((Double)value).intValue() == 1;
       case CodeConstants.TYPE_FLOAT:
-        return ((Float)value).intValue() == 1;
+        return ((Number)value).intValue() == 1;
     }
 
     return false;

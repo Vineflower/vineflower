@@ -6,6 +6,7 @@ import org.jetbrains.java.decompiler.code.cfg.ControlFlowGraph;
 import org.jetbrains.java.decompiler.code.cfg.ExceptionRangeCFG;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
+import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.modules.decompiler.decompose.FastExtendedPostdominanceHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.deobfuscator.IrreducibleCFGDeobfuscator;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
@@ -19,9 +20,7 @@ import org.jetbrains.java.decompiler.util.VBStyleCollection;
 import java.util.*;
 
 public final class DomHelper {
-
-
-  private static RootStatement graphToStatement(ControlFlowGraph graph) {
+  private static RootStatement graphToStatement(ControlFlowGraph graph, StructMethod mt) {
 
     VBStyleCollection<Statement, Integer> stats = new VBStyleCollection<>();
     VBStyleCollection<BasicBlock, Integer> blocks = graph.getBlocks();
@@ -41,20 +40,23 @@ public final class DomHelper {
       general = new GeneralStatement(firstst, stats, null);
     }
     else { // one straightforward basic block
-      RootStatement root = new RootStatement(firstst, dummyexit);
+      RootStatement root = new RootStatement(firstst, dummyexit, mt);
       firstst.addSuccessor(new StatEdge(StatEdge.TYPE_BREAK, firstst, dummyexit, root));
 
       return root;
     }
 
-    // Check if the first block in the graph is covered by an exception range.
-    // If it is, we need to avoid setting the edge type to continue, as that causes problems later down the line.
-    // TODO: should this be a fernflower preference?
     boolean firstIsException = false;
-    for (ExceptionRangeCFG exception : graph.getExceptions()) {
-      if (exception.getProtectedRange().contains(firstblock)) {
-        firstIsException = true;
-        break;
+
+    if (DecompilerContext.getOption(IFernflowerPreferences.EXPERIMENTAL_TRY_LOOP_FIX)) {
+      // Check if the first block in the graph is covered by an exception range.
+      // If it is, we need to avoid setting the edge type to continue, as that causes problems later down the line.
+
+      for (ExceptionRangeCFG exception : graph.getExceptions()) {
+        if (exception.getProtectedRange().contains(firstblock)) {
+          firstIsException = true;
+          break;
+        }
       }
     }
 
@@ -98,7 +100,7 @@ public final class DomHelper {
 
     general.buildContinueSet();
     general.buildMonitorFlags();
-    return new RootStatement(general, dummyexit);
+    return new RootStatement(general, dummyexit, mt);
   }
 
   public static VBStyleCollection<List<Integer>, Integer> calcPostDominators(Statement container) {
@@ -193,7 +195,7 @@ public final class DomHelper {
 
       lstPosts.sort(Comparator.comparing(mapSortOrder::get));
 
-      if (lstPosts.size() > 1 && lstPosts.get(0).intValue() == st.id) {
+      if (lstPosts.size() > 1 && (int) lstPosts.get(0) == st.id) {
         lstPosts.add(lstPosts.remove(0));
       }
 
@@ -205,7 +207,7 @@ public final class DomHelper {
 
   public static RootStatement parseGraph(ControlFlowGraph graph, StructMethod mt) {
 
-    RootStatement root = graphToStatement(graph);
+    RootStatement root = graphToStatement(graph, mt);
 
     if (!processStatement(root, new LinkedHashMap<>())) {
       DotExporter.errorToDotFile(graph, mt, "parseGraphFail");
@@ -224,15 +226,19 @@ public final class DomHelper {
     return root;
   }
 
-  public static void removeSynchronizedHandler(Statement stat) {
+  public static boolean removeSynchronizedHandler(Statement stat) {
+    boolean res = false;
 
     for (Statement st : stat.getStats()) {
-      removeSynchronizedHandler(st);
+      res |= removeSynchronizedHandler(st);
     }
 
     if (stat.type == Statement.TYPE_SYNCRONIZED) {
       ((SynchronizedStatement)stat).removeExc();
+      res = true;
     }
+
+    return res;
   }
 
 
@@ -436,7 +442,7 @@ public final class DomHelper {
       // tail statements
       Set<Integer> setFirst = mapExtPost.get(stat.getFirst().id);
       if (setFirst != null) {
-        for (Integer id : setFirst) {
+        for (int id : setFirst) {
           List<Integer> lst = vbPost.getWithKey(id);
           if (lst == null) {
             vbPost.addWithKey(lst = new ArrayList<>(), id);
@@ -451,7 +457,7 @@ public final class DomHelper {
 
     for (int k = 0; k < vbPost.size(); k++) {
 
-      Integer headid = vbPost.getKey(k);
+      int headid = vbPost.getKey(k);
       List<Integer> posts = vbPost.get(k);
 
       if (!mapExtPost.containsKey(headid) &&
@@ -463,8 +469,8 @@ public final class DomHelper {
 
       Set<Integer> setExtPosts = mapExtPost.get(headid);
 
-      for (Integer postId : posts) {
-        if (!postId.equals(headid) && !setExtPosts.contains(postId)) {
+      for (int postId : posts) {
+        if (postId != headid && !setExtPosts.contains(postId)) {
           continue;
         }
 
@@ -618,7 +624,7 @@ public final class DomHelper {
 
             Integer newid = result.id;
 
-            for (Integer key : new ArrayList<>(mapExtPost.keySet())) {
+            for (int key : new ArrayList<>(mapExtPost.keySet())) {
               Set<Integer> set = mapExtPost.get(key);
 
               int oldsize = set.size();

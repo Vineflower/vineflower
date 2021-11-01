@@ -33,8 +33,22 @@ public class TestSynchronized {
       System.out.println(o);// 31
    }// 32
 
-   public void test5(int param1) {
-      // $FF: Couldn't be decompiled
+   public void test5(int i) {
+      try {
+         while(true) {
+            synchronized(this) {// 37
+               while(i >= i) {// 38
+                  this.wait();// 39
+               }
+            }
+
+            synchronized(this) {// 43
+               this.notifyAll();// 44
+            }// 45
+         }
+      } catch (Exception var7) {// 47
+         throw new RuntimeException(var7);// 48
+      }
    }
 }
 
@@ -99,6 +113,27 @@ class 'pkg/TestSynchronized' {
       25      32
       26      33
    }
+
+   method 'test5 (I)V' {
+      0      38
+      3      38
+      4      39
+      5      39
+      6      39
+      9      40
+      a      40
+      b      40
+      c      40
+      1a      44
+      1d      44
+      1e      45
+      1f      45
+      20      45
+      21      45
+      23      46
+      31      48
+      3a      49
+   }
 }
 
 Lines mapping:
@@ -118,15 +153,15 @@ Lines mapping:
 30 <-> 31
 31 <-> 33
 32 <-> 34
+37 <-> 39
+38 <-> 40
+39 <-> 41
+43 <-> 45
+44 <-> 46
+45 <-> 47
+47 <-> 49
+48 <-> 50
 Not mapped:
 7
 13
-37
-38
-39
 41
-43
-44
-45
-47
-48

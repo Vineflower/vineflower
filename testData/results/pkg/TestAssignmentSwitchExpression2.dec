@@ -1,0 +1,67 @@
+package pkg;
+
+public class TestAssignmentSwitchExpression2 {
+   public void test(int x) {
+      String var10000;
+      switch(x) {// 5
+      case 1:
+      case 3:
+      case 5:
+      case 7:
+      case 9:
+      case 11:
+         var10000 = "Odd";// 6
+         break;
+      case 2:
+      case 4:
+      case 6:
+      case 8:
+      case 10:
+      case 12:
+         var10000 = "Even";// 7
+         break;
+      default:
+         throw new IllegalStateException("Unexpected value: " + x);// 8
+      }
+
+      String a = var10000;
+      System.out.println(a);// 10
+   }// 11
+}
+
+class 'pkg/TestAssignmentSwitchExpression2' {
+   method 'test (I)V' {
+      0      5
+      1      5
+      40      12
+      41      12
+      42      13
+      45      20
+      46      20
+      47      21
+      4e      23
+      4f      23
+      50      23
+      51      23
+      52      23
+      53      23
+      57      23
+      58      26
+      59      27
+      5a      27
+      5b      27
+      5c      27
+      5d      27
+      5e      27
+      5f      27
+      60      28
+   }
+}
+
+Lines mapping:
+5 <-> 6
+6 <-> 13
+7 <-> 21
+8 <-> 24
+10 <-> 28
+11 <-> 29

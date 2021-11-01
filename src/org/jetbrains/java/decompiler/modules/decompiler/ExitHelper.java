@@ -61,6 +61,7 @@ public final class ExitHelper {
     while (found);
   }
 
+  // Turns break edges into returns where necessary
   private static int integrateExits(Statement stat) {
     int ret = 0;
     Statement dest;
@@ -209,7 +210,8 @@ public final class ExitHelper {
     return true;
   }
 
-  public static void removeRedundantReturns(RootStatement root) {
+  public static boolean removeRedundantReturns(RootStatement root) {
+    boolean res = false;
     DummyExitStatement dummyExit = root.getDummyExit();
 
     for (StatEdge edge : dummyExit.getAllPredecessorEdges()) {
@@ -224,15 +226,19 @@ public final class ExitHelper {
               // remove redundant return
               dummyExit.addBytecodeOffsets(ex.bytecode);
               lstExpr.remove(lstExpr.size() - 1);
+              res = true;
             }
           }
         }
       }
     }
+
+    return res;
   }
 
   // Fixes chars being returned when ints are required
-  public static void adjustReturnType(RootStatement root, MethodDescriptor desc) {
+  public static boolean adjustReturnType(RootStatement root, MethodDescriptor desc) {
+    boolean res = false;
     // Get all statements with returns
     for (StatEdge retEdge : root.getDummyExit().getAllPredecessorEdges()) {
       Statement ret = retEdge.getSource();
@@ -251,10 +257,13 @@ public final class ExitHelper {
           for (Exprent exprent : exitExprents) {
             if (exprent.type == Exprent.EXPRENT_CONST) {
               ((ConstExprent)exprent).adjustConstType(desc.ret);
+              res = true;
             }
           }
         }
       }
     }
+
+    return res;
   }
 }

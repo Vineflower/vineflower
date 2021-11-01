@@ -37,6 +37,61 @@ public class TestTryWithResourcesReturnJ16 {
 
    public Scanner testFinallyNested(File param1) {
       // $FF: Couldn't be decompiled
+      // java.lang.RuntimeException: parsing failure!
+      //   at org.jetbrains.java.decompiler.modules.decompiler.DomHelper.parseGraph(DomHelper.java:215)
+      //   at org.jetbrains.java.decompiler.main.rels.MethodProcessorRunnable.codeToJava(MethodProcessorRunnable.java:146)
+      //
+      // Bytecode:
+      // 00: new java/util/Scanner
+      // 03: dup
+      // 04: aload 1
+      // 05: invokespecial java/util/Scanner.<init> (Ljava/io/File;)V
+      // 08: astore 2
+      // 09: new java/util/Scanner
+      // 0c: dup
+      // 0d: aload 1
+      // 0e: invokespecial java/util/Scanner.<init> (Ljava/io/File;)V
+      // 11: astore 3
+      // 12: aload 3
+      // 13: astore 4
+      // 15: aload 3
+      // 16: invokevirtual java/util/Scanner.close ()V
+      // 19: aload 2
+      // 1a: astore 5
+      // 1c: aload 2
+      // 1d: invokevirtual java/util/Scanner.close ()V
+      // 20: aconst_null
+      // 21: areturn
+      // 22: astore 4
+      // 24: aload 3
+      // 25: invokevirtual java/util/Scanner.close ()V
+      // 28: goto 34
+      // 2b: astore 5
+      // 2d: aload 4
+      // 2f: aload 5
+      // 31: invokevirtual java/lang/Throwable.addSuppressed (Ljava/lang/Throwable;)V
+      // 34: aload 4
+      // 36: athrow
+      // 37: astore 6
+      // 39: aload 2
+      // 3a: astore 7
+      // 3c: aload 2
+      // 3d: invokevirtual java/util/Scanner.close ()V
+      // 40: aconst_null
+      // 41: areturn
+      // 42: astore 3
+      // 43: aload 2
+      // 44: invokevirtual java/util/Scanner.close ()V
+      // 47: goto 52
+      // 4a: astore 4
+      // 4c: aload 3
+      // 4d: aload 4
+      // 4f: invokevirtual java/lang/Throwable.addSuppressed (Ljava/lang/Throwable;)V
+      // 52: aload 3
+      // 53: athrow
+      // 54: astore 8
+      // 56: aconst_null
+      // 57: areturn
    }
 
    private Scanner create(File file) throws FileNotFoundException {
@@ -75,8 +130,8 @@ class 'pkg/TestTryWithResourcesReturnJ16' {
    }
 
    method 'create (Ljava/io/File;)Ljava/util/Scanner;' {
-      4      42
-      8      42
+      4      97
+      8      97
    }
 }
 
@@ -87,7 +142,7 @@ Lines mapping:
 16 <-> 23
 21 <-> 28
 24 <-> 32
-41 <-> 43
+41 <-> 98
 Not mapped:
 11
 17

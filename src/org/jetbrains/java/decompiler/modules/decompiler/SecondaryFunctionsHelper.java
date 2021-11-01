@@ -429,6 +429,20 @@ public final class SecondaryFunctionsHelper {
               Exprent newexpr = fparam.getLstOperands().get(0);
               Exprent retexpr = propagateBoolNot(newexpr);
               return retexpr == null ? newexpr : retexpr;
+            case FunctionExprent.FUNCTION_IIF:
+              // Wrap branches
+              FunctionExprent fex1 = new FunctionExprent(FunctionExprent.FUNCTION_BOOL_NOT, fparam.getLstOperands().get(1), null);
+              FunctionExprent fex2 = new FunctionExprent(FunctionExprent.FUNCTION_BOOL_NOT, fparam.getLstOperands().get(2), null);
+
+              // Propagate both branches
+              Exprent ex1 = propagateBoolNot(fex1);
+              Exprent ex2 = propagateBoolNot(fex2);
+
+              // Set both branches to new version if it was created, or old if it wasn't
+              fparam.getLstOperands().set(1, ex1 == null ? fex1 : ex1);
+              fparam.getLstOperands().set(2, ex2 == null ? fex2 : ex2);
+
+              return fparam;
             case FunctionExprent.FUNCTION_CADD:
             case FunctionExprent.FUNCTION_COR:
               List<Exprent> operands = fparam.getLstOperands();
@@ -474,14 +488,15 @@ public final class SecondaryFunctionsHelper {
    *
    * @param stat The provided statement
    */
-  public static void updateAssignments(Statement stat) {
+  public static boolean updateAssignments(Statement stat) {
+    boolean res = false;
     // Get all sequential objects if the statement doesn't have exprents
     List<Object> objects = new ArrayList<>(stat.getExprents() == null ? stat.getSequentialObjects() : stat.getExprents());
 
     for (Object obj : objects) {
       if (obj instanceof Statement) {
         // If the object is a statement, recurse
-        updateAssignments((Statement) obj);
+        res |= updateAssignments((Statement) obj);
       } else if (obj instanceof Exprent) {
         // If the statement is an exprent, start processing
         Exprent exprent = (Exprent) obj;
@@ -510,15 +525,19 @@ public final class SecondaryFunctionsHelper {
               // Check if the left hand side of the assignment and the left hand side of the function are the same variable
               // TODO: maybe we should be checking for var version equality too?
               if (lhsVar.getIndex() == lhsVarFunc.getIndex()) {
-                // If all the checks succeed, set the assignment to be a compound assignment and
+                // If all the checks succeed, set the assignment to be a compound assignment and set the right hand side to be the 2nd part of the function
                 assignment.setCondType(rhsFunc.getFuncType());
                 assignment.setRight(funcParams.get(1));
                 // TODO: doesn't hit all instances, see ClientWorld
+
+                res = true;
               }
             }
           }
         }
       }
     }
+
+    return res;
   }
 }

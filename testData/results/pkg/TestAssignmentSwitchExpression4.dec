@@ -1,0 +1,85 @@
+package pkg;
+
+public class TestAssignmentSwitchExpression4 {
+   public void test(String directionStr) {
+      String var3 = directionStr.toLowerCase();// 5
+      String var10000;
+      switch(var3) {
+      case "north":
+      case "south":
+         var10000 = "y";// 8
+         break;
+      case "east":
+      case "west":
+         var10000 = "x";// 11
+         break;
+      case "up":
+      case "down":
+         var10000 = "z";// 14
+         break;
+      default:
+         throw new IllegalStateException("Unexpected value: " + directionStr);// 16
+      }
+
+      String axis = var10000;
+      System.out.println(axis);// 18
+   }// 19
+}
+
+class 'pkg/TestAssignmentSwitchExpression4' {
+   method 'test (Ljava/lang/String;)V' {
+      0      4
+      1      4
+      2      4
+      3      4
+      4      4
+      8      6
+      49      7
+      4a      7
+      58      8
+      59      8
+      67      11
+      68      11
+      76      12
+      77      12
+      85      15
+      86      15
+      94      16
+      95      16
+      a1      6
+      c8      9
+      c9      9
+      ca      10
+      cd      13
+      ce      13
+      cf      14
+      d2      17
+      d3      17
+      d4      18
+      db      20
+      dc      20
+      dd      20
+      de      20
+      df      20
+      e0      20
+      e4      20
+      e5      23
+      e6      24
+      e7      24
+      e8      24
+      e9      24
+      ea      24
+      eb      24
+      ec      24
+      ed      25
+   }
+}
+
+Lines mapping:
+5 <-> 5
+8 <-> 10
+11 <-> 14
+14 <-> 18
+16 <-> 21
+18 <-> 25
+19 <-> 26

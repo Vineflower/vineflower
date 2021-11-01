@@ -1,0 +1,40 @@
+package pkg;
+
+public class TestConstructorSwitchExpression2 {
+   public TestConstructorSwitchExpression2(int i) {
+      switch(i) {
+      default:
+         this((String)null);// 5 6
+      }
+   }// 8
+
+   public TestConstructorSwitchExpression2(String s) {
+      super();// 10
+   }// 12
+}
+
+class 'pkg/TestConstructorSwitchExpression2' {
+   method '<init> (I)V' {
+      1      4
+      2      4
+      c      6
+      d      6
+      e      6
+      f      6
+      10      8
+   }
+
+   method '<init> (Ljava/lang/String;)V' {
+      1      11
+      2      11
+      3      11
+      4      12
+   }
+}
+
+Lines mapping:
+5 <-> 7
+6 <-> 7
+8 <-> 9
+10 <-> 12
+12 <-> 13

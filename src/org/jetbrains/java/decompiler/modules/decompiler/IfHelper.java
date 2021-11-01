@@ -213,7 +213,7 @@ public final class IfHelper {
               ifparent.setIfEdge(ifedge);
             }
             else {
-              throw new RuntimeException("inconsistent if structure!");
+              throw new IllegalStateException("inconsistent if structure in statement " + ifbranch.value + "!");
             }
 
             // merge if conditions
@@ -433,7 +433,14 @@ public final class IfHelper {
     elsedirect = !last.getAllSuccessorEdges().isEmpty() && last.getAllSuccessorEdges().get(0).getType() == StatEdge.TYPE_FINALLYEXIT ||
                  hasDirectEndEdge(last, from);
 
-    if (!noelsestat && existsPath(ifstat, ifstat.getAllSuccessorEdges().get(0).getDestination())) {
+    List<StatEdge> successors = ifstat.getAllSuccessorEdges();
+
+    if (successors.isEmpty()) {
+      // Can't have no successors- something went wrong horribly somewhere!
+      throw new IllegalStateException("If statement " + ifstat + " has no successors!");
+    }
+
+    if (!noelsestat && existsPath(ifstat, successors.get(0).getDestination())) {
       return false;
     }
 
@@ -503,7 +510,6 @@ public final class IfHelper {
       ifstat.iftype = IfStatement.IFTYPE_IFELSE;
     }
     else if (ifdirect && (!elsedirect || (noifstat && !noelsestat)) && !ifstat.getAllSuccessorEdges().isEmpty()) {  // if - then
-
       // negate the if condition
       IfExprent statexpr = ifstat.getHeadexprent();
       statexpr.setCondition(new FunctionExprent(FunctionExprent.FUNCTION_BOOL_NOT, statexpr.getCondition(), null));

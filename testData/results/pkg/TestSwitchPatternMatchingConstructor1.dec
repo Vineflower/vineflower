@@ -1,0 +1,142 @@
+package pkg;
+
+import java.lang.runtime.SwitchBootstraps;
+
+public class TestSwitchPatternMatchingConstructor1 {
+   private TestSwitchPatternMatchingConstructor1(String s) {
+      System.out.println(s);// 5
+   }// 6
+
+   private TestSwitchPatternMatchingConstructor1(TestSwitchPatternMatchingConstructor1.Shape s) {
+      TestSwitchPatternMatchingConstructor1.Shape var2 = s;
+      byte var3 = 0;
+
+      String var10001;
+      label17:
+      while(true) {
+         switch(SwitchBootstraps.typeSwitch<"typeSwitch",TestSwitchPatternMatchingConstructor1.Triangle,TestSwitchPatternMatchingConstructor1.Triangle>(var2, var3)) {
+         case -1:
+            var10001 = "null";// 12
+            break label17;
+         case 0:
+            TestSwitchPatternMatchingConstructor1.Triangle t = (TestSwitchPatternMatchingConstructor1.Triangle)var2;// 10
+            if (!(t.calculateArea() > 100.0)) {
+               var3 = 1;
+               break;
+            }
+
+            var10001 = "Large triangle";
+            break label17;
+         case 1:
+            TestSwitchPatternMatchingConstructor1.Triangle t = (TestSwitchPatternMatchingConstructor1.Triangle)var2;// 11
+            var10001 = "Small triangle";
+            break label17;
+         default:
+            var10001 = "Non-triangle";// 13
+            break label17;
+         }
+      }
+
+      this(var10001);// 9
+   }// 15
+
+   private abstract class Shape {
+      abstract double calculateArea();
+   }
+
+   private class Triangle extends TestSwitchPatternMatchingConstructor1.Shape {
+      @Override
+      double calculateArea() {
+         return 0.0;// 25
+      }
+   }
+}
+
+class 'pkg/TestSwitchPatternMatchingConstructor1' {
+   method '<init> (Ljava/lang/String;)V' {
+      4      6
+      5      6
+      6      6
+      7      6
+      8      6
+      9      6
+      a      6
+      b      7
+   }
+
+   method '<init> (Lpkg/TestSwitchPatternMatchingConstructor1$Shape;)V' {
+      1      10
+      2      10
+      3      11
+      4      11
+      5      16
+      6      16
+      7      16
+      8      16
+      9      16
+      a      16
+      b      16
+      c      16
+      28      21
+      29      21
+      2a      21
+      2b      21
+      2c      21
+      2d      21
+      2e      22
+      2f      22
+      30      22
+      31      22
+      32      22
+      33      22
+      34      22
+      35      22
+      36      22
+      37      22
+      3a      23
+      3b      23
+      3c      24
+      3f      27
+      40      27
+      41      28
+      44      30
+      45      30
+      46      30
+      47      30
+      48      30
+      49      30
+      4a      31
+      4b      31
+      4c      32
+      4f      18
+      50      18
+      51      19
+      54      34
+      55      34
+      56      35
+      59      39
+      5a      39
+      5b      39
+      5c      40
+   }
+}
+
+class 'pkg/TestSwitchPatternMatchingConstructor1$Triangle' {
+   method 'calculateArea ()D' {
+      0      49
+      1      49
+   }
+}
+
+Lines mapping:
+5 <-> 7
+6 <-> 8
+9 <-> 40
+10 <-> 22
+11 <-> 31
+12 <-> 19
+13 <-> 35
+15 <-> 41
+25 <-> 50
+Not mapped:
+4

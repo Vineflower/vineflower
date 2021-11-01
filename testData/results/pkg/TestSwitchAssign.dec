@@ -19,8 +19,21 @@ public class TestSwitchAssign {
    }// 20
 
    public void test1(String s) {
-      // $FF: Couldn't be decompiled
-   }
+      int assign;
+      switch(s) {// 24
+      case "a":
+      default:
+         assign = 3;// 27
+         break;// 28
+      case "0":
+         assign = -2;// 30
+         break;// 31
+      case "?":
+         assign = 999;// 33
+      }
+
+      System.out.println(assign);// 37
+   }// 38
 }
 
 class 'pkg/TestSwitchAssign' {
@@ -43,6 +56,36 @@ class 'pkg/TestSwitchAssign' {
       35      17
       36      18
    }
+
+   method 'test1 (Ljava/lang/String;)V' {
+      0      22
+      2d      23
+      2e      23
+      3c      27
+      3d      27
+      4b      30
+      4c      30
+      58      22
+      78      25
+      79      25
+      7a      26
+      7d      28
+      7e      28
+      7f      28
+      80      29
+      83      31
+      84      31
+      85      31
+      86      31
+      87      34
+      88      34
+      89      34
+      8a      34
+      8b      34
+      8c      34
+      8d      34
+      8e      35
+   }
 }
 
 Lines mapping:
@@ -53,12 +96,11 @@ Lines mapping:
 15 <-> 15
 19 <-> 18
 20 <-> 19
-Not mapped:
-24
-27
-28
-30
-31
-33
-37
-38
+24 <-> 23
+27 <-> 26
+28 <-> 27
+30 <-> 29
+31 <-> 30
+33 <-> 32
+37 <-> 35
+38 <-> 36

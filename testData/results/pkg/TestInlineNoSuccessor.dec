@@ -1,0 +1,124 @@
+package pkg;
+
+public class TestInlineNoSuccessor {
+   public String[] test(String... args) {
+      for(int i = 0; i != args.length; ++i) {// 6
+         String arg = args[i];// 7
+         if (arg.isEmpty()) {// 9
+            return args;// 10
+         }
+
+         if (!arg.startsWith("--")) {// 11
+            return args;// 29
+         }
+
+         if (arg.startsWith("--a")) {// 12
+            System.out.println(0);// 13
+            if (arg.startsWith("--aa")) {// 15
+               ++i;// 16
+               if (i >= args.length) {// 18
+                  return new String[0];// 33
+               }
+
+               System.out.println(1);// 19
+            }
+
+            System.out.println(2);// 25
+         }
+      }
+
+      return new String[0];
+   }
+}
+
+class 'pkg/TestInlineNoSuccessor' {
+   method 'test ([Ljava/lang/String;)[Ljava/lang/String;' {
+      0      4
+      1      4
+      2      4
+      3      4
+      4      4
+      5      4
+      8      5
+      9      5
+      a      5
+      b      5
+      c      6
+      d      6
+      e      6
+      f      6
+      10      6
+      13      7
+      14      7
+      15      10
+      16      10
+      17      10
+      18      10
+      19      10
+      1a      10
+      1b      10
+      1e      14
+      1f      14
+      20      14
+      21      14
+      22      14
+      23      14
+      24      14
+      27      15
+      28      15
+      29      15
+      2a      15
+      2b      15
+      2c      15
+      2d      15
+      2e      16
+      2f      16
+      30      16
+      31      16
+      32      16
+      33      16
+      34      16
+      37      17
+      38      17
+      39      17
+      3a      18
+      3b      18
+      3c      18
+      3d      18
+      40      22
+      41      22
+      42      22
+      43      22
+      44      22
+      47      25
+      48      25
+      49      25
+      4a      25
+      4b      25
+      4c      25
+      4d      25
+      51      11
+      52      11
+      53      4
+      54      4
+      55      4
+      59      19
+      5d      19
+   }
+}
+
+Lines mapping:
+6 <-> 5
+7 <-> 6
+9 <-> 7
+10 <-> 8
+11 <-> 11
+12 <-> 15
+13 <-> 16
+15 <-> 17
+16 <-> 18
+18 <-> 19
+19 <-> 23
+25 <-> 26
+29 <-> 12
+33 <-> 20

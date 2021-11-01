@@ -57,7 +57,7 @@ public class BytecodeSourceMapper {
         List<Integer> lstBytecodeOffsets = new ArrayList<>(method_mapping.keySet());
         Collections.sort(lstBytecodeOffsets);
 
-        for (Integer offset : lstBytecodeOffsets) {
+        for (int offset : lstBytecodeOffsets) {
           Integer line = method_mapping.get(offset);
 
           String strOffset = offsetsToHex ? Integer.toHexString(offset) : line.toString();
@@ -80,7 +80,7 @@ public class BytecodeSourceMapper {
 
     if (!unmappedLines.isEmpty()) {
       buffer.append("Not mapped:").appendLineSeparator();
-      for (Integer line : unmappedLines) {
+      for (int line : unmappedLines) {
         if (!linesMapping.containsKey(line)) {
           buffer.append(line).appendLineSeparator();
         }

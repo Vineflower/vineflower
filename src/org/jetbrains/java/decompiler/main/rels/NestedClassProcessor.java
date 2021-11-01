@@ -27,8 +27,11 @@ import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.attr.StructEnclosingMethodAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribute.LocalVariable;
+import org.jetbrains.java.decompiler.struct.consts.LinkConstant;
+import org.jetbrains.java.decompiler.struct.consts.PooledConstant;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
+import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
 import org.jetbrains.java.decompiler.util.DotExporter;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 
@@ -232,6 +235,11 @@ public class NestedClassProcessor {
       return;
     }
     MethodWrapper enclosingMethod = parent.getWrapper().getMethods().getWithKey(child.enclosingMethod);
+
+    // Don't process if either methods have decompiled with errors
+    if (enclosingMethod.decompileError != null || method.decompileError != null) {
+      return;
+    }
 
     MethodDescriptor md_lambda = MethodDescriptor.parseDescriptor(child.lambdaInformation.method_descriptor);
     MethodDescriptor md_content = MethodDescriptor.parseDescriptor(child.lambdaInformation.content_method_descriptor);
@@ -489,8 +497,11 @@ public class NestedClassProcessor {
                     }
 
                     mapVarFieldPairs.get(refClassName).put(constructor.getStringDescriptor(), pairMask);
-                    nestedClassNode.enclosingMethod =
-                      InterpreterUtil.makeUniqueKey(method.methodStruct.getName(), method.methodStruct.getDescriptor());
+                    // If there was no EnclosingMethod attribute or it was invalid, replace it
+                    if (nestedClassNode.enclosingMethod == null || node.getWrapper().getMethods().getWithKey(nestedClassNode.enclosingMethod) == null) {
+                      nestedClassNode.enclosingMethod =
+                        InterpreterUtil.makeUniqueKey(method.methodStruct.getName(), method.methodStruct.getDescriptor());
+                    }
                   }
                 }
               }
@@ -567,9 +578,32 @@ public class NestedClassProcessor {
     }
   }
 
+  private static MethodWrapper findEnclosingMethod(ClassNode child) {
+    if (child.enclosingMethod == null) return null;
+    if (child.parent != null) {
+      MethodWrapper fromParent = child.parent.getWrapper().getMethods().getWithKey(child.enclosingMethod);
+      if (fromParent != null) {
+        return fromParent;
+      }
+    }
+    for (String enclosingClassName : child.enclosingClasses) {
+      ClassNode enclosingClass = DecompilerContext.getClassProcessor().getMapRootClasses().get(enclosingClassName);
+      if (enclosingClass != null) {
+        MethodWrapper fromEnclosing = enclosingClass.getWrapper().getMethods().getWithKey(child.enclosingMethod);
+        if (fromEnclosing != null) {
+          return fromEnclosing;
+        }
+      }
+    }
+    if (child.type != ClassNode.CLASS_MEMBER) {
+      DecompilerContext.getLogger().writeMessage("Couldn't find enclosing method \"" + child.enclosingMethod + "\" of " + child.classStruct.qualifiedName + " in " + child.enclosingClasses, IFernflowerLogger.Severity.WARN);
+    }
+    return null;
+  }
+
   private static void insertLocalVars(ClassNode parent, ClassNode child) {
     // enclosing method, is null iff member class
-    MethodWrapper enclosingMethod = parent.getWrapper().getMethods().getWithKey(child.enclosingMethod);
+    MethodWrapper enclosingMethod = findEnclosingMethod(child);
 
     // iterate all child methods
     for (MethodWrapper method : child.getWrapper().getMethods()) {
@@ -640,7 +674,7 @@ public class NestedClassProcessor {
             LocalVariable varLVT = null;
 
             if (classNode.type != ClassNode.CLASS_MEMBER) {
-              MethodWrapper enclosing_method = classNode.parent.getWrapper().getMethods().getWithKey(classNode.enclosingMethod);
+              MethodWrapper enclosing_method = findEnclosingMethod(classNode);
 
               varName = enclosing_method.varproc.getVarName(entry.getValue());
               varType = enclosing_method.varproc.getVarType(entry.getValue());
@@ -1082,20 +1116,19 @@ public class NestedClassProcessor {
           res = classname.equals(((FieldExprent)expr).getClassname());
           break;
         case Exprent.EXPRENT_INVOCATION:
-          res = classname.equals(((InvocationExprent)expr).getClassname());
+          res = containsType(((InvocationExprent) expr), classType);
           break;
         case Exprent.EXPRENT_NEW:
-          VarType newType = ((NewExprent)expr).getNewType();
-          res = newType.type == CodeConstants.TYPE_OBJECT && classname.equals(newType.value);
+          NewExprent newExpr = (NewExprent) expr;
+          VarType newType = newExpr.getNewType();
+          res = newType.type == CodeConstants.TYPE_OBJECT && classname.equals(newType.value) || containsType(newExpr.getConstructor(), classType);
           break;
         case Exprent.EXPRENT_VAR:
           VarExprent varExpr = (VarExprent)expr;
           if (varExpr.isDefinition()) {
-            VarType varType = varExpr.getVarType();
-            if (classType.equals(varType) || (varType.arrayDim > 0 && classType.value.equals(varType.value))) {
-              res = true;
-            }
+            res = containsType(varExpr.getInferredExprType(null), classType);
           }
+          break;
       }
 
       if (res) {
@@ -1103,6 +1136,32 @@ public class NestedClassProcessor {
       }
     }
 
+    return false;
+  }
+
+  private static boolean containsType(InvocationExprent haystack, VarType needle) {
+    if (haystack == null) return false;
+    if (needle.value.equals(haystack.getClassname())) return true;
+    List<PooledConstant> bootstrapArgs = haystack.getBootstrapArguments();
+    if (bootstrapArgs == null) return false;
+    for (PooledConstant bootstrapArg : bootstrapArgs) {
+      if (bootstrapArg instanceof LinkConstant && needle.value.equals(((LinkConstant) bootstrapArg).classname)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private static boolean containsType(VarType haystack, VarType needle) {
+    if (haystack == null || needle == null) return false;
+    if (needle.equals(haystack) || (haystack.arrayDim > 0 && haystack.value.equals(needle.value))) {
+      return true;
+    }
+    if (haystack.isGeneric()) {
+      for (VarType arg : ((GenericType) haystack).getArguments()) {
+        if (containsType(arg, needle)) return true;
+      }
+    }
     return false;
   }
 

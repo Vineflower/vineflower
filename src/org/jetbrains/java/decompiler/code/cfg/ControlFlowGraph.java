@@ -640,7 +640,7 @@ public class ControlFlowGraph implements CodeConstants {
         for (int i = lst.size() - 1; i >= 0; i--) {
 
           BasicBlock child = lst.get(i);
-          Integer childid = child.id;
+          int childid = child.id;
 
           if (mapNewNodes.containsKey(childid)) {
             node.replaceSuccessor(child, mapNewNodes.get(childid));

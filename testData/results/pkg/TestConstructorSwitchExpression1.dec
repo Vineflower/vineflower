@@ -1,0 +1,61 @@
+package pkg;
+
+public class TestConstructorSwitchExpression1 {
+   public TestConstructorSwitchExpression1(int i) {
+      String var10001;
+      switch(i) {
+      case 1:
+         var10001 = "1";// 6
+         break;
+      case 2:
+         var10001 = "3";// 7
+         break;
+      case 3:
+      default:
+         var10001 = "0";// 9
+         break;
+      case 4:
+         var10001 = "5";// 8
+      }
+
+      this(var10001);// 5
+   }// 11
+
+   public TestConstructorSwitchExpression1(String s) {
+   }// 15
+}
+
+class 'pkg/TestConstructorSwitchExpression1' {
+   method '<init> (I)V' {
+      1      5
+      2      5
+      20      7
+      21      7
+      22      8
+      25      10
+      26      10
+      27      11
+      2a      17
+      2b      17
+      2f      14
+      31      20
+      32      20
+      33      20
+      34      21
+   }
+
+   method '<init> (Ljava/lang/String;)V' {
+      4      24
+   }
+}
+
+Lines mapping:
+5 <-> 21
+6 <-> 8
+7 <-> 11
+8 <-> 18
+9 <-> 15
+11 <-> 22
+15 <-> 25
+Not mapped:
+13

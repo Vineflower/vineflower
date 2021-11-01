@@ -8,14 +8,7 @@ public class VarVersionPair {
   public final int var;
   public final int version;
 
-  private int hashCode = -1;
-
   public VarVersionPair(int var, int version) {
-    this.var = var;
-    this.version = version;
-  }
-
-  public VarVersionPair(Integer var, Integer version) {
     this.var = var;
     this.version = version;
   }
@@ -36,10 +29,7 @@ public class VarVersionPair {
 
   @Override
   public int hashCode() {
-    if (hashCode == -1) {
-      hashCode = this.var * 3 + this.version;
-    }
-    return hashCode;
+    return var * 31 + version;
   }
 
   @Override

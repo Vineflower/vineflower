@@ -29,8 +29,25 @@ public final class BytecodeVersion implements Comparable<BytecodeVersion> {
     return major >= MAJOR_5;
   }
 
+  public boolean hasIfPatternMatching() {
+    return major >= MAJOR_16;
+  }
+
   public boolean hasSealedClasses() {
     return previewReleased(MAJOR_15, MAJOR_17);
+  }
+
+  public boolean hasLocalEnumsAndInterfaces() {
+    return major >= MAJOR_16;
+  }
+
+  // Java 4 class references
+  public boolean has14ClassReferences() {
+    return major <= MAJOR_1_4;
+  }
+
+  public boolean hasNewTryWithResources() {
+    return major >= MAJOR_11;
   }
 
   private boolean previewFrom(int previewStart) {

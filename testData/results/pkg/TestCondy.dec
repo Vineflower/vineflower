@@ -1,0 +1,65 @@
+package pkg;
+
+import java.lang.invoke.ConstantBootstraps;
+import java.lang.invoke.MethodHandles.Lookup;
+import java.nio.file.StandardOpenOption;
+
+public class TestCondy {
+   public static String testNull() {
+      return (String)ConstantBootstraps.nullConstant<"null">();// 9 10
+   }
+
+   public static FakeEnum testNull() {
+      return (FakeEnum)ConstantBootstraps.enumConstant<"FOO">();// 16 17
+   }
+
+   public static StandardOpenOption test(int var0) {
+      return (StandardOpenOption[])TestConstantDynamic.getValues<"EnumC$Values">()[var0];// 23 27 28 29
+   }
+
+   public static StandardOpenOption[] getValues(Lookup var0, String var1, Class var2) {
+      return StandardOpenOption.values();// 35 36
+   }
+}
+
+class 'pkg/TestCondy' {
+   method 'testNull ()Ljava/lang/String;' {
+      0      8
+      1      8
+      2      8
+   }
+
+   method 'testNull ()Lpkg/FakeEnum;' {
+      0      12
+      1      12
+      2      12
+   }
+
+   method 'test (I)Ljava/nio/file/StandardOpenOption;' {
+      0      16
+      1      16
+      2      16
+      3      16
+      4      16
+      5      16
+   }
+
+   method 'getValues (Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/Class;)[Ljava/nio/file/StandardOpenOption;' {
+      0      20
+      1      20
+      2      20
+      3      20
+   }
+}
+
+Lines mapping:
+9 <-> 9
+10 <-> 9
+16 <-> 13
+17 <-> 13
+23 <-> 17
+27 <-> 17
+28 <-> 17
+29 <-> 17
+35 <-> 21
+36 <-> 21
