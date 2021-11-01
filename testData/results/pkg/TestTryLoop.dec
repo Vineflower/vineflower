@@ -23,13 +23,13 @@ public class TestTryLoop {
    public boolean hasNext(Path param1, Iterator<File> param2) {
       // $FF: Couldn't be decompiled
       // java.lang.RuntimeException: computing post reverse post order failed!
-      //   at org.jetbrains.java.decompiler.modules.decompiler.stats.Statement.getPostReversePostOrderList(Statement.java:450)
-      //   at org.jetbrains.java.decompiler.modules.decompiler.stats.Statement.getPostReversePostOrderList(Statement.java:431)
-      //   at org.jetbrains.java.decompiler.modules.decompiler.DomHelper.findSimpleStatements(DomHelper.java:597)
-      //   at org.jetbrains.java.decompiler.modules.decompiler.DomHelper.processStatement(DomHelper.java:366)
-      //   at org.jetbrains.java.decompiler.modules.decompiler.DomHelper.processStatement(DomHelper.java:315)
-      //   at org.jetbrains.java.decompiler.modules.decompiler.DomHelper.parseGraph(DomHelper.java:210)
-      //   at org.jetbrains.java.decompiler.main.rels.MethodProcessorRunnable.codeToJava(MethodProcessorRunnable.java:128)
+      //   at org.jetbrains.java.decompiler.modules.decompiler.stats.Statement.getPostReversePostOrderList(Statement.java:458)
+      //   at org.jetbrains.java.decompiler.modules.decompiler.stats.Statement.getPostReversePostOrderList(Statement.java:439)
+      //   at org.jetbrains.java.decompiler.modules.decompiler.DomHelper.findSimpleStatements(DomHelper.java:599)
+      //   at org.jetbrains.java.decompiler.modules.decompiler.DomHelper.processStatement(DomHelper.java:368)
+      //   at org.jetbrains.java.decompiler.modules.decompiler.DomHelper.processStatement(DomHelper.java:317)
+      //   at org.jetbrains.java.decompiler.modules.decompiler.DomHelper.parseGraph(DomHelper.java:208)
+      //   at org.jetbrains.java.decompiler.main.rels.MethodProcessorRunnable.codeToJava(MethodProcessorRunnable.java:133)
       //
       // Bytecode:
       // 00: aload 1

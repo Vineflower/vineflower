@@ -24,7 +24,7 @@ public class JrtFinder {
       URI objectUri = objectUrl.toURI();
       switch (objectUri.getScheme()) {
         case "jar":
-          String fileUri = objectUri.getSchemeSpecificPart();
+          String fileUri = objectUri.getRawSchemeSpecificPart();
           fileUri = fileUri.substring(0, fileUri.indexOf('!'));
           Path jarPath = Paths.get(new URI(fileUri));
           ctx.addSpace(jarPath.toFile(), false);
