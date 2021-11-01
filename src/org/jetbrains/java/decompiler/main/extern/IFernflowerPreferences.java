@@ -63,6 +63,7 @@ public interface IFernflowerPreferences {
 
   String WARN_INCONSISTENT_INNER_CLASSES = "win";
   String DUMP_BYTECODE_ON_ERROR = "dbe";
+  String STUB_MODE = "stb";
 
   Map<String, Object> DEFAULTS = getDefaults();
 
@@ -116,6 +117,7 @@ public interface IFernflowerPreferences {
     defaults.put(SKIP_EXTRA_FILES, "0");
     defaults.put(WARN_INCONSISTENT_INNER_CLASSES, "1");
     defaults.put(DUMP_BYTECODE_ON_ERROR, "1");
+    defaults.put(STUB_MODE, "0");
 
     return Collections.unmodifiableMap(defaults);
   }

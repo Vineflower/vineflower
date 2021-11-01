@@ -19,17 +19,24 @@ import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public final class InitializerProcessor {
   public static void extractInitializers(ClassWrapper wrapper) {
+    if (DecompilerContext.getOption(IFernflowerPreferences.STUB_MODE)) {
+      for (StructField field : wrapper.getClassStruct().getFields()) {
+        VarType type = new VarType(field.getDescriptor());
+        boolean obj = type.typeFamily == CodeConstants.TYPE_FAMILY_OBJECT;
+        ConstExprent constExprent = new ConstExprent(obj ? VarType.VARTYPE_NULL : VarType.VARTYPE_INT, obj ? null : 0, new BitSet());
+        String key = InterpreterUtil.makeUniqueKey(field.getName(), field.getDescriptor());
+        if (field.hasModifier(CodeConstants.ACC_STATIC)) {
+          wrapper.getStaticFieldInitializers().addWithKey(constExprent, key);
+        } else {
+          wrapper.getDynamicFieldInitializers().addWithKey(constExprent, key);
+        }
+      }
+      return;
+    }
     MethodWrapper method = wrapper.getMethodWrapper(CodeConstants.CLINIT_NAME, "()V");
     try {
       if (method != null && method.root != null) {  // successfully decompiled static constructor
