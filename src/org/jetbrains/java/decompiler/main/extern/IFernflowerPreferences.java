@@ -36,6 +36,8 @@ public interface IFernflowerPreferences {
   String VERIFY_ANONYMOUS_CLASSES = "vac";
   String TERNARY_CONSTANT_SIMPLIFICATION = "tcs";
   String PATTERN_MATCHING = "pam";
+  String EXPERIMENTAL_TRY_LOOP_FIX = "tlf";
+  String TERNARY_CONDITIONS = "tco";
 
   String INCLUDE_ENTIRE_CLASSPATH = "iec";
   String INCLUDE_JAVA_RUNTIME = "jrt";
@@ -96,7 +98,9 @@ public interface IFernflowerPreferences {
     defaults.put(IGNORE_INVALID_BYTECODE, "0");
     defaults.put(VERIFY_ANONYMOUS_CLASSES, "0");
     defaults.put(TERNARY_CONSTANT_SIMPLIFICATION, "0");
-    defaults.put(PATTERN_MATCHING, "0");
+    defaults.put(PATTERN_MATCHING, "0"); // Pattern matching has some issues around negative blocks
+    defaults.put(EXPERIMENTAL_TRY_LOOP_FIX, "0"); // Causes issues when decompiling certain classes
+    defaults.put(TERNARY_CONDITIONS, "1"); // Ternary conditions are pretty stable so they can go in here
 
     defaults.put(INCLUDE_ENTIRE_CLASSPATH, "0");
     defaults.put(INCLUDE_JAVA_RUNTIME, "0");

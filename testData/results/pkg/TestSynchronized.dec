@@ -33,52 +33,22 @@ public class TestSynchronized {
       System.out.println(o);// 31
    }// 32
 
-   public void test5(int param1) {
-      // $FF: Couldn't be decompiled
-      // java.lang.RuntimeException: parsing failure!
-      //   at org.jetbrains.java.decompiler.modules.decompiler.DomHelper.parseGraph(DomHelper.java:211)
-      //   at org.jetbrains.java.decompiler.main.rels.MethodProcessorRunnable.codeToJava(MethodProcessorRunnable.java:133)
-      //
-      // Bytecode:
-      // 00: aload 0
-      // 01: dup
-      // 02: astore 2
-      // 03: monitorenter
-      // 04: iload 1
-      // 05: iload 1
-      // 06: if_icmplt 10
-      // 09: aload 0
-      // 0a: invokevirtual java/lang/Object.wait ()V
-      // 0d: goto 04
-      // 10: aload 2
-      // 11: monitorexit
-      // 12: goto 1a
-      // 15: astore 3
-      // 16: aload 2
-      // 17: monitorexit
-      // 18: aload 3
-      // 19: athrow
-      // 1a: aload 0
-      // 1b: dup
-      // 1c: astore 2
-      // 1d: monitorenter
-      // 1e: aload 0
-      // 1f: invokevirtual java/lang/Object.notifyAll ()V
-      // 22: aload 2
-      // 23: monitorexit
-      // 24: goto 2e
-      // 27: astore 4
-      // 29: aload 2
-      // 2a: monitorexit
-      // 2b: aload 4
-      // 2d: athrow
-      // 2e: goto 00
-      // 31: astore 2
-      // 32: new java/lang/RuntimeException
-      // 35: dup
-      // 36: aload 2
-      // 37: invokespecial java/lang/RuntimeException.<init> (Ljava/lang/Throwable;)V
-      // 3a: athrow
+   public void test5(int i) {
+      try {
+         while(true) {
+            synchronized(this) {// 37
+               while(i >= i) {// 38
+                  this.wait();// 39
+               }
+            }
+
+            synchronized(this) {// 43
+               this.notifyAll();// 44
+            }// 45
+         }
+      } catch (Exception var7) {// 47
+         throw new RuntimeException(var7);// 48
+      }
    }
 }
 
@@ -143,6 +113,27 @@ class 'pkg/TestSynchronized' {
       25      32
       26      33
    }
+
+   method 'test5 (I)V' {
+      0      38
+      3      38
+      4      39
+      5      39
+      6      39
+      9      40
+      a      40
+      b      40
+      c      40
+      1a      44
+      1d      44
+      1e      45
+      1f      45
+      20      45
+      21      45
+      23      46
+      31      48
+      3a      49
+   }
 }
 
 Lines mapping:
@@ -162,15 +153,15 @@ Lines mapping:
 30 <-> 31
 31 <-> 33
 32 <-> 34
+37 <-> 39
+38 <-> 40
+39 <-> 41
+43 <-> 45
+44 <-> 46
+45 <-> 47
+47 <-> 49
+48 <-> 50
 Not mapped:
 7
 13
-37
-38
-39
 41
-43
-44
-45
-47
-48

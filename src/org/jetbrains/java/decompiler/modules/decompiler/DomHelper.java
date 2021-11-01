@@ -6,6 +6,7 @@ import org.jetbrains.java.decompiler.code.cfg.ControlFlowGraph;
 import org.jetbrains.java.decompiler.code.cfg.ExceptionRangeCFG;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
+import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.modules.decompiler.decompose.FastExtendedPostdominanceHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.deobfuscator.IrreducibleCFGDeobfuscator;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
@@ -45,14 +46,17 @@ public final class DomHelper {
       return root;
     }
 
-    // Check if the first block in the graph is covered by an exception range.
-    // If it is, we need to avoid setting the edge type to continue, as that causes problems later down the line.
-    // TODO: should this be a fernflower preference?
     boolean firstIsException = false;
-    for (ExceptionRangeCFG exception : graph.getExceptions()) {
-      if (exception.getProtectedRange().contains(firstblock)) {
-        firstIsException = true;
-        break;
+
+    if (DecompilerContext.getOption(IFernflowerPreferences.EXPERIMENTAL_TRY_LOOP_FIX)) {
+      // Check if the first block in the graph is covered by an exception range.
+      // If it is, we need to avoid setting the edge type to continue, as that causes problems later down the line.
+
+      for (ExceptionRangeCFG exception : graph.getExceptions()) {
+        if (exception.getProtectedRange().contains(firstblock)) {
+          firstIsException = true;
+          break;
+        }
       }
     }
 

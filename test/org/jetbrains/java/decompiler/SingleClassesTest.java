@@ -199,11 +199,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: continue still exists in loop
     register(JAVA_8, "TestWhileTernary10");
 
-    register(JAVA_8, "TestTryLoop");
-    register(JAVA_8, "TestTryLoopRecompile");
-    register(JAVA_8, "TestTryLoopSimpleFinally");
-    // TODO: Still doesn't properly decompile, loop needs to be in the try block
-    register(JAVA_8, "TestTryLoopReturnFinally");
     register(JAVA_8, "TestOperatorPrecedence");
     register(JAVA_8, "TestMultipleStaticBlocks");
     register(JAVA_8, "TestTrySynchronized");

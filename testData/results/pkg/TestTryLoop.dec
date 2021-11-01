@@ -25,10 +25,10 @@ public class TestTryLoop {
       // java.lang.RuntimeException: computing post reverse post order failed!
       //   at org.jetbrains.java.decompiler.modules.decompiler.stats.Statement.getPostReversePostOrderList(Statement.java:458)
       //   at org.jetbrains.java.decompiler.modules.decompiler.stats.Statement.getPostReversePostOrderList(Statement.java:439)
-      //   at org.jetbrains.java.decompiler.modules.decompiler.DomHelper.findSimpleStatements(DomHelper.java:599)
-      //   at org.jetbrains.java.decompiler.modules.decompiler.DomHelper.processStatement(DomHelper.java:368)
-      //   at org.jetbrains.java.decompiler.modules.decompiler.DomHelper.processStatement(DomHelper.java:317)
-      //   at org.jetbrains.java.decompiler.modules.decompiler.DomHelper.parseGraph(DomHelper.java:208)
+      //   at org.jetbrains.java.decompiler.modules.decompiler.DomHelper.findSimpleStatements(DomHelper.java:603)
+      //   at org.jetbrains.java.decompiler.modules.decompiler.DomHelper.processStatement(DomHelper.java:372)
+      //   at org.jetbrains.java.decompiler.modules.decompiler.DomHelper.processStatement(DomHelper.java:321)
+      //   at org.jetbrains.java.decompiler.modules.decompiler.DomHelper.parseGraph(DomHelper.java:212)
       //   at org.jetbrains.java.decompiler.main.rels.MethodProcessorRunnable.codeToJava(MethodProcessorRunnable.java:133)
       //
       // Bytecode:

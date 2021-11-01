@@ -164,6 +164,7 @@ public class MethodProcessorRunnable implements Runnable {
     ClearStructHelper.clearStatements(root);
     decompileRecord.add("ClearStatements", root);
 
+    // Put exprents in statements
     ExprProcessor proc = new ExprProcessor(md, varProc);
     proc.processStatement(root, cl);
     decompileRecord.add("ProcessStatement", root);
@@ -173,6 +174,7 @@ public class MethodProcessorRunnable implements Runnable {
 
     StackVarsProcessor stackProc = new StackVarsProcessor();
 
+    // Process and simplify variables on the stack
     int stackVarsProcessed = 0;
     do {
       stackVarsProcessed++;
@@ -184,13 +186,17 @@ public class MethodProcessorRunnable implements Runnable {
       decompileRecord.add("SetVarVersions_PPMM_" + stackVarsProcessed, root);
     } while (new PPandMMHelper(varProc).findPPandMM(root));
 
+    // Process invokedynamic string concat
     if (cl.getVersion().hasIndyStringConcat()) {
       ConcatenationHelper.simplifyStringConcat(root);
       decompileRecord.add("SimplifyStringConcat", root);
     }
 
-    if (TernaryProcessor.processTernary(root)) {
-      decompileRecord.add("ProcessTernary", root);
+    // Process ternary values
+    if (DecompilerContext.getOption(IFernflowerPreferences.TERNARY_CONDITIONS)) {
+      if (TernaryProcessor.processTernary(root)) {
+        decompileRecord.add("ProcessTernary", root);
+      }
     }
 
     // Main loop

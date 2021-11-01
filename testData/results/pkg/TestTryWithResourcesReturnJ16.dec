@@ -38,7 +38,7 @@ public class TestTryWithResourcesReturnJ16 {
    public Scanner testFinallyNested(File param1) {
       // $FF: Couldn't be decompiled
       // java.lang.RuntimeException: parsing failure!
-      //   at org.jetbrains.java.decompiler.modules.decompiler.DomHelper.parseGraph(DomHelper.java:211)
+      //   at org.jetbrains.java.decompiler.modules.decompiler.DomHelper.parseGraph(DomHelper.java:215)
       //   at org.jetbrains.java.decompiler.main.rels.MethodProcessorRunnable.codeToJava(MethodProcessorRunnable.java:146)
       //
       // Bytecode:
