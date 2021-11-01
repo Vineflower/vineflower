@@ -301,7 +301,7 @@ public class DotExporter {
       case 5: return "Do";
       case 6: return "Switch";
       case 7: return "Try Catch";
-      case 8: return "Basic Block #" + ((BasicBlockStatement)st).getBlock().id;
+      case 8: return "Basic Block #" + ((BasicBlockStatement)st).getBlock().getDebugId();
       case 10: return "Synchronized";
       case 11: return "Placeholder";
       case 12: return "Catch All";
@@ -343,7 +343,7 @@ public class DotExporter {
 
     List<BasicBlock> blocks = graph.getBlocks();
     for (BasicBlock block : blocks) {
-      buffer.append(block.id + " [shape=box,label=\"Block " + block.id + "\n" + block.getSeq() + "\"];\r\n");
+      buffer.append(block.getDebugId() + " [shape=box,label=\"Block " + block.getDebugId() + "\n" + block.getSeq() + "\"];\r\n");
 
       List<BasicBlock> suc = block.getSuccs();
       List<BasicBlock> preds = block.getPreds();
@@ -355,11 +355,11 @@ public class DotExporter {
 //      }
 
       for (BasicBlock basicBlock : suc) {
-        buffer.append(block.id + " -> " + basicBlock.id + ";\r\n");
+        buffer.append(block.getDebugId() + " -> " + basicBlock.getDebugId() + ";\r\n");
       }
 
 //      for (BasicBlock pred : preds) {
-//        buffer.append(block.id + " -> " + pred.id + " [color=blue];\r\n");
+//        buffer.append(block.getDebugId() + " -> " + pred.getDebugId() + " [color=blue];\r\n");
 //      }
 
       suc = block.getSuccExceptions();
@@ -372,19 +372,19 @@ public class DotExporter {
 //      }
 
       for (int j = 0; j < suc.size(); j++) {
-        buffer.append(block.id + " -> " + suc.get(j).id + " [style=dotted];\r\n");
+        buffer.append(block.getDebugId() + " -> " + suc.get(j).getDebugId() + " [style=dotted];\r\n");
       }
 
 //      for (BasicBlock pred : preds) {
-//        buffer.append(block.id + " -> " + pred.id + " [color=blue,style=dotted];\r\n");
+//        buffer.append(block.getDebugId() + " -> " + pred.getDebugId() + " [color=blue,style=dotted];\r\n");
 //      }
     }
 
     for (int i = 0; i < graph.getExceptions().size(); i++) {
       ExceptionRangeCFG ex = graph.getExceptions().get(i);
-      buffer.append("subgraph cluster_ex_" + i + " {\r\n\tlabel=\"Exception range for Block " + ex.getHandler().id + " \";\r\n");
+      buffer.append("subgraph cluster_ex_" + i + " {\r\n\tlabel=\"Exception range for Block " + ex.getHandler().getDebugId() + " \";\r\n");
       for (BasicBlock bb : ex.getProtectedRange()) {
-        buffer.append("\t" + bb.id + ";\r\n");
+        buffer.append("\t" + bb.getDebugId() + ";\r\n");
       }
       buffer.append("\t}\r\n");
     }
@@ -445,28 +445,26 @@ public class DotExporter {
 
     buffer.append("digraph G {\r\n");
 
-    List<DirectNode> blocks = graph.nodes;
-    for(int i=0;i<blocks.size();i++) {
-      DirectNode block = blocks.get(i);
-
-      StringBuilder label = new StringBuilder(block.id);
-      if (vars != null && vars.containsKey(block.id)) {
-        SFormsFastMapDirect map = vars.get(block.id);
+    List<DirectNode> nodes = graph.nodes;
+    for (DirectNode node : nodes) {
+      StringBuilder label = new StringBuilder(node.id);
+      if (vars != null && vars.containsKey(node.id)) {
+        SFormsFastMapDirect map = vars.get(node.id);
 
         List<Entry<Integer, FastSparseSet<Integer>>> lst = map.entryList();
         if (lst != null) {
           for (Entry<Integer, FastSparseSet<Integer>> entry : lst) {
             label.append("\\n").append(entry.getKey());
             Set<Integer> set = entry.getValue().toPlainSet();
-            label.append("=").append(set.toString());
+            label.append("=").append(set);
           }
         }
       }
 
-      buffer.append(directBlockIdToDot(block.id)+" [shape=box,label=\""+label+"\"];\r\n");
+      buffer.append(directBlockIdToDot(node.id) + " [shape=box,label=\"" + label + "\"];\r\n");
 
-      for(DirectNode dest: block.succs) {
-        buffer.append(directBlockIdToDot(block.id)+"->"+directBlockIdToDot(dest.id)+";\r\n");
+      for (DirectNode dest : node.succs) {
+        buffer.append(directBlockIdToDot(node.id) + "->" + directBlockIdToDot(dest.id) + ";\r\n");
       }
     }
 

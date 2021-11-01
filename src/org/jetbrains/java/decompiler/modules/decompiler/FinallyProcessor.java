@@ -483,12 +483,7 @@ public class FinallyProcessor {
     startBlocks.remove(graph.getLast());
     startBlocks.removeAll(tryBlocks);
     List<BasicBlock> starts = new ArrayList<BasicBlock>(startBlocks);
-    Collections.sort(starts, new Comparator<BasicBlock>() {
-      @Override
-      public int compare(BasicBlock o1, BasicBlock o2) {
-        return o2.id - o1.id;
-      }
-    });
+    starts.sort(BasicBlock.COMPARE_BY_ID);
 
     List<Area> lstAreas = new ArrayList<>();
 
@@ -517,12 +512,7 @@ public class FinallyProcessor {
 
     List<Entry<BasicBlock, Boolean>> lasts = new ArrayList<Entry<BasicBlock, Boolean>>(mapLast.entrySet());
     // We must sort here to prevent decompile differences deriving from hash maps.
-    Collections.sort(lasts, new Comparator<Entry<BasicBlock, Boolean>>() {
-      @Override
-      public int compare(Entry<BasicBlock, Boolean> o1, Entry<BasicBlock, Boolean> o2) {
-        return o1.getKey().id - o2.getKey().id;
-      }
-    });
+    lasts.sort(Entry.comparingByKey(BasicBlock.COMPARE_BY_ID));
 
     // INFO: empty basic blocks may remain in the graph!
     for (Entry<BasicBlock, Boolean> entry : lasts) {
@@ -666,7 +656,7 @@ public class FinallyProcessor {
 
         for (BasicBlock succ : setSuccs) {
           if (graph.getLast() != succ) { // FIXME: why?
-            mapNext.put(blockSample.id + "#" + succ.id, new BasicBlock[]{blockSample, succ, isTrueLastBlock ? succ : null});
+            mapNext.put(blockSample.getDebugId() + "#" + succ.getDebugId(), new BasicBlock[]{blockSample, succ, isTrueLastBlock ? succ : null});
           }
         }
       }

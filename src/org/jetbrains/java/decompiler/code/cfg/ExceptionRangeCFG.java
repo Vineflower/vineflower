@@ -43,10 +43,10 @@ public class ExceptionRangeCFG {
 
     buf.append(new_line_separator);
 
-    buf.append("handler: ").append(handler.id).append(new_line_separator);
+    buf.append("handler: ").append(handler.getDebugId()).append(new_line_separator);
     buf.append("range: ");
     for (BasicBlock block : protectedRange) {
-      buf.append(block.id).append(" ");
+      buf.append(block.getDebugId()).append(" ");
     }
     buf.append(new_line_separator);
 

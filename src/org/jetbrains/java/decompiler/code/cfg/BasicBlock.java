@@ -8,6 +8,7 @@ import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.modules.decompiler.decompose.IGraphNode;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class BasicBlock implements IGraphNode {
@@ -18,6 +19,8 @@ public class BasicBlock implements IGraphNode {
 
   public int id;
   public int mark = 0;
+
+  public static final Comparator<BasicBlock> COMPARE_BY_ID = Comparator.comparingInt(o -> o.id);
 
   // *****************************************************************************
   // private fields
@@ -95,6 +98,10 @@ public class BasicBlock implements IGraphNode {
 
   // FIXME: unify block comparisons: id or direct equality
   public void replaceSuccessor(BasicBlock oldBlock, BasicBlock newBlock) {
+    if (oldBlock.equals(newBlock)) {
+      return;
+    }
+
     for (int i = 0; i < succs.size(); i++) {
       if (succs.get(i).id == oldBlock.id) {
         succs.set(i, newBlock);
@@ -140,7 +147,7 @@ public class BasicBlock implements IGraphNode {
 
     String new_line_separator = DecompilerContext.getNewLineSeparator();
 
-    return id + ":" + new_line_separator + seq.toString(indent);
+    return this.id + ":" + new_line_separator + this.seq.toString(indent);
   }
 
   public boolean isSuccessor(BasicBlock block) {
@@ -158,6 +165,13 @@ public class BasicBlock implements IGraphNode {
 
   public List<Integer> getInstrOldOffsets() {
     return instrOldOffsets;
+  }
+
+  /**
+   * Only used for printing debugging strings
+   */
+  public int getDebugId() {
+    return this.id;
   }
 
   @Override
