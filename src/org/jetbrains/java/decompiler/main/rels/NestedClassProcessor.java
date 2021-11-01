@@ -237,7 +237,7 @@ public class NestedClassProcessor {
     MethodWrapper enclosingMethod = parent.getWrapper().getMethods().getWithKey(child.enclosingMethod);
 
     // Don't process if either methods have decompiled with errors
-    if (enclosingMethod.decompiledWithErrors || method.decompiledWithErrors) {
+    if (enclosingMethod.decompileError != null || method.decompileError != null) {
       return;
     }
 
