@@ -30,4 +30,23 @@ public class TestWhileTernary10 {
     doubles.forEach(d -> ds[0] -= d);
     return ds[0];
   }
+
+  public double test2(boolean condition, int n, Stream<Double> doubles) {
+    double[] ds = new double[]{n};
+
+    for (int i = 0; condition ? i >= n : n >= i; i++) {
+      for (int j = 0; j < n; j++) {
+        for (int k = 0; k < i; k++) {
+          System.out.println(1);
+
+          if (j > i) {
+            j++;
+          }
+        }
+      }
+    }
+
+    doubles.forEach(d -> ds[0] -= d);
+    return ds[0];
+  }
 }

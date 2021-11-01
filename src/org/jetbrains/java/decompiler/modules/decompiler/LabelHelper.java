@@ -57,7 +57,7 @@ public final class LabelHelper {
               lst.addAll(((SwitchStatement)parent).getCaseStatements());
             }
 
-            for (int i = 0; i < lst.size(); i++) {
+            for (int i = 1; i < lst.size(); i++) {
               if (lst.get(i) == dest) {
                 lst.get(i - 1).addLabeledEdge(edge);
                 break;

@@ -121,8 +121,14 @@ public final class TernaryProcessor {
           stats.add(st);
         }
 
-        List<StatEdge> preds = parent.getStats().getLast().getAllSuccessorEdges();
-        destEdge = preds.isEmpty() ? null : preds.get(0);
+        List<StatEdge> succs = parent.getStats().getLast().getAllSuccessorEdges();
+        destEdge = succs.isEmpty() ? null : succs.get(0);
+
+        // fun hack! if we know that we're enclosed in a loop, we can construct a dummy continue edge that flows back into the parent.
+        // This fixes stray continue labels in loops that have loops at the end [TestWhileTernary10#test2]
+        if (destEdge == null && closure != null && closure.type == Statement.TYPE_DO) {
+          destEdge = new StatEdge(StatEdge.TYPE_CONTINUE, statement, closure, closure.getParent());
+        }
 
         labelsNeedRemoving.addAll(stats);
         SequenceStatement seq = new SequenceStatement(stats);
@@ -195,6 +201,7 @@ public final class TernaryProcessor {
 
       // Add edge from first statement to if body
       StatEdge edgetoDest = new StatEdge(StatEdge.TYPE_REGULAR, statement.getFirst(), destination);
+      // No successors at this point
       statement.getFirst().addSuccessor(edgetoDest);
       statement.setIfEdge(edgetoDest);
 
@@ -208,7 +215,26 @@ public final class TernaryProcessor {
 
         // Add control flow between the if statement and the destination's next statement
         boolean isReturnEdge = destEdge.getDestination().type == Statement.TYPE_DUMMYEXIT;
-        statement.addSuccessor(new StatEdge(isReturnEdge ? StatEdge.TYPE_BREAK : StatEdge.TYPE_REGULAR, statement, destEdge.getDestination(), isReturnEdge ? null : parent));
+
+        List<StatEdge> regEdges = statement.getSuccessorEdges(StatEdge.TYPE_REGULAR);
+        for (StatEdge regEdge : regEdges) {
+          if (statement.containsStatement(regEdge.getDestination())) {
+            statement.removeSuccessor(regEdge);
+          }
+        }
+
+        if (isReturnEdge) {
+          statement.addSuccessor(new StatEdge(StatEdge.TYPE_BREAK, statement, destEdge.getDestination()));
+        } else {
+          StatEdge edge = new StatEdge(destEdge.getType(), statement, destEdge.getDestination(), destEdge.getDestination().getParent());
+
+          // If the edge from the destination is a continue, modify to break- if keep it as continue then it'll create a double continue and cause problems
+          if (destEdge.getType() == StatEdge.TYPE_CONTINUE) {
+            edge.setType(StatEdge.TYPE_BREAK);
+          }
+
+          statement.addSuccessor(edge);
+        }
       }
 
       for (StatEdge label : new HashSet<>(parent.getLabelEdges())) {

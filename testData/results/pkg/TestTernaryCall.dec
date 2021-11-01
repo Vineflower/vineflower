@@ -19,8 +19,8 @@ public class TestTernaryCall {
                }
 
                var10001 = false;
-               break label25;
             }
+            break label25;
          }
 
          var10001 = true;
