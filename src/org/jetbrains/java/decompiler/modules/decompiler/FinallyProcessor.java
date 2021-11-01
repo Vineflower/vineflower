@@ -28,63 +28,66 @@ import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
+import org.jetbrains.java.decompiler.util.ListStack;
 
 import java.util.*;
 import java.util.Map.Entry;
 
 public class FinallyProcessor {
-  private final Map<Integer, Integer> finallyBlockIDs = new HashMap<>();
-  private final Map<Integer, Integer> catchallBlockIDs = new HashMap<>();
+  private final Map<BasicBlock, Integer> finallyBlocks = new HashMap<>();
+  // seems to store catch-alls that can't be converted to a finally
+  private final Set<BasicBlock> catchallBlocks = new HashSet<>();
 
   private final MethodDescriptor methodDescriptor;
   private final VarProcessor varProcessor;
 
   public FinallyProcessor(MethodDescriptor md, VarProcessor varProc) {
-    methodDescriptor = md;
-    varProcessor = varProc;
+    this.methodDescriptor = md;
+    this.varProcessor = varProc;
   }
 
   public boolean iterateGraph(StructClass cl, StructMethod mt, RootStatement root, ControlFlowGraph graph) {
     BytecodeVersion bytecodeVersion = mt.getBytecodeVersion();
 
-    LinkedList<Statement> stack = new LinkedList<>();
+    ListStack<Statement> stack = new ListStack<>();
     stack.add(root);
 
     while (!stack.isEmpty()) {
-      Statement stat = stack.removeLast();
+      Statement stat = stack.pop();
 
       Statement parent = stat.getParent();
-      if (parent != null && parent.type == Statement.TYPE_CATCHALL &&
-          stat == parent.getFirst() && !parent.isCopied()) {
+      if (parent != null
+        && parent.type == Statement.TYPE_CATCHALL
+        && stat == parent.getFirst()
+        && !parent.isCopied()) {
 
-        CatchAllStatement fin = (CatchAllStatement)parent;
+        CatchAllStatement fin = (CatchAllStatement) parent;
         BasicBlock head = fin.getBasichead().getBlock();
         BasicBlock handler = fin.getHandler().getBasichead().getBlock();
 
-        if (catchallBlockIDs.containsKey(handler.id)) {
+        //noinspection StatementWithEmptyBody
+        if (this.catchallBlocks.contains(handler)) {
           // do nothing
-        }
-        else if (finallyBlockIDs.containsKey(handler.id)) {
+        } else if (this.finallyBlocks.containsKey(handler)) {
           fin.setFinally(true);
 
-          Integer var = finallyBlockIDs.get(handler.id);
-          fin.setMonitor(var == null ? null : new VarExprent(var, VarType.VARTYPE_INT, varProcessor));
-        }
-        else {
-          Record inf = getFinallyInformation(cl, mt, root, fin);
+          Integer var = this.finallyBlocks.get(handler);
+          fin.setMonitor(var == null ? null : new VarExprent(var, VarType.VARTYPE_INT, this.varProcessor));
+        } else {
+          Record inf = this.getFinallyInformation(cl, mt, root, fin);
 
           if (inf == null) { // inconsistent finally
-            catchallBlockIDs.put(handler.id, null);
-          }
-          else {
-            if (DecompilerContext.getOption(IFernflowerPreferences.FINALLY_DEINLINE) && verifyFinallyEx(graph, fin, inf)) {
-              finallyBlockIDs.put(handler.id, null);
-            }
-            else {
+            this.catchallBlocks.add(handler);
+          } else {
+            if (
+              DecompilerContext.getOption(IFernflowerPreferences.FINALLY_DEINLINE) &&
+                this.verifyFinallyEx(graph, fin, inf)) {
+              this.finallyBlocks.put(handler, null);
+            } else {
               int varIndex = DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.VAR_COUNTER);
               insertSemaphore(graph, getAllBasicBlocks(fin.getFirst()), head, handler, varIndex, inf, bytecodeVersion);
 
-              finallyBlockIDs.put(handler.id, varIndex);
+              this.finallyBlocks.put(handler, varIndex);
             }
 
             DeadCodeHelper.removeDeadBlocks(graph); // e.g. multiple return blocks after a nested finally
