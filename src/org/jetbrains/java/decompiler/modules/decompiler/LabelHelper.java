@@ -57,7 +57,7 @@ public final class LabelHelper {
               lst.addAll(((SwitchStatement)parent).getCaseStatements());
             }
 
-            for (int i = 0; i < lst.size(); i++) {
+            for (int i = 1; i < lst.size(); i++) {
               if (lst.get(i) == dest) {
                 lst.get(i - 1).addLabeledEdge(edge);
                 break;
@@ -72,6 +72,7 @@ public final class LabelHelper {
     }
   }
 
+  // Removes any breaks and continues from statements that can't have edges to basic blocks
   private static void removeNonImmediateEdges(Statement stat) {
 
     for (Statement st : stat.getStats()) {
@@ -142,6 +143,7 @@ public final class LabelHelper {
     }
   }
 
+  // Makes all edges explicit and labeled for further processing
   private static void resetAllEdges(Statement stat) {
 
     for (Statement st : stat.getStats()) {
@@ -154,6 +156,7 @@ public final class LabelHelper {
     }
   }
 
+  // Removes the labels on edges that are returns as they cannot be labeled
   private static void setRetEdgesUnlabeled(RootStatement root) {
     Statement exit = root.getDummyExit();
     for (StatEdge edge : exit.getAllPredecessorEdges()) {
@@ -345,6 +348,10 @@ public final class LabelHelper {
               }
             }
 
+            if (edge.closure != null && edge.closure.type == Statement.TYPE_DO && stat.type == Statement.TYPE_IF && edge.getDestination().type == Statement.TYPE_DUMMYEXIT) {
+              continue;
+            }
+
             edge.explicit = false;
           }
           implfound = true;
@@ -453,7 +460,9 @@ public final class LabelHelper {
     return sets;
   }
 
-  public static void replaceContinueWithBreak(Statement stat) {
+  // Handles switches in loops, so switch breaks don't become continues
+  public static boolean replaceContinueWithBreak(Statement stat) {
+    boolean res = false;
 
     if (stat.type == Statement.TYPE_DO) {
 
@@ -469,14 +478,17 @@ public final class LabelHelper {
             edge.getSource().changeEdgeType(Statement.DIRECTION_FORWARD, edge, StatEdge.TYPE_BREAK);
             edge.labeled = false;
             minclosure.addLabeledEdge(edge);
+            res = true;
           }
         }
       }
     }
 
     for (Statement st : stat.getStats()) {
-      replaceContinueWithBreak(st);
+      res |= replaceContinueWithBreak(st);
     }
+
+    return res;
   }
 
   private static Statement getMinContinueClosure(StatEdge edge) {

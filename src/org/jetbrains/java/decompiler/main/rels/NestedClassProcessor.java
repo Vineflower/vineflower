@@ -236,6 +236,11 @@ public class NestedClassProcessor {
     }
     MethodWrapper enclosingMethod = parent.getWrapper().getMethods().getWithKey(child.enclosingMethod);
 
+    // Don't process if either methods have decompiled with errors
+    if (enclosingMethod.decompiledWithErrors || method.decompiledWithErrors) {
+      return;
+    }
+
     MethodDescriptor md_lambda = MethodDescriptor.parseDescriptor(child.lambdaInformation.method_descriptor);
     MethodDescriptor md_content = MethodDescriptor.parseDescriptor(child.lambdaInformation.content_method_descriptor);
 

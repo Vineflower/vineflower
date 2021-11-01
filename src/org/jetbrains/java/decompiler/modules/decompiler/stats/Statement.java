@@ -24,10 +24,18 @@ import java.util.*;
 import java.util.Map.Entry;
 
 public class Statement implements IMatchable {
+  // All edge types
   public static final int STATEDGE_ALL = 0x80000000;
+  // All edge types minus exceptions
+  // Exception edges are implicit from try contents to catch handlers, so they don't represent control flow
   public static final int STATEDGE_DIRECT_ALL = 0x40000000;
 
+  // Edge directions
+
+  // Backedges (predecessors)
   public static final int DIRECTION_BACKWARD = 0;
+
+  // Forward edges (successors)
   public static final int DIRECTION_FORWARD = 1;
 
   public static final int TYPE_GENERAL = 0;
@@ -504,7 +512,7 @@ public class Statement implements IMatchable {
 
   public void replaceStatement(Statement oldstat, Statement newstat) {
     if (!stats.containsKey(oldstat.id)) {
-      throw new IllegalStateException("Cannot replace " + oldstat + " with " + newstat + " because it wasn't found in " + stats);
+      throw new IllegalStateException("[" + this + "] Cannot replace " + oldstat + " with " + newstat + " because it wasn't found in " + stats);
     }
 
     for (StatEdge edge : oldstat.getAllPredecessorEdges()) {
@@ -802,12 +810,16 @@ public class Statement implements IMatchable {
     return false;
   }
 
+  // Whether this statement has a successor to a basic block or not. Conditions:
+  // Basic blocks are always connected to the next basic block
+  // single-if statements are connected to the next block (from implicit else)
+  // Loops are connected to the next block if it's not an infinite while(true){} loop TODO: many while(true) loops have breaks in their body. Would that not count?
   public boolean hasBasicSuccEdge() {
 
     // FIXME: default switch
 
-    return type == TYPE_BASICBLOCK || (type == TYPE_IF &&
-                                                        ((IfStatement)this).iftype == IfStatement.IFTYPE_IF) ||
+    return type == TYPE_BASICBLOCK ||
+      (type == TYPE_IF && ((IfStatement)this).iftype == IfStatement.IFTYPE_IF) ||
                   (type == TYPE_DO && ((DoStatement)this).getLooptype() != DoStatement.LOOP_DO);
   }
 

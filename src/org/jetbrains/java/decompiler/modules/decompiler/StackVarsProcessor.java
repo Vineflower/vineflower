@@ -677,7 +677,7 @@ public class StackVarsProcessor {
   private static void setEffectivelyFinalVars(Statement stat, SSAUConstructorSparseEx ssau, Map<VarVersionPair, VarExprent> varLookupMap) {
     if (stat.getExprents() != null && !stat.getExprents().isEmpty()) {
       for (int i = 0; i < stat.getExprents().size(); ++i) {
-        setEffectivelyFinalVars(stat.getExprents().get(i), ssau, i, stat.getExprents(), varLookupMap);
+        setEffectivelyFinalVars(stat, stat.getExprents().get(i), ssau, i, stat.getExprents(), varLookupMap);
       }
     }
 
@@ -686,7 +686,7 @@ public class StackVarsProcessor {
     }
   }
 
-  private static void setEffectivelyFinalVars(Exprent exprent, SSAUConstructorSparseEx ssau, int index, List<Exprent> list, Map<VarVersionPair, VarExprent> varLookupMap) {
+  private static void setEffectivelyFinalVars(Statement stat, Exprent exprent, SSAUConstructorSparseEx ssau, int index, List<Exprent> list, Map<VarVersionPair, VarExprent> varLookupMap) {
     if (exprent.type == Exprent.EXPRENT_ASSIGNMENT) {
       AssignmentExprent assign = (AssignmentExprent)exprent;
       if (assign.getLeft().type == Exprent.EXPRENT_VAR) {
@@ -733,6 +733,11 @@ public class StackVarsProcessor {
                 VarExprent paramVar = (VarExprent)param;
                 VarVersionPair vvp = paramVar.getVarVersionPair();
                 VarVersionNode vvnode = ssau.getSsuversions().nodes.getWithKey(vvp);
+
+                // Edge case: vvnode can be null when loops aren't created properly for... some reason?
+                if (vvnode == null) {
+                  continue;
+                }
 
                 while (true) {
                   VarVersionNode next = null;
@@ -804,7 +809,7 @@ public class StackVarsProcessor {
     }
 
     for (Exprent ex : exprent.getAllExprents()) {
-      setEffectivelyFinalVars(ex, ssau, index, list, varLookupMap);
+      setEffectivelyFinalVars(stat, ex, ssau, index, list, varLookupMap);
     }
   }
 

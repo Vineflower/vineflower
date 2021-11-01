@@ -19,9 +19,7 @@ import org.jetbrains.java.decompiler.util.VBStyleCollection;
 import java.util.*;
 
 public final class DomHelper {
-
-
-  private static RootStatement graphToStatement(ControlFlowGraph graph) {
+  private static RootStatement graphToStatement(ControlFlowGraph graph, StructMethod mt) {
 
     VBStyleCollection<Statement, Integer> stats = new VBStyleCollection<>();
     VBStyleCollection<BasicBlock, Integer> blocks = graph.getBlocks();
@@ -41,7 +39,7 @@ public final class DomHelper {
       general = new GeneralStatement(firstst, stats, null);
     }
     else { // one straightforward basic block
-      RootStatement root = new RootStatement(firstst, dummyexit);
+      RootStatement root = new RootStatement(firstst, dummyexit, mt);
       firstst.addSuccessor(new StatEdge(StatEdge.TYPE_BREAK, firstst, dummyexit, root));
 
       return root;
@@ -98,7 +96,7 @@ public final class DomHelper {
 
     general.buildContinueSet();
     general.buildMonitorFlags();
-    return new RootStatement(general, dummyexit);
+    return new RootStatement(general, dummyexit, mt);
   }
 
   public static VBStyleCollection<List<Integer>, Integer> calcPostDominators(Statement container) {
@@ -205,7 +203,7 @@ public final class DomHelper {
 
   public static RootStatement parseGraph(ControlFlowGraph graph, StructMethod mt) {
 
-    RootStatement root = graphToStatement(graph);
+    RootStatement root = graphToStatement(graph, mt);
 
     if (!processStatement(root, new LinkedHashMap<>())) {
       DotExporter.errorToDotFile(graph, mt, "parseGraphFail");
@@ -224,15 +222,19 @@ public final class DomHelper {
     return root;
   }
 
-  public static void removeSynchronizedHandler(Statement stat) {
+  public static boolean removeSynchronizedHandler(Statement stat) {
+    boolean res = false;
 
     for (Statement st : stat.getStats()) {
-      removeSynchronizedHandler(st);
+      res |= removeSynchronizedHandler(st);
     }
 
     if (stat.type == Statement.TYPE_SYNCRONIZED) {
       ((SynchronizedStatement)stat).removeExc();
+      res = true;
     }
+
+    return res;
   }
 
 

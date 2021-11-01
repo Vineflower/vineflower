@@ -1,0 +1,87 @@
+package pkg;
+
+public enum TestEnumArrayStaticInit {
+   A(0),
+   B(1),
+   C(2);
+
+   private static final TestEnumArrayStaticInit[] VALUES;
+   private final int v;
+
+   private TestEnumArrayStaticInit(int v) {
+      this.v = v;// 11
+   }// 12
+
+   static {
+      TestEnumArrayStaticInit[] values = values();// 15
+      VALUES = new TestEnumArrayStaticInit[C.v + 1];// 17
+
+      for(TestEnumArrayStaticInit e : values) {// 19
+         VALUES[e.v] = e;// 20
+      }
+
+   }// 22
+}
+
+class 'pkg/TestEnumArrayStaticInit' {
+   method '<init> (Ljava/lang/String;II)V' {
+      6      11
+      7      11
+      8      11
+      9      11
+      a      11
+      b      12
+   }
+
+   method '<clinit> ()V' {
+      43      15
+      44      15
+      45      15
+      46      15
+      47      16
+      48      16
+      49      16
+      4a      16
+      4b      16
+      4c      16
+      4d      16
+      4e      16
+      52      16
+      53      16
+      54      16
+      55      18
+      56      18
+      59      18
+      5b      18
+      64      18
+      65      18
+      66      19
+      67      19
+      68      19
+      69      19
+      6a      19
+      6b      19
+      6c      19
+      6d      19
+      6e      19
+      6f      19
+      70      19
+      71      18
+      72      18
+      73      18
+      77      22
+   }
+}
+
+Lines mapping:
+11 <-> 12
+12 <-> 13
+15 <-> 16
+17 <-> 17
+19 <-> 19
+20 <-> 20
+22 <-> 23
+Not mapped:
+3
+4
+10

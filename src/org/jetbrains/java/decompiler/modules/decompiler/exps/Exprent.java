@@ -153,8 +153,9 @@ public abstract class Exprent implements IMatchable {
   public abstract void getBytecodeRange(BitSet values);
 
   protected void measureBytecode(BitSet values) {
-    if (bytecode != null)
+    if (bytecode != null && values != null) {
       values.or(bytecode);
+    }
   }
 
   protected static void measureBytecode(BitSet values, Exprent exprent) {

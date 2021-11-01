@@ -131,9 +131,15 @@ public class ClassWrapper {
         if (rootStat != null) {
           DotExporter.errorToDotFile(rootStat, mt, "fail");
         }
+
         ControlFlowGraph graph = MethodProcessorRunnable.debugCurrentCFG.get();
         if (graph != null) {
           DotExporter.errorToDotFile(graph, mt, "failCFG");
+        }
+
+        DecompileRecord decompileRecord = MethodProcessorRunnable.debugCurrentDecompileRecord.get();
+        if (decompileRecord != null) {
+          DotExporter.toDotFile(decompileRecord, mt, "failRecord", true);
         }
       }
 

@@ -9,15 +9,9 @@ public class TestWhileTernary6 {
             --a;// 10
          }
 
-         if (condition) {// 13
-            if (a < b) {
-               continue;
-            }
-         } else if (b > a) {
-            continue;
+         if (condition ? a >= b : b <= a) {// 13
+            return;// 14
          }
-
-         return;// 14
       }
    }
 }
@@ -40,13 +34,13 @@ class 'pkg/TestWhileTernary6' {
       f      8
       12      11
       13      11
-      16      12
-      17      12
-      18      12
-      1e      15
-      1f      15
-      20      15
-      23      19
+      16      11
+      17      11
+      18      11
+      1e      11
+      1f      11
+      20      11
+      23      12
    }
 }
 
@@ -56,4 +50,4 @@ Lines mapping:
 9 <-> 8
 10 <-> 9
 13 <-> 12
-14 <-> 20
+14 <-> 13
