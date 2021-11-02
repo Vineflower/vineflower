@@ -1087,10 +1087,16 @@ public class ClassWriter {
   private static void dumpError(TextBuffer buffer, MethodWrapper wrapper, int indent, BytecodeMappingTracer tracer) {
     List<String> lines = new ArrayList<>();
     lines.add("$FF: Couldn't be decompiled");
-    if (DecompilerContext.getOption(IFernflowerPreferences.DUMP_BYTECODE_ON_ERROR)) {
-      try {
-        collectErrorLines(wrapper.decompileError, lines);
+    boolean exceptions = DecompilerContext.getOption(IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR);
+    boolean bytecode = DecompilerContext.getOption(IFernflowerPreferences.DUMP_BYTECODE_ON_ERROR);
+    if (exceptions) {
+      collectErrorLines(wrapper.decompileError, lines);
+      if (bytecode) {
         lines.add("");
+      }
+    }
+    if (bytecode) {
+      try {
         lines.add("Bytecode:");
         collectBytecode(wrapper, lines);
       } catch (Exception e) {
