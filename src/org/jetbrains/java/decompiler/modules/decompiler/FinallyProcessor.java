@@ -113,7 +113,7 @@ public class FinallyProcessor {
   }
 
   private Record getFinallyInformation(StructClass cl, StructMethod mt, RootStatement root, CatchAllStatement fstat) {
-    Map<BasicBlock, Boolean> mapLast = new HashMap<>();
+    Map<BasicBlock, Boolean> mapLast = new LinkedHashMap<>();
 
     BasicBlockStatement firstBlockStatement = fstat.getHandler().getBasichead();
     BasicBlock firstBasicBlock = firstBlockStatement.getBlock();
@@ -431,7 +431,7 @@ public class FinallyProcessor {
     }
     while (index < lst.size());
 
-    Set<BasicBlock> res = new HashSet<>();
+    Set<BasicBlock> res = new LinkedHashSet<>();
 
     for (Statement st : lst) {
       res.add(((BasicBlockStatement)st).getBlock());
@@ -471,7 +471,7 @@ public class FinallyProcessor {
     }
 
     // identify start blocks
-    Set<BasicBlock> startBlocks = new HashSet<>();
+    Set<BasicBlock> startBlocks = new LinkedHashSet<>();
     for (BasicBlock block : tryBlocks) {
       startBlocks.addAll(block.getSuccs());
     }
@@ -479,17 +479,10 @@ public class FinallyProcessor {
     // so remove dummy exit
     startBlocks.remove(graph.getLast());
     startBlocks.removeAll(tryBlocks);
-    List<BasicBlock> starts = new ArrayList<BasicBlock>(startBlocks);
-    Collections.sort(starts, new Comparator<BasicBlock>() {
-      @Override
-      public int compare(BasicBlock o1, BasicBlock o2) {
-        return o2.id - o1.id;
-      }
-    });
 
     List<Area> lstAreas = new ArrayList<>();
 
-    for (BasicBlock start : starts) {
+    for (BasicBlock start : startBlocks) {
 
       Area arr = compareSubgraphsEx(graph, start, catchBlocks, first, finallytype, mapLast, skippedFirst);
       if (arr == null) {
@@ -512,17 +505,8 @@ public class FinallyProcessor {
     //			DotExporter.toDotFile(graph, new File("c:\\Temp\\fern5.dot"), true);
     //		} catch(Exception ex){ex.printStackTrace();}
 
-    List<Entry<BasicBlock, Boolean>> lasts = new ArrayList<Entry<BasicBlock, Boolean>>(mapLast.entrySet());
-    // We must sort here to prevent decompile differences deriving from hash maps.
-    Collections.sort(lasts, new Comparator<Entry<BasicBlock, Boolean>>() {
-      @Override
-      public int compare(Entry<BasicBlock, Boolean> o1, Entry<BasicBlock, Boolean> o2) {
-        return o1.getKey().id - o2.getKey().id;
-      }
-    });
-
     // INFO: empty basic blocks may remain in the graph!
-    for (Entry<BasicBlock, Boolean> entry : lasts) {
+    for (Entry<BasicBlock, Boolean> entry : mapLast.entrySet()) {
       BasicBlock last = entry.getKey();
 
       if (entry.getValue()) {
