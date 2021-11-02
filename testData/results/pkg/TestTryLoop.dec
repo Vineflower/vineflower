@@ -23,8 +23,8 @@ public class TestTryLoop {
    public boolean hasNext(Path param1, Iterator<File> param2) {
       // $FF: Couldn't be decompiled
       // java.lang.RuntimeException: computing post reverse post order failed!
-      //   at org.jetbrains.java.decompiler.modules.decompiler.stats.Statement.getPostReversePostOrderList(Statement.java:458)
-      //   at org.jetbrains.java.decompiler.modules.decompiler.stats.Statement.getPostReversePostOrderList(Statement.java:439)
+      //   at org.jetbrains.java.decompiler.modules.decompiler.stats.Statement.getPostReversePostOrderList(Statement.java:459)
+      //   at org.jetbrains.java.decompiler.modules.decompiler.stats.Statement.getPostReversePostOrderList(Statement.java:440)
       //   at org.jetbrains.java.decompiler.modules.decompiler.DomHelper.findSimpleStatements(DomHelper.java:603)
       //   at org.jetbrains.java.decompiler.modules.decompiler.DomHelper.processStatement(DomHelper.java:372)
       //   at org.jetbrains.java.decompiler.modules.decompiler.DomHelper.processStatement(DomHelper.java:321)

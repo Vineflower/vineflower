@@ -50,6 +50,37 @@ public class TestSynchronized {
          throw new RuntimeException(var7);// 48
       }
    }
+
+   public void test6() {
+      while(true) {
+         synchronized(this) {// 54
+            ;
+         }// 56
+      }
+   }
+
+   public void test7(int i) {
+      synchronized(this) {// 61
+         while(i > 0) {// 62
+            --i;// 63
+            System.out.println(i);// 64
+         }
+
+      }
+   }// 67
+
+   public void test8() {
+      try {
+         synchronized(this) {// 71
+            this.notifyAll();// 72
+         }// 73
+      } finally {
+         synchronized(this) {// 75
+            this.notifyAll();// 76
+         }// 77
+      }
+
+   }// 79
 }
 
 class 'pkg/TestSynchronized' {
@@ -134,6 +165,50 @@ class 'pkg/TestSynchronized' {
       31      48
       3a      49
    }
+
+   method 'test6 ()V' {
+      0      55
+      3      55
+      5      57
+   }
+
+   method 'test7 (I)V' {
+      0      62
+      3      62
+      4      63
+      5      63
+      8      64
+      9      64
+      a      64
+      b      65
+      c      65
+      d      65
+      e      65
+      f      65
+      10      65
+      11      65
+      1f      69
+   }
+
+   method 'test8 ()V' {
+      0      73
+      3      73
+      4      74
+      5      74
+      6      74
+      7      74
+      9      75
+      27      77
+      28      77
+      2b      77
+      2c      77
+      2e      78
+      2f      78
+      30      78
+      31      78
+      34      79
+      43      82
+   }
 }
 
 Lines mapping:
@@ -161,7 +236,23 @@ Lines mapping:
 45 <-> 47
 47 <-> 49
 48 <-> 50
+54 <-> 56
+56 <-> 58
+61 <-> 63
+62 <-> 64
+63 <-> 65
+64 <-> 66
+67 <-> 70
+71 <-> 74
+72 <-> 75
+73 <-> 76
+75 <-> 78
+76 <-> 79
+77 <-> 80
+79 <-> 83
 Not mapped:
 7
 13
 41
+66
+78

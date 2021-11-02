@@ -6,6 +6,7 @@ package org.jetbrains.java.decompiler.modules.decompiler.stats;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.InstructionSequence;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
@@ -880,13 +881,13 @@ public class Statement implements IMatchable {
     } else {
       for (Object obj : this.getSequentialObjects()) {
         if (obj == null) {
-          //Humm? Skip it
+
         } else if (obj instanceof Statement) {
           ((Statement)obj).getOffset(values);
         } else if (obj instanceof Exprent) {
           ((Exprent)obj).getBytecodeRange(values);
         } else {
-          System.out.println("WTF?" + obj.getClass());
+          DecompilerContext.getLogger().writeMessage("Found unknown class from sequential objects! " + obj.getClass(), IFernflowerLogger.Severity.ERROR);
         }
       }
     }

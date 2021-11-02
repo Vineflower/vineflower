@@ -12,6 +12,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.SwitchStatement;
 import org.jetbrains.java.decompiler.struct.StructField;
+import org.jetbrains.java.decompiler.struct.StructMethod;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,20 +21,20 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public final class SwitchHelper {
-  public static boolean simplifySwitches(Statement stat) {
+  public static boolean simplifySwitches(Statement stat, StructMethod mt) {
     boolean ret = false;
     if (stat.type == Statement.TYPE_SWITCH) {
-      ret = simplify((SwitchStatement)stat);
+      ret = simplify((SwitchStatement)stat, mt);
     }
 
     for (int i = 0; i < stat.getStats().size(); ++i) {
-      ret |= simplifySwitches(stat.getStats().get(i));
+      ret |= simplifySwitches(stat.getStats().get(i), mt);
     }
 
     return ret;
   }
 
-  private static boolean simplify(SwitchStatement switchStatement) {
+  private static boolean simplify(SwitchStatement switchStatement, StructMethod mt) {
     SwitchStatement following = null;
     List<StatEdge> edges = switchStatement.getSuccessorEdges(StatEdge.TYPE_REGULAR);
     if (edges.size() == 1 && edges.get(0).getDestination().type == Statement.TYPE_SWITCH) {
@@ -79,7 +80,7 @@ public final class SwitchHelper {
             Exprent realConst = mapping.get(exprent);
             if (realConst == null) {
               DecompilerContext.getLogger()
-                .writeMessage("Unable to simplify switch on enum: " + exprent + " not found, available: " + mapping,
+                .writeMessage("Unable to simplify switch on enum: " + exprent + " not found, available: " + mapping + " in method " + mt.getClassQualifiedName() + mt.getName(),
                               IFernflowerLogger.Severity.ERROR);
               return false;
             }

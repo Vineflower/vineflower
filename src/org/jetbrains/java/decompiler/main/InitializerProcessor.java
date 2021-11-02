@@ -246,7 +246,7 @@ public final class InitializerProcessor {
             if (assignExpr.getLeft() instanceof VarExprent) {
               nonFieldAssigns.put(((VarExprent) assignExpr.getLeft()).getIndex(), assignExpr);
             } else {
-              DecompilerContext.getLogger().writeMessage("Left isnt VarExprent :(", IFernflowerLogger.Severity.ERROR);
+              DecompilerContext.getLogger().writeMessage("Left is not VarExprent!", IFernflowerLogger.Severity.ERROR);
             }
           }
         } else if (inlineInitializers && cl.hasModifier(CodeConstants.ACC_INTERFACE)){
