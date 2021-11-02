@@ -48,4 +48,33 @@ public class TestSynchronized {
       throw new RuntimeException(e);
     }
   }
+
+  public void test6() {
+    while (true) {
+      synchronized (this) {
+
+      }
+    }
+  }
+
+  public void test7(int i) {
+    synchronized (this) {
+      while (i > 0) {
+        i--;
+        System.out.println(i);
+      }
+    }
+  }
+
+  public void test8() {
+      try {
+        synchronized (this) {
+          notifyAll();
+        }
+      } finally {
+        synchronized (this) {
+          notifyAll();
+        }
+      }
+  }
 }

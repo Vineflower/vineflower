@@ -51,5 +51,7 @@ public class SingleClassesJavaRuntimeTest extends SingleClassesTestBase {
     register(JAVA_16, "TestTryWithResourcesNullJ16");
     // TODO: doesn't make try with resources block
     register(JAVA_16, "TestTryWithResourcesOuterJ16");
+    // TODO: fails to decompile
+    register(JAVA_16, "TestTryWithResourcesFake");
   }
 }

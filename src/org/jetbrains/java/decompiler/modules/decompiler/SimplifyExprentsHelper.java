@@ -747,6 +747,11 @@ public class SimplifyExprentsHelper {
               if (ifVar.getIndex() == elseVar.getIndex() && ifVar.isStack()) { // ifVar.getIndex() >= VarExprent.STACK_BASE) {
                 boolean found = false;
 
+                // Can happen in EliminateLoopsHelper
+                if (ssa == null) {
+                  throw new IllegalStateException("Trying to make ternary but have no SSA-Form! How is this possible?");
+                }
+
                 for (Entry<VarVersionPair, FastSparseSet<Integer>> ent : ssa.getPhi().entrySet()) {
                   if (ent.getKey().var == ifVar.getIndex()) {
                     if (ent.getValue().contains(ifVar.getVersion()) && ent.getValue().contains(elseVar.getVersion())) {
