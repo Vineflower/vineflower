@@ -602,8 +602,7 @@ public class ControlFlowGraph implements CodeConstants {
           }
           else if (common_blocks.contains(child)) {
             // make a copy of the current block
-            BasicBlock copy = child.clone();
-            copy.id = ++last_id;
+            BasicBlock copy = child.cloneBlock(++last_id);
             // copy all successors
             if (copy.getLastInstruction().opcode == CodeConstants.opc_ret &&
                 child.getSuccs().contains(ret)) {
