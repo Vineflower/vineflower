@@ -18,10 +18,7 @@ import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.SFormsFastMapDirect;
 import org.jetbrains.java.decompiler.util.VBStyleCollection;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import java.util.Map.Entry;
 
 public class SSAUConstructorSparseEx {
@@ -439,7 +436,7 @@ public class SSAUConstructorSparseEx {
   private void createOrUpdatePhiNode(VarVersionPair phivar, FastSparseSet<Integer> vers, Statement stat) {
 
 //    FastSparseSet<Integer> versCopy = vers.getCopy();
-    List<Integer> removed = new ArrayList<>();
+    Set<Integer> removed = new HashSet<>();
 //    HashSet<Integer> phiVers = new HashSet<>();
 
     // take into account the corresponding mm/pp node if existing
