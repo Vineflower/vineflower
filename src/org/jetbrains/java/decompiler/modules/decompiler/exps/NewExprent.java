@@ -278,9 +278,7 @@ public class NewExprent extends Exprent {
   }
 
   @Override
-  public List<Exprent> getAllExprents() {
-    List<Exprent> lst = new ArrayList<>();
-
+  public List<Exprent> getAllExprents(List<Exprent> lst) {
     if (newType.arrayDim != 0) {
       lst.addAll(lstDims);
       lst.addAll(lstArrayElements);
