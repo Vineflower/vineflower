@@ -8,7 +8,6 @@ import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.modules.decompiler.decompose.IGraphNode;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 public class BasicBlock implements IGraphNode {
@@ -19,8 +18,6 @@ public class BasicBlock implements IGraphNode {
 
   public final int id;
   public int mark = 0;
-
-  public static final Comparator<BasicBlock> COMPARE_BY_ID = Comparator.comparingInt(o -> o.id);
 
   // *****************************************************************************
   // private fields
@@ -41,16 +38,6 @@ public class BasicBlock implements IGraphNode {
   // *****************************************************************************
   // public methods
   // *****************************************************************************
-
-  @SuppressWarnings("MethodDoesntCallSuperMethod")
-  public BasicBlock cloneBlock(int id) {
-    BasicBlock block = new BasicBlock(id);
-
-    block.setSeq(seq.clone());
-    block.instrOldOffsets.addAll(instrOldOffsets);
-
-    return block;
-  }
 
   public Instruction getInstruction(int index) {
     return seq.getInstr(index);
@@ -156,6 +143,19 @@ public class BasicBlock implements IGraphNode {
       }
     }
     return false;
+  }
+
+  // *****************************************************************************
+  // package methods
+  // *****************************************************************************
+
+  BasicBlock cloneBlock(int id) {
+    BasicBlock block = new BasicBlock(id);
+
+    block.setSeq(this.seq.clone());
+    block.instrOldOffsets.addAll(this.instrOldOffsets);
+
+    return block;
   }
 
   // *****************************************************************************
