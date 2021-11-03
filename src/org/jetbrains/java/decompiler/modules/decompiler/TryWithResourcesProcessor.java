@@ -178,7 +178,7 @@ public final class TryWithResourcesProcessor {
     }
 
     // Find basic block that contains the resource assignment
-    for (StatEdge edge : tryStatement.getAllPredecessorEdges()) {
+    for (StatEdge edge : tryStatement.getPredecessorEdges(StatEdge.TYPE_REGULAR)) {
       // Find predecessors that lead towards the target try statement
       if (edge.getDestination().equals(tryStatement) && edge.getSource().type == Statement.TYPE_BASICBLOCK) {
         AssignmentExprent assignment = findResourceDef(closeable, edge.getSource());

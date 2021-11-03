@@ -81,7 +81,7 @@ public class TryHelper {
   // J11+
   // Merges try with resource statements that are nested within each other, as well as try with resources statements nested in a normal try.
   private static boolean mergeTry(CatchStatement stat) {
-    if (stat.getStats().size() == 0) {
+    if (stat.getStats().isEmpty()) {
       return false;
     }
 
