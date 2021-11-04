@@ -65,6 +65,7 @@ public interface IFernflowerPreferences {
 
   String WARN_INCONSISTENT_INNER_CLASSES = "win";
   String DUMP_BYTECODE_ON_ERROR = "dbe";
+  String DUMP_EXCEPTION_ON_ERROR = "dee";
 
   Map<String, Object> DEFAULTS = getDefaults();
 
@@ -120,6 +121,7 @@ public interface IFernflowerPreferences {
     defaults.put(SKIP_EXTRA_FILES, "0");
     defaults.put(WARN_INCONSISTENT_INNER_CLASSES, "1");
     defaults.put(DUMP_BYTECODE_ON_ERROR, "1");
+    defaults.put(DUMP_EXCEPTION_ON_ERROR, "1");
 
     return Collections.unmodifiableMap(defaults);
   }
