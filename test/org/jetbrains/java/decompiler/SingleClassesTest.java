@@ -370,6 +370,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestEnumArrayStaticInit");
 
     register(JAVA_16, "TestAssertJ16");
+
+    register(JAVA_8, "TestSynchronizedTernary");
   }
 
   private void registerEntireClassPath() {
