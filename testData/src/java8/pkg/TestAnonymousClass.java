@@ -22,6 +22,14 @@ public abstract class TestAnonymousClass {
     }
   }
 
+  void bar() {
+    new Object() {
+      public void foo(String s) {
+        System.out.println(s);
+      }
+    }.foo("Hello world");
+  }
+
   public static final Runnable R3 = new Runnable() {
     @Override
     public void run() {

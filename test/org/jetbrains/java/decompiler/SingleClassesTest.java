@@ -372,6 +372,9 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16, "TestAssertJ16");
 
     register(JAVA_8, "TestSynchronizedTernary");
+
+    register(JAVA_8, "TestUnicodeIdentifiers");
+    register(JAVA_8, "TestDoubleBraceInitializers");
   }
 
   private void registerEntireClassPath() {
@@ -394,6 +397,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestUnionType");
     register(JAVA_8, "TestTryWithResources");
     register(JAVA_8, "TestNestedLoops");
+    // TODO: Cast to <undefinedtype>
     register(JAVA_8, "TestAnonymousClass");
     // TODO: Object[] becomes <unknown>
     register(JAVA_8, "TestObjectArrays");
