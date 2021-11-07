@@ -94,6 +94,9 @@ The rest of options can be left as they are: they are aimed at professional reve
 - sef (0): skip copying non-class files from the input folder or file to the output
 - win (1): warn about inconsistent inner class attributes
 - thr: maximum number of threads (default is number of threads available to the JVM)
+- jrt (0): add the currently used Java runtime as a library
+- dbe (1): dump bytecode on errors
+- dee (1): dump exceptions on errors
 - nls (0): define new line character to be used for output. 0 - '\r\n' (Windows), 1 - '\n' (Unix), default is OS-dependent
 - ind: indentation string (default is 3 spaces)
 - log (INFO): a logging level, possible values are TRACE, INFO, WARN, ERROR
