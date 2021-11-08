@@ -204,8 +204,8 @@ public class ConstExprent extends Exprent {
   }
 
   @Override
-  public List<Exprent> getAllExprents() {
-    return new ArrayList<>();
+  public List<Exprent> getAllExprents(List<Exprent> list) {
+    return list;
   }
 
   @Override
@@ -254,7 +254,14 @@ public class ConstExprent extends Exprent {
         return new TextBuffer(value.toString());
 
       case CodeConstants.TYPE_LONG:
-        long longVal = (Long)value;
+
+        long longVal;
+        if (this.value instanceof Integer) {
+          longVal = (long) (Integer) value; // TODO: figure out how this can be an int!
+        } else {
+          longVal = (Long)value;
+        }
+
         if (!literal) {
           if (longVal == Long.MAX_VALUE) {
             return new FieldExprent("MAX_VALUE", "java/lang/Long", true, null, FieldDescriptor.LONG_DESCRIPTOR, bytecode).toJava(0, tracer);
@@ -371,7 +378,7 @@ public class ConstExprent extends Exprent {
     return CodeConstants.TYPE_NULL == constType.type;
   }
 
-  private static String convertStringToJava(String value, boolean ascii) {
+  public static String convertStringToJava(String value, boolean ascii) {
     char[] arr = value.toCharArray();
     StringBuilder buffer = new StringBuilder(arr.length);
 
@@ -412,13 +419,6 @@ public class ConstExprent extends Exprent {
     }
 
     return buffer.toString();
-  }
-
-  @Override
-  protected void onReturn(MethodDescriptor descriptor) {
-    // Make sure this constant is in line with the expected return type of the method we're returning from.
-    // This fixes a case where the aggressive char selector can result in returning unicode chars when integers were expected.
-    this.adjustConstType(descriptor.ret);
   }
 
   @Override
@@ -463,13 +463,10 @@ public class ConstExprent extends Exprent {
       case CodeConstants.TYPE_SHORT:
       case CodeConstants.TYPE_SHORTCHAR:
       case CodeConstants.TYPE_INT:
-        return (Integer)value == 1;
       case CodeConstants.TYPE_LONG:
-        return ((Long)value).intValue() == 1;
       case CodeConstants.TYPE_DOUBLE:
-        return ((Double)value).intValue() == 1;
       case CodeConstants.TYPE_FLOAT:
-        return ((Float)value).intValue() == 1;
+        return ((Number)value).intValue() == 1;
     }
 
     return false;

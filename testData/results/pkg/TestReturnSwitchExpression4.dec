@@ -1,0 +1,60 @@
+package pkg;
+
+public class TestReturnSwitchExpression4 {
+   public String test(int i) {
+      String var10000;
+      switch(i) {
+      case 1:
+         var10000 = "1";// 6
+         break;
+      case 2:
+         var10000 = "2";// 7
+         break;
+      default:
+         if (i > 0) {// 9
+            var10000 = "Unknown";// 10
+         } else {
+            System.out.println("Negative");// 12
+            var10000 = "Negative";// 13
+         }
+      }
+
+      return var10000;// 5
+   }
+}
+
+class 'pkg/TestReturnSwitchExpression4' {
+   method 'test (I)Ljava/lang/String;' {
+      0      5
+      1      5
+      1c      7
+      1d      7
+      1e      8
+      21      10
+      22      10
+      23      11
+      26      13
+      27      13
+      2a      14
+      2b      14
+      2f      16
+      30      16
+      31      16
+      32      16
+      33      16
+      34      16
+      35      16
+      36      16
+      37      17
+      39      21
+   }
+}
+
+Lines mapping:
+5 <-> 22
+6 <-> 8
+7 <-> 11
+9 <-> 14
+10 <-> 15
+12 <-> 17
+13 <-> 18

@@ -247,6 +247,9 @@ public class ConsoleDecompiler implements IBytecodeProvider, IResultSaver {
 
   @Override
   public void saveDirEntry(String path, String archiveName, String entryName) {
+    if (entryName.lastIndexOf('/') != entryName.length() - 1) {
+      entryName += '/';
+    }
     saveClassEntry(path, archiveName, null, entryName, null);
   }
 

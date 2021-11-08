@@ -9,8 +9,14 @@ import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.StartEndPair;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class BasicBlockStatement extends Statement {
 
@@ -77,6 +83,31 @@ public class BasicBlockStatement extends Statement {
     return new BasicBlockStatement(newblock);
   }
 
+  // TODO: cache this?
+  @Override
+  public List<VarExprent> getImplicitlyDefinedVars() {
+    if (getExprents().size() > 0) {
+      List<VarExprent> vars = new ArrayList<>();
+      List<Exprent> exps = getExprents();
+
+      for (Exprent exp : exps) {
+        List<Exprent> inner = exp.getAllExprents(true);
+        inner.add(exp);
+
+        for (Exprent exprent : inner) {
+          if (exprent.type == Exprent.EXPRENT_FUNCTION && ((FunctionExprent) exprent).getFuncType() == FunctionExprent.FUNCTION_INSTANCEOF) {
+            if (((FunctionExprent) exprent).getLstOperands().size() > 2) {
+              vars.add((VarExprent) ((FunctionExprent) exprent).getLstOperands().get(2));
+            }
+          }
+        }
+      }
+
+      return vars;
+    }
+
+    return null;
+  }
 
   // *****************************************************************************
   // getter and setter methods

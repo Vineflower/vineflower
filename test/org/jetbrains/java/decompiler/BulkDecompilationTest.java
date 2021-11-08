@@ -3,28 +3,29 @@ package org.jetbrains.java.decompiler;
 
 import org.jetbrains.java.decompiler.main.decompiler.ConsoleDecompiler;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.*;
+import java.nio.file.Path;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import static org.jetbrains.java.decompiler.DecompilerTestFixture.assertFilesEqual;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BulkDecompilationTest {
   private DecompilerTestFixture fixture;
 
-  @Before
+  @BeforeEach
   public void setUp() throws IOException {
     fixture = new DecompilerTestFixture();
     fixture.setUp();
   }
 
-  @After
+  @AfterEach
   public void tearDown() {
     fixture.tearDown();
     fixture = null;
@@ -32,14 +33,14 @@ public class BulkDecompilationTest {
 
   @Test
   public void testDirectory() {
-    File classes = new File(fixture.getTempDir(), "classes");
-    unpack(new File(fixture.getTestDataDir(), "bulk.jar"), classes);
+    Path classes = fixture.getTempDir().resolve("classes");
+    unpack(fixture.getTestDataDir().resolve("bulk.jar"), classes);
 
     ConsoleDecompiler decompiler = fixture.getDecompiler();
-    decompiler.addSource(classes);
+    decompiler.addSource(classes.toFile());
     decompiler.decompileContext();
 
-    assertFilesEqual(new File(fixture.getTestDataDir(), "bulk"), fixture.getTargetDir());
+    assertFilesEqual(fixture.getTestDataDir().resolve("bulk"), fixture.getTargetDir());
   }
 
   @Test
@@ -61,22 +62,22 @@ public class BulkDecompilationTest {
   private void doTestJar(String name) {
     ConsoleDecompiler decompiler = fixture.getDecompiler();
     String jarName = name + ".jar";
-    decompiler.addSource(new File(fixture.getTestDataDir(), jarName));
+    decompiler.addSource(fixture.getTestDataDir().resolve(jarName).toFile());
     decompiler.decompileContext();
 
-    File unpacked = new File(fixture.getTempDir(), "unpacked");
-    unpack(new File(fixture.getTargetDir(), jarName), unpacked);
+    Path unpacked = fixture.getTempDir().resolve("unpacked");
+    unpack(fixture.getTargetDir().resolve(jarName), unpacked);
 
-    assertFilesEqual(new File(fixture.getTestDataDir(), name), unpacked);
+    assertFilesEqual(fixture.getTestDataDir().resolve(name), unpacked);
   }
 
-  private static void unpack(File archive, File targetDir) {
-    try (ZipFile zip = new ZipFile(archive)) {
+  private static void unpack(Path archive, Path targetDir) {
+    try (ZipFile zip = new ZipFile(archive.toFile())) {
       Enumeration<? extends ZipEntry> entries = zip.entries();
       while (entries.hasMoreElements()) {
         ZipEntry entry = entries.nextElement();
         if (!entry.isDirectory()) {
-          File file = new File(targetDir, entry.getName());
+          File file = new File(targetDir.toFile(), entry.getName());
           assertTrue(file.getParentFile().mkdirs() || file.getParentFile().isDirectory());
           try (InputStream in = zip.getInputStream(entry); OutputStream out = new FileOutputStream(file)) {
             InterpreterUtil.copyStream(in, out);

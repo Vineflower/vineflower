@@ -58,8 +58,8 @@ public class VarVersionsProcessor {
     for (Entry<VarVersionPair, FastSparseSet<Integer>> ent : ssa.getPhi().entrySet()) {
       Set<VarVersionPair> set = new HashSet<>();
       set.add(ent.getKey());
-      for (Integer version : ent.getValue()) {
-        set.add(new VarVersionPair(ent.getKey().var, version.intValue()));
+      for (int version : ent.getValue()) {
+        set.add(new VarVersionPair(ent.getKey().var, version));
       }
 
       for (int i = lst.size() - 1; i >= 0; i--) {

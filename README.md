@@ -51,10 +51,10 @@ Fernflower is licenced under the [Apache Licence Version 2.0](http://www.apache.
 
 ### Command-line options
 
-With the exception of mpm and urc the value of 1 means the option is activated, 0 - deactivated. Default 
+With the exception of mpm, urc, ind, thr and log, the value of 1 means the option is activated, 0 - deactivated. Default 
 value, if any, is given between parentheses.
 
-Typically, the following options will be changed by user, if any: hes, hdc, dgs, mpm, ren, urc 
+Typically, the following options will be changed by user, if any: hes, hdc, dgs, mpm, ren, urc, ind, thr, tlf, tco
 The rest of options can be left as they are: they are aimed at professional reverse engineers.
 
 - rbr (1): hide bridge methods
@@ -82,6 +82,21 @@ The rest of options can be left as they are: they are aimed at professional reve
            should be renamed and provides new identifier names (see "Renaming identifiers")
 - inn (1): check for IntelliJ IDEA-specific @NotNull annotation and remove inserted code if found
 - lac (0): decompile lambda expressions to anonymous classes
+- bsm (0): add mappings for source bytecode instructions to decompiled code lines
+- iib (0): ignore invalid bytecode
+- vac (0): verify that anonymous classes can be anonymous
+- tcs (0): simplify boolean constants in ternary operations
+- pam (0): decompile pattern matching
+- tlf (0): Experimental try loop enhancements (may cause some methods to decompile wrong or not at all!)
+- tco (1): Allow ternaries to be generated in if and loop conditions
+- isl (1): inline simple lambdas
+- jvn (0): use jad variable naming
+- sef (0): skip copying non-class files from the input folder or file to the output
+- win (1): warn about inconsistent inner class attributes
+- thr: maximum number of threads (default is number of threads available to the JVM)
+- jrt (0): add the currently used Java runtime as a library
+- dbe (1): dump bytecode on errors
+- dee (1): dump exceptions on errors
 - nls (0): define new line character to be used for output. 0 - '\r\n' (Windows), 1 - '\n' (Unix), default is OS-dependent
 - ind: indentation string (default is 3 spaces)
 - log (INFO): a logging level, possible values are TRACE, INFO, WARN, ERROR

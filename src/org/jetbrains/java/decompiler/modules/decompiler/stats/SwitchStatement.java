@@ -9,7 +9,6 @@ import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.modules.decompiler.DecHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
-import org.jetbrains.java.decompiler.modules.decompiler.SwitchHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.ConstExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FieldExprent;
@@ -32,7 +31,7 @@ public final class SwitchStatement extends Statement {
 
   private List<List<Exprent>> caseValues = new ArrayList<>();
 
-  private StatEdge default_edge;
+  private StatEdge defaultEdge;
 
   private final List<Exprent> headexprent = new ArrayList<>(1);
 
@@ -62,7 +61,7 @@ public final class SwitchStatement extends Statement {
       lstNodes.remove(post);
     }
 
-    default_edge = head.getSuccessorEdges(Statement.STATEDGE_DIRECT_ALL).get(0);
+    defaultEdge = head.getSuccessorEdges(Statement.STATEDGE_DIRECT_ALL).get(0);
 
     //We need to use set above in case we have multiple edges to the same node. But HashSets iterator is not ordered, so sort
     List<Statement> sorted = new ArrayList<>(lstNodes);
@@ -128,12 +127,17 @@ public final class SwitchStatement extends Statement {
       List<Exprent> values = caseValues.get(i);
 
       for (int j = 0; j < edges.size(); j++) {
-        if (edges.get(j) == default_edge) {
+        if (edges.get(j) == defaultEdge) {
           buf.appendIndent(indent).append("default:").appendLineSeparator();
         }
         else {
-          buf.appendIndent(indent).append("case ");
           Exprent value = values.get(j);
+          if (value == null) { // TODO: how can this be null? Is it trying to inject a synthetic case value in switch-on-string processing? [TestSwitchDefaultBefore]
+            continue;
+          }
+
+          buf.appendIndent(indent).append("case ");
+
           if (value instanceof ConstExprent) {
             value = value.copy();
             ((ConstExprent)value).setConstType(switch_type);
@@ -203,7 +207,7 @@ public final class SwitchStatement extends Statement {
   @Override
   public void initSimpleCopy() {
     first = stats.get(0);
-    default_edge = first.getSuccessorEdges(Statement.STATEDGE_DIRECT_ALL).get(0);
+    defaultEdge = first.getSuccessorEdges(Statement.STATEDGE_DIRECT_ALL).get(0);
 
     sortEdgesAndNodes();
   }
@@ -383,8 +387,8 @@ public final class SwitchStatement extends Statement {
     return caseStatements;
   }
 
-  public StatEdge getDefault_edge() {
-    return default_edge;
+  public StatEdge getDefaultEdge() {
+    return defaultEdge;
   }
 
   public List<List<Exprent>> getCaseValues() {

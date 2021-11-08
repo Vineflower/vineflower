@@ -31,8 +31,16 @@ import java.util.Set;
 public final class InitializerProcessor {
   public static void extractInitializers(ClassWrapper wrapper) {
     MethodWrapper method = wrapper.getMethodWrapper(CodeConstants.CLINIT_NAME, "()V");
-    if (method != null && method.root != null) {  // successfully decompiled static constructor
-      extractStaticInitializers(wrapper, method);
+    try {
+      if (method != null && method.root != null) {  // successfully decompiled static constructor
+        extractStaticInitializers(wrapper, method);
+      }
+    } catch (Throwable t) {
+      StructMethod mt = method.methodStruct;
+      String message = "Method " + mt.getName() + " " + mt.getDescriptor() + " in class " + wrapper.getClassStruct().qualifiedName + " couldn't be written.";
+      DecompilerContext.getLogger().writeMessage(message, IFernflowerLogger.Severity.WARN, t);
+
+      method.decompileError = t;
     }
 
     extractDynamicInitializers(wrapper);
@@ -162,6 +170,32 @@ public final class InitializerProcessor {
       boolean inlineInitializers = cl.hasModifier(CodeConstants.ACC_INTERFACE) || cl.hasModifier(CodeConstants.ACC_ENUM);
       List<AssignmentExprent> exprentsToRemove = new LinkedList<>();//when we loop back through the list, stores ones we need to remove outside iterator loop
       Map<Integer, AssignmentExprent> nonFieldAssigns = new HashMap<>();
+
+      // Store fields that have been assigned to more than once. These aren't safe to inline.
+      List<String> seen = new ArrayList<>();
+      List<String> multiAssign = new ArrayList<>();
+
+      for (Exprent exprent : firstData.getExprents()) {
+        if (exprent.type == Exprent.EXPRENT_ASSIGNMENT) {
+          AssignmentExprent assignExpr = (AssignmentExprent) exprent;
+          if (assignExpr.getLeft().type == Exprent.EXPRENT_FIELD) {
+            FieldExprent fExpr = (FieldExprent) assignExpr.getLeft();
+
+            // If the field has been seen already, add it to the list of multi-assigned fields
+            String name = fExpr.getName();
+            if (seen.contains(name)) {
+              if (!multiAssign.contains(name)) {
+                // If this hasn't been seen, add to list of multi assigned variables
+                multiAssign.add(name);
+              }
+            } else {
+              // If it hasn't been seen, store it for later to check
+              seen.add(name);
+            }
+          }
+        }
+      }
+
       Iterator<Exprent> itr = firstData.getExprents().iterator();
       while (itr.hasNext()) {
         Exprent exprent = itr.next();
@@ -175,7 +209,7 @@ public final class InitializerProcessor {
 
               // interfaces fields should always be initialized inline
               String keyField = InterpreterUtil.makeUniqueKey(fExpr.getName(), fExpr.getDescriptor().descriptorString);
-              boolean exprentIndependent = isExprentIndependent(assignExpr.getRight(), method, cl, whitelist, cl.getFields().getIndexByKey(keyField), true);
+              boolean exprentIndependent = isExprentIndependent(fExpr, assignExpr.getRight(), method, cl, whitelist, multiAssign, cl.getFields().getIndexByKey(keyField), true);
               if (inlineInitializers || exprentIndependent) {
                 if (!wrapper.getStaticFieldInitializers().containsKey(keyField)) {
                   if (exprentIndependent) {
@@ -185,6 +219,10 @@ public final class InitializerProcessor {
                   } else { //inlineInitializers
                     if (assignExpr.getRight() instanceof NewExprent){
                       NewExprent newExprent = (NewExprent) assignExpr.getRight();
+                      if (newExprent.getConstructor() == null) {
+                        continue;
+                      }
+
                       Exprent instance = newExprent.getConstructor().getInstance();
                       if (instance instanceof VarExprent && nonFieldAssigns.containsKey(((VarExprent) instance).getIndex())){
                         AssignmentExprent nonFieldAssignment = nonFieldAssigns.remove(((VarExprent) instance).getIndex());
@@ -203,12 +241,12 @@ public final class InitializerProcessor {
                 }
               }
             }
-          } else if (inlineInitializers){
+          } else if (inlineInitializers) {
             DecompilerContext.getLogger().writeMessage("Found non field assignment when needing to force inline: "+assignExpr.toString(), IFernflowerLogger.Severity.TRACE);
             if (assignExpr.getLeft() instanceof VarExprent) {
               nonFieldAssigns.put(((VarExprent) assignExpr.getLeft()).getIndex(), assignExpr);
             } else {
-              DecompilerContext.getLogger().writeMessage("Left isnt VarExprent :(", IFernflowerLogger.Severity.ERROR);
+              DecompilerContext.getLogger().writeMessage("Left is not VarExprent!", IFernflowerLogger.Severity.ERROR);
             }
           }
         } else if (inlineInitializers && cl.hasModifier(CodeConstants.ACC_INTERFACE)){
@@ -279,7 +317,7 @@ public final class InitializerProcessor {
 
               String fieldKey = InterpreterUtil.makeUniqueKey(fExpr.getName(), fExpr.getDescriptor().descriptorString);
               int fidx = cl.getFields().getIndexByKey(fieldKey);
-              if (prev_fidx <= fidx && isExprentIndependent(assignExpr.getRight(), lstMethodWrappers.get(i), cl, whitelist, fidx, false)) {
+              if (prev_fidx <= fidx && isExprentIndependent(fExpr, assignExpr.getRight(), lstMethodWrappers.get(i), cl, whitelist, new ArrayList<>() /* TODO */,  fidx, false)) {
                 prev_fidx = fidx;
                 if (fieldWithDescr == null) {
                   fieldWithDescr = fieldKey;
@@ -316,7 +354,8 @@ public final class InitializerProcessor {
     }
   }
 
-  private static boolean isExprentIndependent(Exprent exprent, MethodWrapper method, StructClass cl, Set<String> whitelist, int fidx, boolean isStatic) {
+  private static boolean isExprentIndependent(FieldExprent field, Exprent exprent, MethodWrapper method, StructClass cl, Set<String> whitelist, List<String> multiAssign, int fidx, boolean isStatic) {
+    String keyField = InterpreterUtil.makeUniqueKey(field.getName(), field.getDescriptor().descriptorString);
     List<Exprent> lst = exprent.getAllExprents(true);
     lst.add(exprent);
 
@@ -336,6 +375,11 @@ public final class InitializerProcessor {
           if (cl.hasField(fexpr.getName(), fexpr.getDescriptor().descriptorString)) {
             String key = InterpreterUtil.makeUniqueKey(fexpr.getName(), fexpr.getDescriptor().descriptorString);
             if (isStatic) {
+              // If this field has been assigned to more than once, we can't assume it's safe to inline
+              if (multiAssign.contains(fexpr.getName())) {
+                return false;
+              }
+
               // There is a very stupid section of the JLS
               if (!fexpr.isStatic()) {
                 return false;
@@ -355,18 +399,16 @@ public final class InitializerProcessor {
           }
           break;
         case Exprent.EXPRENT_NEW:
-          if (!isNewExprentIndependent((NewExprent)expr, cl, fidx)) {
-            return false;
-          }
+          qualifyFieldReferences((NewExprent)expr, cl, fidx);
+          break;
       }
     }
 
     return true;
   }
 
-  // Verifies that a lambda used to initialize a static field does not reference
-  // another static field defined later in the class
-  private static boolean isNewExprentIndependent(NewExprent nexpr, StructClass cl, int fidx) {
+  // Qualifies field references to future static fields in lambdas
+  private static void qualifyFieldReferences(NewExprent nexpr, StructClass cl, int fidx) {
     boolean isStatic = cl.getFields().get(fidx).hasModifier(CodeConstants.ACC_STATIC);
     if (isStatic && nexpr.isLambda() && !nexpr.isMethodReference()) {
       ClassNode child = DecompilerContext.getClassProcessor().getMapRootClasses().get(nexpr.getNewType().value);
@@ -378,25 +420,23 @@ public final class InitializerProcessor {
           s.add(e);
         return 0;
       });
-      return s.stream().allMatch(e -> {
+      for (Exprent e : s) {
         switch (e.type) {
           case Exprent.EXPRENT_FIELD:
             FieldExprent fe = (FieldExprent)e;
-            if (fe.isStatic() && cl.hasField(fe.getName(), fe.getDescriptor().descriptorString)) {
+            if (cl.qualifiedName.equals(fe.getClassname()) && fe.isStatic() && cl.hasField(fe.getName(), fe.getDescriptor().descriptorString)) {
               String key = InterpreterUtil.makeUniqueKey(fe.getName(), fe.getDescriptor().descriptorString);
               if (fe.getInstance() == null && cl.getFields().getIndexByKey(key) > fidx) {
-                return false;
+                fe.forceQualified(true);
               }
             }
             break;
           case Exprent.EXPRENT_NEW:
-            return isNewExprentIndependent((NewExprent)e, cl, fidx);
+            qualifyFieldReferences((NewExprent)e, cl, fidx);
+            break;
         }
-
-        return true;
-      });
+      }
     }
 
-    return true;
   }
 }

@@ -89,8 +89,8 @@ public class VarExprent extends Exprent {
   }
 
   @Override
-  public List<Exprent> getAllExprents() {
-    return new ArrayList<>();
+  public List<Exprent> getAllExprents(List<Exprent> lst) {
+    return lst;
   }
 
   @Override
@@ -248,7 +248,7 @@ public class VarExprent extends Exprent {
         if (processor.getThisVars().containsKey(getVarVersionPair())) {
           String qaulName = processor.getThisVars().get(getVarVersionPair());
           StructClass cls = DecompilerContext.getStructContext().getClass(qaulName);
-          if (cls.getSignature() != null) {
+          if (cls != null && cls.getSignature() != null) {
             vt = cls.getSignature().genericType;
           }
           else if (vt == null) {

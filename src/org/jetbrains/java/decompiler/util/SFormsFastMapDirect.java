@@ -344,17 +344,14 @@ public class SFormsFastMapDirect {
 
           list.add(new Entry<Integer, FastSparseSet<Integer>>() {
 
-            private final Integer var = key;
-            private final FastSparseSet<Integer> val = ent;
-
             @Override
             public Integer getKey() {
-              return var;
+              return key;
             }
 
             @Override
             public FastSparseSet<Integer> getValue() {
-              return val;
+              return ent;
             }
 
             @Override

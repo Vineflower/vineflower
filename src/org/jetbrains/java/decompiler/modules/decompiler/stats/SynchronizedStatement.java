@@ -67,7 +67,9 @@ public class SynchronizedStatement extends Statement {
       tracer.incrementCurrentSourceLine();
     }
 
-    buf.appendIndent(indent).append(headexprent.get(0).toJava(indent, tracer)).append(" {").appendLineSeparator();
+    Exprent headExpr = headexprent.get(0);
+    // monitor can be null in early processing stages
+    buf.appendIndent(indent).append(headExpr == null ? "synchronized <null condition> " : headExpr.toJava(indent, tracer).toString()).append(" {").appendLineSeparator();
     tracer.incrementCurrentSourceLine();
 
     buf.append(ExprProcessor.jmpWrapper(body, indent + 1, true, tracer));

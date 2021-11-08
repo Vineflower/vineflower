@@ -70,6 +70,7 @@ public class FunctionExprent extends Exprent {
   public final static int FUNCTION_IPP = 34;
   public final static int FUNCTION_PPI = 35;
 
+  // Ternaries (inline if)
   public final static int FUNCTION_IIF = 36;
 
   public final static int FUNCTION_LCMP = 37;
@@ -85,6 +86,7 @@ public class FunctionExprent extends Exprent {
   public static final int FUNCTION_GT = 46;
   public static final int FUNCTION_LE = 47;
 
+  // Boolean && and ||, TODO rename
   public static final int FUNCTION_CADD = 48;
   public static final int FUNCTION_COR = 49;
 
@@ -353,15 +355,6 @@ public class FunctionExprent extends Exprent {
   }
 
   @Override
-  protected void onReturn(MethodDescriptor descriptor) {
-    // Only adjust return types if we're a ternary statement to handle the single case we're targeting.
-    if (this.funcType == FUNCTION_IIF) {
-      this.lstOperands.get(1).onReturn(descriptor);
-      this.lstOperands.get(2).onReturn(descriptor);
-    }
-  }
-
-  @Override
   public int getExprentUse() {
     if (funcType >= FUNCTION_IMM && funcType <= FUNCTION_PPI) {
       return 0;
@@ -463,8 +456,9 @@ public class FunctionExprent extends Exprent {
   }
 
   @Override
-  public List<Exprent> getAllExprents() {
-    return new ArrayList<>(lstOperands);
+  public List<Exprent> getAllExprents(List<Exprent> lst) {
+    lst.addAll(this.lstOperands);
+    return lst;
   }
 
   @Override
@@ -604,7 +598,15 @@ public class FunctionExprent extends Exprent {
       case FUNCTION_MMI:
         return wrapOperandString(lstOperands.get(0), true, indent, tracer).prepend("--");
       case FUNCTION_INSTANCEOF:
-        return wrapOperandString(lstOperands.get(0), true, indent, tracer).append(" instanceof ").append(wrapOperandString(lstOperands.get(1), true, indent, tracer));
+        TextBuffer buffer = wrapOperandString(lstOperands.get(0), true, indent, tracer).append(" instanceof ").append(wrapOperandString(lstOperands.get(1), true, indent, tracer));
+
+        if (this.lstOperands.size() > 2) {
+          // Pattern instanceof creation- only happens when we have more than 2 exprents
+          buffer.append(" ");
+          ((VarExprent)this.lstOperands.get(2)).setDefinition(false);
+          buffer.append(wrapOperandString(this.lstOperands.get(2), true, indent, tracer));
+        }
+        return buffer;
       case FUNCTION_LCMP: // shouldn't appear in the final code
         return wrapOperandString(lstOperands.get(0), true, indent, tracer).prepend("__lcmp__(")
                  .append(", ")

@@ -34,8 +34,13 @@ public interface IFernflowerPreferences {
   String BYTECODE_SOURCE_MAPPING = "bsm";
   String IGNORE_INVALID_BYTECODE = "iib";
   String VERIFY_ANONYMOUS_CLASSES = "vac";
+  String TERNARY_CONSTANT_SIMPLIFICATION = "tcs";
+  String PATTERN_MATCHING = "pam";
+  String EXPERIMENTAL_TRY_LOOP_FIX = "tlf";
+  String TERNARY_CONDITIONS = "tco";
 
   String INCLUDE_ENTIRE_CLASSPATH = "iec";
+  String INCLUDE_JAVA_RUNTIME = "jrt";
   String EXPLICIT_GENERIC_ARGUMENTS = "ega";
   String INLINE_SIMPLE_LAMBDAS = "isl";
 
@@ -59,6 +64,8 @@ public interface IFernflowerPreferences {
   String SKIP_EXTRA_FILES = "sef";
 
   String WARN_INCONSISTENT_INNER_CLASSES = "win";
+  String DUMP_BYTECODE_ON_ERROR = "dbe";
+  String DUMP_EXCEPTION_ON_ERROR = "dee";
 
   Map<String, Object> DEFAULTS = getDefaults();
 
@@ -91,8 +98,13 @@ public interface IFernflowerPreferences {
     defaults.put(BYTECODE_SOURCE_MAPPING, "0");
     defaults.put(IGNORE_INVALID_BYTECODE, "0");
     defaults.put(VERIFY_ANONYMOUS_CLASSES, "0");
+    defaults.put(TERNARY_CONSTANT_SIMPLIFICATION, "0");
+    defaults.put(PATTERN_MATCHING, "0"); // Pattern matching has some issues around negative blocks
+    defaults.put(EXPERIMENTAL_TRY_LOOP_FIX, "0"); // Causes issues when decompiling certain classes
+    defaults.put(TERNARY_CONDITIONS, "1"); // Ternary conditions are pretty stable so they can go in here
 
     defaults.put(INCLUDE_ENTIRE_CLASSPATH, "0");
+    defaults.put(INCLUDE_JAVA_RUNTIME, "0");
     defaults.put(EXPLICIT_GENERIC_ARGUMENTS, "0");
     defaults.put(INLINE_SIMPLE_LAMBDAS, "1");
 
@@ -108,6 +120,8 @@ public interface IFernflowerPreferences {
     defaults.put(USE_JAD_VARNAMING, "0");
     defaults.put(SKIP_EXTRA_FILES, "0");
     defaults.put(WARN_INCONSISTENT_INNER_CLASSES, "1");
+    defaults.put(DUMP_BYTECODE_ON_ERROR, "1");
+    defaults.put(DUMP_EXCEPTION_ON_ERROR, "1");
 
     return Collections.unmodifiableMap(defaults);
   }

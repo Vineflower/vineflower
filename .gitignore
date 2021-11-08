@@ -1,4 +1,10 @@
 /.idea/
 /.gradle/
+/buildSrc/.gradle/
 /build/
+/buildSrc/build/
 /out/
+/testData/classes/java*/
+/testData/classes/jasm/
+/testData/classes/groovy/
+/testData/classes/kt/

@@ -1,0 +1,278 @@
+package pkg;
+
+import java.util.stream.Stream;
+
+public class TestWhileTernary10 {
+   public double test(boolean condition, int n, Stream<Double> doubles) {
+      double[] ds = new double[]{(double)n};// 7
+
+      for(int i = 0; condition ? i >= n : n >= i; ++i) {// 9
+         for(int j = 0; j < n; ++j) {// 10
+            System.out.println(1);// 11
+            if (j > i) {// 13
+               ++j;// 14
+            }
+         }
+      }
+
+      doubles.forEach(d -> {// 19
+         ds[0] -= d;
+      });
+      return ds[0];// 20
+   }
+
+   public double test1(boolean condition, int n, Stream<Double> doubles) {
+      double[] ds = new double[]{(double)n};// 24
+
+      for(int i = 0; condition ? i >= n : n >= i; ++i) {// 26
+         ds[0] += (double)i;// 27
+      }
+
+      doubles.forEach(d -> {// 30
+         ds[0] -= d;
+      });
+      return ds[0];// 31
+   }
+
+   public double test2(boolean condition, int n, Stream<Double> doubles) {
+      double[] ds = new double[]{(double)n};// 35
+
+      for(int i = 0; condition ? i >= n : n >= i; ++i) {// 37
+         for(int j = 0; j < n; ++j) {// 38
+            for(int k = 0; k < i; ++k) {// 39
+               System.out.println(1);// 40
+               if (j > i) {// 42
+                  ++j;// 43
+               }
+            }
+         }
+      }
+
+      doubles.forEach(d -> {// 49
+         ds[0] -= d;
+      });
+      return ds[0];// 50
+   }
+}
+
+class 'pkg/TestWhileTernary10' {
+   method 'lambda$test$0 ([DLjava/lang/Double;)V' {
+      0      18
+      1      18
+      4      18
+      5      18
+      6      18
+      7      18
+      9      18
+      a      19
+   }
+
+   method 'test (ZILjava/util/stream/Stream;)D' {
+      5      6
+      6      6
+      8      6
+      9      6
+      a      8
+      b      8
+      c      8
+      d      8
+      11      8
+      12      8
+      13      8
+      14      8
+      1a      8
+      1b      8
+      1c      8
+      1d      8
+      20      9
+      21      9
+      22      9
+      23      9
+      24      9
+      25      9
+      26      9
+      29      10
+      2a      10
+      2b      10
+      2c      10
+      2d      10
+      2e      10
+      2f      10
+      30      11
+      31      11
+      32      11
+      33      11
+      34      11
+      37      12
+      3a      9
+      3b      9
+      3c      9
+      40      8
+      41      8
+      42      8
+      46      17
+      4e      17
+      4f      17
+      50      17
+      51      17
+      52      17
+      53      20
+      54      20
+      55      20
+      56      20
+      57      20
+   }
+
+   method 'lambda$test1$1 ([DLjava/lang/Double;)V' {
+      0      31
+      1      31
+      4      31
+      5      31
+      6      31
+      7      31
+      9      31
+      a      32
+   }
+
+   method 'test1 (ZILjava/util/stream/Stream;)D' {
+      5      24
+      6      24
+      8      24
+      9      24
+      a      26
+      b      26
+      c      26
+      d      26
+      11      26
+      12      26
+      13      26
+      14      26
+      1a      26
+      1b      26
+      1c      26
+      1d      26
+      20      27
+      21      27
+      22      27
+      25      27
+      26      27
+      27      27
+      29      27
+      2a      26
+      2b      26
+      2c      26
+      30      30
+      38      30
+      39      30
+      3a      30
+      3b      30
+      3c      30
+      3d      33
+      3e      33
+      3f      33
+      40      33
+      41      33
+   }
+
+   method 'lambda$test2$2 ([DLjava/lang/Double;)V' {
+      0      51
+      1      51
+      4      51
+      5      51
+      6      51
+      7      51
+      9      51
+      a      52
+   }
+
+   method 'test2 (ZILjava/util/stream/Stream;)D' {
+      5      37
+      6      37
+      8      37
+      9      37
+      a      39
+      b      39
+      c      39
+      d      39
+      11      39
+      12      39
+      13      39
+      14      39
+      1a      39
+      1b      39
+      1c      39
+      1d      39
+      20      40
+      21      40
+      22      40
+      23      40
+      24      40
+      25      40
+      26      40
+      29      41
+      2a      41
+      2b      41
+      2c      41
+      2d      41
+      2e      41
+      2f      41
+      30      41
+      33      42
+      34      42
+      35      42
+      36      42
+      37      42
+      38      42
+      39      42
+      3a      43
+      3b      43
+      3c      43
+      3d      43
+      3e      43
+      41      44
+      44      41
+      45      41
+      46      41
+      4a      40
+      4b      40
+      4c      40
+      50      39
+      51      39
+      52      39
+      56      50
+      5e      50
+      5f      50
+      60      50
+      61      50
+      62      50
+      63      53
+      64      53
+      65      53
+      66      53
+      67      53
+   }
+}
+
+Lines mapping:
+7 <-> 7
+9 <-> 9
+10 <-> 10
+11 <-> 11
+13 <-> 12
+14 <-> 13
+19 <-> 18
+20 <-> 21
+24 <-> 25
+26 <-> 27
+27 <-> 28
+30 <-> 31
+31 <-> 34
+35 <-> 38
+37 <-> 40
+38 <-> 41
+39 <-> 42
+40 <-> 43
+42 <-> 44
+43 <-> 45
+49 <-> 51
+50 <-> 54

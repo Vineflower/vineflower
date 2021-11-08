@@ -2,175 +2,465 @@
 package org.jetbrains.java.decompiler;
 
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
-import org.junit.Test;
+
+import static org.jetbrains.java.decompiler.SingleClassesTestBase.TestDefinition.Version.*;
 
 public class SingleClassesTest extends SingleClassesTestBase {
   @Override
-  protected String[] getDecompilerOptions() {
-    return new String[] {
+  protected void registerAll() {
+    registerSet("Default", this::registerDefault,
       IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
       IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
+      IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR, "0",
       IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
       IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
       IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "0",
       IFernflowerPreferences.INLINE_SIMPLE_LAMBDAS, "0"
-    };
+    );
+    registerSet("Entire Classpath", this::registerEntireClassPath,
+      IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
+      IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
+      IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR, "0",
+      IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
+      IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
+      IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "1",
+      IFernflowerPreferences.INLINE_SIMPLE_LAMBDAS, "0"
+    );
+    registerSet("Java Runtime", this::registerJavaRuntime,
+      IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
+      IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
+      IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR, "0",
+      IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
+      IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
+      IFernflowerPreferences.INCLUDE_JAVA_RUNTIME, "1",
+      IFernflowerPreferences.INLINE_SIMPLE_LAMBDAS, "0"
+    );
+    registerSet("Literals", this::registerLiterals,
+      IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
+      IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
+      IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR, "0",
+      IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
+      IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
+      IFernflowerPreferences.LITERALS_AS_IS, "0"
+    );
+    registerSet("Pattern Matching", this::registerPatternMatching,
+      IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
+      IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
+      IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR, "0",
+      IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
+      IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
+      IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "0",
+      IFernflowerPreferences.INLINE_SIMPLE_LAMBDAS, "0",
+      IFernflowerPreferences.PATTERN_MATCHING, "1"
+    );
+    registerSet("Ternary Constant Simplification", this::registerTernaryConstantSimplification,
+      IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
+      IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
+      IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR, "0",
+      IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
+      IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
+      IFernflowerPreferences.LITERALS_AS_IS, "0",
+      IFernflowerPreferences.TERNARY_CONSTANT_SIMPLIFICATION, "1"
+    );
+    registerSet("LVT", this::registerLVT,
+      IFernflowerPreferences.DECOMPILE_INNER, "1",
+      IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR, "0",
+      IFernflowerPreferences.DECOMPILE_GENERIC_SIGNATURES, "1",
+      IFernflowerPreferences.ASCII_STRING_CHARACTERS, "1",
+      IFernflowerPreferences.LOG_LEVEL, "TRACE",
+      IFernflowerPreferences.REMOVE_SYNTHETIC, "1",
+      IFernflowerPreferences.REMOVE_BRIDGE, "1",
+      IFernflowerPreferences.USE_DEBUG_VAR_NAMES, "1"
+    );
+    registerSet("JAD Naming", () -> {
+      register(JAVA_8, "TestJADNaming");
+    },IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
+      IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
+      IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR, "0",
+      IFernflowerPreferences.USE_JAD_VARNAMING, "1"
+    );
+    registerSet("Try Loop", this::registerTryLoop,
+      IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
+      IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
+      IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR, "0",
+      IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
+      IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
+      IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "0",
+      IFernflowerPreferences.INLINE_SIMPLE_LAMBDAS, "0",
+      IFernflowerPreferences.EXPERIMENTAL_TRY_LOOP_FIX, "1"
+    );
   }
 
-  @Test public void testEnhancedForLoops() { doTest("pkg/TestEnhancedForLoops"); }
-  @Test public void testPrimitiveNarrowing() { doTest("pkg/TestPrimitiveNarrowing"); }
-  @Test public void testClassFields() { doTest("pkg/TestClassFields"); }
-  @Test public void testInterfaceFields() { doTest("pkg/TestInterfaceFields"); }
-  @Test public void testClassLambda() { doTest("pkg/TestClassLambda"); }
-  @Test public void testClassLoop() { doTest("pkg/TestClassLoop"); }
-  @Test public void testClassSwitch() { doTest("pkg/TestClassSwitch"); }
-  @Test public void testClassVar() { doTest("pkg/TestClassVar"); }
-  @Test public void testClassNestedInitializer() { doTest("pkg/TestClassNestedInitializer"); }
-  @Test public void testDeprecations() { doTest("pkg/TestDeprecations"); }
-  @Test public void testExtendsList() { doTest("pkg/TestExtendsList"); }
-  @Test public void testMethodParameters() { doTest("pkg/TestMethodParameters"); }
-  @Test public void testMethodParametersAttr() { doTest("pkg/TestMethodParametersAttr"); }
-  @Test public void testCodeConstructs() { doTest("pkg/TestCodeConstructs"); }
-  @Test public void testConstants() { doTest("pkg/TestConstants"); }
-  @Test public void testEnum() { doTest("pkg/TestEnum"); }
-  @Test public void testDebugSymbols() { doTest("pkg/TestDebugSymbols"); }
-  @Test public void testInvalidMethodSignature() { doTest("InvalidMethodSignature"); }
-  @Test public void testAnonymousClassConstructor() { doTest("pkg/TestAnonymousClassConstructor"); }
-  @Test public void testInnerClassConstructor() { doTest("pkg/TestInnerClassConstructor"); }
-  @Test public void testInnerClassConstructor11() { doTest("v11/TestInnerClassConstructor"); }
-  @Test public void testTryCatchFinally() { doTest("pkg/TestTryCatchFinally"); }
-  @Test public void testAmbiguousCall() { doTest("pkg/TestAmbiguousCall"); }
-  @Test public void testAmbiguousCallWithDebugInfo() { doTest("pkg/TestAmbiguousCallWithDebugInfo"); }
-  @Test public void testSynchronizedMapping() { doTest("pkg/TestSynchronizedMapping"); }
-  @Test public void testAbstractMethods() { doTest("pkg/TestAbstractMethods"); }
-  @Test public void testLocalClass() { doTest("pkg/TestLocalClass"); }
-  @Test public void testInnerLocal() { doTest("pkg/TestInnerLocal"); }
-  @Test public void testInnerSignature() { doTest("pkg/TestInnerSignature"); }
-  @Test public void testParameterizedTypes() { doTest("pkg/TestParameterizedTypes"); }
-  @Test public void testStringConcat() { doTest("pkg/TestStringConcat"); }
-  @Test public void testJava9StringConcat() { doTest("java9/TestJava9StringConcat"); }
-  @Test public void testJava9ModuleInfo() { doTest("java9/module-info"); }
-  @Test public void testJava11StringConcat() { doTest("java11/TestJava11StringConcat"); }
-  @Test public void testMethodReferenceSameName() { doTest("pkg/TestMethodReferenceSameName"); }
-  @Test public void testMethodReferenceLetterClass() { doTest("pkg/TestMethodReferenceLetterClass"); }
-  @Test public void testConstructorReference() { doTest("pkg/TestConstructorReference"); }
-  @Test public void testMemberAnnotations() { doTest("pkg/TestMemberAnnotations"); }
-  @Test public void testMoreAnnotations() { doTest("pkg/MoreAnnotations"); }
-  @Test public void testTypeAnnotations() { doTest("pkg/TypeAnnotations"); }
-  @Test public void testStaticNameClash() { doTest("pkg/TestStaticNameClash"); }
-  @Test public void testExtendingSubclass() { doTest("pkg/TestExtendingSubclass"); }
-  @Test public void testSyntheticAccess() { doTest("pkg/TestSyntheticAccess"); }
-  @Test public void testIllegalVarName() { doTest("pkg/TestIllegalVarName"); }
-  @Test public void testIffSimplification() { doTest("pkg/TestIffSimplification"); }
-  @Test public void testAsserts() { doTest("pkg/TestAsserts"); }
-  @Test public void testLocalsNames() { doTest("pkg/TestLocalsNames"); }
-  @Test public void testAnonymousParamNames() { doTest("pkg/TestAnonymousParamNames"); }
-  @Test public void testAccessReplace() { doTest("pkg/TestAccessReplace"); }
-  @Test public void testStringLiterals() { doTest("pkg/TestStringLiterals"); }
-  @Test public void testClashName() { doTest("pkg/TestClashName", "pkg/SharedName1",
-          "pkg/SharedName2", "pkg/SharedName3", "pkg/SharedName4", "pkg/NonSharedName",
-          "pkg/TestClashNameParent", "ext/TestClashNameParent","pkg/TestClashNameIface", "ext/TestClashNameIface"); }
-  @Test public void testSwitchOnEnum() { doTest("pkg/TestSwitchOnEnum");}
-  @Test public void testSwitchOnStrings() { doTest("pkg/TestSwitchOnStrings");}
-  @Test public void testLambdaParams() { doTest("pkg/TestLambdaParams"); }
-  @Test public void testInterfaceMethods() { doTest("pkg/TestInterfaceMethods"); }
-  @Test public void testConstType() { doTest("pkg/TestConstType"); }
-  @Test public void testPop2OneDoublePop2() { doTest("pkg/TestPop2OneDoublePop2"); }
-  @Test public void testPop2OneLongPop2() { doTest("pkg/TestPop2OneLongPop2"); }
-  @Test public void testPop2TwoIntPop2() { doTest("pkg/TestPop2TwoIntPop2"); }
-  @Test public void testPop2TwoIntTwoPop() { doTest("pkg/TestPop2TwoIntTwoPop"); }
-  @Test public void testSuperInner() { doTest("pkg/TestSuperInner", "pkg/TestSuperInnerBase"); }
-  @Test public void testMissingConstructorCallGood() { doTest("pkg/TestMissingConstructorCallGood"); }
-  @Test public void testMissingConstructorCallBad() { doTest("pkg/TestMissingConstructorCallBad"); }
-  @Test public void testEmptyBlocks() { doTest("pkg/TestEmptyBlocks"); }
-  @Test public void testInvertedFloatComparison() { doTest("pkg/TestInvertedFloatComparison"); }
-  @Test public void testPrivateEmptyConstructor() { doTest("pkg/TestPrivateEmptyConstructor"); }
-  // TODO: the local variable name there is wildly mangled
-  @Test public void testSynchronizedUnprotected() { doTest("pkg/TestSynchronizedUnprotected"); }
-  @Test public void testInterfaceSuper() { doTest("pkg/TestInterfaceSuper"); }
-  @Test public void testFieldSingleAccess() { doTest("pkg/TestFieldSingleAccess"); }
-  @Test public void testPackageInfo() { doTest("pkg/package-info"); }
+  private void registerDefault() {
+    register(JAVA_8, "TestEnhancedForLoops");
+    register(JAVA_8, "TestPrimitiveNarrowing");
+    register(JAVA_8, "TestClassFields");
+    register(JAVA_8, "TestInterfaceFields");
+    register(JAVA_8, "TestClassLambda");
+    register(JAVA_8, "TestClassLoop");
+    register(JAVA_8, "TestClassSwitch");
+    register(JAVA_8, "TestClassVar");
+    register(JAVA_8, "TestClassNestedInitializer");
+    register(JAVA_8, "TestDeprecations");
+    register(JAVA_8, "TestExtendsList");
+    register(JAVA_8, "TestMethodParameters");
+    register(JAVA_8, "TestMethodParametersAttr");
+    register(JAVA_8, "TestCodeConstructs");
+    register(JAVA_8, "TestConstants");
+    register(JAVA_8, "TestEnum");
+    register(JAVA_8, "TestDebugSymbols");
+    registerRaw(CUSTOM, "InvalidMethodSignature");
+    register(JAVA_8, "TestAnonymousClassConstructor");
+    register(JAVA_8, "TestInnerClassConstructor");
+    register(CUSTOM, "v11/TestInnerClassConstructor");
+    register(JAVA_8, "TestTryCatchFinally");
+    register(JAVA_8, "TestAmbiguousCall");
+    register(JAVA_8, "TestSynchronizedMapping");
+    register(JAVA_8, "TestAbstractMethods");
+    register(JAVA_8, "TestLocalClass");
+    register(JAVA_8, "TestInnerLocal");
+    register(JAVA_8, "TestInnerSignature");
+    register(JAVA_8, "TestParameterizedTypes");
+    register(JAVA_8, "TestStringConcat");
+    register(JAVA_9, "TestJava9StringConcat");
+    registerRaw(JAVA_9, "module-info");
+    register(JAVA_11, "TestJava11StringConcat");
+    register(JAVA_8, "TestMethodReferenceSameName");
+    register(JAVA_8, "TestMethodReferenceLetterClass");
+    register(JAVA_8, "TestConstructorReference");
+    register(JAVA_8, "TestMemberAnnotations");
+    register(JAVA_8, "MoreAnnotations");
+    register(JAVA_8, "TypeAnnotations");
+    register(JAVA_8, "TestStaticNameClash");
+    register(JAVA_8, "TestExtendingSubclass");
+    register(JAVA_8, "TestSyntheticAccess");
+    register(KOTLIN, "TestIllegalVarName");
+    register(JAVA_8, "TestIffSimplification");
+    register(JAVA_8, "TestAsserts");
+    register(JAVA_8, "TestLocalsNames");
+    register(JAVA_8, "TestAnonymousParamNames");
+    register(JAVA_8, "TestAccessReplace");
+    register(JAVA_8, "TestStringLiterals");
 
-  @Test public void testInnerClassConstructor2() { doTest("pkg/TestInner2"); }
-  @Test public void testInUse() { doTest("pkg/TestInUse"); }
+    register(JAVA_8, "TestClassFields");
+    register(JAVA_8, "TestClashName", "SharedName1",
+      "SharedName2", "SharedName3", "SharedName4", "NonSharedName",
+      "TestClashNameParent", "ext/TestClashNameParent", "TestClashNameIface", "ext/TestClashNameIface");
+    register(JAVA_8, "TestSwitchOnEnum");
+    register(JAVA_8, "TestSwitchOnStrings");
+    register(JAVA_8, "TestLambdaParams");
+    register(JAVA_8, "TestInterfaceMethods");
+    register(JAVA_8, "TestConstType");
+    register(JASM, "TestPop2OneDoublePop2");
+    register(JASM, "TestPop2OneLongPop2");
+    register(JASM, "TestPop2TwoIntPop2");
+    register(JASM, "TestPop2TwoIntTwoPop");
+    register(JAVA_8, "TestSuperInner", "TestSuperInnerBase");
+    register(JASM, "TestMissingConstructorCallGood");
+    register(JASM, "TestMissingConstructorCallBad");
+    register(JAVA_8, "TestEmptyBlocks");
+    register(JAVA_8, "TestInvertedFloatComparison");
+    register(JAVA_8, "TestPrivateEmptyConstructor");
+    // TODO: the local variable name there is wildly mangled
+    register(KOTLIN, "TestSynchronizedUnprotected");
+    register(JAVA_8, "TestInterfaceSuper");
+    register(JASM, "TestFieldSingleAccess");
+    register(JAVA_8, "package-info");
 
-  @Test public void testGroovyClass() { doTest("pkg/TestGroovyClass"); }
-  @Test public void testGroovyTrait() { doTest("pkg/TestGroovyTrait"); }
-  // TODO: This class fails to decompile
-//  @Test public void testPrivateClasses() { doTest("pkg/PrivateClasses"); }
-  @Test public void testSuspendLambda() { doTest("pkg/TestSuspendLambdaKt"); }
-  @Test public void testGenericArgs() { doTest("pkg/TestGenericArgs"); }
-  @Test public void testRecordEmpty() { doTest("records/TestRecordEmpty"); }
-  @Test public void testRecordSimple() { doTest("records/TestRecordSimple"); }
-  @Test public void testRecordVararg() { doTest("records/TestRecordVararg"); }
-  @Test public void testRecordGenericVararg() { doTest("records/TestRecordGenericVararg"); }
-  @Test public void testRecordAnno() { doTest("records/TestRecordAnno"); }
-  // TODO: The (double) in front of the (int) should be removed
-  @Test public void testMultiCast() { doTest("pkg/TestMultiCast"); }
-  // TODO: The ternary here needs to be removed
-  @Test public void testNestedLambdas() { doTest("pkg/TestNestedLambdas"); }
-  @Test public void testSwitchAssign() { doTest("pkg/TestSwitchAssign"); }
-  @Test public void testSwitchReturn() { doTest("pkg/TestSwitchReturn"); }
-  // TODO: Turned into for loops
-  @Test public void testWhileCondition() { doTest("pkg/TestWhileCondition"); }
-  @Test public void testLocalScopes() { doTest("pkg/TestLocalScopes"); }
-  @Test public void testInterfaceSubclass() { doTest("pkg/TestInterfaceSubclass"); }
-  @Test public void testGenericStatic() { doTest("pkg/TestGenericStatic"); }
-  @Test public void testAssignmentInLoop() { doTest("pkg/TestAssignmentInLoop"); }
-  @Test public void testArrays() { doTest("pkg/TestArrays"); }
-  @Test public void testArrayForeach() { doTest("pkg/TestArrayForeach"); }
-  // TODO: I'm pretty sure this test opened the gates of hell somewhere. We need to figure out what's causing that
-  @Test public void testTernaryCall() { doTest("pkg/TestTernaryCall"); }
+    register(JAVA_8, "TestInner2");
+    register(JAVA_8, "TestInUse");
 
-  @Test public void testAnonymousObject() { doTest("pkg/TestAnonymousObject"); }
-  @Test public void testArrayAssignmentEquals() { doTest("pkg/TestArrayAssignmentEquals"); }
-  // TODO: Loop becomes infinte loop where it should be assignment in loop
-  @Test public void testArrayCopy() { doTest("pkg/TestArrayCopy"); }
-  @Test public void testArrayDoWhile() { doTest("pkg/TestArrayDoWhile"); }
-  // TODO: Creating a new object where the array should be set to null
-  @Test public void testArrayNull1() { doTest("pkg/TestArrayNull1"); }
-  // TODO: Object should be int[], cast where there shouldn't be
-  @Test public void testArrayNull2() { doTest("pkg/TestArrayNull2"); }
-  // TODO: Redefinition of array, extra cast
-  @Test public void testArrayNullAccess() { doTest("pkg/TestArrayNullAccess"); }
-  @Test public void testArrayTernary() { doTest("pkg/TestArrayTernary"); }
-  // TODO: Do while loops become standard while loops
-  @Test public void testAssignmentInDoWhile() { doTest("pkg/TestAssignmentInDoWhile"); }
-  // TODO: Assignment of a = a is removed
-  @Test public void testBooleanAssignment() { doTest("pkg/TestBooleanAssignment"); }
-  @Test public void testCastPrimitiveToObject() { doTest("pkg/TestCastPrimitiveToObject"); }
-  @Test public void testDoWhileTrue() { doTest("pkg/TestDoWhileTrue"); }
-  @Test public void testExtraClass() { doTest("pkg/TestExtraClass"); }
-  // TODO: Object foreach should be generic
-  @Test public void testGenericMapInput() { doTest("pkg/TestGenericMapInput"); }
-  @Test public void testGenericNull() { doTest("pkg/TestGenericNull"); }
-  @Test public void testInlineAssignments() { doTest("pkg/TestInlineAssignments"); }
-  // TODO: Cast of (Func) is removed
-  @Test public void testInterfaceLambdaCast() { doTest("pkg/TestInterfaceLambdaCast"); }
-  // TODO: Local scope is removed, replaced with boolean cast
-  @Test public void testLocalScopeClash() { doTest("pkg/TestLocalScopeClash"); }
-  @Test public void testMultiBoolean() { doTest("pkg/TestMultiBoolean"); }
-  @Test public void testNestedFor() { doTest("pkg/TestNestedFor"); }
-  @Test public void testNestedLoops2() { doTest("pkg/TestNestedLoops2"); }
-  @Test public void testOverloadedNull() { doTest("pkg/TestOverloadedNull"); }
-  @Test public void testReturnIf() { doTest("pkg/TestReturnIf"); }
-  // TODO: Shift equals is broken, and bitwise should be x & (x >> 2)
-  @Test public void testShiftAssignmentInCall() { doTest("pkg/TestShiftAssignmentInCall"); }
-  @Test public void testSplitColorComponents() { doTest("pkg/TestSplitColorComponents"); }
-  // TODO: extra casts on assignment
-  @Test public void testStaticBlockNull() { doTest("pkg/TestStaticBlockNull"); }
-  @Test public void testStringLiteral() { doTest("pkg/TestStringLiteral"); }
-  @Test public void testSwitchStringHashcodeCollision() { doTest("pkg/TestSwitchStringHashcodeCollision"); }
-  // TODO: Assignment of o = new Object() is removed
-  @Test public void testSynchronized() { doTest("pkg/TestSynchronized"); }
-  // TODO: Assignment of o = null is removed, synchronize on null is invalid
-  @Test public void testSynchronizeNull() { doTest("pkg/TestSynchronizeNull"); }
-  @Test public void testWhileIterator() { doTest("pkg/TestWhileIterator"); }
-  @Test public void testReturnTernaryChar() { doTest("pkg/TestReturnTernaryChar"); }
-  @Test public void testCompoundAssignment() { doTest("pkg/TestCompoundAssignment"); }
-  // TODO: Fails to decompile empty infinite loop
-  @Test public void testInfiniteLoop() { doTest("pkg/TestInfiniteLoop"); }
-  // TODO: many problems, wrong else if placement, wrong promotion of while to for, wrong control flow with infinite loop
-  @Test public void testIfLoop() { doTest("pkg/TestIfLoop"); }
-  @Test public void testInheritanceChainCycle() { doTest("pkg/TestInheritanceChainCycle"); }
+    register(GROOVY, "TestGroovyClass");
+    register(GROOVY, "TestGroovyTrait");
+    register(JAVA_8, "TestPrivateClasses");
+    register(KOTLIN, "TestSuspendLambdaKt");
+    register(JAVA_8, "TestGenericArgs");
+    register(JAVA_16, "TestRecordEmpty");
+    register(JAVA_16, "TestRecordSimple");
+    register(JAVA_16, "TestRecordVararg");
+    register(JAVA_16, "TestRecordGenericVararg");
+    register(JAVA_16, "TestRecordAnno");
+    // TODO: The (double) in front of the (int) should be removed
+    register(JAVA_8, "TestMultiCast");
+    // TODO: The ternary here needs to be removed
+    register(JAVA_8, "TestNestedLambdas");
+    register(JAVA_8, "TestSwitchAssign");
+    register(JAVA_8, "TestSwitchReturn");
+    // TODO: Turned into for loops
+    register(JAVA_8, "TestWhileCondition");
+    register(JAVA_8, "TestLocalScopes");
+    register(JAVA_8, "TestInterfaceSubclass");
+    register(JAVA_8, "TestGenericStatic");
+    register(JAVA_8, "TestAssignmentInLoop");
+    register(JAVA_8, "TestArrays");
+    register(JAVA_8, "TestArrayForeach");
+    // TODO: I'm pretty sure this test opened the gates of hell somewhere. We need to figure out what's causing that
+    register(JAVA_8, "TestTernaryCall");
+    register(JAVA_8, "TestAnonymousObject");
+    register(JAVA_8, "TestArrayAssignmentEquals");
+    // TODO: Loop becomes infinte loop where it should be assignment in loop
+    register(JAVA_8, "TestArrayCopy");
+    register(JAVA_8, "TestArrayDoWhile");
+    // TODO: Creating a new object where the array should be set to null
+    register(JAVA_8, "TestArrayNull1");
+    // TODO: Object should be int[], cast where there shouldn't be
+    register(JAVA_8, "TestArrayNull2");
+    // TODO: Redefinition of array, extra cast
+    register(JAVA_8, "TestArrayNullAccess");
+    register(JAVA_8, "TestArrayTernary");
+    // TODO: Do while loops become standard while loops
+    register(JAVA_8, "TestAssignmentInDoWhile");
+    // TODO: Assignment of a = a is removed
+    register(JAVA_8, "TestBooleanAssignment");
+    register(JAVA_8, "TestCastPrimitiveToObject");
+    register(JAVA_8, "TestDoWhileTrue");
+    register(JAVA_8, "TestExtraClass");
+    // TODO: Object foreach should be generic
+    register(JAVA_8, "TestGenericMapInput");
+    register(JAVA_8, "TestGenericNull");
+    register(JAVA_8, "TestInlineAssignments");
+    // TODO: Cast of (Func) is removed
+    register(JAVA_8, "TestInterfaceLambdaCast");
+    // TODO: Local scope is removed, replaced with boolean cast
+    register(JAVA_8, "TestLocalScopeClash");
+    register(JAVA_8, "TestMultiBoolean");
+    register(JAVA_8, "TestNestedFor");
+    register(JAVA_8, "TestNestedLoops2");
+    register(JAVA_8, "TestOverloadedNull");
+    register(JAVA_8, "TestReturnIf");
+    // TODO: Shift equals is broken, and bitwise should be x & (x >> 2)
+    register(JAVA_8, "TestShiftAssignmentInCall");
+    register(JAVA_8, "TestSplitColorComponents");
+    // TODO: extra casts on assignment
+    register(JAVA_8, "TestStaticBlockNull");
+    register(JAVA_8, "TestStringLiteral");
+    register(JAVA_8, "TestSwitchStringHashcodeCollision");
+    // TODO: Assignment of o = new Object() is removed
+    register(JAVA_8, "TestSynchronized");
+    // TODO: Assignment of o = null is removed, synchronize on null is invalid
+    register(JAVA_8, "TestSynchronizeNull");
+    register(JAVA_8, "TestWhileIterator");
+    register(JAVA_8, "TestReturnTernaryChar");
+    register(JAVA_8, "TestCompoundAssignment");
+    register(JAVA_8, "TestInfiniteLoop");
+    // TODO: many problems, wrong else if placement, wrong promotion of while to for, wrong control flow with infinite loop
+    register(JAVA_8, "TestIfLoop");
+    // Be careful when touching this class file, your IDE might freeze
+    register(JASM, "TestInheritanceChainCycle");
+    register(JAVA_16, "TestRecordEmptyConstructor");
+    register(JAVA_16, "TestRecordInner");
+    register(JAVA_16, "TestRecordMixup");
+    register(JAVA_8, "TestMultiAssignmentInStaticBlock");
+    register(JAVA_8, "TestNextGaussian");
+    register(JAVA_8, "TestLoopBreak");
+    register(JAVA_8, "TestLoopBreak2");
+    register(JAVA_8, "TestSimpleWhile");
+    register(JAVA_8, "TestLoopBreakException");
+
+    register(JAVA_8, "TestWhileTernary1");
+    register(JAVA_8, "TestWhileTernary2");
+    register(JAVA_8, "TestWhileTernaryFake");
+    register(JAVA_8, "TestWhileTernary3");
+    register(JAVA_8, "TestWhileTernary4");
+    register(JAVA_8, "TestWhileTernary5");
+    register(JAVA_8, "TestWhileTernary6");
+    register(JAVA_8, "TestWhileTernary7");
+    // TODO: complex ternaries are not supported
+    register(JAVA_8, "TestWhileTernary8");
+    register(JAVA_8, "TestWhileTernary9");
+    // TODO: continue still exists in loop
+    register(JAVA_8, "TestWhileTernary10");
+
+    register(JAVA_8, "TestOperatorPrecedence");
+    register(JAVA_8, "TestMultipleStaticBlocks");
+    register(JAVA_8, "TestTrySynchronized");
+    // TODO: fields must be placed after enum members
+    register(JASM, "TestEnumStaticField");
+    // Noted to say this would produce different code each time but it does not from testing
+    register(JASM, "TestIrreducible");
+    register(JAVA_8, "TestForContinue");
+    // TODO: this needs a flat statement structure
+    register(JAVA_8, "TestExceptionElse");
+    register(JAVA_8, "TestGenericCasts");
+    register(JAVA_8, "TestNativeMethods");
+    register(JAVA_8, "TestThrowLoop");
+    register(JAVA_8, "TestShiftLoop");
+    register(JASM, "TestDoubleCast");
+    register(JAVA_16, "TestLocalEnum");
+    register(JAVA_16, "TestLocalInterface");
+    register(JAVA_16, "TestLocalRecord");
+    register(JAVA_9, "TestPrivateInterfaceMethod");
+
+    register(JAVA_16, "TestAssignmentSwitchExpression1");
+    register(JAVA_16, "TestAssignmentSwitchExpression2");
+    register(JAVA_16, "TestAssignmentSwitchExpression3");
+    register(JAVA_16, "TestAssignmentSwitchExpression4");
+    register(JAVA_16, "TestAssignmentSwitchExpression5");
+    register(JAVA_16, "TestAssignmentSwitchExpression6");
+    register(JAVA_16, "TestInlineSwitchExpression1");
+    register(JAVA_16, "TestInlineSwitchExpression2");
+    register(JAVA_16, "TestInlineSwitchExpression3");
+    register(JAVA_16, "TestInlineSwitchExpression4");
+    register(JAVA_16, "TestInlineSwitchExpression5");
+    register(JAVA_16, "TestInlineSwitchExpression6");
+    register(JAVA_16, "TestReturnSwitchExpression1");
+    register(JAVA_16, "TestReturnSwitchExpression2");
+    register(JAVA_16, "TestReturnSwitchExpression3");
+    register(JAVA_16, "TestReturnSwitchExpression4");
+    register(JAVA_16, "TestConstructorSwitchExpression1");
+    register(JAVA_16, "TestConstructorSwitchExpression2");
+    register(JAVA_16, "TestAssertSwitchExpression");
+
+    register(JAVA_16_PREVIEW, "TestSealedClasses");
+    register(JAVA_16_PREVIEW, "PermittedSubClassA", "TestSealedClasses");
+    register(JAVA_16_PREVIEW, "PermittedSubClassB", "PermittedSubClassA", "TestSealedClasses");
+    register(JAVA_16_PREVIEW, "TestSealedInterfaces");
+    register(JAVA_16_PREVIEW, "PermittedSubInterfaceA", "TestSealedInterfaces");
+    register(JAVA_16_PREVIEW, "PermittedSubInterfaceB", "PermittedSubInterfaceA", "TestSealedInterfaces");
+    register(JAVA_16_PREVIEW, "PermittedSubClassC", "TestSealedInterfaces");
+    register(JAVA_16_PREVIEW, "PermittedSubClassD", "PermittedSubClassC", "TestSealedInterfaces");
+    register(JAVA_16_PREVIEW, "PermittedSubClassE", "TestSealedInterfaces");
+
+    register(JAVA_8_NODEBUG, "TestDuplicateLocals");
+
+    register(JAVA_8, "TestMethodHandles");
+    register(JAVA_9, "TestVarHandles");
+    // TODO: fix duplicate naming, propagate renames to all method calls
+    register(JASM, "TestIllegalMethodNames");
+    register(JAVA_8, "TestSwitchOnlyDefault");
+    register(JAVA_8, "TestSwitchEmpty");
+    register(JAVA_8, "TestSwitchDefaultBefore");
+    // TODO: fix all the <unknown>s
+    register(JAVA_8_NODEBUG, "TestIterationOverGenericsWithoutLvt");
+    register(JAVA_8_NODEBUG, "TestIterationOverGenericsWithoutLvt1");
+
+    // TODO: "3;" is generally not considered valid java code, fix ternaries not being simplified
+    register(JAVA_8, "TestNestedTernaryAssign");
+    register(JAVA_8, "TestNestedTernaryCondition");
+	
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatching1");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatching2");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatching3");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatching4");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatching5");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingInstanceof1");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingInstanceof2");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingReturn1");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingReturn2");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingConstructor1");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingConstructor2");
+
+    register(JASM, "TestCondy");
+
+    register(JAVA_8, "TestStaticInit");
+    register(JAVA_8_NODEBUG, "TestDoubleNestedClass");
+    // TODO: The two 'z' cases should either be renamed or be surrounded with {}
+    register(JAVA_8, "TestDuplicateSwitchLocals");
+	
+    register(JAVA_8, "TestIfTernary1");
+    // TODO: multiple labels still present
+    register(JAVA_8, "TestIfTernary2");
+    register(JAVA_8, "TestIfTernary3");
+    register(JAVA_8, "TestIfTernaryReturn");
+
+    register(JAVA_8, "TestSimpleIf");
+    //TODO: figure out why there's no successor
+    register(JAVA_8, "TestInlineNoSuccessor");
+
+    register(JAVA_8, "TestEnumArrayStaticInit");
+
+    register(JAVA_16, "TestAssertJ16");
+
+    register(JAVA_8, "TestSynchronizedTernary");
+
+    register(JAVA_8, "TestUnicodeIdentifiers");
+    register(JAVA_8, "TestDoubleBraceInitializers");
+  }
+
+  private void registerEntireClassPath() {
+    // These have better results with the kotlin standard library from the classpath
+    register(KOTLIN, "TestKotlinConstructorKt");
+    register(KOTLIN, "TestNamedSuspendFun2Kt");
+  }
+
+  private void registerJavaRuntime() {
+    // TODO: reevaluate behavior, especially with casting
+    register(JAVA_8, "TestGenerics");
+    register(JAVA_8, "TestClassTypes");
+    register(JAVA_8, "TestClassCast");
+    // TODO: intValue() call where there shouldn't be
+    register(JAVA_8, "TestBoxingConstructor");
+    register(JAVA_8, "TestLocalsSignature");
+    register(JAVA_8, "TestShadowing", "Shadow", "ext/Shadow", "TestShadowingSuperClass");
+    register(JAVA_8, "TestPrimitives");
+    register(JAVA_8, "TestVarArgCalls");
+    register(JAVA_8, "TestUnionType");
+    register(JAVA_8, "TestTryWithResources");
+    register(JAVA_8, "TestNestedLoops");
+    // TODO: Cast to <undefinedtype>
+    register(JAVA_8, "TestAnonymousClass");
+    // TODO: Object[] becomes <unknown>
+    register(JAVA_8, "TestObjectArrays");
+    register(JAVA_8, "TestAnonymousParams");
+    register(JAVA_8, "TestThrowException");
+    register(JAVA_8, "TestClassSimpleBytecodeMapping");
+    register(JAVA_8, "TestAnonymousSignature");
+    register(JAVA_16, "TestTryWithResourcesJ16");
+    register(JAVA_16, "TestTryWithResourcesCatchJ16");
+    register(JAVA_16, "TestTryWithResourcesMultiJ16");
+    register(JAVA_16, "TestTryWithResourcesFinallyJ16");
+    register(JAVA_16, "TestTryWithResourcesCatchFinallyJ16");
+    // TODO: returning in finally causes broken control flow and undecompileable methods
+    register(JAVA_16, "TestTryWithResourcesReturnJ16");
+    register(JAVA_16, "TestTryWithResourcesNestedJ16");
+    // TODO: extra casts, var type reverted to object
+    register(JAVA_16, "TestTryWithResourcesNullJ16");
+    // TODO: doesn't make try with resources block
+    register(JAVA_16, "TestTryWithResourcesOuterJ16");
+    // TODO: fails to decompile
+    register(JAVA_16, "TestTryWithResourcesFake");
+  }
+
+  private void registerLiterals() {
+    register(JAVA_8, "TestFloatPrecision");
+    register(JAVA_8, "TestNotFloatPrecision");
+    register(JAVA_8, "TestConstantUninlining");
+  }
+
+  private void registerPatternMatching() {
+    register(JAVA_16, "TestPatternMatching");
+    // TODO: rename this
+    register(JAVA_16, "TestPatternMatchingFake");
+    register(JAVA_17, "TestPatternMatchingInteger");
+    // TODO: testNoInit is wrong
+    register(JAVA_16, "TestPatternMatchingMerge");
+    // TODO: local variables aren't merged properly, bring out of nodebug when they are
+    register(JAVA_16_NODEBUG, "TestPatternMatchingAssign");
+    register(JAVA_16, "TestPatternMatchingLocalCapture");
+  }
+
+  private void registerTernaryConstantSimplification() {
+    register(JAVA_8, "TestReturnTernaryConstantSimplification");
+    // TODO: ifOr, redundantIf, nestedIf and nestedIfs aren't reduced to a ternary that would be simplified
+    register(JAVA_8, "TestAssignmentTernaryConstantSimplification");
+  }
+
+  private void registerLVT() {
+    register(JAVA_8, "TestLVT");
+    register(JAVA_8, "TestLVTScoping");
+    // TODO: int is decompiling as <unknown>
+    // register(JAVA_8, "TestLVTComplex");
+    register(JAVA_8, "TestVarType");
+    register(JAVA_8, "TestLoopMerging");
+    // TODO: this is not decompiling properly, needs a look
+    // register(JAVA_8, "TestPPMM");
+  }
+
+  private void registerTryLoop() {
+    register(JAVA_8, "TestTryLoop");
+    register(JAVA_8, "TestTryLoopRecompile");
+    register(JAVA_8, "TestTryLoopSimpleFinally");
+    // TODO: Still doesn't properly decompile, loop needs to be in the try block
+    register(JAVA_8, "TestTryLoopReturnFinally");
+  }
 }

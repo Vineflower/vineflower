@@ -1,0 +1,54 @@
+package pkg;
+
+public class TestInlineSwitchExpression6 {
+   public void test(int i) {
+      byte var10000;
+      for(int j = 0; j < i; i = var10000) {// 5 6
+         ++j;// 7
+         switch(j) {// 9
+         case 1:
+            var10000 = 3;// 10
+            break;
+         default:
+            if (j == 4) {// 13
+            }
+
+            var10000 = 2;// 17
+         }
+      }
+
+   }// 21
+}
+
+class 'pkg/TestInlineSwitchExpression6' {
+   method 'test (I)V' {
+      0      5
+      1      5
+      2      5
+      3      5
+      4      5
+      7      6
+      8      6
+      9      6
+      a      7
+      b      7
+      1c      9
+      1d      10
+      20      12
+      21      12
+      22      12
+      25      15
+      26      5
+      2a      19
+   }
+}
+
+Lines mapping:
+5 <-> 6
+6 <-> 6
+7 <-> 7
+9 <-> 8
+10 <-> 10
+13 <-> 13
+17 <-> 16
+21 <-> 20

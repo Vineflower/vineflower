@@ -79,8 +79,7 @@ public class AssignmentExprent extends Exprent {
   }
 
   @Override
-  public List<Exprent> getAllExprents() {
-    List<Exprent> lst = new ArrayList<>();
+  public List<Exprent> getAllExprents(List<Exprent> lst) {
     lst.add(left);
     lst.add(right);
     return lst;

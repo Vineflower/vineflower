@@ -2,6 +2,7 @@
 package org.jetbrains.java.decompiler.main.collectors;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -12,11 +13,15 @@ public class VarNamesCollector {
   public VarNamesCollector() { }
 
   public VarNamesCollector(Collection<String> setNames) {
-    usedNames.addAll(setNames);
+    addNames(setNames);
   }
 
   public void addName(String value) {
     usedNames.add(value);
+  }
+
+  public void addNames(Collection<String> names) {
+    usedNames.addAll(names);
   }
 
   public String getFreeName(int index) {
@@ -27,7 +32,11 @@ public class VarNamesCollector {
     while (usedNames.contains(proposition)) {
       proposition += "x";
     }
-    usedNames.add(proposition);
+    addName(proposition);
     return proposition;
+  }
+
+  public Set<String> getUsedNames() {
+    return Collections.unmodifiableSet(usedNames);
   }
 }

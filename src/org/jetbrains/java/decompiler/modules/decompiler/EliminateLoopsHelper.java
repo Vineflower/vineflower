@@ -24,6 +24,7 @@ public class EliminateLoopsHelper {
       Set<Integer> setReorderedIfs = new HashSet<>();
 
       SimplifyExprentsHelper sehelper = new SimplifyExprentsHelper(false);
+      // TODO: what problems does SSA being null cause?
       while(sehelper.simplifyStackVarsStatement(root, setReorderedIfs, null, cl)) {
         SequenceHelper.condenseSequences(root);
       }
@@ -189,9 +190,10 @@ public class EliminateLoopsHelper {
 
     // remove the last break edge, if exists
     Statement loopcontent = loop.getFirst();
-    if (!loopcontent.getAllSuccessorEdges().isEmpty()) {
-      loopcontent.removeSuccessor(loopcontent.getAllSuccessorEdges().get(0));
-    }
+    // TODO: reimplement this properly
+//    if (!loopcontent.getAllSuccessorEdges().isEmpty()) {
+//      loopcontent.removeSuccessor(loopcontent.getAllSuccessorEdges().get(0));
+//    }
 
     // replace loop with its content
     loop.getParent().replaceStatement(loop, loopcontent);

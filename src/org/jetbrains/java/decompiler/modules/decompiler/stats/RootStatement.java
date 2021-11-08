@@ -3,17 +3,20 @@ package org.jetbrains.java.decompiler.modules.decompiler.stats;
 
 import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
+import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.StartEndPair;
 
 public class RootStatement extends Statement {
   private final DummyExitStatement dummyExit;
+  public final StructMethod mt;
 
-  public RootStatement(Statement head, DummyExitStatement dummyExit) {
+  public RootStatement(Statement head, DummyExitStatement dummyExit, StructMethod mt) {
     type = Statement.TYPE_ROOT;
 
     first = head;
     this.dummyExit = dummyExit;
+    this.mt = mt;
 
     stats.addWithKey(first, first.id);
     first.setParent(this);

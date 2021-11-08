@@ -16,7 +16,7 @@ public class BasicBlock implements IGraphNode {
   // public fields
   // *****************************************************************************
 
-  public int id;
+  public final int id;
   public int mark = 0;
 
   // *****************************************************************************
@@ -39,9 +39,8 @@ public class BasicBlock implements IGraphNode {
   // public methods
   // *****************************************************************************
 
-  @Override
   @SuppressWarnings("MethodDoesntCallSuperMethod")
-  public BasicBlock clone() {
+  public BasicBlock cloneBlock(int id) {
     BasicBlock block = new BasicBlock(id);
 
     block.setSeq(seq.clone());

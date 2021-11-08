@@ -74,6 +74,22 @@ public class StructContext {
     addSpace("", file, isOwn, 0);
   }
 
+  public void addSpace(FileSystem fs, boolean isOwn) {
+    String scheme = fs.provider().getScheme();
+    if ("jar".equals(scheme)) {
+      String fileUri = fs.getPath("/").toUri().getSchemeSpecificPart();
+      fileUri = fileUri.substring(0, fileUri.indexOf('!'));
+      addSpace(Paths.get(fileUri).toFile(), false);
+    } else {
+      try {
+        addFileSystem(fs, "", new File(fs.toString()), ContextUnit.TYPE_JAR, isOwn);
+      } catch (IOException e) {
+        DecompilerContext.getLogger().writeMessage("Corrupted file system: " + fs, e);
+        throw new RuntimeException(e);
+      }
+    }
+  }
+
   private void addSpace(String path, File file, boolean isOwn, int level) {
     if (file.isDirectory()) {
       if (level == 1) path += file.getName();
@@ -147,11 +163,20 @@ public class StructContext {
   private void addArchive(String externalPath, File file, int type, boolean isOwn) throws IOException {
     DecompilerContext.getLogger().writeMessage("Adding Archive: " + file.getAbsolutePath(), Severity.INFO);
     FileSystem fs = getZipFileSystem(file);
-    ContextUnit unit = units.computeIfAbsent(externalPath + "/" + file.getName(), k -> new ContextUnit(type, externalPath, file.getName(), isOwn, saver, decompiledData));
+    addFileSystem(fs, externalPath, file, type, isOwn);
+  }
+
+  private void addFileSystem(FileSystem fs, String externalPath, File file, int type, boolean isOwn) throws IOException {
+    ContextUnit unit = units.computeIfAbsent(externalPath + "/" + file, k -> new ContextUnit(type, externalPath, file.getName(), isOwn, saver, decompiledData));
     Files.walkFileTree(fs.getPath("/"), new SimpleFileVisitor<Path>() {
       @Override
       public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {
-        String name = path.toString().substring(1);
+        String name;
+        if (path.getNameCount() > 2 && "modules".equals(path.getName(0).toString()) && "jrt".equals(path.getFileSystem().provider().getScheme())) {
+          name = path.subpath(2, path.getNameCount()).toString();
+        } else {
+          name = path.toString().substring(1);
+        }
         if (name.endsWith(".class")) {
           addClass(unit, name.substring(0, name.length() - 6), file.getAbsolutePath(), path.toString().substring(1), isOwn, path);
         } else {
@@ -184,6 +209,16 @@ public class StructContext {
     if (name == null || name.isEmpty()) {
       name = provider.get().qualifiedName;
     }
+
+    // TODO: fix this properly
+//    String className = cl.qualifiedName.substring(cl.qualifiedName.lastIndexOf('/') + 1);
+//    if (!className.equals(name)) {
+//      DecompilerContext.getLogger().writeMessage("Inconsistent class name and class file! Expected " + className + ".class but found " + name + ".class!", Severity.WARN);
+//
+//      name = className;
+//    }
+//    // TODO: change the name of the created .java file too
+
     classes.put(name, provider);
     if (isOwn) ownClasses.put(name, provider.get());
   }

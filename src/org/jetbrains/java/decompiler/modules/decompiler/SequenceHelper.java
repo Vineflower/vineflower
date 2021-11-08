@@ -58,6 +58,10 @@ public final class SequenceHelper {
                 }
                 else {
                   edge.getSource().changeEdgeType(Statement.DIRECTION_FORWARD, edge, StatEdge.TYPE_REGULAR);
+                  if (edge.closure == null) {
+                    throw new IllegalStateException("Closure is null for edge " + edge + " in statement " + last);
+                  }
+
                   edge.closure.getLabelEdges().remove(edge);
                   edge.closure = null;
                 }
@@ -279,7 +283,7 @@ public final class SequenceHelper {
   }
 
 
-  public static void destroyAndFlattenStatement(Statement stat) {
+  public static BasicBlockStatement destroyAndFlattenStatement(Statement stat) {
 
     destroyStatementContent(stat, false);
 
@@ -293,6 +297,8 @@ public final class SequenceHelper {
     }
 
     stat.getParent().replaceStatement(stat, bstat);
+
+    return bstat;
   }
 
   public static void destroyStatementContent(Statement stat, boolean self) {
@@ -305,6 +311,7 @@ public final class SequenceHelper {
     if (self) {
       for (StatEdge edge : stat.getAllSuccessorEdges()) {
         stat.removeSuccessor(edge);
+        edge.getDestination().removePredecessor(edge); // TODO: this is redundant but is still needed because of null destinations in removeSuccessor?
       }
     }
   }

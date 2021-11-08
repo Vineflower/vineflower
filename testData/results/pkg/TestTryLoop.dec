@@ -1,0 +1,82 @@
+package pkg;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.nio.file.Path;
+import java.util.Iterator;
+import java.util.Scanner;
+
+public class TestTryLoop {
+   private boolean field;
+
+   public void test(File file) {
+      try {
+         while(this.field) {// 16
+            new Scanner(file);// 17
+         }
+      } catch (FileNotFoundException var3) {// 19
+         var3.printStackTrace();// 20
+      }
+
+   }// 22
+
+   public boolean hasNext(Path param1, Iterator<File> param2) {
+      // $FF: Couldn't be decompiled
+      // Bytecode:
+      // 00: aload 1
+      // 01: bipush 0
+      // 02: anewarray 7
+      // 05: invokestatic java/nio/file/Files.exists (Ljava/nio/file/Path;[Ljava/nio/file/LinkOption;)Z
+      // 08: ifeq 17
+      // 0b: aload 2
+      // 0c: invokeinterface java/util/Iterator.next ()Ljava/lang/Object; 1
+      // 11: checkcast java/io/File
+      // 14: astore 3
+      // 15: bipush 1
+      // 16: ireturn
+      // 17: bipush 0
+      // 18: ireturn
+      // 19: astore 4
+      // 1b: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 1e: bipush 1
+      // 1f: invokevirtual java/io/PrintStream.println (I)V
+      // 22: goto 00
+      // 25: astore 4
+      // 27: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 2a: bipush 2
+      // 2b: invokevirtual java/io/PrintStream.println (I)V
+      // 2e: goto 00
+   }
+}
+
+class 'pkg/TestTryLoop' {
+   method 'test (Ljava/io/File;)V' {
+      0      13
+      1      13
+      2      13
+      3      13
+      b      14
+      16      16
+      18      17
+      1b      20
+   }
+}
+
+Lines mapping:
+16 <-> 14
+17 <-> 15
+19 <-> 17
+20 <-> 18
+22 <-> 21
+Not mapped:
+18
+21
+28
+29
+30
+32
+33
+34
+35
+36
+37

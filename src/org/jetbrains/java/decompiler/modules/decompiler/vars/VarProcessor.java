@@ -25,6 +25,7 @@ public class VarProcessor {
   private VarVersionsProcessor varVersions;
   private final Map<VarVersionPair, String> thisVars = new HashMap<>();
   private final Set<VarVersionPair> externalVars = new HashSet<>();
+  public boolean nestedProcessed;
 
   public VarProcessor(StructMethod mt, MethodDescriptor md) {
     method = mt;
@@ -115,6 +116,10 @@ public class VarProcessor {
     mapVarNames.put(pair, name);
   }
 
+  public Set<VarVersionPair> getUsedVarVersions() {
+    return mapVarNames != null ? mapVarNames.keySet() : Collections.emptySet();
+  }
+
   public Collection<String> getVarNames() {
     return mapVarNames != null ? mapVarNames.values() : Collections.emptySet();
   }
@@ -181,7 +186,7 @@ public class VarProcessor {
         }
       ));
 
-    for (Integer b : blacklist)
+    for (int b : blacklist)
       ret.remove(b);
 
     return ret;

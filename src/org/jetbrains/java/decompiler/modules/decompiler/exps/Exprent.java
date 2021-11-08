@@ -101,13 +101,24 @@ public abstract class Exprent implements IMatchable {
   }
 
   public List<Exprent> getAllExprents(boolean recursive) {
-    List<Exprent> lst = getAllExprents();
+    List<Exprent> lst = new ArrayList<>();
+    getAllExprents(recursive, lst);
+
+    return lst;
+  }
+
+  private List<Exprent> getAllExprents(boolean recursive, List<Exprent> list) {
+    int start = list.size();
+    getAllExprents(list);
+    int end = list.size();
+
     if (recursive) {
-      for (int i = lst.size() - 1; i >= 0; i--) {
-        lst.addAll(lst.get(i).getAllExprents(true));
+      for (int i = end - 1; i >= start; i--) {
+        list.get(i).getAllExprents(true, list);
       }
     }
-    return lst;
+
+    return list;
   }
 
   public Set<VarVersionPair> getAllVariables() {
@@ -123,9 +134,16 @@ public abstract class Exprent implements IMatchable {
     return set;
   }
 
-  public List<Exprent> getAllExprents() {
-    throw new RuntimeException("not implemented");
+  public final List<Exprent> getAllExprents() {
+    List<Exprent> list = new ArrayList<>();
+    getAllExprents(list);
+
+    return list;
   }
+
+  // Get all the exprents contained within the current one
+  // Preconditions: this list must never be removed from! Only added to!
+  protected abstract List<Exprent> getAllExprents(List<Exprent> list);
 
   public Exprent copy() {
     throw new RuntimeException("not implemented");
@@ -137,14 +155,6 @@ public abstract class Exprent implements IMatchable {
 
   public TextBuffer toJava(int indent, BytecodeMappingTracer tracer) {
     throw new RuntimeException("not implemented");
-  }
-
-  /**
-   * Run when an ExitExprent is called with a standard return that is not of type void.
-   * @param descriptor The descriptor of the method
-   */
-  protected void onReturn(MethodDescriptor descriptor) {
-
   }
 
   public void replaceExprent(Exprent oldExpr, Exprent newExpr) { }
@@ -161,8 +171,9 @@ public abstract class Exprent implements IMatchable {
   public abstract void getBytecodeRange(BitSet values);
 
   protected void measureBytecode(BitSet values) {
-    if (bytecode != null)
+    if (bytecode != null && values != null) {
       values.or(bytecode);
+    }
   }
 
   protected static void measureBytecode(BitSet values, Exprent exprent) {

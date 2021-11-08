@@ -128,6 +128,15 @@ public final class InlineSingleBlockHelper {
             }
           }
         }
+
+        boolean noPreSuccessors = pre.getAllSuccessorEdges().isEmpty();
+
+        if (noPreSuccessors) {
+          // No successors so we can't inline (as we don't know where to go!) [TestInlineNoSuccessor]
+          return false;
+        }
+
+        // Has at least 1 successor so we can inline
         return true;
       }
       // FIXME: count labels properly

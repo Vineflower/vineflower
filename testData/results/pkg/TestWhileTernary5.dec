@@ -1,0 +1,72 @@
+package pkg;
+
+public class TestWhileTernary5 {
+   public void test(boolean condition, int a, int b, int c) {
+      while(c > 3) {// 5
+         --c;// 6
+         System.out.println(2);// 7
+
+         while(condition ? a < b : b > a) {// 9
+            System.out.println(a * b);// 10
+            ++a;// 11
+         }
+
+         System.out.println(1);// 14
+      }
+
+   }// 16
+}
+
+class 'pkg/TestWhileTernary5' {
+   method 'test (ZIII)V' {
+      0      4
+      1      4
+      2      4
+      3      4
+      6      5
+      7      5
+      8      5
+      9      6
+      a      6
+      b      6
+      c      6
+      d      6
+      10      8
+      14      8
+      15      8
+      16      8
+      1c      8
+      1d      8
+      1e      8
+      21      9
+      22      9
+      23      9
+      24      9
+      25      9
+      26      9
+      27      9
+      28      9
+      29      9
+      2a      10
+      2b      10
+      2c      10
+      30      13
+      31      13
+      32      13
+      33      13
+      34      13
+      35      13
+      36      13
+      3a      16
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 6
+7 <-> 7
+9 <-> 9
+10 <-> 10
+11 <-> 11
+14 <-> 14
+16 <-> 17

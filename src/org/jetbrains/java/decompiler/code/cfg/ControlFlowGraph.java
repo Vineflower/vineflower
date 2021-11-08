@@ -35,12 +35,15 @@ public class ControlFlowGraph implements CodeConstants {
   private Map<BasicBlock, BasicBlock> subroutines;
 
   private final Set<BasicBlock> finallyExits = new HashSet<>();
+  private final InstructionSequence sequence;
 
   // *****************************************************************************
   // constructors
   // *****************************************************************************
 
   public ControlFlowGraph(InstructionSequence seq) {
+    this.sequence = seq;
+
     buildBlocks(seq);
   }
 
@@ -592,15 +595,14 @@ public class ControlFlowGraph implements CodeConstants {
         for (int i = lst.size() - 1; i >= 0; i--) {
 
           BasicBlock child = lst.get(i);
-          Integer childid = child.id;
+          int childid = child.id;
 
           if (mapNewNodes.containsKey(childid)) {
             node.replaceSuccessor(child, mapNewNodes.get(childid));
           }
           else if (common_blocks.contains(child)) {
             // make a copy of the current block
-            BasicBlock copy = child.clone();
-            copy.id = ++last_id;
+            BasicBlock copy = child.cloneBlock(++last_id);
             // copy all successors
             if (copy.getLastInstruction().opcode == CodeConstants.opc_ret &&
                 child.getSuccs().contains(ret)) {
@@ -814,5 +816,9 @@ public class ControlFlowGraph implements CodeConstants {
 
   public Set<BasicBlock> getFinallyExits() {
     return finallyExits;
+  }
+
+  public InstructionSequence getSequence() {
+    return sequence;
   }
 }

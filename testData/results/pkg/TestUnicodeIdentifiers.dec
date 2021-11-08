@@ -1,0 +1,8 @@
+package pkg;
+
+public class TestUnicodeIdentifiers {
+   public static final double π = 3.141592653589793;
+   public static final double φ = (1.0 + Math.sqrt(5.0)) / 2.0;
+   public final double Δ = 3.141592653589793 - φ;
+}
+

@@ -1,0 +1,20 @@
+package pkg;
+
+public class TestRecordInner {
+   public TestRecordInner.Rec create(int x) {
+      return new TestRecordInner.Rec(x);// 7
+   }
+
+   private static record Rec(int x) {
+   }
+}
+
+class 'pkg/TestRecordInner' {
+   method 'create (I)Lpkg/TestRecordInner$Rec;' {
+      4      4
+      8      4
+   }
+}
+
+Lines mapping:
+7 <-> 5

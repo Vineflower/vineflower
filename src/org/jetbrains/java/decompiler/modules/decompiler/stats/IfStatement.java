@@ -6,7 +6,9 @@ import org.jetbrains.java.decompiler.modules.decompiler.DecHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.IfExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.struct.match.IMatchable;
 import org.jetbrains.java.decompiler.struct.match.MatchEngine;
 import org.jetbrains.java.decompiler.struct.match.MatchNode;
@@ -36,6 +38,7 @@ public final class IfStatement extends Statement {
   private StatEdge elseedge;
 
   private boolean negated = false;
+  private boolean patternMatched = false;
 
   private final List<Exprent> headexprent = new ArrayList<>(1); // contains IfExprent
 
@@ -193,6 +196,7 @@ public final class IfStatement extends Statement {
     TextBuffer buf = new TextBuffer();
 
     buf.append(ExprProcessor.listToJava(varDefinitions, indent, tracer));
+
     buf.append(first.toJava(indent, tracer));
 
     if (isLabeled()) {
@@ -200,7 +204,9 @@ public final class IfStatement extends Statement {
       tracer.incrementCurrentSourceLine();
     }
 
-    buf.appendIndent(indent).append(headexprent.get(0).toJava(indent, tracer)).append(" {").appendLineSeparator();
+    Exprent condition = headexprent.get(0);
+    // Condition can be null in early processing stages
+    buf.appendIndent(indent).append((condition == null ? "if <null condition>" : condition.toJava(indent, tracer).toString())).append(" {").appendLineSeparator();
     tracer.incrementCurrentSourceLine();
 
     if (ifstat == null) {
@@ -217,7 +223,7 @@ public final class IfStatement extends Statement {
         }
 
         if (ifedge.labeled) {
-          buf.append(" label").append(ifedge.closure.id.toString());
+          buf.append(" label").append(ifedge.closure == null ? "<unknownclosure>" : ifedge.closure.id.toString());
         }
       }
       if(semicolon) {
@@ -233,7 +239,7 @@ public final class IfStatement extends Statement {
 
     if (elsestat != null) {
       if (elsestat.type == Statement.TYPE_IF
-          && elsestat.varDefinitions.isEmpty() && elsestat.getFirst().getExprents().isEmpty() &&
+          && elsestat.varDefinitions.isEmpty() && (elsestat.getFirst().getExprents() != null && elsestat.getFirst().getExprents().isEmpty()) &&
           !elsestat.isLabeled() &&
           (elsestat.getSuccessorEdges(STATEDGE_DIRECT_ALL).isEmpty()
            || !elsestat.getSuccessorEdges(STATEDGE_DIRECT_ALL).get(0).explicit)) { // else if
@@ -270,7 +276,6 @@ public final class IfStatement extends Statement {
 
   @Override
   public void initExprents() {
-
     IfExprent ifexpr = (IfExprent)first.getExprents().remove(first.getExprents().size() - 1);
 
     if (negated) {
@@ -299,7 +304,6 @@ public final class IfStatement extends Statement {
 
   @Override
   public void replaceStatement(Statement oldstat, Statement newstat) {
-
     super.replaceStatement(oldstat, newstat);
 
     if (ifstat == oldstat) {
@@ -332,7 +336,6 @@ public final class IfStatement extends Statement {
 
   @Override
   public Statement getSimpleCopy() {
-
     IfStatement is = new IfStatement();
     is.iftype = this.iftype;
     is.negated = this.negated;
@@ -342,7 +345,6 @@ public final class IfStatement extends Statement {
 
   @Override
   public void initSimpleCopy() {
-
     first = stats.get(0);
 
     List<StatEdge> lstSuccs = first.getSuccessorEdges(STATEDGE_DIRECT_ALL);
@@ -407,6 +409,35 @@ public final class IfStatement extends Statement {
 
   public StatEdge getElseEdge() {
     return elseedge;
+  }
+
+  public boolean isPatternMatched() {
+    return patternMatched;
+  }
+
+  public void setPatternMatched(boolean patternMatched) {
+    this.patternMatched = patternMatched;
+  }
+
+  @Override
+  public List<VarExprent> getImplicitlyDefinedVars() {
+    List<VarExprent> vars = new ArrayList<>();
+
+    List<Exprent> conditionList = getHeadexprent().getCondition().getAllExprents(true);
+    conditionList.add(getHeadexprent().getCondition());
+
+    for (Exprent condition : conditionList) {
+      if (condition.type == Exprent.EXPRENT_FUNCTION) {
+        FunctionExprent func = ((FunctionExprent)condition);
+
+        // Pattern match variable is implicitly defined
+        if (func.getFuncType() == FunctionExprent.FUNCTION_INSTANCEOF && func.getLstOperands().size() > 2) {
+          vars.add((VarExprent) func.getLstOperands().get(2));
+        }
+      }
+    }
+
+    return vars;
   }
 
   @Override

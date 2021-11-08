@@ -1,0 +1,49 @@
+/**
+ * This code can be assembled with <a href="https://wiki.openjdk.java.net/display/CodeTools/asmtools">asmtools</a>
+ * using <code>asmtools jasm -g *.jasm</code> command line.
+ */
+package pkg;
+
+super public final class TestDoubleCast extends "java/lang/Object"
+    version 52:0
+{
+private Field field:"Ljava/lang/Object;";
+private Field array:"[Ljava/lang/Object;";
+
+public Method "<init>":"()V"
+    stack 1 locals 1
+{
+        aload_0;
+        invokespecial Method java/lang/Object."<init>":"()V";
+        return;
+}
+
+public Method "testMethod":"()V"
+    stack 2 locals 1
+{
+        aload_0;
+        getfield field:"Ljava/lang/Object;";
+        checkcast pkg/TestDoubleCast;
+        checkcast pkg/TestDoubleCast;
+        invokevirtual Method "testMethod":"()V";
+        aload_0;
+        getfield field:"Ljava/lang/Object;";
+        checkcast pkg/TestDoubleCast;
+        invokevirtual Method "testMethod":"()V";
+        aload_0;
+        getfield array:"[Ljava/lang/Object;";
+        iconst_0;
+        aaload;
+        checkcast pkg/TestDoubleCast;
+        checkcast pkg/TestDoubleCast;
+        invokevirtual Method "testMethod":"()V";
+        aload_0;
+        getfield array:"[Ljava/lang/Object;";
+        iconst_0;
+        aaload;
+        checkcast pkg/TestDoubleCast;
+        invokevirtual Method "testMethod":"()V";
+        return;
+}
+    
+}

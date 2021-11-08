@@ -1,0 +1,63 @@
+package pkg;
+
+public class TestMultipleStaticBlocks {
+   private static int i;
+
+   static {
+      byte value = (byte)((int)(Math.random() * 8.0));// 7
+      if (value > 4) {// 8
+         i = 1;// 9
+      }
+
+      value = (byte)((byte)((short)((int)(Math.random() * 8.0))));// 14
+      if (value > 4) {// 15
+         i = 2;// 16
+      }
+
+   }// 18
+}
+
+class 'pkg/TestMultipleStaticBlocks' {
+   method '<clinit> ()V' {
+      0      6
+      1      6
+      2      6
+      3      6
+      4      6
+      5      6
+      6      6
+      7      6
+      8      6
+      9      6
+      a      7
+      b      7
+      c      7
+      f      8
+      10      8
+      13      11
+      14      11
+      15      11
+      16      11
+      17      11
+      18      11
+      19      11
+      1a      11
+      1b      11
+      1c      11
+      1d      12
+      1e      12
+      1f      12
+      22      13
+      23      13
+      26      16
+   }
+}
+
+Lines mapping:
+7 <-> 7
+8 <-> 8
+9 <-> 9
+14 <-> 12
+15 <-> 13
+16 <-> 14
+18 <-> 17

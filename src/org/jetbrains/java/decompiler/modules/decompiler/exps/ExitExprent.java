@@ -59,8 +59,7 @@ public class ExitExprent extends Exprent {
   }
 
   @Override
-  public List<Exprent> getAllExprents() {
-    List<Exprent> lst = new ArrayList<>();
+  public List<Exprent> getAllExprents(List<Exprent> lst) {
     if (value != null) {
       lst.add(value);
     }
@@ -80,9 +79,6 @@ public class ExitExprent extends Exprent {
           ret = methodDescriptor.genericInfo.returnType;
         }
         buffer.append(' ');
-        // Walk tree and adjust types for this return value- mostly constant, such as chars, that need to be adjusted for this method descriptor.
-        // Currently, we only match return -> func(iif) -> const as it's the only current problem, but more can definitely be done to improve other similar cases.
-        this.value.onReturn(this.methodDescriptor);
 
         ExprProcessor.getCastedExprent(value, ret, buffer, indent, false, false, false, false, tracer);
       }

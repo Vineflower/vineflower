@@ -8,6 +8,7 @@ import org.jetbrains.java.decompiler.struct.consts.LinkConstant;
 import org.jetbrains.java.decompiler.struct.consts.PooledConstant;
 import org.jetbrains.java.decompiler.struct.consts.PrimitiveConstant;
 import org.jetbrains.java.decompiler.struct.gen.DataPoint;
+import org.jetbrains.java.decompiler.struct.gen.FieldDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.ListStack;
@@ -403,6 +404,16 @@ public final class InstructionImpact {
           case CodeConstants.CONSTANT_MethodHandle:
             stack.push(new VarType(((LinkConstant)constant).descriptor));
             break;
+          case CodeConstants.CONSTANT_Dynamic:
+            ck = pool.getLinkConstant(instr.operand(0));
+            FieldDescriptor fd = FieldDescriptor.parseDescriptor(ck.descriptor);
+            if (fd.type.type != CodeConstants.TYPE_VOID) {
+              stack.push(fd.type);
+              if (fd.type.stackSize == 2) {
+                stack.push(new VarType(CodeConstants.TYPE_GROUP2EMPTY));
+              }
+            }
+            break;
         }
         break;
       case CodeConstants.opc_aload:
@@ -461,7 +472,7 @@ public final class InstructionImpact {
         stack.pop();
       case CodeConstants.opc_invokestatic:
       case CodeConstants.opc_invokedynamic:
-        if (instr.opcode != CodeConstants.opc_invokedynamic || instr.bytecodeVersion >= CodeConstants.BYTECODE_JAVA_7) {
+        if (instr.opcode != CodeConstants.opc_invokedynamic || instr.bytecodeVersion.hasInvokeDynamic()) {
           ck = pool.getLinkConstant(instr.operand(0));
           MethodDescriptor md = MethodDescriptor.parseDescriptor(ck.descriptor);
           for (int i = 0; i < md.params.length; i++) {

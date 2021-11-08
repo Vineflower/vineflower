@@ -1,0 +1,153 @@
+package pkg;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
+
+public class TestTryWithResourcesReturnJ16 {
+   public Scanner test(File file) throws FileNotFoundException {
+      Scanner var3;
+      try (Scanner scanner = new Scanner(file)) {// 9
+         var3 = scanner;
+      }
+
+      return var3;// 10
+   }
+
+   public Scanner testFunc(File file) throws FileNotFoundException {
+      Scanner var3;
+      try (Scanner scanner = this.create(file)) {// 15
+         var3 = scanner;
+      }
+
+      return var3;// 16
+   }
+
+   public Scanner testFinally(File file) {
+      try {
+         try (Scanner scanner = new Scanner(file)) {// 21
+            ;
+         }
+
+         return null;// 24
+      } finally {
+         ;
+      }
+   }
+
+   public Scanner testFinallyNested(File param1) {
+      // $FF: Couldn't be decompiled
+      // Bytecode:
+      // 00: new java/util/Scanner
+      // 03: dup
+      // 04: aload 1
+      // 05: invokespecial java/util/Scanner.<init> (Ljava/io/File;)V
+      // 08: astore 2
+      // 09: new java/util/Scanner
+      // 0c: dup
+      // 0d: aload 1
+      // 0e: invokespecial java/util/Scanner.<init> (Ljava/io/File;)V
+      // 11: astore 3
+      // 12: aload 3
+      // 13: astore 4
+      // 15: aload 3
+      // 16: invokevirtual java/util/Scanner.close ()V
+      // 19: aload 2
+      // 1a: astore 5
+      // 1c: aload 2
+      // 1d: invokevirtual java/util/Scanner.close ()V
+      // 20: aconst_null
+      // 21: areturn
+      // 22: astore 4
+      // 24: aload 3
+      // 25: invokevirtual java/util/Scanner.close ()V
+      // 28: goto 34
+      // 2b: astore 5
+      // 2d: aload 4
+      // 2f: aload 5
+      // 31: invokevirtual java/lang/Throwable.addSuppressed (Ljava/lang/Throwable;)V
+      // 34: aload 4
+      // 36: athrow
+      // 37: astore 6
+      // 39: aload 2
+      // 3a: astore 7
+      // 3c: aload 2
+      // 3d: invokevirtual java/util/Scanner.close ()V
+      // 40: aconst_null
+      // 41: areturn
+      // 42: astore 3
+      // 43: aload 2
+      // 44: invokevirtual java/util/Scanner.close ()V
+      // 47: goto 52
+      // 4a: astore 4
+      // 4c: aload 3
+      // 4d: aload 4
+      // 4f: invokevirtual java/lang/Throwable.addSuppressed (Ljava/lang/Throwable;)V
+      // 52: aload 3
+      // 53: athrow
+      // 54: astore 8
+      // 56: aconst_null
+      // 57: areturn
+   }
+
+   private Scanner create(File file) throws FileNotFoundException {
+      return new Scanner(file);// 41
+   }
+}
+
+class 'pkg/TestTryWithResourcesReturnJ16' {
+   method 'test (Ljava/io/File;)Ljava/util/Scanner;' {
+      4      9
+      8      9
+      9      10
+      a      10
+      f      13
+      10      13
+   }
+
+   method 'testFunc (Ljava/io/File;)Ljava/util/Scanner;' {
+      0      18
+      1      18
+      2      18
+      3      18
+      4      18
+      5      18
+      6      19
+      7      19
+      10      22
+      11      22
+   }
+
+   method 'testFinally (Ljava/io/File;)Ljava/util/Scanner;' {
+      4      27
+      8      27
+      f      31
+      10      31
+   }
+
+   method 'create (Ljava/io/File;)Ljava/util/Scanner;' {
+      4      93
+      8      93
+   }
+}
+
+Lines mapping:
+9 <-> 10
+10 <-> 14
+15 <-> 19
+16 <-> 23
+21 <-> 28
+24 <-> 32
+41 <-> 94
+Not mapped:
+11
+17
+22
+23
+29
+30
+31
+32
+33
+35
+36

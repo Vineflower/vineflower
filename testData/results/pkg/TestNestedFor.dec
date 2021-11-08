@@ -1,0 +1,67 @@
+package pkg;
+
+public class TestNestedFor {
+   public int test(int x) {
+      int out = x;
+
+      for(int j = x; j < 20; ++j) {// 7
+         for(int i = out = this.accept(0); i < 10; ++i) {// 8
+            ++out;// 9
+         }
+      }
+
+      return out;// 13
+   }
+
+   private int accept(int num) {
+      return num;// 16
+   }
+}
+
+class 'pkg/TestNestedFor' {
+   method 'test (I)I' {
+      0      4
+      2      4
+      3      6
+      4      6
+      5      6
+      6      6
+      7      6
+      a      7
+      b      7
+      c      7
+      d      7
+      e      7
+      10      7
+      11      7
+      12      7
+      13      7
+      14      7
+      15      7
+      16      7
+      17      7
+      1a      8
+      1b      8
+      1c      8
+      1d      7
+      1e      7
+      1f      7
+      23      6
+      24      6
+      25      6
+      29      12
+      2a      12
+   }
+
+   method 'accept (I)I' {
+      0      16
+      1      16
+   }
+}
+
+Lines mapping:
+7 <-> 7
+8 <-> 8
+9 <-> 9
+13 <-> 13
+16 <-> 17

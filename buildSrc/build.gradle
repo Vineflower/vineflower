@@ -1,0 +1,9 @@
+apply plugin: 'java'
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+  implementation 'org.openjdk.asmtools:asmtools-core:7.0.b10-ea'
+}

@@ -1,0 +1,47 @@
+package pkg;
+
+public class TestArrayAssignmentEquals {
+   public int test() {
+      int[] a = new int[]{4};// 5
+      a[0] *= 2;// 6
+      a[0] *= 2;// 7
+      a[0] *= 2;// 8
+      return a[0] * a[0] * 2;// 9
+   }
+}
+
+class 'pkg/TestArrayAssignmentEquals' {
+   method 'test ()I' {
+      5      4
+      7      4
+      8      5
+      9      5
+      c      5
+      e      5
+      f      6
+      10      6
+      13      6
+      15      6
+      16      7
+      17      7
+      1a      7
+      1c      7
+      1d      8
+      1e      8
+      1f      8
+      20      8
+      21      8
+      22      8
+      23      8
+      24      8
+      25      8
+      26      8
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 6
+7 <-> 7
+8 <-> 8
+9 <-> 9

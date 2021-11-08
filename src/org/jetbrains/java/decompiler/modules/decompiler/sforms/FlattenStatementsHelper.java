@@ -4,6 +4,7 @@ package org.jetbrains.java.decompiler.modules.decompiler.sforms;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
+import org.jetbrains.java.decompiler.util.DotExporter;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -118,6 +119,10 @@ public class FlattenStatementsHelper {
 
             // 'if' statement: record positive branch
             if (stat.getLastBasicType() == Statement.LASTBASICTYPE_IF) {
+              if (lstSuccEdges.isEmpty()) {
+                throw new IllegalStateException("Empty successor list for node " + sourcenode.id);
+              }
+
               mapPosIfBranch.put(sourcenode.id, lstSuccEdges.get(0).getDestination().id);
             }
 
@@ -128,7 +133,7 @@ public class FlattenStatementsHelper {
 
             if (stat.type == Statement.TYPE_TRYCATCH) {
               CatchStatement catchStat = (CatchStatement)stat;
-              if (catchStat.getTryType() == CatchStatement.RESORCES) {
+              if (catchStat.getTryType() == CatchStatement.RESOURCES) {
                 firstnd.exprents = catchStat.getResources();
               }
             }
@@ -434,7 +439,13 @@ public class FlattenStatementsHelper {
 
       DirectNode source = graph.nodes.getWithKey(sourceid);
 
-      DirectNode dest = graph.nodes.getWithKey(mapDestinationNodes.get(statid)[edge.edgetype == StatEdge.TYPE_CONTINUE ? 1 : 0]);
+      String[] strings = mapDestinationNodes.get(statid);
+      if (strings == null) {
+        DotExporter.toDotFile(graph, root.mt, "errorDGraph");
+
+        throw new IllegalStateException("Could not find destination nodes for stat id " + statid + " from source " + sourceid);
+      }
+      DirectNode dest = graph.nodes.getWithKey(strings[edge.edgetype == StatEdge.TYPE_CONTINUE ? 1 : 0]);
 
       if (!source.succs.contains(dest)) {
         source.succs.add(dest);

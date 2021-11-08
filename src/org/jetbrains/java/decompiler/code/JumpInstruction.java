@@ -4,7 +4,7 @@ package org.jetbrains.java.decompiler.code;
 public class JumpInstruction extends Instruction {
   public int destination;
 
-  public JumpInstruction(int opcode, int group, boolean wide, int bytecodeVersion, int[] operands, int length) {
+  public JumpInstruction(int opcode, int group, boolean wide, BytecodeVersion bytecodeVersion, int[] operands, int length) {
     super(opcode, group, wide, bytecodeVersion, operands, length);
   }
 

@@ -2,7 +2,7 @@
 package org.jetbrains.java.decompiler.main.rels;
 
 import org.jetbrains.java.decompiler.code.CodeConstants;
-import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
+import org.jetbrains.java.decompiler.code.cfg.ControlFlowGraph;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.main.collectors.VarNamesCollector;
@@ -16,11 +16,13 @@ import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribute;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
+import org.jetbrains.java.decompiler.util.DotExporter;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.VBStyleCollection;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.TimeoutException;
 
 public class ClassWrapper {
   private final StructClass classStruct;
@@ -53,7 +55,7 @@ public class ClassWrapper {
 
       RootStatement root = null;
 
-      boolean isError = false;
+      Throwable error = null;
 
       try {
         if (mt.containsCode()) {
@@ -83,12 +85,12 @@ public class ClassWrapper {
                 String message = "Processing time limit exceeded for method " + mt.getName() + ", execution interrupted.";
                 DecompilerContext.getLogger().writeMessage(message, IFernflowerLogger.Severity.ERROR);
                 killThread(mtThread);
-                isError = true;
+                error = new TimeoutException();
                 break;
               }
             }
 
-            if (!isError) {
+            if (error == null) {
               root = mtProc.getResult();
             }
           }
@@ -122,17 +124,31 @@ public class ClassWrapper {
         }
       }
       catch (Throwable t) {
-        String message = "Method " + mt.getName() + " " + mt.getDescriptor() + " couldn't be decompiled.";
+        String message = "Method " + mt.getName() + " " + mt.getDescriptor() + " in class " + classStruct.qualifiedName + " couldn't be decompiled.";
         DecompilerContext.getLogger().writeMessage(message, IFernflowerLogger.Severity.WARN, t);
-        isError = true;
+        error = t;
+        RootStatement rootStat = MethodProcessorRunnable.debugCurrentlyDecompiling.get();
+        if (rootStat != null) {
+          DotExporter.errorToDotFile(rootStat, mt, "fail");
+        }
+
+        ControlFlowGraph graph = MethodProcessorRunnable.debugCurrentCFG.get();
+        if (graph != null) {
+          DotExporter.errorToDotFile(graph, mt, "failCFG");
+        }
+
+        DecompileRecord decompileRecord = MethodProcessorRunnable.debugCurrentDecompileRecord.get();
+        if (decompileRecord != null) {
+          DotExporter.toDotFile(decompileRecord, mt, "failRecord", true);
+        }
       }
 
       MethodWrapper methodWrapper = new MethodWrapper(root, varProc, mt, counter);
-      methodWrapper.decompiledWithErrors = isError;
+      methodWrapper.decompileError = error;
 
       methods.addWithKey(methodWrapper, InterpreterUtil.makeUniqueKey(mt.getName(), mt.getDescriptor()));
 
-      if (!isError) {
+      if (error == null) {
         // rename vars so that no one has the same name as a field
         VarNamesCollector namesCollector = new VarNamesCollector();
         classStruct.getFields().forEach(f -> namesCollector.addName(f.getName()));

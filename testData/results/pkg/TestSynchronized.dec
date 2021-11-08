@@ -1,0 +1,258 @@
+package pkg;
+
+public class TestSynchronized {
+   public void test1() {
+      synchronized(this) {// 5
+         ;
+      }
+   }// 8
+
+   public void test2() {
+      synchronized(new Object()) {// 11
+         ;
+      }
+   }// 14
+
+   public void test3() {
+      Object o;
+      synchronized(new Object()) {// 18
+         o = new Object();// 19
+         System.out.println(o);// 20
+      }// 21
+
+      System.out.println(o);// 22
+   }// 23
+
+   public void test4() {
+      Integer o;
+      synchronized(1) {// 27
+         o = 1;// 28
+         System.out.println(o);// 29
+      }// 30
+
+      System.out.println(o);// 31
+   }// 32
+
+   public void test5(int i) {
+      try {
+         while(true) {
+            synchronized(this) {// 37
+               while(i >= i) {// 38
+                  this.wait();// 39
+               }
+            }
+
+            synchronized(this) {// 43
+               this.notifyAll();// 44
+            }// 45
+         }
+      } catch (Exception var7) {// 47
+         throw new RuntimeException(var7);// 48
+      }
+   }
+
+   public void test6() {
+      while(true) {
+         synchronized(this) {// 54
+            ;
+         }// 56
+      }
+   }
+
+   public void test7(int i) {
+      synchronized(this) {// 61
+         while(i > 0) {// 62
+            --i;// 63
+            System.out.println(i);// 64
+         }
+
+      }
+   }// 67
+
+   public void test8() {
+      try {
+         synchronized(this) {// 71
+            this.notifyAll();// 72
+         }// 73
+      } finally {
+         synchronized(this) {// 75
+            this.notifyAll();// 76
+         }// 77
+      }
+
+   }// 79
+}
+
+class 'pkg/TestSynchronized' {
+   method 'test1 ()V' {
+      0      4
+      3      4
+      e      7
+   }
+
+   method 'test2 ()V' {
+      9      10
+      14      13
+   }
+
+   method 'test3 ()V' {
+      b      17
+      13      18
+      14      19
+      15      19
+      16      19
+      17      19
+      18      19
+      19      19
+      1a      19
+      1c      20
+      25      22
+      26      22
+      27      22
+      28      22
+      29      22
+      2a      22
+      2b      22
+      2c      23
+   }
+
+   method 'test4 ()V' {
+      0      27
+      1      27
+      2      27
+      3      27
+      8      27
+      9      28
+      a      28
+      b      28
+      c      28
+      d      28
+      e      29
+      f      29
+      10      29
+      11      29
+      12      29
+      13      29
+      14      29
+      16      30
+      1f      32
+      20      32
+      21      32
+      22      32
+      23      32
+      24      32
+      25      32
+      26      33
+   }
+
+   method 'test5 (I)V' {
+      0      38
+      3      38
+      4      39
+      5      39
+      6      39
+      9      40
+      a      40
+      b      40
+      c      40
+      1a      44
+      1d      44
+      1e      45
+      1f      45
+      20      45
+      21      45
+      23      46
+      31      48
+      3a      49
+   }
+
+   method 'test6 ()V' {
+      0      55
+      3      55
+      5      57
+   }
+
+   method 'test7 (I)V' {
+      0      62
+      3      62
+      4      63
+      5      63
+      8      64
+      9      64
+      a      64
+      b      65
+      c      65
+      d      65
+      e      65
+      f      65
+      10      65
+      11      65
+      1f      69
+   }
+
+   method 'test8 ()V' {
+      0      73
+      3      73
+      4      74
+      5      74
+      6      74
+      7      74
+      9      75
+      27      77
+      28      77
+      2b      77
+      2c      77
+      2e      78
+      2f      78
+      30      78
+      31      78
+      34      79
+      43      82
+   }
+}
+
+Lines mapping:
+5 <-> 5
+8 <-> 8
+11 <-> 11
+14 <-> 14
+18 <-> 18
+19 <-> 19
+20 <-> 20
+21 <-> 21
+22 <-> 23
+23 <-> 24
+27 <-> 28
+28 <-> 29
+29 <-> 30
+30 <-> 31
+31 <-> 33
+32 <-> 34
+37 <-> 39
+38 <-> 40
+39 <-> 41
+43 <-> 45
+44 <-> 46
+45 <-> 47
+47 <-> 49
+48 <-> 50
+54 <-> 56
+56 <-> 58
+61 <-> 63
+62 <-> 64
+63 <-> 65
+64 <-> 66
+67 <-> 70
+71 <-> 74
+72 <-> 75
+73 <-> 76
+75 <-> 78
+76 <-> 79
+77 <-> 80
+79 <-> 83
+Not mapped:
+7
+13
+41
+66
+78

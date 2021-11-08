@@ -1,0 +1,131 @@
+package pkg;
+
+public class TestSwitchOnStrings {
+   public int testSOS1(String s) {
+      switch(s) {// 5
+      case "xxx":
+         return 2;// 7
+      case "yyy":
+         return 1;// 9
+      default:
+         return 0;// 11
+      }
+   }
+
+   public int testSOS2(String s) {
+      switch(s) {// 15
+      case "xxx":
+         return 2;// 17
+      case "yyy":
+         return 1;// 19
+      case "BBAa":
+         return 5;// 21
+      case "AaAa":
+         return 4;// 23
+      case "AaBB":
+         return 3;// 25
+      default:
+         return 0;// 27
+      }
+   }
+
+   public int testSOS3(String s) {
+      switch(s) {// 31
+      case "xxx":
+         return 2;// 33
+      case "yyy":
+         return 1;// 35
+      case "AaAa":
+      case "AaBB":
+      case "BBAa":
+         return 3;// 39
+      default:
+         return 0;// 41
+      }
+   }
+}
+
+class 'pkg/TestSwitchOnStrings' {
+   method 'testSOS1 (Ljava/lang/String;)I' {
+      0      4
+      25      5
+      26      5
+      33      7
+      34      7
+      3e      4
+      58      6
+      59      6
+      5a      8
+      5b      8
+      5c      10
+      5d      10
+   }
+
+   method 'testSOS2 (Ljava/lang/String;)I' {
+      0      15
+      2d      16
+      2e      16
+      3b      18
+      3c      18
+      49      24
+      4a      24
+      57      22
+      58      22
+      65      20
+      66      20
+      70      15
+      94      17
+      95      17
+      96      19
+      97      19
+      98      21
+      99      21
+      9a      23
+      9b      23
+      9c      25
+      9d      25
+      9e      27
+      9f      27
+   }
+
+   method 'testSOS3 (Ljava/lang/String;)I' {
+      0      32
+      2d      33
+      2e      33
+      3b      35
+      3c      35
+      49      39
+      4a      39
+      57      38
+      58      38
+      65      37
+      66      37
+      70      32
+      94      34
+      95      34
+      96      36
+      97      36
+      98      40
+      99      40
+      9a      42
+      9b      42
+   }
+}
+
+Lines mapping:
+5 <-> 5
+7 <-> 7
+9 <-> 9
+11 <-> 11
+15 <-> 16
+17 <-> 18
+19 <-> 20
+21 <-> 22
+23 <-> 24
+25 <-> 26
+27 <-> 28
+31 <-> 33
+33 <-> 35
+35 <-> 37
+39 <-> 41
+41 <-> 43

@@ -1,0 +1,72 @@
+package pkg;
+
+import kotlin.Metadata;
+import kotlin.Unit;
+
+@Metadata(
+   mv = {1, 5, 1},
+   k = 1,
+   xi = 48,
+   d1 = {"\u0000\u0012\n\u0002\u0018\u0002\n\u0002\u0010\u0000\n\u0002\b\u0002\n\u0002\u0010\u0002\n\u0000\u0018\u00002\u00020\u0001B\u0005¢\u0006\u0002\u0010\u0002J\u0006\u0010\u0003\u001a\u00020\u0004¨\u0006\u0005"},
+   d2 = {"Lpkg/TestSynchronizedUnprotected;", "", "()V", "test", "", "quiltflower_testDataKotlin"}
+)
+public final class TestSynchronizedUnprotected {
+   public final void test() {
+      boolean var1 = false;
+      boolean var2 = false;
+      synchronized(this) {
+         int $i$a$-synchronized-TestSynchronizedUnprotected$test$1 = 0;
+         String var4 = "Boom";// 6
+         boolean var5 = false;
+         System.out.println(var4);
+         Unit var7 = Unit.INSTANCE;// 5 7
+      }
+   }
+}
+
+class 'pkg/TestSynchronizedUnprotected' {
+   method 'test ()V' {
+      0      14
+      1      14
+      2      15
+      3      15
+      4      16
+      5      16
+      7      17
+      8      17
+      9      18
+      a      18
+      b      18
+      c      18
+      d      19
+      e      19
+      f      19
+      10      20
+      11      20
+      12      20
+      13      20
+      14      20
+      15      20
+      16      20
+      17      20
+      19      21
+      1a      21
+      1b      21
+      1c      21
+      1f      23
+      20      23
+      21      23
+      22      23
+      23      23
+      24      23
+      25      23
+      26      23
+   }
+}
+
+Lines mapping:
+5 <-> 22
+6 <-> 19
+7 <-> 22
+Not mapped:
+8

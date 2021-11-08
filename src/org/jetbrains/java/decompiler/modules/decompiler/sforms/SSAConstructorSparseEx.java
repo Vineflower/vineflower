@@ -83,16 +83,6 @@ public class SSAConstructorSparseEx {
 
     for (DirectNode node : dgraph.nodes) {
 
-      //			if (node.id.endsWith("_inc")) {
-      //				System.out.println();
-      //
-      //				try {
-      //					DotExporter.toDotFile(dgraph, new File("c:\\Temp\\gr1_my.dot"));
-      //				} catch (Exception ex) {
-      //					ex.printStackTrace();
-      //				}
-      //			}
-
       updated.remove(node.id);
       mergeInVarMaps(node, dgraph);
 
@@ -217,11 +207,11 @@ public class SSAConstructorSparseEx {
 
     if (varassign != null) {
 
-      Integer varindex = varassign.getIndex();
+      int varindex = varassign.getIndex();
 
       if (varassign.getVersion() == 0) {
         // get next version
-        Integer nextver = getNextFreeVersion(varindex);
+        int nextver = getNextFreeVersion(varindex);
 
         // set version
         varassign.setVersion(nextver);
@@ -235,17 +225,17 @@ public class SSAConstructorSparseEx {
     else if (expr.type == Exprent.EXPRENT_VAR) {
 
       VarExprent vardest = (VarExprent)expr;
-      Integer varindex = vardest.getIndex();
+      int varindex = vardest.getIndex();
       FastSparseSet<Integer> vers = varmap.get(varindex);
 
       int cardinality = vers != null ? vers.getCardinality() : 0;
       if (cardinality == 1) { // == 1
         // set version
-        Integer it = vers.iterator().next();
+        int it = vers.iterator().next();
         vardest.setVersion(it);
       }
       else if (cardinality == 2) { // size > 1
-        Integer current_vers = vardest.getVersion();
+        int current_vers = vardest.getVersion();
 
         VarVersionPair currpaar = new VarVersionPair(varindex, current_vers);
         if (current_vers != 0 && phi.containsKey(currpaar)) {
@@ -255,7 +245,7 @@ public class SSAConstructorSparseEx {
         }
         else {
           // increase version
-          Integer nextver = getNextFreeVersion(varindex);
+          int nextver = getNextFreeVersion(varindex);
           // set version
           vardest.setVersion(nextver);
 
@@ -269,7 +259,7 @@ public class SSAConstructorSparseEx {
           setCurrentVar(varmap, varindex, vardest.getVersion());
         }
         else {
-          Integer nextver = getNextFreeVersion(varindex);
+          int nextver = getNextFreeVersion(varindex);
           vardest.setVersion(nextver);
           setCurrentVar(varmap, varindex, nextver);
         }
@@ -277,7 +267,7 @@ public class SSAConstructorSparseEx {
     }
   }
 
-  private Integer getNextFreeVersion(Integer var) {
+  private int getNextFreeVersion(int var) {
     Integer nextver = lastversion.get(var);
     if (nextver == null) {
       nextver = 1;
@@ -439,7 +429,7 @@ public class SSAConstructorSparseEx {
     return true;
   }
 
-  private void setCurrentVar(SFormsFastMapDirect varmap, Integer var, Integer vers) {
+  private void setCurrentVar(SFormsFastMapDirect varmap, int var, int vers) {
     FastSparseSet<Integer> set = factory.spawnEmptySet();
     set.add(vers);
     varmap.put(var, set);

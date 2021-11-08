@@ -6,11 +6,20 @@ import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+// A connection between 2 statements.
+// Describes edges in graphs where statements are the vertices.
 public class StatEdge {
+  // Represents direct control flow between 2 statements
   public static final int TYPE_REGULAR = 1;
+  // Represents implicit control flow between any statement in a try block and the catch blocks
+  // This is because any statement in the try block can throw and execution can flow to the catch blocks from there
   public static final int TYPE_EXCEPTION = 2;
+  // Represents control flow out of a statement and to the next statement
+  // Also represents returns
   public static final int TYPE_BREAK = 4;
+  // Represents control flow back up to a previous statement, marking a loop
   public static final int TYPE_CONTINUE = 8;
+  // Represents exits from finally blocks
   public static final int TYPE_FINALLYEXIT = 32;
 
   public static final int[] TYPES = new int[]{
@@ -31,10 +40,13 @@ public class StatEdge {
 
   public Statement closure;
 
+  // Whether this edge is labeled or not.
   public boolean labeled = true;
 
+  // Whether this edge is explicitly defined or implicit.
   public boolean explicit = true;
 
+  // Whether this edge can be inlined to simplify the decompile or not.
   public boolean canInline = true;
 
   public StatEdge(int type, Statement source, Statement destination, Statement closure) {
@@ -86,4 +98,9 @@ public class StatEdge {
   //	public void setException(String exception) {
   //		this.exception = exception;
   //	}
+
+  @Override
+  public String toString() {
+    return this.type + ": " + this.source.toString() + " -> " + this.destination.toString() + ((this.closure == null) ? "" : " (" + this.closure + ")") + ((this.exceptions == null) ? "" : " Exceptions: " + this.exceptions);
+  }
 }
