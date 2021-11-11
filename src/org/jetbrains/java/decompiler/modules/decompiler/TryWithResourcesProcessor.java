@@ -255,7 +255,10 @@ public final class TryWithResourcesProcessor {
                         predStat.removeSuccessor(pred);
 
                         // Connect predecessor of if stat to it's successor, circumventing it
-                        StatEdge newEdge = new StatEdge(StatEdge.TYPE_REGULAR, predStat, successor.getDestination());
+
+                        // When the predecessor is the try statement, we add normal control flow, as the successor is located next to the try statement. When it is not, it must be inside the try, so we break out of it.
+                        // This prevents successor blocks from being inlined, as there are still multiple breaks to the successor and not a singular one that can be inlined [TestTryWithResourcesCatchJ16#test1]
+                        StatEdge newEdge = new StatEdge(predStat == tryStatement ? StatEdge.TYPE_REGULAR : StatEdge.TYPE_BREAK, predStat, successor.getDestination());
                         predStat.addSuccessor(newEdge);
                       }
 

@@ -25,6 +25,8 @@ public class TestTryWithResourcesCatchJ16 {
     int i = 0;
 
     try {
+      System.out.println(-1);
+
       try (Scanner scanner = create(file)) {
         scanner.next();
         i++;
