@@ -21,6 +21,27 @@ public class TestTryWithResourcesCatchJ16 {
         }
     }
 
+  public int test1(File file) {
+    int i = 0;
+
+    try {
+      try (Scanner scanner = create(file)) {
+        scanner.next();
+        i++;
+      }
+    } catch (Exception e) {
+      System.out.println(1);
+    }
+
+    if (i == 0) {
+      System.out.println(0);
+    } else {
+      System.out.println(2);
+    }
+
+    return i;
+  }
+
     private Scanner create(File file) throws FileNotFoundException {
         return new Scanner(file);
     }
