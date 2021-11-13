@@ -29,20 +29,10 @@ public abstract class TestLocalClass {
       class C {
       }
 
-      Supplier<C> constr = () -> {// 30
-         return new C();
+      Supplier<C> constr = () -> {
+         return new C();// 30
       };
    }// 31
-}
-
-class 'pkg/TestLocalClass$1Local' {
-   method 'foo ()V' {
-      0      10
-      1      10
-      2      11
-      3      11
-      4      12
-   }
 }
 
 class 'pkg/TestLocalClass' {
@@ -69,13 +59,23 @@ class 'pkg/TestLocalClass' {
       2      25
    }
 
-   method 'lambda$bar$0 ()Lpkg/TestLocalClass$1C;' {
-      8      32
-   }
-
    method 'bar ()V' {
       6      31
       7      34
+   }
+
+   method 'lambda$bar$0 ()Lpkg/TestLocalClass$1C;' {
+      8      32
+   }
+}
+
+class 'pkg/TestLocalClass$1Local' {
+   method 'foo ()V' {
+      0      10
+      1      10
+      2      11
+      3      11
+      4      12
    }
 }
 
@@ -91,5 +91,5 @@ Lines mapping:
 22 <-> 22
 25 <-> 25
 26 <-> 26
-30 <-> 32
+30 <-> 33
 31 <-> 35

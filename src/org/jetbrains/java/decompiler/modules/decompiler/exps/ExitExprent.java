@@ -4,7 +4,6 @@ package org.jetbrains.java.decompiler.modules.decompiler.exps;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
-import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
@@ -17,7 +16,6 @@ import org.jetbrains.java.decompiler.struct.match.MatchNode;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 
-import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 
@@ -67,23 +65,24 @@ public class ExitExprent extends Exprent {
   }
 
   @Override
-  public TextBuffer toJava(int indent, BytecodeMappingTracer tracer) {
-    tracer.addMapping(bytecode);
+  public TextBuffer toJava(int indent) {
+    TextBuffer buf = new TextBuffer();
+    buf.addBytecodeMapping(bytecode);
 
     if (exitType == EXIT_RETURN) {
-      TextBuffer buffer = new TextBuffer("return");
+      buf.append("return");
 
       if (retType.type != CodeConstants.TYPE_VOID) {
         VarType ret = retType;
         if (methodDescriptor != null && methodDescriptor.genericInfo != null && methodDescriptor.genericInfo.returnType != null) {
           ret = methodDescriptor.genericInfo.returnType;
         }
-        buffer.append(' ');
+        buf.append(' ');
 
-        ExprProcessor.getCastedExprent(value, ret, buffer, indent, false, false, false, false, tracer);
+        ExprProcessor.getCastedExprent(value, ret, buf, indent, false, false, false, false);
       }
 
-      return buffer;
+      return buf;
     }
     else {
       MethodWrapper method = (MethodWrapper)DecompilerContext.getProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
@@ -108,14 +107,14 @@ public class ExitExprent extends Exprent {
 
           if (classname != null) {
             VarType exType = new VarType(classname, true);
-            TextBuffer buffer = new TextBuffer("throw ");
-            ExprProcessor.getCastedExprent(value, exType, buffer, indent, false, tracer);
-            return buffer;
+            buf.append("throw ");
+            ExprProcessor.getCastedExprent(value, exType, buf, indent, false);
+            return buf;
           }
         }
       }
 
-      return value.toJava(indent, tracer).prepend("throw ");
+      return buf.append(value.toJava(indent)).prepend("throw ");
     }
   }
 

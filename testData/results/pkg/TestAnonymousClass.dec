@@ -162,16 +162,6 @@ class 'pkg/TestAnonymousClass$8' {
    }
 }
 
-class 'pkg/TestAnonymousClass$1' {
-   method 'foo ()V' {
-      0      56
-      1      56
-      2      57
-      3      57
-      4      58
-   }
-}
-
 class 'pkg/TestAnonymousClass' {
    method 'foo (I)V' {
       0      52
@@ -212,6 +202,16 @@ class 'pkg/TestAnonymousClass' {
       0      81
       1      81
       2      82
+   }
+}
+
+class 'pkg/TestAnonymousClass$1' {
+   method 'foo ()V' {
+      0      56
+      1      56
+      2      57
+      3      57
+      4      58
    }
 }
 

@@ -3,7 +3,6 @@
  */
 package org.jetbrains.java.decompiler.modules.decompiler.exps;
 
-import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
@@ -73,9 +72,10 @@ public class SwitchExprent extends Exprent {
   }
 
   @Override
-  public TextBuffer toJava(int indent, BytecodeMappingTracer tracer) {
-    tracer.addMapping(bytecode);
-    return value.toJava(indent, tracer).enclose("switch(", ")");
+  public TextBuffer toJava(int indent) {
+    TextBuffer buf = value.toJava(indent).enclose("switch(", ")");
+    buf.addStartBytecodeMapping(bytecode);
+    return buf;
   }
 
   @Override
