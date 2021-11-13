@@ -99,7 +99,7 @@ public class NestedClassProcessor {
       }
     }
 
-    for (ClassNode child : node.nested) {
+    for (ClassNode child : new ArrayList<>(node.nested)) {
       processClass(root, child);
     }
   }
