@@ -17,14 +17,6 @@ public class TestThrowException {
    }// 18
 }
 
-class 'pkg/TestThrowException$1' {
-   method 'run ()V' {
-      0      12
-      1      12
-      2      13
-   }
-}
-
 class 'pkg/TestThrowException' {
    method '<init> (I)V' {
       4      6
@@ -37,6 +29,14 @@ class 'pkg/TestThrowException' {
       1c      9
       1d      9
       1e      16
+   }
+}
+
+class 'pkg/TestThrowException$1' {
+   method 'run ()V' {
+      0      12
+      1      12
+      2      13
    }
 }
 

@@ -1,7 +1,6 @@
 // Copyright 2000-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler.stats;
 
-import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.util.TextBuffer;
@@ -23,8 +22,8 @@ public class RootStatement extends Statement {
   }
 
   @Override
-  public TextBuffer toJava(int indent, BytecodeMappingTracer tracer) {
-    return ExprProcessor.listToJava(varDefinitions, indent, tracer).append(first.toJava(indent, tracer));
+  public TextBuffer toJava(int indent) {
+    return ExprProcessor.listToJava(varDefinitions, indent).append(first.toJava(indent));
   }
 
   public DummyExitStatement getDummyExit() {

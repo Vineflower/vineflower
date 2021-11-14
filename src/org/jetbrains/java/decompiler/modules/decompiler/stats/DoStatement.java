@@ -1,7 +1,6 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler.stats;
 
-import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
@@ -79,59 +78,48 @@ public final class DoStatement extends Statement {
   }
 
   @Override
-  public TextBuffer toJava(int indent, BytecodeMappingTracer tracer) {
+  public TextBuffer toJava(int indent) {
     TextBuffer buf = new TextBuffer();
 
-    buf.append(ExprProcessor.listToJava(varDefinitions, indent, tracer));
+    buf.append(ExprProcessor.listToJava(varDefinitions, indent));
 
     if (isLabeled()) {
       buf.appendIndent(indent).append("label").append(this.id.toString()).append(":").appendLineSeparator();
-      tracer.incrementCurrentSourceLine();
     }
 
     switch (looptype) {
       case LOOP_DO:
         buf.appendIndent(indent).append("while(true) {").appendLineSeparator();
-        tracer.incrementCurrentSourceLine();
-        buf.append(ExprProcessor.jmpWrapper(first, indent + 1, false, tracer));
+        buf.append(ExprProcessor.jmpWrapper(first, indent + 1, false));
         buf.appendIndent(indent).append("}").appendLineSeparator();
-        tracer.incrementCurrentSourceLine();
         break;
       case LOOP_DOWHILE:
         buf.appendIndent(indent).append("do {").appendLineSeparator();
-        tracer.incrementCurrentSourceLine();
-        buf.append(ExprProcessor.jmpWrapper(first, indent + 1, false, tracer));
-        buf.appendIndent(indent).append("} while(").append(conditionExprent.get(0).toJava(indent, tracer)).append(");").appendLineSeparator();
-        tracer.incrementCurrentSourceLine();
+        buf.append(ExprProcessor.jmpWrapper(first, indent + 1, false));
+        buf.appendIndent(indent).append("} while(").append(conditionExprent.get(0).toJava(indent)).append(");").appendLineSeparator();
         break;
       case LOOP_WHILE:
-        buf.appendIndent(indent).append("while(").append(conditionExprent.get(0).toJava(indent, tracer)).append(") {").appendLineSeparator();
-        tracer.incrementCurrentSourceLine();
-        buf.append(ExprProcessor.jmpWrapper(first, indent + 1, false, tracer));
+        buf.appendIndent(indent).append("while(").append(conditionExprent.get(0).toJava(indent)).append(") {").appendLineSeparator();
+        buf.append(ExprProcessor.jmpWrapper(first, indent + 1, false));
         buf.appendIndent(indent).append("}").appendLineSeparator();
-        tracer.incrementCurrentSourceLine();
         break;
       case LOOP_FOR:
         buf.appendIndent(indent).append("for(");
         if (initExprent.get(0) != null) {
-          buf.append(initExprent.get(0).toJava(indent, tracer));
+          buf.append(initExprent.get(0).toJava(indent));
         }
         buf.append("; ")
-          .append(conditionExprent.get(0).toJava(indent, tracer)).append("; ").append(incExprent.get(0).toJava(indent, tracer)).append(") {")
+          .append(conditionExprent.get(0).toJava(indent)).append("; ").append(incExprent.get(0).toJava(indent)).append(") {")
           .appendLineSeparator();
-        tracer.incrementCurrentSourceLine();
-        buf.append(ExprProcessor.jmpWrapper(first, indent + 1, false, tracer));
+        buf.append(ExprProcessor.jmpWrapper(first, indent + 1, false));
         buf.appendIndent(indent).append("}").appendLineSeparator();
-        tracer.incrementCurrentSourceLine();
         break;
       case LOOP_FOREACH:
-        buf.appendIndent(indent).append("for(").append(initExprent.get(0).toJava(indent, tracer));
+        buf.appendIndent(indent).append("for(").append(initExprent.get(0).toJava(indent));
         incExprent.get(0).getInferredExprType(null); //TODO: Find a better then null? For now just calls it to clear casts if needed
-        buf.append(" : ").append(incExprent.get(0).toJava(indent, tracer)).append(") {").appendLineSeparator();
-        tracer.incrementCurrentSourceLine();
-        buf.append(ExprProcessor.jmpWrapper(first, indent + 1, true, tracer));
+        buf.append(" : ").append(incExprent.get(0).toJava(indent)).append(") {").appendLineSeparator();
+        buf.append(ExprProcessor.jmpWrapper(first, indent + 1, true));
         buf.appendIndent(indent).append("}").appendLineSeparator();
-        tracer.incrementCurrentSourceLine();
     }
 
     return buf;

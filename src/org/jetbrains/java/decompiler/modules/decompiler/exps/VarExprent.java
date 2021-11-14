@@ -5,7 +5,6 @@ import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.ClassWriter;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
-import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
@@ -15,7 +14,6 @@ import org.jetbrains.java.decompiler.modules.decompiler.vars.VarProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarTypeProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.struct.StructClass;
-import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribute.LocalVariable;
@@ -29,9 +27,7 @@ import org.jetbrains.java.decompiler.struct.match.MatchNode;
 import org.jetbrains.java.decompiler.struct.match.MatchNode.RuleValue;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.TextBuffer;
-import org.jetbrains.java.decompiler.util.TextUtil;
 
-import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -106,15 +102,14 @@ public class VarExprent extends Exprent {
   }
 
   @Override
-  public TextBuffer toJava(int indent, BytecodeMappingTracer tracer) {
+  public TextBuffer toJava(int indent) {
     TextBuffer buffer = new TextBuffer();
 
-    tracer.addMapping(bytecode);
+    buffer.addBytecodeMapping(bytecode);
 
     if (classDef) {
       ClassNode child = DecompilerContext.getClassProcessor().getMapRootClasses().get(varType.value);
-      new ClassWriter().classToJava(child, buffer, indent, tracer);
-      tracer.incrementCurrentSourceLine(buffer.countLines());
+      new ClassWriter().classToJava(child, buffer, indent);
     }
     else {
       VarVersionPair varVersion = getVarVersionPair();
