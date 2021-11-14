@@ -47,20 +47,6 @@ public class TestClassSimpleBytecodeMapping {
    }
 }
 
-class 'pkg/TestClassSimpleBytecodeMapping$1' {
-   method 'run ()V' {
-      0      8
-      1      8
-      2      8
-      3      8
-      4      8
-      5      8
-      6      8
-      7      8
-      8      9
-   }
-}
-
 class 'pkg/TestClassSimpleBytecodeMapping' {
    method 'test ()I' {
       0      4
@@ -136,6 +122,20 @@ class 'pkg/TestClassSimpleBytecodeMapping' {
       4      33
       5      33
       6      34
+   }
+}
+
+class 'pkg/TestClassSimpleBytecodeMapping$1' {
+   method 'run ()V' {
+      0      8
+      1      8
+      2      8
+      3      8
+      4      8
+      5      8
+      6      8
+      7      8
+      8      9
    }
 }
 

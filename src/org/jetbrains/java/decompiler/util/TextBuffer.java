@@ -4,6 +4,7 @@
 package org.jetbrains.java.decompiler.util;
 
 import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 
 import java.util.*;
@@ -19,6 +20,7 @@ public class TextBuffer {
   private final String myIndent = (String)DecompilerContext.getProperty(IFernflowerPreferences.INDENT_STRING);
   private final StringBuilder myStringBuilder;
   private Map<Integer, Integer> myLineToOffsetMapping = null;
+  private final Map<BytecodeMappingKey, Integer> myBytecodeOffsetMapping = new LinkedHashMap<>(); // bytecode offset -> offset in text
 
   public TextBuffer() {
     myStringBuilder = new StringBuilder();
@@ -78,6 +80,57 @@ public class TextBuffer {
       }
     }
     return true;
+  }
+
+  public void addBytecodeMapping(int bytecodeOffset) {
+    myBytecodeOffsetMapping.putIfAbsent(new BytecodeMappingKey(bytecodeOffset, null, null), myStringBuilder.length());
+  }
+
+  public void addStartBytecodeMapping(int bytecodeOffset) {
+    myBytecodeOffsetMapping.putIfAbsent(new BytecodeMappingKey(bytecodeOffset, null, null), 0);
+  }
+
+  public void addBytecodeMapping(BitSet bytecodeOffsets) {
+    if (bytecodeOffsets == null) {
+      return;
+    }
+    for (int i = bytecodeOffsets.nextSetBit(0); i >= 0; i = bytecodeOffsets.nextSetBit(i + 1)) {
+      addBytecodeMapping(i);
+    }
+  }
+
+  public void addStartBytecodeMapping(BitSet bytecodeOffsets) {
+    if (bytecodeOffsets == null) {
+      return;
+    }
+    for (int i = bytecodeOffsets.nextSetBit(0); i >= 0; i = bytecodeOffsets.nextSetBit(i + 1)) {
+      addStartBytecodeMapping(i);
+    }
+  }
+
+  public void clearUnassignedBytecodeMappingData() {
+    myBytecodeOffsetMapping.keySet().removeIf(key -> key.myClass == null);
+  }
+
+  public Map<Pair<String, String>, BytecodeMappingTracer> getTracers() {
+    List<Integer> newlineOffsets = new ArrayList<>();
+    for (int i = myStringBuilder.indexOf(myLineSeparator); i != -1; i = myStringBuilder.indexOf(myLineSeparator, i + 1)) {
+      newlineOffsets.add(i);
+    }
+    Map<Pair<String, String>, BytecodeMappingTracer> tracers = new LinkedHashMap<>();
+    myBytecodeOffsetMapping.forEach((key, textOffset) -> {
+      if (key.myClass == null) {
+        throw new IllegalStateException("getTracers called when not all bytecode offsets have a valid class and method");
+      }
+      BytecodeMappingTracer tracer = tracers.computeIfAbsent(Pair.of(key.myClass, key.myMethod), k -> new BytecodeMappingTracer());
+      int lineNo = Collections.binarySearch(newlineOffsets, textOffset);
+      if (lineNo < 0) {
+        lineNo = -lineNo - 1;
+      }
+      tracer.setCurrentSourceLine(lineNo);
+      tracer.addMapping(key.myBytecodeOffset);
+    });
+    return tracers;
   }
 
   @Override
@@ -190,15 +243,25 @@ public class TextBuffer {
     }
   }
 
-  public TextBuffer append(TextBuffer buffer) {
+  public TextBuffer append(TextBuffer buffer, String className, String methodKey) {
     if (buffer.myLineToOffsetMapping != null && !buffer.myLineToOffsetMapping.isEmpty()) {
       checkMapCreated();
       for (Map.Entry<Integer, Integer> entry : buffer.myLineToOffsetMapping.entrySet()) {
         myLineToOffsetMapping.put(entry.getKey(), entry.getValue() + myStringBuilder.length());
       }
     }
+    buffer.myBytecodeOffsetMapping.forEach((key, value) -> {
+      if (key.myClass == null) {
+        key = new BytecodeMappingKey(key.myBytecodeOffset, className, methodKey);
+      }
+      myBytecodeOffsetMapping.putIfAbsent(key, value + myStringBuilder.length());
+    });
     myStringBuilder.append(buffer.myStringBuilder);
     return this;
+  }
+
+  public TextBuffer append(TextBuffer buffer) {
+    return append(buffer, null, null);
   }
 
   private void shiftMapping(int shiftOffset) {
@@ -215,6 +278,7 @@ public class TextBuffer {
       }
       myLineToOffsetMapping = newMap;
     }
+    myBytecodeOffsetMapping.replaceAll((key, value) -> value + shiftOffset);
   }
 
   private void checkMapCreated() {
@@ -280,6 +344,39 @@ public class TextBuffer {
         Set<Integer> existing = myLineMapping.computeIfAbsent(key, k -> new TreeSet<>());
         existing.add(lineMapping[i]);
       }
+    }
+  }
+
+  private static final class BytecodeMappingKey {
+    private final int myBytecodeOffset;
+    // null signifies the current class
+    private final String myClass;
+    private final String myMethod;
+
+    public BytecodeMappingKey(int bytecodeOffset, String className, String methodKey) {
+      myBytecodeOffset = bytecodeOffset;
+      myClass = className;
+      myMethod = methodKey;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+      BytecodeMappingKey that = (BytecodeMappingKey)o;
+      return myBytecodeOffset == that.myBytecodeOffset &&
+             Objects.equals(myClass, that.myClass) &&
+             Objects.equals(myMethod, that.myMethod);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(myBytecodeOffset, myClass, myMethod);
+    }
+
+    @Override
+    public String toString() {
+      return myClass + ":" + myMethod + ":" + myBytecodeOffset;
     }
   }
 }

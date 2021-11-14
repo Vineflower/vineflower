@@ -481,10 +481,10 @@ public class Statement implements IMatchable {
   }
 
   public TextBuffer toJava() {
-    return toJava(0, BytecodeMappingTracer.DUMMY);
+    return toJava(0);
   }
 
-  public TextBuffer toJava(int indent, BytecodeMappingTracer tracer) {
+  public TextBuffer toJava(int indent) {
     throw new RuntimeException("not implemented");
   }
 

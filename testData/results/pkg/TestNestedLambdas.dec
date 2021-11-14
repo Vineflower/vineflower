@@ -5,8 +5,8 @@ public class TestNestedLambdas {
       int x = accept(i -> {// 6
          if (i == 0) {// 7
             accept(j -> {// 8
-               return j == 0 ? accept(k -> {// 9 10
-                  return i + j;
+               return j == 0 ? accept(k -> {// 9
+                  return i + j;// 10
                }) : i * j;// 12
             });
          }
@@ -27,34 +27,6 @@ public class TestNestedLambdas {
 }
 
 class 'pkg/TestNestedLambdas' {
-   method 'lambda$null$0 (III)I' {
-      0      8
-      1      8
-      2      8
-      3      8
-   }
-
-   method 'lambda$null$1 (II)I' {
-      0      7
-      1      7
-      b      7
-      c      7
-      d      7
-      f      9
-      10      9
-      11      9
-   }
-
-   method 'lambda$test$2 (I)I' {
-      0      5
-      1      5
-      a      6
-      b      6
-      c      6
-      e      13
-      f      13
-   }
-
    method 'test ()V' {
       5      4
       6      4
@@ -68,6 +40,34 @@ class 'pkg/TestNestedLambdas' {
       e      15
       f      15
       10      16
+   }
+
+   method 'lambda$test$2 (I)I' {
+      0      5
+      1      5
+      a      6
+      b      6
+      c      6
+      e      13
+      f      13
+   }
+
+   method 'lambda$null$1 (II)I' {
+      0      7
+      1      7
+      b      7
+      c      7
+      d      7
+      f      9
+      10      9
+      11      9
+   }
+
+   method 'lambda$null$0 (III)I' {
+      0      8
+      1      8
+      2      8
+      3      8
    }
 
    method 'accept (Lpkg/TestNestedLambdas$Func;)I' {
@@ -87,7 +87,7 @@ Lines mapping:
 7 <-> 6
 8 <-> 7
 9 <-> 8
-10 <-> 8
+10 <-> 9
 12 <-> 10
 17 <-> 14
 20 <-> 16

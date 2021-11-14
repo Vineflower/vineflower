@@ -7,7 +7,6 @@ import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.AssignmentExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.util.TextBuffer;
-import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.modules.decompiler.DecHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
@@ -141,37 +140,33 @@ public final class CatchStatement extends Statement {
   }
 
   @Override
-  public TextBuffer toJava(int indent, BytecodeMappingTracer tracer) {
+  public TextBuffer toJava(int indent) {
     TextBuffer buf = new TextBuffer();
 
-    buf.append(ExprProcessor.listToJava(varDefinitions, indent, tracer));
+    buf.append(ExprProcessor.listToJava(varDefinitions, indent));
 
     if (isLabeled()) {
       buf.appendIndent(indent).append("label").append(this.id.toString()).append(":").appendLineSeparator();
-      tracer.incrementCurrentSourceLine();
     }
 
     if (tryType == NORMAL) {
       buf.appendIndent(indent).append("try {").appendLineSeparator();
-      tracer.incrementCurrentSourceLine();
     }
     else {
       buf.appendIndent(indent).append("try (");
 
       if (resources.size() > 1) {
         buf.appendLineSeparator();
-        tracer.incrementCurrentSourceLine();
-        buf.append(ExprProcessor.listToJava(resources, indent + 1, tracer));
+        buf.append(ExprProcessor.listToJava(resources, indent + 1));
         buf.appendIndent(indent);
       }
       else {
-        buf.append(resources.get(0).toJava(indent + 1, tracer));
+        buf.append(resources.get(0).toJava(indent + 1));
       }
       buf.append(") {").appendLineSeparator();
-      tracer.incrementCurrentSourceLine();
     }
 
-    buf.append(ExprProcessor.jmpWrapper(first, indent + 1, true, tracer));
+    buf.append(ExprProcessor.jmpWrapper(first, indent + 1, true));
     buf.appendIndent(indent).append("}");
 
     for (int i = 1; i < stats.size(); i++) {
@@ -180,7 +175,7 @@ public final class CatchStatement extends Statement {
       BasicBlock block = stat.getBasichead().getBlock();
       if (!block.getSeq().isEmpty() && block.getInstruction(0).opcode == CodeConstants.opc_astore) {
         Integer offset = block.getOldOffset(0);
-        if (offset > -1) tracer.addMapping(offset);
+        if (offset > -1) buf.addBytecodeMapping(offset);
       }
 
       buf.append(" catch (");
@@ -194,15 +189,13 @@ public final class CatchStatement extends Statement {
           buf.append(exc_type_name).append(" | ");
         }
       }
-      buf.append(vars.get(i - 1).toJava(indent, tracer));
+      buf.append(vars.get(i - 1).toJava(indent));
       buf.append(") {").appendLineSeparator();
-      tracer.incrementCurrentSourceLine();
-      buf.append(ExprProcessor.jmpWrapper(stat, indent + 1, false, tracer)).appendIndent(indent)
+      buf.append(ExprProcessor.jmpWrapper(stat, indent + 1, false)).appendIndent(indent)
         .append("}");
     }
     buf.appendLineSeparator();
 
-    tracer.incrementCurrentSourceLine();
     return buf;
   }
 
