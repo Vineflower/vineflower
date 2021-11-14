@@ -398,11 +398,21 @@ public class NewExprent extends Exprent {
     else if (directArrayInit) {
       VarType leftType = newType.decreaseArrayDim();
       buf.append('{');
+      if (!lstArrayElements.isEmpty()) {
+        buf.pushNewlineGroup(indent, 2);
+        buf.appendPossibleNewline();
+        buf.pushNewlineGroup(indent, 0);
+      }
       for (int i = 0; i < lstArrayElements.size(); i++) {
         if (i > 0) {
-          buf.append(", ");
+          buf.append(",").appendPossibleNewline(" ");
         }
         ExprProcessor.getCastedExprent(lstArrayElements.get(i), leftType, buf, indent, false);
+      }
+      if (!lstArrayElements.isEmpty()) {
+        buf.popNewlineGroup();
+        buf.appendPossibleNewline("", true);
+        buf.popNewlineGroup();
       }
       buf.append('}');
     }

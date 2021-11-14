@@ -96,21 +96,38 @@ public final class DoStatement extends Statement {
       case LOOP_DOWHILE:
         buf.appendIndent(indent).append("do {").appendLineSeparator();
         buf.append(ExprProcessor.jmpWrapper(first, indent + 1, false));
-        buf.appendIndent(indent).append("} while(").append(conditionExprent.get(0).toJava(indent)).append(");").appendLineSeparator();
+        buf.appendIndent(indent).append("} while(");
+        buf.pushNewlineGroup(indent, 1);
+        buf.appendPossibleNewline();
+        buf.append(conditionExprent.get(0).toJava(indent));
+        buf.appendPossibleNewline("", true);
+        buf.popNewlineGroup();
+        buf.append(");").appendLineSeparator();
         break;
       case LOOP_WHILE:
-        buf.appendIndent(indent).append("while(").append(conditionExprent.get(0).toJava(indent)).append(") {").appendLineSeparator();
+        buf.appendIndent(indent).append("while(");
+        buf.pushNewlineGroup(indent, 1);
+        buf.appendPossibleNewline();
+        buf.append(conditionExprent.get(0).toJava(indent));
+        buf.appendPossibleNewline("", true);
+        buf.popNewlineGroup();
+        buf.append(") {").appendLineSeparator();
         buf.append(ExprProcessor.jmpWrapper(first, indent + 1, false));
         buf.appendIndent(indent).append("}").appendLineSeparator();
         break;
       case LOOP_FOR:
-        buf.appendIndent(indent).append("for(");
+        buf.appendIndent(indent);
+        buf.pushNewlineGroup(indent, 1);
+        buf.append("for(");
         if (initExprent.get(0) != null) {
           buf.append(initExprent.get(0).toJava(indent));
         }
-        buf.append("; ")
-          .append(conditionExprent.get(0).toJava(indent)).append("; ").append(incExprent.get(0).toJava(indent)).append(") {")
-          .appendLineSeparator();
+        buf.append(";").appendPossibleNewline(" ")
+          .append(conditionExprent.get(0).toJava(indent)).append(";").appendPossibleNewline(" ")
+          .append(incExprent.get(0).toJava(indent))
+          .appendPossibleNewline("", true);
+        buf.popNewlineGroup();
+        buf.append(") {").appendLineSeparator();
         buf.append(ExprProcessor.jmpWrapper(first, indent + 1, false));
         buf.appendIndent(indent).append("}").appendLineSeparator();
         break;

@@ -100,7 +100,12 @@ public class IfExprent extends Exprent {
 
   @Override
   public TextBuffer toJava(int indent) {
-    TextBuffer buf = condition.toJava(indent).enclose("if (", ")");
+    TextBuffer buf = condition.toJava(indent);
+    buf.pushNewlineGroup(indent, 1);
+    buf.appendPossibleNewline();
+    buf.enclose("if (", ")");
+    buf.appendPossibleNewline("", true);
+    buf.popNewlineGroup();
     buf.addStartBytecodeMapping(bytecode);
     return buf;
   }

@@ -4,11 +4,7 @@ public class TestNestedLambdas {
    public void test() {
       int x = accept(i -> {// 6
          if (i == 0) {// 7
-            accept(j -> {// 8
-               return j == 0 ? accept(k -> {// 9
-                  return i + j;// 10
-               }) : i * j;// 12
-            });
+            accept(j -> j == 0 ? accept(k -> i + j) : i * j);// 8 9 10 12
          }
 
          return i;// 17
@@ -32,14 +28,14 @@ class 'pkg/TestNestedLambdas' {
       6      4
       7      4
       8      4
-      9      15
-      a      15
-      b      15
-      c      15
-      d      15
-      e      15
-      f      15
-      10      16
+      9      11
+      a      11
+      b      11
+      c      11
+      d      11
+      e      11
+      f      11
+      10      12
    }
 
    method 'lambda$test$2 (I)I' {
@@ -48,37 +44,37 @@ class 'pkg/TestNestedLambdas' {
       a      6
       b      6
       c      6
-      e      13
-      f      13
+      e      9
+      f      9
    }
 
    method 'lambda$null$1 (II)I' {
-      0      7
-      1      7
-      b      7
-      c      7
-      d      7
-      f      9
-      10      9
-      11      9
+      0      6
+      1      6
+      b      6
+      c      6
+      d      6
+      f      6
+      10      6
+      11      6
    }
 
    method 'lambda$null$0 (III)I' {
-      0      8
-      1      8
-      2      8
-      3      8
+      0      6
+      1      6
+      2      6
+      3      6
    }
 
    method 'accept (Lpkg/TestNestedLambdas$Func;)I' {
-      0      19
-      1      19
-      2      19
-      3      19
-      4      19
-      5      19
-      6      19
-      7      19
+      0      15
+      1      15
+      2      15
+      3      15
+      4      15
+      5      15
+      6      15
+      7      15
    }
 }
 
@@ -86,10 +82,10 @@ Lines mapping:
 6 <-> 5
 7 <-> 6
 8 <-> 7
-9 <-> 8
-10 <-> 9
-12 <-> 10
-17 <-> 14
-20 <-> 16
-21 <-> 17
-24 <-> 20
+9 <-> 7
+10 <-> 7
+12 <-> 7
+17 <-> 10
+20 <-> 12
+21 <-> 13
+24 <-> 16

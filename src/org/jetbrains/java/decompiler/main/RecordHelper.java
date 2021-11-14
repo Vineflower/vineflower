@@ -26,15 +26,20 @@ public final class RecordHelper {
       (mt.getName().equals(CodeConstants.INIT_NAME) && !hasAnnotations(mt) && isDefaultRecordConstructor(cl, root));
   }
 
-  public static void appendRecordComponents(TextBuffer buffer, StructClass cl, List<StructRecordComponent> components) {
+  public static void appendRecordComponents(TextBuffer buffer, StructClass cl, List<StructRecordComponent> components, int indent) {
+    buffer.pushNewlineGroup(indent, 1);
     for (int i = 0; i < components.size(); i++) {
       StructRecordComponent cd = components.get(i);
       if (i > 0) {
-        buffer.append(", ");
+        buffer.append(",");
+        buffer.appendPossibleNewline(" ");
+      } else {
+        buffer.appendPossibleNewline();
       }
       boolean varArgComponent = i == components.size() - 1 && isVarArgRecord(cl);
       recordComponentToJava(buffer, cl, cd, i, varArgComponent);
     }
+    buffer.popNewlineGroup();
   }
 
   private static Exprent getSimpleReturnValue(RootStatement root) {

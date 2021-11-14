@@ -18,6 +18,10 @@ import java.util.*;
 public class TextBuffer {
   private final String myLineSeparator = DecompilerContext.getNewLineSeparator();
   private final String myIndent = (String)DecompilerContext.getProperty(IFernflowerPreferences.INDENT_STRING);
+  private final int myPreferredLineLength = DecompilerContext.getIntOption(IFernflowerPreferences.PREFERRED_LINE_LENGTH);
+  private final NewlineGroup myRootGroup = new NewlineGroup(null, 0, 0, 0);
+  private NewlineGroup myCurrentGroup = myRootGroup;
+  private boolean myHasReformatted = false;
   private final StringBuilder myStringBuilder;
   private Map<Integer, Integer> myLineToOffsetMapping = null;
   private final Map<BytecodeMappingKey, Integer> myBytecodeOffsetMapping = new LinkedHashMap<>(); // bytecode offset -> offset in text
@@ -58,6 +62,36 @@ public class TextBuffer {
     while (length-- > 0) {
       append(myIndent);
     }
+    return this;
+  }
+
+  public TextBuffer pushNewlineGroup(int baseIndent, int extraIndent) {
+    NewlineGroup group = new NewlineGroup(myCurrentGroup, myStringBuilder.length(), baseIndent, extraIndent);
+    myCurrentGroup.myChildren.add(group);
+    myCurrentGroup = group;
+    return this;
+  }
+
+  public TextBuffer appendPossibleNewline() {
+    return appendPossibleNewline("");
+  }
+
+  public TextBuffer appendPossibleNewline(String alternative) {
+    return appendPossibleNewline(alternative, false);
+  }
+
+  public TextBuffer appendPossibleNewline(String alternative, boolean dedent) {
+    myCurrentGroup.myReplacements.add(new NewlineGroup.Replacement(myStringBuilder.length(), alternative.length(), dedent));
+    return append(alternative);
+  }
+
+  public TextBuffer popNewlineGroup() {
+    if (myCurrentGroup == myRootGroup) {
+      throw new IllegalStateException("Cannot pop root group");
+    }
+    assert myStringBuilder.length() >= myCurrentGroup.myStart;
+    myCurrentGroup.myLength = myStringBuilder.length() - myCurrentGroup.myStart;
+    myCurrentGroup = myCurrentGroup.myParent;
     return this;
   }
 
@@ -131,6 +165,103 @@ public class TextBuffer {
       tracer.addMapping(key.myBytecodeOffset);
     });
     return tracers;
+  }
+
+  private void reformatGroup(NewlineGroup group, List<Integer> offsetMapping, int extraIndent) {
+    int offset = offsetMapping.get(group.myStart);
+    int actualStart = group.myStart + offset;
+    int lastNewline = myStringBuilder.lastIndexOf(myLineSeparator, actualStart);
+    int nextNewline = myStringBuilder.indexOf(myLineSeparator, actualStart);
+    int firstGroupEnd = nextNewline == -1 ? actualStart + group.myLength : Math.min(nextNewline, actualStart + group.myLength);
+    int groupEndWithoutNewlines = lastNewline == -1 ? firstGroupEnd : firstGroupEnd - lastNewline;
+    while (nextNewline != -1 && nextNewline <= actualStart + group.myLength) {
+      int lineStart = nextNewline;
+      int lineEnd = nextNewline = myStringBuilder.indexOf(myLineSeparator, nextNewline + 1);
+      if (lineEnd == -1 || lineEnd > actualStart + group.myLength) {
+        lineEnd = actualStart + group.myLength;
+      }
+      int lineLength = extraIndent + lineEnd - lineStart - myLineSeparator.length();
+      if (lineLength > groupEndWithoutNewlines) {
+        groupEndWithoutNewlines = lineLength;
+      }
+    }
+    boolean addNewLines = groupEndWithoutNewlines > myPreferredLineLength;
+
+    int originalExtraIndent = extraIndent;
+    if (addNewLines && !group.myReplacements.isEmpty()) {
+      extraIndent += group.myExtraIndent;
+    }
+
+    int childrenIndex = 0;
+    int replacementIndex = 0;
+    for (int pos = group.myStart; pos <= group.myStart + group.myLength; pos++) {
+      if (pos != group.myStart) {
+        offsetMapping.add(offset);
+      }
+      assert offsetMapping.size() == pos + 1;
+
+      // add extra indent after newlines
+      if (pos + offset + myLineSeparator.length() < myStringBuilder.length() && myStringBuilder.substring(pos + offset, pos + offset + myLineSeparator.length()).equals(myLineSeparator)) {
+        for (int i = 0; i < extraIndent; i++) {
+          myStringBuilder.insert(pos + offset + myLineSeparator.length(), myIndent);
+        }
+        offset += myIndent.length() * extraIndent;
+      }
+
+      boolean anotherPass = true;
+      while (anotherPass) {
+        anotherPass = false;
+
+        // replace replaceables with newlines
+        if (addNewLines && replacementIndex < group.myReplacements.size() && pos == group.myReplacements.get(replacementIndex).myStart) {
+          NewlineGroup.Replacement replacement = group.myReplacements.get(replacementIndex);
+          myStringBuilder.replace(pos + offset, pos + offset + replacement.myLength, myLineSeparator);
+          if (replacement.myDedent) {
+            extraIndent = originalExtraIndent;
+          }
+          for (int i = 0; i < group.myBaseIndent + extraIndent; i++) {
+            myStringBuilder.insert(pos + offset + myLineSeparator.length(), myIndent);
+          }
+          offset += myIndent.length() * (group.myBaseIndent + extraIndent) + myLineSeparator.length() - replacement.myLength;
+          replacementIndex++;
+          anotherPass = true;
+        }
+        offsetMapping.set(offsetMapping.size() - 1, offset);
+
+        // recursively iterate through child groups
+        int currentPos = pos;
+        if (childrenIndex < group.myChildren.size() && group.myChildren.get(childrenIndex).myStart == currentPos) {
+          NewlineGroup child = group.myChildren.get(childrenIndex);
+          reformatGroup(child, offsetMapping, extraIndent);
+          offset = offsetMapping.get(offsetMapping.size() - 1);
+          pos += child.myLength;
+          childrenIndex++;
+          anotherPass = true;
+        }
+      }
+    }
+    offsetMapping.set(offsetMapping.size() - 1, offset);
+  }
+
+
+  public void reformat() {
+    if (myCurrentGroup != myRootGroup) {
+      throw new IllegalStateException("Cannot reformat while in a group");
+    }
+    if (myHasReformatted) {
+      throw new IllegalStateException("Cannot reformat twice");
+    }
+    myHasReformatted = true;
+
+    //myRootGroup.dump("");
+
+    myRootGroup.myLength = myStringBuilder.length();
+
+    List<Integer> offsetMapping = new ArrayList<>(myStringBuilder.length());
+    offsetMapping.add(0);
+    reformatGroup(myRootGroup, offsetMapping, 0);
+
+    myBytecodeOffsetMapping.replaceAll((key, value) -> value + offsetMapping.get(value));
   }
 
   @Override
@@ -241,9 +372,23 @@ public class TextBuffer {
       }
       myLineToOffsetMapping = newMap;
     }
+    myRootGroup.truncate(position);
+    assert currentGroupExists();
+  }
+
+  private boolean currentGroupExists() {
+    for (NewlineGroup group = myCurrentGroup; group != myRootGroup; group = group.myParent) {
+      if (!group.myParent.myChildren.contains(group)) {
+        return false;
+      }
+    }
+    return true;
   }
 
   public TextBuffer append(TextBuffer buffer, String className, String methodKey) {
+    if (buffer.myCurrentGroup != buffer.myRootGroup) {
+      throw new IllegalArgumentException("Can't append buffer with non-root group");
+    }
     if (buffer.myLineToOffsetMapping != null && !buffer.myLineToOffsetMapping.isEmpty()) {
       checkMapCreated();
       for (Map.Entry<Integer, Integer> entry : buffer.myLineToOffsetMapping.entrySet()) {
@@ -256,6 +401,10 @@ public class TextBuffer {
       }
       myBytecodeOffsetMapping.putIfAbsent(key, value + myStringBuilder.length());
     });
+    NewlineGroup otherRoot = buffer.myRootGroup.copy();
+    otherRoot.shift(myStringBuilder.length());
+    myCurrentGroup.myReplacements.addAll(otherRoot.myReplacements);
+    myCurrentGroup.myChildren.addAll(otherRoot.myChildren);
     myStringBuilder.append(buffer.myStringBuilder);
     return this;
   }
@@ -279,6 +428,7 @@ public class TextBuffer {
       myLineToOffsetMapping = newMap;
     }
     myBytecodeOffsetMapping.replaceAll((key, value) -> value + shiftOffset);
+    myRootGroup.shift(shiftOffset);
   }
 
   private void checkMapCreated() {
@@ -377,6 +527,77 @@ public class TextBuffer {
     @Override
     public String toString() {
       return myClass + ":" + myMethod + ":" + myBytecodeOffset;
+    }
+  }
+
+  private static final class NewlineGroup {
+    final NewlineGroup myParent;
+    int myStart;
+    int myLength;
+    final int myBaseIndent;
+    final int myExtraIndent;
+    final List<NewlineGroup> myChildren = new ArrayList<>();
+    final List<Replacement> myReplacements = new ArrayList<>();
+
+    NewlineGroup(NewlineGroup parent, int start, int baseIndent, int extraIndent) {
+      this.myParent = parent;
+      this.myStart = start;
+      this.myBaseIndent = baseIndent;
+      this.myExtraIndent = extraIndent;
+    }
+
+    void shift(int amount) {
+      myStart += amount;
+      for (Replacement replacement : myReplacements) {
+        replacement.myStart += amount;
+      }
+      for (NewlineGroup child : myChildren) {
+        child.shift(amount);
+      }
+    }
+
+    void truncate(int stringLength) {
+      if (myStart + myLength > stringLength) {
+        myLength = stringLength - myStart;
+      }
+      for (Iterator<NewlineGroup> itr = myChildren.iterator(); itr.hasNext(); ) {
+        NewlineGroup child = itr.next();
+        if (child.myStart <= stringLength) {
+          child.truncate(stringLength);
+        } else {
+          itr.remove();
+        }
+      }
+      myReplacements.removeIf(r -> r.myStart > stringLength);
+    }
+
+    void dump(String indent) {
+      System.out.println(indent + "group " + myStart + "-" + (myStart + myLength) + ": " + myReplacements.size() + " replacements");
+      for (NewlineGroup child : myChildren) {
+        child.dump(indent + "  ");
+      }
+    }
+
+    NewlineGroup copy() {
+      NewlineGroup copy = new NewlineGroup(myParent, myStart, myBaseIndent, myExtraIndent);
+      copy.myLength = myLength;
+      for (NewlineGroup child : myChildren) {
+        copy.myChildren.add(child.copy());
+      }
+      copy.myReplacements.addAll(myReplacements);
+      return copy;
+    }
+
+    private static class Replacement {
+      int myStart;
+      final int myLength;
+      final boolean myDedent;
+
+      Replacement(int start, int length, boolean dedent) {
+        this.myStart = start;
+        this.myLength = length;
+        this.myDedent = dedent;
+      }
     }
   }
 }

@@ -333,6 +333,12 @@ public abstract class Exprent implements IMatchable {
 
   public void setInvocationInstance() {}
 
+  public void setIsQualifier() {}
+
+  public boolean allowNewlineAfterQualifier() {
+    return true;
+  }
+
   // *****************************************************************************
   // IMatchable implementation
   // *****************************************************************************

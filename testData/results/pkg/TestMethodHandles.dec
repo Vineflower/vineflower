@@ -36,7 +36,9 @@ public class TestMethodHandles {
    }
 
    public void test5() throws Throwable {
-      MethodHandle println = LOOKUP.findVirtual(PrintStream.class, "println", MethodType.methodType(Void.TYPE, Long.TYPE));// 36
+      MethodHandle println = LOOKUP.findVirtual(// 36
+         PrintStream.class, "println", MethodType.methodType(Void.TYPE, Long.TYPE)
+      );
       int a = -5;// 37
       println.invokeExact(System.out, (long)a);// 38
    }// 39
@@ -197,36 +199,36 @@ class 'pkg/TestMethodHandles' {
       0      38
       1      38
       2      38
-      3      38
-      4      38
-      5      38
-      6      38
-      7      38
-      8      38
-      9      38
-      a      38
-      b      38
-      c      38
-      d      38
-      e      38
-      f      38
+      3      39
+      4      39
+      5      39
+      6      39
+      7      39
+      8      39
+      9      39
+      a      39
+      b      39
+      c      39
+      d      39
+      e      39
+      f      39
       10      38
       11      38
       12      38
       13      38
-      14      39
-      15      39
-      16      39
-      17      40
-      18      40
-      19      40
-      1a      40
-      1b      40
-      1c      40
-      1d      40
-      1e      40
-      1f      40
-      20      41
+      14      41
+      15      41
+      16      41
+      17      42
+      18      42
+      19      42
+      1a      42
+      1b      42
+      1c      42
+      1d      42
+      1e      42
+      1f      42
+      20      43
    }
 }
 
@@ -248,6 +250,6 @@ Lines mapping:
 31 <-> 34
 32 <-> 35
 36 <-> 39
-37 <-> 40
-38 <-> 41
-39 <-> 42
+37 <-> 42
+38 <-> 43
+39 <-> 44
