@@ -1,0 +1,17 @@
+name: Publish Snapshot
+on: [push, pull_request]
+jobs:
+  publish:
+    if: ${{ github.repository_owner == 'QuiltMC' && contains(github.ref_name, 'develop') }}
+    runs-on: ubuntu-20.04
+    container:
+      image: openjdk:15-jdk
+      options: --user root
+    steps:
+      - uses: actions/checkout@v1
+      - uses: gradle/wrapper-validation-action@v1
+      - run: ./gradlew publish --stacktrace
+        env:
+          SNAPSHOT_MAVEN_URL: ${{ secrets.SNAPSHOT_MAVEN_URL }}
+          SNAPSHOT_MAVEN_USERNAME: ${{ secrets.SNAPSHOT_MAVEN_USERNAME }}
+          SNAPSHOT_MAVEN_PASSWORD: ${{ secrets.SNAPSHOT_MAVEN_PASSWORD }}
