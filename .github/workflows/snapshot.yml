@@ -12,6 +12,6 @@ jobs:
       - uses: gradle/wrapper-validation-action@v1
       - run: ./gradlew publish --stacktrace
         env:
-          SNAPSHOT_MAVEN_URL: ${{ secrets.SNAPSHOT_MAVEN_URL }}
-          SNAPSHOT_MAVEN_USERNAME: ${{ secrets.SNAPSHOT_MAVEN_USERNAME }}
-          SNAPSHOT_MAVEN_PASSWORD: ${{ secrets.SNAPSHOT_MAVEN_PASSWORD }}
+          SNAPSHOT_URL: ${{ secrets.SNAPSHOT_URL }}
+          SNAPSHOT_USERNAME: ${{ secrets.SNAPSHOT_USERNAME }}
+          SNAPSHOT_PASSWORD: ${{ secrets.SNAPSHOT_PASSWORD }}

@@ -139,7 +139,7 @@ publishing {
   publications {
     mavenJava(MavenPublication) {
       from components.java
-      if (ENV.SNAPSHOT_MAVEN_URL) {
+      if (ENV.SNAPSHOT_URL) {
         version = project.version + "-SNAPSHOT"
       }
       artifact(sourceJar)
@@ -157,12 +157,12 @@ publishing {
         }
       }
     }
-    if (ENV.SNAPSHOT_MAVEN_URL) {
+    if (ENV.SNAPSHOT_URL) {
       maven {
-        url ENV.SNAPSHOT_MAVEN_URL
+        url ENV.SNAPSHOT_URL
         credentials {
-          username ENV.SNAPSHOT_MAVEN_USERNAME
-          password ENV.SNAPSHOT_MAVEN_PASSWORD
+          username ENV.SNAPSHOT_USERNAME
+          password ENV.SNAPSHOT_PASSWORD
         }
       }
     }
