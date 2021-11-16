@@ -376,13 +376,13 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestUnicodeIdentifiers");
     register(JAVA_8, "TestDoubleBraceInitializers");
 
-
     register(JAVA_8, "TestPPMM");
     register(JAVA_8, "TestPPMMByte");
     register(JAVA_8, "TestPPMMLong");
     register(JAVA_8, "TestPPMMBoxed");
     register(JAVA_8, "TestPPMMOnObjectField");
     register(JAVA_8, "TestPPMMOnStaticField");
+    register(JAVA_17, "TestImplicitlySealedEnum");
   }
 
   private void registerEntireClassPath() {

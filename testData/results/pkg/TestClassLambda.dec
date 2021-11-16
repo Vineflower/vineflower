@@ -22,17 +22,17 @@ public class TestClassLambda {
 
    public void testLambda1() {
       int a = (int)Math.random();// 39
-      Runnable r1 = () -> {// 40
-         System.out.println("hello1" + a);
+      Runnable r1 = () -> {
+         System.out.println("hello1" + a);// 40
       };
-      Runnable r2 = () -> {// 41
-         System.out.println("hello2" + a);
+      Runnable r2 = () -> {
+         System.out.println("hello2" + a);// 41
       };
    }// 42
 
    public void testLambda2() {
-      reduce((left, right) -> {// 45
-         return Math.max(left, right);
+      reduce((left, right) -> {
+         return Math.max(left, right);// 45
       });
    }// 46
 
@@ -53,8 +53,8 @@ public class TestClassLambda {
       List<String> list = new ArrayList();// 62
       int bottom = list.size() * 2;// 63
       int top = list.size() * 5;// 64
-      list.removeIf(s -> {// 65
-         return bottom >= s.length() && s.length() <= top;
+      list.removeIf(s -> {
+         return bottom >= s.length() && s.length() <= top;// 65
       });
    }// 66
 
@@ -77,8 +77,8 @@ public class TestClassLambda {
    public void nestedLambdas() {
       int a = 5;// 85
       Runnable r1 = () -> {// 86
-         Runnable r2 = () -> {// 87
-            System.out.println("hello2" + a);
+         Runnable r2 = () -> {
+            System.out.println("hello2" + a);// 87
          };
          System.out.println("hello1" + a);// 88
       };// 89
@@ -86,31 +86,6 @@ public class TestClassLambda {
 }
 
 class 'pkg/TestClassLambda' {
-   method 'lambda$testLambda$0 (ILjava/lang/Integer;)V' {
-      0      17
-      1      17
-      2      17
-      3      17
-      4      17
-      5      17
-      6      17
-      7      18
-      8      18
-      9      18
-      a      18
-      b      18
-      c      18
-      d      18
-      e      18
-      f      18
-      10      18
-      11      18
-      12      18
-      13      18
-      14      18
-      15      19
-   }
-
    method 'testLambda ()V' {
       7      14
       8      14
@@ -160,6 +135,42 @@ class 'pkg/TestClassLambda' {
       4f      20
    }
 
+   method 'lambda$testLambda$0 (ILjava/lang/Integer;)V' {
+      0      17
+      1      17
+      2      17
+      3      17
+      4      17
+      5      17
+      6      17
+      7      18
+      8      18
+      9      18
+      a      18
+      b      18
+      c      18
+      d      18
+      e      18
+      f      18
+      10      18
+      11      18
+      12      18
+      13      18
+      14      18
+      15      19
+   }
+
+   method 'testLambda1 ()V' {
+      0      23
+      1      23
+      2      23
+      3      23
+      4      23
+      b      24
+      12      27
+      13      30
+   }
+
    method 'lambda$testLambda1$1 (I)V' {
       0      25
       1      25
@@ -192,15 +203,11 @@ class 'pkg/TestClassLambda' {
       19      29
    }
 
-   method 'testLambda1 ()V' {
-      0      23
-      1      23
-      2      23
-      3      23
-      4      23
-      b      24
-      12      27
-      13      30
+   method 'testLambda2 ()V' {
+      5      33
+      6      33
+      7      33
+      9      36
    }
 
    method 'lambda$testLambda2$3 (II)I' {
@@ -210,13 +217,6 @@ class 'pkg/TestClassLambda' {
       3      34
       4      34
       5      34
-   }
-
-   method 'testLambda2 ()V' {
-      5      33
-      6      33
-      7      33
-      9      36
    }
 
    method 'testLambda3 ()V' {
@@ -237,26 +237,11 @@ class 'pkg/TestClassLambda' {
       0      47
       1      47
       2      47
+      3      48
       e      48
       f      48
       10      48
       12      49
-   }
-
-   method 'lambda$testLambda6$4 (IILjava/lang/String;)Z' {
-      0      56
-      1      56
-      2      56
-      3      56
-      4      56
-      5      56
-      8      56
-      9      56
-      a      56
-      b      56
-      c      56
-      d      56
-      15      56
    }
 
    method 'testLambda6 ()V' {
@@ -286,6 +271,22 @@ class 'pkg/TestClassLambda' {
       25      55
       26      55
       28      58
+   }
+
+   method 'lambda$testLambda6$4 (IILjava/lang/String;)Z' {
+      0      56
+      1      56
+      2      56
+      3      56
+      4      56
+      5      56
+      8      56
+      9      56
+      a      56
+      b      56
+      c      56
+      d      56
+      15      56
    }
 
    method 'testLambda7 ([Ljava/lang/annotation/Annotation;)V' {
@@ -324,20 +325,11 @@ class 'pkg/TestClassLambda' {
       1      73
    }
 
-   method 'lambda$null$5 (I)V' {
-      0      80
-      1      80
-      2      80
-      a      80
-      b      80
-      f      80
-      13      80
-      14      80
-      15      80
-      16      80
-      17      80
-      18      80
-      19      81
+   method 'nestedLambdas ()V' {
+      0      77
+      1      77
+      8      78
+      9      84
    }
 
    method 'lambda$nestedLambdas$6 (I)V' {
@@ -357,11 +349,20 @@ class 'pkg/TestClassLambda' {
       20      83
    }
 
-   method 'nestedLambdas ()V' {
-      0      77
-      1      77
-      8      78
-      9      84
+   method 'lambda$null$5 (I)V' {
+      0      80
+      1      80
+      2      80
+      a      80
+      b      80
+      f      80
+      13      80
+      14      80
+      15      80
+      16      80
+      17      80
+      18      80
+      19      81
    }
 }
 
@@ -374,10 +375,10 @@ Lines mapping:
 35 <-> 20
 36 <-> 21
 39 <-> 24
-40 <-> 25
-41 <-> 28
+40 <-> 26
+41 <-> 29
 42 <-> 31
-45 <-> 34
+45 <-> 35
 46 <-> 37
 49 <-> 40
 50 <-> 41
@@ -389,7 +390,7 @@ Lines mapping:
 62 <-> 53
 63 <-> 54
 64 <-> 55
-65 <-> 56
+65 <-> 57
 66 <-> 59
 69 <-> 62
 70 <-> 63
@@ -398,7 +399,7 @@ Lines mapping:
 81 <-> 74
 85 <-> 78
 86 <-> 79
-87 <-> 80
+87 <-> 81
 88 <-> 83
 89 <-> 84
 90 <-> 85

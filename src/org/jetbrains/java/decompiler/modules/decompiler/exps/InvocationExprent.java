@@ -4,8 +4,6 @@ package org.jetbrains.java.decompiler.modules.decompiler.exps;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
-import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
-import org.jetbrains.java.decompiler.main.collectors.ImportCollector;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.ClasspathHelper;
@@ -511,13 +509,13 @@ public class InvocationExprent extends Exprent {
   }
 
   @Override
-  public TextBuffer toJava(int indent, BytecodeMappingTracer tracer) {
+  public TextBuffer toJava(int indent) {
     TextBuffer buf = new TextBuffer();
 
     String super_qualifier = null;
     boolean isInstanceThis = false;
 
-    tracer.addMapping(bytecode);
+    buf.addBytecodeMapping(bytecode);
 
     if (instance instanceof InvocationExprent) {
       ((InvocationExprent) instance).markUsingBoxingResult();
@@ -527,7 +525,7 @@ public class InvocationExprent extends Exprent {
       if (isBoxingCall() && canIgnoreBoxing && !forceBoxing) {
         // process general "boxing" calls, e.g. 'Object[] data = { true }' or 'Byte b = 123'
         // here 'byte' and 'short' values do not need an explicit narrowing type cast
-        ExprProcessor.getCastedExprent(lstParameters.get(0), descriptor.params[0], buf, indent, false, false, true, false, tracer);
+        ExprProcessor.getCastedExprent(lstParameters.get(0), descriptor.params[0], buf, indent, false, false, true, false);
         return buf;
       }
 
@@ -612,16 +610,16 @@ public class InvocationExprent extends Exprent {
                 }
 
                 if (skipCast) {
-                  buf.append(func.getLstOperands().get(0).toJava(indent, tracer));
+                  buf.append(func.getLstOperands().get(0).toJava(indent));
                   return buf;
                 }
               }
             }
-            buf.append(instance.toJava(indent, tracer));
+            buf.append(instance.toJava(indent));
             return buf;
           }
 
-          TextBuffer res = instance.toJava(indent, tracer);
+          TextBuffer res = instance.toJava(indent);
 
           boolean skippedCast = false;
 
@@ -677,7 +675,7 @@ public class InvocationExprent extends Exprent {
 
     switch (functype) {
       case TYP_GENERAL:
-        if (VarExprent.VAR_NAMELESS_ENCLOSURE.equals(buf.toString())) {
+        if (buf.contentEquals(VarExprent.VAR_NAMELESS_ENCLOSURE)) {
           buf = new TextBuffer();
         }
 
@@ -721,14 +719,14 @@ public class InvocationExprent extends Exprent {
           buf.append("this(");
         }
         else if (instance != null) {
-          buf.append(instance.toJava(indent, tracer)).append(".<init>(");
+          buf.append(instance.toJava(indent)).append(".<init>(");
         }
         else {
           throw new RuntimeException("Unrecognized invocation of " + CodeConstants.INIT_NAME);
         }
     }
 
-    buf.append(appendParamList(indent, tracer)).append(')');
+    buf.append(appendParamList(indent)).append(')');
     return buf;
   }
 
@@ -750,7 +748,7 @@ public class InvocationExprent extends Exprent {
     }
   }
 
-  public TextBuffer appendParamList(int indent, BytecodeMappingTracer tracer) {
+  public TextBuffer appendParamList(int indent) {
     TextBuffer buf = new TextBuffer();
     List<VarVersionPair> mask = null;
     boolean isEnum = false;
@@ -921,7 +919,7 @@ public class InvocationExprent extends Exprent {
         }
 
         // 'byte' and 'short' literals need an explicit narrowing type cast when used as a parameter
-        ExprProcessor.getCastedExprent(lstParameters.get(i), types[i], buff, indent, true, ambiguous, true, true, tracer);
+        ExprProcessor.getCastedExprent(lstParameters.get(i), types[i], buff, indent, true, ambiguous, true, true);
 
         // the last "new Object[0]" in the vararg call is not printed
         if (buff.length() > 0) {

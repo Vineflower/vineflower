@@ -6,7 +6,6 @@ import org.jetbrains.java.decompiler.code.Instruction;
 import org.jetbrains.java.decompiler.code.SimpleInstructionSequence;
 import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
-import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
@@ -61,9 +60,9 @@ public class BasicBlockStatement extends Statement {
   // *****************************************************************************
 
   @Override
-  public TextBuffer toJava(int indent, BytecodeMappingTracer tracer) {
-    TextBuffer tb = ExprProcessor.listToJava(varDefinitions, indent, tracer);
-    tb.append(ExprProcessor.listToJava(exprents, indent, tracer));
+  public TextBuffer toJava(int indent) {
+    TextBuffer tb = ExprProcessor.listToJava(varDefinitions, indent);
+    tb.append(ExprProcessor.listToJava(exprents, indent));
     return tb;
   }
 

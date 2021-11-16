@@ -4,9 +4,15 @@
 package org.jetbrains.java.decompiler.util;
 
 import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
+import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 
+import java.lang.ref.ReferenceQueue;
+import java.lang.ref.WeakReference;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Allows to connect text with resulting lines
@@ -15,10 +21,14 @@ import java.util.*;
  */
 @SuppressWarnings("UnusedReturnValue")
 public class TextBuffer {
+  private static final boolean ALLOW_TO_STRING = Boolean.getBoolean("decompiler.allow.text.buffer.to.string");
+
   private final String myLineSeparator = DecompilerContext.getNewLineSeparator();
   private final String myIndent = (String)DecompilerContext.getProperty(IFernflowerPreferences.INDENT_STRING);
   private final StringBuilder myStringBuilder;
   private Map<Integer, Integer> myLineToOffsetMapping = null;
+  private final Map<BytecodeMappingKey, Integer> myBytecodeOffsetMapping = new LinkedHashMap<>(); // bytecode offset -> offset in text
+  private final DebugTrace myDebugTrace = DecompilerContext.getOption(IFernflowerPreferences.UNIT_TEST_MODE) ? new DebugTrace(this) : null;
 
   public TextBuffer() {
     myStringBuilder = new StringBuilder();
@@ -80,8 +90,69 @@ public class TextBuffer {
     return true;
   }
 
-  @Override
-  public String toString() {
+  public void addBytecodeMapping(int bytecodeOffset) {
+    if (myDebugTrace != null) {
+      myDebugTrace.myPreventDeletion = true;
+    }
+    myBytecodeOffsetMapping.putIfAbsent(new BytecodeMappingKey(bytecodeOffset, null, null), myStringBuilder.length());
+  }
+
+  public void addStartBytecodeMapping(int bytecodeOffset) {
+    if (myDebugTrace != null) {
+      myDebugTrace.myPreventDeletion = true;
+    }
+    myBytecodeOffsetMapping.putIfAbsent(new BytecodeMappingKey(bytecodeOffset, null, null), 0);
+  }
+
+  public void addBytecodeMapping(BitSet bytecodeOffsets) {
+    if (bytecodeOffsets == null) {
+      return;
+    }
+    for (int i = bytecodeOffsets.nextSetBit(0); i >= 0; i = bytecodeOffsets.nextSetBit(i + 1)) {
+      addBytecodeMapping(i);
+    }
+  }
+
+  public void addStartBytecodeMapping(BitSet bytecodeOffsets) {
+    if (bytecodeOffsets == null) {
+      return;
+    }
+    for (int i = bytecodeOffsets.nextSetBit(0); i >= 0; i = bytecodeOffsets.nextSetBit(i + 1)) {
+      addStartBytecodeMapping(i);
+    }
+  }
+
+  public void clearUnassignedBytecodeMappingData() {
+    myBytecodeOffsetMapping.keySet().removeIf(key -> key.myClass == null);
+  }
+
+  public Map<Pair<String, String>, BytecodeMappingTracer> getTracers() {
+    List<Integer> newlineOffsets = new ArrayList<>();
+    for (int i = myStringBuilder.indexOf(myLineSeparator); i != -1; i = myStringBuilder.indexOf(myLineSeparator, i + 1)) {
+      newlineOffsets.add(i);
+    }
+    Map<Pair<String, String>, BytecodeMappingTracer> tracers = new LinkedHashMap<>();
+    myBytecodeOffsetMapping.forEach((key, textOffset) -> {
+      if (key.myClass == null) {
+        throw new IllegalStateException("getTracers called when not all bytecode offsets have a valid class and method");
+      }
+      BytecodeMappingTracer tracer = tracers.computeIfAbsent(Pair.of(key.myClass, key.myMethod), k -> new BytecodeMappingTracer());
+      int lineNo = Collections.binarySearch(newlineOffsets, textOffset);
+      if (lineNo < 0) {
+        lineNo = -lineNo - 1;
+      }
+      tracer.setCurrentSourceLine(lineNo);
+      tracer.addMapping(key.myBytecodeOffset);
+    });
+    return tracers;
+  }
+
+  public boolean contentEquals(String string) {
+    return myStringBuilder.toString().equals(string);
+  }
+
+  public String convertToStringAndAllowDataDiscard() {
+    myDebugTrace.myPreventDeletion = false;
     String original = myStringBuilder.toString();
     if (myLineToOffsetMapping == null || myLineToOffsetMapping.isEmpty()) {
       if (myLineMapping != null) {
@@ -121,6 +192,18 @@ public class TextBuffer {
 
       return res.toString();
     }
+  }
+
+  @Override
+  public String toString() {
+    if (!ALLOW_TO_STRING) {
+      if (DecompilerContext.getOption(IFernflowerPreferences.UNIT_TEST_MODE)) {
+        throw new AssertionError("Usage of TextBuffer.toString");
+      } else {
+        DecompilerContext.getLogger().writeMessage("Usage of TextBuffer.toString", IFernflowerLogger.Severity.WARN);
+      }
+    }
+    return convertToStringAndAllowDataDiscard();
   }
 
   private String addOriginalLineNumbers() {
@@ -190,15 +273,28 @@ public class TextBuffer {
     }
   }
 
-  public TextBuffer append(TextBuffer buffer) {
+  public TextBuffer append(TextBuffer buffer, String className, String methodKey) {
+    if (buffer.myDebugTrace != null) {
+      buffer.myDebugTrace.myPreventDeletion = false;
+    }
     if (buffer.myLineToOffsetMapping != null && !buffer.myLineToOffsetMapping.isEmpty()) {
       checkMapCreated();
       for (Map.Entry<Integer, Integer> entry : buffer.myLineToOffsetMapping.entrySet()) {
         myLineToOffsetMapping.put(entry.getKey(), entry.getValue() + myStringBuilder.length());
       }
     }
+    buffer.myBytecodeOffsetMapping.forEach((key, value) -> {
+      if (key.myClass == null) {
+        key = new BytecodeMappingKey(key.myBytecodeOffset, className, methodKey);
+      }
+      myBytecodeOffsetMapping.putIfAbsent(key, value + myStringBuilder.length());
+    });
     myStringBuilder.append(buffer.myStringBuilder);
     return this;
+  }
+
+  public TextBuffer append(TextBuffer buffer) {
+    return append(buffer, null, null);
   }
 
   private void shiftMapping(int shiftOffset) {
@@ -215,6 +311,7 @@ public class TextBuffer {
       }
       myLineToOffsetMapping = newMap;
     }
+    myBytecodeOffsetMapping.replaceAll((key, value) -> value + shiftOffset);
   }
 
   private void checkMapCreated() {
@@ -280,6 +377,96 @@ public class TextBuffer {
         Set<Integer> existing = myLineMapping.computeIfAbsent(key, k -> new TreeSet<>());
         existing.add(lineMapping[i]);
       }
+    }
+  }
+
+  private static final class BytecodeMappingKey {
+    private final int myBytecodeOffset;
+    // null signifies the current class
+    private final String myClass;
+    private final String myMethod;
+
+    public BytecodeMappingKey(int bytecodeOffset, String className, String methodKey) {
+      myBytecodeOffset = bytecodeOffset;
+      myClass = className;
+      myMethod = methodKey;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+      BytecodeMappingKey that = (BytecodeMappingKey)o;
+      return myBytecodeOffset == that.myBytecodeOffset &&
+             Objects.equals(myClass, that.myClass) &&
+             Objects.equals(myMethod, that.myMethod);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(myBytecodeOffset, myClass, myMethod);
+    }
+
+    @Override
+    public String toString() {
+      return myClass + ":" + myMethod + ":" + myBytecodeOffset;
+    }
+  }
+
+  public static void checkLeaks() {
+    DebugTrace.checkLeaks();
+  }
+
+  // it's really important that this class does not directly or indirectly reference the TextBuffer, or we will create memory leaks
+  static class DebugTrace extends WeakReference<TextBuffer> {
+    private static final Set<DebugTrace> ALL_REMAINING_TRACES = ConcurrentHashMap.newKeySet();
+
+    private static final AtomicBoolean STARTED = new AtomicBoolean();
+    private static final ReferenceQueue<TextBuffer> REFERENCE_QUEUE = new ReferenceQueue<>();
+
+    private static void ensureStarted() {
+      if (!STARTED.getAndSet(true)) {
+        Thread cleaner = new Thread(() -> {
+          while (true) {
+            DebugTrace trace;
+            try {
+              trace = (DebugTrace) REFERENCE_QUEUE.remove();
+            } catch (InterruptedException e) {
+              break;
+            }
+            trace.onDeletion();
+            ALL_REMAINING_TRACES.remove(trace);
+          }
+        });
+        cleaner.setName("TextBuffer debug cleaner");
+        cleaner.setDaemon(true);
+        cleaner.start();
+      }
+    }
+
+    DebugTrace(TextBuffer buffer) {
+      super(buffer, REFERENCE_QUEUE);
+      ensureStarted();
+      ALL_REMAINING_TRACES.add(this);
+    }
+
+    final Throwable myCreationTrace = new Throwable();
+    boolean myPreventDeletion = false;
+
+    private void onDeletion() {
+      if (myPreventDeletion) {
+        throw new AssertionError(
+          "TextBuffer was garbage collected without being added to another TextBuffer, data loss occurred. See cause for the creation trace",
+          myCreationTrace
+        );
+      }
+    }
+
+    static void checkLeaks() {
+      for (DebugTrace trace : ALL_REMAINING_TRACES) {
+        trace.onDeletion();
+      }
+      ALL_REMAINING_TRACES.clear();
     }
   }
 }
