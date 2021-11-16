@@ -3,6 +3,7 @@ package org.jetbrains.java.decompiler;
 
 import org.jetbrains.java.decompiler.main.decompiler.ConsoleDecompiler;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
+import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,6 +42,8 @@ public class BulkDecompilationTest {
     decompiler.decompileContext();
 
     assertFilesEqual(fixture.getTestDataDir().resolve("bulk"), fixture.getTargetDir());
+
+    TextBuffer.checkLeaks();
   }
 
   @Test
@@ -69,6 +72,8 @@ public class BulkDecompilationTest {
     unpack(fixture.getTargetDir().resolve(jarName), unpacked);
 
     assertFilesEqual(fixture.getTestDataDir().resolve(name), unpacked);
+
+    TextBuffer.checkLeaks();
   }
 
   private static void unpack(Path archive, Path targetDir) {

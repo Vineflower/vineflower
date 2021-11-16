@@ -16,6 +16,7 @@
 package org.jetbrains.java.decompiler;
 
 import org.jetbrains.java.decompiler.main.decompiler.ConsoleDecompiler;
+import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.junit.jupiter.api.*;
 import org.opentest4j.AssertionFailedError;
 
@@ -214,6 +215,7 @@ public abstract class SingleClassesTestBase {
           }
         }
       }
+      TextBuffer.checkLeaks();
       fixture.tearDown();
     }
 

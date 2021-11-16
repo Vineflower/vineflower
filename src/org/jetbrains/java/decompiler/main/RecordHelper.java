@@ -125,7 +125,7 @@ public final class RecordHelper {
         StructAnnotationAttribute attribute = (StructAnnotationAttribute) member.getAttribute(key);
         if (attribute == null) continue;
         for (AnnotationExprent annotation : attribute.getAnnotations()) {
-          String text = annotation.toJava(-1).toString();
+          String text = annotation.toJava(-1).convertToStringAndAllowDataDiscard();
           annotations.add(text);
         }
       }
@@ -137,7 +137,7 @@ public final class RecordHelper {
           if (!annotation.isTopLevel()) continue;
           int type = annotation.getTargetType();
           if (type == TypeAnnotation.FIELD || type == TypeAnnotation.METHOD_PARAMETER) {
-            String text = annotation.getAnnotation().toJava(-1).toString();
+            String text = annotation.getAnnotation().toJava(-1).convertToStringAndAllowDataDiscard();
             annotations.add(text);
           }
         }
@@ -153,7 +153,7 @@ public final class RecordHelper {
       List<List<AnnotationExprent>> paramAnnotations = attribute.getParamAnnotations();
       if (param >= paramAnnotations.size()) continue;
       for (AnnotationExprent annotation : paramAnnotations.get(param)) {
-        String text = annotation.toJava(-1).toString();
+        String text = annotation.toJava(-1).convertToStringAndAllowDataDiscard();
         annotations.add(text);
       }
     }
