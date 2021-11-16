@@ -21,7 +21,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 @SuppressWarnings("UnusedReturnValue")
 public class TextBuffer {
-  private static final boolean ALLOW_TO_STRING = Boolean.getBoolean("decompiler.allow.to.string");
+  private static final boolean ALLOW_TO_STRING = Boolean.getBoolean("decompiler.allow.text.buffer.to.string");
 
   private final String myLineSeparator = DecompilerContext.getNewLineSeparator();
   private final String myIndent = (String)DecompilerContext.getProperty(IFernflowerPreferences.INDENT_STRING);
