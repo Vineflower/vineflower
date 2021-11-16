@@ -161,6 +161,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestEmptyBlocks");
     register(JAVA_8, "TestInvertedFloatComparison");
     register(JAVA_8, "TestPrivateEmptyConstructor");
+    register(JAVA_8, "TestQualifiedNew");
     // TODO: the local variable name there is wildly mangled
     register(KOTLIN, "TestSynchronizedUnprotected");
     register(JAVA_8, "TestInterfaceSuper");

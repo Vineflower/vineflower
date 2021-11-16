@@ -152,7 +152,9 @@ public class TextBuffer {
   }
 
   public String convertToStringAndAllowDataDiscard() {
-    myDebugTrace.myPreventDeletion = false;
+    if (myDebugTrace != null) {
+      myDebugTrace.myPreventDeletion = false;
+    }
     String original = myStringBuilder.toString();
     if (myLineToOffsetMapping == null || myLineToOffsetMapping.isEmpty()) {
       if (myLineMapping != null) {
