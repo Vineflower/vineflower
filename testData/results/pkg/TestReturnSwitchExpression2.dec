@@ -14,19 +14,11 @@ public class TestReturnSwitchExpression2 {
          var10000 = 3;// 8
       }
 
-      String var2;
-      switch(var10000) {
-      case 1:
-         var2 = "1";// 10
-         break;
-      case 2:
-         var2 = "2";// 11
-         break;
-      default:
-         var2 = "Unknown";// 12
-      }
-
-      return var2;// 5
+      return switch(var10000) {// 5
+         case 1 -> "1";// 10
+         case 2 -> "2";// 11
+         default -> "Unknown";// 12
+      };
    }
 }
 
@@ -39,23 +31,21 @@ class 'pkg/TestReturnSwitchExpression2' {
       20      10
       21      11
       24      13
-      25      17
-      40      19
-      41      19
-      42      20
-      45      22
-      46      22
-      47      23
-      4a      25
-      4c      28
+      25      16
+      40      17
+      41      17
+      45      18
+      46      18
+      4a      19
+      4c      16
    }
 }
 
 Lines mapping:
-5 <-> 29
+5 <-> 17
 6 <-> 8
 7 <-> 11
 8 <-> 14
-10 <-> 20
-11 <-> 23
-12 <-> 26
+10 <-> 18
+11 <-> 19
+12 <-> 20

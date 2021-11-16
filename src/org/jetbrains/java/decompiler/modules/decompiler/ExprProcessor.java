@@ -504,7 +504,7 @@ public class ExprProcessor implements CodeConstants {
           break;
         case opc_tableswitch:
         case opc_lookupswitch:
-          exprlist.add(new SwitchExprent(stack.pop(), bytecode_offsets));
+          exprlist.add(new SwitchHeadExprent(stack.pop(), bytecode_offsets));
           break;
         case opc_ireturn:
         case opc_lreturn:
@@ -775,7 +775,7 @@ public class ExprProcessor implements CodeConstants {
 
   public static boolean endsWithSemicolon(Exprent expr) {
     int type = expr.type;
-    return !(type == Exprent.EXPRENT_SWITCH ||
+    return !(type == Exprent.EXPRENT_SWITCH_HEAD ||
              type == Exprent.EXPRENT_MONITOR ||
              type == Exprent.EXPRENT_IF ||
              (type == Exprent.EXPRENT_VAR && ((VarExprent)expr).isClassDef()));

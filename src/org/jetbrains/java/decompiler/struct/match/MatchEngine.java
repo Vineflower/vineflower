@@ -60,7 +60,7 @@ public class MatchEngine {
     expr_type.put("invocation", Exprent.EXPRENT_INVOCATION);
     expr_type.put("monitor", Exprent.EXPRENT_MONITOR);
     expr_type.put("new", Exprent.EXPRENT_NEW);
-    expr_type.put("switch", Exprent.EXPRENT_SWITCH);
+    expr_type.put("switchhead", Exprent.EXPRENT_SWITCH_HEAD);
     expr_type.put("var", Exprent.EXPRENT_VAR);
     expr_type.put("annotation", Exprent.EXPRENT_ANNOTATION);
     expr_type.put("assert", Exprent.EXPRENT_ASSERT);

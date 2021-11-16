@@ -9,6 +9,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 
+import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 
@@ -33,6 +34,16 @@ public class AnnotationExprent extends Exprent {
     list.addAll(this.parValues);
 
     return list;
+  }
+
+  @Override
+  public Exprent copy() {
+    List<Exprent> exps = new ArrayList<>();
+    for (Exprent v : this.parValues) {
+      exps.add(v.copy());
+    }
+
+    return new AnnotationExprent(className, parNames, exps);
   }
 
   @Override

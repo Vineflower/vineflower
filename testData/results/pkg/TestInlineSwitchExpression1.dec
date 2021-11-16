@@ -6,31 +6,16 @@ import java.io.PrintStream;
 public class TestInlineSwitchExpression1 {
    public void test(Direction direction) {
       PrintStream var10000 = System.out;// 7
-      Direction var10001;
-      switch(direction) {
-      case NORTH:
-         var10001 = Direction.SOUTH;// 9
-         break;
-      case SOUTH:
-         var10001 = Direction.NORTH;// 11
-         break;
-      case EAST:
-         var10001 = Direction.WEST;// 13
-         break;
-      case WEST:
-         var10001 = Direction.EAST;// 15
-         break;
-      case UP:
-         var10001 = Direction.DOWN;// 17
-         break;
-      case DOWN:
-         var10001 = Direction.UP;// 19
-         break;
-      default:
-         throw new IncompatibleClassChangeError();
-      }
 
-      var10000.println(var10001);
+      var10000.println(switch(direction) {
+         case NORTH -> Direction.SOUTH;// 9
+         case SOUTH -> Direction.NORTH;// 11
+         case EAST -> Direction.WEST;// 13
+         case WEST -> Direction.EAST;// 15
+         case UP -> Direction.DOWN;// 17
+         case DOWN -> Direction.UP;// 19
+         default -> throw new IncompatibleClassChangeError();
+      });
    }// 21
 }
 
@@ -41,44 +26,38 @@ class 'pkg/TestInlineSwitchExpression1' {
       2      7
       6      9
       b      9
-      30      11
-      31      11
-      32      11
-      33      12
-      36      14
-      37      14
-      38      14
-      39      15
-      3c      17
-      3d      17
-      3e      17
-      3f      18
-      42      20
-      43      20
-      44      20
-      45      21
-      48      23
-      49      23
-      4a      23
-      4b      24
-      4e      26
-      4f      26
-      50      26
-      51      27
-      5b      29
-      5c      32
-      5d      32
-      5e      32
-      5f      33
+      30      10
+      31      10
+      32      10
+      36      11
+      37      11
+      38      11
+      3c      12
+      3d      12
+      3e      12
+      42      13
+      43      13
+      44      13
+      48      14
+      49      14
+      4a      14
+      4e      15
+      4f      15
+      50      15
+      5b      16
+      5c      9
+      5d      9
+      5e      9
+      5f      18
    }
 }
 
 Lines mapping:
 7 <-> 8
-9 <-> 12
-11 <-> 15
-13 <-> 18
-15 <-> 21
-17 <-> 24
-19 <-> 27
-21 <-> 34
+9 <-> 11
+11 <-> 12
+13 <-> 13
+15 <-> 14
+17 <-> 15
+19 <-> 16
+21 <-> 19

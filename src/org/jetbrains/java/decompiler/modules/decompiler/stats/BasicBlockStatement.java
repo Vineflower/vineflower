@@ -118,6 +118,15 @@ public class BasicBlockStatement extends Statement {
   }
 
   @Override
+  public void replaceExprent(Exprent oldexpr, Exprent newexpr) {
+    for (int i = 0; i < this.exprents.size(); i++) {
+      if (this.exprents.get(i) == oldexpr) {
+        this.exprents.set(i, newexpr);
+      }
+    }
+  }
+
+  @Override
   public StartEndPair getStartEndRange() {
     if (block.size() > 0) {
       return new StartEndPair(block.getStartInstruction(), block.getEndInstruction());

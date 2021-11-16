@@ -259,9 +259,17 @@ public class MethodProcessorRunnable implements Runnable {
         }
       }
 
+      if (SwitchExpressionHelper.hasSwitchExpressions(root)) {
+        if (SwitchExpressionHelper.processSwitchExpressions(root)) {
+          decompileRecord.add("ProcessSwitchExpr", root);
+          continue;
+        }
+      }
+
       LabelHelper.identifyLabels(root);
       decompileRecord.add("IdentifyLabels", root);
 
+      // TODO: should be done before label identification but that causes issues with old style J8 try with resources being enclosed in a label when it shouldn't be
       if (TryHelper.enhanceTryStats(root, cl)) {
         decompileRecord.add("EnhanceTry", root);
         continue;
@@ -304,6 +312,17 @@ public class MethodProcessorRunnable implements Runnable {
 
       SequenceHelper.condenseSequences(root); // remove empty blocks
       decompileRecord.add("CondenseSequences_SS", root);
+
+      if (SwitchExpressionHelper.hasSwitchExpressions(root)) {
+        // Make last minute switch expressions
+        if (SwitchExpressionHelper.processSwitchExpressions(root)) {
+          decompileRecord.add("ProcessSwitchExpr_SS", root);
+
+          // Simplify stack vars to integrate and inline switch expressions
+          stackProc.simplifyStackVars(root, mt, cl);
+          decompileRecord.add("SimplifyStackVars_SS", root);
+        }
+      }
     }
 
     // Makes constant returns the same type as the method descriptor

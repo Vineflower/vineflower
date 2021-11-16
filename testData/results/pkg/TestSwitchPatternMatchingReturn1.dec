@@ -7,21 +7,18 @@ public class TestSwitchPatternMatchingReturn1 {
    public int test(Object o) {
       Objects.requireNonNull(o);
       byte var3 = 0;
-      int var10000;
-      switch(SwitchBootstraps.typeSwitch<"typeSwitch",Integer,String>(o, var3)) {
-      case 0:
-         Integer i = (Integer)o;// 6
-         var10000 = i;
-         break;
-      case 1:
-         String s = (String)o;
-         var10000 = s.length();// 7
-         break;
-      default:
-         var10000 = 0;// 8
-      }
 
-      return var10000;// 5
+      return switch(SwitchBootstraps.typeSwitch<"typeSwitch",Integer,String>(o, var3)) {// 5
+         case 0 -> {
+            Integer i = (Integer)o;// 6
+            yield i;
+         }
+         case 1 -> {
+            String s = (String)o;
+            yield s.length();// 7
+         }
+         default -> 0;// 8
+      };
    }
 }
 
@@ -50,7 +47,6 @@ class 'pkg/TestSwitchPatternMatchingReturn1' {
       34      13
       35      13
       36      13
-      37      14
       3b      16
       3c      16
       3d      16
@@ -61,14 +57,13 @@ class 'pkg/TestSwitchPatternMatchingReturn1' {
       42      17
       43      17
       44      17
-      45      18
-      48      20
-      49      23
+      48      19
+      49      10
    }
 }
 
 Lines mapping:
-5 <-> 24
+5 <-> 11
 6 <-> 13
 7 <-> 18
-8 <-> 21
+8 <-> 20

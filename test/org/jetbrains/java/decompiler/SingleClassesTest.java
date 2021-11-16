@@ -297,6 +297,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16, "TestAssignmentSwitchExpression4");
     register(JAVA_16, "TestAssignmentSwitchExpression5");
     register(JAVA_16, "TestAssignmentSwitchExpression6");
+    register(JAVA_16, "TestAssignmentSwitchExpression7");
     register(JAVA_16, "TestInlineSwitchExpression1");
     register(JAVA_16, "TestInlineSwitchExpression2");
     register(JAVA_16, "TestInlineSwitchExpression3");

@@ -25,6 +25,11 @@ public class AssertExprent extends Exprent {
   }
 
   @Override
+  public Exprent copy() {
+    return null;
+  }
+
+  @Override
   public TextBuffer toJava(int indent, BytecodeMappingTracer tracer) {
     TextBuffer buffer = new TextBuffer();
 

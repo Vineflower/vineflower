@@ -5,25 +5,13 @@ public class TestAssignmentSwitchExpression5 {
       String axis;
       for(axis = directionStr; i > 0; --i) {// 5 6 20
          String var4 = directionStr.toLowerCase();// 7
-         String var10000;
-         switch(var4) {
-         case "north":
-         case "south":
-            var10000 = "y";// 10
-            break;
-         case "east":
-         case "west":
-            var10000 = "x";// 13
-            break;
-         case "up":
-         case "down":
-            var10000 = "z";// 16
-            break;
-         default:
-            throw new IllegalStateException("Unexpected value: " + directionStr);// 18
-         }
 
-         axis = var10000;
+         axis = switch(var4) {
+            case "north", "south" -> "y";// 10
+            case "east", "west" -> "x";// 13
+            case "up", "down" -> "z";// 16
+            default -> throw new IllegalStateException("Unexpected value: " + directionStr);// 18
+         };
       }
 
       System.out.println(axis);// 22
@@ -46,45 +34,42 @@ class 'pkg/TestAssignmentSwitchExpression5' {
       10      8
       52      9
       53      9
-      62      10
-      63      10
-      72      13
-      73      13
-      82      14
-      83      14
-      92      17
-      93      17
-      a2      18
-      a3      18
+      62      9
+      63      9
+      72      10
+      73      10
+      82      10
+      83      10
+      92      11
+      93      11
+      a2      11
+      a3      11
       af      8
-      d4      11
-      d5      11
-      d6      12
-      d9      15
-      da      15
-      db      16
-      de      19
-      df      19
-      e0      20
-      e7      22
-      e8      22
-      e9      22
-      ea      22
-      eb      22
-      ec      22
-      f0      22
-      f1      25
+      d4      9
+      d5      9
+      d9      10
+      da      10
+      de      11
+      df      11
+      e7      12
+      e8      12
+      e9      12
+      ea      12
+      eb      12
+      ec      12
+      f0      12
+      f1      8
       f2      5
       f3      5
       f4      5
-      f8      28
-      f9      28
-      fa      28
-      fb      28
-      fc      28
-      fd      28
-      fe      28
-      ff      29
+      f8      16
+      f9      16
+      fa      16
+      fb      16
+      fc      16
+      fd      16
+      fe      16
+      ff      17
    }
 }
 
@@ -92,10 +77,10 @@ Lines mapping:
 5 <-> 6
 6 <-> 6
 7 <-> 7
-10 <-> 12
-13 <-> 16
-16 <-> 20
-18 <-> 23
+10 <-> 10
+13 <-> 11
+16 <-> 12
+18 <-> 13
 20 <-> 6
-22 <-> 29
-23 <-> 30
+22 <-> 17
+23 <-> 18

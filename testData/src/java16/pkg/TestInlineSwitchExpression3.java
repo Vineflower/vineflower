@@ -2,6 +2,8 @@ package pkg;
 
 import ext.Direction;
 
+import java.io.PrintStream;
+
 public class TestInlineSwitchExpression3 {
   public void test(Direction direction) {
     System.out.println(switch (direction) {

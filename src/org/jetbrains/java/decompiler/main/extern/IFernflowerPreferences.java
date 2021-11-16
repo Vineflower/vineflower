@@ -38,6 +38,8 @@ public interface IFernflowerPreferences {
   String PATTERN_MATCHING = "pam";
   String EXPERIMENTAL_TRY_LOOP_FIX = "tlf";
   String TERNARY_CONDITIONS = "tco";
+  String SWITCH_EXPRESSIONS = "swe";
+  String SHOW_HIDDEN_STATEMENTS = "shs";
 
   String INCLUDE_ENTIRE_CLASSPATH = "iec";
   String INCLUDE_JAVA_RUNTIME = "jrt";
@@ -102,6 +104,8 @@ public interface IFernflowerPreferences {
     defaults.put(PATTERN_MATCHING, "0"); // Pattern matching has some issues around negative blocks
     defaults.put(EXPERIMENTAL_TRY_LOOP_FIX, "0"); // Causes issues when decompiling certain classes
     defaults.put(TERNARY_CONDITIONS, "1"); // Ternary conditions are pretty stable so they can go in here
+    defaults.put(SWITCH_EXPRESSIONS, "1"); // While still experimental, switch expressions work pretty well
+    defaults.put(SHOW_HIDDEN_STATEMENTS, "0"); // Extra debugging that isn't useful in most cases
 
     defaults.put(INCLUDE_ENTIRE_CLASSPATH, "0");
     defaults.put(INCLUDE_JAVA_RUNTIME, "0");
