@@ -29,9 +29,7 @@ public abstract class TestLocalClass {
       class C {
       }
 
-      Supplier<C> constr = () -> {
-         return new C();// 30
-      };
+      Supplier<C> constr = () -> new C();// 30
    }// 31
 }
 
@@ -61,11 +59,11 @@ class 'pkg/TestLocalClass' {
 
    method 'bar ()V' {
       6      31
-      7      34
+      7      32
    }
 
    method 'lambda$bar$0 ()Lpkg/TestLocalClass$1C;' {
-      8      32
+      8      31
    }
 }
 
@@ -91,5 +89,5 @@ Lines mapping:
 22 <-> 22
 25 <-> 25
 26 <-> 26
-30 <-> 33
-31 <-> 35
+30 <-> 32
+31 <-> 33

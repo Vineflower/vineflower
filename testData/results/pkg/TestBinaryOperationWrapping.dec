@@ -1,0 +1,148 @@
+package pkg;
+
+public class TestBinaryOperationWrapping {
+   public void testStringConcatenation(String longVariableName) {
+      System.out// 5
+         .println(
+            "This is a very very very very very very very very very very very very very very very long string" +
+               longVariableName +
+               longVariableName +
+               longVariableName +
+               longVariableName +
+               longVariableName
+         );
+   }// 9
+
+   public void testBooleanOperation(
+      boolean a,
+      boolean b,
+      boolean c,
+      boolean d,
+      boolean e,
+      boolean f,
+      boolean g,
+      boolean h,
+      boolean i,
+      boolean j,
+      boolean k,
+      boolean l,
+      boolean m,
+      boolean n,
+      boolean o,
+      boolean p,
+      boolean q,
+      boolean r,
+      boolean s,
+      boolean t,
+      boolean u,
+      boolean v,
+      boolean w,
+      boolean x,
+      boolean y,
+      boolean z
+   ) {
+      System.out// 12
+         .println(
+            a && b ||
+               c && d ||
+               e && f ||
+               g && h ||
+               i && j ||
+               k && l ||
+               m && n ||
+               o && p ||
+               q && r ||
+               s && t ||
+               u && v ||
+               w && x ||
+               y && z
+         );
+   }// 13
+}
+
+class 'pkg/TestBinaryOperationWrapping' {
+   method 'testStringConcatenation (Ljava/lang/String;)V' {
+      0      4
+      1      4
+      2      4
+      a      6
+      b      6
+      f      7
+      13      8
+      17      9
+      1b      10
+      1f      11
+      23      6
+      24      6
+      25      6
+      26      5
+      27      5
+      28      5
+      29      13
+   }
+
+   method 'testBooleanOperation (ZZZZZZZZZZZZZZZZZZZZZZZZZZ)V' {
+      0      43
+      1      43
+      2      43
+      3      45
+      7      45
+      b      46
+      f      46
+      10      46
+      14      47
+      15      47
+      19      47
+      1a      47
+      1e      48
+      1f      48
+      23      48
+      24      48
+      28      49
+      29      49
+      2d      49
+      2e      49
+      32      50
+      33      50
+      37      50
+      38      50
+      3c      51
+      3d      51
+      41      51
+      42      51
+      46      52
+      47      52
+      4b      52
+      4c      52
+      50      53
+      51      53
+      55      53
+      56      53
+      5a      54
+      5b      54
+      5f      54
+      60      54
+      64      55
+      65      55
+      69      55
+      6a      55
+      6e      56
+      6f      56
+      73      56
+      74      56
+      78      57
+      79      57
+      7d      57
+      7e      57
+      87      44
+      88      44
+      89      44
+      8a      59
+   }
+}
+
+Lines mapping:
+5 <-> 5
+9 <-> 14
+12 <-> 44
+13 <-> 60

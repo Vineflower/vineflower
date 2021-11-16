@@ -36,6 +36,7 @@ public class FieldExprent extends Exprent {
   private Exprent instance;
   private final FieldDescriptor descriptor;
   private boolean forceQualified = false;
+  private boolean isQualifier = false;
 
   public FieldExprent(LinkConstant cn, Exprent instance, BitSet bytecodeOffsets) {
     this(cn.elementname, cn.classname, instance == null, instance, FieldDescriptor.parseDescriptor(cn.descriptor), bytecodeOffsets);
@@ -144,8 +145,7 @@ public class FieldExprent extends Exprent {
     TextBuffer buf = new TextBuffer();
 
     if (isStatic) {
-      ClassNode node = (ClassNode)DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS_NODE);
-      if (node == null || !classname.equals(node.classStruct.qualifiedName) || isAmbiguous() || forceQualified) {
+      if (useQualifiedStatic()) {
         buf.append(DecompilerContext.getImportCollector().getShortNameInClassContext(ExprProcessor.buildJavaClassName(classname)));
         buf.append(".");
       }
@@ -174,6 +174,12 @@ public class FieldExprent extends Exprent {
         TextUtil.writeQualifiedSuper(buf, super_qualifier);
       }
       else {
+        if (!isQualifier) {
+          buf.pushNewlineGroup(indent, 1);
+        }
+        if (instance != null) {
+          instance.setIsQualifier();
+        }
         TextBuffer buff = new TextBuffer();
         boolean casted = ExprProcessor.getCastedExprent(instance, new VarType(CodeConstants.TYPE_OBJECT, 0, classname), buff, indent, true);
 
@@ -182,6 +188,12 @@ public class FieldExprent extends Exprent {
         }
 
         buf.append(buff);
+        if (instance != null && instance.allowNewlineAfterQualifier()) {
+          buf.appendPossibleNewline();
+        }
+        if (!isQualifier) {
+          buf.popNewlineGroup();
+        }
       }
 
       if (buf.contentEquals(
@@ -193,11 +205,16 @@ public class FieldExprent extends Exprent {
       }
     }
 
+    buf.addBytecodeMapping(bytecode);
+
     buf.append(name);
 
-    buf.addStartBytecodeMapping(bytecode);
-
     return buf;
+  }
+
+  private boolean useQualifiedStatic() {
+    ClassNode node = (ClassNode)DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS_NODE);
+    return node == null || !classname.equals(node.classStruct.qualifiedName) || isAmbiguous() || forceQualified;
   }
 
   @Override
@@ -250,7 +267,19 @@ public class FieldExprent extends Exprent {
     measureBytecode(values);
   }
 
-  // *****************************************************************************
+  @Override
+  public void setIsQualifier() {
+    isQualifier = true;
+  }
+
+  @Override
+  public boolean allowNewlineAfterQualifier() {
+    if (isStatic && !useQualifiedStatic()) {
+      return false;
+    }
+    return super.allowNewlineAfterQualifier();
+  }
+// *****************************************************************************
   // IMatchable implementation
   // *****************************************************************************
 

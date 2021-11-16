@@ -106,26 +106,26 @@ public class FunctionExprent extends Exprent {
   };
 
   private static final String[] OPERATORS = {
-    " + ",
-    " - ",
-    " * ",
-    " / ",
-    " & ",
-    " | ",
-    " ^ ",
-    " % ",
-    " << ",
-    " >> ",
-    " >>> ",
-    " == ",
-    " != ",
-    " < ",
-    " >= ",
-    " > ",
-    " <= ",
-    " && ",
-    " || ",
-    " + "
+    "+",
+    "-",
+    "*",
+    "/",
+    "&",
+    "|",
+    "^",
+    "%",
+    "<<",
+    ">>",
+    ">>>",
+    "==",
+    "!=",
+    "<",
+    ">=",
+    ">",
+    "<=",
+    "&&",
+    "||",
+    "+"
   };
 
   private static final int[] PRECEDENCE = {
@@ -189,6 +189,7 @@ public class FunctionExprent extends Exprent {
   private VarType implicitType;
   private final List<Exprent> lstOperands;
   private boolean needsCast = true;
+  private boolean disableNewlineGroupCreation = false;
 
   public FunctionExprent(int funcType, ListStack<Exprent> stack, BitSet bytecodeOffsets) {
     this(funcType, new ArrayList<>(), bytecodeOffsets);
@@ -511,8 +512,8 @@ public class FunctionExprent extends Exprent {
       }
 
       // Initialize the operands with the defaults
-      TextBuffer leftOperand = wrapOperandString(this.lstOperands.get(0), false, indent);
-      TextBuffer rightOperand = wrapOperandString(this.lstOperands.get(1), true, indent);
+      TextBuffer leftOperand = wrapOperandString(this.lstOperands.get(0), false, indent, true);
+      TextBuffer rightOperand = wrapOperandString(this.lstOperands.get(1), true, indent, true);
 
       // Check for special cased integers on the right and left hand side, and then return if they are found.
       // This only applies to bitwise and as well as bitwise or functions.
@@ -536,9 +537,16 @@ public class FunctionExprent extends Exprent {
       }
 
       // Return the applied operands and operators.
-      return buf.append(leftOperand)
-        .append(OPERATORS[funcType])
+      if (!disableNewlineGroupCreation) {
+        buf.pushNewlineGroup(indent, 1);
+      }
+      buf.append(leftOperand)
+        .append(" ").append(OPERATORS[funcType]).appendPossibleNewline(" ")
         .append(rightOperand);
+      if (!disableNewlineGroupCreation) {
+        buf.popNewlineGroup();
+      }
+      return buf;
     }
 
       // try to determine more accurate type for 'char' literals
@@ -555,9 +563,16 @@ public class FunctionExprent extends Exprent {
         }
       }
 
-      return buf.append(wrapOperandString(lstOperands.get(0), false, indent))
-        .append(OPERATORS[funcType - FUNCTION_EQ + 11])
-        .append(wrapOperandString(lstOperands.get(1), true, indent));
+      if (!disableNewlineGroupCreation) {
+        buf.pushNewlineGroup(indent, 1);
+      }
+      buf.append(wrapOperandString(lstOperands.get(0), false, indent, true))
+        .append(" ").append(OPERATORS[funcType - FUNCTION_EQ + 11]).appendPossibleNewline(" ")
+        .append(wrapOperandString(lstOperands.get(1), true, indent, true));
+      if (!disableNewlineGroupCreation) {
+        buf.popNewlineGroup();
+      }
+      return buf;
     }
 
     switch (funcType) {
@@ -582,11 +597,14 @@ public class FunctionExprent extends Exprent {
         }
         return buf.append(".length");
       case FUNCTION_IIF:
-        return buf.append(wrapOperandString(lstOperands.get(0), true, indent))
-          .append(" ? ")
+        buf.pushNewlineGroup(indent, 1);
+        buf.append(wrapOperandString(lstOperands.get(0), true, indent))
+          .appendPossibleNewline(" ").append("? ")
           .append(wrapOperandString(lstOperands.get(1), true, indent))
-          .append(" : ")
+          .appendPossibleNewline(" ").append(": ")
           .append(wrapOperandString(lstOperands.get(2), true, indent));
+        buf.popNewlineGroup();
+        return buf;
       case FUNCTION_IPP:
         return buf.append(wrapOperandString(lstOperands.get(0), true, indent).append("++"));
       case FUNCTION_PPI:
@@ -656,6 +674,9 @@ public class FunctionExprent extends Exprent {
 
   @Override
   public int getPrecedence() {
+    if (funcType == FUNCTION_CAST && !doesCast()) {
+      return lstOperands.get(0).getPrecedence();
+    }
     return getPrecedence(funcType);
   }
 
@@ -668,6 +689,10 @@ public class FunctionExprent extends Exprent {
   }
 
   private TextBuffer wrapOperandString(Exprent expr, boolean eq, int indent) {
+    return wrapOperandString(expr, eq, indent, false);
+  }
+
+  private TextBuffer wrapOperandString(Exprent expr, boolean eq, int indent, boolean newlineGroup) {
     int myprec = getPrecedence();
     int exprprec = expr.getPrecedence();
 
@@ -682,10 +707,30 @@ public class FunctionExprent extends Exprent {
       }
     }
 
+    if (newlineGroup && !parentheses && myprec == exprprec) {
+      if (expr.type == Exprent.EXPRENT_FUNCTION) {
+        FunctionExprent funcExpr = (FunctionExprent) expr;
+        if (funcExpr.getFuncType() == FUNCTION_CAST && !funcExpr.doesCast()) {
+          Exprent subExpr = funcExpr.getLstOperands().get(0);
+          if (subExpr.type == Exprent.EXPRENT_FUNCTION) {
+            funcExpr = (FunctionExprent) subExpr;
+          }
+        }
+        funcExpr.disableNewlineGroupCreation = true;
+      }
+    }
+
     TextBuffer res = expr.toJava(indent);
 
     if (parentheses) {
-      res.enclose("(", ")");
+      TextBuffer oldRes = res;
+      res = new TextBuffer().append("(");
+      res.pushNewlineGroup(indent, 1);
+      res.appendPossibleNewline();
+      res.append(oldRes);
+      res.appendPossibleNewline("", true);
+      res.popNewlineGroup();
+      res.append(")");
     }
 
     return res;
@@ -734,6 +779,21 @@ public class FunctionExprent extends Exprent {
     if (funcType == FUNCTION_CAST) {
       lstOperands.get(0).setInvocationInstance();
     }
+  }
+
+  @Override
+  public void setIsQualifier() {
+    if (funcType == FUNCTION_CAST && !doesCast()) {
+      lstOperands.get(0).setIsQualifier();
+    }
+  }
+
+  @Override
+  public boolean allowNewlineAfterQualifier() {
+    if (funcType == FUNCTION_CAST && !doesCast()) {
+      return lstOperands.get(0).allowNewlineAfterQualifier();
+    }
+    return super.allowNewlineAfterQualifier();
   }
 
   @Override

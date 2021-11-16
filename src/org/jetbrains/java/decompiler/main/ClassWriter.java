@@ -518,47 +518,51 @@ public class ClassWriter {
 
     if (components != null) {
       buffer.append('(');
-      RecordHelper.appendRecordComponents(buffer, cl, components);
+      RecordHelper.appendRecordComponents(buffer, cl, components, indent);
       buffer.append(')');
     }
 
-    buffer.append(' ');
+    buffer.pushNewlineGroup(indent, 1);
 
     if (!isEnum && !isInterface && components == null && cl.superClass != null) {
       VarType supertype = new VarType(cl.superClass.getString(), true);
       if (!VarType.VARTYPE_OBJECT.equals(supertype)) {
+        buffer.appendPossibleNewline(" ");
         buffer.append("extends ");
         buffer.append(ExprProcessor.getCastTypeName(descriptor == null ? supertype : descriptor.superclass));
-        buffer.append(' ');
       }
     }
 
     if (!isAnnotation) {
       int[] interfaces = cl.getInterfaces();
       if (interfaces.length > 0) {
+        buffer.appendPossibleNewline(" ");
         buffer.append(isInterface ? "extends " : "implements ");
         for (int i = 0; i < interfaces.length; i++) {
           if (i > 0) {
-            buffer.append(", ");
+            buffer.append(",");
+            buffer.appendPossibleNewline(" ");
           }
           buffer.append(ExprProcessor.getCastTypeName(descriptor == null ? new VarType(cl.getInterface(i), true) : descriptor.superinterfaces.get(i)));
         }
-        buffer.append(' ');
       }
     }
 
     if (!isEnum && isSealed) {
+      buffer.appendPossibleNewline(" ");
       buffer.append("permits ");
       for (int i = 0; i < permittedSubClasses.size(); i++) {
         if (i > 0) {
-          buffer.append(", ");
+          buffer.append(",");
+          buffer.appendPossibleNewline(" ");
         }
         buffer.append(ExprProcessor.getCastTypeName(new VarType(permittedSubClasses.get(i), true)));
       }
-      buffer.append(' ');
     }
 
-    buffer.append('{').appendLineSeparator();
+    buffer.popNewlineGroup();
+
+    buffer.append(" {").appendLineSeparator();
   }
 
   private static boolean isSuperClassSealed(StructClass cl) {
@@ -880,6 +884,10 @@ public class ClassWriter {
             lastVisibleParameterIndex = i;
           }
         }
+        if (lastVisibleParameterIndex != -1) {
+          buffer.pushNewlineGroup(indent, 1);
+          buffer.appendPossibleNewline();
+        }
 
         List<StructMethodParametersAttribute.Entry> methodParameters = null;
         if (DecompilerContext.getOption(IFernflowerPreferences.USE_METHOD_PARAMETERS)) {
@@ -896,11 +904,13 @@ public class ClassWriter {
         //if (init && !isEnum && ((node.access & CodeConstants.ACC_STATIC) == 0) && node.type == ClassNode.CLASS_MEMBER)
         //    index++;
 
+        buffer.pushNewlineGroup(indent, 0);
         for (int i = start; i < md.params.length; i++) {
           VarType parameterType = hasDescriptor && paramCount < descriptor.parameterTypes.size() ? descriptor.parameterTypes.get(paramCount) : md.params[i];
           if (mask == null || mask.get(i) == null) {
             if (paramCount > 0) {
-              buffer.append(", ");
+              buffer.append(",");
+              buffer.appendPossibleNewline(" ");
             }
 
             appendParameterAnnotations(buffer, mt, paramCount);
@@ -951,7 +961,12 @@ public class ClassWriter {
 
           index += parameterType.stackSize;
         }
+        buffer.popNewlineGroup();
 
+        if (lastVisibleParameterIndex != -1) {
+          buffer.appendPossibleNewline("", true);
+          buffer.popNewlineGroup();
+        }
         buffer.append(')');
 
         StructExceptionsAttribute attr = mt.getAttribute(StructGeneralAttribute.ATTRIBUTE_EXCEPTIONS);

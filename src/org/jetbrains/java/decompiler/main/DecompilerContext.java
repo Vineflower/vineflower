@@ -11,7 +11,6 @@ import org.jetbrains.java.decompiler.main.extern.IVariableNamingFactory;
 import org.jetbrains.java.decompiler.modules.renamer.PoolInterceptor;
 import org.jetbrains.java.decompiler.struct.StructContext;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -95,6 +94,14 @@ public class DecompilerContext {
 
   public static boolean getOption(String key) {
     return "1".equals(getProperty(key));
+  }
+
+  public static int getIntOption(String key) {
+    try {
+      return Integer.parseInt((String) getProperty(key));
+    } catch (NumberFormatException e) {
+      return 0;
+    }
   }
 
   public static String getNewLineSeparator() {

@@ -2,7 +2,9 @@ package pkg;
 
 class TestAnonymousClassConstructor {
    void innerPrivateString() {
-      TestAnonymousClassConstructor.InnerPrivateString var10001 = new TestAnonymousClassConstructor.InnerPrivateString("text") {// 5
+      TestAnonymousClassConstructor.InnerPrivateString var10001 = new TestAnonymousClassConstructor.InnerPrivateString(
+         "text"// 5
+      ) {
       };
    }// 6
 
@@ -12,27 +14,37 @@ class TestAnonymousClassConstructor {
    }// 10
 
    void innerStaticPrivateString() {
-      TestAnonymousClassConstructor.InnerStaticPrivateString var10001 = new TestAnonymousClassConstructor.InnerStaticPrivateString("text") {// 13
+      TestAnonymousClassConstructor.InnerStaticPrivateString var10001 = new TestAnonymousClassConstructor.InnerStaticPrivateString(
+         "text"// 13
+      ) {
       };
    }// 14
 
    void innerStaticPrivate() {
-      TestAnonymousClassConstructor.InnerStaticPrivate var10001 = new TestAnonymousClassConstructor.InnerStaticPrivate(3L, 4) {// 17
+      TestAnonymousClassConstructor.InnerStaticPrivate var10001 = new TestAnonymousClassConstructor.InnerStaticPrivate(
+         3L, 4// 17
+      ) {
       };
    }// 18
 
    static void innerStaticPrivateStringStatic() {
-      TestAnonymousClassConstructor.InnerStaticPrivateString var10001 = new TestAnonymousClassConstructor.InnerStaticPrivateString("text") {// 21
+      TestAnonymousClassConstructor.InnerStaticPrivateString var10001 = new TestAnonymousClassConstructor.InnerStaticPrivateString(
+         "text"// 21
+      ) {
       };
    }// 22
 
    static void innerStaticPrivateStatic() {
-      TestAnonymousClassConstructor.InnerStaticPrivate var10001 = new TestAnonymousClassConstructor.InnerStaticPrivate(3L, 4) {// 25
+      TestAnonymousClassConstructor.InnerStaticPrivate var10001 = new TestAnonymousClassConstructor.InnerStaticPrivate(
+         3L, 4// 25
+      ) {
       };
    }// 26
 
    void innerPublicString() {
-      TestAnonymousClassConstructor.InnerPublicString var10001 = new TestAnonymousClassConstructor.InnerPublicString("text") {// 29
+      TestAnonymousClassConstructor.InnerPublicString var10001 = new TestAnonymousClassConstructor.InnerPublicString(
+         "text"// 29
+      ) {
       };
    }// 30
 
@@ -42,22 +54,30 @@ class TestAnonymousClassConstructor {
    }// 34
 
    void innerStaticPublicString() {
-      TestAnonymousClassConstructor.InnerStaticPublicString var10001 = new TestAnonymousClassConstructor.InnerStaticPublicString("text") {// 37
+      TestAnonymousClassConstructor.InnerStaticPublicString var10001 = new TestAnonymousClassConstructor.InnerStaticPublicString(
+         "text"// 37
+      ) {
       };
    }// 38
 
    void innerStaticPublic() {
-      TestAnonymousClassConstructor.InnerStaticPublic var10001 = new TestAnonymousClassConstructor.InnerStaticPublic(3L, 4) {// 41
+      TestAnonymousClassConstructor.InnerStaticPublic var10001 = new TestAnonymousClassConstructor.InnerStaticPublic(
+         3L, 4// 41
+      ) {
       };
    }// 42
 
    static void innerStaticPublicStringStatic() {
-      TestAnonymousClassConstructor.InnerStaticPublicString var10001 = new TestAnonymousClassConstructor.InnerStaticPublicString("text") {// 45
+      TestAnonymousClassConstructor.InnerStaticPublicString var10001 = new TestAnonymousClassConstructor.InnerStaticPublicString(
+         "text"// 45
+      ) {
       };
    }// 46
 
    static void innerStaticPublicStatic() {
-      TestAnonymousClassConstructor.InnerStaticPublic var10001 = new TestAnonymousClassConstructor.InnerStaticPublic(3L, 4) {// 49
+      TestAnonymousClassConstructor.InnerStaticPublic var10001 = new TestAnonymousClassConstructor.InnerStaticPublic(
+         3L, 4// 49
+      ) {
       };
    }// 50
 
@@ -116,255 +136,255 @@ class TestAnonymousClassConstructor {
 
 class 'pkg/TestAnonymousClassConstructor' {
    method 'innerPrivateString ()V' {
-      5      4
-      6      4
-      b      6
+      5      5
+      6      5
+      b      8
    }
 
    method 'innerPrivate ()V' {
-      5      9
-      6      9
-      7      9
-      8      9
-      d      11
+      5      11
+      6      11
+      7      11
+      8      11
+      d      13
    }
 
    method 'innerStaticPrivateString ()V' {
-      5      14
-      6      14
-      b      16
+      5      17
+      6      17
+      b      20
    }
 
    method 'innerStaticPrivate ()V' {
-      5      19
-      6      19
-      7      19
-      8      19
-      d      21
+      5      24
+      6      24
+      7      24
+      8      24
+      d      27
    }
 
    method 'innerStaticPrivateStringStatic ()V' {
-      4      24
-      5      24
-      a      26
+      4      31
+      5      31
+      a      34
    }
 
    method 'innerStaticPrivateStatic ()V' {
-      4      29
-      5      29
-      6      29
-      7      29
-      c      31
+      4      38
+      5      38
+      6      38
+      7      38
+      c      41
    }
 
    method 'innerPublicString ()V' {
-      5      34
-      6      34
-      b      36
+      5      45
+      6      45
+      b      48
    }
 
    method 'innerPublic ()V' {
-      5      39
-      6      39
-      7      39
-      8      39
-      d      41
+      5      51
+      6      51
+      7      51
+      8      51
+      d      53
    }
 
    method 'innerStaticPublicString ()V' {
-      5      44
-      6      44
-      b      46
+      5      57
+      6      57
+      b      60
    }
 
    method 'innerStaticPublic ()V' {
-      5      49
-      6      49
-      7      49
-      8      49
-      d      51
+      5      64
+      6      64
+      7      64
+      8      64
+      d      67
    }
 
    method 'innerStaticPublicStringStatic ()V' {
-      4      54
-      5      54
-      a      56
+      4      71
+      5      71
+      a      74
    }
 
    method 'innerStaticPublicStatic ()V' {
-      4      59
-      5      59
-      6      59
-      7      59
-      c      61
+      4      78
+      5      78
+      6      78
+      7      78
+      c      81
    }
 
    method 'n (Ljava/lang/String;)V' {
-      0      64
-      1      64
-      2      64
-      a      64
-      b      64
-      f      64
-      13      64
-      14      64
-      15      64
-      16      64
-      17      64
-      18      64
-      19      65
+      0      84
+      1      84
+      2      84
+      a      84
+      b      84
+      f      84
+      13      84
+      14      84
+      15      84
+      16      84
+      17      84
+      18      84
+      19      85
    }
 }
 
 class 'pkg/TestAnonymousClassConstructor$InnerPrivate' {
    method '<init> (Lpkg/TestAnonymousClassConstructor;JI)V' {
-      10      69
-      14      69
-      15      69
-      19      69
-      1a      69
-      1e      69
-      1f      69
-      20      69
-      21      69
-      22      69
-      23      69
-      24      70
+      10      89
+      14      89
+      15      89
+      19      89
+      1a      89
+      1e      89
+      1f      89
+      20      89
+      21      89
+      22      89
+      23      89
+      24      90
    }
 }
 
 class 'pkg/TestAnonymousClassConstructor$InnerPrivateString' {
    method '<init> (Lpkg/TestAnonymousClassConstructor;Ljava/lang/String;)V' {
-      9      75
-      a      75
-      b      75
-      c      75
-      d      76
+      9      95
+      a      95
+      b      95
+      c      95
+      d      96
    }
 }
 
 class 'pkg/TestAnonymousClassConstructor$InnerPublic' {
    method '<init> (Lpkg/TestAnonymousClassConstructor;JI)V' {
-      10      81
-      14      81
-      15      81
-      19      81
-      1a      81
-      1e      81
-      1f      81
-      20      81
-      21      81
-      22      81
-      23      81
-      24      82
+      10      101
+      14      101
+      15      101
+      19      101
+      1a      101
+      1e      101
+      1f      101
+      20      101
+      21      101
+      22      101
+      23      101
+      24      102
    }
 }
 
 class 'pkg/TestAnonymousClassConstructor$InnerPublicString' {
    method '<init> (Lpkg/TestAnonymousClassConstructor;Ljava/lang/String;)V' {
-      9      87
-      a      87
-      b      87
-      c      87
-      d      88
+      9      107
+      a      107
+      b      107
+      c      107
+      d      108
    }
 }
 
 class 'pkg/TestAnonymousClassConstructor$InnerStaticPrivate' {
    method '<init> (JI)V' {
-      b      93
-      f      93
-      10      93
-      14      93
-      18      93
-      19      93
-      1a      93
-      1b      93
-      1c      93
-      1d      93
-      1e      94
+      b      113
+      f      113
+      10      113
+      14      113
+      18      113
+      19      113
+      1a      113
+      1b      113
+      1c      113
+      1d      113
+      1e      114
    }
 }
 
 class 'pkg/TestAnonymousClassConstructor$InnerStaticPrivateString' {
    method '<init> (Ljava/lang/String;)V' {
-      4      99
-      5      99
-      6      99
-      7      99
-      8      100
+      4      119
+      5      119
+      6      119
+      7      119
+      8      120
    }
 }
 
 class 'pkg/TestAnonymousClassConstructor$InnerStaticPublic' {
    method '<init> (JI)V' {
-      b      105
-      f      105
-      10      105
-      14      105
-      18      105
-      19      105
-      1a      105
-      1b      105
-      1c      105
-      1d      105
-      1e      106
+      b      125
+      f      125
+      10      125
+      14      125
+      18      125
+      19      125
+      1a      125
+      1b      125
+      1c      125
+      1d      125
+      1e      126
    }
 }
 
 class 'pkg/TestAnonymousClassConstructor$InnerStaticPublicString' {
    method '<init> (Ljava/lang/String;)V' {
-      4      111
-      5      111
-      6      111
-      7      111
-      8      112
+      4      131
+      5      131
+      6      131
+      7      131
+      8      132
    }
 }
 
 Lines mapping:
-5 <-> 5
-6 <-> 7
-9 <-> 10
-10 <-> 12
-13 <-> 15
-14 <-> 17
-17 <-> 20
-18 <-> 22
-21 <-> 25
-22 <-> 27
-25 <-> 30
-26 <-> 32
-29 <-> 35
-30 <-> 37
-33 <-> 40
-34 <-> 42
-37 <-> 45
-38 <-> 47
-41 <-> 50
-42 <-> 52
-45 <-> 55
-46 <-> 57
-49 <-> 60
-50 <-> 62
-53 <-> 65
-54 <-> 66
-58 <-> 76
-59 <-> 77
-64 <-> 70
-65 <-> 71
-70 <-> 100
-71 <-> 101
-76 <-> 94
-77 <-> 95
-82 <-> 88
-83 <-> 89
-88 <-> 82
-89 <-> 83
-94 <-> 112
-95 <-> 113
-100 <-> 106
-101 <-> 107
+5 <-> 6
+6 <-> 9
+9 <-> 12
+10 <-> 14
+13 <-> 18
+14 <-> 21
+17 <-> 25
+18 <-> 28
+21 <-> 32
+22 <-> 35
+25 <-> 39
+26 <-> 42
+29 <-> 46
+30 <-> 49
+33 <-> 52
+34 <-> 54
+37 <-> 58
+38 <-> 61
+41 <-> 65
+42 <-> 68
+45 <-> 72
+46 <-> 75
+49 <-> 79
+50 <-> 82
+53 <-> 85
+54 <-> 86
+58 <-> 96
+59 <-> 97
+64 <-> 90
+65 <-> 91
+70 <-> 120
+71 <-> 121
+76 <-> 114
+77 <-> 115
+82 <-> 108
+83 <-> 109
+88 <-> 102
+89 <-> 103
+94 <-> 132
+95 <-> 133
+100 <-> 126
+101 <-> 127
 Not mapped:
 57
 63

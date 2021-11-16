@@ -391,6 +391,11 @@ public class VarExprent extends Exprent {
   }
 
   @Override
+  public boolean allowNewlineAfterQualifier() {
+    return false;
+  }
+
+  @Override
   public String toString() {
     return "VarExprent[" + index + ',' + version +"]";
   }

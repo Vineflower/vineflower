@@ -14,8 +14,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
       IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR, "0",
       IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
       IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
-      IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "0",
-      IFernflowerPreferences.INLINE_SIMPLE_LAMBDAS, "0"
+      IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "0"
     );
     registerSet("Entire Classpath", this::registerEntireClassPath,
       IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
@@ -23,8 +22,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
       IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR, "0",
       IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
       IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
-      IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "1",
-      IFernflowerPreferences.INLINE_SIMPLE_LAMBDAS, "0"
+      IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "1"
     );
     registerSet("Java Runtime", this::registerJavaRuntime,
       IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
@@ -32,8 +30,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
       IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR, "0",
       IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
       IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
-      IFernflowerPreferences.INCLUDE_JAVA_RUNTIME, "1",
-      IFernflowerPreferences.INLINE_SIMPLE_LAMBDAS, "0"
+      IFernflowerPreferences.INCLUDE_JAVA_RUNTIME, "1"
     );
     registerSet("Literals", this::registerLiterals,
       IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
@@ -50,7 +47,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
       IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
       IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
       IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "0",
-      IFernflowerPreferences.INLINE_SIMPLE_LAMBDAS, "0",
       IFernflowerPreferences.PATTERN_MATCHING, "1"
     );
     registerSet("Ternary Constant Simplification", this::registerTernaryConstantSimplification,
@@ -86,7 +82,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
       IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
       IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
       IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "0",
-      IFernflowerPreferences.INLINE_SIMPLE_LAMBDAS, "0",
       IFernflowerPreferences.EXPERIMENTAL_TRY_LOOP_FIX, "1"
     );
   }
@@ -181,6 +176,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16, "TestRecordVararg");
     register(JAVA_16, "TestRecordGenericVararg");
     register(JAVA_16, "TestRecordAnno");
+    register(JAVA_16, "TestRecordBig");
     // TODO: The (double) in front of the (int) should be removed
     register(JAVA_8, "TestMultiCast");
     // TODO: The ternary here needs to be removed
@@ -253,6 +249,9 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16, "TestRecordMixup");
     register(JAVA_8, "TestMultiAssignmentInStaticBlock");
     register(JAVA_8, "TestNextGaussian");
+    register(JAVA_8, "TestLongMethodDeclaration");
+    register(JAVA_8, "TestLongMethodInvocation");
+    register(JAVA_8, "TestBinaryOperationWrapping");
     register(JAVA_8, "TestLoopBreak");
     register(JAVA_8, "TestLoopBreak2");
     register(JAVA_8, "TestSimpleWhile");

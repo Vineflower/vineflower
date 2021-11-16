@@ -50,6 +50,7 @@ public interface IFernflowerPreferences {
   String USER_RENAMER_CLASS = "urc";
   String NEW_LINE_SEPARATOR = "nls";
   String INDENT_STRING = "ind";
+  String PREFERRED_LINE_LENGTH = "pll";
   String BANNER = "ban";
   String THREADS = "thr";
 
@@ -113,6 +114,7 @@ public interface IFernflowerPreferences {
     defaults.put(RENAME_ENTITIES, "0");
     defaults.put(NEW_LINE_SEPARATOR, (InterpreterUtil.IS_WINDOWS ? "0" : "1"));
     defaults.put(INDENT_STRING, "   ");
+    defaults.put(PREFERRED_LINE_LENGTH, "120");
     defaults.put(BANNER, "");
     defaults.put(UNIT_TEST_MODE, "0");
     defaults.put(DUMP_ORIGINAL_LINES, "0");
