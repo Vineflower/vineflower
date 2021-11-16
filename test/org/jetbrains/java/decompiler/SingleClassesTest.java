@@ -375,6 +375,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
 
     register(JAVA_8, "TestUnicodeIdentifiers");
     register(JAVA_8, "TestDoubleBraceInitializers");
+
+    register(JAVA_17, "TestImplicitlySealedEnum");
   }
 
   private void registerEntireClassPath() {

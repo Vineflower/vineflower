@@ -479,7 +479,7 @@ public class ClassWriter {
 
     appendModifiers(buffer, flags, CLASS_ALLOWED, isInterface, CLASS_EXCLUDED);
 
-    if (isSealed) {
+    if (!isEnum && isSealed) {
       buffer.append("sealed ");
     } else if (isNonSealed) {
       buffer.append("non-sealed ");
@@ -547,7 +547,7 @@ public class ClassWriter {
       }
     }
 
-    if (isSealed) {
+    if (!isEnum && isSealed) {
       buffer.append("permits ");
       for (int i = 0; i < permittedSubClasses.size(); i++) {
         if (i > 0) {
