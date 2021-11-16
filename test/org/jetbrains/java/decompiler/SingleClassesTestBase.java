@@ -189,6 +189,8 @@ public abstract class SingleClassesTestBase {
 
       decompiler.decompileContext();
 
+      TextBuffer.checkLeaks();
+
       String testFileName = classFile.getFileName().toString();
       String testName = testFileName.substring(0, testFileName.length() - 6);
       Path decompiledFile = fixture.getTargetDir().resolve(testName + ".java");
@@ -215,7 +217,6 @@ public abstract class SingleClassesTestBase {
           }
         }
       }
-      TextBuffer.checkLeaks();
       fixture.tearDown();
     }
 

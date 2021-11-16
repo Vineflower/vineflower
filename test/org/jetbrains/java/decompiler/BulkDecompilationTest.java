@@ -41,9 +41,9 @@ public class BulkDecompilationTest {
     decompiler.addSource(classes.toFile());
     decompiler.decompileContext();
 
-    assertFilesEqual(fixture.getTestDataDir().resolve("bulk"), fixture.getTargetDir());
-
     TextBuffer.checkLeaks();
+
+    assertFilesEqual(fixture.getTestDataDir().resolve("bulk"), fixture.getTargetDir());
   }
 
   @Test
@@ -68,12 +68,12 @@ public class BulkDecompilationTest {
     decompiler.addSource(fixture.getTestDataDir().resolve(jarName).toFile());
     decompiler.decompileContext();
 
+    TextBuffer.checkLeaks();
+
     Path unpacked = fixture.getTempDir().resolve("unpacked");
     unpack(fixture.getTargetDir().resolve(jarName), unpacked);
 
     assertFilesEqual(fixture.getTestDataDir().resolve(name), unpacked);
-
-    TextBuffer.checkLeaks();
   }
 
   private static void unpack(Path archive, Path targetDir) {
