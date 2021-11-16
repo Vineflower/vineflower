@@ -383,6 +383,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestPPMMOnObjectField");
     register(JAVA_8, "TestPPMMOnStaticField");
     register(JAVA_17, "TestImplicitlySealedEnum");
+    register(JAVA_16, "TestTextBlocks");
   }
 
   private void registerEntireClassPath() {
