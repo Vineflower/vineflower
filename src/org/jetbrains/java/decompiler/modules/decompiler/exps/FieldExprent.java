@@ -196,7 +196,7 @@ public class FieldExprent extends Exprent {
         }
       }
 
-      if (buf.toString().equals(
+      if (buf.contentEquals(
         VarExprent.VAR_NAMELESS_ENCLOSURE)) { // FIXME: workaround for field access of an anonymous enclosing class. Find a better way.
         buf.setLength(0);
       }

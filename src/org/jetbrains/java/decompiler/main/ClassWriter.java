@@ -479,7 +479,7 @@ public class ClassWriter {
 
     appendModifiers(buffer, flags, CLASS_ALLOWED, isInterface, CLASS_EXCLUDED);
 
-    if (isSealed) {
+    if (!isEnum && isSealed) {
       buffer.append("sealed ");
     } else if (isNonSealed) {
       buffer.append("non-sealed ");
@@ -548,7 +548,7 @@ public class ClassWriter {
       }
     }
 
-    if (isSealed) {
+    if (!isEnum && isSealed) {
       buffer.appendPossibleNewline(" ");
       buffer.append("permits ");
       for (int i = 0; i < permittedSubClasses.size(); i++) {
@@ -1344,7 +1344,7 @@ public class ClassWriter {
       StructAnnotationAttribute attribute = (StructAnnotationAttribute)mb.getAttribute(key);
       if (attribute != null) {
         for (AnnotationExprent annotation : attribute.getAnnotations()) {
-          String text = annotation.toJava(indent).toString();
+          String text = annotation.toJava(indent).convertToStringAndAllowDataDiscard();
           filter.add(text);
           buffer.append(text);
           if (indent < 0) {
@@ -1415,7 +1415,7 @@ public class ClassWriter {
         List<List<AnnotationExprent>> annotations = attribute.getParamAnnotations();
         if (param < annotations.size()) {
           for (AnnotationExprent annotation : annotations.get(param)) {
-            String text = annotation.toJava(-1).toString();
+            String text = annotation.toJava(-1).convertToStringAndAllowDataDiscard();
             filter.add(text);
             buffer.append(text).append(' ');
           }
@@ -1432,7 +1432,7 @@ public class ClassWriter {
       if (attribute != null) {
         for (TypeAnnotation annotation : attribute.getAnnotations()) {
           if (annotation.isTopLevel() && annotation.getTargetType() == targetType && (index < 0 || annotation.getIndex() == index)) {
-            String text = annotation.getAnnotation().toJava(indent).toString();
+            String text = annotation.getAnnotation().toJava(indent).convertToStringAndAllowDataDiscard();
             if (!filter.contains(text)) {
               buffer.append(text);
               if (indent < 0) {

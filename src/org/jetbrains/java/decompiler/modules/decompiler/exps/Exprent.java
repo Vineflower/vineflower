@@ -388,6 +388,6 @@ public abstract class Exprent implements IMatchable {
 
   @Override
   public String toString() {
-    return toJava(0).toString();
+    return toJava(0).convertToStringAndAllowDataDiscard();
   }
 }
