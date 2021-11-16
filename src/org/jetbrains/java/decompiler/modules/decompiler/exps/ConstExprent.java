@@ -531,7 +531,7 @@ public class ConstExprent extends Exprent {
 
   @Override
   public String toString() {
-    return "const(" + toJava(0) + ")";
+    return "const(" + toJava(0).convertToStringAndAllowDataDiscard() + ")";
   }
 
   // *****************************************************************************
