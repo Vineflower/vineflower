@@ -324,7 +324,7 @@ public class NewExprent extends Exprent {
 
       // IDEA-204310 - avoid backtracking later on for lambdas (causes spurious imports)
       if (!enumConst && (!lambda || DecompilerContext.getOption(IFernflowerPreferences.LAMBDA_TO_ANONYMOUS_CLASS))) {
-        String enclosing = null;
+        TextBuffer enclosing = null;
 
         if (!lambda && constructor != null) {
           enclosing = getQualifiedNewInstance(child.anonymousClassType.value, constructor.getLstParameters(), indent);
@@ -418,7 +418,7 @@ public class NewExprent extends Exprent {
     }
     else if (newType.arrayDim == 0) {
       if (!enumConst) {
-        String enclosing = null;
+        TextBuffer enclosing = null;
 
         if (constructor != null) {
           enclosing = getQualifiedNewInstance(newType.value, constructor.getLstParameters(), indent);
@@ -512,7 +512,7 @@ public class NewExprent extends Exprent {
     return node != null && node.type == ClassNode.CLASS_ANONYMOUS;
   }
 
-  private static String getQualifiedNewInstance(String classname, List<Exprent> lstParams, int indent) {
+  private static TextBuffer getQualifiedNewInstance(String classname, List<Exprent> lstParams, int indent) {
     ClassNode node = DecompilerContext.getClassProcessor().getMapRootClasses().get(classname);
 
     if (node != null && node.type != ClassNode.CLASS_ROOT && node.type != ClassNode.CLASS_LOCAL
@@ -537,7 +537,7 @@ public class NewExprent extends Exprent {
         }
 
         if (isQualifiedNew) {
-          return enclosing.toJava(indent).toString();
+          return enclosing.toJava(indent);
         }
       }
     }

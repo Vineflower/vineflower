@@ -1,0 +1,57 @@
+package pkg;
+
+public class TestTextBlocks {
+   private final String text = "Hello!\nThis is a text block!\nIt's multiple lines long.\nI can use \"quotes\" in it.\nIt's rather cool.\n";
+
+   public void testLocal() {
+      String local = "Hello!\nThis is a text block!\nIt's multiple lines long.\nI can use \"quotes\" in it.\nIt's rather cool.\n";// 13
+   }// 20
+
+   public void testCall() {
+      this.useString(// 23
+         "Hello!\nThis is a text block!\nIt's multiple lines long.\nI can use \"quotes\" in it.\nIt's rather cool.\n"
+      );
+   }// 30
+
+   private void useString(String s) {
+      System.out.println(s);// 33
+   }// 34
+}
+
+class 'pkg/TestTextBlocks' {
+   method 'testLocal ()V' {
+      0      6
+      1      6
+      2      6
+      3      7
+   }
+
+   method 'testCall ()V' {
+      0      10
+      1      11
+      2      11
+      3      10
+      4      10
+      5      10
+      6      13
+   }
+
+   method 'useString (Ljava/lang/String;)V' {
+      0      16
+      1      16
+      2      16
+      3      16
+      4      16
+      5      16
+      6      16
+      7      17
+   }
+}
+
+Lines mapping:
+13 <-> 7
+20 <-> 8
+23 <-> 11
+30 <-> 14
+33 <-> 17
+34 <-> 18

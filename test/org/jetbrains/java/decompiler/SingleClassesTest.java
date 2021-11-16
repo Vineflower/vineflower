@@ -156,6 +156,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestEmptyBlocks");
     register(JAVA_8, "TestInvertedFloatComparison");
     register(JAVA_8, "TestPrivateEmptyConstructor");
+    register(JAVA_8, "TestQualifiedNew");
     // TODO: the local variable name there is wildly mangled
     register(KOTLIN, "TestSynchronizedUnprotected");
     register(JAVA_8, "TestInterfaceSuper");
@@ -375,7 +376,14 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestUnicodeIdentifiers");
     register(JAVA_8, "TestDoubleBraceInitializers");
 
+    register(JAVA_8, "TestPPMM");
+    register(JAVA_8, "TestPPMMByte");
+    register(JAVA_8, "TestPPMMLong");
+    register(JAVA_8, "TestPPMMBoxed");
+    register(JAVA_8, "TestPPMMOnObjectField");
+    register(JAVA_8, "TestPPMMOnStaticField");
     register(JAVA_17, "TestImplicitlySealedEnum");
+    register(JAVA_16, "TestTextBlocks");
   }
 
   private void registerEntireClassPath() {
