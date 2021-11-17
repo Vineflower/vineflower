@@ -1,0 +1,103 @@
+package supercoder79;
+
+import java.util.Random;
+import org.jetbrains.annotations.NotNull;
+
+public class TestIdeaNotNull {
+   @NotNull
+   public String test() {
+      String s = "";// 10
+      int i = (new Random()).nextInt(12);// 11
+      if (i == 0) {// 13
+         if (s == null) {// 14
+            $$$reportNull$$$0(0);
+         }
+
+         return s;
+      } else {
+         for(int j = 0; j < i; ++j) {// 17
+            s = s + i;// 18
+         }
+
+         if (s == null) {// 21
+            $$$reportNull$$$0(1);
+         }
+
+         return s;
+      }
+   }
+
+   public void test1(@NotNull String s) {
+      if (s == null) {
+         $$$reportNull$$$0(2);
+      }
+
+      System.out.println(s);// 25
+   }// 26
+}
+
+class 'supercoder79/TestIdeaNotNull' {
+   method 'test ()Ljava/lang/String;' {
+      0      8
+      1      8
+      2      8
+      a      9
+      b      9
+      c      9
+      d      9
+      e      9
+      f      9
+      10      10
+      11      10
+      14      11
+      16      11
+      19      12
+      1a      12
+      1d      15
+      1e      17
+      1f      17
+      20      17
+      21      17
+      22      17
+      2c      18
+      30      18
+      34      18
+      35      18
+      36      18
+      37      18
+      38      17
+      39      17
+      3a      17
+      3e      21
+      40      21
+      43      22
+      44      22
+      47      25
+   }
+
+   method 'test1 (Ljava/lang/String;)V' {
+      0      30
+      1      30
+      4      31
+      5      31
+      8      34
+      9      34
+      a      34
+      b      34
+      c      34
+      d      34
+      e      34
+      f      35
+   }
+}
+
+Lines mapping:
+10 <-> 9
+11 <-> 10
+13 <-> 11
+14 <-> 12
+17 <-> 18
+18 <-> 19
+21 <-> 22
+25 <-> 35
+26 <-> 36

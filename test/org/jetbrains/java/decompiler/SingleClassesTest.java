@@ -387,7 +387,11 @@ public class SingleClassesTest extends SingleClassesTestBase {
     registerRaw(CUSTOM, "Java14Test"); // Used from CFR
     registerRaw(CUSTOM, "JsHurt"); // Used from CFR
     registerRaw(CUSTOM, "TestJsr");
+    // TODO: Returns not processing properly
     registerRaw(CUSTOM, "TestJsr2");
+    register(JAVA_8, "TestOverrideIndirect");
+    // TODO: IdeaNotNullHelper doesn't seem to be doing anything
+    registerRaw(CUSTOM, "TestIdeaNotNull");
   }
 
   private void registerEntireClassPath() {
