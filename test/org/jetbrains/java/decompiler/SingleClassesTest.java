@@ -466,11 +466,11 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestLVT");
     register(JAVA_8, "TestLVTScoping");
     // TODO: int is decompiling as <unknown>
-    // register(JAVA_8, "TestLVTComplex");
+    register(JAVA_8, "TestLVTComplex");
     register(JAVA_8, "TestVarType");
     register(JAVA_8, "TestLoopMerging");
     // TODO: this is not decompiling properly, needs a look
-    // register(JAVA_8, "TestPPMM");
+    register(JAVA_8, "TestPPMM");
   }
 
   private void registerTryLoop() {
