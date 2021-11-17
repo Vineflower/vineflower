@@ -384,6 +384,10 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestPPMMOnStaticField");
     register(JAVA_17, "TestImplicitlySealedEnum");
     register(JAVA_16, "TestTextBlocks");
+    registerRaw(CUSTOM, "Java14Test"); // Used from CFR
+    registerRaw(CUSTOM, "JsHurt"); // Used from CFR
+    registerRaw(CUSTOM, "TestJsr");
+    registerRaw(CUSTOM, "TestJsr2");
   }
 
   private void registerEntireClassPath() {
