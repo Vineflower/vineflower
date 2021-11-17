@@ -50,6 +50,10 @@ public final class BytecodeVersion implements Comparable<BytecodeVersion> {
     return major >= MAJOR_11;
   }
 
+  public boolean predatesJava() {
+    return major <= MAJOR_1_0_2 && minor <= 2;
+  }
+
   private boolean previewFrom(int previewStart) {
     return major >= previewStart && minor == PREVIEW;
   }

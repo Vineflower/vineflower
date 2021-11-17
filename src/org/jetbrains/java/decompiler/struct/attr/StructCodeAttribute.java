@@ -1,6 +1,7 @@
 // Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.struct.attr;
 
+import org.jetbrains.java.decompiler.code.BytecodeVersion;
 import org.jetbrains.java.decompiler.struct.StructMember;
 import org.jetbrains.java.decompiler.struct.consts.ConstantPool;
 import org.jetbrains.java.decompiler.util.DataInputFullStream;
@@ -32,10 +33,12 @@ public class StructCodeAttribute extends StructGeneralAttribute {
   public Map<String, StructGeneralAttribute> codeAttributes;
 
   @Override
-  public void initContent(DataInputFullStream data, ConstantPool pool) throws IOException {
-    data.discard(2);
-    localVariables = data.readUnsignedShort();
-    byte[] codeData = new byte[data.readInt()];
+  public void initContent(DataInputFullStream data, ConstantPool pool, BytecodeVersion version) throws IOException {
+    // Pre-java oak class files have a u1 max stack, u1 max locals, and a u2 code length
+    boolean predatesJava = version.predatesJava();
+    data.discard(predatesJava ? 1 : 2);
+    localVariables = predatesJava ? data.readUnsignedByte() : data.readUnsignedShort();
+    byte[] codeData = new byte[predatesJava ? data.readUnsignedShort() : data.readInt()];
     data.readFully(codeData);
     int excLength = data.readUnsignedShort();
     byte[] exceptionData = new byte[excLength * 8];
@@ -47,6 +50,6 @@ public class StructCodeAttribute extends StructGeneralAttribute {
     d.writeShort(excLength);
     d.write(exceptionData);
     codeAndExceptionData = baos.toByteArray();
-    codeAttributes = StructMember.readAttributes(data, pool);
+    codeAttributes = StructMember.readAttributes(data, pool, version);
   }
 }

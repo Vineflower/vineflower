@@ -392,6 +392,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestOverrideIndirect");
     // TODO: IdeaNotNullHelper doesn't seem to be doing anything
     registerRaw(CUSTOM, "TestIdeaNotNull");
+    // TODO: Synchronized blocks don't work properly
+    registerRaw(CUSTOM, "TestHotjava");
   }
 
   private void registerEntireClassPath() {
