@@ -469,8 +469,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestLVTComplex");
     register(JAVA_8, "TestVarType");
     register(JAVA_8, "TestLoopMerging");
-    // TODO: this is not decompiling properly, needs a look
-    register(JAVA_8, "TestPPMM");
   }
 
   private void registerTryLoop() {
