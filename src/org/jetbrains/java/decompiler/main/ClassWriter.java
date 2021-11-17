@@ -819,7 +819,7 @@ public class ClassWriter {
       appendAnnotations(buffer, indent, mt, TypeAnnotation.METHOD_RETURN_TYPE);
 
       // Try append @Override after all other annotations
-      if (mt.getBytecodeVersion().hasOverride() && !CodeConstants.INIT_NAME.equals(mt.getName()) && !CodeConstants.CLINIT_NAME.equals(mt.getName()) && !mt.hasModifier(CodeConstants.ACC_STATIC)  && !mt.hasModifier(CodeConstants.ACC_PRIVATE)) {
+      if (DecompilerContext.getOption(IFernflowerPreferences.OVERRIDE_ANNOTATION) && mt.getBytecodeVersion().hasOverride() && !CodeConstants.INIT_NAME.equals(mt.getName()) && !CodeConstants.CLINIT_NAME.equals(mt.getName()) && !mt.hasModifier(CodeConstants.ACC_STATIC)  && !mt.hasModifier(CodeConstants.ACC_PRIVATE)) {
         // Search superclasses for methods that match the name and descriptor of this one.
         // Make sure not to search the current class otherwise it will return the current method itself!
         // TODO: record overrides
