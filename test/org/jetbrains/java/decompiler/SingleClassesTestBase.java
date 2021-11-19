@@ -47,7 +47,7 @@ public abstract class SingleClassesTestBase {
 
   protected abstract void registerAll();
 
-  protected final void registerSet(String name, Runnable initializer, String ...options) {
+  protected final void registerSet(String name, Runnable initializer, Object ...options) {
     currentTestSet = new TestSet(name, options);
     initializer.run();
     testSets.add(currentTestSet);
@@ -115,10 +115,10 @@ public abstract class SingleClassesTestBase {
 
   static class TestSet {
     public final String name;
-    public final String[] options;
+    public final Object[] options;
     public final List<TestDefinition> testDefinitions = new ArrayList<>();
 
-    public TestSet(String name, String[] options) {
+    public TestSet(String name, Object[] options) {
       this.name = name;
       this.options = options;
     }
@@ -170,7 +170,7 @@ public abstract class SingleClassesTestBase {
       return SingleClassesTestBase.getReferenceFile(fixture, testClass);
     }
 
-    public void run(String[] options) throws IOException {
+    public void run(Object[] options) throws IOException {
       fixture.setUp(options);
       ConsoleDecompiler decompiler = fixture.getDecompiler();
       Path classFile = getClassFile();
