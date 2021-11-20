@@ -1,0 +1,18 @@
+package pkg;
+
+public class TestRenameEntities {
+   public class class_1 {
+      public Object a;
+
+      public void a() {
+      }
+   }
+
+   public class class_0 {
+      public Object a;
+
+      public void a() {
+      }
+   }
+}
+

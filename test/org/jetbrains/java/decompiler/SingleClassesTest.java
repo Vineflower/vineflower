@@ -106,6 +106,16 @@ public class SingleClassesTest extends SingleClassesTestBase {
         return "Method javadoc for '" + structMethod.getName() + "'";
       }
     });
+    registerSet("Renaming", () -> register(JAVA_8, "TestRenameEntities"),
+      IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
+      IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
+      IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR, "0",
+      IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
+      IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
+      IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "0",
+      IFernflowerPreferences.RENAME_ENTITIES, "1"
+    );
+    // TODO: user renamer class test
   }
 
   private void registerDefault() {

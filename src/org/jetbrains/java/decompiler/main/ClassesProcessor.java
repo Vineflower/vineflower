@@ -447,10 +447,13 @@ public class ClassesProcessor implements CodeConstants {
           // get the class by name
           StructClass clazz = DecompilerContext.getStructContext().getClass(classAndMethod.a);
           StructMethod method = clazz.getMethod(classAndMethod.b);
-          StructLineNumberTableAttribute lineNumberTable =
-            method.getAttribute(StructGeneralAttribute.ATTRIBUTE_LINE_NUMBER_TABLE);
-          tracer.setLineNumberTable(lineNumberTable);
-          DecompilerContext.getBytecodeSourceMapper().addTracer(classAndMethod.a, classAndMethod.b, tracer);
+
+          if (method != null) {
+            StructLineNumberTableAttribute lineNumberTable =
+              method.getAttribute(StructGeneralAttribute.ATTRIBUTE_LINE_NUMBER_TABLE);
+            tracer.setLineNumberTable(lineNumberTable);
+            DecompilerContext.getBytecodeSourceMapper().addTracer(classAndMethod.a, classAndMethod.b, tracer);
+          }
         });
 
         int index = cl.qualifiedName.lastIndexOf('/');
