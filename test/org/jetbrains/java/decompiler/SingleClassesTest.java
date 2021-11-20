@@ -416,6 +416,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     registerRaw(CUSTOM, "TestIdeaNotNull");
     // TODO: Synchronized blocks don't work properly
     registerRaw(CUSTOM, "TestHotjava");
+    register(JAVA_8, "TestLabeledBreaks");
   }
 
   private void registerEntireClassPath() {
