@@ -90,8 +90,81 @@ public class TestTryWithResourcesReturnJ16 {
       // 57: areturn
    }
 
+   public String testComplex(File f, File f2, File f3) throws FileNotFoundException {
+      Scanner scanner = this.create(f);
+
+      String o;
+      label104: {
+         Object var16;
+         try {
+            Scanner s2 = this.create(f2);// 43
+
+            label106: {
+               try {
+                  scanner.next();// 44
+                  if (!scanner.hasNext() || !s2.hasNext()) {// 46
+                     var16 = null;
+                     break label106;
+                  }
+
+                  try (Scanner s = this.create(f3)) {// 50
+                     scanner.next();// 51
+
+                     for(int i = 0; i < s.nextInt(); ++i) {// 53
+                        System.out.println(i);// 54
+                     }
+
+                     o = s.next();// 57
+                  }
+               } catch (Throwable var14) {
+                  if (s2 != null) {
+                     try {
+                        s2.close();
+                     } catch (Throwable var11) {
+                        var14.addSuppressed(var11);
+                     }
+                  }
+
+                  throw var14;
+               }
+
+               if (s2 != null) {
+                  s2.close();
+               }
+               break label104;
+            }
+
+            if (s2 != null) {
+               s2.close();
+            }
+         } catch (Throwable var15) {// 42
+            if (scanner != null) {
+               try {
+                  scanner.close();
+               } catch (Throwable var10) {
+                  var15.addSuppressed(var10);
+               }
+            }
+
+            throw var15;
+         }
+
+         if (scanner != null) {
+            scanner.close();
+         }
+
+         return (String)var16;// 47
+      }
+
+      if (scanner != null) {// 59
+         scanner.close();
+      }
+
+      return o;// 61
+   }
+
    private Scanner create(File file) throws FileNotFoundException {
-      return new Scanner(file);// 41
+      return new Scanner(file);// 65
    }
 }
 
@@ -125,9 +198,141 @@ class 'pkg/TestTryWithResourcesReturnJ16' {
       10      31
    }
 
-   method 'create (Ljava/io/File;)Ljava/util/Scanner;' {
+   method 'testComplex (Ljava/io/File;Ljava/io/File;Ljava/io/File;)Ljava/lang/String;' {
+      0      93
+      1      93
+      2      93
+      3      93
       4      93
-      8      93
+      5      93
+      6      93
+      7      99
+      8      99
+      9      99
+      a      99
+      b      99
+      c      99
+      d      99
+      e      103
+      f      103
+      10      103
+      11      103
+      12      103
+      14      104
+      15      104
+      16      104
+      17      104
+      18      104
+      19      104
+      1c      104
+      1d      104
+      1e      104
+      1f      104
+      20      104
+      21      104
+      24      105
+      25      105
+      26      105
+      27      136
+      28      136
+      29      136
+      2c      137
+      2d      137
+      2e      137
+      31      151
+      32      151
+      33      151
+      36      152
+      37      152
+      38      152
+      3b      155
+      3c      155
+      3d      155
+      3e      109
+      3f      109
+      40      109
+      41      109
+      42      109
+      43      109
+      44      109
+      45      110
+      46      110
+      47      110
+      48      110
+      49      110
+      4b      112
+      4c      112
+      4d      112
+      4e      112
+      4f      112
+      50      112
+      51      112
+      52      112
+      53      112
+      54      112
+      55      112
+      58      113
+      59      113
+      5a      113
+      5b      113
+      5c      113
+      5d      113
+      5e      113
+      5f      113
+      60      112
+      61      112
+      62      112
+      66      116
+      67      116
+      68      116
+      69      116
+      6a      116
+      6b      116
+      6c      116
+      95      130
+      96      130
+      97      130
+      9a      131
+      9b      131
+      9c      131
+      9d      131
+      9e      131
+      a2      118
+      a4      119
+      a5      119
+      a6      119
+      a9      121
+      aa      121
+      ab      121
+      b1      122
+      b7      123
+      bc      127
+      bd      158
+      be      158
+      bf      158
+      c2      159
+      c3      159
+      c4      159
+      c5      159
+      c6      159
+      ca      139
+      cc      140
+      cd      140
+      ce      140
+      d1      142
+      d2      142
+      d3      142
+      d9      143
+      df      144
+      e4      148
+      e5      162
+      e6      162
+      e7      162
+   }
+
+   method 'create (Ljava/io/File;)Ljava/util/Scanner;' {
+      4      166
+      8      166
    }
 }
 
@@ -138,9 +343,22 @@ Lines mapping:
 16 <-> 23
 21 <-> 28
 24 <-> 32
-41 <-> 94
+42 <-> 140
+43 <-> 100
+44 <-> 104
+46 <-> 105
+47 <-> 156
+50 <-> 110
+51 <-> 111
+53 <-> 113
+54 <-> 114
+57 <-> 117
+59 <-> 159
+61 <-> 163
+65 <-> 167
 Not mapped:
 11
 17
 22
 23
+58

@@ -7,6 +7,7 @@ import org.jetbrains.java.decompiler.struct.gen.VarType;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * Processes try catch statements to turns them into try-with-resources statements wherever possible.
@@ -175,6 +176,23 @@ public final class TryWithResourcesProcessor {
     // Didn't find an autocloseable, return early
     if (closeable == null) {
       return false;
+    }
+
+    // Prevent processing if we find any weird edges, such as those in PackResourcesAdapterV4
+    // TODO: find the root cause of the problem and fix it
+    List<StatEdge> regedges = tryStatement.getSuccessorEdges(StatEdge.TYPE_REGULAR);
+    if (!regedges.isEmpty()) {
+      Statement destination = regedges.get(0).getDestination();
+      if (destination.type == Statement.TYPE_IF) {
+        List<StatEdge> breaks = destination.getSuccessorEdges(StatEdge.TYPE_BREAK);
+
+        if (!breaks.isEmpty()) {
+
+          if (!tryStatement.getParent().containsStatement(breaks.get(0).closure)) {
+            return false;
+          }
+        }
+      }
     }
 
     // Find basic block that contains the resource assignment
