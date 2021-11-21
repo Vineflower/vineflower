@@ -26,7 +26,7 @@ public final class TryWithResourcesProcessor {
     }
 
     Statement toCheck = finallyStat.getHandler().getFirst();
-    if (toCheck.type != Statement.TYPE_IF || ((IfStatement)toCheck).getIfstat().type != Statement.TYPE_IF) {
+    if (toCheck.type != Statement.TYPE_IF || ((IfStatement)toCheck).getIfstat() == null || ((IfStatement)toCheck).getIfstat().type != Statement.TYPE_IF) {
       return false;
     }
 

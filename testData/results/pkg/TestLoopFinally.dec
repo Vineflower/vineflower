@@ -1,0 +1,239 @@
+package pkg;
+
+public class TestLoopFinally {
+   public void test() {
+      for(int i = 0; i < 10; ++i) {// 5 16
+         try {
+            System.out.println(i);// 7
+         } finally {
+            System.out.println("finally");// 9
+            if (i == 5) {// 11
+               break;
+            }
+
+            System.out.println("finally2");// 15
+         }
+      }
+
+      System.out.println("after");// 19
+   }// 20
+
+   public void test1() {
+      for(int i = 0; i < 10; ++i) {// 23
+         try {
+            System.out.println(i);// 25
+         } finally {
+            System.out.println("finally");// 27
+            if (i != 5) {// 29
+               if (i == 4) {// 32
+                  System.out.println("break");// 33
+                  break;// 34
+               }
+
+               System.out.println("finally2");// 37
+            }
+
+            System.out.println("continue");// 30
+            continue;// 31
+         }
+      }
+
+      System.out.println("after");// 41
+   }// 42
+
+   public void test2() {
+      for(int i = 0; i < 10; ++i) {// 45
+         try {
+            System.out.println(i);// 47
+         } finally {
+            System.out.println("finally");// 49
+            if (i != 5) {// 51
+               ;
+            }
+            break;
+         }
+      }
+
+      System.out.println("after");// 59
+   }// 60
+}
+
+class 'pkg/TestLoopFinally' {
+   method 'test ()V' {
+      0      4
+      1      4
+      2      4
+      3      4
+      4      4
+      5      4
+      8      6
+      9      6
+      a      6
+      b      6
+      c      6
+      27      4
+      2a      8
+      2b      8
+      2c      8
+      2d      8
+      2e      8
+      2f      8
+      30      9
+      31      9
+      32      9
+      33      9
+      34      9
+      3b      13
+      3c      13
+      3d      13
+      3e      13
+      3f      13
+      40      13
+      41      13
+      42      13
+      4b      17
+      4c      17
+      4d      17
+      4e      17
+      4f      17
+      50      17
+      51      17
+      52      17
+      53      18
+   }
+
+   method 'test1 ()V' {
+      0      21
+      1      21
+      2      21
+      3      21
+      4      21
+      5      21
+      8      23
+      9      23
+      a      23
+      b      23
+      c      23
+      42      25
+      43      25
+      44      25
+      45      25
+      46      25
+      47      25
+      48      26
+      49      26
+      4a      26
+      4b      26
+      4c      26
+      50      35
+      51      35
+      52      35
+      53      35
+      54      35
+      55      35
+      56      35
+      57      35
+      58      36
+      5b      27
+      5c      27
+      5d      27
+      60      28
+      61      28
+      62      28
+      63      28
+      64      28
+      65      28
+      66      28
+      67      28
+      68      29
+      6b      32
+      6c      32
+      6d      32
+      6e      32
+      6f      32
+      70      32
+      71      32
+      72      32
+      75      21
+      76      21
+      77      21
+      7b      40
+      7c      40
+      7d      40
+      7e      40
+      7f      40
+      80      40
+      81      40
+      82      40
+      83      41
+   }
+
+   method 'test2 ()V' {
+      0      44
+      1      44
+      2      44
+      3      44
+      4      44
+      5      44
+      8      46
+      9      46
+      a      46
+      b      46
+      c      46
+      1f      48
+      20      48
+      21      48
+      22      48
+      23      48
+      24      48
+      25      49
+      26      49
+      27      49
+      28      49
+      29      49
+      30      44
+      31      44
+      32      44
+      36      56
+      37      56
+      38      56
+      39      56
+      3a      56
+      3b      56
+      3c      56
+      3d      56
+      3e      57
+   }
+}
+
+Lines mapping:
+5 <-> 5
+7 <-> 7
+9 <-> 9
+11 <-> 10
+15 <-> 14
+16 <-> 5
+19 <-> 18
+20 <-> 19
+23 <-> 22
+25 <-> 24
+27 <-> 26
+29 <-> 27
+30 <-> 36
+31 <-> 37
+32 <-> 28
+33 <-> 29
+34 <-> 30
+37 <-> 33
+41 <-> 41
+42 <-> 42
+45 <-> 45
+47 <-> 47
+49 <-> 49
+51 <-> 50
+59 <-> 57
+60 <-> 58
+Not mapped:
+12
+38
+52

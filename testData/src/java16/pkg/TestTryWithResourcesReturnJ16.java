@@ -61,6 +61,31 @@ public class TestTryWithResourcesReturnJ16 {
     return o;
   }
 
+  public String testComplex1(File f, File f2, File f3) throws FileNotFoundException {
+    try (Scanner scanner = create(f);
+         Scanner s2 = create(f2)) {
+      if ((scanner.hasNext() && s2.hasNext())) {
+        return scanner.next();
+      }
+
+      s2.next();
+    }
+
+    return null;
+  }
+
+  public String testComplex2(File f, File f2, File f3) throws FileNotFoundException {
+    try (Scanner scanner = create(f)) {
+      if ((scanner.hasNext())) {
+        return scanner.next();
+      }
+
+      scanner.next();
+    }
+
+    return null;
+  }
+
   private Scanner create(File file) throws FileNotFoundException {
     return new Scanner(file);
   }

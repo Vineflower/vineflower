@@ -1,0 +1,385 @@
+package pkg;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
+
+public class TestTryWithResourcesSwitchJ16 {
+   public void test(File f) throws FileNotFoundException {
+      try (Scanner s = this.create(f)) {// 9
+         switch(s.nextInt()) {// 10
+         case 1:
+            System.out.println("1");// 12
+            break;// 13
+         case 2:
+            System.out.println("2");// 15
+            break;// 16
+         default:
+            System.out.println("default");// 18
+         }
+      }
+
+   }// 21
+
+   public void test1(File f) throws FileNotFoundException {
+      Scanner s = this.create(f);
+
+      label43: {
+         label42: {
+            try {
+               switch(s.nextInt()) {// 26
+               case 1:
+                  System.out.println("1");// 28
+                  break label42;// 29
+               case 2:
+                  System.out.println("2");// 31
+                  break;
+               default:
+                  System.out.println("default");// 34
+                  break label42;
+               }
+            } catch (Throwable var6) {// 25
+               if (s != null) {
+                  try {
+                     s.close();
+                  } catch (Throwable var5) {
+                     var6.addSuppressed(var5);
+                  }
+               }
+
+               throw var6;
+            }
+
+            if (s != null) {
+               s.close();
+            }
+            break label43;
+         }
+
+         if (s != null) {// 36
+            s.close();
+         }
+      }
+
+      System.out.println("after");// 38
+      if (f.exists()) {// 39
+         System.out.println("exists");// 40
+      }
+
+   }// 42
+
+   public int test2(File f) throws FileNotFoundException {
+      Scanner s = this.create(f);
+
+      byte var3;
+      label57: {
+         label52: {
+            label51: {
+               try {
+                  switch(s.nextInt()) {// 47
+                  case 1:
+                     System.out.println("1");// 49
+                     break label51;// 50
+                  case 2:
+                     System.out.println("2");// 52
+                     break;
+                  case 3:
+                     System.out.println("3");// 55
+                     var3 = 1;
+                     break label57;
+                  default:
+                     System.out.println("default");// 58
+                     break label51;
+                  }
+               } catch (Throwable var6) {// 46
+                  if (s != null) {
+                     try {
+                        s.close();
+                     } catch (Throwable var5) {
+                        var6.addSuppressed(var5);
+                     }
+                  }
+
+                  throw var6;
+               }
+
+               if (s != null) {
+                  s.close();
+               }
+               break label52;
+            }
+
+            if (s != null) {// 60
+               s.close();
+            }
+         }
+
+         System.out.println("after");// 62
+         if (f.exists()) {// 63
+            System.out.println("exists");// 64
+         }
+
+         return 0;// 67
+      }
+
+      if (s != null) {
+         s.close();
+      }
+
+      return var3;// 56
+   }
+
+   private Scanner create(File file) throws FileNotFoundException {
+      return new Scanner(file);// 71
+   }
+}
+
+class 'pkg/TestTryWithResourcesSwitchJ16' {
+   method 'test (Ljava/io/File;)V' {
+      0      8
+      1      8
+      2      8
+      3      8
+      4      8
+      5      8
+      6      9
+      7      9
+      8      9
+      9      9
+      a      9
+      24      11
+      25      11
+      26      11
+      27      11
+      28      11
+      29      11
+      2a      11
+      2b      11
+      2c      12
+      2f      14
+      30      14
+      31      14
+      32      14
+      33      14
+      34      14
+      35      14
+      36      14
+      37      15
+      3a      17
+      3b      17
+      3c      17
+      3d      17
+      3e      17
+      3f      17
+      63      21
+   }
+
+   method 'test1 (Ljava/io/File;)V' {
+      0      24
+      1      24
+      2      24
+      3      24
+      4      24
+      5      24
+      6      29
+      7      29
+      8      29
+      9      29
+      a      29
+      24      31
+      25      31
+      26      31
+      27      31
+      28      31
+      29      31
+      2a      31
+      2b      31
+      2c      32
+      2f      34
+      30      34
+      31      34
+      32      34
+      33      34
+      34      34
+      37      52
+      38      52
+      3b      53
+      3c      53
+      3d      53
+      3e      53
+      42      37
+      43      37
+      44      37
+      45      37
+      46      37
+      47      37
+      4a      58
+      4b      58
+      4e      59
+      4f      59
+      50      59
+      51      59
+      55      40
+      56      41
+      57      41
+      5a      43
+      5b      43
+      61      44
+      66      45
+      6a      49
+      6b      63
+      6c      63
+      6d      63
+      6e      63
+      6f      63
+      70      63
+      71      63
+      72      63
+      73      64
+      74      64
+      75      64
+      76      64
+      77      64
+      7a      65
+      7b      65
+      7c      65
+      7d      65
+      7e      65
+      7f      65
+      82      68
+   }
+
+   method 'test2 (Ljava/io/File;)I' {
+      0      71
+      1      71
+      2      71
+      3      71
+      4      71
+      5      71
+      6      78
+      7      78
+      8      78
+      9      78
+      a      78
+      24      80
+      25      80
+      26      80
+      27      80
+      28      80
+      29      80
+      2a      80
+      2b      80
+      2c      81
+      2f      83
+      30      83
+      31      83
+      32      83
+      33      83
+      34      83
+      37      105
+      38      105
+      3b      106
+      3c      106
+      3d      106
+      3e      106
+      42      86
+      43      86
+      44      86
+      45      86
+      46      86
+      47      86
+      48      86
+      49      86
+      4a      87
+      4b      87
+      4c      124
+      4d      124
+      50      125
+      51      125
+      54      128
+      55      128
+      56      90
+      57      90
+      58      90
+      59      90
+      5a      90
+      5b      90
+      5e      111
+      5f      111
+      62      112
+      63      112
+      64      112
+      65      112
+      69      93
+      6a      94
+      6b      94
+      6e      96
+      6f      96
+      75      97
+      7a      98
+      7e      102
+      7f      116
+      80      116
+      81      116
+      82      116
+      83      116
+      84      116
+      85      116
+      86      116
+      87      117
+      88      117
+      89      117
+      8a      117
+      8b      117
+      8e      118
+      8f      118
+      90      118
+      91      118
+      92      118
+      93      118
+      96      121
+      97      121
+   }
+
+   method 'create (Ljava/io/File;)Ljava/util/Scanner;' {
+      4      132
+      8      132
+   }
+}
+
+Lines mapping:
+9 <-> 9
+10 <-> 10
+12 <-> 12
+13 <-> 13
+15 <-> 15
+16 <-> 16
+18 <-> 18
+21 <-> 22
+25 <-> 41
+26 <-> 30
+28 <-> 32
+29 <-> 33
+31 <-> 35
+34 <-> 38
+36 <-> 59
+38 <-> 64
+39 <-> 65
+40 <-> 66
+42 <-> 69
+46 <-> 94
+47 <-> 79
+49 <-> 81
+50 <-> 82
+52 <-> 84
+55 <-> 87
+56 <-> 129
+58 <-> 91
+60 <-> 112
+62 <-> 117
+63 <-> 118
+64 <-> 119
+67 <-> 122
+71 <-> 133
+Not mapped:
+20

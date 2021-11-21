@@ -427,6 +427,13 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: Synchronized blocks don't work properly
     registerRaw(CUSTOM, "TestHotjava");
     register(JAVA_8, "TestLabeledBreaks");
+    register(JAVA_8, "TestSwitchLoop");
+    // TODO: finally block is duplicating the switches, FinallyProcessor#verifyFinallyEx not correct
+    register(JAVA_8, "TestSwitchFinally");
+    // TODO: test2- continue not explicit, causes improper control flow
+    // TODO: test6&7- for loop processing leaves empty switch default edge
+    // TODO: test9&10- for loop not created, loop extractor needs another pass
+    register(JAVA_8, "TestLoopFinally");
   }
 
   private void registerEntireClassPath() {
@@ -469,8 +476,9 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16, "TestTryWithResourcesNullJ16");
     // TODO: doesn't make try with resources block
     register(JAVA_16, "TestTryWithResourcesOuterJ16");
-    // TODO: fails to decompile
+    register(JAVA_16, "TestTryWithResourcesLoopJ16");
     register(JAVA_16, "TestTryWithResourcesFake");
+    register(JAVA_16, "TestTryWithResourcesSwitchJ16");
   }
 
   private void registerLiterals() {

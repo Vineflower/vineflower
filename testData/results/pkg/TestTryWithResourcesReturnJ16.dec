@@ -163,8 +163,109 @@ public class TestTryWithResourcesReturnJ16 {
       return o;// 61
    }
 
+   public String testComplex1(File f, File f2, File f3) throws FileNotFoundException {
+      Scanner scanner = this.create(f);
+
+      String var6;
+      label74: {
+         try {
+            Scanner s2 = this.create(f2);// 66
+
+            label76: {
+               try {
+                  if (!scanner.hasNext() || !s2.hasNext()) {// 67
+                     s2.next();// 71
+                     break label76;
+                  }
+
+                  var6 = scanner.next();
+               } catch (Throwable var10) {
+                  if (s2 != null) {
+                     try {
+                        s2.close();
+                     } catch (Throwable var9) {
+                        var10.addSuppressed(var9);
+                     }
+                  }
+
+                  throw var10;
+               }
+
+               if (s2 != null) {
+                  s2.close();
+               }
+               break label74;
+            }
+
+            if (s2 != null) {
+               s2.close();
+            }
+         } catch (Throwable var11) {// 65
+            if (scanner != null) {
+               try {
+                  scanner.close();
+               } catch (Throwable var8) {
+                  var11.addSuppressed(var8);
+               }
+            }
+
+            throw var11;
+         }
+
+         if (scanner != null) {// 72
+            scanner.close();
+         }
+
+         return null;// 74
+      }
+
+      if (scanner != null) {
+         scanner.close();
+      }
+
+      return var6;// 68
+   }
+
+   public String testComplex2(File f, File f2, File f3) throws FileNotFoundException {
+      Scanner scanner = this.create(f);
+
+      String var5;
+      label43: {
+         try {
+            if (scanner.hasNext()) {// 79
+               var5 = scanner.next();
+               break label43;
+            }
+
+            scanner.next();// 83
+         } catch (Throwable var8) {// 78
+            if (scanner != null) {
+               try {
+                  scanner.close();
+               } catch (Throwable var7) {
+                  var8.addSuppressed(var7);
+               }
+            }
+
+            throw var8;
+         }
+
+         if (scanner != null) {// 84
+            scanner.close();
+         }
+
+         return null;// 86
+      }
+
+      if (scanner != null) {
+         scanner.close();
+      }
+
+      return var5;// 80
+   }
+
    private Scanner create(File file) throws FileNotFoundException {
-      return new Scanner(file);// 65
+      return new Scanner(file);// 90
    }
 }
 
@@ -330,9 +431,160 @@ class 'pkg/TestTryWithResourcesReturnJ16' {
       e7      162
    }
 
-   method 'create (Ljava/io/File;)Ljava/util/Scanner;' {
+   method 'testComplex1 (Ljava/io/File;Ljava/io/File;Ljava/io/File;)Ljava/lang/String;' {
+      0      166
+      1      166
+      2      166
+      3      166
       4      166
-      8      166
+      5      166
+      6      166
+      7      171
+      8      171
+      9      171
+      a      171
+      b      171
+      c      171
+      d      171
+      e      175
+      f      175
+      10      175
+      11      175
+      12      175
+      13      175
+      16      175
+      17      175
+      18      175
+      19      175
+      1a      175
+      1b      175
+      1e      180
+      1f      180
+      20      180
+      21      180
+      22      180
+      23      180
+      24      180
+      25      193
+      26      193
+      27      193
+      2a      194
+      2b      194
+      2c      194
+      2f      221
+      30      221
+      31      221
+      34      222
+      35      222
+      36      222
+      39      225
+      3a      225
+      3b      225
+      3c      176
+      3d      176
+      3e      176
+      3f      176
+      40      176
+      42      199
+      43      199
+      44      199
+      47      200
+      48      200
+      49      200
+      4a      200
+      4b      200
+      4f      181
+      51      182
+      52      182
+      53      182
+      56      184
+      57      184
+      58      184
+      5e      185
+      64      186
+      69      190
+      6a      214
+      6b      214
+      6c      214
+      6f      215
+      70      215
+      71      215
+      72      215
+      73      215
+      77      202
+      79      203
+      7a      203
+      7b      203
+      7e      205
+      7f      205
+      80      205
+      86      206
+      8c      207
+      91      211
+      92      218
+      93      218
+   }
+
+   method 'testComplex2 (Ljava/io/File;Ljava/io/File;Ljava/io/File;)Ljava/lang/String;' {
+      0      229
+      1      229
+      2      229
+      3      229
+      4      229
+      5      229
+      6      229
+      7      234
+      8      234
+      9      234
+      a      234
+      b      234
+      c      234
+      f      235
+      10      235
+      11      235
+      12      235
+      13      235
+      14      235
+      15      235
+      16      259
+      17      259
+      18      259
+      1b      260
+      1c      260
+      1d      260
+      20      263
+      21      263
+      22      263
+      23      239
+      24      239
+      25      239
+      26      239
+      27      239
+      29      252
+      2a      252
+      2b      252
+      2e      253
+      2f      253
+      30      253
+      31      253
+      32      253
+      36      240
+      38      241
+      39      241
+      3a      241
+      3d      243
+      3e      243
+      3f      243
+      45      244
+      4b      245
+      50      249
+      51      256
+      52      256
+   }
+
+   method 'create (Ljava/io/File;)Ljava/util/Scanner;' {
+      4      267
+      8      267
    }
 }
 
@@ -355,7 +607,20 @@ Lines mapping:
 57 <-> 117
 59 <-> 159
 61 <-> 163
-65 <-> 167
+65 <-> 203
+66 <-> 172
+67 <-> 176
+68 <-> 226
+71 <-> 177
+72 <-> 215
+74 <-> 219
+78 <-> 241
+79 <-> 235
+80 <-> 264
+83 <-> 240
+84 <-> 253
+86 <-> 257
+90 <-> 268
 Not mapped:
 11
 17
