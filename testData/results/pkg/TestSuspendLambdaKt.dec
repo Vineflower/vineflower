@@ -20,9 +20,7 @@ import org.jetbrains.annotations.Nullable;
 )
 public final class TestSuspendLambdaKt {
    @NotNull
-   private static final Function1<Continuation<? super Unit>, Object> sl1 = new NamelessClass_1(
-      (Continuation<? super NamelessClass_1>)null
-   );
+   private static final Function1<Continuation<? super Unit>, Object> sl1 = new NamelessClass_1((Continuation<? super NamelessClass_1>)null);
 
    @NotNull
    public static final Function1<Continuation<? super Unit>, Object> getSl1() {
@@ -84,91 +82,91 @@ public final class TestSuspendLambdaKt {
 
 class 'pkg/TestSuspendLambdaKt' {
    method 'getSl1 ()Lkotlin/jvm/functions/Function1;' {
-      0      28
-      1      28
-      2      28
-      3      28
+      0      26
+      1      26
+      2      26
+      3      26
    }
 
    method '<clinit> ()V' {
-      e      81
+      e      79
    }
 }
 
 class 'pkg/TestSuspendLambdaKt$sl1$1' {
    method '<init> (Lkotlin/coroutines/Continuation;)V' {
-      1      52
-      2      52
-      3      52
-      4      52
-      5      52
-      6      53
+      1      50
+      2      50
+      3      50
+      4      50
+      5      50
+      6      51
    }
 
    method 'invokeSuspend (Ljava/lang/Object;)Ljava/lang/Object;' {
-      0      57
-      1      57
-      2      57
-      3      57
-      4      57
-      5      58
-      6      58
-      7      58
-      8      58
-      9      58
-      1c      60
-      1d      60
-      1e      60
-      1f      60
-      20      61
-      21      61
-      22      61
-      23      62
-      24      62
-      25      63
-      26      63
-      27      63
-      28      63
-      29      63
-      2a      63
-      2b      63
-      2c      64
-      2d      64
-      2e      64
-      2f      64
-      34      66
-      35      66
-      39      66
+      0      55
+      1      55
+      2      55
+      3      55
+      4      55
+      5      56
+      6      56
+      7      56
+      8      56
+      9      56
+      1c      58
+      1d      58
+      1e      58
+      1f      58
+      20      59
+      21      59
+      22      59
+      23      60
+      24      60
+      25      61
+      26      61
+      27      61
+      28      61
+      29      61
+      2a      61
+      2b      61
+      2c      62
+      2d      62
+      2e      62
+      2f      62
+      34      64
+      35      64
+      39      64
    }
 
    method 'create (Lkotlin/coroutines/Continuation;)Lkotlin/coroutines/Continuation;' {
-      4      72
-      8      72
-      9      72
-      a      72
-      b      72
+      4      70
+      8      70
+      9      70
+      a      70
+      b      70
    }
 
    method 'invoke (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;' {
-      0      77
-      1      77
-      2      77
-      3      77
-      4      77
-      5      77
-      6      77
-      7      77
-      8      77
-      9      77
-      a      77
-      b      77
-      c      77
-      d      77
-      e      77
+      0      75
+      1      75
+      2      75
+      3      75
+      4      75
+      5      75
+      6      75
+      7      75
+      8      75
+      9      75
+      a      75
+      b      75
+      c      75
+      d      75
+      e      75
    }
 }
 
 Lines mapping:
-3 <-> 82
-4 <-> 62
-5 <-> 65
+3 <-> 80
+4 <-> 60
+5 <-> 63

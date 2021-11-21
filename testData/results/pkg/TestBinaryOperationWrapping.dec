@@ -39,7 +39,11 @@ public class TestBinaryOperationWrapping {
       boolean w,
       boolean x,
       boolean y,
-      boolean z
+      boolean z,
+      boolean a1,
+      boolean b1,
+      boolean c1,
+      boolean d1
    ) {
       System.out// 12
          .println(
@@ -55,7 +59,9 @@ public class TestBinaryOperationWrapping {
                s && t ||
                u && v ||
                w && x ||
-               y && z
+               y && z ||
+               a1 && b1 ||
+               c1 && d1
          );
    }// 13
 }
@@ -81,68 +87,76 @@ class 'pkg/TestBinaryOperationWrapping' {
       29      13
    }
 
-   method 'testBooleanOperation (ZZZZZZZZZZZZZZZZZZZZZZZZZZ)V' {
-      0      43
-      1      43
-      2      43
-      3      45
-      7      45
-      b      46
-      f      46
-      10      46
-      14      47
-      15      47
-      19      47
-      1a      47
-      1e      48
-      1f      48
-      23      48
-      24      48
-      28      49
-      29      49
-      2d      49
-      2e      49
-      32      50
-      33      50
-      37      50
-      38      50
-      3c      51
-      3d      51
-      41      51
-      42      51
-      46      52
-      47      52
-      4b      52
-      4c      52
-      50      53
-      51      53
-      55      53
-      56      53
-      5a      54
-      5b      54
-      5f      54
-      60      54
-      64      55
-      65      55
-      69      55
-      6a      55
-      6e      56
-      6f      56
-      73      56
-      74      56
-      78      57
-      79      57
-      7d      57
-      7e      57
-      87      44
-      88      44
-      89      44
-      8a      59
+   method 'testBooleanOperation (ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ)V' {
+      0      47
+      1      47
+      2      47
+      3      49
+      7      49
+      b      50
+      f      50
+      10      50
+      14      51
+      15      51
+      19      51
+      1a      51
+      1e      52
+      1f      52
+      23      52
+      24      52
+      28      53
+      29      53
+      2d      53
+      2e      53
+      32      54
+      33      54
+      37      54
+      38      54
+      3c      55
+      3d      55
+      41      55
+      42      55
+      46      56
+      47      56
+      4b      56
+      4c      56
+      50      57
+      51      57
+      55      57
+      56      57
+      5a      58
+      5b      58
+      5f      58
+      60      58
+      64      59
+      65      59
+      69      59
+      6a      59
+      6e      60
+      6f      60
+      73      60
+      74      60
+      78      61
+      79      61
+      7d      61
+      7e      61
+      82      62
+      83      62
+      87      62
+      88      62
+      8c      63
+      8d      63
+      91      63
+      92      63
+      9b      48
+      9c      48
+      9d      48
+      9e      65
    }
 }
 
 Lines mapping:
 5 <-> 5
 9 <-> 14
-12 <-> 44
-13 <-> 60
+12 <-> 48
+13 <-> 66

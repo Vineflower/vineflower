@@ -15,9 +15,7 @@ import org.jetbrains.annotations.NotNull;
    d2 = {"callSuspendBlock", "", "block", "Lkotlin/Function1;", "Lkotlin/coroutines/Continuation;", "", "", "(Lkotlin/jvm/functions/Function1;)I", "callSuspendBlockGood", "kotlinx-test"}
 )
 public final class Kt25937Kt {
-   public static final int callSuspendBlock(
-      @NotNull Function1<? super Continuation<? super Unit>, ? extends Object> block
-   ) {
+   public static final int callSuspendBlock(@NotNull Function1<? super Continuation<? super Unit>, ? extends Object> block) {
       Intrinsics.checkParameterIsNotNull(block, "block");
       return 1;
    }

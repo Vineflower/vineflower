@@ -116,7 +116,7 @@ public interface IFernflowerPreferences {
     defaults.put(RENAME_ENTITIES, "0");
     defaults.put(NEW_LINE_SEPARATOR, (InterpreterUtil.IS_WINDOWS ? "0" : "1"));
     defaults.put(INDENT_STRING, "   ");
-    defaults.put(PREFERRED_LINE_LENGTH, "120");
+    defaults.put(PREFERRED_LINE_LENGTH, "160");
     defaults.put(BANNER, "");
     defaults.put(UNIT_TEST_MODE, "0");
     defaults.put(DUMP_ORIGINAL_LINES, "0");
