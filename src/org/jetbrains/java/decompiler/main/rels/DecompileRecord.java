@@ -59,8 +59,8 @@ public final class DecompileRecord {
   }
 
   public void print() {
-    for (String name : this.names) {
-      System.out.println(name);
+    for (int i = 0; i < this.names.size(); i++) {
+      System.out.println(i + " " + this.names.get(0));
     }
   }
 }

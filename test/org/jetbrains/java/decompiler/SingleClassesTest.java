@@ -209,6 +209,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16, "TestRecordGenericVararg");
     register(JAVA_16, "TestRecordAnno");
     register(JAVA_16, "TestRecordBig");
+    register(JAVA_16, "TestRecordGenericSuperclass");
     // TODO: The (double) in front of the (int) should be removed
     register(JAVA_8, "TestMultiCast");
     // TODO: The ternary here needs to be removed
@@ -427,13 +428,17 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: Synchronized blocks don't work properly
     registerRaw(CUSTOM, "TestHotjava");
     register(JAVA_8, "TestLabeledBreaks");
+    // TODO: test6&7- for loop processing leaves empty switch default edge
+    // TODO: test9&10- for loop not created, loop extractor needs another pass
     register(JAVA_8, "TestSwitchLoop");
     // TODO: finally block is duplicating the switches, FinallyProcessor#verifyFinallyEx not correct
     register(JAVA_8, "TestSwitchFinally");
     // TODO: test2- continue not explicit, causes improper control flow
-    // TODO: test6&7- for loop processing leaves empty switch default edge
-    // TODO: test9&10- for loop not created, loop extractor needs another pass
     register(JAVA_8, "TestLoopFinally");
+    // TODO: local classes not being put in the right spots
+    register(JAVA_8, "TestLocalClassesSwitch"); // Adapted from CFR
+    // TODO: return not condensed properly and throw is not put into finally
+    register(JAVA_8, "TestFinallyThrow");
   }
 
   private void registerEntireClassPath() {
