@@ -1,0 +1,290 @@
+package pkg;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+public class TestTryWithResourcesNestedLoop {
+   public static InputStream test(Path base, Path overlay, int width, int left, int top, int right, int bottom) throws IOException {
+      InputStream lv = Files.newInputStream(base);
+
+      ByteArrayInputStream var23;
+      label105: {
+         try {
+            InputStream lv2;
+            label107: {
+               lv2 = Files.newInputStream(overlay);// 12
+
+               try {
+                  int n = lv.available();// 14
+                  int o = lv.read();// 15
+                  if (n != lv2.available() || o != lv2.read()) {// 17
+                     break label107;
+                  }
+
+                  try (ByteArrayInputStream lv3 = new ByteArrayInputStream(new byte[0], n, o)) {// 18
+                     int p = n / width;// 19
+
+                     for(int q = top * p; q < bottom * p; ++q) {// 20
+                        for(int r = left * p; r < right * p; ++r) {// 21
+                           lv2.read(new byte[0], r, q);// 22
+                           lv.read(new byte[0], r, q);// 23
+                           lv3.read(new byte[0], r, q);// 25
+                        }
+                     }
+
+                     var23 = new ByteArrayInputStream(lv3.readAllBytes());
+                  }
+               } catch (Throwable var21) {
+                  if (lv2 != null) {
+                     try {
+                        lv2.close();
+                     } catch (Throwable var18) {
+                        var21.addSuppressed(var18);
+                     }
+                  }
+
+                  throw var21;
+               }
+
+               if (lv2 != null) {
+                  lv2.close();
+               }
+               break label105;
+            }
+
+            if (lv2 != null) {
+               lv2.close();
+            }
+         } catch (Throwable var22) {// 11
+            if (lv != null) {
+               try {
+                  lv.close();
+               } catch (Throwable var17) {
+                  var22.addSuppressed(var17);
+               }
+            }
+
+            throw var22;
+         }
+
+         if (lv != null) {// 32
+            lv.close();
+         }
+
+         return null;// 34
+      }
+
+      if (lv != null) {
+         lv.close();
+      }
+
+      return var23;// 29
+   }
+}
+
+class 'pkg/TestTryWithResourcesNestedLoop' {
+   method 'test (Ljava/nio/file/Path;Ljava/nio/file/Path;IIIII)Ljava/io/InputStream;' {
+      0      10
+      5      10
+      6      10
+      7      10
+      8      10
+      9      10
+      a      17
+      f      17
+      10      17
+      11      17
+      12      17
+      13      17
+      14      20
+      15      20
+      16      20
+      17      20
+      18      20
+      19      20
+      1a      20
+      1b      21
+      1c      21
+      1d      21
+      1e      21
+      1f      21
+      20      21
+      21      21
+      22      22
+      23      22
+      24      22
+      25      22
+      26      22
+      27      22
+      28      22
+      29      22
+      2c      22
+      2d      22
+      2e      22
+      2f      22
+      30      22
+      31      22
+      32      22
+      33      22
+      3a      26
+      3d      26
+      3e      26
+      3f      26
+      40      26
+      44      26
+      45      26
+      46      27
+      47      27
+      48      27
+      49      27
+      4a      27
+      4b      27
+      4c      29
+      4d      29
+      4e      29
+      4f      29
+      50      29
+      51      29
+      52      29
+      53      29
+      54      29
+      55      29
+      56      29
+      57      29
+      58      29
+      59      29
+      5a      29
+      5d      30
+      5e      30
+      5f      30
+      60      30
+      61      30
+      62      30
+      63      30
+      64      30
+      65      30
+      66      30
+      67      30
+      68      30
+      69      30
+      6a      30
+      6d      31
+      6e      31
+      6f      31
+      72      31
+      73      31
+      74      31
+      75      31
+      76      31
+      77      31
+      78      31
+      7b      32
+      7c      32
+      7d      32
+      80      32
+      81      32
+      82      32
+      83      32
+      84      32
+      85      32
+      86      32
+      89      33
+      8a      33
+      8b      33
+      8e      33
+      8f      33
+      90      33
+      91      33
+      92      33
+      93      33
+      94      33
+      96      30
+      97      30
+      98      30
+      9c      29
+      9d      29
+      9e      29
+      a6      37
+      a7      37
+      a8      37
+      a9      37
+      aa      37
+      ae      37
+      af      37
+      b5      51
+      b6      51
+      b7      51
+      ba      52
+      bb      52
+      bc      52
+      bf      79
+      c0      79
+      c1      79
+      c4      80
+      c5      80
+      c6      80
+      c9      83
+      ca      83
+      cb      83
+      e2      57
+      e3      57
+      e4      57
+      e7      58
+      e8      58
+      e9      58
+      ea      58
+      eb      58
+      ef      39
+      f1      40
+      f2      40
+      f3      40
+      f6      42
+      f7      42
+      f8      42
+      fe      43
+      104      44
+      109      48
+      10a      72
+      10b      72
+      10c      72
+      10f      73
+      110      73
+      111      73
+      112      73
+      113      73
+      117      60
+      119      61
+      11a      61
+      11b      61
+      11e      63
+      11f      63
+      120      63
+      126      64
+      12c      65
+      131      69
+      132      76
+      133      76
+   }
+}
+
+Lines mapping:
+11 <-> 61
+12 <-> 18
+14 <-> 21
+15 <-> 22
+17 <-> 23
+18 <-> 27
+19 <-> 28
+20 <-> 30
+21 <-> 31
+22 <-> 32
+23 <-> 33
+25 <-> 34
+29 <-> 84
+32 <-> 73
+34 <-> 77
+Not mapped:
+30
