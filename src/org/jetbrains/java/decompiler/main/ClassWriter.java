@@ -439,7 +439,9 @@ public class ClassWriter {
     boolean isNonSealed = !isSealed && cl.getVersion().hasSealedClasses() && isSuperClassSealed(cl);
 
     if (isDeprecated) {
-      appendDeprecation(buffer, indent);
+      if (!containsDeprecatedAnnotation(cl)) {
+        appendDeprecation(buffer, indent);
+      }
     }
 
     if (interceptor != null) {
@@ -587,7 +589,9 @@ public class ClassWriter {
     boolean isEnum = fd.hasModifier(CodeConstants.ACC_ENUM) && DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_ENUM);
 
     if (isDeprecated) {
-      appendDeprecation(buffer, indent);
+      if (!containsDeprecatedAnnotation(fd)) {
+        appendDeprecation(buffer, indent);
+      }
     }
 
     if (interceptor != null) {
@@ -795,7 +799,9 @@ public class ClassWriter {
       }
 
       if (isDeprecated) {
-        appendDeprecation(buffer, indent);
+        if (!containsDeprecatedAnnotation(mt)) {
+          appendDeprecation(buffer, indent);
+        }
       }
 
       if (interceptor != null) {
@@ -1261,6 +1267,21 @@ public class ClassWriter {
 
     GenericFieldDescriptor descriptor = fd.getSignature();
     return new AbstractMap.SimpleImmutableEntry<>(fieldType, descriptor);
+  }
+
+  private static boolean containsDeprecatedAnnotation(StructMember mb) {
+    for (StructGeneralAttribute.Key<?> key : ANNOTATION_ATTRIBUTES) {
+      StructAnnotationAttribute attribute = (StructAnnotationAttribute) mb.getAttribute(key);
+      if (attribute != null) {
+        for (AnnotationExprent annotation : attribute.getAnnotations()) {
+          if (annotation.getClassName().equals("java/lang/Deprecated")) {
+            return true;
+          }
+        }
+      }
+    }
+
+    return false;
   }
 
   private static void appendDeprecation(TextBuffer buffer, int indent) {
