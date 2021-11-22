@@ -275,12 +275,7 @@ public class MethodProcessorRunnable implements Runnable {
       // this has to be done last so it does not screw up the formation of for loops
       if (MergeHelper.makeDoWhileLoops(root)) {
         decompileRecord.add("MatchDoWhile", root);
-
-        LabelHelper.cleanUpEdges(root);
-        decompileRecord.add("CleanupEdges_MDW", root);
-
-        LabelHelper.identifyLabels(root);
-        decompileRecord.add("IdentifyLabels_MDW", root);
+        continue;
       }
 
       // initializer may have at most one return point, so no transformation of method exits permitted
