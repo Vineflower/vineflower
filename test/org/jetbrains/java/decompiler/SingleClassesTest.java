@@ -439,6 +439,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestLocalClassesSwitch"); // Adapted from CFR
     // TODO: return not condensed properly and throw is not put into finally
     register(JAVA_8, "TestFinallyThrow");
+    register(JAVA_8, "TestWhile1");
   }
 
   private void registerEntireClassPath() {
