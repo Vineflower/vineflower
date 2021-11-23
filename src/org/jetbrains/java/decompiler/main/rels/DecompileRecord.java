@@ -60,7 +60,7 @@ public final class DecompileRecord {
 
   public void print() {
     for (int i = 0; i < this.names.size(); i++) {
-      System.out.println(i + " " + this.names.get(0));
+      System.out.println(i + " " + this.names.get(i));
     }
   }
 }

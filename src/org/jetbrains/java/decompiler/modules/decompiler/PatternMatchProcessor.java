@@ -19,21 +19,28 @@ import java.util.List;
  */
 public final class PatternMatchProcessor {
   public static boolean matchInstanceof(RootStatement root) {
-    return matchInstanceofRec(root, root);
+    boolean res = matchInstanceofRec(root, root);
+
+    if (res) {
+      SequenceHelper.condenseSequences(root);
+    }
+
+    return res;
   }
 
   private static boolean matchInstanceofRec(Statement statement, RootStatement root) {
+    boolean res = false;
     for (Statement stat : statement.getStats()) {
       if (matchInstanceofRec(stat, root)) {
-        return true;
+        res = true;
       }
     }
 
     if (statement instanceof IfStatement) {
-      return handleIf((IfStatement) statement, root);
+      res |= handleIf((IfStatement) statement, root);
     }
 
-    return false;
+    return res;
   }
 
   private static boolean handleIf(IfStatement statement, RootStatement root) {

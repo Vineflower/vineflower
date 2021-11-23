@@ -52,6 +52,7 @@ public class GeneralStatement extends Statement {
       buf.append(stat.toJava(indent + 1));
     }
     buf.appendIndent(indent).append("}");
+    buf.appendLineSeparator();
 
     return buf;
   }
