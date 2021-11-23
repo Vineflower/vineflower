@@ -174,8 +174,6 @@ public final class TernaryProcessor {
 
       Statement blockBefore = bstat1.getAllPredecessorEdges().get(0).getSource();
 
-      DotExporter.toDotFile(statement.getTopParent(), "a"+statement.id);
-
       bstat1.getParent().getStats().removeWithKey(bstat1.id);
       bstat2.getParent().getStats().removeWithKey(bstat2.id);
 
