@@ -18,18 +18,20 @@ public class TryHelper {
     boolean ret = makeTryWithResourceRec(cl, root);
 
     if (ret) {
-      if (cl.getVersion().hasNewTryWithResources()) {
-        SequenceHelper.condenseSequences(root);
-
-        if (mergeTrys(root)) {
-          SequenceHelper.condenseSequences(root);
-        }
-      } else {
+      if (!cl.getVersion().hasNewTryWithResources()) {
         SequenceHelper.condenseSequences(root);
 
         if (collapseTryRec(root)) {
           SequenceHelper.condenseSequences(root);
         }
+      }
+    }
+
+    if (cl.getVersion().hasNewTryWithResources()) {
+      SequenceHelper.condenseSequences(root);
+
+      if (mergeTrys(root)) {
+        SequenceHelper.condenseSequences(root);
       }
     }
 
@@ -39,26 +41,35 @@ public class TryHelper {
   private static boolean makeTryWithResourceRec(StructClass cl, Statement stat) {
     // TODO: new try with resources *reruns the entire processing loop after a single one is run.* That is not efficient and could be optimized
     if (cl.getVersion().hasNewTryWithResources()) {
+      boolean ret = false;
       if (stat.type == Statement.TYPE_TRYCATCH) {
         if (TryWithResourcesProcessor.makeTryWithResourceJ11((CatchStatement) stat)) {
-          return true;
+          ret = true;
         }
       }
+
+      for (Statement st : new ArrayList<>(stat.getStats())) {
+        if (makeTryWithResourceRec(cl, st)) {
+          ret = true;
+        }
+      }
+
+      return ret;
     } else {
       if (stat.type == Statement.TYPE_CATCHALL && ((CatchAllStatement) stat).isFinally()) {
         if (TryWithResourcesProcessor.makeTryWithResource((CatchAllStatement) stat)) {
           return true;
         }
       }
-    }
 
-    for (Statement st : new ArrayList<>(stat.getStats())) {
-      if (makeTryWithResourceRec(cl, st)) {
-        return true;
+      for (Statement st : new ArrayList<>(stat.getStats())) {
+        if (makeTryWithResourceRec(cl, st)) {
+          return true;
+        }
       }
-    }
 
-    return false;
+      return false;
+    }
   }
 
   // J11+
