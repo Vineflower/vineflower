@@ -110,7 +110,17 @@ public class DotExporter {
       for (StatEdge labelEdge : st.getLabelEdges()) {
         String src = labelEdge.getSource().id + (labelEdge.getSource().getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty()?"":"000000");;
         String destId = labelEdge.getDestination().id + (labelEdge.getDestination().getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty()?"":"000000");
-        buffer.append(src + "->" + destId + " [color=orange,label=\"Label Edge (Contained by " + st.id + ")\"];\r\n");
+        String data = "";
+        if (labelEdge.labeled) {
+          data += "Labeled";
+        }
+        if (labelEdge.labeled && labelEdge.explicit) {
+          data += ", ";
+        }
+        if (labelEdge.explicit) {
+          data += "Explicit";
+        }
+        buffer.append(src + "->" + destId + " [color=orange,label=\"Label Edge (" + data + ") (Contained by " + st.id + ")\"];\r\n");
       }
 
       for (Statement neighbour : st.getNeighbours(Statement.STATEDGE_ALL, Statement.DIRECTION_FORWARD)) {
