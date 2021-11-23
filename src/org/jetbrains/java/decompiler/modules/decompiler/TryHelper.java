@@ -18,13 +18,7 @@ public class TryHelper {
     boolean ret = makeTryWithResourceRec(cl, root);
 
     if (ret) {
-      if (cl.getVersion().hasNewTryWithResources()) {
-        SequenceHelper.condenseSequences(root);
-
-        if (mergeTrys(root)) {
-          SequenceHelper.condenseSequences(root);
-        }
-      } else {
+      if (!cl.getVersion().hasNewTryWithResources()) {
         SequenceHelper.condenseSequences(root);
 
         if (collapseTryRec(root)) {
@@ -33,31 +27,48 @@ public class TryHelper {
       }
     }
 
+    if (cl.getVersion().hasNewTryWithResources()) {
+      SequenceHelper.condenseSequences(root);
+
+      if (mergeTrys(root)) {
+        SequenceHelper.condenseSequences(root);
+      }
+    }
+
     return ret;
   }
 
   private static boolean makeTryWithResourceRec(StructClass cl, Statement stat) {
     if (cl.getVersion().hasNewTryWithResources()) {
+      boolean ret = false;
       if (stat.type == Statement.TYPE_TRYCATCH) {
         if (TryWithResourcesProcessor.makeTryWithResourceJ11((CatchStatement) stat)) {
-          return true;
+          ret = true;
         }
       }
+
+      for (Statement st : new ArrayList<>(stat.getStats())) {
+        if (makeTryWithResourceRec(cl, st)) {
+          ret = true;
+        }
+      }
+
+      return ret;
     } else {
       if (stat.type == Statement.TYPE_CATCHALL && ((CatchAllStatement) stat).isFinally()) {
         if (TryWithResourcesProcessor.makeTryWithResource((CatchAllStatement) stat)) {
           return true;
         }
       }
-    }
 
-    for (Statement st : new ArrayList<>(stat.getStats())) {
-      if (makeTryWithResourceRec(cl, st)) {
-        return true;
+      for (Statement st : new ArrayList<>(stat.getStats())) {
+        if (makeTryWithResourceRec(cl, st)) {
+          return true;
+        }
       }
-    }
 
-    return false;
+      return false;
+    }
   }
 
   // J11+
