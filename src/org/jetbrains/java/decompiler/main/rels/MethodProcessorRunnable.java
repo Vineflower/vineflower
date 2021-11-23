@@ -259,13 +259,13 @@ public class MethodProcessorRunnable implements Runnable {
         }
       }
 
-      LabelHelper.identifyLabels(root);
-      decompileRecord.add("IdentifyLabels", root);
-
       if (TryHelper.enhanceTryStats(root, cl)) {
         decompileRecord.add("EnhanceTry", root);
         continue;
       }
+
+      LabelHelper.identifyLabels(root);
+      decompileRecord.add("IdentifyLabels", root);
 
       if (InlineSingleBlockHelper.inlineSingleBlocks(root)) {
         decompileRecord.add("InlineSingleBlocks", root);

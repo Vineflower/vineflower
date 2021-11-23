@@ -4,6 +4,7 @@ import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
+import org.jetbrains.java.decompiler.util.DotExporter;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -409,12 +410,8 @@ public final class TryWithResourcesProcessor {
                 catchStat.getVars().remove(i - 1);
                 catchStat.getStats().remove(i);
 
-                for (StatEdge edge : temp.getAllPredecessorEdges()) {
-                  edge.getSource().removeSuccessor(edge);
-                }
-
                 for (StatEdge edge : temp.getAllSuccessorEdges()) {
-                  edge.getDestination().removePredecessor(edge);
+                  edge.getSource().removeSuccessor(edge);
                 }
 
                 removed = true;
