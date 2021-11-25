@@ -33,6 +33,8 @@ public class TestTryWithResourcesSwitchJ16 {
         default:
           System.out.println("default");
       }
+
+      System.out.println("after switch");
     }
 
     System.out.println("after");
@@ -57,6 +59,8 @@ public class TestTryWithResourcesSwitchJ16 {
         default:
           System.out.println("default");
       }
+
+      System.out.println("after switch");
     }
 
     System.out.println("after");

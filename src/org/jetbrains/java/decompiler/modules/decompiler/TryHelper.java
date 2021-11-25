@@ -32,6 +32,8 @@ public class TryHelper {
 
       if (mergeTrys(root)) {
         SequenceHelper.condenseSequences(root);
+
+        ret = true;
       }
     }
 
@@ -39,7 +41,6 @@ public class TryHelper {
   }
 
   private static boolean makeTryWithResourceRec(StructClass cl, Statement stat) {
-    // TODO: new try with resources *reruns the entire processing loop after a single one is run.* That is not efficient and could be optimized
     if (cl.getVersion().hasNewTryWithResources()) {
       boolean ret = false;
       if (stat.type == Statement.TYPE_TRYCATCH) {

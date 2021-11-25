@@ -485,7 +485,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16, "TestTryWithResourcesLoopJ16");
     register(JAVA_16, "TestTryWithResourcesFake");
     register(JAVA_16, "TestTryWithResourcesSwitchJ16");
-    // TODO: removing the weird edge processing fix in TryWithResourcesProcessor#makeTryWithResourceJ11 produces two returns in a row
     register(JAVA_16, "TestTryWithResourcesNestedLoop");
   }
 

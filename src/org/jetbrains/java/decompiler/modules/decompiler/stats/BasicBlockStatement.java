@@ -108,6 +108,13 @@ public class BasicBlockStatement extends Statement {
     return null;
   }
 
+  public static BasicBlockStatement create() {
+    BasicBlockStatement stat = new BasicBlockStatement(new BasicBlock(DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.STATEMENT_COUNTER)));
+    stat.setExprents(new ArrayList<>());
+
+    return stat;
+  }
+
   // *****************************************************************************
   // getter and setter methods
   // *****************************************************************************

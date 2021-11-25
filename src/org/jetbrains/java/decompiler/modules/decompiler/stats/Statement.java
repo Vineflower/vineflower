@@ -511,6 +511,10 @@ public class Statement implements IMatchable {
     }
   }
 
+  public final void destroy() {
+    this.parent.replaceStatement(this, BasicBlockStatement.create());
+  }
+
   public void replaceStatement(Statement oldstat, Statement newstat) {
     if (!stats.containsKey(oldstat.id)) {
       throw new IllegalStateException("[" + this + "] Cannot replace " + oldstat + " with " + newstat + " because it wasn't found in " + stats);

@@ -22,115 +22,61 @@ public class TestTryWithResourcesSwitchJ16 {
    }// 21
 
    public void test1(File f) throws FileNotFoundException {
-      Scanner s = this.create(f);
-
-      label43: {
-         label42: {
-            try {
-               switch(s.nextInt()) {// 26
-               case 1:
-                  System.out.println("1");// 28
-                  break label42;// 29
-               case 2:
-                  System.out.println("2");// 31
-                  break;
-               default:
-                  System.out.println("default");// 34
-                  break label42;
-               }
-            } catch (Throwable var6) {// 25
-               if (s != null) {
-                  try {
-                     s.close();
-                  } catch (Throwable var5) {
-                     var6.addSuppressed(var5);
-                  }
-               }
-
-               throw var6;
+      try (Scanner s = this.create(f)) {// 25
+         label56: {
+            switch(s.nextInt()) {// 26
+            case 1:
+               System.out.println("1");// 28
+               break;// 29
+            case 2:
+               System.out.println("2");// 31
+               break label56;
+            default:
+               System.out.println("default");// 34
             }
 
-            if (s != null) {
-               s.close();
-            }
-            break label43;
-         }
-
-         if (s != null) {// 36
-            s.close();
+            System.out.println("after switch");// 37
          }
       }
 
-      System.out.println("after");// 38
-      if (f.exists()) {// 39
-         System.out.println("exists");// 40
+      System.out.println("after");// 40
+      if (f.exists()) {// 41
+         System.out.println("exists");// 42
       }
 
-   }// 42
+   }// 44
 
    public int test2(File f) throws FileNotFoundException {
-      Scanner s = this.create(f);
-
-      byte var3;
-      label57: {
-         label52: {
-            label51: {
-               try {
-                  switch(s.nextInt()) {// 47
-                  case 1:
-                     System.out.println("1");// 49
-                     break label51;// 50
-                  case 2:
-                     System.out.println("2");// 52
-                     break;
-                  case 3:
-                     System.out.println("3");// 55
-                     var3 = 1;
-                     break label57;
-                  default:
-                     System.out.println("default");// 58
-                     break label51;
-                  }
-               } catch (Throwable var6) {// 46
-                  if (s != null) {
-                     try {
-                        s.close();
-                     } catch (Throwable var5) {
-                        var6.addSuppressed(var5);
-                     }
-                  }
-
-                  throw var6;
-               }
-
-               if (s != null) {
-                  s.close();
-               }
-               break label52;
+      try (Scanner s = this.create(f)) {// 48
+         label69: {
+            switch(s.nextInt()) {// 49
+            case 1:
+               System.out.println("1");// 51
+               break;// 52
+            case 2:
+               System.out.println("2");// 54
+               break label69;
+            case 3:
+               System.out.println("3");// 57
+               return 1;// 58
+            default:
+               System.out.println("default");// 60
             }
 
-            if (s != null) {// 60
-               s.close();
-            }
+            System.out.println("after switch");// 63
          }
-
-         System.out.println("after");// 62
-         if (f.exists()) {// 63
-            System.out.println("exists");// 64
-         }
-
-         return 0;// 67
       }
 
-      if (s != null) {
-         s.close();
+      System.out.println("after");// 66
+      if (f.exists()) {// 67
+         System.out.println("exists");// 68
       }
 
-      return var3;// 56
+      return 0;// 71
    }
 
    private Scanner create(File file) throws FileNotFoundException {
-      return new Scanner(file);// 71
+      return new Scanner(file);// 75
    }
 }
 
@@ -181,169 +127,135 @@ class 'pkg/TestTryWithResourcesSwitchJ16' {
       3      24
       4      24
       5      24
-      6      29
-      7      29
-      8      29
-      9      29
-      a      29
-      24      31
-      25      31
-      26      31
-      27      31
-      28      31
-      29      31
-      2a      31
-      2b      31
-      2c      32
-      2f      34
-      30      34
-      31      34
-      32      34
-      33      34
-      34      34
-      37      52
-      38      52
-      3b      53
-      3c      53
-      3d      53
-      3e      53
-      42      37
-      43      37
-      44      37
-      45      37
-      46      37
-      47      37
-      4a      58
-      4b      58
-      4e      59
-      4f      59
-      50      59
-      51      59
-      55      40
-      56      41
-      57      41
-      5a      43
-      5b      43
-      61      44
-      66      45
-      6a      49
-      6b      63
-      6c      63
-      6d      63
-      6e      63
-      6f      63
-      70      63
-      71      63
-      72      63
-      73      64
-      74      64
-      75      64
-      76      64
-      77      64
-      7a      65
-      7b      65
-      7c      65
-      7d      65
-      7e      65
-      7f      65
-      82      68
+      6      26
+      7      26
+      8      26
+      9      26
+      a      26
+      24      28
+      25      28
+      26      28
+      27      28
+      28      28
+      29      28
+      2a      28
+      2b      28
+      2c      29
+      2f      31
+      30      31
+      31      31
+      32      31
+      33      31
+      34      31
+      42      34
+      43      34
+      44      34
+      45      34
+      46      34
+      47      34
+      4a      37
+      4b      37
+      4c      37
+      4d      37
+      4e      37
+      4f      37
+      73      41
+      74      41
+      75      41
+      76      41
+      77      41
+      78      41
+      79      41
+      7a      41
+      7b      42
+      7c      42
+      7d      42
+      7e      42
+      7f      42
+      82      43
+      83      43
+      84      43
+      85      43
+      86      43
+      87      43
+      8a      46
    }
 
    method 'test2 (Ljava/io/File;)I' {
-      0      71
-      1      71
-      2      71
-      3      71
-      4      71
-      5      71
-      6      78
-      7      78
-      8      78
-      9      78
-      a      78
-      24      80
-      25      80
-      26      80
-      27      80
-      28      80
-      29      80
-      2a      80
-      2b      80
-      2c      81
-      2f      83
-      30      83
-      31      83
-      32      83
-      33      83
-      34      83
-      37      105
-      38      105
-      3b      106
-      3c      106
-      3d      106
-      3e      106
-      42      86
-      43      86
-      44      86
-      45      86
-      46      86
-      47      86
-      48      86
-      49      86
-      4a      87
-      4b      87
-      4c      124
-      4d      124
-      50      125
-      51      125
-      54      128
-      55      128
-      56      90
-      57      90
-      58      90
-      59      90
-      5a      90
-      5b      90
-      5e      111
-      5f      111
-      62      112
-      63      112
-      64      112
-      65      112
-      69      93
-      6a      94
-      6b      94
-      6e      96
-      6f      96
-      75      97
-      7a      98
-      7e      102
-      7f      116
-      80      116
-      81      116
-      82      116
-      83      116
-      84      116
-      85      116
-      86      116
-      87      117
-      88      117
-      89      117
-      8a      117
-      8b      117
-      8e      118
-      8f      118
-      90      118
-      91      118
-      92      118
-      93      118
-      96      121
-      97      121
+      0      49
+      1      49
+      2      49
+      3      49
+      4      49
+      5      49
+      6      51
+      7      51
+      8      51
+      9      51
+      a      51
+      24      53
+      25      53
+      26      53
+      27      53
+      28      53
+      29      53
+      2a      53
+      2b      53
+      2c      54
+      2f      56
+      30      56
+      31      56
+      32      56
+      33      56
+      34      56
+      42      59
+      43      59
+      44      59
+      45      59
+      46      59
+      47      59
+      48      59
+      49      59
+      4a      60
+      55      60
+      56      62
+      57      62
+      58      62
+      59      62
+      5a      62
+      5b      62
+      5e      65
+      5f      65
+      60      65
+      61      65
+      62      65
+      63      65
+      87      69
+      88      69
+      89      69
+      8a      69
+      8b      69
+      8c      69
+      8d      69
+      8e      69
+      8f      70
+      90      70
+      91      70
+      92      70
+      93      70
+      96      71
+      97      71
+      98      71
+      99      71
+      9a      71
+      9b      71
+      9e      74
+      9f      74
    }
 
    method 'create (Ljava/io/File;)Ljava/util/Scanner;' {
-      4      132
-      8      132
+      4      78
+      8      78
    }
 }
 
@@ -356,30 +268,32 @@ Lines mapping:
 16 <-> 16
 18 <-> 18
 21 <-> 22
-25 <-> 41
-26 <-> 30
-28 <-> 32
-29 <-> 33
-31 <-> 35
-34 <-> 38
-36 <-> 59
-38 <-> 64
-39 <-> 65
-40 <-> 66
-42 <-> 69
-46 <-> 94
-47 <-> 79
-49 <-> 81
-50 <-> 82
-52 <-> 84
-55 <-> 87
-56 <-> 129
-58 <-> 91
-60 <-> 112
-62 <-> 117
-63 <-> 118
-64 <-> 119
-67 <-> 122
-71 <-> 133
+25 <-> 25
+26 <-> 27
+28 <-> 29
+29 <-> 30
+31 <-> 32
+34 <-> 35
+37 <-> 38
+40 <-> 42
+41 <-> 43
+42 <-> 44
+44 <-> 47
+48 <-> 50
+49 <-> 52
+51 <-> 54
+52 <-> 55
+54 <-> 57
+57 <-> 60
+58 <-> 61
+60 <-> 63
+63 <-> 66
+66 <-> 70
+67 <-> 71
+68 <-> 72
+71 <-> 75
+75 <-> 79
 Not mapped:
 20
+38
+64
