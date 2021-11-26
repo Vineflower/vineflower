@@ -42,14 +42,14 @@ public final class SwitchExpressionHelper {
       if (exprents != null && !exprents.isEmpty()) {
         Exprent exprent = exprents.get(exprents.size() - 1);
 
+        // We need all break edges to be enclosed in the current switch statement, as otherwise they could be breaking to statements beyond our scope, which messes up control flow
+        List<StatEdge> breaks = caseStat.getSuccessorEdges(StatEdge.TYPE_BREAK);
+        if (breaks.isEmpty()) {
+          return false; // TODO: handle switch expression with fallthrough!
+        }
+
         if (exprent.type == Exprent.EXPRENT_ASSIGNMENT && ((AssignmentExprent)exprent).getLeft().type == Exprent.EXPRENT_VAR) {
           VarVersionPair var = (((VarExprent) ((AssignmentExprent) exprent).getLeft())).getVarVersionPair();
-
-          // We need all break edges to be enclosed in the current switch statement, as otherwise they could be breaking to statements beyond our scope, which messes up control flow
-          List<StatEdge> breaks = caseStat.getSuccessorEdges(StatEdge.TYPE_BREAK);
-          if (breaks.isEmpty()) {
-            return false; // TODO: handle switch expression with fallthrough!
-          }
 
           if (breaks.get(0).closure != stat) {
             return false;
@@ -102,7 +102,7 @@ public final class SwitchExpressionHelper {
 
         VarExprent vExpr = new VarExprent(found.getIndex(), found.getVarType(), found.getProcessor());
         vExpr.setStack(true); // We want to inline
-        AssignmentExprent toAdd = new AssignmentExprent(vExpr, new SwitchExprent(stat, found.getExprType()), null);
+        AssignmentExprent toAdd = new AssignmentExprent(vExpr, new SwitchExprent(stat, found.getExprType(), false), null);
 
         exprents.add(0, toAdd);
 

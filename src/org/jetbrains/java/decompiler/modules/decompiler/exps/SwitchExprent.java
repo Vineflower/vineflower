@@ -15,11 +15,13 @@ import java.util.List;
 public class SwitchExprent extends Exprent {
   private final SwitchStatement backing;
   private final VarType type;
+  private final boolean fallthrough;
 
-  public SwitchExprent(SwitchStatement backing, VarType type) {
+  public SwitchExprent(SwitchStatement backing, VarType type, boolean fallthrough) {
     super(EXPRENT_SWITCH);
     this.backing = backing;
     this.type = type;
+    this.fallthrough = fallthrough;
   }
 
   @Override
@@ -139,7 +141,7 @@ public class SwitchExprent extends Exprent {
 
   @Override
   public Exprent copy() {
-    return new SwitchExprent(this.backing, this.type);
+    return new SwitchExprent(this.backing, this.type, this.fallthrough);
   }
 
   @Override
