@@ -30,10 +30,10 @@ public class YieldExprent extends Exprent {
   }
 
   @Override
-  public TextBuffer toJava(int indent, BytecodeMappingTracer tracer) {
+  public TextBuffer toJava(int indent) {
     TextBuffer buf = new TextBuffer();
     buf.append("yield ");
-    ExprProcessor.getCastedExprent(this.content, this.retType, buf, indent, false, false, false, false, tracer);
+    ExprProcessor.getCastedExprent(this.content, this.retType, buf, indent, false, false, false, false);
 
     return buf;
   }

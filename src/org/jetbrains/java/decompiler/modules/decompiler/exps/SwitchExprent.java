@@ -33,8 +33,7 @@ public class SwitchExprent extends Exprent {
 
     VarType switchType = this.backing.getHeadexprentList().get(0).getExprType();
 
-    buf.append(this.backing.getHeadexprentList().get(0).toJava(indent, tracer)).append(" {").appendLineSeparator();
-    tracer.incrementCurrentSourceLine();
+    buf.append(this.backing.getHeadexprentList().get(0).toJava(indent)).append(" {").appendLineSeparator();
     for (int i = 0; i < this.backing.getCaseStatements().size(); i++) {
 
       Statement stat = this.backing.getCaseStatements().get(i);
@@ -76,7 +75,7 @@ public class SwitchExprent extends Exprent {
             buf.append(((FieldExprent)value).getName());
           }
           else {
-            buf.append(value.toJava(indent, tracer));
+            buf.append(value.toJava(indent));
           }
 
           hasEdge = true;
@@ -96,6 +95,7 @@ public class SwitchExprent extends Exprent {
         simple = false;
       }
 
+      // Single yield or throw
       if (simple) {
         Exprent exprent = stat.getExprents().get(0);
 
@@ -106,12 +106,12 @@ public class SwitchExprent extends Exprent {
             ((ConstExprent)content).setConstType(this.type);
           }
 
-          buf.append(content.toJava(indent, tracer).append(";"));
+          buf.append(content.toJava(indent).append(";"));
         } else if (exprent.type == Exprent.EXPRENT_EXIT) {
           ExitExprent exit = (ExitExprent) exprent;
 
           if (exit.getExitType() == ExitExprent.EXIT_THROW) {
-            buf.append(exit.toJava(indent, tracer).append(";"));
+            buf.append(exit.toJava(indent).append(";"));
           } else {
             throw new IllegalStateException("Can't have return in switch expression");
           }
@@ -119,14 +119,12 @@ public class SwitchExprent extends Exprent {
       } else {
         buf.append("{");
         buf.appendLineSeparator();
-        tracer.incrementCurrentSourceLine();
-        TextBuffer statBuf = stat.toJava(indent + 2, tracer);
+        TextBuffer statBuf = stat.toJava(indent + 2);
         buf.append(statBuf);
         buf.appendIndent(indent + 1).append("}");
       }
 
       buf.appendLineSeparator();
-      tracer.incrementCurrentSourceLine();
     }
 
     buf.appendIndent(indent).append("}");
