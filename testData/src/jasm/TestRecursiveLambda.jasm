@@ -1,0 +1,51 @@
+/**
+ * This code can be assembled with <a href="https://wiki.openjdk.java.net/display/CodeTools/asmtools">asmtools</a>
+ * using <code>asmtools jasm -g *.jasm</code> command line.
+ */
+package  pkg;
+
+super public class TestRecursiveLambda
+  version 52:0
+{
+
+  // weird fix
+  const #7 = Method TestRecursiveLambda.test:"()V";
+
+  public Method "<init>":"()V"
+    stack 2 locals 2
+  {
+    aload_0;
+    invokespecial	Method java/lang/Object."<init>":"()V";
+
+    aload_0;
+    invokedynamic   InvokeDynamic REF_invokeStatic:Method java/lang/invoke/LambdaMetafactory.metafactory:"(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;":run:"(Lpkg/TestHashedNaming;)Ljava/lang/Runnable;" {
+        MethodType "()V",
+        MethodHandle REF_invokeVirtual:#7,
+        MethodType "()V"
+      };
+
+    astore_1;
+
+    return;
+  }
+
+  public synthetic Method test:"()V"
+    stack 2 locals 2
+  {
+    aload_0;
+    invokedynamic   InvokeDynamic REF_invokeStatic:Method
+      java/lang/invoke/LambdaMetafactory.metafactory:"(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;":run:"(Lpkg/TestHashedNaming;)Ljava/lang/Runnable;" {
+        MethodType "()V",
+        MethodHandle REF_invokeVirtual:#7,
+        MethodType "()V"
+      };
+
+    astore_1;
+    getstatic       Field java/lang/System.out:"Ljava/io/PrintStream;";
+    aload_1;
+    invokevirtual   Method java/lang/Object.hashCode:"()I";
+    invokevirtual   Method java/io/PrintStream.println:"(I)V";
+
+    return;
+  }
+} // end Class TestRecursiveLambda
