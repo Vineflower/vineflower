@@ -123,6 +123,7 @@ public class BasicBlockStatement extends Statement {
     return block;
   }
 
+  // TODO: is this allowed? SecondaryFunctionsHelper says "only head expressions can be replaced!"
   @Override
   public void replaceExprent(Exprent oldexpr, Exprent newexpr) {
     for (int i = 0; i < this.exprents.size(); i++) {

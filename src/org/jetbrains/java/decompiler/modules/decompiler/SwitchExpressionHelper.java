@@ -37,17 +37,23 @@ public final class SwitchExpressionHelper {
     VarVersionPair foundVar = null;
     VarExprent found = null;
     for (Statement caseStat : stat.getCaseStatements()) {
-      // Need to be basic blocks for now
-      if (caseStat.type != Statement.TYPE_BASICBLOCK) {
-        return false;
-      }
-
       List<Exprent> exprents = caseStat.getExprents();
+      // TODO: improve checking, possibly use SSA
       if (exprents != null && !exprents.isEmpty()) {
         Exprent exprent = exprents.get(exprents.size() - 1);
 
         if (exprent.type == Exprent.EXPRENT_ASSIGNMENT && ((AssignmentExprent)exprent).getLeft().type == Exprent.EXPRENT_VAR) {
           VarVersionPair var = (((VarExprent) ((AssignmentExprent) exprent).getLeft())).getVarVersionPair();
+
+          // We need all break edges to be enclosed in the current switch statement, as otherwise they could be breaking to statements beyond our scope, which messes up control flow
+          List<StatEdge> breaks = caseStat.getSuccessorEdges(StatEdge.TYPE_BREAK);
+          if (breaks.isEmpty()) {
+            return false; // TODO: handle switch expression with fallthrough!
+          }
+
+          if (breaks.get(0).closure != stat) {
+            return false;
+          }
 
           if (foundVar == null) {
             foundVar = var;
@@ -80,32 +86,13 @@ public final class SwitchExpressionHelper {
         for (Statement st : stat.getCaseStatements()) {
           Map<Exprent, YieldExprent> replacements = new HashMap<>();
 
-          // No exprents, must not be a basicblock
-          if (st.getExprents() == null) {
-            continue;
-          }
-
-          for (Exprent e : st.getExprents()) {
-            // Check for "var10000 = <value>" within the exprents
-            if (e.type == Exprent.EXPRENT_ASSIGNMENT) {
-              AssignmentExprent assign = ((AssignmentExprent) e);
-
-              if (assign.getLeft().type == Exprent.EXPRENT_VAR) {
-                if (((VarExprent)assign.getLeft()).getIndex() == foundVar.var) {
-                  // Make yield with the right side of the assignment
-                  replacements.put(assign, new YieldExprent(assign.getRight(), assign.getExprType()));
-                }
-              }
-            }
-          }
+          findReplacements(st, foundVar, replacements);
 
           // Replace exprents that we found
           if (!replacements.isEmpty()) {
             // Replace the assignments with yields, this allows 2 things:
             // 1)
-            for (Map.Entry<Exprent, YieldExprent> entry : replacements.entrySet()) {
-              st.replaceExprent(entry.getKey(), entry.getValue());
-            }
+            replace(st, replacements);
           }
         }
 
@@ -124,6 +111,38 @@ public final class SwitchExpressionHelper {
     }
 
     return false;
+  }
+
+  private static void findReplacements(Statement stat, VarVersionPair var, Map<Exprent, YieldExprent> replacements) {
+    if (stat.getExprents() != null) {
+      for (Exprent e : stat.getExprents()) {
+        // Check for "var10000 = <value>" within the exprents
+        if (e.type == Exprent.EXPRENT_ASSIGNMENT) {
+          AssignmentExprent assign = ((AssignmentExprent) e);
+
+          if (assign.getLeft().type == Exprent.EXPRENT_VAR) {
+            if (((VarExprent) assign.getLeft()).getIndex() == var.var) {
+              // Make yield with the right side of the assignment
+              replacements.put(assign, new YieldExprent(assign.getRight(), assign.getExprType()));
+            }
+          }
+        }
+      }
+    }
+
+    for (Statement st : stat.getStats()) {
+      findReplacements(st, var, replacements);
+    }
+  }
+
+  private static void replace(Statement stat, Map<Exprent, YieldExprent> replacements) {
+    for (Map.Entry<Exprent, YieldExprent> entry : replacements.entrySet()) {
+      stat.replaceExprent(entry.getKey(), entry.getValue());
+    }
+
+    for (Statement st : stat.getStats()) {
+      replace(st, replacements);
+    }
   }
 
   public static boolean hasSwitchExpressions(RootStatement statement) {
