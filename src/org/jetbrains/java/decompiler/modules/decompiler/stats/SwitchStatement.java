@@ -4,7 +4,6 @@ package org.jetbrains.java.decompiler.modules.decompiler.stats;
 import org.jetbrains.java.decompiler.code.SwitchInstruction;
 import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
-import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.modules.decompiler.DecHelper;
@@ -107,11 +106,11 @@ public final class SwitchStatement extends Statement {
   }
 
   @Override
-  public TextBuffer toJava(int indent, BytecodeMappingTracer tracer) {
+  public TextBuffer toJava(int indent) {
 
     TextBuffer buf = new TextBuffer();
-    buf.append(ExprProcessor.listToJava(varDefinitions, indent, tracer));
-    buf.append(first.toJava(indent, tracer));
+    buf.append(ExprProcessor.listToJava(varDefinitions, indent));
+    buf.append(first.toJava(indent));
 
     boolean showPhantom = DecompilerContext.getOption(IFernflowerPreferences.SHOW_HIDDEN_STATEMENTS);
 
@@ -122,7 +121,6 @@ public final class SwitchStatement extends Statement {
 
     if (isLabeled()) {
       buf.appendIndent(indent).append("label").append(this.id.toString()).append(":").appendLineSeparator();
-      tracer.incrementCurrentSourceLine();
     }
 
     buf.appendIndent(indent);
@@ -130,8 +128,7 @@ public final class SwitchStatement extends Statement {
       buf.append("/*");
     }
 
-    buf.append(headexprent.get(0).toJava(indent, tracer)).append(" {").appendLineSeparator();
-    tracer.incrementCurrentSourceLine();
+    buf.append(headexprent.get(0).toJava(indent)).append(" {").appendLineSeparator();
 
     VarType switch_type = headexprent.get(0).getExprType();
 
@@ -161,19 +158,17 @@ public final class SwitchStatement extends Statement {
             buf.append(((FieldExprent)value).getName());
           }
           else {
-            buf.append(value.toJava(indent, tracer));
+            buf.append(value.toJava(indent));
           }
 
           buf.append(":").appendLineSeparator();
         }
-        tracer.incrementCurrentSourceLine();
       }
 
-      buf.append(ExprProcessor.jmpWrapper(stat, indent + 1, false, tracer));
+      buf.append(ExprProcessor.jmpWrapper(stat, indent + 1, false));
     }
 
     buf.appendIndent(indent).append("}").appendLineSeparator();
-    tracer.incrementCurrentSourceLine();
 
     if (this.isPhantom()) {
       buf.append("*/");

@@ -90,8 +90,60 @@ public class TestTryWithResourcesReturnJ16 {
       // 57: areturn
    }
 
+   public String testComplex(File f, File f2, File f3) throws FileNotFoundException {
+      Object var16;
+      try (
+         Scanner scanner = this.create(f);// 42
+         Scanner s2 = this.create(f2);// 43
+      ) {
+         scanner.next();// 44
+         if (scanner.hasNext() && s2.hasNext()) {// 46
+            try (Scanner s = this.create(f3)) {// 50
+               scanner.next();// 51
+
+               for(int i = 0; i < s.nextInt(); ++i) {// 53
+                  System.out.println(i);// 54
+               }
+
+               return s.next();// 57 61
+            }
+         }
+
+         var16 = null;
+      }
+
+      return (String)var16;// 47
+   }
+
+   public String testComplex1(File f, File f2, File f3) throws FileNotFoundException {
+      try (
+         Scanner scanner = this.create(f);// 65
+         Scanner s2 = this.create(f2);// 66
+      ) {
+         if (scanner.hasNext() && s2.hasNext()) {// 67
+            return scanner.next();// 68
+         }
+
+         s2.next();// 71
+      }
+
+      return null;// 74
+   }
+
+   public String testComplex2(File f, File f2, File f3) throws FileNotFoundException {
+      try (Scanner scanner = this.create(f)) {// 78
+         if (scanner.hasNext()) {// 79
+            return scanner.next();// 80
+         }
+
+         scanner.next();// 83
+      }
+
+      return null;// 86
+   }
+
    private Scanner create(File file) throws FileNotFoundException {
-      return new Scanner(file);// 41
+      return new Scanner(file);// 90
    }
 }
 
@@ -125,9 +177,160 @@ class 'pkg/TestTryWithResourcesReturnJ16' {
       10      31
    }
 
+   method 'testComplex (Ljava/io/File;Ljava/io/File;Ljava/io/File;)Ljava/lang/String;' {
+      0      95
+      1      95
+      2      95
+      3      95
+      4      95
+      5      95
+      6      95
+      7      96
+      8      96
+      9      96
+      a      96
+      b      96
+      c      96
+      d      96
+      e      98
+      f      98
+      10      98
+      11      98
+      12      98
+      14      99
+      15      99
+      16      99
+      17      99
+      18      99
+      19      99
+      1c      99
+      1d      99
+      1e      99
+      1f      99
+      20      99
+      21      99
+      24      111
+      25      111
+      26      111
+      3b      114
+      3c      114
+      3d      114
+      3e      100
+      3f      100
+      40      100
+      41      100
+      42      100
+      43      100
+      44      100
+      45      101
+      46      101
+      47      101
+      48      101
+      49      101
+      4b      103
+      4c      103
+      4d      103
+      4e      103
+      4f      103
+      50      103
+      51      103
+      52      103
+      53      103
+      54      103
+      55      103
+      58      104
+      59      104
+      5a      104
+      5b      104
+      5c      104
+      5d      104
+      5e      104
+      5f      104
+      60      103
+      61      103
+      62      103
+      66      107
+      67      107
+      68      107
+      69      107
+      6a      107
+      e7      107
+   }
+
+   method 'testComplex1 (Ljava/io/File;Ljava/io/File;Ljava/io/File;)Ljava/lang/String;' {
+      0      119
+      1      119
+      2      119
+      3      119
+      4      119
+      5      119
+      6      119
+      7      120
+      8      120
+      9      120
+      a      120
+      b      120
+      c      120
+      d      120
+      e      122
+      f      122
+      10      122
+      11      122
+      12      122
+      13      122
+      16      122
+      17      122
+      18      122
+      19      122
+      1a      122
+      1b      122
+      1e      123
+      1f      123
+      20      123
+      21      123
+      22      123
+      3b      123
+      3c      126
+      3d      126
+      3e      126
+      3f      126
+      40      126
+      92      129
+      93      129
+   }
+
+   method 'testComplex2 (Ljava/io/File;Ljava/io/File;Ljava/io/File;)Ljava/lang/String;' {
+      0      133
+      1      133
+      2      133
+      3      133
+      4      133
+      5      133
+      6      133
+      7      134
+      8      134
+      9      134
+      a      134
+      b      134
+      c      134
+      f      135
+      10      135
+      11      135
+      12      135
+      13      135
+      22      135
+      23      138
+      24      138
+      25      138
+      26      138
+      27      138
+      51      141
+      52      141
+   }
+
    method 'create (Ljava/io/File;)Ljava/util/Scanner;' {
-      4      93
-      8      93
+      4      145
+      8      145
    }
 }
 
@@ -138,16 +341,35 @@ Lines mapping:
 16 <-> 23
 21 <-> 28
 24 <-> 32
-41 <-> 94
+42 <-> 96
+43 <-> 97
+44 <-> 99
+46 <-> 100
+47 <-> 115
+50 <-> 101
+51 <-> 102
+53 <-> 104
+54 <-> 105
+57 <-> 108
+61 <-> 108
+65 <-> 120
+66 <-> 121
+67 <-> 123
+68 <-> 124
+71 <-> 127
+74 <-> 130
+78 <-> 134
+79 <-> 135
+80 <-> 136
+83 <-> 139
+86 <-> 142
+90 <-> 146
 Not mapped:
 11
 17
 22
 23
-29
-30
-31
-32
-33
-35
-36
+58
+59
+72
+84

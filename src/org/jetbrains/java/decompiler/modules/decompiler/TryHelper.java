@@ -1,16 +1,16 @@
 package org.jetbrains.java.decompiler.modules.decompiler;
 
-import org.jetbrains.java.decompiler.code.BytecodeVersion;
-import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.CatchAllStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.CatchStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.struct.StructClass;
+import org.jetbrains.java.decompiler.util.DotExporter;
 import org.jetbrains.java.decompiler.util.StartEndPair;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class TryHelper {
@@ -18,13 +18,7 @@ public class TryHelper {
     boolean ret = makeTryWithResourceRec(cl, root);
 
     if (ret) {
-      if (cl.getVersion().hasNewTryWithResources()) {
-        SequenceHelper.condenseSequences(root);
-
-        if (mergeTrys(root)) {
-          SequenceHelper.condenseSequences(root);
-        }
-      } else {
+      if (!cl.getVersion().hasNewTryWithResources()) {
         SequenceHelper.condenseSequences(root);
 
         if (collapseTryRec(root)) {
@@ -33,31 +27,50 @@ public class TryHelper {
       }
     }
 
+    if (cl.getVersion().hasNewTryWithResources()) {
+      SequenceHelper.condenseSequences(root);
+
+      if (mergeTrys(root)) {
+        SequenceHelper.condenseSequences(root);
+
+        ret = true;
+      }
+    }
+
     return ret;
   }
 
   private static boolean makeTryWithResourceRec(StructClass cl, Statement stat) {
     if (cl.getVersion().hasNewTryWithResources()) {
+      boolean ret = false;
       if (stat.type == Statement.TYPE_TRYCATCH) {
         if (TryWithResourcesProcessor.makeTryWithResourceJ11((CatchStatement) stat)) {
-          return true;
+          ret = true;
         }
       }
+
+      for (Statement st : new ArrayList<>(stat.getStats())) {
+        if (makeTryWithResourceRec(cl, st)) {
+          ret = true;
+        }
+      }
+
+      return ret;
     } else {
       if (stat.type == Statement.TYPE_CATCHALL && ((CatchAllStatement) stat).isFinally()) {
         if (TryWithResourcesProcessor.makeTryWithResource((CatchAllStatement) stat)) {
           return true;
         }
       }
-    }
 
-    for (Statement st : new ArrayList<>(stat.getStats())) {
-      if (makeTryWithResourceRec(cl, st)) {
-        return true;
+      for (Statement st : new ArrayList<>(stat.getStats())) {
+        if (makeTryWithResourceRec(cl, st)) {
+          return true;
+        }
       }
-    }
 
-    return false;
+      return false;
+    }
   }
 
   // J11+
@@ -105,23 +118,24 @@ public class TryHelper {
           // Get inner block of inner try stat
           Statement innerBlock = inner.getStats().get(0);
 
-          // Replace the inner try statement with the block inside
-          stat.replaceStatement(inner, innerBlock);
+          // Remove successors as the replaceStatement call will add the appropriate successor
+          List<StatEdge> innerEdges = inner.getAllSuccessorEdges();
+          for (StatEdge succ : innerBlock.getAllSuccessorEdges()) {
+            boolean found = false;
+            for (StatEdge innerEdge : innerEdges) {
+              if (succ.getDestination() == innerEdge.getDestination() && succ.getType() == innerEdge.getType()) {
+                found = true;
+                break;
+              }
+            }
 
-          // replaceStatement ends up doubling the amount of edges on the inner block, we need to remove the ones we've already seen
-          // TODO: this is an internal bug. The edges need to be manually modified otherwise it creates labels
-
-          Set<StartEndPair> pairs = new HashSet<>();
-          for (StatEdge edge : innerBlock.getAllSuccessorEdges()) {
-            StartEndPair pair = new StartEndPair(edge.getSource().id, edge.getDestination().id);
-
-            // Remove successors that we've already seen
-            if (pairs.contains(pair)) {
-              innerBlock.removeSuccessor(edge);
-            } else {
-              pairs.add(pair);
+            if (found) {
+              innerBlock.removeSuccessor(succ);
             }
           }
+
+          // Replace the inner try statement with the block inside
+          stat.replaceStatement(inner, innerBlock);
 
           return true;
         }

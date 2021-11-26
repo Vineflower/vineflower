@@ -4,12 +4,8 @@
 package org.jetbrains.java.decompiler.modules.decompiler.exps;
 
 import org.jetbrains.java.decompiler.code.CodeConstants;
-import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
-import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
-import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger.Severity;
-import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
@@ -18,7 +14,6 @@ import org.jetbrains.java.decompiler.struct.match.MatchNode;
 import org.jetbrains.java.decompiler.util.IntHelper;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.ListStack;
-import org.jetbrains.java.decompiler.util.TextBuffer;
 
 import java.util.*;
 
@@ -111,26 +106,26 @@ public class FunctionExprent extends Exprent {
   };
 
   private static final String[] OPERATORS = {
-    " + ",
-    " - ",
-    " * ",
-    " / ",
-    " & ",
-    " | ",
-    " ^ ",
-    " % ",
-    " << ",
-    " >> ",
-    " >>> ",
-    " == ",
-    " != ",
-    " < ",
-    " >= ",
-    " > ",
-    " <= ",
-    " && ",
-    " || ",
-    " + "
+    "+",
+    "-",
+    "*",
+    "/",
+    "&",
+    "|",
+    "^",
+    "%",
+    "<<",
+    ">>",
+    ">>>",
+    "==",
+    "!=",
+    "<",
+    ">=",
+    ">",
+    "<=",
+    "&&",
+    "||",
+    "+"
   };
 
   private static final int[] PRECEDENCE = {
@@ -194,6 +189,7 @@ public class FunctionExprent extends Exprent {
   private VarType implicitType;
   private final List<Exprent> lstOperands;
   private boolean needsCast = true;
+  private boolean disableNewlineGroupCreation = false;
 
   public FunctionExprent(int funcType, ListStack<Exprent> stack, BitSet bytecodeOffsets) {
     this(funcType, new ArrayList<>(), bytecodeOffsets);
@@ -493,8 +489,9 @@ public class FunctionExprent extends Exprent {
   }
 
   @Override
-  public TextBuffer toJava(int indent, BytecodeMappingTracer tracer) {
-    tracer.addMapping(bytecode);
+  public TextBuffer toJava(int indent) {
+    TextBuffer buf = new TextBuffer();
+    buf.addBytecodeMapping(bytecode);
 
     // If we're an unsigned right shift or lower, this function can be represented as a single leftHand + functionType + rightHand operation.
     if (this.funcType <= FUNCTION_USHR) {
@@ -515,8 +512,8 @@ public class FunctionExprent extends Exprent {
       }
 
       // Initialize the operands with the defaults
-      TextBuffer leftOperand = wrapOperandString(this.lstOperands.get(0), false, indent, tracer);
-      TextBuffer rightOperand = wrapOperandString(this.lstOperands.get(1), true, indent, tracer);
+      TextBuffer leftOperand = wrapOperandString(this.lstOperands.get(0), false, indent, true);
+      TextBuffer rightOperand = wrapOperandString(this.lstOperands.get(1), true, indent, true);
 
       // Check for special cased integers on the right and left hand side, and then return if they are found.
       // This only applies to bitwise and as well as bitwise or functions.
@@ -527,20 +524,29 @@ public class FunctionExprent extends Exprent {
         // Check if the right is an int constant and adjust accordingly
         if (right.type == EXPRENT_CONST && right.getExprType() == VarType.VARTYPE_INT) {
           Integer value = (Integer) ((ConstExprent)right).getValue();
-          rightOperand = new TextBuffer(IntHelper.adjustedIntRepresentation(value));
+          rightOperand.setLength(0);
+          rightOperand.append(IntHelper.adjustedIntRepresentation(value));
         }
 
         // Check if the left is an int constant and adjust accordingly
         if (left.type == EXPRENT_CONST && left.getExprType() == VarType.VARTYPE_INT) {
           Integer value = (Integer) ((ConstExprent)left).getValue();
-          leftOperand = new TextBuffer(IntHelper.adjustedIntRepresentation(value));
+          leftOperand.setLength(0);
+          leftOperand.append(IntHelper.adjustedIntRepresentation(value));
         }
       }
 
       // Return the applied operands and operators.
-      return leftOperand
-        .append(OPERATORS[funcType])
+      if (!disableNewlineGroupCreation) {
+        buf.pushNewlineGroup(indent, 1);
+      }
+      buf.append(leftOperand)
+        .append(" ").append(OPERATORS[funcType]).appendPossibleNewline(" ")
         .append(rightOperand);
+      if (!disableNewlineGroupCreation) {
+        buf.popNewlineGroup();
+      }
+      return buf;
     }
 
       // try to determine more accurate type for 'char' literals
@@ -557,80 +563,90 @@ public class FunctionExprent extends Exprent {
         }
       }
 
-      return wrapOperandString(lstOperands.get(0), false, indent, tracer)
-        .append(OPERATORS[funcType - FUNCTION_EQ + 11])
-        .append(wrapOperandString(lstOperands.get(1), true, indent, tracer));
+      if (!disableNewlineGroupCreation) {
+        buf.pushNewlineGroup(indent, 1);
+      }
+      buf.append(wrapOperandString(lstOperands.get(0), false, indent, true))
+        .append(" ").append(OPERATORS[funcType - FUNCTION_EQ + 11]).appendPossibleNewline(" ")
+        .append(wrapOperandString(lstOperands.get(1), true, indent, true));
+      if (!disableNewlineGroupCreation) {
+        buf.popNewlineGroup();
+      }
+      return buf;
     }
 
     switch (funcType) {
       case FUNCTION_BIT_NOT:
-        return wrapOperandString(lstOperands.get(0), true, indent, tracer).prepend("~");
+        return buf.append(wrapOperandString(lstOperands.get(0), true, indent).prepend("~"));
       case FUNCTION_BOOL_NOT:
-        return wrapOperandString(lstOperands.get(0), true, indent, tracer).prepend("!");
+        return buf.append(wrapOperandString(lstOperands.get(0), true, indent).prepend("!"));
       case FUNCTION_NEG:
-        return wrapOperandString(lstOperands.get(0), true, indent, tracer).prepend("-");
+        return buf.append(wrapOperandString(lstOperands.get(0), true, indent).prepend("-"));
       case FUNCTION_CAST:
         if (!needsCast) {
-          return lstOperands.get(0).toJava(indent, tracer);
+          return buf.append(lstOperands.get(0).toJava(indent));
         }
-        return lstOperands.get(1).toJava(indent, tracer).enclose("(", ")").append(wrapOperandString(lstOperands.get(0), true, indent, tracer));
+        return buf.append(lstOperands.get(1).toJava(indent)).enclose("(", ")").append(wrapOperandString(lstOperands.get(0), true, indent));
       case FUNCTION_ARRAY_LENGTH:
         Exprent arr = lstOperands.get(0);
 
-        TextBuffer res = wrapOperandString(arr, false, indent, tracer);
+        buf.append(wrapOperandString(arr, false, indent));
         if (arr.getExprType().arrayDim == 0) {
           VarType objArr = VarType.VARTYPE_OBJECT.resizeArrayDim(1); // type family does not change
-          res.enclose("((" + ExprProcessor.getCastTypeName(objArr) + ")", ")");
+          buf.enclose("((" + ExprProcessor.getCastTypeName(objArr) + ")", ")");
         }
-        return res.append(".length");
+        return buf.append(".length");
       case FUNCTION_IIF:
-        return wrapOperandString(lstOperands.get(0), true, indent, tracer)
-          .append(" ? ")
-          .append(wrapOperandString(lstOperands.get(1), true, indent, tracer))
-          .append(" : ")
-          .append(wrapOperandString(lstOperands.get(2), true, indent, tracer));
+        buf.pushNewlineGroup(indent, 1);
+        buf.append(wrapOperandString(lstOperands.get(0), true, indent))
+          .appendPossibleNewline(" ").append("? ")
+          .append(wrapOperandString(lstOperands.get(1), true, indent))
+          .appendPossibleNewline(" ").append(": ")
+          .append(wrapOperandString(lstOperands.get(2), true, indent));
+        buf.popNewlineGroup();
+        return buf;
       case FUNCTION_IPP:
-        return wrapOperandString(lstOperands.get(0), true, indent, tracer).append("++");
+        return buf.append(wrapOperandString(lstOperands.get(0), true, indent).append("++"));
       case FUNCTION_PPI:
-        return wrapOperandString(lstOperands.get(0), true, indent, tracer).prepend("++");
+        return buf.append(wrapOperandString(lstOperands.get(0), true, indent).prepend("++"));
       case FUNCTION_IMM:
-        return wrapOperandString(lstOperands.get(0), true, indent, tracer).append("--");
+        return buf.append(wrapOperandString(lstOperands.get(0), true, indent).append("--"));
       case FUNCTION_MMI:
-        return wrapOperandString(lstOperands.get(0), true, indent, tracer).prepend("--");
+        return buf.append(wrapOperandString(lstOperands.get(0), true, indent).prepend("--"));
       case FUNCTION_INSTANCEOF:
-        TextBuffer buffer = wrapOperandString(lstOperands.get(0), true, indent, tracer).append(" instanceof ").append(wrapOperandString(lstOperands.get(1), true, indent, tracer));
+        buf.append(wrapOperandString(lstOperands.get(0), true, indent)).append(" instanceof ").append(wrapOperandString(lstOperands.get(1), true, indent));
 
         if (this.lstOperands.size() > 2) {
           // Pattern instanceof creation- only happens when we have more than 2 exprents
-          buffer.append(" ");
+          buf.append(" ");
           ((VarExprent)this.lstOperands.get(2)).setDefinition(false);
-          buffer.append(wrapOperandString(this.lstOperands.get(2), true, indent, tracer));
+          buf.append(wrapOperandString(this.lstOperands.get(2), true, indent));
         }
-        return buffer;
+        return buf;
       case FUNCTION_LCMP: // shouldn't appear in the final code
-        return wrapOperandString(lstOperands.get(0), true, indent, tracer).prepend("__lcmp__(")
+        return buf.append(wrapOperandString(lstOperands.get(0), true, indent).prepend("__lcmp__("))
                  .append(", ")
-                 .append(wrapOperandString(lstOperands.get(1), true, indent, tracer))
+                 .append(wrapOperandString(lstOperands.get(1), true, indent))
                  .append(")");
       case FUNCTION_FCMPL: // shouldn't appear in the final code
-        return wrapOperandString(lstOperands.get(0), true, indent, tracer).prepend("__fcmpl__(")
+        return buf.append(wrapOperandString(lstOperands.get(0), true, indent).prepend("__fcmpl__("))
                  .append(", ")
-                 .append(wrapOperandString(lstOperands.get(1), true, indent, tracer))
+                 .append(wrapOperandString(lstOperands.get(1), true, indent))
                  .append(")");
       case FUNCTION_FCMPG: // shouldn't appear in the final code
-        return wrapOperandString(lstOperands.get(0), true, indent, tracer).prepend("__fcmpg__(")
+        return buf.append(wrapOperandString(lstOperands.get(0), true, indent).prepend("__fcmpg__("))
                  .append(", ")
-                 .append(wrapOperandString(lstOperands.get(1), true, indent, tracer))
+                 .append(wrapOperandString(lstOperands.get(1), true, indent))
                  .append(")");
       case FUNCTION_DCMPL: // shouldn't appear in the final code
-        return wrapOperandString(lstOperands.get(0), true, indent, tracer).prepend("__dcmpl__(")
+        return buf.append(wrapOperandString(lstOperands.get(0), true, indent).prepend("__dcmpl__("))
                  .append(", ")
-                 .append(wrapOperandString(lstOperands.get(1), true, indent, tracer))
+                 .append(wrapOperandString(lstOperands.get(1), true, indent))
                  .append(")");
       case FUNCTION_DCMPG: // shouldn't appear in the final code
-        return wrapOperandString(lstOperands.get(0), true, indent, tracer).prepend("__dcmpg__(")
+        return buf.append(wrapOperandString(lstOperands.get(0), true, indent).prepend("__dcmpg__("))
                  .append(", ")
-                 .append(wrapOperandString(lstOperands.get(1), true, indent, tracer))
+                 .append(wrapOperandString(lstOperands.get(1), true, indent))
                  .append(")");
     }
 
@@ -648,7 +664,7 @@ public class FunctionExprent extends Exprent {
           inv.forceUnboxing(true);
         }
       }
-      return wrapOperandString(lstOperands.get(0), true, indent, tracer).prepend("(" + ExprProcessor.getTypeName(
+      return buf.append(wrapOperandString(lstOperands.get(0), true, indent)).prepend("(" + ExprProcessor.getTypeName(
         TYPES[funcType - FUNCTION_I2L]) + ")");
     }
 
@@ -658,6 +674,9 @@ public class FunctionExprent extends Exprent {
 
   @Override
   public int getPrecedence() {
+    if (funcType == FUNCTION_CAST && !doesCast()) {
+      return lstOperands.get(0).getPrecedence();
+    }
     return getPrecedence(funcType);
   }
 
@@ -669,7 +688,11 @@ public class FunctionExprent extends Exprent {
     return TYPES[funcType - FUNCTION_I2L];
   }
 
-  private TextBuffer wrapOperandString(Exprent expr, boolean eq, int indent, BytecodeMappingTracer tracer) {
+  private TextBuffer wrapOperandString(Exprent expr, boolean eq, int indent) {
+    return wrapOperandString(expr, eq, indent, false);
+  }
+
+  private TextBuffer wrapOperandString(Exprent expr, boolean eq, int indent, boolean newlineGroup) {
     int myprec = getPrecedence();
     int exprprec = expr.getPrecedence();
 
@@ -684,10 +707,30 @@ public class FunctionExprent extends Exprent {
       }
     }
 
-    TextBuffer res = expr.toJava(indent, tracer);
+    if (newlineGroup && !parentheses && myprec == exprprec) {
+      if (expr.type == Exprent.EXPRENT_FUNCTION) {
+        FunctionExprent funcExpr = (FunctionExprent) expr;
+        if (funcExpr.getFuncType() == FUNCTION_CAST && !funcExpr.doesCast()) {
+          Exprent subExpr = funcExpr.getLstOperands().get(0);
+          if (subExpr.type == Exprent.EXPRENT_FUNCTION) {
+            funcExpr = (FunctionExprent) subExpr;
+          }
+        }
+        funcExpr.disableNewlineGroupCreation = true;
+      }
+    }
+
+    TextBuffer res = expr.toJava(indent);
 
     if (parentheses) {
-      res.enclose("(", ")");
+      TextBuffer oldRes = res;
+      res = new TextBuffer().append("(");
+      res.pushNewlineGroup(indent, 1);
+      res.appendPossibleNewline();
+      res.append(oldRes);
+      res.appendPossibleNewline("", true);
+      res.popNewlineGroup();
+      res.append(")");
     }
 
     return res;
@@ -736,6 +779,21 @@ public class FunctionExprent extends Exprent {
     if (funcType == FUNCTION_CAST) {
       lstOperands.get(0).setInvocationInstance();
     }
+  }
+
+  @Override
+  public void setIsQualifier() {
+    if (funcType == FUNCTION_CAST && !doesCast()) {
+      lstOperands.get(0).setIsQualifier();
+    }
+  }
+
+  @Override
+  public boolean allowNewlineAfterQualifier() {
+    if (funcType == FUNCTION_CAST && !doesCast()) {
+      return lstOperands.get(0).allowNewlineAfterQualifier();
+    }
+    return super.allowNewlineAfterQualifier();
   }
 
   @Override

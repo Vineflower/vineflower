@@ -29,11 +29,14 @@ public class TestTryWithResourcesCatchJ16 {
       try {
          System.out.println(-1);// 28
 
-         try (Scanner scanner = this.create(file)) {// 30
+         try (
+            Scanner scanner = this.create(file);// 30
+            Scanner scanner2 = this.create(file);
+         ) {
             scanner.next();// 31
             ++i;// 32
          }
-      } catch (Exception var8) {// 34
+      } catch (Exception var11) {// 34
          System.out.println(1);// 35
       }
 
@@ -90,44 +93,51 @@ class 'pkg/TestTryWithResourcesCatchJ16' {
       6      29
       7      29
       8      29
-      9      31
-      a      31
-      b      31
-      c      31
-      d      31
-      e      31
-      f      32
-      10      32
-      11      32
-      12      32
+      9      32
+      a      32
+      b      32
+      c      32
+      d      32
+      e      32
+      f      33
+      10      33
+      11      33
+      12      33
+      13      33
       14      33
-      3e      35
-      3f      36
-      40      36
-      41      36
-      42      36
-      43      36
-      46      39
-      47      39
-      4a      40
-      4b      40
-      4c      40
-      4d      40
-      4e      40
-      4f      40
-      50      40
-      54      42
-      55      42
-      56      42
-      57      42
-      58      42
-      5b      45
-      5c      45
+      15      33
+      16      35
+      17      35
+      18      35
+      19      35
+      1b      36
+      6d      38
+      6e      39
+      6f      39
+      70      39
+      71      39
+      72      39
+      75      42
+      76      42
+      79      43
+      7a      43
+      7b      43
+      7c      43
+      7d      43
+      7e      43
+      7f      43
+      83      45
+      84      45
+      85      45
+      86      45
+      87      45
+      8a      48
+      8b      48
    }
 
    method 'create (Ljava/io/File;)Ljava/util/Scanner;' {
-      4      49
-      8      49
+      4      52
+      8      52
    }
 }
 
@@ -144,16 +154,16 @@ Lines mapping:
 22 <-> 24
 25 <-> 27
 28 <-> 30
-30 <-> 32
-31 <-> 33
-32 <-> 34
-34 <-> 36
-35 <-> 37
-38 <-> 40
-39 <-> 41
-41 <-> 43
-44 <-> 46
-48 <-> 50
+30 <-> 33
+31 <-> 36
+32 <-> 37
+34 <-> 39
+35 <-> 40
+38 <-> 43
+39 <-> 44
+41 <-> 46
+44 <-> 49
+48 <-> 53
 Not mapped:
 13
 21

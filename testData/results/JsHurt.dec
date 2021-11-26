@@ -1,0 +1,36 @@
+public class JsHurt {
+   public static void main(String[] var0) {
+      int var1 = 0;
+
+      while(true) {
+         System.out.println(var1);
+         if (var1 >= 20) {
+            return;
+         }
+
+         ++var1;
+      }
+   }
+}
+
+class 'JsHurt' {
+   method 'main ([Ljava/lang/String;)V' {
+      0      2
+      1      2
+      5      10
+      c      5
+      d      5
+      e      5
+      f      5
+      10      5
+      11      5
+      12      5
+      13      6
+      14      6
+      15      6
+      16      6
+      1c      7
+   }
+}
+
+Lines mapping:

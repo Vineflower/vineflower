@@ -1,0 +1,268 @@
+package pkg;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
+
+public class TestTryWithResourcesLoopJ16 {
+   public void test(File f) throws FileNotFoundException {
+      while(true) {
+         try (Scanner s = this.create(f)) {// 10
+            if (s.hasNext()) {// 11
+               s.next();// 15
+               continue;
+            }
+         }
+
+         return;// 18
+      }
+   }
+
+   public void test1(File f) throws FileNotFoundException {
+      while(f.exists()) {// 21
+         try (Scanner s = this.create(f)) {// 22
+            if (s.hasNext()) {// 23
+               s.next();// 27
+               continue;
+            }
+            break;
+         }
+      }
+
+   }// 30
+
+   public void test2(File f) throws FileNotFoundException {
+      while(f.exists()) {// 33
+         try (
+            Scanner s = this.create(f);// 34
+            Scanner s2 = this.create(f);// 35
+         ) {
+            if (!s.hasNext()) {// 36
+               break;
+            }
+
+            s.next();// 40
+         }
+      }
+
+   }// 43
+
+   public void test3(File f) throws FileNotFoundException {
+      while(f.exists()) {// 46
+         try (
+            Scanner s = this.create(f);// 47
+            Scanner s2 = this.create(f);// 48
+         ) {
+            if (!s.hasNext()) {// 49
+               break;
+            }
+
+            if (!s2.hasNext()) {// 51
+               s.next();// 55
+               continue;
+            }
+         }
+
+         return;// 52
+      }
+
+   }// 58
+
+   public void test4(File f) throws FileNotFoundException {
+      while(f.exists()) {// 61
+         try (
+            Scanner s = this.create(f);// 62
+            Scanner s2 = this.create(f);// 63
+         ) {
+            if (s.hasNext()) {// 64
+               s.next();// 68
+            }
+         }
+      }
+
+   }// 71
+
+   private Scanner create(File file) throws FileNotFoundException {
+      return new Scanner(file);// 74
+   }
+}
+
+class 'pkg/TestTryWithResourcesLoopJ16' {
+   method 'test (Ljava/io/File;)V' {
+      0      9
+      1      9
+      2      9
+      3      9
+      4      9
+      5      9
+      6      10
+      7      10
+      8      10
+      9      10
+      a      10
+      18      11
+      19      11
+      1a      11
+      1b      11
+      41      16
+   }
+
+   method 'test1 (Ljava/io/File;)V' {
+      0      21
+      1      21
+      2      21
+      3      21
+      7      22
+      8      22
+      9      22
+      a      22
+      b      22
+      c      22
+      d      23
+      e      23
+      f      23
+      10      23
+      11      23
+      1f      24
+      20      24
+      21      24
+      22      24
+      48      31
+   }
+
+   method 'test2 (Ljava/io/File;)V' {
+      0      34
+      1      34
+      2      34
+      3      34
+      7      36
+      8      36
+      9      36
+      a      36
+      b      36
+      c      36
+      d      37
+      e      37
+      f      37
+      10      37
+      11      37
+      12      37
+      13      39
+      14      39
+      15      39
+      16      39
+      17      39
+      2d      43
+      2e      43
+      2f      43
+      30      43
+      7a      47
+   }
+
+   method 'test3 (Ljava/io/File;)V' {
+      0      50
+      1      50
+      2      50
+      3      50
+      7      52
+      8      52
+      9      52
+      a      52
+      b      52
+      c      52
+      d      53
+      e      53
+      f      53
+      10      53
+      11      53
+      12      53
+      13      55
+      14      55
+      15      55
+      16      55
+      17      55
+      2d      59
+      2e      59
+      2f      59
+      30      59
+      31      59
+      44      65
+      45      60
+      46      60
+      47      60
+      48      60
+      92      68
+   }
+
+   method 'test4 (Ljava/io/File;)V' {
+      0      71
+      1      71
+      2      71
+      3      71
+      7      73
+      8      73
+      9      73
+      a      73
+      b      73
+      c      73
+      d      74
+      e      74
+      f      74
+      10      74
+      11      74
+      12      74
+      13      76
+      14      76
+      15      76
+      16      76
+      17      76
+      2d      77
+      2e      77
+      2f      77
+      30      77
+      7a      82
+   }
+
+   method 'create (Ljava/io/File;)Ljava/util/Scanner;' {
+      4      85
+      8      85
+   }
+}
+
+Lines mapping:
+10 <-> 10
+11 <-> 11
+15 <-> 12
+18 <-> 17
+21 <-> 22
+22 <-> 23
+23 <-> 24
+27 <-> 25
+30 <-> 32
+33 <-> 35
+34 <-> 37
+35 <-> 38
+36 <-> 40
+40 <-> 44
+43 <-> 48
+46 <-> 51
+47 <-> 53
+48 <-> 54
+49 <-> 56
+51 <-> 60
+52 <-> 66
+55 <-> 61
+58 <-> 69
+61 <-> 72
+62 <-> 74
+63 <-> 75
+64 <-> 77
+68 <-> 78
+71 <-> 83
+74 <-> 86
+Not mapped:
+16
+28
+41
+56
+69

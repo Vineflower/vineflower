@@ -265,15 +265,14 @@ public class MethodProcessorRunnable implements Runnable {
           continue;
         }
       }
-
-      LabelHelper.identifyLabels(root);
-      decompileRecord.add("IdentifyLabels", root);
-
-      // TODO: should be done before label identification but that causes issues with old style J8 try with resources being enclosed in a label when it shouldn't be
+	  
       if (TryHelper.enhanceTryStats(root, cl)) {
         decompileRecord.add("EnhanceTry", root);
         continue;
       }
+
+      LabelHelper.identifyLabels(root);
+      decompileRecord.add("IdentifyLabels", root);
 
       if (InlineSingleBlockHelper.inlineSingleBlocks(root)) {
         decompileRecord.add("InlineSingleBlocks", root);
@@ -283,12 +282,7 @@ public class MethodProcessorRunnable implements Runnable {
       // this has to be done last so it does not screw up the formation of for loops
       if (MergeHelper.makeDoWhileLoops(root)) {
         decompileRecord.add("MatchDoWhile", root);
-
-        LabelHelper.cleanUpEdges(root);
-        decompileRecord.add("CleanupEdges_MDW", root);
-
-        LabelHelper.identifyLabels(root);
-        decompileRecord.add("IdentifyLabels_MDW", root);
+        continue;
       }
 
       // initializer may have at most one return point, so no transformation of method exits permitted

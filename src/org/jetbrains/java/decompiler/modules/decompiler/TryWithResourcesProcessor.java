@@ -5,8 +5,8 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Processes try catch statements to turns them into try-with-resources statements wherever possible.
@@ -25,7 +25,7 @@ public final class TryWithResourcesProcessor {
     }
 
     Statement toCheck = finallyStat.getHandler().getFirst();
-    if (toCheck.type != Statement.TYPE_IF || ((IfStatement)toCheck).getIfstat().type != Statement.TYPE_IF) {
+    if (toCheck.type != Statement.TYPE_IF || ((IfStatement)toCheck).getIfstat() == null || ((IfStatement)toCheck).getIfstat().type != Statement.TYPE_IF) {
       return false;
     }
 
@@ -177,141 +177,143 @@ public final class TryWithResourcesProcessor {
       return false;
     }
 
-    // Find basic block that contains the resource assignment
-    for (StatEdge edge : tryStatement.getPredecessorEdges(StatEdge.TYPE_REGULAR)) {
-      // Find predecessors that lead towards the target try statement
-      if (edge.getDestination().equals(tryStatement) && edge.getSource().type == Statement.TYPE_BASICBLOCK) {
-        AssignmentExprent assignment = findResourceDef(closeable, edge.getSource());
+    Set<Statement> destinations = findExitpoints(tryStatement);
 
-        // Remove the resource assignment from the basic block and further process
-        if (assignment != null) {
-          edge.getSource().getExprents().remove(assignment);
+    Statement check = tryStatement;
+    List<StatEdge> preds = new ArrayList<>();
+    while (check != null && preds.isEmpty()) {
+      preds = check.getPredecessorEdges(StatEdge.TYPE_REGULAR);
+      check = check.getParent();
+    }
 
-          // Set the try statement type
-          tryStatement.setTryType(CatchStatement.RESOURCES);
+    if (preds.isEmpty()) {
+      return false;
+    }
 
-          // Add resource assignment to try
-          tryStatement.getResources().add(0, assignment);
+    StatEdge edge = preds.get(0);
+    if (edge.getSource().type == Statement.TYPE_BASICBLOCK) {
+      AssignmentExprent assignment = findResourceDef(closeable, edge.getSource());
 
-          // Destroy catch block
-          tryStatement.getStats().remove(1);
+      if (assignment == null) {
+        return false;
+      }
 
-          // Remove outer close()
-          Statement parent = tryStatement.getParent();
+      for (Statement destination : destinations) {
+        if (!isValid(destination, closeable, nullable)) {
+          return false;
+        }
+      }
 
-          boolean processedClose = false;
-          for (int i = 0; i < parent.getStats().size(); i++) {
-            Statement stat = parent.getStats().get(i);
+      for (Statement destination : destinations) {
+        removeClose(destination, nullable);
+      }
 
-            // Exclude our statement from processing
-            if (stat == tryStatement) {
-              continue;
-            }
+      edge.getSource().getExprents().remove(assignment);
 
-            if (nullable) {
-              // Check for if statement that contains a null check and a close()
-              if (stat.type == Statement.TYPE_IF) {
-                IfStatement ifStat = (IfStatement) stat;
-                Exprent condition = ifStat.getHeadexprent().getCondition();
+      // Set the try statement type
+      tryStatement.setTryType(CatchStatement.RESOURCES);
 
-                if (condition.type == Exprent.EXPRENT_FUNCTION) {
-                  // This can sometimes be double inverted negative conditions too, handle that case
-                  FunctionExprent func = unwrapNegations((FunctionExprent) condition);
+      // Add resource assignment to try
+      tryStatement.getResources().add(0, assignment);
 
-                  // Ensure the exprent is the one we want to remove
-                  if (func.getFuncType() == FunctionExprent.FUNCTION_NE && func.getLstOperands().get(0).type == Exprent.EXPRENT_VAR && func.getLstOperands().get(1).getExprType().equals(VarType.VARTYPE_NULL)) {
-                    if (func.getLstOperands().get(0).type == Exprent.EXPRENT_VAR && ((VarExprent)func.getLstOperands().get(0)).getVarVersionPair().equals(closeable.getVarVersionPair())) {
-                      // TODO: add APIs to do this automatically
+      // Destroy catch block
+      tryStatement.getStats().remove(1);
 
-                      // First start by removing the contents of the if statement.
-                      // This block's connections need to be removed first before we can move onto the statement itself.
+      return true;
+    }
 
-                      // Contents of the if statement
-                      Statement ifBlock = ifStat.getIfstat();
+    return false;
+  }
 
-                      // Disconnect edges to and from the inside of block's contents
-                      for (StatEdge suc : ifBlock.getAllSuccessorEdges()) {
-                        ifBlock.removeSuccessor(suc);
-                      }
+  private static boolean isValid(Statement stat, VarExprent closeable, boolean nullable) {
+    if (nullable) {
+      // Check for if statement that contains a null check and a close()
+      if (stat.type == Statement.TYPE_IF) {
+        IfStatement ifStat = (IfStatement) stat;
+        Exprent condition = ifStat.getHeadexprent().getCondition();
 
-                      // Disconnect predecessors
-                      for (StatEdge pred : ifBlock.getAllPredecessorEdges()) {
-                        // Disconnect successors from pred to the block
-                        pred.getSource().removeSuccessor(pred);
-                        ifBlock.removePredecessor(pred);
-                      }
+        if (condition.type == Exprent.EXPRENT_FUNCTION) {
+          // This can sometimes be double inverted negative conditions too, handle that case
+          FunctionExprent func = unwrapNegations((FunctionExprent) condition);
 
-                      // Remove inner block from the statement
-                      ifStat.getStats().removeWithKey(ifBlock.id);
-
-                      // Start processing the actual if statement
-
-                      // Get successor, which will be connected to predecessors in place of the if statement
-                      StatEdge successor = ifStat.getAllSuccessorEdges().get(0);
-
-                      for (StatEdge pred : ifStat.getAllPredecessorEdges()) {
-                        Statement predStat = pred.getSource();
-                        // Disconnect if stat's predecessor from the stat
-                        predStat.removeSuccessor(pred);
-
-                        // Connect predecessor of if stat to it's successor, circumventing it
-
-                        // When the predecessor is the try statement, we add normal control flow, as the successor is located next to the try statement. When it is not, it must be inside the try, so we break out of it.
-                        // This prevents successor blocks from being inlined, as there are still multiple breaks to the successor and not a singular one that can be inlined [TestTryWithResourcesCatchJ16#test1]
-                        StatEdge newEdge = new StatEdge(predStat == tryStatement ? StatEdge.TYPE_REGULAR : StatEdge.TYPE_BREAK, predStat, successor.getDestination());
-                        predStat.addSuccessor(newEdge);
-                      }
-
-                      // Remove successor from if stat, as we've made the control go from it's predecessors to it's successor
-                      ifStat.removeSuccessor(successor);
-                      successor.getDestination().removePredecessor(successor); // TODO: is this needed?
-
-                      // Remove if statement containing close() check- finally we're done!
-                      parent.getStats().removeWithKey(ifStat.id);
-
-                      processedClose = true;
-                    }
-                  }
-                }
-              }
-            } else {
-              if (stat.getExprents() != null) {
-                Iterator<Exprent> itr = stat.getExprents().iterator();
-
-                while (itr.hasNext()) {
-                  Exprent exprent = itr.next();
-
-                  // Check and remove the close exprent
-                  if (exprent.type == Exprent.EXPRENT_INVOCATION) {
-                    Exprent inst = ((InvocationExprent) exprent).getInstance();
-
-                    // Ensure the var exprent we want to remove is the right one
-                    if (inst.type == Exprent.EXPRENT_VAR && ((VarExprent)inst).getVarVersionPair().equals(closeable.getVarVersionPair()) && isCloseable(exprent)) {
-                      itr.remove(); // Remove tested exprent
-
-                      processedClose = true;
-                    }
-                  }
-                }
-              }
-            }
-
-            // Processed close, break out of loop to prevent multiple close() exprents from being removed
-            if (processedClose) {
-              break;
+          // Ensure the exprent is the one we want to remove
+          if (func.getFuncType() == FunctionExprent.FUNCTION_NE && func.getLstOperands().get(0).type == Exprent.EXPRENT_VAR && func.getLstOperands().get(1).getExprType().equals(VarType.VARTYPE_NULL)) {
+            if (func.getLstOperands().get(0).type == Exprent.EXPRENT_VAR && ((VarExprent) func.getLstOperands().get(0)).getVarVersionPair().equals(closeable.getVarVersionPair())) {
+              return true;
             }
           }
+        }
+      }
+    } else {
+      if (stat.type == Statement.TYPE_BASICBLOCK) {
+        if (stat.getExprents() != null && !stat.getExprents().isEmpty()) {
+          Exprent exprent = stat.getExprents().get(0);
 
-          if (processedClose) {
-            return true;
-          } else {
-            // TODO: not processing the close() but also transforming the try block is invalid- leave a source level comment here
+          if (exprent.type == Exprent.EXPRENT_INVOCATION) {
+            Exprent inst = ((InvocationExprent) exprent).getInstance();
+
+            // Ensure the var exprent we want to remove is the right one
+            if (inst.type == Exprent.EXPRENT_VAR && inst.equals(closeable) && isCloseable(exprent)) {
+              return true;
+            }
           }
         }
       }
     }
 
     return false;
+  }
+
+  private static void removeClose(Statement statement, boolean nullable) {
+    if (nullable) {
+      // Breaking out of parent, remove label
+      // TODO: The underlying problem is that empty labeled basic blocks remove their label but the edge is marked as labeled and explicit.
+      // label1: {
+      //   ...
+      //   break label1; // identifyLabels() removes this entirely but keeps the edge labeled
+      // }
+      //
+      List<StatEdge> edges = statement.getAllSuccessorEdges();
+      if (!edges.isEmpty() && edges.get(0).closure == statement.getParent()) {
+        SequenceHelper.destroyAndFlattenStatement(statement);
+      } else {
+        for (StatEdge edge : statement.getFirst().getAllSuccessorEdges()) {
+          edge.getDestination().removePredecessor(edge);
+        }
+
+        for (StatEdge edge : ((IfStatement)statement).getIfstat().getAllSuccessorEdges()) {
+          edge.getDestination().removePredecessor(edge);
+
+          if (edge.closure != null) {
+            edge.closure.getLabelEdges().remove(edge);
+          }
+        }
+
+        // Keep the label as it's not the parent
+        statement.destroy();
+      }
+    } else {
+      statement.getExprents().remove(0);
+    }
+  }
+
+  private static Set<Statement> findExitpoints(Statement stat) {
+    Set<StatEdge> edges = new LinkedHashSet<>();
+    findEdgesLeaving(stat.getFirst(), stat, edges);
+
+    return edges.stream().map(StatEdge::getDestination).collect(Collectors.toSet());
+  }
+
+  private static void findEdgesLeaving(Statement curr, Statement check, Set<StatEdge> edges) {
+    for (StatEdge edge : curr.getAllSuccessorEdges()) {
+      if (!check.containsStatement(edge.getDestination()) && edge.getDestination().type != Statement.TYPE_DUMMYEXIT) {
+        edges.add(edge);
+      }
+    }
+
+    for (Statement stat : curr.getStats()) {
+      findEdgesLeaving(stat, check, edges);
+    }
   }
 
   private static FunctionExprent unwrapNegations(FunctionExprent func) {
@@ -390,12 +392,8 @@ public final class TryWithResourcesProcessor {
                 catchStat.getVars().remove(i - 1);
                 catchStat.getStats().remove(i);
 
-                for (StatEdge edge : temp.getAllPredecessorEdges()) {
-                  edge.getSource().removeSuccessor(edge);
-                }
-
                 for (StatEdge edge : temp.getAllSuccessorEdges()) {
-                  edge.getDestination().removePredecessor(edge);
+                  edge.getSource().removeSuccessor(edge);
                 }
 
                 removed = true;

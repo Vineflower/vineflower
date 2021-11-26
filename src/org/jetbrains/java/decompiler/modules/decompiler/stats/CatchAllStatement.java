@@ -2,9 +2,7 @@
 package org.jetbrains.java.decompiler.modules.decompiler.stats;
 
 import org.jetbrains.java.decompiler.code.CodeConstants;
-import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
-import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.modules.decompiler.DecHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
@@ -96,52 +94,49 @@ public final class CatchAllStatement extends Statement {
   }
 
   @Override
-  public TextBuffer toJava(int indent, BytecodeMappingTracer tracer) {
+  public TextBuffer toJava(int indent) {
     String new_line_separator = DecompilerContext.getNewLineSeparator();
 
     TextBuffer buf = new TextBuffer();
 
-    buf.append(ExprProcessor.listToJava(varDefinitions, indent, tracer));
+    buf.append(ExprProcessor.listToJava(varDefinitions, indent));
 
     boolean labeled = isLabeled();
     if (labeled) {
       buf.appendIndent(indent).append("label").append(this.id.toString()).append(":").appendLineSeparator();
-      tracer.incrementCurrentSourceLine();
     }
 
     List<StatEdge> lstSuccs = first.getSuccessorEdges(STATEDGE_DIRECT_ALL);
     if (first.type == TYPE_TRYCATCH && first.varDefinitions.isEmpty() && isFinally &&
         !labeled && !first.isLabeled() && (lstSuccs.isEmpty() || !lstSuccs.get(0).explicit)) {
-      TextBuffer content = ExprProcessor.jmpWrapper(first, indent, true, tracer);
+      TextBuffer content = ExprProcessor.jmpWrapper(first, indent, true);
       content.setLength(content.length() - new_line_separator.length());
-      tracer.incrementCurrentSourceLine(-1);
       buf.append(content);
     }
     else {
       buf.appendIndent(indent).append("try {").appendLineSeparator();
-      tracer.incrementCurrentSourceLine();
-      buf.append(ExprProcessor.jmpWrapper(first, indent + 1, true, tracer));
+      buf.append(ExprProcessor.jmpWrapper(first, indent + 1, true));
       buf.appendIndent(indent).append("}");
     }
 
-    buf.append(isFinally ? " finally" :
-               " catch (" + vars.get(0).toJava(indent, tracer) + ")").append(" {").appendLineSeparator();
-    tracer.incrementCurrentSourceLine();
+    if (isFinally) {
+      buf.append(" finally");
+    } else {
+      buf.append(" catch (").append(vars.get(0).toJava(indent)).append(")");
+    }
+    buf.append(" {").appendLineSeparator();
 
     if (monitor != null) {
-      buf.appendIndent(indent+1).append("if (").append(monitor.toJava(indent, tracer)).append(") {").appendLineSeparator();
-      tracer.incrementCurrentSourceLine();
+      buf.appendIndent(indent+1).append("if (").append(monitor.toJava(indent)).append(") {").appendLineSeparator();
     }
 
-    buf.append(ExprProcessor.jmpWrapper(handler, indent + 1 + (monitor != null ? 1 : 0), true, tracer));
+    buf.append(ExprProcessor.jmpWrapper(handler, indent + 1 + (monitor != null ? 1 : 0), true));
 
     if (monitor != null) {
       buf.appendIndent(indent + 1).append("}").appendLineSeparator();
-      tracer.incrementCurrentSourceLine();
     }
 
     buf.appendIndent(indent).append("}").appendLineSeparator();
-    tracer.incrementCurrentSourceLine();
 
     return buf;
   }

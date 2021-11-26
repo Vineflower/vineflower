@@ -6,11 +6,8 @@ package org.jetbrains.java.decompiler.modules.decompiler.exps;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
-import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.util.TextBuffer;
-import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
-import org.jetbrains.java.decompiler.main.rels.ClassWrapper;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
@@ -102,7 +99,7 @@ public abstract class Exprent implements IMatchable {
     return false;
   }
 
-  public List<Exprent> getAllExprents(boolean recursive) {
+  public final List<Exprent> getAllExprents(boolean recursive) {
     List<Exprent> lst = new ArrayList<>();
     getAllExprents(recursive, lst);
 
@@ -150,10 +147,10 @@ public abstract class Exprent implements IMatchable {
   public abstract Exprent copy();
 
   public TextBuffer toJava() {
-    return toJava(0, BytecodeMappingTracer.DUMMY);
+    return toJava(0);
   }
 
-  public abstract TextBuffer toJava(int indent, BytecodeMappingTracer tracer);
+  public abstract TextBuffer toJava(int indent);
 
   public void replaceExprent(Exprent oldExpr, Exprent newExpr) { }
 
@@ -334,6 +331,12 @@ public abstract class Exprent implements IMatchable {
 
   public void setInvocationInstance() {}
 
+  public void setIsQualifier() {}
+
+  public boolean allowNewlineAfterQualifier() {
+    return true;
+  }
+
   // *****************************************************************************
   // IMatchable implementation
   // *****************************************************************************
@@ -383,6 +386,6 @@ public abstract class Exprent implements IMatchable {
 
   @Override
   public String toString() {
-    return toJava(0, BytecodeMappingTracer.DUMMY).toString();
+    return toJava(0).convertToStringAndAllowDataDiscard();
   }
 }
