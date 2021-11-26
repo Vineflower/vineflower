@@ -1,13 +1,10 @@
 package pkg;
 
 import ext.Direction;
-import java.io.PrintStream;
 
 public class TestInlineSwitchExpression1 {
    public void test(Direction direction) {
-      PrintStream var10000 = System.out;// 7
-
-      var10000.println(switch(direction) {
+      System.out.println(switch(direction) {// 7
          case NORTH -> Direction.SOUTH;// 9
          case SOUTH -> Direction.NORTH;// 11
          case EAST -> Direction.WEST;// 13
@@ -21,43 +18,43 @@ public class TestInlineSwitchExpression1 {
 
 class 'pkg/TestInlineSwitchExpression1' {
    method 'test (Lext/Direction;)V' {
-      0      7
-      1      7
-      2      7
-      6      9
-      b      9
-      30      10
-      31      10
-      32      10
-      36      11
-      37      11
-      38      11
-      3c      12
-      3d      12
-      3e      12
-      42      13
-      43      13
-      44      13
-      48      14
-      49      14
-      4a      14
-      4e      15
-      4f      15
-      50      15
-      5b      16
-      5c      9
-      5d      9
-      5e      9
-      5f      18
+      0      6
+      1      6
+      2      6
+      6      6
+      b      6
+      30      7
+      31      7
+      32      7
+      36      8
+      37      8
+      38      8
+      3c      9
+      3d      9
+      3e      9
+      42      10
+      43      10
+      44      10
+      48      11
+      49      11
+      4a      11
+      4e      12
+      4f      12
+      50      12
+      5b      13
+      5c      6
+      5d      6
+      5e      6
+      5f      15
    }
 }
 
 Lines mapping:
-7 <-> 8
-9 <-> 11
-11 <-> 12
-13 <-> 13
-15 <-> 14
-17 <-> 15
-19 <-> 16
-21 <-> 19
+7 <-> 7
+9 <-> 8
+11 <-> 9
+13 <-> 10
+15 <-> 11
+17 <-> 12
+19 <-> 13
+21 <-> 16

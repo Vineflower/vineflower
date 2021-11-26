@@ -304,7 +304,8 @@ public final class TryWithResourcesProcessor {
     return edges.stream().map(StatEdge::getDestination).collect(Collectors.toSet());
   }
 
-  private static void findEdgesLeaving(Statement curr, Statement check, Set<StatEdge> edges) {
+  // TODO: move to better place
+  public static void findEdgesLeaving(Statement curr, Statement check, Set<StatEdge> edges) {
     for (StatEdge edge : curr.getAllSuccessorEdges()) {
       if (!check.containsStatement(edge.getDestination()) && edge.getDestination().type != Statement.TYPE_DUMMYEXIT) {
         edges.add(edge);

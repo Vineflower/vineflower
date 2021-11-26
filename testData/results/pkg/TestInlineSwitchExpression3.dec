@@ -1,13 +1,10 @@
 package pkg;
 
 import ext.Direction;
-import java.io.PrintStream;
 
 public class TestInlineSwitchExpression3 {
    public void test(Direction direction) {
-      PrintStream var10000 = System.out;// 9
-
-      var10000.println(switch(direction) {
+      System.out.println(switch(direction) {// 9
          case NORTH, EAST, UP -> -1;// 13
          case SOUTH, WEST, DOWN -> 1;// 17
          default -> throw new IncompatibleClassChangeError();
@@ -17,23 +14,23 @@ public class TestInlineSwitchExpression3 {
 
 class 'pkg/TestInlineSwitchExpression3' {
    method 'test (Lext/Direction;)V' {
-      0      7
-      1      7
-      2      7
-      6      9
-      b      9
-      30      10
-      34      11
-      3f      12
-      40      9
-      41      9
-      42      9
-      43      14
+      0      6
+      1      6
+      2      6
+      6      6
+      b      6
+      30      7
+      34      8
+      3f      9
+      40      6
+      41      6
+      42      6
+      43      11
    }
 }
 
 Lines mapping:
-9 <-> 8
-13 <-> 11
-17 <-> 12
-19 <-> 15
+9 <-> 7
+13 <-> 8
+17 <-> 9
+19 <-> 12

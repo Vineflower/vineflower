@@ -3,20 +3,26 @@ package org.jetbrains.java.decompiler.modules.decompiler;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.SwitchStatement;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public final class SwitchExpressionHelper {
-  public static boolean processSwitchExpressions(Statement stat) {
+  public static boolean processSwitchExpressions(Statement root) {
+    boolean ret = processSwitchExpressionsRec(root);
+
+    if (ret) {
+      SequenceHelper.condenseSequences(root);
+    }
+
+    return ret;
+  }
+
+  private static boolean processSwitchExpressionsRec(Statement stat) {
     boolean ret = false;
-    for (Statement st : stat.getStats()) {
-      ret |= processSwitchExpressions(st);
+    for (Statement st : new ArrayList<>(stat.getStats())) {
+      ret |= processSwitchExpressionsRec(st);
     }
 
     if (stat.type == Statement.TYPE_SWITCH) {
@@ -33,11 +39,20 @@ public final class SwitchExpressionHelper {
 
     // At this stage, there are no variable assignments
     // So we need to figure out which variable, if any, this switch statement is an expression of and make it generate.
-
     VarVersionPair foundVar = null;
     VarExprent found = null;
     for (Statement caseStat : stat.getCaseStatements()) {
+      Set<StatEdge> edges = new HashSet<>();
+      TryWithResourcesProcessor.findEdgesLeaving(caseStat, caseStat, edges);
+      for (StatEdge edge : edges) {
+        // There's a continue- can't be a switch expression
+        if (edge.getType() == StatEdge.TYPE_CONTINUE) {
+          return false;
+        }
+      }
+
       List<Exprent> exprents = caseStat.getExprents();
+
       // TODO: improve checking, possibly use SSA
       if (exprents != null && !exprents.isEmpty()) {
         Exprent exprent = exprents.get(exprents.size() - 1);
@@ -80,35 +95,75 @@ public final class SwitchExpressionHelper {
     if (!sucs.isEmpty()) {
 
       Statement suc = sucs.get(0).getDestination();
-      if (suc.type == Statement.TYPE_BASICBLOCK) { // TODO: make basic block if it isn't found
-        stat.setPhantom(true);
+      if (suc.type != Statement.TYPE_BASICBLOCK) { // make basic block if it isn't found
+        Statement oldSuc = suc;
 
+        suc = BasicBlockStatement.create();
+        SequenceStatement seq = new SequenceStatement(stat, suc);
+
+        seq.setParent(stat.getParent());
+
+        stat.replaceWith(seq);
+
+        seq.setAllParent();
+
+        // Replace successors with the new basic block
         for (Statement st : stat.getCaseStatements()) {
-          Map<Exprent, YieldExprent> replacements = new HashMap<>();
+          for (StatEdge edge : st.getAllSuccessorEdges()) {
+            if (edge.getDestination() == oldSuc) {
+              st.removeSuccessor(edge);
 
-          findReplacements(st, foundVar, replacements);
-
-          // Replace exprents that we found
-          if (!replacements.isEmpty()) {
-            // Replace the assignments with yields, this allows 2 things:
-            // 1)
-            replace(st, replacements);
+              st.addSuccessor(new StatEdge(edge.getType(), st, suc, seq));
+            }
           }
         }
 
-        // TODO: move exprents from switch head to successor
-
-        List<Exprent> exprents = suc.getExprents();
-
-        VarExprent vExpr = new VarExprent(found.getIndex(), found.getVarType(), found.getProcessor());
-        vExpr.setStack(true); // We want to inline
-        AssignmentExprent toAdd = new AssignmentExprent(vExpr, new SwitchExprent(stat, found.getExprType(), false), null);
-
-        exprents.add(0, toAdd);
-
-        return true;
+        // Control flow from new basic block to the next one
+        suc.addSuccessor(new StatEdge(StatEdge.TYPE_REGULAR, suc, oldSuc, seq));
       }
-    }
+
+      stat.setPhantom(true);
+
+      for (Statement st : stat.getCaseStatements()) {
+        Map<Exprent, YieldExprent> replacements = new HashMap<>();
+
+        findReplacements(st, foundVar, replacements);
+
+        // Replace exprents that we found
+        if (!replacements.isEmpty()) {
+          // Replace the assignments with yields, this allows 2 things:
+          // 1) Not having to replace the assignments later on
+          // 2) Preventing the variable assignment tracker from putting variable definitions too early because the assignments are no longer in the phantom statement
+          replace(st, replacements);
+        }
+      }
+
+      List<Exprent> exprents = suc.getExprents();
+
+      VarExprent vExpr = new VarExprent(found.getIndex(), found.getVarType(), found.getProcessor());
+      vExpr.setStack(true); // We want to inline
+      AssignmentExprent toAdd = new AssignmentExprent(vExpr, new SwitchExprent(stat, found.getExprType(), false), null);
+
+      exprents.add(0, toAdd);
+
+      // move exprents from switch head to successor
+      List<Exprent> firstExprents = stat.getFirst().getExprents();
+      if (firstExprents != null && !firstExprents.isEmpty()) {
+        int i = 0;
+        for (Iterator<Exprent> iterator = firstExprents.iterator(); iterator.hasNext(); ) {
+          Exprent ex = iterator.next();
+          if (ex.type == Exprent.EXPRENT_ASSIGNMENT && ((AssignmentExprent) ex).getLeft().type == Exprent.EXPRENT_VAR) {
+            if (((VarExprent) ((AssignmentExprent) ex).getLeft()).isStack()) {
+              exprents.add(i, ex);
+              i++;
+              iterator.remove();
+            }
+          }
+        }
+      }
+
+      return true;
+  }
 
     return false;
   }

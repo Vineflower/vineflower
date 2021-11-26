@@ -85,7 +85,7 @@ public class BasicBlockStatement extends Statement {
   // TODO: cache this?
   @Override
   public List<VarExprent> getImplicitlyDefinedVars() {
-    if (getExprents().size() > 0) {
+    if (getExprents() != null && getExprents().size() > 0) {
       List<VarExprent> vars = new ArrayList<>();
       List<Exprent> exps = getExprents();
 

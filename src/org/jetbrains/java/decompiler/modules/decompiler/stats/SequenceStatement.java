@@ -21,6 +21,10 @@ public class SequenceStatement extends Statement {
     type = Statement.TYPE_SEQUENCE;
   }
 
+  public SequenceStatement(Statement... stats) {
+    this(Arrays.asList(stats));
+  }
+
   public SequenceStatement(List<? extends Statement> lst) {
 
     this();

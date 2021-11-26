@@ -11,10 +11,7 @@ import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.modules.code.DeadCodeHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.*;
 import org.jetbrains.java.decompiler.modules.decompiler.deobfuscator.ExceptionDeobfuscator;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.SynchronizedStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarProcessor;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructMethod;
@@ -307,8 +304,8 @@ public class MethodProcessorRunnable implements Runnable {
       SequenceHelper.condenseSequences(root); // remove empty blocks
       decompileRecord.add("CondenseSequences_SS", root);
 
+      // If we have simplified switches, try to make switch expressions
       if (SwitchExpressionHelper.hasSwitchExpressions(root)) {
-        // Make last minute switch expressions
         if (SwitchExpressionHelper.processSwitchExpressions(root)) {
           decompileRecord.add("ProcessSwitchExpr_SS", root);
 
