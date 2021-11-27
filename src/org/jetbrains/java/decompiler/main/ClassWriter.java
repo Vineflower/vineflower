@@ -11,6 +11,7 @@ import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.rels.ClassWrapper;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
+import org.jetbrains.java.decompiler.modules.decompiler.SwitchHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
@@ -57,6 +58,13 @@ public class ClassWriter {
 
     ClassWrapper wrapper = node.getWrapper();
     StructClass cl = wrapper.getClassStruct();
+
+    // Very late switch processing, needs entire class to be decompiled for eclipse switchmap style switch-on-enum
+    for (MethodWrapper method : wrapper.getMethods()) {
+      if (method.root != null) {
+        SwitchHelper.simplifySwitches(method.root, method.methodStruct);
+      }
+    }
 
     InitializerProcessor.extractInitializers(wrapper);
     InitializerProcessor.hideInitalizers(wrapper);
