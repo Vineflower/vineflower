@@ -53,35 +53,59 @@ public class ClassWriter {
     javadocProvider = (IFabricJavadocProvider) DecompilerContext.getProperty(IFabricJavadocProvider.PROPERTY_NAME);
   }
 
-  private static void invokeProcessors(ClassNode node) {
-    // TODO: need to wrap around with try catch as failure here can break the entire class
-
+  private static boolean invokeProcessors(TextBuffer buffer, ClassNode node) {
     ClassWrapper wrapper = node.getWrapper();
     StructClass cl = wrapper.getClassStruct();
 
     // Very late switch processing, needs entire class to be decompiled for eclipse switchmap style switch-on-enum
     for (MethodWrapper method : wrapper.getMethods()) {
       if (method.root != null) {
-        SwitchHelper.simplifySwitches(method.root, method.methodStruct);
+        try {
+          SwitchHelper.simplifySwitches(method.root, method.methodStruct);
+        } catch (Throwable e) {
+          DecompilerContext.getLogger().writeMessage("Method " + method.methodStruct.getName() + " " + method.methodStruct.getDescriptor() + " in class " + node.classStruct.qualifiedName + " couldn't be written.",
+            IFernflowerLogger.Severity.WARN,
+            e);
+          method.decompileError = e;
+        }
       }
     }
 
-    InitializerProcessor.extractInitializers(wrapper);
-    InitializerProcessor.hideInitalizers(wrapper);
+    try {
+      InitializerProcessor.extractInitializers(wrapper);
+      InitializerProcessor.hideInitalizers(wrapper);
 
-    if (node.type == ClassNode.CLASS_ROOT &&
+      if (node.type == ClassNode.CLASS_ROOT &&
         cl.getVersion().has14ClassReferences() &&
         DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_CLASS_1_4)) {
-      ClassReference14Processor.processClassReferences(node);
+        ClassReference14Processor.processClassReferences(node);
+      }
+
+      if (cl.hasModifier(CodeConstants.ACC_ENUM) && DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_ENUM)) {
+        EnumProcessor.clearEnum(wrapper);
+      }
+
+      if (DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_ASSERTIONS)) {
+        AssertProcessor.buildAssertions(node);
+      }
+    } catch (Throwable t) {
+      DecompilerContext.getLogger().writeMessage("Class " + node.simpleName + " couldn't be written.",
+        IFernflowerLogger.Severity.WARN,
+        t);
+      buffer.append("// $FF: Couldn't be decompiled");
+      buffer.appendLineSeparator();
+      List<String> lines = new ArrayList<>();
+      collectErrorLines(t, lines);
+      for (String line : lines) {
+        buffer.append("//");
+        if (!line.isEmpty()) buffer.append(' ').append(line);
+        buffer.appendLineSeparator();
+      }
+
+      return false;
     }
 
-    if (cl.hasModifier(CodeConstants.ACC_ENUM) && DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_ENUM)) {
-      EnumProcessor.clearEnum(wrapper);
-    }
-
-    if (DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_ASSERTIONS)) {
-      AssertProcessor.buildAssertions(node);
-    }
+    return true;
   }
 
   public void classLambdaToJava(ClassNode node, TextBuffer buffer, Exprent method_object, int indent) {
@@ -225,7 +249,11 @@ public class ClassWriter {
 
     try {
       // last minute processing
-      invokeProcessors(node);
+      boolean ok = invokeProcessors(buffer, node);
+
+      if (!ok) {
+        return;
+      }
 
       ClassWrapper wrapper = node.getWrapper();
       StructClass cl = wrapper.getClassStruct();
@@ -1087,7 +1115,7 @@ public class ClassWriter {
     }
   }
 
-  private static void collectErrorLines(Throwable error, List<String> lines) {
+  public static void collectErrorLines(Throwable error, List<String> lines) {
     StackTraceElement[] stack = error.getStackTrace();
     List<StackTraceElement> filteredStack = new ArrayList<>();
     boolean hasSeenOwnClass = false;
