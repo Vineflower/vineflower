@@ -150,7 +150,7 @@ public final class InitializerProcessor {
           VarType type = md.params[md.params.length - 1];
           if (type.type == CodeConstants.TYPE_OBJECT) {
             ClassNode node = DecompilerContext.getClassProcessor().getMapRootClasses().get(type.value);
-            if (node != null && (node.type == ClassNode.CLASS_ANONYMOUS) || (node.access & CodeConstants.ACC_SYNTHETIC) != 0) {
+            if (node != null && ((node.type == ClassNode.CLASS_ANONYMOUS) || (node.access & CodeConstants.ACC_SYNTHETIC) != 0)) {
               //TODO: Verify that the body is JUST a this([args]) call?
               wrapper.getHiddenMembers().add(InterpreterUtil.makeUniqueKey(name, desc));
             }
