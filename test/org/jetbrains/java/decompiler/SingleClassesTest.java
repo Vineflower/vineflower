@@ -440,6 +440,9 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestFinallyThrow");
     register(JAVA_8, "TestWhile1");
     registerRaw(CUSTOM, "TestEclipseSwitchEnum");
+    registerRaw(CUSTOM, "TestEclipseSwitchString");
+    register(JAVA_8, "TestNestedAnonymousClass");
+    register(JAVA_8, "TestPPMMLoop");
   }
 
   private void registerEntireClassPath() {

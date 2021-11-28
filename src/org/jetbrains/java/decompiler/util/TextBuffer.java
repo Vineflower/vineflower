@@ -119,7 +119,7 @@ public class TextBuffer {
 
   public TextBuffer popNewlineGroup() {
     if (myCurrentGroup == myRootGroup) {
-      throw new IllegalStateException("Cannot pop root group");
+      throw new IllegalStateException("Cannot pop root group: " + this.convertToStringAndAllowDataDiscard());
     }
     assert myStringBuilder.length() >= myCurrentGroup.myStart;
     myCurrentGroup.myLength = myStringBuilder.length() - myCurrentGroup.myStart;

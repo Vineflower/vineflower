@@ -68,7 +68,7 @@ public class DotExporter {
         }
 
         if (ifs.getElseEdge() != null) {
-          extraData.put(ifs.getElseEdge(), "If Edge");
+          extraData.put(ifs.getElseEdge(), "Else Edge");
         }
       }
     }
