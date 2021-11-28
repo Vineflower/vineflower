@@ -1,6 +1,5 @@
 package org.jetbrains.java.decompiler.util;
 
-import org.jetbrains.annotations.NotNull;
 
 import java.util.AbstractCollection;
 import java.util.Collection;
@@ -26,7 +25,7 @@ public abstract class FastFixedSet<E> extends AbstractCollection<E> implements S
 
   @Override
   @SuppressWarnings("unchecked")
-  public boolean containsAll(@NotNull Collection<?> c) {
+  public boolean containsAll(Collection<?> c) {
     if (c instanceof FastFixedSet<?>) {
       FastFixedSet<?> c1 = (FastFixedSet<?>) c;
       if (c1.factory == this.factory) {
@@ -41,7 +40,7 @@ public abstract class FastFixedSet<E> extends AbstractCollection<E> implements S
 
   @Override
   @SuppressWarnings("unchecked")
-  public boolean addAll(@NotNull Collection<? extends E> c) {
+  public boolean addAll(Collection<? extends E> c) {
     if (c instanceof FastFixedSet<?>) {
       FastFixedSet<?> c1 = (FastFixedSet<?>) c;
       if (c1.factory == this.factory) {
@@ -56,7 +55,7 @@ public abstract class FastFixedSet<E> extends AbstractCollection<E> implements S
 
   @Override
   @SuppressWarnings({"unchecked", "SuspiciousMethodCalls"})
-  public boolean retainAll(@NotNull Collection<?> c) {
+  public boolean retainAll(Collection<?> c) {
     if (c instanceof FastFixedSet<?>) {
       FastFixedSet<?> c1 = (FastFixedSet<?>) c;
       if (c1.factory == this.factory) {
@@ -73,7 +72,7 @@ public abstract class FastFixedSet<E> extends AbstractCollection<E> implements S
 
   @Override
   @SuppressWarnings("unchecked")
-  public boolean removeAll(@NotNull Collection<?> c) {
+  public boolean removeAll(Collection<?> c) {
     if (c instanceof FastFixedSet<?>) {
       FastFixedSet<?> c1 = (FastFixedSet<?>) c;
       if (c1.factory == this.factory) {
