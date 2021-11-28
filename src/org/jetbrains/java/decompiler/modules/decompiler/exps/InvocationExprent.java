@@ -688,7 +688,7 @@ public class InvocationExprent extends Exprent {
     switch (functype) {
       case TYP_GENERAL:
         if (buf.contentEquals(VarExprent.VAR_NAMELESS_ENCLOSURE)) {
-          buf = new TextBuffer();
+          buf.setLength(0);
         }
 
         if (buf.length() > 0) {
