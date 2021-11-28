@@ -16,6 +16,7 @@ public record TestRecordBig(
    int comp13,
    int comp14,
    int comp15,
-   int comp16) {
+   int comp16
+) {
 }
 

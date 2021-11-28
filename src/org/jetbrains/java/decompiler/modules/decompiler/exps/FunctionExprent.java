@@ -541,7 +541,7 @@ public class FunctionExprent extends Exprent {
         buf.pushNewlineGroup(indent, 1);
       }
       buf.append(leftOperand)
-        .append(" ").append(OPERATORS[funcType]).appendPossibleNewline(" ")
+        .appendPossibleNewline(" ").append(OPERATORS[funcType]).append(" ")
         .append(rightOperand);
       if (!disableNewlineGroupCreation) {
         buf.popNewlineGroup();
@@ -567,7 +567,7 @@ public class FunctionExprent extends Exprent {
         buf.pushNewlineGroup(indent, 1);
       }
       buf.append(wrapOperandString(lstOperands.get(0), false, indent, true))
-        .append(" ").append(OPERATORS[funcType - FUNCTION_EQ + 11]).appendPossibleNewline(" ")
+        .appendPossibleNewline(" ").append(OPERATORS[funcType - FUNCTION_EQ + 11]).append(" ")
         .append(wrapOperandString(lstOperands.get(1), true, indent, true));
       if (!disableNewlineGroupCreation) {
         buf.popNewlineGroup();

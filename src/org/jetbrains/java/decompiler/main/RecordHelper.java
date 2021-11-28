@@ -28,17 +28,18 @@ public final class RecordHelper {
 
   public static void appendRecordComponents(TextBuffer buffer, StructClass cl, List<StructRecordComponent> components, int indent) {
     buffer.pushNewlineGroup(indent, 1);
+    buffer.appendPossibleNewline();
+    buffer.pushNewlineGroup(indent, 0);
     for (int i = 0; i < components.size(); i++) {
       StructRecordComponent cd = components.get(i);
       if (i > 0) {
-        buffer.append(",");
-        buffer.appendPossibleNewline(" ");
-      } else {
-        buffer.appendPossibleNewline();
+        buffer.append(",").appendPossibleNewline(" ");
       }
       boolean varArgComponent = i == components.size() - 1 && isVarArgRecord(cl);
       recordComponentToJava(buffer, cl, cd, i, varArgComponent);
     }
+    buffer.popNewlineGroup();
+    buffer.appendPossibleNewline("", true);
     buffer.popNewlineGroup();
   }
 
