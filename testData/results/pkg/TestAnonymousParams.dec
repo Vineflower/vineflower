@@ -16,15 +16,6 @@ public class TestAnonymousParams {
    }// 31
 }
 
-class 'pkg/TestAnonymousParams$1' {
-   method 'read ()I' {
-      1      11
-      2      11
-      3      11
-      4      11
-   }
-}
-
 class 'pkg/TestAnonymousParams' {
    method 'foo (Ljava/io/InputStream;I)V' {
       5      8
@@ -34,6 +25,15 @@ class 'pkg/TestAnonymousParams' {
       d      14
       e      14
       10      15
+   }
+}
+
+class 'pkg/TestAnonymousParams$1' {
+   method 'read ()I' {
+      1      11
+      2      11
+      3      11
+      4      11
    }
 }
 

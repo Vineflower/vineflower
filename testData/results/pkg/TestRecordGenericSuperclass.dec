@@ -1,0 +1,34 @@
+package pkg;
+
+public class TestRecordGenericSuperclass<G extends Number> {
+   public G getNum() {
+      return (G)null;// 5
+   }
+
+   public static record Rec<G>(G num) {
+      public G getNum() {
+         return this.num;// 10
+      }
+   }
+}
+
+class 'pkg/TestRecordGenericSuperclass' {
+   method 'getNum ()Ljava/lang/Number;' {
+      0      4
+      1      4
+   }
+}
+
+class 'pkg/TestRecordGenericSuperclass$Rec' {
+   method 'getNum ()Ljava/lang/Object;' {
+      0      9
+      1      9
+      2      9
+      3      9
+      4      9
+   }
+}
+
+Lines mapping:
+5 <-> 5
+10 <-> 10

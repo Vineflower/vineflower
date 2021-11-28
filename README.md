@@ -1,11 +1,18 @@
 ### Quiltflower
 
-Quiltflower is a fork of Fernflower and ForgeFlower adding additional features for use with the Quilt toolchain.
+Quiltflower is a modern, general purpose decompiler focused on improving code quality, speed, and usability. Quiltflower is a fork of Fernflower and Forgeflower.
 
 Changes include:
+- New language features (Try with resources, switch expressions, pattern matching, and more)
+- Better control flow generation (loops, try-catch, and switch, etc.)
+- More configurability
+- Better error messages
 - Javadoc application
 - Multithreading
-- Handful of other fixes
+- Optimization
+- Many other miscellaneous features and fixes
+
+For support or questions, please join the [Quilt toolchain discord.](https://discord.quiltmc.org/toolchain)
 
 When pulling from upstream, use https://github.com/fesh0r/fernflower
 
@@ -17,6 +24,7 @@ To contribute, please check out [CONTRIBUTING.md](./CONTRIBUTING.md) and [ARCHIT
 * Forge Team- For maintaining ForgeFlower
 * CFR- For it's large suite of very useful tests
 
+Fernflower's readme is preserved below:
 ### About Fernflower
 
 Fernflower is the first actually working analytical decompiler for Java and 
@@ -94,6 +102,9 @@ The rest of options can be left as they are: they are aimed at professional reve
 - sef (0): skip copying non-class files from the input folder or file to the output
 - win (1): warn about inconsistent inner class attributes
 - thr: maximum number of threads (default is number of threads available to the JVM)
+- jrt (0): add the currently used Java runtime as a library
+- dbe (1): dump bytecode on errors
+- dee (1): dump exceptions on errors
 - nls (0): define new line character to be used for output. 0 - '\r\n' (Windows), 1 - '\n' (Unix), default is OS-dependent
 - ind: indentation string (default is 3 spaces)
 - log (INFO): a logging level, possible values are TRACE, INFO, WARN, ERROR

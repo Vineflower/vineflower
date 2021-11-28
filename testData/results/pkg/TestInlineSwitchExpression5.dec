@@ -1,0 +1,67 @@
+package pkg;
+
+public class TestInlineSwitchExpression5 {
+   public void test(int i) {
+      int j = 0;// 5
+
+      while(true) {
+         byte var10001;
+         switch(i) {
+         case 1:
+            var10001 = 4;// 7
+            break;
+         case 2:
+            var10001 = 8;// 8
+            break;
+         default:
+            var10001 = 5;// 9
+         }
+
+         if (j >= var10001) {// 6
+            return;// 15
+         }
+
+         ++j;// 11
+         System.out.println("hi");// 13
+      }
+   }
+}
+
+class 'pkg/TestInlineSwitchExpression5' {
+   method 'test (I)V' {
+      0      4
+      1      4
+      2      19
+      3      8
+      4      8
+      20      10
+      21      11
+      24      13
+      25      13
+      26      14
+      29      16
+      2a      19
+      2d      23
+      2e      23
+      2f      23
+      30      24
+      31      24
+      32      24
+      33      24
+      34      24
+      35      24
+      36      24
+      37      24
+      3b      20
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 20
+7 <-> 11
+8 <-> 14
+9 <-> 17
+11 <-> 24
+13 <-> 25
+15 <-> 21

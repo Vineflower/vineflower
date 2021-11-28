@@ -1,14 +1,11 @@
 package org.jetbrains.java.decompiler.util;
 
 import java.util.BitSet;
-import java.util.List;
 
-import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarProcessor;
-import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribute.LocalVariable;
 
 //Debug printer useful for visualizing objects, no real functional value
 public class DebugPrinter {
@@ -87,7 +84,7 @@ public class DebugPrinter {
         AssignmentExprent assignmentExprent = (AssignmentExprent)exp;
         sb.append("{").append(printExprent(" ",assignmentExprent.getLeft(),varProc)).append(" =").append(printExprent(" ",assignmentExprent.getRight(),varProc)).append("}");
       } else if (exp instanceof IfExprent) {
-        sb.append(' ').append(exp.toJava(0, new BytecodeMappingTracer()));
+        sb.append(' ').append(exp.toJava(0));
       }
       return sb.toString();
   }

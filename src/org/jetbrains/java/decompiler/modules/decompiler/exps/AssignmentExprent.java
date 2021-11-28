@@ -79,8 +79,7 @@ public class AssignmentExprent extends Exprent {
   }
 
   @Override
-  public List<Exprent> getAllExprents() {
-    List<Exprent> lst = new ArrayList<>();
+  public List<Exprent> getAllExprents(List<Exprent> lst) {
     lst.add(left);
     lst.add(right);
     return lst;
@@ -97,7 +96,7 @@ public class AssignmentExprent extends Exprent {
   }
 
   @Override
-  public TextBuffer toJava(int indent, BytecodeMappingTracer tracer) {
+  public TextBuffer toJava(int indent) {
     VarType leftType = left.getInferredExprType(null);
     VarType rightType = right.getInferredExprType(leftType);
 
@@ -127,14 +126,14 @@ public class AssignmentExprent extends Exprent {
     if (fieldInClassInit) {
       buffer.append(((FieldExprent) left).getName());
     } else {
-      buffer.append(left.toJava(indent, tracer));
+      buffer.append(left.toJava(indent));
     }
 
     if (right.type == EXPRENT_CONST) {
       ((ConstExprent) right).adjustConstType(leftType);
     }
 
-    TextBuffer res = right.toJava(indent, tracer);
+    TextBuffer res = right.toJava(indent);
 
     if (condType == CONDITION_NONE &&
       !leftType.isSuperset(rightType) &&
@@ -152,7 +151,7 @@ public class AssignmentExprent extends Exprent {
 
     buffer.append(condType == CONDITION_NONE ? " = " : OPERATORS[condType]).append(res);
 
-    tracer.addMapping(bytecode);
+    buffer.addStartBytecodeMapping(bytecode);
 
     return buffer;
   }

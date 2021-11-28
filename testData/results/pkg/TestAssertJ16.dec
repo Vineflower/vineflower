@@ -1,0 +1,20 @@
+package pkg;
+
+public class TestAssertJ16 {
+   public void test(int i) {
+      assert i == 0;// 5
+
+   }// 6
+}
+
+class 'pkg/TestAssertJ16' {
+   method 'test (I)V' {
+      6      4
+      7      4
+      12      6
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 7

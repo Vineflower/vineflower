@@ -18,10 +18,7 @@ import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.SFormsFastMapDirect;
 import org.jetbrains.java.decompiler.util.VBStyleCollection;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import java.util.Map.Entry;
 
 public class SSAUConstructorSparseEx {
@@ -438,8 +435,9 @@ public class SSAUConstructorSparseEx {
 
   private void createOrUpdatePhiNode(VarVersionPair phivar, FastSparseSet<Integer> vers, Statement stat) {
 
-    FastSparseSet<Integer> versCopy = vers.getCopy();
-    HashSet<Integer> phiVers = new HashSet<>();
+//    FastSparseSet<Integer> versCopy = vers.getCopy();
+    Set<Integer> removed = new HashSet<>();
+//    HashSet<Integer> phiVers = new HashSet<>();
 
     // take into account the corresponding mm/pp node if existing
     int ppvers = phantomppnodes.containsKey(phivar) ? phantomppnodes.get(phivar).version : -1;
@@ -461,8 +459,9 @@ public class SSAUConstructorSparseEx {
           phinode.removePredecessor(edge);
         }
         else {
-          versCopy.remove(verssrc);
-          phiVers.add(verssrc);
+//          versCopy.remove(verssrc);
+          removed.add(verssrc);
+//          phiVers.add(verssrc);
         }
       }
     }
@@ -470,7 +469,11 @@ public class SSAUConstructorSparseEx {
     List<VarVersionNode> colnodes = new ArrayList<>();
     List<VarVersionPair> colpaars = new ArrayList<>();
 
-    for (int ver : versCopy) {
+//    for (int ver : versCopy) {
+    for (int ver : vers) {
+      if (removed.contains(ver)) {
+        continue;
+      }
 
       VarVersionNode prenode = ssuversions.nodes.getWithKey(new VarVersionPair(phivar.var, ver));
 
@@ -491,7 +494,7 @@ public class SSAUConstructorSparseEx {
       tempnode.addSuccessor(edge);
       phinode.addPredecessor(edge);
 
-      phiVers.add(tempver);
+//      phiVers.add(tempver);
     }
 
     ssuversions.addNodes(colnodes, colpaars);

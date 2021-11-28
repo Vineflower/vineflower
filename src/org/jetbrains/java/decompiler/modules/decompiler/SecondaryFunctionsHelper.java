@@ -85,6 +85,7 @@ public final class SecondaryFunctionsHelper {
       }
     }
 
+    boolean ret = false;
     boolean replaced = true;
     while (replaced) {
       replaced = false;
@@ -96,6 +97,7 @@ public final class SecondaryFunctionsHelper {
 
         if (obj instanceof Statement) {
           if (identifySecondaryFunctions((Statement)obj, varProc)) {
+            ret = true;
             replaced = true;
             break;
           }
@@ -110,6 +112,7 @@ public final class SecondaryFunctionsHelper {
             else {
               stat.getExprents().set(i, retexpr);
             }
+            ret = true;
             replaced = true;
             break;
           }
@@ -117,7 +120,7 @@ public final class SecondaryFunctionsHelper {
       }
     }
 
-    return false;
+    return ret;
   }
 
   private static Exprent identifySecondaryFunctions(Exprent exprent, boolean statement_level, VarProcessor varProc) {

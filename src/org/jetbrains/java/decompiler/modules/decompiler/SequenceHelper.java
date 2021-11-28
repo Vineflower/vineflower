@@ -311,7 +311,6 @@ public final class SequenceHelper {
     if (self) {
       for (StatEdge edge : stat.getAllSuccessorEdges()) {
         stat.removeSuccessor(edge);
-        edge.getDestination().removePredecessor(edge); // TODO: this is redundant but is still needed because of null destinations in removeSuccessor?
       }
     }
   }

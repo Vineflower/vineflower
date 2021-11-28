@@ -259,13 +259,13 @@ public class MethodProcessorRunnable implements Runnable {
         }
       }
 
-      LabelHelper.identifyLabels(root);
-      decompileRecord.add("IdentifyLabels", root);
-
       if (TryHelper.enhanceTryStats(root, cl)) {
         decompileRecord.add("EnhanceTry", root);
         continue;
       }
+
+      LabelHelper.identifyLabels(root);
+      decompileRecord.add("IdentifyLabels", root);
 
       if (InlineSingleBlockHelper.inlineSingleBlocks(root)) {
         decompileRecord.add("InlineSingleBlocks", root);
@@ -275,12 +275,7 @@ public class MethodProcessorRunnable implements Runnable {
       // this has to be done last so it does not screw up the formation of for loops
       if (MergeHelper.makeDoWhileLoops(root)) {
         decompileRecord.add("MatchDoWhile", root);
-
-        LabelHelper.cleanUpEdges(root);
-        decompileRecord.add("CleanupEdges_MDW", root);
-
-        LabelHelper.identifyLabels(root);
-        decompileRecord.add("IdentifyLabels_MDW", root);
+        continue;
       }
 
       // initializer may have at most one return point, so no transformation of method exits permitted
@@ -299,7 +294,7 @@ public class MethodProcessorRunnable implements Runnable {
     decompileRecord.add("MainLoopEnd", root);
 
     // this has to be done after all inlining is done so the case values do not get reverted
-    if (SwitchHelper.simplifySwitches(root)) {
+    if (SwitchHelper.simplifySwitches(root, mt)) {
       decompileRecord.add("SimplifySwitches", root);
 
       SequenceHelper.condenseSequences(root); // remove empty blocks

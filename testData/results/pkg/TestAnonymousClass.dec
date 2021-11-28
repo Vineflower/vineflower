@@ -4,45 +4,49 @@ public abstract class TestAnonymousClass {
    public static final Runnable R3 = new Runnable() {
       @Override
       public void run() {
-         int a = 5;// 28
-         int b = 5;// 29
-      }// 30
+         int a = 5;// 36
+         int b = 5;// 37
+      }// 38
    };
    public static final Runnable R = new Runnable() {
-      @Override
-      public void run() {
-         int a = 5;// 45
-         int b = 5;// 46
-      }// 47
-   };
-   public static final Runnable R1 = new Runnable() {
       @Override
       public void run() {
          int a = 5;// 53
          int b = 5;// 54
       }// 55
    };
-   private final TestAnonymousClass.InnerRecursive y = new TestAnonymousClass.InnerRecursive(new TestAnonymousClass.InnerRecursive((TestAnonymousClass.InnerRecursive)null) {
+   public static final Runnable R1 = new Runnable() {
       @Override
-      void foo() {
-         int a = 5;// 75
-         int b = 5;// 76
-         int g = 5;// 77
-      }// 78
-   }) {
+      public void run() {
+         int a = 5;// 61
+         int b = 5;// 62
+      }// 63
+   };
+   private final TestAnonymousClass.InnerRecursive y = new TestAnonymousClass.InnerRecursive(
+      new TestAnonymousClass.InnerRecursive((TestAnonymousClass.InnerRecursive)null) {
+         @Override
+         void foo() {
+            int a = 5;// 83
+            int b = 5;// 84
+            int g = 5;// 85
+         }// 86
+      }
+   ) {
       int v = 5;
       int t = 5;
       int j = 5;
       int o = 5;
    };
-   private final TestAnonymousClass.InnerRecursive x = new TestAnonymousClass.InnerRecursive(new TestAnonymousClass.InnerRecursive((TestAnonymousClass.InnerRecursive)null) {
-      @Override
-      void foo() {
-         int a = 5;// 90
-         int b = 5;// 91
-         int g = 5;// 92
-      }// 93
-   }) {
+   private final TestAnonymousClass.InnerRecursive x = new TestAnonymousClass.InnerRecursive(
+      new TestAnonymousClass.InnerRecursive((TestAnonymousClass.InnerRecursive)null) {
+         @Override
+         void foo() {
+            int a = 5;// 98
+            int b = 5;// 99
+            int g = 5;// 100
+         }// 101
+      }
+   ) {
       int v = 5;
       int t = 5;
       int j = 5;
@@ -66,13 +70,21 @@ public abstract class TestAnonymousClass {
 
    }// 23
 
+   void bar() {
+      ((<undefinedtype>)(new Object() {
+         public void foo(String s) {
+            System.out.println(s);// 28
+         }// 29
+      })).foo("Hello world");// 26 30
+   }// 31
+
    void boo() {
-      int a = 5;// 35
-   }// 36
+      int a = 5;// 43
+   }// 44
 
    void zoo() {
-      int a = 5;// 39
-   }// 40
+      int a = 5;// 47
+   }// 48
 
    interface I {
       void foo() throws Exception;
@@ -82,9 +94,9 @@ public abstract class TestAnonymousClass {
       private static Runnable R_I = new Runnable() {
          @Override
          public void run() {
-            int a = 5;// 66
-            int b = 5;// 67
-         }// 68
+            int a = 5;// 74
+            int b = 5;// 75
+         }// 76
       };
    }
 
@@ -92,15 +104,15 @@ public abstract class TestAnonymousClass {
       TestAnonymousClass.InnerRecursive r;
 
       public InnerRecursive(TestAnonymousClass.InnerRecursive r) {
-         this.r = r;// 105
-      }// 106
+         this.r = r;// 113
+      }// 114
 
       void foo() {
-      }// 110
+      }// 118
    }
 }
 
-class 'pkg/TestAnonymousClass$2' {
+class 'pkg/TestAnonymousClass$3' {
    method 'run ()V' {
       0      6
       1      6
@@ -110,7 +122,7 @@ class 'pkg/TestAnonymousClass$2' {
    }
 }
 
-class 'pkg/TestAnonymousClass$3' {
+class 'pkg/TestAnonymousClass$4' {
    method 'run ()V' {
       0      13
       1      13
@@ -120,7 +132,7 @@ class 'pkg/TestAnonymousClass$3' {
    }
 }
 
-class 'pkg/TestAnonymousClass$4' {
+class 'pkg/TestAnonymousClass$5' {
    method 'run ()V' {
       0      20
       1      20
@@ -130,136 +142,163 @@ class 'pkg/TestAnonymousClass$4' {
    }
 }
 
-class 'pkg/TestAnonymousClass$5' {
+class 'pkg/TestAnonymousClass$6' {
    method 'foo ()V' {
-      0      27
-      1      27
-      2      28
-      3      28
-      4      29
-      5      29
-      6      30
+      0      28
+      1      28
+      2      29
+      3      29
+      4      30
+      5      30
+      6      31
    }
 }
 
-class 'pkg/TestAnonymousClass$7' {
+class 'pkg/TestAnonymousClass$8' {
    method 'foo ()V' {
-      0      40
-      1      40
-      2      41
-      3      41
-      4      42
-      5      42
-      6      43
-   }
-}
-
-class 'pkg/TestAnonymousClass$1' {
-   method 'foo ()V' {
-      0      56
-      1      56
-      2      57
-      3      57
-      4      58
+      0      43
+      1      43
+      2      44
+      3      44
+      4      45
+      5      45
+      6      46
    }
 }
 
 class 'pkg/TestAnonymousClass' {
    method 'foo (I)V' {
-      0      52
-      1      52
-      c      53
-      d      60
-      e      60
-      f      60
-      10      60
-      11      60
-      12      60
-      16      62
-      17      62
-      18      63
-      19      63
-      1a      63
-      1b      63
-      1c      63
-      1f      66
+      0      56
+      1      56
+      c      57
+      d      64
+      e      64
+      f      64
+      10      64
+      11      64
+      12      64
+      16      66
+      17      66
+      18      67
+      19      67
+      1a      67
+      1b      67
+      1c      67
+      1f      70
+   }
+
+   method 'bar ()V' {
+      8      77
+      9      77
+      a      77
+      b      77
+      c      77
+      d      78
    }
 
    method 'boo ()V' {
-      0      69
-      1      69
-      2      70
+      0      81
+      1      81
+      2      82
    }
 
    method 'zoo ()V' {
-      0      73
-      1      73
-      2      74
+      0      85
+      1      85
+      2      86
+   }
+}
+
+class 'pkg/TestAnonymousClass$1' {
+   method 'foo ()V' {
+      0      60
+      1      60
+      2      61
+      3      61
+      4      62
+   }
+}
+
+class 'pkg/TestAnonymousClass$2' {
+   method 'foo (Ljava/lang/String;)V' {
+      0      75
+      1      75
+      2      75
+      3      75
+      4      75
+      5      75
+      6      75
+      7      76
    }
 }
 
 class 'pkg/TestAnonymousClass$Inner$1' {
    method 'run ()V' {
-      0      84
-      1      84
-      2      85
-      3      85
-      4      86
+      0      96
+      1      96
+      2      97
+      3      97
+      4      98
    }
 }
 
 class 'pkg/TestAnonymousClass$InnerRecursive' {
    method '<init> (Lpkg/TestAnonymousClass$InnerRecursive;)V' {
-      4      94
-      5      94
-      6      94
-      7      94
-      8      94
-      9      95
+      4      106
+      5      106
+      6      106
+      7      106
+      8      106
+      9      107
    }
 
    method 'foo ()V' {
-      0      98
+      0      110
    }
 }
 
 Lines mapping:
-10 <-> 53
-11 <-> 54
-13 <-> 57
-14 <-> 58
-15 <-> 59
-17 <-> 61
-20 <-> 63
-21 <-> 64
-23 <-> 67
-28 <-> 7
-29 <-> 8
-30 <-> 9
-35 <-> 70
-36 <-> 71
-39 <-> 74
-40 <-> 75
-45 <-> 14
-46 <-> 15
-47 <-> 16
-53 <-> 21
-54 <-> 22
-55 <-> 23
-66 <-> 85
-67 <-> 86
-68 <-> 87
-75 <-> 28
-76 <-> 29
-77 <-> 30
-78 <-> 31
-90 <-> 41
-91 <-> 42
-92 <-> 43
-93 <-> 44
-105 <-> 95
-106 <-> 96
-110 <-> 99
+10 <-> 57
+11 <-> 58
+13 <-> 61
+14 <-> 62
+15 <-> 63
+17 <-> 65
+20 <-> 67
+21 <-> 68
+23 <-> 71
+26 <-> 78
+28 <-> 76
+29 <-> 77
+30 <-> 78
+31 <-> 79
+36 <-> 7
+37 <-> 8
+38 <-> 9
+43 <-> 82
+44 <-> 83
+47 <-> 86
+48 <-> 87
+53 <-> 14
+54 <-> 15
+55 <-> 16
+61 <-> 21
+62 <-> 22
+63 <-> 23
+74 <-> 97
+75 <-> 98
+76 <-> 99
+83 <-> 29
+84 <-> 30
+85 <-> 31
+86 <-> 32
+98 <-> 44
+99 <-> 45
+100 <-> 46
+101 <-> 47
+113 <-> 107
+114 <-> 108
+118 <-> 111
 Not mapped:
 18
-104
+112

@@ -61,7 +61,25 @@ public final class ExitHelper {
     while (found);
   }
 
-  // Turns break edges into returns where necessary
+  // Turns break edges into returns where possible.
+  //
+  // Example:
+  //
+  // label1: {
+  //   if (...) {
+  //     break label1;
+  //   }
+  //   ...
+  // }
+  // return;
+  //
+  // will turn into
+  //
+  // if (...) {
+  //   return;
+  // }
+  // ...
+  //
   private static int integrateExits(Statement stat) {
     int ret = 0;
     Statement dest;
@@ -210,6 +228,7 @@ public final class ExitHelper {
     return true;
   }
 
+  // Removes return statements from the ends of methods when they aren't returning a value
   public static boolean removeRedundantReturns(RootStatement root) {
     boolean res = false;
     DummyExitStatement dummyExit = root.getDummyExit();

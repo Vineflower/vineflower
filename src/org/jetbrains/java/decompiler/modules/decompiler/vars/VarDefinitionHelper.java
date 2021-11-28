@@ -669,7 +669,7 @@ public class VarDefinitionHelper {
 
   private boolean remapVar(Statement stat, VarVersionPair from, VarVersionPair to) {
     if (from.equals(to))
-      throw new IllegalArgumentException("Shit went wrong: " + from);
+      throw new IllegalStateException("Trying to remap var version " + from + " in statement " + stat + " to itself!");
     boolean success = false;
     if (stat.getExprents() == null) {
       for (Object obj : stat.getSequentialObjects()) {

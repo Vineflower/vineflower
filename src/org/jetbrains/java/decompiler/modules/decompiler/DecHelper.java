@@ -183,6 +183,8 @@ public final class DecHelper {
     return true;
   }
 
+  // Finds all catch blocks that this statement can flow to, and retain those that only have a single exception predecessor
+  // aka they have a single statement in their try block (presumably a sequence)
   public static Set<Statement> getUniquePredExceptions(Statement head) {
     Set<Statement> setHandlers = new HashSet<>(head.getNeighbours(StatEdge.TYPE_EXCEPTION, Statement.DIRECTION_FORWARD));
     setHandlers.removeIf(statement -> statement.getPredecessorEdges(StatEdge.TYPE_EXCEPTION).size() > 1);

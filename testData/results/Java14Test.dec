@@ -1,0 +1,60 @@
+package cfrtest;
+
+public class Java14Test {
+   public Java14Test instance2;
+
+   public Java14Test() {
+      this.instance2 = bar(Java14Test.class);// 12
+   }
+
+   public static Java14Test bar(Class var0) {
+      return new Java14Test();// 7
+   }
+
+   public Java14Test instance() {
+      return bar(Java14Test.class);// 11
+   }
+
+   public Class getAClass() {
+      return String.class;// 14
+   }
+}
+
+class 'cfrtest/Java14Test' {
+   method '<init> ()V' {
+      4      6
+      8      6
+      1a      6
+      1b      6
+      1c      6
+      1d      6
+      1e      6
+      1f      6
+      20      7
+   }
+
+   method 'bar (Ljava/lang/Class;)Lcfrtest/Java14Test;' {
+      7      10
+   }
+
+   method 'instance ()Lcfrtest/Java14Test;' {
+      3      14
+      15      14
+      16      14
+      17      14
+      18      14
+   }
+
+   method 'getAClass ()Ljava/lang/Class;' {
+      3      18
+      15      18
+   }
+}
+
+Lines mapping:
+7 <-> 11
+11 <-> 15
+12 <-> 7
+14 <-> 19
+Not mapped:
+3

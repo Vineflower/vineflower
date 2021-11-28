@@ -1,7 +1,6 @@
 // Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.main;
 
-import org.jetbrains.java.decompiler.code.BytecodeVersion;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.Instruction;
 import org.jetbrains.java.decompiler.code.InstructionSequence;
@@ -12,7 +11,6 @@ import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.extern.IIdentifierRenamer;
 import org.jetbrains.java.decompiler.main.rels.ClassWrapper;
 import org.jetbrains.java.decompiler.main.rels.LambdaProcessor;
-import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.main.rels.NestedClassProcessor;
 import org.jetbrains.java.decompiler.main.rels.NestedMemberAccess;
 import org.jetbrains.java.decompiler.modules.decompiler.SwitchHelper;
@@ -24,6 +22,7 @@ import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.attr.StructEnclosingMethodAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructInnerClassesAttribute;
+import org.jetbrains.java.decompiler.struct.attr.StructLineNumberTableAttribute;
 import org.jetbrains.java.decompiler.struct.consts.ConstantPool;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
@@ -427,7 +426,23 @@ public class ClassesProcessor implements CodeConstants {
         buffer.append(moduleBuffer);
       }
       else {
-        new LambdaProcessor().processClass(root);
+        try {
+          new LambdaProcessor().processClass(root);
+        } catch (Throwable t) {
+          DecompilerContext.getLogger().writeMessage("Class " + root.simpleName + " couldn't be written.",
+            IFernflowerLogger.Severity.WARN,
+            t);
+          buffer.append("// $FF: Couldn't be decompiled");
+          buffer.appendLineSeparator();
+          List<String> lines = new ArrayList<>();
+          ClassWriter.collectErrorLines(t, lines);
+          for (String line : lines) {
+            buffer.append("//");
+            if (!line.isEmpty()) buffer.append(' ').append(line);
+            buffer.appendLineSeparator();
+          }
+          return;
+        }
 
         // add simple class names to implicit import
         addClassNameToImport(root, importCollector);
@@ -435,14 +450,41 @@ public class ClassesProcessor implements CodeConstants {
         // build wrappers for all nested classes (that's where actual processing takes place)
         initWrappers(root);
 
-        // TODO: need to wrap around with try catch as failure here can break the entire class
+        try {
+          new NestedClassProcessor().processClass(root, root);
 
-        new NestedClassProcessor().processClass(root, root);
-
-        new NestedMemberAccess().propagateMemberAccess(root);
+          new NestedMemberAccess().propagateMemberAccess(root);
+        } catch (Throwable t) {
+          DecompilerContext.getLogger().writeMessage("Class " + root.simpleName + " couldn't be written.",
+            IFernflowerLogger.Severity.WARN,
+            t);
+          buffer.append("// $FF: Couldn't be decompiled");
+          buffer.appendLineSeparator();
+          List<String> lines = new ArrayList<>();
+          ClassWriter.collectErrorLines(t, lines);
+          for (String line : lines) {
+            buffer.append("//");
+            if (!line.isEmpty()) buffer.append(' ').append(line);
+            buffer.appendLineSeparator();
+          }
+          return;
+        }
 
         TextBuffer classBuffer = new TextBuffer(AVERAGE_CLASS_SIZE);
-        new ClassWriter().classToJava(root, classBuffer, 0, null);
+        new ClassWriter().classToJava(root, classBuffer, 0);
+        classBuffer.reformat();
+        classBuffer.getTracers().forEach((classAndMethod, tracer) -> {
+          // get the class by name
+          StructClass clazz = DecompilerContext.getStructContext().getClass(classAndMethod.a);
+          StructMethod method = clazz.getMethod(classAndMethod.b);
+
+          if (method != null) {
+            StructLineNumberTableAttribute lineNumberTable =
+              method.getAttribute(StructGeneralAttribute.ATTRIBUTE_LINE_NUMBER_TABLE);
+            tracer.setLineNumberTable(lineNumberTable);
+            DecompilerContext.getBytecodeSourceMapper().addTracer(classAndMethod.a, classAndMethod.b, tracer);
+          }
+        });
 
         int index = cl.qualifiedName.lastIndexOf('/');
         if (index >= 0) {

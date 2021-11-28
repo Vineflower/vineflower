@@ -16,6 +16,7 @@
 package org.jetbrains.java.decompiler;
 
 import org.jetbrains.java.decompiler.main.decompiler.ConsoleDecompiler;
+import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.junit.jupiter.api.*;
 import org.opentest4j.AssertionFailedError;
 
@@ -37,9 +38,8 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
  */
 @Timeout(60)
 public abstract class SingleClassesTestBase {
-  protected final List<TestDefinition> testDefinitions = new ArrayList<>();
-  protected final List<String> failable = new ArrayList<>();
-  protected DecompilerTestFixture fixture;
+  private TestSet currentTestSet;
+  private final List<TestSet> testSets = new ArrayList<>();
   
   protected String[] getDecompilerOptions() {
     return new String[] {};
@@ -47,21 +47,30 @@ public abstract class SingleClassesTestBase {
 
   protected abstract void registerAll();
 
-  protected void register(TestDefinition.Version version, String testClass, String... others) {
+  protected final void registerSet(String name, Runnable initializer, Object ...options) {
+    currentTestSet = new TestSet(name, options);
+    initializer.run();
+    testSets.add(currentTestSet);
+  }
+
+  protected final void register(TestDefinition.Version version, String testClass, String... others) {
+    register(version, testClass, false, others);
+  }
+
+  private void register(TestDefinition.Version version, String testClass, boolean failable, String... others) {
     List<String> othersList = new ArrayList<>(others.length);
     for (String other : others) othersList.add(getFullClassName(other));
-    testDefinitions.add(new TestDefinition(version, getFullClassName(testClass), othersList));
+    currentTestSet.testDefinitions.add(new TestDefinition(version, getFullClassName(testClass), othersList, failable));
   }
 
   @Deprecated
   // Temporary fix for inconsistent javac code generation
-  protected void registerFailable(TestDefinition.Version version, String testClass, String... others) {
-    register(version, testClass, others);
-    failable.add(getFullClassName(testClass));
+  protected final void registerFailable(TestDefinition.Version version, String testClass, String... others) {
+    register(version, testClass, true, others);
   }
 
-  protected void registerRaw(TestDefinition.Version version, String testClass, String ...others) {
-    testDefinitions.add(new TestDefinition(version, testClass, Arrays.asList(others)));
+  protected final void registerRaw(TestDefinition.Version version, String testClass, String ...others) {
+    currentTestSet.testDefinitions.add(new TestDefinition(version, testClass, Arrays.asList(others), false));
   }
 
   private static String getFullClassName(String className) {
@@ -69,102 +78,22 @@ public abstract class SingleClassesTestBase {
     return className;
   }
 
-  @BeforeEach
-  public void setUp() throws IOException {
-    fixture = new DecompilerTestFixture();
-    fixture.setUp(getDecompilerOptions());
-  }
-
-  @AfterEach
-  public void tearDown() {
-    if (fixture == null) return;
-    fixture.tearDown();
-    fixture = null;
-  }
-
   @TestFactory
   @DisplayName("Test single classes")
   public Stream<DynamicContainer> testRegistered() {
-    testDefinitions.clear();
+    testSets.clear();
     registerAll();
-    Map<TestDefinition.Version, List<DynamicTest>> tests = new EnumMap<>(TestDefinition.Version.class);
-    for (TestDefinition def : testDefinitions) {
-      String name = def.testClass;
-      int slash = name.lastIndexOf('/');
-      if (slash >= 0) name = name.substring(slash + 1);
-      Path classFile = getClassFile(def.version, def.testClass);
-      Path ref = getReferenceFile(def.testClass);
-      DynamicTest test = DynamicTest.dynamicTest(name, Files.exists(ref) ? ref.toUri() : classFile.toUri(), () -> {
-        setUp();
-        doTest(def.version, def.testClass, def.others.toArray(new String[0]));
-        tearDown();
-      });
-      tests.computeIfAbsent(def.version, k -> new ArrayList<>()).add(test);
-    }
-    Path baseDir = fixture.getTestDataDir().resolve("classes/");
-    return tests.entrySet().stream().map(e -> {
-      TestDefinition.Version version = e.getKey();
-      return DynamicContainer.dynamicContainer(
-        version.toString(),
-        baseDir.resolve(version.directory).toUri(),
-        e.getValue().stream()
-      );
-    });
+    return testSets.stream()
+      .filter(s -> !s.testDefinitions.isEmpty())
+      .map(s -> DynamicContainer.dynamicContainer(s.name, s.getTests()));
   }
 
-  protected Path getClassFile(TestDefinition.Version version, String name) {
+  protected static Path getClassFile(DecompilerTestFixture fixture, TestDefinition.Version version, String name) {
     return fixture.getTestDataDir().resolve("classes/" + version.directory + "/" + name + ".class");
   }
 
-  protected Path getReferenceFile(String testClass) {
+  protected static Path getReferenceFile(DecompilerTestFixture fixture, String testClass) {
     return fixture.getTestDataDir().resolve("results/" + testClass + ".dec");
-  }
-
-  protected void doTest(TestDefinition.Version version, String testFile, String... companionFiles) {
-    ConsoleDecompiler decompiler = fixture.getDecompiler();
-
-    Path classFile = getClassFile(version, testFile);
-    assertTrue(Files.isRegularFile(classFile), classFile + " should exist");
-    for (Path file : collectClasses(classFile)) {
-      decompiler.addSource(file.toFile());
-    }
-
-    for (String companionFile : companionFiles) {
-      Path companionClassFile = getClassFile(version, companionFile);
-      assertTrue(Files.isRegularFile(companionClassFile), companionFile + " should exist");
-      for (Path file : collectClasses(companionClassFile)) {
-        decompiler.addSource(file.toFile());
-      }
-    }
-
-    decompiler.decompileContext();
-
-    String testFileName = classFile.getFileName().toString();
-    String testName = testFileName.substring(0, testFileName.length() - 6);
-    Path decompiledFile = fixture.getTargetDir().resolve(testName + ".java");
-    assertTrue(Files.isRegularFile(decompiledFile));
-    Path referenceFile = getReferenceFile(testFile);
-    if (!Files.exists(referenceFile)) {
-      try {
-        Files.createDirectories(referenceFile.getParent());
-        Files.copy(decompiledFile, referenceFile);
-      } catch (IOException e) {
-        throw new UncheckedIOException(e);
-      }
-      //noinspection ConstantConditions
-      assumeTrue(false, referenceFile.getFileName() + " was not present yet");
-    } else {
-      try {
-        assertTrue(Files.isRegularFile(referenceFile));
-        assertFilesEqual(referenceFile, decompiledFile);
-      } catch (AssertionFailedError e) {
-        if (this.failable.contains(testFile)) {
-          assumeTrue(false, referenceFile.getFileName() + " failed but was ignored");
-        } else {
-          throw e;
-        }
-      }
-    }
   }
 
   private static List<Path> collectClasses(Path classFile) {
@@ -184,15 +113,111 @@ public abstract class SingleClassesTestBase {
     return files;
   }
 
+  static class TestSet {
+    public final String name;
+    public final Object[] options;
+    public final List<TestDefinition> testDefinitions = new ArrayList<>();
+
+    public TestSet(String name, Object[] options) {
+      this.name = name;
+      this.options = options;
+    }
+
+    public Stream<DynamicNode> getTests() {
+      Map<TestDefinition.Version, List<DynamicTest>> tests = new EnumMap<>(TestDefinition.Version.class);
+      for (TestDefinition def : testDefinitions) {
+        String name = def.testClass;
+        int slash = name.lastIndexOf('/');
+        if (slash >= 0) name = name.substring(slash + 1);
+        Path classFile = def.getClassFile();
+        Path ref = def.getReferenceFile();
+        DynamicTest test = DynamicTest.dynamicTest(name, Files.exists(ref) ? ref.toUri() : classFile.toUri(), () -> {
+          def.run(options);
+        });
+        tests.computeIfAbsent(def.version, k -> new ArrayList<>()).add(test);
+      }
+      Path baseDir = new DecompilerTestFixture().getTestDataDir().resolve("classes/");
+      return tests.entrySet().stream().map(e -> {
+        TestDefinition.Version version = e.getKey();
+        return DynamicContainer.dynamicContainer(
+          version.toString(),
+          baseDir.resolve(version.directory).toUri(),
+          e.getValue().stream()
+        );
+      });
+    }
+  }
+
   static class TestDefinition {
     public final Version version;
     public final String testClass;
     public final List<String> others;
+    public final boolean failable;
+    private final DecompilerTestFixture fixture = new DecompilerTestFixture();
 
-    public TestDefinition(Version version, String testClass, List<String> others) {
+    public TestDefinition(Version version, String testClass, List<String> others, boolean failable) {
       this.version = version;
       this.testClass = testClass;
       this.others = others;
+      this.failable = failable;
+    }
+
+    public Path getClassFile() {
+      return SingleClassesTestBase.getClassFile(fixture, version, testClass);
+    }
+
+    public Path getReferenceFile() {
+      return SingleClassesTestBase.getReferenceFile(fixture, testClass);
+    }
+
+    public void run(Object[] options) throws IOException {
+      fixture.setUp(options);
+      ConsoleDecompiler decompiler = fixture.getDecompiler();
+      Path classFile = getClassFile();
+      assertTrue(Files.isRegularFile(classFile), classFile + " should exist");
+      for (Path file : collectClasses(classFile)) {
+        decompiler.addSource(file.toFile());
+      }
+
+      for (String companionFile : others) {
+        Path companionClassFile = SingleClassesTestBase.getClassFile(fixture, version, companionFile);
+        assertTrue(Files.isRegularFile(companionClassFile), companionFile + " should exist");
+        for (Path file : collectClasses(companionClassFile)) {
+          decompiler.addSource(file.toFile());
+        }
+      }
+
+      decompiler.decompileContext();
+
+      TextBuffer.checkLeaks();
+
+      String testFileName = classFile.getFileName().toString();
+      String testName = testFileName.substring(0, testFileName.length() - 6);
+      Path decompiledFile = fixture.getTargetDir().resolve(testName + ".java");
+      assertTrue(Files.isRegularFile(decompiledFile));
+      Path referenceFile = getReferenceFile();
+      if (!Files.exists(referenceFile)) {
+        try {
+          Files.createDirectories(referenceFile.getParent());
+          Files.copy(decompiledFile, referenceFile);
+        } catch (IOException e) {
+          throw new UncheckedIOException(e);
+        }
+        //noinspection ConstantConditions
+        assumeTrue(false, referenceFile.getFileName() + " was not present yet");
+      } else {
+        try {
+          assertTrue(Files.isRegularFile(referenceFile));
+          assertFilesEqual(referenceFile, decompiledFile);
+        } catch (AssertionFailedError e) {
+          if (failable) {
+            assumeTrue(false, referenceFile.getFileName() + " failed but was ignored");
+          } else {
+            throw e;
+          }
+        }
+      }
+      fixture.tearDown();
     }
 
     enum Version {

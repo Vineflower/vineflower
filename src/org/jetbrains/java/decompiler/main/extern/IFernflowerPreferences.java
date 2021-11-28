@@ -38,6 +38,7 @@ public interface IFernflowerPreferences {
   String PATTERN_MATCHING = "pam";
   String EXPERIMENTAL_TRY_LOOP_FIX = "tlf";
   String TERNARY_CONDITIONS = "tco";
+  String OVERRIDE_ANNOTATION = "ovr";
 
   String INCLUDE_ENTIRE_CLASSPATH = "iec";
   String INCLUDE_JAVA_RUNTIME = "jrt";
@@ -50,6 +51,7 @@ public interface IFernflowerPreferences {
   String USER_RENAMER_CLASS = "urc";
   String NEW_LINE_SEPARATOR = "nls";
   String INDENT_STRING = "ind";
+  String PREFERRED_LINE_LENGTH = "pll";
   String BANNER = "ban";
   String THREADS = "thr";
 
@@ -65,6 +67,7 @@ public interface IFernflowerPreferences {
 
   String WARN_INCONSISTENT_INNER_CLASSES = "win";
   String DUMP_BYTECODE_ON_ERROR = "dbe";
+  String DUMP_EXCEPTION_ON_ERROR = "dee";
 
   Map<String, Object> DEFAULTS = getDefaults();
 
@@ -98,6 +101,7 @@ public interface IFernflowerPreferences {
     defaults.put(IGNORE_INVALID_BYTECODE, "0");
     defaults.put(VERIFY_ANONYMOUS_CLASSES, "0");
     defaults.put(TERNARY_CONSTANT_SIMPLIFICATION, "0");
+    defaults.put(OVERRIDE_ANNOTATION, "1");
     defaults.put(PATTERN_MATCHING, "0"); // Pattern matching has some issues around negative blocks
     defaults.put(EXPERIMENTAL_TRY_LOOP_FIX, "0"); // Causes issues when decompiling certain classes
     defaults.put(TERNARY_CONDITIONS, "1"); // Ternary conditions are pretty stable so they can go in here
@@ -112,6 +116,7 @@ public interface IFernflowerPreferences {
     defaults.put(RENAME_ENTITIES, "0");
     defaults.put(NEW_LINE_SEPARATOR, (InterpreterUtil.IS_WINDOWS ? "0" : "1"));
     defaults.put(INDENT_STRING, "   ");
+    defaults.put(PREFERRED_LINE_LENGTH, "160");
     defaults.put(BANNER, "");
     defaults.put(UNIT_TEST_MODE, "0");
     defaults.put(DUMP_ORIGINAL_LINES, "0");
@@ -120,6 +125,7 @@ public interface IFernflowerPreferences {
     defaults.put(SKIP_EXTRA_FILES, "0");
     defaults.put(WARN_INCONSISTENT_INNER_CLASSES, "1");
     defaults.put(DUMP_BYTECODE_ON_ERROR, "1");
+    defaults.put(DUMP_EXCEPTION_ON_ERROR, "1");
 
     return Collections.unmodifiableMap(defaults);
   }

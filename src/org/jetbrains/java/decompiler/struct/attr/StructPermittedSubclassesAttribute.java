@@ -1,5 +1,6 @@
 package org.jetbrains.java.decompiler.struct.attr;
 
+import org.jetbrains.java.decompiler.code.BytecodeVersion;
 import org.jetbrains.java.decompiler.struct.consts.ConstantPool;
 import org.jetbrains.java.decompiler.util.DataInputFullStream;
 
@@ -24,7 +25,7 @@ public class StructPermittedSubclassesAttribute extends StructGeneralAttribute {
   }
 
   @Override
-  public void initContent(DataInputFullStream data, ConstantPool pool) throws IOException {
+  public void initContent(DataInputFullStream data, ConstantPool pool, BytecodeVersion version) throws IOException {
     int count = data.readUnsignedShort();
     for (int i = 0; i < count; i++) {
       classes.add(pool.getPrimitiveConstant(data.readUnsignedShort()).getString());

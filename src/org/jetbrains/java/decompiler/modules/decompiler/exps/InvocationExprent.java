@@ -4,8 +4,6 @@ package org.jetbrains.java.decompiler.modules.decompiler.exps;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
-import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
-import org.jetbrains.java.decompiler.main.collectors.ImportCollector;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.ClasspathHelper;
@@ -68,6 +66,7 @@ public class InvocationExprent extends Exprent {
   private List<VarType> genericArgs = new ArrayList<>();
   private Map<VarType, VarType> genericsMap = new HashMap<>();
   private boolean isInvocationInstance = false;
+  private boolean isQualifier = false;
   private boolean forceBoxing = false;
   private boolean forceUnboxing = false;
   private boolean isSyntheticNullCheck = false;
@@ -496,8 +495,7 @@ public class InvocationExprent extends Exprent {
   }
 
   @Override
-  public List<Exprent> getAllExprents() {
-    List<Exprent> lst = new ArrayList<>();
+  public List<Exprent> getAllExprents(List<Exprent> lst) {
     if (instance != null) {
       lst.add(instance);
     }
@@ -512,23 +510,24 @@ public class InvocationExprent extends Exprent {
   }
 
   @Override
-  public TextBuffer toJava(int indent, BytecodeMappingTracer tracer) {
+  public TextBuffer toJava(int indent) {
     TextBuffer buf = new TextBuffer();
 
     String super_qualifier = null;
     boolean isInstanceThis = false;
 
-    tracer.addMapping(bytecode);
-
     if (instance instanceof InvocationExprent) {
       ((InvocationExprent) instance).markUsingBoxingResult();
     }
+
+    boolean pushedCallChainGroup = false;
 
     if (isStatic || invocationTyp == INVOKE_DYNAMIC || invocationTyp == CONSTANT_DYNAMIC) {
       if (isBoxingCall() && canIgnoreBoxing && !forceBoxing) {
         // process general "boxing" calls, e.g. 'Object[] data = { true }' or 'Byte b = 123'
         // here 'byte' and 'short' values do not need an explicit narrowing type cast
-        ExprProcessor.getCastedExprent(lstParameters.get(0), descriptor.params[0], buf, indent, false, false, true, false, tracer);
+        ExprProcessor.getCastedExprent(lstParameters.get(0), descriptor.params[0], buf, indent, false, false, true, false);
+        buf.addBytecodeMapping(bytecode);
         return buf;
       }
 
@@ -598,6 +597,7 @@ public class InvocationExprent extends Exprent {
 
           if (isUnboxingCall() && !forceUnboxing) {
             // we don't print the unboxing call - no need to bother with the instance wrapping / casting
+            buf.addBytecodeMapping(bytecode);
             if (instance.type == Exprent.EXPRENT_FUNCTION) {
               FunctionExprent func = (FunctionExprent)instance;
               if (func.getFuncType() == FunctionExprent.FUNCTION_CAST && func.getLstOperands().get(1).type == Exprent.EXPRENT_CONST) {
@@ -613,16 +613,22 @@ public class InvocationExprent extends Exprent {
                 }
 
                 if (skipCast) {
-                  buf.append(func.getLstOperands().get(0).toJava(indent, tracer));
+                  buf.append(func.getLstOperands().get(0).toJava(indent));
                   return buf;
                 }
               }
             }
-            buf.append(instance.toJava(indent, tracer));
+            buf.append(instance.toJava(indent));
             return buf;
           }
 
-          TextBuffer res = instance.toJava(indent, tracer);
+          instance.setIsQualifier();
+
+          if (!isQualifier) {
+            buf.pushNewlineGroup(indent, 1);
+            pushedCallChainGroup = true;
+          }
+          TextBuffer res = instance.toJava(indent);
 
           boolean skippedCast = false;
 
@@ -672,20 +678,25 @@ public class InvocationExprent extends Exprent {
           else {
             buf.append(res);
           }
+          if (instance.allowNewlineAfterQualifier()) {
+            buf.appendPossibleNewline();
+          }
         }
       }
     }
 
     switch (functype) {
       case TYP_GENERAL:
-        if (VarExprent.VAR_NAMELESS_ENCLOSURE.equals(buf.toString())) {
-          buf = new TextBuffer();
+        if (buf.contentEquals(VarExprent.VAR_NAMELESS_ENCLOSURE)) {
+          buf.setLength(0);
         }
 
         if (buf.length() > 0) {
           buf.append(".");
           this.appendParameters(buf, genericArgs);
         }
+
+        buf.addBytecodeMapping(bytecode);
 
         if (invocationTyp == INVOKE_DYNAMIC || invocationTyp == CONSTANT_DYNAMIC) {
           if (bootstrapMethod == null) {
@@ -715,6 +726,7 @@ public class InvocationExprent extends Exprent {
         throw new RuntimeException("Explicit invocation of " + CodeConstants.CLINIT_NAME);
 
       case TYP_INIT:
+        buf.addBytecodeMapping(bytecode);
         if (super_qualifier != null) {
           buf.append("super(");
         }
@@ -722,14 +734,17 @@ public class InvocationExprent extends Exprent {
           buf.append("this(");
         }
         else if (instance != null) {
-          buf.append(instance.toJava(indent, tracer)).append(".<init>(");
+          buf.append(instance.toJava(indent)).append(".<init>(");
         }
         else {
           throw new RuntimeException("Unrecognized invocation of " + CodeConstants.INIT_NAME);
         }
     }
 
-    buf.append(appendParamList(indent, tracer)).append(')');
+    buf.append(appendParamList(indent)).append(')');
+    if (pushedCallChainGroup) {
+      buf.popNewlineGroup();
+    }
     return buf;
   }
 
@@ -751,8 +766,9 @@ public class InvocationExprent extends Exprent {
     }
   }
 
-  public TextBuffer appendParamList(int indent, BytecodeMappingTracer tracer) {
+  public TextBuffer appendParamList(int indent) {
     TextBuffer buf = new TextBuffer();
+    buf.pushNewlineGroup(indent, 1);
     List<VarVersionPair> mask = null;
     boolean isEnum = false;
     if (functype == TYP_INIT) {
@@ -884,6 +900,9 @@ public class InvocationExprent extends Exprent {
 
 
     boolean firstParameter = true;
+    buf.appendPossibleNewline();
+    buf.pushNewlineGroup(indent, 0);
+
     for (int i = start; i < lstParameters.size(); i++) {
       if (mask == null || mask.get(i) == null) {
         TextBuffer buff = new TextBuffer();
@@ -922,12 +941,12 @@ public class InvocationExprent extends Exprent {
         }
 
         // 'byte' and 'short' literals need an explicit narrowing type cast when used as a parameter
-        ExprProcessor.getCastedExprent(lstParameters.get(i), types[i], buff, indent, true, ambiguous, true, true, tracer);
+        ExprProcessor.getCastedExprent(lstParameters.get(i), types[i], buff, indent, true, ambiguous, true, true);
 
         // the last "new Object[0]" in the vararg call is not printed
         if (buff.length() > 0) {
           if (!firstParameter) {
-            buf.append(", ");
+            buf.append(",").appendPossibleNewline(" ");
           }
           buf.append(buff);
         }
@@ -935,6 +954,10 @@ public class InvocationExprent extends Exprent {
         firstParameter = false;
       }
     }
+
+    buf.popNewlineGroup();
+    buf.appendPossibleNewline("", true);
+    buf.popNewlineGroup();
 
     return buf;
   }
@@ -987,6 +1010,11 @@ public class InvocationExprent extends Exprent {
 
   public void markUsingBoxingResult() {
     canIgnoreBoxing = false;
+  }
+
+  @Override
+  public void setIsQualifier() {
+    isQualifier = true;
   }
 
   // TODO: move to CodeConstants ???
