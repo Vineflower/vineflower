@@ -1,0 +1,403 @@
+package pkg;
+
+public class TestEclipseSwitchString {
+   public int test(String var1) {
+      switch(var1.hashCode()) {// 5
+      case 49:
+         if (var1.equals("1")) {
+            return 1;// 10
+         }
+         break;
+      case 50:
+         if (var1.equals("2")) {
+            return 2;// 12
+         }
+      }
+
+      System.out.println("Test");// 7
+      return 0;// 8 15
+   }
+
+   public int test1(String var1) {
+      label20: {
+         switch(var1.hashCode()) {// 19
+         case 49:
+            if (var1.equals("1")) {
+               return 1;// 24
+            }
+            break label20;
+         case 50:
+            if (!var1.equals("2")) {
+               break label20;
+            }
+            break;
+         case 51:
+            if (!var1.equals("3")) {
+               break label20;
+            }
+            break;
+         default:
+            break label20;
+         }
+
+         return 2;// 27
+      }
+
+      System.out.println("Test");// 21
+      return 0;// 22 30
+   }
+
+   public int test2(String var1) {
+      label21: {
+         switch(var1.hashCode()) {// 34
+         case 49:
+            if (!var1.equals("1")) {
+               break label21;
+            }
+
+            System.out.println("Hello");// 39
+            break;
+         case 50:
+            if (!var1.equals("2")) {
+               break label21;
+            }
+            break;
+         case 51:
+            if (!var1.equals("3")) {
+               break label21;
+            }
+            break;
+         default:
+            break label21;
+         }
+
+         return 2;// 42
+      }
+
+      System.out.println("Test");// 36
+      return 0;// 37 45
+   }
+
+   public int testHashcodeCollision(String var1) {
+      switch(var1.hashCode()) {// 49
+      case 2112:
+         if (var1.equals("BB")) {
+            return 1;// 54
+         } else if (var1.equals("Aa")) {
+            return 2;// 56
+         }
+      default:
+         System.out.println("Test");// 51
+         return 0;// 52 58
+      }
+   }
+
+   public int testHashcodeCollision1(String var1) {
+      switch(var1.hashCode()) {// 62
+      case 2112:
+         if (var1.equals("BB") || var1.equals("Aa")) {
+            return 2;// 68
+         }
+      }
+
+      System.out.println("Test");// 64
+      return 0;// 65 70
+   }
+
+   public int testHashcodeCollision2(String var1) {
+      switch(var1.hashCode()) {// 74
+      case 2112:
+         label13: {
+            if (!var1.equals("BB")) {
+               if (!var1.equals("Aa")) {
+                  break label13;
+               }
+            } else {
+               System.out.println("BB");// 79
+            }
+
+            return 2;// 81
+         }
+      }
+
+      System.out.println("Test");// 76
+      return 0;// 77 83
+   }
+}
+
+class 'pkg/TestEclipseSwitchString' {
+   method 'test (Ljava/lang/String;)I' {
+      0      4
+      3      4
+      4      4
+      5      4
+      6      4
+      21      6
+      22      6
+      23      6
+      24      6
+      25      6
+      26      6
+      2d      11
+      2e      11
+      2f      11
+      30      11
+      31      11
+      32      11
+      35      16
+      36      16
+      37      16
+      38      16
+      39      16
+      3a      16
+      3b      16
+      3c      16
+      3d      17
+      3e      17
+      3f      17
+      40      7
+      41      7
+      42      12
+      43      12
+      44      17
+   }
+
+   method 'test1 (Ljava/lang/String;)I' {
+      0      22
+      3      22
+      4      22
+      5      22
+      6      22
+      29      24
+      2a      24
+      2b      24
+      2c      24
+      2d      24
+      2e      24
+      35      29
+      36      29
+      37      29
+      38      29
+      39      29
+      3a      29
+      41      34
+      42      34
+      43      34
+      44      34
+      45      34
+      46      34
+      49      45
+      4a      45
+      4b      45
+      4c      45
+      4d      45
+      4e      45
+      4f      45
+      50      45
+      51      46
+      52      46
+      53      46
+      54      25
+      55      25
+      56      42
+      57      42
+      58      46
+   }
+
+   method 'test2 (Ljava/lang/String;)I' {
+      0      51
+      3      51
+      4      51
+      5      51
+      6      51
+      29      53
+      2a      53
+      2b      53
+      2c      53
+      2d      53
+      2e      53
+      35      60
+      36      60
+      37      60
+      38      60
+      39      60
+      3a      60
+      41      65
+      42      65
+      43      65
+      44      65
+      45      65
+      46      65
+      49      76
+      4a      76
+      4b      76
+      4c      76
+      4d      76
+      4e      76
+      4f      76
+      50      76
+      51      77
+      52      77
+      53      77
+      54      57
+      55      57
+      56      57
+      57      57
+      58      57
+      59      57
+      5a      77
+      5b      77
+      5c      73
+      5d      73
+      5e      77
+   }
+
+   method 'testHashcodeCollision (Ljava/lang/String;)I' {
+      0      81
+      3      81
+      4      81
+      5      81
+      6      81
+      19      83
+      1a      83
+      1b      83
+      1c      83
+      1d      83
+      1e      83
+      22      85
+      23      85
+      24      85
+      25      85
+      26      85
+      27      85
+      2a      89
+      2b      89
+      2c      89
+      2d      89
+      2e      89
+      2f      89
+      30      89
+      31      89
+      32      90
+      33      90
+      34      90
+      35      84
+      36      84
+      37      86
+      38      86
+      39      90
+   }
+
+   method 'testHashcodeCollision1 (Ljava/lang/String;)I' {
+      0      95
+      3      95
+      4      95
+      5      95
+      6      95
+      19      97
+      1a      97
+      1b      97
+      1c      97
+      1d      97
+      1e      97
+      22      97
+      23      97
+      24      97
+      25      97
+      26      97
+      27      97
+      2a      102
+      2b      102
+      2c      102
+      2d      102
+      2e      102
+      2f      102
+      30      102
+      31      102
+      32      103
+      33      103
+      34      103
+      35      98
+      36      98
+      37      103
+   }
+
+   method 'testHashcodeCollision2 (Ljava/lang/String;)I' {
+      0      107
+      3      107
+      4      107
+      5      107
+      6      107
+      19      110
+      1a      110
+      1b      110
+      1c      110
+      1d      110
+      1e      110
+      22      111
+      23      111
+      24      111
+      25      111
+      26      111
+      27      111
+      2a      122
+      2b      122
+      2c      122
+      2d      122
+      2e      122
+      2f      122
+      30      122
+      31      122
+      32      123
+      33      123
+      34      123
+      35      115
+      36      115
+      37      115
+      38      115
+      39      115
+      3a      115
+      3b      123
+      3c      123
+      3d      118
+      3e      118
+      3f      123
+   }
+}
+
+Lines mapping:
+5 <-> 5
+7 <-> 17
+8 <-> 18
+10 <-> 8
+12 <-> 13
+15 <-> 18
+19 <-> 23
+21 <-> 46
+22 <-> 47
+24 <-> 26
+27 <-> 43
+30 <-> 47
+34 <-> 52
+36 <-> 77
+37 <-> 78
+39 <-> 58
+42 <-> 74
+45 <-> 78
+49 <-> 82
+51 <-> 90
+52 <-> 91
+54 <-> 85
+56 <-> 87
+58 <-> 91
+62 <-> 96
+64 <-> 103
+65 <-> 104
+68 <-> 99
+70 <-> 104
+74 <-> 108
+76 <-> 123
+77 <-> 124
+79 <-> 116
+81 <-> 119
+83 <-> 124

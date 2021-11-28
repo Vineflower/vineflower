@@ -423,7 +423,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: Returns not processing properly
     registerRaw(CUSTOM, "TestJsr2");
     register(JAVA_8, "TestOverrideIndirect");
-    // TODO: IdeaNotNullHelper doesn't seem to be doing anything
     registerRaw(CUSTOM, "TestIdeaNotNull");
     // TODO: Synchronized blocks don't work properly
     registerRaw(CUSTOM, "TestHotjava");
@@ -440,6 +439,10 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: return not condensed properly and throw is not put into finally
     register(JAVA_8, "TestFinallyThrow");
     register(JAVA_8, "TestWhile1");
+    registerRaw(CUSTOM, "TestEclipseSwitchEnum");
+    registerRaw(CUSTOM, "TestEclipseSwitchString");
+    register(JAVA_8, "TestNestedAnonymousClass");
+    register(JAVA_8, "TestPPMMLoop");
   }
 
   private void registerEntireClassPath() {

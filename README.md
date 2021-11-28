@@ -1,11 +1,18 @@
 ### Quiltflower
 
-Quiltflower is a fork of Fernflower and ForgeFlower adding additional features for use with the Quilt toolchain.
+Quiltflower is a modern, general purpose decompiler focused on improving code quality, speed, and usability. Quiltflower is a fork of Fernflower and Forgeflower.
 
 Changes include:
+- New language features (Try with resources, switch expressions, pattern matching, and more)
+- Better control flow generation (loops, try-catch, and switch, etc.)
+- More configurability
+- Better error messages
 - Javadoc application
 - Multithreading
-- Handful of other fixes
+- Optimization
+- Many other miscellaneous features and fixes
+
+For support or questions, please join the [Quilt toolchain discord.](https://discord.quiltmc.org/toolchain)
 
 When pulling from upstream, use https://github.com/fesh0r/fernflower
 
@@ -17,6 +24,7 @@ To contribute, please check out [CONTRIBUTING.md](./CONTRIBUTING.md) and [ARCHIT
 * Forge Team- For maintaining ForgeFlower
 * CFR- For it's large suite of very useful tests
 
+Fernflower's readme is preserved below:
 ### About Fernflower
 
 Fernflower is the first actually working analytical decompiler for Java and 

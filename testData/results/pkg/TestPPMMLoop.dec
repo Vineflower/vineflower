@@ -1,0 +1,117 @@
+package pkg;
+
+public class TestPPMMLoop {
+   public void test(int a, String s) {
+      while(true) {
+         ++a;// 5
+         if (a <= 0) {
+            return;// 8
+         }
+
+         s = s + "a";// 6
+      }
+   }
+
+   public void test1(int a, String s) {
+      while(a++ > 0) {// 11
+         s = s + "a";// 12
+      }
+
+   }// 14
+
+   public void test2(int a, String s) {
+      while(true) {
+         --a;// 17
+         if (a <= 0) {
+            return;// 20
+         }
+
+         s = s + "a";// 18
+      }
+   }
+
+   public void test3(int a, String s) {
+      while(a-- > 0) {// 23
+         s = s + "a";// 24
+      }
+
+   }// 26
+}
+
+class 'pkg/TestPPMMLoop' {
+   method 'test (ILjava/lang/String;)V' {
+      0      5
+      1      5
+      2      5
+      3      6
+      4      6
+      e      10
+      12      10
+      13      10
+      17      10
+      18      10
+      19      10
+      1a      10
+      1e      7
+   }
+
+   method 'test1 (ILjava/lang/String;)V' {
+      1      15
+      2      15
+      3      15
+      4      15
+      e      16
+      12      16
+      13      16
+      17      16
+      18      16
+      19      16
+      1a      16
+      1e      19
+   }
+
+   method 'test2 (ILjava/lang/String;)V' {
+      0      23
+      1      23
+      2      23
+      3      24
+      4      24
+      e      28
+      12      28
+      13      28
+      17      28
+      18      28
+      19      28
+      1a      28
+      1e      25
+   }
+
+   method 'test3 (ILjava/lang/String;)V' {
+      1      33
+      2      33
+      3      33
+      4      33
+      e      34
+      12      34
+      13      34
+      17      34
+      18      34
+      19      34
+      1a      34
+      1e      37
+   }
+}
+
+Lines mapping:
+5 <-> 6
+6 <-> 11
+8 <-> 8
+11 <-> 16
+12 <-> 17
+14 <-> 20
+17 <-> 24
+18 <-> 29
+20 <-> 26
+23 <-> 34
+24 <-> 35
+26 <-> 38

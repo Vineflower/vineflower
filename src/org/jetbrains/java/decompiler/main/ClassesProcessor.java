@@ -426,7 +426,23 @@ public class ClassesProcessor implements CodeConstants {
         buffer.append(moduleBuffer);
       }
       else {
-        new LambdaProcessor().processClass(root);
+        try {
+          new LambdaProcessor().processClass(root);
+        } catch (Throwable t) {
+          DecompilerContext.getLogger().writeMessage("Class " + root.simpleName + " couldn't be written.",
+            IFernflowerLogger.Severity.WARN,
+            t);
+          buffer.append("// $FF: Couldn't be decompiled");
+          buffer.appendLineSeparator();
+          List<String> lines = new ArrayList<>();
+          ClassWriter.collectErrorLines(t, lines);
+          for (String line : lines) {
+            buffer.append("//");
+            if (!line.isEmpty()) buffer.append(' ').append(line);
+            buffer.appendLineSeparator();
+          }
+          return;
+        }
 
         // add simple class names to implicit import
         addClassNameToImport(root, importCollector);
@@ -434,11 +450,25 @@ public class ClassesProcessor implements CodeConstants {
         // build wrappers for all nested classes (that's where actual processing takes place)
         initWrappers(root);
 
-        // TODO: need to wrap around with try catch as failure here can break the entire class
+        try {
+          new NestedClassProcessor().processClass(root, root);
 
-        new NestedClassProcessor().processClass(root, root);
-
-        new NestedMemberAccess().propagateMemberAccess(root);
+          new NestedMemberAccess().propagateMemberAccess(root);
+        } catch (Throwable t) {
+          DecompilerContext.getLogger().writeMessage("Class " + root.simpleName + " couldn't be written.",
+            IFernflowerLogger.Severity.WARN,
+            t);
+          buffer.append("// $FF: Couldn't be decompiled");
+          buffer.appendLineSeparator();
+          List<String> lines = new ArrayList<>();
+          ClassWriter.collectErrorLines(t, lines);
+          for (String line : lines) {
+            buffer.append("//");
+            if (!line.isEmpty()) buffer.append(' ').append(line);
+            buffer.appendLineSeparator();
+          }
+          return;
+        }
 
         TextBuffer classBuffer = new TextBuffer(AVERAGE_CLASS_SIZE);
         new ClassWriter().classToJava(root, classBuffer, 0);
