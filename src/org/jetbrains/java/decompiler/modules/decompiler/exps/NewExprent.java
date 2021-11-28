@@ -455,7 +455,7 @@ public class NewExprent extends Exprent {
       VarType leftType = newType.decreaseArrayDim();
       for (int i = 0; i < lstArrayElements.size(); i++) {
         if (i > 0) {
-          buf.append(", ");
+          buf.append(",").appendPossibleNewline(" ");
         }
 
         // new String[][]{{"abc"}, {"DEF"}} => new String[]{"abc"}, new String[]{"DEF"}
@@ -493,13 +493,19 @@ public class NewExprent extends Exprent {
 
         VarType leftType = newType.decreaseArrayDim();
         buf.append('{');
+        buf.pushNewlineGroup(indent, 1);
+        buf.appendPossibleNewline();
+        buf.pushNewlineGroup(indent, 0);
         for (int i = 0; i < lstArrayElements.size(); i++) {
           if (i > 0) {
-            buf.append(", ");
+            buf.append(",").appendPossibleNewline(" ");
           }
           ExprProcessor.getCastedExprent(lstArrayElements.get(i), leftType, buf, indent, false);
         }
+        buf.popNewlineGroup();
+        buf.appendPossibleNewline("", true);
         buf.append('}');
+        buf.popNewlineGroup();
       }
     }
 
