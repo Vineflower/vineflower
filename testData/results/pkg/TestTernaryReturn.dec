@@ -1,0 +1,95 @@
+package pkg;
+
+public class TestTernaryReturn {
+   public Object a;
+   public Object b;
+
+   public boolean test(Object o) {
+      if (!(o instanceof TestTernaryReturn)) {// 8
+         return false;// 9
+      } else {
+         TestTernaryReturn p = (TestTernaryReturn)o;// 12
+         label26:
+         if (this.a == null ? p.a == null : this.a.equals(p.a)) {// 14
+            if (this.b == null) {
+               if (p.b == null) {
+                  return true;
+               }
+            } else if (this.b.equals(p.b)) {
+               return true;
+            }
+         }
+
+         return false;
+      }
+   }
+}
+
+class 'pkg/TestTernaryReturn' {
+   method 'test (Ljava/lang/Object;)Z' {
+      0      7
+      1      7
+      2      7
+      3      7
+      4      7
+      7      8
+      8      8
+      9      10
+      a      10
+      b      10
+      c      10
+      d      10
+      e      12
+      f      12
+      10      12
+      11      12
+      12      12
+      15      12
+      16      12
+      17      12
+      18      12
+      19      12
+      1f      12
+      20      12
+      21      12
+      22      12
+      23      12
+      24      12
+      25      12
+      26      12
+      27      12
+      28      12
+      29      12
+      2d      13
+      2e      13
+      2f      13
+      30      13
+      31      13
+      34      14
+      35      14
+      36      14
+      37      14
+      38      14
+      3e      17
+      3f      17
+      40      17
+      41      17
+      42      17
+      43      17
+      44      17
+      45      17
+      46      17
+      47      17
+      48      17
+      49      17
+      4c      15
+      50      22
+      51      15
+   }
+}
+
+Lines mapping:
+8 <-> 8
+9 <-> 9
+12 <-> 11
+14 <-> 13

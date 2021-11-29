@@ -97,7 +97,6 @@ public class DotExporter {
           buffer.append(sourceId + "->" + clsId + " [arrowhead=diamond,label=\"Closure\"];\r\n");
         }
 
-        // TODO: why are some returns break edges instead of returns?
         if (edge.getType() == StatEdge.TYPE_FINALLYEXIT || edge.getType() == StatEdge.TYPE_BREAK) {
           exits.add(edge.getDestination().id);
         }

@@ -1,0 +1,203 @@
+package pkg;
+
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
+
+public class TestForeachMultipleLoops {
+   public void test(Object a, Map<Integer, String> map, int i) {
+      if (a != null) {// 8
+         System.out.println(a);// 9
+      } else {
+         Iterator var4 = map.entrySet().iterator();// 13
+
+         while(true) {
+            while(true) {
+               Entry<Integer, String> entry;
+               while(true) {
+                  if (!var4.hasNext()) {
+                     return;// 40
+                  }
+
+                  entry = (Entry)var4.next();
+                  String s = (String)entry.getValue();// 14
+                  if (a == null) {// 15
+                     (new StringBuilder()).append(s).append(s).toString();// 16
+                     break;
+                  }
+
+                  if (s == null) {// 18
+                     s = "hello";// 21
+                     break;
+                  }
+               }
+
+               Object v = entry.getValue();// 24
+               if (v == null) {// 25
+                  if (i == 3) {// 26
+                     continue;
+                  }
+
+                  System.out.println("if");// 29
+                  break;
+               }
+
+               System.out.println("else");// 31
+               break;
+            }
+
+            try {
+               System.out.println(1);// 35
+            } catch (Exception var9) {// 36
+               var9.printStackTrace();// 37
+            }
+         }
+      }
+   }// 10
+}
+
+class 'pkg/TestForeachMultipleLoops' {
+   method 'test (Ljava/lang/Object;Ljava/util/Map;I)V' {
+      0      8
+      1      8
+      4      9
+      5      9
+      6      9
+      7      9
+      8      9
+      9      9
+      a      9
+      b      55
+      c      11
+      d      11
+      e      11
+      f      11
+      10      11
+      11      11
+      12      11
+      13      11
+      14      11
+      15      11
+      16      11
+      17      11
+      18      11
+      19      17
+      1a      17
+      1b      17
+      1c      17
+      1d      17
+      1e      17
+      1f      17
+      20      17
+      23      21
+      24      21
+      25      21
+      26      21
+      27      21
+      28      21
+      29      21
+      2a      21
+      2b      21
+      2c      21
+      2d      21
+      2e      21
+      2f      22
+      30      22
+      31      22
+      32      22
+      33      22
+      34      22
+      35      22
+      36      22
+      37      22
+      38      22
+      39      22
+      3a      22
+      3b      23
+      3c      23
+      46      24
+      47      24
+      48      24
+      49      24
+      4a      24
+      4b      24
+      4c      24
+      4d      24
+      4e      24
+      4f      24
+      50      24
+      51      24
+      52      24
+      55      25
+      58      28
+      59      28
+      5a      28
+      60      29
+      61      29
+      62      29
+      63      29
+      64      34
+      65      34
+      66      34
+      67      34
+      68      34
+      69      34
+      6a      34
+      6b      34
+      6c      34
+      6d      35
+      6e      35
+      6f      35
+      72      36
+      73      36
+      74      36
+      7a      40
+      7b      40
+      7c      40
+      7d      40
+      7e      40
+      7f      40
+      80      40
+      81      40
+      82      41
+      85      44
+      86      44
+      87      44
+      88      44
+      89      44
+      8a      44
+      8d      49
+      8e      49
+      8f      49
+      90      49
+      91      49
+      97      50
+      9b      51
+      a1      18
+   }
+}
+
+Lines mapping:
+8 <-> 9
+9 <-> 10
+10 <-> 56
+13 <-> 12
+14 <-> 23
+15 <-> 24
+16 <-> 25
+18 <-> 29
+21 <-> 30
+24 <-> 35
+25 <-> 36
+26 <-> 37
+29 <-> 41
+31 <-> 45
+35 <-> 50
+36 <-> 51
+37 <-> 52
+40 <-> 19
+Not mapped:
+19
+27
+38
+39

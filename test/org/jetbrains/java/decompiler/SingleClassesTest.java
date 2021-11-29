@@ -442,7 +442,18 @@ public class SingleClassesTest extends SingleClassesTestBase {
     registerRaw(CUSTOM, "TestEclipseSwitchEnum");
     registerRaw(CUSTOM, "TestEclipseSwitchString");
     register(JAVA_8, "TestNestedAnonymousClass");
+    // TODO: pre increment not inlined properly
     register(JAVA_8, "TestPPMMLoop");
+    // TODO: loops not eliminated properly, foreach not created
+    register(JAVA_8, "TestForeachMultipleLoops");
+    // TODO: break turned into labeled continue
+    register(JAVA_8, "TestLoopBreak3");
+    // TODO: do-while loop entirely eliminated in test(), not created in test1()
+    register(JAVA_8, "TestDoWhileMerge");
+    // TODO: ternary not correct, also needs Java 1.0 test- looks different
+    register(JAVA_8, "TestTernaryReturn");
+    // TODO: method access causes improper stack var simplification
+    register(JAVA_8, "TestArrayAssign");
   }
 
   private void registerEntireClassPath() {
