@@ -169,7 +169,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestAccessReplace");
     register(JAVA_8, "TestStringLiterals");
 
-    register(JAVA_8, "TestClassFields");
     register(JAVA_8, "TestClashName", "SharedName1",
       "SharedName2", "SharedName3", "SharedName4", "NonSharedName",
       "TestClashNameParent", "ext/TestClashNameParent", "TestClashNameIface", "ext/TestClashNameIface");

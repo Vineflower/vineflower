@@ -40,6 +40,7 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
 public abstract class SingleClassesTestBase {
   private TestSet currentTestSet;
   private final List<TestSet> testSets = new ArrayList<>();
+  private final Set<String> classNames = new HashSet<>();
   
   protected String[] getDecompilerOptions() {
     return new String[] {};
@@ -58,6 +59,11 @@ public abstract class SingleClassesTestBase {
   }
 
   private void register(TestDefinition.Version version, String testClass, boolean failable, String... others) {
+    if (classNames.contains(testClass)) {
+      throw new AssertionFailedError("Registered same class twice! " + testClass);
+    }
+    classNames.add(testClass);
+
     List<String> othersList = new ArrayList<>(others.length);
     for (String other : others) othersList.add(getFullClassName(other));
     currentTestSet.testDefinitions.add(new TestDefinition(version, getFullClassName(testClass), othersList, failable));
