@@ -688,7 +688,7 @@ public class InvocationExprent extends Exprent {
     switch (functype) {
       case TYP_GENERAL:
         if (buf.contentEquals(VarExprent.VAR_NAMELESS_ENCLOSURE)) {
-          buf = new TextBuffer();
+          buf.setLength(0);
         }
 
         if (buf.length() > 0) {
@@ -900,7 +900,9 @@ public class InvocationExprent extends Exprent {
 
 
     boolean firstParameter = true;
-    boolean pushedNestedGroup = false;
+    buf.appendPossibleNewline();
+    buf.pushNewlineGroup(indent, 0);
+
     for (int i = start; i < lstParameters.size(); i++) {
       if (mask == null || mask.get(i) == null) {
         TextBuffer buff = new TextBuffer();
@@ -944,12 +946,7 @@ public class InvocationExprent extends Exprent {
         // the last "new Object[0]" in the vararg call is not printed
         if (buff.length() > 0) {
           if (!firstParameter) {
-            buf.append(",");
-            buf.appendPossibleNewline(" ");
-          } else {
-            buf.appendPossibleNewline();
-            buf.pushNewlineGroup(indent, 0);
-            pushedNestedGroup = true;
+            buf.append(",").appendPossibleNewline(" ");
           }
           buf.append(buff);
         }
@@ -957,13 +954,11 @@ public class InvocationExprent extends Exprent {
         firstParameter = false;
       }
     }
-    if (pushedNestedGroup) {
-      buf.popNewlineGroup();
-    }
-
-    buf.appendPossibleNewline("", true);
 
     buf.popNewlineGroup();
+    buf.appendPossibleNewline("", true);
+    buf.popNewlineGroup();
+
     return buf;
   }
 

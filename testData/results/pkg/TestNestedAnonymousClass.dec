@@ -9,20 +9,10 @@ public class TestNestedAnonymousClass {
          ExecutorService ex = Executors.newFixedThreadPool(1);// 9
          ex.submit(new Runnable() {// 10
             public void run() {
-               // $FF: Couldn't be decompiled
-               // Bytecode:
-               // 00: getstatic java/lang/System.out Ljava/io/PrintStream;
-               // 03: ldc "Hello"
-               // 05: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
-               // 08: aload 0
-               // 09: getfield pkg/TestNestedAnonymousClass$1$1.this$1 Lpkg/TestNestedAnonymousClass$1;
-               // 0c: invokevirtual pkg/TestNestedAnonymousClass$1.b ()V
-               // 0f: aload 0
-               // 10: getfield pkg/TestNestedAnonymousClass$1$1.this$1 Lpkg/TestNestedAnonymousClass$1;
-               // 13: getfield pkg/TestNestedAnonymousClass$1.this$0 Lpkg/TestNestedAnonymousClass;
-               // 16: invokevirtual pkg/TestNestedAnonymousClass.a ()V
-               // 19: return
-            }
+               System.out.println("Hello");// 12
+               b();// 13
+               TestNestedAnonymousClass.this.a();// 14
+            }// 15
          });
       }// 17
    };
@@ -49,25 +39,55 @@ class 'pkg/TestNestedAnonymousClass$1' {
       10      9
       11      9
       12      9
-      14      26
+      14      16
+   }
+}
+
+class 'pkg/TestNestedAnonymousClass$1$1' {
+   method 'run ()V' {
+      0      11
+      1      11
+      2      11
+      3      11
+      4      11
+      5      11
+      6      11
+      7      11
+      9      12
+      a      12
+      b      12
+      c      12
+      d      12
+      e      12
+      13      13
+      14      13
+      15      13
+      16      13
+      17      13
+      18      13
+      19      14
    }
 }
 
 class 'pkg/TestNestedAnonymousClass' {
    method 'a ()V' {
-      0      30
+      0      20
    }
 }
 
 class 'pkg/TestNestedAnonymousClass$B' {
    method 'b ()V' {
-      0      34
+      0      24
    }
 }
 
 Lines mapping:
 9 <-> 9
 10 <-> 10
-17 <-> 27
-23 <-> 35
-28 <-> 31
+12 <-> 12
+13 <-> 13
+14 <-> 14
+15 <-> 15
+17 <-> 17
+23 <-> 25
+28 <-> 21
