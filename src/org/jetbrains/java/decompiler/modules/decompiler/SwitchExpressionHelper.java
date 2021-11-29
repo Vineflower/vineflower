@@ -5,8 +5,10 @@ import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
+import org.jetbrains.java.decompiler.util.DotExporter;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public final class SwitchExpressionHelper {
   public static boolean processSwitchExpressions(Statement root) {
@@ -39,54 +41,79 @@ public final class SwitchExpressionHelper {
 
     // At this stage, there are no variable assignments
     // So we need to figure out which variable, if any, this switch statement is an expression of and make it generate.
-    VarVersionPair foundVar = null;
-    VarExprent found = null;
+
+    Exprent condition = ((SwitchHeadExprent) stat.getHeadexprent()).getValue();
+    if (condition.type == Exprent.EXPRENT_INVOCATION) {
+      InvocationExprent invoc = (InvocationExprent) condition;
+      if (invoc.getName().equals("hashCode") && invoc.getClassname().equals("java/lang/String")) {
+        return false; // We don't want to make switch expressions yet as switch processing hasn't happened
+      }
+    }
+
+    // analyze all case statements with breaks to find the var we want. if it's found in all statements with breaks, and no other var is also found, we can make switch expressions
+    List<Statement> breakJumps = findBreakJumps(stat);
+    if (breakJumps == null) {
+      return false;
+    }
+
+    Set<Statement> check = new HashSet<>();
+    check.addAll(breakJumps);
+    check.addAll(stat.getCaseStatements());
+
+    for (Statement st : check) {
+      if (!st.hasBasicSuccEdge()) {
+        continue;
+      }
+
+      List<StatEdge> breaks = st.getSuccessorEdges(StatEdge.TYPE_BREAK);
+
+      if (breaks.isEmpty()) {
+        DotExporter.toDotFile(st.getTopParent(), "a");
+        return false; // TODO: handle switch expression with fallthrough!
+      }
+
+      // If the closure isn't our statement and we're not returning, break
+      if (!stat.containsStatement(breaks.get(0).closure) && breaks.get(0).getDestination().type != Statement.TYPE_DUMMYEXIT) {
+        return false;
+      }
+    }
+
+    Map<Statement, List<VarVersionPair>> assignments = mapAssignments(breakJumps);
+
+    // Must have found a return
+    if (assignments == null) {
+      return false;
+    }
+
+    boolean foundDefault = false;
+    for (Statement statement : assignments.keySet()) {
+      if (stat.getDefaultEdge().getDestination().containsStatement(statement)) {
+        foundDefault = true;
+        break;
+      }
+    }
+
+    // Need default always!
+    if (!foundDefault) {
+      return false;
+    }
+
+    VarExprent relevantVar = findRelevantVar(assignments);
+
+    if (relevantVar == null) {
+      return false;
+    }
+
     for (Statement caseStat : stat.getCaseStatements()) {
       Set<StatEdge> edges = new HashSet<>();
       TryWithResourcesProcessor.findEdgesLeaving(caseStat, caseStat, edges);
+
       for (StatEdge edge : edges) {
         // There's a continue- can't be a switch expression
         if (edge.getType() == StatEdge.TYPE_CONTINUE) {
           return false;
         }
       }
-
-      List<Exprent> exprents = caseStat.getExprents();
-
-      // TODO: improve checking, possibly use SSA
-      if (exprents != null && !exprents.isEmpty()) {
-        Exprent exprent = exprents.get(exprents.size() - 1);
-
-        // We need all break edges to be enclosed in the current switch statement, as otherwise they could be breaking to statements beyond our scope, which messes up control flow
-        List<StatEdge> breaks = caseStat.getSuccessorEdges(StatEdge.TYPE_BREAK);
-        if (breaks.isEmpty()) {
-          return false; // TODO: handle switch expression with fallthrough!
-        }
-
-        if (exprent.type == Exprent.EXPRENT_ASSIGNMENT && ((AssignmentExprent)exprent).getLeft().type == Exprent.EXPRENT_VAR) {
-          VarVersionPair var = (((VarExprent) ((AssignmentExprent) exprent).getLeft())).getVarVersionPair();
-
-          if (breaks.get(0).closure != stat) {
-            return false;
-          }
-
-          if (foundVar == null) {
-            foundVar = var;
-            found = (((VarExprent) ((AssignmentExprent) exprent).getLeft()));
-          } else {
-            if (!foundVar.equals(var)) {
-              return false;
-            }
-          }
-        } else if (exprent.type == Exprent.EXPRENT_EXIT && ((ExitExprent)exprent).getExitType() == ExitExprent.EXIT_RETURN) {
-          // TODO: check for successors to dummy exit!
-          return false; // Has a return, cannot be a switch statement
-        }
-      }
-    }
-
-    if (foundVar == null || found == null) {
-      return false;
     }
 
     List<StatEdge> sucs = stat.getSuccessorEdges(StatEdge.TYPE_REGULAR);
@@ -127,7 +154,7 @@ public final class SwitchExpressionHelper {
       for (Statement st : stat.getCaseStatements()) {
         Map<Exprent, YieldExprent> replacements = new HashMap<>();
 
-        findReplacements(st, foundVar, replacements);
+        findReplacements(st, relevantVar.getVarVersionPair(), replacements);
 
         // Replace exprents that we found
         if (!replacements.isEmpty()) {
@@ -140,9 +167,9 @@ public final class SwitchExpressionHelper {
 
       List<Exprent> exprents = suc.getExprents();
 
-      VarExprent vExpr = new VarExprent(found.getIndex(), found.getVarType(), found.getProcessor());
+      VarExprent vExpr = new VarExprent(relevantVar.getIndex(), relevantVar.getVarType(), relevantVar.getProcessor());
       vExpr.setStack(true); // We want to inline
-      AssignmentExprent toAdd = new AssignmentExprent(vExpr, new SwitchExprent(stat, found.getExprType(), false), null);
+      AssignmentExprent toAdd = new AssignmentExprent(vExpr, new SwitchExprent(stat, relevantVar.getExprType(), false), null);
 
       exprents.add(0, toAdd);
 
@@ -198,6 +225,140 @@ public final class SwitchExpressionHelper {
     for (Statement st : stat.getStats()) {
       replace(st, replacements);
     }
+  }
+
+  private static List<Statement> findBreakJumps(SwitchStatement stat) {
+    List<StatEdge> edges = stat.getSuccessorEdges(StatEdge.TYPE_REGULAR);
+    Statement check = stat.getParent();
+    while (edges.isEmpty()) {
+      edges = check.getSuccessorEdges(StatEdge.TYPE_REGULAR);
+      check = check.getParent();
+
+      if (check == null) {
+        return null;
+      }
+    }
+
+    StatEdge edge = edges.get(0);
+    Statement next = edge.getDestination();
+
+    List<StatEdge> breaks = next.getPredecessorEdges(StatEdge.TYPE_BREAK);
+
+    breaks.addAll(((RootStatement) stat.getTopParent()).getDummyExit().getPredecessorEdges(StatEdge.TYPE_BREAK));
+
+    // Remove breaks that didn't come from our switch statement nodes
+    breaks.removeIf(e -> !stat.containsStatement(e.getSource()));
+
+    // Return all sources
+    return breaks.stream().map(StatEdge::getSource).collect(Collectors.toList());
+  }
+
+  // Find relevant assignments within blocks
+  // List is null if there is a throw.
+  private static Map<Statement, List<VarVersionPair>> mapAssignments(List<Statement> breakJumps) {
+    Map<Statement, List<VarVersionPair>> map = new HashMap<>();
+
+    for (Statement breakJump : breakJumps) {
+      List<Exprent> exprents = breakJump.getExprents();
+
+      if (exprents != null && !exprents.isEmpty()) {
+        if (exprents.size() == 1 && exprents.get(0).type == Exprent.EXPRENT_EXIT) {
+          ExitExprent exit = ((ExitExprent) exprents.get(0));
+
+          // Special case throws
+          if (exit.getExitType() == ExitExprent.EXIT_THROW) {
+            map.put(breakJump, null);
+            continue;
+          } else {
+            return null;
+          }
+        }
+
+        List<VarVersionPair> list = new ArrayList<>();
+        // Iterate in reverse, as we want the last assignment to be the one that we set the switch expression to
+        for (int i = exprents.size() - 1; i >= 0; i--) {
+          Exprent exprent = exprents.get(i);
+          if (exprent.type == Exprent.EXPRENT_ASSIGNMENT) {
+            AssignmentExprent assign = (AssignmentExprent) exprent;
+
+            if (assign.getLeft().type == Exprent.EXPRENT_VAR) {
+              VarExprent var = ((VarExprent) assign.getLeft());
+
+              list.add(var.getVarVersionPair());
+              continue;
+            }
+          }
+          break;
+        }
+
+        map.put(breakJump, list);
+      }
+    }
+
+    return map;
+  }
+
+  // Null if none found
+  private static VarExprent findRelevantVar(Map<Statement, List<VarVersionPair>> assignments) {
+    List<List<VarVersionPair>> values = new ArrayList<>(assignments.values());
+
+    boolean consistentlyMoreThan1 = true;
+
+    // Find any blocks with no assignments at all
+    for (List<VarVersionPair> value : values) {
+      if (value == null) {
+        continue;
+      }
+
+      if (value.isEmpty()) {
+        return null;
+      }
+
+      if (value.size() == 1) {
+        consistentlyMoreThan1 = false;
+      }
+    }
+
+    if (consistentlyMoreThan1) {
+      return null;
+    }
+
+    List<VarVersionPair> firstNotNull = null;
+    for (List<VarVersionPair> value : values) {
+      if (value == null) {
+        continue;
+      }
+
+      firstNotNull = value;
+      break;
+    }
+
+    // Only made up of exceptions- quite funny but we should probably make a switch expression here?
+    if (firstNotNull == null) {
+      return null;
+    }
+
+    VarVersionPair check = firstNotNull.get(0);
+
+    for (List<VarVersionPair> value : values) {
+      if (value == null) {
+        continue;
+      }
+
+      if (!value.get(0).equals(check)) {
+        return null;
+      }
+    }
+
+    for (Map.Entry<Statement, List<VarVersionPair>> entry : assignments.entrySet()) {
+      if (entry.getValue() == firstNotNull) {
+        List<Exprent> exprents = entry.getKey().getExprents();
+        Exprent exprent = exprents.get(exprents.size() - 1);
+        return ((VarExprent) ((AssignmentExprent) exprent).getLeft());
+      }
+    }
+
+    return null;
   }
 
   public static boolean hasSwitchExpressions(RootStatement statement) {
