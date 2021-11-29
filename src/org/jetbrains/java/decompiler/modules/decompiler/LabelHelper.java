@@ -461,6 +461,34 @@ public final class LabelHelper {
   }
 
   // Handles switches in loops, so switch breaks don't become continues
+  //
+  // Also processes labeled continues to make them into breaks if they are the last statement inside the closure statement
+  // As so:
+  //
+  // label:
+  // while(...) {
+  //   ...
+  //   while(...) {
+  //     ...
+  //     if (...) {
+  //       continue label;
+  //     }
+  //   }
+  // }
+  //
+  // will turn into
+  //
+  // while(...) {
+  //   ...
+  //   while(...) {
+  //     ...
+  //     if (...) {
+  //       break;
+  //     }
+  //   }
+  // }
+  //
+  // This is only applicable when this is the last statement within it's parent nest as otherwise it'll be a jump to the next statement instead of a backjump to the loop
   public static boolean replaceContinueWithBreak(Statement stat) {
     boolean res = false;
 
