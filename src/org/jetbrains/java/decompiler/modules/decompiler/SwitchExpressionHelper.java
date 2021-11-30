@@ -5,7 +5,6 @@ import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
-import org.jetbrains.java.decompiler.util.DotExporter;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -68,7 +67,6 @@ public final class SwitchExpressionHelper {
       List<StatEdge> breaks = st.getSuccessorEdges(StatEdge.TYPE_BREAK);
 
       if (breaks.isEmpty()) {
-        DotExporter.toDotFile(st.getTopParent(), "a");
         return false; // TODO: handle switch expression with fallthrough!
       }
 
@@ -80,7 +78,7 @@ public final class SwitchExpressionHelper {
 
     Map<Statement, List<VarVersionPair>> assignments = mapAssignments(breakJumps);
 
-    // Must have found a return
+    // Must have found a return if it's null
     if (assignments == null) {
       return false;
     }
@@ -100,12 +98,13 @@ public final class SwitchExpressionHelper {
 
     VarExprent relevantVar = findRelevantVar(assignments);
 
+    // No var found
     if (relevantVar == null) {
       return false;
     }
 
+    Set<StatEdge> edges = new HashSet<>();
     for (Statement caseStat : stat.getCaseStatements()) {
-      Set<StatEdge> edges = new HashSet<>();
       TryWithResourcesProcessor.findEdgesLeaving(caseStat, caseStat, edges);
 
       for (StatEdge edge : edges) {
@@ -114,6 +113,8 @@ public final class SwitchExpressionHelper {
           return false;
         }
       }
+
+      edges.clear();
     }
 
     List<StatEdge> sucs = stat.getSuccessorEdges(StatEdge.TYPE_REGULAR);
