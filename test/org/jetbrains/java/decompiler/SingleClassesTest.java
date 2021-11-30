@@ -345,6 +345,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16, "TestConstructorSwitchExpression2");
     register(JAVA_16, "TestAssertSwitchExpression");
     register(JAVA_16, "TestSwitchExpressionFallthrough1");
+    register(JAVA_16, "TestConstructorSwitchExpression3");
+    register(JAVA_16, "TestSwitchExpressionPPMM");
 
     register(JAVA_16_PREVIEW, "TestSealedClasses");
     register(JAVA_16_PREVIEW, "PermittedSubClassA", "TestSealedClasses");

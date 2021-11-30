@@ -1,0 +1,75 @@
+package pkg;
+
+public class TestSwitchExpressionPPMM {
+   public int test(int test, int x) {
+      System.out.println(x);// 5
+
+      int i = 1 + switch(test) {// 6
+         case 1 -> x++;// 7
+         case 2 -> {
+            ++x;// 8
+            yield x;
+         }
+         case 3 -> x--;// 9
+         case 4 -> {
+            --x;// 10
+            yield x;
+         }
+         default -> x;// 11
+      };
+      System.out.println(x);// 14
+      return i;// 15
+   }
+}
+
+class 'pkg/TestSwitchExpressionPPMM' {
+   method 'test (II)I' {
+      0      4
+      1      4
+      2      4
+      3      4
+      4      4
+      5      4
+      6      4
+      7      6
+      8      6
+      9      6
+      29      7
+      2a      7
+      2b      7
+      2f      9
+      30      9
+      31      9
+      32      10
+      37      12
+      38      12
+      39      12
+      3d      14
+      3e      14
+      3f      14
+      40      15
+      44      17
+      45      6
+      46      6
+      47      19
+      48      19
+      49      19
+      4a      19
+      4b      19
+      4c      19
+      4d      19
+      4e      20
+      4f      20
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 7
+7 <-> 8
+8 <-> 10
+9 <-> 13
+10 <-> 15
+11 <-> 18
+14 <-> 20
+15 <-> 21
