@@ -1,7 +1,9 @@
 package org.jetbrains.java.decompiler.modules.decompiler.exps;
 
+import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
+import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 
@@ -9,7 +11,7 @@ import java.util.BitSet;
 import java.util.List;
 
 public class YieldExprent extends Exprent {
-  private final Exprent content;
+  private Exprent content;
   private final VarType retType;
 
   public YieldExprent(Exprent content, VarType retType) {
@@ -30,6 +32,18 @@ public class YieldExprent extends Exprent {
   }
 
   @Override
+  public CheckTypesResult checkExprTypeBounds() {
+    CheckTypesResult result = new CheckTypesResult();
+
+    if (retType.type != CodeConstants.TYPE_VOID) {
+      result.addMinTypeExprent(this.content, VarType.getMinTypeInFamily(retType.typeFamily));
+      result.addMaxTypeExprent(this.content, retType);
+    }
+
+    return result;
+  }
+
+  @Override
   public TextBuffer toJava(int indent) {
     TextBuffer buf = new TextBuffer();
     buf.append("yield ");
@@ -43,12 +57,20 @@ public class YieldExprent extends Exprent {
   }
 
   @Override
+  public void replaceExprent(Exprent oldExpr, Exprent newExpr) {
+    if (oldExpr == this.content) {
+      this.content = newExpr;
+    }
+  }
+
+  @Override
   public VarType getExprType() {
     return this.retType;
   }
 
   @Override
   public void getBytecodeRange(BitSet values) {
-
+    measureBytecode(values, this.content);
+    measureBytecode(values);
   }
 }

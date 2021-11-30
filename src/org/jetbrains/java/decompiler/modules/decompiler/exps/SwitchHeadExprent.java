@@ -47,6 +47,7 @@ public class SwitchHeadExprent extends Exprent {
   public CheckTypesResult checkExprTypeBounds() {
     CheckTypesResult result = new CheckTypesResult();
 
+    // TODO: this surely can't be right with switch on enum and string?
     result.addMinTypeExprent(value, VarType.VARTYPE_BYTECHAR);
     result.addMaxTypeExprent(value, VarType.VARTYPE_INT);
 
