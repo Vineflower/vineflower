@@ -64,6 +64,7 @@ Fernflower is licenced under the [Apache Licence Version 2.0](http://www.apache.
 `java -jar quiltflower.jar -dgs=1 c:\Temp\binary\library.jar c:\Temp\binary\Boot.class c:\Temp\source\`
 
 ### Command-line options
+To force saving as a file or folder, `--file` and `--folder` can be provided. If not specified, Quiltflower will try to guess based on the file name.
 
 With the exception of mpm, urc, ind, thr and log, the value of 1 means the option is activated, 0 - deactivated. Default 
 value, if any, is given between parentheses.
