@@ -5,21 +5,22 @@ import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.util.TextUtil;
 
 import java.io.PrintStream;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class PrintStreamLogger extends IFernflowerLogger {
 
   private final PrintStream stream;
-  private int indent;
+  private final ThreadLocal<AtomicInteger> indent; // AtomicInteger is unnecessary but provides useful increment methods
 
   public PrintStreamLogger(PrintStream printStream) {
     stream = printStream;
-    indent = 0;
+    indent = ThreadLocal.withInitial(() -> new AtomicInteger(0));
   }
 
   @Override
   public void writeMessage(String message, Severity severity) {
     if (accepts(severity)) {
-      stream.println(severity.prefix + TextUtil.getIndentString(indent) + message);
+      stream.println(severity.prefix + TextUtil.getIndentString(indent.get().get()) + message);
     }
   }
 
@@ -35,14 +36,14 @@ public class PrintStreamLogger extends IFernflowerLogger {
   public void startReadingClass(String className) {
     if (accepts(Severity.INFO)) {
       writeMessage("Decompiling class " + className, Severity.INFO);
-      ++indent;
+      indent.get().incrementAndGet();
     }
   }
 
   @Override
   public void endReadingClass() {
     if (accepts(Severity.INFO)) {
-      --indent;
+      indent.get().decrementAndGet();
       writeMessage("... done", Severity.INFO);
     }
   }
@@ -51,14 +52,14 @@ public class PrintStreamLogger extends IFernflowerLogger {
   public void startClass(String className) {
     if (accepts(Severity.INFO)) {
       writeMessage("Processing class " + className, Severity.TRACE);
-      ++indent;
+      indent.get().incrementAndGet();
     }
   }
 
   @Override
   public void endClass() {
     if (accepts(Severity.INFO)) {
-      --indent;
+      indent.get().decrementAndGet();
       writeMessage("... proceeded", Severity.TRACE);
     }
   }
@@ -67,14 +68,14 @@ public class PrintStreamLogger extends IFernflowerLogger {
   public void startMethod(String methodName) {
     if (accepts(Severity.INFO)) {
       writeMessage("Processing method " + methodName, Severity.TRACE);
-      ++indent;
+      indent.get().incrementAndGet();
     }
   }
 
   @Override
   public void endMethod() {
     if (accepts(Severity.INFO)) {
-      --indent;
+      indent.get().decrementAndGet();
       writeMessage("... proceeded", Severity.TRACE);
     }
   }
@@ -83,14 +84,14 @@ public class PrintStreamLogger extends IFernflowerLogger {
   public void startWriteClass(String className) {
     if (accepts(Severity.INFO)) {
       writeMessage("Writing class " + className, Severity.TRACE);
-      ++indent;
+      indent.get().incrementAndGet();
     }
   }
 
   @Override
   public void endWriteClass() {
     if (accepts(Severity.INFO)) {
-      --indent;
+      indent.get().decrementAndGet();
       writeMessage("... written", Severity.TRACE);
     }
   }
