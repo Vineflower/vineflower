@@ -85,7 +85,7 @@ public class BasicBlockStatement extends Statement {
   // TODO: cache this?
   @Override
   public List<VarExprent> getImplicitlyDefinedVars() {
-    if (getExprents().size() > 0) {
+    if (getExprents() != null && getExprents().size() > 0) {
       List<VarExprent> vars = new ArrayList<>();
       List<Exprent> exps = getExprents();
 
@@ -121,6 +121,16 @@ public class BasicBlockStatement extends Statement {
 
   public BasicBlock getBlock() {
     return block;
+  }
+
+  // TODO: is this allowed? SecondaryFunctionsHelper says "only head expressions can be replaced!"
+  @Override
+  public void replaceExprent(Exprent oldexpr, Exprent newexpr) {
+    for (int i = 0; i < this.exprents.size(); i++) {
+      if (this.exprents.get(i) == oldexpr) {
+        this.exprents.set(i, newexpr);
+      }
+    }
   }
 
   @Override

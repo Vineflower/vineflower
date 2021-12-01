@@ -1,0 +1,91 @@
+package pkg;
+
+import java.util.Random;
+
+public enum TestConstructorSwitchExpression3 {
+   T1,
+   T2;
+
+   private TestConstructorSwitchExpression3(int i) {
+      System.out.println(i);// 18
+   }// 19
+
+   private static int get() {
+      return (new Random()).nextInt(3);// 22
+   }
+
+   static {
+      T1 = new TestConstructorSwitchExpression3(switch(get()) {// 6
+         case 0 -> 1;// 7
+         case 1 -> 2;// 8
+         default -> 3;// 9
+      });
+
+      T2 = new TestConstructorSwitchExpression3(switch(get()) {// 11
+         case 0 -> 1;// 12
+         case 1 -> 2;// 13
+         default -> 3;// 14
+      });
+   }// 5
+}
+
+class 'pkg/TestConstructorSwitchExpression3' {
+   method '<init> (Ljava/lang/String;II)V' {
+      6      9
+      7      9
+      8      9
+      9      9
+      a      9
+      b      9
+      c      9
+      d      10
+   }
+
+   method 'get ()I' {
+      7      13
+      8      13
+      9      13
+      a      13
+      b      13
+   }
+
+   method '<clinit> ()V' {
+      7      17
+      8      17
+      9      17
+      a      17
+      24      18
+      28      19
+      2c      20
+      30      17
+      31      17
+      32      17
+      3a      23
+      3b      23
+      3c      23
+      3d      23
+      58      24
+      5c      25
+      60      26
+      64      23
+      65      23
+      66      23
+      6d      28
+   }
+}
+
+Lines mapping:
+5 <-> 29
+6 <-> 18
+7 <-> 19
+8 <-> 20
+9 <-> 21
+11 <-> 24
+12 <-> 25
+13 <-> 26
+14 <-> 27
+18 <-> 10
+19 <-> 11
+22 <-> 14
+Not mapped:
+17

@@ -18,9 +18,9 @@ public class TryHelper {
     boolean ret = makeTryWithResourceRec(cl, root);
 
     if (ret) {
-      if (!cl.getVersion().hasNewTryWithResources()) {
-        SequenceHelper.condenseSequences(root);
+      SequenceHelper.condenseSequences(root);
 
+      if (!cl.getVersion().hasNewTryWithResources()) {
         if (collapseTryRec(root)) {
           SequenceHelper.condenseSequences(root);
         }
@@ -28,8 +28,6 @@ public class TryHelper {
     }
 
     if (cl.getVersion().hasNewTryWithResources()) {
-      SequenceHelper.condenseSequences(root);
-
       if (mergeTrys(root)) {
         SequenceHelper.condenseSequences(root);
 

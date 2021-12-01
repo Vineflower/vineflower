@@ -511,6 +511,10 @@ public class Statement implements IMatchable {
     }
   }
 
+  public final void replaceWith(Statement stat) {
+    this.parent.replaceStatement(this, stat);
+  }
+
   public final void destroy() {
     this.parent.replaceStatement(this, BasicBlockStatement.create());
   }

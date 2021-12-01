@@ -47,10 +47,12 @@ public abstract class Exprent implements IMatchable {
   public static final int EXPRENT_INVOCATION = 8;
   public static final int EXPRENT_MONITOR = 9;
   public static final int EXPRENT_NEW = 10;
-  public static final int EXPRENT_SWITCH = 11;
+  public static final int EXPRENT_SWITCH_HEAD = 11;
   public static final int EXPRENT_VAR = 12;
   public static final int EXPRENT_ANNOTATION = 13;
   public static final int EXPRENT_ASSERT = 14;
+  public static final int EXPRENT_SWITCH = 15;
+  public static final int EXPRENT_YIELD = 15;
 
   protected static ThreadLocal<Map<String, VarType>> inferredLambdaTypes = ThreadLocal.withInitial(HashMap::new);
 
@@ -142,17 +144,13 @@ public abstract class Exprent implements IMatchable {
   // Preconditions: this list must never be removed from! Only added to!
   protected abstract List<Exprent> getAllExprents(List<Exprent> list);
 
-  public Exprent copy() {
-    throw new RuntimeException("not implemented");
-  }
+  public abstract Exprent copy();
 
   public TextBuffer toJava() {
     return toJava(0);
   }
 
-  public TextBuffer toJava(int indent) {
-    throw new RuntimeException("not implemented");
-  }
+  public abstract TextBuffer toJava(int indent);
 
   public void replaceExprent(Exprent oldExpr, Exprent newExpr) { }
 

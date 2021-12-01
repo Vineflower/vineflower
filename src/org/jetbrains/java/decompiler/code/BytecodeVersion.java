@@ -33,6 +33,10 @@ public final class BytecodeVersion implements Comparable<BytecodeVersion> {
     return major >= MAJOR_16;
   }
 
+  public boolean hasSwitchExpressions() {
+    return major >= MAJOR_16;
+  }
+
   public boolean hasSealedClasses() {
     return previewReleased(MAJOR_15, MAJOR_17);
   }

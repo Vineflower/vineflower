@@ -42,8 +42,8 @@ public final class SwitchHelper {
       following = (SwitchStatement)edges.get(0).getDestination();
     }
 
-    SwitchExprent switchExprent = (SwitchExprent)switchStatement.getHeadexprent();
-    Exprent value = switchExprent.getValue();
+    SwitchHeadExprent switchHeadExprent = (SwitchHeadExprent)switchStatement.getHeadexprent();
+    Exprent value = switchHeadExprent.getValue();
     if (isEnumArray(value)) {
       List<List<Exprent>> caseValues = switchStatement.getCaseValues();
       Map<Exprent, Exprent> mapping = new HashMap<>(caseValues.size());
@@ -117,7 +117,7 @@ public final class SwitchHelper {
       }
       caseValues.clear();
       caseValues.addAll(realCaseValues);
-      switchExprent.replaceExprent(value, ((InvocationExprent)array.getIndex()).getInstance().copy());
+      switchHeadExprent.replaceExprent(value, ((InvocationExprent)array.getIndex()).getInstance().copy());
       return true;
     }
     else if (isSwitchOnString(switchStatement, following)) {
@@ -156,7 +156,7 @@ public final class SwitchHelper {
       following.getCaseValues().clear();
       following.getCaseValues().addAll(realCaseValues);
 
-      Exprent followingVal = ((SwitchExprent)following.getHeadexprent()).getValue();
+      Exprent followingVal = ((SwitchHeadExprent)following.getHeadexprent()).getValue();
       following.getHeadexprent().replaceExprent(followingVal, ((InvocationExprent)value).getInstance());
 
       switchStatement.getFirst().getExprents().remove(switchStatement.getFirst().getExprents().size() - 1);
@@ -256,8 +256,8 @@ public final class SwitchHelper {
    */
   private static boolean isSwitchOnString(SwitchStatement first, SwitchStatement second) {
     if (second != null) {
-      Exprent firstValue = ((SwitchExprent)first.getHeadexprent()).getValue();
-      Exprent secondValue = ((SwitchExprent)second.getHeadexprent()).getValue();
+      Exprent firstValue = ((SwitchHeadExprent)first.getHeadexprent()).getValue();
+      Exprent secondValue = ((SwitchHeadExprent)second.getHeadexprent()).getValue();
 
       if (firstValue.type == Exprent.EXPRENT_INVOCATION && secondValue.type == Exprent.EXPRENT_VAR && first.getCaseStatements().get(0).type == Statement.TYPE_IF) {
         InvocationExprent invExpr = (InvocationExprent)firstValue;

@@ -11,10 +11,7 @@ import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.modules.code.DeadCodeHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.*;
 import org.jetbrains.java.decompiler.modules.decompiler.deobfuscator.ExceptionDeobfuscator;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.SynchronizedStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarProcessor;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructMethod;
@@ -259,6 +256,13 @@ public class MethodProcessorRunnable implements Runnable {
         }
       }
 
+      if (SwitchExpressionHelper.hasSwitchExpressions(root)) {
+        if (SwitchExpressionHelper.processSwitchExpressions(root)) {
+          decompileRecord.add("ProcessSwitchExpr", root);
+          continue;
+        }
+      }
+	  
       if (TryHelper.enhanceTryStats(root, cl)) {
         decompileRecord.add("EnhanceTry", root);
         continue;
@@ -299,6 +303,17 @@ public class MethodProcessorRunnable implements Runnable {
 
       SequenceHelper.condenseSequences(root); // remove empty blocks
       decompileRecord.add("CondenseSequences_SS", root);
+
+      // If we have simplified switches, try to make switch expressions
+      if (SwitchExpressionHelper.hasSwitchExpressions(root)) {
+        if (SwitchExpressionHelper.processSwitchExpressions(root)) {
+          decompileRecord.add("ProcessSwitchExpr_SS", root);
+
+          // Simplify stack vars to integrate and inline switch expressions
+          stackProc.simplifyStackVars(root, mt, cl);
+          decompileRecord.add("SimplifyStackVars_SS", root);
+        }
+      }
     }
 
     // Makes constant returns the same type as the method descriptor

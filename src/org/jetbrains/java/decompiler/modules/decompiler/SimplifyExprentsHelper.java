@@ -357,7 +357,7 @@ public class SimplifyExprentsHelper {
           VarExprent assignmentLeft = (VarExprent) assignment.getLeft();
           VarExprent exitValue = (VarExprent) exit.getValue();
           //If the assignment before the return is immediately used in the return, inline it.
-          if (assignmentLeft.equals(exitValue) && !assignmentLeft.isStack() && !exitValue.isStack()) {
+          if (assignmentLeft.equals(exitValue) && ((!assignmentLeft.isStack() && !exitValue.isStack()) || assignment.getRight().type == Exprent.EXPRENT_SWITCH)) {
             exit.replaceExprent(exitValue, assignment.getRight());
             return true;
           }

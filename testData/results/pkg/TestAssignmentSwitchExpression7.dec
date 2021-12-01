@@ -1,0 +1,41 @@
+package pkg;
+
+public class TestAssignmentSwitchExpression7 {
+   public void test(int x) {
+      String str = switch(x) {// 5
+         case 1 -> "1";// 6
+         case 2 -> "2";// 7
+         default -> "3";// 8
+      };
+      System.out.println(str);// 10
+   }// 11
+}
+
+class 'pkg/TestAssignmentSwitchExpression7' {
+   method 'test (I)V' {
+      0      4
+      1      4
+      1c      5
+      1d      5
+      21      6
+      22      6
+      26      7
+      28      4
+      29      9
+      2a      9
+      2b      9
+      2c      9
+      2d      9
+      2e      9
+      2f      9
+      30      10
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 6
+7 <-> 7
+8 <-> 8
+10 <-> 10
+11 <-> 11

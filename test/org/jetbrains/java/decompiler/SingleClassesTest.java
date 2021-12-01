@@ -329,6 +329,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16, "TestAssignmentSwitchExpression4");
     register(JAVA_16, "TestAssignmentSwitchExpression5");
     register(JAVA_16, "TestAssignmentSwitchExpression6");
+    register(JAVA_16, "TestAssignmentSwitchExpression7");
     register(JAVA_16, "TestInlineSwitchExpression1");
     register(JAVA_16, "TestInlineSwitchExpression2");
     register(JAVA_16, "TestInlineSwitchExpression3");
@@ -342,6 +343,9 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16, "TestConstructorSwitchExpression1");
     register(JAVA_16, "TestConstructorSwitchExpression2");
     register(JAVA_16, "TestAssertSwitchExpression");
+    register(JAVA_16, "TestSwitchExpressionFallthrough1");
+    register(JAVA_16, "TestConstructorSwitchExpression3");
+    register(JAVA_16, "TestSwitchExpressionPPMM");
 
     register(JAVA_16_PREVIEW, "TestSealedClasses");
     register(JAVA_16_PREVIEW, "PermittedSubClassA", "TestSealedClasses");
