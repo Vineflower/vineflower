@@ -1,6 +1,7 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.struct.gen;
 
+import org.jetbrains.java.decompiler.api.Option;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
@@ -90,7 +91,7 @@ public final class MethodDescriptor {
         }
         else if (init) {
           // && isEnum
-          if (DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_ENUM) && DecompilerContext.getStructContext().getClass(struct.getClassQualifiedName()).hasModifier(CodeConstants.ACC_ENUM)) {
+          if (DecompilerContext.getOption(Option.DECOMPILE_ENUM) && DecompilerContext.getStructContext().getClass(struct.getClassQualifiedName()).hasModifier(CodeConstants.ACC_ENUM)) {
             actualParams -= 2;
           }
         }

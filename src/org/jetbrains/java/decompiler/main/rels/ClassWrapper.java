@@ -1,13 +1,13 @@
 // Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.main.rels;
 
+import org.jetbrains.java.decompiler.api.Option;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.cfg.ControlFlowGraph;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.main.collectors.VarNamesCollector;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
-import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarProcessor;
@@ -36,12 +36,12 @@ public class ClassWrapper {
   }
 
   public void init() {
-    DecompilerContext.setProperty(DecompilerContext.CURRENT_CLASS, classStruct);
-    DecompilerContext.setProperty(DecompilerContext.CURRENT_CLASS_WRAPPER, this);
+    DecompilerContext.update(classStruct);
+    DecompilerContext.update(this);
     DecompilerContext.getLogger().startClass(classStruct.qualifiedName);
 
-    int maxSec = Integer.parseInt(DecompilerContext.getProperty(IFernflowerPreferences.MAX_PROCESSING_METHOD).toString());
-    boolean testMode = DecompilerContext.getOption(IFernflowerPreferences.UNIT_TEST_MODE);
+    int maxSec = DecompilerContext.getOption(Option.MAX_PROCESSING_METHOD);
+    boolean testMode = DecompilerContext.getOption(Option.UNIT_TEST_MODE);
 
     for (StructMethod mt : classStruct.getMethods()) {
       DecompilerContext.getLogger().startMethod(mt.getName() + " " + mt.getDescriptor());
@@ -155,7 +155,7 @@ public class ClassWrapper {
         varProc.refreshVarNames(namesCollector);
 
         // if debug information present and should be used
-        if (DecompilerContext.getOption(IFernflowerPreferences.USE_DEBUG_VAR_NAMES)) {
+        if (DecompilerContext.getOption(Option.USE_DEBUG_VAR_NAMES)) {
           StructLocalVariableTableAttribute attr = mt.getLocalVariableAttr();
           if (attr != null) {
             // only param names here

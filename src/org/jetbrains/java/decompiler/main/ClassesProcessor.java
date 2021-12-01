@@ -1,6 +1,7 @@
 // Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.main;
 
+import org.jetbrains.java.decompiler.api.Option;
 import org.jetbrains.java.decompiler.code.BytecodeVersion;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.Instruction;
@@ -88,8 +89,8 @@ public class ClassesProcessor implements CodeConstants {
     Map<String, Set<String>> mapEnclosingClassReferences = new HashMap<>();
     Map<String, String> mapNewSimpleNames = new HashMap<>();
 
-    boolean bDecompileInner = DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_INNER);
-    boolean verifyAnonymousClasses = DecompilerContext.getOption(IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES);
+    boolean bDecompileInner = DecompilerContext.getOption(Option.DECOMPILE_INNER);
+    boolean verifyAnonymousClasses = DecompilerContext.getOption(Option.VERIFY_ANONYMOUS_CLASSES);
 
     // create class nodes
     for (StructClass cl : context.getOwnClasses().values()) {
@@ -175,7 +176,7 @@ public class ClassesProcessor implements CodeConstants {
                 else if (!Inner.equal(existingRec, rec)) {
                   int oldPriority = existingRec.source.equals(innerName) ? 1 : existingRec.source.equals(enclClassName) ? 2 : 3;
                   int newPriority = rec.source.equals(innerName) ? 1 : rec.source.equals(enclClassName) ? 2 : 3;
-                  if (DecompilerContext.getOption(IFernflowerPreferences.WARN_INCONSISTENT_INNER_CLASSES)) {
+                  if (DecompilerContext.getOption(Option.WARN_INCONSISTENT_INNER_CLASSES)) {
                     String message = "Inconsistent inner class entries for " + innerName + "!";
                     DecompilerContext.getLogger().writeMessage(message, IFernflowerLogger.Severity.WARN);
                     DecompilerContext.getLogger().writeMessage("  " + existingRec.source + ": " + existingRec, IFernflowerLogger.Severity.WARN);
@@ -456,13 +457,13 @@ public class ClassesProcessor implements CodeConstants {
 
         buffer.append(classBuffer);
 
-        if (DecompilerContext.getOption(IFernflowerPreferences.BYTECODE_SOURCE_MAPPING)) {
+        if (DecompilerContext.getOption(Option.BYTECODE_SOURCE_MAPPING)) {
           BytecodeSourceMapper mapper = DecompilerContext.getBytecodeSourceMapper();
           mapper.addTotalOffset(offsetLines);
-          if (DecompilerContext.getOption(IFernflowerPreferences.DUMP_ORIGINAL_LINES)) {
+          if (DecompilerContext.getOption(Option.DUMP_ORIGINAL_LINES)) {
             buffer.dumpOriginalLineNumbers(mapper.getOriginalLinesMapping());
           }
-          if (DecompilerContext.getOption(IFernflowerPreferences.UNIT_TEST_MODE)) {
+          if (DecompilerContext.getOption(Option.UNIT_TEST_MODE)) {
             buffer.appendLineSeparator();
             mapper.dumpMapping(buffer, true);
           }

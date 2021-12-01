@@ -1,6 +1,7 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler;
 
+import org.jetbrains.java.decompiler.api.Option;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
@@ -286,7 +287,7 @@ public final class SecondaryFunctionsHelper {
                   return lstOperands.get(0);
                 }
               }
-            } else if (DecompilerContext.getOption(IFernflowerPreferences.TERNARY_CONSTANT_SIMPLIFICATION)) {
+            } else if (DecompilerContext.getOption(Option.TERNARY_CONSTANT_SIMPLIFICATION)) {
               if (expr1.type == Exprent.EXPRENT_CONST && expr1.getExprType().type == CodeConstants.TYPE_BOOLEAN) {
                 ConstExprent cexpr1 = (ConstExprent) expr1;
                 boolean val = cexpr1.getIntValue() != 0;

@@ -1,6 +1,7 @@
 // Copyright 2000-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.main.rels;
 
+import org.jetbrains.java.decompiler.api.Option;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
@@ -30,7 +31,7 @@ public class NestedMemberAccess {
       return;
     }
 
-    noSynthFlag = DecompilerContext.getOption(IFernflowerPreferences.SYNTHETIC_NOT_SET);
+    noSynthFlag = DecompilerContext.getOption(Option.SYNTHETIC_NOT_SET);
 
     computeMethodTypes(root);
 

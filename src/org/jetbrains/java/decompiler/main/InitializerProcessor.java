@@ -1,6 +1,7 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.main;
 
+import org.jetbrains.java.decompiler.api.Option;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
@@ -49,7 +50,7 @@ public final class InitializerProcessor {
     // This can happen if InnerClasses attributes are erased
     liftConstructor(wrapper);
 
-    if (DecompilerContext.getOption(IFernflowerPreferences.HIDE_EMPTY_SUPER)) {
+    if (DecompilerContext.getOption(Option.HIDE_EMPTY_SUPER)) {
       hideEmptySuper(wrapper);
     }
   }

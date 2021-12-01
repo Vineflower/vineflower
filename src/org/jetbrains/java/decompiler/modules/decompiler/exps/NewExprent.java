@@ -1,6 +1,7 @@
 // Copyright 2000-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler.exps;
 
+import org.jetbrains.java.decompiler.api.Option;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.ClassWriter;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
@@ -322,10 +323,10 @@ public class NewExprent extends Exprent {
     if (anonymous) {
       ClassNode child = DecompilerContext.getClassProcessor().getMapRootClasses().get(newType.value);
 
-      boolean selfReference = DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS_NODE) == child;
+      boolean selfReference = DecompilerContext.getCurrentClassNode() == child;
 
       // IDEA-204310 - avoid backtracking later on for lambdas (causes spurious imports)
-      if (!enumConst && (!lambda || DecompilerContext.getOption(IFernflowerPreferences.LAMBDA_TO_ANONYMOUS_CLASS))) {
+      if (!enumConst && (!lambda || DecompilerContext.getOption(Option.LAMBDA_TO_ANONYMOUS_CLASS))) {
         String enclosing = null;
 
         if (!lambda && constructor != null) {
@@ -386,7 +387,7 @@ public class NewExprent extends Exprent {
       }
 
       if (lambda) {
-        if (!DecompilerContext.getOption(IFernflowerPreferences.LAMBDA_TO_ANONYMOUS_CLASS)) {
+        if (!DecompilerContext.getOption(Option.LAMBDA_TO_ANONYMOUS_CLASS)) {
           buf.setLength(0);  // remove the usual 'new <class>()', it will be replaced with lambda style '() ->'
         }
         setLambdaGenericTypes();
@@ -523,7 +524,7 @@ public class NewExprent extends Exprent {
         if (enclosing.type == Exprent.EXPRENT_VAR) {
           VarExprent varEnclosing = (VarExprent)enclosing;
 
-          StructClass current_class = ((ClassNode)DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS_NODE)).classStruct;
+          StructClass current_class = DecompilerContext.getCurrentClassNode().classStruct;
           String this_classname = varEnclosing.getProcessor().getThisVars().get(new VarVersionPair(varEnclosing));
 
           if (!current_class.qualifiedName.equals(this_classname)) {

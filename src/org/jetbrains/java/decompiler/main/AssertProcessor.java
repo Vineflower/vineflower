@@ -1,6 +1,7 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.main;
 
+import org.jetbrains.java.decompiler.api.Option;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
@@ -55,7 +56,7 @@ public final class AssertProcessor {
 
     ClassWrapper wrapper = node.getWrapper();
 
-    boolean noSynthFlag = DecompilerContext.getOption(IFernflowerPreferences.SYNTHETIC_NOT_SET);
+    boolean noSynthFlag = DecompilerContext.getOption(Option.SYNTHETIC_NOT_SET);
 
     for (StructField fd : wrapper.getClassStruct().getFields()) {
 

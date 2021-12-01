@@ -1,6 +1,7 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler;
 
+import org.jetbrains.java.decompiler.api.Option;
 import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.code.cfg.ControlFlowGraph;
 import org.jetbrains.java.decompiler.code.cfg.ExceptionRangeCFG;
@@ -48,7 +49,7 @@ public final class DomHelper {
 
     boolean firstIsException = false;
 
-    if (DecompilerContext.getOption(IFernflowerPreferences.EXPERIMENTAL_TRY_LOOP_FIX)) {
+    if (DecompilerContext.getOption(Option.EXPERIMENTAL_TRY_LOOP_FIX)) {
       // Check if the first block in the graph is covered by an exception range.
       // If it is, we need to avoid setting the edge type to continue, as that causes problems later down the line.
 

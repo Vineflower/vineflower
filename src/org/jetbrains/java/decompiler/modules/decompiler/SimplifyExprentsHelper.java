@@ -1,6 +1,7 @@
 // Copyright 2000-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler;
 
+import org.jetbrains.java.decompiler.api.Option;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
@@ -58,7 +59,7 @@ public class SimplifyExprentsHelper {
 
     List<Exprent> expressions = stat.getExprents();
     if (expressions == null) {
-      boolean processClass14 = DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_CLASS_1_4);
+      boolean processClass14 = DecompilerContext.getOption(Option.DECOMPILE_CLASS_1_4);
 
       while (true) {
         boolean changed = false;
@@ -148,7 +149,7 @@ public class SimplifyExprentsHelper {
       }
 
       // remove getClass() invocation, which is part of a qualified new
-      if (DecompilerContext.getOption(IFernflowerPreferences.REMOVE_GET_CLASS_NEW)) {
+      if (DecompilerContext.getOption(Option.REMOVE_GET_CLASS_NEW)) {
         if (isQualifiedNewGetClass(current, next)) {
           list.remove(index);
           res = true;
@@ -847,7 +848,7 @@ public class SimplifyExprentsHelper {
 
       SequenceHelper.destroyAndFlattenStatement(stat);
 
-      ClassWrapper wrapper = (ClassWrapper)DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS_WRAPPER);
+      ClassWrapper wrapper = DecompilerContext.getCurrentClassWrapper();
       if (wrapper != null) {
         wrapper.getHiddenMembers().add(InterpreterUtil.makeUniqueKey(fieldExpr.getName(), fieldExpr.getDescriptor().descriptorString));
       }

@@ -1,5 +1,6 @@
 package org.jetbrains.java.decompiler;
 
+import org.jetbrains.java.decompiler.api.Options;
 import org.jetbrains.java.decompiler.main.ClassesProcessor;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.decompiler.PrintStreamLogger;
@@ -16,10 +17,11 @@ public final class MinimalFernflowerEnvironment {
   public static void setup() {
     StructContext sc = new StructContext(null, null, null);
     DecompilerContext context = new DecompilerContext(
-      new HashMap<>(),
+      new Options(),
       new PrintStreamLogger(System.out),
       sc,
       new ClassesProcessor(sc),
+      null,
       null,
       null);
     DecompilerContext.setCurrentContext(context);

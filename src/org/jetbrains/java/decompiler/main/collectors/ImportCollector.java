@@ -126,7 +126,7 @@ public class ImportCollector {
       (context.getClass(currentPackageSlash + shortName) != null && !packageName.equals(currentPackagePoint)) || // current package
       (context.getClass(shortName) != null && !currentPackagePoint.isEmpty());
 
-    ClassNode currCls = (ClassNode)DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS_NODE);
+    ClassNode currCls = DecompilerContext.getCurrentClassNode();
     String mapKey = currCls == null ? "" : currCls.classStruct.qualifiedName;
     Map<String, String> innerClassNames = mapInnerClassNames.getOrDefault(mapKey, new HashMap<>());
     if (!existsDefaultClass && innerClassNames.containsKey(shortName) && !innerClassNames.get(shortName).equals(fullName)) {

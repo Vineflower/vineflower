@@ -1,6 +1,7 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.main;
 
+import org.jetbrains.java.decompiler.api.Option;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
@@ -121,7 +122,7 @@ public final class ClassReference14Processor {
   }
 
   private static void mapClassMethods(ClassNode node, Map<ClassWrapper, MethodWrapper> map) {
-    boolean noSynthFlag = DecompilerContext.getOption(IFernflowerPreferences.SYNTHETIC_NOT_SET);
+    boolean noSynthFlag = DecompilerContext.getOption(Option.SYNTHETIC_NOT_SET);
 
     ClassWrapper wrapper = node.getWrapper();
 
@@ -205,7 +206,7 @@ public final class ClassReference14Processor {
                   wrapper.getClassStruct().getField(field.getName(), field.getDescriptor().descriptorString);  // FIXME: can be null! why??
 
                 if (fd != null && fd.hasModifier(CodeConstants.ACC_STATIC) &&
-                    (fd.isSynthetic() || DecompilerContext.getOption(IFernflowerPreferences.SYNTHETIC_NOT_SET))) {
+                    (fd.isSynthetic() || DecompilerContext.getOption(Option.SYNTHETIC_NOT_SET))) {
 
                   if (fexpr.getLstOperands().get(1).type == Exprent.EXPRENT_ASSIGNMENT && fexpr.getLstOperands().get(2).equals(field)) {
                     AssignmentExprent asexpr = (AssignmentExprent)fexpr.getLstOperands().get(1);

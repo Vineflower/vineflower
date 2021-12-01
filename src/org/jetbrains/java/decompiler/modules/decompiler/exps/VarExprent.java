@@ -1,6 +1,7 @@
 // Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler.exps;
 
+import org.jetbrains.java.decompiler.api.Option;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.ClassWriter;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
@@ -154,10 +155,10 @@ public class VarExprent extends Exprent {
   */
 
   private void appendDefinitionType(TextBuffer buffer) {
-    if (DecompilerContext.getOption(IFernflowerPreferences.USE_DEBUG_VAR_NAMES)) {
+    if (DecompilerContext.getOption(Option.USE_DEBUG_VAR_NAMES)) {
 
       if (lvt != null) {
-        if (DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_GENERIC_SIGNATURES)) {
+        if (DecompilerContext.getOption(Option.DECOMPILE_GENERIC_SIGNATURES)) {
           if (lvt.getSignature() != null) {
             GenericFieldDescriptor descriptor = GenericMain.parseFieldSignature(lvt.getSignature());
             if (descriptor != null) {
@@ -170,7 +171,7 @@ public class VarExprent extends Exprent {
         return;
       }
 
-      MethodWrapper method = (MethodWrapper)DecompilerContext.getProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
+      MethodWrapper method = DecompilerContext.getCurrentMethodWrapper();
       if (method != null) {
         Integer originalIndex = null;
         if (processor != null) {
@@ -179,7 +180,7 @@ public class VarExprent extends Exprent {
         int visibleOffset = bytecode == null ? -1 : bytecode.length();
         if (originalIndex != null) {
           // first try from signature
-          if (DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_GENERIC_SIGNATURES)) {
+          if (DecompilerContext.getOption(Option.DECOMPILE_GENERIC_SIGNATURES)) {
             StructLocalVariableTypeTableAttribute attr =
               method.methodStruct.getAttribute(StructGeneralAttribute.ATTRIBUTE_LOCAL_VARIABLE_TYPE_TABLE);
             if (attr != null) {
@@ -235,7 +236,7 @@ public class VarExprent extends Exprent {
   }
 
   public VarType getVarType() {
-    if (DecompilerContext.getOption(IFernflowerPreferences.USE_DEBUG_VAR_NAMES) && lvt != null) {
+    if (DecompilerContext.getOption(Option.USE_DEBUG_VAR_NAMES) && lvt != null) {
       return new VarType(lvt.getDescriptor());
     }
 

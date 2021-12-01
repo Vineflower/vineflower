@@ -130,7 +130,7 @@ public class FieldExprent extends Exprent {
   }
 
   private boolean isAmbiguous() {
-    MethodWrapper method = (MethodWrapper)DecompilerContext.getProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
+    MethodWrapper method = DecompilerContext.getCurrentMethodWrapper();
     if (method != null) {
       StructLocalVariableTableAttribute attr = method.methodStruct.getLocalVariableAttr();
       if (attr != null) {
@@ -146,7 +146,7 @@ public class FieldExprent extends Exprent {
     TextBuffer buf = new TextBuffer();
 
     if (isStatic) {
-      ClassNode node = (ClassNode)DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS_NODE);
+      ClassNode node = DecompilerContext.getCurrentClassNode();
       if (node == null || !classname.equals(node.classStruct.qualifiedName) || isAmbiguous() || forceQualified) {
         buf.append(DecompilerContext.getImportCollector().getShortNameInClassContext(ExprProcessor.buildJavaClassName(classname)));
         buf.append(".");
@@ -159,7 +159,7 @@ public class FieldExprent extends Exprent {
         VarExprent instVar = (VarExprent)instance;
         VarVersionPair pair = new VarVersionPair(instVar);
 
-        MethodWrapper currentMethod = (MethodWrapper)DecompilerContext.getProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
+        MethodWrapper currentMethod = DecompilerContext.getCurrentMethodWrapper();
 
         if (currentMethod != null) { // FIXME: remove
           String this_classname = currentMethod.varproc.getThisVars().get(pair);

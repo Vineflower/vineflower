@@ -1,6 +1,7 @@
 // Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.struct;
 
+import org.jetbrains.java.decompiler.api.Option;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
@@ -32,7 +33,7 @@ public class StructRecordComponent extends StructField {
 
     Map<String, StructGeneralAttribute> attributes = readAttributes(in, pool);
     GenericFieldDescriptor signature = null;
-    if (DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_GENERIC_SIGNATURES)) {
+    if (DecompilerContext.getOption(Option.DECOMPILE_GENERIC_SIGNATURES)) {
       StructGenericSignatureAttribute signatureAttr = (StructGenericSignatureAttribute)attributes.get(StructGeneralAttribute.ATTRIBUTE_SIGNATURE.name);
       if (signatureAttr != null) {
         signature = GenericMain.parseFieldSignature(signatureAttr.getSignature());

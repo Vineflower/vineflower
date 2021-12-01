@@ -2,13 +2,13 @@
 package org.jetbrains.java.decompiler.main;
 
 import net.fabricmc.fernflower.api.IFabricJavadocProvider;
+import org.jetbrains.java.decompiler.api.Option;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.Instruction;
 import org.jetbrains.java.decompiler.code.InstructionSequence;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
-import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.rels.ClassWrapper;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
@@ -34,8 +34,6 @@ import org.jetbrains.java.decompiler.util.TextUtil;
 import org.jetbrains.java.decompiler.util.VBStyleCollection;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -52,7 +50,7 @@ public class ClassWriter {
 
   public ClassWriter() {
     interceptor = DecompilerContext.getPoolInterceptor();
-    javadocProvider = (IFabricJavadocProvider) DecompilerContext.getProperty(IFabricJavadocProvider.PROPERTY_NAME);
+    javadocProvider = DecompilerContext.getCurrentContext().javadocProvider;
   }
 
   private static void invokeProcessors(ClassNode node) {
@@ -66,15 +64,15 @@ public class ClassWriter {
 
     if (node.type == ClassNode.CLASS_ROOT &&
         cl.getVersion().has14ClassReferences() &&
-        DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_CLASS_1_4)) {
+        DecompilerContext.getOption(Option.DECOMPILE_CLASS_1_4)) {
       ClassReference14Processor.processClassReferences(node);
     }
 
-    if (cl.hasModifier(CodeConstants.ACC_ENUM) && DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_ENUM)) {
+    if (cl.hasModifier(CodeConstants.ACC_ENUM) && DecompilerContext.getOption(Option.DECOMPILE_ENUM)) {
       EnumProcessor.clearEnum(wrapper);
     }
 
-    if (DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_ASSERTIONS)) {
+    if (DecompilerContext.getOption(Option.DECOMPILE_ASSERTIONS)) {
       AssertProcessor.buildAssertions(node);
     }
   }
@@ -85,10 +83,9 @@ public class ClassWriter {
       return;
     }
 
-    boolean lambdaToAnonymous = DecompilerContext.getOption(IFernflowerPreferences.LAMBDA_TO_ANONYMOUS_CLASS);
+    boolean lambdaToAnonymous = DecompilerContext.getOption(Option.LAMBDA_TO_ANONYMOUS_CLASS);
 
-    ClassNode outerNode = (ClassNode)DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS_NODE);
-    DecompilerContext.setProperty(DecompilerContext.CURRENT_CLASS_NODE, node);
+    ClassNode outerNode = DecompilerContext.update(node);
 
     BytecodeMappingTracer tracer = new BytecodeMappingTracer(origTracer.getCurrentSourceLine());
 
@@ -159,7 +156,7 @@ public class ClassWriter {
           buffer.append(" ->");
 
           RootStatement root = wrapper.getMethodWrapper(mt.getName(), mt.getDescriptor()).root;
-          if (DecompilerContext.getOption(IFernflowerPreferences.INLINE_SIMPLE_LAMBDAS) && methodWrapper.decompileError == null && root != null) {
+          if (DecompilerContext.getOption(Option.INLINE_SIMPLE_LAMBDAS) && methodWrapper.decompileError == null && root != null) {
             Statement firstStat = root.getFirst();
             if (firstStat.type == Statement.TYPE_BASICBLOCK && firstStat.getExprents() != null && firstStat.getExprents().size() == 1) {
               Exprent firstExpr = firstStat.getExprents().get(0);
@@ -172,8 +169,8 @@ public class ClassWriter {
 
               if (!isVarDefinition && !isThrow) {
                 simpleLambda = true;
-                MethodWrapper outerWrapper = (MethodWrapper)DecompilerContext.getProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
-                DecompilerContext.setProperty(DecompilerContext.CURRENT_METHOD_WRAPPER, methodWrapper);
+                MethodWrapper outerWrapper = DecompilerContext.getCurrentContext().currentMethodWrapper;
+                DecompilerContext.getCurrentContext().currentMethodWrapper = methodWrapper;
                 try {
                   TextBuffer codeBuffer = firstExpr.toJava(indent + 1, tracer);
 
@@ -194,7 +191,7 @@ public class ClassWriter {
                 finally {
                   tracer.addMapping(root.getDummyExit().bytecode);
                   addTracer(cl, mt, tracer);
-                  DecompilerContext.setProperty(DecompilerContext.CURRENT_METHOD_WRAPPER, outerWrapper);
+                  DecompilerContext.getCurrentContext().currentMethodWrapper = outerWrapper;
                 }
               }
             }
@@ -214,15 +211,14 @@ public class ClassWriter {
       }
     }
     finally {
-      DecompilerContext.setProperty(DecompilerContext.CURRENT_CLASS_NODE, outerNode);
+      DecompilerContext.update(outerNode);
     }
 
     DecompilerContext.getLogger().endWriteClass();
   }
 
   public void classToJava(ClassNode node, TextBuffer buffer, int indent, BytecodeMappingTracer tracer) {
-    ClassNode outerNode = (ClassNode)DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS_NODE);
-    DecompilerContext.setProperty(DecompilerContext.CURRENT_CLASS_NODE, node);
+    ClassNode outerNode = DecompilerContext.update(node);
 
     int startLine = tracer != null ? tracer.getCurrentSourceLine() : 0;
     BytecodeMappingTracer dummy_tracer = new BytecodeMappingTracer(startLine);
@@ -248,7 +244,7 @@ public class ClassWriter {
       List<StructRecordComponent> components = cl.getRecordComponents();
 
       for (StructField fd : cl.getFields()) {
-        boolean hide = fd.isSynthetic() && DecompilerContext.getOption(IFernflowerPreferences.REMOVE_SYNTHETIC) ||
+        boolean hide = fd.isSynthetic() && DecompilerContext.getOption(Option.REMOVE_SYNTHETIC) ||
                        wrapper.getHiddenMembers().contains(InterpreterUtil.makeUniqueKey(fd.getName(), fd.getDescriptor()));
         if (hide) continue;
 
@@ -258,7 +254,7 @@ public class ClassWriter {
           continue;
         }
 
-        boolean isEnum = fd.hasModifier(CodeConstants.ACC_ENUM) && DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_ENUM);
+        boolean isEnum = fd.hasModifier(CodeConstants.ACC_ENUM) && DecompilerContext.getOption(Option.DECOMPILE_ENUM);
         if (isEnum) {
           if (enumFields) {
             buffer.append(',').appendLineSeparator();
@@ -291,8 +287,8 @@ public class ClassWriter {
       VBStyleCollection<StructMethod, String> methods = cl.getMethods();
       for (int i = 0; i < methods.size(); i++) {
         StructMethod mt = methods.get(i);
-        boolean hide = mt.isSynthetic() && DecompilerContext.getOption(IFernflowerPreferences.REMOVE_SYNTHETIC) ||
-                       mt.hasModifier(CodeConstants.ACC_BRIDGE) && DecompilerContext.getOption(IFernflowerPreferences.REMOVE_BRIDGE) ||
+        boolean hide = mt.isSynthetic() && DecompilerContext.getOption(Option.REMOVE_SYNTHETIC) ||
+                       mt.hasModifier(CodeConstants.ACC_BRIDGE) && DecompilerContext.getOption(Option.REMOVE_BRIDGE) ||
                        wrapper.getHiddenMembers().contains(InterpreterUtil.makeUniqueKey(mt.getName(), mt.getDescriptor()));
         if (hide) continue;
 
@@ -320,7 +316,7 @@ public class ClassWriter {
         if (inner.type == ClassNode.CLASS_MEMBER) {
           StructClass innerCl = inner.classStruct;
           boolean isSynthetic = (inner.access & CodeConstants.ACC_SYNTHETIC) != 0 || innerCl.isSynthetic();
-          boolean hide = isSynthetic && DecompilerContext.getOption(IFernflowerPreferences.REMOVE_SYNTHETIC) ||
+          boolean hide = isSynthetic && DecompilerContext.getOption(Option.REMOVE_SYNTHETIC) ||
                          wrapper.getHiddenMembers().contains(innerCl.qualifiedName);
           if (hide) continue;
 
@@ -343,7 +339,7 @@ public class ClassWriter {
       }
     }
     finally {
-      DecompilerContext.setProperty(DecompilerContext.CURRENT_CLASS_NODE, outerNode);
+      DecompilerContext.update(outerNode);
     }
 
     DecompilerContext.getLogger().endWriteClass();
@@ -463,7 +459,7 @@ public class ClassWriter {
     int flags = node.type == ClassNode.CLASS_ROOT ? cl.getAccessFlags() : node.access;
     boolean isDeprecated = cl.hasAttribute(StructGeneralAttribute.ATTRIBUTE_DEPRECATED);
     boolean isSynthetic = (flags & CodeConstants.ACC_SYNTHETIC) != 0 || cl.hasAttribute(StructGeneralAttribute.ATTRIBUTE_SYNTHETIC);
-    boolean isEnum = DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_ENUM) && (flags & CodeConstants.ACC_ENUM) != 0;
+    boolean isEnum = DecompilerContext.getOption(Option.DECOMPILE_ENUM) && (flags & CodeConstants.ACC_ENUM) != 0;
     boolean isInterface = (flags & CodeConstants.ACC_INTERFACE) != 0;
     boolean isAnnotation = (flags & CodeConstants.ACC_ANNOTATION) != 0;
     boolean isModuleInfo = (flags & CodeConstants.ACC_MODULE) != 0 && cl.hasAttribute(StructGeneralAttribute.ATTRIBUTE_MODULE);
@@ -615,7 +611,7 @@ public class ClassWriter {
     int start = buffer.length();
     boolean isInterface = cl.hasModifier(CodeConstants.ACC_INTERFACE);
     boolean isDeprecated = fd.hasAttribute(StructGeneralAttribute.ATTRIBUTE_DEPRECATED);
-    boolean isEnum = fd.hasModifier(CodeConstants.ACC_ENUM) && DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_ENUM);
+    boolean isEnum = fd.hasModifier(CodeConstants.ACC_ENUM) && DecompilerContext.getOption(Option.DECOMPILE_ENUM);
 
     if (isDeprecated) {
       appendDeprecation(buffer, indent);
@@ -701,8 +697,8 @@ public class ClassWriter {
                                          boolean codeOnly, BytecodeMappingTracer tracer) {
     MethodWrapper methodWrapper = classWrapper.getMethodWrapper(mt.getName(), mt.getDescriptor());
 
-    MethodWrapper outerWrapper = (MethodWrapper)DecompilerContext.getProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
-    DecompilerContext.setProperty(DecompilerContext.CURRENT_METHOD_WRAPPER, methodWrapper);
+    MethodWrapper outerWrapper = DecompilerContext.getCurrentContext().currentMethodWrapper;
+    DecompilerContext.getCurrentContext().currentMethodWrapper = methodWrapper;
 
     try {
       String method_name = lambdaNode.lambdaInformation.method_name;
@@ -727,7 +723,7 @@ public class ClassWriter {
 
             String typeName = ExprProcessor.getCastTypeName(md_content.params[i].copy());
             if (ExprProcessor.UNDEFINED_TYPE_STRING.equals(typeName) &&
-                DecompilerContext.getOption(IFernflowerPreferences.UNDEFINED_PARAM_TYPE_OBJECT)) {
+                DecompilerContext.getOption(Option.UNDEFINED_PARAM_TYPE_OBJECT)) {
               typeName = ExprProcessor.getCastTypeName(VarType.VARTYPE_OBJECT);
             }
 
@@ -776,7 +772,7 @@ public class ClassWriter {
       }
     }
     finally {
-      DecompilerContext.setProperty(DecompilerContext.CURRENT_METHOD_WRAPPER, outerWrapper);
+      DecompilerContext.getCurrentContext().currentMethodWrapper = outerWrapper;
     }
   }
 
@@ -811,13 +807,12 @@ public class ClassWriter {
     boolean hideMethod = false;
     int start_index_method = buffer.length();
 
-    MethodWrapper outerWrapper = (MethodWrapper)DecompilerContext.getProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
-    DecompilerContext.setProperty(DecompilerContext.CURRENT_METHOD_WRAPPER, methodWrapper);
+    MethodWrapper outerWrapper = DecompilerContext.update(methodWrapper);
 
     try {
       boolean isInterface = cl.hasModifier(CodeConstants.ACC_INTERFACE);
       boolean isAnnotation = cl.hasModifier(CodeConstants.ACC_ANNOTATION);
-      boolean isEnum = cl.hasModifier(CodeConstants.ACC_ENUM) && DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_ENUM);
+      boolean isEnum = cl.hasModifier(CodeConstants.ACC_ENUM) && DecompilerContext.getOption(Option.DECOMPILE_ENUM);
       boolean isDeprecated = mt.hasAttribute(StructGeneralAttribute.ATTRIBUTE_DEPRECATED);
       boolean clInit = false, init = false, dInit = false;
 
@@ -923,7 +918,7 @@ public class ClassWriter {
         }
 
         List<StructMethodParametersAttribute.Entry> methodParameters = null;
-        if (DecompilerContext.getOption(IFernflowerPreferences.USE_METHOD_PARAMETERS)) {
+        if (DecompilerContext.getOption(Option.USE_METHOD_PARAMETERS)) {
           StructMethodParametersAttribute attr = mt.getAttribute(StructGeneralAttribute.ATTRIBUTE_METHOD_PARAMETERS);
           if (attr != null) {
             methodParameters = attr.getEntries();
@@ -961,7 +956,7 @@ public class ClassWriter {
             typeName = ExprProcessor.getCastTypeName(parameterType);
 
             if (ExprProcessor.UNDEFINED_TYPE_STRING.equals(typeName) &&
-                DecompilerContext.getOption(IFernflowerPreferences.UNDEFINED_PARAM_TYPE_OBJECT)) {
+                DecompilerContext.getOption(Option.UNDEFINED_PARAM_TYPE_OBJECT)) {
               typeName = ExprProcessor.getCastTypeName(VarType.VARTYPE_OBJECT);
             }
             buffer.append(typeName);
@@ -1074,7 +1069,7 @@ public class ClassWriter {
       tracer.incrementCurrentSourceLine();
     }
     finally {
-      DecompilerContext.setProperty(DecompilerContext.CURRENT_METHOD_WRAPPER, outerWrapper);
+      DecompilerContext.update(outerWrapper);
     }
 
     // save total lines
@@ -1087,8 +1082,8 @@ public class ClassWriter {
   private static void dumpError(TextBuffer buffer, MethodWrapper wrapper, int indent, BytecodeMappingTracer tracer) {
     List<String> lines = new ArrayList<>();
     lines.add("$FF: Couldn't be decompiled");
-    boolean exceptions = DecompilerContext.getOption(IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR);
-    boolean bytecode = DecompilerContext.getOption(IFernflowerPreferences.DUMP_BYTECODE_ON_ERROR);
+    boolean exceptions = DecompilerContext.getOption(Option.DUMP_EXCEPTION_ON_ERROR);
+    boolean bytecode = DecompilerContext.getOption(Option.DUMP_BYTECODE_ON_ERROR);
     if (exceptions) {
       collectErrorLines(wrapper.decompileError, lines);
       if (bytecode) {
@@ -1152,7 +1147,7 @@ public class ClassWriter {
   }
 
   private static void collectBytecode(MethodWrapper wrapper, List<String> lines) throws IOException {
-    ClassNode classNode = (ClassNode)DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS_NODE);
+    ClassNode classNode = DecompilerContext.getCurrentClassNode();
     StructMethod method = wrapper.methodStruct;
     InstructionSequence instructions = method.getInstructionSequence();
     if (instructions == null) {
@@ -1271,7 +1266,7 @@ public class ClassWriter {
   }
 
   private static boolean hideConstructor(ClassNode node, boolean init, boolean throwsExceptions, int paramCount, int methodAccessFlags) {
-    if (!init || throwsExceptions || paramCount > 0 || !DecompilerContext.getOption(IFernflowerPreferences.HIDE_DEFAULT_CONSTRUCTOR)) {
+    if (!init || throwsExceptions || paramCount > 0 || !DecompilerContext.getOption(Option.HIDE_DEFAULT_CONSTRUCTOR)) {
       return false;
     }
 
@@ -1279,7 +1274,7 @@ public class ClassWriter {
 	  StructClass cl = wrapper.getClassStruct();
 
 	  int classAccessFlags = node.type == ClassNode.CLASS_ROOT ? cl.getAccessFlags() : node.access;
-    boolean isEnum = cl.hasModifier(CodeConstants.ACC_ENUM) && DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_ENUM);
+    boolean isEnum = cl.hasModifier(CodeConstants.ACC_ENUM) && DecompilerContext.getOption(Option.DECOMPILE_ENUM);
 
     // default constructor requires same accessibility flags. Exception: enum constructor which is always private
   	if(!isEnum && ((classAccessFlags & ACCESSIBILITY_FLAGS) != (methodAccessFlags & ACCESSIBILITY_FLAGS))) {
@@ -1353,7 +1348,7 @@ public class ClassWriter {
   private static String getTypePrintOut(VarType type) {
     String typeText = ExprProcessor.getCastTypeName(type, false);
     if (ExprProcessor.UNDEFINED_TYPE_STRING.equals(typeText) &&
-        DecompilerContext.getOption(IFernflowerPreferences.UNDEFINED_PARAM_TYPE_OBJECT)) {
+        DecompilerContext.getOption(Option.UNDEFINED_PARAM_TYPE_OBJECT)) {
       typeText = ExprProcessor.getCastTypeName(VarType.VARTYPE_OBJECT, false);
     }
     return typeText;

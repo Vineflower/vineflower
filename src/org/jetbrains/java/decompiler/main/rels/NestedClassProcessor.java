@@ -1,6 +1,7 @@
 // Copyright 2000-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.main.rels;
 
+import org.jetbrains.java.decompiler.api.Option;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
@@ -253,7 +254,7 @@ public class NestedClassProcessor {
     VarType lambda_class_type = new VarType(lambda_class_name, true);
 
     // this pointer
-    if (!is_static_lambda_content && DecompilerContext.getOption(IFernflowerPreferences.LAMBDA_TO_ANONYMOUS_CLASS)) {
+    if (!is_static_lambda_content && DecompilerContext.getOption(Option.LAMBDA_TO_ANONYMOUS_CLASS)) {
       varProc.getThisVars().put(new VarVersionPair(0, 0), parent_class_name);
       varProc.setVarName(new VarVersionPair(0, 0), parent.simpleName + ".this");
     }
@@ -850,7 +851,7 @@ public class NestedClassProcessor {
       return null;
     }
 
-    boolean noSynthFlag = DecompilerContext.getOption(IFernflowerPreferences.SYNTHETIC_NOT_SET);
+    boolean noSynthFlag = DecompilerContext.getOption(Option.SYNTHETIC_NOT_SET);
 
     // no loop at the begin
     DirectNode firstNode = graph.first;

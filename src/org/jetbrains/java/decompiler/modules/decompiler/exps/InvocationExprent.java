@@ -1,6 +1,7 @@
 // Copyright 2000-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler.exps;
 
+import org.jetbrains.java.decompiler.api.Option;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
@@ -321,7 +322,7 @@ public class InvocationExprent extends Exprent {
 
         // fix for this() & super()
         if (upperBound == null && isGenNew) {
-          ClassNode currentCls = (ClassNode)DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS_NODE);
+          ClassNode currentCls = DecompilerContext.getCurrentClassNode();
 
           if (currentCls != null) {
             if (mthCls.equals(currentCls.classStruct)) {
@@ -451,7 +452,7 @@ public class InvocationExprent extends Exprent {
             boolean suppress = (!missing || !isInvocationInstance) &&
               (upperBound == null || !newRet.isGeneric() || DecompilerContext.getStructContext().instanceOf(newRet.value, upperBound.value));
 
-            if (!suppress || DecompilerContext.getOption(IFernflowerPreferences.EXPLICIT_GENERIC_ARGUMENTS)) {
+            if (!suppress || DecompilerContext.getOption(Option.EXPLICIT_GENERIC_ARGUMENTS)) {
               getGenericArgs(fparams, genericsMap, genericArgs);
             }
             else if (isGenNew) {
@@ -535,7 +536,7 @@ public class InvocationExprent extends Exprent {
         buf.append('(').append(ExprProcessor.getCastTypeName(descriptor.ret)).append(')');
       }
 
-      ClassNode node = (ClassNode)DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS_NODE);
+      ClassNode node = DecompilerContext.getCurrentClassNode();
       if (node == null || !classname.equals(node.classStruct.qualifiedName)) {
         buf.append(DecompilerContext.getImportCollector().getShortNameInClassContext(ExprProcessor.buildJavaClassName(classname)));
       }
@@ -548,7 +549,7 @@ public class InvocationExprent extends Exprent {
 
         VarProcessor varProc = instVar.getProcessor();
         if (varProc == null) {
-          MethodWrapper currentMethod = (MethodWrapper)DecompilerContext.getProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
+          MethodWrapper currentMethod = DecompilerContext.getCurrentMethodWrapper();
           if (currentMethod != null) {
             varProc = currentMethod.varproc;
           }
@@ -758,10 +759,10 @@ public class InvocationExprent extends Exprent {
       ClassNode newNode = DecompilerContext.getClassProcessor().getMapRootClasses().get(classname);
       if (newNode != null) {
         mask = ExprUtil.getSyntheticParametersMask(newNode, stringDescriptor, lstParameters.size());
-        isEnum = newNode.classStruct.hasModifier(CodeConstants.ACC_ENUM) && DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_ENUM);
+        isEnum = newNode.classStruct.hasModifier(CodeConstants.ACC_ENUM) && DecompilerContext.getOption(Option.DECOMPILE_ENUM);
       }
     }
-    ClassNode currCls = ((ClassNode)DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS_NODE));
+    ClassNode currCls = DecompilerContext.getCurrentClassNode();
     List<StructMethod> matches = getMatchedDescriptors();
     BitSet setAmbiguousParameters = getAmbiguousParameters(matches);
 
@@ -1045,7 +1046,7 @@ public class InvocationExprent extends Exprent {
 
   private List<StructMethod> getMatchedDescriptors() {
     List<StructMethod> matches = new ArrayList<>();
-    ClassNode currCls = ((ClassNode)DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS_NODE));
+    ClassNode currCls = DecompilerContext.getCurrentClassNode();
     StructClass cl = DecompilerContext.getStructContext().getClass(classname);
     if (cl == null) return matches;
 

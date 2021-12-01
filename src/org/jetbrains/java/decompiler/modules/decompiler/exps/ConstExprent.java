@@ -1,6 +1,7 @@
 // Copyright 2000-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler.exps;
 
+import org.jetbrains.java.decompiler.api.Option;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
@@ -210,8 +211,8 @@ public class ConstExprent extends Exprent {
 
   @Override
   public TextBuffer toJava(int indent, BytecodeMappingTracer tracer) {
-    boolean literal = DecompilerContext.getOption(IFernflowerPreferences.LITERALS_AS_IS);
-    boolean ascii = DecompilerContext.getOption(IFernflowerPreferences.ASCII_STRING_CHARACTERS);
+    boolean literal = DecompilerContext.getOption(Option.LITERALS_AS_IS);
+    boolean ascii = DecompilerContext.getOption(Option.ASCII_STRING_CHARACTERS);
 
     tracer.addMapping(bytecode);
 
@@ -448,7 +449,7 @@ public class ConstExprent extends Exprent {
       case CodeConstants.TYPE_SHORTCHAR:
       case CodeConstants.TYPE_INT:
         int value = (Integer)this.value;
-        return value == 0 || (DecompilerContext.getOption(IFernflowerPreferences.BOOLEAN_TRUE_ONE) && value == 1);
+        return value == 0 || (DecompilerContext.getOption(Option.BOOLEAN_TRUE_ONE) && value == 1);
     }
 
     return false;

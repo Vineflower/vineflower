@@ -3,6 +3,7 @@
  */
 package org.jetbrains.java.decompiler.util;
 
+import org.jetbrains.java.decompiler.api.Option;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 
@@ -16,7 +17,7 @@ import java.util.*;
 @SuppressWarnings("UnusedReturnValue")
 public class TextBuffer {
   private final String myLineSeparator = DecompilerContext.getNewLineSeparator();
-  private final String myIndent = (String)DecompilerContext.getProperty(IFernflowerPreferences.INDENT_STRING);
+  private final String myIndent = DecompilerContext.getOption(Option.INDENT_STRING);
   private final StringBuilder myStringBuilder;
   private Map<Integer, Integer> myLineToOffsetMapping = null;
 

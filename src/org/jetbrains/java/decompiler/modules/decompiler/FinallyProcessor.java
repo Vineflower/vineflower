@@ -1,6 +1,7 @@
 // Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler;
 
+import org.jetbrains.java.decompiler.api.Option;
 import org.jetbrains.java.decompiler.code.*;
 import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.code.cfg.ControlFlowGraph;
@@ -77,7 +78,7 @@ public class FinallyProcessor {
             catchallBlockIDs.put(handler.id, null);
           }
           else {
-            if (DecompilerContext.getOption(IFernflowerPreferences.FINALLY_DEINLINE) && verifyFinallyEx(graph, fin, inf)) {
+            if (DecompilerContext.getOption(Option.FINALLY_DEINLINE) && verifyFinallyEx(graph, fin, inf)) {
               finallyBlockIDs.put(handler.id, null);
             }
             else {

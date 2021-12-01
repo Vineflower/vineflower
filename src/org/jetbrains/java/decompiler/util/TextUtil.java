@@ -1,6 +1,7 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.util;
 
+import org.jetbrains.java.decompiler.api.Option;
 import org.jetbrains.java.decompiler.code.BytecodeVersion;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.ClassesProcessor;
@@ -19,7 +20,7 @@ public final class TextUtil {
     "const", "for", "new", "switch", "continue", "goto", "package", "synchronized", "true", "false", "null", "assert"));
 
   public static void writeQualifiedSuper(TextBuffer buf, String qualifier) {
-    ClassesProcessor.ClassNode classNode = (ClassesProcessor.ClassNode)DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS_NODE);
+    ClassesProcessor.ClassNode classNode = DecompilerContext.getCurrentClassNode();
     if (!qualifier.equals(classNode.classStruct.qualifiedName)) {
       buf.append(DecompilerContext.getImportCollector().getShortName(ExprProcessor.buildJavaClassName(qualifier))).append('.');
     }
@@ -29,7 +30,7 @@ public final class TextUtil {
   public static String getIndentString(int length) {
     if (length == 0) return "";
     StringBuilder buf = new StringBuilder();
-    String indent = (String)DecompilerContext.getProperty(IFernflowerPreferences.INDENT_STRING);
+    String indent = DecompilerContext.getOption(Option.INDENT_STRING);
     append(buf, indent, length);
     return buf.toString();
   }

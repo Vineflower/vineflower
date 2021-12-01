@@ -1,6 +1,7 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.code;
 
+import org.jetbrains.java.decompiler.api.Option;
 import org.jetbrains.java.decompiler.code.*;
 import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.code.cfg.ControlFlowGraph;
@@ -125,7 +126,7 @@ public final class DeadCodeHelper {
           List<BasicBlock> lst = range.getProtectedRange();
 
           if (lst.size() == 1 && lst.get(0) == block) {
-            if (DecompilerContext.getOption(IFernflowerPreferences.REMOVE_EMPTY_RANGES)) {
+            if (DecompilerContext.getOption(Option.REMOVE_EMPTY_RANGES)) {
               block.removeSuccessorException(range.getHandler());
               lstRanges.remove(i);
 

@@ -2,6 +2,7 @@
 package org.jetbrains.java.decompiler.struct;
 
 import net.fabricmc.fernflower.api.IFabricResultSaver;
+import org.jetbrains.java.decompiler.api.Option;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.extern.IResultSaver;
@@ -80,7 +81,7 @@ public class ContextUnit {
       }
       return;
     }
-    if (DecompilerContext.getOption(IFernflowerPreferences.SKIP_EXTRA_FILES))
+    if (DecompilerContext.getOption(Option.SKIP_EXTRA_FILES))
         return;
     otherEntries.add(new String[]{fullPath, entry});
   }
@@ -128,7 +129,7 @@ public class ContextUnit {
             String content = decompiledData.getClassContent(cl);
             if (content != null) {
               int[] mapping = null;
-              if (DecompilerContext.getOption(IFernflowerPreferences.BYTECODE_SOURCE_MAPPING)) {
+              if (DecompilerContext.getOption(Option.BYTECODE_SOURCE_MAPPING)) {
                 mapping = DecompilerContext.getBytecodeSourceMapper().getOriginalLinesMapping();
               }
               resultSaver.saveClassFile(filename, cl.qualifiedName, entryName, content, mapping);
@@ -157,7 +158,7 @@ public class ContextUnit {
         }
 
         final List<Future<?>> futures = new LinkedList<>();
-        final ExecutorService decompileExecutor = Executors.newFixedThreadPool(Integer.parseInt((String) DecompilerContext.getProperty(IFernflowerPreferences.THREADS)));
+        final ExecutorService decompileExecutor = Executors.newFixedThreadPool(DecompilerContext.getOption(Option.THREADS));
         final DecompilerContext rootContext = DecompilerContext.getCurrentContext();
 
         // classes
@@ -169,7 +170,7 @@ public class ContextUnit {
               setContext(rootContext);
               String content = decompiledData.getClassContent(cl);
               int[] mapping = null;
-              if (DecompilerContext.getOption(IFernflowerPreferences.BYTECODE_SOURCE_MAPPING)) {
+              if (DecompilerContext.getOption(Option.BYTECODE_SOURCE_MAPPING)) {
                 mapping = DecompilerContext.getBytecodeSourceMapper().getOriginalLinesMapping();
               }
               if (resultSaver instanceof IFabricResultSaver) {
@@ -196,18 +197,7 @@ public class ContextUnit {
   }
 
   public void setContext(DecompilerContext rootContext) {
-    DecompilerContext current = DecompilerContext.getCurrentContext();
-    if (current == null) {
-      current = new DecompilerContext(
-        new HashMap<>(rootContext.properties),
-        rootContext.logger,
-        rootContext.structContext,
-        rootContext.classProcessor,
-        rootContext.poolInterceptor,
-        rootContext.renamerFactory
-      );
-      DecompilerContext.setCurrentContext(current);
-    }
+    DecompilerContext.setContext(rootContext);
   }
 
   public void setManifest(Manifest manifest) {
