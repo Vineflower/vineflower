@@ -12,12 +12,18 @@ Changes include:
 - Optimization
 - Many other miscellaneous features and fixes
 
-For support or questions, please join the [Quilt toolchain discord.](https://discord.quiltmc.org/toolchain)
+### Use
+Want to use Quiltflower? There are a few ways! For Fabric and Architectury projects, [Loom Quiltflower](https://github.com/Juuxel/LoomQuiltflower) allows you to run genSources with Quiltflower.
+The [Quiltflower Intellij IDEA plugin](https://plugins.jetbrains.com/plugin/18032-quiltflower) replaces Fernflower in IDEA with Quiltflower, and allows you to modify its settings.
+Or, if you want to run Quiltflower from the commandline, head over to the [Releases tab](https://github.com/QuiltMC/quiltflower/releases) and grab the latest, and then follow the instructions further down the readme.
+Make sure to report any issues to the [Issues tab!](https://github.com/QuiltMC/quiltflower/issues)
 
-When pulling from upstream, use https://github.com/fesh0r/fernflower
+For support or questions, please join the [Quilt toolchain discord.](https://discord.quiltmc.org/toolchain)
 
 ### Contributing
 To contribute, please check out [CONTRIBUTING.md](./CONTRIBUTING.md) and [ARCHITECTURE.md](./ARCHITECTURE.md)!
+
+When pulling from upstream, use https://github.com/fesh0r/fernflower
 
 #### Special Thanks
 * Jetbrains- For maintaining Fernflower
@@ -30,7 +36,7 @@ Fernflower's readme is preserved below:
 Fernflower is the first actually working analytical decompiler for Java and 
 probably for a high-level programming language in general. Naturally it is still 
 under development, please send your bug reports and improvement suggestions to the
-[issue tracker](https://youtrack.jetbrains.com/newIssue?project=IDEA&clearDraft=true&c=Subsystem+Decompiler).
+[issue tracker](https://github.com/QuiltMC/quiltflower/issues).
 
 ### Licence
 
@@ -38,7 +44,7 @@ Fernflower is licenced under the [Apache Licence Version 2.0](http://www.apache.
 
 ### Running from command line
 
-`java -jar fernflower.jar [-<option>=<value>]* [<source>]+ <destination>`
+`java -jar quiltflower.jar [-<option>=<value>]* [<source>]+ <destination>`
 
 \* means 0 or more times\
 \+ means 1 or more times
@@ -53,9 +59,9 @@ Fernflower is licenced under the [Apache Licence Version 2.0](http://www.apache.
 
 ##### Examples:
 
-`java -jar fernflower.jar -hes=0 -hdc=0 c:\Temp\binary\ -e=c:\Java\rt.jar c:\Temp\source\`
+`java -jar quiltflower.jar -hes=0 -hdc=0 c:\Temp\binary\ -e=c:\Java\rt.jar c:\Temp\source\`
 
-`java -jar fernflower.jar -dgs=1 c:\Temp\binary\library.jar c:\Temp\binary\Boot.class c:\Temp\source\`
+`java -jar quiltflower.jar -dgs=1 c:\Temp\binary\library.jar c:\Temp\binary\Boot.class c:\Temp\source\`
 
 ### Command-line options
 
