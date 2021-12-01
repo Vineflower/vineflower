@@ -241,6 +241,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestAssignmentInDoWhile");
     // TODO: Assignment of a = a is removed
     register(JAVA_8, "TestBooleanAssignment");
+    // TODO: Required casts are removed
+    register(JAVA_8, "TestCastObjectToPrimitive");
     register(JAVA_8, "TestCastPrimitiveToObject");
     register(JAVA_8, "TestDoWhileTrue");
     register(JAVA_8, "TestExtraClass");
