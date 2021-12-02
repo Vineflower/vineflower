@@ -434,12 +434,15 @@ public class ClassesProcessor implements CodeConstants {
             t);
           buffer.append("// $FF: Couldn't be decompiled");
           buffer.appendLineSeparator();
-          List<String> lines = new ArrayList<>();
-          ClassWriter.collectErrorLines(t, lines);
-          for (String line : lines) {
-            buffer.append("//");
-            if (!line.isEmpty()) buffer.append(' ').append(line);
-            buffer.appendLineSeparator();
+          if (DecompilerContext.getOption(IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR)) {
+            List<String> lines = new ArrayList<>();
+            lines.addAll(Arrays.asList(((String) DecompilerContext.getProperty(IFernflowerPreferences.ERROR_MESSAGE)).split("\n")));
+            ClassWriter.collectErrorLines(t, lines);
+            for (String line : lines) {
+              buffer.append("//");
+              if (!line.isEmpty()) buffer.append(' ').append(line);
+              buffer.appendLineSeparator();
+            }
           }
           return;
         }
@@ -460,12 +463,15 @@ public class ClassesProcessor implements CodeConstants {
             t);
           buffer.append("// $FF: Couldn't be decompiled");
           buffer.appendLineSeparator();
-          List<String> lines = new ArrayList<>();
-          ClassWriter.collectErrorLines(t, lines);
-          for (String line : lines) {
-            buffer.append("//");
-            if (!line.isEmpty()) buffer.append(' ').append(line);
-            buffer.appendLineSeparator();
+          if (DecompilerContext.getOption(IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR)) {
+            List<String> lines = new ArrayList<>();
+            lines.addAll(Arrays.asList(((String) DecompilerContext.getProperty(IFernflowerPreferences.ERROR_MESSAGE)).split("\n")));
+            ClassWriter.collectErrorLines(t, lines);
+            for (String line : lines) {
+              buffer.append("//");
+              if (!line.isEmpty()) buffer.append(' ').append(line);
+              buffer.appendLineSeparator();
+            }
           }
           return;
         }

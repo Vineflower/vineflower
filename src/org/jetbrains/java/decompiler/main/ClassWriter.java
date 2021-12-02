@@ -94,12 +94,15 @@ public class ClassWriter {
         t);
       buffer.append("// $FF: Couldn't be decompiled");
       buffer.appendLineSeparator();
-      List<String> lines = new ArrayList<>();
-      collectErrorLines(t, lines);
-      for (String line : lines) {
-        buffer.append("//");
-        if (!line.isEmpty()) buffer.append(' ').append(line);
-        buffer.appendLineSeparator();
+      if (DecompilerContext.getOption(IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR)) {
+        List<String> lines = new ArrayList<>();
+        lines.addAll(Arrays.asList(((String) DecompilerContext.getProperty(IFernflowerPreferences.ERROR_MESSAGE)).split("\n")));
+        collectErrorLines(t, lines);
+        for (String line : lines) {
+          buffer.append("//");
+          if (!line.isEmpty()) buffer.append(' ').append(line);
+          buffer.appendLineSeparator();
+        }
       }
 
       return false;
@@ -1091,6 +1094,7 @@ public class ClassWriter {
     boolean exceptions = DecompilerContext.getOption(IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR);
     boolean bytecode = DecompilerContext.getOption(IFernflowerPreferences.DUMP_BYTECODE_ON_ERROR);
     if (exceptions) {
+      lines.addAll(Arrays.asList(((String) DecompilerContext.getProperty(IFernflowerPreferences.ERROR_MESSAGE)).split("\n")));
       collectErrorLines(wrapper.decompileError, lines);
       if (bytecode) {
         lines.add("");
