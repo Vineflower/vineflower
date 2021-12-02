@@ -1,0 +1,17 @@
+package pkg;
+
+public class TestCastObjectToPrimitive {
+   static Object object1 = null;
+   boolean castObject = object1;
+   boolean negatedObject = !object1;
+   boolean booleanXor = object1 ^ object1;
+   boolean isObjectTrue = object1;
+   boolean isObjectFalse = !object1;
+   boolean isObject6 = object1 == 6;
+   boolean booleanOr = object1 || object1;
+   int integerXor = object1 ^ 5;
+   short shorXor = (short)(object1 ^ 58);
+   long longXor = 8L ^ object1;
+   boolean integerGe = object1 <= 48;
+}
+
