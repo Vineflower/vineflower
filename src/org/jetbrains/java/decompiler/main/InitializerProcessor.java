@@ -250,11 +250,24 @@ public final class InitializerProcessor {
             }
           }
         } else if (inlineInitializers && cl.hasModifier(CodeConstants.ACC_INTERFACE)){
-          DecompilerContext.getLogger().writeMessage("Non assignment found in initialiser when we're needing to inline all", IFernflowerLogger.Severity.ERROR);
+          DecompilerContext.getLogger().writeMessage("Non assignment found in initializer when we're needing to inline all", IFernflowerLogger.Severity.ERROR);
         }
       }
       if (exprentsToRemove.size() > 0){
         firstData.getExprents().removeAll(exprentsToRemove);
+      }
+    }
+
+    // Ensure enum fields have been inlined
+    if (cl.hasModifier(CodeConstants.ACC_ENUM)) {
+      for (StructField fd : cl.getFields()) {
+        if (fd.hasModifier(CodeConstants.ACC_ENUM)) {
+          if (wrapper.getStaticFieldInitializers().getWithKey(InterpreterUtil.makeUniqueKey(fd.getName(), fd.getDescriptor())) == null) {
+            method.addComment("$FF: Failed to inline enum fields");
+            method.addErrorComment = true;
+            break;
+          }
+        }
       }
     }
   }

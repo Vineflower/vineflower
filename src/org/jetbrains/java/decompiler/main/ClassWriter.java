@@ -96,7 +96,7 @@ public class ClassWriter {
       buffer.appendLineSeparator();
       if (DecompilerContext.getOption(IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR)) {
         List<String> lines = new ArrayList<>();
-        lines.addAll(Arrays.asList(((String) DecompilerContext.getProperty(IFernflowerPreferences.ERROR_MESSAGE)).split("\n")));
+        lines.addAll(ClassWriter.getErrorComment());
         collectErrorLines(t, lines);
         for (String line : lines) {
           buffer.append("//");
@@ -857,6 +857,18 @@ public class ClassWriter {
         appendComment(buffer, "bridge method", indent);
       }
 
+      if (methodWrapper.addErrorComment || methodWrapper.commentLines != null) {
+        if (methodWrapper.addErrorComment) {
+          for (String s : ClassWriter.getErrorComment()) {
+            methodWrapper.addComment(s);
+          }
+        }
+
+        for (String s : methodWrapper.commentLines) {
+          buffer.appendIndent(indent).append("// " + s).appendLineSeparator();
+        }
+      }
+
       if (javadocProvider != null) {
         appendJavadoc(buffer, javadocProvider.getMethodDoc(cl, mt), indent);
       }
@@ -1094,7 +1106,7 @@ public class ClassWriter {
     boolean exceptions = DecompilerContext.getOption(IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR);
     boolean bytecode = DecompilerContext.getOption(IFernflowerPreferences.DUMP_BYTECODE_ON_ERROR);
     if (exceptions) {
-      lines.addAll(Arrays.asList(((String) DecompilerContext.getProperty(IFernflowerPreferences.ERROR_MESSAGE)).split("\n")));
+      lines.addAll(ClassWriter.getErrorComment());
       collectErrorLines(wrapper.decompileError, lines);
       if (bytecode) {
         lines.add("");
@@ -1376,6 +1388,10 @@ public class ClassWriter {
       typeText = ExprProcessor.getCastTypeName(VarType.VARTYPE_OBJECT, false);
     }
     return typeText;
+  }
+
+  public static List<String> getErrorComment() {
+    return Arrays.stream(((String) DecompilerContext.getProperty(IFernflowerPreferences.ERROR_MESSAGE)).split("\n")).filter(s -> !s.isEmpty()).collect(Collectors.toList());
   }
 
   private static void appendComment(TextBuffer buffer, String comment, int indent) {

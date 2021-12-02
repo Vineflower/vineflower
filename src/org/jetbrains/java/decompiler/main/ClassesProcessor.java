@@ -436,7 +436,7 @@ public class ClassesProcessor implements CodeConstants {
           buffer.appendLineSeparator();
           if (DecompilerContext.getOption(IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR)) {
             List<String> lines = new ArrayList<>();
-            lines.addAll(Arrays.asList(((String) DecompilerContext.getProperty(IFernflowerPreferences.ERROR_MESSAGE)).split("\n")));
+            lines.addAll(ClassWriter.getErrorComment());
             ClassWriter.collectErrorLines(t, lines);
             for (String line : lines) {
               buffer.append("//");
@@ -465,7 +465,7 @@ public class ClassesProcessor implements CodeConstants {
           buffer.appendLineSeparator();
           if (DecompilerContext.getOption(IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR)) {
             List<String> lines = new ArrayList<>();
-            lines.addAll(Arrays.asList(((String) DecompilerContext.getProperty(IFernflowerPreferences.ERROR_MESSAGE)).split("\n")));
+            lines.addAll(ClassWriter.getErrorComment());
             ClassWriter.collectErrorLines(t, lines);
             for (String line : lines) {
               buffer.append("//");
