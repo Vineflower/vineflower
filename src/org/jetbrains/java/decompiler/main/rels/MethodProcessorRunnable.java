@@ -124,15 +124,15 @@ public class MethodProcessorRunnable implements Runnable {
       ExceptionDeobfuscator.insertDummyExceptionHandlerBlocks(graph, mt.getBytecodeVersion());
     }
 
+    DotExporter.toDotFile(graph, mt, "cfgParsed", true);
+    RootStatement root = DomHelper.parseGraph(graph, mt);
+
     DecompileRecord decompileRecord = new DecompileRecord(mt);
     debugCurrentDecompileRecord.set(decompileRecord);
-
-    RootStatement root = DomHelper.parseGraph(graph, mt);
 
     decompileRecord.add("Initial", root);
 
     debugCurrentlyDecompiling.set(root);
-    DotExporter.toDotFile(graph, mt, "cfgParsed", true);
 
     FinallyProcessor fProc = new FinallyProcessor(md, varProc);
     int finallyProcessed = 0;

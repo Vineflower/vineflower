@@ -237,7 +237,7 @@ public final class DeadCodeHelper {
       Instruction instr = block.getLastInstruction();
 
       if (instr != null && instr.opcode == CodeConstants.opc_goto) {
-        // Destination points towards itself- infinite loop?
+        // Part of an empty circular jump sequence. This needs to be condensed later, so we do not touch it
         if (ignored.contains(block)) {
           continue;
         }
