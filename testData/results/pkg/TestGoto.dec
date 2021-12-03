@@ -1,0 +1,27 @@
+package pkg;
+
+public class TestGoto {
+   private TestGoto() {
+   }// 16
+
+   public static void test() {
+      // $FF: Couldn't be decompiled
+      // Bytecode:
+      // 0: goto 6
+      // 3: goto 0
+      // 6: goto 3
+      // 9: return
+   }
+}
+
+class 'pkg/TestGoto' {
+   method '<init> ()V' {
+      4      4
+   }
+}
+
+Lines mapping:
+16 <-> 5
+Not mapped:
+14
+15

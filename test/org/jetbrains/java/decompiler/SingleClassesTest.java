@@ -459,6 +459,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestTernaryReturn");
     // TODO: method access causes improper stack var simplification
     register(JAVA_8, "TestArrayAssign");
+    register(JASM, "TestGoto");
   }
 
   private void registerEntireClassPath() {
