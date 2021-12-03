@@ -231,13 +231,14 @@ public final class DeadCodeHelper {
   }
 
   public static void removeGotos(ControlFlowGraph graph) {
+    Set<BasicBlock> ignored = findCircularJumps(graph);
 
     for (BasicBlock block : graph.getBlocks()) {
       Instruction instr = block.getLastInstruction();
 
       if (instr != null && instr.opcode == CodeConstants.opc_goto) {
         // Destination points towards itself- infinite loop?
-        if (graph.getSequence().getInstr(((JumpInstruction)instr).destination) == instr) {
+        if (ignored.contains(block)) {
           continue;
         }
 
@@ -246,6 +247,60 @@ public final class DeadCodeHelper {
     }
 
     removeEmptyBlocks(graph);
+  }
+
+  // Finds any circular jumps within the graph. Examples include:
+  //
+  // Single instruction infinte loop
+  // 0: goto 0;
+  //
+  // Multiple instruction infinite loop
+  // 0: goto 2;
+  // 1: goto 0;
+  // 2: goto 1;
+  //
+  private static Set<BasicBlock> findCircularJumps(ControlFlowGraph graph) {
+    Set<BasicBlock> ret = new HashSet<>();
+
+    // Temp list
+    Set<BasicBlock> blocks = new HashSet<>();
+
+    // Iterate through all blocks
+    for (BasicBlock block : graph.getBlocks()) {
+      if (ret.contains(block)) {
+        continue;
+      }
+
+      blocks.add(block);
+
+      // Jump traversal
+      BasicBlock check = block;
+      while (true) {
+        Instruction instr = check.getLastInstruction();
+
+        if (instr != null && instr.opcode == CodeConstants.opc_goto) {
+          if (check.getSuccs().size() == 1) {
+            check = check.getSuccs().get(0);
+
+            if (blocks.contains(check)) {
+              ret.addAll(blocks);
+              break; // Circular jump found
+            }
+
+            blocks.add(check);
+          } else {
+            break; // More than 1 successor, stop
+          }
+        } else {
+          break; // No goto, stop
+        }
+      }
+
+      // Clear temp list for next block
+      blocks.clear();
+    }
+
+    return ret;
   }
 
   public static void connectDummyExitBlock(ControlFlowGraph graph) {

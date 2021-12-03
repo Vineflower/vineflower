@@ -17,6 +17,10 @@ public class RootStatement extends Statement {
     this.dummyExit = dummyExit;
     this.mt = mt;
 
+    if (this.first == null) {
+      throw new IllegalStateException("Root statement has no content!");
+    }
+
     stats.addWithKey(first, first.id);
     first.setParent(this);
   }
