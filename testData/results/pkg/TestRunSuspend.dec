@@ -1,0 +1,97 @@
+package pkg;
+
+import kotlin.Metadata;
+import kotlin.Result;
+import kotlin.Unit;
+import org.jetbrains.annotations.Nullable;
+
+@Metadata(
+   mv = {1, 5, 1},
+   k = 1,
+   xi = 48,
+   d1 = {"\u0000\u0018\n\u0002\u0018\u0002\n\u0002\u0010\u0000\n\u0002\b\u0002\n\u0002\u0018\u0002\n\u0002\u0010\u0002\n\u0002\b\u0006\b\u0002\u0018\u00002\u00020\u0001B\u0005¢\u0006\u0002\u0010\u0002J\u0006\u0010\n\u001a\u00020\u0005R+\u0010\u0003\u001a\n\u0012\u0004\u0012\u00020\u0005\u0018\u00010\u0004X\u0086\u000eø\u0001\u0000ø\u0001\u0001ø\u0001\u0002¢\u0006\u000e\n\u0000\u001a\u0004\b\u0006\u0010\u0007\"\u0004\b\b\u0010\t\u0082\u0002\u000f\n\u0002\b\u0019\n\u0005\b¡\u001e0\u0001\n\u0002\b!¨\u0006\u000b"},
+   d2 = {"Lpkg/TestRunSuspend;", "", "()V", "result", "Lkotlin/Result;", "", "getResult-xLWZpok", "()Lkotlin/Result;", "setResult", "(Lkotlin/Result;)V", "await", "quiltflower_testDataKotlin"}
+)
+final class TestRunSuspend {
+   @Nullable
+   private Result<Unit> result;
+
+   public TestRunSuspend() {
+   }// 4
+
+   @Nullable
+   public final Result<Unit> getResult_xLWZpok() {
+      return this.result;
+   }
+
+   public final void setResult(@Nullable Result<Unit> var1) {
+      this.result = <set-?>;// 5
+   }
+
+   public final void await() {
+      // $FF: Couldn't be decompiled
+      // Bytecode:
+      // 00: bipush 0
+      // 01: istore 1
+      // 02: bipush 0
+      // 03: istore 2
+      // 04: aload 0
+      // 05: monitorenter
+      // 06: nop
+      // 07: bipush 0
+      // 08: istore 3
+      // 09: nop
+      // 0a: aload 0
+      // 0b: invokevirtual pkg/TestRunSuspend.getResult-xLWZpok ()Lkotlin/Result;
+      // 0e: astore 4
+      // 10: aload 4
+      // 12: ifnonnull 1f
+      // 15: aload 0
+      // 16: checkcast java/lang/Object
+      // 19: invokevirtual java/lang/Object.wait ()V
+      // 1c: goto 09
+      // 1f: aload 4
+      // 21: invokevirtual kotlin/Result.unbox-impl ()Ljava/lang/Object;
+      // 24: astore 5
+      // 26: bipush 0
+      // 27: istore 6
+      // 29: aload 5
+      // 2b: invokestatic kotlin/ResultKt.throwOnFailure (Ljava/lang/Object;)V
+      // 2e: nop
+      // 2f: aload 0
+      // 30: monitorexit
+      // 31: return
+      // 32: astore 2
+      // 33: aload 0
+      // 34: monitorexit
+      // 35: aload 2
+      // 36: athrow
+   }
+}
+
+class 'pkg/TestRunSuspend' {
+   method '<init> ()V' {
+      4      19
+   }
+
+   method 'getResult-xLWZpok ()Lkotlin/Result;' {
+      0      23
+      1      23
+      2      23
+      3      23
+      4      23
+   }
+
+   method 'setResult (Lkotlin/Result;)V' {
+      0      27
+      1      27
+      2      27
+      3      27
+      4      27
+      5      28
+   }
+}
+
+Lines mapping:
+4 <-> 20
+5 <-> 28

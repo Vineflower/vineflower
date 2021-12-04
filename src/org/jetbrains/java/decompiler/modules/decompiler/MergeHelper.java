@@ -653,6 +653,7 @@ public final class MergeHelper {
           return false;
         }
 
+        // FIXME: can be non invocation expr!!
         InvocationExprent holder = (InvocationExprent)(initExprents[0]).getRight();
 
         initExprents[0].getBytecodeRange(holder.getInstance().bytecode);

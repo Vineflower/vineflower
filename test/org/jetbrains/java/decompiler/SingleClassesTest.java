@@ -201,6 +201,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(GROOVY, "TestGroovyTrait");
     register(JAVA_8, "TestPrivateClasses");
     register(KOTLIN, "TestSuspendLambdaKt");
+    register(KOTLIN, "TestRunSuspend");
     register(JAVA_8, "TestGenericArgs");
     register(JAVA_16, "TestRecordEmpty");
     register(JAVA_16, "TestRecordSimple");
