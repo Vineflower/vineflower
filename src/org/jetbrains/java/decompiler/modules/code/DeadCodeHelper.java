@@ -9,6 +9,7 @@ import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 
 import java.util.*;
+import java.util.concurrent.BlockingDeque;
 
 public final class DeadCodeHelper {
 
@@ -409,28 +410,30 @@ public final class DeadCodeHelper {
         }
 
         // checks successful, prerequisites satisfied, now extend the range
-        if(succ_monitorexit_index < succSeq.length() - 1) { // split block
-
-          SimpleInstructionSequence seq = new SimpleInstructionSequence();
-          for(int counter = 0; counter < succ_monitorexit_index; counter++) {
-            seq.addInstruction(succSeq.getInstr(0), -1);
-            succSeq.removeInstruction(0);
-          }
-
-          // build a separate block
-          BasicBlock newblock = new BasicBlock(++graph.last_id);
-          newblock.setSeq(seq);
-
-          // insert new block
-          for (BasicBlock block : succBlock.getPreds()) {
-            block.replaceSuccessor(succBlock, newblock);
-          }
-
-          newblock.addSuccessor(succBlock);
-          graph.getBlocks().addWithKey(newblock, newblock.id);
-
-          succBlock = newblock;
-        }
+        // FIXME: what is this splitting doing, and why does it cause the loop to never finish?
+//        if(succ_monitorexit_index < succSeq.length() - 1) { // split block
+//
+//          SimpleInstructionSequence seq = new SimpleInstructionSequence();
+//          for(int counter = 0; counter < succ_monitorexit_index; counter++) {
+//            seq.addInstruction(succSeq.getInstr(0), -1);
+//            succSeq.removeInstruction(0);
+//          }
+//
+//          // build a separate block
+//          BasicBlock newblock = new BasicBlock(++graph.last_id);
+//          newblock.setSeq(seq);
+//
+//          // insert new block
+//
+//          for (BasicBlock block : new ArrayList<>(succBlock.getPreds())) {
+//            block.replaceSuccessor(succBlock, newblock);
+//          }
+//
+//          newblock.addSuccessor(succBlock);
+//          graph.getBlocks().addWithKey(newblock, newblock.id);
+//
+//          succBlock = newblock;
+//        }
 
         // copy exception edges and extend protected ranges (successor block)
         BasicBlock rangeExitBlock = succBlock.getPreds().get(0);

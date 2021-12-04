@@ -724,7 +724,7 @@ public class TextBuffer {
     boolean myPreventDeletion = false;
 
     private void onDeletion() {
-      if (myPreventDeletion) {
+      if (myPreventDeletion && (!DotExporter.DUMP_DOTS && !DotExporter.DUMP_ERROR_DOTS)) {
         throw new AssertionError(
           "TextBuffer was garbage collected without being added to another TextBuffer, data loss occurred. See cause for the creation trace",
           myCreationTrace

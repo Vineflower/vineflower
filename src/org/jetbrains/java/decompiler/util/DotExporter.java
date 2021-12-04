@@ -23,8 +23,8 @@ import org.jetbrains.java.decompiler.util.FastSparseSetFactory.FastSparseSet;
 public class DotExporter {
   private static final String DOTS_FOLDER = System.getProperty("DOT_EXPORT_DIR", null);
   private static final String DOTS_ERROR_FOLDER = System.getProperty("DOT_ERROR_EXPORT_DIR", null);
-  private static final boolean DUMP_DOTS = DOTS_FOLDER != null && !DOTS_FOLDER.trim().isEmpty();
-  private static final boolean DUMP_ERROR_DOTS = DOTS_ERROR_FOLDER != null && !DOTS_ERROR_FOLDER.trim().isEmpty();
+  public static final boolean DUMP_DOTS = DOTS_FOLDER != null && !DOTS_FOLDER.trim().isEmpty();
+  public static final boolean DUMP_ERROR_DOTS = DOTS_ERROR_FOLDER != null && !DOTS_ERROR_FOLDER.trim().isEmpty();
   // http://graphs.grevian.org/graph is a nice visualizer for the outputed dots.
 
   // Outputs a statement and as much of its information as possible into a dot formatted string.

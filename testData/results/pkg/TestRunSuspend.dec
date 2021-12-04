@@ -2,6 +2,7 @@ package pkg;
 
 import kotlin.Metadata;
 import kotlin.Result;
+import kotlin.ResultKt;
 import kotlin.Unit;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,7 +21,7 @@ final class TestRunSuspend {
    }// 4
 
    @Nullable
-   public final Result<Unit> getResult_xLWZpok() {
+   public final Result<Unit> getResult_xLWZpok/* $FF was: getResult-xLWZpok*/() {
       return this.result;
    }
 
@@ -28,70 +29,101 @@ final class TestRunSuspend {
       this.result = <set-?>;// 5
    }
 
+   // $FF: Extended synchronized range to monitorexit
    public final void await() {
-      // $FF: Couldn't be decompiled
-      // Bytecode:
-      // 00: bipush 0
-      // 01: istore 1
-      // 02: bipush 0
-      // 03: istore 2
-      // 04: aload 0
-      // 05: monitorenter
-      // 06: nop
-      // 07: bipush 0
-      // 08: istore 3
-      // 09: nop
-      // 0a: aload 0
-      // 0b: invokevirtual pkg/TestRunSuspend.getResult-xLWZpok ()Lkotlin/Result;
-      // 0e: astore 4
-      // 10: aload 4
-      // 12: ifnonnull 1f
-      // 15: aload 0
-      // 16: checkcast java/lang/Object
-      // 19: invokevirtual java/lang/Object.wait ()V
-      // 1c: goto 09
-      // 1f: aload 4
-      // 21: invokevirtual kotlin/Result.unbox-impl ()Ljava/lang/Object;
-      // 24: astore 5
-      // 26: bipush 0
-      // 27: istore 6
-      // 29: aload 5
-      // 2b: invokestatic kotlin/ResultKt.throwOnFailure (Ljava/lang/Object;)V
-      // 2e: nop
-      // 2f: aload 0
-      // 30: monitorexit
-      // 31: return
-      // 32: astore 2
-      // 33: aload 0
-      // 34: monitorexit
-      // 35: aload 2
-      // 36: athrow
+      boolean var1 = false;// 7
+      boolean var2 = false;
+      synchronized(this) {
+         int $i$a$-synchronized-TestRunSuspend$await$1 = 0;
+
+         while(true) {
+            Result result = this.getResult-xLWZpok();// 9
+            if (result != null) {// 10
+               Object var5 = result.unbox-impl();// 12
+               boolean var6 = false;
+               ResultKt.throwOnFailure(var5);
+               return;// 13
+            }
+
+            this.wait();
+         }
+      }
    }
 }
 
 class 'pkg/TestRunSuspend' {
    method '<init> ()V' {
-      4      19
+      4      20
    }
 
    method 'getResult-xLWZpok ()Lkotlin/Result;' {
-      0      23
-      1      23
-      2      23
-      3      23
-      4      23
+      0      24
+      1      24
+      2      24
+      3      24
+      4      24
    }
 
    method 'setResult (Lkotlin/Result;)V' {
-      0      27
-      1      27
-      2      27
-      3      27
-      4      27
-      5      28
+      0      28
+      1      28
+      2      28
+      3      28
+      4      28
+      5      29
+   }
+
+   method 'await ()V' {
+      0      33
+      1      33
+      2      34
+      3      34
+      4      35
+      5      35
+      7      36
+      8      36
+      a      39
+      b      39
+      c      39
+      d      39
+      e      39
+      f      39
+      10      40
+      11      40
+      12      40
+      15      47
+      16      47
+      17      47
+      18      47
+      19      47
+      1a      47
+      1b      47
+      1f      41
+      20      41
+      21      41
+      22      41
+      23      41
+      24      41
+      25      41
+      26      42
+      27      42
+      28      42
+      29      43
+      2a      43
+      2b      43
+      2c      43
+      2d      43
+      31      44
    }
 }
 
 Lines mapping:
-4 <-> 20
-5 <-> 28
+4 <-> 21
+5 <-> 29
+7 <-> 34
+9 <-> 40
+10 <-> 41
+12 <-> 42
+13 <-> 45
+Not mapped:
+8
