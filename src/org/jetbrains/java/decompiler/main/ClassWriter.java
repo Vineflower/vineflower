@@ -857,7 +857,7 @@ public class ClassWriter {
         appendComment(buffer, "bridge method", indent);
       }
 
-      if (methodWrapper.addErrorComment || methodWrapper.commentLines != null) {
+      if (DecompilerContext.getOption(IFernflowerPreferences.DECOMPILER_COMMENTS) && methodWrapper.addErrorComment || methodWrapper.commentLines != null) {
         if (methodWrapper.addErrorComment) {
           for (String s : ClassWriter.getErrorComment()) {
             methodWrapper.addComment(s);

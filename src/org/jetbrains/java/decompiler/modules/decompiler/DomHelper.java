@@ -208,8 +208,9 @@ public final class DomHelper {
   public static RootStatement parseGraph(ControlFlowGraph graph, StructMethod mt) {
 
     RootStatement root = graphToStatement(graph, mt);
+    root.addComments(graph);
 
-    if (!processStatement(root, new LinkedHashMap<>())) {
+    if (!processStatement(root, root, new LinkedHashMap<>())) {
       DotExporter.errorToDotFile(graph, mt, "parseGraphFail");
       DotExporter.errorToDotFile(root, mt, "parseGraphFailStat");
       throw new RuntimeException("parsing failure!");
@@ -310,7 +311,7 @@ public final class DomHelper {
     }
   }
 
-  private static boolean processStatement(Statement general, HashMap<Integer, Set<Integer>> mapExtPost) {
+  private static boolean processStatement(Statement general, RootStatement root, HashMap<Integer, Set<Integer>> mapExtPost) {
 
     if (general.type == Statement.TYPE_ROOT) {
       Statement stat = general.getFirst();
@@ -318,7 +319,7 @@ public final class DomHelper {
         return true;
       }
       else {
-        boolean complete = processStatement(stat, mapExtPost);
+        boolean complete = processStatement(stat, root, mapExtPost);
         if (complete) {
           // replace general purpose statement with simple one
           general.replaceStatement(stat, stat.getFirst());
@@ -346,6 +347,8 @@ public final class DomHelper {
             if (!IrreducibleCFGDeobfuscator.splitIrreducibleNode(general)) {
               DecompilerContext.getLogger().writeMessage("Irreducible statement cannot be decomposed!", IFernflowerLogger.Severity.ERROR);
               break;
+            } else {
+              root.addComment("$FF: Irreducible bytecode was duplicated to produce valid code");
             }
           }
           else {
@@ -380,7 +383,7 @@ public final class DomHelper {
             Statement stat = findGeneralStatement(general, forceall, mapExtPost);
 
             if (stat != null) {
-              boolean complete = processStatement(stat, general.getFirst() == stat ? mapExtPost : new HashMap<>());
+              boolean complete = processStatement(stat, root, general.getFirst() == stat ? mapExtPost : new HashMap<>());
 
               if (complete) {
                 // replace general purpose statement with simple one

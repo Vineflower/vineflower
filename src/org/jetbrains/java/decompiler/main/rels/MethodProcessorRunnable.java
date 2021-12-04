@@ -120,6 +120,8 @@ public class MethodProcessorRunnable implements Runnable {
       DecompilerContext.getLogger().writeMessage("Heavily obfuscated exception ranges found!", IFernflowerLogger.Severity.WARN);
       if (!ExceptionDeobfuscator.handleMultipleEntryExceptionRanges(graph)) {
         DecompilerContext.getLogger().writeMessage("Found multiple entry exception ranges which could not be splitted", IFernflowerLogger.Severity.WARN);
+        graph.addComment("$FF: Could not handle exception ranges with multiple entries");
+        graph.addErrorComment = true;
       }
       ExceptionDeobfuscator.insertDummyExceptionHandlerBlocks(graph, mt.getBytecodeVersion());
     }
@@ -139,8 +141,9 @@ public class MethodProcessorRunnable implements Runnable {
 
     while (fProc.iterateGraph(cl, mt, root, graph)) {
       finallyProcessed++;
-
+      RootStatement oldRoot = root;
       root = DomHelper.parseGraph(graph, mt);
+      root.addComments(oldRoot);
       decompileRecord.add("ProcessFinally_" + finallyProcessed, root);
 
       debugCurrentCFG.set(graph);

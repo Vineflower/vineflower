@@ -36,6 +36,8 @@ public class ControlFlowGraph implements CodeConstants {
 
   private final Set<BasicBlock> finallyExits = new HashSet<>();
   private final InstructionSequence sequence;
+  public Set<String> commentLines = null;
+  public boolean addErrorComment = false;
 
   // *****************************************************************************
   // constructors
@@ -820,5 +822,14 @@ public class ControlFlowGraph implements CodeConstants {
 
   public InstructionSequence getSequence() {
     return sequence;
+  }
+
+  // Wrapper to add to root statement
+  public void addComment(String comment) {
+    if (commentLines == null) {
+      commentLines = new LinkedHashSet<>();
+    }
+
+    commentLines.add(comment);
   }
 }

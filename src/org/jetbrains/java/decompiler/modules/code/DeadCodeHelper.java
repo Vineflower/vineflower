@@ -450,6 +450,7 @@ public final class DeadCodeHelper {
         }
 
         range_extended = true;
+        graph.addComment("$FF: Extended synchronized range to monitorexit");
         break;
       }
 

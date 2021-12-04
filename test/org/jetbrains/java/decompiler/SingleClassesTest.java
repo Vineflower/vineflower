@@ -67,7 +67,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
       IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR, "0",
       IFernflowerPreferences.DECOMPILE_GENERIC_SIGNATURES, "1",
       IFernflowerPreferences.ASCII_STRING_CHARACTERS, "1",
-      IFernflowerPreferences.LOG_LEVEL, "TRACE",
       IFernflowerPreferences.REMOVE_SYNTHETIC, "1",
       IFernflowerPreferences.REMOVE_BRIDGE, "1",
       IFernflowerPreferences.USE_DEBUG_VAR_NAMES, "1"

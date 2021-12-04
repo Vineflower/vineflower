@@ -32,6 +32,13 @@ public class MethodWrapper {
     this.varproc = varproc;
     this.methodStruct = methodStruct;
     this.counter = counter;
+
+    if (root != null && root.commentLines != null) {
+      for (String s : root.commentLines) {
+        addComment(s);
+      }
+      addErrorComment |= root.addErrorComment;
+    }
   }
 
   public DirectGraph getOrBuildGraph() {
