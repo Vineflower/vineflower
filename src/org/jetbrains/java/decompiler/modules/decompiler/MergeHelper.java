@@ -653,8 +653,19 @@ public final class MergeHelper {
           return false;
         }
 
-        // FIXME: can be non invocation expr!!
-        InvocationExprent holder = (InvocationExprent)(initExprents[0]).getRight();
+        // Casted foreach
+        Exprent right = initExprents[0].getRight();
+        if (right.type == Exprent.EXPRENT_FUNCTION) {
+          FunctionExprent fRight = (FunctionExprent) right;
+          if (fRight.getFuncType() == FunctionExprent.FUNCTION_CAST) {
+            right = fRight.getLstOperands().get(0);
+          }
+
+          if (right.type == Exprent.EXPRENT_INVOCATION) {
+            return false;
+          }
+        }
+        InvocationExprent holder = (InvocationExprent)right;
 
         initExprents[0].getBytecodeRange(holder.getInstance().bytecode);
         holder.getBytecodeRange(holder.getInstance().bytecode);

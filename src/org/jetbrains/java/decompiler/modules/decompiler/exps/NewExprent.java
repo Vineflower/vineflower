@@ -349,20 +349,24 @@ public class NewExprent extends Exprent {
             }
           }
 
-          GenericClassDescriptor descriptor = child.getWrapper().getClassStruct().getSignature();
-          if (descriptor != null) {
-            if (descriptor.superinterfaces.isEmpty()) {
-              buf.append(ExprProcessor.getCastTypeName(descriptor.superclass));
-            }
-            else {
-              if (descriptor.superinterfaces.size() > 1 && !lambda) {
-                DecompilerContext.getLogger().writeMessage("Inconsistent anonymous class signature: " + child.classStruct.qualifiedName,
-                                                           IFernflowerLogger.Severity.WARN);
+          boolean appendType = true;
+          if (child.getWrapper() != null) {
+            GenericClassDescriptor descriptor = child.getWrapper().getClassStruct().getSignature();
+            if (descriptor != null) {
+              if (descriptor.superinterfaces.isEmpty()) {
+                buf.append(ExprProcessor.getCastTypeName(descriptor.superclass));
+              } else {
+                if (descriptor.superinterfaces.size() > 1 && !lambda) {
+                  DecompilerContext.getLogger().writeMessage("Inconsistent anonymous class signature: " + child.classStruct.qualifiedName,
+                    IFernflowerLogger.Severity.WARN);
+                }
+                buf.append(ExprProcessor.getCastTypeName(descriptor.superinterfaces.get(0)));
               }
-              buf.append(ExprProcessor.getCastTypeName(descriptor.superinterfaces.get(0)));
+              appendType = false;
             }
           }
-          else {
+
+          if (appendType) {
             buf.append(typename);
           }
         }

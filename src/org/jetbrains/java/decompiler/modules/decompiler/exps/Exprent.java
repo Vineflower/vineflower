@@ -272,7 +272,7 @@ public abstract class Exprent implements IMatchable {
         }
       }
 
-      if (class_ == null) {
+      if (class_ == null || class_.parent == null) {
         break;
       }
       method = class_.enclosingMethod == null ? null : class_.parent.getWrapper().getMethods().getWithKey(class_.enclosingMethod);

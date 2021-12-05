@@ -55,6 +55,17 @@ public class ClassWriter {
 
   private static boolean invokeProcessors(TextBuffer buffer, ClassNode node) {
     ClassWrapper wrapper = node.getWrapper();
+    if (wrapper == null) {
+      buffer.append("/* $FF: Couldn't be decompiled. Class " + node.classStruct.qualifiedName + " wasn't processed yet! */" + "/* ");
+      List<String> lines = new ArrayList<>();
+      lines.addAll(ClassWriter.getErrorComment());
+      for (String line : lines) {
+        buffer.append("//");
+        if (!line.isEmpty()) buffer.append(' ').append(line);
+        buffer.appendLineSeparator();
+      }
+      return false; // Doesn't make sense! how is this null? referencing an anonymous class in another object?
+    }
     StructClass cl = wrapper.getClassStruct();
 
     // Very late switch processing, needs entire class to be decompiled for eclipse switchmap style switch-on-enum
