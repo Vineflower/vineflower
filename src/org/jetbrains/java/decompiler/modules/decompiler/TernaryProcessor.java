@@ -105,6 +105,7 @@ public final class TernaryProcessor {
         }
       }
 
+      // FIXME: Can not exist sometimes!!
       StatEdge destEdge = destination.getAllSuccessorEdges().get(0);
       List<Statement> labelsNeedRemoving = new ArrayList<>();
       if (destination.getSuccessorEdges(StatEdge.TYPE_REGULAR).size() == 1) {

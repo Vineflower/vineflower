@@ -349,6 +349,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16, "TestSwitchExpressionFallthrough1");
     register(JAVA_16, "TestConstructorSwitchExpression3");
     register(JAVA_16, "TestSwitchExpressionPPMM");
+    register(JAVA_16, "TestSwitchExpressionNested1");
 
     register(JAVA_16_PREVIEW, "TestSealedClasses");
     register(JAVA_16_PREVIEW, "PermittedSubClassA", "TestSealedClasses");
@@ -462,6 +463,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestArrayAssign");
     register(JASM, "TestGoto");
     register(JAVA_8, "TestLambdaQualified");
+    // TODO: causes inconsistent idom sequence
+    register(JAVA_16, "TestTernaryReturn2");
   }
 
   private void registerEntireClassPath() {

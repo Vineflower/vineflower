@@ -1,0 +1,149 @@
+package pkg;
+
+public class TestTernaryReturn2 {
+   public TestTernaryReturn2.T test(TestTernaryReturn2.T param1) {
+      // $FF: Couldn't be decompiled
+      // Bytecode:
+      // 00: new pkg/TestTernaryReturn2$T
+      // 03: dup
+      // 04: aload 0
+      // 05: aload 1
+      // 06: invokevirtual java/lang/Object.toString ()Ljava/lang/String;
+      // 09: invokestatic pkg/TestTernaryReturn2.get (Ljava/lang/Object;)Ljava/lang/String;
+      // 0c: bipush 1
+      // 0d: anewarray 2
+      // 10: dup
+      // 11: bipush 0
+      // 12: new pkg/TestTernaryReturn2$T
+      // 15: dup
+      // 16: aload 0
+      // 17: aload 1
+      // 18: invokestatic pkg/TestTernaryReturn2.b (Lpkg/TestTernaryReturn2$T;)Z
+      // 1b: ifeq 25
+      // 1e: aload 1
+      // 1f: invokevirtual pkg/TestTernaryReturn2$T.test ()Ljava/lang/String;
+      // 22: goto 27
+      // 25: ldc "1"
+      // 27: invokedynamic makeConcatWithConstants (Ljava/lang/String;)Ljava/lang/String; bsm=java/lang/invoke/StringConcatFactory.makeConcatWithConstants (Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite; args=[ "test\u0001" ]
+      // 2c: invokespecial pkg/TestTernaryReturn2$T.<init> (Lpkg/TestTernaryReturn2;Ljava/lang/String;)V
+      // 2f: invokevirtual pkg/TestTernaryReturn2$T.test ()Ljava/lang/String;
+      // 32: aastore
+      // 33: invokespecial pkg/TestTernaryReturn2$T.<init> (Lpkg/TestTernaryReturn2;Ljava/lang/String;[Ljava/lang/Object;)V
+      // 36: areturn
+   }
+
+   private static boolean b(TestTernaryReturn2.T in) {
+      return in != null;// 9
+   }
+
+   private static String get(Object o) {
+      return "hi" + o.toString();// 13
+   }
+
+   private class T {
+      private final String s;
+      private final String s2;
+
+      private T(String s) {
+         this.s = s;// 21
+         this.s2 = "";// 22
+      }// 23
+
+      private T(String s, Object... a) {
+         this.s = s;// 26
+         this.s2 = a[0].toString();// 27
+      }// 28
+
+      private String test() {
+         return this.s + this.s2;// 31
+      }
+   }
+}
+
+class 'pkg/TestTernaryReturn2' {
+   method 'b (Lpkg/TestTernaryReturn2$T;)Z' {
+      0      35
+      1      35
+      9      35
+   }
+
+   method 'get (Ljava/lang/Object;)Ljava/lang/String;' {
+      0      39
+      1      39
+      2      39
+      3      39
+      4      39
+      5      39
+      6      39
+      7      39
+      8      39
+      9      39
+   }
+}
+
+class 'pkg/TestTernaryReturn2$T' {
+   method '<init> (Lpkg/TestTernaryReturn2;Ljava/lang/String;)V' {
+      9      47
+      a      47
+      b      47
+      c      47
+      d      47
+      e      48
+      f      48
+      10      48
+      11      48
+      12      48
+      13      48
+      14      49
+   }
+
+   method '<init> (Lpkg/TestTernaryReturn2;Ljava/lang/String;[Ljava/lang/Object;)V' {
+      9      52
+      a      52
+      b      52
+      c      52
+      d      52
+      e      53
+      f      53
+      10      53
+      11      53
+      12      53
+      13      53
+      14      53
+      15      53
+      16      53
+      17      53
+      18      54
+   }
+
+   method 'test ()Ljava/lang/String;' {
+      0      57
+      1      57
+      2      57
+      3      57
+      4      57
+      5      57
+      6      57
+      7      57
+      8      57
+      9      57
+      a      57
+      b      57
+      c      57
+      d      57
+   }
+}
+
+Lines mapping:
+9 <-> 36
+13 <-> 40
+21 <-> 48
+22 <-> 49
+23 <-> 50
+26 <-> 53
+27 <-> 54
+28 <-> 55
+31 <-> 58
+Not mapped:
+20
+24

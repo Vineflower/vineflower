@@ -117,7 +117,7 @@ public class LambdaProcessor {
           ClassNode parent_class = clProcessor.getMapRootClasses().get(parent_class_name);
 
           if (nd == parent_class) {
-            throw new IllegalStateException("Lambda is recursive?!");
+            throw new IllegalStateException("Lambda " + nd.classStruct.qualifiedName + " is recursive?!");
           }
           parent_class.nested.add(nd);
           nd.parent = parent_class;
