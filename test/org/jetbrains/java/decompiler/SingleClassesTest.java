@@ -349,6 +349,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16, "TestSwitchExpressionFallthrough1");
     register(JAVA_16, "TestConstructorSwitchExpression3");
     register(JAVA_16, "TestSwitchExpressionPPMM");
+    // TODO: inner switch expression not created
     register(JAVA_16, "TestSwitchExpressionNested1");
 
     register(JAVA_16_PREVIEW, "TestSealedClasses");

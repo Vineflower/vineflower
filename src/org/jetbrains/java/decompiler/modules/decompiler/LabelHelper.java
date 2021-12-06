@@ -311,6 +311,15 @@ public final class LabelHelper {
       next = null;
     }
 
+    // FIXME: Horrible and bad!! This is in the wrong place and shouldn't be using label edges!!
+    // Make sure that yield edges are not explicit or labeled, to prevent exit condensation
+    if (stat.type == Statement.TYPE_SWITCH && ((SwitchStatement)stat).isPhantom()) {
+      for (StatEdge edge : stat.getLabelEdges()) {
+        edge.explicit = false;
+        edge.labeled = false;
+      }
+    }
+
     if (next == null) {
       if (mapEdges.size() == 1) {
         List<StatEdge> lstEdges = mapEdges.values().iterator().next();
