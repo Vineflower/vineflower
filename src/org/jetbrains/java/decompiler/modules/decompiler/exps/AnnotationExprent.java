@@ -4,11 +4,11 @@
 package org.jetbrains.java.decompiler.modules.decompiler.exps;
 
 import org.jetbrains.java.decompiler.main.DecompilerContext;
-import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 
+import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 
@@ -36,7 +36,17 @@ public class AnnotationExprent extends Exprent {
   }
 
   @Override
-  public TextBuffer toJava(int indent, BytecodeMappingTracer tracer) {
+  public Exprent copy() {
+    List<Exprent> exps = new ArrayList<>();
+    for (Exprent v : this.parValues) {
+      exps.add(v.copy());
+    }
+
+    return new AnnotationExprent(className, parNames, exps);
+  }
+  
+  @Override
+  public TextBuffer toJava(int indent) {
     TextBuffer buffer = new TextBuffer();
 
     buffer.appendIndent(indent);
@@ -60,7 +70,7 @@ public class AnnotationExprent extends Exprent {
           buffer.append(" = ");
         }
 
-        buffer.append(parValues.get(i).toJava(0, tracer));
+        buffer.append(parValues.get(i).toJava(0));
 
         if (i < parNames.size() - 1) {
           buffer.append(',');

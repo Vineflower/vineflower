@@ -1,0 +1,129 @@
+package pkg;
+
+import kotlin.Metadata;
+import kotlin.Result;
+import kotlin.ResultKt;
+import kotlin.Unit;
+import org.jetbrains.annotations.Nullable;
+
+@Metadata(
+   mv = {1, 5, 1},
+   k = 1,
+   xi = 48,
+   d1 = {"\u0000\u0018\n\u0002\u0018\u0002\n\u0002\u0010\u0000\n\u0002\b\u0002\n\u0002\u0018\u0002\n\u0002\u0010\u0002\n\u0002\b\u0006\b\u0002\u0018\u00002\u00020\u0001B\u0005¢\u0006\u0002\u0010\u0002J\u0006\u0010\n\u001a\u00020\u0005R+\u0010\u0003\u001a\n\u0012\u0004\u0012\u00020\u0005\u0018\u00010\u0004X\u0086\u000eø\u0001\u0000ø\u0001\u0001ø\u0001\u0002¢\u0006\u000e\n\u0000\u001a\u0004\b\u0006\u0010\u0007\"\u0004\b\b\u0010\t\u0082\u0002\u000f\n\u0002\b\u0019\n\u0005\b¡\u001e0\u0001\n\u0002\b!¨\u0006\u000b"},
+   d2 = {"Lpkg/TestRunSuspend;", "", "()V", "result", "Lkotlin/Result;", "", "getResult-xLWZpok", "()Lkotlin/Result;", "setResult", "(Lkotlin/Result;)V", "await", "quiltflower_testDataKotlin"}
+)
+final class TestRunSuspend {
+   @Nullable
+   private Result<Unit> result;
+
+   public TestRunSuspend() {
+   }// 4
+
+   @Nullable
+   public final Result<Unit> getResult_xLWZpok/* $FF was: getResult-xLWZpok*/() {
+      return this.result;
+   }
+
+   public final void setResult(@Nullable Result<Unit> var1) {
+      this.result = <set-?>;// 5
+   }
+
+   // $FF: Extended synchronized range to monitorexit
+   public final void await() {
+      boolean var1 = false;// 7
+      boolean var2 = false;
+      synchronized(this) {
+         int $i$a$-synchronized-TestRunSuspend$await$1 = 0;
+
+         while(true) {
+            Result result = this.getResult-xLWZpok();// 9
+            if (result != null) {// 10
+               Object var5 = result.unbox-impl();// 12
+               boolean var6 = false;
+               ResultKt.throwOnFailure(var5);
+               return;// 13
+            }
+
+            this.wait();
+         }
+      }
+   }
+}
+
+class 'pkg/TestRunSuspend' {
+   method '<init> ()V' {
+      4      20
+   }
+
+   method 'getResult-xLWZpok ()Lkotlin/Result;' {
+      0      24
+      1      24
+      2      24
+      3      24
+      4      24
+   }
+
+   method 'setResult (Lkotlin/Result;)V' {
+      0      28
+      1      28
+      2      28
+      3      28
+      4      28
+      5      29
+   }
+
+   method 'await ()V' {
+      0      33
+      1      33
+      2      34
+      3      34
+      4      35
+      5      35
+      7      36
+      8      36
+      a      39
+      b      39
+      c      39
+      d      39
+      e      39
+      f      39
+      10      40
+      11      40
+      12      40
+      15      47
+      16      47
+      17      47
+      18      47
+      19      47
+      1a      47
+      1b      47
+      1f      41
+      20      41
+      21      41
+      22      41
+      23      41
+      24      41
+      25      41
+      26      42
+      27      42
+      28      42
+      29      43
+      2a      43
+      2b      43
+      2c      43
+      2d      43
+      31      44
+   }
+}
+
+Lines mapping:
+4 <-> 21
+5 <-> 29
+7 <-> 34
+9 <-> 40
+10 <-> 41
+12 <-> 42
+13 <-> 45
+Not mapped:
+8

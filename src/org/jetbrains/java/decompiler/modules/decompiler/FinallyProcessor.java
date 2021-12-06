@@ -75,6 +75,8 @@ public class FinallyProcessor {
 
           if (inf == null) { // inconsistent finally
             catchallBlockIDs.put(handler.id, null);
+            root.addComment("$FF: Could not inline inconsistent finally blocks");
+            root.addErrorComment = true;
           }
           else {
             if (DecompilerContext.getOption(IFernflowerPreferences.FINALLY_DEINLINE) && verifyFinallyEx(graph, fin, inf)) {
@@ -85,6 +87,9 @@ public class FinallyProcessor {
               insertSemaphore(graph, getAllBasicBlocks(fin.getFirst()), head, handler, varIndex, inf, bytecodeVersion);
 
               finallyBlockIDs.put(handler.id, varIndex);
+
+              root.addComment("$FF: Could not verify finally blocks. A semaphore variable has been added to preserve control flow.");
+              root.addErrorComment = true;
             }
 
             DeadCodeHelper.removeDeadBlocks(graph); // e.g. multiple return blocks after a nested finally

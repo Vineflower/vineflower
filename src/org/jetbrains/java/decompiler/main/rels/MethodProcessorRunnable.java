@@ -11,10 +11,7 @@ import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.modules.code.DeadCodeHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.*;
 import org.jetbrains.java.decompiler.modules.decompiler.deobfuscator.ExceptionDeobfuscator;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.SynchronizedStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarProcessor;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructMethod;
@@ -123,27 +120,30 @@ public class MethodProcessorRunnable implements Runnable {
       DecompilerContext.getLogger().writeMessage("Heavily obfuscated exception ranges found!", IFernflowerLogger.Severity.WARN);
       if (!ExceptionDeobfuscator.handleMultipleEntryExceptionRanges(graph)) {
         DecompilerContext.getLogger().writeMessage("Found multiple entry exception ranges which could not be splitted", IFernflowerLogger.Severity.WARN);
+        graph.addComment("$FF: Could not handle exception ranges with multiple entries");
+        graph.addErrorComment = true;
       }
       ExceptionDeobfuscator.insertDummyExceptionHandlerBlocks(graph, mt.getBytecodeVersion());
     }
 
+    DotExporter.toDotFile(graph, mt, "cfgParsed", true);
+    RootStatement root = DomHelper.parseGraph(graph, mt);
+
     DecompileRecord decompileRecord = new DecompileRecord(mt);
     debugCurrentDecompileRecord.set(decompileRecord);
-
-    RootStatement root = DomHelper.parseGraph(graph, mt);
 
     decompileRecord.add("Initial", root);
 
     debugCurrentlyDecompiling.set(root);
-    DotExporter.toDotFile(graph, mt, "cfgParsed", true);
 
     FinallyProcessor fProc = new FinallyProcessor(md, varProc);
     int finallyProcessed = 0;
 
     while (fProc.iterateGraph(cl, mt, root, graph)) {
       finallyProcessed++;
-
+      RootStatement oldRoot = root;
       root = DomHelper.parseGraph(graph, mt);
+      root.addComments(oldRoot);
       decompileRecord.add("ProcessFinally_" + finallyProcessed, root);
 
       debugCurrentCFG.set(graph);
@@ -259,13 +259,20 @@ public class MethodProcessorRunnable implements Runnable {
         }
       }
 
-      LabelHelper.identifyLabels(root);
-      decompileRecord.add("IdentifyLabels", root);
-
+      if (SwitchExpressionHelper.hasSwitchExpressions(root)) {
+        if (SwitchExpressionHelper.processSwitchExpressions(root)) {
+          decompileRecord.add("ProcessSwitchExpr", root);
+          continue;
+        }
+      }
+	  
       if (TryHelper.enhanceTryStats(root, cl)) {
         decompileRecord.add("EnhanceTry", root);
         continue;
       }
+
+      LabelHelper.identifyLabels(root);
+      decompileRecord.add("IdentifyLabels", root);
 
       if (InlineSingleBlockHelper.inlineSingleBlocks(root)) {
         decompileRecord.add("InlineSingleBlocks", root);
@@ -275,12 +282,7 @@ public class MethodProcessorRunnable implements Runnable {
       // this has to be done last so it does not screw up the formation of for loops
       if (MergeHelper.makeDoWhileLoops(root)) {
         decompileRecord.add("MatchDoWhile", root);
-
-        LabelHelper.cleanUpEdges(root);
-        decompileRecord.add("CleanupEdges_MDW", root);
-
-        LabelHelper.identifyLabels(root);
-        decompileRecord.add("IdentifyLabels_MDW", root);
+        continue;
       }
 
       // initializer may have at most one return point, so no transformation of method exits permitted
@@ -304,6 +306,17 @@ public class MethodProcessorRunnable implements Runnable {
 
       SequenceHelper.condenseSequences(root); // remove empty blocks
       decompileRecord.add("CondenseSequences_SS", root);
+
+      // If we have simplified switches, try to make switch expressions
+      if (SwitchExpressionHelper.hasSwitchExpressions(root)) {
+        if (SwitchExpressionHelper.processSwitchExpressions(root)) {
+          decompileRecord.add("ProcessSwitchExpr_SS", root);
+
+          // Simplify stack vars to integrate and inline switch expressions
+          stackProc.simplifyStackVars(root, mt, cl);
+          decompileRecord.add("SimplifyStackVars_SS", root);
+        }
+      }
     }
 
     // Makes constant returns the same type as the method descriptor

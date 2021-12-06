@@ -11,6 +11,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.SwitchStatement;
+import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructField;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 
@@ -41,29 +42,55 @@ public final class SwitchHelper {
       following = (SwitchStatement)edges.get(0).getDestination();
     }
 
-    SwitchExprent switchExprent = (SwitchExprent)switchStatement.getHeadexprent();
-    Exprent value = switchExprent.getValue();
+    SwitchHeadExprent switchHeadExprent = (SwitchHeadExprent)switchStatement.getHeadexprent();
+    Exprent value = switchHeadExprent.getValue();
     if (isEnumArray(value)) {
       List<List<Exprent>> caseValues = switchStatement.getCaseValues();
       Map<Exprent, Exprent> mapping = new HashMap<>(caseValues.size());
       ArrayExprent array = (ArrayExprent)value;
-      FieldExprent arrayField = (FieldExprent)array.getArray();
-      ClassesProcessor.ClassNode classNode = DecompilerContext.getClassProcessor().getMapRootClasses().get(arrayField.getClassname());
-      if (classNode != null) {
-        ClassWrapper classWrapper = classNode.getWrapper();
-        if (classWrapper != null) {
-          MethodWrapper wrapper = classWrapper.getMethodWrapper(CodeConstants.CLINIT_NAME, "()V");
-          if (wrapper != null && wrapper.root != null) {
-            wrapper.getOrBuildGraph().iterateExprents(exprent -> {
-              if (exprent instanceof AssignmentExprent) {
-                AssignmentExprent assignment = (AssignmentExprent) exprent;
-                Exprent left = assignment.getLeft();
-                if (left.type == Exprent.EXPRENT_ARRAY && ((ArrayExprent) left).getArray().equals(arrayField)) {
-                  mapping.put(assignment.getRight(), ((InvocationExprent) ((ArrayExprent) left).getIndex()).getInstance());
+      if (array.getArray().type == Exprent.EXPRENT_FIELD) {
+        FieldExprent arrayField = (FieldExprent) array.getArray();
+        ClassesProcessor.ClassNode classNode = DecompilerContext.getClassProcessor().getMapRootClasses().get(arrayField.getClassname());
+        if (classNode != null) {
+          ClassWrapper classWrapper = classNode.getWrapper();
+          if (classWrapper != null) {
+            MethodWrapper wrapper = classWrapper.getMethodWrapper(CodeConstants.CLINIT_NAME, "()V");
+            if (wrapper != null && wrapper.root != null) {
+              wrapper.getOrBuildGraph().iterateExprents(exprent -> {
+                if (exprent instanceof AssignmentExprent) {
+                  AssignmentExprent assignment = (AssignmentExprent) exprent;
+                  Exprent left = assignment.getLeft();
+                  if (left.type == Exprent.EXPRENT_ARRAY && ((ArrayExprent) left).getArray().equals(arrayField)) {
+                    mapping.put(assignment.getRight(), ((InvocationExprent) ((ArrayExprent) left).getIndex()).getInstance());
+                  }
                 }
-              }
-              return 0;
-            });
+                return 0;
+              });
+            }
+          }
+        }
+      } else { // Invocation
+        InvocationExprent invocation = (InvocationExprent) array.getArray();
+        ClassesProcessor.ClassNode classNode = DecompilerContext.getClassProcessor().getMapRootClasses().get(invocation.getClassname());
+        if (classNode != null) {
+          ClassWrapper classWrapper = classNode.getWrapper();
+          if (classWrapper != null) {
+            MethodWrapper wrapper = classWrapper.getMethodWrapper(invocation.getName(), "()[I");
+            if (wrapper != null && wrapper.root != null) {
+              wrapper.getOrBuildGraph().iterateExprents(exprent -> {
+                if (exprent instanceof AssignmentExprent) {
+                  AssignmentExprent assignment = (AssignmentExprent) exprent;
+                  Exprent left = assignment.getLeft();
+                  if (left.type == Exprent.EXPRENT_ARRAY) {
+                    mapping.put(assignment.getRight(), ((InvocationExprent) ((ArrayExprent) left).getIndex()).getInstance());
+                  }
+                }
+                return 0;
+              });
+            }
+          } else {
+            // Need to wait til last minute processing
+            return false;
           }
         }
       }
@@ -90,7 +117,7 @@ public final class SwitchHelper {
       }
       caseValues.clear();
       caseValues.addAll(realCaseValues);
-      switchExprent.replaceExprent(value, ((InvocationExprent)array.getIndex()).getInstance().copy());
+      switchHeadExprent.replaceExprent(value, ((InvocationExprent)array.getIndex()).getInstance().copy());
       return true;
     }
     else if (isSwitchOnString(switchStatement, following)) {
@@ -129,7 +156,7 @@ public final class SwitchHelper {
       following.getCaseValues().clear();
       following.getCaseValues().addAll(realCaseValues);
 
-      Exprent followingVal = ((SwitchExprent)following.getHeadexprent()).getValue();
+      Exprent followingVal = ((SwitchHeadExprent)following.getHeadexprent()).getValue();
       following.getHeadexprent().replaceExprent(followingVal, ((InvocationExprent)value).getInstance());
 
       switchStatement.getFirst().getExprents().remove(switchStatement.getFirst().getExprents().size() - 1);
@@ -195,6 +222,11 @@ public final class SwitchHelper {
           //Exprent init = classNode.getWrapper().getStaticFieldInitializers().getWithKey(InterpreterUtil.makeUniqueKey(field.getName(), field.getDescriptor().descriptorString));
           //Above is null because we haven't preocess the class yet?
         }
+      } else if (tmp.type == Exprent.EXPRENT_INVOCATION) {
+        InvocationExprent inv = (InvocationExprent) tmp;
+        if (inv.getName().startsWith("$SWITCH_TABLE$")) { // More nonstandard behavior. Seems like eclipse compiler stuff: https://bugs.eclipse.org/bugs/show_bug.cgi?id=544521 TODO: needs tests!
+          return true;
+        }
       }
     }
     return false;
@@ -224,8 +256,8 @@ public final class SwitchHelper {
    */
   private static boolean isSwitchOnString(SwitchStatement first, SwitchStatement second) {
     if (second != null) {
-      Exprent firstValue = ((SwitchExprent)first.getHeadexprent()).getValue();
-      Exprent secondValue = ((SwitchExprent)second.getHeadexprent()).getValue();
+      Exprent firstValue = ((SwitchHeadExprent)first.getHeadexprent()).getValue();
+      Exprent secondValue = ((SwitchHeadExprent)second.getHeadexprent()).getValue();
 
       if (firstValue.type == Exprent.EXPRENT_INVOCATION && secondValue.type == Exprent.EXPRENT_VAR && first.getCaseStatements().get(0).type == Statement.TYPE_IF) {
         InvocationExprent invExpr = (InvocationExprent)firstValue;

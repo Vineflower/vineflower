@@ -488,16 +488,23 @@ public final class MergeHelper {
       // Break out of the loop if we find that the third assignment is the only expression in the basic block.
 
       // First filter to make sure that the loop body (includes the last assignment) has a single statement.
-      if (stat.getFirst().getStats().size() == 1) {
-        Statement firstStat = stat.getFirst().getStats().get(0);
 
-        // Then filter to make sure the loop body is a basic block (Seems like it always is- but it never hurts to double check!)
-        if (firstStat.type == Statement.TYPE_BASICBLOCK) {
+      Statement firstStat = stat.getFirst();
+      while (firstStat.type == Statement.TYPE_SEQUENCE && firstStat.getStats().size() == 1) {
+        Statement fst = firstStat.getFirst();
+        if (fst == null) {
+          break;
+        }
 
-          // Last filter to make sure the basic block only has the final third assignment. If so, break out to make a while loop instead as it will produce cleaner output.
-          if (firstStat.getExprents().size() == 1) {
-            return;
-          }
+        firstStat = fst;
+      }
+
+      // Then filter to make sure the loop body is a basic block (Seems like it always is- but it never hurts to double check!)
+      if (firstStat.type == Statement.TYPE_BASICBLOCK) {
+
+        // Last filter to make sure the basic block only has the final third assignment. If so, break out to make a while loop instead as it will produce cleaner output.
+        if (firstStat.getExprents().size() == 1) {
+          return;
         }
       }
 
@@ -646,7 +653,19 @@ public final class MergeHelper {
           return false;
         }
 
-        InvocationExprent holder = (InvocationExprent)(initExprents[0]).getRight();
+        // Casted foreach
+        Exprent right = initExprents[0].getRight();
+        if (right.type == Exprent.EXPRENT_FUNCTION) {
+          FunctionExprent fRight = (FunctionExprent) right;
+          if (fRight.getFuncType() == FunctionExprent.FUNCTION_CAST) {
+            right = fRight.getLstOperands().get(0);
+          }
+
+          if (right.type == Exprent.EXPRENT_INVOCATION) {
+            return false;
+          }
+        }
+        InvocationExprent holder = (InvocationExprent)right;
 
         initExprents[0].getBytecodeRange(holder.getInstance().bytecode);
         holder.getBytecodeRange(holder.getInstance().bytecode);

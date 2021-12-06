@@ -311,6 +311,15 @@ public final class LabelHelper {
       next = null;
     }
 
+    // FIXME: Horrible and bad!! This is in the wrong place and shouldn't be using label edges!!
+    // Make sure that yield edges are not explicit or labeled, to prevent exit condensation
+    if (stat.type == Statement.TYPE_SWITCH && ((SwitchStatement)stat).isPhantom()) {
+      for (StatEdge edge : stat.getLabelEdges()) {
+        edge.explicit = false;
+        edge.labeled = false;
+      }
+    }
+
     if (next == null) {
       if (mapEdges.size() == 1) {
         List<StatEdge> lstEdges = mapEdges.values().iterator().next();
@@ -461,6 +470,34 @@ public final class LabelHelper {
   }
 
   // Handles switches in loops, so switch breaks don't become continues
+  //
+  // Also processes labeled continues to make them into breaks if they are the last statement inside the closure statement
+  // As so:
+  //
+  // label:
+  // while(...) {
+  //   ...
+  //   while(...) {
+  //     ...
+  //     if (...) {
+  //       continue label;
+  //     }
+  //   }
+  // }
+  //
+  // will turn into
+  //
+  // while(...) {
+  //   ...
+  //   while(...) {
+  //     ...
+  //     if (...) {
+  //       break;
+  //     }
+  //   }
+  // }
+  //
+  // This is only applicable when this is the last statement within it's parent nest as otherwise it'll be a jump to the next statement instead of a backjump to the loop
   public static boolean replaceContinueWithBreak(Statement stat) {
     boolean res = false;
 

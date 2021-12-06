@@ -1,0 +1,100 @@
+package pkg;
+
+public class TestLoopBreak3 {
+   public void test(int i, boolean b) {
+      label33:
+      for(int j = 0; j < i; ++j) {// 5
+         System.out.println(j);// 6
+
+         for(int k = 0; k < j; ++k) {// 8
+            if (k == 2) {// 9
+               for(int l = 0; l < 2; ++l) {// 10
+                  System.out.println(2);// 11
+                  if (!b) {// 13
+                     continue label33;
+                  }
+
+                  System.out.println(l);// 14
+               }
+               break;
+            }
+         }
+      }
+
+   }// 24
+}
+
+class 'pkg/TestLoopBreak3' {
+   method 'test (IZ)V' {
+      0      5
+      1      5
+      2      5
+      3      5
+      4      5
+      7      6
+      8      6
+      9      6
+      a      6
+      b      6
+      c      6
+      d      6
+      e      8
+      f      8
+      10      8
+      11      8
+      12      8
+      13      8
+      14      8
+      17      9
+      18      9
+      19      9
+      1a      9
+      1d      10
+      1e      10
+      1f      10
+      20      10
+      21      10
+      22      10
+      23      10
+      26      11
+      27      11
+      28      11
+      29      11
+      2a      11
+      2b      11
+      2c      11
+      2d      12
+      2e      12
+      31      16
+      32      16
+      33      16
+      34      16
+      35      16
+      36      16
+      37      16
+      38      16
+      39      10
+      3a      10
+      3b      10
+      42      8
+      43      8
+      44      8
+      48      5
+      49      5
+      4a      5
+      4e      23
+   }
+}
+
+Lines mapping:
+5 <-> 6
+6 <-> 7
+8 <-> 9
+9 <-> 10
+10 <-> 11
+11 <-> 12
+13 <-> 13
+14 <-> 17
+24 <-> 24
+Not mapped:
+20

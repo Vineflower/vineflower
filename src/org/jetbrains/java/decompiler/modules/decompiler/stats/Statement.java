@@ -481,10 +481,10 @@ public class Statement implements IMatchable {
   }
 
   public TextBuffer toJava() {
-    return toJava(0, BytecodeMappingTracer.DUMMY);
+    return toJava(0);
   }
 
-  public TextBuffer toJava(int indent, BytecodeMappingTracer tracer) {
+  public TextBuffer toJava(int indent) {
     throw new RuntimeException("not implemented");
   }
 
@@ -509,6 +509,14 @@ public class Statement implements IMatchable {
     if (!stats.isEmpty()) {
       first = stats.get(0);
     }
+  }
+
+  public final void replaceWith(Statement stat) {
+    this.parent.replaceStatement(this, stat);
+  }
+
+  public final void destroy() {
+    this.parent.replaceStatement(this, BasicBlockStatement.create());
   }
 
   public void replaceStatement(Statement oldstat, Statement newstat) {

@@ -1,0 +1,246 @@
+package pkg;
+
+import java.util.Random;
+import org.jetbrains.annotations.NotNull;
+
+public class TestIdeaNotNull {
+   @NotNull
+   public String test() {
+      String s = "";// 10
+      int i = (new Random()).nextInt(12);// 11
+      if (i == 0) {// 13
+         return s;// 14
+      } else {
+         for(int j = 0; j < i; ++j) {// 17
+            s = s + i;// 18
+         }
+
+         return s;// 21
+      }
+   }
+
+   public void test1(@NotNull String s) {
+      System.out.println(s);// 25
+   }// 26
+
+   public void test2(@NotNull String s, @NotNull Integer i) {
+      System.out.println(s);// 29
+      System.out.println(i);// 31
+   }// 32
+
+   public void test3(@NotNull String s, @NotNull Integer i, @NotNull Float f) {
+      System.out.println(s);// 35
+      System.out.println(i);// 37
+      if (i == 0) {// 39
+         System.out.println(f);// 40
+      }
+
+   }// 42
+
+   @NotNull
+   public String test4() {
+      String s = "";// 46
+      int i = (new Random()).nextInt(12);// 47
+
+      for(int j = 0; j < i; ++j) {// 49
+         s = s + i;// 50
+      }
+
+      throw new RuntimeException(s);// 53
+   }
+
+   @NotNull
+   public String test5(@NotNull Integer i) {
+      String s = "";// 58
+      if (i == 0) {// 60
+         return s;// 61
+      } else {
+         for(int j = 0; j < i; ++j) {// 64
+            s = s + i;// 65
+         }
+
+         return s;// 68
+      }
+   }
+}
+
+class 'pkg/TestIdeaNotNull' {
+   method 'test ()Ljava/lang/String;' {
+      0      8
+      1      8
+      2      8
+      a      9
+      b      9
+      c      9
+      d      9
+      e      9
+      f      9
+      10      10
+      11      10
+      14      11
+      1d      11
+      1e      13
+      1f      13
+      20      13
+      21      13
+      22      13
+      2c      14
+      30      14
+      34      14
+      35      14
+      36      14
+      37      14
+      38      13
+      39      13
+      3a      13
+      3e      17
+      47      17
+   }
+
+   method 'test1 (Ljava/lang/String;)V' {
+      8      22
+      9      22
+      a      22
+      b      22
+      c      22
+      d      22
+      e      22
+      f      23
+   }
+
+   method 'test2 (Ljava/lang/String;Ljava/lang/Integer;)V' {
+      10      26
+      11      26
+      12      26
+      13      26
+      14      26
+      15      26
+      16      26
+      17      27
+      18      27
+      19      27
+      1a      27
+      1b      27
+      1c      27
+      1d      27
+      1e      28
+   }
+
+   method 'test3 (Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Float;)V' {
+      1a      31
+      1b      31
+      1c      31
+      1d      31
+      1e      31
+      1f      31
+      20      31
+      21      32
+      22      32
+      23      32
+      24      32
+      25      32
+      26      32
+      27      32
+      28      33
+      29      33
+      2a      33
+      2b      33
+      2c      33
+      2f      34
+      30      34
+      31      34
+      32      34
+      33      34
+      36      37
+   }
+
+   method 'test4 ()Ljava/lang/String;' {
+      0      41
+      1      41
+      2      41
+      a      42
+      b      42
+      c      42
+      d      42
+      e      42
+      f      42
+      10      44
+      11      44
+      12      44
+      13      44
+      14      44
+      1e      45
+      22      45
+      26      45
+      27      45
+      28      45
+      29      45
+      2a      44
+      2b      44
+      2c      44
+      34      48
+      38      48
+   }
+
+   method 'test5 (Ljava/lang/Integer;)Ljava/lang/String;' {
+      9      53
+      a      53
+      b      53
+      c      54
+      d      54
+      e      54
+      f      54
+      10      54
+      13      55
+      1d      55
+      1e      57
+      1f      57
+      20      57
+      21      57
+      22      57
+      23      57
+      24      57
+      25      57
+      2f      58
+      33      58
+      37      58
+      38      58
+      39      58
+      3a      58
+      3b      57
+      3c      57
+      3d      57
+      41      61
+      4b      61
+   }
+}
+
+Lines mapping:
+10 <-> 9
+11 <-> 10
+13 <-> 11
+14 <-> 12
+17 <-> 14
+18 <-> 15
+21 <-> 18
+25 <-> 23
+26 <-> 24
+29 <-> 27
+31 <-> 28
+32 <-> 29
+35 <-> 32
+37 <-> 33
+39 <-> 34
+40 <-> 35
+42 <-> 38
+46 <-> 42
+47 <-> 43
+49 <-> 45
+50 <-> 46
+53 <-> 49
+58 <-> 54
+60 <-> 55
+61 <-> 56
+64 <-> 58
+65 <-> 59
+68 <-> 62

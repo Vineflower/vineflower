@@ -105,6 +105,7 @@ public final class TernaryProcessor {
         }
       }
 
+      // FIXME: Can not exist sometimes!!
       StatEdge destEdge = destination.getAllSuccessorEdges().get(0);
       List<Statement> labelsNeedRemoving = new ArrayList<>();
       if (destination.getSuccessorEdges(StatEdge.TYPE_REGULAR).size() == 1) {
@@ -173,8 +174,6 @@ public final class TernaryProcessor {
       }
 
       Statement blockBefore = bstat1.getAllPredecessorEdges().get(0).getSource();
-
-      DotExporter.toDotFile(statement.getTopParent(), "a"+statement.id);
 
       bstat1.getParent().getStats().removeWithKey(bstat1.id);
       bstat2.getParent().getStats().removeWithKey(bstat2.id);

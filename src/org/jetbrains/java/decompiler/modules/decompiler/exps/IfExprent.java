@@ -3,16 +3,13 @@
  */
 package org.jetbrains.java.decompiler.modules.decompiler.exps;
 
-import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.ListStack;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 
-import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
-import java.util.Set;
 
 public class IfExprent extends Exprent {
 
@@ -102,9 +99,15 @@ public class IfExprent extends Exprent {
   }
 
   @Override
-  public TextBuffer toJava(int indent, BytecodeMappingTracer tracer) {
-    tracer.addMapping(bytecode);
-    return condition.toJava(indent, tracer).enclose("if (", ")");
+  public TextBuffer toJava(int indent) {
+    TextBuffer buf = condition.toJava(indent);
+    buf.pushNewlineGroup(indent, 1);
+    buf.appendPossibleNewline();
+    buf.enclose("if (", ")");
+    buf.appendPossibleNewline("", true);
+    buf.popNewlineGroup();
+    buf.addStartBytecodeMapping(bytecode);
+    return buf;
   }
 
   @Override

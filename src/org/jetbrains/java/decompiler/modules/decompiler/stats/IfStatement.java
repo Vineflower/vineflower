@@ -1,7 +1,6 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler.stats;
 
-import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.modules.decompiler.DecHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
@@ -192,22 +191,26 @@ public final class IfStatement extends Statement {
   }
 
   @Override
-  public TextBuffer toJava(int indent, BytecodeMappingTracer tracer) {
+  public TextBuffer toJava(int indent) {
     TextBuffer buf = new TextBuffer();
 
-    buf.append(ExprProcessor.listToJava(varDefinitions, indent, tracer));
+    buf.append(ExprProcessor.listToJava(varDefinitions, indent));
 
-    buf.append(first.toJava(indent, tracer));
+    buf.append(first.toJava(indent));
 
     if (isLabeled()) {
       buf.appendIndent(indent).append("label").append(this.id.toString()).append(":").appendLineSeparator();
-      tracer.incrementCurrentSourceLine();
     }
 
     Exprent condition = headexprent.get(0);
+    buf.appendIndent(indent);
     // Condition can be null in early processing stages
-    buf.appendIndent(indent).append((condition == null ? "if <null condition>" : condition.toJava(indent, tracer).toString())).append(" {").appendLineSeparator();
-    tracer.incrementCurrentSourceLine();
+    if (condition != null) {
+      buf.append(condition.toJava(indent));
+    } else {
+      buf.append("if <null condition>");
+    }
+    buf.append(" {").appendLineSeparator();
 
     if (ifstat == null) {
       boolean semicolon = false;
@@ -228,11 +231,10 @@ public final class IfStatement extends Statement {
       }
       if(semicolon) {
         buf.append(";").appendLineSeparator();
-        tracer.incrementCurrentSourceLine();
       }
     }
     else {
-      buf.append(ExprProcessor.jmpWrapper(ifstat, indent + 1, true, tracer));
+      buf.append(ExprProcessor.jmpWrapper(ifstat, indent + 1, true));
     }
 
     boolean elseif = false;
@@ -245,22 +247,17 @@ public final class IfStatement extends Statement {
            || !elsestat.getSuccessorEdges(STATEDGE_DIRECT_ALL).get(0).explicit)) { // else if
         buf.appendIndent(indent).append("} else ");
 
-        TextBuffer content = ExprProcessor.jmpWrapper(elsestat, indent, false, tracer);
+        TextBuffer content = ExprProcessor.jmpWrapper(elsestat, indent, false);
         content.setStart(TextUtil.getIndentString(indent).length());
         buf.append(content);
 
         elseif = true;
       }
       else {
-        BytecodeMappingTracer else_tracer = new BytecodeMappingTracer(tracer.getCurrentSourceLine() + 1);
-        TextBuffer content = ExprProcessor.jmpWrapper(elsestat, indent + 1, false, else_tracer);
+        TextBuffer content = ExprProcessor.jmpWrapper(elsestat, indent + 1, false);
 
         if (content.length() > 0) {
           buf.appendIndent(indent).append("} else {").appendLineSeparator();
-
-          tracer.setCurrentSourceLine(else_tracer.getCurrentSourceLine());
-          tracer.addTracer(else_tracer);
-
           buf.append(content);
         }
       }
@@ -268,7 +265,6 @@ public final class IfStatement extends Statement {
 
     if (!elseif) {
       buf.appendIndent(indent).append("}").appendLineSeparator();
-      tracer.incrementCurrentSourceLine();
     }
 
     return buf;

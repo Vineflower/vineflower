@@ -19,22 +19,6 @@ public class TestAnonymousSignature {
    }// 39
 }
 
-class 'pkg/TestAnonymousSignature$1' {
-   method 'size ()I' {
-      1      10
-      2      10
-      3      10
-      4      10
-   }
-}
-
-class 'pkg/TestAnonymousSignature$2' {
-   method 'compare (Ljava/lang/String;Ljava/lang/String;)I' {
-      0      15
-      1      15
-   }
-}
-
 class 'pkg/TestAnonymousSignature' {
    method 'main ([Ljava/lang/String;)V' {
       0      7
@@ -50,6 +34,22 @@ class 'pkg/TestAnonymousSignature' {
       18      13
       19      13
       1a      18
+   }
+}
+
+class 'pkg/TestAnonymousSignature$1' {
+   method 'size ()I' {
+      1      10
+      2      10
+      3      10
+      4      10
+   }
+}
+
+class 'pkg/TestAnonymousSignature$2' {
+   method 'compare (Ljava/lang/String;Ljava/lang/String;)I' {
+      0      15
+      1      15
    }
 }
 

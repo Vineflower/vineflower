@@ -38,6 +38,19 @@ public class StatEdge {
 
   private List<String> exceptions;
 
+  // The statement that this edge is enclosed in.
+  // Take for example, this structure, where we are analyzing the break edge:
+  //
+  // label1: {
+  //   if (...) {
+  //     break label1;
+  //   }
+  // }
+  // System.out.println("Test");
+  //
+  // The body of the if statement would be considered the source, and the println would be considered the destination.
+  // The sequence statement enclosing the if would be considered the closure.
+  // BREAK and CONTINUE edge types should always have a closure! (except for when break edges are return edges)
   public Statement closure;
 
   // Whether this edge is labeled or not.
@@ -46,7 +59,7 @@ public class StatEdge {
   // Whether this edge is explicitly defined or implicit.
   public boolean explicit = true;
 
-  // Whether this edge can be inlined to simplify the decompile or not.
+  // Whether this edge can be inlined to simplify the decompiled output or not.
   public boolean canInline = true;
 
   public StatEdge(int type, Statement source, Statement destination, Statement closure) {

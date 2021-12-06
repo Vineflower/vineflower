@@ -1,7 +1,6 @@
 // Copyright 2000-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler.stats;
 
-import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.modules.decompiler.DecHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
@@ -20,6 +19,10 @@ public class SequenceStatement extends Statement {
 
   private SequenceStatement() {
     type = Statement.TYPE_SEQUENCE;
+  }
+
+  public SequenceStatement(Statement... stats) {
+    this(Arrays.asList(stats));
   }
 
   public SequenceStatement(List<? extends Statement> lst) {
@@ -85,15 +88,14 @@ public class SequenceStatement extends Statement {
   }
 
   @Override
-  public TextBuffer toJava(int indent, BytecodeMappingTracer tracer) {
+  public TextBuffer toJava(int indent) {
     TextBuffer buf = new TextBuffer();
     boolean islabeled = isLabeled();
 
-    buf.append(ExprProcessor.listToJava(varDefinitions, indent, tracer));
+    buf.append(ExprProcessor.listToJava(varDefinitions, indent));
 
     if (islabeled) {
       buf.appendIndent(indent++).append("label").append(this.id.toString()).append(": {").appendLineSeparator();
-      tracer.incrementCurrentSourceLine();
     }
 
     boolean notempty = false;
@@ -104,10 +106,9 @@ public class SequenceStatement extends Statement {
 
       if (i > 0 && notempty) {
         buf.appendLineSeparator();
-        tracer.incrementCurrentSourceLine();
       }
 
-      TextBuffer str = ExprProcessor.jmpWrapper(st, indent, false, tracer);
+      TextBuffer str = ExprProcessor.jmpWrapper(st, indent, false);
       buf.append(str);
 
       notempty = !str.containsOnlyWhitespaces();
@@ -115,7 +116,6 @@ public class SequenceStatement extends Statement {
 
     if (islabeled) {
       buf.appendIndent(indent-1).append("}").appendLineSeparator();
-      tracer.incrementCurrentSourceLine();
     }
 
     return buf;

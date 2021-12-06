@@ -1,0 +1,517 @@
+package pkg;
+
+public class TestSwitchFinally {
+   // $FF: Could not verify finally blocks. A semaphore variable has been added to preserve control flow.
+   public void test(int i) {
+      boolean var4 = false;
+
+      try {
+         var4 = true;// 6
+         System.out.println(1);
+         var4 = false;
+      } finally {
+         if (var4) {
+            System.out.println("finally");// 8
+            switch(i) {// 10
+            case 0:
+               System.out.println("0");// 12
+            }
+
+            System.out.println("b");// 16
+         }
+      }
+
+      System.out.println("finally");
+      switch(i) {
+      case 0:
+         System.out.println("0");
+      default:
+         System.out.println("b");
+      }
+   }// 17
+
+   public void test1(int i) {
+      try {
+         System.out.println(1);// 22
+      } finally {
+         System.out.println("finally");// 24
+         switch(i) {// 26
+         case 0:
+            System.out.println("0");// 28
+            break;// 29
+         case 1:
+            System.out.println("1");// 31
+         }
+
+         System.out.println("b");// 35
+      }
+
+   }// 36
+
+   // $FF: Could not verify finally blocks. A semaphore variable has been added to preserve control flow.
+   public void test2(int i) {
+      boolean var4 = false;
+
+      try {
+         var4 = true;// 41
+         System.out.println(1);
+         var4 = false;
+      } finally {
+         if (var4) {
+            System.out.println("finally");// 43
+            switch(i) {// 45
+            default:
+               System.out.println("default");// 47
+               System.out.println("b");// 50
+            }
+         }
+      }
+
+      System.out.println("finally");
+      switch(i) {
+      default:
+         System.out.println("default");
+         System.out.println("b");
+      }
+   }// 51
+
+   // $FF: Could not verify finally blocks. A semaphore variable has been added to preserve control flow.
+   public int test3(int i) {
+      boolean var4 = false;
+
+      label54: {
+         label53: {
+            try {
+               var4 = true;// 57
+               System.out.println(1);
+               var4 = false;
+            } finally {
+               if (var4) {
+                  System.out.println("finally");// 59
+                  switch(i) {// 61
+                  case 0:
+                     System.out.println("0");// 63
+                     break;// 64
+                  case 1:
+                     System.out.println("1");// 66
+                     break label53;// 67
+                  default:
+                     System.out.println("Default");// 69
+                  }
+
+                  System.out.println("b");// 72
+               }
+            }
+
+            System.out.println("finally");
+            switch(i) {
+            case 0:
+               System.out.println("0");
+               break label54;
+            case 1:
+               System.out.println("1");
+               break;
+            default:
+               System.out.println("Default");
+               break label54;
+            }
+         }
+
+         System.out.println("c");// 80
+         return 0;// 81
+      }
+
+      System.out.println("b");
+      System.out.println("d");// 74 76
+      return 1;// 77
+   }
+}
+
+class 'pkg/TestSwitchFinally' {
+   method 'test (I)V' {
+      0      8
+      1      8
+      2      8
+      3      8
+      4      8
+      7      23
+      8      23
+      9      23
+      a      23
+      b      23
+      c      23
+      d      23
+      e      23
+      f      24
+      10      24
+      24      26
+      25      26
+      26      26
+      27      26
+      28      26
+      29      26
+      2c      28
+      2d      28
+      2e      28
+      2f      28
+      30      28
+      31      28
+      32      28
+      33      28
+      34      30
+      35      30
+      36      30
+      37      13
+      38      13
+      39      13
+      3a      13
+      3b      13
+      3c      13
+      3d      14
+      3e      14
+      3f      14
+      40      14
+      41      30
+      42      30
+      43      30
+      44      30
+      45      30
+      46      30
+      47      30
+      48      30
+      49      30
+      4a      30
+      4b      30
+      4c      30
+      4d      30
+      4e      30
+      4f      30
+      50      30
+      51      30
+      52      30
+      53      30
+      54      16
+      55      16
+      56      16
+      57      16
+      58      16
+      59      16
+      5a      30
+      5b      30
+      5c      19
+      5d      19
+      5e      19
+      5f      19
+      60      19
+      61      19
+      62      19
+      63      19
+      64      30
+      65      30
+   }
+
+   method 'test1 (I)V' {
+      0      34
+      1      34
+      2      34
+      3      34
+      4      34
+      47      48
+      4a      36
+      4b      36
+      4c      36
+      4d      36
+      4e      36
+      4f      36
+      50      37
+      51      37
+      52      37
+      53      37
+      70      39
+      71      39
+      72      39
+      73      39
+      74      39
+      75      39
+      76      39
+      77      39
+      78      40
+      7b      42
+      7c      42
+      7d      42
+      7e      42
+      7f      42
+      80      42
+      83      45
+      84      45
+      85      45
+      86      45
+      87      45
+      88      45
+      89      45
+      8a      45
+   }
+
+   method 'test2 (I)V' {
+      0      55
+      1      55
+      2      55
+      3      55
+      4      55
+      7      69
+      8      69
+      9      69
+      a      69
+      b      69
+      c      69
+      d      69
+      e      69
+      f      70
+      10      70
+      1c      72
+      1d      72
+      1e      72
+      1f      72
+      20      72
+      21      72
+      22      72
+      23      72
+      24      73
+      25      73
+      26      73
+      27      73
+      28      73
+      29      73
+      2a      73
+      2b      73
+      2c      75
+      2d      75
+      2e      75
+      2f      60
+      30      60
+      31      60
+      32      60
+      33      60
+      34      60
+      35      61
+      36      61
+      37      61
+      38      61
+      39      75
+      3a      75
+      3b      75
+      3c      75
+      3d      75
+      3e      75
+      3f      75
+      40      75
+      41      75
+      42      75
+      43      75
+      44      63
+      45      63
+      46      63
+      47      63
+      48      63
+      49      63
+      4a      63
+      4b      63
+      4c      64
+      4d      64
+      4e      64
+      4f      64
+      50      64
+      51      64
+      52      64
+      53      64
+      54      75
+      55      75
+   }
+
+   method 'test3 (I)I' {
+      0      84
+      1      84
+      2      84
+      3      84
+      4      84
+      7      105
+      8      105
+      9      105
+      a      105
+      b      105
+      c      105
+      d      105
+      e      105
+      f      106
+      10      106
+      2c      108
+      2d      108
+      2e      108
+      2f      108
+      30      108
+      31      108
+      32      108
+      33      108
+      34      109
+      37      111
+      38      111
+      39      111
+      3a      111
+      3b      111
+      3c      111
+      3d      111
+      3e      111
+      3f      112
+      42      114
+      43      114
+      44      114
+      45      114
+      46      114
+      47      114
+      4a      123
+      4b      123
+      4c      123
+      4d      123
+      4e      123
+      4f      123
+      50      123
+      51      123
+      52      124
+      53      124
+      54      124
+      55      89
+      56      89
+      57      89
+      58      89
+      59      89
+      5a      89
+      5b      90
+      5c      90
+      5d      90
+      5e      90
+      5f      124
+      60      124
+      61      124
+      62      124
+      63      124
+      64      124
+      65      124
+      66      124
+      67      124
+      68      124
+      69      124
+      6a      124
+      6b      124
+      6c      124
+      6d      124
+      6e      124
+      6f      124
+      70      124
+      71      124
+      72      124
+      73      124
+      74      124
+      75      124
+      76      124
+      77      124
+      78      92
+      79      92
+      7a      92
+      7b      92
+      7c      92
+      7d      92
+      7e      92
+      7f      92
+      80      93
+      81      124
+      82      124
+      83      95
+      84      95
+      85      95
+      86      95
+      87      95
+      88      95
+      89      95
+      8a      95
+      8b      96
+      8c      124
+      8d      124
+      8e      98
+      8f      98
+      90      98
+      91      98
+      92      98
+      93      98
+      94      124
+      95      124
+      96      101
+      97      101
+      98      101
+      99      101
+      9a      101
+      9b      101
+      9c      101
+      9d      101
+      9e      124
+      9f      124
+      a0      124
+      a1      124
+      a2      124
+      a3      124
+      a4      124
+      a5      125
+      a6      125
+      a7      125
+      a8      125
+      aa      119
+      ab      119
+      ac      119
+      ad      119
+      ae      119
+      af      119
+      b0      119
+      b1      119
+      b2      120
+      b3      120
+   }
+}
+
+Lines mapping:
+6 <-> 9
+8 <-> 14
+10 <-> 15
+12 <-> 17
+16 <-> 20
+17 <-> 31
+22 <-> 35
+24 <-> 37
+26 <-> 38
+28 <-> 40
+29 <-> 41
+31 <-> 43
+35 <-> 46
+36 <-> 49
+41 <-> 56
+43 <-> 61
+45 <-> 62
+47 <-> 64
+50 <-> 65
+51 <-> 76
+57 <-> 85
+59 <-> 90
+61 <-> 91
+63 <-> 93
+64 <-> 94
+66 <-> 96
+67 <-> 97
+69 <-> 99
+72 <-> 102
+74 <-> 125
+76 <-> 125
+77 <-> 126
+80 <-> 120
+81 <-> 121
+Not mapped:
+18
+37
+52

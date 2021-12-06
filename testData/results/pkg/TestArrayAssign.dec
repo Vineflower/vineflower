@@ -1,0 +1,91 @@
+package pkg;
+
+public class TestArrayAssign {
+   public void test(TestArrayAssign.Holder holder, int i, double inc) {
+      for(int j = 0; j < i; ++j) {// 5
+         double[] var10000 = holder.get();// 6
+         var10000[j] += inc;
+      }
+
+   }// 8
+
+   public void test1(TestArrayAssign.Holder holder, int i, double inc) {
+      for(int j = 0; j < i; ++j) {// 11
+         holder.a[j] += inc;// 12
+      }
+
+   }// 14
+
+   public class Holder {
+      public double[] a;
+
+      public double[] get() {
+         return this.a;// 20
+      }
+   }
+}
+
+class 'pkg/TestArrayAssign' {
+   method 'test (Lpkg/TestArrayAssign$Holder;ID)V' {
+      0      4
+      1      4
+      2      4
+      3      4
+      4      4
+      5      4
+      6      4
+      9      5
+      a      5
+      b      5
+      c      5
+      d      6
+      e      6
+      11      6
+      13      6
+      14      4
+      15      4
+      16      4
+      1a      9
+   }
+
+   method 'test1 (Lpkg/TestArrayAssign$Holder;ID)V' {
+      0      12
+      1      12
+      2      12
+      3      12
+      4      12
+      5      12
+      6      12
+      9      13
+      a      13
+      b      13
+      c      13
+      d      13
+      e      13
+      11      13
+      13      13
+      14      12
+      15      12
+      16      12
+      1a      16
+   }
+}
+
+class 'pkg/TestArrayAssign$Holder' {
+   method 'get ()[D' {
+      0      22
+      1      22
+      2      22
+      3      22
+      4      22
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 6
+8 <-> 10
+11 <-> 13
+12 <-> 14
+14 <-> 17
+20 <-> 23

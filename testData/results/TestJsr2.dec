@@ -1,0 +1,139 @@
+public class TestJsr2 {
+   public static void main(String[] var0) {
+      try {
+         System.out.println("Test");// 3 4
+      } finally {
+         ;
+      }
+
+      System.out.println("Jsr");// 6
+   }// 7
+
+   public static void main2(String[] var0) {
+      try {
+         try {
+            System.out.println("Test");// 12 13 14
+         } finally {
+            ;
+         }
+
+         System.out.println("Jsr");// 16
+      } finally {
+         ;
+      }
+
+      System.out.println("Jsr");// 20
+   }// 21
+
+   public static void main3(String[] var0) {
+      try {
+         try {
+            System.out.println("Test");// 26 27 28
+         } finally {
+            ;
+         }
+
+         System.out.println("Jsr");// 31
+      } finally {
+         ;
+      }
+
+      System.out.println("Jsr");// 35
+   }// 36
+}
+
+class 'TestJsr2' {
+   method 'main ([Ljava/lang/String;)V' {
+      0      3
+      1      3
+      2      3
+      3      3
+      4      3
+      5      3
+      c      8
+      d      8
+      e      8
+      f      8
+      10      8
+      11      8
+      12      8
+      13      8
+      14      9
+   }
+
+   method 'main2 ([Ljava/lang/String;)V' {
+      0      14
+      1      14
+      2      14
+      3      14
+      4      14
+      5      14
+      c      19
+      d      19
+      e      19
+      f      19
+      10      19
+      11      19
+      12      19
+      13      19
+      18      24
+      19      24
+      1a      24
+      1b      24
+      1c      24
+      1d      24
+      1e      24
+      1f      24
+      20      25
+   }
+
+   method 'main3 ([Ljava/lang/String;)V' {
+      0      30
+      1      30
+      2      30
+      3      30
+      4      30
+      5      30
+      6      30
+      7      30
+      c      35
+      d      35
+      e      35
+      f      35
+      10      35
+      11      35
+      12      35
+      13      35
+      18      40
+      19      40
+      1a      40
+      1b      40
+      1c      40
+      1d      40
+      1e      40
+      1f      40
+      20      41
+   }
+}
+
+Lines mapping:
+3 <-> 4
+4 <-> 4
+6 <-> 9
+7 <-> 10
+12 <-> 15
+13 <-> 15
+14 <-> 15
+16 <-> 20
+20 <-> 25
+21 <-> 26
+26 <-> 31
+27 <-> 31
+28 <-> 31
+31 <-> 36
+35 <-> 41
+36 <-> 42
+Not mapped:
+17
+29
+32

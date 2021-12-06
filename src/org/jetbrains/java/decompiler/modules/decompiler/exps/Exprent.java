@@ -6,11 +6,8 @@ package org.jetbrains.java.decompiler.modules.decompiler.exps;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
-import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.util.TextBuffer;
-import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
-import org.jetbrains.java.decompiler.main.rels.ClassWrapper;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
@@ -50,10 +47,12 @@ public abstract class Exprent implements IMatchable {
   public static final int EXPRENT_INVOCATION = 8;
   public static final int EXPRENT_MONITOR = 9;
   public static final int EXPRENT_NEW = 10;
-  public static final int EXPRENT_SWITCH = 11;
+  public static final int EXPRENT_SWITCH_HEAD = 11;
   public static final int EXPRENT_VAR = 12;
   public static final int EXPRENT_ANNOTATION = 13;
   public static final int EXPRENT_ASSERT = 14;
+  public static final int EXPRENT_SWITCH = 15;
+  public static final int EXPRENT_YIELD = 15;
 
   protected static ThreadLocal<Map<String, VarType>> inferredLambdaTypes = ThreadLocal.withInitial(HashMap::new);
 
@@ -100,7 +99,7 @@ public abstract class Exprent implements IMatchable {
     return false;
   }
 
-  public List<Exprent> getAllExprents(boolean recursive) {
+  public final List<Exprent> getAllExprents(boolean recursive) {
     List<Exprent> lst = new ArrayList<>();
     getAllExprents(recursive, lst);
 
@@ -145,17 +144,13 @@ public abstract class Exprent implements IMatchable {
   // Preconditions: this list must never be removed from! Only added to!
   protected abstract List<Exprent> getAllExprents(List<Exprent> list);
 
-  public Exprent copy() {
-    throw new RuntimeException("not implemented");
-  }
+  public abstract Exprent copy();
 
   public TextBuffer toJava() {
-    return toJava(0, BytecodeMappingTracer.DUMMY);
+    return toJava(0);
   }
 
-  public TextBuffer toJava(int indent, BytecodeMappingTracer tracer) {
-    throw new RuntimeException("not implemented");
-  }
+  public abstract TextBuffer toJava(int indent);
 
   public void replaceExprent(Exprent oldExpr, Exprent newExpr) { }
 
@@ -277,7 +272,7 @@ public abstract class Exprent implements IMatchable {
         }
       }
 
-      if (class_ == null) {
+      if (class_ == null || class_.parent == null) {
         break;
       }
       method = class_.enclosingMethod == null ? null : class_.parent.getWrapper().getMethods().getWithKey(class_.enclosingMethod);
@@ -336,6 +331,12 @@ public abstract class Exprent implements IMatchable {
 
   public void setInvocationInstance() {}
 
+  public void setIsQualifier() {}
+
+  public boolean allowNewlineAfterQualifier() {
+    return true;
+  }
+
   // *****************************************************************************
   // IMatchable implementation
   // *****************************************************************************
@@ -385,6 +386,6 @@ public abstract class Exprent implements IMatchable {
 
   @Override
   public String toString() {
-    return toJava(0, BytecodeMappingTracer.DUMMY).toString();
+    return toJava(0).convertToStringAndAllowDataDiscard();
   }
 }

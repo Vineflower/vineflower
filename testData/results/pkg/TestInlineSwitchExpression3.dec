@@ -1,52 +1,36 @@
 package pkg;
 
 import ext.Direction;
-import java.io.PrintStream;
 
 public class TestInlineSwitchExpression3 {
    public void test(Direction direction) {
-      PrintStream var10000 = System.out;// 7
-      byte var10001;
-      switch(direction) {
-      case NORTH:
-      case EAST:
-      case UP:
-         var10001 = -1;// 11
-         break;
-      case SOUTH:
-      case WEST:
-      case DOWN:
-         var10001 = 1;// 15
-         break;
-      default:
-         throw new IncompatibleClassChangeError();
-      }
-
-      var10000.println(var10001);
-   }// 17
+      System.out.println(switch(direction) {// 9
+         case NORTH, EAST, UP -> -1;// 13
+         case SOUTH, WEST, DOWN -> 1;// 17
+         default -> throw new IncompatibleClassChangeError();
+      });
+   }// 19
 }
 
 class 'pkg/TestInlineSwitchExpression3' {
    method 'test (Lext/Direction;)V' {
-      0      7
-      1      7
-      2      7
-      6      9
-      b      9
-      30      13
-      31      14
-      34      18
-      35      19
-      3f      21
-      40      24
-      41      24
-      42      24
-      43      25
+      0      6
+      1      6
+      2      6
+      6      6
+      b      6
+      30      7
+      34      8
+      3f      9
+      40      6
+      41      6
+      42      6
+      43      11
    }
 }
 
 Lines mapping:
-7 <-> 8
-11 <-> 14
-15 <-> 19
-17 <-> 26
+9 <-> 7
+13 <-> 8
+17 <-> 9
+19 <-> 12

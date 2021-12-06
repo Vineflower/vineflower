@@ -1,6 +1,7 @@
 // Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.struct.attr;
 
+import org.jetbrains.java.decompiler.code.BytecodeVersion;
 import org.jetbrains.java.decompiler.struct.consts.ConstantPool;
 import org.jetbrains.java.decompiler.util.DataInputFullStream;
 
@@ -21,7 +22,7 @@ public class StructModuleAttribute extends StructGeneralAttribute {
   public List<ProvidesEntry> provides;
 
   @Override
-  public void initContent(DataInputFullStream data, ConstantPool pool) throws IOException {
+  public void initContent(DataInputFullStream data, ConstantPool pool, BytecodeVersion version) throws IOException {
     int moduleNameIndex = data.readUnsignedShort();
     this.moduleName = pool.getPrimitiveConstant(moduleNameIndex).getString();
     this.moduleFlags = data.readUnsignedShort();

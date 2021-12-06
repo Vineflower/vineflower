@@ -1,7 +1,11 @@
 // Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler;
 
+import net.fabricmc.fernflower.api.IFabricJavadocProvider;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
+import org.jetbrains.java.decompiler.struct.StructClass;
+import org.jetbrains.java.decompiler.struct.StructField;
+import org.jetbrains.java.decompiler.struct.StructMethod;
 
 import static org.jetbrains.java.decompiler.SingleClassesTestBase.TestDefinition.Version.*;
 
@@ -14,8 +18,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
       IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR, "0",
       IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
       IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
-      IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "0",
-      IFernflowerPreferences.INLINE_SIMPLE_LAMBDAS, "0"
+      IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "0"
     );
     registerSet("Entire Classpath", this::registerEntireClassPath,
       IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
@@ -23,8 +26,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
       IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR, "0",
       IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
       IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
-      IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "1",
-      IFernflowerPreferences.INLINE_SIMPLE_LAMBDAS, "0"
+      IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "1"
     );
     registerSet("Java Runtime", this::registerJavaRuntime,
       IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
@@ -32,8 +34,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
       IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR, "0",
       IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
       IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
-      IFernflowerPreferences.INCLUDE_JAVA_RUNTIME, "1",
-      IFernflowerPreferences.INLINE_SIMPLE_LAMBDAS, "0"
+      IFernflowerPreferences.INCLUDE_JAVA_RUNTIME, "1"
     );
     registerSet("Literals", this::registerLiterals,
       IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
@@ -50,7 +51,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
       IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
       IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
       IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "0",
-      IFernflowerPreferences.INLINE_SIMPLE_LAMBDAS, "0",
       IFernflowerPreferences.PATTERN_MATCHING, "1"
     );
     registerSet("Ternary Constant Simplification", this::registerTernaryConstantSimplification,
@@ -67,7 +67,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
       IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR, "0",
       IFernflowerPreferences.DECOMPILE_GENERIC_SIGNATURES, "1",
       IFernflowerPreferences.ASCII_STRING_CHARACTERS, "1",
-      IFernflowerPreferences.LOG_LEVEL, "TRACE",
       IFernflowerPreferences.REMOVE_SYNTHETIC, "1",
       IFernflowerPreferences.REMOVE_BRIDGE, "1",
       IFernflowerPreferences.USE_DEBUG_VAR_NAMES, "1"
@@ -86,9 +85,36 @@ public class SingleClassesTest extends SingleClassesTestBase {
       IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
       IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
       IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "0",
-      IFernflowerPreferences.INLINE_SIMPLE_LAMBDAS, "0",
       IFernflowerPreferences.EXPERIMENTAL_TRY_LOOP_FIX, "1"
     );
+    registerSet("Javadoc", () -> {
+      register(JAVA_8, "TestJavadoc");
+    }, IFabricJavadocProvider.PROPERTY_NAME, new IFabricJavadocProvider() {
+      @Override
+      public String getClassDoc(StructClass structClass) {
+        return "Class javadoc for '" + structClass.qualifiedName + "'";
+      }
+
+      @Override
+      public String getFieldDoc(StructClass structClass, StructField structField) {
+        return "Field javadoc for '" + structField.getName() + "'";
+      }
+
+      @Override
+      public String getMethodDoc(StructClass structClass, StructMethod structMethod) {
+        return "Method javadoc for '" + structMethod.getName() + "'";
+      }
+    });
+    registerSet("Renaming", () -> register(JAVA_8, "TestRenameEntities"),
+      IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
+      IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
+      IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR, "0",
+      IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
+      IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
+      IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "0",
+      IFernflowerPreferences.RENAME_ENTITIES, "1"
+    );
+    // TODO: user renamer class test
   }
 
   private void registerDefault() {
@@ -142,7 +168,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestAccessReplace");
     register(JAVA_8, "TestStringLiterals");
 
-    register(JAVA_8, "TestClassFields");
     register(JAVA_8, "TestClashName", "SharedName1",
       "SharedName2", "SharedName3", "SharedName4", "NonSharedName",
       "TestClashNameParent", "ext/TestClashNameParent", "TestClashNameIface", "ext/TestClashNameIface");
@@ -158,9 +183,11 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestSuperInner", "TestSuperInnerBase");
     register(JASM, "TestMissingConstructorCallGood");
     register(JASM, "TestMissingConstructorCallBad");
+    register(JASM, "TestRecursiveLambda");
     register(JAVA_8, "TestEmptyBlocks");
     register(JAVA_8, "TestInvertedFloatComparison");
     register(JAVA_8, "TestPrivateEmptyConstructor");
+    register(JAVA_8, "TestQualifiedNew");
     // TODO: the local variable name there is wildly mangled
     register(KOTLIN, "TestSynchronizedUnprotected");
     register(JAVA_8, "TestInterfaceSuper");
@@ -174,12 +201,15 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(GROOVY, "TestGroovyTrait");
     register(JAVA_8, "TestPrivateClasses");
     register(KOTLIN, "TestSuspendLambdaKt");
+    register(KOTLIN, "TestRunSuspend");
     register(JAVA_8, "TestGenericArgs");
     register(JAVA_16, "TestRecordEmpty");
     register(JAVA_16, "TestRecordSimple");
     register(JAVA_16, "TestRecordVararg");
     register(JAVA_16, "TestRecordGenericVararg");
     register(JAVA_16, "TestRecordAnno");
+    register(JAVA_16, "TestRecordBig");
+    register(JAVA_16, "TestRecordGenericSuperclass");
     // TODO: The (double) in front of the (int) should be removed
     register(JAVA_8, "TestMultiCast");
     // TODO: The ternary here needs to be removed
@@ -212,6 +242,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestAssignmentInDoWhile");
     // TODO: Assignment of a = a is removed
     register(JAVA_8, "TestBooleanAssignment");
+    // TODO: Required casts are removed
+    register(JAVA_8, "TestCastObjectToPrimitive");
     register(JAVA_8, "TestCastPrimitiveToObject");
     register(JAVA_8, "TestDoWhileTrue");
     register(JAVA_8, "TestExtraClass");
@@ -252,6 +284,9 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16, "TestRecordMixup");
     register(JAVA_8, "TestMultiAssignmentInStaticBlock");
     register(JAVA_8, "TestNextGaussian");
+    register(JAVA_8, "TestLongMethodDeclaration");
+    register(JAVA_8, "TestLongMethodInvocation");
+    register(JAVA_8, "TestBinaryOperationWrapping");
     register(JAVA_8, "TestLoopBreak");
     register(JAVA_8, "TestLoopBreak2");
     register(JAVA_8, "TestSimpleWhile");
@@ -297,6 +332,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16, "TestAssignmentSwitchExpression4");
     register(JAVA_16, "TestAssignmentSwitchExpression5");
     register(JAVA_16, "TestAssignmentSwitchExpression6");
+    register(JAVA_16, "TestAssignmentSwitchExpression7");
     register(JAVA_16, "TestInlineSwitchExpression1");
     register(JAVA_16, "TestInlineSwitchExpression2");
     register(JAVA_16, "TestInlineSwitchExpression3");
@@ -310,6 +346,11 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16, "TestConstructorSwitchExpression1");
     register(JAVA_16, "TestConstructorSwitchExpression2");
     register(JAVA_16, "TestAssertSwitchExpression");
+    register(JAVA_16, "TestSwitchExpressionFallthrough1");
+    register(JAVA_16, "TestConstructorSwitchExpression3");
+    register(JAVA_16, "TestSwitchExpressionPPMM");
+    // TODO: inner switch expression not created
+    register(JAVA_16, "TestSwitchExpressionNested1");
 
     register(JAVA_16_PREVIEW, "TestSealedClasses");
     register(JAVA_16_PREVIEW, "PermittedSubClassA", "TestSealedClasses");
@@ -375,6 +416,56 @@ public class SingleClassesTest extends SingleClassesTestBase {
 
     register(JAVA_8, "TestUnicodeIdentifiers");
     register(JAVA_8, "TestDoubleBraceInitializers");
+
+    register(JAVA_8, "TestPPMM");
+    register(JAVA_8, "TestPPMMByte");
+    register(JAVA_8, "TestPPMMLong");
+    register(JAVA_8, "TestPPMMBoxed");
+    register(JAVA_8, "TestPPMMOnObjectField");
+    register(JAVA_8, "TestPPMMOnStaticField");
+    register(JAVA_17, "TestImplicitlySealedEnum");
+    register(JAVA_16, "TestTextBlocks");
+    registerRaw(CUSTOM, "Java14Test"); // Used from CFR
+    registerRaw(CUSTOM, "JsHurt"); // Used from CFR
+    registerRaw(CUSTOM, "TestJsr");
+    // TODO: Returns not processing properly
+    registerRaw(CUSTOM, "TestJsr2");
+    register(JAVA_8, "TestOverrideIndirect");
+    registerRaw(CUSTOM, "TestIdeaNotNull");
+    // TODO: Synchronized blocks don't work properly
+    registerRaw(CUSTOM, "TestHotjava");
+    register(JAVA_8, "TestLabeledBreaks");
+    // TODO: test6&7- for loop processing leaves empty switch default edge
+    // TODO: test9&10- for loop not created, loop extractor needs another pass
+    register(JAVA_8, "TestSwitchLoop");
+    // TODO: finally block is duplicating the switches, FinallyProcessor#verifyFinallyEx not correct
+    register(JAVA_8, "TestSwitchFinally");
+    // TODO: test2- continue not explicit, causes improper control flow
+    register(JAVA_8, "TestLoopFinally");
+    // TODO: local classes not being put in the right spots
+    register(JAVA_8, "TestLocalClassesSwitch"); // Adapted from CFR
+    // TODO: return not condensed properly and throw is not put into finally
+    register(JAVA_8, "TestFinallyThrow");
+    register(JAVA_8, "TestWhile1");
+    registerRaw(CUSTOM, "TestEclipseSwitchEnum");
+    registerRaw(CUSTOM, "TestEclipseSwitchString");
+    register(JAVA_8, "TestNestedAnonymousClass");
+    // TODO: pre increment not inlined properly
+    register(JAVA_8, "TestPPMMLoop");
+    // TODO: loops not eliminated properly, foreach not created
+    register(JAVA_8, "TestForeachMultipleLoops");
+    // TODO: break turned into labeled continue
+    register(JAVA_8, "TestLoopBreak3");
+    // TODO: do-while loop entirely eliminated in test(), not created in test1()
+    register(JAVA_8, "TestDoWhileMerge");
+    // TODO: ternary not correct, also needs Java 1.0 test- looks different
+    register(JAVA_8, "TestTernaryReturn");
+    // TODO: method access causes improper stack var simplification
+    register(JAVA_8, "TestArrayAssign");
+    register(JASM, "TestGoto");
+    register(JAVA_8, "TestLambdaQualified");
+    // TODO: causes inconsistent idom sequence
+    register(JAVA_16, "TestTernaryReturn2");
   }
 
   private void registerEntireClassPath() {
@@ -417,8 +508,10 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16, "TestTryWithResourcesNullJ16");
     // TODO: doesn't make try with resources block
     register(JAVA_16, "TestTryWithResourcesOuterJ16");
-    // TODO: fails to decompile
+    register(JAVA_16, "TestTryWithResourcesLoopJ16");
     register(JAVA_16, "TestTryWithResourcesFake");
+    register(JAVA_16, "TestTryWithResourcesSwitchJ16");
+    register(JAVA_16, "TestTryWithResourcesNestedLoop");
   }
 
   private void registerLiterals() {
@@ -449,11 +542,9 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestLVT");
     register(JAVA_8, "TestLVTScoping");
     // TODO: int is decompiling as <unknown>
-    // register(JAVA_8, "TestLVTComplex");
+    register(JAVA_8, "TestLVTComplex");
     register(JAVA_8, "TestVarType");
     register(JAVA_8, "TestLoopMerging");
-    // TODO: this is not decompiling properly, needs a look
-    // register(JAVA_8, "TestPPMM");
   }
 
   private void registerTryLoop() {

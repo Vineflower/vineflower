@@ -1,0 +1,273 @@
+package pkg;
+
+public class TestLocalClassesSwitch {
+   public void test(int i) {
+      switch(i) {// 6
+      case 0:
+         class LocalClass {
+            public void test() {
+               System.out.println("test");// 10
+            }// 11
+         }
+
+         LocalClass lc = new LocalClass();// 14
+         lc.test();// 15
+      default:
+         class LocalClass {
+            public void test() {
+               System.out.println("test1");// 21
+            }// 22
+         }
+
+         LocalClass lc = new LocalClass();// 25
+         lc.test();// 26
+      }
+   }// 27
+
+   public void test1(int i) {
+      switch(i) {// 30
+      case 0:
+         class LocalClass {
+            public void test() {
+               System.out.println("test");// 34
+            }// 35
+         }
+
+         LocalClass lc = new LocalClass();// 38
+         lc.test();// 39
+         break;// 40
+      case 1:
+         class LocalClass {
+            public void test() {
+               System.out.println("test1");// 45
+            }// 46
+         }
+
+         LocalClass lc = new LocalClass();// 49
+         lc.test();// 50
+      }
+
+      class LocalClass {
+         public void test() {
+            System.out.println("test2");// 57
+         }// 58
+      }
+
+      LocalClass lc = new LocalClass();// 61
+      lc.test();// 62
+   }// 63
+
+   public void test2(int i) {
+      switch(i) {// 66
+      default:
+         class LocalClass {
+            public void test() {
+               System.out.println("test");// 70
+            }// 71
+         }
+
+         LocalClass lc = new LocalClass();// 74
+         lc.test();// 75
+
+         class LocalClass {
+            public void test() {
+               System.out.println("test1");// 81
+            }// 82
+         }
+
+         LocalClass lc = new LocalClass();// 85
+         lc.test();// 86
+      }
+   }// 87
+}
+
+class 'pkg/TestLocalClassesSwitch' {
+   method 'test (I)V' {
+      0      4
+      1      4
+      1c      12
+      1d      13
+      1e      13
+      29      21
+      2a      22
+      2b      22
+      2c      22
+      2d      22
+      2e      24
+   }
+
+   method 'test1 (I)V' {
+      0      27
+      1      27
+      24      35
+      25      36
+      26      36
+      27      36
+      28      36
+      29      37
+      34      45
+      35      46
+      36      46
+      37      46
+      38      46
+      44      55
+      45      56
+      46      56
+      47      56
+      48      56
+      49      57
+   }
+
+   method 'test2 (I)V' {
+      0      60
+      1      60
+      14      68
+      15      69
+      16      69
+      17      69
+      18      69
+      21      77
+      22      78
+      23      78
+      24      78
+      25      78
+      26      80
+   }
+}
+
+class 'pkg/TestLocalClassesSwitch$1LocalClass' {
+   method 'test ()V' {
+      0      8
+      1      8
+      2      8
+      3      8
+      4      8
+      5      8
+      6      8
+      7      8
+      8      9
+   }
+}
+
+class 'pkg/TestLocalClassesSwitch$2LocalClass' {
+   method 'test ()V' {
+      0      17
+      1      17
+      2      17
+      3      17
+      4      17
+      5      17
+      6      17
+      7      17
+      8      18
+   }
+}
+
+class 'pkg/TestLocalClassesSwitch$3LocalClass' {
+   method 'test ()V' {
+      0      31
+      1      31
+      2      31
+      3      31
+      4      31
+      5      31
+      6      31
+      7      31
+      8      32
+   }
+}
+
+class 'pkg/TestLocalClassesSwitch$4LocalClass' {
+   method 'test ()V' {
+      0      41
+      1      41
+      2      41
+      3      41
+      4      41
+      5      41
+      6      41
+      7      41
+      8      42
+   }
+}
+
+class 'pkg/TestLocalClassesSwitch$5LocalClass' {
+   method 'test ()V' {
+      0      51
+      1      51
+      2      51
+      3      51
+      4      51
+      5      51
+      6      51
+      7      51
+      8      52
+   }
+}
+
+class 'pkg/TestLocalClassesSwitch$6LocalClass' {
+   method 'test ()V' {
+      0      64
+      1      64
+      2      64
+      3      64
+      4      64
+      5      64
+      6      64
+      7      64
+      8      65
+   }
+}
+
+class 'pkg/TestLocalClassesSwitch$7LocalClass' {
+   method 'test ()V' {
+      0      73
+      1      73
+      2      73
+      3      73
+      4      73
+      5      73
+      6      73
+      7      73
+      8      74
+   }
+}
+
+Lines mapping:
+6 <-> 5
+10 <-> 9
+11 <-> 10
+14 <-> 13
+15 <-> 14
+21 <-> 18
+22 <-> 19
+25 <-> 22
+26 <-> 23
+27 <-> 25
+30 <-> 28
+34 <-> 32
+35 <-> 33
+38 <-> 36
+39 <-> 37
+40 <-> 38
+45 <-> 42
+46 <-> 43
+49 <-> 46
+50 <-> 47
+57 <-> 52
+58 <-> 53
+61 <-> 56
+62 <-> 57
+63 <-> 58
+66 <-> 61
+70 <-> 65
+71 <-> 66
+74 <-> 69
+75 <-> 70
+81 <-> 74
+82 <-> 75
+85 <-> 78
+86 <-> 79
+87 <-> 81
+Not mapped:
+51
