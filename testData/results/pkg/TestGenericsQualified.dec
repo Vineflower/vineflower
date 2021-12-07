@@ -1,0 +1,67 @@
+package pkg;
+
+import java.util.Comparator;
+
+public class TestGenericsQualified {
+   public Comparator<String> field = Comparator.comparing(s -> s.length()).thenComparing(i -> i.toString());// 6
+
+   public Comparator<String> method() {
+      return Comparator.comparing(s -> s.length()).thenComparing(i -> i.toString());// 9
+   }
+}
+
+class 'pkg/TestGenericsQualified' {
+   method 'lambda$new$0 (Ljava/lang/String;)Ljava/lang/Integer;' {
+      0      5
+      1      5
+      2      5
+      3      5
+      4      5
+      5      5
+      6      5
+      7      5
+   }
+
+   method 'lambda$new$1 (Ljava/lang/String;)Ljava/lang/String;' {
+      0      5
+      1      5
+      2      5
+      3      5
+      4      5
+   }
+
+   method 'method ()Ljava/util/Comparator;' {
+      5      8
+      6      8
+      7      8
+      d      8
+      e      8
+      f      8
+      10      8
+      11      8
+      12      8
+   }
+
+   method 'lambda$method$2 (Ljava/lang/String;)Ljava/lang/Integer;' {
+      0      8
+      1      8
+      2      8
+      3      8
+      4      8
+      5      8
+      6      8
+      7      8
+   }
+
+   method 'lambda$method$3 (Ljava/lang/String;)Ljava/lang/String;' {
+      0      8
+      1      8
+      2      8
+      3      8
+      4      8
+   }
+}
+
+Lines mapping:
+6 <-> 6
+9 <-> 9

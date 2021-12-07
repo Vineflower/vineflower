@@ -466,6 +466,9 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestLambdaQualified");
     // TODO: causes inconsistent idom sequence
     register(JAVA_16, "TestTernaryReturn2");
+    // TODO: generics not qualified, will not recompile
+    register(JAVA_8, "TestGenericsQualified");
+    register(JAVA_8, "TestGenericMap");
   }
 
   private void registerEntireClassPath() {
