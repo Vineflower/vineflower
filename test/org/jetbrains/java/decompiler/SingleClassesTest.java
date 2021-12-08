@@ -269,13 +269,11 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestSwitchStringHashcodeCollision");
     // TODO: Assignment of o = new Object() is removed
     register(JAVA_8, "TestSynchronized");
-    // TODO: Assignment of o = null is removed, synchronize on null is invalid
     register(JAVA_8, "TestSynchronizeNull");
     register(JAVA_8, "TestWhileIterator");
     register(JAVA_8, "TestReturnTernaryChar");
     register(JAVA_8, "TestCompoundAssignment");
     register(JAVA_8, "TestInfiniteLoop");
-    // TODO: many problems, wrong else if placement, wrong promotion of while to for, wrong control flow with infinite loop
     register(JAVA_8, "TestIfLoop");
     // Be careful when touching this class file, your IDE might freeze
     register(JASM, "TestInheritanceChainCycle");
@@ -303,7 +301,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: complex ternaries are not supported
     register(JAVA_8, "TestWhileTernary8");
     register(JAVA_8, "TestWhileTernary9");
-    // TODO: continue still exists in loop
     register(JAVA_8, "TestWhileTernary10");
 
     register(JAVA_8, "TestOperatorPrecedence");
@@ -525,10 +522,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
 
   private void registerPatternMatching() {
     register(JAVA_16, "TestPatternMatching");
-    // TODO: rename this
     register(JAVA_16, "TestPatternMatchingFake");
     register(JAVA_17, "TestPatternMatchingInteger");
-    // TODO: testNoInit is wrong
     register(JAVA_16, "TestPatternMatchingMerge");
     // TODO: local variables aren't merged properly, bring out of nodebug when they are
     register(JAVA_16_NODEBUG, "TestPatternMatchingAssign");
