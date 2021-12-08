@@ -458,7 +458,9 @@ public class DotExporter {
     for(int i=0;i<blocks.size();i++) {
       DirectNode block = blocks.get(i);
 
-      StringBuilder label = new StringBuilder(block.id);
+      StringBuilder label = new StringBuilder(block.id + " in statement " + block.statement.id + " " + getStatType(block.statement));
+      label.append("\\n");
+      label.append(block.block != null ? toJava(block.block) : "null block");
       if (vars != null && vars.containsKey(block.id)) {
         SFormsFastMapDirect map = vars.get(block.id);
 
@@ -520,6 +522,7 @@ public class DotExporter {
   public static void toDotFile(DirectGraph dgraph, StructMethod mt, String suffix) {
     toDotFile(dgraph, mt, suffix, null);
   }
+
   public static void toDotFile(DirectGraph dgraph, StructMethod mt, String suffix, Map<String, SFormsFastMapDirect> vars) {
     if (!DUMP_DOTS)
       return;

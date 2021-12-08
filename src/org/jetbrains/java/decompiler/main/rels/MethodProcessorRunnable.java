@@ -339,6 +339,10 @@ public class MethodProcessorRunnable implements Runnable {
       decompileRecord.add("ClearSynchronized", root);
     }
 
+    if (SynchronizedHelper.insertSink(root, varProc, root)) {
+      decompileRecord.add("InsertSynchronizedAssignments", root);
+    }
+
     varProc.setVarDefinitions(root);
     decompileRecord.add("SetVarDefinitions", root);
 

@@ -31,6 +31,50 @@ public class TestSynchronized {
     System.out.println(o);
   }
 
+  public void test4_1() {
+    Object o;
+    synchronized (o = 1) {
+      System.out.println(o);
+    }
+    System.out.println(o);
+  }
+
+  public void test4_2() {
+    Object o;
+    synchronized (o = 1.0) {
+      o = 1.0;
+      System.out.println(o);
+    }
+    System.out.println(o);
+  }
+
+  public void test4_3() {
+    Object o;
+    synchronized (o = 1.0f) {
+      o = 1.0f;
+      System.out.println(o);
+    }
+    System.out.println(o);
+  }
+
+  public void test4_4() {
+    Object o;
+    synchronized (o = true) {
+      o = true;
+      System.out.println(o);
+    }
+    System.out.println(o);
+  }
+
+  public void test4_5() {
+    Object o;
+    synchronized (o = 1L) {
+      o = 1L;
+      System.out.println(o);
+    }
+    System.out.println(o);
+  }
+
   public void test5(int i) {
     try {
       while (true) {
@@ -172,5 +216,37 @@ public class TestSynchronized {
     if (i > 2) {
       System.out.println("Hello!");
     }
+  }
+
+  public void test13() {
+    Object o;
+    synchronized (o = "") {
+      System.out.println(o);
+    }
+    System.out.println(o);
+  }
+
+  public void test14() {
+    Object o;
+    synchronized (o = "hi") {
+      System.out.println(o);
+    }
+    System.out.println(o);
+  }
+
+  public void test15() {
+    String o;
+    synchronized (o = "hi") {
+      System.out.println(o);
+    }
+    System.out.println(o);
+  }
+
+  public void test16() {
+    String o = "a";
+    synchronized ("test") {
+      System.out.println(o);
+    }
+    System.out.println(o);
   }
 }

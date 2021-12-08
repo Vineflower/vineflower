@@ -1,11 +1,13 @@
 package org.jetbrains.java.decompiler.modules.decompiler;
 
-import org.jetbrains.java.decompiler.modules.decompiler.exps.AssignmentExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.MonitorExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
+import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.SynchronizedStatement;
+import org.jetbrains.java.decompiler.modules.decompiler.vars.VarProcessor;
+import org.jetbrains.java.decompiler.struct.gen.VarType;
 
 public final class SynchronizedHelper {
   public static boolean cleanSynchronizedVar(Statement stat) {
@@ -34,6 +36,40 @@ public final class SynchronizedHelper {
               }
             }
           }
+        }
+      }
+    }
+
+    return res;
+  }
+
+  public static boolean insertSink(RootStatement root, VarProcessor varProcessor, Statement stat) {
+    boolean res = false;
+    for (Statement st : stat.getStats()) {
+      res |= insertSink(root, varProcessor, st);
+    }
+
+    if (stat.type == Statement.TYPE_SYNCRONIZED) {
+      MonitorExprent mon = (MonitorExprent) ((SynchronizedStatement)stat).getHeadexprent();
+      Exprent value = mon.getValue();
+
+      if (value.type == Exprent.EXPRENT_CONST && ((ConstExprent)value).getConstType() != VarType.VARTYPE_STRING) {
+        // Somehow created a const monitor, add assignment of object to ensure that it functions
+        int var = DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.VAR_COUNTER);
+
+        VarExprent varEx = new VarExprent(var, VarType.VARTYPE_OBJECT, varProcessor);
+        // Doesn't track var type without this, ends up as <unknown>!
+        varProcessor.setVarType(varEx.getVarVersionPair(), VarType.VARTYPE_OBJECT);
+
+        AssignmentExprent assign = new AssignmentExprent(varEx, value, null);
+        mon.replaceExprent(value, assign);
+        root.addComment("$FF: Added assignment to ensure synchronized validity");
+      } else if (value.type == Exprent.EXPRENT_INVOCATION) {
+        // Force boxing for monitor
+        InvocationExprent inv = (InvocationExprent)value;
+
+        if (inv.isBoxingCall()) {
+          inv.markUsingBoxingResult();
         }
       }
     }
