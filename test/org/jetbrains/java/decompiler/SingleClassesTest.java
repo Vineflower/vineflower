@@ -457,7 +457,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestDoWhileMerge");
     // TODO: ternary not correct, also needs Java 1.0 test- looks different
     register(JAVA_8, "TestTernaryReturn");
-    // TODO: method access causes improper stack var simplification
     register(JAVA_8, "TestArrayAssign");
     register(JASM, "TestGoto");
     register(JAVA_8, "TestLambdaQualified");
@@ -466,6 +465,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: generics not qualified, will not recompile
     register(JAVA_8, "TestGenericsQualified");
     register(JAVA_8, "TestGenericMap");
+    // TODO: extra parenthesis around new array
+    register(JAVA_8, "TestArrayNewAccess");
   }
 
   private void registerEntireClassPath() {

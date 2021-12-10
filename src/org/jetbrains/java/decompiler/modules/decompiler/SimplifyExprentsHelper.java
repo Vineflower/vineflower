@@ -140,6 +140,12 @@ public class SimplifyExprentsHelper {
         continue;
       }
 
+      if (isMethodArrayAssign(current, next)) {
+        list.remove(index);
+        res = true;
+        continue;
+      }
+
       // constructor invocation
       if (isConstructorInvocationRemote(list, index)) {
         list.remove(index);
@@ -618,6 +624,51 @@ public class SimplifyExprentsHelper {
     }
 
     return true;
+  }
+
+  // var10000 = get()
+  // var10000[0] = var10000[0] + 10;
+  //
+  // becomes
+  //
+  // get()[0] = get()[0] + 10;
+  //
+  // which then becomes
+  //
+  // get()[0] += 10;
+  //
+  // when assignments are updated at the very end of the processing pipeline. This method assumes assignment updating will always happen, otherwise it'll lead to duplicated code execution!
+  private static boolean isMethodArrayAssign(Exprent expr, Exprent next) {
+    if (expr.type == Exprent.EXPRENT_ASSIGNMENT && next.type == Exprent.EXPRENT_ASSIGNMENT) {
+      Exprent firstLeft = ((AssignmentExprent)expr).getLeft();
+      Exprent secondLeft = ((AssignmentExprent)next).getLeft();
+
+
+      if (firstLeft.type == Exprent.EXPRENT_VAR && secondLeft.type == Exprent.EXPRENT_ARRAY) {
+        Exprent secondBase = ((ArrayExprent)secondLeft).getArray();
+
+        if (secondBase.type == Exprent.EXPRENT_VAR && ((VarExprent)firstLeft).getIndex() == ((VarExprent)secondBase).getIndex() && ((VarExprent) secondBase).isStack()) {
+
+          boolean foundAssign = false;
+          Exprent secondRight = ((AssignmentExprent)next).getRight();
+          for (Exprent exprent : secondRight.getAllExprents()) {
+            if (exprent.type == Exprent.EXPRENT_ARRAY &&
+              ((ArrayExprent)exprent).getArray().type == Exprent.EXPRENT_VAR &&
+              ((VarExprent)((ArrayExprent)exprent).getArray()).getIndex() == ((VarExprent)firstLeft).getIndex()) {
+              exprent.replaceExprent(((ArrayExprent)exprent).getArray(), ((AssignmentExprent)expr).getRight().copy());
+              foundAssign = true;
+            }
+          }
+
+          if (foundAssign) {
+            secondLeft.replaceExprent(secondBase, ((AssignmentExprent) expr).getRight());
+            return true;
+          }
+        }
+      }
+    }
+
+    return false;
   }
 
   // propagate (var = new X) forward to the <init> invocation

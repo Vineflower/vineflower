@@ -1,0 +1,63 @@
+package pkg;
+
+public class TestArrayNewAccess {
+   public void test() {
+      (new int[]{0, 1})[2] = 1;// 5
+   }// 6
+
+   public void test1() {
+      System.out.println((new int[]{0, 1})[2]);// 9
+   }// 10
+
+   public void test2() {
+      System.out.println((new int[]{0, 1})[2] = 1);// 13
+   }// 14
+}
+
+class 'pkg/TestArrayNewAccess' {
+   method 'test ()V' {
+      5      4
+      9      4
+      b      4
+      c      4
+      d      4
+      e      5
+   }
+
+   method 'test1 ()V' {
+      0      8
+      1      8
+      2      8
+      8      8
+      c      8
+      e      8
+      f      8
+      10      8
+      11      8
+      12      8
+      13      9
+   }
+
+   method 'test2 ()V' {
+      0      12
+      1      12
+      2      12
+      8      12
+      c      12
+      e      12
+      f      12
+      11      12
+      12      12
+      13      12
+      14      12
+      15      13
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 6
+9 <-> 9
+10 <-> 10
+13 <-> 13
+14 <-> 14
