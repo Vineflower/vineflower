@@ -351,6 +351,11 @@ public class MethodProcessorRunnable implements Runnable {
       decompileRecord.add("UpdateAssignments", root);
     }
 
+    // Hide empty default edges caused by switch statement processing
+    if (LabelHelper.hideDefaultSwitchEdges(root)) {
+      decompileRecord.add("HideEmptyDefault", root);
+    }
+
     // must be the last invocation, because it makes the statement structure inconsistent
     // FIXME: new edge type needed
     if (LabelHelper.replaceContinueWithBreak(root)) {

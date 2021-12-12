@@ -402,8 +402,8 @@ public final class LabelHelper {
     }
   }
 
-  private static void hideDefaultSwitchEdges(Statement stat) {
-
+  public static boolean hideDefaultSwitchEdges(Statement stat) {
+    boolean res = false;
     if (stat.type == Statement.TYPE_SWITCH) {
       SwitchStatement swst = (SwitchStatement)stat;
 
@@ -411,8 +411,10 @@ public final class LabelHelper {
       if (last >= 0) { // empty switch possible
         Statement stlast = swst.getCaseStatements().get(last);
 
-        if (stlast.getExprents() != null && stlast.getExprents().isEmpty() && !stlast.getAllSuccessorEdges().isEmpty()) {
-          if (!stlast.getAllSuccessorEdges().get(0).explicit) {
+        if (stlast.getExprents() != null && stlast.getExprents().isEmpty()) {
+          List<StatEdge> edges = stlast.getAllSuccessorEdges();
+          // If we don't have an edge from this statement or if the edge that we have isn't explicit, delete the default edge
+          if (edges.isEmpty() || !edges.get(0).explicit) {
             List<StatEdge> lstEdges = swst.getCaseEdges().get(last);
             lstEdges.remove(swst.getDefaultEdge());
 
@@ -420,14 +422,18 @@ public final class LabelHelper {
               swst.getCaseStatements().remove(last);
               swst.getCaseEdges().remove(last);
             }
+
+            res = true;
           }
         }
       }
     }
 
     for (Statement st : stat.getStats()) {
-      hideDefaultSwitchEdges(st);
+      res |= hideDefaultSwitchEdges(st);
     }
+
+    return res;
   }
 
   private static class LabelSets {

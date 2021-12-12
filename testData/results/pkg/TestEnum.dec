@@ -45,7 +45,6 @@ public enum TestEnum {
       switch(TestEnum.Type.ODD) {// 55
       case ODD:
          System.out.println("ODD");// 57
-      default:
       }
    }// 59
 
@@ -137,7 +136,7 @@ class 'pkg/TestEnum' {
       6f      46
       70      46
       71      46
-      74      49
+      74      48
    }
 }
 
@@ -157,4 +156,4 @@ Lines mapping:
 51 <-> 42
 55 <-> 45
 57 <-> 47
-59 <-> 50
+59 <-> 49

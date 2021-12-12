@@ -432,7 +432,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: Synchronized blocks don't work properly
     registerRaw(CUSTOM, "TestHotjava");
     register(JAVA_8, "TestLabeledBreaks");
-    // TODO: test6&7- for loop processing leaves empty switch default edge
     // TODO: test9&10- for loop not created, loop extractor needs another pass
     register(JAVA_8, "TestSwitchLoop");
     // TODO: finally block is duplicating the switches, FinallyProcessor#verifyFinallyEx not correct
