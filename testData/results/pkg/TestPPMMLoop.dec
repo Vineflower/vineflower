@@ -2,15 +2,11 @@ package pkg;
 
 public class TestPPMMLoop {
    public void test(int a, String s) {
-      while(true) {
-         ++a;// 5
-         if (a <= 0) {
-            return;// 8
-         }
-
+      while(++a > 0) {// 5
          s = s + "a";// 6
       }
-   }
+
+   }// 8
 
    public void test1(int a, String s) {
       while(a++ > 0) {// 11
@@ -20,15 +16,11 @@ public class TestPPMMLoop {
    }// 14
 
    public void test2(int a, String s) {
-      while(true) {
-         --a;// 17
-         if (a <= 0) {
-            return;// 20
-         }
-
+      while(--a > 0) {// 17
          s = s + "a";// 18
       }
-   }
+
+   }// 20
 
    public void test3(int a, String s) {
       while(a-- > 0) {// 23
@@ -40,78 +32,76 @@ public class TestPPMMLoop {
 
 class 'pkg/TestPPMMLoop' {
    method 'test (ILjava/lang/String;)V' {
-      0      5
-      1      5
-      2      5
-      3      6
-      4      6
-      e      10
-      12      10
-      13      10
-      17      10
-      18      10
-      19      10
-      1a      10
-      1e      7
+      0      4
+      1      4
+      2      4
+      4      4
+      e      5
+      12      5
+      13      5
+      17      5
+      18      5
+      19      5
+      1a      5
+      1e      8
    }
 
    method 'test1 (ILjava/lang/String;)V' {
-      1      15
-      2      15
-      3      15
-      4      15
-      e      16
-      12      16
-      13      16
-      17      16
-      18      16
-      19      16
-      1a      16
-      1e      19
+      1      11
+      2      11
+      3      11
+      4      11
+      e      12
+      12      12
+      13      12
+      17      12
+      18      12
+      19      12
+      1a      12
+      1e      15
    }
 
    method 'test2 (ILjava/lang/String;)V' {
-      0      23
-      1      23
-      2      23
-      3      24
-      4      24
-      e      28
-      12      28
-      13      28
-      17      28
-      18      28
-      19      28
-      1a      28
-      1e      25
+      0      18
+      1      18
+      2      18
+      4      18
+      e      19
+      12      19
+      13      19
+      17      19
+      18      19
+      19      19
+      1a      19
+      1e      22
    }
 
    method 'test3 (ILjava/lang/String;)V' {
-      1      33
-      2      33
-      3      33
-      4      33
-      e      34
-      12      34
-      13      34
-      17      34
-      18      34
-      19      34
-      1a      34
-      1e      37
+      1      25
+      2      25
+      3      25
+      4      25
+      e      26
+      12      26
+      13      26
+      17      26
+      18      26
+      19      26
+      1a      26
+      1e      29
    }
 }
 
 Lines mapping:
-5 <-> 6
-6 <-> 11
-8 <-> 8
-11 <-> 16
-12 <-> 17
-14 <-> 20
-17 <-> 24
-18 <-> 29
-20 <-> 26
-23 <-> 34
-24 <-> 35
-26 <-> 38
+5 <-> 5
+6 <-> 6
+8 <-> 9
+11 <-> 12
+12 <-> 13
+14 <-> 16
+17 <-> 19
+18 <-> 20
+20 <-> 23
+23 <-> 26
+24 <-> 27
+26 <-> 30

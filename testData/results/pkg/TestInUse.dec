@@ -13,8 +13,7 @@ public class TestInUse {
       do {
          d = this.getInt();// 12
          result -= d;// 13
-         ++i;// 15
-      } while(i < 10);
+      } while(++i < 10);// 15
 
       return result;// 16
    }
@@ -44,12 +43,11 @@ class 'pkg/TestInUse' {
       f      15
       10      15
       11      15
-      12      16
-      13      16
-      14      16
-      15      16
-      18      18
-      19      18
+      13      15
+      14      15
+      15      15
+      18      17
+      19      17
    }
 }
 
@@ -60,4 +58,4 @@ Lines mapping:
 12 <-> 14
 13 <-> 15
 15 <-> 16
-16 <-> 19
+16 <-> 18

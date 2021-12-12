@@ -186,6 +186,11 @@ public class MethodProcessorRunnable implements Runnable {
       decompileRecord.add("SetVarVersions_PPMM_" + stackVarsProcessed, root);
     } while (new PPandMMHelper(varProc).findPPandMM(root));
 
+    // Inline ppi/mmi that we may have missed
+    if (PPandMMHelper.inlinePPIandMMIIf(root)) {
+      decompileRecord.add("InlinePPIandMMI", root);
+    }
+
     // Process invokedynamic string concat
     if (cl.getVersion().hasIndyStringConcat()) {
       ConcatenationHelper.simplifyStringConcat(root);
