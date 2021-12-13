@@ -850,7 +850,9 @@ public class FinallyProcessor {
       return false;
     }
 
-    if (first.group != CodeConstants.GROUP_JUMP) { // FIXME: switch comparison
+    if (first.group != CodeConstants.GROUP_JUMP && first.group != CodeConstants.GROUP_SWITCH) { // FIXME: switch comparison
+      // NOTE: seems like just checking group_switch works? Why does the above comment have a fix me?
+
       for (int i = 0; i < first.operandsCount(); i++) {
         int firstOp = first.operand(i);
         int secondOp = second.operand(i);

@@ -434,7 +434,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestLabeledBreaks");
     // TODO: test9&10- for loop not created, loop extractor needs another pass
     register(JAVA_8, "TestSwitchLoop");
-    // TODO: finally block is duplicating the switches, FinallyProcessor#verifyFinallyEx not correct
     register(JAVA_8, "TestSwitchFinally");
     // TODO: test2- continue not explicit, causes improper control flow
     register(JAVA_8, "TestLoopFinally");
