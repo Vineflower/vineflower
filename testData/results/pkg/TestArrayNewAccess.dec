@@ -12,6 +12,14 @@ public class TestArrayNewAccess {
    public void test2() {
       System.out.println((new int[]{0, 1})[2] = 1);// 13
    }// 14
+
+   public void test3() {
+      (new int[0])[0] = 1;// 17
+   }// 18
+
+   public void test4() {
+      (new int[0])[0] = 1;// 21
+   }// 22
 }
 
 class 'pkg/TestArrayNewAccess' {
@@ -52,6 +60,22 @@ class 'pkg/TestArrayNewAccess' {
       14      12
       15      13
    }
+
+   method 'test3 ()V' {
+      0      16
+      3      16
+      4      16
+      5      16
+      6      17
+   }
+
+   method 'test4 ()V' {
+      0      20
+      3      20
+      4      20
+      5      20
+      6      21
+   }
 }
 
 Lines mapping:
@@ -61,3 +85,7 @@ Lines mapping:
 10 <-> 10
 13 <-> 13
 14 <-> 14
+17 <-> 17
+18 <-> 18
+21 <-> 21
+22 <-> 22
