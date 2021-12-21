@@ -249,4 +249,10 @@ public class TestSynchronized {
     }
     System.out.println(o);
   }
+
+  public void test17() {
+    synchronized (TestSynchronized.class) {
+      System.out.println("test");
+    }
+  }
 }

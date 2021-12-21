@@ -271,6 +271,12 @@ public class TestSynchronized {
 
       System.out.println(o);// 250
    }// 251
+
+   public void test17() {
+      synchronized(TestSynchronized.class) {// 254
+         System.out.println("test");// 255
+      }
+   }// 257
 }
 
 class 'pkg/TestSynchronized' {
@@ -825,6 +831,21 @@ class 'pkg/TestSynchronized' {
       1f      271
       20      272
    }
+
+   method 'test17 ()V' {
+      0      275
+      1      275
+      4      275
+      5      276
+      6      276
+      7      276
+      8      276
+      9      276
+      a      276
+      b      276
+      c      276
+      17      278
+   }
 }
 
 Lines mapping:
@@ -963,6 +984,9 @@ Lines mapping:
 249 <-> 270
 250 <-> 272
 251 <-> 273
+254 <-> 276
+255 <-> 277
+257 <-> 279
 Not mapped:
 7
 13
@@ -981,3 +1005,4 @@ Not mapped:
 205
 207
 214
+256

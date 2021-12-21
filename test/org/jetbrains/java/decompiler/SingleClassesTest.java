@@ -280,6 +280,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16, "TestRecordInner");
     register(JAVA_16, "TestRecordMixup");
     register(JAVA_8, "TestMultiAssignmentInStaticBlock");
+    register(JAVA_8, "TestMultiAssignmentInDynamicBlock");
     register(JAVA_8, "TestNextGaussian");
     register(JAVA_8, "TestLongMethodDeclaration");
     register(JAVA_8, "TestLongMethodInvocation");

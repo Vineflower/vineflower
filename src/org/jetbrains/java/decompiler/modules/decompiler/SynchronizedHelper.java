@@ -8,6 +8,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.SynchronizedStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarProcessor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
+import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
 
 public final class SynchronizedHelper {
   public static boolean cleanSynchronizedVar(Statement stat) {
@@ -53,7 +54,7 @@ public final class SynchronizedHelper {
       MonitorExprent mon = (MonitorExprent) ((SynchronizedStatement)stat).getHeadexprent();
       Exprent value = mon.getValue();
 
-      if (value.type == Exprent.EXPRENT_CONST && ((ConstExprent)value).getConstType() != VarType.VARTYPE_STRING) {
+      if (value.type == Exprent.EXPRENT_CONST && ((ConstExprent)value).getConstType() != VarType.VARTYPE_STRING && !(((ConstExprent)value).getConstType() instanceof GenericType)) {
         // Somehow created a const monitor, add assignment of object to ensure that it functions
         int var = DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.VAR_COUNTER);
 
