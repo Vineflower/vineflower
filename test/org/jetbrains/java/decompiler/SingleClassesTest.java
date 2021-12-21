@@ -188,7 +188,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestInvertedFloatComparison");
     register(JAVA_8, "TestPrivateEmptyConstructor");
     register(JAVA_8, "TestQualifiedNew");
-    // TODO: the local variable name there is wildly mangled
     register(KOTLIN, "TestSynchronizedUnprotected");
     register(JAVA_8, "TestInterfaceSuper");
     register(JASM, "TestFieldSingleAccess");
@@ -242,7 +241,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestAssignmentInDoWhile");
     // TODO: Assignment of a = a is removed
     register(JAVA_8, "TestBooleanAssignment");
-    // TODO: Required casts are removed
+    // TODO: Extraneous casts to boolean and short
     register(JAVA_8, "TestCastObjectToPrimitive");
     register(JAVA_8, "TestCastPrimitiveToObject");
     register(JAVA_8, "TestDoWhileTrue");
@@ -445,7 +444,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     registerRaw(CUSTOM, "TestEclipseSwitchEnum");
     registerRaw(CUSTOM, "TestEclipseSwitchString");
     register(JAVA_8, "TestNestedAnonymousClass");
-    // TODO: pre increment not inlined properly
     register(JAVA_8, "TestPPMMLoop");
     // TODO: loops not eliminated properly, foreach not created
     register(JAVA_8, "TestForeachMultipleLoops");

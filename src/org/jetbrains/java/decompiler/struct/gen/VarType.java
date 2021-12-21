@@ -1,6 +1,7 @@
 // Copyright 2000-2017 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.struct.gen;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.jetbrains.java.decompiler.code.CodeConstants;
@@ -31,7 +32,22 @@ public class VarType {  // TODO: optimize switch
   public static final VarType VARTYPE_CHARACTER = new VarType(CodeConstants.TYPE_OBJECT, 0, "java/lang/Character");
   public static final VarType VARTYPE_BYTE_OBJ = new VarType(CodeConstants.TYPE_OBJECT, 0, "java/lang/Byte");
   public static final VarType VARTYPE_SHORT_OBJ = new VarType(CodeConstants.TYPE_OBJECT, 0, "java/lang/Short");
+  public static final VarType VARTYPE_BOOLEAN_OBJ = new VarType(CodeConstants.TYPE_OBJECT, 0, "java/lang/Boolean");
+  public static final VarType VARTYPE_FLOAT_OBJ = new VarType(CodeConstants.TYPE_OBJECT, 0, "java/lang/Float");
+  public static final VarType VARTYPE_DOUBLE_OBJ = new VarType(CodeConstants.TYPE_OBJECT, 0, "java/lang/Double");
   public static final VarType VARTYPE_VOID = new VarType(CodeConstants.TYPE_VOID);
+
+  public static final Map<VarType, VarType> UNBOXING_TYPES = new HashMap<>();
+
+  static {
+    UNBOXING_TYPES.put(VARTYPE_INTEGER, VARTYPE_INT);
+    UNBOXING_TYPES.put(VARTYPE_CHARACTER, VARTYPE_CHAR);
+    UNBOXING_TYPES.put(VARTYPE_BYTE_OBJ, VARTYPE_BYTE);
+    UNBOXING_TYPES.put(VARTYPE_SHORT_OBJ, VARTYPE_SHORT);
+    UNBOXING_TYPES.put(VARTYPE_BOOLEAN_OBJ, VARTYPE_BOOLEAN);
+    UNBOXING_TYPES.put(VARTYPE_FLOAT_OBJ, VARTYPE_FLOAT);
+    UNBOXING_TYPES.put(VARTYPE_DOUBLE_OBJ, VARTYPE_DOUBLE);
+  }
 
   public final int type;
   public final int arrayDim;
@@ -217,7 +233,7 @@ public class VarType {  // TODO: optimize switch
   }
 
   public boolean isSuperset(VarType val) {
-    return this.equals(val) || this.isStrictSuperset(val);
+    return this.equals(val) || this.isStrictSuperset(val) || this.equals(UNBOXING_TYPES.get(val));
   }
 
   public boolean isStrictSuperset(VarType val) {

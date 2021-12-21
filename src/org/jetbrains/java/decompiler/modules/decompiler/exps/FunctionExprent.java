@@ -495,13 +495,13 @@ public class FunctionExprent extends Exprent {
 
     // If we're an unsigned right shift or lower, this function can be represented as a single leftHand + functionType + rightHand operation.
     if (this.funcType <= FUNCTION_USHR) {
+      Exprent left = this.lstOperands.get(0);
+      Exprent right = this.lstOperands.get(1);
+
       // Minecraft specific hot fix: If we're doing arithmetic or bitwise math by a char value, we can assume that it's wrong behavior.
       // We check for this and then fix it by resetting the param to be an int instead of a char.
       // This fixes cases where "& 65535" and "& 0xFFFF" get wrongly decompiled as "& '\uffff'".
       if (this.funcType <= FUNCTION_XOR) {
-        Exprent left = this.lstOperands.get(0);
-        Exprent right = this.lstOperands.get(1);
-
         // Checks to see if the right expression is a constant and then adjust the type from char to int if the left is an int.
         // Failing that, check the left hand side and then do the same.
         if (right.type == EXPRENT_CONST) {
@@ -512,15 +512,12 @@ public class FunctionExprent extends Exprent {
       }
 
       // Initialize the operands with the defaults
-      TextBuffer leftOperand = wrapOperandString(this.lstOperands.get(0), false, indent, true);
-      TextBuffer rightOperand = wrapOperandString(this.lstOperands.get(1), true, indent, true);
+      TextBuffer leftOperand = wrapOperandString(left, false, indent, true);
+      TextBuffer rightOperand = wrapOperandString(right, true, indent, true);
 
       // Check for special cased integers on the right and left hand side, and then return if they are found.
       // This only applies to bitwise and as well as bitwise or functions.
       if (this.funcType == FUNCTION_AND || this.funcType == FUNCTION_OR) {
-        Exprent left = this.lstOperands.get(0);
-        Exprent right = this.lstOperands.get(1);
-
         // Check if the right is an int constant and adjust accordingly
         if (right.type == EXPRENT_CONST && right.getExprType() == VarType.VARTYPE_INT) {
           Integer value = (Integer) ((ConstExprent)right).getValue();
@@ -546,15 +543,16 @@ public class FunctionExprent extends Exprent {
       if (!disableNewlineGroupCreation) {
         buf.popNewlineGroup();
       }
+
       return buf;
     }
 
       // try to determine more accurate type for 'char' literals
     if (funcType >= FUNCTION_EQ) {
-      if (funcType <= FUNCTION_LE) {
-        Exprent left = lstOperands.get(0);
-        Exprent right = lstOperands.get(1);
+      Exprent left = lstOperands.get(0);
+      Exprent right = lstOperands.get(1);
 
+      if (funcType <= FUNCTION_LE) {
         if (right.type == EXPRENT_CONST) {
           ((ConstExprent) right).adjustConstType(left.getExprType());
         }
@@ -566,9 +564,9 @@ public class FunctionExprent extends Exprent {
       if (!disableNewlineGroupCreation) {
         buf.pushNewlineGroup(indent, 1);
       }
-      buf.append(wrapOperandString(lstOperands.get(0), false, indent, true))
+      buf.append(wrapOperandString(left, false, indent, true))
         .appendPossibleNewline(" ").append(OPERATORS[funcType - FUNCTION_EQ + 11]).append(" ")
-        .append(wrapOperandString(lstOperands.get(1), true, indent, true));
+        .append(wrapOperandString(right, true, indent, true));
       if (!disableNewlineGroupCreation) {
         buf.popNewlineGroup();
       }
@@ -670,6 +668,27 @@ public class FunctionExprent extends Exprent {
 
     //        return "<unknown function>";
     throw new RuntimeException("invalid function");
+  }
+
+  // Make sure that any boxing that is required is properly expressed
+  private Exprent unwrapBoxing(Exprent expr) {
+    if (expr.type == Exprent.EXPRENT_INVOCATION) {
+      if (((InvocationExprent) expr).isUnboxingCall()) {
+        Exprent inner = ((InvocationExprent) expr).getInstance();
+        if (inner.type == Exprent.EXPRENT_FUNCTION && ((FunctionExprent)inner).funcType == FunctionExprent.FUNCTION_CAST) {
+          inner.addBytecodeOffsets(expr.bytecode);
+          expr = inner;
+        }
+      }
+    }
+
+    return expr;
+  }
+
+  public void unwrapBox() {
+    for (int i = 0; i < this.lstOperands.size(); i++) {
+      this.lstOperands.set(i, unwrapBoxing(this.lstOperands.get(i)));
+    }
   }
 
   @Override
