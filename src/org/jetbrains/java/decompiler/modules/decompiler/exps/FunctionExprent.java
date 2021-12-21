@@ -4,6 +4,7 @@
 package org.jetbrains.java.decompiler.modules.decompiler.exps;
 
 import org.jetbrains.java.decompiler.code.CodeConstants;
+import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
@@ -329,7 +330,7 @@ public class FunctionExprent extends Exprent {
           }
         }
         else {
-            this.needsCast = right.type == CodeConstants.TYPE_NULL || !DecompilerContext.getStructContext().instanceOf(right.value, upperBound.value);
+            this.needsCast = right.type == CodeConstants.TYPE_NULL || !DecompilerContext.getStructContext().instanceOf(right.value, upperBound.value) || !areGenericTypesSame(right, upperBound);
         }
         if (!this.needsCast) {
           if (arrayDim > 0) {
@@ -348,6 +349,32 @@ public class FunctionExprent extends Exprent {
       lstOperands.get(2).getInferredExprType(upperBound);
     }
     return getExprType();
+  }
+
+  private static boolean areGenericTypesSame(VarType right, VarType upperBound) {
+    if (!(right instanceof GenericType && upperBound instanceof GenericType)) {
+      return true; // Prevent this from accidentally always casting
+    }
+
+    GenericType rightGeneric = (GenericType)right;
+    GenericType upperBoundGeneric = (GenericType)upperBound;
+
+    // Different argument counts, can't be the same!
+    if (rightGeneric.getArguments().size() != upperBoundGeneric.getArguments().size()) {
+      return false;
+    }
+
+    for (int i = 0; i < upperBoundGeneric.getArguments().size(); i++) {
+      VarType upperType = upperBoundGeneric.getArguments().get(i);
+      VarType rightType = rightGeneric.getArguments().get(i);
+
+      // Trying to cast Obj<?> to Obj<T>, which is an unchecked cast- needs to be explicit
+      if (upperType != null && rightType == null) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   @Override
@@ -792,6 +819,10 @@ public class FunctionExprent extends Exprent {
 
   public boolean doesCast() {
     return needsCast;
+  }
+
+  public void setNeedsCast(boolean needsCast) {
+    this.needsCast = needsCast;
   }
 
   public void setInvocationInstance() {

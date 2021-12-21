@@ -927,6 +927,7 @@ public class ExprProcessor implements CodeConstants {
     }
 
     VarType rightType = exprent.getInferredExprType(leftType);
+    exprent = narrowGenericCastType(exprent, leftType);
 
     boolean cast =
       castAlways ||
@@ -949,11 +950,17 @@ public class ExprProcessor implements CodeConstants {
       }
     }
 
-    if (cast) buffer.append('(').append(getCastTypeName(leftType)).append(')');
+    if (cast) {
+      buffer.append('(').append(getCastTypeName(leftType)).append(')');
+    }
 
-    if (castLambda) buffer.append('(').append(getCastTypeName(rightType)).append(')');
+    if (castLambda) {
+      buffer.append('(').append(getCastTypeName(rightType)).append(')');
+    }
 
-    if (quote) buffer.append('(');
+    if (quote) {
+      buffer.append('(');
+    }
 
     if (exprent.type == Exprent.EXPRENT_CONST) {
       ((ConstExprent) exprent).adjustConstType(leftType);
@@ -961,9 +968,32 @@ public class ExprProcessor implements CodeConstants {
 
     buffer.append(exprent.toJava(indent));
 
-    if (quote) buffer.append(')');
+    if (quote) {
+      buffer.append(')');
+    }
 
     return cast;
+  }
+
+  // (Obj)expr; -> (Obj<T>)expr;
+  public static Exprent narrowGenericCastType(Exprent expr, VarType type) {
+    if (type.isGeneric() && expr.type == Exprent.EXPRENT_FUNCTION && ((FunctionExprent)expr).getFuncType() == FunctionExprent.FUNCTION_CAST) {
+      FunctionExprent func = (FunctionExprent) expr;
+      VarType funcType = func.getExprType();
+
+      GenericType genType = (GenericType) type;
+      if (funcType.value.equals(type.value) && !genType.getArguments().isEmpty()) {
+        // Trying to cast to a generic type but the cast isn't generic- invalid!
+        if (!funcType.isGeneric()) {
+          ConstExprent cast = ((ConstExprent) func.getLstOperands().get(1));
+          cast.setConstType(type);
+        } else if (genType.equalsExact(funcType) && !func.doesCast()) {
+          func.setNeedsCast(true);
+        }
+      }
+    }
+
+    return expr;
   }
 
   private static boolean isIntConstant(Exprent exprent) {

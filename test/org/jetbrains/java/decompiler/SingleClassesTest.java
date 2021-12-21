@@ -241,7 +241,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestAssignmentInDoWhile");
     // TODO: Assignment of a = a is removed
     register(JAVA_8, "TestBooleanAssignment");
-    // TODO: Extraneous casts to boolean and short
+    // TODO: Extraneous cast to boolean
     register(JAVA_8, "TestCastObjectToPrimitive");
     register(JAVA_8, "TestCastPrimitiveToObject");
     register(JAVA_8, "TestDoWhileTrue");
@@ -511,6 +511,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16, "TestTryWithResourcesFake");
     register(JAVA_16, "TestTryWithResourcesSwitchJ16");
     register(JAVA_16, "TestTryWithResourcesNestedLoop");
+
+    register(JAVA_8, "TestGenericMapEntireClasspath");
   }
 
   private void registerLiterals() {

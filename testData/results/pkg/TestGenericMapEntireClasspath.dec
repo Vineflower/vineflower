@@ -3,23 +3,23 @@ package pkg;
 import java.util.HashMap;
 import java.util.Map;
 
-public class TestGenericMap {
-   public Map<String, TestGenericMap.Inner<?>> field = new HashMap();
+public class TestGenericMapEntireClasspath {
+   public Map<String, TestGenericMapEntireClasspath.Inner<?>> field = new HashMap<>();
 
-   public <T extends Number> TestGenericMap.Inner<T> get(String s) {
-      return (TestGenericMap.Inner<T>)this.field.get(s);// 16
+   public <T extends Number> TestGenericMapEntireClasspath.Inner<T> get(String s) {
+      return (TestGenericMapEntireClasspath.Inner<T>)this.field.get(s);// 16
    }
 
-   public <T extends Number> TestGenericMap.Inner<?> get1(String s) {
-      return (TestGenericMap.Inner<?>)this.field.get(s);// 20
+   public <T extends Number> TestGenericMapEntireClasspath.Inner<?> get1(String s) {
+      return this.field.get(s);// 20
    }
 
-   public TestGenericMap.Inner<?> get2(String s) {
-      return (TestGenericMap.Inner<?>)this.field.get(s);// 24
+   public TestGenericMapEntireClasspath.Inner<?> get2(String s) {
+      return this.field.get(s);// 24
    }
 
-   public TestGenericMap.Inner get3(String s) {
-      return (TestGenericMap.Inner)this.field.get(s);// 28
+   public TestGenericMapEntireClasspath.Inner get3(String s) {
+      return this.field.get(s);// 28
    }
 
    public class Inner<T> {
@@ -29,8 +29,8 @@ public class TestGenericMap {
    }
 }
 
-class 'pkg/TestGenericMap' {
-   method 'get (Ljava/lang/String;)Lpkg/TestGenericMap$Inner;' {
+class 'pkg/TestGenericMapEntireClasspath' {
+   method 'get (Ljava/lang/String;)Lpkg/TestGenericMapEntireClasspath$Inner;' {
       0      9
       1      9
       2      9
@@ -47,7 +47,7 @@ class 'pkg/TestGenericMap' {
       d      9
    }
 
-   method 'get1 (Ljava/lang/String;)Lpkg/TestGenericMap$Inner;' {
+   method 'get1 (Ljava/lang/String;)Lpkg/TestGenericMapEntireClasspath$Inner;' {
       0      13
       1      13
       2      13
@@ -64,7 +64,7 @@ class 'pkg/TestGenericMap' {
       d      13
    }
 
-   method 'get2 (Ljava/lang/String;)Lpkg/TestGenericMap$Inner;' {
+   method 'get2 (Ljava/lang/String;)Lpkg/TestGenericMapEntireClasspath$Inner;' {
       0      17
       1      17
       2      17
@@ -81,7 +81,7 @@ class 'pkg/TestGenericMap' {
       d      17
    }
 
-   method 'get3 (Ljava/lang/String;)Lpkg/TestGenericMap$Inner;' {
+   method 'get3 (Ljava/lang/String;)Lpkg/TestGenericMapEntireClasspath$Inner;' {
       0      21
       1      21
       2      21
@@ -99,7 +99,7 @@ class 'pkg/TestGenericMap' {
    }
 }
 
-class 'pkg/TestGenericMap$Inner' {
+class 'pkg/TestGenericMapEntireClasspath$Inner' {
    method 'get ()Ljava/lang/Object;' {
       0      26
       1      26

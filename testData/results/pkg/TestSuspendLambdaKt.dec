@@ -68,7 +68,7 @@ public final class TestSuspendLambdaKt {
 
          @NotNull
          public final Continuation<Unit> create(@NotNull Continuation<?> $completion) {
-            return (Continuation)(new NamelessClass_1($completion));
+            return (Continuation<Unit>)(new NamelessClass_1($completion));
          }
 
          @Nullable
