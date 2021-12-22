@@ -24,7 +24,7 @@ public class TestGenericMapEntireClasspath {
 
    public class Inner<T> {
       T get() {
-         return (T)null;// 9
+         return null;// 9
       }
    }
 }

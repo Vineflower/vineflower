@@ -527,7 +527,7 @@ public class InvocationExprent extends Exprent {
       if (isBoxingCall() && canIgnoreBoxing && !forceBoxing) {
         // process general "boxing" calls, e.g. 'Object[] data = { true }' or 'Byte b = 123'
         // here 'byte' and 'short' values do not need an explicit narrowing type cast
-        ExprProcessor.getCastedExprent(lstParameters.get(0), descriptor.params[0], buf, indent, false, false, true, false);
+        ExprProcessor.getCastedExprent(lstParameters.get(0), descriptor.params[0], buf, indent, ExprProcessor.NullCastType.DONT_CAST, false, true, false);
         buf.addBytecodeMapping(bytecode);
         return buf;
       }
@@ -942,7 +942,7 @@ public class InvocationExprent extends Exprent {
         }
 
         // 'byte' and 'short' literals need an explicit narrowing type cast when used as a parameter
-        ExprProcessor.getCastedExprent(lstParameters.get(i), types[i], buff, indent, true, ambiguous, true, true);
+        ExprProcessor.getCastedExprent(lstParameters.get(i), types[i], buff, indent, ExprProcessor.NullCastType.CAST, ambiguous, true, true);
 
         // the last "new Object[0]" in the vararg call is not printed
         if (buff.length() > 0) {

@@ -2,7 +2,7 @@ package pkg;
 
 public class TestRecordGenericSuperclass<G extends Number> {
    public G getNum() {
-      return (G)null;// 5
+      return null;// 5
    }
 
    public static record Rec<G>(G num) {

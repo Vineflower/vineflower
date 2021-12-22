@@ -900,14 +900,14 @@ public class ExprProcessor implements CodeConstants {
                                          TextBuffer buffer,
                                          int indent,
                                          boolean castNull) {
-    return getCastedExprent(exprent, leftType, buffer, indent, castNull, false, false, false);
+    return getCastedExprent(exprent, leftType, buffer, indent, castNull ? NullCastType.CAST : NullCastType.DONT_CAST, false, false, false);
   }
 
   public static boolean getCastedExprent(Exprent exprent,
                                          VarType leftType,
                                          TextBuffer buffer,
                                          int indent,
-                                         boolean castNull,
+                                         NullCastType castNull,
                                          boolean castAlways,
                                          boolean castNarrowing,
                                          boolean unbox) {
@@ -929,11 +929,15 @@ public class ExprProcessor implements CodeConstants {
     VarType rightType = exprent.getInferredExprType(leftType);
     exprent = narrowGenericCastType(exprent, leftType);
 
-    boolean cast =
-      castAlways ||
-      (!leftType.isSuperset(rightType) && (rightType.equals(VarType.VARTYPE_OBJECT) || leftType.type != CodeConstants.TYPE_OBJECT)) ||
-      (castNull && rightType.type == CodeConstants.TYPE_NULL && !UNDEFINED_TYPE_STRING.equals(getTypeName(leftType))) ||
-      (castNarrowing && isIntConstant(exprent) && isNarrowedIntType(leftType));
+    boolean doCast = (!leftType.isSuperset(rightType) && (rightType.equals(VarType.VARTYPE_OBJECT) || leftType.type != CodeConstants.TYPE_OBJECT));
+    boolean doCastNull = (castNull.cast && rightType.type == CodeConstants.TYPE_NULL && !UNDEFINED_TYPE_STRING.equals(getTypeName(leftType)));
+    boolean doCastNarrowing = (castNarrowing && isIntConstant(exprent) && isNarrowedIntType(leftType));
+
+    boolean cast = castAlways || doCast || doCastNull || doCastNarrowing;
+
+    if (castNull == NullCastType.DONT_CAST_AT_ALL && rightType.type == CodeConstants.TYPE_NULL) {
+      cast = castAlways;
+    }
 
     boolean castLambda = !cast && exprent.type == Exprent.EXPRENT_NEW && !leftType.equals(rightType) &&
                           lambdaNeedsCast(leftType, (NewExprent)exprent);
@@ -973,6 +977,18 @@ public class ExprProcessor implements CodeConstants {
     }
 
     return cast;
+  }
+
+  public enum NullCastType {
+    CAST(true), // old boolean true
+    DONT_CAST(false), // old booean false
+    DONT_CAST_AT_ALL(false); // old boolean false and don't cast
+
+    private final boolean cast;
+
+    NullCastType(boolean cast) {
+      this.cast = cast;
+    }
   }
 
   // (Obj)expr; -> (Obj<T>)expr;
