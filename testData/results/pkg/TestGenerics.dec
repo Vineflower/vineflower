@@ -12,7 +12,7 @@ public class TestGenerics<A, B extends TestGenerics.Maps & List> {
    A[] aArray = (A[])(new Object[10]);
 
    public void genericAllocation() {
-      this.aArray = (A[])((A[])(new Object[20]));// 30
+      this.aArray = (A[])(new Object[20]);// 30
    }// 31
 
    public static void genericInference() {

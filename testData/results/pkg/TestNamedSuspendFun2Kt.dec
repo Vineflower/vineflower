@@ -82,7 +82,7 @@ public final class TestNamedSuspendFun2Kt {
             case 1:
                try {
                   ResultKt.throwOnFailure($result);
-                  var10000 = (Throwable)(Throwable)$result;
+                  var10000 = (Throwable)$result;
                } catch (Throwable var19) {
                   var10000 = var19;
                   boolean var10001 = false;
@@ -122,7 +122,7 @@ public final class TestNamedSuspendFun2Kt {
             while(true) {
                try {
                   $continuation.label = 1;
-                  var10000 = (Throwable)(Throwable)bar($continuation);// 4
+                  var10000 = (Throwable)bar($continuation);// 4
                } catch (Throwable var18) {
                   var10000 = var18;
                   boolean var26 = false;

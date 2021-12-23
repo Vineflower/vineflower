@@ -468,6 +468,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestAnnotationFormatting");
     register(JAVA_8, "TestConstructorInvoc");
     register(JAVA_8, "TestInterfaceNullInvoc");
+    register(JAVA_8, "TestGenericsTernary");
+    register(JAVA_8, "TestGenericsHierarchy");
   }
 
   private void registerEntireClassPath() {
