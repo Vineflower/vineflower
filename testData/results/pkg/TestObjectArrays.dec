@@ -21,7 +21,7 @@ public class TestObjectArrays {
             this.x *= 3 * this.x;// 20
             System.out.println("Hi!");// 21
             this.x += 224;// 25
-            this.hashcode = (new Random()).nextInt() + this.x;// 28
+            this.hashcode = new Random().nextInt() + this.x;// 28
          }
 
          @Override

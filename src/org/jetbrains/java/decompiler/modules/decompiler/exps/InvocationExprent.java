@@ -667,7 +667,7 @@ public class InvocationExprent extends Exprent {
             }
             buf.append(res).append(")");
           }
-          else if (instance.getPrecedence() > getPrecedence() && !skippedCast) {
+          else if (instance.getPrecedence() > getPrecedence() && !skippedCast && !canSkipParenEnclose(instance)) {
             buf.append("(").append(res).append(")");
           }
           //Java 9+ adds some overrides to java/nio/Buffer's subclasses that alter the return types.
@@ -747,6 +747,20 @@ public class InvocationExprent extends Exprent {
       buf.popNewlineGroup();
     }
     return buf;
+  }
+
+  private boolean canSkipParenEnclose(Exprent instance) {
+    if (instance.type != Exprent.EXPRENT_NEW) {
+      return false;
+    }
+
+    NewExprent newExpr = (NewExprent) instance;
+
+    if (!newExpr.isAnonymous() && !newExpr.isLambda() && !newExpr.isMethodReference()) {
+      return this.functype == TYP_GENERAL;
+    }
+
+    return false;
   }
 
   private static void appendBootstrapArgument(TextBuffer buf, PooledConstant arg) {

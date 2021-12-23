@@ -465,6 +465,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: extra parenthesis around new array
     register(JAVA_8, "TestArrayNewAccess");
     register(JAVA_8, "TestAnnotationFormatting");
+    register(JAVA_8, "TestConstructorInvoc");
   }
 
   private void registerEntireClassPath() {

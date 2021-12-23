@@ -17,7 +17,7 @@ class TestPrivateClasses {
             }
          }
 
-         (new NonCapturingLocalR1(s)).toString();// 39
+         new NonCapturingLocalR1(s).toString();// 39
 
          class CapturingLocalR1 {
             private final int i;
@@ -31,7 +31,7 @@ class TestPrivateClasses {
             }
          }
 
-         (new CapturingLocalR1(42)).toString();// 40
+         new CapturingLocalR1(42).toString();// 40
          TestPrivateClasses.Callable<String> c1 = new TestPrivateClasses.Callable<String>() {// 42
             public String call() {
                return null;// 45
@@ -61,7 +61,7 @@ class TestPrivateClasses {
             }
          }
 
-         (new NonCapturingLocalR2(s)).toString();// 91
+         new NonCapturingLocalR2(s).toString();// 91
 
          class CapturingLocalR1 {
             private final int i;
@@ -75,7 +75,7 @@ class TestPrivateClasses {
             }
          }
 
-         (new CapturingLocalR1(42)).toString();// 92
+         new CapturingLocalR1(42).toString();// 92
          TestPrivateClasses.Callable<String> c1 = new TestPrivateClasses.Callable<String>() {// 94
             public String call() {
                return null;// 97
@@ -103,7 +103,7 @@ class TestPrivateClasses {
          }
       }
 
-      (new NonCapturingLocalM1(s)).toString();// 139
+      new NonCapturingLocalM1(s).toString();// 139
 
       class CapturingLocalM1 {
          private final int i;
@@ -117,7 +117,7 @@ class TestPrivateClasses {
          }
       }
 
-      (new CapturingLocalM1(42)).toString();// 140
+      new CapturingLocalM1(42).toString();// 140
       TestPrivateClasses.Callable<String> c1 = new TestPrivateClasses.Callable<String>() {// 142
          public String call() {
             return null;// 145
@@ -144,7 +144,7 @@ class TestPrivateClasses {
          }
       }
 
-      (new NonCapturingLocalM2(s)).toString();// 186
+      new NonCapturingLocalM2(s).toString();// 186
 
       class CapturingLocalM2 {
          private final int i;
@@ -158,7 +158,7 @@ class TestPrivateClasses {
          }
       }
 
-      (new CapturingLocalM2(42)).toString();// 187
+      new CapturingLocalM2(42).toString();// 187
       TestPrivateClasses.Callable<String> c1 = new TestPrivateClasses.Callable<String>() {// 189
          public String call() {
             return null;// 192
