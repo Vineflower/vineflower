@@ -135,6 +135,11 @@ public class SwitchExprent extends Exprent {
   }
 
   @Override
+  public int getPrecedence() {
+    return 1; // Should enclose in case of invocation
+  }
+
+  @Override
   public VarType getExprType() {
     return this.type;
   }
