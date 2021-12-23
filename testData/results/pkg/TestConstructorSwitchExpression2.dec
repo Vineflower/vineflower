@@ -4,7 +4,7 @@ public class TestConstructorSwitchExpression2 {
    public TestConstructorSwitchExpression2(int i) {
       switch(i) {
       default:
-         this((String)null);// 5 6
+         this(null);// 5 6
       }
    }// 8
 

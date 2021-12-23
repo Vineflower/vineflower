@@ -144,7 +144,7 @@ public class TestGroovyClass implements GroovyObject {
       @Generated
       public Object doCall() {
          CallSite[] var1 = $getCallSiteArray();
-         return this.doCall((Object)null);
+         return this.doCall(null);
       }
    }
 
@@ -162,7 +162,7 @@ public class TestGroovyClass implements GroovyObject {
       @Generated
       public Object doCall() {
          CallSite[] var1 = $getCallSiteArray();
-         return this.doCall((Object)null);
+         return this.doCall(null);
       }
    }
 }

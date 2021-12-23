@@ -20,7 +20,7 @@ public enum TestEnum {
    }// 32
 
    private TestEnum() {
-      this("?", (TestEnum.Type)null);// 36
+      this("?", null);// 36
    }
 
    private TestEnum(@Deprecated String s, TestEnum.Type t) {

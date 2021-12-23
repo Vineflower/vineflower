@@ -467,6 +467,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestArrayNewAccess");
     register(JAVA_8, "TestAnnotationFormatting");
     register(JAVA_8, "TestConstructorInvoc");
+    register(JAVA_8, "TestInterfaceNullInvoc");
   }
 
   private void registerEntireClassPath() {
