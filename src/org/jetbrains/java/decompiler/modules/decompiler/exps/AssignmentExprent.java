@@ -13,6 +13,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
 import org.jetbrains.java.decompiler.struct.StructField;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
+import org.jetbrains.java.decompiler.struct.gen.generics.GenericClassDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericMethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
@@ -193,6 +194,17 @@ public class AssignmentExprent extends Exprent {
     List<List<VarType>> bounds = descriptor.typeParameterBounds;
 
     List<VarType> types = bounds.get(index);
+
+    GenericClassDescriptor classDescriptor = method.classStruct.getSignature();
+    if (classDescriptor != null) {
+      for (VarType type : new ArrayList<>(types)) {
+        int idex = classDescriptor.fparameters.indexOf(type.value);
+
+        if (idex != -1) {
+          types.addAll(classDescriptor.fbounds.get(idex));
+        }
+      }
+    }
 
     VarType rightType = cast.getInferredExprType(leftType);
 

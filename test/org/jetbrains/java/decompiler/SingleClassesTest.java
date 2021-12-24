@@ -520,6 +520,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
 
     register(JAVA_8, "TestGenericMapEntireClasspath");
     register(JAVA_8, "TestGenericsTernary");
+    // TODO: casts on null and (U)
+    register(JAVA_8, "TestGenericSuper");
   }
 
   private void registerLiterals() {

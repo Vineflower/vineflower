@@ -143,7 +143,7 @@ public class ClassWrapper {
         }
       }
 
-      MethodWrapper methodWrapper = new MethodWrapper(root, varProc, mt, counter);
+      MethodWrapper methodWrapper = new MethodWrapper(root, varProc, mt, classStruct, counter);
       methodWrapper.decompileError = error;
 
       methods.addWithKey(methodWrapper, InterpreterUtil.makeUniqueKey(mt.getName(), mt.getDescriptor()));

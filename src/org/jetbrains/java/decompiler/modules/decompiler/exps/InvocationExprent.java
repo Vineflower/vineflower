@@ -1343,6 +1343,11 @@ public class InvocationExprent extends Exprent {
           while (bound != null) {
             last = bound;
             bound = map.apply(bound);
+
+            // TODO: fixes potential infinite loop, is this valid?
+            if (last.equals(bound)) {
+              break;
+            }
           }
           bound = last;
 
