@@ -325,29 +325,30 @@ public class FunctionExprent extends Exprent {
           for (VarType type : types) {
             anyMatch |= DecompilerContext.getStructContext().instanceOf(type.value, cast.value);
           }
+
           if (anyMatch) {
             this.needsCast = false;
           }
-        }
-        else {
+        } else {
             this.needsCast = right.type == CodeConstants.TYPE_NULL || !DecompilerContext.getStructContext().instanceOf(right.value, upperBound.value) || !areGenericTypesSame(right, upperBound);
         }
+
         if (!this.needsCast) {
           if (arrayDim > 0) {
             right = right.resizeArrayDim(arrayDim);
           }
+
           return right;
         }
-      }
-      else { //TODO: Capture generics to make cast better?
+      } else { //TODO: Capture generics to make cast better?
         this.needsCast = right.type == CodeConstants.TYPE_NULL || !DecompilerContext.getStructContext().instanceOf(right.value, cast.value);
       }
-    }
-    else if (funcType == FUNCTION_IIF) {
+    } else if (funcType == FUNCTION_IIF) {
       // TODO return common generic type?
       lstOperands.get(1).getInferredExprType(upperBound);
       lstOperands.get(2).getInferredExprType(upperBound);
     }
+
     return getExprType();
   }
 

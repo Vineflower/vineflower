@@ -7,17 +7,18 @@ import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
+import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
 import org.jetbrains.java.decompiler.struct.StructField;
+import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
+import org.jetbrains.java.decompiler.struct.gen.generics.GenericMethodDescriptor;
+import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 
-import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class AssignmentExprent extends Exprent {
 
@@ -134,6 +135,7 @@ public class AssignmentExprent extends Exprent {
       ((ConstExprent) right).adjustConstType(leftType);
     }
 
+    this.optimizeCastForAssign();
     TextBuffer res = right.toJava(indent);
 
     if (condType == CONDITION_NONE) {
@@ -145,6 +147,61 @@ public class AssignmentExprent extends Exprent {
     buffer.addStartBytecodeMapping(bytecode);
 
     return buffer;
+  }
+
+  // E var = (T)expr; -> E var = (E)expr;
+  // when E extends T & A
+  private void optimizeCastForAssign() {
+    if (this.right.type != EXPRENT_FUNCTION) {
+      return;
+    }
+
+    FunctionExprent func = (FunctionExprent) this.right;
+
+    if (func.getFuncType() != FunctionExprent.FUNCTION_CAST) {
+      return;
+    }
+
+    VarType leftType = this.left.getInferredExprType(null);
+
+    if (!(leftType instanceof GenericType)) {
+      return;
+    }
+
+    Exprent cast = func.getLstOperands().get(1);
+    Exprent expr = func.getLstOperands().get(0);
+
+    MethodWrapper method = (MethodWrapper) DecompilerContext.getProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
+    if (method == null) {
+      return;
+    }
+
+    StructMethod mt = method.methodStruct;
+    GenericMethodDescriptor descriptor = mt.getSignature();
+
+
+    if (descriptor == null || descriptor.typeParameters.isEmpty()) {
+      return;
+    }
+
+    List<String> params = descriptor.typeParameters;
+    int index = params.indexOf(leftType.value);
+    if (index == -1) {
+      return;
+    }
+
+    List<List<VarType>> bounds = descriptor.typeParameterBounds;
+
+    List<VarType> types = bounds.get(index);
+
+    VarType rightType = cast.getInferredExprType(leftType);
+
+    // Check if type bound includes the type that we are attempting to cast to
+    for (VarType type : types) {
+      if (rightType.value.equals(type.value)) {
+        ((ConstExprent)cast).setConstType(leftType);
+      }
+    }
   }
 
   private void wrapInCast(VarType left, VarType right, TextBuffer buf, int precedence) {
