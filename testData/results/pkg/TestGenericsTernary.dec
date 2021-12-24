@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TestGenericsTernary<T> {
-   public List<T> list = new ArrayList();
+   public List<T> list = new ArrayList<>();
 
    public T test(int i) {
-      T t = (T)this.list.get(i);// 10
-      return (T)(this.accept(t) ? t : null);// 11
+      T t = this.list.get(i);// 10
+      return this.accept(t) ? t : null;// 11
    }
 
    public boolean accept(T t) {

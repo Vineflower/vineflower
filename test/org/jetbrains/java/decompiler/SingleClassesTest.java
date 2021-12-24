@@ -468,7 +468,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestAnnotationFormatting");
     register(JAVA_8, "TestConstructorInvoc");
     register(JAVA_8, "TestInterfaceNullInvoc");
-    register(JAVA_8, "TestGenericsTernary");
     register(JAVA_8, "TestGenericsHierarchy");
     // TODO: extraneous casts, not correct ones in test4 and test5
     register(JAVA_8, "TestUnionTypeAssign");
@@ -520,6 +519,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16, "TestTryWithResourcesNestedLoop");
 
     register(JAVA_8, "TestGenericMapEntireClasspath");
+    register(JAVA_8, "TestGenericsTernary");
   }
 
   private void registerLiterals() {

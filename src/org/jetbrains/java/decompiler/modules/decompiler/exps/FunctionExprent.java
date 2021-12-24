@@ -345,8 +345,14 @@ public class FunctionExprent extends Exprent {
       }
     } else if (funcType == FUNCTION_IIF) {
       // TODO return common generic type?
-      lstOperands.get(1).getInferredExprType(upperBound);
-      lstOperands.get(2).getInferredExprType(upperBound);
+      VarType type1 = lstOperands.get(1).getInferredExprType(upperBound);
+      VarType type2 = lstOperands.get(2).getInferredExprType(upperBound);
+
+      if (type1.type == CodeConstants.TYPE_NULL) {
+        return type2;
+      } else if (type2.type == CodeConstants.TYPE_NULL) {
+        return type1;
+      }
     }
 
     return getExprType();
