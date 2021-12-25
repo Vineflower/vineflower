@@ -460,8 +460,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestLambdaQualified");
     // TODO: causes inconsistent idom sequence
     register(JAVA_16, "TestTernaryReturn2");
-    // TODO: generics not qualified, will not recompile
-    register(JAVA_8, "TestGenericsQualified");
     register(JAVA_8, "TestGenericMap");
     // TODO: extra parenthesis around new array
     register(JAVA_8, "TestArrayNewAccess");
@@ -471,6 +469,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestGenericsHierarchy");
     // TODO: extraneous casts, not correct ones in test4 and test5
     register(JAVA_8, "TestUnionTypeAssign");
+    register(JAVA_8, "TestGenericsInvocUnchecked");
+    register(JAVA_8, "TestGenericSuperCast");
   }
 
   private void registerEntireClassPath() {
@@ -522,6 +522,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestGenericsTernary");
     // TODO: casts on null and (U)
     register(JAVA_8, "TestGenericSuper");
+    register(JAVA_8, "TestGenericsQualified");
   }
 
   private void registerLiterals() {

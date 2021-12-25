@@ -707,6 +707,34 @@ public class NewExprent extends Exprent {
     }
   }
 
+  public boolean doesClassHaveMethodsNamedSame() {
+    if (this.lambda && this.methodReference) {
+      ClassNode node = DecompilerContext.getClassProcessor().getMapRootClasses().get(this.newType.value);
+
+      if (node != null) {
+        String name = node.lambdaInformation.content_method_name;
+        ClassNode contentClass = DecompilerContext.getClassProcessor().getMapRootClasses().get(node.lambdaInformation.content_class_name);
+
+        if (contentClass == null) {
+          return false;
+        }
+
+        boolean foundOne = false;
+        for (StructMethod method : contentClass.classStruct.getMethods()) {
+          if (method.getName().equals(name)) {
+            if (foundOne) {
+              return true;
+            } else {
+              foundOne = true;
+            }
+          }
+        }
+      }
+    }
+
+    return false;
+  }
+
   @Override
   public void replaceExprent(Exprent oldExpr, Exprent newExpr) {
     if (oldExpr == constructor) {

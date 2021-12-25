@@ -63,8 +63,9 @@ public class InvocationExprent extends Exprent {
   private List<Exprent> lstParameters = new ArrayList<>();
   private LinkConstant bootstrapMethod;
   private List<PooledConstant> bootstrapArguments;
-  private List<VarType> genericArgs = new ArrayList<>();
-  private Map<VarType, VarType> genericsMap = new HashMap<>();
+  private final List<VarType> genericArgs = new ArrayList<>();
+  public boolean forceGenericQualfication = false;
+  private final Map<VarType, VarType> genericsMap = new HashMap<>();
   private boolean isInvocationInstance = false;
   private boolean isQualifier = false;
   private boolean forceBoxing = false;
@@ -451,6 +452,10 @@ public class InvocationExprent extends Exprent {
             boolean suppress = (!missing || !isInvocationInstance) &&
               (upperBound == null || !newRet.isGeneric() || DecompilerContext.getStructContext().instanceOf(newRet.value, upperBound.value));
 
+            if (this.forceGenericQualfication) {
+              suppress = false;
+            }
+
             if (!suppress || DecompilerContext.getOption(IFernflowerPreferences.EXPLICIT_GENERIC_ARGUMENTS)) {
               getGenericArgs(fparams, genericsMap, genericArgs);
             }
@@ -694,6 +699,7 @@ public class InvocationExprent extends Exprent {
 
         if (buf.length() > 0) {
           buf.append(".");
+          // Adds generic arguments to the invocation, so .m() becomes .<T>m()
           this.appendParameters(buf, genericArgs);
         }
 
@@ -1567,6 +1573,10 @@ public class InvocationExprent extends Exprent {
 
   public Map<VarType, VarType> getGenericsMap() {
     return genericsMap;
+  }
+
+  public StructMethod getDesc() {
+    return desc;
   }
 
   public void setInvocationInstance() {

@@ -362,6 +362,10 @@ public class MethodProcessorRunnable implements Runnable {
       decompileRecord.add("HideEmptyDefault", root);
     }
 
+    if (GenericsProcessor.qualifyChains(root)) {
+      decompileRecord.add("QualifyGenericChains", root);
+    }
+
     // must be the last invocation, because it makes the statement structure inconsistent
     // FIXME: new edge type needed
     if (LabelHelper.replaceContinueWithBreak(root)) {
