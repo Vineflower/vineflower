@@ -211,6 +211,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16, "TestRecordGenericSuperclass");
     // TODO: The (double) in front of the (int) should be removed
     register(JAVA_8, "TestMultiCast");
+    // TODO: the output should look like the source, and not put the code in the else blocks
+    register(JAVA_8, "TestComplexIfElseChain");
     // TODO: The ternary here needs to be removed
     register(JAVA_8, "TestNestedLambdas");
     register(JAVA_8, "TestSwitchAssign");
