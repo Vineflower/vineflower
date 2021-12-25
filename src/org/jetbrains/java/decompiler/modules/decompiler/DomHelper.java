@@ -315,26 +315,28 @@ public final class DomHelper {
 
     if (general.type == Statement.TYPE_ROOT) {
       Statement stat = general.getFirst();
+
+      // Root statement consists of a singular basic block
       if (stat.type != Statement.TYPE_GENERAL) {
         return true;
-      }
-      else {
+      } else {
         boolean complete = processStatement(stat, root, mapExtPost);
+
         if (complete) {
           // replace general purpose statement with simple one
           general.replaceStatement(stat, stat.getFirst());
         }
+
         return complete;
       }
     }
 
+    // Map is empty or cleaned (only false in the case of an inherited postdominance set from a parent general statement recursion, i.e. subgraph)
     boolean mapRefreshed = mapExtPost.isEmpty();
 
     for (int mapstage = 0; mapstage < 2; mapstage++) {
 
-      for (int reducibility = 0;
-           reducibility < 5;
-           reducibility++) { // FIXME: implement proper node splitting. For now up to 5 nodes in sequence are splitted.
+      for (int reducibility = 0; reducibility < 5; reducibility++) { // FIXME: implement proper node splitting. For now up to 5 nodes in sequence are splitted.
 
         if (reducibility > 0) {
 
@@ -346,15 +348,24 @@ public final class DomHelper {
           if (IrreducibleCFGDeobfuscator.isStatementIrreducible(general)) {
             if (!IrreducibleCFGDeobfuscator.splitIrreducibleNode(general)) {
               DecompilerContext.getLogger().writeMessage("Irreducible statement cannot be decomposed!", IFernflowerLogger.Severity.ERROR);
+
               break;
             } else {
+              // Mirrors comment from reducibility loop, unsure if this is ever hit but it's here just in case
+              if (reducibility == 4 && (mapstage == 1 || mapRefreshed)) {
+                DecompilerContext.getLogger().writeMessage("Irreducible statement too complex to be decomposed!", IFernflowerLogger.Severity.ERROR);
+
+                root.addComment("$FF: Irreducible bytecode has more than 5 nodes in sequence and was not entirely decomposed");
+              }
+
               root.addComment("$FF: Irreducible bytecode was duplicated to produce valid code");
             }
-          }
-          else {
+          } else {
+            // TODO: mapstage is never 2, why is this condition here?
             if (mapstage == 2 || mapRefreshed) { // last chance lost
               DecompilerContext.getLogger().writeMessage("Statement cannot be decomposed although reducible!", IFernflowerLogger.Severity.ERROR);
             }
+
             break;
           }
 
@@ -366,38 +377,48 @@ public final class DomHelper {
           mapRefreshed = true;
         }
 
+        // Try finding simple statements and subgraphs twice.
+        // First time (i = 0), we try to use the conventional method of finding postdominators with strongly connected components and reverse post order
+        // Second time (i = 1), we use a brute force method of simply using the reverse post order and relying on the extended post dominators
         for (int i = 0; i < 2; i++) {
 
           boolean forceall = i != 0;
 
+          // Keep finding simple statements until subgraphs cannot be created.
+          // This has the effect that after a subgraph is created, simple statements are found again with the contents of the subgraph in mind
           while (true) {
 
+            // Find statements in this subgraph from the basicblocks that comprise it
             if (findSimpleStatements(general, mapExtPost)) {
               reducibility = 0;
             }
 
+            // If every statement in this subgraph was discovered, return as we've decomposed this part of the graph
             if (general.type == Statement.TYPE_PLACEHOLDER) {
               return true;
             }
 
+            // Find another subgraph to decompose within this subgraph, to simplify the current graph
             Statement stat = findGeneralStatement(general, forceall, mapExtPost);
 
             if (stat != null) {
+              // Recurse on the subgraph general statement that we found, and inherit the postdominator set if it's the first statement in the current general
               boolean complete = processStatement(stat, root, general.getFirst() == stat ? mapExtPost : new HashMap<>());
 
               if (complete) {
-                // replace general purpose statement with simple one
+                // replace subgraph general purpose statement with simple one to complete this (outer) subgraph
                 general.replaceStatement(stat, stat.getFirst());
-              }
-              else {
+              } else {
+                // Statement processing failed in an inner subgraph, so we give up here too
                 return false;
               }
 
+              // Replaced subgraph general statement with its contents, iterate simple statements again
               mapExtPost = new HashMap<>();
               mapRefreshed = true;
               reducibility = 0;
-            }
-            else {
+            } else {
+              // Couldn't find subgraph general statement
               break;
             }
           }
@@ -411,9 +432,10 @@ public final class DomHelper {
       }
 
       if (mapRefreshed) {
+        // If the postdominators were refreshed, we know that the graph can't be decomposed and break out of the mapStage iteration, regardless of the stage
         break;
-      }
-      else {
+      } else {
+        // Not refreshed (in the case of inherited postdominance set from parent subgraph) so we clean the map and try again in the hopes that FastExtendedPostdominanceHelper will be able to find something that can help decompose this graph
         mapExtPost = new HashMap<>();
       }
     }
@@ -603,6 +625,7 @@ public final class DomHelper {
     do {
       found = false;
 
+      // Orders the statement in reverse order with respect to post dominance, to ensure that the statment is built from the inside out
       List<Statement> lstStats = stat.getPostReversePostOrderList();
       for (Statement st : lstStats) {
 
@@ -610,6 +633,8 @@ public final class DomHelper {
 
         if (result != null) {
 
+          // If the statement we created contains the first statement of the general statement as it's first, we know that we've completed iteration to the point where every statment in the subgraph has been explored at least once, due to how the post order is created.
+          // More iteration still happens to discover higher level structures (such as the case where basicblock -> if -> loop)
           if (stat.type == Statement.TYPE_GENERAL && result.getFirst() == stat.getFirst() &&
               stat.getStats().size() == result.getStats().size()) {
             // mark general statement
