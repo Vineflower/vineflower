@@ -2,11 +2,11 @@ package pkg;
 
 public class TestGenericsInvocUnchecked<T extends Number> {
    public void test(int i, TestGenericsInvocUnchecked<?> other) {
-      new TestGenericsInvocUnchecked.Inner().test(i, this, other);// 11
+      new TestGenericsInvocUnchecked.Inner().testInner(i, this, other);// 11
    }// 12
 
    public class Inner {
-      public void test(int i, TestGenericsInvocUnchecked<T> t1, TestGenericsInvocUnchecked<T> t2) {
+      public void testInner(int i, TestGenericsInvocUnchecked<T> t1, TestGenericsInvocUnchecked<T> t2) {
       }// 7
    }
 }
@@ -24,7 +24,7 @@ class 'pkg/TestGenericsInvocUnchecked' {
 }
 
 class 'pkg/TestGenericsInvocUnchecked$Inner' {
-   method 'test (ILpkg/TestGenericsInvocUnchecked;Lpkg/TestGenericsInvocUnchecked;)V' {
+   method 'testInner (ILpkg/TestGenericsInvocUnchecked;Lpkg/TestGenericsInvocUnchecked;)V' {
       0      9
    }
 }

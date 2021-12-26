@@ -351,20 +351,25 @@ public class GenericType extends VarType {
       if (main != null && getWildcard() != WILDCARD_NO && wild != getWildcard()) {
         main = withWildcard(main, getWildcard());
       }
+
       return main;
     }
+
     boolean changed = false;
     VarType parent = getParent();
+
     if (map.containsKey(parent)) {
       parent = map.get(parent);
       changed = true;
     }
-    List<VarType> newArgs = new ArrayList<VarType>();
+
+    List<VarType> newArgs = new ArrayList<>();
     for (VarType arg : getArguments()) {
       VarType newArg = null;
       if (arg != null) {
         newArg = arg.remap(map);
       }
+
       if (newArg != arg) {
         newArgs.add(newArg);
         changed = true;
@@ -372,6 +377,7 @@ public class GenericType extends VarType {
         newArgs.add(arg);
       }
     }
+
     if (changed) {
       return new GenericType(main.type, main.arrayDim, main.value, parent, newArgs, getWildcard());
     }

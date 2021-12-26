@@ -1298,8 +1298,7 @@ public class InvocationExprent extends Exprent {
     VarType current = genericsMap.get(from);
     if (!genericsMap.containsKey(from)) {
       putGenericMapping(from, to, named, bounds);
-    }
-    else if (to != null && current != null && !to.equals(current)) {
+    } else if (to != null && current != null && !to.equals(current)) {
       if (named.containsKey(current)) {
         return;
       }
