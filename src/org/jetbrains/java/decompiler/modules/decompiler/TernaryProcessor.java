@@ -8,6 +8,7 @@ import org.jetbrains.java.decompiler.util.DotExporter;
 
 import java.util.*;
 
+@Deprecated // FIXME: needs to be entirely rewritten!
 public final class TernaryProcessor {
   public static boolean processTernary(RootStatement root) {
     boolean res = false;

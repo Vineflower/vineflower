@@ -31,7 +31,7 @@ public class GenericType extends VarType {
   public GenericType(int type, int arrayDim, String value, VarType parent, List<VarType> arguments, int wildcard) {
     super(type, arrayDim, value, getFamily(type, arrayDim), getStackSize(type, arrayDim), false);
     this.parent = parent;
-    this.arguments = arguments == null ? Collections.<VarType>emptyList() : arguments;
+    this.arguments = arguments == null ? Collections.emptyList() : arguments;
     this.wildcard = wildcard;
   }
 

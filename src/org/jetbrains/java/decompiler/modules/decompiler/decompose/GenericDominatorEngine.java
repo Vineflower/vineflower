@@ -37,8 +37,7 @@ public class GenericDominatorEngine {
 
     if (node1 == null) {
       return node2;
-    }
-    else if (node2 == null) {
+    } else if (node2 == null) {
       return node1;
     }
 
@@ -55,8 +54,7 @@ public class GenericDominatorEngine {
         }
 
         index1 = orderedIDoms.getIndexByKey(node1);
-      }
-      else {
+      } else {
         nodeOld = node2;
         node2 = orderedIDoms.getWithKey(node2);
 
@@ -120,11 +118,9 @@ public class GenericDominatorEngine {
 
       if (idom == node) {
         return false; // root node or merging point
-      }
-      else if (idom == null) {
+      } else if (idom == null) {
         throw new RuntimeException("Inconsistent idom sequence discovered!");
-      }
-      else {
+      } else {
         node = idom;
       }
     }
