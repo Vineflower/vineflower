@@ -932,8 +932,9 @@ public class ExprProcessor implements CodeConstants {
     boolean doCast = (!leftType.isSuperset(rightType) && (rightType.equals(VarType.VARTYPE_OBJECT) || leftType.type != CodeConstants.TYPE_OBJECT));
     boolean doCastNull = (castNull.cast && rightType.type == CodeConstants.TYPE_NULL && !UNDEFINED_TYPE_STRING.equals(getTypeName(leftType)));
     boolean doCastNarrowing = (castNarrowing && isIntConstant(exprent) && isNarrowedIntType(leftType));
+    boolean doCastGenerics = doesContravarianceNeedCast(leftType, rightType);
 
-    boolean cast = castAlways || doCast || doCastNull || doCastNarrowing;
+    boolean cast = castAlways || doCast || doCastNull || doCastNarrowing || doCastGenerics;
 
     if (castNull == NullCastType.DONT_CAST_AT_ALL && rightType.type == CodeConstants.TYPE_NULL) {
       cast = castAlways;
@@ -1010,6 +1011,31 @@ public class ExprProcessor implements CodeConstants {
     }
 
     return expr;
+  }
+
+  // Obj<T> var = type; -> Obj<T> var = (Obj<T>) type; Where type is Obj<? super T>
+  public static boolean doesContravarianceNeedCast(VarType left, VarType right) {
+    if (left != null && right != null && left.isGeneric() && right.isGeneric()) {
+      GenericType leftGeneric = (GenericType) left;
+      GenericType rightGeneric = (GenericType) right;
+
+      if (leftGeneric.getArguments().size() != rightGeneric.getArguments().size()) {
+        return false;
+      }
+
+      for (int i = 0; i < leftGeneric.getArguments().size(); i++) {
+        VarType leftType = leftGeneric.getArguments().get(i);
+        VarType rightType = rightGeneric.getArguments().get(i);
+
+        if (leftType != null && rightType != null && leftType.isSuperset(rightType) &&
+          (leftType.isGeneric() && rightType.isGeneric()) &&
+          ((GenericType) leftType).getWildcard() == GenericType.WILDCARD_NO && ((GenericType) rightType).getWildcard() == GenericType.WILDCARD_SUPER) {
+          return true;
+        }
+      }
+    }
+
+    return false;
   }
 
   private static boolean isIntConstant(Exprent exprent) {

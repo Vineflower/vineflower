@@ -170,7 +170,6 @@ public class AssignmentExprent extends Exprent {
     }
 
     Exprent cast = func.getLstOperands().get(1);
-    Exprent expr = func.getLstOperands().get(0);
 
     MethodWrapper method = (MethodWrapper) DecompilerContext.getProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
     if (method == null) {
@@ -261,6 +260,10 @@ public class AssignmentExprent extends Exprent {
           needsCast = false;
         }
       }
+    }
+
+    if (!needsCast && ExprProcessor.doesContravarianceNeedCast(left, right)) {
+      needsCast = true;
     }
 
     if (!needsCast) {

@@ -2,8 +2,8 @@ package pkg;
 
 public class TestGenericSuperCast {
    public <T> Class<T> test(TestGenericSuperCast.Inner<T> inner) {
-      Class<T> t = inner.get();// 10
-      return inner.get();// 11
+      Class<T> t = (Class<T>)inner.get();// 10
+      return (Class<T>)inner.get();// 11
    }
 
    public class Inner<T> {
