@@ -3,34 +3,46 @@ package pkg;
 import java.util.Random;
 
 public class TestComplexIfElseChain {
-   public void foo() {
+   public void test() {
       Random randy = new Random();// 7
       int result = randy.nextInt(11);// 8
-      if (result != 0 && result != 1) {// 9
-         if (result != 2 && result != 3) {// 11
-            if (result != 4 && result != 5) {// 13
-               if (result != 6 && result != 7) {// 15
-                  if (result == 8 || result == 9) {// 17
-                     System.out.println("e");// 18
-                  }
-               } else {
-                  System.out.println("d");// 16
-               }
-            } else {
-               System.out.println("c");// 14
-            }
-         } else {
-            System.out.println("b");// 12
-         }
-      } else {
+      if (result == 0 || result == 1) {// 9
          System.out.println("a");// 10
+      } else if (result == 2 || result == 3) {// 11
+         System.out.println("b");// 12
+      } else if (result == 4 || result == 5) {// 13
+         System.out.println("c");// 14
+      } else if (result == 6 || result == 7) {// 15
+         System.out.println("d");// 16
+      } else if (result == 8 || result == 9) {// 17
+         System.out.println("e");// 18
       }
 
    }// 20
+
+   public void testInLoop() {
+      Random randy = new Random();// 23
+      int result = randy.nextInt(11);// 24
+
+      for(int i = 0; i < 10; ++i) {// 25
+         if (result == 0 || result == 1) {// 26
+            System.out.println("a");// 27
+         } else if (result == 2 || result == 3) {// 28
+            System.out.println("b");// 29
+         } else if (result == 4 || result == 5) {// 30
+            System.out.println("c");// 31
+         } else if (result == 6 || result == 7) {// 32
+            System.out.println("d");// 33
+         } else if (result == 8 || result == 9) {// 34
+            System.out.println("e");// 35
+         }
+      }
+
+   }// 38
 }
 
 class 'pkg/TestComplexIfElseChain' {
-   method 'foo ()V' {
+   method 'test ()V' {
       7      6
       8      7
       9      7
@@ -44,73 +56,165 @@ class 'pkg/TestComplexIfElseChain' {
       13      8
       14      8
       15      8
-      18      25
-      19      25
-      1a      25
-      1b      25
-      1c      25
-      1d      25
-      1e      25
-      1f      25
-      23      9
-      24      9
-      25      9
-      28      9
-      29      9
-      2a      9
-      2d      22
-      2e      22
-      2f      22
-      30      22
-      31      22
-      32      22
-      33      22
-      34      22
-      38      10
-      39      10
-      3a      10
-      3d      10
-      3e      10
-      3f      10
-      42      19
-      43      19
-      44      19
-      45      19
-      46      19
-      47      19
-      48      19
-      49      19
-      4d      11
-      4e      11
-      4f      11
-      50      11
-      53      11
-      54      11
-      55      11
-      56      11
-      59      16
-      5a      16
-      5b      16
-      5c      16
-      5d      16
-      5e      16
-      5f      16
-      60      16
-      64      12
-      65      12
-      66      12
-      67      12
-      6a      12
-      6b      12
-      6c      12
-      6d      12
-      70      13
-      71      13
-      72      13
-      73      13
-      74      13
-      75      13
-      78      28
+      18      9
+      19      9
+      1a      9
+      1b      9
+      1c      9
+      1d      9
+      1e      9
+      1f      9
+      23      10
+      24      10
+      25      10
+      28      10
+      29      10
+      2a      10
+      2d      11
+      2e      11
+      2f      11
+      30      11
+      31      11
+      32      11
+      33      11
+      34      11
+      38      12
+      39      12
+      3a      12
+      3d      12
+      3e      12
+      3f      12
+      42      13
+      43      13
+      44      13
+      45      13
+      46      13
+      47      13
+      48      13
+      49      13
+      4d      14
+      4e      14
+      4f      14
+      50      14
+      53      14
+      54      14
+      55      14
+      56      14
+      59      15
+      5a      15
+      5b      15
+      5c      15
+      5d      15
+      5e      15
+      5f      15
+      60      15
+      64      16
+      65      16
+      66      16
+      67      16
+      6a      16
+      6b      16
+      6c      16
+      6d      16
+      70      17
+      71      17
+      72      17
+      73      17
+      74      17
+      75      17
+      78      20
+   }
+
+   method 'testInLoop ()V' {
+      7      23
+      8      24
+      9      24
+      a      24
+      b      24
+      c      24
+      d      24
+      e      24
+      f      26
+      10      26
+      11      26
+      12      26
+      13      26
+      14      26
+      17      27
+      18      27
+      1b      27
+      1c      27
+      1d      27
+      20      28
+      21      28
+      22      28
+      23      28
+      24      28
+      25      28
+      26      28
+      27      28
+      2b      29
+      2c      29
+      2d      29
+      30      29
+      31      29
+      32      29
+      35      30
+      36      30
+      37      30
+      38      30
+      39      30
+      3a      30
+      3b      30
+      3c      30
+      40      31
+      41      31
+      42      31
+      45      31
+      46      31
+      47      31
+      4a      32
+      4b      32
+      4c      32
+      4d      32
+      4e      32
+      4f      32
+      50      32
+      51      32
+      55      33
+      56      33
+      57      33
+      58      33
+      5b      33
+      5c      33
+      5d      33
+      5e      33
+      61      34
+      62      34
+      63      34
+      64      34
+      65      34
+      66      34
+      67      34
+      68      34
+      6c      35
+      6d      35
+      6e      35
+      6f      35
+      72      35
+      73      35
+      74      35
+      75      35
+      78      36
+      79      36
+      7a      36
+      7b      36
+      7c      36
+      7d      36
+      80      26
+      81      26
+      82      26
+      86      40
    }
 }
 
@@ -118,13 +222,27 @@ Lines mapping:
 7 <-> 7
 8 <-> 8
 9 <-> 9
-10 <-> 26
-11 <-> 10
-12 <-> 23
-13 <-> 11
-14 <-> 20
-15 <-> 12
-16 <-> 17
-17 <-> 13
-18 <-> 14
-20 <-> 29
+10 <-> 10
+11 <-> 11
+12 <-> 12
+13 <-> 13
+14 <-> 14
+15 <-> 15
+16 <-> 16
+17 <-> 17
+18 <-> 18
+20 <-> 21
+23 <-> 24
+24 <-> 25
+25 <-> 27
+26 <-> 28
+27 <-> 29
+28 <-> 30
+29 <-> 31
+30 <-> 32
+31 <-> 33
+32 <-> 34
+33 <-> 35
+34 <-> 36
+35 <-> 37
+38 <-> 41
