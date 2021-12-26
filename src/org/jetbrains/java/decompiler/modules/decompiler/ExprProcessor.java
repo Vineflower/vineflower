@@ -1029,7 +1029,8 @@ public class ExprProcessor implements CodeConstants {
 
         if (leftType != null && rightType != null && leftType.isSuperset(rightType) &&
           (leftType.isGeneric() && rightType.isGeneric()) &&
-          ((GenericType) leftType).getWildcard() == GenericType.WILDCARD_NO && ((GenericType) rightType).getWildcard() == GenericType.WILDCARD_SUPER) {
+          (((GenericType) leftType).getWildcard() == GenericType.WILDCARD_NO || ((GenericType) leftType).getWildcard() == GenericType.WILDCARD_EXTENDS) &&
+          ((GenericType) rightType).getWildcard() == GenericType.WILDCARD_SUPER) {
           return true;
         }
       }
