@@ -6,11 +6,11 @@ public class TestLVTComplex {
    public static void main() {
       int[] x = new int[5];
 
-      for(<unknown> var10000_1 : x) {
+      for(<unknown> var4_1 : x) {
          ;
       }
 
-      for(<unknown> var23_1 : x) {
+      for(int y : x) {
          System.out.println("asdf");
       }
 
@@ -23,11 +23,11 @@ public class TestLVTComplex {
       for(Object y : x1) {
          int[] x2 = new int[10];
 
-         for(<unknown> var24_1 : x2) {
+         for(<unknown> var8_1 : x2) {
             ;
          }
 
-         for(<unknown> var25_1 : x2) {
+         for(int y2 : x2) {
             System.out.println("asdf");
          }
 
@@ -69,7 +69,7 @@ public class TestLVTComplex {
       static {
          for(TestLVTComplex.Bob b : values()) {
             for(TestLVTComplex.Bob c : values()) {
-               for(<unknown> var10000_1 : values()) {
+               for(TestLVTComplex.Bob d : values()) {
                   if (b == c) {
                      System.out.println("Asdf");
                   }

@@ -601,7 +601,8 @@ public class StackVarsProcessor {
 
     for (Entry<Integer, Set<VarVersionPair>> ent : mapVars.entrySet()) {
       FastSparseSet<Integer> liveverset = mapLiveVars.get(ent.getKey());
-      if (liveverset == null || liveverset.isEmpty()) {
+      // TODO: checking for empty liveverset fixes <unknown> foreach, research as to why
+      if (liveverset == null) {
         return false;
       }
 

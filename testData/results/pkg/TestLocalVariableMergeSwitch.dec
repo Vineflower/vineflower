@@ -10,7 +10,7 @@ public class TestLocalVariableMergeSwitch {
             ++i;// 12
             break;// 13
          case 2:
-            int var10000 = i + s.length();// 15
+            i += s.length();// 15
             break;// 16
          default:
             System.out.println("hi");// 18
@@ -35,12 +35,11 @@ class 'pkg/TestLocalVariableMergeSwitch' {
       25      9
       26      9
       27      10
-      2a      12
       2b      12
       2c      12
       2d      12
       2e      12
-      2f      12
+      30      12
       31      13
       34      15
       35      15
