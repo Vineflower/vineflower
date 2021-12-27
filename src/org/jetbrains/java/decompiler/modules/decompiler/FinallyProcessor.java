@@ -63,33 +63,31 @@ public class FinallyProcessor {
 
         if (catchallBlockIDs.containsKey(handler.id)) {
           // do nothing
-        }
-        else if (finallyBlockIDs.containsKey(handler.id)) {
+        } else if (finallyBlockIDs.containsKey(handler.id)) {
           fin.setFinally(true);
 
           Integer var = finallyBlockIDs.get(handler.id);
           fin.setMonitor(var == null ? null : new VarExprent(var, VarType.VARTYPE_INT, varProcessor));
-        }
-        else {
+        } else {
           Record inf = getFinallyInformation(cl, mt, root, fin);
 
           if (inf == null) { // inconsistent finally
             catchallBlockIDs.put(handler.id, null);
             root.addComment("$FF: Could not inline inconsistent finally blocks");
             root.addErrorComment = true;
-          }
-          else {
+          } else {
             if (DecompilerContext.getOption(IFernflowerPreferences.FINALLY_DEINLINE) && verifyFinallyEx(graph, fin, inf)) {
               finallyBlockIDs.put(handler.id, null);
-            }
-            else {
+            } else {
               int varIndex = DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.VAR_COUNTER);
               insertSemaphore(graph, getAllBasicBlocks(fin.getFirst()), head, handler, varIndex, inf, bytecodeVersion);
 
               finallyBlockIDs.put(handler.id, varIndex);
 
-              root.addComment("$FF: Could not verify finally blocks. A semaphore variable has been added to preserve control flow.");
-              root.addErrorComment = true;
+              if (DecompilerContext.getOption(IFernflowerPreferences.FINALLY_DEINLINE)) {
+                root.addComment("$FF: Could not verify finally blocks. A semaphore variable has been added to preserve control flow.");
+                root.addErrorComment = true;
+              }
             }
 
             DeadCodeHelper.removeDeadBlocks(graph); // e.g. multiple return blocks after a nested finally

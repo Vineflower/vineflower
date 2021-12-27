@@ -973,6 +973,13 @@ public class NestedClassProcessor {
   private static void setLocalClassDefinition(MethodWrapper method, ClassNode node) {
     RootStatement root = method.root;
 
+    if (root == null) {
+      method.addComment("$FF: Couldn't set local class definition as local class statement was null");
+      method.addErrorComment = true;
+
+      return;
+    }
+
     Set<Statement> setStats = new HashSet<>();
     VarType classType = new VarType(node.classStruct.qualifiedName, true);
 
