@@ -24,7 +24,7 @@ public class VarVersionNode implements IGraphNode {
 
   public int flags;
 
-  public SFormsFastMapDirect live = new SFormsFastMapDirect();
+  public SFormsFastMapDirect live = null;
 
   public LocalVariable lvt = null;
 

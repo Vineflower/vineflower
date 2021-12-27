@@ -209,6 +209,10 @@ public class StackVarsProcessor {
     for (VarVersionPair varpaar : setVars) {
       VarVersionNode node = ssau.getSsuversions().nodes.getWithKey(varpaar);
 
+      if (node.live == null) {
+        continue;
+      }
+
       for (Iterator<Entry<Integer, FastSparseSet<Integer>>> itent = node.live.entryList().iterator(); itent.hasNext(); ) {
         Entry<Integer, FastSparseSet<Integer>> ent = itent.next();
 

@@ -837,7 +837,7 @@ public class SSAUConstructorSparseEx {
 
     VarVersionNode node = ssuversions.nodes.getWithKey(varpaar);
     if (node != null) {
-      return node.live;
+      return node.live == null ? new SFormsFastMapDirect() : node.live;
     }
 
     return null;
