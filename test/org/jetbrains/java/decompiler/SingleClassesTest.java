@@ -471,6 +471,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestUnionTypeAssign");
     register(JAVA_8, "TestGenericsInvocUnchecked");
     register(JAVA_8, "TestGenericSuperCast");
+    register(JAVA_8, "TestLocalVariableMerge");
+    register(JAVA_8, "TestLocalVariableMergeSwitch");
   }
 
   private void registerEntireClassPath() {
