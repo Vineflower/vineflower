@@ -437,7 +437,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: test9&10- for loop not created, loop extractor needs another pass
     register(JAVA_8, "TestSwitchLoop");
     register(JAVA_8, "TestSwitchFinally");
-    // TODO: test2- continue not explicit, causes improper control flow
     register(JAVA_8, "TestLoopFinally");
     // TODO: local classes not being put in the right spots
     register(JAVA_8, "TestLocalClassesSwitch"); // Adapted from CFR
@@ -494,6 +493,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestVarArgCalls");
     register(JAVA_8, "TestUnionType");
     register(JAVA_8, "TestTryWithResources");
+    // TODO: continue not explicit
+    // TODO: do-while loop not created
     register(JAVA_8, "TestNestedLoops");
     // TODO: Cast to <undefinedtype>
     register(JAVA_8, "TestAnonymousClass");

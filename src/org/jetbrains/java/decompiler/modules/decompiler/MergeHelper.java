@@ -532,6 +532,7 @@ public final class MergeHelper {
       if (!lst.isEmpty()) {
         stat.removeSuccessor(lst.get(0));
       }
+
       removeLastEmptyStatement(dostat, stat);
     }
   }
@@ -539,24 +540,41 @@ public final class MergeHelper {
   private static void removeLastEmptyStatement(DoStatement dostat, Statement stat) {
 
     if (stat == dostat.getFirst()) {
-      BasicBlockStatement bstat = new BasicBlockStatement(new BasicBlock(
-        DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.STATEMENT_COUNTER)));
-      bstat.setExprents(new ArrayList<>());
+      BasicBlockStatement bstat = BasicBlockStatement.create();
       dostat.replaceStatement(stat, bstat);
-    }
-    else {
+    } else {
       for (StatEdge edge : stat.getAllPredecessorEdges()) {
+        // Change edge type to continue
         edge.getSource().changeEdgeType(Statement.DIRECTION_FORWARD, edge, StatEdge.TYPE_CONTINUE);
 
+        // Remove edge from old destination
         stat.removePredecessor(edge);
+
+        // Change destination to enclosing loop
         edge.getSource().changeEdgeNode(Statement.DIRECTION_FORWARD, edge, dostat);
+        // Make sure enclosing loop knows about the new edge
         dostat.addPredecessor(edge);
 
+        // Set that edge as labeled
         dostat.addLabeledEdge(edge);
       }
 
       // parent is a sequence statement
       stat.getParent().getStats().removeWithKey(stat.id);
+
+      // Quiltflower note: Parent isn't always a sequence statement! It can be an if statement, need to check for that case! [TestLoopFinally]
+      if (stat.getParent().type == Statement.TYPE_IF) {
+        IfStatement parent = (IfStatement)stat.getParent();
+
+        // Replace owning stats
+        if (parent.getIfstat() == stat) {
+          parent.setIfstat(null);
+        } else if (parent.getElsestat() == stat) {
+          parent.setElsestat(null);
+        }
+      }
+
+      // TODO: switch statements?
     }
   }
 

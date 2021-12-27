@@ -48,7 +48,7 @@ public class TestLoopFinally {
          } finally {
             System.out.println("finally");// 49
             if (i != 5) {// 51
-               ;
+               continue;
             }
             break;
          }
