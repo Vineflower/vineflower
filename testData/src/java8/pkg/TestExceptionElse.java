@@ -10,6 +10,10 @@ public class TestExceptionElse {
       Number number = numbers.removeFirst();
       if (number instanceof Integer) {
         System.out.println(1);
+      } else if (numbers.size() == 4 && number instanceof Long) {
+        System.out.println(2);
+      } else if (number instanceof Double) {
+        System.out.println(3);
       } else if (numbers.size() == 3 && number instanceof Float) {
         System.out.println("here");
       } else {
@@ -18,3 +22,4 @@ public class TestExceptionElse {
     }
   }
 }
+
