@@ -459,7 +459,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestArrayAssign");
     register(JASM, "TestGoto");
     register(JAVA_8, "TestLambdaQualified");
-    // TODO: causes inconsistent idom sequence
     register(JAVA_16, "TestTernaryReturn2");
     register(JAVA_8, "TestGenericMap");
     // TODO: extra parenthesis around new array

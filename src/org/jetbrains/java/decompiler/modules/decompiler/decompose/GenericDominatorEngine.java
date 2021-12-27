@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 public class GenericDominatorEngine {
-
+  private boolean initialized = false;
   private final IGraph graph;
 
   private final VBStyleCollection<IGraphNode, IGraphNode> colOrderedIDoms = new VBStyleCollection<>();
@@ -20,6 +20,7 @@ public class GenericDominatorEngine {
 
   public void initialize() {
     calcIDoms();
+    this.initialized = true;
   }
 
   private void orderNodes() {
@@ -111,6 +112,9 @@ public class GenericDominatorEngine {
   }
 
   public boolean isDominator(IGraphNode node, IGraphNode dom) {
+    if (!this.initialized) {
+      throw new IllegalStateException("GenericDominatorEngine not initialized!");
+    }
 
     while (!node.equals(dom)) {
 
