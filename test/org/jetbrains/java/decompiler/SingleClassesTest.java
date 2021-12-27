@@ -183,6 +183,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestSuperInner", "TestSuperInnerBase");
     register(JASM, "TestMissingConstructorCallGood");
     register(JASM, "TestMissingConstructorCallBad");
+    // TODO: this doesn't compile
+    register(JASM, "TestOldECJInner");
     register(JASM, "TestRecursiveLambda");
     register(JAVA_8, "TestEmptyBlocks");
     register(JAVA_8, "TestInvertedFloatComparison");
