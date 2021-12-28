@@ -474,6 +474,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestLocalVariableMerge");
     register(JAVA_8, "TestLocalVariableMergeSwitch");
     register(JAVA_8, "TestLoopBreak4");
+    register(JAVA_17, "TestDoubleBraceInitializersJ17");
   }
 
   private void registerEntireClassPath() {

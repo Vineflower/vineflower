@@ -901,27 +901,27 @@ public class ClassWriter {
 
       buffer.appendIndent(indent);
 
-      appendModifiers(buffer, flags, METHOD_ALLOWED, isInterface, METHOD_EXCLUDED);
-
-      if (isInterface && !mt.hasModifier(CodeConstants.ACC_STATIC) && mt.containsCode() && (flags & CodeConstants.ACC_PRIVATE) == 0) {
-        // 'default' modifier (Java 8)
-        buffer.append("default ");
-      }
-
       String name = mt.getName();
       if (CodeConstants.INIT_NAME.equals(name)) {
         if (node.type == ClassNode.CLASS_ANONYMOUS) {
           name = "";
           dInit = true;
-        }
-        else {
+        } else {
           name = node.simpleName;
           init = true;
         }
-      }
-      else if (CodeConstants.CLINIT_NAME.equals(name)) {
+      } else if (CodeConstants.CLINIT_NAME.equals(name)) {
         name = "";
         clInit = true;
+      }
+
+      if (!dInit) {
+        appendModifiers(buffer, flags, METHOD_ALLOWED, isInterface, METHOD_EXCLUDED);
+      }
+
+      if (isInterface && !mt.hasModifier(CodeConstants.ACC_STATIC) && mt.containsCode() && (flags & CodeConstants.ACC_PRIVATE) == 0) {
+        // 'default' modifier (Java 8)
+        buffer.append("default ");
       }
 
       GenericMethodDescriptor descriptor = mt.getSignature();
