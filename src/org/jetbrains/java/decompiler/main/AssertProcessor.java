@@ -118,7 +118,7 @@ public final class AssertProcessor {
 
     boolean res = false;
 
-    for (Statement st : statement.getStats()) {
+    for (Statement st : new ArrayList<>(statement.getStats())) {
       res |= replaceAssertions(st, classname, key);
     }
 
@@ -126,7 +126,7 @@ public final class AssertProcessor {
     while (replaced) {
       replaced = false;
 
-      for (Statement st : statement.getStats()) {
+      for (Statement st : new ArrayList<>(statement.getStats())) {
         if (st.type == Statement.TYPE_IF) {
           if (replaceAssertion(statement, (IfStatement)st, classname, key)) {
             replaced = true;
@@ -151,16 +151,15 @@ public final class AssertProcessor {
       //check else:
       Statement elsestat = stat.getElsestat();
       throwError = isAssertionError(elsestat);
+
       if (throwError == null) {
           return false;
-      }
-      else {
+      } else {
           throwInIf = false;
       }
     }
 
-
-    Object[] exprres = getAssertionExprent(stat.getHeadexprent().getCondition().copy(), classname, key, throwInIf);
+    Object[] exprres = getAssertionExprent(stat, stat.getHeadexprent().getCondition().copy(), classname, key, throwInIf);
     if (!(Boolean)exprres[1]) {
       return false;
     }
@@ -193,8 +192,8 @@ public final class AssertProcessor {
 
     Statement first = stat.getFirst();
 
-    if (stat.iftype == IfStatement.IFTYPE_IFELSE || (first.getExprents() != null &&
-                                                     !first.getExprents().isEmpty())) {
+    if (stat.iftype == IfStatement.IFTYPE_IFELSE ||
+      (first.getExprents() != null && !first.getExprents().isEmpty())) {
 
       first.removeSuccessor(stat.getIfEdge());
       first.removeSuccessor(stat.getElseEdge());
@@ -203,12 +202,12 @@ public final class AssertProcessor {
       if (first.getExprents() != null && !first.getExprents().isEmpty()) {
         lstStatements.add(first);
       }
+
       lstStatements.add(newstat);
       if (stat.iftype == IfStatement.IFTYPE_IFELSE) {
         if (throwInIf) {
           lstStatements.add(stat.getElsestat());
-        }
-        else {
+        } else {
           lstStatements.add(stat.getIfstat());
         }
       }
@@ -244,6 +243,11 @@ public final class AssertProcessor {
 
     newstat.getVarDefinitions().addAll(stat.getVarDefinitions());
     parent.replaceStatement(stat, newstat);
+    if (exprres.length > 2) {
+      if ((Boolean)exprres[2]) {
+        parent.getParent().replaceWith(parent);
+      }
+    }
 
     return true;
   }
@@ -269,7 +273,8 @@ public final class AssertProcessor {
     return null;
   }
 
-  private static Object[] getAssertionExprent(Exprent exprent, String classname, String key, boolean throwInIf) {
+  // {Exprent, valid, needsReplacingOfParent}
+  private static Object[] getAssertionExprent(Statement stat, Exprent exprent, String classname, String key, boolean throwInIf) {
 
     if (exprent.type == Exprent.EXPRENT_FUNCTION) {
       int desiredOperation = FunctionExprent.FUNCTION_CADD;
@@ -291,22 +296,44 @@ public final class AssertProcessor {
         for (int i = 0; i < 2; i++) {
           Exprent param = fexpr.getLstOperands().get(i);
 
-          Object[] res = getAssertionExprent(param, classname, key, throwInIf);
+          Object[] res = getAssertionExprent(stat, param, classname, key, throwInIf);
           if ((Boolean)res[1]) {
             if (param != res[0]) {
               fexpr.getLstOperands().set(i, (Exprent)res[0]);
             }
+
             return new Object[]{fexpr, true};
           }
         }
-      }
-      else if (isAssertionField(fexpr, classname, key, throwInIf)) {
+      } else if (isAssertionField(fexpr, classname, key, throwInIf)) {
         // assert false;
         return new Object[]{null, true};
+      } else if (fexpr.getFuncType() == FunctionExprent.FUNCTION_BOOL_NOT) {
+        // Switch expression assert
+
+        Statement parent = parentSkippingSequences(stat);
+        if (parent.type == Statement.TYPE_IF) {
+          Exprent param = fexpr.getLstOperands().get(0);
+
+          if (isAssertionField(((IfStatement)parent).getHeadexprent().getCondition(), classname, key, throwInIf)) {
+            // Bool not will be propagated out
+            return new Object[]{fexpr, true, true};
+          }
+        }
       }
     }
 
     return new Object[]{exprent, false};
+  }
+
+  private static Statement parentSkippingSequences(Statement stat) {
+    stat = stat.getParent();
+
+    while (stat != null && stat.type == Statement.TYPE_SEQUENCE) {
+      stat = stat.getParent();
+    }
+
+    return stat;
   }
 
   private static boolean isAssertionField(Exprent exprent, String classname, String key, boolean throwInIf) {
