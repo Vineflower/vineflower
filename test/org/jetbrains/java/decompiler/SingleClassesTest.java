@@ -451,7 +451,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestPPMMLoop");
     // TODO: loops not eliminated properly, foreach not created
     register(JAVA_8, "TestForeachMultipleLoops");
-    // TODO: break turned into labeled continue
     register(JAVA_8, "TestLoopBreak3");
     // TODO: do-while loop entirely eliminated in test(), not created in test1()
     register(JAVA_8, "TestDoWhileMerge");

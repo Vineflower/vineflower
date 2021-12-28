@@ -508,27 +508,84 @@ public final class LabelHelper {
     boolean res = false;
 
     if (stat.type == Statement.TYPE_DO) {
+      boolean changed;
 
-      List<StatEdge> lst = stat.getPredecessorEdges(StatEdge.TYPE_CONTINUE);
+      // Edges that we've seen already
+      Set<StatEdge> seenEdges = new HashSet<>();
+      do {
+        changed = false;
 
-      for (StatEdge edge : lst) {
+        List<StatEdge> continues = stat.getPredecessorEdges(StatEdge.TYPE_CONTINUE);
 
-        if (edge.explicit) {
-          Statement minclosure = getMinContinueClosure(edge);
+        for (StatEdge edge : continues) {
+          if (seenEdges.contains(edge)) {
+            continue;
+          }
 
-          if (minclosure != edge.closure &&
-              !InlineSingleBlockHelper.isBreakEdgeLabeled(edge.getSource(), minclosure)) {
-            edge.getSource().changeEdgeType(Statement.DIRECTION_FORWARD, edge, StatEdge.TYPE_BREAK);
-            edge.labeled = false;
-            minclosure.addLabeledEdge(edge);
-            res = true;
+          if (edge.explicit) {
+            Statement minclosure = getMinContinueClosure(edge);
+
+            if (minclosure != edge.closure && !InlineSingleBlockHelper.isBreakEdgeLabeled(edge.getSource(), minclosure)) {
+              // Continue -> Break
+              edge.getSource().changeEdgeType(Statement.DIRECTION_FORWARD, edge, StatEdge.TYPE_BREAK);
+              // No more label
+              edge.labeled = false;
+              // Add labeled edge to the closure
+              minclosure.addLabeledEdge(edge);
+
+              // Don't process this edge again
+              seenEdges.add(edge);
+
+              res = true;
+              changed = true;
+            }
+
+            Statement enclosing = getEnclosingShieldType(edge.getSource());
+            // See if the loop we're in has an unconditional jump
+            if (enclosing.type == Statement.TYPE_DO && !enclosing.getSuccessorEdges(StatEdge.TYPE_BREAK).isEmpty()) {
+              // Make sure that the break on the enclosing statement points towards the statement that we want to process
+              // Because the statement structure is inconsistent at this point we can't consider the actual break edges
+              if (getEnclosingShieldType(enclosing.getParent()) == minclosure) {
+                // Continue -> Break
+                edge.getSource().changeEdgeType(Statement.DIRECTION_FORWARD, edge, StatEdge.TYPE_BREAK);
+                // No more label
+                edge.labeled = false;
+                // Add labeled edge to the closure
+                enclosing.addLabeledEdge(edge);
+
+                // Don't process this edge again
+                seenEdges.add(edge);
+
+                res = true;
+                changed = true;
+              }
+            }
           }
         }
-      }
+      } while (changed);
     }
 
     for (Statement st : stat.getStats()) {
       res |= replaceContinueWithBreak(st);
+    }
+
+    return res;
+  }
+
+  // Shield type refers to either loop or switch, mirroring the variable name above
+  // Finds the topmost statement that this can continue to, or returns the root statement if none was found (should never happen)
+  private static Statement getEnclosingShieldType(Statement stat) {
+    Statement res = stat;
+
+    while (res.type != Statement.TYPE_SWITCH && res.type != Statement.TYPE_DO) {
+      Statement parent = res.getParent();
+
+      // Return the root statement if we can't find anything
+      if (parent == null) {
+        break;
+      }
+
+      res = parent;
     }
 
     return res;
