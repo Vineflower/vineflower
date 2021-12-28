@@ -321,13 +321,25 @@ public class VarExprent extends Exprent {
 
   public String getName() {
     VarVersionPair pair = getVarVersionPair();
-    if (lvt != null)
-      return lvt.getName();
 
-    if (processor != null) {
-      String ret = processor.getVarName(pair);
-      if (ret != null)
+    if (this.processor != null) {
+      String clashingName = this.processor.getClashingName(pair);
+
+      // Clashing names take precedence over lvt names (as they are lvt names with an 'x' applied to differentiate them)
+      if (clashingName != null) {
+        return clashingName;
+      }
+    }
+
+    if (this.lvt != null) {
+      return this.lvt.getName();
+    }
+
+    if (this.processor != null) {
+      String ret = this.processor.getVarName(pair);
+      if (ret != null) {
         return ret;
+      }
     }
 
     return pair.version == 0 ? "var" + pair.var : "var" + pair.var + "_" + version;

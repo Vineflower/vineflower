@@ -213,6 +213,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16, "TestRecordGenericSuperclass");
     // TODO: The (double) in front of the (int) should be removed
     register(JAVA_8, "TestMultiCast");
+    // TODO: some tests don't have proper if else chains
     register(JAVA_8, "TestComplexIfElseChain");
     // TODO: The ternary here needs to be removed
     register(JAVA_8, "TestNestedLambdas");
@@ -396,7 +397,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
 
     register(JAVA_8, "TestStaticInit");
     register(JAVA_8_NODEBUG, "TestDoubleNestedClass");
-    // TODO: The two 'z' cases should either be renamed or be surrounded with {}
     register(JAVA_8, "TestDuplicateSwitchLocals");
 	
     register(JAVA_8, "TestIfTernary1");
@@ -475,6 +475,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestLocalVariableMergeSwitch");
     register(JAVA_8, "TestLoopBreak4");
     register(JAVA_17, "TestDoubleBraceInitializersJ17");
+    register(JAVA_8, "TestLoopMerging2");
   }
 
   private void registerEntireClassPath() {

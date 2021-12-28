@@ -28,6 +28,8 @@ public final class SwitchStatement extends Statement {
 
   private List<List<Exprent>> caseValues = new ArrayList<>();
 
+  private final Set<Statement> scopedCaseStatements = new HashSet<>();
+
   private StatEdge defaultEdge;
 
   private final List<Exprent> headexprent = new ArrayList<>(1);
@@ -140,9 +142,13 @@ public final class SwitchStatement extends Statement {
 
       for (int j = 0; j < edges.size(); j++) {
         if (edges.get(j) == defaultEdge) {
-          buf.appendIndent(indent).append("default:").appendLineSeparator();
-        }
-        else {
+          buf.appendIndent(indent).append("default:");
+          if (this.scopedCaseStatements.contains(stat)) {
+            buf.append(" {");
+          }
+
+          buf.appendLineSeparator();
+        } else {
           Exprent value = values.get(j);
           if (value == null) { // TODO: how can this be null? Is it trying to inject a synthetic case value in switch-on-string processing? [TestSwitchDefaultBefore]
             continue;
@@ -161,11 +167,21 @@ public final class SwitchStatement extends Statement {
             buf.append(value.toJava(indent));
           }
 
-          buf.append(":").appendLineSeparator();
+          buf.append(":");
+          if (this.scopedCaseStatements.contains(stat)) {
+            buf.append(" {");
+          }
+          buf.appendLineSeparator();
         }
       }
 
       buf.append(ExprProcessor.jmpWrapper(stat, indent + 1, false));
+
+      if (this.scopedCaseStatements.contains(stat)) {
+        buf.appendIndent(indent);
+        buf.append("}");
+        buf.appendLineSeparator();
+      }
     }
 
     buf.appendIndent(indent).append("}").appendLineSeparator();
@@ -415,5 +431,13 @@ public final class SwitchStatement extends Statement {
 
   public void setPhantom(boolean phantom) {
     this.phantom = phantom;
+  }
+
+  public void scopeCaseStatement(Statement stat) {
+    if (!this.getCaseStatements().contains(stat)) {
+      throw new IllegalStateException("Tried to scope a case statement that isn't in the switch!");
+    }
+
+    this.scopedCaseStatements.add(stat);
   }
 }

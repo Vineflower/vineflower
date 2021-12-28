@@ -25,6 +25,7 @@ public class VarProcessor {
   private VarVersionsProcessor varVersions;
   private final Map<VarVersionPair, String> thisVars = new HashMap<>();
   private final Set<VarVersionPair> externalVars = new HashSet<>();
+  private final Map<VarVersionPair, String> clashingNames = new HashMap<>();
   public boolean nestedProcessed;
 
   public VarProcessor(StructMethod mt, MethodDescriptor md) {
@@ -40,7 +41,9 @@ public class VarProcessor {
 
   public void setVarDefinitions(Statement root) {
     mapVarNames = new HashMap<>();
-    new VarDefinitionHelper(root, method, this).setVarDefinitions();
+    VarDefinitionHelper varDef = new VarDefinitionHelper(root, method, this);
+    varDef.setVarDefinitions();
+    this.clashingNames.putAll(varDef.getClashingNames());
   }
 
   public void setDebugVarNames(Map<VarVersionPair, String> mapDebugVarNames) {
@@ -110,6 +113,10 @@ public class VarProcessor {
 
   public String getVarName(VarVersionPair pair) {
     return mapVarNames == null ? null : mapVarNames.get(pair);
+  }
+
+  public String getClashingName(VarVersionPair pair) {
+    return this.clashingNames.get(pair);
   }
 
   public void setVarName(VarVersionPair pair, String name) {
