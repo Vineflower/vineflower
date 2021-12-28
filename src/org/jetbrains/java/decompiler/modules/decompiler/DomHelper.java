@@ -103,60 +103,60 @@ public final class DomHelper {
     return new RootStatement(general, dummyexit, mt);
   }
 
-  public static VBStyleCollection<List<Integer>, Integer> calcPostDominators(Statement container) {
+  // Returns a postdominator tree for a given general statement
+  public static VBStyleCollection<List<Integer>, Integer> calcPostDominators(Statement general) {
 
     HashMap<Statement, FastFixedSet<Statement>> lists = new HashMap<>();
 
-    StrongConnectivityHelper schelper = new StrongConnectivityHelper(container);
+    // Calculate strong connectivity
+    StrongConnectivityHelper schelper = new StrongConnectivityHelper(general);
     List<List<Statement>> components = schelper.getComponents();
 
-    List<Statement> lstStats = container.getPostReversePostOrderList(StrongConnectivityHelper.getExitReps(components));
+    List<Statement> lstStats = general.getPostReversePostOrderList(StrongConnectivityHelper.getExitReps(components));
 
     FastFixedSetFactory<Statement> factory = new FastFixedSetFactory<>(lstStats);
 
-    FastFixedSet<Statement> setFlagNodes = factory.spawnEmptySet();
-    setFlagNodes.setAllElements();
+    FastFixedSet<Statement> setFlagNodes = factory.createCopiedSet();
+    FastFixedSet<Statement> initSet = factory.createCopiedSet();
 
-    FastFixedSet<Statement> initSet = factory.spawnEmptySet();
-    initSet.setAllElements();
-
-    for (List<Statement> lst : components) {
+    for (List<Statement> component : components) {
       FastFixedSet<Statement> tmpSet;
 
-      if (StrongConnectivityHelper.isExitComponent(lst)) {
-        tmpSet = factory.spawnEmptySet();
-        tmpSet.addAll(lst);
-      }
-      else {
+      if (StrongConnectivityHelper.isExitComponent(component)) {
+        tmpSet = factory.createEmptySet();
+        tmpSet.addAll(component);
+      } else {
         tmpSet = initSet.getCopy();
       }
 
-      for (Statement stat : lst) {
+      for (Statement stat : component) {
         lists.put(stat, tmpSet);
       }
     }
 
     do {
-
       for (Statement stat : lstStats) {
 
         if (!setFlagNodes.contains(stat)) {
           continue;
         }
+
         setFlagNodes.remove(stat);
 
         FastFixedSet<Statement> doms = lists.get(stat);
-        FastFixedSet<Statement> domsSuccs = factory.spawnEmptySet();
+        FastFixedSet<Statement> domsSuccs = factory.createEmptySet();
 
-        List<Statement> lstSuccs = stat.getNeighbours(StatEdge.TYPE_REGULAR, Statement.DIRECTION_FORWARD);
-        for (int j = 0; j < lstSuccs.size(); j++) {
-          Statement succ = lstSuccs.get(j);
+        List<Statement> successors = stat.getNeighbours(StatEdge.TYPE_REGULAR, Statement.DIRECTION_FORWARD);
+
+        for (int j = 0; j < successors.size(); j++) {
+          Statement succ = successors.get(j);
           FastFixedSet<Statement> succlst = lists.get(succ);
 
+          // first
           if (j == 0) {
+            // Union the sets as it is empty at this point
             domsSuccs.union(succlst);
-          }
-          else {
+          } else {
             domsSuccs.intersection(succlst);
           }
         }
@@ -175,13 +175,13 @@ public final class DomHelper {
           }
         }
       }
-    }
-    while (!setFlagNodes.isEmpty());
+    } while (!setFlagNodes.isEmpty());
 
-    VBStyleCollection<List<Integer>, Integer> ret = new VBStyleCollection<>();
-    List<Statement> lstRevPost = container.getReversePostOrderList(); // sort order crucial!
+    VBStyleCollection<List<Integer>, Integer> postDominators = new VBStyleCollection<>();
 
-    final HashMap<Integer, Integer> mapSortOrder = new HashMap<>();
+    List<Statement> lstRevPost = general.getReversePostOrderList(); // sort order crucial!
+
+    HashMap<Integer, Integer> mapSortOrder = new HashMap<>();
     for (int i = 0; i < lstRevPost.size(); i++) {
       mapSortOrder.put(lstRevPost.get(i).id, i);
     }
@@ -189,6 +189,7 @@ public final class DomHelper {
     for (Statement st : lstStats) {
 
       List<Integer> lstPosts = new ArrayList<>();
+
       for (Statement stt : lists.get(st)) {
         lstPosts.add(stt.id);
       }
@@ -199,10 +200,10 @@ public final class DomHelper {
         lstPosts.add(lstPosts.remove(0));
       }
 
-      ret.addWithKey(lstPosts, st.id);
+      postDominators.addWithKey(lstPosts, st.id);
     }
 
-    return ret;
+    return postDominators;
   }
 
   public static RootStatement parseGraph(ControlFlowGraph graph, StructMethod mt) {
@@ -361,8 +362,8 @@ public final class DomHelper {
               root.addComment("$FF: Irreducible bytecode was duplicated to produce valid code");
             }
           } else {
-            // TODO: mapstage is never 2, why is this condition here?
-            if (mapstage == 2 || mapRefreshed) { // last chance lost
+            // TODO: Originally this check was mapstage == 2, but that condition is never possible- why was it here?
+            if (mapstage == 1 || mapRefreshed) { // last chance lost
               DecompilerContext.getLogger().writeMessage("Statement cannot be decomposed although reducible!", IFernflowerLogger.Severity.ERROR);
             }
 
@@ -475,8 +476,7 @@ public final class DomHelper {
           lst.add(id);
         }
       }
-    }
-    else {
+    } else {
       vbPost = calcPostDominators(stat);
     }
 
@@ -515,20 +515,20 @@ public final class DomHelper {
         setHandlers.add(head);
         while (true) {
 
-          boolean hdfound = false;
+          boolean handlerFound = false;
           for (Statement handler : setHandlers) {
             if (setNodes.contains(handler)) {
               continue;
             }
 
-            boolean addhd = (setNodes.size() == 0); // first handler == head
-            if (!addhd) {
+            boolean addHandler = (setNodes.size() == 0); // first handler == head
+            if (!addHandler) {
               List<Statement> hdsupp = handler.getNeighbours(StatEdge.TYPE_EXCEPTION, Statement.DIRECTION_BACKWARD);
-              addhd = (setNodes.containsAll(hdsupp) && (setNodes.size() > hdsupp.size()
+              addHandler = (setNodes.containsAll(hdsupp) && (setNodes.size() > hdsupp.size()
                                                         || setNodes.size() == 1)); // strict subset
             }
 
-            if (addhd) {
+            if (addHandler) {
               LinkedList<Statement> lstStack = new LinkedList<>();
               lstStack.add(handler);
 
@@ -550,13 +550,13 @@ public final class DomHelper {
                 }
               }
 
-              hdfound = true;
+              handlerFound = true;
               setHandlers.remove(handler);
               break;
             }
           }
 
-          if (!hdfound) {
+          if (!handlerFound) {
             break;
           }
         }
@@ -568,20 +568,20 @@ public final class DomHelper {
         }
         setHandlers.removeAll(setNodes);
 
-        boolean excok = true;
+        boolean exceptionsOk = true;
         for (Statement handler : setHandlers) {
           if (!handler.getNeighbours(StatEdge.TYPE_EXCEPTION, Statement.DIRECTION_BACKWARD).containsAll(setNodes)) {
-            excok = false;
+            exceptionsOk = false;
             break;
           }
         }
 
         // build statement and return
-        if (excok) {
+        if (exceptionsOk) {
           Statement res;
 
           setPreds.removeAll(setNodes);
-          if (setPreds.size() == 0) {
+          if (setPreds.isEmpty()) {
             if ((setNodes.size() > 1 ||
                  head.getNeighbours(StatEdge.TYPE_REGULAR, Statement.DIRECTION_BACKWARD).contains(head))
                 && setNodes.size() < stats.size()) {
@@ -618,6 +618,7 @@ public final class DomHelper {
     return true;
   }
 
+  // Try to collapse all nodes in the given general statement to a single node. When this transformation is done, the general statement will be marked as placeholder.
   private static boolean findSimpleStatements(Statement stat, HashMap<Integer, Set<Integer>> mapExtPost) {
 
     boolean found, success = false;
