@@ -476,6 +476,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestLoopBreak4");
     register(JAVA_17, "TestDoubleBraceInitializersJ17");
     register(JAVA_8, "TestLoopMerging2");
+    register(JAVA_8, "TestAssertConst");
+    register(JAVA_8, "TestLambdaLocalCapture");
   }
 
   private void registerEntireClassPath() {
