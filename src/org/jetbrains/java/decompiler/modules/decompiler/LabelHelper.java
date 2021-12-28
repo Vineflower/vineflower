@@ -540,7 +540,7 @@ public final class LabelHelper {
               changed = true;
             }
 
-            Statement enclosing = getEnclosingShieldType(edge.getSource());
+            Statement enclosing = findMaxJump(getEnclosingShieldType(edge.getSource()));
             // See if the loop we're in has an unconditional jump
             if (enclosing.type == Statement.TYPE_DO && !enclosing.getSuccessorEdges(StatEdge.TYPE_BREAK).isEmpty()) {
               // Make sure that the break on the enclosing statement points towards the statement that we want to process
@@ -570,6 +570,17 @@ public final class LabelHelper {
     }
 
     return res;
+  }
+
+  // Finds the max loop that can be reached by following unconditional break edges
+  private static Statement findMaxJump(Statement enclosing) {
+    Statement last = enclosing;
+    while (enclosing.type == Statement.TYPE_DO && !enclosing.getSuccessorEdges(StatEdge.TYPE_BREAK).isEmpty()) {
+      last = enclosing;
+      enclosing = getEnclosingShieldType(enclosing.getParent());
+    }
+
+    return last;
   }
 
   // Shield type refers to either loop or switch, mirroring the variable name above

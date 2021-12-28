@@ -473,6 +473,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestGenericSuperCast");
     register(JAVA_8, "TestLocalVariableMerge");
     register(JAVA_8, "TestLocalVariableMergeSwitch");
+    register(JAVA_8, "TestLoopBreak4");
   }
 
   private void registerEntireClassPath() {
