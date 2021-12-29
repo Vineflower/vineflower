@@ -25,6 +25,9 @@ import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
 public class ClassWrapper {
+  // Sometimes when debugging you want to be able to only analyze a specific method.
+  // When not null, this skips processing of every method except the one with the name specified.
+  private static final String DEBUG_METHOD_FILTER = null;
   private final StructClass classStruct;
   private final Set<String> hiddenMembers = new HashSet<>();
   private final VBStyleCollection<Exprent, String> staticFieldInitializers = new VBStyleCollection<>();
@@ -56,6 +59,14 @@ public class ClassWrapper {
       RootStatement root = null;
 
       Throwable error = null;
+
+      if (DEBUG_METHOD_FILTER != null && !DEBUG_METHOD_FILTER.equals(mt.getName())) {
+        MethodWrapper methodWrapper = new MethodWrapper(null, varProc, mt, classStruct, counter);
+        methods.addWithKey(methodWrapper, InterpreterUtil.makeUniqueKey(mt.getName(), mt.getDescriptor()));
+        DecompilerContext.getLogger().endMethod();
+
+        continue;
+      }
 
       try {
         if (mt.containsCode()) {
