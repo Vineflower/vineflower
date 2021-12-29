@@ -407,7 +407,7 @@ public final class MergeHelper {
     return false;
   }
 
-  // Returns if the
+  // Returns if the statement provided and the end statement provided has a direct control flow path
   public static boolean isDirectPath(Statement stat, Statement endstat) {
     Set<Statement> forwardEdges = stat.getNeighboursSet(Statement.STATEDGE_DIRECT_ALL, Statement.DIRECTION_FORWARD);
 
