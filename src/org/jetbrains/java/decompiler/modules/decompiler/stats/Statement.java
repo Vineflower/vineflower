@@ -242,10 +242,10 @@ public class Statement implements IMatchable {
   }
 
   public void addLabeledEdge(StatEdge edge) {
-
     if (edge.closure != null) {
       edge.closure.getLabelEdges().remove(edge);
     }
+
     edge.closure = this;
     this.getLabelEdges().add(edge);
   }

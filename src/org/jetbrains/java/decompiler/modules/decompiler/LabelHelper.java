@@ -40,25 +40,30 @@ public final class LabelHelper {
     for (StatEdge edge : stat.getAllSuccessorEdges()) {
       switch (edge.getType()) {
         case StatEdge.TYPE_CONTINUE:
+          // If the continue is pointing somewhere that is not it's enclosed statement, move it to it's enclosed statement (and remove it from it's previous closure)
           if (edge.getDestination() != edge.closure) {
             edge.getDestination().addLabeledEdge(edge);
           }
           break;
         case StatEdge.TYPE_BREAK:
           Statement dest = edge.getDestination();
+
+          // Exclude return edges
           if (dest.type != Statement.TYPE_DUMMYEXIT) {
             Statement parent = dest.getParent();
 
             List<Statement> lst = new ArrayList<>();
             if (parent.type == Statement.TYPE_SEQUENCE) {
               lst.addAll(parent.getStats());
-            }
-            else if (parent.type == Statement.TYPE_SWITCH) {
+            } else if (parent.type == Statement.TYPE_SWITCH) {
               lst.addAll(((SwitchStatement)parent).getCaseStatements());
             }
 
+            // TODO: Used to be 0, is 1 valid? Doesn't make sense for a break to target the front of a sequence!
             for (int i = 1; i < lst.size(); i++) {
               if (lst.get(i) == dest) {
+                // Add labeled break to the last statement behind the target, lifting it from the statement that it used to be a label of.
+                // This is used to lift labels after inlining.
                 lst.get(i - 1).addLabeledEdge(edge);
                 break;
               }
@@ -116,8 +121,7 @@ public final class LabelHelper {
     for (Statement st : stat.getStats()) {
       if (st == stat.getFirst()) {
         lowContinueLabels(st, edges);
-      }
-      else {
+      } else {
         lowContinueLabels(st, new LinkedHashSet<>());
       }
     }

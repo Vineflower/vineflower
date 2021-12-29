@@ -12,7 +12,6 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.IfExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.InvocationExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
-import org.jetbrains.java.decompiler.util.DotExporter;
 import org.jetbrains.java.decompiler.util.VBStyleCollection;
 
 import java.util.*;
@@ -408,39 +407,43 @@ public final class MergeHelper {
     return false;
   }
 
+  // Returns if the
   public static boolean isDirectPath(Statement stat, Statement endstat) {
-    Set<Statement> setStat = stat.getNeighboursSet(Statement.STATEDGE_DIRECT_ALL, Statement.DIRECTION_FORWARD);
-    if (setStat.isEmpty()) {
+    Set<Statement> forwardEdges = stat.getNeighboursSet(Statement.STATEDGE_DIRECT_ALL, Statement.DIRECTION_FORWARD);
+
+    if (forwardEdges.isEmpty()) {
       Statement parent = stat.getParent();
+
       if (parent == null) {
         return false;
-      }
-      else {
+      } else {
         switch (parent.type) {
           case Statement.TYPE_ROOT:
             return endstat.type == Statement.TYPE_DUMMYEXIT;
           case Statement.TYPE_DO:
-            return (endstat == parent);
+            return endstat == parent;
           case Statement.TYPE_SWITCH:
             SwitchStatement swst = (SwitchStatement)parent;
-            for (int i = 0; i < swst.getCaseStatements().size() - 1; i++) {
-              Statement stt = swst.getCaseStatements().get(i);
-              if (stt == stat) {
-                Statement stnext = swst.getCaseStatements().get(i + 1);
 
-                if (stnext.getExprents() != null && stnext.getExprents().isEmpty()) {
-                  stnext = stnext.getAllSuccessorEdges().get(0).getDestination();
+            for (int i = 0; i < swst.getCaseStatements().size() - 1; i++) {
+              Statement caseStatement = swst.getCaseStatements().get(i);
+
+              if (caseStatement == stat) {
+                Statement nextCase = swst.getCaseStatements().get(i + 1);
+
+                if (nextCase.getExprents() != null && nextCase.getExprents().isEmpty()) {
+                  nextCase = nextCase.getAllSuccessorEdges().get(0).getDestination();
                 }
-                return (endstat == stnext);
+
+                return endstat == nextCase;
               }
             }
           default:
             return isDirectPath(parent, endstat);
         }
       }
-    }
-    else {
-      return setStat.contains(endstat);
+    } else {
+      return forwardEdges.contains(endstat);
     }
   }
 
