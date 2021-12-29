@@ -1,0 +1,116 @@
+package pkg;
+
+public class TestArrayPPMM {
+   public void test(int[] array, int i) {
+      ++i;
+      System.out.println(array[i]);// 5
+   }// 6
+
+   public void test1(int[] array, int i) {
+      ++i;
+      int var10001 = array[i];
+      ++i;
+      this.accept(var10001, array[i]);// 9
+   }// 10
+
+   public void test2(int[] array, int i) {
+      int var10001 = array[i];
+      ++i;
+      this.accept(var10001, array[i]);// 13
+   }// 14
+
+   public void test3(int[] array, int i) {
+      ++i;
+      this.accept(array[i], array[i]);// 17
+   }// 18
+
+   private void accept(int i, int j) {
+   }// 22
+}
+
+class 'pkg/TestArrayPPMM' {
+   method 'test ([II)V' {
+      0      5
+      1      5
+      2      5
+      3      5
+      4      4
+      5      4
+      6      4
+      7      5
+      8      5
+      9      5
+      a      5
+      b      5
+      c      6
+   }
+
+   method 'test1 ([II)V' {
+      0      12
+      1      10
+      2      9
+      3      9
+      4      9
+      5      10
+      6      10
+      7      12
+      8      11
+      9      11
+      a      11
+      b      12
+      c      12
+      d      12
+      e      12
+      f      12
+      10      13
+   }
+
+   method 'test2 ([II)V' {
+      0      18
+      1      16
+      2      16
+      3      16
+      4      18
+      5      17
+      6      17
+      7      17
+      8      18
+      9      18
+      a      18
+      b      18
+      c      18
+      d      19
+   }
+
+   method 'test3 ([II)V' {
+      0      23
+      1      23
+      2      22
+      3      22
+      4      22
+      5      23
+      6      23
+      7      23
+      8      23
+      9      23
+      a      23
+      b      23
+      c      23
+      d      24
+   }
+
+   method 'accept (II)V' {
+      0      27
+   }
+}
+
+Lines mapping:
+5 <-> 6
+6 <-> 7
+9 <-> 13
+10 <-> 14
+13 <-> 19
+14 <-> 20
+17 <-> 24
+18 <-> 25
+22 <-> 28

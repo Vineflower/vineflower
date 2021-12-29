@@ -1,0 +1,64 @@
+package pkg;
+
+public class TestArrayFieldAccess {
+   private int[] array = new int[10];
+   private int index = 1;
+   private int value;
+
+   public void test() {
+      int var10004 = this.array[this.index];
+      int var10001 = this.array[this.index];
+      this.array[this.index] = var10004 + 1;
+      this.value = var10001;// 9
+   }// 10
+
+   public void test1() {
+      this.value = ++this.array[this.index];// 13
+   }// 14
+}
+
+class 'pkg/TestArrayFieldAccess' {
+   method 'test ()V' {
+      0      11
+      1      8
+      2      8
+      3      8
+      4      8
+      5      8
+      6      8
+      7      8
+      8      8
+      a      8
+      c      10
+      d      10
+      e      10
+      f      11
+      10      11
+      11      11
+      12      12
+   }
+
+   method 'test1 ()V' {
+      0      15
+      1      15
+      2      15
+      3      15
+      4      15
+      5      15
+      6      15
+      7      15
+      8      15
+      a      15
+      c      15
+      f      15
+      10      15
+      11      15
+      12      16
+   }
+}
+
+Lines mapping:
+9 <-> 12
+10 <-> 13
+13 <-> 16
+14 <-> 17

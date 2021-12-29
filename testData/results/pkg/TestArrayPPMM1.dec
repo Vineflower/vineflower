@@ -1,0 +1,93 @@
+package pkg;
+
+public class TestArrayPPMM1 {
+   public int[] test(int i) {
+      int[] var10000 = new int[1];// 5
+      ++i;
+      var10000[0] = i;
+      return var10000;
+   }
+
+   public int[] test1(int i) {
+      int[] var10000 = new int[]{i, 0};// 9
+      ++i;
+      var10000[1] = i;
+      return var10000;
+   }
+
+   public int[] test2(int i) {
+      int[] var10000 = new int[2];// 13
+      ++i;
+      var10000[0] = i;
+      var10000[1] = i;
+      return var10000;
+   }
+
+   public int[] test3(int i) {
+      int[] var10000 = new int[2];// 17
+      ++i;
+      var10000[0] = i++;
+      var10000[1] = i;
+      return var10000;
+   }
+}
+
+class 'pkg/TestArrayPPMM1' {
+   method 'test (I)[I' {
+      0      4
+      4      6
+      5      5
+      6      5
+      7      5
+      8      6
+      9      6
+      a      7
+   }
+
+   method 'test1 (I)[I' {
+      5      11
+      8      13
+      9      12
+      a      12
+      b      12
+      c      13
+      d      13
+      e      14
+   }
+
+   method 'test2 (I)[I' {
+      0      18
+      4      20
+      5      19
+      6      19
+      7      19
+      8      20
+      9      20
+      b      21
+      c      21
+      d      21
+      e      22
+   }
+
+   method 'test3 (I)[I' {
+      0      26
+      4      28
+      5      27
+      6      27
+      7      27
+      9      28
+      b      29
+      c      28
+      d      28
+      e      28
+      f      29
+      10      29
+      11      30
+   }
+}
+
+Lines mapping:
+5 <-> 5
+9 <-> 12
+13 <-> 19
+17 <-> 27
