@@ -223,6 +223,33 @@ public final class MergeHelper {
                 if (!continues.isEmpty() && continues.get(0).getDestination() == stat) {
                   // Cannot make loop- continue would be lifted to the outside of the loop! [TestInlineNoSuccessor]
                   return false;
+                } else {
+                  // Discard loops that have continues when blocks are inlined
+                  // FIXME: whole system needs rewrite
+                  Statement temp = firstStat;
+                  while (true) {
+                    int size = temp.getStats().size();
+
+                    if (size <= 1) {
+                      break;
+                    }
+
+                    List<StatEdge> breaks = temp.getStats().getLast().getSuccessorEdges(StatEdge.TYPE_BREAK);
+
+                    if (!breaks.isEmpty() && breaks.get(0).getDestination().type != Statement.TYPE_DUMMYEXIT) {
+                      break;
+                    }
+
+                    if (!temp.getStats().getLast().getSuccessorEdges(StatEdge.TYPE_CONTINUE).isEmpty()) {
+                      return false;
+                    }
+
+                    temp = temp.getStats().get(temp.getStats().size() - 2);
+
+                    if (temp.type != Statement.TYPE_SEQUENCE) {
+                      break;
+                    }
+                  }
                 }
 
                 List<Statement> toAdd = new ArrayList<>();
