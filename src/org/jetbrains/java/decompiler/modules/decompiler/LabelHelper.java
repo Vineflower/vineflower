@@ -33,6 +33,8 @@ public final class LabelHelper {
     processStatementLabel(root);
 
     setRetEdgesUnlabeled(root);
+
+    liftSequenceLabel(root);
   }
 
   private static void liftClosures(Statement stat) {
@@ -144,6 +146,52 @@ public final class LabelHelper {
 
     for (Statement st : stat.getStats()) {
       lowClosures(st);
+    }
+  }
+
+  // Transforms
+  //
+  // if (...) {
+  //   label: {
+  //     ...
+  //   }
+  // }
+  //
+  // into
+  //
+  // label:
+  // if (...) {
+  //   ...
+  // }
+  //
+  // As that is much cleaner and easier to see that the labeled sequence is only relevant to the contents of the if statement
+  private static void liftSequenceLabel(Statement stat) {
+    if (stat.getParent() != null && stat.getParent().type == Statement.TYPE_IF) { // Only if statements considered for now
+      IfStatement ifStat = (IfStatement)stat.getParent();
+
+      if (ifStat.getIfstat() == stat) {
+        if (stat.type == Statement.TYPE_SEQUENCE) {
+          Set<StatEdge> edges = new HashSet<>();
+
+          // Store all edges that have a direct path from the if statement to it's destination
+          for (StatEdge edge : stat.getLabelEdges()) {
+            if (MergeHelper.isDirectPath(ifStat, edge.getDestination())) {
+              edges.add(edge);
+            }
+          }
+
+          // If the edges that we found are the same as the labeled edges of the sequence, then we can move the labels
+          if (edges.size() == stat.getLabelEdges().size()) {
+            for (StatEdge edge : new HashSet<>(stat.getLabelEdges())) {
+              ifStat.addLabeledEdge(edge);
+            }
+          }
+        }
+      }
+    }
+
+    for (Statement st : stat.getStats()) {
+      liftSequenceLabel(st);
     }
   }
 
