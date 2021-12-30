@@ -41,6 +41,7 @@ public class AssignmentExprent extends Exprent {
 
   private Exprent left;
   private Exprent right;
+  // Condition == type of assignment, -1 is `=` 0 is `+=`, 1 is `-=`, etc.
   private int condType = CONDITION_NONE;
 
   public AssignmentExprent(Exprent left, Exprent right, BitSet bytecodeOffsets) {
@@ -321,6 +322,9 @@ public class AssignmentExprent extends Exprent {
     this.right = right;
   }
 
+  /**
+   * the type of assignment, eg {@code =}, {@code +=}, {@code -=}, etc.
+   */
   public int getCondType() {
     return condType;
   }
