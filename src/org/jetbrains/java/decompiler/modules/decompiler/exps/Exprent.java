@@ -35,7 +35,8 @@ import java.util.Set;
 public abstract class Exprent implements IMatchable {
   public static final int MULTIPLE_USES = 1;
   public static final int SIDE_EFFECTS_FREE = 2;
-  public static final int BOTH_FLAGS = 3;
+  /** {@value} */
+  public static final int BOTH_FLAGS = MULTIPLE_USES | SIDE_EFFECTS_FREE;
 
   public static final int EXPRENT_ARRAY = 1;
   public static final int EXPRENT_ASSIGNMENT = 2;

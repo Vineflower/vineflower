@@ -857,7 +857,7 @@ public class ExprProcessor implements CodeConstants {
 
       TextBuffer content = expr.toJava(indent);
 
-      if (content.length() > 0) {
+      if (!content.isEmpty()) {
         if (expr.type != Exprent.EXPRENT_VAR || !((VarExprent)expr).isClassDef()) {
           buf.appendIndent(indent);
         }

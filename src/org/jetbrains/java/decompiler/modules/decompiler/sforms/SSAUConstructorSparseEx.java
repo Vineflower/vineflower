@@ -506,7 +506,7 @@ public class SSAUConstructorSparseEx {
 
     VarVersionNode node = nodes.getWithKey(varpaar);
 
-    node.live = new SFormsFastMapDirect(varmap);
+    node.live = new SFormsFastMapDirect(varmap.getCopy());
   }
 
   private int getNextFreeVersion(int var, Statement stat) {

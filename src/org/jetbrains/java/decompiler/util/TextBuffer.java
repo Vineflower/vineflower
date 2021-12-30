@@ -46,6 +46,10 @@ public class TextBuffer {
     myStringBuilder = new StringBuilder(text);
   }
 
+  public boolean isEmpty(){
+    return myStringBuilder.length() == 0 && myBytecodeOffsetMapping.isEmpty();
+  }
+
   public TextBuffer append(String str) {
     myStringBuilder.append(str);
     return this;

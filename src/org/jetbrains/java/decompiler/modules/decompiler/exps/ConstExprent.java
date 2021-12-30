@@ -344,6 +344,7 @@ public class ConstExprent extends Exprent {
         }
     }
 
+    buf.convertToStringAndAllowDataDiscard();
     throw new RuntimeException("invalid constant type: " + constType);
   }
 
