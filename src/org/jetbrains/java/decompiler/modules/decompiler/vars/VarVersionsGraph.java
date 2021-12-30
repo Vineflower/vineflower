@@ -31,8 +31,7 @@ public class VarVersionsGraph {
   public boolean isDominatorSet(VarVersionNode node, Set<VarVersionNode> domnodes) {
     if (domnodes.size() == 1) {
       return engine.isDominator(node, domnodes.iterator().next());
-    }
-    else {
+    } else {
       Set<VarVersionNode> marked = new HashSet<>();
 
       if (domnodes.contains(node)) {
@@ -44,10 +43,10 @@ public class VarVersionsGraph {
 
       while (!lstNodes.isEmpty()) {
         VarVersionNode nd = lstNodes.remove(0);
+
         if (marked.contains(nd)) {
           continue;
-        }
-        else {
+        } else {
           marked.add(nd);
         }
 
@@ -57,6 +56,7 @@ public class VarVersionsGraph {
 
         for (VarVersionEdge edge : nd.preds) {
           VarVersionNode pred = edge.source;
+
           if (!marked.contains(pred) && !domnodes.contains(pred)) {
             lstNodes.add(pred);
           }

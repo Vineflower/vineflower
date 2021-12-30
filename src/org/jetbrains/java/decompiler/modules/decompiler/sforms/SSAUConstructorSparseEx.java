@@ -84,24 +84,24 @@ public class SSAUConstructorSparseEx {
 
     setCatchMaps(root, dgraph, flatthelper);
 
-    int itteration = 1;
+    int iteration = 1;
     HashSet<String> updated = new HashSet<>();
     do {
       //			System.out.println("~~~~~~~~~~~~~ \r\n"+root.toJava());
-      ssaStatements(dgraph, updated, false, mt, itteration++);
+      ssaStatements(dgraph, updated, false, mt, iteration++);
       //			System.out.println("~~~~~~~~~~~~~ \r\n"+root.toJava());
     }
     while (!updated.isEmpty());
 
 
-    ssaStatements(dgraph, updated, true, mt, itteration++);
+    ssaStatements(dgraph, updated, true, mt, iteration);
 
     ssuversions.initDominators();
   }
 
-  private void ssaStatements(DirectGraph dgraph, HashSet<String> updated, boolean calcLiveVars, StructMethod mt, int itteration) {
+  private void ssaStatements(DirectGraph dgraph, HashSet<String> updated, boolean calcLiveVars, StructMethod mt, int iteration) {
 
-    DotExporter.toDotFile(dgraph, mt, "ssauStatements_" + itteration);
+    DotExporter.toDotFile(dgraph, mt, "ssauStatements_" + iteration);
 
     for (DirectNode node : dgraph.nodes) {
 
@@ -243,8 +243,7 @@ public class SSAUConstructorSparseEx {
       int index;
       if (mapFieldVars.containsKey(expr.id)) {
         index = mapFieldVars.get(expr.id);
-      }
-      else {
+      } else {
         index = fieldvarcounter--;
         mapFieldVars.put(expr.id, index);
 
@@ -294,11 +293,11 @@ public class SSAUConstructorSparseEx {
         ssuversions.createNode(new VarVersionPair(varindex, nextver), varassign.getLVT());
 
         setCurrentVar(varmap, varindex, nextver);
-      }
-      else {
+      } else {
         if (calcLiveVars) {
           varMapToGraph(new VarVersionPair(varindex, varassign.getVersion()), varmap);
         }
+
         setCurrentVar(varmap, varindex, varassign.getVersion());
       }
 
@@ -373,9 +372,9 @@ public class SSAUConstructorSparseEx {
           if (calcLiveVars) {
             varMapToGraph(new VarVersionPair(varindex, current_vers), varmap);
           }
+
           setCurrentVar(varmap, varindex, current_vers);
-        }
-        else {
+        } else {
           // split last version
           int usever = getNextFreeVersion(varindex, stat);
 
@@ -391,8 +390,7 @@ public class SSAUConstructorSparseEx {
           prenode.addSuccessor(edge);
           usenode.addPredecessor(edge);
         }
-      }
-      else if (cardinality == 2) { // size > 1
+      } else if (cardinality == 2) { // size > 1
 
         if (current_vers != 0) {
           if (calcLiveVars) {
@@ -509,21 +507,22 @@ public class SSAUConstructorSparseEx {
     node.live = new SFormsFastMapDirect(varmap);
   }
 
+  // Gets the next version to assign to a variable
   private int getNextFreeVersion(int var, Statement stat) {
-
     Integer nextver = lastversion.get(var);
 
     if (nextver == null) {
       nextver = 1;
-    }
-    else {
+    } else {
       nextver++;
     }
+
     lastversion.put(var, nextver);
 
     // save the first protected range, containing current statement
     if (stat != null) { // null iff phantom version
       Integer firstRangeId = getFirstProtectedRange(stat);
+
       if (firstRangeId != null) {
         mapVersionFirstRange.put(new VarVersionPair(var, (int) nextver), firstRangeId);
       }
@@ -828,13 +827,11 @@ public class SSAUConstructorSparseEx {
     return null;
   }
 
-  public VarVersionsGraph getSsuversions() {
+  public VarVersionsGraph getSsuVersions() {
     return ssuversions;
   }
 
   public SFormsFastMapDirect getLiveVarVersionsMap(VarVersionPair varpaar) {
-
-
     VarVersionNode node = ssuversions.nodes.getWithKey(varpaar);
     if (node != null) {
       return node.live == null ? new SFormsFastMapDirect() : node.live;

@@ -123,7 +123,7 @@ public class GenericDominatorEngine {
       if (idom == node) {
         return false; // root node or merging point
       } else if (idom == null) {
-        throw new RuntimeException("Inconsistent idom sequence discovered!");
+        throw new RuntimeException("Inconsistent idom sequence discovered or node not found in dom graph!");
       } else {
         node = idom;
       }

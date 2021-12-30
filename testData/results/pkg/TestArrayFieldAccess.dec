@@ -15,6 +15,16 @@ public class TestArrayFieldAccess {
    public void test1() {
       this.value = ++this.array[this.index];// 13
    }// 14
+
+   public void test2() {
+      int var10004 = this.array[this.index];
+      int var10001 = this.array[this.index];
+      this.array[this.index] = var10004 + 1;
+      this.value = var10001;// 17
+      if (this.value != 2) {// 19
+         System.out.println(this.value);// 23
+      }
+   }// 20 24
 }
 
 class 'pkg/TestArrayFieldAccess' {
@@ -55,6 +65,43 @@ class 'pkg/TestArrayFieldAccess' {
       11      15
       12      16
    }
+
+   method 'test2 ()V' {
+      0      22
+      1      19
+      2      19
+      3      19
+      4      19
+      5      19
+      6      19
+      7      19
+      8      19
+      a      19
+      c      21
+      d      21
+      e      21
+      f      22
+      10      22
+      11      22
+      12      23
+      13      23
+      14      23
+      15      23
+      16      23
+      17      23
+      1a      26
+      1b      24
+      1c      24
+      1d      24
+      1e      24
+      1f      24
+      20      24
+      21      24
+      22      24
+      23      24
+      24      24
+      25      26
+   }
 }
 
 Lines mapping:
@@ -62,3 +109,8 @@ Lines mapping:
 10 <-> 13
 13 <-> 16
 14 <-> 17
+17 <-> 23
+19 <-> 24
+20 <-> 27
+23 <-> 25
+24 <-> 27

@@ -12,4 +12,14 @@ public class TestArrayFieldAccess {
   public void test1() {
     this.value = ++this.array[this.index];
   }
+
+  public void test2() {
+    this.value = this.array[this.index]++;
+
+    if (this.value == 2) {
+      return;
+    }
+
+    System.out.println(this.value);
+  }
 }
