@@ -504,7 +504,8 @@ public class SSAUConstructorSparseEx {
 
     VarVersionNode node = nodes.getWithKey(varpaar);
 
-    node.live = new SFormsFastMapDirect(varmap);
+//    node.live = new SFormsFastMapDirect(varmap);
+    node.live = varmap.getCopy();
   }
 
   // Gets the next version to assign to a variable

@@ -226,23 +226,20 @@ public class StackVarsProcessor {
       }
 
       // Iterate through live variables
-      for (Iterator<Entry<Integer, FastSparseSet<Integer>>> iterator = node.live.entryList().iterator(); iterator.hasNext(); ) {
-        Entry<Integer, FastSparseSet<Integer>> entry = iterator.next();
-
+      for (Entry<Integer, FastSparseSet<Integer>> entry : node.live.entryList()) {
         // real var, stack var, or field var (0, 1, 2 respectively)
         Integer key = entry.getKey();
 
         // If the live map doesn't contain this type of var, remove the entry
-        // TODO: it's removing from the created iterator list and not the actual map- what's going on here?
         if (!liveMap.containsKey(key)) {
-          iterator.remove();
+          node.live.remove(key);
         } else {
           FastSparseSet<Integer> set = entry.getValue();
 
           set.complement(liveMap.get(key));
 
           if (set.isEmpty()) {
-            iterator.remove();
+            node.live.remove(key);
           }
         }
       }
@@ -621,9 +618,7 @@ public class StackVarsProcessor {
       return false;
     }
 
-    List<Entry<Integer, Set<VarVersionPair>>> attempted = new ArrayList<>();
     for (Entry<Integer, Set<VarVersionPair>> ent : mapVars.entrySet()) {
-      attempted.add(ent);
       FastSparseSet<Integer> liveverset = mapLiveVars.get(ent.getKey());
       // TODO: checking for empty liveverset fixes <unknown> foreach, research as to why
       if (liveverset == null) {
