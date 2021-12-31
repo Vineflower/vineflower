@@ -134,9 +134,9 @@ public class InvocationExprent extends Exprent {
     }
 
     if (opcode == CodeConstants.opc_invokedynamic || invocationTyp == CONSTANT_DYNAMIC) {
-      int dynamicInvocationType = -1;
+      int dynamicInvocationType = bootstrapMethod.index1;
       if (bootstrapArguments != null) {
-        if (bootstrapArguments.size() > 1) { // INVOKEDYNAMIC is used not only for lambdas
+        if (bootstrapArguments.size() > 1) { // FIXME: INVOKEDYNAMIC is used not only for lambdas
           PooledConstant link = bootstrapArguments.get(1);
           if (link instanceof LinkConstant) {
             dynamicInvocationType = ((LinkConstant)link).index1;
