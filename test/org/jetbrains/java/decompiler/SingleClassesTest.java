@@ -483,6 +483,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: needs to inline ppmm properly
     register(JAVA_8, "TestArrayPPMM");
     register(JAVA_8, "TestArrayPPMM1");
+    register(JAVA_8, "TestDoubleAdd");
+    register(JAVA_8, "TestTempAssign");
   }
 
   private void registerEntireClassPath() {
