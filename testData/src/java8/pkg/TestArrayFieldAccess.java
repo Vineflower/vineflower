@@ -22,4 +22,26 @@ public class TestArrayFieldAccess {
 
     System.out.println(this.value);
   }
+
+  public void test3() {
+    int i = this.array[this.index];
+    this.array[this.index] = i + 1;
+    this.value = i;
+  }
+
+  public void test4() {
+    this.value = this.array[this.index] = this.array[this.index] + 1;
+  }
+
+  public void test5() {
+    if (this.array[this.index]++ == 3) {
+      System.out.println(this.array[this.index]);
+    }
+  }
+
+  public void test6() {
+    if (++this.array[this.index] == 3) {
+      System.out.println(this.array[this.index]);
+    }
+  }
 }

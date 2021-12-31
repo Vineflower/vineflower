@@ -41,6 +41,7 @@ public interface IFernflowerPreferences {
   String SWITCH_EXPRESSIONS = "swe";
   String SHOW_HIDDEN_STATEMENTS = "shs";
   String OVERRIDE_ANNOTATION = "ovr";
+  String SIMPLIFY_STACK_SECOND_PASS = "ssp";
 
   String INCLUDE_ENTIRE_CLASSPATH = "iec";
   String INCLUDE_JAVA_RUNTIME = "jrt";
@@ -111,6 +112,7 @@ public interface IFernflowerPreferences {
     defaults.put(TERNARY_CONDITIONS, "1"); // Ternary conditions are pretty stable so they can go in here
     defaults.put(SWITCH_EXPRESSIONS, "1"); // While still experimental, switch expressions work pretty well
     defaults.put(SHOW_HIDDEN_STATEMENTS, "0"); // Extra debugging that isn't useful in most cases
+    defaults.put(SIMPLIFY_STACK_SECOND_PASS, "1"); // Generally produces better bytecode, useful to debug if it does something strange
 
     defaults.put(INCLUDE_ENTIRE_CLASSPATH, "0");
     defaults.put(INCLUDE_JAVA_RUNTIME, "0");

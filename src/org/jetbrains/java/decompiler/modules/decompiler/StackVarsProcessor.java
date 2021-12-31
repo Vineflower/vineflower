@@ -4,6 +4,7 @@ package org.jetbrains.java.decompiler.modules.decompiler;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.DoStatement;
@@ -140,34 +141,54 @@ public class StackVarsProcessor {
         }
       }
 
-      for (int i = 0; i < lstLists.size(); i++) {
-        List<Exprent> lst = lstLists.get(i);
+      // To handle stacks created by some duplicated bytecode (dup, dup_x2, etc.) better, we run the simplification algorithm in 2 passes.
+      // The first pass is the classic algorithm, and the second pass is a more aggressive one that allows some slightly unsafe operations, such as simplifying across variables.
+      // To ensure the second pass doesn't break good bytecode, if the first pass manages to update any exprent it will cancel the second pass.
+      // This behavior can be turned off with a fernflower preference.
+      for (int stackStage = 0; stackStage < 2; stackStage++) {
+        // If instructed to not use the second pass, set it to 2 here to prevent the loop from working
+        if (!DecompilerContext.getOption(IFernflowerPreferences.SIMPLIFY_STACK_SECOND_PASS)) {
+          stackStage = 2;
+        }
 
-        int index = 0;
-        while (index < lst.size()) {
-          Exprent next = null;
+        for (int i = 0; i < lstLists.size(); i++) {
+          List<Exprent> lst = lstLists.get(i);
 
-          if (index == lst.size() - 1) {
-            if (i < lstLists.size() - 1) {
-              next = lstLists.get(i + 1).get(0);
+          int index = 0;
+          while (index < lst.size()) {
+            Exprent next = null;
+
+            if (index == lst.size() - 1) {
+              if (i < lstLists.size() - 1) {
+                next = lstLists.get(i + 1).get(0);
+              }
+            } else {
+              next = lst.get(index + 1);
             }
-          } else {
-            next = lst.get(index + 1);
+
+            boolean simplifyAcrossStack = stackStage == 1;
+
+            // {newIndex, changed}
+            int[] ret = iterateExprent(lst, index, next, mapVarValues, ssa, simplifyAcrossStack);
+
+            // If index is specified, set to that
+            if (ret[0] >= 0) {
+              index = ret[0];
+            } else {
+              // Otherwise, continue to next index
+              index++;
+            }
+
+            // Mark if we changed
+            boolean changed = ret[1] == 1;
+            res |= changed;
+
+            // We only want to simplify across stack bounds if we were not able to change *anything*
+            if (changed) {
+              // Cancel the second pass by setting the stage to 2, preventing the check next time it runs
+              stackStage = 2;
+            }
           }
-
-          // {newIndex, changed}
-          int[] ret = iterateExprent(lst, index, next, mapVarValues, ssa);
-
-          // If index is specified, set to that
-          if (ret[0] >= 0) {
-            index = ret[0];
-          } else {
-            // Otherwise, continue to next index
-            index++;
-          }
-
-          // Mark if we changed
-          res |= (ret[1] == 1);
         }
       }
 
@@ -251,7 +272,8 @@ public class StackVarsProcessor {
                                int index,
                                Exprent next,
                                Map<VarVersionPair, Exprent> mapVarValues,
-                               SSAUConstructorSparseEx ssau) {
+                               SSAUConstructorSparseEx ssau,
+                               boolean simplifyAcrossStack) {
     Exprent exprent = lstExprents.get(index);
 
     int changed = 0;
@@ -344,6 +366,15 @@ public class StackVarsProcessor {
       return new int[]{-1, changed};
     }
 
+    // Aggressive second pass, see if it's possible that we can simplify across the next exprent to find the exprent 2 indices away
+    if (simplifyAcrossStack) {
+      Exprent simplifiedAcrossStack = simplifyAcrossStackExprent(lstExprents, index, next, right, left);
+
+      if (simplifiedAcrossStack != null) {
+        next = simplifiedAcrossStack;
+      }
+    }
+
     Set<VarVersionPair> setNextVars = next == null ? null : getAllVersions(next);
 
     // FIXME: fix the entire method!
@@ -384,6 +415,7 @@ public class StackVarsProcessor {
     } else {
       for (VarVersionPair usedver : setTempUsedVers) {
         Exprent copy = right.copy();
+
         if (right.type == Exprent.EXPRENT_FIELD && ssau.getMapFieldVars().containsKey(right.id)) {
           ssau.getMapFieldVars().put(copy.id, ssau.getMapFieldVars().get(right.id));
         }
@@ -401,6 +433,90 @@ public class StackVarsProcessor {
     } else {
       return new int[]{-1, changed};
     }
+  }
+
+  private Exprent simplifyAcrossStackExprent(List<Exprent> exprents, int index, Exprent next, Exprent right, VarExprent left) {
+    Exprent ret = null;
+
+    if (next != null && next.type == Exprent.EXPRENT_ASSIGNMENT && index < exprents.size() - 2) {
+      Exprent nextRight = ((AssignmentExprent) next).getRight();
+
+      // Exprent trees
+      List<Exprent> allRight = right.getAllExprents(true);
+      List<Exprent> allNextRight = nextRight.getAllExprents(true);
+
+      // Preliminary check: make sure both trees are of the same size and they're not empty
+      if (allRight.size() == allNextRight.size() && !allRight.isEmpty()) {
+        boolean ok = true;
+
+        // Iterate through both trees and check if they're equal
+        for (int i = 0; i < allRight.size(); i++) {
+          // Nodes of each tree
+          Exprent a = allRight.get(i);
+          Exprent b = allNextRight.get(i);
+
+          // Disjoint types- cannot ever be equal!
+          if (a.type != b.type) {
+            ok = false;
+            break;
+          }
+
+          // Var
+          if (a.type == Exprent.EXPRENT_VAR && b.type == Exprent.EXPRENT_VAR) {
+            VarExprent va = (VarExprent)a;
+            VarExprent vb = (VarExprent)b;
+
+            // We only care about the index, the version can be different as we've deduced it doesn't exist in the next exprent (thus no assignment or usage) TODO: check for incremented/live?
+            if (va.getIndex() != vb.getIndex()) {
+              // Disjoint var usage, not equal!
+              ok = false;
+              break;
+            }
+
+            if (vb.getIndex() == left.getIndex()) {
+              // The next exprent is using the variable that the current exprent assigns to, making it unsafe to simplify!
+              ok = false;
+              break;
+            }
+          }
+
+          // Field access
+          if (a.type == Exprent.EXPRENT_FIELD && b.type == Exprent.EXPRENT_FIELD) {
+            FieldExprent fa = (FieldExprent)a;
+            FieldExprent fb = (FieldExprent)b;
+
+            // FieldExprent#equals() minus instance check- that is handled above, with the var check
+            if (
+              !InterpreterUtil.equalObjects(fa.getName(), fb.getName())
+              || !InterpreterUtil.equalObjects(fa.getClassname(), fb.getClassname())
+              || !InterpreterUtil.equalObjects(fa.isStatic(), fb.isStatic())
+              || !InterpreterUtil.equalObjects(fa.getDescriptor(), fb.getDescriptor())
+            ) {
+              // Disjoint field access, not equal!
+              ok = false;
+              break;
+            }
+          }
+
+          // Constant value
+          if (a.type == Exprent.EXPRENT_CONST && b.type == Exprent.EXPRENT_CONST) {
+            if (!a.equals(b)) {
+              // Constant not equal!
+              ok = false;
+              break;
+            }
+          }
+          // TODO: how do we handle other exprents that may or may not be equal, like array access?
+        }
+
+        // Exprent trees equal, find the exprent 2 indices over
+        if (ok) {
+          ret = exprents.get(index + 2);
+        }
+      }
+    }
+
+    return ret;
   }
 
   // Gets all var versions found in a given exprent
