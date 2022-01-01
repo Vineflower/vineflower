@@ -447,76 +447,102 @@ public class StackVarsProcessor {
 
       // Preliminary check: make sure both trees are of the same size and they're not empty
       if (allRight.size() == allNextRight.size() && !allRight.isEmpty()) {
-        boolean ok = true;
-
         // Iterate through both trees and check if they're equal
-        for (int i = 0; i < allRight.size(); i++) {
-          // Nodes of each tree
-          Exprent a = allRight.get(i);
-          Exprent b = allNextRight.get(i);
-
-          // Disjoint types- cannot ever be equal!
-          if (a.type != b.type) {
-            ok = false;
-            break;
-          }
-
-          // Var
-          if (a.type == Exprent.EXPRENT_VAR && b.type == Exprent.EXPRENT_VAR) {
-            VarExprent va = (VarExprent)a;
-            VarExprent vb = (VarExprent)b;
-
-            // We only care about the index, the version can be different as we've deduced it doesn't exist in the next exprent (thus no assignment or usage) TODO: check for incremented/live?
-            if (va.getIndex() != vb.getIndex()) {
-              // Disjoint var usage, not equal!
-              ok = false;
-              break;
-            }
-
-            if (vb.getIndex() == left.getIndex()) {
-              // The next exprent is using the variable that the current exprent assigns to, making it unsafe to simplify!
-              ok = false;
-              break;
-            }
-          }
-
-          // Field access
-          if (a.type == Exprent.EXPRENT_FIELD && b.type == Exprent.EXPRENT_FIELD) {
-            FieldExprent fa = (FieldExprent)a;
-            FieldExprent fb = (FieldExprent)b;
-
-            // FieldExprent#equals() minus instance check- that is handled above, with the var check
-            if (
-              !InterpreterUtil.equalObjects(fa.getName(), fb.getName())
-              || !InterpreterUtil.equalObjects(fa.getClassname(), fb.getClassname())
-              || !InterpreterUtil.equalObjects(fa.isStatic(), fb.isStatic())
-              || !InterpreterUtil.equalObjects(fa.getDescriptor(), fb.getDescriptor())
-            ) {
-              // Disjoint field access, not equal!
-              ok = false;
-              break;
-            }
-          }
-
-          // Constant value
-          if (a.type == Exprent.EXPRENT_CONST && b.type == Exprent.EXPRENT_CONST) {
-            if (!a.equals(b)) {
-              // Constant not equal!
-              ok = false;
-              break;
-            }
-          }
-          // TODO: how do we handle other exprents that may or may not be equal, like array access?
-        }
+        boolean ok = areTreesEqual(left, allRight, allNextRight);
 
         // Exprent trees equal, find the exprent 2 indices over
         if (ok) {
           ret = exprents.get(index + 2);
         }
+      } else if (allNextRight.size() > allRight.size()) {
+        // The next tree has a larger tree than the current one, check if the current one is a subtree of the next one
+
+        // Crawl through the tree to see if any subtrees match
+        for (Exprent exprent : allNextRight) {
+          List<Exprent> subtree = exprent.getAllExprents(true);
+
+          if (allRight.size() == subtree.size() && !allRight.isEmpty()) {
+            // Iterate through both trees and check if they're equal
+            boolean ok = areTreesEqual(left, allRight, subtree);
+
+            // Exprent trees equal, find the exprent 2 indices over
+            if (ok) {
+              ret = exprents.get(index + 2);
+
+              break;
+            }
+          }
+        }
       }
     }
 
     return ret;
+  }
+
+  // Checks if 2 exprent trees are equal. Precondition: both trees have the same size
+  private boolean areTreesEqual(VarExprent left, List<Exprent> treeA, List<Exprent> treeB) {
+    boolean ok = true;
+
+    for (int i = 0; i < treeA.size(); i++) {
+      // Nodes of each tree
+      Exprent a = treeA.get(i);
+      Exprent b = treeB.get(i);
+
+      // Disjoint types- cannot ever be equal!
+      if (a.type != b.type) {
+        ok = false;
+        break;
+      }
+
+      // Var
+      if (a.type == Exprent.EXPRENT_VAR && b.type == Exprent.EXPRENT_VAR) {
+        VarExprent va = (VarExprent)a;
+        VarExprent vb = (VarExprent)b;
+
+        // We only care about the index, the version can be different as we've deduced it doesn't exist in the next exprent (thus no assignment or usage) TODO: check for incremented/live?
+        if (va.getIndex() != vb.getIndex()) {
+          // Disjoint var usage, not equal!
+          ok = false;
+          break;
+        }
+
+        if (vb.getIndex() == left.getIndex()) {
+          // The next exprent is using the variable that the current exprent assigns to, making it unsafe to simplify!
+          ok = false;
+          break;
+        }
+      }
+
+      // Field access
+      if (a.type == Exprent.EXPRENT_FIELD && b.type == Exprent.EXPRENT_FIELD) {
+        FieldExprent fa = (FieldExprent)a;
+        FieldExprent fb = (FieldExprent)b;
+
+        // FieldExprent#equals() minus instance check- that is handled above, with the var check
+        if (
+          !InterpreterUtil.equalObjects(fa.getName(), fb.getName())
+          || !InterpreterUtil.equalObjects(fa.getClassname(), fb.getClassname())
+          || !InterpreterUtil.equalObjects(fa.isStatic(), fb.isStatic())
+          || !InterpreterUtil.equalObjects(fa.getDescriptor(), fb.getDescriptor())
+        ) {
+          // Disjoint field access, not equal!
+          ok = false;
+          break;
+        }
+      }
+
+      // Constant value
+      if (a.type == Exprent.EXPRENT_CONST && b.type == Exprent.EXPRENT_CONST) {
+        if (!a.equals(b)) {
+          // Constant not equal!
+          ok = false;
+          break;
+        }
+      }
+      // TODO: how do we handle other exprents that may or may not be equal, like array access?
+    }
+
+    return ok;
   }
 
   // Gets all var versions found in a given exprent

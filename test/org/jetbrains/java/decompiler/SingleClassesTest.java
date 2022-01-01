@@ -478,13 +478,13 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestLoopMerging2");
     register(JAVA_8, "TestAssertConst");
     register(JAVA_8, "TestLambdaLocalCapture");
-    // TODO: array access not simplified
     register(JAVA_8, "TestArrayFieldAccess");
     // TODO: needs to inline ppmm properly
     register(JAVA_8, "TestArrayPPMM");
     register(JAVA_8, "TestArrayPPMM1");
     register(JAVA_8, "TestDoubleAdd");
     register(JAVA_8, "TestTempAssign");
+    register(JAVA_8, "TestArrayFieldAccess1");
   }
 
   private void registerEntireClassPath() {
