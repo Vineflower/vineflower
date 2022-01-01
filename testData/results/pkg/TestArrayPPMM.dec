@@ -2,115 +2,216 @@ package pkg;
 
 public class TestArrayPPMM {
    public void test(int[] array, int i) {
-      ++i;
-      System.out.println(array[i]);// 5
+      System.out.println(array[++i]);// 5
    }// 6
 
    public void test1(int[] array, int i) {
-      ++i;
-      int var10001 = array[i];
-      ++i;
-      this.accept(var10001, array[i]);// 9
+      this.accept(array[++i], array[++i]);// 9
    }// 10
 
    public void test2(int[] array, int i) {
-      int var10001 = array[i];
-      ++i;
-      this.accept(var10001, array[i]);// 13
+      this.accept(array[i], array[++i]);// 13
    }// 14
 
    public void test3(int[] array, int i) {
-      ++i;
-      this.accept(array[i], array[i]);// 17
+      this.accept(array[++i], array[i]);// 17
    }// 18
 
+   public void test4(int[] array, int i) {
+      System.out.println(array[i++]);// 23
+   }// 24
+
+   public void test5(int[] array, int i) {
+      this.accept(array[i++], array[i++]);// 27
+   }// 28
+
+   public void test6(int[] array, int i) {
+      this.accept(array[i], array[i++]);// 31
+   }// 32
+
+   public void test7(int[] array, int i) {
+      this.accept(array[i++], array[i]);// 35
+   }// 36
+
+   public void test8(int[] array, int i) {
+      this.accept(array[i++], array[++i]);// 39
+   }// 40
+
    private void accept(int i, int j) {
-   }// 22
+   }// 44
 }
 
 class 'pkg/TestArrayPPMM' {
    method 'test ([II)V' {
-      0      5
-      1      5
-      2      5
-      3      5
+      0      4
+      1      4
+      2      4
+      3      4
       4      4
       5      4
       6      4
-      7      5
-      8      5
-      9      5
-      a      5
-      b      5
-      c      6
+      8      4
+      9      4
+      a      4
+      b      4
+      c      5
    }
 
    method 'test1 ([II)V' {
-      0      12
-      1      10
-      2      9
-      3      9
-      4      9
-      5      10
-      6      10
-      7      12
-      8      11
-      9      11
-      a      11
-      b      12
-      c      12
-      d      12
-      e      12
-      f      12
-      10      13
+      0      8
+      1      8
+      2      8
+      3      8
+      4      8
+      6      8
+      7      8
+      8      8
+      9      8
+      a      8
+      c      8
+      d      8
+      e      8
+      f      8
+      10      9
    }
 
    method 'test2 ([II)V' {
-      0      18
-      1      16
-      2      16
-      3      16
-      4      18
-      5      17
-      6      17
-      7      17
-      8      18
-      9      18
-      a      18
-      b      18
-      c      18
-      d      19
+      0      12
+      1      12
+      2      12
+      3      12
+      4      12
+      5      12
+      6      12
+      7      12
+      9      12
+      a      12
+      b      12
+      c      12
+      d      13
    }
 
    method 'test3 ([II)V' {
-      0      23
-      1      23
-      2      22
-      3      22
-      4      22
-      5      23
-      6      23
-      7      23
-      8      23
-      9      23
-      a      23
-      b      23
-      c      23
+      0      16
+      1      16
+      2      16
+      3      16
+      4      16
+      6      16
+      7      16
+      8      16
+      9      16
+      a      16
+      b      16
+      c      16
+      d      17
+   }
+
+   method 'test4 ([II)V' {
+      0      20
+      1      20
+      2      20
+      3      20
+      5      20
+      6      20
+      7      20
+      8      20
+      9      20
+      a      20
+      b      20
+      c      21
+   }
+
+   method 'test5 ([II)V' {
+      0      24
+      1      24
+      3      24
+      4      24
+      5      24
+      6      24
+      7      24
+      9      24
+      a      24
+      b      24
+      c      24
       d      24
+      e      24
+      f      24
+      10      25
+   }
+
+   method 'test6 ([II)V' {
+      0      28
+      1      28
+      2      28
+      3      28
+      4      28
+      6      28
+      7      28
+      8      28
+      9      28
+      a      28
+      b      28
+      c      28
+      d      29
+   }
+
+   method 'test7 ([II)V' {
+      0      32
+      1      32
+      3      32
+      4      32
+      5      32
+      6      32
+      7      32
+      8      32
+      9      32
+      a      32
+      b      32
+      c      32
+      d      33
+   }
+
+   method 'test8 ([II)V' {
+      0      36
+      1      36
+      3      36
+      4      36
+      5      36
+      6      36
+      7      36
+      8      36
+      9      36
+      a      36
+      c      36
+      d      36
+      e      36
+      f      36
+      10      37
    }
 
    method 'accept (II)V' {
-      0      27
+      0      40
    }
 }
 
 Lines mapping:
-5 <-> 6
-6 <-> 7
-9 <-> 13
-10 <-> 14
-13 <-> 19
-14 <-> 20
-17 <-> 24
-18 <-> 25
-22 <-> 28
+5 <-> 5
+6 <-> 6
+9 <-> 9
+10 <-> 10
+13 <-> 13
+14 <-> 14
+17 <-> 17
+18 <-> 18
+23 <-> 21
+24 <-> 22
+27 <-> 25
+28 <-> 26
+31 <-> 29
+32 <-> 30
+35 <-> 33
+36 <-> 34
+39 <-> 37
+40 <-> 38
+44 <-> 41

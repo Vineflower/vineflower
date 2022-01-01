@@ -16,6 +16,7 @@ import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.match.MatchEngine;
 import org.jetbrains.java.decompiler.util.FastSparseSetFactory.FastSparseSet;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
+import org.jetbrains.java.decompiler.util.Pair;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -201,6 +202,12 @@ public class SimplifyExprentsHelper {
 
       if (!firstInvocation && isStackAssignment2(current, next)) {
         list.remove(index + 1);
+        res = true;
+        continue;
+      }
+
+      if (firstInvocation && inlinePPIAndMMI(current, next)) {
+        list.remove(index);
         res = true;
         continue;
       }
@@ -594,6 +601,126 @@ public class SimplifyExprentsHelper {
     return false;
   }
 
+
+  // Inlines PPI into the next expression, to make stack var simplificiation easier
+  //
+  // ++i;
+  // array[i] = 2;
+  //
+  // turns into
+  //
+  // array[++i] = 2;
+  //
+  // While this helps simplify stack vars, it also has can potentially make invalid code! When evaluating ppmm correctness, this is a good place to start.
+  // TODO: fernflower preference?
+  private static boolean inlinePPIAndMMI(Exprent expr, Exprent next) {
+    if (expr.type == Exprent.EXPRENT_FUNCTION) {
+      FunctionExprent func = (FunctionExprent) expr;
+
+      if (func.getFuncType() == FunctionExprent.FUNCTION_PPI || func.getFuncType() == FunctionExprent.FUNCTION_MMI) {
+        if (func.getLstOperands().get(0).type == Exprent.EXPRENT_VAR) {
+          VarExprent var = (VarExprent) func.getLstOperands().get(0);
+
+          // Can't inline ppmm into next ppmm
+          if (next.type == Exprent.EXPRENT_FUNCTION) {
+            if (isPPMM((FunctionExprent) next)) {
+              return false;
+            }
+          }
+
+          // Try to find the next use of the variable
+          Pair<Exprent, VarExprent> usage = findFirstValidUsage(var, next);
+
+          // Found usage
+          if (usage != null) {
+            // Replace exprent
+            usage.a.replaceExprent(usage.b, func);
+            return true;
+          }
+        }
+      }
+    }
+
+    return false;
+  }
+
+  // Try to find the first valid usage of a variable for PPMM inlining.
+  // Returns Pair{parent exprent, variable exprent to replace}
+  private static Pair<Exprent, VarExprent> findFirstValidUsage(VarExprent match, Exprent next) {
+    Deque<Exprent> stack = new LinkedList<>();
+    stack.add(next);
+
+    while (!stack.isEmpty()) {
+      Exprent expr = stack.removeLast();
+
+      List<Exprent> exprents = expr.getAllExprents();
+
+      if (expr.type == Exprent.EXPRENT_FUNCTION) {
+        FunctionExprent func = (FunctionExprent) expr;
+
+        // Don't inline ppmm into more ppmm
+        if (isPPMM(func)) {
+          continue;
+        }
+
+        // Don't consider || or &&
+        if (func.getFuncType() == FunctionExprent.FUNCTION_COR || func.getFuncType() == FunctionExprent.FUNCTION_CADD) {
+          return null;
+        }
+
+        // Don't consider ternaries
+        if (func.getFuncType() == FunctionExprent.FUNCTION_IIF) {
+          return null;
+        }
+
+        // Subtraction and division make it hard to deduce which variable is used, especially without SSAU, so cancel if we find
+        if (func.getFuncType() == FunctionExprent.FUNCTION_SUB || func.getFuncType() == FunctionExprent.FUNCTION_DIV) {
+          return null;
+        }
+      }
+
+      // Reverse iteration to ensure DFS
+      for (int i = exprents.size() - 1; i >= 0; i--) {
+        Exprent ex = exprents.get(i);
+        boolean add = true;
+
+        // Skip LHS of assignment as it is invalid
+        if (expr.type == Exprent.EXPRENT_ASSIGNMENT) {
+          add = ex != ((AssignmentExprent) expr).getLeft();
+        }
+
+        // Check var if we find
+        if (add && ex.type == Exprent.EXPRENT_VAR) {
+          VarExprent ve = (VarExprent) ex;
+
+          if (ve.getIndex() == match.getIndex() && ve.getVersion() == match.getVersion()) {
+            return Pair.of(expr, ve);
+          }
+        }
+
+        // Ignore ++/-- exprents as they aren't valid usages to replace
+        if (ex.type == Exprent.EXPRENT_FUNCTION) {
+          add = !isPPMM((FunctionExprent) ex);
+        }
+
+        if (add) {
+          stack.add(ex);
+        }
+      }
+    }
+
+    // Couldn't find
+    return null;
+  }
+
+  private static boolean isPPMM(FunctionExprent func) {
+    return
+      func.getFuncType() == FunctionExprent.FUNCTION_PPI ||
+      func.getFuncType() == FunctionExprent.FUNCTION_MMI ||
+      func.getFuncType() == FunctionExprent.FUNCTION_IPP ||
+      func.getFuncType() == FunctionExprent.FUNCTION_IMM;
+  }
+
   private static boolean isMonitorExit(Exprent first) {
     if (first.type == Exprent.EXPRENT_MONITOR) {
       MonitorExprent expr = (MonitorExprent) first;
@@ -700,6 +827,7 @@ public class SimplifyExprentsHelper {
   // get()[0] += 10;
   //
   // when assignments are updated at the very end of the processing pipeline. This method assumes assignment updating will always happen, otherwise it'll lead to duplicated code execution!
+  // FIXME: Move to a more reasonable place or implement assignment merging in StackVarsProcessor!
   private static boolean isMethodArrayAssign(Exprent expr, Exprent next) {
     if (expr.type == Exprent.EXPRENT_ASSIGNMENT && next.type == Exprent.EXPRENT_ASSIGNMENT) {
       Exprent firstLeft = ((AssignmentExprent) expr).getLeft();

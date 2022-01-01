@@ -307,6 +307,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestWhileTernary9");
     register(JAVA_8, "TestWhileTernary10");
 
+    // TODO: multiple problems with ++/--
     register(JAVA_8, "TestOperatorPrecedence");
     register(JAVA_8, "TestMultipleStaticBlocks");
     register(JAVA_8, "TestTrySynchronized");
@@ -485,6 +486,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestDoubleAdd");
     register(JAVA_8, "TestTempAssign");
     register(JAVA_8, "TestArrayFieldAccess1");
+    register(JAVA_8, "TestPPMMMath");
   }
 
   private void registerEntireClassPath() {
