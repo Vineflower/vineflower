@@ -2,7 +2,7 @@ package pkg;
 
 public class TestSwapException {
    public static void test() {
-      throw new RuntimeException("Hi!");// 22 27
+      throw new RuntimeException("Hi!");// 23 28
    }
 }
 
@@ -15,10 +15,10 @@ class 'pkg/TestSwapException' {
 }
 
 Lines mapping:
-22 <-> 5
-27 <-> 5
+23 <-> 5
+28 <-> 5
 Not mapped:
-23
 24
 25
 26
+27
