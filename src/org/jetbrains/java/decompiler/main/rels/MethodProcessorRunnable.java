@@ -307,7 +307,7 @@ public class MethodProcessorRunnable implements Runnable {
     decompileRecord.add("MainLoopEnd", root);
 
     // this has to be done after all inlining is done so the case values do not get reverted
-    if (SwitchHelper.simplifySwitches(root, mt)) {
+    if (SwitchHelper.simplifySwitches(root, mt, root)) {
       decompileRecord.add("SimplifySwitches", root);
 
       SequenceHelper.condenseSequences(root); // remove empty blocks

@@ -232,25 +232,25 @@ public final class InitializerProcessor {
                         whitelist.add(keyField);
                         itr.remove();
                       } else {
-                        DecompilerContext.getLogger().writeMessage("Don't know how to handle non independent "+assignExpr.getRight().getClass().getName(), IFernflowerLogger.Severity.ERROR);
+//                        DecompilerContext.getLogger().writeMessage("Don't know how to handle non independent "+assignExpr.getRight().getClass().getName(), IFernflowerLogger.Severity.ERROR);
                       }
                     } else {
-                      DecompilerContext.getLogger().writeMessage("Don't know how to handle non independent "+assignExpr.getRight().getClass().getName(), IFernflowerLogger.Severity.ERROR);
+//                      DecompilerContext.getLogger().writeMessage("Don't know how to handle non independent "+assignExpr.getRight().getClass().getName(), IFernflowerLogger.Severity.ERROR);
                     }
                   }
                 }
               }
             }
           } else if (inlineInitializers) {
-            DecompilerContext.getLogger().writeMessage("Found non field assignment when needing to force inline: "+assignExpr.toString(), IFernflowerLogger.Severity.TRACE);
+//            DecompilerContext.getLogger().writeMessage("Found non field assignment when needing to force inline: "+assignExpr.toString(), IFernflowerLogger.Severity.TRACE);
             if (assignExpr.getLeft() instanceof VarExprent) {
               nonFieldAssigns.put(((VarExprent) assignExpr.getLeft()).getIndex(), assignExpr);
             } else {
-              DecompilerContext.getLogger().writeMessage("Left is not VarExprent!", IFernflowerLogger.Severity.ERROR);
+//              DecompilerContext.getLogger().writeMessage("Left is not VarExprent!", IFernflowerLogger.Severity.ERROR);
             }
           }
-        } else if (inlineInitializers && cl.hasModifier(CodeConstants.ACC_INTERFACE)){
-          DecompilerContext.getLogger().writeMessage("Non assignment found in initializer when we're needing to inline all", IFernflowerLogger.Severity.ERROR);
+        } else if (inlineInitializers && cl.hasModifier(CodeConstants.ACC_INTERFACE)) {
+//          DecompilerContext.getLogger().writeMessage("Non assignment found in initializer when we're needing to inline all", IFernflowerLogger.Severity.ERROR);
         }
       }
       if (exprentsToRemove.size() > 0){

@@ -72,7 +72,7 @@ public class ClassWriter {
     for (MethodWrapper method : wrapper.getMethods()) {
       if (method.root != null) {
         try {
-          SwitchHelper.simplifySwitches(method.root, method.methodStruct);
+          SwitchHelper.simplifySwitches(method.root, method.methodStruct, method.root);
         } catch (Throwable e) {
           DecompilerContext.getLogger().writeMessage("Method " + method.methodStruct.getName() + " " + method.methodStruct.getDescriptor() + " in class " + node.classStruct.qualifiedName + " couldn't be written.",
             IFernflowerLogger.Severity.WARN,

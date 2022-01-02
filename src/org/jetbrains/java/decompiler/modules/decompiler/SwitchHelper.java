@@ -9,6 +9,7 @@ import org.jetbrains.java.decompiler.main.rels.ClassWrapper;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.SwitchStatement;
 import org.jetbrains.java.decompiler.struct.StructClass;
@@ -22,20 +23,20 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public final class SwitchHelper {
-  public static boolean simplifySwitches(Statement stat, StructMethod mt) {
+  public static boolean simplifySwitches(Statement stat, StructMethod mt, RootStatement root) {
     boolean ret = false;
     if (stat.type == Statement.TYPE_SWITCH) {
-      ret = simplify((SwitchStatement)stat, mt);
+      ret = simplify((SwitchStatement)stat, mt, root);
     }
 
-    for (int i = 0; i < stat.getStats().size(); ++i) {
-      ret |= simplifySwitches(stat.getStats().get(i), mt);
+    for (int i = 0; i < stat.getStats().size(); i++) {
+      ret |= simplifySwitches(stat.getStats().get(i), mt, root);
     }
 
     return ret;
   }
 
-  private static boolean simplify(SwitchStatement switchStatement, StructMethod mt) {
+  private static boolean simplify(SwitchStatement switchStatement, StructMethod mt, RootStatement root) {
     SwitchStatement following = null;
     List<StatEdge> edges = switchStatement.getSuccessorEdges(StatEdge.TYPE_REGULAR);
     if (edges.size() == 1 && edges.get(0).getDestination().type == Statement.TYPE_SWITCH) {
@@ -106,8 +107,9 @@ public final class SwitchHelper {
           else {
             Exprent realConst = mapping.get(exprent);
             if (realConst == null) {
+              root.addComment("$FF: Unable to simplify switch on enum");
               DecompilerContext.getLogger()
-                .writeMessage("Unable to simplify switch on enum: " + exprent + " not found, available: " + mapping + " in method " + mt.getClassQualifiedName() + mt.getName(),
+                .writeMessage("Unable to simplify switch on enum: " + exprent + " not found, available: " + mapping + " in method " + mt.getClassQualifiedName() + " " + mt.getName(),
                               IFernflowerLogger.Severity.ERROR);
               return false;
             }

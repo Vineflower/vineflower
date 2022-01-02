@@ -251,6 +251,12 @@ public final class MergeHelper {
                   }
                 }
 
+                // Found basic block, delegate to loop extractor
+                Statement firstSt = firstStat.getStats().get(0);
+                if (firstSt.type == Statement.TYPE_IF && ((IfStatement)firstSt).getIfstat().type != Statement.TYPE_SEQUENCE && ((IfStatement) firstSt).getIfstat().getStats().isEmpty()) {
+                  return false;
+                }
+
                 List<Statement> toAdd = new ArrayList<>();
 
                 // Skip first statement as that is the if that contains the while loop condition
