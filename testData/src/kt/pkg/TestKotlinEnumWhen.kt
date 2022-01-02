@@ -22,8 +22,8 @@ enum class TestKotlinEnumWhen {
   }
 
   fun testAnotherEnum() {
-    // Using a nested function prevents kotlinc from inlining this into "throw NotImplementedError()"
-    fun getLevel(): DeprecationLevel = TODO()
+    // Using a nested function prevents kotlinc from inlining the exception
+    fun getLevel(): DeprecationLevel = throw Exception()
 
     when (val level = getLevel()) {
       DeprecationLevel.WARNING -> println("warning $level")
