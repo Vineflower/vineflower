@@ -256,6 +256,9 @@ public class MethodProcessorRunnable implements Runnable {
       varProc.setVarVersions(root);
       decompileRecord.add("SetVarVersions", root);
 
+      LabelHelper.identifyLabels(root);
+      decompileRecord.add("IdentifyLabels", root);
+
       if (DecompilerContext.getOption(IFernflowerPreferences.PATTERN_MATCHING)) {
         if (cl.getVersion().hasIfPatternMatching()) {
           if (PatternMatchProcessor.matchInstanceof(root)) {
@@ -271,14 +274,11 @@ public class MethodProcessorRunnable implements Runnable {
           continue;
         }
       }
-	  
+
       if (TryHelper.enhanceTryStats(root, cl)) {
         decompileRecord.add("EnhanceTry", root);
         continue;
       }
-
-      LabelHelper.identifyLabels(root);
-      decompileRecord.add("IdentifyLabels", root);
 
       if (InlineSingleBlockHelper.inlineSingleBlocks(root)) {
         decompileRecord.add("InlineSingleBlocks", root);
@@ -321,6 +321,9 @@ public class MethodProcessorRunnable implements Runnable {
           // Simplify stack vars to integrate and inline switch expressions
           stackProc.simplifyStackVars(root, mt, cl);
           decompileRecord.add("SimplifyStackVars_SS", root);
+
+          varProc.setVarVersions(root);
+          decompileRecord.add("SetVarVersions_SS", root);
         }
       }
     }

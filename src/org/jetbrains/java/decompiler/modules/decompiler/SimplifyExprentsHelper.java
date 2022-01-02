@@ -919,11 +919,26 @@ public class SimplifyExprentsHelper {
     return false;
   }
 
+  // Some constructor invocations use swap to call <init>.
+  //
+  // Type type = new Type;
+  // var = type;
+  // type.<init>(...);
+  //
+  // turns into
+  //
+  // var = new Type(...);
+  //
   private static boolean isSwapConstructorInvocation(Exprent last, Exprent expr, Exprent next) {
     if (last.type == Exprent.EXPRENT_ASSIGNMENT && expr.type == Exprent.EXPRENT_ASSIGNMENT && next.type == Exprent.EXPRENT_INVOCATION) {
       AssignmentExprent asLast = (AssignmentExprent) last;
       AssignmentExprent asExpr = (AssignmentExprent) expr;
       InvocationExprent inNext = (InvocationExprent) next;
+
+      // Make sure the next invocation is a constructor invocation!
+      if (inNext.getFunctype() != InvocationExprent.TYP_INIT) {
+        return false;
+      }
 
       if (asLast.getLeft().type == Exprent.EXPRENT_VAR && asExpr.getRight().type == Exprent.EXPRENT_VAR && inNext.getInstance() != null && inNext.getInstance().type == Exprent.EXPRENT_VAR) {
         VarExprent varLast = (VarExprent) asLast.getLeft();
@@ -932,6 +947,7 @@ public class SimplifyExprentsHelper {
 
         if (varLast.getIndex() == varExpr.getIndex() && varExpr.getIndex() == varNext.getIndex()) {
           if (asLast.getRight().type == Exprent.EXPRENT_NEW) {
+            // Create constructor
             inNext.setInstance(null);
             NewExprent newExpr = (NewExprent) asLast.getRight();
             newExpr.setConstructor(inNext);

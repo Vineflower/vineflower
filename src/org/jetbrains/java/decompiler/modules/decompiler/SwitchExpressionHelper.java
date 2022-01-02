@@ -83,13 +83,16 @@ public final class SwitchExpressionHelper {
       return false;
     }
 
-    boolean foundDefault = false;
-    for (Statement statement : assignments.keySet()) {
-      if (stat.getDefaultEdge().getDestination().containsStatement(statement)) {
-        foundDefault = true;
-        break;
-      }
-    }
+    boolean foundDefault = stat.getCaseEdges().stream()
+      .flatMap(List::stream) // List<List<StatEdge>> -> List<StatEdge>
+      .anyMatch(e -> e == stat.getDefaultEdge()); // Has default edge
+
+//    for (Statement statement : assignments.keySet()) {
+//      if (stat.getDefaultEdge().getDestination().containsStatement(statement)) {
+//        foundDefault = true;
+//        break;
+//      }
+//    }
 
     // Need default always!
     if (!foundDefault) {
