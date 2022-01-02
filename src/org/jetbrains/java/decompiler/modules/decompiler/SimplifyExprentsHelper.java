@@ -133,6 +133,18 @@ public class SimplifyExprentsHelper {
       }
 
       Exprent next = list.get(index + 1);
+
+      if (index > 0) {
+        Exprent prev = list.get(index - 1);
+
+        if (isSwapConstructorInvocation(prev, current, next)) {
+          list.remove(index - 1);
+          list.remove(index);
+          res = true;
+          continue;
+        }
+      }
+
       if (isAssignmentReturn(current, next)) {
         list.remove(index);
         res = true;
@@ -903,6 +915,35 @@ public class SimplifyExprentsHelper {
         }
       }
     }
+
+    return false;
+  }
+
+  private static boolean isSwapConstructorInvocation(Exprent last, Exprent expr, Exprent next) {
+    if (last.type == Exprent.EXPRENT_ASSIGNMENT && expr.type == Exprent.EXPRENT_ASSIGNMENT && next.type == Exprent.EXPRENT_INVOCATION) {
+      AssignmentExprent asLast = (AssignmentExprent) last;
+      AssignmentExprent asExpr = (AssignmentExprent) expr;
+      InvocationExprent inNext = (InvocationExprent) next;
+
+      if (asLast.getLeft().type == Exprent.EXPRENT_VAR && asExpr.getRight().type == Exprent.EXPRENT_VAR && inNext.getInstance() != null && inNext.getInstance().type == Exprent.EXPRENT_VAR) {
+        VarExprent varLast = (VarExprent) asLast.getLeft();
+        VarExprent varExpr = (VarExprent) asExpr.getRight();
+        VarExprent varNext = (VarExprent) inNext.getInstance();
+
+        if (varLast.getIndex() == varExpr.getIndex() && varExpr.getIndex() == varNext.getIndex()) {
+          if (asLast.getRight().type == Exprent.EXPRENT_NEW) {
+            inNext.setInstance(null);
+            NewExprent newExpr = (NewExprent) asLast.getRight();
+            newExpr.setConstructor(inNext);
+
+            asExpr.setRight(newExpr);
+
+            return true;
+          }
+        }
+      }
+    }
+
 
     return false;
   }

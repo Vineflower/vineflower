@@ -188,6 +188,7 @@ public class StackVarsProcessor {
               // Cancel the second pass by setting the stage to 2, preventing the check next time it runs
               stackStage = 2;
             }
+            // An (unintentional) side effect of this implementation is that as soon as the second pass is able to change the stack, it'll cancel further iteration of the second pass, preventing it from creating wrong code by accident.
           }
         }
       }

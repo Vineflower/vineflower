@@ -741,7 +741,13 @@ public class InvocationExprent extends Exprent {
           buf.append("this(");
         }
         else if (instance != null) {
-          buf.append(instance.toJava(indent)).append(".<init>(");
+          String s = ".";
+          if (DecompilerContext.getOption(IFernflowerPreferences.DECOMPILER_COMMENTS)) {
+            s += "/* FF: Unable to resugar constructor */";
+          }
+          s += "<init>(";
+
+          buf.append(instance.toJava(indent)).append(s);
         }
         else {
           throw new RuntimeException("Unrecognized invocation of " + CodeConstants.INIT_NAME);
