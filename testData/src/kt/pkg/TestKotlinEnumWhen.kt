@@ -31,4 +31,18 @@ enum class TestKotlinEnumWhen {
       DeprecationLevel.HIDDEN -> println("hidden $level")
     }
   }
+
+  fun testConsecutive() {
+    when (this) {
+      FIRST -> println("first!")
+      SECOND -> println("second!")
+      THIRD -> println("third!")
+    }
+
+    when (this) {
+      FIRST -> println("first, again!")
+      SECOND -> println("second, again!")
+      THIRD -> println("third, again!")
+    }
+  }
 }
