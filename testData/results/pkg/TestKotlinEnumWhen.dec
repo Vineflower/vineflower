@@ -19,17 +19,17 @@ public enum TestKotlinEnumWhen {
 
    public final void testStatement() {
       switch(this) {// 7
-      case WARNING:
+      case FIRST:
          String var6 = "first!";// 8
          boolean var8 = false;
          System.out.println(var6);
          break;
-      case ERROR:
+      case SECOND:
          String var5 = "second!";// 9
          boolean var7 = false;
          System.out.println(var5);
          break;
-      case HIDDEN:
+      case THIRD:
          String var3 = "third!";// 10
          boolean var4 = false;
          System.out.println(var3);
@@ -40,13 +40,13 @@ public enum TestKotlinEnumWhen {
    public final void testExpression() {
       String var10000;
       switch(this) {// 16
-      case WARNING:
+      case FIRST:
          var10000 = "first!";// 17
          break;
-      case ERROR:
+      case SECOND:
          var10000 = "second!";// 18
          break;
-      case HIDDEN:
+      case THIRD:
          var10000 = "third!";// 19
          break;
       default:
@@ -81,34 +81,34 @@ public enum TestKotlinEnumWhen {
 
    public final void testConsecutive() {
       switch(this) {// 36
-      case WARNING:
+      case FIRST:
          String var7 = "first!";// 37
          boolean var12 = false;
          System.out.println(var7);
          break;
-      case ERROR:
+      case SECOND:
          String var6 = "second!";// 38
          boolean var11 = false;
          System.out.println(var6);
          break;
-      case HIDDEN:
+      case THIRD:
          String var3 = "third!";// 39
          boolean var4 = false;
          System.out.println(var3);
       }
 
       switch(this) {// 42
-      case WARNING:
+      case FIRST:
          String var10 = "first, again!";// 43
          boolean var15 = false;
          System.out.println(var10);
          break;
-      case ERROR:
+      case SECOND:
          String var9 = "second, again!";// 44
          boolean var14 = false;
          System.out.println(var9);
          break;
-      case HIDDEN:
+      case THIRD:
          String var8 = "third, again!";// 45
          boolean var13 = false;
          System.out.println(var8);

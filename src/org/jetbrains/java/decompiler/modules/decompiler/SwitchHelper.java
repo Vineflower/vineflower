@@ -18,6 +18,7 @@ import org.jetbrains.java.decompiler.util.Pair;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,13 +58,28 @@ public final class SwitchHelper {
       if (array.getArray().type == Exprent.EXPRENT_FIELD) {
         FieldExprent arrayField = (FieldExprent) array.getArray();
         ClassesProcessor.ClassNode classNode = DecompilerContext.getClassProcessor().getMapRootClasses().get(arrayField.getClassname());
-        boolean[] shouldCheckLocalVariables = { true }; // single-element array for lambda restrictions
-        List<AssignmentExprent>[] fieldAssignments = new List[] { null }; // single-element array for lambda restrictions
         if (classNode != null) {
           ClassWrapper classWrapper = classNode.getWrapper();
           if (classWrapper != null) {
             MethodWrapper wrapper = classWrapper.getMethodWrapper(CodeConstants.CLINIT_NAME, "()V");
             if (wrapper != null && wrapper.root != null) {
+              // Fill the enum array field's assignments if we have a local var head.
+              // We need this to find the array field from the container class.
+              List<AssignmentExprent> fieldAssignments;
+              if (value instanceof VarExprent) {
+                fieldAssignments = getAssignmentsOfWithinOneStatement(wrapper.root, arrayField);
+                if (fieldAssignments.size() > 1) {
+                  // assigned more than once => not what we're looking for and discard the contents
+                  fieldAssignments.clear();
+                }
+              } else {
+                fieldAssignments = Collections.emptyList();
+              }
+
+              // Keep track of whether the assignment of the array field has already happened.
+              // The same local variable might be used for multiple arrays (like with Kotlin, for example.)
+              boolean[] fieldAssignmentEncountered = new boolean[] { false }; // single-element reference for lambdas
+
               wrapper.getOrBuildGraph().iterateExprents(exprent -> {
                 if (exprent instanceof AssignmentExprent) {
                   AssignmentExprent assignment = (AssignmentExprent) exprent;
@@ -77,23 +93,11 @@ public final class SwitchHelper {
                     // Kotlin (as mentioned above) creates its enum arrays by storing the array
                     // in a local first, so we need to check if the variable is later uniquely
                     // assigned to the enum array.
-                    if (!targetsField && assignmentArray instanceof VarExprent) {
-                      // Find all assignments that target the array field
-                      if (fieldAssignments[0] == null) {
-                        fieldAssignments[0] = getAssignmentsOfWithinOneStatement(wrapper.root, arrayField);
-                        if (fieldAssignments[0].size() > 1) {
-                          // assigned more than once => not what we're looking for
-                          shouldCheckLocalVariables[0] = false;
-                        }
-                      }
-
-                      // If we should check locals, check if the variable targets the field.
-                      if (shouldCheckLocalVariables[0]) {
-                        for (AssignmentExprent fieldAssignment : fieldAssignments[0]) {
-                          if (fieldAssignment.getRight().equals(assignmentArray)) {
-                            targetsField = true;
-                            break;
-                          }
+                    if (!targetsField && assignmentArray instanceof VarExprent && !fieldAssignmentEncountered[0]) {
+                      for (AssignmentExprent fieldAssignment : fieldAssignments) {
+                        if (fieldAssignment.getRight().equals(assignmentArray)) {
+                          targetsField = true;
+                          break;
                         }
                       }
                     }
@@ -101,6 +105,8 @@ public final class SwitchHelper {
                     if (targetsField) {
                       mapping.put(assignment.getRight(), ((InvocationExprent) ((ArrayExprent) left).getIndex()).getInstance());
                     }
+                  } else if (fieldAssignments.contains(exprent)) {
+                    fieldAssignmentEncountered[0] = true;
                   }
                 }
                 return 0;
