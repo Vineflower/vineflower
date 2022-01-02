@@ -488,6 +488,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestArrayFieldAccess1");
     register(JAVA_8, "TestPPMMMath");
     register(JASM, "TestSwapException");
+    // TODO: kotlin when expressions on enums should resugar to java enum switches
+    register(KOTLIN, "TestKotlinEnumWhen");
   }
 
   private void registerEntireClassPath() {

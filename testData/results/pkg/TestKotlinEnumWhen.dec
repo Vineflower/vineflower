@@ -1,0 +1,282 @@
+package pkg;
+
+import kotlin.DeprecationLevel;
+import kotlin.Metadata;
+import kotlin.NoWhenBranchMatchedException;
+import kotlin.NotImplementedError;
+import kotlin.jvm.internal.Intrinsics;
+
+@Metadata(
+   mv = {1, 5, 1},
+   k = 1,
+   xi = 48,
+   d1 = {"\u0000\u0014\n\u0002\u0018\u0002\n\u0002\u0010\u0010\n\u0002\b\u0002\n\u0002\u0010\u0002\n\u0002\b\u0006\b\u0086\u0001\u0018\u00002\b\u0012\u0004\u0012\u00020\u00000\u0001B\u0007\b\u0002¢\u0006\u0002\u0010\u0002J\u0006\u0010\u0003\u001a\u00020\u0004J\u0006\u0010\u0005\u001a\u00020\u0004J\u0006\u0010\u0006\u001a\u00020\u0004j\u0002\b\u0007j\u0002\b\bj\u0002\b\t¨\u0006\n"},
+   d2 = {"Lpkg/TestKotlinEnumWhen;", "", "(Ljava/lang/String;I)V", "testAnotherEnum", "", "testExpression", "testStatement", "FIRST", "SECOND", "THIRD", "quiltflower_testDataKotlin"}
+)
+public enum TestKotlinEnumWhen {
+   FIRST,
+   SECOND,
+   THIRD;
+
+   public final void testStatement() {
+      int var2 = TestKotlinEnumWhen.WhenMappings.$EnumSwitchMapping$0[this.ordinal()];// 7
+      switch(var2) {
+      case 1:
+         String var6 = "first!";// 8
+         boolean var8 = false;
+         System.out.println(var6);
+         break;
+      case 2:
+         String var5 = "second!";// 9
+         boolean var7 = false;
+         System.out.println(var5);
+         break;
+      case 3:
+         String var3 = "third!";// 10
+         boolean var4 = false;
+         System.out.println(var3);
+      }
+
+   }// 12
+
+   public final void testExpression() {
+      int var2 = TestKotlinEnumWhen.WhenMappings.$EnumSwitchMapping$0[this.ordinal()];// 16
+      String var10000;
+      switch(var2) {
+      case 1:
+         var10000 = "first!";// 17
+         break;
+      case 2:
+         var10000 = "second!";// 18
+         break;
+      case 3:
+         var10000 = "third!";// 19
+         break;
+      default:
+         throw new NoWhenBranchMatchedException();
+      }
+
+      String var1 = var10000;
+      var2 = 0;// 15
+      System.out.println(var1);
+   }// 22
+
+   public final void testAnotherEnum() {
+      DeprecationLevel level = testAnotherEnum$getLevel();// 28
+      int var2 = TestKotlinEnumWhen.WhenMappings.$EnumSwitchMapping$1[level.ordinal()];
+      switch(var2) {
+      case 1:
+         String var6 = Intrinsics.stringPlus("warning ", level);// 29
+         boolean var8 = false;
+         System.out.println(var6);
+         break;
+      case 2:
+         String var5 = Intrinsics.stringPlus("error ", level);// 30
+         boolean var7 = false;
+         System.out.println(var5);
+         break;
+      case 3:
+         String var3 = Intrinsics.stringPlus("hidden ", level);// 31
+         boolean var4 = false;
+         System.out.println(var3);
+      }
+
+   }// 33
+
+   private static final DeprecationLevel testAnotherEnum$getLevel() {
+      boolean var0 = false;// 26
+      throw (Throwable)(new NotImplementedError(null, 1, null));
+   }
+}
+
+class 'pkg/TestKotlinEnumWhen' {
+   method 'testStatement ()V' {
+      0      21
+      2      21
+      3      21
+      4      21
+      6      21
+      7      21
+      8      21
+      9      21
+      a      21
+      b      22
+      c      22
+      28      24
+      29      24
+      2a      24
+      2b      25
+      2c      25
+      2d      25
+      2e      26
+      2f      26
+      30      26
+      31      26
+      32      26
+      33      26
+      34      26
+      35      27
+      38      29
+      39      29
+      3a      29
+      3b      30
+      3c      30
+      3d      30
+      3e      31
+      3f      31
+      40      31
+      41      31
+      42      31
+      43      31
+      44      31
+      45      32
+      48      34
+      49      34
+      4a      34
+      4b      35
+      4c      35
+      4d      35
+      4e      36
+      4f      36
+      50      36
+      51      36
+      52      36
+      55      39
+   }
+
+   method 'testExpression ()V' {
+      0      42
+      2      42
+      3      42
+      4      42
+      6      42
+      7      42
+      8      42
+      9      42
+      a      42
+      b      44
+      c      44
+      28      46
+      29      46
+      2a      47
+      2d      49
+      2e      49
+      2f      50
+      32      52
+      33      52
+      34      53
+      3e      55
+      3f      58
+      40      59
+      41      59
+      42      60
+      43      60
+      44      60
+      45      60
+      46      60
+      47      60
+      48      60
+      49      61
+   }
+
+   method 'testAnotherEnum ()V' {
+      0      64
+      1      64
+      2      64
+      3      64
+      4      65
+      5      65
+      6      65
+      7      65
+      8      65
+      9      65
+      a      65
+      b      65
+      c      65
+      d      66
+      e      66
+      28      68
+      29      68
+      2a      68
+      2b      68
+      2c      68
+      2d      68
+      2e      68
+      2f      69
+      30      69
+      31      69
+      32      70
+      33      70
+      34      70
+      35      70
+      36      70
+      37      70
+      38      70
+      39      71
+      3c      73
+      3d      73
+      3e      73
+      3f      73
+      40      73
+      41      73
+      42      73
+      43      74
+      44      74
+      45      74
+      46      75
+      47      75
+      48      75
+      49      75
+      4a      75
+      4b      75
+      4c      75
+      4d      76
+      50      78
+      51      78
+      52      78
+      53      78
+      54      78
+      55      78
+      56      78
+      57      79
+      58      79
+      59      79
+      5a      80
+      5b      80
+      5c      80
+      5d      80
+      5e      80
+      61      83
+   }
+
+   method 'testAnotherEnum$getLevel ()Lkotlin/DeprecationLevel;' {
+      0      86
+      1      86
+      6      87
+      7      87
+      8      87
+      c      87
+      d      87
+      e      87
+      f      87
+   }
+}
+
+Lines mapping:
+7 <-> 22
+8 <-> 25
+9 <-> 30
+10 <-> 35
+12 <-> 40
+15 <-> 60
+16 <-> 43
+17 <-> 47
+18 <-> 50
+19 <-> 53
+22 <-> 62
+26 <-> 87
+28 <-> 65
+29 <-> 69
+30 <-> 74
+31 <-> 79
+33 <-> 84
