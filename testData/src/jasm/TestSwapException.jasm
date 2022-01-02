@@ -19,7 +19,7 @@ public Method "<init>":"()V"
 public static Method test:"()V"
   stack 3 locals 0
 {
-    // "Backwards" init of exceptions used by some bytecode generating tools. k
+    // "Backwards" init of exceptions used by some bytecode generating tools.
     ldc	String "Hi!";
     new	class java/lang/RuntimeException;
     dup_x1;
