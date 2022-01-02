@@ -487,6 +487,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestTempAssign");
     register(JAVA_8, "TestArrayFieldAccess1");
     register(JAVA_8, "TestPPMMMath");
+    register(JASM, "TestSwapException");
   }
 
   private void registerEntireClassPath() {

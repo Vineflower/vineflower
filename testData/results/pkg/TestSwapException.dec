@@ -1,0 +1,24 @@
+package pkg;
+
+public class TestSwapException {
+   public static void test() {
+      throw new RuntimeException("Hi!");// 22 27
+   }
+}
+
+class 'pkg/TestSwapException' {
+   method 'test ()V' {
+      0      4
+      1      4
+      a      4
+   }
+}
+
+Lines mapping:
+22 <-> 5
+27 <-> 5
+Not mapped:
+23
+24
+25
+26
