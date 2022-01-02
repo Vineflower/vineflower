@@ -6,7 +6,7 @@ public class TestLVTComplex {
    public static void main() {
       int[] x = new int[5];
 
-      for(<unknown> var4_1 : x) {
+      for(int x2 : x) {
          ;
       }
 
@@ -16,14 +16,14 @@ public class TestLVTComplex {
 
       ArrayList<Object> x1 = new ArrayList();
 
-      for(<unknown> var18_1 : x1) {
+      for(Object var18 : x1) {
          ;
       }
 
       for(Object y : x1) {
          int[] x2 = new int[10];
 
-         for(<unknown> var8_1 : x2) {
+         for(int y2 : x2) {
             ;
          }
 

@@ -12,6 +12,8 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.IfExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.InvocationExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
+import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
+import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.VBStyleCollection;
 
 import java.util.*;
@@ -751,9 +753,16 @@ public final class MergeHelper {
           }
         }
 
+        // Type of assignment- store in var for type calculation
+        CheckTypesResult typeRes = ass.checkExprTypeBounds();
+        if (typeRes != null && !typeRes.getLstMinTypeExprents().isEmpty()) {
+          VarType boundType = typeRes.getLstMinTypeExprents().get(0).type;
+          VarExprent var = (VarExprent) ass.getLeft();
+          var.setBoundType(boundType);
+        }
+
         return true;
-      }
-      else if (initExprents[1] != null) {
+      } else if (initExprents[1] != null) {
         if (firstDoExprent.getRight().type != Exprent.EXPRENT_ARRAY || firstDoExprent.getLeft().type != Exprent.EXPRENT_VAR) {
           return false;
         }
@@ -794,6 +803,7 @@ public final class MergeHelper {
           return false;
         }
 
+        // Add bytecode offsets
         funcRight.getLstOperands().get(0).addBytecodeOffsets(initExprents[0].bytecode);
         funcRight.getLstOperands().get(0).addBytecodeOffsets(initExprents[1].bytecode);
         funcRight.getLstOperands().get(0).addBytecodeOffsets(lastExprent.bytecode);
@@ -810,12 +820,21 @@ public final class MergeHelper {
 
         if (initExprents[2] != null && initExprents[2].getLeft().type == Exprent.EXPRENT_VAR) {
           VarExprent copy = (VarExprent)initExprents[2].getLeft();
+
           if (copy.getIndex() == array.getIndex() && copy.getVersion() == array.getVersion()) {
             preData.getExprents().remove(initExprents[2]);
             initExprents[2].getRight().addBytecodeOffsets(initExprents[2].bytecode);
             initExprents[2].getRight().addBytecodeOffsets(stat.getIncExprent().bytecode);
             stat.setIncExprent(initExprents[2].getRight());
           }
+        }
+
+        // Type of assignment- store in var for type calculation
+        CheckTypesResult typeRes = firstDoExprent.checkExprTypeBounds();
+        if (typeRes != null && !typeRes.getLstMinTypeExprents().isEmpty()) {
+          VarType boundType = typeRes.getLstMinTypeExprents().get(0).type;
+          VarExprent var = (VarExprent) firstDoExprent.getLeft();
+          var.setBoundType(boundType);
         }
 
         return true;

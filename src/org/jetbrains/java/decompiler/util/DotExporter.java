@@ -10,6 +10,7 @@ import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.code.cfg.ControlFlowGraph;
 import org.jetbrains.java.decompiler.code.cfg.ExceptionRangeCFG;
 import org.jetbrains.java.decompiler.main.rels.DecompileRecord;
+import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectNode;
@@ -461,6 +462,11 @@ public class DotExporter {
       StringBuilder label = new StringBuilder(block.id + " in statement " + block.statement.id + " " + getStatType(block.statement));
       label.append("\\n");
       label.append(block.block != null ? toJava(block.block) : "null block");
+      if (block.block == null) {
+        TextBuffer buf = ExprProcessor.listToJava(block.exprents, 0);
+        label.append("\\n");
+        label.append(buf.convertToStringAndAllowDataDiscard());
+      }
       if (vars != null && vars.containsKey(block.id)) {
         SFormsFastMapDirect map = vars.get(block.id);
 

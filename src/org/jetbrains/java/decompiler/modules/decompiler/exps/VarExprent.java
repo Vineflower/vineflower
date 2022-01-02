@@ -45,6 +45,7 @@ public class VarExprent extends Exprent {
   private boolean stack = false;
   private LocalVariable lvt = null;
   private boolean isEffectivelyFinal = false;
+  private VarType boundType;
 
   public VarExprent(int index, VarType varType, VarProcessor processor) {
     this(index, varType, processor, null);
@@ -345,13 +346,24 @@ public class VarExprent extends Exprent {
     return pair.version == 0 ? "var" + pair.var : "var" + pair.var + "_" + version;
   }
 
+  public void setBoundType(VarType boundType) {
+    this.boundType = boundType;
+  }
+
   @Override
   public CheckTypesResult checkExprTypeBounds() {
-    if (lvt != null) {
+    if (this.lvt != null) {
       CheckTypesResult ret = new CheckTypesResult();
-      ret.addMinTypeExprent(this, lvt.getVarType());
+      ret.addMinTypeExprent(this, this.lvt.getVarType());
       return ret;
     }
+
+    if (this.boundType != null) {
+      CheckTypesResult ret = new CheckTypesResult();
+      ret.addMinTypeExprent(this, this.boundType);
+      return ret;
+    }
+
     return null;
   }
 
