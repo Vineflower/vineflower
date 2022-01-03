@@ -16,13 +16,7 @@ import org.jetbrains.java.decompiler.struct.StructField;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.util.Pair;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -41,6 +35,7 @@ public final class SwitchHelper {
     return ret;
   }
 
+  @SuppressWarnings("unchecked")
   private static boolean simplify(SwitchStatement switchStatement, StructMethod mt, RootStatement root) {
     SwitchStatement following = null;
     List<StatEdge> edges = switchStatement.getSuccessorEdges(StatEdge.TYPE_REGULAR);
@@ -62,17 +57,12 @@ public final class SwitchHelper {
           if (classWrapper != null) {
             MethodWrapper wrapper = classWrapper.getMethodWrapper(CodeConstants.CLINIT_NAME, "()V");
             if (wrapper != null && wrapper.root != null) {
-              // Fill the enum array field's assignments if we have a local var head.
-              // We need this to find the array field from the container class.
-              List<AssignmentExprent> fieldAssignments;
-              if (value instanceof VarExprent) {
-                fieldAssignments = getAssignmentsOfWithinOneStatement(wrapper.root, arrayField);
-                if (fieldAssignments.size() > 1) {
-                  // assigned more than once => not what we're looking for and discard the contents
-                  fieldAssignments.clear();
-                }
-              } else {
-                fieldAssignments = Collections.emptyList();
+              // The enum array field's assignments if the field is built with a temporary local variable.
+              // We need this to find the array field's values from the container class.
+              List<AssignmentExprent> fieldAssignments = getAssignmentsOfWithinOneStatement(wrapper.root, arrayField);
+              // If assigned more than once => not what we're looking for and discard the list
+              if (fieldAssignments.size() > 1) {
+                fieldAssignments.clear();
               }
 
               // Keep track of whether the assignment of the array field has already happened.
