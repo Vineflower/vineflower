@@ -12,14 +12,13 @@ import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.SwitchStatement;
-import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructField;
 import org.jetbrains.java.decompiler.struct.StructMethod;
+import org.jetbrains.java.decompiler.util.Pair;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public final class SwitchHelper {
@@ -45,10 +44,10 @@ public final class SwitchHelper {
 
     SwitchHeadExprent switchHeadExprent = (SwitchHeadExprent)switchStatement.getHeadexprent();
     Exprent value = switchHeadExprent.getValue();
-    if (isEnumArray(value)) {
+    ArrayExprent array = getEnumArrayExprent(value, root);
+    if (array != null) {
       List<List<Exprent>> caseValues = switchStatement.getCaseValues();
       Map<Exprent, Exprent> mapping = new HashMap<>(caseValues.size());
-      ArrayExprent array = (ArrayExprent)value;
       if (array.getArray().type == Exprent.EXPRENT_FIELD) {
         FieldExprent arrayField = (FieldExprent) array.getArray();
         ClassesProcessor.ClassNode classNode = DecompilerContext.getClassProcessor().getMapRootClasses().get(arrayField.getClassname());
@@ -57,12 +56,45 @@ public final class SwitchHelper {
           if (classWrapper != null) {
             MethodWrapper wrapper = classWrapper.getMethodWrapper(CodeConstants.CLINIT_NAME, "()V");
             if (wrapper != null && wrapper.root != null) {
+              // The enum array field's assignments if the field is built with a temporary local variable.
+              // We need this to find the array field's values from the container class.
+              List<AssignmentExprent> fieldAssignments = getAssignmentsOfWithinOneStatement(wrapper.root, arrayField);
+              // If assigned more than once => not what we're looking for and discard the list
+              if (fieldAssignments.size() > 1) {
+                fieldAssignments.clear();
+              }
+
+              // Keep track of whether the assignment of the array field has already happened.
+              // The same local variable might be used for multiple arrays (like with Kotlin, for example.)
+              boolean[] fieldAssignmentEncountered = new boolean[] { false }; // single-element reference for lambdas
+
               wrapper.getOrBuildGraph().iterateExprents(exprent -> {
                 if (exprent instanceof AssignmentExprent) {
                   AssignmentExprent assignment = (AssignmentExprent) exprent;
                   Exprent left = assignment.getLeft();
-                  if (left.type == Exprent.EXPRENT_ARRAY && ((ArrayExprent) left).getArray().equals(arrayField)) {
-                    mapping.put(assignment.getRight(), ((InvocationExprent) ((ArrayExprent) left).getIndex()).getInstance());
+                  if (left.type == Exprent.EXPRENT_ARRAY) {
+                    Exprent assignmentArray = ((ArrayExprent) left).getArray();
+                    // If the assignment target is a field, we have the assignment we want.
+                    boolean targetsField = assignmentArray.equals(arrayField);
+
+                    // If the target is a local variable, this gets more complicated.
+                    // Kotlin (as mentioned above) creates its enum arrays by storing the array
+                    // in a local first, so we need to check if the variable is later uniquely
+                    // assigned to the enum array.
+                    if (!targetsField && assignmentArray instanceof VarExprent && !fieldAssignmentEncountered[0]) {
+                      for (AssignmentExprent fieldAssignment : fieldAssignments) {
+                        if (fieldAssignment.getRight().equals(assignmentArray)) {
+                          targetsField = true;
+                          break;
+                        }
+                      }
+                    }
+
+                    if (targetsField) {
+                      mapping.put(assignment.getRight(), ((InvocationExprent) ((ArrayExprent) left).getIndex()).getInstance());
+                    }
+                  } else if (fieldAssignments.contains(exprent)) {
+                    fieldAssignmentEncountered[0] = true;
                   }
                 }
                 return 0;
@@ -121,6 +153,23 @@ public final class SwitchHelper {
       caseValues.clear();
       caseValues.addAll(realCaseValues);
       switchHeadExprent.replaceExprent(value, ((InvocationExprent)array.getIndex()).getInstance().copy());
+
+      // If we replaced the only use of the local var, the variable should be removed altogether.
+      if (value instanceof VarExprent) {
+        VarExprent var = (VarExprent) value;
+        List<Pair<Statement, Exprent>> references = new ArrayList<>();
+        findExprents(root, Exprent.class, var::isVarReferenced, false, (stat, expr) -> references.add(Pair.of(stat, expr)));
+
+        // If we only have one reference...
+        if (references.size() == 1) {
+          // ...and if it's just an assignment, remove it.
+          Pair<Statement, Exprent> ref = references.get(0);
+          if (ref.b instanceof AssignmentExprent && ((AssignmentExprent) ref.b).getLeft().equals(value)) {
+            ref.a.getExprents().remove(ref.b);
+          }
+        }
+      }
+
       return true;
     }
     else if (isSwitchOnString(switchStatement, following)) {
@@ -233,6 +282,87 @@ public final class SwitchHelper {
       }
     }
     return false;
+  }
+
+  /**
+   * Gets the enum array exprent (or null if not found) corresponding to
+   * the switch head. If the switch head itself is an enum array, returns the head.
+   * If it's a variable only assigned to an enum array, returns that array.
+   */
+  private static ArrayExprent getEnumArrayExprent(Exprent switchHead, RootStatement root) {
+    Exprent candidate = switchHead;
+
+    if (switchHead instanceof VarExprent) {
+      // Check for switches with intermediary assignment of enum array index
+      // This happens with Kotlin when expressions on enums.
+      VarExprent var = (VarExprent) switchHead;
+
+      if (!"I".equals(var.getVarType().toString())) {
+        // Enum array index must be int
+        return null;
+      }
+
+      List<AssignmentExprent> assignments = getAssignmentsOfWithinOneStatement(root, var);
+
+      if (!assignments.isEmpty()) {
+        if (assignments.size() == 1) {
+          AssignmentExprent assignment = assignments.get(0);
+          candidate = assignment.getRight();
+        } else {
+          // more than 1 assignment to variable => can't be what we're looking for
+          return null;
+        }
+      }
+    }
+
+    return isEnumArray(candidate) ? (ArrayExprent) candidate : null;
+  }
+
+  /**
+   * Recursively searches for assignments of the target that happen within one statement.
+   * This is done as a list because the intended outcomes of the "1 found" (unique) and "2+ found" (non-unique) cases
+   * are different. (But we don't need to have all the assignments within the root stat
+   * because the non-unique case is a failure.)
+   */
+  private static List<AssignmentExprent> getAssignmentsOfWithinOneStatement(Statement start, Exprent target) {
+    List<AssignmentExprent> exprents = new ArrayList<>();
+    findExprents(start, AssignmentExprent.class, assignment -> assignment.getLeft().equals(target), true, (stat, expr) -> exprents.add(expr));
+    return exprents;
+  }
+
+  /**
+   * Recursively searches one statement for matching exprents.
+   *
+   * @param start       the statement to search
+   * @param exprClass   the wanted exprent type
+   * @param predicate   a predicate for filtering the exprents
+   * @param onlyOneStat if true, will return eagerly after the first matching statement
+   * @param consumer    the consumer that receives the exprents and their parent statements
+   */
+  @SuppressWarnings("unchecked")
+  private static <T extends Exprent> void findExprents(Statement start, Class<? extends T> exprClass, Predicate<T> predicate, boolean onlyOneStat, BiConsumer<Statement, T> consumer) {
+    Queue<Statement> statQueue = new ArrayDeque<>();
+    statQueue.offer(start);
+
+    while (!statQueue.isEmpty()) {
+      Statement stat = statQueue.remove();
+      statQueue.addAll(stat.getStats());
+
+      if (stat.getExprents() != null) {
+        boolean foundAny = false;
+
+        for (Exprent expr : stat.getExprents()) {
+          if (exprClass.isInstance(expr) && predicate.test((T) expr)) {
+            consumer.accept(stat, (T) expr);
+            foundAny = true;
+          }
+        }
+
+        if (onlyOneStat && foundAny) {
+          break;
+        }
+      }
+    }
   }
 
   /**
