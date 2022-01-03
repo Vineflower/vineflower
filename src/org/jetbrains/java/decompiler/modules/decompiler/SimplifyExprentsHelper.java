@@ -47,13 +47,13 @@ public class SimplifyExprentsHelper {
     "    exprent type:field name:$fieldname$ ret:$field$\n" +
     "    exprent type:var index:$var$");
 
-  private final boolean firstInvocation;
-
-  public SimplifyExprentsHelper(boolean firstInvocation) {
-    this.firstInvocation = firstInvocation;
-  }
-
-  public boolean simplifyStackVarsStatement(Statement stat, Set<Integer> setReorderedIfs, SSAConstructorSparseEx ssa, StructClass cl) {
+  public static boolean simplifyStackVarsStatement(
+    Statement stat,
+    Set<Integer> setReorderedIfs,
+    SSAConstructorSparseEx ssa,
+    StructClass cl,
+    boolean firstInvocation
+  ) {
     boolean res = false;
 
     List<Exprent> expressions = stat.getExprents();
@@ -64,7 +64,7 @@ public class SimplifyExprentsHelper {
         boolean changed = false;
 
         for (Statement st : stat.getStats()) {
-          res |= simplifyStackVarsStatement(st, setReorderedIfs, ssa, cl);
+          res |= simplifyStackVarsStatement(st, setReorderedIfs, ssa, cl, firstInvocation);
 
           changed = IfHelper.mergeIfs(st, setReorderedIfs) ||  // collapse composed if's
                     buildIff(st, ssa) ||  // collapse iff ?: statement
@@ -86,13 +86,13 @@ public class SimplifyExprentsHelper {
         }
       }
     } else {
-      res = simplifyStackVarsExprents(expressions, cl);
+      res = simplifyStackVarsExprents(expressions, cl, firstInvocation);
     }
 
     return res;
   }
 
-  private boolean simplifyStackVarsExprents(List<Exprent> list, StructClass cl) {
+  private static boolean simplifyStackVarsExprents(List<Exprent> list, StructClass cl, boolean firstInvocation) {
     boolean res = false;
 
     int index = 0;

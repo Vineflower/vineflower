@@ -38,8 +38,7 @@ public class StackVarsProcessor {
       SSAConstructorSparseEx ssa = new SSAConstructorSparseEx();
       ssa.splitVariables(root, mt);
 
-      SimplifyExprentsHelper sehelper = new SimplifyExprentsHelper(first);
-      while (sehelper.simplifyStackVarsStatement(root, setReorderedIfs, ssa, cl)) {
+      while (SimplifyExprentsHelper.simplifyStackVarsStatement(root, setReorderedIfs, ssa, cl, first)) {
         found = true;
       }
 
