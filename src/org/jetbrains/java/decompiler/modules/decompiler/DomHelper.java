@@ -357,6 +357,7 @@ public final class DomHelper {
                 DecompilerContext.getLogger().writeMessage("Irreducible statement too complex to be decomposed!", IFernflowerLogger.Severity.ERROR);
 
                 root.addComment("$FF: Irreducible bytecode has more than 5 nodes in sequence and was not entirely decomposed");
+                root.addErrorComment = true;
               }
 
               root.addComment("$FF: Irreducible bytecode was duplicated to produce valid code");
