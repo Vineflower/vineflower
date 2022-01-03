@@ -35,7 +35,6 @@ public final class SwitchHelper {
     return ret;
   }
 
-  @SuppressWarnings("unchecked")
   private static boolean simplify(SwitchStatement switchStatement, StructMethod mt, RootStatement root) {
     SwitchStatement following = null;
     List<StatEdge> edges = switchStatement.getSuccessorEdges(StatEdge.TYPE_REGULAR);
