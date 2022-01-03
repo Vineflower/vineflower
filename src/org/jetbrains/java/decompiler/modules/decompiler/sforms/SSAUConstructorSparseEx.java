@@ -114,7 +114,7 @@ public class SSAUConstructorSparseEx {
 
       if (node.exprents != null) {
         for (Exprent expr : node.exprents) {
-          processExprent(expr, varmaparr, node.statement, calcLiveVars);
+          processExprent(node, expr, varmaparr, node.statement, calcLiveVars);
         }
       }
 
@@ -149,7 +149,7 @@ public class SSAUConstructorSparseEx {
   }
 
 
-  private void processExprent(Exprent expr, SFormsFastMapDirect[] varmaparr, Statement stat, boolean calcLiveVars) {
+  private void processExprent(DirectNode node, Exprent expr, SFormsFastMapDirect[] varmaparr, Statement stat, boolean calcLiveVars) {
 
     if (expr == null) {
       return;
@@ -162,18 +162,20 @@ public class SSAUConstructorSparseEx {
     switch (expr.type) {
       case Exprent.EXPRENT_ASSIGNMENT:
         AssignmentExprent assexpr = (AssignmentExprent)expr;
+
         if (assexpr.getCondType() == AssignmentExprent.CONDITION_NONE) {
           Exprent dest = assexpr.getLeft();
           if (dest.type == Exprent.EXPRENT_VAR) {
             varassign = (VarExprent)dest;
           }
         }
+
         break;
       case Exprent.EXPRENT_FUNCTION:
         FunctionExprent func = (FunctionExprent)expr;
         switch (func.getFuncType()) {
           case FunctionExprent.FUNCTION_IIF:
-            processExprent(func.getLstOperands().get(0), varmaparr, stat, calcLiveVars);
+            processExprent(node, func.getLstOperands().get(0), varmaparr, stat, calcLiveVars);
 
             SFormsFastMapDirect varmapFalse;
             if (varmaparr[1] == null) {
@@ -184,10 +186,10 @@ public class SSAUConstructorSparseEx {
               varmaparr[1] = null;
             }
 
-            processExprent(func.getLstOperands().get(1), varmaparr, stat, calcLiveVars);
+            processExprent(node, func.getLstOperands().get(1), varmaparr, stat, calcLiveVars);
 
             SFormsFastMapDirect[] varmaparrNeg = new SFormsFastMapDirect[]{varmapFalse, null};
-            processExprent(func.getLstOperands().get(2), varmaparrNeg, stat, calcLiveVars);
+            processExprent(node, func.getLstOperands().get(2), varmaparrNeg, stat, calcLiveVars);
 
             mergeMaps(varmaparr[0], varmaparrNeg[0]);
             varmaparr[1] = null;
@@ -195,11 +197,11 @@ public class SSAUConstructorSparseEx {
             finished = true;
             break;
           case FunctionExprent.FUNCTION_CADD:
-            processExprent(func.getLstOperands().get(0), varmaparr, stat, calcLiveVars);
+            processExprent(node, func.getLstOperands().get(0), varmaparr, stat, calcLiveVars);
 
             SFormsFastMapDirect[] varmaparrAnd = new SFormsFastMapDirect[]{new SFormsFastMapDirect(varmaparr[0]), null};
 
-            processExprent(func.getLstOperands().get(1), varmaparrAnd, stat, calcLiveVars);
+            processExprent(node, func.getLstOperands().get(1), varmaparrAnd, stat, calcLiveVars);
 
             // false map
             varmaparr[1] = mergeMaps(varmaparr[varmaparr[1] == null ? 0 : 1], varmaparrAnd[varmaparrAnd[1] == null ? 0 : 1]);
@@ -209,12 +211,12 @@ public class SSAUConstructorSparseEx {
             finished = true;
             break;
           case FunctionExprent.FUNCTION_COR:
-            processExprent(func.getLstOperands().get(0), varmaparr, stat, calcLiveVars);
+            processExprent(node, func.getLstOperands().get(0), varmaparr, stat, calcLiveVars);
 
             SFormsFastMapDirect[] varmaparrOr =
               new SFormsFastMapDirect[]{new SFormsFastMapDirect(varmaparr[varmaparr[1] == null ? 0 : 1]), null};
 
-            processExprent(func.getLstOperands().get(1), varmaparrOr, stat, calcLiveVars);
+            processExprent(node, func.getLstOperands().get(1), varmaparrOr, stat, calcLiveVars);
 
             // false map
             varmaparr[1] = varmaparrOr[varmaparrOr[1] == null ? 0 : 1];
@@ -225,12 +227,17 @@ public class SSAUConstructorSparseEx {
         }
     }
 
+    // Foreach init node- mark as assignment!
+    if (varassign == null && node.type == DirectNode.NODE_INIT && node.exprents.get(0).type == Exprent.EXPRENT_VAR) {
+      varassign = (VarExprent) node.exprents.get(0);
+    }
+
     if (!finished) {
       List<Exprent> lst = expr.getAllExprents();
       lst.remove(varassign);
 
       for (Exprent ex : lst) {
-        processExprent(ex, varmaparr, stat, calcLiveVars);
+        processExprent(node, ex, varmaparr, stat, calcLiveVars);
       }
     }
 
@@ -252,8 +259,7 @@ public class SSAUConstructorSparseEx {
       }
 
       setCurrentVar(varmap, index, 1);
-    }
-    else if (expr.type == Exprent.EXPRENT_INVOCATION ||
+    } else if (expr.type == Exprent.EXPRENT_INVOCATION ||
              (expr.type == Exprent.EXPRENT_ASSIGNMENT && ((AssignmentExprent)expr).getLeft().type == Exprent.EXPRENT_FIELD) ||
              (expr.type == Exprent.EXPRENT_NEW && ((NewExprent)expr).getNewType().type == CodeConstants.TYPE_OBJECT) ||
              expr.type == Exprent.EXPRENT_FUNCTION) {
@@ -301,15 +307,17 @@ public class SSAUConstructorSparseEx {
         setCurrentVar(varmap, varindex, varassign.getVersion());
       }
 
-      AssignmentExprent assexpr = (AssignmentExprent)expr;
-      if (assexpr.getRight().type == Exprent.EXPRENT_VAR) {
-        VarVersionPair rightpaar = ((VarExprent)assexpr.getRight()).getVarVersionPair();
-        varAssignmentMap.put(varassign.getVarVersionPair(), rightpaar);
-      }
-      else if (assexpr.getRight().type == Exprent.EXPRENT_FIELD) {
-        int index = mapFieldVars.get(((FieldExprent)assexpr.getRight()).id);
-        VarVersionPair rightpaar = new VarVersionPair(index, 0);
-        varAssignmentMap.put(varassign.getVarVersionPair(), rightpaar);
+      if (expr.type == Exprent.EXPRENT_ASSIGNMENT) {
+        AssignmentExprent assexpr = (AssignmentExprent) expr;
+
+        if (assexpr.getRight().type == Exprent.EXPRENT_VAR) {
+          VarVersionPair rightpaar = ((VarExprent) assexpr.getRight()).getVarVersionPair();
+          varAssignmentMap.put(varassign.getVarVersionPair(), rightpaar);
+        } else if (assexpr.getRight().type == Exprent.EXPRENT_FIELD) {
+          int index = mapFieldVars.get(((FieldExprent) assexpr.getRight()).id);
+          VarVersionPair rightpaar = new VarVersionPair(index, 0);
+          varAssignmentMap.put(varassign.getVarVersionPair(), rightpaar);
+        }
       }
     }
     else if (expr.type == Exprent.EXPRENT_FUNCTION) { // MM or PP function

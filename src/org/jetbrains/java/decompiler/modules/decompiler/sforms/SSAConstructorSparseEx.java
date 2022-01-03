@@ -93,7 +93,7 @@ public class SSAConstructorSparseEx {
 
       if (node.exprents != null) {
         for (Exprent expr : node.exprents) {
-          processExprent(expr, varmaparr);
+          processExprent(node, expr, varmaparr);
         }
       }
 
@@ -117,7 +117,7 @@ public class SSAConstructorSparseEx {
     }
   }
 
-  private void processExprent(Exprent expr, SFormsFastMapDirect[] varmaparr) {
+  private void processExprent(DirectNode node, Exprent expr, SFormsFastMapDirect[] varmaparr) {
 
     if (expr == null) {
       return;
@@ -140,7 +140,7 @@ public class SSAConstructorSparseEx {
         FunctionExprent func = (FunctionExprent)expr;
         switch (func.getFuncType()) {
           case FunctionExprent.FUNCTION_IIF:
-            processExprent(func.getLstOperands().get(0), varmaparr);
+            processExprent(node, func.getLstOperands().get(0), varmaparr);
 
             SFormsFastMapDirect varmapFalse;
             if (varmaparr[1] == null) {
@@ -151,10 +151,10 @@ public class SSAConstructorSparseEx {
               varmaparr[1] = null;
             }
 
-            processExprent(func.getLstOperands().get(1), varmaparr);
+            processExprent(node, func.getLstOperands().get(1), varmaparr);
 
             SFormsFastMapDirect[] varmaparrNeg = new SFormsFastMapDirect[]{varmapFalse, null};
-            processExprent(func.getLstOperands().get(2), varmaparrNeg);
+            processExprent(node, func.getLstOperands().get(2), varmaparrNeg);
 
             mergeMaps(varmaparr[0], varmaparrNeg[0]);
             varmaparr[1] = null;
@@ -162,11 +162,11 @@ public class SSAConstructorSparseEx {
             finished = true;
             break;
           case FunctionExprent.FUNCTION_CADD:
-            processExprent(func.getLstOperands().get(0), varmaparr);
+            processExprent(node, func.getLstOperands().get(0), varmaparr);
 
             SFormsFastMapDirect[] varmaparrAnd = new SFormsFastMapDirect[]{new SFormsFastMapDirect(varmaparr[0]), null};
 
-            processExprent(func.getLstOperands().get(1), varmaparrAnd);
+            processExprent(node, func.getLstOperands().get(1), varmaparrAnd);
 
             // false map
             varmaparr[1] = mergeMaps(varmaparr[varmaparr[1] == null ? 0 : 1], varmaparrAnd[varmaparrAnd[1] == null ? 0 : 1]);
@@ -176,12 +176,12 @@ public class SSAConstructorSparseEx {
             finished = true;
             break;
           case FunctionExprent.FUNCTION_COR:
-            processExprent(func.getLstOperands().get(0), varmaparr);
+            processExprent(node, func.getLstOperands().get(0), varmaparr);
 
             SFormsFastMapDirect[] varmaparrOr =
               new SFormsFastMapDirect[]{new SFormsFastMapDirect(varmaparr[varmaparr[1] == null ? 0 : 1]), null};
 
-            processExprent(func.getLstOperands().get(1), varmaparrOr);
+            processExprent(node, func.getLstOperands().get(1), varmaparrOr);
 
             // false map
             varmaparr[1] = varmaparrOr[varmaparrOr[1] == null ? 0 : 1];
@@ -196,11 +196,16 @@ public class SSAConstructorSparseEx {
       return;
     }
 
+    // Foreach init node- mark as assignment!
+    if (varassign == null && node.type == DirectNode.NODE_INIT && node.exprents.get(0).type == Exprent.EXPRENT_VAR) {
+      varassign = (VarExprent) node.exprents.get(0);
+    }
+
     List<Exprent> lst = expr.getAllExprents();
     lst.remove(varassign);
 
     for (Exprent ex : lst) {
-      processExprent(ex, varmaparr);
+      processExprent(node, ex, varmaparr);
     }
 
     SFormsFastMapDirect varmap = varmaparr[0];
