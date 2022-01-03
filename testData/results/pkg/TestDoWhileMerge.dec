@@ -3,14 +3,14 @@ package pkg;
 public class TestDoWhileMerge {
    public void test(boolean b, int j) {
       for(int i = 0; i < j; ++i) {// 6
-         System.out.println(i);// 8
-         if (++i == 30) {// 9 11
-            return;// 12
-         }
+         do {
+            System.out.println(i);// 8
+            if (++i == 30) {// 9 11
+               return;// 12
+            }
+         } while(b && i < 40);// 14
 
-         if (!b || i >= 40) {// 14
-            System.out.println("test");// 16
-         }
+         System.out.println("test");// 16
       }
 
       System.out.println("after");// 19
@@ -43,34 +43,33 @@ class 'pkg/TestDoWhileMerge' {
       2      4
       3      4
       4      4
-      7      5
-      8      5
-      9      5
-      a      5
-      b      5
-      c      5
-      d      5
-      e      6
-      f      6
-      10      6
-      12      6
-      13      6
-      14      6
-      17      7
+      7      6
+      8      6
+      9      6
+      a      6
+      b      6
+      c      6
+      d      6
+      e      7
+      f      7
+      10      7
+      12      7
+      13      7
+      14      7
+      17      8
       18      10
-      19      10
       1c      10
       1d      10
       1e      10
       1f      10
-      22      11
-      23      11
-      24      11
-      25      11
-      26      11
-      27      11
-      28      11
-      29      11
+      22      12
+      23      12
+      24      12
+      25      12
+      26      12
+      27      12
+      28      12
+      29      12
       2a      4
       2b      4
       2c      4
@@ -133,12 +132,12 @@ class 'pkg/TestDoWhileMerge' {
 
 Lines mapping:
 6 <-> 5
-8 <-> 6
-9 <-> 7
-11 <-> 7
-12 <-> 8
+8 <-> 7
+9 <-> 8
+11 <-> 8
+12 <-> 9
 14 <-> 11
-16 <-> 12
+16 <-> 13
 19 <-> 16
 20 <-> 17
 23 <-> 20

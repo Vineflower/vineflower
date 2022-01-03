@@ -20,4 +20,27 @@ public class TestNestedLoops {
             }
         }
     }
+
+    public void decomp() {
+      List<String> list = new ArrayList<>();
+      int i = 0;
+
+      while(true) {
+        while(i >= 10) {
+        }
+
+        for(String s : list) {
+          for(int j = 0; j < 20; ++j) {
+            while(true) {
+              s.substring(j);
+              if (s.length() >= j) {
+                break;
+              }
+            }
+          }
+        }
+
+        ++i;
+      }
+    }
 }

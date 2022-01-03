@@ -982,8 +982,7 @@ public final class MergeHelper {
         if (ifedge.getDestination().equals(outer)) {
           stat.addSuccessor(new StatEdge(StatEdge.TYPE_CONTINUE, stat, ifedge.getDestination(), outer));
           return true;
-        }
-        else if (MergeHelper.isDirectPath(outer, ifedge.getDestination())) {
+        } else if (MergeHelper.isDirectPath(outer, ifedge.getDestination())) {
           stat.addSuccessor(new StatEdge(StatEdge.TYPE_BREAK, stat, ifedge.getDestination(), outer));
           return true;
         }

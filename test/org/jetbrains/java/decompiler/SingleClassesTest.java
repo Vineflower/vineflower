@@ -452,7 +452,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: loops not eliminated properly, foreach not created
     register(JAVA_8, "TestForeachMultipleLoops");
     register(JAVA_8, "TestLoopBreak3");
-    // TODO: do-while loop entirely eliminated in test(), not created in test1()
+    // TODO: do-while loop not created in test1()
     register(JAVA_8, "TestDoWhileMerge");
     // TODO: ternary not correct, also needs Java 1.0 test- looks different
     register(JAVA_8, "TestTernaryReturn");
