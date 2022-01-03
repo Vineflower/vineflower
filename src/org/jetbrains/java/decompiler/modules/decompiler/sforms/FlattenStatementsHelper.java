@@ -262,11 +262,11 @@ public class FlattenStatementsHelper {
                 graph.nodes.putWithKey(init, init.id);
                 init.exprents = dostat.getInitExprentList();
 
-                mapDestinationNodes.put(stat.id, new String[]{init.id, inc.id});
-                mapDestinationNodes.put(-stat.id, new String[]{inc.id, null});
+                mapDestinationNodes.put(stat.id, new String[]{inc.id, init.id});
+                mapDestinationNodes.put(-stat.id, new String[]{init.id, null});
 
-                listEdges.add(new Edge(inc.id, stat.getFirst().id, StatEdge.TYPE_REGULAR));
-                listEdges.add(new Edge(init.id, -stat.id, StatEdge.TYPE_REGULAR));
+                listEdges.add(new Edge(init.id, stat.getFirst().id, StatEdge.TYPE_REGULAR));
+                listEdges.add(new Edge(inc.id, -stat.id, StatEdge.TYPE_REGULAR));
 
                 boolean found = false;
                 for (Edge edge : listEdges) {
@@ -280,7 +280,7 @@ public class FlattenStatementsHelper {
                   listEdges.add(new Edge(nd.id, stat.id, StatEdge.TYPE_CONTINUE));
                 }
 
-                sourcenode = inc;
+                sourcenode = init;
                 break;
               }
             }
