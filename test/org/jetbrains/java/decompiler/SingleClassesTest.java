@@ -489,6 +489,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestPPMMMath");
     register(JASM, "TestSwapException");
     register(KOTLIN, "TestKotlinEnumWhen");
+    // TODO: causes invalid stack var simplification
+    register(JAVA_8, "TestSynchronizedTryReturn");
   }
 
   private void registerEntireClassPath() {
