@@ -1,8 +1,10 @@
 // Copyright 2000-2017 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler.sforms;
 
+import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.FlattenStatementsHelper.FinallyPathWrapper;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.util.VBStyleCollection;
 
 import java.util.*;
@@ -11,6 +13,8 @@ import java.util.*;
 public class DirectGraph {
 
   public final VBStyleCollection<DirectNode, String> nodes = new VBStyleCollection<>();
+
+  public final List<DirectNode> extraNodes = new ArrayList<>();
 
   public DirectNode first;
 
@@ -38,6 +42,7 @@ public class DirectGraph {
 
       // FIXME: addFirst is bad! this will mess with the graph structure! but it's needed to properly handle unreachable blocks in SSA, by making these blocks be processed first!
       for (DirectNode nd : a) {
+        this.extraNodes.add(nd);
         res.addFirst(nd);
       }
     }

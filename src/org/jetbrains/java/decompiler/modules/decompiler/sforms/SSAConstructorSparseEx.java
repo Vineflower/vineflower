@@ -110,8 +110,11 @@ public class SSAConstructorSparseEx {
           outNegVarVersions.put(node.id, varmaparr[1]);
         }
 
-        for (DirectNode nd : node.succs) {
-          updated.add(nd.id);
+        // Don't update the node if it wasn't discovered normally, as that can lead to infinite recursion due to bad ordering!
+        if (!dgraph.extraNodes.contains(node)) {
+          for (DirectNode nd : node.succs) {
+            updated.add(nd.id);
+          }
         }
       }
     }
