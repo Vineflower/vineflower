@@ -278,6 +278,11 @@ public class NestedClassProcessor {
       }
     }
 
+    // Possible with debug method filter enabled in ClassWrapper
+    if (enclosingMethod.getOrBuildGraph() == null) {
+      return;
+    }
+
     enclosingMethod.getOrBuildGraph().iterateExprents(exprent -> {
       List<Exprent> lst = exprent.getAllExprents(true);
       lst.add(exprent);
