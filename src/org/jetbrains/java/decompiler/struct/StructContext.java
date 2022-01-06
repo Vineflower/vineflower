@@ -80,7 +80,7 @@ public class StructContext {
       addSpace(Paths.get(fileUri).toFile(), false);
     } else {
       try {
-        addFileSystem(fs, "", new File(fs.toString()), ContextUnit.TYPE_JAR, isOwn);
+        addFileSystem(fs, "", new File(fs.toString()), ContextUnit.TYPE_JAR, isOwn, false);
       } catch (IOException e) {
         DecompilerContext.getLogger().writeMessage("Corrupted file system: " + fs, e);
         throw new RuntimeException(e);
@@ -154,13 +154,13 @@ public class StructContext {
       throw new RuntimeException(e);
     }
     try {
-      addFileSystem(fs, externalPath, file, type, isOwn);
+      addFileSystem(fs, externalPath, file, type, isOwn, true);
     } finally {
       if (fsOwned) fs.close();
     }
   }
 
-  private void addFileSystem(FileSystem fs, String externalPath, File file, int type, boolean isOwn) throws IOException {
+  private void addFileSystem(FileSystem fs, String externalPath, File file, int type, boolean isOwn, boolean canClose) throws IOException {
     ContextUnit unit = units.computeIfAbsent(externalPath + "/" + file, k -> new ContextUnit(type, externalPath, file.getName(), isOwn, saver, decompiledData));
     Files.walkFileTree(fs.getPath("/"), new SimpleFileVisitor<Path>() {
       @Override
@@ -172,7 +172,7 @@ public class StructContext {
           name = path.toString().substring(1);
         }
         if (name.endsWith(".class")) {
-          addClass(unit, name.substring(0, name.length() - 6), file.getAbsolutePath(), path.toString().substring(1), isOwn, path);
+          addClass(unit, name.substring(0, name.length() - 6), file.getAbsolutePath(), path.toString().substring(1), isOwn, path, canClose);
         } else {
           if ("META-INF/MANIFEST.MF".equals(name)) {
             unit.setManifest(new Manifest(Files.newInputStream(path)));
@@ -191,9 +191,15 @@ public class StructContext {
     });
   }
 
-  private void addClass(ContextUnit unit, String name, String externalPath, String internalPath, boolean isOwn, Path path) throws IOException {
-    byte[] b = Files.readAllBytes(path);
-    addClass(name, isOwn, new ClassProvider(unit, externalPath, internalPath, isOwn, () -> b));
+  private void addClass(ContextUnit unit, String name, String externalPath, String internalPath, boolean isOwn, Path path, boolean canClose) throws IOException {
+    ClassSupplier supplier;
+    if (canClose) {
+      byte[] b = Files.readAllBytes(path);
+      supplier = () -> b;
+    } else {
+      supplier = () -> Files.readAllBytes(path);
+    }
+    addClass(name, isOwn, new ClassProvider(unit, externalPath, internalPath, isOwn, supplier));
   }
 
   private void addClass(ContextUnit unit, String name, String externalPath, String internalPath, boolean isOwn, ClassSupplier supplier) {
