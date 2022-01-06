@@ -164,6 +164,7 @@ public class StructContext {
     DecompilerContext.getLogger().writeMessage("Adding Archive: " + file.getAbsolutePath(), Severity.INFO);
     FileSystem fs = getZipFileSystem(file);
     addFileSystem(fs, externalPath, file, type, isOwn);
+    fs.close();
   }
 
   private void addFileSystem(FileSystem fs, String externalPath, File file, int type, boolean isOwn) throws IOException {
