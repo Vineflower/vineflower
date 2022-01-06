@@ -16,6 +16,8 @@ import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.ClasspathScanner;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -116,6 +118,11 @@ public class Fernflower implements IDecompiledData {
     classProcessor.loadClasses(helper);
 
     structContext.saveContext();
+    try {
+      structContext.close();
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
   }
 
   public void addWhitelist(String prefix) {

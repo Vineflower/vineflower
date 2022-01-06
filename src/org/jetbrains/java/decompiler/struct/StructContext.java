@@ -9,6 +9,7 @@ import org.jetbrains.java.decompiler.struct.gen.generics.GenericMethodDescriptor
 import org.jetbrains.java.decompiler.struct.lazy.LazyLoader;
 import org.jetbrains.java.decompiler.util.DataInputFullStream;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -18,7 +19,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 import java.util.jar.Manifest;
 
-public class StructContext {
+public class StructContext implements Closeable {
   private final IResultSaver saver;
   private final IDecompiledData decompiledData;
   private final LazyLoader loader;
@@ -26,6 +27,7 @@ public class StructContext {
   private final Map<String, ClassProvider> classes = new HashMap<>();
   private final Map<String, StructClass> ownClasses = new HashMap<>();
   private final Map<String, List<String>> abstractNames = new HashMap<>();
+  private final ArrayList<FileSystem> toClose = new ArrayList<>();
 
   public StructContext(IResultSaver saver, IDecompiledData decompiledData, LazyLoader loader) {
     this.saver = saver;
@@ -80,7 +82,7 @@ public class StructContext {
       addSpace(Paths.get(fileUri).toFile(), false);
     } else {
       try {
-        addFileSystem(fs, "", new File(fs.toString()), ContextUnit.TYPE_JAR, isOwn, false);
+        addFileSystem(fs, "", new File(fs.toString()), ContextUnit.TYPE_JAR, isOwn);
       } catch (IOException e) {
         DecompilerContext.getLogger().writeMessage("Corrupted file system: " + fs, e);
         throw new RuntimeException(e);
@@ -140,27 +142,22 @@ public class StructContext {
 
   private void addArchive(String externalPath, File file, int type, boolean isOwn) throws IOException {
     DecompilerContext.getLogger().writeMessage("Adding Archive: " + file.getAbsolutePath(), Severity.INFO);
-    boolean fsOwned = true;
     FileSystem fs;
     try {
       URI uri = new URI("jar:file", null, file.toURI().getPath(), null);
       try {
         fs = FileSystems.newFileSystem(uri, Collections.emptyMap());
+        toClose.add(fs);
       } catch (FileSystemAlreadyExistsException e) {
-        fsOwned = false;
         fs = FileSystems.getFileSystem(uri);
       }
     } catch (URISyntaxException e) {
       throw new RuntimeException(e);
     }
-    try {
-      addFileSystem(fs, externalPath, file, type, isOwn, true);
-    } finally {
-      if (fsOwned) fs.close();
-    }
+    addFileSystem(fs, externalPath, file, type, isOwn);
   }
 
-  private void addFileSystem(FileSystem fs, String externalPath, File file, int type, boolean isOwn, boolean canClose) throws IOException {
+  private void addFileSystem(FileSystem fs, String externalPath, File file, int type, boolean isOwn) throws IOException {
     ContextUnit unit = units.computeIfAbsent(externalPath + "/" + file, k -> new ContextUnit(type, externalPath, file.getName(), isOwn, saver, decompiledData));
     Files.walkFileTree(fs.getPath("/"), new SimpleFileVisitor<Path>() {
       @Override
@@ -172,7 +169,7 @@ public class StructContext {
           name = path.toString().substring(1);
         }
         if (name.endsWith(".class")) {
-          addClass(unit, name.substring(0, name.length() - 6), file.getAbsolutePath(), path.toString().substring(1), isOwn, path, canClose);
+          addClass(unit, name.substring(0, name.length() - 6), file.getAbsolutePath(), path.toString().substring(1), isOwn, path);
         } else {
           if ("META-INF/MANIFEST.MF".equals(name)) {
             unit.setManifest(new Manifest(Files.newInputStream(path)));
@@ -191,15 +188,8 @@ public class StructContext {
     });
   }
 
-  private void addClass(ContextUnit unit, String name, String externalPath, String internalPath, boolean isOwn, Path path, boolean canClose) throws IOException {
-    ClassSupplier supplier;
-    if (canClose) {
-      byte[] b = Files.readAllBytes(path);
-      supplier = () -> b;
-    } else {
-      supplier = () -> Files.readAllBytes(path);
-    }
-    addClass(name, isOwn, new ClassProvider(unit, externalPath, internalPath, isOwn, supplier));
+  private void addClass(ContextUnit unit, String name, String externalPath, String internalPath, boolean isOwn, Path path) {
+    addClass(name, isOwn, new ClassProvider(unit, externalPath, internalPath, isOwn, () -> Files.readAllBytes(path)));
   }
 
   private void addClass(ContextUnit unit, String name, String externalPath, String internalPath, boolean isOwn, ClassSupplier supplier) {
@@ -304,6 +294,13 @@ public class StructContext {
   public String renameAbstractParameter(String className, String methodName, String descriptor, int index, String _default) {
     List<String> params = this.abstractNames.get(className + ' ' + methodName + ' ' + descriptor);
     return params != null && index < params.size() ? params.get(index) : _default;
+  }
+
+  @Override
+  public void close() throws IOException {
+    for (FileSystem fs : toClose) {
+      fs.close();
+    }
   }
 
   class ClassProvider {
