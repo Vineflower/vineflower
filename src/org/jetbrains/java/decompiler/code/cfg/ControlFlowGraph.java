@@ -360,7 +360,9 @@ public class ControlFlowGraph implements CodeConstants {
           break;
         }
         case GROUP_RETURN: {
-          this.last.addPredecessor(block);
+          if(instr.opcode != CodeConstants.opc_ret) {
+            this.last.addPredecessor(block);
+          }
           break;
         }
         case GROUP_GENERAL:
