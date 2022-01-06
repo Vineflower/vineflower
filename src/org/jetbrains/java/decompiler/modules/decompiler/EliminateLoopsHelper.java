@@ -157,6 +157,11 @@ public class EliminateLoopsHelper {
       }
     }
 
+    // TODO: is this needed? fixes cases where loop is eliminated but it has a successor!
+//    if (!loop.getSuccessorEdges(StatEdge.TYPE_REGULAR).isEmpty()) {
+//      return false;
+//    }
+
     eliminateLoop(loop, parentloop);
 
     return true;
@@ -207,10 +212,10 @@ public class EliminateLoopsHelper {
 
     // remove the last break edge, if exists
     Statement loopcontent = loop.getFirst();
-    // TODO: reimplement this properly
-//    if (!loopcontent.getAllSuccessorEdges().isEmpty()) {
-//      loopcontent.removeSuccessor(loopcontent.getAllSuccessorEdges().get(0));
-//    }
+    // TODO: originally was getAllSuccessorEdges
+    if (!loopcontent.getSuccessorEdges(StatEdge.TYPE_BREAK).isEmpty()) {
+      loopcontent.removeSuccessor(loopcontent.getSuccessorEdges(StatEdge.TYPE_BREAK).get(0));
+    }
 
     // replace loop with its content
     loop.getParent().replaceStatement(loop, loopcontent);

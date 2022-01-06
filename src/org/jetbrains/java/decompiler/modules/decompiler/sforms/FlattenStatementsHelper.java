@@ -326,6 +326,29 @@ public class FlattenStatementsHelper {
                 lstSuccEdges.add(stat.getSuccessorEdges(Statement.STATEDGE_DIRECT_ALL).get(0));  // exactly one edge
                 sourcenode = tailexprlst.get(0) == null ? node : graph.nodes.getWithKey(node.id + "_tail");
               }
+
+              // Adds an edge from the last if statement to the current if statement, if the current if statement's head statement has no predecessor
+              // This was made to mask a failure in EliminateLoopsHelper and isn't used currently (over the current test set) but could theoretically still happen!
+              if (stat.type == Statement.TYPE_IF && ((IfStatement)stat).iftype == IfStatement.IFTYPE_IF && !stat.getPredecessorEdges(StatEdge.TYPE_REGULAR).isEmpty()) {
+                if (stat.getFirst().getPredecessorEdges(StatEdge.TYPE_REGULAR).isEmpty()) {
+                  StatEdge edge = stat.getPredecessorEdges(StatEdge.TYPE_REGULAR).get(0);
+
+                  Statement source = edge.getSource();
+                  if (source.type == Statement.TYPE_IF && ((IfStatement) source).iftype == IfStatement.IFTYPE_IF && !source.getAllSuccessorEdges().isEmpty()) {
+                    DirectNode srcnd = graph.nodes.getWithKey(source.getFirst().id + "_tail");
+
+                    if (srcnd != null) {
+                      // old ifstat->head
+                      Edge newEdge = new Edge(srcnd.id, stat.id, edge.getType());
+
+                      // Add if it doesn't exist already
+                      if (!listEdges.contains(newEdge)) {
+                        listEdges.add(newEdge);
+                      }
+                    }
+                  }
+                }
+              }
             }
         }
       }
@@ -608,6 +631,20 @@ public class FlattenStatementsHelper {
       this.sourceid = sourceid;
       this.statid = statid;
       this.edgetype = edgetype;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+
+      Edge edge = (Edge) o;
+      return edgetype == edge.edgetype && Objects.equals(sourceid, edge.sourceid) && Objects.equals(statid, edge.statid);
     }
   }
 }

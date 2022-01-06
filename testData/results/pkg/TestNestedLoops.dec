@@ -45,7 +45,6 @@ public class TestNestedLoops {
             }
 
             ++i;// 43
-            continue;
          }
       }
    }
@@ -164,7 +163,6 @@ class 'pkg/TestNestedLoops' {
       56      46
       57      46
       58      46
-      59      47
    }
 }
 

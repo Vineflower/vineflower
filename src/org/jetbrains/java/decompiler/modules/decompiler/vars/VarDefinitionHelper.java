@@ -527,13 +527,20 @@ public class VarDefinitionHelper {
         Exprent exp = stat.getVarDefinitions().get(x);
         if (exp.type == Exprent.EXPRENT_VAR) {
           VarExprent var = (VarExprent)exp;
-          int index = varproc.getVarOriginalIndex(var.getIndex());
-          if (this_vars.containsKey(index)) {
-            stat.getVarDefinitions().remove(x);
-            return new VPPEntry(var, this_vars.get(index));
+          Integer index = varproc.getVarOriginalIndex(var.getIndex());
+          if (index != null) {
+            if (this_vars.containsKey(index)) {
+              stat.getVarDefinitions().remove(x);
+              return new VPPEntry(var, this_vars.get(index));
+            }
+            this_vars.put(index, new VarVersionPair(var));
+            leaked.put(index, new VarVersionPair(var));
+          } else {
+            RootStatement root = (RootStatement) stat.getTopParent();
+
+            root.addComment("$FF: One or more variable merging failures!");
+            root.addErrorComment = true;
           }
-          this_vars.put(index, new VarVersionPair(var));
-          leaked.put(index, new VarVersionPair(var));
         }
       }
     }
