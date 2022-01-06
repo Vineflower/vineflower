@@ -1,6 +1,7 @@
 // Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.struct;
 
+import org.jetbrains.java.decompiler.code.BytecodeVersion;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.struct.attr.StructCodeAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
@@ -45,11 +46,11 @@ public abstract class StructMember {
     return hasModifier(CodeConstants.ACC_SYNTHETIC) || hasAttribute(StructGeneralAttribute.ATTRIBUTE_SYNTHETIC);
   }
 
-  public static Map<String, StructGeneralAttribute> readAttributes(DataInputFullStream in, ConstantPool pool) throws IOException {
-    return readAttributes(in, pool, true);
+  public static Map<String, StructGeneralAttribute> readAttributes(DataInputFullStream in, ConstantPool pool, BytecodeVersion version) throws IOException {
+    return readAttributes(in, pool, true, version);
   }
 
-  public static Map<String, StructGeneralAttribute> readAttributes(DataInputFullStream in, ConstantPool pool, boolean readCode) throws IOException {
+  public static Map<String, StructGeneralAttribute> readAttributes(DataInputFullStream in, ConstantPool pool, boolean readCode, BytecodeVersion version) throws IOException {
     int length = in.readUnsignedShort();
     Map<String, StructGeneralAttribute> attributes = new HashMap<>(length);
 
@@ -63,7 +64,7 @@ public abstract class StructMember {
         in.discard(attLength);
       }
       else {
-        attribute.initContent(in, pool);
+        attribute.initContent(in, pool, version);
         if (StructGeneralAttribute.ATTRIBUTE_LOCAL_VARIABLE_TABLE.name.equals(name) && attributes.containsKey(name)) {
           // merge all variable tables
           StructLocalVariableTableAttribute table = (StructLocalVariableTableAttribute)attributes.get(name);
@@ -85,6 +86,8 @@ public abstract class StructMember {
     return attributes;
   }
 
+  protected abstract BytecodeVersion getVersion();
+
   protected StructGeneralAttribute readAttribute(DataInputFullStream in, ConstantPool pool, String name) throws IOException {
     StructGeneralAttribute attribute = StructGeneralAttribute.createAttribute(name);
     int length = in.readInt();
@@ -92,7 +95,7 @@ public abstract class StructMember {
       in.discard(length);
     }
     else {
-      attribute.initContent(in, pool);
+      attribute.initContent(in, pool, getVersion());
     }
     return attribute;
   }

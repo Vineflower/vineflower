@@ -33,6 +33,10 @@ public final class BytecodeVersion implements Comparable<BytecodeVersion> {
     return major >= MAJOR_16;
   }
 
+  public boolean hasSwitchExpressions() {
+    return major >= MAJOR_16;
+  }
+
   public boolean hasSealedClasses() {
     return previewReleased(MAJOR_15, MAJOR_17);
   }
@@ -48,6 +52,10 @@ public final class BytecodeVersion implements Comparable<BytecodeVersion> {
 
   public boolean hasNewTryWithResources() {
     return major >= MAJOR_11;
+  }
+
+  public boolean predatesJava() {
+    return major <= MAJOR_1_0_2 && minor <= 2;
   }
 
   private boolean previewFrom(int previewStart) {

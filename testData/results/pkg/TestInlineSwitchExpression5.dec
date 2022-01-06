@@ -1,0 +1,57 @@
+package pkg;
+
+public class TestInlineSwitchExpression5 {
+   public void test(int i) {
+      int j = 0;// 5
+
+      while(true) {
+         if (j >= switch(i) {// 6
+            case 1 -> 4;// 7
+            case 2 -> 8;// 8
+            default -> 5;// 9
+         }) {
+            return;// 15
+         }
+
+         ++j;// 11
+         System.out.println("hi");// 13
+      }
+   }
+}
+
+class 'pkg/TestInlineSwitchExpression5' {
+   method 'test (I)V' {
+      0      4
+      1      4
+      2      7
+      3      7
+      4      7
+      20      8
+      24      9
+      25      9
+      29      10
+      2a      7
+      2d      15
+      2e      15
+      2f      15
+      30      16
+      31      16
+      32      16
+      33      16
+      34      16
+      35      16
+      36      16
+      37      16
+      3b      12
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 8
+7 <-> 9
+8 <-> 10
+9 <-> 11
+11 <-> 16
+13 <-> 17
+15 <-> 13

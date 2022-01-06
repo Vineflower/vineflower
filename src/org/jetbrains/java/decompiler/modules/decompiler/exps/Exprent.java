@@ -6,11 +6,8 @@ package org.jetbrains.java.decompiler.modules.decompiler.exps;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
-import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.util.TextBuffer;
-import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
-import org.jetbrains.java.decompiler.main.rels.ClassWrapper;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
@@ -50,10 +47,12 @@ public abstract class Exprent implements IMatchable {
   public static final int EXPRENT_INVOCATION = 8;
   public static final int EXPRENT_MONITOR = 9;
   public static final int EXPRENT_NEW = 10;
-  public static final int EXPRENT_SWITCH = 11;
+  public static final int EXPRENT_SWITCH_HEAD = 11;
   public static final int EXPRENT_VAR = 12;
   public static final int EXPRENT_ANNOTATION = 13;
   public static final int EXPRENT_ASSERT = 14;
+  public static final int EXPRENT_SWITCH = 15;
+  public static final int EXPRENT_YIELD = 15;
 
   protected static ThreadLocal<Map<String, VarType>> inferredLambdaTypes = ThreadLocal.withInitial(HashMap::new);
 
@@ -100,14 +99,25 @@ public abstract class Exprent implements IMatchable {
     return false;
   }
 
-  public List<Exprent> getAllExprents(boolean recursive) {
-    List<Exprent> lst = getAllExprents();
+  public final List<Exprent> getAllExprents(boolean recursive) {
+    List<Exprent> lst = new ArrayList<>();
+    getAllExprents(recursive, lst);
+
+    return lst;
+  }
+
+  private List<Exprent> getAllExprents(boolean recursive, List<Exprent> list) {
+    int start = list.size();
+    getAllExprents(list);
+    int end = list.size();
+
     if (recursive) {
-      for (int i = lst.size() - 1; i >= 0; i--) {
-        lst.addAll(lst.get(i).getAllExprents(true));
+      for (int i = end - 1; i >= start; i--) {
+        list.get(i).getAllExprents(true, list);
       }
     }
-    return lst;
+
+    return list;
   }
 
   public Set<VarVersionPair> getAllVariables() {
@@ -123,21 +133,24 @@ public abstract class Exprent implements IMatchable {
     return set;
   }
 
-  public List<Exprent> getAllExprents() {
-    throw new RuntimeException("not implemented");
+  public final List<Exprent> getAllExprents() {
+    List<Exprent> list = new ArrayList<>();
+    getAllExprents(list);
+
+    return list;
   }
 
-  public Exprent copy() {
-    throw new RuntimeException("not implemented");
-  }
+  // Get all the exprents contained within the current one
+  // Preconditions: this list must never be removed from! Only added to!
+  protected abstract List<Exprent> getAllExprents(List<Exprent> list);
+
+  public abstract Exprent copy();
 
   public TextBuffer toJava() {
-    return toJava(0, BytecodeMappingTracer.DUMMY);
+    return toJava(0);
   }
 
-  public TextBuffer toJava(int indent, BytecodeMappingTracer tracer) {
-    throw new RuntimeException("not implemented");
-  }
+  public abstract TextBuffer toJava(int indent);
 
   public void replaceExprent(Exprent oldExpr, Exprent newExpr) { }
 
@@ -259,7 +272,7 @@ public abstract class Exprent implements IMatchable {
         }
       }
 
-      if (class_ == null) {
+      if (class_ == null || class_.parent == null) {
         break;
       }
       method = class_.enclosingMethod == null ? null : class_.parent.getWrapper().getMethods().getWithKey(class_.enclosingMethod);
@@ -268,55 +281,13 @@ public abstract class Exprent implements IMatchable {
     return ret;
   }
 
-  protected void wrapInCast(VarType left, VarType right, TextBuffer buf, int precedence) {
-    boolean needsCast = !left.isSuperset(right) && (right.equals(VarType.VARTYPE_OBJECT) || left.type != CodeConstants.TYPE_OBJECT);
-
-    if (left.isGeneric() || right.isGeneric()) {
-      Map<VarType, List<VarType>> names = this.getNamedGenerics();
-      int arrayDim = 0;
-
-      if (left.arrayDim == right.arrayDim && left.arrayDim > 0) {
-        arrayDim = left.arrayDim;
-        left = left.resizeArrayDim(0);
-        right = right.resizeArrayDim(0);
-      }
-
-      List<? extends VarType> types = names.get(right);
-      if (types == null) {
-        types = names.get(left);
-      }
-
-      if (types != null) {
-        boolean anyMatch = false; //TODO: allMatch instead of anyMatch?
-        for (VarType type : types) {
-          if (type.equals(VarType.VARTYPE_OBJECT) && right.equals(VarType.VARTYPE_OBJECT)) {
-            continue;
-          }
-          anyMatch |= right.value == null /*null const doesn't need cast*/ || DecompilerContext.getStructContext().instanceOf(right.value, type.value);
-        }
-
-        if (anyMatch) {
-          needsCast = false;
-        }
-      }
-
-      if (arrayDim != 0) {
-        left = left.resizeArrayDim(arrayDim);
-      }
-    }
-
-    if (!needsCast) {
-      return;
-    }
-
-    if (precedence >= FunctionExprent.getPrecedence(FunctionExprent.FUNCTION_CAST)) {
-      buf.enclose("(", ")");
-    }
-
-    buf.prepend("(" + ExprProcessor.getCastTypeName(left) + ")");
-  }
-
   public void setInvocationInstance() {}
+
+  public void setIsQualifier() {}
+
+  public boolean allowNewlineAfterQualifier() {
+    return true;
+  }
 
   // *****************************************************************************
   // IMatchable implementation
@@ -367,6 +338,6 @@ public abstract class Exprent implements IMatchable {
 
   @Override
   public String toString() {
-    return toJava(0, BytecodeMappingTracer.DUMMY).toString();
+    return toJava(0).convertToStringAndAllowDataDiscard();
   }
 }

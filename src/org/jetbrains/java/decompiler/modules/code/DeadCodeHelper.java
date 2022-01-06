@@ -7,6 +7,8 @@ import org.jetbrains.java.decompiler.code.cfg.ControlFlowGraph;
 import org.jetbrains.java.decompiler.code.cfg.ExceptionRangeCFG;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
+import org.jetbrains.java.decompiler.struct.StructMethod;
+import org.jetbrains.java.decompiler.util.DotExporter;
 
 import java.util.*;
 
@@ -231,13 +233,14 @@ public final class DeadCodeHelper {
   }
 
   public static void removeGotos(ControlFlowGraph graph) {
+    Set<BasicBlock> ignored = findCircularJumps(graph);
 
     for (BasicBlock block : graph.getBlocks()) {
       Instruction instr = block.getLastInstruction();
 
       if (instr != null && instr.opcode == CodeConstants.opc_goto) {
-        // Destination points towards itself- infinite loop?
-        if (graph.getSequence().getInstr(((JumpInstruction)instr).destination) == instr) {
+        // Part of an empty circular jump sequence. This needs to be condensed later, so we do not touch it
+        if (ignored.contains(block)) {
           continue;
         }
 
@@ -246,6 +249,60 @@ public final class DeadCodeHelper {
     }
 
     removeEmptyBlocks(graph);
+  }
+
+  // Finds any circular jumps within the graph. Examples include:
+  //
+  // Single instruction infinte loop
+  // 0: goto 0;
+  //
+  // Multiple instruction infinite loop
+  // 0: goto 2;
+  // 1: goto 0;
+  // 2: goto 1;
+  //
+  private static Set<BasicBlock> findCircularJumps(ControlFlowGraph graph) {
+    Set<BasicBlock> ret = new HashSet<>();
+
+    // Temp list
+    Set<BasicBlock> blocks = new HashSet<>();
+
+    // Iterate through all blocks
+    for (BasicBlock block : graph.getBlocks()) {
+      if (ret.contains(block)) {
+        continue;
+      }
+
+      blocks.add(block);
+
+      // Jump traversal
+      BasicBlock check = block;
+      while (true) {
+        Instruction instr = check.getLastInstruction();
+
+        if (instr != null && instr.opcode == CodeConstants.opc_goto) {
+          if (check.getSuccs().size() == 1) {
+            check = check.getSuccs().get(0);
+
+            if (blocks.contains(check)) {
+              ret.addAll(blocks);
+              break; // Circular jump found
+            }
+
+            blocks.add(check);
+          } else {
+            break; // More than 1 successor, stop
+          }
+        } else {
+          break; // No goto, stop
+        }
+      }
+
+      // Clear temp list for next block
+      blocks.clear();
+    }
+
+    return ret;
   }
 
   public static void connectDummyExitBlock(ControlFlowGraph graph) {
@@ -258,7 +315,6 @@ public final class DeadCodeHelper {
   }
 
   public static void extendSynchronizedRangeToMonitorexit(ControlFlowGraph graph) {
-
     while(true) {
 
       boolean range_extended = false;
@@ -295,6 +351,7 @@ public final class DeadCodeHelper {
               break;
             }
           }
+
           if(monitorexit_in_range) {
             break;
           }
@@ -354,28 +411,30 @@ public final class DeadCodeHelper {
         }
 
         // checks successful, prerequisites satisfied, now extend the range
-        if(succ_monitorexit_index < succSeq.length() - 1) { // split block
-
-          SimpleInstructionSequence seq = new SimpleInstructionSequence();
-          for(int counter = 0; counter < succ_monitorexit_index; counter++) {
-            seq.addInstruction(succSeq.getInstr(0), -1);
-            succSeq.removeInstruction(0);
-          }
-
-          // build a separate block
-          BasicBlock newblock = new BasicBlock(++graph.last_id);
-          newblock.setSeq(seq);
-
-          // insert new block
-          for (BasicBlock block : succBlock.getPreds()) {
-            block.replaceSuccessor(succBlock, newblock);
-          }
-
-          newblock.addSuccessor(succBlock);
-          graph.getBlocks().addWithKey(newblock, newblock.id);
-
-          succBlock = newblock;
-        }
+        // FIXME: what is this splitting doing, and why does it cause the loop to never finish?
+//        if(succ_monitorexit_index < succSeq.length() - 1) { // split block
+//
+//          SimpleInstructionSequence seq = new SimpleInstructionSequence();
+//          for(int counter = 0; counter < succ_monitorexit_index; counter++) {
+//            seq.addInstruction(succSeq.getInstr(0), -1);
+//            succSeq.removeInstruction(0);
+//          }
+//
+//          // build a separate block
+//          BasicBlock newblock = new BasicBlock(++graph.last_id);
+//          newblock.setSeq(seq);
+//
+//          // insert new block
+//
+//          for (BasicBlock block : new ArrayList<>(succBlock.getPreds())) {
+//            block.replaceSuccessor(succBlock, newblock);
+//          }
+//
+//          newblock.addSuccessor(succBlock);
+//          graph.getBlocks().addWithKey(newblock, newblock.id);
+//
+//          succBlock = newblock;
+//        }
 
         // copy exception edges and extend protected ranges (successor block)
         BasicBlock rangeExitBlock = succBlock.getPreds().get(0);
@@ -395,11 +454,70 @@ public final class DeadCodeHelper {
         }
 
         range_extended = true;
+        graph.addComment("$FF: Extended synchronized range to monitorexit");
         break;
       }
 
       if(!range_extended) {
         break;
+      }
+    }
+
+    // Extend range to monitorexit when the monitorexit block is a successor
+    for (ExceptionRangeCFG range : graph.getExceptions()) {
+      Set<BasicBlock> predecessors = new HashSet<>();
+
+      // Problems arise if we're too deeply nested- we don't handle that case yet!
+      boolean exceptionsOk = true;
+      for (BasicBlock block : range.getProtectedRange()) {
+        if (block.getSuccExceptions().size() > 1) {
+          exceptionsOk = false;
+          break;
+        }
+      }
+
+      if (!exceptionsOk) {
+        continue;
+      }
+
+      // Find all predecessors of the range
+      for (BasicBlock block : range.getProtectedRange()) {
+        predecessors.addAll(block.getPreds());
+      }
+
+      for (BasicBlock block : range.getProtectedRange()) {
+        predecessors.remove(block);
+      }
+
+      // Can't have more than one entrypoint!
+      if (predecessors.size() != 1) {
+        continue;
+      }
+
+      BasicBlock pred = predecessors.iterator().next();
+      if (pred.getSeq().isEmpty() || pred.getSeq().getLastInstr().opcode != CodeConstants.opc_monitorenter) {
+        continue; // not a synchronized range
+      }
+
+      Set<BasicBlock> successors = new HashSet<>();
+      for (BasicBlock block : range.getProtectedRange()) {
+        successors.addAll(block.getSuccs());
+      }
+
+      for (BasicBlock block : range.getProtectedRange()) {
+        successors.remove(block);
+      }
+
+      for (BasicBlock successor : successors) {
+        if (!successor.getSeq().isEmpty() && successor.getSeq().getLastInstr().opcode == CodeConstants.opc_monitorexit) {
+          // If the range doesn't have the monitorexit instruction, add it to the range
+          if (!range.getProtectedRange().contains(successor)) {
+            range.getProtectedRange().add(successor);
+
+            // Add exception edges to the range
+            successor.addSuccessorException(range.getHandler());
+          }
+        }
       }
     }
 

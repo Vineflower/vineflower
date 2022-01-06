@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 
 public class EliminateLoopsHelper {
@@ -23,9 +24,8 @@ public class EliminateLoopsHelper {
 
       Set<Integer> setReorderedIfs = new HashSet<>();
 
-      SimplifyExprentsHelper sehelper = new SimplifyExprentsHelper(false);
       // TODO: what problems does SSA being null cause?
-      while(sehelper.simplifyStackVarsStatement(root, setReorderedIfs, null, cl)) {
+      while(SimplifyExprentsHelper.simplifyStackVarsStatement(root, setReorderedIfs, null, cl, false)) {
         SequenceHelper.condenseSequences(root);
       }
     }
@@ -128,15 +128,32 @@ public class EliminateLoopsHelper {
 
         if (precount <= postcount) {
           return false;
-        }
-        else {
+        } else {
           for (int i = 0; i < lstBreakEdges.size(); i++) {
             lstEdgeClosures.get(i).addLabeledEdge(lstBreakEdges.get(i));
           }
         }
-      }
-      else {
+      } else {
         return false;
+      }
+    }
+
+    // Continues
+
+    // Find all continue edges leaving the loop
+    Set<StatEdge> continues = new HashSet<>();
+    TryWithResourcesProcessor.findEdgesLeaving(loopcontent, loop, continues);
+
+    List<StatEdge> edges = continues.stream()
+      .filter(edge -> edge.getType() == StatEdge.TYPE_CONTINUE) // Only consider continue edges found
+      .collect(Collectors.toList()); // Set -> List
+
+    if (!edges.isEmpty()) {
+      // Don't eliminate if we have continues leading to the parent loop!
+      for (StatEdge edge : edges) {
+        if (edge.getDestination() == parentloop) {
+          return false;
+        }
       }
     }
 

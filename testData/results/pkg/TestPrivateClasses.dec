@@ -17,7 +17,7 @@ class TestPrivateClasses {
             }
          }
 
-         (new NonCapturingLocalR1(s)).toString();// 39
+         new NonCapturingLocalR1(s).toString();// 39
 
          class CapturingLocalR1 {
             private final int i;
@@ -31,7 +31,7 @@ class TestPrivateClasses {
             }
          }
 
-         (new CapturingLocalR1(42)).toString();// 40
+         new CapturingLocalR1(42).toString();// 40
          TestPrivateClasses.Callable<String> c1 = new TestPrivateClasses.Callable<String>() {// 42
             public String call() {
                return null;// 45
@@ -61,7 +61,7 @@ class TestPrivateClasses {
             }
          }
 
-         (new NonCapturingLocalR2(s)).toString();// 91
+         new NonCapturingLocalR2(s).toString();// 91
 
          class CapturingLocalR1 {
             private final int i;
@@ -75,7 +75,7 @@ class TestPrivateClasses {
             }
          }
 
-         (new CapturingLocalR1(42)).toString();// 92
+         new CapturingLocalR1(42).toString();// 92
          TestPrivateClasses.Callable<String> c1 = new TestPrivateClasses.Callable<String>() {// 94
             public String call() {
                return null;// 97
@@ -103,7 +103,7 @@ class TestPrivateClasses {
          }
       }
 
-      (new NonCapturingLocalM1(s)).toString();// 139
+      new NonCapturingLocalM1(s).toString();// 139
 
       class CapturingLocalM1 {
          private final int i;
@@ -117,7 +117,7 @@ class TestPrivateClasses {
          }
       }
 
-      (new CapturingLocalM1(42)).toString();// 140
+      new CapturingLocalM1(42).toString();// 140
       TestPrivateClasses.Callable<String> c1 = new TestPrivateClasses.Callable<String>() {// 142
          public String call() {
             return null;// 145
@@ -144,7 +144,7 @@ class TestPrivateClasses {
          }
       }
 
-      (new NonCapturingLocalM2(s)).toString();// 186
+      new NonCapturingLocalM2(s).toString();// 186
 
       class CapturingLocalM2 {
          private final int i;
@@ -158,7 +158,7 @@ class TestPrivateClasses {
          }
       }
 
-      (new CapturingLocalM2(42)).toString();// 187
+      new CapturingLocalM2(42).toString();// 187
       TestPrivateClasses.Callable<String> c1 = new TestPrivateClasses.Callable<String>() {// 189
          public String call() {
             return null;// 192
@@ -174,6 +174,50 @@ class TestPrivateClasses {
 
    private interface Callable<T> {
       T call();
+   }
+}
+
+class 'pkg/TestPrivateClasses$1' {
+   method 'run ()V' {
+      0      5
+      1      5
+      2      5
+      8      19
+      c      19
+      d      19
+      e      19
+      15      33
+      16      33
+      1b      33
+      1c      33
+      1d      33
+      27      34
+      31      39
+      39      44
+      3a      44
+      3b      44
+      3c      44
+      3d      44
+      3e      44
+      3f      44
+      40      44
+      41      44
+      45      44
+      46      44
+      47      44
+      48      44
+      49      44
+      4a      44
+      4b      44
+      4c      44
+      4d      44
+      51      44
+      52      44
+      53      44
+      54      44
+      55      44
+      56      44
+      58      45
    }
 }
 
@@ -239,47 +283,47 @@ class 'pkg/TestPrivateClasses$1$2' {
    }
 }
 
-class 'pkg/TestPrivateClasses$1' {
+class 'pkg/TestPrivateClasses$2' {
    method 'run ()V' {
-      0      5
-      1      5
-      2      5
-      8      19
-      c      19
-      d      19
-      e      19
-      15      33
-      16      33
-      1b      33
-      1c      33
-      1d      33
-      27      34
-      31      39
-      39      44
-      3a      44
-      3b      44
-      3c      44
-      3d      44
-      3e      44
-      3f      44
-      40      44
-      41      44
-      45      44
-      46      44
-      47      44
-      48      44
-      49      44
-      4a      44
-      4b      44
-      4c      44
-      4d      44
-      51      44
-      52      44
-      53      44
-      54      44
-      55      44
-      56      44
-      58      45
+      0      49
+      1      49
+      2      49
+      8      63
+      c      63
+      d      63
+      e      63
+      15      77
+      16      77
+      1b      77
+      1c      77
+      1d      77
+      27      78
+      31      83
+      39      88
+      3a      88
+      3b      88
+      3c      88
+      3d      88
+      3e      88
+      3f      88
+      40      88
+      41      88
+      45      88
+      46      88
+      47      88
+      48      88
+      49      88
+      4a      88
+      4b      88
+      4c      88
+      4d      88
+      51      88
+      52      88
+      53      88
+      54      88
+      55      88
+      56      88
+      58      89
    }
 }
 
@@ -345,50 +389,6 @@ class 'pkg/TestPrivateClasses$2$2' {
    }
 }
 
-class 'pkg/TestPrivateClasses$2' {
-   method 'run ()V' {
-      0      49
-      1      49
-      2      49
-      8      63
-      c      63
-      d      63
-      e      63
-      15      77
-      16      77
-      1b      77
-      1c      77
-      1d      77
-      27      78
-      31      83
-      39      88
-      3a      88
-      3b      88
-      3c      88
-      3d      88
-      3e      88
-      3f      88
-      40      88
-      41      88
-      45      88
-      46      88
-      47      88
-      48      88
-      49      88
-      4a      88
-      4b      88
-      4c      88
-      4d      88
-      51      88
-      52      88
-      53      88
-      54      88
-      55      88
-      56      88
-      58      89
-   }
-}
-
 class 'pkg/TestPrivateClasses$1NonCapturingLocalM1' {
    method '<init> (Ljava/lang/String;)V' {
       4      97
@@ -405,49 +405,6 @@ class 'pkg/TestPrivateClasses$1NonCapturingLocalM1' {
       2      101
       3      101
       4      101
-   }
-}
-
-class 'pkg/TestPrivateClasses$1CapturingLocalM1' {
-   method '<init> (ILjava/lang/String;)V' {
-      9      111
-      a      111
-      b      111
-      c      111
-      d      111
-      e      112
-   }
-
-   method 'toString ()Ljava/lang/String;' {
-      8      115
-      9      115
-      a      115
-      e      115
-      f      115
-      13      115
-      14      115
-      15      115
-      16      115
-      1a      115
-      1b      115
-      1c      115
-      1d      115
-   }
-}
-
-class 'pkg/TestPrivateClasses$3' {
-   method 'call ()Ljava/lang/String;' {
-      0      122
-      1      122
-   }
-}
-
-class 'pkg/TestPrivateClasses$4' {
-   method 'call ()Ljava/lang/String;' {
-      1      127
-      2      127
-      3      127
-      4      127
    }
 }
 
@@ -528,6 +485,49 @@ class 'pkg/TestPrivateClasses' {
       52      171
       53      171
       55      172
+   }
+}
+
+class 'pkg/TestPrivateClasses$1CapturingLocalM1' {
+   method '<init> (ILjava/lang/String;)V' {
+      9      111
+      a      111
+      b      111
+      c      111
+      d      111
+      e      112
+   }
+
+   method 'toString ()Ljava/lang/String;' {
+      8      115
+      9      115
+      a      115
+      e      115
+      f      115
+      13      115
+      14      115
+      15      115
+      16      115
+      1a      115
+      1b      115
+      1c      115
+      1d      115
+   }
+}
+
+class 'pkg/TestPrivateClasses$3' {
+   method 'call ()Ljava/lang/String;' {
+      0      122
+      1      122
+   }
+}
+
+class 'pkg/TestPrivateClasses$4' {
+   method 'call ()Ljava/lang/String;' {
+      1      127
+      2      127
+      3      127
+      4      127
    }
 }
 

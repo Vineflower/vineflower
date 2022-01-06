@@ -1,0 +1,52 @@
+/**
+ * This code can be assembled with <a href="https://wiki.openjdk.java.net/display/CodeTools/asmtools">asmtools</a>
+ * using <code>asmtools jasm -g *.jasm</code> command line.
+ */
+package  pkg;
+
+super public class TestGoto
+	version 52:0
+{
+
+private Method "<init>":"()V"
+	stack 1 locals 1
+{
+		aload_0;
+    		invokespecial	Method java/lang/Object."<init>":"()V";
+    		return;
+}
+
+public static Method test:"()V"
+	stack 1 locals 1
+{
+    L0:
+    goto L2;
+    L1:
+    goto L0;
+    L2:
+    goto L1;
+    return; // unreachable
+}
+
+public static Method test1:"()V"
+	stack 2 locals 1
+{
+    L0:
+    getstatic	Field java/lang/System.out:"Ljava/io/PrintStream;";
+    ldc "0";
+    invokevirtual	Method java/io/PrintStream.println:"(Ljava/lang/Object;)V";
+    goto L2;
+    L1:
+    getstatic	Field java/lang/System.out:"Ljava/io/PrintStream;";
+    ldc "1";
+    invokevirtual	Method java/io/PrintStream.println:"(Ljava/lang/Object;)V";
+    goto L0;
+    L2:
+    getstatic	Field java/lang/System.out:"Ljava/io/PrintStream;";
+    ldc "2";
+    invokevirtual	Method java/io/PrintStream.println:"(Ljava/lang/Object;)V";
+    goto L1;
+    return; // unreachable
+}
+
+} // end Class TestGoto

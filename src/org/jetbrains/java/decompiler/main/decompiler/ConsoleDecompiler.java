@@ -15,9 +15,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.stream.Stream;
+import java.util.zip.CheckedInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
@@ -69,9 +72,34 @@ public class ConsoleDecompiler implements IBytecodeProvider, IResultSaver {
     List<File> libraries = new ArrayList<>();
     Set<String> whitelist = new HashSet<>();
 
+    SaveType userSaveType = null;
     boolean isOption = true;
     for (int i = 0; i < args.length - 1; ++i) { // last parameter - destination
       String arg = args[i];
+
+      switch (arg) {
+        case "--file":
+          if (userSaveType != null) {
+            throw new RuntimeException("Multiple save types specified");
+          }
+
+          userSaveType = SaveType.FILE;
+          continue;
+        case "--folder":
+          if (userSaveType != null) {
+            throw new RuntimeException("Multiple save types specified");
+          }
+
+          userSaveType = SaveType.FOLDER;
+          continue;
+        case "--legacy-saving":
+          if (userSaveType != null) {
+            throw new RuntimeException("Multiple save types specified");
+          }
+
+          userSaveType = SaveType.LEGACY_CONSOLEDECOMPILER;
+          continue;
+      }
 
       if (isOption && arg.length() > 5 && arg.charAt(0) == '-' && arg.charAt(4) == '=') {
         String value = arg.substring(5);
@@ -104,14 +132,28 @@ public class ConsoleDecompiler implements IBytecodeProvider, IResultSaver {
       return;
     }
 
-    File destination = new File(args[args.length - 1]);
-    if (!destination.isDirectory() && (sources.size() > 1 || !sources.get(0).isFile())) {
-      System.out.println("error: destination '" + destination + "' is not a directory");
-      return;
+    String name = args[args.length - 1];
+
+    SaveType saveType = SaveType.FOLDER;
+    File destination = new File(name);
+
+    if (userSaveType == null) {
+      if (destination.getName().contains(".zip") || destination.getName().contains(".jar")) {
+        saveType = SaveType.FILE;
+
+        if (destination.getParentFile() != null) {
+          destination.getParentFile().mkdirs();
+        }
+      } else {
+        destination.mkdirs();
+      }
+    } else {
+      saveType = userSaveType;
     }
 
+
     PrintStreamLogger logger = new PrintStreamLogger(System.out);
-    ConsoleDecompiler decompiler = new ConsoleDecompiler(destination, mapOptions, logger);
+    ConsoleDecompiler decompiler = new ConsoleDecompiler(destination, mapOptions, logger, saveType);
 
     for (File library : libraries) {
       decompiler.addLibrary(library);
@@ -146,9 +188,14 @@ public class ConsoleDecompiler implements IBytecodeProvider, IResultSaver {
   private final Map<String, ZipOutputStream> mapArchiveStreams = new HashMap<>();
   private final Map<String, Set<String>> mapArchiveEntries = new HashMap<>();
 
+  // Legacy support
   protected ConsoleDecompiler(File destination, Map<String, Object> options, IFernflowerLogger logger) {
+    this(destination, options, logger, destination.isDirectory() ? SaveType.LEGACY_CONSOLEDECOMPILER : SaveType.FILE);
+  }
+
+  protected ConsoleDecompiler(File destination, Map<String, Object> options, IFernflowerLogger logger, SaveType saveType) {
     root = destination;
-    engine = new Fernflower(this, root.isDirectory() ? this : new SingleFileSaver(destination), options, logger);
+    engine = new Fernflower(this, saveType == SaveType.LEGACY_CONSOLEDECOMPILER ? this : saveType.getSaver().apply(destination), options, logger);
   }
 
   public void addSource(File source) {
@@ -318,6 +365,23 @@ public class ConsoleDecompiler implements IBytecodeProvider, IResultSaver {
     }
     catch (IOException ex) {
       DecompilerContext.getLogger().writeMessage("Cannot close " + file, IFernflowerLogger.Severity.WARN);
+    }
+  }
+
+  public enum SaveType {
+    LEGACY_CONSOLEDECOMPILER(null), // handled separately
+    FOLDER(DirectoryResultSaver::new),
+    FILE(SingleFileSaver::new);
+
+    private final Function<File, IResultSaver> saver;
+
+    SaveType(Function<File, IResultSaver> saver) {
+
+      this.saver = saver;
+    }
+
+    public Function<File, IResultSaver> getSaver() {
+      return saver;
     }
   }
 }

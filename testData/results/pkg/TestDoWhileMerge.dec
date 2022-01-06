@@ -1,0 +1,151 @@
+package pkg;
+
+public class TestDoWhileMerge {
+   public void test(boolean b, int j) {
+      for(int i = 0; i < j; ++i) {// 6
+         do {
+            System.out.println(i);// 8
+            if (++i == 30) {// 9 11
+               return;// 12
+            }
+         } while(b && i < 40);// 14
+
+         System.out.println("test");// 16
+      }
+
+      System.out.println("after");// 19
+   }// 20
+
+   public void test1(boolean b, int j) {
+      for(int i = 0; i < j; ++i) {// 23
+         System.out.println(1);// 24
+
+         while(true) {
+            System.out.println(i);// 27
+            if (++i == 30) {// 28 30
+               return;// 31
+            }
+
+            if (!b || i >= 40) {// 33
+               break;
+            }
+         }
+      }
+
+      System.out.println("after");// 36
+   }// 37
+}
+
+class 'pkg/TestDoWhileMerge' {
+   method 'test (ZI)V' {
+      0      4
+      1      4
+      2      4
+      3      4
+      4      4
+      7      6
+      8      6
+      9      6
+      a      6
+      b      6
+      c      6
+      d      6
+      e      7
+      f      7
+      10      7
+      12      7
+      13      7
+      14      7
+      17      8
+      18      10
+      1c      10
+      1d      10
+      1e      10
+      1f      10
+      22      12
+      23      12
+      24      12
+      25      12
+      26      12
+      27      12
+      28      12
+      29      12
+      2a      4
+      2b      4
+      2c      4
+      30      15
+      31      15
+      32      15
+      33      15
+      34      15
+      35      15
+      36      15
+      37      15
+      38      16
+   }
+
+   method 'test1 (ZI)V' {
+      0      19
+      1      19
+      2      19
+      3      19
+      4      19
+      7      20
+      8      20
+      9      20
+      a      20
+      b      20
+      e      23
+      f      23
+      10      23
+      11      23
+      12      23
+      13      23
+      14      23
+      15      24
+      16      24
+      17      24
+      19      24
+      1a      24
+      1b      24
+      1e      25
+      1f      28
+      20      28
+      23      28
+      24      28
+      25      28
+      26      28
+      29      19
+      2a      19
+      2b      19
+      2f      34
+      30      34
+      31      34
+      32      34
+      33      34
+      34      34
+      35      34
+      36      34
+      37      35
+   }
+}
+
+Lines mapping:
+6 <-> 5
+8 <-> 7
+9 <-> 8
+11 <-> 8
+12 <-> 9
+14 <-> 11
+16 <-> 13
+19 <-> 16
+20 <-> 17
+23 <-> 20
+24 <-> 21
+27 <-> 24
+28 <-> 25
+30 <-> 25
+31 <-> 26
+33 <-> 29
+36 <-> 35
+37 <-> 36

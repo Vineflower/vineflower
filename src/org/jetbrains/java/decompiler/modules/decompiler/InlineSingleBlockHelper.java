@@ -111,7 +111,6 @@ public final class InlineSingleBlockHelper {
       return false;
     }
 
-
     List<StatEdge> lst = first.getPredecessorEdges(StatEdge.TYPE_BREAK);
 
     if (lst.size() == 1) {
@@ -121,6 +120,7 @@ public final class InlineSingleBlockHelper {
         if (!edge.canInline) {
           return false; //Dirty hack, but lets do it!
         }
+
         if (!edge.explicit) {
           for (int i = index; i < seq.getStats().size(); i++) {
             if (!noExitLabels(seq.getStats().get(i), seq)) {
@@ -151,19 +151,16 @@ public final class InlineSingleBlockHelper {
     Statement to = edge.getDestination();
 
     while (true) {
-
       Statement parent = from.getParent();
       if (parent.containsStatementStrict(to)) {
         break;
       }
 
-      if (parent.type == Statement.TYPE_TRYCATCH ||
-          parent.type == Statement.TYPE_CATCHALL) {
+      if (parent.type == Statement.TYPE_TRYCATCH || parent.type == Statement.TYPE_CATCHALL) {
         if (parent.getFirst() == from) {
           return false;
         }
-      }
-      else if (parent.type == Statement.TYPE_SYNCRONIZED) {
+      } else if (parent.type == Statement.TYPE_SYNCRONIZED) {
         if (parent.getStats().get(1) == from) {
           return false;
         }
@@ -176,7 +173,6 @@ public final class InlineSingleBlockHelper {
   }
 
   private static boolean noExitLabels(Statement block, Statement sequence) {
-
     for (StatEdge edge : block.getAllSuccessorEdges()) {
       if (edge.getType() != StatEdge.TYPE_REGULAR && edge.getDestination().type != Statement.TYPE_DUMMYEXIT) {
         if (!sequence.containsStatementStrict(edge.getDestination())) {

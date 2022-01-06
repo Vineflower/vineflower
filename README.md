@@ -1,28 +1,42 @@
 ### Quiltflower
 
-Quiltflower is a fork of Fernflower and ForgeFlower adding additional features for use with the Quilt toolchain.
+Quiltflower is a modern, general purpose decompiler focused on improving code quality, speed, and usability. Quiltflower is a fork of Fernflower and Forgeflower.
 
 Changes include:
+- New language features (Try with resources, switch expressions, pattern matching, and more)
+- Better control flow generation (loops, try-catch, and switch, etc.)
+- More configurability
+- Better error messages
 - Javadoc application
 - Multithreading
-- Handful of other fixes
+- Optimization
+- Many other miscellaneous features and fixes
 
-When pulling from upstream, use https://github.com/fesh0r/fernflower
+### Use
+Want to use Quiltflower? There are a few ways! For Fabric and Architectury projects, [Loom Quiltflower](https://github.com/Juuxel/LoomQuiltflower) allows you to run genSources with Quiltflower.
+The [Quiltflower Intellij IDEA plugin](https://plugins.jetbrains.com/plugin/18032-quiltflower) replaces Fernflower in IDEA with Quiltflower, and allows you to modify its settings.
+Or, if you want to run Quiltflower from the commandline, head over to the [Releases tab](https://github.com/QuiltMC/quiltflower/releases) and grab the latest, and then follow the instructions further down the readme.
+Make sure to report any issues to the [Issues tab!](https://github.com/QuiltMC/quiltflower/issues)
+
+For support or questions, please join the [Quilt toolchain discord.](https://discord.quiltmc.org/toolchain)
 
 ### Contributing
 To contribute, please check out [CONTRIBUTING.md](./CONTRIBUTING.md) and [ARCHITECTURE.md](./ARCHITECTURE.md)!
+
+When pulling from upstream, use https://github.com/fesh0r/fernflower
 
 #### Special Thanks
 * Jetbrains- For maintaining Fernflower
 * Forge Team- For maintaining ForgeFlower
 * CFR- For it's large suite of very useful tests
 
+Fernflower's readme is preserved below:
 ### About Fernflower
 
 Fernflower is the first actually working analytical decompiler for Java and 
 probably for a high-level programming language in general. Naturally it is still 
 under development, please send your bug reports and improvement suggestions to the
-[issue tracker](https://youtrack.jetbrains.com/newIssue?project=IDEA&clearDraft=true&c=Subsystem+Decompiler).
+[issue tracker](https://github.com/QuiltMC/quiltflower/issues).
 
 ### Licence
 
@@ -30,7 +44,7 @@ Fernflower is licenced under the [Apache Licence Version 2.0](http://www.apache.
 
 ### Running from command line
 
-`java -jar fernflower.jar [-<option>=<value>]* [<source>]+ <destination>`
+`java -jar quiltflower.jar [-<option>=<value>]* [<source>]+ <destination>`
 
 \* means 0 or more times\
 \+ means 1 or more times
@@ -45,11 +59,12 @@ Fernflower is licenced under the [Apache Licence Version 2.0](http://www.apache.
 
 ##### Examples:
 
-`java -jar fernflower.jar -hes=0 -hdc=0 c:\Temp\binary\ -e=c:\Java\rt.jar c:\Temp\source\`
+`java -jar quiltflower.jar -hes=0 -hdc=0 c:\Temp\binary\ -e=c:\Java\rt.jar c:\Temp\source\`
 
-`java -jar fernflower.jar -dgs=1 c:\Temp\binary\library.jar c:\Temp\binary\Boot.class c:\Temp\source\`
+`java -jar quiltflower.jar -dgs=1 c:\Temp\binary\library.jar c:\Temp\binary\Boot.class c:\Temp\source\`
 
 ### Command-line options
+To force saving as a file or folder, `--file` and `--folder` can be provided. If not specified, Quiltflower will try to guess based on the file name.
 
 With the exception of mpm, urc, ind, thr and log, the value of 1 means the option is activated, 0 - deactivated. Default 
 value, if any, is given between parentheses.
@@ -94,6 +109,9 @@ The rest of options can be left as they are: they are aimed at professional reve
 - sef (0): skip copying non-class files from the input folder or file to the output
 - win (1): warn about inconsistent inner class attributes
 - thr: maximum number of threads (default is number of threads available to the JVM)
+- jrt (0): add the currently used Java runtime as a library
+- dbe (1): dump bytecode on errors
+- dee (1): dump exceptions on errors
 - nls (0): define new line character to be used for output. 0 - '\r\n' (Windows), 1 - '\n' (Unix), default is OS-dependent
 - ind: indentation string (default is 3 spaces)
 - log (INFO): a logging level, possible values are TRACE, INFO, WARN, ERROR

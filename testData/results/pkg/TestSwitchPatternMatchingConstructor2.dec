@@ -10,16 +10,11 @@ public class TestSwitchPatternMatchingConstructor2 {
 
    private TestSwitchPatternMatchingConstructor2(Object s) {
       byte var3 = 0;
-      String var10001;
-      switch(SwitchBootstraps.typeSwitch<"typeSwitch">(s, var3)) {
-      case -1:
-         var10001 = "null";// 10
-         break;
-      default:
-         var10001 = "Non-triangle";// 11
-      }
 
-      this(var10001);// 9
+      this(switch(SwitchBootstraps.typeSwitch<"typeSwitch">(s, var3)) {// 9
+         case -1 -> "null";// 10
+         default -> "Non-triangle";// 11
+      });
    }// 13
 
    private TestSwitchPatternMatchingConstructor2(Object s, boolean unused) {
@@ -55,50 +50,49 @@ class 'pkg/TestSwitchPatternMatchingConstructor2' {
       a      13
       b      13
       c      13
-      20      15
-      21      15
-      22      16
-      25      18
-      27      21
-      28      21
-      29      21
-      2a      22
+      20      14
+      21      14
+      25      15
+      27      13
+      28      13
+      29      13
+      2a      17
    }
 
    method '<init> (Ljava/lang/Object;Z)V' {
-      1      25
-      3      25
-      4      25
-      5      25
-      8      26
-      9      26
-      a      26
-      c      27
-      d      27
-      e      27
-      f      27
-      10      27
-      11      27
-      12      27
-      13      27
-      1c      29
-      1d      29
-      1e      29
-      1f      29
-      20      29
-      21      31
+      1      20
+      3      20
+      4      20
+      5      20
+      8      21
+      9      21
+      a      21
+      c      22
+      d      22
+      e      22
+      f      22
+      10      22
+      11      22
+      12      22
+      13      22
+      1c      24
+      1d      24
+      1e      24
+      1f      24
+      20      24
+      21      26
    }
 }
 
 Lines mapping:
 5 <-> 8
 6 <-> 9
-9 <-> 22
-10 <-> 16
-11 <-> 19
-13 <-> 23
-16 <-> 30
-17 <-> 30
-19 <-> 32
+9 <-> 14
+10 <-> 15
+11 <-> 16
+13 <-> 18
+16 <-> 25
+17 <-> 25
+19 <-> 27
 Not mapped:
 4

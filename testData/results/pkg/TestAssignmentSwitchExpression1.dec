@@ -2,126 +2,86 @@ package pkg;
 
 public class TestAssignmentSwitchExpression1 {
    public void test(int x) {
-      String var10000;
-      switch(x) {// 5
-      case 1:
-         var10000 = "January";// 6
-         break;
-      case 2:
-         var10000 = "February";// 7
-         break;
-      case 3:
-         var10000 = "March";// 8
-         break;
-      case 4:
-         var10000 = "April";// 9
-         break;
-      case 5:
-         var10000 = "May";// 10
-         break;
-      case 6:
-         var10000 = "June";// 11
-         break;
-      case 7:
-         var10000 = "July";// 12
-         break;
-      case 8:
-         var10000 = "August";// 13
-         break;
-      case 9:
-         var10000 = "September";// 14
-         break;
-      case 10:
-         var10000 = "October";// 15
-         break;
-      case 11:
-         var10000 = "November";// 16
-         break;
-      case 12:
-         var10000 = "December";// 17
-         break;
-      default:
-         throw new IllegalStateException("Unexpected value: " + x);// 18
-      }
-
-      String month = var10000;
+      String month = switch(x) {// 5
+         case 1 -> "January";// 6
+         case 2 -> "February";// 7
+         case 3 -> "March";// 8
+         case 4 -> "April";// 9
+         case 5 -> "May";// 10
+         case 6 -> "June";// 11
+         case 7 -> "July";// 12
+         case 8 -> "August";// 13
+         case 9 -> "September";// 14
+         case 10 -> "October";// 15
+         case 11 -> "November";// 16
+         case 12 -> "December";// 17
+         default -> throw new IllegalStateException("Unexpected value: " + x);// 18
+      };
       System.out.println(month);// 20
    }// 21
 }
 
 class 'pkg/TestAssignmentSwitchExpression1' {
    method 'test (I)V' {
-      0      5
-      1      5
-      40      7
-      41      7
-      42      8
-      45      10
-      46      10
-      47      11
-      4a      13
-      4b      13
-      4c      14
-      4f      16
-      50      16
-      51      17
-      54      19
-      55      19
-      56      20
-      59      22
-      5a      22
-      5b      23
-      5e      25
-      5f      25
-      60      26
-      63      28
-      64      28
-      65      29
-      68      31
-      69      31
-      6a      32
-      6d      34
-      6e      34
-      6f      35
-      72      37
-      73      37
-      74      38
-      77      40
-      78      40
-      79      41
-      80      43
-      81      43
-      82      43
-      83      43
-      84      43
-      85      43
-      89      43
-      8a      46
-      8b      47
-      8c      47
-      8d      47
-      8e      47
-      8f      47
-      90      47
-      91      47
-      92      48
+      0      4
+      1      4
+      40      5
+      41      5
+      45      6
+      46      6
+      4a      7
+      4b      7
+      4f      8
+      50      8
+      54      9
+      55      9
+      59      10
+      5a      10
+      5e      11
+      5f      11
+      63      12
+      64      12
+      68      13
+      69      13
+      6d      14
+      6e      14
+      72      15
+      73      15
+      77      16
+      78      16
+      80      17
+      81      17
+      82      17
+      83      17
+      84      17
+      85      17
+      89      17
+      8a      4
+      8b      19
+      8c      19
+      8d      19
+      8e      19
+      8f      19
+      90      19
+      91      19
+      92      20
    }
 }
 
 Lines mapping:
-5 <-> 6
-6 <-> 8
-7 <-> 11
-8 <-> 14
-9 <-> 17
-10 <-> 20
-11 <-> 23
-12 <-> 26
-13 <-> 29
-14 <-> 32
-15 <-> 35
-16 <-> 38
-17 <-> 41
-18 <-> 44
-20 <-> 48
-21 <-> 49
+5 <-> 5
+6 <-> 6
+7 <-> 7
+8 <-> 8
+9 <-> 9
+10 <-> 10
+11 <-> 11
+12 <-> 12
+13 <-> 13
+14 <-> 14
+15 <-> 15
+16 <-> 16
+17 <-> 17
+18 <-> 18
+20 <-> 20
+21 <-> 21

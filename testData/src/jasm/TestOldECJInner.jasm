@@ -1,0 +1,45 @@
+/**
+ * This code can be assembled with <a href="https://wiki.openjdk.java.net/display/CodeTools/asmtools">asmtools</a>
+ * using <code>asmtools jasm -g *.jasm</code> command line.
+ */
+package  pkg;
+
+super public class TestOldECJInner
+	version 51:0
+{
+  private static Field INSTANCE:"Lpkg/TestOldECJInner;";
+
+  private static Method get:"()Lpkg/TestOldECJInner;"
+	stack 2 locals 0
+  {
+		getstatic	Field INSTANCE:"Lpkg/TestOldECJInner;";
+		ifnonnull	L16;
+		new	class TestOldECJInner;
+		dup;
+		invokespecial	Method "<init>":"()V";
+		putstatic	Field INSTANCE:"Lpkg/TestOldECJInner;";
+	L16:	stack_frame_type same;
+		getstatic	Field INSTANCE:"Lpkg/TestOldECJInner;";
+		areturn;
+  }
+  private Method "<init>":"()V"
+	stack 9 locals 5
+  {
+		aload_0;
+		invokespecial	Method java/lang/Object."<init>":"()V";
+		return;
+  }
+  private static Method test:"()Lpkg/TestOldECJInner$Inner;"
+  stack 3 locals 0
+  {
+    new class TestOldECJInner$Inner;
+    dup;
+    invokestatic Method get:"()Lpkg/TestOldECJInner;";
+    aconst_null;
+    invokespecial Method "<init>":"(Lpkg/TestOldECJInner;Lpkg/TestOldECJInner$Inner;)V";
+    areturn;
+  }
+
+  private final InnerClass Inner=class TestOldECJInner$Inner of class TestOldECJInner;
+
+} // end Class NbtFactory

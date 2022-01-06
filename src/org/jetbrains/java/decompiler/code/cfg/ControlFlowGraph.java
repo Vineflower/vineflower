@@ -36,6 +36,8 @@ public class ControlFlowGraph implements CodeConstants {
 
   private final Set<BasicBlock> finallyExits = new HashSet<>();
   private final InstructionSequence sequence;
+  public Set<String> commentLines = null;
+  public boolean addErrorComment = false;
 
   // *****************************************************************************
   // constructors
@@ -647,8 +649,7 @@ public class ControlFlowGraph implements CodeConstants {
           }
           else if (common_blocks.contains(child)) {
             // make a copy of the current block
-            BasicBlock copy = child.clone();
-            copy.id = ++last_id;
+            BasicBlock copy = child.cloneBlock(++last_id);
             // copy all successors
             if (copy.getLastInstruction().opcode == CodeConstants.opc_ret &&
                 child.getSuccs().contains(ret)) {
@@ -853,5 +854,14 @@ public class ControlFlowGraph implements CodeConstants {
 
   public InstructionSequence getSequence() {
     return sequence;
+  }
+
+  // Wrapper to add to root statement
+  public void addComment(String comment) {
+    if (commentLines == null) {
+      commentLines = new LinkedHashSet<>();
+    }
+
+    commentLines.add(comment);
   }
 }

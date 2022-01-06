@@ -30,16 +30,19 @@ public class DecompilerTestFixture {
   private TestConsoleDecompiler decompiler;
   private boolean cleanup = true;
 
-  public void setUp(String... optionPairs) throws IOException {
-    assertEquals(0, optionPairs.length % 2);
-
+  public DecompilerTestFixture() {
     testDataDir = Paths.get("testData");
     if (!isTestDataDir(testDataDir)) testDataDir = Paths.get("community/plugins/java-decompiler/engine/testData");
     if (!isTestDataDir(testDataDir)) testDataDir = Paths.get("plugins/java-decompiler/engine/testData");
     if (!isTestDataDir(testDataDir)) testDataDir = Paths.get("../community/plugins/java-decompiler/engine/testData");
     if (!isTestDataDir(testDataDir)) testDataDir = Paths.get("../plugins/java-decompiler/engine/testData");
-    assertTrue(isTestDataDir(testDataDir), "current dir: " + new File("").getAbsolutePath());
     testDataDir = testDataDir.toAbsolutePath();
+  }
+
+  public void setUp(Object... optionPairs) throws IOException {
+    assertEquals(0, optionPairs.length % 2);
+
+    assertTrue(isTestDataDir(testDataDir), "current dir: " + new File("").getAbsolutePath());
 
     tempDir = Files.createTempDirectory("decompiler_test_");
 
@@ -53,8 +56,9 @@ public class DecompilerTestFixture {
     options.put(IFernflowerPreferences.REMOVE_BRIDGE, "1");
     options.put(IFernflowerPreferences.LITERALS_AS_IS, "1");
     options.put(IFernflowerPreferences.UNIT_TEST_MODE, "1");
+    options.put(IFernflowerPreferences.ERROR_MESSAGE, "");
     for (int i = 0; i < optionPairs.length; i += 2) {
-      options.put(optionPairs[i], optionPairs[i + 1]);
+      options.put((String) optionPairs[i], optionPairs[i + 1]);
     }
     decompiler = new TestConsoleDecompiler(targetDir.toFile(), options);
   }
@@ -146,7 +150,7 @@ public class DecompilerTestFixture {
     private final HashMap<String, ZipFile> zipFiles = new HashMap<>();
 
     TestConsoleDecompiler(File destination, Map<String, Object> options) {
-      super(destination, options, new PrintStreamLogger(System.out));
+      super(destination, options, new PrintStreamLogger(System.out), SaveType.LEGACY_CONSOLEDECOMPILER);
     }
 
     @Override

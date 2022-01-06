@@ -212,8 +212,7 @@ public class FlattenStatementsHelper {
                 }
                 sourcenode = node;
                 break;
-              case DoStatement.LOOP_FOR:
-              case DoStatement.LOOP_FOREACH:
+              case DoStatement.LOOP_FOR: {
                 DirectNode nodeinit = new DirectNode(DirectNode.NODE_INIT, stat, stat.id + "_init");
                 if (dostat.getInitExprent() != null) {
                   nodeinit.exprents = dostat.getInitExprentList();
@@ -221,9 +220,7 @@ public class FlattenStatementsHelper {
                 graph.nodes.putWithKey(nodeinit, nodeinit.id);
 
                 DirectNode nodecond = new DirectNode(DirectNode.NODE_CONDITION, stat, stat.id + "_cond");
-                if (looptype != DoStatement.LOOP_FOREACH) {
-                  nodecond.exprents = dostat.getConditionExprentList();
-                }
+                nodecond.exprents = dostat.getConditionExprentList();
                 graph.nodes.putWithKey(nodecond, nodecond.id);
 
                 DirectNode nodeinc = new DirectNode(DirectNode.NODE_INCREMENT, stat, stat.id + "_inc");
@@ -249,6 +246,43 @@ public class FlattenStatementsHelper {
                 }
 
                 sourcenode = nodecond;
+                break;
+              }
+              case DoStatement.LOOP_FOREACH: {
+                // for (inc : init)
+                //
+                // is essentially
+                //
+                // for (init; ; inc)
+                DirectNode inc = new DirectNode(DirectNode.NODE_INCREMENT, stat, stat.id + "_inc");
+                graph.nodes.putWithKey(inc, inc.id);
+                inc.exprents = dostat.getIncExprentList();
+
+                DirectNode init = new DirectNode(DirectNode.NODE_INIT, stat, stat.id + "_init");
+                graph.nodes.putWithKey(init, init.id);
+                init.exprents = dostat.getInitExprentList();
+
+                mapDestinationNodes.put(stat.id, new String[]{inc.id, init.id});
+                mapDestinationNodes.put(-stat.id, new String[]{init.id, null});
+
+                listEdges.add(new Edge(init.id, stat.getFirst().id, StatEdge.TYPE_REGULAR));
+                listEdges.add(new Edge(inc.id, -stat.id, StatEdge.TYPE_REGULAR));
+
+                boolean found = false;
+                for (Edge edge : listEdges) {
+                  if (edge.statid.equals(stat.id) && edge.edgetype == StatEdge.TYPE_CONTINUE) {
+                    found = true;
+                    break;
+                  }
+                }
+
+                if (!found) {
+                  listEdges.add(new Edge(nd.id, stat.id, StatEdge.TYPE_CONTINUE));
+                }
+
+                sourcenode = init;
+                break;
+              }
             }
             break;
           case Statement.TYPE_SYNCRONIZED:

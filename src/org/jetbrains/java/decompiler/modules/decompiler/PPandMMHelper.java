@@ -9,7 +9,9 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectNode;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.FlattenStatementsHelper;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
@@ -194,5 +196,111 @@ public class PPandMMHelper {
         return 0;
       }
     });
+  }
+
+  //
+  // ++a
+  // (a > 0) {
+  //   ...
+  // }
+  //
+  // becomes
+  //
+  // if (++a > 0) {
+  //   ...
+  // }
+  //
+  // Semantically the same, but cleaner and allows for loop inlining
+  public static boolean inlinePPIandMMIIf(RootStatement stat) {
+    boolean res = inlinePPIandMMIIfRec(stat);
+
+    if (res) {
+      SequenceHelper.condenseSequences(stat);
+    }
+
+    return res;
+  }
+
+  private static boolean inlinePPIandMMIIfRec(Statement stat) {
+    boolean res = false;
+    for (Statement st : stat.getStats()) {
+      res |= inlinePPIandMMIIfRec(st);
+    }
+
+    if (stat.getExprents() != null && !stat.getExprents().isEmpty()) {
+      IfStatement destination = findIfSuccessor(stat);
+
+      if (destination != null) {
+        // Last exprent
+        Exprent expr = stat.getExprents().get(stat.getExprents().size() - 1);
+        if (expr.type == Exprent.EXPRENT_FUNCTION) {
+          FunctionExprent func = (FunctionExprent)expr;
+
+          if (func.getFuncType() == FunctionExprent.FUNCTION_PPI || func.getFuncType() == FunctionExprent.FUNCTION_MMI) {
+            Exprent inner = func.getLstOperands().get(0);
+
+            if (inner.type == Exprent.EXPRENT_VAR) {
+              Exprent ifExpr = destination.getHeadexprent().getCondition();
+
+              if (ifExpr.type == Exprent.EXPRENT_FUNCTION) {
+                FunctionExprent ifFunc = (FunctionExprent)ifExpr;
+
+                while (ifFunc.getFuncType() == FunctionExprent.FUNCTION_BOOL_NOT) {
+                  Exprent innerFunc = ifFunc.getLstOperands().get(0);
+
+                  if (innerFunc.type == Exprent.EXPRENT_FUNCTION) {
+                    ifFunc = (FunctionExprent)innerFunc;
+                  } else {
+                    break;
+                  }
+                }
+
+                // Search for usages of variable
+                boolean found = false;
+                VarExprent old = null;
+                for (Exprent ex : ifFunc.getAllExprents()) {
+                  if (ex.type == Exprent.EXPRENT_VAR) {
+                    VarExprent var = (VarExprent)ex;
+                    if (var.getIndex() == ((VarExprent)inner).getIndex()) {
+                      // Found variable to replace
+
+                      // Fail if we've already seen this variable!
+                      if (found) {
+                        return false;
+                      }
+
+                      // Store the var we want to replace
+                      old = var;
+                      found = true;
+                    }
+                  }
+                }
+
+                if (found) {
+                  // Replace variable with ppi/mmi
+                  ifFunc.replaceExprent(old, expr);
+
+                  // Remove old expr
+                  stat.getExprents().remove(expr);
+                  res = true;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    return res;
+  }
+
+  private static IfStatement findIfSuccessor(Statement stat) {
+    if (stat.getParent().type == Statement.TYPE_IF) {
+      if (stat.getParent().getFirst() == stat) {
+        return (IfStatement) stat.getParent();
+      }
+    }
+
+    return null;
   }
 }

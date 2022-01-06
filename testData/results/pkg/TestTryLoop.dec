@@ -22,15 +22,6 @@ public class TestTryLoop {
 
    public boolean hasNext(Path param1, Iterator<File> param2) {
       // $FF: Couldn't be decompiled
-      // java.lang.RuntimeException: computing post reverse post order failed!
-      //   at org.jetbrains.java.decompiler.modules.decompiler.stats.Statement.getPostReversePostOrderList(Statement.java:458)
-      //   at org.jetbrains.java.decompiler.modules.decompiler.stats.Statement.getPostReversePostOrderList(Statement.java:439)
-      //   at org.jetbrains.java.decompiler.modules.decompiler.DomHelper.findSimpleStatements(DomHelper.java:603)
-      //   at org.jetbrains.java.decompiler.modules.decompiler.DomHelper.processStatement(DomHelper.java:372)
-      //   at org.jetbrains.java.decompiler.modules.decompiler.DomHelper.processStatement(DomHelper.java:321)
-      //   at org.jetbrains.java.decompiler.modules.decompiler.DomHelper.parseGraph(DomHelper.java:212)
-      //   at org.jetbrains.java.decompiler.main.rels.MethodProcessorRunnable.codeToJava(MethodProcessorRunnable.java:133)
-      //
       // Bytecode:
       // 00: aload 1
       // 01: bipush 0
@@ -80,12 +71,3 @@ Lines mapping:
 Not mapped:
 18
 21
-28
-29
-30
-32
-33
-34
-35
-36
-37

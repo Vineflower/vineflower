@@ -504,7 +504,7 @@ public class ExprProcessor implements CodeConstants {
           break;
         case opc_tableswitch:
         case opc_lookupswitch:
-          exprlist.add(new SwitchExprent(stack.pop(), bytecode_offsets));
+          exprlist.add(new SwitchHeadExprent(stack.pop(), bytecode_offsets));
           break;
         case opc_ireturn:
         case opc_lreturn:
@@ -775,25 +775,25 @@ public class ExprProcessor implements CodeConstants {
 
   public static boolean endsWithSemicolon(Exprent expr) {
     int type = expr.type;
-    return !(type == Exprent.EXPRENT_SWITCH ||
+    return !(type == Exprent.EXPRENT_SWITCH_HEAD ||
              type == Exprent.EXPRENT_MONITOR ||
              type == Exprent.EXPRENT_IF ||
              (type == Exprent.EXPRENT_VAR && ((VarExprent)expr).isClassDef()));
   }
 
-  private static void addDeletedGotoInstructionMapping(Statement stat, BytecodeMappingTracer tracer) {
+  private static void addDeletedGotoInstructionMapping(Statement stat, TextBuffer buffer) {
     if (stat instanceof BasicBlockStatement) {
       BasicBlock block = ((BasicBlockStatement)stat).getBlock();
       List<Integer> offsets = block.getInstrOldOffsets();
       if (!offsets.isEmpty() &&
           offsets.size() > block.getSeq().length()) { // some instructions have been deleted, but we still have offsets
-        tracer.addMapping(offsets.get(offsets.size() - 1)); // add the last offset
+        buffer.addBytecodeMapping(offsets.get(offsets.size() - 1)); // add the last offset
       }
     }
   }
 
-  public static TextBuffer jmpWrapper(Statement stat, int indent, boolean semicolon, BytecodeMappingTracer tracer) {
-    TextBuffer buf = stat.toJava(indent, tracer);
+  public static TextBuffer jmpWrapper(Statement stat, int indent, boolean semicolon) {
+    TextBuffer buf = stat.toJava(indent);
 
     List<StatEdge> lstSuccs = stat.getSuccessorEdges(Statement.STATEDGE_DIRECT_ALL);
     if (lstSuccs.size() == 1) {
@@ -803,11 +803,11 @@ public class ExprProcessor implements CodeConstants {
 
         switch (edge.getType()) {
           case StatEdge.TYPE_BREAK:
-            addDeletedGotoInstructionMapping(stat, tracer);
+            addDeletedGotoInstructionMapping(stat, buf);
             buf.append("break");
             break;
           case StatEdge.TYPE_CONTINUE:
-            addDeletedGotoInstructionMapping(stat, tracer);
+            addDeletedGotoInstructionMapping(stat, buf);
             buf.append("continue");
         }
 
@@ -815,13 +815,11 @@ public class ExprProcessor implements CodeConstants {
           buf.append(" label").append(edge.closure.id.toString());
         }
         buf.append(";").appendLineSeparator();
-        tracer.incrementCurrentSourceLine();
       }
     }
 
     if (buf.length() == 0 && semicolon) {
       buf.appendIndent(indent).append(";").appendLineSeparator();
-      tracer.incrementCurrentSourceLine();
     }
 
     return buf;
@@ -841,7 +839,7 @@ public class ExprProcessor implements CodeConstants {
     return res;
   }
 
-  public static TextBuffer listToJava(List<? extends Exprent> lst, int indent, BytecodeMappingTracer tracer) {
+  public static TextBuffer listToJava(List<? extends Exprent> lst, int indent) {
     if (lst == null || lst.isEmpty()) {
       return new TextBuffer();
     }
@@ -853,12 +851,11 @@ public class ExprProcessor implements CodeConstants {
       if (buf.length() > 0 && expr.type == Exprent.EXPRENT_VAR && ((VarExprent)expr).isClassDef()) {
         // separates local class definition from previous statements
         buf.appendLineSeparator();
-        tracer.incrementCurrentSourceLine();
       }
 
       expr.getInferredExprType(null);
 
-      TextBuffer content = expr.toJava(indent, tracer);
+      TextBuffer content = expr.toJava(indent);
 
       if (content.length() > 0) {
         if (expr.type != Exprent.EXPRENT_VAR || !((VarExprent)expr).isClassDef()) {
@@ -872,7 +869,6 @@ public class ExprProcessor implements CodeConstants {
           buf.append(";");
         }
         buf.appendLineSeparator();
-        tracer.incrementCurrentSourceLine();
       }
     }
 
@@ -903,20 +899,18 @@ public class ExprProcessor implements CodeConstants {
                                          VarType leftType,
                                          TextBuffer buffer,
                                          int indent,
-                                         boolean castNull,
-                                         BytecodeMappingTracer tracer) {
-    return getCastedExprent(exprent, leftType, buffer, indent, castNull, false, false, false, tracer);
+                                         boolean castNull) {
+    return getCastedExprent(exprent, leftType, buffer, indent, castNull ? NullCastType.CAST : NullCastType.DONT_CAST, false, false, false);
   }
 
   public static boolean getCastedExprent(Exprent exprent,
                                          VarType leftType,
                                          TextBuffer buffer,
                                          int indent,
-                                         boolean castNull,
+                                         NullCastType castNull,
                                          boolean castAlways,
                                          boolean castNarrowing,
-                                         boolean unbox,
-                                         BytecodeMappingTracer tracer) {
+                                         boolean unbox) {
 
     if (unbox) {
       // "unbox" invocation parameters, e.g. 'byteSet.add((byte)123)' or 'new ShortContainer((short)813)'
@@ -933,12 +927,18 @@ public class ExprProcessor implements CodeConstants {
     }
 
     VarType rightType = exprent.getInferredExprType(leftType);
+    exprent = narrowGenericCastType(exprent, leftType);
 
-    boolean cast =
-      castAlways ||
-      (!leftType.isSuperset(rightType) && (rightType.equals(VarType.VARTYPE_OBJECT) || leftType.type != CodeConstants.TYPE_OBJECT)) ||
-      (castNull && rightType.type == CodeConstants.TYPE_NULL && !UNDEFINED_TYPE_STRING.equals(getTypeName(leftType))) ||
-      (castNarrowing && isIntConstant(exprent) && isNarrowedIntType(leftType));
+    boolean doCast = (!leftType.isSuperset(rightType) && (rightType.equals(VarType.VARTYPE_OBJECT) || leftType.type != CodeConstants.TYPE_OBJECT));
+    boolean doCastNull = (castNull.cast && rightType.type == CodeConstants.TYPE_NULL && !UNDEFINED_TYPE_STRING.equals(getTypeName(leftType)));
+    boolean doCastNarrowing = (castNarrowing && isIntConstant(exprent) && isNarrowedIntType(leftType));
+    boolean doCastGenerics = doesContravarianceNeedCast(leftType, rightType);
+
+    boolean cast = castAlways || doCast || doCastNull || doCastNarrowing || doCastGenerics;
+
+    if (castNull == NullCastType.DONT_CAST_AT_ALL && rightType.type == CodeConstants.TYPE_NULL) {
+      cast = castAlways;
+    }
 
     boolean castLambda = !cast && exprent.type == Exprent.EXPRENT_NEW && !leftType.equals(rightType) &&
                           lambdaNeedsCast(leftType, (NewExprent)exprent);
@@ -955,21 +955,88 @@ public class ExprProcessor implements CodeConstants {
       }
     }
 
-    if (cast) buffer.append('(').append(getCastTypeName(leftType)).append(')');
+    if (cast) {
+      buffer.append('(').append(getCastTypeName(leftType)).append(')');
+    }
 
-    if (castLambda) buffer.append('(').append(getCastTypeName(rightType)).append(')');
+    if (castLambda) {
+      buffer.append('(').append(getCastTypeName(rightType)).append(')');
+    }
 
-    if (quote) buffer.append('(');
+    if (quote) {
+      buffer.append('(');
+    }
 
     if (exprent.type == Exprent.EXPRENT_CONST) {
       ((ConstExprent) exprent).adjustConstType(leftType);
     }
 
-    buffer.append(exprent.toJava(indent, tracer));
+    buffer.append(exprent.toJava(indent));
 
-    if (quote) buffer.append(')');
+    if (quote) {
+      buffer.append(')');
+    }
 
     return cast;
+  }
+
+  public enum NullCastType {
+    CAST(true), // old boolean true
+    DONT_CAST(false), // old booean false
+    DONT_CAST_AT_ALL(false); // old boolean false and don't cast
+
+    private final boolean cast;
+
+    NullCastType(boolean cast) {
+      this.cast = cast;
+    }
+  }
+
+  // (Obj)expr; -> (Obj<T>)expr;
+  public static Exprent narrowGenericCastType(Exprent expr, VarType type) {
+    if (type.isGeneric() && expr.type == Exprent.EXPRENT_FUNCTION && ((FunctionExprent)expr).getFuncType() == FunctionExprent.FUNCTION_CAST) {
+      FunctionExprent func = (FunctionExprent) expr;
+      VarType funcType = func.getExprType();
+
+      GenericType genType = (GenericType) type;
+      if (funcType.value.equals(type.value) && !genType.getArguments().isEmpty()) {
+        // Trying to cast to a generic type but the cast isn't generic- invalid!
+        if (!funcType.isGeneric()) {
+          ConstExprent cast = ((ConstExprent) func.getLstOperands().get(1));
+          cast.setConstType(type);
+        } else if (genType.equalsExact(funcType) && !func.doesCast()) {
+          func.setNeedsCast(true);
+        }
+      }
+    }
+
+    return expr;
+  }
+
+  // Obj<T> var = type; -> Obj<T> var = (Obj<T>) type; Where type is Obj<? super T>
+  public static boolean doesContravarianceNeedCast(VarType left, VarType right) {
+    if (left != null && right != null && left.isGeneric() && right.isGeneric()) {
+      GenericType leftGeneric = (GenericType) left;
+      GenericType rightGeneric = (GenericType) right;
+
+      if (leftGeneric.getArguments().size() != rightGeneric.getArguments().size()) {
+        return false;
+      }
+
+      for (int i = 0; i < leftGeneric.getArguments().size(); i++) {
+        VarType leftType = leftGeneric.getArguments().get(i);
+        VarType rightType = rightGeneric.getArguments().get(i);
+
+        if (leftType != null && rightType != null && leftType.isSuperset(rightType) &&
+          (leftType.isGeneric() && rightType.isGeneric()) &&
+          (((GenericType) leftType).getWildcard() == GenericType.WILDCARD_NO || ((GenericType) leftType).getWildcard() == GenericType.WILDCARD_EXTENDS) &&
+          ((GenericType) rightType).getWildcard() == GenericType.WILDCARD_SUPER) {
+          return true;
+        }
+      }
+    }
+
+    return false;
   }
 
   private static boolean isIntConstant(Exprent exprent) {

@@ -150,7 +150,7 @@ public final class InitializerProcessor {
           VarType type = md.params[md.params.length - 1];
           if (type.type == CodeConstants.TYPE_OBJECT) {
             ClassNode node = DecompilerContext.getClassProcessor().getMapRootClasses().get(type.value);
-            if (node != null && (node.type == ClassNode.CLASS_ANONYMOUS) || (node.access & CodeConstants.ACC_SYNTHETIC) != 0) {
+            if (node != null && ((node.type == ClassNode.CLASS_ANONYMOUS) || (node.access & CodeConstants.ACC_SYNTHETIC) != 0)) {
               //TODO: Verify that the body is JUST a this([args]) call?
               wrapper.getHiddenMembers().add(InterpreterUtil.makeUniqueKey(name, desc));
             }
@@ -232,29 +232,42 @@ public final class InitializerProcessor {
                         whitelist.add(keyField);
                         itr.remove();
                       } else {
-                        DecompilerContext.getLogger().writeMessage("Don't know how to handle non independent "+assignExpr.getRight().getClass().getName(), IFernflowerLogger.Severity.ERROR);
+//                        DecompilerContext.getLogger().writeMessage("Don't know how to handle non independent "+assignExpr.getRight().getClass().getName(), IFernflowerLogger.Severity.ERROR);
                       }
                     } else {
-                      DecompilerContext.getLogger().writeMessage("Don't know how to handle non independent "+assignExpr.getRight().getClass().getName(), IFernflowerLogger.Severity.ERROR);
+//                      DecompilerContext.getLogger().writeMessage("Don't know how to handle non independent "+assignExpr.getRight().getClass().getName(), IFernflowerLogger.Severity.ERROR);
                     }
                   }
                 }
               }
             }
           } else if (inlineInitializers) {
-            DecompilerContext.getLogger().writeMessage("Found non field assignment when needing to force inline: "+assignExpr.toString(), IFernflowerLogger.Severity.TRACE);
+//            DecompilerContext.getLogger().writeMessage("Found non field assignment when needing to force inline: "+assignExpr.toString(), IFernflowerLogger.Severity.TRACE);
             if (assignExpr.getLeft() instanceof VarExprent) {
               nonFieldAssigns.put(((VarExprent) assignExpr.getLeft()).getIndex(), assignExpr);
             } else {
-              DecompilerContext.getLogger().writeMessage("Left isnt VarExprent :(", IFernflowerLogger.Severity.ERROR);
+//              DecompilerContext.getLogger().writeMessage("Left is not VarExprent!", IFernflowerLogger.Severity.ERROR);
             }
           }
-        } else if (inlineInitializers && cl.hasModifier(CodeConstants.ACC_INTERFACE)){
-          DecompilerContext.getLogger().writeMessage("Non assignment found in initialiser when we're needing to inline all", IFernflowerLogger.Severity.ERROR);
+        } else if (inlineInitializers && cl.hasModifier(CodeConstants.ACC_INTERFACE)) {
+//          DecompilerContext.getLogger().writeMessage("Non assignment found in initializer when we're needing to inline all", IFernflowerLogger.Severity.ERROR);
         }
       }
       if (exprentsToRemove.size() > 0){
         firstData.getExprents().removeAll(exprentsToRemove);
+      }
+    }
+
+    // Ensure enum fields have been inlined
+    if (cl.hasModifier(CodeConstants.ACC_ENUM)) {
+      for (StructField fd : cl.getFields()) {
+        if (fd.hasModifier(CodeConstants.ACC_ENUM)) {
+          if (wrapper.getStaticFieldInitializers().getWithKey(InterpreterUtil.makeUniqueKey(fd.getName(), fd.getDescriptor())) == null) {
+            method.addComment("$FF: Failed to inline enum fields");
+            method.addErrorComment = true;
+            break;
+          }
+        }
       }
     }
   }
@@ -341,6 +354,8 @@ public final class InitializerProcessor {
       }
 
       if (!wrapper.getDynamicFieldInitializers().containsKey(fieldWithDescr)) {
+        // Some very last minute things to catch bugs with initializing and inlining
+        value = processDynamicInitializer(value);
         wrapper.getDynamicFieldInitializers().addWithKey(value, fieldWithDescr);
         whitelist.add(fieldWithDescr);
 
@@ -352,6 +367,45 @@ public final class InitializerProcessor {
         return;
       }
     }
+  }
+
+  private static Exprent processDynamicInitializer(Exprent expr) {
+
+    if (expr.type == Exprent.EXPRENT_FUNCTION) {
+      Exprent temp = expr;
+      // Find function inside casts
+      while (temp.type == Exprent.EXPRENT_FUNCTION && ((FunctionExprent) temp).getFuncType() >= FunctionExprent.FUNCTION_I2L && ((FunctionExprent) temp).getFuncType() <= FunctionExprent.FUNCTION_CAST) {
+        temp = ((FunctionExprent) temp).getLstOperands().get(0);
+      }
+
+      if (temp.type == Exprent.EXPRENT_FUNCTION) {
+        FunctionExprent func = (FunctionExprent) temp;
+
+        // Force unwrap boxing in function
+        func.unwrapBox();
+
+        expr = func;
+      }
+    } else {
+      // boolean b = obj; -> boolean b = (Boolean)obj;
+      expr = processBoxingCast(expr);
+    }
+
+    return expr;
+  }
+
+  private static Exprent processBoxingCast(Exprent expr) {
+    if (expr.type == Exprent.EXPRENT_INVOCATION) {
+      if (((InvocationExprent) expr).isUnboxingCall()) {
+        Exprent inner = ((InvocationExprent) expr).getInstance();
+        if (inner.type == Exprent.EXPRENT_FUNCTION && ((FunctionExprent)inner).getFuncType() == FunctionExprent.FUNCTION_CAST) {
+          inner.addBytecodeOffsets(expr.bytecode);
+          expr = inner;
+        }
+      }
+    }
+
+    return expr;
   }
 
   private static boolean isExprentIndependent(FieldExprent field, Exprent exprent, MethodWrapper method, StructClass cl, Set<String> whitelist, List<String> multiAssign, int fidx, boolean isStatic) {

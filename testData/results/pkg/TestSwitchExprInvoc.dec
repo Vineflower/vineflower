@@ -1,0 +1,36 @@
+package pkg;
+
+public class TestSwitchExprInvoc {
+   public void test(int i) {
+      String res = (switch(i) {// 5
+         case 1 -> "one";// 6
+         case 2 -> "two";// 7
+         default -> "default";// 8
+      }).toLowerCase();// 9
+   }// 10
+}
+
+class 'pkg/TestSwitchExprInvoc' {
+   method 'test (I)V' {
+      0      4
+      1      4
+      1c      5
+      1d      5
+      21      6
+      22      6
+      26      7
+      28      8
+      29      8
+      2a      8
+      2b      4
+      2c      9
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 6
+7 <-> 7
+8 <-> 8
+9 <-> 9
+10 <-> 10

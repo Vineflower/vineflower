@@ -1,0 +1,53 @@
+package pkg;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class TestGenericsTernary<T> {
+   public List<T> list = new ArrayList<>();
+
+   public T test(int i) {
+      T t = this.list.get(i);// 10
+      return this.accept(t) ? t : null;// 11
+   }
+
+   public boolean accept(T t) {
+      return t != null;// 15
+   }
+}
+
+class 'pkg/TestGenericsTernary' {
+   method 'test (I)Ljava/lang/Object;' {
+      0      9
+      1      9
+      2      9
+      3      9
+      4      9
+      5      9
+      6      9
+      7      9
+      8      9
+      9      9
+      a      9
+      b      10
+      c      10
+      d      10
+      e      10
+      f      10
+      10      10
+      13      10
+      17      10
+      18      10
+   }
+
+   method 'accept (Ljava/lang/Object;)Z' {
+      0      14
+      1      14
+      9      14
+   }
+}
+
+Lines mapping:
+10 <-> 10
+11 <-> 11
+15 <-> 15

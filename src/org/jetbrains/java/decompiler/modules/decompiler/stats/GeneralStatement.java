@@ -1,7 +1,6 @@
 // Copyright 2000-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler.stats;
 
-import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 
 import java.util.Collection;
@@ -41,7 +40,7 @@ public class GeneralStatement extends Statement {
   // *****************************************************************************
 
   @Override
-  public TextBuffer toJava(int indent, BytecodeMappingTracer tracer) {
+  public TextBuffer toJava(int indent) {
     TextBuffer buf = new TextBuffer();
 
     if (isLabeled()) {
@@ -50,9 +49,10 @@ public class GeneralStatement extends Statement {
 
     buf.appendIndent(indent).append("abstract statement {").appendLineSeparator();
     for (Statement stat : stats) {
-      buf.append(stat.toJava(indent + 1, tracer));
+      buf.append(stat.toJava(indent + 1));
     }
     buf.appendIndent(indent).append("}");
+    buf.appendLineSeparator();
 
     return buf;
   }

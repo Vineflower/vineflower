@@ -65,10 +65,10 @@ public class VarTypeProcessor {
     while (!stack.isEmpty()) {
       Statement stat = stack.removeFirst();
 
-      List<VarExprent> lstVars = stat.getImplicitlyDefinedVars();
+      List<VarExprent> vars = stat.getImplicitlyDefinedVars();
 
-      if (lstVars != null) {
-        for (VarExprent var : lstVars) {
+      if (vars != null) {
+        for (VarExprent var : vars) {
           mapExprentMinTypes.put(new VarVersionPair(var.getIndex(), 1), var.getVarType());
           mapExprentMaxTypes.put(new VarVersionPair(var.getIndex(), 1), var.getVarType());
         }
@@ -138,7 +138,7 @@ public class VarTypeProcessor {
       }
 
       for (CheckTypesResult.ExprentTypePair entry : result.getLstMinTypeExprents()) {
-        res &= changeExprentType(entry.exprent, entry.type.type == CodeConstants.TYPE_UNKNOWN ? VarType.VARTYPE_NULL : entry.type, 0);
+        res &= changeExprentType(entry.exprent, entry.type, 0);
       }
     }
 
@@ -184,11 +184,9 @@ public class VarTypeProcessor {
       VarType newMinType;
       if (currentMinType == null || newType.typeFamily > currentMinType.typeFamily) {
         newMinType = newType;
-      }
-      else if (newType.typeFamily < currentMinType.typeFamily) {
+      } else if (newType.typeFamily < currentMinType.typeFamily) {
         return true;
-      }
-      else {
+      } else {
         newMinType = VarType.getCommonSupertype(currentMinType, newType);
       }
 
@@ -200,17 +198,14 @@ public class VarTypeProcessor {
       if (currentMinType != null && (newMinType.typeFamily > currentMinType.typeFamily || newMinType.isStrictSuperset(currentMinType))) {
         return false;
       }
-    }
-    else {  // max
+    } else {  // max
       VarType currentMaxType = mapExprentMaxTypes.get(pair);
       VarType newMaxType;
       if (currentMaxType == null || newType.typeFamily < currentMaxType.typeFamily) {
         newMaxType = newType;
-      }
-      else if (newType.typeFamily > currentMaxType.typeFamily) {
+      } else if (newType.typeFamily > currentMaxType.typeFamily) {
         return true;
-      }
-      else {
+      } else {
         newMaxType = VarType.getCommonMinType(currentMaxType, newType);
       }
 

@@ -12,7 +12,8 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.IfExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.InvocationExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
-import org.jetbrains.java.decompiler.util.DotExporter;
+import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
+import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.VBStyleCollection;
 
 import java.util.*;
@@ -223,6 +224,39 @@ public final class MergeHelper {
                 if (!continues.isEmpty() && continues.get(0).getDestination() == stat) {
                   // Cannot make loop- continue would be lifted to the outside of the loop! [TestInlineNoSuccessor]
                   return false;
+                } else {
+                  // Discard loops that have continues when blocks are inlined
+                  // FIXME: whole system needs rewrite
+                  Statement temp = firstStat;
+                  while (true) {
+                    int size = temp.getStats().size();
+
+                    if (size <= 1) {
+                      break;
+                    }
+
+                    List<StatEdge> breaks = temp.getStats().getLast().getSuccessorEdges(StatEdge.TYPE_BREAK);
+
+                    if (!breaks.isEmpty() && breaks.get(0).getDestination().type != Statement.TYPE_DUMMYEXIT) {
+                      break;
+                    }
+
+                    if (!temp.getStats().getLast().getSuccessorEdges(StatEdge.TYPE_CONTINUE).isEmpty()) {
+                      return false;
+                    }
+
+                    temp = temp.getStats().get(temp.getStats().size() - 2);
+
+                    if (temp.type != Statement.TYPE_SEQUENCE) {
+                      break;
+                    }
+                  }
+                }
+
+                // Found basic block, delegate to loop extractor
+                Statement firstSt = firstStat.getStats().get(0);
+                if (firstSt.type == Statement.TYPE_IF && ((IfStatement)firstSt).getIfstat().type != Statement.TYPE_SEQUENCE && ((IfStatement) firstSt).getIfstat().getStats().isEmpty()) {
+                  return false;
                 }
 
                 List<Statement> toAdd = new ArrayList<>();
@@ -381,39 +415,43 @@ public final class MergeHelper {
     return false;
   }
 
+  // Returns if the statement provided and the end statement provided has a direct control flow path
   public static boolean isDirectPath(Statement stat, Statement endstat) {
-    Set<Statement> setStat = stat.getNeighboursSet(Statement.STATEDGE_DIRECT_ALL, Statement.DIRECTION_FORWARD);
-    if (setStat.isEmpty()) {
+    Set<Statement> forwardEdges = stat.getNeighboursSet(Statement.STATEDGE_DIRECT_ALL, Statement.DIRECTION_FORWARD);
+
+    if (forwardEdges.isEmpty()) {
       Statement parent = stat.getParent();
+
       if (parent == null) {
         return false;
-      }
-      else {
+      } else {
         switch (parent.type) {
           case Statement.TYPE_ROOT:
             return endstat.type == Statement.TYPE_DUMMYEXIT;
           case Statement.TYPE_DO:
-            return (endstat == parent);
+            return endstat == parent;
           case Statement.TYPE_SWITCH:
             SwitchStatement swst = (SwitchStatement)parent;
-            for (int i = 0; i < swst.getCaseStatements().size() - 1; i++) {
-              Statement stt = swst.getCaseStatements().get(i);
-              if (stt == stat) {
-                Statement stnext = swst.getCaseStatements().get(i + 1);
 
-                if (stnext.getExprents() != null && stnext.getExprents().isEmpty()) {
-                  stnext = stnext.getAllSuccessorEdges().get(0).getDestination();
+            for (int i = 0; i < swst.getCaseStatements().size() - 1; i++) {
+              Statement caseStatement = swst.getCaseStatements().get(i);
+
+              if (caseStatement == stat) {
+                Statement nextCase = swst.getCaseStatements().get(i + 1);
+
+                if (nextCase.getExprents() != null && nextCase.getExprents().isEmpty()) {
+                  nextCase = nextCase.getAllSuccessorEdges().get(0).getDestination();
                 }
-                return (endstat == stnext);
+
+                return endstat == nextCase;
               }
             }
           default:
             return isDirectPath(parent, endstat);
         }
       }
-    }
-    else {
-      return setStat.contains(endstat);
+    } else {
+      return forwardEdges.contains(endstat);
     }
   }
 
@@ -488,16 +526,23 @@ public final class MergeHelper {
       // Break out of the loop if we find that the third assignment is the only expression in the basic block.
 
       // First filter to make sure that the loop body (includes the last assignment) has a single statement.
-      if (stat.getFirst().getStats().size() == 1) {
-        Statement firstStat = stat.getFirst().getStats().get(0);
 
-        // Then filter to make sure the loop body is a basic block (Seems like it always is- but it never hurts to double check!)
-        if (firstStat.type == Statement.TYPE_BASICBLOCK) {
+      Statement firstStat = stat.getFirst();
+      while (firstStat.type == Statement.TYPE_SEQUENCE && firstStat.getStats().size() == 1) {
+        Statement fst = firstStat.getFirst();
+        if (fst == null) {
+          break;
+        }
 
-          // Last filter to make sure the basic block only has the final third assignment. If so, break out to make a while loop instead as it will produce cleaner output.
-          if (firstStat.getExprents().size() == 1) {
-            return;
-          }
+        firstStat = fst;
+      }
+
+      // Then filter to make sure the loop body is a basic block (Seems like it always is- but it never hurts to double check!)
+      if (firstStat.type == Statement.TYPE_BASICBLOCK) {
+
+        // Last filter to make sure the basic block only has the final third assignment. If so, break out to make a while loop instead as it will produce cleaner output.
+        if (firstStat.getExprents().size() == 1) {
+          return;
         }
       }
 
@@ -525,6 +570,7 @@ public final class MergeHelper {
       if (!lst.isEmpty()) {
         stat.removeSuccessor(lst.get(0));
       }
+
       removeLastEmptyStatement(dostat, stat);
     }
   }
@@ -532,24 +578,41 @@ public final class MergeHelper {
   private static void removeLastEmptyStatement(DoStatement dostat, Statement stat) {
 
     if (stat == dostat.getFirst()) {
-      BasicBlockStatement bstat = new BasicBlockStatement(new BasicBlock(
-        DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.STATEMENT_COUNTER)));
-      bstat.setExprents(new ArrayList<>());
+      BasicBlockStatement bstat = BasicBlockStatement.create();
       dostat.replaceStatement(stat, bstat);
-    }
-    else {
+    } else {
       for (StatEdge edge : stat.getAllPredecessorEdges()) {
+        // Change edge type to continue
         edge.getSource().changeEdgeType(Statement.DIRECTION_FORWARD, edge, StatEdge.TYPE_CONTINUE);
 
+        // Remove edge from old destination
         stat.removePredecessor(edge);
+
+        // Change destination to enclosing loop
         edge.getSource().changeEdgeNode(Statement.DIRECTION_FORWARD, edge, dostat);
+        // Make sure enclosing loop knows about the new edge
         dostat.addPredecessor(edge);
 
+        // Set that edge as labeled
         dostat.addLabeledEdge(edge);
       }
 
       // parent is a sequence statement
       stat.getParent().getStats().removeWithKey(stat.id);
+
+      // Quiltflower note: Parent isn't always a sequence statement! It can be an if statement, need to check for that case! [TestLoopFinally]
+      if (stat.getParent().type == Statement.TYPE_IF) {
+        IfStatement parent = (IfStatement)stat.getParent();
+
+        // Replace owning stats
+        if (parent.getIfstat() == stat) {
+          parent.setIfstat(null);
+        } else if (parent.getElsestat() == stat) {
+          parent.setElsestat(null);
+        }
+      }
+
+      // TODO: switch statements?
     }
   }
 
@@ -646,7 +709,19 @@ public final class MergeHelper {
           return false;
         }
 
-        InvocationExprent holder = (InvocationExprent)(initExprents[0]).getRight();
+        // Casted foreach
+        Exprent right = initExprents[0].getRight();
+        if (right.type == Exprent.EXPRENT_FUNCTION) {
+          FunctionExprent fRight = (FunctionExprent) right;
+          if (fRight.getFuncType() == FunctionExprent.FUNCTION_CAST) {
+            right = fRight.getLstOperands().get(0);
+          }
+
+          if (right.type == Exprent.EXPRENT_INVOCATION) {
+            return false;
+          }
+        }
+        InvocationExprent holder = (InvocationExprent)right;
 
         initExprents[0].getBytecodeRange(holder.getInstance().bytecode);
         holder.getBytecodeRange(holder.getInstance().bytecode);
@@ -678,9 +753,16 @@ public final class MergeHelper {
           }
         }
 
+        // Type of assignment- store in var for type calculation
+        CheckTypesResult typeRes = ass.checkExprTypeBounds();
+        if (typeRes != null && !typeRes.getLstMinTypeExprents().isEmpty()) {
+          VarType boundType = typeRes.getLstMinTypeExprents().get(0).type;
+          VarExprent var = (VarExprent) ass.getLeft();
+          var.setBoundType(boundType);
+        }
+
         return true;
-      }
-      else if (initExprents[1] != null) {
+      } else if (initExprents[1] != null) {
         if (firstDoExprent.getRight().type != Exprent.EXPRENT_ARRAY || firstDoExprent.getLeft().type != Exprent.EXPRENT_VAR) {
           return false;
         }
@@ -721,6 +803,7 @@ public final class MergeHelper {
           return false;
         }
 
+        // Add bytecode offsets
         funcRight.getLstOperands().get(0).addBytecodeOffsets(initExprents[0].bytecode);
         funcRight.getLstOperands().get(0).addBytecodeOffsets(initExprents[1].bytecode);
         funcRight.getLstOperands().get(0).addBytecodeOffsets(lastExprent.bytecode);
@@ -737,12 +820,21 @@ public final class MergeHelper {
 
         if (initExprents[2] != null && initExprents[2].getLeft().type == Exprent.EXPRENT_VAR) {
           VarExprent copy = (VarExprent)initExprents[2].getLeft();
+
           if (copy.getIndex() == array.getIndex() && copy.getVersion() == array.getVersion()) {
             preData.getExprents().remove(initExprents[2]);
             initExprents[2].getRight().addBytecodeOffsets(initExprents[2].bytecode);
             initExprents[2].getRight().addBytecodeOffsets(stat.getIncExprent().bytecode);
             stat.setIncExprent(initExprents[2].getRight());
           }
+        }
+
+        // Type of assignment- store in var for type calculation
+        CheckTypesResult typeRes = firstDoExprent.checkExprTypeBounds();
+        if (typeRes != null && !typeRes.getLstMinTypeExprents().isEmpty()) {
+          VarType boundType = typeRes.getLstMinTypeExprents().get(0).type;
+          VarExprent var = (VarExprent) firstDoExprent.getLeft();
+          var.setBoundType(boundType);
         }
 
         return true;
@@ -890,8 +982,7 @@ public final class MergeHelper {
         if (ifedge.getDestination().equals(outer)) {
           stat.addSuccessor(new StatEdge(StatEdge.TYPE_CONTINUE, stat, ifedge.getDestination(), outer));
           return true;
-        }
-        else if (MergeHelper.isDirectPath(outer, ifedge.getDestination())) {
+        } else if (MergeHelper.isDirectPath(outer, ifedge.getDestination())) {
           stat.addSuccessor(new StatEdge(StatEdge.TYPE_BREAK, stat, ifedge.getDestination(), outer));
           return true;
         }

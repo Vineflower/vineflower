@@ -3,9 +3,7 @@ package pkg;
 import java.util.function.Supplier;
 
 public class TestStaticInit {
-   static final Supplier<TestStaticInit> X = () -> {
-      return TestStaticInit.Inner.Y;// 7
-   };
+   static final Supplier<TestStaticInit> X = () -> TestStaticInit.Inner.Y;// 7
    static final TestStaticInit Y = null;
 
    static class Inner {
@@ -15,12 +13,12 @@ public class TestStaticInit {
 
 class 'pkg/TestStaticInit' {
    method 'lambda$static$0 ()Lpkg/TestStaticInit;' {
-      0      6
-      1      6
-      2      6
-      3      6
+      0      5
+      1      5
+      2      5
+      3      5
    }
 }
 
 Lines mapping:
-7 <-> 7
+7 <-> 6

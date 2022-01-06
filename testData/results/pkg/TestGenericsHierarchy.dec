@@ -1,0 +1,24 @@
+package pkg;
+
+public class TestGenericsHierarchy<T> {
+   public T field;
+
+   public <V extends T> void test(V v) {
+      this.field = (T)v;// 7
+   }// 8
+}
+
+class 'pkg/TestGenericsHierarchy' {
+   method 'test (Ljava/lang/Object;)V' {
+      0      6
+      1      6
+      2      6
+      3      6
+      4      6
+      5      7
+   }
+}
+
+Lines mapping:
+7 <-> 7
+8 <-> 8

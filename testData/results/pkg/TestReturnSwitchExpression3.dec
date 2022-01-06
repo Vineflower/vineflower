@@ -3,19 +3,12 @@ package pkg;
 public class TestReturnSwitchExpression3 {
    public String test(int i) {
       System.out.println(2);// 5
-      String var10000;
-      switch(i) {
-      case 1:
-         var10000 = "1";// 8
-         break;
-      case 2:
-         var10000 = "2";// 9
-         break;
-      default:
-         var10000 = "Unknown";// 10
-      }
 
-      return var10000;// 7
+      return switch(i) {// 7
+         case 1 -> "1";// 8
+         case 2 -> "2";// 9
+         default -> "Unknown";// 10
+      };
    }
 }
 
@@ -30,20 +23,18 @@ class 'pkg/TestReturnSwitchExpression3' {
       6      4
       7      6
       8      6
-      24      8
-      25      8
-      26      9
-      29      11
-      2a      11
-      2b      12
-      2e      14
-      30      17
+      24      7
+      25      7
+      29      8
+      2a      8
+      2e      9
+      30      6
    }
 }
 
 Lines mapping:
 5 <-> 5
-7 <-> 18
-8 <-> 9
-9 <-> 12
-10 <-> 15
+7 <-> 7
+8 <-> 8
+9 <-> 9
+10 <-> 10

@@ -99,7 +99,7 @@ public class NestedClassProcessor {
       }
     }
 
-    for (ClassNode child : node.nested) {
+    for (ClassNode child : new ArrayList<>(node.nested)) {
       processClass(root, child);
     }
   }
@@ -276,6 +276,11 @@ public class NestedClassProcessor {
       if (usedBefore.contains(name) && !"this".equals(name)) {
         mapNewNames.put(local, enclosingCollector.getFreeName(name));
       }
+    }
+
+    // Possible with debug method filter enabled in ClassWrapper
+    if (enclosingMethod.getOrBuildGraph() == null) {
+      return;
     }
 
     enclosingMethod.getOrBuildGraph().iterateExprents(exprent -> {
@@ -972,6 +977,13 @@ public class NestedClassProcessor {
 
   private static void setLocalClassDefinition(MethodWrapper method, ClassNode node) {
     RootStatement root = method.root;
+
+    if (root == null) {
+      method.addComment("$FF: Couldn't set local class definition as local class statement was null");
+      method.addErrorComment = true;
+
+      return;
+    }
 
     Set<Statement> setStats = new HashSet<>();
     VarType classType = new VarType(node.classStruct.qualifiedName, true);

@@ -8,18 +8,22 @@ public class TestExceptionElse {
 
       while(!numbers.isEmpty()) {// 9
          Number number = (Number)numbers.removeFirst();// 10
-         if (!(number instanceof Integer)) {// 11
-            if (numbers.size() != 3 || !(number instanceof Float)) {// 13
-               throw new RuntimeException("Not a valid number");// 16
+         if (number instanceof Integer) {// 11
+            System.out.println(1);// 12
+         } else if (numbers.size() == 4 && number instanceof Long) {// 13
+            System.out.println(2);// 14
+         } else if (!(number instanceof Double)) {// 15
+            if (numbers.size() != 3 || !(number instanceof Float)) {// 17
+               throw new RuntimeException("Not a valid number");// 20
             }
 
-            System.out.println("here");// 14
+            System.out.println("here");// 18
          } else {
-            System.out.println(1);// 12
+            System.out.println(3);// 16
          }
       }
 
-   }// 19
+   }// 23
 }
 
 class 'pkg/TestExceptionElse' {
@@ -52,38 +56,70 @@ class 'pkg/TestExceptionElse' {
       1d      10
       1e      10
       1f      10
-      22      17
-      23      17
-      24      17
-      25      17
-      26      17
-      27      17
-      28      17
-      2c      11
-      2d      11
-      2e      11
-      2f      11
-      30      11
-      31      11
-      32      11
-      33      11
-      36      11
-      37      11
-      38      11
-      39      11
-      3a      11
-      3d      15
-      3e      15
-      3f      15
-      40      15
-      41      15
-      42      15
-      43      15
-      44      15
-      4c      12
-      4d      12
-      51      12
-      55      21
+      22      11
+      23      11
+      24      11
+      25      11
+      26      11
+      27      11
+      28      11
+      2c      12
+      2d      12
+      2e      12
+      2f      12
+      30      12
+      31      12
+      32      12
+      33      12
+      36      12
+      37      12
+      38      12
+      39      12
+      3a      12
+      3d      13
+      3e      13
+      3f      13
+      40      13
+      41      13
+      42      13
+      43      13
+      47      14
+      48      14
+      49      14
+      4a      14
+      4b      14
+      4e      21
+      4f      21
+      50      21
+      51      21
+      52      21
+      53      21
+      54      21
+      58      15
+      59      15
+      5a      15
+      5b      15
+      5c      15
+      5d      15
+      5e      15
+      5f      15
+      62      15
+      63      15
+      64      15
+      65      15
+      66      15
+      69      19
+      6a      19
+      6b      19
+      6c      19
+      6d      19
+      6e      19
+      6f      19
+      70      19
+      78      16
+      79      16
+      7d      16
+      81      25
    }
 }
 
@@ -92,10 +128,14 @@ Lines mapping:
 9 <-> 9
 10 <-> 10
 11 <-> 11
-12 <-> 18
-13 <-> 12
-14 <-> 16
-16 <-> 13
-19 <-> 22
+12 <-> 12
+13 <-> 13
+14 <-> 14
+15 <-> 15
+16 <-> 22
+17 <-> 16
+18 <-> 20
+20 <-> 17
+23 <-> 26
 Not mapped:
-18
+22

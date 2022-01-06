@@ -1,19 +1,20 @@
 // Copyright 2000-2017 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler.sforms;
 
+import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.FlattenStatementsHelper.FinallyPathWrapper;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.util.VBStyleCollection;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 
 public class DirectGraph {
 
   public final VBStyleCollection<DirectNode, String> nodes = new VBStyleCollection<>();
+
+  public final List<DirectNode> extraNodes = new ArrayList<>();
 
   public DirectNode first;
 
@@ -31,11 +32,25 @@ public class DirectGraph {
 
   public void sortReversePostOrder() {
     LinkedList<DirectNode> res = new LinkedList<>();
-    addToReversePostOrderListIterative(first, res);
+    addToReversePostOrderListIterative(this.first, res);
 
-    nodes.clear();
+    // Include unreachable nodes in the graph structure
+    if (res.size() != this.nodes.size()) {
+      Set<DirectNode> a = new HashSet<>(this.nodes);
+      Set<DirectNode> b = new HashSet<>(res);
+      a.removeAll(b);
+
+      // FIXME: addFirst is bad! this will mess with the graph structure! but it's needed to properly handle unreachable blocks in SSA, by making these blocks be processed first!
+      for (DirectNode nd : a) {
+        this.extraNodes.add(nd);
+        res.addFirst(nd);
+      }
+    }
+
+    this.nodes.clear();
+
     for (DirectNode node : res) {
-      nodes.addWithKey(node, node.id);
+      this.nodes.addWithKey(node, node.id);
     }
   }
 

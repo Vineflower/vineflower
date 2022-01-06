@@ -1,0 +1,532 @@
+package pkg;
+
+import kotlin.DeprecationLevel;
+import kotlin.Metadata;
+import kotlin.NoWhenBranchMatchedException;
+import kotlin.jvm.internal.Intrinsics;
+
+@Metadata(
+   mv = {1, 5, 1},
+   k = 1,
+   xi = 48,
+   d1 = {"\u0000\u0014\n\u0002\u0018\u0002\n\u0002\u0010\u0010\n\u0002\b\u0002\n\u0002\u0010\u0002\n\u0002\b\b\b\u0086\u0001\u0018\u00002\b\u0012\u0004\u0012\u00020\u00000\u0001B\u0007\b\u0002¢\u0006\u0002\u0010\u0002J\u0006\u0010\u0003\u001a\u00020\u0004J\u0006\u0010\u0005\u001a\u00020\u0004J\u0006\u0010\u0006\u001a\u00020\u0004J\u0006\u0010\u0007\u001a\u00020\u0004J\u0006\u0010\b\u001a\u00020\u0004j\u0002\b\tj\u0002\b\nj\u0002\b\u000b¨\u0006\f"},
+   d2 = {"Lpkg/TestKotlinEnumWhen;", "", "(Ljava/lang/String;I)V", "testAnotherEnum", "", "testConsecutive", "testConsecutiveMixed", "testExpression", "testStatement", "FIRST", "SECOND", "THIRD", "quiltflower_testDataKotlin"}
+)
+public enum TestKotlinEnumWhen {
+   FIRST,
+   SECOND,
+   THIRD;
+
+   public final void testStatement() {
+      switch(this) {// 7
+      case FIRST:
+         String var6 = "first!";// 8
+         boolean var8 = false;
+         System.out.println(var6);
+         break;
+      case SECOND:
+         String var5 = "second!";// 9
+         boolean var7 = false;
+         System.out.println(var5);
+         break;
+      case THIRD:
+         String var3 = "third!";// 10
+         boolean var4 = false;
+         System.out.println(var3);
+      }
+
+   }// 12
+
+   public final void testExpression() {
+      String var10000;
+      switch(this) {// 16
+      case FIRST:
+         var10000 = "first!";// 17
+         break;
+      case SECOND:
+         var10000 = "second!";// 18
+         break;
+      case THIRD:
+         var10000 = "third!";// 19
+         break;
+      default:
+         throw new NoWhenBranchMatchedException();
+      }
+
+      String var1 = var10000;
+      boolean var3 = false;// 15
+      System.out.println(var1);
+   }// 22
+
+   public final void testAnotherEnum() {
+      DeprecationLevel level = testAnotherEnum$getLevel();// 28
+      switch(level) {
+      case WARNING:
+         String var6 = Intrinsics.stringPlus("warning ", level);// 29
+         boolean var8 = false;
+         System.out.println(var6);
+         break;
+      case ERROR:
+         String var5 = Intrinsics.stringPlus("error ", level);// 30
+         boolean var7 = false;
+         System.out.println(var5);
+         break;
+      case HIDDEN:
+         String var3 = Intrinsics.stringPlus("hidden ", level);// 31
+         boolean var4 = false;
+         System.out.println(var3);
+      }
+
+   }// 33
+
+   public final void testConsecutive() {
+      switch(this) {// 36
+      case FIRST:
+         String var7 = "first!";// 37
+         boolean var12 = false;
+         System.out.println(var7);
+         break;
+      case SECOND:
+         String var6 = "second!";// 38
+         boolean var11 = false;
+         System.out.println(var6);
+         break;
+      case THIRD:
+         String var3 = "third!";// 39
+         boolean var4 = false;
+         System.out.println(var3);
+      }
+
+      switch(this) {// 42
+      case FIRST:
+         String var10 = "first, again!";// 43
+         boolean var15 = false;
+         System.out.println(var10);
+         break;
+      case SECOND:
+         String var9 = "second, again!";// 44
+         boolean var14 = false;
+         System.out.println(var9);
+         break;
+      case THIRD:
+         String var8 = "third, again!";// 45
+         boolean var13 = false;
+         System.out.println(var8);
+      }
+
+   }// 47
+
+   public final void testConsecutiveMixed() {
+      DeprecationLevel level = testConsecutiveMixed$getLevel-0();// 53
+      switch(level) {
+      case WARNING:
+         String var7 = Intrinsics.stringPlus("warning ", level);// 54
+         boolean var12 = false;
+         System.out.println(var7);
+         break;
+      case ERROR:
+         String var6 = Intrinsics.stringPlus("error ", level);// 55
+         boolean var11 = false;
+         System.out.println(var6);
+         break;
+      case HIDDEN:
+         String var3 = Intrinsics.stringPlus("hidden ", level);// 56
+         boolean var4 = false;
+         System.out.println(var3);
+      }
+
+      switch(this) {// 59
+      case FIRST:
+         String var10 = "first!";// 60
+         boolean var15 = false;
+         System.out.println(var10);
+         break;
+      case SECOND:
+         String var9 = "second!";// 61
+         boolean var14 = false;
+         System.out.println(var9);
+         break;
+      case THIRD:
+         String var8 = "third!";// 62
+         boolean var13 = false;
+         System.out.println(var8);
+      }
+
+   }// 64
+
+   private static final DeprecationLevel testAnotherEnum$getLevel() {
+      throw new Exception();// 26
+   }
+
+   private static final DeprecationLevel testConsecutiveMixed$getLevel_0/* $FF was: testConsecutiveMixed$getLevel-0*/() {
+      throw new Exception();// 51
+   }
+}
+
+class 'pkg/TestKotlinEnumWhen' {
+   method 'testStatement ()V' {
+      0      20
+      c      20
+      28      22
+      29      22
+      2a      22
+      2b      23
+      2c      23
+      2d      23
+      2e      24
+      2f      24
+      30      24
+      31      24
+      32      24
+      33      24
+      34      24
+      35      25
+      38      27
+      39      27
+      3a      27
+      3b      28
+      3c      28
+      3d      28
+      3e      29
+      3f      29
+      40      29
+      41      29
+      42      29
+      43      29
+      44      29
+      45      30
+      48      32
+      49      32
+      4a      32
+      4b      33
+      4c      33
+      4d      33
+      4e      34
+      4f      34
+      50      34
+      51      34
+      52      34
+      55      37
+   }
+
+   method 'testExpression ()V' {
+      0      41
+      c      41
+      28      43
+      29      43
+      2a      44
+      2d      46
+      2e      46
+      2f      47
+      32      49
+      33      49
+      34      50
+      3e      52
+      3f      55
+      40      56
+      41      56
+      42      57
+      43      57
+      44      57
+      45      57
+      46      57
+      47      57
+      48      57
+      49      58
+   }
+
+   method 'testAnotherEnum ()V' {
+      0      61
+      1      61
+      2      61
+      3      61
+      7      62
+      e      62
+      28      64
+      29      64
+      2a      64
+      2b      64
+      2c      64
+      2d      64
+      2e      64
+      2f      65
+      30      65
+      31      65
+      32      66
+      33      66
+      34      66
+      35      66
+      36      66
+      37      66
+      38      66
+      39      67
+      3c      69
+      3d      69
+      3e      69
+      3f      69
+      40      69
+      41      69
+      42      69
+      43      70
+      44      70
+      45      70
+      46      71
+      47      71
+      48      71
+      49      71
+      4a      71
+      4b      71
+      4c      71
+      4d      72
+      50      74
+      51      74
+      52      74
+      53      74
+      54      74
+      55      74
+      56      74
+      57      75
+      58      75
+      59      75
+      5a      76
+      5b      76
+      5c      76
+      5d      76
+      5e      76
+      61      79
+   }
+
+   method 'testConsecutive ()V' {
+      0      82
+      c      82
+      28      84
+      29      84
+      2a      84
+      2b      85
+      2c      85
+      2d      85
+      2e      86
+      2f      86
+      30      86
+      31      86
+      32      86
+      33      86
+      34      86
+      35      87
+      38      89
+      39      89
+      3a      89
+      3b      90
+      3c      90
+      3d      90
+      3e      91
+      3f      91
+      40      91
+      41      91
+      42      91
+      43      91
+      44      91
+      45      92
+      48      94
+      49      94
+      4a      94
+      4b      95
+      4c      95
+      4d      95
+      4e      96
+      4f      96
+      50      96
+      51      96
+      52      96
+      55      99
+      61      99
+      7c      101
+      7d      101
+      7e      101
+      7f      102
+      80      102
+      81      102
+      82      103
+      83      103
+      84      103
+      85      103
+      86      103
+      87      103
+      88      103
+      89      104
+      8c      106
+      8d      106
+      8e      106
+      8f      107
+      90      107
+      91      107
+      92      108
+      93      108
+      94      108
+      95      108
+      96      108
+      97      108
+      98      108
+      99      109
+      9c      111
+      9d      111
+      9e      111
+      9f      112
+      a0      112
+      a1      112
+      a2      113
+      a3      113
+      a4      113
+      a5      113
+      a6      113
+      a9      116
+   }
+
+   method 'testConsecutiveMixed ()V' {
+      0      119
+      1      119
+      2      119
+      3      119
+      7      120
+      e      120
+      28      122
+      29      122
+      2a      122
+      2b      122
+      2c      122
+      2d      122
+      2e      122
+      2f      123
+      30      123
+      31      123
+      32      124
+      33      124
+      34      124
+      35      124
+      36      124
+      37      124
+      38      124
+      39      125
+      3c      127
+      3d      127
+      3e      127
+      3f      127
+      40      127
+      41      127
+      42      127
+      43      128
+      44      128
+      45      128
+      46      129
+      47      129
+      48      129
+      49      129
+      4a      129
+      4b      129
+      4c      129
+      4d      130
+      50      132
+      51      132
+      52      132
+      53      132
+      54      132
+      55      132
+      56      132
+      57      133
+      58      133
+      59      133
+      5a      134
+      5b      134
+      5c      134
+      5d      134
+      5e      134
+      61      137
+      6d      137
+      88      139
+      89      139
+      8a      139
+      8b      140
+      8c      140
+      8d      140
+      8e      141
+      8f      141
+      90      141
+      91      141
+      92      141
+      93      141
+      94      141
+      95      142
+      98      144
+      99      144
+      9a      144
+      9b      145
+      9c      145
+      9d      145
+      9e      146
+      9f      146
+      a0      146
+      a1      146
+      a2      146
+      a3      146
+      a4      146
+      a5      147
+      a8      149
+      a9      149
+      aa      149
+      ab      150
+      ac      150
+      ad      150
+      ae      151
+      af      151
+      b0      151
+      b1      151
+      b2      151
+      b5      154
+   }
+
+   method 'testAnotherEnum$getLevel ()Lkotlin/DeprecationLevel;' {
+      7      157
+   }
+
+   method 'testConsecutiveMixed$getLevel-0 ()Lkotlin/DeprecationLevel;' {
+      7      161
+   }
+}
+
+Lines mapping:
+7 <-> 21
+8 <-> 23
+9 <-> 28
+10 <-> 33
+12 <-> 38
+15 <-> 57
+16 <-> 42
+17 <-> 44
+18 <-> 47
+19 <-> 50
+22 <-> 59
+26 <-> 158
+28 <-> 62
+29 <-> 65
+30 <-> 70
+31 <-> 75
+33 <-> 80
+36 <-> 83
+37 <-> 85
+38 <-> 90
+39 <-> 95
+42 <-> 100
+43 <-> 102
+44 <-> 107
+45 <-> 112
+47 <-> 117
+51 <-> 162
+53 <-> 120
+54 <-> 123
+55 <-> 128
+56 <-> 133
+59 <-> 138
+60 <-> 140
+61 <-> 145
+62 <-> 150
+64 <-> 155

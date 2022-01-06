@@ -11,7 +11,7 @@ public class TestSwitchPatternMatchingReturn2 {
 
       while(true) {
          switch(SwitchBootstraps.typeSwitch<"typeSwitch",Integer,Integer,String>(var2, var3)) {
-         case 0:
+         case 0: {
             Integer i = (Integer)var2;// 6
             if (i <= 100) {
                var3 = 1;
@@ -19,9 +19,11 @@ public class TestSwitchPatternMatchingReturn2 {
             }
 
             return -i;// 5
-         case 1:
+         }
+         case 1: {
             Integer i = (Integer)var2;// 7
             return i;
+         }
          case 2:
             String s = (String)var2;// 8
             return s.length();
@@ -72,29 +74,29 @@ class 'pkg/TestSwitchPatternMatchingReturn2' {
       44      20
       45      20
       46      20
-      4a      22
-      4b      22
-      4c      22
-      4d      22
-      4e      22
-      4f      22
-      50      23
-      51      23
-      52      23
-      53      23
-      54      23
-      58      25
-      59      25
-      5a      25
-      5b      25
-      5c      25
-      5d      25
-      5e      26
-      5f      26
-      60      26
-      61      26
-      62      26
-      66      28
+      4a      23
+      4b      23
+      4c      23
+      4d      23
+      4e      23
+      4f      23
+      50      24
+      51      24
+      52      24
+      53      24
+      54      24
+      58      27
+      59      27
+      5a      27
+      5b      27
+      5c      27
+      5d      27
+      5e      28
+      5f      28
+      60      28
+      61      28
+      62      28
+      66      30
       6a      20
    }
 }
@@ -102,6 +104,6 @@ class 'pkg/TestSwitchPatternMatchingReturn2' {
 Lines mapping:
 5 <-> 21
 6 <-> 15
-7 <-> 23
-8 <-> 26
-9 <-> 29
+7 <-> 24
+8 <-> 28
+9 <-> 31

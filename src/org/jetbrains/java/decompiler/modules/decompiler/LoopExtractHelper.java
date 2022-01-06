@@ -23,7 +23,6 @@ public final class LoopExtractHelper {
 
     if (res) {
       SequenceHelper.condenseSequences(root);
-      
     }
 
     return res;

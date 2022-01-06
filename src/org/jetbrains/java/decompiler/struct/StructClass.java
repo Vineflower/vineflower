@@ -76,7 +76,7 @@ public class StructClass extends StructMember {
     length = in.readUnsignedShort();
     VBStyleCollection<StructField, String>fields = new VBStyleCollection<>(length);
     for (int i = 0; i < length; i++) {
-      StructField field = StructField.create(in, pool, qualifiedName);
+      StructField field = StructField.create(in, pool, qualifiedName, bytecodeVersion);
       fields.addWithKey(field, InterpreterUtil.makeUniqueKey(field.getName(), field.getDescriptor()));
     }
 
@@ -92,7 +92,7 @@ public class StructClass extends StructMember {
       methods.addWithKey(method, key);
     }
 
-    Map<String, StructGeneralAttribute> attributes = readAttributes(in, pool);
+    Map<String, StructGeneralAttribute> attributes = readAttributes(in, pool, bytecodeVersion);
 
     GenericClassDescriptor signature = null;
     if (DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_GENERIC_SIGNATURES)) {

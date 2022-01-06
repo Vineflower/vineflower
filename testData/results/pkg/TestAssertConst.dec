@@ -1,0 +1,27 @@
+package pkg;
+
+public class TestAssertConst {
+   public void test() {
+      assert false;
+
+   }// 6
+
+   public void test1() {
+   }// 10
+}
+
+class 'pkg/TestAssertConst' {
+   method 'test ()V' {
+      e      6
+   }
+
+   method 'test1 ()V' {
+      0      9
+   }
+}
+
+Lines mapping:
+6 <-> 7
+10 <-> 10
+Not mapped:
+5

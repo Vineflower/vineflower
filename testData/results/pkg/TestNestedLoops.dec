@@ -14,13 +14,39 @@ public class TestNestedLoops {
 
          for(String s : list) {// 12
             for(int j = 0; j < 20; ++j) {// 13
-               do {
+               while(true) {
                   s.substring(j);// 15
-               } while(s.length() < j);// 16
+                  if (s.length() >= j) {// 16
+                     break;
+                  }
+               }
             }
          }
 
          ++i;// 19
+      }
+   }
+
+   public void decomp() {
+      List<String> list = new ArrayList<>();// 25
+      int i = 0;// 26
+
+      while(true) {
+         if (i < 10) {// 29
+            for(String s : list) {// 32
+               for(int j = 0; j < 20; ++j) {// 33
+                  while(true) {
+                     s.substring(j);// 35
+                     if (s.length() >= j) {// 36
+                        break;
+                     }
+                  }
+               }
+            }
+
+            ++i;// 43
+            continue;
+         }
       }
    }
 }
@@ -78,9 +104,67 @@ class 'pkg/TestNestedLoops' {
       47      15
       48      15
       49      15
-      50      22
-      51      22
-      52      22
+      50      25
+      51      25
+      52      25
+   }
+
+   method 'decomp ()V' {
+      7      30
+      8      31
+      9      31
+      a      34
+      b      34
+      c      34
+      d      34
+      13      35
+      14      35
+      15      35
+      16      35
+      17      35
+      18      35
+      19      35
+      23      35
+      24      35
+      25      35
+      26      35
+      27      35
+      28      35
+      29      35
+      2a      35
+      2b      35
+      2c      35
+      2d      35
+      2e      36
+      2f      36
+      30      36
+      31      36
+      32      36
+      33      36
+      34      36
+      35      36
+      38      38
+      39      38
+      3a      38
+      3b      38
+      3c      38
+      3d      38
+      3e      38
+      40      39
+      41      39
+      42      39
+      43      39
+      44      39
+      45      39
+      46      39
+      47      39
+      4d      36
+      4e      36
+      4f      36
+      56      46
+      57      46
+      58      46
+      59      47
    }
 }
 
@@ -92,6 +176,16 @@ Lines mapping:
 13 <-> 16
 15 <-> 18
 16 <-> 19
-19 <-> 23
+19 <-> 26
+25 <-> 31
+26 <-> 32
+29 <-> 35
+32 <-> 36
+33 <-> 37
+35 <-> 39
+36 <-> 40
+43 <-> 47
 Not mapped:
 18
+37
+41

@@ -4,7 +4,7 @@ class TestCodeConstructs {
    private int count = 0;
 
    void expressions() {
-      (new String()).hashCode();// 20
+      new String().hashCode();// 20
    }// 21
 
    Integer fieldIncrement() {

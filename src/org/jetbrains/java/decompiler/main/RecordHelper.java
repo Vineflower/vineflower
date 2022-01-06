@@ -1,7 +1,6 @@
 package org.jetbrains.java.decompiler.main;
 
 import org.jetbrains.java.decompiler.code.CodeConstants;
-import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.BasicBlockStatement;
@@ -27,15 +26,21 @@ public final class RecordHelper {
       (mt.getName().equals(CodeConstants.INIT_NAME) && !hasAnnotations(mt) && isDefaultRecordConstructor(cl, root));
   }
 
-  public static void appendRecordComponents(TextBuffer buffer, StructClass cl, List<StructRecordComponent> components) {
+  public static void appendRecordComponents(TextBuffer buffer, StructClass cl, List<StructRecordComponent> components, int indent) {
+    buffer.pushNewlineGroup(indent, 1);
+    buffer.appendPossibleNewline();
+    buffer.pushNewlineGroup(indent, 0);
     for (int i = 0; i < components.size(); i++) {
       StructRecordComponent cd = components.get(i);
       if (i > 0) {
-        buffer.append(", ");
+        buffer.append(",").appendPossibleNewline(" ");
       }
       boolean varArgComponent = i == components.size() - 1 && isVarArgRecord(cl);
       recordComponentToJava(buffer, cl, cd, i, varArgComponent);
     }
+    buffer.popNewlineGroup();
+    buffer.appendPossibleNewline("", true);
+    buffer.popNewlineGroup();
   }
 
   private static Exprent getSimpleReturnValue(RootStatement root) {
@@ -126,7 +131,7 @@ public final class RecordHelper {
         StructAnnotationAttribute attribute = (StructAnnotationAttribute) member.getAttribute(key);
         if (attribute == null) continue;
         for (AnnotationExprent annotation : attribute.getAnnotations()) {
-          String text = annotation.toJava(-1, BytecodeMappingTracer.DUMMY).toString();
+          String text = annotation.toJava(-1).convertToStringAndAllowDataDiscard();
           annotations.add(text);
         }
       }
@@ -138,7 +143,7 @@ public final class RecordHelper {
           if (!annotation.isTopLevel()) continue;
           int type = annotation.getTargetType();
           if (type == TypeAnnotation.FIELD || type == TypeAnnotation.METHOD_PARAMETER) {
-            String text = annotation.getAnnotation().toJava(-1, BytecodeMappingTracer.DUMMY).toString();
+            String text = annotation.getAnnotation().toJava(-1).convertToStringAndAllowDataDiscard();
             annotations.add(text);
           }
         }
@@ -154,7 +159,7 @@ public final class RecordHelper {
       List<List<AnnotationExprent>> paramAnnotations = attribute.getParamAnnotations();
       if (param >= paramAnnotations.size()) continue;
       for (AnnotationExprent annotation : paramAnnotations.get(param)) {
-        String text = annotation.toJava(-1, BytecodeMappingTracer.DUMMY).toString();
+        String text = annotation.toJava(-1).convertToStringAndAllowDataDiscard();
         annotations.add(text);
       }
     }

@@ -16,7 +16,6 @@ import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericMethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
 import org.jetbrains.java.decompiler.util.TextBuffer;
-import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
@@ -27,7 +26,6 @@ import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericClassDescriptor;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.ListStack;
-import org.jetbrains.java.decompiler.util.TextBuffer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -278,9 +276,7 @@ public class NewExprent extends Exprent {
   }
 
   @Override
-  public List<Exprent> getAllExprents() {
-    List<Exprent> lst = new ArrayList<>();
-
+  public List<Exprent> getAllExprents(List<Exprent> lst) {
     if (newType.arrayDim != 0) {
       lst.addAll(lstDims);
       lst.addAll(lstArrayElements);
@@ -318,7 +314,7 @@ public class NewExprent extends Exprent {
   }
 
   @Override
-  public TextBuffer toJava(int indent, BytecodeMappingTracer tracer) {
+  public TextBuffer toJava(int indent) {
     TextBuffer buf = new TextBuffer();
 
     if (anonymous) {
@@ -328,10 +324,10 @@ public class NewExprent extends Exprent {
 
       // IDEA-204310 - avoid backtracking later on for lambdas (causes spurious imports)
       if (!enumConst && (!lambda || DecompilerContext.getOption(IFernflowerPreferences.LAMBDA_TO_ANONYMOUS_CLASS))) {
-        String enclosing = null;
+        TextBuffer enclosing = null;
 
         if (!lambda && constructor != null) {
-          enclosing = getQualifiedNewInstance(child.anonymousClassType.value, constructor.getLstParameters(), indent, tracer);
+          enclosing = getQualifiedNewInstance(child.anonymousClassType.value, constructor.getLstParameters(), indent);
           if (enclosing != null) {
             buf.append(enclosing).append('.');
           }
@@ -353,20 +349,24 @@ public class NewExprent extends Exprent {
             }
           }
 
-          GenericClassDescriptor descriptor = child.getWrapper().getClassStruct().getSignature();
-          if (descriptor != null) {
-            if (descriptor.superinterfaces.isEmpty()) {
-              buf.append(ExprProcessor.getCastTypeName(descriptor.superclass));
-            }
-            else {
-              if (descriptor.superinterfaces.size() > 1 && !lambda) {
-                DecompilerContext.getLogger().writeMessage("Inconsistent anonymous class signature: " + child.classStruct.qualifiedName,
-                                                           IFernflowerLogger.Severity.WARN);
+          boolean appendType = true;
+          if (child.getWrapper() != null) {
+            GenericClassDescriptor descriptor = child.getWrapper().getClassStruct().getSignature();
+            if (descriptor != null) {
+              if (descriptor.superinterfaces.isEmpty()) {
+                buf.append(ExprProcessor.getCastTypeName(descriptor.superclass));
+              } else {
+                if (descriptor.superinterfaces.size() > 1 && !lambda) {
+                  DecompilerContext.getLogger().writeMessage("Inconsistent anonymous class signature: " + child.classStruct.qualifiedName,
+                    IFernflowerLogger.Severity.WARN);
+                }
+                buf.append(ExprProcessor.getCastTypeName(descriptor.superinterfaces.get(0)));
               }
-              buf.append(ExprProcessor.getCastTypeName(descriptor.superinterfaces.get(0)));
+              appendType = false;
             }
           }
-          else {
+
+          if (appendType) {
             buf.append(typename);
           }
         }
@@ -374,7 +374,7 @@ public class NewExprent extends Exprent {
 
       if (!lambda && constructor != null) {
         appendParameters(buf, constructor.getGenericArgs());
-        buf.append('(').append(constructor.appendParamList(indent, tracer));
+        buf.append('(').append(constructor.appendParamList(indent));
       }
       else {
         appendParameters(buf, genericArgs);
@@ -393,35 +393,39 @@ public class NewExprent extends Exprent {
         }
         setLambdaGenericTypes();
         Exprent methodObject = constructor == null ? null : constructor.getInstance();
-        TextBuffer clsBuf = new TextBuffer();
-        new ClassWriter().classLambdaToJava(child, clsBuf, methodObject, indent, tracer);
-        buf.append(clsBuf);
-        tracer.incrementCurrentSourceLine(clsBuf.countLines());
+        new ClassWriter().classLambdaToJava(child, buf, methodObject, indent);
       }
       else if (!selfReference) {
-        TextBuffer clsBuf = new TextBuffer();
-        new ClassWriter().classToJava(child, clsBuf, indent, tracer);
-        buf.append(clsBuf);
-        tracer.incrementCurrentSourceLine(clsBuf.countLines());
+        new ClassWriter().classToJava(child, buf, indent);
       }
     }
     else if (directArrayInit) {
       VarType leftType = newType.decreaseArrayDim();
       buf.append('{');
+      if (!lstArrayElements.isEmpty()) {
+        buf.pushNewlineGroup(indent, 2);
+        buf.appendPossibleNewline();
+        buf.pushNewlineGroup(indent, 0);
+      }
       for (int i = 0; i < lstArrayElements.size(); i++) {
         if (i > 0) {
-          buf.append(", ");
+          buf.append(",").appendPossibleNewline(" ");
         }
-        ExprProcessor.getCastedExprent(lstArrayElements.get(i), leftType, buf, indent, false, tracer);
+        ExprProcessor.getCastedExprent(lstArrayElements.get(i), leftType, buf, indent, false);
+      }
+      if (!lstArrayElements.isEmpty()) {
+        buf.popNewlineGroup();
+        buf.appendPossibleNewline("", true);
+        buf.popNewlineGroup();
       }
       buf.append('}');
     }
     else if (newType.arrayDim == 0) {
       if (!enumConst) {
-        String enclosing = null;
+        TextBuffer enclosing = null;
 
         if (constructor != null) {
-          enclosing = getQualifiedNewInstance(newType.value, constructor.getLstParameters(), indent, tracer);
+          enclosing = getQualifiedNewInstance(newType.value, constructor.getLstParameters(), indent);
           if (enclosing != null) {
             buf.append(enclosing).append('.');
           }
@@ -446,7 +450,7 @@ public class NewExprent extends Exprent {
         int start = enumConst ? 2 : 0;
         if (!enumConst || start < constructor.getLstParameters().size()) {
           appendParameters(buf, constructor.getGenericArgs());
-          buf.append('(').append(constructor.appendParamList(indent, tracer)).append(')');
+          buf.append('(').append(constructor.appendParamList(indent)).append(')');
         }
       }
     }
@@ -455,7 +459,7 @@ public class NewExprent extends Exprent {
       VarType leftType = newType.decreaseArrayDim();
       for (int i = 0; i < lstArrayElements.size(); i++) {
         if (i > 0) {
-          buf.append(", ");
+          buf.append(",").appendPossibleNewline(" ");
         }
 
         // new String[][]{{"abc"}, {"DEF"}} => new String[]{"abc"}, new String[]{"DEF"}
@@ -463,7 +467,7 @@ public class NewExprent extends Exprent {
         if (element.type == EXPRENT_NEW) {
           ((NewExprent) element).setDirectArrayInit(false);
         }
-        ExprProcessor.getCastedExprent(element, leftType, buf, indent, false, tracer);
+        ExprProcessor.getCastedExprent(element, leftType, buf, indent, false);
       }
 
       // if there is just one element of Object[] type it needs to be casted to resolve ambiguity
@@ -481,7 +485,7 @@ public class NewExprent extends Exprent {
         for (int i = 0; i < newType.arrayDim; i++) {
           buf.append('[');
           if (i < lstDims.size()) {
-            buf.append(lstDims.get(i).toJava(indent, tracer));
+            buf.append(lstDims.get(i).toJava(indent));
           }
           buf.append(']');
         }
@@ -493,13 +497,19 @@ public class NewExprent extends Exprent {
 
         VarType leftType = newType.decreaseArrayDim();
         buf.append('{');
+        buf.pushNewlineGroup(indent, 1);
+        buf.appendPossibleNewline();
+        buf.pushNewlineGroup(indent, 0);
         for (int i = 0; i < lstArrayElements.size(); i++) {
           if (i > 0) {
-            buf.append(", ");
+            buf.append(",").appendPossibleNewline(" ");
           }
-          ExprProcessor.getCastedExprent(lstArrayElements.get(i), leftType, buf, indent, false, tracer);
+          ExprProcessor.getCastedExprent(lstArrayElements.get(i), leftType, buf, indent, false);
         }
+        buf.popNewlineGroup();
+        buf.appendPossibleNewline("", true);
         buf.append('}');
+        buf.popNewlineGroup();
       }
     }
 
@@ -512,7 +522,7 @@ public class NewExprent extends Exprent {
     return node != null && node.type == ClassNode.CLASS_ANONYMOUS;
   }
 
-  private static String getQualifiedNewInstance(String classname, List<Exprent> lstParams, int indent, BytecodeMappingTracer tracer) {
+  private static TextBuffer getQualifiedNewInstance(String classname, List<Exprent> lstParams, int indent) {
     ClassNode node = DecompilerContext.getClassProcessor().getMapRootClasses().get(classname);
 
     if (node != null && node.type != ClassNode.CLASS_ROOT && node.type != ClassNode.CLASS_LOCAL
@@ -537,7 +547,7 @@ public class NewExprent extends Exprent {
         }
 
         if (isQualifiedNew) {
-          return enclosing.toJava(indent, tracer).toString();
+          return enclosing.toJava(indent);
         }
       }
     }
@@ -695,6 +705,34 @@ public class NewExprent extends Exprent {
         }
       }
     }
+  }
+
+  public boolean doesClassHaveMethodsNamedSame() {
+    if (this.lambda && this.methodReference) {
+      ClassNode node = DecompilerContext.getClassProcessor().getMapRootClasses().get(this.newType.value);
+
+      if (node != null) {
+        String name = node.lambdaInformation.content_method_name;
+        ClassNode contentClass = DecompilerContext.getClassProcessor().getMapRootClasses().get(node.lambdaInformation.content_class_name);
+
+        if (contentClass == null) {
+          return false;
+        }
+
+        boolean foundOne = false;
+        for (StructMethod method : contentClass.classStruct.getMethods()) {
+          if (method.getName().equals(name)) {
+            if (foundOne) {
+              return true;
+            } else {
+              foundOne = true;
+            }
+          }
+        }
+      }
+    }
+
+    return false;
   }
 
   @Override

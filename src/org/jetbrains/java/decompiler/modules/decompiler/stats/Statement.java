@@ -6,6 +6,7 @@ package org.jetbrains.java.decompiler.modules.decompiler.stats;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.InstructionSequence;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
@@ -241,10 +242,10 @@ public class Statement implements IMatchable {
   }
 
   public void addLabeledEdge(StatEdge edge) {
-
     if (edge.closure != null) {
       edge.closure.getLabelEdges().remove(edge);
     }
+
     edge.closure = this;
     this.getLabelEdges().add(edge);
   }
@@ -480,10 +481,10 @@ public class Statement implements IMatchable {
   }
 
   public TextBuffer toJava() {
-    return toJava(0, BytecodeMappingTracer.DUMMY);
+    return toJava(0);
   }
 
-  public TextBuffer toJava(int indent, BytecodeMappingTracer tracer) {
+  public TextBuffer toJava(int indent) {
     throw new RuntimeException("not implemented");
   }
 
@@ -508,6 +509,14 @@ public class Statement implements IMatchable {
     if (!stats.isEmpty()) {
       first = stats.get(0);
     }
+  }
+
+  public final void replaceWith(Statement stat) {
+    this.parent.replaceStatement(this, stat);
+  }
+
+  public final void destroy() {
+    this.parent.replaceStatement(this, BasicBlockStatement.create());
   }
 
   public void replaceStatement(Statement oldstat, Statement newstat) {
@@ -880,13 +889,13 @@ public class Statement implements IMatchable {
     } else {
       for (Object obj : this.getSequentialObjects()) {
         if (obj == null) {
-          //Humm? Skip it
+
         } else if (obj instanceof Statement) {
           ((Statement)obj).getOffset(values);
         } else if (obj instanceof Exprent) {
           ((Exprent)obj).getBytecodeRange(values);
         } else {
-          System.out.println("WTF?" + obj.getClass());
+          DecompilerContext.getLogger().writeMessage("Found unknown class from sequential objects! " + obj.getClass(), IFernflowerLogger.Severity.ERROR);
         }
       }
     }

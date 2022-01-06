@@ -25,7 +25,7 @@ public class TestSynchronized {
 
    public void test4() {
       Integer o;
-      synchronized(1) {// 27
+      synchronized(Integer.valueOf(1)) {// 27
          o = 1;// 28
          System.out.println(o);// 29
       }// 30
@@ -33,23 +33,249 @@ public class TestSynchronized {
       System.out.println(o);// 31
    }// 32
 
+   public void test4_1() {
+      Object o;
+      synchronized(o = 1) {// 36
+         System.out.println(o);// 37
+      }// 38
+
+      System.out.println(o);// 39
+   }// 40
+
+   public void test4_2() {
+      Double o;
+      synchronized(Double.valueOf(1.0)) {// 44
+         o = 1.0;// 45
+         System.out.println(o);// 46
+      }// 47
+
+      System.out.println(o);// 48
+   }// 49
+
+   public void test4_3() {
+      Float o;
+      synchronized(Float.valueOf(1.0F)) {// 53
+         o = 1.0F;// 54
+         System.out.println(o);// 55
+      }// 56
+
+      System.out.println(o);// 57
+   }// 58
+
+   public void test4_4() {
+      Boolean o;
+      synchronized(Boolean.valueOf(true)) {// 62
+         o = true;// 63
+         System.out.println(o);// 64
+      }// 65
+
+      System.out.println(o);// 66
+   }// 67
+
+   public void test4_5() {
+      Long o;
+      synchronized(Long.valueOf(1L)) {// 71
+         o = 1L;// 72
+         System.out.println(o);// 73
+      }// 74
+
+      System.out.println(o);// 75
+   }// 76
+
    public void test5(int i) {
       try {
          while(true) {
-            synchronized(this) {// 37
-               while(i >= i) {// 38
-                  this.wait();// 39
+            synchronized(this) {// 81
+               while(i >= i) {// 82
+                  this.wait();// 83
                }
             }
 
-            synchronized(this) {// 43
-               this.notifyAll();// 44
-            }// 45
+            synchronized(this) {// 87
+               this.notifyAll();// 88
+            }// 89
          }
-      } catch (Exception var7) {// 47
-         throw new RuntimeException(var7);// 48
+      } catch (Exception var7) {// 91
+         throw new RuntimeException(var7);// 92
       }
    }
+
+   public void test6() {
+      while(true) {
+         synchronized(this) {// 98
+            ;
+         }// 100
+      }
+   }
+
+   public void test7(int i) {
+      synchronized(this) {// 105
+         while(i > 0) {// 106
+            System.out.println(--i);// 107 108
+         }
+
+      }
+   }// 111
+
+   public void test8() {
+      try {
+         synchronized(this) {// 115
+            this.notifyAll();// 116
+         }// 117
+      } finally {
+         synchronized(this) {// 119
+            this.notifyAll();// 120
+         }// 121
+      }
+
+   }// 123
+
+   public void test9(int i) {
+      try {
+         label36: {
+            System.out.println(0);// 128
+            synchronized(this) {// 130
+               System.out.println(1);// 131
+               if (i > 0) {// 132
+                  break label36;
+               }
+
+               System.out.println(2);// 135
+            }
+
+            System.out.println(3);// 138
+         }
+      } catch (Exception var5) {// 139
+         var5.printStackTrace();// 140
+      }
+
+      if (i > 2) {// 143
+         System.out.println("Hello!");// 144
+      }
+
+   }// 146
+
+   public void test10(int i) {
+      try {
+         label35: {
+            System.out.println(0);// 151
+            synchronized(this) {// 152
+               System.out.println(1);// 153
+               if (i > 0) {// 154
+                  break label35;
+               }
+
+               System.out.println(2);// 158
+            }
+
+            System.out.println(3);// 161
+         }
+      } catch (Exception var5) {// 163
+         var5.printStackTrace();// 164
+      }
+
+      if (i > 2) {// 167
+         System.out.println("Hello!");// 168
+      }
+
+   }// 170
+
+   public void test11(int i) {
+      switch(i) {// 173
+      case 0:
+         synchronized(this) {// 175
+            break;
+         }// 176
+      case 1:
+         synchronized(this) {// 179
+            System.out.println(1);// 180
+            break;
+         }// 181
+      case 2:
+         System.out.println(2);// 184
+         synchronized(this) {// 185
+            break;
+         }// 186
+      default:
+         System.out.println(0);// 189
+      }
+
+   }// 191
+
+   public void test12(int i) {
+      synchronized(this) {// 195
+         label94: {
+            System.out.println(1);// 196
+
+            while(i > 0) {// 197
+               --i;// 198
+               System.out.println(1.5);// 199
+
+               try {
+                  System.out.println(1.6);// 201
+               } finally {
+                  System.out.println(1.7);// 203
+                  if (i > 5) {// 204
+                     break label94;
+                  }
+
+               }
+            }
+
+            System.out.println(2);// 210
+            if (i > -2) {// 211
+               System.out.println(3);// 212
+            }
+         }
+      }
+
+      if (i > 2) {// 216
+         System.out.println("Hello!");// 217
+      }
+
+   }// 219
+
+   public void test13() {
+      Object o = "";// 223
+      synchronized("") {
+         System.out.println(o);// 224
+      }// 225
+
+      System.out.println(o);// 226
+   }// 227
+
+   public void test14() {
+      Object o = "hi";// 231
+      synchronized("hi") {
+         System.out.println(o);// 232
+      }// 233
+
+      System.out.println(o);// 234
+   }// 235
+
+   public void test15() {
+      String o = "hi";// 239
+      synchronized("hi") {
+         System.out.println(o);// 240
+      }// 241
+
+      System.out.println(o);// 242
+   }// 243
+
+   public void test16() {
+      String o = "a";// 246
+      synchronized("test") {// 247
+         System.out.println(o);// 248
+      }// 249
+
+      System.out.println(o);// 250
+   }// 251
+
+   public void test17() {
+      synchronized(TestSynchronized.class) {// 254
+         System.out.println("test");// 255
+      }
+   }// 257
 }
 
 class 'pkg/TestSynchronized' {
@@ -114,25 +340,509 @@ class 'pkg/TestSynchronized' {
       26      33
    }
 
+   method 'test4_1 ()V' {
+      0      37
+      1      37
+      2      37
+      3      37
+      5      37
+      8      37
+      9      38
+      a      38
+      b      38
+      c      38
+      d      38
+      e      38
+      f      38
+      11      39
+      1a      41
+      1b      41
+      1c      41
+      1d      41
+      1e      41
+      1f      41
+      20      41
+      21      42
+   }
+
+   method 'test4_2 ()V' {
+      0      46
+      1      46
+      2      46
+      3      46
+      8      46
+      9      47
+      a      47
+      b      47
+      c      47
+      d      47
+      e      48
+      f      48
+      10      48
+      11      48
+      12      48
+      13      48
+      14      48
+      16      49
+      1f      51
+      20      51
+      21      51
+      22      51
+      23      51
+      24      51
+      25      51
+      26      52
+   }
+
+   method 'test4_3 ()V' {
+      0      56
+      1      56
+      2      56
+      3      56
+      8      56
+      9      57
+      a      57
+      b      57
+      c      57
+      d      57
+      e      58
+      f      58
+      10      58
+      11      58
+      12      58
+      13      58
+      14      58
+      16      59
+      1f      61
+      20      61
+      21      61
+      22      61
+      23      61
+      24      61
+      25      61
+      26      62
+   }
+
+   method 'test4_4 ()V' {
+      0      66
+      1      66
+      2      66
+      3      66
+      8      66
+      9      67
+      a      67
+      b      67
+      c      67
+      d      67
+      e      68
+      f      68
+      10      68
+      11      68
+      12      68
+      13      68
+      14      68
+      16      69
+      1f      71
+      20      71
+      21      71
+      22      71
+      23      71
+      24      71
+      25      71
+      26      72
+   }
+
+   method 'test4_5 ()V' {
+      0      76
+      1      76
+      2      76
+      3      76
+      8      76
+      9      77
+      a      77
+      b      77
+      c      77
+      d      77
+      e      78
+      f      78
+      10      78
+      11      78
+      12      78
+      13      78
+      14      78
+      16      79
+      1f      81
+      20      81
+      21      81
+      22      81
+      23      81
+      24      81
+      25      81
+      26      82
+   }
+
    method 'test5 (I)V' {
-      0      38
-      3      38
-      4      39
-      5      39
-      6      39
-      9      40
-      a      40
-      b      40
-      c      40
-      1a      44
-      1d      44
-      1e      45
-      1f      45
-      20      45
-      21      45
-      23      46
-      31      48
-      3a      49
+      0      87
+      3      87
+      4      88
+      5      88
+      6      88
+      9      89
+      a      89
+      b      89
+      c      89
+      1a      93
+      1d      93
+      1e      94
+      1f      94
+      20      94
+      21      94
+      23      95
+      31      97
+      3a      98
+   }
+
+   method 'test6 ()V' {
+      0      104
+      3      104
+      5      106
+   }
+
+   method 'test7 (I)V' {
+      0      111
+      3      111
+      4      112
+      5      112
+      8      113
+      9      113
+      a      113
+      b      113
+      c      113
+      d      113
+      f      113
+      10      113
+      11      113
+      1f      117
+   }
+
+   method 'test8 ()V' {
+      0      121
+      3      121
+      4      122
+      5      122
+      6      122
+      7      122
+      9      123
+      27      125
+      28      125
+      2b      125
+      2c      125
+      2e      126
+      2f      126
+      30      126
+      31      126
+      34      127
+      43      130
+   }
+
+   method 'test9 (I)V' {
+      0      135
+      1      135
+      2      135
+      3      135
+      4      135
+      5      135
+      6      135
+      7      136
+      a      136
+      b      137
+      c      137
+      d      137
+      e      137
+      f      137
+      10      137
+      11      137
+      12      138
+      13      138
+      1b      142
+      1c      142
+      1d      142
+      1e      142
+      1f      142
+      20      142
+      21      142
+      2c      145
+      2d      145
+      2e      145
+      2f      145
+      30      145
+      36      147
+      38      148
+      3b      151
+      3c      151
+      3d      151
+      40      152
+      41      152
+      42      152
+      43      152
+      44      152
+      45      152
+      48      155
+   }
+
+   method 'test10 (I)V' {
+      0      160
+      1      160
+      2      160
+      3      160
+      4      160
+      5      160
+      6      160
+      7      161
+      a      161
+      b      162
+      c      162
+      d      162
+      e      162
+      f      162
+      10      162
+      11      162
+      12      163
+      13      163
+      1b      167
+      1c      167
+      1d      167
+      1e      167
+      1f      167
+      20      167
+      21      167
+      2c      170
+      2d      170
+      2e      170
+      2f      170
+      30      170
+      36      172
+      38      173
+      3b      176
+      3c      176
+      3d      176
+      40      177
+      41      177
+      42      177
+      43      177
+      44      177
+      45      177
+      48      180
+   }
+
+   method 'test11 (I)V' {
+      0      183
+      1      183
+      1c      185
+      1f      185
+      21      187
+      2a      189
+      2d      189
+      2e      190
+      2f      190
+      30      190
+      31      190
+      32      190
+      33      190
+      34      190
+      36      192
+      41      194
+      42      194
+      43      194
+      44      194
+      45      194
+      46      194
+      47      194
+      48      195
+      4b      195
+      4d      197
+      58      199
+      59      199
+      5a      199
+      5b      199
+      5c      199
+      5f      202
+   }
+
+   method 'test12 (I)V' {
+      0      205
+      3      205
+      4      207
+      5      207
+      6      207
+      7      207
+      8      207
+      b      209
+      c      209
+      f      210
+      10      210
+      11      210
+      12      211
+      13      211
+      14      211
+      15      211
+      16      211
+      17      211
+      18      211
+      1b      214
+      1c      214
+      1d      214
+      1e      214
+      1f      214
+      20      214
+      21      214
+      37      216
+      38      216
+      39      216
+      3a      216
+      3b      216
+      3c      216
+      3d      216
+      3e      217
+      3f      217
+      40      217
+      41      217
+      42      217
+      50      224
+      51      224
+      52      224
+      53      224
+      54      224
+      55      224
+      56      224
+      57      225
+      58      225
+      59      225
+      5a      225
+      5d      226
+      5e      226
+      5f      226
+      60      226
+      61      226
+      70      231
+      71      231
+      72      231
+      75      232
+      76      232
+      77      232
+      78      232
+      79      232
+      7a      232
+      7d      235
+   }
+
+   method 'test13 ()V' {
+      0      238
+      1      238
+      3      238
+      6      239
+      7      240
+      8      240
+      9      240
+      a      240
+      b      240
+      c      240
+      d      240
+      f      241
+      18      243
+      19      243
+      1a      243
+      1b      243
+      1c      243
+      1d      243
+      1e      243
+      1f      244
+   }
+
+   method 'test14 ()V' {
+      0      247
+      1      247
+      3      247
+      6      248
+      7      249
+      8      249
+      9      249
+      a      249
+      b      249
+      c      249
+      d      249
+      f      250
+      18      252
+      19      252
+      1a      252
+      1b      252
+      1c      252
+      1d      252
+      1e      252
+      1f      253
+   }
+
+   method 'test15 ()V' {
+      0      256
+      1      256
+      3      256
+      6      257
+      7      258
+      8      258
+      9      258
+      a      258
+      b      258
+      c      258
+      d      258
+      f      259
+      18      261
+      19      261
+      1a      261
+      1b      261
+      1c      261
+      1d      261
+      1e      261
+      1f      262
+   }
+
+   method 'test16 ()V' {
+      0      265
+      1      265
+      2      265
+      3      266
+      4      266
+      7      266
+      8      267
+      9      267
+      a      267
+      b      267
+      c      267
+      d      267
+      e      267
+      10      268
+      19      270
+      1a      270
+      1b      270
+      1c      270
+      1d      270
+      1e      270
+      1f      270
+      20      271
+   }
+
+   method 'test17 ()V' {
+      0      274
+      1      274
+      4      274
+      5      275
+      6      275
+      7      275
+      8      275
+      9      275
+      a      275
+      b      275
+      c      275
+      17      277
    }
 }
 
@@ -153,15 +863,144 @@ Lines mapping:
 30 <-> 31
 31 <-> 33
 32 <-> 34
+36 <-> 38
 37 <-> 39
 38 <-> 40
-39 <-> 41
-43 <-> 45
-44 <-> 46
-45 <-> 47
-47 <-> 49
-48 <-> 50
+39 <-> 42
+40 <-> 43
+44 <-> 47
+45 <-> 48
+46 <-> 49
+47 <-> 50
+48 <-> 52
+49 <-> 53
+53 <-> 57
+54 <-> 58
+55 <-> 59
+56 <-> 60
+57 <-> 62
+58 <-> 63
+62 <-> 67
+63 <-> 68
+64 <-> 69
+65 <-> 70
+66 <-> 72
+67 <-> 73
+71 <-> 77
+72 <-> 78
+73 <-> 79
+74 <-> 80
+75 <-> 82
+76 <-> 83
+81 <-> 88
+82 <-> 89
+83 <-> 90
+87 <-> 94
+88 <-> 95
+89 <-> 96
+91 <-> 98
+92 <-> 99
+98 <-> 105
+100 <-> 107
+105 <-> 112
+106 <-> 113
+107 <-> 114
+108 <-> 114
+111 <-> 118
+115 <-> 122
+116 <-> 123
+117 <-> 124
+119 <-> 126
+120 <-> 127
+121 <-> 128
+123 <-> 131
+128 <-> 136
+130 <-> 137
+131 <-> 138
+132 <-> 139
+135 <-> 143
+138 <-> 146
+139 <-> 148
+140 <-> 149
+143 <-> 152
+144 <-> 153
+146 <-> 156
+151 <-> 161
+152 <-> 162
+153 <-> 163
+154 <-> 164
+158 <-> 168
+161 <-> 171
+163 <-> 173
+164 <-> 174
+167 <-> 177
+168 <-> 178
+170 <-> 181
+173 <-> 184
+175 <-> 186
+176 <-> 188
+179 <-> 190
+180 <-> 191
+181 <-> 193
+184 <-> 195
+185 <-> 196
+186 <-> 198
+189 <-> 200
+191 <-> 203
+195 <-> 206
+196 <-> 208
+197 <-> 210
+198 <-> 211
+199 <-> 212
+201 <-> 215
+203 <-> 217
+204 <-> 218
+210 <-> 225
+211 <-> 226
+212 <-> 227
+216 <-> 232
+217 <-> 233
+219 <-> 236
+223 <-> 239
+224 <-> 241
+225 <-> 242
+226 <-> 244
+227 <-> 245
+231 <-> 248
+232 <-> 250
+233 <-> 251
+234 <-> 253
+235 <-> 254
+239 <-> 257
+240 <-> 259
+241 <-> 260
+242 <-> 262
+243 <-> 263
+246 <-> 266
+247 <-> 267
+248 <-> 268
+249 <-> 269
+250 <-> 271
+251 <-> 272
+254 <-> 275
+255 <-> 276
+257 <-> 278
 Not mapped:
 7
 13
-41
+85
+110
+122
+133
+136
+141
+155
+159
+165
+177
+182
+187
+205
+207
+214
+256

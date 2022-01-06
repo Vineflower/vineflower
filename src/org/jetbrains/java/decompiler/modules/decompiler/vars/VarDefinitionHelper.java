@@ -15,18 +15,12 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.InvocationExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.NewExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectGraph.ExprentIterator;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.CatchAllStatement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.CatchStatement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.DoStatement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribute.LocalVariable;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
-import org.jetbrains.java.decompiler.struct.gen.generics.GenericMain;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
 import org.jetbrains.java.decompiler.util.StatementIterator;
 
@@ -46,6 +40,7 @@ public class VarDefinitionHelper {
 
   private final Statement root;
   private final StructMethod mt;
+  private final Map<VarVersionPair, String> clashingNames = new HashMap<>();
 
   public VarDefinitionHelper(Statement root, StructMethod mt, VarProcessor varproc) {
 
@@ -220,6 +215,7 @@ public class VarDefinitionHelper {
     mergeVars(root);
     propogateLVTs(root);
     setNonFinal(root, new HashSet<>());
+    remapClashingNames(root);
   }
 
 
@@ -669,7 +665,7 @@ public class VarDefinitionHelper {
 
   private boolean remapVar(Statement stat, VarVersionPair from, VarVersionPair to) {
     if (from.equals(to))
-      throw new IllegalArgumentException("Shit went wrong: " + from);
+      throw new IllegalStateException("Trying to remap var version " + from + " in statement " + stat + " to itself!");
     boolean success = false;
     if (stat.getExprents() == null) {
       for (Object obj : stat.getSequentialObjects()) {
@@ -1192,5 +1188,206 @@ public class VarDefinitionHelper {
     for (Exprent ex : exp.getAllExprents()) {
       setNonFinal(ex, unInitialized);
     }
+  }
+
+  private void remapClashingNames(Statement root) {
+    Map<Statement, Set<VarVersionPair>> varDefinitions = new HashMap<>();
+    Set<VarVersionPair> liveVarDefs = new HashSet<>();
+    Map<VarVersionPair, String> nameMap = new HashMap<>();
+
+    iterateClashingNames(root, varDefinitions, liveVarDefs, nameMap);
+  }
+
+  private void iterateClashingNames(Statement stat, Map<Statement, Set<VarVersionPair>> varDefinitions, Set<VarVersionPair> liveVarDefs, Map<VarVersionPair, String> nameMap) {
+    Set<VarVersionPair> curVarDefs = new HashSet<>();
+
+    boolean shouldRemoveAtEnd = false;
+
+    if (stat.getExprents() != null) {
+      List<Exprent> exprents = new ArrayList<>(stat.getExprents());
+
+      for (Exprent exprent : stat.getExprents()) {
+        exprents.addAll(exprent.getAllExprents(true));
+      }
+
+      for (Exprent exprent : exprents) {
+        iterateClashingExprent(stat, varDefinitions, exprent, curVarDefs, nameMap);
+      }
+    } else {
+      // Process var definitions in statement head
+      for (Object obj : stat.getSequentialObjects()) {
+        if (obj instanceof Exprent) {
+          List<Exprent> exprents = ((Exprent) obj).getAllExprents(true);
+
+          for (Exprent exprent : exprents) {
+            iterateClashingExprent(stat, varDefinitions, exprent, curVarDefs, nameMap);
+          }
+        }
+      }
+
+      shouldRemoveAtEnd = true;
+    } // TODO: consider var defs as owned by parent, or replace shouldRemoveAtEnd with set
+
+    liveVarDefs.addAll(curVarDefs);
+    varDefinitions.put(stat, curVarDefs);
+
+    boolean iterate = true;
+    if (stat.type == Statement.TYPE_SWITCH) {
+      SwitchStatement switchStat = (SwitchStatement)stat;
+      // Phantom switch statements don't need variable remapping as switch expressions have isolated branches
+
+      if (switchStat.isPhantom()) {
+        iterate = false;
+      }
+    }
+
+    List<Statement> deferred = new ArrayList<>();
+    if (iterate) {
+      for (Statement st : stat.getStats()) {
+        if (stat.type == Statement.TYPE_IF) {
+          IfStatement ifstat = (IfStatement)stat;
+
+          if (ifstat.getElsestat() == st) {
+            // Defer else blocks of if statements, as they are independent from the context of the if block
+            deferred.add(st);
+            continue;
+          }
+        }
+
+        iterateClashingNames(st, varDefinitions, liveVarDefs, nameMap);
+      }
+    }
+
+    if (shouldRemoveAtEnd) {
+      clearStatement(varDefinitions, liveVarDefs, nameMap, stat);
+    }
+
+    for (Statement st : new HashSet<>(varDefinitions.keySet())) {
+      // TODO: consider first statements as owned by the grandparent
+      if (st.getParent() == stat) {
+        clearStatement(varDefinitions, liveVarDefs, nameMap, st);
+      }
+    }
+
+    // Process deferred statements
+    if (iterate) {
+      for (Statement st : deferred) {
+        iterateClashingNames(st, varDefinitions, liveVarDefs, nameMap);
+      }
+    }
+
+    for (Statement st : new HashSet<>(varDefinitions.keySet())) {
+      if (st.getParent() == stat && deferred.contains(st)) {
+        clearStatement(varDefinitions, liveVarDefs, nameMap, st);
+      }
+    }
+  }
+
+  private void clearStatement(Map<Statement, Set<VarVersionPair>> varDefinitions, Set<VarVersionPair> liveVarDefs, Map<VarVersionPair, String> nameMap, Statement st) {
+    Set<VarVersionPair> removed = varDefinitions.remove(st);
+    liveVarDefs.removeAll(removed);
+
+    for (VarVersionPair vvp : removed) {
+      nameMap.remove(vvp);
+    }
+  }
+
+  private void iterateClashingExprent(Statement stat, Map<Statement, Set<VarVersionPair>> varDefinitions, Exprent exprent, Set<VarVersionPair> curVarDefs, Map<VarVersionPair, String> nameMap) {
+    if (exprent.type == Exprent.EXPRENT_VAR) {
+      VarExprent var = (VarExprent) exprent;
+
+      if (var.isDefinition()) {
+        curVarDefs.add(var.getVarVersionPair());
+
+        // Only process vars that have lvt as the default var<index>_<version> names can never conflict
+        if (var.getLVT() != null) {
+          String name = var.getLVT().getName();
+          String originalName = name;
+
+          while (nameMap.containsValue(name)) {
+            name = name + "x";
+          }
+
+          boolean scopedSwitch = false;
+          if (!originalName.equals(name)) {
+            // Try to scope switch statements if possible as it's a less destructive operation when considering local variable names
+            Statement parent = directParent(stat);
+            if (parent.type == Statement.TYPE_SWITCH) {
+              Set<VarVersionPair> sameVarName = new HashSet<>();
+
+              // Find vars with the same name
+              for (Entry<VarVersionPair, String> entry : nameMap.entrySet()) {
+                if (entry.getValue().equals(originalName)) {
+                  sameVarName.add(entry.getKey());
+                }
+              }
+
+              SwitchStatement switchStat = (SwitchStatement)parent;
+              // Iterate through all cases
+              for (Statement st : switchStat.getCaseStatements()) {
+                Set<VarVersionPair> caseVarDefs = varDefinitions.get(st);
+
+                // Check if the case branch has var defs
+                if (caseVarDefs != null) {
+                  for (VarVersionPair pair : sameVarName) {
+                    // Try to find var defs
+                    if (caseVarDefs.contains(pair)) {
+                      switchStat.scopeCaseStatement(st);
+                      // Try to find the case statement that the current statement belongs to
+                      Statement foundCase = findCaseOwning(stat, switchStat);
+
+                      // If found, scope the current statement
+                      if (foundCase != null) {
+                        switchStat.scopeCaseStatement(foundCase);
+                      }
+
+                      // scoped switch, don't remap
+                      scopedSwitch = true;
+                    }
+                  }
+                }
+              }
+            }
+
+            if (!scopedSwitch) {
+              // Remapped name
+              this.clashingNames.put(var.getVarVersionPair(), name);
+            }
+          }
+
+          // Record the changed name if we didn't scope switch
+          nameMap.put(var.getVarVersionPair(), scopedSwitch ? originalName : name);
+        }
+      }
+    }
+
+    // TODO: Run for lambdas with context of current statement, as their wrappers should be initialized at this point
+    // For lambdas, account for standard varversion names in addition to lvt
+  }
+
+  // Finds the case statement that the given statement belongs to
+  private static Statement findCaseOwning(Statement stat, SwitchStatement switchStat) {
+    for (Statement caseStatement : switchStat.getCaseStatements()) {
+      if (caseStatement.containsStatement(stat)) {
+        return caseStatement;
+      }
+    }
+
+    return null;
+  }
+
+  // Finds the owner of a statement, skipping if statement first statements as they are placed above the actual if statement
+  private static Statement directParent(Statement stat) {
+    Statement parent = stat.getParent();
+
+    while (parent != null && (parent.type == Statement.TYPE_SEQUENCE || (parent.getFirst() == stat && (parent.type == Statement.TYPE_IF)))) {
+      parent = parent.getParent();
+    }
+
+    return parent;
+  }
+
+  public Map<VarVersionPair, String> getClashingNames() {
+    return clashingNames;
   }
 }

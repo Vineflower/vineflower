@@ -3,7 +3,7 @@ package pkg;
 public class TestMissingConstructorCallBad {
    private TestMissingConstructorCallBad() {
       System.out.println("Nobody will see what we do here!");// 14 15 16
-      this((Object)null);// 19 20
+      this(null);// 19 20
    }// 21
 
    public static void main(String... var0) {

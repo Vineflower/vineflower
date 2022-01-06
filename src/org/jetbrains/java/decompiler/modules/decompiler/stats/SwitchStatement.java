@@ -4,15 +4,12 @@ package org.jetbrains.java.decompiler.modules.decompiler.stats;
 import org.jetbrains.java.decompiler.code.SwitchInstruction;
 import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
-import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
+import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.modules.decompiler.DecHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.ConstExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.FieldExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.SwitchExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.StartEndPair;
@@ -31,6 +28,8 @@ public final class SwitchStatement extends Statement {
 
   private List<List<Exprent>> caseValues = new ArrayList<>();
 
+  private final Set<Statement> scopedCaseStatements = new HashSet<>();
+
   private StatEdge defaultEdge;
 
   private final List<Exprent> headexprent = new ArrayList<>(1);
@@ -38,6 +37,11 @@ public final class SwitchStatement extends Statement {
   // *****************************************************************************
   // constructors
   // *****************************************************************************
+
+  // Phantom when converted to a switch expression. Spooky!
+  // We need to do this because switch expressions can have code in their case values, so we need to preserve the statement graph.
+  // The resulting statement isn't shown in the actual decompile (unless enabled specifically!)
+  private boolean phantom;
 
   private SwitchStatement() {
     type = TYPE_SWITCH;
@@ -104,19 +108,29 @@ public final class SwitchStatement extends Statement {
   }
 
   @Override
-  public TextBuffer toJava(int indent, BytecodeMappingTracer tracer) {
+  public TextBuffer toJava(int indent) {
 
     TextBuffer buf = new TextBuffer();
-    buf.append(ExprProcessor.listToJava(varDefinitions, indent, tracer));
-    buf.append(first.toJava(indent, tracer));
+    buf.append(ExprProcessor.listToJava(varDefinitions, indent));
+    buf.append(first.toJava(indent));
+
+    boolean showPhantom = DecompilerContext.getOption(IFernflowerPreferences.SHOW_HIDDEN_STATEMENTS);
+
+    // Is phantom and we don't want to show- just return what we have so far
+    if (this.isPhantom() && !showPhantom) {
+      return buf;
+    }
 
     if (isLabeled()) {
       buf.appendIndent(indent).append("label").append(this.id.toString()).append(":").appendLineSeparator();
-      tracer.incrementCurrentSourceLine();
     }
 
-    buf.appendIndent(indent).append(headexprent.get(0).toJava(indent, tracer)).append(" {").appendLineSeparator();
-    tracer.incrementCurrentSourceLine();
+    buf.appendIndent(indent);
+    if (this.isPhantom()) {
+      buf.append("/*");
+    }
+
+    buf.append(headexprent.get(0).toJava(indent)).append(" {").appendLineSeparator();
 
     VarType switch_type = headexprent.get(0).getExprType();
 
@@ -128,9 +142,13 @@ public final class SwitchStatement extends Statement {
 
       for (int j = 0; j < edges.size(); j++) {
         if (edges.get(j) == defaultEdge) {
-          buf.appendIndent(indent).append("default:").appendLineSeparator();
-        }
-        else {
+          buf.appendIndent(indent).append("default:");
+          if (this.scopedCaseStatements.contains(stat)) {
+            buf.append(" {");
+          }
+
+          buf.appendLineSeparator();
+        } else {
           Exprent value = values.get(j);
           if (value == null) { // TODO: how can this be null? Is it trying to inject a synthetic case value in switch-on-string processing? [TestSwitchDefaultBefore]
             continue;
@@ -146,26 +164,38 @@ public final class SwitchStatement extends Statement {
             buf.append(((FieldExprent)value).getName());
           }
           else {
-            buf.append(value.toJava(indent, tracer));
+            buf.append(value.toJava(indent));
           }
 
-          buf.append(":").appendLineSeparator();
+          buf.append(":");
+          if (this.scopedCaseStatements.contains(stat)) {
+            buf.append(" {");
+          }
+          buf.appendLineSeparator();
         }
-        tracer.incrementCurrentSourceLine();
       }
 
-      buf.append(ExprProcessor.jmpWrapper(stat, indent + 1, false, tracer));
+      buf.append(ExprProcessor.jmpWrapper(stat, indent + 1, false));
+
+      if (this.scopedCaseStatements.contains(stat)) {
+        buf.appendIndent(indent);
+        buf.append("}");
+        buf.appendLineSeparator();
+      }
     }
 
     buf.appendIndent(indent).append("}").appendLineSeparator();
-    tracer.incrementCurrentSourceLine();
+
+    if (this.isPhantom()) {
+      buf.append("*/");
+    }
 
     return buf;
   }
 
   @Override
   public void initExprents() {
-    SwitchExprent swexpr = (SwitchExprent)first.getExprents().remove(first.getExprents().size() - 1);
+    SwitchHeadExprent swexpr = (SwitchHeadExprent)first.getExprents().remove(first.getExprents().size() - 1);
     swexpr.setCaseValues(caseValues);
 
     headexprent.set(0, swexpr);
@@ -393,5 +423,21 @@ public final class SwitchStatement extends Statement {
 
   public List<List<Exprent>> getCaseValues() {
     return caseValues;
+  }
+
+  public boolean isPhantom() {
+    return phantom;
+  }
+
+  public void setPhantom(boolean phantom) {
+    this.phantom = phantom;
+  }
+
+  public void scopeCaseStatement(Statement stat) {
+    if (!this.getCaseStatements().contains(stat)) {
+      throw new IllegalStateException("Tried to scope a case statement that isn't in the switch!");
+    }
+
+    this.scopedCaseStatements.add(stat);
   }
 }

@@ -24,6 +24,9 @@ public class SingleFileSaver implements IResultSaver {
 
   public SingleFileSaver(File target) {
     this.target = target;
+    if (target.isDirectory()) {
+      throw new IllegalStateException("Trying to save " + target.getAbsolutePath() + " as a file but there's a directory there already!");
+    }
   }
 
   @Override
@@ -56,7 +59,7 @@ public class SingleFileSaver implements IResultSaver {
 
   @Override
   public void saveDirEntry(String path, String archiveName, String entryName) {
-    saveClassEntry(path, archiveName, null, entryName, null);
+//    saveClassEntry(path, archiveName, null, entryName, null);
   }
 
   @Override

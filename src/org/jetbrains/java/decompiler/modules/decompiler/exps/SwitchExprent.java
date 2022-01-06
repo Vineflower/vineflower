@@ -1,126 +1,161 @@
-/*
- * Copyright 2000-2017 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
- */
 package org.jetbrains.java.decompiler.modules.decompiler.exps;
 
 import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
+import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
+import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.SwitchStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
-import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 
-import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 
 public class SwitchExprent extends Exprent {
+  private final SwitchStatement backing;
+  private final VarType type;
+  private final boolean fallthrough;
 
-  private Exprent value;
-  private List<List<Exprent>> caseValues = new ArrayList<>();
-
-  public SwitchExprent(Exprent value, BitSet bytecodeOffsets) {
+  public SwitchExprent(SwitchStatement backing, VarType type, boolean fallthrough) {
     super(EXPRENT_SWITCH);
-    this.value = value;
-
-    addBytecodeOffsets(bytecodeOffsets);
+    this.backing = backing;
+    this.type = type;
+    this.fallthrough = fallthrough;
   }
 
   @Override
-  public Exprent copy() {
-    SwitchExprent swExpr = new SwitchExprent(value.copy(), bytecode);
-
-    List<List<Exprent>> lstCaseValues = new ArrayList<>();
-    for (List<Exprent> lst : caseValues) {
-      lstCaseValues.add(new ArrayList<>(lst));
+  public TextBuffer toJava(int indent) {
+    // Validity checks
+    if (!this.backing.isPhantom()) {
+      throw new IllegalStateException("Switch expression backing statement isn't phantom!");
     }
-    swExpr.setCaseValues(lstCaseValues);
 
-    return swExpr;
+    TextBuffer buf = new TextBuffer();
+
+    VarType switchType = this.backing.getHeadexprentList().get(0).getExprType();
+
+    buf.append(this.backing.getHeadexprentList().get(0).toJava(indent)).append(" {").appendLineSeparator();
+    for (int i = 0; i < this.backing.getCaseStatements().size(); i++) {
+
+      Statement stat = this.backing.getCaseStatements().get(i);
+      List<StatEdge> edges = this.backing.getCaseEdges().get(i);
+      List<Exprent> values = this.backing.getCaseValues().get(i);
+
+      boolean hasDefault = false;
+      // As switch expressions can be compiled to a tableswitch, any gaps will contain a jump to the default element.
+      // Switch expressions cannot have a case point to the same statement as the default, so we check for default first and don't check for cases if it exists [TestConstructorSwitchExpression1]
+
+      // TODO: exhaustive switch on enum has a synthetic default edge of throw new IncompatibleClassChangeException()
+      for (StatEdge edge : edges) {
+        if (edge == this.backing.getDefaultEdge()) {
+          buf.appendIndent(indent + 1).append("default -> ");
+          hasDefault = true;
+          break;
+        }
+      }
+
+      boolean hasEdge = false;
+      if (!hasDefault) {
+        for (int j = 0; j < edges.size(); j++) {
+          Exprent value = values.get(j);
+          if (value == null) { // TODO: how can this be null? Is it trying to inject a synthetic case value in switch-on-string processing? [TestSwitchDefaultBefore]
+            continue;
+          }
+
+          if (!hasEdge) {
+            buf.appendIndent(indent + 1).append("case ");
+          } else {
+            buf.append(", ");
+          }
+
+          if (value instanceof ConstExprent) {
+            value = value.copy();
+            ((ConstExprent)value).setConstType(switchType);
+          }
+          if (value instanceof FieldExprent && ((FieldExprent)value).isStatic()) { // enum values
+            buf.append(((FieldExprent)value).getName());
+          }
+          else {
+            buf.append(value.toJava(indent));
+          }
+
+          hasEdge = true;
+        }
+      }
+
+      if (hasEdge) {
+        buf.append(" -> ");
+      }
+
+      boolean simple = true;
+      if (stat.type != Statement.TYPE_BASICBLOCK) {
+        simple = false;
+      }
+
+      if (stat.getExprents() != null && stat.getExprents().size() != 1) {
+        simple = false;
+      }
+
+      // Single yield or throw
+      if (simple) {
+        Exprent exprent = stat.getExprents().get(0);
+
+        if (exprent.type == Exprent.EXPRENT_YIELD) {
+          Exprent content = ((YieldExprent) exprent).getContent();
+
+          if (content.type == Exprent.EXPRENT_CONST) {
+            ((ConstExprent)content).setConstType(this.type);
+          }
+
+          buf.append(content.toJava(indent).append(";"));
+        } else if (exprent.type == Exprent.EXPRENT_EXIT) {
+          ExitExprent exit = (ExitExprent) exprent;
+
+          if (exit.getExitType() == ExitExprent.EXIT_THROW) {
+            buf.append(exit.toJava(indent).append(";"));
+          } else {
+            throw new IllegalStateException("Can't have return in switch expression");
+          }
+        }
+      } else {
+        buf.append("{");
+        buf.appendLineSeparator();
+        TextBuffer statBuf = stat.toJava(indent + 2);
+        buf.append(statBuf);
+        buf.appendIndent(indent + 1).append("}");
+      }
+
+      buf.appendLineSeparator();
+    }
+
+    buf.appendIndent(indent).append("}");
+
+    return buf;
+  }
+
+  @Override
+  public int getPrecedence() {
+    return 1; // Should enclose in case of invocation
   }
 
   @Override
   public VarType getExprType() {
-    return value.getExprType();
+    return this.type;
   }
 
   @Override
-  public CheckTypesResult checkExprTypeBounds() {
-    CheckTypesResult result = new CheckTypesResult();
-
-    result.addMinTypeExprent(value, VarType.VARTYPE_BYTECHAR);
-    result.addMaxTypeExprent(value, VarType.VARTYPE_INT);
-
-    VarType valType = value.getExprType();
-    for (List<Exprent> lst : caseValues) {
-      for (Exprent expr : lst) {
-        if (expr != null) {
-          VarType caseType = expr.getExprType();
-          if (!caseType.equals(valType)) {
-            valType = VarType.getCommonSupertype(caseType, valType);
-            result.addMinTypeExprent(value, valType);
-          }
-        }
-      }
-    }
-
-    return result;
+  public Exprent copy() {
+    return new SwitchExprent(this.backing, this.type, this.fallthrough);
   }
 
   @Override
-  public List<Exprent> getAllExprents() {
-    List<Exprent> lst = new ArrayList<>();
-    lst.add(value);
-    return lst;
-  }
-
-  @Override
-  public TextBuffer toJava(int indent, BytecodeMappingTracer tracer) {
-    tracer.addMapping(bytecode);
-    return value.toJava(indent, tracer).enclose("switch(", ")");
-  }
-
-  @Override
-  public void replaceExprent(Exprent oldExpr, Exprent newExpr) {
-    if (oldExpr == value) {
-      value = newExpr;
-    }
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (o == this) {
-      return true;
-    }
-
-    if (!(o instanceof SwitchExprent)) {
-      return false;
-    }
-
-    SwitchExprent sw = (SwitchExprent)o;
-    return InterpreterUtil.equalObjects(value, sw.getValue());
+  protected List<Exprent> getAllExprents(List<Exprent> list) {
+    return list;
   }
 
   @Override
   public void getBytecodeRange(BitSet values) {
-    if (caseValues != null && !caseValues.isEmpty()) {
-      for (List<Exprent> l : caseValues) {
-        if (l != null && !l.isEmpty()) {
-          for (Exprent e : l) {
-            if (e != null)
-              e.getBytecodeRange(values);
-          }
-        }
-      }
-    }
-    measureBytecode(values, value);
     measureBytecode(values);
-  }
-
-  public Exprent getValue() {
-    return value;
-  }
-
-  public void setCaseValues(List<List<Exprent>> caseValues) {
-    this.caseValues = caseValues;
   }
 }

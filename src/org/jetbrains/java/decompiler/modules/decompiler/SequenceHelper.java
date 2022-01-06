@@ -311,8 +311,21 @@ public final class SequenceHelper {
     if (self) {
       for (StatEdge edge : stat.getAllSuccessorEdges()) {
         stat.removeSuccessor(edge);
-        edge.getDestination().removePredecessor(edge); // TODO: this is redundant but is still needed because of null destinations in removeSuccessor?
       }
     }
+  }
+
+  public static Statement firstNonSeq(Statement stat) {
+    Statement first = stat.getFirst();
+
+    if (first == null) {
+      return stat;
+    }
+
+    while (first.type == Statement.TYPE_SEQUENCE) {
+      first = first.getFirst();
+    }
+
+    return first;
   }
 }

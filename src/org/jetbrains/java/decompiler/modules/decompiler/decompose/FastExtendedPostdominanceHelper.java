@@ -78,7 +78,7 @@ public class FastExtendedPostdominanceHelper {
       stackPath.clear();
 
       stack.add(statement.getStats().getWithKey(head));
-      stackPath.add(factory.spawnEmptySet());
+      stackPath.add(factory.createEmptySet());
 
       setVisited.clear();
 
@@ -161,7 +161,7 @@ public class FastExtendedPostdominanceHelper {
 
         FastFixedSet<Integer> setReachabilityCopy = setReachability.getCopy();
 
-        FastFixedSet<Integer> setIntersection = factory.spawnEmptySet();
+        FastFixedSet<Integer> setIntersection = factory.createEmptySet();
         boolean isIntersectionInitialized = false;
 
         for (FastFixedSet<Integer> predset : lstPredSets) {
@@ -193,7 +193,7 @@ public class FastExtendedPostdominanceHelper {
 
     // exception handlers cannot be postdominator nodes
     // TODO: replace with a standard set?
-    FastFixedSet<Integer> setHandlers = factory.spawnEmptySet();
+    FastFixedSet<Integer> setHandlers = factory.createEmptySet();
     boolean handlerfound = false;
 
     for (Statement stat : statement.getStats()) {
@@ -217,7 +217,7 @@ public class FastExtendedPostdominanceHelper {
     calcReachabilitySuppPoints(edgetype);
 
     for (Statement stat : statement.getStats()) {
-      mapExtPostdominators.put(stat.id, factory.spawnEmptySet());
+      mapExtPostdominators.put(stat.id, factory.createEmptySet());
     }
 
     iterateReachability((node, mapSets) -> {
@@ -262,7 +262,7 @@ public class FastExtendedPostdominanceHelper {
 
       for (Statement stat : lstReversePostOrderList) {
 
-        FastFixedSet<Integer> set = factory.spawnEmptySet();
+        FastFixedSet<Integer> set = factory.createEmptySet();
         set.add(stat.id);
 
         for (StatEdge prededge : stat.getAllPredecessorEdges()) {

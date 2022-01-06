@@ -2,60 +2,40 @@ package pkg;
 
 public class TestReturnSwitchExpression2 {
    public String test(int i) {
-      byte var10000;
-      switch(i) {
-      case 1:
-         var10000 = 2;// 6
-         break;
-      case 2:
-         var10000 = 1;// 7
-         break;
-      default:
-         var10000 = 3;// 8
-      }
-
-      String var2;
-      switch(var10000) {
-      case 1:
-         var2 = "1";// 10
-         break;
-      case 2:
-         var2 = "2";// 11
-         break;
-      default:
-         var2 = "Unknown";// 12
-      }
-
-      return var2;// 5
+      return switch(switch(i) {// 5
+         case 1 -> 2;// 6
+         case 2 -> 1;// 7
+         default -> 3;// 8
+      }) {
+         case 1 -> "1";// 10
+         case 2 -> "2";// 11
+         default -> "Unknown";// 12
+      };
    }
 }
 
 class 'pkg/TestReturnSwitchExpression2' {
    method 'test (I)Ljava/lang/String;' {
-      0      5
-      1      5
-      1c      7
-      1d      8
-      20      10
-      21      11
-      24      13
-      25      17
-      40      19
-      41      19
-      42      20
-      45      22
-      46      22
-      47      23
-      4a      25
-      4c      28
+      0      4
+      1      4
+      1c      5
+      20      6
+      24      7
+      25      4
+      40      9
+      41      9
+      45      10
+      46      10
+      4a      11
+      4c      4
    }
 }
 
 Lines mapping:
-5 <-> 29
-6 <-> 8
-7 <-> 11
-8 <-> 14
-10 <-> 20
-11 <-> 23
-12 <-> 26
+5 <-> 5
+6 <-> 6
+7 <-> 7
+8 <-> 8
+10 <-> 10
+11 <-> 11
+12 <-> 12

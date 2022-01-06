@@ -15,10 +15,10 @@ public class TestEmptyBlocks {
          ++i;
       }
 
-      while((new Random()).nextBoolean()) {// 33
+      while(new Random().nextBoolean()) {// 33
       }
 
-      if ((new Random()).nextBoolean()) {// 37
+      if (new Random().nextBoolean()) {// 37
       }
 
    }// 40

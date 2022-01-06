@@ -10,6 +10,7 @@ import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.code.cfg.ControlFlowGraph;
 import org.jetbrains.java.decompiler.code.cfg.ExceptionRangeCFG;
 import org.jetbrains.java.decompiler.main.rels.DecompileRecord;
+import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectNode;
@@ -23,8 +24,8 @@ import org.jetbrains.java.decompiler.util.FastSparseSetFactory.FastSparseSet;
 public class DotExporter {
   private static final String DOTS_FOLDER = System.getProperty("DOT_EXPORT_DIR", null);
   private static final String DOTS_ERROR_FOLDER = System.getProperty("DOT_ERROR_EXPORT_DIR", null);
-  private static final boolean DUMP_DOTS = DOTS_FOLDER != null && !DOTS_FOLDER.trim().isEmpty();
-  private static final boolean DUMP_ERROR_DOTS = DOTS_ERROR_FOLDER != null && !DOTS_ERROR_FOLDER.trim().isEmpty();
+  public static final boolean DUMP_DOTS = DOTS_FOLDER != null && !DOTS_FOLDER.trim().isEmpty();
+  public static final boolean DUMP_ERROR_DOTS = DOTS_ERROR_FOLDER != null && !DOTS_ERROR_FOLDER.trim().isEmpty();
   // http://graphs.grevian.org/graph is a nice visualizer for the outputed dots.
 
   // Outputs a statement and as much of its information as possible into a dot formatted string.
@@ -68,7 +69,7 @@ public class DotExporter {
         }
 
         if (ifs.getElseEdge() != null) {
-          extraData.put(ifs.getElseEdge(), "If Edge");
+          extraData.put(ifs.getElseEdge(), "Else Edge");
         }
       }
     }
@@ -97,7 +98,6 @@ public class DotExporter {
           buffer.append(sourceId + "->" + clsId + " [arrowhead=diamond,label=\"Closure\"];\r\n");
         }
 
-        // TODO: why are some returns break edges instead of returns?
         if (edge.getType() == StatEdge.TYPE_FINALLYEXIT || edge.getType() == StatEdge.TYPE_BREAK) {
           exits.add(edge.getDestination().id);
         }
@@ -110,7 +110,17 @@ public class DotExporter {
       for (StatEdge labelEdge : st.getLabelEdges()) {
         String src = labelEdge.getSource().id + (labelEdge.getSource().getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty()?"":"000000");;
         String destId = labelEdge.getDestination().id + (labelEdge.getDestination().getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty()?"":"000000");
-        buffer.append(src + "->" + destId + " [color=orange,label=\"Label Edge (Contained by " + st.id + ")\"];\r\n");
+        String data = "";
+        if (labelEdge.labeled) {
+          data += "Labeled";
+        }
+        if (labelEdge.labeled && labelEdge.explicit) {
+          data += ", ";
+        }
+        if (labelEdge.explicit) {
+          data += "Explicit";
+        }
+        buffer.append(src + "->" + destId + " [color=orange,label=\"Label Edge (" + data + ") (Contained by " + st.id + ")\"];\r\n");
       }
 
       for (Statement neighbour : st.getNeighbours(Statement.STATEDGE_ALL, Statement.DIRECTION_FORWARD)) {
@@ -270,7 +280,7 @@ public class DotExporter {
 
   private static String toJava(Statement statement) {
     try {
-      String java = statement.toJava().toString().replace("\"", "\\\"");
+      String java = statement.toJava().convertToStringAndAllowDataDiscard().replace("\"", "\\\"");
       if (statement instanceof BasicBlockStatement) {
         if (statement.getExprents() == null || statement.getExprents().isEmpty()) {
           java = "<" + (statement.getExprents() == null ? "null" : "empty") + " basic block>\n" + java;
@@ -449,7 +459,14 @@ public class DotExporter {
     for(int i=0;i<blocks.size();i++) {
       DirectNode block = blocks.get(i);
 
-      StringBuilder label = new StringBuilder(block.id);
+      StringBuilder label = new StringBuilder(block.id + " in statement " + block.statement.id + " " + getStatType(block.statement));
+      label.append("\\n");
+      label.append(block.block != null ? toJava(block.block) : "null block");
+      if (block.block == null) {
+        TextBuffer buf = ExprProcessor.listToJava(block.exprents, 0);
+        label.append("\\n");
+        label.append(buf.convertToStringAndAllowDataDiscard());
+      }
       if (vars != null && vars.containsKey(block.id)) {
         SFormsFastMapDirect map = vars.get(block.id);
 
@@ -511,6 +528,7 @@ public class DotExporter {
   public static void toDotFile(DirectGraph dgraph, StructMethod mt, String suffix) {
     toDotFile(dgraph, mt, suffix, null);
   }
+
   public static void toDotFile(DirectGraph dgraph, StructMethod mt, String suffix, Map<String, SFormsFastMapDirect> vars) {
     if (!DUMP_DOTS)
       return;
