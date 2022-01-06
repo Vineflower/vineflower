@@ -191,8 +191,9 @@ public class StructContext {
     });
   }
 
-  private void addClass(ContextUnit unit, String name, String externalPath, String internalPath, boolean isOwn, Path path) {
-    addClass(name, isOwn, new ClassProvider(unit, externalPath, internalPath, isOwn, () -> Files.readAllBytes(path)));
+  private void addClass(ContextUnit unit, String name, String externalPath, String internalPath, boolean isOwn, Path path) throws IOException {
+    byte[] b = Files.readAllBytes(path);
+    addClass(name, isOwn, new ClassProvider(unit, externalPath, internalPath, isOwn, () -> b));
   }
 
   private void addClass(ContextUnit unit, String name, String externalPath, String internalPath, boolean isOwn, ClassSupplier supplier) {
