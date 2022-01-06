@@ -11,7 +11,6 @@ import org.jetbrains.java.decompiler.util.DataInputFullStream;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.*;
@@ -27,7 +26,6 @@ public class StructContext {
   private final Map<String, ClassProvider> classes = new HashMap<>();
   private final Map<String, StructClass> ownClasses = new HashMap<>();
   private final Map<String, List<String>> abstractNames = new HashMap<>();
-  private final Map<File, FileSystem> zipFiles = new HashMap<>();
 
   public StructContext(IResultSaver saver, IDecompiledData decompiledData, LazyLoader loader) {
     this.saver = saver;
@@ -140,30 +138,28 @@ public class StructContext {
     }
   }
 
-  private FileSystem getZipFileSystem(File file) throws IOException {
-    try {
-      return zipFiles.computeIfAbsent(file, f -> {
-        URI uri = null;
-        try {
-          uri = new URI("jar:file", null, f.toURI().getPath(), null);
-          return FileSystems.newFileSystem(uri, Collections.emptyMap());
-        } catch (FileSystemAlreadyExistsException e) {
-          return FileSystems.getFileSystem(uri);
-        } catch (URISyntaxException e) {
-          throw new RuntimeException(e);
-        } catch (IOException e) {
-          throw new UncheckedIOException(e);
-        }
-      });
-    } catch (UncheckedIOException e) {
-      throw e.getCause();
-    }
-  }
-
   private void addArchive(String externalPath, File file, int type, boolean isOwn) throws IOException {
     DecompilerContext.getLogger().writeMessage("Adding Archive: " + file.getAbsolutePath(), Severity.INFO);
-    FileSystem fs = getZipFileSystem(file);
-    addFileSystem(fs, externalPath, file, type, isOwn);
+    boolean fsOwned = true;
+    FileSystem fs;
+    try {
+      URI uri = new URI("jar:file", null, file.toURI().getPath(), null);
+      try {
+        fs = FileSystems.newFileSystem(uri, Collections.emptyMap());
+      } catch (FileSystemAlreadyExistsException e) {
+        fsOwned = false;
+        fs = FileSystems.getFileSystem(uri);
+      }
+    } catch (IOException e) {
+      throw e;
+    } catch (URISyntaxException e) {
+      throw new RuntimeException(e);
+    }
+    try {
+      addFileSystem(fs, externalPath, file, type, isOwn);
+    } finally {
+      if (fsOwned) fs.close();
+    }
   }
 
   private void addFileSystem(FileSystem fs, String externalPath, File file, int type, boolean isOwn) throws IOException {
