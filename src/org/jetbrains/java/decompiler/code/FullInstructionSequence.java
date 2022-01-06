@@ -17,7 +17,8 @@ public class FullInstructionSequence extends InstructionSequence {
     // translate raw exception handlers to instr
     for (ExceptionHandler handler : extable.getHandlers()) {
       handler.from_instr = this.getPointerByAbsOffset(handler.from);
-      handler.to_instr = this.getPointerByAbsOffset(handler.to);
+      int toIndex = this.getPointerByAbsOffset(handler.to);
+      handler.to_instr = toIndex == -1 ? this.collinstr.size() : toIndex;
       handler.handler_instr = this.getPointerByAbsOffset(handler.handler);
     }
   }

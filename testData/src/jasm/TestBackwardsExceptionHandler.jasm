@@ -1,0 +1,55 @@
+/**
+ * This code can be assembled with <a href="https://wiki.openjdk.java.net/display/CodeTools/asmtools">asmtools</a>
+ * using <code>asmtools jasm -g *.jasm</code> command line.
+ */
+package  pkg;
+
+super public class TestBackwardsExceptionHandler
+	version 52:0
+{
+
+public Method "<init>":"()V"
+	stack 1 locals 1
+{
+		aload_0;
+		invokespecial	Method java/lang/Object."<init>":"()V";
+		return;
+}
+
+static Method testExtraReturn:"(I)V"
+	stack 1 locals 1
+{
+	goto L0;
+	catch t0 java/lang/Exception;
+		stack_frame_type stack1;
+		stack_map class java/lang/Exception;
+		invokevirtual   Method java/lang/Exception.printStackTrace:"()V";
+	L0:
+	try t0;
+		iinc 0, 1;
+		iload_0;
+		invokestatic Method test:"(I)V";
+		return;
+	endtry t0;
+	return; // should be useless
+}
+
+static Method test:"(I)V"
+	stack 1 locals 1
+{
+	goto L0;
+	catch t0 java/lang/Exception;
+		stack_frame_type stack1;
+		stack_map class java/lang/Exception;
+		invokevirtual   Method java/lang/Exception.printStackTrace:"()V";
+	L0:
+	try t0;
+		iinc 0, 1;
+		iload_0;
+		invokestatic Method test:"(I)V";
+		return;
+	endtry t0;
+}
+
+
+} // end Class TestBackwardsExceptionHandler

@@ -1,0 +1,34 @@
+/**
+ * This code can be assembled with <a href="https://wiki.openjdk.java.net/display/CodeTools/asmtools">asmtools</a>
+ * using <code>asmtools jasm -g *.jasm</code> command line.
+ */
+package  pkg;
+
+super public class TestLeakyMethod
+	version 52:0
+{
+
+public Method "<init>":"()V"
+	stack 1 locals 1
+{
+		aload_0;
+		invokespecial	Method java/lang/Object."<init>":"()V";
+		return;
+}
+
+static Method test:"(I)V"
+	stack 1 locals 1
+{
+	return;
+	iload_0;
+	pop;
+}
+
+static Method testIllegal:"(I)V"
+	stack 1 locals 1
+{
+	iload_0;
+	pop;
+}
+
+} // end Class TestLeakyMethod
