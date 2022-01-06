@@ -743,7 +743,7 @@ public class InvocationExprent extends Exprent {
         else if (instance != null) {
           String s = ".";
           if (DecompilerContext.getOption(IFernflowerPreferences.DECOMPILER_COMMENTS)) {
-            s += "/* FF: Unable to resugar constructor */";
+            s += "/* $FF: Unable to resugar constructor */";
           }
           s += "<init>(";
 
