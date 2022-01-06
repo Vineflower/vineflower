@@ -291,6 +291,11 @@ public class MethodProcessorRunnable implements Runnable {
         continue;
       }
 
+      if (MergeHelper.condenseInfiniteLoopsWithReturn(root)) {
+        decompileRecord.add("CondenseDo", root);
+        continue;
+      }
+
       // initializer may have at most one return point, so no transformation of method exits permitted
       if (isInitializer || !ExitHelper.condenseExits(root)) {
         break;

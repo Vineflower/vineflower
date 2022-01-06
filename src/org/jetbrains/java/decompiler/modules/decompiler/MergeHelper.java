@@ -204,77 +204,10 @@ public final class MergeHelper {
           //else { // fix infinite loops
 
           StatEdge elseEdge = firstif.getAllSuccessorEdges().get(0);
-          boolean directlyConnectedToExit = directlyConnectedToExit(stat, elseEdge.getDestination().getParent(), elseEdge.getDestination());
-          if (isDirectPath(stat, elseEdge.getDestination()) || directlyConnectedToExit) {
+          if (isDirectPath(stat, elseEdge.getDestination())) {
             // FIXME: This is horrible and bad!! Needs an extraction step before loop merging!!
             if (isIif(firstif.getHeadexprent().getCondition())) {
               return false;
-            }
-
-            // Lift sequences
-            // Loops that are directly connected to the exit have statements inside that need to lifted out of the loop
-            if (directlyConnectedToExit) {
-              // Statement contained within loop
-              Statement firstStat = stat.getFirst();
-
-              // Make sure the inside of the loop is a sequence that has at least the if statement and another block
-              if (firstStat.type == Statement.TYPE_SEQUENCE && firstStat.getStats().size() > 1) {
-                // Get continues
-                List<StatEdge> continues = firstStat.getStats().getLast().getSuccessorEdges(StatEdge.TYPE_CONTINUE);
-                if (!continues.isEmpty() && continues.get(0).getDestination() == stat) {
-                  // Cannot make loop- continue would be lifted to the outside of the loop! [TestInlineNoSuccessor]
-                  return false;
-                } else {
-                  // Discard loops that have continues when blocks are inlined
-                  // FIXME: whole system needs rewrite
-                  Statement temp = firstStat;
-                  while (true) {
-                    int size = temp.getStats().size();
-
-                    if (size <= 1) {
-                      break;
-                    }
-
-                    List<StatEdge> breaks = temp.getStats().getLast().getSuccessorEdges(StatEdge.TYPE_BREAK);
-
-                    if (!breaks.isEmpty() && breaks.get(0).getDestination().type != Statement.TYPE_DUMMYEXIT) {
-                      break;
-                    }
-
-                    if (!temp.getStats().getLast().getSuccessorEdges(StatEdge.TYPE_CONTINUE).isEmpty()) {
-                      return false;
-                    }
-
-                    temp = temp.getStats().get(temp.getStats().size() - 2);
-
-                    if (temp.type != Statement.TYPE_SEQUENCE) {
-                      break;
-                    }
-                  }
-                }
-
-                // Found basic block, delegate to loop extractor
-                Statement firstSt = firstStat.getStats().get(0);
-                if (firstSt.type == Statement.TYPE_IF && ((IfStatement)firstSt).getIfstat().type != Statement.TYPE_SEQUENCE && ((IfStatement) firstSt).getIfstat().getStats().isEmpty()) {
-                  return false;
-                }
-
-                List<Statement> toAdd = new ArrayList<>();
-
-                // Skip first statement as that is the if that contains the while loop condition
-                for (int idx = 1; idx < firstStat.getStats().size(); idx++) {
-                  Statement st = firstStat.getStats().get(idx);
-                  // Add to temp list
-                  toAdd.add(st);
-                }
-
-                for (Statement st : toAdd) {
-                  // Remove the statement from the loop body
-                  firstStat.getStats().removeWithKey(st.id);
-                }
-
-                liftToParent(stat, toAdd);
-              }
             }
 
             // exit condition identified
@@ -390,29 +323,6 @@ public final class MergeHelper {
         par.setFirst(seq);
       }
     }
-  }
-
-  // Returns whether the statement has a single connection to the exitpoint of the method
-  private static boolean directlyConnectedToExit(Statement loop, Statement parent, Statement endStat) {
-    List<StatEdge> successors = endStat.getAllSuccessorEdges();
-
-    // Make sure that there is only one successor from this statement, to indicate a direct path
-    if (successors.size() == 1) {
-      StatEdge successor = successors.get(0);
-      Statement destination = successor.getDestination();
-
-      // If the destination is connected to the exit and the successor's closure points to our current loop, then we have successfully found a direct path to the exit
-      if (destination.type == Statement.TYPE_DUMMYEXIT && successor.closure == loop) {
-        return true;
-      }
-
-      // If we didn't find a direct path but the destination contained within the parent statement (i.e a neighbor of ours) then check that too [TestLoopBreakException]
-      if (parent.containsStatement(destination)) {
-        return directlyConnectedToExit(loop, parent, destination);
-      }
-    }
-
-    return false;
   }
 
   // Returns if the statement provided and the end statement provided has a direct control flow path
@@ -990,5 +900,196 @@ public final class MergeHelper {
     }
 
     return false;
+  }
+
+  // Condense an infinite loop with a return at the end and if statement at the beginning.
+  //
+  // while(true) {
+  //   if (...) {
+  //     ...
+  //   }
+  //   return;
+  // }
+  //
+  // into
+  //
+  // while(...) {
+  //   ...
+  // }
+  // return;
+  //
+  public static boolean condenseInfiniteLoopsWithReturn(Statement root) {
+    boolean ret = condenseInfiniteLoopsWithReturnRec(root);
+
+    if (ret) {
+      SequenceHelper.condenseSequences(root);
+    }
+
+    return ret;
+  }
+
+  private static boolean condenseInfiniteLoopsWithReturnRec(Statement stat) {
+    boolean res = false;
+
+    if (stat.type == Statement.TYPE_DO) {
+      DoStatement loop = (DoStatement)stat;
+
+      if (loop.getLooptype() == DoStatement.LOOP_DO) {
+        res = condenseLoop(loop);
+      }
+    }
+
+    for (Statement st : stat.getStats()) {
+      res |= condenseInfiniteLoopsWithReturnRec(st);
+    }
+
+    return res;
+  }
+
+  private static boolean condenseLoop(DoStatement stat) {
+    if (stat.getFirst().type == Statement.TYPE_SEQUENCE && stat.getSuccessorEdges(StatEdge.TYPE_REGULAR).isEmpty()) {
+      Statement first = stat.getFirst();
+      int extractStart = extractableFromLoop((SequenceStatement) first, stat);
+
+      if (first.getStats().size() >= 1 && extractStart > 0) {
+        Statement firstBody = first.getStats().get(0);
+        Statement lastBody = first.getStats().getLast();
+        Statement preExtract = first.getStats().get(extractStart - 1);
+        List<Statement> extract = new ArrayList<>(first.getStats().subList(extractStart, first.getStats().size()));
+
+        if (firstBody.type == Statement.TYPE_IF && ((IfStatement)firstBody).iftype == IfStatement.IFTYPE_IF && firstBody.getBasichead().getExprents().isEmpty()) {
+          List<StatEdge> breaks = lastBody.getSuccessorEdges(StatEdge.TYPE_BREAK);
+
+          if (!breaks.isEmpty()) {
+            if (breaks.get(0).getDestination().type == Statement.TYPE_DUMMYEXIT) {
+              Set<StatEdge> edges = new HashSet<>();
+              TryWithResourcesProcessor.findEdgesLeaving(firstBody, firstBody, edges);
+
+              // Make sure first statement has continue!
+              boolean continueFound = false;
+              for (StatEdge edge : edges) {
+                if (edge.getDestination() == stat && edge.getType() == StatEdge.TYPE_CONTINUE) {
+                  continueFound = true;
+                  break;
+                }
+              }
+
+              // No continue, won't be valid when extraction happens
+              if (!continueFound) {
+                return false;
+              }
+
+              // Process predecessor edges
+              for (Statement st : extract) {
+                for (StatEdge edge : st.getAllPredecessorEdges()) {
+                  if (edge.getType() == StatEdge.TYPE_REGULAR && edge.getSource() == preExtract) {
+                    preExtract.removeSuccessor(edge);
+                  }
+
+                  if (edge.getType() == StatEdge.TYPE_BREAK) {
+                    if (stat.containsStatementStrict(edge.getSource())) {
+                      stat.addLabeledEdge(edge);
+                    }
+                  }
+                }
+              }
+
+              // Move block outside loop
+              extract.add(0, stat);
+              SequenceStatement seq = new SequenceStatement(extract);
+
+              // Remove last statement from stat
+              for (Statement st : new ArrayList<>(extract)) {
+                stat.getFirst().getStats().removeWithKey(st.id);
+              }
+
+              // Replace loop with sequence
+              stat.replaceWith(seq);
+
+              for (StatEdge edge : new ArrayList<>(seq.getLabelEdges())) {
+                stat.addLabeledEdge(edge);
+              }
+
+              // Fix continues being held by the sequence instead of the loop
+              for (StatEdge edge : seq.getPredecessorEdges(StatEdge.TYPE_CONTINUE)) {
+                if (stat.containsStatementStrict(edge.getSource())) {
+                  seq.removePredecessor(edge);
+                  edge.getSource().changeEdgeNode(Statement.DIRECTION_FORWARD, edge, stat);
+                  stat.addPredecessor(edge);
+                }
+              }
+
+              seq.setAllParent();
+
+              // Edge from loop to next
+              Statement next = extract.get(1);
+              stat.addSuccessor(new StatEdge(StatEdge.TYPE_REGULAR, stat, next));
+
+              // Replace first statement from sequence to if statement body
+              Statement ifstat = ((IfStatement) firstBody).getIfstat();
+              first.replaceWith(ifstat);
+              // Remove if edge
+              ((IfStatement) firstBody).getIfEdge().getDestination().removeSuccessor(((IfStatement) firstBody).getIfEdge());
+
+              stat.setFirst(ifstat);
+
+              stat.setAllParent();
+
+              // while(true) -> while (...)
+              stat.setLooptype(DoStatement.LOOP_WHILE);
+
+              // No negation needed
+              stat.setConditionExprent(((IfStatement)firstBody).getHeadexprent().getCondition());
+
+              stat.getFirst().setAllParent();
+
+              return true;
+            }
+          }
+        }
+      }
+    }
+
+    return false;
+  }
+
+  private static int extractableFromLoop(SequenceStatement seq, DoStatement loop) {
+    List<Statement> noContinue = new ArrayList<>();
+    for (int i = 0; i < seq.getStats().size(); i++) {
+      Statement stat = seq.getStats().get(i);
+
+      Set<StatEdge> edges = new HashSet<>();
+      TryWithResourcesProcessor.findEdgesLeaving(stat, stat, edges);
+
+      boolean continueFound = false;
+      for (StatEdge edge : edges) {
+        if (edge.getDestination() == loop && edge.getType() == StatEdge.TYPE_CONTINUE) {
+          continueFound = true;
+          break;
+        }
+      }
+
+      if (continueFound) {
+        continue;
+      }
+
+      if (i > 0) {
+        Statement last = seq.getStats().get(i - 1);
+
+        if (last.getAllSuccessorEdges().size() == 1) {
+          StatEdge edge = last.getAllSuccessorEdges().get(0);
+
+          if (edge.getType() == StatEdge.TYPE_REGULAR && edge.getDestination() == stat) {
+            noContinue.add(stat);
+          }
+        }
+      }
+    }
+
+    if (noContinue.isEmpty()) {
+      return -1;
+    }
+
+    return seq.getStats().indexOf(noContinue.get(0));
   }
 }

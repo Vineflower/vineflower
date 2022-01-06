@@ -403,7 +403,7 @@ public final class LabelHelper {
           for (StatEdge edge : entr.getValue()) {
             if (stat.type == Statement.TYPE_DO) {
 
-              // Edges that contain it's own loop as a closure are always explicit, as removing them can alter control flow [TestLoopBreak]
+              // Edges that contain it's own loop as a closure are always explicit, as removing them can alter control flow
               if (edge.closure == stat) {
                 continue;
               }
