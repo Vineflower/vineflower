@@ -150,8 +150,6 @@ public class StructContext {
         fsOwned = false;
         fs = FileSystems.getFileSystem(uri);
       }
-    } catch (IOException e) {
-      throw e;
     } catch (URISyntaxException e) {
       throw new RuntimeException(e);
     }
