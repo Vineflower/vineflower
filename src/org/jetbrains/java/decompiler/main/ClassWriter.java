@@ -56,7 +56,7 @@ public class ClassWriter {
   private static boolean invokeProcessors(TextBuffer buffer, ClassNode node) {
     ClassWrapper wrapper = node.getWrapper();
     if (wrapper == null) {
-      buffer.append("/* $FF: Couldn't be decompiled. Class " + node.classStruct.qualifiedName + " wasn't processed yet! */" + "/* ");
+      buffer.append("/* $FF: Couldn't be decompiled. Class " + node.classStruct.qualifiedName + " wasn't processed yet! */");
       List<String> lines = new ArrayList<>();
       lines.addAll(ClassWriter.getErrorComment());
       for (String line : lines) {

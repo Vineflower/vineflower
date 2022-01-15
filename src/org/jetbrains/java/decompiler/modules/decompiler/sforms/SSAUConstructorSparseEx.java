@@ -231,7 +231,7 @@ public class SSAUConstructorSparseEx {
     }
 
     // Foreach init node- mark as assignment!
-    if (varassign == null && node.type == DirectNode.NODE_INIT && node.exprents.get(0).type == Exprent.EXPRENT_VAR) {
+    if (varassign == null && node.type == DirectNode.NodeType.FOREACH_VARDEF && node.exprents.get(0).type == Exprent.EXPRENT_VAR) {
       varassign = (VarExprent) node.exprents.get(0);
     }
 

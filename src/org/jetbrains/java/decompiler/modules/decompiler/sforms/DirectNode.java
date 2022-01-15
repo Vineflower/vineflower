@@ -10,15 +10,7 @@ import java.util.List;
 
 
 public class DirectNode {
-
-  public static final int NODE_DIRECT = 1;
-  public static final int NODE_TAIL = 2;
-  public static final int NODE_INIT = 3;
-  public static final int NODE_CONDITION = 4;
-  public static final int NODE_INCREMENT = 5;
-  public static final int NODE_TRY = 6;
-
-  public final int type;
+  public final NodeType type;
 
   public final String id;
 
@@ -32,13 +24,17 @@ public class DirectNode {
 
   public final List<DirectNode> preds = new ArrayList<>();
 
-  public DirectNode(int type, Statement statement, String id) {
+  private DirectNode(NodeType type, Statement statement) {
     this.type = type;
     this.statement = statement;
-    this.id = id;
+    this.id = type.makeId(statement.id);
   }
 
-  public DirectNode(int type, Statement statement, BasicBlockStatement block) {
+  public static DirectNode forStat(NodeType type, Statement statement) {
+    return new DirectNode(type, statement);
+  }
+
+  private DirectNode(NodeType type, Statement statement, BasicBlockStatement block) {
     this.type = type;
     this.statement = statement;
 
@@ -46,8 +42,37 @@ public class DirectNode {
     this.block = block;
   }
 
+  public static DirectNode forBlock(Statement statement) {
+    return new DirectNode(NodeType.DIRECT, statement, (BasicBlockStatement)statement);
+  }
+
   @Override
   public String toString() {
     return id;
+  }
+
+  public enum NodeType {
+    DIRECT("") {
+      @Override
+      protected String makeId(int statId) {
+        return "" + statId;
+      }
+    },
+    TAIL("tail"),
+    INIT("init"),
+    CONDITION("cond"),
+    INCREMENT("inc"),
+    TRY("try"),
+    FOREACH_VARDEF("foreach");
+
+    private final String name;
+
+    NodeType(String name) {
+      this.name = name;
+    }
+
+    protected String makeId(int statId) {
+      return statId + "_" + name;
+    }
   }
 }

@@ -480,26 +480,16 @@ public class DotExporter {
         }
       }
 
-      buffer.append(directBlockIdToDot(block.id)+" [shape=box,label=\""+label+"\"];\r\n");
+      buffer.append((block.id)+" [shape=box,label=\""+label+"\"];\r\n");
 
       for(DirectNode dest: block.succs) {
-        buffer.append(directBlockIdToDot(block.id)+"->"+directBlockIdToDot(dest.id)+";\r\n");
+        buffer.append((block.id)+"->"+(dest.id)+";\r\n");
       }
     }
 
     buffer.append("}");
 
     return buffer.toString();
-  }
-
-  private static String directBlockIdToDot(String id) {
-    id = id.replaceAll("_try", "999");
-    id = id.replaceAll("_tail", "888");
-
-    id = id.replaceAll("_init", "111");
-    id = id.replaceAll("_cond", "222");
-    id = id.replaceAll("_inc", "333");
-    return id;
   }
 
   private static File getFile(String folder, StructMethod mt, String suffix) {

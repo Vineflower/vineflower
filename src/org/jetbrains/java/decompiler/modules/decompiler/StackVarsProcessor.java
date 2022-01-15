@@ -134,7 +134,7 @@ public class StackVarsProcessor {
       if (nd.succs.size() == 1) {
         DirectNode ndsucc = nd.succs.get(0);
 
-        if (ndsucc.type == DirectNode.NODE_TAIL && !ndsucc.exprents.isEmpty()) {
+        if (ndsucc.type == DirectNode.NodeType.TAIL && !ndsucc.exprents.isEmpty()) {
           lstLists.add(nd.succs.get(0).exprents);
           nd = ndsucc;
         }
@@ -200,7 +200,7 @@ public class StackVarsProcessor {
       // make sure the 3 special exprent lists in a loop (init, condition, increment) are not empty
       // change loop type if necessary
       if (nd.exprents.isEmpty() &&
-          (nd.type == DirectNode.NODE_INIT || nd.type == DirectNode.NODE_CONDITION || nd.type == DirectNode.NODE_INCREMENT)) {
+          (nd.type == DirectNode.NodeType.INIT || nd.type == DirectNode.NodeType.CONDITION || nd.type == DirectNode.NodeType.INCREMENT)) {
         nd.exprents.add(null);
 
         if (nd.statement.type == Statement.TYPE_DO) {

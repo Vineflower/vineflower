@@ -38,7 +38,7 @@ public final class SwitchExpressionHelper {
       return false;
     }
 
-    // At this stage, there are no variable assignments
+    // At this stage, there are no variable definitions
     // So we need to figure out which variable, if any, this switch statement is an expression of and make it generate.
 
     Exprent condition = ((SwitchHeadExprent) stat.getHeadexprent()).getValue();
