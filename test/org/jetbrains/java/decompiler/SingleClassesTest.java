@@ -228,6 +228,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestAssignmentInLoop");
     register(JAVA_8, "TestArrays");
     register(JAVA_8, "TestArrayForeach");
+    register(JAVA_8, "TestArrayInitializations");
     // TODO: I'm pretty sure this test opened the gates of hell somewhere. We need to figure out what's causing that
     register(JAVA_8, "TestTernaryCall");
     register(JAVA_8, "TestAnonymousObject");

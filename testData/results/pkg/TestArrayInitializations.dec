@@ -1,0 +1,406 @@
+package pkg;
+
+import java.util.Random;
+
+public class TestArrayInitializations {
+   public int[] test1(Random r) {
+      return new int[]{r.nextInt(10), r.nextInt(20)};// 7
+   }
+
+   public int[] test2(Random r) {
+      return new int[]{r.nextInt(10), r.nextInt(20)};// 12 13 14
+   }
+
+   public int[] test3(Random r) {
+      return new int[]{r.nextInt(10), r.nextInt(20)};// 19 20 21
+   }
+
+   public Object[] test4(Random r) {
+      Object[] objects = new Object[]{r.nextInt(10), r, null};// 25 26 27
+      objects[2] = objects;// 28
+      return objects;// 29
+   }
+
+   public Object[] test5(Random r) {
+      Object[] objects = new Object[]{r.nextInt(10), r, null};// 33 34 35
+      objects[2] = objects[0];// 36
+      return objects;// 37
+   }
+
+   public Object[] test6(Random r) {
+      Object[] o;
+      Object[] objects = o = new Object[3];// 43
+      objects[0] = r.nextInt(10);// 44
+      objects[1] = r;// 45
+      objects[2] = o;// 46
+      return objects;// 47
+   }
+
+   public Object[] test7(Random r) {
+      Object[] objects;
+      Object[] o = objects = new Object[3];// 53
+      objects[0] = r.nextInt(10);// 54
+      objects[1] = r;// 55
+      objects[2] = o;// 56
+      return objects;// 57
+   }
+
+   public int[] test8(Random r) {
+      return new int[]{10, 20};// 61
+   }
+
+   public int[] test9(Random r) {
+      return new int[]{10, 20};// 66 67 68
+   }
+
+   public int[] test10(Random r) {
+      return new int[]{10, r.nextInt(20)};// 73 74 75
+   }
+
+   public int[] test11(Random r) {
+      return new int[]{r.nextInt(10), 20};// 80 81 82
+   }
+
+   public int[] test12(Random r) {
+      return new int[]{r.nextInt(10), r.nextInt(20), 30};// 87 88 89 90
+   }
+
+   public int[] test13(Random r) {
+      return new int[]{10, 20};// 95 96 97
+   }
+
+   public int[] test14(Random r) {
+      return new int[]{10, r.nextInt(20)};// 102 103 104
+   }
+
+   public int[] test15(Random r) {
+      return new int[]{r.nextInt(10), 20};// 109 110 111
+   }
+
+   public int[] test16(Random r) {
+      return new int[]{r.nextInt(10), r.nextInt(20), 30};// 116 117 118 119
+   }
+}
+
+class 'pkg/TestArrayInitializations' {
+   method 'test1 (Ljava/util/Random;)[I' {
+      5      6
+      6      6
+      7      6
+      8      6
+      9      6
+      a      6
+      e      6
+      f      6
+      10      6
+      11      6
+      12      6
+      13      6
+      15      6
+   }
+
+   method 'test2 (Ljava/util/Random;)[I' {
+      6      10
+      7      10
+      8      10
+      9      10
+      a      10
+      b      10
+      f      10
+      10      10
+      11      10
+      12      10
+      13      10
+      14      10
+      17      10
+   }
+
+   method 'test3 (Ljava/util/Random;)[I' {
+      6      14
+      7      14
+      8      14
+      9      14
+      a      14
+      b      14
+      f      14
+      10      14
+      11      14
+      12      14
+      13      14
+      14      14
+      17      14
+   }
+
+   method 'test4 (Ljava/util/Random;)[Ljava/lang/Object;' {
+      4      18
+      7      18
+      8      18
+      9      18
+      a      18
+      b      18
+      c      18
+      d      18
+      e      18
+      f      18
+      13      18
+      15      19
+      16      19
+      17      19
+      18      19
+      19      20
+      1a      20
+   }
+
+   method 'test5 (Ljava/util/Random;)[Ljava/lang/Object;' {
+      4      24
+      7      24
+      8      24
+      9      24
+      a      24
+      b      24
+      c      24
+      d      24
+      e      24
+      f      24
+      13      24
+      15      25
+      16      25
+      17      25
+      18      25
+      19      25
+      1a      25
+      1b      26
+      1c      26
+   }
+
+   method 'test6 (Ljava/util/Random;)[Ljava/lang/Object;' {
+      0      31
+      5      31
+      6      31
+      7      32
+      8      32
+      9      32
+      a      32
+      b      32
+      c      32
+      d      32
+      e      32
+      f      32
+      10      32
+      11      32
+      12      32
+      13      33
+      14      33
+      15      33
+      16      33
+      17      34
+      18      34
+      19      34
+      1a      34
+      1b      35
+      1c      35
+   }
+
+   method 'test7 (Ljava/util/Random;)[Ljava/lang/Object;' {
+      0      40
+      5      40
+      6      40
+      7      41
+      8      41
+      9      41
+      a      41
+      b      41
+      c      41
+      d      41
+      e      41
+      f      41
+      10      41
+      11      41
+      12      41
+      13      42
+      14      42
+      15      42
+      16      42
+      17      43
+      18      43
+      19      43
+      1a      43
+      1b      44
+      1c      44
+   }
+
+   method 'test8 (Ljava/util/Random;)[I' {
+      5      48
+      6      48
+      a      48
+      b      48
+      d      48
+   }
+
+   method 'test9 (Ljava/util/Random;)[I' {
+      6      52
+      7      52
+      b      52
+      c      52
+      f      52
+   }
+
+   method 'test10 (Ljava/util/Random;)[I' {
+      6      56
+      7      56
+      b      56
+      c      56
+      d      56
+      e      56
+      f      56
+      10      56
+      13      56
+   }
+
+   method 'test11 (Ljava/util/Random;)[I' {
+      6      60
+      7      60
+      8      60
+      9      60
+      a      60
+      b      60
+      f      60
+      10      60
+      13      60
+   }
+
+   method 'test12 (Ljava/util/Random;)[I' {
+      6      64
+      7      64
+      8      64
+      9      64
+      a      64
+      b      64
+      f      64
+      10      64
+      14      64
+      15      64
+      16      64
+      17      64
+      18      64
+      19      64
+      1c      64
+   }
+
+   method 'test13 (Ljava/util/Random;)[I' {
+      6      68
+      7      68
+      b      68
+      c      68
+      f      68
+   }
+
+   method 'test14 (Ljava/util/Random;)[I' {
+      6      72
+      7      72
+      8      72
+      9      72
+      a      72
+      b      72
+      f      72
+      10      72
+      13      72
+   }
+
+   method 'test15 (Ljava/util/Random;)[I' {
+      6      76
+      7      76
+      b      76
+      c      76
+      d      76
+      e      76
+      f      76
+      10      76
+      13      76
+   }
+
+   method 'test16 (Ljava/util/Random;)[I' {
+      6      80
+      7      80
+      8      80
+      9      80
+      a      80
+      b      80
+      f      80
+      10      80
+      14      80
+      15      80
+      16      80
+      17      80
+      18      80
+      19      80
+      1c      80
+   }
+}
+
+Lines mapping:
+7 <-> 7
+12 <-> 11
+13 <-> 11
+14 <-> 11
+19 <-> 15
+20 <-> 15
+21 <-> 15
+25 <-> 19
+26 <-> 19
+27 <-> 19
+28 <-> 20
+29 <-> 21
+33 <-> 25
+34 <-> 25
+35 <-> 25
+36 <-> 26
+37 <-> 27
+43 <-> 32
+44 <-> 33
+45 <-> 34
+46 <-> 35
+47 <-> 36
+53 <-> 41
+54 <-> 42
+55 <-> 43
+56 <-> 44
+57 <-> 45
+61 <-> 49
+66 <-> 53
+67 <-> 53
+68 <-> 53
+73 <-> 57
+74 <-> 57
+75 <-> 57
+80 <-> 61
+81 <-> 61
+82 <-> 61
+87 <-> 65
+88 <-> 65
+89 <-> 65
+90 <-> 65
+95 <-> 69
+96 <-> 69
+97 <-> 69
+102 <-> 73
+103 <-> 73
+104 <-> 73
+109 <-> 77
+110 <-> 77
+111 <-> 77
+116 <-> 81
+117 <-> 81
+118 <-> 81
+119 <-> 81
+Not mapped:
+11
+18
+65
+72
+79
+86
+94
+101
+108
+115
