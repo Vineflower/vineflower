@@ -52,6 +52,11 @@ public class AssignmentExprent extends Exprent {
     addBytecodeOffsets(bytecodeOffsets);
   }
 
+  public AssignmentExprent(Exprent left, Exprent right, int condType, BitSet bytecodeOffsets) {
+    this(left, right, bytecodeOffsets);
+    this.condType = condType;
+  }
+
   @Override
   public VarType getExprType() {
     return left.getExprType();
@@ -91,7 +96,7 @@ public class AssignmentExprent extends Exprent {
 
   @Override
   public Exprent copy() {
-    return new AssignmentExprent(left.copy(), right.copy(), bytecode);
+    return new AssignmentExprent(left.copy(), right.copy(), condType, bytecode);
   }
 
   @Override
