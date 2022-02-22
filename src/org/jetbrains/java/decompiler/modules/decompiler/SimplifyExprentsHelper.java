@@ -259,6 +259,16 @@ public class SimplifyExprentsHelper {
                     if (cinit.equals(defaultVal)) {
                       Exprent tempExpr = aas.getRight();
 
+                      if ((tempExpr.getExprentUse() & Exprent.SIDE_EFFECTS_FREE) == 0){
+                        for (int i = constValue + 1; i < newExpr.getLstArrayElements().size(); i++) {
+                          final Exprent exprent = newExpr.getLstArrayElements().get(i);
+                          if ((exprent.getExprentUse() & Exprent.SIDE_EFFECTS_FREE) == 0){
+                            // can't reorder non-side-effect free expressions
+                            return false;
+                          }
+                        }
+                      }
+
                       if (!tempExpr.containsExprent(arrVar)) {
                         newExpr.getLstArrayElements().set(constValue, tempExpr);
 
@@ -305,9 +315,8 @@ public class SimplifyExprentsHelper {
           Map<Integer, Exprent> mapInit = new HashMap<>();
 
           int i = 1;
+          int lastImpure = -1;
           while (index + i < list.size() && i <= size) {
-            boolean found = false;
-
             Exprent expr = list.get(index + i);
             if (expr.type == Exprent.EXPRENT_ASSIGNMENT) {
               AssignmentExprent aas = (AssignmentExprent) expr;
@@ -318,20 +327,23 @@ public class SimplifyExprentsHelper {
                   // TODO: check for a number type. Failure extremely improbable, but nevertheless...
                   int constValue = ((ConstExprent) arrExpr.getIndex()).getIntValue();
                   if (constValue < size && !mapInit.containsKey(constValue)) {
+                    if ((aas.getRight().getExprentUse() & Exprent.SIDE_EFFECTS_FREE) == 0) {
+                      if(constValue < lastImpure) {
+                        // can't reorder non-side-effect free expressions
+                        break;
+                      }
+                      lastImpure = constValue;
+                    }
                     if (!aas.getRight().containsExprent(arrVar)) {
                       mapInit.put(constValue, aas.getRight());
-                      found = true;
+                      i++;
+                      continue;
                     }
                   }
                 }
               }
             }
-
-            if (!found) {
-              break;
-            }
-
-            i++;
+            break;
           }
 
           double fraction = ((double) mapInit.size()) / size;
