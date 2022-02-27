@@ -16,7 +16,6 @@ import org.jetbrains.java.decompiler.modules.decompiler.vars.VarProcessor;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
-import org.jetbrains.java.decompiler.util.DebugPrinter;
 import org.jetbrains.java.decompiler.util.DotExporter;
 
 import java.io.IOException;
@@ -261,7 +260,7 @@ public class MethodProcessorRunnable implements Runnable {
 
       if (DecompilerContext.getOption(IFernflowerPreferences.PATTERN_MATCHING)) {
         if (cl.getVersion().hasIfPatternMatching()) {
-          if (PatternMatchProcessor.matchInstanceof(root)) {
+          if (IfPatternMatchProcessor.matchInstanceof(root)) {
             decompileRecord.add("MatchIfInstanceof", root);
             continue;
           }
@@ -269,7 +268,7 @@ public class MethodProcessorRunnable implements Runnable {
       }
 
       if (SwitchExpressionHelper.hasSwitchExpressions(root)) {
-        if (SwitchExpressionHelper.processSwitchExpressions(root)) {
+        if (SwitchExpressionHelper.processAllSwitchExpressions(root)) {
           decompileRecord.add("ProcessSwitchExpr", root);
           continue;
         }
@@ -320,7 +319,7 @@ public class MethodProcessorRunnable implements Runnable {
 
       // If we have simplified switches, try to make switch expressions
       if (SwitchExpressionHelper.hasSwitchExpressions(root)) {
-        if (SwitchExpressionHelper.processSwitchExpressions(root)) {
+        if (SwitchExpressionHelper.processAllSwitchExpressions(root)) {
           decompileRecord.add("ProcessSwitchExpr_SS", root);
 
           // Simplify stack vars to integrate and inline switch expressions

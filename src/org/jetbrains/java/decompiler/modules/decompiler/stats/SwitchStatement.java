@@ -15,6 +15,7 @@ import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.StartEndPair;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public final class SwitchStatement extends Statement {
 
@@ -208,6 +209,32 @@ public final class SwitchStatement extends Statement {
     lst.add(1, headexprent.get(0));
 
     return lst;
+  }
+
+  @Override
+  public List<VarExprent> getImplicitlyDefinedVars() {
+    List<VarExprent> vars = new ArrayList<>();
+
+    List<Exprent> caseList = this.caseValues.stream()
+      .flatMap(List::stream) // List<List<Exprent>> -> List<Exprent>
+      .collect(Collectors.toList());
+
+    for (Exprent caseContent : caseList) {
+      if (caseContent == null) {
+        continue;
+      }
+
+      if (caseContent.type == Exprent.EXPRENT_FUNCTION) {
+        FunctionExprent func = ((FunctionExprent) caseContent);
+
+        // Pattern match variable is implicitly defined
+        if (func.getFuncType() == FunctionExprent.FUNCTION_INSTANCEOF && func.getLstOperands().size() > 2) {
+          vars.add((VarExprent) func.getLstOperands().get(2));
+        }
+      }
+    }
+
+    return vars;
   }
 
   @Override

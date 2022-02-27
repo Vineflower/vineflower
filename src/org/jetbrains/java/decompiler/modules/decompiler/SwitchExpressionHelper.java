@@ -10,6 +10,11 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public final class SwitchExpressionHelper {
+  // Wrapper for switch expressions on patterns, which need special handling
+  public static boolean processAllSwitchExpressions(Statement root) {
+    return SwitchPatternMatchProcessor.processPatternMatching(root) || processSwitchExpressions(root);
+  }
+
   public static boolean processSwitchExpressions(Statement root) {
     boolean ret = processSwitchExpressionsRec(root);
 
@@ -173,7 +178,7 @@ public final class SwitchExpressionHelper {
 
       VarExprent vExpr = new VarExprent(relevantVar.getIndex(), relevantVar.getVarType(), relevantVar.getProcessor());
       vExpr.setStack(true); // We want to inline
-      AssignmentExprent toAdd = new AssignmentExprent(vExpr, new SwitchExprent(stat, relevantVar.getExprType(), false), null);
+      AssignmentExprent toAdd = new AssignmentExprent(vExpr, new SwitchExprent(stat, relevantVar.getExprType(), false, false), null);
 
       exprents.add(0, toAdd);
 
@@ -194,7 +199,7 @@ public final class SwitchExpressionHelper {
       }
 
       return true;
-  }
+    }
 
     return false;
   }

@@ -17,7 +17,7 @@ import java.util.List;
  *
  * @author SuperCoder79
  */
-public final class PatternMatchProcessor {
+public final class IfPatternMatchProcessor {
   public static boolean matchInstanceof(RootStatement root) {
     boolean res = matchInstanceofRec(root, root);
 
