@@ -325,6 +325,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestThrowLoop");
     register(JAVA_8, "TestShiftLoop");
     register(JASM, "TestDoubleCast");
+    register(JASM, "TestDoublePopAfterJump");
     register(JAVA_16, "TestLocalEnum");
     register(JAVA_16, "TestLocalInterface");
     register(JAVA_16, "TestLocalRecord");

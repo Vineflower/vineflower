@@ -1,0 +1,97 @@
+package pkg;
+
+public final class TestDoublePopAfterJump {
+   public static final double test(int param0, int param1, int param2) {
+      // $FF: Couldn't be decompiled
+      // Bytecode:
+      // 00: iload 0
+      // 01: iload 1
+      // 02: iload 2
+      // 03: bipush 0
+      // 04: dup2
+      // 05: if_icmple 13
+      // 08: dup2_x2
+      // 09: pop2
+      // 0a: dup_x1
+      // 0b: iadd
+      // 0c: dup2_x2
+      // 0d: pop2
+      // 0e: bipush 1
+      // 0f: iadd
+      // 10: goto 04
+      // 13: pop
+      // 14: pop
+      // 15: i2d
+      // 16: swap
+      // 17: i2d
+      // 18: ddiv
+      // 19: dreturn
+   }
+
+   public static final boolean fizzBuzz() {
+      // $FF: Couldn't be decompiled
+      // Bytecode:
+      // 00: getstatic pkg/TestDoublePopAfterJump.java/lang/System/out Ljava/io/PrintStream;
+      // 03: bipush 0
+      // 04: dup
+      // 05: bipush 100
+      // 07: isub
+      // 08: ifgt 4c
+      // 0b: bipush 1
+      // 0c: iadd
+      // 0d: dup
+      // 0e: bipush 3
+      // 0f: irem
+      // 10: ifne 1c
+      // 13: swap
+      // 14: dup
+      // 15: ldc "Fizz"
+      // 17: invokevirtual pkg/TestDoublePopAfterJump.java/io/PrintStream/print (Ljava/lang/String;)V
+      // 1a: swap
+      // 1b: ineg
+      // 1c: dup
+      // 1d: ifgt 21
+      // 20: ineg
+      // 21: dup
+      // 22: bipush 5
+      // 23: irem
+      // 24: ifne 30
+      // 27: swap
+      // 28: dup
+      // 29: ldc "Buzz"
+      // 2b: invokevirtual pkg/TestDoublePopAfterJump.java/io/PrintStream/print (Ljava/lang/String;)V
+      // 2e: swap
+      // 2f: ineg
+      // 30: dup
+      // 31: ifgt 3e
+      // 34: ineg
+      // 35: swap
+      // 36: dup
+      // 37: invokevirtual pkg/TestDoublePopAfterJump.java/io/PrintStream/println ()V
+      // 3a: swap
+      // 3b: goto 04
+      // 3e: dup_x1
+      // 3f: invokestatic pkg/TestDoublePopAfterJump.java/lang/Integer/toString (I)Ljava/lang/String;
+      // 42: invokevirtual pkg/TestDoublePopAfterJump.java/io/PrintStream/println (Ljava/lang/String;)V
+      // 45: getstatic pkg/TestDoublePopAfterJump.java/lang/System/out Ljava/io/PrintStream;
+      // 48: swap
+      // 49: goto 04
+      // 4c: pop
+      // 4d: pop
+      // 4e: return
+   }
+
+   public static final boolean fizzBuzzReduced() {
+      // $FF: Couldn't be decompiled
+      // Bytecode:
+      // 0: bipush 0
+      // 1: bipush 0
+      // 2: dup
+      // 3: ifgt 9
+      // 6: goto 2
+      // 9: pop
+      // a: pop
+      // b: return
+   }
+}
+
