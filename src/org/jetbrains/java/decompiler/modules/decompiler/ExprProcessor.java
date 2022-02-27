@@ -639,7 +639,7 @@ public class ExprProcessor implements CodeConstants {
           stack.pop();
           // check for synthetic getClass and requireNonNull calls added by the compiler
           // see https://stackoverflow.com/a/20130641
-          if (i > 0) {
+          if (!exprlist.isEmpty()) {
             Exprent last = exprlist.get(exprlist.size() - 1);
             // Our heuristic is checking for an assignment and the type of the assignment is an invocation.
             // This roughly corresponds to a pattern of DUP [nullcheck] POP.

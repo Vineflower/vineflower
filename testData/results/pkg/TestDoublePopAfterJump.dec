@@ -1,31 +1,18 @@
 package pkg;
 
 public final class TestDoublePopAfterJump {
-   public static final double test(int param0, int param1, int param2) {
-      // $FF: Couldn't be decompiled
-      // Bytecode:
-      // 00: iload 0
-      // 01: iload 1
-      // 02: iload 2
-      // 03: bipush 0
-      // 04: dup2
-      // 05: if_icmple 13
-      // 08: dup2_x2
-      // 09: pop2
-      // 0a: dup_x1
-      // 0b: iadd
-      // 0c: dup2_x2
-      // 0d: pop2
-      // 0e: bipush 1
-      // 0f: iadd
-      // 10: goto 04
-      // 13: pop
-      // 14: pop
-      // 15: i2d
-      // 16: swap
-      // 17: i2d
-      // 18: ddiv
-      // 19: dreturn
+   public static final double phiApproximation(int var0, int var1, int var2) {
+      int var10000 = var0;// 25
+      int var10001 = var1;// 26
+      int var10002 = var2;// 27
+
+      for(int var10003 = 0; var10002 > var10003; var10003 += 1) {// 28 31 38
+         int var10004 = var10000 + var10001;// 35
+         var10000 = var10001;
+         var10001 = var10004;
+      }
+
+      return (double)var10001 / (double)var10000;// 44 45 46
    }
 
    public static final boolean fizzBuzz() {
@@ -95,3 +82,39 @@ public final class TestDoublePopAfterJump {
    }
 }
 
+class 'pkg/TestDoublePopAfterJump' {
+   method 'phiApproximation (III)D' {
+      0      4
+      1      5
+      2      6
+      3      8
+      5      8
+      b      9
+      e      8
+      15      14
+      17      14
+      18      14
+      19      14
+   }
+}
+
+Lines mapping:
+25 <-> 5
+26 <-> 6
+27 <-> 7
+28 <-> 9
+31 <-> 9
+35 <-> 10
+38 <-> 9
+44 <-> 15
+45 <-> 15
+46 <-> 15
+Not mapped:
+30
+33
+34
+37
+39
+40
+42
+43
