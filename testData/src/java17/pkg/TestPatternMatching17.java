@@ -1,6 +1,6 @@
 package pkg;
 
-public class TestPatternMatching {
+public class TestPatternMatching17 {
     public void testSimple(Object obj) {
         if (obj instanceof String str) {
             System.out.println(str.length());

@@ -1,49 +1,50 @@
 package org.jetbrains.java.decompiler.modules.decompiler;
 
-import org.jetbrains.java.decompiler.modules.decompiler.exps.AssignmentExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
+import org.jetbrains.java.decompiler.util.VBStyleCollection;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Handles pattern matching for instanceof in statements.
  *
- * @author SuperCoder79
+ * @author SuperCoder79 and Kroppeb
  */
 public final class IfPatternMatchProcessor {
   public static boolean matchInstanceof(RootStatement root) {
-    boolean res = matchInstanceofRec(root, root);
-
-    if (res) {
-      SequenceHelper.condenseSequences(root);
-    }
-
-    return res;
+    return matchInstanceofRec(root, root, null);
   }
 
-  private static boolean matchInstanceofRec(Statement statement, RootStatement root) {
+  private static boolean matchInstanceofRec(Statement statement, RootStatement root, Statement next) {
     boolean res = false;
-    for (Statement stat : statement.getStats()) {
-      if (matchInstanceofRec(stat, root)) {
-        res = true;
+    if (statement.type == Statement.TYPE_SEQUENCE) {
+      VBStyleCollection<Statement, Integer> stats = statement.getStats();
+      for (int i = 0; i < stats.size(); i++) {
+        Statement stat = stats.get(i);
+        if (matchInstanceofRec(stat, root, i + 1 < stats.size() ? stats.get(i + 1) : null)) {
+          res = true;
+        }
+      }
+    } else {
+      for (Statement stat : statement.getStats()) {
+        if (matchInstanceofRec(stat, root, null)) {
+          res = true;
+        }
       }
     }
 
     if (statement instanceof IfStatement) {
-      res |= handleIf((IfStatement) statement, root);
+      res |= handleIf((IfStatement) statement, root, next);
     }
 
     return res;
   }
 
-  private static boolean handleIf(IfStatement statement, RootStatement root) {
+  private static boolean handleIf(IfStatement statement, RootStatement root, Statement next) {
     Exprent condition = statement.getHeadexprent().getCondition();
 
     if (condition.type != Exprent.EXPRENT_FUNCTION) {
@@ -52,74 +53,131 @@ public final class IfPatternMatchProcessor {
 
     FunctionExprent func = (FunctionExprent) condition;
 
-    List<Exprent> exprents = func.getAllExprents(true);
-
-    // TODO: need to properly analyze the scope around instanceof to handle negations
-
-    boolean updated = false;
-    loop:
-    for (Exprent exprent : exprents) {
-      if (exprent.type == Exprent.EXPRENT_FUNCTION) {
-        FunctionExprent iof = (FunctionExprent)exprent;
-
-        // Check for instanceof
-        if (iof.getFuncType() == FunctionExprent.FUNCTION_INSTANCEOF) {
-          Exprent source = iof.getLstOperands().get(0);
-          Exprent target = iof.getLstOperands().get(1);
-
-          // Check to make sure there are more than 1 exprent.
-          // More often than not, when there's less than 1 it means it's assigning into a previous value.
-          // TODO: this isn't always the case, handle it properly
-          if (statement.getIfstat() != null && statement.getIfstat().getExprents() != null && statement.getIfstat().getExprents().size() > 1) {
-            Exprent first = statement.getIfstat().getExprents().get(0);
-
-            // Check inside of the if statement for a cast
-            if (first.type == Exprent.EXPRENT_ASSIGNMENT) {
-              // If it's an assignement, get both sides
-              Exprent left = first.getAllExprents().get(0);
-              Exprent right = first.getAllExprents().get(1);
-
-              // Right side needs to be a cast function
-              if (right.type == Exprent.EXPRENT_FUNCTION) {
-                if (((FunctionExprent)right).getFuncType() == FunctionExprent.FUNCTION_CAST) {
-                  Exprent casted = right.getAllExprents().get(0);
-
-                  // Check if the exprent being casted is the exprent on the left side of the instanceof
-                  if (source.equals(casted)) {
-                    // Make sure the left hand side is a variable and it's type matches the target of the cast
-                    if (left.type == Exprent.EXPRENT_VAR && target.getExprType().equals(left.getExprType())) {
-                      List<VarVersionPair> vvs = new ArrayList<>();
-
-                      // We need to make sure we're not assigning to previously assigned variables.
-                      // This gets all predecessors of the if statement and gathers all the variable assignments inside.
-                      // TODO: cache this
-                      findVarsInPredecessors(vvs, statement.getIfstat());
-
-                      VarVersionPair var = ((VarExprent) left).getVarVersionPair();
-
-                      // Stop processing if this variable has already been seen
-                      for (VarVersionPair vv : vvs) {
-                        if (var.var == vv.var) {
-                          continue loop;
-                        }
-                      }
-
-                      // Add the exprent to the instanceof exprent and remove it from the inside of the if statement
-                      iof.getLstOperands().add(2, left);
-                      statement.getIfstat().getExprents().remove(0);
-
-                      updated = true;
-                    }
-                  }
-                }
-              }
-            }
-          }
+    boolean inverted;
+    if (func.getFuncType() != FunctionExprent.FUNCTION_EQ && func.getFuncType() != FunctionExprent.FUNCTION_NE) {
+      // handle double negation, this usually means that the if statement has no sub-statements, and we
+      // will need to use next as a target
+      if (func.getFuncType() == FunctionExprent.FUNCTION_BOOL_NOT) {
+        func = (FunctionExprent) func.getLstOperands().get(0);
+        if (func.getFuncType() != FunctionExprent.FUNCTION_EQ && func.getFuncType() != FunctionExprent.FUNCTION_NE) {
+          return false;
+        } else {
+          inverted = func.getFuncType() == FunctionExprent.FUNCTION_NE;
         }
+      } else {
+        return false;
+      }
+    } else {
+      inverted = func.getFuncType() != FunctionExprent.FUNCTION_NE;
+    }
+
+
+    List<Exprent> exprents = func.getLstOperands();
+    Exprent l = exprents.get(0);
+    Exprent r = exprents.get(1);
+
+
+    if (l.type != Exprent.EXPRENT_FUNCTION ||
+        r.type != Exprent.EXPRENT_CONST ||
+        ((ConstExprent) r).getIntValue() != 0) {
+      return false;
+    }
+
+    FunctionExprent iof = (FunctionExprent) l;
+
+    // Check for instanceof
+    if (iof.getFuncType() != FunctionExprent.FUNCTION_INSTANCEOF) {
+      return false;
+    }
+
+    Exprent source = iof.getLstOperands().get(0);
+    Exprent target = iof.getLstOperands().get(1);
+
+    Statement targetStat = inverted ? statement.getElsestat() : statement.getIfstat();
+
+    if (statement.getElsestat() == null && statement.getIfstat() == null) {
+      // if statement has no sub-statements, and we will need to see if we can use next as a target
+      if (next == null) {
+        return false;
+      }
+
+      // Check if the target branch is an edge, if so, we can't use it as a target
+      if (inverted ? statement.getElseEdge() != null : statement.getIfEdge() != null) {
+        return false;
+      }
+
+      // Check if the non-target branch is an edge, if so, we should be able to use next as a target
+      if (inverted ? statement.getIfEdge() != null : statement.getElseEdge() != null) {
+        targetStat = next;
+      } else {
+        return false;
       }
     }
 
-    return updated;
+    while (true) {
+      if (targetStat == null) {
+        return false;
+      } else if (targetStat.getExprents() == null || targetStat.getExprents().isEmpty()) {
+        targetStat = targetStat.getFirst();
+      } else {
+        break;
+      }
+    }
+
+    Exprent first = targetStat.getExprents().get(0);
+
+    // Check inside the if statement for a cast
+    if (first.type != Exprent.EXPRENT_ASSIGNMENT) {
+      return false;
+    }
+
+    // If it's an assignment, get both sides
+    Exprent left = first.getAllExprents().get(0);
+    Exprent right = first.getAllExprents().get(1);
+
+
+    // Right side needs to be a cast function
+    if (right.type != Exprent.EXPRENT_FUNCTION ||
+        ((FunctionExprent) right).getFuncType() != FunctionExprent.FUNCTION_CAST) {
+      return false;
+    }
+
+    Exprent casted = right.getAllExprents().get(0);
+    Exprent castedType = right.getAllExprents().get(1);
+
+    // Check if the exprent being cast is the exprent on the left side of the instanceof
+    // Make sure the left-hand side is a variable and the cast matches the instanceof
+    if (!source.equals(casted) || left.type != Exprent.EXPRENT_VAR || !target.equals(castedType)) {
+      return false;
+    }
+
+    // List<VarVersionPair> vvs = new ArrayList<>();
+
+    // We need to make sure we're not assigning to previously assigned variables.
+    // This gets all predecessors of the if statement and gathers all the variable assignments inside.
+    // TODO: cache this
+    // findVarsInPredecessors(vvs, statement.getIfstat());
+
+    // VarVersionPair var = ((VarExprent) left).getVarVersionPair();
+
+    // Stop processing if this variable has already been seen
+    // for (VarVersionPair vv : vvs) {
+    //   if (var.var == vv.var) {
+    //     return false;
+    //   }
+    // }
+
+    // Add the exprent to the instanceof exprent and remove it from the inside of the if statement
+    iof.getLstOperands().add(2, left);
+    targetStat.getExprents().remove(0);
+
+
+    if (targetStat.getExprents().isEmpty()) {
+      // targetStat.getSuccessorEdges(Statement.)
+      IfHelper.fixIf(statement, next);
+    }
+
+    return true;
   }
 
   // Finds all assignments and their associated variables in a statement's predecessors.

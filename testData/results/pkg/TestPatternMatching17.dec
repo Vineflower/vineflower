@@ -1,6 +1,6 @@
 package pkg;
 
-public class TestPatternMatching {
+public class TestPatternMatching17 {
    public void testSimple(Object obj) {
       if (obj instanceof String str) {// 5
          System.out.println(str.length());// 6
@@ -105,72 +105,74 @@ public class TestPatternMatching {
    }// 93
 }
 
-class 'pkg/TestPatternMatching' {
+class 'pkg/TestPatternMatching17' {
    method 'testSimple (Ljava/lang/Object;)V' {
       0      4
+      1      4
+      2      4
       3      4
       4      4
-      5      4
-      6      4
-      d      4
+      b      4
+      c      5
+      d      5
       e      5
       f      5
       10      5
       11      5
       12      5
       13      5
-      14      5
-      15      5
-      18      8
+      16      8
    }
 
    method 'testInverted (Ljava/lang/Object;)V' {
       0      11
+      1      11
+      2      11
       3      11
       4      11
-      5      11
-      6      11
-      d      11
+      b      11
+      f      12
+      10      12
       11      12
       12      12
       13      12
       14      12
-      15      12
-      16      12
-      19      15
+      17      15
    }
 
    method 'testCompound (Ljava/lang/Object;)V' {
       0      18
+      1      18
+      2      18
       3      18
       4      18
-      5      18
-      6      18
+      b      18
+      c      18
       d      18
       e      18
       f      18
       10      18
       11      18
       12      18
-      13      18
-      14      18
+      15      19
+      16      19
       17      19
       18      19
       19      19
       1a      19
       1b      19
       1c      19
-      1d      19
-      1e      19
-      21      22
+      1f      22
    }
 
    method 'testSimpleLoop (Ljava/lang/Object;)V' {
       0      26
+      1      26
+      2      26
       3      26
-      4      26
-      5      26
-      d      26
+      b      26
+      c      27
+      d      27
       e      27
       f      27
       10      27
@@ -179,22 +181,22 @@ class 'pkg/TestPatternMatching' {
       13      27
       14      27
       15      27
-      16      27
-      17      27
+      16      28
+      17      28
       18      28
       19      28
       1a      28
-      1b      28
-      1c      28
-      20      31
+      1e      31
    }
 
    method 'testSimpleLoopUnused (Ljava/lang/Object;)V' {
       0      35
+      1      35
+      2      35
       3      35
-      4      35
-      5      35
-      d      35
+      b      35
+      c      36
+      d      36
       e      36
       f      36
       10      36
@@ -203,34 +205,34 @@ class 'pkg/TestPatternMatching' {
       13      36
       14      36
       15      36
-      16      36
-      17      36
-      1b      39
+      19      39
    }
 
    method 'testInvertedLoop (Ljava/lang/Object;)V' {
       0      43
+      1      43
+      2      43
       3      43
       4      43
-      5      43
-      6      43
-      d      43
+      b      43
+      c      48
+      d      48
       e      48
-      f      48
-      10      48
+      f      44
+      10      44
       11      44
       12      44
       13      44
       14      44
       15      44
       16      44
-      17      44
-      18      44
+      17      45
+      18      45
       19      45
       1a      45
       1b      45
-      1c      45
-      1d      45
+      1c      48
+      1d      48
       1e      48
       1f      48
       20      48
@@ -239,148 +241,146 @@ class 'pkg/TestPatternMatching' {
       23      48
       24      48
       25      48
-      26      48
-      27      48
+      26      49
+      27      49
       28      49
-      29      49
-      2a      49
    }
 
    method 'testInvertedLoopUnused (Ljava/lang/Object;)V' {
       0      53
+      1      53
+      2      53
       3      53
       4      53
-      5      53
-      6      53
-      d      53
+      b      53
+      c      58
+      d      58
       e      58
-      f      58
-      10      58
+      f      54
+      10      54
       11      54
       12      54
       13      54
       14      54
       15      54
       16      54
-      17      54
-      18      54
+      17      55
+      18      55
       19      55
       1a      55
       1b      55
-      1c      55
-      1d      55
+      1c      58
+      1d      58
       1e      58
-      1f      58
-      20      58
    }
 
    method 'testCompoundLoop (Ljava/lang/Object;)V' {
       0      62
+      1      62
+      2      62
       3      62
-      4      62
-      5      62
+      b      62
+      c      62
       d      62
       e      62
       f      62
       10      62
       11      62
-      12      62
-      13      62
+      15      63
+      16      63
       17      63
       18      63
       19      63
       1a      63
-      1b      63
-      1c      63
-      20      66
+      1e      66
    }
 
    method 'testReturn (Ljava/lang/Object;)Z' {
       0      69
+      1      69
+      2      69
       3      69
-      4      69
-      5      69
+      b      69
+      c      69
       d      69
       e      69
       f      69
       10      69
       11      69
-      12      69
-      13      69
-      1b      69
+      19      69
    }
 
    method 'testReturnTernary (Ljava/lang/Object;)I' {
       0      73
+      1      73
+      2      73
       3      73
       4      73
-      5      73
-      6      73
+      b      73
+      c      73
       d      73
       e      73
       f      73
-      10      73
-      11      73
-      15      73
-      16      73
+      13      73
+      14      73
    }
 
    method 'testReturnTernaryComplex (Ljava/lang/Object;)I' {
       0      77
+      1      77
+      2      77
       3      77
       4      77
-      5      77
-      6      77
+      b      77
+      c      77
       d      77
       e      77
       f      77
       10      77
       11      77
-      12      77
-      13      77
+      14      77
+      15      77
       16      77
       17      77
       18      77
-      19      77
-      1a      77
-      1d      77
-      21      77
-      22      77
+      1b      77
+      1f      77
+      20      77
    }
 
    method 'testLoop (Ljava/lang/Object;)V' {
       0      82
+      1      82
+      2      82
       3      82
-      4      82
-      5      82
+      b      82
+      c      82
       d      82
       e      82
       f      82
       10      82
       11      82
       12      82
-      13      82
-      14      82
+      15      83
+      16      83
       17      83
       18      83
       19      83
       1a      83
-      1b      83
-      1c      83
+      1b      84
+      1c      84
       1d      84
       1e      84
       1f      84
       20      84
-      21      84
-      22      84
+      21      85
+      22      85
       23      85
       24      85
       25      85
       26      85
       27      85
-      28      85
-      29      85
-      2d      88
+      2b      88
    }
 
    method 'testMessyLVT (Ljava/lang/Object;)V' {
@@ -419,20 +419,20 @@ class 'pkg/TestPatternMatching' {
       20      99
       21      99
       22      100
+      23      100
+      24      100
       25      100
       26      100
-      27      100
-      28      100
-      2f      100
+      2d      100
+      2e      101
+      2f      101
       30      101
       31      101
       32      101
       33      101
       34      101
       35      101
-      36      101
-      37      101
-      3a      104
+      38      104
    }
 }
 
