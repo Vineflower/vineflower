@@ -129,9 +129,9 @@ public class TestPatternMatching17FakeNew {
    }// 119
 
    public void testSet(Object obj) {
-      s = "Hi";// 122
-      if (obj instanceof String s) {// 123 124
-         ;
+      String s = "Hi";// 122
+      if (obj instanceof String) {// 123
+         s = (String)obj;// 124
       }
 
       System.out.println(s);// 127
@@ -580,7 +580,11 @@ class 'pkg/TestPatternMatching17FakeNew' {
       5      132
       6      132
       7      132
-      e      132
+      a      133
+      b      133
+      c      133
+      d      133
+      e      133
       f      136
       10      136
       11      136
@@ -663,6 +667,6 @@ Lines mapping:
 119 <-> 129
 122 <-> 132
 123 <-> 133
-124 <-> 133
+124 <-> 134
 127 <-> 137
 128 <-> 138

@@ -143,7 +143,8 @@ public class TestPatternMatchingFakeLoops {
    public void testSet(Object obj) {
       String s = "Hi";// 112
 
-      while(obj instanceof String s) {// 113 114
+      while(obj instanceof String) {// 113
+         s = (String)obj;// 114
       }
 
       System.out.println(s);// 117
@@ -583,15 +584,19 @@ class 'pkg/TestPatternMatchingFakeLoops' {
       4      145
       5      145
       6      145
-      e      145
-      12      148
-      13      148
-      14      148
-      15      148
-      16      148
-      17      148
-      18      148
-      19      149
+      a      146
+      b      146
+      c      146
+      d      146
+      e      146
+      12      149
+      13      149
+      14      149
+      15      149
+      16      149
+      17      149
+      18      149
+      19      150
    }
 }
 
@@ -660,9 +665,9 @@ Lines mapping:
 108 <-> 141
 112 <-> 144
 113 <-> 146
-114 <-> 146
-117 <-> 149
-118 <-> 150
+114 <-> 147
+117 <-> 150
+118 <-> 151
 Not mapped:
 8
 15

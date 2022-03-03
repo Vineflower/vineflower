@@ -10,9 +10,9 @@ public class TestPatternMatchingMerge {
    }// 10
 
    public void testNoInit(Object obj) {
-      s = null;// 13
-      if (obj instanceof String s) {// 14 15
-         ;
+      String s = null;// 13
+      if (obj instanceof String) {// 14
+         s = (String)obj;// 15
       }
 
       System.out.println(s);// 17
@@ -41,7 +41,11 @@ class 'pkg/TestPatternMatchingMerge' {
       4      13
       5      13
       6      13
-      d      13
+      9      14
+      a      14
+      b      14
+      c      14
+      d      14
       e      17
       f      17
       10      17
@@ -60,6 +64,6 @@ Lines mapping:
 10 <-> 10
 13 <-> 13
 14 <-> 14
-15 <-> 14
+15 <-> 15
 17 <-> 18
 18 <-> 19

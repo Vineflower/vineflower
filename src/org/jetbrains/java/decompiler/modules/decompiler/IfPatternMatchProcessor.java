@@ -1,13 +1,21 @@
 package org.jetbrains.java.decompiler.modules.decompiler;
 
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
+import org.jetbrains.java.decompiler.modules.decompiler.sforms.SSAUConstructorSparseEx;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
+import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionEdge;
+import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionNode;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
+import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionsGraph;
+import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.util.VBStyleCollection;
 
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Handles pattern matching for instanceof in statements.
@@ -15,36 +23,40 @@ import java.util.List;
  * @author SuperCoder79 and Kroppeb
  */
 public final class IfPatternMatchProcessor {
-  public static boolean matchInstanceof(RootStatement root) {
-    return matchInstanceofRec(root, root, null);
+  public static boolean matchInstanceof(RootStatement root, StructMethod mt) {
+    SSAUConstructorSparseEx ssau = new SSAUConstructorSparseEx();
+    ssau.splitVariables(root, mt);
+    final boolean res = matchInstanceofRec(root, root, null, ssau);
+    StackVarsProcessor.setVersionsToNull(root);
+    return res;
   }
 
-  private static boolean matchInstanceofRec(Statement statement, RootStatement root, Statement next) {
+  private static boolean matchInstanceofRec(Statement statement, RootStatement root, Statement next, SSAUConstructorSparseEx ssau) {
     boolean res = false;
     if (statement.type == Statement.TYPE_SEQUENCE) {
       VBStyleCollection<Statement, Integer> stats = statement.getStats();
       for (int i = 0; i < stats.size(); i++) {
         Statement stat = stats.get(i);
-        if (matchInstanceofRec(stat, root, i + 1 < stats.size() ? stats.get(i + 1) : null)) {
+        if (matchInstanceofRec(stat, root, i + 1 < stats.size() ? stats.get(i + 1) : null, ssau)) {
           res = true;
         }
       }
     } else {
       for (Statement stat : statement.getStats()) {
-        if (matchInstanceofRec(stat, root, null)) {
+        if (matchInstanceofRec(stat, root, null, ssau)) {
           res = true;
         }
       }
     }
 
     if (statement instanceof IfStatement) {
-      res |= handleIf((IfStatement) statement, root, next);
+      res |= handleIf((IfStatement) statement, root, next, ssau);
     }
 
     return res;
   }
 
-  private static boolean handleIf(IfStatement statement, RootStatement root, Statement next) {
+  private static boolean handleIf(IfStatement statement, RootStatement root, Statement next, SSAUConstructorSparseEx ssau) {
     Exprent condition = statement.getHeadexprent().getCondition();
 
     if (condition.type != Exprent.EXPRENT_FUNCTION) {
@@ -92,6 +104,12 @@ public final class IfPatternMatchProcessor {
 
     Exprent source = iof.getLstOperands().get(0);
     Exprent target = iof.getLstOperands().get(1);
+
+    if (source.type != Exprent.EXPRENT_VAR) {
+      return false;
+    }
+
+    VarExprent sourceVar = (VarExprent) source;
 
     Statement targetStat = inverted ? statement.getElsestat() : statement.getIfstat();
 
@@ -147,25 +165,17 @@ public final class IfPatternMatchProcessor {
 
     // Check if the exprent being cast is the exprent on the left side of the instanceof
     // Make sure the left-hand side is a variable and the cast matches the instanceof
-    if (!source.equals(casted) || left.type != Exprent.EXPRENT_VAR || !target.equals(castedType)) {
+    if (casted.type != Exprent.EXPRENT_VAR ||
+        sourceVar.getVarVersionPair().var != ((VarExprent) casted).getVarVersionPair().var ||
+        left.type != Exprent.EXPRENT_VAR ||
+        !target.equals(castedType)) {
       return false;
     }
 
-    // List<VarVersionPair> vvs = new ArrayList<>();
-
-    // We need to make sure we're not assigning to previously assigned variables.
-    // This gets all predecessors of the if statement and gathers all the variable assignments inside.
-    // TODO: cache this
-    // findVarsInPredecessors(vvs, statement.getIfstat());
-
-    // VarVersionPair var = ((VarExprent) left).getVarVersionPair();
-
-    // Stop processing if this variable has already been seen
-    // for (VarVersionPair vv : vvs) {
-    //   if (var.var == vv.var) {
-    //     return false;
-    //   }
-    // }
+    // check if the "new" variable gets merged and used. If so, we can't convert to an instanceof pattern
+    if (getUsedVersions(ssau, (VarExprent) left)){
+      return false;
+    }
 
     // Add the exprent to the instanceof exprent and remove it from the inside of the if statement
     iof.getLstOperands().add(2, left);
@@ -180,25 +190,47 @@ public final class IfPatternMatchProcessor {
     return true;
   }
 
-  // Finds all assignments and their associated variables in a statement's predecessors.
-  private static void findVarsInPredecessors(List<VarVersionPair> vvs, Statement root) {
-    for (StatEdge pred : root.getAllPredecessorEdges()) {
-      Statement stat = pred.getSource();
+  // Mostly a copy from StackVarsProcessor
+  // returns `notdom`
+  private static boolean getUsedVersions(SSAUConstructorSparseEx ssa, VarExprent exprent) {
+    VarVersionPair var = new VarVersionPair(exprent);
+    VarVersionsGraph ssu = ssa.getSsuVersions();
+    VarVersionNode node = ssu.nodes.getWithKey(var);
 
-      if (stat.getExprents() != null) {
-        for (Exprent exprent : stat.getExprents()) {
+    Set<VarVersionNode> setVisited = new HashSet<>();
+    Set<VarVersionNode> setNotDoms = new HashSet<>();
 
-          // Check for assignment exprents
-          if (exprent.type == Exprent.EXPRENT_ASSIGNMENT) {
-            AssignmentExprent assignment = (AssignmentExprent) exprent;
+    LinkedList<VarVersionNode> stack = new LinkedList<>();
+    stack.add(node);
 
-            // If the left type of the assignment is a variable, store it's var info
-            if (assignment.getLeft().type == Exprent.EXPRENT_VAR) {
-              vvs.add(((VarExprent) assignment.getLeft()).getVarVersionPair());
+    while (!stack.isEmpty()) {
+      VarVersionNode nd = stack.remove(0);
+      setVisited.add(nd);
+
+      for (VarVersionEdge edge : nd.succs) {
+        VarVersionNode succ = edge.dest;
+
+        if (!setVisited.contains(edge.dest)) {
+
+          boolean isDominated = true;
+          for (VarVersionEdge prededge : succ.preds) {
+            if (!setVisited.contains(prededge.source)) {
+              isDominated = false;
+              break;
             }
+          }
+
+          if (isDominated) {
+            stack.add(succ);
+          } else {
+            setNotDoms.add(succ);
           }
         }
       }
     }
+
+    setNotDoms.removeAll(setVisited);
+
+    return !setNotDoms.isEmpty();
   }
 }

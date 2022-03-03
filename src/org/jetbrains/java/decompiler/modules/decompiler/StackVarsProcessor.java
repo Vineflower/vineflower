@@ -84,7 +84,7 @@ public class StackVarsProcessor {
     return b;
   }
 
-  private static void setVersionsToNull(Statement stat) {
+  public static void setVersionsToNull(Statement stat) {
     if (stat.getExprents() == null) {
       for (Object obj : stat.getSequentialObjects()) {
         if (obj instanceof Statement) {
@@ -714,6 +714,7 @@ public class StackVarsProcessor {
     return new Object[]{null, changed, false};
   }
 
+  // Note: most of this code is duplicated in IfPatternMatchProcessor
   private static boolean getUsedVersions(SSAUConstructorSparseEx ssa, VarVersionPair var, List<? super VarVersionNode> res) {
     VarVersionsGraph ssu = ssa.getSsuVersions();
     VarVersionNode node = ssu.nodes.getWithKey(var);
