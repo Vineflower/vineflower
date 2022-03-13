@@ -1,3 +1,5 @@
+[![](https://jitpack.io/v/QuiltMC/quiltflower.svg)](https://jitpack.io/#QuiltMC/quiltflower)
+
 ### Quiltflower
 
 Quiltflower is a modern, general purpose decompiler focused on improving code quality, speed, and usability. Quiltflower is a fork of Fernflower and Forgeflower.
