@@ -17,6 +17,9 @@ public interface IResultSaver {
   void copyEntry(String source, String path, String archiveName, String entry);
 
   void saveClassEntry(String path, String archiveName, String qualifiedName, String entryName, String content);
+  default void saveClassEntry(final String path, final String archiveName, final String qualifiedName, final String entryName, final String content, final int[] mapping) {
+    this.saveClassEntry(path, archiveName, qualifiedName, entryName, content);
+  }
 
   void closeArchive(String path, String archiveName);
 }
