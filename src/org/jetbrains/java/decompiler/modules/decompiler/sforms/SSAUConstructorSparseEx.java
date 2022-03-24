@@ -97,6 +97,8 @@ public class SSAUConstructorSparseEx {
     ssaStatements(dgraph, updated, true, mt, iteration);
 
     ssuversions.initDominators();
+
+    DotExporter.toDotFile(ssuversions, mt, "ssauVarVer");
   }
 
   private void ssaStatements(DirectGraph dgraph, HashSet<String> updated, boolean calcLiveVars, StructMethod mt, int iteration) {
@@ -227,6 +229,13 @@ public class SSAUConstructorSparseEx {
             varmaparr[0] = mergeMaps(varmaparr[0], varmaparrOr[0]);
 
             finished = true;
+            break;
+          case FunctionExprent.FUNCTION_INSTANCEOF:
+            // Pattern matching instanceof
+            if (func.getLstOperands().size() > 2) {
+              varassign = (VarExprent)func.getLstOperands().get(2);
+            }
+            break;
         }
     }
 
