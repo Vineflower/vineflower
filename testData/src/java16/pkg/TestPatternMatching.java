@@ -33,4 +33,14 @@ public class TestPatternMatching {
             System.out.println(s);
         }
     }
+
+    public void testSimpleReturn(Object obj) {
+        if (obj instanceof String str) {
+            if (str.length() > 5) {
+                return;
+            }
+        }
+
+        System.out.println("test");
+    }
 }

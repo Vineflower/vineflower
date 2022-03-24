@@ -4,6 +4,8 @@ package org.jetbrains.java.decompiler.modules.decompiler.stats;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 
 import java.util.ArrayList;
@@ -184,6 +186,31 @@ public final class DoStatement extends Statement {
     if (incExprent.get(0) == oldexpr) {
       incExprent.set(0, newexpr);
     }
+  }
+
+  @Override
+  public List<VarExprent> getImplicitlyDefinedVars() {
+    List<VarExprent> vars = new ArrayList<>();
+
+    // Impossible in foreach loops, and quit if condition doesn't exist
+    if (looptype == LOOP_FOREACH || getConditionExprent() == null) {
+      return null;
+    }
+
+    List<Exprent> conditionList = getConditionExprent().getAllExprents(true, true);
+
+    for (Exprent condition : conditionList) {
+      if (condition.type == Exprent.EXPRENT_FUNCTION) {
+        FunctionExprent func = ((FunctionExprent)condition);
+
+        // Pattern match variable is implicitly defined
+        if (func.getFuncType() == FunctionExprent.FUNCTION_INSTANCEOF && func.getLstOperands().size() > 2) {
+          vars.add((VarExprent) func.getLstOperands().get(2));
+        }
+      }
+    }
+
+    return vars;
   }
 
   @Override

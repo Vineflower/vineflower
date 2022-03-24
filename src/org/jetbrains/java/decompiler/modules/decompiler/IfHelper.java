@@ -61,8 +61,7 @@ public final class IfHelper {
       List<Statement> lst = new ArrayList<>();
       if (statement.type == Statement.TYPE_IF) {
         lst.add(statement);
-      }
-      else {
+      } else {
         lst.addAll(statement.getStats());
       }
 
@@ -461,6 +460,12 @@ public final class IfHelper {
   // FIXME: rewrite the entire method!!! keep in mind finally exits!!
   private static boolean reorderIf(IfStatement ifstat) {
     if (ifstat.iftype == IfStatement.IFTYPE_IFELSE) {
+      return false;
+    }
+
+    // Cannot reorder pattern matches, causes semantic issues!
+    // TODO: proper pattern match reorder analysis
+    if (ifstat.isPatternMatched()) {
       return false;
     }
 

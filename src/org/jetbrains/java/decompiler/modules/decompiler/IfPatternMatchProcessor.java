@@ -70,8 +70,10 @@ public final class IfPatternMatchProcessor {
           // Check to make sure there are more than 1 exprent.
           // More often than not, when there's less than 1 it means it's assigning into a previous value.
           // TODO: this isn't always the case, handle it properly
-          if (statement.getIfstat() != null && statement.getIfstat().getExprents() != null && statement.getIfstat().getExprents().size() > 1) {
-            Exprent first = statement.getIfstat().getExprents().get(0);
+          Statement head = statement.getIfstat() == null ? null : statement.getIfstat().getBasichead();
+          boolean isHead = head != null && head != statement.getIfstat();
+          if (head != null && head.getExprents() != null && (head.getExprents().size() > (isHead ? 0 : 1))) {
+            Exprent first = head.getExprents().get(0);
 
             // Check inside of the if statement for a cast
             if (first.type == Exprent.EXPRENT_ASSIGNMENT) {
@@ -106,7 +108,9 @@ public final class IfPatternMatchProcessor {
 
                       // Add the exprent to the instanceof exprent and remove it from the inside of the if statement
                       iof.getLstOperands().add(2, left);
-                      statement.getIfstat().getExprents().remove(0);
+                      head.getExprents().remove(0);
+
+                      statement.setPatternMatched(true);
 
                       updated = true;
                     }
@@ -123,6 +127,7 @@ public final class IfPatternMatchProcessor {
   }
 
   // Finds all assignments and their associated variables in a statement's predecessors.
+  // FIXME: This isn't working as it should! it should be traversing the predecessor tree!
   private static void findVarsInPredecessors(List<VarVersionPair> vvs, Statement root) {
     for (StatEdge pred : root.getAllPredecessorEdges()) {
       Statement stat = pred.getSource();
