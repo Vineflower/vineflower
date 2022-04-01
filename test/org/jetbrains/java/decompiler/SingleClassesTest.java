@@ -497,6 +497,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestSynchronizedTryReturn");
     // TODO: finally block causes incorrect variable scope
     register(JAVA_8, "TestTryReturn");
+    // TODO: ternaries inside while conditions shouldn't be put in if inside while
+    register(JAVA_8, "TestWhileConditionTernary");
   }
 
   private void registerEntireClassPath() {
