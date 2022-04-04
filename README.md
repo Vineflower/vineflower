@@ -73,13 +73,13 @@ Typically, the following options will be changed by user, if any: hes, hdc, dgs,
 The rest of options can be left as they are: they are aimed at professional reverse engineers.
 
 - rbr (1): hide bridge methods
-- rsy (0): hide synthetic class members
+- rsy (1): hide synthetic class members
 - din (1): decompile inner classes
 - dc4 (1): collapse 1.4 class references
 - das (1): decompile assertions
 - hes (1): hide empty super invocation
 - hdc (1): hide empty default constructor
-- dgs (0): decompile generic signatures
+- dgs (1): decompile generic signatures
 - ner (1): assume return not throwing exceptions
 - den (1): decompile enumerations
 - rgn (1): remove getClass() invocation, when it is part of a qualified new statement

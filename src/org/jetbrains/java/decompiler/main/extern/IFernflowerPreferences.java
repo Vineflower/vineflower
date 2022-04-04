@@ -70,7 +70,7 @@ public interface IFernflowerPreferences {
   String BOOLEAN_TRUE_ONE = "bto";
 
   @Name("ASCII String Characters")
-  @Description("Represent strings as ASCII only.")
+  @Description("Encode non-ASCII characters in string and character literals as Unicode escapes.")
   String ASCII_STRING_CHARACTERS = "asc";
 
   @Name("Synthetic Not Set")
@@ -237,13 +237,13 @@ public interface IFernflowerPreferences {
     Map<String, Object> defaults = new HashMap<>();
 
     defaults.put(REMOVE_BRIDGE, "1");
-    defaults.put(REMOVE_SYNTHETIC, "0");
+    defaults.put(REMOVE_SYNTHETIC, "1");
     defaults.put(DECOMPILE_INNER, "1");
     defaults.put(DECOMPILE_CLASS_1_4, "1");
     defaults.put(DECOMPILE_ASSERTIONS, "1");
     defaults.put(HIDE_EMPTY_SUPER, "1");
     defaults.put(HIDE_DEFAULT_CONSTRUCTOR, "1");
-    defaults.put(DECOMPILE_GENERIC_SIGNATURES, "0");
+    defaults.put(DECOMPILE_GENERIC_SIGNATURES, "1");
     defaults.put(NO_EXCEPTIONS_RETURN, "1");
     defaults.put(ENSURE_SYNCHRONIZED_MONITOR, "1");
     defaults.put(DECOMPILE_ENUM, "1");
@@ -264,9 +264,9 @@ public interface IFernflowerPreferences {
     defaults.put(VERIFY_ANONYMOUS_CLASSES, "0");
     defaults.put(TERNARY_CONSTANT_SIMPLIFICATION, "0");
     defaults.put(OVERRIDE_ANNOTATION, "1");
-    defaults.put(PATTERN_MATCHING, "0"); // Pattern matching has some issues around negative blocks
+    defaults.put(PATTERN_MATCHING, "1"); // Pattern matching is relatively stable
     defaults.put(EXPERIMENTAL_TRY_LOOP_FIX, "0"); // Causes issues when decompiling certain classes
-    defaults.put(TERNARY_CONDITIONS, "1"); // Ternary conditions are pretty stable so they can go in here
+    defaults.put(TERNARY_CONDITIONS, "0"); // Causes issues when decompiling certain classes
     defaults.put(SWITCH_EXPRESSIONS, "1"); // While still experimental, switch expressions work pretty well
     defaults.put(SHOW_HIDDEN_STATEMENTS, "0"); // Extra debugging that isn't useful in most cases
     defaults.put(SIMPLIFY_STACK_SECOND_PASS, "1"); // Generally produces better bytecode, useful to debug if it does something strange
