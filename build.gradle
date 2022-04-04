@@ -73,7 +73,7 @@ void createJavaTestDataSet(int version, String suffix = "", List<String> compile
     it.java.srcDirs file("testData/src/java${version}${suffix.toLowerCase()}")
   }
   tasks.getByName("compileTestDataJava${version}${suffix}Java") {
-    destinationDir = file("testData/classes/java${version}${suffix.toLowerCase()}")
+    destinationDirectory = file("testData/classes/java${version}${suffix.toLowerCase()}")
     javaCompiler = javaToolchains.compilerFor {
       languageVersion = JavaLanguageVersion.of(version)
     }
@@ -88,7 +88,7 @@ void createJavaTestDataSet(int version, String suffix = "", List<String> compile
 
 task compileTestDataJasm(type: JasmCompile) {
   source = fileTree("testData/src/jasm/")
-  destinationDir = file("testData/classes/jasm/")
+  destinationDirectory = file("testData/classes/jasm/")
   options.compilerArgs += ["-g"]
 }
 task testDataJasmClasses {
@@ -98,12 +98,12 @@ testDataJasmClasses.dependsOn(compileTestDataJasm)
 testDataClasses.dependsOn(testDataJasmClasses)
 
 compileTestDataGroovyGroovy {
-  destinationDir = file("testData/classes/groovy")
+  destinationDirectory = file("testData/classes/groovy")
 }
 testDataClasses.dependsOn(testDataGroovyClasses)
 
 compileTestDataKotlinKotlin {
-  destinationDir = file("testData/classes/kt")
+  destinationDirectory = file("testData/classes/kt")
 }
 testDataClasses.dependsOn(testDataKotlinClasses)
 
