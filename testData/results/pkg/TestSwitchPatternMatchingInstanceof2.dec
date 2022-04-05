@@ -11,27 +11,28 @@ public class TestSwitchPatternMatchingInstanceof2 {
 
       while(true) {
          switch(SwitchBootstraps.typeSwitch<"typeSwitch",Number,Number,String>(var2, var3)) {
-         case 0:
-            Number n = (Number)var2;// 6
-            if (n instanceof Integer) {
-               Integer i = (Integer)n;
-               System.out.println(i);
-               return;// 11
-            }
+            case 0: {
+               Number n = (Number)var2;// 6
+               if (n instanceof Integer i) {
+                  System.out.println(i);
+                  return;// 11
+               }
 
-            var3 = 1;
-            break;
-         case 1:
-            Number n = (Number)var2;// 7
-            System.out.println(n);
-            return;
-         case 2:
-            String s = (String)var2;// 8
-            System.out.println(s);
-            return;
-         default:
-            System.out.println("Default");// 9
-            return;
+               var3 = 1;
+               break;
+            }
+            case 1: {
+               Number n = (Number)var2;// 7
+               System.out.println(n);
+               return;
+            }
+            case 2:
+               String s = (String)var2;// 8
+               System.out.println(s);
+               return;
+            default:
+               System.out.println("Default");// 9
+               return;
          }
       }
    }
@@ -66,26 +67,21 @@ class 'pkg/TestSwitchPatternMatchingInstanceof2' {
       35      15
       36      15
       37      15
-      3a      16
-      3b      16
-      3c      16
-      3d      16
-      3e      16
-      3f      16
-      40      16
-      41      17
-      42      17
-      43      17
-      44      17
-      45      17
-      46      17
-      47      17
-      48      17
-      49      17
-      4a      17
-      4b      17
-      4c      17
-      4d      17
+      3f      15
+      40      15
+      41      16
+      42      16
+      43      16
+      44      16
+      45      16
+      46      16
+      47      16
+      48      16
+      49      16
+      4a      16
+      4b      16
+      4c      16
+      4d      16
       54      24
       55      24
       56      24
@@ -100,29 +96,29 @@ class 'pkg/TestSwitchPatternMatchingInstanceof2' {
       5f      25
       60      25
       61      25
-      65      28
-      66      28
-      67      28
-      68      28
-      69      28
-      6a      28
-      6b      29
-      6c      29
-      6d      29
-      6e      29
-      6f      29
-      70      29
-      71      29
-      72      29
-      76      32
-      77      32
-      78      32
-      79      32
-      7a      32
-      7b      32
-      7c      32
-      7d      32
-      81      18
+      65      29
+      66      29
+      67      29
+      68      29
+      69      29
+      6a      29
+      6b      30
+      6c      30
+      6d      30
+      6e      30
+      6f      30
+      70      30
+      71      30
+      72      30
+      76      33
+      77      33
+      78      33
+      79      33
+      7a      33
+      7b      33
+      7c      33
+      7d      33
+      81      17
    }
 }
 
@@ -130,6 +126,6 @@ Lines mapping:
 5 <-> 8
 6 <-> 15
 7 <-> 25
-8 <-> 29
-9 <-> 33
-11 <-> 19
+8 <-> 30
+9 <-> 34
+11 <-> 18

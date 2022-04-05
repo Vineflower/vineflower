@@ -639,7 +639,7 @@ public class ExprProcessor implements CodeConstants {
           stack.pop();
           // check for synthetic getClass and requireNonNull calls added by the compiler
           // see https://stackoverflow.com/a/20130641
-          if (i > 0) {
+          if (!exprlist.isEmpty()) {
             Exprent last = exprlist.get(exprlist.size() - 1);
             // Our heuristic is checking for an assignment and the type of the assignment is an invocation.
             // This roughly corresponds to a pattern of DUP [nullcheck] POP.
@@ -900,14 +900,14 @@ public class ExprProcessor implements CodeConstants {
                                          TextBuffer buffer,
                                          int indent,
                                          boolean castNull) {
-    return getCastedExprent(exprent, leftType, buffer, indent, castNull, false, false, false);
+    return getCastedExprent(exprent, leftType, buffer, indent, castNull ? NullCastType.CAST : NullCastType.DONT_CAST, false, false, false);
   }
 
   public static boolean getCastedExprent(Exprent exprent,
                                          VarType leftType,
                                          TextBuffer buffer,
                                          int indent,
-                                         boolean castNull,
+                                         NullCastType castNull,
                                          boolean castAlways,
                                          boolean castNarrowing,
                                          boolean unbox) {
@@ -927,12 +927,18 @@ public class ExprProcessor implements CodeConstants {
     }
 
     VarType rightType = exprent.getInferredExprType(leftType);
+    exprent = narrowGenericCastType(exprent, leftType);
 
-    boolean cast =
-      castAlways ||
-      (!leftType.isSuperset(rightType) && (rightType.equals(VarType.VARTYPE_OBJECT) || leftType.type != CodeConstants.TYPE_OBJECT)) ||
-      (castNull && rightType.type == CodeConstants.TYPE_NULL && !UNDEFINED_TYPE_STRING.equals(getTypeName(leftType))) ||
-      (castNarrowing && isIntConstant(exprent) && isNarrowedIntType(leftType));
+    boolean doCast = (!leftType.isSuperset(rightType) && (rightType.equals(VarType.VARTYPE_OBJECT) || leftType.type != CodeConstants.TYPE_OBJECT));
+    boolean doCastNull = (castNull.cast && rightType.type == CodeConstants.TYPE_NULL && !UNDEFINED_TYPE_STRING.equals(getTypeName(leftType)));
+    boolean doCastNarrowing = (castNarrowing && isIntConstant(exprent) && isNarrowedIntType(leftType));
+    boolean doCastGenerics = doesContravarianceNeedCast(leftType, rightType);
+
+    boolean cast = castAlways || doCast || doCastNull || doCastNarrowing || doCastGenerics;
+
+    if (castNull == NullCastType.DONT_CAST_AT_ALL && rightType.type == CodeConstants.TYPE_NULL) {
+      cast = castAlways;
+    }
 
     boolean castLambda = !cast && exprent.type == Exprent.EXPRENT_NEW && !leftType.equals(rightType) &&
                           lambdaNeedsCast(leftType, (NewExprent)exprent);
@@ -949,11 +955,17 @@ public class ExprProcessor implements CodeConstants {
       }
     }
 
-    if (cast) buffer.append('(').append(getCastTypeName(leftType)).append(')');
+    if (cast) {
+      buffer.append('(').append(getCastTypeName(leftType)).append(')');
+    }
 
-    if (castLambda) buffer.append('(').append(getCastTypeName(rightType)).append(')');
+    if (castLambda) {
+      buffer.append('(').append(getCastTypeName(rightType)).append(')');
+    }
 
-    if (quote) buffer.append('(');
+    if (quote) {
+      buffer.append('(');
+    }
 
     if (exprent.type == Exprent.EXPRENT_CONST) {
       ((ConstExprent) exprent).adjustConstType(leftType);
@@ -961,9 +973,70 @@ public class ExprProcessor implements CodeConstants {
 
     buffer.append(exprent.toJava(indent));
 
-    if (quote) buffer.append(')');
+    if (quote) {
+      buffer.append(')');
+    }
 
     return cast;
+  }
+
+  public enum NullCastType {
+    CAST(true), // old boolean true
+    DONT_CAST(false), // old booean false
+    DONT_CAST_AT_ALL(false); // old boolean false and don't cast
+
+    private final boolean cast;
+
+    NullCastType(boolean cast) {
+      this.cast = cast;
+    }
+  }
+
+  // (Obj)expr; -> (Obj<T>)expr;
+  public static Exprent narrowGenericCastType(Exprent expr, VarType type) {
+    if (type.isGeneric() && expr.type == Exprent.EXPRENT_FUNCTION && ((FunctionExprent)expr).getFuncType() == FunctionExprent.FUNCTION_CAST) {
+      FunctionExprent func = (FunctionExprent) expr;
+      VarType funcType = func.getExprType();
+
+      GenericType genType = (GenericType) type;
+      if (funcType.value.equals(type.value) && !genType.getArguments().isEmpty()) {
+        // Trying to cast to a generic type but the cast isn't generic- invalid!
+        if (!funcType.isGeneric()) {
+          ConstExprent cast = ((ConstExprent) func.getLstOperands().get(1));
+          cast.setConstType(type);
+        } else if (genType.equalsExact(funcType) && !func.doesCast()) {
+          func.setNeedsCast(true);
+        }
+      }
+    }
+
+    return expr;
+  }
+
+  // Obj<T> var = type; -> Obj<T> var = (Obj<T>) type; Where type is Obj<? super T>
+  public static boolean doesContravarianceNeedCast(VarType left, VarType right) {
+    if (left != null && right != null && left.isGeneric() && right.isGeneric()) {
+      GenericType leftGeneric = (GenericType) left;
+      GenericType rightGeneric = (GenericType) right;
+
+      if (leftGeneric.getArguments().size() != rightGeneric.getArguments().size()) {
+        return false;
+      }
+
+      for (int i = 0; i < leftGeneric.getArguments().size(); i++) {
+        VarType leftType = leftGeneric.getArguments().get(i);
+        VarType rightType = rightGeneric.getArguments().get(i);
+
+        if (leftType != null && rightType != null && leftType.isSuperset(rightType) &&
+          (leftType.isGeneric() && rightType.isGeneric()) &&
+          (((GenericType) leftType).getWildcard() == GenericType.WILDCARD_NO || ((GenericType) leftType).getWildcard() == GenericType.WILDCARD_EXTENDS) &&
+          ((GenericType) rightType).getWildcard() == GenericType.WILDCARD_SUPER) {
+          return true;
+        }
+      }
+    }
+
+    return false;
   }
 
   private static boolean isIntConstant(Exprent exprent) {

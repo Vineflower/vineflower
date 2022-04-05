@@ -18,7 +18,7 @@ compileJava {
 group = 'org.quiltmc'
 archivesBaseName = 'quiltflower'
 
-version = '1.7.0'
+version = '1.8.0'
 
 def ENV = System.getenv()
 version = version + (ENV.GITHUB_ACTIONS ? "" : "+local")
@@ -48,6 +48,8 @@ dependencies {
 }
 
 test {
+  maxHeapSize = "1G"
+  
   useJUnitPlatform()
   systemProperty "DOT_EXPORT_DIR", System.getProperty("DOT_EXPORT_DIR", null)
   systemProperty "DOT_ERROR_EXPORT_DIR", System.getProperty("DOT_ERROR_EXPORT_DIR", null)
@@ -71,7 +73,7 @@ void createJavaTestDataSet(int version, String suffix = "", List<String> compile
     it.java.srcDirs file("testData/src/java${version}${suffix.toLowerCase()}")
   }
   tasks.getByName("compileTestDataJava${version}${suffix}Java") {
-    destinationDir = file("testData/classes/java${version}${suffix.toLowerCase()}")
+    destinationDirectory = file("testData/classes/java${version}${suffix.toLowerCase()}")
     javaCompiler = javaToolchains.compilerFor {
       languageVersion = JavaLanguageVersion.of(version)
     }
@@ -86,7 +88,7 @@ void createJavaTestDataSet(int version, String suffix = "", List<String> compile
 
 task compileTestDataJasm(type: JasmCompile) {
   source = fileTree("testData/src/jasm/")
-  destinationDir = file("testData/classes/jasm/")
+  destinationDirectory = file("testData/classes/jasm/")
   options.compilerArgs += ["-g"]
 }
 task testDataJasmClasses {
@@ -96,12 +98,12 @@ testDataJasmClasses.dependsOn(compileTestDataJasm)
 testDataClasses.dependsOn(testDataJasmClasses)
 
 compileTestDataGroovyGroovy {
-  destinationDir = file("testData/classes/groovy")
+  destinationDirectory = file("testData/classes/groovy")
 }
 testDataClasses.dependsOn(testDataGroovyClasses)
 
 compileTestDataKotlinKotlin {
-  destinationDir = file("testData/classes/kt")
+  destinationDirectory = file("testData/classes/kt")
 }
 testDataClasses.dependsOn(testDataKotlinClasses)
 
@@ -121,7 +123,8 @@ jar {
   manifest {
     attributes (
       'Multi-Release': 'true',
-      'Main-Class': 'org.jetbrains.java.decompiler.main.decompiler.ConsoleDecompiler'
+      'Main-Class': 'org.jetbrains.java.decompiler.main.decompiler.ConsoleDecompiler',
+      'Implementation-Name': "Quiltflower"
     )
   }
 }

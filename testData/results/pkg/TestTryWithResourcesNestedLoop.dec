@@ -20,8 +20,8 @@ public class TestTryWithResourcesNestedLoop {
 
                for(int q = top * p; q < bottom * p; ++q) {// 20
                   for(int r = left * p; r < right * p; ++r) {// 21
-                     lv2.read(new byte[0], r, q);// 22
-                     lv.read(new byte[0], r, q);// 23
+                     int s = lv2.read(new byte[0], r, q);// 22
+                     int t = lv.read(new byte[0], r, q);// 23
                      lv3.read(new byte[0], r, q);// 25
                   }
                }
@@ -131,6 +131,8 @@ class 'pkg/TestTryWithResourcesNestedLoop' {
       76      22
       77      22
       78      22
+      79      22
+      7a      22
       7b      23
       7c      23
       7d      23
@@ -141,6 +143,8 @@ class 'pkg/TestTryWithResourcesNestedLoop' {
       84      23
       85      23
       86      23
+      87      23
+      88      23
       89      24
       8a      24
       8b      24

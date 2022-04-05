@@ -20,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 )
 public final class TestSuspendLambdaKt {
    @NotNull
-   private static final Function1<Continuation<? super Unit>, Object> sl1 = new NamelessClass_1((Continuation<? super NamelessClass_1>)null);
+   private static final Function1<Continuation<? super Unit>, Object> sl1 = new NamelessClass_1(null);
 
    @NotNull
    public static final Function1<Continuation<? super Unit>, Object> getSl1() {
@@ -55,20 +55,20 @@ public final class TestSuspendLambdaKt {
          public final Object invokeSuspend(@NotNull Object $result) {
             Object var4 = IntrinsicsKt.getCOROUTINE_SUSPENDED();
             switch(this.label) {
-            case 0:
-               ResultKt.throwOnFailure($result);
-               String var2 = "SL1";// 4
-               boolean var3 = false;
-               System.out.println(var2);
-               return Unit.INSTANCE;// 5
-            default:
-               throw new IllegalStateException("call to 'resume' before 'invoke' with coroutine");
+               case 0:
+                  ResultKt.throwOnFailure($result);
+                  String var2 = "SL1";// 4
+                  boolean var3 = false;
+                  System.out.println(var2);
+                  return Unit.INSTANCE;// 5
+               default:
+                  throw new IllegalStateException("call to 'resume' before 'invoke' with coroutine");
             }
          }
 
          @NotNull
          public final Continuation<Unit> create(@NotNull Continuation<?> $completion) {
-            return (Continuation)(new NamelessClass_1($completion));
+            return (Continuation<Unit>)(new NamelessClass_1($completion));
          }
 
          @Nullable

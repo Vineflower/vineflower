@@ -1,0 +1,120 @@
+package pkg;
+
+public final class TestDoublePopAfterJump {
+   public static final double phiApproximation(int var0, int var1, int var2) {
+      int var10000 = var0;// 25
+      int var10001 = var1;// 26
+      int var10002 = var2;// 27
+
+      for(int var10003 = 0; var10002 > var10003; var10003 += 1) {// 28 31 38
+         int var10004 = var10000 + var10001;// 35
+         var10000 = var10001;
+         var10001 = var10004;
+      }
+
+      return (double)var10001 / (double)var10000;// 44 45 46
+   }
+
+   public static final boolean fizzBuzz() {
+      // $FF: Couldn't be decompiled
+      // Bytecode:
+      // 00: getstatic pkg/TestDoublePopAfterJump.java/lang/System/out Ljava/io/PrintStream;
+      // 03: bipush 0
+      // 04: dup
+      // 05: bipush 100
+      // 07: isub
+      // 08: ifgt 4c
+      // 0b: bipush 1
+      // 0c: iadd
+      // 0d: dup
+      // 0e: bipush 3
+      // 0f: irem
+      // 10: ifne 1c
+      // 13: swap
+      // 14: dup
+      // 15: ldc "Fizz"
+      // 17: invokevirtual pkg/TestDoublePopAfterJump.java/io/PrintStream/print (Ljava/lang/String;)V
+      // 1a: swap
+      // 1b: ineg
+      // 1c: dup
+      // 1d: ifgt 21
+      // 20: ineg
+      // 21: dup
+      // 22: bipush 5
+      // 23: irem
+      // 24: ifne 30
+      // 27: swap
+      // 28: dup
+      // 29: ldc "Buzz"
+      // 2b: invokevirtual pkg/TestDoublePopAfterJump.java/io/PrintStream/print (Ljava/lang/String;)V
+      // 2e: swap
+      // 2f: ineg
+      // 30: dup
+      // 31: ifgt 3e
+      // 34: ineg
+      // 35: swap
+      // 36: dup
+      // 37: invokevirtual pkg/TestDoublePopAfterJump.java/io/PrintStream/println ()V
+      // 3a: swap
+      // 3b: goto 04
+      // 3e: dup_x1
+      // 3f: invokestatic pkg/TestDoublePopAfterJump.java/lang/Integer/toString (I)Ljava/lang/String;
+      // 42: invokevirtual pkg/TestDoublePopAfterJump.java/io/PrintStream/println (Ljava/lang/String;)V
+      // 45: getstatic pkg/TestDoublePopAfterJump.java/lang/System/out Ljava/io/PrintStream;
+      // 48: swap
+      // 49: goto 04
+      // 4c: pop
+      // 4d: pop
+      // 4e: return
+   }
+
+   public static final boolean fizzBuzzReduced() {
+      // $FF: Couldn't be decompiled
+      // Bytecode:
+      // 0: bipush 0
+      // 1: bipush 0
+      // 2: dup
+      // 3: ifgt 9
+      // 6: goto 2
+      // 9: pop
+      // a: pop
+      // b: return
+   }
+}
+
+class 'pkg/TestDoublePopAfterJump' {
+   method 'phiApproximation (III)D' {
+      0      4
+      1      5
+      2      6
+      3      8
+      5      8
+      b      9
+      e      8
+      15      14
+      17      14
+      18      14
+      19      14
+   }
+}
+
+Lines mapping:
+25 <-> 5
+26 <-> 6
+27 <-> 7
+28 <-> 9
+31 <-> 9
+35 <-> 10
+38 <-> 9
+44 <-> 15
+45 <-> 15
+46 <-> 15
+Not mapped:
+30
+33
+34
+37
+39
+40
+42
+43

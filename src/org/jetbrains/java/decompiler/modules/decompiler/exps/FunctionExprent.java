@@ -4,6 +4,7 @@
 package org.jetbrains.java.decompiler.modules.decompiler.exps;
 
 import org.jetbrains.java.decompiler.code.CodeConstants;
+import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
@@ -324,30 +325,63 @@ public class FunctionExprent extends Exprent {
           for (VarType type : types) {
             anyMatch |= DecompilerContext.getStructContext().instanceOf(type.value, cast.value);
           }
+
           if (anyMatch) {
             this.needsCast = false;
           }
+        } else {
+            this.needsCast = right.type == CodeConstants.TYPE_NULL || !DecompilerContext.getStructContext().instanceOf(right.value, upperBound.value) || !areGenericTypesSame(right, upperBound);
         }
-        else {
-            this.needsCast = right.type == CodeConstants.TYPE_NULL || !DecompilerContext.getStructContext().instanceOf(right.value, upperBound.value);
-        }
+
         if (!this.needsCast) {
           if (arrayDim > 0) {
             right = right.resizeArrayDim(arrayDim);
           }
+
           return right;
         }
-      }
-      else { //TODO: Capture generics to make cast better?
+      } else { //TODO: Capture generics to make cast better?
         this.needsCast = right.type == CodeConstants.TYPE_NULL || !DecompilerContext.getStructContext().instanceOf(right.value, cast.value);
       }
-    }
-    else if (funcType == FUNCTION_IIF) {
+    } else if (funcType == FUNCTION_IIF) {
       // TODO return common generic type?
-      lstOperands.get(1).getInferredExprType(upperBound);
-      lstOperands.get(2).getInferredExprType(upperBound);
+      VarType type1 = lstOperands.get(1).getInferredExprType(upperBound);
+      VarType type2 = lstOperands.get(2).getInferredExprType(upperBound);
+
+      if (type1.type == CodeConstants.TYPE_NULL) {
+        return type2;
+      } else if (type2.type == CodeConstants.TYPE_NULL) {
+        return type1;
+      }
     }
+
     return getExprType();
+  }
+
+  private static boolean areGenericTypesSame(VarType right, VarType upperBound) {
+    if (!(right instanceof GenericType && upperBound instanceof GenericType)) {
+      return true; // Prevent this from accidentally always casting
+    }
+
+    GenericType rightGeneric = (GenericType)right;
+    GenericType upperBoundGeneric = (GenericType)upperBound;
+
+    // Different argument counts, can't be the same!
+    if (rightGeneric.getArguments().size() != upperBoundGeneric.getArguments().size()) {
+      return false;
+    }
+
+    for (int i = 0; i < upperBoundGeneric.getArguments().size(); i++) {
+      VarType upperType = upperBoundGeneric.getArguments().get(i);
+      VarType rightType = rightGeneric.getArguments().get(i);
+
+      // Trying to cast Obj<?> to Obj<T>, which is an unchecked cast- needs to be explicit
+      if (upperType != null && rightType == null) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   @Override
@@ -495,13 +529,13 @@ public class FunctionExprent extends Exprent {
 
     // If we're an unsigned right shift or lower, this function can be represented as a single leftHand + functionType + rightHand operation.
     if (this.funcType <= FUNCTION_USHR) {
+      Exprent left = this.lstOperands.get(0);
+      Exprent right = this.lstOperands.get(1);
+
       // Minecraft specific hot fix: If we're doing arithmetic or bitwise math by a char value, we can assume that it's wrong behavior.
       // We check for this and then fix it by resetting the param to be an int instead of a char.
       // This fixes cases where "& 65535" and "& 0xFFFF" get wrongly decompiled as "& '\uffff'".
       if (this.funcType <= FUNCTION_XOR) {
-        Exprent left = this.lstOperands.get(0);
-        Exprent right = this.lstOperands.get(1);
-
         // Checks to see if the right expression is a constant and then adjust the type from char to int if the left is an int.
         // Failing that, check the left hand side and then do the same.
         if (right.type == EXPRENT_CONST) {
@@ -512,15 +546,12 @@ public class FunctionExprent extends Exprent {
       }
 
       // Initialize the operands with the defaults
-      TextBuffer leftOperand = wrapOperandString(this.lstOperands.get(0), false, indent, true);
-      TextBuffer rightOperand = wrapOperandString(this.lstOperands.get(1), true, indent, true);
+      TextBuffer leftOperand = wrapOperandString(left, false, indent, true);
+      TextBuffer rightOperand = wrapOperandString(right, true, indent, true);
 
       // Check for special cased integers on the right and left hand side, and then return if they are found.
       // This only applies to bitwise and as well as bitwise or functions.
       if (this.funcType == FUNCTION_AND || this.funcType == FUNCTION_OR) {
-        Exprent left = this.lstOperands.get(0);
-        Exprent right = this.lstOperands.get(1);
-
         // Check if the right is an int constant and adjust accordingly
         if (right.type == EXPRENT_CONST && right.getExprType() == VarType.VARTYPE_INT) {
           Integer value = (Integer) ((ConstExprent)right).getValue();
@@ -546,15 +577,16 @@ public class FunctionExprent extends Exprent {
       if (!disableNewlineGroupCreation) {
         buf.popNewlineGroup();
       }
+
       return buf;
     }
 
       // try to determine more accurate type for 'char' literals
     if (funcType >= FUNCTION_EQ) {
-      if (funcType <= FUNCTION_LE) {
-        Exprent left = lstOperands.get(0);
-        Exprent right = lstOperands.get(1);
+      Exprent left = lstOperands.get(0);
+      Exprent right = lstOperands.get(1);
 
+      if (funcType <= FUNCTION_LE) {
         if (right.type == EXPRENT_CONST) {
           ((ConstExprent) right).adjustConstType(left.getExprType());
         }
@@ -566,9 +598,9 @@ public class FunctionExprent extends Exprent {
       if (!disableNewlineGroupCreation) {
         buf.pushNewlineGroup(indent, 1);
       }
-      buf.append(wrapOperandString(lstOperands.get(0), false, indent, true))
+      buf.append(wrapOperandString(left, false, indent, true))
         .appendPossibleNewline(" ").append(OPERATORS[funcType - FUNCTION_EQ + 11]).append(" ")
-        .append(wrapOperandString(lstOperands.get(1), true, indent, true));
+        .append(wrapOperandString(right, true, indent, true));
       if (!disableNewlineGroupCreation) {
         buf.popNewlineGroup();
       }
@@ -672,6 +704,27 @@ public class FunctionExprent extends Exprent {
     throw new RuntimeException("invalid function");
   }
 
+  // Make sure that any boxing that is required is properly expressed
+  private Exprent unwrapBoxing(Exprent expr) {
+    if (expr.type == Exprent.EXPRENT_INVOCATION) {
+      if (((InvocationExprent) expr).isUnboxingCall()) {
+        Exprent inner = ((InvocationExprent) expr).getInstance();
+        if (inner.type == Exprent.EXPRENT_FUNCTION && ((FunctionExprent)inner).funcType == FunctionExprent.FUNCTION_CAST) {
+          inner.addBytecodeOffsets(expr.bytecode);
+          expr = inner;
+        }
+      }
+    }
+
+    return expr;
+  }
+
+  public void unwrapBox() {
+    for (int i = 0; i < this.lstOperands.size(); i++) {
+      this.lstOperands.set(i, unwrapBoxing(this.lstOperands.get(i)));
+    }
+  }
+
   @Override
   public int getPrecedence() {
     if (funcType == FUNCTION_CAST && !doesCast()) {
@@ -773,6 +826,10 @@ public class FunctionExprent extends Exprent {
 
   public boolean doesCast() {
     return needsCast;
+  }
+
+  public void setNeedsCast(boolean needsCast) {
+    this.needsCast = needsCast;
   }
 
   public void setInvocationInstance() {

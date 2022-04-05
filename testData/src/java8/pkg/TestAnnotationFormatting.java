@@ -1,0 +1,24 @@
+package pkg;
+
+@TestAnnotationFormatting.Anno(
+  x = "This is a very long string that should cause text formatting to happen!",
+  y = @TestAnnotationFormatting.Anno2(
+    name = "This is a very long string that should cause text formatting to happen!",
+    size = 100,
+    location = -30
+  ),
+  z = 100000
+)
+public class TestAnnotationFormatting {
+  public @interface Anno {
+    String x();
+    Anno2 y();
+    int z();
+  }
+
+  public @interface Anno2 {
+    String name();
+    int size();
+    int location();
+  }
+}

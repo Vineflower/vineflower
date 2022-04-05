@@ -1,0 +1,159 @@
+package pkg;
+
+import java.util.Comparator;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Stream;
+
+public class TestGenericsQualified {
+   public Comparator<String> field = Comparator.<String, Integer>comparing(s -> s.length()).thenComparing(i -> i.toString());// 10
+   public CompletableFuture<String> field2 = CompletableFuture.<String>supplyAsync(() -> "").thenCompose(s -> CompletableFuture.supplyAsync(() -> s + "2"));// 11
+   public Optional<String> field3 = Optional.of("").map(s -> s + "3");// 12
+   public Stream<String> field4 = Stream.of("1", "2").sorted(Comparator.<String, Integer>comparing(s -> s.length()).thenComparing(i -> i.toString()));// 14
+   public Comparator<String> field5 = Comparator.comparing(String::length).thenComparing(i -> i.toString());// 15
+   public Comparator<TestGenericsQualified> field6 = Comparator.<TestGenericsQualified, Integer>comparing(TestGenericsQualified::get).reversed();
+
+   public int get() {
+      return 0;// 19
+   }
+
+   public int get(int i) {
+      return i;// 23
+   }
+
+   public Comparator<String> method() {
+      return Comparator.<String, Integer>comparing(s -> s.length()).thenComparing(i -> i.toString());// 27
+   }
+}
+
+class 'pkg/TestGenericsQualified' {
+   method 'lambda$new$0 (Ljava/lang/String;)Ljava/lang/Integer;' {
+      0      8
+      1      8
+      2      8
+      3      8
+      4      8
+      5      8
+      6      8
+      7      8
+   }
+
+   method 'lambda$new$1 (Ljava/lang/String;)Ljava/lang/String;' {
+      0      8
+      1      8
+      2      8
+      3      8
+      4      8
+   }
+
+   method 'lambda$new$2 ()Ljava/lang/String;' {
+      0      9
+      1      9
+      2      9
+   }
+
+   method 'lambda$new$4 (Ljava/lang/String;)Ljava/util/concurrent/CompletionStage;' {
+      6      9
+      7      9
+      8      9
+      9      9
+   }
+
+   method 'lambda$null$3 (Ljava/lang/String;)Ljava/lang/String;' {
+      7      9
+      b      9
+      c      9
+      10      9
+      11      9
+      12      9
+      13      9
+   }
+
+   method 'lambda$new$5 (Ljava/lang/String;)Ljava/lang/String;' {
+      7      10
+      b      10
+      c      10
+      10      10
+      11      10
+      12      10
+      13      10
+   }
+
+   method 'lambda$new$6 (Ljava/lang/String;)Ljava/lang/Integer;' {
+      0      11
+      1      11
+      2      11
+      3      11
+      4      11
+      5      11
+      6      11
+      7      11
+   }
+
+   method 'lambda$new$7 (Ljava/lang/String;)Ljava/lang/String;' {
+      0      11
+      1      11
+      2      11
+      3      11
+      4      11
+   }
+
+   method 'lambda$new$8 (Ljava/lang/String;)Ljava/lang/String;' {
+      0      12
+      1      12
+      2      12
+      3      12
+      4      12
+   }
+
+   method 'get ()I' {
+      0      16
+      1      16
+   }
+
+   method 'get (I)I' {
+      0      20
+      1      20
+   }
+
+   method 'method ()Ljava/util/Comparator;' {
+      5      24
+      6      24
+      7      24
+      d      24
+      e      24
+      f      24
+      10      24
+      11      24
+      12      24
+   }
+
+   method 'lambda$method$9 (Ljava/lang/String;)Ljava/lang/Integer;' {
+      0      24
+      1      24
+      2      24
+      3      24
+      4      24
+      5      24
+      6      24
+      7      24
+   }
+
+   method 'lambda$method$10 (Ljava/lang/String;)Ljava/lang/String;' {
+      0      24
+      1      24
+      2      24
+      3      24
+      4      24
+   }
+}
+
+Lines mapping:
+10 <-> 9
+11 <-> 10
+12 <-> 11
+14 <-> 12
+15 <-> 13
+19 <-> 17
+23 <-> 21
+27 <-> 25

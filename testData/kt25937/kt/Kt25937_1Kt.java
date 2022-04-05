@@ -19,30 +19,32 @@ import org.jetbrains.annotations.Nullable;
 )
 public final class Kt25937_1Kt {
    public static final int some1() {
-      return Kt25937Kt.callSuspendBlock((Function1)(new Function1<Continuation<? super Unit>, Object>((Continuation)null) {
-         int label;
+      return Kt25937Kt.callSuspendBlock(
+         (Function1<? super Continuation<? super Unit>, ? extends Object>)(new Function1<Continuation<? super Unit>, Object>((Continuation)null) {
+            int label;
 
-         @Nullable
-         public final Object invokeSuspend(@NotNull Object $result) {
-            Object var2 = IntrinsicsKt.getCOROUTINE_SUSPENDED();
-            switch(this.label) {
-            case 0:
-               ResultKt.throwOnFailure($result);
-               return Unit.INSTANCE;
-            default:
-               throw new IllegalStateException("call to 'resume' before 'invoke' with coroutine");
+            @Nullable
+            public final Object invokeSuspend(@NotNull Object $result) {
+               Object var2 = IntrinsicsKt.getCOROUTINE_SUSPENDED();
+               switch(this.label) {
+               case 0:
+                  ResultKt.throwOnFailure($result);
+                  return Unit.INSTANCE;
+               default:
+                  throw new IllegalStateException("call to 'resume' before 'invoke' with coroutine");
+               }
             }
-         }
 
-         @NotNull
-         public final Continuation<Unit> create(@NotNull Continuation<?> completion) {
-            Intrinsics.checkParameterIsNotNull(completion, "completion");
-            return new <anonymous constructor>(completion);
-         }
+            @NotNull
+            public final Continuation<Unit> create(@NotNull Continuation<?> completion) {
+               Intrinsics.checkParameterIsNotNull(completion, "completion");
+               return new <anonymous constructor>(completion);
+            }
 
-         public final Object invoke(Object var1) {
-            return ((<undefinedtype>)this.create((Continuation)var1)).invokeSuspend(Unit.INSTANCE);
-         }
-      }));
+            public final Object invoke(Object var1) {
+               return ((<undefinedtype>)this.create((Continuation<?>)var1)).invokeSuspend(Unit.INSTANCE);
+            }
+         })
+      );
    }
 }

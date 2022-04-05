@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 public class GenericDominatorEngine {
-
+  private boolean initialized = false;
   private final IGraph graph;
 
   private final VBStyleCollection<IGraphNode, IGraphNode> colOrderedIDoms = new VBStyleCollection<>();
@@ -20,6 +20,7 @@ public class GenericDominatorEngine {
 
   public void initialize() {
     calcIDoms();
+    this.initialized = true;
   }
 
   private void orderNodes() {
@@ -37,8 +38,7 @@ public class GenericDominatorEngine {
 
     if (node1 == null) {
       return node2;
-    }
-    else if (node2 == null) {
+    } else if (node2 == null) {
       return node1;
     }
 
@@ -55,8 +55,7 @@ public class GenericDominatorEngine {
         }
 
         index1 = orderedIDoms.getIndexByKey(node1);
-      }
-      else {
+      } else {
         nodeOld = node2;
         node2 = orderedIDoms.getWithKey(node2);
 
@@ -113,6 +112,9 @@ public class GenericDominatorEngine {
   }
 
   public boolean isDominator(IGraphNode node, IGraphNode dom) {
+    if (!this.initialized) {
+      throw new IllegalStateException("GenericDominatorEngine not initialized!");
+    }
 
     while (!node.equals(dom)) {
 
@@ -120,11 +122,9 @@ public class GenericDominatorEngine {
 
       if (idom == node) {
         return false; // root node or merging point
-      }
-      else if (idom == null) {
-        throw new RuntimeException("Inconsistent idom sequence discovered!");
-      }
-      else {
+      } else if (idom == null) {
+        throw new RuntimeException("Inconsistent idom sequence discovered or node not found in dom graph!");
+      } else {
         node = idom;
       }
     }

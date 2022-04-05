@@ -8,14 +8,14 @@ public class TestTryWithResourcesSwitchJ16 {
    public void test(File f) throws FileNotFoundException {
       try (Scanner s = this.create(f)) {// 9
          switch(s.nextInt()) {// 10
-         case 1:
-            System.out.println("1");// 12
-            break;// 13
-         case 2:
-            System.out.println("2");// 15
-            break;// 16
-         default:
-            System.out.println("default");// 18
+            case 1:
+               System.out.println("1");// 12
+               break;// 13
+            case 2:
+               System.out.println("2");// 15
+               break;// 16
+            default:
+               System.out.println("default");// 18
          }
       }
 
@@ -25,14 +25,14 @@ public class TestTryWithResourcesSwitchJ16 {
       try (Scanner s = this.create(f)) {// 25
          label56: {
             switch(s.nextInt()) {// 26
-            case 1:
-               System.out.println("1");// 28
-               break;// 29
-            case 2:
-               System.out.println("2");// 31
-               break label56;
-            default:
-               System.out.println("default");// 34
+               case 1:
+                  System.out.println("1");// 28
+                  break;// 29
+               case 2:
+                  System.out.println("2");// 31
+                  break label56;
+               default:
+                  System.out.println("default");// 34
             }
 
             System.out.println("after switch");// 37
@@ -50,17 +50,17 @@ public class TestTryWithResourcesSwitchJ16 {
       try (Scanner s = this.create(f)) {// 48
          label69: {
             switch(s.nextInt()) {// 49
-            case 1:
-               System.out.println("1");// 51
-               break;// 52
-            case 2:
-               System.out.println("2");// 54
-               break label69;
-            case 3:
-               System.out.println("3");// 57
-               return 1;// 58
-            default:
-               System.out.println("default");// 60
+               case 1:
+                  System.out.println("1");// 51
+                  break;// 52
+               case 2:
+                  System.out.println("2");// 54
+                  break label69;
+               case 3:
+                  System.out.println("3");// 57
+                  return 1;// 58
+               default:
+                  System.out.println("default");// 60
             }
 
             System.out.println("after switch");// 63

@@ -8,6 +8,7 @@ import org.jetbrains.java.decompiler.util.DotExporter;
 
 import java.util.*;
 
+@Deprecated // FIXME: needs to be entirely rewritten!
 public final class TernaryProcessor {
   public static boolean processTernary(RootStatement root) {
     boolean res = false;
@@ -98,6 +99,13 @@ public final class TernaryProcessor {
         }
       }
 
+      List<StatEdge> edges = destination.getAllSuccessorEdges();
+      if (edges.isEmpty()) {
+        return false;
+      }
+
+      StatEdge destEdge = edges.get(0);
+
       // If the closure of the if edge isn't null, make it so the edges to the if statement body won't be inlineable
       if (closure != null && !closure.getAllSuccessorEdges().isEmpty()) {
         for (StatEdge edge : closure.getAllSuccessorEdges().get(0).getDestination().getPredecessorEdges(StatEdge.TYPE_BREAK)) {
@@ -105,8 +113,6 @@ public final class TernaryProcessor {
         }
       }
 
-      // FIXME: Can not exist sometimes!!
-      StatEdge destEdge = destination.getAllSuccessorEdges().get(0);
       List<Statement> labelsNeedRemoving = new ArrayList<>();
       if (destination.getSuccessorEdges(StatEdge.TYPE_REGULAR).size() == 1) {
 

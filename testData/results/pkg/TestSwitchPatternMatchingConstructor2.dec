@@ -10,19 +10,21 @@ public class TestSwitchPatternMatchingConstructor2 {
 
    private TestSwitchPatternMatchingConstructor2(Object s) {
       byte var3 = 0;
+      String var10001;
 
-      this(switch(SwitchBootstraps.typeSwitch<"typeSwitch">(s, var3)) {// 9
-         case -1 -> "null";// 10
-         default -> "Non-triangle";// 11
-      });
+      switch(s) {
+         case null -> var10001 = "null";// 10
+         default -> var10001 = "Non-triangle";// 11
+      };
+      this(var10001);// 9
    }// 13
 
    private TestSwitchPatternMatchingConstructor2(Object s, boolean unused) {
       Objects.requireNonNull(s);
       byte var4 = 0;
       switch(SwitchBootstraps.typeSwitch<"typeSwitch">(s, var4)) {
-      default:
-         this("Non-triangle");// 16 17
+         default:
+            this("Non-triangle");// 16 17
       }
    }// 19
 }
@@ -40,59 +42,53 @@ class 'pkg/TestSwitchPatternMatchingConstructor2' {
    }
 
    method '<init> (Ljava/lang/Object;)V' {
-      1      13
+      1      14
       3      11
       4      11
-      6      13
-      7      13
-      8      13
-      9      13
-      a      13
-      b      13
-      c      13
-      20      14
-      21      14
-      25      15
-      27      13
-      28      13
-      29      13
-      2a      17
+      c      14
+      20      15
+      21      15
+      25      16
+      27      18
+      28      18
+      29      18
+      2a      19
    }
 
    method '<init> (Ljava/lang/Object;Z)V' {
-      1      20
-      3      20
-      4      20
-      5      20
-      8      21
-      9      21
-      a      21
-      c      22
-      d      22
-      e      22
-      f      22
-      10      22
-      11      22
-      12      22
-      13      22
-      1c      24
-      1d      24
-      1e      24
-      1f      24
-      20      24
-      21      26
+      1      22
+      3      22
+      4      22
+      5      22
+      8      23
+      9      23
+      a      23
+      c      24
+      d      24
+      e      24
+      f      24
+      10      24
+      11      24
+      12      24
+      13      24
+      1c      26
+      1d      26
+      1e      26
+      1f      26
+      20      26
+      21      28
    }
 }
 
 Lines mapping:
 5 <-> 8
 6 <-> 9
-9 <-> 14
-10 <-> 15
-11 <-> 16
-13 <-> 18
-16 <-> 25
-17 <-> 25
-19 <-> 27
+9 <-> 19
+10 <-> 16
+11 <-> 17
+13 <-> 20
+16 <-> 27
+17 <-> 27
+19 <-> 29
 Not mapped:
 4

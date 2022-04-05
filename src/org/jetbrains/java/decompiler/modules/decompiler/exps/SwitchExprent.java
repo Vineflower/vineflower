@@ -15,13 +15,17 @@ import java.util.List;
 public class SwitchExprent extends Exprent {
   private final SwitchStatement backing;
   private final VarType type;
+  // TODO: is needed?
   private final boolean fallthrough;
+  // Whether or not the switch expression returns a value, for case type coercion
+  private final boolean standalone;
 
-  public SwitchExprent(SwitchStatement backing, VarType type, boolean fallthrough) {
+  public SwitchExprent(SwitchStatement backing, VarType type, boolean fallthrough, boolean standalone) {
     super(EXPRENT_SWITCH);
     this.backing = backing;
     this.type = type;
     this.fallthrough = fallthrough;
+    this.standalone = standalone;
   }
 
   @Override
@@ -69,14 +73,14 @@ public class SwitchExprent extends Exprent {
             buf.append(", ");
           }
 
-          if (value instanceof ConstExprent) {
+          if (value instanceof ConstExprent && !standalone) {
             value = value.copy();
             ((ConstExprent)value).setConstType(switchType);
           }
+
           if (value instanceof FieldExprent && ((FieldExprent)value).isStatic()) { // enum values
             buf.append(((FieldExprent)value).getName());
-          }
-          else {
+          } else {
             buf.append(value.toJava(indent));
           }
 
@@ -117,6 +121,8 @@ public class SwitchExprent extends Exprent {
           } else {
             throw new IllegalStateException("Can't have return in switch expression");
           }
+        } else { // Catchall
+          buf.append(exprent.toJava(indent).append(";"));
         }
       } else {
         buf.append("{");
@@ -135,13 +141,18 @@ public class SwitchExprent extends Exprent {
   }
 
   @Override
+  public int getPrecedence() {
+    return 1; // Should enclose in case of invocation
+  }
+
+  @Override
   public VarType getExprType() {
     return this.type;
   }
 
   @Override
   public Exprent copy() {
-    return new SwitchExprent(this.backing, this.type, this.fallthrough);
+    return new SwitchExprent(this.backing, this.type, this.fallthrough, this.standalone);
   }
 
   @Override

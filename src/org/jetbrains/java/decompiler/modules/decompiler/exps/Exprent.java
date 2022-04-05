@@ -100,8 +100,16 @@ public abstract class Exprent implements IMatchable {
   }
 
   public final List<Exprent> getAllExprents(boolean recursive) {
+    return getAllExprents(recursive, false);
+  }
+
+  public final List<Exprent> getAllExprents(boolean recursive, boolean self) {
     List<Exprent> lst = new ArrayList<>();
     getAllExprents(recursive, lst);
+
+    if (self) {
+      lst.add(this);
+    }
 
     return lst;
   }
@@ -279,54 +287,6 @@ public abstract class Exprent implements IMatchable {
       class_ = class_.parent;
     }
     return ret;
-  }
-
-  protected void wrapInCast(VarType left, VarType right, TextBuffer buf, int precedence) {
-    boolean needsCast = !left.isSuperset(right) && (right.equals(VarType.VARTYPE_OBJECT) || left.type != CodeConstants.TYPE_OBJECT);
-
-    if (left.isGeneric() || right.isGeneric()) {
-      Map<VarType, List<VarType>> names = this.getNamedGenerics();
-      int arrayDim = 0;
-
-      if (left.arrayDim == right.arrayDim && left.arrayDim > 0) {
-        arrayDim = left.arrayDim;
-        left = left.resizeArrayDim(0);
-        right = right.resizeArrayDim(0);
-      }
-
-      List<? extends VarType> types = names.get(right);
-      if (types == null) {
-        types = names.get(left);
-      }
-
-      if (types != null) {
-        boolean anyMatch = false; //TODO: allMatch instead of anyMatch?
-        for (VarType type : types) {
-          if (type.equals(VarType.VARTYPE_OBJECT) && right.equals(VarType.VARTYPE_OBJECT)) {
-            continue;
-          }
-          anyMatch |= right.value == null /*null const doesn't need cast*/ || DecompilerContext.getStructContext().instanceOf(right.value, type.value);
-        }
-
-        if (anyMatch) {
-          needsCast = false;
-        }
-      }
-
-      if (arrayDim != 0) {
-        left = left.resizeArrayDim(arrayDim);
-      }
-    }
-
-    if (!needsCast) {
-      return;
-    }
-
-    if (precedence >= FunctionExprent.getPrecedence(FunctionExprent.FUNCTION_CAST)) {
-      buf.enclose("(", ")");
-    }
-
-    buf.prepend("(" + ExprProcessor.getCastTypeName(left) + ")");
   }
 
   public void setInvocationInstance() {}

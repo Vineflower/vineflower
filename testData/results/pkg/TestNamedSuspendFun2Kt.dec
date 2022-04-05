@@ -76,53 +76,53 @@ public final class TestNamedSuspendFun2Kt {
             Object $result = $continuation.result;
             var4 = IntrinsicsKt.getCOROUTINE_SUSPENDED();
             switch($continuation.label) {
-            case 0:
-               ResultKt.throwOnFailure($result);
-               break;
-            case 1:
-               try {
+               case 0:
                   ResultKt.throwOnFailure($result);
-                  var10000 = (Throwable)(Throwable)$result;
-               } catch (Throwable var19) {
-                  var10000 = var19;
-                  boolean var10001 = false;
-                  break label370;
-               }
-
-               try {
-                  int x = ((Number)var10000).intValue();// 5
-                  if (x == 0) {// 6
-                     break label403;
+                  break;
+               case 1:
+                  try {
+                     ResultKt.throwOnFailure($result);
+                     var10000 = (Throwable)$result;
+                  } catch (Throwable var19) {
+                     var10000 = var19;
+                     boolean var10001 = false;
+                     break label370;
                   }
-               } catch (Throwable var17) {
-                  var10000 = var17;
-                  boolean var25 = false;
-                  break label370;
-               }
 
-               $continuation.label = 3;
-               if (bar($continuation) == var4) {
-                  return var4;
-               }
-               break;
-            case 2:
-               ResultKt.throwOnFailure($result);
-               return Boxing.boxInt(1);// 2 8 9 11
-            case 3:
-               ResultKt.throwOnFailure($result);
-               break;
-            case 4:
-               Throwable x = (Throwable)$continuation.L$0;
-               ResultKt.throwOnFailure($result);
-               throw x;
-            default:
-               throw new IllegalStateException("call to 'resume' before 'invoke' with coroutine");
+                  try {
+                     int x = ((Number)var10000).intValue();// 5
+                     if (x == 0) {// 6
+                        break label403;
+                     }
+                  } catch (Throwable var17) {
+                     var10000 = var17;
+                     boolean var25 = false;
+                     break label370;
+                  }
+
+                  $continuation.label = 3;
+                  if (bar($continuation) == var4) {
+                     return var4;
+                  }
+                  break;
+               case 2:
+                  ResultKt.throwOnFailure($result);
+                  return Boxing.boxInt(1);// 2 8 9 11
+               case 3:
+                  ResultKt.throwOnFailure($result);
+                  break;
+               case 4:
+                  Throwable x = (Throwable)$continuation.L$0;
+                  ResultKt.throwOnFailure($result);
+                  throw x;
+               default:
+                  throw new IllegalStateException("call to 'resume' before 'invoke' with coroutine");
             }
 
             while(true) {
                try {
                   $continuation.label = 1;
-                  var10000 = (Throwable)(Throwable)bar($continuation);// 4
+                  var10000 = (Throwable)bar($continuation);// 4
                } catch (Throwable var18) {
                   var10000 = var18;
                   boolean var26 = false;

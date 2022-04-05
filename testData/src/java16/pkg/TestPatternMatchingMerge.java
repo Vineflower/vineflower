@@ -10,9 +10,10 @@ public class TestPatternMatchingMerge {
     }
 
     public void testNoInit(Object obj) {
-        String s;
+        String s = null;
         if (obj instanceof String) {
             s = (String) obj;
         }
+      System.out.println(s);
     }
 }

@@ -1,0 +1,67 @@
+package pkg;
+
+public class TestLoopMerging2 {
+   public void test() {
+      int[] array = new int[256];// 5
+      int i = 0;
+
+      while(i < 256) {
+         array[i] = i++;// 7 8
+      }
+
+      for(int ix = 0; ix < 256; ++ix) {// 11
+         System.out.println(array[ix]);// 12
+      }
+
+   }// 14
+}
+
+class 'pkg/TestLoopMerging2' {
+   method 'test ()V' {
+      0      4
+      1      4
+      2      4
+      5      4
+      6      5
+      7      5
+      8      7
+      9      7
+      a      7
+      b      7
+      c      7
+      f      8
+      10      8
+      12      8
+      13      8
+      14      8
+      15      8
+      19      11
+      1a      11
+      1b      11
+      1c      11
+      1d      11
+      1e      11
+      1f      11
+      22      12
+      23      12
+      24      12
+      25      12
+      26      12
+      27      12
+      28      12
+      29      12
+      2a      12
+      2b      11
+      2c      11
+      2d      11
+      31      15
+   }
+}
+
+Lines mapping:
+5 <-> 5
+7 <-> 9
+8 <-> 9
+11 <-> 12
+12 <-> 13
+14 <-> 16

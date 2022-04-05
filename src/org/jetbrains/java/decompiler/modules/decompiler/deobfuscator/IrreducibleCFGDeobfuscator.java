@@ -108,8 +108,7 @@ public final class IrreducibleCFGDeobfuscator {
         if (succCount <= succsCandidateForSplitting) {
           int size = getStatementSize(stat) * (setPreds.size() - 1);
 
-          if (succCount < succsCandidateForSplitting ||
-              size < sizeCandidateForSplitting) {
+          if (succCount < succsCandidateForSplitting || size < sizeCandidateForSplitting) {
             candidateForSplitting = stat;
             sizeCandidateForSplitting = size;
             succsCandidateForSplitting = succCount;

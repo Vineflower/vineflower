@@ -56,7 +56,7 @@ public class ClassWriter {
   private static boolean invokeProcessors(TextBuffer buffer, ClassNode node) {
     ClassWrapper wrapper = node.getWrapper();
     if (wrapper == null) {
-      buffer.append("/* $FF: Couldn't be decompiled. Class " + node.classStruct.qualifiedName + " wasn't processed yet! */" + "/* ");
+      buffer.append("/* $FF: Couldn't be decompiled. Class " + node.classStruct.qualifiedName + " wasn't processed yet! */");
       List<String> lines = new ArrayList<>();
       lines.addAll(ClassWriter.getErrorComment());
       for (String line : lines) {
@@ -72,7 +72,7 @@ public class ClassWriter {
     for (MethodWrapper method : wrapper.getMethods()) {
       if (method.root != null) {
         try {
-          SwitchHelper.simplifySwitches(method.root, method.methodStruct);
+          SwitchHelper.simplifySwitches(method.root, method.methodStruct, method.root);
         } catch (Throwable e) {
           DecompilerContext.getLogger().writeMessage("Method " + method.methodStruct.getName() + " " + method.methodStruct.getDescriptor() + " in class " + node.classStruct.qualifiedName + " couldn't be written.",
             IFernflowerLogger.Severity.WARN,
@@ -901,27 +901,27 @@ public class ClassWriter {
 
       buffer.appendIndent(indent);
 
-      appendModifiers(buffer, flags, METHOD_ALLOWED, isInterface, METHOD_EXCLUDED);
-
-      if (isInterface && !mt.hasModifier(CodeConstants.ACC_STATIC) && mt.containsCode() && (flags & CodeConstants.ACC_PRIVATE) == 0) {
-        // 'default' modifier (Java 8)
-        buffer.append("default ");
-      }
-
       String name = mt.getName();
       if (CodeConstants.INIT_NAME.equals(name)) {
         if (node.type == ClassNode.CLASS_ANONYMOUS) {
           name = "";
           dInit = true;
-        }
-        else {
+        } else {
           name = node.simpleName;
           init = true;
         }
-      }
-      else if (CodeConstants.CLINIT_NAME.equals(name)) {
+      } else if (CodeConstants.CLINIT_NAME.equals(name)) {
         name = "";
         clInit = true;
+      }
+
+      if (!dInit) {
+        appendModifiers(buffer, flags, METHOD_ALLOWED, isInterface, METHOD_EXCLUDED);
+      }
+
+      if (isInterface && !mt.hasModifier(CodeConstants.ACC_STATIC) && mt.containsCode() && (flags & CodeConstants.ACC_PRIVATE) == 0) {
+        // 'default' modifier (Java 8)
+        buffer.append("default ");
       }
 
       GenericMethodDescriptor descriptor = mt.getSignature();

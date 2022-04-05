@@ -4,9 +4,8 @@ public class TestDoWhileTrue {
    public void test() {
       int x = 0;// 5
 
-      do {
-         ++x;// 7
-      } while(x < 100);// 8
+      while(++x < 100) {// 7 8
+      }
 
    }// 12
 }
@@ -15,21 +14,20 @@ class 'pkg/TestDoWhileTrue' {
    method 'test ()V' {
       0      4
       1      4
-      2      7
-      3      7
-      4      7
-      5      8
-      6      8
-      7      8
-      8      8
-      e      10
+      2      6
+      3      6
+      4      6
+      6      6
+      7      6
+      8      6
+      e      9
    }
 }
 
 Lines mapping:
 5 <-> 5
-7 <-> 8
-8 <-> 9
-12 <-> 11
+7 <-> 7
+8 <-> 7
+12 <-> 10
 Not mapped:
 9

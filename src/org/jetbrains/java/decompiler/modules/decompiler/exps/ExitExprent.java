@@ -79,7 +79,7 @@ public class ExitExprent extends Exprent {
         }
         buf.append(' ');
 
-        ExprProcessor.getCastedExprent(value, ret, buf, indent, false, false, false, false);
+        ExprProcessor.getCastedExprent(value, ret, buf, indent, ExprProcessor.NullCastType.DONT_CAST_AT_ALL, false, false, false);
       }
 
       return buf;

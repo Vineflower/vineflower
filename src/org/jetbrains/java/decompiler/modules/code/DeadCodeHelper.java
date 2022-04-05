@@ -7,9 +7,10 @@ import org.jetbrains.java.decompiler.code.cfg.ControlFlowGraph;
 import org.jetbrains.java.decompiler.code.cfg.ExceptionRangeCFG;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
+import org.jetbrains.java.decompiler.struct.StructMethod;
+import org.jetbrains.java.decompiler.util.DotExporter;
 
 import java.util.*;
-import java.util.concurrent.BlockingDeque;
 
 public final class DeadCodeHelper {
 
@@ -314,7 +315,6 @@ public final class DeadCodeHelper {
   }
 
   public static void extendSynchronizedRangeToMonitorexit(ControlFlowGraph graph) {
-
     while(true) {
 
       boolean range_extended = false;
@@ -351,6 +351,7 @@ public final class DeadCodeHelper {
               break;
             }
           }
+
           if(monitorexit_in_range) {
             break;
           }
@@ -459,6 +460,64 @@ public final class DeadCodeHelper {
 
       if(!range_extended) {
         break;
+      }
+    }
+
+    // Extend range to monitorexit when the monitorexit block is a successor
+    for (ExceptionRangeCFG range : graph.getExceptions()) {
+      Set<BasicBlock> predecessors = new HashSet<>();
+
+      // Problems arise if we're too deeply nested- we don't handle that case yet!
+      boolean exceptionsOk = true;
+      for (BasicBlock block : range.getProtectedRange()) {
+        if (block.getSuccExceptions().size() > 1) {
+          exceptionsOk = false;
+          break;
+        }
+      }
+
+      if (!exceptionsOk) {
+        continue;
+      }
+
+      // Find all predecessors of the range
+      for (BasicBlock block : range.getProtectedRange()) {
+        predecessors.addAll(block.getPreds());
+      }
+
+      for (BasicBlock block : range.getProtectedRange()) {
+        predecessors.remove(block);
+      }
+
+      // Can't have more than one entrypoint!
+      if (predecessors.size() != 1) {
+        continue;
+      }
+
+      BasicBlock pred = predecessors.iterator().next();
+      if (pred.getSeq().isEmpty() || pred.getSeq().getLastInstr().opcode != CodeConstants.opc_monitorenter) {
+        continue; // not a synchronized range
+      }
+
+      Set<BasicBlock> successors = new HashSet<>();
+      for (BasicBlock block : range.getProtectedRange()) {
+        successors.addAll(block.getSuccs());
+      }
+
+      for (BasicBlock block : range.getProtectedRange()) {
+        successors.remove(block);
+      }
+
+      for (BasicBlock successor : successors) {
+        if (!successor.getSeq().isEmpty() && successor.getSeq().getLastInstr().opcode == CodeConstants.opc_monitorexit) {
+          // If the range doesn't have the monitorexit instruction, add it to the range
+          if (!range.getProtectedRange().contains(successor)) {
+            range.getProtectedRange().add(successor);
+
+            // Add exception edges to the range
+            successor.addSuccessorException(range.getHandler());
+          }
+        }
       }
     }
 

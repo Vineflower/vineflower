@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 
 public class EliminateLoopsHelper {
@@ -23,9 +24,8 @@ public class EliminateLoopsHelper {
 
       Set<Integer> setReorderedIfs = new HashSet<>();
 
-      SimplifyExprentsHelper sehelper = new SimplifyExprentsHelper(false);
       // TODO: what problems does SSA being null cause?
-      while(sehelper.simplifyStackVarsStatement(root, setReorderedIfs, null, cl)) {
+      while(SimplifyExprentsHelper.simplifyStackVarsStatement(root, setReorderedIfs, null, cl, false)) {
         SequenceHelper.condenseSequences(root);
       }
     }
@@ -128,17 +128,39 @@ public class EliminateLoopsHelper {
 
         if (precount <= postcount) {
           return false;
-        }
-        else {
+        } else {
           for (int i = 0; i < lstBreakEdges.size(); i++) {
             lstEdgeClosures.get(i).addLabeledEdge(lstBreakEdges.get(i));
           }
         }
-      }
-      else {
+      } else {
         return false;
       }
     }
+
+    // Continues
+
+    // Find all continue edges leaving the loop
+    Set<StatEdge> continues = new HashSet<>();
+    TryWithResourcesProcessor.findEdgesLeaving(loopcontent, loop, continues);
+
+    List<StatEdge> edges = continues.stream()
+      .filter(edge -> edge.getType() == StatEdge.TYPE_CONTINUE) // Only consider continue edges found
+      .collect(Collectors.toList()); // Set -> List
+
+    if (!edges.isEmpty()) {
+      // Don't eliminate if we have continues leading to the parent loop!
+      for (StatEdge edge : edges) {
+        if (edge.getDestination() == parentloop) {
+          return false;
+        }
+      }
+    }
+
+    // TODO: is this needed? fixes cases where loop is eliminated but it has a successor!
+//    if (!loop.getSuccessorEdges(StatEdge.TYPE_REGULAR).isEmpty()) {
+//      return false;
+//    }
 
     eliminateLoop(loop, parentloop);
 
@@ -190,10 +212,10 @@ public class EliminateLoopsHelper {
 
     // remove the last break edge, if exists
     Statement loopcontent = loop.getFirst();
-    // TODO: reimplement this properly
-//    if (!loopcontent.getAllSuccessorEdges().isEmpty()) {
-//      loopcontent.removeSuccessor(loopcontent.getAllSuccessorEdges().get(0));
-//    }
+    // TODO: originally was getAllSuccessorEdges
+    if (!loopcontent.getSuccessorEdges(StatEdge.TYPE_BREAK).isEmpty()) {
+      loopcontent.removeSuccessor(loopcontent.getSuccessorEdges(StatEdge.TYPE_BREAK).get(0));
+    }
 
     // replace loop with its content
     loop.getParent().replaceStatement(loop, loopcontent);

@@ -53,12 +53,12 @@ public class TestDuplicateLocals {
    }
 
    public static Integer test7(int var0) {
-      return (Integer)(new HashMap()).computeIfAbsent(var0, var0x -> var0x + 1);
+      return (Integer)new HashMap().computeIfAbsent(var0, var0x -> var0x + 1);
    }
 
    public class Inner {
       public Integer test7(int var1) {
-         return (Integer)(new HashMap()).computeIfAbsent(var1, var1x -> var1x + TestDuplicateLocals.this.i);
+         return (Integer)new HashMap().computeIfAbsent(var1, var1x -> var1x + TestDuplicateLocals.this.i);
       }
    }
 

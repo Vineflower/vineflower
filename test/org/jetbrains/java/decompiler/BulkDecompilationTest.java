@@ -51,10 +51,10 @@ public class BulkDecompilationTest {
     doTestJar("bulk");
   }
 
-  @Test
-  public void testKtJar() {
-    doTestJar("kt25937");
-  }
+//  @Test
+//  public void testKtJar() {
+//    doTestJar("kt25937");
+//  }
 
   // TODO: This test crashses, deadlocks, and throws OutOfMemoryErrors.
 //  @Test

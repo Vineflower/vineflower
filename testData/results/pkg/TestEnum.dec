@@ -20,7 +20,7 @@ public enum TestEnum {
    }// 32
 
    private TestEnum() {
-      this("?", (TestEnum.Type)null);// 36
+      this("?", null);// 36
    }
 
    private TestEnum(@Deprecated String s, TestEnum.Type t) {
@@ -29,23 +29,22 @@ public enum TestEnum {
 
    private void testSwitch() {
       switch(this) {// 40
-      case E1:
-         System.out.println("E1");// 42
-         break;// 43
-      case E2:
-         System.out.println("E2");// 45
-         break;// 46
-      case E3:
-         System.out.println("E3");// 48
-         break;// 49
-      case E4:
-         System.out.println("E4");// 51
+         case E1:
+            System.out.println("E1");// 42
+            break;// 43
+         case E2:
+            System.out.println("E2");// 45
+            break;// 46
+         case E3:
+            System.out.println("E3");// 48
+            break;// 49
+         case E4:
+            System.out.println("E4");// 51
       }
 
       switch(TestEnum.Type.ODD) {// 55
-      case ODD:
-         System.out.println("ODD");// 57
-      default:
+         case ODD:
+            System.out.println("ODD");// 57
       }
    }// 59
 
@@ -137,7 +136,7 @@ class 'pkg/TestEnum' {
       6f      46
       70      46
       71      46
-      74      49
+      74      48
    }
 }
 
@@ -157,4 +156,4 @@ Lines mapping:
 51 <-> 42
 55 <-> 45
 57 <-> 47
-59 <-> 50
+59 <-> 49

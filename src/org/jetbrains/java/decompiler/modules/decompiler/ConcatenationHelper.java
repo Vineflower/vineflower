@@ -71,8 +71,7 @@ public final class ConcatenationHelper {
         if (cltype != null) {
           exprTmp = iex.getInstance();
         }
-      }
-      else if ("makeConcatWithConstants".equals(iex.getName())) { // java 9 style
+      } else if ("makeConcatWithConstants".equals(iex.getName()) || "makeConcat".equals(iex.getName())) { // java 9 style
         List<Exprent> parameters = extractParameters(iex.getBootstrapArguments(), iex);
 
         // Check if we need to add an empty string to the param list to convert from objects or primitives to strings.
@@ -186,15 +185,26 @@ public final class ConcatenationHelper {
 
   // See StringConcatFactory in jdk sources
   private static final char TAG_ARG = '\u0001';
+  private static final String TAG_ARG_S = "\u0001";
   private static final char TAG_CONST = '\u0002';
 
   private static List<Exprent> extractParameters(List<PooledConstant> bootstrapArguments, InvocationExprent expr) {
     List<Exprent> parameters = expr.getLstParameters();
     if (bootstrapArguments != null) {
-      PooledConstant constant = bootstrapArguments.get(0);
-      if (constant.type == CodeConstants.CONSTANT_String) {
-        String recipe = ((PrimitiveConstant)constant).getString();
+      String recipe = null;
+      if (!bootstrapArguments.isEmpty() && bootstrapArguments.get(0).type == CodeConstants.CONSTANT_String) {
+        // Find recipe arg
+        PooledConstant constant = bootstrapArguments.get(0);
+        if (constant.type == CodeConstants.CONSTANT_String) {
+          recipe = ((PrimitiveConstant) constant).getString();
+        }
+      } else if (bootstrapArguments.isEmpty()) { // makeConcat has no recipe, need to fake it (see StringConcatFactory#makeConcat)
+        // Horrific code to have string.repeat() in Java 8
+        // Replace null terminators with \1
+        recipe = new String(new char[parameters.size()]).replace("\0", TAG_ARG_S);
+      }
 
+      if (recipe != null) {
         List<Exprent> res = new ArrayList<>();
         StringBuilder acc = new StringBuilder();
         int parameterId = 0;
@@ -208,14 +218,14 @@ public final class ConcatenationHelper {
               res.add(new ConstExprent(VarType.VARTYPE_STRING, acc.toString(), expr.bytecode));
               acc.setLength(0);
             }
+
             if (c == TAG_CONST) {
               // skip for now
             }
             if (c == TAG_ARG) {
               res.add(parameters.get(parameterId++));
             }
-          }
-          else {
+          } else {
             // Not a special characters, this is a constant embedded into
             // the recipe itself.
             acc.append(c);
@@ -230,6 +240,7 @@ public final class ConcatenationHelper {
         return res;
       }
     }
+
     return new ArrayList<>(parameters);
   }
 

@@ -40,6 +40,26 @@ public class TestDoubleBraceInitializers {
       private TestEnum() {
       }// 24
    }
+
+   public static enum TestEnum1 {
+      A {
+         {
+            System.out.println("A");// 35
+            this.field = 1;// 36
+         }// 37
+      },
+      B {
+         {
+            System.out.println("B");// 39
+            this.field = 2;// 40
+         }// 41
+      };
+
+      public int field;
+
+      private TestEnum1() {
+      }// 46
+   }
 }
 
 class 'pkg/TestDoubleBraceInitializers' {
@@ -139,6 +159,50 @@ class 'pkg/TestDoubleBraceInitializers$TestEnum' {
    }
 }
 
+class 'pkg/TestDoubleBraceInitializers$TestEnum1$1' {
+   method '<init> (Ljava/lang/String;I)V' {
+      7      46
+      8      46
+      9      46
+      a      46
+      b      46
+      c      46
+      d      46
+      e      46
+      f      47
+      10      47
+      11      47
+      12      47
+      13      47
+      14      48
+   }
+}
+
+class 'pkg/TestDoubleBraceInitializers$TestEnum1$2' {
+   method '<init> (Ljava/lang/String;I)V' {
+      7      52
+      8      52
+      9      52
+      a      52
+      b      52
+      c      52
+      d      52
+      e      52
+      f      53
+      10      53
+      11      53
+      12      53
+      13      53
+      14      54
+   }
+}
+
+class 'pkg/TestDoubleBraceInitializers$TestEnum1' {
+   method '<init> (Ljava/lang/String;I)V' {
+      6      60
+   }
+}
+
 Lines mapping:
 9 <-> 9
 10 <-> 11
@@ -157,6 +221,16 @@ Lines mapping:
 27 <-> 32
 29 <-> 36
 30 <-> 37
+35 <-> 47
+36 <-> 48
+37 <-> 49
+39 <-> 53
+40 <-> 54
+41 <-> 55
+46 <-> 61
 Not mapped:
 25
 28
+34
+38
+44

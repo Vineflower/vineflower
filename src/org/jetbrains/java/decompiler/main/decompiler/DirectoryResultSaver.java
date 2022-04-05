@@ -1,13 +1,16 @@
 package org.jetbrains.java.decompiler.main.decompiler;
 
+import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IResultSaver;
+import org.jetbrains.java.decompiler.util.InterpreterUtil;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.jar.Manifest;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipOutputStream;
 
 public final class DirectoryResultSaver implements IResultSaver {
   private final Path root;
@@ -49,6 +52,12 @@ public final class DirectoryResultSaver implements IResultSaver {
 
   @Override
   public void copyFile(String source, String path, String entryName) {
+    try {
+      InterpreterUtil.copyFile(new File(source), this.root.resolve(entryName).toFile());
+    }
+    catch (IOException ex) {
+      DecompilerContext.getLogger().writeMessage("Cannot copy " + source + " to " + entryName, ex);
+    }
   }
 
   @Override
@@ -56,7 +65,19 @@ public final class DirectoryResultSaver implements IResultSaver {
   }
 
   @Override
-  public void copyEntry(String source, String path, String archiveName, String entry) {
+  public void copyEntry(String source, String path, String archiveName, String entryName) {
+    try (ZipFile srcArchive = new ZipFile(new File(source))) {
+      ZipEntry entry = srcArchive.getEntry(entryName);
+      if (entry != null) {
+        try (InputStream in = srcArchive.getInputStream(entry)) {
+          InterpreterUtil.copyStream(in, new FileOutputStream(this.root.resolve(entryName).toFile()));
+        }
+      }
+    }
+    catch (IOException ex) {
+      String message = "Cannot copy entry " + entryName + " from " + source;
+      DecompilerContext.getLogger().writeMessage(message, ex);
+    }
   }
 
   @Override

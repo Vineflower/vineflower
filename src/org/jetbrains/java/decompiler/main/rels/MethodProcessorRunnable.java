@@ -186,6 +186,11 @@ public class MethodProcessorRunnable implements Runnable {
       decompileRecord.add("SetVarVersions_PPMM_" + stackVarsProcessed, root);
     } while (new PPandMMHelper(varProc).findPPandMM(root));
 
+    // Inline ppi/mmi that we may have missed
+    if (PPandMMHelper.inlinePPIandMMIIf(root)) {
+      decompileRecord.add("InlinePPIandMMI", root);
+    }
+
     // Process invokedynamic string concat
     if (cl.getVersion().hasIndyStringConcat()) {
       ConcatenationHelper.simplifyStringConcat(root);
@@ -250,9 +255,12 @@ public class MethodProcessorRunnable implements Runnable {
       varProc.setVarVersions(root);
       decompileRecord.add("SetVarVersions", root);
 
+      LabelHelper.identifyLabels(root);
+      decompileRecord.add("IdentifyLabels", root);
+
       if (DecompilerContext.getOption(IFernflowerPreferences.PATTERN_MATCHING)) {
         if (cl.getVersion().hasIfPatternMatching()) {
-          if (PatternMatchProcessor.matchInstanceof(root)) {
+          if (IfPatternMatchProcessor.matchInstanceof(root)) {
             decompileRecord.add("MatchIfInstanceof", root);
             continue;
           }
@@ -260,19 +268,16 @@ public class MethodProcessorRunnable implements Runnable {
       }
 
       if (SwitchExpressionHelper.hasSwitchExpressions(root)) {
-        if (SwitchExpressionHelper.processSwitchExpressions(root)) {
+        if (SwitchExpressionHelper.processAllSwitchExpressions(root)) {
           decompileRecord.add("ProcessSwitchExpr", root);
           continue;
         }
       }
-	  
+
       if (TryHelper.enhanceTryStats(root, cl)) {
         decompileRecord.add("EnhanceTry", root);
         continue;
       }
-
-      LabelHelper.identifyLabels(root);
-      decompileRecord.add("IdentifyLabels", root);
 
       if (InlineSingleBlockHelper.inlineSingleBlocks(root)) {
         decompileRecord.add("InlineSingleBlocks", root);
@@ -282,6 +287,11 @@ public class MethodProcessorRunnable implements Runnable {
       // this has to be done last so it does not screw up the formation of for loops
       if (MergeHelper.makeDoWhileLoops(root)) {
         decompileRecord.add("MatchDoWhile", root);
+        continue;
+      }
+
+      if (MergeHelper.condenseInfiniteLoopsWithReturn(root)) {
+        decompileRecord.add("CondenseDo", root);
         continue;
       }
 
@@ -301,7 +311,7 @@ public class MethodProcessorRunnable implements Runnable {
     decompileRecord.add("MainLoopEnd", root);
 
     // this has to be done after all inlining is done so the case values do not get reverted
-    if (SwitchHelper.simplifySwitches(root, mt)) {
+    if (SwitchHelper.simplifySwitches(root, mt, root)) {
       decompileRecord.add("SimplifySwitches", root);
 
       SequenceHelper.condenseSequences(root); // remove empty blocks
@@ -309,12 +319,15 @@ public class MethodProcessorRunnable implements Runnable {
 
       // If we have simplified switches, try to make switch expressions
       if (SwitchExpressionHelper.hasSwitchExpressions(root)) {
-        if (SwitchExpressionHelper.processSwitchExpressions(root)) {
+        if (SwitchExpressionHelper.processAllSwitchExpressions(root)) {
           decompileRecord.add("ProcessSwitchExpr_SS", root);
 
           // Simplify stack vars to integrate and inline switch expressions
           stackProc.simplifyStackVars(root, mt, cl);
           decompileRecord.add("SimplifyStackVars_SS", root);
+
+          varProc.setVarVersions(root);
+          decompileRecord.add("SetVarVersions_SS", root);
         }
       }
     }
@@ -339,12 +352,25 @@ public class MethodProcessorRunnable implements Runnable {
       decompileRecord.add("ClearSynchronized", root);
     }
 
+    if (SynchronizedHelper.insertSink(root, varProc, root)) {
+      decompileRecord.add("InsertSynchronizedAssignments", root);
+    }
+
     varProc.setVarDefinitions(root);
     decompileRecord.add("SetVarDefinitions", root);
 
     // Make sure to update assignments after setting the var definitions!
     if (SecondaryFunctionsHelper.updateAssignments(root)) {
       decompileRecord.add("UpdateAssignments", root);
+    }
+
+    // Hide empty default edges caused by switch statement processing
+    if (LabelHelper.hideDefaultSwitchEdges(root)) {
+      decompileRecord.add("HideEmptyDefault", root);
+    }
+
+    if (GenericsProcessor.qualifyChains(root)) {
+      decompileRecord.add("QualifyGenericChains", root);
     }
 
     // must be the last invocation, because it makes the statement structure inconsistent

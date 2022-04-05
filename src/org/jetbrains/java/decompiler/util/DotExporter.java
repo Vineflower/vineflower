@@ -10,6 +10,7 @@ import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.code.cfg.ControlFlowGraph;
 import org.jetbrains.java.decompiler.code.cfg.ExceptionRangeCFG;
 import org.jetbrains.java.decompiler.main.rels.DecompileRecord;
+import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectNode;
@@ -458,7 +459,14 @@ public class DotExporter {
     for(int i=0;i<blocks.size();i++) {
       DirectNode block = blocks.get(i);
 
-      StringBuilder label = new StringBuilder(block.id);
+      StringBuilder label = new StringBuilder(block.id + " in statement " + block.statement.id + " " + getStatType(block.statement));
+      label.append("\\n");
+      label.append(block.block != null ? toJava(block.block) : "null block");
+      if (block.block == null) {
+        TextBuffer buf = ExprProcessor.listToJava(block.exprents, 0);
+        label.append("\\n");
+        label.append(buf.convertToStringAndAllowDataDiscard());
+      }
       if (vars != null && vars.containsKey(block.id)) {
         SFormsFastMapDirect map = vars.get(block.id);
 
@@ -472,26 +480,16 @@ public class DotExporter {
         }
       }
 
-      buffer.append(directBlockIdToDot(block.id)+" [shape=box,label=\""+label+"\"];\r\n");
+      buffer.append((block.id)+" [shape=box,label=\""+label+"\"];\r\n");
 
       for(DirectNode dest: block.succs) {
-        buffer.append(directBlockIdToDot(block.id)+"->"+directBlockIdToDot(dest.id)+";\r\n");
+        buffer.append((block.id)+"->"+(dest.id)+";\r\n");
       }
     }
 
     buffer.append("}");
 
     return buffer.toString();
-  }
-
-  private static String directBlockIdToDot(String id) {
-    id = id.replaceAll("_try", "999");
-    id = id.replaceAll("_tail", "888");
-
-    id = id.replaceAll("_init", "111");
-    id = id.replaceAll("_cond", "222");
-    id = id.replaceAll("_inc", "333");
-    return id;
   }
 
   private static File getFile(String folder, StructMethod mt, String suffix) {
@@ -520,6 +518,7 @@ public class DotExporter {
   public static void toDotFile(DirectGraph dgraph, StructMethod mt, String suffix) {
     toDotFile(dgraph, mt, suffix, null);
   }
+
   public static void toDotFile(DirectGraph dgraph, StructMethod mt, String suffix, Map<String, SFormsFastMapDirect> vars) {
     if (!DUMP_DOTS)
       return;

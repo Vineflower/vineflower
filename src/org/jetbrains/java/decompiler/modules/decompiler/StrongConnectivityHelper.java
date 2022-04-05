@@ -148,16 +148,19 @@ public final class StrongConnectivityHelper {
     }
   }
 
+  // Returns true if the component has no outgoing edges that aren't accounted for by the component itself
   public static boolean isExitComponent(List<? extends Statement> lst) {
     Set<Statement> set = new HashSet<>();
+
     for (Statement stat : lst) {
       set.addAll(stat.getNeighbours(StatEdge.TYPE_REGULAR, Statement.DIRECTION_FORWARD));
     }
+
     for (Statement stat : lst) {
       set.remove(stat);
     }
 
-    return (set.size() == 0);
+    return set.isEmpty();
   }
 
   public static List<Statement> getExitReps(List<? extends List<Statement>> lst) {

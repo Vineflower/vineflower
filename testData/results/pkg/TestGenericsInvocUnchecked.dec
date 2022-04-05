@@ -1,0 +1,35 @@
+package pkg;
+
+public class TestGenericsInvocUnchecked<T extends Number> {
+   public void test(int i, TestGenericsInvocUnchecked<?> other) {
+      new TestGenericsInvocUnchecked.Inner().testInner(i, this, other);// 11
+   }// 12
+
+   public class Inner {
+      public void testInner(int i, TestGenericsInvocUnchecked<T> t1, TestGenericsInvocUnchecked<T> t2) {
+      }// 7
+   }
+}
+
+class 'pkg/TestGenericsInvocUnchecked' {
+   method 'test (ILpkg/TestGenericsInvocUnchecked;)V' {
+      8      4
+      9      4
+      a      4
+      b      4
+      c      4
+      d      4
+      e      5
+   }
+}
+
+class 'pkg/TestGenericsInvocUnchecked$Inner' {
+   method 'testInner (ILpkg/TestGenericsInvocUnchecked;Lpkg/TestGenericsInvocUnchecked;)V' {
+      0      9
+   }
+}
+
+Lines mapping:
+7 <-> 10
+11 <-> 5
+12 <-> 6

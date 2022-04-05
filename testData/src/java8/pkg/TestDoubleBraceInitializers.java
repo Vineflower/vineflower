@@ -29,4 +29,20 @@ public class TestDoubleBraceInitializers {
       System.out.println("B");
     }}
   }
+
+  public enum TestEnum1 {
+    A {{
+      System.out.println("A");
+      this.field = 1;
+    }},
+    B {{
+      System.out.println("B");
+      this.field = 2;
+    }};
+
+    public int field;
+    TestEnum1() {
+
+    }
+  }
 }

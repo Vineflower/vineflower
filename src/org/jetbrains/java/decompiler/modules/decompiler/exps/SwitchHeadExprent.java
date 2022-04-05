@@ -120,6 +120,10 @@ public class SwitchHeadExprent extends Exprent {
     return value;
   }
 
+  public void setValue(Exprent value) {
+    this.value = value;
+  }
+
   public void setCaseValues(List<List<Exprent>> caseValues) {
     this.caseValues = caseValues;
   }

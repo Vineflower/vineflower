@@ -10,6 +10,11 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public final class SwitchExpressionHelper {
+  // Wrapper for switch expressions on patterns, which need special handling
+  public static boolean processAllSwitchExpressions(Statement root) {
+    return SwitchPatternMatchProcessor.processPatternMatching(root) || processSwitchExpressions(root);
+  }
+
   public static boolean processSwitchExpressions(Statement root) {
     boolean ret = processSwitchExpressionsRec(root);
 
@@ -38,7 +43,7 @@ public final class SwitchExpressionHelper {
       return false;
     }
 
-    // At this stage, there are no variable assignments
+    // At this stage, there are no variable definitions
     // So we need to figure out which variable, if any, this switch statement is an expression of and make it generate.
 
     Exprent condition = ((SwitchHeadExprent) stat.getHeadexprent()).getValue();
@@ -83,13 +88,16 @@ public final class SwitchExpressionHelper {
       return false;
     }
 
-    boolean foundDefault = false;
-    for (Statement statement : assignments.keySet()) {
-      if (stat.getDefaultEdge().getDestination().containsStatement(statement)) {
-        foundDefault = true;
-        break;
-      }
-    }
+    boolean foundDefault = stat.getCaseEdges().stream()
+      .flatMap(List::stream) // List<List<StatEdge>> -> List<StatEdge>
+      .anyMatch(e -> e == stat.getDefaultEdge()); // Has default edge
+
+//    for (Statement statement : assignments.keySet()) {
+//      if (stat.getDefaultEdge().getDestination().containsStatement(statement)) {
+//        foundDefault = true;
+//        break;
+//      }
+//    }
 
     // Need default always!
     if (!foundDefault) {
@@ -170,7 +178,7 @@ public final class SwitchExpressionHelper {
 
       VarExprent vExpr = new VarExprent(relevantVar.getIndex(), relevantVar.getVarType(), relevantVar.getProcessor());
       vExpr.setStack(true); // We want to inline
-      AssignmentExprent toAdd = new AssignmentExprent(vExpr, new SwitchExprent(stat, relevantVar.getExprType(), false), null);
+      AssignmentExprent toAdd = new AssignmentExprent(vExpr, new SwitchExprent(stat, relevantVar.getExprType(), false, false), null);
 
       exprents.add(0, toAdd);
 
@@ -191,7 +199,7 @@ public final class SwitchExpressionHelper {
       }
 
       return true;
-  }
+    }
 
     return false;
   }

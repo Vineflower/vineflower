@@ -15,6 +15,7 @@ import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.StartEndPair;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public final class SwitchStatement extends Statement {
 
@@ -27,6 +28,8 @@ public final class SwitchStatement extends Statement {
   private List<List<StatEdge>> caseEdges = new ArrayList<>();
 
   private List<List<Exprent>> caseValues = new ArrayList<>();
+
+  private final Set<Statement> scopedCaseStatements = new HashSet<>();
 
   private StatEdge defaultEdge;
 
@@ -140,15 +143,19 @@ public final class SwitchStatement extends Statement {
 
       for (int j = 0; j < edges.size(); j++) {
         if (edges.get(j) == defaultEdge) {
-          buf.appendIndent(indent).append("default:").appendLineSeparator();
-        }
-        else {
+          buf.appendIndent(indent + 1).append("default:");
+          if (this.scopedCaseStatements.contains(stat)) {
+            buf.append(" {");
+          }
+
+          buf.appendLineSeparator();
+        } else {
           Exprent value = values.get(j);
           if (value == null) { // TODO: how can this be null? Is it trying to inject a synthetic case value in switch-on-string processing? [TestSwitchDefaultBefore]
             continue;
           }
 
-          buf.appendIndent(indent).append("case ");
+          buf.appendIndent(indent + 1).append("case ");
 
           if (value instanceof ConstExprent) {
             value = value.copy();
@@ -161,11 +168,21 @@ public final class SwitchStatement extends Statement {
             buf.append(value.toJava(indent));
           }
 
-          buf.append(":").appendLineSeparator();
+          buf.append(":");
+          if (this.scopedCaseStatements.contains(stat)) {
+            buf.append(" {");
+          }
+          buf.appendLineSeparator();
         }
       }
 
-      buf.append(ExprProcessor.jmpWrapper(stat, indent + 1, false));
+      buf.append(ExprProcessor.jmpWrapper(stat, indent + 2, false));
+
+      if (this.scopedCaseStatements.contains(stat)) {
+        buf.appendIndent(indent + 1);
+        buf.append("}");
+        buf.appendLineSeparator();
+      }
     }
 
     buf.appendIndent(indent).append("}").appendLineSeparator();
@@ -192,6 +209,32 @@ public final class SwitchStatement extends Statement {
     lst.add(1, headexprent.get(0));
 
     return lst;
+  }
+
+  @Override
+  public List<VarExprent> getImplicitlyDefinedVars() {
+    List<VarExprent> vars = new ArrayList<>();
+
+    List<Exprent> caseList = this.caseValues.stream()
+      .flatMap(List::stream) // List<List<Exprent>> -> List<Exprent>
+      .collect(Collectors.toList());
+
+    for (Exprent caseContent : caseList) {
+      if (caseContent == null) {
+        continue;
+      }
+
+      if (caseContent.type == Exprent.EXPRENT_FUNCTION) {
+        FunctionExprent func = ((FunctionExprent) caseContent);
+
+        // Pattern match variable is implicitly defined
+        if (func.getFuncType() == FunctionExprent.FUNCTION_INSTANCEOF && func.getLstOperands().size() > 2) {
+          vars.add((VarExprent) func.getLstOperands().get(2));
+        }
+      }
+    }
+
+    return vars;
   }
 
   @Override
@@ -415,5 +458,13 @@ public final class SwitchStatement extends Statement {
 
   public void setPhantom(boolean phantom) {
     this.phantom = phantom;
+  }
+
+  public void scopeCaseStatement(Statement stat) {
+    if (!this.getCaseStatements().contains(stat)) {
+      throw new IllegalStateException("Tried to scope a case statement that isn't in the switch!");
+    }
+
+    this.scopedCaseStatements.add(stat);
   }
 }

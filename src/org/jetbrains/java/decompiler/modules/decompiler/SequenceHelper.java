@@ -314,4 +314,18 @@ public final class SequenceHelper {
       }
     }
   }
+
+  public static Statement firstNonSeq(Statement stat) {
+    Statement first = stat.getFirst();
+
+    if (first == null) {
+      return stat;
+    }
+
+    while (first.type == Statement.TYPE_SEQUENCE) {
+      first = first.getFirst();
+    }
+
+    return first;
+  }
 }

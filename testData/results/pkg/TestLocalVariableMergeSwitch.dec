@@ -1,0 +1,68 @@
+package pkg;
+
+public class TestLocalVariableMergeSwitch {
+   public void test(String s, int j) {
+      while(j > 0) {// 5
+         --j;// 6
+         int i = 0;// 8
+         switch(i) {// 10
+            case 1:
+               ++i;// 12
+               break;// 13
+            case 2:
+               i += s.length();// 15
+               break;// 16
+            default:
+               System.out.println("hi");// 18
+         }
+      }
+
+   }// 22
+}
+
+class 'pkg/TestLocalVariableMergeSwitch' {
+   method 'test (Ljava/lang/String;I)V' {
+      0      4
+      1      4
+      4      5
+      5      5
+      6      5
+      7      6
+      8      6
+      9      7
+      a      7
+      24      9
+      25      9
+      26      9
+      27      10
+      2b      12
+      2c      12
+      2d      12
+      2e      12
+      30      12
+      31      13
+      34      15
+      35      15
+      36      15
+      37      15
+      38      15
+      39      15
+      3a      15
+      3b      15
+      3f      19
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 6
+8 <-> 7
+10 <-> 8
+12 <-> 10
+13 <-> 11
+15 <-> 13
+16 <-> 14
+18 <-> 16
+22 <-> 20
+Not mapped:
+19

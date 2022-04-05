@@ -3,15 +3,15 @@ package pkg;
 public class TestEclipseSwitchString {
    public int test(String var1) {
       switch(var1.hashCode()) {// 5
-      case 49:
-         if (var1.equals("1")) {
-            return 1;// 10
-         }
-         break;
-      case 50:
-         if (var1.equals("2")) {
-            return 2;// 12
-         }
+         case 49:
+            if (var1.equals("1")) {
+               return 1;// 10
+            }
+            break;
+         case 50:
+            if (var1.equals("2")) {
+               return 2;// 12
+            }
       }
 
       System.out.println("Test");// 7
@@ -21,23 +21,23 @@ public class TestEclipseSwitchString {
    public int test1(String var1) {
       label20: {
          switch(var1.hashCode()) {// 19
-         case 49:
-            if (var1.equals("1")) {
-               return 1;// 24
-            }
-            break label20;
-         case 50:
-            if (!var1.equals("2")) {
+            case 49:
+               if (var1.equals("1")) {
+                  return 1;// 24
+               }
                break label20;
-            }
-            break;
-         case 51:
-            if (!var1.equals("3")) {
+            case 50:
+               if (!var1.equals("2")) {
+                  break label20;
+               }
+               break;
+            case 51:
+               if (!var1.equals("3")) {
+                  break label20;
+               }
+               break;
+            default:
                break label20;
-            }
-            break;
-         default:
-            break label20;
          }
 
          return 2;// 27
@@ -50,25 +50,25 @@ public class TestEclipseSwitchString {
    public int test2(String var1) {
       label21: {
          switch(var1.hashCode()) {// 34
-         case 49:
-            if (!var1.equals("1")) {
-               break label21;
-            }
+            case 49:
+               if (!var1.equals("1")) {
+                  break label21;
+               }
 
-            System.out.println("Hello");// 39
-            break;
-         case 50:
-            if (!var1.equals("2")) {
+               System.out.println("Hello");// 39
+               break;
+            case 50:
+               if (!var1.equals("2")) {
+                  break label21;
+               }
+               break;
+            case 51:
+               if (!var1.equals("3")) {
+                  break label21;
+               }
+               break;
+            default:
                break label21;
-            }
-            break;
-         case 51:
-            if (!var1.equals("3")) {
-               break label21;
-            }
-            break;
-         default:
-            break label21;
          }
 
          return 2;// 42
@@ -80,24 +80,24 @@ public class TestEclipseSwitchString {
 
    public int testHashcodeCollision(String var1) {
       switch(var1.hashCode()) {// 49
-      case 2112:
-         if (var1.equals("BB")) {
-            return 1;// 54
-         } else if (var1.equals("Aa")) {
-            return 2;// 56
-         }
-      default:
-         System.out.println("Test");// 51
-         return 0;// 52 58
+         case 2112:
+            if (var1.equals("BB")) {
+               return 1;// 54
+            } else if (var1.equals("Aa")) {
+               return 2;// 56
+            }
+         default:
+            System.out.println("Test");// 51
+            return 0;// 52 58
       }
    }
 
    public int testHashcodeCollision1(String var1) {
       switch(var1.hashCode()) {// 62
-      case 2112:
-         if (var1.equals("BB") || var1.equals("Aa")) {
-            return 2;// 68
-         }
+         case 2112:
+            if (var1.equals("BB") || var1.equals("Aa")) {
+               return 2;// 68
+            }
       }
 
       System.out.println("Test");// 64
@@ -106,18 +106,18 @@ public class TestEclipseSwitchString {
 
    public int testHashcodeCollision2(String var1) {
       switch(var1.hashCode()) {// 74
-      case 2112:
-         label13: {
-            if (!var1.equals("BB")) {
-               if (!var1.equals("Aa")) {
-                  break label13;
+         case 2112:
+            label13: {
+               if (!var1.equals("BB")) {
+                  if (!var1.equals("Aa")) {
+                     break label13;
+                  }
+               } else {
+                  System.out.println("BB");// 79
                }
-            } else {
-               System.out.println("BB");// 79
-            }
 
-            return 2;// 81
-         }
+               return 2;// 81
+            }
       }
 
       System.out.println("Test");// 76

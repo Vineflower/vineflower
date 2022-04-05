@@ -7,7 +7,7 @@ public class TestIdeaNotNull {
    @NotNull
    public String test() {
       String s = "";// 10
-      int i = (new Random()).nextInt(12);// 11
+      int i = new Random().nextInt(12);// 11
       if (i == 0) {// 13
          return s;// 14
       } else {
@@ -40,7 +40,7 @@ public class TestIdeaNotNull {
    @NotNull
    public String test4() {
       String s = "";// 46
-      int i = (new Random()).nextInt(12);// 47
+      int i = new Random().nextInt(12);// 47
 
       for(int j = 0; j < i; ++j) {// 49
          s = s + i;// 50

@@ -84,24 +84,26 @@ public class SSAUConstructorSparseEx {
 
     setCatchMaps(root, dgraph, flatthelper);
 
-    int itteration = 1;
+    int iteration = 1;
     HashSet<String> updated = new HashSet<>();
     do {
       //			System.out.println("~~~~~~~~~~~~~ \r\n"+root.toJava());
-      ssaStatements(dgraph, updated, false, mt, itteration++);
+      ssaStatements(dgraph, updated, false, mt, iteration++);
       //			System.out.println("~~~~~~~~~~~~~ \r\n"+root.toJava());
     }
     while (!updated.isEmpty());
 
 
-    ssaStatements(dgraph, updated, true, mt, itteration++);
+    ssaStatements(dgraph, updated, true, mt, iteration);
 
     ssuversions.initDominators();
+
+    DotExporter.toDotFile(ssuversions, mt, "ssauVarVer");
   }
 
-  private void ssaStatements(DirectGraph dgraph, HashSet<String> updated, boolean calcLiveVars, StructMethod mt, int itteration) {
+  private void ssaStatements(DirectGraph dgraph, HashSet<String> updated, boolean calcLiveVars, StructMethod mt, int iteration) {
 
-    DotExporter.toDotFile(dgraph, mt, "ssauStatements_" + itteration);
+    DotExporter.toDotFile(dgraph, mt, "ssauStatements_" + iteration);
 
     for (DirectNode node : dgraph.nodes) {
 
@@ -114,7 +116,7 @@ public class SSAUConstructorSparseEx {
 
       if (node.exprents != null) {
         for (Exprent expr : node.exprents) {
-          processExprent(expr, varmaparr, node.statement, calcLiveVars);
+          processExprent(node, expr, varmaparr, node.statement, calcLiveVars);
         }
       }
 
@@ -141,15 +143,18 @@ public class SSAUConstructorSparseEx {
           outNegVarVersions.put(node.id, varmaparr[1]);
         }
 
-        for (DirectNode nd : node.succs) {
-          updated.add(nd.id);
+        // Don't update the node if it wasn't discovered normally, as that can lead to infinite recursion due to bad ordering!
+        if (!dgraph.extraNodes.contains(node)) {
+          for (DirectNode nd : node.succs) {
+            updated.add(nd.id);
+          }
         }
       }
     }
   }
 
 
-  private void processExprent(Exprent expr, SFormsFastMapDirect[] varmaparr, Statement stat, boolean calcLiveVars) {
+  private void processExprent(DirectNode node, Exprent expr, SFormsFastMapDirect[] varmaparr, Statement stat, boolean calcLiveVars) {
 
     if (expr == null) {
       return;
@@ -162,18 +167,20 @@ public class SSAUConstructorSparseEx {
     switch (expr.type) {
       case Exprent.EXPRENT_ASSIGNMENT:
         AssignmentExprent assexpr = (AssignmentExprent)expr;
+
         if (assexpr.getCondType() == AssignmentExprent.CONDITION_NONE) {
           Exprent dest = assexpr.getLeft();
           if (dest.type == Exprent.EXPRENT_VAR) {
             varassign = (VarExprent)dest;
           }
         }
+
         break;
       case Exprent.EXPRENT_FUNCTION:
         FunctionExprent func = (FunctionExprent)expr;
         switch (func.getFuncType()) {
           case FunctionExprent.FUNCTION_IIF:
-            processExprent(func.getLstOperands().get(0), varmaparr, stat, calcLiveVars);
+            processExprent(node, func.getLstOperands().get(0), varmaparr, stat, calcLiveVars);
 
             SFormsFastMapDirect varmapFalse;
             if (varmaparr[1] == null) {
@@ -184,10 +191,10 @@ public class SSAUConstructorSparseEx {
               varmaparr[1] = null;
             }
 
-            processExprent(func.getLstOperands().get(1), varmaparr, stat, calcLiveVars);
+            processExprent(node, func.getLstOperands().get(1), varmaparr, stat, calcLiveVars);
 
             SFormsFastMapDirect[] varmaparrNeg = new SFormsFastMapDirect[]{varmapFalse, null};
-            processExprent(func.getLstOperands().get(2), varmaparrNeg, stat, calcLiveVars);
+            processExprent(node, func.getLstOperands().get(2), varmaparrNeg, stat, calcLiveVars);
 
             mergeMaps(varmaparr[0], varmaparrNeg[0]);
             varmaparr[1] = null;
@@ -195,11 +202,11 @@ public class SSAUConstructorSparseEx {
             finished = true;
             break;
           case FunctionExprent.FUNCTION_CADD:
-            processExprent(func.getLstOperands().get(0), varmaparr, stat, calcLiveVars);
+            processExprent(node, func.getLstOperands().get(0), varmaparr, stat, calcLiveVars);
 
             SFormsFastMapDirect[] varmaparrAnd = new SFormsFastMapDirect[]{new SFormsFastMapDirect(varmaparr[0]), null};
 
-            processExprent(func.getLstOperands().get(1), varmaparrAnd, stat, calcLiveVars);
+            processExprent(node, func.getLstOperands().get(1), varmaparrAnd, stat, calcLiveVars);
 
             // false map
             varmaparr[1] = mergeMaps(varmaparr[varmaparr[1] == null ? 0 : 1], varmaparrAnd[varmaparrAnd[1] == null ? 0 : 1]);
@@ -209,12 +216,12 @@ public class SSAUConstructorSparseEx {
             finished = true;
             break;
           case FunctionExprent.FUNCTION_COR:
-            processExprent(func.getLstOperands().get(0), varmaparr, stat, calcLiveVars);
+            processExprent(node, func.getLstOperands().get(0), varmaparr, stat, calcLiveVars);
 
             SFormsFastMapDirect[] varmaparrOr =
               new SFormsFastMapDirect[]{new SFormsFastMapDirect(varmaparr[varmaparr[1] == null ? 0 : 1]), null};
 
-            processExprent(func.getLstOperands().get(1), varmaparrOr, stat, calcLiveVars);
+            processExprent(node, func.getLstOperands().get(1), varmaparrOr, stat, calcLiveVars);
 
             // false map
             varmaparr[1] = varmaparrOr[varmaparrOr[1] == null ? 0 : 1];
@@ -222,7 +229,19 @@ public class SSAUConstructorSparseEx {
             varmaparr[0] = mergeMaps(varmaparr[0], varmaparrOr[0]);
 
             finished = true;
+            break;
+          case FunctionExprent.FUNCTION_INSTANCEOF:
+            // Pattern matching instanceof
+            if (func.getLstOperands().size() > 2) {
+              varassign = (VarExprent)func.getLstOperands().get(2);
+            }
+            break;
         }
+    }
+
+    // Foreach init node- mark as assignment!
+    if (varassign == null && node.type == DirectNode.NodeType.FOREACH_VARDEF && node.exprents.get(0).type == Exprent.EXPRENT_VAR) {
+      varassign = (VarExprent) node.exprents.get(0);
     }
 
     if (!finished) {
@@ -230,7 +249,7 @@ public class SSAUConstructorSparseEx {
       lst.remove(varassign);
 
       for (Exprent ex : lst) {
-        processExprent(ex, varmaparr, stat, calcLiveVars);
+        processExprent(node, ex, varmaparr, stat, calcLiveVars);
       }
     }
 
@@ -243,8 +262,7 @@ public class SSAUConstructorSparseEx {
       int index;
       if (mapFieldVars.containsKey(expr.id)) {
         index = mapFieldVars.get(expr.id);
-      }
-      else {
+      } else {
         index = fieldvarcounter--;
         mapFieldVars.put(expr.id, index);
 
@@ -253,8 +271,7 @@ public class SSAUConstructorSparseEx {
       }
 
       setCurrentVar(varmap, index, 1);
-    }
-    else if (expr.type == Exprent.EXPRENT_INVOCATION ||
+    } else if (expr.type == Exprent.EXPRENT_INVOCATION ||
              (expr.type == Exprent.EXPRENT_ASSIGNMENT && ((AssignmentExprent)expr).getLeft().type == Exprent.EXPRENT_FIELD) ||
              (expr.type == Exprent.EXPRENT_NEW && ((NewExprent)expr).getNewType().type == CodeConstants.TYPE_OBJECT) ||
              expr.type == Exprent.EXPRENT_FUNCTION) {
@@ -294,23 +311,25 @@ public class SSAUConstructorSparseEx {
         ssuversions.createNode(new VarVersionPair(varindex, nextver), varassign.getLVT());
 
         setCurrentVar(varmap, varindex, nextver);
-      }
-      else {
+      } else {
         if (calcLiveVars) {
           varMapToGraph(new VarVersionPair(varindex, varassign.getVersion()), varmap);
         }
+
         setCurrentVar(varmap, varindex, varassign.getVersion());
       }
 
-      AssignmentExprent assexpr = (AssignmentExprent)expr;
-      if (assexpr.getRight().type == Exprent.EXPRENT_VAR) {
-        VarVersionPair rightpaar = ((VarExprent)assexpr.getRight()).getVarVersionPair();
-        varAssignmentMap.put(varassign.getVarVersionPair(), rightpaar);
-      }
-      else if (assexpr.getRight().type == Exprent.EXPRENT_FIELD) {
-        int index = mapFieldVars.get(((FieldExprent)assexpr.getRight()).id);
-        VarVersionPair rightpaar = new VarVersionPair(index, 0);
-        varAssignmentMap.put(varassign.getVarVersionPair(), rightpaar);
+      if (expr.type == Exprent.EXPRENT_ASSIGNMENT) {
+        AssignmentExprent assexpr = (AssignmentExprent) expr;
+
+        if (assexpr.getRight().type == Exprent.EXPRENT_VAR) {
+          VarVersionPair rightpaar = ((VarExprent) assexpr.getRight()).getVarVersionPair();
+          varAssignmentMap.put(varassign.getVarVersionPair(), rightpaar);
+        } else if (assexpr.getRight().type == Exprent.EXPRENT_FIELD) {
+          int index = mapFieldVars.get(((FieldExprent) assexpr.getRight()).id);
+          VarVersionPair rightpaar = new VarVersionPair(index, 0);
+          varAssignmentMap.put(varassign.getVarVersionPair(), rightpaar);
+        }
       }
     }
     else if (expr.type == Exprent.EXPRENT_FUNCTION) { // MM or PP function
@@ -373,9 +392,9 @@ public class SSAUConstructorSparseEx {
           if (calcLiveVars) {
             varMapToGraph(new VarVersionPair(varindex, current_vers), varmap);
           }
+
           setCurrentVar(varmap, varindex, current_vers);
-        }
-        else {
+        } else {
           // split last version
           int usever = getNextFreeVersion(varindex, stat);
 
@@ -391,8 +410,7 @@ public class SSAUConstructorSparseEx {
           prenode.addSuccessor(edge);
           usenode.addPredecessor(edge);
         }
-      }
-      else if (cardinality == 2) { // size > 1
+      } else if (cardinality == 2) { // size > 1
 
         if (current_vers != 0) {
           if (calcLiveVars) {
@@ -506,24 +524,26 @@ public class SSAUConstructorSparseEx {
 
     VarVersionNode node = nodes.getWithKey(varpaar);
 
-    node.live = new SFormsFastMapDirect(varmap);
+//    node.live = new SFormsFastMapDirect(varmap);
+    node.live = varmap.getCopy();
   }
 
+  // Gets the next version to assign to a variable
   private int getNextFreeVersion(int var, Statement stat) {
-
     Integer nextver = lastversion.get(var);
 
     if (nextver == null) {
       nextver = 1;
-    }
-    else {
+    } else {
       nextver++;
     }
+
     lastversion.put(var, nextver);
 
     // save the first protected range, containing current statement
     if (stat != null) { // null iff phantom version
       Integer firstRangeId = getFirstProtectedRange(stat);
+
       if (firstRangeId != null) {
         mapVersionFirstRange.put(new VarVersionPair(var, (int) nextver), firstRangeId);
       }
@@ -828,16 +848,14 @@ public class SSAUConstructorSparseEx {
     return null;
   }
 
-  public VarVersionsGraph getSsuversions() {
+  public VarVersionsGraph getSsuVersions() {
     return ssuversions;
   }
 
   public SFormsFastMapDirect getLiveVarVersionsMap(VarVersionPair varpaar) {
-
-
     VarVersionNode node = ssuversions.nodes.getWithKey(varpaar);
     if (node != null) {
-      return node.live;
+      return node.live == null ? new SFormsFastMapDirect() : node.live;
     }
 
     return null;

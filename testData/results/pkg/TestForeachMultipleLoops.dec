@@ -22,7 +22,7 @@ public class TestForeachMultipleLoops {
                   entry = (Entry)var4.next();
                   String s = (String)entry.getValue();// 14
                   if (a == null) {// 15
-                     (new StringBuilder()).append(s).append(s).toString();// 16
+                     s = s + s;// 16
                      break;
                   }
 
@@ -117,17 +117,13 @@ class 'pkg/TestForeachMultipleLoops' {
       3c      23
       46      24
       47      24
-      48      24
-      49      24
-      4a      24
       4b      24
       4c      24
-      4d      24
-      4e      24
-      4f      24
       50      24
       51      24
       52      24
+      53      24
+      54      24
       55      25
       58      28
       59      28

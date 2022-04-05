@@ -17,25 +17,27 @@ public class TestSwitchPatternMatchingConstructor1 {
          switch(SwitchBootstraps.typeSwitch<"typeSwitch",TestSwitchPatternMatchingConstructor1.Triangle,TestSwitchPatternMatchingConstructor1.Triangle>(
             var2, var3
          )) {
-         case -1:
-            var10001 = "null";// 12
-            break label17;
-         case 0:
-            TestSwitchPatternMatchingConstructor1.Triangle t = (TestSwitchPatternMatchingConstructor1.Triangle)var2;// 10
-            if (!(t.calculateArea() > 100.0)) {
-               var3 = 1;
-               break;
-            }
+            case -1:
+               var10001 = "null";// 12
+               break label17;
+            case 0: {
+               TestSwitchPatternMatchingConstructor1.Triangle t = (TestSwitchPatternMatchingConstructor1.Triangle)var2;// 10
+               if (!(t.calculateArea() > 100.0)) {
+                  var3 = 1;
+                  break;
+               }
 
-            var10001 = "Large triangle";
-            break label17;
-         case 1:
-            TestSwitchPatternMatchingConstructor1.Triangle t = (TestSwitchPatternMatchingConstructor1.Triangle)var2;// 11
-            var10001 = "Small triangle";
-            break label17;
-         default:
-            var10001 = "Non-triangle";// 13
-            break label17;
+               var10001 = "Large triangle";
+               break label17;
+            }
+            case 1: {
+               TestSwitchPatternMatchingConstructor1.Triangle t = (TestSwitchPatternMatchingConstructor1.Triangle)var2;// 11
+               var10001 = "Small triangle";
+               break label17;
+            }
+            default:
+               var10001 = "Non-triangle";// 13
+               break label17;
          }
       }
 
@@ -101,44 +103,44 @@ class 'pkg/TestSwitchPatternMatchingConstructor1' {
       3f      29
       40      29
       41      30
-      44      32
-      45      32
-      46      32
-      47      32
-      48      32
-      49      32
-      4a      33
-      4b      33
-      4c      34
+      44      33
+      45      33
+      46      33
+      47      33
+      48      33
+      49      33
+      4a      34
+      4b      34
+      4c      35
       4f      20
       50      20
       51      21
-      54      36
-      55      36
-      56      37
-      59      41
-      5a      41
-      5b      41
-      5c      42
+      54      38
+      55      38
+      56      39
+      59      43
+      5a      43
+      5b      43
+      5c      44
    }
 }
 
 class 'pkg/TestSwitchPatternMatchingConstructor1$Triangle' {
    method 'calculateArea ()D' {
-      0      51
-      1      51
+      0      53
+      1      53
    }
 }
 
 Lines mapping:
 5 <-> 7
 6 <-> 8
-9 <-> 42
+9 <-> 44
 10 <-> 24
-11 <-> 33
+11 <-> 34
 12 <-> 21
-13 <-> 37
-15 <-> 43
-25 <-> 52
+13 <-> 39
+15 <-> 45
+25 <-> 54
 Not mapped:
 4

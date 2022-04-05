@@ -1,69 +1,52 @@
 package pkg;
 
-import java.lang.runtime.SwitchBootstraps;
 import java.util.Objects;
 
 public class TestSwitchPatternMatchingReturn1 {
    public int test(Object o) {
       Objects.requireNonNull(o);
       byte var3 = 0;
+      int var10000;
 
-      return switch(SwitchBootstraps.typeSwitch<"typeSwitch",Integer,String>(o, var3)) {// 5
-         case 0 -> {
-            Integer i = (Integer)o;// 6
-            yield i;
-         }
-         case 1 -> {
-            String s = (String)o;
-            yield s.length();// 7
-         }
-         default -> 0;// 8
+      switch(o) {
+         case o instanceof Integer i -> var10000 = i;// 6
+         case o instanceof String s -> var10000 = s.length();// 7
+         default -> var10000 = 0;// 8
       };
+      return var10000;// 5
    }
 }
 
 class 'pkg/TestSwitchPatternMatchingReturn1' {
    method 'test (Ljava/lang/Object;)I' {
-      0      7
-      2      7
-      3      7
-      4      7
-      7      8
-      8      8
-      a      10
-      b      10
-      c      10
-      d      10
-      e      10
-      f      10
+      0      6
+      2      6
+      3      6
+      4      6
+      7      7
+      8      7
       10      10
-      2d      12
-      2e      12
-      2f      12
-      30      12
-      31      12
-      32      13
-      33      13
-      34      13
-      35      13
-      36      13
-      3b      16
-      3c      16
-      3d      16
-      3e      16
-      3f      16
-      40      17
-      41      17
-      42      17
-      43      17
-      44      17
-      48      19
-      49      10
+      30      11
+      31      11
+      32      11
+      33      11
+      34      11
+      35      11
+      36      11
+      3e      12
+      3f      12
+      40      12
+      41      12
+      42      12
+      43      12
+      44      12
+      48      13
+      49      15
    }
 }
 
 Lines mapping:
-5 <-> 11
-6 <-> 13
-7 <-> 18
-8 <-> 20
+5 <-> 16
+6 <-> 12
+7 <-> 13
+8 <-> 14

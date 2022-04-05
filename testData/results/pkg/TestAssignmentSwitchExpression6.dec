@@ -8,20 +8,20 @@ public class TestAssignmentSwitchExpression6 {
          --i;// 7
          String var4 = directionStr.toLowerCase();// 8
          switch(var4) {
-         case "north":
-         case "south":
-            var10000 = "y";// 11
-            break;
-         case "east":
-         case "west":
-            var10000 = "x";// 14
-            break;
-         case "up":
-         case "down":
-            var10000 = "z";// 17
-            break;
-         default:
-            throw new IllegalStateException("Unexpected value: " + directionStr);// 19
+            case "north":
+            case "south":
+               var10000 = "y";// 11
+               break;
+            case "east":
+            case "west":
+               var10000 = "x";// 14
+               break;
+            case "up":
+            case "down":
+               var10000 = "z";// 17
+               break;
+            default:
+               throw new IllegalStateException("Unexpected value: " + directionStr);// 19
          }
       }
 

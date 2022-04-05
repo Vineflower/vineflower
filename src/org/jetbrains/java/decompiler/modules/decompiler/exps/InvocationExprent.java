@@ -63,8 +63,9 @@ public class InvocationExprent extends Exprent {
   private List<Exprent> lstParameters = new ArrayList<>();
   private LinkConstant bootstrapMethod;
   private List<PooledConstant> bootstrapArguments;
-  private List<VarType> genericArgs = new ArrayList<>();
-  private Map<VarType, VarType> genericsMap = new HashMap<>();
+  private final List<VarType> genericArgs = new ArrayList<>();
+  public boolean forceGenericQualfication = false;
+  private final Map<VarType, VarType> genericsMap = new HashMap<>();
   private boolean isInvocationInstance = false;
   private boolean isQualifier = false;
   private boolean forceBoxing = false;
@@ -133,9 +134,9 @@ public class InvocationExprent extends Exprent {
     }
 
     if (opcode == CodeConstants.opc_invokedynamic || invocationTyp == CONSTANT_DYNAMIC) {
-      int dynamicInvocationType = -1;
+      int dynamicInvocationType = bootstrapMethod.index1;
       if (bootstrapArguments != null) {
-        if (bootstrapArguments.size() > 1) { // INVOKEDYNAMIC is used not only for lambdas
+        if (bootstrapArguments.size() > 1) { // FIXME: INVOKEDYNAMIC is used not only for lambdas
           PooledConstant link = bootstrapArguments.get(1);
           if (link instanceof LinkConstant) {
             dynamicInvocationType = ((LinkConstant)link).index1;
@@ -451,6 +452,10 @@ public class InvocationExprent extends Exprent {
             boolean suppress = (!missing || !isInvocationInstance) &&
               (upperBound == null || !newRet.isGeneric() || DecompilerContext.getStructContext().instanceOf(newRet.value, upperBound.value));
 
+            if (this.forceGenericQualfication) {
+              suppress = false;
+            }
+
             if (!suppress || DecompilerContext.getOption(IFernflowerPreferences.EXPLICIT_GENERIC_ARGUMENTS)) {
               getGenericArgs(fparams, genericsMap, genericArgs);
             }
@@ -527,7 +532,7 @@ public class InvocationExprent extends Exprent {
       if (isBoxingCall() && canIgnoreBoxing && !forceBoxing) {
         // process general "boxing" calls, e.g. 'Object[] data = { true }' or 'Byte b = 123'
         // here 'byte' and 'short' values do not need an explicit narrowing type cast
-        ExprProcessor.getCastedExprent(lstParameters.get(0), descriptor.params[0], buf, indent, false, false, true, false);
+        ExprProcessor.getCastedExprent(lstParameters.get(0), descriptor.params[0], buf, indent, ExprProcessor.NullCastType.DONT_CAST, false, true, false);
         buf.addBytecodeMapping(bytecode);
         return buf;
       }
@@ -667,7 +672,7 @@ public class InvocationExprent extends Exprent {
             }
             buf.append(res).append(")");
           }
-          else if (instance.getPrecedence() > getPrecedence() && !skippedCast) {
+          else if (instance.getPrecedence() > getPrecedence() && !skippedCast && !canSkipParenEnclose(instance)) {
             buf.append("(").append(res).append(")");
           }
           //Java 9+ adds some overrides to java/nio/Buffer's subclasses that alter the return types.
@@ -694,6 +699,7 @@ public class InvocationExprent extends Exprent {
 
         if (buf.length() > 0) {
           buf.append(".");
+          // Adds generic arguments to the invocation, so .m() becomes .<T>m()
           this.appendParameters(buf, genericArgs);
         }
 
@@ -735,7 +741,13 @@ public class InvocationExprent extends Exprent {
           buf.append("this(");
         }
         else if (instance != null) {
-          buf.append(instance.toJava(indent)).append(".<init>(");
+          String s = ".";
+          if (DecompilerContext.getOption(IFernflowerPreferences.DECOMPILER_COMMENTS)) {
+            s += "/* $FF: Unable to resugar constructor */";
+          }
+          s += "<init>(";
+
+          buf.append(instance.toJava(indent)).append(s);
         }
         else {
           throw new RuntimeException("Unrecognized invocation of " + CodeConstants.INIT_NAME);
@@ -747,6 +759,20 @@ public class InvocationExprent extends Exprent {
       buf.popNewlineGroup();
     }
     return buf;
+  }
+
+  private boolean canSkipParenEnclose(Exprent instance) {
+    if (instance.type != Exprent.EXPRENT_NEW) {
+      return false;
+    }
+
+    NewExprent newExpr = (NewExprent) instance;
+
+    if (!newExpr.isAnonymous() && !newExpr.isLambda() && !newExpr.isMethodReference()) {
+      return this.functype == TYP_GENERAL;
+    }
+
+    return false;
   }
 
   private static void appendBootstrapArgument(TextBuffer buf, PooledConstant arg) {
@@ -942,7 +968,7 @@ public class InvocationExprent extends Exprent {
         }
 
         // 'byte' and 'short' literals need an explicit narrowing type cast when used as a parameter
-        ExprProcessor.getCastedExprent(lstParameters.get(i), types[i], buff, indent, true, ambiguous, true, true);
+        ExprProcessor.getCastedExprent(lstParameters.get(i), types[i], buff, indent, ambiguous ? ExprProcessor.NullCastType.CAST : ExprProcessor.NullCastType.DONT_CAST, ambiguous, true, true);
 
         // the last "new Object[0]" in the vararg call is not printed
         if (buff.length() > 0) {
@@ -1278,8 +1304,7 @@ public class InvocationExprent extends Exprent {
     VarType current = genericsMap.get(from);
     if (!genericsMap.containsKey(from)) {
       putGenericMapping(from, to, named, bounds);
-    }
-    else if (to != null && current != null && !to.equals(current)) {
+    } else if (to != null && current != null && !to.equals(current)) {
       if (named.containsKey(current)) {
         return;
       }
@@ -1329,6 +1354,11 @@ public class InvocationExprent extends Exprent {
           while (bound != null) {
             last = bound;
             bound = map.apply(bound);
+
+            // TODO: fixes potential infinite loop, is this valid?
+            if (last.equals(bound)) {
+              break;
+            }
           }
           bound = last;
 
@@ -1548,6 +1578,10 @@ public class InvocationExprent extends Exprent {
 
   public Map<VarType, VarType> getGenericsMap() {
     return genericsMap;
+  }
+
+  public StructMethod getDesc() {
+    return desc;
   }
 
   public void setInvocationInstance() {
