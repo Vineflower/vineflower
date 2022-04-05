@@ -1,0 +1,50 @@
+package pkg;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
+
+public class TestTryLoop2 {
+   private boolean field;
+
+   public void test(File file) {
+      while(true) {
+         try {
+            if (!this.field) {// 13
+               return;// 24
+            }
+
+            new Scanner(file);// 14
+         } catch (FileNotFoundException var3) {// 20
+            var3.printStackTrace();// 21
+         }
+      }
+   }
+}
+
+class 'pkg/TestTryLoop2' {
+   method 'test (Ljava/io/File;)V' {
+      0      12
+      1      12
+      2      12
+      3      12
+      4      12
+      b      16
+      16      17
+      18      18
+      19      18
+      1a      18
+      1e      13
+   }
+}
+
+Lines mapping:
+13 <-> 13
+14 <-> 17
+20 <-> 18
+21 <-> 19
+24 <-> 14
+Not mapped:
+16
+19
+22

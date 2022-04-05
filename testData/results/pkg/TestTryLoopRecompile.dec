@@ -10,18 +10,17 @@ public class TestTryLoopRecompile {
    public void test(File file) {
       while(true) {
          try {
-            if (!this.field) {// 13
-               break;
+            if (this.field) {// 13
+               new Scanner(file);// 14
+               continue;
             }
-
-            new Scanner(file);// 14
          } catch (FileNotFoundException var3) {// 17
             var3.printStackTrace();// 18
-            break;
          }
-      }
 
-   }// 21
+         return;// 21
+      }
+   }
 }
 
 class 'pkg/TestTryLoopRecompile' {
@@ -31,19 +30,19 @@ class 'pkg/TestTryLoopRecompile' {
       2      12
       3      12
       4      12
-      b      16
-      16      17
-      18      18
-      1b      23
+      b      13
+      16      16
+      18      17
+      1b      20
    }
 }
 
 Lines mapping:
 13 <-> 13
-14 <-> 17
-17 <-> 18
-18 <-> 19
-21 <-> 24
+14 <-> 14
+17 <-> 17
+18 <-> 18
+21 <-> 21
 Not mapped:
 15
 19

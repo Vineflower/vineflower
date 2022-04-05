@@ -46,20 +46,6 @@ public final class DomHelper {
       return root;
     }
 
-    boolean firstIsException = false;
-
-    if (DecompilerContext.getOption(IFernflowerPreferences.EXPERIMENTAL_TRY_LOOP_FIX)) {
-      // Check if the first block in the graph is covered by an exception range.
-      // If it is, we need to avoid setting the edge type to continue, as that causes problems later down the line.
-
-      for (ExceptionRangeCFG exception : graph.getExceptions()) {
-        if (exception.getProtectedRange().contains(firstblock)) {
-          firstIsException = true;
-          break;
-        }
-      }
-    }
-
     for (BasicBlock block : blocks) {
       Statement stat = stats.getWithKey(block.id);
 
@@ -67,7 +53,7 @@ public final class DomHelper {
         Statement stsucc = stats.getWithKey(succ.id);
 
         int type;
-        if (stsucc == firstst && !firstIsException) {
+        if (stsucc == firstst) {
           type = StatEdge.TYPE_CONTINUE;
           stsucc = general;
         }

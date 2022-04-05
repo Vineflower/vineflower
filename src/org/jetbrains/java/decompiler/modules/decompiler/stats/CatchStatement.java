@@ -4,6 +4,7 @@ package org.jetbrains.java.decompiler.modules.decompiler.stats;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.AssignmentExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.util.TextBuffer;
@@ -127,6 +128,14 @@ public final class CatchStatement extends Statement {
 
         for (Statement st : lst) {
           if (st.isMonitorEnter()) {
+            return null;
+          }
+        }
+
+        // Don't build a trycatch around a loop-head if statement, as we know that DoStatement should be built first.
+        // Since CatchStatement's isHead is run after DoStatement's, we can assume that a loop was not able to be built.
+        if (DecompilerContext.getOption(IFernflowerPreferences.EXPERIMENTAL_TRY_LOOP_FIX)) {
+          if (head.type == Statement.TYPE_IF && head.getContinueSet().contains(head.first)) {
             return null;
           }
         }
