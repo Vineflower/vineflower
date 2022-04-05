@@ -17,27 +17,27 @@ public class TestSwitchPatternMatchingConstructor1 {
          switch(SwitchBootstraps.typeSwitch<"typeSwitch",TestSwitchPatternMatchingConstructor1.Triangle,TestSwitchPatternMatchingConstructor1.Triangle>(
             var2, var3
          )) {
-         case -1:
-            var10001 = "null";// 12
-            break label17;
-         case 0: {
-            TestSwitchPatternMatchingConstructor1.Triangle t = (TestSwitchPatternMatchingConstructor1.Triangle)var2;// 10
-            if (!(t.calculateArea() > 100.0)) {
-               var3 = 1;
-               break;
-            }
+            case -1:
+               var10001 = "null";// 12
+               break label17;
+            case 0: {
+               TestSwitchPatternMatchingConstructor1.Triangle t = (TestSwitchPatternMatchingConstructor1.Triangle)var2;// 10
+               if (!(t.calculateArea() > 100.0)) {
+                  var3 = 1;
+                  break;
+               }
 
-            var10001 = "Large triangle";
-            break label17;
-         }
-         case 1: {
-            TestSwitchPatternMatchingConstructor1.Triangle t = (TestSwitchPatternMatchingConstructor1.Triangle)var2;// 11
-            var10001 = "Small triangle";
-            break label17;
-         }
-         default:
-            var10001 = "Non-triangle";// 13
-            break label17;
+               var10001 = "Large triangle";
+               break label17;
+            }
+            case 1: {
+               TestSwitchPatternMatchingConstructor1.Triangle t = (TestSwitchPatternMatchingConstructor1.Triangle)var2;// 11
+               var10001 = "Small triangle";
+               break label17;
+            }
+            default:
+               var10001 = "Non-triangle";// 13
+               break label17;
          }
       }
 

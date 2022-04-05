@@ -6,14 +6,14 @@ public class TestLocalVariableMergeSwitch {
          --j;// 6
          int i = 0;// 8
          switch(i) {// 10
-         case 1:
-            ++i;// 12
-            break;// 13
-         case 2:
-            i += s.length();// 15
-            break;// 16
-         default:
-            System.out.println("hi");// 18
+            case 1:
+               ++i;// 12
+               break;// 13
+            case 2:
+               i += s.length();// 15
+               break;// 16
+            default:
+               System.out.println("hi");// 18
          }
       }
 

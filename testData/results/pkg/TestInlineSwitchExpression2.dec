@@ -6,19 +6,19 @@ public class TestInlineSwitchExpression2 {
    public void test(Direction direction) {
       int a = 1;// 7
       switch(direction) {
-      case NORTH:
-         a |= direction.ordinal();// 10
-      case SOUTH:
-         a += 12;// 12
-      case EAST:
-         a *= 8;// 14
-      case WEST:
-         a ^= 128;// 16
-      case UP:
-         a /= 5;// 18
-      default:
-         int x = Integer.hashCode(a);// 8 20
-         System.out.println(x);// 22
+         case NORTH:
+            a |= direction.ordinal();// 10
+         case SOUTH:
+            a += 12;// 12
+         case EAST:
+            a *= 8;// 14
+         case WEST:
+            a ^= 128;// 16
+         case UP:
+            a /= 5;// 18
+         default:
+            int x = Integer.hashCode(a);// 8 20
+            System.out.println(x);// 22
       }
    }// 23
 }

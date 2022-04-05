@@ -11,47 +11,47 @@ public class TestSwitchPatternMatching5 {
          switch(SwitchBootstraps.typeSwitch<"typeSwitch",TestSwitchPatternMatching5.Triangle,TestSwitchPatternMatching5.Triangle,TestSwitchPatternMatching5.Triangle,TestSwitchPatternMatching5.Triangle>(
             var1, var2
          )) {
-         case -1:
-            System.out.println("null");// 15
-            return;// 19
-         case 0: {
-            TestSwitchPatternMatching5.Triangle t = (TestSwitchPatternMatching5.Triangle)var1;// 6
-            if (!(t.calculateArea() > 150.0)) {
-               var2 = 1;
-               break;
-            }
+            case -1:
+               System.out.println("null");// 15
+               return;// 19
+            case 0: {
+               TestSwitchPatternMatching5.Triangle t = (TestSwitchPatternMatching5.Triangle)var1;// 6
+               if (!(t.calculateArea() > 150.0)) {
+                  var2 = 1;
+                  break;
+               }
 
-            System.out.println("Larger triangle");// 7
-            return;
-         }
-         case 1: {
-            TestSwitchPatternMatching5.Triangle t = (TestSwitchPatternMatching5.Triangle)var1;// 8
-            if (!(t.calculateArea() > 50.0)) {
-               var2 = 2;
-               break;
+               System.out.println("Larger triangle");// 7
+               return;
             }
+            case 1: {
+               TestSwitchPatternMatching5.Triangle t = (TestSwitchPatternMatching5.Triangle)var1;// 8
+               if (!(t.calculateArea() > 50.0)) {
+                  var2 = 2;
+                  break;
+               }
 
-            System.out.println("Smaller triangle");// 9
-            return;
-         }
-         case 2: {
-            TestSwitchPatternMatching5.Triangle t = (TestSwitchPatternMatching5.Triangle)var1;// 10
-            if (!(t.calculateArea() > 100.0)) {
-               var2 = 3;
-               break;
+               System.out.println("Smaller triangle");// 9
+               return;
             }
+            case 2: {
+               TestSwitchPatternMatching5.Triangle t = (TestSwitchPatternMatching5.Triangle)var1;// 10
+               if (!(t.calculateArea() > 100.0)) {
+                  var2 = 3;
+                  break;
+               }
 
-            System.out.println("Large triangle");// 11
-            return;
-         }
-         case 3: {
-            TestSwitchPatternMatching5.Triangle t = (TestSwitchPatternMatching5.Triangle)var1;// 12
-            System.out.println("Small triangle");// 13
-            return;
-         }
-         default:
-            System.out.println("Non-triangle");// 17
-            return;
+               System.out.println("Large triangle");// 11
+               return;
+            }
+            case 3: {
+               TestSwitchPatternMatching5.Triangle t = (TestSwitchPatternMatching5.Triangle)var1;// 12
+               System.out.println("Small triangle");// 13
+               return;
+            }
+            default:
+               System.out.println("Non-triangle");// 17
+               return;
          }
       }
    }

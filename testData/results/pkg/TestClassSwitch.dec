@@ -3,12 +3,12 @@ package pkg;
 public class TestClassSwitch {
    public void testCaseOrder(int a) {
       switch(a) {// 22
-      case 5:
-         System.out.println(5);// 27
-      default:
-         return;// 29
-      case 13:
-         System.out.println(13);// 24
+         case 5:
+            System.out.println(5);// 27
+         default:
+            return;// 29
+         case 13:
+            System.out.println(13);// 24
       }
    }// 25
 }

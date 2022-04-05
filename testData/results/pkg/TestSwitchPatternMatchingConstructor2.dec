@@ -23,8 +23,8 @@ public class TestSwitchPatternMatchingConstructor2 {
       Objects.requireNonNull(s);
       byte var4 = 0;
       switch(SwitchBootstraps.typeSwitch<"typeSwitch">(s, var4)) {
-      default:
-         this("Non-triangle");// 16 17
+         default:
+            this("Non-triangle");// 16 17
       }
    }// 19
 }

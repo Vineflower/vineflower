@@ -35,11 +35,11 @@ public class TestLVTComplex {
       }
 
       switch(TestLVTComplex.Bob.HI) {
-      case HI:
-         System.out.println("HI");
-         break;
-      case LO:
-         System.out.println("LO");
+         case HI:
+            System.out.println("HI");
+            break;
+         case LO:
+            System.out.println("LO");
       }
 
       if (TestLVTComplex.Bob.HI == TestLVTComplex.Bob.HI) {

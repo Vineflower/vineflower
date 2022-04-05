@@ -4,15 +4,15 @@ public class TestSwitchAssign {
    public void test(int x) {
       int assign = 1;// 5
       switch(x) {// 6
-      case 1:
-      case 3:
-      case 5:
-         assign = 3;// 10
-         break;// 11
-      case 2:
-      case 4:
-      case 6:
-         assign = 4;// 15
+         case 1:
+         case 3:
+         case 5:
+            assign = 3;// 10
+            break;// 11
+         case 2:
+         case 4:
+         case 6:
+            assign = 4;// 15
       }
 
       System.out.println(assign);// 19
@@ -21,15 +21,15 @@ public class TestSwitchAssign {
    public void test1(String s) {
       int assign;
       switch(s) {// 24
-      case "a":
-      default:
-         assign = 3;// 27
-         break;// 28
-      case "0":
-         assign = -2;// 30
-         break;// 31
-      case "?":
-         assign = 999;// 33
+         case "a":
+         default:
+            assign = 3;// 27
+            break;// 28
+         case "0":
+            assign = -2;// 30
+            break;// 31
+         case "?":
+            assign = 999;// 33
       }
 
       System.out.println(assign);// 37

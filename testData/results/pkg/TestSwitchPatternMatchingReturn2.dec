@@ -11,24 +11,24 @@ public class TestSwitchPatternMatchingReturn2 {
 
       while(true) {
          switch(SwitchBootstraps.typeSwitch<"typeSwitch",Integer,Integer,String>(var2, var3)) {
-         case 0: {
-            Integer i = (Integer)var2;// 6
-            if (i <= 100) {
-               var3 = 1;
-               break;
-            }
+            case 0: {
+               Integer i = (Integer)var2;// 6
+               if (i <= 100) {
+                  var3 = 1;
+                  break;
+               }
 
-            return -i;// 5
-         }
-         case 1: {
-            Integer i = (Integer)var2;// 7
-            return i;
-         }
-         case 2:
-            String s = (String)var2;// 8
-            return s.length();
-         default:
-            return 0;// 9
+               return -i;// 5
+            }
+            case 1: {
+               Integer i = (Integer)var2;// 7
+               return i;
+            }
+            case 2:
+               String s = (String)var2;// 8
+               return s.length();
+            default:
+               return 0;// 9
          }
       }
    }

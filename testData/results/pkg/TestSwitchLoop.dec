@@ -5,20 +5,20 @@ public class TestSwitchLoop {
       while(i > 0) {// 5
          --i;// 6
          switch(i) {// 8
-         case 0:
-            System.out.println("0");// 10
-            break;// 11
-         case 1:
-            System.out.println("1");// 13
-            break;// 14
-         case 2:
-            System.out.println("2");// 16
-            break;// 17
-         default:
-            System.out.println("after");// 20
-            if (i == 4) {// 21
-               return;// 25
-            }
+            case 0:
+               System.out.println("0");// 10
+               break;// 11
+            case 1:
+               System.out.println("1");// 13
+               break;// 14
+            case 2:
+               System.out.println("2");// 16
+               break;// 17
+            default:
+               System.out.println("after");// 20
+               if (i == 4) {// 21
+                  return;// 25
+               }
          }
       }
 
@@ -28,23 +28,23 @@ public class TestSwitchLoop {
       for(int a = 0; i > a; ++a) {// 29
          --i;// 30
          switch(i) {// 32
-         case 0:
-            System.out.println("0");// 34
-         default:
-            System.out.println("after");// 50
-            break;
-         case 1:
-            System.out.println("1");// 37
-            return 1;// 38
-         case 2:
-            System.out.println("2");// 40
-            return 2;// 41
-         case 3:
-            System.out.println("3");// 43
-            return 0;// 53
-         case 4:
-            System.out.println("4");// 46
-            return 0;
+            case 0:
+               System.out.println("0");// 34
+            default:
+               System.out.println("after");// 50
+               break;
+            case 1:
+               System.out.println("1");// 37
+               return 1;// 38
+            case 2:
+               System.out.println("2");// 40
+               return 2;// 41
+            case 3:
+               System.out.println("3");// 43
+               return 0;// 53
+            case 4:
+               System.out.println("4");// 46
+               return 0;
          }
       }
 
@@ -56,23 +56,23 @@ public class TestSwitchLoop {
       for(int a = 0; i > a; ++a) {// 58
          --i;// 59
          switch(i) {// 61
-         case 0:
-            System.out.println("0");// 63
-         default:
-            System.out.println("after");// 79
-            break;
-         case 1:
-            System.out.println("1");// 66
-            return 1;// 67
-         case 2:
-            System.out.println("2");// 69
-            return 2;// 70
-         case 3:
-            System.out.println("3");// 72
-            break label18;// 73
-         case 4:
-            System.out.println("4");// 75
-            break label18;// 76
+            case 0:
+               System.out.println("0");// 63
+            default:
+               System.out.println("after");// 79
+               break;
+            case 1:
+               System.out.println("1");// 66
+               return 1;// 67
+            case 2:
+               System.out.println("2");// 69
+               return 2;// 70
+            case 3:
+               System.out.println("3");// 72
+               break label18;// 73
+            case 4:
+               System.out.println("4");// 75
+               break label18;// 76
          }
       }
 
@@ -84,14 +84,14 @@ public class TestSwitchLoop {
       for(int a = 0; i > a; ++a) {// 88
          --i;// 89
          switch(i) {// 91
-         case 0:
-            System.out.println("0");// 93
-            if (a == 0) {// 94
-               continue;
-            }
-            break;
-         case 1:
-            System.out.println("1");// 100
+            case 0:
+               System.out.println("0");// 93
+               if (a == 0) {// 94
+                  continue;
+               }
+               break;
+            case 1:
+               System.out.println("1");// 100
          }
 
          System.out.println("after");// 103
@@ -109,32 +109,32 @@ public class TestSwitchLoop {
                --i;// 112
                label22:
                switch(i) {// 114
-               case 0:
-                  System.out.println("0");// 116
-                  int i1 = 0;
+                  case 0:
+                     System.out.println("0");// 116
+                     int i1 = 0;
 
-                  while(true) {
-                     if (i1 >= 5) {
-                        break label42;
-                     }
+                     while(true) {
+                        if (i1 >= 5) {
+                           break label42;
+                        }
 
-                     switch(i1) {// 118
-                     case 0:
-                        System.out.println(0);// 120
-                     default:
-                        ++i1;// 117
-                        break;
-                     case 1:
-                        System.out.println(1);// 123
-                        break label22;// 124
-                     case 2:
-                        return;// 126
+                        switch(i1) {// 118
+                           case 0:
+                              System.out.println(0);// 120
+                           default:
+                              ++i1;// 117
+                              break;
+                           case 1:
+                              System.out.println(1);// 123
+                              break label22;// 124
+                           case 2:
+                              return;// 126
+                        }
                      }
-                  }
-               case 1:
-                  System.out.println("1");// 132
-               default:
-                  break label42;
+                  case 1:
+                     System.out.println("1");// 132
+                  default:
+                     break label42;
                }
             }
 
@@ -153,19 +153,19 @@ public class TestSwitchLoop {
       label24:
       while(i < 10) {
          switch(i) {// 145
-         case 0:
-            System.out.println("0");// 147
+            case 0:
+               System.out.println("0");// 147
 
-            for(int i1 = 0; i1 < 5; ++i1) {// 148
-               switch(i1) {// 149
-               case 1:
-                  System.out.println(1);// 151
-                  break label24;// 152
+               for(int i1 = 0; i1 < 5; ++i1) {// 148
+                  switch(i1) {// 149
+                     case 1:
+                        System.out.println(1);// 151
+                        break label24;// 152
+                  }
                }
-            }
-         default:
-            System.out.println("after");// 159
-            ++i;// 143
+            default:
+               System.out.println("after");// 159
+               ++i;// 143
          }
       }
 
@@ -177,9 +177,9 @@ public class TestSwitchLoop {
       for(int i = 0; i < 10; ++i) {// 167
          for(int i1 = 0; i1 < 5; ++i1) {// 168
             switch(i1) {// 169
-            case 1:
-               System.out.println(1);// 171
-               break label21;// 172
+               case 1:
+                  System.out.println(1);// 171
+                  break label21;// 172
             }
          }
 
@@ -191,25 +191,25 @@ public class TestSwitchLoop {
 
    public void test8(int i) {
       switch(i) {// 183
-      case 0:
-         int j = 0;
+         case 0:
+            int j = 0;
 
-         while(true) {
-            if (j >= 10) {
-               System.out.println(0);// 192
-               break;
+            while(true) {
+               if (j >= 10) {
+                  System.out.println(0);// 192
+                  break;
+               }
+
+               if (j == 3) {// 187
+                  break;
+               }
+
+               ++j;// 186
             }
 
-            if (j == 3) {// 187
-               break;
-            }
-
-            ++j;// 186
-         }
-
-         System.out.println("after");// 194
-      case 1:
-         System.out.println(1);// 196
+            System.out.println("after");// 194
+         case 1:
+            System.out.println(1);// 196
       }
 
       System.out.println("after2");// 199
@@ -218,24 +218,24 @@ public class TestSwitchLoop {
    public void test9(int i) {
       label23:
       switch(i) {// 203
-      case 0:
-         int j = 0;
+         case 0:
+            int j = 0;
 
-         while(true) {
-            if (j >= 10) {
-               System.out.println(0);// 212
-               break label23;// 213
+            while(true) {
+               if (j >= 10) {
+                  System.out.println(0);// 212
+                  break label23;// 213
+               }
+
+               if (j == 3) {// 207
+                  System.out.println("after");// 215
+                  break;
+               }
+
+               ++j;// 206
             }
-
-            if (j == 3) {// 207
-               System.out.println("after");// 215
-               break;
-            }
-
-            ++j;// 206
-         }
-      case 1:
-         System.out.println(1);// 217
+         case 1:
+            System.out.println(1);// 217
       }
 
       System.out.println("after2");// 220
@@ -245,29 +245,29 @@ public class TestSwitchLoop {
       label33: {
          label32: {
             switch(i) {// 224
-            case 0:
-               int j = 0;
+               case 0:
+                  int j = 0;
 
-               while(true) {
-                  if (j >= 10) {
-                     break label32;
+                  while(true) {
+                     if (j >= 10) {
+                        break label32;
+                     }
+
+                     if (j == 3) {// 228
+                        System.out.println("after");// 241
+                        break;
+                     }
+
+                     if (j == 9) {// 232
+                        break label32;
+                     }
+
+                     ++j;// 227
                   }
-
-                  if (j == 3) {// 228
-                     System.out.println("after");// 241
-                     break;
-                  }
-
-                  if (j == 9) {// 232
-                     break label32;
-                  }
-
-                  ++j;// 227
-               }
-            case 1:
-               break;
-            default:
-               break label33;
+               case 1:
+                  break;
+               default:
+                  break label33;
             }
 
             System.out.println(1);// 243

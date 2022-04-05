@@ -3,14 +3,14 @@ package pkg;
 public class TestSwitchStringHashcodeCollision {
    public int test(String s) {
       switch(s) {// 6
-      case "BB":
-         return 1;// 11
-      case "Aa":
-      case "FRED":
-         return 2;// 14
-      default:
-         System.out.println("Test");// 8
-         return 0;// 9 16
+         case "BB":
+            return 1;// 11
+         case "Aa":
+         case "FRED":
+            return 2;// 14
+         default:
+            System.out.println("Test");// 8
+            return 0;// 9 16
       }
    }
 }

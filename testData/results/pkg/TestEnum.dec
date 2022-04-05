@@ -29,22 +29,22 @@ public enum TestEnum {
 
    private void testSwitch() {
       switch(this) {// 40
-      case E1:
-         System.out.println("E1");// 42
-         break;// 43
-      case E2:
-         System.out.println("E2");// 45
-         break;// 46
-      case E3:
-         System.out.println("E3");// 48
-         break;// 49
-      case E4:
-         System.out.println("E4");// 51
+         case E1:
+            System.out.println("E1");// 42
+            break;// 43
+         case E2:
+            System.out.println("E2");// 45
+            break;// 46
+         case E3:
+            System.out.println("E3");// 48
+            break;// 49
+         case E4:
+            System.out.println("E4");// 51
       }
 
       switch(TestEnum.Type.ODD) {// 55
-      case ODD:
-         System.out.println("ODD");// 57
+         case ODD:
+            System.out.println("ODD");// 57
       }
    }// 59
 

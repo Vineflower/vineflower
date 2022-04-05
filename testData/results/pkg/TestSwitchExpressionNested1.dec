@@ -9,14 +9,14 @@ public class TestSwitchExpressionNested1 {
          case SOUTH -> 2;// 9
          case EAST -> {
             switch(dir2) {// 10
-            case NORTH:
-               yield 3;// 11
-            case SOUTH:
-               yield 4;// 12
-            case EAST:
-               yield 5;// 13
-            default:
-               yield -1;// 14
+               case NORTH:
+                  yield 3;// 11
+               case SOUTH:
+                  yield 4;// 12
+               case EAST:
+                  yield 5;// 13
+               default:
+                  yield -1;// 14
             }
          }
          default -> 0;// 16

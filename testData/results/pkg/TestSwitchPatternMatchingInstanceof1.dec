@@ -11,28 +11,28 @@ public class TestSwitchPatternMatchingInstanceof1 {
 
       while(true) {
          switch(SwitchBootstraps.typeSwitch<"typeSwitch",String,Integer,String>(var2, var3)) {
-         case 0: {
-            String s = (String)var2;// 6
-            if (o instanceof Integer a) {
-               System.out.println(s);
-               return;// 11
-            }
+            case 0: {
+               String s = (String)var2;// 6
+               if (o instanceof Integer a) {
+                  System.out.println(s);
+                  return;// 11
+               }
 
-            var3 = 1;
-            break;
-         }
-         case 1:
-            Integer i = (Integer)var2;// 7
-            System.out.println(i);
-            return;
-         case 2: {
-            String s = (String)var2;// 8
-            System.out.println(s);
-            return;
-         }
-         default:
-            System.out.println("Default");// 9
-            return;
+               var3 = 1;
+               break;
+            }
+            case 1:
+               Integer i = (Integer)var2;// 7
+               System.out.println(i);
+               return;
+            case 2: {
+               String s = (String)var2;// 8
+               System.out.println(s);
+               return;
+            }
+            default:
+               System.out.println("Default");// 9
+               return;
          }
       }
    }

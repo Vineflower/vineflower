@@ -182,22 +182,22 @@ public class TestSynchronized {
 
    public void test11(int i) {
       switch(i) {// 173
-      case 0:
-         synchronized(this) {// 175
-            break;
-         }// 176
-      case 1:
-         synchronized(this) {// 179
-            System.out.println(1);// 180
-            break;
-         }// 181
-      case 2:
-         System.out.println(2);// 184
-         synchronized(this) {// 185
-            break;
-         }// 186
-      default:
-         System.out.println(0);// 189
+         case 0:
+            synchronized(this) {// 175
+               break;
+            }// 176
+         case 1:
+            synchronized(this) {// 179
+               System.out.println(1);// 180
+               break;
+            }// 181
+         case 2:
+            System.out.println(2);// 184
+            synchronized(this) {// 185
+               break;
+            }// 186
+         default:
+            System.out.println(0);// 189
       }
 
    }// 191

@@ -9,27 +9,27 @@ public class TestSwitchPatternMatching2 {
 
       while(true) {
          switch(SwitchBootstraps.typeSwitch<"typeSwitch",TestSwitchPatternMatching2.Triangle,TestSwitchPatternMatching2.Triangle>(var1, var2)) {
-         case -1:
-            System.out.println("null");// 11
-            return;// 15
-         case 0: {
-            TestSwitchPatternMatching2.Triangle t = (TestSwitchPatternMatching2.Triangle)var1;// 6
-            if (!(t.calculateArea() > 100.0)) {
-               var2 = 1;
-               break;
-            }
+            case -1:
+               System.out.println("null");// 11
+               return;// 15
+            case 0: {
+               TestSwitchPatternMatching2.Triangle t = (TestSwitchPatternMatching2.Triangle)var1;// 6
+               if (!(t.calculateArea() > 100.0)) {
+                  var2 = 1;
+                  break;
+               }
 
-            System.out.println("Large triangle");// 7
-            return;
-         }
-         case 1: {
-            TestSwitchPatternMatching2.Triangle t = (TestSwitchPatternMatching2.Triangle)var1;// 8
-            System.out.println("Small triangle");// 9
-            return;
-         }
-         default:
-            System.out.println("Non-triangle");// 13
-            return;
+               System.out.println("Large triangle");// 7
+               return;
+            }
+            case 1: {
+               TestSwitchPatternMatching2.Triangle t = (TestSwitchPatternMatching2.Triangle)var1;// 8
+               System.out.println("Small triangle");// 9
+               return;
+            }
+            default:
+               System.out.println("Non-triangle");// 13
+               return;
          }
       }
    }
