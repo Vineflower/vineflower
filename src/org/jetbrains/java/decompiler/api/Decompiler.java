@@ -7,10 +7,12 @@ import org.jetbrains.java.decompiler.main.extern.IBytecodeProvider;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 
 public interface Decompiler {
+  void addInput(DecompilerInput input);
+  void removeInput(DecompilerInput input);
 
   class Builder {
     private final Options options = new Options();
-    private IBytecodeProvider input;
+    private DecompilerInput input;
     private DecompilerOutput output;
     private IFernflowerLogger logger = new PrintStreamLogger(System.out);
     private IFabricJavadocProvider javadocProvider;
@@ -25,7 +27,7 @@ public interface Decompiler {
       return this;
     }
 
-    public Builder with(IBytecodeProvider input) {
+    public Builder with(DecompilerInput input) {
       this.input = input;
       return this;
     }

@@ -4,7 +4,6 @@ package org.jetbrains.java.decompiler.struct;
 import net.fabricmc.fernflower.api.IFabricResultSaver;
 import org.jetbrains.java.decompiler.api.Option;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
-import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.extern.IResultSaver;
 import org.jetbrains.java.decompiler.struct.lazy.LazyLoader;
 import org.jetbrains.java.decompiler.struct.lazy.LazyLoader.Link;
@@ -15,7 +14,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.*;
@@ -94,7 +92,7 @@ public class ContextUnit {
 
       StructClass newCl;
       try (DataInputFullStream in = loader.getClassStream(oldName)) {
-        newCl = StructClass.create(in, cl.isOwn(), loader);
+        newCl = StructClass.create(in, cl.isOwn());
       }
 
       lstClasses.add(newCl);

@@ -15,7 +15,7 @@ import java.util.HashMap;
  */
 public final class MinimalFernflowerEnvironment {
   public static void setup() {
-    StructContext sc = new StructContext(null, null, null);
+    StructContext sc = new StructContext(null, null);
     DecompilerContext context = new DecompilerContext(
       new Options(),
       new PrintStreamLogger(System.out),

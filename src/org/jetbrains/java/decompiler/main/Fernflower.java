@@ -2,10 +2,7 @@
 package org.jetbrains.java.decompiler.main;
 
 import net.fabricmc.fernflower.api.IFabricJavadocProvider;
-import org.jetbrains.java.decompiler.api.Decompiler;
-import org.jetbrains.java.decompiler.api.DecompilerOutput;
-import org.jetbrains.java.decompiler.api.Option;
-import org.jetbrains.java.decompiler.api.Options;
+import org.jetbrains.java.decompiler.api.*;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.extern.*;
 import org.jetbrains.java.decompiler.modules.renamer.ConverterHelper;
@@ -15,15 +12,12 @@ import org.jetbrains.java.decompiler.struct.IDecompiledData;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructContext;
 import org.jetbrains.java.decompiler.struct.lazy.LazyLoader;
-import org.jetbrains.java.decompiler.util.JADNameProvider;
-import org.jetbrains.java.decompiler.util.JrtFinder;
-import org.jetbrains.java.decompiler.util.TextBuffer;
-import org.jetbrains.java.decompiler.util.ClasspathScanner;
+import org.jetbrains.java.decompiler.util.*;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.util.*;
 
 public class Fernflower implements IDecompiledData, Decompiler {
   private final StructContext structContext;
@@ -31,12 +25,12 @@ public class Fernflower implements IDecompiledData, Decompiler {
   private final IIdentifierRenamer helper;
   private final IdentifierConverter converter;
 
-  public Fernflower(IBytecodeProvider input, DecompilerOutput output, Options customProperties, IFernflowerLogger logger, IFabricJavadocProvider javadocProvider) {
+  public Fernflower(DecompilerInput input, DecompilerOutput output, Options customProperties, IFernflowerLogger logger, IFabricJavadocProvider javadocProvider) {
     this(input, new ResultSaverAdapter(output), customProperties, logger, javadocProvider);
   }
 
   public Fernflower(IBytecodeProvider provider, IResultSaver saver, Map<String, Object> customProperties, IFernflowerLogger logger) {
-    this(provider, saver, convertOptions(customProperties), logger, (IFabricJavadocProvider) customProperties.get(IFabricJavadocProvider.PROPERTY_NAME));
+    this(new LegacyDecompilerInput(provider), saver, convertOptions(customProperties), logger, (IFabricJavadocProvider) customProperties.get(IFabricJavadocProvider.PROPERTY_NAME));
   }
 
   private static Options convertOptions(Map<String, Object> customProperties) {
@@ -76,10 +70,10 @@ public class Fernflower implements IDecompiledData, Decompiler {
     }
   }
 
-  private Fernflower(IBytecodeProvider provider, IResultSaver saver, Options options, IFernflowerLogger logger, IFabricJavadocProvider javadocProvider) {
+  private Fernflower(DecompilerInput input, IResultSaver saver, Options options, IFernflowerLogger logger, IFabricJavadocProvider javadocProvider) {
     logger.setSeverity(options.get(Option.LOG_LEVEL));
 
-    structContext = new StructContext(saver, this, new LazyLoader(provider));
+    structContext = new StructContext(saver, this);
     classProcessor = new ClassesProcessor(structContext);
 
     PoolInterceptor interceptor = null;
@@ -118,10 +112,11 @@ public class Fernflower implements IDecompiledData, Decompiler {
     String jvmVersion = System.getProperty("java.vm.version", "missing jvm version");
     logger.writeMessage(String.format("JVM info: %s - %s - %s", vendor, javaVersion, jvmVersion), IFernflowerLogger.Severity.INFO);
 
+    addInput(input);
     if (DecompilerContext.getOption(Option.INCLUDE_ENTIRE_CLASSPATH)) {
       ClasspathScanner.addAllClasspath(structContext);
     } else if (DecompilerContext.getOption(Option.INCLUDE_JAVA_RUNTIME)) {
-      JrtFinder.addJrt(structContext);
+      addInput(JrtClassSet.createInput());
     }
   }
 
@@ -138,10 +133,12 @@ public class Fernflower implements IDecompiledData, Decompiler {
     return new ConverterHelper();
   }
 
+  @Deprecated
   public void addSource(File source) {
     structContext.addSpace(source, true);
   }
 
+  @Deprecated
   public void addLibrary(File library) {
     structContext.addSpace(library, false);
   }
@@ -149,6 +146,12 @@ public class Fernflower implements IDecompiledData, Decompiler {
   public void decompileContext() {
     if (converter != null) {
       converter.rename();
+    } else {
+      try {
+        structContext.reloadContext();
+      } catch (IOException e) {
+        throw new UncheckedIOException(e);
+      }
     }
 
     classProcessor.loadClasses(helper);
@@ -166,6 +169,7 @@ public class Fernflower implements IDecompiledData, Decompiler {
 
   @Override
   public String getClassEntryName(StructClass cl, String entryName) {
+    if (!entryName.endsWith(".class")) entryName += ".class";
     ClassNode node = classProcessor.getMapRootClasses().get(cl.qualifiedName);
     if (node == null || node.type != ClassNode.CLASS_ROOT) {
       return null;
@@ -191,5 +195,15 @@ public class Fernflower implements IDecompiledData, Decompiler {
       DecompilerContext.getLogger().writeMessage("Class " + cl.qualifiedName + " couldn't be fully decompiled.", t);
       return null;
     }
+  }
+
+  @Override
+  public void addInput(DecompilerInput input) {
+    this.structContext.addInput(input);
+  }
+
+  @Override
+  public void removeInput(DecompilerInput input) {
+    this.structContext.removeInput(input);
   }
 }
