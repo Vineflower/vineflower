@@ -21,33 +21,27 @@ public final class DirectoryResultSaver implements IResultSaver {
 
   @Override
   public void saveClassEntry(String path, String archiveName, String qualifiedName, String entryName, String content) {
-    Path entryPath = this.root.resolve(entryName);
-
-    try (BufferedWriter writer = Files.newBufferedWriter(entryPath)) {
-      if (content != null) {
-        writer.write(content);
-      }
-    } catch (IOException e) {
-      throw new RuntimeException("Failed to save class", e);
-    }
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public void saveDirEntry(String path, String archiveName, String entryName) {
-    Path entryPath = this.root.resolve(entryName);
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void createArchive(String path, String archiveName, Manifest manifest) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void saveFolder(String path) {
+    Path entryPath = this.root.resolve(path);
     try {
       Files.createDirectories(entryPath);
     } catch (IOException e) {
       throw new RuntimeException("Failed to save directory", e);
     }
-  }
-
-  @Override
-  public void createArchive(String path, String archiveName, Manifest manifest) {
-  }
-
-  @Override
-  public void saveFolder(String path) {
   }
 
   @Override
@@ -62,6 +56,15 @@ public final class DirectoryResultSaver implements IResultSaver {
 
   @Override
   public void saveClassFile(String path, String qualifiedName, String entryName, String content, int[] mapping) {
+    Path entryPath = this.root.resolve(path).resolve(entryName);
+
+    try (BufferedWriter writer = Files.newBufferedWriter(entryPath)) {
+      if (content != null) {
+        writer.write(content);
+      }
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to save class", e);
+    }
   }
 
   @Override
@@ -82,5 +85,6 @@ public final class DirectoryResultSaver implements IResultSaver {
 
   @Override
   public void closeArchive(String path, String archiveName) {
+    throw new UnsupportedOperationException();
   }
 }
