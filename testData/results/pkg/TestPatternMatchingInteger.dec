@@ -27,8 +27,8 @@ public class TestPatternMatchingInteger {
 
    public int testMulti2(Object a, Object b) {
       int result = 0;// 25
-      if (a instanceof Integer bi) {// 26
-         result += bi;// 27
+      if (a instanceof Integer ai) {// 26
+         result += ai;// 27
       }
 
       if (b instanceof Integer bi) {// 29

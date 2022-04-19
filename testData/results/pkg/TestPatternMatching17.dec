@@ -79,9 +79,9 @@ public class TestPatternMatching17 {
 
    public void testLoop(Object obj) {
       while(obj instanceof String s && s.length() > 10) {// 70
-         s = s.substring(1);// 71
-         obj = s.substring(1);// 72
-         System.out.println(s);// 74
+         String var3 = s.substring(1);// 71
+         obj = var3.substring(1);// 72
+         System.out.println(var3);// 74
       }
 
    }// 76
@@ -95,7 +95,7 @@ public class TestPatternMatching17 {
    }// 86
 
    public void testMessyLVT(Object obj) {
-      str = "a";// 90
+      String a = "a";// 90
       String b = "b";// 91
       String c = "c";// 92
       String d = "d";// 93
