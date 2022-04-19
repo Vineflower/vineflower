@@ -495,6 +495,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(KOTLIN, "TestKotlinEnumWhen");
     // TODO: causes invalid stack var simplification
     register(JAVA_8, "TestSynchronizedTryReturn");
+    // TODO: finally block causes incorrect variable scope
+    register(JAVA_8, "TestTryReturn");
   }
 
   private void registerEntireClassPath() {
