@@ -7,14 +7,14 @@ public enum TestEclipseSwitchEnum {
 
    public void test(TestEclipseSwitchEnum var1) {
       switch(var1) {// 9
-      case A:
-         System.out.println("A");// 11
-         break;// 12
-      case B:
-         System.out.println("B");// 14
-         break;// 15
-      case C:
-         System.out.println("C");// 17
+         case A:
+            System.out.println("A");// 11
+            break;// 12
+         case B:
+            System.out.println("B");// 14
+            break;// 15
+         case C:
+            System.out.println("C");// 17
       }
 
    }// 20

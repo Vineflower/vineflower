@@ -3,52 +3,52 @@ package pkg;
 public class TestLocalClassesSwitch {
    public void test(int i) {
       switch(i) {// 6
-      case 0: {
-         class LocalClass {
-            public void test() {
-               System.out.println("test");// 10
-            }// 11
-         }
+         case 0: {
+            class LocalClass {
+               public void test() {
+                  System.out.println("test");// 10
+               }// 11
+            }
 
-         LocalClass lc = new LocalClass();// 14
-         lc.test();// 15
-      }
-      default: {
-         class LocalClass {
-            public void test() {
-               System.out.println("test1");// 21
-            }// 22
+            LocalClass lc = new LocalClass();// 14
+            lc.test();// 15
          }
+         default: {
+            class LocalClass {
+               public void test() {
+                  System.out.println("test1");// 21
+               }// 22
+            }
 
-         LocalClass lc = new LocalClass();// 25
-         lc.test();// 26
-      }
+            LocalClass lc = new LocalClass();// 25
+            lc.test();// 26
+         }
       }
    }// 27
 
    public void test1(int i) {
       switch(i) {// 30
-      case 0: {
-         class LocalClass {
-            public void test() {
-               System.out.println("test");// 34
-            }// 35
-         }
+         case 0: {
+            class LocalClass {
+               public void test() {
+                  System.out.println("test");// 34
+               }// 35
+            }
 
-         LocalClass lc = new LocalClass();// 38
-         lc.test();// 39
-         break;// 40
-      }
-      case 1: {
-         class LocalClass {
-            public void test() {
-               System.out.println("test1");// 45
-            }// 46
+            LocalClass lc = new LocalClass();// 38
+            lc.test();// 39
+            break;// 40
          }
+         case 1: {
+            class LocalClass {
+               public void test() {
+                  System.out.println("test1");// 45
+               }// 46
+            }
 
-         LocalClass lc = new LocalClass();// 49
-         lc.test();// 50
-      }
+            LocalClass lc = new LocalClass();// 49
+            lc.test();// 50
+         }
       }
 
       class LocalClass {
@@ -63,24 +63,24 @@ public class TestLocalClassesSwitch {
 
    public void test2(int i) {
       switch(i) {// 66
-      default:
-         class LocalClass {
-            public void test() {
-               System.out.println("test");// 70
-            }// 71
-         }
+         default:
+            class LocalClass {
+               public void test() {
+                  System.out.println("test");// 70
+               }// 71
+            }
 
-         LocalClass lc = new LocalClass();// 74
-         lc.test();// 75
+            LocalClass lc = new LocalClass();// 74
+            lc.test();// 75
 
-         class LocalClass {
-            public void test() {
-               System.out.println("test1");// 81
-            }// 82
-         }
+            class LocalClass {
+               public void test() {
+                  System.out.println("test1");// 81
+               }// 82
+            }
 
-         LocalClass lcx = new LocalClass();// 85
-         lcx.test();// 86
+            LocalClass lcx = new LocalClass();// 85
+            lcx.test();// 86
       }
    }// 87
 }

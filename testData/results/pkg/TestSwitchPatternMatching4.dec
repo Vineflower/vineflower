@@ -8,8 +8,8 @@ public class TestSwitchPatternMatching4 {
       Objects.requireNonNull(s);// 5
       byte var2 = 0;
       switch(SwitchBootstraps.typeSwitch<"typeSwitch">(s, var2)) {
-      default:
-         System.out.println("default");// 7
+         default:
+            System.out.println("default");// 7
       }
    }// 9
 }

@@ -11,29 +11,28 @@ public class TestSwitchPatternMatchingInstanceof1 {
 
       while(true) {
          switch(SwitchBootstraps.typeSwitch<"typeSwitch",String,Integer,String>(var2, var3)) {
-         case 0: {
-            String s = (String)var2;// 6
-            if (o instanceof Integer) {
-               Integer a = (Integer)o;
-               System.out.println(s);
-               return;// 11
-            }
+            case 0: {
+               String s = (String)var2;// 6
+               if (o instanceof Integer a) {
+                  System.out.println(s);
+                  return;// 11
+               }
 
-            var3 = 1;
-            break;
-         }
-         case 1:
-            Integer i = (Integer)var2;// 7
-            System.out.println(i);
-            return;
-         case 2: {
-            String s = (String)var2;// 8
-            System.out.println(s);
-            return;
-         }
-         default:
-            System.out.println("Default");// 9
-            return;
+               var3 = 1;
+               break;
+            }
+            case 1:
+               Integer i = (Integer)var2;// 7
+               System.out.println(i);
+               return;
+            case 2: {
+               String s = (String)var2;// 8
+               System.out.println(s);
+               return;
+            }
+            default:
+               System.out.println("Default");// 9
+               return;
          }
       }
    }
@@ -67,69 +66,65 @@ class 'pkg/TestSwitchPatternMatchingInstanceof1' {
       34      15
       35      15
       36      15
-      39      16
-      3a      16
-      3b      16
-      3c      16
-      3d      16
-      3e      16
-      3f      17
-      40      17
-      41      17
-      42      17
-      43      17
-      44      17
-      45      17
-      46      17
-      47      17
-      48      17
-      49      17
-      4a      17
-      4b      17
-      52      25
-      53      25
-      54      25
-      55      25
-      56      25
-      57      25
-      58      26
-      59      26
-      5a      26
-      5b      26
-      5c      26
-      5d      26
-      5e      26
-      5f      26
-      63      29
-      64      29
-      65      29
-      66      29
-      67      29
-      68      29
-      69      30
-      6a      30
-      6b      30
-      6c      30
-      6d      30
-      6e      30
-      6f      30
-      70      30
-      74      34
-      75      34
-      76      34
-      77      34
-      78      34
-      79      34
-      7a      34
-      7b      34
-      7f      18
+      3d      15
+      3e      15
+      3f      16
+      40      16
+      41      16
+      42      16
+      43      16
+      44      16
+      45      16
+      46      16
+      47      16
+      48      16
+      49      16
+      4a      16
+      4b      16
+      52      24
+      53      24
+      54      24
+      55      24
+      56      24
+      57      24
+      58      25
+      59      25
+      5a      25
+      5b      25
+      5c      25
+      5d      25
+      5e      25
+      5f      25
+      63      28
+      64      28
+      65      28
+      66      28
+      67      28
+      68      28
+      69      29
+      6a      29
+      6b      29
+      6c      29
+      6d      29
+      6e      29
+      6f      29
+      70      29
+      74      33
+      75      33
+      76      33
+      77      33
+      78      33
+      79      33
+      7a      33
+      7b      33
+      7f      17
    }
 }
 
 Lines mapping:
 5 <-> 8
 6 <-> 15
-7 <-> 26
-8 <-> 30
-9 <-> 35
-11 <-> 19
+7 <-> 25
+8 <-> 29
+9 <-> 34
+11 <-> 18

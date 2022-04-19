@@ -18,7 +18,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
       IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR, "0",
       IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
       IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
-      IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "0"
+      IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "0",
+      IFernflowerPreferences.TERNARY_CONDITIONS, "1"
     );
     registerSet("Entire Classpath", this::registerEntireClassPath,
       IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
@@ -497,6 +498,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestSynchronizedTryReturn");
     // TODO: finally block causes incorrect variable scope
     register(JAVA_8, "TestTryReturn");
+    // TODO: ternaries inside while conditions shouldn't be put in if inside while
+    register(JAVA_8, "TestWhileConditionTernary");
   }
 
   private void registerEntireClassPath() {
@@ -596,6 +599,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
 
   private void registerTryLoop() {
     register(JAVA_8, "TestTryLoop");
+    register(JAVA_8, "TestTryLoop2");
     register(JAVA_8, "TestTryLoopRecompile");
     register(JAVA_8, "TestTryLoopSimpleFinally");
     // TODO: Still doesn't properly decompile, loop needs to be in the try block

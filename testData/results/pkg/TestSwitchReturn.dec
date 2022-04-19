@@ -3,16 +3,16 @@ package pkg;
 public class TestSwitchReturn {
    public int test(int x) {
       switch(x) {// 5
-      case 1:
-      case 2:
-      case 3:
-         return 1;// 9
-      case 4:
-      case 32:
-      case 46:
-         return 3;// 13
-      default:
-         return 4;// 15
+         case 1:
+         case 2:
+         case 3:
+            return 1;// 9
+         case 4:
+         case 32:
+         case 46:
+            return 3;// 13
+         default:
+            return 4;// 15
       }
    }
 }

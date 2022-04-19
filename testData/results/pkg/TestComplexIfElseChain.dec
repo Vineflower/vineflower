@@ -137,24 +137,24 @@ public class TestComplexIfElseChain {
       Random randy = new Random();// 126
       int result = randy.nextInt(11);// 128
       switch(i) {// 129
-      case 0:
-         System.out.println(1);// 131
-         break;// 132
-      case 1:
-         if (result == 0 || result == 1) {// 134
-            System.out.println("a");// 135
-         } else if (result == 2 || result == 3) {// 136
-            System.out.println("b");// 137
-         } else if (result == 4 || result == 5) {// 138
-            System.out.println("c");// 139
-         } else if (result == 6 || result == 7) {// 140
-            System.out.println("d");// 141
-         } else if (result == 8 || result == 9) {// 142
-            System.out.println("e");// 143
-         }
-         break;
-      case 2:
-         System.out.println(2);// 147
+         case 0:
+            System.out.println(1);// 131
+            break;// 132
+         case 1:
+            if (result == 0 || result == 1) {// 134
+               System.out.println("a");// 135
+            } else if (result == 2 || result == 3) {// 136
+               System.out.println("b");// 137
+            } else if (result == 4 || result == 5) {// 138
+               System.out.println("c");// 139
+            } else if (result == 6 || result == 7) {// 140
+               System.out.println("d");// 141
+            } else if (result == 8 || result == 9) {// 142
+               System.out.println("e");// 143
+            }
+            break;
+         case 2:
+            System.out.println(2);// 147
       }
 
       System.out.println("hi");// 150
@@ -164,35 +164,35 @@ public class TestComplexIfElseChain {
       Random randy = new Random();// 154
       int result = randy.nextInt(11);// 156
       switch(i) {// 157
-      case 0:
-         System.out.println(1);// 159
-         break;// 160
-      case 1:
-         if (result == 0 || result == 1) {// 162
-            System.out.println("a");// 163
-         } else if (result != 2 && result != 3) {// 164
-            if (result == 4 || result == 5) {// 166
-               System.out.println("c");// 167
-               break;// 168
+         case 0:
+            System.out.println(1);// 159
+            break;// 160
+         case 1:
+            if (result == 0 || result == 1) {// 162
+               System.out.println("a");// 163
+            } else if (result != 2 && result != 3) {// 164
+               if (result == 4 || result == 5) {// 166
+                  System.out.println("c");// 167
+                  break;// 168
+               }
+
+               if (result == 6 || result == 7) {// 169
+                  System.out.println("d");// 170
+                  break;// 171
+               }
+
+               if (result == 8 || result == 9) {// 172
+                  System.out.println("e");// 173
+                  break;// 174
+               }
+            } else {
+               System.out.println("b");// 165
             }
 
-            if (result == 6 || result == 7) {// 169
-               System.out.println("d");// 170
-               break;// 171
-            }
-
-            if (result == 8 || result == 9) {// 172
-               System.out.println("e");// 173
-               break;// 174
-            }
-         } else {
-            System.out.println("b");// 165
-         }
-
-         System.out.println(3);// 176
-         break;// 177
-      case 2:
-         System.out.println(2);// 179
+            System.out.println(3);// 176
+            break;// 177
+         case 2:
+            System.out.println(2);// 179
       }
 
       System.out.println("hi");// 182

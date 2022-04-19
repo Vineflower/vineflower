@@ -19,20 +19,20 @@ public enum TestKotlinEnumWhen {
 
    public final void testStatement() {
       switch(this) {// 7
-      case FIRST:
-         String var6 = "first!";// 8
-         boolean var8 = false;
-         System.out.println(var6);
-         break;
-      case SECOND:
-         String var5 = "second!";// 9
-         boolean var7 = false;
-         System.out.println(var5);
-         break;
-      case THIRD:
-         String var3 = "third!";// 10
-         boolean var4 = false;
-         System.out.println(var3);
+         case FIRST:
+            String var6 = "first!";// 8
+            boolean var8 = false;
+            System.out.println(var6);
+            break;
+         case SECOND:
+            String var5 = "second!";// 9
+            boolean var7 = false;
+            System.out.println(var5);
+            break;
+         case THIRD:
+            String var3 = "third!";// 10
+            boolean var4 = false;
+            System.out.println(var3);
       }
 
    }// 12
@@ -40,17 +40,17 @@ public enum TestKotlinEnumWhen {
    public final void testExpression() {
       String var10000;
       switch(this) {// 16
-      case FIRST:
-         var10000 = "first!";// 17
-         break;
-      case SECOND:
-         var10000 = "second!";// 18
-         break;
-      case THIRD:
-         var10000 = "third!";// 19
-         break;
-      default:
-         throw new NoWhenBranchMatchedException();
+         case FIRST:
+            var10000 = "first!";// 17
+            break;
+         case SECOND:
+            var10000 = "second!";// 18
+            break;
+         case THIRD:
+            var10000 = "third!";// 19
+            break;
+         default:
+            throw new NoWhenBranchMatchedException();
       }
 
       String var1 = var10000;
@@ -61,57 +61,57 @@ public enum TestKotlinEnumWhen {
    public final void testAnotherEnum() {
       DeprecationLevel level = testAnotherEnum$getLevel();// 28
       switch(level) {
-      case WARNING:
-         String var6 = Intrinsics.stringPlus("warning ", level);// 29
-         boolean var8 = false;
-         System.out.println(var6);
-         break;
-      case ERROR:
-         String var5 = Intrinsics.stringPlus("error ", level);// 30
-         boolean var7 = false;
-         System.out.println(var5);
-         break;
-      case HIDDEN:
-         String var3 = Intrinsics.stringPlus("hidden ", level);// 31
-         boolean var4 = false;
-         System.out.println(var3);
+         case WARNING:
+            String var6 = Intrinsics.stringPlus("warning ", level);// 29
+            boolean var8 = false;
+            System.out.println(var6);
+            break;
+         case ERROR:
+            String var5 = Intrinsics.stringPlus("error ", level);// 30
+            boolean var7 = false;
+            System.out.println(var5);
+            break;
+         case HIDDEN:
+            String var3 = Intrinsics.stringPlus("hidden ", level);// 31
+            boolean var4 = false;
+            System.out.println(var3);
       }
 
    }// 33
 
    public final void testConsecutive() {
       switch(this) {// 36
-      case FIRST:
-         String var7 = "first!";// 37
-         boolean var12 = false;
-         System.out.println(var7);
-         break;
-      case SECOND:
-         String var6 = "second!";// 38
-         boolean var11 = false;
-         System.out.println(var6);
-         break;
-      case THIRD:
-         String var3 = "third!";// 39
-         boolean var4 = false;
-         System.out.println(var3);
+         case FIRST:
+            String var7 = "first!";// 37
+            boolean var12 = false;
+            System.out.println(var7);
+            break;
+         case SECOND:
+            String var6 = "second!";// 38
+            boolean var11 = false;
+            System.out.println(var6);
+            break;
+         case THIRD:
+            String var3 = "third!";// 39
+            boolean var4 = false;
+            System.out.println(var3);
       }
 
       switch(this) {// 42
-      case FIRST:
-         String var10 = "first, again!";// 43
-         boolean var15 = false;
-         System.out.println(var10);
-         break;
-      case SECOND:
-         String var9 = "second, again!";// 44
-         boolean var14 = false;
-         System.out.println(var9);
-         break;
-      case THIRD:
-         String var8 = "third, again!";// 45
-         boolean var13 = false;
-         System.out.println(var8);
+         case FIRST:
+            String var10 = "first, again!";// 43
+            boolean var15 = false;
+            System.out.println(var10);
+            break;
+         case SECOND:
+            String var9 = "second, again!";// 44
+            boolean var14 = false;
+            System.out.println(var9);
+            break;
+         case THIRD:
+            String var8 = "third, again!";// 45
+            boolean var13 = false;
+            System.out.println(var8);
       }
 
    }// 47
@@ -119,37 +119,37 @@ public enum TestKotlinEnumWhen {
    public final void testConsecutiveMixed() {
       DeprecationLevel level = testConsecutiveMixed$getLevel-0();// 53
       switch(level) {
-      case WARNING:
-         String var7 = Intrinsics.stringPlus("warning ", level);// 54
-         boolean var12 = false;
-         System.out.println(var7);
-         break;
-      case ERROR:
-         String var6 = Intrinsics.stringPlus("error ", level);// 55
-         boolean var11 = false;
-         System.out.println(var6);
-         break;
-      case HIDDEN:
-         String var3 = Intrinsics.stringPlus("hidden ", level);// 56
-         boolean var4 = false;
-         System.out.println(var3);
+         case WARNING:
+            String var7 = Intrinsics.stringPlus("warning ", level);// 54
+            boolean var12 = false;
+            System.out.println(var7);
+            break;
+         case ERROR:
+            String var6 = Intrinsics.stringPlus("error ", level);// 55
+            boolean var11 = false;
+            System.out.println(var6);
+            break;
+         case HIDDEN:
+            String var3 = Intrinsics.stringPlus("hidden ", level);// 56
+            boolean var4 = false;
+            System.out.println(var3);
       }
 
       switch(this) {// 59
-      case FIRST:
-         String var10 = "first!";// 60
-         boolean var15 = false;
-         System.out.println(var10);
-         break;
-      case SECOND:
-         String var9 = "second!";// 61
-         boolean var14 = false;
-         System.out.println(var9);
-         break;
-      case THIRD:
-         String var8 = "third!";// 62
-         boolean var13 = false;
-         System.out.println(var8);
+         case FIRST:
+            String var10 = "first!";// 60
+            boolean var15 = false;
+            System.out.println(var10);
+            break;
+         case SECOND:
+            String var9 = "second!";// 61
+            boolean var14 = false;
+            System.out.println(var9);
+            break;
+         case THIRD:
+            String var8 = "third!";// 62
+            boolean var13 = false;
+            System.out.println(var8);
       }
 
    }// 64

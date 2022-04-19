@@ -7,8 +7,8 @@ public class TestSwitchFinally {
       } finally {
          System.out.println("finally");// 8
          switch(i) {// 10
-         case 0:
-            System.out.println("0");// 12
+            case 0:
+               System.out.println("0");// 12
          }
 
          System.out.println("b");// 16
@@ -22,11 +22,11 @@ public class TestSwitchFinally {
       } finally {
          System.out.println("finally");// 24
          switch(i) {// 26
-         case 0:
-            System.out.println("0");// 28
-            break;// 29
-         case 1:
-            System.out.println("1");// 31
+            case 0:
+               System.out.println("0");// 28
+               break;// 29
+            case 1:
+               System.out.println("1");// 31
          }
 
          System.out.println("b");// 35
@@ -40,9 +40,9 @@ public class TestSwitchFinally {
       } finally {
          System.out.println("finally");// 43
          switch(i) {// 45
-         default:
-            System.out.println("default");// 47
-            System.out.println("b");// 50
+            default:
+               System.out.println("default");// 47
+               System.out.println("b");// 50
          }
       }
 
@@ -54,15 +54,15 @@ public class TestSwitchFinally {
       } finally {
          System.out.println("finally");// 59
          switch(i) {// 61
-         case 0:
-            System.out.println("0");// 63
-            break;// 64
-         case 1:
-            System.out.println("1");// 66
-            System.out.println("c");// 67 69 72 74 76 77 80
-            return 0;// 81
-         default:
-            System.out.println("Default");
+            case 0:
+               System.out.println("0");// 63
+               break;// 64
+            case 1:
+               System.out.println("1");// 66
+               System.out.println("c");// 67 69 72 74 76 77 80
+               return 0;// 81
+            default:
+               System.out.println("Default");
          }
 
          System.out.println("b");

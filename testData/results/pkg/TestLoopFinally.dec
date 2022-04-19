@@ -56,6 +56,69 @@ public class TestLoopFinally {
 
       System.out.println("after");// 59
    }// 60
+
+   public int test3(int param1) {
+      // $FF: Couldn't be decompiled
+      // Bytecode:
+      // 00: iload 1
+      // 01: bipush 1
+      // 02: if_icmpne 11
+      // 05: bipush 1
+      // 06: istore 2
+      // 07: iload 1
+      // 08: bipush 3
+      // 09: if_icmpne 0f
+      // 0c: goto 5e
+      // 0f: iload 2
+      // 10: ireturn
+      // 11: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 14: ldc "Oops"
+      // 16: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
+      // 19: iload 1
+      // 1a: bipush 23
+      // 1c: if_icmpne 2b
+      // 1f: bipush 1
+      // 20: istore 2
+      // 21: iload 1
+      // 22: bipush 3
+      // 23: if_icmpne 29
+      // 26: goto 5e
+      // 29: iload 2
+      // 2a: ireturn
+      // 2b: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 2e: ldc "Oops"
+      // 30: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
+      // 33: iload 1
+      // 34: bipush 25
+      // 36: if_icmpne 45
+      // 39: bipush 1
+      // 3a: istore 2
+      // 3b: iload 1
+      // 3c: bipush 3
+      // 3d: if_icmpne 43
+      // 40: goto 5e
+      // 43: iload 2
+      // 44: ireturn
+      // 45: iload 1
+      // 46: bipush 3
+      // 47: if_icmpne 58
+      // 4a: goto 5e
+      // 4d: astore 3
+      // 4e: iload 1
+      // 4f: bipush 3
+      // 50: if_icmpne 56
+      // 53: goto 5e
+      // 56: aload 3
+      // 57: athrow
+      // 58: iload 1
+      // 59: bipush 45
+      // 5b: if_icmplt 00
+      // 5e: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 61: bipush 5
+      // 62: invokevirtual java/io/PrintStream.print (I)V
+      // 65: bipush 1
+      // 66: ireturn
+   }
 }
 
 class 'pkg/TestLoopFinally' {
