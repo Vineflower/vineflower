@@ -116,4 +116,19 @@ public class TestPatternMatchingFakeLoops {
 
     System.out.println(s);
   }
+
+  public void testModifyLeak(Object obj) {
+    Integer i = null;
+    while (obj instanceof Integer) {
+      i = (Integer) obj;
+
+      if (i > 4) {
+        i += 3;
+      }
+    }
+
+    if (i != null) {
+      System.out.println(i);
+    }
+  }
 }

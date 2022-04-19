@@ -75,6 +75,16 @@ public class TestPatternMatching {
         }
     }
 
+    public void testSimpleReturn(Object obj) {
+        if (obj instanceof String str) {
+            if (str.length() > 5) {
+                return;
+            }
+        }
+
+        System.out.println("test");
+    }
+
     public void testMessyLVT(Object obj) {
         {
             String a = "a";

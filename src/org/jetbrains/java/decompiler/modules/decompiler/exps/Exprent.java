@@ -100,8 +100,16 @@ public abstract class Exprent implements IMatchable {
   }
 
   public final List<Exprent> getAllExprents(boolean recursive) {
+    return getAllExprents(recursive, false);
+  }
+
+  public final List<Exprent> getAllExprents(boolean recursive, boolean self) {
     List<Exprent> lst = new ArrayList<>();
     getAllExprents(recursive, lst);
+
+    if (self) {
+      lst.add(this);
+    }
 
     return lst;
   }

@@ -44,4 +44,19 @@ public class TestPatternMatching17Fake {
             System.out.println(s.length());
         }
     }
+
+  public void test3(Object obj) {
+    Integer i = null;
+    if (obj instanceof Integer) {
+      i = (Integer) obj;
+
+      if (i > 4) {
+        i += 3;
+      }
+    }
+
+    if (i != null) {
+      System.out.println(i);
+    }
+  }
 }

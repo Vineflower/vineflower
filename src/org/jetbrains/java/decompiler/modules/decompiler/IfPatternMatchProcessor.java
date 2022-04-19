@@ -187,6 +187,8 @@ public final class IfPatternMatchProcessor {
       IfHelper.fixIf(statement, next);
     }
 
+    statement.setPatternMatched(true);
+
     return true;
   }
 

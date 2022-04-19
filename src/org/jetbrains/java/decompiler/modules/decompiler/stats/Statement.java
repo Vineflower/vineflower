@@ -803,8 +803,7 @@ public class Statement implements IMatchable {
   public BasicBlockStatement getBasichead() {
     if (type == TYPE_BASICBLOCK) {
       return (BasicBlockStatement)this;
-    }
-    else {
+    } else {
       return first.getBasichead();
     }
   }
