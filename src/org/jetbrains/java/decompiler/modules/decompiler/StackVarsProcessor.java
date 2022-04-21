@@ -31,6 +31,7 @@ public class StackVarsProcessor {
     Set<Integer> setReorderedIfs = new HashSet<>();
     SSAUConstructorSparseEx ssau = null;
 
+    boolean firstWasDud = false;
     while (true) {
       boolean found = false;
       boolean first = ssau == null;
@@ -43,6 +44,10 @@ public class StackVarsProcessor {
       }
 
       setVersionsToNull(root);
+
+      if(firstWasDud && !found) {
+        break;
+      }
 
       SequenceHelper.condenseSequences(root);
 
@@ -60,7 +65,11 @@ public class StackVarsProcessor {
       setVersionsToNull(root);
 
       if (!found) {
-        break;
+        if(first) {
+          firstWasDud = true;
+        } else {
+          break;
+        }
       }
     }
 

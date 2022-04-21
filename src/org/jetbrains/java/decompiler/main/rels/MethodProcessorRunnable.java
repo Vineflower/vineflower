@@ -177,11 +177,13 @@ public class MethodProcessorRunnable implements Runnable {
     if (DecompilerContext.getOption(IFernflowerPreferences.PATTERN_MATCHING)) {
       if (cl.getVersion().hasIfPatternMatching()) {
         // this breaks java 1.4 class matcher,
-        // prevents the removal of unused local variables and
-        // switches some if statements.
-        // However, this does break nested assignments for some reason.
-        // But as I am working on a stack var refactor, I'm gonna ignore it for now.
-        // and see if it fixes itself once I merge
+        // ~ prevents the removal of unused local variables and
+        // ~ switches some if statements.
+        // - this does break nested assignments to arrays for some reason.
+        //   But as I am working on a stack var refactor, I'm gonna ignore it for now.
+        //   and see if it fixes itself once I merge
+        // + fixes TestNestedTernaryAssign
+        // + helps with removing unused stack variables
         // By putting this here we only affect 16+ tests
 
         stackProc.inlineVars(root, mt);
