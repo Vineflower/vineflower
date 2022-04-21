@@ -62,8 +62,8 @@ public final class IfPatternMatchProcessor {
       if (exprent.type == Exprent.EXPRENT_FUNCTION) {
         FunctionExprent iof = (FunctionExprent)exprent;
 
-        // Check for instanceof
-        if (iof.getFuncType() == FunctionExprent.FUNCTION_INSTANCEOF) {
+        // Check for instanceof and isn't a pattern match yet
+        if (iof.getFuncType() == FunctionExprent.FUNCTION_INSTANCEOF && iof.getLstOperands().size() == 2) {
           Exprent source = iof.getLstOperands().get(0);
           Exprent target = iof.getLstOperands().get(1);
 
