@@ -1,6 +1,8 @@
 package org.jetbrains.java.decompiler.modules.decompiler;
 
-import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.SSAUConstructorSparseEx;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
@@ -14,7 +16,6 @@ import org.jetbrains.java.decompiler.util.VBStyleCollection;
 
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -66,44 +67,23 @@ public final class IfPatternMatchProcessor {
     FunctionExprent func = (FunctionExprent) condition;
 
     boolean inverted;
-    if (func.getFuncType() != FunctionExprent.FUNCTION_EQ && func.getFuncType() != FunctionExprent.FUNCTION_NE) {
-      // handle double negation, this usually means that the if statement has no sub-statements, and we
-      // will need to use next as a target
-      if (func.getFuncType() == FunctionExprent.FUNCTION_BOOL_NOT) {
-        func = (FunctionExprent) func.getLstOperands().get(0);
-        if (func.getFuncType() != FunctionExprent.FUNCTION_EQ && func.getFuncType() != FunctionExprent.FUNCTION_NE) {
-          return false;
-        } else {
-          inverted = func.getFuncType() == FunctionExprent.FUNCTION_NE;
-        }
-      } else {
-        return false;
-      }
+
+    if (func.getFuncType() == FunctionExprent.FUNCTION_BOOL_NOT && func.getLstOperands().get(0).type == Exprent.EXPRENT_FUNCTION) {
+      func = (FunctionExprent) func.getLstOperands().get(0);
+      inverted = true;
     } else {
-      inverted = func.getFuncType() != FunctionExprent.FUNCTION_NE;
+      inverted = false;
     }
-
-
-    List<Exprent> exprents = func.getLstOperands();
-    Exprent l = exprents.get(0);
-    Exprent r = exprents.get(1);
-
-
-    if (l.type != Exprent.EXPRENT_FUNCTION ||
-        r.type != Exprent.EXPRENT_CONST ||
-        ((ConstExprent) r).getIntValue() != 0) {
-      return false;
-    }
-
-    FunctionExprent iof = (FunctionExprent) l;
 
     // Check for instanceof
-    if (iof.getFuncType() != FunctionExprent.FUNCTION_INSTANCEOF) {
+    if (func.getFuncType() != FunctionExprent.FUNCTION_INSTANCEOF) {
       return false;
     }
 
-    Exprent source = iof.getLstOperands().get(0);
-    Exprent target = iof.getLstOperands().get(1);
+    assert func.getLstOperands().size() == 2;
+
+    Exprent source = func.getLstOperands().get(0);
+    Exprent target = func.getLstOperands().get(1);
 
     if (source.type != Exprent.EXPRENT_VAR) {
       return false;
@@ -173,12 +153,12 @@ public final class IfPatternMatchProcessor {
     }
 
     // check if the "new" variable gets merged and used. If so, we can't convert to an instanceof pattern
-    if (getUsedVersions(ssau, (VarExprent) left)){
+    if (getUsedVersions(ssau, (VarExprent) left)) {
       return false;
     }
 
     // Add the exprent to the instanceof exprent and remove it from the inside of the if statement
-    iof.getLstOperands().add(2, left);
+    func.getLstOperands().add(2, left);
     targetStat.getExprents().remove(0);
 
 
@@ -187,7 +167,7 @@ public final class IfPatternMatchProcessor {
       IfHelper.fixIf(statement, next);
     }
 
-    statement.setPatternMatched(true);
+    //statement.setPatternMatched(true);
 
     return true;
   }

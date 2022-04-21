@@ -187,6 +187,10 @@ public class MethodProcessorRunnable implements Runnable {
         stackProc.inlineVars(root, mt);
         decompileRecord.add("InlineVars", root);
 
+        if (NormalizeIfHeadHelper.normalizeIfHeads(root, varProc)) {
+          decompileRecord.add("NormalizeIfHead", root);
+        }
+
         if (IfPatternMatchProcessor.matchInstanceof(root, mt)) {
           decompileRecord.add("MatchIfInstanceof", root);
           SequenceHelper.condenseSequences(root);
