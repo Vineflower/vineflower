@@ -1,0 +1,551 @@
+package pkg;
+
+import java.io.IOException;
+
+public class TestDefiniteAssignment {
+   void testExample16$1$$1(int v) throws IOException {
+      int k;
+      if (v > 0 && (k = System.in.read()) >= 0) {// 8
+         System.out.println(k);// 9
+      }
+
+   }// 10
+
+   void testExample16$1$$2(int n) {
+      while(n < 5) {// 16 17
+         n = 6;// 18
+      }
+
+      System.out.println(n);// 20
+   }// 22
+
+   void testExample16$1$$3modified(int n, int m) {
+      int k;
+      while(true) {
+         if (n >= 4) {// 26
+            k = m;
+            if (m >= 5) {
+               break;
+            }
+         }
+
+         k = n;// 27
+         if (n >= 5) {// 28
+            break;
+         }
+
+         n = 6;// 29
+      }
+
+      System.out.println(k);// 31
+   }// 32
+
+   void testAssignments(int n, boolean bool) {
+      int a;
+      if (bool && (n > 0 || (a = -n) > 100)) {// 36
+         System.out.println(a);// 37
+      }
+
+      int b;
+      if (!bool && (b = n * n) <= 0) {// 41
+         System.out.println(b);// 44
+      } else {
+         System.out.println("b");// 42
+      }
+
+      double cFake;
+      label38: {
+         cFake = 0.01;// 48
+         System.out.println(cFake);// 49
+         if ((double)n < 1.0 - (double)n && (cFake = (double)(n + 5)) > cFake * cFake - cFake / 2.0// 53
+            ? !((double)n > cFake)
+            : !((double)n < 5.0 - (cFake = (double)n))) {
+            cFake += 5.0;// 57
+         }
+         break label38;
+
+         <unknown> var10;
+         System.out.println(var10_1);// 54
+         var11_1 = var10_1 + 2.0;// 55
+      }
+
+      System.out.println(cFake);// 59
+      double d;
+      if ((d = (double)n) > 0.0) {// 63
+         System.out.println(d);// 64
+      }
+
+   }// 67
+
+   void testBooleanNormalness(int n) {
+      int p = n * 2;// 71
+      int k;
+      if (n < 5 && (k = n + 5) > 0 && (p /= k) != 0) {// 72
+         System.out.println("hi");// 73
+      }
+
+      p += 8;// 75
+      System.out.println(p);// 76
+   }// 77
+
+   void testBooleanNormalnessInline(int n) {
+      int p = n * 2;// 81
+      int k;
+      n < 5 && (k = n + 5) > 0 && (p /= k) != 0;// 82
+      p += 8;// 83
+      System.out.println(p);// 84
+   }// 85
+
+   void nestedTernaries(int a, int b, int c) {
+      label47: {
+         int x;
+         if (a > 0) {// 89
+            if (c >= b) {
+               break label47;
+            }
+
+            x = b;
+            if (b <= 0) {
+               break label47;
+            }
+         } else {
+            x = c;
+            if (c >= 0 && c != b) {
+               break label47;
+            }
+         }
+
+         System.out.println(x);// 90
+      }
+
+      int y;
+      label38: {
+         int z;
+         label37: {
+            label50: {
+               if (a > 0) {// 94
+                  if (c >= b) {
+                     break label50;
+                  }
+
+                  y = b;
+                  if (b <= 0) {
+                     break label50;
+                  }
+               } else {
+                  y = c;
+                  if (c >= 0 && c != b) {
+                     break label50;
+                  }
+               }
+
+               if (1 <= b - c || (z = b - c) == a) {
+                  break label38;
+               }
+               break label37;
+            }
+
+            y = 5;
+            z = a;
+            if (5 == a) {
+               break label38;
+            }
+         }
+
+         System.out.println(z);// 97
+      }
+
+      System.out.println(y);// 99
+   }// 100
+}
+
+class 'pkg/TestDefiniteAssignment' {
+   method 'testExample16$1$$1 (I)V' {
+      0      7
+      1      7
+      4      7
+      5      7
+      6      7
+      7      7
+      8      7
+      9      7
+      b      7
+      c      7
+      f      8
+      10      8
+      11      8
+      12      8
+      13      8
+      16      11
+   }
+
+   method 'testExample16$1$$2 (I)V' {
+      0      14
+      3      14
+      4      14
+      a      15
+      b      15
+      c      15
+      10      18
+      11      18
+      12      18
+      14      18
+      15      18
+      16      18
+      17      19
+   }
+
+   method 'testExample16$1$$3modified (II)V' {
+      0      24
+      1      24
+      2      24
+      5      25
+      7      25
+      8      26
+      9      26
+      c      31
+      d      31
+      f      32
+      10      32
+      16      36
+      17      36
+      18      36
+      1c      39
+      1d      39
+      1e      39
+      1f      39
+      20      39
+      21      39
+      22      39
+      23      40
+   }
+
+   method 'testAssignments (IZ)V' {
+      0      44
+      1      44
+      4      44
+      7      44
+      a      44
+      b      44
+      d      44
+      e      44
+      f      44
+      10      44
+      13      45
+      14      45
+      15      45
+      16      45
+      17      45
+      1a      49
+      1b      49
+      1e      49
+      24      49
+      26      49
+      27      49
+      28      49
+      2b      52
+      2c      52
+      2d      52
+      2e      52
+      2f      52
+      30      52
+      31      52
+      32      52
+      36      50
+      37      50
+      38      50
+      39      50
+      3a      50
+      3b      50
+      3e      57
+      3f      57
+      40      57
+      41      57
+      42      57
+      43      58
+      44      58
+      45      58
+      46      58
+      47      58
+      48      58
+      49      58
+      4a      58
+      4b      59
+      4c      59
+      4d      59
+      4e      59
+      4f      59
+      50      59
+      51      59
+      52      59
+      55      59
+      56      59
+      57      59
+      58      59
+      5a      59
+      5b      59
+      5c      59
+      5d      59
+      5e      59
+      5f      59
+      60      59
+      61      59
+      62      59
+      63      59
+      64      59
+      65      59
+      66      59
+      67      59
+      68      59
+      69      59
+      6c      61
+      6d      61
+      6e      61
+      6f      61
+      70      61
+      71      61
+      72      61
+      74      61
+      75      61
+      76      61
+      77      61
+      7e      60
+      7f      60
+      80      60
+      81      60
+      82      60
+      86      67
+      87      67
+      88      67
+      89      67
+      8a      67
+      8b      67
+      8c      67
+      8d      67
+      8e      68
+      8f      68
+      90      68
+      91      68
+      92      68
+      93      68
+      94      68
+      95      68
+      9b      62
+      9c      62
+      9d      62
+      9f      62
+      a0      62
+      a1      71
+      a2      71
+      a3      71
+      a4      71
+      a5      71
+      a6      71
+      a7      71
+      a8      71
+      a9      73
+      aa      73
+      ac      73
+      ad      73
+      ae      73
+      af      73
+      bb      73
+      be      74
+      bf      74
+      c0      74
+      c1      74
+      c2      74
+      c3      74
+      c6      77
+   }
+
+   method 'testBooleanNormalness (I)V' {
+      0      80
+      1      80
+      2      80
+      3      80
+      4      82
+      5      82
+      6      82
+      9      82
+      a      82
+      b      82
+      d      82
+      e      82
+      12      82
+      15      82
+      16      82
+      19      83
+      1a      83
+      1b      83
+      1c      83
+      1d      83
+      1e      83
+      21      86
+      22      86
+      23      86
+      24      87
+      25      87
+      26      87
+      27      87
+      28      87
+      29      87
+      2a      87
+      2b      88
+   }
+
+   method 'testBooleanNormalnessInline (I)V' {
+      0      91
+      1      91
+      2      91
+      3      91
+      4      93
+      5      93
+      6      93
+      9      93
+      a      93
+      b      93
+      d      93
+      e      93
+      12      93
+      15      93
+      16      93
+      1e      93
+      1f      93
+      20      93
+      22      94
+      23      94
+      24      94
+      25      95
+      26      95
+      27      95
+      28      95
+      29      95
+      2a      95
+      2b      95
+      2c      96
+   }
+
+   method 'nestedTernaries (III)V' {
+      0      101
+      1      101
+      4      102
+      5      102
+      6      102
+      9      106
+      b      106
+      c      106
+      d      107
+      13      111
+      15      111
+      16      111
+      17      112
+      1a      112
+      1b      112
+      1c      112
+      1f      117
+      20      117
+      21      117
+      22      117
+      23      117
+      24      117
+      27      125
+      28      125
+      2b      126
+      2c      126
+      2d      126
+      30      130
+      32      130
+      33      130
+      34      131
+      3a      135
+      3c      135
+      3d      135
+      3e      136
+      41      136
+      42      136
+      43      136
+      46      141
+      47      141
+      48      141
+      49      141
+      4a      141
+      4d      141
+      4e      141
+      4f      141
+      51      141
+      52      141
+      53      141
+      54      141
+      5a      147
+      5c      147
+      5d      147
+      5e      148
+      60      148
+      61      148
+      62      149
+      65      154
+      66      154
+      67      154
+      68      154
+      69      154
+      6a      154
+      6d      157
+      6e      157
+      6f      157
+      70      157
+      71      157
+      72      157
+      73      157
+      74      157
+      75      158
+   }
+}
+
+Lines mapping:
+8 <-> 8
+9 <-> 9
+10 <-> 12
+16 <-> 15
+17 <-> 15
+18 <-> 16
+20 <-> 19
+22 <-> 20
+26 <-> 25
+27 <-> 32
+28 <-> 33
+29 <-> 37
+31 <-> 40
+32 <-> 41
+36 <-> 45
+37 <-> 46
+41 <-> 50
+42 <-> 53
+44 <-> 51
+48 <-> 58
+49 <-> 59
+53 <-> 60
+54 <-> 68
+55 <-> 69
+57 <-> 63
+59 <-> 72
+63 <-> 74
+64 <-> 75
+67 <-> 78
+71 <-> 81
+72 <-> 83
+73 <-> 84
+75 <-> 87
+76 <-> 88
+77 <-> 89
+81 <-> 92
+82 <-> 94
+83 <-> 95
+84 <-> 96
+85 <-> 97
+89 <-> 102
+90 <-> 118
+94 <-> 126
+97 <-> 155
+99 <-> 158
+100 <-> 159
