@@ -443,6 +443,7 @@ class 'pkg/TestPatternMatching17FakeNew' {
       1      95
       2      95
       3      95
+      4      95
       b      95
       c      95
       d      95
@@ -505,6 +506,7 @@ class 'pkg/TestPatternMatching17FakeNew' {
       1      112
       2      112
       3      112
+      4      112
       b      112
       c      112
       d      112

@@ -62,11 +62,7 @@ public class TestPatternMatching {
    }// 55
 
    public boolean testReturn(Object obj) {
-      if (obj instanceof String s && s.length() > 5) {// 58
-         return true;
-      }
-
-      return false;
+      return obj instanceof String s && s.length() > 5;// 58
    }
 
    public int testReturnTernary(Object obj) {
@@ -87,12 +83,10 @@ public class TestPatternMatching {
    }// 76
 
    public void testSimpleReturn(Object obj) {
-      if (obj instanceof String str && str.length() > 5) {// 79 80
-         return;// 81
+      if (!(obj instanceof String str) || str.length() <= 5) {// 79 80
+         System.out.println("test");// 85
       }
-
-      System.out.println("test");// 85
-   }// 86
+   }// 81 86
 
    public void testMessyLVT(Object obj) {
       String a = "a";// 90
@@ -176,6 +170,7 @@ class 'pkg/TestPatternMatching' {
       3      25
       4      25
       5      25
+      6      25
       d      25
       e      26
       f      26
@@ -200,6 +195,7 @@ class 'pkg/TestPatternMatching' {
       3      33
       4      33
       5      33
+      6      33
       d      33
       e      34
       f      34
@@ -285,6 +281,7 @@ class 'pkg/TestPatternMatching' {
       3      57
       4      57
       5      57
+      6      57
       d      57
       e      57
       f      57
@@ -314,12 +311,25 @@ class 'pkg/TestPatternMatching' {
       11      64
       12      64
       13      64
-      16      65
-      1a      68
-      1b      65
+      1b      64
    }
 
    method 'testReturnTernary (Ljava/lang/Object;)I' {
+      0      68
+      3      68
+      4      68
+      5      68
+      6      68
+      d      68
+      e      68
+      f      68
+      10      68
+      11      68
+      15      68
+      16      68
+   }
+
+   method 'testReturnTernaryComplex (Ljava/lang/Object;)I' {
       0      72
       3      72
       4      72
@@ -330,11 +340,19 @@ class 'pkg/TestPatternMatching' {
       f      72
       10      72
       11      72
-      15      72
+      12      72
+      13      72
       16      72
+      17      72
+      18      72
+      19      72
+      1a      72
+      1d      72
+      21      72
+      22      72
    }
 
-   method 'testReturnTernaryComplex (Ljava/lang/Object;)I' {
+   method 'testLoop (Ljava/lang/Object;)V' {
       0      76
       3      76
       4      76
@@ -347,126 +365,104 @@ class 'pkg/TestPatternMatching' {
       11      76
       12      76
       13      76
-      16      76
-      17      76
-      18      76
-      19      76
-      1a      76
-      1d      76
-      21      76
-      22      76
-   }
-
-   method 'testLoop (Ljava/lang/Object;)V' {
-      0      80
-      3      80
-      4      80
-      5      80
-      d      80
-      e      80
-      f      80
-      10      80
-      11      80
-      12      80
-      13      80
-      14      80
-      17      81
-      18      81
-      19      81
-      1a      81
-      1b      81
-      1c      81
-      1d      82
-      1e      82
-      1f      82
-      20      82
-      21      82
-      22      82
-      23      83
-      24      83
-      25      83
-      26      83
-      27      83
-      28      83
-      29      83
-      2d      86
+      14      76
+      17      77
+      18      77
+      19      77
+      1a      77
+      1b      77
+      1c      77
+      1d      78
+      1e      78
+      1f      78
+      20      78
+      21      78
+      22      78
+      23      79
+      24      79
+      25      79
+      26      79
+      27      79
+      28      79
+      29      79
+      2d      82
    }
 
    method 'testSimpleReturn (Ljava/lang/Object;)V' {
-      0      89
-      3      89
-      4      89
-      5      89
-      6      89
-      d      89
-      e      89
-      f      89
-      10      89
-      11      89
-      12      89
-      13      89
-      16      90
-      17      93
-      18      93
-      19      93
-      1a      93
-      1b      93
-      1c      93
-      1d      93
-      1e      93
-      1f      94
+      0      85
+      3      85
+      4      85
+      5      85
+      6      85
+      d      85
+      e      85
+      f      85
+      10      85
+      11      85
+      12      85
+      13      85
+      16      88
+      17      86
+      18      86
+      19      86
+      1a      86
+      1b      86
+      1c      86
+      1d      86
+      1e      86
+      1f      88
    }
 
    method 'testMessyLVT (Ljava/lang/Object;)V' {
-      0      97
-      1      97
-      2      97
-      3      98
-      4      98
-      5      98
-      6      99
-      7      99
-      8      99
-      9      99
-      a      100
-      b      100
-      c      100
-      d      100
-      e      101
-      f      101
-      10      101
-      11      101
-      12      102
-      13      102
-      14      102
-      15      102
-      16      103
-      17      103
-      18      103
-      19      103
-      1a      104
-      1b      104
-      1c      104
-      1d      104
-      1e      105
-      1f      105
-      20      105
-      21      105
-      22      106
-      25      106
-      26      106
-      27      106
-      28      106
-      2f      106
-      30      107
-      31      107
-      32      107
-      33      107
-      34      107
-      35      107
-      36      107
-      37      107
-      3a      110
+      0      91
+      1      91
+      2      91
+      3      92
+      4      92
+      5      92
+      6      93
+      7      93
+      8      93
+      9      93
+      a      94
+      b      94
+      c      94
+      d      94
+      e      95
+      f      95
+      10      95
+      11      95
+      12      96
+      13      96
+      14      96
+      15      96
+      16      97
+      17      97
+      18      97
+      19      97
+      1a      98
+      1b      98
+      1c      98
+      1d      98
+      1e      99
+      1f      99
+      20      99
+      21      99
+      22      100
+      25      100
+      26      100
+      27      100
+      28      100
+      2f      100
+      30      101
+      31      101
+      32      101
+      33      101
+      34      101
+      35      101
+      36      101
+      37      101
+      3a      104
    }
 }
 
@@ -498,30 +494,30 @@ Lines mapping:
 53 <-> 59
 55 <-> 62
 58 <-> 65
-62 <-> 73
-66 <-> 77
-70 <-> 81
-71 <-> 82
-72 <-> 83
-74 <-> 84
-76 <-> 87
-79 <-> 90
-80 <-> 90
-81 <-> 91
-85 <-> 94
-86 <-> 95
-90 <-> 98
-91 <-> 99
-92 <-> 100
-93 <-> 101
-94 <-> 102
-95 <-> 103
-96 <-> 104
-97 <-> 105
-98 <-> 106
-100 <-> 107
-101 <-> 108
-103 <-> 111
+62 <-> 69
+66 <-> 73
+70 <-> 77
+71 <-> 78
+72 <-> 79
+74 <-> 80
+76 <-> 83
+79 <-> 86
+80 <-> 86
+81 <-> 89
+85 <-> 87
+86 <-> 89
+90 <-> 92
+91 <-> 93
+92 <-> 94
+93 <-> 95
+94 <-> 96
+95 <-> 97
+96 <-> 98
+97 <-> 99
+98 <-> 100
+100 <-> 101
+101 <-> 102
+103 <-> 105
 Not mapped:
 42
 49
