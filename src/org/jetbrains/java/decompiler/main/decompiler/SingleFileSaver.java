@@ -14,6 +14,7 @@ import java.util.zip.ZipOutputStream;
 
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
+import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.extern.IResultSaver;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 
@@ -83,12 +84,20 @@ public class SingleFileSaver implements IResultSaver {
   }
 
   @Override
-  public synchronized void saveClassEntry(String path, String archiveName, String qualifiedName, String entryName, String content) {
+  public void saveClassEntry(String path, String archiveName, String qualifiedName, String entryName, String content) {
+    this.saveClassEntry(path, archiveName, qualifiedName, entryName, content, null);
+  }
+
+  @Override
+  public synchronized void saveClassEntry(String path, String archiveName, String qualifiedName, String entryName, String content, int[] mapping) {
     if (!checkEntry(entryName))
         return;
 
     try {
-      output.putNextEntry(new ZipEntry(entryName));
+      ZipEntry entry = new ZipEntry(entryName);
+      if (mapping != null && DecompilerContext.getOption(IFernflowerPreferences.DUMP_CODE_LINES))
+        entry.setExtra(this.getCodeLineData(mapping));
+      output.putNextEntry(entry);
       if (content != null)
           output.write(content.getBytes("UTF-8"));
     }
