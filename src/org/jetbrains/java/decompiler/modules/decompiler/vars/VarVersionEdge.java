@@ -15,6 +15,7 @@ public class VarVersionEdge { // FIXME: can be removed?
   private final int hashCode;
 
   public VarVersionEdge(int type, VarVersionNode source, VarVersionNode dest) {
+    assert source != null && dest != null;
     this.type = type;
     this.source = source;
     this.dest = dest;
