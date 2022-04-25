@@ -52,42 +52,51 @@ public class VarVersionsProcessor {
     setNewVarIndices(typeProcessor, graph, previousVersionsProcessor);
   }
 
+  private static VarVersionPair getRoot(Map<VarVersionPair, VarVersionPair> unionFind, VarVersionPair node){
+      VarVersionPair parent = unionFind.get(node);
+    if (parent == null) {
+      // make sure that the node is recorded in the keyset
+      unionFind.put(node, node);
+      return node;
+    }
+
+    if (parent.equals(node)) {
+      return node;
+    }
+
+    // path compression
+    VarVersionPair root = getRoot(unionFind, parent);
+    if (root != parent) {
+      assert root.version <= node.version;
+      unionFind.put(node, root);
+    }
+
+    return root;
+  }
+
   private static void mergePhiVersions(SSAConstructorSparseEx ssa, DirectGraph graph) {
-    // collect phi versions
-    List<Set<VarVersionPair>> lst = new ArrayList<>();
+    // Basic union find without depth/size tracking, cause we want to get the lowest version of the variable
+    Map<VarVersionPair, VarVersionPair> mapUnion = new HashMap<>();
+
     for (Entry<VarVersionPair, FastSparseSet<Integer>> ent : ssa.getPhi().entrySet()) {
-      Set<VarVersionPair> set = new HashSet<>();
-      set.add(ent.getKey());
-      for (int version : ent.getValue()) {
-        set.add(new VarVersionPair(ent.getKey().var, version));
-      }
-
-      for (int i = lst.size() - 1; i >= 0; i--) {
-        Set<VarVersionPair> tset = lst.get(i);
-        Set<VarVersionPair> intersection = new HashSet<>(set);
-        intersection.retainAll(tset);
-
-        if (!intersection.isEmpty()) {
-          set.addAll(tset);
-          lst.remove(i);
+      VarVersionPair key = ent.getKey();
+      VarVersionPair targetParent = getRoot(mapUnion, key);
+      for (Integer version : ent.getValue()) {
+        VarVersionPair sourceParent = getRoot(mapUnion, new VarVersionPair(key.var, version));
+        if (sourceParent != targetParent) {
+          if(sourceParent.version < targetParent.version){
+            VarVersionPair tmp = sourceParent;
+            sourceParent = targetParent;
+            targetParent = tmp;
+          }
+          mapUnion.put(sourceParent, targetParent);
         }
       }
-
-      lst.add(set);
     }
 
     Map<VarVersionPair, Integer> phiVersions = new HashMap<>();
-    for (Set<VarVersionPair> set : lst) {
-      int min = Integer.MAX_VALUE;
-      for (VarVersionPair paar : set) {
-        if (paar.version < min) {
-          min = paar.version;
-        }
-      }
-
-      for (VarVersionPair paar : set) {
-        phiVersions.put(new VarVersionPair(paar.var, paar.version), min);
-      }
+    for (VarVersionPair version : mapUnion.keySet()) {
+        phiVersions.put(version, getRoot(mapUnion, version).version);
     }
 
     updateVersions(graph, phiVersions);
