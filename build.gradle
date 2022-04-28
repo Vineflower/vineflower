@@ -18,7 +18,7 @@ compileJava {
 group = 'org.quiltmc'
 archivesBaseName = 'quiltflower'
 
-version = '1.8.0'
+version = '1.8.1'
 
 def ENV = System.getenv()
 version = version + (ENV.GITHUB_ACTIONS ? "" : "+local")
