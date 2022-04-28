@@ -21,17 +21,30 @@ public final class DirectoryResultSaver implements IResultSaver {
 
   @Override
   public void saveClassEntry(String path, String archiveName, String qualifiedName, String entryName, String content) {
-    throw new UnsupportedOperationException();
+    Path entryPath = this.root.resolve(entryName);
+
+    try (BufferedWriter writer = Files.newBufferedWriter(entryPath)) {
+      if (content != null) {
+        writer.write(content);
+      }
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to save class", e);
+    }
   }
 
   @Override
   public void saveDirEntry(String path, String archiveName, String entryName) {
-    throw new UnsupportedOperationException();
+    Path entryPath = this.root.resolve(entryName);
+    try {
+      Files.createDirectories(entryPath);
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to save directory", e);
+    }
   }
 
   @Override
   public void createArchive(String path, String archiveName, Manifest manifest) {
-    throw new UnsupportedOperationException();
+
   }
 
   @Override
@@ -85,6 +98,6 @@ public final class DirectoryResultSaver implements IResultSaver {
 
   @Override
   public void closeArchive(String path, String archiveName) {
-    throw new UnsupportedOperationException();
+
   }
 }

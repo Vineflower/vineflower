@@ -375,7 +375,6 @@ public class ConsoleDecompiler implements IBytecodeProvider, IResultSaver {
     private final Function<File, IResultSaver> saver;
 
     SaveType(Function<File, IResultSaver> saver) {
-
       this.saver = saver;
     }
 
