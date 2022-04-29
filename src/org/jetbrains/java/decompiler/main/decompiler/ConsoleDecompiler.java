@@ -62,8 +62,8 @@ public class ConsoleDecompiler implements IBytecodeProvider, IResultSaver {
 
     if (args.length < 2) {
       System.out.println(
-        "Usage: java -jar fernflower.jar [-<option>=<value>]* [<source>]+ <destination>\n" +
-        "Example: java -jar fernflower.jar -dgs=true c:\\my\\source\\ c:\\my.jar d:\\decompiled\\");
+        "Usage: java -jar quiltflower.jar [-<option>=<value>]* [<source>]+ <destination>\n" +
+        "Example: java -jar quiltflower.jar -dgs=true c:\\my\\source\\ c:\\my.jar d:\\decompiled\\");
       return;
     }
 
