@@ -2,6 +2,7 @@
 package org.jetbrains.java.decompiler.struct;
 
 import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.main.decompiler.ConsoleDecompiler;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.extern.IResultSaver;
 import org.jetbrains.java.decompiler.struct.lazy.LazyLoader;
@@ -108,6 +109,11 @@ public class ContextUnit {
   public void save() {
     switch (type) {
       case TYPE_FOLDER:
+        // FIXME: ugly but needs to exist for folder->jar saving to work properly
+        if (!(resultSaver instanceof ConsoleDecompiler)) {
+          resultSaver.createArchive(archivePath, filename, manifest);
+        }
+
         // create folder
         resultSaver.saveFolder(filename);
 
@@ -133,6 +139,10 @@ public class ContextUnit {
               resultSaver.saveClassFile(filename, cl.qualifiedName, entryName, content, mapping);
             }
           }
+        }
+
+        if (!(resultSaver instanceof ConsoleDecompiler)) {
+          resultSaver.closeArchive(archivePath, filename);
         }
 
         break;
