@@ -53,6 +53,7 @@ test {
   useJUnitPlatform()
   systemProperty "DOT_EXPORT_DIR", System.getProperty("DOT_EXPORT_DIR", null)
   systemProperty "DOT_ERROR_EXPORT_DIR", System.getProperty("DOT_ERROR_EXPORT_DIR", null)
+  systemProperty "VALIDATE_DECOMPILED_CODE", System.getProperty("VALIDATE_DECOMPILED_CODE", "false")
 }
 
 java.toolchain {
