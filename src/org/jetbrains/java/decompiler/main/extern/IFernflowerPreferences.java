@@ -109,6 +109,10 @@ public interface IFernflowerPreferences {
   @Description("Map Bytecode to source lines.")
   String BYTECODE_SOURCE_MAPPING = "bsm";
 
+  @Name("Dump Code Lines")
+  @Description("Dump line mappings to output archive zip entry extra data")
+  String DUMP_CODE_LINES = "dcl";
+
   @Name("Ignore Invalid Bytecode")
   @Description("Ignore bytecode that is malformed.")
   String IGNORE_INVALID_BYTECODE = "iib";
@@ -260,6 +264,7 @@ public interface IFernflowerPreferences {
     defaults.put(IDEA_NOT_NULL_ANNOTATION, "1");
     defaults.put(LAMBDA_TO_ANONYMOUS_CLASS, "0");
     defaults.put(BYTECODE_SOURCE_MAPPING, "0");
+    defaults.put(DUMP_CODE_LINES, "0");
     defaults.put(IGNORE_INVALID_BYTECODE, "0");
     defaults.put(VERIFY_ANONYMOUS_CLASSES, "0");
     defaults.put(TERNARY_CONSTANT_SIMPLIFICATION, "0");
