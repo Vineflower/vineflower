@@ -682,6 +682,8 @@ public class ExprProcessor implements CodeConstants {
   }
 
   private void pushEx(ListStack<Exprent> stack, List<Exprent> exprlist, Exprent exprent, VarType vartype) {
+    ValidationHelper.notNull(exprent);
+
     int varindex = VarExprent.STACK_BASE + stack.size();
     VarExprent var = new VarExprent(varindex, vartype == null ? exprent.getExprType() : vartype, varProcessor);
     var.setStack(true);

@@ -1,10 +1,12 @@
 package org.jetbrains.java.decompiler.modules.decompiler;
 
+import org.jetbrains.java.decompiler.modules.decompiler.exps.ExitExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectNode;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.FlattenStatementsHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
+import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.DotExporter;
 import org.jetbrains.java.decompiler.util.ListStack;
 import org.jetbrains.java.decompiler.util.VBStyleCollection;
@@ -96,6 +98,26 @@ public final class ValidationHelper {
     } catch (Throwable e){
       DotExporter.toDotFile(graph, root.mt, "erroring_dgraph");
       throw e;
+    }
+  }
+
+  public static void notNull(Object o) {
+    if (o == null) {
+      throw new NullPointerException("Validation: null object");
+    }
+  }
+
+  public static void validateExitExprent(ExitExprent exit) {
+    if (exit.getExitType() == ExitExprent.EXIT_RETURN) {
+      if (exit.getRetType().equals(VarType.VARTYPE_VOID)){
+        if (exit.getValue() != null) {
+          throw new IllegalStateException("Void return with value");
+        }
+      } else {
+        if (exit.getValue() == null) {
+          throw new IllegalStateException("Non-void return without value");
+        }
+      }
     }
   }
 }
