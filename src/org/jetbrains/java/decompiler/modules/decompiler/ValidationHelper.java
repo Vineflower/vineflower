@@ -62,6 +62,10 @@ public final class ValidationHelper {
   }
 
   public static void validateDGraph(DirectGraph graph, RootStatement root) {
+    if (!VALIDATE) {
+      return;
+    }
+
     try {
       Set<DirectNode> inaccessibleNodes = new HashSet<>(graph.nodes);
 
@@ -102,12 +106,20 @@ public final class ValidationHelper {
   }
 
   public static void notNull(Object o) {
+    if (!VALIDATE) {
+      return;
+    }
+
     if (o == null) {
       throw new NullPointerException("Validation: null object");
     }
   }
 
   public static void validateExitExprent(ExitExprent exit) {
+    if (!VALIDATE) {
+      return;
+    }
+    
     if (exit.getExitType() == ExitExprent.EXIT_RETURN) {
       if (exit.getRetType().equals(VarType.VARTYPE_VOID)){
         if (exit.getValue() != null) {
