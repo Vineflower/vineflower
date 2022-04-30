@@ -39,21 +39,25 @@ public class StackVarsProcessor {
       ssa.splitVariables(root, mt);
 
       while (SimplifyExprentsHelper.simplifyStackVarsStatement(root, setReorderedIfs, ssa, cl, first)) {
+        ValidationHelper.validateStatement(root);
         found = true;
       }
 
       setVersionsToNull(root);
 
       SequenceHelper.condenseSequences(root);
+      ValidationHelper.validateStatement(root);
 
       ssau = new SSAUConstructorSparseEx();
       ssau.splitVariables(root, mt);
 
       if (first) {
         setEffectivelyFinalVars(root, ssau, new HashMap<>());
+        ValidationHelper.validateStatement(root);
       }
 
       if (iterateStatements(root, ssau)) {
+        ValidationHelper.validateStatement(root);
         found = true;
       }
 
@@ -67,6 +71,7 @@ public class StackVarsProcessor {
     // remove unused assignments
     ssau = new SSAUConstructorSparseEx();
     ssau.splitVariables(root, mt);
+    ValidationHelper.validateStatement(root);
 
     iterateStatements(root, ssau);
 

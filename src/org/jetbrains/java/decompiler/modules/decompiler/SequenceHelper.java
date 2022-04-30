@@ -5,6 +5,7 @@ import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.BasicBlockStatement;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.SequenceStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 
@@ -34,8 +35,10 @@ public final class SequenceHelper {
         if (st.type == Statement.TYPE_SEQUENCE) {
 
           removeEmptyStatements((SequenceStatement)st);
+          ValidationHelper.validateStatement((RootStatement) st.getTopParent());
 
           if (i == lst.size() - 1 || isSequenceDisbandable(st, lst.get(i + 1))) {
+
             // move predecessors
             Statement first = st.getFirst();
             for (StatEdge edge : st.getAllPredecessorEdges()) {
@@ -82,6 +85,8 @@ public final class SequenceHelper {
             lst.addAll(i, st.getStats());
             i--;
 
+            clearClosure(st, st);
+
             unfolded = true;
           }
         }
@@ -94,6 +99,8 @@ public final class SequenceHelper {
         stat.getParent().replaceStatement(stat, sequence);
 
         stat = sequence;
+
+        ValidationHelper.validateStatement((RootStatement) stat.getTopParent());
       }
     }
 
@@ -101,6 +108,7 @@ public final class SequenceHelper {
     if (stat.type == Statement.TYPE_SEQUENCE) {
 
       removeEmptyStatements((SequenceStatement)stat);
+      ValidationHelper.validateStatement((RootStatement) stat.getTopParent());
 
       if (stat.getStats().size() == 1) {
 
@@ -146,6 +154,20 @@ public final class SequenceHelper {
     }
   }
 
+  // Removes references to closures in the given statement, useful when making changes to statement structure
+  public static void clearClosure(Statement stat, Statement clear) {
+    for (StatEdge edge : stat.getAllSuccessorEdges()) {
+      if (edge.closure == clear) {
+        edge.closure.getLabelEdges().remove(edge);
+        edge.closure = null;
+      }
+    }
+
+    for (Statement st : stat.getStats()) {
+      clearClosure(st, clear);
+    }
+  }
+
   private static boolean isSequenceDisbandable(Statement block, Statement next) {
 
     Statement last = block.getStats().getLast();
@@ -172,6 +194,7 @@ public final class SequenceHelper {
     }
 
     mergeFlatStatements(sequence);
+    ValidationHelper.validateStatement((RootStatement) sequence.getTopParent());
 
     while (true) {
 
@@ -209,6 +232,13 @@ public final class SequenceHelper {
                   sucedge.closure.addLabeledEdge(edge);
                 }
               }
+
+              for (StatEdge edge : st.getLabelEdges()) {
+                if (edge.closure == st) {
+                  edge.closure = null;
+                }
+              }
+
               found = true;
             }
           }
@@ -306,11 +336,16 @@ public final class SequenceHelper {
     for (Statement st : stat.getStats()) {
       destroyStatementContent(st, true);
     }
+
     stat.getStats().clear();
 
     if (self) {
       for (StatEdge edge : stat.getAllSuccessorEdges()) {
         stat.removeSuccessor(edge);
+      }
+
+      for (StatEdge edge : stat.getAllPredecessorEdges()) {
+        edge.getSource().removeSuccessor(edge);
       }
     }
   }

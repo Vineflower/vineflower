@@ -564,7 +564,21 @@ public class Statement implements IMatchable {
       }
     }
 
+    replaceClosure(this, oldstat, newstat);
+
     oldstat.getLabelEdges().clear();
+  }
+
+  private static void replaceClosure(Statement stat, Statement oldstat, Statement newstat) {
+    for (StatEdge edge : stat.getAllSuccessorEdges()) {
+      if (edge.closure == oldstat) {
+        edge.closure = newstat;
+      }
+    }
+
+    for (Statement st : stat.getStats()) {
+      replaceClosure(st, oldstat, newstat);
+    }
   }
 
   /**
