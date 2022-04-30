@@ -124,7 +124,7 @@ public final class ValidationHelper {
         throw new IllegalStateException("Inaccessible nodes: " + inaccessibleNodes);
       }
     } catch (Throwable e){
-      DotExporter.toDotFile(graph, root.mt, "erroring_dgraph");
+      DotExporter.errorToDotFile(graph, root.mt, "erroring_dgraph");
       throw e;
     }
   }

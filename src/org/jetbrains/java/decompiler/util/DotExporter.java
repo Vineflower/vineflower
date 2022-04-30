@@ -280,7 +280,10 @@ public class DotExporter {
 
   private static String toJava(Statement statement) {
     try {
-      String java = statement.toJava().convertToStringAndAllowDataDiscard().replace("\"", "\\\"");
+      String java = statement.toJava().convertToStringAndAllowDataDiscard()
+        .replace("\"", "\\\"")
+        .replace("\r", "")
+        .replace("\n", "\\l");
       if (statement instanceof BasicBlockStatement) {
         if (statement.getExprents() == null || statement.getExprents().isEmpty()) {
           java = "<" + (statement.getExprents() == null ? "null" : "empty") + " basic block>\n" + java;
@@ -480,10 +483,10 @@ public class DotExporter {
         }
       }
 
-      buffer.append((block.id)+" [shape=box,label=\""+label+"\"];\r\n");
+      buffer.append("x" + (block.id)+" [shape=box,label=\""+label+"\"];\r\n");
 
       for(DirectNode dest: block.succs) {
-        buffer.append((block.id)+"->"+(dest.id)+";\r\n");
+        buffer.append("x" + (block.id)+" -> x"+(dest.id)+";\r\n");
       }
     }
 
