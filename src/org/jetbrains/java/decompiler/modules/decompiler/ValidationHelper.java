@@ -1,12 +1,20 @@
 package org.jetbrains.java.decompiler.modules.decompiler;
 
-import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.ExitExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectGraph;
+import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectNode;
+import org.jetbrains.java.decompiler.modules.decompiler.sforms.FlattenStatementsHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
+import org.jetbrains.java.decompiler.struct.gen.VarType;
+import org.jetbrains.java.decompiler.util.DotExporter;
+import org.jetbrains.java.decompiler.util.ListStack;
 import org.jetbrains.java.decompiler.util.VBStyleCollection;
 
 import java.util.Deque;
+import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Set;
 
 public final class ValidationHelper {
   private static final boolean VALIDATE = System.getProperty("VALIDATE_DECOMPILED_CODE", "false").equals("true");
@@ -44,6 +52,70 @@ public final class ValidationHelper {
           if (!statements.contains(edge.closure)) {
             throw new IllegalStateException("Edge with non-existing closure: [" + stat + "] " + edge);
           }
+        }
+      }
+    }
+
+    FlattenStatementsHelper flatten = new FlattenStatementsHelper();
+    final DirectGraph directGraph = flatten.buildDirectGraph(statement);
+    validateDGraph(directGraph, statement);
+  }
+
+  public static void validateDGraph(DirectGraph graph, RootStatement root) {
+    try {
+      Set<DirectNode> inaccessibleNodes = new HashSet<>(graph.nodes);
+
+      ListStack<DirectNode> stack = new ListStack<>();
+      stack.push(graph.first);
+      inaccessibleNodes.remove(graph.first);
+
+      while (!stack.isEmpty()) {
+        DirectNode node = stack.pop();
+
+        // check if predecessors have us as a successor
+        for (DirectNode pred : node.preds) {
+          if (!pred.succs.contains(node)) {
+            throw new IllegalStateException("Predecessor " + pred + " does not have " + node + " as a successor");
+          }
+        }
+
+        // check if successors have us as a predecessor, and remove them from the inaccessible set
+        for (DirectNode succ : node.succs) {
+          if (!succ.preds.contains(node)) {
+            throw new IllegalStateException("Successor " + succ + " does not have " + node + " as a predecessor");
+          }
+
+          if (inaccessibleNodes.remove(succ)) {
+            // if we find a new accessible node, add it to the stack
+            stack.push(succ);
+          }
+        }
+      }
+
+      if (!inaccessibleNodes.isEmpty()) {
+        throw new IllegalStateException("Inaccessible nodes: " + inaccessibleNodes);
+      }
+    } catch (Throwable e){
+      DotExporter.toDotFile(graph, root.mt, "erroring_dgraph");
+      throw e;
+    }
+  }
+
+  public static void notNull(Object o) {
+    if (o == null) {
+      throw new NullPointerException("Validation: null object");
+    }
+  }
+
+  public static void validateExitExprent(ExitExprent exit) {
+    if (exit.getExitType() == ExitExprent.EXIT_RETURN) {
+      if (exit.getRetType().equals(VarType.VARTYPE_VOID)){
+        if (exit.getValue() != null) {
+          throw new IllegalStateException("Void return with value");
+        }
+      } else {
+        if (exit.getValue() == null) {
+          throw new IllegalStateException("Non-void return without value");
         }
       }
     }
