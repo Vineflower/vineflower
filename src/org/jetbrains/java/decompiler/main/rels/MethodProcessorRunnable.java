@@ -142,6 +142,8 @@ public class MethodProcessorRunnable implements Runnable {
     while (fProc.iterateGraph(cl, mt, root, graph)) {
       finallyProcessed++;
       RootStatement oldRoot = root;
+      decompileRecord.add("ProcessFinally_old" + finallyProcessed, root);
+      DotExporter.toDotFile(graph, mt, "cfgProcessFinally" + finallyProcessed, true);
       root = DomHelper.parseGraph(graph, mt);
       root.addComments(oldRoot);
       decompileRecord.add("ProcessFinally_" + finallyProcessed, root);
@@ -149,6 +151,8 @@ public class MethodProcessorRunnable implements Runnable {
       debugCurrentCFG.set(graph);
       debugCurrentlyDecompiling.set(root);
     }
+
+    decompileRecord.add("ProcessFinally_Post", root);
 
     // remove synchronized exception handler
     // not until now because of comparison between synchronized statements in the finally cycle

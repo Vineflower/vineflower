@@ -1,12 +1,18 @@
 package org.jetbrains.java.decompiler.modules.decompiler;
 
-import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
+import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectGraph;
+import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectNode;
+import org.jetbrains.java.decompiler.modules.decompiler.sforms.FlattenStatementsHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
+import org.jetbrains.java.decompiler.util.DotExporter;
+import org.jetbrains.java.decompiler.util.ListStack;
 import org.jetbrains.java.decompiler.util.VBStyleCollection;
 
 import java.util.Deque;
+import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Set;
 
 public final class ValidationHelper {
   private static final boolean VALIDATE = System.getProperty("VALIDATE_DECOMPILED_CODE", "false").equals("true");
@@ -46,6 +52,50 @@ public final class ValidationHelper {
           }
         }
       }
+    }
+
+    FlattenStatementsHelper flatten = new FlattenStatementsHelper();
+    final DirectGraph directGraph = flatten.buildDirectGraph(statement);
+    validateDGraph(directGraph, statement);
+  }
+
+  public static void validateDGraph(DirectGraph graph, RootStatement root) {
+    try {
+      Set<DirectNode> inaccessibleNodes = new HashSet<>(graph.nodes);
+
+      ListStack<DirectNode> stack = new ListStack<>();
+      stack.push(graph.first);
+      inaccessibleNodes.remove(graph.first);
+
+      while (!stack.isEmpty()) {
+        DirectNode node = stack.pop();
+
+        // check if predecessors have us as a successor
+        for (DirectNode pred : node.preds) {
+          if (!pred.succs.contains(node)) {
+            throw new IllegalStateException("Predecessor " + pred + " does not have " + node + " as a successor");
+          }
+        }
+
+        // check if successors have us as a predecessor, and remove them from the inaccessible set
+        for (DirectNode succ : node.succs) {
+          if (!succ.preds.contains(node)) {
+            throw new IllegalStateException("Successor " + succ + " does not have " + node + " as a predecessor");
+          }
+
+          if (inaccessibleNodes.remove(succ)) {
+            // if we find a new accessible node, add it to the stack
+            stack.push(succ);
+          }
+        }
+      }
+
+      if (!inaccessibleNodes.isEmpty()) {
+        throw new IllegalStateException("Inaccessible nodes: " + inaccessibleNodes);
+      }
+    } catch (Throwable e){
+      DotExporter.toDotFile(graph, root.mt, "erroring_dgraph");
+      throw e;
     }
   }
 }

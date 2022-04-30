@@ -531,6 +531,22 @@ public class DotExporter {
     }
   }
 
+  public static void errorToDotFile(DirectGraph dgraph, StructMethod mt, String suffix) {
+    errorToDotFile(dgraph, mt, suffix, null);
+  }
+
+  public static void errorToDotFile(DirectGraph dgraph, StructMethod mt, String suffix, Map<String, SFormsFastMapDirect> vars) {
+    if (!DUMP_ERROR_DOTS)
+      return;
+    try{
+      BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(DOTS_ERROR_FOLDER, mt, suffix)));
+      out.write(digraphToDot(dgraph, vars).getBytes());
+      out.close();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
   public static void toDotFile(Statement stat, StructMethod mt, String suffix) {
     toDotFile(stat, mt, "", suffix);
   }

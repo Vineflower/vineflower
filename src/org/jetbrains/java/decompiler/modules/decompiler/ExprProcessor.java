@@ -108,6 +108,8 @@ public class ExprProcessor implements CodeConstants {
     FlattenStatementsHelper flatthelper = new FlattenStatementsHelper();
     DirectGraph dgraph = flatthelper.buildDirectGraph(root);
 
+    ValidationHelper.validateDGraph(dgraph, root);
+
     // collect finally entry points
     Set<String> setFinallyShortRangeEntryPoints = new HashSet<>();
     for (List<FinallyPathWrapper> lst : dgraph.mapShortRangeFinallyPaths.values()) {
