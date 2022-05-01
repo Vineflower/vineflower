@@ -168,7 +168,7 @@ public class StructContext implements Closeable {
         } else {
           name = path.toString().substring(1);
         }
-        if (name.endsWith(".class")) {
+        if (name.endsWith(".class") && !name.startsWith("META-INF/versions/")) {
           addClass(unit, name.substring(0, name.length() - 6), file.getAbsolutePath(), path.toString().substring(1), isOwn, path);
         } else {
           if ("META-INF/MANIFEST.MF".equals(name)) {
