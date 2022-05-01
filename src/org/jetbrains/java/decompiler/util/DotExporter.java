@@ -59,6 +59,7 @@ public class DotExporter {
 
     // Pre process
     Map<StatEdge, String> extraData = new HashMap<>();
+    Set<StatEdge> extraDataSeen = new HashSet<>();
 
     for (Statement st : stats) {
       if (st.type == Statement.TYPE_IF) {
@@ -88,6 +89,7 @@ public class DotExporter {
         for (Entry<StatEdge, String> entry : extraData.entrySet()) {
           if (edge.getSource().id.equals(entry.getKey().getSource().id) && edge.getDestination().id.equals(entry.getKey().getDestination().id)) {
             edgeType = edgeType == null ? entry.getValue() : edgeType + " (" + entry.getValue() + ")";
+            extraDataSeen.add(entry.getKey());
           }
         }
 
@@ -229,6 +231,18 @@ public class DotExporter {
     // Unresolved statement references
     for (Integer integer : referenced) {
       buffer.append(integer + " [color=red,label=\"" + integer + " (Unknown statement!)\"];\r\n");
+    }
+
+    for (StatEdge labelEdge : extraData.keySet()) {
+      if (extraDataSeen.contains(labelEdge)) {
+        continue;
+      }
+
+      String src = labelEdge.getSource().id + (labelEdge.getSource().getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty() ? "" : "000000");
+      String destId = labelEdge.getDestination().id + (labelEdge.getDestination().getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty() ? "" : "000000");
+      String label = "Floating extra edge: ("  + extraData.get(labelEdge) + ")";
+
+      buffer.append(src + " -> " + destId + " [arrowhead=vee,color=red,fontcolor=red,label=\"" + label + "\"];\r\n");
     }
 
     if (subgraph.size() > 0) {
