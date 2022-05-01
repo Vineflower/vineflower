@@ -312,7 +312,7 @@ public final class IdeaNotNullHelper {
                       stat.addPredecessor(edge);
                     }
 
-                    final StatEdge edge = ifbranch.getAllSuccessorEdges().get(0);
+                    StatEdge edge = ifbranch.getAllSuccessorEdges().get(0);
                     ifbranch.removeSuccessor(edge);
 
                     sequence.getStats().removeWithKey(ifstat.id);
