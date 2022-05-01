@@ -83,7 +83,11 @@ public final class MergeHelper {
         if ((ifedge.getType() == StatEdge.TYPE_BREAK && elseedge.getType() == StatEdge.TYPE_CONTINUE && elseedge.closure == stat
              && isDirectPath(stat, ifedge.getDestination())) ||
             (ifedge.getType() == StatEdge.TYPE_CONTINUE && elseedge.getType() == StatEdge.TYPE_BREAK && ifedge.closure == stat
-             && isDirectPath(stat, elseedge.getDestination()))) {
+            && isDirectPath(stat, elseedge.getDestination())) ||
+          // Break labeled as continue case
+          (ifedge.getType() == StatEdge.TYPE_CONTINUE && elseedge.getType() == StatEdge.TYPE_CONTINUE && elseedge.closure == stat
+            && isLastInLoop(stat) && isDirectPath(stat, ifedge.getDestination()))
+        ) {
 
           Set<Statement> set = stat.getNeighboursSet(StatEdge.TYPE_CONTINUE, Statement.DIRECTION_BACKWARD);
           set.remove(last);
@@ -133,6 +137,22 @@ public final class MergeHelper {
         }
       }
     }
+  }
+
+  private static boolean isLastInLoop(Statement stat) {
+    while (stat.getParent().type == Statement.TYPE_SEQUENCE) {
+      if (stat.getParent().getStats().indexOf(stat) != stat.getParent().getStats().size() - 1) {
+        return false;
+      }
+
+      stat = stat.getParent();
+
+      if (stat == null) {
+        return false;
+      }
+    }
+
+    return stat.getParent().type == Statement.TYPE_DO;
   }
 
   private static boolean matchWhile(DoStatement stat) {
