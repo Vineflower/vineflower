@@ -18,6 +18,9 @@ public final class SequenceHelper {
 
 
   public static void condenseSequences(Statement root) {
+    ValidationHelper.validateStatement((RootStatement) root.getTopParent());
+
+
     condenseSequencesRec(root);
   }
 
