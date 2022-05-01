@@ -1,0 +1,32 @@
+package pkg;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class TestCollectionItr {
+   public <T extends TestCollectionItr> List<T> method() {
+      return this.list();// 8
+   }
+
+   private List<TestCollectionItr> list() {
+      return new ArrayList();// 12
+   }
+}
+
+class 'pkg/TestCollectionItr' {
+   method 'method ()Ljava/util/List;' {
+      0      7
+      1      7
+      2      7
+      3      7
+      4      7
+   }
+
+   method 'list ()Ljava/util/List;' {
+      7      11
+   }
+}
+
+Lines mapping:
+8 <-> 8
+12 <-> 12

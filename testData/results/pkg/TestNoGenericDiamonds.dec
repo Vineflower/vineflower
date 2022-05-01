@@ -1,0 +1,52 @@
+package pkg;
+
+public class TestNoGenericDiamonds {
+   private static TestNoGenericDiamonds.I<String> is;
+
+   public void test(String s) {
+      this.method(new TestNoGenericDiamonds.Inner<>(is, s));// 17
+   }// 18
+
+   private void method(TestNoGenericDiamonds.Inner<String> i) {
+   }// 22
+
+   class I<T> {
+   }
+
+   class Inner<T> {
+      public Inner(TestNoGenericDiamonds.I<? extends TestNoGenericDiamonds.I<T>> i, T t) {
+      }// 13
+   }
+}
+
+class 'pkg/TestNoGenericDiamonds' {
+   method 'test (Ljava/lang/String;)V' {
+      0      6
+      6      6
+      7      6
+      8      6
+      9      6
+      d      6
+      e      6
+      f      6
+      10      7
+   }
+
+   method 'method (Lpkg/TestNoGenericDiamonds$Inner;)V' {
+      0      10
+   }
+}
+
+class 'pkg/TestNoGenericDiamonds$Inner' {
+   method '<init> (Lpkg/TestNoGenericDiamonds;Lpkg/TestNoGenericDiamonds$I;Ljava/lang/Object;)V' {
+      9      17
+   }
+}
+
+Lines mapping:
+13 <-> 18
+17 <-> 7
+18 <-> 8
+22 <-> 11
+Not mapped:
+11

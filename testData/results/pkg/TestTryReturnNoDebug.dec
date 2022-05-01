@@ -1,0 +1,50 @@
+package pkg;
+
+import java.util.function.Supplier;
+
+public class TestTryReturnNoDebug {
+   public String test1(Supplier<Boolean> var1) {
+      Object var2 = null;
+
+      try {
+         var5 = var1.toString();
+      } catch (Exception var4) {
+         throw new RuntimeException("Catch");
+      }
+
+      return this.process(var5);
+   }
+
+   private String process(String var1) {
+      return var1;
+   }
+}
+
+class 'pkg/TestTryReturnNoDebug' {
+   method 'test1 (Ljava/util/function/Supplier;)Ljava/lang/String;' {
+      0      6
+      1      6
+      2      9
+      3      9
+      4      9
+      5      9
+      6      9
+      a      10
+      f      11
+      10      11
+      14      11
+      15      14
+      16      14
+      17      14
+      18      14
+      19      14
+      1a      14
+   }
+
+   method 'process (Ljava/lang/String;)Ljava/lang/String;' {
+      0      18
+      1      18
+   }
+}
+
+Lines mapping:

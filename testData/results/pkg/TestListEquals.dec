@@ -1,0 +1,27 @@
+package pkg;
+
+import java.util.Collections;
+import java.util.List;
+
+public class TestListEquals {
+   public boolean equals(List<TestListEquals.Inner<? extends Number>> o) {
+      return o == Collections.emptyList();// 12
+   }
+
+   public class Inner<T> {
+   }
+}
+
+class 'pkg/TestListEquals' {
+   method 'equals (Ljava/util/List;)Z' {
+      0      7
+      1      7
+      2      7
+      3      7
+      4      7
+      c      7
+   }
+}
+
+Lines mapping:
+12 <-> 8

@@ -1,0 +1,60 @@
+package pkg;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class TestGenericCast {
+   private List l1 = new ArrayList();
+   private List<String> l2 = new ArrayList<>();
+
+   public String[] test1() {
+      return this.l1.toArray(new String[0]);// 11
+   }
+
+   public String[] test2() {
+      return this.l2.toArray(new String[0]);// 15
+   }
+}
+
+class 'pkg/TestGenericCast' {
+   method 'test1 ()[Ljava/lang/String;' {
+      0      10
+      1      10
+      2      10
+      3      10
+      4      10
+      8      10
+      9      10
+      a      10
+      b      10
+      c      10
+      d      10
+      e      10
+      f      10
+      10      10
+      11      10
+      12      10
+      13      10
+   }
+
+   method 'test2 ()[Ljava/lang/String;' {
+      0      14
+      1      14
+      2      14
+      3      14
+      4      14
+      8      14
+      9      14
+      a      14
+      b      14
+      c      14
+      d      14
+      e      14
+      f      14
+      10      14
+   }
+}
+
+Lines mapping:
+11 <-> 11
+15 <-> 15

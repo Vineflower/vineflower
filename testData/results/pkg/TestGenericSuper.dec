@@ -11,6 +11,18 @@ public class TestGenericSuper<T extends Number> {
       consumer.accept(u);// 16
    }// 17
 
+   public <U extends T> void test2(T[] arr, Consumer<U> consumer) {
+      consumer.accept((T)null);// 20
+      U u = (U)arr[0];// 21
+      consumer.accept((T)u);// 22
+   }// 23
+
+   public <U extends T> void test3(U[] arr, Consumer<T> consumer) {
+      consumer.accept((T)null);// 26
+      T t = (T)arr[0];// 27
+      consumer.accept(t);// 28
+   }// 29
+
    public class IO<I, O extends I> {
       public O mutate(I in) {
          return (O)in;// 9
@@ -48,18 +60,70 @@ class 'pkg/TestGenericSuper' {
       19      10
       1a      11
    }
+
+   method 'test2 ([Ljava/lang/Number;Ljava/util/function/Consumer;)V' {
+      0      14
+      1      14
+      2      14
+      3      14
+      4      14
+      5      14
+      6      14
+      7      15
+      8      15
+      9      15
+      a      15
+      b      16
+      c      16
+      d      16
+      e      16
+      f      16
+      10      16
+      11      16
+      12      17
+   }
+
+   method 'test3 ([Ljava/lang/Number;Ljava/util/function/Consumer;)V' {
+      0      20
+      1      20
+      2      20
+      3      20
+      4      20
+      5      20
+      6      20
+      7      21
+      8      21
+      9      21
+      a      21
+      b      22
+      c      22
+      d      22
+      e      22
+      f      22
+      10      22
+      11      22
+      12      23
+   }
 }
 
 class 'pkg/TestGenericSuper$IO' {
    method 'mutate (Ljava/lang/Object;)Ljava/lang/Object;' {
-      0      15
-      1      15
+      0      27
+      1      27
    }
 }
 
 Lines mapping:
-9 <-> 16
+9 <-> 28
 14 <-> 9
 15 <-> 10
 16 <-> 11
 17 <-> 12
+20 <-> 15
+21 <-> 16
+22 <-> 17
+23 <-> 18
+26 <-> 21
+27 <-> 22
+28 <-> 23
+29 <-> 24
