@@ -12,7 +12,6 @@ import org.jetbrains.java.decompiler.main.rels.ClassWrapper;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.SwitchHelper;
-import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
@@ -1123,13 +1122,6 @@ public class ClassWriter {
       if (bytecode) {
         lines.add("");
       }
-    } else if (wrapper.decompileError instanceof ValidationHelper.ValidationException) {
-      final List<String> messages = ((ValidationHelper.ValidationException) wrapper.decompileError).messages;
-      lines.add("Validation error:");
-      for (String message : messages) {
-        lines.add("    " + message);
-      }
-      lines.add("");
     }
     if (bytecode) {
       try {
