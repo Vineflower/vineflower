@@ -7,6 +7,7 @@ import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.InstructionSequence;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
+import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
@@ -776,6 +777,11 @@ public class Statement implements IMatchable {
 
   public List<StatEdge> getAllSuccessorEdges() {
     return getEdges(STATEDGE_ALL, DIRECTION_FORWARD);
+  }
+
+  public StatEdge getSingleSuccessor() {
+    ValidationHelper.singleSuccessor(this);
+    return this.getSuccessorEdges(Statement.STATEDGE_DIRECT_ALL).get(0);
   }
 
   public List<StatEdge> getAllPredecessorEdges() {

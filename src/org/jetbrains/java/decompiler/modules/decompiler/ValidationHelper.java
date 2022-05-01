@@ -13,10 +13,7 @@ import org.jetbrains.java.decompiler.util.DotExporter;
 import org.jetbrains.java.decompiler.util.ListStack;
 import org.jetbrains.java.decompiler.util.VBStyleCollection;
 
-import java.util.Deque;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Set;
+import java.util.*;
 
 public final class ValidationHelper {
   private static final boolean VALIDATE = System.getProperty("VALIDATE_DECOMPILED_CODE", "false").equals("true");
@@ -42,25 +39,20 @@ public final class ValidationHelper {
 
     for (Statement stat : statements) {
       for (StatEdge edge : stat.getAllSuccessorEdges()) {
-        validateEdge(statements, stat, edge);
+        validateEdgeContext(statements, stat, edge);
       }
 
       for (StatEdge edge : stat.getAllPredecessorEdges()) {
-        validateEdge(statements, stat, edge);
+        validateEdgeContext(statements, stat, edge);
       }
 
       for (StatEdge edge : stat.getLabelEdges()) {
-        validateEdge(statements, stat, edge);
+        validateEdgeContext(statements, stat, edge);
       }
 
       if (stat.getExprents() != null) {
         for (Exprent exprent : stat.getExprents()) {
-          for (Exprent ex : exprent.getAllExprents(true, true)) {
-            if (ex.type == Exprent.EXPRENT_EXIT) {
-              ExitExprent exit = (ExitExprent)ex;
-              validateExitExprent(exit);
-            }
-          }
+          validateExprent(exprent);
         }
       }
 
@@ -74,18 +66,22 @@ public final class ValidationHelper {
         }
       }
 
-      if (stat instanceof IfStatement) {
-        IfStatement ifstat = (IfStatement)stat;
-        validateIfStatement(statements, ifstat);
-      }
+      validateSingleStatement(stat);
+
     }
 
-    FlattenStatementsHelper flatten = new FlattenStatementsHelper();
-    DirectGraph directGraph = flatten.buildDirectGraph(statement);
+    DirectGraph directGraph;
+    try {
+      FlattenStatementsHelper flatten = new FlattenStatementsHelper();
+      directGraph = flatten.buildDirectGraph(statement);
+    } catch (Throwable e) {
+      throw new IllegalStateException("Failed to build direct graph", e);
+    }
+
     validateDGraph(directGraph, statement);
   }
 
-  private static void validateEdge(VBStyleCollection<Statement, Integer> statements, Statement stat, StatEdge edge) {
+  private static void validateEdgeContext(VBStyleCollection<Statement, Integer> statements, Statement stat, StatEdge edge) {
     if (!statements.contains(edge.getSource())) {
       throw new IllegalStateException("Edge pointing from non-existing statement: [" + stat + "] " + edge);
     }
@@ -99,10 +95,53 @@ public final class ValidationHelper {
         throw new IllegalStateException("Edge with non-existing closure: [" + stat + "] " + edge);
       }
     }
+
+    validateEdge(edge);
   }
 
-  private static void validateIfStatement(VBStyleCollection<Statement, Integer> statements, IfStatement ifStat) {
-    VBStyleCollection<Statement, Integer> stats = ifStat.getStats();
+  public static void validateEdge(StatEdge edge) {
+    if (!VALIDATE) {
+      return;
+    }
+
+    if (edge.labeled) {
+      if (edge.closure == null) {
+        // throw new IllegalStateException("Edge with label, but no closure: " + edge);
+      }
+    }
+
+    if (!isSuccessor(edge.getSource(), edge)) {
+      throw new IllegalStateException("Edge pointing from statement but it isn't a successor: " + edge);
+    }
+
+    if (!edge.getDestination().getAllPredecessorEdges().contains(edge)) {
+      throw new IllegalStateException("Edge pointing to statement but it isn't a predecessor: " + edge);
+    }
+
+    if (edge.labeled && edge.getType() == StatEdge.TYPE_BREAK) {
+      if (!edge.getDestination().getLabelEdges().contains(edge)) {
+        //ex = error(ex, "Edge with label, but the closure doesn't know: " + edge);
+      }
+    }
+  }
+
+  // not recursive
+  public static void validateSingleStatement(Statement stat) {
+    if (!VALIDATE) {
+      return;
+    }
+
+    switch (stat.type) {
+      case Statement.TYPE_IF: validateIfStatement((IfStatement) stat); break;
+    }
+  }
+
+  public static void validateIfStatement(IfStatement ifStat) {
+    if (!VALIDATE) {
+      return;
+    }
+
+    final VBStyleCollection<Statement, Integer> stats = ifStat.getStats();
 
     if (ifStat.getFirst() == null) {
       throw new IllegalStateException("If statement without a first statement: " + ifStat);
@@ -121,10 +160,6 @@ public final class ValidationHelper {
 
       if (!stats.contains(ifStat.getIfstat())) {
         throw new IllegalStateException("If statement does not contain own ifStat: " + ifStat);
-      }
-
-      if (!statements.contains(ifStat.getIfstat())) {
-        throw new IllegalStateException("Non-existing ifStat: " + ifStat);
       }
     }
 
@@ -149,10 +184,6 @@ public final class ValidationHelper {
 
         if (!stats.contains(ifStat.getElsestat())) {
           throw new IllegalStateException("IfElse statement does not contain own elseStat: " + ifStat);
-        }
-
-        if (!statements.contains(ifStat.getElsestat())) {
-          throw new IllegalStateException("Non-existing elseStat: " + ifStat);
         }
       }
 
@@ -240,7 +271,7 @@ public final class ValidationHelper {
     }
 
     if (o == null) {
-      throw new NullPointerException("Validation: null object: " + o);
+      throw new NullPointerException("Validation: null object");
     }
   }
 
@@ -260,5 +291,50 @@ public final class ValidationHelper {
         }
       }
     }
+
+    for (Exprent subExprents : exit.getAllExprents()) {
+      validateExprent(subExprents);
+    }
+  }
+
+  // recursive
+  public static void validateExprent(Exprent exprent) {
+    if (!VALIDATE) {
+      return;
+    }
+
+    switch (exprent.type) {
+      case Exprent.EXPRENT_EXIT: validateExitExprent((ExitExprent)exprent); break;
+      default: {
+        for (Exprent subExprents : exprent.getAllExprents()) {
+          validateExprent(subExprents);
+        }
+      }
+    }
+  }
+
+  public static void singleSuccessor(Statement stat) {
+    if (!VALIDATE) {
+      return;
+    }
+
+    if (stat.getAllSuccessorEdges().size() != 1) {
+      throw new IllegalStateException("Statement has more than one successor: " + stat);
+    }
+  }
+
+  private static boolean isSuccessor(Statement source, StatEdge edge) {
+    if (source.getAllSuccessorEdges().contains(edge)) return true;
+
+    if (source.getParent().type == Statement.TYPE_IF) {
+      IfStatement ifstat = (IfStatement) source.getParent();
+      if (ifstat.getFirst() == source) {
+        if (edge == ifstat.getIfEdge() || edge == ifstat.getElseEdge()) {
+          return true;
+        }
+      }
+    }
+
+    return false;
   }
 }
