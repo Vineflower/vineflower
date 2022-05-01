@@ -105,14 +105,15 @@ public final class MergeHelper {
           ifexpr.getCondition().addBytecodeOffsets(lastif.getHeadexprent().bytecode);
 
           stat.setConditionExprent(ifexpr.getCondition());
-          lastif.getFirst().removeSuccessor(ifedge);
           lastif.removeSuccessor(elseedge);
 
           // remove empty if
           if (lastif.getFirst().getExprents().isEmpty()) {
+            // Remove reference to the if statement
+            lastif.getFirst().removeSuccessor(ifedge);
+
             removeLastEmptyStatement(stat, lastif);
-          }
-          else {
+          } else {
             lastif.setExprents(lastif.getFirst().getExprents());
 
             StatEdge newedge = new StatEdge(StatEdge.TYPE_CONTINUE, lastif, stat);
