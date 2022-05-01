@@ -47,7 +47,7 @@ public final class InlineSingleBlockHelper {
 
     Statement first = seq.getStats().get(index);
     Statement pre = seq.getStats().get(index - 1);
-    pre.removeSuccessor(pre.getAllSuccessorEdges().get(0));   // single regular edge
+    pre.removeSuccessor(pre.getSingleSuccessor());   // single regular edge
 
     StatEdge edge = first.getPredecessorEdges(StatEdge.TYPE_BREAK).get(0);
     Statement source = edge.getSource();

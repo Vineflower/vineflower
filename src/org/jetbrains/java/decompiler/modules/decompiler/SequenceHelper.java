@@ -119,11 +119,11 @@ public final class SequenceHelper {
 
         boolean ok = st.getAllSuccessorEdges().isEmpty();
         if (!ok) {
-          StatEdge edge = st.getAllSuccessorEdges().get(0);
+          StatEdge edge = st.getSingleSuccessor();
 
           ok = stat.getAllSuccessorEdges().isEmpty();
           if (!ok) {
-            StatEdge statedge = stat.getAllSuccessorEdges().get(0);
+            StatEdge statedge = stat.getSingleSuccessor();
             ok = (edge.getDestination() == statedge.getDestination());
 
             if (ok) {

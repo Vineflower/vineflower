@@ -70,13 +70,13 @@ public final class TernaryProcessor {
     if (ifStatement.type == Statement.TYPE_IF && elseStatement.type == Statement.TYPE_IF &&
       ifStatement.getExprents() == null && elseStatement.getExprents() == null &&
       ifStatement.getAllSuccessorEdges().size() == 1 && elseStatement.getAllSuccessorEdges().size() == 1 &&
-      ifStatement.getAllSuccessorEdges().get(0).getType() == StatEdge.TYPE_BREAK && elseStatement.getAllSuccessorEdges().get(0).getType() == StatEdge.TYPE_BREAK &&
-      ifStatement.getAllSuccessorEdges().get(0).getDestination() == elseStatement.getAllSuccessorEdges().get(0).getDestination() &&
+      ifStatement.getSingleSuccessor().getType() == StatEdge.TYPE_BREAK && elseStatement.getSingleSuccessor().getType() == StatEdge.TYPE_BREAK &&
+      ifStatement.getSingleSuccessor().getDestination() == elseStatement.getSingleSuccessor().getDestination() &&
       ifStatement.getFirst().getExprents() != null && ifStatement.getFirst().getExprents().isEmpty() &&
       elseStatement.getFirst().getExprents() != null && elseStatement.getFirst().getExprents().isEmpty() &&
       ((IfStatement) ifStatement).getIfstat() == null && ((IfStatement) elseStatement).getIfstat() == null) {
 
-      Statement destination = ifStatement.getAllSuccessorEdges().get(0).getDestination();
+      Statement destination = ifStatement.getSingleSuccessor().getDestination();
 
       Statement closure = ((IfStatement) ifStatement).getIfEdge().closure;
 

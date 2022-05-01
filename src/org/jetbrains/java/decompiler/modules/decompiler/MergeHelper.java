@@ -78,7 +78,7 @@ public final class MergeHelper {
       IfStatement lastif = (IfStatement)last;
       if (lastif.iftype == IfStatement.IFTYPE_IF && lastif.getIfstat() == null) {
         StatEdge ifedge = lastif.getIfEdge();
-        StatEdge elseedge = lastif.getAllSuccessorEdges().get(0);
+        StatEdge elseedge = lastif.getSingleSuccessor();
 
         if ((ifedge.getType() == StatEdge.TYPE_BREAK && elseedge.getType() == StatEdge.TYPE_CONTINUE && elseedge.closure == stat
              && isDirectPath(stat, ifedge.getDestination())) ||
@@ -224,7 +224,7 @@ public final class MergeHelper {
           }
           //else { // fix infinite loops
 
-          StatEdge elseEdge = firstif.getAllSuccessorEdges().get(0);
+          StatEdge elseEdge = firstif.getSingleSuccessor();
           if (isDirectPath(stat, elseEdge.getDestination())) {
             // FIXME: This is horrible and bad!! Needs an extraction step before loop merging!!
             if (isIif(firstif.getHeadexprent().getCondition())) {
