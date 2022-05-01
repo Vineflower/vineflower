@@ -145,6 +145,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestSynchronizedMapping");
     register(JAVA_8, "TestAbstractMethods");
     register(JAVA_8, "TestLocalClass");
+    register(JAVA_8, "TestChainedCFG");
     register(JAVA_8, "TestInnerLocal");
     register(JAVA_8, "TestInnerSignature");
     register(JAVA_8, "TestParameterizedTypes");
