@@ -18,7 +18,7 @@ compileJava {
 group = 'org.quiltmc'
 archivesBaseName = 'quiltflower'
 
-version = '1.8.1'
+version = '1.9.0'
 
 def ENV = System.getenv()
 version = version + (ENV.GITHUB_ACTIONS ? "" : "+local")
@@ -53,6 +53,7 @@ test {
   useJUnitPlatform()
   systemProperty "DOT_EXPORT_DIR", System.getProperty("DOT_EXPORT_DIR", null)
   systemProperty "DOT_ERROR_EXPORT_DIR", System.getProperty("DOT_ERROR_EXPORT_DIR", null)
+  systemProperty "VALIDATE_DECOMPILED_CODE", System.getProperty("VALIDATE_DECOMPILED_CODE", "false")
 }
 
 java.toolchain {

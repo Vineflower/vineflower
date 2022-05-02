@@ -43,6 +43,10 @@ public class VarDefinitionHelper {
   private final Map<VarVersionPair, String> clashingNames = new HashMap<>();
 
   public VarDefinitionHelper(Statement root, StructMethod mt, VarProcessor varproc) {
+    this(root, mt, varproc, true);
+  }
+
+  public VarDefinitionHelper(Statement root, StructMethod mt, VarProcessor varproc, boolean run) {
 
     mapVarDefStatements = new HashMap<>();
     mapStatementVars = new HashMap<>();
@@ -51,6 +55,11 @@ public class VarDefinitionHelper {
     this.varproc = varproc;
     this.root = root;
     this.mt = mt;
+
+    // If we are asking for a pure invocation, don't run the analysis
+    if (!run) {
+      return;
+    }
 
     VarNamesCollector vc = varproc.getVarNamesCollector();
 
@@ -1197,7 +1206,7 @@ public class VarDefinitionHelper {
     }
   }
 
-  private void remapClashingNames(Statement root) {
+  public void remapClashingNames(Statement root) {
     Map<Statement, Set<VarVersionPair>> varDefinitions = new HashMap<>();
     Set<VarVersionPair> liveVarDefs = new HashSet<>();
     Map<VarVersionPair, String> nameMap = new HashMap<>();
@@ -1307,8 +1316,9 @@ public class VarDefinitionHelper {
         curVarDefs.add(var.getVarVersionPair());
 
         // Only process vars that have lvt as the default var<index>_<version> names can never conflict
-        if (var.getLVT() != null) {
-          String name = var.getLVT().getName();
+        if (var.getLVT() != null || this.varproc.getVarName(var.getVarVersionPair()) != null) {
+          String name = var.getLVT() == null ? this.varproc.getVarName(var.getVarVersionPair()) : var.getLVT().getName();
+
           String originalName = name;
 
           while (nameMap.containsValue(name)) {

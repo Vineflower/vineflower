@@ -309,7 +309,7 @@ public final class LabelHelper {
           Statement stt = swst.getCaseStatements().get(i);
           Statement stnext = swst.getCaseStatements().get(i + 1);
 
-          if (stnext.getExprents() != null && stnext.getExprents().isEmpty() && !stnext.getAllSuccessorEdges().isEmpty()) {
+          if (stnext.getExprents() != null && stnext.getExprents().isEmpty() && stnext.hasAnySuccessor()) {
             stnext = stnext.getAllSuccessorEdges().get(0).getDestination();
           }
           processEdgesWithNext(stt, setExplicitEdges(stt), stnext);
@@ -318,7 +318,7 @@ public final class LabelHelper {
         int last = swst.getCaseStatements().size() - 1;
         if (last >= 0) { // empty switch possible
           Statement stlast = swst.getCaseStatements().get(last);
-          if (stlast.getExprents() != null && stlast.getExprents().isEmpty() && !stlast.getAllSuccessorEdges().isEmpty()) {
+          if (stlast.getExprents() != null && stlast.getExprents().isEmpty() && stlast.hasAnySuccessor()) {
             StatEdge edge = stlast.getAllSuccessorEdges().get(0);
             mapEdges.put(edge.getDestination(), new ArrayList<>(Collections.singletonList(edge)));
           }
@@ -345,9 +345,8 @@ public final class LabelHelper {
 
     StatEdge statedge = null;
 
-    List<StatEdge> lstSuccs = stat.getAllSuccessorEdges();
-    if (!lstSuccs.isEmpty()) {
-      statedge = lstSuccs.get(0);
+    if (stat.hasAnySuccessor()) {
+      statedge = stat.getFirstSuccessor();
 
       if (statedge.getDestination() == next) {
         statedge.explicit = false;
@@ -420,7 +419,7 @@ public final class LabelHelper {
         }
       }
 
-      if (stat.getAllSuccessorEdges().isEmpty() && !implfound) {
+      if (!stat.hasAnySuccessor() && !implfound) {
         List<StatEdge> lstEdges = null;
         for (Entry<Statement, List<StatEdge>> entr : mapEdges.entrySet()) {
           if (entr.getKey().type != Statement.TYPE_DUMMYEXIT &&

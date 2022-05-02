@@ -119,6 +119,7 @@ public class ClassWrapper {
           int varIndex = 0;
           for (int i = 0; i < paramCount; i++) {
             varProc.setVarName(new VarVersionPair(varIndex, 0), vc.getFreeName(varIndex));
+            varProc.markParam(new VarVersionPair(varIndex, 0));
 
             if (thisVar) {
               if (i == 0) {
@@ -170,7 +171,7 @@ public class ClassWrapper {
           StructLocalVariableTableAttribute attr = mt.getLocalVariableAttr();
           if (attr != null) {
             // only param names here
-            varProc.setDebugVarNames(attr.getMapNames());
+            varProc.setDebugVarNames(root, attr.getMapNames());
 
             /*
             // the rest is here

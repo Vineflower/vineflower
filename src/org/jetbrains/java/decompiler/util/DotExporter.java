@@ -59,6 +59,7 @@ public class DotExporter {
 
     // Pre process
     Map<StatEdge, String> extraData = new HashMap<>();
+    Set<StatEdge> extraDataSeen = new HashSet<>();
 
     for (Statement st : stats) {
       if (st.type == Statement.TYPE_IF) {
@@ -88,6 +89,7 @@ public class DotExporter {
         for (Entry<StatEdge, String> entry : extraData.entrySet()) {
           if (edge.getSource().id.equals(entry.getKey().getSource().id) && edge.getDestination().id.equals(entry.getKey().getDestination().id)) {
             edgeType = edgeType == null ? entry.getValue() : edgeType + " (" + entry.getValue() + ")";
+            extraDataSeen.add(entry.getKey());
           }
         }
 
@@ -231,6 +233,18 @@ public class DotExporter {
       buffer.append(integer + " [color=red,label=\"" + integer + " (Unknown statement!)\"];\r\n");
     }
 
+    for (StatEdge labelEdge : extraData.keySet()) {
+      if (extraDataSeen.contains(labelEdge)) {
+        continue;
+      }
+
+      String src = labelEdge.getSource().id + (labelEdge.getSource().getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty() ? "" : "000000");
+      String destId = labelEdge.getDestination().id + (labelEdge.getDestination().getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty() ? "" : "000000");
+      String label = "Floating extra edge: ("  + extraData.get(labelEdge) + ")";
+
+      buffer.append(src + " -> " + destId + " [arrowhead=vee,color=red,fontcolor=red,label=\"" + label + "\"];\r\n");
+    }
+
     if (subgraph.size() > 0) {
       buffer.append("subgraph cluster_non_parented {\r\n\tlabel=\"Isolated statements\";\r\n");
 
@@ -280,7 +294,10 @@ public class DotExporter {
 
   private static String toJava(Statement statement) {
     try {
-      String java = statement.toJava().convertToStringAndAllowDataDiscard().replace("\"", "\\\"");
+      String java = statement.toJava().convertToStringAndAllowDataDiscard()
+        .replace("\"", "\\\"")
+        .replace("\r", "")
+        .replace("\n", "\\l");
       if (statement instanceof BasicBlockStatement) {
         if (statement.getExprents() == null || statement.getExprents().isEmpty()) {
           java = "<" + (statement.getExprents() == null ? "null" : "empty") + " basic block>\n" + java;
@@ -480,10 +497,10 @@ public class DotExporter {
         }
       }
 
-      buffer.append((block.id)+" [shape=box,label=\""+label+"\"];\r\n");
+      buffer.append("x" + (block.id)+" [shape=box,label=\""+label+"\"];\r\n");
 
       for(DirectNode dest: block.succs) {
-        buffer.append((block.id)+"->"+(dest.id)+";\r\n");
+        buffer.append("x" + (block.id)+" -> x"+(dest.id)+";\r\n");
       }
     }
 
@@ -524,6 +541,22 @@ public class DotExporter {
       return;
     try{
       BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(DOTS_FOLDER, mt, suffix)));
+      out.write(digraphToDot(dgraph, vars).getBytes());
+      out.close();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  public static void errorToDotFile(DirectGraph dgraph, StructMethod mt, String suffix) {
+    errorToDotFile(dgraph, mt, suffix, null);
+  }
+
+  public static void errorToDotFile(DirectGraph dgraph, StructMethod mt, String suffix, Map<String, SFormsFastMapDirect> vars) {
+    if (!DUMP_ERROR_DOTS)
+      return;
+    try{
+      BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(DOTS_ERROR_FOLDER, mt, suffix)));
       out.write(digraphToDot(dgraph, vars).getBytes());
       out.close();
     } catch (Exception e) {

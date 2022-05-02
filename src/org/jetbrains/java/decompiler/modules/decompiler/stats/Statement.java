@@ -7,9 +7,9 @@ import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.InstructionSequence;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
+import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.util.TextBuffer;
-import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.StrongConnectivityHelper;
@@ -564,7 +564,21 @@ public class Statement implements IMatchable {
       }
     }
 
+    replaceClosure(this, oldstat, newstat);
+
     oldstat.getLabelEdges().clear();
+  }
+
+  private static void replaceClosure(Statement stat, Statement oldstat, Statement newstat) {
+    for (StatEdge edge : stat.getAllSuccessorEdges()) {
+      if (edge.closure == oldstat) {
+        edge.closure = newstat;
+      }
+    }
+
+    for (Statement st : stat.getStats()) {
+      replaceClosure(st, oldstat, newstat);
+    }
   }
 
   /**
@@ -597,7 +611,7 @@ public class Statement implements IMatchable {
 
       setVisited.add(node);
 
-      List<StatEdge> lstEdges = node.getAllSuccessorEdges();
+      List<StatEdge> lstEdges = node.mapSuccEdges.computeIfAbsent(STATEDGE_ALL, k -> new ArrayList<>());
 
       for (; index < lstEdges.size(); index++) {
         StatEdge edge = lstEdges.get(index);
@@ -762,6 +776,50 @@ public class Statement implements IMatchable {
 
   public List<StatEdge> getAllSuccessorEdges() {
     return getEdges(STATEDGE_ALL, DIRECTION_FORWARD);
+  }
+
+  public boolean hasAnySuccessor() {
+    return hasSuccessor(STATEDGE_ALL);
+  }
+
+  public boolean hasSuccessor(int type) {
+    Map<Integer, List<StatEdge>> map = mapSuccEdges;
+
+    boolean res = false;
+    if ((type & (type - 1)) == 0) {
+      List<StatEdge> edges = map.get(type);
+      res = edges != null && !edges.isEmpty();
+    } else {
+      for (int edgetype : StatEdge.TYPES) {
+        if ((type & edgetype) != 0) {
+          List<StatEdge> lst = map.get(edgetype);
+
+          if (lst != null) {
+            res = !lst.isEmpty();
+
+            if (res) {
+              return true;
+            }
+          }
+        }
+      }
+    }
+
+    return res;
+  }
+
+  public StatEdge getFirstSuccessor() {
+    ValidationHelper.successorsExist(this);
+    ValidationHelper.oneSuccessor(this);
+
+    List<StatEdge> res = this.mapSuccEdges.get(STATEDGE_ALL);
+    if (res != null) {
+      for (StatEdge e : res) {
+        return e;
+      }
+    }
+
+    throw new IllegalStateException("No successor exists for " + this);
   }
 
   public List<StatEdge> getAllPredecessorEdges() {

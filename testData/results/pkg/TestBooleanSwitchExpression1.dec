@@ -1,0 +1,124 @@
+package pkg;
+
+public class TestBooleanSwitchExpression1 {
+   public void test(int x, int y) {
+      switch(x) {// 5
+         case 1:
+            if (y >= 0) {// 6
+               return;// 12
+            }
+            break;
+         case 2:
+            if (y <= 0) {// 7
+               return;
+            }
+            break;
+         default:
+            if (y != 0) {// 8
+               return;
+            }
+      }
+
+      System.out.println("Nice");// 10
+   }
+
+   public void test1(int x, int y) {
+      label20: {
+         label19: {
+            switch(x) {// 15
+               case 1:
+                  if (y < 0) {// 16
+                     break label19;
+                  }
+                  break;
+               case 2:
+                  if (y > 0) {// 17
+                     break label19;
+                  }
+                  break;
+               default:
+                  if (y == 0) {// 18
+                     break label19;
+                  }
+            }
+
+            System.out.println("Sad");// 22
+            break label20;
+         }
+
+         System.out.println("Nice");// 20
+      }
+
+      System.out.println("Done");// 25
+   }// 26
+}
+
+class 'pkg/TestBooleanSwitchExpression1' {
+   method 'test (II)V' {
+      0      4
+      1      4
+      1c      6
+      1d      6
+      23      11
+      24      11
+      2a      16
+      2b      16
+      2e      21
+      2f      21
+      30      21
+      31      21
+      32      21
+      33      21
+      36      7
+   }
+
+   method 'test1 (II)V' {
+      0      27
+      1      27
+      1c      29
+      1d      29
+      23      34
+      24      34
+      2a      39
+      2b      39
+      2e      48
+      2f      48
+      30      48
+      31      48
+      32      48
+      33      48
+      34      48
+      35      48
+      39      44
+      3a      44
+      3b      44
+      3c      44
+      3d      44
+      3e      44
+      41      51
+      42      51
+      43      51
+      44      51
+      45      51
+      46      51
+      47      51
+      48      51
+      49      52
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 7
+7 <-> 12
+8 <-> 17
+10 <-> 22
+12 <-> 8
+15 <-> 28
+16 <-> 30
+17 <-> 35
+18 <-> 40
+20 <-> 49
+22 <-> 45
+25 <-> 52
+26 <-> 53

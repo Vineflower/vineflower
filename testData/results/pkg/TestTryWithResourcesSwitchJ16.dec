@@ -23,14 +23,14 @@ public class TestTryWithResourcesSwitchJ16 {
 
    public void test1(File f) throws FileNotFoundException {
       try (Scanner s = this.create(f)) {// 25
-         label56: {
+         label58: {
             switch(s.nextInt()) {// 26
                case 1:
                   System.out.println("1");// 28
                   break;// 29
                case 2:
                   System.out.println("2");// 31
-                  break label56;
+                  break label58;
                default:
                   System.out.println("default");// 34
             }
@@ -48,14 +48,14 @@ public class TestTryWithResourcesSwitchJ16 {
 
    public int test2(File f) throws FileNotFoundException {
       try (Scanner s = this.create(f)) {// 48
-         label69: {
+         label71: {
             switch(s.nextInt()) {// 49
                case 1:
                   System.out.println("1");// 51
                   break;// 52
                case 2:
                   System.out.println("2");// 54
-                  break label69;
+                  break label71;
                case 3:
                   System.out.println("3");// 57
                   return 1;// 58

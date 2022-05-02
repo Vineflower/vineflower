@@ -6,10 +6,7 @@ import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.BasicBlockStatement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.SequenceStatement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.attr.StructAnnotationAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructAnnotationParameterAttribute;
@@ -22,18 +19,24 @@ import java.util.List;
 public final class IdeaNotNullHelper {
 
 
-  public static boolean removeHardcodedChecks(Statement root, StructMethod mt) {
+  public static boolean removeHardcodedChecks(RootStatement root, StructMethod mt) {
 
     boolean checks_removed = false;
 
     // parameter @NotNull annotations
     while (findAndRemoveParameterCheck(root, mt)) { // iterate until nothing found. Each invocation removes one parameter check.
       checks_removed = true;
+
+      // we modified so check again
+      ValidationHelper.validateStatement(root);
     }
 
     // method @NotNull annotation
     while (findAndRemoveReturnCheck(root, mt)) { // iterate until nothing found. Each invocation handles one method exit check.
       checks_removed = true;
+
+      // we modified so check again
+      ValidationHelper.validateStatement(root);
     }
 
     return checks_removed;
@@ -149,8 +152,8 @@ public final class IdeaNotNullHelper {
 
       ifstat.getStats().removeWithKey(ifbranch.id);
 
-      if (!ifbranch.getAllSuccessorEdges().isEmpty()) {
-        ifbranch.removeSuccessor(ifbranch.getAllSuccessorEdges().get(0));
+      if (ifbranch.hasAnySuccessor()) {
+        ifbranch.removeSuccessor(ifbranch.getFirstSuccessor());
       }
 
       // Replace statement with empty block
@@ -232,8 +235,8 @@ public final class IdeaNotNullHelper {
                   ifparent.getStats().removeWithKey(ifbranch.id);
                   ifparent.getStats().removeWithKey(elsebranch.id);
 
-                  if (!ifbranch.getAllSuccessorEdges().isEmpty()) {
-                    ifbranch.removeSuccessor(ifbranch.getAllSuccessorEdges().get(0));
+                  if (ifbranch.hasAnySuccessor()) {
+                    ifbranch.removeSuccessor(ifbranch.getFirstSuccessor());
                   }
 
                   if (!ifparent.getFirst().getExprents().isEmpty()) {
@@ -297,18 +300,20 @@ public final class IdeaNotNullHelper {
                     // return returnValue;
                     //
 
-                    ifstat.removeSuccessor(ifstat.getAllSuccessorEdges().get(0)); // remove 'else' edge
+                    ifstat.removeSuccessor(ifstat.getFirstSuccessor()); // remove 'else' edge
 
                     if (!ifstat.getFirst().getExprents().isEmpty()) {
                       stat.getExprents().addAll(0, ifstat.getFirst().getExprents());
                     }
 
                     for (StatEdge edge : ifstat.getAllPredecessorEdges()) {
-
                       ifstat.removePredecessor(edge);
                       edge.getSource().changeEdgeNode(Statement.DIRECTION_FORWARD, edge, stat);
                       stat.addPredecessor(edge);
                     }
+
+                    StatEdge edge = ifbranch.getFirstSuccessor();
+                    ifbranch.removeSuccessor(edge);
 
                     sequence.getStats().removeWithKey(ifstat.id);
                     sequence.setFirst(sequence.getStats().get(0));

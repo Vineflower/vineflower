@@ -1,0 +1,249 @@
+package pkg;
+
+public class TestBooleanSwitchExpression4 {
+   public void test(int x, int y, int z) {
+      label37:
+      switch(x) {// 5
+         case 0:
+            if (y >= 0) {// 6
+               return;// 29
+            }
+            break;
+         case 1:
+            switch(y) {// 7
+               case 0:
+                  break label37;
+               case 1:
+                  return;
+               case 2:
+                  while(z > 0) {// 11
+                     int var4;
+                     z -= var4 = x / 2;// 12
+                     x = var4 + y;// 13
+                     y += z;// 14
+                     if (y % z == 0) {// 16
+                        if (x >= 100) {// 17
+                           return;
+                        }
+                        break label37;
+                     }
+                  }
+
+                  if (z != 0) {// 21
+                     return;
+                  }
+                  break label37;
+               default:
+                  if (y != z) {// 23
+                     return;
+                  }
+                  break label37;
+            }
+         default:
+            if (y != 0) {// 25
+               return;
+            }
+      }
+
+      System.out.println("Nice");// 27
+   }
+
+   public void test1(int x, int y, int z) {
+      label41: {
+         label40: {
+            label39:
+            switch(x) {// 32
+               case 0:
+                  if (y < 0) {// 33
+                     break label40;
+                  }
+                  break;
+               case 1:
+                  switch(y) {// 34
+                     case 0:
+                        break label40;
+                     case 1:
+                        break label39;
+                     case 2:
+                        while(z > 0) {// 38
+                           int var4;
+                           z -= var4 = x / 2;// 39
+                           x = var4 + y;// 40
+                           y += z;// 41
+                           if (y % z == 0) {// 43
+                              if (x < 100) {// 44
+                                 break label40;
+                              }
+                              break label39;
+                           }
+                        }
+
+                        if (z == 0) {// 48
+                           break label40;
+                        }
+                        break label39;
+                     default:
+                        if (y == z) {// 50
+                           break label40;
+                        }
+                        break label39;
+                  }
+               default:
+                  if (y == 0) {// 52
+                     break label40;
+                  }
+            }
+
+            System.out.println("Sad");// 56
+            break label41;
+         }
+
+         System.out.println("Nice");// 54
+      }
+
+      System.out.println("Done");// 59
+   }// 60
+}
+
+class 'pkg/TestBooleanSwitchExpression4' {
+   method 'test (III)V' {
+      0      5
+      1      5
+      1c      7
+      1d      7
+      23      12
+      24      12
+      46      18
+      47      18
+      4b      20
+      4c      20
+      4d      20
+      4f      20
+      51      20
+      52      21
+      53      21
+      54      21
+      55      21
+      57      22
+      59      22
+      5a      23
+      5b      23
+      5c      23
+      5d      23
+      60      24
+      61      24
+      62      24
+      63      24
+      69      31
+      6a      31
+      70      36
+      71      36
+      72      36
+      78      42
+      79      42
+      7c      47
+      7d      47
+      7e      47
+      7f      47
+      80      47
+      81      47
+      84      8
+   }
+
+   method 'test1 (III)V' {
+      0      54
+      1      54
+      1c      56
+      1d      56
+      23      61
+      24      61
+      46      67
+      47      67
+      4b      69
+      4c      69
+      4d      69
+      4f      69
+      51      69
+      52      70
+      53      70
+      54      70
+      55      70
+      57      71
+      59      71
+      5a      72
+      5b      72
+      5c      72
+      5d      72
+      60      73
+      61      73
+      62      73
+      63      73
+      69      80
+      6a      80
+      70      85
+      71      85
+      72      85
+      78      91
+      79      91
+      7c      100
+      7d      100
+      7e      100
+      7f      100
+      80      100
+      81      100
+      82      100
+      83      100
+      87      96
+      88      96
+      89      96
+      8a      96
+      8b      96
+      8c      96
+      8f      103
+      90      103
+      91      103
+      92      103
+      93      103
+      94      103
+      95      103
+      96      103
+      97      104
+   }
+}
+
+Lines mapping:
+5 <-> 6
+6 <-> 8
+7 <-> 13
+11 <-> 19
+12 <-> 21
+13 <-> 22
+14 <-> 23
+16 <-> 24
+17 <-> 25
+21 <-> 32
+23 <-> 37
+25 <-> 43
+27 <-> 48
+29 <-> 9
+32 <-> 55
+33 <-> 57
+34 <-> 62
+38 <-> 68
+39 <-> 70
+40 <-> 71
+41 <-> 72
+43 <-> 73
+44 <-> 74
+48 <-> 81
+50 <-> 86
+52 <-> 92
+54 <-> 101
+56 <-> 97
+59 <-> 104
+60 <-> 105
+Not mapped:
+8
+9
+35
+36

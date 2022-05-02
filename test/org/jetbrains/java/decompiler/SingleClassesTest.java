@@ -145,6 +145,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestSynchronizedMapping");
     register(JAVA_8, "TestAbstractMethods");
     register(JAVA_8, "TestLocalClass");
+    register(JAVA_8, "TestChainedCFG");
     register(JAVA_8, "TestInnerLocal");
     register(JAVA_8, "TestInnerSignature");
     register(JAVA_8, "TestParameterizedTypes");
@@ -232,6 +233,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestArrayInitializations");
     // TODO: I'm pretty sure this test opened the gates of hell somewhere. We need to figure out what's causing that
     register(JAVA_8, "TestTernaryCall");
+    // TODO: extraneous var10000, SSAU liveness?
     register(JAVA_8, "TestAnonymousObject");
     register(JAVA_8, "TestArrayAssignmentEquals");
     // TODO: Loop becomes infinte loop where it should be assignment in loop
@@ -339,16 +341,25 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16, "TestAssignmentSwitchExpression5");
     register(JAVA_16, "TestAssignmentSwitchExpression6");
     register(JAVA_16, "TestAssignmentSwitchExpression7");
+
+    register(JAVA_16, "TestBooleanSwitchExpression1");
+    register(JAVA_16, "TestBooleanSwitchExpression2");
+    register(JAVA_16, "TestBooleanSwitchExpression3");
+    register(JAVA_16, "TestBooleanSwitchExpression4");
+    register(JAVA_16, "TestBooleanSwitchExpression5");
+
     register(JAVA_16, "TestInlineSwitchExpression1");
     register(JAVA_16, "TestInlineSwitchExpression2");
     register(JAVA_16, "TestInlineSwitchExpression3");
     register(JAVA_16, "TestInlineSwitchExpression4");
     register(JAVA_16, "TestInlineSwitchExpression5");
     register(JAVA_16, "TestInlineSwitchExpression6");
+
     register(JAVA_16, "TestReturnSwitchExpression1");
     register(JAVA_16, "TestReturnSwitchExpression2");
     register(JAVA_16, "TestReturnSwitchExpression3");
     register(JAVA_16, "TestReturnSwitchExpression4");
+
     register(JAVA_16, "TestConstructorSwitchExpression1");
     register(JAVA_16, "TestConstructorSwitchExpression2");
     register(JAVA_16, "TestAssertSwitchExpression");
@@ -458,7 +469,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: loops not eliminated properly, foreach not created
     register(JAVA_8, "TestForeachMultipleLoops");
     register(JAVA_8, "TestLoopBreak3");
-    // TODO: do-while loop not created in test1()
     register(JAVA_8, "TestDoWhileMerge");
     // TODO: ternary not correct, also needs Java 1.0 test- looks different
     register(JAVA_8, "TestTernaryReturn");
@@ -500,6 +510,18 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestTryReturn");
     // TODO: ternaries inside while conditions shouldn't be put in if inside while
     register(JAVA_8, "TestWhileConditionTernary");
+    // TODO: var10000 when it should not be a stack var
+    register(JAVA_8_NODEBUG, "TestNoUse");
+    // TODO: var5 is never defined!
+    register(JAVA_8_NODEBUG, "TestTryReturnNoDebug");
+    // TODO: missing Object[] cast
+    register(JAVA_8, "TestArrayAssign2");
+    // TODO: where did the catch block go??
+    register(JAVA_8, "TestTryLoopNoCatch");
+    // TODO: cast is missing
+    register(JAVA_8, "TestCollectionItr");
+    // TODO: missing qualifier on generic
+    register(JAVA_8, "TestListEquals");
   }
 
   private void registerEntireClassPath() {
@@ -522,11 +544,9 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestUnionType");
     register(JAVA_8, "TestTryWithResources");
     // TODO: continue not explicit
-    // TODO: do-while loop not created
     register(JAVA_8, "TestNestedLoops");
     // TODO: Cast to <undefinedtype>
     register(JAVA_8, "TestAnonymousClass");
-    // TODO: Object[] becomes <unknown>
     register(JAVA_8, "TestObjectArrays");
     register(JAVA_8, "TestAnonymousParams");
     register(JAVA_8, "TestThrowException");
@@ -554,6 +574,16 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: casts on null and (U)
     register(JAVA_8, "TestGenericSuper");
     register(JAVA_8, "TestGenericsQualified");
+    // TODO: first method needs a cast
+    register(JAVA_8, "TestGenericCast");
+    // TODO: shouldn't make foreach
+    register(JAVA_8, "TestItrLoop");
+    // TODO: shouldn't place diamonds in constructor
+    register(JAVA_8, "TestNoGenericDiamonds");
+    // TODO: missing cast
+    register(JAVA_8, "TestGenericCastSuper");
+    // TODO: cast doesn't have generic type
+    register(JAVA_8, "TestGenericCastCall");
   }
 
   private void registerLiterals() {

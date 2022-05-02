@@ -78,7 +78,7 @@ public final class LoopExtractHelper {
       }
     }
 
-    if (stats.size() > 0) { // In this case prioritize first to help the Loop enhancer
+    if (!stats.isEmpty()) { // In this case prioritize first to help the Loop enhancer
       if (stat.getParent().getStats().getLast() != stat) {
         return false;
       }
