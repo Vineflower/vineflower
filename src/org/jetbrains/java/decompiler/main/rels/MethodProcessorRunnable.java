@@ -201,12 +201,6 @@ public class MethodProcessorRunnable implements Runnable {
       decompileRecord.add("SimplifyStringConcat", root);
     }
 
-    // Process ternary values
-    if (DecompilerContext.getOption(IFernflowerPreferences.TERNARY_CONDITIONS)) {
-      if (TernaryProcessor.processTernary(root)) {
-        decompileRecord.add("ProcessTernary", root);
-      }
-    }
 
     // Main loop
     while (true) {
