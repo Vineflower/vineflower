@@ -51,7 +51,7 @@ public final class SecondaryFunctionsHelper {
         Statement ifstat = ifelsestat.getIfstat();
 
         if (ifelsestat.iftype == IfStatement.IFTYPE_IFELSE && ifstat.getExprents() != null &&
-            ifstat.getExprents().isEmpty() && (ifstat.getAllSuccessorEdges().isEmpty() || !ifstat.getSingleSuccessor().explicit)) {
+            ifstat.getExprents().isEmpty() && (ifstat.getAllSuccessorEdges().isEmpty() || !ifstat.getFirstSuccessor().explicit)) {
 
           // move else to the if position
           ifelsestat.getStats().removeWithKey(ifstat.id);
@@ -61,7 +61,7 @@ public final class SecondaryFunctionsHelper {
           ifelsestat.setElsestat(null);
 
           if (ifelsestat.getAllSuccessorEdges().isEmpty() && !ifstat.getAllSuccessorEdges().isEmpty()) {
-            StatEdge endedge = ifstat.getSingleSuccessor();
+            StatEdge endedge = ifstat.getFirstSuccessor();
 
             ifstat.removeSuccessor(endedge);
             endedge.setSource(ifelsestat);

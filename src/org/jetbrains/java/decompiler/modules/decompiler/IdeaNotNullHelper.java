@@ -152,8 +152,8 @@ public final class IdeaNotNullHelper {
 
       ifstat.getStats().removeWithKey(ifbranch.id);
 
-      if (!ifbranch.getAllSuccessorEdges().isEmpty()) {
-        ifbranch.removeSuccessor(ifbranch.getSingleSuccessor());
+      if (ifbranch.hasAnySuccessor()) {
+        ifbranch.removeSuccessor(ifbranch.getFirstSuccessor());
       }
 
       // Replace statement with empty block
@@ -235,8 +235,8 @@ public final class IdeaNotNullHelper {
                   ifparent.getStats().removeWithKey(ifbranch.id);
                   ifparent.getStats().removeWithKey(elsebranch.id);
 
-                  if (!ifbranch.getAllSuccessorEdges().isEmpty()) {
-                    ifbranch.removeSuccessor(ifbranch.getSingleSuccessor());
+                  if (ifbranch.hasAnySuccessor()) {
+                    ifbranch.removeSuccessor(ifbranch.getFirstSuccessor());
                   }
 
                   if (!ifparent.getFirst().getExprents().isEmpty()) {
@@ -300,7 +300,7 @@ public final class IdeaNotNullHelper {
                     // return returnValue;
                     //
 
-                    ifstat.removeSuccessor(ifstat.getSingleSuccessor()); // remove 'else' edge
+                    ifstat.removeSuccessor(ifstat.getFirstSuccessor()); // remove 'else' edge
 
                     if (!ifstat.getFirst().getExprents().isEmpty()) {
                       stat.getExprents().addAll(0, ifstat.getFirst().getExprents());
@@ -312,7 +312,7 @@ public final class IdeaNotNullHelper {
                       stat.addPredecessor(edge);
                     }
 
-                    StatEdge edge = ifbranch.getSingleSuccessor();
+                    StatEdge edge = ifbranch.getFirstSuccessor();
                     ifbranch.removeSuccessor(edge);
 
                     sequence.getStats().removeWithKey(ifstat.id);

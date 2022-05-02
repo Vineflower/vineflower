@@ -117,13 +117,13 @@ public final class SequenceHelper {
 
         Statement st = stat.getFirst();
 
-        boolean ok = st.getAllSuccessorEdges().isEmpty();
+        boolean ok = !st.hasAnySuccessor();
         if (!ok) {
-          StatEdge edge = st.getSingleSuccessor();
+          StatEdge edge = st.getFirstSuccessor();
 
-          ok = stat.getAllSuccessorEdges().isEmpty();
+          ok = !stat.hasAnySuccessor();
           if (!ok) {
-            StatEdge statedge = stat.getSingleSuccessor();
+            StatEdge statedge = stat.getFirstSuccessor();
             ok = (edge.getDestination() == statedge.getDestination());
 
             if (ok) {
@@ -174,9 +174,8 @@ public final class SequenceHelper {
   private static boolean isSequenceDisbandable(Statement block, Statement next) {
 
     Statement last = block.getStats().getLast();
-    List<StatEdge> lstSuccs = last.getAllSuccessorEdges();
-    if (!lstSuccs.isEmpty()) {
-      if (lstSuccs.get(0).getDestination() != next) {
+    if (last.hasAnySuccessor()) {
+      if (last.getFirstSuccessor().getDestination() != next) {
         return false;
       }
     }
@@ -207,7 +206,7 @@ public final class SequenceHelper {
 
         if (st.getExprents() != null && st.getExprents().isEmpty()) {
 
-          if (st.getAllSuccessorEdges().isEmpty()) {
+          if (!st.hasAnySuccessor()) {
             List<StatEdge> lstBreaks = st.getPredecessorEdges(StatEdge.TYPE_BREAK);
 
             if (lstBreaks.isEmpty()) {
@@ -218,7 +217,7 @@ public final class SequenceHelper {
             }
           }
           else {
-            StatEdge sucedge = st.getAllSuccessorEdges().get(0);
+            StatEdge sucedge = st.getFirstSuccessor();
             if (sucedge.getType() != StatEdge.TYPE_FINALLYEXIT) {
               st.removeSuccessor(sucedge);
 

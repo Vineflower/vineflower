@@ -4,7 +4,6 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
-import org.jetbrains.java.decompiler.util.DotExporter;
 
 import java.util.*;
 
@@ -70,13 +69,13 @@ public final class TernaryProcessor {
     if (ifStatement.type == Statement.TYPE_IF && elseStatement.type == Statement.TYPE_IF &&
       ifStatement.getExprents() == null && elseStatement.getExprents() == null &&
       ifStatement.getAllSuccessorEdges().size() == 1 && elseStatement.getAllSuccessorEdges().size() == 1 &&
-      ifStatement.getSingleSuccessor().getType() == StatEdge.TYPE_BREAK && elseStatement.getSingleSuccessor().getType() == StatEdge.TYPE_BREAK &&
-      ifStatement.getSingleSuccessor().getDestination() == elseStatement.getSingleSuccessor().getDestination() &&
+      ifStatement.getFirstSuccessor().getType() == StatEdge.TYPE_BREAK && elseStatement.getFirstSuccessor().getType() == StatEdge.TYPE_BREAK &&
+      ifStatement.getFirstSuccessor().getDestination() == elseStatement.getFirstSuccessor().getDestination() &&
       ifStatement.getFirst().getExprents() != null && ifStatement.getFirst().getExprents().isEmpty() &&
       elseStatement.getFirst().getExprents() != null && elseStatement.getFirst().getExprents().isEmpty() &&
       ((IfStatement) ifStatement).getIfstat() == null && ((IfStatement) elseStatement).getIfstat() == null) {
 
-      Statement destination = ifStatement.getSingleSuccessor().getDestination();
+      Statement destination = ifStatement.getFirstSuccessor().getDestination();
 
       Statement closure = ((IfStatement) ifStatement).getIfEdge().closure;
 
@@ -107,14 +106,14 @@ public final class TernaryProcessor {
       StatEdge destEdge = edges.get(0);
 
       // If the closure of the if edge isn't null, make it so the edges to the if statement body won't be inlineable
-      if (closure != null && !closure.getAllSuccessorEdges().isEmpty()) {
-        for (StatEdge edge : closure.getAllSuccessorEdges().get(0).getDestination().getPredecessorEdges(StatEdge.TYPE_BREAK)) {
+      if (closure != null && closure.hasAnySuccessor()) {
+        for (StatEdge edge : closure.getFirstSuccessor().getDestination().getPredecessorEdges(StatEdge.TYPE_BREAK)) {
           edge.canInline = false;
         }
       }
 
       List<Statement> labelsNeedRemoving = new ArrayList<>();
-      if (destination.getSuccessorEdges(StatEdge.TYPE_REGULAR).size() == 1) {
+      if (destination.hasSuccessor(StatEdge.TYPE_REGULAR)) {
 
         int idx = parent.getStats().getIndexByKey(destination.id);
 
@@ -128,8 +127,8 @@ public final class TernaryProcessor {
           stats.add(st);
         }
 
-        List<StatEdge> succs = parent.getStats().getLast().getAllSuccessorEdges();
-        destEdge = succs.isEmpty() ? null : succs.get(0);
+//        List<StatEdge> succs = parent.getStats().getLast().getAllSuccessorEdges();
+        destEdge = !parent.getStats().getLast().hasAnySuccessor() ? null : parent.getStats().getLast().getFirstSuccessor();
 
         // fun hack! if we know that we're enclosed in a loop, we can construct a dummy continue edge that flows back into the parent.
         // This fixes stray continue labels in loops that have loops at the end [TestWhileTernary10#test2]

@@ -313,13 +313,23 @@ public final class ValidationHelper {
     }
   }
 
-  public static void singleSuccessor(Statement stat) {
+  public static void successorsExist(Statement stat) {
     if (!VALIDATE) {
       return;
     }
 
-    if (stat.getAllSuccessorEdges().size() != 1) {
-      throw new IllegalStateException("Statement has more than one successor: " + stat);
+    if (stat.getAllSuccessorEdges().isEmpty()) {
+      throw new IllegalStateException("Statement has no successors: " + stat);
+    }
+  }
+
+  public static void oneSuccessor(Statement stat) {
+    if (!VALIDATE) {
+      return;
+    }
+
+    if (stat.getAllSuccessorEdges().isEmpty()) {
+      throw new IllegalStateException("Statement has more than one successor: [" + stat + "] " + stat.getAllSuccessorEdges());
     }
   }
 
