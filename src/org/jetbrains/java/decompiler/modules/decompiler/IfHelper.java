@@ -3,6 +3,8 @@ package org.jetbrains.java.decompiler.modules.decompiler;
 
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
+import org.jetbrains.java.decompiler.modules.decompiler.IfNode;
+import org.jetbrains.java.decompiler.modules.decompiler.IfNode.EdgeType;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.IfExprent;
@@ -70,7 +72,7 @@ public final class IfHelper {
 
       for (Statement stat : lst) {
         if (stat.type == Statement.TYPE_IF) {
-          IfNode rtnode = buildGraph((IfStatement) stat, stsingle);
+          IfNode rtnode = IfNode.build((IfStatement) stat, stsingle);
 
           if (collapseIfIf(rtnode)) {
             res = true;
@@ -132,14 +134,14 @@ public final class IfHelper {
   // }
   // B // or goto B
   private static boolean collapseIfIf(IfNode rtnode) {
-    if (rtnode.edgetypes.get(0) == IfNode.DIRECT) {
-      IfNode ifbranch = rtnode.succs.get(0);
-      if (ifbranch.succs.size() == 2 && rtnode.succs.size() == 2) {
-        if (ifbranch.succs.get(1).value == rtnode.succs.get(1).value) {
+    if (rtnode.succ0Type == EdgeType.DIRECT) {
+      IfNode ifbranch = rtnode.succ0;
+      if (rtnode.succ1 != null && ifbranch.succ1 != null) {
+        if (rtnode.succ1.value == ifbranch.succ1.value) {
 
           IfStatement ifparent = (IfStatement) rtnode.value;
           IfStatement ifchild = (IfStatement) ifbranch.value;
-          Statement ifinner = ifbranch.succs.get(0).value;
+          Statement ifinner = ifbranch.succ0.value;
 
           if (ifchild.getFirst().getExprents().isEmpty()) {
 
@@ -147,8 +149,7 @@ public final class IfHelper {
             ifchild.getFirstSuccessor().remove();
             ifparent.getStats().removeWithKey(ifchild.id);
 
-            if (ifbranch.edgetypes.get(0) == IfNode.INDIRECT) { // inner code is remote (goto B case)
-
+            if (ifbranch.succ0Type == EdgeType.INDIRECT) { // inner code is remote (goto B case)
               ifparent.setIfstat(null);
 
               StatEdge ifedge = ifchild.getIfEdge();
@@ -212,10 +213,10 @@ public final class IfHelper {
   // }
   // A // or goto A
   private static boolean collapseIfElse(IfNode rtnode) {
-    if (rtnode.edgetypes.get(0) == IfNode.DIRECT) {
-      IfNode ifbranch = rtnode.succs.get(0);
-      if (ifbranch.succs.size() == 2 && rtnode.succs.size() == 2) {
-        if (ifbranch.succs.get(0).value == rtnode.succs.get(1).value) {
+    if (rtnode.succ0Type == EdgeType.DIRECT) {
+      IfNode ifbranch = rtnode.succ0;
+      if (rtnode.succ1 != null && ifbranch.succ1 != null) {
+        if (rtnode.succ1.value == ifbranch.succ0.value) {
 
           IfStatement ifparent = (IfStatement) rtnode.value;
           IfStatement ifchild = (IfStatement) ifbranch.value;
@@ -226,8 +227,8 @@ public final class IfHelper {
             ifchild.getIfEdge().remove();
             ifparent.getStats().removeWithKey(ifchild.id);
 
-            if (ifbranch.edgetypes.get(1) == IfNode.INDIRECT &&
-                ifbranch.edgetypes.get(0) == IfNode.INDIRECT) {
+            if (ifbranch.succ0Type == EdgeType.INDIRECT &&
+                ifbranch.succ1Type == EdgeType.INDIRECT) {
               // if (cond1) {
               //   if (cond2) {
               //     goto A
@@ -264,12 +265,12 @@ public final class IfHelper {
   }
 
   private static boolean collapseElse(IfNode rtnode) {
-    if (rtnode.edgetypes.size() == 2 && rtnode.edgetypes.get(1) == IfNode.DIRECT) {
-      IfNode elsebranch = rtnode.succs.get(1);
-      if (elsebranch.succs.size() == 2) {
+    if (rtnode.succ1 != null && rtnode.succ1Type == EdgeType.DIRECT) {
+      IfNode elsebranch = rtnode.succ1;
+      if (elsebranch.succ1 != null) {
 
-        int path = elsebranch.succs.get(1).value == rtnode.succs.get(0).value ? 2 :
-          (elsebranch.succs.get(0).value == rtnode.succs.get(0).value ? 1 : 0);
+        int path = elsebranch.succ1.value == rtnode.succ0.value ? 2 :
+          (elsebranch.succ0.value == rtnode.succ0.value ? 1 : 0);
 
         if (path > 0) {
           // path == 1
@@ -348,8 +349,8 @@ public final class IfHelper {
             return true;
           }
         }
-      } else if (elsebranch.succs.size() == 1) { // else branch is not an if statement, but is direct
-        if (elsebranch.succs.get(0).value == rtnode.succs.get(0).value) {
+      } else if (elsebranch.succ0 != null) { // else branch is not an if statement, but is direct
+        if (elsebranch.succ0.value == rtnode.succ0.value) {
           // if (cond1) {
           //   goto A
           // }
@@ -421,7 +422,7 @@ public final class IfHelper {
 
   // if goto A and goto B are swapped in `if (cond2)`, then cond2 is negated
   private static boolean collapseTernary(IfNode rtnode) {
-    if (rtnode.succs.size() == 2 && rtnode.edgetypes.get(0) == IfNode.DIRECT && rtnode.edgetypes.get(1) == IfNode.ELSE) {
+    if (rtnode.succ0Type == EdgeType.DIRECT && rtnode.succ1Type == EdgeType.ELSE) {
       // if (cond1) {
       //   if (cond2) {
       //     goto A
@@ -433,19 +434,18 @@ public final class IfHelper {
       //   }
       //   B // or goto B
       // }
-      IfNode ifBranch = rtnode.succs.get(0);
-      IfNode elseBranch = rtnode.succs.get(1);
+      IfNode ifBranch = rtnode.succ0;
+      IfNode elseBranch = rtnode.succ1;
 
-      if (ifBranch.succs.size() == 2 && elseBranch.succs.size() == 2 &&
-          ifBranch.edgetypes.get(0) == IfNode.INDIRECT && ifBranch.edgetypes.get(1) == IfNode.INDIRECT &&
-          elseBranch.edgetypes.get(0) == IfNode.INDIRECT && elseBranch.edgetypes.get(1) == IfNode.INDIRECT &&
+      if (ifBranch.succ0Type == EdgeType.INDIRECT && ifBranch.succ1Type == EdgeType.INDIRECT &&
+          elseBranch.succ0Type == EdgeType.INDIRECT && elseBranch.succ1Type == EdgeType.INDIRECT &&
           ifBranch.value.getFirst().getExprents().isEmpty() && elseBranch.value.getFirst().getExprents().isEmpty()) {
         boolean inverted;
-        if (ifBranch.succs.get(0).value == elseBranch.succs.get(0).value &&
-            ifBranch.succs.get(1).value == elseBranch.succs.get(1).value) {
+        if (ifBranch.succ0.value == elseBranch.succ0.value &&
+            ifBranch.succ1.value == elseBranch.succ1.value) {
           inverted = false;
-        } else if (ifBranch.succs.get(0).value == elseBranch.succs.get(1).value &&
-                   ifBranch.succs.get(1).value == elseBranch.succs.get(0).value) {
+        } else if (ifBranch.succ0.value == elseBranch.succ1.value &&
+                   ifBranch.succ1.value == elseBranch.succ0.value) {
           inverted = true;
         } else {
           return false;
@@ -478,7 +478,7 @@ public final class IfHelper {
 
         // move seconds successor to be the if's successor
         secondIf.getFirstSuccessor().changeSource(mainIf);
-        if(mainIf.getFirstSuccessor().closure == mainIf) {
+        if (mainIf.getFirstSuccessor().closure == mainIf) {
           // TODO: is this correct?
           mainIf.getFirstSuccessor().removeClosure();
           mainIf.getFirstSuccessor().changeType(StatEdge.TYPE_REGULAR);
@@ -539,11 +539,11 @@ public final class IfHelper {
   //
   // (Which is rendered as if/elseif/else)
   private static boolean ifElseChainDenesting(IfNode rtnode) {
-    if (rtnode.edgetypes.get(0) == 0) {
+    if (rtnode.succ0Type == EdgeType.DIRECT) {
       IfStatement outerIf = (IfStatement) rtnode.value;
       if (outerIf.getParent().type == Statement.TYPE_SEQUENCE) {
         SequenceStatement parent = (SequenceStatement) outerIf.getParent();
-        Statement nestedStat = rtnode.succs.get(0).value;
+        Statement nestedStat = rtnode.succ0.value;
 
         // check that statements Y and Z (see above) jump to end
         boolean ifdirect = hasDirectEndEdge(nestedStat, parent);
@@ -570,77 +570,6 @@ public final class IfHelper {
     }
 
     return false;
-  }
-
-  private static IfNode buildGraph(IfStatement stat, boolean stsingle) {
-    IfNode res = new IfNode(stat);
-
-    // if branch
-    Statement ifchild = stat.getIfstat();
-    if (ifchild == null) {
-      StatEdge edge = stat.getIfEdge();
-      res.addChild(new IfNode(edge.getDestination()), IfNode.INDIRECT);
-    } else {
-      IfNode ifnode = new IfNode(ifchild);
-      res.addChild(ifnode, IfNode.DIRECT);
-      if (ifchild.type == Statement.TYPE_IF && ((IfStatement) ifchild).iftype == IfStatement.IFTYPE_IF) {
-        IfStatement stat2 = (IfStatement) ifchild;
-        Statement ifchild2 = stat2.getIfstat();
-        if (ifchild2 == null) {
-          StatEdge edge = stat2.getIfEdge();
-          ifnode.addChild(new IfNode(edge.getDestination()), IfNode.INDIRECT);
-        } else {
-          ifnode.addChild(new IfNode(ifchild2), IfNode.DIRECT);
-        }
-      }
-
-      if (!ifchild.getAllSuccessorEdges().isEmpty()) {
-        ifnode.addChild(new IfNode(ifchild.getFirstSuccessor().getDestination()), IfNode.INDIRECT);
-      }
-    }
-
-    // else branch
-    StatEdge edge;
-    int edgeType;
-    if (stat.iftype == IfStatement.IFTYPE_IFELSE) {
-      edge = stat.getElseEdge();
-      edgeType = IfNode.ELSE;
-    } else {
-      if (!stat.hasAnySuccessor()) {
-        return res;
-      }
-      edge = stat.getFirstSuccessor();
-      if (stsingle || edge.getType() != StatEdge.TYPE_REGULAR) {
-        edgeType = IfNode.INDIRECT;
-      } else {
-        edgeType = IfNode.DIRECT;
-      }
-    }
-    Statement elsechild = edge.getDestination();
-    IfNode elsenode = new IfNode(elsechild);
-
-    res.addChild(elsenode, edgeType);
-
-    if (edgeType != IfNode.INDIRECT) {
-      if (elsechild.type == Statement.TYPE_IF && ((IfStatement) elsechild).iftype == IfStatement.IFTYPE_IF) {
-        IfStatement stat2 = (IfStatement) elsechild;
-        Statement ifchild2 = stat2.getIfstat();
-        if (ifchild2 == null) {
-          elsenode.addChild(new IfNode(stat2.getIfEdge().getDestination()), IfNode.INDIRECT);
-        } else {
-          elsenode.addChild(new IfNode(ifchild2), IfNode.DIRECT);
-        }
-      }
-
-      if (!elsechild.getAllSuccessorEdges().isEmpty()) { // always true when the elsechild was an IFTYPE_IF
-        // Fixme: I don't think this is correct. if elsechild was an IFTYPE_IF,
-        //  then the elsechild's successor could be a regular edge, not an indirect edge.
-        elsenode.addChild(new IfNode(elsechild.getFirstSuccessor().getDestination()), IfNode.INDIRECT);
-      }
-    }
-
-
-    return res;
   }
 
   // FIXME: rewrite the entire method!!! keep in mind finally exits!!
@@ -924,45 +853,5 @@ public final class IfHelper {
     }
 
     return false;
-  }
-
-  // Models an if statement, child if statements and their successors.
-  // Does not model grandchild if statements or successors of successors.
-  // Does **not** model if statements with else branches.
-  // Therefore the maximum amount of information that the root node can contain is:
-  // root [IfStatement] {
-  //   ifstat1 [IfStatement] {
-  //      ifstat2 [Any Statement]
-  //   }
-  //   elsestat2 [Any Statement]
-  // }
-  // elsestat1 [If Statement] {
-  //   ifstat3 [Any Statement]
-  // }
-  // elsestat3 [Any Statement]
-  // Note that an "elsestat" in this context is simply the stat we jump to when the condition is false, even if it's
-  // reachable from the if body (i.e. there should never need to be an "else" keyword in the source code).
-
-  // UPDATE:
-  // to handle ternaries better, the root node now allows for the elsestat1 to be inside an else. It will then have an
-  // IfNode.ELSE edge type. This shouldn't interfere with any other handling as they all check this edge type.
-  private static class IfNode {
-    // The stat that this node refers to. Root node will be an if stat, child nodes can be any stat.
-    public final Statement value;
-    public final List<IfNode> succs = new ArrayList<>();
-    // edge types, 0 for direct, 1 for indirect (e.g. continue, break, implicit), 2 for else branch
-    static final int DIRECT = 0;
-    static final int INDIRECT = 1;
-    static final int ELSE = 2;
-    public final List<Integer> edgetypes = new ArrayList<>();
-
-    IfNode(Statement value) {
-      this.value = value;
-    }
-
-    public void addChild(IfNode child, int type) {
-      succs.add(child);
-      edgetypes.add(type);
-    }
   }
 }
