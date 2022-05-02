@@ -97,8 +97,8 @@ public final class IfHelper {
               continue loop;
             }
 
-            // FIXME: I think this should be moved (probably to reorderIf)
-            if (ifElseChainDeNesing(rtnode)) {
+            // TODO: This should maybe be moved (probably to reorderIf)
+            if (ifElseChainDenesting(rtnode)) {
               res = true;
               ValidationHelper.validateStatement((RootStatement) stat.getTopParent());
               continue loop;
@@ -538,7 +538,7 @@ public final class IfHelper {
   // }
   //
   // (Which is rendered as if/elseif/else)
-  private static boolean ifElseChainDeNesing(IfNode rtnode) {
+  private static boolean ifElseChainDenesting(IfNode rtnode) {
     if (rtnode.edgetypes.get(0) == 0) {
       IfStatement outerIf = (IfStatement) rtnode.value;
       if (outerIf.getParent().type == Statement.TYPE_SEQUENCE) {
