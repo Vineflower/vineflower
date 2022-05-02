@@ -7,6 +7,7 @@ import org.jetbrains.java.decompiler.code.cfg.ExceptionRangeCFG;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
+import org.jetbrains.java.decompiler.main.rels.MethodProcessorRunnable;
 import org.jetbrains.java.decompiler.modules.decompiler.decompose.FastExtendedPostdominanceHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.deobfuscator.IrreducibleCFGDeobfuscator;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
@@ -202,6 +203,8 @@ public final class DomHelper {
       DotExporter.errorToDotFile(root, mt, "parseGraphFailStat");
       throw new RuntimeException("parsing failure!");
     }
+
+    MethodProcessorRunnable.debugCurrentlyDecompiling.set(root);
 
     LabelHelper.lowContinueLabels(root, new LinkedHashSet<>());
 
@@ -613,7 +616,7 @@ public final class DomHelper {
     do {
       found = false;
 
-      // Orders the statement in reverse order with respect to post dominance, to ensure that the statment is built from the inside out
+      // Orders the statement in reverse post order with respect to post dominance, to ensure that the statement is built from the inside out
       List<Statement> lstStats = stat.getPostReversePostOrderList();
       for (Statement st : lstStats) {
 

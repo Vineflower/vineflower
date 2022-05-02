@@ -123,6 +123,40 @@ public final class ValidationHelper {
         //ex = error(ex, "Edge with label, but the closure doesn't know: " + edge);
       }
     }
+
+    switch (edge.getType()){
+      case StatEdge.TYPE_REGULAR: {
+        if (edge.closure != null) {
+          // throw new IllegalStateException("Edge with closure, but it's a regular edge: " + edge);
+        }
+        break;
+      }
+      case StatEdge.TYPE_BREAK: {
+        if (edge.closure == null) {
+          throw new IllegalStateException("Break edge with break type, but no closure: " + edge);
+        }
+
+        if (edge.getSource() == edge.closure) {
+          throw new IllegalStateException("Break edge with closure pointing to itself: " + edge);
+        }
+
+        if (edge.getDestination() == edge.closure) {
+          throw new IllegalStateException("Break edge with closure pointing to itself: " + edge);
+        }
+
+        if (edge.getSource() == edge.getDestination()) {
+          throw new IllegalStateException("Break edge with pointing to itself: " + edge);
+        }
+        break;
+      }
+      case StatEdge.TYPE_CONTINUE: {
+        if (edge.closure == null) {
+          throw new IllegalStateException("Continue edge with continue type, but no closure: " + edge);
+        }
+
+        break;
+      }
+    }
   }
 
   // not recursive
@@ -154,7 +188,7 @@ public final class ValidationHelper {
     }
 
     if (ifStat.getIfstat() != null) {
-      if (ifStat.getIfEdge() != null && ifStat.getIfEdge().getDestination() != ifStat.getIfstat()) {
+      if (ifStat.getIfEdge().getDestination() != ifStat.getIfstat()) {
         throw new IllegalStateException("If statement if edge destination is not ifStat: " + ifStat + " (destination is: " + ifStat.getIfEdge().getDestination() + " but ifStat is: " + ifStat.getIfstat() + ")");
       }
 
@@ -177,14 +211,20 @@ public final class ValidationHelper {
         throw new IllegalStateException("IfElse statement without else edge: " + ifStat);
       }
 
-      if (ifStat.getElsestat() != null) {
-        if (ifStat.getElseEdge() != null && ifStat.getElseEdge().getDestination() != ifStat.getElsestat()) {
-          throw new IllegalStateException("IfElse statement else edge destination is not elseStat: " + ifStat);
-        }
+      if (ifStat.getIfstat() == null) {
+        throw new IllegalStateException("IfElse statement without ifStat: " + ifStat);
+      }
 
-        if (!stats.contains(ifStat.getElsestat())) {
-          throw new IllegalStateException("IfElse statement does not contain own elseStat: " + ifStat);
-        }
+      if (ifStat.getElsestat() == null) {
+        throw new IllegalStateException("IfElse statement without elseStat: " + ifStat);
+      }
+
+      if (ifStat.getElseEdge().getDestination() != ifStat.getElsestat()) {
+        throw new IllegalStateException("IfElse statement else edge destination is not elseStat: " + ifStat);
+      }
+
+      if (!stats.contains(ifStat.getElsestat())) {
+        throw new IllegalStateException("IfElse statement does not contain own elseStat: " + ifStat);
       }
 
       // This is a valid case to check, but much of fernflower is built around it so checking it is more trouble than it's worth
