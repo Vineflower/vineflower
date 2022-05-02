@@ -71,6 +71,9 @@ public class StatEdge {
     this.type = type;
     this.source = source;
     this.destination = destination;
+
+    ValidationHelper.notNull(source);
+    ValidationHelper.notNull(destination);
   }
 
   public StatEdge(Statement source, Statement destination, List<String> exceptions) {
@@ -96,12 +99,50 @@ public class StatEdge {
     this.source = source;
   }
 
+  public void changeSource(Statement newSource) {
+    ValidationHelper.notNull(newSource);
+    Statement oldSource = this.source;
+    oldSource.removeEdgeInternal(Statement.DIRECTION_FORWARD, this);
+    this.destination.changeEdgeNodeInternal(Statement.DIRECTION_BACKWARD, this, newSource);
+    newSource.addEdgeInternal(Statement.DIRECTION_FORWARD, this);
+    this.source = newSource;
+  }
+
   public Statement getDestination() {
     return destination;
   }
 
   public void setDestination(Statement destination) {
     this.destination = destination;
+  }
+
+  public void changeDestination(Statement newDestination) {
+    ValidationHelper.notNull(newDestination);
+    Statement oldDestination = this.destination;
+    oldDestination.removeEdgeInternal(Statement.DIRECTION_BACKWARD, this);
+    this.source.changeEdgeNodeInternal(Statement.DIRECTION_FORWARD, this, newDestination);
+    newDestination.addEdgeInternal(Statement.DIRECTION_BACKWARD, this);
+    this.destination = newDestination;
+  }
+
+
+  public void changeType(int type) {
+    this.source.changeEdgeType(Statement.DIRECTION_FORWARD, this, type);
+  }
+
+  public void remove() {
+    this.source.removeEdgeInternal(Statement.DIRECTION_FORWARD, this);
+    this.destination.removeEdgeInternal(Statement.DIRECTION_BACKWARD, this);
+
+    if (this.closure != null) {
+      this.closure.getLabelEdges().remove(this);
+    }
+  }
+
+
+  public void removeClosure() {
+    this.closure.getLabelEdges().remove(this);
+    this.closure = null;
   }
 
   public List<String> getExceptions() {
