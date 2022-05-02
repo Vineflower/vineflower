@@ -8,6 +8,8 @@ import org.jetbrains.java.decompiler.modules.decompiler.sforms.FlattenStatements
 import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
+import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionNode;
+import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionsGraph;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.DotExporter;
 import org.jetbrains.java.decompiler.util.ListStack;
@@ -346,5 +348,25 @@ public final class ValidationHelper {
     }
 
     return false;
+  }
+
+  public static void validateVarVersionsGraph(VarVersionsGraph graph) {
+    if (!VALIDATE) {
+      return;
+    }
+
+    Set<VarVersionNode> roots = new HashSet<>();
+
+    for (VarVersionNode node : graph.nodes) {
+      if (node.preds.isEmpty()) {
+        roots.add(node);
+      }
+    }
+
+    Set<VarVersionNode> reached = graph.rootReachability(roots);
+
+    if (graph.nodes.size() != reached.size()) {
+      throw new IllegalStateException("Highly cyclic varversions graph!");
+    }
   }
 }
