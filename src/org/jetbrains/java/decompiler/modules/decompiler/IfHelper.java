@@ -405,26 +405,6 @@ public final class IfHelper {
   //     goto A
   //   }
   //   goto B
-  // }
-  // if (cond3) {
-  //   goto A
-  // }
-  // B // or goto B
-  //
-  // into
-  // if (cond1 ? cond2 : cond3) {
-  //   goto A
-  // }
-  // B // or goto B
-
-  // if goto A and goto B are swapped in cond2, then cond2 is negated
-
-  // convert
-  // if (cond1) {
-  //   if (cond2) {
-  //     goto A
-  //   }
-  //   goto B
   // } else {
   //   if (cond3) {
   //     goto A
@@ -438,80 +418,9 @@ public final class IfHelper {
   // } else {
   //   goto B
   // }
+
+  // if goto A and goto B are swapped in `if (cond2)`, then cond2 is negated
   private static boolean collapseTernary(IfNode rtnode) {
-    if (rtnode.succs.size() == 2 && rtnode.edgetypes.get(0) == IfNode.DIRECT && rtnode.edgetypes.get(1) == IfNode.DIRECT) {
-      // if (cond1) {
-      //   if (cond2) {
-      //     goto A
-      //   }
-      //   goto B
-      // }
-      // if (cond3) {
-      //   goto A
-      // }
-      // B // or goto B
-
-      // Note: this branch has never been tested, it is unclear whether this could ever be triggered in the current code base
-      IfNode ifBranch = rtnode.succs.get(0);
-      IfNode elseBranch = rtnode.succs.get(1);
-
-      if (ifBranch.succs.size() == 2 && elseBranch.succs.size() == 2 &&
-          ifBranch.edgetypes.get(0) == IfNode.INDIRECT && ifBranch.edgetypes.get(1) == IfNode.INDIRECT &&
-          elseBranch.edgetypes.get(0) == IfNode.INDIRECT &&
-          ifBranch.value.getFirst().getExprents().isEmpty() && elseBranch.value.getFirst().getExprents().isEmpty()) {
-        boolean inverted;
-        if (ifBranch.succs.get(0).value == elseBranch.succs.get(0).value &&
-            ifBranch.succs.get(1).value == elseBranch.succs.get(1).value) {
-          inverted = false;
-        } else if (ifBranch.succs.get(0).value == elseBranch.succs.get(1).value &&
-                   ifBranch.succs.get(1).value == elseBranch.succs.get(0).value) {
-          inverted = true;
-        } else {
-          return false;
-        }
-
-        IfStatement mainIf = (IfStatement) rtnode.value;
-        IfStatement firstIf = (IfStatement) ifBranch.value;
-        IfStatement secondIf = (IfStatement) elseBranch.value;
-        Statement parent = mainIf.getParent();
-
-        // remove main if
-        mainIf.removeAllSuccessors(secondIf);
-
-        for (StatEdge edge : mainIf.getAllPredecessorEdges()) {
-          if (!mainIf.containsStatementStrict(edge.getSource())) { // why is this check here?
-            edge.changeDestination(secondIf);
-          }
-        }
-
-        // remove first if's edges
-        firstIf.getIfEdge().remove();
-        firstIf.getFirstSuccessor().remove();
-
-        parent.getStats().removeWithKey(mainIf.id);
-        if (parent.getFirst() == mainIf) {
-          parent.setFirst(mainIf);
-        }
-
-        // merge if conditions
-        IfExprent statexpr = secondIf.getHeadexprent();
-
-        List<Exprent> lstOperands = new ArrayList<>();
-        lstOperands.add(mainIf.getHeadexprent().getCondition());
-        lstOperands.add(firstIf.getHeadexprent().getCondition());
-
-        if (inverted) {
-          lstOperands.set(1, new FunctionExprent(FunctionExprent.FUNCTION_BOOL_NOT, lstOperands.get(1), null));
-        }
-
-        lstOperands.add(statexpr.getCondition());
-
-        statexpr.setCondition(new FunctionExprent(FunctionExprent.FUNCTION_IIF, lstOperands, null));
-
-        return true;
-      }
-    }
-
     if (rtnode.succs.size() == 2 && rtnode.edgetypes.get(0) == IfNode.DIRECT && rtnode.edgetypes.get(1) == IfNode.ELSE) {
       // if (cond1) {
       //   if (cond2) {
