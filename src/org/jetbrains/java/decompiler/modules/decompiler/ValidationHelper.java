@@ -328,7 +328,7 @@ public final class ValidationHelper {
       return;
     }
 
-    if (stat.getAllSuccessorEdges().isEmpty()) {
+    if (stat.getAllSuccessorEdges().size() != 1) {
       throw new IllegalStateException("Statement has more than one successor: [" + stat + "] " + stat.getAllSuccessorEdges());
     }
   }
