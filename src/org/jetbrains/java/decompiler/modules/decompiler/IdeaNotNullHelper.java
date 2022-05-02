@@ -300,20 +300,17 @@ public final class IdeaNotNullHelper {
                     // return returnValue;
                     //
 
-                    ifstat.removeSuccessor(ifstat.getFirstSuccessor()); // remove 'else' edge
+                    ifstat.getFirstSuccessor().remove(); // remove 'else' edge
 
                     if (!ifstat.getFirst().getExprents().isEmpty()) {
                       stat.getExprents().addAll(0, ifstat.getFirst().getExprents());
                     }
 
                     for (StatEdge edge : ifstat.getAllPredecessorEdges()) {
-                      ifstat.removePredecessor(edge);
-                      edge.getSource().changeEdgeNode(Statement.DIRECTION_FORWARD, edge, stat);
-                      stat.addPredecessor(edge);
+                      edge.changeDestination(stat);
                     }
 
-                    StatEdge edge = ifbranch.getFirstSuccessor();
-                    ifbranch.removeSuccessor(edge);
+                    ifbranch.getFirstSuccessor().remove();
 
                     sequence.getStats().removeWithKey(ifstat.id);
                     sequence.setFirst(sequence.getStats().get(0));

@@ -259,7 +259,8 @@ public class Statement implements IMatchable {
     mapStates.computeIfAbsent(edgetype, k -> new ArrayList<>()).add(direction == DIRECTION_BACKWARD ? edge.getSource() : edge.getDestination());
   }
 
-  private void addEdgeInternal(int direction, StatEdge edge) {
+  @Deprecated // Only public so StatEdge can call these.
+  public void addEdgeInternal(int direction, StatEdge edge) {
     int type = edge.getType();
 
     int[] arrtypes;
@@ -290,7 +291,8 @@ public class Statement implements IMatchable {
     }
   }
 
-  private void removeEdgeInternal(int direction, StatEdge edge) {
+  @Deprecated // Only public so StatEdge can call these.
+  public void removeEdgeInternal(int direction, StatEdge edge) {
 
     int type = edge.getType();
 
@@ -689,6 +691,33 @@ public class Statement implements IMatchable {
     }
     else {
       edge.setDestination(value);
+    }
+  }
+
+  @Deprecated // Only public so StatEdge can call these.
+  public void changeEdgeNodeInternal(int direction, StatEdge edge, Statement value) {
+
+    Map<Integer, List<StatEdge>> mapEdges = direction == DIRECTION_BACKWARD ? mapPredEdges : mapSuccEdges;
+    Map<Integer, List<Statement>> mapStates = direction == DIRECTION_BACKWARD ? mapPredStates : mapSuccStates;
+
+    int type = edge.getType();
+
+    int[] arrtypes;
+    if (type == StatEdge.TYPE_EXCEPTION) {
+      arrtypes = new int[]{STATEDGE_ALL, StatEdge.TYPE_EXCEPTION};
+    }
+    else {
+      arrtypes = new int[]{STATEDGE_ALL, STATEDGE_DIRECT_ALL, type};
+    }
+
+    for (int edgetype : arrtypes) {
+      List<StatEdge> lst = mapEdges.get(edgetype);
+      if (lst != null) {
+        int index = lst.indexOf(edge);
+        if (index >= 0) {
+          mapStates.get(edgetype).set(index, value);
+        }
+      }
     }
   }
 
