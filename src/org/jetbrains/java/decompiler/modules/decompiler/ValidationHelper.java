@@ -138,7 +138,7 @@ public final class ValidationHelper {
           throw new IllegalStateException("Break edge with break type, but no closure: " + edge);
         }
 
-        if (edge.getSource() == edge.closure) {
+        if (edge.getSource() == edge.closure && !edge.phantomContinue) {
           throw new IllegalStateException("Break edge with closure pointing to itself: " + edge);
         }
 
@@ -147,7 +147,7 @@ public final class ValidationHelper {
         }
 
         if (edge.getSource() == edge.getDestination()) {
-          throw new IllegalStateException("Break edge with pointing to itself: " + edge);
+          throw new IllegalStateException("Break edge pointing to itself: " + edge);
         }
         break;
       }
