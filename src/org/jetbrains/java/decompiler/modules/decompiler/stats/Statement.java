@@ -7,9 +7,9 @@ import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.InstructionSequence;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
+import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.util.TextBuffer;
-import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.StrongConnectivityHelper;
@@ -259,7 +259,8 @@ public class Statement implements IMatchable {
     mapStates.computeIfAbsent(edgetype, k -> new ArrayList<>()).add(direction == DIRECTION_BACKWARD ? edge.getSource() : edge.getDestination());
   }
 
-  private void addEdgeInternal(int direction, StatEdge edge) {
+  @Deprecated // Only public so StatEdge can call these.
+  public void addEdgeInternal(int direction, StatEdge edge) {
     int type = edge.getType();
 
     int[] arrtypes;
@@ -290,7 +291,8 @@ public class Statement implements IMatchable {
     }
   }
 
-  private void removeEdgeInternal(int direction, StatEdge edge) {
+  @Deprecated // Only public so StatEdge can call these.
+  public void removeEdgeInternal(int direction, StatEdge edge) {
 
     int type = edge.getType();
 
@@ -564,7 +566,21 @@ public class Statement implements IMatchable {
       }
     }
 
+    replaceClosure(this, oldstat, newstat);
+
     oldstat.getLabelEdges().clear();
+  }
+
+  private static void replaceClosure(Statement stat, Statement oldstat, Statement newstat) {
+    for (StatEdge edge : stat.getAllSuccessorEdges()) {
+      if (edge.closure == oldstat) {
+        edge.closure = newstat;
+      }
+    }
+
+    for (Statement st : stat.getStats()) {
+      replaceClosure(st, oldstat, newstat);
+    }
   }
 
   /**
@@ -597,7 +613,7 @@ public class Statement implements IMatchable {
 
       setVisited.add(node);
 
-      List<StatEdge> lstEdges = node.getAllSuccessorEdges();
+      List<StatEdge> lstEdges = node.mapSuccEdges.computeIfAbsent(STATEDGE_ALL, k -> new ArrayList<>());
 
       for (; index < lstEdges.size(); index++) {
         StatEdge edge = lstEdges.get(index);
@@ -675,6 +691,33 @@ public class Statement implements IMatchable {
     }
     else {
       edge.setDestination(value);
+    }
+  }
+
+  @Deprecated // Only public so StatEdge can call these.
+  public void changeEdgeNodeInternal(int direction, StatEdge edge, Statement value) {
+
+    Map<Integer, List<StatEdge>> mapEdges = direction == DIRECTION_BACKWARD ? mapPredEdges : mapSuccEdges;
+    Map<Integer, List<Statement>> mapStates = direction == DIRECTION_BACKWARD ? mapPredStates : mapSuccStates;
+
+    int type = edge.getType();
+
+    int[] arrtypes;
+    if (type == StatEdge.TYPE_EXCEPTION) {
+      arrtypes = new int[]{STATEDGE_ALL, StatEdge.TYPE_EXCEPTION};
+    }
+    else {
+      arrtypes = new int[]{STATEDGE_ALL, STATEDGE_DIRECT_ALL, type};
+    }
+
+    for (int edgetype : arrtypes) {
+      List<StatEdge> lst = mapEdges.get(edgetype);
+      if (lst != null) {
+        int index = lst.indexOf(edge);
+        if (index >= 0) {
+          mapStates.get(edgetype).set(index, value);
+        }
+      }
     }
   }
 
@@ -762,6 +805,50 @@ public class Statement implements IMatchable {
 
   public List<StatEdge> getAllSuccessorEdges() {
     return getEdges(STATEDGE_ALL, DIRECTION_FORWARD);
+  }
+
+  public boolean hasAnySuccessor() {
+    return hasSuccessor(STATEDGE_ALL);
+  }
+
+  public boolean hasSuccessor(int type) {
+    Map<Integer, List<StatEdge>> map = mapSuccEdges;
+
+    boolean res = false;
+    if ((type & (type - 1)) == 0) {
+      List<StatEdge> edges = map.get(type);
+      res = edges != null && !edges.isEmpty();
+    } else {
+      for (int edgetype : StatEdge.TYPES) {
+        if ((type & edgetype) != 0) {
+          List<StatEdge> lst = map.get(edgetype);
+
+          if (lst != null) {
+            res = !lst.isEmpty();
+
+            if (res) {
+              return true;
+            }
+          }
+        }
+      }
+    }
+
+    return res;
+  }
+
+  public StatEdge getFirstSuccessor() {
+    ValidationHelper.successorsExist(this);
+    ValidationHelper.oneSuccessor(this);
+
+    List<StatEdge> res = this.mapSuccEdges.get(STATEDGE_ALL);
+    if (res != null) {
+      for (StatEdge e : res) {
+        return e;
+      }
+    }
+
+    throw new IllegalStateException("No successor exists for " + this);
   }
 
   public List<StatEdge> getAllPredecessorEdges() {

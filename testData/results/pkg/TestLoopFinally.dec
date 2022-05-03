@@ -119,6 +119,38 @@ public class TestLoopFinally {
       // 65: bipush 1
       // 66: ireturn
    }
+
+   public int test4(int param1) {
+      // $FF: Couldn't be decompiled
+      // Bytecode:
+      // 00: iload 1
+      // 01: bipush 25
+      // 03: if_icmpge 12
+      // 06: bipush 5
+      // 07: istore 2
+      // 08: iload 1
+      // 09: bipush 3
+      // 0a: if_icmple 10
+      // 0d: goto 2b
+      // 10: iload 2
+      // 11: ireturn
+      // 12: iload 1
+      // 13: bipush 3
+      // 14: if_icmple 25
+      // 17: goto 2b
+      // 1a: astore 3
+      // 1b: iload 1
+      // 1c: bipush 3
+      // 1d: if_icmple 23
+      // 20: goto 2b
+      // 23: aload 3
+      // 24: athrow
+      // 25: iload 1
+      // 26: bipush 45
+      // 28: if_icmplt 00
+      // 2b: bipush 1
+      // 2c: ireturn
+   }
 }
 
 class 'pkg/TestLoopFinally' {

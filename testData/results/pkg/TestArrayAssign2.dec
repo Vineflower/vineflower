@@ -1,0 +1,79 @@
+package pkg;
+
+public class TestArrayAssign2 {
+   public Object test(boolean b, Object[] s) {
+      if (b) {// 5
+         s = this.method(s);// 6
+      }
+
+      return s;// 9
+   }
+
+   public Object test1(boolean b, String[] s) {
+      if (b) {// 13
+         s = (String[])this.method(s);// 14
+      }
+
+      return s;// 17
+   }
+
+   private Object method(Object[] s) {
+      return s[0] = new Object();// 21
+   }
+}
+
+class 'pkg/TestArrayAssign2' {
+   method 'test (Z[Ljava/lang/Object;)Ljava/lang/Object;' {
+      0      4
+      1      4
+      4      5
+      5      5
+      6      5
+      7      5
+      8      5
+      9      5
+      a      5
+      b      5
+      c      5
+      d      5
+      e      5
+      f      5
+      10      8
+      11      8
+   }
+
+   method 'test1 (Z[Ljava/lang/String;)Ljava/lang/Object;' {
+      0      12
+      1      12
+      4      13
+      5      13
+      6      13
+      7      13
+      8      13
+      9      13
+      a      13
+      b      13
+      c      13
+      d      13
+      e      13
+      f      13
+      10      16
+      11      16
+   }
+
+   method 'method ([Ljava/lang/Object;)Ljava/lang/Object;' {
+      0      20
+      1      20
+      a      20
+      b      20
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 6
+9 <-> 9
+13 <-> 13
+14 <-> 14
+17 <-> 17
+21 <-> 21

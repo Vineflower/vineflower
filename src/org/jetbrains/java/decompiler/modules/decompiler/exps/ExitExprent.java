@@ -6,6 +6,7 @@ import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
+import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
 import org.jetbrains.java.decompiler.struct.attr.StructExceptionsAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
@@ -37,6 +38,8 @@ public class ExitExprent extends Exprent {
     this.methodDescriptor = methodDescriptor;
 
     addBytecodeOffsets(bytecodeOffsets);
+
+    ValidationHelper.validateExitExprent(this);
   }
 
   @Override

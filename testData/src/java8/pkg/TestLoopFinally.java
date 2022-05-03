@@ -86,4 +86,21 @@ public class TestLoopFinally {
     System.out.print(5);
     return 1;
   }
+
+  // simplified version of test3
+  public int test4(int x) {
+    do {
+      try {
+        if (x < 25) {
+          return 5;
+        }
+      } finally {
+        if (x > 3) {
+          break;
+        }
+      }
+    } while (x < 45);
+
+    return 1;
+  }
 }

@@ -1,0 +1,54 @@
+package pkg;
+
+public class TestNoUse {
+   private int[] a = new int[10];
+
+   public void test(boolean var1, int var2) {
+      int var3 = this.a[0]++;
+      int var10000 = this.a[1]++;
+      if (var1) {
+         var10000 = this.a[2]++;
+      }
+
+      System.out.println(var3);
+   }
+}
+
+class 'pkg/TestNoUse' {
+   method 'test (ZI)V' {
+      0      6
+      1      6
+      2      6
+      3      6
+      4      6
+      6      6
+      9      6
+      b      6
+      c      7
+      d      7
+      e      7
+      f      7
+      10      7
+      12      7
+      15      7
+      19      8
+      1a      8
+      1d      9
+      1e      9
+      1f      9
+      20      9
+      21      9
+      23      9
+      26      9
+      2a      12
+      2b      12
+      2c      12
+      2d      12
+      2e      12
+      2f      12
+      30      12
+      31      13
+   }
+}
+
+Lines mapping:

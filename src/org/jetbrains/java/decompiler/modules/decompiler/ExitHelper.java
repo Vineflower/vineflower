@@ -119,7 +119,7 @@ public final class ExitHelper {
             ifst.getStats().addWithKey(bstat, bstat.id);
             bstat.setParent(ifst);
 
-            StatEdge oldexitedge = dest.getAllSuccessorEdges().get(0);
+            StatEdge oldexitedge = dest.getFirstSuccessor();
             StatEdge newexitedge = new StatEdge(StatEdge.TYPE_BREAK, bstat, oldexitedge.getDestination());
             bstat.addSuccessor(newexitedge);
             oldexitedge.closure.addLabeledEdge(newexitedge);

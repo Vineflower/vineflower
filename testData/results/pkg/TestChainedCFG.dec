@@ -1,0 +1,87 @@
+package pkg;
+
+public class TestChainedCFG {
+   public static void test(int a, int b, int c, int d) {
+      label49:
+      while(true) {
+         System.out.println("Hello world");// 6
+
+         while(a++ != 0) {// 8
+            while(b++ != 0) {// 12
+               while(c++ != 0) {// 16
+                  while(d++ != 0) {// 20
+                     while((d += c) != 0) {// 24
+                        while((c += b) != 0) {// 28
+                           while((b += a) != 0) {// 32
+                              if ((a += d) != 0) {// 36
+                                 continue label49;
+                              }
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+}
+
+class 'pkg/TestChainedCFG' {
+   method 'test (IIII)V' {
+      0      6
+      1      6
+      2      6
+      3      6
+      4      6
+      5      6
+      9      8
+      a      8
+      b      8
+      c      8
+      13      9
+      14      9
+      15      9
+      16      9
+      1d      10
+      1e      10
+      1f      10
+      20      10
+      27      11
+      28      11
+      29      11
+      2a      11
+      31      12
+      34      12
+      35      12
+      3c      13
+      3f      13
+      40      13
+      47      14
+      4a      14
+      4b      14
+      52      15
+      55      15
+      56      15
+   }
+}
+
+Lines mapping:
+6 <-> 7
+8 <-> 9
+12 <-> 10
+16 <-> 11
+20 <-> 12
+24 <-> 13
+28 <-> 14
+32 <-> 15
+36 <-> 16
+Not mapped:
+9
+13
+17
+21
+25
+29
+33
+37

@@ -21,6 +21,7 @@ public class VarProcessor {
   private final StructMethod method;
   private final MethodDescriptor methodDescriptor;
   private Map<VarVersionPair, String> mapVarNames = new HashMap<>();
+  private List<VarVersionPair> params = new ArrayList<>();
   private Map<VarVersionPair, LocalVariable> mapVarLVTs = new HashMap<>();
   private VarVersionsProcessor varVersions;
   private final Map<VarVersionPair, String> thisVars = new HashMap<>();
@@ -46,7 +47,7 @@ public class VarProcessor {
     this.clashingNames.putAll(varDef.getClashingNames());
   }
 
-  public void setDebugVarNames(Map<VarVersionPair, String> mapDebugVarNames) {
+  public void setDebugVarNames(Statement root, Map<VarVersionPair, String> mapDebugVarNames) {
     if (varVersions == null) {
       return;
     }
@@ -80,6 +81,17 @@ public class VarProcessor {
 
       mapVarNames.put(pair, name);
     }
+
+    // Re-run name clashing analysis
+
+    VarDefinitionHelper vardef = new VarDefinitionHelper(root, method, this, false);
+    vardef.remapClashingNames(root);
+
+    for (Entry<VarVersionPair, String> e : vardef.getClashingNames().entrySet()) {
+      if (!params.contains(e.getKey())) {
+        this.clashingNames.put(e.getKey(), e.getValue());
+      }
+    }
   }
 
   public Integer getVarOriginalIndex(int index) {
@@ -103,6 +115,10 @@ public class VarProcessor {
 
   public VarType getVarType(VarVersionPair pair) {
     return varVersions == null ? null : varVersions.getVarType(pair);
+  }
+
+  public void markParam(VarVersionPair pair) {
+    params.add(pair);
   }
 
   public void setVarType(VarVersionPair pair, VarType type) {

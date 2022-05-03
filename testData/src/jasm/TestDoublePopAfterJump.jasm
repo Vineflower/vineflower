@@ -47,10 +47,10 @@ public static final Method phiApproximation:"(III)D"
 }
 
 // Code provided by KJP12
-public static final Method fizzBuzz:"()Z"
+public static final Method fizzBuzz:"()V"
   stack 4 locals 0
 {
- getstatic java/lang/System/out:"Ljava/io/PrintStream;";
+ getstatic	Field java/lang/System.out:"Ljava/io/PrintStream;";
  iconst_0;
 loop:
  dup;
@@ -67,7 +67,7 @@ loop:
  swap;
  dup;
  ldc "Fizz";
- invokevirtual java/io/PrintStream/print:"(Ljava/lang/String;)V";
+ invokevirtual  Method java/io/PrintStream.print:"(Ljava/lang/String;)V";
  swap;
  ineg;
 skipFizz:
@@ -82,7 +82,7 @@ alreadyPositive:
  swap;
  dup;
  ldc "Buzz";
- invokevirtual java/io/PrintStream/print:"(Ljava/lang/String;)V";
+ invokevirtual  Method java/io/PrintStream.print:"(Ljava/lang/String;)V";
  swap;
  ineg;
 skipBuzz:
@@ -91,15 +91,15 @@ skipBuzz:
  ineg;
  swap;
  dup;
- invokevirtual java/io/PrintStream/println:"()V";
+ invokevirtual  Method java/io/PrintStream.println:"()V";
  swap;
  goto loop;
 print:
  // PrintStream, int -> int, PrintStream, int
  dup_x1;
- invokestatic java/lang/Integer/toString:"(I)Ljava/lang/String;";
- invokevirtual java/io/PrintStream/println:"(Ljava/lang/String;)V";
- getstatic java/lang/System/out:"Ljava/io/PrintStream;";
+ invokestatic Method java/lang/Integer.toString:"(I)Ljava/lang/String;";
+ invokevirtual  Method java/io/PrintStream.println:"(Ljava/lang/String;)V";
+ getstatic  Field java/lang/System/out:"Ljava/io/PrintStream;";
  swap;
  goto loop;
 exit:
@@ -109,10 +109,9 @@ exit:
 }
 
 
-public static final Method fizzBuzzReduced:"()Z"
+public static final Method fizzBuzzReduced:"()V"
   stack 4 locals 0
 {
- // getstatic java/lang/System/out:"Ljava/io/PrintStream;";
  iconst_0;
  iconst_0;
 loop:

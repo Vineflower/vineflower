@@ -86,6 +86,9 @@ public final class TryWithResourcesProcessor {
           }
 
           stat.replaceStatement(finallyStat, child);
+
+          SequenceHelper.destroyAndFlattenStatement(finallyStat.getHandler());
+
           removeRedundantThrow(initBlock, child);
           return true;
         }
@@ -215,6 +218,12 @@ public final class TryWithResourcesProcessor {
 
       // Add resource assignment to try
       tryStatement.getResources().add(0, assignment);
+
+      // Get catch block
+      Statement remove = tryStatement.getStats().get(1);
+
+      // Flatten references to statement
+      SequenceHelper.destroyAndFlattenStatement(remove);
 
       // Destroy catch block
       tryStatement.getStats().remove(1);

@@ -108,6 +108,8 @@ public class ExprProcessor implements CodeConstants {
     FlattenStatementsHelper flatthelper = new FlattenStatementsHelper();
     DirectGraph dgraph = flatthelper.buildDirectGraph(root);
 
+    ValidationHelper.validateDGraph(dgraph, root);
+
     // collect finally entry points
     Set<String> setFinallyShortRangeEntryPoints = new HashSet<>();
     for (List<FinallyPathWrapper> lst : dgraph.mapShortRangeFinallyPaths.values()) {
@@ -680,6 +682,8 @@ public class ExprProcessor implements CodeConstants {
   }
 
   private void pushEx(ListStack<Exprent> stack, List<Exprent> exprlist, Exprent exprent, VarType vartype) {
+    ValidationHelper.notNull(exprent);
+
     int varindex = VarExprent.STACK_BASE + stack.size();
     VarExprent var = new VarExprent(varindex, vartype == null ? exprent.getExprType() : vartype, varProcessor);
     var.setStack(true);

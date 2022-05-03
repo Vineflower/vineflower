@@ -125,7 +125,7 @@ public final class IfHelper {
           if (ifchild.getFirst().getExprents().isEmpty()) {
 
             ifparent.getFirst().removeSuccessor(ifparent.getIfEdge());
-            ifchild.removeSuccessor(ifchild.getAllSuccessorEdges().get(0));
+            ifchild.removeSuccessor(ifchild.getFirstSuccessor());
             ifparent.getStats().removeWithKey(ifchild.id);
 
             if (ifbranch.edgetypes.get(0) == 1) { // target null
@@ -155,8 +155,8 @@ public final class IfHelper {
               ifparent.getStats().addWithKey(ifinner, ifinner.id);
               ifinner.setParent(ifparent);
 
-              if (!ifinner.getAllSuccessorEdges().isEmpty()) {
-                StatEdge edge = ifinner.getAllSuccessorEdges().get(0);
+              if (ifinner.hasAnySuccessor()) {
+                StatEdge edge = ifinner.getFirstSuccessor();
                 if (edge.closure == ifchild) {
                   edge.closure = null;
                 }
@@ -203,7 +203,7 @@ public final class IfHelper {
 
               ifparent.setIfstat(null);
 
-              StatEdge ifedge = ifchild.getAllSuccessorEdges().get(0);
+              StatEdge ifedge = ifchild.getFirstSuccessor();
 
               ifchild.removeSuccessor(ifedge);
               ifedge.setSource(ifparent.getFirst());
@@ -420,7 +420,7 @@ public final class IfHelper {
       }
 
       if (!ifchild.getAllSuccessorEdges().isEmpty()) {
-        ifnode.addChild(new IfNode(ifchild.getAllSuccessorEdges().get(0).getDestination()), 1);
+        ifnode.addChild(new IfNode(ifchild.getFirstSuccessor().getDestination()), 1);
       }
     }
 
@@ -450,7 +450,7 @@ public final class IfHelper {
       }
 
       if (!elsechild.getAllSuccessorEdges().isEmpty()) {
-        elsenode.addChild(new IfNode(elsechild.getAllSuccessorEdges().get(0).getDestination()), 1);
+        elsenode.addChild(new IfNode(elsechild.getFirstSuccessor().getDestination()), 1);
       }
     }
 
@@ -551,7 +551,7 @@ public final class IfHelper {
         stelse.setAllParent();
       }
 
-      ifstat.removeSuccessor(ifstat.getAllSuccessorEdges().get(0));
+      ifstat.removeSuccessor(ifstat.getFirstSuccessor());
       for (Statement st : lst) {
         sequence.getStats().removeWithKey(st.id);
       }
@@ -579,7 +579,7 @@ public final class IfHelper {
 
       if (noelsestat) {
         StatEdge ifedge = ifstat.getIfEdge();
-        StatEdge elseedge = ifstat.getAllSuccessorEdges().get(0);
+        StatEdge elseedge = ifstat.getFirstSuccessor();
 
         if (noifstat) {
           ifstat.getFirst().removeSuccessor(ifedge);
@@ -646,7 +646,7 @@ public final class IfHelper {
       stelse.setAllParent();
     }
 
-    ifstat.removeSuccessor(ifstat.getAllSuccessorEdges().get(0));
+    ifstat.removeSuccessor(ifstat.getFirstSuccessor());
     for (Statement st : lst) {
       parent.getStats().removeWithKey(st.id);
     }

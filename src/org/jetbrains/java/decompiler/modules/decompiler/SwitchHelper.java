@@ -14,6 +14,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.SwitchStatement;
 import org.jetbrains.java.decompiler.struct.StructField;
 import org.jetbrains.java.decompiler.struct.StructMethod;
+import org.jetbrains.java.decompiler.util.DotExporter;
 import org.jetbrains.java.decompiler.util.Pair;
 
 import java.util.*;
@@ -171,8 +172,7 @@ public final class SwitchHelper {
       }
 
       return true;
-    }
-    else if (isSwitchOnString(switchStatement, following)) {
+    } else if (isSwitchOnString(switchStatement, following)) {
       Map<Integer, Exprent> caseMap = new HashMap<>();
 
       int i = 0;
@@ -215,6 +215,12 @@ public final class SwitchHelper {
       switchStatement.getFirst().getAllPredecessorEdges().forEach(switchStatement.getFirst()::removePredecessor);
       switchStatement.getFirst().getAllSuccessorEdges().forEach(switchStatement.getFirst()::removeSuccessor);
       switchStatement.getParent().replaceStatement(switchStatement, switchStatement.getFirst());
+
+      // Remove phantom references from old switch statement, but ignoring the first statement as that has been extracted out of the switch
+      following.getAllPredecessorEdges().stream()
+        .filter(e -> switchStatement.containsStatement(e.getSource()) && e.getSource() != switchStatement.getFirst())
+        .forEach(e -> e.getSource().removeSuccessor(e));
+
       return true;
     }
     return false;
