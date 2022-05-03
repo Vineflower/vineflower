@@ -1,5 +1,6 @@
 package org.jetbrains.java.decompiler.main.rels;
 
+import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.util.DotExporter;
@@ -32,6 +33,9 @@ public final class DecompileRecord {
     add(exportName);
 
     DotExporter.toDotFile(root, mt, "debug", exportName);
+
+    // Ensure that code at the end of this stage is valid
+    ValidationHelper.validateStatement(root);
   }
 
   public void add(String name) {

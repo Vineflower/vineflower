@@ -78,12 +78,16 @@ public final class MergeHelper {
       IfStatement lastif = (IfStatement)last;
       if (lastif.iftype == IfStatement.IFTYPE_IF && lastif.getIfstat() == null) {
         StatEdge ifedge = lastif.getIfEdge();
-        StatEdge elseedge = lastif.getAllSuccessorEdges().get(0);
+        StatEdge elseedge = lastif.getFirstSuccessor();
 
         if ((ifedge.getType() == StatEdge.TYPE_BREAK && elseedge.getType() == StatEdge.TYPE_CONTINUE && elseedge.closure == stat
              && isDirectPath(stat, ifedge.getDestination())) ||
             (ifedge.getType() == StatEdge.TYPE_CONTINUE && elseedge.getType() == StatEdge.TYPE_BREAK && ifedge.closure == stat
-             && isDirectPath(stat, elseedge.getDestination()))) {
+            && isDirectPath(stat, elseedge.getDestination())) ||
+          // Break labeled as continue case
+          (ifedge.getType() == StatEdge.TYPE_CONTINUE && elseedge.getType() == StatEdge.TYPE_CONTINUE && elseedge.closure == stat
+            && isLastInLoop(stat) && isDirectPath(stat, ifedge.getDestination()))
+        ) {
 
           Set<Statement> set = stat.getNeighboursSet(StatEdge.TYPE_CONTINUE, Statement.DIRECTION_BACKWARD);
           set.remove(last);
@@ -105,14 +109,15 @@ public final class MergeHelper {
           ifexpr.getCondition().addBytecodeOffsets(lastif.getHeadexprent().bytecode);
 
           stat.setConditionExprent(ifexpr.getCondition());
-          lastif.getFirst().removeSuccessor(ifedge);
           lastif.removeSuccessor(elseedge);
 
           // remove empty if
           if (lastif.getFirst().getExprents().isEmpty()) {
+            // Remove reference to the if statement
+            lastif.getFirst().removeSuccessor(ifedge);
+
             removeLastEmptyStatement(stat, lastif);
-          }
-          else {
+          } else {
             lastif.setExprents(lastif.getFirst().getExprents());
 
             StatEdge newedge = new StatEdge(StatEdge.TYPE_CONTINUE, lastif, stat);
@@ -132,6 +137,22 @@ public final class MergeHelper {
         }
       }
     }
+  }
+
+  private static boolean isLastInLoop(Statement stat) {
+    while (stat.getParent().type == Statement.TYPE_SEQUENCE) {
+      if (stat.getParent().getStats().indexOf(stat) != stat.getParent().getStats().size() - 1) {
+        return false;
+      }
+
+      stat = stat.getParent();
+
+      if (stat == null) {
+        return false;
+      }
+    }
+
+    return stat.getParent().type == Statement.TYPE_DO;
   }
 
   private static boolean matchWhile(DoStatement stat) {
@@ -203,7 +224,7 @@ public final class MergeHelper {
           }
           //else { // fix infinite loops
 
-          StatEdge elseEdge = firstif.getAllSuccessorEdges().get(0);
+          StatEdge elseEdge = firstif.getFirstSuccessor();
           if (isDirectPath(stat, elseEdge.getDestination())) {
             // FIXME: This is horrible and bad!! Needs an extraction step before loop merging!!
             if (isIif(firstif.getHeadexprent().getCondition())) {

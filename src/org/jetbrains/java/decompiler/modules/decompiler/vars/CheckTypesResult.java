@@ -1,6 +1,7 @@
 // Copyright 2000-2017 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler.vars;
 
+import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 
@@ -32,6 +33,9 @@ public class CheckTypesResult {
     public final VarType type;
 
     public ExprentTypePair(Exprent exprent, VarType type) {
+      ValidationHelper.notNull(exprent);
+      ValidationHelper.notNull(type);
+
       this.exprent = exprent;
       this.type = type;
     }

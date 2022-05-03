@@ -47,7 +47,7 @@ public final class InlineSingleBlockHelper {
 
     Statement first = seq.getStats().get(index);
     Statement pre = seq.getStats().get(index - 1);
-    pre.removeSuccessor(pre.getAllSuccessorEdges().get(0));   // single regular edge
+    pre.removeSuccessor(pre.getFirstSuccessor());   // single regular edge
 
     StatEdge edge = first.getPredecessorEdges(StatEdge.TYPE_BREAK).get(0);
     Statement source = edge.getSource();
@@ -129,7 +129,7 @@ public final class InlineSingleBlockHelper {
           }
         }
 
-        boolean noPreSuccessors = pre.getAllSuccessorEdges().isEmpty();
+        boolean noPreSuccessors = !pre.hasAnySuccessor();
 
         if (noPreSuccessors) {
           // No successors so we can't inline (as we don't know where to go!) [TestInlineNoSuccessor]

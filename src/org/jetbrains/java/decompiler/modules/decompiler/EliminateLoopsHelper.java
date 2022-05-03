@@ -75,9 +75,9 @@ public class EliminateLoopsHelper {
 
     Statement loopcontent = loop.getFirst();
 
-    boolean firstok = loopcontent.getAllSuccessorEdges().isEmpty();
+    boolean firstok = !loopcontent.hasAnySuccessor();
     if (!firstok) {
-      StatEdge edge = loopcontent.getAllSuccessorEdges().get(0);
+      StatEdge edge = loopcontent.getFirstSuccessor();
       firstok = (edge.closure == loop && edge.getType() == StatEdge.TYPE_BREAK);
       if (firstok) {
         lstBreakEdges.remove(edge);
