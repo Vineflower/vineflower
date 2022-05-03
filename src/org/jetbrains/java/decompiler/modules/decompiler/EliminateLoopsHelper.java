@@ -202,8 +202,9 @@ public class EliminateLoopsHelper {
 
     // move continue edges to the parent loop
     List<StatEdge> lst = new ArrayList<>(loop.getLabelEdges());
+
     for (StatEdge edge : lst) {
-      loop.removePredecessor(edge);
+      edge.getDestination().removePredecessor(edge);
       edge.getSource().changeEdgeNode(Statement.DIRECTION_FORWARD, edge, parentloop);
       parentloop.addPredecessor(edge);
 
