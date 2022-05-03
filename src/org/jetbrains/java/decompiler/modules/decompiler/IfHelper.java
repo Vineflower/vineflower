@@ -157,7 +157,7 @@ public final class IfHelper {
               if (ifinner.hasAnySuccessor()) {
                 StatEdge edge = ifinner.getFirstSuccessor();
                 if (edge.closure == ifchild) {
-                  edge.closure = null;
+                  edge.closure = ifparent;
                 }
               }
             }
