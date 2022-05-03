@@ -143,8 +143,7 @@ public final class IfHelper {
               ifparent.getFirst().addSuccessor(ifedge);
 
               ifparent.setIfEdge(ifedge);
-            }
-            else {
+            } else {
               ifchild.getFirst().removeSuccessor(ifchild.getIfEdge());
 
               StatEdge ifedge = new StatEdge(StatEdge.TYPE_REGULAR, ifparent.getFirst(), ifinner);
@@ -313,6 +312,7 @@ public final class IfHelper {
 
           StatEdge newifedge = new StatEdge(StatEdge.TYPE_REGULAR, firstif.getFirst(), second);
           firstif.getFirst().addSuccessor(newifedge);
+          firstif.setIfEdge(newifedge);
           firstif.setIfstat(second);
 
           firstif.getStats().addWithKey(second, second.id);

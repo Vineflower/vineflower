@@ -113,7 +113,7 @@ public final class ValidationHelper {
     }
 
     if (!isSuccessor(edge.getSource(), edge)) {
-      throw new IllegalStateException("Edge pointing from statement but it isn't a successor: " + edge);
+      throw new IllegalStateException("Edge pointing from statement but it isn't a successor: " + edge.getSource() + " " + edge);
     }
 
     if (!edge.getDestination().getAllPredecessorEdges().contains(edge)) {
