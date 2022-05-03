@@ -11,6 +11,8 @@ import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.modules.code.DeadCodeHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.*;
 import org.jetbrains.java.decompiler.modules.decompiler.deobfuscator.ExceptionDeobfuscator;
+import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectGraph;
+import org.jetbrains.java.decompiler.modules.decompiler.sforms.FlattenStatementsHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarProcessor;
 import org.jetbrains.java.decompiler.struct.StructClass;
@@ -384,6 +386,12 @@ public class MethodProcessorRunnable implements Runnable {
     }
 
     DotExporter.toDotFile(root, mt, "finalStatement");
+
+    if (DotExporter.DUMP_DOTS) {
+      FlattenStatementsHelper flatten = new FlattenStatementsHelper();
+      DirectGraph digraph = flatten.buildDirectGraph(root);
+      DotExporter.toDotFile(digraph, mt, "finalStatementDigraph");
+    }
 
     // Debug print the decompile record
     DotExporter.toDotFile(decompileRecord, mt, "decompileRecord", false);
