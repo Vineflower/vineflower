@@ -839,7 +839,8 @@ public class Statement implements IMatchable {
 
   public StatEdge getFirstSuccessor() {
     ValidationHelper.successorsExist(this);
-    ValidationHelper.oneSuccessor(this);
+    // TODO: does this make sense here?
+//    ValidationHelper.oneSuccessor(this);
 
     List<StatEdge> res = this.mapSuccEdges.get(STATEDGE_ALL);
     if (res != null) {
