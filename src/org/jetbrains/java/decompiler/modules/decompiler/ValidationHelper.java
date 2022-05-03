@@ -237,11 +237,11 @@ public final class ValidationHelper {
     }
 
     if (ifStat.getIfEdge() != null && ifStat.getIfEdge().getSource() != ifStat.getFirst()) {
-      throw new IllegalStateException("If statement if edge source is not first statement: " + ifStat);
+      throw new IllegalStateException("If statement if edge source is not first statement: " + ifStat + " (ifEdge: " + ifStat.getIfEdge() + ")");
     }
 
     if (ifStat.getElseEdge() != null && ifStat.getElseEdge().getSource() != ifStat.getFirst()) {
-      throw new IllegalStateException("IfElse statement else edge source is not first statement: " + ifStat);
+      throw new IllegalStateException("IfElse statement else edge source is not first statement: " + ifStat + " (elseEdge: " + ifStat.getElseEdge() + ")");
     }
 
     if (stats.size() > 3){
@@ -250,7 +250,7 @@ public final class ValidationHelper {
 
     for (Statement stat : stats) {
       if ( stat != ifStat.getFirst() && stat != ifStat.getIfstat() && stat != ifStat.getElsestat() ) {
-        throw new IllegalStateException("If statement contains unknown sub statement: " + ifStat);
+        throw new IllegalStateException("If statement contains unknown sub statement: " + ifStat + " (subStatement: " + stat + ")");
       }
     }
 
@@ -386,5 +386,11 @@ public final class ValidationHelper {
     }
 
     return false;
+  }
+
+  public static void assertTrue(boolean condition, String message) {
+    if (VALIDATE && !condition) {
+      throw new IllegalStateException("Assertion failed: " + message);
+    }
   }
 }

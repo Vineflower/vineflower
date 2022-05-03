@@ -28,31 +28,41 @@ import static org.jetbrains.java.decompiler.modules.decompiler.IfNode.EdgeType.*
 class IfNode {
   // The stat that this node refers to. Root node will be an if stat, child nodes can be any stat.
   final Statement value;
-  IfNode succ0;
-  EdgeType succ0Type;
-  IfNode succ1;
-  EdgeType succ1Type;
 
-  IfNode(Statement value) {
+
+  // if not null, then this is the stat/node that the control flow
+  // would go to if the condition is true.
+  IfNode innerNode;
+
+  // DIRECT or INDIRECT.
+  EdgeType innerType;
+
+  // If successorType is ELSE (roots only), this is the else stat instead
+  IfNode successorNode;
+
+  // unless this node is the root, it will always be INDIRECT.
+  EdgeType successorType;
+
+  private IfNode(Statement value) {
     ValidationHelper.notNull(value);
 
     this.value = value;
   }
 
-  void set0(IfNode ifNode, EdgeType indirect) {
+  private void setInner(IfNode ifNode, EdgeType indirect) {
     ValidationHelper.notNull(ifNode);
     ValidationHelper.notNull(indirect);
 
-    this.succ0 = ifNode;
-    this.succ0Type = indirect;
+    this.innerNode = ifNode;
+    this.innerType = indirect;
   }
 
-  void set1(IfNode ifNode, EdgeType indirect) {
+  private void setSuccessor(IfNode ifNode, EdgeType indirect) {
     ValidationHelper.notNull(ifNode);
     ValidationHelper.notNull(indirect);
 
-    this.succ1 = ifNode;
-    this.succ1Type = indirect;
+    this.successorNode = ifNode;
+    this.successorType = indirect;
   }
 
   enum EdgeType {
@@ -66,20 +76,20 @@ class IfNode {
 
     // if branch
     if (stat.getIfstat() == null) {
-      res.set0(new IfNode(stat.getIfEdge().getDestination()), INDIRECT);
+      res.setInner(new IfNode(stat.getIfEdge().getDestination()), INDIRECT);
     } else {
-      res.set0(buildSubIfNode(stat.getIfstat()), DIRECT);
+      res.setInner(buildSubIfNode(stat.getIfstat()), DIRECT);
     }
 
     // else branch
     if (stat.iftype == IfStatement.IFTYPE_IFELSE) {
-      res.set1(buildSubIfNode(stat.getElsestat()), ELSE);
+      res.setSuccessor(buildSubIfNode(stat.getElsestat()), ELSE);
     } else {
       StatEdge edge = stat.getFirstSuccessor();
       if (stsingle || edge.getType() != StatEdge.TYPE_REGULAR) {
-        res.set1(new IfNode(edge.getDestination()), INDIRECT);
+        res.setSuccessor(new IfNode(edge.getDestination()), INDIRECT);
       } else {
-        res.set1(buildSubIfNode(edge.getDestination()), DIRECT);
+        res.setSuccessor(buildSubIfNode(edge.getDestination()), DIRECT);
       }
     }
 
@@ -89,22 +99,25 @@ class IfNode {
 
   // will produce one of the following:
   // node [IfStatement] {
-  //   succ0 [Any Statement] or [Goto]
+  //   inner [Any Statement] or [Goto]
   // }
-  // succ1 [Goto]
+  // successor [Goto]
   // or
   // node [Non-IfStatement] // or an if-else statement
-  // succ0 [Goto] // or null if there isn't a successor
+  // successor [Goto] // or null if there isn't a successor
   private static IfNode buildSubIfNode(Statement statement) {
     IfNode ifnode = new IfNode(statement);
+
     if (statement.type == Statement.TYPE_IF && ((IfStatement) statement).iftype == IfStatement.IFTYPE_IF) {
       IfStatement ifStatement = (IfStatement) statement;
-      ifnode.set0(new IfNode(ifStatement.getIfEdge().getDestination()), ifStatement.getIfstat() == null ? INDIRECT : DIRECT);
-      ifnode.set1(new IfNode(ifStatement.getFirstSuccessor().getDestination()), INDIRECT);
+      ifnode.setInner(new IfNode(ifStatement.getIfEdge().getDestination()), ifStatement.getIfstat() == null ? INDIRECT : DIRECT);
       // note that the successor is always indirect, cause if it were direct, the 'if' should have been wrapped in a sequence
-    } else if (statement.hasAnySuccessor()) {
-      ifnode.set0(new IfNode(statement.getFirstSuccessor().getDestination()), INDIRECT);
     }
+
+    if (statement.hasAnySuccessor()) { // note that IFTYPE_IF always has a successor
+      ifnode.setSuccessor(new IfNode(statement.getFirstSuccessor().getDestination()), INDIRECT);
+    }
+
     return ifnode;
   }
 }

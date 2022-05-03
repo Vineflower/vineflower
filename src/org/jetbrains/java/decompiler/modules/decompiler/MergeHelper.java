@@ -893,7 +893,10 @@ public final class MergeHelper {
       DoStatement dostat = (DoStatement)stat;
       if (dostat.getLooptype() == DoStatement.LOOP_DO) {
         matchDoWhile(dostat);
-        ret |= dostat.getLooptype() != DoStatement.LOOP_DO;
+        if (dostat.getLooptype() != DoStatement.LOOP_DO) {
+          ret = true;
+          ValidationHelper.validateStatement((RootStatement) stat.getTopParent());
+        }
       }
     }
 

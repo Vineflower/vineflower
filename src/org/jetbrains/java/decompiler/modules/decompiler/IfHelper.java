@@ -3,7 +3,6 @@ package org.jetbrains.java.decompiler.modules.decompiler;
 
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
-import org.jetbrains.java.decompiler.modules.decompiler.IfNode;
 import org.jetbrains.java.decompiler.modules.decompiler.IfNode.EdgeType;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
@@ -134,14 +133,14 @@ public final class IfHelper {
   // }
   // B // or goto B
   private static boolean collapseIfIf(IfNode rtnode) {
-    if (rtnode.succ0Type == EdgeType.DIRECT) {
-      IfNode ifbranch = rtnode.succ0;
-      if (rtnode.succ1 != null && ifbranch.succ1 != null) {
-        if (rtnode.succ1.value == ifbranch.succ1.value) {
+    if (rtnode.innerType == EdgeType.DIRECT) {
+      IfNode ifbranch = rtnode.innerNode;
+      if (ifbranch.innerNode != null) { // make sure that ifBranch is an ifStatement
+        if (rtnode.successorNode.value == ifbranch.successorNode.value) {
 
           IfStatement ifparent = (IfStatement) rtnode.value;
           IfStatement ifchild = (IfStatement) ifbranch.value;
-          Statement ifinner = ifbranch.succ0.value;
+          Statement ifinner = ifbranch.innerNode.value;
 
           if (ifchild.getFirst().getExprents().isEmpty()) {
 
@@ -149,7 +148,7 @@ public final class IfHelper {
             ifchild.getFirstSuccessor().remove();
             ifparent.getStats().removeWithKey(ifchild.id);
 
-            if (ifbranch.succ0Type == EdgeType.INDIRECT) { // inner code is remote (goto B case)
+            if (ifbranch.innerType == EdgeType.INDIRECT) { // inner code is remote (goto B case)
               ifparent.setIfstat(null);
 
               StatEdge ifedge = ifchild.getIfEdge();
@@ -204,7 +203,7 @@ public final class IfHelper {
   //   if (cond2) {
   //     goto A
   //   }
-  //   goto B // will throw if this is "B" instead of "goto B"
+  //   goto B
   // }
   // A // or goto A
   // into
@@ -213,10 +212,10 @@ public final class IfHelper {
   // }
   // A // or goto A
   private static boolean collapseIfElse(IfNode rtnode) {
-    if (rtnode.succ0Type == EdgeType.DIRECT) {
-      IfNode ifbranch = rtnode.succ0;
-      if (rtnode.succ1 != null && ifbranch.succ1 != null) {
-        if (rtnode.succ1.value == ifbranch.succ0.value) {
+    if (rtnode.innerType == EdgeType.DIRECT) {
+      IfNode ifbranch = rtnode.innerNode;
+      if (ifbranch.innerNode != null) { // make sure that ifBranch is an ifStatement
+        if (rtnode.successorNode.value == ifbranch.innerNode.value) {
 
           IfStatement ifparent = (IfStatement) rtnode.value;
           IfStatement ifchild = (IfStatement) ifbranch.value;
@@ -227,24 +226,19 @@ public final class IfHelper {
             ifchild.getIfEdge().remove();
             ifparent.getStats().removeWithKey(ifchild.id);
 
-            if (ifbranch.succ0Type == EdgeType.INDIRECT &&
-                ifbranch.succ1Type == EdgeType.INDIRECT) {
-              // if (cond1) {
-              //   if (cond2) {
-              //     goto A
-              //   }
-              //   goto B
-              // }
-              // A // or goto A
+            // if (cond1) {
+            //   if (cond2) {
+            //     goto A
+            //   }
+            //   goto B
+            // }
+            // A // or goto A
 
-              ifparent.setIfstat(null);
+            ifparent.setIfstat(null);
 
-              final StatEdge ifedge = ifchild.getFirstSuccessor();
-              ifedge.changeSource(ifparent.getFirst());
-              ifparent.setIfEdge(ifedge);
-            } else {
-              throw new IllegalStateException("inconsistent if structure in statement " + ifbranch.value + "!");
-            }
+            final StatEdge ifedge = ifchild.getFirstSuccessor();
+            ifedge.changeSource(ifparent.getFirst());
+            ifparent.setIfEdge(ifedge);
 
             // merge if conditions
             IfExprent statexpr = ifparent.getHeadexprent();
@@ -265,12 +259,12 @@ public final class IfHelper {
   }
 
   private static boolean collapseElse(IfNode rtnode) {
-    if (rtnode.succ1 != null && rtnode.succ1Type == EdgeType.DIRECT) {
-      IfNode elsebranch = rtnode.succ1;
-      if (elsebranch.succ1 != null) {
+    if (rtnode.successorType == EdgeType.DIRECT) {
+      IfNode elsebranch = rtnode.successorNode;
+      if (elsebranch.innerNode != null) { // make sure that elseBranch is an ifStatement
 
-        int path = elsebranch.succ1.value == rtnode.succ0.value ? 2 :
-          (elsebranch.succ0.value == rtnode.succ0.value ? 1 : 0);
+        int path = elsebranch.successorNode.value == rtnode.innerNode.value ? 2 :
+          (elsebranch.innerNode.value == rtnode.innerNode.value ? 1 : 0);
 
         if (path > 0) {
           // path == 1
@@ -349,13 +343,13 @@ public final class IfHelper {
             return true;
           }
         }
-      } else if (elsebranch.succ0 != null) { // else branch is not an if statement, but is direct
-        if (elsebranch.succ0.value == rtnode.succ0.value) {
+      } else if(elsebranch.successorNode != null){ // else branch is not an if statement, but is direct
+        if (elsebranch.successorNode.value == rtnode.innerNode.value) {
           // if (cond1) {
           //   goto A
           // }
           // B
-          // goto A; // can't possibly be A
+          // goto A;
           //
           // into
           //
@@ -422,7 +416,7 @@ public final class IfHelper {
 
   // if goto A and goto B are swapped in `if (cond2)`, then cond2 is negated
   private static boolean collapseTernary(IfNode rtnode) {
-    if (rtnode.succ0Type == EdgeType.DIRECT && rtnode.succ1Type == EdgeType.ELSE) {
+    if (rtnode.innerType == EdgeType.DIRECT && rtnode.successorType == EdgeType.ELSE) {
       // if (cond1) {
       //   if (cond2) {
       //     goto A
@@ -434,18 +428,18 @@ public final class IfHelper {
       //   }
       //   B // or goto B
       // }
-      IfNode ifBranch = rtnode.succ0;
-      IfNode elseBranch = rtnode.succ1;
+      IfNode ifBranch = rtnode.innerNode;
+      IfNode elseBranch = rtnode.successorNode;
 
-      if (ifBranch.succ0Type == EdgeType.INDIRECT && ifBranch.succ1Type == EdgeType.INDIRECT &&
-          elseBranch.succ0Type == EdgeType.INDIRECT && elseBranch.succ1Type == EdgeType.INDIRECT &&
+      if (ifBranch.innerType == EdgeType.INDIRECT && ifBranch.successorType == EdgeType.INDIRECT &&
+          elseBranch.innerType == EdgeType.INDIRECT && elseBranch.successorType == EdgeType.INDIRECT &&
           ifBranch.value.getFirst().getExprents().isEmpty() && elseBranch.value.getFirst().getExprents().isEmpty()) {
         boolean inverted;
-        if (ifBranch.succ0.value == elseBranch.succ0.value &&
-            ifBranch.succ1.value == elseBranch.succ1.value) {
+        if (ifBranch.innerNode.value == elseBranch.innerNode.value &&
+            ifBranch.successorNode.value == elseBranch.successorNode.value) {
           inverted = false;
-        } else if (ifBranch.succ0.value == elseBranch.succ1.value &&
-                   ifBranch.succ1.value == elseBranch.succ0.value) {
+        } else if (ifBranch.innerNode.value == elseBranch.successorNode.value &&
+                   ifBranch.successorNode.value == elseBranch.innerNode.value) {
           inverted = true;
         } else {
           return false;
@@ -539,11 +533,11 @@ public final class IfHelper {
   //
   // (Which is rendered as if/elseif/else)
   private static boolean ifElseChainDenesting(IfNode rtnode) {
-    if (rtnode.succ0Type == EdgeType.DIRECT) {
+    if (rtnode.innerType == EdgeType.DIRECT) {
       IfStatement outerIf = (IfStatement) rtnode.value;
       if (outerIf.getParent().type == Statement.TYPE_SEQUENCE) {
         SequenceStatement parent = (SequenceStatement) outerIf.getParent();
-        Statement nestedStat = rtnode.succ0.value;
+        Statement nestedStat = rtnode.innerNode.value;
 
         // check that statements Y and Z (see above) jump to end
         boolean ifdirect = hasDirectEndEdge(nestedStat, parent);
