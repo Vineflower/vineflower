@@ -144,10 +144,12 @@ public class MethodProcessorRunnable implements Runnable {
     while (fProc.iterateGraph(cl, mt, root, graph)) {
       finallyProcessed++;
       RootStatement oldRoot = root;
-      decompileRecord.add("ProcessFinally_old" + finallyProcessed, root);
-      DotExporter.toDotFile(graph, mt, "cfgProcessFinally" + finallyProcessed, true);
+      decompileRecord.add("ProcessFinallyOld_" + finallyProcessed, root);
+      DotExporter.toDotFile(graph, mt, "cfgProcessFinally_" + finallyProcessed, true);
+
       root = DomHelper.parseGraph(graph, mt);
       root.addComments(oldRoot);
+
       decompileRecord.add("ProcessFinally_" + finallyProcessed, root);
 
       debugCurrentCFG.set(graph);

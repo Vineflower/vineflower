@@ -127,6 +127,45 @@ public class FlattenStatementsHelper {
               mapPosIfBranch.put(sourcenode.id, lstSuccEdges.get(0).getDestination().id);
             }
 
+            List<StatEdge> basicPreds = stat.getAllPredecessorEdges();
+
+            // TODO: sourcenode instead of stat.id?
+            if (basicPreds.size() == 1) {
+              StatEdge predEdge = basicPreds.get(0);
+
+              // Look if this basic block is the successor of a sequence, and connect the sequence to the block if so
+              if (predEdge.getType() == StatEdge.TYPE_REGULAR) {
+                if (predEdge.getSource().type == Statement.TYPE_SEQUENCE) {
+                  addEdgeIfPossible(predEdge.getSource().getBasichead().id, stat);
+                }
+              }
+            } else if (!hasAnyEdgeTo(listEdges, stat)) {
+              // No edges exist towards this block
+              basicPreds = stat.getPredecessorEdges(StatEdge.TYPE_REGULAR);
+
+              // Find predecessor
+              if (basicPreds.size() == 1) {
+                StatEdge predEdge = basicPreds.get(0);
+
+                Statement source = predEdge.getSource();
+
+                if (source.type == Statement.TYPE_DO) {
+                  if (((DoStatement)source).getLooptype() ==  DoStatement.LOOP_DO) {
+                    // Infinite loop should not have a regular successor
+                    List<StatEdge> predEdges = source.getPredecessorEdges(StatEdge.TYPE_REGULAR);
+
+                    if (predEdges.isEmpty()) {
+                      for (StatEdge edge : source.getLabelEdges()) {
+                        if (edge.getType() == StatEdge.TYPE_BREAK) {
+                          addEdgeIfPossible(edge.getSource().getBasichead().id, stat);
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+
             break;
           case Statement.TYPE_CATCHALL:
           case Statement.TYPE_TRYCATCH:
@@ -185,12 +224,7 @@ public class FlattenStatementsHelper {
 
                       // Find destinations of loop's predecessor
 
-                      String[] lastbasicdests = mapDestinationNodes.get(prededge.getSource().id);
-                      if (lastbasicdests != null) {
-                        // If it exists, connect the loop's predecessor to the loop's successor, circumventing the loop and preventing the isolation of the successor
-
-                        listEdges.add(new Edge(graph.nodes.getWithKey(lastbasicdests[0]).id, dest.id, StatEdge.TYPE_REGULAR));
-                      }
+                      addEdgeIfPossible(prededge.getSource().id, dest);
                     }
                   }
                 }
@@ -449,6 +483,9 @@ public class FlattenStatementsHelper {
                 }
               } else { // finally protected try statement
                 if (!catchall.containsStatementStrict(destination)) {
+                  // Edge from finally handler head to destination
+                  listEdges.add(new Edge(sourcenode.id, destination.id, edgetype));
+
                   saveEdge(sourcenode, catchall.getHandler(), StatEdge.TYPE_REGULAR, isFinallyExit ? finallyShortRangeSource : null,
                            finallyLongRangeSource, finallyShortRangeEntry, finallyLongRangeEntry, isFinallyMonitorExceptionPath);
 
@@ -477,6 +514,24 @@ public class FlattenStatementsHelper {
         }
       }
     }
+  }
+
+  private void addEdgeIfPossible(Integer predEdge, Statement stat) {
+    String[] lastbasicdests = mapDestinationNodes.get(predEdge);
+
+    if (lastbasicdests != null) {
+      listEdges.add(new Edge(graph.nodes.getWithKey(lastbasicdests[0]).id, stat.id, StatEdge.TYPE_REGULAR));
+    }
+  }
+
+  private boolean hasAnyEdgeTo(List<Edge> listEdges, Statement stat) {
+    for (Edge edge : listEdges) {
+      if (edge.statid == stat.id) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   private void saveEdge(DirectNode sourcenode,
