@@ -524,6 +524,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestCollectionItr");
     // TODO: missing qualifier on generic
     register(JAVA_8, "TestListEquals");
+    register(JAVA_8, "TestIfElseSwitch");
   }
 
   private void registerEntireClassPath() {
