@@ -525,6 +525,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: missing qualifier on generic
     register(JAVA_8, "TestListEquals");
     register(JAVA_8, "TestIfElseSwitch");
+    register(JAVA_8, "TestInstanceStaticInvoke");
   }
 
   private void registerEntireClassPath() {
@@ -604,6 +605,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16, "TestPatternMatchingFakeLoopsInverted");
     register(JAVA_16, "TestPatternMatchingFakeNew");
     register(JAVA_16, "TestPatternMatchingMerge");
+    register(JAVA_16, "TestPatternMatchingStatic");
     // TODO: local variables aren't merged properly, bring out of nodebug when they are
     register(JAVA_16_NODEBUG, "TestPatternMatchingAssign");
     register(JAVA_16, "TestPatternMatchingLocalCapture");
