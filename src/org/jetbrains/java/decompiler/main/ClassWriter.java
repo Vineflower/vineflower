@@ -595,7 +595,10 @@ public class ClassWriter {
             buffer.append(",");
             buffer.appendPossibleNewline(" ");
           }
-          buffer.append(ExprProcessor.getCastTypeName(descriptor == null ? new VarType(cl.getInterface(i), true) : descriptor.superinterfaces.get(i)));
+
+          if (descriptor == null || descriptor.superinterfaces.size() > i) {
+            buffer.append(ExprProcessor.getCastTypeName(descriptor == null ? new VarType(cl.getInterface(i), true) : descriptor.superinterfaces.get(i)));
+          }
         }
       }
     }
