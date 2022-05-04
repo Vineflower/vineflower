@@ -45,6 +45,7 @@ public class MethodWrapper {
     if (graph == null && root != null) {
       graph = new FlattenStatementsHelper().buildDirectGraph(root);
     }
+
     return graph;
   }
 

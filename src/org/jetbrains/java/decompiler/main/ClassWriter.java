@@ -644,8 +644,13 @@ public class ClassWriter {
       }
     }
 
+    String name = fd.getName();
     if (interceptor != null) {
-      String oldName = interceptor.getOldName(cl.qualifiedName + " " + fd.getName() + " " + fd.getDescriptor());
+      name = interceptor.getName(cl.qualifiedName + " " + fd.getName() + " " + fd.getDescriptor()).split(" ")[1];
+    }
+
+    if (interceptor != null) {
+      String oldName = interceptor.getOldName(cl.qualifiedName + " " + name + " " + fd.getDescriptor());
       appendRenameComment(buffer, oldName, MType.FIELD, indent);
     }
 
@@ -673,7 +678,7 @@ public class ClassWriter {
       buffer.append(' ');
     }
 
-    buffer.append(fd.getName());
+    buffer.append(name);
 
     Exprent initializer;
     if (fd.hasModifier(CodeConstants.ACC_STATIC)) {
@@ -682,6 +687,7 @@ public class ClassWriter {
     else {
       initializer = wrapper.getDynamicFieldInitializers().getWithKey(InterpreterUtil.makeUniqueKey(fd.getName(), fd.getDescriptor()));
     }
+
     if (initializer != null) {
       if (isEnum && initializer.type == Exprent.EXPRENT_NEW) {
         NewExprent expr = (NewExprent)initializer;
@@ -854,8 +860,17 @@ public class ClassWriter {
         }
       }
 
+      String name = mt.getName();
       if (interceptor != null) {
-        String oldName = interceptor.getOldName(cl.qualifiedName + " " + mt.getName() + " " + mt.getDescriptor());
+        String newName = interceptor.getName(cl.qualifiedName + " " + mt.getName() + " " + mt.getDescriptor());
+
+        if (newName != null) {
+          name = newName.split(" ")[1];
+        }
+      }
+
+      if (interceptor != null) {
+        String oldName = interceptor.getOldName(cl.qualifiedName + " " + name + " " + mt.getDescriptor());
         appendRenameComment(buffer, oldName, MType.METHOD, indent);
       }
 
@@ -901,7 +916,6 @@ public class ClassWriter {
 
       buffer.appendIndent(indent);
 
-      String name = mt.getName();
       if (CodeConstants.INIT_NAME.equals(name)) {
         if (node.type == ClassNode.CLASS_ANONYMOUS) {
           name = "";
