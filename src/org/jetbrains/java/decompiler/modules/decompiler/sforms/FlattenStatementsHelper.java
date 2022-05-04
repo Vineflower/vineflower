@@ -458,6 +458,9 @@ public class FlattenStatementsHelper {
                 }
               } else { // finally protected try statement
                 if (!catchall.containsStatementStrict(destination)) {
+
+                  // FIXME: this is a hack, the edges need to be more properly defined from the finally handler to it's destination
+                  //  Otherwise problems can occur where variable usage scopes aren't correct!
                   // Edge from finally handler head to destination
                   listEdges.add(new Edge(sourcenode.id, destination.id, edgetype));
 

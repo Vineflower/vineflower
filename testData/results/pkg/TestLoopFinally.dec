@@ -101,6 +101,25 @@ public class TestLoopFinally {
 
       return 1;
    }
+
+   public int test5(int x) {
+      do {
+         try {
+            if (x < 25) {// 114
+               int var2 = 5;// 115
+               byte var3;
+               return var2 + var3;// 128
+            }
+         } finally {
+            if (x > 3) {// 119 120
+               return 1;// 126
+            }
+
+         }
+      } while(x < 45);// 124
+
+      return 1;
+   }
 }
 
 class 'pkg/TestLoopFinally' {
@@ -319,6 +338,28 @@ class 'pkg/TestLoopFinally' {
       2b      95
       2c      95
    }
+
+   method 'test5 (I)I' {
+      0      107
+      1      107
+      2      107
+      3      107
+      6      108
+      7      108
+      1f      113
+      20      113
+      21      113
+      2b      118
+      2c      118
+      2d      118
+      2e      118
+      31      114
+      32      114
+      33      110
+      34      110
+      35      110
+      36      110
+   }
 }
 
 Lines mapping:
@@ -365,6 +406,13 @@ Lines mapping:
 98 <-> 95
 102 <-> 100
 104 <-> 96
+114 <-> 108
+115 <-> 109
+119 <-> 114
+120 <-> 114
+124 <-> 119
+126 <-> 115
+128 <-> 111
 Not mapped:
 12
 38
@@ -373,3 +421,5 @@ Not mapped:
 83
 99
 101
+121
+123
