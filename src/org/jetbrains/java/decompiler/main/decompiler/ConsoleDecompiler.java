@@ -8,6 +8,7 @@ import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.extern.IResultSaver;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
+import org.jetbrains.java.decompiler.util.ZipFileCache;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -25,7 +26,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
-public class ConsoleDecompiler implements IBytecodeProvider, IResultSaver {
+public class ConsoleDecompiler implements IBytecodeProvider, IResultSaver, AutoCloseable {
   @SuppressWarnings("UseOfSystemOutOrSystemErr")
   public static void main(String[] args) {
     List<String> params = new ArrayList<String>();
@@ -187,6 +188,7 @@ public class ConsoleDecompiler implements IBytecodeProvider, IResultSaver {
   private final Fernflower engine;
   private final Map<String, ZipOutputStream> mapArchiveStreams = new HashMap<>();
   private final Map<String, Set<String>> mapArchiveEntries = new HashMap<>();
+  private final ZipFileCache openZips = new ZipFileCache();
 
   // Legacy support
   protected ConsoleDecompiler(File destination, Map<String, Object> options, IFernflowerLogger logger) {
@@ -225,16 +227,14 @@ public class ConsoleDecompiler implements IBytecodeProvider, IResultSaver {
 
   @Override
   public byte[] getBytecode(String externalPath, String internalPath) throws IOException {
-    File file = new File(externalPath);
     if (internalPath == null) {
+      File file = new File(externalPath);
       return InterpreterUtil.getBytes(file);
-    }
-    else {
-      try (ZipFile archive = new ZipFile(file)) {
-        ZipEntry entry = archive.getEntry(internalPath);
-        if (entry == null) throw new IOException("Entry not found: " + internalPath);
-        return InterpreterUtil.getBytes(archive, entry);
-      }
+    } else {
+      final ZipFile archive = this.openZips.get(externalPath);
+      ZipEntry entry = archive.getEntry(internalPath);
+      if (entry == null) throw new IOException("Entry not found: " + internalPath);
+      return InterpreterUtil.getBytes(archive, entry);
     }
   }
 
@@ -308,7 +308,9 @@ public class ConsoleDecompiler implements IBytecodeProvider, IResultSaver {
       return;
     }
 
-    try (ZipFile srcArchive = new ZipFile(new File(source))) {
+    try {
+      ZipFile srcArchive = this.openZips.get(source);
+
       ZipEntry entry = srcArchive.getEntry(entryName);
       if (entry != null) {
         try (InputStream in = srcArchive.getInputStream(entry)) {
@@ -375,6 +377,11 @@ public class ConsoleDecompiler implements IBytecodeProvider, IResultSaver {
     catch (IOException ex) {
       DecompilerContext.getLogger().writeMessage("Cannot close " + file, IFernflowerLogger.Severity.WARN);
     }
+  }
+
+  @Override
+  public void close() throws Exception {
+    this.openZips.close();
   }
 
   public enum SaveType {
