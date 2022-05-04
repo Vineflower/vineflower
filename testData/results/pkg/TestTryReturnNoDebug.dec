@@ -15,6 +15,19 @@ public class TestTryReturnNoDebug {
       return this.process(var5);
    }
 
+   public String test2(Supplier<Boolean> var1) {
+      Object var2 = null;
+
+      try {
+         var5 = var1.toString();
+         System.out.println("Try: " + var5);
+      } catch (Exception var4) {
+         throw new RuntimeException("Catch: " + var2);
+      }
+
+      return this.process(var5);
+   }
+
    private String process(String var1) {
       return var1;
    }
@@ -41,9 +54,43 @@ class 'pkg/TestTryReturnNoDebug' {
       1a      14
    }
 
-   method 'process (Ljava/lang/String;)Ljava/lang/String;' {
+   method 'test2 (Ljava/util/function/Supplier;)Ljava/lang/String;' {
       0      18
       1      18
+      2      21
+      3      21
+      4      21
+      5      21
+      6      21
+      7      22
+      8      22
+      9      22
+      11      22
+      12      22
+      16      22
+      1a      22
+      1b      22
+      1c      22
+      1d      22
+      23      23
+      2f      24
+      30      24
+      34      24
+      38      24
+      39      24
+      3a      24
+      3e      24
+      3f      27
+      40      27
+      41      27
+      42      27
+      43      27
+      44      27
+   }
+
+   method 'process (Ljava/lang/String;)Ljava/lang/String;' {
+      0      31
+      1      31
    }
 }
 
