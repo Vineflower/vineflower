@@ -231,12 +231,9 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestArrays");
     register(JAVA_8, "TestArrayForeach");
     register(JAVA_8, "TestArrayInitializations");
-    // TODO: I'm pretty sure this test opened the gates of hell somewhere. We need to figure out what's causing that
     register(JAVA_8, "TestTernaryCall");
-    // TODO: extraneous var10000, SSAU liveness?
     register(JAVA_8, "TestAnonymousObject");
     register(JAVA_8, "TestArrayAssignmentEquals");
-    // TODO: Loop becomes infinte loop where it should be assignment in loop
     register(JAVA_8, "TestArrayCopy");
     register(JAVA_8, "TestArrayDoWhile");
     // TODO: Creating a new object where the array should be set to null
@@ -417,7 +414,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestDuplicateSwitchLocals");
 
     register(JAVA_8, "TestIfTernary1");
-    // TODO: multiple labels still present
     register(JAVA_8, "TestIfTernary2");
     register(JAVA_8, "TestIfTernary3");
     register(JAVA_8, "TestIfTernaryReturn");
@@ -512,7 +508,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestTryReturn");
     // TODO: ternaries inside while conditions shouldn't be put in if inside while
     register(JAVA_8, "TestWhileConditionTernary");
-    // TODO: var10000 when it should not be a stack var
     register(JAVA_8_NODEBUG, "TestNoUse");
     // TODO: var5 is never defined!
     register(JAVA_8_NODEBUG, "TestTryReturnNoDebug");
