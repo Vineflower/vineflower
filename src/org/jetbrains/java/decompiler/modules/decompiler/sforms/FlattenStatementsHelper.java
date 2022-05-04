@@ -139,31 +139,6 @@ public class FlattenStatementsHelper {
                   addEdgeIfPossible(predEdge.getSource().getBasichead().id, stat);
                 }
               }
-            } else if (!hasAnyEdgeTo(listEdges, stat)) {
-              // No edges exist towards this block
-              basicPreds = stat.getPredecessorEdges(StatEdge.TYPE_REGULAR);
-
-              // Find predecessor
-              if (basicPreds.size() == 1) {
-                StatEdge predEdge = basicPreds.get(0);
-
-                Statement source = predEdge.getSource();
-
-                if (source.type == Statement.TYPE_DO) {
-                  if (((DoStatement)source).getLooptype() ==  DoStatement.LOOP_DO) {
-                    // Infinite loop should not have a regular successor
-                    List<StatEdge> predEdges = source.getPredecessorEdges(StatEdge.TYPE_REGULAR);
-
-                    if (predEdges.isEmpty()) {
-                      for (StatEdge edge : source.getLabelEdges()) {
-                        if (edge.getType() == StatEdge.TYPE_BREAK) {
-                          addEdgeIfPossible(edge.getSource().getBasichead().id, stat);
-                        }
-                      }
-                    }
-                  }
-                }
-              }
             }
 
             break;
