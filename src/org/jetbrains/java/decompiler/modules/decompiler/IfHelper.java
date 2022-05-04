@@ -412,9 +412,8 @@ public final class IfHelper {
   // into
   // if (cond1 ? cond2 : cond3) {
   //   goto A
-  // } else {
-  //   goto B
   // }
+  // goto B
 
   // if goto A and goto B are swapped in `if (cond2)`, then cond2 is negated
   private static boolean collapseTernary(IfNode rtnode) {
@@ -428,7 +427,7 @@ public final class IfHelper {
       //   if (cond3) {
       //     goto A
       //   }
-      //   B // or goto B
+      //   goto B
       // }
       IfNode ifBranch = rtnode.innerNode;
       IfNode elseBranch = rtnode.successorNode;
@@ -537,7 +536,7 @@ public final class IfHelper {
   //
   // (Which is rendered as if/elseif/else)
   private static boolean ifElseChainDenesting(IfNode rtnode) {
-    if (rtnode.innerType == EdgeType.DIRECT) {
+    if (rtnode.innerType == EdgeType.DIRECT && rtnode.successorType != EdgeType.ELSE) {
       IfStatement outerIf = (IfStatement) rtnode.value;
       if (outerIf.getParent().type == Statement.TYPE_SEQUENCE) {
         SequenceStatement parent = (SequenceStatement) outerIf.getParent();
@@ -561,6 +560,7 @@ public final class IfHelper {
               IfExprent conditionExprent = outerIf.getHeadexprent();
               conditionExprent.setCondition(new FunctionExprent(FunctionExprent.FUNCTION_BOOL_NOT, conditionExprent.getCondition(), null));
               swapBranches(outerIf, false, parent);
+              return true;
             }
           }
         }
@@ -730,6 +730,7 @@ public final class IfHelper {
   }
 
   private static void swapBranches(IfStatement ifstat, boolean noifstat, SequenceStatement parent) {
+    ValidationHelper.assertTrue(ifstat.iftype == IfStatement.IFTYPE_IF, "This method is meant for swapping the branches of non if-else IfStatements");
     // build and cut the new else statement
     List<Statement> lst = new ArrayList<>();
     for (int i = parent.getStats().size() - 1; i >= 0; i--) {
