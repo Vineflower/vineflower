@@ -114,7 +114,6 @@ public class StatEdge {
 
     Statement oldSource = this.source;
     oldSource.removeEdgeInternal(Statement.DIRECTION_FORWARD, this);
-    this.destination.changeEdgeNodeInternal(Statement.DIRECTION_BACKWARD, this, newSource);
     newSource.addEdgeInternal(Statement.DIRECTION_FORWARD, this);
     this.source = newSource;
   }
@@ -139,7 +138,6 @@ public class StatEdge {
 
     Statement oldDestination = this.destination;
     oldDestination.removeEdgeInternal(Statement.DIRECTION_BACKWARD, this);
-    this.source.changeEdgeNodeInternal(Statement.DIRECTION_FORWARD, this, newDestination);
     newDestination.addEdgeInternal(Statement.DIRECTION_BACKWARD, this);
     this.destination = newDestination;
   }
