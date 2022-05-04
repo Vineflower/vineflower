@@ -595,7 +595,10 @@ public class ClassWriter {
             buffer.append(",");
             buffer.appendPossibleNewline(" ");
           }
-          buffer.append(ExprProcessor.getCastTypeName(descriptor == null ? new VarType(cl.getInterface(i), true) : descriptor.superinterfaces.get(i)));
+
+          if (descriptor == null || descriptor.superinterfaces.size() > i) {
+            buffer.append(ExprProcessor.getCastTypeName(descriptor == null ? new VarType(cl.getInterface(i), true) : descriptor.superinterfaces.get(i)));
+          }
         }
       }
     }
@@ -646,7 +649,11 @@ public class ClassWriter {
 
     String name = fd.getName();
     if (interceptor != null) {
-      name = interceptor.getName(cl.qualifiedName + " " + fd.getName() + " " + fd.getDescriptor()).split(" ")[1];
+      String newName = interceptor.getName(cl.qualifiedName + " " + fd.getName() + " " + fd.getDescriptor());
+
+      if (newName != null) {
+        name = newName.split(" ")[1];
+      }
     }
 
     if (interceptor != null) {

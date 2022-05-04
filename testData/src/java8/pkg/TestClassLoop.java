@@ -40,6 +40,22 @@ public class TestClassLoop {
     }
   }
 
+  public static void testCatch() {
+
+    boolean a = (Math.random() > 0);
+
+    while (true) {
+      try {
+        if (!a) {
+          return;
+        }
+      }
+      catch (Exception e) {
+        System.out.println("1");
+      }
+    }
+  }
+
   public static void testFinallyContinue() {
 
     boolean a = (Math.random() > 0);

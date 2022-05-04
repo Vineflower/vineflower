@@ -456,6 +456,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: test9&10- for loop not created, loop extractor needs another pass
     register(JAVA_8, "TestSwitchLoop");
     register(JAVA_8, "TestSwitchFinally");
+    // TODO: test3 has wrong edge semantics for break and continue
+    // TODO: test5 variable usage in finally block is incorrect
     register(JAVA_8, "TestLoopFinally");
     // TODO: local classes not being put in the right spots
     register(JAVA_8, "TestLocalClassesSwitch"); // Adapted from CFR
