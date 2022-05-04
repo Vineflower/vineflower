@@ -73,9 +73,6 @@ public class Statement implements IMatchable {
   private final Map<Integer, List<StatEdge>> mapSuccEdges = new HashMap<>();
   private final Map<Integer, List<StatEdge>> mapPredEdges = new HashMap<>();
 
-  private final Map<Integer, List<Statement>> mapSuccStates = new HashMap<>();
-  private final Map<Integer, List<Statement>> mapPredStates = new HashMap<>();
-
   // statement as graph
   protected final VBStyleCollection<Statement, Integer> stats = new VBStyleCollection<>();
 
@@ -131,8 +128,6 @@ public class Statement implements IMatchable {
 
     processMap(mapSuccEdges);
     processMap(mapPredEdges);
-    processMap(mapSuccStates);
-    processMap(mapPredStates);
   }
 
   private static <T> void processMap(Map<Integer, List<T>> map) {
@@ -252,11 +247,8 @@ public class Statement implements IMatchable {
 
   private void addEdgeDirectInternal(int direction, StatEdge edge, int edgetype) {
     Map<Integer, List<StatEdge>> mapEdges = direction == DIRECTION_BACKWARD ? mapPredEdges : mapSuccEdges;
-    Map<Integer, List<Statement>> mapStates = direction == DIRECTION_BACKWARD ? mapPredStates : mapSuccStates;
 
     mapEdges.computeIfAbsent(edgetype, k -> new ArrayList<>()).add(edge);
-
-    mapStates.computeIfAbsent(edgetype, k -> new ArrayList<>()).add(direction == DIRECTION_BACKWARD ? edge.getSource() : edge.getDestination());
   }
 
   @Deprecated // Only public so StatEdge can call these.
@@ -279,14 +271,12 @@ public class Statement implements IMatchable {
   private void removeEdgeDirectInternal(int direction, StatEdge edge, int edgetype) {
 
     Map<Integer, List<StatEdge>> mapEdges = direction == DIRECTION_BACKWARD ? mapPredEdges : mapSuccEdges;
-    Map<Integer, List<Statement>> mapStates = direction == DIRECTION_BACKWARD ? mapPredStates : mapSuccStates;
 
     List<StatEdge> lst = mapEdges.get(edgetype);
     if (lst != null) {
       int index = lst.indexOf(edge);
       if (index >= 0) {
         lst.remove(index);
-        mapStates.get(edgetype).remove(index);
       }
     }
   }
@@ -662,62 +652,11 @@ public class Statement implements IMatchable {
   // *****************************************************************************
 
   public void changeEdgeNode(int direction, StatEdge edge, Statement value) {
-
-    Map<Integer, List<StatEdge>> mapEdges = direction == DIRECTION_BACKWARD ? mapPredEdges : mapSuccEdges;
-    Map<Integer, List<Statement>> mapStates = direction == DIRECTION_BACKWARD ? mapPredStates : mapSuccStates;
-
-    int type = edge.getType();
-
-    int[] arrtypes;
-    if (type == StatEdge.TYPE_EXCEPTION) {
-      arrtypes = new int[]{STATEDGE_ALL, StatEdge.TYPE_EXCEPTION};
-    }
-    else {
-      arrtypes = new int[]{STATEDGE_ALL, STATEDGE_DIRECT_ALL, type};
-    }
-
-    for (int edgetype : arrtypes) {
-      List<StatEdge> lst = mapEdges.get(edgetype);
-      if (lst != null) {
-        int index = lst.indexOf(edge);
-        if (index >= 0) {
-          mapStates.get(edgetype).set(index, value);
-        }
-      }
-    }
-
     if (direction == DIRECTION_BACKWARD) {
       edge.setSource(value);
     }
     else {
       edge.setDestination(value);
-    }
-  }
-
-  @Deprecated // Only public so StatEdge can call these.
-  public void changeEdgeNodeInternal(int direction, StatEdge edge, Statement value) {
-
-    Map<Integer, List<StatEdge>> mapEdges = direction == DIRECTION_BACKWARD ? mapPredEdges : mapSuccEdges;
-    Map<Integer, List<Statement>> mapStates = direction == DIRECTION_BACKWARD ? mapPredStates : mapSuccStates;
-
-    int type = edge.getType();
-
-    int[] arrtypes;
-    if (type == StatEdge.TYPE_EXCEPTION) {
-      arrtypes = new int[]{STATEDGE_ALL, StatEdge.TYPE_EXCEPTION};
-    }
-    else {
-      arrtypes = new int[]{STATEDGE_ALL, STATEDGE_DIRECT_ALL, type};
-    }
-
-    for (int edgetype : arrtypes) {
-      List<StatEdge> lst = mapEdges.get(edgetype);
-      if (lst != null) {
-        int index = lst.indexOf(edge);
-        if (index >= 0) {
-          mapStates.get(edgetype).set(index, value);
-        }
-      }
     }
   }
 
@@ -769,20 +708,26 @@ public class Statement implements IMatchable {
 
   public List<Statement> getNeighbours(int type, int direction) {
 
-    Map<Integer, List<Statement>> map = direction == DIRECTION_BACKWARD ? mapPredStates : mapSuccStates;
+    Map<Integer, List<StatEdge>> map = direction == DIRECTION_BACKWARD ? mapPredEdges : mapSuccEdges;
 
-    List<Statement> res;
+    List<Statement> res = new ArrayList<>();
     if ((type & (type - 1)) == 0) {
-      res = map.get(type);
-      res = res == null ? new ArrayList<>() : new ArrayList<>(res);
+      final List<StatEdge> statEdges = map.get(type);
+      if (statEdges != null) {
+        for (StatEdge edge : statEdges) {
+          res.add(direction == DIRECTION_FORWARD ? edge.getDestination() : edge.getSource());
+        }
+      }
     }
     else {
       res = new ArrayList<>();
       for (int edgetype : StatEdge.TYPES) {
         if ((type & edgetype) != 0) {
-          List<Statement> lst = map.get(edgetype);
+          List<StatEdge> lst = map.get(edgetype);
           if (lst != null) {
-            res.addAll(lst);
+            for (StatEdge edge : lst) {
+              res.add(direction == DIRECTION_FORWARD ? edge.getDestination() : edge.getSource());
+            }
           }
         }
       }
