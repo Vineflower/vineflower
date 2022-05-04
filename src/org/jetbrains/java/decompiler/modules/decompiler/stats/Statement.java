@@ -635,10 +635,20 @@ public class Statement implements IMatchable {
     if (setVisited.contains(stat)) { // because of not considered exception edges, s. isExitComponent. Should be rewritten, if possible.
       return;
     }
+
     setVisited.add(stat);
 
-    for (StatEdge prededge : stat.getEdges(StatEdge.TYPE_REGULAR | StatEdge.TYPE_EXCEPTION, DIRECTION_BACKWARD)) {
+    for (StatEdge prededge : stat.mapPredEdges.computeIfAbsent(StatEdge.TYPE_REGULAR, t -> new ArrayList<>())) {
       Statement pred = prededge.getSource();
+
+      if (!setVisited.contains(pred)) {
+        addToPostReversePostOrderList(pred, lst, setVisited);
+      }
+    }
+
+    for (StatEdge prededge : stat.mapPredEdges.computeIfAbsent(StatEdge.TYPE_EXCEPTION, t -> new ArrayList<>())) {
+      Statement pred = prededge.getSource();
+
       if (!setVisited.contains(pred)) {
         addToPostReversePostOrderList(pred, lst, setVisited);
       }
@@ -712,7 +722,8 @@ public class Statement implements IMatchable {
 
     List<Statement> res = new ArrayList<>();
     if ((type & (type - 1)) == 0) {
-      final List<StatEdge> statEdges = map.get(type);
+      List<StatEdge> statEdges = map.get(type);
+
       if (statEdges != null) {
         for (StatEdge edge : statEdges) {
           res.add(direction == DIRECTION_FORWARD ? edge.getDestination() : edge.getSource());
@@ -724,6 +735,7 @@ public class Statement implements IMatchable {
       for (int edgetype : StatEdge.TYPES) {
         if ((type & edgetype) != 0) {
           List<StatEdge> lst = map.get(edgetype);
+
           if (lst != null) {
             for (StatEdge edge : lst) {
               res.add(direction == DIRECTION_FORWARD ? edge.getDestination() : edge.getSource());
