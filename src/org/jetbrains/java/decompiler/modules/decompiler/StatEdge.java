@@ -62,6 +62,9 @@ public class StatEdge {
   // Whether this edge can be inlined to simplify the decompiled output or not.
   public boolean canInline = true;
 
+  // If this edge is a continue edge set as a break edge for readability
+  public boolean phantomContinue = false;
+
   public StatEdge(int type, Statement source, Statement destination, Statement closure) {
     this(type, source, destination);
     this.closure = closure;
@@ -99,8 +102,16 @@ public class StatEdge {
     this.source = source;
   }
 
+  /**
+   * Makes this edge point from a different source. This will
+   * remove this edge as a successor of the old source,
+   * add it as a successor of the new source,
+   * and update the predecessor of the current destination.
+   * @param newSource the new source of this edge
+   */
   public void changeSource(Statement newSource) {
     ValidationHelper.notNull(newSource);
+
     Statement oldSource = this.source;
     oldSource.removeEdgeInternal(Statement.DIRECTION_FORWARD, this);
     this.destination.changeEdgeNodeInternal(Statement.DIRECTION_BACKWARD, this, newSource);
@@ -116,8 +127,16 @@ public class StatEdge {
     this.destination = destination;
   }
 
+  /**
+   * Makes this edge point from a different destination. This will
+   * remove this edge as a predecessor of the old destination,
+   * add it as a predecessor of the new destination,
+   * and update the successor of the current source.
+   * @param newDestination the new destination of this edge
+   */
   public void changeDestination(Statement newDestination) {
     ValidationHelper.notNull(newDestination);
+
     Statement oldDestination = this.destination;
     oldDestination.removeEdgeInternal(Statement.DIRECTION_BACKWARD, this);
     this.source.changeEdgeNodeInternal(Statement.DIRECTION_FORWARD, this, newDestination);
@@ -126,10 +145,21 @@ public class StatEdge {
   }
 
 
+  /**
+   * Updates the type of this edge.
+   * It will notify both the source and the destination of the change.
+   * @param type
+   */
   public void changeType(int type) {
     this.source.changeEdgeType(Statement.DIRECTION_FORWARD, this, type);
   }
 
+  /**
+   * Removes this edge from the graph.
+   * The source will lose this edge as a successor,
+   * the destination will lose this edge as a predecessor.
+   * and if there is a labeled closure, it will be removed from there as well.
+   */
   public void remove() {
     this.source.removeEdgeInternal(Statement.DIRECTION_FORWARD, this);
     this.destination.removeEdgeInternal(Statement.DIRECTION_BACKWARD, this);
@@ -140,8 +170,13 @@ public class StatEdge {
   }
 
 
+  /**
+   * Remove the closure of this edge. This edge will no
+   * longer be labeled.
+   */
   public void removeClosure() {
     this.closure.getLabelEdges().remove(this);
+    this.labeled = false;
     this.closure = null;
   }
 

@@ -259,7 +259,7 @@ public class Statement implements IMatchable {
     mapStates.computeIfAbsent(edgetype, k -> new ArrayList<>()).add(direction == DIRECTION_BACKWARD ? edge.getSource() : edge.getDestination());
   }
 
-  @Deprecated // just so I can access this from StatEdge
+  @Deprecated // Only public so StatEdge can call these.
   public void addEdgeInternal(int direction, StatEdge edge) {
     int type = edge.getType();
 
@@ -291,7 +291,7 @@ public class Statement implements IMatchable {
     }
   }
 
-  @Deprecated // just so I can access this from StatEdge
+  @Deprecated // Only public so StatEdge can call these.
   public void removeEdgeInternal(int direction, StatEdge edge) {
 
     int type = edge.getType();
@@ -694,7 +694,7 @@ public class Statement implements IMatchable {
     }
   }
 
-  @Deprecated // just so I can access this from StatEdge
+  @Deprecated // Only public so StatEdge can call these.
   public void changeEdgeNodeInternal(int direction, StatEdge edge, Statement value) {
 
     Map<Integer, List<StatEdge>> mapEdges = direction == DIRECTION_BACKWARD ? mapPredEdges : mapSuccEdges;
@@ -839,7 +839,8 @@ public class Statement implements IMatchable {
 
   public StatEdge getFirstSuccessor() {
     ValidationHelper.successorsExist(this);
-    ValidationHelper.oneSuccessor(this);
+    // TODO: does this make sense here?
+//    ValidationHelper.oneSuccessor(this);
 
     List<StatEdge> res = this.mapSuccEdges.get(STATEDGE_ALL);
     if (res != null) {

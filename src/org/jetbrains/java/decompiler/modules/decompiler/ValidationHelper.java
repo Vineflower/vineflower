@@ -8,6 +8,8 @@ import org.jetbrains.java.decompiler.modules.decompiler.sforms.FlattenStatements
 import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
+import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionNode;
+import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionsGraph;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.DotExporter;
 import org.jetbrains.java.decompiler.util.ListStack;
@@ -111,7 +113,7 @@ public final class ValidationHelper {
     }
 
     if (!isSuccessor(edge.getSource(), edge)) {
-      throw new IllegalStateException("Edge pointing from statement but it isn't a successor: " + edge);
+      throw new IllegalStateException("Edge pointing from statement but it isn't a successor: " + edge.getSource() + " " + edge);
     }
 
     if (!edge.getDestination().getAllPredecessorEdges().contains(edge)) {
@@ -136,7 +138,7 @@ public final class ValidationHelper {
           throw new IllegalStateException("Break edge with break type, but no closure: " + edge);
         }
 
-        if (edge.getSource() == edge.closure) {
+        if (edge.getSource() == edge.closure && !edge.phantomContinue) {
           throw new IllegalStateException("Break edge with closure pointing to itself: " + edge);
         }
 
@@ -145,13 +147,17 @@ public final class ValidationHelper {
         }
 
         if (edge.getSource() == edge.getDestination()) {
-          throw new IllegalStateException("Break edge with pointing to itself: " + edge);
+          throw new IllegalStateException("Break edge pointing to itself: " + edge);
         }
         break;
       }
       case StatEdge.TYPE_CONTINUE: {
         if (edge.closure == null) {
           throw new IllegalStateException("Continue edge with continue type, but no closure: " + edge);
+        }
+
+        if (edge.closure != edge.getDestination()) {
+          throw new IllegalStateException("Continue edge with closure pointing to different destination: " + edge);
         }
 
         break;
@@ -237,7 +243,7 @@ public final class ValidationHelper {
     }
 
     if (ifStat.getIfEdge() != null && ifStat.getIfEdge().getSource() != ifStat.getFirst()) {
-      throw new IllegalStateException("If statement if edge source is not first statement: " + ifStat + " (ifEdge: " + ifStat.getIfEdge() + ")");
+      throw new IllegalStateException("If statement if edge source is not first statement: [" + ifStat.getIfEdge() + "] " + ifStat + " (source is: " + ifStat.getIfEdge().getSource() + " but first is: " + ifStat.getFirst() + ")");
     }
 
     if (ifStat.getElseEdge() != null && ifStat.getElseEdge().getSource() != ifStat.getFirst()) {
@@ -391,6 +397,26 @@ public final class ValidationHelper {
   public static void assertTrue(boolean condition, String message) {
     if (VALIDATE && !condition) {
       throw new IllegalStateException("Assertion failed: " + message);
+    }
+  }
+
+  public static void validateVarVersionsGraph(VarVersionsGraph graph) {
+    if (!VALIDATE) {
+      return;
+    }
+
+    Set<VarVersionNode> roots = new HashSet<>();
+
+    for (VarVersionNode node : graph.nodes) {
+      if (node.preds.isEmpty()) {
+        roots.add(node);
+      }
+    }
+
+    Set<VarVersionNode> reached = graph.rootReachability(roots);
+
+    if (graph.nodes.size() != reached.size()) {
+      throw new IllegalStateException("Highly cyclic varversions graph!");
     }
   }
 }

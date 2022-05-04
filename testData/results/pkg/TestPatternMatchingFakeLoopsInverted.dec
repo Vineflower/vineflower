@@ -1,0 +1,1355 @@
+package pkg;
+
+public class TestPatternMatchingFakeLoopsInverted {
+   void test1(Object o) {
+      while(!(o instanceof String)) {// 5
+         String s = (String)o;// 6
+         System.out.println(s.length());// 7
+      }
+
+   }// 9
+
+   void test2(Object o) {
+      while(!(o instanceof String)) {// 12
+         String s = (String)o;// 13
+         System.out.println(s);// 14
+      }
+
+      String x = (String)o;
+   }// 15
+
+   void test3(Object o) {
+      while(o.hashCode() >= 0 && !(o instanceof String)) {// 19
+         String s = (String)o;// 20
+         System.out.println(s);// 21
+      }
+
+   }// 23
+
+   void test3B(Object o) {
+      while(o.hashCode() >= 0 && !(o instanceof String)) {// 26
+         String s = (String)o;// 27
+         System.out.println(s);// 28
+      }
+
+      System.out.println("bye");// 31
+   }// 32
+
+   void test4(Object o) {
+      while(o.hashCode() >= 0) {// 35
+         if (!(o instanceof String s)) {// 36
+            System.out.println(s);// 37
+            continue;// 38
+         }
+
+         String x = (String)o;
+         break;
+      }
+
+   }// 39
+
+   void test4x(Object o) {
+      while(true) {
+         label14: {
+            if (o.hashCode() >= 0) {// 42
+               if (!(o instanceof String)) {
+                  break label14;
+               }
+
+               String x = (String)o;
+               if (x.isEmpty()) {
+                  break label14;
+               }
+            }
+
+            return;// 46
+         }
+
+         String s = (String)o;// 43
+         System.out.println(s);// 44
+      }
+   }
+
+   void test4B(Object o) {
+      while(o.hashCode() >= 0) {// 49
+         if (!(o instanceof String s)) {// 50
+            System.out.println(s);// 51
+            continue;// 52
+         }
+
+         String x = (String)o;
+         break;
+      }
+
+      System.out.println("bye");// 53
+   }// 54
+
+   void test4xB(Object o) {
+      while(true) {
+         label14: {
+            if (o.hashCode() >= 0) {// 57
+               if (!(o instanceof String)) {
+                  break label14;
+               }
+
+               String x = (String)o;
+               if (x.isEmpty()) {
+                  break label14;
+               }
+            }
+
+            System.out.println("bye");// 61
+            return;// 62
+         }
+
+         String s = (String)o;// 58
+         System.out.println(s);// 59
+      }
+   }
+
+   void test3Swap(Object o) {
+      while(!(o instanceof String) && o.hashCode() >= 0) {// 65
+         String s = (String)o;// 66
+         System.out.println(s);// 67
+      }
+
+   }// 69
+
+   void test3BSwap(Object o) {
+      while(!(o instanceof String) && o.hashCode() >= 0) {// 72
+         String s = (String)o;// 73
+         System.out.println(s);// 74
+      }
+
+      System.out.println("bye");// 77
+   }// 78
+
+   void test4Swap(Object o) {
+      while(true) {
+         if (o instanceof String) {// 81
+            String x = (String)o;
+         } else if (o.hashCode() >= 0) {
+            String s = (String)o;// 82
+            System.out.println(s);// 83
+            continue;// 84
+         }
+
+         return;// 85
+      }
+   }
+
+   void test4xSwap(Object o) {
+      while((!(o instanceof String x) || x.isEmpty()) && o.hashCode() >= 0) {// 88
+         String s = (String)o;// 89
+         System.out.println(s);// 90
+      }
+
+   }// 92
+
+   void test4BSwap(Object o) {
+      while(true) {
+         if (o instanceof String) {// 95
+            String x = (String)o;
+         } else if (o.hashCode() >= 0) {
+            String s = (String)o;// 96
+            System.out.println(s);// 97
+            continue;// 98
+         }
+
+         System.out.println("bye");// 99
+         return;// 100
+      }
+   }
+
+   void test4xBSwap(Object o) {
+      while((!(o instanceof String x) || x.isEmpty()) && o.hashCode() >= 0) {// 103
+         String s = (String)o;// 104
+         System.out.println(s);// 105
+      }
+
+      System.out.println("bye");// 107
+   }// 108
+
+   public void testSet(Object obj) {
+      String s = "Hi";// 112
+
+      while(!(obj instanceof String)) {// 113
+         s = (String)obj;// 114
+      }
+
+      System.out.println(s);// 117
+   }// 118
+
+   void test1A(Object o) {
+      while(!(o instanceof String)) {// 121
+         String s = (String)o;// 122
+         System.out.println(s.length());// 123
+      }
+
+      String u = (String)o;// 125
+      System.out.println(u.hashCode() + u.length());// 126
+   }// 127
+
+   void test2A(Object o) {
+      while(!(o instanceof String)) {// 130
+         String s = (String)o;// 131
+         System.out.println(s);// 132
+      }
+
+      String x = (String)o;
+      String var4 = (String)o;// 133 134
+      System.out.println(var4.hashCode() + var4.length());// 135
+   }
+
+   void test3A(Object o) {
+      while(o.hashCode() >= 0 && !(o instanceof String)) {// 139
+         String s = (String)o;// 140
+         System.out.println(s);// 141
+      }
+
+      String u = (String)o;// 144
+      System.out.println(u.hashCode() + u.length());// 145
+   }// 146
+
+   void test4A(Object o) {
+      while(o.hashCode() >= 0) {// 149
+         if (!(o instanceof String s)) {// 150
+            System.out.println(s);// 151
+            continue;// 152
+         }
+
+         String x = (String)o;
+         break;
+      }
+
+      String u = (String)o;// 154
+      System.out.println(u.hashCode() + u.length());// 155
+   }// 156
+
+   void test4xA(Object o) {
+      while(true) {
+         label14: {
+            if (o.hashCode() >= 0) {// 159
+               if (!(o instanceof String)) {
+                  break label14;
+               }
+
+               String x = (String)o;
+               if (x.isEmpty()) {
+                  break label14;
+               }
+            }
+
+            String u = (String)o;// 164
+            System.out.println(u.hashCode() + u.length());// 165
+            return;// 166
+         }
+
+         String s = (String)o;// 160
+         System.out.println(s);// 161
+      }
+   }
+
+   void test3ASwap(Object o) {
+      while(!(o instanceof String) && o.hashCode() >= 0) {// 169
+         String s = (String)o;// 170
+         System.out.println(s);// 171
+      }
+
+      String u = (String)o;// 174
+      System.out.println(u.hashCode() + u.length());// 175
+   }// 176
+
+   void test4ASwap(Object o) {
+      while(true) {
+         if (o instanceof String) {// 180
+            String x = (String)o;
+         } else if (o.hashCode() >= 0) {
+            String s = (String)o;// 181
+            System.out.println(s);// 182
+            continue;// 183
+         }
+
+         String u = (String)o;// 185
+         System.out.println(u.hashCode() + u.length());// 186
+         return;// 187
+      }
+   }
+
+   void test4xASwap(Object o) {
+      while((!(o instanceof String x) || x.isEmpty()) && o.hashCode() >= 0) {// 190
+         String s = (String)o;// 191
+         System.out.println(s);// 192
+      }
+
+      String u = (String)o;// 195
+      System.out.println(u.hashCode() + u.length());// 196
+   }// 197
+
+   public void testSetA(Object obj) {
+      String s = "Hi";// 200
+
+      while(!(obj instanceof String)) {// 201
+         s = (String)obj;// 202
+      }
+
+      String u = (String)obj;// 205
+      System.out.println(u.hashCode() + u.length());// 206
+   }// 207
+}
+
+class 'pkg/TestPatternMatchingFakeLoopsInverted' {
+   method 'test1 (Ljava/lang/Object;)V' {
+      0      4
+      1      4
+      2      4
+      3      4
+      4      4
+      7      5
+      8      5
+      9      5
+      a      5
+      b      5
+      c      6
+      d      6
+      e      6
+      f      6
+      10      6
+      11      6
+      12      6
+      13      6
+      14      6
+      15      6
+      19      9
+   }
+
+   method 'test2 (Ljava/lang/Object;)V' {
+      0      12
+      3      12
+      4      12
+      5      12
+      6      12
+      a      17
+      b      17
+      c      17
+      d      17
+      e      18
+      f      18
+      10      18
+      11      13
+      12      13
+      13      13
+      14      13
+      15      13
+      16      14
+      17      14
+      18      14
+      19      14
+      1a      14
+      1b      14
+      1c      14
+      1d      18
+      1e      18
+      1f      18
+   }
+
+   method 'test3 (Ljava/lang/Object;)V' {
+      0      21
+      1      21
+      2      21
+      3      21
+      4      21
+      7      21
+      8      21
+      9      21
+      a      21
+      b      21
+      e      22
+      f      22
+      10      22
+      11      22
+      12      22
+      13      23
+      14      23
+      15      23
+      16      23
+      17      23
+      18      23
+      19      23
+      1d      26
+   }
+
+   method 'test3B (Ljava/lang/Object;)V' {
+      0      29
+      1      29
+      2      29
+      3      29
+      4      29
+      7      29
+      8      29
+      9      29
+      a      29
+      b      29
+      e      30
+      f      30
+      10      30
+      11      30
+      12      30
+      13      31
+      14      31
+      15      31
+      16      31
+      17      31
+      18      31
+      19      31
+      1d      34
+      1e      34
+      1f      34
+      20      34
+      21      34
+      22      34
+      23      34
+      24      34
+      25      35
+   }
+
+   method 'test4 (Ljava/lang/Object;)V' {
+      0      38
+      1      38
+      2      38
+      3      38
+      4      38
+      7      39
+      a      39
+      b      39
+      c      39
+      d      39
+      11      44
+      12      44
+      13      44
+      14      44
+      15      45
+      1c      39
+      1d      40
+      1e      40
+      1f      40
+      20      40
+      21      40
+      22      40
+      23      40
+      24      41
+      27      48
+   }
+
+   method 'test4x (Ljava/lang/Object;)V' {
+      0      53
+      1      53
+      2      53
+      3      53
+      4      53
+      7      54
+      a      54
+      b      54
+      c      54
+      d      54
+      11      58
+      12      58
+      13      58
+      14      58
+      15      59
+      16      59
+      17      59
+      18      59
+      19      59
+      1c      67
+      1d      67
+      1e      67
+      1f      67
+      20      67
+      21      68
+      22      68
+      23      68
+      24      68
+      25      68
+      26      68
+      27      68
+      2b      64
+   }
+
+   method 'test4B (Ljava/lang/Object;)V' {
+      0      73
+      1      73
+      2      73
+      3      73
+      4      73
+      7      74
+      a      74
+      b      74
+      c      74
+      d      74
+      11      79
+      12      79
+      13      79
+      14      79
+      15      80
+      1c      74
+      1d      75
+      1e      75
+      1f      75
+      20      75
+      21      75
+      22      75
+      23      75
+      24      76
+      27      83
+      28      83
+      29      83
+      2a      83
+      2b      83
+      2c      83
+      2d      83
+      2e      83
+      2f      84
+   }
+
+   method 'test4xB (Ljava/lang/Object;)V' {
+      0      89
+      1      89
+      2      89
+      3      89
+      4      89
+      7      90
+      a      90
+      b      90
+      c      90
+      d      90
+      11      94
+      12      94
+      13      94
+      14      94
+      15      95
+      16      95
+      17      95
+      18      95
+      19      95
+      1c      104
+      1d      104
+      1e      104
+      1f      104
+      20      104
+      21      105
+      22      105
+      23      105
+      24      105
+      25      105
+      26      105
+      27      105
+      2b      100
+      2c      100
+      2d      100
+      2e      100
+      2f      100
+      30      100
+      31      100
+      32      100
+      33      101
+   }
+
+   method 'test3Swap (Ljava/lang/Object;)V' {
+      0      110
+      1      110
+      2      110
+      3      110
+      4      110
+      7      110
+      8      110
+      9      110
+      a      110
+      b      110
+      e      111
+      f      111
+      10      111
+      11      111
+      12      111
+      13      112
+      14      112
+      15      112
+      16      112
+      17      112
+      18      112
+      19      112
+      1d      115
+   }
+
+   method 'test3BSwap (Ljava/lang/Object;)V' {
+      0      118
+      1      118
+      2      118
+      3      118
+      4      118
+      7      118
+      8      118
+      9      118
+      a      118
+      b      118
+      e      119
+      f      119
+      10      119
+      11      119
+      12      119
+      13      120
+      14      120
+      15      120
+      16      120
+      17      120
+      18      120
+      19      120
+      1d      123
+      1e      123
+      1f      123
+      20      123
+      21      123
+      22      123
+      23      123
+      24      123
+      25      124
+   }
+
+   method 'test4Swap (Ljava/lang/Object;)V' {
+      0      128
+      3      128
+      4      128
+      5      128
+      6      128
+      a      129
+      b      129
+      c      129
+      d      129
+      11      130
+      12      130
+      13      130
+      14      130
+      15      130
+      18      131
+      19      131
+      1a      131
+      1b      131
+      1c      131
+      1d      132
+      1e      132
+      1f      132
+      20      132
+      21      132
+      22      132
+      23      132
+      24      133
+      27      136
+   }
+
+   method 'test4xSwap (Ljava/lang/Object;)V' {
+      0      141
+      3      141
+      4      141
+      5      141
+      6      141
+      d      141
+      e      141
+      f      141
+      10      141
+      11      141
+      15      141
+      16      141
+      17      141
+      18      141
+      19      141
+      1c      142
+      1d      142
+      1e      142
+      1f      142
+      20      142
+      21      143
+      22      143
+      23      143
+      24      143
+      25      143
+      26      143
+      27      143
+      2b      146
+   }
+
+   method 'test4BSwap (Ljava/lang/Object;)V' {
+      0      150
+      3      150
+      4      150
+      5      150
+      6      150
+      a      151
+      b      151
+      c      151
+      d      151
+      11      152
+      12      152
+      13      152
+      14      152
+      15      152
+      18      153
+      19      153
+      1a      153
+      1b      153
+      1c      153
+      1d      154
+      1e      154
+      1f      154
+      20      154
+      21      154
+      22      154
+      23      154
+      24      155
+      27      158
+      28      158
+      29      158
+      2a      158
+      2b      158
+      2c      158
+      2d      158
+      2e      158
+      2f      159
+   }
+
+   method 'test4xBSwap (Ljava/lang/Object;)V' {
+      0      164
+      3      164
+      4      164
+      5      164
+      6      164
+      d      164
+      e      164
+      f      164
+      10      164
+      11      164
+      15      164
+      16      164
+      17      164
+      18      164
+      19      164
+      1c      165
+      1d      165
+      1e      165
+      1f      165
+      20      165
+      21      166
+      22      166
+      23      166
+      24      166
+      25      166
+      26      166
+      27      166
+      2b      169
+      2c      169
+      2d      169
+      2e      169
+      2f      169
+      30      169
+      31      169
+      32      169
+      33      170
+   }
+
+   method 'testSet (Ljava/lang/Object;)V' {
+      0      173
+      1      173
+      2      173
+      3      175
+      4      175
+      5      175
+      6      175
+      7      175
+      a      176
+      b      176
+      c      176
+      d      176
+      e      176
+      12      179
+      13      179
+      14      179
+      15      179
+      16      179
+      17      179
+      18      179
+      19      180
+   }
+
+   method 'test1A (Ljava/lang/Object;)V' {
+      0      183
+      1      183
+      2      183
+      3      183
+      4      183
+      7      184
+      8      184
+      9      184
+      a      184
+      b      184
+      c      185
+      d      185
+      e      185
+      f      185
+      10      185
+      11      185
+      12      185
+      13      185
+      14      185
+      15      185
+      19      188
+      1a      188
+      1b      188
+      1c      188
+      1d      188
+      1e      189
+      1f      189
+      20      189
+      21      189
+      22      189
+      23      189
+      24      189
+      25      189
+      26      189
+      27      189
+      28      189
+      29      189
+      2a      189
+      2b      189
+      2c      189
+      2d      190
+   }
+
+   method 'test2A (Ljava/lang/Object;)V' {
+      0      193
+      3      193
+      4      193
+      5      193
+      6      193
+      a      198
+      b      198
+      c      198
+      d      198
+      e      199
+      f      199
+      10      199
+      11      194
+      12      194
+      13      194
+      14      194
+      15      194
+      16      195
+      17      195
+      18      195
+      19      195
+      1a      195
+      1b      195
+      1c      195
+      1d      199
+      1e      199
+      1f      199
+      20      199
+      21      199
+      22      199
+      23      199
+      24      200
+      25      200
+      26      200
+      27      200
+      28      200
+      29      200
+      2a      200
+      2b      200
+      2c      200
+      2d      200
+      2e      200
+      2f      200
+      30      200
+      31      201
+      32      201
+      33      201
+   }
+
+   method 'test3A (Ljava/lang/Object;)V' {
+      0      204
+      1      204
+      2      204
+      3      204
+      4      204
+      7      204
+      8      204
+      9      204
+      a      204
+      b      204
+      e      205
+      f      205
+      10      205
+      11      205
+      12      205
+      13      206
+      14      206
+      15      206
+      16      206
+      17      206
+      18      206
+      19      206
+      1d      209
+      1e      209
+      1f      209
+      20      209
+      21      209
+      22      210
+      23      210
+      24      210
+      25      210
+      26      210
+      27      210
+      28      210
+      29      210
+      2a      210
+      2b      210
+      2c      210
+      2d      210
+      2e      210
+      2f      210
+      30      210
+      31      211
+   }
+
+   method 'test4A (Ljava/lang/Object;)V' {
+      0      214
+      1      214
+      2      214
+      3      214
+      4      214
+      7      215
+      a      215
+      b      215
+      c      215
+      d      215
+      11      220
+      12      220
+      13      220
+      14      220
+      15      221
+      1c      215
+      1d      216
+      1e      216
+      1f      216
+      20      216
+      21      216
+      22      216
+      23      216
+      24      217
+      27      224
+      28      224
+      29      224
+      2a      224
+      2b      224
+      2c      225
+      2d      225
+      2e      225
+      2f      225
+      30      225
+      31      225
+      32      225
+      33      225
+      34      225
+      35      225
+      36      225
+      37      225
+      38      225
+      39      225
+      3a      225
+      3b      226
+   }
+
+   method 'test4xA (Ljava/lang/Object;)V' {
+      0      231
+      1      231
+      2      231
+      3      231
+      4      231
+      7      232
+      a      232
+      b      232
+      c      232
+      d      232
+      11      236
+      12      236
+      13      236
+      14      236
+      15      237
+      16      237
+      17      237
+      18      237
+      19      237
+      1c      247
+      1d      247
+      1e      247
+      1f      247
+      20      247
+      21      248
+      22      248
+      23      248
+      24      248
+      25      248
+      26      248
+      27      248
+      2b      242
+      2c      242
+      2d      242
+      2e      242
+      2f      242
+      30      243
+      31      243
+      32      243
+      33      243
+      34      243
+      35      243
+      36      243
+      37      243
+      38      243
+      39      243
+      3a      243
+      3b      243
+      3c      243
+      3d      243
+      3e      243
+      3f      244
+   }
+
+   method 'test3ASwap (Ljava/lang/Object;)V' {
+      0      253
+      1      253
+      2      253
+      3      253
+      4      253
+      7      253
+      8      253
+      9      253
+      a      253
+      b      253
+      e      254
+      f      254
+      10      254
+      11      254
+      12      254
+      13      255
+      14      255
+      15      255
+      16      255
+      17      255
+      18      255
+      19      255
+      1d      258
+      1e      258
+      1f      258
+      20      258
+      21      258
+      22      259
+      23      259
+      24      259
+      25      259
+      26      259
+      27      259
+      28      259
+      29      259
+      2a      259
+      2b      259
+      2c      259
+      2d      259
+      2e      259
+      2f      259
+      30      259
+      31      260
+   }
+
+   method 'test4ASwap (Ljava/lang/Object;)V' {
+      0      264
+      3      264
+      4      264
+      5      264
+      6      264
+      a      265
+      b      265
+      c      265
+      d      265
+      11      266
+      12      266
+      13      266
+      14      266
+      15      266
+      18      267
+      19      267
+      1a      267
+      1b      267
+      1c      267
+      1d      268
+      1e      268
+      1f      268
+      20      268
+      21      268
+      22      268
+      23      268
+      24      269
+      27      272
+      28      272
+      29      272
+      2a      272
+      2b      272
+      2c      273
+      2d      273
+      2e      273
+      2f      273
+      30      273
+      31      273
+      32      273
+      33      273
+      34      273
+      35      273
+      36      273
+      37      273
+      38      273
+      39      273
+      3a      273
+      3b      274
+   }
+
+   method 'test4xASwap (Ljava/lang/Object;)V' {
+      0      279
+      3      279
+      4      279
+      5      279
+      6      279
+      d      279
+      e      279
+      f      279
+      10      279
+      11      279
+      15      279
+      16      279
+      17      279
+      18      279
+      19      279
+      1c      280
+      1d      280
+      1e      280
+      1f      280
+      20      280
+      21      281
+      22      281
+      23      281
+      24      281
+      25      281
+      26      281
+      27      281
+      2b      284
+      2c      284
+      2d      284
+      2e      284
+      2f      284
+      30      285
+      31      285
+      32      285
+      33      285
+      34      285
+      35      285
+      36      285
+      37      285
+      38      285
+      39      285
+      3a      285
+      3b      285
+      3c      285
+      3d      285
+      3e      285
+      3f      286
+   }
+
+   method 'testSetA (Ljava/lang/Object;)V' {
+      0      289
+      1      289
+      2      289
+      3      291
+      4      291
+      5      291
+      6      291
+      7      291
+      a      292
+      b      292
+      c      292
+      d      292
+      e      292
+      12      295
+      13      295
+      14      295
+      15      295
+      16      295
+      17      296
+      18      296
+      19      296
+      1a      296
+      1b      296
+      1c      296
+      1d      296
+      1e      296
+      1f      296
+      20      296
+      21      296
+      22      296
+      23      296
+      24      296
+      25      296
+      26      297
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 6
+7 <-> 7
+9 <-> 10
+12 <-> 13
+13 <-> 14
+14 <-> 15
+15 <-> 19
+19 <-> 22
+20 <-> 23
+21 <-> 24
+23 <-> 27
+26 <-> 30
+27 <-> 31
+28 <-> 32
+31 <-> 35
+32 <-> 36
+35 <-> 39
+36 <-> 40
+37 <-> 41
+38 <-> 42
+39 <-> 49
+42 <-> 54
+43 <-> 68
+44 <-> 69
+46 <-> 65
+49 <-> 74
+50 <-> 75
+51 <-> 76
+52 <-> 77
+53 <-> 84
+54 <-> 85
+57 <-> 90
+58 <-> 105
+59 <-> 106
+61 <-> 101
+62 <-> 102
+65 <-> 111
+66 <-> 112
+67 <-> 113
+69 <-> 116
+72 <-> 119
+73 <-> 120
+74 <-> 121
+77 <-> 124
+78 <-> 125
+81 <-> 129
+82 <-> 132
+83 <-> 133
+84 <-> 134
+85 <-> 137
+88 <-> 142
+89 <-> 143
+90 <-> 144
+92 <-> 147
+95 <-> 151
+96 <-> 154
+97 <-> 155
+98 <-> 156
+99 <-> 159
+100 <-> 160
+103 <-> 165
+104 <-> 166
+105 <-> 167
+107 <-> 170
+108 <-> 171
+112 <-> 174
+113 <-> 176
+114 <-> 177
+117 <-> 180
+118 <-> 181
+121 <-> 184
+122 <-> 185
+123 <-> 186
+125 <-> 189
+126 <-> 190
+127 <-> 191
+130 <-> 194
+131 <-> 195
+132 <-> 196
+133 <-> 200
+134 <-> 200
+135 <-> 201
+139 <-> 205
+140 <-> 206
+141 <-> 207
+144 <-> 210
+145 <-> 211
+146 <-> 212
+149 <-> 215
+150 <-> 216
+151 <-> 217
+152 <-> 218
+154 <-> 225
+155 <-> 226
+156 <-> 227
+159 <-> 232
+160 <-> 248
+161 <-> 249
+164 <-> 243
+165 <-> 244
+166 <-> 245
+169 <-> 254
+170 <-> 255
+171 <-> 256
+174 <-> 259
+175 <-> 260
+176 <-> 261
+180 <-> 265
+181 <-> 268
+182 <-> 269
+183 <-> 270
+185 <-> 273
+186 <-> 274
+187 <-> 275
+190 <-> 280
+191 <-> 281
+192 <-> 282
+195 <-> 285
+196 <-> 286
+197 <-> 287
+200 <-> 290
+201 <-> 292
+202 <-> 293
+205 <-> 296
+206 <-> 297
+207 <-> 298
+Not mapped:
+8
+16
+22
+29
+45
+60
+68
+75
+91
+106
+124
+136
+142
+162
+172
+193

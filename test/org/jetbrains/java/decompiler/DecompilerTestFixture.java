@@ -158,8 +158,7 @@ public class DecompilerTestFixture {
       File file = new File(externalPath);
       if (internalPath == null) {
         return InterpreterUtil.getBytes(file);
-      }
-      else {
+      } else {
         ZipFile archive = zipFiles.get(file.getName());
         if (archive == null) {
           archive = new ZipFile(file);
@@ -171,7 +170,13 @@ public class DecompilerTestFixture {
       }
     }
 
-    void close() {
+    public void close() {
+      try {
+        super.close();
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
+
       for (ZipFile file : zipFiles.values()) {
         try {
           file.close();
