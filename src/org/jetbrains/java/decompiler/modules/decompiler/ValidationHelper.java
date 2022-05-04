@@ -156,6 +156,10 @@ public final class ValidationHelper {
           throw new IllegalStateException("Continue edge with continue type, but no closure: " + edge);
         }
 
+        if (edge.closure != edge.getDestination()) {
+          throw new IllegalStateException("Continue edge with closure pointing to different destination: " + edge);
+        }
+
         break;
       }
     }
