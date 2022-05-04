@@ -125,10 +125,11 @@ public class DotExporter {
         buffer.append(src + "->" + destId + " [color=orange,label=\"Label Edge (" + data + ") (Contained by " + st.id + ")\"];\r\n");
       }
 
-      for (Statement neighbour : st.getNeighbours(Statement.STATEDGE_ALL, Statement.DIRECTION_FORWARD)) {
-        String destId = neighbour.id + (neighbour.getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty()?"":"000000");
-        buffer.append(sourceId + "->" + destId + " [arrowhead=tee,color=purple];\r\n");
-      }
+      // Neighbor set is redundant
+//      for (Statement neighbour : st.getNeighbours(Statement.STATEDGE_ALL, Statement.DIRECTION_FORWARD)) {
+//        String destId = neighbour.id + (neighbour.getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty()?"":"000000");
+//        buffer.append(sourceId + "->" + destId + " [arrowhead=tee,color=purple];\r\n");
+//      }
 
       for(StatEdge edge : st.getPredecessorEdges(Statement.STATEDGE_ALL)) {
         String destId = edge.getSource().id + (edge.getSource().getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty() ? "" : "000000");

@@ -21,57 +21,71 @@ public class TestClassLoop {
       }
    }
 
-   public static void testFinallyContinue() {
+   public static void testCatch() {
       boolean a = Math.random() > 0.0;// 45
+
+      while(true) {
+         try {
+            if (!a) {// 49
+               return;// 50
+            }
+         } catch (Exception var2) {// 53
+            System.out.println("1");// 54
+         }
+      }
+   }
+
+   public static void testFinallyContinue() {
+      boolean a = Math.random() > 0.0;// 61
 
       while(true) {
          while(true) {
             try {
-               System.out.println("1");// 49
+               System.out.println("1");// 65
                break;
             } finally {
-               if (a) {// 52
-                  System.out.println("3");// 53
-                  continue;// 54
+               if (a) {// 68
+                  System.out.println("3");// 69
+                  continue;// 70
                }
             }
          }
 
-         System.out.println("4");// 58
+         System.out.println("4");// 74
       }
    }
 
    public static int testWhileCombined(String in) {
-      int len = in.length();// 63
-      int i = 0;// 64
-      boolean decSeen = false;// 65
-      boolean signSeen = false;// 66
-      int decPt = 0;// 67
-      int nLeadZero = 0;// 69
+      int len = in.length();// 79
+      int i = 0;// 80
+      boolean decSeen = false;// 81
+      boolean signSeen = false;// 82
+      int decPt = 0;// 83
+      int nLeadZero = 0;// 85
 
-      for(int nTrailZero = 0; i < len; ++i) {// 70 73 90
-         char c = in.charAt(i);// 74
-         if (c == '0') {// 75
-            ++nLeadZero;// 76
+      for(int nTrailZero = 0; i < len; ++i) {// 86 89 106
+         char c = in.charAt(i);// 90
+         if (c == '0') {// 91
+            ++nLeadZero;// 92
          } else {
-            if (c != '.') {// 77
+            if (c != '.') {// 93
                break;
             }
 
-            if (decSeen) {// 78
-               throw new NumberFormatException("multiple points");// 80
+            if (decSeen) {// 94
+               throw new NumberFormatException("multiple points");// 96
             }
 
-            decPt = i;// 82
-            if (signSeen) {// 83
-               decPt = i - 1;// 84
+            decPt = i;// 98
+            if (signSeen) {// 99
+               decPt = i - 1;// 100
             }
 
-            decSeen = true;// 86
+            decSeen = true;// 102
          }
       }
 
-      return decPt;// 92
+      return decPt;// 108
    }
 }
 
@@ -103,103 +117,124 @@ class 'pkg/TestClassLoop' {
       2b      18
    }
 
-   method 'testFinallyContinue ()V' {
+   method 'testCatch ()V' {
       0      24
       1      24
       2      24
       3      24
       4      24
       d      24
-      e      29
-      f      29
-      10      29
-      11      29
+      e      28
+      f      28
       12      29
-      13      29
-      25      32
-      26      32
-      2a      33
-      2b      33
-      2c      33
-      2d      33
-      2e      33
-      2f      33
-      30      33
-      31      33
-      32      34
-      37      39
-      38      39
-      39      39
-      3a      39
-      3b      39
-      3c      39
+      16      31
+      17      32
+      18      32
+      19      32
+      1a      32
+      1b      32
+      1c      32
+      1d      32
+      1e      32
+   }
+
+   method 'testFinallyContinue ()V' {
+      0      38
+      1      38
+      2      38
+      3      38
+      4      38
+      d      38
+      e      43
+      f      43
+      10      43
+      11      43
+      12      43
+      13      43
+      25      46
+      26      46
+      2a      47
+      2b      47
+      2c      47
+      2d      47
+      2e      47
+      2f      47
+      30      47
+      31      47
+      32      48
+      37      53
+      38      53
+      39      53
+      3a      53
+      3b      53
+      3c      53
    }
 
    method 'testWhileCombined (Ljava/lang/String;)I' {
-      0      44
-      1      44
-      2      44
-      3      44
-      4      44
-      5      45
-      6      45
-      7      46
-      8      46
-      9      47
-      a      47
-      b      47
-      c      48
-      d      48
-      e      48
-      f      49
-      10      49
-      11      49
-      12      51
-      13      51
-      14      51
-      15      51
-      16      51
-      17      51
-      1a      52
-      1b      52
-      1c      52
-      1d      52
-      1e      52
-      1f      52
-      20      52
-      21      53
-      22      53
-      23      53
-      24      53
-      25      53
-      28      54
-      29      54
-      2a      54
-      2e      56
-      2f      56
-      30      56
-      31      56
-      32      56
-      35      60
-      36      60
-      3d      61
-      3e      61
-      42      61
-      43      64
-      44      64
-      45      64
-      46      65
-      47      65
-      48      65
-      4b      66
-      4e      69
-      4f      69
-      50      51
-      51      51
-      52      51
-      56      73
-      57      73
-      58      73
+      0      58
+      1      58
+      2      58
+      3      58
+      4      58
+      5      59
+      6      59
+      7      60
+      8      60
+      9      61
+      a      61
+      b      61
+      c      62
+      d      62
+      e      62
+      f      63
+      10      63
+      11      63
+      12      65
+      13      65
+      14      65
+      15      65
+      16      65
+      17      65
+      1a      66
+      1b      66
+      1c      66
+      1d      66
+      1e      66
+      1f      66
+      20      66
+      21      67
+      22      67
+      23      67
+      24      67
+      25      67
+      28      68
+      29      68
+      2a      68
+      2e      70
+      2f      70
+      30      70
+      31      70
+      32      70
+      35      74
+      36      74
+      3d      75
+      3e      75
+      42      75
+      43      78
+      44      78
+      45      78
+      46      79
+      47      79
+      48      79
+      4b      80
+      4e      83
+      4f      83
+      50      65
+      51      65
+      52      65
+      56      87
+      57      87
+      58      87
    }
 }
 
@@ -210,31 +245,37 @@ Lines mapping:
 34 <-> 16
 38 <-> 19
 45 <-> 25
-49 <-> 30
-52 <-> 33
-53 <-> 34
-54 <-> 35
-58 <-> 40
-63 <-> 45
-64 <-> 46
-65 <-> 47
-66 <-> 48
-67 <-> 49
-69 <-> 50
-70 <-> 52
-73 <-> 52
-74 <-> 53
-75 <-> 54
-76 <-> 55
-77 <-> 57
-78 <-> 61
-80 <-> 62
-82 <-> 65
-83 <-> 66
-84 <-> 67
-86 <-> 70
-90 <-> 52
-92 <-> 74
+49 <-> 29
+50 <-> 30
+53 <-> 32
+54 <-> 33
+61 <-> 39
+65 <-> 44
+68 <-> 47
+69 <-> 48
+70 <-> 49
+74 <-> 54
+79 <-> 59
+80 <-> 60
+81 <-> 61
+82 <-> 62
+83 <-> 63
+85 <-> 64
+86 <-> 66
+89 <-> 66
+90 <-> 67
+91 <-> 68
+92 <-> 69
+93 <-> 71
+94 <-> 75
+96 <-> 76
+98 <-> 79
+99 <-> 80
+100 <-> 81
+102 <-> 84
+106 <-> 66
+108 <-> 88
 Not mapped:
 39
-56
+55
+72
