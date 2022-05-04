@@ -62,6 +62,9 @@ public class StatEdge {
   // Whether this edge can be inlined to simplify the decompiled output or not.
   public boolean canInline = true;
 
+  // If this edge is a continue edge set as a break edge for readability
+  public boolean phantomContinue = false;
+
   public StatEdge(int type, Statement source, Statement destination, Statement closure) {
     this(type, source, destination);
     this.closure = closure;
@@ -111,7 +114,6 @@ public class StatEdge {
 
     Statement oldSource = this.source;
     oldSource.removeEdgeInternal(Statement.DIRECTION_FORWARD, this);
-    this.destination.changeEdgeNodeInternal(Statement.DIRECTION_BACKWARD, this, newSource);
     newSource.addEdgeInternal(Statement.DIRECTION_FORWARD, this);
     this.source = newSource;
   }
@@ -136,7 +138,6 @@ public class StatEdge {
 
     Statement oldDestination = this.destination;
     oldDestination.removeEdgeInternal(Statement.DIRECTION_BACKWARD, this);
-    this.source.changeEdgeNodeInternal(Statement.DIRECTION_FORWARD, this, newDestination);
     newDestination.addEdgeInternal(Statement.DIRECTION_BACKWARD, this);
     this.destination = newDestination;
   }

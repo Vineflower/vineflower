@@ -200,24 +200,23 @@ public class EliminateLoopsHelper {
 
   private static void eliminateLoop(Statement loop, Statement parentloop) {
 
+    // remove the last break edge, if exists
+    Statement loopcontent = loop.getFirst();
+    // TODO: originally was getAllSuccessorEdges
+    if (loopcontent.hasSuccessor(StatEdge.TYPE_BREAK)) {
+      loopcontent.removeSuccessor(loopcontent.getSuccessorEdges(StatEdge.TYPE_BREAK).get(0));
+    }
+
     // move continue edges to the parent loop
     List<StatEdge> lst = new ArrayList<>(loop.getLabelEdges());
+
     for (StatEdge edge : lst) {
-      loop.removePredecessor(edge);
-      edge.getSource().changeEdgeNode(Statement.DIRECTION_FORWARD, edge, parentloop);
-      parentloop.addPredecessor(edge);
+      edge.changeDestination(parentloop);
 
       parentloop.addLabeledEdge(edge);
     }
 
-    // remove the last break edge, if exists
-    Statement loopcontent = loop.getFirst();
-    // TODO: originally was getAllSuccessorEdges
-    if (!loopcontent.getSuccessorEdges(StatEdge.TYPE_BREAK).isEmpty()) {
-      loopcontent.removeSuccessor(loopcontent.getSuccessorEdges(StatEdge.TYPE_BREAK).get(0));
-    }
-
     // replace loop with its content
-    loop.getParent().replaceStatement(loop, loopcontent);
+    loop.replaceWith(loopcontent);
   }
 }

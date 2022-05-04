@@ -9,8 +9,8 @@ public class TestPatternMatchingFakeNew {
    }// 9
 
    void test2(Object o) {
-      String x;
-      if (o instanceof String s) {// 12 13
+      if (o instanceof String x) {// 12
+         String s = (String)o;// 13
          System.out.println(s);// 14
       }
 
@@ -124,8 +124,8 @@ public class TestPatternMatchingFakeNew {
    }
 
    void test4xSwap(Object o) {
-      String x;
-      if (o instanceof String s && !x.isEmpty() || o.hashCode() < 0) {// 88 89
+      if (o instanceof String x && !x.isEmpty() || o.hashCode() < 0) {// 88
+         String s = (String)o;// 89
          System.out.println(s);// 90
       }
 
@@ -147,8 +147,8 @@ public class TestPatternMatchingFakeNew {
    }// 100
 
    void test4xBSwap(Object o) {
-      String x;
-      if (o instanceof String s && !x.isEmpty() || o.hashCode() < 0) {// 103 104
+      if (o instanceof String x && !x.isEmpty() || o.hashCode() < 0) {// 103
+         String s = (String)o;// 104
          System.out.println(s);// 105
       }
 
@@ -195,11 +195,16 @@ class 'pkg/TestPatternMatchingFakeNew' {
    }
 
    method 'test2 (Ljava/lang/Object;)V' {
-      0      12
-      3      12
-      4      12
-      5      12
-      6      12
+      0      11
+      3      11
+      4      11
+      5      11
+      6      11
+      d      11
+      e      12
+      f      12
+      10      12
+      11      12
       12      12
       13      13
       14      13
@@ -472,20 +477,25 @@ class 'pkg/TestPatternMatchingFakeNew' {
    }
 
    method 'test4xSwap (Ljava/lang/Object;)V' {
-      0      127
-      3      127
-      4      127
-      5      127
-      e      127
-      f      127
-      10      127
-      11      127
-      12      127
-      15      127
-      16      127
-      17      127
-      18      127
-      19      127
+      0      126
+      3      126
+      4      126
+      5      126
+      d      126
+      e      126
+      f      126
+      10      126
+      11      126
+      12      126
+      15      126
+      16      126
+      17      126
+      18      126
+      19      126
+      1c      127
+      1d      127
+      1e      127
+      1f      127
       20      127
       21      128
       22      128
@@ -532,20 +542,25 @@ class 'pkg/TestPatternMatchingFakeNew' {
    }
 
    method 'test4xBSwap (Ljava/lang/Object;)V' {
-      0      150
-      3      150
-      4      150
-      5      150
-      e      150
-      f      150
-      10      150
-      11      150
-      12      150
-      15      150
-      16      150
-      17      150
-      18      150
-      19      150
+      0      149
+      3      149
+      4      149
+      5      149
+      d      149
+      e      149
+      f      149
+      10      149
+      11      149
+      12      149
+      15      149
+      16      149
+      17      149
+      18      149
+      19      149
+      1c      150
+      1d      150
+      1e      150
+      1f      150
       20      150
       21      151
       22      151
@@ -625,7 +640,7 @@ Lines mapping:
 6 <-> 5
 7 <-> 6
 9 <-> 9
-12 <-> 13
+12 <-> 12
 13 <-> 13
 14 <-> 14
 16 <-> 17
@@ -669,7 +684,7 @@ Lines mapping:
 82 <-> 122
 83 <-> 123
 85 <-> 119
-88 <-> 128
+88 <-> 127
 89 <-> 128
 90 <-> 129
 92 <-> 132
@@ -678,7 +693,7 @@ Lines mapping:
 97 <-> 143
 99 <-> 146
 100 <-> 147
-103 <-> 151
+103 <-> 150
 104 <-> 151
 105 <-> 152
 107 <-> 155

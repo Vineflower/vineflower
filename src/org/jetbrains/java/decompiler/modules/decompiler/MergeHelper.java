@@ -14,6 +14,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
+import org.jetbrains.java.decompiler.util.DotExporter;
 import org.jetbrains.java.decompiler.util.VBStyleCollection;
 
 import java.util.*;
@@ -117,6 +118,11 @@ public final class MergeHelper {
             lastif.getFirst().removeSuccessor(ifedge);
 
             removeLastEmptyStatement(stat, lastif);
+          } else if (stat.getStats().size() == 1 && ifedge.getType() == StatEdge.TYPE_CONTINUE) { // Only statement in loop is if
+            // Otherwise leaves behind a superfluous if statement which is then removed by SequenceHelper
+            // Only when ifedge is type continue, or else break edge is kept
+
+            lastif.replaceWith(lastif.getFirst());
           } else {
             lastif.setExprents(lastif.getFirst().getExprents());
 
@@ -879,6 +885,7 @@ public final class MergeHelper {
       SequenceHelper.condenseSequences(root);
       return true;
     }
+    
     return false;
   }
 
@@ -893,7 +900,10 @@ public final class MergeHelper {
       DoStatement dostat = (DoStatement)stat;
       if (dostat.getLooptype() == DoStatement.LOOP_DO) {
         matchDoWhile(dostat);
-        ret |= dostat.getLooptype() != DoStatement.LOOP_DO;
+        if (dostat.getLooptype() != DoStatement.LOOP_DO) {
+          ret = true;
+          ValidationHelper.validateStatement((RootStatement) stat.getTopParent());
+        }
       }
     }
 
