@@ -601,6 +601,7 @@ public final class LabelHelper {
                 edge.getSource().changeEdgeType(Statement.DIRECTION_FORWARD, edge, StatEdge.TYPE_BREAK);
                 // No more label
                 edge.labeled = false;
+                edge.phantomContinue = true;
                 // Add labeled edge to the closure
                 enclosing.addLabeledEdge(edge);
 

@@ -62,6 +62,9 @@ public class StatEdge {
   // Whether this edge can be inlined to simplify the decompiled output or not.
   public boolean canInline = true;
 
+  // If this edge is a continue edge set as a break edge for readability
+  public boolean phantomContinue = false;
+
   public StatEdge(int type, Statement source, Statement destination, Statement closure) {
     this(type, source, destination);
     this.closure = closure;
