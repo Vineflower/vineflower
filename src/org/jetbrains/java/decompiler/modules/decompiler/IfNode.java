@@ -1,5 +1,10 @@
 package org.jetbrains.java.decompiler.modules.decompiler;
 
+import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
+
+import static org.jetbrains.java.decompiler.modules.decompiler.IfNode.EdgeType.*;
+
 // Models an if statement, child if statements and their successors.
 // Does not model grandchild if statements or successors of successors.
 // Does **not** model if statements with else branches.
@@ -17,14 +22,11 @@ package org.jetbrains.java.decompiler.modules.decompiler;
 // Note that an "elsestat" in this context is simply the stat we jump to when the condition is false, even if it's
 // reachable from the if body (i.e. there should never need to be an "else" keyword in the source code).
 
-import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
-
-import static org.jetbrains.java.decompiler.modules.decompiler.IfNode.EdgeType.*;
-
 // UPDATE:
 // to handle ternaries better, the root node now allows for the elsestat1 to be inside an else. It will then have an
 // EdgeType.ELSE edge type. This shouldn't interfere with any other handling as they all check this edge type.
+
+
 class IfNode {
   // The stat that this node refers to. Root node will be an if stat, child nodes can be any stat.
   final Statement value;

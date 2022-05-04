@@ -236,7 +236,7 @@ public final class IfHelper {
 
             ifparent.setIfstat(null);
 
-            final StatEdge ifedge = ifchild.getFirstSuccessor();
+            StatEdge ifedge = ifchild.getFirstSuccessor();
             ifedge.changeSource(ifparent.getFirst());
             ifparent.setIfEdge(ifedge);
 
@@ -309,7 +309,9 @@ public final class IfHelper {
             firstif.removeAllSuccessors(secondif);
 
             for (StatEdge edge : firstif.getAllPredecessorEdges()) {
-              if (!firstif.containsStatementStrict(edge.getSource())) { // why is this check here?
+              if (!firstif.containsStatementStrict(edge.getSource())) {
+                // TODO: why is this check here? If this check were to fail, this if
+                //  should have been a loop instead of an if statement.
                 edge.changeDestination(secondif);
               }
             }
@@ -343,7 +345,7 @@ public final class IfHelper {
             return true;
           }
         }
-      } else if(elsebranch.successorNode != null){ // else branch is not an if statement, but is direct
+      } else if (elsebranch.successorNode != null) { // else branch is not an if statement, but is direct
         if (elsebranch.successorNode.value == rtnode.innerNode.value) {
           // if (cond1) {
           //   goto A
@@ -434,6 +436,7 @@ public final class IfHelper {
       if (ifBranch.innerType == EdgeType.INDIRECT && ifBranch.successorType == EdgeType.INDIRECT &&
           elseBranch.innerType == EdgeType.INDIRECT && elseBranch.successorType == EdgeType.INDIRECT &&
           ifBranch.value.getFirst().getExprents().isEmpty() && elseBranch.value.getFirst().getExprents().isEmpty()) {
+
         boolean inverted;
         if (ifBranch.innerNode.value == elseBranch.innerNode.value &&
             ifBranch.successorNode.value == elseBranch.successorNode.value) {
@@ -467,7 +470,8 @@ public final class IfHelper {
         mainIf.setIfEdge(secondIf.getIfEdge());
         mainIf.getIfEdge().changeSource(mainIf.getFirst());
 
-        // remove weird successor
+        // remove (weird?) if else successor, produced by dom parsing
+        // TODO: remove when dom parsing is fixed
         mainIf.getFirstSuccessor().remove();
 
         // move seconds successor to be the if's successor
