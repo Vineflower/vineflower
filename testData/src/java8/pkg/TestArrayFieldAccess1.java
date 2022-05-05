@@ -44,4 +44,8 @@ public class TestArrayFieldAccess1 {
       System.out.println(this.array[this.index + 5]);
     }
   }
+
+  public void test7() {
+    this.value = this.array[this.index | 12]++;
+  }
 }

@@ -521,6 +521,16 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestListEquals");
     register(JAVA_8, "TestIfElseSwitch");
     register(JAVA_8, "TestInstanceStaticInvoke");
+    // TODO: finally fails to be verified
+    register(JAVA_8, "TestFinallyBlockVariableUse");
+    // TODO: improper boolean merge
+    register(JAVA_8, "TestIntBoolMerge");
+    // TODO: improper boolean merge
+    register(JAVA_8_NODEBUG, "TestIntBoolMergeNoDebug");
+    register(JAVA_8, "TestInnerClassGeneric");
+    // TODO: array access not simplified
+    register(JAVA_8, "TestArrayFieldAccess2");
+    register(JAVA_8, "TestNestedArrayPP");
   }
 
   private void registerEntireClassPath() {

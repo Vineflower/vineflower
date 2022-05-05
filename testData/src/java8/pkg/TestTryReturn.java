@@ -7,8 +7,7 @@ public class TestTryReturn {
     try {
       return supplier.get();
     } catch (Exception var3) {
-      System.out.println("Catch");
-      return false;
+      throw new RuntimeException(var3);
     }
   }
 
@@ -18,6 +17,20 @@ public class TestTryReturn {
     } finally {
       System.out.println("Finally");
     }
+  }
+
+  public void testFinally1(Supplier<Boolean> supplier) {
+    System.out.println("pred");
+
+    try {
+      if (supplier.get()) {
+        return;
+      }
+    } finally {
+      System.out.println("Finally");
+    }
+
+    System.out.println("suc");
   }
 
   public boolean testFinally2(Supplier<Boolean> supplier) {
