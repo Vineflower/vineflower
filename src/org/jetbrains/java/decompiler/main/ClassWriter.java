@@ -274,7 +274,7 @@ public class ClassWriter {
 
       DecompilerContext.getLogger().startWriteClass(cl.qualifiedName);
 
-      if (DecompilerContext.getOption(IFernflowerPreferences.DECOMPILER_COMMENTS)) {
+      if (DecompilerContext.getOption(IFernflowerPreferences.SOURCE_FILE_COMMENTS)) {
         StructSourceFileAttribute sourceFileAttr = node.classStruct
           .getAttribute(StructGeneralAttribute.ATTRIBUTE_SOURCE_FILE);
 
