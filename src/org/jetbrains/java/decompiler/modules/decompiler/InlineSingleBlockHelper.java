@@ -4,6 +4,7 @@ package org.jetbrains.java.decompiler.modules.decompiler;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 
@@ -99,6 +100,28 @@ public final class InlineSingleBlockHelper {
       }
 
       source.addSuccessor(new StatEdge(StatEdge.TYPE_REGULAR, source, first));
+
+      Statement last = block.getStats().get(block.getStats().size() - 1);
+      if (!last.hasAnySuccessor()){
+        // make sure that the scope of all the break edges are updated correctly
+        for (Iterator<StatEdge> iterator = last.getLabelEdges().iterator(); iterator.hasNext(); ) {
+          StatEdge labelEdge = iterator.next();
+          if (labelEdge.getType() == StatEdge.TYPE_BREAK &&
+              MergeHelper.isDirectPath(last, labelEdge.getDestination())) {
+            // find the correct closure
+            Statement closure = parent;
+            while(!MergeHelper.isDirectPath(closure, labelEdge.getDestination())) {
+              closure = closure.getParent();
+              if (closure == null) {
+                // euh, where have we been inlined to?
+                throw new RuntimeException("Where have we been inlined to?");
+              }
+            }
+            labelEdge.closure = closure;
+            iterator.remove();
+          }
+        }
+      }
     }
   }
 

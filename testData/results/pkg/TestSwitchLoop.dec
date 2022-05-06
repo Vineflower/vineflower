@@ -279,6 +279,49 @@ public class TestSwitchLoop {
 
       System.out.println("after2");// 246
    }// 247
+
+   public void test10b(int i) {
+      label34: {
+         label33: {
+            label28:
+            switch(i) {// 250
+               case 0:
+                  int j = 0;
+
+                  while(true) {
+                     if (j >= 10) {
+                        break label33;
+                     }
+
+                     if (j == 3) {// 254
+                        System.out.println("after");// 267
+                        break label28;
+                     }
+
+                     if (j == 9) {// 258
+                        break label33;
+                     }
+
+                     ++j;// 253
+                  }
+               case 1:
+                  System.out.println(1);// 272
+                  break label34;
+               case 2:
+                  break;
+               default:
+                  break label34;
+            }
+
+            System.out.println(2);// 269
+            break label34;// 270
+         }
+
+         System.out.println(0);// 263
+      }
+
+      System.out.println("after2");// 275
+   }// 276
 }
 
 class 'pkg/TestSwitchLoop' {
@@ -842,6 +885,62 @@ class 'pkg/TestSwitchLoop' {
       5b      279
       5c      280
    }
+
+   method 'test10b (I)V' {
+      0      286
+      1      286
+      1c      288
+      1d      288
+      1e      291
+      1f      291
+      20      291
+      21      291
+      24      295
+      25      295
+      26      295
+      2c      300
+      2d      300
+      2e      300
+      2f      300
+      35      304
+      36      304
+      37      304
+      3b      319
+      3c      319
+      3d      319
+      3e      319
+      3f      319
+      40      319
+      41      319
+      45      296
+      46      296
+      47      296
+      48      296
+      49      296
+      4a      296
+      4d      315
+      4e      315
+      4f      315
+      50      315
+      51      315
+      52      315
+      53      315
+      54      316
+      57      307
+      58      307
+      59      307
+      5a      307
+      5b      307
+      5e      322
+      5f      322
+      60      322
+      61      322
+      62      322
+      63      322
+      64      322
+      65      322
+      66      323
+   }
 }
 
 Lines mapping:
@@ -951,6 +1050,17 @@ Lines mapping:
 243 <-> 273
 246 <-> 280
 247 <-> 281
+250 <-> 287
+253 <-> 305
+254 <-> 296
+258 <-> 301
+263 <-> 320
+267 <-> 297
+269 <-> 316
+270 <-> 317
+272 <-> 308
+275 <-> 323
+276 <-> 324
 Not mapped:
 22
 35
@@ -965,3 +1075,6 @@ Not mapped:
 229
 233
 238
+255
+259
+264

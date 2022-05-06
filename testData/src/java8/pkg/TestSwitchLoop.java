@@ -245,4 +245,33 @@ public class TestSwitchLoop {
 
     System.out.println("after2");
   }
+
+  public void test10b(int i) {
+    switch (i) {
+      case 0:
+        label: {
+          for (int j = 0; j < 10; j++) {
+            if (j == 3) {
+              break label;
+            }
+
+            if (j == 9) {
+              break;
+            }
+          }
+
+          System.out.println(0);
+          break;
+        }
+
+        System.out.println("after");
+      case 2:
+        System.out.println(2);
+        break;
+      case 1:
+        System.out.println(1);
+    }
+
+    System.out.println("after2");
+  }
 }

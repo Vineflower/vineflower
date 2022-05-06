@@ -149,6 +149,17 @@ public final class ValidationHelper {
         if (edge.getSource() == edge.getDestination()) {
           throw new IllegalStateException("Break edge pointing to itself: " + edge);
         }
+
+        // TODO: It seems there are break edge to dummy exits with
+        //  potentially incorrect closures
+        if (edge.getDestination().type != Statement.TYPE_DUMMYEXIT && !MergeHelper.isDirectPath(edge.closure, edge.getDestination())) {
+          throw new IllegalStateException("Break edge with closure with invalid direct path: " + edge);
+        }
+
+        // if (edge.closure.hasAnySuccessor() && edge.closure.getFirstSuccessor().getType() != StatEdge.TYPE_REGULAR) {
+        //   throw new IllegalStateException("Break edge with closure with non-regular successor: " + edge + " " + edge.closure.getFirstSuccessor());
+        // }
+
         break;
       }
       case StatEdge.TYPE_CONTINUE: {
@@ -158,6 +169,10 @@ public final class ValidationHelper {
 
         if (edge.closure != edge.getDestination()) {
           throw new IllegalStateException("Continue edge with closure pointing to different destination: " + edge);
+        }
+
+        if (edge.getDestination().type != Statement.TYPE_DO) {
+          throw new IllegalStateException("Continue edge where closure isn't pointing to a do: " + edge);
         }
 
         break;
