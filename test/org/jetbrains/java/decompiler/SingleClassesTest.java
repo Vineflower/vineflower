@@ -513,7 +513,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8_NODEBUG, "TestTryReturnNoDebug");
     // TODO: missing Object[] cast
     register(JAVA_8, "TestArrayAssign2");
-    // TODO: where did the catch block go??
     register(JAVA_8, "TestTryLoopNoCatch");
     // TODO: cast is missing
     register(JAVA_8, "TestCollectionItr");
@@ -531,6 +530,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: array access not simplified
     register(JAVA_8, "TestArrayFieldAccess2");
     register(JAVA_8, "TestNestedArrayPP");
+    // TODO: variable stores completely ignored due to variable merging
     register(JAVA_8_NODEBUG, "TestCompoundAssignmentReplace");
   }
 
