@@ -531,6 +531,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: array access not simplified
     register(JAVA_8, "TestArrayFieldAccess2");
     register(JAVA_8, "TestNestedArrayPP");
+    register(JAVA_8_NODEBUG, "TestCompoundAssignmentReplace");
   }
 
   private void registerEntireClassPath() {
