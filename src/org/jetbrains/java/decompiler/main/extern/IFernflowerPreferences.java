@@ -7,7 +7,6 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -219,8 +218,12 @@ public interface IFernflowerPreferences {
   @Description("Use JAD-style variable naming for local variables, instead of var<index>_<version>A.")
   String USE_JAD_VARNAMING = "jvn";
 
+  @Name("Skip Extra Files")
+  @Description("Skip copying non-class files from the input folder or file to the output")
   String SKIP_EXTRA_FILES = "sef";
 
+  @Name("Warn about inconsistent inner attributes")
+  @Description("Warn about inconsistent inner class attributes")
   String WARN_INCONSISTENT_INNER_CLASSES = "win";
 
   @Name("Dump Bytecode On Error")
