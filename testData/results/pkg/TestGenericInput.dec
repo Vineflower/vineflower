@@ -1,0 +1,35 @@
+package pkg;
+
+import java.util.List;
+import java.util.function.Function;
+
+public class TestGenericInput<T> {
+   private TestGenericInput.Inner<T> inner;
+
+   public void test(List<T> list) {
+      this.inner.apply((T)list);// 13
+   }// 14
+
+   public interface Inner<T> extends Function<List<T>, TestGenericInput<T>> {
+   }
+}
+
+class 'pkg/TestGenericInput' {
+   method 'test (Ljava/util/List;)V' {
+      0      9
+      1      9
+      2      9
+      3      9
+      4      9
+      5      9
+      6      9
+      7      9
+      8      9
+      9      9
+      b      10
+   }
+}
+
+Lines mapping:
+13 <-> 10
+14 <-> 11

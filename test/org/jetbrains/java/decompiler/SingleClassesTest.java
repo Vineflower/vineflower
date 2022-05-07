@@ -594,6 +594,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestGenericCastSuper");
     // TODO: cast doesn't have generic type
     register(JAVA_8, "TestGenericCastCall");
+    // TODO: cast to T, because T of Function isn't remapped to List<T>
+    register(JAVA_8, "TestGenericInput");
   }
 
   private void registerLiterals() {
