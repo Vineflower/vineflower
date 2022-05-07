@@ -351,6 +351,10 @@ public final class SecondaryFunctionsHelper {
         break;
       case Exprent.EXPRENT_ASSIGNMENT: // check for conditional assignment
         AssignmentExprent asexpr = (AssignmentExprent)exprent;
+
+        if(asexpr.getCondType() != AssignmentExprent.CONDITION_NONE)
+          return null;
+
         Exprent right = asexpr.getRight();
         Exprent left = asexpr.getLeft();
 

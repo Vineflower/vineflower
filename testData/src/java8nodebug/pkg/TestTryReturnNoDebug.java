@@ -14,6 +14,18 @@ public class TestTryReturnNoDebug {
     return process(n);
   }
 
+  public String test2(Supplier<Boolean> supplier) {
+    String n = null;
+    try {
+      n = supplier.toString();
+      System.out.println("Try: " + n);
+    } catch (Exception var3) {
+      throw new RuntimeException("Catch: " + n);
+    }
+
+    return process(n);
+  }
+
   private String process(String s) {
     return s;
   }

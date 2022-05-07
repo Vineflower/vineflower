@@ -7,8 +7,7 @@ public class TestTryReturn {
       try {
          return supplier.get();// 8
       } catch (Exception var3) {// 9
-         System.out.println("Catch");// 10
-         return false;// 11
+         throw new RuntimeException(var3);// 10
       }
    }
 
@@ -17,21 +16,39 @@ public class TestTryReturn {
       try {
          var2 = supplier.get();
       } finally {
-         System.out.println("Finally");// 19
+         System.out.println("Finally");// 18
       }
 
-      return var2;// 17
+      return var2;// 16
+   }
+
+   public void testFinally1(Supplier<Boolean> supplier) {
+      System.out.println("pred");// 23
+
+      label32: {
+         try {
+            if (!supplier.get()) {// 26
+               break label32;
+            }
+         } finally {
+            System.out.println("Finally");// 30
+         }
+
+         return;// 27
+      }
+
+      System.out.println("suc");// 31 33
    }
 
    public boolean testFinally2(Supplier<Boolean> supplier) {
       boolean b;
       try {
-         b = supplier.get();// 26
+         b = supplier.get();// 39
       } finally {
-         System.out.println("Finally");// 28
+         System.out.println("Finally");// 41
       }
 
-      return b;// 29 31
+      return b;// 42 44
    }
 }
 
@@ -48,65 +65,96 @@ class 'pkg/TestTryReturn' {
       b      7
       c      7
       d      8
-      e      9
-      f      9
-      10      9
-      11      9
-      12      9
-      13      9
-      14      9
-      15      9
-      16      10
-      17      10
+      16      9
    }
 
    method 'testFinally (Ljava/util/function/Supplier;)Z' {
-      0      17
-      1      17
-      2      17
-      3      17
-      4      17
-      5      17
-      9      17
-      a      17
-      b      17
-      c      17
-      15      22
-      16      22
-      17      19
-      18      19
-      19      19
-      1a      19
-      1b      19
-      1c      19
+      0      16
+      1      16
+      2      16
+      3      16
+      4      16
+      5      16
+      9      16
+      a      16
+      b      16
+      c      16
+      15      21
+      16      21
+      17      18
+      18      18
+      19      18
+      1a      18
+      1b      18
+      1c      18
+   }
+
+   method 'testFinally1 (Ljava/util/function/Supplier;)V' {
+      0      25
+      1      25
+      2      25
+      3      25
+      4      25
+      5      25
+      8      29
+      9      29
+      a      29
+      b      29
+      c      29
+      d      29
+      11      29
+      12      29
+      13      29
+      14      29
+      1f      36
+      28      39
+      29      39
+      2a      39
+      2b      33
+      2c      33
+      2d      33
+      2e      33
+      2f      33
+      30      33
+      31      39
+      32      39
+      33      39
+      34      39
+      35      39
+      36      39
+      37      39
+      38      39
+      39      39
+      3a      39
+      3b      40
    }
 
    method 'testFinally2 (Ljava/util/function/Supplier;)Z' {
-      0      28
-      1      28
-      2      28
-      3      28
-      4      28
-      5      28
-      9      28
-      a      28
-      b      28
-      c      28
-      15      33
-      16      33
-      17      33
-      18      30
-      19      30
-      1a      30
-      1b      30
-      1c      30
-      1d      30
-      1e      33
-      1f      33
-      20      33
-      21      33
-      22      33
-      23      33
+      0      45
+      1      45
+      2      45
+      3      45
+      4      45
+      5      45
+      9      45
+      a      45
+      b      45
+      c      45
+      15      50
+      16      50
+      17      50
+      18      47
+      19      47
+      1a      47
+      1b      47
+      1c      47
+      1d      47
+      1e      50
+      1f      50
+      20      50
+      21      50
+      22      50
+      23      50
    }
 }
 
@@ -114,12 +162,18 @@ Lines mapping:
 8 <-> 8
 9 <-> 9
 10 <-> 10
-11 <-> 11
-17 <-> 23
-19 <-> 20
-26 <-> 29
-28 <-> 31
-29 <-> 34
-31 <-> 34
+16 <-> 22
+18 <-> 19
+23 <-> 26
+26 <-> 30
+27 <-> 37
+30 <-> 34
+31 <-> 40
+33 <-> 40
+39 <-> 46
+41 <-> 48
+42 <-> 51
+44 <-> 51
 Not mapped:
-20
+19
+34

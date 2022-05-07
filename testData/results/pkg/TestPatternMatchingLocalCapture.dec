@@ -3,7 +3,7 @@ package pkg;
 public class TestPatternMatchingLocalCapture {
    public void test(Object o) {
       if (o instanceof String s) {// 5
-         Object var10001 = new Object() {
+         new Object() {
             void test() {
                System.out.println(s);// 8
             }// 9

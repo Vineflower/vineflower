@@ -42,6 +42,10 @@ public class TestArrayFieldAccess1 {
       }
 
    }// 46
+
+   public void test7() {
+      this.value = this.array[this.index | 12]++;// 49
+   }// 50
 }
 
 class 'pkg/TestArrayFieldAccess1' {
@@ -229,6 +233,27 @@ class 'pkg/TestArrayFieldAccess1' {
       22      40
       25      43
    }
+
+   method 'test7 ()V' {
+      0      46
+      1      46
+      2      46
+      3      46
+      4      46
+      5      46
+      6      46
+      7      46
+      8      46
+      9      46
+      a      46
+      b      46
+      d      46
+      10      46
+      12      46
+      13      46
+      14      46
+      15      47
+   }
 }
 
 Lines mapping:
@@ -253,3 +278,5 @@ Lines mapping:
 43 <-> 40
 44 <-> 41
 46 <-> 44
+49 <-> 47
+50 <-> 48

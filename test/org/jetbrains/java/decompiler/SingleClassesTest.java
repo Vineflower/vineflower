@@ -231,12 +231,9 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestArrays");
     register(JAVA_8, "TestArrayForeach");
     register(JAVA_8, "TestArrayInitializations");
-    // TODO: I'm pretty sure this test opened the gates of hell somewhere. We need to figure out what's causing that
     register(JAVA_8, "TestTernaryCall");
-    // TODO: extraneous var10000, SSAU liveness?
     register(JAVA_8, "TestAnonymousObject");
     register(JAVA_8, "TestArrayAssignmentEquals");
-    // TODO: Loop becomes infinte loop where it should be assignment in loop
     register(JAVA_8, "TestArrayCopy");
     register(JAVA_8, "TestArrayDoWhile");
     // TODO: Creating a new object where the array should be set to null
@@ -417,7 +414,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestDuplicateSwitchLocals");
 
     register(JAVA_8, "TestIfTernary1");
-    // TODO: multiple labels still present
     register(JAVA_8, "TestIfTernary2");
     register(JAVA_8, "TestIfTernary3");
     register(JAVA_8, "TestIfTernaryReturn");
@@ -515,18 +511,30 @@ public class SingleClassesTest extends SingleClassesTestBase {
 
     register(JAVA_17, "TestDefiniteAssignment");
 
-    // TODO: var10000 when it should not be a stack var
     register(JAVA_8_NODEBUG, "TestNoUse");
     // TODO: var5 is never defined!
     register(JAVA_8_NODEBUG, "TestTryReturnNoDebug");
     // TODO: missing Object[] cast
     register(JAVA_8, "TestArrayAssign2");
-    // TODO: where did the catch block go??
     register(JAVA_8, "TestTryLoopNoCatch");
     // TODO: cast is missing
     register(JAVA_8, "TestCollectionItr");
     // TODO: missing qualifier on generic
     register(JAVA_8, "TestListEquals");
+    register(JAVA_8, "TestIfElseSwitch");
+    register(JAVA_8, "TestInstanceStaticInvoke");
+    // TODO: finally fails to be verified
+    register(JAVA_8, "TestFinallyBlockVariableUse");
+    // TODO: improper boolean merge
+    register(JAVA_8, "TestIntBoolMerge");
+    // TODO: improper boolean merge
+    register(JAVA_8_NODEBUG, "TestIntBoolMergeNoDebug");
+    register(JAVA_8, "TestInnerClassGeneric");
+    // TODO: array access not simplified
+    register(JAVA_8, "TestArrayFieldAccess2");
+    register(JAVA_8, "TestNestedArrayPP");
+    // TODO: variable stores completely ignored due to variable merging
+    register(JAVA_8_NODEBUG, "TestCompoundAssignmentReplace");
   }
 
   private void registerEntireClassPath() {
@@ -606,6 +614,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16, "TestPatternMatchingFakeLoopsInverted");
     register(JAVA_16, "TestPatternMatchingFakeNew");
     register(JAVA_16, "TestPatternMatchingMerge");
+    register(JAVA_16, "TestPatternMatchingStatic");
     // TODO: local variables aren't merged properly, bring out of nodebug when they are
     register(JAVA_16_NODEBUG, "TestPatternMatchingAssign");
     register(JAVA_16, "TestPatternMatchingLocalCapture");

@@ -27,6 +27,9 @@ public class DotExporter {
   private static final String DOTS_ERROR_FOLDER = System.getProperty("DOT_ERROR_EXPORT_DIR", null);
   public static final boolean DUMP_DOTS = DOTS_FOLDER != null && !DOTS_FOLDER.trim().isEmpty();
   public static final boolean DUMP_ERROR_DOTS = DOTS_ERROR_FOLDER != null && !DOTS_ERROR_FOLDER.trim().isEmpty();
+
+  private static final boolean EXTENDED_MODE = false;
+  private static final boolean STATEMENT_LR_MODE = false;
   // http://graphs.grevian.org/graph is a nice visualizer for the outputed dots.
 
   // Outputs a statement and as much of its information as possible into a dot formatted string.
@@ -42,12 +45,16 @@ public class DotExporter {
   // Nodes with green borders are the canonical exit of method, but these may not always be emitted.
   private static String statToDot(Statement stat, String name) {
     StringBuffer buffer = new StringBuffer();
-    List<String> subgraph = new ArrayList<>();
+    // List<String> subgraph = new ArrayList<>();
     Set<Integer> visitedNodes = new HashSet<>();
     Set<Integer> exits = new HashSet<>();
     Set<Integer> referenced = new HashSet<>();
 
     buffer.append("digraph " + name + " {\r\n");
+
+    if (STATEMENT_LR_MODE) {
+      buffer.append("  rankdir = LR;\r\n");
+    }
 
     List<Statement> stats = new ArrayList<>();
     stats.add(stat);
@@ -84,6 +91,7 @@ public class DotExporter {
         String destId = edge.getDestination().id + (edge.getDestination().getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty()?"":"000000");
 
         String edgeType = getEdgeType(edge);
+        String meta = getEdgeMeta(edge);
 
         // Add extra edge data
         // TODO do same for predecessors?
@@ -94,9 +102,13 @@ public class DotExporter {
           }
         }
 
-        buffer.append(sourceId + "->" + destId + (edgeType != null ? "[label=\"" + edgeType + "\"]" : "") + ";\r\n");
+        if (edge.closure != null ) {
+          edgeType = edgeType == null ? "Closure: " + edge.closure.id : edgeType + " (Closure: " + edge.closure.id + ")";
+        }
 
-        if (edge.closure != null) {
+        buffer.append(sourceId + "->" + destId + (edgeType != null ? "[label=\"" + edgeType + "\", " + meta + "]" : "[" + meta + "]") + ";\n");
+
+        if (EXTENDED_MODE && edge.closure != null) {
           String clsId = edge.closure.id + (edge.getDestination().getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty()?"":"000000");
           buffer.append(sourceId + "->" + clsId + " [arrowhead=diamond,label=\"Closure\"];\r\n");
         }
@@ -110,20 +122,22 @@ public class DotExporter {
         edges = true;
       }
 
-      for (StatEdge labelEdge : st.getLabelEdges()) {
-        String src = labelEdge.getSource().id + (labelEdge.getSource().getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty()?"":"000000");;
-        String destId = labelEdge.getDestination().id + (labelEdge.getDestination().getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty()?"":"000000");
-        String data = "";
-        if (labelEdge.labeled) {
-          data += "Labeled";
+      if(EXTENDED_MODE) {
+        for (StatEdge labelEdge : st.getLabelEdges()) {
+          String src = labelEdge.getSource().id + (labelEdge.getSource().getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty() ? "" : "000000");
+          String destId = labelEdge.getDestination().id + (labelEdge.getDestination().getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty() ? "" : "000000");
+          String data = "";
+          if (labelEdge.labeled) {
+            data += "Labeled";
+          }
+          if (labelEdge.labeled && labelEdge.explicit) {
+            data += ", ";
+          }
+          if (labelEdge.explicit) {
+            data += "Explicit";
+          }
+          buffer.append(src + "->" + destId + " [color=orange,label=\"Label Edge (" + data + ") (Contained by " + st.id + ")\"];\r\n");
         }
-        if (labelEdge.labeled && labelEdge.explicit) {
-          data += ", ";
-        }
-        if (labelEdge.explicit) {
-          data += "Explicit";
-        }
-        buffer.append(src + "->" + destId + " [color=orange,label=\"Label Edge (" + data + ") (Contained by " + st.id + ")\"];\r\n");
       }
 
       // Neighbor set is redundant
@@ -132,16 +146,18 @@ public class DotExporter {
 //        buffer.append(sourceId + "->" + destId + " [arrowhead=tee,color=purple];\r\n");
 //      }
 
-      for(StatEdge edge : st.getPredecessorEdges(Statement.STATEDGE_ALL)) {
-        String destId = edge.getSource().id + (edge.getSource().getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty() ? "" : "000000");
+      if (EXTENDED_MODE) {
+        for(StatEdge edge : st.getPredecessorEdges(Statement.STATEDGE_ALL)) {
+          String destId = edge.getSource().id + (edge.getSource().getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty() ? "" : "000000");
 
-        String edgeType = getEdgeType(edge);
+          String edgeType = getEdgeType(edge);
 
-        buffer.append(sourceId + "->" + destId + "[color=blue" + (edgeType != null ? ",fontcolor=blue,label=\"" + edgeType + "\"" : "") + "];\r\n");
+          buffer.append(sourceId + "->" + destId + "[color=blue" + (edgeType != null ? ",fontcolor=blue,label=\"" + edgeType + "\"" : "") + "];\r\n");
 
-        referenced.add(edge.getSource().id);
+          referenced.add(edge.getSource().id);
 
-        edges = true;
+          edges = true;
+        }
       }
 
       for(StatEdge edge : st.getSuccessorEdges(StatEdge.TYPE_EXCEPTION)) {
@@ -206,17 +222,17 @@ public class DotExporter {
 
       visitedNodes.add(st.id);
 
-      String node = sourceId + " [shape=box,label=\"" + st.id + " (" + getStatType(st) + ")\r\n" + toJava(st) + "\"" + (st == stat ? ",color=red" : "") + "];\r\n";
-      if (edges || st == stat) {
+      String node = sourceId + " [shape=box,label=\"" + st.id + " (" + getStatType(st) + ")\\n" + toJava(st) + "\"" + (st == stat ? ",color=red" : "") + "];\n";
+//      if (edges || st == stat) {
         buffer.append(node);
-      } else {
-        subgraph.add(node);
-      }
+//      } else {
+//        subgraph.add(node);
+//      }
     }
 
     // Exits
     if (exit != null) {
-      buffer.append(exit.id + " [color=green,label=\"" + exit.id + " (Canonical Return)\"];\r\n");
+      buffer.append(exit.id + " [color=green,label=\"" + exit.id + " (Canonical Return)\"];\n");
       referenced.remove(exit.id);
     }
 
@@ -247,15 +263,15 @@ public class DotExporter {
       buffer.append(src + " -> " + destId + " [arrowhead=vee,color=red,fontcolor=red,label=\"" + label + "\"];\r\n");
     }
 
-    if (subgraph.size() > 0) {
-      buffer.append("subgraph cluster_non_parented {\r\n\tlabel=\"Isolated statements\";\r\n");
-
-      for (String s : subgraph) {
-        buffer.append("\t"+s);
-      }
-
-      buffer.append("\t}\r\n");
-    }
+//    if (subgraph.size() > 0) {
+//      buffer.append("subgraph cluster_non_parented {\r\n\tlabel=\"Isolated statements\";\r\n");
+//
+//      for (String s : subgraph) {
+//        buffer.append("\t"+s);
+//      }
+//
+//      buffer.append("\t}\r\n");
+//    }
 
     buffer.append("}");
 
@@ -302,7 +318,7 @@ public class DotExporter {
         .replace("\n", "\\l");
       if (statement instanceof BasicBlockStatement) {
         if (statement.getExprents() == null || statement.getExprents().isEmpty()) {
-          java = "<" + (statement.getExprents() == null ? "null" : "empty") + " basic block>\n" + java;
+          java = "<" + (statement.getExprents() == null ? "null" : "empty") + " basic block>\\n" + java;
         }
       }
 
@@ -320,6 +336,17 @@ public class DotExporter {
       case StatEdge.TYPE_CONTINUE: return "Continue";
       case StatEdge.TYPE_FINALLYEXIT: return "Finally Exit";
       default: return "Unknown Edge (composite?)";
+    }
+  }
+
+  private static String getEdgeMeta(StatEdge edge) {
+    switch (edge.getType()) {
+      case StatEdge.TYPE_REGULAR: return "weight=1, color=black";
+      case StatEdge.TYPE_EXCEPTION: return "weight=1, color=orange, style=dashed";
+      case StatEdge.TYPE_BREAK: return "weight=0.4, color=blue";
+      case StatEdge.TYPE_CONTINUE: return "weight=0.2, color=green";
+      case StatEdge.TYPE_FINALLYEXIT: return "weight=1, color=orange, style=dotted";
+      default: return "weight=1, color=purple";
     }
   }
 

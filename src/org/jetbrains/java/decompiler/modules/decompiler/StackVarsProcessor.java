@@ -336,8 +336,12 @@ public class StackVarsProcessor {
         if (right.type == Exprent.EXPRENT_NEW) {
           // new Object(); permitted
           NewExprent nexpr = (NewExprent)right;
-          if (nexpr.isAnonymous() || nexpr.getNewType().arrayDim > 0
-              || nexpr.getNewType().type != CodeConstants.TYPE_OBJECT) {
+          if (
+            // TODO: why is this here? anonymous vars should be simplfiend!
+//            nexpr.isAnonymous() ||
+              nexpr.getNewType().arrayDim > 0 ||
+              nexpr.getNewType().type != CodeConstants.TYPE_OBJECT
+          ) {
             return new int[]{-1, changed};
           }
         }
@@ -345,6 +349,27 @@ public class StackVarsProcessor {
         lstExprents.set(index, right);
         return new int[]{index + 1, 1};
       } else if (right.type == Exprent.EXPRENT_VAR) {
+        lstExprents.remove(index);
+        return new int[]{index, 1};
+      } else if (left.isStack() && right.type == Exprent.EXPRENT_FUNCTION) {
+        FunctionExprent func = (FunctionExprent) right;
+
+        if (func.getFuncType() == FunctionExprent.FUNCTION_IPP || func.getFuncType() == FunctionExprent.FUNCTION_IMM) {
+          // Unused IPP or IMM, typically from arrays
+          lstExprents.set(index, right);
+          return new int[]{index, 1};
+        } else if (func.getFuncType() == FunctionExprent.FUNCTION_CAST) {
+          // Unused cast, remove
+          lstExprents.remove(index);
+          return new int[]{index, 1};
+        }
+
+        return new int[]{-1, changed};
+      } else if (left.isStack() && right.type == Exprent.EXPRENT_FIELD) {
+        // Unused field access, remove
+        // Field access is pure so this should be safe
+        // This technically hides that there is a field access though!
+        // TODO: fernflower preference?
         lstExprents.remove(index);
         return new int[]{index, 1};
       } else {
