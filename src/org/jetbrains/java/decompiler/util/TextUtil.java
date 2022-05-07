@@ -7,6 +7,7 @@ import org.jetbrains.java.decompiler.main.ClassesProcessor;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
+import org.jetbrains.java.decompiler.struct.StructMethod;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -50,8 +51,8 @@ public final class TextUtil {
     return "\\u" + sTemp;
   }
 
-  public static boolean isValidIdentifier(String id, BytecodeVersion version) {
-    return isJavaIdentifier(id) && !isKeyword(id, version);
+  public static boolean isValidIdentifier(String id, BytecodeVersion version, StructMethod mt) {
+    return isJavaIdentifier(id) && !isKeyword(id, version, mt);
   }
 
   private static boolean isJavaIdentifier(String id) {
@@ -68,8 +69,8 @@ public final class TextUtil {
     return true;
   }
 
-  private static boolean isKeyword(String id, BytecodeVersion version) {
-    return KEYWORDS.contains(id) || version.hasEnums() && "enum".equals(id);
+  private static boolean isKeyword(String id, BytecodeVersion version, StructMethod mt) {
+    return KEYWORDS.contains(id) || version.hasEnums() && "enum".equals(id) || ((mt.getAccessFlags() & CodeConstants.ACC_STATIC) != 0 && "this".equals(id));
   }
 
   public static String getInstructionName(int opcode) {
