@@ -238,6 +238,10 @@ public interface IFernflowerPreferences {
   @Description("Sometimes, odd behavior of the bytecode or unfixable problems occur. This enables or disables the adding of those to the decompiled output.")
   String DECOMPILER_COMMENTS = "dec";
 
+  @Name("SourceFile comments")
+  @Description("Add debug comments showing the class SourceFile attribute if present.")
+  String SOURCE_FILE_COMMENTS = "sfc";
+
   Map<String, Object> DEFAULTS = getDefaults();
 
   static Map<String, Object> getDefaults() {
@@ -302,6 +306,7 @@ public interface IFernflowerPreferences {
     defaults.put(DUMP_BYTECODE_ON_ERROR, "1");
     defaults.put(DUMP_EXCEPTION_ON_ERROR, "1");
     defaults.put(DECOMPILER_COMMENTS, "1");
+    defaults.put(SOURCE_FILE_COMMENTS, "0");
 
     return Collections.unmodifiableMap(defaults);
   }

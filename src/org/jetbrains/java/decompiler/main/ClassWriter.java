@@ -274,6 +274,21 @@ public class ClassWriter {
 
       DecompilerContext.getLogger().startWriteClass(cl.qualifiedName);
 
+      if (DecompilerContext.getOption(IFernflowerPreferences.SOURCE_FILE_COMMENTS)) {
+        StructSourceFileAttribute sourceFileAttr = node.classStruct
+          .getAttribute(StructGeneralAttribute.ATTRIBUTE_SOURCE_FILE);
+
+        if (sourceFileAttr != null) {
+          ConstantPool pool = node.classStruct.getPool();
+          String sourceFile = sourceFileAttr.getSourceFile(pool);
+
+          buffer
+            .appendIndent(indent)
+            .append("// $FF: Compiled from " + sourceFile)
+            .appendLineSeparator();
+        }
+      }
+
       // write class definition
       writeClassDefinition(node, buffer, indent);
 

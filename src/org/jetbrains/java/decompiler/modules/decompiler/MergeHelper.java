@@ -508,6 +508,11 @@ public final class MergeHelper {
         stat.removeSuccessor(lst.get(0));
       }
 
+      // Cannot delete try or catch blocks with finally
+      if (stat.getParent().type == Statement.TYPE_TRYCATCH || stat.getParent().type == Statement.TYPE_CATCHALL) {
+        return;
+      }
+
       removeLastEmptyStatement(dostat, stat);
     }
   }
