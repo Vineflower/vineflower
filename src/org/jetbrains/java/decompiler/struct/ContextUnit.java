@@ -168,12 +168,14 @@ public class ContextUnit {
         final List<Future<?>> futures = new LinkedList<>();
         final ExecutorService decompileExecutor = Executors.newFixedThreadPool(Integer.parseInt((String) DecompilerContext.getProperty(IFernflowerPreferences.THREADS)));
         final DecompilerContext rootContext = DecompilerContext.getCurrentContext();
+        final ClassContext[] toDump = new ClassContext[classes.size()];
 
         // classes
         for (int i = 0; i < classes.size(); i++) {
           StructClass cl = classes.get(i);
           String entryName = decompiledData.getClassEntryName(cl, classEntries.get(i));
           if (entryName != null) {
+            final int finalI = i;
             futures.add(decompileExecutor.submit(() -> {
               setContext(rootContext);
               String content = decompiledData.getClassContent(cl);
@@ -181,7 +183,7 @@ public class ContextUnit {
               if (DecompilerContext.getOption(IFernflowerPreferences.BYTECODE_SOURCE_MAPPING)) {
                 mapping = DecompilerContext.getBytecodeSourceMapper().getOriginalLinesMapping();
               }
-              resultSaver.saveClassEntry(archivePath, filename, cl.qualifiedName, entryName, content, mapping);
+              toDump[finalI] = new ClassContext(cl.qualifiedName, entryName, content, mapping);
             }));
           }
         }
@@ -193,6 +195,12 @@ public class ContextUnit {
             future.get();
           } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
+          }
+        }
+
+        for (final ClassContext cls : toDump) {
+          if (cls != null) {
+            this.resultSaver.saveClassEntry(archivePath, filename, cls.qualifiedName, cls.entryName, cls.classContent, cls.mapping);
           }
         }
 
@@ -225,5 +233,19 @@ public class ContextUnit {
 
   public List<StructClass> getClasses() {
     return classes;
+  }
+
+  static final class ClassContext {
+    private final String qualifiedName;
+    private final String entryName;
+    private final String classContent;
+    private final int /* @Nullable */[] mapping;
+
+    ClassContext(final String qualifiedName, final String entryName, final String classContent, final int[] mapping) {
+      this.qualifiedName = qualifiedName;
+      this.entryName = entryName;
+      this.classContent = classContent;
+      this.mapping = mapping;
+    }
   }
 }
