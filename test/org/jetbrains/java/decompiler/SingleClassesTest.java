@@ -275,6 +275,9 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: Assignment of o = new Object() is removed
     register(JAVA_8, "TestSynchronized");
     register(JAVA_8, "TestSynchronizeNull");
+    // TODO: Assignments are removed, producing incorrect code
+    // derived from: IDEA-180373
+    register(JAVA_8, "TestSynchronizedTrySharing");
     register(JAVA_8, "TestWhileIterator");
     register(JAVA_8, "TestReturnTernaryChar");
     register(JAVA_8, "TestCompoundAssignment");
@@ -537,6 +540,9 @@ public class SingleClassesTest extends SingleClassesTestBase {
     //  Derived from IDEA-291806
     register(JAVA_8, "TestTryVar");
     register(JAVA_8_NODEBUG, "TestTryVarNoDebug");
+    // TODO: order of additions is wrong. Addition over floats isn't associative.
+    // Derived from IDEA-291735
+    register(JAVA_8, "TestFloatOrderOfOperations");
   }
 
   private void registerEntireClassPath() {
