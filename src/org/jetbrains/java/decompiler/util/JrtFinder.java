@@ -32,7 +32,7 @@ public class JrtFinder {
         case "jrt":
           Path objectPath = Paths.get(objectUri);
           FileSystem jrtFs = objectPath.getFileSystem();
-          ctx.addSpace(jrtFs, false);
+          // ctx.addSpace(jrtFs, false); // TODO
           break;
         default:
           logger.writeMessage("Unknown file system for Java runtime: " + objectUri.getScheme(), Severity.WARN);

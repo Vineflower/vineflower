@@ -150,7 +150,7 @@ public class SingleFileSaver implements IResultSaver, AutoCloseable {
   }
 
   @Override
-  public void close() throws Exception {
+  public void close() throws IOException {
     this.openZips.close();
   }
 }

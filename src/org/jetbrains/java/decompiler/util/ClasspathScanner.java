@@ -2,19 +2,17 @@
 package org.jetbrains.java.decompiler.util;
 
 import java.lang.module.*;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.nio.ByteBuffer;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Optional;
+import java.util.List;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import org.jetbrains.java.decompiler.main.DecompilerContext;
-import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger.Severity;
+import org.jetbrains.java.decompiler.main.extern.IContextSource;
+import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.struct.StructContext;
 
 public class ClasspathScanner {
@@ -32,7 +30,7 @@ public class ClasspathScanner {
             continue;
 
           if (file.exists() && (file.getName().endsWith(".class") || file.getName().endsWith(".jar"))) {
-            DecompilerContext.getLogger().writeMessage("Adding File to context from classpath: " + file, Severity.INFO);
+            DecompilerContext.getLogger().writeMessage("Adding File to context from classpath: " + file, IFernflowerLogger.Severity.INFO);
             ctx.addSpace(file, false);
             found.add(file.getAbsolutePath());
           }
@@ -46,36 +44,58 @@ public class ClasspathScanner {
       for (ModuleReference module : ModuleFinder.ofSystem().findAll()) {
         String name = module.descriptor().name();
         try {
-          ModuleReader reader = module.open();
-          DecompilerContext.getLogger().writeMessage("Reading Module: " + name, Severity.INFO);
-          reader.list().forEach(cls -> {
-            if (!cls.endsWith(".class") || cls.contains("module-info.class"))
-              return;
-
-            DecompilerContext.getLogger().writeMessage("  " + cls, Severity.INFO);
-            try {
-              Optional<ByteBuffer> bb = reader.read(cls);
-              if (!bb.isPresent()) {
-                DecompilerContext.getLogger().writeMessage("    Error Reading Class: " + cls, Severity.ERROR);
-                return;
-              }
-
-              byte[] data;
-              if (bb.get().hasArray()) {
-                data = bb.get().array();
-              } else {
-                data = new byte[bb.get().remaining()];
-                bb.get().get(data);
-              }
-              ctx.addData(name, cls, data, false);
-            } catch (IOException e) {
-              DecompilerContext.getLogger().writeMessage("    Error Reading Class: " + cls, e);
-            }
-          });
-          reader.close();
+          ctx.addSpace(new ModuleContextSource(module), false);
         } catch (IOException e) {
           DecompilerContext.getLogger().writeMessage("Error loading module " + name, e);
         }
+      }
+    }
+
+    static class ModuleContextSource implements IContextSource, AutoCloseable {
+      private final ModuleReference ref;
+      private final ModuleReader reader;
+
+      public ModuleContextSource(final ModuleReference ref) throws IOException {
+        this.ref = ref;
+        this.reader = ref.open();
+      }
+
+      @Override
+      public String getName() {
+        return "module " + this.ref.descriptor().toNameAndVersion();
+      }
+
+      @Override
+      public Entries getEntries() {
+        final List<Entry> classNames = new ArrayList<>();
+        final List<String> directoryNames = new ArrayList<>();
+        final List<Entry> otherEntries = new ArrayList<>();
+
+        try {
+          this.reader.list().forEach(name -> {
+            if (name.endsWith("/")) {
+              directoryNames.add(name.substring(0, name.length() - 1));
+            } else if (name.endsWith(CLASS_SUFFIX)) {
+              classNames.add(Entry.atBase(name.substring(0, name.length() - CLASS_SUFFIX.length())));
+            } else {
+              otherEntries.add(Entry.atBase(name));
+            }
+          });
+        } catch (final IOException ex) {
+          DecompilerContext.getLogger().writeMessage("Failed to list contents of " + this.getName(), IFernflowerLogger.Severity.ERROR, ex);
+        }
+
+        return new Entries(classNames, directoryNames, otherEntries);
+      }
+
+      @Override
+      public InputStream getInputStream(String resource) throws IOException {
+        return this.reader.open(resource).orElse(null);
+      }
+
+      @Override
+      public void close() throws Exception {
+        this.reader.close();
       }
     }
 }

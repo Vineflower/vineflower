@@ -28,6 +28,11 @@ public class Fernflower implements IDecompiledData {
   private final IIdentifierRenamer helper;
   private final IdentifierConverter converter;
 
+  public Fernflower(IResultSaver saver, Map<String, Object> customProperties, IFernflowerLogger logger) {
+    this(null, saver, customProperties, logger);
+  }
+
+  @Deprecated
   public Fernflower(IBytecodeProvider provider, IResultSaver saver, Map<String, Object> customProperties, IFernflowerLogger logger) {
     Map<String, Object> properties = new HashMap<>(IFernflowerPreferences.DEFAULTS);
     if (customProperties != null) {
@@ -42,7 +47,7 @@ public class Fernflower implements IDecompiledData {
       catch (IllegalArgumentException ignore) { }
     }
 
-    structContext = new StructContext(saver, this, new LazyLoader(provider));
+    structContext = new StructContext(provider, saver, this);
     classProcessor = new ClassesProcessor(structContext);
 
     PoolInterceptor interceptor = null;
@@ -102,8 +107,16 @@ public class Fernflower implements IDecompiledData {
     return new ConverterHelper();
   }
 
+  public void addSource(IContextSource source) {
+    structContext.addSpace(source, true);
+  }
+
   public void addSource(File source) {
     structContext.addSpace(source, true);
+  }
+
+  public void addLibrary(IContextSource library) {
+    structContext.addSpace(library, false);
   }
 
   public void addLibrary(File library) {
@@ -118,11 +131,6 @@ public class Fernflower implements IDecompiledData {
     classProcessor.loadClasses(helper);
 
     structContext.saveContext();
-    try {
-      structContext.close();
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
   }
 
   public void addWhitelist(String prefix) {
@@ -130,6 +138,7 @@ public class Fernflower implements IDecompiledData {
   }
 
   public void clearContext() {
+    structContext.clear();
     DecompilerContext.setCurrentContext(null);
   }
 
@@ -144,7 +153,12 @@ public class Fernflower implements IDecompiledData {
       return entryName.substring(0, entryName.lastIndexOf('/') + 1) + simpleClassName + ".java";
     }
     else {
-      return entryName.substring(0, entryName.lastIndexOf(".class")) + ".java";
+      final int clazzIdx = entryName.lastIndexOf(".class");
+      if (clazzIdx == -1) {
+        return entryName + ".java";
+      } else {
+        return entryName.substring(0, clazzIdx) + ".java";
+      }
     }
   }
 

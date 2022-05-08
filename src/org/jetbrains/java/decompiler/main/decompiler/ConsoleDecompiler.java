@@ -26,7 +26,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
-public class ConsoleDecompiler implements IBytecodeProvider, IResultSaver, AutoCloseable {
+public class ConsoleDecompiler implements /* IBytecodeProvider */ IResultSaver, AutoCloseable {
   @SuppressWarnings("UseOfSystemOutOrSystemErr")
   public static void main(String[] args) {
     List<String> params = new ArrayList<String>();
@@ -209,7 +209,7 @@ public class ConsoleDecompiler implements IBytecodeProvider, IResultSaver, AutoC
 
   protected ConsoleDecompiler(File destination, Map<String, Object> options, IFernflowerLogger logger, SaveType saveType) {
     root = destination;
-    engine = new Fernflower(this, saveType == SaveType.LEGACY_CONSOLEDECOMPILER ? this : saveType.getSaver().apply(destination), options, logger);
+    engine = new Fernflower(saveType == SaveType.LEGACY_CONSOLEDECOMPILER ? this : saveType.getSaver().apply(destination), options, logger);
   }
 
   public void addSource(File source) {
@@ -237,8 +237,8 @@ public class ConsoleDecompiler implements IBytecodeProvider, IResultSaver, AutoC
   // Interface IBytecodeProvider
   // *******************************************************************
 
-  @Override
-  public byte[] getBytecode(String externalPath, String internalPath) throws IOException {
+  // @Override
+  public byte[] getBytecode(String externalPath, String internalPath) throws IOException { // UNUSED
     if (internalPath == null) {
       File file = new File(externalPath);
       return InterpreterUtil.getBytes(file);
@@ -392,7 +392,7 @@ public class ConsoleDecompiler implements IBytecodeProvider, IResultSaver, AutoC
   }
 
   @Override
-  public void close() throws Exception {
+  public void close() throws IOException {
     this.openZips.close();
   }
 
