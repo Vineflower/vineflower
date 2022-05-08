@@ -544,6 +544,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: order of additions is wrong. Addition over floats isn't associative.
     // Derived from IDEA-291735
     register(JAVA_8, "TestFloatOrderOfOperations");
+    // TODO: many unnecessary casts, and not simplifying to `+=`
+    register(JAVA_8, "TestMixedCompoundAssignment");
   }
 
   private void registerEntireClassPath() {
