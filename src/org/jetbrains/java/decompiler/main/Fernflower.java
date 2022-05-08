@@ -9,15 +9,12 @@ import org.jetbrains.java.decompiler.modules.renamer.PoolInterceptor;
 import org.jetbrains.java.decompiler.struct.IDecompiledData;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructContext;
-import org.jetbrains.java.decompiler.struct.lazy.LazyLoader;
 import org.jetbrains.java.decompiler.util.JADNameProvider;
 import org.jetbrains.java.decompiler.util.JrtFinder;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.ClasspathScanner;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -88,8 +85,13 @@ public class Fernflower implements IDecompiledData {
 
     if (DecompilerContext.getOption(IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH)) {
       ClasspathScanner.addAllClasspath(structContext);
-    } else if (DecompilerContext.getOption(IFernflowerPreferences.INCLUDE_JAVA_RUNTIME)) {
-      JrtFinder.addJrt(structContext);
+    } else if (!DecompilerContext.getProperty(IFernflowerPreferences.INCLUDE_JAVA_RUNTIME).toString().isEmpty()) {
+      final String javaRuntime = DecompilerContext.getProperty(IFernflowerPreferences.INCLUDE_JAVA_RUNTIME).toString();
+      if (javaRuntime.equalsIgnoreCase("current") || javaRuntime.equalsIgnoreCase("1")) {
+        JrtFinder.addRuntime(structContext);
+      } else if (!javaRuntime.equalsIgnoreCase("0")) {
+        JrtFinder.addRuntime(structContext, new File(javaRuntime));
+      }
     }
   }
 

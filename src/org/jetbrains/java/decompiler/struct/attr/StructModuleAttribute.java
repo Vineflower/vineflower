@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class StructModuleAttribute extends StructGeneralAttribute {
   public String moduleName;
@@ -95,7 +96,7 @@ public class StructModuleAttribute extends StructGeneralAttribute {
     for (final var provides : this.provides) {
       builder.provides(
         provides.interfaceName.replace('/', '.'),
-        provides.implementationNames.stream().map(name -> name.replace('/', '.')).toList()
+        provides.implementationNames.stream().map(name -> name.replace('/', '.')).collect(Collectors.toUnmodifiableList())
       );
     }
 

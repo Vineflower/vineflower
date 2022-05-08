@@ -5,13 +5,11 @@ import java.lang.module.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.jetbrains.java.decompiler.main.DecompilerContext;
-import org.jetbrains.java.decompiler.main.extern.IContextSource;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.struct.StructContext;
 
@@ -51,41 +49,17 @@ public class ClasspathScanner {
       }
     }
 
-    static class ModuleContextSource implements IContextSource, AutoCloseable {
-      private final ModuleReference ref;
+    static class ModuleContextSource extends ModuleBasedContextSource implements AutoCloseable {
       private final ModuleReader reader;
 
       public ModuleContextSource(final ModuleReference ref) throws IOException {
-        this.ref = ref;
+        super(ref.descriptor());
         this.reader = ref.open();
       }
 
       @Override
-      public String getName() {
-        return "module " + this.ref.descriptor().toNameAndVersion();
-      }
-
-      @Override
-      public Entries getEntries() {
-        final List<Entry> classNames = new ArrayList<>();
-        final List<String> directoryNames = new ArrayList<>();
-        final List<Entry> otherEntries = new ArrayList<>();
-
-        try {
-          this.reader.list().forEach(name -> {
-            if (name.endsWith("/")) {
-              directoryNames.add(name.substring(0, name.length() - 1));
-            } else if (name.endsWith(CLASS_SUFFIX)) {
-              classNames.add(Entry.atBase(name.substring(0, name.length() - CLASS_SUFFIX.length())));
-            } else {
-              otherEntries.add(Entry.atBase(name));
-            }
-          });
-        } catch (final IOException ex) {
-          DecompilerContext.getLogger().writeMessage("Failed to list contents of " + this.getName(), IFernflowerLogger.Severity.ERROR, ex);
-        }
-
-        return new Entries(classNames, directoryNames, otherEntries);
+      public Stream<String> entryNames() throws IOException {
+        return this.reader.list();
       }
 
       @Override
@@ -98,4 +72,5 @@ public class ClasspathScanner {
         this.reader.close();
       }
     }
+
 }
