@@ -532,6 +532,11 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestNestedArrayPP");
     // TODO: variable stores completely ignored due to variable merging
     register(JAVA_8_NODEBUG, "TestCompoundAssignmentReplace");
+
+    // NOTE: regular fernflower fails to merge the variables here, leading to incorrect results in both
+    //  Derived from IDEA-291806
+    register(JAVA_8, "TestTryVar");
+    register(JAVA_8_NODEBUG, "TestTryVarNoDebug");
   }
 
   private void registerEntireClassPath() {

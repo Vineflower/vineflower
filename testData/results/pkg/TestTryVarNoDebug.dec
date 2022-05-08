@@ -1,0 +1,49 @@
+package pkg;
+
+public class TestTryVarNoDebug {
+   public int test(int var1, int var2) {
+      for(int var3 = 0; var3 < 10; ++var3) {
+         try {
+            var1 = var2 + var3;
+            var1 = 5000 - var3;
+            var1 = var2 / var2;
+         } catch (Throwable var5) {
+         }
+      }
+
+      return var1;
+   }
+}
+
+class 'pkg/TestTryVarNoDebug' {
+   method 'test (II)I' {
+      0      4
+      1      4
+      2      4
+      3      4
+      4      4
+      5      4
+      8      6
+      9      6
+      a      6
+      b      6
+      c      7
+      d      7
+      e      7
+      f      7
+      10      7
+      11      7
+      12      8
+      13      8
+      14      8
+      15      8
+      19      9
+      1b      4
+      1c      4
+      1d      4
+      21      13
+      22      13
+   }
+}
+
+Lines mapping:
