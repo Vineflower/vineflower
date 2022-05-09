@@ -275,6 +275,9 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: Assignment of o = new Object() is removed
     register(JAVA_8, "TestSynchronized");
     register(JAVA_8, "TestSynchronizeNull");
+    // TODO: Assignments are removed, producing incorrect code
+    // derived from: IDEA-180373
+    register(JAVA_8, "TestSynchronizedTrySharing");
     register(JAVA_8, "TestWhileIterator");
     register(JAVA_8, "TestReturnTernaryChar");
     register(JAVA_8, "TestCompoundAssignment");
@@ -535,8 +538,14 @@ public class SingleClassesTest extends SingleClassesTestBase {
 
     // NOTE: regular fernflower fails to merge the variables here, leading to incorrect results in both
     //  Derived from IDEA-291806
+    // TODO: test2 now successfully triggers the bug in QuiltFlower
     register(JAVA_8, "TestTryVar");
     register(JAVA_8_NODEBUG, "TestTryVarNoDebug");
+    // TODO: order of additions is wrong. Addition over floats isn't associative.
+    // Derived from IDEA-291735
+    register(JAVA_8, "TestFloatOrderOfOperations");
+    // TODO: many unnecessary casts, and not simplifying to `+=`
+    register(JAVA_8, "TestMixedCompoundAssignment");
   }
 
   private void registerEntireClassPath() {
