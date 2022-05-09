@@ -975,7 +975,7 @@ public final class MergeHelper {
       }
     }
 
-    for (Statement st : stat.getStats()) {
+    for (Statement st : new ArrayList<>(stat.getStats())) {
       res |= condenseInfiniteLoopsWithReturnRec(st);
     }
 

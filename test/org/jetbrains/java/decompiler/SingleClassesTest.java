@@ -514,7 +514,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8_NODEBUG, "TestNoUse");
     // TODO: var5 is never defined!
     register(JAVA_8_NODEBUG, "TestTryReturnNoDebug");
-    // TODO: missing Object[] cast
     register(JAVA_8, "TestArrayAssign2");
     register(JAVA_8, "TestTryLoopNoCatch");
     // TODO: cast is missing
