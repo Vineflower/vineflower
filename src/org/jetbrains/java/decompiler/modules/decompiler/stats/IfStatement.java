@@ -39,6 +39,8 @@ public final class IfStatement extends Statement {
   private boolean negated = false;
   private boolean patternMatched = false;
 
+  private boolean hasPPMM = false;
+
   private final List<Exprent> headexprent = new ArrayList<>(1); // contains IfExprent
 
   // *****************************************************************************
@@ -415,6 +417,14 @@ public final class IfStatement extends Statement {
     this.patternMatched = patternMatched;
   }
 
+  public boolean hasPPMM() {
+    return hasPPMM;
+  }
+
+  public void setHasPPMM(boolean hasPPMM) {
+    this.hasPPMM = hasPPMM;
+  }
+
   @Override
   public List<VarExprent> getImplicitlyDefinedVars() {
     List<VarExprent> vars = new ArrayList<>();
@@ -470,7 +480,7 @@ public final class IfStatement extends Statement {
       return false;
     }
 
-    Integer type = (Integer)matchNode.getRuleValue(MatchProperties.STATEMENT_IFTYPE);
+    Integer type = (Integer) matchNode.getRuleValue(MatchProperties.STATEMENT_IFTYPE);
     return type == null || this.iftype == type;
   }
 }
