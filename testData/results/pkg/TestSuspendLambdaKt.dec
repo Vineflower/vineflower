@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @Metadata(
-   mv = {1, 5, 1},
+   mv = {1, 6, 0},
    k = 2,
    xi = 48,
    d1 = {"\u0000\u0016\n\u0000\n\u0002\u0018\u0002\n\u0002\u0018\u0002\n\u0002\u0010\u0002\n\u0002\u0010\u0000\n\u0002\b\u0004\",\u0010\u0000\u001a\u0018\b\u0001\u0012\n\u0012\b\u0012\u0004\u0012\u00020\u00030\u0002\u0012\u0006\u0012\u0004\u0018\u00010\u00040\u0001ø\u0001\u0000¢\u0006\n\n\u0002\u0010\u0007\u001a\u0004\b\u0005\u0010\u0006\u0082\u0002\u0004\n\u0002\b\u0019¨\u0006\b"},
@@ -38,7 +38,7 @@ public final class TestSuspendLambdaKt {
          c = "pkg.TestSuspendLambdaKt$sl1$1"
       )
       @Metadata(
-         mv = {1, 5, 1},
+         mv = {1, 6, 0},
          k = 3,
          xi = 48,
          d1 = {"\u0000\u0006\n\u0000\n\u0002\u0010\u0002\u0010\u0000\u001a\u00020\u0001H\u008a@"},
@@ -53,13 +53,11 @@ public final class TestSuspendLambdaKt {
 
          @Nullable
          public final Object invokeSuspend(@NotNull Object $result) {
-            Object var4 = IntrinsicsKt.getCOROUTINE_SUSPENDED();
+            IntrinsicsKt.getCOROUTINE_SUSPENDED();
             switch(this.label) {
                case 0:
                   ResultKt.throwOnFailure($result);
-                  String var2 = "SL1";// 4
-                  boolean var3 = false;
-                  System.out.println(var2);
+                  System.out.println("SL1");// 4
                   return Unit.INSTANCE;// 5
                default:
                   throw new IllegalStateException("call to 'resume' before 'invoke' with coroutine");
@@ -89,7 +87,7 @@ class 'pkg/TestSuspendLambdaKt' {
    }
 
    method '<clinit> ()V' {
-      e      79
+      e      77
    }
 }
 
@@ -107,13 +105,11 @@ class 'pkg/TestSuspendLambdaKt$sl1$1' {
       0      55
       1      55
       2      55
-      3      55
-      4      55
+      4      56
       5      56
       6      56
       7      56
       8      56
-      9      56
       1c      58
       1d      58
       1e      58
@@ -121,52 +117,48 @@ class 'pkg/TestSuspendLambdaKt$sl1$1' {
       20      59
       21      59
       22      59
-      23      60
-      24      60
-      25      61
-      26      61
-      27      61
-      28      61
-      29      61
-      2a      61
-      2b      61
-      2c      62
-      2d      62
-      2e      62
-      2f      62
-      34      64
-      35      64
-      39      64
+      23      59
+      24      59
+      26      59
+      27      59
+      28      59
+      29      60
+      2a      60
+      2b      60
+      2c      60
+      31      62
+      32      62
+      36      62
    }
 
    method 'create (Lkotlin/coroutines/Continuation;)Lkotlin/coroutines/Continuation;' {
-      4      70
-      8      70
-      9      70
-      a      70
-      b      70
+      4      68
+      8      68
+      9      68
+      a      68
+      b      68
    }
 
    method 'invoke (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;' {
-      0      75
-      1      75
-      2      75
-      3      75
-      4      75
-      5      75
-      6      75
-      7      75
-      8      75
-      9      75
-      a      75
-      b      75
-      c      75
-      d      75
-      e      75
+      0      73
+      1      73
+      2      73
+      3      73
+      4      73
+      5      73
+      6      73
+      7      73
+      8      73
+      9      73
+      a      73
+      b      73
+      c      73
+      d      73
+      e      73
    }
 }
 
 Lines mapping:
-3 <-> 80
+3 <-> 78
 4 <-> 60
-5 <-> 63
+5 <-> 61
