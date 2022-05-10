@@ -549,6 +549,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestForeachVardef");
     // TODO: casts to T of static method!
     register(JAVA_8, "TestGenericStaticCall");
+    // TODO: Assert is bundled into the loop header
+    register(JAVA_8, "TestAssertMerge");
   }
 
   private void registerEntireClassPath() {
