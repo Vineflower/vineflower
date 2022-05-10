@@ -123,7 +123,7 @@ class TestDataRuntimesProvider implements CommandLineArgumentProvider {
 }
 
 test {
-  maxHeapSize = "1G"
+  maxHeapSize = "512M"
   
   useJUnitPlatform()
   systemProperty "DOT_EXPORT_DIR", System.getProperty("DOT_EXPORT_DIR", null)
