@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @Metadata(
-   mv = {1, 5, 1},
+   mv = {1, 6, 0},
    k = 2,
    xi = 48,
    d1 = {"\u0000\n\n\u0000\n\u0002\u0010\b\n\u0002\b\u0003\u001a\u0011\u0010\u0000\u001a\u00020\u0001H\u0086@ø\u0001\u0000¢\u0006\u0002\u0010\u0002\u001a\u0011\u0010\u0003\u001a\u00020\u0001H\u0086@ø\u0001\u0000¢\u0006\u0002\u0010\u0002\u0082\u0002\u0004\n\u0002\b\u0019¨\u0006\u0004"},
@@ -36,7 +36,7 @@ public final class TestNamedSuspendFun2Kt {
          c = "pkg.TestNamedSuspendFun2Kt"
       )
       @Metadata(
-         mv = {1, 5, 1},
+         mv = {1, 6, 0},
          k = 3,
          xi = 48
       )
@@ -107,7 +107,7 @@ public final class TestNamedSuspendFun2Kt {
                   break;
                case 2:
                   ResultKt.throwOnFailure($result);
-                  return Boxing.boxInt(1);// 2 8 9 11
+                  return Boxing.boxInt(1);// 2 7 8 9 11
                case 3:
                   ResultKt.throwOnFailure($result);
                   break;
@@ -387,6 +387,7 @@ Lines mapping:
 4 <-> 125
 5 <-> 93
 6 <-> 94
+7 <-> 110
 8 <-> 110
 9 <-> 110
 11 <-> 110

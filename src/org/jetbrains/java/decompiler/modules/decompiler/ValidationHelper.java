@@ -5,9 +5,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectNode;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.FlattenStatementsHelper;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionNode;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionsGraph;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
@@ -188,6 +186,13 @@ public final class ValidationHelper {
 
     switch (stat.type) {
       case Statement.TYPE_IF: validateIfStatement((IfStatement) stat); break;
+      case Statement.TYPE_TRYCATCH: validateTrycatchStatement((CatchStatement) stat); break;
+    }
+  }
+
+  public static void validateTrycatchStatement(CatchStatement catchStat) {
+    if (catchStat.getStats().size() == 1) {
+      throw new IllegalStateException("Try statement with single statement: " + catchStat);
     }
   }
 

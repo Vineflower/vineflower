@@ -275,6 +275,9 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: Assignment of o = new Object() is removed
     register(JAVA_8, "TestSynchronized");
     register(JAVA_8, "TestSynchronizeNull");
+    // TODO: Assignments are removed, producing incorrect code
+    // derived from: IDEA-180373
+    register(JAVA_8, "TestSynchronizedTrySharing");
     register(JAVA_8, "TestWhileIterator");
     register(JAVA_8, "TestReturnTernaryChar");
     register(JAVA_8, "TestCompoundAssignment");
@@ -511,9 +514,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8_NODEBUG, "TestNoUse");
     // TODO: var5 is never defined!
     register(JAVA_8_NODEBUG, "TestTryReturnNoDebug");
-    // TODO: missing Object[] cast
     register(JAVA_8, "TestArrayAssign2");
-    // TODO: where did the catch block go??
     register(JAVA_8, "TestTryLoopNoCatch");
     // TODO: cast is missing
     register(JAVA_8, "TestCollectionItr");
@@ -531,7 +532,25 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: array access not simplified
     register(JAVA_8, "TestArrayFieldAccess2");
     register(JAVA_8, "TestNestedArrayPP");
+    // TODO: variable stores completely ignored due to variable merging
     register(JAVA_8_NODEBUG, "TestCompoundAssignmentReplace");
+
+    // NOTE: regular fernflower fails to merge the variables here, leading to incorrect results in both
+    //  Derived from IDEA-291806
+    // TODO: test2 now successfully triggers the bug in QuiltFlower
+    register(JAVA_8, "TestTryVar");
+    register(JAVA_8_NODEBUG, "TestTryVarNoDebug");
+    // TODO: order of additions is wrong. Addition over floats isn't associative.
+    // Derived from IDEA-291735
+    register(JAVA_8, "TestFloatOrderOfOperations");
+    // TODO: many unnecessary casts, and not simplifying to `+=`
+    register(JAVA_8, "TestMixedCompoundAssignment");
+    // TODO: shouldn't make foreach here, writes to existing variable
+    register(JAVA_8, "TestForeachVardef");
+    // TODO: casts to T of static method!
+    register(JAVA_8, "TestGenericStaticCall");
+    // TODO: Assert is bundled into the loop header
+    register(JAVA_8, "TestAssertMerge");
   }
 
   private void registerEntireClassPath() {
@@ -594,6 +613,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestGenericCastSuper");
     // TODO: cast doesn't have generic type
     register(JAVA_8, "TestGenericCastCall");
+    // TODO: cast to T, because T of Function isn't remapped to List<T>
+    register(JAVA_8, "TestGenericInput");
   }
 
   private void registerLiterals() {

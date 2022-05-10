@@ -142,7 +142,7 @@ public final class IfHelper {
           IfStatement ifchild = (IfStatement) ifbranch.value;
           Statement ifinner = ifbranch.innerNode.value;
 
-          if (ifchild.getFirst().getExprents().isEmpty()) {
+          if (ifchild.getFirst().getExprents().isEmpty() && !ifchild.hasPPMM()) {
 
             ifparent.getIfEdge().remove();
             ifchild.getFirstSuccessor().remove();

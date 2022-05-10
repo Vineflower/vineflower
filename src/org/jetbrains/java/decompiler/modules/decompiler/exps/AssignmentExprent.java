@@ -169,13 +169,33 @@ public class AssignmentExprent extends Exprent {
       return;
     }
 
+    Exprent cast = func.getLstOperands().get(1);
+
+    // Fix for Object[] arr = (Object[])o; where is o is of type Object
+    if (!func.doesCast() && this.left.type == EXPRENT_VAR) {
+      // Same logic as FunctionExprent#getInferredExprType
+      if (DecompilerContext.getStructContext().instanceOf(this.right.getExprType().value, cast.getExprType().value)) {
+        Exprent castVal = func.getLstOperands().get(0);
+
+        // Due to a javac bug, 2 checkcasts are produced. We need to go through the cast tree and find the source
+        if (castVal.type == EXPRENT_FUNCTION && ((FunctionExprent)castVal).getFuncType() == FunctionExprent.FUNCTION_CAST) {
+          cast = ((FunctionExprent)castVal).getLstOperands().get(0);
+
+          if (!((FunctionExprent)castVal).doesCast()) {
+            if (this.left.getExprType().arrayDim > cast.getExprType().arrayDim) {
+              func.setNeedsCast(true);
+              return;
+            }
+          }
+        }
+      }
+    }
+
     VarType leftType = this.left.getInferredExprType(null);
 
     if (!(leftType instanceof GenericType)) {
       return;
     }
-
-    Exprent cast = func.getLstOperands().get(1);
 
     MethodWrapper method = (MethodWrapper) DecompilerContext.getProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
     if (method == null) {

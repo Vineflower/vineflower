@@ -61,7 +61,7 @@ public class ConsoleDecompiler implements IBytecodeProvider, IResultSaver, AutoC
     }
     args = params.toArray(new String[params.size()]);
 
-    if (args.length < 2) {
+    if (args.length < 1) {
       System.out.println(
         "Usage: java -jar quiltflower.jar [-<option>=<value>]* [<source>]+ <destination>\n" +
         "Example: java -jar quiltflower.jar -dgs=true c:\\my\\source\\ c:\\my.jar d:\\decompiled\\");
@@ -75,7 +75,8 @@ public class ConsoleDecompiler implements IBytecodeProvider, IResultSaver, AutoC
 
     SaveType userSaveType = null;
     boolean isOption = true;
-    for (int i = 0; i < args.length - 1; ++i) { // last parameter - destination
+    int nonOption = 0;
+    for (int i = 0; i < args.length; ++i) { // last parameter - destination
       String arg = args[i];
 
       switch (arg) {
@@ -114,6 +115,12 @@ public class ConsoleDecompiler implements IBytecodeProvider, IResultSaver, AutoC
         mapOptions.put(arg.substring(1, 4), value);
       }
       else {
+        nonOption++;
+        // Don't process this, as it is the output
+        if (nonOption > 1 && i == args.length - 1) {
+          break;
+        }
+
         isOption = false;
 
         if (arg.startsWith("-e=")) {
@@ -133,23 +140,28 @@ public class ConsoleDecompiler implements IBytecodeProvider, IResultSaver, AutoC
       return;
     }
 
-    String name = args[args.length - 1];
+    SaveType saveType = SaveType.CONSOLE;
 
-    SaveType saveType = SaveType.FOLDER;
-    File destination = new File(name);
+    File destination = new File("."); // Dummy value, when '.' we will be printing to console
+    if (nonOption > 1) {
+      String name = args[args.length - 1];
 
-    if (userSaveType == null) {
-      if (destination.getName().contains(".zip") || destination.getName().contains(".jar")) {
-        saveType = SaveType.FILE;
+      saveType = SaveType.FOLDER;
+      destination = new File(name);
 
-        if (destination.getParentFile() != null) {
-          destination.getParentFile().mkdirs();
+      if (userSaveType == null) {
+        if (destination.getName().contains(".zip") || destination.getName().contains(".jar")) {
+          saveType = SaveType.FILE;
+
+          if (destination.getParentFile() != null) {
+            destination.getParentFile().mkdirs();
+          }
+        } else {
+          destination.mkdirs();
         }
       } else {
-        destination.mkdirs();
+        saveType = userSaveType;
       }
-    } else {
-      saveType = userSaveType;
     }
 
 
@@ -387,7 +399,8 @@ public class ConsoleDecompiler implements IBytecodeProvider, IResultSaver, AutoC
   public enum SaveType {
     LEGACY_CONSOLEDECOMPILER(null), // handled separately
     FOLDER(DirectoryResultSaver::new),
-    FILE(SingleFileSaver::new);
+    FILE(SingleFileSaver::new),
+    CONSOLE(ConsoleFileSaver::new);
 
     private final Function<File, IResultSaver> saver;
 

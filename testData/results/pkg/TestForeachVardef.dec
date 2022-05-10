@@ -1,0 +1,89 @@
+package pkg;
+
+import java.util.List;
+
+public class TestForeachVardef {
+   public String test(List<String> s) {
+      String t = null;// 8
+      if (s.size() > 10) {// 10
+         for(t : s) {// 11 12
+            System.out.println(t);// 14
+         }
+      } else {
+         t = ((String)s.get(0)).length() > 20 ? "no" : t;// 17
+      }
+
+      return t;// 20
+   }
+}
+
+class 'pkg/TestForeachVardef' {
+   method 'test (Ljava/util/List;)Ljava/lang/String;' {
+      0      6
+      1      6
+      2      7
+      3      7
+      4      7
+      5      7
+      6      7
+      7      7
+      8      7
+      9      7
+      a      7
+      d      8
+      e      8
+      f      8
+      10      8
+      11      8
+      12      8
+      13      8
+      1d      8
+      1e      8
+      1f      8
+      20      8
+      21      8
+      22      8
+      23      8
+      24      8
+      25      8
+      26      8
+      27      9
+      28      9
+      29      9
+      2a      9
+      2b      9
+      2c      9
+      2d      9
+      34      12
+      35      12
+      36      12
+      37      12
+      38      12
+      39      12
+      3a      12
+      3b      12
+      3c      12
+      3d      12
+      3e      12
+      3f      12
+      40      12
+      41      12
+      42      12
+      43      12
+      46      12
+      47      12
+      4b      12
+      4c      12
+      4d      15
+      4e      15
+   }
+}
+
+Lines mapping:
+8 <-> 7
+10 <-> 8
+11 <-> 9
+12 <-> 9
+14 <-> 10
+17 <-> 13
+20 <-> 16

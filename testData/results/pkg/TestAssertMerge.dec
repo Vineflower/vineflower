@@ -1,0 +1,41 @@
+package pkg;
+
+public class TestAssertMerge {
+   public void test(int i, int j) {
+      while($assertionsDisabled || i > 0) {// 6
+         if (i < j) {// 7
+            return;// 13
+         }
+
+         ++i;// 11
+      }
+
+      throw new AssertionError();
+   }
+}
+
+class 'pkg/TestAssertMerge' {
+   method 'test (II)V' {
+      0      4
+      1      4
+      2      4
+      6      4
+      7      4
+      11      12
+      12      5
+      13      5
+      14      5
+      1a      9
+      1b      9
+      1c      9
+      20      6
+   }
+}
+
+Lines mapping:
+6 <-> 5
+7 <-> 6
+11 <-> 10
+13 <-> 7
+Not mapped:
+8
