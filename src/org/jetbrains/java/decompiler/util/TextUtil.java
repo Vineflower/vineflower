@@ -70,7 +70,7 @@ public final class TextUtil {
   }
 
   private static boolean isKeyword(String id, BytecodeVersion version, StructMethod mt) {
-    return KEYWORDS.contains(id) || version.hasEnums() && "enum".equals(id) || ((mt.getAccessFlags() & CodeConstants.ACC_STATIC) != 0 && "this".equals(id));
+    return KEYWORDS.contains(id) || (version.hasEnums() && "enum".equals(id)) || ((mt.getAccessFlags() & CodeConstants.ACC_STATIC) != 0 && "this".equals(id));
   }
 
   public static String getInstructionName(int opcode) {

@@ -545,6 +545,10 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestFloatOrderOfOperations");
     // TODO: many unnecessary casts, and not simplifying to `+=`
     register(JAVA_8, "TestMixedCompoundAssignment");
+    // TODO: shouldn't make foreach here, writes to existing variable
+    register(JAVA_8, "TestForeachVardef");
+    // TODO: casts to T of static method!
+    register(JAVA_8, "TestGenericStaticCall");
   }
 
   private void registerEntireClassPath() {
