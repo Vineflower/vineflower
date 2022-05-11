@@ -62,6 +62,7 @@ public final class InlineSingleBlockHelper {
     if (parent.type == Statement.TYPE_IF && ((IfStatement)parent).iftype == IfStatement.IFTYPE_IF &&
         source == parent.getFirst()) {
       IfStatement ifparent = (IfStatement)parent;
+
       SequenceStatement block = new SequenceStatement(lst);
       block.setAllParent();
 
