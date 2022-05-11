@@ -5,7 +5,9 @@ import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.util.TextUtil;
 import org.jetbrains.java.decompiler.util.VBStyleCollection;
 
-public abstract class InstructionSequence {
+import java.util.Iterator;
+
+public abstract class InstructionSequence implements Iterable<Instruction> {
 
   // *****************************************************************************
   // private fields
@@ -57,6 +59,11 @@ public abstract class InstructionSequence {
 
   public void removeInstruction(int index) {
     collinstr.remove(index);
+  }
+
+  public void removeInstruction(Instruction inst) {
+    // VBStyle remove(Object) is not implemented
+    collinstr.removeIf(i -> i == inst);
   }
 
   public void removeLast() {
@@ -143,5 +150,10 @@ public abstract class InstructionSequence {
 
   public ExceptionTable getExceptionTable() {
     return exceptionTable;
+  }
+
+  @Override
+  public Iterator<Instruction> iterator() {
+    return this.collinstr.iterator();
   }
 }

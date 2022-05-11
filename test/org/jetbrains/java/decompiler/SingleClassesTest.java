@@ -456,6 +456,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestSwitchLoop");
     register(JAVA_8, "TestSwitchFinally");
     // TODO: test3 has wrong edge semantics for break and continue
+    // TODO: test4 has improper implicit continue edge for finally
     // TODO: test5 variable usage in finally block is incorrect
     register(JAVA_8, "TestLoopFinally");
     // TODO: local classes not being put in the right spots
@@ -507,7 +508,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(KOTLIN, "TestKotlinEnumWhen");
     // TODO: causes invalid stack var simplification
     register(JAVA_8, "TestSynchronizedTryReturn");
-    // TODO: finally block causes incorrect variable scope
     register(JAVA_8, "TestTryReturn");
     // TODO: ternaries inside while conditions shouldn't be put in if inside while
     register(JAVA_8, "TestWhileConditionTernary");
