@@ -455,8 +455,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: test9&10- for loop not created, loop extractor needs another pass
     register(JAVA_8, "TestSwitchLoop");
     register(JAVA_8, "TestSwitchFinally");
-    // TODO: test3 has wrong edge semantics for break and continue
-    // TODO: test4 has improper implicit continue edge for finally
+    // TODO: look at underlying issue with finally and loops here
     // TODO: test5 variable usage in finally block is incorrect
     register(JAVA_8, "TestLoopFinally");
     // TODO: local classes not being put in the right spots
@@ -479,7 +478,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestLambdaQualified");
     register(JAVA_16, "TestTernaryReturn2");
     register(JAVA_8, "TestGenericMap");
-    // TODO: extra parenthesis around new array
     register(JAVA_8, "TestArrayNewAccess");
     register(JAVA_8, "TestAnnotationFormatting");
     register(JAVA_8, "TestConstructorInvoc");
