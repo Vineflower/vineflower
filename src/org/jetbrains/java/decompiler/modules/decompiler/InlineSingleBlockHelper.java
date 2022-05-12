@@ -113,8 +113,10 @@ public final class InlineSingleBlockHelper {
             while(!MergeHelper.isDirectPath(closure, labelEdge.getDestination())) {
               closure = closure.getParent();
               if (closure == null) {
-                // euh, where have we been inlined to?
-                throw new RuntimeException("Where have we been inlined to?");
+                // No valid closure found. Somehow we got inlined in a place where
+                // none of our parents have a way to get to the destination, without
+                // going through other code first.
+                throw new IllegalStateException("Where have we been inlined to?");
               }
             }
             labelEdge.closure = closure;
