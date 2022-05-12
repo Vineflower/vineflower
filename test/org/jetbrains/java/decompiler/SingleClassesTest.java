@@ -272,7 +272,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestStaticBlockNull");
     register(JAVA_8, "TestStringLiteral");
     register(JAVA_8, "TestSwitchStringHashcodeCollision");
-    // TODO: Assignment of o = new Object() is removed
     register(JAVA_8, "TestSynchronized");
     register(JAVA_8, "TestSynchronizeNull");
     // TODO: Assignments are removed, producing incorrect code
@@ -307,7 +306,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestWhileTernary5");
     register(JAVA_8, "TestWhileTernary6");
     register(JAVA_8, "TestWhileTernary7");
-    // TODO: complex ternaries are not supported
     register(JAVA_8, "TestWhileTernary8");
     register(JAVA_8, "TestWhileTernary9");
     register(JAVA_8, "TestWhileTernary10");
@@ -471,7 +469,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestForeachMultipleLoops");
     register(JAVA_8, "TestLoopBreak3");
     register(JAVA_8, "TestDoWhileMerge");
-    // TODO: ternary not correct, also needs Java 1.0 test- looks different
     register(JAVA_8, "TestTernaryReturn");
     register(JAVA_8, "TestArrayAssign");
     register(JASM, "TestGoto");
@@ -507,7 +504,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: causes invalid stack var simplification
     register(JAVA_8, "TestSynchronizedTryReturn");
     register(JAVA_8, "TestTryReturn");
-    // TODO: ternaries inside while conditions shouldn't be put in if inside while
     register(JAVA_8, "TestWhileConditionTernary");
     register(JAVA_8_NODEBUG, "TestNoUse");
     // TODO: var5 is never defined!
@@ -543,7 +539,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestFloatOrderOfOperations");
     // TODO: many unnecessary casts, and not simplifying to `+=`
     register(JAVA_8, "TestMixedCompoundAssignment");
-    // TODO: shouldn't make foreach here, writes to existing variable
     register(JAVA_8, "TestForeachVardef");
     // TODO: casts to T of static method!
     register(JAVA_8, "TestGenericStaticCall");

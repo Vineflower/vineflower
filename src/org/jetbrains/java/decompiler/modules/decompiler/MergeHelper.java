@@ -11,6 +11,9 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.IfExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.InvocationExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectGraph;
+import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectNode;
+import org.jetbrains.java.decompiler.modules.decompiler.sforms.FlattenStatementsHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
@@ -663,6 +666,12 @@ public final class MergeHelper {
             return false;
           }
         }
+
+        // Make sure this variable isn't used before
+        if (isVarUsedBefore((VarExprent) ass.getLeft(), stat)) {
+          return false;
+        }
+
         InvocationExprent holder = (InvocationExprent)right;
 
         initExprents[0].getBytecodeRange(holder.getInstance().bytecode);
@@ -745,6 +754,11 @@ public final class MergeHelper {
           return false;
         }
 
+        // Make sure this variable isn't used before
+        if (isVarUsedBefore((VarExprent) firstDoExprent.getLeft(), stat)) {
+          return false;
+        }
+
         // Add bytecode offsets
         funcRight.getLstOperands().get(0).addBytecodeOffsets(initExprents[0].bytecode);
         funcRight.getLstOperands().get(0).addBytecodeOffsets(initExprents[1].bytecode);
@@ -785,6 +799,51 @@ public final class MergeHelper {
 
     //cleanEmptyStatements(stat, firstData); //TODO: Look into this and see what it does...
 
+    return false;
+  }
+
+  // Use DirectGraph traversal to see if a variable has been used before [TestForeachVardef]
+  private static boolean isVarUsedBefore(VarExprent var, Statement st) {
+    // Build digraph
+    FlattenStatementsHelper flatten = new FlattenStatementsHelper();
+    DirectGraph digraph = flatten.buildDirectGraph((RootStatement) st.getTopParent());
+
+    // Find starting point for iteration
+    String diblockId = digraph.mapDestinationNodes.get(st.id)[0];
+    DirectNode stnd = digraph.nodes.getWithKey(diblockId);
+
+    // Only submit predecessors!
+    Deque<DirectNode> stack = new LinkedList<>(stnd.preds);
+    Set<DirectNode> visited = new HashSet<>();
+
+    while (!stack.isEmpty()) {
+      DirectNode node = stack.pop();
+
+      // Disregard statements within the loop itself
+      if (st.containsStatement(node.statement)) {
+        continue;
+      }
+
+      // Try to find a var reference with the same index
+      if (node.exprents != null) {
+        for (Exprent exprent : node.exprents) {
+          for (Exprent ex : exprent.getAllExprents(true, true)) {
+            if (ex.type == Exprent.EXPRENT_VAR && ((VarExprent) ex).getIndex() == var.getIndex()) {
+              return true;
+            }
+          }
+        }
+      }
+
+      // Go through predecessors, if we haven't seen them
+      for (DirectNode pred : node.preds) {
+        if (visited.add(pred)) {
+          stack.push(pred);
+        }
+      }
+    }
+
+    // Found nothing
     return false;
   }
 

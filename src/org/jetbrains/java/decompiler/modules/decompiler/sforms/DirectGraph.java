@@ -29,6 +29,10 @@ public class DirectGraph {
   // nodes, that are exception exits of a finally block with monitor variable
   public final HashMap<String, String> mapFinallyMonitorExceptionPathExits = new HashMap<>();
 
+  // statement.id, node.id(direct), node.id(continue)
+  public final Map<Integer, String[]> mapDestinationNodes = new HashMap<>();
+
+
   public void sortReversePostOrder() {
     LinkedList<DirectNode> res = new LinkedList<>();
     addToReversePostOrderListIterative(this.first, res);

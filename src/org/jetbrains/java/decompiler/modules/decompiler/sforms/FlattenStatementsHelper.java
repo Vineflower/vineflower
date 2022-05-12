@@ -51,6 +51,8 @@ public class FlattenStatementsHelper {
     graph.first = graph.nodes.getWithKey(mapDestinationNodes.get(root.id)[0]);
     graph.sortReversePostOrder();
 
+    graph.mapDestinationNodes.putAll(mapDestinationNodes);
+
     return graph;
   }
 
