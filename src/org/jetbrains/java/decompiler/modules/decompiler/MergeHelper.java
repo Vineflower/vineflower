@@ -363,7 +363,7 @@ public final class MergeHelper {
       Statement parent = stat.getParent();
 
       if (parent == null) {
-        return false;
+        return endstat.type == Statement.TYPE_DUMMYEXIT;
       } else {
         switch (parent.type) {
           case Statement.TYPE_ROOT:
