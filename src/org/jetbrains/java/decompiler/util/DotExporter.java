@@ -12,6 +12,7 @@ import org.jetbrains.java.decompiler.code.cfg.ExceptionRangeCFG;
 import org.jetbrains.java.decompiler.main.rels.DecompileRecord;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
+import org.jetbrains.java.decompiler.modules.decompiler.decompose.DominatorEngine;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectNode;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
@@ -515,6 +516,28 @@ public class DotExporter {
     return buffer.toString();
   }
 
+  private static String domEngineToDot(DominatorEngine doms) {
+    StringBuilder builder = new StringBuilder();
+
+    builder.append("digraph G {\r\n");
+
+    Set<Integer> nodes = new HashSet<>();
+
+    for (Integer key : doms.getOrderedIDoms().getLstKeys()) {
+      nodes.add(key);
+      nodes.add(doms.getOrderedIDoms().getWithKey(key));
+      builder.append("x" + doms.getOrderedIDoms().getWithKey(key) + " -> x" + key + ";\n");
+    }
+
+    for (Integer nd : nodes) {
+      builder.append("x" + nd + "[label=\"" + nd + "\"];\n");
+    }
+
+    builder.append("}");
+
+    return builder.toString();
+  }
+
   private static String digraphToDot(DirectGraph graph, Map<String, SFormsFastMapDirect> vars) {
 
     StringBuffer buffer = new StringBuffer();
@@ -727,6 +750,18 @@ public class DotExporter {
     try{
       BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(DOTS_ERROR_FOLDER, mt, suffix)));
       out.write(cfgToDot(suffix, graph, true).getBytes());
+      out.close();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  public static void toDotFile(DominatorEngine doms, StructMethod mt, String suffix) {
+    if (!DUMP_DOTS)
+      return;
+    try{
+      BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(DOTS_FOLDER, mt, suffix)));
+      out.write(domEngineToDot(doms).getBytes());
       out.close();
     } catch (Exception e) {
       e.printStackTrace();
