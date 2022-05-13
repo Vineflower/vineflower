@@ -27,4 +27,31 @@ public class TestClassSwitch {
         System.out.println(5);
     }
   }
+
+  public void testFallThrough(int a, int b) {
+
+    int x = 17;
+
+    switch (a) {
+      case 13:
+        System.out.println(13);
+      case 5:
+        System.out.println(5);
+        x += 17;
+        break;
+      case 17:
+        System.out.println(17);
+        if (b > 0) {
+          x = 5000;
+        }
+      case 18:
+      case 19:
+      case 20:
+        System.out.println("hi");
+        x += 170000;
+        break;
+    }
+
+    System.out.println(x);
+  }
 }

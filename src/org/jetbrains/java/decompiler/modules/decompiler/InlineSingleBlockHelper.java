@@ -4,6 +4,7 @@ package org.jetbrains.java.decompiler.modules.decompiler;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 
@@ -62,6 +63,7 @@ public final class InlineSingleBlockHelper {
     if (parent.type == Statement.TYPE_IF && ((IfStatement)parent).iftype == IfStatement.IFTYPE_IF &&
         source == parent.getFirst()) {
       IfStatement ifparent = (IfStatement)parent;
+
       SequenceStatement block = new SequenceStatement(lst);
       block.setAllParent();
 
@@ -99,6 +101,30 @@ public final class InlineSingleBlockHelper {
       }
 
       source.addSuccessor(new StatEdge(StatEdge.TYPE_REGULAR, source, first));
+
+      Statement last = block.getStats().get(block.getStats().size() - 1);
+      if (!last.hasAnySuccessor()){
+        // make sure that the scope of all the break edges are updated correctly
+        for (Iterator<StatEdge> iterator = last.getLabelEdges().iterator(); iterator.hasNext(); ) {
+          StatEdge labelEdge = iterator.next();
+          if (labelEdge.getType() == StatEdge.TYPE_BREAK &&
+              MergeHelper.isDirectPath(last, labelEdge.getDestination())) {
+            // find the correct closure
+            Statement closure = parent;
+            while(!MergeHelper.isDirectPath(closure, labelEdge.getDestination())) {
+              closure = closure.getParent();
+              if (closure == null) {
+                // No valid closure found. Somehow we got inlined in a place where
+                // none of our parents have a way to get to the destination, without
+                // going through other code first.
+                throw new IllegalStateException("Where have we been inlined to?");
+              }
+            }
+            labelEdge.closure = closure;
+            iterator.remove();
+          }
+        }
+      }
     }
   }
 

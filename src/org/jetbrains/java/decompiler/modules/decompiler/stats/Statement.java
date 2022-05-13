@@ -507,7 +507,7 @@ public class Statement implements IMatchable {
     this.parent.replaceStatement(this, stat);
   }
 
-  public final void destroy() {
+  public final void replaceWithEmpty() {
     this.parent.replaceStatement(this, BasicBlockStatement.create());
   }
 
@@ -866,14 +866,19 @@ public class Statement implements IMatchable {
   // Whether this statement has a successor to a basic block or not. Conditions:
   // Basic blocks are always connected to the next basic block
   // single-if statements are connected to the next block (from implicit else)
-  // Loops are connected to the next block if it's not an infinite while(true){} loop TODO: many while(true) loops have breaks in their body. Would that not count?
+  // Loops are connected to the next block if it's not an infinite while(true){}
+  // TODO: many while(true) loops have breaks in their body. Would that not count?
+  //       however allowing those seems to break tests.
   public boolean hasBasicSuccEdge() {
 
     // FIXME: default switch
 
-    return type == TYPE_BASICBLOCK ||
-      (type == TYPE_IF && ((IfStatement)this).iftype == IfStatement.IFTYPE_IF) ||
-                  (type == TYPE_DO && ((DoStatement)this).getLooptype() != DoStatement.LOOP_DO);
+    switch (this.type) {
+      case TYPE_BASICBLOCK: return true;
+      case TYPE_IF: return (((IfStatement) this).iftype == IfStatement.IFTYPE_IF);
+      case TYPE_DO: return ((DoStatement) this).getLooptype() != DoStatement.LOOP_DO;
+      default: return false;
+    }
   }
 
 

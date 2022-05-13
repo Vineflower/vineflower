@@ -75,7 +75,7 @@ public class ArrayExprent extends Exprent {
   public TextBuffer toJava(int indent) {
     TextBuffer res = array.toJava(indent);
 
-    if (array.getPrecedence() > getPrecedence()) { // array precedence equals 0
+    if (array.getPrecedence() > getPrecedence() && !canSkipParenEnclose(array)) { // array precedence equals 0
       res.enclose("(", ")");
     }
 
@@ -88,6 +88,16 @@ public class ArrayExprent extends Exprent {
     res.addBytecodeMapping(bytecode);
 
     return res.append('[').append(index.toJava(indent)).append(']');
+  }
+
+  private boolean canSkipParenEnclose(Exprent instance) {
+    if (instance.type != Exprent.EXPRENT_NEW) {
+      return false;
+    }
+
+    NewExprent newExpr = (NewExprent) instance;
+
+    return newExpr.isDirectArrayInit() || !newExpr.getLstArrayElements().isEmpty();
   }
 
   @Override

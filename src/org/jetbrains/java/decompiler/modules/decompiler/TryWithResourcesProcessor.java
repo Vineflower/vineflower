@@ -299,7 +299,7 @@ public final class TryWithResourcesProcessor {
         }
 
         // Keep the label as it's not the parent
-        statement.destroy();
+        statement.replaceWithEmpty();
       }
     } else {
       statement.getExprents().remove(0);

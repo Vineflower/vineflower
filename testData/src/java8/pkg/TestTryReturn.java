@@ -43,4 +43,31 @@ public class TestTryReturn {
 
     return b;
   }
+
+  public boolean testFinally3(boolean b, boolean c, int a, Supplier<Boolean> supplier) {
+    try {
+      if (b) {
+        return c && supplier.get();
+      }
+
+      if (a > 0) {
+        return a == 1;
+      }
+
+      return supplier.get();
+    } finally {
+      System.out.println("Finally");
+    }
+  }
+
+  public boolean testFinally4(Supplier<Boolean> supplier) {
+    boolean b = false;
+    try {
+      b = supplier.get();
+    } finally {
+      System.out.println("Finally");
+    }
+
+    return b;
+  }
 }

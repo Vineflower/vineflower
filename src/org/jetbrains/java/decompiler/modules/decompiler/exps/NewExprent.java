@@ -807,6 +807,10 @@ public class NewExprent extends Exprent {
     this.directArrayInit = directArrayInit;
   }
 
+  public boolean isDirectArrayInit() {
+    return directArrayInit;
+  }
+
   public void setVarArgParam(boolean isVarArgParam) {
     this.isVarArgParam = isVarArgParam;
   }

@@ -30,6 +30,7 @@ public class DotExporter {
 
   private static final boolean EXTENDED_MODE = false;
   private static final boolean STATEMENT_LR_MODE = false;
+  private static final boolean SAME_RANK_MODE = false;
   // http://graphs.grevian.org/graph is a nice visualizer for the outputed dots.
 
   // Outputs a statement and as much of its information as possible into a dot formatted string.
@@ -80,6 +81,19 @@ public class DotExporter {
         if (ifs.getElseEdge() != null) {
           extraData.put(ifs.getElseEdge(), "Else Edge");
         }
+      }
+      if (SAME_RANK_MODE && st.getStats().size() > 1){
+        buffer.append(" subgraph { rank = same; ");
+        for (Statement s : st.getStats()) {
+          if (st.type == Statement.TYPE_IF || st.type == Statement.TYPE_SWITCH) {
+            if (s == st.getFirst()){
+              continue;
+            }
+          }
+
+          buffer.append(s.id + "; ");
+        }
+        buffer.append("}\r\n");
       }
     }
 
