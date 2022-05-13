@@ -544,6 +544,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestGenericStaticCall");
     // TODO: Assert is bundled into the loop header
     register(JAVA_8, "TestAssertMerge");
+    register(JAVA_8, "TestTernaryAssign");
   }
 
   private void registerEntireClassPath() {
