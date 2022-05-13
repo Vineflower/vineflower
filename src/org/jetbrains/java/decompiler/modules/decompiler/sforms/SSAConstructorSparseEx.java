@@ -114,27 +114,31 @@ public class SSAConstructorSparseEx {
     }
   }
 
-  private void processExprent(DirectNode node, Exprent expr, VarMapHolder varmaps) {
+  private void processExprent(DirectNode node, Exprent expr, VarMapHolder varMaps) {
 
     if (expr == null) {
       return;
     }
 
-    assert varmaps.isNormal();
+    // The var map data can't depend yet on the result of this expression.
+    varMaps.assertIsNormal();
 
     switch (expr.type) {
       case Exprent.EXPRENT_IF: {
+        // EXPRENT_IF is a wrapper for the head exprent of an if statement.
+        // Therefore, the map needs to stay split, unlike with most other exprents.
         IfExprent ifexpr = (IfExprent) expr;
-        this.processExprent(node, ifexpr.getCondition(), varmaps);
+        this.processExprent(node, ifexpr.getCondition(), varMaps);
         return;
       }
       case Exprent.EXPRENT_ASSIGNMENT: {
+        // Assigning a local overrides all the readable versions of that node.
         AssignmentExprent assexpr = (AssignmentExprent) expr;
         if (assexpr.getCondType() == AssignmentExprent.CONDITION_NONE) {
           Exprent dest = assexpr.getLeft();
           if (dest.type == Exprent.EXPRENT_VAR) {
-            this.processExprent(node, assexpr.getRight(), varmaps);
-            this.updateVarExprent((VarExprent) dest, varmaps.getNormal());
+            this.processExprent(node, assexpr.getRight(), varMaps);
+            this.updateVarExprent((VarExprent) dest, varMaps.getNormal());
             return;
           }
         }
@@ -144,75 +148,84 @@ public class SSAConstructorSparseEx {
         FunctionExprent func = (FunctionExprent) expr;
         switch (func.getFuncType()) {
           case FunctionExprent.FUNCTION_IIF: {
-            // a ? b : c
-            this.processExprent(node, func.getLstOperands().get(0), varmaps);
+            // `a ? b : c`
+            // Java language spec: 16.1.5.
+            this.processExprent(node, func.getLstOperands().get(0), varMaps);
 
-            VarMapHolder bVarMaps = VarMapHolder.ofNormal(varmaps.getIfTrue());
+            VarMapHolder bVarMaps = VarMapHolder.ofNormal(varMaps.getIfTrue());
             this.processExprent(node, func.getLstOperands().get(1), bVarMaps);
 
-            VarMapHolder cVarMaps = VarMapHolder.ofNormal(varmaps.getIfFalse());
-            this.processExprent(node, func.getLstOperands().get(2), cVarMaps);
+            // reuse the varMaps for the false branch.
+            varMaps.setNormal(varMaps.getIfFalse());
+            this.processExprent(node, func.getLstOperands().get(2), varMaps);
 
-            if (bVarMaps.isNormal() && cVarMaps.isNormal()) {
-              varmaps.setNormal(mergeMaps(bVarMaps.getNormal(), cVarMaps.getNormal()));
+            if (bVarMaps.isNormal() && varMaps.isNormal()) {
+              varMaps.mergeNormal(bVarMaps.getNormal());
+            } else if (!varMaps.isNormal()){
+              // b and c are boolean expression and at least c had an assignment.
+              varMaps.mergeIfTrue(bVarMaps.getIfTrue());
+              varMaps.mergeIfFalse(bVarMaps.getIfFalse());
             } else {
-              bVarMaps.makeFullyMutable();
-              bVarMaps.mergeIfTrue(cVarMaps.getIfTrue());
-              bVarMaps.mergeIfFalse(cVarMaps.getIfFalse());
+              // b and c are boolean expression and at b had an assignment.
+              // avoid cloning the c varmap.
+              bVarMaps.mergeIfTrue(varMaps.getNormal());
+              bVarMaps.mergeIfFalse(varMaps.getNormal());
 
-              varmaps.set(bVarMaps);
+              varMaps.set(bVarMaps); // move over the maps.
             }
 
             return;
           }
           case FunctionExprent.FUNCTION_CADD: {
-            this.processExprent(node, func.getLstOperands().get(0), varmaps);
+            // `a && b`
+            // Java language spec: 16.1.2.
+            this.processExprent(node, func.getLstOperands().get(0), varMaps);
 
-            VarMapHolder rightHandSideVarMaps = VarMapHolder.ofNormal(varmaps.getIfTrue());
+            varMaps.makeFullyMutable();
+            SFormsFastMapDirect ifFalse = varMaps.getIfFalse();
+            varMaps.setNormal(varMaps.getIfTrue());
 
-            this.processExprent(node, func.getLstOperands().get(1), rightHandSideVarMaps);
-
-            // true map
-            varmaps.setIfTrue(rightHandSideVarMaps.getIfTrue());
-            // false map
-            varmaps.mergeIfFalse(rightHandSideVarMaps.getIfFalse());
-
+            this.processExprent(node, func.getLstOperands().get(1), varMaps);
+            varMaps.mergeIfFalse(ifFalse);
             return;
           }
           case FunctionExprent.FUNCTION_COR: {
-            this.processExprent(node, func.getLstOperands().get(0), varmaps);
+            // `a || b`
+            // Java language spec: 16.1.3.
+            this.processExprent(node, func.getLstOperands().get(0), varMaps);
 
-            VarMapHolder rightHandSideVarMaps = VarMapHolder.ofNormal(varmaps.getIfTrue());
+            varMaps.makeFullyMutable();
+            SFormsFastMapDirect ifTrue = varMaps.getIfTrue();
+            varMaps.setNormal(varMaps.getIfFalse());
 
-            this.processExprent(node, func.getLstOperands().get(1), rightHandSideVarMaps);
-
-            // true map
-            varmaps.mergeIfTrue(rightHandSideVarMaps.getIfTrue());
-            // false map
-            varmaps.setIfFalse(rightHandSideVarMaps.getIfFalse());
-
+            this.processExprent(node, func.getLstOperands().get(1), varMaps);
+            varMaps.mergeIfTrue(ifTrue);
             return;
           }
           case FunctionExprent.FUNCTION_BOOL_NOT: {
-            this.processExprent(node, func.getLstOperands().get(0), varmaps);
-            varmaps.swap();
+            // `!a`
+            // Java language spec: 16.1.4.
+            this.processExprent(node, func.getLstOperands().get(0), varMaps);
+            varMaps.swap();
 
             return;
           }
           case FunctionExprent.FUNCTION_INSTANCEOF: {
-            this.processExprent(node, func.getLstOperands().get(0), varmaps);
-            varmaps.toNormal();
+            // `a instanceof B`
+            // pattern matching instanceof creates a new variable when true.
+            this.processExprent(node, func.getLstOperands().get(0), varMaps);
+            varMaps.toNormal();
 
             if (func.getLstOperands().size() == 3) {
               // pattern matching
-              varmaps.makeFullyMutable();
+              // `a instanceof B b`
+              // pattern matching variables are explained in different parts of the spec,
+              // but it comes down to the same ideas.
+              varMaps.makeFullyMutable();
 
               this.updateVarExprent(
                 (VarExprent) func.getLstOperands().get(2),
-                varmaps.getIfTrue());
-
-              // I don't understand why this is needed
-              varmaps.mergeIfFalse(varmaps.getIfTrue());
+                varMaps.getIfTrue());
             }
             return;
           }
@@ -220,8 +233,9 @@ public class SSAConstructorSparseEx {
         break;
       }
       case Exprent.EXPRENT_VAR: {
+        // a read of a variable.
         VarExprent vardest = (VarExprent) expr;
-        final SFormsFastMapDirect varmap = varmaps.getNormal();
+        final SFormsFastMapDirect varmap = varMaps.getNormal();
 
         int varindex = vardest.getIndex();
         FastSparseSet<Integer> vers = varmap.get(varindex);
@@ -264,16 +278,13 @@ public class SSAConstructorSparseEx {
     if (node.type == DirectNode.NodeType.FOREACH_VARDEF && node.exprents.get(0).type == Exprent.EXPRENT_VAR) {
       this.updateVarExprent(
         (VarExprent) node.exprents.get(0),
-        varmaps.getNormal());
+        varMaps.getNormal());
       return;
     }
 
-
-    List<Exprent> lst = expr.getAllExprents();
-
-    for (Exprent ex : lst) {
-      this.processExprent(node, ex, varmaps);
-      varmaps.toNormal();
+    for (Exprent ex : expr.getAllExprents()) {
+      this.processExprent(node, ex, varMaps);
+      varMaps.toNormal();
     }
   }
 
