@@ -37,4 +37,4 @@ jobs:
         uses: EnricoMi/publish-unit-test-result-action@v1.19
         with:
           check_name: Test Results
-          files: artifacts/**/*.xml
+          files: artifacts/build/test-results/test/*.xml
