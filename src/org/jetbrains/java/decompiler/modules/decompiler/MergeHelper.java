@@ -312,49 +312,6 @@ public final class MergeHelper {
     return check.type == Exprent.EXPRENT_FUNCTION && ((FunctionExprent)check).getFuncType() == FunctionExprent.FUNCTION_IIF;
   }
 
-  private static void liftToParent(DoStatement stat, List<Statement> toAdd) {
-    VBStyleCollection<Statement, Integer> stats = stat.getParent().getStats();
-    if (stat.getParent().type == Statement.TYPE_SEQUENCE) {
-      int i = 0;
-
-      for (Statement st : toAdd) {
-        i++;
-        // Add sequentially after while loop
-        stats.addWithKeyAndIndex(stats.indexOf(stat) + i, st, st.id);
-      }
-
-      stat.getParent().setAllParent();
-    } else {
-      // If it's not part of a sequence statement, we need to synthesize one and replace the loop with it
-
-      // Add while loop to the beginning of the new sequence
-      toAdd.add(0, stat);
-
-      // Old index of the while loop
-      int idx = stats.getIndexByKey(stat.id);
-      // Remove while loop from it's parent
-      stats.removeWithKey(stat.id);
-
-      Statement par = stat.getParent();
-      // If the parent's first statement points towards the while loop, we need to update it
-      boolean replaceFirst = par.getFirst() == stat;
-
-      // Construct new sequence out of the while loop and it's non loop content
-      SequenceStatement seq = new SequenceStatement(toAdd);
-      // Set parent of sequence to be the while loop's parent
-      seq.setParent(par);
-      // Set parent to it's children
-      seq.setAllParent();
-      // Add to the while loop's parent
-      stats.addWithKeyAndIndex(idx, seq, seq.id);
-
-      if (replaceFirst) {
-        // Update first statement of parent
-        par.setFirst(seq);
-      }
-    }
-  }
-
   // Returns if the statement provided and the end statement provided has a direct control flow path
   public static boolean isDirectPath(Statement stat, Statement endstat) {
     Set<Statement> forwardEdges = stat.getNeighboursSet(Statement.STATEDGE_DIRECT_ALL, Statement.DIRECTION_FORWARD);
