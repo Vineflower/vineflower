@@ -87,7 +87,7 @@ public class Fernflower implements IDecompiledData {
       ClasspathScanner.addAllClasspath(structContext);
     } else if (!DecompilerContext.getProperty(IFernflowerPreferences.INCLUDE_JAVA_RUNTIME).toString().isEmpty()) {
       final String javaRuntime = DecompilerContext.getProperty(IFernflowerPreferences.INCLUDE_JAVA_RUNTIME).toString();
-      if (javaRuntime.equalsIgnoreCase("current") || javaRuntime.equalsIgnoreCase("1")) {
+      if (javaRuntime.equalsIgnoreCase(JrtFinder.CURRENT) || javaRuntime.equalsIgnoreCase("1")) {
         JrtFinder.addRuntime(structContext);
       } else if (!javaRuntime.equalsIgnoreCase("0")) {
         JrtFinder.addRuntime(structContext, new File(javaRuntime));

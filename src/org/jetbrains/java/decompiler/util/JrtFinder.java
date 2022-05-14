@@ -24,7 +24,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class JrtFinder {
-  // https://openjdk.java.net/jeps/220 for runtime image structure and JRT filesystem
+    public static final String CURRENT = "current";
+
+    // https://openjdk.java.net/jeps/220 for runtime image structure and JRT filesystem
 
   public static void addRuntime(final StructContext ctx) {
     try {
