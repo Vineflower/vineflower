@@ -15,7 +15,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -52,7 +54,7 @@ final class JarContextSource implements IContextSource, AutoCloseable {
   @Override
   public Entries getEntries() {
     final List<Entry> classes = new ArrayList<>();
-    final List<String> directories = new ArrayList<>();
+    final Set<String> directories = new LinkedHashSet<>();
     final List<Entry> others = new ArrayList<>();
 
     Enumeration<? extends ZipEntry> entries = this.file.entries();
@@ -60,6 +62,7 @@ final class JarContextSource implements IContextSource, AutoCloseable {
       ZipEntry entry = entries.nextElement();
 
       String name = entry.getName();
+      addDirectories(entry, directories);
       if (!entry.isDirectory()) {
         if (name.endsWith(CLASS_SUFFIX)) {
           classes.add(Entry.parse(name.substring(0, name.length() - CLASS_SUFFIX.length())));
@@ -68,11 +71,21 @@ final class JarContextSource implements IContextSource, AutoCloseable {
           others.add(Entry.parse(name));
         }
       }
-      else {
-        directories.add(name);
-      }
     }
-    return new Entries(classes, directories, others, List.of());
+    return new Entries(classes, List.copyOf(directories), others, List.of());
+  }
+
+  private void addDirectories(final ZipEntry entry, final Set<String> directories) {
+    final String name = entry.getName();
+    int segmentIndex = name.indexOf('/');
+    while (segmentIndex != -1) {
+      directories.add(name.substring(0, segmentIndex));
+      segmentIndex = name.indexOf('/', segmentIndex + 1);
+    }
+
+    if (entry.isDirectory()) {
+      directories.add(name);
+    }
   }
 
   @Override

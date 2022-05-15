@@ -131,9 +131,11 @@ public class SingleFileSaver implements IResultSaver, AutoCloseable {
   @Override
   public void closeArchive(String path, String archiveName) {
     try {
-      output.close();
-      entries.clear();
-      output = null;
+      if (this.output != null) {
+        output.close();
+        entries.clear();
+        output = null;
+      }
     }
     catch (IOException ex) {
       DecompilerContext.getLogger().writeMessage("Cannot close " + target, IFernflowerLogger.Severity.WARN);
