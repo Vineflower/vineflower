@@ -12,7 +12,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
-import org.jetbrains.java.decompiler.modules.decompiler.StrongConnectivityHelper;
+import org.jetbrains.java.decompiler.modules.decompiler.decompose.StrongConnectivityHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.struct.match.IMatchable;
 import org.jetbrains.java.decompiler.struct.match.MatchEngine;
@@ -754,6 +754,11 @@ public class Statement implements IMatchable {
 
   public List<StatEdge> getSuccessorEdges(int type) {
     return getEdges(type, DIRECTION_FORWARD);
+  }
+
+  // Do not mutate this map!
+  public List<StatEdge> getSuccessorEdgeView(int type) {
+    return this.mapSuccEdges.computeIfAbsent(type, k -> new ArrayList<>());
   }
 
   public List<StatEdge> getPredecessorEdges(int type) {

@@ -1,5 +1,6 @@
-package org.jetbrains.java.decompiler.modules.decompiler;
+package org.jetbrains.java.decompiler.modules.decompiler.decompose;
 
+import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.util.ListStack;
 

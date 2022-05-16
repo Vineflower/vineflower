@@ -1,14 +1,17 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
-package org.jetbrains.java.decompiler.modules.decompiler;
+package org.jetbrains.java.decompiler.modules.decompiler.decompose;
 
 import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.code.cfg.ControlFlowGraph;
 import org.jetbrains.java.decompiler.code.cfg.ExceptionRangeCFG;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
-import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.rels.MethodProcessorRunnable;
+import org.jetbrains.java.decompiler.modules.decompiler.LabelHelper;
+import org.jetbrains.java.decompiler.modules.decompiler.SequenceHelper;
+import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.decompose.FastExtendedPostdominanceHelper;
+import org.jetbrains.java.decompiler.modules.decompiler.decompose.StrongConnectivityHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.deobfuscator.IrreducibleCFGDeobfuscator;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.struct.StructMethod;
@@ -198,11 +201,16 @@ public final class DomHelper {
     RootStatement root = graphToStatement(graph, mt);
     root.addComments(graph);
 
-    if (!processStatement(root, root, new LinkedHashMap<>())) {
+    DomTracer tracer = new DomTracer();
+
+    if (!processStatement(root, root, new LinkedHashMap<>(), tracer)) {
       DotExporter.errorToDotFile(graph, mt, "parseGraphFail");
       DotExporter.errorToDotFile(root, mt, "parseGraphFailStat");
+//      System.out.println(tracer);
       throw new RuntimeException("parsing failure!");
     }
+
+//    System.out.println(tracer);
 
     MethodProcessorRunnable.debugCurrentlyDecompiling.set(root);
 
@@ -301,7 +309,7 @@ public final class DomHelper {
     }
   }
 
-  private static boolean processStatement(Statement general, RootStatement root, HashMap<Integer, Set<Integer>> mapExtPost) {
+  private static boolean processStatement(Statement general, RootStatement root, HashMap<Integer, Set<Integer>> mapExtPost, DomTracer tracer) {
 
     if (general.type == Statement.TYPE_ROOT) {
       Statement stat = general.getFirst();
@@ -310,7 +318,7 @@ public final class DomHelper {
       if (stat.type != Statement.TYPE_GENERAL) {
         return true;
       } else {
-        boolean complete = processStatement(stat, root, mapExtPost);
+        boolean complete = processStatement(stat, root, mapExtPost, tracer);
 
         if (complete) {
           // replace general purpose statement with simple one
@@ -375,9 +383,17 @@ public final class DomHelper {
 
           boolean forceall = i != 0;
 
+          if (forceall) {
+            tracer.add(general, "Force-all iteration");
+          } else {
+            tracer.add(general, "First iteration");
+          }
+
           // Keep finding simple statements until subgraphs cannot be created.
           // This has the effect that after a subgraph is created, simple statements are found again with the contents of the subgraph in mind
           while (true) {
+
+            tracer.add(general, "Find simple statements");
 
             // Find statements in this subgraph from the basicblocks that comprise it
             if (findSimpleStatements(general, mapExtPost)) {
@@ -386,6 +402,7 @@ public final class DomHelper {
 
             // If every statement in this subgraph was discovered, return as we've decomposed this part of the graph
             if (general.type == Statement.TYPE_PLACEHOLDER) {
+              tracer.add(general, "All simple statements found");
               return true;
             }
 
@@ -393,22 +410,28 @@ public final class DomHelper {
             Statement stat = findGeneralStatement(general, forceall, mapExtPost);
 
             if (stat != null) {
+              DotExporter.toDotFile(stat.getTopParent(), "a" + stat.id);
+              tracer.add(general, "Found general statement: " + stat);
               // Recurse on the subgraph general statement that we found, and inherit the postdominator set if it's the first statement in the current general
-              boolean complete = processStatement(stat, root, general.getFirst() == stat ? mapExtPost : new HashMap<>());
+              boolean complete = processStatement(stat, root, general.getFirst() == stat ? mapExtPost : new HashMap<>(), tracer);
 
               if (complete) {
                 // replace subgraph general purpose statement with simple one to complete this (outer) subgraph
                 general.replaceStatement(stat, stat.getFirst());
               } else {
+                tracer.add(general, "General statement processing failed! " + stat);
                 // Statement processing failed in an inner subgraph, so we give up here too
                 return false;
               }
+
+              tracer.add(general, "General statement processing success " + stat);
 
               // Replaced subgraph general statement with its contents, iterate simple statements again
               mapExtPost = new HashMap<>();
               mapRefreshed = true;
               reducibility = 0;
             } else {
+              tracer.add(general, "No new general statement found");
               // Couldn't find subgraph general statement
               break;
             }
@@ -469,6 +492,9 @@ public final class DomHelper {
     } else {
       vbPost = calcPostDominators(stat);
     }
+
+//    System.out.println("Postdominators: " + vbPost.toStringVb());
+//    System.out.println("extended postdominators: " + mapExtPost);
 
     for (int k = 0; k < vbPost.size(); k++) {
 
@@ -576,6 +602,7 @@ public final class DomHelper {
                  head.getNeighbours(StatEdge.TYPE_REGULAR, Statement.DIRECTION_BACKWARD).contains(head))
                 && setNodes.size() < stats.size()) {
               if (checkSynchronizedCompleteness(setNodes)) {
+//                System.out.println("setnodes: " + setNodes);
                 res = new GeneralStatement(head, setNodes, same ? null : post);
                 stat.collapseNodesToStatement(res);
 
@@ -709,5 +736,18 @@ public final class DomHelper {
     }
 
     return null;
+  }
+
+  private static class DomTracer {
+    private String string = "";
+
+    private void add(Statement gen, String s) {
+      string += ("[" + gen + "] " + s + "\n");
+    }
+
+    @Override
+    public String toString() {
+      return string;
+    }
   }
 }

@@ -2,7 +2,7 @@ package org.jetbrains.java.decompiler;
 
 import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
-import org.jetbrains.java.decompiler.modules.decompiler.StrongConnectivityHelper;
+import org.jetbrains.java.decompiler.modules.decompiler.decompose.StrongConnectivityHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

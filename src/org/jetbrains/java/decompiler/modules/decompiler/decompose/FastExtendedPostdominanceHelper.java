@@ -54,6 +54,8 @@ public class FastExtendedPostdominanceHelper {
 
     filterOnDominance(filter);
 
+    addSupportedComponents(filter);
+
     Set<Entry<Integer, FastFixedSet<Integer>>> entries = mapExtPostdominators.entrySet();
     HashMap<Integer, Set<Integer>> res = new HashMap<>(entries.size());
     for (Entry<Integer, FastFixedSet<Integer>> entry : entries) {
@@ -63,6 +65,24 @@ public class FastExtendedPostdominanceHelper {
     }
 
     return res;
+  }
+
+  private void addSupportedComponents(DominatorTreeExceptionFilter filter) {
+    StrongConnectivityHelper schelp = new StrongConnectivityHelper(this.statement);
+
+    for (List<Statement> comp : schelp.getComponents()) {
+      SupportComponent supcomp = SupportComponent.identify(comp, this.mapSupportPoints, filter.getDomEngine());
+
+      if (supcomp != null) {
+        for (Statement st : supcomp.stats) {
+          if (st != supcomp.supportedPoint) {
+            this.mapExtPostdominators.computeIfAbsent(st.id, i -> this.factory.createEmptySet()).add(supcomp.supportedPoint.id);
+          }
+
+          this.mapExtPostdominators.computeIfAbsent(supcomp.supportedPoint.id, i -> this.factory.createEmptySet()).add(st.id);
+        }
+      }
+    }
   }
 
 
@@ -76,6 +96,9 @@ public class FastExtendedPostdominanceHelper {
     for (int head : new HashSet<>(mapExtPostdominators.keySet())) {
 
       FastFixedSet<Integer> setPostdoms = mapExtPostdominators.get(head);
+      FastFixedSet<Integer> postdomCopy = setPostdoms.getCopy();
+
+      Set<FastFixedSet<Integer>> allPaths = new HashSet<>();
 
       stack.clear();
       stackPath.clear();
@@ -100,15 +123,18 @@ public class FastExtendedPostdominanceHelper {
           path.add(stat.id);
         }
 
+        // path == setPostdoms ?
         if (path.contains(setPostdoms)) {
           continue;
         }
 
         if(!engine.isDominator(stat.id, head)) {
           setPostdoms.complement(path);
+          allPaths.add(path);
           continue;
         }
 
+        boolean iterated = false;
         for (StatEdge edge : stat.getSuccessorEdges(StatEdge.TYPE_REGULAR | StatEdge.TYPE_CONTINUE)) {
 
           if (edge.getType() == StatEdge.TYPE_CONTINUE && edge.getDestination() != this.statement) {
@@ -124,14 +150,53 @@ public class FastExtendedPostdominanceHelper {
             stackPath.add(path.getCopy());
 
             setVisited.add(destination);
+            iterated = true;
           }
         }
+
+        if (!iterated) {
+          allPaths.add(path);
+        }
       }
+
+      findAndFilter(allPaths, postdomCopy);
+//      setPostdoms = postdomCopy;
+//      mapExtPostdominators.put(head, setPostdoms);
 
       if (setPostdoms.isEmpty()) {
         mapExtPostdominators.remove(head);
       }
     }
+  }
+
+  private void findAndFilter(Set<FastFixedSet<Integer>> paths, FastFixedSet<Integer> postdoms) {
+    if (paths.isEmpty()) {
+      return;
+    }
+
+    FastFixedSet<Integer> most = paths.iterator().next();
+
+    for (FastFixedSet<Integer> path : paths) {
+      if (path.size() > most.size()) {
+        most = path;
+      }
+    }
+
+
+    Set<Integer> rem = new HashSet<>();
+    for (Integer id : most) {
+      for (FastFixedSet<Integer> path : paths) {
+        if (!path.contains(id)) {
+          rem.add(id);
+          break;
+        }
+      }
+    }
+
+    most.removeAll(rem);
+
+    postdoms.intersection(most);
+
   }
 
   private void filterOnExceptionRanges(DominatorTreeExceptionFilter filter) {

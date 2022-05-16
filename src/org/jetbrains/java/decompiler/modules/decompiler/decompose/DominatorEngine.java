@@ -95,16 +95,16 @@ public class DominatorEngine {
     return colOrderedIDoms;
   }
 
+  // Returns if 'node' is dominated by 'dom'
+  // aka if 'dom' is a dominator of 'node'
   public boolean isDominator(Integer node, Integer dom) {
-
     while (!node.equals(dom)) {
 
       Integer idom = colOrderedIDoms.getWithKey(node);
 
       if (idom.equals(node)) {
         return false; // root node
-      }
-      else {
+      } else {
         node = idom;
       }
     }
