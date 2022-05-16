@@ -206,11 +206,8 @@ public final class DomHelper {
     if (!processStatement(root, root, new LinkedHashMap<>(), tracer)) {
       DotExporter.errorToDotFile(graph, mt, "parseGraphFail");
       DotExporter.errorToDotFile(root, mt, "parseGraphFailStat");
-//      System.out.println(tracer);
       throw new RuntimeException("parsing failure!");
     }
-
-//    System.out.println(tracer);
 
     MethodProcessorRunnable.debugCurrentlyDecompiling.set(root);
 
@@ -345,14 +342,17 @@ public final class DomHelper {
           // take care of irreducible control flow graphs
           if (IrreducibleCFGDeobfuscator.isStatementIrreducible(general)) {
             if (!IrreducibleCFGDeobfuscator.splitIrreducibleNode(general)) {
+              tracer.add(general, "Could not split irreducible flow");
               DecompilerContext.getLogger().writeMessage("Irreducible statement cannot be decomposed!", IFernflowerLogger.Severity.ERROR);
 
               break;
             } else {
+              tracer.add(general, "Split irreducible flow: " + reducibility);
               // Mirrors comment from reducibility loop, unsure if this is ever hit but it's here just in case
               if (reducibility == 4 && (mapstage == 1 || mapRefreshed)) {
                 DecompilerContext.getLogger().writeMessage("Irreducible statement too complex to be decomposed!", IFernflowerLogger.Severity.ERROR);
 
+                tracer.add(general, "Flow too complex to be decomposed!");
                 root.addComment("$FF: Irreducible bytecode has more than 5 nodes in sequence and was not entirely decomposed");
                 root.addErrorComment = true;
               }
@@ -360,6 +360,7 @@ public final class DomHelper {
               root.addComment("$FF: Irreducible bytecode was duplicated to produce valid code");
             }
           } else {
+            tracer.add(general, "Flow not irreducible, but could not decompose");
             // TODO: Originally this check was mapstage == 2, but that condition is never possible- why was it here?
             if (mapstage == 1 || mapRefreshed) { // last chance lost
               DecompilerContext.getLogger().writeMessage("Statement cannot be decomposed although reducible!", IFernflowerLogger.Severity.ERROR);
@@ -397,6 +398,7 @@ public final class DomHelper {
 
             // Find statements in this subgraph from the basicblocks that comprise it
             if (findSimpleStatements(general, mapExtPost)) {
+              tracer.add(general, "Found some simple statements");
               reducibility = 0;
             }
 
@@ -410,7 +412,6 @@ public final class DomHelper {
             Statement stat = findGeneralStatement(general, forceall, mapExtPost);
 
             if (stat != null) {
-              DotExporter.toDotFile(stat.getTopParent(), "a" + stat.id);
               tracer.add(general, "Found general statement: " + stat);
               // Recurse on the subgraph general statement that we found, and inherit the postdominator set if it's the first statement in the current general
               boolean complete = processStatement(stat, root, general.getFirst() == stat ? mapExtPost : new HashMap<>(), tracer);
@@ -447,12 +448,18 @@ public final class DomHelper {
 
       if (mapRefreshed) {
         // If the postdominators were refreshed, we know that the graph can't be decomposed and break out of the mapStage iteration, regardless of the stage
+
+        tracer.add(general, "Map already refreshed");
         break;
       } else {
         // Not refreshed (in the case of inherited postdominance set from parent subgraph) so we clean the map and try again in the hopes that FastExtendedPostdominanceHelper will be able to find something that can help decompose this graph
         mapExtPost = new HashMap<>();
+
+        tracer.add(general, "Refreshing map for retry");
       }
     }
+
+    tracer.add(general, "Unable to decompose!");
 
     return false;
   }
@@ -492,9 +499,6 @@ public final class DomHelper {
     } else {
       vbPost = calcPostDominators(stat);
     }
-
-//    System.out.println("Postdominators: " + vbPost.toStringVb());
-//    System.out.println("extended postdominators: " + mapExtPost);
 
     for (int k = 0; k < vbPost.size(); k++) {
 

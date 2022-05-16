@@ -54,7 +54,7 @@ public class FastExtendedPostdominanceHelper {
 
     filterOnDominance(filter);
 
-    addSupportedComponents(filter);
+//    addSupportedComponents(filter);
 
     Set<Entry<Integer, FastFixedSet<Integer>>> entries = mapExtPostdominators.entrySet();
     HashMap<Integer, Set<Integer>> res = new HashMap<>(entries.size());
@@ -79,6 +79,7 @@ public class FastExtendedPostdominanceHelper {
             this.mapExtPostdominators.computeIfAbsent(st.id, i -> this.factory.createEmptySet()).add(supcomp.supportedPoint.id);
           }
 
+          // TODO: not entirely correct
           this.mapExtPostdominators.computeIfAbsent(supcomp.supportedPoint.id, i -> this.factory.createEmptySet()).add(st.id);
         }
       }
