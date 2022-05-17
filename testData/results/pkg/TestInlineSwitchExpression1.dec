@@ -11,7 +11,6 @@ public class TestInlineSwitchExpression1 {
          case WEST -> Direction.EAST;// 15
          case UP -> Direction.DOWN;// 17
          case DOWN -> Direction.UP;// 19
-         default -> throw new IncompatibleClassChangeError();
       });
    }// 21
 }
@@ -41,11 +40,10 @@ class 'pkg/TestInlineSwitchExpression1' {
       4e      12
       4f      12
       50      12
-      5b      13
       5c      6
       5d      6
       5e      6
-      5f      15
+      5f      14
    }
 }
 
@@ -57,4 +55,4 @@ Lines mapping:
 15 <-> 11
 17 <-> 12
 19 <-> 13
-21 <-> 16
+21 <-> 15
