@@ -530,6 +530,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: variable stores completely ignored due to variable merging
     register(JAVA_8_NODEBUG, "TestCompoundAssignmentReplace");
 
+    register(JAVA_8, "TestSharedVarIndex");
+
     // NOTE: regular fernflower fails to merge the variables here, leading to incorrect results in both
     //  Derived from IDEA-291806
     // TODO: test2 now successfully triggers the bug in QuiltFlower

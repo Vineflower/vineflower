@@ -1,0 +1,19 @@
+package pkg;
+
+public class TestSharedVarIndex {
+   public void StringArrayVsString() {
+      String[] var1 = new String[0];// 6
+   }// 10
+}
+
+class 'pkg/TestSharedVarIndex' {
+   method 'StringArrayVsString ()V' {
+      0      4
+      4      4
+      5      5
+   }
+}
+
+Lines mapping:
+6 <-> 5
+10 <-> 6
