@@ -24,6 +24,7 @@ public class BasicBlockStatement extends Statement {
   // *****************************************************************************
 
   private final BasicBlock block;
+  private boolean removableMonitorexit;
 
   // *****************************************************************************
   // constructors
@@ -106,6 +107,14 @@ public class BasicBlockStatement extends Statement {
     }
 
     return null;
+  }
+
+  public boolean isRemovableMonitorexit() {
+    return removableMonitorexit;
+  }
+
+  public void setRemovableMonitorexit(boolean removableMonitorexit) {
+    this.removableMonitorexit = removableMonitorexit;
   }
 
   public static BasicBlockStatement create() {

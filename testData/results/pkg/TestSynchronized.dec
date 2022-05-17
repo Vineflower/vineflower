@@ -276,6 +276,22 @@ public class TestSynchronized {
          System.out.println("test");// 255
       }
    }// 257
+
+   // $FF: Could not create synchronized statement, marking monitor enters and exits
+   public void testLoop(double var1) {
+      if (var1 >= 88.29) {// 260
+         synchronized(this){} // $FF: monitorenter // 261
+
+         try {
+            while(true) {
+               long var12 = 399L;// 266
+               var1 /= 97.81;// 267
+            }
+         } finally {
+            // $FF: monitorexit// 271
+         }
+      }
+   }// 273
 }
 
 class 'pkg/TestSynchronized' {
@@ -844,6 +860,28 @@ class 'pkg/TestSynchronized' {
       c      275
       17      277
    }
+
+   method 'testLoop (D)V' {
+      0      281
+      1      281
+      2      281
+      3      281
+      4      281
+      5      281
+      8      282
+      b      282
+      c      286
+      d      286
+      e      286
+      f      286
+      10      286
+      12      287
+      13      287
+      14      287
+      16      287
+      1c      290
+      21      293
+   }
 }
 
 Lines mapping:
@@ -985,6 +1023,12 @@ Lines mapping:
 254 <-> 275
 255 <-> 276
 257 <-> 278
+260 <-> 282
+261 <-> 283
+266 <-> 287
+267 <-> 288
+271 <-> 291
+273 <-> 294
 Not mapped:
 7
 13
@@ -1004,3 +1048,4 @@ Not mapped:
 207
 214
 256
+268

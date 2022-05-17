@@ -107,4 +107,20 @@ public class TestClassLoop {
     }
     return decPt;
   }
+
+  public int testLoopIpp(int i, int j) {
+    while (true) {
+      try {
+        while (i < j) {
+          i = j++ / i;
+        }
+      } catch (RuntimeException re) {
+        i = 10;
+        continue;
+      }
+
+      break;
+    }
+    return j;
+  }
 }

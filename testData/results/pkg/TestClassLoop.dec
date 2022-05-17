@@ -87,6 +87,20 @@ public class TestClassLoop {
 
       return decPt;// 108
    }
+
+   public int testLoopIpp(int i, int j) {
+      while(true) {
+         try {
+            if (i >= j) {// 114
+               return j;// 124
+            }
+
+            i = j++ / i;// 115
+         } catch (RuntimeException var4) {// 117
+            i = 10;// 118
+         }
+      }
+   }
 }
 
 class 'pkg/TestClassLoop' {
@@ -236,6 +250,24 @@ class 'pkg/TestClassLoop' {
       57      87
       58      87
    }
+
+   method 'testLoopIpp (II)I' {
+      0      93
+      1      93
+      2      93
+      6      97
+      7      97
+      8      97
+      9      97
+      a      97
+      b      97
+      12      98
+      13      99
+      14      99
+      15      99
+      19      94
+      1a      94
+   }
 }
 
 Lines mapping:
@@ -275,7 +307,14 @@ Lines mapping:
 102 <-> 84
 106 <-> 66
 108 <-> 88
+114 <-> 94
+115 <-> 98
+117 <-> 99
+118 <-> 100
+124 <-> 95
 Not mapped:
 39
 55
 72
+119
+120

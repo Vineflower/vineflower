@@ -255,4 +255,20 @@ public class TestSynchronized {
       System.out.println("test");
     }
   }
+
+  public void testLoop(double var1) {
+    while (var1 >= 88.29) {
+      synchronized (this) {
+        while (true)
+        {
+          while (true)
+          {
+            long var12 = 399L;
+            var1 /= 97.81;
+            break;
+          }
+        }
+      }
+    }
+  }
 }

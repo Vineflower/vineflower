@@ -750,7 +750,8 @@ public class SimplifyExprentsHelper {
       MonitorExprent expr = (MonitorExprent) first;
       return expr.getMonType() == MonitorExprent.MONITOR_EXIT &&
              expr.getValue().type == Exprent.EXPRENT_VAR &&
-             !((VarExprent) expr.getValue()).isStack();
+             !((VarExprent) expr.getValue()).isStack() &&
+             expr.isRemovable();
     }
 
     return false;

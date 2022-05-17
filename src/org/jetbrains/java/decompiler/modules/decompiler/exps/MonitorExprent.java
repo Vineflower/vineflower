@@ -17,6 +17,7 @@ public class MonitorExprent extends Exprent {
   public static final int MONITOR_ENTER = 0;
   public static final int MONITOR_EXIT = 1;
 
+  private boolean remove = false;
   private final int monType;
   private Exprent value;
 
@@ -52,7 +53,7 @@ public class MonitorExprent extends Exprent {
       return buf.append(value.toJava(indent)).enclose("synchronized(", ")");
     }
     else {
-      return buf;
+      return buf.append("// $FF: monitorexit");
     }
   }
 
@@ -79,6 +80,14 @@ public class MonitorExprent extends Exprent {
 
   public Exprent getValue() {
     return value;
+  }
+
+  public boolean isRemovable() {
+    return remove;
+  }
+
+  public void setRemove(boolean remove) {
+    this.remove = remove;
   }
 
   @Override

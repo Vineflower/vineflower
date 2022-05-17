@@ -218,7 +218,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestMultiCast");
     // TODO: some tests don't have proper if else chains
     register(JAVA_8, "TestComplexIfElseChain");
-    // TODO: The ternary here needs to be removed
     register(JAVA_8, "TestNestedLambdas");
     register(JAVA_8, "TestSwitchAssign");
     register(JAVA_8, "TestSwitchReturn");
@@ -245,7 +244,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestArrayTernary");
     // TODO: Do while loops become standard while loops
     register(JAVA_8, "TestAssignmentInDoWhile");
-    // TODO: Assignment of a = a is removed
     register(JAVA_8, "TestBooleanAssignment");
     // TODO: Extraneous cast to boolean
     register(JAVA_8, "TestCastObjectToPrimitive");
@@ -548,6 +546,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: Assert is bundled into the loop header
     register(JAVA_8, "TestAssertMerge");
     register(JAVA_8, "TestTernaryAssign");
+    register(JAVA_8, "TestLoopReturn");
   }
 
   private void registerEntireClassPath() {
