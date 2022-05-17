@@ -271,6 +271,10 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestStringLiteral");
     register(JAVA_8, "TestSwitchStringHashcodeCollision");
     register(JAVA_8, "TestSynchronized");
+    // TODO: couldn't make synchronized, flatten statements error
+    register(JAVA_8, "TestSynchronizedLoop");
+    // TODO: break out of synchronized isn't explicit
+    register(JAVA_8, "TestSynchronizedTry");
     register(JAVA_8, "TestSynchronizeNull");
     // TODO: Assignments are removed, producing incorrect code
     // derived from: IDEA-180373
@@ -501,6 +505,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(KOTLIN, "TestKotlinEnumWhen");
     // TODO: causes invalid stack var simplification
     register(JAVA_8, "TestSynchronizedTryReturn");
+    // TODO: parsing failure, postdom error
     register(JAVA_8, "TestTryReturn");
     register(JAVA_8, "TestWhileConditionTernary");
 

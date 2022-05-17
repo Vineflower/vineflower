@@ -1,0 +1,297 @@
+package pkg;
+
+public class TestSynchronizedLoop {
+   public void test1(int i) {
+      try {
+         while(true) {
+            synchronized(this) {// 7
+               while(i >= i) {// 8
+                  this.wait();// 9
+               }
+            }
+
+            synchronized(this) {// 13
+               this.notifyAll();// 14
+            }// 15
+         }
+      } catch (Exception var7) {// 17
+         throw new RuntimeException(var7);// 18
+      }
+   }
+
+   public void test2() {
+      while(true) {
+         synchronized(this) {// 24
+            ;
+         }// 26
+      }
+   }
+
+   public void test7(int i) {
+      synchronized(this) {// 31
+         while(i > 0) {// 32
+            System.out.println(--i);// 33 34
+         }
+
+      }
+   }// 37
+
+   public void test12(int i) {
+      synchronized(this) {// 41
+         label94: {
+            System.out.println(1);// 42
+
+            while(i > 0) {// 43
+               --i;// 44
+               System.out.println(1.5);// 45
+
+               try {
+                  System.out.println(1.6);// 47
+               } finally {
+                  System.out.println(1.7);// 49
+                  if (i > 5) {// 50
+                     break label94;
+                  }
+
+               }
+            }
+
+            System.out.println(2);// 56
+            if (i > -2) {// 57
+               System.out.println(3);// 58
+            }
+         }
+      }
+
+      if (i > 2) {// 62
+         System.out.println("Hello!");// 63
+      }
+
+   }// 65
+
+   // $FF: Could not create synchronized statement, marking monitor enters and exits
+   public void testLoop(double var1) {
+      if (var1 >= 88.29) {// 68
+         synchronized(this){} // $FF: monitorenter // 69
+
+         try {
+            while(true) {
+               long var12 = 399L;// 74
+               var1 /= 97.81;// 75
+            }
+         } finally {
+            // $FF: monitorexit// 79
+         }
+      }
+   }// 81
+
+   public void testFlatten() {
+      // $FF: Couldn't be decompiled
+      // Bytecode:
+      // 00: ldc2_w -151
+      // 03: lstore 1
+      // 04: ldc2_w -384
+      // 07: lstore 3
+      // 08: lload 1
+      // 09: ldc2_w 5
+      // 0c: lcmp
+      // 0d: ifne 2c
+      // 10: aload 0
+      // 11: dup
+      // 12: astore 5
+      // 14: monitorenter
+      // 15: lload 3
+      // 16: ldc2_w -714
+      // 19: lsub
+      // 1a: lstore 3
+      // 1b: aload 5
+      // 1d: monitorexit
+      // 1e: goto 29
+      // 21: astore 6
+      // 23: aload 5
+      // 25: monitorexit
+      // 26: aload 6
+      // 28: athrow
+      // 29: goto 08
+      // 2c: return
+   }
+}
+
+class 'pkg/TestSynchronizedLoop' {
+   method 'test1 (I)V' {
+      0      6
+      3      6
+      4      7
+      5      7
+      6      7
+      9      8
+      a      8
+      b      8
+      c      8
+      1a      12
+      1d      12
+      1e      13
+      1f      13
+      20      13
+      21      13
+      23      14
+      31      16
+      3a      17
+   }
+
+   method 'test2 ()V' {
+      0      23
+      3      23
+      5      25
+   }
+
+   method 'test7 (I)V' {
+      0      30
+      3      30
+      4      31
+      5      31
+      8      32
+      9      32
+      a      32
+      b      32
+      c      32
+      d      32
+      f      32
+      10      32
+      11      32
+      1f      36
+   }
+
+   method 'test12 (I)V' {
+      0      39
+      3      39
+      4      41
+      5      41
+      6      41
+      7      41
+      8      41
+      b      43
+      c      43
+      f      44
+      10      44
+      11      44
+      12      45
+      13      45
+      14      45
+      15      45
+      16      45
+      17      45
+      18      45
+      1b      48
+      1c      48
+      1d      48
+      1e      48
+      1f      48
+      20      48
+      21      48
+      37      50
+      38      50
+      39      50
+      3a      50
+      3b      50
+      3c      50
+      3d      50
+      3e      51
+      3f      51
+      40      51
+      41      51
+      42      51
+      50      58
+      51      58
+      52      58
+      53      58
+      54      58
+      55      58
+      56      58
+      57      59
+      58      59
+      59      59
+      5a      59
+      5d      60
+      5e      60
+      5f      60
+      60      60
+      61      60
+      70      65
+      71      65
+      72      65
+      75      66
+      76      66
+      77      66
+      78      66
+      79      66
+      7a      66
+      7d      69
+   }
+
+   method 'testLoop (D)V' {
+      0      73
+      1      73
+      2      73
+      3      73
+      4      73
+      5      73
+      8      74
+      b      74
+      c      78
+      d      78
+      e      78
+      f      78
+      10      78
+      12      79
+      13      79
+      14      79
+      16      79
+      1c      82
+      21      85
+   }
+}
+
+Lines mapping:
+7 <-> 7
+8 <-> 8
+9 <-> 9
+13 <-> 13
+14 <-> 14
+15 <-> 15
+17 <-> 17
+18 <-> 18
+24 <-> 24
+26 <-> 26
+31 <-> 31
+32 <-> 32
+33 <-> 33
+34 <-> 33
+37 <-> 37
+41 <-> 40
+42 <-> 42
+43 <-> 44
+44 <-> 45
+45 <-> 46
+47 <-> 49
+49 <-> 51
+50 <-> 52
+56 <-> 59
+57 <-> 60
+58 <-> 61
+62 <-> 66
+63 <-> 67
+65 <-> 70
+68 <-> 74
+69 <-> 75
+74 <-> 79
+75 <-> 80
+79 <-> 83
+81 <-> 86
+Not mapped:
+11
+36
+51
+53
+60
+76

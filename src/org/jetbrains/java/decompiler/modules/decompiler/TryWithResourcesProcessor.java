@@ -118,10 +118,14 @@ public final class TryWithResourcesProcessor {
 
       // If the catch statement contains a simple try catch, then it's a nonnull resource
       if (inner.type == Statement.TYPE_TRYCATCH) {
+        if (inner.getStats().isEmpty()) {
+          return false;
+        }
+
         Statement inTry = inner.getStats().get(0);
 
         // Catch block contains a basic block inside which has the closeable invocation
-        if (inTry.type == Statement.TYPE_BASICBLOCK) {
+        if (inTry.type == Statement.TYPE_BASICBLOCK && !inTry.getExprents().isEmpty()) {
           Exprent first = inTry.getExprents().get(0);
 
           if (isCloseable(first)) {
@@ -151,11 +155,15 @@ public final class TryWithResourcesProcessor {
 
             inner = ((IfStatement)inner).getIfstat();
 
+            if (inner == null) {
+              return false;
+            }
+
             // Process try catch inside of if statement
-            if (inner.type == Statement.TYPE_TRYCATCH) {
+            if (inner.type == Statement.TYPE_TRYCATCH && !inner.getStats().isEmpty()) {
               Statement inTry = inner.getStats().get(0);
 
-              if (inTry.type == Statement.TYPE_BASICBLOCK) {
+              if (inTry.type == Statement.TYPE_BASICBLOCK && !inTry.getExprents().isEmpty()) {
                 Exprent first = inTry.getExprents().get(0);
 
                 // Check for closable invocation

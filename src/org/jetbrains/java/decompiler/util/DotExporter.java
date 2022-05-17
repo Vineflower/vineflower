@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.code.cfg.ControlFlowGraph;
 import org.jetbrains.java.decompiler.code.cfg.ExceptionRangeCFG;
+import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.rels.DecompileRecord;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
@@ -46,6 +47,7 @@ public class DotExporter {
   // Statements that aren't found will be circular, and will have a message stating so.
   // Nodes with green borders are the canonical exit of method, but these may not always be emitted.
   private static String statToDot(Statement stat, String name) {
+    DecompilerContext.getImportCollector().setWriteLocked(true);
     StringBuffer buffer = new StringBuffer();
     // List<String> subgraph = new ArrayList<>();
     Set<Integer> visitedNodes = new HashSet<>();
@@ -289,6 +291,8 @@ public class DotExporter {
 //    }
 
     buffer.append("}");
+
+    DecompilerContext.getImportCollector().setWriteLocked(false);
 
     return buffer.toString();
   }
@@ -539,6 +543,7 @@ public class DotExporter {
   }
 
   private static String digraphToDot(DirectGraph graph, Map<String, SFormsFastMapDirect> vars) {
+    DecompilerContext.getImportCollector().setWriteLocked(true);
 
     StringBuffer buffer = new StringBuffer();
 
@@ -577,6 +582,8 @@ public class DotExporter {
     }
 
     buffer.append("}");
+
+    DecompilerContext.getImportCollector().setWriteLocked(false);
 
     return buffer.toString();
   }
