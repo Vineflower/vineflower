@@ -2,18 +2,14 @@ package pkg;
 
 public class TestSharedVarIndex {
    public void StringArrayVsString() {
-      String[] var1 = new String[0];// 6
-   }// 10
-}
-
-class 'pkg/TestSharedVarIndex' {
-   method 'StringArrayVsString ()V' {
-      0      4
-      4      4
-      5      5
+      // $FF: Couldn't be decompiled
+      // Bytecode:
+      // 0: bipush 0
+      // 1: anewarray 2
+      // 4: astore 1
+      // 5: ldc "lol"
+      // 7: astore 1
+      // 8: return
    }
 }
 
-Lines mapping:
-6 <-> 5
-10 <-> 6

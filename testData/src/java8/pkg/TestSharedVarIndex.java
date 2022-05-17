@@ -6,6 +6,6 @@ public class TestSharedVarIndex {
       String[] a = new String[0];
     }
 
-    String b;
+    String b = "lol";
   }
 }
