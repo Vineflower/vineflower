@@ -141,6 +141,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestInnerClassConstructor");
     register(CUSTOM, "v11/TestInnerClassConstructor");
     register(JAVA_8, "TestTryCatchFinally");
+    register(JAVA_8, "TestTryFinally");
     register(JAVA_8, "TestAmbiguousCall");
     register(JAVA_8, "TestSynchronizedMapping");
     register(JAVA_8, "TestAbstractMethods");
