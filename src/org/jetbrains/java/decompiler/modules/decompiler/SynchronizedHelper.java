@@ -77,4 +77,23 @@ public final class SynchronizedHelper {
 
     return res;
   }
+
+  public static void markLiveMonitors(RootStatement root) {
+    markLiveMonitors(root, root);
+  }
+
+  private static void markLiveMonitors(RootStatement root, Statement stat) {
+    for (Statement st : stat.getStats()) {
+      markLiveMonitors(root, st);
+    }
+
+    if (stat.type == Statement.TYPE_BASICBLOCK) {
+      for (Exprent ex : stat.getExprents()) {
+        if (ex.type == Exprent.EXPRENT_MONITOR) {
+          root.addComment("$FF: Could not create synchronized statement, marking monitor enters and exits");
+          root.addErrorComment = true;
+        }
+      }
+    }
+  }
 }

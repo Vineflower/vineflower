@@ -381,6 +381,10 @@ public class MethodProcessorRunnable implements Runnable {
       decompileRecord.add("ReplaceContinues", root);
     }
 
+    // Mark monitors left behind in the code
+    // No decompile record as statement structure is not modified
+    SynchronizedHelper.markLiveMonitors(root);
+
     DotExporter.toDotFile(root, mt, "finalStatement");
 
     if (DotExporter.DUMP_DOTS) {
