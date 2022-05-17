@@ -1,0 +1,45 @@
+package pkg;
+
+public class TestTryWithResourcesFakeTrigger {
+   public void testTrigger1() {
+      // $FF: Couldn't be decompiled
+      // Bytecode:
+      // 00: ldc "Hi!"
+      // 02: astore 2
+      // 03: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 06: ldc "Hi"
+      // 08: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
+      // 0b: goto 0f
+      // 0e: astore 3
+      // 0f: return
+      // 10: astore 3
+      // 11: aload 2
+      // 12: astore 1
+      // 13: goto 18
+      // 16: astore 4
+      // 18: return
+   }
+
+   public void testTrigger2() {
+      // $FF: Couldn't be decompiled
+      // Bytecode:
+      // 00: aconst_null
+      // 01: astore 1
+      // 02: aload 1
+      // 03: ifnonnull 23
+      // 06: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 09: ldc "Hi"
+      // 0b: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
+      // 0e: goto 02
+      // 11: astore 2
+      // 12: aload 1
+      // 13: ifnull 19
+      // 16: goto 23
+      // 19: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 1c: aload 1
+      // 1d: invokevirtual java/io/PrintStream.println (Ljava/lang/Object;)V
+      // 20: goto 02
+      // 23: return
+   }
+}
+

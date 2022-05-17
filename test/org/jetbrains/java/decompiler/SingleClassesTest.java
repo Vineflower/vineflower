@@ -594,6 +594,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16, "TestTryWithResourcesFake");
     register(JAVA_16, "TestTryWithResourcesSwitchJ16");
     register(JAVA_16, "TestTryWithResourcesNestedLoop");
+    register(JAVA_16, "TestTryWithResourcesFakeTrigger");
 
     register(JAVA_8, "TestGenericMapEntireClasspath");
     register(JAVA_8, "TestGenericsTernary");

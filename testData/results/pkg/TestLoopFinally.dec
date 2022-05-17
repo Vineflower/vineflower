@@ -118,6 +118,36 @@ public class TestLoopFinally {
 
       return 1;
    }
+
+   public void emptyInnerFinally() {
+      // $FF: Couldn't be decompiled
+      // Bytecode:
+      // 00: bipush 0
+      // 01: istore 1
+      // 02: bipush 1
+      // 03: istore 2
+      // 04: bipush 2
+      // 05: istore 3
+      // 06: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 09: ldc "Hello"
+      // 0b: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
+      // 0e: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 11: ldc "hi"
+      // 13: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
+      // 16: return
+      // 17: astore 4
+      // 19: goto 21
+      // 1c: astore 5
+      // 1e: aload 5
+      // 20: athrow
+      // 21: goto 06
+      // 24: astore 6
+      // 26: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 29: ldc "hi"
+      // 2b: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
+      // 2e: aload 6
+      // 30: athrow
+   }
 }
 
 class 'pkg/TestLoopFinally' {

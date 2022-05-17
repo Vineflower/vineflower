@@ -127,4 +127,21 @@ public class TestLoopFinally {
     }
     return var2 + var3;
   }
+
+
+  public void emptyInnerFinally() {
+    int a = 0, b = 1, c = 2; // load bearing triple assignment
+    try {
+      while (true) {
+        try {
+          System.out.println("Hello");
+          return;
+        } catch (Exception ignored) {
+        } finally {
+        }
+      }
+    } finally {
+      System.out.println("hi");
+    }
+  }
 }
