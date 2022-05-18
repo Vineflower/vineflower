@@ -1,6 +1,7 @@
 package org.jetbrains.java.decompiler.modules.decompiler.sforms;
 
 import org.jetbrains.java.decompiler.code.CodeConstants;
+import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionEdge;
@@ -74,7 +75,6 @@ class SFormsConstructor {
   private final HashMap<VarVersionPair, VarVersionPair> varAssignmentMap;
 
 
-
   private RootStatement root;
   private StructMethod mt;
   private DirectGraph dgraph;
@@ -110,10 +110,16 @@ class SFormsConstructor {
     this.mapFieldVars = trackFieldVars ? new HashMap<>() : null;
     this.varAssignmentMap = trackDirectAssignments ? new HashMap<>() : null;
 
-    // doLiveVariableAnalysisRound -> trackSsuVersions
-    assert !this.doLiveVariableAnalysisRound || this.trackSsuVersions;
-    // incrementOnUsage -> trackSsuVersions
-    assert !this.incrementOnUsage || this.trackSsuVersions;
+
+    ValidationHelper.assertTrue(
+      !this.doLiveVariableAnalysisRound || this.trackSsuVersions,
+      "doLiveVariableAnalysisRound -> trackSsuVersions: We need ssu versions to do live variable analysis");
+    ValidationHelper.assertTrue(
+      !this.incrementOnUsage || this.trackSsuVersions,
+      "incrementOnUsage -> trackSsuVersions: We need ssu versions to be able to increment on usage");
+    ValidationHelper.assertTrue(
+      this.incrementOnUsage || this.simplePhi,
+      "!incrementOnUsage -> simplePhi: We need to know if when nodes are already a phi node or not.");
   }
 
   public void splitVariables(RootStatement root, StructMethod mt) {
@@ -145,7 +151,7 @@ class SFormsConstructor {
     }
     while (!updated.isEmpty());
 
-    if(this.doLiveVariableAnalysisRound) {
+    if (this.doLiveVariableAnalysisRound) {
       this.ssaStatements(dgraph, updated, true, mt, iteration);
 
       this.ssuversions.initDominators();
@@ -171,7 +177,7 @@ class SFormsConstructor {
         }
       }
 
-      if(this.blockFieldPropagation) {
+      if (this.blockFieldPropagation) {
         // quick solution: 'dummy' field variables should not cross basic block borders (otherwise problems e.g. with finally loops - usage without assignment in a loop)
         // For the full solution consider adding a dummy assignment at the entry point of the method
         boolean allow_field_propagation = node.succs.isEmpty() || (node.succs.size() == 1 && node.succs.get(0).preds.size() == 1);
@@ -290,7 +296,7 @@ class SFormsConstructor {
 
             if (bVarMaps.isNormal() && varMaps.isNormal()) {
               varMaps.mergeNormal(bVarMaps.getNormal());
-            } else if (!varMaps.isNormal()){
+            } else if (!varMaps.isNormal()) {
               // b and c are boolean expression and at least c had an assignment.
               varMaps.mergeIfTrue(bVarMaps.getIfTrue());
               varMaps.mergeIfFalse(bVarMaps.getIfFalse());
@@ -372,7 +378,7 @@ class SFormsConstructor {
             switch (func.getLstOperands().get(0).type) {
               case Exprent.EXPRENT_VAR: {
                 // TODO: why doesn't ssa need to process these?
-                if (!this.trackPhantomPPNodes){
+                if (!this.trackPhantomPPNodes) {
                   return;
                 }
 
@@ -499,10 +505,6 @@ class SFormsConstructor {
           }
           case 2:  // size > 1 (var has more than one assignment)
             if (!this.incrementOnUsage) {
-
-              // We need to know if this is already a phi node or not.
-              assert this.simplePhi;
-
               VarVersionPair varVersion = new VarVersionPair(varindex, current_vers);
               if (current_vers != 0 && this.phi.containsKey(varVersion)) {
                 this.setCurrentVar(varmap, varindex, current_vers);
@@ -614,12 +616,6 @@ class SFormsConstructor {
 
       this.setCurrentVar(varmap, varindex, varassign.getVersion());
     }
-  }
-
-  @Deprecated
-  private int getNextFreeVersion(int var) {
-    assert !this.ssau;
-    return this.getNextFreeVersion(var, null);
   }
 
   private int getNextFreeVersion(int var, Statement stat) {
@@ -790,13 +786,13 @@ class SFormsConstructor {
 
         for (int i = 1; i < stat.getStats().size(); i++) {
           int varindex = lstVars.get(i - 1).getIndex();
-          int version = this.getNextFreeVersion(varindex , stat); // == 1
+          int version = this.getNextFreeVersion(varindex, stat); // == 1
 
           map = new SFormsFastMapDirect();
           this.setCurrentVar(map, varindex, version);
 
           this.extraVarVersions.put(dgraph.nodes.getWithKey(flatthelper.getMapDestinationNodes().get(stat.getStats().get(i).id)[0]).id, map);
-          if(this.trackSsuVersions) {
+          if (this.trackSsuVersions) {
             this.ssuversions.createNode(new VarVersionPair(varindex, version));
           }
         }
@@ -912,15 +908,14 @@ class SFormsConstructor {
   }
 
 
-  private void varMapToGraph(VarVersionPair varpaar, SFormsFastMapDirect varmap) {
-    assert this.trackSsuVersions;
+  private void varMapToGraph(VarVersionPair varVersion, SFormsFastMapDirect varMap) {
+    ValidationHelper.assertTrue(this.trackSsuVersions, "Can't make an ssu graph without ssu tracked");
 
     VBStyleCollection<VarVersionNode, VarVersionPair> nodes = this.ssuversions.nodes;
 
-    VarVersionNode node = nodes.getWithKey(varpaar);
+    VarVersionNode node = nodes.getWithKey(varVersion);
 
-//    node.live = new SFormsFastMapDirect(varmap);
-    node.live = varmap.getCopy();
+    node.live = varMap.getCopy();
   }
 
 
@@ -961,10 +956,10 @@ class SFormsConstructor {
     return this.ssuversions;
   }
 
-  public SFormsFastMapDirect getLiveVarVersionsMap(VarVersionPair varpaar) {
-    assert this.trackSsuVersions;
+  public SFormsFastMapDirect getLiveVarVersionsMap(VarVersionPair varVersion) {
+    ValidationHelper.assertTrue(this.trackSsuVersions, "Can't get ssu versions if we aren't tracking ssu");
 
-    VarVersionNode node = this.ssuversions.nodes.getWithKey(varpaar);
+    VarVersionNode node = this.ssuversions.nodes.getWithKey(varVersion);
     if (node != null) {
       return node.live == null ? new SFormsFastMapDirect() : node.live;
     }
@@ -973,17 +968,17 @@ class SFormsConstructor {
   }
 
   public Map<VarVersionPair, Integer> getMapVersionFirstRange() {
-    assert this.ssau;
+    ValidationHelper.assertTrue(this.ssau, "This is an ssau only operation");
     return this.mapVersionFirstRange;
   }
 
   public Map<Integer, Integer> getMapFieldVars() {
-    assert this.trackFieldVars;
+    ValidationHelper.assertTrue(this.trackFieldVars, "Can't provide field data, if no field data was tracked");
     return this.mapFieldVars;
   }
 
   public Map<VarVersionPair, VarVersionPair> getVarAssignmentMap() {
-    assert this.trackDirectAssignments;
+    ValidationHelper.assertTrue(this.trackDirectAssignments, "Can't provide direct assignments, if no direct assignments was tracked");
     return this.varAssignmentMap;
   }
 }
