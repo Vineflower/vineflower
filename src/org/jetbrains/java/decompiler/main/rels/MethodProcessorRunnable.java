@@ -86,7 +86,10 @@ public class MethodProcessorRunnable implements Runnable {
     DotExporter.toDotFile(graph, mt, "cfgConstructed", true);
 
     DeadCodeHelper.removeDeadBlocks(graph);
-    graph.inlineJsr(cl, mt);
+
+    if (mt.getBytecodeVersion().hasJsr() || DecompilerContext.getOption(IFernflowerPreferences.FORCE_JSR_INLINE)) {
+      graph.inlineJsr(cl, mt);
+    }
 
     // TODO: move to the start, before jsr inlining
     DeadCodeHelper.connectDummyExitBlock(graph);
