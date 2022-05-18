@@ -57,7 +57,6 @@ public class SwitchExprent extends Exprent {
               break; // just don't mark as default
             }
           }
-          //buf.appendIndent(indent + 1).append("default -> ");
           hasDefault = true;
           break;
         }
@@ -79,7 +78,7 @@ public class SwitchExprent extends Exprent {
           buf.append(", ");
         }
 
-        if (value instanceof ConstExprent && !standalone) {
+        if (value instanceof ConstExprent && !standalone && value.getExprType() != VarType.VARTYPE_NULL) {
           value = value.copy();
           ((ConstExprent) value).setConstType(switchType);
         }
