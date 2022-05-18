@@ -506,7 +506,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(KOTLIN, "TestKotlinEnumWhen");
     // TODO: causes invalid stack var simplification
     register(JAVA_8, "TestSynchronizedTryReturn");
-    // TODO: parsing failure, postdom error
+    // TODO: parsing failure, postdom error, wrong variable use, invalid variable splitting
     register(JAVA_8, "TestTryReturn");
     register(JAVA_8, "TestWhileConditionTernary");
 
@@ -555,6 +555,10 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestAssertMerge");
     register(JAVA_8, "TestTernaryAssign");
     register(JAVA_8, "TestLoopReturn");
+    // TODO: var is used before it's defined, and it's not correct
+    register(JAVA_8, "TestForCyclicVarDef");
+    // TODO: merging of trycatch incorrect
+    register(JAVA_8, "TestTryCatchNested");
   }
 
   private void registerEntireClassPath() {

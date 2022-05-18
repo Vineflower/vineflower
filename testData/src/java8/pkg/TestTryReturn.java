@@ -157,4 +157,41 @@ public class TestTryReturn {
       }
     }
   }
+
+  public void testVarWrong() {
+    int var1;
+    try {
+      System.out.println("Hi");
+    } catch (Exception var2) {
+      if (var2 != null) {
+        return;
+      } else {
+        System.out.println(var2);
+        return;
+      }
+    } finally {
+      float var3 = 9.18F;
+    }
+  }
+
+  public void testInvalidUse() {
+    boolean var1 = false;
+    String var3 = "Hi!";
+    try {
+      System.out.println(var1);
+      return;
+    } catch (Exception var4) {
+      try {
+        System.out.println(var4);
+      } catch (Exception var5) {
+        return;
+      } finally {
+        // Unable to correctly guess this is var4
+        System.out.println(var4);
+      }
+    } finally {
+      // The finally here causes the issue
+      System.out.println(var3);
+    }
+  }
 }

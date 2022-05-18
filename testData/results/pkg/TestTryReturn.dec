@@ -189,6 +189,70 @@ public class TestTryReturn {
       // 40: athrow
       // 41: return
    }
+
+   // $FF: Could not verify finally blocks. A semaphore variable has been added to preserve control flow.
+   public void testVarWrong() {
+      boolean var8 = false;
+
+      label49: {
+         label48: {
+            try {
+               try {
+                  var8 = true;// 164
+                  System.out.println("Hi");
+                  var8 = false;
+                  break label49;
+               } catch (Exception var9) {// 165
+                  if (var9 != null) {
+                     var8 = false;
+                     break label48;
+                  }
+               }
+
+               System.out.println(var9);// 169
+               var8 = false;
+            } finally {
+               if (var8) {
+                  float var5 = 9.18F;// 173
+               }
+            }
+
+            float var3 = 9.18F;
+            return;// 170
+         }
+
+         float var11 = 9.18F;
+         return;// 167
+      }
+
+      float var2 = 9.18F;
+   }// 166 174
+
+   public void testInvalidUse() {
+      boolean var1 = false;// 178
+      String var3 = "Hi!";// 179
+
+      try {
+         Exception var4;
+         try {
+            System.out.println(var1);// 181
+            return;// 182
+         } catch (Exception var15) {// 183
+            var4 = var15;
+         }
+
+         try {
+            System.out.println(var4);// 185
+            return;// 195
+         } catch (Exception var16) {// 186
+         } finally {
+            System.out.println(var15);// 190
+         }
+      } finally {
+         System.out.println(var3);// 194
+      }
+
+   }// 187
 }
 
 class 'pkg/TestTryReturn' {
@@ -461,6 +525,82 @@ class 'pkg/TestTryReturn' {
       1e      115
       1f      115
    }
+
+   method 'testVarWrong ()V' {
+      0      200
+      1      200
+      2      200
+      3      200
+      4      200
+      5      201
+      8      227
+      9      227
+      a      227
+      b      228
+      c      228
+      d      228
+      e      204
+      f      228
+      10      205
+      11      228
+      12      228
+      13      223
+      14      223
+      15      223
+      16      224
+      17      211
+      18      211
+      19      211
+      1a      228
+      1b      211
+      1c      228
+      1d      228
+      1e      219
+      1f      219
+      20      219
+      21      220
+      22      215
+      23      215
+      24      215
+      25      215
+      26      228
+      27      228
+      28      228
+      29      228
+      2a      228
+   }
+
+   method 'testInvalidUse ()V' {
+      0      231
+      1      231
+      2      232
+      3      232
+      4      232
+      5      237
+      6      237
+      7      237
+      8      237
+      9      237
+      13      238
+      14      239
+      15      244
+      16      244
+      17      244
+      18      244
+      19      244
+      26      246
+      36      254
+      37      248
+      38      248
+      3c      248
+      4a      245
+      4d      251
+      4e      251
+      4f      251
+      50      251
+      51      251
+      52      251
+   }
 }
 
 Lines mapping:
@@ -507,6 +647,25 @@ Lines mapping:
 113 <-> 112
 114 <-> 113
 117 <-> 116
+164 <-> 201
+165 <-> 205
+166 <-> 229
+167 <-> 225
+169 <-> 212
+170 <-> 221
+173 <-> 216
+174 <-> 229
+178 <-> 232
+179 <-> 233
+181 <-> 238
+182 <-> 239
+183 <-> 240
+185 <-> 245
+186 <-> 247
+187 <-> 255
+190 <-> 249
+194 <-> 252
+195 <-> 246
 Not mapped:
 20
 35
@@ -518,3 +677,6 @@ Not mapped:
 103
 105
 118
+175
+191
+196

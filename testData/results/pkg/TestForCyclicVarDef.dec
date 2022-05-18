@@ -1,0 +1,111 @@
+package pkg;
+
+public class TestForCyclicVarDef {
+   public void test() {
+      short var2 = 12338;// 5
+      if (var2 != -8396) {
+         for(float var9 = 22.22F; var9 > 133.07F; var9 = var3 * 29.43F) {// 9
+            var3 = var9 - -15.01F;// 10
+            System.out.println("Hi");// 11
+         }
+
+      }
+   }// 6 13
+
+   public void test1() {
+      boolean var9 = true;// 17
+
+      for(float var9x = 22.22F; var9x > 133.07F; var9x = var3 * 29.43F) {// 20
+         var3 = var9x - -15.01F;// 21
+         System.out.println("Hi");// 22
+      }
+
+   }// 24
+}
+
+class 'pkg/TestForCyclicVarDef' {
+   method 'test ()V' {
+      0      4
+      1      4
+      2      4
+      3      4
+      4      5
+      5      5
+      6      5
+      7      5
+      8      5
+      b      12
+      c      6
+      d      6
+      e      6
+      f      6
+      10      6
+      11      6
+      12      6
+      16      7
+      17      7
+      18      7
+      19      7
+      1a      7
+      1b      8
+      1c      8
+      1d      8
+      1e      8
+      1f      8
+      20      8
+      21      8
+      22      8
+      23      6
+      24      6
+      25      6
+      26      6
+      27      6
+      2b      12
+   }
+
+   method 'test1 ()V' {
+      0      15
+      1      15
+      2      15
+      3      15
+      4      17
+      5      17
+      6      17
+      7      17
+      8      17
+      9      17
+      a      17
+      e      18
+      f      18
+      10      18
+      11      18
+      12      18
+      13      19
+      14      19
+      15      19
+      16      19
+      17      19
+      18      19
+      19      19
+      1a      19
+      1b      17
+      1c      17
+      1d      17
+      1e      17
+      1f      17
+      23      22
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 13
+9 <-> 7
+10 <-> 8
+11 <-> 9
+13 <-> 13
+17 <-> 16
+20 <-> 18
+21 <-> 19
+22 <-> 20
+24 <-> 23

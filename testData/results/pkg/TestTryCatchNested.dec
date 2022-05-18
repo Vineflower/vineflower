@@ -1,0 +1,51 @@
+package pkg;
+
+public class TestTryCatchNested {
+   public void test() {
+      float var1 = 20.0F;// 6
+
+      try {
+         System.out.println(var1);// 9
+         return;// 10
+      } catch (Exception var3) {// 11
+      } catch (Exception var4) {// 13
+         System.out.println(var1);// 14
+      }
+
+   }// 17
+}
+
+class 'pkg/TestTryCatchNested' {
+   method 'test ()V' {
+      0      4
+      1      4
+      2      4
+      3      7
+      4      7
+      5      7
+      6      7
+      7      7
+      8      7
+      9      7
+      a      8
+      b      9
+      f      10
+      10      11
+      11      11
+      12      11
+      13      11
+      14      11
+      17      14
+   }
+}
+
+Lines mapping:
+6 <-> 5
+9 <-> 8
+10 <-> 9
+11 <-> 10
+13 <-> 11
+14 <-> 12
+17 <-> 15
+Not mapped:
+15
