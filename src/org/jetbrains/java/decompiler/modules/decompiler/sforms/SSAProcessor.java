@@ -198,145 +198,163 @@ class SSAProcessor {
     }
   }
 
-  private void processExprent(DirectNode node, Exprent expr, VarMapHolder varmaps, Statement stat, boolean calcLiveVars) {
+  // processes exprents, much like section 16.1. of the java language specifications
+  // (Definite Assignment and Expressions).
+  private void processExprent(DirectNode node, Exprent expr, VarMapHolder varMaps, Statement stat, boolean calcLiveVars) {
 
     if (expr == null) {
       return;
     }
 
-    assert varmaps.isNormal();
+    // The var map data can't depend yet on the result of this expression.
+    varMaps.assertIsNormal();
 
     switch (expr.type) {
       case Exprent.EXPRENT_IF: {
+        // EXPRENT_IF is a wrapper for the head exprent of an if statement.
+        // Therefore, the map needs to stay split, unlike with most other exprents.
         IfExprent ifexpr = (IfExprent) expr;
-        this.processExprent(node, ifexpr.getCondition(), varmaps, stat, calcLiveVars);
+        this.processExprent(node, ifexpr.getCondition(), varMaps, stat, calcLiveVars);
         return;
       }
       case Exprent.EXPRENT_ASSIGNMENT: {
+        // Assigning a local overrides all the readable versions of that node.
+
         AssignmentExprent assexpr = (AssignmentExprent) expr;
-        // Kropp : pretty sure ssa(u) gives invalid results if this asserts fails
-        assert assexpr.getCondType() == AssignmentExprent.CONDITION_NONE;
-        if (assexpr.getCondType() == AssignmentExprent.CONDITION_NONE) {
-          Exprent dest = assexpr.getLeft();
-          switch (dest.type) {
-            case Exprent.EXPRENT_VAR: {
-              final VarExprent destVar = (VarExprent) dest;
 
-              this.processExprent(node, assexpr.getRight(), varmaps, stat, calcLiveVars);
-              this.updateVarExprent(destVar, stat, varmaps.getNormal(), calcLiveVars);
-              if(this.trackDirectAssignments) {
+        if (assexpr.getCondType() != AssignmentExprent.CONDITION_NONE) {
+          throw new IllegalStateException("Didn't expect compound assignment yet");
+        }
 
-                switch (assexpr.getRight().type) {
-                  case Exprent.EXPRENT_VAR: {
-                    VarVersionPair rightpaar = ((VarExprent) assexpr.getRight()).getVarVersionPair();
-                    this.varAssignmentMap.put(destVar.getVarVersionPair(), rightpaar);
-                    break;
-                  }
-                  case Exprent.EXPRENT_FIELD: {
-                    int index = this.mapFieldVars.get(assexpr.getRight().id);
-                    VarVersionPair rightpaar = new VarVersionPair(index, 0);
-                    this.varAssignmentMap.put(destVar.getVarVersionPair(), rightpaar);
-                    break;
-                  }
+        Exprent dest = assexpr.getLeft();
+        switch (dest.type) {
+          case Exprent.EXPRENT_VAR: {
+            final VarExprent destVar = (VarExprent) dest;
+
+            this.processExprent(node, assexpr.getRight(), varMaps, stat, calcLiveVars);
+            this.updateVarExprent(destVar, stat, varMaps.getNormal(), calcLiveVars);
+            if (this.trackDirectAssignments) {
+
+              switch (assexpr.getRight().type) {
+                case Exprent.EXPRENT_VAR: {
+                  VarVersionPair rightpaar = ((VarExprent) assexpr.getRight()).getVarVersionPair();
+                  this.varAssignmentMap.put(destVar.getVarVersionPair(), rightpaar);
+                  break;
+                }
+                case Exprent.EXPRENT_FIELD: {
+                  int index = this.mapFieldVars.get(assexpr.getRight().id);
+                  VarVersionPair rightpaar = new VarVersionPair(index, 0);
+                  this.varAssignmentMap.put(destVar.getVarVersionPair(), rightpaar);
+                  break;
                 }
               }
+            }
 
-              return;
+            return;
+          }
+          case Exprent.EXPRENT_FIELD: {
+            this.processExprent(node, assexpr.getLeft(), varMaps, stat, calcLiveVars);
+            varMaps.assertIsNormal(); // the left side of an assignment can't be a boolean expression
+            this.processExprent(node, assexpr.getRight(), varMaps, stat, calcLiveVars);
+            varMaps.toNormal();
+            if (this.trackFieldVars) {
+              varMaps.getNormal().removeAllFields();
+              // assignment to a field resets all fields.
             }
-            case Exprent.EXPRENT_FIELD: {
-              this.processExprent(node, assexpr.getLeft(), varmaps, stat, calcLiveVars);
-              varmaps.toNormal();
-              this.processExprent(node, assexpr.getRight(), varmaps, stat, calcLiveVars);
-              varmaps.toNormal();
-              if (this.trackFieldVars){
-                varmaps.getNormal().removeAllFields();
-              }
-              return;
-            }
-            default: {
-              this.processExprent(node, assexpr.getLeft(), varmaps, stat, calcLiveVars);
-              varmaps.toNormal();
-              this.processExprent(node, assexpr.getRight(), varmaps, stat, calcLiveVars);
-              varmaps.toNormal();
-              return;
-            }
+            return;
+          }
+          default: {
+            this.processExprent(node, assexpr.getLeft(), varMaps, stat, calcLiveVars);
+            varMaps.assertIsNormal(); // the left side of an assignment can't be a boolean expression
+            this.processExprent(node, assexpr.getRight(), varMaps, stat, calcLiveVars);
+            varMaps.toNormal();
+            return;
           }
         }
 
-        break;
       }
       case Exprent.EXPRENT_FUNCTION: {
         FunctionExprent func = (FunctionExprent) expr;
         switch (func.getFuncType()) {
           case FunctionExprent.FUNCTION_IIF: {
-            // a ? b : c
-            this.processExprent(node, func.getLstOperands().get(0), varmaps, stat, calcLiveVars);
+            // `a ? b : c`
+            // Java language spec: 16.1.5.
+            this.processExprent(node, func.getLstOperands().get(0), varMaps, stat, calcLiveVars);
 
-            VarMapHolder bVarMaps = VarMapHolder.ofNormal(varmaps.getIfTrue());
+            VarMapHolder bVarMaps = VarMapHolder.ofNormal(varMaps.getIfTrue());
             this.processExprent(node, func.getLstOperands().get(1), bVarMaps, stat, calcLiveVars);
 
-            VarMapHolder cVarMaps = VarMapHolder.ofNormal(varmaps.getIfFalse());
-            this.processExprent(node, func.getLstOperands().get(2), cVarMaps, stat, calcLiveVars);
+            // reuse the varMaps for the false branch.
+            varMaps.setNormal(varMaps.getIfFalse());
+            this.processExprent(node, func.getLstOperands().get(2), varMaps, stat, calcLiveVars);
 
-            if (bVarMaps.isNormal() && cVarMaps.isNormal()) {
-              varmaps.setNormal(mergeMaps(bVarMaps.getNormal(), cVarMaps.getNormal()));
+            if (bVarMaps.isNormal() && varMaps.isNormal()) {
+              varMaps.mergeNormal(bVarMaps.getNormal());
+            } else if (!varMaps.isNormal()){
+              // b and c are boolean expression and at least c had an assignment.
+              varMaps.mergeIfTrue(bVarMaps.getIfTrue());
+              varMaps.mergeIfFalse(bVarMaps.getIfFalse());
             } else {
-              bVarMaps.makeFullyMutable();
-              bVarMaps.mergeIfTrue(cVarMaps.getIfTrue());
-              bVarMaps.mergeIfFalse(cVarMaps.getIfFalse());
+              // b and c are boolean expression and at b had an assignment.
+              // avoid cloning the c varmap.
+              bVarMaps.mergeIfTrue(varMaps.getNormal());
+              bVarMaps.mergeIfFalse(varMaps.getNormal());
 
-              varmaps.set(bVarMaps);
+              varMaps.set(bVarMaps); // move over the maps.
             }
 
             return;
           }
           case FunctionExprent.FUNCTION_CADD: {
-            this.processExprent(node, func.getLstOperands().get(0), varmaps, stat, calcLiveVars);
+            // `a && b`
+            // Java language spec: 16.1.2.
+            this.processExprent(node, func.getLstOperands().get(0), varMaps, stat, calcLiveVars);
 
-            VarMapHolder rightHandSideVarMaps = VarMapHolder.ofNormal(varmaps.getIfTrue());
+            varMaps.makeFullyMutable();
+            SFormsFastMapDirect ifFalse = varMaps.getIfFalse();
+            varMaps.setNormal(varMaps.getIfTrue());
 
-            this.processExprent(node, func.getLstOperands().get(1), rightHandSideVarMaps, stat, calcLiveVars);
-
-            // true map
-            varmaps.setIfTrue(rightHandSideVarMaps.getIfTrue());
-            // false map
-            varmaps.mergeIfFalse(rightHandSideVarMaps.getIfFalse());
-
+            this.processExprent(node, func.getLstOperands().get(1), varMaps, stat, calcLiveVars);
+            varMaps.mergeIfFalse(ifFalse);
             return;
           }
           case FunctionExprent.FUNCTION_COR: {
-            this.processExprent(node, func.getLstOperands().get(0), varmaps, stat, calcLiveVars);
+            // `a || b`
+            // Java language spec: 16.1.3.
+            this.processExprent(node, func.getLstOperands().get(0), varMaps, stat, calcLiveVars);
 
-            VarMapHolder rightHandSideVarMaps = VarMapHolder.ofNormal(varmaps.getIfTrue());
+            varMaps.makeFullyMutable();
+            SFormsFastMapDirect ifTrue = varMaps.getIfTrue();
+            varMaps.setNormal(varMaps.getIfFalse());
 
-            this.processExprent(node, func.getLstOperands().get(1), rightHandSideVarMaps, stat, calcLiveVars);
-
-            // true map
-            varmaps.mergeIfTrue(rightHandSideVarMaps.getIfTrue());
-            // false map
-            varmaps.setIfFalse(rightHandSideVarMaps.getIfFalse());
-
+            this.processExprent(node, func.getLstOperands().get(1), varMaps, stat, calcLiveVars);
+            varMaps.mergeIfTrue(ifTrue);
             return;
           }
           case FunctionExprent.FUNCTION_BOOL_NOT: {
-            this.processExprent(node, func.getLstOperands().get(0), varmaps, stat, calcLiveVars);
-            varmaps.swap();
+            // `!a`
+            // Java language spec: 16.1.4.
+            this.processExprent(node, func.getLstOperands().get(0), varMaps, stat, calcLiveVars);
+            varMaps.swap();
 
             return;
           }
           case FunctionExprent.FUNCTION_INSTANCEOF: {
-            this.processExprent(node, func.getLstOperands().get(0), varmaps, stat, calcLiveVars);
-            varmaps.toNormal();
+            // `a instanceof B`
+            // pattern matching instanceof creates a new variable when true.
+            this.processExprent(node, func.getLstOperands().get(0), varMaps, stat, calcLiveVars);
+            varMaps.toNormal();
 
             if (func.getLstOperands().size() == 3) {
               // pattern matching
-              varmaps.makeFullyMutable();
+              // `a instanceof B b`
+              // pattern matching variables are explained in different parts of the spec,
+              // but it comes down to the same ideas.
+              varMaps.makeFullyMutable();
 
-              this.updateVarExprent(
-                (VarExprent) func.getLstOperands().get(2),
-                stat,
-                varmaps.getIfTrue(),
-                calcLiveVars);
+              VarExprent var = (VarExprent) func.getLstOperands().get(2);
+
+              this.updateVarExprent(var, stat, varMaps.getIfTrue(), calcLiveVars);
             }
 
             return;
@@ -346,8 +364,10 @@ class SSAProcessor {
           case FunctionExprent.FUNCTION_IPP:
           case FunctionExprent.FUNCTION_PPI: {
             // process the var/field/array access
-            this.processExprent(node, func.getLstOperands().get(0), varmaps, stat, calcLiveVars);
-            SFormsFastMapDirect varmap = varmaps.toNormal(); // should be normal already I think
+            // Note that ++ and -- are both reads and writes.
+            this.processExprent(node, func.getLstOperands().get(0), varMaps, stat, calcLiveVars);
+            // Can't have ++ or -- on a boolean expression.
+            SFormsFastMapDirect varmap = varMaps.getNormal();
 
             switch (func.getLstOperands().get(0).type) {
               case Exprent.EXPRENT_VAR: {
@@ -358,40 +378,44 @@ class SSAProcessor {
 
                 VarExprent var = (VarExprent) func.getLstOperands().get(0);
 
-                int varindex = var.getIndex();
-                VarVersionPair varpaar = new VarVersionPair(varindex, var.getVersion());
+                int varIndex = var.getIndex();
+                VarVersionPair varVersion = new VarVersionPair(varIndex, var.getVersion());
 
-                // ssu graph
-                VarVersionPair phantomver = this.phantomppnodes.get(varpaar);
-                if (phantomver == null) {
+                // ssu graph, make sure this is still considered an assignment.
+                // a phi node is made between the two versions, to make sure that
+                // no code tries to rename the read variable without willing to
+                // rename the written to variable.
+                VarVersionPair phantomVersion = this.phantomppnodes.get(varVersion);
+                if (phantomVersion == null) {
                   // get next version
-                  int nextver = this.getNextFreeVersion(varindex, null);
-                  phantomver = new VarVersionPair(varindex, nextver);
-                  //ssuversions.createOrGetNode(phantomver);
-                  this.ssuversions.createNode(phantomver);
+                  int nextver = this.getNextFreeVersion(varIndex, null);
+                  phantomVersion = new VarVersionPair(varIndex, nextver);
+                  //ssuversions.createOrGetNode(phantomVersion);
+                  this.ssuversions.createNode(phantomVersion);
 
-                  VarVersionNode vernode = this.ssuversions.nodes.getWithKey(varpaar);
+                  VarVersionNode verNode = this.ssuversions.nodes.getWithKey(varVersion);
 
-                  FastSparseSetFactory.FastSparseSet<Integer> vers = this.factory.spawnEmptySet();
-                  if (vernode.preds.size() == 1) {
-                    vers.add(vernode.preds.iterator().next().source.version);
+                  FastSparseSetFactory.FastSparseSet<Integer> versions = this.factory.spawnEmptySet();
+                  if (verNode.preds.size() == 1) {
+                    versions.add(verNode.preds.iterator().next().source.version);
                   } else {
-                    for (VarVersionEdge edge : vernode.preds) {
-                      vers.add(edge.source.preds.iterator().next().source.version);
+                    for (VarVersionEdge edge : verNode.preds) {
+                      versions.add(edge.source.preds.iterator().next().source.version);
                     }
                   }
-                  vers.add(nextver);
-                  this.createOrUpdatePhiNode(varpaar, vers, stat);
-                  this.phantomppnodes.put(varpaar, phantomver);
+                  versions.add(nextver);
+                  this.createOrUpdatePhiNode(varVersion, versions, stat);
+                  this.phantomppnodes.put(varVersion, phantomVersion);
                 }
                 if (calcLiveVars) {
-                  this.varMapToGraph(varpaar, varmap);
+                  this.varMapToGraph(varVersion, varmap);
                 }
-                this.setCurrentVar(varmap, varindex, var.getVersion());
+                this.setCurrentVar(varmap, varIndex, var.getVersion());
                 return;
               }
               case Exprent.EXPRENT_FIELD: {
                 if (this.trackFieldVars) {
+                  // assignment to a field resets all fields.
                   varmap.removeAllFields();
                 }
                 return;
@@ -404,9 +428,10 @@ class SSAProcessor {
         break;
       }
       case Exprent.EXPRENT_FIELD: {
+        // a read of a field variable.
         if (this.trackFieldVars) {
           FieldExprent field = (FieldExprent) expr;
-          this.processExprent(node, field.getInstance(), varmaps, stat, calcLiveVars);
+          this.processExprent(node, field.getInstance(), varMaps, stat, calcLiveVars);
 
           int index;
           if (this.mapFieldVars.containsKey(expr.id)) {
@@ -421,13 +446,14 @@ class SSAProcessor {
             }
           }
 
-          this.setCurrentVar(varmaps.getNormal(), index, 1);
+          this.setCurrentVar(varMaps.getNormal(), index, 1);
         }
         return;
       }
       case Exprent.EXPRENT_VAR: {
+        // a read of a variable.
         VarExprent vardest = (VarExprent) expr;
-        final SFormsFastMapDirect varmap = varmaps.getNormal();
+        final SFormsFastMapDirect varmap = varMaps.getNormal();
 
         int varindex = vardest.getIndex();
         int current_vers = vardest.getVersion();
@@ -516,23 +542,22 @@ class SSAProcessor {
             }
             break;
         }
-        return;
       }
     }
 
     // Foreach init node- mark as assignment!
     if (node.type == DirectNode.NodeType.FOREACH_VARDEF && node.exprents.get(0).type == Exprent.EXPRENT_VAR) {
-      this.updateVarExprent((VarExprent) node.exprents.get(0), stat, varmaps.getNormal(), calcLiveVars);
+      this.updateVarExprent((VarExprent) node.exprents.get(0), stat, varMaps.getNormal(), calcLiveVars);
       return;
     }
 
     for (Exprent ex : expr.getAllExprents()) {
-      this.processExprent(node, ex, varmaps, stat, calcLiveVars);
-      varmaps.toNormal();
+      this.processExprent(node, ex, varMaps, stat, calcLiveVars);
+      varMaps.toNormal();
     }
 
     if (this.trackFieldVars && makesFieldsDirty(expr)) {
-      varmaps.getNormal().removeAllFields();
+      varMaps.getNormal().removeAllFields();
     }
   }
 
