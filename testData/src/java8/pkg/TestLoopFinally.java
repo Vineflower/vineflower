@@ -169,4 +169,21 @@ public class TestLoopFinally {
     System.out.println("hi");
 
   }
+
+  public void loopInFinally() {
+    boolean var1 = true;
+
+    try {
+      try {
+        System.out.println(var1);
+      } finally {
+        return;
+      }
+    } finally {
+      short var18 = (short) 15080;
+      while (var18 > (short) -14704) {
+        int var9 = 0;
+      }
+    }
+  }
 }

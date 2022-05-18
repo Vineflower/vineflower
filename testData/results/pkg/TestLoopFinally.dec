@@ -167,6 +167,46 @@ public class TestLoopFinally {
          }
       }
    }// 153
+
+   public void loopInFinally() {
+      // $FF: Couldn't be decompiled
+      // Bytecode:
+      // 00: bipush 1
+      // 01: istore 1
+      // 02: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 05: iload 1
+      // 06: invokevirtual java/io/PrintStream.println (Z)V
+      // 09: sipush 15080
+      // 0c: istore 2
+      // 0d: iload 2
+      // 0e: sipush -14704
+      // 11: if_icmple 19
+      // 14: bipush 0
+      // 15: istore 3
+      // 16: goto 0d
+      // 19: return
+      // 1a: astore 4
+      // 1c: sipush 15080
+      // 1f: istore 5
+      // 21: iload 5
+      // 23: sipush -14704
+      // 26: if_icmple 2f
+      // 29: bipush 0
+      // 2a: istore 6
+      // 2c: goto 21
+      // 2f: return
+      // 30: astore 7
+      // 32: sipush 15080
+      // 35: istore 8
+      // 37: iload 8
+      // 39: sipush -14704
+      // 3c: if_icmple 45
+      // 3f: bipush 0
+      // 40: istore 9
+      // 42: goto 37
+      // 45: aload 7
+      // 47: athrow
+   }
 }
 
 class 'pkg/TestLoopFinally' {
