@@ -54,8 +54,8 @@ public class IfExprent extends Exprent {
     FunctionExprent.FUNCTION_LE,
     FunctionExprent.FUNCTION_EQ,
     FunctionExprent.FUNCTION_NE,
-    FunctionExprent.FUNCTION_CADD,
-    FunctionExprent.FUNCTION_COR,
+    FunctionExprent.FUNCTION_BOOLEAN_AND,
+    FunctionExprent.FUNCTION_BOOLEAN_OR,
     FunctionExprent.FUNCTION_BOOL_NOT,
     -1
   };

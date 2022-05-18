@@ -688,12 +688,12 @@ public class SimplifyExprentsHelper {
         }
 
         // Don't consider || or &&
-        if (func.getFuncType() == FunctionExprent.FUNCTION_COR || func.getFuncType() == FunctionExprent.FUNCTION_CADD) {
+        if (func.getFuncType() == FunctionExprent.FUNCTION_BOOLEAN_OR || func.getFuncType() == FunctionExprent.FUNCTION_BOOLEAN_AND) {
           return null;
         }
 
         // Don't consider ternaries
-        if (func.getFuncType() == FunctionExprent.FUNCTION_IIF) {
+        if (func.getFuncType() == FunctionExprent.FUNCTION_TERNARY) {
           return null;
         }
 
@@ -1076,7 +1076,7 @@ public class SimplifyExprentsHelper {
                   List<Exprent> data = new ArrayList<>(statement.getFirst().getExprents());
 
                   List<Exprent> operands = Arrays.asList(statement.getHeadexprent().getCondition(), ifAssign.getRight(), elseAssign.getRight());
-                  data.add(new AssignmentExprent(ifVar, new FunctionExprent(FunctionExprent.FUNCTION_IIF, operands, ifHeadExprBytecode), ifHeadExprBytecode));
+                  data.add(new AssignmentExprent(ifVar, new FunctionExprent(FunctionExprent.FUNCTION_TERNARY, operands, ifHeadExprBytecode), ifHeadExprBytecode));
                   statement.setExprents(data);
 
                   if (statement.getAllSuccessorEdges().isEmpty()) {
@@ -1115,7 +1115,7 @@ public class SimplifyExprentsHelper {
 
               List<Exprent> data = new ArrayList<>(statement.getFirst().getExprents());
 
-              data.add(new ExitExprent(ifExit.getExitType(), new FunctionExprent(FunctionExprent.FUNCTION_IIF,
+              data.add(new ExitExprent(ifExit.getExitType(), new FunctionExprent(FunctionExprent.FUNCTION_TERNARY,
                 Arrays.asList(
                   statement.getHeadexprent().getCondition(),
                   ifExit.getValue(),
@@ -1139,7 +1139,7 @@ public class SimplifyExprentsHelper {
   }
 
   private static boolean isIff(Exprent exp) {
-    return exp.type == Exprent.EXPRENT_FUNCTION && ((FunctionExprent) exp).getFuncType() == FunctionExprent.FUNCTION_IIF;
+    return exp.type == Exprent.EXPRENT_FUNCTION && ((FunctionExprent) exp).getFuncType() == FunctionExprent.FUNCTION_TERNARY;
   }
 
   private static boolean collapseInlinedClass14(Statement stat) {

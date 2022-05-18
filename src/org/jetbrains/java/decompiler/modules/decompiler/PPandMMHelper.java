@@ -272,7 +272,7 @@ public class PPandMMHelper {
                   } else if (ex.type == Exprent.EXPRENT_FUNCTION) {
                     FunctionExprent funcEx = (FunctionExprent)ex;
 
-                    if (funcEx.getFuncType() == FunctionExprent.FUNCTION_CADD || funcEx.getFuncType() == FunctionExprent.FUNCTION_COR) {
+                    if (funcEx.getFuncType() == FunctionExprent.FUNCTION_BOOLEAN_AND || funcEx.getFuncType() == FunctionExprent.FUNCTION_BOOLEAN_OR) {
                       // Cannot yet handle these as we aren't able to decompose a condition into parts that are always run (not short-circuited) and parts that are
                       // FIXME: handle this case
                       return false;

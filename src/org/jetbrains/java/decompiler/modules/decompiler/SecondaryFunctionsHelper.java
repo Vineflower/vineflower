@@ -26,8 +26,8 @@ public final class SecondaryFunctionsHelper {
     FunctionExprent.FUNCTION_LT,
     FunctionExprent.FUNCTION_LE,
     FunctionExprent.FUNCTION_GT,
-    FunctionExprent.FUNCTION_COR,
-    FunctionExprent.FUNCTION_CADD
+    FunctionExprent.FUNCTION_BOOLEAN_OR,
+    FunctionExprent.FUNCTION_BOOLEAN_AND
   };
 
   private static final HashMap<Integer, Integer[]> mapNumComparisons = new HashMap<>();
@@ -307,7 +307,7 @@ public final class SecondaryFunctionsHelper {
               }
             }
             break;
-          case FunctionExprent.FUNCTION_IIF:
+          case FunctionExprent.FUNCTION_TERNARY:
             Exprent expr0 = lstOperands.get(0);
             Exprent expr1 = lstOperands.get(1);
             Exprent expr2 = lstOperands.get(2);
@@ -333,11 +333,11 @@ public final class SecondaryFunctionsHelper {
 
                 if (val) {
                   // bl ? true : bl2 <-> bl || bl2
-                  return new FunctionExprent(FunctionExprent.FUNCTION_COR, Arrays.asList(lstOperands.get(0), lstOperands.get(2)), fexpr.bytecode);
+                  return new FunctionExprent(FunctionExprent.FUNCTION_BOOLEAN_OR, Arrays.asList(lstOperands.get(0), lstOperands.get(2)), fexpr.bytecode);
                 } else {
                   // bl ? false : bl2 <-> !bl && bl2
                   FunctionExprent fnot = new FunctionExprent(FunctionExprent.FUNCTION_BOOL_NOT, lstOperands.get(0), fexpr.bytecode);
-                  return new FunctionExprent(FunctionExprent.FUNCTION_CADD, Arrays.asList(fnot, lstOperands.get(2)), fexpr.bytecode);
+                  return new FunctionExprent(FunctionExprent.FUNCTION_BOOLEAN_AND, Arrays.asList(fnot, lstOperands.get(2)), fexpr.bytecode);
                 }
               } else if (expr2.type == Exprent.EXPRENT_CONST && expr2.getExprType().type == CodeConstants.TYPE_BOOLEAN) {
                 ConstExprent cexpr2 = (ConstExprent) expr2;
@@ -346,17 +346,17 @@ public final class SecondaryFunctionsHelper {
                 if (val) {
                   // bl ? bl2 : true <-> !bl || bl2
                   FunctionExprent fnot = new FunctionExprent(FunctionExprent.FUNCTION_BOOL_NOT, lstOperands.get(0), fexpr.bytecode);
-                  return new FunctionExprent(FunctionExprent.FUNCTION_COR, Arrays.asList(fnot, lstOperands.get(1)), fexpr.bytecode);
+                  return new FunctionExprent(FunctionExprent.FUNCTION_BOOLEAN_OR, Arrays.asList(fnot, lstOperands.get(1)), fexpr.bytecode);
                 } else {
                   // bl ? bl2 : false <-> bl && bl2
-                  return new FunctionExprent(FunctionExprent.FUNCTION_CADD, Arrays.asList(lstOperands.get(0), lstOperands.get(1)), fexpr.bytecode);
+                  return new FunctionExprent(FunctionExprent.FUNCTION_BOOLEAN_AND, Arrays.asList(lstOperands.get(0), lstOperands.get(1)), fexpr.bytecode);
                 }
               } else if (expr1.getExprType().type == CodeConstants.TYPE_BOOLEAN && expr1.equals(expr0)) {
                 // bl ? bl : bl2 <-> bl || bl2
-                return new FunctionExprent(FunctionExprent.FUNCTION_COR, Arrays.asList(lstOperands.get(0), lstOperands.get(2)), fexpr.bytecode);
+                return new FunctionExprent(FunctionExprent.FUNCTION_BOOLEAN_OR, Arrays.asList(lstOperands.get(0), lstOperands.get(2)), fexpr.bytecode);
               } else if (expr2.getExprType().type == CodeConstants.TYPE_BOOLEAN && expr2.equals(expr0)) {
                 // bl ? bl2 : bl <-> bl && bl2
-                return new FunctionExprent(FunctionExprent.FUNCTION_CADD, Arrays.asList(lstOperands.get(0), lstOperands.get(1)), fexpr.bytecode);
+                return new FunctionExprent(FunctionExprent.FUNCTION_BOOLEAN_AND, Arrays.asList(lstOperands.get(0), lstOperands.get(1)), fexpr.bytecode);
               }
             }
             break;
@@ -368,7 +368,7 @@ public final class SecondaryFunctionsHelper {
             int var = DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.VAR_COUNTER);
             VarType type = lstOperands.get(0).getExprType();
 
-            FunctionExprent iff = new FunctionExprent(FunctionExprent.FUNCTION_IIF, Arrays.asList(
+            FunctionExprent iff = new FunctionExprent(FunctionExprent.FUNCTION_TERNARY, Arrays.asList(
               new FunctionExprent(FunctionExprent.FUNCTION_LT, Arrays.asList(new VarExprent(var, type, varProc),
                 ConstExprent.getZeroConstant(type.type)), null),
               new ConstExprent(VarType.VARTYPE_INT, -1, null),
@@ -382,7 +382,7 @@ public final class SecondaryFunctionsHelper {
 
             varProc.setVarType(new VarVersionPair(var, 0), type);
 
-            return new FunctionExprent(FunctionExprent.FUNCTION_IIF, Arrays.asList(
+            return new FunctionExprent(FunctionExprent.FUNCTION_TERNARY, Arrays.asList(
               head, new ConstExprent(VarType.VARTYPE_INT, 0, null), iff), fexpr.bytecode);
         }
         break;
@@ -473,7 +473,7 @@ public final class SecondaryFunctionsHelper {
               Exprent newexpr = fparam.getLstOperands().get(0);
               Exprent retexpr = propagateBoolNot(newexpr);
               return retexpr == null ? newexpr : retexpr;
-            case FunctionExprent.FUNCTION_IIF:
+            case FunctionExprent.FUNCTION_TERNARY:
               // Wrap branches
               FunctionExprent fex1 = new FunctionExprent(FunctionExprent.FUNCTION_BOOL_NOT, fparam.getLstOperands().get(1), null);
               FunctionExprent fex2 = new FunctionExprent(FunctionExprent.FUNCTION_BOOL_NOT, fparam.getLstOperands().get(2), null);
@@ -487,8 +487,8 @@ public final class SecondaryFunctionsHelper {
               fparam.getLstOperands().set(2, ex2 == null ? fex2 : ex2);
 
               return fparam;
-            case FunctionExprent.FUNCTION_CADD:
-            case FunctionExprent.FUNCTION_COR:
+            case FunctionExprent.FUNCTION_BOOLEAN_AND:
+            case FunctionExprent.FUNCTION_BOOLEAN_OR:
               List<Exprent> operands = fparam.getLstOperands();
               for (int i = 0; i < operands.size(); i++) {
                 Exprent newparam = new FunctionExprent(FunctionExprent.FUNCTION_BOOL_NOT, operands.get(i), operands.get(i).bytecode);

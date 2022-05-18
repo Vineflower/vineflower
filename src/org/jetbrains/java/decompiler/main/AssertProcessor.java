@@ -277,9 +277,9 @@ public final class AssertProcessor {
   private static Object[] getAssertionExprent(Statement stat, Exprent exprent, String classname, String key, boolean throwInIf) {
 
     if (exprent.type == Exprent.EXPRENT_FUNCTION) {
-      int desiredOperation = FunctionExprent.FUNCTION_CADD;
+      int desiredOperation = FunctionExprent.FUNCTION_BOOLEAN_AND;
       if (!throwInIf) {
-        desiredOperation = FunctionExprent.FUNCTION_COR;
+        desiredOperation = FunctionExprent.FUNCTION_BOOLEAN_OR;
       }
 
       FunctionExprent fexpr = (FunctionExprent)exprent;

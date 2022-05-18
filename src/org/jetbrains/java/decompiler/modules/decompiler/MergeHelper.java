@@ -17,8 +17,6 @@ import org.jetbrains.java.decompiler.modules.decompiler.sforms.FlattenStatements
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
-import org.jetbrains.java.decompiler.util.DotExporter;
-import org.jetbrains.java.decompiler.util.VBStyleCollection;
 
 import java.util.*;
 
@@ -309,7 +307,7 @@ public final class MergeHelper {
       check = ((FunctionExprent)check).getLstOperands().get(0);
     }
 
-    return check.type == Exprent.EXPRENT_FUNCTION && ((FunctionExprent)check).getFuncType() == FunctionExprent.FUNCTION_IIF;
+    return check.type == Exprent.EXPRENT_FUNCTION && ((FunctionExprent)check).getFuncType() == FunctionExprent.FUNCTION_TERNARY;
   }
 
   // Returns if the statement provided and the end statement provided has a direct control flow path

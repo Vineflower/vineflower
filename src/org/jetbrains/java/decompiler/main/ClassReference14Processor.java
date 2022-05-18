@@ -189,7 +189,7 @@ public final class ClassReference14Processor {
   private static String isClass14Invocation(Exprent exprent, ClassWrapper wrapper, MethodWrapper meth) {
     if (exprent.type == Exprent.EXPRENT_FUNCTION) {
       FunctionExprent fexpr = (FunctionExprent)exprent;
-      if (fexpr.getFuncType() == FunctionExprent.FUNCTION_IIF) {
+      if (fexpr.getFuncType() == FunctionExprent.FUNCTION_TERNARY) {
         if (fexpr.getLstOperands().get(0).type == Exprent.EXPRENT_FUNCTION) {
           FunctionExprent headexpr = (FunctionExprent)fexpr.getLstOperands().get(0);
           if (headexpr.getFuncType() == FunctionExprent.FUNCTION_EQ) {

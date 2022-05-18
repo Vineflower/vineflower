@@ -215,6 +215,12 @@ class SFormsConstructor {
     // The var map data can't depend yet on the result of this expression.
     varMaps.assertIsNormal();
 
+    // Foreach init node- mark as assignment!
+    if (node.type == DirectNode.NodeType.FOREACH_VARDEF && node.exprents.get(0).type == Exprent.EXPRENT_VAR) {
+      this.updateVarExprent((VarExprent) node.exprents.get(0), stat, varMaps.getNormal(), calcLiveVars);
+      return;
+    }
+
     switch (expr.type) {
       case Exprent.EXPRENT_IF: {
         // EXPRENT_IF is a wrapper for the head exprent of an if statement.
@@ -282,7 +288,7 @@ class SFormsConstructor {
       case Exprent.EXPRENT_FUNCTION: {
         FunctionExprent func = (FunctionExprent) expr;
         switch (func.getFuncType()) {
-          case FunctionExprent.FUNCTION_IIF: {
+          case FunctionExprent.FUNCTION_TERNARY: {
             // `a ? b : c`
             // Java language spec: 16.1.5.
             this.processExprent(node, func.getLstOperands().get(0), varMaps, stat, calcLiveVars);
@@ -311,7 +317,7 @@ class SFormsConstructor {
 
             return;
           }
-          case FunctionExprent.FUNCTION_CADD: {
+          case FunctionExprent.FUNCTION_BOOLEAN_AND: {
             // `a && b`
             // Java language spec: 16.1.2.
             this.processExprent(node, func.getLstOperands().get(0), varMaps, stat, calcLiveVars);
@@ -324,7 +330,7 @@ class SFormsConstructor {
             varMaps.mergeIfFalse(ifFalse);
             return;
           }
-          case FunctionExprent.FUNCTION_COR: {
+          case FunctionExprent.FUNCTION_BOOLEAN_OR: {
             // `a || b`
             // Java language spec: 16.1.3.
             this.processExprent(node, func.getLstOperands().get(0), varMaps, stat, calcLiveVars);
@@ -545,12 +551,6 @@ class SFormsConstructor {
             break;
         }
       }
-    }
-
-    // Foreach init node- mark as assignment!
-    if (node.type == DirectNode.NodeType.FOREACH_VARDEF && node.exprents.get(0).type == Exprent.EXPRENT_VAR) {
-      this.updateVarExprent((VarExprent) node.exprents.get(0), stat, varMaps.getNormal(), calcLiveVars);
-      return;
     }
 
     for (Exprent ex : expr.getAllExprents()) {

@@ -10,7 +10,6 @@ import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
-import org.jetbrains.java.decompiler.util.DotExporter;
 
 import java.util.*;
 
@@ -217,7 +216,7 @@ public class VarTypeProcessor {
   private boolean changeFunctionExprentType(VarType newType, int minMax, FunctionExprent func) {
     int offset = 0;
     switch (func.getFuncType()) {
-      case FunctionExprent.FUNCTION_IIF:   // FIXME:
+      case FunctionExprent.FUNCTION_TERNARY:   // FIXME:
         offset++;
       case FunctionExprent.FUNCTION_AND:
       case FunctionExprent.FUNCTION_OR:

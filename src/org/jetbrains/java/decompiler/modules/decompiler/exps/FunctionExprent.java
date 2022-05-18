@@ -66,8 +66,7 @@ public class FunctionExprent extends Exprent {
   public final static int FUNCTION_IPP = 34;
   public final static int FUNCTION_PPI = 35;
 
-  // Ternaries (inline if)
-  public final static int FUNCTION_IIF = 36;
+  public final static int FUNCTION_TERNARY = 36;
 
   public final static int FUNCTION_LCMP = 37;
   public final static int FUNCTION_FCMPL = 38;
@@ -82,9 +81,8 @@ public class FunctionExprent extends Exprent {
   public static final int FUNCTION_GT = 46;
   public static final int FUNCTION_LE = 47;
 
-  // Boolean && and ||, TODO rename
-  public static final int FUNCTION_CADD = 48;
-  public static final int FUNCTION_COR = 49;
+  public static final int FUNCTION_BOOLEAN_AND = 48;
+  public static final int FUNCTION_BOOLEAN_OR = 49;
 
   public static final int FUNCTION_STR_CONCAT = 50;
 
@@ -178,13 +176,13 @@ public class FunctionExprent extends Exprent {
     5,   // FUNCTION_GE = 44;
     5,   // FUNCTION_GT = 45;
     5,   // FUNCTION_LE = 46;
-    10,  // FUNCTION_CADD = 47;
-    11,  // FUNCTION_COR = 48;
+    10,  // FUNCTION_BOOLEAN_AND = 47;
+    11,  // FUNCTION_BOOLEAN_OR = 48;
     3    // FUNCTION_STR_CONCAT = 49;
   };
 
   private static final Set<Integer> ASSOCIATIVITY = new HashSet<>(Arrays.asList(
-    FUNCTION_ADD, FUNCTION_MUL, FUNCTION_AND, FUNCTION_OR, FUNCTION_XOR, FUNCTION_CADD, FUNCTION_COR, FUNCTION_STR_CONCAT));
+    FUNCTION_ADD, FUNCTION_MUL, FUNCTION_AND, FUNCTION_OR, FUNCTION_XOR, FUNCTION_BOOLEAN_AND, FUNCTION_BOOLEAN_OR, FUNCTION_STR_CONCAT));
 
   private int funcType;
   private VarType implicitType;
@@ -198,7 +196,7 @@ public class FunctionExprent extends Exprent {
     if (funcType >= FUNCTION_BIT_NOT && funcType <= FUNCTION_PPI && funcType != FUNCTION_CAST && funcType != FUNCTION_INSTANCEOF) {
       lstOperands.add(stack.pop());
     }
-    else if (funcType == FUNCTION_IIF) {
+    else if (funcType == FUNCTION_TERNARY) {
       throw new RuntimeException("no direct instantiation possible");
     }
     else {
@@ -270,7 +268,7 @@ public class FunctionExprent extends Exprent {
     else if (funcType == FUNCTION_CAST) {
       exprType = lstOperands.get(1).getExprType();
     }
-    else if (funcType == FUNCTION_IIF) {
+    else if (funcType == FUNCTION_TERNARY) {
       Exprent param1 = lstOperands.get(1);
       Exprent param2 = lstOperands.get(2);
       VarType supertype = VarType.getCommonSupertype(param1.getExprType(), param2.getExprType());
@@ -343,7 +341,7 @@ public class FunctionExprent extends Exprent {
       } else { //TODO: Capture generics to make cast better?
         this.needsCast = right.type == CodeConstants.TYPE_NULL || !DecompilerContext.getStructContext().instanceOf(right.value, cast.value);
       }
-    } else if (funcType == FUNCTION_IIF) {
+    } else if (funcType == FUNCTION_TERNARY) {
       // TODO return common generic type?
       VarType type1 = lstOperands.get(1).getInferredExprType(upperBound);
       VarType type2 = lstOperands.get(2).getInferredExprType(upperBound);
@@ -413,7 +411,7 @@ public class FunctionExprent extends Exprent {
     }
 
     switch (funcType) {
-      case FUNCTION_IIF:
+      case FUNCTION_TERNARY:
         VarType supertype = getExprType();
         result.addMinTypeExprent(param1, VarType.VARTYPE_BOOLEAN);
         result.addMinTypeExprent(param2, VarType.getMinTypeInFamily(supertype.typeFamily));
@@ -628,7 +626,7 @@ public class FunctionExprent extends Exprent {
           buf.enclose("((" + ExprProcessor.getCastTypeName(objArr) + ")", ")");
         }
         return buf.append(".length");
-      case FUNCTION_IIF:
+      case FUNCTION_TERNARY:
         buf.pushNewlineGroup(indent, 1);
         buf.append(wrapOperandString(lstOperands.get(0), true, indent))
           .appendPossibleNewline(" ").append("? ")

@@ -186,7 +186,7 @@ public final class IfHelper {
             lstOperands.add(statexpr.getCondition());
             lstOperands.add(ifchild.getHeadexprent().getCondition());
 
-            statexpr.setCondition(new FunctionExprent(FunctionExprent.FUNCTION_CADD, lstOperands, null));
+            statexpr.setCondition(new FunctionExprent(FunctionExprent.FUNCTION_BOOLEAN_AND, lstOperands, null));
             statexpr.addBytecodeOffsets(ifchild.getHeadexprent().bytecode);
 
             return true;
@@ -246,7 +246,7 @@ public final class IfHelper {
             List<Exprent> lstOperands = new ArrayList<>();
             lstOperands.add(statexpr.getCondition());
             lstOperands.add(new FunctionExprent(FunctionExprent.FUNCTION_BOOL_NOT, ifchild.getHeadexprent().getCondition(), null));
-            statexpr.setCondition(new FunctionExprent(FunctionExprent.FUNCTION_CADD, lstOperands, null));
+            statexpr.setCondition(new FunctionExprent(FunctionExprent.FUNCTION_BOOLEAN_AND, lstOperands, null));
             statexpr.addBytecodeOffsets(ifchild.getHeadexprent().bytecode);
 
             return true;
@@ -334,7 +334,7 @@ public final class IfHelper {
             lstOperands.add(statexpr.getCondition());
 
             statexpr
-              .setCondition(new FunctionExprent(path == 1 ? FunctionExprent.FUNCTION_COR : FunctionExprent.FUNCTION_CADD, lstOperands, null));
+              .setCondition(new FunctionExprent(path == 1 ? FunctionExprent.FUNCTION_BOOLEAN_OR : FunctionExprent.FUNCTION_BOOLEAN_AND, lstOperands, null));
 
             if (secondif.getFirst().getExprents().isEmpty() && // second is guranteed to be empty already
                 !firstif.getFirst().getExprents().isEmpty()) {
@@ -498,7 +498,7 @@ public final class IfHelper {
 
         lstOperands.add(secondIf.getHeadexprent().getCondition());
 
-        statexpr.setCondition(new FunctionExprent(FunctionExprent.FUNCTION_IIF, lstOperands, null));
+        statexpr.setCondition(new FunctionExprent(FunctionExprent.FUNCTION_TERNARY, lstOperands, null));
 
         return true;
       }

@@ -191,7 +191,7 @@ public final class ValidationHelper {
   }
 
   public static void validateTrycatchStatement(CatchStatement catchStat) {
-    if (catchStat.getStats().size() == 1) {
+    if (catchStat.getStats().size() == 1 && catchStat.getTryType() == CatchStatement.NORMAL) {
       throw new IllegalStateException("Try statement with single statement: " + catchStat);
     }
   }
