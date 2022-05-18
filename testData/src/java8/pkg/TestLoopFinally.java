@@ -144,4 +144,29 @@ public class TestLoopFinally {
       System.out.println("hi");
     }
   }
+
+  public void testConditionalBreakInFinally() {
+    int a = 5;
+
+    while (true) {
+      if (a == 886) {
+        return;
+      }
+
+      try {
+        a += -885;
+      } catch (Exception var17) {
+        System.out.println("hello");
+      } finally {
+        if (a >= -228) {
+          break;
+        }
+      }
+
+      a += 616;
+    }
+
+    System.out.println("hi");
+
+  }
 }
