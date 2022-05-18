@@ -7,6 +7,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectNode;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.FlattenStatementsHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionNode;
+import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionsGraph;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.DotExporter;
@@ -420,7 +421,8 @@ public final class ValidationHelper {
     }
   }
 
-  public static void validateVarVersionsGraph(VarVersionsGraph graph) {
+  public static void validateVarVersionsGraph(
+    VarVersionsGraph graph, RootStatement statement, HashMap<VarVersionPair, VarVersionPair> varAssignmentMap) {
     if (!VALIDATE) {
       return;
     }
@@ -436,6 +438,7 @@ public final class ValidationHelper {
     Set<VarVersionNode> reached = graph.rootReachability(roots);
 
     if (graph.nodes.size() != reached.size()) {
+      DotExporter.errorToDotFile(graph, statement.mt, "erroring_varVersionGraph", varAssignmentMap);
       throw new IllegalStateException("Highly cyclic varversions graph!");
     }
   }

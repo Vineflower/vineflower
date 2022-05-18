@@ -77,10 +77,6 @@ public class VarVersionsGraph {
       }
     }
 
-    // Validation testing
-
-    ValidationHelper.validateVarVersionsGraph(this);
-
     // TODO: optimization!! This is called multiple times for each method and the allocations will add up!
     Set<VarVersionNode> reached = rootReachability(roots);
     // If the nodes we reach don't include every node we have, then we need to process further to decompose the cycles

@@ -156,6 +156,11 @@ class SFormsConstructor {
 
       this.ssuversions.initDominators();
     }
+
+    if (this.trackSsuVersions && this.trackDirectAssignments){
+      // Validation testing
+      ValidationHelper.validateVarVersionsGraph(this.ssuversions, root, this.varAssignmentMap);
+    }
   }
 
   private void ssaStatements(DirectGraph dgraph, HashSet<String> updated, boolean calcLiveVars, StructMethod mt, int iteration) {
@@ -170,7 +175,11 @@ class SFormsConstructor {
       SFormsFastMapDirect varmap = this.inVarVersions.get(node.id);
       VarMapHolder varmaps = VarMapHolder.ofNormal(varmap);
 
-      if (node.exprents != null) {
+
+      // Foreach init node- mark as assignment!
+      if (node.type == DirectNode.NodeType.FOREACH_VARDEF && node.exprents.get(0).type == Exprent.EXPRENT_VAR) {
+        this.updateVarExprent((VarExprent) node.exprents.get(0), node.statement, varmaps.getNormal(), calcLiveVars);
+      } else if (node.exprents != null) {
         for (Exprent expr : node.exprents) {
           varmaps.toNormal(); // make sure we are in normal form
           this.processExprent(node, expr, varmaps, node.statement, calcLiveVars);
@@ -214,12 +223,6 @@ class SFormsConstructor {
 
     // The var map data can't depend yet on the result of this expression.
     varMaps.assertIsNormal();
-
-    // Foreach init node- mark as assignment!
-    if (node.type == DirectNode.NodeType.FOREACH_VARDEF && node.exprents.get(0).type == Exprent.EXPRENT_VAR) {
-      this.updateVarExprent((VarExprent) node.exprents.get(0), stat, varMaps.getNormal(), calcLiveVars);
-      return;
-    }
 
     switch (expr.type) {
       case Exprent.EXPRENT_IF: {

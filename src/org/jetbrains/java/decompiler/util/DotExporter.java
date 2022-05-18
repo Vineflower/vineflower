@@ -719,6 +719,18 @@ public class DotExporter {
     }
   }
 
+  public static void errorToDotFile(VarVersionsGraph graph, StructMethod mt, String suffix, HashMap<VarVersionPair, VarVersionPair> varAssignmentMap) {
+    if (!DUMP_ERROR_DOTS)
+      return;
+    try{
+      BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(DOTS_ERROR_FOLDER, mt, suffix)));
+      out.write(varsToDot(graph, varAssignmentMap).getBytes());
+      out.close();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
   public static void toDotFile(DecompileRecord decompileRecord, StructMethod mt, String suffix, boolean error) {
     if (error) {
       if (!DUMP_ERROR_DOTS) {
