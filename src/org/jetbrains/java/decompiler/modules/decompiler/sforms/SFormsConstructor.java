@@ -15,7 +15,7 @@ import java.util.*;
 
 import static org.jetbrains.java.decompiler.modules.decompiler.sforms.VarMapHolder.mergeMaps;
 
-class SSAConstructor {
+class SFormsConstructor {
 
   private final boolean incrementOnUsage;
   private final boolean simplePhi;
@@ -79,7 +79,7 @@ class SSAConstructor {
   private StructMethod mt;
   private DirectGraph dgraph;
 
-  public SSAConstructor(
+  public SFormsConstructor(
     boolean incrementOnUsage,
     boolean simplePhi,
     boolean trackFieldVars,
