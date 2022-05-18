@@ -418,6 +418,7 @@ public final class SwitchHelper {
     if (edges.size() == 1 && edges.get(0).getDestination().type == Statement.TYPE_SWITCH) {
       second = (SwitchStatement)edges.get(0).getDestination();
     }
+    AssignmentExprent nullAssign = null;
 
     // if we're the only thing in an if statement,
     if (first.getParent() instanceof IfStatement) {
@@ -435,6 +436,7 @@ public final class SwitchHelper {
               if (elseStat instanceof BasicBlockStatement && elseStat.getExprents().size() == 1) {
                 Exprent assign = elseStat.getExprents().get(0);
                 if (assign instanceof AssignmentExprent) {
+                  nullAssign = (AssignmentExprent)assign;
                   // then we're probably a nullable string-switch
                   edges = parent.getSuccessorEdges(StatEdge.TYPE_REGULAR);
                   if (edges.size() == 1 && edges.get(0).getDestination().type == Statement.TYPE_SWITCH) {
@@ -455,6 +457,8 @@ public final class SwitchHelper {
       if (firstValue.type == Exprent.EXPRENT_INVOCATION && secondValue.type == Exprent.EXPRENT_VAR && first.getCaseStatements().get(0).type == Statement.TYPE_IF) {
         InvocationExprent invExpr = (InvocationExprent)firstValue;
         VarExprent varExpr = (VarExprent)secondValue;
+        if (nullAssign != null && !nullAssign.getLeft().equals(varExpr))
+          return false; // wrong assignment across `if`
 
         if (invExpr.getName().equals("hashCode") && invExpr.getClassname().equals("java/lang/String")) {
           boolean matches = true;
