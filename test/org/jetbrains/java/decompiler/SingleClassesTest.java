@@ -399,7 +399,12 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatching3");
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatching4");
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatching5");
+    // TODO: fix broken enum/string switch resugaring w/ null label, for all of these
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatching6", "ext/Direction");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatching7");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatching8");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatching9");
+
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingInstanceof1");
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingInstanceof2");
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingReturn1");

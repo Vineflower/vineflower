@@ -1,0 +1,73 @@
+package pkg;
+
+public class TestSwitchPatternMatching8 {
+   static String test(String s) {
+      byte var2 = -1;
+      if (s != null) {
+         switch(s.hashCode()) {
+            case 3329:
+               if (s.equals("hi")) {
+                  var2 = 0;
+               }
+               break;
+            case 98030:
+               if (s.equals("bye")) {
+                  var2 = 1;
+               }
+         }
+      } else {
+         var2 = 2;
+      }
+
+      return switch(var2) {// 5
+         case 0 -> "hi";// 6
+         case 1 -> "bye";// 7
+         default -> "oh";// 8
+      };
+   }
+}
+
+class 'pkg/TestSwitchPatternMatching8' {
+   method 'test (Ljava/lang/String;)Ljava/lang/String;' {
+      0      5
+      2      4
+      3      4
+      5      5
+      9      6
+      a      6
+      b      6
+      c      6
+      29      8
+      2a      8
+      2b      8
+      2c      8
+      2d      8
+      2e      8
+      31      9
+      32      9
+      37      13
+      38      13
+      39      13
+      3a      13
+      3b      13
+      3c      13
+      3f      14
+      40      14
+      44      18
+      45      18
+      46      21
+      47      21
+      60      22
+      61      22
+      65      23
+      66      23
+      6a      24
+      6c      21
+   }
+}
+
+Lines mapping:
+5 <-> 22
+6 <-> 23
+7 <-> 24
+8 <-> 25

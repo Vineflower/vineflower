@@ -41,7 +41,6 @@ public class SwitchExprent extends Exprent {
     boolean isExhaustive = isExhaustive();
 
     buf.append(this.backing.getHeadexprent().toJava(indent)).append(" {").appendLineSeparator();
-    cases:
     for (int i = 0; i < this.backing.getCaseStatements().size(); i++) {
       Statement stat = this.backing.getCaseStatements().get(i);
       List<StatEdge> edges = this.backing.getCaseEdges().get(i);
@@ -54,54 +53,60 @@ public class SwitchExprent extends Exprent {
       for (StatEdge edge : edges) {
         if (edge == this.backing.getDefaultEdge()) {
           if (isExhaustive) {
-            Statement target = edge.getDestination();
-            List<Exprent> targetExprs = target.getExprents();
-            if (targetExprs != null && targetExprs.size() == 1) {
-              Exprent targetExpr = targetExprs.get(0);
-              if (targetExpr instanceof ExitExprent && ((ExitExprent) targetExpr).getExitType() == ExitExprent.EXIT_THROW
-                && ((ExitExprent) targetExpr).getValue().getExprType().value.equals("java/lang/IncompatibleClassChangeError")) {
-                continue cases; // implicit defaults are always a separate case, so it's safe to ignore entirely
-              }
+            if (isSyntheticThrowEdge(edge)) {
+              break; // just don't mark as default
             }
           }
-          buf.appendIndent(indent + 1).append("default -> ");
+          //buf.appendIndent(indent + 1).append("default -> ");
           hasDefault = true;
           break;
         }
       }
 
       boolean hasEdge = false;
-      if (!hasDefault) {
-        for (int j = 0; j < edges.size(); j++) {
-          Exprent value = values.get(j);
-          if (value == null) { // TODO: how can this be null? Is it trying to inject a synthetic case value in switch-on-string processing? [TestSwitchDefaultBefore]
-            continue;
-          }
-
-          if (!hasEdge) {
-            buf.appendIndent(indent + 1).append("case ");
-          } else {
-            buf.append(", ");
-          }
-
-          if (value instanceof ConstExprent && !standalone) {
-            value = value.copy();
-            ((ConstExprent)value).setConstType(switchType);
-          }
-
-          if (value instanceof FieldExprent && ((FieldExprent)value).isStatic()) { // enum values
-            buf.append(((FieldExprent)value).getName());
-          } else {
-            buf.append(value.toJava(indent));
-          }
-
-          hasEdge = true;
+      for (int j = 0; j < edges.size(); j++) {
+        Exprent value = values.get(j);
+        if (value == null) { // TODO: how can this be null? Is it trying to inject a synthetic case value in switch-on-string processing? [TestSwitchDefaultBefore]
+          continue;
         }
+        if (hasDefault && !includeWithDefault(value)) {
+          continue;
+        }
+
+        if (!hasEdge) {
+          buf.appendIndent(indent + 1).append("case ");
+        } else {
+          buf.append(", ");
+        }
+
+        if (value instanceof ConstExprent && !standalone) {
+          value = value.copy();
+          ((ConstExprent) value).setConstType(switchType);
+        }
+
+        if (value instanceof FieldExprent && ((FieldExprent) value).isStatic()) { // enum values
+          buf.append(((FieldExprent) value).getName());
+        } else {
+          buf.append(value.toJava(indent));
+        }
+
+        hasEdge = true;
       }
 
-      if (hasEdge) {
-        buf.append(" -> ");
+      if (hasDefault) {
+        if (!hasEdge) {
+          buf.appendIndent(indent + 1).append("default");
+        } else {
+          buf.append(", default");
+        }
+        hasEdge = true;
       }
+
+      if (!hasEdge) { // if we're the synthetic throw edge, we have no cases
+        continue;
+      }
+
+      buf.append(" -> ");
 
       boolean simple = true;
       if (stat.type != Statement.TYPE_BASICBLOCK) {
@@ -171,6 +176,23 @@ public class SwitchExprent extends Exprent {
         .filter(x -> x.hasModifier(CodeConstants.ACC_ENUM))
         .map(StructField::getName)
         .allMatch(fieldName -> enumValuesSeen.stream().anyMatch(found -> found.getName().equals(fieldName)));
+  }
+
+  private static boolean isSyntheticThrowEdge(StatEdge edge){
+    Statement target = edge.getDestination();
+    List<Exprent> targetExprs = target.getExprents();
+    if (targetExprs != null && targetExprs.size() == 1) {
+      Exprent targetExpr = targetExprs.get(0);
+      return targetExpr instanceof ExitExprent
+        && ((ExitExprent) targetExpr).getExitType() == ExitExprent.EXIT_THROW
+        && ((ExitExprent) targetExpr).getValue().getExprType().value.equals("java/lang/IncompatibleClassChangeError");
+    }
+    return false;
+  }
+
+  private static boolean includeWithDefault(Exprent expr){
+    // TODO: is this ever currently true?
+    return expr.getExprType() == VarType.VARTYPE_NULL;
   }
 
   @Override
