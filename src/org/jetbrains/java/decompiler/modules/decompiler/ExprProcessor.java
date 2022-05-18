@@ -522,7 +522,13 @@ public class ExprProcessor implements CodeConstants {
           break;
         case opc_monitorenter:
         case opc_monitorexit:
-          exprlist.add(new MonitorExprent(func8[instr.opcode - opc_monitorenter], stack.pop(), bytecode_offsets));
+          MonitorExprent monitor = new MonitorExprent(func8[instr.opcode - opc_monitorenter], stack.pop(), bytecode_offsets);
+
+          if (instr.opcode == opc_monitorexit && stat.isRemovableMonitorexit()) {
+            monitor.setRemove(true);
+          }
+
+          exprlist.add(monitor);
           break;
         case opc_checkcast:
         case opc_instanceof:
@@ -867,7 +873,7 @@ public class ExprProcessor implements CodeConstants {
         }
         buf.append(content);
         if (expr.type == Exprent.EXPRENT_MONITOR && ((MonitorExprent)expr).getMonType() == MonitorExprent.MONITOR_ENTER) {
-          buf.append("{}"); // empty synchronized block
+          buf.append("{} // $FF: monitorenter "); // empty synchronized block
         }
         if (endsWithSemicolon(expr)) {
           buf.append(";");

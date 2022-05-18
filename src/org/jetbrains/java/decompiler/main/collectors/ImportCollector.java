@@ -23,6 +23,7 @@ public class ImportCollector {
   private final Map<String, Map<String, String>> mapInnerClassNames = new HashMap<>();
   private final String currentPackageSlash;
   private final String currentPackagePoint;
+  private boolean writeLocked = false;
 
   public ImportCollector(ClassNode root) {
     String clName = root.classStruct.qualifiedName;
@@ -156,9 +157,11 @@ public class ImportCollector {
       return result == null ? fullName : ((!packageName.isEmpty() ? (packageName + ".") : "") + result);
     }
     else if (!mapSimpleNames.containsKey(shortName)) {
-      mapSimpleNames.put(shortName, packageName);
-      if (!imported) {
-        setNotImportedNames.add(shortName);
+      if (!this.writeLocked) {
+        mapSimpleNames.put(shortName, packageName);
+        if (!imported) {
+          setNotImportedNames.add(shortName);
+        }
       }
     }
 
@@ -236,5 +239,13 @@ public class ImportCollector {
         }
       } while (currentClass == null && !queue.isEmpty());
     }
+  }
+
+  public boolean isWriteLocked() {
+    return writeLocked;
+  }
+
+  public void setWriteLocked(boolean writeLocked) {
+    this.writeLocked = writeLocked;
   }
 }

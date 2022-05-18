@@ -108,6 +108,10 @@ public class FastFixedSetFactory<E> {
       return (data[index[0]] & index[1]) != 0;
     }
 
+    public boolean containsKey(E element) {
+      return colValuesInternal.containsKey(element);
+    }
+
     public boolean contains(FastFixedSet<E> set) {
       int[] extdata = set.getData();
       int[] intdata = data;

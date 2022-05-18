@@ -5,73 +5,254 @@ import java.util.function.Supplier;
 public class TestTryReturn {
    public boolean test(Supplier<Boolean> supplier) {
       try {
-         return supplier.get();// 8
-      } catch (Exception var3) {// 9
-         throw new RuntimeException(var3);// 10
+         return supplier.get();// 9
+      } catch (Exception var3) {// 10
+         throw new RuntimeException(var3);// 11
       }
    }
 
    public boolean testFinally(Supplier<Boolean> supplier) {
       try {
-         return supplier.get();// 16
+         return supplier.get();// 17
       } finally {
-         System.out.println("Finally");// 18
+         System.out.println("Finally");// 19
       }
    }
 
    public void testFinally1(Supplier<Boolean> supplier) {
-      System.out.println("pred");// 23
+      System.out.println("pred");// 24
 
       label32: {
          try {
-            if (!supplier.get()) {// 26
+            if (!supplier.get()) {// 27
                break label32;
             }
          } finally {
-            System.out.println("Finally");// 30
+            System.out.println("Finally");// 31
          }
 
-         return;// 27
+         return;// 28
       }
 
-      System.out.println("suc");// 31 33
+      System.out.println("suc");// 32 34
    }
 
    public boolean testFinally2(Supplier<Boolean> supplier) {
       try {
-         return supplier.get();// 39
+         return supplier.get();// 40
       } finally {
-         System.out.println("Finally");// 41
+         System.out.println("Finally");// 42
       }
    }
 
    public boolean testFinally3(boolean b, boolean c, int a, Supplier<Boolean> supplier) {
       try {
-         if (!b) {// 49
-            if (a > 0) {// 53
-               return a == 1;// 54
+         if (!b) {// 50
+            if (a > 0) {// 54
+               return a == 1;// 55
             } else {
-               return supplier.get();// 57
+               return supplier.get();// 58
             }
          } else {
-            return c && supplier.get();// 50
+            return c && supplier.get();// 51
          }
       } finally {
-         System.out.println("Finally");// 59
+         System.out.println("Finally");// 60
       }
    }
 
    public boolean testFinally4(Supplier<Boolean> supplier) {
-      boolean b = false;// 64
+      boolean b = false;// 65
 
       try {
-         b = supplier.get();// 66
+         b = supplier.get();// 67
       } finally {
-         System.out.println("Finally");// 68
+         System.out.println("Finally");// 69
       }
 
-      return b;// 69 71
+      return b;// 70 72
    }
+
+   public boolean testFinally5(Supplier<Boolean> supplier) {
+      boolean b = false;// 76
+
+      try {
+         b = supplier.get();// 78
+      } catch (Exception var7) {// 79
+         System.out.println("Catch");// 80
+         return supplier.get();// 81
+      } finally {
+         System.out.println("Finally");// 83
+      }
+   }
+
+   public boolean testFinally6(boolean a, Supplier<Boolean> supplier) {
+      boolean b = false;// 90
+
+      try {
+         if (a) {// 92
+            b = true;// 93
+            System.out.println("If");// 94
+         }
+
+         b = supplier.get();// 97
+      } catch (Exception var8) {// 98
+         System.out.println("Catch");// 99
+         return supplier.get();// 100
+      } finally {
+         System.out.println("Finally");// 102
+      }
+   }
+
+   public void testLoopFinally() {
+      boolean a = true;// 109
+
+      while(true) {
+         try {
+            if (a) {// 113
+               return;// 114
+            }
+         } finally {
+            System.out.println("Finally");// 117
+         }
+      }
+   }
+
+   public void testParsingFailure() {
+      // $FF: Couldn't be decompiled
+      // Bytecode:
+      // 00: bipush 116
+      // 02: istore 1
+      // 03: iload 1
+      // 04: bipush 113
+      // 06: if_icmpeq 2a
+      // 09: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 0c: iload 1
+      // 0d: invokevirtual java/io/PrintStream.println (C)V
+      // 10: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 13: iload 1
+      // 14: invokevirtual java/io/PrintStream.println (C)V
+      // 17: return
+      // 18: astore 2
+      // 19: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 1c: iload 1
+      // 1d: invokevirtual java/io/PrintStream.println (C)V
+      // 20: return
+      // 21: astore 3
+      // 22: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 25: iload 1
+      // 26: invokevirtual java/io/PrintStream.println (C)V
+      // 29: return
+      // 2a: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 2d: iload 1
+      // 2e: invokevirtual java/io/PrintStream.println (C)V
+      // 31: return
+      // 32: astore 4
+      // 34: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 37: iload 1
+      // 38: invokevirtual java/io/PrintStream.println (C)V
+      // 3b: return
+   }
+
+   public void testPostdomFailure() {
+      // $FF: Couldn't be decompiled
+      // Bytecode:
+      // 00: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 03: bipush 1
+      // 04: invokevirtual java/io/PrintStream.println (I)V
+      // 07: new java/util/Random
+      // 0a: dup
+      // 0b: invokespecial java/util/Random.<init> ()V
+      // 0e: invokevirtual java/util/Random.nextBoolean ()Z
+      // 11: ifeq 41
+      // 14: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 17: bipush 2
+      // 18: invokevirtual java/io/PrintStream.println (I)V
+      // 1b: bipush 28
+      // 1d: istore 2
+      // 1e: goto 07
+      // 21: astore 2
+      // 22: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 25: bipush 3
+      // 26: invokevirtual java/io/PrintStream.println (I)V
+      // 29: bipush 28
+      // 2b: istore 3
+      // 2c: goto 07
+      // 2f: astore 4
+      // 31: bipush 28
+      // 33: istore 5
+      // 35: goto 07
+      // 38: astore 6
+      // 3a: bipush 28
+      // 3c: istore 7
+      // 3e: aload 6
+      // 40: athrow
+      // 41: return
+   }
+
+   // $FF: Could not verify finally blocks. A semaphore variable has been added to preserve control flow.
+   public void testVarWrong() {
+      boolean var8 = false;
+
+      label49: {
+         label48: {
+            try {
+               try {
+                  var8 = true;// 164
+                  System.out.println("Hi");
+                  var8 = false;
+                  break label49;
+               } catch (Exception var9) {// 165
+                  if (var9 != null) {
+                     var8 = false;
+                     break label48;
+                  }
+               }
+
+               System.out.println(var9);// 169
+               var8 = false;
+            } finally {
+               if (var8) {
+                  float var5 = 9.18F;// 173
+               }
+            }
+
+            float var3 = 9.18F;
+            return;// 170
+         }
+
+         float var11 = 9.18F;
+         return;// 167
+      }
+
+      float var2 = 9.18F;
+   }// 166 174
+
+   public void testInvalidUse() {
+      boolean var1 = false;// 178
+      String var3 = "Hi!";// 179
+
+      try {
+         Exception var4;
+         try {
+            System.out.println(var1);// 181
+            return;// 182
+         } catch (Exception var15) {// 183
+            var4 = var15;
+         }
+
+         try {
+            System.out.println(var4);// 185
+            return;// 195
+         } catch (Exception var16) {// 186
+         } finally {
+            System.out.println(var15);// 190
+         }
+      } finally {
+         System.out.println(var3);// 194
+      }
+
+   }// 187
 }
 
 class 'pkg/TestTryReturn' {
@@ -238,36 +419,264 @@ class 'pkg/TestTryReturn' {
       24      72
       25      72
    }
+
+   method 'testFinally5 (Ljava/util/function/Supplier;)Z' {
+      0      76
+      1      76
+      2      79
+      3      79
+      4      79
+      5      79
+      6      79
+      7      79
+      b      79
+      c      79
+      d      79
+      e      79
+      1a      80
+      1b      81
+      1c      81
+      1d      81
+      1e      81
+      1f      81
+      20      81
+      21      81
+      22      81
+      23      82
+      24      82
+      25      82
+      26      82
+      27      82
+      28      82
+      2c      82
+      2d      82
+      2e      82
+      2f      82
+      3b      84
+      3c      84
+      3d      84
+      3e      84
+      3f      84
+      40      84
+      41      84
+   }
+
+   method 'testFinally6 (ZLjava/util/function/Supplier;)Z' {
+      0      89
+      1      89
+      2      92
+      3      92
+      6      93
+      7      93
+      8      94
+      9      94
+      a      94
+      b      94
+      c      94
+      d      94
+      10      97
+      11      97
+      12      97
+      13      97
+      14      97
+      15      97
+      19      97
+      1a      97
+      1b      97
+      1c      97
+      28      98
+      2a      99
+      2b      99
+      2c      99
+      2d      99
+      2e      99
+      2f      99
+      30      99
+      31      99
+      32      100
+      33      100
+      34      100
+      35      100
+      36      100
+      37      100
+      3b      100
+      3c      100
+      3d      100
+      3e      100
+      4a      102
+      4b      102
+      4c      102
+      4d      102
+      4e      102
+      4f      102
+      50      102
+   }
+
+   method 'testLoopFinally ()V' {
+      0      107
+      1      107
+      2      111
+      3      111
+      e      112
+      1a      115
+      1b      115
+      1c      115
+      1d      115
+      1e      115
+      1f      115
+   }
+
+   method 'testVarWrong ()V' {
+      0      200
+      1      200
+      2      200
+      3      200
+      4      200
+      5      201
+      8      227
+      9      227
+      a      227
+      b      228
+      c      228
+      d      228
+      e      204
+      f      228
+      10      205
+      11      228
+      12      228
+      13      223
+      14      223
+      15      223
+      16      224
+      17      211
+      18      211
+      19      211
+      1a      228
+      1b      211
+      1c      228
+      1d      228
+      1e      219
+      1f      219
+      20      219
+      21      220
+      22      215
+      23      215
+      24      215
+      25      215
+      26      228
+      27      228
+      28      228
+      29      228
+      2a      228
+   }
+
+   method 'testInvalidUse ()V' {
+      0      231
+      1      231
+      2      232
+      3      232
+      4      232
+      5      237
+      6      237
+      7      237
+      8      237
+      9      237
+      13      238
+      14      239
+      15      244
+      16      244
+      17      244
+      18      244
+      19      244
+      26      246
+      36      254
+      37      248
+      38      248
+      3c      248
+      4a      245
+      4d      251
+      4e      251
+      4f      251
+      50      251
+      51      251
+      52      251
+   }
 }
 
 Lines mapping:
-8 <-> 8
-9 <-> 9
-10 <-> 10
-16 <-> 16
-18 <-> 18
-23 <-> 23
-26 <-> 27
-27 <-> 34
-30 <-> 31
-31 <-> 37
-33 <-> 37
-39 <-> 42
-41 <-> 44
-49 <-> 50
-50 <-> 57
-53 <-> 51
-54 <-> 52
-57 <-> 54
-59 <-> 60
-64 <-> 65
-66 <-> 68
-68 <-> 70
-69 <-> 73
-71 <-> 73
+9 <-> 8
+10 <-> 9
+11 <-> 10
+17 <-> 16
+19 <-> 18
+24 <-> 23
+27 <-> 27
+28 <-> 34
+31 <-> 31
+32 <-> 37
+34 <-> 37
+40 <-> 42
+42 <-> 44
+50 <-> 50
+51 <-> 57
+54 <-> 51
+55 <-> 52
+58 <-> 54
+60 <-> 60
+65 <-> 65
+67 <-> 68
+69 <-> 70
+70 <-> 73
+72 <-> 73
+76 <-> 77
+78 <-> 80
+79 <-> 81
+80 <-> 82
+81 <-> 83
+83 <-> 85
+90 <-> 90
+92 <-> 93
+93 <-> 94
+94 <-> 95
+97 <-> 98
+98 <-> 99
+99 <-> 100
+100 <-> 101
+102 <-> 103
+109 <-> 108
+113 <-> 112
+114 <-> 113
+117 <-> 116
+164 <-> 201
+165 <-> 205
+166 <-> 229
+167 <-> 225
+169 <-> 212
+170 <-> 221
+173 <-> 216
+174 <-> 229
+178 <-> 232
+179 <-> 233
+181 <-> 238
+182 <-> 239
+183 <-> 240
+185 <-> 245
+186 <-> 247
+187 <-> 255
+190 <-> 249
+194 <-> 252
+195 <-> 246
 Not mapped:
-19
-34
-42
-44
-60
+20
+35
+43
+45
+61
+84
+86
+103
+105
+118
+175
+191
+196

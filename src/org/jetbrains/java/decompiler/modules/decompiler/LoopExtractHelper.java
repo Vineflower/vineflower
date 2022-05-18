@@ -301,7 +301,7 @@ public final class LoopExtractHelper {
     ifStat.setIfEdge(ifedge);
 
     SequenceStatement block = new SequenceStatement(Arrays.asList(ifStat, target));
-    loop.replaceStatement(ifStat, block);
+    ifStat.replaceWith( block);
     block.setAllParent();
 
     ifStat.addSuccessor(new StatEdge(StatEdge.TYPE_REGULAR, ifStat, target));

@@ -395,14 +395,7 @@ public class Statement implements IMatchable {
           isMonitorEnter = (seq.getLastInstr().opcode == CodeConstants.opc_monitorenter);
         }
         break;
-      case TYPE_SEQUENCE:
-      case TYPE_IF:
-        containsMonitorExit = false;
-        for (Statement st : stats) {
-          containsMonitorExit |= st.isContainsMonitorExit();
-        }
 
-        break;
       case TYPE_SYNCRONIZED:
       case TYPE_ROOT:
       case TYPE_GENERAL:
@@ -412,6 +405,26 @@ public class Statement implements IMatchable {
         for (Statement st : stats) {
           containsMonitorExit |= st.isContainsMonitorExit();
         }
+    }
+  }
+
+  public void markMonitorexitDead() {
+    for (Statement st : this.stats) {
+      st.markMonitorexitDead();
+    }
+
+    if (this.type == TYPE_BASICBLOCK) {
+      BasicBlockStatement bblock = (BasicBlockStatement)this;
+      InstructionSequence seq = bblock.getBlock().getSeq();
+
+      if (seq != null && !seq.isEmpty()) {
+        for (int i = 0; i < seq.length(); i++) {
+          if (seq.getInstr(i).opcode == CodeConstants.opc_monitorexit) {
+            bblock.setRemovableMonitorexit(true);
+            break;
+          }
+        }
+      }
     }
   }
 
@@ -970,24 +983,21 @@ public class Statement implements IMatchable {
     int node_type = matchNode.getType();
 
     if (node_type == MatchNode.MATCHNODE_STATEMENT && !this.stats.isEmpty()) {
-      String position = (String)matchNode.getRuleValue(MatchProperties.STATEMENT_POSITION);
+      String position = (String) matchNode.getRuleValue(MatchProperties.STATEMENT_POSITION);
       if (position != null) {
         if (position.matches("-?\\d+")) {
           return this.stats.get((this.stats.size() + Integer.parseInt(position)) % this.stats.size()); // care for negative positions
         }
-      }
-      else if (index < this.stats.size()) { // use 'index' parameter
+      } else if (index < this.stats.size()) { // use 'index' parameter
         return this.stats.get(index);
       }
-    }
-    else if (node_type == MatchNode.MATCHNODE_EXPRENT && this.exprents != null && !this.exprents.isEmpty()) {
-      String position = (String)matchNode.getRuleValue(MatchProperties.EXPRENT_POSITION);
+    } else if (node_type == MatchNode.MATCHNODE_EXPRENT && this.exprents != null && !this.exprents.isEmpty()) {
+      String position = (String) matchNode.getRuleValue(MatchProperties.EXPRENT_POSITION);
       if (position != null) {
         if (position.matches("-?\\d+")) {
           return this.exprents.get((this.exprents.size() + Integer.parseInt(position)) % this.exprents.size()); // care for negative positions
         }
-      }
-      else if (index < this.exprents.size()) { // use 'index' parameter
+      } else if (index < this.exprents.size()) { // use 'index' parameter
         return this.exprents.get(index);
       }
     }

@@ -264,6 +264,10 @@ public final class DomHelper {
 
               if (ca.getFirst().isContainsMonitorExit() && ca.getHandler().isContainsMonitorExit()) {
 
+                // remove monitorexit
+                ca.getFirst().markMonitorexitDead();
+                ca.getHandler().markMonitorexitDead();
+
                 // remove the head block from sequence
                 current.removeSuccessor(current.getSuccessorEdges(Statement.STATEDGE_DIRECT_ALL).get(0));
 
