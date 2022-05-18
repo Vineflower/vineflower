@@ -5,7 +5,7 @@ public class ag {
    private int d = 0;
 
    public void a(long param1) {
-      // $FF: Couldn't be decompiled
+      // $QF: Couldn't be decompiled
    }
 
    public double a() {

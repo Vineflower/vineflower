@@ -119,7 +119,7 @@ public class TestTryReturn {
    }
 
    public void testParsingFailure() {
-      // $FF: Couldn't be decompiled
+      // $QF: Couldn't be decompiled
       // Bytecode:
       // 00: bipush 116
       // 02: istore 1
@@ -155,7 +155,7 @@ public class TestTryReturn {
    }
 
    public void testPostdomFailure() {
-      // $FF: Couldn't be decompiled
+      // $QF: Couldn't be decompiled
       // Bytecode:
       // 00: getstatic java/lang/System.out Ljava/io/PrintStream;
       // 03: bipush 1
@@ -190,7 +190,7 @@ public class TestTryReturn {
       // 41: return
    }
 
-   // $FF: Could not verify finally blocks. A semaphore variable has been added to preserve control flow.
+   // $QF: Could not verify finally blocks. A semaphore variable has been added to preserve control flow.
    public void testVarWrong() {
       boolean var8 = false;
 

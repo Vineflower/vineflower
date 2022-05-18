@@ -120,7 +120,7 @@ public class TestLoopFinally {
    }
 
    public void emptyInnerFinally() {
-      // $FF: Couldn't be decompiled
+      // $QF: Couldn't be decompiled
       // Bytecode:
       // 00: bipush 0
       // 01: istore 1

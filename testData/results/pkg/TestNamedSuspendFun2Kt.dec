@@ -18,10 +18,10 @@ import org.jetbrains.annotations.Nullable;
    d2 = {"bar", "", "(Lkotlin/coroutines/Continuation;)Ljava/lang/Object;", "foo2", "quiltflower_testDataKotlin"}
 )
 public final class TestNamedSuspendFun2Kt {
-   // $FF: Handled exception range with multiple entry points by splitting it
-   // $FF: Inserted dummy exception handlers to handle obfuscated exceptions
-   // $FF: Irreducible bytecode was duplicated to produce valid code
-   // $FF: Could not inline inconsistent finally blocks
+   // $QF: Handled exception range with multiple entry points by splitting it
+   // $QF: Inserted dummy exception handlers to handle obfuscated exceptions
+   // $QF: Irreducible bytecode was duplicated to produce valid code
+   // $QF: Could not inline inconsistent finally blocks
    @Nullable
    public static final Object foo2(@NotNull Continuation<? super Integer> var0) {
       Continuation $continuation;

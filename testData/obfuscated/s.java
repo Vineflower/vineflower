@@ -34,7 +34,7 @@ public class s {
    }
 
    protected p b() {
-      // $FF: Couldn't be decompiled
+      // $QF: Couldn't be decompiled
    }
 
    protected static String b(Throwable var0) {

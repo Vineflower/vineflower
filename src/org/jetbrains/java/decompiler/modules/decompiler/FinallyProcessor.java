@@ -73,7 +73,7 @@ public class FinallyProcessor {
 
           if (inf == null) { // inconsistent finally
             catchallBlockIDs.put(handler.id, null);
-            root.addComment("$FF: Could not inline inconsistent finally blocks");
+            root.addComment("$QF: Could not inline inconsistent finally blocks");
             root.addErrorComment = true;
           } else {
             if (DecompilerContext.getOption(IFernflowerPreferences.FINALLY_DEINLINE) && verifyFinallyEx(graph, fin, inf)) {
@@ -87,7 +87,7 @@ public class FinallyProcessor {
               finallyBlockIDs.put(handler.id, varIndex);
 
               if (DecompilerContext.getOption(IFernflowerPreferences.FINALLY_DEINLINE)) {
-                root.addComment("$FF: Could not verify finally blocks. A semaphore variable has been added to preserve control flow.");
+                root.addComment("$QF: Could not verify finally blocks. A semaphore variable has been added to preserve control flow.");
                 root.addErrorComment = true;
               }
             }

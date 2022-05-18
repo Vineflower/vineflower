@@ -18,19 +18,19 @@ public class al implements Comparable<al> {
    }
 
    protected static long a(Date param0, Date param1, TimeUnit param2) {
-      // $FF: Couldn't be decompiled
+      // $QF: Couldn't be decompiled
    }
 
    protected static <T> T a(List<T> param0) {
-      // $FF: Couldn't be decompiled
+      // $QF: Couldn't be decompiled
    }
 
    protected static <T> T b(List<T> param0) {
-      // $FF: Couldn't be decompiled
+      // $QF: Couldn't be decompiled
    }
 
    public void a(double param1) {
-      // $FF: Couldn't be decompiled
+      // $QF: Couldn't be decompiled
    }
 
    public ak a() {
@@ -98,7 +98,7 @@ public class al implements Comparable<al> {
    }
 
    protected static boolean a(Object param0, Object param1) {
-      // $FF: Couldn't be decompiled
+      // $QF: Couldn't be decompiled
    }
 
    public int a(al var1) {

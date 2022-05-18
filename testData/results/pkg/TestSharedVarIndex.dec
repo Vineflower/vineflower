@@ -2,7 +2,7 @@ package pkg;
 
 public class TestSharedVarIndex {
    public void StringArrayVsString() {
-      // $FF: Couldn't be decompiled
+      // $QF: Couldn't be decompiled
       // Bytecode:
       // 0: bipush 0
       // 1: anewarray 2

@@ -349,11 +349,11 @@ public final class DomHelper {
               if (reducibility == 4 && (mapstage == 1 || mapRefreshed)) {
                 DecompilerContext.getLogger().writeMessage("Irreducible statement too complex to be decomposed!", IFernflowerLogger.Severity.ERROR);
 
-                root.addComment("$FF: Irreducible bytecode has more than 5 nodes in sequence and was not entirely decomposed");
+                root.addComment("$QF: Irreducible bytecode has more than 5 nodes in sequence and was not entirely decomposed");
                 root.addErrorComment = true;
               }
 
-              root.addComment("$FF: Irreducible bytecode was duplicated to produce valid code");
+              root.addComment("$QF: Irreducible bytecode was duplicated to produce valid code");
             }
           } else {
             // TODO: Originally this check was mapstage == 2, but that condition is never possible- why was it here?
