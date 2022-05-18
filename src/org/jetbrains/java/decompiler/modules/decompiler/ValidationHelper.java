@@ -5,9 +5,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectNode;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.FlattenStatementsHelper;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionNode;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionsGraph;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
@@ -113,7 +111,7 @@ public final class ValidationHelper {
     }
 
     if (!isSuccessor(edge.getSource(), edge)) {
-      throw new IllegalStateException("Edge pointing from statement but it isn't a successor: " + edge);
+      throw new IllegalStateException("Edge pointing from statement but it isn't a successor: " + edge.getSource() + " " + edge);
     }
 
     if (!edge.getDestination().getAllPredecessorEdges().contains(edge)) {
@@ -138,7 +136,7 @@ public final class ValidationHelper {
           throw new IllegalStateException("Break edge with break type, but no closure: " + edge);
         }
 
-        if (edge.getSource() == edge.closure) {
+        if (edge.getSource() == edge.closure && !edge.phantomContinue) {
           throw new IllegalStateException("Break edge with closure pointing to itself: " + edge);
         }
 
@@ -147,13 +145,32 @@ public final class ValidationHelper {
         }
 
         if (edge.getSource() == edge.getDestination()) {
-          throw new IllegalStateException("Break edge with pointing to itself: " + edge);
+          throw new IllegalStateException("Break edge pointing to itself: " + edge);
         }
+
+        // TODO: It seems there are break edge to dummy exits with
+        //  potentially incorrect closures
+        if (edge.getDestination().type != Statement.TYPE_DUMMYEXIT && !MergeHelper.isDirectPath(edge.closure, edge.getDestination())) {
+          throw new IllegalStateException("Break edge with closure with invalid direct path: " + edge);
+        }
+
+        // if (edge.closure.hasAnySuccessor() && edge.closure.getFirstSuccessor().getType() != StatEdge.TYPE_REGULAR) {
+        //   throw new IllegalStateException("Break edge with closure with non-regular successor: " + edge + " " + edge.closure.getFirstSuccessor());
+        // }
+
         break;
       }
       case StatEdge.TYPE_CONTINUE: {
         if (edge.closure == null) {
           throw new IllegalStateException("Continue edge with continue type, but no closure: " + edge);
+        }
+
+        if (edge.closure != edge.getDestination()) {
+          throw new IllegalStateException("Continue edge with closure pointing to different destination: " + edge);
+        }
+
+        if (edge.getDestination().type != Statement.TYPE_DO) {
+          throw new IllegalStateException("Continue edge where closure isn't pointing to a do: " + edge);
         }
 
         break;
@@ -169,6 +186,13 @@ public final class ValidationHelper {
 
     switch (stat.type) {
       case Statement.TYPE_IF: validateIfStatement((IfStatement) stat); break;
+      case Statement.TYPE_TRYCATCH: validateTrycatchStatement((CatchStatement) stat); break;
+    }
+  }
+
+  public static void validateTrycatchStatement(CatchStatement catchStat) {
+    if (catchStat.getStats().size() == 1) {
+      throw new IllegalStateException("Try statement with single statement: " + catchStat);
     }
   }
 
@@ -239,11 +263,11 @@ public final class ValidationHelper {
     }
 
     if (ifStat.getIfEdge() != null && ifStat.getIfEdge().getSource() != ifStat.getFirst()) {
-      throw new IllegalStateException("If statement if edge source is not first statement: " + ifStat);
+      throw new IllegalStateException("If statement if edge source is not first statement: [" + ifStat.getIfEdge() + "] " + ifStat + " (source is: " + ifStat.getIfEdge().getSource() + " but first is: " + ifStat.getFirst() + ")");
     }
 
     if (ifStat.getElseEdge() != null && ifStat.getElseEdge().getSource() != ifStat.getFirst()) {
-      throw new IllegalStateException("IfElse statement else edge source is not first statement: " + ifStat);
+      throw new IllegalStateException("IfElse statement else edge source is not first statement: " + ifStat + " (elseEdge: " + ifStat.getElseEdge() + ")");
     }
 
     if (stats.size() > 3){
@@ -252,7 +276,7 @@ public final class ValidationHelper {
 
     for (Statement stat : stats) {
       if ( stat != ifStat.getFirst() && stat != ifStat.getIfstat() && stat != ifStat.getElsestat() ) {
-        throw new IllegalStateException("If statement contains unknown sub statement: " + ifStat);
+        throw new IllegalStateException("If statement contains unknown sub statement: " + ifStat + " (subStatement: " + stat + ")");
       }
     }
 
@@ -301,7 +325,7 @@ public final class ValidationHelper {
       if (!inaccessibleNodes.isEmpty()) {
         throw new IllegalStateException("Inaccessible nodes: " + inaccessibleNodes);
       }
-    } catch (Throwable e){
+    } catch (Throwable e) {
       DotExporter.errorToDotFile(graph, root.mt, "erroring_dgraph");
       throw e;
     }
@@ -388,6 +412,12 @@ public final class ValidationHelper {
     }
 
     return false;
+  }
+
+  public static void assertTrue(boolean condition, String message) {
+    if (VALIDATE && !condition) {
+      throw new IllegalStateException("Assertion failed: " + message);
+    }
   }
 
   public static void validateVarVersionsGraph(VarVersionsGraph graph) {

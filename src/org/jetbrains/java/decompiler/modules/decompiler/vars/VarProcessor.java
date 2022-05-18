@@ -47,7 +47,7 @@ public class VarProcessor {
     this.clashingNames.putAll(varDef.getClashingNames());
   }
 
-  public void setDebugVarNames(Statement root, Map<VarVersionPair, String> mapDebugVarNames) {
+  public void setDebugVarNames(RootStatement root, Map<VarVersionPair, String> mapDebugVarNames) {
     if (varVersions == null) {
       return;
     }
@@ -66,7 +66,7 @@ public class VarProcessor {
       VarVersionPair key = mapOriginalVarIndices.get(pair.var);
       if (key != null) {
         String debugName = mapDebugVarNames.get(key);
-        if (debugName != null && TextUtil.isValidIdentifier(debugName, method.getBytecodeVersion())) {
+        if (debugName != null && TextUtil.isValidIdentifier(debugName, method.getBytecodeVersion(), root.mt)) {
           name = debugName;
           lvtName = true;
         }

@@ -3,7 +3,7 @@ package pkg;
 public class TestArrayAssign2 {
    public Object test(boolean b, Object[] s) {
       if (b) {// 5
-         s = this.method(s);// 6
+         s = (Object[])this.method(s);// 6
       }
 
       return s;// 9

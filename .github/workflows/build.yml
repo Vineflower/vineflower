@@ -22,6 +22,8 @@ jobs:
             build/reports/
             */build/reports/
             build/test-results/**/*.xml
+      - name: Codecov
+        uses: codecov/codecov-action@v3.1.0
   publish-test-results:
     runs-on: ubuntu-latest
     needs: [build]
@@ -35,4 +37,4 @@ jobs:
         uses: EnricoMi/publish-unit-test-result-action@v1.19
         with:
           check_name: Test Results
-          files: artifacts/**/*.xml
+          files: artifacts/build/test-results/test/*.xml

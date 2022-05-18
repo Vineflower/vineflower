@@ -77,6 +77,8 @@ public class FinallyProcessor {
             root.addErrorComment = true;
           } else {
             if (DecompilerContext.getOption(IFernflowerPreferences.FINALLY_DEINLINE) && verifyFinallyEx(graph, fin, inf)) {
+              inlineReturnVar(graph, handler);
+
               finallyBlockIDs.put(handler.id, null);
             } else {
               int varIndex = DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.VAR_COUNTER);
@@ -994,5 +996,122 @@ public class FinallyProcessor {
         }
       }
     }
+  }
+
+  private static final int[] STORE_CODES = {CodeConstants.opc_istore, CodeConstants.opc_lstore, CodeConstants.opc_fstore, CodeConstants.opc_dstore, CodeConstants.opc_astore};
+  private static final int[][] NEXT_CODES = {
+    {CodeConstants.opc_iload, CodeConstants.opc_ireturn},
+    {CodeConstants.opc_lload, CodeConstants.opc_lreturn},
+    {CodeConstants.opc_fload, CodeConstants.opc_freturn},
+    {CodeConstants.opc_dload, CodeConstants.opc_dreturn},
+    {CodeConstants.opc_aload, CodeConstants.opc_areturn}
+  };
+
+  // Try to inline
+  //
+  // istore <v>
+  // (successor)
+  // iload <v>
+  // ireturn
+  //
+  // into the predecessor
+  private static void inlineReturnVar(ControlFlowGraph graph, BasicBlock handler) {
+    List<ExceptionRangeCFG> ranges = new ArrayList<>();
+
+    // Find all exception ranges with this finally block as the handler
+    for (ExceptionRangeCFG ex : graph.getExceptions()) {
+      if (ex.getHandler() == handler) {
+        ranges.add(ex);
+      }
+    }
+
+    Set<BasicBlock> exits = new HashSet<>();
+
+    for (ExceptionRangeCFG ex : ranges) {
+      // For each range, find the exit blocks
+      for (BasicBlock block : ex.getProtectedRange()) {
+        List<BasicBlock> blockEx = block.getSuccExceptions();
+
+        for (BasicBlock suc : block.getSuccs()) {
+          // Leaving the exception handler
+          if (!suc.getSuccExceptions().equals(blockEx)) {
+            exits.add(block);
+          }
+        }
+      }
+    }
+
+    mainloop:
+    for (BasicBlock exit : exits) {
+      // We only want exits with 1 successor block
+      if (exit.getSuccs().size() == 1) {
+        Instruction instr = exit.getLastInstruction();
+
+        int index = indexOf(instr);
+
+        if (index >= 0) {
+
+          // Traverse up predecessors for old stores
+
+          Deque<BasicBlock> stack = new LinkedList<>(exit.getPreds());
+          Set<BasicBlock> visited = new HashSet<>();
+
+          while (!stack.isEmpty()) {
+            BasicBlock pred = stack.pop();
+
+            // Somehow found the handler from predecessor traversal- stop
+            if (pred == handler) {
+              continue mainloop;
+            }
+
+            // Go through all instructions of predecessor
+            for (Instruction predInstr : pred.getSeq()) {
+              if (predInstr.opcode == STORE_CODES[index]) {
+                // Found an earlier store to the same variable, we cannot inline this
+                if (predInstr.operand(0) == instr.operand(0)) {
+                  continue mainloop;
+                }
+              }
+            }
+
+            // Find preds until we reach the start block
+            for (BasicBlock p : pred.getPreds()) {
+              if (visited.add(p)) {
+                stack.push(p);
+              }
+            }
+          }
+
+          InstructionSequence nextSeq = exit.getSuccs().get(0).getSeq();
+          if (nextSeq.length() == 2) {
+            // Check if next block's sequence is load and return
+            if (nextSeq.getInstr(0).opcode == NEXT_CODES[index][0] && nextSeq.getInstr(1).opcode == NEXT_CODES[index][1]) {
+              // Make sure variable index is correct
+              if (instr.operand(0) == nextSeq.getInstr(0).operand(0)) {
+                // remove store
+                exit.getSeq().removeLast();
+                // add return
+                exit.getSeq().addInstruction(nextSeq.getInstr(1), -1);
+
+                // Clear next exception range, mergeBasicBlocks will take care of it
+                nextSeq.clear();
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  private static int indexOf(Instruction instr) {
+    for (int i = 0; i < STORE_CODES.length; i++) {
+      int code = STORE_CODES[i];
+
+      if (instr.opcode == code) {
+        return i;
+      }
+    }
+
+    return -1;
   }
 }

@@ -73,9 +73,6 @@ public class Statement implements IMatchable {
   private final Map<Integer, List<StatEdge>> mapSuccEdges = new HashMap<>();
   private final Map<Integer, List<StatEdge>> mapPredEdges = new HashMap<>();
 
-  private final Map<Integer, List<Statement>> mapSuccStates = new HashMap<>();
-  private final Map<Integer, List<Statement>> mapPredStates = new HashMap<>();
-
   // statement as graph
   protected final VBStyleCollection<Statement, Integer> stats = new VBStyleCollection<>();
 
@@ -131,8 +128,6 @@ public class Statement implements IMatchable {
 
     processMap(mapSuccEdges);
     processMap(mapPredEdges);
-    processMap(mapSuccStates);
-    processMap(mapPredStates);
   }
 
   private static <T> void processMap(Map<Integer, List<T>> map) {
@@ -252,11 +247,8 @@ public class Statement implements IMatchable {
 
   private void addEdgeDirectInternal(int direction, StatEdge edge, int edgetype) {
     Map<Integer, List<StatEdge>> mapEdges = direction == DIRECTION_BACKWARD ? mapPredEdges : mapSuccEdges;
-    Map<Integer, List<Statement>> mapStates = direction == DIRECTION_BACKWARD ? mapPredStates : mapSuccStates;
 
     mapEdges.computeIfAbsent(edgetype, k -> new ArrayList<>()).add(edge);
-
-    mapStates.computeIfAbsent(edgetype, k -> new ArrayList<>()).add(direction == DIRECTION_BACKWARD ? edge.getSource() : edge.getDestination());
   }
 
   @Deprecated // Only public so StatEdge can call these.
@@ -279,14 +271,12 @@ public class Statement implements IMatchable {
   private void removeEdgeDirectInternal(int direction, StatEdge edge, int edgetype) {
 
     Map<Integer, List<StatEdge>> mapEdges = direction == DIRECTION_BACKWARD ? mapPredEdges : mapSuccEdges;
-    Map<Integer, List<Statement>> mapStates = direction == DIRECTION_BACKWARD ? mapPredStates : mapSuccStates;
 
     List<StatEdge> lst = mapEdges.get(edgetype);
     if (lst != null) {
       int index = lst.indexOf(edge);
       if (index >= 0) {
         lst.remove(index);
-        mapStates.get(edgetype).remove(index);
       }
     }
   }
@@ -517,7 +507,7 @@ public class Statement implements IMatchable {
     this.parent.replaceStatement(this, stat);
   }
 
-  public final void destroy() {
+  public final void replaceWithEmpty() {
     this.parent.replaceStatement(this, BasicBlockStatement.create());
   }
 
@@ -645,10 +635,20 @@ public class Statement implements IMatchable {
     if (setVisited.contains(stat)) { // because of not considered exception edges, s. isExitComponent. Should be rewritten, if possible.
       return;
     }
+
     setVisited.add(stat);
 
-    for (StatEdge prededge : stat.getEdges(StatEdge.TYPE_REGULAR | StatEdge.TYPE_EXCEPTION, DIRECTION_BACKWARD)) {
+    for (StatEdge prededge : stat.mapPredEdges.computeIfAbsent(StatEdge.TYPE_REGULAR, t -> new ArrayList<>())) {
       Statement pred = prededge.getSource();
+
+      if (!setVisited.contains(pred)) {
+        addToPostReversePostOrderList(pred, lst, setVisited);
+      }
+    }
+
+    for (StatEdge prededge : stat.mapPredEdges.computeIfAbsent(StatEdge.TYPE_EXCEPTION, t -> new ArrayList<>())) {
+      Statement pred = prededge.getSource();
+
       if (!setVisited.contains(pred)) {
         addToPostReversePostOrderList(pred, lst, setVisited);
       }
@@ -662,62 +662,11 @@ public class Statement implements IMatchable {
   // *****************************************************************************
 
   public void changeEdgeNode(int direction, StatEdge edge, Statement value) {
-
-    Map<Integer, List<StatEdge>> mapEdges = direction == DIRECTION_BACKWARD ? mapPredEdges : mapSuccEdges;
-    Map<Integer, List<Statement>> mapStates = direction == DIRECTION_BACKWARD ? mapPredStates : mapSuccStates;
-
-    int type = edge.getType();
-
-    int[] arrtypes;
-    if (type == StatEdge.TYPE_EXCEPTION) {
-      arrtypes = new int[]{STATEDGE_ALL, StatEdge.TYPE_EXCEPTION};
-    }
-    else {
-      arrtypes = new int[]{STATEDGE_ALL, STATEDGE_DIRECT_ALL, type};
-    }
-
-    for (int edgetype : arrtypes) {
-      List<StatEdge> lst = mapEdges.get(edgetype);
-      if (lst != null) {
-        int index = lst.indexOf(edge);
-        if (index >= 0) {
-          mapStates.get(edgetype).set(index, value);
-        }
-      }
-    }
-
     if (direction == DIRECTION_BACKWARD) {
       edge.setSource(value);
     }
     else {
       edge.setDestination(value);
-    }
-  }
-
-  @Deprecated // Only public so StatEdge can call these.
-  public void changeEdgeNodeInternal(int direction, StatEdge edge, Statement value) {
-
-    Map<Integer, List<StatEdge>> mapEdges = direction == DIRECTION_BACKWARD ? mapPredEdges : mapSuccEdges;
-    Map<Integer, List<Statement>> mapStates = direction == DIRECTION_BACKWARD ? mapPredStates : mapSuccStates;
-
-    int type = edge.getType();
-
-    int[] arrtypes;
-    if (type == StatEdge.TYPE_EXCEPTION) {
-      arrtypes = new int[]{STATEDGE_ALL, StatEdge.TYPE_EXCEPTION};
-    }
-    else {
-      arrtypes = new int[]{STATEDGE_ALL, STATEDGE_DIRECT_ALL, type};
-    }
-
-    for (int edgetype : arrtypes) {
-      List<StatEdge> lst = mapEdges.get(edgetype);
-      if (lst != null) {
-        int index = lst.indexOf(edge);
-        if (index >= 0) {
-          mapStates.get(edgetype).set(index, value);
-        }
-      }
     }
   }
 
@@ -769,20 +718,28 @@ public class Statement implements IMatchable {
 
   public List<Statement> getNeighbours(int type, int direction) {
 
-    Map<Integer, List<Statement>> map = direction == DIRECTION_BACKWARD ? mapPredStates : mapSuccStates;
+    Map<Integer, List<StatEdge>> map = direction == DIRECTION_BACKWARD ? mapPredEdges : mapSuccEdges;
 
-    List<Statement> res;
+    List<Statement> res = new ArrayList<>();
     if ((type & (type - 1)) == 0) {
-      res = map.get(type);
-      res = res == null ? new ArrayList<>() : new ArrayList<>(res);
+      List<StatEdge> statEdges = map.get(type);
+
+      if (statEdges != null) {
+        for (StatEdge edge : statEdges) {
+          res.add(direction == DIRECTION_FORWARD ? edge.getDestination() : edge.getSource());
+        }
+      }
     }
     else {
       res = new ArrayList<>();
       for (int edgetype : StatEdge.TYPES) {
         if ((type & edgetype) != 0) {
-          List<Statement> lst = map.get(edgetype);
+          List<StatEdge> lst = map.get(edgetype);
+
           if (lst != null) {
-            res.addAll(lst);
+            for (StatEdge edge : lst) {
+              res.add(direction == DIRECTION_FORWARD ? edge.getDestination() : edge.getSource());
+            }
           }
         }
       }
@@ -839,7 +796,8 @@ public class Statement implements IMatchable {
 
   public StatEdge getFirstSuccessor() {
     ValidationHelper.successorsExist(this);
-    ValidationHelper.oneSuccessor(this);
+    // TODO: does this make sense here?
+//    ValidationHelper.oneSuccessor(this);
 
     List<StatEdge> res = this.mapSuccEdges.get(STATEDGE_ALL);
     if (res != null) {
@@ -908,14 +866,19 @@ public class Statement implements IMatchable {
   // Whether this statement has a successor to a basic block or not. Conditions:
   // Basic blocks are always connected to the next basic block
   // single-if statements are connected to the next block (from implicit else)
-  // Loops are connected to the next block if it's not an infinite while(true){} loop TODO: many while(true) loops have breaks in their body. Would that not count?
+  // Loops are connected to the next block if it's not an infinite while(true){}
+  // TODO: many while(true) loops have breaks in their body. Would that not count?
+  //       however allowing those seems to break tests.
   public boolean hasBasicSuccEdge() {
 
     // FIXME: default switch
 
-    return type == TYPE_BASICBLOCK ||
-      (type == TYPE_IF && ((IfStatement)this).iftype == IfStatement.IFTYPE_IF) ||
-                  (type == TYPE_DO && ((DoStatement)this).getLooptype() != DoStatement.LOOP_DO);
+    switch (this.type) {
+      case TYPE_BASICBLOCK: return true;
+      case TYPE_IF: return (((IfStatement) this).iftype == IfStatement.IFTYPE_IF);
+      case TYPE_DO: return ((DoStatement) this).getLooptype() != DoStatement.LOOP_DO;
+      default: return false;
+    }
   }
 
 

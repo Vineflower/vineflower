@@ -16,11 +16,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.vars.VarProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class PPandMMHelper {
 
@@ -258,7 +254,7 @@ public class PPandMMHelper {
                 // Search for usages of variable
                 boolean found = false;
                 VarExprent old = null;
-                for (Exprent ex : ifFunc.getAllExprents()) {
+                for (Exprent ex : ifFunc.getAllExprents(true)) {
                   if (ex.type == Exprent.EXPRENT_VAR) {
                     VarExprent var = (VarExprent)ex;
                     if (var.getIndex() == ((VarExprent)inner).getIndex()) {
@@ -273,16 +269,43 @@ public class PPandMMHelper {
                       old = var;
                       found = true;
                     }
+                  } else if (ex.type == Exprent.EXPRENT_FUNCTION) {
+                    FunctionExprent funcEx = (FunctionExprent)ex;
+
+                    if (funcEx.getFuncType() == FunctionExprent.FUNCTION_CADD || funcEx.getFuncType() == FunctionExprent.FUNCTION_COR) {
+                      // Cannot yet handle these as we aren't able to decompose a condition into parts that are always run (not short-circuited) and parts that are
+                      // FIXME: handle this case
+                      return false;
+                    }
                   }
                 }
 
                 if (found) {
-                  // Replace variable with ppi/mmi
-                  ifFunc.replaceExprent(old, expr);
+                  Deque<Exprent> stack = new LinkedList<>();
+                  stack.push(ifFunc);
+
+                  while (!stack.isEmpty()) {
+                    Exprent exprent = stack.pop();
+
+                    for (Exprent ex : exprent.getAllExprents()) {
+                      if (ex == old) {
+                        // Replace variable with ppi/mmi
+                        exprent.replaceExprent(old, expr);
+
+                        // No more itr
+                        stack.clear();
+                        break;
+                      }
+
+                      stack.push(ex);
+                    }
+                  }
 
                   // Remove old expr
                   stat.getExprents().remove(expr);
                   res = true;
+
+                  destination.setHasPPMM(true);
                 }
               }
             }

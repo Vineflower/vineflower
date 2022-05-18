@@ -11,9 +11,13 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.IfExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.InvocationExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectGraph;
+import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectNode;
+import org.jetbrains.java.decompiler.modules.decompiler.sforms.FlattenStatementsHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
+import org.jetbrains.java.decompiler.util.DotExporter;
 import org.jetbrains.java.decompiler.util.VBStyleCollection;
 
 import java.util.*;
@@ -117,6 +121,11 @@ public final class MergeHelper {
             lastif.getFirst().removeSuccessor(ifedge);
 
             removeLastEmptyStatement(stat, lastif);
+          } else if (stat.getStats().size() == 1 && ifedge.getType() == StatEdge.TYPE_CONTINUE) { // Only statement in loop is if
+            // Otherwise leaves behind a superfluous if statement which is then removed by SequenceHelper
+            // Only when ifedge is type continue, or else break edge is kept
+
+            lastif.replaceWith(lastif.getFirst());
           } else {
             lastif.setExprents(lastif.getFirst().getExprents());
 
@@ -303,49 +312,6 @@ public final class MergeHelper {
     return check.type == Exprent.EXPRENT_FUNCTION && ((FunctionExprent)check).getFuncType() == FunctionExprent.FUNCTION_IIF;
   }
 
-  private static void liftToParent(DoStatement stat, List<Statement> toAdd) {
-    VBStyleCollection<Statement, Integer> stats = stat.getParent().getStats();
-    if (stat.getParent().type == Statement.TYPE_SEQUENCE) {
-      int i = 0;
-
-      for (Statement st : toAdd) {
-        i++;
-        // Add sequentially after while loop
-        stats.addWithKeyAndIndex(stats.indexOf(stat) + i, st, st.id);
-      }
-
-      stat.getParent().setAllParent();
-    } else {
-      // If it's not part of a sequence statement, we need to synthesize one and replace the loop with it
-
-      // Add while loop to the beginning of the new sequence
-      toAdd.add(0, stat);
-
-      // Old index of the while loop
-      int idx = stats.getIndexByKey(stat.id);
-      // Remove while loop from it's parent
-      stats.removeWithKey(stat.id);
-
-      Statement par = stat.getParent();
-      // If the parent's first statement points towards the while loop, we need to update it
-      boolean replaceFirst = par.getFirst() == stat;
-
-      // Construct new sequence out of the while loop and it's non loop content
-      SequenceStatement seq = new SequenceStatement(toAdd);
-      // Set parent of sequence to be the while loop's parent
-      seq.setParent(par);
-      // Set parent to it's children
-      seq.setAllParent();
-      // Add to the while loop's parent
-      stats.addWithKeyAndIndex(idx, seq, seq.id);
-
-      if (replaceFirst) {
-        // Update first statement of parent
-        par.setFirst(seq);
-      }
-    }
-  }
-
   // Returns if the statement provided and the end statement provided has a direct control flow path
   public static boolean isDirectPath(Statement stat, Statement endstat) {
     Set<Statement> forwardEdges = stat.getNeighboursSet(Statement.STATEDGE_DIRECT_ALL, Statement.DIRECTION_FORWARD);
@@ -354,7 +320,7 @@ public final class MergeHelper {
       Statement parent = stat.getParent();
 
       if (parent == null) {
-        return false;
+        return endstat.type == Statement.TYPE_DUMMYEXIT;
       } else {
         switch (parent.type) {
           case Statement.TYPE_ROOT:
@@ -500,6 +466,11 @@ public final class MergeHelper {
       List<StatEdge> lst = stat.getAllSuccessorEdges();
       if (!lst.isEmpty()) {
         stat.removeSuccessor(lst.get(0));
+      }
+
+      // Cannot delete try or catch blocks with finally
+      if (stat.getParent().type == Statement.TYPE_TRYCATCH || stat.getParent().type == Statement.TYPE_CATCHALL) {
+        return;
       }
 
       removeLastEmptyStatement(dostat, stat);
@@ -652,6 +623,12 @@ public final class MergeHelper {
             return false;
           }
         }
+
+        // Make sure this variable isn't used before
+        if (isVarUsedBefore((VarExprent) ass.getLeft(), stat)) {
+          return false;
+        }
+
         InvocationExprent holder = (InvocationExprent)right;
 
         initExprents[0].getBytecodeRange(holder.getInstance().bytecode);
@@ -734,6 +711,11 @@ public final class MergeHelper {
           return false;
         }
 
+        // Make sure this variable isn't used before
+        if (isVarUsedBefore((VarExprent) firstDoExprent.getLeft(), stat)) {
+          return false;
+        }
+
         // Add bytecode offsets
         funcRight.getLstOperands().get(0).addBytecodeOffsets(initExprents[0].bytecode);
         funcRight.getLstOperands().get(0).addBytecodeOffsets(initExprents[1].bytecode);
@@ -774,6 +756,51 @@ public final class MergeHelper {
 
     //cleanEmptyStatements(stat, firstData); //TODO: Look into this and see what it does...
 
+    return false;
+  }
+
+  // Use DirectGraph traversal to see if a variable has been used before [TestForeachVardef]
+  private static boolean isVarUsedBefore(VarExprent var, Statement st) {
+    // Build digraph
+    FlattenStatementsHelper flatten = new FlattenStatementsHelper();
+    DirectGraph digraph = flatten.buildDirectGraph((RootStatement) st.getTopParent());
+
+    // Find starting point for iteration
+    String diblockId = digraph.mapDestinationNodes.get(st.id)[0];
+    DirectNode stnd = digraph.nodes.getWithKey(diblockId);
+
+    // Only submit predecessors!
+    Deque<DirectNode> stack = new LinkedList<>(stnd.preds);
+    Set<DirectNode> visited = new HashSet<>();
+
+    while (!stack.isEmpty()) {
+      DirectNode node = stack.pop();
+
+      // Disregard statements within the loop itself
+      if (st.containsStatement(node.statement)) {
+        continue;
+      }
+
+      // Try to find a var reference with the same index
+      if (node.exprents != null) {
+        for (Exprent exprent : node.exprents) {
+          for (Exprent ex : exprent.getAllExprents(true, true)) {
+            if (ex.type == Exprent.EXPRENT_VAR && ((VarExprent) ex).getIndex() == var.getIndex()) {
+              return true;
+            }
+          }
+        }
+      }
+
+      // Go through predecessors, if we haven't seen them
+      for (DirectNode pred : node.preds) {
+        if (visited.add(pred)) {
+          stack.push(pred);
+        }
+      }
+    }
+
+    // Found nothing
     return false;
   }
 
@@ -879,6 +906,7 @@ public final class MergeHelper {
       SequenceHelper.condenseSequences(root);
       return true;
     }
+    
     return false;
   }
 
@@ -893,7 +921,10 @@ public final class MergeHelper {
       DoStatement dostat = (DoStatement)stat;
       if (dostat.getLooptype() == DoStatement.LOOP_DO) {
         matchDoWhile(dostat);
-        ret |= dostat.getLooptype() != DoStatement.LOOP_DO;
+        if (dostat.getLooptype() != DoStatement.LOOP_DO) {
+          ret = true;
+          ValidationHelper.validateStatement((RootStatement) stat.getTopParent());
+        }
       }
     }
 
@@ -960,7 +991,7 @@ public final class MergeHelper {
       }
     }
 
-    for (Statement st : stat.getStats()) {
+    for (Statement st : new ArrayList<>(stat.getStats())) {
       res |= condenseInfiniteLoopsWithReturnRec(st);
     }
 

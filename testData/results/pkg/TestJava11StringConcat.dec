@@ -8,6 +8,14 @@ public class TestJava11StringConcat {
    public String test2(String var, int b, Object c) {
       return "(" + var + "-" + b + "---" + c + ")";// 24
    }
+
+   public String testEmptyPrefix(int value) {
+      return value + "";// 29
+   }
+
+   public String testEmptyInfix(int value, int value2) {
+      return "" + value + value2;// 33
+   }
 }
 
 class 'pkg/TestJava11StringConcat' {
@@ -33,8 +41,31 @@ class 'pkg/TestJava11StringConcat' {
       7      8
       8      8
    }
+
+   method 'testEmptyPrefix (I)Ljava/lang/String;' {
+      0      12
+      1      12
+      2      12
+      3      12
+      4      12
+      5      12
+      6      12
+   }
+
+   method 'testEmptyInfix (II)Ljava/lang/String;' {
+      0      16
+      1      16
+      2      16
+      3      16
+      4      16
+      5      16
+      6      16
+      7      16
+   }
 }
 
 Lines mapping:
 20 <-> 5
 24 <-> 9
+29 <-> 13
+33 <-> 17

@@ -149,7 +149,7 @@ public final class SwitchExpressionHelper {
             if (edge.getDestination() == oldSuc) {
               st.removeSuccessor(edge);
 
-              st.addSuccessor(new StatEdge(edge.getType(), st, suc, seq));
+              st.addSuccessor(new StatEdge(edge.getType(), st, suc, stat));
             }
           }
         }

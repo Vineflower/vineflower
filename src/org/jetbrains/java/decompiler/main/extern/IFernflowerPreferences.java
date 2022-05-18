@@ -7,7 +7,6 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -219,8 +218,12 @@ public interface IFernflowerPreferences {
   @Description("Use JAD-style variable naming for local variables, instead of var<index>_<version>A.")
   String USE_JAD_VARNAMING = "jvn";
 
+  @Name("Skip Extra Files")
+  @Description("Skip copying non-class files from the input folder or file to the output")
   String SKIP_EXTRA_FILES = "sef";
 
+  @Name("Warn about inconsistent inner attributes")
+  @Description("Warn about inconsistent inner class attributes")
   String WARN_INCONSISTENT_INNER_CLASSES = "win";
 
   @Name("Dump Bytecode On Error")
@@ -234,6 +237,10 @@ public interface IFernflowerPreferences {
   @Name("Decompiler Comments")
   @Description("Sometimes, odd behavior of the bytecode or unfixable problems occur. This enables or disables the adding of those to the decompiled output.")
   String DECOMPILER_COMMENTS = "dec";
+
+  @Name("SourceFile comments")
+  @Description("Add debug comments showing the class SourceFile attribute if present.")
+  String SOURCE_FILE_COMMENTS = "sfc";
 
   Map<String, Object> DEFAULTS = getDefaults();
 
@@ -299,6 +306,7 @@ public interface IFernflowerPreferences {
     defaults.put(DUMP_BYTECODE_ON_ERROR, "1");
     defaults.put(DUMP_EXCEPTION_ON_ERROR, "1");
     defaults.put(DECOMPILER_COMMENTS, "1");
+    defaults.put(SOURCE_FILE_COMMENTS, "0");
 
     return Collections.unmodifiableMap(defaults);
   }

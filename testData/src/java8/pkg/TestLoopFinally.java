@@ -103,4 +103,28 @@ public class TestLoopFinally {
 
     return 1;
   }
+
+  public int test5(int x) {
+    int var2;
+    int var3;
+    l:
+    {
+      do {
+        try {
+          if (x < 25) {
+            var2 = 5;
+            break l;
+          }
+        } finally {
+          var3 = x;
+          if (x > 3) {
+            break;
+          }
+        }
+      } while (x < 45);
+
+      return 1;
+    }
+    return var2 + var3;
+  }
 }

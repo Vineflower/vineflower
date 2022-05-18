@@ -2,30 +2,15 @@ package pkg;
 
 public class TestIfTernary2 {
    public boolean test(Object a1, Object a2, Object b1, Object b2) {
-      label21:
-      if (a1 == null ? b1 == null : b2.equals(b1)) {// 9
-         if (a2 == null) {// 10
-            if (b2 == null) {
-               return true;// 11
-            }
-         } else if (b1.equals(a1)) {
-            return true;
-         }
-      }
-
-      return false;// 15
+      return (a1 == null ? b1 == null : b2.equals(b1)) && (a2 == null ? b2 == null : b1.equals(a1));// 9 10
    }
 
    public String test1(Object a1, Object a2, Object b1, Object b2) {
       if (a1 == null ? b1 == null : b2 == null) {// 19
-         if (a2 == null ? b2 != null : b1 != null) {// 20
-            return "2";// 24
-         }
-
-         return "1";// 21
+         return (a2 == null ? b2 != null : b1 != null) ? "2" : "1";// 20 21 24
+      } else {
+         return "3";// 27
       }
-
-      return "3";// 27
    }
 
    public void test2(Object a1, Object a2, Object b1, Object b2) {
@@ -59,150 +44,144 @@ public class TestIfTernary2 {
 
 class 'pkg/TestIfTernary2' {
    method 'test (Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Z' {
-      0      5
-      1      5
-      4      5
-      5      5
-      b      5
-      c      5
-      d      5
-      e      5
-      f      5
-      10      5
-      14      6
-      15      6
-      18      7
-      19      7
-      1a      7
-      20      10
-      21      10
-      22      10
-      23      10
-      24      10
-      25      10
-      28      8
-      29      8
-      2a      15
-      2b      15
+      0      4
+      1      4
+      4      4
+      5      4
+      b      4
+      c      4
+      d      4
+      e      4
+      f      4
+      10      4
+      14      4
+      15      4
+      18      4
+      19      4
+      1a      4
+      20      4
+      21      4
+      22      4
+      23      4
+      24      4
    }
 
    method 'test1 (Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/String;' {
-      0      19
-      1      19
-      4      19
-      5      19
-      b      19
-      c      19
-      d      19
-      10      20
-      11      20
-      14      20
-      15      20
-      16      20
-      1c      20
-      1d      20
-      20      24
-      21      24
-      22      24
-      23      21
-      24      21
-      25      21
-      26      27
-      27      27
-      28      27
+      0      8
+      1      8
+      4      8
+      5      8
+      b      8
+      c      8
+      d      8
+      10      9
+      11      9
+      14      9
+      15      9
+      16      9
+      1c      9
+      1d      9
+      20      9
+      21      9
+      23      9
+      24      9
+      26      11
+      27      11
+      28      11
    }
 
    method 'test2 (Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)V' {
-      0      31
-      1      31
-      4      31
-      5      31
-      b      31
-      c      31
-      d      31
-      10      32
-      11      32
-      14      32
-      15      32
-      16      32
-      1c      32
-      1d      32
-      20      33
-      21      33
-      22      33
-      23      33
-      24      33
-      27      36
-      28      36
-      29      36
-      2a      36
-      2b      36
-      2e      39
-      2f      39
-      30      39
-      31      39
-      32      39
-      33      39
-      34      39
-      35      40
+      0      16
+      1      16
+      4      16
+      5      16
+      b      16
+      c      16
+      d      16
+      10      17
+      11      17
+      14      17
+      15      17
+      16      17
+      1c      17
+      1d      17
+      20      18
+      21      18
+      22      18
+      23      18
+      24      18
+      27      21
+      28      21
+      29      21
+      2a      21
+      2b      21
+      2e      24
+      2f      24
+      30      24
+      31      24
+      32      24
+      33      24
+      34      24
+      35      25
    }
 
    method 'test3 (Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/String;' {
-      0      43
-      1      43
-      4      43
-      5      43
-      b      43
-      c      43
-      d      43
-      10      44
-      11      44
-      12      44
-      13      44
-      14      44
-      17      46
-      18      46
-      19      46
-      1c      47
-      1d      47
-      1e      47
-      1f      47
-      20      47
-      24      50
-      25      50
-      26      50
-      29      51
-      2a      51
-      2b      51
-      2c      51
-      2d      51
-      2e      51
-      31      55
-      32      55
-      33      55
+      0      28
+      1      28
+      4      28
+      5      28
+      b      28
+      c      28
+      d      28
+      10      29
+      11      29
+      12      29
+      13      29
+      14      29
+      17      31
+      18      31
+      19      31
+      1c      32
+      1d      32
+      1e      32
+      1f      32
+      20      32
+      24      35
+      25      35
+      26      35
+      29      36
+      2a      36
+      2b      36
+      2c      36
+      2d      36
+      2e      36
+      31      40
+      32      40
+      33      40
    }
 }
 
 Lines mapping:
-9 <-> 6
-10 <-> 7
-11 <-> 9
-15 <-> 16
-19 <-> 20
-20 <-> 21
-21 <-> 25
-24 <-> 22
-27 <-> 28
-31 <-> 32
-32 <-> 33
-33 <-> 34
-36 <-> 37
-39 <-> 40
-40 <-> 41
-43 <-> 44
-44 <-> 45
-46 <-> 47
-47 <-> 48
-50 <-> 51
-51 <-> 52
-55 <-> 56
+9 <-> 5
+10 <-> 5
+19 <-> 9
+20 <-> 10
+21 <-> 10
+24 <-> 10
+27 <-> 12
+31 <-> 17
+32 <-> 18
+33 <-> 19
+36 <-> 22
+39 <-> 25
+40 <-> 26
+43 <-> 29
+44 <-> 30
+46 <-> 32
+47 <-> 33
+50 <-> 36
+51 <-> 37
+55 <-> 41
+Not mapped:
+11
+15

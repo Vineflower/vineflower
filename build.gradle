@@ -3,9 +3,11 @@
 import org.jetbrains.java.decompiler.build.JasmCompile
 
 plugins {
-  id 'org.jetbrains.kotlin.jvm' version '1.5.21'
+  id 'jacoco'
+  id 'org.jetbrains.kotlin.jvm' version '1.6.21'
 }
 
+apply plugin: 'jacoco'
 apply plugin: 'java'
 apply plugin: 'groovy'
 apply plugin: 'maven-publish'
@@ -54,6 +56,16 @@ test {
   systemProperty "DOT_EXPORT_DIR", System.getProperty("DOT_EXPORT_DIR", null)
   systemProperty "DOT_ERROR_EXPORT_DIR", System.getProperty("DOT_ERROR_EXPORT_DIR", null)
   systemProperty "VALIDATE_DECOMPILED_CODE", System.getProperty("VALIDATE_DECOMPILED_CODE", "false")
+}
+
+jacocoTestReport.dependsOn(test)
+
+build.dependsOn(jacocoTestReport)
+
+jacocoTestReport {
+  reports {
+    xml.required = true
+  }
 }
 
 java.toolchain {
