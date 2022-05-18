@@ -53,6 +53,7 @@ public class VarVersionsProcessor {
   }
 
   private static void mergePhiVersions(SSAConstructorSparseEx ssa, DirectGraph graph) {
+    // TODO: Could be sped up by using a union-find data structure
     // collect phi versions
     List<Set<VarVersionPair>> lst = new ArrayList<>();
     for (Entry<VarVersionPair, FastSparseSet<Integer>> ent : ssa.getPhi().entrySet()) {
