@@ -190,7 +190,6 @@ public class SwitchExprent extends Exprent {
   }
 
   private static boolean includeWithDefault(Exprent expr){
-    // TODO: is this ever currently true?
     return expr.getExprType() == VarType.VARTYPE_NULL;
   }
 
