@@ -275,7 +275,7 @@ public final class SwitchExpressionHelper {
           ExitExprent exit = ((ExitExprent) exprents.get(0));
 
           // Special case throws
-          if (exit.getExitType() == ExitExprent.EXIT_THROW) {
+          if (exit.getExitType() == ExitExprent.Type.THROW) {
             map.put(breakJump, null);
             continue;
           } else {

@@ -71,7 +71,7 @@ public class NestedMemberAccess {
 
             if (exprent.type == Exprent.EXPRENT_EXIT) {
               ExitExprent exexpr = (ExitExprent)exprent;
-              if (exexpr.getExitType() == ExitExprent.EXIT_RETURN && exexpr.getValue() != null) {
+              if (exexpr.getExitType() == ExitExprent.Type.RETURN && exexpr.getValue() != null) {
                 exprCore = exexpr.getValue();
               }
             }
@@ -178,7 +178,7 @@ public class NestedMemberAccess {
                       if (((VarExprent)asexpr.getRight()).getIndex() == parcount - 1) {
 
                         ExitExprent exexpr = (ExitExprent)exprentSecond;
-                        if (exexpr.getExitType() == ExitExprent.EXIT_RETURN && exexpr.getValue() != null) {
+                        if (exexpr.getExitType() == ExitExprent.Type.RETURN && exexpr.getValue() != null) {
                           if (exexpr.getValue().type == Exprent.EXPRENT_VAR &&
                               ((VarExprent)asexpr.getRight()).getIndex() == parcount - 1) {
                             type = MethodAccess.FIELD_SET;

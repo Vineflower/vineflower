@@ -28,7 +28,9 @@ import org.jetbrains.java.decompiler.struct.consts.PrimitiveConstant;
 import org.jetbrains.java.decompiler.struct.gen.FieldDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
-import org.jetbrains.java.decompiler.struct.gen.generics.*;
+import org.jetbrains.java.decompiler.struct.gen.generics.GenericClassDescriptor;
+import org.jetbrains.java.decompiler.struct.gen.generics.GenericFieldDescriptor;
+import org.jetbrains.java.decompiler.struct.gen.generics.GenericMethodDescriptor;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.TextUtil;
@@ -210,7 +212,7 @@ public class ClassWriter {
                 ((VarExprent)((AssignmentExprent)firstExpr).getLeft()).isDefinition();
 
               boolean isThrow = firstExpr.type == Exprent.EXPRENT_EXIT &&
-                ((ExitExprent)firstExpr).getExitType() == ExitExprent.EXIT_THROW;
+                ((ExitExprent)firstExpr).getExitType() == ExitExprent.Type.THROW;
 
               if (!isVarDefinition && !isThrow) {
                 simpleLambda = true;

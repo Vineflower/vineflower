@@ -194,7 +194,7 @@ public class FinallyProcessor {
               found = false;
               if (exprent.type == Exprent.EXPRENT_EXIT) {
                 ExitExprent exexpr = (ExitExprent)exprent;
-                if (exexpr.getExitType() == ExitExprent.EXIT_THROW && exexpr.getValue().type == Exprent.EXPRENT_VAR) {
+                if (exexpr.getExitType() == ExitExprent.Type.THROW && exexpr.getValue().type == Exprent.EXPRENT_VAR) {
                   found = true;
                 }
               }
@@ -230,7 +230,7 @@ public class FinallyProcessor {
                 boolean found = false;
                 if (next != null && next.type == Exprent.EXPRENT_EXIT) {
                   ExitExprent exexpr = (ExitExprent)next;
-                  if (exexpr.getExitType() == ExitExprent.EXIT_THROW && exexpr.getValue().type == Exprent.EXPRENT_VAR
+                  if (exexpr.getExitType() == ExitExprent.Type.THROW && exexpr.getValue().type == Exprent.EXPRENT_VAR
                       && assexpr.getLeft().equals(exexpr.getValue())) {
                     found = true;
                   }

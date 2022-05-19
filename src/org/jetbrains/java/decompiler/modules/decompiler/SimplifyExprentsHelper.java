@@ -401,7 +401,7 @@ public class SimplifyExprentsHelper {
       ExitExprent exit = (ExitExprent) second;
       //if simple assign and exit is return and return isn't void
       if (assignment.getCondType() == null
-          && exit.getExitType() == ExitExprent.EXIT_RETURN
+          && exit.getExitType() == ExitExprent.Type.RETURN
           && exit.getValue() != null
           && assignment.getLeft().type == Exprent.EXPRENT_VAR
           && exit.getValue().type == Exprent.EXPRENT_VAR) {
@@ -1101,10 +1101,10 @@ public class SimplifyExprentsHelper {
             ExitExprent elseExit = (ExitExprent) elseExpr;
 
             if (ifExit.getExitType() == elseExit.getExitType() && ifExit.getValue() != null && elseExit.getValue() != null &&
-                ifExit.getExitType() == ExitExprent.EXIT_RETURN) {
+                ifExit.getExitType() == ExitExprent.Type.RETURN) {
               // throw is dangerous, because of implicit casting to a common superclass
               // e.g. throws IOException and throw true?new RuntimeException():new IOException(); won't work
-              if (ifExit.getExitType() == ExitExprent.EXIT_THROW &&
+              if (ifExit.getExitType() == ExitExprent.Type.THROW &&
                   !ifExit.getValue().getExprType().equals(elseExit.getValue().getExprType())) {  // note: getExprType unreliable at this point!
                 return false;
               }
