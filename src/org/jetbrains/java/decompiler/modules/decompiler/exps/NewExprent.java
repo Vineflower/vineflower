@@ -5,36 +5,29 @@ import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.ClassWriter;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
+import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.rels.ClassWrapper;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
+import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.DummyExitStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
-import org.jetbrains.java.decompiler.struct.StructMethod;
-import org.jetbrains.java.decompiler.struct.consts.PrimitiveConstant;
-import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
-import org.jetbrains.java.decompiler.struct.gen.generics.GenericMethodDescriptor;
-import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
-import org.jetbrains.java.decompiler.util.TextBuffer;
-import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
-import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
-import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.struct.StructClass;
+import org.jetbrains.java.decompiler.struct.StructMethod;
+import org.jetbrains.java.decompiler.struct.consts.PrimitiveConstant;
+import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericClassDescriptor;
+import org.jetbrains.java.decompiler.struct.gen.generics.GenericMethodDescriptor;
+import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.ListStack;
+import org.jetbrains.java.decompiler.util.TextBuffer;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.BitSet;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class NewExprent extends Exprent {
   private InvocationExprent constructor;
@@ -599,7 +592,7 @@ public class NewExprent extends Exprent {
             Exprent expr = lstExpr.get(lstExpr.size() - 1);
             if (expr.type == Exprent.EXPRENT_EXIT) {
               ExitExprent ex = (ExitExprent)expr;
-              if (ex.getExitType() == ExitExprent.EXIT_RETURN) {
+              if (ex.getExitType() == ExitExprent.Type.RETURN) {
                 VarType realRetType = ex.getValue().getInferredExprType(upperBound);
                 if (realRetType.isGeneric()) {
                   paramNames.forEach(inferredLambdaTypes::remove);
@@ -693,7 +686,7 @@ public class NewExprent extends Exprent {
                   Exprent expr = lstExpr.get(lstExpr.size() - 1);
                   if (expr.type == Exprent.EXPRENT_EXIT) {
                     ExitExprent ex = (ExitExprent)expr;
-                    if (ex.getExitType() == ExitExprent.EXIT_RETURN) {
+                    if (ex.getExitType() == ExitExprent.Type.RETURN) {
                       ex.getMethodDescriptor().genericInfo = genDesc;
                       break; // desc var should be the same for all returns
                     }

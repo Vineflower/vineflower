@@ -10,7 +10,10 @@ import org.jetbrains.java.decompiler.struct.StructField;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 
-import java.util.*;
+import java.util.BitSet;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class SwitchExprent extends Exprent {
   private final SwitchStatement backing;
@@ -133,7 +136,7 @@ public class SwitchExprent extends Exprent {
         } else if (exprent.type == Exprent.EXPRENT_EXIT) {
           ExitExprent exit = (ExitExprent) exprent;
 
-          if (exit.getExitType() == ExitExprent.EXIT_THROW) {
+          if (exit.getExitType() == ExitExprent.Type.THROW) {
             buf.append(exit.toJava(indent).append(";"));
           } else {
             throw new IllegalStateException("Can't have return in switch expression");
@@ -185,7 +188,7 @@ public class SwitchExprent extends Exprent {
     if (targetExprs != null && targetExprs.size() == 1) {
       Exprent targetExpr = targetExprs.get(0);
       return targetExpr instanceof ExitExprent
-        && ((ExitExprent) targetExpr).getExitType() == ExitExprent.EXIT_THROW
+        && ((ExitExprent) targetExpr).getExitType() == ExitExprent.Type.THROW
         && ((ExitExprent) targetExpr).getValue().getExprType().value.equals("java/lang/IncompatibleClassChangeError");
     }
     return false;

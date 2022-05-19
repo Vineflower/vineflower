@@ -6,11 +6,8 @@ import org.jetbrains.java.decompiler.code.Instruction;
 import org.jetbrains.java.decompiler.code.InstructionSequence;
 import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
-import org.jetbrains.java.decompiler.util.ListStack;
-import org.jetbrains.java.decompiler.util.TextBuffer;
-import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectNode;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.FlattenStatementsHelper;
@@ -26,8 +23,10 @@ import org.jetbrains.java.decompiler.struct.consts.PooledConstant;
 import org.jetbrains.java.decompiler.struct.consts.PrimitiveConstant;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
-import org.jetbrains.java.decompiler.util.TextUtil;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
+import org.jetbrains.java.decompiler.util.ListStack;
+import org.jetbrains.java.decompiler.util.TextBuffer;
+import org.jetbrains.java.decompiler.util.TextUtil;
 
 import java.util.*;
 
@@ -516,7 +515,7 @@ public class ExprProcessor implements CodeConstants {
         case opc_areturn:
         case opc_return:
         case opc_athrow:
-          exprlist.add(new ExitExprent(instr.opcode == opc_athrow ? ExitExprent.EXIT_THROW : ExitExprent.EXIT_RETURN,
+          exprlist.add(new ExitExprent(instr.opcode == opc_athrow ? ExitExprent.Type.THROW : ExitExprent.Type.RETURN,
                                        instr.opcode == opc_return ? null : stack.pop(),
                                        instr.opcode == opc_athrow ? null : methodDescriptor.ret,
                                        bytecode_offsets, methodDescriptor));

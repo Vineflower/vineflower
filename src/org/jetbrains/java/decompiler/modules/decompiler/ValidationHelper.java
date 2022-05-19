@@ -5,7 +5,10 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectNode;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.FlattenStatementsHelper;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.CatchStatement;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionNode;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionsGraph;
@@ -347,7 +350,7 @@ public final class ValidationHelper {
       return;
     }
 
-    if (exit.getExitType() == ExitExprent.EXIT_RETURN) {
+    if (exit.getExitType() == ExitExprent.Type.RETURN) {
       if (exit.getRetType().equals(VarType.VARTYPE_VOID)){
         if (exit.getValue() != null) {
           throw new IllegalStateException("Void return with value: " + exit);

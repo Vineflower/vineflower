@@ -6,17 +6,7 @@ import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.VarNamesCollector;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
-import org.jetbrains.java.decompiler.modules.decompiler.StackVarsProcessor;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.AssignmentExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.ConstExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.ExitExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.FieldExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.InvocationExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.NewExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.sforms.SSAUConstructorSparseEx;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructMethod;
@@ -452,7 +442,7 @@ public class VarDefinitionHelper {
                 target = ((FieldExprent)exp).getClassname();
               } else if (exp.type == Exprent.EXPRENT_EXIT) {
                 ExitExprent exit = (ExitExprent)exp;
-                if (exit.getExitType() == ExitExprent.EXIT_RETURN) {
+                if (exit.getExitType() == ExitExprent.Type.RETURN) {
                   instance = exit.getValue();
                   target = exit.getRetType().value;
                 }

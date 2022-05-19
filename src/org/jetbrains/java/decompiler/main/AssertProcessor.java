@@ -263,7 +263,7 @@ public final class AssertProcessor {
 
     if (expr.type == Exprent.EXPRENT_EXIT) {
       ExitExprent exexpr = (ExitExprent)expr;
-      if (exexpr.getExitType() == ExitExprent.EXIT_THROW && exexpr.getValue().type == Exprent.EXPRENT_NEW) {
+      if (exexpr.getExitType() == ExitExprent.Type.THROW && exexpr.getValue().type == Exprent.EXPRENT_NEW) {
         NewExprent nexpr = (NewExprent)exexpr.getValue();
         if (CLASS_ASSERTION_ERROR.equals(nexpr.getNewType()) && nexpr.getConstructor() != null) {
           return nexpr.getConstructor();

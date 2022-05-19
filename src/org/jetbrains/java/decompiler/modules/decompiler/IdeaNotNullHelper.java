@@ -200,7 +200,7 @@ public final class IdeaNotNullHelper {
       Exprent exprent = stat.getExprents().get(0);
       if (exprent.type == Exprent.EXPRENT_EXIT) {
         ExitExprent exit_exprent = (ExitExprent)exprent;
-        if (exit_exprent.getExitType() == ExitExprent.EXIT_RETURN) {
+        if (exit_exprent.getExitType() == ExitExprent.Type.RETURN) {
           Exprent exprent_value = exit_exprent.getValue();
           //if(exprent_value.type == Exprent.EXPRENT_VAR) {
           //	VarExprent var_value = (VarExprent)exprent_value;
@@ -263,7 +263,7 @@ public final class IdeaNotNullHelper {
       Exprent exprent = stat.getExprents().get(0);
       if (exprent.type == Exprent.EXPRENT_EXIT) {
         ExitExprent exit_exprent = (ExitExprent)exprent;
-        if (exit_exprent.getExitType() == ExitExprent.EXIT_RETURN) {
+        if (exit_exprent.getExitType() == ExitExprent.Type.RETURN) {
           Exprent exprent_value = exit_exprent.getValue();
 
           SequenceStatement sequence = (SequenceStatement)parent;
