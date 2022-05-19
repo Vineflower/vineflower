@@ -8,6 +8,7 @@ import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.rels.ClassWrapper;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statements;
@@ -374,7 +375,7 @@ public final class InitializerProcessor {
     if (expr.type == Exprent.EXPRENT_FUNCTION) {
       Exprent temp = expr;
       // Find function inside casts
-      while (temp.type == Exprent.EXPRENT_FUNCTION && ((FunctionExprent) temp).getFuncType() >= FunctionExprent.FUNCTION_I2L && ((FunctionExprent) temp).getFuncType() <= FunctionExprent.FUNCTION_CAST) {
+      while (temp.type == Exprent.EXPRENT_FUNCTION && (((FunctionExprent) temp).getFuncType().castType != null || ((FunctionExprent) temp).getFuncType() == FunctionType.CAST)) {
         temp = ((FunctionExprent) temp).getLstOperands().get(0);
       }
 
@@ -398,7 +399,7 @@ public final class InitializerProcessor {
     if (expr.type == Exprent.EXPRENT_INVOCATION) {
       if (((InvocationExprent) expr).isUnboxingCall()) {
         Exprent inner = ((InvocationExprent) expr).getInstance();
-        if (inner.type == Exprent.EXPRENT_FUNCTION && ((FunctionExprent)inner).getFuncType() == FunctionExprent.FUNCTION_CAST) {
+        if (inner.type == Exprent.EXPRENT_FUNCTION && ((FunctionExprent)inner).getFuncType() == FunctionType.CAST) {
           inner.addBytecodeOffsets(expr.bytecode);
           expr = inner;
         }

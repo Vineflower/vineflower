@@ -7,6 +7,7 @@ import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.rels.ClassWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.SSAConstructorSparseEx;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
@@ -399,7 +400,7 @@ public class SimplifyExprentsHelper {
       AssignmentExprent assignment = (AssignmentExprent) first;
       ExitExprent exit = (ExitExprent) second;
       //if simple assign and exit is return and return isn't void
-      if (assignment.getCondType() == AssignmentExprent.CONDITION_NONE
+      if (assignment.getCondType() == null
           && exit.getExitType() == ExitExprent.EXIT_RETURN
           && exit.getValue() != null
           && assignment.getLeft().type == Exprent.EXPRENT_VAR
@@ -518,12 +519,12 @@ public class SimplifyExprentsHelper {
       if (as.getRight().type == Exprent.EXPRENT_FUNCTION) {
         FunctionExprent func = (FunctionExprent) as.getRight();
 
-        if (func.getFuncType() == FunctionExprent.FUNCTION_ADD || func.getFuncType() == FunctionExprent.FUNCTION_SUB) {
+        if (func.getFuncType() == FunctionType.ADD || func.getFuncType() == FunctionType.SUB) {
           Exprent econd = func.getLstOperands().get(0);
           Exprent econst = func.getLstOperands().get(1);
 
           if (econst.type != Exprent.EXPRENT_CONST && econd.type == Exprent.EXPRENT_CONST &&
-              func.getFuncType() == FunctionExprent.FUNCTION_ADD) {
+              func.getFuncType() == FunctionType.ADD) {
             econd = econst;
             econst = func.getLstOperands().get(0);
           }
@@ -532,7 +533,7 @@ public class SimplifyExprentsHelper {
             Exprent left = as.getLeft();
 
             if (left.type != Exprent.EXPRENT_VAR && left.equals(econd)) {
-              int type = func.getFuncType() == FunctionExprent.FUNCTION_ADD ? FunctionExprent.FUNCTION_PPI : FunctionExprent.FUNCTION_MMI;
+              FunctionType type = func.getFuncType() == FunctionType.ADD ? FunctionType.PPI : FunctionType.MMI;
               FunctionExprent ret = new FunctionExprent(type, econd, func.bytecode);
               ret.setImplicitType(VarType.VARTYPE_INT);
               return ret;
@@ -557,13 +558,13 @@ public class SimplifyExprentsHelper {
       AssignmentExprent as = (AssignmentExprent) first;
       FunctionExprent in = (FunctionExprent) second;
 
-      if ((in.getFuncType() == FunctionExprent.FUNCTION_MMI || in.getFuncType() == FunctionExprent.FUNCTION_PPI) &&
+      if ((in.getFuncType() == FunctionType.MMI || in.getFuncType() == FunctionType.PPI) &&
           in.getLstOperands().get(0).equals(as.getRight())) {
 
-        if (in.getFuncType() == FunctionExprent.FUNCTION_MMI) {
-          in.setFuncType(FunctionExprent.FUNCTION_IMM);
+        if (in.getFuncType() == FunctionType.MMI) {
+          in.setFuncType(FunctionType.IMM);
         } else {
-          in.setFuncType(FunctionExprent.FUNCTION_IPP);
+          in.setFuncType(FunctionType.IPP);
         }
         as.setRight(in);
 
@@ -596,14 +597,14 @@ public class SimplifyExprentsHelper {
 
     FunctionExprent func = (FunctionExprent) as.getRight();
 
-    if (func.getFuncType() != FunctionExprent.FUNCTION_ADD && func.getFuncType() != FunctionExprent.FUNCTION_SUB) {
+    if (func.getFuncType() != FunctionType.ADD && func.getFuncType() != FunctionType.SUB) {
       return false;
     }
 
     Exprent econd = func.getLstOperands().get(0);
     Exprent econst = func.getLstOperands().get(1);
 
-    if (econst.type != Exprent.EXPRENT_CONST && econd.type == Exprent.EXPRENT_CONST && func.getFuncType() == FunctionExprent.FUNCTION_ADD) {
+    if (econst.type != Exprent.EXPRENT_CONST && econd.type == Exprent.EXPRENT_CONST && func.getFuncType() == FunctionType.ADD) {
       econd = econst;
       econst = func.getLstOperands().get(0);
     }
@@ -613,7 +614,7 @@ public class SimplifyExprentsHelper {
         af.getLeft().equals(econd) &&
         af.getRight().equals(as.getLeft()) &&
         (af.getLeft().getExprentUse() & Exprent.MULTIPLE_USES) != 0) {
-      int type = func.getFuncType() == FunctionExprent.FUNCTION_ADD ? FunctionExprent.FUNCTION_IPP : FunctionExprent.FUNCTION_IMM;
+      FunctionType type = func.getFuncType() == FunctionType.ADD ? FunctionType.IPP : FunctionType.IMM;
 
       FunctionExprent ret = new FunctionExprent(type, af.getRight(), func.bytecode);
       ret.setImplicitType(VarType.VARTYPE_INT);
@@ -641,7 +642,7 @@ public class SimplifyExprentsHelper {
     if (expr.type == Exprent.EXPRENT_FUNCTION) {
       FunctionExprent func = (FunctionExprent) expr;
 
-      if (func.getFuncType() == FunctionExprent.FUNCTION_PPI || func.getFuncType() == FunctionExprent.FUNCTION_MMI) {
+      if (func.getFuncType() == FunctionType.PPI || func.getFuncType() == FunctionType.MMI) {
         if (func.getLstOperands().get(0).type == Exprent.EXPRENT_VAR) {
           VarExprent var = (VarExprent) func.getLstOperands().get(0);
 
@@ -688,17 +689,17 @@ public class SimplifyExprentsHelper {
         }
 
         // Don't consider || or &&
-        if (func.getFuncType() == FunctionExprent.FUNCTION_BOOLEAN_OR || func.getFuncType() == FunctionExprent.FUNCTION_BOOLEAN_AND) {
+        if (func.getFuncType() == FunctionType.BOOLEAN_OR || func.getFuncType() == FunctionType.BOOLEAN_AND) {
           return null;
         }
 
         // Don't consider ternaries
-        if (func.getFuncType() == FunctionExprent.FUNCTION_TERNARY) {
+        if (func.getFuncType() == FunctionType.TERNARY) {
           return null;
         }
 
         // Subtraction and division make it hard to deduce which variable is used, especially without SSAU, so cancel if we find
-        if (func.getFuncType() == FunctionExprent.FUNCTION_SUB || func.getFuncType() == FunctionExprent.FUNCTION_DIV) {
+        if (func.getFuncType() == FunctionType.SUB || func.getFuncType() == FunctionType.DIV) {
           return null;
         }
       }
@@ -739,10 +740,10 @@ public class SimplifyExprentsHelper {
 
   private static boolean isPPMM(FunctionExprent func) {
     return
-      func.getFuncType() == FunctionExprent.FUNCTION_PPI ||
-      func.getFuncType() == FunctionExprent.FUNCTION_MMI ||
-      func.getFuncType() == FunctionExprent.FUNCTION_IPP ||
-      func.getFuncType() == FunctionExprent.FUNCTION_IMM;
+      func.getFuncType() == FunctionType.PPI ||
+      func.getFuncType() == FunctionType.MMI ||
+      func.getFuncType() == FunctionType.IPP ||
+      func.getFuncType() == FunctionType.IMM;
   }
 
   private static boolean isMonitorExit(Exprent first) {
@@ -1076,7 +1077,7 @@ public class SimplifyExprentsHelper {
                   List<Exprent> data = new ArrayList<>(statement.getFirst().getExprents());
 
                   List<Exprent> operands = Arrays.asList(statement.getHeadexprent().getCondition(), ifAssign.getRight(), elseAssign.getRight());
-                  data.add(new AssignmentExprent(ifVar, new FunctionExprent(FunctionExprent.FUNCTION_TERNARY, operands, ifHeadExprBytecode), ifHeadExprBytecode));
+                  data.add(new AssignmentExprent(ifVar, new FunctionExprent(FunctionType.TERNARY, operands, ifHeadExprBytecode), ifHeadExprBytecode));
                   statement.setExprents(data);
 
                   if (statement.getAllSuccessorEdges().isEmpty()) {
@@ -1115,7 +1116,7 @@ public class SimplifyExprentsHelper {
 
               List<Exprent> data = new ArrayList<>(statement.getFirst().getExprents());
 
-              data.add(new ExitExprent(ifExit.getExitType(), new FunctionExprent(FunctionExprent.FUNCTION_TERNARY,
+              data.add(new ExitExprent(ifExit.getExitType(), new FunctionExprent(FunctionType.TERNARY,
                 Arrays.asList(
                   statement.getHeadexprent().getCondition(),
                   ifExit.getValue(),
@@ -1139,7 +1140,7 @@ public class SimplifyExprentsHelper {
   }
 
   private static boolean isIff(Exprent exp) {
-    return exp.type == Exprent.EXPRENT_FUNCTION && ((FunctionExprent) exp).getFuncType() == FunctionExprent.FUNCTION_TERNARY;
+    return exp.type == Exprent.EXPRENT_FUNCTION && ((FunctionExprent) exp).getFuncType() == FunctionType.TERNARY;
   }
 
   private static boolean collapseInlinedClass14(Statement stat) {

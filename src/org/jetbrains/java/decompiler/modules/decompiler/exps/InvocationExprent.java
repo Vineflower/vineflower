@@ -8,6 +8,7 @@ import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.ClasspathHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
@@ -292,7 +293,7 @@ public class InvocationExprent extends Exprent {
           VarType instType;
 
           // don't want the casted type
-          if (instance.type == EXPRENT_FUNCTION && ((FunctionExprent)instance).getFuncType() == FunctionExprent.FUNCTION_CAST) {
+          if (instance.type == EXPRENT_FUNCTION && ((FunctionExprent)instance).getFuncType() == FunctionType.CAST) {
             instType = ((FunctionExprent)instance).getLstOperands().get(0).getInferredExprType(instUB);
           }
           else {
@@ -373,7 +374,7 @@ public class InvocationExprent extends Exprent {
                 VarType paramUB = paramType.remap(hierarchyMap).remap(combined);
 
                 VarType argtype;
-                if (lstParameters.get(i).type == EXPRENT_FUNCTION && ((FunctionExprent)lstParameters.get(i)).getFuncType() == FunctionExprent.FUNCTION_CAST) {
+                if (lstParameters.get(i).type == EXPRENT_FUNCTION && ((FunctionExprent)lstParameters.get(i)).getFuncType() == FunctionType.CAST) {
                   argtype = ((FunctionExprent)lstParameters.get(i)).getLstOperands().get(0).getInferredExprType(paramUB);
                 }
                 else {
@@ -606,7 +607,7 @@ public class InvocationExprent extends Exprent {
             buf.addBytecodeMapping(bytecode);
             if (instance.type == Exprent.EXPRENT_FUNCTION) {
               FunctionExprent func = (FunctionExprent)instance;
-              if (func.getFuncType() == FunctionExprent.FUNCTION_CAST && func.getLstOperands().get(1).type == Exprent.EXPRENT_CONST) {
+              if (func.getFuncType() == FunctionType.CAST && func.getLstOperands().get(1).type == Exprent.EXPRENT_CONST) {
                 ConstExprent _const = (ConstExprent)func.getLstOperands().get(1);
                 boolean skipCast = false;
 
@@ -638,7 +639,7 @@ public class InvocationExprent extends Exprent {
 
           boolean skippedCast = false;
 
-          if (instance.type == EXPRENT_FUNCTION && ((FunctionExprent)instance).getFuncType() == FunctionExprent.FUNCTION_CAST) {
+          if (instance.type == EXPRENT_FUNCTION && ((FunctionExprent)instance).getFuncType() == FunctionType.CAST) {
             skippedCast = !((FunctionExprent) instance).doesCast();
 
             // Fixes issue where ((Obj)(Obj)o).m() would become (Obj)o.m(), when it should be ((Obj)o).m()
@@ -650,7 +651,7 @@ public class InvocationExprent extends Exprent {
 
               // Get inner cast if it exists
               Exprent exp = ((FunctionExprent) instance).getLstOperands().get(0);
-              while (exp.type == EXPRENT_FUNCTION && ((FunctionExprent) exp).getFuncType() == FunctionExprent.FUNCTION_CAST) {
+              while (exp.type == EXPRENT_FUNCTION && ((FunctionExprent) exp).getFuncType() == FunctionType.CAST) {
                 if (exp.getExprType().equals(castType)) {
                   // If we are of the same type as the current cast, Update the values and iterate deeper
                   skippedCast = !((FunctionExprent) exp).doesCast();
@@ -667,7 +668,7 @@ public class InvocationExprent extends Exprent {
           if (rightType.equals(VarType.VARTYPE_OBJECT) && !leftType.equals(rightType)) {
             buf.append("((").append(ExprProcessor.getCastTypeName(leftType)).append(")");
 
-            if (instance.getPrecedence() >= FunctionExprent.getPrecedence(FunctionExprent.FUNCTION_CAST)) {
+            if (instance.getPrecedence() >= FunctionType.CAST.precedence) {
               res.enclose("(", ")");
             }
             buf.append(res).append(")");

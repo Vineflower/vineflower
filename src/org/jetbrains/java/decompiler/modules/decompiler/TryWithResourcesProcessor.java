@@ -2,6 +2,7 @@ package org.jetbrains.java.decompiler.modules.decompiler;
 
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 
@@ -254,7 +255,7 @@ public final class TryWithResourcesProcessor {
           FunctionExprent func = unwrapNegations((FunctionExprent) condition);
 
           // Ensure the exprent is the one we want to remove
-          if (func.getFuncType() == FunctionExprent.FUNCTION_NE && func.getLstOperands().get(0).type == Exprent.EXPRENT_VAR && func.getLstOperands().get(1).getExprType().equals(VarType.VARTYPE_NULL)) {
+          if (func.getFuncType() == FunctionType.NE && func.getLstOperands().get(0).type == Exprent.EXPRENT_VAR && func.getLstOperands().get(1).getExprType().equals(VarType.VARTYPE_NULL)) {
             if (func.getLstOperands().get(0).type == Exprent.EXPRENT_VAR && ((VarExprent) func.getLstOperands().get(0)).getVarVersionPair().equals(closeable.getVarVersionPair())) {
               return true;
             }
@@ -335,7 +336,7 @@ public final class TryWithResourcesProcessor {
   }
 
   private static FunctionExprent unwrapNegations(FunctionExprent func) {
-    while (func.getFuncType() == FunctionExprent.FUNCTION_BOOL_NOT) {
+    while (func.getFuncType() == FunctionType.BOOL_NOT) {
       Exprent expr = func.getLstOperands().get(0);
 
       if (expr.type == Exprent.EXPRENT_FUNCTION) {

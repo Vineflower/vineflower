@@ -3,6 +3,7 @@ package org.jetbrains.java.decompiler.modules.decompiler;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.AssignmentExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
@@ -63,7 +64,7 @@ public final class IfPatternMatchProcessor {
         FunctionExprent iof = (FunctionExprent)exprent;
 
         // Check for instanceof and isn't a pattern match yet
-        if (iof.getFuncType() == FunctionExprent.FUNCTION_INSTANCEOF && iof.getLstOperands().size() == 2) {
+        if (iof.getFuncType() == FunctionType.INSTANCEOF && iof.getLstOperands().size() == 2) {
           Exprent source = iof.getLstOperands().get(0);
           Exprent target = iof.getLstOperands().get(1);
 
@@ -83,7 +84,7 @@ public final class IfPatternMatchProcessor {
 
               // Right side needs to be a cast function
               if (right.type == Exprent.EXPRENT_FUNCTION) {
-                if (((FunctionExprent)right).getFuncType() == FunctionExprent.FUNCTION_CAST) {
+                if (((FunctionExprent)right).getFuncType() == FunctionType.CAST) {
                   Exprent casted = right.getAllExprents().get(0);
 
                   // Check if the exprent being casted is the exprent on the left side of the instanceof

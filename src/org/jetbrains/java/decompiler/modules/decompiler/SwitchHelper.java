@@ -8,6 +8,7 @@ import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.rels.ClassWrapper;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.struct.StructField;
 import org.jetbrains.java.decompiler.struct.StructMethod;
@@ -189,7 +190,7 @@ public final class SwitchHelper {
           IfStatement ifStat = (IfStatement)curr;
           Exprent condition = ifStat.getHeadexprent().getCondition();
 
-          if (condition.type == Exprent.EXPRENT_FUNCTION && ((FunctionExprent)condition).getFuncType() == FunctionExprent.FUNCTION_NE) {
+          if (condition.type == Exprent.EXPRENT_FUNCTION && ((FunctionExprent)condition).getFuncType() == FunctionType.NE) {
             condition = ((FunctionExprent)condition).getLstOperands().get(0);
           }
 
@@ -429,7 +430,7 @@ public final class SwitchHelper {
         // and it's a null check with `else` branch,
         if (parent.iftype == IfStatement.IFTYPE_IFELSE && ifCond instanceof FunctionExprent) {
           FunctionExprent func = (FunctionExprent)ifCond;
-          if (func.getFuncType() == FunctionExprent.FUNCTION_NE && func.getLstOperands().size() == 2) {
+          if (func.getFuncType() == FunctionType.NE && func.getLstOperands().size() == 2) {
             Exprent right = func.getLstOperands().get(1);
             if (right.type == Exprent.EXPRENT_CONST && right.getExprType() == VarType.VARTYPE_NULL) {
               // and the `else` only assigns a variable,
@@ -473,7 +474,7 @@ public final class SwitchHelper {
                   IfStatement ifStat = (IfStatement)curr;
                   Exprent condition = ifStat.getHeadexprent().getCondition();
 
-                  if (condition.type == Exprent.EXPRENT_FUNCTION && ((FunctionExprent)condition).getFuncType() == FunctionExprent.FUNCTION_NE) {
+                  if (condition.type == Exprent.EXPRENT_FUNCTION && ((FunctionExprent)condition).getFuncType() == FunctionType.NE) {
                     condition = ((FunctionExprent)condition).getLstOperands().get(0);
                   }
 

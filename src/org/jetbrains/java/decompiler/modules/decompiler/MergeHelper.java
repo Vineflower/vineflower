@@ -8,6 +8,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.ArrayExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.AssignmentExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.IfExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.InvocationExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
@@ -304,11 +305,11 @@ public final class MergeHelper {
     }
 
     Exprent check = exprent;
-    while (check.type == Exprent.EXPRENT_FUNCTION && ((FunctionExprent)check).getFuncType() == FunctionExprent.FUNCTION_BOOL_NOT) {
+    while (check.type == Exprent.EXPRENT_FUNCTION && ((FunctionExprent)check).getFuncType() == FunctionType.BOOL_NOT) {
       check = ((FunctionExprent)check).getLstOperands().get(0);
     }
 
-    return check.type == Exprent.EXPRENT_FUNCTION && ((FunctionExprent)check).getFuncType() == FunctionExprent.FUNCTION_TERNARY;
+    return check.type == Exprent.EXPRENT_FUNCTION && ((FunctionExprent)check).getFuncType() == FunctionType.TERNARY;
   }
 
   // Returns if the statement provided and the end statement provided has a direct control flow path
@@ -623,7 +624,7 @@ public final class MergeHelper {
         Exprent right = initExprents[0].getRight();
         if (right.type == Exprent.EXPRENT_FUNCTION) {
           FunctionExprent fRight = (FunctionExprent) right;
-          if (fRight.getFuncType() == FunctionExprent.FUNCTION_CAST) {
+          if (fRight.getFuncType() == FunctionType.CAST) {
             right = fRight.getLstOperands().get(0);
           }
 
@@ -697,10 +698,10 @@ public final class MergeHelper {
         FunctionExprent funcRight = (FunctionExprent)initExprents[1].getRight();
         FunctionExprent funcInc   = (FunctionExprent)lastExprent;
         ArrayExprent    arr       = (ArrayExprent)firstDoExprent.getRight();
-        int incType = funcInc.getFuncType();
+        FunctionType incType = funcInc.getFuncType();
 
-        if (funcRight.getFuncType() != FunctionExprent.FUNCTION_ARRAY_LENGTH ||
-            (incType != FunctionExprent.FUNCTION_PPI && incType != FunctionExprent.FUNCTION_IPP) ||
+        if (funcRight.getFuncType() != FunctionType.ARRAY_LENGTH ||
+            (incType != FunctionType.PPI && incType != FunctionType.IPP) ||
             arr.getIndex().type != Exprent.EXPRENT_VAR ||
             arr.getArray().type != Exprent.EXPRENT_VAR) {
             return false;
@@ -816,11 +817,11 @@ public final class MergeHelper {
     while (true) {
       if (exp.type == Exprent.EXPRENT_FUNCTION) {
         FunctionExprent fun = (FunctionExprent)exp;
-        if (fun.getFuncType() == FunctionExprent.FUNCTION_BOOL_NOT) {
+        if (fun.getFuncType() == FunctionType.BOOL_NOT) {
           exp = fun.getLstOperands().get(0);
         }
-        else if (fun.getFuncType() == FunctionExprent.FUNCTION_EQ ||
-                 fun.getFuncType() == FunctionExprent.FUNCTION_NE) {
+        else if (fun.getFuncType() == FunctionType.EQ ||
+                 fun.getFuncType() == FunctionType.NE) {
           return fun.getLstOperands().get(0);
         }
         else {
@@ -850,7 +851,7 @@ public final class MergeHelper {
   private static Exprent getUncast(Exprent exp) {
     if (exp.type == Exprent.EXPRENT_FUNCTION) {
       FunctionExprent func = (FunctionExprent)exp;
-      if (func.getFuncType() == FunctionExprent.FUNCTION_CAST) {
+      if (func.getFuncType() == FunctionType.CAST) {
         return getUncast(func.getLstOperands().get(0));
       }
     }

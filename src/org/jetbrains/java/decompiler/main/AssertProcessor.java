@@ -11,6 +11,7 @@ import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.SecondaryFunctionsHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.struct.StructField;
 import org.jetbrains.java.decompiler.struct.gen.FieldDescriptor;
@@ -75,7 +76,7 @@ public final class AssertProcessor {
             if (initializer.type == Exprent.EXPRENT_FUNCTION) {
               FunctionExprent fexpr = (FunctionExprent)initializer;
 
-              if (fexpr.getFuncType() == FunctionExprent.FUNCTION_BOOL_NOT &&
+              if (fexpr.getFuncType() == FunctionType.BOOL_NOT &&
                   fexpr.getLstOperands().get(0).type == Exprent.EXPRENT_INVOCATION) {
 
                 InvocationExprent invexpr = (InvocationExprent)fexpr.getLstOperands().get(0);
@@ -169,7 +170,7 @@ public final class AssertProcessor {
     Exprent ascond = null, retcond = null;
     if (throwInIf) {
       if (exprres[0] != null) {
-        ascond = new FunctionExprent(FunctionExprent.FUNCTION_BOOL_NOT, (Exprent)exprres[0], throwError.bytecode);
+        ascond = new FunctionExprent(FunctionType.BOOL_NOT, (Exprent)exprres[0], throwError.bytecode);
         retcond = SecondaryFunctionsHelper.propagateBoolNot(ascond);
       }
     }
@@ -277,9 +278,9 @@ public final class AssertProcessor {
   private static Object[] getAssertionExprent(Statement stat, Exprent exprent, String classname, String key, boolean throwInIf) {
 
     if (exprent.type == Exprent.EXPRENT_FUNCTION) {
-      int desiredOperation = FunctionExprent.FUNCTION_BOOLEAN_AND;
+      FunctionType desiredOperation = FunctionType.BOOLEAN_AND;
       if (!throwInIf) {
-        desiredOperation = FunctionExprent.FUNCTION_BOOLEAN_OR;
+        desiredOperation = FunctionType.BOOLEAN_OR;
       }
 
       FunctionExprent fexpr = (FunctionExprent)exprent;
@@ -308,7 +309,7 @@ public final class AssertProcessor {
       } else if (isAssertionField(fexpr, classname, key, throwInIf)) {
         // assert false;
         return new Object[]{null, true};
-      } else if (fexpr.getFuncType() == FunctionExprent.FUNCTION_BOOL_NOT) {
+      } else if (fexpr.getFuncType() == FunctionType.BOOL_NOT) {
         // Switch expression assert
 
         Statement parent = parentSkippingSequences(stat);
@@ -340,7 +341,7 @@ public final class AssertProcessor {
     if (throwInIf) {
       if (exprent.type == Exprent.EXPRENT_FUNCTION) {
         FunctionExprent fparam = (FunctionExprent)exprent;
-        if (fparam.getFuncType() == FunctionExprent.FUNCTION_BOOL_NOT &&
+        if (fparam.getFuncType() == FunctionType.BOOL_NOT &&
             fparam.getLstOperands().get(0).type == Exprent.EXPRENT_FIELD) {
           FieldExprent fdparam = (FieldExprent)fparam.getLstOperands().get(0);
           return classname.equals(fdparam.getClassname()) &&
