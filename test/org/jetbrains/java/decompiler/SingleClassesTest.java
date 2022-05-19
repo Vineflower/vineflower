@@ -508,6 +508,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: causes invalid stack var simplification
     register(JAVA_8, "TestSynchronizedTryReturn");
     // TODO: parsing failure, postdom error, wrong variable use, invalid variable splitting
+    // TODO: finally return parsing wrong
     register(JAVA_8, "TestTryReturn");
     register(JAVA_8, "TestWhileConditionTernary");
 

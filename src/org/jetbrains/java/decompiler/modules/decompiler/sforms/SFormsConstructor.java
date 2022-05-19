@@ -16,7 +16,7 @@ import java.util.*;
 
 import static org.jetbrains.java.decompiler.modules.decompiler.sforms.VarMapHolder.mergeMaps;
 
-class SFormsConstructor {
+public class SFormsConstructor {
 
   private final boolean incrementOnUsage;
   private final boolean simplePhi;
@@ -626,10 +626,10 @@ class SFormsConstructor {
 
     // save the first protected range, containing current statement
     if (this.ssau && stat != null) { // null iff phantom version
-      Integer firstRangeId = getFirstProtectedRange(stat);
+      Statement firstRange = getFirstProtectedRange(stat);
 
-      if (firstRangeId != null) {
-        this.mapVersionFirstRange.put(new VarVersionPair(var, nextver), firstRangeId);
+      if (firstRange != null) {
+        this.mapVersionFirstRange.put(new VarVersionPair(var, nextver), firstRange.id);
       }
     }
 
@@ -747,7 +747,7 @@ class SFormsConstructor {
   }
 
 
-  private static Integer getFirstProtectedRange(Statement stat) {
+  public static Statement getFirstProtectedRange(Statement stat) {
     while (true) {
       Statement parent = stat.getParent();
 
@@ -758,11 +758,11 @@ class SFormsConstructor {
       if (parent.type == Statement.TYPE_CATCHALL ||
           parent.type == Statement.TYPE_TRYCATCH) {
         if (parent.getFirst() == stat) {
-          return parent.id;
+          return parent;
         }
       } else if (parent.type == Statement.TYPE_SYNCRONIZED) {
         if (((SynchronizedStatement) parent).getBody() == stat) {
-          return parent.id;
+          return parent;
         }
       }
 

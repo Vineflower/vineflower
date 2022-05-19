@@ -14,6 +14,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectNode;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.FlattenStatementsHelper;
+import org.jetbrains.java.decompiler.modules.decompiler.sforms.SFormsConstructor;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
@@ -360,6 +361,12 @@ public final class MergeHelper {
       return;
     }
 
+    Statement lastProt = SFormsConstructor.getFirstProtectedRange(lastData);
+    // We cannot gather exprents out of a protected range, if we're not included in it
+    if (stat.containsStatement(lastProt)) {
+      return;
+    }
+
     List<Exprent> lstExpr = lastData.getExprents();
     lastDoExprent = lstExpr.get(lstExpr.size() - 1);
 
@@ -392,7 +399,10 @@ public final class MergeHelper {
         else {
           preData = current.getNeighbours(StatEdge.TYPE_REGULAR, Statement.DIRECTION_BACKWARD).get(0);
           // we're not a basic block, so we can't dive inside for exprents
-          if (preData.type != Statement.TYPE_BASICBLOCK) break;
+          if (preData.type != Statement.TYPE_BASICBLOCK) {
+            break;
+          }
+
           preData = getLastDirectData(preData);
           if (preData != null && !preData.getExprents().isEmpty()) {
             initDoExprent = preData.getExprents().get(preData.getExprents().size() - 1);
@@ -466,8 +476,8 @@ public final class MergeHelper {
         stat.removeSuccessor(lst.get(0));
       }
 
-      // Cannot delete try or catch blocks with finally
-      if (stat.getParent().type == Statement.TYPE_TRYCATCH || stat.getParent().type == Statement.TYPE_CATCHALL) {
+      // Cannot delete try or catch blocks with finally, or synchronized
+      if (stat.getParent().type == Statement.TYPE_TRYCATCH || stat.getParent().type == Statement.TYPE_CATCHALL || stat.getParent().type == Statement.TYPE_SYNCRONIZED) {
         return;
       }
 
