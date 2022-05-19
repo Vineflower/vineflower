@@ -1,65 +1,71 @@
 package pkg;
 
-import java.lang.invoke.ConstantBootstraps;
 import java.lang.invoke.MethodHandles.Lookup;
 import java.nio.file.StandardOpenOption;
 
 public class TestCondy {
    public static String testNull() {
-      return (String)ConstantBootstraps.nullConstant<"null">();// 9 10
+      return null;// 10
    }
 
-   public static FakeEnum testNull() {
-      return (FakeEnum)ConstantBootstraps.enumConstant<"FOO">();// 16 17
+   public static FakeEnum testEnum() {
+      return FakeEnum.FOO;// 17
+   }
+
+   public static Class testPrimitiveClass() {
+      return void.class;// 24
    }
 
    public static StandardOpenOption test(int var0) {
-      return (StandardOpenOption[])TestConstantDynamic.getValues<"EnumC$Values">()[var0];// 23 27 28 29
+      return (StandardOpenOption[])TestConstantDynamic.getValues<"EnumC$Values">()[var0];// 30 34 35 36
    }
 
    public static StandardOpenOption[] getValues(Lookup var0, String var1, Class var2) {
-      return StandardOpenOption.values();// 35 36
+      return StandardOpenOption.values();// 42 43
    }
 }
 
 class 'pkg/TestCondy' {
    method 'testNull ()Ljava/lang/String;' {
-      0      8
-      1      8
-      2      8
+      2      7
    }
 
-   method 'testNull ()Lpkg/FakeEnum;' {
-      0      12
-      1      12
-      2      12
+   method 'testEnum ()Lpkg/FakeEnum;' {
+      2      11
+   }
+
+   method 'testPrimitiveClass ()Ljava/lang/Class;' {
+      2      15
    }
 
    method 'test (I)Ljava/nio/file/StandardOpenOption;' {
-      0      16
-      1      16
-      2      16
-      3      16
-      4      16
-      5      16
+      0      19
+      1      19
+      2      19
+      3      19
+      4      19
+      5      19
    }
 
    method 'getValues (Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/Class;)[Ljava/nio/file/StandardOpenOption;' {
-      0      20
-      1      20
-      2      20
-      3      20
+      0      23
+      1      23
+      2      23
+      3      23
    }
 }
 
 Lines mapping:
-9 <-> 9
-10 <-> 9
-16 <-> 13
-17 <-> 13
-23 <-> 17
-27 <-> 17
-28 <-> 17
-29 <-> 17
-35 <-> 21
-36 <-> 21
+10 <-> 8
+17 <-> 12
+24 <-> 16
+30 <-> 20
+34 <-> 20
+35 <-> 20
+36 <-> 20
+42 <-> 24
+43 <-> 24
+Not mapped:
+9
+16
+23
