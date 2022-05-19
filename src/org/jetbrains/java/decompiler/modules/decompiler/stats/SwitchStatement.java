@@ -10,6 +10,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.DecHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.StartEndPair;
@@ -228,7 +229,7 @@ public final class SwitchStatement extends Statement {
         FunctionExprent func = ((FunctionExprent) caseContent);
 
         // Pattern match variable is implicitly defined
-        if (func.getFuncType() == FunctionExprent.FUNCTION_INSTANCEOF && func.getLstOperands().size() > 2) {
+        if (func.getFuncType() == FunctionType.INSTANCEOF && func.getLstOperands().size() > 2) {
           vars.add((VarExprent) func.getLstOperands().get(2));
         }
       }

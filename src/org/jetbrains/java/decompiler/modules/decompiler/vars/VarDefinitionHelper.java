@@ -1195,7 +1195,7 @@ public class VarDefinitionHelper {
     }
     else if (exp.type == Exprent.EXPRENT_FUNCTION) {
       FunctionExprent func = (FunctionExprent)exp;
-      if (func.getFuncType() >= FunctionExprent.FUNCTION_IMM && func.getFuncType() <= FunctionExprent.FUNCTION_PPI) {
+      if (func.getFuncType().isIncrementOrDecrement()) {
         if (func.getLstOperands().get(0).type == Exprent.EXPRENT_VAR) {
           var = (VarExprent)func.getLstOperands().get(0);
         }

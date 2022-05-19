@@ -6,6 +6,7 @@ import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.DoStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
@@ -354,11 +355,11 @@ public class StackVarsProcessor {
       } else if (left.isStack() && right.type == Exprent.EXPRENT_FUNCTION) {
         FunctionExprent func = (FunctionExprent) right;
 
-        if (func.getFuncType() == FunctionExprent.FUNCTION_IPP || func.getFuncType() == FunctionExprent.FUNCTION_IMM) {
+        if (func.getFuncType().isPostfix()) {
           // Unused IPP or IMM, typically from arrays
           lstExprents.set(index, right);
           return new int[]{index, 1};
-        } else if (func.getFuncType() == FunctionExprent.FUNCTION_CAST) {
+        } else if (func.getFuncType() == FunctionType.CAST) {
           // Unused cast, remove
           lstExprents.remove(index);
           return new int[]{index, 1};

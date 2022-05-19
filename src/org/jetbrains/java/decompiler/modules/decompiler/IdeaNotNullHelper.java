@@ -6,6 +6,7 @@ import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.attr.StructAnnotationAttribute;
@@ -58,10 +59,10 @@ public final class IdeaNotNullHelper {
 
       boolean is_notnull_check = false;
 
-      // TODO: FUNCTION_NE also possible if reversed order (in theory)
+      // TODO: FunctionType.NE also possible if reversed order (in theory)
       if (ifbranch != null &&
           if_condition.type == Exprent.EXPRENT_FUNCTION &&
-          ((FunctionExprent)if_condition).getFuncType() == FunctionExprent.FUNCTION_EQ &&
+          ((FunctionExprent)if_condition).getFuncType() == FunctionType.EQ &&
           ifbranch.type == Statement.TYPE_BASICBLOCK &&
           ifbranch.getExprents().size() == 1 &&
           ifbranch.getExprents().get(0).type == Exprent.EXPRENT_INVOCATION) {
@@ -208,7 +209,7 @@ public final class IdeaNotNullHelper {
           Exprent if_condition = ifparent.getHeadexprent().getCondition();
 
           if (ifparent.getElsestat() == stat && if_condition.type == Exprent.EXPRENT_FUNCTION &&
-              ((FunctionExprent)if_condition).getFuncType() == FunctionExprent.FUNCTION_EQ) { // TODO: reversed order possible (in theory)
+              ((FunctionExprent)if_condition).getFuncType() == FunctionType.EQ) { // TODO: reversed order possible (in theory)
 
             FunctionExprent func = (FunctionExprent)if_condition;
             Exprent first_param = func.getLstOperands().get(0);
@@ -276,7 +277,7 @@ public final class IdeaNotNullHelper {
             Exprent if_condition = ifstat.getHeadexprent().getCondition();
 
             if (ifstat.iftype == IfStatement.IFTYPE_IF && if_condition.type == Exprent.EXPRENT_FUNCTION &&
-                ((FunctionExprent)if_condition).getFuncType() == FunctionExprent.FUNCTION_EQ) { // TODO: reversed order possible (in theory)
+                ((FunctionExprent)if_condition).getFuncType() == FunctionType.EQ) { // TODO: reversed order possible (in theory)
 
               FunctionExprent func = (FunctionExprent)if_condition;
               Exprent first_param = func.getLstOperands().get(0);

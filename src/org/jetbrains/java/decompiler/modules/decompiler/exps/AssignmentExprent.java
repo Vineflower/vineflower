@@ -6,7 +6,6 @@ package org.jetbrains.java.decompiler.modules.decompiler.exps;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
-import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
@@ -19,30 +18,15 @@ import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.BitSet;
+import java.util.List;
+import java.util.Map;
 
 public class AssignmentExprent extends Exprent {
-
-  public static final int CONDITION_NONE = -1;
-
-  private static final String[] OPERATORS = {
-    " += ",   // FUNCTION_ADD
-    " -= ",   // FUNCTION_SUB
-    " *= ",   // FUNCTION_MUL
-    " /= ",   // FUNCTION_DIV
-    " &= ",   // FUNCTION_AND
-    " |= ",   // FUNCTION_OR
-    " ^= ",   // FUNCTION_XOR
-    " %= ",   // FUNCTION_REM
-    " <<= ",  // FUNCTION_SHL
-    " >>= ",  // FUNCTION_SHR
-    " >>>= "  // FUNCTION_USHR
-  };
-
   private Exprent left;
   private Exprent right;
-  // Condition == type of assignment, -1 is `=` 0 is `+=`, 1 is `-=`, etc.
-  private int condType = CONDITION_NONE;
+  private FunctionExprent.FunctionType condType = null;
 
   public AssignmentExprent(Exprent left, Exprent right, BitSet bytecodeOffsets) {
     super(EXPRENT_ASSIGNMENT);
@@ -52,7 +36,7 @@ public class AssignmentExprent extends Exprent {
     addBytecodeOffsets(bytecodeOffsets);
   }
 
-  public AssignmentExprent(Exprent left, Exprent right, int condType, BitSet bytecodeOffsets) {
+  public AssignmentExprent(Exprent left, Exprent right, FunctionExprent.FunctionType condType, BitSet bytecodeOffsets) {
     this(left, right, bytecodeOffsets);
     this.condType = condType;
   }
@@ -145,11 +129,16 @@ public class AssignmentExprent extends Exprent {
     this.optimizeCastForAssign();
     TextBuffer res = right.toJava(indent);
 
-    if (condType == CONDITION_NONE) {
+    if (condType == null) {
       this.wrapInCast(leftType, rightType, res, right.getPrecedence());
     }
 
-    buffer.append(condType == CONDITION_NONE ? " = " : OPERATORS[condType]).append(res);
+    if (condType == null) {
+      buffer.append(" = ");
+    } else {
+      buffer.append(" ").append(condType.operator).append("= ");
+    }
+    buffer.append(res);
 
     buffer.addStartBytecodeMapping(bytecode);
 
@@ -165,7 +154,7 @@ public class AssignmentExprent extends Exprent {
 
     FunctionExprent func = (FunctionExprent) this.right;
 
-    if (func.getFuncType() != FunctionExprent.FUNCTION_CAST) {
+    if (func.getFuncType() != FunctionExprent.FunctionType.CAST) {
       return;
     }
 
@@ -178,7 +167,7 @@ public class AssignmentExprent extends Exprent {
         Exprent castVal = func.getLstOperands().get(0);
 
         // Due to a javac bug, 2 checkcasts are produced. We need to go through the cast tree and find the source
-        if (castVal.type == EXPRENT_FUNCTION && ((FunctionExprent)castVal).getFuncType() == FunctionExprent.FUNCTION_CAST) {
+        if (castVal.type == EXPRENT_FUNCTION && ((FunctionExprent)castVal).getFuncType() == FunctionExprent.FunctionType.CAST) {
           cast = ((FunctionExprent)castVal).getLstOperands().get(0);
 
           if (!((FunctionExprent)castVal).doesCast()) {
@@ -280,7 +269,7 @@ public class AssignmentExprent extends Exprent {
 
     if (this.right.type == Exprent.EXPRENT_FUNCTION) {
       FunctionExprent func = (FunctionExprent) this.right;
-      if (func.getFuncType() == FunctionExprent.FUNCTION_CAST && func.doesCast()) {
+      if (func.getFuncType() == FunctionExprent.FunctionType.CAST && func.doesCast()) {
         // Don't cast if there's already a cast
         if (func.getLstOperands().get(1).getExprType().equals(left)) {
           needsCast = false;
@@ -296,7 +285,7 @@ public class AssignmentExprent extends Exprent {
       return;
     }
 
-    if (precedence >= FunctionExprent.getPrecedence(FunctionExprent.FUNCTION_CAST)) {
+    if (precedence >= FunctionExprent.FunctionType.CAST.precedence) {
       buf.enclose("(", ")");
     }
 
@@ -350,11 +339,11 @@ public class AssignmentExprent extends Exprent {
   /**
    * the type of assignment, eg {@code =}, {@code +=}, {@code -=}, etc.
    */
-  public int getCondType() {
+  public FunctionExprent.FunctionType getCondType() {
     return condType;
   }
 
-  public void setCondType(int condType) {
+  public void setCondType(FunctionExprent.FunctionType condType) {
     this.condType = condType;
   }
 }

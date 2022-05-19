@@ -102,10 +102,8 @@ public class PPandMMHelper {
       if (as.getRight().type == Exprent.EXPRENT_FUNCTION) {
         FunctionExprent func = (FunctionExprent)as.getRight();
 
-        VarType midlayer = null;
-        if (func.getFuncType() >= FunctionExprent.FUNCTION_I2L &&
-            func.getFuncType() <= FunctionExprent.FUNCTION_I2S) {
-          midlayer = func.getSimpleCastType();
+        VarType midlayer = func.getFuncType().castType;
+        if (midlayer != null) {
           if (func.getLstOperands().get(0).type == Exprent.EXPRENT_FUNCTION) {
             func = (FunctionExprent)func.getLstOperands().get(0);
           }
@@ -114,13 +112,13 @@ public class PPandMMHelper {
           }
         }
 
-        if (func.getFuncType() == FunctionExprent.FUNCTION_ADD ||
-            func.getFuncType() == FunctionExprent.FUNCTION_SUB) {
+        if (func.getFuncType() == FunctionExprent.FunctionType.ADD ||
+            func.getFuncType() == FunctionExprent.FunctionType.SUB) {
           Exprent econd = func.getLstOperands().get(0);
           Exprent econst = func.getLstOperands().get(1);
 
           if (econst.type != Exprent.EXPRENT_CONST && econd.type == Exprent.EXPRENT_CONST &&
-              func.getFuncType() == FunctionExprent.FUNCTION_ADD) {
+              func.getFuncType() == FunctionExprent.FunctionType.ADD) {
             econd = econst;
             econst = func.getLstOperands().get(0);
           }
@@ -131,7 +129,7 @@ public class PPandMMHelper {
             VarType condtype = left.getExprType();
             if (exprsEqual(left, econd) && (midlayer == null || midlayer.equals(condtype))) {
               FunctionExprent ret = new FunctionExprent(
-                func.getFuncType() == FunctionExprent.FUNCTION_ADD ? FunctionExprent.FUNCTION_PPI : FunctionExprent.FUNCTION_MMI,
+                func.getFuncType() == FunctionExprent.FunctionType.ADD ? FunctionExprent.FunctionType.PPI : FunctionExprent.FunctionType.MMI,
                 econd, func.bytecode);
               ret.setImplicitType(condtype);
 
@@ -232,7 +230,7 @@ public class PPandMMHelper {
         if (expr.type == Exprent.EXPRENT_FUNCTION) {
           FunctionExprent func = (FunctionExprent)expr;
 
-          if (func.getFuncType() == FunctionExprent.FUNCTION_PPI || func.getFuncType() == FunctionExprent.FUNCTION_MMI) {
+          if (func.getFuncType() == FunctionExprent.FunctionType.PPI || func.getFuncType() == FunctionExprent.FunctionType.MMI) {
             Exprent inner = func.getLstOperands().get(0);
 
             if (inner.type == Exprent.EXPRENT_VAR) {
@@ -241,7 +239,7 @@ public class PPandMMHelper {
               if (ifExpr.type == Exprent.EXPRENT_FUNCTION) {
                 FunctionExprent ifFunc = (FunctionExprent)ifExpr;
 
-                while (ifFunc.getFuncType() == FunctionExprent.FUNCTION_BOOL_NOT) {
+                while (ifFunc.getFuncType() == FunctionExprent.FunctionType.BOOL_NOT) {
                   Exprent innerFunc = ifFunc.getLstOperands().get(0);
 
                   if (innerFunc.type == Exprent.EXPRENT_FUNCTION) {
@@ -272,7 +270,7 @@ public class PPandMMHelper {
                   } else if (ex.type == Exprent.EXPRENT_FUNCTION) {
                     FunctionExprent funcEx = (FunctionExprent)ex;
 
-                    if (funcEx.getFuncType() == FunctionExprent.FUNCTION_BOOLEAN_AND || funcEx.getFuncType() == FunctionExprent.FUNCTION_BOOLEAN_OR) {
+                    if (funcEx.getFuncType() == FunctionExprent.FunctionType.BOOLEAN_AND || funcEx.getFuncType() == FunctionExprent.FunctionType.BOOLEAN_OR) {
                       // Cannot yet handle these as we aren't able to decompose a condition into parts that are always run (not short-circuited) and parts that are
                       // FIXME: handle this case
                       return false;

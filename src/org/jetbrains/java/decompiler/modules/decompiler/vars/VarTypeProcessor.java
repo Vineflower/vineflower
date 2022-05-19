@@ -4,6 +4,7 @@ package org.jetbrains.java.decompiler.modules.decompiler.vars;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.struct.StructClass;
@@ -216,11 +217,11 @@ public class VarTypeProcessor {
   private boolean changeFunctionExprentType(VarType newType, int minMax, FunctionExprent func) {
     int offset = 0;
     switch (func.getFuncType()) {
-      case FunctionExprent.FUNCTION_TERNARY:   // FIXME:
+      case TERNARY:   // FIXME:
         offset++;
-      case FunctionExprent.FUNCTION_AND:
-      case FunctionExprent.FUNCTION_OR:
-      case FunctionExprent.FUNCTION_XOR:
+      case AND:
+      case OR:
+      case XOR:
         return changeExprentType(func.getLstOperands().get(offset), newType, minMax) &
                changeExprentType(func.getLstOperands().get(offset + 1), newType, minMax);
     }

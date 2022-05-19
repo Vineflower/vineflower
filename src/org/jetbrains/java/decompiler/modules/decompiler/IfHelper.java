@@ -6,6 +6,7 @@ import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.modules.decompiler.IfNode.EdgeType;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.IfExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
@@ -186,7 +187,7 @@ public final class IfHelper {
             lstOperands.add(statexpr.getCondition());
             lstOperands.add(ifchild.getHeadexprent().getCondition());
 
-            statexpr.setCondition(new FunctionExprent(FunctionExprent.FUNCTION_BOOLEAN_AND, lstOperands, null));
+            statexpr.setCondition(new FunctionExprent(FunctionType.BOOLEAN_AND, lstOperands, null));
             statexpr.addBytecodeOffsets(ifchild.getHeadexprent().bytecode);
 
             return true;
@@ -245,8 +246,8 @@ public final class IfHelper {
 
             List<Exprent> lstOperands = new ArrayList<>();
             lstOperands.add(statexpr.getCondition());
-            lstOperands.add(new FunctionExprent(FunctionExprent.FUNCTION_BOOL_NOT, ifchild.getHeadexprent().getCondition(), null));
-            statexpr.setCondition(new FunctionExprent(FunctionExprent.FUNCTION_BOOLEAN_AND, lstOperands, null));
+            lstOperands.add(new FunctionExprent(FunctionType.BOOL_NOT, ifchild.getHeadexprent().getCondition(), null));
+            statexpr.setCondition(new FunctionExprent(FunctionType.BOOLEAN_AND, lstOperands, null));
             statexpr.addBytecodeOffsets(ifchild.getHeadexprent().bytecode);
 
             return true;
@@ -328,13 +329,13 @@ public final class IfHelper {
             lstOperands.add(firstif.getHeadexprent().getCondition());
 
             if (path == 2) {
-              lstOperands.set(0, new FunctionExprent(FunctionExprent.FUNCTION_BOOL_NOT, lstOperands.get(0), null));
+              lstOperands.set(0, new FunctionExprent(FunctionType.BOOL_NOT, lstOperands.get(0), null));
             }
 
             lstOperands.add(statexpr.getCondition());
 
             statexpr
-              .setCondition(new FunctionExprent(path == 1 ? FunctionExprent.FUNCTION_BOOLEAN_OR : FunctionExprent.FUNCTION_BOOLEAN_AND, lstOperands, null));
+              .setCondition(new FunctionExprent(path == 1 ? FunctionType.BOOLEAN_OR : FunctionType.BOOLEAN_AND, lstOperands, null));
 
             if (secondif.getFirst().getExprents().isEmpty() && // second is guranteed to be empty already
                 !firstif.getFirst().getExprents().isEmpty()) {
@@ -387,7 +388,7 @@ public final class IfHelper {
           // negate the if condition
           IfExprent statexpr = firstif.getHeadexprent();
           statexpr
-            .setCondition(new FunctionExprent(FunctionExprent.FUNCTION_BOOL_NOT, statexpr.getCondition(), null));
+            .setCondition(new FunctionExprent(FunctionType.BOOL_NOT, statexpr.getCondition(), null));
 
           return true;
         }
@@ -493,12 +494,12 @@ public final class IfHelper {
         lstOperands.add(firstIf.getHeadexprent().getCondition());
 
         if (inverted) {
-          lstOperands.set(1, new FunctionExprent(FunctionExprent.FUNCTION_BOOL_NOT, lstOperands.get(1), null));
+          lstOperands.set(1, new FunctionExprent(FunctionType.BOOL_NOT, lstOperands.get(1), null));
         }
 
         lstOperands.add(secondIf.getHeadexprent().getCondition());
 
-        statexpr.setCondition(new FunctionExprent(FunctionExprent.FUNCTION_TERNARY, lstOperands, null));
+        statexpr.setCondition(new FunctionExprent(FunctionType.TERNARY, lstOperands, null));
 
         return true;
       }
@@ -558,7 +559,7 @@ public final class IfHelper {
             if (nextStat != null && (nextIfStat == null || !nextIfStat.getFirst().getExprents().isEmpty())) {
               // negate the condition and swap the branches
               IfExprent conditionExprent = outerIf.getHeadexprent();
-              conditionExprent.setCondition(new FunctionExprent(FunctionExprent.FUNCTION_BOOL_NOT, conditionExprent.getCondition(), null));
+              conditionExprent.setCondition(new FunctionExprent(FunctionType.BOOL_NOT, conditionExprent.getCondition(), null));
               swapBranches(outerIf, false, parent);
               return true;
             }
@@ -683,7 +684,7 @@ public final class IfHelper {
     } else if (ifdirect && (!elsedirect || (noifstat && !noelsestat)) && !ifstat.getAllSuccessorEdges().isEmpty()) {  // if - then
       // negate the if condition
       IfExprent statexpr = ifstat.getHeadexprent();
-      statexpr.setCondition(new FunctionExprent(FunctionExprent.FUNCTION_BOOL_NOT, statexpr.getCondition(), null));
+      statexpr.setCondition(new FunctionExprent(FunctionType.BOOL_NOT, statexpr.getCondition(), null));
 
       if (noelsestat) {
         StatEdge ifedge = ifstat.getIfEdge();

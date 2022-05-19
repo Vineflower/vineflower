@@ -1,6 +1,7 @@
 package org.jetbrains.java.decompiler.modules.decompiler;
 
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.BasicBlockStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.SequenceStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
@@ -88,7 +89,7 @@ public final class SwitchPatternMatchProcessor {
           if (assign.getLeft().type == Exprent.EXPRENT_VAR) {
             VarExprent var = (VarExprent)assign.getLeft();
 
-            if (assign.getRight().type == Exprent.EXPRENT_FUNCTION && ((FunctionExprent)assign.getRight()).getFuncType() == FunctionExprent.FUNCTION_CAST) {
+            if (assign.getRight().type == Exprent.EXPRENT_FUNCTION && ((FunctionExprent)assign.getRight()).getFuncType() == FunctionType.CAST) {
               FunctionExprent cast = (FunctionExprent)assign.getRight();
 
               List<Exprent> operands = new ArrayList<>();
@@ -96,7 +97,7 @@ public final class SwitchPatternMatchProcessor {
               operands.add(cast.getLstOperands().get(1)); // type
               operands.add(var); // pattern match var
 
-              FunctionExprent func = new FunctionExprent(FunctionExprent.FUNCTION_INSTANCEOF, operands, null);
+              FunctionExprent func = new FunctionExprent(FunctionType.INSTANCEOF, operands, null);
 
               caseStatBlock.getExprents().remove(0);
 

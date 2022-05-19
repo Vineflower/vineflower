@@ -7,6 +7,7 @@ import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.rels.ClassWrapper;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.BasicBlockStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.CatchStatement;
@@ -189,10 +190,10 @@ public final class ClassReference14Processor {
   private static String isClass14Invocation(Exprent exprent, ClassWrapper wrapper, MethodWrapper meth) {
     if (exprent.type == Exprent.EXPRENT_FUNCTION) {
       FunctionExprent fexpr = (FunctionExprent)exprent;
-      if (fexpr.getFuncType() == FunctionExprent.FUNCTION_TERNARY) {
+      if (fexpr.getFuncType() == FunctionType.TERNARY) {
         if (fexpr.getLstOperands().get(0).type == Exprent.EXPRENT_FUNCTION) {
           FunctionExprent headexpr = (FunctionExprent)fexpr.getLstOperands().get(0);
-          if (headexpr.getFuncType() == FunctionExprent.FUNCTION_EQ) {
+          if (headexpr.getFuncType() == FunctionType.EQ) {
             if (headexpr.getLstOperands().get(0).type == Exprent.EXPRENT_FIELD &&
                 headexpr.getLstOperands().get(1).type == Exprent.EXPRENT_CONST &&
                 ((ConstExprent)headexpr.getLstOperands().get(1)).getConstType().equals(VarType.VARTYPE_NULL)) {

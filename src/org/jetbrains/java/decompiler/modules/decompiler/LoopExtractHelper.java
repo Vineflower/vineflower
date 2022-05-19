@@ -2,6 +2,7 @@
 package org.jetbrains.java.decompiler.modules.decompiler;
 
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.IfExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.DoStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
@@ -307,6 +308,6 @@ public final class LoopExtractHelper {
     ifStat.addSuccessor(new StatEdge(StatEdge.TYPE_REGULAR, ifStat, target));
 
     IfExprent expr = ifStat.getHeadexprent();
-    expr.setCondition(new FunctionExprent(FunctionExprent.FUNCTION_BOOL_NOT, expr.getCondition(), null));
+    expr.setCondition(new FunctionExprent(FunctionType.BOOL_NOT, expr.getCondition(), null));
   }
 }

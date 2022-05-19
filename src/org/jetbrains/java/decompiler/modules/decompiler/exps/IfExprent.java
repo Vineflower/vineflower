@@ -3,6 +3,7 @@
  */
 package org.jetbrains.java.decompiler.modules.decompiler.exps;
 
+import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.ListStack;
@@ -37,27 +38,27 @@ public class IfExprent extends Exprent {
   //public static final int IF_NOT = 18;
   public static final int IF_VALUE = 19;
 
-  private static final int[] FUNC_TYPES = {
-    FunctionExprent.FUNCTION_EQ,
-    FunctionExprent.FUNCTION_NE,
-    FunctionExprent.FUNCTION_LT,
-    FunctionExprent.FUNCTION_GE,
-    FunctionExprent.FUNCTION_GT,
-    FunctionExprent.FUNCTION_LE,
-    FunctionExprent.FUNCTION_EQ,
-    FunctionExprent.FUNCTION_NE,
-    FunctionExprent.FUNCTION_EQ,
-    FunctionExprent.FUNCTION_NE,
-    FunctionExprent.FUNCTION_LT,
-    FunctionExprent.FUNCTION_GE,
-    FunctionExprent.FUNCTION_GT,
-    FunctionExprent.FUNCTION_LE,
-    FunctionExprent.FUNCTION_EQ,
-    FunctionExprent.FUNCTION_NE,
-    FunctionExprent.FUNCTION_BOOLEAN_AND,
-    FunctionExprent.FUNCTION_BOOLEAN_OR,
-    FunctionExprent.FUNCTION_BOOL_NOT,
-    -1
+  private static final FunctionType[] FUNC_TYPES = {
+    FunctionType.EQ,
+    FunctionType.NE,
+    FunctionType.LT,
+    FunctionType.GE,
+    FunctionType.GT,
+    FunctionType.LE,
+    FunctionType.EQ,
+    FunctionType.NE,
+    FunctionType.EQ,
+    FunctionType.NE,
+    FunctionType.LT,
+    FunctionType.GE,
+    FunctionType.GT,
+    FunctionType.LE,
+    FunctionType.EQ,
+    FunctionType.NE,
+    FunctionType.BOOLEAN_AND,
+    FunctionType.BOOLEAN_OR,
+    FunctionType.BOOL_NOT,
+    null
   };
 
   private Exprent condition;
@@ -127,7 +128,7 @@ public class IfExprent extends Exprent {
   }
 
   public IfExprent negateIf() {
-    condition = new FunctionExprent(FunctionExprent.FUNCTION_BOOL_NOT, condition, condition.bytecode);
+    condition = new FunctionExprent(FunctionType.BOOL_NOT, condition, condition.bytecode);
     return this;
   }
 

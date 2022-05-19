@@ -237,7 +237,7 @@ public class SFormsConstructor {
 
         AssignmentExprent assexpr = (AssignmentExprent) expr;
 
-        if (assexpr.getCondType() != AssignmentExprent.CONDITION_NONE) {
+        if (assexpr.getCondType() != null) {
           throw new IllegalStateException("Didn't expect compound assignment yet");
         }
 
@@ -291,7 +291,7 @@ public class SFormsConstructor {
       case Exprent.EXPRENT_FUNCTION: {
         FunctionExprent func = (FunctionExprent) expr;
         switch (func.getFuncType()) {
-          case FunctionExprent.FUNCTION_TERNARY: {
+          case TERNARY: {
             // `a ? b : c`
             // Java language spec: 16.1.5.
             this.processExprent(func.getLstOperands().get(0), varMaps, stat, calcLiveVars);
@@ -320,7 +320,7 @@ public class SFormsConstructor {
 
             return;
           }
-          case FunctionExprent.FUNCTION_BOOLEAN_AND: {
+          case BOOLEAN_AND: {
             // `a && b`
             // Java language spec: 16.1.2.
             this.processExprent(func.getLstOperands().get(0), varMaps, stat, calcLiveVars);
@@ -333,7 +333,7 @@ public class SFormsConstructor {
             varMaps.mergeIfFalse(ifFalse);
             return;
           }
-          case FunctionExprent.FUNCTION_BOOLEAN_OR: {
+          case BOOLEAN_OR: {
             // `a || b`
             // Java language spec: 16.1.3.
             this.processExprent(func.getLstOperands().get(0), varMaps, stat, calcLiveVars);
@@ -346,7 +346,7 @@ public class SFormsConstructor {
             varMaps.mergeIfTrue(ifTrue);
             return;
           }
-          case FunctionExprent.FUNCTION_BOOL_NOT: {
+          case BOOL_NOT: {
             // `!a`
             // Java language spec: 16.1.4.
             this.processExprent(func.getLstOperands().get(0), varMaps, stat, calcLiveVars);
@@ -354,7 +354,7 @@ public class SFormsConstructor {
 
             return;
           }
-          case FunctionExprent.FUNCTION_INSTANCEOF: {
+          case INSTANCEOF: {
             // `a instanceof B`
             // pattern matching instanceof creates a new variable when true.
             this.processExprent(func.getLstOperands().get(0), varMaps, stat, calcLiveVars);
@@ -374,10 +374,10 @@ public class SFormsConstructor {
 
             return;
           }
-          case FunctionExprent.FUNCTION_IMM:
-          case FunctionExprent.FUNCTION_MMI:
-          case FunctionExprent.FUNCTION_IPP:
-          case FunctionExprent.FUNCTION_PPI: {
+          case IMM:
+          case MMI:
+          case IPP:
+          case PPI: {
             // process the var/field/array access
             // Note that ++ and -- are both reads and writes.
             this.processExprent(func.getLstOperands().get(0), varMaps, stat, calcLiveVars);
