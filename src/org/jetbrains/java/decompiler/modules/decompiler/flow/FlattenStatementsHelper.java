@@ -41,9 +41,7 @@ public class FlattenStatementsHelper {
 
     // dummy exit node
     Statement dummyexit = root.getDummyExit();
-    DirectNode node = DirectNode.forStat(DirectNodeType.DIRECT, dummyexit);
-    node.exprents = new ArrayList<>();
-    graph.nodes.addWithKey(node, node.id);
+    DirectNode node = this.createDirectNode(dummyexit);
     mapDestinationNodes.put(dummyexit.id, new String[]{node.id, null});
 
     setEdges();
@@ -54,6 +52,20 @@ public class FlattenStatementsHelper {
     graph.mapDestinationNodes.putAll(mapDestinationNodes);
 
     return graph;
+  }
+
+  private DirectNode createDirectNode(Statement stat) {
+    final DirectNode directNode = this.createDirectNode(stat, DirectNodeType.DIRECT);
+    if(stat.type == Statement.TYPE_BASICBLOCK) {
+      directNode.block = (BasicBlockStatement)stat;
+    }
+    return directNode;
+  }
+
+  private DirectNode createDirectNode(Statement stat, DirectNodeType type) {
+    DirectNode node = DirectNode.forStat(type, stat);
+    this.graph.nodes.addWithKey(node, node.id);
+    return node;
   }
 
   private void flattenStatement() {
@@ -97,11 +109,10 @@ public class FlattenStatementsHelper {
 
         switch (stat.type) {
           case Statement.TYPE_BASICBLOCK:
-            node = DirectNode.forBlock(stat);
+            node = this.createDirectNode(stat);
             if (stat.getExprents() != null) {
               node.exprents = stat.getExprents();
             }
-            graph.nodes.putWithKey(node, node.id);
             mapDestinationNodes.put(stat.id, new String[]{node.id, null});
 
             lstSuccEdges.addAll(stat.getSuccessorEdges(Statement.STATEDGE_DIRECT_ALL));
@@ -110,9 +121,9 @@ public class FlattenStatementsHelper {
             List<Exprent> tailExprentList = statEntry.tailExprents;
 
             if (tailExprentList != null) {
-              DirectNode tail = DirectNode.forStat(DirectNodeType.TAIL, stat);
-              tail.exprents = tailExprentList;
+              DirectNode tail = this.createDirectNode(stat, DirectNodeType.TAIL);
               graph.nodes.putWithKey(tail, tail.id);
+              tail.exprents = tailExprentList;
 
               mapDestinationNodes.put(-stat.id, new String[]{tail.id, null});
               listEdges.add(new Edge(node.id, -stat.id, StatEdge.TYPE_REGULAR));
@@ -146,7 +157,7 @@ public class FlattenStatementsHelper {
             break;
           case Statement.TYPE_CATCHALL:
           case Statement.TYPE_TRYCATCH:
-            DirectNode firstnd = DirectNode.forStat(DirectNodeType.TRY, stat);
+            DirectNode firstnd = this.createDirectNode(stat, DirectNodeType.TRY);
 
             if (stat.type == Statement.TYPE_TRYCATCH) {
               CatchStatement catchStat = (CatchStatement)stat;
@@ -156,7 +167,6 @@ public class FlattenStatementsHelper {
             }
 
             mapDestinationNodes.put(stat.id, new String[]{firstnd.id, null});
-            graph.nodes.putWithKey(firstnd, firstnd.id);
 
             LinkedList<StatementStackEntry> lst = new LinkedList<>();
 
@@ -225,9 +235,8 @@ public class FlattenStatementsHelper {
             switch (looptype) {
               case DoStatement.LOOP_WHILE:
               case DoStatement.LOOP_DOWHILE:
-                node = DirectNode.forStat(DirectNodeType.CONDITION, stat);
+                node = this.createDirectNode(stat, DirectNodeType.CONDITION);
                 node.exprents = dostat.getConditionExprentList();
-                graph.nodes.putWithKey(node, node.id);
 
                 listEdges.add(new Edge(node.id, stat.getFirst().id, StatEdge.TYPE_REGULAR));
 
@@ -251,19 +260,16 @@ public class FlattenStatementsHelper {
                 sourcenode = node;
                 break;
               case DoStatement.LOOP_FOR: {
-                DirectNode nodeinit = DirectNode.forStat(DirectNodeType.INIT, stat);
+                DirectNode nodeinit = this.createDirectNode(stat, DirectNodeType.INIT);
                 if (dostat.getInitExprent() != null) {
                   nodeinit.exprents = dostat.getInitExprentList();
                 }
-                graph.nodes.putWithKey(nodeinit, nodeinit.id);
 
-                DirectNode nodecond = DirectNode.forStat(DirectNodeType.CONDITION, stat);
+                DirectNode nodecond = this.createDirectNode(stat, DirectNodeType.CONDITION);
                 nodecond.exprents = dostat.getConditionExprentList();
-                graph.nodes.putWithKey(nodecond, nodecond.id);
 
-                DirectNode nodeinc = DirectNode.forStat(DirectNodeType.INCREMENT, stat);
+                DirectNode nodeinc = this.createDirectNode(stat, DirectNodeType.INCREMENT);
                 nodeinc.exprents = dostat.getIncExprentList();
-                graph.nodes.putWithKey(nodeinc, nodeinc.id);
 
                 mapDestinationNodes.put(stat.id, new String[]{nodeinit.id, nodeinc.id});
                 mapDestinationNodes.put(-stat.id, new String[]{nodecond.id, null});
@@ -293,13 +299,13 @@ public class FlattenStatementsHelper {
                 // is essentially
                 //
                 // for (inc; ; init)
-                DirectNode inc = DirectNode.forStat(DirectNodeType.INCREMENT, stat);
-                graph.nodes.putWithKey(inc, inc.id);
+                // TODO: that ordering does not make sense
+
+                DirectNode inc = this.createDirectNode(stat, DirectNodeType.INCREMENT);
                 inc.exprents = dostat.getIncExprentList();
 
                 // Init is foreach variable definition
-                DirectNode init = DirectNode.forStat(DirectNodeType.FOREACH_VARDEF, stat);
-                graph.nodes.putWithKey(init, init.id);
+                DirectNode init = this.createDirectNode(stat, DirectNodeType.FOREACH_VARDEF);
                 init.exprents = dostat.getInitExprentList();
 
                 mapDestinationNodes.put(stat.id, new String[]{inc.id, init.id});
