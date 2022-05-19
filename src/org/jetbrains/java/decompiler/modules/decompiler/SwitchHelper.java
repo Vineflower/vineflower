@@ -426,8 +426,8 @@ public final class SwitchHelper {
       if (!first.hasSuccessor(StatEdge.TYPE_REGULAR)) {
         IfStatement parent = (IfStatement) first.getParent();
         Exprent ifCond = parent.getHeadexprent().getCondition();
-        // and it's a null check,
-        if (ifCond instanceof FunctionExprent) {
+        // and it's a null check with `else` branch,
+        if (parent.iftype == IfStatement.IFTYPE_IFELSE && ifCond instanceof FunctionExprent) {
           FunctionExprent func = (FunctionExprent)ifCond;
           if (func.getFuncType() == FunctionExprent.FUNCTION_NE && func.getLstOperands().size() == 2) {
             Exprent right = func.getLstOperands().get(1);
