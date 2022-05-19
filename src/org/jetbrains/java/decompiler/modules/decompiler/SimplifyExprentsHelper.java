@@ -749,7 +749,7 @@ public class SimplifyExprentsHelper {
   private static boolean isMonitorExit(Exprent first) {
     if (first.type == Exprent.EXPRENT_MONITOR) {
       MonitorExprent expr = (MonitorExprent) first;
-      return expr.getMonType() == MonitorExprent.MONITOR_EXIT &&
+      return expr.getMonType() == MonitorExprent.Type.EXIT &&
              expr.getValue().type == Exprent.EXPRENT_VAR &&
              !((VarExprent) expr.getValue()).isStack() &&
              expr.isRemovable();
