@@ -208,4 +208,11 @@ final class VarMapHolder {
 
     return mapTo;
   }
+
+  void removeAllFields() {
+    if(this.ifFalse != null) {
+      this.ifFalse.removeAllFields();
+    }
+    this.ifTrue.removeAllFields();
+  }
 }
