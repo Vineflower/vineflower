@@ -41,7 +41,7 @@ public final class ClassReference14Processor {
     ctor.setName(CodeConstants.INIT_NAME);
     ctor.setClassname("java/lang/NoClassDefFoundError");
     ctor.setStringDescriptor("()V");
-    ctor.setFunctype(InvocationExprent.TYP_INIT);
+    ctor.setFunctype(InvocationExprent.Type.INIT);
     ctor.setDescriptor(MethodDescriptor.parseDescriptor("()V"));
     NewExprent newExpr = new NewExprent(new VarType(CodeConstants.TYPE_OBJECT, 0, "java/lang/NoClassDefFoundError"), new ArrayList<>(), null);
     newExpr.setConstructor(ctor);

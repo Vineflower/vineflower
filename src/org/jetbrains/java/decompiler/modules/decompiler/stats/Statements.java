@@ -30,7 +30,7 @@ public final class Statements {
   }
 
   public static boolean isInvocationInitConstructor(InvocationExprent inv, MethodWrapper method, ClassWrapper wrapper, boolean withThis) {
-    if (inv.getFunctype() == InvocationExprent.TYP_INIT && inv.getInstance().type == Exprent.EXPRENT_VAR) {
+    if (inv.getFunctype() == InvocationExprent.Type.INIT && inv.getInstance().type == Exprent.EXPRENT_VAR) {
       VarExprent instVar = (VarExprent)inv.getInstance();
       VarVersionPair varPair = new VarVersionPair(instVar);
       String className = method.varproc.getThisVars().get(varPair);

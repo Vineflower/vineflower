@@ -13,10 +13,8 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectNode;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.BasicBlockStatement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.CatchStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.DoStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.SequenceStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarTypeProcessor;
@@ -753,7 +751,7 @@ public class NestedClassProcessor {
                 CodeConstants.INIT_NAME.equals(method.methodStruct.getName()) &&
                 exprent.type == Exprent.EXPRENT_INVOCATION) {
               InvocationExprent invokeExpr = (InvocationExprent)exprent;
-              if (invokeExpr.getFunctype() == InvocationExprent.TYP_INIT) {
+              if (invokeExpr.getFunctype() == InvocationExprent.Type.INIT) {
                 // invocation of the super constructor in an anonymous class
                 child.superInvocation = invokeExpr; // FIXME: save original names of parameters
                 return null;
