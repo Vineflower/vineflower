@@ -68,7 +68,9 @@ public class SwitchExprent extends Exprent {
         if (value == null) { // TODO: how can this be null? Is it trying to inject a synthetic case value in switch-on-string processing? [TestSwitchDefaultBefore]
           continue;
         }
-        if (hasDefault && !includeWithDefault(value)) {
+
+        // only a null label changes `default` label semantics
+        if (hasDefault && (value.getExprType() != VarType.VARTYPE_NULL)) {
           continue;
         }
 
@@ -187,10 +189,6 @@ public class SwitchExprent extends Exprent {
         && ((ExitExprent) targetExpr).getValue().getExprType().value.equals("java/lang/IncompatibleClassChangeError");
     }
     return false;
-  }
-
-  private static boolean includeWithDefault(Exprent expr){
-    return expr.getExprType() == VarType.VARTYPE_NULL;
   }
 
   @Override

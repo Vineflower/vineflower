@@ -224,8 +224,9 @@ public final class SwitchHelper {
       following.getHeadexprent().replaceExprent(followingVal, ((InvocationExprent)value).getInstance());
 
       List<Exprent> firsts = switchStatement.getFirst().getExprents();
-      if (firsts.size() > 0)
+      if (firsts.size() > 0) {
         firsts.remove(firsts.size() - 1);
+      }
       switchStatement.getFirst().getAllPredecessorEdges().forEach(switchStatement.getFirst()::removePredecessor);
       switchStatement.getFirst().getAllSuccessorEdges().forEach(switchStatement.getFirst()::removeSuccessor);
       switchStatement.getParent().replaceStatement(switchStatement, switchStatement.getFirst());
@@ -422,7 +423,7 @@ public final class SwitchHelper {
 
     // if we're the only thing in an if statement,
     if (first.getParent() instanceof IfStatement) {
-      if (first.getSuccessorEdges(StatEdge.TYPE_REGULAR).size() == 0) {
+      if (!first.hasSuccessor(StatEdge.TYPE_REGULAR)) {
         IfStatement parent = (IfStatement) first.getParent();
         Exprent ifCond = parent.getHeadexprent().getCondition();
         // and it's a null check,
@@ -456,9 +457,10 @@ public final class SwitchHelper {
 
       if (firstValue.type == Exprent.EXPRENT_INVOCATION && secondValue.type == Exprent.EXPRENT_VAR && first.getCaseStatements().get(0).type == Statement.TYPE_IF) {
         InvocationExprent invExpr = (InvocationExprent)firstValue;
-        VarExprent varExpr = (VarExprent)secondValue;
-        if (nullAssign != null && !nullAssign.getLeft().equals(varExpr))
+        VarExprent varExpr = (VarExprent) secondValue;
+        if (nullAssign != null && !nullAssign.getLeft().equals(varExpr)) {
           return false; // wrong assignment across `if`
+        }
 
         if (invExpr.getName().equals("hashCode") && invExpr.getClassname().equals("java/lang/String")) {
           boolean matches = true;
