@@ -2,6 +2,7 @@ package org.jetbrains.java.decompiler.modules.decompiler;
 
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.InvocationExprent.InvocationType;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.BasicBlockStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.SequenceStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
@@ -157,11 +158,7 @@ public final class SwitchPatternMatchProcessor {
     if (value.type == Exprent.EXPRENT_INVOCATION) {
       InvocationExprent invoc = (InvocationExprent)value;
 
-      if (invoc.getInvocationTyp() == InvocationExprent.INVOKE_DYNAMIC) {
-        if (invoc.getName().equals("typeSwitch")) {
-          return true;
-        }
-      }
+      return invoc.getInvocationType() == InvocationType.DYNAMIC && invoc.getName().equals("typeSwitch");
     }
 
     return false;

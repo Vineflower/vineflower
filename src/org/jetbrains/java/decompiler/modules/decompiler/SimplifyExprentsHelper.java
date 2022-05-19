@@ -908,7 +908,7 @@ public class SimplifyExprentsHelper {
             if (remote.type == Exprent.EXPRENT_INVOCATION) {
               InvocationExprent in = (InvocationExprent) remote;
 
-              if (in.getFunctype() == InvocationExprent.TYP_INIT &&
+              if (in.getFunctype() == InvocationExprent.Type.INIT &&
                   in.getInstance().type == Exprent.EXPRENT_VAR &&
                   as.getLeft().equals(in.getInstance())) {
                 newExpr.setConstructor(in);
@@ -950,7 +950,7 @@ public class SimplifyExprentsHelper {
       InvocationExprent inNext = (InvocationExprent) next;
 
       // Make sure the next invocation is a constructor invocation!
-      if (inNext.getFunctype() != InvocationExprent.TYP_INIT) {
+      if (inNext.getFunctype() != InvocationExprent.Type.INIT) {
         return false;
       }
 
@@ -990,7 +990,7 @@ public class SimplifyExprentsHelper {
     if (exprent.type == Exprent.EXPRENT_INVOCATION) {
       InvocationExprent in = (InvocationExprent) exprent;
 
-      if (in.getInvocationTyp() == InvocationExprent.INVOKE_DYNAMIC) {
+      if (in.getInvocationType() == InvocationExprent.InvocationType.DYNAMIC) {
         String lambda_class_name = cl.qualifiedName + in.getInvokeDynamicClassSuffix();
         ClassNode lambda_class = DecompilerContext.getClassProcessor().getMapRootClasses().get(lambda_class_name);
 
@@ -1020,7 +1020,7 @@ public class SimplifyExprentsHelper {
 
     if (exprent.type == Exprent.EXPRENT_INVOCATION) {
       InvocationExprent in = (InvocationExprent) exprent;
-      if (in.getFunctype() == InvocationExprent.TYP_INIT && in.getInstance().type == Exprent.EXPRENT_NEW) {
+      if (in.getFunctype() == InvocationExprent.Type.INIT && in.getInstance().type == Exprent.EXPRENT_NEW) {
         NewExprent newExpr = (NewExprent) in.getInstance();
         newExpr.setConstructor(in);
         in.setInstance(null);
