@@ -81,7 +81,7 @@ public class ExprProcessor implements CodeConstants {
     IfExprent.Type.ACMPEQ, IfExprent.Type.ACMPNE
   };
   private static final IfExprent.Type[] func7 = {IfExprent.Type.NULL, IfExprent.Type.NONNULL};
-  private static final int[] func8 = {MonitorExprent.MONITOR_ENTER, MonitorExprent.MONITOR_EXIT};
+  private static final MonitorExprent.Type[] func8 = {MonitorExprent.Type.ENTER, MonitorExprent.Type.EXIT};
 
   private static final int[] arrTypeIds = {
     CodeConstants.TYPE_BOOLEAN, CodeConstants.TYPE_CHAR, CodeConstants.TYPE_FLOAT, CodeConstants.TYPE_DOUBLE,
@@ -866,7 +866,7 @@ public class ExprProcessor implements CodeConstants {
           buf.appendIndent(indent);
         }
         buf.append(content);
-        if (expr.type == Exprent.EXPRENT_MONITOR && ((MonitorExprent)expr).getMonType() == MonitorExprent.MONITOR_ENTER) {
+        if (expr.type == Exprent.EXPRENT_MONITOR && ((MonitorExprent)expr).getMonType() == MonitorExprent.Type.ENTER) {
           buf.append("{} // $FF: monitorenter "); // empty synchronized block
         }
         if (endsWithSemicolon(expr)) {
