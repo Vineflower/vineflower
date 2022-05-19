@@ -11,9 +11,9 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.IfExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.InvocationExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectGraph;
-import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectNode;
-import org.jetbrains.java.decompiler.modules.decompiler.sforms.FlattenStatementsHelper;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectNode;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.SFormsConstructor;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
@@ -778,7 +778,7 @@ public final class MergeHelper {
     DirectNode stnd = digraph.nodes.getWithKey(diblockId);
 
     // Only submit predecessors!
-    Deque<DirectNode> stack = new LinkedList<>(stnd.preds);
+    Deque<DirectNode> stack = new LinkedList<>(stnd.preds());
     Set<DirectNode> visited = new HashSet<>();
 
     while (!stack.isEmpty()) {
@@ -801,7 +801,7 @@ public final class MergeHelper {
       }
 
       // Go through predecessors, if we haven't seen them
-      for (DirectNode pred : node.preds) {
+      for (DirectNode pred : node.preds()) {
         if (visited.add(pred)) {
           stack.push(pred);
         }

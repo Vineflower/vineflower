@@ -2,9 +2,9 @@ package org.jetbrains.java.decompiler.modules.decompiler;
 
 import org.jetbrains.java.decompiler.modules.decompiler.exps.ExitExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
-import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectGraph;
-import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectNode;
-import org.jetbrains.java.decompiler.modules.decompiler.sforms.FlattenStatementsHelper;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectNode;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionNode;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
@@ -304,15 +304,15 @@ public final class ValidationHelper {
         DirectNode node = stack.pop();
 
         // check if predecessors have us as a successor
-        for (DirectNode pred : node.preds) {
-          if (!pred.succs.contains(node)) {
+        for (DirectNode pred : node.preds()) {
+          if (!pred.succs().contains(node)) {
             throw new IllegalStateException("Predecessor " + pred + " does not have " + node + " as a successor");
           }
         }
 
         // check if successors have us as a predecessor, and remove them from the inaccessible set
-        for (DirectNode succ : node.succs) {
-          if (!succ.preds.contains(node)) {
+        for (DirectNode succ : node.succs()) {
+          if (!succ.preds().contains(node)) {
             throw new IllegalStateException("Successor " + succ + " does not have " + node + " as a predecessor");
           }
 

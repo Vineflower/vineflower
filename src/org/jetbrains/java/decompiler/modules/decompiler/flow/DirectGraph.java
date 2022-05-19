@@ -1,8 +1,8 @@
 // Copyright 2000-2017 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
-package org.jetbrains.java.decompiler.modules.decompiler.sforms;
+package org.jetbrains.java.decompiler.modules.decompiler.flow;
 
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
-import org.jetbrains.java.decompiler.modules.decompiler.sforms.FlattenStatementsHelper.FinallyPathWrapper;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper.FinallyPathWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.util.VBStyleCollection;
 
@@ -75,8 +75,8 @@ public class DirectGraph {
 
       setVisited.add(node);
 
-      for (; index < node.succs.size(); index++) {
-        DirectNode succ = node.succs.get(index);
+      for (; index < node.succs().size(); index++) {
+        DirectNode succ = node.succs().get(index);
 
         if (!setVisited.contains(succ)) {
           stackIndex.add(index + 1);
@@ -88,7 +88,7 @@ public class DirectGraph {
         }
       }
 
-      if (index == node.succs.size()) {
+      if (index == node.succs().size()) {
         lst.add(0, node);
 
         stackNode.removeLast();
@@ -126,7 +126,7 @@ public class DirectGraph {
         }
       }
 
-      stack.addAll(node.succs);
+      stack.addAll(node.succs());
     }
 
     return true;

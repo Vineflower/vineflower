@@ -1,5 +1,5 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
-package org.jetbrains.java.decompiler.modules.decompiler.sforms;
+package org.jetbrains.java.decompiler.modules.decompiler.flow;
 
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
@@ -41,7 +41,7 @@ public class FlattenStatementsHelper {
 
     // dummy exit node
     Statement dummyexit = root.getDummyExit();
-    DirectNode node = DirectNode.forStat(DirectNode.NodeType.DIRECT, dummyexit);
+    DirectNode node = DirectNode.forStat(DirectNodeType.DIRECT, dummyexit);
     node.exprents = new ArrayList<>();
     graph.nodes.addWithKey(node, node.id);
     mapDestinationNodes.put(dummyexit.id, new String[]{node.id, null});
@@ -110,7 +110,7 @@ public class FlattenStatementsHelper {
             List<Exprent> tailExprentList = statEntry.tailExprents;
 
             if (tailExprentList != null) {
-              DirectNode tail = DirectNode.forStat(DirectNode.NodeType.TAIL, stat);
+              DirectNode tail = DirectNode.forStat(DirectNodeType.TAIL, stat);
               tail.exprents = tailExprentList;
               graph.nodes.putWithKey(tail, tail.id);
 
@@ -146,7 +146,7 @@ public class FlattenStatementsHelper {
             break;
           case Statement.TYPE_CATCHALL:
           case Statement.TYPE_TRYCATCH:
-            DirectNode firstnd = DirectNode.forStat(DirectNode.NodeType.TRY, stat);
+            DirectNode firstnd = DirectNode.forStat(DirectNodeType.TRY, stat);
 
             if (stat.type == Statement.TYPE_TRYCATCH) {
               CatchStatement catchStat = (CatchStatement)stat;
@@ -168,9 +168,9 @@ public class FlattenStatementsHelper {
                 stack = new LinkedList<>(stackFinally);
 
                 if (st == stat.getFirst()) { // catch head
-                  stack.add(new StackEntry((CatchAllStatement)stat, Boolean.FALSE));
+                  stack.add(new StackEntry((CatchAllStatement)stat, false));
                 } else { // handler
-                  stack.add(new StackEntry((CatchAllStatement)stat, Boolean.TRUE, StatEdge.TYPE_BREAK,
+                  stack.add(new StackEntry((CatchAllStatement)stat, true, StatEdge.TYPE_BREAK,
                                            root.getDummyExit(), st, st, firstnd, firstnd, true));
                 }
               }
@@ -225,7 +225,7 @@ public class FlattenStatementsHelper {
             switch (looptype) {
               case DoStatement.LOOP_WHILE:
               case DoStatement.LOOP_DOWHILE:
-                node = DirectNode.forStat(DirectNode.NodeType.CONDITION, stat);
+                node = DirectNode.forStat(DirectNodeType.CONDITION, stat);
                 node.exprents = dostat.getConditionExprentList();
                 graph.nodes.putWithKey(node, node.id);
 
@@ -251,17 +251,17 @@ public class FlattenStatementsHelper {
                 sourcenode = node;
                 break;
               case DoStatement.LOOP_FOR: {
-                DirectNode nodeinit = DirectNode.forStat(DirectNode.NodeType.INIT, stat);
+                DirectNode nodeinit = DirectNode.forStat(DirectNodeType.INIT, stat);
                 if (dostat.getInitExprent() != null) {
                   nodeinit.exprents = dostat.getInitExprentList();
                 }
                 graph.nodes.putWithKey(nodeinit, nodeinit.id);
 
-                DirectNode nodecond = DirectNode.forStat(DirectNode.NodeType.CONDITION, stat);
+                DirectNode nodecond = DirectNode.forStat(DirectNodeType.CONDITION, stat);
                 nodecond.exprents = dostat.getConditionExprentList();
                 graph.nodes.putWithKey(nodecond, nodecond.id);
 
-                DirectNode nodeinc = DirectNode.forStat(DirectNode.NodeType.INCREMENT, stat);
+                DirectNode nodeinc = DirectNode.forStat(DirectNodeType.INCREMENT, stat);
                 nodeinc.exprents = dostat.getIncExprentList();
                 graph.nodes.putWithKey(nodeinc, nodeinc.id);
 
@@ -293,12 +293,12 @@ public class FlattenStatementsHelper {
                 // is essentially
                 //
                 // for (inc; ; init)
-                DirectNode inc = DirectNode.forStat(DirectNode.NodeType.INCREMENT, stat);
+                DirectNode inc = DirectNode.forStat(DirectNodeType.INCREMENT, stat);
                 graph.nodes.putWithKey(inc, inc.id);
                 inc.exprents = dostat.getIncExprentList();
 
                 // Init is foreach variable definition
-                DirectNode init = DirectNode.forStat(DirectNode.NodeType.FOREACH_VARDEF, stat);
+                DirectNode init = DirectNode.forStat(DirectNodeType.FOREACH_VARDEF, stat);
                 graph.nodes.putWithKey(init, init.id);
                 init.exprents = dostat.getInitExprentList();
 
@@ -351,6 +351,7 @@ public class FlattenStatementsHelper {
 
               for (int i = statementBreakIndex; i < statsize; i++) {
                 statEntry.statementIndex = i + 1;
+
                 lstStackStatements.addFirst(statEntry);
                 lstStackStatements.addFirst(
                   new StatementStackEntry(stat.getStats().get(i), stackFinally,
@@ -470,7 +471,7 @@ public class FlattenStatementsHelper {
                            finallyLongRangeSource, finallyShortRangeEntry, finallyLongRangeEntry, isFinallyMonitorExceptionPath);
 
                   stack.removeLast();
-                  stack.add(new StackEntry(catchall, Boolean.TRUE, edgetype, destination, catchall.getHandler(),
+                  stack.add(new StackEntry(catchall, true, edgetype, destination, catchall.getHandler(),
                                            finallyLongRangeEntry == null ? catchall.getHandler() : finallyLongRangeEntry,
                                            sourcenode, finallyLongRangeSource, false));
 
@@ -560,15 +561,12 @@ public class FlattenStatementsHelper {
 
         throw new IllegalStateException("Could not find destination nodes for stat id " + statid + " from source " + sourceid);
       }
+      // TODO: continue edge type?
       DirectNode dest = graph.nodes.getWithKey(strings[edge.edgetype == StatEdge.TYPE_CONTINUE ? 1 : 0]);
 
-      if (!source.succs.contains(dest)) {
-        source.succs.add(dest);
-      }
+      DirectEdge diedge = DirectEdge.of(source, dest);
 
-      if (!dest.preds.contains(source)) {
-        dest.preds.add(source);
-      }
+      source.addSuccessor(diedge);
 
       if (mapPosIfBranch.containsKey(sourceid) && !statid.equals(mapPosIfBranch.get(sourceid))) {
         graph.mapNegIfBranch.put(sourceid, dest.id);

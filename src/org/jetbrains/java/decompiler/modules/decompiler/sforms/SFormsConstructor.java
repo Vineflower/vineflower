@@ -3,6 +3,10 @@ package org.jetbrains.java.decompiler.modules.decompiler.sforms;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectNode;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectNodeType;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionNode;
@@ -177,7 +181,7 @@ public class SFormsConstructor {
 
 
       // Foreach init node- mark as assignment!
-      if (node.type == DirectNode.NodeType.FOREACH_VARDEF && node.exprents.get(0).type == Exprent.EXPRENT_VAR) {
+      if (node.type == DirectNodeType.FOREACH_VARDEF && node.exprents.get(0).type == Exprent.EXPRENT_VAR) {
         this.updateVarExprent((VarExprent) node.exprents.get(0), node.statement, varmaps.getNormal(), calcLiveVars);
       } else if (node.exprents != null) {
         for (Exprent expr : node.exprents) {
@@ -189,7 +193,7 @@ public class SFormsConstructor {
       if (this.blockFieldPropagation) {
         // quick solution: 'dummy' field variables should not cross basic block borders (otherwise problems e.g. with finally loops - usage without assignment in a loop)
         // For the full solution consider adding a dummy assignment at the entry point of the method
-        boolean allow_field_propagation = node.succs.isEmpty() || (node.succs.size() == 1 && node.succs.get(0).preds.size() == 1);
+        boolean allow_field_propagation = node.succs().isEmpty() || (node.succs().size() == 1 && node.succs().get(0).preds().size() == 1);
 
         if (!allow_field_propagation) {
           varmaps.getIfTrue().removeAllFields();
@@ -205,7 +209,7 @@ public class SFormsConstructor {
 
         // Don't update the node if it wasn't discovered normally, as that can lead to infinite recursion due to bad ordering!
         if (!dgraph.extraNodes.contains(node)) {
-          for (DirectNode nd : node.succs) {
+          for (DirectNode nd : node.succs()) {
             updated.add(nd.id);
           }
         }
@@ -640,7 +644,7 @@ public class SFormsConstructor {
 
     SFormsFastMapDirect mapNew = new SFormsFastMapDirect();
 
-    for (DirectNode pred : node.preds) {
+    for (DirectNode pred : node.preds()) {
       SFormsFastMapDirect mapOut = this.getFilteredOutMap(node.id, pred.id, dgraph, node.id);
       if (mapNew.isEmpty()) {
         mapNew = mapOut.getCopy();
