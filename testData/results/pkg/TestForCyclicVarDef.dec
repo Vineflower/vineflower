@@ -21,6 +21,15 @@ public class TestForCyclicVarDef {
       }
 
    }// 24
+
+   public void testOk() {
+      float var9;
+      for(var9 = 22.22F; var9 > 133.07F; var9 *= 29.43F) {// 27
+         var9 -= -15.01F;// 28
+         System.out.println("Hi");// 29
+      }
+
+   }// 31
 }
 
 class 'pkg/TestForCyclicVarDef' {
@@ -95,6 +104,31 @@ class 'pkg/TestForCyclicVarDef' {
       1f      17
       23      22
    }
+
+   method 'testOk ()V' {
+      0      26
+      1      26
+      2      26
+      3      26
+      4      26
+      5      26
+      6      26
+      b      27
+      c      27
+      e      27
+      f      28
+      10      28
+      11      28
+      12      28
+      13      28
+      14      28
+      15      28
+      16      28
+      18      26
+      19      26
+      1b      26
+      1f      31
+   }
 }
 
 Lines mapping:
@@ -109,3 +143,7 @@ Lines mapping:
 21 <-> 19
 22 <-> 20
 24 <-> 23
+27 <-> 27
+28 <-> 28
+29 <-> 29
+31 <-> 32
