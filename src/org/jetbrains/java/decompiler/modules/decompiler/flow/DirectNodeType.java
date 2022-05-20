@@ -11,7 +11,7 @@ public enum DirectNodeType {
   INIT("init"),
   CONDITION("cond"),
   INCREMENT("inc"),
-  TRY("try"),
+  TRY("try"), // TODO: why is this used?
   FOREACH_VARDEF("foreach");
 
   private final String name;

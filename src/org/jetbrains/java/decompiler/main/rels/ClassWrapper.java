@@ -9,6 +9,7 @@ import org.jetbrains.java.decompiler.main.collectors.VarNamesCollector;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
@@ -142,6 +143,11 @@ public class ClassWrapper {
         RootStatement rootStat = MethodProcessorRunnable.debugCurrentlyDecompiling.get();
         if (rootStat != null) {
           DotExporter.errorToDotFile(rootStat, mt, "fail");
+
+          try {
+            DotExporter.errorToDotFile(new FlattenStatementsHelper().buildDirectGraph(rootStat), mt, "failDGraph");
+          } catch (Exception ignored) {
+          }
         }
 
         ControlFlowGraph graph = MethodProcessorRunnable.debugCurrentCFG.get();
