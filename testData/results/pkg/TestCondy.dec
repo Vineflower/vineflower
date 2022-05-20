@@ -5,15 +5,15 @@ import java.nio.file.StandardOpenOption;
 
 public class TestCondy {
    public static String testNull() {
-      return null;// 10
+      return /* $QF: constant dynamic */ null;// 10
    }
 
    public static FakeEnum testEnum() {
-      return FakeEnum.FOO;// 17
+      return /* $QF: constant dynamic */ FakeEnum.FOO;// 17
    }
 
    public static Class testPrimitiveClass() {
-      return void.class;// 24
+      return /* $QF: constant dynamic */ void.class;// 24
    }
 
    public static StandardOpenOption test(int var0) {

@@ -37,16 +37,17 @@ public class FieldExprent extends Exprent {
   private final FieldDescriptor descriptor;
   private boolean forceQualified = false;
   private boolean isQualifier = false;
+  private boolean wasCondy = false;
 
   public FieldExprent(LinkConstant cn, Exprent instance, BitSet bytecodeOffsets) {
     this(cn.elementname, cn.classname, instance == null, instance, FieldDescriptor.parseDescriptor(cn.descriptor), bytecodeOffsets);
   }
 
   public FieldExprent(String name, String classname, boolean isStatic, Exprent instance, FieldDescriptor descriptor, BitSet bytecodeOffsets) {
-    this(name, classname, isStatic, instance, descriptor, bytecodeOffsets, false);
+    this(name, classname, isStatic, instance, descriptor, bytecodeOffsets, false, false);
   }
 
-  public FieldExprent(String name, String classname, boolean isStatic, Exprent instance, FieldDescriptor descriptor, BitSet bytecodeOffsets, boolean forceQualified) {
+  public FieldExprent(String name, String classname, boolean isStatic, Exprent instance, FieldDescriptor descriptor, BitSet bytecodeOffsets, boolean forceQualified, boolean wasCondy) {
     super(EXPRENT_FIELD);
     this.name = name;
     this.classname = classname;
@@ -54,6 +55,7 @@ public class FieldExprent extends Exprent {
     this.instance = instance;
     this.descriptor = descriptor;
     this.forceQualified = forceQualified;
+    this.wasCondy = wasCondy;
 
     addBytecodeOffsets(bytecodeOffsets);
   }
@@ -125,7 +127,7 @@ public class FieldExprent extends Exprent {
 
   @Override
   public Exprent copy() {
-    return new FieldExprent(name, classname, isStatic, instance == null ? null : instance.copy(), descriptor, bytecode);
+    return new FieldExprent(name, classname, isStatic, instance == null ? null : instance.copy(), descriptor, bytecode, forceQualified, wasCondy);
   }
 
   private boolean isAmbiguous() {
@@ -143,6 +145,10 @@ public class FieldExprent extends Exprent {
   @Override
   public TextBuffer toJava(int indent) {
     TextBuffer buf = new TextBuffer();
+
+    if (wasCondy) {
+      buf.append("/* $QF: constant dynamic */ ");
+    }
 
     if (isStatic) {
       if (useQualifiedStatic()) {
@@ -279,7 +285,8 @@ public class FieldExprent extends Exprent {
     }
     return super.allowNewlineAfterQualifier();
   }
-// *****************************************************************************
+
+  // *****************************************************************************
   // IMatchable implementation
   // *****************************************************************************
 

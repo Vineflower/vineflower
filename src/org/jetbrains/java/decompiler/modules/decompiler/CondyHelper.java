@@ -30,17 +30,17 @@ public class CondyHelper {
     switch (method.elementname) {
       case "nullConstant":
         // TODO: include target type?
-        return new ConstExprent(VarType.VARTYPE_NULL, null, null);
+        return new ConstExprent(VarType.VARTYPE_NULL, null, null).markAsCondy();
       case "primitiveClass":
         String desc = condyExpr.getName();
         if (desc.length() != 1 || !("ZCBSIJFDV".contains(desc))) {
           break;
         }
         VarType type = new VarType(desc, false);
-        return new ConstExprent(VarType.VARTYPE_CLASS, ExprProcessor.getCastTypeName(type), null);
+        return new ConstExprent(VarType.VARTYPE_CLASS, ExprProcessor.getCastTypeName(type), null).markAsCondy();
       case "enumConstant":
         String typeName = condyExpr.getExprType().value;
-        return new FieldExprent(condyExpr.getName(), typeName, true, null, FieldDescriptor.parseDescriptor("L" + typeName + ";"), null);
+        return new FieldExprent(condyExpr.getName(), typeName, true, null, FieldDescriptor.parseDescriptor("L" + typeName + ";"), null, false, true);
     }
     return condyExpr;
   }

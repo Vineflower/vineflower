@@ -129,6 +129,7 @@ public class ConstExprent extends Exprent {
   private VarType constType;
   private final Object value;
   private final boolean boolPermitted;
+  private boolean wasCondy = false;
 
   public ConstExprent(int val, boolean boolPermitted, BitSet bytecodeOffsets) {
     this(guessType(val, boolPermitted), val, boolPermitted, bytecodeOffsets);
@@ -136,6 +137,11 @@ public class ConstExprent extends Exprent {
 
   public ConstExprent(VarType constType, Object value, BitSet bytecodeOffsets) {
     this(constType, value, false, bytecodeOffsets);
+  }
+
+  public ConstExprent(VarType constType, Object value, BitSet bytecodeOffsets, boolean wasCondy) {
+    this(constType, value, false, bytecodeOffsets);
+    this.wasCondy = wasCondy;
   }
 
   private ConstExprent(VarType constType, Object value, boolean boolPermitted, BitSet bytecodeOffsets) {
@@ -186,7 +192,7 @@ public class ConstExprent extends Exprent {
 
   @Override
   public Exprent copy() {
-    return new ConstExprent(constType, value, bytecode);
+    return new ConstExprent(constType, value, bytecode, wasCondy);
   }
 
   @Override
@@ -211,6 +217,10 @@ public class ConstExprent extends Exprent {
 
     TextBuffer buf = new TextBuffer();
     buf.addBytecodeMapping(bytecode);
+
+    if (wasCondy) {
+      buf.append("/* $QF: constant dynamic */ ");
+    }
 
     if (constType.type != CodeConstants.TYPE_NULL && value == null) {
       return buf.append(ExprProcessor.getCastTypeName(constType));
@@ -527,6 +537,11 @@ public class ConstExprent extends Exprent {
   @Override
   public void getBytecodeRange(BitSet values) {
     measureBytecode(values);
+  }
+
+  public ConstExprent markAsCondy() {
+    wasCondy = true;
+    return this;
   }
 
   @Override
