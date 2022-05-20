@@ -22,4 +22,11 @@ public class TestForCyclicVarDef {
       System.out.println("Hi");
     }
   }
+
+  public void testOk() {
+    for (float var9 = 22.22F; var9 > 133.07F; var9 *= 29.43F) {
+      var9 -= -15.01F;
+      System.out.println("Hi");
+    }
+  }
 }

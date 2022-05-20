@@ -273,7 +273,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestStringLiteral");
     register(JAVA_8, "TestSwitchStringHashcodeCollision");
     register(JAVA_8, "TestSynchronized");
-    // TODO: couldn't make synchronized, flatten statements error
+    // TODO: couldn't make synchronized
     register(JAVA_8, "TestSynchronizedLoop");
     // TODO: break out of synchronized isn't explicit
     register(JAVA_8, "TestSynchronizedTry");
@@ -404,6 +404,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatching4");
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatching5");
     // TODO: fix broken enum/string switch resugaring w/ null label, for all of these
+    // TODO: ternary in switch causes issues with switch detection
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatching6", "ext/Direction");
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatching7");
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatching8");
@@ -542,6 +543,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestArrayFieldAccess2");
     register(JAVA_8, "TestNestedArrayPP");
     // TODO: variable stores completely ignored due to variable merging
+
     register(JAVA_8_NODEBUG, "TestCompoundAssignmentReplace");
 
     register(JAVA_8, "TestSharedVarIndex");
@@ -567,6 +569,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestForCyclicVarDef");
     // TODO: merging of trycatch incorrect
     register(JAVA_8, "TestTryCatchNested");
+    register(JAVA_8, "TestSwitchTernary");
   }
 
   private void registerEntireClassPath() {
