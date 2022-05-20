@@ -5,8 +5,12 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FieldExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.InvocationExprent;
 import org.jetbrains.java.decompiler.struct.consts.LinkConstant;
+import org.jetbrains.java.decompiler.struct.consts.PooledConstant;
+import org.jetbrains.java.decompiler.struct.consts.PrimitiveConstant;
 import org.jetbrains.java.decompiler.struct.gen.FieldDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
+
+import java.util.List;
 
 public class CondyHelper {
 
@@ -14,7 +18,7 @@ public class CondyHelper {
   // - nullConstant(_, type)
   // - primitiveClass(descriptor, Class.class)
   // - enumConstant(name, enumClass)
-  // TODO: handle other bootstraps (getStaticFinal, invoke, fieldVarHandle, staticFieldVarHandle, arrayVarHandle, explicitCast)
+  // TODO: handle other bootstraps (invoke, fieldVarHandle, staticFieldVarHandle, arrayVarHandle, explicitCast)
   private static final String CONSTANT_BOOTSTRAPS_CLASS = "java/lang/invoke/ConstantBootstraps";
 
   public static Exprent simplifyCondy(InvocationExprent condyExpr) {
@@ -41,6 +45,24 @@ public class CondyHelper {
       case "enumConstant":
         String typeName = condyExpr.getExprType().value;
         return new FieldExprent(condyExpr.getName(), typeName, true, null, FieldDescriptor.parseDescriptor("L" + typeName + ";"), null, false, true);
+      case "getStaticFinal":
+        List<PooledConstant> constArgs = condyExpr.getBootstrapArguments();
+        String fieldType = condyExpr.getExprType().value;
+        String ownerClass;
+        if (constArgs.size() == 1) {
+          PooledConstant ownerName = constArgs.get(0);
+          if (ownerName instanceof PrimitiveConstant) {
+            ownerClass = ((PrimitiveConstant) ownerName).value.toString();
+          } else {
+            return condyExpr;
+          }
+        } else {
+          if(condyExpr.getExprType().type != VarType.VARTYPE_OBJECT.type) {
+            return condyExpr;
+          }
+          ownerClass = fieldType;
+        }
+        return new FieldExprent(condyExpr.getName(), ownerClass, true, null, FieldDescriptor.parseDescriptor(fieldType), null, false, true);
     }
     return condyExpr;
   }

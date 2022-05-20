@@ -1,71 +1,107 @@
 package pkg;
 
+import java.lang.invoke.ConstantBootstraps;
 import java.lang.invoke.MethodHandles.Lookup;
 import java.nio.file.StandardOpenOption;
 
 public class TestCondy {
+   public static final Integer field = 1;
+   public static final TestCondy selfField = null;
+
    public static String testNull() {
-      return /* $QF: constant dynamic */ null;// 10
+      return /* $QF: constant dynamic */ null;// 25
    }
 
    public static FakeEnum testEnum() {
-      return /* $QF: constant dynamic */ FakeEnum.FOO;// 17
+      return /* $QF: constant dynamic */ FakeEnum.FOO;// 32
    }
 
    public static Class testPrimitiveClass() {
-      return /* $QF: constant dynamic */ void.class;// 24
+      return /* $QF: constant dynamic */ void.class;// 39
+   }
+
+   public static Class testWrongPrimitiveClass() {
+      return (Class)ConstantBootstraps.primitiveClass<"U">();// 45 46
+   }
+
+   public static Class testGetStaticFinal() {
+      return /* $QF: constant dynamic */ field;// 55
+   }
+
+   public static Class testGetSelfStaticFinal() {
+      return /* $QF: constant dynamic */ selfField;// 62
    }
 
    public static StandardOpenOption test(int var0) {
-      return (StandardOpenOption[])TestConstantDynamic.getValues<"EnumC$Values">()[var0];// 30 34 35 36
+      return (StandardOpenOption[])TestConstantDynamic.getValues<"EnumC$Values">()[var0];// 68 72 73 74
    }
 
    public static StandardOpenOption[] getValues(Lookup var0, String var1, Class var2) {
-      return StandardOpenOption.values();// 42 43
+      return StandardOpenOption.values();// 80 81
    }
 }
 
 class 'pkg/TestCondy' {
    method 'testNull ()Ljava/lang/String;' {
-      2      7
-   }
-
-   method 'testEnum ()Lpkg/FakeEnum;' {
       2      11
    }
 
-   method 'testPrimitiveClass ()Ljava/lang/Class;' {
+   method 'testEnum ()Lpkg/FakeEnum;' {
       2      15
    }
 
-   method 'test (I)Ljava/nio/file/StandardOpenOption;' {
-      0      19
-      1      19
+   method 'testPrimitiveClass ()Ljava/lang/Class;' {
       2      19
-      3      19
-      4      19
-      5      19
    }
 
-   method 'getValues (Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/Class;)[Ljava/nio/file/StandardOpenOption;' {
+   method 'testWrongPrimitiveClass ()Ljava/lang/Class;' {
       0      23
       1      23
       2      23
-      3      23
+   }
+
+   method 'testGetStaticFinal ()Ljava/lang/Class;' {
+      2      27
+   }
+
+   method 'testGetSelfStaticFinal ()Ljava/lang/Class;' {
+      2      31
+   }
+
+   method 'test (I)Ljava/nio/file/StandardOpenOption;' {
+      0      35
+      1      35
+      2      35
+      3      35
+      4      35
+      5      35
+   }
+
+   method 'getValues (Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/Class;)[Ljava/nio/file/StandardOpenOption;' {
+      0      39
+      1      39
+      2      39
+      3      39
    }
 }
 
 Lines mapping:
-10 <-> 8
-17 <-> 12
-24 <-> 16
-30 <-> 20
-34 <-> 20
-35 <-> 20
-36 <-> 20
-42 <-> 24
-43 <-> 24
+25 <-> 12
+32 <-> 16
+39 <-> 20
+45 <-> 24
+46 <-> 24
+55 <-> 28
+62 <-> 32
+68 <-> 36
+72 <-> 36
+73 <-> 36
+74 <-> 36
+80 <-> 40
+81 <-> 40
 Not mapped:
-9
-16
-23
+24
+31
+38
+52
+61

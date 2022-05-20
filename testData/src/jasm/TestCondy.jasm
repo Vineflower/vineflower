@@ -3,6 +3,21 @@ package pkg;
 super public class TestCondy
 	version 55:0
 {
+
+public static final Field field:"Ljava/lang/Integer;";
+public static final Field selfField:"Lpkg/TestCondy;";
+
+private static Method "<clinit>":"()V"
+  stack 1 locals 0
+{
+  iconst_1;
+  invokestatic Method java/lang/Integer."valueOf":"(I)Ljava/lang/Integer;";
+  putstatic Field field:"Ljava/lang/Integer;";
+
+  aconst_null;
+  putstatic Field selfField:"Lpkg/TestCondy;";
+}
+
 public static Method testNull:"()Ljava/lang/String;"
 	stack 1 locals 0
 {
@@ -21,6 +36,29 @@ public static Method testPrimitiveClass:"()Ljava/lang/Class;"
 	stack 1 locals 0
 {
   ldc Dynamic REF_invokeStatic:java/lang/invoke/ConstantBootstraps.primitiveClass:"(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/Class;)Ljava/lang/Class;":V:"Ljava/lang/Class;";
+  areturn;
+}
+
+public static Method testWrongPrimitiveClass:"()Ljava/lang/Class;"
+	stack 1 locals 0
+{
+  ldc Dynamic REF_invokeStatic:java/lang/invoke/ConstantBootstraps.primitiveClass:"(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/Class;)Ljava/lang/Class;":U:"Ljava/lang/Class;";
+  areturn;
+}
+
+public static Method testGetStaticFinal:"()Ljava/lang/Class;"
+	stack 1 locals 0
+{
+  ldc Dynamic REF_invokeStatic:java/lang/invoke/ConstantBootstraps.getStaticFinal:"(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/Class;Ljava/lang/Class;)Ljava/lang/Object;":field:"Ljava/lang/Integer;"{
+    class "pkg/TestCondy"
+  };
+  areturn;
+}
+
+public static Method testGetSelfStaticFinal:"()Ljava/lang/Class;"
+	stack 1 locals 0
+{
+  ldc Dynamic REF_invokeStatic:java/lang/invoke/ConstantBootstraps.getStaticFinal:"(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/Class;Ljava/lang/Class;)Ljava/lang/Object;":selfField:"Lpkg/TestCondy;";
   areturn;
 }
 
