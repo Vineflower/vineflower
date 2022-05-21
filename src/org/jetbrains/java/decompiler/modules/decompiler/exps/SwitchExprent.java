@@ -3,6 +3,7 @@ package org.jetbrains.java.decompiler.modules.decompiler.exps;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.BasicBlockStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.SwitchStatement;
 import org.jetbrains.java.decompiler.struct.StructClass;
@@ -112,10 +113,7 @@ public class SwitchExprent extends Exprent {
 
       buf.append(" -> ");
 
-      boolean simple = true;
-      if (stat.type != Statement.TYPE_BASICBLOCK) {
-        simple = false;
-      }
+      boolean simple = stat instanceof BasicBlockStatement;
 
       if (stat.getExprents() != null && stat.getExprents().size() != 1) {
         simple = false;

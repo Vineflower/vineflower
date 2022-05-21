@@ -23,7 +23,7 @@ public class FastExtendedPostdominanceHelper {
   private FastFixedSetFactory<Integer> factory;
 
   public HashMap<Integer, Set<Integer>> getExtendedPostdominators(Statement statement) {
-    if (statement.type != Statement.TYPE_GENERAL) {
+    if (statement.type != Statement.StatementType.GENERAL) {
       throw new IllegalStateException("Cannot find extended post dominators of non generalized statement");
     }
 

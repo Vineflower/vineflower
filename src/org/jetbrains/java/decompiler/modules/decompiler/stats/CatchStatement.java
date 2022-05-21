@@ -30,7 +30,7 @@ public final class CatchStatement extends Statement {
   // *****************************************************************************
 
   private CatchStatement() {
-    type = TYPE_TRYCATCH;
+    type = StatementType.TRY_CATCH;
   }
 
   private CatchStatement(Statement head, Statement next, Set<Statement> setHandlers) {
@@ -129,7 +129,7 @@ public final class CatchStatement extends Statement {
         // Don't build a trycatch around a loop-head if statement, as we know that DoStatement should be built first.
         // Since CatchStatement's isHead is run after DoStatement's, we can assume that a loop was not able to be built.
         if (DecompilerContext.getOption(IFernflowerPreferences.EXPERIMENTAL_TRY_LOOP_FIX)) {
-          if (head.type == Statement.TYPE_IF && head.getContinueSet().contains(head.first)) {
+          if (head instanceof IfStatement && head.getContinueSet().contains(head.first)) {
             return null;
           }
         }

@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 public final class SwitchHelper {
   public static boolean simplifySwitches(Statement stat, StructMethod mt, RootStatement root) {
     boolean ret = false;
-    if (stat.type == Statement.TYPE_SWITCH) {
+    if (stat instanceof SwitchStatement) {
       ret = simplify((SwitchStatement)stat, mt, root);
     }
 
@@ -171,7 +171,7 @@ public final class SwitchHelper {
       boolean nullable = false;
       IfStatement containingNullCheck = null;
       List<StatEdge> edges = switchStatement.getSuccessorEdges(StatEdge.TYPE_REGULAR);
-      if (edges.size() == 1 && edges.get(0).getDestination().type == Statement.TYPE_SWITCH) {
+      if (edges.size() == 1 && edges.get(0).getDestination() instanceof SwitchStatement) {
         following = (SwitchStatement)edges.get(0).getDestination();
       } else {
         // definitely a nullable switch
@@ -186,7 +186,7 @@ public final class SwitchHelper {
 
         Statement curr = switchStatement.getCaseStatements().get(i);
 
-        while (curr != null && curr.type == Statement.TYPE_IF)  {
+        while (curr instanceof IfStatement)  {
           IfStatement ifStat = (IfStatement)curr;
           Exprent condition = ifStat.getHeadexprent().getCondition();
 
@@ -417,7 +417,7 @@ public final class SwitchHelper {
   private static boolean isSwitchOnString(SwitchStatement first) {
     SwitchStatement second = null;
     List<StatEdge> edges = first.getSuccessorEdges(StatEdge.TYPE_REGULAR);
-    if (edges.size() == 1 && edges.get(0).getDestination().type == Statement.TYPE_SWITCH) {
+    if (edges.size() == 1 && edges.get(0).getDestination() instanceof SwitchStatement) {
       second = (SwitchStatement)edges.get(0).getDestination();
     }
     AssignmentExprent nullAssign = null;
@@ -441,7 +441,7 @@ public final class SwitchHelper {
                   nullAssign = (AssignmentExprent)assign;
                   // then we're probably a nullable string-switch
                   edges = parent.getSuccessorEdges(StatEdge.TYPE_REGULAR);
-                  if (edges.size() == 1 && edges.get(0).getDestination().type == Statement.TYPE_SWITCH) {
+                  if (edges.size() == 1 && edges.get(0).getDestination() instanceof SwitchStatement) {
                     second = (SwitchStatement)edges.get(0).getDestination();
                   }
                 }
@@ -456,7 +456,7 @@ public final class SwitchHelper {
       Exprent firstValue = ((SwitchHeadExprent)first.getHeadexprent()).getValue();
       Exprent secondValue = ((SwitchHeadExprent)second.getHeadexprent()).getValue();
 
-      if (firstValue.type == Exprent.EXPRENT_INVOCATION && secondValue.type == Exprent.EXPRENT_VAR && first.getCaseStatements().get(0).type == Statement.TYPE_IF) {
+      if (firstValue.type == Exprent.EXPRENT_INVOCATION && secondValue.type == Exprent.EXPRENT_VAR && first.getCaseStatements().get(0) instanceof IfStatement) {
         InvocationExprent invExpr = (InvocationExprent)firstValue;
         VarExprent varExpr = (VarExprent) secondValue;
         if (nullAssign != null && !nullAssign.getLeft().equals(varExpr)) {
@@ -470,7 +470,7 @@ public final class SwitchHelper {
             if (!first.getCaseEdges().get(i).contains(first.getDefaultEdge())) {
               Statement curr = first.getCaseStatements().get(i);
               while (matches && curr != null) {
-                if (curr.type == Statement.TYPE_IF) {
+                if (curr instanceof IfStatement) {
                   IfStatement ifStat = (IfStatement)curr;
                   Exprent condition = ifStat.getHeadexprent().getCondition();
 

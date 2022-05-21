@@ -29,7 +29,7 @@ public final class DoStatement extends Statement {
   // *****************************************************************************
 
   private DoStatement() {
-    type = Statement.TYPE_DO;
+    type = StatementType.DO;
     looptype = Type.INFINITE;
 
     initExprent.add(null);
@@ -68,7 +68,7 @@ public final class DoStatement extends Statement {
       }
 
       // continues
-      if (head.type != TYPE_DO && (edge == null || edge.getType() != StatEdge.TYPE_REGULAR) &&
+      if (!(head instanceof DoStatement) && (edge == null || edge.getType() != StatEdge.TYPE_REGULAR) &&
           head.getContinueSet().contains(head.getBasichead())) {
         return new DoStatement(head);
       }

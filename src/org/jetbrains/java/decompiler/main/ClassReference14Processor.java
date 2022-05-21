@@ -12,7 +12,6 @@ import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.BasicBlockStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.CatchStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.struct.StructField;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
@@ -134,10 +133,10 @@ public final class ClassReference14Processor {
           mt.hasModifier(CodeConstants.ACC_STATIC)) {
 
         RootStatement root = method.root;
-        if (root != null && root.getFirst().type == Statement.TYPE_TRYCATCH) {
+        if (root != null && root.getFirst() instanceof CatchStatement) {
           CatchStatement cst = (CatchStatement)root.getFirst();
-          if (cst.getStats().size() == 2 && cst.getFirst().type == Statement.TYPE_BASICBLOCK &&
-              cst.getStats().get(1).type == Statement.TYPE_BASICBLOCK &&
+          if (cst.getStats().size() == 2 && cst.getFirst() instanceof BasicBlockStatement &&
+              cst.getStats().get(1) instanceof BasicBlockStatement &&
               cst.getVars().get(0).getVarType().equals(new VarType(CodeConstants.TYPE_OBJECT, 0, "java/lang/ClassNotFoundException"))) {
 
             BasicBlockStatement body = (BasicBlockStatement)cst.getFirst();

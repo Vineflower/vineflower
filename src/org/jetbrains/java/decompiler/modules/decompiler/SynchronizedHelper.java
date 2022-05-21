@@ -3,6 +3,7 @@ package org.jetbrains.java.decompiler.modules.decompiler;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.BasicBlockStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.SynchronizedStatement;
@@ -17,7 +18,7 @@ public final class SynchronizedHelper {
       res |= cleanSynchronizedVar(st);
     }
 
-    if (stat.type == Statement.TYPE_SYNCRONIZED) {
+    if (stat instanceof SynchronizedStatement) {
       SynchronizedStatement sync = (SynchronizedStatement)stat;
 
       if (sync.getHeadexprentList().get(0).type == Exprent.EXPRENT_MONITOR) {
@@ -50,7 +51,7 @@ public final class SynchronizedHelper {
       res |= insertSink(root, varProcessor, st);
     }
 
-    if (stat.type == Statement.TYPE_SYNCRONIZED) {
+    if (stat instanceof SynchronizedStatement) {
       MonitorExprent mon = (MonitorExprent) ((SynchronizedStatement)stat).getHeadexprent();
       Exprent value = mon.getValue();
 
@@ -87,7 +88,7 @@ public final class SynchronizedHelper {
       markLiveMonitors(root, st);
     }
 
-    if (stat.type == Statement.TYPE_BASICBLOCK) {
+    if (stat instanceof BasicBlockStatement) {
       for (Exprent ex : stat.getExprents()) {
         if (ex.type == Exprent.EXPRENT_MONITOR) {
           root.addComment("$FF: Could not create synchronized statement, marking monitor enters and exits");

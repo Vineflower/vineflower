@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class SynchronizedStatement extends Statement {
+public final class SynchronizedStatement extends Statement {
 
   private Statement body;
 
@@ -24,7 +24,7 @@ public class SynchronizedStatement extends Statement {
   // *****************************************************************************
 
   public SynchronizedStatement() {
-    type = TYPE_SYNCRONIZED;
+    type = StatementType.SYNCHRONIZED;
 
     headexprent.add(null);
   }

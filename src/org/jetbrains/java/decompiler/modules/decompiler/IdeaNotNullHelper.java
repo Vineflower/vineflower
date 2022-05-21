@@ -46,11 +46,11 @@ public final class IdeaNotNullHelper {
   private static boolean findAndRemoveParameterCheck(Statement stat, StructMethod mt) {
 
     Statement st = stat.getFirst();
-    while (st.type == Statement.TYPE_SEQUENCE) {
+    while (st instanceof SequenceStatement) {
       st = st.getFirst();
     }
 
-    if (st.type == Statement.TYPE_IF) {
+    if (st instanceof IfStatement) {
 
       IfStatement ifstat = (IfStatement)st;
       Statement ifbranch = ifstat.getIfstat();
@@ -63,7 +63,7 @@ public final class IdeaNotNullHelper {
       if (ifbranch != null &&
           if_condition.type == Exprent.EXPRENT_FUNCTION &&
           ((FunctionExprent)if_condition).getFuncType() == FunctionType.EQ &&
-          ifbranch.type == Statement.TYPE_BASICBLOCK &&
+          ifbranch instanceof BasicBlockStatement &&
           ifbranch.getExprents().size() == 1 &&
           ifbranch.getExprents().get(0).type == Exprent.EXPRENT_INVOCATION) {
 
@@ -132,7 +132,7 @@ public final class IdeaNotNullHelper {
   private static void removeParameterCheck(Statement stat) {
 
     Statement st = stat.getFirst();
-    while (st.type == Statement.TYPE_SEQUENCE) {
+    while (st instanceof SequenceStatement) {
       st = st.getFirst();
     }
 
@@ -196,7 +196,7 @@ public final class IdeaNotNullHelper {
     Statement parent = stat.getParent();
 
     // TODO: is this check doing anything? seems like modern notnull creation doesn't cause this to be run.
-    if (parent != null && parent.type == Statement.TYPE_IF && stat.type == Statement.TYPE_BASICBLOCK && stat.getExprents().size() == 1) {
+    if (parent instanceof IfStatement && stat instanceof BasicBlockStatement && stat.getExprents().size() == 1) {
       Exprent exprent = stat.getExprents().get(0);
       if (exprent.type == Exprent.EXPRENT_EXIT) {
         ExitExprent exit_exprent = (ExitExprent)exprent;
@@ -225,7 +225,7 @@ public final class IdeaNotNullHelper {
                 second_param.getExprType().type == CodeConstants.TYPE_NULL) { // TODO: reversed parameter order
               //if(first_param.type == Exprent.EXPRENT_VAR && ((VarExprent)first_param).getIndex() == var_value.getIndex()) {
               if (first_param.equals(exprent_value)) {        // TODO: check for absence of side effects like method invocations etc.
-                if (ifbranch.type == Statement.TYPE_BASICBLOCK &&
+                if (ifbranch instanceof BasicBlockStatement &&
                     ifbranch.getExprents().size() == 1 &&
                     // TODO: special check for IllegalStateException
                     ifbranch.getExprents().get(0).type == Exprent.EXPRENT_EXIT) {
@@ -257,8 +257,8 @@ public final class IdeaNotNullHelper {
       }
     }
     else if (parent != null &&
-             parent.type == Statement.TYPE_SEQUENCE &&
-             stat.type == Statement.TYPE_BASICBLOCK &&
+             parent instanceof SequenceStatement &&
+             stat instanceof BasicBlockStatement &&
              stat.getExprents().size() == 1) {
       Exprent exprent = stat.getExprents().get(0);
       if (exprent.type == Exprent.EXPRENT_EXIT) {
@@ -271,7 +271,7 @@ public final class IdeaNotNullHelper {
 
           if (sequence_stats_number > 1 &&
               sequence.getStats().getLast() == stat &&
-              sequence.getStats().get(sequence_stats_number - 2).type == Statement.TYPE_IF) {
+              sequence.getStats().get(sequence_stats_number - 2) instanceof IfStatement) {
 
             IfStatement ifstat = (IfStatement)sequence.getStats().get(sequence_stats_number - 2);
             Exprent if_condition = ifstat.getHeadexprent().getCondition();
@@ -288,7 +288,7 @@ public final class IdeaNotNullHelper {
               if (second_param.type == Exprent.EXPRENT_CONST &&
                   second_param.getExprType().type == CodeConstants.TYPE_NULL) { // TODO: reversed parameter order
                 if (first_param.equals(exprent_value)) {        // TODO: check for absence of side effects like method invocations etc.
-                  if (ifbranch.type == Statement.TYPE_BASICBLOCK &&
+                  if (ifbranch instanceof BasicBlockStatement &&
                       ifbranch.getExprents().size() == 1 &&
                       ifbranch.getExprents().get(0).type == Exprent.EXPRENT_INVOCATION && ((InvocationExprent)ifbranch.getExprents().get(0)).getName().equals("$$$reportNull$$$0")) {
 

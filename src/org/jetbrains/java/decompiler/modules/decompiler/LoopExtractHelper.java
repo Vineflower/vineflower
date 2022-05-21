@@ -4,10 +4,7 @@ package org.jetbrains.java.decompiler.modules.decompiler;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.IfExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.DoStatement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.SequenceStatement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -53,7 +50,7 @@ public final class LoopExtractHelper {
       }
     }
 
-    if (stat.type == Statement.TYPE_DO) {
+    if (stat instanceof DoStatement) {
       if (extractLoop((DoStatement)stat)) {
         return 2;
       }
@@ -69,7 +66,7 @@ public final class LoopExtractHelper {
 
     List<Statement> stats = new ArrayList<>();
     for (StatEdge edge : stat.getLabelEdges()) {
-      if (edge.getType() != StatEdge.TYPE_CONTINUE && edge.getDestination().type != Statement.TYPE_DUMMYEXIT) {
+      if (edge.getType() != StatEdge.TYPE_CONTINUE && !(edge.getDestination() instanceof DummyExitStatement)) {
         if (edge.getType() == StatEdge.TYPE_BREAK && isExternStatement(stat, edge.getSource(), edge.getSource())) {
           stats.add(edge.getSource());
         }
@@ -97,11 +94,11 @@ public final class LoopExtractHelper {
 
     // search for an if condition at the end of the loop
     Statement last = stat.getFirst();
-    while (last.type == Statement.TYPE_SEQUENCE) {
+    while (last instanceof SequenceStatement) {
       last = last.getStats().getLast();
     }
 
-    if (last.type == Statement.TYPE_IF) {
+    if (last instanceof IfStatement) {
       IfStatement lastif = (IfStatement)last;
       if (lastif.iftype == IfStatement.IFTYPE_IF && lastif.getIfstat() != null) {
         Statement ifstat = lastif.getIfstat();
@@ -118,10 +115,10 @@ public final class LoopExtractHelper {
           if (set.isEmpty()) { // no direct continues in a do{}while loop
             if (isExternStatement(stat, ifstat, ifstat)) {
               Statement first = stat.getFirst();
-              while (first.type == Statement.TYPE_SEQUENCE) {
+              while (first instanceof SequenceStatement) {
                 first = first.getFirst();
               }
-              if (first.type == Statement.TYPE_DO && ((DoStatement)first).getLooptype() == DoStatement.Type.INFINITE) {
+              if (first instanceof DoStatement && ((DoStatement)first).getLooptype() == DoStatement.Type.INFINITE) {
                 return false;
               }
 
@@ -145,12 +142,12 @@ public final class LoopExtractHelper {
 
     // search for an if condition at the entrance of the loop
     Statement first = stat.getFirst();
-    while (first.type == Statement.TYPE_SEQUENCE) {
+    while (first instanceof SequenceStatement) {
       first = first.getFirst();
     }
 
     // found an if statement
-    if (first.type == Statement.TYPE_IF) {
+    if (first instanceof IfStatement) {
       IfStatement firstif = (IfStatement)first;
 
       if (firstif.getFirst().getExprents().isEmpty()) {
@@ -176,7 +173,7 @@ public final class LoopExtractHelper {
               List<StatEdge> continues = ifstat.getSuccessorEdges(StatEdge.TYPE_CONTINUE);
               boolean newDest = false;
               Statement removeFrom = null;
-              if (ifstat.type == Statement.TYPE_SEQUENCE) {
+              if (ifstat instanceof SequenceStatement) {
                 removeFrom = ifstat.getStats().getLast();
                 continues.addAll(ifstat.getStats().getLast().getSuccessorEdges(StatEdge.TYPE_CONTINUE));
                 newDest = true;

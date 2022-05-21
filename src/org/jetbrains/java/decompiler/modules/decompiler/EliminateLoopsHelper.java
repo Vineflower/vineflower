@@ -37,7 +37,7 @@ public class EliminateLoopsHelper {
       }
     }
 
-    if (stat.type == Statement.TYPE_DO && isLoopRedundant((DoStatement)stat)) {
+    if (stat instanceof DoStatement && isLoopRedundant((DoStatement)stat)) {
       return true;
     }
 
@@ -52,7 +52,7 @@ public class EliminateLoopsHelper {
 
     // get parent loop if exists
     Statement parentloop = loop.getParent();
-    while (parentloop != null && parentloop.type != Statement.TYPE_DO) {
+    while (parentloop != null && !(parentloop instanceof DoStatement)) {
       parentloop = parentloop.getParent();
     }
 
