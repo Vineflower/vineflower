@@ -37,12 +37,16 @@ public class TestCondy {
       return (VarHandle)ConstantBootstraps.staticFieldVarHandle<"field",TestCondy,Integer>();// 68 72
    }
 
+   public static VarHandle testArrayVarHandle() {
+      return (VarHandle)ConstantBootstraps.arrayVarHandle<"unused",TestCondy[]>();// 78 81
+   }
+
    public static StandardOpenOption test(int var0) {
-      return (StandardOpenOption[])TestConstantDynamic.getValues<"EnumC$Values">()[var0];// 78 82 83 84
+      return (StandardOpenOption[])TestConstantDynamic.getValues<"EnumC$Values">()[var0];// 87 91 92 93
    }
 
    public static StandardOpenOption[] getValues(Lookup var0, String var1, Class var2) {
-      return StandardOpenOption.values();// 90 91
+      return StandardOpenOption.values();// 99 100
    }
 }
 
@@ -79,20 +83,26 @@ class 'pkg/TestCondy' {
       2      36
    }
 
-   method 'test (I)Ljava/nio/file/StandardOpenOption;' {
+   method 'testArrayVarHandle ()Ljava/lang/invoke/VarHandle;' {
       0      40
       1      40
       2      40
-      3      40
-      4      40
-      5      40
    }
 
-   method 'getValues (Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/Class;)[Ljava/nio/file/StandardOpenOption;' {
+   method 'test (I)Ljava/nio/file/StandardOpenOption;' {
       0      44
       1      44
       2      44
       3      44
+      4      44
+      5      44
+   }
+
+   method 'getValues (Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/Class;)[Ljava/nio/file/StandardOpenOption;' {
+      0      48
+      1      48
+      2      48
+      3      48
    }
 }
 
@@ -107,11 +117,13 @@ Lines mapping:
 68 <-> 37
 72 <-> 37
 78 <-> 41
-82 <-> 41
-83 <-> 41
-84 <-> 41
-90 <-> 45
+81 <-> 41
+87 <-> 45
 91 <-> 45
+92 <-> 45
+93 <-> 45
+99 <-> 49
+100 <-> 49
 Not mapped:
 24
 31

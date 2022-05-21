@@ -18,12 +18,13 @@ import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 // Handles the java.lang.invoke.ConstantBootstraps bootstraps
 public class CondyHelper {
 
-  // TODO: handle other bootstraps (invoke, arrayVarHandle, explicitCast)
+  // TODO: handle other bootstraps (invoke, explicitCast)
   private static final String CONSTANT_BOOTSTRAPS_CLASS = "java/lang/invoke/ConstantBootstraps";
 
   public static Exprent simplifyCondy(InvocationExprent condyExpr) {
@@ -77,11 +78,21 @@ public class CondyHelper {
         boolean isStatic = method.elementname.startsWith("static");
         List<PooledConstant> constArgs = condyExpr.getBootstrapArguments();
         String fieldName = condyExpr.getName();
-        if(constArgs.size() != 2 || !(constArgs.get(0) instanceof PrimitiveConstant)) {
+        if (constArgs.size() != 2 || !(constArgs.get(0) instanceof PrimitiveConstant)) {
           return condyExpr;
         }
         String ownerClass = ((PrimitiveConstant) constArgs.get(0)).getString();
         return constructVarHandle(fieldName, ownerClass, constArgs.get(1), isStatic);
+      }
+      case "arrayVarHandle": {
+        if (!DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_COMPLEX_CONDYS)) {
+          return condyExpr;
+        }
+        List<PooledConstant> constArgs = condyExpr.getBootstrapArguments();
+        if (constArgs.size() != 1) {
+          return condyExpr;
+        }
+        return constructArrayVarHandleExprent(constArgs.get(0));
       }
     }
     return condyExpr;
@@ -107,7 +118,7 @@ public class CondyHelper {
   private static Exprent toCondyExprent(LinkConstant fieldType) {
     Exprent fieldTypeConst;
     // TODO: is this correct in non-trivial cases?
-    StructClass cl = (StructClass)DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS);
+    StructClass cl = (StructClass) DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS);
     StructBootstrapMethodsAttribute bootstrap = cl.getAttribute(StructGeneralAttribute.ATTRIBUTE_BOOTSTRAP_METHODS);
     LinkConstant bootstrapMethod = null;
     List<PooledConstant> constArgs = null;
@@ -146,6 +157,26 @@ public class CondyHelper {
     exprent.setStatic(false);
     exprent.setInstance(lookup);
     exprent.setLstParameters(Arrays.asList(ownerClass, fieldName, fieldClass));
+    return exprent.markWasLazyCondy();
+  }
+
+  private static InvocationExprent constructArrayVarHandleExprent(PooledConstant classConst) {
+    InvocationExprent exprent = new InvocationExprent();
+    exprent.setName("arrayElementVarHandle");
+    exprent.setClassname("java/lang/invoke/MethodHandles");
+    String desc = "(Ljava/lang/Class;)Ljava/lang/invoke/VarHandle;";
+    exprent.setStringDescriptor(desc);
+    exprent.setDescriptor(MethodDescriptor.parseDescriptor(desc));
+    exprent.setFunctype(InvocationExprent.TYP_GENERAL);
+    exprent.setStatic(true);
+    Exprent classExpr;
+    if (classConst instanceof PrimitiveConstant) {
+      VarType fieldTypeClass = new VarType(((PrimitiveConstant) classConst).getString(), false);
+      classExpr = new ConstExprent(VarType.VARTYPE_CLASS, ExprProcessor.getCastTypeName(fieldTypeClass), null);
+    } else {
+      classExpr = toCondyExprent((LinkConstant) classConst);
+    }
+    exprent.setLstParameters(Collections.singletonList(classExpr));
     return exprent.markWasLazyCondy();
   }
 }

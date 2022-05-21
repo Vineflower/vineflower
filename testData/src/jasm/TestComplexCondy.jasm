@@ -45,4 +45,13 @@ public static Method testPrimitiveVarHandle:"()Ljava/lang/invoke/VarHandle;"
   };
   areturn;
 }
+
+public static Method testArrayVarHandle:"()Ljava/lang/invoke/VarHandle;"
+	stack 1 locals 0
+{
+  ldc Dynamic REF_invokeStatic:java/lang/invoke/ConstantBootstraps.arrayVarHandle:"(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/Class;Ljava/lang/Class;)Ljava/lang/Object;":unused:"Ljava/lang/invoke/VarHandle;"{
+    class "[Lpkg/TestCondy;"
+  };
+  areturn;
+}
 }

@@ -20,6 +20,10 @@ public class TestComplexCondy {
    public static VarHandle testPrimitiveVarHandle() {
       return /* $QF: constant dynamic replaced with non-lazy method call */ MethodHandles.lookup().findVarHandle(TestCondy.class, "primitive", int.class);// 46
    }
+
+   public static VarHandle testArrayVarHandle() {
+      return /* $QF: constant dynamic replaced with non-lazy method call */ MethodHandles.arrayElementVarHandle(TestCondy[].class);// 55
+   }
 }
 
 class 'pkg/TestComplexCondy' {
@@ -34,13 +38,19 @@ class 'pkg/TestComplexCondy' {
    method 'testPrimitiveVarHandle ()Ljava/lang/invoke/VarHandle;' {
       2      20
    }
+
+   method 'testArrayVarHandle ()Ljava/lang/invoke/VarHandle;' {
+      2      24
+   }
 }
 
 Lines mapping:
 26 <-> 12
 36 <-> 16
 46 <-> 21
+55 <-> 25
 Not mapped:
 22
 32
 42
+52
