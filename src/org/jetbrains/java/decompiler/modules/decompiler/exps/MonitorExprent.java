@@ -22,7 +22,7 @@ public class MonitorExprent extends Exprent {
   private Exprent value;
 
   public MonitorExprent(Type monType, Exprent value, BitSet bytecodeOffsets) {
-    super(EXPRENT_MONITOR);
+    super(Exprent.Type.MONITOR);
     this.monType = monType;
     this.value = value;
 
@@ -47,7 +47,7 @@ public class MonitorExprent extends Exprent {
 
     if (monType == Type.ENTER) {
       // Warn if the synchronized method is synchronizing on null, as that is invalid [https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-14.19]
-      if (this.value.type == EXPRENT_CONST && this.value.getExprType() == VarType.VARTYPE_NULL) {
+      if (this.value instanceof ConstExprent && this.value.getExprType() == VarType.VARTYPE_NULL) {
         DecompilerContext.getLogger().writeMessage("Created invalid synchronize on null!" , IFernflowerLogger.Severity.WARN);
       }
       return buf.append(value.toJava(indent)).enclose("synchronized(", ")");

@@ -371,7 +371,7 @@ public final class ValidationHelper {
     }
 
     switch (exprent.type) {
-      case Exprent.EXPRENT_EXIT: validateExitExprent((ExitExprent)exprent); break;
+      case EXIT: validateExitExprent((ExitExprent)exprent); break;
       default: {
         for (Exprent subExprents : exprent.getAllExprents()) {
           validateExprent(subExprents);

@@ -21,14 +21,14 @@ public final class SynchronizedHelper {
     if (stat instanceof SynchronizedStatement) {
       SynchronizedStatement sync = (SynchronizedStatement)stat;
 
-      if (sync.getHeadexprentList().get(0).type == Exprent.EXPRENT_MONITOR) {
+      if (sync.getHeadexprentList().get(0) instanceof MonitorExprent) {
         MonitorExprent mon = (MonitorExprent)sync.getHeadexprentList().get(0);
 
         for (Exprent e : sync.getFirst().getExprents()) {
-          if (e.type == Exprent.EXPRENT_ASSIGNMENT) {
+          if (e instanceof AssignmentExprent) {
             AssignmentExprent ass = (AssignmentExprent)e;
 
-            if (ass.getLeft().type == Exprent.EXPRENT_VAR) {
+            if (ass.getLeft() instanceof VarExprent) {
               VarExprent var = (VarExprent)ass.getLeft();
 
               if (ass.getRight().equals(mon.getValue()) && !var.isVarReferenced(stat.getParent())) {
@@ -55,7 +55,7 @@ public final class SynchronizedHelper {
       MonitorExprent mon = (MonitorExprent) ((SynchronizedStatement)stat).getHeadexprent();
       Exprent value = mon.getValue();
 
-      if (value.type == Exprent.EXPRENT_CONST && ((ConstExprent)value).getConstType() != VarType.VARTYPE_STRING && !(((ConstExprent)value).getConstType() instanceof GenericType)) {
+      if (value instanceof ConstExprent && ((ConstExprent)value).getConstType() != VarType.VARTYPE_STRING && !(((ConstExprent)value).getConstType() instanceof GenericType)) {
         // Somehow created a const monitor, add assignment of object to ensure that it functions
         int var = DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.VAR_COUNTER);
 
@@ -66,7 +66,7 @@ public final class SynchronizedHelper {
         AssignmentExprent assign = new AssignmentExprent(varEx, value, null);
         mon.replaceExprent(value, assign);
         root.addComment("$FF: Added assignment to ensure synchronized validity");
-      } else if (value.type == Exprent.EXPRENT_INVOCATION) {
+      } else if (value instanceof InvocationExprent) {
         // Force boxing for monitor
         InvocationExprent inv = (InvocationExprent)value;
 
@@ -90,7 +90,7 @@ public final class SynchronizedHelper {
 
     if (stat instanceof BasicBlockStatement) {
       for (Exprent ex : stat.getExprents()) {
-        if (ex.type == Exprent.EXPRENT_MONITOR) {
+        if (ex instanceof MonitorExprent) {
           root.addComment("$FF: Could not create synchronized statement, marking monitor enters and exits");
           root.addErrorComment = true;
         }

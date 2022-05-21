@@ -29,7 +29,7 @@ public class AssignmentExprent extends Exprent {
   private FunctionExprent.FunctionType condType = null;
 
   public AssignmentExprent(Exprent left, Exprent right, BitSet bytecodeOffsets) {
-    super(EXPRENT_ASSIGNMENT);
+    super(Type.ASSIGNMENT);
     this.left = left;
     this.right = right;
 
@@ -94,7 +94,7 @@ public class AssignmentExprent extends Exprent {
     VarType rightType = right.getInferredExprType(leftType);
 
     boolean fieldInClassInit = false, hiddenField = false;
-    if (left.type == Exprent.EXPRENT_FIELD) { // first assignment to a final field. Field name without "this" in front of it
+    if (left instanceof FieldExprent) { // first assignment to a final field. Field name without "this" in front of it
       FieldExprent field = (FieldExprent) left;
       ClassNode node = ((ClassNode) DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS_NODE));
       if (node != null) {
@@ -122,7 +122,7 @@ public class AssignmentExprent extends Exprent {
       buffer.append(left.toJava(indent));
     }
 
-    if (right.type == EXPRENT_CONST) {
+    if (right instanceof ConstExprent) {
       ((ConstExprent) right).adjustConstType(leftType);
     }
 
@@ -148,7 +148,7 @@ public class AssignmentExprent extends Exprent {
   // E var = (T)expr; -> E var = (E)expr;
   // when E extends T & A
   private void optimizeCastForAssign() {
-    if (this.right.type != EXPRENT_FUNCTION) {
+    if (!(this.right instanceof FunctionExprent)) {
       return;
     }
 
@@ -161,13 +161,13 @@ public class AssignmentExprent extends Exprent {
     Exprent cast = func.getLstOperands().get(1);
 
     // Fix for Object[] arr = (Object[])o; where is o is of type Object
-    if (!func.doesCast() && this.left.type == EXPRENT_VAR) {
+    if (!func.doesCast() && this.left instanceof VarExprent) {
       // Same logic as FunctionExprent#getInferredExprType
       if (DecompilerContext.getStructContext().instanceOf(this.right.getExprType().value, cast.getExprType().value)) {
         Exprent castVal = func.getLstOperands().get(0);
 
         // Due to a javac bug, 2 checkcasts are produced. We need to go through the cast tree and find the source
-        if (castVal.type == EXPRENT_FUNCTION && ((FunctionExprent)castVal).getFuncType() == FunctionExprent.FunctionType.CAST) {
+        if (castVal instanceof FunctionExprent && ((FunctionExprent)castVal).getFuncType() == FunctionExprent.FunctionType.CAST) {
           cast = ((FunctionExprent)castVal).getLstOperands().get(0);
 
           if (!((FunctionExprent)castVal).doesCast()) {
@@ -267,7 +267,7 @@ public class AssignmentExprent extends Exprent {
       }
     }
 
-    if (this.right.type == Exprent.EXPRENT_FUNCTION) {
+    if (this.right instanceof FunctionExprent) {
       FunctionExprent func = (FunctionExprent) this.right;
       if (func.getFuncType() == FunctionExprent.FunctionType.CAST && func.doesCast()) {
         // Don't cast if there's already a cast

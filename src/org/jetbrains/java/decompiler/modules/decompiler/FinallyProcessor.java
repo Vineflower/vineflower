@@ -183,7 +183,7 @@ public class FinallyProcessor {
 
             boolean found = false;
             for (Exprent expr : lst) {
-              if (expr.type == Exprent.EXPRENT_VAR && new VarVersionPair((VarExprent)expr).equals(varpaar)) {
+              if (expr instanceof VarExprent && new VarVersionPair((VarExprent)expr).equals(varpaar)) {
                 found = true;
                 break;
               }
@@ -191,9 +191,9 @@ public class FinallyProcessor {
 
             if (found) {
               found = false;
-              if (exprent.type == Exprent.EXPRENT_EXIT) {
+              if (exprent instanceof ExitExprent) {
                 ExitExprent exexpr = (ExitExprent)exprent;
-                if (exexpr.getExitType() == ExitExprent.Type.THROW && exexpr.getValue().type == Exprent.EXPRENT_VAR) {
+                if (exexpr.getExitType() == ExitExprent.Type.THROW && exexpr.getValue() instanceof VarExprent) {
                   found = true;
                 }
               }
@@ -208,9 +208,9 @@ public class FinallyProcessor {
           }
           else if (firstcode == 2) {
             // search for a load instruction
-            if (exprent.type == Exprent.EXPRENT_ASSIGNMENT) {
+            if (exprent instanceof AssignmentExprent) {
               AssignmentExprent assexpr = (AssignmentExprent)exprent;
-              if (assexpr.getRight().type == Exprent.EXPRENT_VAR &&
+              if (assexpr.getRight() instanceof VarExprent &&
                   new VarVersionPair((VarExprent)assexpr.getRight()).equals(varpaar)) {
 
                 Exprent next = null;
@@ -227,9 +227,9 @@ public class FinallyProcessor {
                 }
 
                 boolean found = false;
-                if (next != null && next.type == Exprent.EXPRENT_EXIT) {
+                if (next != null && next instanceof ExitExprent) {
                   ExitExprent exexpr = (ExitExprent)next;
-                  if (exexpr.getExitType() == ExitExprent.Type.THROW && exexpr.getValue().type == Exprent.EXPRENT_VAR
+                  if (exexpr.getExitType() == ExitExprent.Type.THROW && exexpr.getValue() instanceof VarExprent
                       && assexpr.getLeft().equals(exexpr.getValue())) {
                     found = true;
                   }

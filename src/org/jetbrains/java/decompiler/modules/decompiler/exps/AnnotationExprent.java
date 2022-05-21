@@ -22,7 +22,7 @@ public class AnnotationExprent extends Exprent {
   private final List<? extends Exprent> parValues;
 
   public AnnotationExprent(String className, List<String> parNames, List<? extends Exprent> parValues) {
-    super(EXPRENT_ANNOTATION);
+    super(Exprent.Type.ANNOTATION);
     this.className = className;
     this.parNames = parNames;
     this.parValues = parValues;

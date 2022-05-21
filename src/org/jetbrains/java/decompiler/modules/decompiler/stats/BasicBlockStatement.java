@@ -95,7 +95,7 @@ public final class BasicBlockStatement extends Statement {
         inner.add(exp);
 
         for (Exprent exprent : inner) {
-          if (exprent.type == Exprent.EXPRENT_FUNCTION && ((FunctionExprent) exprent).getFuncType() == FunctionExprent.FunctionType.INSTANCEOF) {
+          if (exprent instanceof FunctionExprent && ((FunctionExprent) exprent).getFuncType() == FunctionExprent.FunctionType.INSTANCEOF) {
             if (((FunctionExprent) exprent).getLstOperands().size() > 2) {
               vars.add((VarExprent) ((FunctionExprent) exprent).getLstOperands().get(2));
             }

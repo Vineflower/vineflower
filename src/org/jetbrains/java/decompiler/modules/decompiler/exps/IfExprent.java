@@ -63,7 +63,7 @@ public class IfExprent extends Exprent {
   }
 
   private IfExprent(Exprent condition, BitSet bytecodeOffsets) {
-    super(EXPRENT_IF);
+    super(Exprent.Type.IF);
     this.condition = condition;
 
     addBytecodeOffsets(bytecodeOffsets);

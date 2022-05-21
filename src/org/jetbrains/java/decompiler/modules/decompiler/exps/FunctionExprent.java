@@ -150,7 +150,7 @@ public class FunctionExprent extends Exprent {
   }
 
   public FunctionExprent(FunctionType funcType, List<Exprent> operands, BitSet bytecodeOffsets) {
-    super(EXPRENT_FUNCTION);
+    super(Type.FUNCTION);
     this.funcType = funcType;
     this.lstOperands = operands;
 
@@ -207,7 +207,7 @@ public class FunctionExprent extends Exprent {
         if (supertype == null) {
           throw new IllegalStateException("No common supertype for ternary expression");
         }
-        if (param1.type == Exprent.EXPRENT_CONST && param2.type == Exprent.EXPRENT_CONST &&
+        if (param1 instanceof ConstExprent && param2 instanceof ConstExprent &&
           supertype.type != CodeConstants.TYPE_BOOLEAN && VarType.VARTYPE_INT.isSuperset(supertype)) {
           return VarType.VARTYPE_INT;
         }
@@ -385,9 +385,9 @@ public class FunctionExprent extends Exprent {
           }
           else { // both are booleans
             boolean param1_false_boolean =
-              type1.isFalseBoolean() || (param1.type == Exprent.EXPRENT_CONST && !((ConstExprent)param1).hasBooleanValue());
+              type1.isFalseBoolean() || (param1 instanceof ConstExprent && !((ConstExprent)param1).hasBooleanValue());
             boolean param2_false_boolean =
-              type1.isFalseBoolean() || (param2.type == Exprent.EXPRENT_CONST && !((ConstExprent)param2).hasBooleanValue());
+              type1.isFalseBoolean() || (param2 instanceof ConstExprent && !((ConstExprent)param2).hasBooleanValue());
 
             if (param1_false_boolean || param2_false_boolean) {
               result.addMinTypeExprent(param1, VarType.VARTYPE_BYTECHAR);
@@ -459,9 +459,9 @@ public class FunctionExprent extends Exprent {
       if (this.funcType.isArithmeticBinaryOperation()) {
         // Checks to see if the right expression is a constant and then adjust the type from char to int if the left is an int.
         // Failing that, check the left hand side and then do the same.
-        if (right.type == EXPRENT_CONST) {
+        if (right instanceof ConstExprent) {
           ((ConstExprent) right).adjustConstType(left.getExprType());
-        } else if (left.type == EXPRENT_CONST) {
+        } else if (left instanceof ConstExprent) {
           ((ConstExprent) left).adjustConstType(right.getExprType());
         }
       }
@@ -474,14 +474,14 @@ public class FunctionExprent extends Exprent {
       // This only applies to bitwise and as well as bitwise or functions.
       if (this.funcType == FunctionType.AND || this.funcType == FunctionType.OR) {
         // Check if the right is an int constant and adjust accordingly
-        if (right.type == EXPRENT_CONST && right.getExprType() == VarType.VARTYPE_INT) {
+        if (right instanceof ConstExprent && right.getExprType() == VarType.VARTYPE_INT) {
           Integer value = (Integer) ((ConstExprent)right).getValue();
           rightOperand.setLength(0);
           rightOperand.append(IntHelper.adjustedIntRepresentation(value));
         }
 
         // Check if the left is an int constant and adjust accordingly
-        if (left.type == EXPRENT_CONST && left.getExprType() == VarType.VARTYPE_INT) {
+        if (left instanceof ConstExprent && left.getExprType() == VarType.VARTYPE_INT) {
           Integer value = (Integer) ((ConstExprent)left).getValue();
           leftOperand.setLength(0);
           leftOperand.append(IntHelper.adjustedIntRepresentation(value));
@@ -508,10 +508,10 @@ public class FunctionExprent extends Exprent {
       Exprent right = lstOperands.get(1);
 
       if (funcType.ordinal() <= FunctionType.LE.ordinal()) {
-        if (right.type == EXPRENT_CONST) {
+        if (right instanceof ConstExprent) {
           ((ConstExprent) right).adjustConstType(left.getExprType());
         }
-        else if (left.type == EXPRENT_CONST) {
+        else if (left instanceof ConstExprent) {
           ((ConstExprent) left).adjustConstType(right.getExprType());
         }
       }
@@ -591,7 +591,7 @@ public class FunctionExprent extends Exprent {
       // Long   | FD    | I
       // Float  | D     | IL
       // Double |       | ILF
-      if (lstOperands.get(0).type == Exprent.EXPRENT_INVOCATION) {
+      if (lstOperands.get(0) instanceof InvocationExprent) {
         InvocationExprent inv = (InvocationExprent)lstOperands.get(0);
         if (inv.isUnboxingCall()) {
           inv.forceUnboxing(true);
@@ -607,10 +607,10 @@ public class FunctionExprent extends Exprent {
 
   // Make sure that any boxing that is required is properly expressed
   private Exprent unwrapBoxing(Exprent expr) {
-    if (expr.type == Exprent.EXPRENT_INVOCATION) {
+    if (expr instanceof InvocationExprent) {
       if (((InvocationExprent) expr).isUnboxingCall()) {
         Exprent inner = ((InvocationExprent) expr).getInstance();
-        if (inner.type == Exprent.EXPRENT_FUNCTION && ((FunctionExprent)inner).funcType == FunctionType.CAST) {
+        if (inner instanceof FunctionExprent && ((FunctionExprent)inner).funcType == FunctionType.CAST) {
           inner.addBytecodeOffsets(expr.bytecode);
           expr = inner;
         }
@@ -650,7 +650,7 @@ public class FunctionExprent extends Exprent {
     if (!parentheses && eq) {
       parentheses = (exprprec == myprec);
       if (parentheses) {
-        if (expr.type == Exprent.EXPRENT_FUNCTION &&
+        if (expr instanceof FunctionExprent &&
             ((FunctionExprent)expr).getFuncType() == funcType) {
           parentheses = !ASSOCIATIVITY.contains(funcType);
         }
@@ -658,11 +658,11 @@ public class FunctionExprent extends Exprent {
     }
 
     if (newlineGroup && !parentheses && myprec == exprprec) {
-      if (expr.type == Exprent.EXPRENT_FUNCTION) {
+      if (expr instanceof FunctionExprent) {
         FunctionExprent funcExpr = (FunctionExprent) expr;
         if (funcExpr.getFuncType() == FunctionType.CAST && !funcExpr.doesCast()) {
           Exprent subExpr = funcExpr.getLstOperands().get(0);
-          if (subExpr.type == Exprent.EXPRENT_FUNCTION) {
+          if (subExpr instanceof FunctionExprent) {
             funcExpr = (FunctionExprent) subExpr;
           }
         }

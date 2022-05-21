@@ -52,7 +52,7 @@ public class VarExprent extends Exprent {
   }
 
   public VarExprent(int index, VarType varType, VarProcessor processor, BitSet bytecode) {
-    super(EXPRENT_VAR);
+    super(Type.VAR);
     this.index = index;
     this.varType = varType;
     this.processor = processor;
@@ -394,7 +394,7 @@ public class VarExprent extends Exprent {
   public boolean isVarReferenced(Exprent exp, VarExprent... whitelist) {
     List<Exprent> lst = exp.getAllExprents(true);
     lst.add(exp);
-    lst = lst.stream().filter(e -> e != this && e.type == Exprent.EXPRENT_VAR &&
+    lst = lst.stream().filter(e -> e != this && e instanceof VarExprent &&
       getVarVersionPair().equals(((VarExprent)e).getVarVersionPair()))
         .collect(Collectors.toList());
 

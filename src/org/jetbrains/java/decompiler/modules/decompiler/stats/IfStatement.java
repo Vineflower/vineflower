@@ -434,7 +434,7 @@ public final class IfStatement extends Statement {
     conditionList.add(getHeadexprent().getCondition());
 
     for (Exprent condition : conditionList) {
-      if (condition.type == Exprent.EXPRENT_FUNCTION) {
+      if (condition instanceof FunctionExprent) {
         FunctionExprent func = ((FunctionExprent)condition);
 
         // Pattern match variable is implicitly defined

@@ -68,7 +68,7 @@ public final class SwitchPatternMatchProcessor {
         continue;
       }
 
-      if (caseExpr.type == Exprent.EXPRENT_CONST) {
+      if (caseExpr instanceof ConstExprent) {
         int caseValue = ((ConstExprent)caseExpr).getIntValue();
 
         if (caseValue == -1) {
@@ -81,13 +81,13 @@ public final class SwitchPatternMatchProcessor {
       BasicBlockStatement caseStatBlock = (BasicBlockStatement)caseStat;
       if (caseStatBlock.getExprents().size() > 1) {
         Exprent expr = caseStatBlock.getExprents().get(0);
-        if (expr.type == Exprent.EXPRENT_ASSIGNMENT) {
+        if (expr instanceof AssignmentExprent) {
           AssignmentExprent assign = (AssignmentExprent)expr;
 
-          if (assign.getLeft().type == Exprent.EXPRENT_VAR) {
+          if (assign.getLeft() instanceof VarExprent) {
             VarExprent var = (VarExprent)assign.getLeft();
 
-            if (assign.getRight().type == Exprent.EXPRENT_FUNCTION && ((FunctionExprent)assign.getRight()).getFuncType() == FunctionType.CAST) {
+            if (assign.getRight() instanceof FunctionExprent && ((FunctionExprent)assign.getRight()).getFuncType() == FunctionType.CAST) {
               FunctionExprent cast = (FunctionExprent)assign.getRight();
 
               List<Exprent> operands = new ArrayList<>();
@@ -152,7 +152,7 @@ public final class SwitchPatternMatchProcessor {
   private static boolean isSwitchPatternMatch(SwitchHeadExprent head) {
     Exprent value = head.getValue();
 
-    if (value.type == Exprent.EXPRENT_INVOCATION) {
+    if (value instanceof InvocationExprent) {
       InvocationExprent invoc = (InvocationExprent)value;
 
       return invoc.getInvocationType() == InvocationType.DYNAMIC && invoc.getName().equals("typeSwitch");

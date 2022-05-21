@@ -197,7 +197,7 @@ public final class ExitHelper {
       List<Exprent> data = dest.getExprents();
 
       if (data != null && data.size() == 1) {
-        if (data.get(0).type == Exprent.EXPRENT_EXIT) {
+        if (data.get(0) instanceof ExitExprent) {
           return dest;
         }
       }
@@ -240,7 +240,7 @@ public final class ExitHelper {
         List<Exprent> lstExpr = source.getExprents();
         if (lstExpr != null && !lstExpr.isEmpty()) {
           Exprent expr = lstExpr.get(lstExpr.size() - 1);
-          if (expr.type == Exprent.EXPRENT_EXIT) {
+          if (expr instanceof ExitExprent) {
             ExitExprent ex = (ExitExprent)expr;
             if (ex.getExitType() == ExitExprent.Type.RETURN && ex.getValue() == null) {
               // remove redundant return
@@ -268,14 +268,14 @@ public final class ExitHelper {
       if (exprents != null && !exprents.isEmpty()) {
         // Get return exprent
         Exprent expr = exprents.get(exprents.size() - 1);
-        if (expr.type == Exprent.EXPRENT_EXIT) {
+        if (expr instanceof ExitExprent) {
           ExitExprent ex = (ExitExprent) expr;
 
           List<Exprent> exitExprents = ex.getAllExprents(true);
 
           // If any of the return expression has constants, adjust them to the return type of the method
           for (Exprent exprent : exitExprents) {
-            if (exprent.type == Exprent.EXPRENT_CONST) {
+            if (exprent instanceof ConstExprent) {
               ((ConstExprent)exprent).adjustConstType(desc.ret);
               res = true;
             }

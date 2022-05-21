@@ -18,7 +18,7 @@ public class SwitchHeadExprent extends Exprent {
   private List<List<Exprent>> caseValues = new ArrayList<>();
 
   public SwitchHeadExprent(Exprent value, BitSet bytecodeOffsets) {
-    super(EXPRENT_SWITCH_HEAD);
+    super(Type.SWITCH_HEAD);
     this.value = value;
 
     addBytecodeOffsets(bytecodeOffsets);

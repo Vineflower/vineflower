@@ -16,7 +16,7 @@ public class MatchEngine {
   private static final Map<String, MatchProperties> stat_properties = new HashMap<>();
   private static final Map<String, MatchProperties> expr_properties = new HashMap<>();
   private static final Map<String, Statement.StatementType> stat_type = new HashMap<>();
-  private static final Map<String, Integer> expr_type = new HashMap<>();
+  private static final Map<String, Exprent.Type> expr_type = new HashMap<>();
   private static final Map<String, FunctionType> expr_func_type = new HashMap<>();
   private static final Map<String, ExitExprent.Type> expr_exit_type = new HashMap<>();
   private static final Map<String, Integer> stat_if_type = new HashMap<>();
@@ -50,20 +50,22 @@ public class MatchEngine {
     stat_type.put("basicblock", Statement.StatementType.BASIC_BLOCK);
     stat_type.put("sequence", Statement.StatementType.SEQUENCE);
 
-    expr_type.put("array", Exprent.EXPRENT_ARRAY);
-    expr_type.put("assignment", Exprent.EXPRENT_ASSIGNMENT);
-    expr_type.put("constant", Exprent.EXPRENT_CONST);
-    expr_type.put("exit", Exprent.EXPRENT_EXIT);
-    expr_type.put("field", Exprent.EXPRENT_FIELD);
-    expr_type.put("function", Exprent.EXPRENT_FUNCTION);
-    expr_type.put("if", Exprent.EXPRENT_IF);
-    expr_type.put("invocation", Exprent.EXPRENT_INVOCATION);
-    expr_type.put("monitor", Exprent.EXPRENT_MONITOR);
-    expr_type.put("new", Exprent.EXPRENT_NEW);
-    expr_type.put("switchhead", Exprent.EXPRENT_SWITCH_HEAD);
-    expr_type.put("var", Exprent.EXPRENT_VAR);
-    expr_type.put("annotation", Exprent.EXPRENT_ANNOTATION);
-    expr_type.put("assert", Exprent.EXPRENT_ASSERT);
+    expr_type.put("annotation", Exprent.Type.ANNOTATION);
+    expr_type.put("array", Exprent.Type.ARRAY);
+    expr_type.put("assert", Exprent.Type.ASSERT);
+    expr_type.put("assignment", Exprent.Type.ASSIGNMENT);
+    expr_type.put("constant", Exprent.Type.CONST);
+    expr_type.put("exit", Exprent.Type.EXIT);
+    expr_type.put("field", Exprent.Type.FIELD);
+    expr_type.put("function", Exprent.Type.FUNCTION);
+    expr_type.put("if", Exprent.Type.IF);
+    expr_type.put("invocation", Exprent.Type.INVOCATION);
+    expr_type.put("monitor", Exprent.Type.MONITOR);
+    expr_type.put("new", Exprent.Type.NEW);
+    expr_type.put("switch", Exprent.Type.SWITCH);
+    expr_type.put("switchhead", Exprent.Type.SWITCH_HEAD);
+    expr_type.put("var", Exprent.Type.VAR);
+    expr_type.put("yield", Exprent.Type.YIELD);
 
     expr_func_type.put("eq", FunctionType.EQ);
 

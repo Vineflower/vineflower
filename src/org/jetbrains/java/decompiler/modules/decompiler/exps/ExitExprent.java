@@ -31,7 +31,7 @@ public class ExitExprent extends Exprent {
   private final MethodDescriptor methodDescriptor;
 
   public ExitExprent(Type exitType, Exprent value, VarType retType, BitSet bytecodeOffsets, MethodDescriptor methodDescriptor) {
-    super(EXPRENT_EXIT);
+    super(Exprent.Type.EXIT);
     this.exitType = exitType;
     this.value = value;
     this.retType = retType;

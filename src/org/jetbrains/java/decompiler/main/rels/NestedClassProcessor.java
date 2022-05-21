@@ -286,7 +286,7 @@ public class NestedClassProcessor {
       lst.add(exprent);
 
       for (Exprent expr : lst) {
-        if (expr.type == Exprent.EXPRENT_NEW) {
+        if (expr instanceof NewExprent) {
           NewExprent new_expr = (NewExprent)expr;
 
           if (new_expr.isLambda() && lambda_class_type.equals(new_expr.getNewType())) {
@@ -300,7 +300,7 @@ public class NestedClassProcessor {
               if (i < vars_count) {
                 Exprent param = inv_dynamic.getLstParameters().get(param_index + i);
 
-                if (param.type == Exprent.EXPRENT_VAR) {
+                if (param instanceof VarExprent) {
                   mapNewNames.put(varVersion, enclosingVarProc.getVarName(new VarVersionPair((VarExprent)param)));
                   lvts.put(varVersion, ((VarExprent)param).getLVT());
                   if (enclosingVarProc.getVarFinal((new VarVersionPair((VarExprent)param))) == FinalType.NON_FINAL) {
@@ -339,7 +339,7 @@ public class NestedClassProcessor {
     }
 
     method.getOrBuildGraph().iterateExprentsDeep(exp -> {
-      if (exp.type == Exprent.EXPRENT_VAR) {
+      if (exp instanceof VarExprent) {
         VarExprent var = (VarExprent)exp;
         LocalVariable lv = lvts.get(var.getVarVersionPair());
         if (lv != null)
@@ -455,7 +455,7 @@ public class NestedClassProcessor {
             lst.add(exprent);
 
             for (Exprent expr : lst) {
-              if (expr.type == Exprent.EXPRENT_NEW) {
+              if (expr instanceof NewExprent) {
                 InvocationExprent constructor = ((NewExprent)expr).getConstructor();
 
                 if (constructor != null && mapVarMasks.containsKey(constructor.getClassname())) { // non-static inner class constructor
@@ -475,7 +475,7 @@ public class NestedClassProcessor {
                       Exprent param = constructor.getLstParameters().get(i);
                       VarFieldPair pair = null;
 
-                      if (param.type == Exprent.EXPRENT_VAR && mask.get(i) != null) {
+                      if (param instanceof VarExprent && mask.get(i) != null) {
                         VarVersionPair varPair = new VarVersionPair((VarExprent)param);
 
                         // FIXME: flags of variables are wrong! Correct the entire functionality.
@@ -735,9 +735,9 @@ public class NestedClassProcessor {
         iterateExprents(method.getOrBuildGraph(), new ExprentIteratorWithReplace() {
           @Override
           public Exprent processExprent(Exprent exprent) {
-            if (exprent.type == Exprent.EXPRENT_ASSIGNMENT) {
+            if (exprent instanceof AssignmentExprent) {
               AssignmentExprent assignExpr = (AssignmentExprent)exprent;
-              if (assignExpr.getLeft().type == Exprent.EXPRENT_FIELD) {
+              if (assignExpr.getLeft() instanceof FieldExprent) {
                 FieldExprent fExpr = (FieldExprent)assignExpr.getLeft();
                 String qName = child.classStruct.qualifiedName;
                 if (fExpr.getClassname().equals(qName) &&  // process this class only
@@ -749,7 +749,7 @@ public class NestedClassProcessor {
 
             if (child.type == ClassNode.CLASS_ANONYMOUS &&
                 CodeConstants.INIT_NAME.equals(method.methodStruct.getName()) &&
-                exprent.type == Exprent.EXPRENT_INVOCATION) {
+                exprent instanceof InvocationExprent) {
               InvocationExprent invokeExpr = (InvocationExprent)exprent;
               if (invokeExpr.getFunctype() == InvocationExprent.Type.INIT) {
                 // invocation of the super constructor in an anonymous class
@@ -764,7 +764,7 @@ public class NestedClassProcessor {
           }
 
           private Exprent replaceExprent(Exprent exprent) {
-            if (exprent.type == Exprent.EXPRENT_VAR) {
+            if (exprent instanceof VarExprent) {
               int varIndex = ((VarExprent)exprent).getIndex();
               if (mapParamsToNewVars.containsKey(varIndex)) {
                 VarVersionPair newVar = mapParamsToNewVars.get(varIndex);
@@ -777,7 +777,7 @@ public class NestedClassProcessor {
                 return ret;
               }
             }
-            else if (exprent.type == Exprent.EXPRENT_FIELD) {
+            else if (exprent instanceof FieldExprent) {
               FieldExprent fExpr = (FieldExprent)exprent;
               String key = InterpreterUtil.makeUniqueKey(fExpr.getClassname(), fExpr.getName(), fExpr.getDescriptor().descriptorString);
               if (mapFieldsToNewVars.containsKey(key)) {
@@ -860,11 +860,11 @@ public class NestedClassProcessor {
     if (firstNode.preds.isEmpty()) {
       // assignment to a synthetic field?
       for (Exprent exprent : firstNode.exprents) {
-        if (exprent.type == Exprent.EXPRENT_ASSIGNMENT) {
+        if (exprent instanceof AssignmentExprent) {
           AssignmentExprent assignExpr = (AssignmentExprent)exprent;
-          if (assignExpr.getRight().type == Exprent.EXPRENT_VAR &&
+          if (assignExpr.getRight() instanceof VarExprent &&
               ((VarExprent)assignExpr.getRight()).getIndex() == index &&
-              assignExpr.getLeft().type == Exprent.EXPRENT_FIELD) {
+              assignExpr.getLeft() instanceof FieldExprent) {
             FieldExprent left = (FieldExprent)assignExpr.getLeft();
             StructField fd = cl.getField(left.getName(), left.getDescriptor().descriptorString);
             if (fd != null &&
@@ -1117,23 +1117,23 @@ public class NestedClassProcessor {
       boolean res = false;
 
       switch (expr.type) {
-        case Exprent.EXPRENT_CONST:
+        case CONST:
           ConstExprent constExpr = (ConstExprent)expr;
           res = (VarType.VARTYPE_CLASS.equals(constExpr.getConstType()) && classname.equals(constExpr.getValue()) ||
                  classType.equals(constExpr.getConstType()));
           break;
-        case Exprent.EXPRENT_FIELD:
+        case FIELD:
           res = classname.equals(((FieldExprent)expr).getClassname());
           break;
-        case Exprent.EXPRENT_INVOCATION:
+        case INVOCATION:
           res = containsType(((InvocationExprent) expr), classType);
           break;
-        case Exprent.EXPRENT_NEW:
+        case NEW:
           NewExprent newExpr = (NewExprent) expr;
           VarType newType = newExpr.getNewType();
           res = newType.type == CodeConstants.TYPE_OBJECT && classname.equals(newType.value) || containsType(newExpr.getConstructor(), classType);
           break;
-        case Exprent.EXPRENT_VAR:
+        case VAR:
           VarExprent varExpr = (VarExprent)expr;
           if (varExpr.isDefinition()) {
             res = containsType(varExpr.getInferredExprType(null), classType);
