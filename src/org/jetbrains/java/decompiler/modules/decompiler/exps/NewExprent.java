@@ -48,7 +48,7 @@ public class NewExprent extends Exprent {
   }
 
   public NewExprent(VarType newType, List<Exprent> lstDims, BitSet bytecodeOffsets) {
-    super(EXPRENT_NEW);
+    super(Type.NEW);
     this.newType = newType;
     this.lstDims = lstDims;
 
@@ -457,7 +457,7 @@ public class NewExprent extends Exprent {
 
         // new String[][]{{"abc"}, {"DEF"}} => new String[]{"abc"}, new String[]{"DEF"}
         Exprent element = lstArrayElements.get(i);
-        if (element.type == EXPRENT_NEW) {
+        if (element instanceof NewExprent) {
           ((NewExprent) element).setDirectArrayInit(false);
         }
         ExprProcessor.getCastedExprent(element, leftType, buf, indent, false);
@@ -525,7 +525,7 @@ public class NewExprent extends Exprent {
 
         boolean isQualifiedNew = false;
 
-        if (enclosing.type == Exprent.EXPRENT_VAR) {
+        if (enclosing instanceof VarExprent) {
           VarExprent varEnclosing = (VarExprent)enclosing;
 
           StructClass current_class = ((ClassNode)DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS_NODE)).classStruct;
@@ -590,7 +590,7 @@ public class NewExprent extends Exprent {
 
           if (lstExpr != null && !lstExpr.isEmpty()) {
             Exprent expr = lstExpr.get(lstExpr.size() - 1);
-            if (expr.type == Exprent.EXPRENT_EXIT) {
+            if (expr instanceof ExitExprent) {
               ExitExprent ex = (ExitExprent)expr;
               if (ex.getExitType() == ExitExprent.Type.RETURN) {
                 VarType realRetType = ex.getValue().getInferredExprType(upperBound);
@@ -684,7 +684,7 @@ public class NewExprent extends Exprent {
 
                 if (lstExpr != null && !lstExpr.isEmpty()) {
                   Exprent expr = lstExpr.get(lstExpr.size() - 1);
-                  if (expr.type == Exprent.EXPRENT_EXIT) {
+                  if (expr instanceof ExitExprent) {
                     ExitExprent ex = (ExitExprent)expr;
                     if (ex.getExitType() == ExitExprent.Type.RETURN) {
                       ex.getMethodDescriptor().genericInfo = genDesc;

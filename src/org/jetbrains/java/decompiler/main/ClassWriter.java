@@ -148,7 +148,7 @@ public class ClassWriter {
           method_object.getInferredExprType(new VarType(CodeConstants.TYPE_OBJECT, 0, node.lambdaInformation.content_class_name));
           TextBuffer instance = method_object.toJava(indent);
           // If the instance is casted, then we need to wrap it
-          if (method_object.type == Exprent.EXPRENT_FUNCTION && ((FunctionExprent)method_object).getFuncType() == FunctionType.CAST && ((FunctionExprent)method_object).doesCast()) {
+          if (method_object instanceof FunctionExprent && ((FunctionExprent)method_object).getFuncType() == FunctionType.CAST && ((FunctionExprent)method_object).doesCast()) {
             buffer.append('(').append(instance).append(')');
           }
           else {
@@ -208,11 +208,11 @@ public class ClassWriter {
             Statement firstStat = root.getFirst();
             if (firstStat instanceof BasicBlockStatement && firstStat.getExprents() != null && firstStat.getExprents().size() == 1) {
               Exprent firstExpr = firstStat.getExprents().get(0);
-              boolean isVarDefinition = firstExpr.type == Exprent.EXPRENT_ASSIGNMENT &&
-                ((AssignmentExprent)firstExpr).getLeft().type == Exprent.EXPRENT_VAR &&
+              boolean isVarDefinition = firstExpr instanceof AssignmentExprent &&
+                ((AssignmentExprent)firstExpr).getLeft() instanceof VarExprent &&
                 ((VarExprent)((AssignmentExprent)firstExpr).getLeft()).isDefinition();
 
-              boolean isThrow = firstExpr.type == Exprent.EXPRENT_EXIT &&
+              boolean isThrow = firstExpr instanceof ExitExprent &&
                 ((ExitExprent)firstExpr).getExitType() == ExitExprent.Type.THROW;
 
               if (!isVarDefinition && !isThrow) {
@@ -222,7 +222,7 @@ public class ClassWriter {
                 try {
                   TextBuffer codeBuffer = firstExpr.toJava(indent + 1);
 
-                  if (firstExpr.type == Exprent.EXPRENT_EXIT)
+                  if (firstExpr instanceof ExitExprent)
                     codeBuffer.setStart(6); // skip return
                   else
                     codeBuffer.prepend(" ");
@@ -722,7 +722,7 @@ public class ClassWriter {
     }
 
     if (initializer != null) {
-      if (isEnum && initializer.type == Exprent.EXPRENT_NEW) {
+      if (isEnum && initializer instanceof NewExprent) {
         NewExprent expr = (NewExprent)initializer;
         expr.setEnumConst(true);
         buffer.append(expr.toJava(indent));
@@ -730,7 +730,7 @@ public class ClassWriter {
       else {
         buffer.append(" = ");
 
-        if (initializer.type == Exprent.EXPRENT_CONST) {
+        if (initializer instanceof ConstExprent) {
           ((ConstExprent) initializer).adjustConstType(fieldType);
         }
 

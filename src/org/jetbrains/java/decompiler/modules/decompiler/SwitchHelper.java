@@ -41,7 +41,7 @@ public final class SwitchHelper {
     if (array != null) {
       List<List<Exprent>> caseValues = switchStatement.getCaseValues();
       Map<Exprent, Exprent> mapping = new HashMap<>(caseValues.size());
-      if (array.getArray().type == Exprent.EXPRENT_FIELD) {
+      if (array.getArray() instanceof FieldExprent) {
         FieldExprent arrayField = (FieldExprent) array.getArray();
         ClassesProcessor.ClassNode classNode = DecompilerContext.getClassProcessor().getMapRootClasses().get(arrayField.getClassname());
         if (classNode != null) {
@@ -65,7 +65,7 @@ public final class SwitchHelper {
                 if (exprent instanceof AssignmentExprent) {
                   AssignmentExprent assignment = (AssignmentExprent) exprent;
                   Exprent left = assignment.getLeft();
-                  if (left.type == Exprent.EXPRENT_ARRAY) {
+                  if (left instanceof ArrayExprent) {
                     Exprent assignmentArray = ((ArrayExprent) left).getArray();
                     // If the assignment target is a field, we have the assignment we want.
                     boolean targetsField = assignmentArray.equals(arrayField);
@@ -107,7 +107,7 @@ public final class SwitchHelper {
                 if (exprent instanceof AssignmentExprent) {
                   AssignmentExprent assignment = (AssignmentExprent) exprent;
                   Exprent left = assignment.getLeft();
-                  if (left.type == Exprent.EXPRENT_ARRAY) {
+                  if (left instanceof ArrayExprent) {
                     mapping.put(assignment.getRight(), ((InvocationExprent) ((ArrayExprent) left).getIndex()).getInstance());
                   }
                 }
@@ -190,11 +190,11 @@ public final class SwitchHelper {
           IfStatement ifStat = (IfStatement)curr;
           Exprent condition = ifStat.getHeadexprent().getCondition();
 
-          if (condition.type == Exprent.EXPRENT_FUNCTION && ((FunctionExprent)condition).getFuncType() == FunctionType.NE) {
+          if (condition instanceof FunctionExprent && ((FunctionExprent)condition).getFuncType() == FunctionType.NE) {
             condition = ((FunctionExprent)condition).getLstOperands().get(0);
           }
 
-          if (condition.type == Exprent.EXPRENT_INVOCATION && ((InvocationExprent)condition).getLstParameters().size() == 1) {
+          if (condition instanceof InvocationExprent && ((InvocationExprent)condition).getLstParameters().size() == 1) {
             Exprent assign = ifStat.getIfstat().getExprents().get(0);
             int caseVal = ((ConstExprent)((AssignmentExprent)assign).getRight()).getIntValue();
             caseMap.put(caseVal, ((InvocationExprent)condition).getLstParameters().get(0));
@@ -301,7 +301,7 @@ public final class SwitchHelper {
           //Exprent init = classNode.getWrapper().getStaticFieldInitializers().getWithKey(InterpreterUtil.makeUniqueKey(field.getName(), field.getDescriptor().descriptorString));
           //Above is null because we haven't preocess the class yet?
         }
-      } else if (tmp.type == Exprent.EXPRENT_INVOCATION) {
+      } else if (tmp instanceof InvocationExprent) {
         InvocationExprent inv = (InvocationExprent) tmp;
         if (inv.getName().startsWith("$SWITCH_TABLE$")) { // More nonstandard behavior. Seems like eclipse compiler stuff: https://bugs.eclipse.org/bugs/show_bug.cgi?id=544521 TODO: needs tests!
           return true;
@@ -432,7 +432,7 @@ public final class SwitchHelper {
           FunctionExprent func = (FunctionExprent)ifCond;
           if (func.getFuncType() == FunctionType.NE && func.getLstOperands().size() == 2) {
             Exprent right = func.getLstOperands().get(1);
-            if (right.type == Exprent.EXPRENT_CONST && right.getExprType() == VarType.VARTYPE_NULL) {
+            if (right instanceof ConstExprent && right.getExprType() == VarType.VARTYPE_NULL) {
               // and the `else` only assigns a variable,
               Statement elseStat = parent.getElsestat();
               if (elseStat instanceof BasicBlockStatement && elseStat.getExprents().size() == 1) {
@@ -456,7 +456,7 @@ public final class SwitchHelper {
       Exprent firstValue = ((SwitchHeadExprent)first.getHeadexprent()).getValue();
       Exprent secondValue = ((SwitchHeadExprent)second.getHeadexprent()).getValue();
 
-      if (firstValue.type == Exprent.EXPRENT_INVOCATION && secondValue.type == Exprent.EXPRENT_VAR && first.getCaseStatements().get(0) instanceof IfStatement) {
+      if (firstValue instanceof InvocationExprent && secondValue instanceof VarExprent && first.getCaseStatements().get(0) instanceof IfStatement) {
         InvocationExprent invExpr = (InvocationExprent)firstValue;
         VarExprent varExpr = (VarExprent) secondValue;
         if (nullAssign != null && !nullAssign.getLeft().equals(varExpr)) {
@@ -474,20 +474,20 @@ public final class SwitchHelper {
                   IfStatement ifStat = (IfStatement)curr;
                   Exprent condition = ifStat.getHeadexprent().getCondition();
 
-                  if (condition.type == Exprent.EXPRENT_FUNCTION && ((FunctionExprent)condition).getFuncType() == FunctionType.NE) {
+                  if (condition instanceof FunctionExprent && ((FunctionExprent)condition).getFuncType() == FunctionType.NE) {
                     condition = ((FunctionExprent)condition).getLstOperands().get(0);
                   }
 
-                  if (condition.type == Exprent.EXPRENT_INVOCATION) {
+                  if (condition instanceof InvocationExprent) {
                     InvocationExprent condInvocation = (InvocationExprent)condition;
 
                     if (condInvocation.getName().equals("equals") && condInvocation.getInstance().equals(invExpr.getInstance())) {
                       List<Exprent> block = ifStat.getIfstat().getExprents();
 
-                      if (block != null && block.size() == 1 && block.get(0).type == Exprent.EXPRENT_ASSIGNMENT) {
+                      if (block != null && block.size() == 1 && block.get(0) instanceof AssignmentExprent) {
                         AssignmentExprent assign = (AssignmentExprent)block.get(0);
 
-                        if (assign.getRight().type == Exprent.EXPRENT_CONST && varExpr.equals(assign.getLeft())) {
+                        if (assign.getRight() instanceof ConstExprent && varExpr.equals(assign.getLeft())) {
 
                           curr = ifStat.getElsestat();
                           continue;

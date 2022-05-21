@@ -225,7 +225,7 @@ public final class SwitchStatement extends Statement {
         continue;
       }
 
-      if (caseContent.type == Exprent.EXPRENT_FUNCTION) {
+      if (caseContent instanceof FunctionExprent) {
         FunctionExprent func = ((FunctionExprent) caseContent);
 
         // Pattern match variable is implicitly defined

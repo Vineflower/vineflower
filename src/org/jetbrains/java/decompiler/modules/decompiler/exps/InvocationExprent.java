@@ -70,7 +70,7 @@ public class InvocationExprent extends Exprent {
   private boolean isSyntheticNullCheck = false;
 
   public InvocationExprent() {
-    super(EXPRENT_INVOCATION);
+    super(Exprent.Type.INVOCATION);
   }
 
   public InvocationExprent(int opcode,
@@ -289,7 +289,7 @@ public class InvocationExprent extends Exprent {
           VarType instType;
 
           // don't want the casted type
-          if (instance.type == EXPRENT_FUNCTION && ((FunctionExprent)instance).getFuncType() == FunctionType.CAST) {
+          if (instance instanceof FunctionExprent && ((FunctionExprent)instance).getFuncType() == FunctionType.CAST) {
             instType = ((FunctionExprent)instance).getLstOperands().get(0).getInferredExprType(instUB);
           }
           else {
@@ -370,7 +370,7 @@ public class InvocationExprent extends Exprent {
                 VarType paramUB = paramType.remap(hierarchyMap).remap(combined);
 
                 VarType argtype;
-                if (lstParameters.get(i).type == EXPRENT_FUNCTION && ((FunctionExprent)lstParameters.get(i)).getFuncType() == FunctionType.CAST) {
+                if (lstParameters.get(i) instanceof FunctionExprent && ((FunctionExprent)lstParameters.get(i)).getFuncType() == FunctionType.CAST) {
                   argtype = ((FunctionExprent)lstParameters.get(i)).getLstOperands().get(0).getInferredExprType(paramUB);
                 }
                 else {
@@ -545,7 +545,7 @@ public class InvocationExprent extends Exprent {
     }
     else {
 
-      if (instance != null && instance.type == Exprent.EXPRENT_VAR) {
+      if (instance instanceof VarExprent) {
         VarExprent instVar = (VarExprent)instance;
         VarVersionPair varPair = new VarVersionPair(instVar);
 
@@ -601,13 +601,13 @@ public class InvocationExprent extends Exprent {
           if (isUnboxingCall() && !forceUnboxing) {
             // we don't print the unboxing call - no need to bother with the instance wrapping / casting
             buf.addBytecodeMapping(bytecode);
-            if (instance.type == Exprent.EXPRENT_FUNCTION) {
+            if (instance instanceof FunctionExprent) {
               FunctionExprent func = (FunctionExprent)instance;
-              if (func.getFuncType() == FunctionType.CAST && func.getLstOperands().get(1).type == Exprent.EXPRENT_CONST) {
+              if (func.getFuncType() == FunctionType.CAST && func.getLstOperands().get(1) instanceof ConstExprent) {
                 ConstExprent _const = (ConstExprent)func.getLstOperands().get(1);
                 boolean skipCast = false;
 
-                if (func.getLstOperands().get(0).type == Exprent.EXPRENT_VAR) {
+                if (func.getLstOperands().get(0) instanceof VarExprent) {
                   VarType inferred = func.getLstOperands().get(0).getInferredExprType(leftType);
                   skipCast = (inferred.type != CodeConstants.TYPE_OBJECT && inferred.type != CodeConstants.TYPE_GENVAR) ||
                     DecompilerContext.getStructContext().instanceOf(inferred.value, this.classname);
@@ -635,7 +635,7 @@ public class InvocationExprent extends Exprent {
 
           boolean skippedCast = false;
 
-          if (instance.type == EXPRENT_FUNCTION && ((FunctionExprent)instance).getFuncType() == FunctionType.CAST) {
+          if (instance instanceof FunctionExprent && ((FunctionExprent)instance).getFuncType() == FunctionType.CAST) {
             skippedCast = !((FunctionExprent) instance).doesCast();
 
             // Fixes issue where ((Obj)(Obj)o).m() would become (Obj)o.m(), when it should be ((Obj)o).m()
@@ -647,7 +647,7 @@ public class InvocationExprent extends Exprent {
 
               // Get inner cast if it exists
               Exprent exp = ((FunctionExprent) instance).getLstOperands().get(0);
-              while (exp.type == EXPRENT_FUNCTION && ((FunctionExprent) exp).getFuncType() == FunctionType.CAST) {
+              while (exp instanceof FunctionExprent && ((FunctionExprent) exp).getFuncType() == FunctionType.CAST) {
                 if (exp.getExprType().equals(castType)) {
                   // If we are of the same type as the current cast, Update the values and iterate deeper
                   skippedCast = !((FunctionExprent) exp).doesCast();
@@ -759,7 +759,7 @@ public class InvocationExprent extends Exprent {
   }
 
   private boolean canSkipParenEnclose(Exprent instance) {
-    if (instance.type != Exprent.EXPRENT_NEW) {
+    if (!(instance instanceof NewExprent)) {
       return false;
     }
 
@@ -809,7 +809,7 @@ public class InvocationExprent extends Exprent {
     // omit 'new Type[] {}' for the last parameter of a vararg method call
     if (lstParameters.size() == descriptor.params.length && isVarArgCall()) {
       Exprent lastParam = lstParameters.get(lstParameters.size() - 1);
-      if (lastParam.type == EXPRENT_NEW && lastParam.getExprType().arrayDim >= 1) {
+      if (lastParam instanceof NewExprent && lastParam.getExprType().arrayDim >= 1) {
         ((NewExprent) lastParam).setVarArgParam(true);
       }
     }
@@ -819,7 +819,7 @@ public class InvocationExprent extends Exprent {
     VarType[] types = Arrays.copyOf(descriptor.params, descriptor.params.length);
     for (int i = start; i < parameters.size(); i++) {
       Exprent par = parameters.get(i);
-      if (par.type == Exprent.EXPRENT_INVOCATION) {
+      if (par instanceof InvocationExprent) {
           InvocationExprent inv = (InvocationExprent)par;
         // "unbox" invocation parameters, e.g. 'byteSet.add((byte)123)' or 'new ShortContainer((short)813)'
         //However, we must make sure we don't accidentally make the call ambiguous.
@@ -1009,7 +1009,7 @@ public class InvocationExprent extends Exprent {
       int paramType = lstParameters.get(0).getExprType().type;
 
       // special handling for ambiguous types
-      if (lstParameters.get(0).type == Exprent.EXPRENT_CONST) {
+      if (lstParameters.get(0) instanceof ConstExprent) {
         // 'Integer.valueOf(1)' has '1' type detected as TYPE_BYTECHAR
         // 'Integer.valueOf(40_000)' has '40_000' type detected as TYPE_CHAR
         // so we check the type family instead
@@ -1216,7 +1216,7 @@ public class InvocationExprent extends Exprent {
           // Check if the current parameters and method descriptor are of the same type, or if the descriptor's type is a superset of the parameter's type.
           // This check ensures that parameters that can be safely passed don't have an unneeded cast on them, such as System.out.println((int)5);.
           // TODO: The root cause of the above issue seems to be threading related- When debugging line by line it doesn't cast, but when running normally it does. More digging needs to be done to figure out why this happens.
-          if ((!(md.params[i].equals(exp.getExprType()) || md.params[i].isSuperset(exp.getExprType()))) || (exp.type == EXPRENT_NEW && ((NewExprent) exp).isLambda() && !((NewExprent) exp).isMethodReference())) {
+          if ((!(md.params[i].equals(exp.getExprType()) || md.params[i].isSuperset(exp.getExprType()))) || (exp instanceof NewExprent && ((NewExprent) exp).isLambda() && !((NewExprent) exp).isMethodReference())) {
             exact = false;
             missed.set(i);
           }
@@ -1239,7 +1239,7 @@ public class InvocationExprent extends Exprent {
           }
         }
         else {
-          if (exp.type == EXPRENT_NEW) {
+          if (exp instanceof NewExprent) {
             NewExprent newExp = (NewExprent)exp;
             if (newExp.isLambda() && !newExp.isMethodReference() && !DecompilerContext.getStructContext().instanceOf(md.params[i].value, exp.getExprType().value)) {
               StructClass pcls = DecompilerContext.getStructContext().getClass(md.params[i].value);
@@ -1278,7 +1278,7 @@ public class InvocationExprent extends Exprent {
         GenericMethodDescriptor gen = mtt.getSignature(); //TODO: Find synthetic flags for params, as Enum generic signatures do no contain the String,int params
         if (gen != null && gen.parameterTypes.size() > i && gen.parameterTypes.get(i).isGeneric()) {
           Exprent exp = lstParameters.get(i);
-          if (exp.type != EXPRENT_NEW || !((NewExprent)exp).isLambda() || ((NewExprent)exp).isMethodReference()) {
+          if (!(exp instanceof NewExprent) || !((NewExprent)exp).isLambda() || ((NewExprent)exp).isMethodReference()) {
             break;
           }
         }

@@ -645,7 +645,7 @@ public class ExprProcessor implements CodeConstants {
             Exprent last = exprlist.get(exprlist.size() - 1);
             // Our heuristic is checking for an assignment and the type of the assignment is an invocation.
             // This roughly corresponds to a pattern of DUP [nullcheck] POP.
-            if (last.type == Exprent.EXPRENT_ASSIGNMENT && ((AssignmentExprent)last).getRight().type == Exprent.EXPRENT_INVOCATION) {
+            if (last instanceof AssignmentExprent && ((AssignmentExprent)last).getRight() instanceof InvocationExprent) {
               InvocationExprent invocation = (InvocationExprent) ((AssignmentExprent) last).getRight();
 
               // Check to make sure there's still more opcodes after this one
@@ -778,11 +778,10 @@ public class ExprProcessor implements CodeConstants {
   }
 
   public static boolean endsWithSemicolon(Exprent expr) {
-    int type = expr.type;
-    return !(type == Exprent.EXPRENT_SWITCH_HEAD ||
-             type == Exprent.EXPRENT_MONITOR ||
-             type == Exprent.EXPRENT_IF ||
-             (type == Exprent.EXPRENT_VAR && ((VarExprent)expr).isClassDef()));
+    return !(expr instanceof SwitchHeadExprent ||
+             expr instanceof MonitorExprent ||
+             expr instanceof IfExprent ||
+             (expr instanceof VarExprent && ((VarExprent)expr).isClassDef()));
   }
 
   private static void addDeletedGotoInstructionMapping(Statement stat, TextBuffer buffer) {
@@ -852,7 +851,7 @@ public class ExprProcessor implements CodeConstants {
     lst = Exprent.sortIndexed(lst);
 
     for (Exprent expr : lst) {
-      if (buf.length() > 0 && expr.type == Exprent.EXPRENT_VAR && ((VarExprent)expr).isClassDef()) {
+      if (buf.length() > 0 && expr instanceof VarExprent && ((VarExprent)expr).isClassDef()) {
         // separates local class definition from previous statements
         buf.appendLineSeparator();
       }
@@ -862,11 +861,11 @@ public class ExprProcessor implements CodeConstants {
       TextBuffer content = expr.toJava(indent);
 
       if (content.length() > 0) {
-        if (expr.type != Exprent.EXPRENT_VAR || !((VarExprent)expr).isClassDef()) {
+        if (!(expr instanceof VarExprent) || !((VarExprent)expr).isClassDef()) {
           buf.appendIndent(indent);
         }
         buf.append(content);
-        if (expr.type == Exprent.EXPRENT_MONITOR && ((MonitorExprent)expr).getMonType() == MonitorExprent.Type.ENTER) {
+        if (expr instanceof MonitorExprent && ((MonitorExprent)expr).getMonType() == MonitorExprent.Type.ENTER) {
           buf.append("{} // $FF: monitorenter "); // empty synchronized block
         }
         if (endsWithSemicolon(expr)) {
@@ -918,12 +917,12 @@ public class ExprProcessor implements CodeConstants {
 
     if (unbox) {
       // "unbox" invocation parameters, e.g. 'byteSet.add((byte)123)' or 'new ShortContainer((short)813)'
-      if (exprent.type == Exprent.EXPRENT_INVOCATION) {
+      if (exprent instanceof InvocationExprent) {
         InvocationExprent invocationExprent = (InvocationExprent) exprent;
         if (invocationExprent.isBoxingCall() && !invocationExprent.shouldForceBoxing()) {
           exprent = invocationExprent.getLstParameters().get(0);
           int paramType = invocationExprent.getDescriptor().params[0].type;
-          if (exprent.type == Exprent.EXPRENT_CONST && ((ConstExprent) exprent).getConstType().type != paramType) {
+          if (exprent instanceof ConstExprent && ((ConstExprent) exprent).getConstType().type != paramType) {
             leftType = new VarType(paramType);
           }
         }
@@ -944,13 +943,13 @@ public class ExprProcessor implements CodeConstants {
       cast = castAlways;
     }
 
-    boolean castLambda = !cast && exprent.type == Exprent.EXPRENT_NEW && !leftType.equals(rightType) &&
+    boolean castLambda = !cast && exprent instanceof NewExprent && !leftType.equals(rightType) &&
                           lambdaNeedsCast(leftType, (NewExprent)exprent);
 
     boolean quote = cast && exprent.getPrecedence() >= FunctionType.CAST.precedence;
 
     // cast instead to 'byte' / 'short' when int constant is used as a value for 'Byte' / 'Short'
-    if (castNarrowing && exprent.type == Exprent.EXPRENT_CONST && !((ConstExprent) exprent).isNull()) {
+    if (castNarrowing && exprent instanceof ConstExprent && !((ConstExprent) exprent).isNull()) {
       if (leftType.equals(VarType.VARTYPE_BYTE_OBJ)) {
         leftType = VarType.VARTYPE_BYTE;
       }
@@ -971,7 +970,7 @@ public class ExprProcessor implements CodeConstants {
       buffer.append('(');
     }
 
-    if (exprent.type == Exprent.EXPRENT_CONST) {
+    if (exprent instanceof ConstExprent) {
       ((ConstExprent) exprent).adjustConstType(leftType);
     }
 
@@ -998,7 +997,7 @@ public class ExprProcessor implements CodeConstants {
 
   // (Obj)expr; -> (Obj<T>)expr;
   public static Exprent narrowGenericCastType(Exprent expr, VarType type) {
-    if (type.isGeneric() && expr.type == Exprent.EXPRENT_FUNCTION && ((FunctionExprent)expr).getFuncType() == FunctionType.CAST) {
+    if (type.isGeneric() && expr instanceof FunctionExprent && ((FunctionExprent)expr).getFuncType() == FunctionType.CAST) {
       FunctionExprent func = (FunctionExprent) expr;
       VarType funcType = func.getExprType();
 
@@ -1044,7 +1043,7 @@ public class ExprProcessor implements CodeConstants {
   }
 
   private static boolean isIntConstant(Exprent exprent) {
-    if (exprent.type == Exprent.EXPRENT_CONST) {
+    if (exprent instanceof ConstExprent) {
       switch (((ConstExprent)exprent).getConstType().type) {
         case CodeConstants.TYPE_BYTE:
         case CodeConstants.TYPE_BYTECHAR:

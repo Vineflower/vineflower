@@ -3,7 +3,6 @@ package org.jetbrains.java.decompiler.modules.decompiler.stats;
 
 import org.jetbrains.java.decompiler.main.rels.ClassWrapper;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.InvocationExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
@@ -30,7 +29,7 @@ public final class Statements {
   }
 
   public static boolean isInvocationInitConstructor(InvocationExprent inv, MethodWrapper method, ClassWrapper wrapper, boolean withThis) {
-    if (inv.getFunctype() == InvocationExprent.Type.INIT && inv.getInstance().type == Exprent.EXPRENT_VAR) {
+    if (inv.getFunctype() == InvocationExprent.Type.INIT && inv.getInstance() instanceof VarExprent) {
       VarExprent instVar = (VarExprent)inv.getInstance();
       VarVersionPair varPair = new VarVersionPair(instVar);
       String className = method.varproc.getThisVars().get(varPair);

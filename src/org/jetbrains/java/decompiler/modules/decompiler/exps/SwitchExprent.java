@@ -25,7 +25,7 @@ public class SwitchExprent extends Exprent {
   private final boolean standalone;
 
   public SwitchExprent(SwitchStatement backing, VarType type, boolean fallthrough, boolean standalone) {
-    super(EXPRENT_SWITCH);
+    super(Type.SWITCH);
     this.backing = backing;
     this.type = type;
     this.fallthrough = fallthrough;
@@ -123,15 +123,15 @@ public class SwitchExprent extends Exprent {
       if (simple) {
         Exprent exprent = stat.getExprents().get(0);
 
-        if (exprent.type == Exprent.EXPRENT_YIELD) {
+        if (exprent instanceof YieldExprent) {
           Exprent content = ((YieldExprent) exprent).getContent();
 
-          if (content.type == Exprent.EXPRENT_CONST) {
+          if (content instanceof ConstExprent) {
             ((ConstExprent)content).setConstType(this.type);
           }
 
           buf.append(content.toJava(indent).append(";"));
-        } else if (exprent.type == Exprent.EXPRENT_EXIT) {
+        } else if (exprent instanceof ExitExprent) {
           ExitExprent exit = (ExitExprent) exprent;
 
           if (exit.getExitType() == ExitExprent.Type.THROW) {

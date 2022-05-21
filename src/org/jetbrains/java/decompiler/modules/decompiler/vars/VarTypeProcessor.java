@@ -87,7 +87,7 @@ public class VarTypeProcessor {
       lst.add(exprent);
 
       for (Exprent expr : lst) {
-        if (expr.type == Exprent.EXPRENT_VAR) {
+        if (expr instanceof VarExprent) {
           VarExprent ve = (VarExprent)expr;
           if (ve.getLVT() != null) {
             ve.setVarType(ve.getLVT().getVarType());
@@ -95,7 +95,7 @@ public class VarTypeProcessor {
             ve.setVarType(VarType.VARTYPE_UNKNOWN);
           }
         }
-        else if (expr.type == Exprent.EXPRENT_CONST) {
+        else if (expr instanceof ConstExprent) {
           ConstExprent constExpr = (ConstExprent)expr;
           if (constExpr.getConstType().typeFamily == CodeConstants.TYPE_FAMILY_INTEGER) {
             constExpr.setConstType(new ConstExprent(constExpr.getIntValue(), constExpr.isBoolPermitted(), null).getConstType());
@@ -120,7 +120,7 @@ public class VarTypeProcessor {
       }
     }
 
-    if (exprent.type == Exprent.EXPRENT_CONST) {
+    if (exprent instanceof ConstExprent) {
       ConstExprent constExpr = (ConstExprent)exprent;
       if (constExpr.getConstType().typeFamily <= CodeConstants.TYPE_FAMILY_INTEGER) { // boolean or integer
         VarVersionPair pair = new VarVersionPair(constExpr.id, -1);
@@ -154,7 +154,7 @@ public class VarTypeProcessor {
   private boolean changeExprentType(Exprent exprent, VarType newType, int minMax) {
 
     switch (exprent.type) {
-      case Exprent.EXPRENT_CONST:
+      case CONST:
         ConstExprent constExpr = (ConstExprent)exprent;
         VarType constType = constExpr.getConstType();
 
@@ -168,13 +168,13 @@ public class VarTypeProcessor {
           }
         }
         return changeVarExprentType(exprent, newType, minMax, new VarVersionPair(exprent.id, -1));
-      case Exprent.EXPRENT_VAR:
+      case VAR:
         return changeVarExprentType(exprent, newType, minMax, new VarVersionPair((VarExprent) exprent));
 
-      case Exprent.EXPRENT_ASSIGNMENT:
+      case ASSIGNMENT:
         return changeExprentType(((AssignmentExprent)exprent).getRight(), newType, minMax);
 
-      case Exprent.EXPRENT_FUNCTION:
+      case FUNCTION:
         return changeFunctionExprentType(newType, minMax, (FunctionExprent)exprent);
     }
 
@@ -194,7 +194,7 @@ public class VarTypeProcessor {
       }
 
       mapExprentMinTypes.put(pair, newMinType);
-      if (exprent.type == Exprent.EXPRENT_CONST) {
+      if (exprent instanceof ConstExprent) {
         ((ConstExprent) exprent).setConstType(newMinType);
       }
 

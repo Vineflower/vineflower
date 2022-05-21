@@ -187,14 +187,14 @@ public final class ClassReference14Processor {
   }
 
   private static String isClass14Invocation(Exprent exprent, ClassWrapper wrapper, MethodWrapper meth) {
-    if (exprent.type == Exprent.EXPRENT_FUNCTION) {
+    if (exprent instanceof FunctionExprent) {
       FunctionExprent fexpr = (FunctionExprent)exprent;
       if (fexpr.getFuncType() == FunctionType.TERNARY) {
-        if (fexpr.getLstOperands().get(0).type == Exprent.EXPRENT_FUNCTION) {
+        if (fexpr.getLstOperands().get(0) instanceof FunctionExprent) {
           FunctionExprent headexpr = (FunctionExprent)fexpr.getLstOperands().get(0);
           if (headexpr.getFuncType() == FunctionType.EQ) {
-            if (headexpr.getLstOperands().get(0).type == Exprent.EXPRENT_FIELD &&
-                headexpr.getLstOperands().get(1).type == Exprent.EXPRENT_CONST &&
+            if (headexpr.getLstOperands().get(0) instanceof FieldExprent &&
+                headexpr.getLstOperands().get(1) instanceof ConstExprent &&
                 ((ConstExprent)headexpr.getLstOperands().get(1)).getConstType().equals(VarType.VARTYPE_NULL)) {
 
               FieldExprent field = (FieldExprent)headexpr.getLstOperands().get(0);
@@ -207,17 +207,17 @@ public final class ClassReference14Processor {
                 if (fd != null && fd.hasModifier(CodeConstants.ACC_STATIC) &&
                     (fd.isSynthetic() || DecompilerContext.getOption(IFernflowerPreferences.SYNTHETIC_NOT_SET))) {
 
-                  if (fexpr.getLstOperands().get(1).type == Exprent.EXPRENT_ASSIGNMENT && fexpr.getLstOperands().get(2).equals(field)) {
+                  if (fexpr.getLstOperands().get(1) instanceof AssignmentExprent && fexpr.getLstOperands().get(2).equals(field)) {
                     AssignmentExprent asexpr = (AssignmentExprent)fexpr.getLstOperands().get(1);
 
-                    if (asexpr.getLeft().equals(field) && asexpr.getRight().type == Exprent.EXPRENT_INVOCATION) {
+                    if (asexpr.getLeft().equals(field) && asexpr.getRight() instanceof InvocationExprent) {
                       InvocationExprent invexpr = (InvocationExprent)asexpr.getRight();
 
                       if (invexpr.getClassname().equals(wrapper.getClassStruct().qualifiedName) &&
                           invexpr.getName().equals(meth.methodStruct.getName()) &&
                           invexpr.getStringDescriptor().equals(meth.methodStruct.getDescriptor())) {
 
-                        if (invexpr.getLstParameters().get(0).type == Exprent.EXPRENT_CONST) {
+                        if (invexpr.getLstParameters().get(0) instanceof ConstExprent) {
                           wrapper.getHiddenMembers()
                             .add(InterpreterUtil.makeUniqueKey(fd.getName(), fd.getDescriptor()));  // hide synthetic field
                           return ((ConstExprent)invexpr.getLstParameters().get(0)).getValue().toString();

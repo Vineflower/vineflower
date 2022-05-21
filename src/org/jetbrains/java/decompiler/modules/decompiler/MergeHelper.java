@@ -295,16 +295,16 @@ public final class MergeHelper {
   }
 
   private static boolean isIif(Exprent exprent) {
-    if (exprent.type != Exprent.EXPRENT_FUNCTION) {
+    if (!(exprent instanceof FunctionExprent)) {
       return false;
     }
 
     Exprent check = exprent;
-    while (check.type == Exprent.EXPRENT_FUNCTION && ((FunctionExprent)check).getFuncType() == FunctionType.BOOL_NOT) {
+    while (check instanceof FunctionExprent && ((FunctionExprent)check).getFuncType() == FunctionType.BOOL_NOT) {
       check = ((FunctionExprent)check).getLstOperands().get(0);
     }
 
-    return check.type == Exprent.EXPRENT_FUNCTION && ((FunctionExprent)check).getFuncType() == FunctionType.TERNARY;
+    return check instanceof FunctionExprent && ((FunctionExprent)check).getFuncType() == FunctionType.TERNARY;
   }
 
   // Returns if the statement provided and the end statement provided has a direct control flow path
@@ -373,7 +373,7 @@ public final class MergeHelper {
       }
     }
 
-    boolean haslast = issingle || lastDoExprent.type == Exprent.EXPRENT_ASSIGNMENT || lastDoExprent.type == Exprent.EXPRENT_FUNCTION;
+    boolean haslast = issingle || lastDoExprent instanceof AssignmentExprent || lastDoExprent instanceof FunctionExprent;
     if (!haslast) {
       return;
     }
@@ -402,7 +402,7 @@ public final class MergeHelper {
           preData = getLastDirectData(preData);
           if (preData != null && !preData.getExprents().isEmpty()) {
             initDoExprent = preData.getExprents().get(preData.getExprents().size() - 1);
-            if (initDoExprent.type == Exprent.EXPRENT_ASSIGNMENT) {
+            if (initDoExprent instanceof AssignmentExprent) {
               hasinit = true;
             }
           }
@@ -562,7 +562,7 @@ public final class MergeHelper {
             for (int x = 0; x < initExprents.length; x++) {
               if (size > x) {
                  Exprent exprent = preData.getExprents().get(size - 1 - x);
-                 if (exprent.type == Exprent.EXPRENT_ASSIGNMENT) {
+                 if (exprent instanceof AssignmentExprent) {
                    initExprents[x] = (AssignmentExprent)exprent;
                  }
               }
@@ -577,7 +577,7 @@ public final class MergeHelper {
     }
 
     firstData = getFirstDirectData(stat.getFirst());
-    if (firstData != null && firstData.getExprents().get(0).type == Exprent.EXPRENT_ASSIGNMENT) {
+    if (firstData != null && firstData.getExprents().get(0) instanceof AssignmentExprent) {
       firstDoExprent = (AssignmentExprent)firstData.getExprents().get(0);
     }
     lastData = getLastDirectData(stat.getFirst());
@@ -596,12 +596,12 @@ public final class MergeHelper {
         }
 
         if (!isHasNextCall(drillNots(stat.getConditionExprent())) ||
-            firstDoExprent.type != Exprent.EXPRENT_ASSIGNMENT) {
+            !(firstDoExprent instanceof AssignmentExprent)) {
           return false;
         }
 
         AssignmentExprent ass = firstDoExprent;
-        if ((!isNextCall(ass.getRight()) && !isNextUnboxing(ass.getRight())) || ass.getLeft().type != Exprent.EXPRENT_VAR) {
+        if ((!isNextCall(ass.getRight()) && !isNextUnboxing(ass.getRight())) || !(ass.getLeft() instanceof VarExprent)) {
           return false;
         }
 
@@ -609,21 +609,21 @@ public final class MergeHelper {
         if (isNextUnboxing(next))
           next = (InvocationExprent)getUncast(next.getInstance());
         InvocationExprent hnext = (InvocationExprent)getUncast(drillNots(stat.getConditionExprent()));
-        if (next.getInstance().type != Exprent.EXPRENT_VAR ||
-            hnext.getInstance().type != Exprent.EXPRENT_VAR ||
+        if (!(next.getInstance() instanceof VarExprent) ||
+            !(hnext.getInstance() instanceof VarExprent) ||
           ((VarExprent)initExprents[0].getLeft()).isVarReferenced(stat, (VarExprent)next.getInstance(), (VarExprent)hnext.getInstance())) {
           return false;
         }
 
         // Casted foreach
         Exprent right = initExprents[0].getRight();
-        if (right.type == Exprent.EXPRENT_FUNCTION) {
+        if (right instanceof FunctionExprent) {
           FunctionExprent fRight = (FunctionExprent) right;
           if (fRight.getFuncType() == FunctionType.CAST) {
             right = fRight.getLstOperands().get(0);
           }
 
-          if (right.type == Exprent.EXPRENT_INVOCATION) {
+          if (right instanceof InvocationExprent) {
             return false;
           }
         }
@@ -652,8 +652,8 @@ public final class MergeHelper {
         preData.getExprents().remove(initExprents[0]);
         firstData.getExprents().remove(firstDoExprent);
 
-        if (initExprents[1] != null && initExprents[1].getLeft().type == Exprent.EXPRENT_VAR &&
-            holder.getInstance().type == Exprent.EXPRENT_VAR) {
+        if (initExprents[1] != null && initExprents[1].getLeft() instanceof VarExprent &&
+            holder.getInstance() instanceof VarExprent) {
           VarExprent copy = (VarExprent)initExprents[1].getLeft();
           VarExprent inc = (VarExprent)holder.getInstance();
           if (copy.getIndex() == inc.getIndex() && copy.getVersion() == inc.getVersion() &&
@@ -675,17 +675,17 @@ public final class MergeHelper {
 
         return true;
       } else if (initExprents[1] != null) {
-        if (firstDoExprent.getRight().type != Exprent.EXPRENT_ARRAY || firstDoExprent.getLeft().type != Exprent.EXPRENT_VAR) {
+        if (!(firstDoExprent.getRight() instanceof ArrayExprent) || !(firstDoExprent.getLeft() instanceof VarExprent)) {
           return false;
         }
 
-        if (lastExprent == null || lastExprent.type != Exprent.EXPRENT_FUNCTION) {
+        if (!(lastExprent instanceof FunctionExprent)) {
           return false;
         }
 
-        if (initExprents[0].getRight().type != Exprent.EXPRENT_CONST ||
-            initExprents[1].getRight().type != Exprent.EXPRENT_FUNCTION ||
-            stat.getConditionExprent().type != Exprent.EXPRENT_FUNCTION) {
+        if (!(initExprents[0].getRight() instanceof ConstExprent) ||
+            !(initExprents[1].getRight() instanceof FunctionExprent) ||
+            !(stat.getConditionExprent() instanceof FunctionExprent)) {
           return false;
         }
 
@@ -697,8 +697,8 @@ public final class MergeHelper {
 
         if (funcRight.getFuncType() != FunctionType.ARRAY_LENGTH ||
             (incType != FunctionType.PPI && incType != FunctionType.IPP) ||
-            arr.getIndex().type != Exprent.EXPRENT_VAR ||
-            arr.getArray().type != Exprent.EXPRENT_VAR) {
+            !(arr.getIndex() instanceof VarExprent) ||
+            !(arr.getArray() instanceof VarExprent)) {
             return false;
         }
 
@@ -735,7 +735,7 @@ public final class MergeHelper {
         firstData.getExprents().remove(firstDoExprent);
         lastData.getExprents().remove(lastExprent);
 
-        if (initExprents[2] != null && initExprents[2].getLeft().type == Exprent.EXPRENT_VAR) {
+        if (initExprents[2] != null && initExprents[2].getLeft() instanceof VarExprent) {
           VarExprent copy = (VarExprent)initExprents[2].getLeft();
 
           if (copy.getIndex() == array.getIndex() && copy.getVersion() == array.getVersion()) {
@@ -789,7 +789,7 @@ public final class MergeHelper {
       if (node.exprents != null) {
         for (Exprent exprent : node.exprents) {
           for (Exprent ex : exprent.getAllExprents(true, true)) {
-            if (ex.type == Exprent.EXPRENT_VAR && ((VarExprent) ex).getIndex() == var.getIndex()) {
+            if (ex instanceof VarExprent && ((VarExprent) ex).getIndex() == var.getIndex()) {
               return true;
             }
           }
@@ -810,7 +810,7 @@ public final class MergeHelper {
 
   private static Exprent drillNots(Exprent exp) {
     while (true) {
-      if (exp.type == Exprent.EXPRENT_FUNCTION) {
+      if (exp instanceof FunctionExprent) {
         FunctionExprent fun = (FunctionExprent)exp;
         if (fun.getFuncType() == FunctionType.BOOL_NOT) {
           exp = fun.getLstOperands().get(0);
@@ -844,7 +844,7 @@ public final class MergeHelper {
   }
 
   private static Exprent getUncast(Exprent exp) {
-    if (exp.type == Exprent.EXPRENT_FUNCTION) {
+    if (exp instanceof FunctionExprent) {
       FunctionExprent func = (FunctionExprent)exp;
       if (func.getFuncType() == FunctionType.CAST) {
         return getUncast(func.getLstOperands().get(0));
@@ -855,7 +855,7 @@ public final class MergeHelper {
 
   private static InvocationExprent asInvocationExprent(Exprent exp) {
     exp = getUncast(exp);
-    if (exp.type == Exprent.EXPRENT_INVOCATION) {
+    if (exp instanceof InvocationExprent) {
       return (InvocationExprent) exp;
     }
     return null;
@@ -899,7 +899,7 @@ public final class MergeHelper {
 
   private static boolean isNextUnboxing(Exprent exprent) {
     Exprent exp = getUncast(exprent);
-    if (exp.type != Exprent.EXPRENT_INVOCATION)
+    if (!(exp instanceof InvocationExprent))
       return false;
     InvocationExprent inv = (InvocationExprent)exp;
     return inv.isUnboxingCall() && isNextCall(inv.getInstance());

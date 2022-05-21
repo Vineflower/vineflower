@@ -47,7 +47,7 @@ public final class IfPatternMatchProcessor {
   private static boolean handleIf(IfStatement statement, RootStatement root) {
     Exprent condition = statement.getHeadexprent().getCondition();
 
-    if (condition.type != Exprent.EXPRENT_FUNCTION) {
+    if (!(condition instanceof FunctionExprent)) {
       return false;
     }
 
@@ -60,7 +60,7 @@ public final class IfPatternMatchProcessor {
     boolean updated = false;
     loop:
     for (Exprent exprent : exprents) {
-      if (exprent.type == Exprent.EXPRENT_FUNCTION) {
+      if (exprent instanceof FunctionExprent) {
         FunctionExprent iof = (FunctionExprent)exprent;
 
         // Check for instanceof and isn't a pattern match yet
@@ -77,20 +77,20 @@ public final class IfPatternMatchProcessor {
             Exprent first = head.getExprents().get(0);
 
             // Check inside of the if statement for a cast
-            if (first.type == Exprent.EXPRENT_ASSIGNMENT) {
+            if (first instanceof AssignmentExprent) {
               // If it's an assignement, get both sides
               Exprent left = first.getAllExprents().get(0);
               Exprent right = first.getAllExprents().get(1);
 
               // Right side needs to be a cast function
-              if (right.type == Exprent.EXPRENT_FUNCTION) {
+              if (right instanceof FunctionExprent) {
                 if (((FunctionExprent)right).getFuncType() == FunctionType.CAST) {
                   Exprent casted = right.getAllExprents().get(0);
 
                   // Check if the exprent being casted is the exprent on the left side of the instanceof
                   if (source.equals(casted)) {
                     // Make sure the left hand side is a variable and it's type matches the target of the cast
-                    if (left.type == Exprent.EXPRENT_VAR && target.getExprType().equals(left.getExprType())) {
+                    if (left instanceof VarExprent && target.getExprType().equals(left.getExprType())) {
                       List<VarVersionPair> vvs = new ArrayList<>();
 
                       // We need to make sure we're not assigning to previously assigned variables.
@@ -137,11 +137,11 @@ public final class IfPatternMatchProcessor {
         for (Exprent exprent : stat.getExprents()) {
 
           // Check for assignment exprents
-          if (exprent.type == Exprent.EXPRENT_ASSIGNMENT) {
+          if (exprent instanceof AssignmentExprent) {
             AssignmentExprent assignment = (AssignmentExprent) exprent;
 
             // If the left type of the assignment is a variable, store it's var info
-            if (assignment.getLeft().type == Exprent.EXPRENT_VAR) {
+            if (assignment.getLeft() instanceof VarExprent) {
               vvs.add(((VarExprent) assignment.getLeft()).getVarVersionPair());
             }
           }

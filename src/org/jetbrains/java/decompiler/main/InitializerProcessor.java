@@ -20,14 +20,7 @@ import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public final class InitializerProcessor {
   public static void extractInitializers(ClassWrapper wrapper) {
@@ -69,9 +62,9 @@ public final class InitializerProcessor {
         for (Exprent exprent : lstExprents) {
           int action = 0;
 
-          if (exprent.type == Exprent.EXPRENT_ASSIGNMENT) {
+          if (exprent instanceof AssignmentExprent) {
             AssignmentExprent assignExpr = (AssignmentExprent)exprent;
-            if (assignExpr.getLeft().type == Exprent.EXPRENT_FIELD && assignExpr.getRight().type == Exprent.EXPRENT_VAR) {
+            if (assignExpr.getLeft() instanceof FieldExprent && assignExpr.getRight() instanceof VarExprent) {
               FieldExprent fExpr = (FieldExprent)assignExpr.getLeft();
               if (fExpr.getClassname().equals(wrapper.getClassStruct().qualifiedName)) {
                 StructField structField = wrapper.getClassStruct().getField(fExpr.getName(), fExpr.getDescriptor().descriptorString);
@@ -81,7 +74,7 @@ public final class InitializerProcessor {
               }
             }
           }
-          else if (index > 0 && exprent.type == Exprent.EXPRENT_INVOCATION &&
+          else if (index > 0 && exprent instanceof InvocationExprent &&
                    Statements.isInvocationInitConstructor((InvocationExprent)exprent, method, wrapper, true)) {
             // this() or super()
             lstExprents.add(0, lstExprents.remove(index));
@@ -107,7 +100,7 @@ public final class InitializerProcessor {
         }
 
         Exprent exprent = firstData.getExprents().get(0);
-        if (exprent.type == Exprent.EXPRENT_INVOCATION) {
+        if (exprent instanceof InvocationExprent) {
           InvocationExprent invExpr = (InvocationExprent)exprent;
           if (Statements.isInvocationInitConstructor(invExpr, method, wrapper, false)) {
             List<VarVersionPair> mask = ExprUtil.getSyntheticParametersMask(invExpr.getClassname(), invExpr.getStringDescriptor(), invExpr.getLstParameters().size());
@@ -177,9 +170,9 @@ public final class InitializerProcessor {
       List<String> multiAssign = new ArrayList<>();
 
       for (Exprent exprent : firstData.getExprents()) {
-        if (exprent.type == Exprent.EXPRENT_ASSIGNMENT) {
+        if (exprent instanceof AssignmentExprent) {
           AssignmentExprent assignExpr = (AssignmentExprent) exprent;
-          if (assignExpr.getLeft().type == Exprent.EXPRENT_FIELD) {
+          if (assignExpr.getLeft() instanceof FieldExprent) {
             FieldExprent fExpr = (FieldExprent) assignExpr.getLeft();
 
             // If the field has been seen already, add it to the list of multi-assigned fields
@@ -201,9 +194,9 @@ public final class InitializerProcessor {
       while (itr.hasNext()) {
         Exprent exprent = itr.next();
 
-        if (exprent.type == Exprent.EXPRENT_ASSIGNMENT) {
+        if (exprent instanceof AssignmentExprent) {
           AssignmentExprent assignExpr = (AssignmentExprent)exprent;
-          if (assignExpr.getLeft().type == Exprent.EXPRENT_FIELD) {
+          if (assignExpr.getLeft() instanceof FieldExprent) {
             FieldExprent fExpr = (FieldExprent)assignExpr.getLeft();
             if (fExpr.isStatic() && fExpr.getClassname().equals(cl.qualifiedName) &&
                 cl.hasField(fExpr.getName(), fExpr.getDescriptor().descriptorString)) {
@@ -290,7 +283,7 @@ public final class InitializerProcessor {
 
         Exprent exprent = firstData.getExprents().get(0);
         if (!isAnonymous) { // FIXME: doesn't make sense
-          if (exprent.type != Exprent.EXPRENT_INVOCATION ||
+          if (!(exprent instanceof InvocationExprent) ||
               !Statements.isInvocationInitConstructor((InvocationExprent)exprent, method, wrapper, false)) {
             continue;
           }
@@ -322,9 +315,9 @@ public final class InitializerProcessor {
 
         boolean found = false;
 
-        if (exprent.type == Exprent.EXPRENT_ASSIGNMENT) {
+        if (exprent instanceof AssignmentExprent) {
           AssignmentExprent assignExpr = (AssignmentExprent)exprent;
-          if (assignExpr.getLeft().type == Exprent.EXPRENT_FIELD) {
+          if (assignExpr.getLeft() instanceof FieldExprent) {
             FieldExprent fExpr = (FieldExprent)assignExpr.getLeft();
             if (!fExpr.isStatic() && fExpr.getClassname().equals(cl.qualifiedName) &&
                 cl.hasField(fExpr.getName(), fExpr.getDescriptor().descriptorString)) { // check for the physical existence of the field. Could be defined in a superclass.
@@ -372,14 +365,14 @@ public final class InitializerProcessor {
 
   private static Exprent processDynamicInitializer(Exprent expr) {
 
-    if (expr.type == Exprent.EXPRENT_FUNCTION) {
+    if (expr instanceof FunctionExprent) {
       Exprent temp = expr;
       // Find function inside casts
-      while (temp.type == Exprent.EXPRENT_FUNCTION && (((FunctionExprent) temp).getFuncType().castType != null || ((FunctionExprent) temp).getFuncType() == FunctionType.CAST)) {
+      while (temp instanceof FunctionExprent && (((FunctionExprent) temp).getFuncType().castType != null || ((FunctionExprent) temp).getFuncType() == FunctionType.CAST)) {
         temp = ((FunctionExprent) temp).getLstOperands().get(0);
       }
 
-      if (temp.type == Exprent.EXPRENT_FUNCTION) {
+      if (temp instanceof FunctionExprent) {
         FunctionExprent func = (FunctionExprent) temp;
 
         // Force unwrap boxing in function
@@ -396,10 +389,10 @@ public final class InitializerProcessor {
   }
 
   private static Exprent processBoxingCast(Exprent expr) {
-    if (expr.type == Exprent.EXPRENT_INVOCATION) {
+    if (expr instanceof InvocationExprent) {
       if (((InvocationExprent) expr).isUnboxingCall()) {
         Exprent inner = ((InvocationExprent) expr).getInstance();
-        if (inner.type == Exprent.EXPRENT_FUNCTION && ((FunctionExprent)inner).getFuncType() == FunctionType.CAST) {
+        if (inner instanceof FunctionExprent && ((FunctionExprent)inner).getFuncType() == FunctionType.CAST) {
           inner.addBytecodeOffsets(expr.bytecode);
           expr = inner;
         }
@@ -416,7 +409,7 @@ public final class InitializerProcessor {
 
     for (Exprent expr : lst) {
       switch (expr.type) {
-        case Exprent.EXPRENT_VAR:
+        case VAR:
           VarVersionPair varPair = new VarVersionPair((VarExprent)expr);
           if (!method.varproc.getExternalVars().contains(varPair)) {
             String varName = method.varproc.getVarName(varPair);
@@ -425,7 +418,7 @@ public final class InitializerProcessor {
             }
           }
           break;
-        case Exprent.EXPRENT_FIELD:
+        case FIELD:
           FieldExprent fexpr = (FieldExprent)expr;
           if (cl.hasField(fexpr.getName(), fexpr.getDescriptor().descriptorString)) {
             String key = InterpreterUtil.makeUniqueKey(fexpr.getName(), fexpr.getDescriptor().descriptorString);
@@ -453,7 +446,7 @@ public final class InitializerProcessor {
             return false;
           }
           break;
-        case Exprent.EXPRENT_NEW:
+        case NEW:
           qualifyFieldReferences((NewExprent)expr, cl, fidx);
           break;
       }
@@ -471,13 +464,13 @@ public final class InitializerProcessor {
 
       Set<Exprent> s = new HashSet<>();
       wrapper.getOrBuildGraph().iterateExprentsDeep(e -> {
-        if (e.type == Exprent.EXPRENT_FIELD || e.type == Exprent.EXPRENT_NEW)
+        if (e instanceof FieldExprent || e instanceof NewExprent)
           s.add(e);
         return 0;
       });
       for (Exprent e : s) {
         switch (e.type) {
-          case Exprent.EXPRENT_FIELD:
+          case FIELD:
             FieldExprent fe = (FieldExprent)e;
             if (cl.qualifiedName.equals(fe.getClassname()) && fe.isStatic() && cl.hasField(fe.getName(), fe.getDescriptor().descriptorString)) {
               String key = InterpreterUtil.makeUniqueKey(fe.getName(), fe.getDescriptor().descriptorString);
@@ -486,7 +479,7 @@ public final class InitializerProcessor {
               }
             }
             break;
-          case Exprent.EXPRENT_NEW:
+          case NEW:
             qualifyFieldReferences((NewExprent)e, cl, fidx);
             break;
         }

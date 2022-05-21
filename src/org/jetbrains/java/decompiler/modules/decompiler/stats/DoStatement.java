@@ -198,7 +198,7 @@ public final class DoStatement extends Statement {
     List<Exprent> conditionList = getConditionExprent().getAllExprents(true, true);
 
     for (Exprent condition : conditionList) {
-      if (condition.type == Exprent.EXPRENT_FUNCTION) {
+      if (condition instanceof FunctionExprent) {
         FunctionExprent func = ((FunctionExprent)condition);
 
         // Pattern match variable is implicitly defined

@@ -158,7 +158,7 @@ public final class SecondaryFunctionsHelper {
   }
 
   private static Exprent identifySecondaryFunctions(Exprent exprent, boolean statement_level, VarProcessor varProc) {
-    if (exprent.type == Exprent.EXPRENT_FUNCTION) {
+    if (exprent instanceof FunctionExprent) {
       FunctionExprent fexpr = (FunctionExprent)exprent;
 
       switch (fexpr.getFuncType()) {
@@ -180,12 +180,12 @@ public final class SecondaryFunctionsHelper {
           Exprent expr1 = fexpr.getLstOperands().get(0);
           Exprent expr2 = fexpr.getLstOperands().get(1);
 
-          if (expr1.type == Exprent.EXPRENT_CONST) {
+          if (expr1 instanceof ConstExprent) {
             expr2 = expr1;
             expr1 = fexpr.getLstOperands().get(1);
           }
 
-          if (expr1.type == Exprent.EXPRENT_FUNCTION && expr2.type == Exprent.EXPRENT_CONST) {
+          if (expr1 instanceof FunctionExprent && expr2 instanceof ConstExprent) {
             FunctionExprent funcexpr = (FunctionExprent)expr1;
             ConstExprent cexpr = (ConstExprent)expr2;
 
@@ -241,7 +241,7 @@ public final class SecondaryFunctionsHelper {
     }
 
     switch (exprent.type) {
-      case Exprent.EXPRENT_FUNCTION:
+      case FUNCTION:
         FunctionExprent fexpr = (FunctionExprent)exprent;
         List<Exprent> lstOperands = fexpr.getLstOperands();
 
@@ -251,7 +251,7 @@ public final class SecondaryFunctionsHelper {
               Exprent operand = lstOperands.get(i);
               VarType operandtype = operand.getExprType();
 
-              if (operand.type == Exprent.EXPRENT_CONST &&
+              if (operand instanceof ConstExprent &&
                   operandtype.type != CodeConstants.TYPE_BOOLEAN) {
                 ConstExprent cexpr = (ConstExprent)operand;
                 long val;
@@ -275,7 +275,7 @@ public final class SecondaryFunctionsHelper {
             if (lstOperands.get(0).getExprType().type == CodeConstants.TYPE_BOOLEAN &&
                 lstOperands.get(1).getExprType().type == CodeConstants.TYPE_BOOLEAN) {
               for (int i = 0; i < 2; i++) {
-                if (lstOperands.get(i).type == Exprent.EXPRENT_CONST) {
+                if (lstOperands.get(i) instanceof ConstExprent) {
                   ConstExprent cexpr = (ConstExprent)lstOperands.get(i);
                   int val = (Integer)cexpr.getValue();
 
@@ -293,7 +293,7 @@ public final class SecondaryFunctionsHelper {
             }
             break;
           case BOOL_NOT:
-            if (lstOperands.get(0).type == Exprent.EXPRENT_CONST) {
+            if (lstOperands.get(0) instanceof ConstExprent) {
               int val = ((ConstExprent)lstOperands.get(0)).getIntValue();
               if (val == 0) {
                 return new ConstExprent(VarType.VARTYPE_BOOLEAN, 1, fexpr.bytecode);
@@ -308,7 +308,7 @@ public final class SecondaryFunctionsHelper {
             Exprent expr1 = lstOperands.get(1);
             Exprent expr2 = lstOperands.get(2);
 
-            if (expr1.type == Exprent.EXPRENT_CONST && expr2.type == Exprent.EXPRENT_CONST) {
+            if (expr1 instanceof ConstExprent && expr2 instanceof ConstExprent) {
               ConstExprent cexpr1 = (ConstExprent)expr1;
               ConstExprent cexpr2 = (ConstExprent)expr2;
 
@@ -323,7 +323,7 @@ public final class SecondaryFunctionsHelper {
                 }
               }
             } else if (DecompilerContext.getOption(IFernflowerPreferences.TERNARY_CONSTANT_SIMPLIFICATION)) {
-              if (expr1.type == Exprent.EXPRENT_CONST && expr1.getExprType().type == CodeConstants.TYPE_BOOLEAN) {
+              if (expr1 instanceof ConstExprent && expr1.getExprType().type == CodeConstants.TYPE_BOOLEAN) {
                 ConstExprent cexpr1 = (ConstExprent) expr1;
                 boolean val = cexpr1.getIntValue() != 0;
 
@@ -335,7 +335,7 @@ public final class SecondaryFunctionsHelper {
                   FunctionExprent fnot = new FunctionExprent(FunctionType.BOOL_NOT, lstOperands.get(0), fexpr.bytecode);
                   return new FunctionExprent(FunctionType.BOOLEAN_AND, Arrays.asList(fnot, lstOperands.get(2)), fexpr.bytecode);
                 }
-              } else if (expr2.type == Exprent.EXPRENT_CONST && expr2.getExprType().type == CodeConstants.TYPE_BOOLEAN) {
+              } else if (expr2 instanceof ConstExprent && expr2.getExprType().type == CodeConstants.TYPE_BOOLEAN) {
                 ConstExprent cexpr2 = (ConstExprent) expr2;
                 boolean val = cexpr2.getIntValue() != 0;
 
@@ -382,7 +382,7 @@ public final class SecondaryFunctionsHelper {
               head, new ConstExprent(VarType.VARTYPE_INT, 0, null), iff), fexpr.bytecode);
         }
         break;
-      case Exprent.EXPRENT_ASSIGNMENT: // check for conditional assignment
+      case ASSIGNMENT: // check for conditional assignment
         AssignmentExprent asexpr = (AssignmentExprent)exprent;
 
         if(asexpr.getCondType() != null)
@@ -391,14 +391,14 @@ public final class SecondaryFunctionsHelper {
         Exprent right = asexpr.getRight();
         Exprent left = asexpr.getLeft();
 
-        if (right.type == Exprent.EXPRENT_FUNCTION) {
+        if (right instanceof FunctionExprent) {
           FunctionExprent func = (FunctionExprent)right;
 
           VarType midlayer = null;
           if (func.getFuncType().castType != null) {
             right = func.getLstOperands().get(0);
             midlayer = func.getSimpleCastType();
-            if (right.type == Exprent.EXPRENT_FUNCTION) {
+            if (right instanceof FunctionExprent) {
               func = (FunctionExprent)right;
             }
             else {
@@ -437,7 +437,7 @@ public final class SecondaryFunctionsHelper {
           }
         }
         break;
-      case Exprent.EXPRENT_INVOCATION:
+      case INVOCATION:
         if (!statement_level) { // simplify if exprent is a real expression. The opposite case is pretty absurd, can still happen however (and happened at least once).
           Exprent retexpr = ConcatenationHelper.contractStringConcat(exprent);
           if (!exprent.equals(retexpr)) {
@@ -451,14 +451,14 @@ public final class SecondaryFunctionsHelper {
 
   public static Exprent propagateBoolNot(Exprent exprent) {
 
-    if (exprent.type == Exprent.EXPRENT_FUNCTION) {
+    if (exprent instanceof FunctionExprent) {
       FunctionExprent fexpr = (FunctionExprent)exprent;
 
       if (fexpr.getFuncType() == FunctionType.BOOL_NOT) {
 
         Exprent param = fexpr.getLstOperands().get(0);
 
-        if (param.type == Exprent.EXPRENT_FUNCTION) {
+        if (param instanceof FunctionExprent) {
           FunctionExprent fparam = (FunctionExprent)param;
 
           FunctionType ftype = fparam.getFuncType();
@@ -540,7 +540,7 @@ public final class SecondaryFunctionsHelper {
         // If the statement is an exprent, start processing
         Exprent exprent = (Exprent) obj;
 
-        if (exprent.type == Exprent.EXPRENT_ASSIGNMENT) {
+        if (exprent instanceof AssignmentExprent) {
           AssignmentExprent assignment = (AssignmentExprent) exprent;
 
           List<Exprent> params = exprent.getAllExprents();
@@ -550,14 +550,14 @@ public final class SecondaryFunctionsHelper {
           Exprent rhs = params.get(1);
 
           // We only want expressions that are standard assignments where the left hand side is a variable and the right hand side is a function.
-          if (assignment.getCondType() == null && lhs.type == Exprent.EXPRENT_VAR && rhs.type == Exprent.EXPRENT_FUNCTION) {
+          if (assignment.getCondType() == null && lhs instanceof VarExprent && rhs instanceof FunctionExprent) {
             VarExprent lhsVar = (VarExprent) lhs;
             FunctionExprent rhsFunc = (FunctionExprent) rhs;
 
             List<Exprent> funcParams = rhsFunc.getAllExprents();
 
             // Make sure that the function is a mathematical or bit shift function
-            if (rhsFunc.getFuncType().isArithmeticBinaryOperation() && funcParams.get(0).type == Exprent.EXPRENT_VAR) {
+            if (rhsFunc.getFuncType().isArithmeticBinaryOperation() && funcParams.get(0) instanceof VarExprent) {
               // Get the left hand side of the function
               VarExprent lhsVarFunc = (VarExprent) funcParams.get(0);
 

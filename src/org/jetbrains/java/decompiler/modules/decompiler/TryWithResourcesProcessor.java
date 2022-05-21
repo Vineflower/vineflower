@@ -141,14 +141,14 @@ public final class TryWithResourcesProcessor {
       if (inner instanceof IfStatement) {
         Exprent ifCase = ((IfStatement)inner).getHeadexprent().getCondition();
 
-        if (ifCase.type == Exprent.EXPRENT_FUNCTION) {
+        if (ifCase instanceof FunctionExprent) {
           // Will look like "if (!(!(var != null)))"
           FunctionExprent func = unwrapNegations((FunctionExprent) ifCase);
 
           Exprent check = func.getLstOperands().get(0);
 
           // If it's not a var, end processing early
-          if (check.type != Exprent.EXPRENT_VAR) {
+          if (!(check instanceof VarExprent)) {
             return false;
           }
 
@@ -249,13 +249,13 @@ public final class TryWithResourcesProcessor {
         IfStatement ifStat = (IfStatement) stat;
         Exprent condition = ifStat.getHeadexprent().getCondition();
 
-        if (condition.type == Exprent.EXPRENT_FUNCTION) {
+        if (condition instanceof FunctionExprent) {
           // This can sometimes be double inverted negative conditions too, handle that case
           FunctionExprent func = unwrapNegations((FunctionExprent) condition);
 
           // Ensure the exprent is the one we want to remove
-          if (func.getFuncType() == FunctionType.NE && func.getLstOperands().get(0).type == Exprent.EXPRENT_VAR && func.getLstOperands().get(1).getExprType().equals(VarType.VARTYPE_NULL)) {
-            if (func.getLstOperands().get(0).type == Exprent.EXPRENT_VAR && ((VarExprent) func.getLstOperands().get(0)).getVarVersionPair().equals(closeable.getVarVersionPair())) {
+          if (func.getFuncType() == FunctionType.NE && func.getLstOperands().get(0) instanceof VarExprent && func.getLstOperands().get(1).getExprType().equals(VarType.VARTYPE_NULL)) {
+            if (func.getLstOperands().get(0) instanceof VarExprent && ((VarExprent) func.getLstOperands().get(0)).getVarVersionPair().equals(closeable.getVarVersionPair())) {
               return true;
             }
           }
@@ -266,11 +266,11 @@ public final class TryWithResourcesProcessor {
         if (stat.getExprents() != null && !stat.getExprents().isEmpty()) {
           Exprent exprent = stat.getExprents().get(0);
 
-          if (exprent.type == Exprent.EXPRENT_INVOCATION) {
+          if (exprent instanceof InvocationExprent) {
             Exprent inst = ((InvocationExprent) exprent).getInstance();
 
             // Ensure the var exprent we want to remove is the right one
-            if (inst.type == Exprent.EXPRENT_VAR && inst.equals(closeable) && isCloseable(exprent)) {
+            if (inst instanceof VarExprent && inst.equals(closeable) && isCloseable(exprent)) {
               return true;
             }
           }
@@ -338,7 +338,7 @@ public final class TryWithResourcesProcessor {
     while (func.getFuncType() == FunctionType.BOOL_NOT) {
       Exprent expr = func.getLstOperands().get(0);
 
-      if (expr.type == Exprent.EXPRENT_FUNCTION) {
+      if (expr instanceof FunctionExprent) {
         func = (FunctionExprent) expr;
       } else {
         break;
@@ -350,9 +350,9 @@ public final class TryWithResourcesProcessor {
 
   private static AssignmentExprent findResourceDef(VarExprent var, Statement prevStatement) {
     for (Exprent exp : prevStatement.getExprents()) {
-      if (exp.type == Exprent.EXPRENT_ASSIGNMENT) {
+      if (exp instanceof AssignmentExprent) {
         AssignmentExprent ass = (AssignmentExprent)exp;
-        if (ass.getLeft().type == Exprent.EXPRENT_VAR) { // cannot use equals as var's varType may be unknown and not match
+        if (ass.getLeft() instanceof VarExprent) { // cannot use equals as var's varType may be unknown and not match
           VarExprent left = (VarExprent)ass.getLeft();
           if (left.getVarVersionPair().equals(var.getVarVersionPair())) {
             return ass;
@@ -365,10 +365,10 @@ public final class TryWithResourcesProcessor {
   }
 
   private static boolean isCloseable(Exprent exp) {
-    if (exp.type == Exprent.EXPRENT_INVOCATION) {
+    if (exp instanceof InvocationExprent) {
       InvocationExprent invocExp = (InvocationExprent)exp;
       if (invocExp.getName().equals("close") && invocExp.getStringDescriptor().equals("()V")) {
-        if (invocExp.getInstance() != null && invocExp.getInstance().type == Exprent.EXPRENT_VAR) {
+        if (invocExp.getInstance() != null && invocExp.getInstance() instanceof VarExprent) {
           return DecompilerContext.getStructContext().instanceOf(invocExp.getClassname(), "java/lang/AutoCloseable");
         }
       }
@@ -380,7 +380,7 @@ public final class TryWithResourcesProcessor {
   private static void fixResourceAssignment(AssignmentExprent ass, Statement statement) {
     if (statement.getExprents() != null) {
       for (Exprent exp : statement.getExprents()) {
-        if (exp.type == Exprent.EXPRENT_ASSIGNMENT) {
+        if (exp instanceof AssignmentExprent) {
           AssignmentExprent toRemove = (AssignmentExprent)exp;
           if (ass.getLeft().equals(toRemove.getLeft()) && !toRemove.getRight().getExprType().equals(VarType.VARTYPE_NULL)) {
             ass.setRight(toRemove.getRight());
@@ -402,7 +402,7 @@ public final class TryWithResourcesProcessor {
 
         if (temp instanceof BasicBlockStatement && temp.getExprents() != null) {
           if (temp.getExprents().size() >= 2 && catchStat.getVars().get(i - 1).getVarType().value.equals("java/lang/Throwable")) {
-            if (temp.getExprents().get(temp.getExprents().size() - 1).type == Exprent.EXPRENT_EXIT) {
+            if (temp.getExprents().get(temp.getExprents().size() - 1) instanceof ExitExprent) {
               ExitExprent exitExprent = (ExitExprent)temp.getExprents().get(temp.getExprents().size() - 1);
               if (exitExprent.getExitType() == ExitExprent.Type.THROW && exitExprent.getValue().equals(catchStat.getVars().get(i - 1))) {
 
@@ -422,11 +422,11 @@ public final class TryWithResourcesProcessor {
         }
       }
 
-      if (removed && temp.getExprents().get(temp.getExprents().size() - 2).type == Exprent.EXPRENT_ASSIGNMENT) {
+      if (removed && temp.getExprents().get(temp.getExprents().size() - 2) instanceof AssignmentExprent) {
         AssignmentExprent assignmentExp = (AssignmentExprent)temp.getExprents().get(temp.getExprents().size() - 2);
         if (assignmentExp.getLeft().getExprType().value.equals("java/lang/Throwable")) {
           for (Exprent exprent : initBlock.getExprents()) {
-            if (exprent.type == Exprent.EXPRENT_ASSIGNMENT) {
+            if (exprent instanceof AssignmentExprent) {
               AssignmentExprent toRemove = (AssignmentExprent)exprent;
               if (toRemove.getLeft().equals(assignmentExp.getLeft())) {
                 initBlock.getExprents().remove(toRemove);

@@ -1,6 +1,7 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler;
 
+import org.jetbrains.java.decompiler.modules.decompiler.exps.ExitExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement.EdgeDirection;
@@ -215,7 +216,7 @@ public final class LabelHelper {
     for (StatEdge edge : exit.getAllPredecessorEdges()) {
       List<Exprent> lst = edge.getSource().getExprents();
       if (edge.getType() == StatEdge.TYPE_FINALLYEXIT || (lst != null && !lst.isEmpty() &&
-                                                          lst.get(lst.size() - 1).type == Exprent.EXPRENT_EXIT)) {
+                                                          lst.get(lst.size() - 1) instanceof ExitExprent)) {
         edge.labeled = false;
       }
     }

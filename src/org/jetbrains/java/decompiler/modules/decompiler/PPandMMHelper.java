@@ -95,15 +95,15 @@ public class PPandMMHelper {
       }
     }
 
-    if (exprent.type == Exprent.EXPRENT_ASSIGNMENT) {
+    if (exprent instanceof AssignmentExprent) {
       AssignmentExprent as = (AssignmentExprent)exprent;
 
-      if (as.getRight().type == Exprent.EXPRENT_FUNCTION) {
+      if (as.getRight() instanceof FunctionExprent) {
         FunctionExprent func = (FunctionExprent)as.getRight();
 
         VarType midlayer = func.getFuncType().castType;
         if (midlayer != null) {
-          if (func.getLstOperands().get(0).type == Exprent.EXPRENT_FUNCTION) {
+          if (func.getLstOperands().get(0) instanceof FunctionExprent) {
             func = (FunctionExprent)func.getLstOperands().get(0);
           }
           else {
@@ -116,13 +116,13 @@ public class PPandMMHelper {
           Exprent econd = func.getLstOperands().get(0);
           Exprent econst = func.getLstOperands().get(1);
 
-          if (econst.type != Exprent.EXPRENT_CONST && econd.type == Exprent.EXPRENT_CONST &&
+          if (!(econst instanceof ConstExprent) && econd instanceof ConstExprent &&
               func.getFuncType() == FunctionExprent.FunctionType.ADD) {
             econd = econst;
             econst = func.getLstOperands().get(0);
           }
 
-          if (econst.type == Exprent.EXPRENT_CONST && ((ConstExprent)econst).hasValueOne()) {
+          if (econst instanceof ConstExprent && ((ConstExprent)econst).hasValueOne()) {
             Exprent left = as.getLeft();
 
             VarType condtype = left.getExprType();
@@ -151,7 +151,7 @@ public class PPandMMHelper {
   private boolean exprsEqual(Exprent e1, Exprent e2) {
     if (e1 == e2) return true;
     if (e1 == null || e2 == null) return false;
-    if (e1.type == VarExprent.EXPRENT_VAR) {
+    if (e1 instanceof VarExprent) {
       return varsEqual(e1, e2);
     }
     return e1.equals(e2);
@@ -177,7 +177,7 @@ public class PPandMMHelper {
         lst.add(exprent);
 
         for (Exprent expr : lst) {
-          if (expr.type == Exprent.EXPRENT_VAR) {
+          if (expr instanceof VarExprent) {
             VarExprent var = (VarExprent)expr;
             if (var.getIndex() == oldVVP.var && var.getVersion() == oldVVP.version) {
               var.setIndex(newVVP.var);
@@ -226,22 +226,22 @@ public class PPandMMHelper {
       if (destination != null) {
         // Last exprent
         Exprent expr = stat.getExprents().get(stat.getExprents().size() - 1);
-        if (expr.type == Exprent.EXPRENT_FUNCTION) {
+        if (expr instanceof FunctionExprent) {
           FunctionExprent func = (FunctionExprent)expr;
 
           if (func.getFuncType() == FunctionExprent.FunctionType.PPI || func.getFuncType() == FunctionExprent.FunctionType.MMI) {
             Exprent inner = func.getLstOperands().get(0);
 
-            if (inner.type == Exprent.EXPRENT_VAR) {
+            if (inner instanceof VarExprent) {
               Exprent ifExpr = destination.getHeadexprent().getCondition();
 
-              if (ifExpr.type == Exprent.EXPRENT_FUNCTION) {
+              if (ifExpr instanceof FunctionExprent) {
                 FunctionExprent ifFunc = (FunctionExprent)ifExpr;
 
                 while (ifFunc.getFuncType() == FunctionExprent.FunctionType.BOOL_NOT) {
                   Exprent innerFunc = ifFunc.getLstOperands().get(0);
 
-                  if (innerFunc.type == Exprent.EXPRENT_FUNCTION) {
+                  if (innerFunc instanceof FunctionExprent) {
                     ifFunc = (FunctionExprent)innerFunc;
                   } else {
                     break;
@@ -252,7 +252,7 @@ public class PPandMMHelper {
                 boolean found = false;
                 VarExprent old = null;
                 for (Exprent ex : ifFunc.getAllExprents(true)) {
-                  if (ex.type == Exprent.EXPRENT_VAR) {
+                  if (ex instanceof VarExprent) {
                     VarExprent var = (VarExprent)ex;
                     if (var.getIndex() == ((VarExprent)inner).getIndex()) {
                       // Found variable to replace
@@ -266,7 +266,7 @@ public class PPandMMHelper {
                       old = var;
                       found = true;
                     }
-                  } else if (ex.type == Exprent.EXPRENT_FUNCTION) {
+                  } else if (ex instanceof FunctionExprent) {
                     FunctionExprent funcEx = (FunctionExprent)ex;
 
                     if (funcEx.getFuncType() == FunctionExprent.FunctionType.BOOLEAN_AND || funcEx.getFuncType() == FunctionExprent.FunctionType.BOOLEAN_OR) {
