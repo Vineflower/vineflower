@@ -4,16 +4,16 @@ package org.jetbrains.java.decompiler.modules.decompiler.stats;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
-import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.AssignmentExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
-import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
+import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.modules.decompiler.DecHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.AssignmentExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
+import org.jetbrains.java.decompiler.util.TextBuffer;
 
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -21,14 +21,9 @@ import java.util.List;
 import java.util.Set;
 
 public final class CatchStatement extends Statement {
-  public static final int NORMAL = 0;
-  public static final int RESOURCES = 1;
-
   private final List<List<String>> exctstrings = new ArrayList<>();
   private final List<VarExprent> vars = new ArrayList<>();
   private final List<Exprent> resources = new ArrayList<>();
-
-  private int tryType;
 
   // *****************************************************************************
   // constructors
@@ -36,7 +31,6 @@ public final class CatchStatement extends Statement {
 
   private CatchStatement() {
     type = TYPE_TRYCATCH;
-    tryType = NORMAL;
   }
 
   private CatchStatement(Statement head, Statement next, Set<Statement> setHandlers) {
@@ -158,7 +152,7 @@ public final class CatchStatement extends Statement {
       buf.appendIndent(indent).append("label").append(this.id.toString()).append(":").appendLineSeparator();
     }
 
-    if (tryType == NORMAL) {
+    if (resources.isEmpty()) {
       buf.appendIndent(indent).append("try {").appendLineSeparator();
     }
     else {
@@ -249,14 +243,6 @@ public final class CatchStatement extends Statement {
 
   public List<VarExprent> getVars() {
     return vars;
-  }
-
-  public int getTryType() {
-    return tryType;
-  }
-
-  public void setTryType(int tryType) {
-    this.tryType = tryType;
   }
 
   public List<Exprent> getResources() {

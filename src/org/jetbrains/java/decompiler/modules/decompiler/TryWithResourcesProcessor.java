@@ -81,7 +81,6 @@ public final class TryWithResourcesProcessor {
             return false;
           }
 
-          child.setTryType(CatchStatement.RESOURCES);
           initBlock.getExprents().remove(ass);
           child.getResources().add(0, resourceDef);
 
@@ -224,9 +223,6 @@ public final class TryWithResourcesProcessor {
       }
 
       edge.getSource().getExprents().remove(assignment);
-
-      // Set the try statement type
-      tryStatement.setTryType(CatchStatement.RESOURCES);
 
       // Add resource assignment to try
       tryStatement.getResources().add(0, assignment);
