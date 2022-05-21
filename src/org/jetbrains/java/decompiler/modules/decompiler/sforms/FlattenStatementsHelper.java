@@ -214,9 +214,9 @@ public class FlattenStatementsHelper {
             nd = graph.nodes.getWithKey(mapDestinationNodes.get(stat.getFirst().id)[0]);
 
             DoStatement dostat = (DoStatement)stat;
-            int looptype = dostat.getLooptype();
+            DoStatement.Type looptype = dostat.getLooptype();
 
-            if (looptype == DoStatement.LOOP_DO) {
+            if (looptype == DoStatement.Type.INFINITE) {
               mapDestinationNodes.put(stat.id, new String[]{nd.id, nd.id});
               break;
             }
@@ -224,15 +224,15 @@ public class FlattenStatementsHelper {
             lstSuccEdges.add(stat.getSuccessorEdges(Statement.STATEDGE_DIRECT_ALL).get(0));  // exactly one edge
 
             switch (looptype) {
-              case DoStatement.LOOP_WHILE:
-              case DoStatement.LOOP_DOWHILE:
+              case WHILE:
+              case DO_WHILE:
                 node = DirectNode.forStat(DirectNode.NodeType.CONDITION, stat);
                 node.exprents = dostat.getConditionExprentList();
                 graph.nodes.putWithKey(node, node.id);
 
                 listEdges.add(new Edge(node.id, stat.getFirst().id, StatEdge.TYPE_REGULAR));
 
-                if (looptype == DoStatement.LOOP_WHILE) {
+                if (looptype == DoStatement.Type.WHILE) {
                   mapDestinationNodes.put(stat.id, new String[]{node.id, node.id});
                 }
                 else {
@@ -251,7 +251,7 @@ public class FlattenStatementsHelper {
                 }
                 sourcenode = node;
                 break;
-              case DoStatement.LOOP_FOR: {
+              case FOR: {
                 DirectNode nodeinit = DirectNode.forStat(DirectNode.NodeType.INIT, stat);
                 if (dostat.getInitExprent() != null) {
                   nodeinit.exprents = dostat.getInitExprentList();
@@ -288,7 +288,7 @@ public class FlattenStatementsHelper {
                 sourcenode = nodecond;
                 break;
               }
-              case DoStatement.LOOP_FOREACH: {
+              case FOR_EACH: {
                 // for (init : inc)
                 //
                 // is essentially

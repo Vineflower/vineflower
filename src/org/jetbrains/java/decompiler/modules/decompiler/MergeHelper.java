@@ -4,14 +4,8 @@ package org.jetbrains.java.decompiler.modules.decompiler;
 import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.ArrayExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.AssignmentExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.IfExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.InvocationExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectNode;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.FlattenStatementsHelper;
@@ -45,10 +39,10 @@ public final class MergeHelper {
   }
 
   private static boolean enhanceLoop(DoStatement stat) {
-    int oldloop = stat.getLooptype();
+    DoStatement.Type oldloop = stat.getLooptype();
 
     switch (oldloop) {
-      case DoStatement.LOOP_DO:
+      case INFINITE:
 
         // identify a while loop
         if (matchWhile(stat)) {
@@ -62,7 +56,7 @@ public final class MergeHelper {
         }
 
         break;
-      case DoStatement.LOOP_WHILE:
+      case WHILE:
         if (!matchForEach(stat)) {
           matchFor(stat);
         }
@@ -100,7 +94,7 @@ public final class MergeHelper {
             return;
           }
 
-          stat.setLooptype(DoStatement.LOOP_DOWHILE);
+          stat.setLooptype(DoStatement.Type.DO_WHILE);
 
           IfExprent ifexpr = (IfExprent)lastif.getHeadexprent().copy();
           if (ifedge.getType() == StatEdge.TYPE_BREAK) {
@@ -184,7 +178,7 @@ public final class MergeHelper {
 
             if (isDirectPath(stat, ifedge.getDestination()) || addContinueOrBreak(stat, ifedge)) {
               // exit condition identified
-              stat.setLooptype(DoStatement.LOOP_WHILE);
+              stat.setLooptype(DoStatement.Type.WHILE);
 
               // negate condition (while header)
               IfExprent ifexpr = (IfExprent)firstif.getHeadexprent().copy();
@@ -241,7 +235,7 @@ public final class MergeHelper {
             }
 
             // exit condition identified
-            stat.setLooptype(DoStatement.LOOP_WHILE);
+            stat.setLooptype(DoStatement.Type.WHILE);
 
             // no need to negate the while condition
             IfExprent ifexpr = (IfExprent)firstif.getHeadexprent().copy();
@@ -452,7 +446,7 @@ public final class MergeHelper {
         }
       }
 
-      stat.setLooptype(DoStatement.LOOP_FOR);
+      stat.setLooptype(DoStatement.Type.FOR);
       if (hasinit) {
         Exprent exp = preData.getExprents().remove(preData.getExprents().size() - 1);
         if (stat.getInitExprent() != null) {
@@ -590,7 +584,7 @@ public final class MergeHelper {
       lastExprent = lastData.getExprents().get(lastData.getExprents().size() - 1);
     }
 
-    if (stat.getLooptype() == DoStatement.LOOP_WHILE && initExprents[0] != null && firstDoExprent != null) {
+    if (stat.getLooptype() == DoStatement.Type.WHILE && initExprents[0] != null && firstDoExprent != null) {
       if (isIteratorCall(initExprents[0].getRight())) {
 
         //Streams mimic Iterable but arnt.. so explicitly disallow their enhancements
@@ -651,7 +645,7 @@ public final class MergeHelper {
           stat.getInitExprent().getBytecodeRange(ass.getLeft().bytecode);
         }
 
-        stat.setLooptype(DoStatement.LOOP_FOREACH);
+        stat.setLooptype(DoStatement.Type.FOR_EACH);
         stat.setInitExprent(ass.getLeft());
         stat.setIncExprent(holder.getInstance());
         preData.getExprents().remove(initExprents[0]);
@@ -732,7 +726,7 @@ public final class MergeHelper {
         firstDoExprent.getLeft().addBytecodeOffsets(firstDoExprent.bytecode);
         firstDoExprent.getLeft().addBytecodeOffsets(initExprents[0].bytecode);
 
-        stat.setLooptype(DoStatement.LOOP_FOREACH);
+        stat.setLooptype(DoStatement.Type.FOR_EACH);
         stat.setInitExprent(firstDoExprent.getLeft());
         stat.setIncExprent(funcRight.getLstOperands().get(0));
         preData.getExprents().remove(initExprents[0]);
@@ -928,9 +922,9 @@ public final class MergeHelper {
 
     if (stat.type == Statement.TYPE_DO) {
       DoStatement dostat = (DoStatement)stat;
-      if (dostat.getLooptype() == DoStatement.LOOP_DO) {
+      if (dostat.getLooptype() == DoStatement.Type.INFINITE) {
         matchDoWhile(dostat);
-        if (dostat.getLooptype() != DoStatement.LOOP_DO) {
+        if (dostat.getLooptype() != DoStatement.Type.INFINITE) {
           ret = true;
           ValidationHelper.validateStatement((RootStatement) stat.getTopParent());
         }
@@ -946,7 +940,7 @@ public final class MergeHelper {
       outer = outer.getParent();
     }
 
-    if (outer != null && (outer.type == Statement.TYPE_SWITCH || ((DoStatement)outer).getLooptype() != DoStatement.LOOP_DO)) {
+    if (outer != null && (outer.type == Statement.TYPE_SWITCH || ((DoStatement)outer).getLooptype() != DoStatement.Type.INFINITE)) {
       Statement parent = stat.getParent();
       if (parent.type != Statement.TYPE_SEQUENCE || parent.getStats().getLast().equals(stat)) {
         // need to insert a break or continue after the loop
@@ -995,7 +989,7 @@ public final class MergeHelper {
     if (stat.type == Statement.TYPE_DO) {
       DoStatement loop = (DoStatement)stat;
 
-      if (loop.getLooptype() == DoStatement.LOOP_DO) {
+      if (loop.getLooptype() == DoStatement.Type.INFINITE) {
         res = condenseLoop(loop);
       }
     }
@@ -1097,7 +1091,7 @@ public final class MergeHelper {
               stat.setAllParent();
 
               // while(true) -> while (...)
-              stat.setLooptype(DoStatement.LOOP_WHILE);
+              stat.setLooptype(DoStatement.Type.WHILE);
 
               // No negation needed
               stat.setConditionExprent(((IfStatement)firstBody).getHeadexprent().getCondition());

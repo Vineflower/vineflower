@@ -137,7 +137,7 @@ public class VarDefinitionHelper {
       // special case for
       if (stat.type == Statement.TYPE_DO) {
         DoStatement dstat = (DoStatement)stat;
-        if (dstat.getLooptype() == DoStatement.LOOP_FOR) {
+        if (dstat.getLooptype() == DoStatement.Type.FOR) {
 
           if (dstat.getInitExprent() != null && setDefinition(dstat.getInitExprent(), index)) {
             continue;
@@ -152,7 +152,7 @@ public class VarDefinitionHelper {
             }
           }
         }
-        else if (dstat.getLooptype() == DoStatement.LOOP_FOREACH) {
+        else if (dstat.getLooptype() == DoStatement.Type.FOR_EACH) {
           if (dstat.getInitExprent() != null && dstat.getInitExprent().type == Exprent.EXPRENT_VAR) {
             VarExprent var = (VarExprent)dstat.getInitExprent();
             if (var.getIndex() == index) {
@@ -327,9 +327,9 @@ public class VarDefinitionHelper {
 
           if (st.type == DoStatement.TYPE_DO) {
             DoStatement dost = (DoStatement)st;
-            if (dost.getLooptype() != DoStatement.LOOP_FOR &&
-                dost.getLooptype() != DoStatement.LOOP_FOREACH &&
-                dost.getLooptype() != DoStatement.LOOP_DO) {
+            if (dost.getLooptype() != DoStatement.Type.FOR &&
+                dost.getLooptype() != DoStatement.Type.FOR_EACH &&
+                dost.getLooptype() != DoStatement.Type.INFINITE) {
               currVars.add(dost.getConditionExprent());
             }
           }

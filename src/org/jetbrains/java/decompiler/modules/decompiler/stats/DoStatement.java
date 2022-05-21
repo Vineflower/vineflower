@@ -14,14 +14,11 @@ import java.util.List;
 
 // Loop statement
 public final class DoStatement extends Statement {
+  public enum Type {
+    INFINITE, DO_WHILE, WHILE, FOR, FOR_EACH
+  }
 
-  public static final int LOOP_DO = 0; // Infinite loop, while (true) {...}
-  public static final int LOOP_DOWHILE = 1;
-  public static final int LOOP_WHILE = 2;
-  public static final int LOOP_FOR = 3;
-  public static final int LOOP_FOREACH = 4;
-
-  private int looptype;
+  private Type looptype;
 
   private final List<Exprent> initExprent = new ArrayList<>();
   private final List<Exprent> conditionExprent = new ArrayList<>();
@@ -33,7 +30,7 @@ public final class DoStatement extends Statement {
 
   private DoStatement() {
     type = Statement.TYPE_DO;
-    looptype = LOOP_DO;
+    looptype = Type.INFINITE;
 
     initExprent.add(null);
     conditionExprent.add(null);
@@ -91,12 +88,12 @@ public final class DoStatement extends Statement {
     }
 
     switch (looptype) {
-      case LOOP_DO:
+      case INFINITE:
         buf.appendIndent(indent).append("while(true) {").appendLineSeparator();
         buf.append(ExprProcessor.jmpWrapper(first, indent + 1, false));
         buf.appendIndent(indent).append("}").appendLineSeparator();
         break;
-      case LOOP_DOWHILE:
+      case DO_WHILE:
         buf.appendIndent(indent).append("do {").appendLineSeparator();
         buf.append(ExprProcessor.jmpWrapper(first, indent + 1, false));
         buf.appendIndent(indent).append("} while(");
@@ -107,7 +104,7 @@ public final class DoStatement extends Statement {
         buf.popNewlineGroup();
         buf.append(");").appendLineSeparator();
         break;
-      case LOOP_WHILE:
+      case WHILE:
         buf.appendIndent(indent).append("while(");
         buf.pushNewlineGroup(indent, 1);
         buf.appendPossibleNewline();
@@ -118,7 +115,7 @@ public final class DoStatement extends Statement {
         buf.append(ExprProcessor.jmpWrapper(first, indent + 1, false));
         buf.appendIndent(indent).append("}").appendLineSeparator();
         break;
-      case LOOP_FOR:
+      case FOR:
         buf.appendIndent(indent);
         buf.pushNewlineGroup(indent, 1);
         buf.append("for(");
@@ -134,7 +131,7 @@ public final class DoStatement extends Statement {
         buf.append(ExprProcessor.jmpWrapper(first, indent + 1, false));
         buf.appendIndent(indent).append("}").appendLineSeparator();
         break;
-      case LOOP_FOREACH:
+      case FOR_EACH:
         buf.appendIndent(indent).append("for(").append(initExprent.get(0).toJava(indent));
         incExprent.get(0).getInferredExprType(null); //TODO: Find a better then null? For now just calls it to clear casts if needed
         buf.append(" : ").append(incExprent.get(0).toJava(indent)).append(") {").appendLineSeparator();
@@ -151,14 +148,14 @@ public final class DoStatement extends Statement {
     List<Object> lst = new ArrayList<>();
 
     switch (looptype) {
-      case LOOP_FOR:
+      case FOR:
         if (getInitExprent() != null) {
           lst.add(getInitExprent());
         }
-      case LOOP_WHILE:
+      case WHILE:
         lst.add(getConditionExprent());
         break;
-      case LOOP_FOREACH:
+      case FOR_EACH:
         lst.add(getInitExprent());
         lst.add(getIncExprent());
     }
@@ -166,10 +163,10 @@ public final class DoStatement extends Statement {
     lst.add(first);
 
     switch (looptype) {
-      case LOOP_DOWHILE:
+      case DO_WHILE:
         lst.add(getConditionExprent());
         break;
-      case LOOP_FOR:
+      case FOR:
         lst.add(getIncExprent());
     }
 
@@ -194,7 +191,7 @@ public final class DoStatement extends Statement {
     List<VarExprent> vars = new ArrayList<>();
 
     // Impossible in foreach loops, and quit if condition doesn't exist
-    if (looptype == LOOP_FOREACH || getConditionExprent() == null) {
+    if (looptype == Type.FOR_EACH || getConditionExprent() == null) {
       return null;
     }
 
@@ -259,11 +256,11 @@ public final class DoStatement extends Statement {
     this.initExprent.set(0, initExprent);
   }
 
-  public int getLooptype() {
+  public Type getLooptype() {
     return looptype;
   }
 
-  public void setLooptype(int looptype) {
+  public void setLooptype(Type looptype) {
     this.looptype = looptype;
   }
 }
