@@ -63,7 +63,7 @@ public final class LoopExtractHelper {
   }
 
   private static boolean extractLoop(DoStatement stat) {
-    if (stat.getLooptype() != DoStatement.LOOP_DO) {
+    if (stat.getLooptype() != DoStatement.Type.INFINITE) {
       return false;
     }
 
@@ -121,7 +121,7 @@ public final class LoopExtractHelper {
               while (first.type == Statement.TYPE_SEQUENCE) {
                 first = first.getFirst();
               }
-              if (first.type == Statement.TYPE_DO && ((DoStatement)first).getLooptype() == DoStatement.LOOP_DO) {
+              if (first.type == Statement.TYPE_DO && ((DoStatement)first).getLooptype() == DoStatement.Type.INFINITE) {
                 return false;
               }
 

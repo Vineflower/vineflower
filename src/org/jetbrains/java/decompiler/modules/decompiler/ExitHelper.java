@@ -215,7 +215,7 @@ public final class ExitHelper {
 
           if (source.type == Statement.TYPE_BASICBLOCK || (source.type == Statement.TYPE_IF &&
                                                            ((IfStatement)source).iftype == IfStatement.IFTYPE_IF) ||
-              (source.type == Statement.TYPE_DO && ((DoStatement)source).getLooptype() != DoStatement.LOOP_DO)) {
+              (source.type == Statement.TYPE_DO && ((DoStatement)source).getLooptype() != DoStatement.Type.INFINITE)) {
             return false;
           }
         }

@@ -98,9 +98,9 @@ public final class LabelHelper {
     boolean ok = (stat.type != Statement.TYPE_DO);
     if (!ok) {
       DoStatement dostat = (DoStatement)stat;
-      ok = dostat.getLooptype() == DoStatement.LOOP_DO ||
-           dostat.getLooptype() == DoStatement.LOOP_WHILE ||
-           (dostat.getLooptype() == DoStatement.LOOP_FOR && dostat.getIncExprent() == null);
+      ok = dostat.getLooptype() == DoStatement.Type.INFINITE ||
+           dostat.getLooptype() == DoStatement.Type.WHILE ||
+           (dostat.getLooptype() == DoStatement.Type.FOR && dostat.getIncExprent() == null);
     }
 
     if (ok) {
@@ -358,7 +358,7 @@ public final class LabelHelper {
     }
 
     // no next for a do statement
-    if (stat.type == Statement.TYPE_DO && ((DoStatement)stat).getLooptype() == DoStatement.LOOP_DO) {
+    if (stat.type == Statement.TYPE_DO && ((DoStatement)stat).getLooptype() == DoStatement.Type.INFINITE) {
       next = null;
     }
 

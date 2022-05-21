@@ -5,11 +5,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.stats.DoStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.struct.StructClass;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -50,7 +46,7 @@ public class EliminateLoopsHelper {
 
   private static boolean isLoopRedundant(DoStatement loop) {
 
-    if (loop.getLooptype() != DoStatement.LOOP_DO) {
+    if (loop.getLooptype() != DoStatement.Type.INFINITE) {
       return false;
     }
 

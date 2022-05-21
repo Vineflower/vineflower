@@ -212,10 +212,10 @@ public class StackVarsProcessor {
         if (nd.statement.type == Statement.TYPE_DO) {
           DoStatement loop = (DoStatement)nd.statement;
 
-          if (loop.getLooptype() == DoStatement.LOOP_FOR &&
+          if (loop.getLooptype() == DoStatement.Type.FOR &&
               loop.getInitExprent() == null &&
               loop.getIncExprent() == null) { // "downgrade" loop to 'while'
-            loop.setLooptype(DoStatement.LOOP_WHILE);
+            loop.setLooptype(DoStatement.Type.WHILE);
           }
         }
       }
