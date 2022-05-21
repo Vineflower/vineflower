@@ -1,17 +1,14 @@
 package org.jetbrains.java.decompiler.modules.decompiler;
 
+import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.CatchAllStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.CatchStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.struct.StructClass;
-import org.jetbrains.java.decompiler.util.DotExporter;
-import org.jetbrains.java.decompiler.util.StartEndPair;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class TryHelper {
   public static boolean enhanceTryStats(RootStatement root, StructClass cl) {
@@ -102,15 +99,15 @@ public class TryHelper {
     // Check if the inner statement is a try statement
     if (inner.type == Statement.TYPE_TRYCATCH) {
       // Filter on try with resources statements
-      if (((CatchStatement)inner).getTryType() == CatchStatement.RESOURCES) {
+      List<Exprent> resources = ((CatchStatement) inner).getResources();
+      if (!resources.isEmpty()) {
         // One try inside of the catch
 
         // Only merge trys that have an inner statement size of 1, a single block
         // TODO: how does this handle nested nullable try stats?
         if (inner.getStats().size() == 1) {
           // Set the outer try to be resources, and initialize
-          stat.setTryType(CatchStatement.RESOURCES);
-          stat.getResources().addAll(((CatchStatement)inner).getResources());
+          stat.getResources().addAll(resources);
           stat.getVarDefinitions().addAll(inner.getVarDefinitions());
 
           // Get inner block of inner try stat
@@ -165,9 +162,9 @@ public class TryHelper {
     if (parent != null && parent.getFirst() != null && parent.getFirst().type == Statement.TYPE_TRYCATCH) {
       CatchStatement toRemove = (CatchStatement)parent.getFirst();
 
-      if (toRemove.getTryType() == CatchStatement.RESOURCES) {
-        catchStat.setTryType(CatchStatement.RESOURCES);
-        catchStat.getResources().addAll(toRemove.getResources());
+      List<Exprent> resources = toRemove.getResources();
+      if (!resources.isEmpty()) {
+        catchStat.getResources().addAll(resources);
 
         catchStat.getVarDefinitions().addAll(toRemove.getVarDefinitions());
         parent.replaceStatement(toRemove, toRemove.getFirst());
