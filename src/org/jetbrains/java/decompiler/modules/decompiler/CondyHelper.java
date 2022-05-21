@@ -100,19 +100,23 @@ public class CondyHelper {
 
   private static Exprent constructVarHandle(String fieldName, String fieldOwner, PooledConstant fieldType, boolean isStatic) {
     // MethodHandles.lookup().find[Static]VarHandle(fieldOwner.class, fieldName, fieldType.class)
-    // with comment
     Exprent lookupExprent = constructLookupExprent();
     VarType ownerClassClass = new VarType(fieldOwner, false);
     Exprent ownerClassConst = new ConstExprent(VarType.VARTYPE_CLASS, ExprProcessor.getCastTypeName(ownerClassClass), null);
     Exprent fieldNameConst = new ConstExprent(VarType.VARTYPE_STRING, fieldName, null);
-    Exprent fieldTypeConst;
-    if (fieldType instanceof PrimitiveConstant) {
-      VarType fieldTypeClass = new VarType(((PrimitiveConstant) fieldType).getString(), false);
-      fieldTypeConst = new ConstExprent(VarType.VARTYPE_CLASS, ExprProcessor.getCastTypeName(fieldTypeClass), null);
-    } else {
-      fieldTypeConst = toCondyExprent((LinkConstant) fieldType);
-    }
+    Exprent fieldTypeConst = toClassExprent(fieldType);
     return constructFindVarHandleExprent(isStatic, lookupExprent, ownerClassConst, fieldNameConst, fieldTypeConst);
+  }
+
+  private static Exprent toClassExprent(PooledConstant constant) {
+    Exprent constExpr;
+    if (constant instanceof PrimitiveConstant) {
+      VarType fieldTypeClass = new VarType(((PrimitiveConstant) constant).getString(), false);
+      constExpr = new ConstExprent(VarType.VARTYPE_CLASS, ExprProcessor.getCastTypeName(fieldTypeClass), null);
+    } else {
+      constExpr = toCondyExprent((LinkConstant) constant);
+    }
+    return constExpr;
   }
 
   private static Exprent toCondyExprent(LinkConstant fieldType) {
@@ -169,13 +173,7 @@ public class CondyHelper {
     exprent.setDescriptor(MethodDescriptor.parseDescriptor(desc));
     exprent.setFunctype(InvocationExprent.TYP_GENERAL);
     exprent.setStatic(true);
-    Exprent classExpr;
-    if (classConst instanceof PrimitiveConstant) {
-      VarType fieldTypeClass = new VarType(((PrimitiveConstant) classConst).getString(), false);
-      classExpr = new ConstExprent(VarType.VARTYPE_CLASS, ExprProcessor.getCastTypeName(fieldTypeClass), null);
-    } else {
-      classExpr = toCondyExprent((LinkConstant) classConst);
-    }
+    Exprent classExpr = toClassExprent(classConst);
     exprent.setLstParameters(Collections.singletonList(classExpr));
     return exprent.markWasLazyCondy();
   }
