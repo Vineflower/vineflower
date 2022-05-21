@@ -1,11 +1,15 @@
 package org.jetbrains.java.decompiler.modules.decompiler;
 
+import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.ConstExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FieldExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.InvocationExprent;
+import org.jetbrains.java.decompiler.struct.StructClass;
+import org.jetbrains.java.decompiler.struct.attr.StructBootstrapMethodsAttribute;
+import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
 import org.jetbrains.java.decompiler.struct.consts.LinkConstant;
 import org.jetbrains.java.decompiler.struct.consts.PooledConstant;
 import org.jetbrains.java.decompiler.struct.consts.PrimitiveConstant;
@@ -35,14 +39,14 @@ public class CondyHelper {
     switch (method.elementname) {
       case "nullConstant":
         // TODO: include target type?
-        return new ConstExprent(VarType.VARTYPE_NULL, null, null).markWasCondy();
+        return new ConstExprent(VarType.VARTYPE_NULL, null, null).setWasCondy(true);
       case "primitiveClass":
         String desc = condyExpr.getName();
         if (desc.length() != 1 || !("ZCBSIJFDV".contains(desc))) {
           break;
         }
         VarType type = new VarType(desc, false);
-        return new ConstExprent(VarType.VARTYPE_CLASS, ExprProcessor.getCastTypeName(type), null).markWasCondy();
+        return new ConstExprent(VarType.VARTYPE_CLASS, ExprProcessor.getCastTypeName(type), null).setWasCondy(true);
       case "enumConstant":
         String typeName = condyExpr.getExprType().value;
         return new FieldExprent(condyExpr.getName(), typeName, true, null, FieldDescriptor.parseDescriptor("L" + typeName + ";"), null, false, true);
@@ -73,27 +77,50 @@ public class CondyHelper {
         boolean isStatic = method.elementname.startsWith("static");
         List<PooledConstant> constArgs = condyExpr.getBootstrapArguments();
         String fieldName = condyExpr.getName();
-        if(constArgs.size() != 2 || !(constArgs.get(0) instanceof PrimitiveConstant) || !(constArgs.get(1) instanceof PrimitiveConstant)) {
+        if(constArgs.size() != 2 || !(constArgs.get(0) instanceof PrimitiveConstant)) {
           return condyExpr;
         }
-        String ownerClass = ((PrimitiveConstant) constArgs.get(0)).value.toString();
-        String fieldType = ((PrimitiveConstant) constArgs.get(1)).value.toString();
-        return constructVarHandle(fieldName, ownerClass, fieldType, isStatic);
+        String ownerClass = ((PrimitiveConstant) constArgs.get(0)).getString();
+        return constructVarHandle(fieldName, ownerClass, constArgs.get(1), isStatic);
       }
     }
     return condyExpr;
   }
 
-  private static Exprent constructVarHandle(String fieldName, String fieldOwner, String fieldType, boolean isStatic) {
+  private static Exprent constructVarHandle(String fieldName, String fieldOwner, PooledConstant fieldType, boolean isStatic) {
     // MethodHandles.lookup().find[Static]VarHandle(fieldOwner.class, fieldName, fieldType.class)
     // with comment
     Exprent lookupExprent = constructLookupExprent();
     VarType ownerClassClass = new VarType(fieldOwner, false);
     Exprent ownerClassConst = new ConstExprent(VarType.VARTYPE_CLASS, ExprProcessor.getCastTypeName(ownerClassClass), null);
-    VarType fieldTypeClass = new VarType(fieldType, false);
-    Exprent fieldTypeConst = new ConstExprent(VarType.VARTYPE_CLASS, ExprProcessor.getCastTypeName(fieldTypeClass), null);
     Exprent fieldNameConst = new ConstExprent(VarType.VARTYPE_STRING, fieldName, null);
+    Exprent fieldTypeConst;
+    if (fieldType instanceof PrimitiveConstant) {
+      VarType fieldTypeClass = new VarType(((PrimitiveConstant) fieldType).getString(), false);
+      fieldTypeConst = new ConstExprent(VarType.VARTYPE_CLASS, ExprProcessor.getCastTypeName(fieldTypeClass), null);
+    } else {
+      fieldTypeConst = toCondyExprent((LinkConstant) fieldType);
+    }
     return constructFindVarHandleExprent(isStatic, lookupExprent, ownerClassConst, fieldNameConst, fieldTypeConst);
+  }
+
+  private static Exprent toCondyExprent(LinkConstant fieldType) {
+    Exprent fieldTypeConst;
+    // TODO: is this correct in non-trivial cases?
+    StructClass cl = (StructClass)DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS);
+    StructBootstrapMethodsAttribute bootstrap = cl.getAttribute(StructGeneralAttribute.ATTRIBUTE_BOOTSTRAP_METHODS);
+    LinkConstant bootstrapMethod = null;
+    List<PooledConstant> constArgs = null;
+    if (bootstrap != null) {
+      bootstrapMethod = bootstrap.getMethodReference(fieldType.index1);
+      constArgs = bootstrap.getMethodArguments(fieldType.index1);
+    }
+    InvocationExprent arg = new InvocationExprent(CodeConstants.opc_ldc, fieldType, bootstrapMethod, constArgs, null, null);
+    fieldTypeConst = simplifyCondy(arg);
+    if (fieldTypeConst instanceof ConstExprent) {
+      ((ConstExprent) fieldTypeConst).setWasCondy(false); // comment is redundant
+    }
+    return fieldTypeConst;
   }
 
   private static InvocationExprent constructLookupExprent() {

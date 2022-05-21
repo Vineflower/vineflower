@@ -539,8 +539,8 @@ public class ConstExprent extends Exprent {
     measureBytecode(values);
   }
 
-  public ConstExprent markWasCondy() {
-    wasCondy = true;
+  public ConstExprent setWasCondy(boolean wasCondy) {
+    this.wasCondy = wasCondy;
     return this;
   }
 

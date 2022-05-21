@@ -1,0 +1,46 @@
+package pkg;
+
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.VarHandle;
+
+public class TestComplexCondy {
+   public static Integer field = 1;
+   public Integer instance;
+   public int primitive;
+
+   public static VarHandle testVarHandle() {
+      return /* $QF: constant dynamic replaced with non-lazy method call */ MethodHandles.lookup().findVarHandle(TestCondy.class, "instance", Integer.class);// 26
+   }
+
+   public static VarHandle testStaticVarHandle() {
+      return /* $QF: constant dynamic replaced with non-lazy method call */ MethodHandles.lookup()// 36
+         .findStaticVarHandle(TestCondy.class, "field", Integer.class);
+   }
+
+   public static VarHandle testPrimitiveVarHandle() {
+      return /* $QF: constant dynamic replaced with non-lazy method call */ MethodHandles.lookup().findVarHandle(TestCondy.class, "primitive", int.class);// 46
+   }
+}
+
+class 'pkg/TestComplexCondy' {
+   method 'testVarHandle ()Ljava/lang/invoke/VarHandle;' {
+      2      11
+   }
+
+   method 'testStaticVarHandle ()Ljava/lang/invoke/VarHandle;' {
+      2      15
+   }
+
+   method 'testPrimitiveVarHandle ()Ljava/lang/invoke/VarHandle;' {
+      2      20
+   }
+}
+
+Lines mapping:
+26 <-> 12
+36 <-> 16
+46 <-> 21
+Not mapped:
+22
+32
+42

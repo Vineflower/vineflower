@@ -794,6 +794,7 @@ public class InvocationExprent extends Exprent {
         buf.append(stringValue);
       }
     } else if (arg instanceof LinkConstant) {
+      // TODO: errors trying to print condy as const arg
       VarType cls = new VarType(((LinkConstant) arg).classname);
       buf.append(ExprProcessor.getCastTypeName(cls)).append("::").append(((LinkConstant) arg).elementname);
     }

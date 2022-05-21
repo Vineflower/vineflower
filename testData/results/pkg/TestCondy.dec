@@ -34,7 +34,7 @@ public class TestCondy {
    }
 
    public static VarHandle testStaticVarHandle() {
-      return (VarHandle)ConstantBootstraps.staticFieldVarHandle<"field",TestCondy,VarHandle>();// 68 72
+      return (VarHandle)ConstantBootstraps.staticFieldVarHandle<"field",TestCondy,Integer>();// 68 72
    }
 
    public static StandardOpenOption test(int var0) {
