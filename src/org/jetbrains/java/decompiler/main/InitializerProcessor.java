@@ -114,7 +114,7 @@ public final class InitializerProcessor {
               VarType type = invExpr.getDescriptor().params[i];
               if (type.type == CodeConstants.TYPE_OBJECT) {
                 ClassNode node = DecompilerContext.getClassProcessor().getMapRootClasses().get(type.value);
-                if (node != null && (node.type == ClassNode.CLASS_ANONYMOUS || (node.access & CodeConstants.ACC_SYNTHETIC) != 0)) {
+                if (node != null && (node.type == ClassNode.Type.ANONYMOUS || (node.access & CodeConstants.ACC_SYNTHETIC) != 0)) {
                   break; // Should be last
                 }
               }
@@ -144,7 +144,7 @@ public final class InitializerProcessor {
           VarType type = md.params[md.params.length - 1];
           if (type.type == CodeConstants.TYPE_OBJECT) {
             ClassNode node = DecompilerContext.getClassProcessor().getMapRootClasses().get(type.value);
-            if (node != null && ((node.type == ClassNode.CLASS_ANONYMOUS) || (node.access & CodeConstants.ACC_SYNTHETIC) != 0)) {
+            if (node != null && ((node.type == ClassNode.Type.ANONYMOUS) || (node.access & CodeConstants.ACC_SYNTHETIC) != 0)) {
               //TODO: Verify that the body is JUST a this([args]) call?
               wrapper.getHiddenMembers().add(InterpreterUtil.makeUniqueKey(name, desc));
             }
@@ -269,7 +269,7 @@ public final class InitializerProcessor {
   private static void extractDynamicInitializers(ClassWrapper wrapper) {
     StructClass cl = wrapper.getClassStruct();
 
-    boolean isAnonymous = DecompilerContext.getClassProcessor().getMapRootClasses().get(cl.qualifiedName).type == ClassNode.CLASS_ANONYMOUS;
+    boolean isAnonymous = DecompilerContext.getClassProcessor().getMapRootClasses().get(cl.qualifiedName).type == ClassNode.Type.ANONYMOUS;
 
     List<List<Exprent>> lstFirst = new ArrayList<>();
     List<MethodWrapper> lstMethodWrappers = new ArrayList<>();
