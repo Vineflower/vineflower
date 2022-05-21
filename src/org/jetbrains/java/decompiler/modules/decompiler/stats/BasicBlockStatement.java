@@ -45,10 +45,10 @@ public final class BasicBlockStatement extends Statement {
     Instruction instr = block.getLastInstruction();
     if (instr != null) {
       if (instr.group == CodeConstants.GROUP_JUMP && instr.opcode != CodeConstants.opc_goto) {
-        lastBasicType = LASTBASICTYPE_IF;
+        lastBasicType = LastBasicType.IF;
       }
       else if (instr.group == CodeConstants.GROUP_SWITCH) {
-        lastBasicType = LASTBASICTYPE_SWITCH;
+        lastBasicType = LastBasicType.SWITCH;
       }
     }
 
