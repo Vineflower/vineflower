@@ -8,6 +8,7 @@ import org.jetbrains.java.decompiler.main.collectors.VarNamesCollector;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
+import org.jetbrains.java.decompiler.modules.decompiler.vars.VarTypeProcessor.FinalType;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribute.LocalVariable;
@@ -1193,7 +1194,7 @@ public class VarDefinitionHelper {
     }
 
     if (var != null && !var.isDefinition() && !unInitialized.remove(var.getVarVersionPair())) {
-      var.getProcessor().setVarFinal(var.getVarVersionPair(), VarTypeProcessor.VAR_NON_FINAL);
+      var.getProcessor().setVarFinal(var.getVarVersionPair(), FinalType.NON_FINAL);
     }
 
     for (Exprent ex : exp.getAllExprents()) {

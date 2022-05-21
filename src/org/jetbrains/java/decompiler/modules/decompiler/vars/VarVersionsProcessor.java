@@ -11,6 +11,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.FlattenStatementsHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.SSAConstructorSparseEx;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
+import org.jetbrains.java.decompiler.modules.decompiler.vars.VarTypeProcessor.FinalType;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
@@ -192,7 +193,7 @@ public class VarVersionsProcessor {
                 firstType = secondType;
               }
 
-              typeProcessor.getMapFinalVars().put(firstPair, VarTypeProcessor.VAR_NON_FINAL);
+              typeProcessor.getMapFinalVars().put(firstPair, FinalType.NON_FINAL);
 
               lstVersions.remove(j);
               //noinspection AssignmentToForLoopParameter
@@ -211,7 +212,7 @@ public class VarVersionsProcessor {
   private void setNewVarIndices(VarTypeProcessor typeProcessor, DirectGraph graph, VarVersionsProcessor previousVersionsProcessor) {
     final Map<VarVersionPair, VarType> mapExprentMaxTypes = typeProcessor.getMapExprentMaxTypes();
     Map<VarVersionPair, VarType> mapExprentMinTypes = typeProcessor.getMapExprentMinTypes();
-    Map<VarVersionPair, Integer> mapFinalVars = typeProcessor.getMapFinalVars();
+    Map<VarVersionPair, FinalType> mapFinalVars = typeProcessor.getMapFinalVars();
 
     CounterContainer counters = DecompilerContext.getCounterContainer();
 
@@ -290,12 +291,12 @@ public class VarVersionsProcessor {
     typeProcessor.setVarType(pair, type);
   }
 
-  public int getVarFinal(VarVersionPair pair) {
-    Integer fin = typeProcessor.getMapFinalVars().get(pair);
-    return fin == null ? VarTypeProcessor.VAR_FINAL : fin;
+  public FinalType getVarFinal(VarVersionPair pair) {
+    FinalType fin = typeProcessor.getMapFinalVars().get(pair);
+    return fin == null ? FinalType.FINAL : fin;
   }
 
-  public void setVarFinal(VarVersionPair pair, int finalType) {
+  public void setVarFinal(VarVersionPair pair, FinalType finalType) {
     typeProcessor.getMapFinalVars().put(pair, finalType);
   }
 
