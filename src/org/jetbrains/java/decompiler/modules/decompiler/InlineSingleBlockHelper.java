@@ -2,6 +2,7 @@
 package org.jetbrains.java.decompiler.modules.decompiler;
 
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement.EdgeDirection;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -89,7 +90,7 @@ public final class InlineSingleBlockHelper {
       for (StatEdge prededge : block.getPredecessorEdges(StatEdge.TYPE_CONTINUE)) {
 
         block.removePredecessor(prededge);
-        prededge.getSource().changeEdgeNode(Statement.DIRECTION_FORWARD, prededge, source);
+        prededge.getSource().changeEdgeNode(EdgeDirection.FORWARD, prededge, source);
         source.addPredecessor(prededge);
 
         source.addLabeledEdge(prededge);

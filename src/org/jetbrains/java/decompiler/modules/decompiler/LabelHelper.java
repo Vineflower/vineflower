@@ -3,6 +3,7 @@ package org.jetbrains.java.decompiler.modules.decompiler;
 
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement.EdgeDirection;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -112,7 +113,7 @@ public final class LabelHelper {
         if (stat.containsStatementStrict(edge.getSource())) {
 
           edge.getDestination().removePredecessor(edge);
-          edge.getSource().changeEdgeNode(Statement.DIRECTION_FORWARD, edge, stat);
+          edge.getSource().changeEdgeNode(EdgeDirection.FORWARD, edge, stat);
           stat.addPredecessor(edge);
 
           stat.addLabeledEdge(edge);
@@ -578,7 +579,7 @@ public final class LabelHelper {
 
             if (minclosure != edge.closure && !InlineSingleBlockHelper.isBreakEdgeLabeled(edge.getSource(), minclosure)) {
               // Continue -> Break
-              edge.getSource().changeEdgeType(Statement.DIRECTION_FORWARD, edge, StatEdge.TYPE_BREAK);
+              edge.getSource().changeEdgeType(EdgeDirection.FORWARD, edge, StatEdge.TYPE_BREAK);
               // No more label
               edge.labeled = false;
               // Add labeled edge to the closure
@@ -598,7 +599,7 @@ public final class LabelHelper {
               // Because the statement structure is inconsistent at this point we can't consider the actual break edges
               if (getEnclosingShieldType(enclosing.getParent()) == minclosure) {
                 // Continue -> Break
-                edge.getSource().changeEdgeType(Statement.DIRECTION_FORWARD, edge, StatEdge.TYPE_BREAK);
+                edge.getSource().changeEdgeType(EdgeDirection.FORWARD, edge, StatEdge.TYPE_BREAK);
                 // No more label
                 edge.labeled = false;
                 edge.phantomContinue = true;

@@ -10,6 +10,7 @@ import org.jetbrains.java.decompiler.main.rels.MethodProcessorRunnable;
 import org.jetbrains.java.decompiler.modules.decompiler.decompose.FastExtendedPostdominanceHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.deobfuscator.IrreducibleCFGDeobfuscator;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement.EdgeDirection;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.util.DotExporter;
 import org.jetbrains.java.decompiler.util.FastFixedSetFactory;
@@ -132,7 +133,7 @@ public final class DomHelper {
         FastFixedSet<Statement> doms = lists.get(stat);
         FastFixedSet<Statement> domsSuccs = factory.createEmptySet();
 
-        List<Statement> successors = stat.getNeighbours(StatEdge.TYPE_REGULAR, Statement.DIRECTION_FORWARD);
+        List<Statement> successors = stat.getNeighbours(StatEdge.TYPE_REGULAR, EdgeDirection.FORWARD);
 
         for (int j = 0; j < successors.size(); j++) {
           Statement succ = successors.get(j);
@@ -155,7 +156,7 @@ public final class DomHelper {
 
           lists.put(stat, domsSuccs);
 
-          List<Statement> lstPreds = stat.getNeighbours(StatEdge.TYPE_REGULAR, Statement.DIRECTION_BACKWARD);
+          List<Statement> lstPreds = stat.getNeighbours(StatEdge.TYPE_REGULAR, EdgeDirection.BACKWARD);
           for (Statement pred : lstPreds) {
             setFlagNodes.add(pred);
           }
@@ -272,7 +273,7 @@ public final class DomHelper {
 
                 for (StatEdge edge : current.getPredecessorEdges(Statement.STATEDGE_DIRECT_ALL)) {
                   current.removePredecessor(edge);
-                  edge.getSource().changeEdgeNode(Statement.DIRECTION_FORWARD, edge, nextDirect);
+                  edge.getSource().changeEdgeNode(EdgeDirection.FORWARD, edge, nextDirect);
                   nextDirect.addPredecessor(edge);
                 }
 
@@ -516,7 +517,7 @@ public final class DomHelper {
 
             boolean addHandler = (setNodes.size() == 0); // first handler == head
             if (!addHandler) {
-              List<Statement> hdsupp = handler.getNeighbours(StatEdge.TYPE_EXCEPTION, Statement.DIRECTION_BACKWARD);
+              List<Statement> hdsupp = handler.getNeighbours(StatEdge.TYPE_EXCEPTION, EdgeDirection.BACKWARD);
               addHandler = (setNodes.containsAll(hdsupp) && (setNodes.size() > hdsupp.size()
                                                         || setNodes.size() == 1)); // strict subset
             }
@@ -532,14 +533,14 @@ public final class DomHelper {
                   setNodes.add(st);
                   if (st != head) {
                     // record predeccessors except for the head
-                    setPreds.addAll(st.getNeighbours(StatEdge.TYPE_REGULAR, Statement.DIRECTION_BACKWARD));
+                    setPreds.addAll(st.getNeighbours(StatEdge.TYPE_REGULAR, EdgeDirection.BACKWARD));
                   }
 
                   // put successors on the stack
-                  lstStack.addAll(st.getNeighbours(StatEdge.TYPE_REGULAR, Statement.DIRECTION_FORWARD));
+                  lstStack.addAll(st.getNeighbours(StatEdge.TYPE_REGULAR, EdgeDirection.FORWARD));
 
                   // exception edges
-                  setHandlers.addAll(st.getNeighbours(StatEdge.TYPE_EXCEPTION, Statement.DIRECTION_FORWARD));
+                  setHandlers.addAll(st.getNeighbours(StatEdge.TYPE_EXCEPTION, EdgeDirection.FORWARD));
                 }
               }
 
@@ -557,13 +558,13 @@ public final class DomHelper {
         // check exception handlers
         setHandlers.clear();
         for (Statement st : setNodes) {
-          setHandlers.addAll(st.getNeighbours(StatEdge.TYPE_EXCEPTION, Statement.DIRECTION_FORWARD));
+          setHandlers.addAll(st.getNeighbours(StatEdge.TYPE_EXCEPTION, EdgeDirection.FORWARD));
         }
         setHandlers.removeAll(setNodes);
 
         boolean exceptionsOk = true;
         for (Statement handler : setHandlers) {
-          if (!handler.getNeighbours(StatEdge.TYPE_EXCEPTION, Statement.DIRECTION_BACKWARD).containsAll(setNodes)) {
+          if (!handler.getNeighbours(StatEdge.TYPE_EXCEPTION, EdgeDirection.BACKWARD).containsAll(setNodes)) {
             exceptionsOk = false;
             break;
           }
@@ -576,7 +577,7 @@ public final class DomHelper {
           setPreds.removeAll(setNodes);
           if (setPreds.isEmpty()) {
             if ((setNodes.size() > 1 ||
-                 head.getNeighbours(StatEdge.TYPE_REGULAR, Statement.DIRECTION_BACKWARD).contains(head))
+                 head.getNeighbours(StatEdge.TYPE_REGULAR, EdgeDirection.BACKWARD).contains(head))
                 && setNodes.size() < stats.size()) {
               if (checkSynchronizedCompleteness(setNodes)) {
                 res = new GeneralStatement(head, setNodes, same ? null : post);
