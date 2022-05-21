@@ -88,7 +88,7 @@ public final class SwitchStatement extends Statement {
 
   public static Statement isHead(Statement head) {
 
-    if (head instanceof BasicBlockStatement && head.getLastBasicType() == Statement.LASTBASICTYPE_SWITCH) {
+    if (head instanceof BasicBlockStatement && head.getLastBasicType() == LastBasicType.SWITCH) {
 
       List<Statement> lst = new ArrayList<>();
       if (DecHelper.isChoiceStatement(head, lst)) {

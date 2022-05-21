@@ -75,7 +75,7 @@ public final class DecHelper {
       setDest.remove(post);
 
       for (Statement stat : setDest) {
-        if (stat.getLastBasicType() != Statement.LASTBASICTYPE_GENERAL) {
+        if (stat.getLastBasicType() != Statement.LastBasicType.GENERAL) {
           if (post == null) {
             post = stat;
             repeat = true;

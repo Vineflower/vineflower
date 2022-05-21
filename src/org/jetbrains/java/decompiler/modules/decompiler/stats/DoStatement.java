@@ -53,7 +53,7 @@ public final class DoStatement extends Statement {
 
   public static Statement isHead(Statement head) {
 
-    if (head.getLastBasicType() == LASTBASICTYPE_GENERAL && !head.isMonitorEnter()) {
+    if (head.getLastBasicType() == LastBasicType.GENERAL && !head.isMonitorEnter()) {
 
       // at most one outgoing edge
       StatEdge edge = null;

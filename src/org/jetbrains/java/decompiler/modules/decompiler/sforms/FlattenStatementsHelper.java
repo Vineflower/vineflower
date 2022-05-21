@@ -121,7 +121,7 @@ public class FlattenStatementsHelper {
             }
 
             // 'if' statement: record positive branch
-            if (stat.getLastBasicType() == Statement.LASTBASICTYPE_IF) {
+            if (stat.getLastBasicType() == Statement.LastBasicType.IF) {
               if (lstSuccEdges.isEmpty()) {
                 throw new IllegalStateException("Empty successor list for node " + sourcenode.id);
               }

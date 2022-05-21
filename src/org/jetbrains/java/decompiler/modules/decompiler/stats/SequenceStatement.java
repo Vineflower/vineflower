@@ -59,7 +59,7 @@ public final class SequenceStatement extends Statement {
 
   public static Statement isHead2Block(Statement head) {
 
-    if (head.getLastBasicType() != Statement.LASTBASICTYPE_GENERAL) {
+    if (head.getLastBasicType() != LastBasicType.GENERAL) {
       return null;
     }
 
@@ -76,7 +76,7 @@ public final class SequenceStatement extends Statement {
       if (stat != head && stat.getPredecessorEdges(StatEdge.TYPE_REGULAR).size() == 1
           && !stat.isMonitorEnter()) {
 
-        if (stat.getLastBasicType() == Statement.LASTBASICTYPE_GENERAL) {
+        if (stat.getLastBasicType() == LastBasicType.GENERAL) {
           if (DecHelper.checkStatementExceptions(Arrays.asList(head, stat))) {
             return new SequenceStatement(head, stat);
           }

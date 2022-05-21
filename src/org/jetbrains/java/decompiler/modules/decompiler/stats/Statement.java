@@ -42,9 +42,9 @@ public abstract class Statement implements IMatchable {
     FORWARD, // successors
   }
 
-  public static final int LASTBASICTYPE_IF = 0;
-  public static final int LASTBASICTYPE_SWITCH = 1;
-  public static final int LASTBASICTYPE_GENERAL = 2;
+  public enum LastBasicType {
+    IF, SWITCH, GENERAL
+  }
 
 
   // *****************************************************************************
@@ -83,7 +83,7 @@ public abstract class Statement implements IMatchable {
 
   protected Statement post;
 
-  protected int lastBasicType = LASTBASICTYPE_GENERAL;
+  protected LastBasicType lastBasicType = LastBasicType.GENERAL;
 
   protected boolean isMonitorEnter;
 
@@ -831,7 +831,7 @@ public abstract class Statement implements IMatchable {
     return stats;
   }
 
-  public int getLastBasicType() {
+  public LastBasicType getLastBasicType() {
     return lastBasicType;
   }
 
