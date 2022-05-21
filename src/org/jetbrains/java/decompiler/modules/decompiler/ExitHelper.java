@@ -8,6 +8,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.ConstExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.ExitExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement.EdgeDirection;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 
 import java.util.ArrayList;
@@ -45,7 +46,7 @@ public final class ExitHelper {
           if (last.getExprents() == null || !last.getExprents().isEmpty()) {
             if (!secondlast.hasBasicSuccEdge()) {
 
-              Set<Statement> set = last.getNeighboursSet(Statement.STATEDGE_DIRECT_ALL, Statement.DIRECTION_BACKWARD);
+              Set<Statement> set = last.getNeighboursSet(Statement.STATEDGE_DIRECT_ALL, EdgeDirection.BACKWARD);
               set.remove(secondlast);
 
               if (set.isEmpty()) {
@@ -160,7 +161,7 @@ public final class ExitHelper {
           // do it by hand
           for (StatEdge prededge : block.getPredecessorEdges(StatEdge.TYPE_CONTINUE)) {
             block.removePredecessor(prededge);
-            prededge.getSource().changeEdgeNode(Statement.DIRECTION_FORWARD, prededge, stat);
+            prededge.getSource().changeEdgeNode(EdgeDirection.FORWARD, prededge, stat);
             stat.addPredecessor(prededge);
             stat.addLabeledEdge(prededge);
           }
@@ -172,7 +173,7 @@ public final class ExitHelper {
                 MergeHelper.isDirectPath(edge.getSource().getParent(), bstat)) {
 
               dest.removePredecessor(edge);
-              edge.getSource().changeEdgeNode(Statement.DIRECTION_FORWARD, edge, bstat);
+              edge.getSource().changeEdgeNode(EdgeDirection.FORWARD, edge, bstat);
               bstat.addPredecessor(edge);
 
               if (!stat.containsStatementStrict(edge.closure)) {

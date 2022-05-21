@@ -5,6 +5,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.IfExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement.EdgeDirection;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -109,7 +110,7 @@ public final class LoopExtractHelper {
 
         if (elseedge.getType() == StatEdge.TYPE_CONTINUE && elseedge.closure == stat) {
 
-          Set<Statement> set = stat.getNeighboursSet(StatEdge.TYPE_CONTINUE, Statement.DIRECTION_BACKWARD);
+          Set<Statement> set = stat.getNeighboursSet(StatEdge.TYPE_CONTINUE, EdgeDirection.BACKWARD);
           set.remove(last);
 
           if (set.isEmpty()) { // no direct continues in a do{}while loop
@@ -238,7 +239,7 @@ public final class LoopExtractHelper {
     // Remove if body
     ifstat.setIfstat(null);
     // Add break, remove if statement
-    ifedge.getSource().changeEdgeType(Statement.DIRECTION_FORWARD, ifedge, StatEdge.TYPE_BREAK);
+    ifedge.getSource().changeEdgeType(EdgeDirection.FORWARD, ifedge, StatEdge.TYPE_BREAK);
     ifedge.closure = loop;
     ifstat.getStats().removeWithKey(target.id);
 
@@ -265,7 +266,7 @@ public final class LoopExtractHelper {
     for (StatEdge edge : block.getPredecessorEdges(StatEdge.TYPE_CONTINUE)) {
       if (loop.containsStatementStrict(edge.getSource())) {
         block.removePredecessor(edge);
-        edge.getSource().changeEdgeNode(Statement.DIRECTION_FORWARD, edge, loop);
+        edge.getSource().changeEdgeNode(EdgeDirection.FORWARD, edge, loop);
         loop.addPredecessor(edge);
       }
     }
@@ -287,7 +288,7 @@ public final class LoopExtractHelper {
     ifStat.setIfstat(null);
     // Add break, remove if statement
     ifedge.getDestination().removePredecessor(ifedge);
-    ifedge.getSource().changeEdgeType(Statement.DIRECTION_FORWARD, ifedge, StatEdge.TYPE_BREAK);
+    ifedge.getSource().changeEdgeType(EdgeDirection.FORWARD, ifedge, StatEdge.TYPE_BREAK);
     ifedge.closure = loop;
     ifStat.getStats().removeWithKey(target.id);
 

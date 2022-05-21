@@ -2,6 +2,7 @@
 package org.jetbrains.java.decompiler.modules.decompiler;
 
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement.EdgeDirection;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -113,8 +114,8 @@ public class StatEdge {
     ValidationHelper.notNull(newSource);
 
     Statement oldSource = this.source;
-    oldSource.removeEdgeInternal(Statement.DIRECTION_FORWARD, this);
-    newSource.addEdgeInternal(Statement.DIRECTION_FORWARD, this);
+    oldSource.removeEdgeInternal(EdgeDirection.FORWARD, this);
+    newSource.addEdgeInternal(EdgeDirection.FORWARD, this);
     this.source = newSource;
   }
 
@@ -137,8 +138,8 @@ public class StatEdge {
     ValidationHelper.notNull(newDestination);
 
     Statement oldDestination = this.destination;
-    oldDestination.removeEdgeInternal(Statement.DIRECTION_BACKWARD, this);
-    newDestination.addEdgeInternal(Statement.DIRECTION_BACKWARD, this);
+    oldDestination.removeEdgeInternal(EdgeDirection.BACKWARD, this);
+    newDestination.addEdgeInternal(EdgeDirection.BACKWARD, this);
     this.destination = newDestination;
   }
 
@@ -149,7 +150,7 @@ public class StatEdge {
    * @param type
    */
   public void changeType(int type) {
-    this.source.changeEdgeType(Statement.DIRECTION_FORWARD, this, type);
+    this.source.changeEdgeType(EdgeDirection.FORWARD, this, type);
   }
 
   /**
@@ -159,8 +160,8 @@ public class StatEdge {
    * and if there is a labeled closure, it will be removed from there as well.
    */
   public void remove() {
-    this.source.removeEdgeInternal(Statement.DIRECTION_FORWARD, this);
-    this.destination.removeEdgeInternal(Statement.DIRECTION_BACKWARD, this);
+    this.source.removeEdgeInternal(EdgeDirection.FORWARD, this);
+    this.destination.removeEdgeInternal(EdgeDirection.BACKWARD, this);
 
     if (this.closure != null) {
       this.closure.getLabelEdges().remove(this);

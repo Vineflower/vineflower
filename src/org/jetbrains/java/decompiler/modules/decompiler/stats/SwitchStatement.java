@@ -59,7 +59,7 @@ public final class SwitchStatement extends Statement {
     stats.addWithKey(head, head.id);
 
     // find post node
-    Set<Statement> lstNodes = new HashSet<>(head.getNeighbours(StatEdge.TYPE_REGULAR, DIRECTION_FORWARD));
+    Set<Statement> lstNodes = new HashSet<>(head.getNeighbours(StatEdge.TYPE_REGULAR, EdgeDirection.FORWARD));
 
     // cluster nodes
     if (poststat != null) {
@@ -352,7 +352,7 @@ public final class SwitchStatement extends Statement {
       Statement stat = nodes.get(index);
 
       if (stat != null) {
-        HashSet<Statement> setPreds = new HashSet<>(stat.getNeighbours(StatEdge.TYPE_REGULAR, DIRECTION_BACKWARD));
+        HashSet<Statement> setPreds = new HashSet<>(stat.getNeighbours(StatEdge.TYPE_REGULAR, EdgeDirection.BACKWARD));
         setPreds.remove(first);
 
         if (!setPreds.isEmpty()) {
@@ -410,11 +410,11 @@ public final class SwitchStatement extends Statement {
 
         for (StatEdge edge : lstEdges.get(i)) {
 
-          edge.getSource().changeEdgeType(DIRECTION_FORWARD, edge, StatEdge.TYPE_REGULAR);
+          edge.getSource().changeEdgeType(EdgeDirection.FORWARD, edge, StatEdge.TYPE_REGULAR);
           edge.closure.getLabelEdges().remove(edge);
 
           edge.getDestination().removePredecessor(edge);
-          edge.getSource().changeEdgeNode(DIRECTION_FORWARD, edge, bstat);
+          edge.getSource().changeEdgeNode(EdgeDirection.FORWARD, edge, bstat);
           bstat.addPredecessor(edge);
         }
 

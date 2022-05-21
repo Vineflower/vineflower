@@ -37,13 +37,10 @@ public abstract class Statement implements IMatchable {
   // Exception edges are implicit from try contents to catch handlers, so they don't represent control flow
   public static final int STATEDGE_DIRECT_ALL = 0x40000000;
 
-  // Edge directions
-
-  // Backedges (predecessors)
-  public static final int DIRECTION_BACKWARD = 0;
-
-  // Forward edges (successors)
-  public static final int DIRECTION_FORWARD = 1;
+  public enum EdgeDirection {
+    BACKWARD, // predecessors
+    FORWARD, // successors
+  }
 
   public static final int LASTBASICTYPE_IF = 0;
   public static final int LASTBASICTYPE_SWITCH = 1;
@@ -143,9 +140,9 @@ public abstract class Statement implements IMatchable {
 
     // post edges
     if (post != null) {
-      for (StatEdge edge : post.getEdges(STATEDGE_DIRECT_ALL, DIRECTION_BACKWARD)) {
+      for (StatEdge edge : post.getEdges(STATEDGE_DIRECT_ALL, EdgeDirection.BACKWARD)) {
         if (stat.containsStatementStrict(edge.getSource())) {
-          edge.getSource().changeEdgeType(DIRECTION_FORWARD, edge, StatEdge.TYPE_BREAK);
+          edge.getSource().changeEdgeType(EdgeDirection.FORWARD, edge, StatEdge.TYPE_BREAK);
           stat.addLabeledEdge(edge);
         }
       }
@@ -156,12 +153,12 @@ public abstract class Statement implements IMatchable {
 
       if (prededge.getType() != StatEdge.TYPE_EXCEPTION &&
           stat.containsStatementStrict(prededge.getSource())) {
-        prededge.getSource().changeEdgeType(DIRECTION_FORWARD, prededge, StatEdge.TYPE_CONTINUE);
+        prededge.getSource().changeEdgeType(EdgeDirection.FORWARD, prededge, StatEdge.TYPE_CONTINUE);
         stat.addLabeledEdge(prededge);
       }
 
       head.removePredecessor(prededge);
-      prededge.getSource().changeEdgeNode(DIRECTION_FORWARD, prededge, stat);
+      prededge.getSource().changeEdgeNode(EdgeDirection.FORWARD, prededge, stat);
       stat.addPredecessor(prededge);
     }
 
@@ -170,14 +167,14 @@ public abstract class Statement implements IMatchable {
     }
 
     // exception edges
-    Set<Statement> setHandlers = new HashSet<>(head.getNeighbours(StatEdge.TYPE_EXCEPTION, DIRECTION_FORWARD));
+    Set<Statement> setHandlers = new HashSet<>(head.getNeighbours(StatEdge.TYPE_EXCEPTION, EdgeDirection.FORWARD));
     for (Statement node : setNodes) {
-      setHandlers.retainAll(node.getNeighbours(StatEdge.TYPE_EXCEPTION, DIRECTION_FORWARD));
+      setHandlers.retainAll(node.getNeighbours(StatEdge.TYPE_EXCEPTION, EdgeDirection.FORWARD));
     }
 
     if (!setHandlers.isEmpty()) {
 
-      for (StatEdge edge : head.getEdges(StatEdge.TYPE_EXCEPTION, DIRECTION_FORWARD)) {
+      for (StatEdge edge : head.getEdges(StatEdge.TYPE_EXCEPTION, EdgeDirection.FORWARD)) {
         Statement handler = edge.getDestination();
 
         if (setHandlers.contains(handler)) {
@@ -188,7 +185,7 @@ public abstract class Statement implements IMatchable {
       }
 
       for (Statement node : setNodes) {
-        for (StatEdge edge : node.getEdges(StatEdge.TYPE_EXCEPTION, DIRECTION_FORWARD)) {
+        for (StatEdge edge : node.getEdges(StatEdge.TYPE_EXCEPTION, EdgeDirection.FORWARD)) {
           if (setHandlers.contains(edge.getDestination())) {
             node.removeSuccessor(edge);
           }
@@ -197,7 +194,7 @@ public abstract class Statement implements IMatchable {
     }
 
     if (post != null &&
-        !stat.getNeighbours(StatEdge.TYPE_EXCEPTION, DIRECTION_FORWARD).contains(post)) { // TODO: second condition redundant?
+        !stat.getNeighbours(StatEdge.TYPE_EXCEPTION, EdgeDirection.FORWARD).contains(post)) { // TODO: second condition redundant?
       stat.addSuccessor(new StatEdge(StatEdge.TYPE_REGULAR, stat, post));
     }
 
@@ -237,14 +234,14 @@ public abstract class Statement implements IMatchable {
     this.getLabelEdges().add(edge);
   }
 
-  private void addEdgeDirectInternal(int direction, StatEdge edge, int edgetype) {
-    Map<Integer, List<StatEdge>> mapEdges = direction == DIRECTION_BACKWARD ? mapPredEdges : mapSuccEdges;
+  private void addEdgeDirectInternal(EdgeDirection direction, StatEdge edge, int edgetype) {
+    Map<Integer, List<StatEdge>> mapEdges = direction == EdgeDirection.BACKWARD ? mapPredEdges : mapSuccEdges;
 
     mapEdges.computeIfAbsent(edgetype, k -> new ArrayList<>()).add(edge);
   }
 
   @Deprecated // Only public so StatEdge can call these.
-  public void addEdgeInternal(int direction, StatEdge edge) {
+  public void addEdgeInternal(EdgeDirection direction, StatEdge edge) {
     int type = edge.getType();
 
     int[] arrtypes;
@@ -260,9 +257,9 @@ public abstract class Statement implements IMatchable {
     }
   }
 
-  private void removeEdgeDirectInternal(int direction, StatEdge edge, int edgetype) {
+  private void removeEdgeDirectInternal(EdgeDirection direction, StatEdge edge, int edgetype) {
 
-    Map<Integer, List<StatEdge>> mapEdges = direction == DIRECTION_BACKWARD ? mapPredEdges : mapSuccEdges;
+    Map<Integer, List<StatEdge>> mapEdges = direction == EdgeDirection.BACKWARD ? mapPredEdges : mapSuccEdges;
 
     List<StatEdge> lst = mapEdges.get(edgetype);
     if (lst != null) {
@@ -274,7 +271,7 @@ public abstract class Statement implements IMatchable {
   }
 
   @Deprecated // Only public so StatEdge can call these.
-  public void removeEdgeInternal(int direction, StatEdge edge) {
+  public void removeEdgeInternal(EdgeDirection direction, StatEdge edge) {
 
     int type = edge.getType();
 
@@ -292,7 +289,7 @@ public abstract class Statement implements IMatchable {
   }
 
   public void addPredecessor(StatEdge edge) {
-    addEdgeInternal(DIRECTION_BACKWARD, edge);
+    addEdgeInternal(EdgeDirection.BACKWARD, edge);
   }
 
   public void removePredecessor(StatEdge edge) {
@@ -301,11 +298,11 @@ public abstract class Statement implements IMatchable {
       return;
     }
 
-    removeEdgeInternal(DIRECTION_BACKWARD, edge);
+    removeEdgeInternal(EdgeDirection.BACKWARD, edge);
   }
 
   public void addSuccessor(StatEdge edge) {
-    addEdgeInternal(DIRECTION_FORWARD, edge);
+    addEdgeInternal(EdgeDirection.FORWARD, edge);
 
     if (edge.closure != null) {
       edge.closure.getLabelEdges().add(edge);
@@ -320,7 +317,7 @@ public abstract class Statement implements IMatchable {
       return;
     }
 
-    removeEdgeInternal(DIRECTION_FORWARD, edge);
+    removeEdgeInternal(EdgeDirection.FORWARD, edge);
 
     if (edge.closure != null) {
       edge.closure.getLabelEdges().remove(edge);
@@ -355,7 +352,7 @@ public abstract class Statement implements IMatchable {
       }
     }
 
-    for (StatEdge edge : getEdges(StatEdge.TYPE_CONTINUE, DIRECTION_FORWARD)) {
+    for (StatEdge edge : getEdges(StatEdge.TYPE_CONTINUE, EdgeDirection.FORWARD)) {
       continueSet.add(edge.getDestination().getBasichead());
     }
 
@@ -523,7 +520,7 @@ public abstract class Statement implements IMatchable {
 
     for (StatEdge edge : oldstat.getAllPredecessorEdges()) {
       oldstat.removePredecessor(edge);
-      edge.getSource().changeEdgeNode(DIRECTION_FORWARD, edge, newstat);
+      edge.getSource().changeEdgeNode(EdgeDirection.FORWARD, edge, newstat);
       newstat.addPredecessor(edge);
     }
 
@@ -666,8 +663,8 @@ public abstract class Statement implements IMatchable {
   // getter and setter methods
   // *****************************************************************************
 
-  public void changeEdgeNode(int direction, StatEdge edge, Statement value) {
-    if (direction == DIRECTION_BACKWARD) {
+  public void changeEdgeNode(EdgeDirection direction, StatEdge edge, Statement value) {
+    if (direction == EdgeDirection.BACKWARD) {
       edge.setSource(value);
     }
     else {
@@ -675,7 +672,7 @@ public abstract class Statement implements IMatchable {
     }
   }
 
-  public void changeEdgeType(int direction, StatEdge edge, int newtype) {
+  public void changeEdgeType(EdgeDirection direction, StatEdge edge, int newtype) {
 
     int oldtype = edge.getType();
     if (oldtype == newtype) {
@@ -689,17 +686,17 @@ public abstract class Statement implements IMatchable {
     removeEdgeDirectInternal(direction, edge, oldtype);
     addEdgeDirectInternal(direction, edge, newtype);
 
-    if (direction == DIRECTION_FORWARD) {
-      edge.getDestination().changeEdgeType(DIRECTION_BACKWARD, edge, newtype);
+    if (direction == EdgeDirection.FORWARD) {
+      edge.getDestination().changeEdgeType(EdgeDirection.BACKWARD, edge, newtype);
     }
 
     edge.setType(newtype);
   }
 
 
-  private List<StatEdge> getEdges(int type, int direction) {
+  private List<StatEdge> getEdges(int type, EdgeDirection direction) {
 
-    Map<Integer, List<StatEdge>> map = direction == DIRECTION_BACKWARD ? mapPredEdges : mapSuccEdges;
+    Map<Integer, List<StatEdge>> map = direction == EdgeDirection.BACKWARD ? mapPredEdges : mapSuccEdges;
 
     List<StatEdge> res;
     if ((type & (type - 1)) == 0) {
@@ -721,9 +718,9 @@ public abstract class Statement implements IMatchable {
     return res;
   }
 
-  public List<Statement> getNeighbours(int type, int direction) {
+  public List<Statement> getNeighbours(int type, EdgeDirection direction) {
 
-    Map<Integer, List<StatEdge>> map = direction == DIRECTION_BACKWARD ? mapPredEdges : mapSuccEdges;
+    Map<Integer, List<StatEdge>> map = direction == EdgeDirection.BACKWARD ? mapPredEdges : mapSuccEdges;
 
     List<Statement> res = new ArrayList<>();
     if ((type & (type - 1)) == 0) {
@@ -731,7 +728,7 @@ public abstract class Statement implements IMatchable {
 
       if (statEdges != null) {
         for (StatEdge edge : statEdges) {
-          res.add(direction == DIRECTION_FORWARD ? edge.getDestination() : edge.getSource());
+          res.add(direction == EdgeDirection.FORWARD ? edge.getDestination() : edge.getSource());
         }
       }
     }
@@ -743,7 +740,7 @@ public abstract class Statement implements IMatchable {
 
           if (lst != null) {
             for (StatEdge edge : lst) {
-              res.add(direction == DIRECTION_FORWARD ? edge.getDestination() : edge.getSource());
+              res.add(direction == EdgeDirection.FORWARD ? edge.getDestination() : edge.getSource());
             }
           }
         }
@@ -753,20 +750,20 @@ public abstract class Statement implements IMatchable {
     return res;
   }
 
-  public Set<Statement> getNeighboursSet(int type, int direction) {
+  public Set<Statement> getNeighboursSet(int type, EdgeDirection direction) {
     return new HashSet<>(getNeighbours(type, direction));
   }
 
   public List<StatEdge> getSuccessorEdges(int type) {
-    return getEdges(type, DIRECTION_FORWARD);
+    return getEdges(type, EdgeDirection.FORWARD);
   }
 
   public List<StatEdge> getPredecessorEdges(int type) {
-    return getEdges(type, DIRECTION_BACKWARD);
+    return getEdges(type, EdgeDirection.BACKWARD);
   }
 
   public List<StatEdge> getAllSuccessorEdges() {
-    return getEdges(STATEDGE_ALL, DIRECTION_FORWARD);
+    return getEdges(STATEDGE_ALL, EdgeDirection.FORWARD);
   }
 
   public boolean hasAnySuccessor() {
@@ -815,7 +812,7 @@ public abstract class Statement implements IMatchable {
   }
 
   public List<StatEdge> getAllPredecessorEdges() {
-    return getEdges(STATEDGE_ALL, DIRECTION_BACKWARD);
+    return getEdges(STATEDGE_ALL, EdgeDirection.BACKWARD);
   }
 
   public Statement getFirst() {

@@ -11,6 +11,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectNode;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.FlattenStatementsHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.SFormsConstructor;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement.EdgeDirection;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 
@@ -87,7 +88,7 @@ public final class MergeHelper {
             && isLastInLoop(stat) && isDirectPath(stat, ifedge.getDestination()))
         ) {
 
-          Set<Statement> set = stat.getNeighboursSet(StatEdge.TYPE_CONTINUE, Statement.DIRECTION_BACKWARD);
+          Set<Statement> set = stat.getNeighboursSet(StatEdge.TYPE_CONTINUE, EdgeDirection.BACKWARD);
           set.remove(last);
 
           if (!set.isEmpty()) {
@@ -308,7 +309,7 @@ public final class MergeHelper {
 
   // Returns if the statement provided and the end statement provided has a direct control flow path
   public static boolean isDirectPath(Statement stat, Statement endstat) {
-    Set<Statement> forwardEdges = stat.getNeighboursSet(Statement.STATEDGE_DIRECT_ALL, Statement.DIRECTION_FORWARD);
+    Set<Statement> forwardEdges = stat.getNeighboursSet(Statement.STATEDGE_DIRECT_ALL, EdgeDirection.FORWARD);
 
     if (forwardEdges.isEmpty()) {
       Statement parent = stat.getParent();
@@ -392,7 +393,7 @@ public final class MergeHelper {
           current = parent;
         }
         else {
-          preData = current.getNeighbours(StatEdge.TYPE_REGULAR, Statement.DIRECTION_BACKWARD).get(0);
+          preData = current.getNeighbours(StatEdge.TYPE_REGULAR, EdgeDirection.BACKWARD).get(0);
           // we're not a basic block, so we can't dive inside for exprents
           if (!(preData instanceof BasicBlockStatement)) {
             break;
@@ -414,7 +415,7 @@ public final class MergeHelper {
     }
 
     if (hasinit || issingle) {  // FIXME: issingle sufficient?
-      Set<Statement> set = stat.getNeighboursSet(StatEdge.TYPE_CONTINUE, Statement.DIRECTION_BACKWARD);
+      Set<Statement> set = stat.getNeighboursSet(StatEdge.TYPE_CONTINUE, EdgeDirection.BACKWARD);
       set.remove(lastData);
 
       if (!set.isEmpty()) {
@@ -488,13 +489,13 @@ public final class MergeHelper {
     } else {
       for (StatEdge edge : stat.getAllPredecessorEdges()) {
         // Change edge type to continue
-        edge.getSource().changeEdgeType(Statement.DIRECTION_FORWARD, edge, StatEdge.TYPE_CONTINUE);
+        edge.getSource().changeEdgeType(EdgeDirection.FORWARD, edge, StatEdge.TYPE_CONTINUE);
 
         // Remove edge from old destination
         stat.removePredecessor(edge);
 
         // Change destination to enclosing loop
-        edge.getSource().changeEdgeNode(Statement.DIRECTION_FORWARD, edge, dostat);
+        edge.getSource().changeEdgeNode(EdgeDirection.FORWARD, edge, dostat);
         // Make sure enclosing loop knows about the new edge
         dostat.addPredecessor(edge);
 
@@ -554,7 +555,7 @@ public final class MergeHelper {
           current = parent;
         }
         else {
-          preData = current.getNeighbours(StatEdge.TYPE_REGULAR, Statement.DIRECTION_BACKWARD).get(0);
+          preData = current.getNeighbours(StatEdge.TYPE_REGULAR, EdgeDirection.BACKWARD).get(0);
           preData = getLastDirectData(preData);
           if (preData != null && !preData.getExprents().isEmpty()) {
             int size = preData.getExprents().size();
@@ -1069,7 +1070,7 @@ public final class MergeHelper {
               for (StatEdge edge : seq.getPredecessorEdges(StatEdge.TYPE_CONTINUE)) {
                 if (stat.containsStatementStrict(edge.getSource())) {
                   seq.removePredecessor(edge);
-                  edge.getSource().changeEdgeNode(Statement.DIRECTION_FORWARD, edge, stat);
+                  edge.getSource().changeEdgeNode(EdgeDirection.FORWARD, edge, stat);
                   stat.addPredecessor(edge);
                 }
               }
