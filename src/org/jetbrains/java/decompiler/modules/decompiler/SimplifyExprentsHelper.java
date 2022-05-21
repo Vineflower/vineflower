@@ -9,6 +9,7 @@ import org.jetbrains.java.decompiler.main.rels.ClassWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.SSAConstructorSparseEx;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.BasicBlockStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
@@ -759,10 +760,10 @@ public class SimplifyExprentsHelper {
   }
 
   private static boolean hasQualifiedNewGetClass(Statement parent, Statement child) {
-    if (child.type == Statement.TYPE_BASICBLOCK && child.getExprents() != null && !child.getExprents().isEmpty()) {
+    if (child instanceof BasicBlockStatement && child.getExprents() != null && !child.getExprents().isEmpty()) {
       Exprent firstExpr = child.getExprents().get(child.getExprents().size() - 1);
 
-      if (parent.type == Statement.TYPE_IF) {
+      if (parent instanceof IfStatement) {
         if (isQualifiedNewGetClass(firstExpr, ((IfStatement) parent).getHeadexprent().getCondition())) {
           child.getExprents().remove(firstExpr);
           return true;
@@ -1032,7 +1033,7 @@ public class SimplifyExprentsHelper {
   }
 
   private static boolean buildIff(Statement stat, SSAConstructorSparseEx ssa) {
-    if (stat.type == Statement.TYPE_IF && stat.getExprents() == null) {
+    if (stat instanceof IfStatement && stat.getExprents() == null) {
       IfStatement statement = (IfStatement) stat;
       Exprent ifHeadExpr = statement.getHeadexprent();
       BitSet ifHeadExprBytecode = (ifHeadExpr == null ? null : ifHeadExpr.bytecode);

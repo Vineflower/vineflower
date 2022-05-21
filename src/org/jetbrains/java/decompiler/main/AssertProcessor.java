@@ -128,7 +128,7 @@ public final class AssertProcessor {
       replaced = false;
 
       for (Statement st : new ArrayList<>(statement.getStats())) {
-        if (st.type == Statement.TYPE_IF) {
+        if (st instanceof IfStatement) {
           if (replaceAssertion(statement, (IfStatement)st, classname, key)) {
             replaced = true;
             break;
@@ -313,7 +313,7 @@ public final class AssertProcessor {
         // Switch expression assert
 
         Statement parent = parentSkippingSequences(stat);
-        if (parent.type == Statement.TYPE_IF) {
+        if (parent instanceof IfStatement) {
           Exprent param = fexpr.getLstOperands().get(0);
 
           if (isAssertionField(((IfStatement)parent).getHeadexprent().getCondition(), classname, key, throwInIf)) {
@@ -330,7 +330,7 @@ public final class AssertProcessor {
   private static Statement parentSkippingSequences(Statement stat) {
     stat = stat.getParent();
 
-    while (stat != null && stat.type == Statement.TYPE_SEQUENCE) {
+    while (stat instanceof SequenceStatement) {
       stat = stat.getParent();
     }
 

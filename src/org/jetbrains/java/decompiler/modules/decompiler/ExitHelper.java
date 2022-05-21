@@ -37,7 +37,7 @@ public final class ExitHelper {
 
         cleanUpUnreachableBlocks(st);
 
-        if (st.type == Statement.TYPE_SEQUENCE && st.getStats().size() > 1) {
+        if (st instanceof SequenceStatement && st.getStats().size() > 1) {
 
           Statement last = st.getStats().getLast();
           Statement secondlast = st.getStats().get(st.getStats().size() - 2);
@@ -101,7 +101,7 @@ public final class ExitHelper {
         }
       }
 
-      if (stat.type == Statement.TYPE_IF) {
+      if (stat instanceof IfStatement) {
         IfStatement ifst = (IfStatement)stat;
         if (ifst.getIfstat() == null) {
           StatEdge ifedge = ifst.getIfEdge();
@@ -134,8 +134,8 @@ public final class ExitHelper {
         stat.getAllSuccessorEdges().get(0).getType() == StatEdge.TYPE_BREAK &&
         stat.getLabelEdges().isEmpty()) {
       Statement parent = stat.getParent();
-      if (stat != parent.getFirst() || (parent.type != Statement.TYPE_IF &&
-                                        parent.type != Statement.TYPE_SWITCH)) {
+      if (stat != parent.getFirst() || !(parent instanceof IfStatement ||
+                                        parent instanceof SwitchStatement)) {
 
         StatEdge destedge = stat.getAllSuccessorEdges().get(0);
         dest = isExitEdge(destedge);
@@ -192,7 +192,7 @@ public final class ExitHelper {
   private static Statement isExitEdge(StatEdge edge) {
     Statement dest = edge.getDestination();
 
-    if (edge.getType() == StatEdge.TYPE_BREAK && dest.type == Statement.TYPE_BASICBLOCK && edge.explicit && (edge.labeled || isOnlyEdge(edge)) && edge.canInline) {
+    if (edge.getType() == StatEdge.TYPE_BREAK && dest instanceof BasicBlockStatement && edge.explicit && (edge.labeled || isOnlyEdge(edge)) && edge.canInline) {
       List<Exprent> data = dest.getExprents();
 
       if (data != null && data.size() == 1) {
@@ -213,9 +213,9 @@ public final class ExitHelper {
         if (ed.getType() == StatEdge.TYPE_REGULAR) {
           Statement source = ed.getSource();
 
-          if (source.type == Statement.TYPE_BASICBLOCK || (source.type == Statement.TYPE_IF &&
+          if (source instanceof BasicBlockStatement || (source instanceof IfStatement &&
                                                            ((IfStatement)source).iftype == IfStatement.IFTYPE_IF) ||
-              (source.type == Statement.TYPE_DO && ((DoStatement)source).getLooptype() != DoStatement.Type.INFINITE)) {
+              (source instanceof DoStatement && ((DoStatement)source).getLooptype() != DoStatement.Type.INFINITE)) {
             return false;
           }
         }

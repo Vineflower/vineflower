@@ -3,10 +3,7 @@ package org.jetbrains.java.decompiler.modules.decompiler;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.InvocationExprent.InvocationType;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.BasicBlockStatement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.SequenceStatement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.SwitchStatement;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 
 import java.util.ArrayList;
@@ -29,7 +26,7 @@ public final class SwitchPatternMatchProcessor {
       ret |= processPatternMatchingRec(st);
     }
 
-    if (stat.type == Statement.TYPE_SWITCH) {
+    if (stat instanceof SwitchStatement) {
       ret |= processStatement((SwitchStatement) stat);
     }
 
@@ -50,7 +47,7 @@ public final class SwitchPatternMatchProcessor {
     }
 
     // Found switch pattern match, start applying basic transformations
-    boolean isLoopParent = stat.getParent().type == Statement.TYPE_DO;
+    boolean isLoopParent = stat.getParent() instanceof DoStatement;
 
     // TODO: handle this case!
     if (isLoopParent) {
@@ -60,7 +57,7 @@ public final class SwitchPatternMatchProcessor {
     for (int i = 0; i < stat.getCaseStatements().size(); i++) {
       Statement caseStat = stat.getCaseStatements().get(i);
 
-      if (caseStat.type != Statement.TYPE_BASICBLOCK) {
+      if (!(caseStat instanceof BasicBlockStatement)) {
         continue;
       }
 
@@ -115,7 +112,7 @@ public final class SwitchPatternMatchProcessor {
     if (!sucs.isEmpty()) {
 
       Statement suc = sucs.get(0).getDestination();
-      if (suc.type != Statement.TYPE_BASICBLOCK) { // make basic block if it isn't found
+      if (!(suc instanceof BasicBlockStatement)) { // make basic block if it isn't found
         Statement oldSuc = suc;
 
         suc = BasicBlockStatement.create();

@@ -209,7 +209,7 @@ public class StackVarsProcessor {
           (nd.type == DirectNode.NodeType.INIT || nd.type == DirectNode.NodeType.CONDITION || nd.type == DirectNode.NodeType.INCREMENT)) {
         nd.exprents.add(null);
 
-        if (nd.statement.type == Statement.TYPE_DO) {
+        if (nd.statement instanceof DoStatement) {
           DoStatement loop = (DoStatement)nd.statement;
 
           if (loop.getLooptype() == DoStatement.Type.FOR &&

@@ -235,13 +235,13 @@ public class ExprProcessor implements CodeConstants {
 
     List<VarExprent> lst = null;
 
-    if (stat.type == Statement.TYPE_CATCHALL) {
+    if (stat instanceof CatchAllStatement) {
       CatchAllStatement catchall = (CatchAllStatement)stat;
       if (!catchall.isFinally()) {
         lst = catchall.getVars();
       }
     }
-    else if (stat.type == Statement.TYPE_TRYCATCH) {
+    else if (stat instanceof CatchStatement) {
       lst = ((CatchStatement)stat).getVars();
     }
 
@@ -802,7 +802,7 @@ public class ExprProcessor implements CodeConstants {
     List<StatEdge> lstSuccs = stat.getSuccessorEdges(Statement.STATEDGE_DIRECT_ALL);
     if (lstSuccs.size() == 1) {
       StatEdge edge = lstSuccs.get(0);
-      if (edge.getType() != StatEdge.TYPE_REGULAR && edge.explicit && edge.getDestination().type != Statement.TYPE_DUMMYEXIT) {
+      if (edge.getType() != StatEdge.TYPE_REGULAR && edge.explicit && !(edge.getDestination() instanceof DummyExitStatement)) {
         buf.appendIndent(indent);
 
         switch (edge.getType()) {

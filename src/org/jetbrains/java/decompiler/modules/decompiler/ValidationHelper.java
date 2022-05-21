@@ -5,10 +5,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectNode;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.FlattenStatementsHelper;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.CatchStatement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionNode;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionsGraph;
@@ -60,7 +57,7 @@ public final class ValidationHelper {
         }
       }
 
-      if (!statements.contains(stat.getFirst()) && stat.type != Statement.TYPE_DUMMYEXIT && stat.type != Statement.TYPE_BASICBLOCK) {
+      if (!statements.contains(stat.getFirst()) && !(stat instanceof DummyExitStatement) && !(stat instanceof BasicBlockStatement)) {
         throw new IllegalStateException("Non-existing first statement: [" + stat + "] " + stat.getFirst());
       }
 
@@ -154,7 +151,7 @@ public final class ValidationHelper {
 
         // TODO: It seems there are break edge to dummy exits with
         //  potentially incorrect closures
-        if (edge.getDestination().type != Statement.TYPE_DUMMYEXIT && !MergeHelper.isDirectPath(edge.closure, edge.getDestination())) {
+        if (!(edge.getDestination() instanceof DummyExitStatement) && !MergeHelper.isDirectPath(edge.closure, edge.getDestination())) {
           throw new IllegalStateException("Break edge with closure with invalid direct path: " + edge);
         }
 
@@ -173,7 +170,7 @@ public final class ValidationHelper {
           throw new IllegalStateException("Continue edge with closure pointing to different destination: " + edge);
         }
 
-        if (edge.getDestination().type != Statement.TYPE_DO) {
+        if (!(edge.getDestination() instanceof DoStatement)) {
           throw new IllegalStateException("Continue edge where closure isn't pointing to a do: " + edge);
         }
 
@@ -189,8 +186,8 @@ public final class ValidationHelper {
     }
 
     switch (stat.type) {
-      case Statement.TYPE_IF: validateIfStatement((IfStatement) stat); break;
-      case Statement.TYPE_TRYCATCH: validateTrycatchStatement((CatchStatement) stat); break;
+      case IF: validateIfStatement((IfStatement) stat); break;
+      case TRY_CATCH: validateTrycatchStatement((CatchStatement) stat); break;
     }
   }
 
@@ -406,7 +403,7 @@ public final class ValidationHelper {
   private static boolean isSuccessor(Statement source, StatEdge edge) {
     if (source.getAllSuccessorEdges().contains(edge)) return true;
 
-    if (source.getParent().type == Statement.TYPE_IF) {
+    if (source.getParent() instanceof IfStatement) {
       IfStatement ifstat = (IfStatement) source.getParent();
       if (ifstat.getFirst() == source) {
         if (edge == ifstat.getIfEdge() || edge == ifstat.getElseEdge()) {

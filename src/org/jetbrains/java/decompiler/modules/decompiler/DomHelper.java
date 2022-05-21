@@ -6,7 +6,6 @@ import org.jetbrains.java.decompiler.code.cfg.ControlFlowGraph;
 import org.jetbrains.java.decompiler.code.cfg.ExceptionRangeCFG;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
-import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.rels.MethodProcessorRunnable;
 import org.jetbrains.java.decompiler.modules.decompiler.decompose.FastExtendedPostdominanceHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.deobfuscator.IrreducibleCFGDeobfuscator;
@@ -224,7 +223,7 @@ public final class DomHelper {
       res |= removeSynchronizedHandler(st);
     }
 
-    if (stat.type == Statement.TYPE_SYNCRONIZED) {
+    if (stat instanceof SynchronizedStatement) {
       ((SynchronizedStatement)stat).removeExc();
       res = true;
     }
@@ -239,7 +238,7 @@ public final class DomHelper {
       buildSynchronized(st);
     }
 
-    if (stat.type == Statement.TYPE_SEQUENCE) {
+    if (stat instanceof SequenceStatement) {
 
       while (true) {
 
@@ -254,11 +253,11 @@ public final class DomHelper {
             Statement next = lst.get(i + 1);
             Statement nextDirect = next;
 
-            while (next.type == Statement.TYPE_SEQUENCE) {
+            while (next instanceof SequenceStatement) {
               next = next.getFirst();
             }
 
-            if (next.type == Statement.TYPE_CATCHALL) {
+            if (next instanceof CatchAllStatement) {
 
               CatchAllStatement ca = (CatchAllStatement)next;
 
@@ -307,11 +306,11 @@ public final class DomHelper {
 
   private static boolean processStatement(Statement general, RootStatement root, HashMap<Integer, Set<Integer>> mapExtPost) {
 
-    if (general.type == Statement.TYPE_ROOT) {
+    if (general instanceof RootStatement) {
       Statement stat = general.getFirst();
 
       // Root statement consists of a singular basic block
-      if (stat.type != Statement.TYPE_GENERAL) {
+      if (stat.type != Statement.StatementType.GENERAL) {
         return true;
       } else {
         boolean complete = processStatement(stat, root, mapExtPost);
@@ -389,7 +388,7 @@ public final class DomHelper {
             }
 
             // If every statement in this subgraph was discovered, return as we've decomposed this part of the graph
-            if (general.type == Statement.TYPE_PLACEHOLDER) {
+            if (general.type == Statement.StatementType.PLACEHOLDER) {
               return true;
             }
 
@@ -630,10 +629,10 @@ public final class DomHelper {
 
           // If the statement we created contains the first statement of the general statement as it's first, we know that we've completed iteration to the point where every statment in the subgraph has been explored at least once, due to how the post order is created.
           // More iteration still happens to discover higher level structures (such as the case where basicblock -> if -> loop)
-          if (stat.type == Statement.TYPE_GENERAL && result.getFirst() == stat.getFirst() &&
+          if (stat.type == Statement.StatementType.GENERAL && result.getFirst() == stat.getFirst() &&
               stat.getStats().size() == result.getStats().size()) {
             // mark general statement
-            stat.type = Statement.TYPE_PLACEHOLDER;
+            stat.type = Statement.StatementType.PLACEHOLDER;
           }
 
           stat.collapseNodesToStatement(result);

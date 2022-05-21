@@ -15,7 +15,7 @@ import java.util.*;
 public class MatchEngine {
   private static final Map<String, MatchProperties> stat_properties = new HashMap<>();
   private static final Map<String, MatchProperties> expr_properties = new HashMap<>();
-  private static final Map<String, Integer> stat_type = new HashMap<>();
+  private static final Map<String, Statement.StatementType> stat_type = new HashMap<>();
   private static final Map<String, Integer> expr_type = new HashMap<>();
   private static final Map<String, FunctionType> expr_func_type = new HashMap<>();
   private static final Map<String, ExitExprent.Type> expr_exit_type = new HashMap<>();
@@ -43,12 +43,12 @@ public class MatchEngine {
     expr_properties.put("index", MatchProperties.EXPRENT_VAR_INDEX);
     expr_properties.put("name", MatchProperties.EXPRENT_FIELD_NAME);
 
-    stat_type.put("if", Statement.TYPE_IF);
-    stat_type.put("do", Statement.TYPE_DO);
-    stat_type.put("switch", Statement.TYPE_SWITCH);
-    stat_type.put("trycatch", Statement.TYPE_TRYCATCH);
-    stat_type.put("basicblock", Statement.TYPE_BASICBLOCK);
-    stat_type.put("sequence", Statement.TYPE_SEQUENCE);
+    stat_type.put("if", Statement.StatementType.IF);
+    stat_type.put("do", Statement.StatementType.DO);
+    stat_type.put("switch", Statement.StatementType.SWITCH);
+    stat_type.put("trycatch", Statement.StatementType.TRY_CATCH);
+    stat_type.put("basicblock", Statement.StatementType.BASIC_BLOCK);
+    stat_type.put("sequence", Statement.StatementType.SEQUENCE);
 
     expr_type.put("array", Exprent.EXPRENT_ARRAY);
     expr_type.put("assignment", Exprent.EXPRENT_ASSIGNMENT);

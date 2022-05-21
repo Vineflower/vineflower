@@ -29,7 +29,7 @@ public final class TryWithResourcesProcessor {
     }
 
     Statement toCheck = finallyStat.getHandler().getFirst();
-    if (toCheck.type != Statement.TYPE_IF || ((IfStatement)toCheck).getIfstat() == null || ((IfStatement)toCheck).getIfstat().type != Statement.TYPE_IF) {
+    if (!(toCheck instanceof IfStatement) || ((IfStatement)toCheck).getIfstat() == null || !(((IfStatement)toCheck).getIfstat() instanceof IfStatement)) {
       return false;
     }
 
@@ -54,7 +54,7 @@ public final class TryWithResourcesProcessor {
       AssignmentExprent ass = null;
       BasicBlockStatement initBlock = null;
       for (StatEdge edge : finallyStat.getAllPredecessorEdges()) {
-        if (edge.getDestination().equals(finallyStat) && edge.getSource().type == Statement.TYPE_BASICBLOCK) {
+        if (edge.getDestination().equals(finallyStat) && edge.getSource() instanceof BasicBlockStatement) {
           ass = findResourceDef(var, edge.getSource());
           if (ass != null) {
             initBlock = (BasicBlockStatement)edge.getSource();
@@ -67,7 +67,7 @@ public final class TryWithResourcesProcessor {
         Statement stat = finallyStat.getParent();
         Statement stat2 = finallyStat.getFirst();
 
-        if (stat2.type == Statement.TYPE_TRYCATCH) {
+        if (stat2 instanceof CatchStatement) {
           CatchStatement child = (CatchStatement)stat2;
 
           AssignmentExprent resourceDef = (AssignmentExprent)ass.copy();
@@ -115,12 +115,12 @@ public final class TryWithResourcesProcessor {
 
     boolean nullable = false;
 
-    if (inner.type == Statement.TYPE_SEQUENCE) {
+    if (inner instanceof SequenceStatement) {
       // Replace dummy inner with real inner
       inner = inner.getStats().get(0);
 
       // If the catch statement contains a simple try catch, then it's a nonnull resource
-      if (inner.type == Statement.TYPE_TRYCATCH) {
+      if (inner instanceof CatchStatement) {
         if (inner.getStats().isEmpty()) {
           return false;
         }
@@ -128,7 +128,7 @@ public final class TryWithResourcesProcessor {
         Statement inTry = inner.getStats().get(0);
 
         // Catch block contains a basic block inside which has the closeable invocation
-        if (inTry.type == Statement.TYPE_BASICBLOCK && !inTry.getExprents().isEmpty()) {
+        if (inTry instanceof BasicBlockStatement && !inTry.getExprents().isEmpty()) {
           Exprent first = inTry.getExprents().get(0);
 
           if (isCloseable(first)) {
@@ -138,7 +138,7 @@ public final class TryWithResourcesProcessor {
       }
 
       // Nullable resource, contains null checks
-      if (inner.type == Statement.TYPE_IF) {
+      if (inner instanceof IfStatement) {
         Exprent ifCase = ((IfStatement)inner).getHeadexprent().getCondition();
 
         if (ifCase.type == Exprent.EXPRENT_FUNCTION) {
@@ -163,10 +163,10 @@ public final class TryWithResourcesProcessor {
             }
 
             // Process try catch inside of if statement
-            if (inner.type == Statement.TYPE_TRYCATCH && !inner.getStats().isEmpty()) {
+            if (inner instanceof CatchStatement && !inner.getStats().isEmpty()) {
               Statement inTry = inner.getStats().get(0);
 
-              if (inTry.type == Statement.TYPE_BASICBLOCK && !inTry.getExprents().isEmpty()) {
+              if (inTry instanceof BasicBlockStatement && !inTry.getExprents().isEmpty()) {
                 Exprent first = inTry.getExprents().get(0);
 
                 // Check for closable invocation
@@ -205,7 +205,7 @@ public final class TryWithResourcesProcessor {
     }
 
     StatEdge edge = preds.get(0);
-    if (edge.getSource().type == Statement.TYPE_BASICBLOCK) {
+    if (edge.getSource() instanceof BasicBlockStatement) {
       AssignmentExprent assignment = findResourceDef(closeable, edge.getSource());
 
       if (assignment == null) {
@@ -245,7 +245,7 @@ public final class TryWithResourcesProcessor {
   private static boolean isValid(Statement stat, VarExprent closeable, boolean nullable) {
     if (nullable) {
       // Check for if statement that contains a null check and a close()
-      if (stat.type == Statement.TYPE_IF) {
+      if (stat instanceof IfStatement) {
         IfStatement ifStat = (IfStatement) stat;
         Exprent condition = ifStat.getHeadexprent().getCondition();
 
@@ -262,7 +262,7 @@ public final class TryWithResourcesProcessor {
         }
       }
     } else {
-      if (stat.type == Statement.TYPE_BASICBLOCK) {
+      if (stat instanceof BasicBlockStatement) {
         if (stat.getExprents() != null && !stat.getExprents().isEmpty()) {
           Exprent exprent = stat.getExprents().get(0);
 
@@ -324,7 +324,7 @@ public final class TryWithResourcesProcessor {
   // TODO: move to better place
   public static void findEdgesLeaving(Statement curr, Statement check, Set<StatEdge> edges) {
     for (StatEdge edge : curr.getAllSuccessorEdges()) {
-      if (!check.containsStatement(edge.getDestination()) && edge.getDestination().type != Statement.TYPE_DUMMYEXIT) {
+      if (!check.containsStatement(edge.getDestination()) && !(edge.getDestination() instanceof DummyExitStatement)) {
         edges.add(edge);
       }
     }
@@ -400,7 +400,7 @@ public final class TryWithResourcesProcessor {
       for (; i < catchStat.getStats().size(); ++i) {
         temp = catchStat.getStats().get(i);
 
-        if (temp.type == Statement.TYPE_BASICBLOCK && temp.getExprents() != null) {
+        if (temp instanceof BasicBlockStatement && temp.getExprents() != null) {
           if (temp.getExprents().size() >= 2 && catchStat.getVars().get(i - 1).getVarType().value.equals("java/lang/Throwable")) {
             if (temp.getExprents().get(temp.getExprents().size() - 1).type == Exprent.EXPRENT_EXIT) {
               ExitExprent exitExprent = (ExitExprent)temp.getExprents().get(temp.getExprents().size() - 1);

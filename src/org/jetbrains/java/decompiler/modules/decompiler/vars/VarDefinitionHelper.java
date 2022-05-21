@@ -136,7 +136,7 @@ public class VarDefinitionHelper {
       varproc.setVarName(new VarVersionPair(index, 0), vc.getFreeName(index));
 
       // special case for
-      if (stat.type == Statement.TYPE_DO) {
+      if (stat instanceof DoStatement) {
         DoStatement dstat = (DoStatement)stat;
         if (dstat.getLooptype() == DoStatement.Type.FOR) {
 
@@ -290,13 +290,13 @@ public class VarDefinitionHelper {
           stack.clear();
 
           switch (st.type) {
-            case Statement.TYPE_SEQUENCE:
+            case SEQUENCE:
               stack.addAll(0, st.getStats());
               break;
-            case Statement.TYPE_IF:
-            case Statement.TYPE_ROOT:
-            case Statement.TYPE_SWITCH:
-            case Statement.TYPE_SYNCRONIZED:
+            case IF:
+            case ROOT:
+            case SWITCH:
+            case SYNCHRONIZED:
               stack.add(st.getFirst());
               break;
             default:
@@ -326,7 +326,7 @@ public class VarDefinitionHelper {
           Statement st = (Statement)obj;
           childVars.addAll(initStatement(st));
 
-          if (st.type == DoStatement.TYPE_DO) {
+          if (st instanceof DoStatement) {
             DoStatement dost = (DoStatement)st;
             if (dost.getLooptype() != DoStatement.Type.FOR &&
                 dost.getLooptype() != DoStatement.Type.FOR_EACH &&
@@ -334,7 +334,7 @@ public class VarDefinitionHelper {
               currVars.add(dost.getConditionExprent());
             }
           }
-          else if (st.type == DoStatement.TYPE_CATCHALL) {
+          else if (st instanceof CatchAllStatement) {
             CatchAllStatement fin = (CatchAllStatement)st;
             if (fin.isFinally() && fin.getMonitor() != null) {
               currVars.add(fin.getMonitor());
@@ -550,10 +550,10 @@ public class VarDefinitionHelper {
 
     Map<Integer, VarVersionPair> scoped = null;
     switch (stat.type) { // These are the type of statements that leak vars
-      case Statement.TYPE_BASICBLOCK:
-      case Statement.TYPE_GENERAL:
-      case Statement.TYPE_ROOT:
-      case Statement.TYPE_SEQUENCE:
+      case BASIC_BLOCK:
+      case GENERAL:
+      case ROOT:
+      case SEQUENCE:
         scoped = leaked;
     }
 
@@ -587,7 +587,7 @@ public class VarDefinitionHelper {
           */
 
           if (leaked_n.size() > 0) {
-            if (stat.type == Statement.TYPE_IF) {
+            if (stat instanceof IfStatement) {
               IfStatement ifst = (IfStatement)stat;
               if (obj == ifst.getIfstat() || obj == ifst.getElsestat()) {
                 leaked_n.clear(); // Force no leaking at the end of if blocks
@@ -596,8 +596,8 @@ public class VarDefinitionHelper {
               else if (obj == ifst.getFirst()) {
                 leaked.putAll(leaked_n); //First is outside the scope so leak!
               }
-            } else if (stat.type == Statement.TYPE_SWITCH ||
-                       stat.type == Statement.TYPE_SYNCRONIZED) {
+            } else if (stat instanceof SwitchStatement ||
+                       stat instanceof SynchronizedStatement) {
               if (obj == stat.getFirst()) {
                 leaked.putAll(leaked_n); //First is outside the scope so leak!
               }
@@ -605,8 +605,7 @@ public class VarDefinitionHelper {
                 leaked_n.clear();
               }
             }
-            else if (stat.type == Statement.TYPE_TRYCATCH ||
-              stat.type == Statement.TYPE_CATCHALL) {
+            else if (stat instanceof CatchStatement || stat instanceof CatchAllStatement) {
               leaked_n.clear(); // Catches can't leak anything mwhahahahah!
             }
             this_vars.putAll(leaked_n);
@@ -1140,14 +1139,14 @@ public class VarDefinitionHelper {
     }
 
     if (!stat.getVarDefinitions().isEmpty()) {
-      if (stat.type != Statement.TYPE_DO) {
+      if (stat instanceof DoStatement) {
         for (Exprent var : stat.getVarDefinitions()) {
           unInitialized.add(new VarVersionPair((VarExprent)var));
         }
       }
     }
 
-    if (stat.type == Statement.TYPE_DO) {
+    if (stat instanceof DoStatement) {
       DoStatement dostat = (DoStatement)stat;
       if (dostat.getInitExprentList() != null) {
         setNonFinal(dostat.getInitExprent(), unInitialized);
@@ -1156,7 +1155,7 @@ public class VarDefinitionHelper {
         setNonFinal(dostat.getIncExprent(), unInitialized);
       }
     }
-    else if (stat.type == Statement.TYPE_IF) {
+    else if (stat instanceof IfStatement) {
       IfStatement ifstat = (IfStatement)stat;
       if (ifstat.getIfstat() != null && ifstat.getElsestat() != null) {
         setNonFinal(ifstat.getFirst(), unInitialized);
@@ -1244,7 +1243,7 @@ public class VarDefinitionHelper {
     varDefinitions.put(stat, curVarDefs);
 
     boolean iterate = true;
-    if (stat.type == Statement.TYPE_SWITCH) {
+    if (stat instanceof SwitchStatement) {
       SwitchStatement switchStat = (SwitchStatement)stat;
       // Phantom switch statements don't need variable remapping as switch expressions have isolated branches
 
@@ -1256,7 +1255,7 @@ public class VarDefinitionHelper {
     List<Statement> deferred = new ArrayList<>();
     if (iterate) {
       for (Statement st : stat.getStats()) {
-        if (stat.type == Statement.TYPE_IF) {
+        if (stat instanceof IfStatement) {
           IfStatement ifstat = (IfStatement)stat;
 
           if (ifstat.getElsestat() == st) {
@@ -1325,7 +1324,7 @@ public class VarDefinitionHelper {
           if (!originalName.equals(name)) {
             // Try to scope switch statements if possible as it's a less destructive operation when considering local variable names
             Statement parent = directParent(stat);
-            if (parent.type == Statement.TYPE_SWITCH) {
+            if (parent instanceof SwitchStatement) {
               Set<VarVersionPair> sameVarName = new HashSet<>();
 
               // Find vars with the same name
@@ -1393,7 +1392,7 @@ public class VarDefinitionHelper {
   private static Statement directParent(Statement stat) {
     Statement parent = stat.getParent();
 
-    while (parent != null && (parent.type == Statement.TYPE_SEQUENCE || (parent.getFirst() == stat && (parent.type == Statement.TYPE_IF)))) {
+    while (parent != null && (parent instanceof SequenceStatement || (parent.getFirst() == stat && (parent instanceof IfStatement)))) {
       parent = parent.getParent();
     }
 

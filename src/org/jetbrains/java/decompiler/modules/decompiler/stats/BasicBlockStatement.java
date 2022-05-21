@@ -11,13 +11,13 @@ import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
-import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.StartEndPair;
+import org.jetbrains.java.decompiler.util.TextBuffer;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class BasicBlockStatement extends Statement {
+public final class BasicBlockStatement extends Statement {
 
   // *****************************************************************************
   // private fields
@@ -32,7 +32,7 @@ public class BasicBlockStatement extends Statement {
 
   public BasicBlockStatement(BasicBlock block) {
 
-    type = Statement.TYPE_BASICBLOCK;
+    type = StatementType.BASIC_BLOCK;
 
     this.block = block;
 

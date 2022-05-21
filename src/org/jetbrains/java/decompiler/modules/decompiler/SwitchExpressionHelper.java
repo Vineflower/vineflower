@@ -31,7 +31,7 @@ public final class SwitchExpressionHelper {
       ret |= processSwitchExpressionsRec(st);
     }
 
-    if (stat.type == Statement.TYPE_SWITCH) {
+    if (stat instanceof SwitchStatement) {
       ret |= processStatement((SwitchStatement) stat);
     }
 
@@ -76,7 +76,7 @@ public final class SwitchExpressionHelper {
       }
 
       // If the closure isn't our statement and we're not returning, break
-      if (!stat.containsStatement(breaks.get(0).closure) && breaks.get(0).getDestination().type != Statement.TYPE_DUMMYEXIT) {
+      if (!stat.containsStatement(breaks.get(0).closure) && !(breaks.get(0).getDestination() instanceof DummyExitStatement)) {
         return false;
       }
     }
@@ -131,7 +131,7 @@ public final class SwitchExpressionHelper {
     if (!sucs.isEmpty()) {
 
       Statement suc = sucs.get(0).getDestination();
-      if (suc.type != Statement.TYPE_BASICBLOCK) { // make basic block if it isn't found
+      if (!(suc instanceof BasicBlockStatement)) { // make basic block if it isn't found
         Statement oldSuc = suc;
 
         suc = BasicBlockStatement.create();

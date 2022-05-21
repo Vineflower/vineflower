@@ -12,8 +12,8 @@ import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
-import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.StartEndPair;
+import org.jetbrains.java.decompiler.util.TextBuffer;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -46,7 +46,7 @@ public final class SwitchStatement extends Statement {
   private boolean phantom;
 
   private SwitchStatement() {
-    type = TYPE_SWITCH;
+    type = StatementType.SWITCH;
 
     headexprent.add(null);
   }
@@ -88,7 +88,7 @@ public final class SwitchStatement extends Statement {
 
   public static Statement isHead(Statement head) {
 
-    if (head.type == Statement.TYPE_BASICBLOCK && head.getLastBasicType() == Statement.LASTBASICTYPE_SWITCH) {
+    if (head instanceof BasicBlockStatement && head.getLastBasicType() == Statement.LASTBASICTYPE_SWITCH) {
 
       List<Statement> lst = new ArrayList<>();
       if (DecHelper.isChoiceStatement(head, lst)) {

@@ -31,7 +31,7 @@ public final class MergeHelper {
       }
     }
 
-    if (stat.type == Statement.TYPE_DO) {
+    if (stat instanceof DoStatement) {
       res |= enhanceLoop((DoStatement)stat);
     }
 
@@ -68,11 +68,11 @@ public final class MergeHelper {
   private static void matchDoWhile(DoStatement stat) {
     // search for an if condition at the end of the loop
     Statement last = stat.getFirst();
-    while (last.type == Statement.TYPE_SEQUENCE) {
+    while (last instanceof SequenceStatement) {
       last = last.getStats().getLast();
     }
 
-    if (last.type == Statement.TYPE_IF) {
+    if (last instanceof IfStatement) {
       IfStatement lastif = (IfStatement)last;
       if (lastif.iftype == IfStatement.IFTYPE_IF && lastif.getIfstat() == null) {
         StatEdge ifedge = lastif.getIfEdge();
@@ -143,7 +143,7 @@ public final class MergeHelper {
   }
 
   private static boolean isLastInLoop(Statement stat) {
-    while (stat.getParent().type == Statement.TYPE_SEQUENCE) {
+    while (stat.getParent() instanceof SequenceStatement) {
       if (stat.getParent().getStats().indexOf(stat) != stat.getParent().getStats().size() - 1) {
         return false;
       }
@@ -155,19 +155,19 @@ public final class MergeHelper {
       }
     }
 
-    return stat.getParent().type == Statement.TYPE_DO;
+    return stat.getParent() instanceof DoStatement;
   }
 
   private static boolean matchWhile(DoStatement stat) {
 
     // search for an if condition at the entrance of the loop
     Statement first = stat.getFirst();
-    while (first.type == Statement.TYPE_SEQUENCE) {
+    while (first instanceof SequenceStatement) {
       first = first.getFirst();
     }
 
     // found an if statement
-    if (first.type == Statement.TYPE_IF) {
+    if (first instanceof IfStatement) {
       IfStatement firstif = (IfStatement)first;
 
       if (firstif.getFirst().getExprents().isEmpty()) {
@@ -314,14 +314,14 @@ public final class MergeHelper {
       Statement parent = stat.getParent();
 
       if (parent == null) {
-        return endstat.type == Statement.TYPE_DUMMYEXIT;
+        return endstat instanceof DummyExitStatement;
       } else {
         switch (parent.type) {
-          case Statement.TYPE_ROOT:
-            return endstat.type == Statement.TYPE_DUMMYEXIT;
-          case Statement.TYPE_DO:
+          case ROOT:
+            return endstat instanceof DummyExitStatement;
+          case DO:
             return endstat == parent;
-          case Statement.TYPE_SWITCH:
+          case SWITCH:
             SwitchStatement swst = (SwitchStatement)parent;
 
             for (int i = 0; i < swst.getCaseStatements().size() - 1; i++) {
@@ -387,14 +387,14 @@ public final class MergeHelper {
         break;
       }
 
-      if (parent.type == Statement.TYPE_SEQUENCE) {
+      if (parent instanceof SequenceStatement) {
         if (current == parent.getFirst()) {
           current = parent;
         }
         else {
           preData = current.getNeighbours(StatEdge.TYPE_REGULAR, Statement.DIRECTION_BACKWARD).get(0);
           // we're not a basic block, so we can't dive inside for exprents
-          if (preData.type != Statement.TYPE_BASICBLOCK) {
+          if (!(preData instanceof BasicBlockStatement)) {
             break;
           }
 
@@ -428,7 +428,7 @@ public final class MergeHelper {
       // First filter to make sure that the loop body (includes the last assignment) has a single statement.
 
       Statement firstStat = stat.getFirst();
-      while (firstStat.type == Statement.TYPE_SEQUENCE && firstStat.getStats().size() == 1) {
+      while (firstStat instanceof SequenceStatement && firstStat.getStats().size() == 1) {
         Statement fst = firstStat.getFirst();
         if (fst == null) {
           break;
@@ -438,7 +438,7 @@ public final class MergeHelper {
       }
 
       // Then filter to make sure the loop body is a basic block (Seems like it always is- but it never hurts to double check!)
-      if (firstStat.type == Statement.TYPE_BASICBLOCK) {
+      if (firstStat instanceof BasicBlockStatement) {
 
         // Last filter to make sure the basic block only has the final third assignment. If so, break out to make a while loop instead as it will produce cleaner output.
         if (firstStat.getExprents().size() == 1) {
@@ -472,7 +472,7 @@ public final class MergeHelper {
       }
 
       // Cannot delete try or catch blocks with finally, or synchronized
-      if (stat.getParent().type == Statement.TYPE_TRYCATCH || stat.getParent().type == Statement.TYPE_CATCHALL || stat.getParent().type == Statement.TYPE_SYNCRONIZED) {
+      if (stat.getParent() instanceof CatchStatement || stat.getParent() instanceof CatchAllStatement || stat.getParent() instanceof SynchronizedStatement) {
         return;
       }
 
@@ -506,7 +506,7 @@ public final class MergeHelper {
       stat.getParent().getStats().removeWithKey(stat.id);
 
       // Quiltflower note: Parent isn't always a sequence statement! It can be an if statement, need to check for that case! [TestLoopFinally]
-      if (stat.getParent().type == Statement.TYPE_IF) {
+      if (stat.getParent() instanceof IfStatement) {
         IfStatement parent = (IfStatement)stat.getParent();
 
         // Replace owning stats
@@ -549,7 +549,7 @@ public final class MergeHelper {
         break;
       }
 
-      if (parent.type == Statement.TYPE_SEQUENCE) {
+      if (parent instanceof SequenceStatement) {
         if (current == parent.getFirst()) {
           current = parent;
         }
@@ -920,7 +920,7 @@ public final class MergeHelper {
       ret |= makeDoWhileRec(st);
     }
 
-    if (stat.type == Statement.TYPE_DO) {
+    if (stat instanceof DoStatement) {
       DoStatement dostat = (DoStatement)stat;
       if (dostat.getLooptype() == DoStatement.Type.INFINITE) {
         matchDoWhile(dostat);
@@ -936,13 +936,13 @@ public final class MergeHelper {
 
   private static boolean addContinueOrBreak(DoStatement stat, StatEdge ifedge) {
     Statement outer = stat.getParent();
-    while (outer != null && outer.type != Statement.TYPE_SWITCH && outer.type != Statement.TYPE_DO) {
+    while (outer != null && !(outer instanceof SwitchStatement) && !(outer instanceof DoStatement)) {
       outer = outer.getParent();
     }
 
-    if (outer != null && (outer.type == Statement.TYPE_SWITCH || ((DoStatement)outer).getLooptype() != DoStatement.Type.INFINITE)) {
+    if (outer != null && (outer instanceof SwitchStatement || ((DoStatement)outer).getLooptype() != DoStatement.Type.INFINITE)) {
       Statement parent = stat.getParent();
-      if (parent.type != Statement.TYPE_SEQUENCE || parent.getStats().getLast().equals(stat)) {
+      if (!(parent instanceof SequenceStatement) || parent.getStats().getLast().equals(stat)) {
         // need to insert a break or continue after the loop
         if (ifedge.getDestination().equals(outer)) {
           stat.addSuccessor(new StatEdge(StatEdge.TYPE_CONTINUE, stat, ifedge.getDestination(), outer));
@@ -986,7 +986,7 @@ public final class MergeHelper {
   private static boolean condenseInfiniteLoopsWithReturnRec(Statement stat) {
     boolean res = false;
 
-    if (stat.type == Statement.TYPE_DO) {
+    if (stat instanceof DoStatement) {
       DoStatement loop = (DoStatement)stat;
 
       if (loop.getLooptype() == DoStatement.Type.INFINITE) {
@@ -1002,7 +1002,7 @@ public final class MergeHelper {
   }
 
   private static boolean condenseLoop(DoStatement stat) {
-    if (stat.getFirst().type == Statement.TYPE_SEQUENCE && stat.getSuccessorEdges(StatEdge.TYPE_REGULAR).isEmpty()) {
+    if (stat.getFirst() instanceof SequenceStatement && stat.getSuccessorEdges(StatEdge.TYPE_REGULAR).isEmpty()) {
       Statement first = stat.getFirst();
       int extractStart = extractableFromLoop((SequenceStatement) first, stat);
 
@@ -1012,11 +1012,11 @@ public final class MergeHelper {
         Statement preExtract = first.getStats().get(extractStart - 1);
         List<Statement> extract = new ArrayList<>(first.getStats().subList(extractStart, first.getStats().size()));
 
-        if (firstBody.type == Statement.TYPE_IF && ((IfStatement)firstBody).iftype == IfStatement.IFTYPE_IF && firstBody.getBasichead().getExprents().isEmpty()) {
+        if (firstBody instanceof IfStatement && ((IfStatement)firstBody).iftype == IfStatement.IFTYPE_IF && firstBody.getBasichead().getExprents().isEmpty()) {
           List<StatEdge> breaks = lastBody.getSuccessorEdges(StatEdge.TYPE_BREAK);
 
           if (!breaks.isEmpty()) {
-            if (breaks.get(0).getDestination().type == Statement.TYPE_DUMMYEXIT) {
+            if (breaks.get(0).getDestination() instanceof DummyExitStatement) {
               Set<StatEdge> edges = new HashSet<>();
               TryWithResourcesProcessor.findEdgesLeaving(firstBody, firstBody, edges);
 

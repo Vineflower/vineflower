@@ -755,12 +755,11 @@ public class SFormsConstructor {
         break;
       }
 
-      if (parent.type == Statement.TYPE_CATCHALL ||
-          parent.type == Statement.TYPE_TRYCATCH) {
+      if (parent instanceof CatchAllStatement || parent instanceof CatchStatement) {
         if (parent.getFirst() == stat) {
           return parent;
         }
-      } else if (parent.type == Statement.TYPE_SYNCRONIZED) {
+      } else if (parent instanceof SynchronizedStatement) {
         if (((SynchronizedStatement) parent).getBody() == stat) {
           return parent;
         }
@@ -777,11 +776,11 @@ public class SFormsConstructor {
     SFormsFastMapDirect map;
 
     switch (stat.type) {
-      case Statement.TYPE_CATCHALL:
-      case Statement.TYPE_TRYCATCH:
+      case CATCH_ALL:
+      case TRY_CATCH:
 
         List<VarExprent> lstVars;
-        if (stat.type == Statement.TYPE_CATCHALL) {
+        if (stat instanceof CatchAllStatement) {
           lstVars = ((CatchAllStatement) stat).getVars();
         } else {
           lstVars = ((CatchStatement) stat).getVars();

@@ -8,19 +8,15 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 
-public class GeneralStatement extends Statement {
+public final class GeneralStatement extends Statement {
 
   // *****************************************************************************
   // constructors
   // *****************************************************************************
 
-  private GeneralStatement() {
-    type = Statement.TYPE_GENERAL;
-  }
-
   public GeneralStatement(Statement head, Collection<? extends Statement> statements, Statement post) {
 
-    this();
+    type = StatementType.GENERAL;
 
     first = head;
     stats.addWithKey(head, head.id);
