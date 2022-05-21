@@ -56,9 +56,9 @@ public class NewExprent extends Exprent {
     lambda = false;
     if (newType.type == CodeConstants.TYPE_OBJECT && newType.arrayDim == 0) {
       ClassNode node = DecompilerContext.getClassProcessor().getMapRootClasses().get(newType.value);
-      if (node != null && (node.type == ClassNode.CLASS_ANONYMOUS || node.type == ClassNode.CLASS_LAMBDA)) {
+      if (node != null && (node.type == ClassNode.Type.ANONYMOUS || node.type == ClassNode.Type.LAMBDA)) {
         anonymous = true;
-        if (node.type == ClassNode.CLASS_LAMBDA) {
+        if (node.type == ClassNode.Type.LAMBDA) {
           lambda = true;
           methodReference = node.lambdaInformation.is_method_reference;
         }
@@ -512,13 +512,13 @@ public class NewExprent extends Exprent {
   // TODO move to InvocationExprent
   public static boolean probablySyntheticParameter(String className) {
     ClassNode node = DecompilerContext.getClassProcessor().getMapRootClasses().get(className);
-    return node != null && node.type == ClassNode.CLASS_ANONYMOUS;
+    return node != null && node.type == ClassNode.Type.ANONYMOUS;
   }
 
   private static TextBuffer getQualifiedNewInstance(String classname, List<Exprent> lstParams, int indent) {
     ClassNode node = DecompilerContext.getClassProcessor().getMapRootClasses().get(classname);
 
-    if (node != null && node.type != ClassNode.CLASS_ROOT && node.type != ClassNode.CLASS_LOCAL
+    if (node != null && node.type != ClassNode.Type.ROOT && node.type != ClassNode.Type.LOCAL
         && (node.access & CodeConstants.ACC_STATIC) == 0) {
       if (!lstParams.isEmpty()) {
         Exprent enclosing = lstParams.get(0);
@@ -656,7 +656,7 @@ public class NewExprent extends Exprent {
                     ClassNode childNode = nested.removeFirst();
                     nested.addAll(childNode.nested);
 
-                    if (childNode.type == ClassNode.CLASS_LAMBDA && !childNode.lambdaInformation.is_method_reference) {
+                    if (childNode.type == ClassNode.Type.LAMBDA && !childNode.lambdaInformation.is_method_reference) {
                       MethodWrapper enclosedMethod = wrapper.getMethodWrapper(childNode.lambdaInformation.content_method_name, childNode.lambdaInformation.content_method_descriptor);
 
                       if (enclosedMethod != null && paramName.equals(enclosedMethod.varproc.getVarName(vpp))) {

@@ -90,7 +90,7 @@ public class ClassWriter {
       InitializerProcessor.extractInitializers(wrapper);
       InitializerProcessor.hideInitalizers(wrapper);
 
-      if (node.type == ClassNode.CLASS_ROOT &&
+      if (node.type == ClassNode.Type.ROOT &&
         cl.getVersion().has14ClassReferences() &&
         DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_CLASS_1_4)) {
         ClassReference14Processor.processClassReferences(node);
@@ -362,7 +362,7 @@ public class ClassWriter {
 
       // member classes
       for (ClassNode inner : node.nested) {
-        if (inner.type == ClassNode.CLASS_MEMBER) {
+        if (inner.type == ClassNode.Type.MEMBER) {
           StructClass innerCl = inner.classStruct;
           boolean isSynthetic = (inner.access & CodeConstants.ACC_SYNTHETIC) != 0 || innerCl.isSynthetic();
           boolean hide = isSynthetic && DecompilerContext.getOption(IFernflowerPreferences.REMOVE_SYNTHETIC) ||
@@ -380,7 +380,7 @@ public class ClassWriter {
 
       buffer.appendIndent(indent).append('}');
 
-      if (node.type != ClassNode.CLASS_ANONYMOUS) {
+      if (node.type != ClassNode.Type.ANONYMOUS) {
         buffer.appendLineSeparator();
       }
     }
@@ -494,7 +494,7 @@ public class ClassWriter {
   }
 
   private void writeClassDefinition(ClassNode node, TextBuffer buffer, int indent) {
-    if (node.type == ClassNode.CLASS_ANONYMOUS) {
+    if (node.type == ClassNode.Type.ANONYMOUS) {
       buffer.append(" {").appendLineSeparator();
       return;
     }
@@ -502,7 +502,7 @@ public class ClassWriter {
     ClassWrapper wrapper = node.getWrapper();
     StructClass cl = wrapper.getClassStruct();
 
-    int flags = node.type == ClassNode.CLASS_ROOT ? cl.getAccessFlags() : node.access;
+    int flags = node.type == ClassNode.Type.ROOT ? cl.getAccessFlags() : node.access;
     boolean isDeprecated = cl.hasAttribute(StructGeneralAttribute.ATTRIBUTE_DEPRECATED);
     boolean isSynthetic = (flags & CodeConstants.ACC_SYNTHETIC) != 0 || cl.hasAttribute(StructGeneralAttribute.ATTRIBUTE_SYNTHETIC);
     boolean isEnum = DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_ENUM) && (flags & CodeConstants.ACC_ENUM) != 0;
@@ -543,7 +543,7 @@ public class ClassWriter {
       flags &= ~CodeConstants.ACC_FINAL;
 
       // remove implicit static flag for local enums (JLS 14.3 Local class and interface declarations)
-      if (node.type == ClassNode.CLASS_LOCAL) {
+      if (node.type == ClassNode.Type.LOCAL) {
         flags &= ~CodeConstants.ACC_STATIC;
       }
     }
@@ -950,7 +950,7 @@ public class ClassWriter {
       buffer.appendIndent(indent);
 
       if (CodeConstants.INIT_NAME.equals(name)) {
-        if (node.type == ClassNode.CLASS_ANONYMOUS) {
+        if (node.type == ClassNode.Type.ANONYMOUS) {
           name = "";
           dInit = true;
         } else {
@@ -1352,7 +1352,7 @@ public class ClassWriter {
     ClassWrapper wrapper = node.getWrapper();
 	  StructClass cl = wrapper.getClassStruct();
 
-	  int classAccessFlags = node.type == ClassNode.CLASS_ROOT ? cl.getAccessFlags() : node.access;
+	  int classAccessFlags = node.type == ClassNode.Type.ROOT ? cl.getAccessFlags() : node.access;
     boolean isEnum = cl.hasModifier(CodeConstants.ACC_ENUM) && DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_ENUM);
 
     // default constructor requires same accessibility flags. Exception: enum constructor which is always private

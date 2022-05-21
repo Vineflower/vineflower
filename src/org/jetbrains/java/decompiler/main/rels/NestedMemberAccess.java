@@ -39,7 +39,7 @@ public class NestedMemberAccess {
 
 
   private void computeMethodTypes(ClassNode node) {
-    if (node.type == ClassNode.CLASS_LAMBDA) {
+    if (node.type == ClassNode.Type.LAMBDA) {
       return;
     }
 
@@ -206,7 +206,7 @@ public class NestedMemberAccess {
 
   private void eliminateStaticAccess(ClassNode node) {
 
-    if (node.type == ClassNode.CLASS_LAMBDA) {
+    if (node.type == ClassNode.Type.LAMBDA) {
       return;
     }
 
@@ -432,7 +432,7 @@ public class NestedMemberAccess {
       // hide synthetic access method
       boolean hide = true;
 
-      if (node.type == ClassNode.CLASS_ROOT || (node.access & CodeConstants.ACC_STATIC) != 0) {
+      if (node.type == ClassNode.Type.ROOT || (node.access & CodeConstants.ACC_STATIC) != 0) {
         StructMethod mt = methsource.methodStruct;
         if (!mt.isSynthetic()) {
           hide = false;

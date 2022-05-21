@@ -809,7 +809,7 @@ public class SimplifyExprentsHelper {
 
               String classname = newExpr.getNewType().value;
               ClassNode node = DecompilerContext.getClassProcessor().getMapRootClasses().get(classname);
-              if (node != null && node.type != ClassNode.CLASS_ROOT) {
+              if (node != null && node.type != ClassNode.Type.ROOT) {
                 return true;
               }
             }
