@@ -539,7 +539,7 @@ public class ConstExprent extends Exprent {
     measureBytecode(values);
   }
 
-  public ConstExprent markAsCondy() {
+  public ConstExprent markWasCondy() {
     wasCondy = true;
     return this;
   }

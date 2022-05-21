@@ -62,6 +62,16 @@ public static Method testGetSelfStaticFinal:"()Ljava/lang/Class;"
   areturn;
 }
 
+public static Method testStaticVarHandle:"()Ljava/lang/invoke/VarHandle;"
+	stack 1 locals 0
+{
+  ldc Dynamic REF_invokeStatic:java/lang/invoke/ConstantBootstraps.staticFieldVarHandle:"(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/Class;Ljava/lang/Class;)Ljava/lang/Object;":field:"Ljava/lang/invoke/VarHandle;"{
+    class "pkg/TestCondy",
+    class "java/lang/invoke/VarHandle"
+  };
+  areturn;
+}
+
 public static Method "test":"(I)Ljava/nio/file/StandardOpenOption;"
   stack 2 locals 1
 {

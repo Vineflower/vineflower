@@ -1,6 +1,7 @@
 package pkg;
 
 import java.lang.invoke.ConstantBootstraps;
+import java.lang.invoke.VarHandle;
 import java.lang.invoke.MethodHandles.Lookup;
 import java.nio.file.StandardOpenOption;
 
@@ -32,73 +33,85 @@ public class TestCondy {
       return /* $QF: constant dynamic */ selfField;// 62
    }
 
+   public static VarHandle testStaticVarHandle() {
+      return (VarHandle)ConstantBootstraps.staticFieldVarHandle<"field",TestCondy,VarHandle>();// 68 72
+   }
+
    public static StandardOpenOption test(int var0) {
-      return (StandardOpenOption[])TestConstantDynamic.getValues<"EnumC$Values">()[var0];// 68 72 73 74
+      return (StandardOpenOption[])TestConstantDynamic.getValues<"EnumC$Values">()[var0];// 78 82 83 84
    }
 
    public static StandardOpenOption[] getValues(Lookup var0, String var1, Class var2) {
-      return StandardOpenOption.values();// 80 81
+      return StandardOpenOption.values();// 90 91
    }
 }
 
 class 'pkg/TestCondy' {
    method 'testNull ()Ljava/lang/String;' {
-      2      11
+      2      12
    }
 
    method 'testEnum ()Lpkg/FakeEnum;' {
-      2      15
+      2      16
    }
 
    method 'testPrimitiveClass ()Ljava/lang/Class;' {
-      2      19
+      2      20
    }
 
    method 'testWrongPrimitiveClass ()Ljava/lang/Class;' {
-      0      23
-      1      23
-      2      23
+      0      24
+      1      24
+      2      24
    }
 
    method 'testGetStaticFinal ()Ljava/lang/Class;' {
-      2      27
+      2      28
    }
 
    method 'testGetSelfStaticFinal ()Ljava/lang/Class;' {
-      2      31
+      2      32
+   }
+
+   method 'testStaticVarHandle ()Ljava/lang/invoke/VarHandle;' {
+      0      36
+      1      36
+      2      36
    }
 
    method 'test (I)Ljava/nio/file/StandardOpenOption;' {
-      0      35
-      1      35
-      2      35
-      3      35
-      4      35
-      5      35
+      0      40
+      1      40
+      2      40
+      3      40
+      4      40
+      5      40
    }
 
    method 'getValues (Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/Class;)[Ljava/nio/file/StandardOpenOption;' {
-      0      39
-      1      39
-      2      39
-      3      39
+      0      44
+      1      44
+      2      44
+      3      44
    }
 }
 
 Lines mapping:
-25 <-> 12
-32 <-> 16
-39 <-> 20
-45 <-> 24
-46 <-> 24
-55 <-> 28
-62 <-> 32
-68 <-> 36
-72 <-> 36
-73 <-> 36
-74 <-> 36
-80 <-> 40
-81 <-> 40
+25 <-> 13
+32 <-> 17
+39 <-> 21
+45 <-> 25
+46 <-> 25
+55 <-> 29
+62 <-> 33
+68 <-> 37
+72 <-> 37
+78 <-> 41
+82 <-> 41
+83 <-> 41
+84 <-> 41
+90 <-> 45
+91 <-> 45
 Not mapped:
 24
 31

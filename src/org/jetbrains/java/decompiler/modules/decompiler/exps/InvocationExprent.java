@@ -71,6 +71,7 @@ public class InvocationExprent extends Exprent {
   private boolean forceBoxing = false;
   private boolean forceUnboxing = false;
   private boolean isSyntheticNullCheck = false;
+  private boolean wasLazyCondy = false;
 
   public InvocationExprent() {
     super(EXPRENT_INVOCATION);
@@ -186,6 +187,7 @@ public class InvocationExprent extends Exprent {
     bootstrapMethod = expr.getBootstrapMethod();
     bootstrapArguments = expr.getBootstrapArguments();
     isSyntheticNullCheck = expr.isSyntheticNullCheck();
+    wasLazyCondy = expr.wasLazyCondy;
 
     if (invocationTyp == INVOKE_DYNAMIC && !isStatic && instance != null && !lstParameters.isEmpty()) {
       // method reference, instance and first param are expected to be the same var object
@@ -518,6 +520,10 @@ public class InvocationExprent extends Exprent {
   @Override
   public TextBuffer toJava(int indent) {
     TextBuffer buf = new TextBuffer();
+
+    if (wasLazyCondy) {
+      buf.append("/* $QF: constant dynamic replaced with non-lazy method call */ ");
+    }
 
     String super_qualifier = null;
     boolean isInstanceThis = false;
@@ -1593,6 +1599,11 @@ public class InvocationExprent extends Exprent {
     measureBytecode(values, lstParameters);
     measureBytecode(values, instance);
     measureBytecode(values);
+  }
+
+  public InvocationExprent markWasLazyCondy() {
+    wasLazyCondy = true;
+    return this;
   }
 
   // *****************************************************************************

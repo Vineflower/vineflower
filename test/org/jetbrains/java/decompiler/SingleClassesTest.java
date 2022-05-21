@@ -115,6 +115,15 @@ public class SingleClassesTest extends SingleClassesTestBase {
       IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "0",
       IFernflowerPreferences.RENAME_ENTITIES, "1"
     );
+    registerSet("Complex Condys", () -> register(JASM, "TestComplexCondy"),
+      IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
+      IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
+      IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR, "0",
+      IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
+      IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
+      IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "0",
+      IFernflowerPreferences.DECOMPILE_COMPLEX_CONDYS, "1"
+    );
     // TODO: user renamer class test
   }
 
