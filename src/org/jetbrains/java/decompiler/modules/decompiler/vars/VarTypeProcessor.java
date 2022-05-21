@@ -4,26 +4,29 @@ package org.jetbrains.java.decompiler.modules.decompiler.vars;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectGraph;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 public class VarTypeProcessor {
-  public static final int VAR_NON_FINAL = 1;
-  public static final int VAR_EXPLICIT_FINAL = 2;
-  public static final int VAR_FINAL = 3;
+  public enum FinalType {
+    NON_FINAL, EXPLICIT_FINAL, FINAL
+  }
 
   private final StructMethod method;
   private final MethodDescriptor methodDescriptor;
   private final Map<VarVersionPair, VarType> mapExprentMinTypes = new HashMap<>();
   private final Map<VarVersionPair, VarType> mapExprentMaxTypes = new HashMap<>();
-  private final Map<VarVersionPair, Integer> mapFinalVars = new HashMap<>();
+  private final Map<VarVersionPair, FinalType> mapFinalVars = new HashMap<>();
 
   public VarTypeProcessor(StructMethod mt, MethodDescriptor md) {
     method = mt;
@@ -236,7 +239,7 @@ public class VarTypeProcessor {
     return mapExprentMinTypes;
   }
 
-  public Map<VarVersionPair, Integer> getMapFinalVars() {
+  public Map<VarVersionPair, FinalType> getMapFinalVars() {
     return mapFinalVars;
   }
 
