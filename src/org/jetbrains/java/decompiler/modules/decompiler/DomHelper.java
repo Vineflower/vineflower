@@ -311,7 +311,7 @@ public final class DomHelper {
       Statement stat = general.getFirst();
 
       // Root statement consists of a singular basic block
-      if (stat.type != Statement.StatementType.GENERAL) {
+      if (stat instanceof BasicBlockStatement) {
         return true;
       } else {
         boolean complete = processStatement(stat, root, mapExtPost);
@@ -389,7 +389,7 @@ public final class DomHelper {
             }
 
             // If every statement in this subgraph was discovered, return as we've decomposed this part of the graph
-            if (general.type == Statement.StatementType.PLACEHOLDER) {
+            if (((GeneralStatement) general).isPlaceholder()) {
               return true;
             }
 
@@ -630,10 +630,10 @@ public final class DomHelper {
 
           // If the statement we created contains the first statement of the general statement as it's first, we know that we've completed iteration to the point where every statment in the subgraph has been explored at least once, due to how the post order is created.
           // More iteration still happens to discover higher level structures (such as the case where basicblock -> if -> loop)
-          if (stat.type == Statement.StatementType.GENERAL && result.getFirst() == stat.getFirst() &&
+          if (stat instanceof GeneralStatement && !((GeneralStatement) stat).isPlaceholder() && result.getFirst() == stat.getFirst() &&
               stat.getStats().size() == result.getStats().size()) {
             // mark general statement
-            stat.type = Statement.StatementType.PLACEHOLDER;
+            ((GeneralStatement) stat).setPlaceholder(true);
           }
 
           stat.collapseNodesToStatement(result);
