@@ -19,25 +19,25 @@ public class TestEclipseSwitchString {
    }
 
    public int test1(String var1) {
-      label20: {
+      label19: {
          switch(var1.hashCode()) {// 19
             case 49:
                if (var1.equals("1")) {
                   return 1;// 24
                }
-               break label20;
+               break label19;
             case 50:
                if (!var1.equals("2")) {
-                  break label20;
+                  break label19;
                }
                break;
             case 51:
                if (!var1.equals("3")) {
-                  break label20;
+                  break label19;
                }
                break;
             default:
-               break label20;
+               break label19;
          }
 
          return 2;// 27
@@ -48,27 +48,27 @@ public class TestEclipseSwitchString {
    }
 
    public int test2(String var1) {
-      label21: {
+      label20: {
          switch(var1.hashCode()) {// 34
             case 49:
                if (!var1.equals("1")) {
-                  break label21;
+                  break label20;
                }
 
                System.out.println("Hello");// 39
                break;
             case 50:
                if (!var1.equals("2")) {
-                  break label21;
+                  break label20;
                }
                break;
             case 51:
                if (!var1.equals("3")) {
-                  break label21;
+                  break label20;
                }
                break;
             default:
-               break label21;
+               break label20;
          }
 
          return 2;// 42

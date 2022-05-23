@@ -113,7 +113,7 @@ public class DotExporter {
         // Add extra edge data
         // TODO do same for predecessors?
         for (Entry<StatEdge, String> entry : extraData.entrySet()) {
-          if (edge.getSource().id.equals(entry.getKey().getSource().id) && edge.getDestination().id.equals(entry.getKey().getDestination().id)) {
+          if (edge.getSource().id == entry.getKey().getSource().id && edge.getDestination().id == entry.getKey().getDestination().id) {
             edgeType = edgeType == null ? entry.getValue() : edgeType + " (" + entry.getValue() + ")";
             extraDataSeen.add(entry.getKey());
           }

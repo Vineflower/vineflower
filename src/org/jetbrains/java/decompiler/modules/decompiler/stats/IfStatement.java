@@ -49,7 +49,7 @@ public final class IfStatement extends Statement {
   // *****************************************************************************
 
   private IfStatement() {
-    type = StatementType.IF;
+    super(StatementType.IF);
 
     headexprent.add(null);
   }
@@ -202,7 +202,7 @@ public final class IfStatement extends Statement {
     buf.append(first.toJava(indent));
 
     if (isLabeled()) {
-      buf.appendIndent(indent).append("label").append(this.id.toString()).append(":").appendLineSeparator();
+      buf.appendIndent(indent).append("label").append(this.id).append(":").appendLineSeparator();
     }
 
     Exprent condition = headexprent.get(0);
@@ -229,7 +229,7 @@ public final class IfStatement extends Statement {
         }
 
         if (ifedge.labeled) {
-          buf.append(" label").append(ifedge.closure == null ? "<unknownclosure>" : ifedge.closure.id.toString());
+          buf.append(" label").append(ifedge.closure == null ? "<unknownclosure>" : Integer.toString(ifedge.closure.id));
         }
       }
       if(semicolon) {

@@ -18,7 +18,7 @@ public final class SequenceStatement extends Statement {
   // *****************************************************************************
 
   private SequenceStatement() {
-    type = StatementType.SEQUENCE;
+    super(StatementType.SEQUENCE);
   }
 
   public SequenceStatement(Statement... stats) {
@@ -95,7 +95,7 @@ public final class SequenceStatement extends Statement {
     buf.append(ExprProcessor.listToJava(varDefinitions, indent));
 
     if (islabeled) {
-      buf.appendIndent(indent++).append("label").append(this.id.toString()).append(": {").appendLineSeparator();
+      buf.appendIndent(indent++).append("label").append(this.id).append(": {").appendLineSeparator();
     }
 
     boolean notempty = false;

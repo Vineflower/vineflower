@@ -25,10 +25,10 @@ public class TestTryReturn {
    public void testFinally1(Supplier<Boolean> supplier) {
       System.out.println("pred");// 24
 
-      label32: {
+      label27: {
          try {
             if (!supplier.get()) {// 27
-               break label32;
+               break label27;
             }
          } finally {
             System.out.println("Finally");// 31
@@ -207,18 +207,18 @@ public class TestTryReturn {
    public void testVarWrong() {
       boolean var8 = false;
 
-      label49: {
-         label48: {
+      label40: {
+         label39: {
             try {
                try {
                   var8 = true;// 164
                   System.out.println("Hi");
                   var8 = false;
-                  break label49;
+                  break label40;
                } catch (Exception var9) {// 165
                   if (var9 != null) {
                      var8 = false;
-                     break label48;
+                     break label39;
                   }
                }
 

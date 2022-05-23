@@ -17,7 +17,7 @@ public final class GeneralStatement extends Statement {
 
   public GeneralStatement(Statement head, Collection<? extends Statement> statements, Statement post) {
 
-    type = StatementType.GENERAL;
+    super(StatementType.GENERAL);
 
     first = head;
     stats.addWithKey(head, head.id);
@@ -41,7 +41,7 @@ public final class GeneralStatement extends Statement {
     TextBuffer buf = new TextBuffer();
 
     if (isLabeled()) {
-      buf.appendIndent(indent).append("label").append(this.id.toString()).append(":").appendLineSeparator();
+      buf.appendIndent(indent).append("label").append(this.id).append(":").appendLineSeparator();
     }
 
     buf.appendIndent(indent).append("abstract statement {").appendLineSeparator();

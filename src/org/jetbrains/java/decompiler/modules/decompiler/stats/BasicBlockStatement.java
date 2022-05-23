@@ -32,11 +32,10 @@ public final class BasicBlockStatement extends Statement {
 
   public BasicBlockStatement(BasicBlock block) {
 
-    type = StatementType.BASIC_BLOCK;
+    super(StatementType.BASIC_BLOCK, block.id);
 
     this.block = block;
 
-    id = block.id;
     CounterContainer coun = DecompilerContext.getCounterContainer();
     if (id >= coun.getCounter(CounterContainer.STATEMENT_COUNTER)) {
       coun.setCounter(CounterContainer.STATEMENT_COUNTER, id + 1);

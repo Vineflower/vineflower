@@ -815,7 +815,7 @@ public class ExprProcessor implements CodeConstants {
         }
 
         if (edge.labeled) {
-          buf.append(" label").append(edge.closure.id.toString());
+          buf.append(" label").append(edge.closure.id);
         }
         buf.append(";").appendLineSeparator();
       }

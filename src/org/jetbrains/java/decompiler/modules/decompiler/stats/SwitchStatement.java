@@ -46,7 +46,7 @@ public final class SwitchStatement extends Statement {
   private boolean phantom;
 
   private SwitchStatement() {
-    type = StatementType.SWITCH;
+    super(StatementType.SWITCH);
 
     headexprent.add(null);
   }
@@ -124,7 +124,7 @@ public final class SwitchStatement extends Statement {
     }
 
     if (isLabeled()) {
-      buf.appendIndent(indent).append("label").append(this.id.toString()).append(":").appendLineSeparator();
+      buf.appendIndent(indent).append("label").append(this.id).append(":").appendLineSeparator();
     }
 
     buf.appendIndent(indent);
