@@ -7,7 +7,7 @@ public final class DummyExitStatement extends Statement {
   public BitSet bytecode = null;  // offsets of bytecode instructions mapped to dummy exit
 
   public DummyExitStatement() {
-    type = StatementType.DUMMY_EXIT;
+    super(StatementType.DUMMY_EXIT);
   }
 
   public void addBytecodeOffsets(BitSet bytecodeOffsets) {

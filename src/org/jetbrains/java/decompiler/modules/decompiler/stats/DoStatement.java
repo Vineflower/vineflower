@@ -29,7 +29,7 @@ public final class DoStatement extends Statement {
   // *****************************************************************************
 
   private DoStatement() {
-    type = StatementType.DO;
+    super(StatementType.DO);
     looptype = Type.INFINITE;
 
     initExprent.add(null);
@@ -84,7 +84,7 @@ public final class DoStatement extends Statement {
     buf.append(ExprProcessor.listToJava(varDefinitions, indent));
 
     if (isLabeled()) {
-      buf.appendIndent(indent).append("label").append(this.id.toString()).append(":").appendLineSeparator();
+      buf.appendIndent(indent).append("label").append(this.id).append(":").appendLineSeparator();
     }
 
     switch (looptype) {

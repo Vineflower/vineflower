@@ -30,7 +30,7 @@ public final class CatchStatement extends Statement {
   // *****************************************************************************
 
   private CatchStatement() {
-    type = StatementType.TRY_CATCH;
+    super(StatementType.TRY_CATCH);
   }
 
   private CatchStatement(Statement head, Statement next, Set<Statement> setHandlers) {
@@ -149,7 +149,7 @@ public final class CatchStatement extends Statement {
     buf.append(ExprProcessor.listToJava(varDefinitions, indent));
 
     if (isLabeled()) {
-      buf.appendIndent(indent).append("label").append(this.id.toString()).append(":").appendLineSeparator();
+      buf.appendIndent(indent).append("label").append(this.id).append(":").appendLineSeparator();
     }
 
     if (resources.isEmpty()) {

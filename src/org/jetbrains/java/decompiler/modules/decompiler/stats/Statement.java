@@ -51,9 +51,9 @@ public abstract class Statement implements IMatchable {
   // public fields
   // *****************************************************************************
 
-  public StatementType type;
+  public final StatementType type;
 
-  public Integer id;
+  public final int id;
 
   // *****************************************************************************
   // private fields
@@ -95,9 +95,13 @@ public abstract class Statement implements IMatchable {
   // initializers
   // *****************************************************************************
 
-  {
-    // set statement id
-    id = DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.STATEMENT_COUNTER);
+  protected Statement(StatementType type, int id) {
+    this.type = type;
+    this.id = id;
+  }
+
+  protected Statement(StatementType type) {
+    this(type, DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.STATEMENT_COUNTER));
   }
 
   // *****************************************************************************

@@ -38,7 +38,7 @@ public class TestSynchronizedLoop {
 
    public void test12(int i) {
       synchronized(this) {// 41
-         label94: {
+         label79: {
             System.out.println(1);// 42
 
             while(i > 0) {// 43
@@ -50,7 +50,7 @@ public class TestSynchronizedLoop {
                } finally {
                   System.out.println(1.7);// 49
                   if (i > 5) {// 50
-                     break label94;
+                     break label79;
                   }
 
                }

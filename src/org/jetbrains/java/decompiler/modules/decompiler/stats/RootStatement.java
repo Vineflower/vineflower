@@ -17,7 +17,7 @@ public final class RootStatement extends Statement {
   public boolean addErrorComment = false;
 
   public RootStatement(Statement head, DummyExitStatement dummyExit, StructMethod mt) {
-    type = StatementType.ROOT;
+    super(StatementType.ROOT);
 
     first = head;
     this.dummyExit = dummyExit;
