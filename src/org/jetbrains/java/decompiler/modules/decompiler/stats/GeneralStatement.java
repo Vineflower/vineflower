@@ -9,6 +9,7 @@ import java.util.Set;
 
 
 public final class GeneralStatement extends Statement {
+  private boolean placeholder;
 
   // *****************************************************************************
   // constructors
@@ -51,5 +52,13 @@ public final class GeneralStatement extends Statement {
     buf.appendLineSeparator();
 
     return buf;
+  }
+
+  public void setPlaceholder(boolean placeholder) {
+    this.placeholder = placeholder;
+  }
+
+  public boolean isPlaceholder() {
+    return placeholder;
   }
 }

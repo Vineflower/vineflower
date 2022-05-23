@@ -371,14 +371,13 @@ public class DotExporter {
 
   private static String getStatType(Statement st) {
     switch (st.type) {
-      case GENERAL: return "General";
+      case GENERAL: return ((GeneralStatement) st).isPlaceholder() ? "General (Placeholder)" : "General";
       case IF: return "If";
       case DO: return "Do";
       case SWITCH: return "Switch";
       case TRY_CATCH: return "Try Catch";
       case BASIC_BLOCK: return "Basic Block #" + ((BasicBlockStatement)st).getBlock().id;
       case SYNCHRONIZED: return "Synchronized";
-      case PLACEHOLDER: return "Placeholder";
       case CATCH_ALL: return "Catch All";
       case ROOT: return "Root";
       case DUMMY_EXIT: return "Dummy Exit";

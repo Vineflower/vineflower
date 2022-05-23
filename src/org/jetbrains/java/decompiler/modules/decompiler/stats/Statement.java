@@ -27,7 +27,7 @@ import java.util.Map.Entry;
 public abstract class Statement implements IMatchable {
   public enum StatementType {
     ROOT, BASIC_BLOCK, SEQUENCE, DUMMY_EXIT,
-    GENERAL, PLACEHOLDER,
+    GENERAL,
     IF, DO, SWITCH,
     SYNCHRONIZED, TRY_CATCH, CATCH_ALL,
   }
