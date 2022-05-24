@@ -2,8 +2,6 @@ package pkg;
 
 public class TestSwitchPatternMatching3 {
    static void test(Object s) {
-      byte var2 = 0;
-
       switch(s) {// 5
          case null -> System.out.println("null");// 7
          default -> System.out.println("default");// 9
@@ -13,30 +11,28 @@ public class TestSwitchPatternMatching3 {
 
 class 'pkg/TestSwitchPatternMatching3' {
    method 'test (Ljava/lang/Object;)V' {
-      0      6
-      2      4
-      3      4
-      b      6
-      1c      7
-      1d      7
-      1e      7
-      1f      7
-      20      7
-      21      7
-      22      7
-      23      7
-      27      8
-      28      8
-      29      8
-      2a      8
-      2b      8
-      2c      8
-      2f      10
+      0      4
+      b      4
+      1c      5
+      1d      5
+      1e      5
+      1f      5
+      20      5
+      21      5
+      22      5
+      23      5
+      27      6
+      28      6
+      29      6
+      2a      6
+      2b      6
+      2c      6
+      2f      8
    }
 }
 
 Lines mapping:
-5 <-> 7
-7 <-> 8
-9 <-> 9
-11 <-> 11
+5 <-> 5
+7 <-> 6
+9 <-> 7
+11 <-> 9

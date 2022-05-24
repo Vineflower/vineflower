@@ -2,7 +2,6 @@ package pkg;
 
 public class TestSwitchPatternMatching7 {
    static String test(Object s) {
-      byte var2 = 0;
       switch(s) {
          case null:
          default:
@@ -13,16 +12,14 @@ public class TestSwitchPatternMatching7 {
 
 class 'pkg/TestSwitchPatternMatching7' {
    method 'test (Ljava/lang/Object;)Ljava/lang/String;' {
-      0      5
-      2      4
-      3      4
-      b      5
-      1c      8
-      1d      8
-      1e      8
+      0      4
+      b      4
+      1c      7
+      1d      7
+      1e      7
    }
 }
 
 Lines mapping:
-5 <-> 9
-6 <-> 9
+5 <-> 8
+6 <-> 8

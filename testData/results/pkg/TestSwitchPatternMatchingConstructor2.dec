@@ -8,7 +8,6 @@ public class TestSwitchPatternMatchingConstructor2 {
    }// 6
 
    private TestSwitchPatternMatchingConstructor2(Object s) {
-      byte var3 = 0;
       String var10001;
 
       switch(s) {
@@ -20,7 +19,6 @@ public class TestSwitchPatternMatchingConstructor2 {
 
    private TestSwitchPatternMatchingConstructor2(Object s, boolean unused) {
       Objects.requireNonNull(s);
-      byte var4 = 0;
       switch(s) {
          default:
             this("Non-triangle");// 16 17
@@ -41,46 +39,41 @@ class 'pkg/TestSwitchPatternMatchingConstructor2' {
    }
 
    method '<init> (Ljava/lang/Object;)V' {
-      1      13
-      3      10
-      4      10
-      c      13
-      20      14
-      21      14
-      25      15
-      27      17
-      28      17
-      29      17
-      2a      18
+      1      12
+      c      12
+      20      13
+      21      13
+      25      14
+      27      16
+      28      16
+      29      16
+      2a      17
    }
 
    method '<init> (Ljava/lang/Object;Z)V' {
-      1      21
-      3      21
-      4      21
-      5      21
-      8      22
-      9      22
-      a      22
-      13      23
-      1c      25
-      1d      25
-      1e      25
-      1f      25
-      20      25
-      21      27
+      1      20
+      3      20
+      4      20
+      5      20
+      13      21
+      1c      23
+      1d      23
+      1e      23
+      1f      23
+      20      23
+      21      25
    }
 }
 
 Lines mapping:
 5 <-> 7
 6 <-> 8
-9 <-> 18
-10 <-> 15
-11 <-> 16
-13 <-> 19
-16 <-> 26
-17 <-> 26
-19 <-> 28
+9 <-> 17
+10 <-> 14
+11 <-> 15
+13 <-> 18
+16 <-> 24
+17 <-> 24
+19 <-> 26
 Not mapped:
 4

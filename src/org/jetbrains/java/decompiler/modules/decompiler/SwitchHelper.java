@@ -411,8 +411,9 @@ public final class SwitchHelper {
    * @param onlyOneStat if true, will return eagerly after the first matching statement
    * @param consumer    the consumer that receives the exprents and their parent statements
    */
+  // TODO: move somewhere better
   @SuppressWarnings("unchecked")
-  private static <T extends Exprent> void findExprents(Statement start, Class<? extends T> exprClass, Predicate<T> predicate, boolean onlyOneStat, BiConsumer<Statement, T> consumer) {
+  public static <T extends Exprent> void findExprents(Statement start, Class<? extends T> exprClass, Predicate<T> predicate, boolean onlyOneStat, BiConsumer<Statement, T> consumer) {
     Queue<Statement> statQueue = new ArrayDeque<>();
     statQueue.offer(start);
 
