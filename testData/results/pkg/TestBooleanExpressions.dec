@@ -5,8 +5,7 @@ public class TestBooleanExpressions {
    public TestBooleanExpressions[] array;
 
    public int test(int i) {
-      byte var3;
-      return i > 0 && i < 10 && this.array[var3].field > 0 ? this.array[var3].field : -1;// 9
+      return i > 0 && i < 10 && this.array[i].field > 0 ? this.array[i].field : -1;// 9
    }
 
    public int test1() {
@@ -14,8 +13,7 @@ public class TestBooleanExpressions {
    }
 
    public int test2() {
-      <unknown> var2;
-      return var2.get().array[0].field;// 17
+      return this.get().array[0].field;// 17
    }
 
    public TestBooleanExpressions get() {
@@ -25,72 +23,72 @@ public class TestBooleanExpressions {
 
 class 'pkg/TestBooleanExpressions' {
    method 'test (I)I' {
-      0      8
-      1      8
-      4      8
-      5      8
-      6      8
-      7      8
-      a      8
-      b      8
-      c      8
-      d      8
-      e      8
-      f      8
-      10      8
-      11      8
-      12      8
-      13      8
-      16      8
-      17      8
-      18      8
-      19      8
-      1a      8
-      1b      8
-      1c      8
-      1d      8
-      1e      8
-      22      8
-      23      8
+      0      7
+      1      7
+      4      7
+      5      7
+      6      7
+      7      7
+      a      7
+      b      7
+      c      7
+      d      7
+      e      7
+      f      7
+      10      7
+      11      7
+      12      7
+      13      7
+      16      7
+      17      7
+      18      7
+      19      7
+      1a      7
+      1b      7
+      1c      7
+      1d      7
+      1e      7
+      22      7
+      23      7
    }
 
    method 'test1 ()I' {
-      0      12
-      1      12
-      2      12
-      3      12
-      4      12
-      5      12
-      6      12
-      7      12
-      8      12
-      9      12
+      0      11
+      1      11
+      2      11
+      3      11
+      4      11
+      5      11
+      6      11
+      7      11
+      8      11
+      9      11
    }
 
    method 'test2 ()I' {
-      0      17
-      1      17
-      2      17
-      3      17
-      4      17
-      5      17
-      6      17
-      7      17
-      8      17
-      9      17
-      a      17
-      b      17
-      c      17
+      0      15
+      1      15
+      2      15
+      3      15
+      4      15
+      5      15
+      6      15
+      7      15
+      8      15
+      9      15
+      a      15
+      b      15
+      c      15
    }
 
    method 'get ()Lpkg/TestBooleanExpressions;' {
-      0      21
-      1      21
+      0      19
+      1      19
    }
 }
 
 Lines mapping:
-9 <-> 9
-13 <-> 13
-17 <-> 18
-21 <-> 22
+9 <-> 8
+13 <-> 12
+17 <-> 16
+21 <-> 20

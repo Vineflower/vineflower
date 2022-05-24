@@ -443,11 +443,11 @@ public class SFormsConstructor {
         break;
       }
       case Exprent.EXPRENT_FIELD: {
+        FieldExprent field = (FieldExprent) expr;
+        this.processExprent(field.getInstance(), varMaps, stat, calcLiveVars);
+
         // a read of a field variable.
         if (this.trackFieldVars) {
-          FieldExprent field = (FieldExprent) expr;
-          this.processExprent(field.getInstance(), varMaps, stat, calcLiveVars);
-
           int index;
           if (this.mapFieldVars.containsKey(expr.id)) {
             index = this.mapFieldVars.get(expr.id);
