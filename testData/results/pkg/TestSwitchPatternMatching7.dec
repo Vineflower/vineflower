@@ -1,11 +1,9 @@
 package pkg;
 
-import java.lang.runtime.SwitchBootstraps;
-
 public class TestSwitchPatternMatching7 {
    static String test(Object s) {
       byte var2 = 0;
-      switch(SwitchBootstraps.typeSwitch<"typeSwitch">(s, var2)) {
+      switch(s) {
          case null:
          default:
             return "everything";// 5 6
@@ -15,22 +13,16 @@ public class TestSwitchPatternMatching7 {
 
 class 'pkg/TestSwitchPatternMatching7' {
    method 'test (Ljava/lang/Object;)Ljava/lang/String;' {
-      0      7
-      2      6
-      3      6
-      5      7
-      6      7
-      7      7
-      8      7
-      9      7
-      a      7
-      b      7
-      1c      10
-      1d      10
-      1e      10
+      0      5
+      2      4
+      3      4
+      b      5
+      1c      8
+      1d      8
+      1e      8
    }
 }
 
 Lines mapping:
-5 <-> 11
-6 <-> 11
+5 <-> 9
+6 <-> 9

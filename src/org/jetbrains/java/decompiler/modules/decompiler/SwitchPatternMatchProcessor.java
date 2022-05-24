@@ -140,12 +140,11 @@ public final class SwitchPatternMatchProcessor {
         suc.addSuccessor(new StatEdge(StatEdge.TYPE_REGULAR, suc, oldSuc, seq));
       }
 
-      head.setValue(((InvocationExprent)head.getValue()).getLstParameters().get(0));
-
       stat.setPhantom(true);
-
       suc.getExprents().add(0, new SwitchExprent(stat, VarType.VARTYPE_INT, false, true));
     }
+
+    head.setValue(((InvocationExprent)head.getValue()).getLstParameters().get(0));
 
     return false;
   }
