@@ -1,0 +1,96 @@
+package pkg;
+
+public class TestBooleanExpressions {
+   public int field;
+   public TestBooleanExpressions[] array;
+
+   public int test(int i) {
+      byte var3;
+      return i > 0 && i < 10 && this.array[var3].field > 0 ? this.array[var3].field : -1;// 9
+   }
+
+   public int test1() {
+      return this.array[0].field;// 13
+   }
+
+   public int test2() {
+      <unknown> var2;
+      return var2.get().array[0].field;// 17
+   }
+
+   public TestBooleanExpressions get() {
+      return this;// 21
+   }
+}
+
+class 'pkg/TestBooleanExpressions' {
+   method 'test (I)I' {
+      0      8
+      1      8
+      4      8
+      5      8
+      6      8
+      7      8
+      a      8
+      b      8
+      c      8
+      d      8
+      e      8
+      f      8
+      10      8
+      11      8
+      12      8
+      13      8
+      16      8
+      17      8
+      18      8
+      19      8
+      1a      8
+      1b      8
+      1c      8
+      1d      8
+      1e      8
+      22      8
+      23      8
+   }
+
+   method 'test1 ()I' {
+      0      12
+      1      12
+      2      12
+      3      12
+      4      12
+      5      12
+      6      12
+      7      12
+      8      12
+      9      12
+   }
+
+   method 'test2 ()I' {
+      0      17
+      1      17
+      2      17
+      3      17
+      4      17
+      5      17
+      6      17
+      7      17
+      8      17
+      9      17
+      a      17
+      b      17
+      c      17
+   }
+
+   method 'get ()Lpkg/TestBooleanExpressions;' {
+      0      21
+      1      21
+   }
+}
+
+Lines mapping:
+9 <-> 9
+13 <-> 13
+17 <-> 18
+21 <-> 22

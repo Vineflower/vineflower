@@ -570,6 +570,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: merging of trycatch incorrect
     register(JAVA_8, "TestTryCatchNested");
     register(JAVA_8, "TestSwitchTernary");
+    register(JAVA_8, "TestBooleanExpressions");
   }
 
   private void registerEntireClassPath() {
