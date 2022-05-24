@@ -80,7 +80,7 @@ public class SwitchExprent extends Exprent {
           buf.append(", ");
         }
 
-        if (value instanceof ConstExprent && !standalone && value.getExprType() != VarType.VARTYPE_NULL) {
+        if (value instanceof ConstExprent && !standalone && !Objects.equals(value.getExprType(), VarType.VARTYPE_NULL)) {
           value = value.copy();
           ((ConstExprent) value).setConstType(switchType);
         }
@@ -125,7 +125,7 @@ public class SwitchExprent extends Exprent {
         if (exprent.type == Exprent.EXPRENT_YIELD) {
           Exprent content = ((YieldExprent) exprent).getContent();
 
-          if (content.type == Exprent.EXPRENT_CONST) {
+          if (content.type == Exprent.EXPRENT_CONST && !Objects.equals(content.getExprType(), VarType.VARTYPE_NULL)) {
             ((ConstExprent)content).setConstType(this.type);
           }
 
