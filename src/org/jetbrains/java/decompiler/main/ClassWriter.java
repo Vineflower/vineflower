@@ -418,7 +418,14 @@ public class ClassWriter {
     if (!requiresEntries.isEmpty()) {
       for (StructModuleAttribute.RequiresEntry requires : requiresEntries) {
         if (!isGenerated(requires.flags)) {
-          buffer.appendIndent(1).append("requires ").append(requires.moduleName.replace('/', '.')).append(';').appendLineSeparator();
+          buffer.appendIndent(1).append("requires ");
+          if ((requires.flags & CodeConstants.ACC_TRANSITIVE) != 0) {
+            buffer.append("transitive ");
+          }
+          if ((requires.flags & CodeConstants.ACC_STATIC_PHASE) != 0) {
+            buffer.append("static ");
+          }
+          buffer.append(requires.moduleName.replace('/', '.')).append(';').appendLineSeparator();
           newLineNeeded = true;
         }
       }
