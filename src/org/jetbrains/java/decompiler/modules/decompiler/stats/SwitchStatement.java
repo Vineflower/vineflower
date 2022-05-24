@@ -157,7 +157,7 @@ public final class SwitchStatement extends Statement {
 
           buf.appendIndent(indent + 1).append("case ");
 
-          if (value instanceof ConstExprent) {
+          if (value instanceof ConstExprent && !value.getExprType().equals(VarType.VARTYPE_NULL)) {
             value = value.copy();
             ((ConstExprent)value).setConstType(switch_type);
           }

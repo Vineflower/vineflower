@@ -6,7 +6,7 @@ public class TestSwitchPatternMatching7 {
    static String test(Object s) {
       byte var2 = 0;
       switch(SwitchBootstraps.typeSwitch<"typeSwitch">(s, var2)) {
-         case int:
+         case null:
          default:
             return "everything";// 5 6
       }
