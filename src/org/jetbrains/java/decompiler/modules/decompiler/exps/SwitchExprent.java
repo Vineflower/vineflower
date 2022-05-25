@@ -11,10 +11,7 @@ import org.jetbrains.java.decompiler.struct.StructField;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 
-import java.util.BitSet;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class SwitchExprent extends Exprent {
   private final SwitchStatement backing;
@@ -84,7 +81,7 @@ public class SwitchExprent extends Exprent {
           buf.append(", ");
         }
 
-        if (value instanceof ConstExprent && !standalone && value.getExprType() != VarType.VARTYPE_NULL) {
+        if (value instanceof ConstExprent && !standalone && !Objects.equals(value.getExprType(), VarType.VARTYPE_NULL)) {
           value = value.copy();
           ((ConstExprent) value).setConstType(switchType);
         }
@@ -126,7 +123,7 @@ public class SwitchExprent extends Exprent {
         if (exprent instanceof YieldExprent) {
           Exprent content = ((YieldExprent) exprent).getContent();
 
-          if (content instanceof ConstExprent) {
+          if (content instanceof ConstExprent && !Objects.equals(content.getExprType(), VarType.VARTYPE_NULL)) {
             ((ConstExprent)content).setConstType(this.type);
           }
 

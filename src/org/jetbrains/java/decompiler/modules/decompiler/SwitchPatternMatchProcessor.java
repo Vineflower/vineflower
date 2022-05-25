@@ -5,13 +5,14 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.Fun
 import org.jetbrains.java.decompiler.modules.decompiler.exps.InvocationExprent.InvocationType;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
+import org.jetbrains.java.decompiler.util.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public final class SwitchPatternMatchProcessor {
   public static boolean processPatternMatching(Statement root) {
-    boolean ret = processPatternMatchingRec(root);
+    boolean ret = processPatternMatchingRec(root, root);
 
     if (ret) {
       SequenceHelper.condenseSequences(root);
@@ -20,20 +21,20 @@ public final class SwitchPatternMatchProcessor {
     return ret;
   }
 
-  private static boolean processPatternMatchingRec(Statement stat) {
+  private static boolean processPatternMatchingRec(Statement stat, Statement root) {
     boolean ret = false;
     for (Statement st : new ArrayList<>(stat.getStats())) {
-      ret |= processPatternMatchingRec(st);
+      ret |= processPatternMatchingRec(st, root);
     }
 
     if (stat instanceof SwitchStatement) {
-      ret |= processStatement((SwitchStatement) stat);
+      ret |= processStatement((SwitchStatement) stat, root);
     }
 
     return ret;
   }
 
-  private static boolean processStatement(SwitchStatement stat) {
+  private static boolean processStatement(SwitchStatement stat, Statement root) {
     if (stat.isPhantom()) {
       return false;
     }
@@ -139,11 +140,26 @@ public final class SwitchPatternMatchProcessor {
         suc.addSuccessor(new StatEdge(StatEdge.TYPE_REGULAR, suc, oldSuc, seq));
       }
 
-      head.setValue(((InvocationExprent)head.getValue()).getLstParameters().get(0));
-
       stat.setPhantom(true);
-
       suc.getExprents().add(0, new SwitchExprent(stat, VarType.VARTYPE_INT, false, true));
+    }
+
+    // replace `SwitchBootstraps.typeSwitch<...>(o, idx)` with `o` and check if `idx` is still used
+    List<Exprent> origParams = ((InvocationExprent) head.getValue()).getLstParameters();
+    head.setValue(origParams.get(0));
+    if (origParams.get(1) instanceof VarExprent) {
+      // check uses the same way SwitchHelper does
+      VarExprent var = (VarExprent) origParams.get(1);
+      List<Pair<Statement, Exprent>> references = new ArrayList<>();
+      SwitchHelper.findExprents(root, Exprent.class, var::isVarReferenced, false, (st, expr) -> references.add(Pair.of(st, expr)));
+      // If we only have one reference...
+      if (references.size() == 1) {
+        // ...and if it's just an assignment, remove it.
+        Pair<Statement, Exprent> ref = references.get(0);
+        if (ref.b instanceof AssignmentExprent && ((AssignmentExprent) ref.b).getLeft().equals(var)) {
+          ref.a.getExprents().remove(ref.b);
+        }
+      }
     }
 
     return false;

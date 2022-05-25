@@ -4,10 +4,10 @@ import ext.Direction;
 
 public class TestSwitchPatternMatching6 {
    static int testTriangle(Direction d) {
-      return switch(d != null ? SyntheticClass_1.$SwitchMap$ext$Direction[d.ordinal()] : -1) {// 1 7
-         default -> -1;// 10
-         case 1, 2, 3 -> 0;// 8
-         case 4, 5 -> 1;// 9
+      return switch(d) {// 7
+         case null, default -> -1;// 10
+         case NORTH, SOUTH, WEST -> 0;// 8
+         case EAST, UP -> 1;// 9
       };
    }
 }
@@ -15,15 +15,6 @@ public class TestSwitchPatternMatching6 {
 class 'pkg/TestSwitchPatternMatching6' {
    method 'testTriangle (Lext/Direction;)I' {
       0      6
-      3      6
-      6      6
-      7      6
-      8      6
-      a      6
-      b      6
-      c      6
-      d      6
-      11      6
       12      6
       40      8
       44      9
@@ -33,8 +24,9 @@ class 'pkg/TestSwitchPatternMatching6' {
 }
 
 Lines mapping:
-1 <-> 7
 7 <-> 7
 8 <-> 9
 9 <-> 10
 10 <-> 8
+Not mapped:
+1

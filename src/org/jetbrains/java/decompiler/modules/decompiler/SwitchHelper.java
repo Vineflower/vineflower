@@ -125,6 +125,7 @@ public final class SwitchHelper {
       for (List<Exprent> caseValue : caseValues) {
         List<Exprent> values = new ArrayList<>(caseValue.size());
         realCaseValues.add(values);
+        cases:
         for (Exprent exprent : caseValue) {
           if (exprent == null) {
             values.add(null);
@@ -132,6 +133,28 @@ public final class SwitchHelper {
           else {
             Exprent realConst = mapping.get(exprent);
             if (realConst == null) {
+              if (exprent instanceof ConstExprent) {
+                ConstExprent constLabel = (ConstExprent) exprent;
+                if (constLabel.getConstType().typeFamily == CodeConstants.TYPE_FAMILY_INTEGER) {
+                  int intLabel = constLabel.getIntValue();
+                  // check for -1, used by nullable switches for the null branch
+                  if (intLabel == -1) {
+                    values.add(new ConstExprent(VarType.VARTYPE_NULL, null, null));
+                    continue;
+                  }
+                  // other values can show up in a `tableswitch`, such as in [-1, fall-through synthetic 0, 1, 2, ...]
+                  // they must have a valid value later though
+                  // TODO: more tests
+                  for (Exprent key : mapping.keySet()) {
+                    if (key instanceof ConstExprent
+                        && ((ConstExprent) key).getConstType().typeFamily == CodeConstants.TYPE_FAMILY_INTEGER
+                        && ((ConstExprent) key).getIntValue() > intLabel) {
+                      values.add(key.copy());
+                      continue cases;
+                    }
+                  }
+                }
+              }
               root.addComment("$QF: Unable to simplify switch on enum");
               root.addErrorComment = true;
               DecompilerContext.getLogger()
@@ -289,14 +312,14 @@ public final class SwitchHelper {
           return false;
         }
 
-        boolean isSyncheticClass;
+        boolean isSyntheticClass;
         if (classNode.getWrapper() == null) {
-          isSyncheticClass = (classNode.classStruct.getAccessFlags() & CodeConstants.ACC_SYNTHETIC) == CodeConstants.ACC_SYNTHETIC;
+          isSyntheticClass = (classNode.classStruct.getAccessFlags() & CodeConstants.ACC_SYNTHETIC) == CodeConstants.ACC_SYNTHETIC;
         } else {
-          isSyncheticClass = (classNode.getWrapper().getClassStruct().getAccessFlags() & CodeConstants.ACC_SYNTHETIC) == CodeConstants.ACC_SYNTHETIC;
+          isSyntheticClass = (classNode.getWrapper().getClassStruct().getAccessFlags() & CodeConstants.ACC_SYNTHETIC) == CodeConstants.ACC_SYNTHETIC;
         }
 
-        if (isSyncheticClass) {
+        if (isSyntheticClass) {
           return true; //TODO: Find a way to check the structure of the initalizer?
           //Exprent init = classNode.getWrapper().getStaticFieldInitializers().getWithKey(InterpreterUtil.makeUniqueKey(field.getName(), field.getDescriptor().descriptorString));
           //Above is null because we haven't preocess the class yet?
@@ -318,6 +341,29 @@ public final class SwitchHelper {
    */
   private static ArrayExprent getEnumArrayExprent(Exprent switchHead, RootStatement root) {
     Exprent candidate = switchHead;
+
+    if (switchHead instanceof FunctionExprent) {
+      // Check for switches on a ternary expression like `a != null ? ...SwitchMap[a.ordinal()] : -1` (nullable switch)
+      FunctionExprent func = (FunctionExprent) switchHead;
+      if (func.getFuncType() == FunctionExprent.FunctionType.TERNARY && func.getLstOperands().size() == 3) {
+        List<Exprent> ops = func.getLstOperands();
+        if (ops.get(0) instanceof FunctionExprent) {
+          FunctionExprent nn = (FunctionExprent) ops.get(0);
+          if (nn.getFuncType() == FunctionExprent.FunctionType.NE
+                && nn.getLstOperands().get(0) instanceof VarExprent
+                && nn.getLstOperands().get(1).getExprType().equals(VarType.VARTYPE_NULL)) {
+            // TODO: consider if verifying the variable used is necessary
+            // probably not, since the array is checked to be generated (?) so user written code shouldn't encounter bad resugaring
+            if (ops.get(2) instanceof ConstExprent) {
+              ConstExprent minusOne = (ConstExprent) ops.get(2);
+              if (minusOne.getConstType().equals(VarType.VARTYPE_INT) && minusOne.getIntValue() == -1) {
+                candidate = ops.get(1);
+              }
+            }
+          }
+        }
+      }
+    }
 
     if (switchHead instanceof VarExprent) {
       // Check for switches with intermediary assignment of enum array index
@@ -366,8 +412,9 @@ public final class SwitchHelper {
    * @param onlyOneStat if true, will return eagerly after the first matching statement
    * @param consumer    the consumer that receives the exprents and their parent statements
    */
+  // TODO: move somewhere better
   @SuppressWarnings("unchecked")
-  private static <T extends Exprent> void findExprents(Statement start, Class<? extends T> exprClass, Predicate<T> predicate, boolean onlyOneStat, BiConsumer<Statement, T> consumer) {
+  public static <T extends Exprent> void findExprents(Statement start, Class<? extends T> exprClass, Predicate<T> predicate, boolean onlyOneStat, BiConsumer<Statement, T> consumer) {
     Queue<Statement> statQueue = new ArrayDeque<>();
     statQueue.offer(start);
 
