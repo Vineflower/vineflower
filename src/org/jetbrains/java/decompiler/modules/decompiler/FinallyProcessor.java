@@ -77,7 +77,8 @@ public class FinallyProcessor {
             root.addErrorComment = true;
           } else {
             if (DecompilerContext.getOption(IFernflowerPreferences.FINALLY_DEINLINE) && verifyFinallyEx(graph, fin, inf)) {
-              inlineReturnVar(graph, handler);
+              // FIXME: inlines improperly, breaks TestLoopFinally#emptyInnerFinally
+//              inlineReturnVar(graph, handler);
 
               finallyBlockIDs.put(handler.id, null);
             } else {
