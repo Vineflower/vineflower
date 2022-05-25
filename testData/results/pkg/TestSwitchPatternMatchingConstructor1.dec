@@ -44,11 +44,11 @@ public class TestSwitchPatternMatchingConstructor1 {
       this(var10001);// 9
    }// 15
 
-   private abstract class Shape {
+   private abstract static class Shape {
       abstract double calculateArea();
    }
 
-   private class Triangle extends TestSwitchPatternMatchingConstructor1.Shape {
+   private static class Triangle extends TestSwitchPatternMatchingConstructor1.Shape {
       @Override
       double calculateArea() {
          return 0.0;// 25

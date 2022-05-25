@@ -1,0 +1,83 @@
+package pkg;
+
+import java.lang.runtime.SwitchBootstraps;
+import java.util.Objects;
+
+public class TestSwitchPatternMatchingLoop {
+   public void test(Object o) {
+      while(true) {
+         Objects.requireNonNull(o);// 6
+         byte var3 = 0;
+         switch(SwitchBootstraps.typeSwitch<"typeSwitch",Integer,String>(o, var3)) {
+            case 0:
+               Integer i = (Integer)o;// 7
+               System.out.println(i);
+               break;
+            case 1:
+               String s = (String)o;// 8
+               System.out.println(s);
+               break;
+            default:
+               System.out.println("Default");// 9
+         }
+      }
+   }
+}
+
+class 'pkg/TestSwitchPatternMatchingLoop' {
+   method 'test (Ljava/lang/Object;)V' {
+      0      8
+      2      8
+      3      8
+      4      8
+      7      9
+      8      9
+      a      10
+      b      10
+      c      10
+      d      10
+      e      10
+      f      10
+      10      10
+      2d      12
+      2e      12
+      2f      12
+      30      12
+      31      12
+      32      13
+      33      13
+      34      13
+      35      13
+      36      13
+      37      13
+      38      13
+      39      13
+      3a      14
+      3e      16
+      3f      16
+      40      16
+      41      16
+      42      16
+      43      17
+      44      17
+      45      17
+      46      17
+      47      17
+      48      17
+      49      17
+      4a      17
+      4b      18
+      4e      20
+      4f      20
+      50      20
+      51      20
+      52      20
+      53      20
+   }
+}
+
+Lines mapping:
+6 <-> 9
+7 <-> 13
+8 <-> 17
+9 <-> 21
