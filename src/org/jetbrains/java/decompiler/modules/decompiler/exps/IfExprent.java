@@ -14,6 +14,7 @@ import java.util.List;
 
 public class IfExprent extends Exprent {
   public enum Type {
+    // The order of these matters, see getNegative()
     EQ(FunctionType.EQ),
     NE(FunctionType.NE),
     LT(FunctionType.LT),
@@ -43,6 +44,8 @@ public class IfExprent extends Exprent {
 
     public Type getNegative() {
       if (this == VALUE) throw new IllegalArgumentException();
+      // All types except VALUE are paired up with their inverse,
+      // the XOR selects the other item within that pair
       return VALUES[ordinal() ^ 1];
     }
   }
