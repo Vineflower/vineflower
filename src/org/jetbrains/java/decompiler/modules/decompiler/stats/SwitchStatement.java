@@ -29,6 +29,8 @@ public final class SwitchStatement extends Statement {
 
   private List<List<Exprent>> caseValues = new ArrayList<>();
 
+  private List<Exprent> caseGuards = new ArrayList<>();
+
   private final Set<Statement> scopedCaseStatements = new HashSet<>();
 
   private StatEdge defaultEdge;
@@ -140,6 +142,7 @@ public final class SwitchStatement extends Statement {
       Statement stat = caseStatements.get(i);
       List<StatEdge> edges = caseEdges.get(i);
       List<Exprent> values = caseValues.get(i);
+      Exprent guard = caseGuards.size() > i ? caseGuards.get(i) : null;
 
       for (int j = 0; j < edges.size(); j++) {
         if (edges.get(j) == defaultEdge) {
@@ -166,6 +169,11 @@ public final class SwitchStatement extends Statement {
           }
           else {
             buf.append(value.toJava(indent));
+          }
+
+          if (guard != null) {
+            // TODO: check language version for J19
+            buf.append(" && ").append(guard.toJava());
           }
 
           buf.append(":");
@@ -458,6 +466,10 @@ public final class SwitchStatement extends Statement {
 
   public void setPhantom(boolean phantom) {
     this.phantom = phantom;
+  }
+
+  public List<Exprent> getCaseGuards() {
+    return caseGuards;
   }
 
   public void scopeCaseStatement(Statement stat) {

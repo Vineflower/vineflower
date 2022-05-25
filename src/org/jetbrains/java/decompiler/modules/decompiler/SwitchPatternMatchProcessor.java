@@ -99,56 +99,57 @@ public final class SwitchPatternMatchProcessor {
               && assignStat.getParent().getParent().getParent() == stat) {
             Statement next = assignStat.getSuccessorEdges(StatEdge.TYPE_CONTINUE).get(0).getDestination();
             if (next == stat.getParent()) {
-              System.out.println("cool?");
               IfStatement guardIf = (IfStatement) assignStat.getParent();
               if (guardIf.getHeadexprent().getCondition() instanceof FunctionExprent) {
                 FunctionExprent cond = (FunctionExprent) guardIf.getHeadexprent().getCondition();
                 Exprent guardExprent = cond.getLstOperands().get(0);
-                System.out.println("got guard: " + guardExprent);
                 List<Statement> caseStatements = stat.getCaseStatements();
                 for (int i = 0; i < caseStatements.size(); i++) {
                   if (caseStatements.get(i).containsStatement(reference.a)) {
-                    System.out.println("cool");
                     guards.put(stat.getCaseValues().get(i), guardExprent);
+
                     break;
                   }
                 }
-                // wait what label am I under :p
               }
             }
           }
         }
       }
-      //return false;
     }
 
-    head.setValue(origParams.get(0));
-
     // TODO for self:
-    //  switchExprent
     //  remove parent loop
     //  invert guard condition
     System.out.println(guards);
     for (int i = 0; i < stat.getCaseStatements().size(); i++) {
       Statement caseStat = stat.getCaseStatements().get(i);
+      System.out.println(caseStat);
 
       if (caseStat.type != Statement.TYPE_BASICBLOCK) {
         continue;
       }
 
-      Exprent caseExpr = stat.getCaseValues().get(i).get(0);
+      List<Exprent> allCases = stat.getCaseValues().get(i);
+      Exprent caseExpr = allCases.get(0);
 
       // Default branch
       if (caseExpr == null) {
         continue;
       }
 
+      if (guards.containsKey(allCases)) {
+        // TODO: this is bad
+        while(stat.getCaseGuards().size() <= i)
+          stat.getCaseGuards().add(null);
+        stat.getCaseGuards().set(i, guards.get(allCases));
+      }
       if (caseExpr.type == Exprent.EXPRENT_CONST) {
         int caseValue = ((ConstExprent)caseExpr).getIntValue();
 
         if (caseValue == -1) {
           // null
-          stat.getCaseValues().get(i).set(0, new ConstExprent(VarType.VARTYPE_NULL, null, null));
+          allCases.set(0, new ConstExprent(VarType.VARTYPE_NULL, null, null));
         }
       }
 
@@ -175,7 +176,7 @@ public final class SwitchPatternMatchProcessor {
               caseStatBlock.getExprents().remove(0);
 
               // TODO: ssau representation
-              stat.getCaseValues().get(i).set(0, func);
+              allCases.set(0, func);
             }
           }
         }
@@ -217,6 +218,8 @@ public final class SwitchPatternMatchProcessor {
       stat.setPhantom(true);
       suc.getExprents().add(0, new SwitchExprent(stat, VarType.VARTYPE_INT, false, true));
     }
+
+    head.setValue(origParams.get(0));
 
     return false;
   }
