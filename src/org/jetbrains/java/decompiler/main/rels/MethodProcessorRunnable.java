@@ -219,37 +219,34 @@ public class MethodProcessorRunnable implements Runnable {
       LabelHelper.cleanUpEdges(root);
       decompileRecord.add("CleanupEdges", root);
 
-      // Merge loop
-      while (true) {
-        if (!root.hasLoops()) {
-          break;
-        }
-
-        decompileRecord.incrementMergeLoop();
-        decompileRecord.add("MergeLoopStart", root);
-
-        if (EliminateLoopsHelper.eliminateLoops(root, cl)) {
-          decompileRecord.add("EliminateLoops", root);
-          continue;
-        }
-
-        MergeHelper.enhanceLoops(root);
-        decompileRecord.add("EnhanceLoops", root);
-
-        if (LoopExtractHelper.extractLoops(root)) {
-          decompileRecord.add("ExtractLoops", root);
-          continue;
-        }
-
-        if (IfHelper.mergeAllIfs(root)) {
-          decompileRecord.add("MergeAllIfs", root);
-          // Continues with merge loop
-        } else {
-          break;
-        }
-      }
-
       if (root.hasLoops()) {
+        // Merge loop
+        while (true) {
+
+          decompileRecord.incrementMergeLoop();
+          decompileRecord.add("MergeLoopStart", root);
+
+          if (EliminateLoopsHelper.eliminateLoops(root, cl)) {
+            decompileRecord.add("EliminateLoops", root);
+            continue;
+          }
+
+          MergeHelper.enhanceLoops(root);
+          decompileRecord.add("EnhanceLoops", root);
+
+          if (LoopExtractHelper.extractLoops(root)) {
+            decompileRecord.add("ExtractLoops", root);
+            continue;
+          }
+
+          if (IfHelper.mergeAllIfs(root)) {
+            decompileRecord.add("MergeAllIfs", root);
+            // Continues with merge loop
+          } else {
+            break;
+          }
+        }
+
         decompileRecord.resetMergeLoop();
         decompileRecord.add("MergeLoopEnd", root);
       }
