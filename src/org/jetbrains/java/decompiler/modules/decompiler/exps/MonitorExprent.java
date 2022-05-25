@@ -13,16 +13,16 @@ import java.util.BitSet;
 import java.util.List;
 
 public class MonitorExprent extends Exprent {
-
-  public static final int MONITOR_ENTER = 0;
-  public static final int MONITOR_EXIT = 1;
+  public enum Type {
+    ENTER, EXIT
+  }
 
   private boolean remove = false;
-  private final int monType;
+  private final Type monType;
   private Exprent value;
 
-  public MonitorExprent(int monType, Exprent value, BitSet bytecodeOffsets) {
-    super(EXPRENT_MONITOR);
+  public MonitorExprent(Type monType, Exprent value, BitSet bytecodeOffsets) {
+    super(Exprent.Type.MONITOR);
     this.monType = monType;
     this.value = value;
 
@@ -45,9 +45,9 @@ public class MonitorExprent extends Exprent {
     TextBuffer buf = new TextBuffer();
     buf.addBytecodeMapping(bytecode);
 
-    if (monType == MONITOR_ENTER) {
+    if (monType == Type.ENTER) {
       // Warn if the synchronized method is synchronizing on null, as that is invalid [https://docs.oracle.com/javase/specs/jls/se16/html/jls-14.html#jls-14.19]
-      if (this.value.type == EXPRENT_CONST && this.value.getExprType() == VarType.VARTYPE_NULL) {
+      if (this.value instanceof ConstExprent && this.value.getExprType() == VarType.VARTYPE_NULL) {
         DecompilerContext.getLogger().writeMessage("Created invalid synchronize on null!" , IFernflowerLogger.Severity.WARN);
       }
       return buf.append(value.toJava(indent)).enclose("synchronized(", ")");
@@ -74,7 +74,7 @@ public class MonitorExprent extends Exprent {
            InterpreterUtil.equalObjects(value, me.getValue());
   }
 
-  public int getMonType() {
+  public Type getMonType() {
     return monType;
   }
 

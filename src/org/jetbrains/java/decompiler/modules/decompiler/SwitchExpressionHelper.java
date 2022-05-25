@@ -31,7 +31,7 @@ public final class SwitchExpressionHelper {
       ret |= processSwitchExpressionsRec(st);
     }
 
-    if (stat.type == Statement.TYPE_SWITCH) {
+    if (stat instanceof SwitchStatement) {
       ret |= processStatement((SwitchStatement) stat);
     }
 
@@ -47,7 +47,7 @@ public final class SwitchExpressionHelper {
     // So we need to figure out which variable, if any, this switch statement is an expression of and make it generate.
 
     Exprent condition = ((SwitchHeadExprent) stat.getHeadexprent()).getValue();
-    if (condition.type == Exprent.EXPRENT_INVOCATION) {
+    if (condition instanceof InvocationExprent) {
       InvocationExprent invoc = (InvocationExprent) condition;
       if (invoc.getName().equals("hashCode") && invoc.getClassname().equals("java/lang/String")) {
         return false; // We don't want to make switch expressions yet as switch processing hasn't happened
@@ -76,7 +76,7 @@ public final class SwitchExpressionHelper {
       }
 
       // If the closure isn't our statement and we're not returning, break
-      if (!stat.containsStatement(breaks.get(0).closure) && breaks.get(0).getDestination().type != Statement.TYPE_DUMMYEXIT) {
+      if (!stat.containsStatement(breaks.get(0).closure) && !(breaks.get(0).getDestination() instanceof DummyExitStatement)) {
         return false;
       }
     }
@@ -131,7 +131,7 @@ public final class SwitchExpressionHelper {
     if (!sucs.isEmpty()) {
 
       Statement suc = sucs.get(0).getDestination();
-      if (suc.type != Statement.TYPE_BASICBLOCK) { // make basic block if it isn't found
+      if (!(suc instanceof BasicBlockStatement)) { // make basic block if it isn't found
         Statement oldSuc = suc;
 
         suc = BasicBlockStatement.create();
@@ -188,7 +188,7 @@ public final class SwitchExpressionHelper {
         int i = 0;
         for (Iterator<Exprent> iterator = firstExprents.iterator(); iterator.hasNext(); ) {
           Exprent ex = iterator.next();
-          if (ex.type == Exprent.EXPRENT_ASSIGNMENT && ((AssignmentExprent) ex).getLeft().type == Exprent.EXPRENT_VAR) {
+          if (ex instanceof AssignmentExprent && ((AssignmentExprent) ex).getLeft() instanceof VarExprent) {
             if (((VarExprent) ((AssignmentExprent) ex).getLeft()).isStack()) {
               exprents.add(i, ex);
               i++;
@@ -208,10 +208,10 @@ public final class SwitchExpressionHelper {
     if (stat.getExprents() != null) {
       for (Exprent e : stat.getExprents()) {
         // Check for "var10000 = <value>" within the exprents
-        if (e.type == Exprent.EXPRENT_ASSIGNMENT) {
+        if (e instanceof AssignmentExprent) {
           AssignmentExprent assign = ((AssignmentExprent) e);
 
-          if (assign.getLeft().type == Exprent.EXPRENT_VAR) {
+          if (assign.getLeft() instanceof VarExprent) {
             if (((VarExprent) assign.getLeft()).getIndex() == var.var) {
               // Make yield with the right side of the assignment
               replacements.put(assign, new YieldExprent(assign.getRight(), assign.getExprType()));
@@ -271,11 +271,11 @@ public final class SwitchExpressionHelper {
       List<Exprent> exprents = breakJump.getExprents();
 
       if (exprents != null && !exprents.isEmpty()) {
-        if (exprents.size() == 1 && exprents.get(0).type == Exprent.EXPRENT_EXIT) {
+        if (exprents.size() == 1 && exprents.get(0) instanceof ExitExprent) {
           ExitExprent exit = ((ExitExprent) exprents.get(0));
 
           // Special case throws
-          if (exit.getExitType() == ExitExprent.EXIT_THROW) {
+          if (exit.getExitType() == ExitExprent.Type.THROW) {
             map.put(breakJump, null);
             continue;
           } else {
@@ -287,10 +287,10 @@ public final class SwitchExpressionHelper {
         // Iterate in reverse, as we want the last assignment to be the one that we set the switch expression to
         for (int i = exprents.size() - 1; i >= 0; i--) {
           Exprent exprent = exprents.get(i);
-          if (exprent.type == Exprent.EXPRENT_ASSIGNMENT) {
+          if (exprent instanceof AssignmentExprent) {
             AssignmentExprent assign = (AssignmentExprent) exprent;
 
-            if (assign.getLeft().type == Exprent.EXPRENT_VAR) {
+            if (assign.getLeft() instanceof VarExprent) {
               VarExprent var = ((VarExprent) assign.getLeft());
 
               list.add(var.getVarVersionPair());

@@ -2,6 +2,7 @@
 package org.jetbrains.java.decompiler.modules.decompiler;
 
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement.EdgeDirection;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -30,7 +31,7 @@ public final class InlineSingleBlockHelper {
       res |= inlineSingleBlocksRec(st);
     }
 
-    if (stat.type == Statement.TYPE_SEQUENCE) {
+    if (stat instanceof SequenceStatement) {
 
       SequenceStatement seq = (SequenceStatement)stat;
       for (int i = 1; i < seq.getStats().size(); i++) {
@@ -60,7 +61,7 @@ public final class InlineSingleBlockHelper {
       lst.add(0, seq.getStats().remove(i));
     }
 
-    if (parent.type == Statement.TYPE_IF && ((IfStatement)parent).iftype == IfStatement.IFTYPE_IF &&
+    if (parent instanceof IfStatement && ((IfStatement)parent).iftype == IfStatement.IFTYPE_IF &&
         source == parent.getFirst()) {
       IfStatement ifparent = (IfStatement)parent;
 
@@ -89,14 +90,14 @@ public final class InlineSingleBlockHelper {
       for (StatEdge prededge : block.getPredecessorEdges(StatEdge.TYPE_CONTINUE)) {
 
         block.removePredecessor(prededge);
-        prededge.getSource().changeEdgeNode(Statement.DIRECTION_FORWARD, prededge, source);
+        prededge.getSource().changeEdgeNode(EdgeDirection.FORWARD, prededge, source);
         source.addPredecessor(prededge);
 
         source.addLabeledEdge(prededge);
       }
 
 
-      if (parent.type == Statement.TYPE_SWITCH) {
+      if (parent instanceof SwitchStatement) {
         ((SwitchStatement)parent).sortEdgesAndNodes();
       }
 
@@ -182,11 +183,11 @@ public final class InlineSingleBlockHelper {
         break;
       }
 
-      if (parent.type == Statement.TYPE_TRYCATCH || parent.type == Statement.TYPE_CATCHALL) {
+      if (parent instanceof CatchStatement || parent instanceof CatchAllStatement) {
         if (parent.getFirst() == from) {
           return false;
         }
-      } else if (parent.type == Statement.TYPE_SYNCRONIZED) {
+      } else if (parent instanceof SynchronizedStatement) {
         if (parent.getStats().get(1) == from) {
           return false;
         }
@@ -200,7 +201,7 @@ public final class InlineSingleBlockHelper {
 
   private static boolean noExitLabels(Statement block, Statement sequence) {
     for (StatEdge edge : block.getAllSuccessorEdges()) {
-      if (edge.getType() != StatEdge.TYPE_REGULAR && edge.getDestination().type != Statement.TYPE_DUMMYEXIT) {
+      if (edge.getType() != StatEdge.TYPE_REGULAR && !(edge.getDestination() instanceof DummyExitStatement)) {
         if (!sequence.containsStatementStrict(edge.getDestination())) {
           return false;
         }
@@ -217,10 +218,10 @@ public final class InlineSingleBlockHelper {
   }
 
   public static boolean isBreakEdgeLabeled(Statement source, Statement closure) {
-    if (closure.type == Statement.TYPE_DO || closure.type == Statement.TYPE_SWITCH) {
+    if (closure instanceof DoStatement || closure instanceof SwitchStatement) {
       Statement parent = source.getParent();
       return parent != closure &&
-             (parent.type == Statement.TYPE_DO || parent.type == Statement.TYPE_SWITCH || isBreakEdgeLabeled(parent, closure));
+             (parent instanceof DoStatement || parent instanceof SwitchStatement || isBreakEdgeLabeled(parent, closure));
     }
     else {
       return true;

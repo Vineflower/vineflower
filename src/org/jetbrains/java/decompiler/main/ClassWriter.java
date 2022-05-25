@@ -13,6 +13,8 @@ import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.SwitchHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.BasicBlockStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarTypeProcessor;
@@ -27,7 +29,9 @@ import org.jetbrains.java.decompiler.struct.consts.PrimitiveConstant;
 import org.jetbrains.java.decompiler.struct.gen.FieldDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
-import org.jetbrains.java.decompiler.struct.gen.generics.*;
+import org.jetbrains.java.decompiler.struct.gen.generics.GenericClassDescriptor;
+import org.jetbrains.java.decompiler.struct.gen.generics.GenericFieldDescriptor;
+import org.jetbrains.java.decompiler.struct.gen.generics.GenericMethodDescriptor;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.TextUtil;
@@ -86,7 +90,7 @@ public class ClassWriter {
       InitializerProcessor.extractInitializers(wrapper);
       InitializerProcessor.hideInitalizers(wrapper);
 
-      if (node.type == ClassNode.CLASS_ROOT &&
+      if (node.type == ClassNode.Type.ROOT &&
         cl.getVersion().has14ClassReferences() &&
         DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_CLASS_1_4)) {
         ClassReference14Processor.processClassReferences(node);
@@ -144,7 +148,7 @@ public class ClassWriter {
           method_object.getInferredExprType(new VarType(CodeConstants.TYPE_OBJECT, 0, node.lambdaInformation.content_class_name));
           TextBuffer instance = method_object.toJava(indent);
           // If the instance is casted, then we need to wrap it
-          if (method_object.type == Exprent.EXPRENT_FUNCTION && ((FunctionExprent)method_object).getFuncType() == FunctionExprent.FUNCTION_CAST && ((FunctionExprent)method_object).doesCast()) {
+          if (method_object instanceof FunctionExprent && ((FunctionExprent)method_object).getFuncType() == FunctionType.CAST && ((FunctionExprent)method_object).doesCast()) {
             buffer.append('(').append(instance).append(')');
           }
           else {
@@ -202,14 +206,14 @@ public class ClassWriter {
           RootStatement root = wrapper.getMethodWrapper(mt.getName(), mt.getDescriptor()).root;
           if (DecompilerContext.getOption(IFernflowerPreferences.INLINE_SIMPLE_LAMBDAS) && methodWrapper.decompileError == null && root != null) {
             Statement firstStat = root.getFirst();
-            if (firstStat.type == Statement.TYPE_BASICBLOCK && firstStat.getExprents() != null && firstStat.getExprents().size() == 1) {
+            if (firstStat instanceof BasicBlockStatement && firstStat.getExprents() != null && firstStat.getExprents().size() == 1) {
               Exprent firstExpr = firstStat.getExprents().get(0);
-              boolean isVarDefinition = firstExpr.type == Exprent.EXPRENT_ASSIGNMENT &&
-                ((AssignmentExprent)firstExpr).getLeft().type == Exprent.EXPRENT_VAR &&
+              boolean isVarDefinition = firstExpr instanceof AssignmentExprent &&
+                ((AssignmentExprent)firstExpr).getLeft() instanceof VarExprent &&
                 ((VarExprent)((AssignmentExprent)firstExpr).getLeft()).isDefinition();
 
-              boolean isThrow = firstExpr.type == Exprent.EXPRENT_EXIT &&
-                ((ExitExprent)firstExpr).getExitType() == ExitExprent.EXIT_THROW;
+              boolean isThrow = firstExpr instanceof ExitExprent &&
+                ((ExitExprent)firstExpr).getExitType() == ExitExprent.Type.THROW;
 
               if (!isVarDefinition && !isThrow) {
                 simpleLambda = true;
@@ -218,7 +222,7 @@ public class ClassWriter {
                 try {
                   TextBuffer codeBuffer = firstExpr.toJava(indent + 1);
 
-                  if (firstExpr.type == Exprent.EXPRENT_EXIT)
+                  if (firstExpr instanceof ExitExprent)
                     codeBuffer.setStart(6); // skip return
                   else
                     codeBuffer.prepend(" ");
@@ -358,7 +362,7 @@ public class ClassWriter {
 
       // member classes
       for (ClassNode inner : node.nested) {
-        if (inner.type == ClassNode.CLASS_MEMBER) {
+        if (inner.type == ClassNode.Type.MEMBER) {
           StructClass innerCl = inner.classStruct;
           boolean isSynthetic = (inner.access & CodeConstants.ACC_SYNTHETIC) != 0 || innerCl.isSynthetic();
           boolean hide = isSynthetic && DecompilerContext.getOption(IFernflowerPreferences.REMOVE_SYNTHETIC) ||
@@ -376,7 +380,7 @@ public class ClassWriter {
 
       buffer.appendIndent(indent).append('}');
 
-      if (node.type != ClassNode.CLASS_ANONYMOUS) {
+      if (node.type != ClassNode.Type.ANONYMOUS) {
         buffer.appendLineSeparator();
       }
     }
@@ -418,7 +422,14 @@ public class ClassWriter {
     if (!requiresEntries.isEmpty()) {
       for (StructModuleAttribute.RequiresEntry requires : requiresEntries) {
         if (!isGenerated(requires.flags)) {
-          buffer.appendIndent(1).append("requires ").append(requires.moduleName.replace('/', '.')).append(';').appendLineSeparator();
+          buffer.appendIndent(1).append("requires ");
+          if ((requires.flags & CodeConstants.ACC_TRANSITIVE) != 0) {
+            buffer.append("transitive ");
+          }
+          if ((requires.flags & CodeConstants.ACC_STATIC_PHASE) != 0) {
+            buffer.append("static ");
+          }
+          buffer.append(requires.moduleName.replace('/', '.')).append(';').appendLineSeparator();
           newLineNeeded = true;
         }
       }
@@ -483,7 +494,7 @@ public class ClassWriter {
   }
 
   private void writeClassDefinition(ClassNode node, TextBuffer buffer, int indent) {
-    if (node.type == ClassNode.CLASS_ANONYMOUS) {
+    if (node.type == ClassNode.Type.ANONYMOUS) {
       buffer.append(" {").appendLineSeparator();
       return;
     }
@@ -491,7 +502,7 @@ public class ClassWriter {
     ClassWrapper wrapper = node.getWrapper();
     StructClass cl = wrapper.getClassStruct();
 
-    int flags = node.type == ClassNode.CLASS_ROOT ? cl.getAccessFlags() : node.access;
+    int flags = node.type == ClassNode.Type.ROOT ? cl.getAccessFlags() : node.access;
     boolean isDeprecated = cl.hasAttribute(StructGeneralAttribute.ATTRIBUTE_DEPRECATED);
     boolean isSynthetic = (flags & CodeConstants.ACC_SYNTHETIC) != 0 || cl.hasAttribute(StructGeneralAttribute.ATTRIBUTE_SYNTHETIC);
     boolean isEnum = DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_ENUM) && (flags & CodeConstants.ACC_ENUM) != 0;
@@ -532,7 +543,7 @@ public class ClassWriter {
       flags &= ~CodeConstants.ACC_FINAL;
 
       // remove implicit static flag for local enums (JLS 14.3 Local class and interface declarations)
-      if (node.type == ClassNode.CLASS_LOCAL) {
+      if (node.type == ClassNode.Type.LOCAL) {
         flags &= ~CodeConstants.ACC_STATIC;
       }
     }
@@ -711,7 +722,7 @@ public class ClassWriter {
     }
 
     if (initializer != null) {
-      if (isEnum && initializer.type == Exprent.EXPRENT_NEW) {
+      if (isEnum && initializer instanceof NewExprent) {
         NewExprent expr = (NewExprent)initializer;
         expr.setEnumConst(true);
         buffer.append(expr.toJava(indent));
@@ -719,7 +730,7 @@ public class ClassWriter {
       else {
         buffer.append(" = ");
 
-        if (initializer.type == Exprent.EXPRENT_CONST) {
+        if (initializer instanceof ConstExprent) {
           ((ConstExprent) initializer).adjustConstType(fieldType);
         }
 
@@ -939,7 +950,7 @@ public class ClassWriter {
       buffer.appendIndent(indent);
 
       if (CodeConstants.INIT_NAME.equals(name)) {
-        if (node.type == ClassNode.CLASS_ANONYMOUS) {
+        if (node.type == ClassNode.Type.ANONYMOUS) {
           name = "";
           dInit = true;
         } else {
@@ -1022,7 +1033,7 @@ public class ClassWriter {
             if (methodParameters != null && i < methodParameters.size()) {
               appendModifiers(buffer, methodParameters.get(i).myAccessFlags, CodeConstants.ACC_FINAL, isInterface, 0);
             }
-            else if (methodWrapper.varproc.getVarFinal(new VarVersionPair(index, 0)) == VarTypeProcessor.VAR_EXPLICIT_FINAL) {
+            else if (methodWrapper.varproc.getVarFinal(new VarVersionPair(index, 0)) == VarTypeProcessor.FinalType.EXPLICIT_FINAL) {
               buffer.append("final ");
             }
 
@@ -1341,7 +1352,7 @@ public class ClassWriter {
     ClassWrapper wrapper = node.getWrapper();
 	  StructClass cl = wrapper.getClassStruct();
 
-	  int classAccessFlags = node.type == ClassNode.CLASS_ROOT ? cl.getAccessFlags() : node.access;
+	  int classAccessFlags = node.type == ClassNode.Type.ROOT ? cl.getAccessFlags() : node.access;
     boolean isEnum = cl.hasModifier(CodeConstants.ACC_ENUM) && DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_ENUM);
 
     // default constructor requires same accessibility flags. Exception: enum constructor which is always private

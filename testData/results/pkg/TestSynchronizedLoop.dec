@@ -38,7 +38,7 @@ public class TestSynchronizedLoop {
 
    public void test12(int i) {
       synchronized(this) {// 41
-         label94: {
+         label79: {
             System.out.println(1);// 42
 
             while(i > 0) {// 43
@@ -50,7 +50,7 @@ public class TestSynchronizedLoop {
                } finally {
                   System.out.println(1.7);// 49
                   if (i > 5) {// 50
-                     break label94;
+                     break label79;
                   }
 
                }
@@ -86,35 +86,16 @@ public class TestSynchronizedLoop {
    }// 81
 
    public void testFlatten() {
-      // $QF: Couldn't be decompiled
-      // Bytecode:
-      // 00: ldc2_w -151
-      // 03: lstore 1
-      // 04: ldc2_w -384
-      // 07: lstore 3
-      // 08: lload 1
-      // 09: ldc2_w 5
-      // 0c: lcmp
-      // 0d: ifne 2c
-      // 10: aload 0
-      // 11: dup
-      // 12: astore 5
-      // 14: monitorenter
-      // 15: lload 3
-      // 16: ldc2_w -714
-      // 19: lsub
-      // 1a: lstore 3
-      // 1b: aload 5
-      // 1d: monitorexit
-      // 1e: goto 29
-      // 21: astore 6
-      // 23: aload 5
-      // 25: monitorexit
-      // 26: aload 6
-      // 28: athrow
-      // 29: goto 08
-      // 2c: return
-   }
+      long var2 = -151L;// 84
+      long var3 = -384L;// 85
+
+      while(var2 == 5L) {// 86
+         synchronized(this) {// 87
+            var3 -= -714L;// 88
+         }// 89
+      }
+
+   }// 91
 }
 
 class 'pkg/TestSynchronizedLoop' {
@@ -250,6 +231,30 @@ class 'pkg/TestSynchronizedLoop' {
       1c      82
       21      85
    }
+
+   method 'testFlatten ()V' {
+      0      88
+      1      88
+      2      88
+      3      88
+      4      89
+      5      89
+      6      89
+      7      89
+      8      91
+      9      91
+      a      91
+      b      91
+      c      91
+      10      92
+      14      92
+      16      93
+      17      93
+      18      93
+      1a      93
+      1d      94
+      2c      97
+   }
 }
 
 Lines mapping:
@@ -288,6 +293,13 @@ Lines mapping:
 75 <-> 80
 79 <-> 83
 81 <-> 86
+84 <-> 89
+85 <-> 90
+86 <-> 92
+87 <-> 93
+88 <-> 94
+89 <-> 95
+91 <-> 98
 Not mapped:
 11
 36

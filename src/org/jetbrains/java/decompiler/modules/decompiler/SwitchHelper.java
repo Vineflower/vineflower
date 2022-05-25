@@ -8,13 +8,11 @@ import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.rels.ClassWrapper;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.SwitchStatement;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.struct.StructField;
 import org.jetbrains.java.decompiler.struct.StructMethod;
-import org.jetbrains.java.decompiler.util.DotExporter;
+import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.Pair;
 
 import java.util.*;
@@ -25,7 +23,7 @@ import java.util.stream.Collectors;
 public final class SwitchHelper {
   public static boolean simplifySwitches(Statement stat, StructMethod mt, RootStatement root) {
     boolean ret = false;
-    if (stat.type == Statement.TYPE_SWITCH) {
+    if (stat instanceof SwitchStatement) {
       ret = simplify((SwitchStatement)stat, mt, root);
     }
 
@@ -37,19 +35,13 @@ public final class SwitchHelper {
   }
 
   private static boolean simplify(SwitchStatement switchStatement, StructMethod mt, RootStatement root) {
-    SwitchStatement following = null;
-    List<StatEdge> edges = switchStatement.getSuccessorEdges(StatEdge.TYPE_REGULAR);
-    if (edges.size() == 1 && edges.get(0).getDestination().type == Statement.TYPE_SWITCH) {
-      following = (SwitchStatement)edges.get(0).getDestination();
-    }
-
     SwitchHeadExprent switchHeadExprent = (SwitchHeadExprent)switchStatement.getHeadexprent();
     Exprent value = switchHeadExprent.getValue();
     ArrayExprent array = getEnumArrayExprent(value, root);
     if (array != null) {
       List<List<Exprent>> caseValues = switchStatement.getCaseValues();
       Map<Exprent, Exprent> mapping = new HashMap<>(caseValues.size());
-      if (array.getArray().type == Exprent.EXPRENT_FIELD) {
+      if (array.getArray() instanceof FieldExprent) {
         FieldExprent arrayField = (FieldExprent) array.getArray();
         ClassesProcessor.ClassNode classNode = DecompilerContext.getClassProcessor().getMapRootClasses().get(arrayField.getClassname());
         if (classNode != null) {
@@ -73,7 +65,7 @@ public final class SwitchHelper {
                 if (exprent instanceof AssignmentExprent) {
                   AssignmentExprent assignment = (AssignmentExprent) exprent;
                   Exprent left = assignment.getLeft();
-                  if (left.type == Exprent.EXPRENT_ARRAY) {
+                  if (left instanceof ArrayExprent) {
                     Exprent assignmentArray = ((ArrayExprent) left).getArray();
                     // If the assignment target is a field, we have the assignment we want.
                     boolean targetsField = assignmentArray.equals(arrayField);
@@ -115,7 +107,7 @@ public final class SwitchHelper {
                 if (exprent instanceof AssignmentExprent) {
                   AssignmentExprent assignment = (AssignmentExprent) exprent;
                   Exprent left = assignment.getLeft();
-                  if (left.type == Exprent.EXPRENT_ARRAY) {
+                  if (left instanceof ArrayExprent) {
                     mapping.put(assignment.getRight(), ((InvocationExprent) ((ArrayExprent) left).getIndex()).getInstance());
                   }
                 }
@@ -172,23 +164,37 @@ public final class SwitchHelper {
       }
 
       return true;
-    } else if (isSwitchOnString(switchStatement, following)) {
+    } else if (isSwitchOnString(switchStatement)) {
       Map<Integer, Exprent> caseMap = new HashMap<>();
+
+      SwitchStatement following;
+      boolean nullable = false;
+      IfStatement containingNullCheck = null;
+      List<StatEdge> edges = switchStatement.getSuccessorEdges(StatEdge.TYPE_REGULAR);
+      if (edges.size() == 1 && edges.get(0).getDestination() instanceof SwitchStatement) {
+        following = (SwitchStatement)edges.get(0).getDestination();
+      } else {
+        // definitely a nullable switch
+        // we've already validated the `if` in `isSwitchOnString`
+        nullable = true;
+        containingNullCheck = (IfStatement) switchStatement.getParent();
+        following = (SwitchStatement) containingNullCheck.getSuccessorEdges(StatEdge.TYPE_REGULAR).get(0).getDestination();
+      }
 
       int i = 0;
       for (; i < switchStatement.getCaseStatements().size(); ++i) {
 
         Statement curr = switchStatement.getCaseStatements().get(i);
 
-        while (curr != null && curr.type == Statement.TYPE_IF)  {
+        while (curr instanceof IfStatement)  {
           IfStatement ifStat = (IfStatement)curr;
           Exprent condition = ifStat.getHeadexprent().getCondition();
 
-          if (condition.type == Exprent.EXPRENT_FUNCTION && ((FunctionExprent)condition).getFuncType() == FunctionExprent.FUNCTION_NE) {
+          if (condition instanceof FunctionExprent && ((FunctionExprent)condition).getFuncType() == FunctionType.NE) {
             condition = ((FunctionExprent)condition).getLstOperands().get(0);
           }
 
-          if (condition.type == Exprent.EXPRENT_INVOCATION && ((InvocationExprent)condition).getLstParameters().size() == 1) {
+          if (condition instanceof InvocationExprent && ((InvocationExprent)condition).getLstParameters().size() == 1) {
             Exprent assign = ifStat.getIfstat().getExprents().get(0);
             int caseVal = ((ConstExprent)((AssignmentExprent)assign).getRight()).getIntValue();
             caseMap.put(caseVal, ((InvocationExprent)condition).getLstParameters().get(0));
@@ -196,6 +202,13 @@ public final class SwitchHelper {
 
           curr = ifStat.getElsestat();
         }
+      }
+
+      if (nullable) {
+        // the else branch of the containing `if` will have an assignment exprent to get the null case from
+        Statement elseBranch = containingNullCheck.getElsestat();
+        AssignmentExprent assign = (AssignmentExprent) elseBranch.getExprents().get(0);
+        caseMap.put(((ConstExprent)assign.getRight()).getIntValue(), new ConstExprent(VarType.VARTYPE_NULL, null, null));
       }
 
       List<List<Exprent>> realCaseValues = following.getCaseValues().stream()
@@ -211,10 +224,18 @@ public final class SwitchHelper {
       Exprent followingVal = ((SwitchHeadExprent)following.getHeadexprent()).getValue();
       following.getHeadexprent().replaceExprent(followingVal, ((InvocationExprent)value).getInstance());
 
-      switchStatement.getFirst().getExprents().remove(switchStatement.getFirst().getExprents().size() - 1);
+      List<Exprent> firsts = switchStatement.getFirst().getExprents();
+      if (firsts.size() > 0) {
+        firsts.remove(firsts.size() - 1);
+      }
       switchStatement.getFirst().getAllPredecessorEdges().forEach(switchStatement.getFirst()::removePredecessor);
       switchStatement.getFirst().getAllSuccessorEdges().forEach(switchStatement.getFirst()::removeSuccessor);
       switchStatement.getParent().replaceStatement(switchStatement, switchStatement.getFirst());
+
+      if (nullable) {
+        // remove the containing `if`
+        containingNullCheck.replaceWithEmpty();
+      }
 
       // Remove phantom references from old switch statement, but ignoring the first statement as that has been extracted out of the switch
       following.getAllPredecessorEdges().stream()
@@ -280,7 +301,7 @@ public final class SwitchHelper {
           //Exprent init = classNode.getWrapper().getStaticFieldInitializers().getWithKey(InterpreterUtil.makeUniqueKey(field.getName(), field.getDescriptor().descriptorString));
           //Above is null because we haven't preocess the class yet?
         }
-      } else if (tmp.type == Exprent.EXPRENT_INVOCATION) {
+      } else if (tmp instanceof InvocationExprent) {
         InvocationExprent inv = (InvocationExprent) tmp;
         if (inv.getName().startsWith("$SWITCH_TABLE$")) { // More nonstandard behavior. Seems like eclipse compiler stuff: https://bugs.eclipse.org/bugs/show_bug.cgi?id=544521 TODO: needs tests!
           return true;
@@ -393,14 +414,54 @@ public final class SwitchHelper {
    *        // code for case "foo"
    *   }
    */
-  private static boolean isSwitchOnString(SwitchStatement first, SwitchStatement second) {
+  private static boolean isSwitchOnString(SwitchStatement first) {
+    SwitchStatement second = null;
+    List<StatEdge> edges = first.getSuccessorEdges(StatEdge.TYPE_REGULAR);
+    if (edges.size() == 1 && edges.get(0).getDestination() instanceof SwitchStatement) {
+      second = (SwitchStatement)edges.get(0).getDestination();
+    }
+    AssignmentExprent nullAssign = null;
+
+    // if we're the only thing in an if statement,
+    if (first.getParent() instanceof IfStatement) {
+      if (!first.hasSuccessor(StatEdge.TYPE_REGULAR)) {
+        IfStatement parent = (IfStatement) first.getParent();
+        Exprent ifCond = parent.getHeadexprent().getCondition();
+        // and it's a null check with `else` branch,
+        if (parent.iftype == IfStatement.IFTYPE_IFELSE && ifCond instanceof FunctionExprent) {
+          FunctionExprent func = (FunctionExprent)ifCond;
+          if (func.getFuncType() == FunctionType.NE && func.getLstOperands().size() == 2) {
+            Exprent right = func.getLstOperands().get(1);
+            if (right instanceof ConstExprent && right.getExprType() == VarType.VARTYPE_NULL) {
+              // and the `else` only assigns a variable,
+              Statement elseStat = parent.getElsestat();
+              if (elseStat instanceof BasicBlockStatement && elseStat.getExprents().size() == 1) {
+                Exprent assign = elseStat.getExprents().get(0);
+                if (assign instanceof AssignmentExprent) {
+                  nullAssign = (AssignmentExprent)assign;
+                  // then we're probably a nullable string-switch
+                  edges = parent.getSuccessorEdges(StatEdge.TYPE_REGULAR);
+                  if (edges.size() == 1 && edges.get(0).getDestination() instanceof SwitchStatement) {
+                    second = (SwitchStatement)edges.get(0).getDestination();
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
     if (second != null) {
       Exprent firstValue = ((SwitchHeadExprent)first.getHeadexprent()).getValue();
       Exprent secondValue = ((SwitchHeadExprent)second.getHeadexprent()).getValue();
 
-      if (firstValue.type == Exprent.EXPRENT_INVOCATION && secondValue.type == Exprent.EXPRENT_VAR && first.getCaseStatements().get(0).type == Statement.TYPE_IF) {
+      if (firstValue instanceof InvocationExprent && secondValue instanceof VarExprent && first.getCaseStatements().get(0) instanceof IfStatement) {
         InvocationExprent invExpr = (InvocationExprent)firstValue;
-        VarExprent varExpr = (VarExprent)secondValue;
+        VarExprent varExpr = (VarExprent) secondValue;
+        if (nullAssign != null && !nullAssign.getLeft().equals(varExpr)) {
+          return false; // wrong assignment across `if`
+        }
 
         if (invExpr.getName().equals("hashCode") && invExpr.getClassname().equals("java/lang/String")) {
           boolean matches = true;
@@ -409,24 +470,24 @@ public final class SwitchHelper {
             if (!first.getCaseEdges().get(i).contains(first.getDefaultEdge())) {
               Statement curr = first.getCaseStatements().get(i);
               while (matches && curr != null) {
-                if (curr.type == Statement.TYPE_IF) {
+                if (curr instanceof IfStatement) {
                   IfStatement ifStat = (IfStatement)curr;
                   Exprent condition = ifStat.getHeadexprent().getCondition();
 
-                  if (condition.type == Exprent.EXPRENT_FUNCTION && ((FunctionExprent)condition).getFuncType() == FunctionExprent.FUNCTION_NE) {
+                  if (condition instanceof FunctionExprent && ((FunctionExprent)condition).getFuncType() == FunctionType.NE) {
                     condition = ((FunctionExprent)condition).getLstOperands().get(0);
                   }
 
-                  if (condition.type == Exprent.EXPRENT_INVOCATION) {
+                  if (condition instanceof InvocationExprent) {
                     InvocationExprent condInvocation = (InvocationExprent)condition;
 
                     if (condInvocation.getName().equals("equals") && condInvocation.getInstance().equals(invExpr.getInstance())) {
                       List<Exprent> block = ifStat.getIfstat().getExprents();
 
-                      if (block != null && block.size() == 1 && block.get(0).type == Exprent.EXPRENT_ASSIGNMENT) {
+                      if (block != null && block.size() == 1 && block.get(0) instanceof AssignmentExprent) {
                         AssignmentExprent assign = (AssignmentExprent)block.get(0);
 
-                        if (assign.getRight().type == Exprent.EXPRENT_CONST && varExpr.equals(assign.getLeft())) {
+                        if (assign.getRight() instanceof ConstExprent && varExpr.equals(assign.getLeft())) {
 
                           curr = ifStat.getElsestat();
                           continue;

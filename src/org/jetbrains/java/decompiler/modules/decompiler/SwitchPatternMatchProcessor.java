@@ -1,10 +1,9 @@
 package org.jetbrains.java.decompiler.modules.decompiler;
 
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.BasicBlockStatement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.SequenceStatement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.SwitchStatement;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.InvocationExprent.InvocationType;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 
 import java.util.ArrayList;
@@ -27,7 +26,7 @@ public final class SwitchPatternMatchProcessor {
       ret |= processPatternMatchingRec(st);
     }
 
-    if (stat.type == Statement.TYPE_SWITCH) {
+    if (stat instanceof SwitchStatement) {
       ret |= processStatement((SwitchStatement) stat);
     }
 
@@ -48,7 +47,7 @@ public final class SwitchPatternMatchProcessor {
     }
 
     // Found switch pattern match, start applying basic transformations
-    boolean isLoopParent = stat.getParent().type == Statement.TYPE_DO;
+    boolean isLoopParent = stat.getParent() instanceof DoStatement;
 
     // TODO: handle this case!
     if (isLoopParent) {
@@ -58,7 +57,7 @@ public final class SwitchPatternMatchProcessor {
     for (int i = 0; i < stat.getCaseStatements().size(); i++) {
       Statement caseStat = stat.getCaseStatements().get(i);
 
-      if (caseStat.type != Statement.TYPE_BASICBLOCK) {
+      if (!(caseStat instanceof BasicBlockStatement)) {
         continue;
       }
 
@@ -69,7 +68,7 @@ public final class SwitchPatternMatchProcessor {
         continue;
       }
 
-      if (caseExpr.type == Exprent.EXPRENT_CONST) {
+      if (caseExpr instanceof ConstExprent) {
         int caseValue = ((ConstExprent)caseExpr).getIntValue();
 
         if (caseValue == -1) {
@@ -82,13 +81,13 @@ public final class SwitchPatternMatchProcessor {
       BasicBlockStatement caseStatBlock = (BasicBlockStatement)caseStat;
       if (caseStatBlock.getExprents().size() > 1) {
         Exprent expr = caseStatBlock.getExprents().get(0);
-        if (expr.type == Exprent.EXPRENT_ASSIGNMENT) {
+        if (expr instanceof AssignmentExprent) {
           AssignmentExprent assign = (AssignmentExprent)expr;
 
-          if (assign.getLeft().type == Exprent.EXPRENT_VAR) {
+          if (assign.getLeft() instanceof VarExprent) {
             VarExprent var = (VarExprent)assign.getLeft();
 
-            if (assign.getRight().type == Exprent.EXPRENT_FUNCTION && ((FunctionExprent)assign.getRight()).getFuncType() == FunctionExprent.FUNCTION_CAST) {
+            if (assign.getRight() instanceof FunctionExprent && ((FunctionExprent)assign.getRight()).getFuncType() == FunctionType.CAST) {
               FunctionExprent cast = (FunctionExprent)assign.getRight();
 
               List<Exprent> operands = new ArrayList<>();
@@ -96,7 +95,7 @@ public final class SwitchPatternMatchProcessor {
               operands.add(cast.getLstOperands().get(1)); // type
               operands.add(var); // pattern match var
 
-              FunctionExprent func = new FunctionExprent(FunctionExprent.FUNCTION_INSTANCEOF, operands, null);
+              FunctionExprent func = new FunctionExprent(FunctionType.INSTANCEOF, operands, null);
 
               caseStatBlock.getExprents().remove(0);
 
@@ -113,7 +112,7 @@ public final class SwitchPatternMatchProcessor {
     if (!sucs.isEmpty()) {
 
       Statement suc = sucs.get(0).getDestination();
-      if (suc.type != Statement.TYPE_BASICBLOCK) { // make basic block if it isn't found
+      if (!(suc instanceof BasicBlockStatement)) { // make basic block if it isn't found
         Statement oldSuc = suc;
 
         suc = BasicBlockStatement.create();
@@ -153,14 +152,10 @@ public final class SwitchPatternMatchProcessor {
   private static boolean isSwitchPatternMatch(SwitchHeadExprent head) {
     Exprent value = head.getValue();
 
-    if (value.type == Exprent.EXPRENT_INVOCATION) {
+    if (value instanceof InvocationExprent) {
       InvocationExprent invoc = (InvocationExprent)value;
 
-      if (invoc.getInvocationTyp() == InvocationExprent.INVOKE_DYNAMIC) {
-        if (invoc.getName().equals("typeSwitch")) {
-          return true;
-        }
-      }
+      return invoc.getInvocationType() == InvocationType.DYNAMIC && invoc.getName().equals("typeSwitch");
     }
 
     return false;
