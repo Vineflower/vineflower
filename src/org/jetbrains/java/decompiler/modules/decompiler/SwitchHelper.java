@@ -345,11 +345,11 @@ public final class SwitchHelper {
     if (switchHead instanceof FunctionExprent) {
       // Check for switches on a ternary expression like `a != null ? ...SwitchMap[a.ordinal()] : -1` (nullable switch)
       FunctionExprent func = (FunctionExprent) switchHead;
-      if (func.getFuncType() == FunctionExprent.FUNCTION_TERNARY && func.getLstOperands().size() == 3) {
+      if (func.getFuncType() == FunctionExprent.FunctionType.TERNARY && func.getLstOperands().size() == 3) {
         List<Exprent> ops = func.getLstOperands();
         if (ops.get(0) instanceof FunctionExprent) {
           FunctionExprent nn = (FunctionExprent) ops.get(0);
-          if (nn.getFuncType() == FunctionExprent.FUNCTION_NE
+          if (nn.getFuncType() == FunctionExprent.FunctionType.NE
                 && nn.getLstOperands().get(0) instanceof VarExprent
                 && nn.getLstOperands().get(1).getExprType().equals(VarType.VARTYPE_NULL)) {
             // TODO: consider if verifying the variable used is necessary
