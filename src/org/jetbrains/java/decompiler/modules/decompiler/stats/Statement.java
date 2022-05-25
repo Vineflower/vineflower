@@ -930,7 +930,7 @@ public abstract class Statement implements IMatchable {
 
   // helper methods
   public String toString() {
-    return String.format("{%s}:%d", type, id);
+    return type.toString().toLowerCase(Locale.ROOT) + ":" + id;
   }
 
   //TODO: Cleanup/cache?
