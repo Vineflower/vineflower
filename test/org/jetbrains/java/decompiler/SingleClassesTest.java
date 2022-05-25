@@ -571,6 +571,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestTryCatchNested");
     register(JAVA_8, "TestSwitchTernary");
     register(JAVA_8, "TestBooleanExpressions");
+    // TODO: cast not created, incorrect
+    register(JAVA_8, "TestObjectBitwise");
   }
 
   private void registerEntireClassPath() {
