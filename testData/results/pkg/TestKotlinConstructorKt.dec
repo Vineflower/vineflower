@@ -28,7 +28,7 @@ public final class TestKotlinConstructorKt {
             throw new NullPointerException("null cannot be cast to non-null type kotlin.String");
          }
 
-         var10000./* $FF: Unable to resugar constructor */<init>(it);
+         var10000./* $QF: Unable to resugar constructor */<init>(it);
          destination$iv$iv.add(var10000);// 14
       }
 

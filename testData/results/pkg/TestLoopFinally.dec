@@ -160,7 +160,7 @@ public class TestLoopFinally {
    }// 153
 
    public void loopInFinally() {
-      // $FF: Couldn't be decompiled
+      // $QF: Couldn't be decompiled
       // Bytecode:
       // 00: bipush 1
       // 01: istore 1

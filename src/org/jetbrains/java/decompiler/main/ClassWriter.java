@@ -60,7 +60,7 @@ public class ClassWriter {
   private static boolean invokeProcessors(TextBuffer buffer, ClassNode node) {
     ClassWrapper wrapper = node.getWrapper();
     if (wrapper == null) {
-      buffer.append("/* $FF: Couldn't be decompiled. Class " + node.classStruct.qualifiedName + " wasn't processed yet! */");
+      buffer.append("/* $QF: Couldn't be decompiled. Class " + node.classStruct.qualifiedName + " wasn't processed yet! */");
       List<String> lines = new ArrayList<>();
       lines.addAll(ClassWriter.getErrorComment());
       for (String line : lines) {
@@ -107,7 +107,7 @@ public class ClassWriter {
       DecompilerContext.getLogger().writeMessage("Class " + node.simpleName + " couldn't be written.",
         IFernflowerLogger.Severity.WARN,
         t);
-      buffer.append("// $FF: Couldn't be decompiled");
+      buffer.append("// $QF: Couldn't be decompiled");
       buffer.appendLineSeparator();
       if (DecompilerContext.getOption(IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR)) {
         List<String> lines = new ArrayList<>();
@@ -235,7 +235,7 @@ public class ClassWriter {
                     IFernflowerLogger.Severity.WARN,
                     ex);
                   methodWrapper.decompileError = ex;
-                  buffer.append(" // $FF: Couldn't be decompiled");
+                  buffer.append(" // $QF: Couldn't be decompiled");
                 }
                 finally {
                   DecompilerContext.setProperty(DecompilerContext.CURRENT_METHOD_WRAPPER, outerWrapper);
@@ -288,7 +288,7 @@ public class ClassWriter {
 
           buffer
             .appendIndent(indent)
-            .append("// $FF: Compiled from " + sourceFile)
+            .append("// $QF: Compiled from " + sourceFile)
             .appendLineSeparator();
         }
       }
@@ -856,7 +856,7 @@ public class ClassWriter {
     if (!changed) {
       return name;
     }
-    return res.append("/* $FF was: ").append(name).append("*/").toString();
+    return res.append("/* $QF was: ").append(name).append("*/").toString();
   }
 
   private boolean methodToJava(ClassNode node, StructMethod mt, int methodIndex, TextBuffer buffer, int indent) {
@@ -1160,7 +1160,7 @@ public class ClassWriter {
 
   private static void dumpError(TextBuffer buffer, MethodWrapper wrapper, int indent) {
     List<String> lines = new ArrayList<>();
-    lines.add("$FF: Couldn't be decompiled");
+    lines.add("$QF: Couldn't be decompiled");
     boolean exceptions = DecompilerContext.getOption(IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR);
     boolean bytecode = DecompilerContext.getOption(IFernflowerPreferences.DUMP_BYTECODE_ON_ERROR);
     if (exceptions) {
@@ -1404,7 +1404,7 @@ public class ClassWriter {
     if (oldName == null) return;
 
     buffer.appendIndent(indent);
-    buffer.append("// $FF: renamed from: ");
+    buffer.append("// $QF: renamed from: ");
 
     switch (type) {
       case CLASS:
@@ -1453,7 +1453,7 @@ public class ClassWriter {
   }
 
   private static void appendComment(TextBuffer buffer, String comment, int indent) {
-    buffer.appendIndent(indent).append("// $FF: ").append(comment).appendLineSeparator();
+    buffer.appendIndent(indent).append("// $QF: ").append(comment).appendLineSeparator();
   }
   
   private static void appendJavadoc(TextBuffer buffer, String javaDoc, int indent) {

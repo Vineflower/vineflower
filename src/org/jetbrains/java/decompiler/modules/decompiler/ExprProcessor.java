@@ -866,7 +866,7 @@ public class ExprProcessor implements CodeConstants {
         }
         buf.append(content);
         if (expr instanceof MonitorExprent && ((MonitorExprent)expr).getMonType() == MonitorExprent.Type.ENTER) {
-          buf.append("{} // $FF: monitorenter "); // empty synchronized block
+          buf.append("{} // $QF: monitorenter "); // empty synchronized block
         }
         if (endsWithSemicolon(expr)) {
           buf.append(";");

@@ -132,7 +132,7 @@ public final class SwitchHelper {
           else {
             Exprent realConst = mapping.get(exprent);
             if (realConst == null) {
-              root.addComment("$FF: Unable to simplify switch on enum");
+              root.addComment("$QF: Unable to simplify switch on enum");
               root.addErrorComment = true;
               DecompilerContext.getLogger()
                 .writeMessage("Unable to simplify switch on enum: " + exprent + " not found, available: " + mapping + " in method " + mt.getClassQualifiedName() + " " + mt.getName(),

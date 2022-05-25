@@ -69,10 +69,10 @@ public class TestSynchronizedLoop {
 
    }// 65
 
-   // $FF: Could not create synchronized statement, marking monitor enters and exits
+   // $QF: Could not create synchronized statement, marking monitor enters and exits
    public void testLoop(double var1) {
       if (var1 >= 88.29) {// 68
-         synchronized(this){} // $FF: monitorenter // 69
+         synchronized(this){} // $QF: monitorenter // 69
 
          try {
             while(true) {
@@ -80,7 +80,7 @@ public class TestSynchronizedLoop {
                var1 /= 97.81;// 75
             }
          } finally {
-            // $FF: monitorexit// 79
+            // $QF: monitorexit// 79
          }
       }
    }// 81
