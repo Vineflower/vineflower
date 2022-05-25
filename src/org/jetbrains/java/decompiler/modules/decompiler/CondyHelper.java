@@ -29,7 +29,7 @@ public class CondyHelper {
 
   // converts a condy exprent into an equivalent "normal java" exprent
   public static Exprent simplifyCondy(InvocationExprent condyExpr) {
-    if (condyExpr.getInvocationTyp() != InvocationExprent.CONSTANT_DYNAMIC) {
+    if (condyExpr.getInvocationType() != InvocationExprent.InvocationType.CONSTANT_DYNAMIC) {
       return condyExpr;
     }
 
@@ -158,7 +158,7 @@ public class CondyHelper {
     String desc = "()Ljava/lang/invoke/MethodHandles$Lookup;";
     exprent.setStringDescriptor(desc);
     exprent.setDescriptor(MethodDescriptor.parseDescriptor(desc));
-    exprent.setFunctype(InvocationExprent.TYP_GENERAL);
+    exprent.setFunctype(InvocationExprent.Type.GENERAL);
     exprent.setStatic(true);
     return exprent;
   }
@@ -172,7 +172,7 @@ public class CondyHelper {
     String desc = "(Ljava/lang/Class;Ljava/lang/String;Ljava/lang/Class;)Ljava/lang/invoke/VarHandle;";
     exprent.setStringDescriptor(desc);
     exprent.setDescriptor(MethodDescriptor.parseDescriptor(desc));
-    exprent.setFunctype(InvocationExprent.TYP_GENERAL);
+    exprent.setFunctype(InvocationExprent.Type.GENERAL);
     exprent.setStatic(false);
     exprent.setInstance(lookup);
     exprent.setLstParameters(Arrays.asList(ownerClass, fieldName, fieldClass));
@@ -187,7 +187,7 @@ public class CondyHelper {
     String desc = "(Ljava/lang/Class;)Ljava/lang/invoke/VarHandle;";
     exprent.setStringDescriptor(desc);
     exprent.setDescriptor(MethodDescriptor.parseDescriptor(desc));
-    exprent.setFunctype(InvocationExprent.TYP_GENERAL);
+    exprent.setFunctype(InvocationExprent.Type.GENERAL);
     exprent.setStatic(true);
     Exprent classExpr = toClassExprent(classConst);
     exprent.setLstParameters(Collections.singletonList(classExpr));
