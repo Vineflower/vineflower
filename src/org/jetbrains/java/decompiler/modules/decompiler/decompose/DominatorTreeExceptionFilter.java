@@ -3,6 +3,7 @@ package org.jetbrains.java.decompiler.modules.decompiler.decompose;
 
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement.EdgeDirection;
 import org.jetbrains.java.decompiler.util.VBStyleCollection;
 
 import java.util.*;
@@ -75,7 +76,7 @@ public class DominatorTreeExceptionFilter {
 
   private void buildExceptionRanges() {
     for (Statement stat : statement.getStats()) {
-      List<Statement> lstPreds = stat.getNeighbours(StatEdge.TYPE_EXCEPTION, Statement.DIRECTION_BACKWARD);
+      List<Statement> lstPreds = stat.getNeighbours(StatEdge.TYPE_EXCEPTION, EdgeDirection.BACKWARD);
       if (!lstPreds.isEmpty()) {
 
         Set<Integer> set = new LinkedHashSet<>();

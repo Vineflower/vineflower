@@ -12,7 +12,7 @@ class aw extends ap {
    }
 
    public double d() {
-      // $FF: Couldn't be decompiled
+      // $QF: Couldn't be decompiled
    }
 
    public String c() {
@@ -20,7 +20,7 @@ class aw extends ap {
    }
 
    public Double e() {
-      // $FF: Couldn't be decompiled
+      // $QF: Couldn't be decompiled
    }
 
    static {

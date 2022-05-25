@@ -4,21 +4,21 @@ package org.jetbrains.java.decompiler.modules.decompiler.stats;
 import org.jetbrains.java.decompiler.code.cfg.ControlFlowGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.struct.StructMethod;
-import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.StartEndPair;
+import org.jetbrains.java.decompiler.util.TextBuffer;
 
-import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-public class RootStatement extends Statement {
+public final class RootStatement extends Statement {
   private final DummyExitStatement dummyExit;
   public final StructMethod mt;
   public Set<String> commentLines = null;
   public boolean addErrorComment = false;
+  private final ContentFlags flags = new ContentFlags();
 
   public RootStatement(Statement head, DummyExitStatement dummyExit, StructMethod mt) {
-    type = Statement.TYPE_ROOT;
+    super(StatementType.ROOT);
 
     first = head;
     this.dummyExit = dummyExit;
@@ -69,8 +69,44 @@ public class RootStatement extends Statement {
     addErrorComment |= graph.addErrorComment;
   }
 
+  public void buildContentFlags() {
+    buildContentFlagsStat(this);
+  }
+
+  private void buildContentFlagsStat(Statement stat) {
+    for (Statement st : stat.stats) {
+      buildContentFlagsStat(st);
+    }
+
+    if (stat instanceof CatchStatement || stat instanceof CatchAllStatement) {
+      this.flags.hasTryCatch = true;
+    } else if (stat instanceof DoStatement) {
+      this.flags.hasLoops = true;
+    } else if (stat instanceof SwitchStatement) {
+      this.flags.hasSwitch = true;
+    }
+  }
+
+  public boolean hasTryCatch() {
+    return this.flags.hasTryCatch;
+  }
+
+  public boolean hasLoops() {
+    return this.flags.hasLoops;
+  }
+
+  public boolean hasSwitch() {
+    return this.flags.hasSwitch;
+  }
+
   @Override
   public StartEndPair getStartEndRange() {
     return StartEndPair.join(first.getStartEndRange(), dummyExit != null ? dummyExit.getStartEndRange() : null);
+  }
+
+  private static class ContentFlags {
+    private boolean hasTryCatch;
+    private boolean hasLoops;
+    private boolean hasSwitch;
   }
 }

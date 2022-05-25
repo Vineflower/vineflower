@@ -36,7 +36,7 @@ public class TestTryWithResourcesReturnJ16 {
    }
 
    public Scanner testFinallyNested(File param1) {
-      // $FF: Couldn't be decompiled
+      // $QF: Couldn't be decompiled
       // Bytecode:
       // 00: new java/util/Scanner
       // 03: dup

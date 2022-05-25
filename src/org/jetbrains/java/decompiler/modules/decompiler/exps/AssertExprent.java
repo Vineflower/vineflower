@@ -13,7 +13,7 @@ public class AssertExprent extends Exprent {
   private final List<? extends Exprent> parameters;
 
   public AssertExprent(List<? extends Exprent> parameters) {
-    super(EXPRENT_ASSERT);
+    super(Type.ASSERT);
     this.parameters = parameters;
   }
 

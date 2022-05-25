@@ -403,14 +403,14 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatching3");
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatching4");
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatching5");
-    // TODO: fix broken enum/string switch resugaring w/ null label, for all of these
-    // TODO: ternary in switch causes issues with switch detection
+    // null labels fall under Pattern Matching for Switch
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatching6", "ext/Direction");
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatching7");
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatching8");
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatching9");
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatching10");
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatching11");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatching12");
 
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingLoop");
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingInstanceof1");
@@ -573,6 +573,9 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: merging of trycatch incorrect
     register(JAVA_8, "TestTryCatchNested");
     register(JAVA_8, "TestSwitchTernary");
+    register(JAVA_8, "TestBooleanExpressions");
+    // TODO: cast not created, incorrect
+    register(JAVA_8, "TestObjectBitwise");
   }
 
   private void registerEntireClassPath() {

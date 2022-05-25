@@ -3,13 +3,17 @@ package org.jetbrains.java.decompiler.modules.decompiler;
 
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.struct.consts.PooledConstant;
 import org.jetbrains.java.decompiler.struct.consts.PrimitiveConstant;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.BitSet;
+import java.util.List;
 
 public final class ConcatenationHelper {
 
@@ -43,7 +47,7 @@ public final class ConcatenationHelper {
       }
     }
 
-    if (exprent.type == Exprent.EXPRENT_INVOCATION) {
+    if (exprent instanceof InvocationExprent) {
       Exprent ret = ConcatenationHelper.contractStringConcat(exprent);
       if (!exprent.equals(ret)) {
         return ret;
@@ -59,7 +63,7 @@ public final class ConcatenationHelper {
     VarType cltype = null;
 
     // first quick test
-    if (expr.type == Exprent.EXPRENT_INVOCATION) {
+    if (expr instanceof InvocationExprent) {
       InvocationExprent iex = (InvocationExprent)expr;
       if ("toString".equals(iex.getName())) {
         if (builderClass.equals(iex.getClassname())) {
@@ -111,7 +115,7 @@ public final class ConcatenationHelper {
       int found = 0;
 
       switch (exprTmp.type) {
-        case Exprent.EXPRENT_INVOCATION:
+        case INVOCATION:
           InvocationExprent iex = (InvocationExprent)exprTmp;
           if (isAppendConcat(iex, cltype)) {
             lstOperands.add(0, iex.getLstParameters().get(0));
@@ -119,7 +123,7 @@ public final class ConcatenationHelper {
             found = 1;
           }
           break;
-        case Exprent.EXPRENT_NEW:
+        case NEW:
           NewExprent nex = (NewExprent)exprTmp;
           if (isNewConcat(nex, cltype)) {
             VarType[] params = nex.getConstructor().getDescriptor().params;
@@ -177,7 +181,7 @@ public final class ConcatenationHelper {
     Exprent func = lstOperands.get(0);
 
     for (int i = 1; i < lstOperands.size(); i++) {
-      func = new FunctionExprent(FunctionExprent.FUNCTION_STR_CONCAT, Arrays.asList(func, lstOperands.get(i)), bytecode);
+      func = new FunctionExprent(FunctionType.STR_CONCAT, Arrays.asList(func, lstOperands.get(i)), bytecode);
     }
 
     return func;
@@ -282,7 +286,7 @@ public final class ConcatenationHelper {
 
   private static Exprent removeStringValueOf(Exprent exprent) {
 
-    if (exprent.type == Exprent.EXPRENT_INVOCATION) {
+    if (exprent instanceof InvocationExprent) {
       InvocationExprent iex = (InvocationExprent)exprent;
       if ("valueOf".equals(iex.getName()) && stringClass.equals(iex.getClassname())) {
         MethodDescriptor md = iex.getDescriptor();

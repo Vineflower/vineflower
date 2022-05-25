@@ -12,20 +12,23 @@ public class TestTryReturn {
    }
 
    public boolean testFinally(Supplier<Boolean> supplier) {
+      boolean var2;
       try {
-         return supplier.get();// 17
+         var2 = supplier.get();
       } finally {
          System.out.println("Finally");// 19
       }
+
+      return var2;// 17
    }
 
    public void testFinally1(Supplier<Boolean> supplier) {
       System.out.println("pred");// 24
 
-      label32: {
+      label27: {
          try {
             if (!supplier.get()) {// 27
-               break label32;
+               break label27;
             }
          } finally {
             System.out.println("Finally");// 31
@@ -38,27 +41,33 @@ public class TestTryReturn {
    }
 
    public boolean testFinally2(Supplier<Boolean> supplier) {
+      boolean b;
       try {
-         return supplier.get();// 40
+         b = supplier.get();// 40
       } finally {
          System.out.println("Finally");// 42
       }
+
+      return b;// 43 45
    }
 
    public boolean testFinally3(boolean b, boolean c, int a, Supplier<Boolean> supplier) {
+      boolean var5;
       try {
          if (!b) {// 50
             if (a > 0) {// 54
                return a == 1;// 55
-            } else {
-               return supplier.get();// 58
             }
-         } else {
-            return c && supplier.get();// 51
+
+            return supplier.get();// 58
          }
+
+         var5 = c && supplier.get();
       } finally {
          System.out.println("Finally");// 60
       }
+
+      return var5;// 51
    }
 
    public boolean testFinally4(Supplier<Boolean> supplier) {
@@ -80,10 +89,12 @@ public class TestTryReturn {
          b = supplier.get();// 78
       } catch (Exception var7) {// 79
          System.out.println("Catch");// 80
-         return supplier.get();// 81
+         b = supplier.get();// 81
       } finally {
          System.out.println("Finally");// 83
       }
+
+      return b;// 86
    }
 
    public boolean testFinally6(boolean a, Supplier<Boolean> supplier) {
@@ -98,10 +109,12 @@ public class TestTryReturn {
          b = supplier.get();// 97
       } catch (Exception var8) {// 98
          System.out.println("Catch");// 99
-         return supplier.get();// 100
+         b = supplier.get();// 100
       } finally {
          System.out.println("Finally");// 102
       }
+
+      return b;// 105
    }
 
    public void testLoopFinally() {
@@ -119,7 +132,7 @@ public class TestTryReturn {
    }
 
    public void testParsingFailure() {
-      // $FF: Couldn't be decompiled
+      // $QF: Couldn't be decompiled
       // Bytecode:
       // 00: bipush 116
       // 02: istore 1
@@ -155,7 +168,7 @@ public class TestTryReturn {
    }
 
    public void testPostdomFailure() {
-      // $FF: Couldn't be decompiled
+      // $QF: Couldn't be decompiled
       // Bytecode:
       // 00: getstatic java/lang/System.out Ljava/io/PrintStream;
       // 03: bipush 1
@@ -190,22 +203,22 @@ public class TestTryReturn {
       // 41: return
    }
 
-   // $FF: Could not verify finally blocks. A semaphore variable has been added to preserve control flow.
+   // $QF: Could not verify finally blocks. A semaphore variable has been added to preserve control flow.
    public void testVarWrong() {
       boolean var8 = false;
 
-      label49: {
-         label48: {
+      label40: {
+         label39: {
             try {
                try {
                   var8 = true;// 164
                   System.out.println("Hi");
                   var8 = false;
-                  break label49;
+                  break label40;
                } catch (Exception var9) {// 165
                   if (var9 != null) {
                      var8 = false;
-                     break label48;
+                     break label39;
                   }
                }
 
@@ -272,334 +285,353 @@ class 'pkg/TestTryReturn' {
    }
 
    method 'testFinally (Ljava/util/function/Supplier;)Z' {
-      0      15
-      1      15
-      2      15
-      3      15
-      4      15
-      5      15
-      9      15
-      a      15
-      b      15
-      c      15
-      17      17
-      18      17
-      19      17
-      1a      17
-      1b      17
-      1c      17
+      0      16
+      1      16
+      2      16
+      3      16
+      4      16
+      5      16
+      9      16
+      a      16
+      b      16
+      c      16
+      15      21
+      16      21
+      17      18
+      18      18
+      19      18
+      1a      18
+      1b      18
+      1c      18
    }
 
    method 'testFinally1 (Ljava/util/function/Supplier;)V' {
-      0      22
-      1      22
-      2      22
-      3      22
-      4      22
-      5      22
-      8      26
-      9      26
-      a      26
-      b      26
-      c      26
-      d      26
-      11      26
-      12      26
-      13      26
-      14      26
-      1f      33
-      28      36
-      29      36
-      2a      36
-      2b      30
-      2c      30
-      2d      30
-      2e      30
-      2f      30
-      30      30
-      31      36
-      32      36
-      33      36
-      34      36
-      35      36
-      36      36
-      37      36
-      38      36
-      39      36
-      3a      36
-      3b      37
+      0      25
+      1      25
+      2      25
+      3      25
+      4      25
+      5      25
+      8      29
+      9      29
+      a      29
+      b      29
+      c      29
+      d      29
+      11      29
+      12      29
+      13      29
+      14      29
+      1f      36
+      28      39
+      29      39
+      2a      39
+      2b      33
+      2c      33
+      2d      33
+      2e      33
+      2f      33
+      30      33
+      31      39
+      32      39
+      33      39
+      34      39
+      35      39
+      36      39
+      37      39
+      38      39
+      39      39
+      3a      39
+      3b      40
    }
 
    method 'testFinally2 (Ljava/util/function/Supplier;)Z' {
-      0      41
-      1      41
-      2      41
-      3      41
-      4      41
-      5      41
-      9      41
-      a      41
-      b      41
-      c      41
-      18      43
-      19      43
-      1a      43
-      1b      43
-      1c      43
-      1d      43
+      0      45
+      1      45
+      2      45
+      3      45
+      4      45
+      5      45
+      9      45
+      a      45
+      b      45
+      c      45
+      15      50
+      16      50
+      17      50
+      18      47
+      19      47
+      1a      47
+      1b      47
+      1c      47
+      1d      47
+      1e      50
+      1f      50
+      20      50
+      21      50
+      22      50
+      23      50
    }
 
    method 'testFinally3 (ZZILjava/util/function/Supplier;)Z' {
-      0      49
-      1      49
-      4      56
-      8      56
-      9      56
-      a      56
-      b      56
-      c      56
-      d      56
-      e      56
-      12      56
-      13      56
-      14      56
-      1d      56
-      2a      50
-      2b      50
-      2e      51
-      2f      51
-      30      51
-      38      51
-      45      53
-      46      53
-      47      53
-      48      53
-      49      53
-      4a      53
-      4b      53
-      4f      53
-      50      53
-      51      53
-      52      53
-      5f      59
-      60      59
-      61      59
-      62      59
-      63      59
-      64      59
-      65      59
+      0      56
+      1      56
+      4      64
+      8      64
+      9      64
+      a      64
+      b      64
+      c      64
+      d      64
+      e      64
+      12      64
+      13      64
+      14      64
+      1d      64
+      1e      64
+      27      69
+      28      69
+      29      69
+      2a      57
+      2b      57
+      2e      58
+      2f      58
+      30      58
+      44      58
+      45      61
+      46      61
+      47      61
+      48      61
+      49      61
+      4a      61
+      4b      61
+      4f      61
+      50      61
+      51      61
+      5e      61
+      5f      66
+      60      66
+      61      66
+      62      66
+      63      66
+      64      66
+      65      66
    }
 
    method 'testFinally4 (Ljava/util/function/Supplier;)Z' {
-      0      64
-      1      64
-      2      67
-      3      67
-      4      67
-      5      67
-      6      67
-      7      67
-      b      67
-      c      67
-      d      67
-      e      67
-      17      72
-      18      72
-      19      72
-      1a      69
-      1b      69
-      1c      69
-      1d      69
-      1e      69
-      1f      69
-      20      72
-      21      72
-      22      72
-      23      72
-      24      72
-      25      72
-   }
-
-   method 'testFinally5 (Ljava/util/function/Supplier;)Z' {
-      0      76
-      1      76
-      2      79
-      3      79
-      4      79
-      5      79
-      6      79
-      7      79
-      b      79
-      c      79
-      d      79
-      e      79
-      1a      80
-      1b      81
-      1c      81
-      1d      81
-      1e      81
-      1f      81
+      0      73
+      1      73
+      2      76
+      3      76
+      4      76
+      5      76
+      6      76
+      7      76
+      b      76
+      c      76
+      d      76
+      e      76
+      17      81
+      18      81
+      19      81
+      1a      78
+      1b      78
+      1c      78
+      1d      78
+      1e      78
+      1f      78
       20      81
       21      81
       22      81
-      23      82
-      24      82
-      25      82
-      26      82
-      27      82
-      28      82
-      2c      82
-      2d      82
-      2e      82
-      2f      82
-      3b      84
-      3c      84
-      3d      84
-      3e      84
-      3f      84
-      40      84
-      41      84
+      23      81
+      24      81
+      25      81
+   }
+
+   method 'testFinally5 (Ljava/util/function/Supplier;)Z' {
+      0      85
+      1      85
+      2      88
+      3      88
+      4      88
+      5      88
+      6      88
+      7      88
+      b      88
+      c      88
+      d      88
+      e      88
+      1a      89
+      1b      90
+      1c      90
+      1d      90
+      1e      90
+      1f      90
+      20      90
+      21      90
+      22      90
+      23      91
+      24      91
+      25      91
+      26      91
+      27      91
+      28      91
+      2c      91
+      2d      91
+      2e      91
+      2f      91
+      3b      93
+      3c      93
+      3d      93
+      3e      93
+      3f      93
+      40      93
+      41      93
+      48      96
+      49      96
    }
 
    method 'testFinally6 (ZLjava/util/function/Supplier;)Z' {
-      0      89
-      1      89
-      2      92
-      3      92
-      6      93
-      7      93
-      8      94
-      9      94
-      a      94
-      b      94
-      c      94
-      d      94
-      10      97
-      11      97
-      12      97
-      13      97
-      14      97
-      15      97
-      19      97
-      1a      97
-      1b      97
-      1c      97
-      28      98
-      2a      99
-      2b      99
-      2c      99
-      2d      99
-      2e      99
-      2f      99
-      30      99
-      31      99
-      32      100
-      33      100
-      34      100
-      35      100
-      36      100
-      37      100
-      3b      100
-      3c      100
-      3d      100
-      3e      100
-      4a      102
-      4b      102
-      4c      102
-      4d      102
-      4e      102
-      4f      102
-      50      102
+      0      100
+      1      100
+      2      103
+      3      103
+      6      104
+      7      104
+      8      105
+      9      105
+      a      105
+      b      105
+      c      105
+      d      105
+      10      108
+      11      108
+      12      108
+      13      108
+      14      108
+      15      108
+      19      108
+      1a      108
+      1b      108
+      1c      108
+      28      109
+      2a      110
+      2b      110
+      2c      110
+      2d      110
+      2e      110
+      2f      110
+      30      110
+      31      110
+      32      111
+      33      111
+      34      111
+      35      111
+      36      111
+      37      111
+      3b      111
+      3c      111
+      3d      111
+      3e      111
+      4a      113
+      4b      113
+      4c      113
+      4d      113
+      4e      113
+      4f      113
+      50      113
+      57      116
+      58      116
    }
 
    method 'testLoopFinally ()V' {
-      0      107
-      1      107
-      2      111
-      3      111
-      e      112
-      1a      115
-      1b      115
-      1c      115
-      1d      115
-      1e      115
-      1f      115
+      0      120
+      1      120
+      2      124
+      3      124
+      e      125
+      1a      128
+      1b      128
+      1c      128
+      1d      128
+      1e      128
+      1f      128
    }
 
    method 'testVarWrong ()V' {
-      0      200
-      1      200
-      2      200
-      3      200
-      4      200
-      5      201
-      8      227
-      9      227
-      a      227
-      b      228
-      c      228
-      d      228
-      e      204
-      f      228
-      10      205
-      11      228
-      12      228
-      13      223
-      14      223
-      15      223
-      16      224
-      17      211
-      18      211
-      19      211
-      1a      228
-      1b      211
-      1c      228
-      1d      228
-      1e      219
-      1f      219
-      20      219
-      21      220
-      22      215
-      23      215
-      24      215
-      25      215
-      26      228
-      27      228
-      28      228
-      29      228
-      2a      228
+      0      213
+      1      213
+      2      213
+      3      213
+      4      213
+      5      214
+      8      240
+      9      240
+      a      240
+      b      241
+      c      241
+      d      241
+      e      217
+      f      241
+      10      218
+      11      241
+      12      241
+      13      236
+      14      236
+      15      236
+      16      237
+      17      224
+      18      224
+      19      224
+      1a      241
+      1b      224
+      1c      241
+      1d      241
+      1e      232
+      1f      232
+      20      232
+      21      233
+      22      228
+      23      228
+      24      228
+      25      228
+      26      241
+      27      241
+      28      241
+      29      241
+      2a      241
    }
 
    method 'testInvalidUse ()V' {
-      0      231
-      1      231
-      2      232
-      3      232
-      4      232
-      5      237
-      6      237
-      7      237
-      8      237
-      9      237
-      13      238
-      14      239
-      15      244
-      16      244
-      17      244
-      18      244
-      19      244
-      26      246
-      36      254
-      37      248
-      38      248
-      3c      248
-      4a      245
-      4d      251
-      4e      251
-      4f      251
-      50      251
-      51      251
-      52      251
+      0      244
+      1      244
+      2      245
+      3      245
+      4      245
+      5      250
+      6      250
+      7      250
+      8      250
+      9      250
+      13      251
+      14      252
+      15      257
+      16      257
+      17      257
+      18      257
+      19      257
+      26      259
+      36      267
+      37      261
+      38      261
+      3c      261
+      4a      258
+      4d      264
+      4e      264
+      4f      264
+      50      264
+      51      264
+      52      264
    }
 }
 
@@ -607,75 +639,75 @@ Lines mapping:
 9 <-> 8
 10 <-> 9
 11 <-> 10
-17 <-> 16
-19 <-> 18
-24 <-> 23
-27 <-> 27
-28 <-> 34
-31 <-> 31
-32 <-> 37
-34 <-> 37
-40 <-> 42
-42 <-> 44
-50 <-> 50
-51 <-> 57
-54 <-> 51
-55 <-> 52
-58 <-> 54
-60 <-> 60
-65 <-> 65
-67 <-> 68
-69 <-> 70
-70 <-> 73
-72 <-> 73
-76 <-> 77
-78 <-> 80
-79 <-> 81
-80 <-> 82
-81 <-> 83
-83 <-> 85
-90 <-> 90
-92 <-> 93
-93 <-> 94
-94 <-> 95
-97 <-> 98
-98 <-> 99
-99 <-> 100
-100 <-> 101
-102 <-> 103
-109 <-> 108
-113 <-> 112
-114 <-> 113
-117 <-> 116
-164 <-> 201
-165 <-> 205
-166 <-> 229
-167 <-> 225
-169 <-> 212
-170 <-> 221
-173 <-> 216
-174 <-> 229
-178 <-> 232
-179 <-> 233
-181 <-> 238
-182 <-> 239
-183 <-> 240
-185 <-> 245
-186 <-> 247
-187 <-> 255
-190 <-> 249
-194 <-> 252
-195 <-> 246
+17 <-> 22
+19 <-> 19
+24 <-> 26
+27 <-> 30
+28 <-> 37
+31 <-> 34
+32 <-> 40
+34 <-> 40
+40 <-> 46
+42 <-> 48
+43 <-> 51
+45 <-> 51
+50 <-> 57
+51 <-> 70
+54 <-> 58
+55 <-> 59
+58 <-> 62
+60 <-> 67
+65 <-> 74
+67 <-> 77
+69 <-> 79
+70 <-> 82
+72 <-> 82
+76 <-> 86
+78 <-> 89
+79 <-> 90
+80 <-> 91
+81 <-> 92
+83 <-> 94
+86 <-> 97
+90 <-> 101
+92 <-> 104
+93 <-> 105
+94 <-> 106
+97 <-> 109
+98 <-> 110
+99 <-> 111
+100 <-> 112
+102 <-> 114
+105 <-> 117
+109 <-> 121
+113 <-> 125
+114 <-> 126
+117 <-> 129
+164 <-> 214
+165 <-> 218
+166 <-> 242
+167 <-> 238
+169 <-> 225
+170 <-> 234
+173 <-> 229
+174 <-> 242
+178 <-> 245
+179 <-> 246
+181 <-> 251
+182 <-> 252
+183 <-> 253
+185 <-> 258
+186 <-> 260
+187 <-> 268
+190 <-> 262
+194 <-> 265
+195 <-> 259
 Not mapped:
 20
 35
-43
-45
 61
 84
-86
 103
-105
 118
 175
 191

@@ -6,6 +6,7 @@ import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.modules.decompiler.IfNode.EdgeType;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.IfExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
@@ -52,7 +53,7 @@ public final class IfHelper {
   }
 
   public static boolean mergeIfs(Statement statement, Set<? super Integer> setReorderedIfs) {
-    if (statement.type != Statement.TYPE_IF && statement.type != Statement.TYPE_SEQUENCE) {
+    if (!(statement instanceof IfStatement) && !(statement instanceof SequenceStatement)) {
       return false;
     }
 
@@ -61,7 +62,7 @@ public final class IfHelper {
     loop:
     while (true) {
       List<Statement> lst = new ArrayList<>();
-      if (statement.type == Statement.TYPE_IF) {
+      if (statement instanceof IfStatement) {
         lst.add(statement);
       } else {
         lst.addAll(statement.getStats());
@@ -70,7 +71,7 @@ public final class IfHelper {
       boolean stsingle = (lst.size() == 1);
 
       for (Statement stat : lst) {
-        if (stat.type == Statement.TYPE_IF) {
+        if (stat instanceof IfStatement) {
           IfNode rtnode = IfNode.build((IfStatement) stat, stsingle);
 
           if (collapseIfIf(rtnode)) {
@@ -186,7 +187,7 @@ public final class IfHelper {
             lstOperands.add(statexpr.getCondition());
             lstOperands.add(ifchild.getHeadexprent().getCondition());
 
-            statexpr.setCondition(new FunctionExprent(FunctionExprent.FUNCTION_BOOLEAN_AND, lstOperands, null));
+            statexpr.setCondition(new FunctionExprent(FunctionType.BOOLEAN_AND, lstOperands, null));
             statexpr.addBytecodeOffsets(ifchild.getHeadexprent().bytecode);
 
             return true;
@@ -245,8 +246,8 @@ public final class IfHelper {
 
             List<Exprent> lstOperands = new ArrayList<>();
             lstOperands.add(statexpr.getCondition());
-            lstOperands.add(new FunctionExprent(FunctionExprent.FUNCTION_BOOL_NOT, ifchild.getHeadexprent().getCondition(), null));
-            statexpr.setCondition(new FunctionExprent(FunctionExprent.FUNCTION_BOOLEAN_AND, lstOperands, null));
+            lstOperands.add(new FunctionExprent(FunctionType.BOOL_NOT, ifchild.getHeadexprent().getCondition(), null));
+            statexpr.setCondition(new FunctionExprent(FunctionType.BOOLEAN_AND, lstOperands, null));
             statexpr.addBytecodeOffsets(ifchild.getHeadexprent().bytecode);
 
             return true;
@@ -328,13 +329,13 @@ public final class IfHelper {
             lstOperands.add(firstif.getHeadexprent().getCondition());
 
             if (path == 2) {
-              lstOperands.set(0, new FunctionExprent(FunctionExprent.FUNCTION_BOOL_NOT, lstOperands.get(0), null));
+              lstOperands.set(0, new FunctionExprent(FunctionType.BOOL_NOT, lstOperands.get(0), null));
             }
 
             lstOperands.add(statexpr.getCondition());
 
             statexpr
-              .setCondition(new FunctionExprent(path == 1 ? FunctionExprent.FUNCTION_BOOLEAN_OR : FunctionExprent.FUNCTION_BOOLEAN_AND, lstOperands, null));
+              .setCondition(new FunctionExprent(path == 1 ? FunctionType.BOOLEAN_OR : FunctionType.BOOLEAN_AND, lstOperands, null));
 
             if (secondif.getFirst().getExprents().isEmpty() && // second is guranteed to be empty already
                 !firstif.getFirst().getExprents().isEmpty()) {
@@ -387,7 +388,7 @@ public final class IfHelper {
           // negate the if condition
           IfExprent statexpr = firstif.getHeadexprent();
           statexpr
-            .setCondition(new FunctionExprent(FunctionExprent.FUNCTION_BOOL_NOT, statexpr.getCondition(), null));
+            .setCondition(new FunctionExprent(FunctionType.BOOL_NOT, statexpr.getCondition(), null));
 
           return true;
         }
@@ -493,12 +494,12 @@ public final class IfHelper {
         lstOperands.add(firstIf.getHeadexprent().getCondition());
 
         if (inverted) {
-          lstOperands.set(1, new FunctionExprent(FunctionExprent.FUNCTION_BOOL_NOT, lstOperands.get(1), null));
+          lstOperands.set(1, new FunctionExprent(FunctionType.BOOL_NOT, lstOperands.get(1), null));
         }
 
         lstOperands.add(secondIf.getHeadexprent().getCondition());
 
-        statexpr.setCondition(new FunctionExprent(FunctionExprent.FUNCTION_TERNARY, lstOperands, null));
+        statexpr.setCondition(new FunctionExprent(FunctionType.TERNARY, lstOperands, null));
 
         return true;
       }
@@ -538,7 +539,7 @@ public final class IfHelper {
   private static boolean ifElseChainDenesting(IfNode rtnode) {
     if (rtnode.innerType == EdgeType.DIRECT && rtnode.successorType != EdgeType.ELSE) {
       IfStatement outerIf = (IfStatement) rtnode.value;
-      if (outerIf.getParent().type == Statement.TYPE_SEQUENCE) {
+      if (outerIf.getParent() instanceof SequenceStatement) {
         SequenceStatement parent = (SequenceStatement) outerIf.getParent();
         Statement nestedStat = rtnode.innerNode.value;
 
@@ -547,18 +548,18 @@ public final class IfHelper {
         boolean elsedirect = hasDirectEndEdge(parent.getStats().getLast(), parent);
         if (ifdirect && elsedirect) {
           // check there is a nested if statement that doesn't have any exprents before it, and that statement X jumps to end
-          IfStatement nestedIf = nestedStat.type == Statement.TYPE_IF ? (IfStatement) nestedStat
-            : nestedStat.type == Statement.TYPE_SEQUENCE && nestedStat.getFirst().type == Statement.TYPE_IF ? (IfStatement) nestedStat.getFirst() : null;
+          IfStatement nestedIf = nestedStat instanceof IfStatement ? (IfStatement) nestedStat
+            : nestedStat instanceof SequenceStatement && nestedStat.getFirst() instanceof IfStatement ? (IfStatement) nestedStat.getFirst() : null;
           if (nestedIf != null && nestedIf.getFirst().getExprents().isEmpty() && nestedIf.getIfstat() != null && hasDirectEndEdge(nestedIf.getIfstat(), parent)) {
             // check that statement Z is not an if statement (without exprents before it)
             List<StatEdge> successors = outerIf.getAllSuccessorEdges();
             Statement nextStat = !successors.isEmpty() && successors.get(0).getType() == StatEdge.TYPE_REGULAR ? successors.get(0).getDestination() : null;
-            IfStatement nextIfStat = nextStat == null ? null : nextStat.type == Statement.TYPE_IF ? (IfStatement) nextStat
-              : nextStat.type == Statement.TYPE_SEQUENCE && nextStat.getFirst().type == Statement.TYPE_IF ? (IfStatement) nextStat.getFirst() : null;
+            IfStatement nextIfStat = nextStat == null ? null : nextStat instanceof IfStatement ? (IfStatement) nextStat
+              : nextStat instanceof SequenceStatement && nextStat.getFirst() instanceof IfStatement ? (IfStatement) nextStat.getFirst() : null;
             if (nextStat != null && (nextIfStat == null || !nextIfStat.getFirst().getExprents().isEmpty())) {
               // negate the condition and swap the branches
               IfExprent conditionExprent = outerIf.getHeadexprent();
-              conditionExprent.setCondition(new FunctionExprent(FunctionExprent.FUNCTION_BOOL_NOT, conditionExprent.getCondition(), null));
+              conditionExprent.setCondition(new FunctionExprent(FunctionType.BOOL_NOT, conditionExprent.getCondition(), null));
               swapBranches(outerIf, false, parent);
               return true;
             }
@@ -587,7 +588,7 @@ public final class IfHelper {
     boolean ifdirectpath = false, elsedirectpath = false;
 
     Statement parent = ifstat.getParent();
-    Statement from = parent.type == Statement.TYPE_SEQUENCE ? parent : ifstat;
+    Statement from = parent instanceof SequenceStatement ? parent : ifstat;
 
     Statement next = getNextStatement(from);
 
@@ -602,7 +603,7 @@ public final class IfHelper {
                  hasDirectEndEdge(ifstat.getIfstat(), from);
     }
 
-    Statement last = parent.type == Statement.TYPE_SEQUENCE ? parent.getStats().getLast() : ifstat;
+    Statement last = parent instanceof SequenceStatement ? parent.getStats().getLast() : ifstat;
     noelsestat = (last == ifstat);
 
     elsedirect = !last.getAllSuccessorEdges().isEmpty() && last.getAllSuccessorEdges().get(0).getType() == StatEdge.TYPE_FINALLYEXIT ||
@@ -683,7 +684,7 @@ public final class IfHelper {
     } else if (ifdirect && (!elsedirect || (noifstat && !noelsestat)) && !ifstat.getAllSuccessorEdges().isEmpty()) {  // if - then
       // negate the if condition
       IfExprent statexpr = ifstat.getHeadexprent();
-      statexpr.setCondition(new FunctionExprent(FunctionExprent.FUNCTION_BOOL_NOT, statexpr.getCondition(), null));
+      statexpr.setCondition(new FunctionExprent(FunctionType.BOOL_NOT, statexpr.getCondition(), null));
 
       if (noelsestat) {
         StatEdge ifedge = ifstat.getIfEdge();
@@ -792,26 +793,26 @@ public final class IfHelper {
 
     if (stat.getExprents() == null) {
       switch (stat.type) {
-        case Statement.TYPE_SEQUENCE:
+        case SEQUENCE:
           return hasDirectEndEdge(stat.getStats().getLast(), from);
-        case Statement.TYPE_CATCHALL:
-        case Statement.TYPE_TRYCATCH:
+        case CATCH_ALL:
+        case TRY_CATCH:
           for (Statement st : stat.getStats()) {
             if (hasDirectEndEdge(st, from)) {
               return true;
             }
           }
           break;
-        case Statement.TYPE_IF:
+        case IF:
           IfStatement ifstat = (IfStatement) stat;
           if (ifstat.iftype == IfStatement.IFTYPE_IFELSE) {
             return hasDirectEndEdge(ifstat.getIfstat(), from) ||
                    hasDirectEndEdge(ifstat.getElsestat(), from);
           }
           break;
-        case Statement.TYPE_SYNCRONIZED:
+        case SYNCHRONIZED:
           return hasDirectEndEdge(stat.getStats().get(1), from);
-        case Statement.TYPE_SWITCH:
+        case SWITCH:
           for (Statement st : stat.getStats()) {
             if (hasDirectEndEdge(st, from)) {
               return true;
@@ -826,11 +827,11 @@ public final class IfHelper {
   private static Statement getNextStatement(Statement stat) {
     Statement parent = stat.getParent();
     switch (parent.type) {
-      case Statement.TYPE_ROOT:
+      case ROOT:
         return ((RootStatement) parent).getDummyExit();
-      case Statement.TYPE_DO:
+      case DO:
         return parent;
-      case Statement.TYPE_SEQUENCE:
+      case SEQUENCE:
         SequenceStatement sequence = (SequenceStatement) parent;
         if (sequence.getStats().getLast() != stat) {
           for (int i = sequence.getStats().size() - 1; i >= 0; i--) {

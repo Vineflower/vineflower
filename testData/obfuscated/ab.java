@@ -6,7 +6,7 @@ public class ab implements u {
    private List<Object> a = new ArrayList();
 
    public void a(Class<?> param1) throws Exception {
-      // $FF: Couldn't be decompiled
+      // $QF: Couldn't be decompiled
    }
 
    public void a() throws Exception {
