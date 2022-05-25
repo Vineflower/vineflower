@@ -1,15 +1,15 @@
 package org.jetbrains.java.decompiler.modules.decompiler;
 
+import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.BasicBlockStatement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.SequenceStatement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.SwitchStatement;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.Pair;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public final class SwitchPatternMatchProcessor {
   public static boolean processPatternMatching(Statement root) {
@@ -54,15 +54,15 @@ public final class SwitchPatternMatchProcessor {
     InvocationExprent value = (InvocationExprent) head.getValue();
     List<Exprent> origParams = value.getLstParameters();
     boolean guarded = true;
+    List<Pair<Statement, Exprent>> references = new ArrayList<>();
     if (origParams.get(1) instanceof VarExprent) {
       VarExprent var = (VarExprent) origParams.get(1);
-      List<Pair<Statement, Exprent>> references = new ArrayList<>();
       SwitchHelper.findExprents(root, Exprent.class, var::isVarReferenced, false, (st, expr) -> references.add(Pair.of(st, expr)));
       // If we have one reference...
       if (references.size() == 1) {
         // ...and its just assignment...
         Pair<Statement, Exprent> ref = references.get(0);
-        if (ref.b instanceof AssignmentExprent && ((AssignmentExprent) ref.b).getLeft().equals(var)) {
+        if (ref.b instanceof AssignmentExprent) { // NOTE TO SELF: might break test??
           // ...remove the variable
           ref.a.getExprents().remove(ref.b);
           guarded = false;
@@ -70,12 +70,65 @@ public final class SwitchPatternMatchProcessor {
       }
     }
 
+    Map<List<Exprent>, Exprent> guards = new HashMap<>(0);
     if (guarded) {
-      return false;
+      guards = new HashMap<>(references.size());
+      // in j17,
+      // a guard takes the form of exactly
+      // if (!guardCond) { idx = __thisIdx + 1; break; }
+      // at the start of that branch
+      // remove the initial assignment to 0
+      Pair<Statement, Exprent> refA = references.get(0);
+      if (refA.b instanceof AssignmentExprent && ((AssignmentExprent) refA.b).getRight() instanceof ConstExprent) {
+        ConstExprent constExprent = (ConstExprent) ((AssignmentExprent) refA.b).getRight();
+        if (constExprent.getConstType().typeFamily == CodeConstants.TYPE_FAMILY_INTEGER && constExprent.getIntValue() == 0) {
+          refA.a.getExprents().remove(refA.b);
+          references.remove(0);
+        }
+      }
+      // TODO: more tests
+      for (Pair<Statement, Exprent> reference : references) {
+        System.out.println(reference);
+        if (reference.b instanceof AssignmentExprent) {
+          Statement assignStat = reference.a;
+          // i assure you, my esteemed reviewer, this is important
+          if (assignStat instanceof BasicBlockStatement
+              && assignStat.getExprents().size() == 1
+              && assignStat.getParent() instanceof IfStatement
+              && assignStat.getParent().getParent() instanceof SequenceStatement
+              && assignStat.getParent().getParent().getParent() == stat) {
+            Statement next = assignStat.getSuccessorEdges(StatEdge.TYPE_CONTINUE).get(0).getDestination();
+            if (next == stat.getParent()) {
+              System.out.println("cool?");
+              IfStatement guardIf = (IfStatement) assignStat.getParent();
+              if (guardIf.getHeadexprent().getCondition() instanceof FunctionExprent) {
+                FunctionExprent cond = (FunctionExprent) guardIf.getHeadexprent().getCondition();
+                Exprent guardExprent = cond.getLstOperands().get(0);
+                System.out.println("got guard: " + guardExprent);
+                List<Statement> caseStatements = stat.getCaseStatements();
+                for (int i = 0; i < caseStatements.size(); i++) {
+                  if (caseStatements.get(i).containsStatement(reference.a)) {
+                    System.out.println("cool");
+                    guards.put(stat.getCaseValues().get(i), guardExprent);
+                    break;
+                  }
+                }
+                // wait what label am I under :p
+              }
+            }
+          }
+        }
+      }
+      //return false;
     }
 
     head.setValue(origParams.get(0));
 
+    // TODO for self:
+    //  switchExprent
+    //  remove parent loop
+    //  invert guard condition
+    System.out.println(guards);
     for (int i = 0; i < stat.getCaseStatements().size(); i++) {
       Statement caseStat = stat.getCaseStatements().get(i);
 
