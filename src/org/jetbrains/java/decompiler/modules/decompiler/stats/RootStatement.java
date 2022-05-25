@@ -15,6 +15,7 @@ public final class RootStatement extends Statement {
   public final StructMethod mt;
   public Set<String> commentLines = null;
   public boolean addErrorComment = false;
+  private final ContentFlags flags = new ContentFlags();
 
   public RootStatement(Statement head, DummyExitStatement dummyExit, StructMethod mt) {
     super(StatementType.ROOT);
@@ -68,8 +69,44 @@ public final class RootStatement extends Statement {
     addErrorComment |= graph.addErrorComment;
   }
 
+  public void buildContentFlags() {
+    buildContentFlagsStat(this);
+  }
+
+  private void buildContentFlagsStat(Statement stat) {
+    for (Statement st : stat.stats) {
+      buildContentFlagsStat(st);
+    }
+
+    if (stat instanceof CatchStatement || stat instanceof CatchAllStatement) {
+      this.flags.hasTryCatch = true;
+    } else if (stat instanceof DoStatement) {
+      this.flags.hasLoops = true;
+    } else if (stat instanceof SwitchStatement) {
+      this.flags.hasSwitch = true;
+    }
+  }
+
+  public boolean hasTryCatch() {
+    return this.flags.hasTryCatch;
+  }
+
+  public boolean hasLoops() {
+    return this.flags.hasLoops;
+  }
+
+  public boolean hasSwitch() {
+    return this.flags.hasSwitch;
+  }
+
   @Override
   public StartEndPair getStartEndRange() {
     return StartEndPair.join(first.getStartEndRange(), dummyExit != null ? dummyExit.getStartEndRange() : null);
+  }
+
+  private static class ContentFlags {
+    private boolean hasTryCatch;
+    private boolean hasLoops;
+    private boolean hasSwitch;
   }
 }

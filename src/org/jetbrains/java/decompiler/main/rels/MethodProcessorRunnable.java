@@ -167,6 +167,8 @@ public class MethodProcessorRunnable implements Runnable {
       decompileRecord.add("RemoveSynchronizedHandler", root);
     }
 
+    root.buildContentFlags();
+
     //		LabelHelper.lowContinueLabels(root, new HashSet<StatEdge>());
 
     SequenceHelper.condenseSequences(root);
@@ -219,6 +221,10 @@ public class MethodProcessorRunnable implements Runnable {
 
       // Merge loop
       while (true) {
+        if (!root.hasLoops()) {
+          break;
+        }
+
         decompileRecord.incrementMergeLoop();
         decompileRecord.add("MergeLoopStart", root);
 
@@ -243,8 +249,10 @@ public class MethodProcessorRunnable implements Runnable {
         }
       }
 
-      decompileRecord.resetMergeLoop();
-      decompileRecord.add("MergeLoopEnd", root);
+      if (root.hasLoops()) {
+        decompileRecord.resetMergeLoop();
+        decompileRecord.add("MergeLoopEnd", root);
+      }
 
       if (DecompilerContext.getOption(IFernflowerPreferences.IDEA_NOT_NULL_ANNOTATION)) {
         if (IdeaNotNullHelper.removeHardcodedChecks(root, mt)) {
@@ -272,14 +280,14 @@ public class MethodProcessorRunnable implements Runnable {
         }
       }
 
-      if (SwitchExpressionHelper.hasSwitchExpressions(root)) {
+      if (root.hasSwitch() && SwitchExpressionHelper.hasSwitchExpressions(root)) {
         if (SwitchExpressionHelper.processAllSwitchExpressions(root)) {
           decompileRecord.add("ProcessSwitchExpr", root);
           continue;
         }
       }
 
-      if (TryHelper.enhanceTryStats(root, cl)) {
+      if (root.hasTryCatch() && TryHelper.enhanceTryStats(root, cl)) {
         decompileRecord.add("EnhanceTry", root);
         continue;
       }
@@ -290,12 +298,12 @@ public class MethodProcessorRunnable implements Runnable {
       }
 
       // this has to be done last so it does not screw up the formation of for loops
-      if (MergeHelper.makeDoWhileLoops(root)) {
+      if (root.hasLoops() && MergeHelper.makeDoWhileLoops(root)) {
         decompileRecord.add("MatchDoWhile", root);
         continue;
       }
 
-      if (MergeHelper.condenseInfiniteLoopsWithReturn(root)) {
+      if (root.hasLoops() && MergeHelper.condenseInfiniteLoopsWithReturn(root)) {
         decompileRecord.add("CondenseDo", root);
         continue;
       }
@@ -316,7 +324,7 @@ public class MethodProcessorRunnable implements Runnable {
     decompileRecord.add("MainLoopEnd", root);
 
     // this has to be done after all inlining is done so the case values do not get reverted
-    if (SwitchHelper.simplifySwitches(root, mt, root)) {
+    if (root.hasSwitch() && SwitchHelper.simplifySwitches(root, mt, root)) {
       decompileRecord.add("SimplifySwitches", root);
 
       SequenceHelper.condenseSequences(root); // remove empty blocks
@@ -370,7 +378,7 @@ public class MethodProcessorRunnable implements Runnable {
     }
 
     // Hide empty default edges caused by switch statement processing
-    if (LabelHelper.hideDefaultSwitchEdges(root)) {
+    if (root.hasSwitch() && LabelHelper.hideDefaultSwitchEdges(root)) {
       decompileRecord.add("HideEmptyDefault", root);
     }
 
