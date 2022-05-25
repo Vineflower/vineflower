@@ -88,7 +88,6 @@ public final class SwitchPatternMatchProcessor {
       }
       // TODO: more tests
       for (Pair<Statement, Exprent> reference : references) {
-        System.out.println(reference);
         if (reference.b instanceof AssignmentExprent) {
           Statement assignStat = reference.a;
           // i assure you, my esteemed reviewer, this is important
@@ -106,8 +105,12 @@ public final class SwitchPatternMatchProcessor {
                 List<Statement> caseStatements = stat.getCaseStatements();
                 for (int i = 0; i < caseStatements.size(); i++) {
                   if (caseStatements.get(i).containsStatement(reference.a)) {
+                    // the case is put inside the if statement for some reason?
+                    Exprent castExprent = guardIf.getStats().get(0).getExprents().get(0);
                     guards.put(stat.getCaseValues().get(i), guardExprent);
-
+                    guardIf.replaceWithEmpty();
+                    guardIf.getParent().getStats().remove(0);
+                    guardIf.getParent().getStats().get(0).getExprents().add(0, castExprent);
                     break;
                   }
                 }
@@ -119,14 +122,12 @@ public final class SwitchPatternMatchProcessor {
     }
 
     // TODO for self:
-    //  remove parent loop
     //  invert guard condition
     System.out.println(guards);
     for (int i = 0; i < stat.getCaseStatements().size(); i++) {
       Statement caseStat = stat.getCaseStatements().get(i);
-      System.out.println(caseStat);
 
-      if (!(caseStat instanceof BasicBlockStatement)) {
+      if (!(caseStat instanceof BasicBlockStatement || caseStat instanceof SequenceStatement)) {
         continue;
       }
 
@@ -153,18 +154,31 @@ public final class SwitchPatternMatchProcessor {
         }
       }
 
+      if (caseStat instanceof SequenceStatement) {
+        // if we've eliminated the if statement of a guard, there'll only be a basic block
+        if (caseStat.getStats().size() == 1 && caseStat.getStats().get(0) instanceof BasicBlockStatement) {
+          caseStat = caseStat.getStats().get(0);
+          System.out.println(caseStat.getExprents());
+        } else {
+          continue;
+        }
+      }
       // Make instanceof
       BasicBlockStatement caseStatBlock = (BasicBlockStatement)caseStat;
+      System.out.println(caseExpr + " - got here");
       if (caseStatBlock.getExprents().size() > 1) {
         Exprent expr = caseStatBlock.getExprents().get(0);
+        System.out.println("and here");
         if (expr instanceof AssignmentExprent) {
           AssignmentExprent assign = (AssignmentExprent)expr;
+          System.out.println("still here");
 
           if (assign.getLeft() instanceof VarExprent) {
             VarExprent var = (VarExprent)assign.getLeft();
 
             if (assign.getRight() instanceof FunctionExprent && ((FunctionExprent)assign.getRight()).getFuncType() == FunctionExprent.FunctionType.CAST) {
               FunctionExprent cast = (FunctionExprent)assign.getRight();
+              System.out.println("even here");
 
               List<Exprent> operands = new ArrayList<>();
               operands.add(cast.getLstOperands().get(0)); // checking var

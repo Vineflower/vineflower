@@ -1,54 +1,24 @@
 package pkg;
 
-import java.lang.runtime.SwitchBootstraps;
-
 public class TestSwitchPatternMatching5 {
    static void test(TestSwitchPatternMatching5.Shape s) {
-      TestSwitchPatternMatching5.Shape var1 = s;// 5
-      byte var2 = 0;
-
       while(true) {
-         switch(SwitchBootstraps.typeSwitch<"typeSwitch",TestSwitchPatternMatching5.Triangle,TestSwitchPatternMatching5.Triangle,TestSwitchPatternMatching5.Triangle,TestSwitchPatternMatching5.Triangle>(
-            var1, var2
-         )) {
-            case -1:
+         switch(s) {// 5
+            case null:
                System.out.println("null");// 15
                return;// 19
-            case 0: {
-               TestSwitchPatternMatching5.Triangle t = (TestSwitchPatternMatching5.Triangle)var1;// 6
-               if (!(t.calculateArea() > 150.0)) {
-                  var2 = 1;
-                  break;
-               }
-
+            case var1 instanceof TestSwitchPatternMatching5.Triangle t && __dcmpl__((t.calculateArea()), (150.0)):// 6
                System.out.println("Larger triangle");// 7
                return;
-            }
-            case 1: {
-               TestSwitchPatternMatching5.Triangle t = (TestSwitchPatternMatching5.Triangle)var1;// 8
-               if (!(t.calculateArea() > 50.0)) {
-                  var2 = 2;
-                  break;
-               }
-
+            case var1 instanceof TestSwitchPatternMatching5.Triangle t && __dcmpl__((t.calculateArea()), (50.0)):// 8
                System.out.println("Smaller triangle");// 9
                return;
-            }
-            case 2: {
-               TestSwitchPatternMatching5.Triangle t = (TestSwitchPatternMatching5.Triangle)var1;// 10
-               if (!(t.calculateArea() > 100.0)) {
-                  var2 = 3;
-                  break;
-               }
-
+            case var1 instanceof TestSwitchPatternMatching5.Triangle t && __dcmpl__((t.calculateArea()), (100.0)):// 10
                System.out.println("Large triangle");// 11
                return;
-            }
-            case 3: {
-               TestSwitchPatternMatching5.Triangle t = (TestSwitchPatternMatching5.Triangle)var1;// 12
+            case var1 instanceof TestSwitchPatternMatching5.Triangle t:// 12
                System.out.println("Small triangle");// 13
                return;
-            }
             default:
                System.out.println("Non-triangle");// 17
                return;
@@ -70,149 +40,115 @@ public class TestSwitchPatternMatching5 {
 
 class 'pkg/TestSwitchPatternMatching5' {
    method 'test (Lpkg/TestSwitchPatternMatching5$Shape;)V' {
-      0      6
-      1      6
-      2      7
-      3      7
-      4      11
-      5      11
-      6      10
-      7      10
-      8      10
-      9      10
-      a      10
-      b      10
-      2c      17
-      2d      17
-      2e      17
-      2f      17
-      30      17
-      31      18
-      32      18
-      33      18
-      34      18
-      35      18
-      36      18
-      37      18
-      38      18
-      39      18
-      3c      19
-      3d      19
-      3e      20
-      41      23
-      42      23
-      43      23
-      44      23
-      45      23
-      46      23
-      47      23
-      48      23
-      4c      27
-      4d      27
-      4e      27
-      4f      27
-      50      27
-      51      27
-      52      28
-      53      28
-      54      28
-      55      28
-      56      28
-      57      28
-      58      28
-      59      28
-      5a      28
-      5b      28
-      5e      29
-      5f      29
-      60      30
-      63      33
-      64      33
-      65      33
-      66      33
-      67      33
-      68      33
-      69      33
-      6a      33
-      6e      37
-      6f      37
-      70      37
-      71      37
-      72      37
-      73      37
-      74      38
-      75      38
-      76      38
-      77      38
-      78      38
-      79      38
-      7a      38
-      7b      38
-      7c      38
-      7d      38
-      80      39
-      81      39
-      82      40
-      85      43
-      86      43
-      87      43
-      88      43
-      89      43
-      8a      43
-      8b      43
-      8c      43
-      90      47
-      91      47
-      92      47
-      93      47
-      94      47
-      95      47
-      96      48
-      97      48
-      98      48
-      99      48
-      9a      48
-      9b      48
-      9c      48
-      9d      48
-      a1      14
-      a2      14
-      a3      14
-      a4      14
-      a5      14
-      a6      14
-      a7      14
-      a8      14
-      ac      52
-      ad      52
-      ae      52
-      af      52
-      b0      52
-      b1      52
-      b2      52
-      b3      52
-      b7      15
+      0      5
+      b      5
+      2c      9
+      30      9
+      31      9
+      32      9
+      33      9
+      34      9
+      35      9
+      36      9
+      37      9
+      38      9
+      41      10
+      42      10
+      43      10
+      44      10
+      45      10
+      46      10
+      47      10
+      48      10
+      4c      12
+      50      12
+      51      12
+      52      12
+      53      12
+      54      12
+      55      12
+      56      12
+      57      12
+      58      12
+      59      12
+      5a      12
+      63      13
+      64      13
+      65      13
+      66      13
+      67      13
+      68      13
+      69      13
+      6a      13
+      6e      15
+      72      15
+      73      15
+      74      15
+      75      15
+      76      15
+      77      15
+      78      15
+      79      15
+      7a      15
+      7b      15
+      7c      15
+      85      16
+      86      16
+      87      16
+      88      16
+      89      16
+      8a      16
+      8b      16
+      8c      16
+      90      18
+      94      18
+      95      18
+      96      19
+      97      19
+      98      19
+      99      19
+      9a      19
+      9b      19
+      9c      19
+      9d      19
+      a1      7
+      a2      7
+      a3      7
+      a4      7
+      a5      7
+      a6      7
+      a7      7
+      a8      7
+      ac      22
+      ad      22
+      ae      22
+      af      22
+      b0      22
+      b1      22
+      b2      22
+      b3      22
+      b7      8
    }
 }
 
 class 'pkg/TestSwitchPatternMatching5$Triangle' {
    method 'calculateArea ()D' {
-      0      65
-      1      65
+      0      35
+      1      35
    }
 }
 
 Lines mapping:
-5 <-> 7
-6 <-> 18
-7 <-> 24
-8 <-> 28
-9 <-> 34
-10 <-> 38
-11 <-> 44
-12 <-> 48
-13 <-> 49
-15 <-> 15
-17 <-> 53
-19 <-> 16
-29 <-> 66
+5 <-> 6
+6 <-> 10
+7 <-> 11
+8 <-> 13
+9 <-> 14
+10 <-> 16
+11 <-> 17
+12 <-> 19
+13 <-> 20
+15 <-> 8
+17 <-> 23
+19 <-> 9
+29 <-> 36

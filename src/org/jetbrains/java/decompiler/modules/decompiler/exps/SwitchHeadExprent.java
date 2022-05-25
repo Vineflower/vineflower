@@ -54,8 +54,10 @@ public class SwitchHeadExprent extends Exprent {
     for (List<Exprent> lst : caseValues) {
       for (Exprent expr : lst) {
         if (expr != null) {
-          VarType caseType = expr.getExprType();
+          // TODO: refactor to PatternExprent
+          VarType caseType = expr instanceof FunctionExprent ? ((FunctionExprent) expr).getLstOperands().get(1).getExprType() : expr.getExprType();
           if (!caseType.equals(valType)) {
+            System.out.println("currently at " + valType + " comparing against " + caseType + " from " + expr);
             valType = VarType.getCommonSupertype(caseType, valType);
             result.addMinTypeExprent(value, valType);
           }
