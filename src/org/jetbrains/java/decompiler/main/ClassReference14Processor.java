@@ -7,11 +7,11 @@ import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.rels.ClassWrapper;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.BasicBlockStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.CatchStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.struct.StructField;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
@@ -34,13 +34,13 @@ public final class ClassReference14Processor {
     invFor.setDescriptor(MethodDescriptor.parseDescriptor("(Ljava/lang/String;)Ljava/lang/Class;"));
     invFor.setStatic(true);
     invFor.setLstParameters(Collections.singletonList(new VarExprent(0, VarType.VARTYPE_STRING, null)));
-    BODY_EXPR = new ExitExprent(ExitExprent.EXIT_RETURN, invFor, VarType.VARTYPE_CLASS, null, null);
+    BODY_EXPR = new ExitExprent(ExitExprent.Type.RETURN, invFor, VarType.VARTYPE_CLASS, null, null);
 
     InvocationExprent ctor = new InvocationExprent();
     ctor.setName(CodeConstants.INIT_NAME);
     ctor.setClassname("java/lang/NoClassDefFoundError");
     ctor.setStringDescriptor("()V");
-    ctor.setFunctype(InvocationExprent.TYP_INIT);
+    ctor.setFunctype(InvocationExprent.Type.INIT);
     ctor.setDescriptor(MethodDescriptor.parseDescriptor("()V"));
     NewExprent newExpr = new NewExprent(new VarType(CodeConstants.TYPE_OBJECT, 0, "java/lang/NoClassDefFoundError"), new ArrayList<>(), null);
     newExpr.setConstructor(ctor);
@@ -52,7 +52,7 @@ public final class ClassReference14Processor {
     invCause.setInstance(newExpr);
     invCause.setLstParameters(
       Collections.singletonList(new VarExprent(2, new VarType(CodeConstants.TYPE_OBJECT, 0, "java/lang/ClassNotFoundException"), null)));
-    HANDLER_EXPR = new ExitExprent(ExitExprent.EXIT_THROW, invCause, null, null, null);
+    HANDLER_EXPR = new ExitExprent(ExitExprent.Type.THROW, invCause, null, null, null);
   }
 
   public static void processClassReferences(ClassNode node) {
@@ -133,10 +133,10 @@ public final class ClassReference14Processor {
           mt.hasModifier(CodeConstants.ACC_STATIC)) {
 
         RootStatement root = method.root;
-        if (root != null && root.getFirst().type == Statement.TYPE_TRYCATCH) {
+        if (root != null && root.getFirst() instanceof CatchStatement) {
           CatchStatement cst = (CatchStatement)root.getFirst();
-          if (cst.getStats().size() == 2 && cst.getFirst().type == Statement.TYPE_BASICBLOCK &&
-              cst.getStats().get(1).type == Statement.TYPE_BASICBLOCK &&
+          if (cst.getStats().size() == 2 && cst.getFirst() instanceof BasicBlockStatement &&
+              cst.getStats().get(1) instanceof BasicBlockStatement &&
               cst.getVars().get(0).getVarType().equals(new VarType(CodeConstants.TYPE_OBJECT, 0, "java/lang/ClassNotFoundException"))) {
 
             BasicBlockStatement body = (BasicBlockStatement)cst.getFirst();
@@ -187,14 +187,14 @@ public final class ClassReference14Processor {
   }
 
   private static String isClass14Invocation(Exprent exprent, ClassWrapper wrapper, MethodWrapper meth) {
-    if (exprent.type == Exprent.EXPRENT_FUNCTION) {
+    if (exprent instanceof FunctionExprent) {
       FunctionExprent fexpr = (FunctionExprent)exprent;
-      if (fexpr.getFuncType() == FunctionExprent.FUNCTION_TERNARY) {
-        if (fexpr.getLstOperands().get(0).type == Exprent.EXPRENT_FUNCTION) {
+      if (fexpr.getFuncType() == FunctionType.TERNARY) {
+        if (fexpr.getLstOperands().get(0) instanceof FunctionExprent) {
           FunctionExprent headexpr = (FunctionExprent)fexpr.getLstOperands().get(0);
-          if (headexpr.getFuncType() == FunctionExprent.FUNCTION_EQ) {
-            if (headexpr.getLstOperands().get(0).type == Exprent.EXPRENT_FIELD &&
-                headexpr.getLstOperands().get(1).type == Exprent.EXPRENT_CONST &&
+          if (headexpr.getFuncType() == FunctionType.EQ) {
+            if (headexpr.getLstOperands().get(0) instanceof FieldExprent &&
+                headexpr.getLstOperands().get(1) instanceof ConstExprent &&
                 ((ConstExprent)headexpr.getLstOperands().get(1)).getConstType().equals(VarType.VARTYPE_NULL)) {
 
               FieldExprent field = (FieldExprent)headexpr.getLstOperands().get(0);
@@ -207,17 +207,17 @@ public final class ClassReference14Processor {
                 if (fd != null && fd.hasModifier(CodeConstants.ACC_STATIC) &&
                     (fd.isSynthetic() || DecompilerContext.getOption(IFernflowerPreferences.SYNTHETIC_NOT_SET))) {
 
-                  if (fexpr.getLstOperands().get(1).type == Exprent.EXPRENT_ASSIGNMENT && fexpr.getLstOperands().get(2).equals(field)) {
+                  if (fexpr.getLstOperands().get(1) instanceof AssignmentExprent && fexpr.getLstOperands().get(2).equals(field)) {
                     AssignmentExprent asexpr = (AssignmentExprent)fexpr.getLstOperands().get(1);
 
-                    if (asexpr.getLeft().equals(field) && asexpr.getRight().type == Exprent.EXPRENT_INVOCATION) {
+                    if (asexpr.getLeft().equals(field) && asexpr.getRight() instanceof InvocationExprent) {
                       InvocationExprent invexpr = (InvocationExprent)asexpr.getRight();
 
                       if (invexpr.getClassname().equals(wrapper.getClassStruct().qualifiedName) &&
                           invexpr.getName().equals(meth.methodStruct.getName()) &&
                           invexpr.getStringDescriptor().equals(meth.methodStruct.getDescriptor())) {
 
-                        if (invexpr.getLstParameters().get(0).type == Exprent.EXPRENT_CONST) {
+                        if (invexpr.getLstParameters().get(0) instanceof ConstExprent) {
                           wrapper.getHiddenMembers()
                             .add(InterpreterUtil.makeUniqueKey(fd.getName(), fd.getDescriptor()));  // hide synthetic field
                           return ((ConstExprent)invexpr.getLstParameters().get(0)).getValue().toString();

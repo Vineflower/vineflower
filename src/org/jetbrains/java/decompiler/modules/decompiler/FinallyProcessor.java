@@ -54,8 +54,7 @@ public class FinallyProcessor {
       Statement stat = stack.removeLast();
 
       Statement parent = stat.getParent();
-      if (parent != null && parent.type == Statement.TYPE_CATCHALL &&
-          stat == parent.getFirst() && !parent.isCopied()) {
+      if (parent instanceof CatchAllStatement && stat == parent.getFirst() && !parent.isCopied()) {
 
         CatchAllStatement fin = (CatchAllStatement)parent;
         BasicBlock head = fin.getBasichead().getBlock();
@@ -73,11 +72,12 @@ public class FinallyProcessor {
 
           if (inf == null) { // inconsistent finally
             catchallBlockIDs.put(handler.id, null);
-            root.addComment("$FF: Could not inline inconsistent finally blocks");
+            root.addComment("$QF: Could not inline inconsistent finally blocks");
             root.addErrorComment = true;
           } else {
             if (DecompilerContext.getOption(IFernflowerPreferences.FINALLY_DEINLINE) && verifyFinallyEx(graph, fin, inf)) {
-              inlineReturnVar(graph, handler);
+              // FIXME: inlines improperly, breaks TestLoopFinally#emptyInnerFinally
+//              inlineReturnVar(graph, handler);
 
               finallyBlockIDs.put(handler.id, null);
             } else {
@@ -87,7 +87,7 @@ public class FinallyProcessor {
               finallyBlockIDs.put(handler.id, varIndex);
 
               if (DecompilerContext.getOption(IFernflowerPreferences.FINALLY_DEINLINE)) {
-                root.addComment("$FF: Could not verify finally blocks. A semaphore variable has been added to preserve control flow.");
+                root.addComment("$QF: Could not verify finally blocks. A semaphore variable has been added to preserve control flow.");
                 root.addErrorComment = true;
               }
             }
@@ -183,7 +183,7 @@ public class FinallyProcessor {
 
             boolean found = false;
             for (Exprent expr : lst) {
-              if (expr.type == Exprent.EXPRENT_VAR && new VarVersionPair((VarExprent)expr).equals(varpaar)) {
+              if (expr instanceof VarExprent && new VarVersionPair((VarExprent)expr).equals(varpaar)) {
                 found = true;
                 break;
               }
@@ -191,9 +191,9 @@ public class FinallyProcessor {
 
             if (found) {
               found = false;
-              if (exprent.type == Exprent.EXPRENT_EXIT) {
+              if (exprent instanceof ExitExprent) {
                 ExitExprent exexpr = (ExitExprent)exprent;
-                if (exexpr.getExitType() == ExitExprent.EXIT_THROW && exexpr.getValue().type == Exprent.EXPRENT_VAR) {
+                if (exexpr.getExitType() == ExitExprent.Type.THROW && exexpr.getValue() instanceof VarExprent) {
                   found = true;
                 }
               }
@@ -208,9 +208,9 @@ public class FinallyProcessor {
           }
           else if (firstcode == 2) {
             // search for a load instruction
-            if (exprent.type == Exprent.EXPRENT_ASSIGNMENT) {
+            if (exprent instanceof AssignmentExprent) {
               AssignmentExprent assexpr = (AssignmentExprent)exprent;
-              if (assexpr.getRight().type == Exprent.EXPRENT_VAR &&
+              if (assexpr.getRight() instanceof VarExprent &&
                   new VarVersionPair((VarExprent)assexpr.getRight()).equals(varpaar)) {
 
                 Exprent next = null;
@@ -227,9 +227,9 @@ public class FinallyProcessor {
                 }
 
                 boolean found = false;
-                if (next != null && next.type == Exprent.EXPRENT_EXIT) {
+                if (next != null && next instanceof ExitExprent) {
                   ExitExprent exexpr = (ExitExprent)next;
-                  if (exexpr.getExitType() == ExitExprent.EXIT_THROW && exexpr.getValue().type == Exprent.EXPRENT_VAR
+                  if (exexpr.getExitType() == ExitExprent.Type.THROW && exexpr.getValue() instanceof VarExprent
                       && assexpr.getLeft().equals(exexpr.getValue())) {
                     found = true;
                   }
@@ -267,7 +267,7 @@ public class FinallyProcessor {
     }
 
     // empty finally block?
-    if (fstat.getHandler().type == Statement.TYPE_BASICBLOCK) {
+    if (fstat.getHandler() instanceof BasicBlockStatement) {
 
       boolean isEmpty = false;
       boolean isFirstLast = mapLast.containsKey(firstBasicBlock);
@@ -426,7 +426,7 @@ public class FinallyProcessor {
     do {
       Statement st = lst.get(index);
 
-      if (st.type == Statement.TYPE_BASICBLOCK) {
+      if (st instanceof BasicBlockStatement) {
         index++;
       }
       else {

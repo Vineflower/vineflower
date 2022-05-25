@@ -6,10 +6,8 @@ import org.jetbrains.java.decompiler.code.Instruction;
 import org.jetbrains.java.decompiler.code.InstructionSequence;
 import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
-import org.jetbrains.java.decompiler.util.ListStack;
-import org.jetbrains.java.decompiler.util.TextBuffer;
-import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectNode;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.FlattenStatementsHelper;
@@ -25,8 +23,10 @@ import org.jetbrains.java.decompiler.struct.consts.PooledConstant;
 import org.jetbrains.java.decompiler.struct.consts.PrimitiveConstant;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
-import org.jetbrains.java.decompiler.util.TextUtil;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
+import org.jetbrains.java.decompiler.util.ListStack;
+import org.jetbrains.java.decompiler.util.TextBuffer;
+import org.jetbrains.java.decompiler.util.TextUtil;
 
 import java.util.*;
 
@@ -35,11 +35,11 @@ public class ExprProcessor implements CodeConstants {
   public static final String UNKNOWN_TYPE_STRING = "<unknown>";
   public static final String NULL_TYPE_STRING = "<null>";
 
-  private static final Map<Integer, Integer> mapConsts = new HashMap<>();
+  private static final Map<Integer, FunctionType> mapConsts = new HashMap<>();
   static {
-    mapConsts.put(opc_arraylength, FunctionExprent.FUNCTION_ARRAY_LENGTH);
-    mapConsts.put(opc_checkcast, FunctionExprent.FUNCTION_CAST);
-    mapConsts.put(opc_instanceof, FunctionExprent.FUNCTION_INSTANCEOF);
+    mapConsts.put(opc_arraylength, FunctionType.ARRAY_LENGTH);
+    mapConsts.put(opc_checkcast, FunctionType.CAST);
+    mapConsts.put(opc_instanceof, FunctionType.INSTANCEOF);
   }
 
   private static final VarType[] consts = {
@@ -55,43 +55,37 @@ public class ExprProcessor implements CodeConstants {
     VarType.VARTYPE_BOOLEAN, VarType.VARTYPE_CHAR, VarType.VARTYPE_SHORT
   };
 
-  private static final int[] func1 = {
-    FunctionExprent.FUNCTION_ADD, FunctionExprent.FUNCTION_SUB, FunctionExprent.FUNCTION_MUL, FunctionExprent.FUNCTION_DIV,
-    FunctionExprent.FUNCTION_REM
+  private static final FunctionType[] func1 = {
+    FunctionType.ADD, FunctionType.SUB, FunctionType.MUL, FunctionType.DIV,
+    FunctionType.REM
   };
-  private static final int[] func2 = {
-    FunctionExprent.FUNCTION_SHL, FunctionExprent.FUNCTION_SHR, FunctionExprent.FUNCTION_USHR, FunctionExprent.FUNCTION_AND,
-    FunctionExprent.FUNCTION_OR, FunctionExprent.FUNCTION_XOR
+  private static final FunctionType[] func2 = {
+    FunctionType.SHL, FunctionType.SHR, FunctionType.USHR, FunctionType.AND,
+    FunctionType.OR, FunctionType.XOR
   };
-  private static final int[] func3 = {
-    FunctionExprent.FUNCTION_I2L, FunctionExprent.FUNCTION_I2F, FunctionExprent.FUNCTION_I2D, FunctionExprent.FUNCTION_L2I,
-    FunctionExprent.FUNCTION_L2F, FunctionExprent.FUNCTION_L2D, FunctionExprent.FUNCTION_F2I, FunctionExprent.FUNCTION_F2L,
-    FunctionExprent.FUNCTION_F2D, FunctionExprent.FUNCTION_D2I, FunctionExprent.FUNCTION_D2L, FunctionExprent.FUNCTION_D2F,
-    FunctionExprent.FUNCTION_I2B, FunctionExprent.FUNCTION_I2C, FunctionExprent.FUNCTION_I2S
+  private static final FunctionType[] func3 = {
+    FunctionType.I2L, FunctionType.I2F, FunctionType.I2D, FunctionType.L2I,
+    FunctionType.L2F, FunctionType.L2D, FunctionType.F2I, FunctionType.F2L,
+    FunctionType.F2D, FunctionType.D2I, FunctionType.D2L, FunctionType.D2F,
+    FunctionType.I2B, FunctionType.I2C, FunctionType.I2S
   };
-  private static final int[] func4 = {
-    FunctionExprent.FUNCTION_LCMP, FunctionExprent.FUNCTION_FCMPL, FunctionExprent.FUNCTION_FCMPG, FunctionExprent.FUNCTION_DCMPL,
-    FunctionExprent.FUNCTION_DCMPG
+  private static final FunctionType[] func4 = {
+    FunctionType.LCMP, FunctionType.FCMPL, FunctionType.FCMPG, FunctionType.DCMPL,
+    FunctionType.DCMPG
   };
-  private static final int[] func5 = {
-    IfExprent.IF_EQ, IfExprent.IF_NE, IfExprent.IF_LT, IfExprent.IF_GE, IfExprent.IF_GT, IfExprent.IF_LE
+  private static final IfExprent.Type[] func5 = {
+    IfExprent.Type.EQ, IfExprent.Type.NE, IfExprent.Type.LT, IfExprent.Type.GE, IfExprent.Type.GT, IfExprent.Type.LE
   };
-  private static final int[] func6 = {
-    IfExprent.IF_ICMPEQ, IfExprent.IF_ICMPNE, IfExprent.IF_ICMPLT, IfExprent.IF_ICMPGE, IfExprent.IF_ICMPGT, IfExprent.IF_ICMPLE,
-    IfExprent.IF_ACMPEQ, IfExprent.IF_ACMPNE
+  private static final IfExprent.Type[] func6 = {
+    IfExprent.Type.ICMPEQ, IfExprent.Type.ICMPNE, IfExprent.Type.ICMPLT, IfExprent.Type.ICMPGE, IfExprent.Type.ICMPGT, IfExprent.Type.ICMPLE,
+    IfExprent.Type.ACMPEQ, IfExprent.Type.ACMPNE
   };
-  private static final int[] func7 = {IfExprent.IF_NULL, IfExprent.IF_NONNULL};
-  private static final int[] func8 = {MonitorExprent.MONITOR_ENTER, MonitorExprent.MONITOR_EXIT};
+  private static final IfExprent.Type[] func7 = {IfExprent.Type.NULL, IfExprent.Type.NONNULL};
+  private static final MonitorExprent.Type[] func8 = {MonitorExprent.Type.ENTER, MonitorExprent.Type.EXIT};
 
   private static final int[] arrTypeIds = {
     CodeConstants.TYPE_BOOLEAN, CodeConstants.TYPE_CHAR, CodeConstants.TYPE_FLOAT, CodeConstants.TYPE_DOUBLE,
     CodeConstants.TYPE_BYTE, CodeConstants.TYPE_SHORT, CodeConstants.TYPE_INT, CodeConstants.TYPE_LONG
-  };
-
-  private static final int[] negIfs = {
-    IfExprent.IF_NE, IfExprent.IF_EQ, IfExprent.IF_GE, IfExprent.IF_LT, IfExprent.IF_LE, IfExprent.IF_GT, IfExprent.IF_NONNULL,
-    IfExprent.IF_NULL, IfExprent.IF_ICMPNE, IfExprent.IF_ICMPEQ, IfExprent.IF_ICMPGE, IfExprent.IF_ICMPLT, IfExprent.IF_ICMPLE,
-    IfExprent.IF_ICMPGT, IfExprent.IF_ACMPNE, IfExprent.IF_ACMPEQ
   };
 
   private static final String[] typeNames = {"byte", "char", "double", "float", "int", "long", "short", "boolean"};
@@ -241,13 +235,13 @@ public class ExprProcessor implements CodeConstants {
 
     List<VarExprent> lst = null;
 
-    if (stat.type == Statement.TYPE_CATCHALL) {
+    if (stat instanceof CatchAllStatement) {
       CatchAllStatement catchall = (CatchAllStatement)stat;
       if (!catchall.isFinally()) {
         lst = catchall.getVars();
       }
     }
-    else if (stat.type == Statement.TYPE_TRYCATCH) {
+    else if (stat instanceof CatchStatement) {
       lst = ((CatchStatement)stat).getVars();
     }
 
@@ -448,13 +442,13 @@ public class ExprProcessor implements CodeConstants {
         case opc_lneg:
         case opc_fneg:
         case opc_dneg:
-          pushEx(stack, exprlist, new FunctionExprent(FunctionExprent.FUNCTION_NEG, stack, bytecode_offsets));
+          pushEx(stack, exprlist, new FunctionExprent(FunctionType.NEG, stack, bytecode_offsets));
           break;
         case opc_iinc:
           VarExprent vevar = new VarExprent(instr.operand(0), VarType.VARTYPE_INT, varProcessor, bytecode_offsets);
           varProcessor.findLVT(vevar, bytecode_offset + instr.length);
           exprlist.add(new AssignmentExprent(vevar, new FunctionExprent(
-            instr.operand(1) < 0 ? FunctionExprent.FUNCTION_SUB : FunctionExprent.FUNCTION_ADD, Arrays
+            instr.operand(1) < 0 ? FunctionType.SUB : FunctionType.ADD, Arrays
             .asList(vevar.copy(), new ConstExprent(VarType.VARTYPE_INT, Math.abs(instr.operand(1)), null)),
             bytecode_offsets), bytecode_offsets));
           break;
@@ -488,7 +482,7 @@ public class ExprProcessor implements CodeConstants {
         case opc_ifge:
         case opc_ifgt:
         case opc_ifle:
-          exprlist.add(new IfExprent(negIfs[func5[instr.opcode - opc_ifeq]], stack, bytecode_offsets));
+          exprlist.add(new IfExprent(func5[instr.opcode - opc_ifeq].getNegative(), stack, bytecode_offsets));
           break;
         case opc_if_icmpeq:
         case opc_if_icmpne:
@@ -498,11 +492,11 @@ public class ExprProcessor implements CodeConstants {
         case opc_if_icmple:
         case opc_if_acmpeq:
         case opc_if_acmpne:
-          exprlist.add(new IfExprent(negIfs[func6[instr.opcode - opc_if_icmpeq]], stack, bytecode_offsets));
+          exprlist.add(new IfExprent(func6[instr.opcode - opc_if_icmpeq].getNegative(), stack, bytecode_offsets));
           break;
         case opc_ifnull:
         case opc_ifnonnull:
-          exprlist.add(new IfExprent(negIfs[func7[instr.opcode - opc_ifnull]], stack, bytecode_offsets));
+          exprlist.add(new IfExprent(func7[instr.opcode - opc_ifnull].getNegative(), stack, bytecode_offsets));
           break;
         case opc_tableswitch:
         case opc_lookupswitch:
@@ -515,7 +509,7 @@ public class ExprProcessor implements CodeConstants {
         case opc_areturn:
         case opc_return:
         case opc_athrow:
-          exprlist.add(new ExitExprent(instr.opcode == opc_athrow ? ExitExprent.EXIT_THROW : ExitExprent.EXIT_RETURN,
+          exprlist.add(new ExitExprent(instr.opcode == opc_athrow ? ExitExprent.Type.THROW : ExitExprent.Type.RETURN,
                                        instr.opcode == opc_return ? null : stack.pop(),
                                        instr.opcode == opc_athrow ? null : methodDescriptor.ret,
                                        bytecode_offsets, methodDescriptor));
@@ -651,7 +645,7 @@ public class ExprProcessor implements CodeConstants {
             Exprent last = exprlist.get(exprlist.size() - 1);
             // Our heuristic is checking for an assignment and the type of the assignment is an invocation.
             // This roughly corresponds to a pattern of DUP [nullcheck] POP.
-            if (last.type == Exprent.EXPRENT_ASSIGNMENT && ((AssignmentExprent)last).getRight().type == Exprent.EXPRENT_INVOCATION) {
+            if (last instanceof AssignmentExprent && ((AssignmentExprent)last).getRight() instanceof InvocationExprent) {
               InvocationExprent invocation = (InvocationExprent) ((AssignmentExprent) last).getRight();
 
               // Check to make sure there's still more opcodes after this one
@@ -784,11 +778,10 @@ public class ExprProcessor implements CodeConstants {
   }
 
   public static boolean endsWithSemicolon(Exprent expr) {
-    int type = expr.type;
-    return !(type == Exprent.EXPRENT_SWITCH_HEAD ||
-             type == Exprent.EXPRENT_MONITOR ||
-             type == Exprent.EXPRENT_IF ||
-             (type == Exprent.EXPRENT_VAR && ((VarExprent)expr).isClassDef()));
+    return !(expr instanceof SwitchHeadExprent ||
+             expr instanceof MonitorExprent ||
+             expr instanceof IfExprent ||
+             (expr instanceof VarExprent && ((VarExprent)expr).isClassDef()));
   }
 
   private static void addDeletedGotoInstructionMapping(Statement stat, TextBuffer buffer) {
@@ -808,7 +801,7 @@ public class ExprProcessor implements CodeConstants {
     List<StatEdge> lstSuccs = stat.getSuccessorEdges(Statement.STATEDGE_DIRECT_ALL);
     if (lstSuccs.size() == 1) {
       StatEdge edge = lstSuccs.get(0);
-      if (edge.getType() != StatEdge.TYPE_REGULAR && edge.explicit && edge.getDestination().type != Statement.TYPE_DUMMYEXIT) {
+      if (edge.getType() != StatEdge.TYPE_REGULAR && edge.explicit && !(edge.getDestination() instanceof DummyExitStatement)) {
         buf.appendIndent(indent);
 
         switch (edge.getType()) {
@@ -822,7 +815,7 @@ public class ExprProcessor implements CodeConstants {
         }
 
         if (edge.labeled) {
-          buf.append(" label").append(edge.closure.id.toString());
+          buf.append(" label").append(edge.closure.id);
         }
         buf.append(";").appendLineSeparator();
       }
@@ -858,7 +851,7 @@ public class ExprProcessor implements CodeConstants {
     lst = Exprent.sortIndexed(lst);
 
     for (Exprent expr : lst) {
-      if (buf.length() > 0 && expr.type == Exprent.EXPRENT_VAR && ((VarExprent)expr).isClassDef()) {
+      if (buf.length() > 0 && expr instanceof VarExprent && ((VarExprent)expr).isClassDef()) {
         // separates local class definition from previous statements
         buf.appendLineSeparator();
       }
@@ -868,12 +861,12 @@ public class ExprProcessor implements CodeConstants {
       TextBuffer content = expr.toJava(indent);
 
       if (content.length() > 0) {
-        if (expr.type != Exprent.EXPRENT_VAR || !((VarExprent)expr).isClassDef()) {
+        if (!(expr instanceof VarExprent) || !((VarExprent)expr).isClassDef()) {
           buf.appendIndent(indent);
         }
         buf.append(content);
-        if (expr.type == Exprent.EXPRENT_MONITOR && ((MonitorExprent)expr).getMonType() == MonitorExprent.MONITOR_ENTER) {
-          buf.append("{} // $FF: monitorenter "); // empty synchronized block
+        if (expr instanceof MonitorExprent && ((MonitorExprent)expr).getMonType() == MonitorExprent.Type.ENTER) {
+          buf.append("{} // $QF: monitorenter "); // empty synchronized block
         }
         if (endsWithSemicolon(expr)) {
           buf.append(";");
@@ -924,12 +917,12 @@ public class ExprProcessor implements CodeConstants {
 
     if (unbox) {
       // "unbox" invocation parameters, e.g. 'byteSet.add((byte)123)' or 'new ShortContainer((short)813)'
-      if (exprent.type == Exprent.EXPRENT_INVOCATION) {
+      if (exprent instanceof InvocationExprent) {
         InvocationExprent invocationExprent = (InvocationExprent) exprent;
         if (invocationExprent.isBoxingCall() && !invocationExprent.shouldForceBoxing()) {
           exprent = invocationExprent.getLstParameters().get(0);
           int paramType = invocationExprent.getDescriptor().params[0].type;
-          if (exprent.type == Exprent.EXPRENT_CONST && ((ConstExprent) exprent).getConstType().type != paramType) {
+          if (exprent instanceof ConstExprent && ((ConstExprent) exprent).getConstType().type != paramType) {
             leftType = new VarType(paramType);
           }
         }
@@ -950,13 +943,13 @@ public class ExprProcessor implements CodeConstants {
       cast = castAlways;
     }
 
-    boolean castLambda = !cast && exprent.type == Exprent.EXPRENT_NEW && !leftType.equals(rightType) &&
+    boolean castLambda = !cast && exprent instanceof NewExprent && !leftType.equals(rightType) &&
                           lambdaNeedsCast(leftType, (NewExprent)exprent);
 
-    boolean quote = cast && exprent.getPrecedence() >= FunctionExprent.getPrecedence(FunctionExprent.FUNCTION_CAST);
+    boolean quote = cast && exprent.getPrecedence() >= FunctionType.CAST.precedence;
 
     // cast instead to 'byte' / 'short' when int constant is used as a value for 'Byte' / 'Short'
-    if (castNarrowing && exprent.type == Exprent.EXPRENT_CONST && !((ConstExprent) exprent).isNull()) {
+    if (castNarrowing && exprent instanceof ConstExprent && !((ConstExprent) exprent).isNull()) {
       if (leftType.equals(VarType.VARTYPE_BYTE_OBJ)) {
         leftType = VarType.VARTYPE_BYTE;
       }
@@ -977,7 +970,7 @@ public class ExprProcessor implements CodeConstants {
       buffer.append('(');
     }
 
-    if (exprent.type == Exprent.EXPRENT_CONST) {
+    if (exprent instanceof ConstExprent) {
       ((ConstExprent) exprent).adjustConstType(leftType);
     }
 
@@ -1004,7 +997,7 @@ public class ExprProcessor implements CodeConstants {
 
   // (Obj)expr; -> (Obj<T>)expr;
   public static Exprent narrowGenericCastType(Exprent expr, VarType type) {
-    if (type.isGeneric() && expr.type == Exprent.EXPRENT_FUNCTION && ((FunctionExprent)expr).getFuncType() == FunctionExprent.FUNCTION_CAST) {
+    if (type.isGeneric() && expr instanceof FunctionExprent && ((FunctionExprent)expr).getFuncType() == FunctionType.CAST) {
       FunctionExprent func = (FunctionExprent) expr;
       VarType funcType = func.getExprType();
 
@@ -1050,7 +1043,7 @@ public class ExprProcessor implements CodeConstants {
   }
 
   private static boolean isIntConstant(Exprent exprent) {
-    if (exprent.type == Exprent.EXPRENT_CONST) {
+    if (exprent instanceof ConstExprent) {
       switch (((ConstExprent)exprent).getConstType().type) {
         case CodeConstants.TYPE_BYTE:
         case CodeConstants.TYPE_BYTECHAR:

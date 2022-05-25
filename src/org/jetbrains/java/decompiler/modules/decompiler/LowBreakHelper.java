@@ -1,9 +1,7 @@
 // Copyright 2000-2017 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler;
 
-import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.SynchronizedStatement;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 
 import java.util.List;
 
@@ -46,7 +44,7 @@ public class LowBreakHelper {
 
   public static boolean isBreakEdgeLabeled(Statement source, Statement closure) {
 
-    if (closure.type == Statement.TYPE_DO || closure.type == Statement.TYPE_SWITCH) {
+    if (closure instanceof DoStatement || closure instanceof SwitchStatement) {
 
       Statement parent = source.getParent();
 
@@ -54,8 +52,7 @@ public class LowBreakHelper {
         return false;
       }
       else {
-        return isBreakEdgeLabeled(parent, closure) ||
-               (parent.type == Statement.TYPE_DO || parent.type == Statement.TYPE_SWITCH);
+        return isBreakEdgeLabeled(parent, closure) || (parent instanceof DoStatement || parent instanceof SwitchStatement);
       }
     }
     else {
@@ -70,14 +67,14 @@ public class LowBreakHelper {
       Statement newclosure = null;
 
       switch (closure.type) {
-        case Statement.TYPE_SEQUENCE:
+        case SEQUENCE:
           Statement last = closure.getStats().getLast();
 
           if (isOkClosure(closure, source, last)) {
             newclosure = last;
           }
           break;
-        case Statement.TYPE_IF:
+        case IF:
           IfStatement ifclosure = (IfStatement)closure;
           if (isOkClosure(closure, source, ifclosure.getIfstat())) {
             newclosure = ifclosure.getIfstat();
@@ -86,7 +83,7 @@ public class LowBreakHelper {
             newclosure = ifclosure.getElsestat();
           }
           break;
-        case Statement.TYPE_TRYCATCH:
+        case TRY_CATCH:
           for (Statement st : closure.getStats()) {
             if (isOkClosure(closure, source, st)) {
               newclosure = st;
@@ -94,7 +91,7 @@ public class LowBreakHelper {
             }
           }
           break;
-        case Statement.TYPE_SYNCRONIZED:
+        case SYNCHRONIZED:
           Statement body = ((SynchronizedStatement)closure).getBody();
 
           if (isOkClosure(closure, source, body)) {

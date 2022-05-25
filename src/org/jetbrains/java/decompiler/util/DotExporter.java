@@ -1,11 +1,5 @@
 package org.jetbrains.java.decompiler.util;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.util.*;
-import java.util.Map.Entry;
-
 import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.code.cfg.ControlFlowGraph;
 import org.jetbrains.java.decompiler.code.cfg.ExceptionRangeCFG;
@@ -23,6 +17,12 @@ import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionsGraph;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.util.FastSparseSetFactory.FastSparseSet;
+
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.util.*;
+import java.util.Map.Entry;
 
 public class DotExporter {
   private static final String DOTS_FOLDER = System.getProperty("DOT_EXPORT_DIR", null);
@@ -65,7 +65,7 @@ public class DotExporter {
     findAllStats(stats, stat);
 
     DummyExitStatement exit = null;
-    if (stat.type == Statement.TYPE_ROOT) {
+    if (stat instanceof RootStatement) {
       exit = ((RootStatement)stat).getDummyExit();
     }
 
@@ -74,7 +74,7 @@ public class DotExporter {
     Set<StatEdge> extraDataSeen = new HashSet<>();
 
     for (Statement st : stats) {
-      if (st.type == Statement.TYPE_IF) {
+      if (st instanceof IfStatement) {
         IfStatement ifs = (IfStatement) st;
 
         if (ifs.getIfEdge() != null) {
@@ -88,7 +88,7 @@ public class DotExporter {
       if (SAME_RANK_MODE && st.getStats().size() > 1){
         buffer.append(" subgraph { rank = same; ");
         for (Statement s : st.getStats()) {
-          if (st.type == Statement.TYPE_IF || st.type == Statement.TYPE_SWITCH) {
+          if (st instanceof IfStatement || st instanceof SwitchStatement) {
             if (s == st.getFirst()){
               continue;
             }
@@ -113,7 +113,7 @@ public class DotExporter {
         // Add extra edge data
         // TODO do same for predecessors?
         for (Entry<StatEdge, String> entry : extraData.entrySet()) {
-          if (edge.getSource().id.equals(entry.getKey().getSource().id) && edge.getDestination().id.equals(entry.getKey().getDestination().id)) {
+          if (edge.getSource().id == entry.getKey().getSource().id && edge.getDestination().id == entry.getKey().getDestination().id) {
             edgeType = edgeType == null ? entry.getValue() : edgeType + " (" + entry.getValue() + ")";
             extraDataSeen.add(entry.getKey());
           }
@@ -191,7 +191,7 @@ public class DotExporter {
 
       // Graph tree
       boolean foundFirst = false;
-      boolean isIf = st.type == Statement.TYPE_IF;
+      boolean isIf = st instanceof IfStatement;
       boolean foundIf = false;
       boolean foundElse = false;
       for (Statement s : st.getStats()) {
@@ -204,7 +204,7 @@ public class DotExporter {
           foundFirst = true;
         }
 
-        if (st.type == Statement.TYPE_IF) {
+        if (st instanceof IfStatement) {
           IfStatement ifs = (IfStatement) st;
           if (s == ifs.getIfstat()) {
             label = "If stat";
@@ -371,18 +371,17 @@ public class DotExporter {
 
   private static String getStatType(Statement st) {
     switch (st.type) {
-      case 0: return "General";
-      case 2: return "If";
-      case 5: return "Do";
-      case 6: return "Switch";
-      case 7: return "Try Catch";
-      case 8: return "Basic Block #" + ((BasicBlockStatement)st).getBlock().id;
-      case 10: return "Synchronized";
-      case 11: return "Placeholder";
-      case 12: return "Catch All";
-      case 13: return "Root";
-      case 14: return "Dummy Exit";
-      case 15: return "Sequence";
+      case GENERAL: return ((GeneralStatement) st).isPlaceholder() ? "General (Placeholder)" : "General";
+      case IF: return "If";
+      case DO: return "Do";
+      case SWITCH: return "Switch";
+      case TRY_CATCH: return "Try Catch";
+      case BASIC_BLOCK: return "Basic Block #" + ((BasicBlockStatement)st).getBlock().id;
+      case SYNCHRONIZED: return "Synchronized";
+      case CATCH_ALL: return "Catch All";
+      case ROOT: return "Root";
+      case DUMMY_EXIT: return "Dummy Exit";
+      case SEQUENCE: return "Sequence";
       default: return "Unknown";
     }
   }
@@ -393,7 +392,7 @@ public class DotExporter {
         list.add(stat);
       }
 
-      if (stat.type == Statement.TYPE_IF) {
+      if (stat instanceof IfStatement) {
         IfStatement ifs = (IfStatement) stat;
 
         if (ifs.getIfstat() != null && !list.contains(ifs.getIfstat())) {
