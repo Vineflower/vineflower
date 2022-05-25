@@ -49,12 +49,32 @@ public final class SwitchPatternMatchProcessor {
     }
 
     // Found switch pattern match, start applying basic transformations
-    boolean isLoopParent = stat.getParent().type == Statement.TYPE_DO;
+    // replace `SwitchBootstraps.typeSwitch<...>(o, idx)` with `o` if `idx` is not still used
+    // if `idx` is still used, we have guarded labels -> skip // TODO for now
+    InvocationExprent value = (InvocationExprent) head.getValue();
+    List<Exprent> origParams = value.getLstParameters();
+    boolean guarded = true;
+    if (origParams.get(1) instanceof VarExprent) {
+      VarExprent var = (VarExprent) origParams.get(1);
+      List<Pair<Statement, Exprent>> references = new ArrayList<>();
+      SwitchHelper.findExprents(root, Exprent.class, var::isVarReferenced, false, (st, expr) -> references.add(Pair.of(st, expr)));
+      // If we have one reference...
+      if (references.size() == 1) {
+        // ...and its just assignment...
+        Pair<Statement, Exprent> ref = references.get(0);
+        if (ref.b instanceof AssignmentExprent && ((AssignmentExprent) ref.b).getLeft().equals(var)) {
+          // ...remove the variable
+          ref.a.getExprents().remove(ref.b);
+          guarded = false;
+        }
+      }
+    }
 
-    // TODO: handle this case!
-    if (isLoopParent) {
+    if (guarded) {
       return false;
     }
+
+    head.setValue(origParams.get(0));
 
     for (int i = 0; i < stat.getCaseStatements().size(); i++) {
       Statement caseStat = stat.getCaseStatements().get(i);
@@ -143,24 +163,6 @@ public final class SwitchPatternMatchProcessor {
 
       stat.setPhantom(true);
       suc.getExprents().add(0, new SwitchExprent(stat, VarType.VARTYPE_INT, false, true));
-    }
-
-    // replace `SwitchBootstraps.typeSwitch<...>(o, idx)` with `o` and check if `idx` is still used
-    List<Exprent> origParams = ((InvocationExprent) head.getValue()).getLstParameters();
-    head.setValue(origParams.get(0));
-    if (origParams.get(1) instanceof VarExprent) {
-      // check uses the same way SwitchHelper does
-      VarExprent var = (VarExprent) origParams.get(1);
-      List<Pair<Statement, Exprent>> references = new ArrayList<>();
-      SwitchHelper.findExprents(root, Exprent.class, var::isVarReferenced, false, (st, expr) -> references.add(Pair.of(st, expr)));
-      // If we only have one reference...
-      if (references.size() == 1) {
-        // ...and if it's just an assignment, remove it.
-        Pair<Statement, Exprent> ref = references.get(0);
-        if (ref.b instanceof AssignmentExprent && ((AssignmentExprent) ref.b).getLeft().equals(var)) {
-          ref.a.getExprents().remove(ref.b);
-        }
-      }
     }
 
     return false;
