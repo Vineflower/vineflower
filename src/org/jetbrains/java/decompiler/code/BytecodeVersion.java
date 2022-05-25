@@ -29,6 +29,10 @@ public final class BytecodeVersion implements Comparable<BytecodeVersion> {
     return major >= MAJOR_5;
   }
 
+  public boolean hasJsr() {
+    return major <= MAJOR_6;
+  }
+
   public boolean hasIfPatternMatching() {
     return major >= MAJOR_16;
   }

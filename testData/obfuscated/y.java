@@ -13,6 +13,6 @@ public class y<P> {
    }
 
    public P a() {
-      // $FF: Couldn't be decompiled
+      // $QF: Couldn't be decompiled
    }
 }

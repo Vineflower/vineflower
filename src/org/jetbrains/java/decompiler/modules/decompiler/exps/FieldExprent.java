@@ -23,11 +23,7 @@ import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.TextUtil;
 
-import java.util.BitSet;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class FieldExprent extends Exprent {
   private final String name;
@@ -48,7 +44,7 @@ public class FieldExprent extends Exprent {
   }
 
   public FieldExprent(String name, String classname, boolean isStatic, Exprent instance, FieldDescriptor descriptor, BitSet bytecodeOffsets, boolean forceQualified, boolean wasCondy) {
-    super(EXPRENT_FIELD);
+    super(Type.FIELD);
     this.name = name;
     this.classname = classname;
     this.isStatic = isStatic;
@@ -159,7 +155,7 @@ public class FieldExprent extends Exprent {
     else {
       String super_qualifier = null;
 
-      if (instance != null && instance.type == Exprent.EXPRENT_VAR) {
+      if (instance instanceof VarExprent) {
         VarExprent instVar = (VarExprent)instance;
         VarVersionPair pair = new VarVersionPair(instVar);
 

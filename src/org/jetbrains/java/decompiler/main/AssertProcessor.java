@@ -11,6 +11,7 @@ import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.SecondaryFunctionsHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.struct.StructField;
 import org.jetbrains.java.decompiler.struct.gen.FieldDescriptor;
@@ -72,16 +73,16 @@ public final class AssertProcessor {
           if (VarType.VARTYPE_BOOLEAN.equals(fdescr.type)) {
 
             Exprent initializer = wrapper.getStaticFieldInitializers().getWithKey(keyField);
-            if (initializer.type == Exprent.EXPRENT_FUNCTION) {
+            if (initializer instanceof FunctionExprent) {
               FunctionExprent fexpr = (FunctionExprent)initializer;
 
-              if (fexpr.getFuncType() == FunctionExprent.FUNCTION_BOOL_NOT &&
-                  fexpr.getLstOperands().get(0).type == Exprent.EXPRENT_INVOCATION) {
+              if (fexpr.getFuncType() == FunctionType.BOOL_NOT &&
+                  fexpr.getLstOperands().get(0) instanceof InvocationExprent) {
 
                 InvocationExprent invexpr = (InvocationExprent)fexpr.getLstOperands().get(0);
 
                 if (invexpr.getInstance() != null &&
-                    invexpr.getInstance().type == Exprent.EXPRENT_CONST &&
+                    invexpr.getInstance() instanceof ConstExprent &&
                     "desiredAssertionStatus".equals(invexpr.getName()) &&
                     "java/lang/Class".equals(invexpr.getClassname()) &&
                     invexpr.getLstParameters().isEmpty()) {
@@ -127,7 +128,7 @@ public final class AssertProcessor {
       replaced = false;
 
       for (Statement st : new ArrayList<>(statement.getStats())) {
-        if (st.type == Statement.TYPE_IF) {
+        if (st instanceof IfStatement) {
           if (replaceAssertion(statement, (IfStatement)st, classname, key)) {
             replaced = true;
             break;
@@ -169,7 +170,7 @@ public final class AssertProcessor {
     Exprent ascond = null, retcond = null;
     if (throwInIf) {
       if (exprres[0] != null) {
-        ascond = new FunctionExprent(FunctionExprent.FUNCTION_BOOL_NOT, (Exprent)exprres[0], throwError.bytecode);
+        ascond = new FunctionExprent(FunctionType.BOOL_NOT, (Exprent)exprres[0], throwError.bytecode);
         retcond = SecondaryFunctionsHelper.propagateBoolNot(ascond);
       }
     }
@@ -260,9 +261,9 @@ public final class AssertProcessor {
 
     Exprent expr = stat.getExprents().get(0);
 
-    if (expr.type == Exprent.EXPRENT_EXIT) {
+    if (expr instanceof ExitExprent) {
       ExitExprent exexpr = (ExitExprent)expr;
-      if (exexpr.getExitType() == ExitExprent.EXIT_THROW && exexpr.getValue().type == Exprent.EXPRENT_NEW) {
+      if (exexpr.getExitType() == ExitExprent.Type.THROW && exexpr.getValue() instanceof NewExprent) {
         NewExprent nexpr = (NewExprent)exexpr.getValue();
         if (CLASS_ASSERTION_ERROR.equals(nexpr.getNewType()) && nexpr.getConstructor() != null) {
           return nexpr.getConstructor();
@@ -276,10 +277,10 @@ public final class AssertProcessor {
   // {Exprent, valid, needsReplacingOfParent}
   private static Object[] getAssertionExprent(Statement stat, Exprent exprent, String classname, String key, boolean throwInIf) {
 
-    if (exprent.type == Exprent.EXPRENT_FUNCTION) {
-      int desiredOperation = FunctionExprent.FUNCTION_CADD;
+    if (exprent instanceof FunctionExprent) {
+      FunctionType desiredOperation = FunctionType.BOOLEAN_AND;
       if (!throwInIf) {
-        desiredOperation = FunctionExprent.FUNCTION_COR;
+        desiredOperation = FunctionType.BOOLEAN_OR;
       }
 
       FunctionExprent fexpr = (FunctionExprent)exprent;
@@ -308,11 +309,11 @@ public final class AssertProcessor {
       } else if (isAssertionField(fexpr, classname, key, throwInIf)) {
         // assert false;
         return new Object[]{null, true};
-      } else if (fexpr.getFuncType() == FunctionExprent.FUNCTION_BOOL_NOT) {
+      } else if (fexpr.getFuncType() == FunctionType.BOOL_NOT) {
         // Switch expression assert
 
         Statement parent = parentSkippingSequences(stat);
-        if (parent.type == Statement.TYPE_IF) {
+        if (parent instanceof IfStatement) {
           Exprent param = fexpr.getLstOperands().get(0);
 
           if (isAssertionField(((IfStatement)parent).getHeadexprent().getCondition(), classname, key, throwInIf)) {
@@ -329,7 +330,7 @@ public final class AssertProcessor {
   private static Statement parentSkippingSequences(Statement stat) {
     stat = stat.getParent();
 
-    while (stat != null && stat.type == Statement.TYPE_SEQUENCE) {
+    while (stat instanceof SequenceStatement) {
       stat = stat.getParent();
     }
 
@@ -338,10 +339,10 @@ public final class AssertProcessor {
 
   private static boolean isAssertionField(Exprent exprent, String classname, String key, boolean throwInIf) {
     if (throwInIf) {
-      if (exprent.type == Exprent.EXPRENT_FUNCTION) {
+      if (exprent instanceof FunctionExprent) {
         FunctionExprent fparam = (FunctionExprent)exprent;
-        if (fparam.getFuncType() == FunctionExprent.FUNCTION_BOOL_NOT &&
-            fparam.getLstOperands().get(0).type == Exprent.EXPRENT_FIELD) {
+        if (fparam.getFuncType() == FunctionType.BOOL_NOT &&
+            fparam.getLstOperands().get(0) instanceof FieldExprent) {
           FieldExprent fdparam = (FieldExprent)fparam.getLstOperands().get(0);
           return classname.equals(fdparam.getClassname()) &&
                  key.equals(InterpreterUtil.makeUniqueKey(fdparam.getName(), fdparam.getDescriptor().descriptorString));
@@ -349,7 +350,7 @@ public final class AssertProcessor {
       }
     }
     else {
-      if (exprent.type == Exprent.EXPRENT_FIELD) {
+      if (exprent instanceof FieldExprent) {
         FieldExprent fdparam = (FieldExprent) exprent;
         return classname.equals(fdparam.getClassname()) &&
                key.equals(InterpreterUtil.makeUniqueKey(fdparam.getName(), fdparam.getDescriptor().descriptorString));

@@ -3,7 +3,7 @@ package pkg;
 public final class TestIrreducible {
    public static int field;
 
-   // $FF: Irreducible bytecode was duplicated to produce valid code
+   // $QF: Irreducible bytecode was duplicated to produce valid code
    public static void test() {
       if (field == 1) {// 24 25 26
          System.out.println("2");

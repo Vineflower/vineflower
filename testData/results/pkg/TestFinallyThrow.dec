@@ -6,10 +6,10 @@ public class TestFinallyThrow {
          try {
             System.out.println(1);// 7
          } finally {
-            label127: {
+            label97: {
                try {
                   if (!b) {// 10
-                     break label127;
+                     break label97;
                   }
                } catch (Exception var22) {// 13
                   throw var22;// 14

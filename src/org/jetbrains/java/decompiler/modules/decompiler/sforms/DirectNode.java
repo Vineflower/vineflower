@@ -38,7 +38,7 @@ public class DirectNode {
     this.type = type;
     this.statement = statement;
 
-    this.id = block.id.toString();
+    this.id = Integer.toString(block.id);
     this.block = block;
   }
 

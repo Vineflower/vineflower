@@ -15,7 +15,7 @@ public class r {
    }
 
    private static a9 a(p param0) {
-      // $FF: Couldn't be decompiled
+      // $QF: Couldn't be decompiled
    }
 
    public static a9 a(Throwable var0) {

@@ -127,4 +127,63 @@ public class TestLoopFinally {
     }
     return var2 + var3;
   }
+
+
+  public void emptyInnerFinally() {
+    int a = 0, b = 1, c = 2; // load bearing triple assignment
+    try {
+      while (true) {
+        try {
+          System.out.println("Hello");
+          return;
+        } catch (Exception ignored) {
+        } finally {
+        }
+      }
+    } finally {
+      System.out.println("hi");
+    }
+  }
+
+  public void testConditionalBreakInFinally() {
+    int a = 5;
+
+    while (true) {
+      if (a == 886) {
+        return;
+      }
+
+      try {
+        a += -885;
+      } catch (Exception var17) {
+        System.out.println("hello");
+      } finally {
+        if (a >= -228) {
+          break;
+        }
+      }
+
+      a += 616;
+    }
+
+    System.out.println("hi");
+
+  }
+
+  public void loopInFinally() {
+    boolean var1 = true;
+
+    try {
+      try {
+        System.out.println(var1);
+      } finally {
+        return;
+      }
+    } finally {
+      short var18 = (short) 15080;
+      while (var18 > (short) -14704) {
+        int var9 = 0;
+      }
+    }
+  }
 }

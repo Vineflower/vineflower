@@ -3,6 +3,7 @@ package org.jetbrains.java.decompiler.modules.decompiler.exps;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.BasicBlockStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.SwitchStatement;
 import org.jetbrains.java.decompiler.struct.StructClass;
@@ -10,7 +11,10 @@ import org.jetbrains.java.decompiler.struct.StructField;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 
-import java.util.*;
+import java.util.BitSet;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class SwitchExprent extends Exprent {
   private final SwitchStatement backing;
@@ -21,7 +25,7 @@ public class SwitchExprent extends Exprent {
   private final boolean standalone;
 
   public SwitchExprent(SwitchStatement backing, VarType type, boolean fallthrough, boolean standalone) {
-    super(EXPRENT_SWITCH);
+    super(Type.SWITCH);
     this.backing = backing;
     this.type = type;
     this.fallthrough = fallthrough;
@@ -109,10 +113,7 @@ public class SwitchExprent extends Exprent {
 
       buf.append(" -> ");
 
-      boolean simple = true;
-      if (stat.type != Statement.TYPE_BASICBLOCK) {
-        simple = false;
-      }
+      boolean simple = stat instanceof BasicBlockStatement;
 
       if (stat.getExprents() != null && stat.getExprents().size() != 1) {
         simple = false;
@@ -122,18 +123,18 @@ public class SwitchExprent extends Exprent {
       if (simple) {
         Exprent exprent = stat.getExprents().get(0);
 
-        if (exprent.type == Exprent.EXPRENT_YIELD) {
+        if (exprent instanceof YieldExprent) {
           Exprent content = ((YieldExprent) exprent).getContent();
 
-          if (content.type == Exprent.EXPRENT_CONST) {
+          if (content instanceof ConstExprent) {
             ((ConstExprent)content).setConstType(this.type);
           }
 
           buf.append(content.toJava(indent).append(";"));
-        } else if (exprent.type == Exprent.EXPRENT_EXIT) {
+        } else if (exprent instanceof ExitExprent) {
           ExitExprent exit = (ExitExprent) exprent;
 
-          if (exit.getExitType() == ExitExprent.EXIT_THROW) {
+          if (exit.getExitType() == ExitExprent.Type.THROW) {
             buf.append(exit.toJava(indent).append(";"));
           } else {
             throw new IllegalStateException("Can't have return in switch expression");
@@ -185,7 +186,7 @@ public class SwitchExprent extends Exprent {
     if (targetExprs != null && targetExprs.size() == 1) {
       Exprent targetExpr = targetExprs.get(0);
       return targetExpr instanceof ExitExprent
-        && ((ExitExprent) targetExpr).getExitType() == ExitExprent.EXIT_THROW
+        && ((ExitExprent) targetExpr).getExitType() == ExitExprent.Type.THROW
         && ((ExitExprent) targetExpr).getValue().getExprType().value.equals("java/lang/IncompatibleClassChangeError");
     }
     return false;

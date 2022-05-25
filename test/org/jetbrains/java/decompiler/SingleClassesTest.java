@@ -19,7 +19,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
       IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
       IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
       IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "0",
-      IFernflowerPreferences.TERNARY_CONDITIONS, "1"
+      IFernflowerPreferences.TERNARY_CONDITIONS, "1",
+      IFernflowerPreferences.FORCE_JSR_INLINE, "1"
     );
     registerSet("Entire Classpath", this::registerEntireClassPath,
       IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
@@ -150,6 +151,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestInnerClassConstructor");
     register(CUSTOM, "v11/TestInnerClassConstructor");
     register(JAVA_8, "TestTryCatchFinally");
+    register(JAVA_8, "TestTryFinally");
     register(JAVA_8, "TestAmbiguousCall");
     register(JAVA_8, "TestSynchronizedMapping");
     register(JAVA_8, "TestAbstractMethods");
@@ -227,7 +229,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestMultiCast");
     // TODO: some tests don't have proper if else chains
     register(JAVA_8, "TestComplexIfElseChain");
-    // TODO: The ternary here needs to be removed
     register(JAVA_8, "TestNestedLambdas");
     register(JAVA_8, "TestSwitchAssign");
     register(JAVA_8, "TestSwitchReturn");
@@ -254,7 +255,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestArrayTernary");
     // TODO: Do while loops become standard while loops
     register(JAVA_8, "TestAssignmentInDoWhile");
-    // TODO: Assignment of a = a is removed
     register(JAVA_8, "TestBooleanAssignment");
     // TODO: Extraneous cast to boolean
     register(JAVA_8, "TestCastObjectToPrimitive");
@@ -282,6 +282,10 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestStringLiteral");
     register(JAVA_8, "TestSwitchStringHashcodeCollision");
     register(JAVA_8, "TestSynchronized");
+    // TODO: couldn't make synchronized
+    register(JAVA_8, "TestSynchronizedLoop");
+    // TODO: break out of synchronized isn't explicit
+    register(JAVA_8, "TestSynchronizedTry");
     register(JAVA_8, "TestSynchronizeNull");
     // TODO: Assignments are removed, producing incorrect code
     // derived from: IDEA-180373
@@ -409,6 +413,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatching4");
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatching5");
     // TODO: fix broken enum/string switch resugaring w/ null label, for all of these
+    // TODO: ternary in switch causes issues with switch detection
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatching6", "ext/Direction");
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatching7");
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatching8");
@@ -469,7 +474,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestSwitchLoop");
     register(JAVA_8, "TestSwitchFinally");
     // TODO: look at underlying issue with finally and loops here
-    // TODO: test5 variable usage in finally block is incorrect
+    // TODO: test5 variable usage in finally block is incorrect, <unknown> variable
     register(JAVA_8, "TestLoopFinally");
     // TODO: local classes not being put in the right spots
     register(JAVA_8, "TestLocalClassesSwitch"); // Adapted from CFR
@@ -518,6 +523,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(KOTLIN, "TestKotlinEnumWhen");
     // TODO: causes invalid stack var simplification
     register(JAVA_8, "TestSynchronizedTryReturn");
+    // TODO: parsing failure, postdom error, wrong variable use, invalid variable splitting
+    // TODO: finally return parsing wrong
     register(JAVA_8, "TestTryReturn");
     register(JAVA_8, "TestWhileConditionTernary");
 
@@ -545,7 +552,10 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestArrayFieldAccess2");
     register(JAVA_8, "TestNestedArrayPP");
     // TODO: variable stores completely ignored due to variable merging
+
     register(JAVA_8_NODEBUG, "TestCompoundAssignmentReplace");
+
+    register(JAVA_8, "TestSharedVarIndex");
 
     // NOTE: regular fernflower fails to merge the variables here, leading to incorrect results in both
     //  Derived from IDEA-291806
@@ -563,6 +573,15 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: Assert is bundled into the loop header
     register(JAVA_8, "TestAssertMerge");
     register(JAVA_8, "TestTernaryAssign");
+    register(JAVA_8, "TestLoopReturn");
+    // TODO: var is used before it's defined, and it's not correct
+    register(JAVA_8, "TestForCyclicVarDef");
+    // TODO: merging of trycatch incorrect
+    register(JAVA_8, "TestTryCatchNested");
+    register(JAVA_8, "TestSwitchTernary");
+    register(JAVA_8, "TestBooleanExpressions");
+    // TODO: cast not created, incorrect
+    register(JAVA_8, "TestObjectBitwise");
   }
 
   private void registerEntireClassPath() {
@@ -609,6 +628,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16, "TestTryWithResourcesFake");
     register(JAVA_16, "TestTryWithResourcesSwitchJ16");
     register(JAVA_16, "TestTryWithResourcesNestedLoop");
+    register(JAVA_16, "TestTryWithResourcesFakeTrigger");
 
     register(JAVA_8, "TestGenericMapEntireClasspath");
     register(JAVA_8, "TestGenericsTernary");

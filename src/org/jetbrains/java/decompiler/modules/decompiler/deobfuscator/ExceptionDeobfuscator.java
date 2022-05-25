@@ -203,7 +203,7 @@ public final class ExceptionDeobfuscator {
         }
 
         lstRanges.remove(i);
-        graph.addComment("$FF: Removed empty exception range");
+        graph.addComment("$QF: Removed empty exception range");
       }
     }
   }
@@ -337,7 +337,7 @@ public final class ExceptionDeobfuscator {
 
           if (splitExceptionRange(range, setEntries, graph, engine)) {
             splitted = true;
-            graph.addComment("$FF: Handled exception range with multiple entry points by splitting it");
+            graph.addComment("$QF: Handled exception range with multiple entry points by splitting it");
             break;
           }
         }
@@ -442,7 +442,7 @@ public final class ExceptionDeobfuscator {
 
         dummyBlock.addSuccessor(handler);
 
-        graph.addComment("$FF: Inserted dummy exception handlers to handle obfuscated exceptions");
+        graph.addComment("$QF: Inserted dummy exception handlers to handle obfuscated exceptions");
       }
     }
   }
