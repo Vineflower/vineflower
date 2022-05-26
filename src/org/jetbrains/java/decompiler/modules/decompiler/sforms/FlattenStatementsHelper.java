@@ -558,10 +558,14 @@ public class FlattenStatementsHelper {
       String[] strings = mapDestinationNodes.get(statid);
       if (strings == null) {
         DotExporter.toDotFile(graph, root.mt, "errorDGraph");
-
         throw new IllegalStateException("Could not find destination nodes for stat id " + statid + " from source " + sourceid);
       }
       DirectNode dest = graph.nodes.getWithKey(strings[edge.edgetype == StatEdge.TYPE_CONTINUE ? 1 : 0]);
+
+      if (dest == null) {
+        DotExporter.toDotFile(graph, root.mt, "errorDGraph");
+        throw new IllegalStateException("Could not find destination nodes for stat id " + statid + " from source " + sourceid);
+      }
 
       if (!source.succs.contains(dest)) {
         source.succs.add(dest);
