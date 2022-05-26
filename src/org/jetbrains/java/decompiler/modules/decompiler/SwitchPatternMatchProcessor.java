@@ -153,7 +153,9 @@ public final class SwitchPatternMatchProcessor {
       if (caseStat instanceof SequenceStatement) {
         // if we've eliminated the if statement of a guard, there'll only be a basic block
         if (caseStat.getStats().size() == 1 && caseStat.getStats().get(0) instanceof BasicBlockStatement) {
-          caseStat = caseStat.getStats().get(0);
+          Statement newCaseStat = caseStat.getStats().get(0);
+          caseStat.replaceWith(newCaseStat);
+          caseStat = newCaseStat;
         } else {
           continue;
         }
