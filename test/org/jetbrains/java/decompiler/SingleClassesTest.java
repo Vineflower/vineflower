@@ -258,7 +258,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestInlineAssignments");
     // TODO: Cast of (Func) is removed
     register(JAVA_8, "TestInterfaceLambdaCast");
-    // TODO: Local scope is removed, replaced with boolean cast
     register(JAVA_8, "TestLocalScopeClash");
     register(JAVA_8, "TestMultiBoolean");
     register(JAVA_8, "TestNestedFor");
@@ -284,6 +283,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestWhileIterator");
     register(JAVA_8, "TestReturnTernaryChar");
     register(JAVA_8, "TestCompoundAssignment");
+    // TODO: testSuccessor2 makes a = 3 into a boolean
     register(JAVA_8, "TestInfiniteLoop");
     register(JAVA_8, "TestIfLoop");
     // Be careful when touching this class file, your IDE might freeze
@@ -536,9 +536,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestInstanceStaticInvoke");
     // TODO: finally fails to be verified
     register(JAVA_8, "TestFinallyBlockVariableUse");
-    // TODO: improper boolean merge
     register(JAVA_8, "TestIntBoolMerge");
-    // TODO: improper boolean merge
     register(JAVA_8_NODEBUG, "TestIntBoolMergeNoDebug");
     register(JAVA_8, "TestInnerClassGeneric");
     // TODO: array access not simplified
