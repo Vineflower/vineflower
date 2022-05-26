@@ -4,10 +4,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.util.FastFixedSetFactory.FastFixedSet;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public final class SupportComponent {
   public final List<Statement> stats;
@@ -26,20 +23,31 @@ public final class SupportComponent {
   public static SupportComponent identify(List<Statement> component, Map<Integer, FastFixedSet<Integer>> mapSupportPoints, DominatorEngine dom) {
 
     Map<Integer, FastFixedSet<Integer>> selfSupportPoints = new HashMap<>();
+    Set<Statement> supportedAll = new HashSet<>();
     for (Statement st : component) {
       FastFixedSet<Integer> supReach = mapSupportPoints.get(st.id);
 
       if (supReach != null) {
         for (StatEdge edge : st.getSuccessorEdgeView(StatEdge.TYPE_REGULAR)) {
-          if (!component.contains(edge.getDestination())) {
+          Statement dest = edge.getDestination();
+
+          if (!component.contains(dest)) {
             // Support point supports statement outside of component
             return null;
+          } else {
+            if (dom.isDominator(st.id, dest.id)) {
+              supportedAll.add(dest);
+            }
           }
         }
 
         // no filter needed as this is coming from the component itself
         selfSupportPoints.put(st.id, supReach);
       }
+    }
+
+    if (supportedAll.size() != 1) {
+      return null;
     }
 
     if (selfSupportPoints.isEmpty()) {
@@ -68,5 +76,10 @@ public final class SupportComponent {
     }
 
     return new SupportComponent(component, selfSupportPoints, head);
+  }
+
+  @Override
+  public String toString() {
+    return "SupportComponent[" + stats + ", selfSupportPoints=" + selfSupportPoints + ", header=" + supportedPoint + ']';
   }
 }

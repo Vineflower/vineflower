@@ -1,6 +1,5 @@
 package pkg;
 
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -9,41 +8,27 @@ public class TestForeachMultipleLoops {
       if (a != null) {// 8
          System.out.println(a);// 9
       } else {
-         Iterator var4 = map.entrySet().iterator();// 13
-
-         while(true) {
-            while(true) {
-               Entry<Integer, String> entry;
-               while(true) {
-                  if (!var4.hasNext()) {
-                     return;// 40
-                  }
-
-                  entry = (Entry)var4.next();
-                  String s = (String)entry.getValue();// 14
-                  if (a == null) {// 15
-                     s = s + s;// 16
-                     break;
-                  }
-
-                  if (s == null) {// 18
-                     s = "hello";// 21
-                     break;
-                  }
+         for(Entry<Integer, String> entry : map.entrySet()) {// 13
+            String s = (String)entry.getValue();// 14
+            if (a == null) {// 15
+               s = s + s;// 16
+            } else {
+               if (s != null) {// 18
+                  continue;
                }
 
-               Object v = entry.getValue();// 24
-               if (v == null) {// 25
-                  if (i == 3) {// 26
-                     continue;
-                  }
+               s = "hello";// 21
+            }
 
-                  System.out.println("if");// 29
-                  break;
+            Object v = entry.getValue();// 24
+            if (v == null) {// 25
+               if (i == 3) {// 26
+                  continue;
                }
 
+               System.out.println("if");// 29
+            } else {
                System.out.println("else");// 31
-               break;
             }
 
             try {
@@ -52,146 +37,137 @@ public class TestForeachMultipleLoops {
                var9.printStackTrace();// 37
             }
          }
+
       }
-   }// 10
+   }// 10 40
 }
 
 class 'pkg/TestForeachMultipleLoops' {
    method 'test (Ljava/lang/Object;Ljava/util/Map;I)V' {
-      0      8
-      1      8
-      4      9
-      5      9
-      6      9
-      7      9
-      8      9
-      9      9
-      a      9
-      b      55
-      c      11
-      d      11
-      e      11
-      f      11
-      10      11
-      11      11
-      12      11
-      13      11
-      14      11
-      15      11
-      16      11
-      17      11
-      18      11
-      19      17
-      1a      17
-      1b      17
-      1c      17
-      1d      17
-      1e      17
-      1f      17
-      20      17
-      23      21
-      24      21
-      25      21
-      26      21
-      27      21
-      28      21
-      29      21
-      2a      21
-      2b      21
-      2c      21
-      2d      21
-      2e      21
-      2f      22
-      30      22
-      31      22
-      32      22
-      33      22
-      34      22
-      35      22
-      36      22
-      37      22
-      38      22
-      39      22
-      3a      22
-      3b      23
-      3c      23
-      46      24
-      47      24
-      4b      24
-      4c      24
-      50      24
-      51      24
-      52      24
-      53      24
-      54      24
-      55      25
-      58      28
-      59      28
-      5a      28
-      60      29
-      61      29
-      62      29
-      63      29
-      64      34
-      65      34
-      66      34
-      67      34
-      68      34
-      69      34
-      6a      34
-      6b      34
-      6c      34
-      6d      35
-      6e      35
-      6f      35
-      72      36
-      73      36
-      74      36
-      7a      40
-      7b      40
-      7c      40
-      7d      40
-      7e      40
-      7f      40
-      80      40
-      81      40
-      82      41
-      85      44
-      86      44
-      87      44
-      88      44
-      89      44
-      8a      44
-      8d      49
-      8e      49
-      8f      49
-      90      49
-      91      49
-      97      50
-      9b      51
-      a1      18
+      0      7
+      1      7
+      4      8
+      5      8
+      6      8
+      7      8
+      8      8
+      9      8
+      a      8
+      b      41
+      c      10
+      d      10
+      e      10
+      f      10
+      10      10
+      11      10
+      12      10
+      13      10
+      14      10
+      15      10
+      16      10
+      17      10
+      18      10
+      23      10
+      24      10
+      25      10
+      26      10
+      27      10
+      28      10
+      29      10
+      2a      10
+      2b      10
+      2c      10
+      2d      10
+      2e      10
+      2f      11
+      30      11
+      31      11
+      32      11
+      33      11
+      34      11
+      35      11
+      36      11
+      37      11
+      38      11
+      39      11
+      3a      11
+      3b      12
+      3c      12
+      46      13
+      47      13
+      4b      13
+      4c      13
+      50      13
+      51      13
+      52      13
+      53      13
+      54      13
+      58      15
+      59      15
+      5a      15
+      60      19
+      61      19
+      62      19
+      63      19
+      64      22
+      65      22
+      66      22
+      67      22
+      68      22
+      69      22
+      6a      22
+      6b      22
+      6c      22
+      6d      23
+      6e      23
+      6f      23
+      72      24
+      73      24
+      74      24
+      7a      28
+      7b      28
+      7c      28
+      7d      28
+      7e      28
+      7f      28
+      80      28
+      81      28
+      85      30
+      86      30
+      87      30
+      88      30
+      89      30
+      8a      30
+      8d      34
+      8e      34
+      8f      34
+      90      34
+      91      34
+      97      35
+      9b      36
+      a1      41
    }
 }
 
 Lines mapping:
-8 <-> 9
-9 <-> 10
-10 <-> 56
-13 <-> 12
-14 <-> 23
-15 <-> 24
-16 <-> 25
-18 <-> 29
-21 <-> 30
-24 <-> 35
-25 <-> 36
-26 <-> 37
-29 <-> 41
-31 <-> 45
-35 <-> 50
-36 <-> 51
-37 <-> 52
-40 <-> 19
+8 <-> 8
+9 <-> 9
+10 <-> 42
+13 <-> 11
+14 <-> 12
+15 <-> 13
+16 <-> 14
+18 <-> 16
+21 <-> 20
+24 <-> 23
+25 <-> 24
+26 <-> 25
+29 <-> 29
+31 <-> 31
+35 <-> 35
+36 <-> 36
+37 <-> 37
+40 <-> 42
 Not mapped:
 19
 27
