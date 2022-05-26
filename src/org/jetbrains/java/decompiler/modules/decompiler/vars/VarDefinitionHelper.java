@@ -826,6 +826,11 @@ public class VarDefinitionHelper {
       return null;
     } else {
 
+      // Special case: merging from false boolean to integral type, should be correct always
+      if (toMin.typeFamily == CodeConstants.TYPE_FAMILY_INTEGER && fromMin.isFalseBoolean()) {
+        return toMin;
+      }
+
       // Both nonnull at this point
       if (!fromMin.isStrictSuperset(toMin)) {
         // If type we're merging into the old type isn't a strict superset of the old type, we cannot merge
