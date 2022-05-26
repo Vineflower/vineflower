@@ -46,6 +46,7 @@ public class SwitchExprent extends Exprent {
       Statement stat = this.backing.getCaseStatements().get(i);
       List<StatEdge> edges = this.backing.getCaseEdges().get(i);
       List<Exprent> values = this.backing.getCaseValues().get(i);
+      Exprent guard = this.backing.getCaseGuards().size() > i ? this.backing.getCaseGuards().get(i) : null;
 
       boolean hasDefault = false;
       // As switch expressions can be compiled to a tableswitch, any gaps will contain a jump to the default element.
@@ -93,6 +94,11 @@ public class SwitchExprent extends Exprent {
         }
 
         hasEdge = true;
+      }
+
+      if (guard != null) {
+        // TODO: check language version for J19
+        buf.append(" && ").append(guard.toJava());
       }
 
       if (hasDefault) {
