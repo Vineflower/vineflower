@@ -1,130 +1,82 @@
 package pkg;
 
-import java.lang.runtime.SwitchBootstraps;
 import java.util.Objects;
 
 public class TestSwitchPatternMatchingInstanceof1 {
    public void test(Object o) {
       Objects.requireNonNull(o);// 5
-      Object var2 = o;
-      byte var3 = 0;
-
-      while(true) {
-         switch(SwitchBootstraps.typeSwitch<"typeSwitch",String,Integer,String>(var2, var3)) {
-            case 0: {
-               String s = (String)var2;// 6
-               if (o instanceof Integer a) {
-                  System.out.println(s);
-                  return;// 11
-               }
-
-               var3 = 1;
-               break;
-            }
-            case 1:
-               Integer i = (Integer)var2;// 7
-               System.out.println(i);
-               return;
-            case 2: {
-               String s = (String)var2;// 8
-               System.out.println(s);
-               return;
-            }
-            default:
-               System.out.println("Default");// 9
-               return;
-         }
+      Integer a;
+      switch(o) {
+         case var2 instanceof String s && o instanceof Integer a:// 6
+            byte var3 = 1;
+         case var2 instanceof Integer i:// 7
+            System.out.println(i);
+            return;// 11
+         case var2 instanceof String s:// 8
+            System.out.println(s);
+            return;
+         default:
+            System.out.println("Default");// 9
       }
    }
 }
 
 class 'pkg/TestSwitchPatternMatchingInstanceof1' {
    method 'test (Ljava/lang/Object;)V' {
-      0      7
-      2      7
-      3      7
-      4      7
-      6      8
-      7      9
-      8      9
-      9      12
-      a      12
-      b      12
-      c      12
-      d      12
-      e      12
-      f      12
-      10      12
-      2c      14
-      2d      14
-      2e      14
-      2f      14
-      30      14
-      31      14
-      32      15
-      33      15
-      34      15
-      35      15
-      36      15
-      3d      15
-      3e      15
-      3f      16
-      40      16
-      41      16
-      42      16
-      43      16
-      44      16
-      45      16
-      46      16
-      47      16
-      48      16
-      49      16
-      4a      16
-      4b      16
-      52      24
-      53      24
-      54      24
-      55      24
-      56      24
-      57      24
-      58      25
-      59      25
-      5a      25
-      5b      25
-      5c      25
-      5d      25
-      5e      25
-      5f      25
-      63      28
-      64      28
-      65      28
-      66      28
-      67      28
-      68      28
-      69      29
-      6a      29
-      6b      29
-      6c      29
-      6d      29
-      6e      29
-      6f      29
-      70      29
-      74      33
-      75      33
-      76      33
-      77      33
-      78      33
-      79      33
-      7a      33
-      7b      33
-      7f      17
+      0      6
+      2      6
+      3      6
+      4      6
+      10      8
+      2c      9
+      30      9
+      31      9
+      32      9
+      33      9
+      34      9
+      35      9
+      3d      9
+      3e      9
+      42      10
+      43      10
+      52      11
+      56      11
+      57      11
+      58      12
+      59      12
+      5a      12
+      5b      12
+      5c      12
+      5d      12
+      5e      12
+      5f      12
+      63      14
+      67      14
+      68      14
+      69      15
+      6a      15
+      6b      15
+      6c      15
+      6d      15
+      6e      15
+      6f      15
+      70      15
+      74      18
+      75      18
+      76      18
+      77      18
+      78      18
+      79      18
+      7a      18
+      7b      18
+      7f      13
    }
 }
 
 Lines mapping:
-5 <-> 8
-6 <-> 15
-7 <-> 25
-8 <-> 29
-9 <-> 34
-11 <-> 18
+5 <-> 7
+6 <-> 10
+7 <-> 12
+8 <-> 15
+9 <-> 19
+11 <-> 14
