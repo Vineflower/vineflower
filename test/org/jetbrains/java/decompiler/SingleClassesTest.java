@@ -283,7 +283,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestWhileIterator");
     register(JAVA_8, "TestReturnTernaryChar");
     register(JAVA_8, "TestCompoundAssignment");
-    // TODO: testSuccessor2 makes a = 3 into a boolean
     register(JAVA_8, "TestInfiniteLoop");
     register(JAVA_8, "TestIfLoop");
     // Be careful when touching this class file, your IDE might freeze
