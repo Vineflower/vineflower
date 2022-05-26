@@ -789,6 +789,7 @@ public class VarDefinitionHelper {
   private VarType getMergedType(VarVersionPair from, VarVersionPair to) {
     Map<VarVersionPair, VarType> minTypes = varproc.getVarVersions().getTypeProcessor().getMapExprentMinTypes();
     Map<VarVersionPair, VarType> maxTypes = varproc.getVarVersions().getTypeProcessor().getMapExprentMaxTypes();
+
     return getMergedType(minTypes.get(from), minTypes.get(to), maxTypes.get(from), maxTypes.get(to));
   }
 
@@ -824,6 +825,13 @@ public class VarDefinitionHelper {
       }
       return null;
     } else {
+
+      // Both nonnull at this point
+      if (!fromMin.isStrictSuperset(toMin)) {
+        // If type we're merging into the old type isn't a strict superset of the old type, we cannot merge
+        return null;
+      }
+
       return type;
     }
   }
