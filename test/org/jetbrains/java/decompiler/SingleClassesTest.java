@@ -453,6 +453,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestWhile1");
     registerRaw(CUSTOM, "TestEclipseSwitchEnum");
     registerRaw(CUSTOM, "TestEclipseSwitchString");
+    registerRaw(CUSTOM, "TestStringConcatJ19");
     register(JAVA_8, "TestNestedAnonymousClass");
     register(JAVA_8, "TestPPMMLoop");
     // TODO: loops not eliminated properly, foreach not created
