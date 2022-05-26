@@ -8,7 +8,7 @@ public class TestSwitchPatternMatchingInstanceof1 {
       Integer a;
       switch(o) {
          case var2 instanceof String s && o instanceof Integer a:// 6
-            byte var3 = 1;
+            System.out.println(s);
          case var2 instanceof Integer i:// 7
             System.out.println(i);
             return;// 11
@@ -37,8 +37,19 @@ class 'pkg/TestSwitchPatternMatchingInstanceof1' {
       35      9
       3d      9
       3e      9
+      3f      10
+      40      10
+      41      10
       42      10
       43      10
+      44      10
+      45      10
+      46      10
+      47      10
+      48      10
+      49      10
+      4a      10
+      4b      10
       52      11
       56      11
       57      11

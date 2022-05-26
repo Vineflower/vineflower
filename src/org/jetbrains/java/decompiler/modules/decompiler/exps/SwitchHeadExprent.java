@@ -51,7 +51,6 @@ public class SwitchHeadExprent extends Exprent {
     result.addMaxTypeExprent(value, VarType.VARTYPE_INT);
 
     VarType valType = value.getExprType();
-    System.out.println(caseValues);
     for (List<Exprent> lst : caseValues) {
       for (Exprent expr : lst) {
         if (expr != null) {

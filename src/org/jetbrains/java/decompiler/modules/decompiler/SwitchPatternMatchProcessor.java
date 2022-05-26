@@ -7,6 +7,7 @@ import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.Pair;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public final class SwitchPatternMatchProcessor {
   public static boolean processPatternMatching(Statement root) {
@@ -112,7 +113,8 @@ public final class SwitchPatternMatchProcessor {
                   if (invert) {
                     guardExprent = new FunctionExprent(FunctionExprent.FunctionType.BOOL_NOT, guardExprent, guardExprent.bytecode);
                   } else {
-                    castExprent = parent.getParent().getStats().get(1).getExprents();
+                    castExprent = parent.getStats().stream().flatMap(x -> x.getExprents().stream()).collect(Collectors.toList());
+                    assignStat.replaceWithEmpty(); // normally removed in guardIf.replaceWithEmpty()
                   }
                   guards.put(stat.getCaseValues().get(i), guardExprent);
                   guardIf.replaceWithEmpty();
@@ -174,7 +176,6 @@ public final class SwitchPatternMatchProcessor {
         Exprent expr = caseStatBlock.getExprents().get(0);
         if (expr instanceof AssignmentExprent) {
           AssignmentExprent assign = (AssignmentExprent)expr;
-          System.out.println(expr);
 
           if (assign.getLeft() instanceof VarExprent) {
             VarExprent var = (VarExprent)assign.getLeft();
