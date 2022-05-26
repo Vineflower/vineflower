@@ -194,6 +194,10 @@ public final class ConcatenationHelper {
 
   private static List<Exprent> extractParameters(List<PooledConstant> bootstrapArguments, InvocationExprent expr) {
     List<Exprent> parameters = expr.getLstParameters();
+
+    // Remove unnecessary String.valueOf() calls to resolve Quiltflower#151
+    parameters.replaceAll(x -> removeStringValueOf(x));
+
     if (bootstrapArguments != null) {
       String recipe = null;
       if (!bootstrapArguments.isEmpty() && bootstrapArguments.get(0).type == CodeConstants.CONSTANT_String) {
