@@ -575,6 +575,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestBooleanExpressions");
     // TODO: cast not created, incorrect
     register(JAVA_8, "TestObjectBitwise");
+    register(JAVA_17, "TestSealedFinal", "SealedInterface");
+    register(JAVA_17, "TestSealedRecord", "SealedInterface");
   }
 
   private void registerEntireClassPath() {
