@@ -99,22 +99,19 @@ public final class SwitchPatternMatchProcessor {
             Statement next = assignStat.getSuccessorEdges(StatEdge.TYPE_CONTINUE).get(0).getDestination();
             if (next == stat.getParent()) {
               IfStatement guardIf = (IfStatement) assignStat.getParent();
-              if (guardIf.getHeadexprent().getCondition() instanceof FunctionExprent) {
-                FunctionExprent cond = (FunctionExprent) guardIf.getHeadexprent().getCondition();
-                Exprent guardExprent = cond.getLstOperands().get(0);
-                List<Statement> caseStatements = stat.getCaseStatements();
-                for (int i = 0; i < caseStatements.size(); i++) {
-                  if (caseStatements.get(i).containsStatement(reference.a)) {
-                    // TODO: test if the cast is still inside the if when the variable is used outside
-                    Exprent castExprent = guardIf.getStats().get(0).getExprents().get(0);
-                    // invert guard
-                    guardExprent = new FunctionExprent(FunctionExprent.FunctionType.BOOL_NOT, guardExprent, guardExprent.bytecode);
-                    guards.put(stat.getCaseValues().get(i), guardExprent);
-                    guardIf.replaceWithEmpty();
-                    guardIf.getParent().getStats().remove(0);
-                    guardIf.getParent().getStats().get(0).getExprents().add(0, castExprent);
-                    break;
-                  }
+              Exprent guardExprent = guardIf.getHeadexprent().getCondition();
+              List<Statement> caseStatements = stat.getCaseStatements();
+              for (int i = 0; i < caseStatements.size(); i++) {
+                if (caseStatements.get(i).containsStatement(reference.a)) {
+                  // TODO: test if the cast is still inside the if when the variable is used outside
+                  Exprent castExprent = guardIf.getStats().get(0).getExprents().get(0);
+                  // invert guard
+                  guardExprent = new FunctionExprent(FunctionExprent.FunctionType.BOOL_NOT, guardExprent, guardExprent.bytecode);
+                  guards.put(stat.getCaseValues().get(i), guardExprent);
+                  guardIf.replaceWithEmpty();
+                  guardIf.getParent().getStats().remove(0);
+                  guardIf.getParent().getStats().get(0).getExprents().add(0, castExprent);
+                  break;
                 }
               }
             }

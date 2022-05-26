@@ -216,11 +216,11 @@ public final class SwitchStatement extends Statement {
 
     List<Object> lst = new ArrayList<>(stats);
     lst.add(1, headexprent.get(0));
-    for (Exprent caseGuard : getCaseGuards()) {
+    /*for (Exprent caseGuard : getCaseGuards()) { //TODO: results in infinite loop
       if (caseGuard != null) {
         lst.add(caseGuard);
       }
-    }
+    }*/
 
     return lst;
   }
