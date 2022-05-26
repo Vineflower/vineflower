@@ -2,7 +2,7 @@ package pkg;
 
 public class TestBooleanSwitchExpression4 {
    public void test(int x, int y, int z) {
-      label37:
+      label35:
       switch(x) {// 5
          case 0:
             if (y >= 0) {// 6
@@ -12,7 +12,7 @@ public class TestBooleanSwitchExpression4 {
          case 1:
             switch(y) {// 7
                case 0:
-                  break label37;
+                  break label35;
                case 1:
                   return;
                case 2:
@@ -25,19 +25,19 @@ public class TestBooleanSwitchExpression4 {
                         if (x >= 100) {// 17
                            return;
                         }
-                        break label37;
+                        break label35;
                      }
                   }
 
                   if (z != 0) {// 21
                      return;
                   }
-                  break label37;
+                  break label35;
                default:
                   if (y != z) {// 23
                      return;
                   }
-                  break label37;
+                  break label35;
             }
          default:
             if (y != 0) {// 25
@@ -49,21 +49,21 @@ public class TestBooleanSwitchExpression4 {
    }
 
    public void test1(int x, int y, int z) {
-      label41: {
-         label40: {
-            label39:
+      label39: {
+         label38: {
+            label37:
             switch(x) {// 32
                case 0:
                   if (y < 0) {// 33
-                     break label40;
+                     break label38;
                   }
                   break;
                case 1:
                   switch(y) {// 34
                      case 0:
-                        break label40;
+                        break label38;
                      case 1:
-                        break label39;
+                        break label37;
                      case 2:
                         while(z > 0) {// 38
                            int var4;
@@ -72,30 +72,30 @@ public class TestBooleanSwitchExpression4 {
                            y += z;// 41
                            if (y % z == 0) {// 43
                               if (x < 100) {// 44
-                                 break label40;
+                                 break label38;
                               }
-                              break label39;
+                              break label37;
                            }
                         }
 
                         if (z == 0) {// 48
-                           break label40;
+                           break label38;
                         }
-                        break label39;
+                        break label37;
                      default:
                         if (y == z) {// 50
-                           break label40;
+                           break label38;
                         }
-                        break label39;
+                        break label37;
                   }
                default:
                   if (y == 0) {// 52
-                     break label40;
+                     break label38;
                   }
             }
 
             System.out.println("Sad");// 56
-            break label41;
+            break label39;
          }
 
          System.out.println("Nice");// 54

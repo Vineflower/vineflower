@@ -92,12 +92,13 @@ public class TestLoopFinally {
             }
          } finally {
             if (x > 3) {// 98
-               break;
+               return 1;// 104
             }
+
          }
       } while(x < 45);// 102
 
-      return 1;// 104
+      return 1;
    }
 
    public int test5(int x) {
@@ -117,6 +118,85 @@ public class TestLoopFinally {
       } while(x < 45);// 124
 
       return 1;
+   }
+
+   public void emptyInnerFinally() {
+      int a = 0;// 133
+      int b = 1;
+      int c = 2;
+
+      try {
+         while(true) {
+            try {
+               System.out.println("Hello");// 137
+               return;// 138
+            } catch (Exception var13) {// 139
+            } finally {
+               ;
+            }
+         }
+      } finally {
+         System.out.println("hi");// 144
+      }
+   }
+
+   public void testConditionalBreakInFinally() {
+      int a = 5;// 149
+      if (a != 886) {// 152
+         try {
+            a -= 885;// 157
+         } catch (Exception var6) {// 158
+            System.out.println("hello");// 159
+         } finally {
+            if (a >= -228) {// 161
+               System.out.println("hi");// 169
+               return;// 171
+            } else {
+               <unknown> var3;
+               throw var3_1;// 164
+            }
+         }
+      }
+   }// 153
+
+   public void loopInFinally() {
+      // $QF: Couldn't be decompiled
+      // Bytecode:
+      // 00: bipush 1
+      // 01: istore 1
+      // 02: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 05: iload 1
+      // 06: invokevirtual java/io/PrintStream.println (Z)V
+      // 09: sipush 15080
+      // 0c: istore 2
+      // 0d: iload 2
+      // 0e: sipush -14704
+      // 11: if_icmple 19
+      // 14: bipush 0
+      // 15: istore 3
+      // 16: goto 0d
+      // 19: return
+      // 1a: astore 4
+      // 1c: sipush 15080
+      // 1f: istore 5
+      // 21: iload 5
+      // 23: sipush -14704
+      // 26: if_icmple 2f
+      // 29: bipush 0
+      // 2a: istore 6
+      // 2c: goto 21
+      // 2f: return
+      // 30: astore 7
+      // 32: sipush 15080
+      // 35: istore 8
+      // 37: iload 8
+      // 39: sipush -14704
+      // 3c: if_icmple 45
+      // 3f: bipush 0
+      // 40: istore 9
+      // 42: goto 37
+      // 45: aload 7
+      // 47: athrow
    }
 }
 
@@ -272,7 +352,7 @@ class 'pkg/TestLoopFinally' {
       1      62
       2      62
       5      63
-      6      63
+      10      63
       11      66
       12      66
       13      66
@@ -286,7 +366,7 @@ class 'pkg/TestLoopFinally' {
       1b      67
       1c      67
       1f      68
-      20      68
+      2a      68
       2b      71
       2c      71
       2d      71
@@ -300,7 +380,7 @@ class 'pkg/TestLoopFinally' {
       35      72
       36      72
       39      73
-      3a      73
+      44      73
       4d      76
       4e      76
       4f      76
@@ -325,38 +405,97 @@ class 'pkg/TestLoopFinally' {
       2      89
       3      89
       6      90
-      7      90
+      11      90
       1a      93
       1b      93
       1c      93
-      25      97
-      26      97
-      27      97
-      28      97
-      2b      99
-      2c      99
+      25      98
+      26      98
+      27      98
+      28      98
+      2b      94
+      2c      94
    }
 
    method 'test5 (I)I' {
-      0      105
-      1      105
-      2      105
-      3      105
-      6      106
-      7      106
-      1f      111
-      20      111
-      21      111
-      2b      116
-      2c      116
-      2d      116
-      2e      116
-      31      112
-      32      112
-      33      108
-      34      108
-      35      108
-      36      108
+      0      106
+      1      106
+      2      106
+      3      106
+      6      107
+      7      107
+      1f      112
+      20      112
+      21      112
+      2b      117
+      2c      117
+      2d      117
+      2e      117
+      31      113
+      32      113
+      33      109
+      34      109
+      35      109
+      36      109
+   }
+
+   method 'emptyInnerFinally ()V' {
+      0      123
+      1      123
+      2      124
+      3      124
+      4      125
+      5      125
+      6      130
+      7      130
+      8      130
+      9      130
+      a      130
+      b      130
+      16      131
+      17      132
+      24      138
+      25      138
+      26      138
+      27      138
+      28      138
+      29      138
+      2a      138
+   }
+
+   method 'testConditionalBreakInFinally ()V' {
+      0      143
+      1      143
+      2      144
+      3      144
+      4      144
+      5      144
+      6      144
+      9      159
+      a      146
+      1a      147
+      1b      148
+      1c      148
+      1d      148
+      1e      148
+      1f      148
+      20      148
+      2d      150
+      2e      150
+      2f      150
+      30      150
+      31      150
+      38      155
+      39      155
+      43      151
+      44      151
+      45      151
+      46      151
+      47      151
+      48      151
+      49      151
+      4a      151
+      4b      152
    }
 }
 
@@ -402,15 +541,30 @@ Lines mapping:
 94 <-> 90
 95 <-> 91
 98 <-> 94
-102 <-> 98
-104 <-> 100
-114 <-> 106
-115 <-> 107
-119 <-> 112
-120 <-> 112
-124 <-> 117
-126 <-> 113
-128 <-> 109
+102 <-> 99
+104 <-> 95
+114 <-> 107
+115 <-> 108
+119 <-> 113
+120 <-> 113
+124 <-> 118
+126 <-> 114
+128 <-> 110
+133 <-> 124
+137 <-> 131
+138 <-> 132
+139 <-> 133
+144 <-> 139
+149 <-> 144
+152 <-> 145
+153 <-> 160
+157 <-> 147
+158 <-> 148
+159 <-> 149
+161 <-> 151
+164 <-> 156
+169 <-> 152
+171 <-> 153
 Not mapped:
 12
 38
@@ -421,3 +575,8 @@ Not mapped:
 101
 121
 123
+140
+141
+145
+162
+166

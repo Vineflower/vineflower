@@ -14,6 +14,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.decompose.FastExtendedPo
 import org.jetbrains.java.decompiler.modules.decompiler.decompose.StrongConnectivityHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.deobfuscator.IrreducibleCFGDeobfuscator;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement.EdgeDirection;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.util.DotExporter;
 import org.jetbrains.java.decompiler.util.FastFixedSetFactory;
@@ -136,7 +137,7 @@ public final class DomHelper {
         FastFixedSet<Statement> doms = lists.get(stat);
         FastFixedSet<Statement> domsSuccs = factory.createEmptySet();
 
-        List<Statement> successors = stat.getNeighbours(StatEdge.TYPE_REGULAR, Statement.DIRECTION_FORWARD);
+        List<Statement> successors = stat.getNeighbours(StatEdge.TYPE_REGULAR, EdgeDirection.FORWARD);
 
         for (int j = 0; j < successors.size(); j++) {
           Statement succ = successors.get(j);
@@ -159,7 +160,7 @@ public final class DomHelper {
 
           lists.put(stat, domsSuccs);
 
-          List<Statement> lstPreds = stat.getNeighbours(StatEdge.TYPE_REGULAR, Statement.DIRECTION_BACKWARD);
+          List<Statement> lstPreds = stat.getNeighbours(StatEdge.TYPE_REGULAR, EdgeDirection.BACKWARD);
           for (Statement pred : lstPreds) {
             setFlagNodes.add(pred);
           }
@@ -229,7 +230,7 @@ public final class DomHelper {
       res |= removeSynchronizedHandler(st);
     }
 
-    if (stat.type == Statement.TYPE_SYNCRONIZED) {
+    if (stat instanceof SynchronizedStatement) {
       ((SynchronizedStatement)stat).removeExc();
       res = true;
     }
@@ -244,7 +245,7 @@ public final class DomHelper {
       buildSynchronized(st);
     }
 
-    if (stat.type == Statement.TYPE_SEQUENCE) {
+    if (stat instanceof SequenceStatement) {
 
       while (true) {
 
@@ -259,22 +260,26 @@ public final class DomHelper {
             Statement next = lst.get(i + 1);
             Statement nextDirect = next;
 
-            while (next.type == Statement.TYPE_SEQUENCE) {
+            while (next instanceof SequenceStatement) {
               next = next.getFirst();
             }
 
-            if (next.type == Statement.TYPE_CATCHALL) {
+            if (next instanceof CatchAllStatement) {
 
               CatchAllStatement ca = (CatchAllStatement)next;
 
               if (ca.getFirst().isContainsMonitorExit() && ca.getHandler().isContainsMonitorExit()) {
+
+                // remove monitorexit
+                ca.getFirst().markMonitorexitDead();
+                ca.getHandler().markMonitorexitDead();
 
                 // remove the head block from sequence
                 current.removeSuccessor(current.getSuccessorEdges(Statement.STATEDGE_DIRECT_ALL).get(0));
 
                 for (StatEdge edge : current.getPredecessorEdges(Statement.STATEDGE_DIRECT_ALL)) {
                   current.removePredecessor(edge);
-                  edge.getSource().changeEdgeNode(Statement.DIRECTION_FORWARD, edge, nextDirect);
+                  edge.getSource().changeEdgeNode(EdgeDirection.FORWARD, edge, nextDirect);
                   nextDirect.addPredecessor(edge);
                 }
 
@@ -308,11 +313,11 @@ public final class DomHelper {
 
   private static boolean processStatement(Statement general, RootStatement root, HashMap<Integer, Set<Integer>> mapExtPost, DomTracer tracer) {
 
-    if (general.type == Statement.TYPE_ROOT) {
+    if (general instanceof RootStatement) {
       Statement stat = general.getFirst();
 
       // Root statement consists of a singular basic block
-      if (stat.type != Statement.TYPE_GENERAL) {
+      if (stat instanceof BasicBlockStatement) {
         return true;
       } else {
         boolean complete = processStatement(stat, root, mapExtPost, tracer);
@@ -353,11 +358,11 @@ public final class DomHelper {
                 DecompilerContext.getLogger().writeMessage("Irreducible statement too complex to be decomposed!", IFernflowerLogger.Severity.ERROR);
 
                 tracer.add(general, "Flow too complex to be decomposed!");
-                root.addComment("$FF: Irreducible bytecode has more than 5 nodes in sequence and was not entirely decomposed");
+                root.addComment("$QF: Irreducible bytecode has more than 5 nodes in sequence and was not entirely decomposed");
                 root.addErrorComment = true;
               }
 
-              root.addComment("$FF: Irreducible bytecode was duplicated to produce valid code");
+              root.addComment("$QF: Irreducible bytecode was duplicated to produce valid code");
             }
           } else {
             tracer.add(general, "Flow not irreducible, but could not decompose");
@@ -403,8 +408,8 @@ public final class DomHelper {
             }
 
             // If every statement in this subgraph was discovered, return as we've decomposed this part of the graph
-            if (general.type == Statement.TYPE_PLACEHOLDER) {
-              tracer.add(general, "All simple statements found");
+            if (((GeneralStatement) general).isPlaceholder()) {
+				tracer.add(general, "All simple statements found");
               return true;
             }
 
@@ -543,7 +548,7 @@ public final class DomHelper {
 
             boolean addHandler = (setNodes.size() == 0); // first handler == head
             if (!addHandler) {
-              List<Statement> hdsupp = handler.getNeighbours(StatEdge.TYPE_EXCEPTION, Statement.DIRECTION_BACKWARD);
+              List<Statement> hdsupp = handler.getNeighbours(StatEdge.TYPE_EXCEPTION, EdgeDirection.BACKWARD);
               addHandler = (setNodes.containsAll(hdsupp) && (setNodes.size() > hdsupp.size()
                                                         || setNodes.size() == 1)); // strict subset
             }
@@ -559,14 +564,14 @@ public final class DomHelper {
                   setNodes.add(st);
                   if (st != head) {
                     // record predeccessors except for the head
-                    setPreds.addAll(st.getNeighbours(StatEdge.TYPE_REGULAR, Statement.DIRECTION_BACKWARD));
+                    setPreds.addAll(st.getNeighbours(StatEdge.TYPE_REGULAR, EdgeDirection.BACKWARD));
                   }
 
                   // put successors on the stack
-                  lstStack.addAll(st.getNeighbours(StatEdge.TYPE_REGULAR, Statement.DIRECTION_FORWARD));
+                  lstStack.addAll(st.getNeighbours(StatEdge.TYPE_REGULAR, EdgeDirection.FORWARD));
 
                   // exception edges
-                  setHandlers.addAll(st.getNeighbours(StatEdge.TYPE_EXCEPTION, Statement.DIRECTION_FORWARD));
+                  setHandlers.addAll(st.getNeighbours(StatEdge.TYPE_EXCEPTION, EdgeDirection.FORWARD));
                 }
               }
 
@@ -584,13 +589,13 @@ public final class DomHelper {
         // check exception handlers
         setHandlers.clear();
         for (Statement st : setNodes) {
-          setHandlers.addAll(st.getNeighbours(StatEdge.TYPE_EXCEPTION, Statement.DIRECTION_FORWARD));
+          setHandlers.addAll(st.getNeighbours(StatEdge.TYPE_EXCEPTION, EdgeDirection.FORWARD));
         }
         setHandlers.removeAll(setNodes);
 
         boolean exceptionsOk = true;
         for (Statement handler : setHandlers) {
-          if (!handler.getNeighbours(StatEdge.TYPE_EXCEPTION, Statement.DIRECTION_BACKWARD).containsAll(setNodes)) {
+          if (!handler.getNeighbours(StatEdge.TYPE_EXCEPTION, EdgeDirection.BACKWARD).containsAll(setNodes)) {
             exceptionsOk = false;
             break;
           }
@@ -603,7 +608,7 @@ public final class DomHelper {
           setPreds.removeAll(setNodes);
           if (setPreds.isEmpty()) {
             if ((setNodes.size() > 1 ||
-                 head.getNeighbours(StatEdge.TYPE_REGULAR, Statement.DIRECTION_BACKWARD).contains(head))
+                 head.getNeighbours(StatEdge.TYPE_REGULAR, EdgeDirection.BACKWARD).contains(head))
                 && setNodes.size() < stats.size()) {
               if (checkSynchronizedCompleteness(setNodes)) {
 //                System.out.println("setnodes: " + setNodes);
@@ -657,10 +662,10 @@ public final class DomHelper {
 
           // If the statement we created contains the first statement of the general statement as it's first, we know that we've completed iteration to the point where every statment in the subgraph has been explored at least once, due to how the post order is created.
           // More iteration still happens to discover higher level structures (such as the case where basicblock -> if -> loop)
-          if (stat.type == Statement.TYPE_GENERAL && result.getFirst() == stat.getFirst() &&
+          if (stat instanceof GeneralStatement && !((GeneralStatement) stat).isPlaceholder() && result.getFirst() == stat.getFirst() &&
               stat.getStats().size() == result.getStats().size()) {
             // mark general statement
-            stat.type = Statement.TYPE_PLACEHOLDER;
+            ((GeneralStatement) stat).setPlaceholder(true);
           }
 
           stat.collapseNodesToStatement(result);

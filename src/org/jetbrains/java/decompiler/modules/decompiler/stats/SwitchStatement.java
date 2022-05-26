@@ -10,9 +10,10 @@ import org.jetbrains.java.decompiler.modules.decompiler.DecHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
-import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.StartEndPair;
+import org.jetbrains.java.decompiler.util.TextBuffer;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -45,7 +46,7 @@ public final class SwitchStatement extends Statement {
   private boolean phantom;
 
   private SwitchStatement() {
-    type = TYPE_SWITCH;
+    super(StatementType.SWITCH);
 
     headexprent.add(null);
   }
@@ -58,7 +59,7 @@ public final class SwitchStatement extends Statement {
     stats.addWithKey(head, head.id);
 
     // find post node
-    Set<Statement> lstNodes = new HashSet<>(head.getNeighbours(StatEdge.TYPE_REGULAR, DIRECTION_FORWARD));
+    Set<Statement> lstNodes = new HashSet<>(head.getNeighbours(StatEdge.TYPE_REGULAR, EdgeDirection.FORWARD));
 
     // cluster nodes
     if (poststat != null) {
@@ -87,7 +88,7 @@ public final class SwitchStatement extends Statement {
 
   public static Statement isHead(Statement head) {
 
-    if (head.type == Statement.TYPE_BASICBLOCK && head.getLastBasicType() == Statement.LASTBASICTYPE_SWITCH) {
+    if (head instanceof BasicBlockStatement && head.getLastBasicType() == LastBasicType.SWITCH) {
 
       List<Statement> lst = new ArrayList<>();
       if (DecHelper.isChoiceStatement(head, lst)) {
@@ -123,7 +124,7 @@ public final class SwitchStatement extends Statement {
     }
 
     if (isLabeled()) {
-      buf.appendIndent(indent).append("label").append(this.id.toString()).append(":").appendLineSeparator();
+      buf.appendIndent(indent).append("label").append(this.id).append(":").appendLineSeparator();
     }
 
     buf.appendIndent(indent);
@@ -157,7 +158,7 @@ public final class SwitchStatement extends Statement {
 
           buf.appendIndent(indent + 1).append("case ");
 
-          if (value instanceof ConstExprent) {
+          if (value instanceof ConstExprent && !value.getExprType().equals(VarType.VARTYPE_NULL)) {
             value = value.copy();
             ((ConstExprent)value).setConstType(switch_type);
           }
@@ -224,11 +225,11 @@ public final class SwitchStatement extends Statement {
         continue;
       }
 
-      if (caseContent.type == Exprent.EXPRENT_FUNCTION) {
+      if (caseContent instanceof FunctionExprent) {
         FunctionExprent func = ((FunctionExprent) caseContent);
 
         // Pattern match variable is implicitly defined
-        if (func.getFuncType() == FunctionExprent.FUNCTION_INSTANCEOF && func.getLstOperands().size() > 2) {
+        if (func.getFuncType() == FunctionType.INSTANCEOF && func.getLstOperands().size() > 2) {
           vars.add((VarExprent) func.getLstOperands().get(2));
         }
       }
@@ -351,7 +352,7 @@ public final class SwitchStatement extends Statement {
       Statement stat = nodes.get(index);
 
       if (stat != null) {
-        HashSet<Statement> setPreds = new HashSet<>(stat.getNeighbours(StatEdge.TYPE_REGULAR, DIRECTION_BACKWARD));
+        HashSet<Statement> setPreds = new HashSet<>(stat.getNeighbours(StatEdge.TYPE_REGULAR, EdgeDirection.BACKWARD));
         setPreds.remove(first);
 
         if (!setPreds.isEmpty()) {
@@ -409,11 +410,11 @@ public final class SwitchStatement extends Statement {
 
         for (StatEdge edge : lstEdges.get(i)) {
 
-          edge.getSource().changeEdgeType(DIRECTION_FORWARD, edge, StatEdge.TYPE_REGULAR);
+          edge.getSource().changeEdgeType(EdgeDirection.FORWARD, edge, StatEdge.TYPE_REGULAR);
           edge.closure.getLabelEdges().remove(edge);
 
           edge.getDestination().removePredecessor(edge);
-          edge.getSource().changeEdgeNode(DIRECTION_FORWARD, edge, bstat);
+          edge.getSource().changeEdgeNode(EdgeDirection.FORWARD, edge, bstat);
           bstat.addPredecessor(edge);
         }
 

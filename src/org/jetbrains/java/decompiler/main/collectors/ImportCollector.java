@@ -3,12 +3,12 @@ package org.jetbrains.java.decompiler.main.collectors;
 
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
-import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
-import org.jetbrains.java.decompiler.struct.attr.StructInnerClassesAttribute;
-import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructContext;
 import org.jetbrains.java.decompiler.struct.StructField;
+import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
+import org.jetbrains.java.decompiler.struct.attr.StructInnerClassesAttribute;
+import org.jetbrains.java.decompiler.util.TextBuffer;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -23,6 +23,7 @@ public class ImportCollector {
   private final Map<String, Map<String, String>> mapInnerClassNames = new HashMap<>();
   private final String currentPackageSlash;
   private final String currentPackagePoint;
+  private boolean writeLocked = false;
 
   public ImportCollector(ClassNode root) {
     String clName = root.classStruct.qualifiedName;
@@ -89,13 +90,13 @@ public class ImportCollector {
     if (node != null && node.classStruct.isOwn()) {
       result = node.simpleName;
 
-      while (node.parent != null && node.type == ClassNode.CLASS_MEMBER) {
+      while (node.parent != null && node.type == ClassNode.Type.MEMBER) {
         //noinspection StringConcatenationInLoop
         result = node.parent.simpleName + '.' + result;
         node = node.parent;
       }
 
-      if (node.type == ClassNode.CLASS_ROOT) {
+      if (node.type == ClassNode.Type.ROOT) {
         fullName = node.classStruct.qualifiedName;
         fullName = fullName.replace('/', '.');
       }
@@ -156,9 +157,11 @@ public class ImportCollector {
       return result == null ? fullName : ((!packageName.isEmpty() ? (packageName + ".") : "") + result);
     }
     else if (!mapSimpleNames.containsKey(shortName)) {
-      mapSimpleNames.put(shortName, packageName);
-      if (!imported) {
-        setNotImportedNames.add(shortName);
+      if (!this.writeLocked) {
+        mapSimpleNames.put(shortName, packageName);
+        if (!imported) {
+          setNotImportedNames.add(shortName);
+        }
       }
     }
 
@@ -236,5 +239,13 @@ public class ImportCollector {
         }
       } while (currentClass == null && !queue.isEmpty());
     }
+  }
+
+  public boolean isWriteLocked() {
+    return writeLocked;
+  }
+
+  public void setWriteLocked(boolean writeLocked) {
+    this.writeLocked = writeLocked;
   }
 }

@@ -6,18 +6,9 @@ import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.VarNamesCollector;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
-import org.jetbrains.java.decompiler.modules.decompiler.StackVarsProcessor;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.AssignmentExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.ConstExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.ExitExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.FieldExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.InvocationExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.NewExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.sforms.SSAUConstructorSparseEx;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
+import org.jetbrains.java.decompiler.modules.decompiler.vars.VarTypeProcessor.FinalType;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribute.LocalVariable;
@@ -145,9 +136,9 @@ public class VarDefinitionHelper {
       varproc.setVarName(new VarVersionPair(index, 0), vc.getFreeName(index));
 
       // special case for
-      if (stat.type == Statement.TYPE_DO) {
+      if (stat instanceof DoStatement) {
         DoStatement dstat = (DoStatement)stat;
-        if (dstat.getLooptype() == DoStatement.LOOP_FOR) {
+        if (dstat.getLooptype() == DoStatement.Type.FOR) {
 
           if (dstat.getInitExprent() != null && setDefinition(dstat.getInitExprent(), index)) {
             continue;
@@ -162,8 +153,8 @@ public class VarDefinitionHelper {
             }
           }
         }
-        else if (dstat.getLooptype() == DoStatement.LOOP_FOREACH) {
-          if (dstat.getInitExprent() != null && dstat.getInitExprent().type == Exprent.EXPRENT_VAR) {
+        else if (dstat.getLooptype() == DoStatement.Type.FOR_EACH) {
+          if (dstat.getInitExprent() != null && dstat.getInitExprent() instanceof VarExprent) {
             VarExprent var = (VarExprent)dstat.getInitExprent();
             if (var.getIndex() == index) {
               var.setDefinition(true);
@@ -198,7 +189,7 @@ public class VarDefinitionHelper {
         else {
           boolean foundvar = false;
           for (Exprent exp : expr.getAllExprents(true)) {
-            if (exp.type == Exprent.EXPRENT_VAR && ((VarExprent)exp).getIndex() == index) {
+            if (exp instanceof VarExprent && ((VarExprent)exp).getIndex() == index) {
               foundvar = true;
               break;
             }
@@ -270,7 +261,7 @@ public class VarDefinitionHelper {
       }
     }
 
-    if (exp.type != Exprent.EXPRENT_VAR) {
+    if (!(exp instanceof VarExprent)) {
       return null;
     }
 
@@ -299,13 +290,13 @@ public class VarDefinitionHelper {
           stack.clear();
 
           switch (st.type) {
-            case Statement.TYPE_SEQUENCE:
+            case SEQUENCE:
               stack.addAll(0, st.getStats());
               break;
-            case Statement.TYPE_IF:
-            case Statement.TYPE_ROOT:
-            case Statement.TYPE_SWITCH:
-            case Statement.TYPE_SYNCRONIZED:
+            case IF:
+            case ROOT:
+            case SWITCH:
+            case SYNCHRONIZED:
               stack.add(st.getFirst());
               break;
             default:
@@ -335,15 +326,15 @@ public class VarDefinitionHelper {
           Statement st = (Statement)obj;
           childVars.addAll(initStatement(st));
 
-          if (st.type == DoStatement.TYPE_DO) {
+          if (st instanceof DoStatement) {
             DoStatement dost = (DoStatement)st;
-            if (dost.getLooptype() != DoStatement.LOOP_FOR &&
-                dost.getLooptype() != DoStatement.LOOP_FOREACH &&
-                dost.getLooptype() != DoStatement.LOOP_DO) {
+            if (dost.getLooptype() != DoStatement.Type.FOR &&
+                dost.getLooptype() != DoStatement.Type.FOR_EACH &&
+                dost.getLooptype() != DoStatement.Type.INFINITE) {
               currVars.add(dost.getConditionExprent());
             }
           }
-          else if (st.type == DoStatement.TYPE_CATCHALL) {
+          else if (st instanceof CatchAllStatement) {
             CatchAllStatement fin = (CatchAllStatement)st;
             if (fin.isFinally() && fin.getMonitor() != null) {
               currVars.add(fin.getMonitor());
@@ -401,7 +392,7 @@ public class VarDefinitionHelper {
     }
 
     for (Exprent exprent : listTemp) {
-      if (exprent.type == Exprent.EXPRENT_VAR) {
+      if (exprent instanceof VarExprent) {
         res.add((VarExprent)exprent);
       }
     }
@@ -410,9 +401,9 @@ public class VarDefinitionHelper {
   }
 
   private boolean setDefinition(Exprent expr, int index) {
-    if (expr.type == Exprent.EXPRENT_ASSIGNMENT) {
+    if (expr instanceof AssignmentExprent) {
       Exprent left = ((AssignmentExprent)expr).getLeft();
-      if (left.type == Exprent.EXPRENT_VAR) {
+      if (left instanceof VarExprent) {
         VarExprent var = (VarExprent)left;
         if (var.getIndex() == index) {
           var.setDefinition(true);
@@ -439,20 +430,20 @@ public class VarDefinitionHelper {
           Exprent exp = exps.removeFirst();
 
           switch (exp.type) {
-            case Exprent.EXPRENT_INVOCATION:
-            case Exprent.EXPRENT_FIELD:
-            case Exprent.EXPRENT_EXIT:
+            case INVOCATION:
+            case FIELD:
+            case EXIT:
               Exprent instance = null;
               String target = null;
-              if (exp.type == Exprent.EXPRENT_INVOCATION) {
+              if (exp instanceof InvocationExprent) {
                 instance = ((InvocationExprent)exp).getInstance();
                 target = ((InvocationExprent)exp).getClassname();
-              } else if (exp.type == Exprent.EXPRENT_FIELD) {
+              } else if (exp instanceof FieldExprent) {
                 instance = ((FieldExprent)exp).getInstance();
                 target = ((FieldExprent)exp).getClassname();
-              } else if (exp.type == Exprent.EXPRENT_EXIT) {
+              } else if (exp instanceof ExitExprent) {
                 ExitExprent exit = (ExitExprent)exp;
-                if (exit.getExitType() == ExitExprent.EXIT_RETURN) {
+                if (exit.getExitType() == ExitExprent.Type.RETURN) {
                   instance = exit.getValue();
                   target = exit.getRetType().value;
                 }
@@ -461,7 +452,7 @@ public class VarDefinitionHelper {
               if ("java/lang/Object".equals(target))
                   continue; //This is dirty, but if we don't then too many things become object...
 
-              if (instance != null && instance.type == Exprent.EXPRENT_VAR) {
+              if (instance != null && instance instanceof VarExprent) {
                 VarVersionPair key = ((VarExprent)instance).getVarVersionPair();
                 VarType newType = new VarType(CodeConstants.TYPE_OBJECT, 0, target);
                 VarType oldMin = mapExprentMinTypes.get(key);
@@ -537,7 +528,7 @@ public class VarDefinitionHelper {
     if (stat.getVarDefinitions().size() > 0) {
       for (int x = 0; x < stat.getVarDefinitions().size(); x++) {
         Exprent exp = stat.getVarDefinitions().get(x);
-        if (exp.type == Exprent.EXPRENT_VAR) {
+        if (exp instanceof VarExprent) {
           VarExprent var = (VarExprent)exp;
           Integer index = varproc.getVarOriginalIndex(var.getIndex());
           if (index != null) {
@@ -550,7 +541,7 @@ public class VarDefinitionHelper {
           } else {
             RootStatement root = (RootStatement) stat.getTopParent();
 
-            root.addComment("$FF: One or more variable merging failures!");
+            root.addComment("$QF: One or more variable merging failures!");
             root.addErrorComment = true;
           }
         }
@@ -559,10 +550,10 @@ public class VarDefinitionHelper {
 
     Map<Integer, VarVersionPair> scoped = null;
     switch (stat.type) { // These are the type of statements that leak vars
-      case Statement.TYPE_BASICBLOCK:
-      case Statement.TYPE_GENERAL:
-      case Statement.TYPE_ROOT:
-      case Statement.TYPE_SEQUENCE:
+      case BASIC_BLOCK:
+      case GENERAL:
+      case ROOT:
+      case SEQUENCE:
         scoped = leaked;
     }
 
@@ -596,7 +587,7 @@ public class VarDefinitionHelper {
           */
 
           if (leaked_n.size() > 0) {
-            if (stat.type == Statement.TYPE_IF) {
+            if (stat instanceof IfStatement) {
               IfStatement ifst = (IfStatement)stat;
               if (obj == ifst.getIfstat() || obj == ifst.getElsestat()) {
                 leaked_n.clear(); // Force no leaking at the end of if blocks
@@ -605,8 +596,8 @@ public class VarDefinitionHelper {
               else if (obj == ifst.getFirst()) {
                 leaked.putAll(leaked_n); //First is outside the scope so leak!
               }
-            } else if (stat.type == Statement.TYPE_SWITCH ||
-                       stat.type == Statement.TYPE_SYNCRONIZED) {
+            } else if (stat instanceof SwitchStatement ||
+                       stat instanceof SynchronizedStatement) {
               if (obj == stat.getFirst()) {
                 leaked.putAll(leaked_n); //First is outside the scope so leak!
               }
@@ -614,8 +605,7 @@ public class VarDefinitionHelper {
                 leaked_n.clear();
               }
             }
-            else if (stat.type == Statement.TYPE_TRYCATCH ||
-              stat.type == Statement.TYPE_CATCHALL) {
+            else if (stat instanceof CatchStatement || stat instanceof CatchAllStatement) {
               leaked_n.clear(); // Catches can't leak anything mwhahahahah!
             }
             this_vars.putAll(leaked_n);
@@ -646,15 +636,15 @@ public class VarDefinitionHelper {
   private VPPEntry processExprent(Exprent exp, Map<Integer, VarVersionPair> this_vars, Map<Integer, VarVersionPair> leaked, Map<VarVersionPair, VarVersionPair> blacklist) {
     VarExprent var = null;
 
-    if (exp.type == Exprent.EXPRENT_ASSIGNMENT) {
+    if (exp instanceof AssignmentExprent) {
       AssignmentExprent ass = (AssignmentExprent)exp;
-      if (ass.getLeft().type != Exprent.EXPRENT_VAR) {
+      if (!(ass.getLeft() instanceof VarExprent)) {
         return null;
       }
 
       var = (VarExprent)ass.getLeft();
     }
-    else if (exp.type == Exprent.EXPRENT_VAR) {
+    else if (exp instanceof VarExprent) {
       var = (VarExprent)exp;
     }
 
@@ -706,7 +696,7 @@ public class VarDefinitionHelper {
         Exprent exp = stat.getExprents().get(x);
         if (remapVar(exp, from, to)) {
           remapped = true;
-          if (exp.type == Exprent.EXPRENT_VAR) {
+          if (exp instanceof VarExprent) {
             if (!((VarExprent)exp).isDefinition()) {
               stat.getExprents().remove(x);
               x--;
@@ -721,7 +711,7 @@ public class VarDefinitionHelper {
       Iterator<Exprent> itr = stat.getVarDefinitions().iterator();
       while (itr.hasNext()) {
         Exprent exp = itr.next();
-        if (exp.type == Exprent.EXPRENT_VAR) {
+        if (exp instanceof VarExprent) {
           VarExprent var = (VarExprent)exp;
           if (from.equals(var.getVarVersionPair())) {
             itr.remove();
@@ -752,9 +742,9 @@ public class VarDefinitionHelper {
     boolean remapped = false;
 
     for (Exprent expr : lst) {
-      if (expr.type == Exprent.EXPRENT_ASSIGNMENT) {
+      if (expr instanceof AssignmentExprent) {
         AssignmentExprent ass = (AssignmentExprent)expr;
-        if (ass.getLeft().type == Exprent.EXPRENT_VAR && ass.getRight().type == Exprent.EXPRENT_CONST) {
+        if (ass.getLeft() instanceof VarExprent && ass.getRight() instanceof ConstExprent) {
           VarVersionPair left = new VarVersionPair((VarExprent)ass.getLeft());
           if (!left.equals(from) && !left.equals(to)) {
             continue;
@@ -772,7 +762,7 @@ public class VarDefinitionHelper {
           right.setConstType(merged);
         }
       }
-      else if (expr.type == Exprent.EXPRENT_VAR) {
+      else if (expr instanceof VarExprent) {
         VarExprent var = (VarExprent)expr;
         VarVersionPair old = new VarVersionPair(var);
         if (!old.equals(from)) {
@@ -799,6 +789,7 @@ public class VarDefinitionHelper {
   private VarType getMergedType(VarVersionPair from, VarVersionPair to) {
     Map<VarVersionPair, VarType> minTypes = varproc.getVarVersions().getTypeProcessor().getMapExprentMinTypes();
     Map<VarVersionPair, VarType> maxTypes = varproc.getVarVersions().getTypeProcessor().getMapExprentMaxTypes();
+
     return getMergedType(minTypes.get(from), minTypes.get(to), maxTypes.get(from), maxTypes.get(to));
   }
 
@@ -834,6 +825,18 @@ public class VarDefinitionHelper {
       }
       return null;
     } else {
+
+      // Special case: merging from false boolean to integral type, should be correct always
+      if (toMin.typeFamily == CodeConstants.TYPE_FAMILY_INTEGER && fromMin.isFalseBoolean()) {
+        return toMin;
+      }
+
+      // Both nonnull at this point
+      if (!fromMin.isStrictSuperset(toMin)) {
+        // If type we're merging into the old type isn't a strict superset of the old type, we cannot merge
+        return null;
+      }
+
       return type;
     }
   }
@@ -873,7 +876,7 @@ public class VarDefinitionHelper {
     // Stuff the parent context into enclosed child methods
     StatementIterator.iterate(root, (exprent) -> {
       List<StructMethod> methods = new ArrayList<>();
-      if (exprent.type == Exprent.EXPRENT_VAR) {
+      if (exprent instanceof VarExprent) {
         VarExprent var = (VarExprent)exprent;
         if (var.isClassDef()) {
           ClassNode child = DecompilerContext.getClassProcessor().getMapRootClasses().get(var.getVarType().value);
@@ -881,7 +884,7 @@ public class VarDefinitionHelper {
             methods.addAll(child.classStruct.getMethods());
         }
       }
-      else if (exprent.type == Exprent.EXPRENT_NEW) {
+      else if (exprent instanceof NewExprent) {
         NewExprent _new = (NewExprent)exprent;
         if (_new.isAnonymous()) { //TODO: Check for Lambda here?
           ClassNode child = DecompilerContext.getClassProcessor().getMapRootClasses().get(_new.getNewType().value);
@@ -964,7 +967,7 @@ public class VarDefinitionHelper {
     lst.add(exp);
 
     for (Exprent exprent : lst) {
-      if (exprent.type == Exprent.EXPRENT_VAR) {
+      if (exprent instanceof VarExprent) {
         VarExprent var = (VarExprent)exprent;
         VarVersionPair ver = new VarVersionPair(var);
         if (var.isDefinition()) {
@@ -1015,7 +1018,7 @@ public class VarDefinitionHelper {
     lst.add(exprent);
 
     for (Exprent expr : lst) {
-      if (expr.type == Exprent.EXPRENT_VAR) {
+      if (expr instanceof VarExprent) {
         VarExprent var = (VarExprent)expr;
         LocalVariable lvt = types.get(new VarVersionPair(var));
         if (lvt != null) {
@@ -1109,11 +1112,11 @@ public class VarDefinitionHelper {
   }
 
   private static boolean isVarReadFirst(VarVersionPair target, Exprent exp, VarExprent... whitelist) {
-    AssignmentExprent ass = exp.type == Exprent.EXPRENT_ASSIGNMENT ? (AssignmentExprent)exp : null;
+    AssignmentExprent ass = exp instanceof AssignmentExprent ? (AssignmentExprent)exp : null;
     List<Exprent> lst = exp.getAllExprents(true);
     lst.add(exp);
     for (Exprent ex : lst) {
-      if (ex.type == Exprent.EXPRENT_VAR) {
+      if (ex instanceof VarExprent) {
         VarExprent var = (VarExprent)ex;
         if (var.getIndex() == target.var && var.getVersion() == target.version) {
           boolean allowed = false;
@@ -1139,7 +1142,7 @@ public class VarDefinitionHelper {
   private void setNonFinal(Statement stat, Set<VarVersionPair> unInitialized) {
     if (stat.getExprents() != null && !stat.getExprents().isEmpty()) {
       for (Exprent exp : stat.getExprents()) {
-        if (exp.type == Exprent.EXPRENT_VAR) {
+        if (exp instanceof VarExprent) {
           unInitialized.add(new VarVersionPair((VarExprent)exp));
         }
         else {
@@ -1149,14 +1152,14 @@ public class VarDefinitionHelper {
     }
 
     if (!stat.getVarDefinitions().isEmpty()) {
-      if (stat.type != Statement.TYPE_DO) {
+      if (stat instanceof DoStatement) {
         for (Exprent var : stat.getVarDefinitions()) {
           unInitialized.add(new VarVersionPair((VarExprent)var));
         }
       }
     }
 
-    if (stat.type == Statement.TYPE_DO) {
+    if (stat instanceof DoStatement) {
       DoStatement dostat = (DoStatement)stat;
       if (dostat.getInitExprentList() != null) {
         setNonFinal(dostat.getInitExprent(), unInitialized);
@@ -1165,7 +1168,7 @@ public class VarDefinitionHelper {
         setNonFinal(dostat.getIncExprent(), unInitialized);
       }
     }
-    else if (stat.type == Statement.TYPE_IF) {
+    else if (stat instanceof IfStatement) {
       IfStatement ifstat = (IfStatement)stat;
       if (ifstat.getIfstat() != null && ifstat.getElsestat() != null) {
         setNonFinal(ifstat.getFirst(), unInitialized);
@@ -1187,23 +1190,23 @@ public class VarDefinitionHelper {
       return;
     }
 
-    if (exp.type == Exprent.EXPRENT_ASSIGNMENT) {
+    if (exp instanceof AssignmentExprent) {
       AssignmentExprent assign = (AssignmentExprent)exp;
-      if (assign.getLeft().type == Exprent.EXPRENT_VAR) {
+      if (assign.getLeft() instanceof VarExprent) {
         var = (VarExprent)assign.getLeft();
       }
     }
-    else if (exp.type == Exprent.EXPRENT_FUNCTION) {
+    else if (exp instanceof FunctionExprent) {
       FunctionExprent func = (FunctionExprent)exp;
-      if (func.getFuncType() >= FunctionExprent.FUNCTION_IMM && func.getFuncType() <= FunctionExprent.FUNCTION_PPI) {
-        if (func.getLstOperands().get(0).type == Exprent.EXPRENT_VAR) {
+      if (func.getFuncType().isIncrementOrDecrement()) {
+        if (func.getLstOperands().get(0) instanceof VarExprent) {
           var = (VarExprent)func.getLstOperands().get(0);
         }
       }
     }
 
     if (var != null && !var.isDefinition() && !unInitialized.remove(var.getVarVersionPair())) {
-      var.getProcessor().setVarFinal(var.getVarVersionPair(), VarTypeProcessor.VAR_NON_FINAL);
+      var.getProcessor().setVarFinal(var.getVarVersionPair(), FinalType.NON_FINAL);
     }
 
     for (Exprent ex : exp.getAllExprents()) {
@@ -1253,7 +1256,7 @@ public class VarDefinitionHelper {
     varDefinitions.put(stat, curVarDefs);
 
     boolean iterate = true;
-    if (stat.type == Statement.TYPE_SWITCH) {
+    if (stat instanceof SwitchStatement) {
       SwitchStatement switchStat = (SwitchStatement)stat;
       // Phantom switch statements don't need variable remapping as switch expressions have isolated branches
 
@@ -1265,7 +1268,7 @@ public class VarDefinitionHelper {
     List<Statement> deferred = new ArrayList<>();
     if (iterate) {
       for (Statement st : stat.getStats()) {
-        if (stat.type == Statement.TYPE_IF) {
+        if (stat instanceof IfStatement) {
           IfStatement ifstat = (IfStatement)stat;
 
           if (ifstat.getElsestat() == st) {
@@ -1314,7 +1317,7 @@ public class VarDefinitionHelper {
   }
 
   private void iterateClashingExprent(Statement stat, Map<Statement, Set<VarVersionPair>> varDefinitions, Exprent exprent, Set<VarVersionPair> curVarDefs, Map<VarVersionPair, String> nameMap) {
-    if (exprent.type == Exprent.EXPRENT_VAR) {
+    if (exprent instanceof VarExprent) {
       VarExprent var = (VarExprent) exprent;
 
       if (var.isDefinition()) {
@@ -1334,7 +1337,7 @@ public class VarDefinitionHelper {
           if (!originalName.equals(name)) {
             // Try to scope switch statements if possible as it's a less destructive operation when considering local variable names
             Statement parent = directParent(stat);
-            if (parent.type == Statement.TYPE_SWITCH) {
+            if (parent instanceof SwitchStatement) {
               Set<VarVersionPair> sameVarName = new HashSet<>();
 
               // Find vars with the same name
@@ -1402,7 +1405,7 @@ public class VarDefinitionHelper {
   private static Statement directParent(Statement stat) {
     Statement parent = stat.getParent();
 
-    while (parent != null && (parent.type == Statement.TYPE_SEQUENCE || (parent.getFirst() == stat && (parent.type == Statement.TYPE_IF)))) {
+    while (parent != null && (parent instanceof SequenceStatement || (parent.getFirst() == stat && (parent instanceof IfStatement)))) {
       parent = parent.getParent();
     }
 

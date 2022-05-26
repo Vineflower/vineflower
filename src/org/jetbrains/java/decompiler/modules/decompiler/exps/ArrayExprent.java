@@ -16,7 +16,7 @@ public class ArrayExprent extends Exprent {
   private final VarType hardType;
 
   public ArrayExprent(Exprent array, Exprent index, VarType hardType, BitSet bytecodeOffsets) {
-    super(EXPRENT_ARRAY);
+    super(Type.ARRAY);
     this.array = array;
     this.index = index;
     this.hardType = hardType;
@@ -91,7 +91,7 @@ public class ArrayExprent extends Exprent {
   }
 
   private boolean canSkipParenEnclose(Exprent instance) {
-    if (instance.type != Exprent.EXPRENT_NEW) {
+    if (!(instance instanceof NewExprent)) {
       return false;
     }
 

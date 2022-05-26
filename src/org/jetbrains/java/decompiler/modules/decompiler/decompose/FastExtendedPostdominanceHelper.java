@@ -2,6 +2,7 @@
 package org.jetbrains.java.decompiler.modules.decompiler.decompose;
 
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.GeneralStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.util.FastFixedSetFactory;
 import org.jetbrains.java.decompiler.util.FastFixedSetFactory.FastFixedSet;
@@ -23,7 +24,7 @@ public class FastExtendedPostdominanceHelper {
   private FastFixedSetFactory<Integer> factory;
 
   public HashMap<Integer, Set<Integer>> getExtendedPostdominators(Statement statement) {
-    if (statement.type != Statement.TYPE_GENERAL) {
+    if (!(statement instanceof GeneralStatement)) {
       throw new IllegalStateException("Cannot find extended post dominators of non generalized statement");
     }
 
