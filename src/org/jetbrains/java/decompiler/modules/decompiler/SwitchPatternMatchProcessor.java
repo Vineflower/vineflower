@@ -226,6 +226,11 @@ public final class SwitchPatternMatchProcessor {
 
     head.setValue(origParams.get(0));
 
+    if (guarded && stat.getParent() instanceof DoStatement) {
+      // remove the enclosing while(true) loop of a guarded switch
+      stat.getParent().replaceWith(stat);
+    }
+
     return false;
   }
 
