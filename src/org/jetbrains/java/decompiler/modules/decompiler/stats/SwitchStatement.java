@@ -232,6 +232,7 @@ public final class SwitchStatement extends Statement {
     List<Exprent> caseList = this.caseValues.stream()
       .flatMap(List::stream) // List<List<Exprent>> -> List<Exprent>
       .collect(Collectors.toList());
+    caseList.addAll(this.caseGuards);
 
     for (Exprent caseContent : caseList) {
       if (caseContent == null) {

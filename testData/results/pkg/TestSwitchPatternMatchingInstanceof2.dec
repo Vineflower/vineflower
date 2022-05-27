@@ -5,7 +5,6 @@ import java.util.Objects;
 public class TestSwitchPatternMatchingInstanceof2 {
    public void test(Object o) {
       Objects.requireNonNull(o);// 5
-      Integer i;
       switch(o) {
          case var2 instanceof Number n && n instanceof Integer i:// 6
             System.out.println(i);
@@ -27,68 +26,68 @@ class 'pkg/TestSwitchPatternMatchingInstanceof2' {
       2      6
       3      6
       4      6
-      10      8
-      2c      9
-      30      9
-      31      9
-      32      9
-      33      9
-      34      9
-      35      9
-      36      9
-      3f      9
-      40      9
-      41      10
-      42      10
-      43      10
-      44      10
-      45      10
-      46      10
-      47      10
-      48      10
-      49      10
-      4a      10
-      4b      10
-      4c      10
-      4d      10
-      54      11
-      58      11
-      59      11
-      5a      12
-      5b      12
-      5c      12
-      5d      12
-      5e      12
-      5f      12
-      60      12
-      61      12
-      65      14
-      69      14
-      6a      14
-      6b      15
-      6c      15
-      6d      15
-      6e      15
-      6f      15
-      70      15
-      71      15
-      72      15
-      76      18
-      77      18
-      78      18
-      79      18
-      7a      18
-      7b      18
-      7c      18
-      7d      18
-      81      13
+      10      7
+      2c      8
+      30      8
+      31      8
+      32      8
+      33      8
+      34      8
+      35      8
+      36      8
+      3f      8
+      40      8
+      41      9
+      42      9
+      43      9
+      44      9
+      45      9
+      46      9
+      47      9
+      48      9
+      49      9
+      4a      9
+      4b      9
+      4c      9
+      4d      9
+      54      10
+      58      10
+      59      10
+      5a      11
+      5b      11
+      5c      11
+      5d      11
+      5e      11
+      5f      11
+      60      11
+      61      11
+      65      13
+      69      13
+      6a      13
+      6b      14
+      6c      14
+      6d      14
+      6e      14
+      6f      14
+      70      14
+      71      14
+      72      14
+      76      17
+      77      17
+      78      17
+      79      17
+      7a      17
+      7b      17
+      7c      17
+      7d      17
+      81      12
    }
 }
 
 Lines mapping:
 5 <-> 7
-6 <-> 10
-7 <-> 12
-8 <-> 15
-9 <-> 19
-11 <-> 14
+6 <-> 9
+7 <-> 11
+8 <-> 14
+9 <-> 18
+11 <-> 13
