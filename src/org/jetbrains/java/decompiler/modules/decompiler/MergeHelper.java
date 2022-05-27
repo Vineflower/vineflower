@@ -447,6 +447,13 @@ public final class MergeHelper {
         }
       }
 
+      Exprent lastExp = lastData.getExprents().get(lastData.getExprents().size() - 1);
+
+      // Cannot integrate if the last exprent is a throw or return
+      if (lastExp instanceof ExitExprent) {
+        return;
+      }
+
       stat.setLooptype(DoStatement.Type.FOR);
       if (hasinit) {
         Exprent exp = preData.getExprents().remove(preData.getExprents().size() - 1);
@@ -455,11 +462,11 @@ public final class MergeHelper {
         }
         stat.setInitExprent(exp);
       }
-      Exprent exp = lastData.getExprents().remove(lastData.getExprents().size() - 1);
+      lastData.getExprents().remove(lastExp);
       if (stat.getIncExprent() != null) {
-        exp.addBytecodeOffsets(stat.getIncExprent().bytecode);
+        lastExp.addBytecodeOffsets(stat.getIncExprent().bytecode);
       }
-      stat.setIncExprent(exp);
+      stat.setIncExprent(lastExp);
     }
 
     cleanEmptyStatements(stat, lastData);
