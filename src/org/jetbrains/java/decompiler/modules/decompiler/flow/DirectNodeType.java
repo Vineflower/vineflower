@@ -12,7 +12,8 @@ public enum DirectNodeType {
   CONDITION("cond"),
   INCREMENT("inc"),
   TRY("try"),
-  FOREACH_VARDEF("foreach");
+  FOREACH_VARDEF("foreach"),
+  CASE("case");
 
   private final String name;
 

@@ -11,6 +11,7 @@ import java.util.Map.Entry;
 
 
 public class FlattenStatementsHelper {
+  private static final int SWITCH_CONST = 1000000;
 
   // statement.id, node.id(direct), node.id(continue)
   private final Map<Integer, String[]> mapDestinationNodes = new HashMap<>();
@@ -362,6 +363,66 @@ public class FlattenStatementsHelper {
 
               node = graph.nodes.getWithKey(mapDestinationNodes.get(stat.getFirst().id)[0]);
               mapDestinationNodes.put(stat.id, new String[]{node.id, null});
+
+              // Try to intercept the edges leaving the switch head and replace with relevant case nodes
+              if (stat.type == Statement.TYPE_SWITCH) {
+                SwitchStatement switchSt = (SwitchStatement) stat;
+
+                Statement first = stat.getFirst();
+
+                List<Edge> headEdges = new ArrayList<>();
+                // Find edges out of the switch head (tail)
+                for (Edge edge : this.listEdges) {
+                  if (edge.sourceid.equals(first.id + "_tail")) {
+
+                    if (switchSt.getStats().containsKey(edge.statid)) {
+                      headEdges.add(edge);
+                    }
+                  }
+                }
+
+                if (!headEdges.isEmpty()) {
+                  // else, already processed
+
+                  for (Edge edge : headEdges) {
+                    Statement caseSt = switchSt.findCaseBranchContaining(edge.statid);
+                    int index = switchSt.getCaseStatements().indexOf(caseSt);
+
+                    // Possible in the case of default statements leaving switch
+                    if (index == -1) {
+                      continue;
+                    }
+
+                    List<Exprent> values = switchSt.getCaseValues().get(index);
+
+                    // Default case val can be null
+                    List<Exprent> finalVals = null;
+                    if (values != null) {
+                      finalVals = new ArrayList<>();
+                      for (Exprent value : values) {
+                        if (value != null) {
+                          finalVals.add(value);
+                        }
+                      }
+                    }
+
+                    // Build node out of the case exprents
+                    DirectNode casend = DirectNode.forStat(DirectNodeType.CASE, caseSt);
+                    casend.exprents = finalVals;
+                    graph.nodes.addWithKey(casend, casend.id);
+
+                    this.mapDestinationNodes.put(caseSt.id - SWITCH_CONST, new String[]{casend.id, null});
+
+                    // Remove old edge
+                    listEdges.remove(edge);
+
+                    // head->case
+                    listEdges.add(new Edge(edge.sourceid, caseSt.id - SWITCH_CONST, StatEdge.TYPE_REGULAR));
+                    // case->dest
+                    listEdges.add(new Edge(casend.id, edge.statid, StatEdge.TYPE_REGULAR));
+                  }
+                }
+              }
 
               if (stat.type == Statement.TYPE_IF && ((IfStatement)stat).iftype == IfStatement.IFTYPE_IF && !stat.getAllSuccessorEdges().isEmpty()) {
                 lstSuccEdges.add(stat.getSuccessorEdges(Statement.STATEDGE_DIRECT_ALL).get(0));  // exactly one edge
