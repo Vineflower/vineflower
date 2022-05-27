@@ -412,6 +412,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatching11");
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatching12");
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatching13");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatching14");
 
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingLoop");
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingInstanceof1");
