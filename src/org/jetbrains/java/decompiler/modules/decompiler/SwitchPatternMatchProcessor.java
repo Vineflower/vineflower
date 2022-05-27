@@ -144,7 +144,6 @@ public final class SwitchPatternMatchProcessor {
       if (caseExpr == null) {
         continue;
       }
-      System.out.println(caseExpr);
 
       if (guards.containsKey(allCases)) {
         // TODO: this is bad
@@ -163,14 +162,17 @@ public final class SwitchPatternMatchProcessor {
       }
 
       if (caseStat instanceof SequenceStatement) {
+        Statement oldStat = caseStat;
         caseStat = caseStat.getStats().get(0);
+        if (oldStat.getStats().size() == 1) {
+          oldStat.replaceWith(caseStat);
+        }
       }
       if (!(caseStat instanceof BasicBlockStatement)) {
         caseStat = caseStat.getFirst();
       }
       // Make instanceof
       BasicBlockStatement caseStatBlock = (BasicBlockStatement)caseStat;
-      System.out.println(caseStatBlock.getExprents());
       if (caseStatBlock.getExprents().size() >= 1) {
         Exprent expr = caseStatBlock.getExprents().get(0);
         if (expr instanceof AssignmentExprent) {
