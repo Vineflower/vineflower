@@ -1,0 +1,121 @@
+package pkg;
+
+public class TestSwitchPatternMatching13 {
+   static void test(TestSwitchPatternMatching13.Shape param0) {
+      // $QF: Couldn't be decompiled
+      // Bytecode:
+      // 00: aload 0
+      // 01: astore 1
+      // 02: bipush 0
+      // 03: istore 2
+      // 04: aload 1
+      // 05: iload 2
+      // 06: invokedynamic typeSwitch (Ljava/lang/Object;I)I bsm=java/lang/runtime/SwitchBootstraps.typeSwitch (Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite; args=[ pkg/TestSwitchPatternMatching13$Triangle, pkg/TestSwitchPatternMatching13$Triangle, pkg/TestSwitchPatternMatching13$Triangle, pkg/TestSwitchPatternMatching13$Triangle ]
+      // 0b: tableswitch 218 -1 3 199 33 80 114 166
+      // 2c: aload 1
+      // 2d: checkcast pkg/TestSwitchPatternMatching13$Triangle
+      // 30: astore 3
+      // 31: aload 3
+      // 32: invokevirtual pkg/TestSwitchPatternMatching13$Triangle.calculateArea ()D
+      // 35: ldc2_w 150.0
+      // 38: dcmpl
+      // 39: ifgt 41
+      // 3c: bipush 1
+      // 3d: istore 2
+      // 3e: goto 04
+      // 41: aload 3
+      // 42: invokevirtual java/lang/Object.hashCode ()I
+      // 45: ifle 50
+      // 48: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 4b: ldc "Larger positive-hash triangle"
+      // 4d: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
+      // 50: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 53: ldc "Larger triangle"
+      // 55: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
+      // 58: goto f0
+      // 5b: aload 1
+      // 5c: checkcast pkg/TestSwitchPatternMatching13$Triangle
+      // 5f: astore 4
+      // 61: aload 4
+      // 63: invokevirtual pkg/TestSwitchPatternMatching13$Triangle.calculateArea ()D
+      // 66: ldc2_w 50.0
+      // 69: dcmpl
+      // 6a: ifgt 72
+      // 6d: bipush 2
+      // 6e: istore 2
+      // 6f: goto 04
+      // 72: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 75: ldc "Smaller triangle"
+      // 77: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
+      // 7a: goto f0
+      // 7d: aload 1
+      // 7e: checkcast pkg/TestSwitchPatternMatching13$Triangle
+      // 81: astore 5
+      // 83: aload 5
+      // 85: invokevirtual pkg/TestSwitchPatternMatching13$Triangle.calculateArea ()D
+      // 88: ldc2_w 100.0
+      // 8b: dcmpl
+      // 8c: ifgt 94
+      // 8f: bipush 3
+      // 90: istore 2
+      // 91: goto 04
+      // 94: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 97: ldc "Large triangle"
+      // 99: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
+      // 9c: invokestatic java/lang/Math.random ()D
+      // 9f: ldc2_w 0.5
+      // a2: dcmpl
+      // a3: ifle f0
+      // a6: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // a9: ldc "Keep going"
+      // ab: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
+      // ae: goto 9c
+      // b1: aload 1
+      // b2: checkcast pkg/TestSwitchPatternMatching13$Triangle
+      // b5: astore 6
+      // b7: aload 6
+      // b9: invokevirtual java/lang/Object.hashCode ()I
+      // bc: ifle c7
+      // bf: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // c2: ldc "Small positive-hash triangle"
+      // c4: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
+      // c7: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // ca: ldc "Small triangle"
+      // cc: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
+      // cf: goto f0
+      // d2: invokestatic java/lang/Math.random ()D
+      // d5: dconst_0
+      // d6: dcmpl
+      // d7: ifle f0
+      // da: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // dd: ldc "Lucky null"
+      // df: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
+      // e2: goto f0
+      // e5: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // e8: ldc "Non-triangle"
+      // ea: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
+      // ed: goto f0
+      // f0: return
+   }
+
+   private abstract class Shape {
+      abstract double calculateArea();
+   }
+
+   private class Triangle extends TestSwitchPatternMatching13.Shape {
+      @Override
+      double calculateArea() {
+         return 0.0;// 44
+      }
+   }
+}
+
+class 'pkg/TestSwitchPatternMatching13$Triangle' {
+   method 'calculateArea ()D' {
+      0      107
+      1      107
+   }
+}
+
+Lines mapping:
+44 <-> 108
