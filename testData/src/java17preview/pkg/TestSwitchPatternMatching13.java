@@ -7,7 +7,7 @@ public class TestSwitchPatternMatching13 {
         if (t.hashCode() > 0) {
           System.out.println("Larger positive-hash triangle");
         }
-        System.out.println("Larger triangle");
+        System.out.println("Larger triangle: " + t);
       }
       case Triangle t && (t.calculateArea() > 50) ->
         System.out.println("Smaller triangle");

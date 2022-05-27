@@ -48,7 +48,7 @@ public final class SwitchPatternMatchProcessor {
 
     // Found switch pattern match, start applying basic transformations
     // replace `SwitchBootstraps.typeSwitch<...>(o, idx)` with `o` if `idx` is not still used
-    // if `idx` is still used, we have guarded labels -> skip // TODO for now
+    // if `idx` is still used, we have guarded labels
     InvocationExprent value = (InvocationExprent) head.getValue();
     List<Exprent> origParams = value.getLstParameters();
     boolean guarded = true;
@@ -90,7 +90,7 @@ public final class SwitchPatternMatchProcessor {
           Statement assignStat = reference.a;
           // check if the assignment follows the guard layout
           Statement parent = assignStat.getParent();
-          // sometimes [TestSwitchPatternMatchingInstanceof] the assignment is not contained in the `if`, it's already inverted
+          // sometimes the assignment is not contained in the `if`, it's already inverted [TestSwitchPatternMatchingInstanceof]
           boolean invert = true;
           if (parent instanceof SequenceStatement && parent.getStats().size() == 2 && parent.getStats().get(1) == assignStat) {
             parent = parent.getStats().get(0);
@@ -119,7 +119,13 @@ public final class SwitchPatternMatchProcessor {
                   guards.put(stat.getCaseValues().get(i), guardExprent);
                   guardIf.replaceWithEmpty();
                   guardIf.getParent().getStats().remove(0);
-                  guardIf.getParent().getStats().get(0).getExprents().addAll(0, castExprent);
+                  Statement nextStat = guardIf.getParent().getStats().get(0);
+                  if (nextStat instanceof BasicBlockStatement) {
+                    nextStat.getExprents().addAll(0, castExprent);
+                  } else {
+                    //guardIf.getParent().getStats().add(0, new BasicBlockStatement(castExprent));
+                    System.out.println("bad");
+                  }
                   break;
                 }
               }
@@ -131,10 +137,6 @@ public final class SwitchPatternMatchProcessor {
 
     for (int i = 0; i < stat.getCaseStatements().size(); i++) {
       Statement caseStat = stat.getCaseStatements().get(i);
-
-      if (!(caseStat instanceof BasicBlockStatement || caseStat instanceof SequenceStatement)) {
-        continue;
-      }
 
       List<Exprent> allCases = stat.getCaseValues().get(i);
       Exprent caseExpr = allCases.get(0);
@@ -156,23 +158,19 @@ public final class SwitchPatternMatchProcessor {
         if (caseValue == -1) {
           // null
           allCases.set(0, new ConstExprent(VarType.VARTYPE_NULL, null, null));
+          continue; // TODO: case null, T t
         }
       }
 
       if (caseStat instanceof SequenceStatement) {
-        // if we've eliminated the if statement of a guard, there'll only be a basic block
-        if (caseStat.getStats().size() == 1 && caseStat.getStats().get(0) instanceof BasicBlockStatement) {
-          Statement newCaseStat = caseStat.getStats().get(0);
-          caseStat.replaceWith(newCaseStat);
-          caseStat = newCaseStat;
-        } else {
-          System.out.println("Failed to eliminate guard if statement");
-          continue;
-        }
+        caseStat = caseStat.getStats().get(0);
+      }
+      if (!(caseStat instanceof BasicBlockStatement)) {
+        caseStat = caseStat.getFirst();
       }
       // Make instanceof
       BasicBlockStatement caseStatBlock = (BasicBlockStatement)caseStat;
-      if (caseStatBlock.getExprents().size() > 1) {
+      if (caseStatBlock.getExprents().size() >= 1) {
         Exprent expr = caseStatBlock.getExprents().get(0);
         if (expr instanceof AssignmentExprent) {
           AssignmentExprent assign = (AssignmentExprent)expr;

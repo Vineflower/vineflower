@@ -59,6 +59,9 @@ public class SwitchHeadExprent extends Exprent {
             ? ((FunctionExprent) expr).getLstOperands().get(1).getExprType()
             : expr.getExprType();
           if (!caseType.equals(valType)) {
+            if (valType == null) {
+              System.err.println("Invalid case set: " + caseValues);
+            }
             valType = VarType.getCommonSupertype(caseType, valType);
             result.addMinTypeExprent(value, valType);
           }
