@@ -84,7 +84,6 @@ public final class SwitchPatternMatchProcessor {
           references.remove(0);
         }
       }
-      // TODO: more tests
       for (Pair<Statement, Exprent> reference : references) {
         if (reference.b instanceof AssignmentExprent) {
           Statement assignStat = reference.a;
@@ -108,7 +107,6 @@ public final class SwitchPatternMatchProcessor {
               List<Statement> caseStatements = stat.getCaseStatements();
               for (int i = 0; i < caseStatements.size(); i++) {
                 if (caseStatements.get(i).containsStatement(reference.a)) {
-                  // TODO: test if the cast is still inside the if (in inverted case) when the variable is used outside
                   List<Exprent> castExprent = Collections.singletonList(guardIf.getStats().get(0).getExprents().get(0));
                   if (invert) {
                     guardExprent = new FunctionExprent(FunctionExprent.FunctionType.BOOL_NOT, guardExprent, guardExprent.bytecode);
