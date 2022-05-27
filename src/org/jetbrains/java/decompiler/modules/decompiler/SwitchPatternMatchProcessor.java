@@ -155,9 +155,13 @@ public final class SwitchPatternMatchProcessor {
         int caseValue = ((ConstExprent)caseExpr).getIntValue();
 
         if (caseValue == -1) {
-          // null
-          allCases.set(0, new ConstExprent(VarType.VARTYPE_NULL, null, null));
-          continue; // TODO: case null, T t
+          allCases.remove(caseExpr);
+          ConstExprent nullConst = new ConstExprent(VarType.VARTYPE_NULL, null, null);
+          if (allCases.contains(null)) {
+            allCases.add(allCases.indexOf(null), nullConst);
+          } else {
+            allCases.add(nullConst);
+          }
         }
       }
 
