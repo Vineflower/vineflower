@@ -470,6 +470,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: look at underlying issue with finally and loops here
     // TODO: test5 variable usage in finally block is incorrect, <unknown> variable
     register(JAVA_8, "TestLoopFinally");
+    // TODO: produces a `(<unknown>)` cast between 2 booleans
+    register(JAVA_8, "TestUnknownCast");
     // TODO: local classes not being put in the right spots
     register(JAVA_8, "TestLocalClassesSwitch"); // Adapted from CFR
     // TODO: return not condensed properly and throw is not put into finally
