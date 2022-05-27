@@ -785,7 +785,8 @@ public class SFormsConstructor {
         }
 
         mapNew.intersection(mapNewTemp);
-//
+
+//      TODO: reimplement
 //        if (this.trackPhantomExitNodes && !mapTrueSource.isEmpty() && !mapNew.isEmpty()) { // FIXME: what for??
 //
 //          // replace phi versions with corresponding phantom ones

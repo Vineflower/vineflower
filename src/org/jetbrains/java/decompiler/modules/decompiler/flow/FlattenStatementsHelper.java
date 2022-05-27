@@ -71,6 +71,7 @@ public class FlattenStatementsHelper {
 
     if (!this.tryNodesStack.isEmpty()) {
       this.tryNodesStack.peek().add(node);
+      // the try itself will put all nodes in the next try too
     }
 
     return node;
