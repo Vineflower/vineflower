@@ -1,0 +1,58 @@
+package pkg;
+
+public class TestAccidentalSwitchExpression {
+   public void test(Object a) {
+      long var4 = switch(10000) {// 5
+         case 320 -> {
+         }
+         default -> {
+            Object vvv26 = null;// 7
+
+            while(vvv26 == null) {// 8
+            }
+         }
+         case -79 -> -5851592879203823622L;// 12
+      };
+      if (a == null) {// 14
+         System.out.println("Hi");// 18
+      }
+   }// 15 19
+}
+
+class 'pkg/TestAccidentalSwitchExpression' {
+   method 'test (Ljava/lang/Object;)V' {
+      0      4
+      1      4
+      2      4
+      3      4
+      1c      8
+      1d      8
+      1e      10
+      1f      10
+      25      13
+      26      13
+      27      13
+      29      15
+      2a      15
+      2d      18
+      2e      16
+      2f      16
+      30      16
+      31      16
+      32      16
+      33      16
+      34      16
+      35      16
+      36      18
+   }
+}
+
+Lines mapping:
+5 <-> 5
+7 <-> 9
+8 <-> 11
+12 <-> 14
+14 <-> 16
+15 <-> 19
+18 <-> 17
+19 <-> 19
