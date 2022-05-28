@@ -582,10 +582,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestObjectBitwise");
     register(JAVA_17, "TestSealedFinal", "SealedInterface");
     register(JAVA_17, "TestSealedRecord", "SealedInterface");
-
-
-    register(JAVA_8, "Fuzz");
-    register(JAVA_16, "Fuzz16");
   }
 
   private void registerEntireClassPath() {
