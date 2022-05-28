@@ -216,6 +216,7 @@ public final class SwitchStatement extends Statement {
 
     List<Object> lst = new ArrayList<>(stats);
     lst.add(1, headexprent.get(0));
+    // make sure guards can be simplified by other helpers
     for (Exprent caseGuard : getCaseGuards()) {
       if (caseGuard != null) {
         lst.add(caseGuard);
@@ -232,6 +233,7 @@ public final class SwitchStatement extends Statement {
     List<Exprent> caseList = this.caseValues.stream()
       .flatMap(List::stream) // List<List<Exprent>> -> List<Exprent>
       .collect(Collectors.toList());
+    // guards can also contain pattern variables
     caseList.addAll(this.caseGuards);
 
     for (Exprent caseContent : caseList) {
