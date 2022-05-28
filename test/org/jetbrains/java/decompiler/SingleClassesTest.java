@@ -276,7 +276,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestSynchronizedLoop");
     // TODO: break out of synchronized isn't explicit
     register(JAVA_8, "TestSynchronizedTry");
-    // TODO: fails to create synchronized statement
+    // TODO: #163 fails to create synchronized statement
     register(JAVA_8, "TestSynchronizedThrow");
     register(JAVA_8, "TestSynchronizeNull");
     // TODO: Assignments are removed, producing incorrect code
@@ -473,7 +473,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: look at underlying issue with finally and loops here
     // TODO: test5 variable usage in finally block is incorrect, <unknown> variable
     register(JAVA_8, "TestLoopFinally");
-    // TODO: produces a `(<unknown>)` cast between 2 booleans
+    // TODO: #162 produces a `(<unknown>)` cast between 2 booleans
     register(JAVA_8, "TestUnknownCast");
     // TODO: local classes not being put in the right spots
     register(JAVA_8, "TestLocalClassesSwitch"); // Adapted from CFR
@@ -582,6 +582,10 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestObjectBitwise");
     register(JAVA_17, "TestSealedFinal", "SealedInterface");
     register(JAVA_17, "TestSealedRecord", "SealedInterface");
+
+
+    register(JAVA_8, "Fuzz");
+    register(JAVA_16, "Fuzz16");
   }
 
   private void registerEntireClassPath() {
