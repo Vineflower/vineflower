@@ -51,4 +51,9 @@ public final class DirectEdge {
   public int hashCode() {
     return Objects.hash(source, destination, type);
   }
+
+  @Override
+  public String toString() {
+    return "(" + this.source + " -> " + this.destination + " | " + this.type + ")";
+  }
 }
