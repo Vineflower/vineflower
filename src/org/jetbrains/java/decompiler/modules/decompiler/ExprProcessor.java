@@ -134,6 +134,8 @@ public class ExprProcessor implements CodeConstants {
     map.put(null, new PrimitiveExprsList());
     mapData.put(dgraph.first, map);
 
+    Set<DirectNode> seen = new HashSet<>();
+
     while (!stack.isEmpty()) {
 
       DirectNode node = stack.removeFirst();
@@ -168,7 +170,7 @@ public class ExprProcessor implements CodeConstants {
           }
         }
 
-        if (isSuccessor) {
+        if (!seen.contains(nd) && isSuccessor) {
           Map<String, PrimitiveExprsList> mapSucc = mapData.computeIfAbsent(nd, k -> new HashMap<>());
           LinkedList<String> ndentrypoints = new LinkedList<>(entrypoints);
 
@@ -189,6 +191,7 @@ public class ExprProcessor implements CodeConstants {
             }
           }
 
+          seen.add(nd);
           String ndentrykey = buildEntryPointKey(ndentrypoints);
           if (!mapSucc.containsKey(ndentrykey)) {
 
