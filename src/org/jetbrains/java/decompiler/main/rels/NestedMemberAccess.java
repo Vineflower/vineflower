@@ -8,8 +8,8 @@ import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.main.collectors.VarNamesCollector;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
-import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectGraph;
-import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectNode;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectNode;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
@@ -246,7 +246,7 @@ public class NestedMemberAccess {
             }
           }
 
-          stack.addAll(nd.succs);
+          stack.addAll(nd.succs());
         }
 
         if (replaced) {
