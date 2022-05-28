@@ -60,9 +60,10 @@ public class FlattenStatementsHelper {
 
   private DirectNode createDirectNode(Statement stat) {
     final DirectNode directNode = this.createDirectNode(stat, DirectNodeType.DIRECT);
-    if (stat.type == Statement.TYPE_BASICBLOCK) {
+    if (stat instanceof BasicBlockStatement) {
       directNode.block = (BasicBlockStatement) stat;
     }
+
     return directNode;
   }
 
@@ -118,7 +119,7 @@ public class FlattenStatementsHelper {
       if (statEntry.succEdges == null) {
 
         switch (stat.type) {
-          case TYPE_BASICBLOCK:
+          case BASIC_BLOCK:
             node = this.createDirectNode(stat);
 
             if (stat.getExprents() != null) {
@@ -168,33 +169,14 @@ public class FlattenStatementsHelper {
             break;
           case CATCH_ALL:
           case TRY_CATCH:
-            DirectNode firstnd = this.createDirectNode(stat, DirectNodeType.TRY);
+            if (statementBreakIndex == 0) {
+              DirectNode firstnd = this.createDirectNode(stat, DirectNodeType.TRY);
 
-            if (stat instanceof CatchStatement) {
-              CatchStatement catchStat = (CatchStatement)stat;
-              List<Exprent> resources = catchStat.getResources();
-              if (!resources.isEmpty()) {
-                firstnd.exprents = resources;
-              }
-            }
-
-            mapDestinationNodes.put(stat.id, new String[]{firstnd.id, null});
-            graph.nodes.putWithKey(firstnd, firstnd.id);
-
-            LinkedList<StatementStackEntry> lst = new LinkedList<>();
-
-            for (Statement st : stat.getStats()) {
-              listEdges.add(new Edge(firstnd.id, st.id, StatEdge.TYPE_REGULAR));
-
-              LinkedList<StackEntry> stack = stackFinally;
-              if (stat instanceof CatchAllStatement && ((CatchAllStatement)stat).isFinally()) {
-                stack = new LinkedList<>(stackFinally);
-
-                if (st == stat.getFirst()) { // catch head
-                  stack.add(new StackEntry((CatchAllStatement)stat, Boolean.FALSE));
-                } else { // handler
-                  stack.add(new StackEntry((CatchAllStatement)stat, Boolean.TRUE, StatEdge.TYPE_BREAK,
-                                           root.getDummyExit(), st, st, firstnd, firstnd, true));
+              if (stat instanceof CatchStatement) {
+                CatchStatement catchStat = (CatchStatement) stat;
+                List<Exprent> resources = catchStat.getResources();
+                if (!resources.isEmpty()) {
+                  firstnd.exprents = resources;
                 }
               }
 
@@ -206,7 +188,7 @@ public class FlattenStatementsHelper {
                 listEdges.add(new Edge(firstnd.id, st.id, StatEdge.TYPE_REGULAR));
 
                 LinkedList<StackEntry> stack = stackFinally;
-                if (stat.type == Statement.TYPE_CATCHALL && ((CatchAllStatement) stat).isFinally()) {
+                if (stat instanceof CatchAllStatement && ((CatchAllStatement) stat).isFinally()) {
                   stack = new LinkedList<>(stackFinally);
 
                   if (st == stat.getFirst()) { // try block
@@ -232,7 +214,7 @@ public class FlattenStatementsHelper {
               List<DirectNode> tryNodes = this.tryNodesStack.pop();
               List<Statement> statements = stat.getStats();
 
-              int end = stat.type == Statement.TYPE_CATCHALL && ((CatchAllStatement) stat).isFinally()
+              int end = stat instanceof CatchAllStatement && ((CatchAllStatement) stat).isFinally()
                 ? statements.size() - 1
                 : statements.size();
 
@@ -426,7 +408,7 @@ public class FlattenStatementsHelper {
               mapDestinationNodes.put(stat.id, new String[]{node.id, null});
 
               // Try to intercept the edges leaving the switch head and replace with relevant case nodes
-              if (stat.type == Statement.TYPE_SWITCH) {
+              if (stat instanceof SwitchStatement) {
                 SwitchStatement switchSt = (SwitchStatement) stat;
 
                 Statement first = stat.getFirst();
