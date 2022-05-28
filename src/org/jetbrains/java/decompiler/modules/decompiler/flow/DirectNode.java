@@ -33,22 +33,16 @@ public class DirectNode {
     return new DirectNode(type, statement);
   }
 
-  private DirectNode(DirectNodeType type, Statement statement, BasicBlockStatement block) {
-    this.type = type;
-    this.statement = statement;
-
-    this.id = block.id.toString();
-    this.block = block;
+  public boolean hasSuccessors(DirectEdgeType type) {
+    return this.successors.containsKey(type) && !this.successors.get(type).isEmpty();
   }
-
-  public static DirectNode forBlock(Statement statement) {
-    return new DirectNode(DirectNodeType.DIRECT, statement, (BasicBlockStatement)statement);
-  }
-
   public List<DirectEdge> getSuccessors(DirectEdgeType type) {
     return this.successors.computeIfAbsent(type, t -> new ArrayList<>());
   }
 
+  public boolean hasPredecessors(DirectEdgeType type) {
+    return this.predecessors.containsKey(type) && !this.predecessors.get(type).isEmpty();
+  }
   public List<DirectEdge> getPredecessors(DirectEdgeType type) {
     return this.predecessors.computeIfAbsent(type, t -> new ArrayList<>());
   }
@@ -102,5 +96,4 @@ public class DirectNode {
   public String toString() {
     return id;
   }
-
 }
