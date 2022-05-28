@@ -13,7 +13,7 @@ public class z<P> {
    }
 
    public List<P> a() {
-      // $FF: Couldn't be decompiled
+      // $QF: Couldn't be decompiled
    }
 
    public List<P> b() {

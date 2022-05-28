@@ -15,11 +15,11 @@ public class bb extends ITextReplacedElementFactory {
    }
 
    public ReplacedElement createReplacedElement(LayoutContext param1, BlockBox param2, UserAgentCallback param3, int param4, int param5) {
-      // $FF: Couldn't be decompiled
+      // $QF: Couldn't be decompiled
    }
 
    private n<Integer, Integer> a(int param1, int param2, FSImage param3) {
-      // $FF: Couldn't be decompiled
+      // $QF: Couldn't be decompiled
    }
 
    static {

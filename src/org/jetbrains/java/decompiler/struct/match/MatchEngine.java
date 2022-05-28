@@ -3,7 +3,7 @@ package org.jetbrains.java.decompiler.struct.match;
 
 import org.jetbrains.java.decompiler.modules.decompiler.exps.ExitExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
@@ -15,10 +15,10 @@ import java.util.*;
 public class MatchEngine {
   private static final Map<String, MatchProperties> stat_properties = new HashMap<>();
   private static final Map<String, MatchProperties> expr_properties = new HashMap<>();
-  private static final Map<String, Integer> stat_type = new HashMap<>();
-  private static final Map<String, Integer> expr_type = new HashMap<>();
-  private static final Map<String, Integer> expr_func_type = new HashMap<>();
-  private static final Map<String, Integer> expr_exit_type = new HashMap<>();
+  private static final Map<String, Statement.StatementType> stat_type = new HashMap<>();
+  private static final Map<String, Exprent.Type> expr_type = new HashMap<>();
+  private static final Map<String, FunctionType> expr_func_type = new HashMap<>();
+  private static final Map<String, ExitExprent.Type> expr_exit_type = new HashMap<>();
   private static final Map<String, Integer> stat_if_type = new HashMap<>();
   private static final Map<String, VarType> expr_const_type = new HashMap<>();
 
@@ -43,32 +43,34 @@ public class MatchEngine {
     expr_properties.put("index", MatchProperties.EXPRENT_VAR_INDEX);
     expr_properties.put("name", MatchProperties.EXPRENT_FIELD_NAME);
 
-    stat_type.put("if", Statement.TYPE_IF);
-    stat_type.put("do", Statement.TYPE_DO);
-    stat_type.put("switch", Statement.TYPE_SWITCH);
-    stat_type.put("trycatch", Statement.TYPE_TRYCATCH);
-    stat_type.put("basicblock", Statement.TYPE_BASICBLOCK);
-    stat_type.put("sequence", Statement.TYPE_SEQUENCE);
+    stat_type.put("if", Statement.StatementType.IF);
+    stat_type.put("do", Statement.StatementType.DO);
+    stat_type.put("switch", Statement.StatementType.SWITCH);
+    stat_type.put("trycatch", Statement.StatementType.TRY_CATCH);
+    stat_type.put("basicblock", Statement.StatementType.BASIC_BLOCK);
+    stat_type.put("sequence", Statement.StatementType.SEQUENCE);
 
-    expr_type.put("array", Exprent.EXPRENT_ARRAY);
-    expr_type.put("assignment", Exprent.EXPRENT_ASSIGNMENT);
-    expr_type.put("constant", Exprent.EXPRENT_CONST);
-    expr_type.put("exit", Exprent.EXPRENT_EXIT);
-    expr_type.put("field", Exprent.EXPRENT_FIELD);
-    expr_type.put("function", Exprent.EXPRENT_FUNCTION);
-    expr_type.put("if", Exprent.EXPRENT_IF);
-    expr_type.put("invocation", Exprent.EXPRENT_INVOCATION);
-    expr_type.put("monitor", Exprent.EXPRENT_MONITOR);
-    expr_type.put("new", Exprent.EXPRENT_NEW);
-    expr_type.put("switchhead", Exprent.EXPRENT_SWITCH_HEAD);
-    expr_type.put("var", Exprent.EXPRENT_VAR);
-    expr_type.put("annotation", Exprent.EXPRENT_ANNOTATION);
-    expr_type.put("assert", Exprent.EXPRENT_ASSERT);
+    expr_type.put("annotation", Exprent.Type.ANNOTATION);
+    expr_type.put("array", Exprent.Type.ARRAY);
+    expr_type.put("assert", Exprent.Type.ASSERT);
+    expr_type.put("assignment", Exprent.Type.ASSIGNMENT);
+    expr_type.put("constant", Exprent.Type.CONST);
+    expr_type.put("exit", Exprent.Type.EXIT);
+    expr_type.put("field", Exprent.Type.FIELD);
+    expr_type.put("function", Exprent.Type.FUNCTION);
+    expr_type.put("if", Exprent.Type.IF);
+    expr_type.put("invocation", Exprent.Type.INVOCATION);
+    expr_type.put("monitor", Exprent.Type.MONITOR);
+    expr_type.put("new", Exprent.Type.NEW);
+    expr_type.put("switch", Exprent.Type.SWITCH);
+    expr_type.put("switchhead", Exprent.Type.SWITCH_HEAD);
+    expr_type.put("var", Exprent.Type.VAR);
+    expr_type.put("yield", Exprent.Type.YIELD);
 
-    expr_func_type.put("eq", FunctionExprent.FUNCTION_EQ);
+    expr_func_type.put("eq", FunctionType.EQ);
 
-    expr_exit_type.put("return", ExitExprent.EXIT_RETURN);
-    expr_exit_type.put("throw", ExitExprent.EXIT_THROW);
+    expr_exit_type.put("return", ExitExprent.Type.RETURN);
+    expr_exit_type.put("throw", ExitExprent.Type.THROW);
 
     stat_if_type.put("if", IfStatement.IFTYPE_IF);
     stat_if_type.put("ifelse", IfStatement.IFTYPE_IFELSE);

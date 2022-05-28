@@ -4,6 +4,7 @@ package org.jetbrains.java.decompiler.modules.decompiler.deobfuscator;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.BasicBlockStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement.EdgeDirection;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -40,7 +41,7 @@ public final class IrreducibleCFGDeobfuscator {
     for (Statement stat : statement.getStats()) {
       Node node = mapNodes.get(stat.id);
 
-      for (Statement succ : stat.getNeighbours(StatEdge.TYPE_REGULAR, Statement.DIRECTION_FORWARD)) {
+      for (Statement succ : stat.getNeighbours(StatEdge.TYPE_REGULAR, EdgeDirection.FORWARD)) {
         Node nodeSucc = mapNodes.get(succ.id);
 
         node.succs.add(nodeSucc);
@@ -101,10 +102,10 @@ public final class IrreducibleCFGDeobfuscator {
 
     for (Statement stat : statement.getStats()) {
 
-      Set<Statement> setPreds = stat.getNeighboursSet(StatEdge.TYPE_REGULAR, Statement.DIRECTION_BACKWARD);
+      Set<Statement> setPreds = stat.getNeighboursSet(StatEdge.TYPE_REGULAR, EdgeDirection.BACKWARD);
 
       if (setPreds.size() > 1) {
-        int succCount = stat.getNeighboursSet(StatEdge.TYPE_REGULAR, Statement.DIRECTION_FORWARD).size();
+        int succCount = stat.getNeighboursSet(StatEdge.TYPE_REGULAR, EdgeDirection.FORWARD).size();
         if (succCount <= succsCandidateForSplitting) {
           int size = getStatementSize(stat) * (setPreds.size() - 1);
 
@@ -142,7 +143,7 @@ public final class IrreducibleCFGDeobfuscator {
       if (prededge.getSource() == enteredge.getSource() ||
           prededge.closure == enteredge.getSource()) {
         splitnode.removePredecessor(prededge);
-        prededge.getSource().changeEdgeNode(Statement.DIRECTION_FORWARD, prededge, splitcopy);
+        prededge.getSource().changeEdgeNode(EdgeDirection.FORWARD, prededge, splitcopy);
         splitcopy.addPredecessor(prededge);
       }
     }
@@ -159,7 +160,7 @@ public final class IrreducibleCFGDeobfuscator {
 
     int res;
 
-    if (statement.type == Statement.TYPE_BASICBLOCK) {
+    if (statement instanceof BasicBlockStatement) {
       res = ((BasicBlockStatement)statement).getBlock().getSeq().length();
     }
     else {

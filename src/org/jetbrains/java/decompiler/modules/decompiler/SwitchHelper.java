@@ -8,6 +8,7 @@ import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.rels.ClassWrapper;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.struct.StructField;
 import org.jetbrains.java.decompiler.struct.StructMethod;
@@ -22,7 +23,7 @@ import java.util.stream.Collectors;
 public final class SwitchHelper {
   public static boolean simplifySwitches(Statement stat, StructMethod mt, RootStatement root) {
     boolean ret = false;
-    if (stat.type == Statement.TYPE_SWITCH) {
+    if (stat instanceof SwitchStatement) {
       ret = simplify((SwitchStatement)stat, mt, root);
     }
 
@@ -40,7 +41,7 @@ public final class SwitchHelper {
     if (array != null) {
       List<List<Exprent>> caseValues = switchStatement.getCaseValues();
       Map<Exprent, Exprent> mapping = new HashMap<>(caseValues.size());
-      if (array.getArray().type == Exprent.EXPRENT_FIELD) {
+      if (array.getArray() instanceof FieldExprent) {
         FieldExprent arrayField = (FieldExprent) array.getArray();
         ClassesProcessor.ClassNode classNode = DecompilerContext.getClassProcessor().getMapRootClasses().get(arrayField.getClassname());
         if (classNode != null) {
@@ -64,7 +65,7 @@ public final class SwitchHelper {
                 if (exprent instanceof AssignmentExprent) {
                   AssignmentExprent assignment = (AssignmentExprent) exprent;
                   Exprent left = assignment.getLeft();
-                  if (left.type == Exprent.EXPRENT_ARRAY) {
+                  if (left instanceof ArrayExprent) {
                     Exprent assignmentArray = ((ArrayExprent) left).getArray();
                     // If the assignment target is a field, we have the assignment we want.
                     boolean targetsField = assignmentArray.equals(arrayField);
@@ -106,7 +107,7 @@ public final class SwitchHelper {
                 if (exprent instanceof AssignmentExprent) {
                   AssignmentExprent assignment = (AssignmentExprent) exprent;
                   Exprent left = assignment.getLeft();
-                  if (left.type == Exprent.EXPRENT_ARRAY) {
+                  if (left instanceof ArrayExprent) {
                     mapping.put(assignment.getRight(), ((InvocationExprent) ((ArrayExprent) left).getIndex()).getInstance());
                   }
                 }
@@ -124,6 +125,7 @@ public final class SwitchHelper {
       for (List<Exprent> caseValue : caseValues) {
         List<Exprent> values = new ArrayList<>(caseValue.size());
         realCaseValues.add(values);
+        cases:
         for (Exprent exprent : caseValue) {
           if (exprent == null) {
             values.add(null);
@@ -131,7 +133,29 @@ public final class SwitchHelper {
           else {
             Exprent realConst = mapping.get(exprent);
             if (realConst == null) {
-              root.addComment("$FF: Unable to simplify switch on enum");
+              if (exprent instanceof ConstExprent) {
+                ConstExprent constLabel = (ConstExprent) exprent;
+                if (constLabel.getConstType().typeFamily == CodeConstants.TYPE_FAMILY_INTEGER) {
+                  int intLabel = constLabel.getIntValue();
+                  // check for -1, used by nullable switches for the null branch
+                  if (intLabel == -1) {
+                    values.add(new ConstExprent(VarType.VARTYPE_NULL, null, null));
+                    continue;
+                  }
+                  // other values can show up in a `tableswitch`, such as in [-1, fall-through synthetic 0, 1, 2, ...]
+                  // they must have a valid value later though
+                  // TODO: more tests
+                  for (Exprent key : mapping.keySet()) {
+                    if (key instanceof ConstExprent
+                        && ((ConstExprent) key).getConstType().typeFamily == CodeConstants.TYPE_FAMILY_INTEGER
+                        && ((ConstExprent) key).getIntValue() > intLabel) {
+                      values.add(key.copy());
+                      continue cases;
+                    }
+                  }
+                }
+              }
+              root.addComment("$QF: Unable to simplify switch on enum");
               root.addErrorComment = true;
               DecompilerContext.getLogger()
                 .writeMessage("Unable to simplify switch on enum: " + exprent + " not found, available: " + mapping + " in method " + mt.getClassQualifiedName() + " " + mt.getName(),
@@ -170,7 +194,7 @@ public final class SwitchHelper {
       boolean nullable = false;
       IfStatement containingNullCheck = null;
       List<StatEdge> edges = switchStatement.getSuccessorEdges(StatEdge.TYPE_REGULAR);
-      if (edges.size() == 1 && edges.get(0).getDestination().type == Statement.TYPE_SWITCH) {
+      if (edges.size() == 1 && edges.get(0).getDestination() instanceof SwitchStatement) {
         following = (SwitchStatement)edges.get(0).getDestination();
       } else {
         // definitely a nullable switch
@@ -185,15 +209,15 @@ public final class SwitchHelper {
 
         Statement curr = switchStatement.getCaseStatements().get(i);
 
-        while (curr != null && curr.type == Statement.TYPE_IF)  {
+        while (curr instanceof IfStatement)  {
           IfStatement ifStat = (IfStatement)curr;
           Exprent condition = ifStat.getHeadexprent().getCondition();
 
-          if (condition.type == Exprent.EXPRENT_FUNCTION && ((FunctionExprent)condition).getFuncType() == FunctionExprent.FUNCTION_NE) {
+          if (condition instanceof FunctionExprent && ((FunctionExprent)condition).getFuncType() == FunctionType.NE) {
             condition = ((FunctionExprent)condition).getLstOperands().get(0);
           }
 
-          if (condition.type == Exprent.EXPRENT_INVOCATION && ((InvocationExprent)condition).getLstParameters().size() == 1) {
+          if (condition instanceof InvocationExprent && ((InvocationExprent)condition).getLstParameters().size() == 1) {
             Exprent assign = ifStat.getIfstat().getExprents().get(0);
             int caseVal = ((ConstExprent)((AssignmentExprent)assign).getRight()).getIntValue();
             caseMap.put(caseVal, ((InvocationExprent)condition).getLstParameters().get(0));
@@ -288,19 +312,19 @@ public final class SwitchHelper {
           return false;
         }
 
-        boolean isSyncheticClass;
+        boolean isSyntheticClass;
         if (classNode.getWrapper() == null) {
-          isSyncheticClass = (classNode.classStruct.getAccessFlags() & CodeConstants.ACC_SYNTHETIC) == CodeConstants.ACC_SYNTHETIC;
+          isSyntheticClass = (classNode.classStruct.getAccessFlags() & CodeConstants.ACC_SYNTHETIC) == CodeConstants.ACC_SYNTHETIC;
         } else {
-          isSyncheticClass = (classNode.getWrapper().getClassStruct().getAccessFlags() & CodeConstants.ACC_SYNTHETIC) == CodeConstants.ACC_SYNTHETIC;
+          isSyntheticClass = (classNode.getWrapper().getClassStruct().getAccessFlags() & CodeConstants.ACC_SYNTHETIC) == CodeConstants.ACC_SYNTHETIC;
         }
 
-        if (isSyncheticClass) {
+        if (isSyntheticClass) {
           return true; //TODO: Find a way to check the structure of the initalizer?
           //Exprent init = classNode.getWrapper().getStaticFieldInitializers().getWithKey(InterpreterUtil.makeUniqueKey(field.getName(), field.getDescriptor().descriptorString));
           //Above is null because we haven't preocess the class yet?
         }
-      } else if (tmp.type == Exprent.EXPRENT_INVOCATION) {
+      } else if (tmp instanceof InvocationExprent) {
         InvocationExprent inv = (InvocationExprent) tmp;
         if (inv.getName().startsWith("$SWITCH_TABLE$")) { // More nonstandard behavior. Seems like eclipse compiler stuff: https://bugs.eclipse.org/bugs/show_bug.cgi?id=544521 TODO: needs tests!
           return true;
@@ -317,6 +341,29 @@ public final class SwitchHelper {
    */
   private static ArrayExprent getEnumArrayExprent(Exprent switchHead, RootStatement root) {
     Exprent candidate = switchHead;
+
+    if (switchHead instanceof FunctionExprent) {
+      // Check for switches on a ternary expression like `a != null ? ...SwitchMap[a.ordinal()] : -1` (nullable switch)
+      FunctionExprent func = (FunctionExprent) switchHead;
+      if (func.getFuncType() == FunctionExprent.FunctionType.TERNARY && func.getLstOperands().size() == 3) {
+        List<Exprent> ops = func.getLstOperands();
+        if (ops.get(0) instanceof FunctionExprent) {
+          FunctionExprent nn = (FunctionExprent) ops.get(0);
+          if (nn.getFuncType() == FunctionExprent.FunctionType.NE
+                && nn.getLstOperands().get(0) instanceof VarExprent
+                && nn.getLstOperands().get(1).getExprType().equals(VarType.VARTYPE_NULL)) {
+            // TODO: consider if verifying the variable used is necessary
+            // probably not, since the array is checked to be generated (?) so user written code shouldn't encounter bad resugaring
+            if (ops.get(2) instanceof ConstExprent) {
+              ConstExprent minusOne = (ConstExprent) ops.get(2);
+              if (minusOne.getConstType().equals(VarType.VARTYPE_INT) && minusOne.getIntValue() == -1) {
+                candidate = ops.get(1);
+              }
+            }
+          }
+        }
+      }
+    }
 
     if (switchHead instanceof VarExprent) {
       // Check for switches with intermediary assignment of enum array index
@@ -365,8 +412,9 @@ public final class SwitchHelper {
    * @param onlyOneStat if true, will return eagerly after the first matching statement
    * @param consumer    the consumer that receives the exprents and their parent statements
    */
+  // TODO: move somewhere better
   @SuppressWarnings("unchecked")
-  private static <T extends Exprent> void findExprents(Statement start, Class<? extends T> exprClass, Predicate<T> predicate, boolean onlyOneStat, BiConsumer<Statement, T> consumer) {
+  public static <T extends Exprent> void findExprents(Statement start, Class<? extends T> exprClass, Predicate<T> predicate, boolean onlyOneStat, BiConsumer<Statement, T> consumer) {
     Queue<Statement> statQueue = new ArrayDeque<>();
     statQueue.offer(start);
 
@@ -416,7 +464,7 @@ public final class SwitchHelper {
   private static boolean isSwitchOnString(SwitchStatement first) {
     SwitchStatement second = null;
     List<StatEdge> edges = first.getSuccessorEdges(StatEdge.TYPE_REGULAR);
-    if (edges.size() == 1 && edges.get(0).getDestination().type == Statement.TYPE_SWITCH) {
+    if (edges.size() == 1 && edges.get(0).getDestination() instanceof SwitchStatement) {
       second = (SwitchStatement)edges.get(0).getDestination();
     }
     AssignmentExprent nullAssign = null;
@@ -429,9 +477,9 @@ public final class SwitchHelper {
         // and it's a null check with `else` branch,
         if (parent.iftype == IfStatement.IFTYPE_IFELSE && ifCond instanceof FunctionExprent) {
           FunctionExprent func = (FunctionExprent)ifCond;
-          if (func.getFuncType() == FunctionExprent.FUNCTION_NE && func.getLstOperands().size() == 2) {
+          if (func.getFuncType() == FunctionType.NE && func.getLstOperands().size() == 2) {
             Exprent right = func.getLstOperands().get(1);
-            if (right.type == Exprent.EXPRENT_CONST && right.getExprType() == VarType.VARTYPE_NULL) {
+            if (right instanceof ConstExprent && right.getExprType() == VarType.VARTYPE_NULL) {
               // and the `else` only assigns a variable,
               Statement elseStat = parent.getElsestat();
               if (elseStat instanceof BasicBlockStatement && elseStat.getExprents().size() == 1) {
@@ -440,7 +488,7 @@ public final class SwitchHelper {
                   nullAssign = (AssignmentExprent)assign;
                   // then we're probably a nullable string-switch
                   edges = parent.getSuccessorEdges(StatEdge.TYPE_REGULAR);
-                  if (edges.size() == 1 && edges.get(0).getDestination().type == Statement.TYPE_SWITCH) {
+                  if (edges.size() == 1 && edges.get(0).getDestination() instanceof SwitchStatement) {
                     second = (SwitchStatement)edges.get(0).getDestination();
                   }
                 }
@@ -455,7 +503,7 @@ public final class SwitchHelper {
       Exprent firstValue = ((SwitchHeadExprent)first.getHeadexprent()).getValue();
       Exprent secondValue = ((SwitchHeadExprent)second.getHeadexprent()).getValue();
 
-      if (firstValue.type == Exprent.EXPRENT_INVOCATION && secondValue.type == Exprent.EXPRENT_VAR && first.getCaseStatements().get(0).type == Statement.TYPE_IF) {
+      if (firstValue instanceof InvocationExprent && secondValue instanceof VarExprent && first.getCaseStatements().get(0) instanceof IfStatement) {
         InvocationExprent invExpr = (InvocationExprent)firstValue;
         VarExprent varExpr = (VarExprent) secondValue;
         if (nullAssign != null && !nullAssign.getLeft().equals(varExpr)) {
@@ -469,24 +517,24 @@ public final class SwitchHelper {
             if (!first.getCaseEdges().get(i).contains(first.getDefaultEdge())) {
               Statement curr = first.getCaseStatements().get(i);
               while (matches && curr != null) {
-                if (curr.type == Statement.TYPE_IF) {
+                if (curr instanceof IfStatement) {
                   IfStatement ifStat = (IfStatement)curr;
                   Exprent condition = ifStat.getHeadexprent().getCondition();
 
-                  if (condition.type == Exprent.EXPRENT_FUNCTION && ((FunctionExprent)condition).getFuncType() == FunctionExprent.FUNCTION_NE) {
+                  if (condition instanceof FunctionExprent && ((FunctionExprent)condition).getFuncType() == FunctionType.NE) {
                     condition = ((FunctionExprent)condition).getLstOperands().get(0);
                   }
 
-                  if (condition.type == Exprent.EXPRENT_INVOCATION) {
+                  if (condition instanceof InvocationExprent) {
                     InvocationExprent condInvocation = (InvocationExprent)condition;
 
                     if (condInvocation.getName().equals("equals") && condInvocation.getInstance().equals(invExpr.getInstance())) {
                       List<Exprent> block = ifStat.getIfstat().getExprents();
 
-                      if (block != null && block.size() == 1 && block.get(0).type == Exprent.EXPRENT_ASSIGNMENT) {
+                      if (block != null && block.size() == 1 && block.get(0) instanceof AssignmentExprent) {
                         AssignmentExprent assign = (AssignmentExprent)block.get(0);
 
-                        if (assign.getRight().type == Exprent.EXPRENT_CONST && varExpr.equals(assign.getLeft())) {
+                        if (assign.getRight() instanceof ConstExprent && varExpr.equals(assign.getLeft())) {
 
                           curr = ifStat.getElsestat();
                           continue;

@@ -104,7 +104,7 @@ public class TestSwitchLoop {
       int a = 0;
 
       while(true) {
-         label42: {
+         label40: {
             if (i > a) {
                --i;// 112
                label22:
@@ -115,7 +115,7 @@ public class TestSwitchLoop {
 
                      while(true) {
                         if (i1 >= 5) {
-                           break label42;
+                           break label40;
                         }
 
                         switch(i1) {// 118
@@ -134,7 +134,7 @@ public class TestSwitchLoop {
                   case 1:
                      System.out.println("1");// 132
                   default:
-                     break label42;
+                     break label40;
                }
             }
 
@@ -242,15 +242,15 @@ public class TestSwitchLoop {
    }// 221
 
    public void test10(int i) {
-      label33: {
-         label32: {
+      label31: {
+         label30: {
             switch(i) {// 224
                case 0:
                   int j = 0;
 
                   while(true) {
                      if (j >= 10) {
-                        break label32;
+                        break label30;
                      }
 
                      if (j == 3) {// 228
@@ -259,7 +259,7 @@ public class TestSwitchLoop {
                      }
 
                      if (j == 9) {// 232
-                        break label32;
+                        break label30;
                      }
 
                      ++j;// 227
@@ -267,11 +267,11 @@ public class TestSwitchLoop {
                case 1:
                   break;
                default:
-                  break label33;
+                  break label31;
             }
 
             System.out.println(1);// 243
-            break label33;
+            break label31;
          }
 
          System.out.println(0);// 237
@@ -281,8 +281,8 @@ public class TestSwitchLoop {
    }// 247
 
    public void test10b(int i) {
-      label34: {
-         label33: {
+      label32: {
+         label31: {
             label28:
             switch(i) {// 250
                case 0:
@@ -290,7 +290,7 @@ public class TestSwitchLoop {
 
                   while(true) {
                      if (j >= 10) {
-                        break label33;
+                        break label31;
                      }
 
                      if (j == 3) {// 254
@@ -299,22 +299,22 @@ public class TestSwitchLoop {
                      }
 
                      if (j == 9) {// 258
-                        break label33;
+                        break label31;
                      }
 
                      ++j;// 253
                   }
                case 1:
                   System.out.println(1);// 272
-                  break label34;
+                  break label32;
                case 2:
                   break;
                default:
-                  break label34;
+                  break label32;
             }
 
             System.out.println(2);// 269
-            break label34;// 270
+            break label32;// 270
          }
 
          System.out.println(0);// 263

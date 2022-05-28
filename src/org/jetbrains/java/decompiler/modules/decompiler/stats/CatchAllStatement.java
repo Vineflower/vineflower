@@ -31,7 +31,7 @@ public final class CatchAllStatement extends Statement {
   // *****************************************************************************
 
   private CatchAllStatement() {
-    type = Statement.TYPE_CATCHALL;
+    super(StatementType.CATCH_ALL);
   }
 
   private CatchAllStatement(Statement head, Statement handler) {
@@ -63,7 +63,7 @@ public final class CatchAllStatement extends Statement {
   // *****************************************************************************
 
   public static Statement isHead(Statement head) {
-    if (head.getLastBasicType() != Statement.LASTBASICTYPE_GENERAL) {
+    if (head.getLastBasicType() != LastBasicType.GENERAL) {
       return null;
     }
 
@@ -75,7 +75,7 @@ public final class CatchAllStatement extends Statement {
     for (StatEdge edge : head.getSuccessorEdges(StatEdge.TYPE_EXCEPTION)) {
       Statement exc = edge.getDestination();
 
-      if (edge.getExceptions() == null && exc.getLastBasicType() == LASTBASICTYPE_GENERAL && setHandlers.contains(exc)) {
+      if (edge.getExceptions() == null && exc.getLastBasicType() == LastBasicType.GENERAL && setHandlers.contains(exc)) {
         List<StatEdge> lstSuccs = exc.getSuccessorEdges(STATEDGE_DIRECT_ALL);
         if (lstSuccs.isEmpty() || lstSuccs.get(0).getType() != StatEdge.TYPE_REGULAR) {
 
@@ -103,11 +103,11 @@ public final class CatchAllStatement extends Statement {
 
     boolean labeled = isLabeled();
     if (labeled) {
-      buf.appendIndent(indent).append("label").append(this.id.toString()).append(":").appendLineSeparator();
+      buf.appendIndent(indent).append("label").append(this.id).append(":").appendLineSeparator();
     }
 
     List<StatEdge> lstSuccs = first.getSuccessorEdges(STATEDGE_DIRECT_ALL);
-    if (first.type == TYPE_TRYCATCH && first.varDefinitions.isEmpty() && isFinally &&
+    if (first instanceof CatchStatement && first.varDefinitions.isEmpty() && isFinally &&
         !labeled && !first.isLabeled() && (lstSuccs.isEmpty() || !lstSuccs.get(0).explicit)) {
       TextBuffer content = ExprProcessor.jmpWrapper(first, indent, true);
       content.setLength(content.length() - new_line_separator.length());

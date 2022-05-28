@@ -185,7 +185,7 @@ public class ClassWrapper {
               List<Exprent> lst = exprent.getAllExprents(true);
               lst.add(exprent);
               lst.stream()
-                .filter(e -> e.type == Exprent.EXPRENT_VAR)
+                .filter(e -> e instanceof VarExprent)
                 .forEach(e -> {
                   VarExprent varExprent = (VarExprent)e;
                   String name = varExprent.getDebugName(mt);

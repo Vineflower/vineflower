@@ -11,8 +11,9 @@ public enum DirectNodeType {
   INIT("init"),
   CONDITION("cond"),
   INCREMENT("inc"),
-  TRY("try"), // TODO: why is this used?
-  FOREACH_VARDEF("foreach");
+  TRY("try"),
+  FOREACH_VARDEF("foreach"),
+  CASE("case");
 
   private final String name;
 

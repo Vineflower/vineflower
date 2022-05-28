@@ -5,7 +5,6 @@ import java.util.Objects;
 public class TestSwitchPatternMatching1 {
    public void test(Object o) {
       Objects.requireNonNull(o);// 5
-      byte var3 = 0;
 
       switch(o) {
          case o instanceof Integer i -> System.out.println(i);// 6
@@ -21,42 +20,40 @@ class 'pkg/TestSwitchPatternMatching1' {
       2      6
       3      6
       4      6
-      7      7
-      8      7
-      10      9
-      30      10
-      31      10
-      32      10
-      33      10
-      34      10
-      35      10
-      36      10
-      37      10
-      38      10
-      39      10
-      41      11
-      42      11
-      43      11
-      44      11
-      45      11
-      46      11
-      47      11
-      48      11
-      49      11
-      4a      11
-      4e      12
-      4f      12
-      50      12
-      51      12
-      52      12
-      53      12
-      56      14
+      10      8
+      30      9
+      31      9
+      32      9
+      33      9
+      34      9
+      35      9
+      36      9
+      37      9
+      38      9
+      39      9
+      41      10
+      42      10
+      43      10
+      44      10
+      45      10
+      46      10
+      47      10
+      48      10
+      49      10
+      4a      10
+      4e      11
+      4f      11
+      50      11
+      51      11
+      52      11
+      53      11
+      56      13
    }
 }
 
 Lines mapping:
 5 <-> 7
-6 <-> 11
-7 <-> 12
-8 <-> 13
-10 <-> 15
+6 <-> 10
+7 <-> 11
+8 <-> 12
+10 <-> 14
