@@ -8,19 +8,16 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 
-public class GeneralStatement extends Statement {
+public final class GeneralStatement extends Statement {
+  private boolean placeholder;
 
   // *****************************************************************************
   // constructors
   // *****************************************************************************
 
-  private GeneralStatement() {
-    type = Statement.TYPE_GENERAL;
-  }
-
   public GeneralStatement(Statement head, Collection<? extends Statement> statements, Statement post) {
 
-    this();
+    super(StatementType.GENERAL);
 
     first = head;
     stats.addWithKey(head, head.id);
@@ -44,7 +41,7 @@ public class GeneralStatement extends Statement {
     TextBuffer buf = new TextBuffer();
 
     if (isLabeled()) {
-      buf.appendIndent(indent).append("label").append(this.id.toString()).append(":").appendLineSeparator();
+      buf.appendIndent(indent).append("label").append(this.id).append(":").appendLineSeparator();
     }
 
     buf.appendIndent(indent).append("abstract statement {").appendLineSeparator();
@@ -55,5 +52,13 @@ public class GeneralStatement extends Statement {
     buf.appendLineSeparator();
 
     return buf;
+  }
+
+  public void setPlaceholder(boolean placeholder) {
+    this.placeholder = placeholder;
+  }
+
+  public boolean isPlaceholder() {
+    return placeholder;
   }
 }

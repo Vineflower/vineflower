@@ -118,8 +118,9 @@ public class FlattenStatementsHelper {
       if (statEntry.succEdges == null) {
 
         switch (stat.type) {
-          case Statement.TYPE_BASICBLOCK:
+          case TYPE_BASICBLOCK:
             node = this.createDirectNode(stat);
+
             if (stat.getExprents() != null) {
               node.exprents = stat.getExprents();
             }
@@ -142,7 +143,7 @@ public class FlattenStatementsHelper {
             }
 
             // 'if' statement: record positive branch
-            if (stat.getLastBasicType() == Statement.LASTBASICTYPE_IF) {
+            if (stat.getLastBasicType() == Statement.LastBasicType.IF) {
               if (lstSuccEdges.isEmpty()) {
                 throw new IllegalStateException("Empty successor list for node " + sourcenode.id);
               }
@@ -158,22 +159,42 @@ public class FlattenStatementsHelper {
 
               // Look if this basic block is the successor of a sequence, and connect the sequence to the block if so
               if (predEdge.getType() == StatEdge.TYPE_REGULAR) {
-                if (predEdge.getSource().type == Statement.TYPE_SEQUENCE) {
+                if (predEdge.getSource() instanceof SequenceStatement) {
                   addEdgeIfPossible(predEdge.getSource().getBasichead().id, stat);
                 }
               }
             }
 
             break;
-          case Statement.TYPE_CATCHALL:
-          case Statement.TYPE_TRYCATCH:
-            if (statementBreakIndex == 0) {
-              DirectNode firstnd = this.createDirectNode(stat, DirectNodeType.TRY);
+          case CATCH_ALL:
+          case TRY_CATCH:
+            DirectNode firstnd = this.createDirectNode(stat, DirectNodeType.TRY);
 
-              if (stat.type == Statement.TYPE_TRYCATCH) {
-                CatchStatement catchStat = (CatchStatement) stat;
-                if (catchStat.getTryType() == CatchStatement.RESOURCES) {
-                  firstnd.exprents = catchStat.getResources();
+            if (stat instanceof CatchStatement) {
+              CatchStatement catchStat = (CatchStatement)stat;
+              List<Exprent> resources = catchStat.getResources();
+              if (!resources.isEmpty()) {
+                firstnd.exprents = resources;
+              }
+            }
+
+            mapDestinationNodes.put(stat.id, new String[]{firstnd.id, null});
+            graph.nodes.putWithKey(firstnd, firstnd.id);
+
+            LinkedList<StatementStackEntry> lst = new LinkedList<>();
+
+            for (Statement st : stat.getStats()) {
+              listEdges.add(new Edge(firstnd.id, st.id, StatEdge.TYPE_REGULAR));
+
+              LinkedList<StackEntry> stack = stackFinally;
+              if (stat instanceof CatchAllStatement && ((CatchAllStatement)stat).isFinally()) {
+                stack = new LinkedList<>(stackFinally);
+
+                if (st == stat.getFirst()) { // catch head
+                  stack.add(new StackEntry((CatchAllStatement)stat, Boolean.FALSE));
+                } else { // handler
+                  stack.add(new StackEntry((CatchAllStatement)stat, Boolean.TRUE, StatEdge.TYPE_BREAK,
+                                           root.getDummyExit(), st, st, firstnd, firstnd, true));
                 }
               }
 
@@ -226,7 +247,7 @@ public class FlattenStatementsHelper {
               }
             }
             break;
-          case Statement.TYPE_DO:
+          case DO:
             if (statementBreakIndex == 0) { // First time encountering this statement
 
               statEntry.statementIndex = 1;
@@ -259,9 +280,9 @@ public class FlattenStatementsHelper {
             nd = graph.nodes.getWithKey(mapDestinationNodes.get(stat.getFirst().id)[0]);
 
             DoStatement dostat = (DoStatement) stat;
-            int looptype = dostat.getLooptype();
+            DoStatement.Type looptype = dostat.getLooptype();
 
-            if (looptype == DoStatement.LOOP_DO) {
+            if (looptype == DoStatement.Type.INFINITE) {
               mapDestinationNodes.put(stat.id, new String[]{nd.id, nd.id});
               break;
             }
@@ -269,14 +290,14 @@ public class FlattenStatementsHelper {
             lstSuccEdges.add(stat.getSuccessorEdges(Statement.STATEDGE_DIRECT_ALL).get(0));  // exactly one edge
 
             switch (looptype) {
-              case DoStatement.LOOP_WHILE:
-              case DoStatement.LOOP_DOWHILE:
+              case WHILE:
+              case DO_WHILE:
                 node = this.createDirectNode(stat, DirectNodeType.CONDITION);
                 node.exprents = dostat.getConditionExprentList();
 
                 listEdges.add(new Edge(node.id, stat.getFirst().id, StatEdge.TYPE_REGULAR));
 
-                if (looptype == DoStatement.LOOP_WHILE) {
+                if (looptype == DoStatement.Type.WHILE) {
                   mapDestinationNodes.put(stat.id, new String[]{node.id, node.id});
                 } else {
                   mapDestinationNodes.put(stat.id, new String[]{nd.id, node.id});
@@ -294,7 +315,7 @@ public class FlattenStatementsHelper {
                 }
                 sourcenode = node;
                 break;
-              case DoStatement.LOOP_FOR: {
+              case FOR: {
                 DirectNode nodeinit = this.createDirectNode(stat, DirectNodeType.INIT);
                 if (dostat.getInitExprent() != null) {
                   nodeinit.exprents = dostat.getInitExprentList();
@@ -328,7 +349,7 @@ public class FlattenStatementsHelper {
                 sourcenode = nodecond;
                 break;
               }
-              case DoStatement.LOOP_FOREACH: {
+              case FOR_EACH: {
                 // for (init : inc)
                 //
                 // is essentially
@@ -366,13 +387,13 @@ public class FlattenStatementsHelper {
               }
             }
             break;
-          case Statement.TYPE_SYNCRONIZED:
-          case Statement.TYPE_SWITCH:
-          case Statement.TYPE_IF:
-          case Statement.TYPE_SEQUENCE:
-          case Statement.TYPE_ROOT:
+          case SYNCHRONIZED:
+          case SWITCH:
+          case IF:
+          case SEQUENCE:
+          case ROOT:
             int statsize = stat.getStats().size();
-            if (stat.type == Statement.TYPE_SYNCRONIZED) {
+            if (stat instanceof SynchronizedStatement) {
               statsize = 2;  // exclude the handler if synchronized
             }
 
@@ -380,13 +401,13 @@ public class FlattenStatementsHelper {
               List<Exprent> tailexprlst = null;
 
               switch (stat.type) {
-                case Statement.TYPE_SYNCRONIZED:
+                case SYNCHRONIZED:
                   tailexprlst = ((SynchronizedStatement) stat).getHeadexprentList();
                   break;
-                case Statement.TYPE_SWITCH:
+                case SWITCH:
                   tailexprlst = ((SwitchStatement) stat).getHeadexprentList();
                   break;
-                case Statement.TYPE_IF:
+                case IF:
                   tailexprlst = ((IfStatement) stat).getHeadexprentList();
               }
 
@@ -464,19 +485,19 @@ public class FlattenStatementsHelper {
                 }
               }
 
-              if (stat.type == Statement.TYPE_IF && ((IfStatement) stat).iftype == IfStatement.IFTYPE_IF && !stat.getAllSuccessorEdges().isEmpty()) {
+              if (stat instanceof IfStatement && ((IfStatement)stat).iftype == IfStatement.IFTYPE_IF && !stat.getAllSuccessorEdges().isEmpty()) {
                 lstSuccEdges.add(stat.getSuccessorEdges(Statement.STATEDGE_DIRECT_ALL).get(0));  // exactly one edge
                 sourcenode = tailexprlst.get(0) == null ? node : graph.nodes.getWithKey(node.id + "_tail");
               }
 
               // Adds an edge from the last if statement to the current if statement, if the current if statement's head statement has no predecessor
               // This was made to mask a failure in EliminateLoopsHelper and isn't used currently (over the current test set) but could theoretically still happen!
-              if (stat.type == Statement.TYPE_IF && ((IfStatement) stat).iftype == IfStatement.IFTYPE_IF && !stat.getPredecessorEdges(StatEdge.TYPE_REGULAR).isEmpty()) {
+              if (stat instanceof IfStatement && ((IfStatement) stat).iftype == IfStatement.IFTYPE_IF && !stat.getPredecessorEdges(StatEdge.TYPE_REGULAR).isEmpty()) {
                 if (stat.getFirst().getPredecessorEdges(StatEdge.TYPE_REGULAR).isEmpty()) {
                   StatEdge edge = stat.getPredecessorEdges(StatEdge.TYPE_REGULAR).get(0);
 
                   Statement source = edge.getSource();
-                  if (source.type == Statement.TYPE_IF && ((IfStatement) source).iftype == IfStatement.IFTYPE_IF && !source.getAllSuccessorEdges().isEmpty()) {
+                  if (source instanceof IfStatement && ((IfStatement) source).iftype == IfStatement.IFTYPE_IF && !source.getAllSuccessorEdges().isEmpty()) {
                     DirectNode srcnd = graph.nodes.getWithKey(source.getFirst().id + "_tail");
 
                     if (srcnd != null) {
@@ -634,15 +655,15 @@ public class FlattenStatementsHelper {
 
       mapShortRangeFinallyPathIds.computeIfAbsent(sourcenode.id, k -> new ArrayList<>()).add(new String[]{
         finallyShortRangeSource.id,
-        destination.id.toString(),
-        finallyShortRangeEntry.id.toString(),
+        String.valueOf(destination.id),
+        String.valueOf(finallyShortRangeEntry.id),
         isFinallyMonitorExceptionPath ? "1" : null,
         isContinueEdge ? "1" : null});
 
       mapLongRangeFinallyPathIds.computeIfAbsent(sourcenode.id, k -> new ArrayList<>()).add(new String[]{
         finallyLongRangeSource.id,
-        destination.id.toString(),
-        finallyLongRangeEntry.id.toString(),
+        String.valueOf(destination.id),
+        String.valueOf(finallyLongRangeEntry.id),
         isContinueEdge ? "1" : null});
     }
   }

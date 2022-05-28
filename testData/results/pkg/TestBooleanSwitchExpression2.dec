@@ -36,27 +36,27 @@ public class TestBooleanSwitchExpression2 {
             }
       }
 
-      label31: {
-         label30: {
+      label30: {
+         label29: {
             switch(var4) {
                case 0:
                   if (y < 0) {// 16
-                     break label30;
+                     break label29;
                   }
                   break;
                case 1:
                   if (y > 0) {// 17
-                     break label30;
+                     break label29;
                   }
                   break;
                default:
                   if (y == 0) {// 18
-                     break label30;
+                     break label29;
                   }
             }
 
             System.out.println("Sad");// 22
-            break label31;
+            break label30;
          }
 
          System.out.println("Nice");// 20

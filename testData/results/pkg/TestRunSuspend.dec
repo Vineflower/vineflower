@@ -21,7 +21,7 @@ final class TestRunSuspend {
    }// 4
 
    @Nullable
-   public final Result<Unit> getResult_xLWZpok/* $FF was: getResult-xLWZpok*/() {
+   public final Result<Unit> getResult_xLWZpok/* $QF was: getResult-xLWZpok*/() {
       return this.result;
    }
 
@@ -29,7 +29,7 @@ final class TestRunSuspend {
       this.result = <set-?>;// 5
    }
 
-   // $FF: Extended synchronized range to monitorexit
+   // $QF: Extended synchronized range to monitorexit
    public final void await() {
       synchronized(this) {// 7
          int $i$a$-synchronized-TestRunSuspend$await$1 = 0;

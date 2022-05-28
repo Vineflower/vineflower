@@ -38,7 +38,7 @@ public class TestSynchronizedLoop {
 
    public void test12(int i) {
       synchronized(this) {// 41
-         label94: {
+         label79: {
             System.out.println(1);// 42
 
             while(i > 0) {// 43
@@ -50,7 +50,7 @@ public class TestSynchronizedLoop {
                } finally {
                   System.out.println(1.7);// 49
                   if (i > 5) {// 50
-                     break label94;
+                     break label79;
                   }
 
                }
@@ -69,10 +69,10 @@ public class TestSynchronizedLoop {
 
    }// 65
 
-   // $FF: Could not create synchronized statement, marking monitor enters and exits
+   // $QF: Could not create synchronized statement, marking monitor enters and exits
    public void testLoop(double var1) {
       if (var1 >= 88.29) {// 68
-         synchronized(this){} // $FF: monitorenter // 69
+         synchronized(this){} // $QF: monitorenter // 69
 
          try {
             while(true) {
@@ -80,7 +80,7 @@ public class TestSynchronizedLoop {
                var1 /= 97.81;// 75
             }
          } finally {
-            // $FF: monitorexit// 79
+            // $QF: monitorexit// 79
          }
       }
    }// 81

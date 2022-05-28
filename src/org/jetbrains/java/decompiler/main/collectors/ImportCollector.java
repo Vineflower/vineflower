@@ -3,12 +3,12 @@ package org.jetbrains.java.decompiler.main.collectors;
 
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
-import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
-import org.jetbrains.java.decompiler.struct.attr.StructInnerClassesAttribute;
-import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructContext;
 import org.jetbrains.java.decompiler.struct.StructField;
+import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
+import org.jetbrains.java.decompiler.struct.attr.StructInnerClassesAttribute;
+import org.jetbrains.java.decompiler.util.TextBuffer;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -90,13 +90,13 @@ public class ImportCollector {
     if (node != null && node.classStruct.isOwn()) {
       result = node.simpleName;
 
-      while (node.parent != null && node.type == ClassNode.CLASS_MEMBER) {
+      while (node.parent != null && node.type == ClassNode.Type.MEMBER) {
         //noinspection StringConcatenationInLoop
         result = node.parent.simpleName + '.' + result;
         node = node.parent;
       }
 
-      if (node.type == ClassNode.CLASS_ROOT) {
+      if (node.type == ClassNode.Type.ROOT) {
         fullName = node.classStruct.qualifiedName;
         fullName = fullName.replace('/', '.');
       }

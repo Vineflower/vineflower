@@ -3,7 +3,7 @@ package org.jetbrains.java.decompiler.modules.decompiler.flow;
 
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper.FinallyPathWrapper;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.DummyExitStatement;
 import org.jetbrains.java.decompiler.util.VBStyleCollection;
 
 import java.util.*;
@@ -42,7 +42,7 @@ public class DirectGraph {
       Set<DirectNode> a = new HashSet<>(this.nodes);
       Set<DirectNode> b = new HashSet<>(res);
       a.removeAll(b);
-      a.removeIf(s -> s.statement != null && s.statement.type == Statement.TYPE_DUMMYEXIT);
+      a.removeIf(s -> s.statement instanceof DummyExitStatement);
 
       // FIXME: addFirst is bad! this will mess with the graph structure! but it's needed to properly handle unreachable blocks in SSA, by making these blocks be processed first!
       for (DirectNode nd : a) {

@@ -1,7 +1,7 @@
 package pkg;
 
 public class TestSynchronizeNull {
-   // $FF: Added assignment to ensure synchronized validity
+   // $QF: Added assignment to ensure synchronized validity
    public void test() {
       new Object();
       Object var2 = null;// 6
@@ -11,7 +11,7 @@ public class TestSynchronizeNull {
       }
    }// 9
 
-   // $FF: Added assignment to ensure synchronized validity
+   // $QF: Added assignment to ensure synchronized validity
    public void test1() {
       Object var2 = null;// 13
       Object var5;
@@ -20,7 +20,7 @@ public class TestSynchronizeNull {
       }
    }// 16
 
-   // $FF: Added assignment to ensure synchronized validity
+   // $QF: Added assignment to ensure synchronized validity
    public void test2() {
       Object var2 = null;// 20
       Object var6;

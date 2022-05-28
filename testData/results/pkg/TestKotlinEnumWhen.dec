@@ -120,7 +120,7 @@ public enum TestKotlinEnumWhen {
       throw new Exception();// 26
    }
 
-   private static final DeprecationLevel testConsecutiveMixed$getLevel_0/* $FF was: testConsecutiveMixed$getLevel-0*/() {
+   private static final DeprecationLevel testConsecutiveMixed$getLevel_0/* $QF was: testConsecutiveMixed$getLevel-0*/() {
       throw new Exception();// 51
    }
 }

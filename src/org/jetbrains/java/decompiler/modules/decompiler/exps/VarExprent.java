@@ -11,7 +11,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarProcessor;
-import org.jetbrains.java.decompiler.modules.decompiler.vars.VarTypeProcessor;
+import org.jetbrains.java.decompiler.modules.decompiler.vars.VarTypeProcessor.FinalType;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
@@ -52,7 +52,7 @@ public class VarExprent extends Exprent {
   }
 
   public VarExprent(int index, VarType varType, VarProcessor processor, BitSet bytecode) {
-    super(EXPRENT_VAR);
+    super(Type.VAR);
     this.index = index;
     this.varType = varType;
     this.processor = processor;
@@ -115,7 +115,7 @@ public class VarExprent extends Exprent {
       VarVersionPair varVersion = getVarVersionPair();
 
       if (definition) {
-        if (processor != null && processor.getVarFinal(varVersion) == VarTypeProcessor.VAR_EXPLICIT_FINAL) {
+        if (processor != null && processor.getVarFinal(varVersion) == FinalType.EXPLICIT_FINAL) {
           buffer.append("final ");
         }
         appendDefinitionType(buffer);
@@ -394,7 +394,7 @@ public class VarExprent extends Exprent {
   public boolean isVarReferenced(Exprent exp, VarExprent... whitelist) {
     List<Exprent> lst = exp.getAllExprents(true);
     lst.add(exp);
-    lst = lst.stream().filter(e -> e != this && e.type == Exprent.EXPRENT_VAR &&
+    lst = lst.stream().filter(e -> e != this && e instanceof VarExprent &&
       getVarVersionPair().equals(((VarExprent)e).getVarVersionPair()))
         .collect(Collectors.toList());
 

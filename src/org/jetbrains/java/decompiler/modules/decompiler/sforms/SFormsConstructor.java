@@ -191,7 +191,7 @@ public class SFormsConstructor {
       }
 
       // Foreach init node: mark as assignment!
-      if (node.type == DirectNodeType.FOREACH_VARDEF && node.exprents.get(0).type == Exprent.EXPRENT_VAR) {
+      if (node.type == DirectNodeType.FOREACH_VARDEF && node.exprents.get(0) instanceof VarExprent) {
         this.updateVarExprent((VarExprent) node.exprents.get(0), node.statement, varmaps.getNormal(), calcLiveVars);
       } else if (node.exprents != null) {
         for (Exprent expr : node.exprents) {
@@ -246,25 +246,25 @@ public class SFormsConstructor {
     varMaps.assertIsNormal();
 
     switch (expr.type) {
-      case Exprent.EXPRENT_IF: {
+      case IF: {
         // EXPRENT_IF is a wrapper for the head exprent of an if statement.
         // Therefore, the map needs to stay split, unlike with most other exprents.
         IfExprent ifexpr = (IfExprent) expr;
         this.processExprent(ifexpr.getCondition(), varMaps, stat, calcLiveVars);
         return;
       }
-      case Exprent.EXPRENT_ASSIGNMENT: {
+      case ASSIGNMENT: {
         // Assigning a local overrides all the readable versions of that node.
 
         AssignmentExprent assexpr = (AssignmentExprent) expr;
 
-        if (assexpr.getCondType() != AssignmentExprent.CONDITION_NONE) {
+        if (assexpr.getCondType() != null) {
           throw new IllegalStateException("Didn't expect compound assignment yet");
         }
 
         Exprent dest = assexpr.getLeft();
         switch (dest.type) {
-          case Exprent.EXPRENT_VAR: {
+          case VAR: {
             final VarExprent destVar = (VarExprent) dest;
 
             this.processExprent(assexpr.getRight(), varMaps, stat, calcLiveVars);
@@ -272,12 +272,12 @@ public class SFormsConstructor {
             if (this.trackDirectAssignments) {
 
               switch (assexpr.getRight().type) {
-                case Exprent.EXPRENT_VAR: {
+                case VAR: {
                   VarVersionPair rightpaar = ((VarExprent) assexpr.getRight()).getVarVersionPair();
                   this.varAssignmentMap.put(destVar.getVarVersionPair(), rightpaar);
                   break;
                 }
-                case Exprent.EXPRENT_FIELD: {
+                case FIELD: {
                   int index = this.mapFieldVars.get(assexpr.getRight().id);
                   VarVersionPair rightpaar = new VarVersionPair(index, 0);
                   this.varAssignmentMap.put(destVar.getVarVersionPair(), rightpaar);
@@ -288,7 +288,7 @@ public class SFormsConstructor {
 
             return;
           }
-          case Exprent.EXPRENT_FIELD: {
+          case FIELD: {
             this.processExprent(assexpr.getLeft(), varMaps, stat, calcLiveVars);
             varMaps.assertIsNormal(); // the left side of an assignment can't be a boolean expression
             this.processExprent(assexpr.getRight(), varMaps, stat, calcLiveVars);
@@ -309,10 +309,10 @@ public class SFormsConstructor {
         }
 
       }
-      case Exprent.EXPRENT_FUNCTION: {
+      case FUNCTION: {
         FunctionExprent func = (FunctionExprent) expr;
         switch (func.getFuncType()) {
-          case FunctionExprent.FUNCTION_TERNARY: {
+          case TERNARY: {
             // `a ? b : c`
             // Java language spec: 16.1.5.
             this.processExprent(func.getLstOperands().get(0), varMaps, stat, calcLiveVars);
@@ -341,7 +341,7 @@ public class SFormsConstructor {
 
             return;
           }
-          case FunctionExprent.FUNCTION_BOOLEAN_AND: {
+          case BOOLEAN_AND: {
             // `a && b`
             // Java language spec: 16.1.2.
             this.processExprent(func.getLstOperands().get(0), varMaps, stat, calcLiveVars);
@@ -354,7 +354,7 @@ public class SFormsConstructor {
             varMaps.mergeIfFalse(ifFalse);
             return;
           }
-          case FunctionExprent.FUNCTION_BOOLEAN_OR: {
+          case BOOLEAN_OR: {
             // `a || b`
             // Java language spec: 16.1.3.
             this.processExprent(func.getLstOperands().get(0), varMaps, stat, calcLiveVars);
@@ -367,7 +367,7 @@ public class SFormsConstructor {
             varMaps.mergeIfTrue(ifTrue);
             return;
           }
-          case FunctionExprent.FUNCTION_BOOL_NOT: {
+          case BOOL_NOT: {
             // `!a`
             // Java language spec: 16.1.4.
             this.processExprent(func.getLstOperands().get(0), varMaps, stat, calcLiveVars);
@@ -375,7 +375,7 @@ public class SFormsConstructor {
 
             return;
           }
-          case FunctionExprent.FUNCTION_INSTANCEOF: {
+          case INSTANCEOF: {
             // `a instanceof B`
             // pattern matching instanceof creates a new variable when true.
             this.processExprent(func.getLstOperands().get(0), varMaps, stat, calcLiveVars);
@@ -395,10 +395,10 @@ public class SFormsConstructor {
 
             return;
           }
-          case FunctionExprent.FUNCTION_IMM:
-          case FunctionExprent.FUNCTION_MMI:
-          case FunctionExprent.FUNCTION_IPP:
-          case FunctionExprent.FUNCTION_PPI: {
+          case IMM:
+          case MMI:
+          case IPP:
+          case PPI: {
             // process the var/field/array access
             // Note that ++ and -- are both reads and writes.
             this.processExprent(func.getLstOperands().get(0), varMaps, stat, calcLiveVars);
@@ -406,7 +406,7 @@ public class SFormsConstructor {
             SFormsFastMapDirect varmap = varMaps.getNormal();
 
             switch (func.getLstOperands().get(0).type) {
-              case Exprent.EXPRENT_VAR: {
+              case VAR: {
                 // TODO: why doesn't ssa need to process these?
                 if (!this.trackPhantomPPNodes) {
                   return;
@@ -449,7 +449,7 @@ public class SFormsConstructor {
                 this.setCurrentVar(varmap, varIndex, var.getVersion());
                 return;
               }
-              case Exprent.EXPRENT_FIELD: {
+              case FIELD: {
                 if (this.trackFieldVars) {
                   // assignment to a field resets all fields.
                   varmap.removeAllFields();
@@ -463,12 +463,12 @@ public class SFormsConstructor {
         }
         break;
       }
-      case Exprent.EXPRENT_FIELD: {
+      case FIELD: {
+        FieldExprent field = (FieldExprent) expr;
+        this.processExprent(field.getInstance(), varMaps, stat, calcLiveVars);
+
         // a read of a field variable.
         if (this.trackFieldVars) {
-          FieldExprent field = (FieldExprent) expr;
-          this.processExprent(field.getInstance(), varMaps, stat, calcLiveVars);
-
           int index;
           if (this.mapFieldVars.containsKey(expr.id)) {
             index = this.mapFieldVars.get(expr.id);
@@ -486,7 +486,7 @@ public class SFormsConstructor {
         }
         return;
       }
-      case Exprent.EXPRENT_VAR: {
+      case VAR: {
         // a read of a variable.
         VarExprent vardest = (VarExprent) expr;
         final SFormsFastMapDirect varmap = varMaps.getNormal();
@@ -590,25 +590,25 @@ public class SFormsConstructor {
 
   private static boolean makesFieldsDirty(Exprent expr) {
     switch (expr.type) {
-      case Exprent.EXPRENT_INVOCATION:
+      case INVOCATION:
         return true;
       // already handled
-//      case Exprent.EXPRENT_FUNCTION: {
+//      case FUNCTION: {
 //        FunctionExprent fexpr = (FunctionExprent) expr;
 //        if (fexpr.getFuncType() >= FunctionExprent.FUNCTION_IMM && fexpr.getFuncType() <= FunctionExprent.FUNCTION_PPI) {
-//          if (fexpr.getLstOperands().get(0).type == Exprent.EXPRENT_FIELD) {
+//          if (fexpr.getLstOperands().get(0) instanceof FieldExprent) {
 //            return true;
 //          }
 //        }
 //        break;
 //      }
       // already handled
-//      case Exprent.EXPRENT_ASSIGNMENT:
-//        if (((AssignmentExprent) expr).getLeft().type == Exprent.EXPRENT_FIELD) {
+//      case ASSIGNMENT:
+//        if (((AssignmentExprent) expr).getLeft() instanceof FieldExprent) {
 //          return true;
 //        }
 //        break;
-      case Exprent.EXPRENT_NEW:
+      case NEW:
         if (((NewExprent) expr).getNewType().type == CodeConstants.TYPE_OBJECT) {
           return true;
         }
@@ -849,12 +849,11 @@ public class SFormsConstructor {
         break;
       }
 
-      if (parent.type == Statement.TYPE_CATCHALL ||
-          parent.type == Statement.TYPE_TRYCATCH) {
+      if (parent instanceof CatchAllStatement || parent instanceof CatchStatement) {
         if (parent.getFirst() == stat) {
           return parent;
         }
-      } else if (parent.type == Statement.TYPE_SYNCRONIZED) {
+      } else if (parent instanceof SynchronizedStatement) {
         if (((SynchronizedStatement) parent).getBody() == stat) {
           return parent;
         }
@@ -871,11 +870,11 @@ public class SFormsConstructor {
     SFormsFastMapDirect map;
 
     switch (stat.type) {
-      case Statement.TYPE_CATCHALL:
-      case Statement.TYPE_TRYCATCH:
+      case CATCH_ALL:
+      case TRY_CATCH:
 
         List<VarExprent> lstVars;
-        if (stat.type == Statement.TYPE_CATCHALL) {
+        if (stat instanceof CatchAllStatement) {
           lstVars = ((CatchAllStatement) stat).getVars();
         } else {
           lstVars = ((CatchStatement) stat).getVars();
