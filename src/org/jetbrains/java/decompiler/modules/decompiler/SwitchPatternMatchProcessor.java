@@ -77,11 +77,11 @@ public final class SwitchPatternMatchProcessor {
       // at the start of that branch
       // alternatively, it can be inverted as `if (guardCond) { /* regular case code... */ break; } idx = __thisIdx + 1;`
       // remove the initial assignment to 0
-      Pair<Statement, Exprent> refA = references.get(0);
-      if (refA.b instanceof AssignmentExprent && ((AssignmentExprent) refA.b).getRight() instanceof ConstExprent) {
-        ConstExprent constExprent = (ConstExprent) ((AssignmentExprent) refA.b).getRight();
+      Pair<Statement, Exprent> initialUse = references.get(0);
+      if (initialUse.b instanceof AssignmentExprent && ((AssignmentExprent) initialUse.b).getRight() instanceof ConstExprent) {
+        ConstExprent constExprent = (ConstExprent) ((AssignmentExprent) initialUse.b).getRight();
         if (constExprent.getConstType().typeFamily == CodeConstants.TYPE_FAMILY_INTEGER && constExprent.getIntValue() == 0) {
-          refA.a.getExprents().remove(refA.b);
+          initialUse.a.getExprents().remove(initialUse.b);
           references.remove(0);
         }
       }
@@ -128,11 +128,7 @@ public final class SwitchPatternMatchProcessor {
                   guardIf.getParent().getStats().remove(0);
                   Statement nextStat = guardIf.getParent().getStats().get(0);
                   // add the pattern variable assignment (or case code for inverted cases) to next statement
-                  if (nextStat instanceof BasicBlockStatement) {
-                    nextStat.getExprents().addAll(0, castExprent);
-                  } else {
-                    nextStat.getFirst().getExprents().addAll(0, castExprent);
-                  }
+                  nextStat.getBasichead().getExprents().addAll(0, castExprent);
                   break;
                 }
               }
@@ -155,8 +151,9 @@ public final class SwitchPatternMatchProcessor {
 
       if (guards.containsKey(allCases)) {
         // add the guard to the same index as this case, padding the list with nulls as necessary
-        while(stat.getCaseGuards().size() <= i)
+        while(stat.getCaseGuards().size() <= i) {
           stat.getCaseGuards().add(null);
+        }
         stat.getCaseGuards().set(i, guards.get(allCases));
       }
       if (caseExpr instanceof ConstExprent) {
@@ -185,12 +182,8 @@ public final class SwitchPatternMatchProcessor {
           oldStat.replaceWith(caseStat);
         }
       }
-      // the pattern assignment might be absorbed by another other statement (like a DoStat or IfStat) as its "first"
-      if (!(caseStat instanceof BasicBlockStatement)) {
-        caseStat = caseStat.getFirst();
-      }
       // make instanceof from assignment
-      BasicBlockStatement caseStatBlock = (BasicBlockStatement)caseStat;
+      BasicBlockStatement caseStatBlock = caseStat.getBasichead();;
       if (caseStatBlock.getExprents().size() >= 1) {
         Exprent expr = caseStatBlock.getExprents().get(0);
         if (expr instanceof AssignmentExprent) {
