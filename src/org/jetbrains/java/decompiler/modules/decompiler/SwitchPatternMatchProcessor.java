@@ -256,8 +256,7 @@ public final class SwitchPatternMatchProcessor {
       stat.getParent().replaceWith(stat);
       // and remove any invalid `continue` edges to the switch
       for (StatEdge edge : stat.getPredecessorEdges(StatEdge.TYPE_CONTINUE)) {
-        stat.removePredecessor(edge);
-        edge.getSource().removeSuccessor(edge);
+        edge.remove();
       }
     }
 

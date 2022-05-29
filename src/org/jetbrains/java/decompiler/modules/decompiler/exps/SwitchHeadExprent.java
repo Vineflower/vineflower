@@ -3,6 +3,8 @@
  */
 package org.jetbrains.java.decompiler.modules.decompiler.exps;
 
+import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
@@ -60,7 +62,7 @@ public class SwitchHeadExprent extends Exprent {
             : expr.getExprType();
           if (!caseType.equals(valType)) {
             if (valType == null) {
-              System.err.println("Invalid case set: " + caseValues);
+              DecompilerContext.getLogger().writeMessage("Invalid switch case set: " + caseValues, IFernflowerLogger.Severity.ERROR);
             }
             valType = VarType.getCommonSupertype(caseType, valType);
             result.addMinTypeExprent(value, valType);
