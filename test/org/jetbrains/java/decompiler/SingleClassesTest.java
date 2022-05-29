@@ -116,6 +116,16 @@ public class SingleClassesTest extends SingleClassesTestBase {
       IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "0",
       IFernflowerPreferences.RENAME_ENTITIES, "1"
     );
+    registerSet("Complex Condys", () -> register(JASM, "TestComplexCondy"),
+      IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
+      IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
+      IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR, "0",
+      IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
+      IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
+      IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "0",
+      IFernflowerPreferences.DECOMPILE_COMPLEX_CONDYS, "1",
+      IFernflowerPreferences.PREFERRED_LINE_LENGTH, "250"
+    );
     // TODO: user renamer class test
   }
 
@@ -276,7 +286,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestSynchronizedLoop");
     // TODO: break out of synchronized isn't explicit
     register(JAVA_8, "TestSynchronizedTry");
-    // TODO: #163 fails to create synchronized statement
+    // TODO: loops still broken
     register(JAVA_8, "TestSynchronizedThrow");
     register(JAVA_8, "TestSynchronizeNull");
     // TODO: Assignments are removed, producing incorrect code

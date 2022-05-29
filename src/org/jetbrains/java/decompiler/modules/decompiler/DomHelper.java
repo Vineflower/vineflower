@@ -262,7 +262,9 @@ public final class DomHelper {
 
               CatchAllStatement ca = (CatchAllStatement)next;
 
-              if (ca.getFirst().isContainsMonitorExit() && ca.getHandler().isContainsMonitorExit()) {
+              // If the body of the monitor ends in a throw, it won't have a monitor exit as the catch handler will call it.
+              // However, the handler *must* have a monitorexit!
+              if (ca.getFirst().containsMonitorExitOrAthrow() && ca.getHandler().containsMonitorExit()) {
 
                 // remove monitorexit
                 ca.getFirst().markMonitorexitDead();

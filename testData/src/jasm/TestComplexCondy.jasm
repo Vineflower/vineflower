@@ -1,0 +1,57 @@
+package pkg;
+
+super public class TestComplexCondy
+	version 55:0
+{
+
+public static Field field:"Ljava/lang/Integer;";
+public Field instance:"Ljava/lang/Integer;";
+public Field primitive:"I";
+
+private static Method "<clinit>":"()V"
+  stack 1 locals 0
+{
+  iconst_1;
+  invokestatic Method java/lang/Integer."valueOf":"(I)Ljava/lang/Integer;";
+  putstatic Field field:"Ljava/lang/Integer;";
+}
+
+public static Method testVarHandle:"()Ljava/lang/invoke/VarHandle;"
+	stack 1 locals 0
+{
+  ldc Dynamic REF_invokeStatic:java/lang/invoke/ConstantBootstraps.fieldVarHandle:"(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/Class;Ljava/lang/Class;)Ljava/lang/Object;":instance:"Ljava/lang/invoke/VarHandle;"{
+    class "pkg/TestCondy",
+    class "java/lang/Integer"
+  };
+  areturn;
+}
+
+public static Method testStaticVarHandle:"()Ljava/lang/invoke/VarHandle;"
+	stack 1 locals 0
+{
+  ldc Dynamic REF_invokeStatic:java/lang/invoke/ConstantBootstraps.staticFieldVarHandle:"(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/Class;Ljava/lang/Class;)Ljava/lang/Object;":field:"Ljava/lang/invoke/VarHandle;"{
+    class "pkg/TestCondy",
+    class "java/lang/Integer"
+  };
+  areturn;
+}
+
+public static Method testPrimitiveVarHandle:"()Ljava/lang/invoke/VarHandle;"
+	stack 1 locals 0
+{
+  ldc Dynamic REF_invokeStatic:java/lang/invoke/ConstantBootstraps.fieldVarHandle:"(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/Class;Ljava/lang/Class;)Ljava/lang/Object;":primitive:"Ljava/lang/invoke/VarHandle;"{
+    class "pkg/TestCondy",
+    Dynamic REF_invokeStatic:java/lang/invoke/ConstantBootstraps.primitiveClass:"(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/Class;)Ljava/lang/Class;":I:"Ljava/lang/Class;"
+  };
+  areturn;
+}
+
+public static Method testArrayVarHandle:"()Ljava/lang/invoke/VarHandle;"
+	stack 1 locals 0
+{
+  ldc Dynamic REF_invokeStatic:java/lang/invoke/ConstantBootstraps.arrayVarHandle:"(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/Class;Ljava/lang/Class;)Ljava/lang/Object;":unused:"Ljava/lang/invoke/VarHandle;"{
+    class "[Lpkg/TestCondy;"
+  };
+  areturn;
+}
+}

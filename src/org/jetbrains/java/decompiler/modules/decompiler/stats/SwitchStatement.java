@@ -234,6 +234,10 @@ public final class SwitchStatement extends Statement {
       }
     }
 
+    for (List<Exprent> caseList : this.caseValues) {
+      lst.addAll(caseList);
+    }
+
     return lst;
   }
 
