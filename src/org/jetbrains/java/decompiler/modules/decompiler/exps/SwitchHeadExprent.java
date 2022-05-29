@@ -62,7 +62,7 @@ public class SwitchHeadExprent extends Exprent {
             : expr.getExprType();
           if (!caseType.equals(valType)) {
             if (valType == null) {
-              DecompilerContext.getLogger().writeMessage("Invalid switch case set: " + caseValues, IFernflowerLogger.Severity.ERROR);
+              throw new IllegalStateException("Invalid switch case set: " + caseValues);
             }
             valType = VarType.getCommonSupertype(caseType, valType);
             result.addMinTypeExprent(value, valType);
