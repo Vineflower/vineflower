@@ -91,8 +91,9 @@ public abstract class Statement implements IMatchable {
 
   protected LastBasicType lastBasicType = LastBasicType.GENERAL;
 
+  // Monitor flags
   protected boolean isMonitorEnter;
-
+  protected boolean isLastAthrow;
   protected boolean containsMonitorExit;
 
   protected HashSet<Statement> continueSet = new HashSet<>();
@@ -392,6 +393,7 @@ public abstract class Statement implements IMatchable {
             }
           }
           isMonitorEnter = (seq.getLastInstr().opcode == CodeConstants.opc_monitorenter);
+          isLastAthrow = (seq.getLastInstr().opcode == CodeConstants.opc_athrow);
         }
         break;
 
@@ -402,7 +404,7 @@ public abstract class Statement implements IMatchable {
       default:
         containsMonitorExit = false;
         for (Statement st : stats) {
-          containsMonitorExit |= st.isContainsMonitorExit();
+          containsMonitorExit |= st.containsMonitorExit();
         }
     }
   }
@@ -869,8 +871,12 @@ public abstract class Statement implements IMatchable {
     return continueSet;
   }
 
-  public boolean isContainsMonitorExit() {
+  public boolean containsMonitorExit() {
     return containsMonitorExit;
+  }
+
+  public boolean containsMonitorExitOrAthrow() {
+    return this.containsMonitorExit || this.isLastAthrow;
   }
 
   public boolean isMonitorEnter() {
