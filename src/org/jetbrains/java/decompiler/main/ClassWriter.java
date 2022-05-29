@@ -512,7 +512,8 @@ public class ClassWriter {
     StructPermittedSubclassesAttribute permittedSubClassesAttr = cl.getAttribute(StructGeneralAttribute.ATTRIBUTE_PERMITTED_SUBCLASSES);
     List<String> permittedSubClasses = permittedSubClassesAttr != null ? permittedSubClassesAttr.getClasses() : Collections.emptyList();
     boolean isSealed = permittedSubClassesAttr != null && !permittedSubClasses.isEmpty();
-    boolean isNonSealed = !isSealed && cl.getVersion().hasSealedClasses() && isSuperClassSealed(cl);
+    boolean isFinal = (flags & CodeConstants.ACC_FINAL) != 0;
+    boolean isNonSealed = !isSealed && !isFinal && cl.getVersion().hasSealedClasses() && isSuperClassSealed(cl);
 
     if (isDeprecated) {
       if (!containsDeprecatedAnnotation(cl)) {

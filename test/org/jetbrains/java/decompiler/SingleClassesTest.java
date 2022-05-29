@@ -258,7 +258,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestInlineAssignments");
     // TODO: Cast of (Func) is removed
     register(JAVA_8, "TestInterfaceLambdaCast");
-    // TODO: Local scope is removed, replaced with boolean cast
     register(JAVA_8, "TestLocalScopeClash");
     register(JAVA_8, "TestMultiBoolean");
     register(JAVA_8, "TestNestedFor");
@@ -277,6 +276,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestSynchronizedLoop");
     // TODO: break out of synchronized isn't explicit
     register(JAVA_8, "TestSynchronizedTry");
+    // TODO: #163 fails to create synchronized statement
+    register(JAVA_8, "TestSynchronizedThrow");
     register(JAVA_8, "TestSynchronizeNull");
     // TODO: Assignments are removed, producing incorrect code
     // derived from: IDEA-180373
@@ -371,6 +372,9 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: inner switch expression not created
     register(JAVA_16, "TestSwitchExpressionNested1");
     register(JAVA_16, "TestSwitchExprInvoc");
+
+    // TODO: #161 creates an illegal switch expression
+    register(JAVA_16, "TestAccidentalSwitchExpression");
 
     register(JAVA_16_PREVIEW, "TestSealedClasses");
     register(JAVA_16_PREVIEW, "PermittedSubClassA", "TestSealedClasses");
@@ -473,6 +477,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: look at underlying issue with finally and loops here
     // TODO: test5 variable usage in finally block is incorrect, <unknown> variable
     register(JAVA_8, "TestLoopFinally");
+    // TODO: #162 produces a `(<unknown>)` cast between 2 booleans
+    register(JAVA_8, "TestUnknownCast");
     // TODO: local classes not being put in the right spots
     register(JAVA_8, "TestLocalClassesSwitch"); // Adapted from CFR
     // TODO: return not condensed properly and throw is not put into finally
@@ -480,6 +486,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestWhile1");
     registerRaw(CUSTOM, "TestEclipseSwitchEnum");
     registerRaw(CUSTOM, "TestEclipseSwitchString");
+    registerRaw(CUSTOM, "TestStringConcatJ19");
     register(JAVA_8, "TestNestedAnonymousClass");
     register(JAVA_8, "TestPPMMLoop");
     // TODO: loops not eliminated properly, foreach not created
@@ -540,9 +547,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestInstanceStaticInvoke");
     // TODO: finally fails to be verified
     register(JAVA_8, "TestFinallyBlockVariableUse");
-    // TODO: improper boolean merge
     register(JAVA_8, "TestIntBoolMerge");
-    // TODO: improper boolean merge
     register(JAVA_8_NODEBUG, "TestIntBoolMergeNoDebug");
     register(JAVA_8, "TestInnerClassGeneric");
     // TODO: array access not simplified
@@ -579,6 +584,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestBooleanExpressions");
     // TODO: cast not created, incorrect
     register(JAVA_8, "TestObjectBitwise");
+    register(JAVA_17, "TestSealedFinal", "SealedInterface");
+    register(JAVA_17, "TestSealedRecord", "SealedInterface");
   }
 
   private void registerEntireClassPath() {

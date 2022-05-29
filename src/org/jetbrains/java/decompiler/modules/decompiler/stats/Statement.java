@@ -26,10 +26,16 @@ import java.util.Map.Entry;
 
 public abstract class Statement implements IMatchable {
   public enum StatementType {
-    ROOT, BASIC_BLOCK, SEQUENCE, DUMMY_EXIT,
-    GENERAL,
-    IF, DO, SWITCH,
-    SYNCHRONIZED, TRY_CATCH, CATCH_ALL,
+    ROOT("Root"), BASIC_BLOCK("Block"), SEQUENCE("Seq"), DUMMY_EXIT("Exit"),
+    GENERAL("General"),
+    IF("If"), DO("Do"), SWITCH("Switch"),
+    SYNCHRONIZED("Monitor"), TRY_CATCH("Catch"), CATCH_ALL("CatchAll");
+
+    private final String prettyId;
+
+    StatementType(String prettyId) {
+      this.prettyId = prettyId;
+    }
   }
   // All edge types
   public static final int STATEDGE_ALL = 0x80000000;
@@ -478,6 +484,26 @@ public abstract class Statement implements IMatchable {
     return false;
   }
 
+  public boolean containsStatementById(int statId) {
+    return this.id == statId || containsStatementStrictById(statId);
+  }
+
+  public boolean containsStatementStrictById(int statId) {
+    for (Statement stat : stats) {
+      if (stat.id == statId) {
+        return true;
+      }
+    }
+
+    for (Statement st : stats) {
+      if (st.containsStatementStrictById(statId)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   public TextBuffer toJava() {
     return toJava(0);
   }
@@ -514,7 +540,7 @@ public abstract class Statement implements IMatchable {
   }
 
   public final void replaceWithEmpty() {
-    this.parent.replaceStatement(this, BasicBlockStatement.create());
+    replaceWith(BasicBlockStatement.create());
   }
 
   public void replaceStatement(Statement oldstat, Statement newstat) {
@@ -930,7 +956,7 @@ public abstract class Statement implements IMatchable {
 
   // helper methods
   public String toString() {
-    return type.toString().toLowerCase(Locale.ROOT) + ":" + id;
+    return "{" + type.prettyId + "}:" + id;
   }
 
   //TODO: Cleanup/cache?

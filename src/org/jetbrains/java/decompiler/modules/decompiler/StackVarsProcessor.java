@@ -6,6 +6,10 @@ import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectNode;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectNodeType;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.DoStatement;
@@ -137,11 +141,11 @@ public class StackVarsProcessor {
         lstLists.add(nd.exprents);
       }
 
-      if (nd.succs.size() == 1) {
-        DirectNode ndsucc = nd.succs.get(0);
+      if (nd.succs().size() == 1) {
+        DirectNode ndsucc = nd.succs().get(0);
 
-        if (ndsucc.type == DirectNode.NodeType.TAIL && !ndsucc.exprents.isEmpty()) {
-          lstLists.add(nd.succs.get(0).exprents);
+        if (ndsucc.type == DirectNodeType.TAIL && !ndsucc.exprents.isEmpty()) {
+          lstLists.add(nd.succs().get(0).exprents);
           nd = ndsucc;
         }
       }
@@ -198,7 +202,7 @@ public class StackVarsProcessor {
         }
       }
 
-      for (DirectNode ndx : nd.succs) {
+      for (DirectNode ndx : nd.succs()) {
         stack.add(ndx);
         stackMaps.add(new HashMap<>(mapVarValues));
       }
@@ -206,7 +210,7 @@ public class StackVarsProcessor {
       // make sure the 3 special exprent lists in a loop (init, condition, increment) are not empty
       // change loop type if necessary
       if (nd.exprents.isEmpty() &&
-          (nd.type == DirectNode.NodeType.INIT || nd.type == DirectNode.NodeType.CONDITION || nd.type == DirectNode.NodeType.INCREMENT)) {
+          (nd.type == DirectNodeType.INIT || nd.type == DirectNodeType.CONDITION || nd.type == DirectNodeType.INCREMENT)) {
         nd.exprents.add(null);
 
         if (nd.statement instanceof DoStatement) {

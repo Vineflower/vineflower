@@ -148,7 +148,7 @@ public final class SwitchStatement extends Statement {
       for (int j = 0; j < edges.size(); j++) {
         if (edges.get(j) == defaultEdge) {
           buf.appendIndent(indent + 1).append("default:");
-          if (this.scopedCaseStatements.contains(stat)) {
+          if (this.scopedCaseStatements.contains(stat) && j == edges.size() - 1) {
             buf.append(" {");
           }
 
@@ -178,7 +178,7 @@ public final class SwitchStatement extends Statement {
           }
 
           buf.append(":");
-          if (this.scopedCaseStatements.contains(stat)) {
+          if (this.scopedCaseStatements.contains(stat) && j == edges.size() - 1) {
             buf.append(" {");
           }
           buf.appendLineSeparator();
@@ -201,6 +201,17 @@ public final class SwitchStatement extends Statement {
     }
 
     return buf;
+  }
+
+  // Needed for flatten statements
+  public Statement findCaseBranchContaining(int id) {
+    for (Statement st : this.caseStatements) {
+      if (st.containsStatementById(id)) {
+        return st;
+      }
+    }
+
+    return null;
   }
 
   @Override

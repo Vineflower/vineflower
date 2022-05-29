@@ -1,0 +1,231 @@
+package pkg;
+
+public class TestSynchronizedThrow {
+   // $QF: Could not create synchronized statement, marking monitor enters and exits
+   public void test() {
+      synchronized(this){} // $QF: monitorenter // 5
+
+      try {
+         throw new RuntimeException();// 6
+      } finally {
+         // $QF: monitorexit// 7
+      }
+   }
+
+   // $QF: Could not create synchronized statement, marking monitor enters and exits
+   public void test1() {
+      System.out.println("Hi");// 11
+      synchronized(this){} // $QF: monitorenter // 12
+
+      try {
+         System.out.println("Hello");// 13
+         throw new RuntimeException();// 14
+      } finally {
+         // $QF: monitorexit// 15
+      }
+   }
+
+   public void testConditionalThrow(boolean b) {
+      synchronized(this) {// 19
+         if (b) {// 20
+            throw new RuntimeException();// 21
+         }
+      }
+   }// 24
+
+   public void testConditionalThrow2(boolean b) {
+      System.out.println("Hi");// 27
+      synchronized(this) {// 28
+         System.out.println("Hello");// 29
+         if (b) {// 30
+            throw new RuntimeException();// 31
+         }
+
+         System.out.println("World");// 33
+      }
+
+      System.out.println("Bye");// 35
+   }// 36
+
+   // $QF: Could not create synchronized statement, marking monitor enters and exits
+   public void testLoopThrow(boolean b) {
+      synchronized(this){} // $QF: monitorenter // 39
+
+      try {
+         while(b) {// 40
+            System.out.println("oh");// 41
+         }
+
+         throw new RuntimeException();// 43
+      } finally {
+         // $QF: monitorexit// 44
+      }
+   }
+
+   // $QF: Could not create synchronized statement, marking monitor enters and exits
+   public void testInfiniteLoopOrThrow(boolean b) {
+      synchronized(this){} // $QF: monitorenter // 48
+
+      try {
+         if (b) {// 49
+            while(true) {
+               System.out.println("looooooooooop");// 51
+            }
+         }
+
+         throw new RuntimeException();// 54
+      } finally {
+         // $QF: monitorexit// 55
+      }
+   }
+}
+
+class 'pkg/TestSynchronizedThrow' {
+   method 'test ()V' {
+      0      5
+      3      5
+      b      8
+      d      10
+   }
+
+   method 'test1 ()V' {
+      0      16
+      1      16
+      2      16
+      3      16
+      4      16
+      5      16
+      6      16
+      7      16
+      8      17
+      b      17
+      c      20
+      d      20
+      e      20
+      f      20
+      10      20
+      11      20
+      12      20
+      13      20
+      1b      21
+      1d      23
+   }
+
+   method 'testConditionalThrow (Z)V' {
+      0      28
+      3      28
+      4      29
+      5      29
+      f      30
+      1a      33
+   }
+
+   method 'testConditionalThrow2 (Z)V' {
+      0      36
+      1      36
+      2      36
+      3      36
+      4      36
+      5      36
+      6      36
+      7      36
+      8      37
+      b      37
+      c      38
+      d      38
+      e      38
+      f      38
+      10      38
+      11      38
+      12      38
+      13      38
+      14      39
+      15      39
+      1f      40
+      20      43
+      21      43
+      22      43
+      23      43
+      24      43
+      25      43
+      26      43
+      27      43
+      32      46
+      33      46
+      34      46
+      35      46
+      36      46
+      37      46
+      38      46
+      39      46
+      3a      47
+   }
+
+   method 'testLoopThrow (Z)V' {
+      0      51
+      3      51
+      4      54
+      8      55
+      9      55
+      a      55
+      b      55
+      c      55
+      d      55
+      e      55
+      f      55
+      1a      58
+      1c      60
+   }
+
+   method 'testInfiniteLoopOrThrow (Z)V' {
+      0      66
+      3      66
+      4      69
+      5      69
+      8      71
+      9      71
+      a      71
+      b      71
+      c      71
+      d      71
+      e      71
+      f      71
+      1a      75
+      1c      77
+   }
+}
+
+Lines mapping:
+5 <-> 6
+6 <-> 9
+7 <-> 11
+11 <-> 17
+12 <-> 18
+13 <-> 21
+14 <-> 22
+15 <-> 24
+19 <-> 29
+20 <-> 30
+21 <-> 31
+24 <-> 34
+27 <-> 37
+28 <-> 38
+29 <-> 39
+30 <-> 40
+31 <-> 41
+33 <-> 44
+35 <-> 47
+36 <-> 48
+39 <-> 52
+40 <-> 55
+41 <-> 56
+43 <-> 59
+44 <-> 61
+48 <-> 67
+49 <-> 70
+51 <-> 72
+54 <-> 76
+55 <-> 78
+Not mapped:
+23
+34
