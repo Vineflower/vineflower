@@ -123,7 +123,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
       IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
       IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
       IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "0",
-      IFernflowerPreferences.DECOMPILE_COMPLEX_CONDYS, "1"
+      IFernflowerPreferences.DECOMPILE_COMPLEX_CONDYS, "1",
+      IFernflowerPreferences.PREFERRED_LINE_LENGTH, "250"
     );
     // TODO: user renamer class test
   }

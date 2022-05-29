@@ -13,8 +13,7 @@ public class TestComplexCondy {
    }
 
    public static VarHandle testStaticVarHandle() {
-      return /* $QF: constant dynamic replaced with non-lazy method call */ MethodHandles.lookup()// 36
-         .findStaticVarHandle(TestCondy.class, "field", Integer.class);
+      return /* $QF: constant dynamic replaced with non-lazy method call */ MethodHandles.lookup().findStaticVarHandle(TestCondy.class, "field", Integer.class);// 36
    }
 
    public static VarHandle testPrimitiveVarHandle() {
@@ -36,19 +35,19 @@ class 'pkg/TestComplexCondy' {
    }
 
    method 'testPrimitiveVarHandle ()Ljava/lang/invoke/VarHandle;' {
-      2      20
+      2      19
    }
 
    method 'testArrayVarHandle ()Ljava/lang/invoke/VarHandle;' {
-      2      24
+      2      23
    }
 }
 
 Lines mapping:
 26 <-> 12
 36 <-> 16
-46 <-> 21
-55 <-> 25
+46 <-> 20
+55 <-> 24
 Not mapped:
 22
 32
