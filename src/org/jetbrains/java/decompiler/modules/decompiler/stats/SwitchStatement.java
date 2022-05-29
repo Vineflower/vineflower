@@ -220,6 +220,10 @@ public final class SwitchStatement extends Statement {
     List<Object> lst = new ArrayList<>(stats);
     lst.add(1, headexprent.get(0));
 
+    for (List<Exprent> caseList : this.caseValues) {
+      lst.addAll(caseList);
+    }
+
     return lst;
   }
 
