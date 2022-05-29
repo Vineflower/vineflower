@@ -6,13 +6,13 @@ public class TestSwitchPatternMatchingInstanceof1 {
    public void test(Object o) {
       Objects.requireNonNull(o);// 5
       switch(o) {
-         case var2 instanceof String s && o instanceof Integer a:// 6
+         case o instanceof String s && o instanceof Integer a:// 6
             System.out.println(s);
-         case var2 instanceof Integer i:// 7
+         case o instanceof Integer i:// 7
             System.out.println(i);
             return;// 11
-         case var2 instanceof String s:// 8
-            System.out.println(s);
+         case o instanceof String sx:// 8
+            System.out.println(sx);
             return;
          default:
             System.out.println("Default");// 9
@@ -27,7 +27,6 @@ class 'pkg/TestSwitchPatternMatchingInstanceof1' {
       3      6
       4      6
       10      7
-      2c      8
       30      8
       31      8
       32      8
@@ -49,7 +48,6 @@ class 'pkg/TestSwitchPatternMatchingInstanceof1' {
       49      9
       4a      9
       4b      9
-      52      10
       56      10
       57      10
       58      11
@@ -60,7 +58,6 @@ class 'pkg/TestSwitchPatternMatchingInstanceof1' {
       5d      11
       5e      11
       5f      11
-      63      13
       67      13
       68      13
       69      14

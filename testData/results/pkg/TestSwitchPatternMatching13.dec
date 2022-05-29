@@ -9,17 +9,17 @@ public class TestSwitchPatternMatching13 {
             }
 
             return;// 34
-         case var1 instanceof TestSwitchPatternMatching13.Triangle t && t.calculateArea() > 150.0:// 6
+         case s instanceof TestSwitchPatternMatching13.Triangle t && t.calculateArea() > 150.0:// 6
             if (t.hashCode() > 0) {// 7
                System.out.println("Larger positive-hash triangle");// 8
             }
 
             System.out.println("Larger triangle: " + t);// 10
             return;
-         case var1 instanceof TestSwitchPatternMatching13.Triangle t && t.calculateArea() > 50.0:// 12
+         case s instanceof TestSwitchPatternMatching13.Triangle tx && tx.calculateArea() > 50.0:// 12
             System.out.println("Smaller triangle");// 13
             return;
-         case var1 instanceof TestSwitchPatternMatching13.Triangle t && t.calculateArea() > 100.0:// 14
+         case s instanceof TestSwitchPatternMatching13.Triangle txx && txx.calculateArea() > 100.0:// 14
             System.out.println("Large triangle");// 15
 
             while(Math.random() > 0.5) {// 16
@@ -27,8 +27,8 @@ public class TestSwitchPatternMatching13 {
             }
 
             return;
-         case var1 instanceof TestSwitchPatternMatching13.Triangle t:// 20
-            if (t.hashCode() > 0) {// 21
+         case s instanceof TestSwitchPatternMatching13.Triangle txxx:// 20
+            if (txxx.hashCode() > 0) {// 21
                System.out.println("Small positive-hash triangle");// 22
             }
 
@@ -55,7 +55,6 @@ class 'pkg/TestSwitchPatternMatching13' {
    method 'test (Lpkg/TestSwitchPatternMatching13$Shape;)V' {
       0      4
       b      4
-      2c      11
       30      11
       31      11
       32      11
@@ -88,7 +87,6 @@ class 'pkg/TestSwitchPatternMatching13' {
       59      16
       5a      16
       5b      16
-      5f      18
       63      18
       64      18
       65      18
@@ -108,7 +106,6 @@ class 'pkg/TestSwitchPatternMatching13' {
       7b      19
       7c      19
       7d      19
-      81      21
       85      21
       86      21
       87      21
@@ -141,7 +138,6 @@ class 'pkg/TestSwitchPatternMatching13' {
       af      25
       b0      25
       b1      25
-      b5      29
       b9      29
       ba      29
       bb      30
