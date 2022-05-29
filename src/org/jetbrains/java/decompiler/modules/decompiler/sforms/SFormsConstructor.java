@@ -136,6 +136,8 @@ public class SFormsConstructor {
     FlattenStatementsHelper flatthelper = new FlattenStatementsHelper();
     DirectGraph dgraph = flatthelper.buildDirectGraph(root);
     this.dgraph = dgraph;
+    ValidationHelper.validateDGraph(dgraph, root);
+    ValidationHelper.validateAllVarVersionsAreNull(dgraph, root);
 
     DotExporter.toDotFile(dgraph, mt, "ssaSplitVariables");
 
