@@ -1,0 +1,113 @@
+package pkg;
+
+import java.util.Objects;
+
+public class TestSwitchPatternMatching15 {
+   static void test(Object s) {
+      Objects.requireNonNull(s);// 5
+      <unknown> var3;
+      <unknown> var4;
+      switch(s) {
+         case invalid constant type: Ljava/lang/Object; && var3 > 0:// 6
+            System.out.println("positive integer: " + var3_1);// 7
+            return;// 21
+         case invalid constant type: Ljava/lang/Object; && var4.hashCode() != 0:// 9
+            System.out.println("Normal number: " + var4_1);// 10
+            return;
+         case invalid constant type: Ljava/lang/Object;:
+            Object i;
+            System.out.println(i);// 13
+            return;
+         case invalid constant type: Ljava/lang/Object;:
+            <unknown> var6;
+            System.out.println("Number: " + var6_1);// 16
+            return;
+      }
+   }
+}
+
+class 'pkg/TestSwitchPatternMatching15' {
+   method 'test (Ljava/lang/Object;)V' {
+      0      6
+      2      6
+      3      6
+      4      6
+      10      9
+      35      10
+      36      10
+      37      10
+      38      10
+      39      10
+      41      11
+      42      11
+      43      11
+      44      11
+      45      11
+      46      11
+      47      11
+      48      11
+      49      11
+      4a      11
+      4b      11
+      4c      11
+      56      13
+      57      13
+      58      13
+      59      13
+      5a      13
+      5b      13
+      63      14
+      64      14
+      65      14
+      66      14
+      67      14
+      68      14
+      69      14
+      6a      14
+      6b      14
+      6c      14
+      6d      14
+      6e      14
+      6f      14
+      79      18
+      7a      18
+      7b      18
+      7c      18
+      7d      18
+      7e      18
+      7f      18
+      80      18
+      8a      22
+      8b      22
+      8c      22
+      8d      22
+      8e      22
+      8f      22
+      90      22
+      91      22
+      92      22
+      93      22
+      94      22
+      95      22
+      96      22
+      9d      12
+   }
+}
+
+Lines mapping:
+5 <-> 7
+6 <-> 11
+7 <-> 12
+9 <-> 14
+10 <-> 15
+13 <-> 19
+16 <-> 23
+21 <-> 13
+Not mapped:
+8
+11
+12
+14
+15
+17
+19
