@@ -436,6 +436,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JASM, "TestCondy");
     register(JASM, "TestBackwardsExceptionHandler");
     register(JASM, "TestLeakyMethod");
+    // FIXME: issue #164: produces `for (var1 : var1)`
+    register(JASM, "TestSelfIterableLoop");
 
     register(JAVA_8, "TestStaticInit");
     register(JAVA_8_NODEBUG, "TestDoubleNestedClass");

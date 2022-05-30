@@ -1,0 +1,68 @@
+package pkg;
+
+public class TestSelfIterableLoop {
+   public void testMethod(Iterable var1) {
+      label14:
+      while(true) {
+         for(var1 : var1) {// 20 21 22 27 28 29
+            if (var1 instanceof Ljava.lang.Iterable) {// 30 31 32
+               var1 = (Ljava.lang.Iterable)var1;// 33 34 35
+               continue label14;// 36
+            }
+         }
+
+         return;// 38
+      }
+   }
+}
+
+class 'pkg/TestSelfIterableLoop' {
+   method 'testMethod (Ljava/lang/Iterable;)V' {
+      0      6
+      1      6
+      2      6
+      3      6
+      4      6
+      5      6
+      6      6
+      10      6
+      11      6
+      12      6
+      13      6
+      14      6
+      15      6
+      16      6
+      17      7
+      18      7
+      19      7
+      1a      7
+      1b      7
+      1e      8
+      1f      8
+      20      8
+      21      8
+      22      8
+      23      9
+      26      13
+   }
+}
+
+Lines mapping:
+20 <-> 7
+21 <-> 7
+22 <-> 7
+27 <-> 7
+28 <-> 7
+29 <-> 7
+30 <-> 8
+31 <-> 8
+32 <-> 8
+33 <-> 9
+34 <-> 9
+35 <-> 9
+36 <-> 10
+38 <-> 14
+Not mapped:
+24
+25
+26
