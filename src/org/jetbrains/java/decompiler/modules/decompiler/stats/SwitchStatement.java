@@ -73,12 +73,7 @@ public final class SwitchStatement extends Statement {
 
     //We need to use set above in case we have multiple edges to the same node. But HashSets iterator is not ordered, so sort
     List<Statement> sorted = new ArrayList<>(lstNodes);
-    Collections.sort(sorted, new Comparator<Statement>() {
-      @Override
-      public int compare(Statement o1, Statement o2) {
-        return o1.id - o2.id;
-      }
-    });
+    sorted.sort(Comparator.comparingInt(o -> o.id));
     for (Statement st : sorted) {
       stats.addWithKey(st, st.id);
     }
@@ -250,6 +245,11 @@ public final class SwitchStatement extends Statement {
       .collect(Collectors.toList());
     // guards can also contain pattern variables
     caseList.addAll(this.caseGuards);
+    // guards may also contain nested variables, like `a instanceof B b && b == ...`
+    caseList = caseList.stream()
+      .filter(Objects::nonNull)
+      .flatMap(x -> x.getAllExprents(true, true).stream())
+      .collect(Collectors.toList());
 
     for (Exprent caseContent : caseList) {
       if (caseContent == null) {
