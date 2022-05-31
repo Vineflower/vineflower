@@ -224,7 +224,7 @@ public final class SwitchPatternMatchProcessor {
       }
     }
 
-    return false;
+    return true;
   }
 
   private static boolean eliminateGuardRef(SwitchStatement stat, Map<List<Exprent>, Exprent> guards, Pair<Statement, Exprent> reference, boolean simulate) {

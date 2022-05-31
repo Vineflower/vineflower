@@ -5,23 +5,24 @@ public class TestSwitchPatternMatching5 {
       switch(s) {// 5
          case null:
             System.out.println("null");// 15
-            return;// 19
+            break;
          case s instanceof TestSwitchPatternMatching5.Triangle t && t.calculateArea() > 150.0:// 6
             System.out.println("Larger triangle");// 7
-            return;
+            break;
          case s instanceof TestSwitchPatternMatching5.Triangle tx && tx.calculateArea() > 50.0:// 8
             System.out.println("Smaller triangle");// 9
-            return;
+            break;
          case s instanceof TestSwitchPatternMatching5.Triangle txx && txx.calculateArea() > 100.0:// 10
             System.out.println("Large triangle");// 11
-            return;
+            break;
          case s instanceof TestSwitchPatternMatching5.Triangle txxx:// 12
             System.out.println("Small triangle");// 13
-            return;
+            break;
          default:
             System.out.println("Non-triangle");// 17
       }
-   }
+
+   }// 19
 
    private abstract class Shape {
       abstract double calculateArea();
@@ -56,6 +57,7 @@ class 'pkg/TestSwitchPatternMatching5' {
       46      9
       47      9
       48      9
+      49      10
       50      11
       51      11
       52      11
@@ -75,6 +77,7 @@ class 'pkg/TestSwitchPatternMatching5' {
       68      12
       69      12
       6a      12
+      6b      13
       72      14
       73      14
       74      14
@@ -94,6 +97,7 @@ class 'pkg/TestSwitchPatternMatching5' {
       8a      15
       8b      15
       8c      15
+      8d      16
       94      17
       95      17
       96      18
@@ -104,6 +108,7 @@ class 'pkg/TestSwitchPatternMatching5' {
       9b      18
       9c      18
       9d      18
+      9e      19
       a1      6
       a2      6
       a3      6
@@ -112,6 +117,7 @@ class 'pkg/TestSwitchPatternMatching5' {
       a6      6
       a7      6
       a8      6
+      a9      7
       ac      21
       ad      21
       ae      21
@@ -120,14 +126,14 @@ class 'pkg/TestSwitchPatternMatching5' {
       b1      21
       b2      21
       b3      21
-      b7      7
+      b7      24
    }
 }
 
 class 'pkg/TestSwitchPatternMatching5$Triangle' {
    method 'calculateArea ()D' {
-      0      32
-      1      32
+      0      33
+      1      33
    }
 }
 
@@ -143,5 +149,5 @@ Lines mapping:
 13 <-> 19
 15 <-> 7
 17 <-> 22
-19 <-> 8
-29 <-> 33
+19 <-> 25
+29 <-> 34

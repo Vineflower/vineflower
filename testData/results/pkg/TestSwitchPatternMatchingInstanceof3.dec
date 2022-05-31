@@ -6,19 +6,21 @@ public class TestSwitchPatternMatchingInstanceof3 {
    public void test(Object o) {
       Objects.requireNonNull(o);// 5
       Integer i;
+      label18:
       switch(o) {
          case o instanceof Number n && n instanceof Integer i && i > 0:// 6
             System.out.println(i);
          case o instanceof Number nx:// 7
             System.out.println(nx);
-            return;// 11
+            break;
          case o instanceof String s:// 8
             System.out.println(s);
-            return;
+            break;
          default:
             System.out.println("Default");// 9
       }
-   }
+
+   }// 11
 }
 
 class 'pkg/TestSwitchPatternMatchingInstanceof3' {
@@ -27,66 +29,68 @@ class 'pkg/TestSwitchPatternMatchingInstanceof3' {
       2      6
       3      6
       4      6
-      10      8
-      30      9
-      31      9
-      32      9
-      33      9
-      34      9
-      35      9
-      36      9
-      3f      9
-      40      9
-      41      9
-      42      9
-      43      9
-      44      9
-      45      9
-      46      9
-      4e      10
-      4f      10
-      50      10
-      51      10
-      52      10
-      53      10
-      54      10
-      55      10
-      5d      11
-      5e      11
-      5f      12
-      60      12
-      61      12
-      62      12
-      63      12
-      64      12
-      65      12
-      66      12
-      6e      14
-      6f      14
-      70      15
-      71      15
-      72      15
-      73      15
-      74      15
-      75      15
-      76      15
-      77      15
-      7b      18
-      7c      18
-      7d      18
-      7e      18
-      7f      18
-      80      18
-      81      18
-      82      18
-      86      13
+      10      9
+      30      10
+      31      10
+      32      10
+      33      10
+      34      10
+      35      10
+      36      10
+      3f      10
+      40      10
+      41      10
+      42      10
+      43      10
+      44      10
+      45      10
+      46      10
+      4e      11
+      4f      11
+      50      11
+      51      11
+      52      11
+      53      11
+      54      11
+      55      11
+      5d      12
+      5e      12
+      5f      13
+      60      13
+      61      13
+      62      13
+      63      13
+      64      13
+      65      13
+      66      13
+      67      14
+      6e      15
+      6f      15
+      70      16
+      71      16
+      72      16
+      73      16
+      74      16
+      75      16
+      76      16
+      77      16
+      78      17
+      7b      19
+      7c      19
+      7d      19
+      7e      19
+      7f      19
+      80      19
+      81      19
+      82      19
+      86      22
    }
 }
 
 Lines mapping:
 5 <-> 7
-6 <-> 10
-7 <-> 12
-8 <-> 15
-9 <-> 19
-11 <-> 14
+6 <-> 11
+7 <-> 13
+8 <-> 16
+9 <-> 20
+11 <-> 23

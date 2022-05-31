@@ -7,37 +7,36 @@ public class TestSwitchPatternMatching13 {
             if (Math.random() > 0.0) {// 27
                System.out.println("Lucky null");// 28
             }
-
-            return;// 34
+            break;
          case s instanceof TestSwitchPatternMatching13.Triangle t && t.calculateArea() > 150.0:// 6
             if (t.hashCode() > 0) {// 7
                System.out.println("Larger positive-hash triangle");// 8
             }
 
             System.out.println("Larger triangle: " + t);// 10
-            return;
+            break;// 11
          case s instanceof TestSwitchPatternMatching13.Triangle tx && tx.calculateArea() > 50.0:// 12
             System.out.println("Smaller triangle");// 13
-            return;
+            break;
          case s instanceof TestSwitchPatternMatching13.Triangle txx && txx.calculateArea() > 100.0:// 14
             System.out.println("Large triangle");// 15
 
             while(Math.random() > 0.5) {// 16
                System.out.println("Keep going");// 17
             }
-
-            return;
+            break;
          case s instanceof TestSwitchPatternMatching13.Triangle txxx:// 20
             if (txxx.hashCode() > 0) {// 21
                System.out.println("Small positive-hash triangle");// 22
             }
 
             System.out.println("Small triangle");// 24
-            return;
+            break;// 25
          default:
             System.out.println("Non-triangle");// 32
       }
-   }
+
+   }// 34
 
    private abstract class Shape {
       abstract double calculateArea();
@@ -55,111 +54,114 @@ class 'pkg/TestSwitchPatternMatching13' {
    method 'test (Lpkg/TestSwitchPatternMatching13$Shape;)V' {
       0      4
       b      4
-      30      11
-      31      11
-      32      11
-      33      11
-      34      11
-      35      11
-      36      11
-      37      11
-      38      11
-      41      12
-      42      12
-      43      12
-      44      12
-      45      12
-      48      13
-      49      13
-      4a      13
-      4b      13
-      4c      13
-      4d      13
-      50      16
-      51      16
-      52      16
-      53      16
-      54      16
-      55      16
-      56      16
-      57      16
-      58      16
-      59      16
-      5a      16
-      5b      16
-      63      18
-      64      18
-      65      18
-      66      18
-      67      18
-      68      18
-      69      18
-      6a      18
-      6b      18
-      6c      18
-      6d      18
-      76      19
-      77      19
-      78      19
-      79      19
-      7a      19
-      7b      19
-      7c      19
-      7d      19
-      85      21
-      86      21
-      87      21
-      88      21
-      89      21
-      8a      21
-      8b      21
-      8c      21
-      8d      21
-      8e      21
-      8f      21
-      98      22
-      99      22
-      9a      22
-      9b      22
-      9c      22
-      9d      22
-      a0      24
-      a1      24
-      a2      24
-      a3      24
-      a4      24
-      a5      24
-      a6      24
-      aa      25
-      ab      25
-      ac      25
-      ad      25
-      ae      25
-      af      25
-      b0      25
-      b1      25
-      b9      29
-      ba      29
-      bb      30
-      bc      30
-      bd      30
-      be      30
-      bf      30
-      c0      30
-      c3      31
-      c4      31
-      c5      31
-      c6      31
-      c7      31
-      c8      31
-      cb      34
-      cc      34
-      cd      34
-      ce      34
-      cf      34
-      d0      34
-      d1      34
-      d2      34
+      30      10
+      31      10
+      32      10
+      33      10
+      34      10
+      35      10
+      36      10
+      37      10
+      38      10
+      41      11
+      42      11
+      43      11
+      44      11
+      45      11
+      48      12
+      49      12
+      4a      12
+      4b      12
+      4c      12
+      4d      12
+      50      15
+      51      15
+      52      15
+      53      15
+      54      15
+      55      15
+      56      15
+      57      15
+      58      15
+      59      15
+      5a      15
+      5b      15
+      5c      16
+      63      17
+      64      17
+      65      17
+      66      17
+      67      17
+      68      17
+      69      17
+      6a      17
+      6b      17
+      6c      17
+      6d      17
+      76      18
+      77      18
+      78      18
+      79      18
+      7a      18
+      7b      18
+      7c      18
+      7d      18
+      7e      19
+      85      20
+      86      20
+      87      20
+      88      20
+      89      20
+      8a      20
+      8b      20
+      8c      20
+      8d      20
+      8e      20
+      8f      20
+      98      21
+      99      21
+      9a      21
+      9b      21
+      9c      21
+      9d      21
+      a0      23
+      a1      23
+      a2      23
+      a3      23
+      a4      23
+      a5      23
+      a6      23
+      aa      24
+      ab      24
+      ac      24
+      ad      24
+      ae      24
+      af      24
+      b0      24
+      b1      24
+      b9      27
+      ba      27
+      bb      28
+      bc      28
+      bd      28
+      be      28
+      bf      28
+      c0      28
+      c3      29
+      c4      29
+      c5      29
+      c6      29
+      c7      29
+      c8      29
+      cb      32
+      cc      32
+      cd      32
+      ce      32
+      cf      32
+      d0      32
+      d1      32
+      d2      32
+      d3      33
       d6      6
       d7      6
       d8      6
@@ -174,46 +176,45 @@ class 'pkg/TestSwitchPatternMatching13' {
       e3      7
       e4      7
       e5      7
-      e9      37
-      ea      37
-      eb      37
-      ec      37
-      ed      37
-      ee      37
-      ef      37
-      f0      37
-      f4      10
+      e9      35
+      ea      35
+      eb      35
+      ec      35
+      ed      35
+      ee      35
+      ef      35
+      f0      35
+      f4      38
    }
 }
 
 class 'pkg/TestSwitchPatternMatching13$Triangle' {
    method 'calculateArea ()D' {
-      0      48
-      1      48
+      0      47
+      1      47
    }
 }
 
 Lines mapping:
 5 <-> 5
-6 <-> 12
-7 <-> 13
-8 <-> 14
-10 <-> 17
-12 <-> 19
-13 <-> 20
-14 <-> 22
-15 <-> 23
-16 <-> 25
-17 <-> 26
-20 <-> 30
-21 <-> 31
-22 <-> 32
-24 <-> 35
+6 <-> 11
+7 <-> 12
+8 <-> 13
+10 <-> 16
+11 <-> 17
+12 <-> 18
+13 <-> 19
+14 <-> 21
+15 <-> 22
+16 <-> 24
+17 <-> 25
+20 <-> 28
+21 <-> 29
+22 <-> 30
+24 <-> 33
+25 <-> 34
 27 <-> 7
 28 <-> 8
-32 <-> 38
-34 <-> 11
-44 <-> 49
-Not mapped:
-11
-25
+32 <-> 36
+34 <-> 39
+44 <-> 48

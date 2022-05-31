@@ -10,10 +10,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public final class SwitchExpressionHelper {
-  // Wrapper for switch expressions on patterns, which need special handling
-  public static boolean processAllSwitchExpressions(Statement root) {
-    return SwitchPatternMatchProcessor.processPatternMatching(root) || processSwitchExpressions(root);
-  }
 
   public static boolean processSwitchExpressions(Statement root) {
     boolean ret = processSwitchExpressionsRec(root);

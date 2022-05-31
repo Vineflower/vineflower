@@ -278,7 +278,11 @@ public class MethodProcessorRunnable implements Runnable {
       }
 
       if (root.hasSwitch() && SwitchExpressionHelper.hasSwitchExpressions(root)) {
-        if (SwitchExpressionHelper.processAllSwitchExpressions(root)) {
+        if (SwitchPatternMatchProcessor.processPatternMatching(root)) {
+          decompileRecord.add("ProcessSwitchPatternMatch", root);
+          continue;
+        }
+        if (SwitchExpressionHelper.processSwitchExpressions(root)) {
           decompileRecord.add("ProcessSwitchExpr", root);
           continue;
         }
@@ -319,28 +323,6 @@ public class MethodProcessorRunnable implements Runnable {
     }
     decompileRecord.resetMainLoop();
     decompileRecord.add("MainLoopEnd", root);
-
-    // this has to be done after all inlining is done so the case values do not get reverted
-    if (root.hasSwitch() && SwitchHelper.simplifySwitches(root, mt, root)) {
-      decompileRecord.add("SimplifySwitches", root);
-
-      SequenceHelper.condenseSequences(root); // remove empty blocks
-      decompileRecord.add("CondenseSequences_SS", root);
-
-      // If we have simplified switches, try to make switch expressions
-      if (SwitchExpressionHelper.hasSwitchExpressions(root)) {
-        if (SwitchExpressionHelper.processAllSwitchExpressions(root)) {
-          decompileRecord.add("ProcessSwitchExpr_SS", root);
-
-          // Simplify stack vars to integrate and inline switch expressions
-          stackProc.simplifyStackVars(root, mt, cl);
-          decompileRecord.add("SimplifyStackVars_SS", root);
-
-          varProc.setVarVersions(root);
-          decompileRecord.add("SetVarVersions_SS", root);
-        }
-      }
-    }
 
     // Makes constant returns the same type as the method descriptor
     if (ExitHelper.adjustReturnType(root, md)) {

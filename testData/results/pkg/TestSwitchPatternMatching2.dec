@@ -5,17 +5,18 @@ public class TestSwitchPatternMatching2 {
       switch(s) {// 5
          case null:
             System.out.println("null");// 11
-            return;// 15
+            break;
          case s instanceof TestSwitchPatternMatching2.Triangle t && t.calculateArea() > 100.0:// 6
             System.out.println("Large triangle");// 7
-            return;
+            break;
          case s instanceof TestSwitchPatternMatching2.Triangle tx:// 8
             System.out.println("Small triangle");// 9
-            return;
+            break;
          default:
             System.out.println("Non-triangle");// 13
       }
-   }
+
+   }// 15
 
    private abstract class Shape {
       abstract double calculateArea();
@@ -50,6 +51,7 @@ class 'pkg/TestSwitchPatternMatching2' {
       3e      9
       3f      9
       40      9
+      41      10
       48      11
       49      11
       4a      12
@@ -60,6 +62,7 @@ class 'pkg/TestSwitchPatternMatching2' {
       4f      12
       50      12
       51      12
+      52      13
       55      6
       56      6
       57      6
@@ -68,6 +71,7 @@ class 'pkg/TestSwitchPatternMatching2' {
       5a      6
       5b      6
       5c      6
+      5d      7
       60      15
       61      15
       62      15
@@ -76,14 +80,14 @@ class 'pkg/TestSwitchPatternMatching2' {
       65      15
       66      15
       67      15
-      6b      7
+      6b      18
    }
 }
 
 class 'pkg/TestSwitchPatternMatching2$Triangle' {
    method 'calculateArea ()D' {
-      0      26
-      1      26
+      0      27
+      1      27
    }
 }
 
@@ -95,5 +99,5 @@ Lines mapping:
 9 <-> 13
 11 <-> 7
 13 <-> 16
-15 <-> 8
-25 <-> 27
+15 <-> 19
+25 <-> 28

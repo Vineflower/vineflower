@@ -7,6 +7,7 @@ public class TestAssignmentSwitchExpression6 {
       for(axis = directionStr; i > 0; axis = var10000) {// 5 6
          --i;// 7
          String var4 = directionStr.toLowerCase();// 8
+
          switch(var4) {
             case "north":
             case "south":
@@ -44,46 +45,46 @@ class 'pkg/TestAssignmentSwitchExpression6' {
       c      8
       d      8
       e      8
-      12      9
-      13      9
-      52      10
-      53      10
-      62      11
-      63      11
-      72      14
-      73      14
-      82      15
-      83      15
-      92      18
-      93      18
-      a2      19
-      a3      19
-      af      9
-      d4      12
-      d5      12
-      d6      13
-      d9      16
-      da      16
-      db      17
-      de      20
-      df      20
-      e0      21
-      e7      23
-      e8      23
-      e9      23
-      ea      23
-      eb      23
-      ec      23
-      f0      23
+      12      10
+      13      10
+      52      11
+      53      11
+      62      12
+      63      12
+      72      15
+      73      15
+      82      16
+      83      16
+      92      19
+      93      19
+      a2      20
+      a3      20
+      af      10
+      d4      13
+      d5      13
+      d6      14
+      d9      17
+      da      17
+      db      18
+      de      21
+      df      21
+      e0      22
+      e7      24
+      e8      24
+      e9      24
+      ea      24
+      eb      24
+      ec      24
+      f0      24
       f1      6
-      f5      27
-      f6      27
-      f7      27
-      f8      27
-      f9      27
-      fa      27
-      fb      27
-      fc      28
+      f5      28
+      f6      28
+      f7      28
+      f8      28
+      f9      28
+      fa      28
+      fb      28
+      fc      29
    }
 }
 
@@ -92,9 +93,9 @@ Lines mapping:
 6 <-> 7
 7 <-> 8
 8 <-> 9
-11 <-> 13
-14 <-> 17
-17 <-> 21
-19 <-> 24
-23 <-> 28
-24 <-> 29
+11 <-> 14
+14 <-> 18
+17 <-> 22
+19 <-> 25
+23 <-> 29
+24 <-> 30
