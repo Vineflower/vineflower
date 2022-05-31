@@ -72,10 +72,6 @@ public final class SwitchPatternMatchProcessor {
     Map<List<Exprent>, Exprent> guards = new HashMap<>(0);
     if (guarded) {
       guards = new HashMap<>(references.size());
-      // a guard takes the form of exactly
-      // `if (!guardCond) { idx = __thisIdx + 1; break; }`
-      // at the start of that branch
-      // alternatively, it can be inverted as `if (guardCond) { /* regular case code... */ break; } idx = __thisIdx + 1;`
       // remove the initial assignment to 0
       boolean canEliminate = true;
       Pair<Statement, Exprent> initialUse = references.get(0);
@@ -218,9 +214,9 @@ public final class SwitchPatternMatchProcessor {
     if (guarded && stat.getParent() instanceof DoStatement) {
       // remove the enclosing while(true) loop of a guarded switch
       stat.getParent().replaceWith(stat);
-      // and remove any invalid `continue` edges to the switch
+      // and remove any invalid break/continue edges to the switch
       for (StatEdge edge : stat.getPredecessorEdges(StatEdge.TYPE_CONTINUE)) {
-        edge.remove();
+        edge.changeType(StatEdge.TYPE_BREAK);
       }
     }
 
@@ -228,11 +224,15 @@ public final class SwitchPatternMatchProcessor {
   }
 
   private static boolean eliminateGuardRef(SwitchStatement stat, Map<List<Exprent>, Exprent> guards, Pair<Statement, Exprent> reference, boolean simulate) {
+    // a guard takes the form of exactly
+    // `if (!guardCond) { idx = __thisIdx + 1; break; }`
+    // at the start of that branch
+    // alternatively, it can be inverted as `if (guardCond) { /* regular case code... */ break; } idx = __thisIdx + 1;`
     if (reference.b instanceof AssignmentExprent) {
       Statement assignStat = reference.a;
       // check if the assignment follows the guard layout
       Statement parent = assignStat.getParent();
-      // sometimes the assignment is after the `if` and it's condition is inverted [TestSwitchPatternMatchingInstanceof]
+      // sometimes the assignment is after the `if` and it's condition is inverted [see TestSwitchPatternMatchingInstanceof1/2/3]
       boolean invert = true;
       if (parent instanceof SequenceStatement && parent.getStats().size() == 2 && parent.getStats().get(1) == assignStat) {
         parent = parent.getStats().get(0);
@@ -247,7 +247,7 @@ public final class SwitchPatternMatchProcessor {
         Statement next = assignStat.getSuccessorEdges(StatEdge.TYPE_CONTINUE).get(0).getDestination();
         if (next == stat.getParent()) {
           IfStatement guardIf = (IfStatement) parent;
-          // the condition of the `if` is the guard condition, usually inverted
+          // the condition of the `if` is the guard condition (usually inverted)
           Exprent guardExprent = guardIf.getHeadexprent().getCondition();
           // find which case branch we're in (to assign the guard to)
           List<Statement> caseStatements = stat.getCaseStatements();
@@ -257,13 +257,13 @@ public final class SwitchPatternMatchProcessor {
                 return true; // we're not actually removing the guard yet
               }
               // the assignment of the pattern variable may be inside the `if`, take it out and add it to the next statement
-              List<Exprent> castExprent = Collections.singletonList(guardIf.getStats().get(0).getExprents().get(0));
+              List<Exprent> carryExprents = Collections.singletonList(guardIf.getStats().get(0).getExprents().get(0));
               if (invert) {
                 // normally the guard condition is inverted, re-invert it here
                 guardExprent = new FunctionExprent(FunctionExprent.FunctionType.BOOL_NOT, guardExprent, guardExprent.bytecode);
               } else {
-                // if the index assignment is outside of the `if`, the contents of the `if` *is* the branch and should be added to next statement
-                castExprent = parent.getStats().stream().flatMap(x -> x.getExprents().stream()).collect(Collectors.toList());
+                // if the index assignment is outside the `if`, the contents of the `if` *is* the case statement and should be added to next statement
+                carryExprents = parent.getStats().stream().flatMap(x -> x.getExprents().stream()).collect(Collectors.toList());
                 assignStat.replaceWithEmpty(); // normally removed in guardIf.replaceWithEmpty()
               }
               guards.put(stat.getCaseValues().get(i), guardExprent);
@@ -271,8 +271,8 @@ public final class SwitchPatternMatchProcessor {
               guardIf.replaceWithEmpty();
               guardIf.getParent().getStats().remove(0);
               Statement nextStat = guardIf.getParent().getStats().get(0);
-              // add the pattern variable assignment (or case code for inverted cases) to next statement
-              nextStat.getBasichead().getExprents().addAll(0, castExprent);
+              // add the pattern variable assignment (or case statement for inverted cases) to next statement
+              nextStat.getBasichead().getExprents().addAll(0, carryExprents);
               return true;
             }
           }

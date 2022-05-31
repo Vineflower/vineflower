@@ -9,6 +9,7 @@ public class TestSwitchPatternMatchingInstanceof1 {
       switch(o) {
          case o instanceof String s && o instanceof Integer a:// 6
             System.out.println(s);
+            break;
          case o instanceof Integer i:// 7
             System.out.println(i);
             break;
@@ -50,44 +51,44 @@ class 'pkg/TestSwitchPatternMatchingInstanceof1' {
       49      10
       4a      10
       4b      10
-      56      11
-      57      11
-      58      12
-      59      12
-      5a      12
-      5b      12
-      5c      12
-      5d      12
-      5e      12
-      5f      12
-      60      13
-      67      14
-      68      14
-      69      15
-      6a      15
-      6b      15
-      6c      15
-      6d      15
-      6e      15
-      6f      15
-      70      15
-      71      16
-      74      18
-      75      18
-      76      18
-      77      18
-      78      18
-      79      18
-      7a      18
-      7b      18
-      7f      21
+      56      12
+      57      12
+      58      13
+      59      13
+      5a      13
+      5b      13
+      5c      13
+      5d      13
+      5e      13
+      5f      13
+      60      14
+      67      15
+      68      15
+      69      16
+      6a      16
+      6b      16
+      6c      16
+      6d      16
+      6e      16
+      6f      16
+      70      16
+      71      17
+      74      19
+      75      19
+      76      19
+      77      19
+      78      19
+      79      19
+      7a      19
+      7b      19
+      7f      22
    }
 }
 
 Lines mapping:
 5 <-> 7
 6 <-> 10
-7 <-> 12
-8 <-> 15
-9 <-> 19
-11 <-> 22
+7 <-> 13
+8 <-> 16
+9 <-> 20
+11 <-> 23
