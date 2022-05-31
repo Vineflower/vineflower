@@ -510,10 +510,12 @@ public class DotExporter {
       }
     }
 
-    for (Entry<VarVersionPair, VarVersionPair> entry : varAssignmentMap.entrySet()) {
-      VarVersionPair to = entry.getKey();
-      VarVersionPair from = entry.getValue();
-      buffer.append((from.var*1000+from.version)+"->"+(to.var*1000+to.version)+" [color=green];\r\n");
+    if (varAssignmentMap != null) {
+      for (Entry<VarVersionPair, VarVersionPair> entry : varAssignmentMap.entrySet()) {
+        VarVersionPair to = entry.getKey();
+        VarVersionPair from = entry.getValue();
+        buffer.append((from.var * 1000 + from.version) + "->" + (to.var * 1000 + to.version) + " [color=green];\r\n");
+      }
     }
 
     buffer.append("}");

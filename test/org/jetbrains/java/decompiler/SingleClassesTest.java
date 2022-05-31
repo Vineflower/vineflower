@@ -533,8 +533,9 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(KOTLIN, "TestKotlinEnumWhen");
     // TODO: causes invalid stack var simplification
     register(JAVA_8, "TestSynchronizedTryReturn");
-    // TODO: parsing failure, postdom error, wrong variable use, invalid variable splitting
+    // TODO: parsing failure, wrong variable use, invalid variable splitting
     // TODO: finally return parsing wrong
+    // TODO: postdom error only when ssau finally is disabled
     register(JAVA_8, "TestTryReturn");
     register(JAVA_8, "TestWhileConditionTernary");
 
@@ -551,7 +552,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestListEquals");
     register(JAVA_8, "TestIfElseSwitch");
     register(JAVA_8, "TestInstanceStaticInvoke");
-    // TODO: finally fails to be verified
     register(JAVA_8, "TestFinallyBlockVariableUse");
     register(JAVA_8, "TestIntBoolMerge");
     register(JAVA_8_NODEBUG, "TestIntBoolMergeNoDebug");

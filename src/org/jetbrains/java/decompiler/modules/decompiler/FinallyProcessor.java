@@ -16,17 +16,21 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectNode;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper;
+import org.jetbrains.java.decompiler.modules.decompiler.sforms.SFormsConstructor;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.SSAConstructorSparseEx;
+import org.jetbrains.java.decompiler.modules.decompiler.sforms.SSAUConstructorSparseEx;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.BasicBlockStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.CatchAllStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
+import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionsGraph;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
+import org.jetbrains.java.decompiler.util.DotExporter;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 
 import java.util.*;
@@ -38,6 +42,7 @@ public class FinallyProcessor {
 
   private final MethodDescriptor methodDescriptor;
   private final VarProcessor varProcessor;
+  private VarVersionsGraph ssuversions;
 
   public FinallyProcessor(MethodDescriptor md, VarProcessor varProc) {
     methodDescriptor = md;
@@ -45,6 +50,7 @@ public class FinallyProcessor {
   }
 
   public boolean iterateGraph(StructClass cl, StructMethod mt, RootStatement root, ControlFlowGraph graph) {
+    this.ssuversions = null;
     BytecodeVersion bytecodeVersion = mt.getBytecodeVersion();
 
     LinkedList<Statement> stack = new LinkedList<>();
@@ -82,11 +88,13 @@ public class FinallyProcessor {
               finallyBlockIDs.put(handler.id, null);
             } else {
               int varIndex = DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.VAR_COUNTER);
+              // Add the semaphore variable to the list so we can create a comment in the output
+              this.varProcessor.getSyntheticSemaphores().add(varIndex);
               insertSemaphore(graph, getAllBasicBlocks(fin.getFirst()), head, handler, varIndex, inf, bytecodeVersion);
 
               finallyBlockIDs.put(handler.id, varIndex);
 
-              if (DecompilerContext.getOption(IFernflowerPreferences.FINALLY_DEINLINE)) {
+              if (DecompilerContext.getOption(IFernflowerPreferences.DECOMPILER_COMMENTS)) {
                 root.addComment("$QF: Could not verify finally blocks. A semaphore variable has been added to preserve control flow.");
                 root.addErrorComment = true;
               }
@@ -118,6 +126,18 @@ public class FinallyProcessor {
   }
 
   private Record getFinallyInformation(StructClass cl, StructMethod mt, RootStatement root, CatchAllStatement fstat) {
+    ExprProcessor proc = new ExprProcessor(methodDescriptor, varProcessor);
+    proc.processStatement(root, cl);
+
+    if (ssuversions == null) {
+      // FIXME: don't split SSAU unless needed!
+      SFormsConstructor ssau = new SSAUConstructorSparseEx();
+      ssau.splitVariables(root, mt);
+
+      this.ssuversions = ssau.getSsuVersions();
+      StackVarsProcessor.setVersionsToNull(root);
+    }
+
     Map<BasicBlock, Boolean> mapLast = new HashMap<>();
 
     BasicBlockStatement firstBlockStatement = fstat.getHandler().getBasichead();
@@ -133,9 +153,6 @@ public class FinallyProcessor {
       case CodeConstants.opc_astore:
         firstcode = 2;
     }
-
-    ExprProcessor proc = new ExprProcessor(methodDescriptor, varProcessor);
-    proc.processStatement(root, cl);
 
     SSAConstructorSparseEx ssa = new SSAConstructorSparseEx();
     ssa.splitVariables(root, mt);
@@ -870,12 +887,27 @@ public class FinallyProcessor {
             return true;
           }
 
-          return false;
+          boolean ok = false;
+          if (isOpcVar(first.opcode)) {
+            if (this.ssuversions.areVarsAnalogous(firstOp, secondOp)) {
+              ok = true;
+            }
+
+            // TODO: validate direct assignments
+          }
+
+          if (!ok) {
+            return false;
+          }
         }
       }
     }
 
     return true;
+  }
+
+  private static boolean isOpcVar(int opc) {
+    return opc >= CodeConstants.opc_iload && opc <= CodeConstants.opc_sastore;
   }
 
   private static void deleteArea(ControlFlowGraph graph, Area area) {

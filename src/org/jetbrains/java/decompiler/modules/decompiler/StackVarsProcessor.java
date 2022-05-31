@@ -83,7 +83,7 @@ public class StackVarsProcessor {
     setVersionsToNull(root);
   }
 
-  private static void setVersionsToNull(Statement stat) {
+  public static void setVersionsToNull(Statement stat) {
     if (stat.getExprents() == null) {
       for (Object obj : stat.getSequentialObjects()) {
         if (obj instanceof Statement) {

@@ -160,43 +160,22 @@ public class TestLoopFinally {
    }// 153
 
    public void loopInFinally() {
-      // $QF: Couldn't be decompiled
-      // Bytecode:
-      // 00: bipush 1
-      // 01: istore 1
-      // 02: getstatic java/lang/System.out Ljava/io/PrintStream;
-      // 05: iload 1
-      // 06: invokevirtual java/io/PrintStream.println (Z)V
-      // 09: sipush 15080
-      // 0c: istore 2
-      // 0d: iload 2
-      // 0e: sipush -14704
-      // 11: if_icmple 19
-      // 14: bipush 0
-      // 15: istore 3
-      // 16: goto 0d
-      // 19: return
-      // 1a: astore 4
-      // 1c: sipush 15080
-      // 1f: istore 5
-      // 21: iload 5
-      // 23: sipush -14704
-      // 26: if_icmple 2f
-      // 29: bipush 0
-      // 2a: istore 6
-      // 2c: goto 21
-      // 2f: return
-      // 30: astore 7
-      // 32: sipush 15080
-      // 35: istore 8
-      // 37: iload 8
-      // 39: sipush -14704
-      // 3c: if_icmple 45
-      // 3f: bipush 0
-      // 40: istore 9
-      // 42: goto 37
-      // 45: aload 7
-      // 47: athrow
+      boolean var1 = true;// 174
+
+      try {
+         try {
+            System.out.println(var1);// 178
+         } finally {
+            return;// 180
+         }
+      } finally {
+         short var18 = 15080;// 183
+
+         while(var18 > -14704) {// 184
+            boolean var9 = false;// 185
+         }
+
+      }
    }
 }
 
@@ -497,6 +476,32 @@ class 'pkg/TestLoopFinally' {
       4a      151
       4b      152
    }
+
+   method 'loopInFinally ()V' {
+      0      162
+      1      162
+      2      166
+      3      166
+      4      166
+      5      166
+      6      166
+      19      178
+      2f      168
+      30      171
+      31      171
+      32      171
+      33      171
+      34      171
+      37      173
+      38      173
+      39      173
+      3a      173
+      3b      173
+      3c      173
+      3f      174
+      40      174
+      41      174
+   }
 }
 
 Lines mapping:
@@ -565,6 +570,12 @@ Lines mapping:
 164 <-> 156
 169 <-> 152
 171 <-> 153
+174 <-> 163
+178 <-> 167
+180 <-> 169
+183 <-> 172
+184 <-> 174
+185 <-> 175
 Not mapped:
 12
 38
@@ -580,3 +591,5 @@ Not mapped:
 145
 162
 166
+186
+187
