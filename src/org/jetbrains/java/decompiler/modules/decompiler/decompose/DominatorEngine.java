@@ -5,7 +5,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.util.VBStyleCollection;
 
-import java.util.List;
+import java.util.*;
 
 public class DominatorEngine {
 
@@ -110,5 +110,35 @@ public class DominatorEngine {
     }
 
     return true;
+  }
+
+  // Find all nodes dominated by the start node
+  public Set<Integer> allDomsFor(Integer start) {
+    Set<Integer> ret = new HashSet<>();
+
+    Deque<Integer> stack = new LinkedList<>();
+    stack.add(start);
+
+    while (!stack.isEmpty()) {
+      Integer id = stack.removeFirst();
+
+      if (ret.contains(id)) {
+        continue;
+      }
+
+      ret.add(id);
+
+      // Find every node that equals the current in the set, then add those keys onto the stack
+      // This will have the effect of traversing down the tree
+      for (Integer key : this.colOrderedIDoms.getLstKeys()) {
+        Integer ndid = this.colOrderedIDoms.getWithKey(key);
+
+        if (ndid.equals(id)) {
+          stack.add(key);
+        }
+      }
+    }
+
+    return ret;
   }
 }

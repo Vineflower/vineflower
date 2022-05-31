@@ -409,7 +409,7 @@ public final class DomHelper {
 
             // If every statement in this subgraph was discovered, return as we've decomposed this part of the graph
             if (((GeneralStatement) general).isPlaceholder()) {
-				tracer.add(general, "All simple statements found");
+              tracer.add(general, "All simple statements found");
               return true;
             }
 
@@ -611,7 +611,6 @@ public final class DomHelper {
                  head.getNeighbours(StatEdge.TYPE_REGULAR, EdgeDirection.BACKWARD).contains(head))
                 && setNodes.size() < stats.size()) {
               if (checkSynchronizedCompleteness(setNodes)) {
-//                System.out.println("setnodes: " + setNodes);
                 res = new GeneralStatement(head, setNodes, same ? null : post);
                 stat.collapseNodesToStatement(res);
 
