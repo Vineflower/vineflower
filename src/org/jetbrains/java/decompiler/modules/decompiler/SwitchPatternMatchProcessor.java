@@ -1,6 +1,8 @@
 package org.jetbrains.java.decompiler.modules.decompiler;
 
 import org.jetbrains.java.decompiler.code.CodeConstants;
+import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.struct.consts.PooledConstant;
@@ -198,7 +200,9 @@ public final class SwitchPatternMatchProcessor {
               List<Exprent> operands = new ArrayList<>();
               operands.add(realSelector); // checking var
               operands.add(new ConstExprent(castType, null, null)); // type
-              operands.add(realSelector); // pattern match var
+              operands.add(new VarExprent(DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.VAR_COUNTER),
+                castType,
+                DecompilerContext.getVarProcessor()));
               FunctionExprent func = new FunctionExprent(FunctionExprent.FunctionType.INSTANCEOF, operands, null);
               stat.getCaseValues().set(i, Collections.singletonList(func));
             }

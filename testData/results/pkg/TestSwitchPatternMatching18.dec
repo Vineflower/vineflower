@@ -4,16 +4,16 @@ import java.util.Objects;
 
 public class TestSwitchPatternMatching18 {
    static void test(Integer o) {
-      Objects.requireNonNull(ox);// 5
+      Objects.requireNonNull(o);// 5
       <unknown> var1;
-      switch(Integer ox) {
+      switch(o) {
          case 42:
             System.out.println("42");// 6
             break;
-         case Integer ox instanceof Integer ox && var1 < 50:// 8
+         case o instanceof Integer var5 && var1 < 50:// 8
             System.out.println("small");
             break;
-         case ox instanceof Integer ox && var1.compareTo(17) > 0:// 9
+         case o instanceof Integer var6 && var1.compareTo(17) > 0:// 9
             System.out.println("comparable");// 10
             break;
          default:
