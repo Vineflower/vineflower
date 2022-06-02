@@ -66,7 +66,9 @@ public class SwitchExprent extends Exprent {
 
       boolean hasEdge = false;
       for (int j = 0; j < edges.size(); j++) {
-        Exprent value = values.get(j);
+        Exprent value = edges.get(j) == backing.getDefaultEdge()
+          ? new ConstExprent(VarType.VARTYPE_NULL, null, null) // a total branch in j17 would act as a null branch too
+          : values.get(j);
         if (value == null) { // TODO: how can this be null? Is it trying to inject a synthetic case value in switch-on-string processing? [TestSwitchDefaultBefore]
           continue;
         }
