@@ -13,6 +13,7 @@ import org.jetbrains.java.decompiler.util.TextBuffer;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
+import java.util.Objects;
 
 public class SwitchHeadExprent extends Exprent {
 
@@ -62,7 +63,14 @@ public class SwitchHeadExprent extends Exprent {
             : expr.getExprType();
           if (!caseType.equals(valType)) {
             if (valType == null) {
-              throw new IllegalStateException("Invalid switch case set: " + caseValues);
+              throw new IllegalStateException("Invalid switch case set: " + caseValues + " for selector of type " + value.getExprType());
+            }
+            // allow coercion of primitive -> boxes [see TestSwitchPatternMatching18]
+            // e.g. `switch(o) { case 40 -> ...; case Integer i -> ...; }`
+            // FIXME: still isn't right?
+            VarType unboxed = VarType.UNBOXING_TYPES.get(valType);
+            if (unboxed != null && unboxed.isSuperset(caseType)) {
+              continue;
             }
             valType = VarType.getCommonSupertype(caseType, valType);
             result.addMinTypeExprent(value, valType);

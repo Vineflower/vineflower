@@ -1,56 +1,98 @@
 package pkg;
 
+import java.util.Objects;
+
 public class TestSwitchPatternMatching18 {
-   static void test(Integer param0) {
-      // $QF: Couldn't be decompiled
-      // Bytecode:
-      // 00: aload 0
-      // 01: dup
-      // 02: invokestatic java/util/Objects.requireNonNull (Ljava/lang/Object;)Ljava/lang/Object;
-      // 05: pop
-      // 06: astore 1
-      // 07: bipush 0
-      // 08: istore 2
-      // 09: aload 1
-      // 0a: iload 2
-      // 0b: invokedynamic typeSwitch (Ljava/lang/Object;I)I bsm=java/lang/runtime/SwitchBootstraps.typeSwitch (Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite; args=[ 42, java/lang/Integer, java/lang/Integer ]
-      // 10: tableswitch 100 0 2 28 39 66
-      // 2c: getstatic java/lang/System.out Ljava/io/PrintStream;
-      // 2f: ldc "42"
-      // 31: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
-      // 34: goto 7f
-      // 37: aload 1
-      // 38: astore 3
-      // 39: aload 3
-      // 3a: invokevirtual java/lang/Integer.intValue ()I
-      // 3d: bipush 50
-      // 3f: if_icmplt 47
-      // 42: bipush 2
-      // 43: istore 2
-      // 44: goto 09
-      // 47: getstatic java/lang/System.out Ljava/io/PrintStream;
-      // 4a: ldc "small"
-      // 4c: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
-      // 4f: goto 7f
-      // 52: aload 1
-      // 53: astore 4
-      // 55: aload 4
-      // 57: bipush 17
-      // 59: invokestatic java/lang/Integer.valueOf (I)Ljava/lang/Integer;
-      // 5c: invokeinterface java/lang/Comparable.compareTo (Ljava/lang/Object;)I 2
-      // 61: ifgt 69
-      // 64: bipush 3
-      // 65: istore 2
-      // 66: goto 09
-      // 69: getstatic java/lang/System.out Ljava/io/PrintStream;
-      // 6c: ldc "comparable"
-      // 6e: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
-      // 71: goto 7f
-      // 74: getstatic java/lang/System.out Ljava/io/PrintStream;
-      // 77: ldc "default"
-      // 79: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
-      // 7c: goto 7f
-      // 7f: return
+   static void test(Integer o) {
+      Objects.requireNonNull(ox);// 5
+      <unknown> var1;
+      switch(Integer ox) {
+         case 42:
+            System.out.println("42");// 6
+            break;
+         case Integer ox instanceof Integer ox && var1 < 50:// 8
+            System.out.println("small");
+            break;
+         case ox instanceof Integer ox && var1.compareTo(17) > 0:// 9
+            System.out.println("comparable");// 10
+            break;
+         default:
+            System.out.println("default");// 11
+      }
+
+   }// 13
+}
+
+class 'pkg/TestSwitchPatternMatching18' {
+   method 'test (Ljava/lang/Integer;)V' {
+      0      6
+      2      6
+      3      6
+      4      6
+      10      8
+      2c      10
+      2d      10
+      2e      10
+      2f      10
+      30      10
+      31      10
+      32      10
+      33      10
+      34      11
+      37      12
+      3a      12
+      3b      12
+      3c      12
+      3d      12
+      3e      12
+      3f      12
+      47      13
+      48      13
+      49      13
+      4a      13
+      4b      13
+      4c      13
+      4d      13
+      4e      13
+      4f      14
+      52      15
+      57      15
+      58      15
+      59      15
+      5a      15
+      5b      15
+      5c      15
+      5d      15
+      5e      15
+      5f      15
+      60      15
+      61      15
+      69      16
+      6a      16
+      6b      16
+      6c      16
+      6d      16
+      6e      16
+      6f      16
+      70      16
+      71      17
+      74      19
+      75      19
+      76      19
+      77      19
+      78      19
+      79      19
+      7a      19
+      7b      19
+      7f      22
    }
 }
 
+Lines mapping:
+5 <-> 7
+6 <-> 11
+8 <-> 13
+9 <-> 16
+10 <-> 17
+11 <-> 20
+13 <-> 23

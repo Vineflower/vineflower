@@ -3,6 +3,8 @@ package org.jetbrains.java.decompiler.modules.decompiler;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
+import org.jetbrains.java.decompiler.struct.consts.PooledConstant;
+import org.jetbrains.java.decompiler.struct.consts.PrimitiveConstant;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.Pair;
 
@@ -52,6 +54,7 @@ public final class SwitchPatternMatchProcessor {
     // otherwise, we need to look at every usage and eliminate guards
     InvocationExprent value = (InvocationExprent) head.getValue();
     List<Exprent> origParams = value.getLstParameters();
+    Exprent realSelector = origParams.get(0);
     boolean guarded = true;
     List<Pair<Statement, Exprent>> references = new ArrayList<>();
     if (origParams.get(1) instanceof VarExprent) {
@@ -143,7 +146,7 @@ public final class SwitchPatternMatchProcessor {
         }
       }
       // make instanceof from assignment
-      BasicBlockStatement caseStatBlock = caseStat.getBasichead();;
+      BasicBlockStatement caseStatBlock = caseStat.getBasichead();
       if (caseStatBlock.getExprents().size() >= 1) {
         Exprent expr = caseStatBlock.getExprents().get(0);
         if (expr instanceof AssignmentExprent) {
@@ -169,6 +172,37 @@ public final class SwitchPatternMatchProcessor {
               allCases.set(0, func);
             }
           }
+        }
+      }
+    }
+
+    // TODO: merge this with the previous `for` loop?
+    // go through bootstrap arguments to ensure constants are correct
+    for (int i = 0; i < value.getBootstrapArguments().size(); i++) {
+      PooledConstant bsa = value.getBootstrapArguments().get(i);
+      // either an integer, String, or Class
+      if (bsa instanceof PrimitiveConstant) {
+        PrimitiveConstant p = (PrimitiveConstant) bsa;
+        switch (p.type) {
+          case CodeConstants.CONSTANT_Integer:
+            stat.getCaseValues().set(i, Collections.singletonList(new ConstExprent((Integer) p.value, false, null)));
+            break;
+          case CodeConstants.CONSTANT_String:
+            // TODO: use this for pattern-enum-switches
+            stat.getCaseValues().set(i, Collections.singletonList(new ConstExprent(VarType.VARTYPE_STRING, p.value, null)));
+            break;
+          case CodeConstants.CONSTANT_Class:
+            // may happen if the switch head is a supertype of the pattern
+            if (stat.getCaseValues().get(i).stream().allMatch(x -> x instanceof ConstExprent && !((ConstExprent) x).isNull())) {
+              VarType castType = new VarType(CodeConstants.TYPE_OBJECT, 0, (String) p.value);
+              List<Exprent> operands = new ArrayList<>();
+              operands.add(realSelector); // checking var
+              operands.add(new ConstExprent(castType, null, null)); // type
+              operands.add(realSelector); // pattern match var
+              FunctionExprent func = new FunctionExprent(FunctionExprent.FunctionType.INSTANCEOF, operands, null);
+              stat.getCaseValues().set(i, Collections.singletonList(func));
+            }
+            break;
         }
       }
     }
@@ -209,7 +243,7 @@ public final class SwitchPatternMatchProcessor {
       suc.getExprents().add(0, new SwitchExprent(stat, VarType.VARTYPE_INT, false, true));
     }
 
-    head.setValue(origParams.get(0));
+    head.setValue(realSelector);
 
     if (guarded && stat.getParent() instanceof DoStatement) {
       // remove the enclosing while(true) loop of a guarded switch
@@ -257,13 +291,15 @@ public final class SwitchPatternMatchProcessor {
                 return true; // we're not actually removing the guard yet
               }
               // the assignment of the pattern variable may be inside the `if`, take it out and add it to the next statement
-              List<Exprent> carryExprents = Collections.singletonList(guardIf.getStats().get(0).getExprents().get(0));
+              List<Exprent> guardExprs = guardIf.getStats().get(0).getExprents();
+              // the assignment might also just not exist, if the switch head is a supertype of the pattern
+              List<Exprent> carryExprs = guardExprs.size() > 0 ? Collections.singletonList(guardExprs.get(0)) : Collections.emptyList();
               if (invert) {
                 // normally the guard condition is inverted, re-invert it here
                 guardExprent = new FunctionExprent(FunctionExprent.FunctionType.BOOL_NOT, guardExprent, guardExprent.bytecode);
               } else {
                 // if the index assignment is outside the `if`, the contents of the `if` *is* the case statement and should be added to next statement
-                carryExprents = parent.getStats().stream().flatMap(x -> x.getExprents().stream()).collect(Collectors.toList());
+                carryExprs = parent.getStats().stream().flatMap(x -> x.getExprents().stream()).collect(Collectors.toList());
                 assignStat.replaceWithEmpty(); // normally removed in guardIf.replaceWithEmpty()
               }
               guards.put(stat.getCaseValues().get(i), guardExprent);
@@ -272,7 +308,7 @@ public final class SwitchPatternMatchProcessor {
               guardIf.getParent().getStats().remove(0);
               Statement nextStat = guardIf.getParent().getStats().get(0);
               // add the pattern variable assignment (or case statement for inverted cases) to next statement
-              nextStat.getBasichead().getExprents().addAll(0, carryExprents);
+              nextStat.getBasichead().getExprents().addAll(0, carryExprs);
               return true;
             }
           }
