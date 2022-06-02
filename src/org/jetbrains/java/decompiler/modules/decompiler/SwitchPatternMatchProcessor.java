@@ -7,6 +7,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.struct.consts.PooledConstant;
 import org.jetbrains.java.decompiler.struct.consts.PrimitiveConstant;
+import org.jetbrains.java.decompiler.struct.gen.FieldDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.Pair;
 
@@ -58,6 +59,7 @@ public final class SwitchPatternMatchProcessor {
     List<Exprent> origParams = value.getLstParameters();
     Exprent realSelector = origParams.get(0);
     boolean guarded = true;
+    boolean isEnumSwitch = value.getName().equals("enumSwitch");
     List<Pair<Statement, Exprent>> references = new ArrayList<>();
     if (origParams.get(1) instanceof VarExprent) {
       VarExprent var = (VarExprent) origParams.get(1);
@@ -182,16 +184,30 @@ public final class SwitchPatternMatchProcessor {
     // go through bootstrap arguments to ensure constants are correct
     for (int i = 0; i < value.getBootstrapArguments().size(); i++) {
       PooledConstant bsa = value.getBootstrapArguments().get(i);
+      // replace the constant with the value of i, which may not be at index i
+      int replaceIndex = i;
+      for (List<Exprent> caseValueSet : stat.getCaseValues()) {
+        if (caseValueSet.get(0) instanceof ConstExprent) {
+          ConstExprent constExpr = (ConstExprent)caseValueSet.get(0);
+          if (constExpr.getValue() instanceof Integer && (Integer) constExpr.getValue() == i) {
+            replaceIndex = stat.getCaseValues().indexOf(caseValueSet);
+          }
+        }
+      }
       // either an integer, String, or Class
       if (bsa instanceof PrimitiveConstant) {
         PrimitiveConstant p = (PrimitiveConstant) bsa;
         switch (p.type) {
           case CodeConstants.CONSTANT_Integer:
-            stat.getCaseValues().set(i, Collections.singletonList(new ConstExprent((Integer) p.value, false, null)));
+            stat.getCaseValues().set(replaceIndex, Collections.singletonList(new ConstExprent((Integer) p.value, false, null)));
             break;
           case CodeConstants.CONSTANT_String:
-            // TODO: use this for pattern-enum-switches
-            stat.getCaseValues().set(i, Collections.singletonList(new ConstExprent(VarType.VARTYPE_STRING, p.value, null)));
+            if (isEnumSwitch) {
+              String typeName = realSelector.getExprType().value;
+              stat.getCaseValues().set(replaceIndex, Collections.singletonList(new FieldExprent(p.value.toString(), typeName, true, null, FieldDescriptor.parseDescriptor("L" + typeName + ";"), null, false, false)));
+            } else {
+              stat.getCaseValues().set(replaceIndex, Collections.singletonList(new ConstExprent(VarType.VARTYPE_STRING, p.value, null)));
+            }
             break;
           case CodeConstants.CONSTANT_Class:
             // may happen if the switch head is a supertype of the pattern
@@ -204,7 +220,7 @@ public final class SwitchPatternMatchProcessor {
                 castType,
                 DecompilerContext.getVarProcessor()));
               FunctionExprent func = new FunctionExprent(FunctionExprent.FunctionType.INSTANCEOF, operands, null);
-              stat.getCaseValues().set(i, Collections.singletonList(func));
+              stat.getCaseValues().set(replaceIndex, Collections.singletonList(func));
             }
             break;
         }
@@ -328,7 +344,9 @@ public final class SwitchPatternMatchProcessor {
     if (value instanceof InvocationExprent) {
       InvocationExprent invoc = (InvocationExprent)value;
 
-      return invoc.getInvocationType() == InvocationExprent.InvocationType.DYNAMIC && invoc.getName().equals("typeSwitch");
+      // TODO: test for SwitchBootstraps properly
+      return invoc.getInvocationType() == InvocationExprent.InvocationType.DYNAMIC
+        && (invoc.getName().equals("typeSwitch") || invoc.getName().equals("enumSwitch"));
     }
 
     return false;
