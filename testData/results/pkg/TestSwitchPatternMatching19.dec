@@ -1,52 +1,30 @@
 package pkg;
 
-import java.lang.runtime.SwitchBootstraps;
-
 public class TestSwitchPatternMatching19 {
    static void test(TestSwitchPatternMatching19.XXX s) {
-      TestSwitchPatternMatching19.XXX var1 = s;// 5
-      byte var2 = 0;
-
-      while(true) {
-         switch(SwitchBootstraps.enumSwitch<"enumSwitch","X1",TestSwitchPatternMatching19.XXX,TestSwitchPatternMatching19.XXX,TestSwitchPatternMatching19.XXX,TestSwitchPatternMatching19.XXX,TestSwitchPatternMatching19.XXX>(
-            var1, var2
-         )) {
-            case -1:
-            default:
-               System.out.println("f");// 11
-               return;// 13
-            case 0:
-               System.out.println("x1");// 6
-               return;
-            case 1:
-               if (var1 == TestSwitchPatternMatching19.XXX.X1) {// 7
-                  var2 = 2;
-                  break;
-               }
-
-               System.out.println("a");
-               return;
-            case 2:
-               if (!(var1 instanceof TestSwitchPatternMatching19.C)) {// 8
-                  var2 = 3;
-                  break;
-               }
-
-               System.out.println("b");
-               return;
-            case 3:
-               if (var1 != var1) {// 9
-                  var2 = 4;
-                  break;
-               }
-
-               System.out.println("d");
-               return;
-            case 4:
-               var2 = 5;// 10
-         }
+      <unknown> var1;
+      switch(s) {// 5
+         case null:
+         default:
+            System.out.println("f");// 11
+            break;
+         case X1:
+            System.out.println("x1");// 6
+            break;
+         case s instanceof TestSwitchPatternMatching19.XXX var8 && var1 != TestSwitchPatternMatching19.XXX.X1:// 7
+            System.out.println("a");
+            break;
+         case s instanceof TestSwitchPatternMatching19.XXX var9 && var1 instanceof TestSwitchPatternMatching19.C:// 8
+            System.out.println("b");
+            break;
+         case s instanceof TestSwitchPatternMatching19.XXX var10 && var1 == var1:// 9
+            System.out.println("d");
+            break;
+         case s instanceof TestSwitchPatternMatching19.XXX var11 && false:
+            break;
       }
-   }
+
+   }// 13
 
    interface A {
    }
@@ -81,91 +59,75 @@ public class TestSwitchPatternMatching19 {
 
 class 'pkg/TestSwitchPatternMatching19' {
    method 'test (Lpkg/TestSwitchPatternMatching19$XXX;)V' {
-      0      6
-      1      6
-      2      7
-      3      7
-      4      11
-      5      11
-      6      10
-      7      10
-      8      10
-      9      10
-      a      10
-      b      10
-      30      18
-      31      18
-      32      18
-      33      18
-      34      18
-      35      18
-      36      18
-      37      18
-      3b      21
-      3e      21
-      3f      21
-      40      21
-      41      21
-      44      22
-      45      22
-      46      23
-      49      26
-      4a      26
-      4b      26
-      4c      26
-      4d      26
-      4e      26
-      4f      26
-      50      26
-      54      29
-      59      29
-      5a      29
-      5b      29
-      5c      29
-      5f      30
-      60      30
-      61      31
-      64      34
-      65      34
-      66      34
-      67      34
-      68      34
-      69      34
-      6a      34
-      6b      34
-      6f      37
-      76      37
-      79      38
-      7a      38
-      7b      39
-      7e      42
-      7f      42
-      80      42
-      81      42
-      82      42
-      83      42
-      84      42
-      85      42
-      8c      45
-      8d      45
-      94      15
-      95      15
-      96      15
-      97      15
-      98      15
-      99      15
-      9a      15
-      9b      15
-      9f      16
+      0      5
+      b      5
+      30      11
+      31      11
+      32      11
+      33      11
+      34      11
+      35      11
+      36      11
+      37      11
+      38      12
+      3b      13
+      3e      13
+      3f      13
+      40      13
+      41      13
+      49      14
+      4a      14
+      4b      14
+      4c      14
+      4d      14
+      4e      14
+      4f      14
+      50      14
+      51      15
+      54      16
+      59      16
+      5a      16
+      5b      16
+      64      17
+      65      17
+      66      17
+      67      17
+      68      17
+      69      17
+      6a      17
+      6b      17
+      6c      18
+      6f      19
+      76      19
+      7e      20
+      7f      20
+      80      20
+      81      20
+      82      20
+      83      20
+      84      20
+      85      20
+      86      21
+      94      8
+      95      8
+      96      8
+      97      8
+      98      8
+      99      8
+      9a      8
+      9b      8
+      9c      9
+      9f      26
    }
 }
 
 Lines mapping:
-5 <-> 7
-6 <-> 19
-7 <-> 22
-8 <-> 30
-9 <-> 38
-10 <-> 46
-11 <-> 16
-13 <-> 17
+5 <-> 6
+6 <-> 12
+7 <-> 14
+8 <-> 17
+9 <-> 20
+11 <-> 9
+13 <-> 27
+Not mapped:
+10

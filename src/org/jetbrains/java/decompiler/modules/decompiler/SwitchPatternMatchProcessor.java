@@ -333,6 +333,20 @@ public final class SwitchPatternMatchProcessor {
             }
           }
         }
+      } else if (parent == stat) {
+        // an `&& false` guard leaves us with nothing but an assignment and break
+        // get the branch we're in
+        List<Statement> caseStatements = stat.getCaseStatements();
+        for (int i = 0; i < caseStatements.size(); i++) {
+          if (caseStatements.get(i).containsStatement(reference.a)) {
+            if (simulate) {
+              return true;
+            }
+            guards.put(stat.getCaseValues().get(i), new ConstExprent(0, true, null));
+            reference.a.replaceWithEmpty();
+            return true;
+          }
+        }
       }
     }
     return false;
