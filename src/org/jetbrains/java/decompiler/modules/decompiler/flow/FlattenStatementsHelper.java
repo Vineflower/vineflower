@@ -14,8 +14,6 @@ import java.util.Map.Entry;
 
 
 public class FlattenStatementsHelper {
-  private static final int SWITCH_CONST = 1000000;
-
   // statement.id, node.id(direct), node.id(continue)
   private final Map<Integer, String[]> mapDestinationNodes = new HashMap<>();
 
@@ -106,13 +104,12 @@ public class FlattenStatementsHelper {
   }
 
   private DirectNode flattenStatement() {
-    return this.flattenStatement(this.root, new ListStack<>(), null);
+    return this.flattenStatement(this.root, new ListStack<>());
   }
 
   private DirectNode flattenStatement(
     Statement stat,
-    ListStack<StackEntry> stackFinally,
-    List<Exprent> tailExprentList
+    ListStack<StackEntry> stackFinally
   ) {
     List<StatEdge> lstSuccEdges = new ArrayList<>();
     DirectNode sourceNode = null;
@@ -130,17 +127,6 @@ public class FlattenStatementsHelper {
 
           lstSuccEdges.addAll(stat.getSuccessorEdges(Statement.STATEDGE_DIRECT_ALL));
           sourceNode = node;
-
-          if (tailExprentList != null) {
-            DirectNode tail = this.createDirectNode(stat, DirectNodeType.TAIL);
-            tail.exprents = tailExprentList;
-
-            // this.addDestination(stat, tail, Edge.Type.ALTERNATIVE);
-            // listEdge target: already known
-            node.addSuccessor(DirectEdge.of(node, tail));
-
-            sourceNode = tail;
-          }
 
           // 'if' statement: record positive branch
           if (stat.getLastBasicType() == Statement.LastBasicType.IF) {
@@ -198,7 +184,7 @@ public class FlattenStatementsHelper {
           List<DirectNode> tryNodes = new ArrayList<>();
           this.tryNodesStack.add(tryNodes);
 
-          DirectNode tryBlock = this.flattenStatement(stat.getFirst(), stackFinally, null);
+          DirectNode tryBlock = this.flattenStatement(stat.getFirst(), stackFinally);
           node.addSuccessor(DirectEdge.of(node, tryBlock));
 
           ValidationHelper.assertTrue(tryNodes == this.tryNodesStack.pop(), "tryNodesStack is broken");
@@ -218,7 +204,7 @@ public class FlattenStatementsHelper {
 
             }
 
-            DirectNode handlerNode = this.flattenStatement(st, stackFinally, null);
+            DirectNode handlerNode = this.flattenStatement(st, stackFinally);
 
             // TODO: should this be an exception edge for catch blocks?
             node.addSuccessor(DirectEdge.of(node, handlerNode));
@@ -261,7 +247,7 @@ public class FlattenStatementsHelper {
             }
           }
 
-          DirectNode body = this.flattenStatement(stat.getFirst(), stackFinally, null);
+          DirectNode body = this.flattenStatement(stat.getFirst(), stackFinally);
 
           DoStatement dostat = (DoStatement) stat;
           DoStatement.Type looptype = dostat.getLooptype();
@@ -465,7 +451,7 @@ public class FlattenStatementsHelper {
 
 
           for (int i = 1; i < statsize; i++) {
-            this.flattenStatement(stat.getStats().get(i), stackFinally, null);
+            this.flattenStatement(stat.getStats().get(i), stackFinally);
           }
 
           this.addDestination(stat, firstNode);
@@ -560,10 +546,10 @@ public class FlattenStatementsHelper {
         case ROOT: {
           int statsize = stat.getStats().size();
 
-          DirectNode firstBlock = this.flattenStatement(stat.getFirst(), stackFinally, null);
+          DirectNode firstBlock = this.flattenStatement(stat.getFirst(), stackFinally);
 
           for (int i = 1; i < statsize; i++) {
-            this.flattenStatement(stat.getStats().get(i), stackFinally, null);
+            this.flattenStatement(stat.getStats().get(i), stackFinally);
           }
 
           this.addDestination(stat, firstBlock);
@@ -653,7 +639,7 @@ public class FlattenStatementsHelper {
                 finallyLongRangeEntry == null ? catchall.getHandler() : finallyLongRangeEntry,
                 sourcenode, finallyLongRangeSource, false));
 
-              this.flattenStatement(catchall.getHandler(), new ListStack<>(stack), null);
+              this.flattenStatement(catchall.getHandler(), new ListStack<>(stack));
 
               return;
             } else {
@@ -676,16 +662,6 @@ public class FlattenStatementsHelper {
     if (lastbasicdests != null) {
       continueEdges.add(new Edge(graph.nodes.getWithKey(lastbasicdests[0]).id, stat.id, StatEdge.TYPE_REGULAR));
     }
-  }
-
-  private boolean hasAnyEdgeTo(List<Edge> listEdges, Statement stat) {
-    for (Edge edge : listEdges) {
-      if (edge.statid == stat.id) {
-        return true;
-      }
-    }
-
-    return false;
   }
 
   private void saveEdge(DirectNode sourcenode,
