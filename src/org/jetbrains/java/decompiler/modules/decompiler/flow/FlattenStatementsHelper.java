@@ -149,6 +149,8 @@ public class FlattenStatementsHelper {
             // TODO: what is this for?
             // TODO: why is it adding ad edge from the start of the sequence to the block?
             // TODO: why is it using the basic head id, instead of the sequence id?
+            // TODO: disabling this seems to not cause any validation errors, or changes in output,
+            //       even though it is being called
 
             if (predEdge.getType() == StatEdge.TYPE_REGULAR) {
               if (predEdge.getSource() instanceof SequenceStatement) {
@@ -440,6 +442,7 @@ public class FlattenStatementsHelper {
               // TODO: what is this for?
               // TODO: why is it adding ad edge from the start of the sequence to the block?
               // TODO: why is it using the basic head id, instead of the sequence id?
+              // TODO: currently never called
 
               if (predEdge.getType() == StatEdge.TYPE_REGULAR) {
                 if (predEdge.getSource() instanceof SequenceStatement) {
