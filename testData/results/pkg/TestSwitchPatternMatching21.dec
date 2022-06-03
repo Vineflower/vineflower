@@ -1,0 +1,235 @@
+package pkg;
+
+import java.util.Objects;
+
+public class TestSwitchPatternMatching21 {
+   public void test1(String it) {
+      Objects.requireNonNull(it);// 5
+      <unknown> var2;
+      switch(it) {
+         case "":
+            System.out.println("nothing");// 6
+            break;
+         case "hi":
+            System.out.println("hello");// 7
+            break;
+         case it instanceof String var7 && Math.random() > 0.0:// 8
+            System.out.println(it + "!");// 9
+            break;
+         case it instanceof String var8 && Math.random() > 0.0:// 10
+            System.out.println(it + "!!");// 11
+            break;
+         case it instanceof String var9 && var2.startsWith("?"):// 12
+            System.out.println(it + "?");// 13
+            break;
+         default:
+            System.out.println("Default");// 14
+      }
+
+   }// 16
+
+   public void test2(String it) {
+      label21:
+      switch(it) {// 19
+         case null:
+         default:
+            System.out.println(it + "?");// 27
+            break;
+         case "":
+            System.out.println("nothing");// 20
+            break;
+         case "hi":
+            System.out.println("hello");// 21
+            break;
+         case it instanceof String var7 && Math.random() > 0.0:// 22
+            System.out.println(it + "!");// 23
+            break;
+         case it instanceof String var8 && Math.random() > 0.0:// 24
+            System.out.println(it + "!!");// 25
+            break;
+      }
+
+   }// 29
+}
+
+class 'pkg/TestSwitchPatternMatching21' {
+   method 'test1 (Ljava/lang/String;)V' {
+      0      6
+      2      6
+      3      6
+      4      6
+      10      8
+      34      10
+      35      10
+      36      10
+      37      10
+      38      10
+      39      10
+      3a      10
+      3b      10
+      3c      11
+      3f      13
+      40      13
+      41      13
+      42      13
+      43      13
+      44      13
+      45      13
+      46      13
+      47      14
+      4d      15
+      4e      15
+      4f      15
+      50      15
+      51      15
+      5a      16
+      5b      16
+      5c      16
+      5f      16
+      60      16
+      61      16
+      62      16
+      63      16
+      64      16
+      65      16
+      66      16
+      67      17
+      6d      18
+      6e      18
+      6f      18
+      70      18
+      71      18
+      7a      19
+      7b      19
+      7c      19
+      7f      19
+      80      19
+      81      19
+      82      19
+      83      19
+      84      19
+      85      19
+      86      19
+      87      20
+      8a      21
+      8f      21
+      90      21
+      91      21
+      92      21
+      93      21
+      9c      22
+      9d      22
+      9e      22
+      a1      22
+      a2      22
+      a3      22
+      a4      22
+      a5      22
+      a6      22
+      a7      22
+      a8      22
+      a9      23
+      ac      25
+      ad      25
+      ae      25
+      af      25
+      b0      25
+      b1      25
+      b2      25
+      b3      25
+      b7      28
+   }
+
+   method 'test2 (Ljava/lang/String;)V' {
+      0      32
+      b      32
+      2c      38
+      2d      38
+      2e      38
+      2f      38
+      30      38
+      31      38
+      32      38
+      33      38
+      34      39
+      37      41
+      38      41
+      39      41
+      3a      41
+      3b      41
+      3c      41
+      3d      41
+      3e      41
+      3f      42
+      45      43
+      46      43
+      47      43
+      48      43
+      49      43
+      52      44
+      53      44
+      54      44
+      57      44
+      58      44
+      59      44
+      5a      44
+      5b      44
+      5c      44
+      5d      44
+      5e      44
+      5f      45
+      65      46
+      66      46
+      67      46
+      68      46
+      69      46
+      72      47
+      73      47
+      74      47
+      77      47
+      78      47
+      79      47
+      7a      47
+      7b      47
+      7c      47
+      7d      47
+      7e      47
+      85      35
+      86      35
+      87      35
+      8a      35
+      8b      35
+      8c      35
+      8d      35
+      8e      35
+      8f      35
+      90      35
+      91      35
+      92      36
+      95      51
+   }
+}
+
+Lines mapping:
+5 <-> 7
+6 <-> 11
+7 <-> 14
+8 <-> 16
+9 <-> 17
+10 <-> 19
+11 <-> 20
+12 <-> 22
+13 <-> 23
+14 <-> 26
+16 <-> 29
+19 <-> 33
+20 <-> 39
+21 <-> 42
+22 <-> 44
+23 <-> 45
+24 <-> 47
+25 <-> 48
+27 <-> 36
+29 <-> 52
+Not mapped:
+26
