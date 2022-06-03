@@ -211,7 +211,7 @@ public final class SwitchPatternMatchProcessor {
             break;
           case CodeConstants.CONSTANT_Class:
             // may happen if the switch head is a supertype of the pattern
-            if (stat.getCaseValues().get(i).stream().allMatch(x -> x instanceof ConstExprent && !((ConstExprent) x).isNull())) {
+            if (stat.getCaseValues().get(replaceIndex).stream().allMatch(x -> x instanceof ConstExprent && !((ConstExprent) x).isNull())) {
               VarType castType = new VarType(CodeConstants.TYPE_OBJECT, 0, (String) p.value);
               List<Exprent> operands = new ArrayList<>();
               operands.add(realSelector); // checking var
