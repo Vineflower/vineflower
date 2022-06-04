@@ -3,7 +3,7 @@ package pkg;
 class TestSwitchPatternMatchingFuzz1 {
 
   public void test() {
-    // the switch itself
+
     switch (new Object()) {
       default:
         throw new RuntimeException();
@@ -13,7 +13,7 @@ class TestSwitchPatternMatchingFuzz1 {
         }
     }
 
-    // random crust that breaks it
+
     try {
       System.out.println("Hi");
       return;

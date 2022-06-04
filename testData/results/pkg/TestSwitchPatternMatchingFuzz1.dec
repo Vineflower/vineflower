@@ -2,57 +2,93 @@ package pkg;
 
 class TestSwitchPatternMatchingFuzz1 {
    public void test() {
-      // $QF: Couldn't be decompiled
-      // Bytecode:
-      // 00: new java/lang/Object
-      // 03: dup
-      // 04: invokespecial java/lang/Object.<init> ()V
-      // 07: astore 1
-      // 08: bipush 0
-      // 09: istore 2
-      // 0a: aload 1
-      // 0b: iload 2
-      // 0c: invokedynamic typeSwitch (Ljava/lang/Object;I)I bsm=java/lang/runtime/SwitchBootstraps.typeSwitch (Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite; args=[ java/lang/Double ]
-      // 11: lookupswitch 27 2 -1 35 0 35
-      // 2c: new java/lang/RuntimeException
-      // 2f: dup
-      // 30: invokespecial java/lang/RuntimeException.<init> ()V
-      // 33: athrow
-      // 34: aload 1
-      // 35: checkcast java/lang/Double
-      // 38: astore 3
-      // 39: bipush 0
-      // 3a: newarray 11
-      // 3c: astore 4
-      // 3e: aload 4
-      // 40: arraylength
-      // 41: istore 5
-      // 43: bipush 0
-      // 44: istore 6
-      // 46: iload 6
-      // 48: iload 5
-      // 4a: if_icmpge 5c
-      // 4d: aload 4
-      // 4f: iload 6
-      // 51: laload
-      // 52: lstore 7
-      // 54: new java/lang/RuntimeException
-      // 57: dup
-      // 58: invokespecial java/lang/RuntimeException.<init> ()V
-      // 5b: athrow
-      // 5c: getstatic java/lang/System.out Ljava/io/PrintStream;
-      // 5f: ldc "Hi"
-      // 61: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
-      // 64: return
-      // 65: astore 1
-      // 66: goto 6e
-      // 69: astore 9
-      // 6b: aload 9
-      // 6d: athrow
-      // 6e: new java/lang/RuntimeException
-      // 71: dup
-      // 72: invokespecial java/lang/RuntimeException.<init> ()V
-      // 75: athrow
+      Object var1 = new Object();// 7
+
+      switch(var1) {
+         case var1 instanceof Double var14, null -> {
+         }
+         default -> throw new RuntimeException();// 9
+      };
+      Double l = (Double)var1;// 10
+      long[] var4 = new long[0];// 11
+      int var5 = var4.length;
+      byte var6 = 0;
+      if (var6 < var5) {
+         long none = var4[var6];
+         throw new RuntimeException();// 12
+      } else {
+         try {
+            System.out.println("Hi");// 18
+            return;// 19
+         } catch (Exception var12) {// 20
+         } finally {
+            ;
+         }
+
+         throw new RuntimeException();// 23
+      }
    }
 }
 
+class 'pkg/TestSwitchPatternMatchingFuzz1' {
+   method 'test ()V' {
+      7      4
+      a      6
+      11      6
+      33      9
+      34      11
+      35      11
+      36      11
+      37      11
+      38      11
+      39      12
+      3c      12
+      3d      12
+      3e      13
+      3f      13
+      40      13
+      41      13
+      42      13
+      43      14
+      44      14
+      45      14
+      46      15
+      47      15
+      48      15
+      49      15
+      4a      15
+      4d      16
+      4e      16
+      4f      16
+      50      16
+      51      16
+      52      16
+      53      16
+      5b      17
+      5c      20
+      5d      20
+      5e      20
+      5f      20
+      60      20
+      61      20
+      62      20
+      63      20
+      64      21
+      65      22
+      75      27
+   }
+}
+
+Lines mapping:
+7 <-> 5
+9 <-> 10
+10 <-> 12
+11 <-> 13
+12 <-> 18
+18 <-> 21
+19 <-> 22
+20 <-> 23
+23 <-> 28
+Not mapped:
+21
+22

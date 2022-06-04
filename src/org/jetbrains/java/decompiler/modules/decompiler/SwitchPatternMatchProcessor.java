@@ -211,7 +211,7 @@ public final class SwitchPatternMatchProcessor {
             break;
           case CodeConstants.CONSTANT_Class:
             // may happen if the switch head is a supertype of the pattern
-            if (stat.getCaseValues().get(replaceIndex).stream().allMatch(x -> x instanceof ConstExprent && !((ConstExprent) x).isNull())) {
+            if (stat.getCaseValues().get(replaceIndex).stream().allMatch(x -> x instanceof ConstExprent)) {
               VarType castType = new VarType(CodeConstants.TYPE_OBJECT, 0, (String) p.value);
               List<Exprent> operands = new ArrayList<>();
               operands.add(realSelector); // checking var
@@ -220,7 +220,9 @@ public final class SwitchPatternMatchProcessor {
                 castType,
                 DecompilerContext.getVarProcessor()));
               FunctionExprent func = new FunctionExprent(FunctionExprent.FunctionType.INSTANCEOF, operands, null);
-              stat.getCaseValues().set(replaceIndex, Collections.singletonList(func));
+              // make sure we don't replace the null case
+              stat.getCaseValues().get(replaceIndex).replaceAll(
+                con -> con instanceof ConstExprent && !((ConstExprent) con).isNull() ? func : con);
             }
             break;
         }
