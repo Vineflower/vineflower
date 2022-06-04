@@ -1,55 +1,50 @@
 package pkg;
 
+import java.util.Objects;
+
 public class TestSwitchPatternMatchingInstanceof4 {
-   public void test(Object param1) {
-      // $QF: Couldn't be decompiled
-      // Bytecode:
-      // 00: aload 1
-      // 01: dup
-      // 02: invokestatic java/util/Objects.requireNonNull (Ljava/lang/Object;)Ljava/lang/Object;
-      // 05: pop
-      // 06: astore 2
-      // 07: bipush 0
-      // 08: istore 3
-      // 09: aload 2
-      // 0a: iload 3
-      // 0b: invokedynamic typeSwitch (Ljava/lang/Object;I)I bsm=java/lang/runtime/SwitchBootstraps.typeSwitch (Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite; args=[ java/lang/String ]
-      // 10: lookupswitch 89 1 0 20
-      // 24: aload 2
-      // 25: checkcast java/lang/String
-      // 28: astore 4
-      // 2a: aload 1
-      // 2b: instanceof java/lang/Class
-      // 2e: ifeq 52
-      // 31: aload 1
-      // 32: checkcast java/lang/Class
-      // 35: astore 5
-      // 37: aload 5
-      // 39: invokevirtual java/lang/Class.getSigners ()[Ljava/lang/Object;
-      // 3c: bipush 0
-      // 3d: aaload
-      // 3e: astore 7
-      // 40: aload 7
-      // 42: instanceof java/lang/Class
-      // 45: ifeq 52
-      // 48: aload 7
-      // 4a: checkcast java/lang/Class
-      // 4d: astore 6
-      // 4f: goto 57
-      // 52: bipush 1
-      // 53: istore 3
-      // 54: goto 09
-      // 57: getstatic java/lang/System.out Ljava/io/PrintStream;
-      // 5a: aload 5
-      // 5c: aload 6
-      // 5e: invokedynamic makeConcatWithConstants (Ljava/lang/Class;Ljava/lang/Class;)Ljava/lang/String; bsm=java/lang/invoke/StringConcatFactory.makeConcatWithConstants (Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite; args=[ "\u0001\u0001" ]
-      // 63: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
-      // 66: goto 74
-      // 69: getstatic java/lang/System.out Ljava/io/PrintStream;
-      // 6c: ldc "Default"
-      // 6e: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
-      // 71: goto 74
-      // 74: return
+   public void test(Object o) {
+      Objects.requireNonNull(o);// 5
+      label17:
+      switch(o) {
+         case o instanceof String s && o instanceof Class clzz:// 6
+            break;
+         default:
+            System.out.println("Default");// 7
+      }
+
+   }// 9
+}
+
+class 'pkg/TestSwitchPatternMatchingInstanceof4' {
+   method 'test (Ljava/lang/Object;)V' {
+      0      6
+      2      6
+      3      6
+      4      6
+      10      8
+      28      9
+      29      9
+      2a      9
+      2b      9
+      2c      9
+      2d      9
+      35      9
+      36      9
+      69      12
+      6a      12
+      6b      12
+      6c      12
+      6d      12
+      6e      12
+      6f      12
+      70      12
+      74      15
    }
 }
 
+Lines mapping:
+5 <-> 7
+6 <-> 10
+7 <-> 13
+9 <-> 16

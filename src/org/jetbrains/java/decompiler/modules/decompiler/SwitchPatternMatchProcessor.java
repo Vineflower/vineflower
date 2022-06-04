@@ -321,7 +321,11 @@ public final class SwitchPatternMatchProcessor {
                 guardExprent = new FunctionExprent(FunctionExprent.FunctionType.BOOL_NOT, guardExprent, guardExprent.bytecode);
               } else {
                 // if the index assignment is outside the `if`, the contents of the `if` *is* the case statement and should be added to next statement
-                carryExprs = parent.getStats().stream().flatMap(x -> x.getExprents().stream()).collect(Collectors.toList());
+                carryExprs = parent.getStats().stream()
+                  .map(Statement::getExprents)
+                  .filter(Objects::nonNull)
+                  .flatMap(Collection::stream)
+                  .collect(Collectors.toList());
                 assignStat.replaceWithEmpty(); // normally removed in guardIf.replaceWithEmpty()
               }
               guards.put(stat.getCaseValues().get(i), guardExprent);
