@@ -446,6 +446,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingConstructor2");
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingWithNull");
 
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingFuzz1");
+
     register(JASM, "TestCondy");
     register(JASM, "TestBackwardsExceptionHandler");
     register(JASM, "TestLeakyMethod");
