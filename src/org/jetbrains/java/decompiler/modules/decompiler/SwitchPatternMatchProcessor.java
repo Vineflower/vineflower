@@ -270,7 +270,7 @@ public final class SwitchPatternMatchProcessor {
     if (guarded && stat.getParent() instanceof DoStatement) {
       // remove the enclosing while(true) loop of a guarded switch
       stat.getParent().replaceWith(stat);
-      // and remove any invalid break/continue edges to the switch
+      // update continue-loops into break-switches
       for (StatEdge edge : stat.getPredecessorEdges(StatEdge.TYPE_CONTINUE)) {
         edge.changeType(StatEdge.TYPE_BREAK);
       }
@@ -310,7 +310,14 @@ public final class SwitchPatternMatchProcessor {
           for (int i = 0; i < caseStatements.size(); i++) {
             if (caseStatements.get(i).containsStatement(reference.a)) {
               if (simulate) {
-                return true; // we're not actually removing the guard yet
+                // we're not actually removing the guard yet
+                if (!invert) {
+                  // only a trivial guard can be handled currently
+                  return parent.getStats().stream()
+                    .map(Statement::getExprents)
+                    .allMatch(Objects::nonNull);
+                }
+                return true;
               }
               // the assignment of the pattern variable may be inside the `if`, take it out and add it to the next statement
               List<Exprent> guardExprs = guardIf.getStats().get(0).getExprents();
@@ -321,11 +328,15 @@ public final class SwitchPatternMatchProcessor {
                 guardExprent = new FunctionExprent(FunctionExprent.FunctionType.BOOL_NOT, guardExprent, guardExprent.bytecode);
               } else {
                 // if the index assignment is outside the `if`, the contents of the `if` *is* the case statement and should be added to next statement
-                carryExprs = parent.getStats().stream()
-                  .map(Statement::getExprents)
-                  .filter(Objects::nonNull)
-                  .flatMap(Collection::stream)
-                  .collect(Collectors.toList());
+                carryExprs = new ArrayList<>();
+                for (Statement statement : parent.getStats()) {
+                  List<Exprent> exprents = statement.getExprents();
+                  if (exprents != null) {
+                    carryExprs.addAll(exprents);
+                  } else { // only a trivial guard can be handled currently
+                    return false;
+                  }
+                }
                 assignStat.replaceWithEmpty(); // normally removed in guardIf.replaceWithEmpty()
               }
               guards.put(stat.getCaseValues().get(i), guardExprent);
