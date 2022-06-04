@@ -12,7 +12,6 @@ import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.Pair;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public final class SwitchPatternMatchProcessor {
   public static boolean processPatternMatching(Statement root) {
@@ -180,8 +179,7 @@ public final class SwitchPatternMatchProcessor {
       }
     }
 
-    // TODO: merge this with the previous `for` loop?
-    // go through bootstrap arguments to ensure constants are correct
+    // go through bootstrap arguments to ensure types are correct & add enum/integer/string constants
     for (int i = 0; i < value.getBootstrapArguments().size(); i++) {
       PooledConstant bsa = value.getBootstrapArguments().get(i);
       // replace the constant with the value of i, which may not be at index i
@@ -227,6 +225,7 @@ public final class SwitchPatternMatchProcessor {
         if (newValue != null) {
           int ix = i;
           Exprent nvx = newValue;
+          // make sure we replace the right constant, null can be shared with anything
           stat.getCaseValues().get(replaceIndex).replaceAll(u ->
             u instanceof ConstExprent
               && u.getExprType().typeFamily == CodeConstants.TYPE_FAMILY_INTEGER
@@ -246,11 +245,8 @@ public final class SwitchPatternMatchProcessor {
 
         suc = BasicBlockStatement.create();
         SequenceStatement seq = new SequenceStatement(stat, suc);
-
         seq.setParent(stat.getParent());
-
         stat.replaceWith(seq);
-
         seq.setAllParent();
 
         // Replace successors with the new basic block
@@ -258,7 +254,6 @@ public final class SwitchPatternMatchProcessor {
           for (StatEdge edge : st.getAllSuccessorEdges()) {
             if (edge.getDestination() == oldSuc) {
               st.removeSuccessor(edge);
-
               st.addSuccessor(new StatEdge(edge.getType(), st, suc, seq));
             }
           }
@@ -272,7 +267,7 @@ public final class SwitchPatternMatchProcessor {
       suc.getExprents().add(0, new SwitchExprent(stat, VarType.VARTYPE_INT, false, true));
     }
 
-    head.setValue(realSelector);
+    head.setValue(realSelector); // SwitchBootstraps.typeSwitch(o, var1) -> o
 
     if (guarded && stat.getParent() instanceof DoStatement) {
       // remove the enclosing while(true) loop of a guarded switch
