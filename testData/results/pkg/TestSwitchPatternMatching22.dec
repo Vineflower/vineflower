@@ -1,0 +1,234 @@
+package pkg;
+
+public class TestSwitchPatternMatching22 {
+   public void test1() {
+      try {
+         System.out.println("hello");// 13
+      } catch (Exception var8) {// 14
+         Object var2 = new Object();// 15
+         switch(var2) {
+            case var2 instanceof Short var4:// 19
+            case null:
+               break;
+            default:
+               System.out.println("Not a short");// 17
+               throw new RuntimeException();// 18
+         }
+      } finally {
+         System.out.println("world");// 22
+      }
+
+   }// 24
+
+   public void test2() {
+      try {
+         System.out.println("hello");// 28
+      } catch (Exception var8) {// 29
+         Object var2 = new Object();// 30
+         switch(var2) {
+            case var2 instanceof Short var4:// 34
+            case null:
+            default:
+               System.out.println("Not a short");// 32
+               throw new RuntimeException();// 33
+         }
+      } finally {
+         throw new RuntimeException();// 37
+      }
+   }
+
+   public void test1Null() {
+      try {
+         System.out.println("hello");// 43
+      } catch (Exception var8) {// 44
+         Object var2 = new Object();// 45
+         switch(var2) {
+            case var2 instanceof Short var4:// 50
+            case null:
+               break;
+            default:
+               System.out.println("Not a short");// 47
+               throw new RuntimeException();// 48
+         }
+      } finally {
+         System.out.println("world");// 53
+      }
+
+   }// 55
+
+   public void test2Null() {
+      try {
+         System.out.println("hello");// 59
+      } catch (Exception var8) {// 60
+         Object var2 = new Object();// 61
+         switch(var2) {
+            case var2 instanceof Short var4:// 66
+            case null:
+            default:
+               System.out.println("Not a short");// 63
+               throw new RuntimeException();// 64
+         }
+      } finally {
+         throw new RuntimeException();// 69
+      }
+   }
+}
+
+class 'pkg/TestSwitchPatternMatching22' {
+   method 'test1 ()V' {
+      0      5
+      1      5
+      2      5
+      3      5
+      4      5
+      5      5
+      13      6
+      1b      7
+      1e      8
+      25      8
+      40      13
+      41      13
+      42      13
+      43      13
+      44      13
+      45      13
+      46      13
+      47      13
+      4f      14
+      50      9
+      54      9
+      55      9
+      61      17
+      62      17
+      63      17
+      64      17
+      65      17
+      66      17
+      67      17
+      6e      20
+   }
+
+   method 'test2 ()V' {
+      0      24
+      1      24
+      2      24
+      3      24
+      4      24
+      5      24
+      10      25
+      18      26
+      1b      27
+      22      27
+      3c      31
+      3d      31
+      3e      31
+      3f      31
+      40      31
+      41      31
+      42      31
+      43      31
+      4b      32
+      4c      28
+      50      28
+      51      28
+      60      35
+      61      35
+      62      35
+   }
+
+   method 'test1Null ()V' {
+      0      41
+      1      41
+      2      41
+      3      41
+      4      41
+      5      41
+      13      42
+      1b      43
+      1e      44
+      25      44
+      40      49
+      41      49
+      42      49
+      43      49
+      44      49
+      45      49
+      46      49
+      47      49
+      4f      50
+      50      45
+      54      45
+      55      45
+      61      53
+      62      53
+      63      53
+      64      53
+      65      53
+      66      53
+      67      53
+      6e      56
+   }
+
+   method 'test2Null ()V' {
+      0      60
+      1      60
+      2      60
+      3      60
+      4      60
+      5      60
+      10      61
+      18      62
+      1b      63
+      22      63
+      3c      67
+      3d      67
+      3e      67
+      3f      67
+      40      67
+      41      67
+      42      67
+      43      67
+      4b      68
+      4c      64
+      50      64
+      51      64
+      60      71
+      61      71
+      62      71
+   }
+}
+
+Lines mapping:
+13 <-> 6
+14 <-> 7
+15 <-> 8
+17 <-> 14
+18 <-> 15
+19 <-> 10
+22 <-> 18
+24 <-> 21
+28 <-> 25
+29 <-> 26
+30 <-> 27
+32 <-> 32
+33 <-> 33
+34 <-> 29
+37 <-> 36
+43 <-> 42
+44 <-> 43
+45 <-> 44
+47 <-> 50
+48 <-> 51
+50 <-> 46
+53 <-> 54
+55 <-> 57
+59 <-> 61
+60 <-> 62
+61 <-> 63
+63 <-> 68
+64 <-> 69
+66 <-> 65
+69 <-> 72
+Not mapped:
+23
+54
