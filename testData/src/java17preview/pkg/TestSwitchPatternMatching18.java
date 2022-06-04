@@ -11,4 +11,13 @@ public class TestSwitchPatternMatching18 {
       default                   -> System.out.println("default");
     }
   }
+
+  static void test2(Integer o) {
+    switch (o) {
+      case 42                   -> System.out.println("42");
+      case 16, null             -> System.out.println("maybe 16?");
+      case Integer i && i < 50  -> System.out.println("small");
+      default                   -> System.out.println("default");
+    }
+  }
 }

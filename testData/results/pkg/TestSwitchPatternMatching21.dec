@@ -50,6 +50,24 @@ public class TestSwitchPatternMatching21 {
       }
 
    }// 29
+
+   public void test3(String it) {
+      switch(it) {// 32
+         case "":
+         case null:
+            System.out.println("nothing");// 33
+            break;
+         case "hi":
+            System.out.println("hello");// 34
+            break;
+         case it instanceof String var5 && Math.random() > 0.0:// 35
+            System.out.println(it + "!");// 36
+            break;
+         default:
+            System.out.println("Default");// 37
+      }
+
+   }// 39
 }
 
 class 'pkg/TestSwitchPatternMatching21' {
@@ -208,6 +226,55 @@ class 'pkg/TestSwitchPatternMatching21' {
       92      36
       95      51
    }
+
+   method 'test3 (Ljava/lang/String;)V' {
+      0      54
+      b      54
+      28      57
+      29      57
+      2a      57
+      2b      57
+      2c      57
+      2d      57
+      2e      57
+      2f      57
+      30      58
+      33      60
+      34      60
+      35      60
+      36      60
+      37      60
+      38      60
+      39      60
+      3a      60
+      3b      61
+      41      62
+      42      62
+      43      62
+      44      62
+      45      62
+      4e      63
+      4f      63
+      50      63
+      53      63
+      54      63
+      55      63
+      56      63
+      57      63
+      58      63
+      59      63
+      5a      63
+      5b      64
+      5e      66
+      5f      66
+      60      66
+      61      66
+      62      66
+      63      66
+      64      66
+      65      66
+      69      69
+   }
 }
 
 Lines mapping:
@@ -231,5 +298,12 @@ Lines mapping:
 25 <-> 48
 27 <-> 36
 29 <-> 52
+32 <-> 55
+33 <-> 58
+34 <-> 61
+35 <-> 63
+36 <-> 64
+37 <-> 67
+39 <-> 70
 Not mapped:
 26

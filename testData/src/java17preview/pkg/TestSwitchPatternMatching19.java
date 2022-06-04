@@ -12,6 +12,16 @@ public class TestSwitchPatternMatching19 {
     }
   }
 
+  static void test2(XXX s) {
+    switch (s) {
+      case X1       -> System.out.println("x1");
+      case X2, null -> System.out.println("maybe x2?");
+      case F f && Math.random() > 0
+                    -> System.out.println("just making sure!");
+      default       -> System.out.println("default");
+    }
+  }
+
 
   interface A {}
   interface B {}

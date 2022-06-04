@@ -21,6 +21,25 @@ public class TestSwitchPatternMatching18 {
       }
 
    }// 13
+
+   static void test2(Integer o) {
+      <unknown> var1;
+      switch(o) {// 16
+         case 16:
+         case null:
+            System.out.println("maybe 16?");// 18
+            break;
+         case 42:
+            System.out.println("42");// 17
+            break;
+         case o instanceof Integer var4 && var1 < 50:// 19
+            System.out.println("small");
+            break;
+         default:
+            System.out.println("default");// 20
+      }
+
+   }// 22
 }
 
 class 'pkg/TestSwitchPatternMatching18' {
@@ -86,6 +105,54 @@ class 'pkg/TestSwitchPatternMatching18' {
       7b      19
       7f      22
    }
+
+   method 'test2 (Ljava/lang/Integer;)V' {
+      0      26
+      b      26
+      28      32
+      29      32
+      2a      32
+      2b      32
+      2c      32
+      2d      32
+      2e      32
+      2f      32
+      30      33
+      33      29
+      34      29
+      35      29
+      36      29
+      37      29
+      38      29
+      39      29
+      3a      29
+      3b      30
+      3e      34
+      41      34
+      42      34
+      43      34
+      44      34
+      45      34
+      46      34
+      4e      35
+      4f      35
+      50      35
+      51      35
+      52      35
+      53      35
+      54      35
+      55      35
+      56      36
+      59      38
+      5a      38
+      5b      38
+      5c      38
+      5d      38
+      5e      38
+      5f      38
+      60      38
+      64      41
+   }
 }
 
 Lines mapping:
@@ -96,3 +163,9 @@ Lines mapping:
 10 <-> 17
 11 <-> 20
 13 <-> 23
+16 <-> 27
+17 <-> 33
+18 <-> 30
+19 <-> 35
+20 <-> 39
+22 <-> 42

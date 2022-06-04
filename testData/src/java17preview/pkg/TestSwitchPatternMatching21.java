@@ -27,4 +27,14 @@ public class TestSwitchPatternMatching21 {
         -> System.out.println(s + "?");
     }
   }
+
+  public void test3(String it) {
+    switch (it) {
+      case "", null -> System.out.println("nothing");
+      case "hi" -> System.out.println("hello");
+      case String s && Math.random() > 0
+        -> System.out.println(s + "!");
+      default -> System.out.println("Default");
+    }
+  }
 }

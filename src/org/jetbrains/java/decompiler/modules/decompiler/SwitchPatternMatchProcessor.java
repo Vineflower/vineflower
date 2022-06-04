@@ -197,16 +197,17 @@ public final class SwitchPatternMatchProcessor {
       // either an integer, String, or Class
       if (bsa instanceof PrimitiveConstant) {
         PrimitiveConstant p = (PrimitiveConstant) bsa;
+        Exprent newValue = null;
         switch (p.type) {
           case CodeConstants.CONSTANT_Integer:
-            stat.getCaseValues().set(replaceIndex, Collections.singletonList(new ConstExprent((Integer) p.value, false, null)));
+            newValue = new ConstExprent((Integer) p.value, false, null);
             break;
           case CodeConstants.CONSTANT_String:
             if (isEnumSwitch) {
               String typeName = realSelector.getExprType().value;
-              stat.getCaseValues().set(replaceIndex, Collections.singletonList(new FieldExprent(p.value.toString(), typeName, true, null, FieldDescriptor.parseDescriptor("L" + typeName + ";"), null, false, false)));
+              newValue = new FieldExprent(p.value.toString(), typeName, true, null, FieldDescriptor.parseDescriptor("L" + typeName + ";"), null, false, false);
             } else {
-              stat.getCaseValues().set(replaceIndex, Collections.singletonList(new ConstExprent(VarType.VARTYPE_STRING, p.value, null)));
+              newValue = new ConstExprent(VarType.VARTYPE_STRING, p.value, null);
             }
             break;
           case CodeConstants.CONSTANT_Class:
@@ -219,12 +220,18 @@ public final class SwitchPatternMatchProcessor {
               operands.add(new VarExprent(DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.VAR_COUNTER),
                 castType,
                 DecompilerContext.getVarProcessor()));
-              FunctionExprent func = new FunctionExprent(FunctionExprent.FunctionType.INSTANCEOF, operands, null);
-              // make sure we don't replace the null case
-              stat.getCaseValues().get(replaceIndex).replaceAll(
-                con -> con instanceof ConstExprent && !((ConstExprent) con).isNull() ? func : con);
+              newValue = new FunctionExprent(FunctionExprent.FunctionType.INSTANCEOF, operands, null);
             }
             break;
+        }
+        if (newValue != null) {
+          int ix = i;
+          Exprent nvx = newValue;
+          stat.getCaseValues().get(replaceIndex).replaceAll(u ->
+            u instanceof ConstExprent
+              && u.getExprType().typeFamily == CodeConstants.TYPE_FAMILY_INTEGER
+              && ((ConstExprent) u).getIntValue() == ix
+                ? nvx : u);
         }
       }
     }
