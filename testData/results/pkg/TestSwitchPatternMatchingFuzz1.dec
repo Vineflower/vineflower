@@ -12,61 +12,47 @@ class TestSwitchPatternMatchingFuzz1 {
       // 09: istore 2
       // 0a: aload 1
       // 0b: iload 2
-      // 0c: invokedynamic typeSwitch (Ljava/lang/Object;I)I bsm=java/lang/runtime/SwitchBootstraps.typeSwitch (Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite; args=[ java/lang/Character, java/lang/Double ]
-      // 11: tableswitch 52 -1 1 68 27 68
-      // 2c: aload 1
-      // 2d: checkcast java/lang/Character
-      // 30: astore 3
-      // 31: getstatic java/lang/System.out Ljava/io/PrintStream;
-      // 34: aload 3
-      // 35: invokedynamic makeConcatWithConstants (Ljava/lang/Character;)Ljava/lang/String; bsm=java/lang/invoke/StringConcatFactory.makeConcatWithConstants (Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite; args=[ "Hi character \u0001" ]
-      // 3a: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
-      // 3d: new java/lang/RuntimeException
-      // 40: dup
-      // 41: invokespecial java/lang/RuntimeException.<init> ()V
-      // 44: athrow
-      // 45: getstatic java/lang/System.out Ljava/io/PrintStream;
-      // 48: ldc "Hi default"
-      // 4a: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
-      // 4d: new java/lang/RuntimeException
-      // 50: dup
-      // 51: invokespecial java/lang/RuntimeException.<init> ()V
-      // 54: athrow
-      // 55: aload 1
-      // 56: checkcast java/lang/Double
-      // 59: astore 4
-      // 5b: bipush 0
-      // 5c: newarray 11
-      // 5e: astore 5
-      // 60: aload 5
-      // 62: arraylength
-      // 63: istore 6
-      // 65: bipush 0
-      // 66: istore 7
-      // 68: iload 7
-      // 6a: iload 6
-      // 6c: if_icmpge 7e
-      // 6f: aload 5
-      // 71: iload 7
-      // 73: laload
-      // 74: lstore 8
-      // 76: new java/lang/RuntimeException
-      // 79: dup
-      // 7a: invokespecial java/lang/RuntimeException.<init> ()V
-      // 7d: athrow
-      // 7e: getstatic java/lang/System.out Ljava/io/PrintStream;
-      // 81: ldc "Hi"
-      // 83: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
-      // 86: return
-      // 87: astore 1
-      // 88: goto 90
-      // 8b: astore 10
-      // 8d: aload 10
-      // 8f: athrow
-      // 90: new java/lang/RuntimeException
-      // 93: dup
-      // 94: invokespecial java/lang/RuntimeException.<init> ()V
-      // 97: athrow
+      // 0c: invokedynamic typeSwitch (Ljava/lang/Object;I)I bsm=java/lang/runtime/SwitchBootstraps.typeSwitch (Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite; args=[ java/lang/Double ]
+      // 11: lookupswitch 27 2 -1 35 0 35
+      // 2c: new java/lang/RuntimeException
+      // 2f: dup
+      // 30: invokespecial java/lang/RuntimeException.<init> ()V
+      // 33: athrow
+      // 34: aload 1
+      // 35: checkcast java/lang/Double
+      // 38: astore 3
+      // 39: bipush 0
+      // 3a: newarray 11
+      // 3c: astore 4
+      // 3e: aload 4
+      // 40: arraylength
+      // 41: istore 5
+      // 43: bipush 0
+      // 44: istore 6
+      // 46: iload 6
+      // 48: iload 5
+      // 4a: if_icmpge 5c
+      // 4d: aload 4
+      // 4f: iload 6
+      // 51: laload
+      // 52: lstore 7
+      // 54: new java/lang/RuntimeException
+      // 57: dup
+      // 58: invokespecial java/lang/RuntimeException.<init> ()V
+      // 5b: athrow
+      // 5c: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 5f: ldc "Hi"
+      // 61: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
+      // 64: return
+      // 65: astore 1
+      // 66: goto 6e
+      // 69: astore 9
+      // 6b: aload 9
+      // 6d: athrow
+      // 6e: new java/lang/RuntimeException
+      // 71: dup
+      // 72: invokespecial java/lang/RuntimeException.<init> ()V
+      // 75: athrow
    }
 }
 

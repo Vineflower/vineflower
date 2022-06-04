@@ -5,11 +5,7 @@ class TestSwitchPatternMatchingFuzz1 {
   public void test() {
     // the switch itself
     switch (new Object()) {
-      case Character c:
-        System.out.println("Hi character " + c);
-        throw new RuntimeException();
       default:
-        System.out.println("Hi default");
         throw new RuntimeException();
       case Double l:
         for (long none : new long[0]) {
