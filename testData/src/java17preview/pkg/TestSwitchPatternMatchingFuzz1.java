@@ -13,7 +13,6 @@ class TestSwitchPatternMatchingFuzz1 {
         }
     }
 
-
     try {
       System.out.println("Hi");
       return;

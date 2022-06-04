@@ -235,38 +235,6 @@ public final class SwitchPatternMatchProcessor {
       }
     }
 
-    List<StatEdge> sucs = stat.getSuccessorEdges(StatEdge.TYPE_REGULAR);
-
-    if (!sucs.isEmpty()) {
-
-      Statement suc = sucs.get(0).getDestination();
-      if (!(suc instanceof BasicBlockStatement)) { // make basic block if it isn't found
-        Statement oldSuc = suc;
-
-        suc = BasicBlockStatement.create();
-        SequenceStatement seq = new SequenceStatement(stat, suc);
-        seq.setParent(stat.getParent());
-        stat.replaceWith(seq);
-        seq.setAllParent();
-
-        // Replace successors with the new basic block
-        for (Statement st : stat.getCaseStatements()) {
-          for (StatEdge edge : st.getAllSuccessorEdges()) {
-            if (edge.getDestination() == oldSuc) {
-              st.removeSuccessor(edge);
-              st.addSuccessor(new StatEdge(edge.getType(), st, suc, seq));
-            }
-          }
-        }
-
-        // Control flow from new basic block to the next one
-        suc.addSuccessor(new StatEdge(StatEdge.TYPE_REGULAR, suc, oldSuc, seq));
-      }
-
-      stat.setPhantom(true);
-      suc.getExprents().add(0, new SwitchExprent(stat, VarType.VARTYPE_INT, false, true));
-    }
-
     head.setValue(realSelector); // SwitchBootstraps.typeSwitch(o, var1) -> o
 
     if (guarded && stat.getParent() instanceof DoStatement) {

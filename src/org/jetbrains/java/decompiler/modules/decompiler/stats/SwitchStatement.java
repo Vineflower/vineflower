@@ -323,6 +323,12 @@ public final class SwitchStatement extends Statement {
 
   public void sortEdgesAndNodes() {
 
+    // skip for pattern switches
+    if (caseValues.stream().flatMap(Collection::stream).anyMatch(u -> !(u instanceof ConstExprent) || ((ConstExprent) u).isNull())
+      || caseGuards.stream().anyMatch(Objects::nonNull)) {
+      return;
+    }
+
     HashMap<StatEdge, Integer> mapEdgeIndex = new HashMap<>();
 
     List<StatEdge> lstFirstSuccs = first.getSuccessorEdges(STATEDGE_DIRECT_ALL);
