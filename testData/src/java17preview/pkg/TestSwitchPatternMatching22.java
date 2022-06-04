@@ -69,4 +69,20 @@ public class TestSwitchPatternMatching22 {
       throw new RuntimeException();
     }
   }
+
+  public void testNonPattern() {
+    try {
+      System.out.println("hello");
+    } catch (Exception e) {
+      switch (0) {
+        default:
+          System.out.println("Not a short");
+          throw new RuntimeException();
+        case 10:
+        case -1:
+      }
+    } finally {
+      throw new RuntimeException();
+    }
+  }
 }

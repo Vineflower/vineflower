@@ -72,6 +72,22 @@ public class TestSwitchPatternMatching22 {
          throw new RuntimeException();// 69
       }
    }
+
+   public void testNonPattern() {
+      try {
+         System.out.println("hello");// 75
+      } catch (Exception var5) {// 76
+         switch(0) {// 77
+            case -1:
+            case 10:
+            default:
+               System.out.println("Not a short");// 79
+               throw new RuntimeException();// 80
+         }
+      } finally {
+         throw new RuntimeException();// 85
+      }
+   }
 }
 
 class 'pkg/TestSwitchPatternMatching22' {
@@ -196,6 +212,30 @@ class 'pkg/TestSwitchPatternMatching22' {
       61      71
       62      71
    }
+
+   method 'testNonPattern ()V' {
+      0      77
+      1      77
+      2      77
+      3      77
+      4      77
+      5      77
+      10      78
+      11      79
+      12      79
+      2c      83
+      2d      83
+      2e      83
+      2f      83
+      30      83
+      31      83
+      32      83
+      33      83
+      3b      84
+      49      87
+      4a      87
+      4b      87
+   }
 }
 
 Lines mapping:
@@ -229,6 +269,12 @@ Lines mapping:
 64 <-> 69
 66 <-> 65
 69 <-> 72
+75 <-> 78
+76 <-> 79
+77 <-> 80
+79 <-> 84
+80 <-> 85
+85 <-> 88
 Not mapped:
 23
 54

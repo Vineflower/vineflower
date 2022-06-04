@@ -20,4 +20,14 @@ public class TestSwitchPatternMatching18 {
       default                   -> System.out.println("default");
     }
   }
+
+  static void test3(Integer o) {
+    switch (o) {
+      case 42                   -> System.out.println("42");
+      case Integer i && i < 50  -> System.out.println("small");
+      // 16 is swallowed by above case
+      case 16, null             -> System.out.println("definitely null");
+      default                   -> System.out.println("default");
+    }
+  }
 }
