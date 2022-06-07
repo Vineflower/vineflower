@@ -69,20 +69,16 @@ public class TestSynchronizedLoop {
 
    }// 65
 
-   // $QF: Could not create synchronized statement, marking monitor enters and exits
    public void testLoop(double var1) {
       if (var1 >= 88.29) {// 68
-         synchronized(this){} // $QF: monitorenter // 69
-
-         try {
+         synchronized(this) {// 69
             while(true) {
                long var12 = 399L;// 74
                var1 /= 97.81;// 75
             }
-         } finally {
-            // $QF: monitorexit// 79
          }
       }
+
    }// 81
 
    public void testFlatten() {
@@ -211,49 +207,48 @@ class 'pkg/TestSynchronizedLoop' {
    }
 
    method 'testLoop (D)V' {
-      0      73
-      1      73
-      2      73
-      3      73
-      4      73
-      5      73
-      8      74
-      b      74
-      c      78
-      d      78
-      e      78
-      f      78
-      10      78
-      12      79
-      13      79
-      14      79
-      16      79
-      1c      82
-      21      85
+      0      72
+      1      72
+      2      72
+      3      72
+      4      72
+      5      72
+      8      73
+      b      73
+      c      75
+      d      75
+      e      75
+      f      75
+      10      75
+      12      76
+      13      76
+      14      76
+      16      76
+      21      81
    }
 
    method 'testFlatten ()V' {
-      0      88
-      1      88
-      2      88
-      3      88
-      4      89
-      5      89
-      6      89
-      7      89
-      8      91
-      9      91
-      a      91
-      b      91
-      c      91
-      10      92
-      14      92
-      16      93
-      17      93
-      18      93
-      1a      93
-      1d      94
-      2c      97
+      0      84
+      1      84
+      2      84
+      3      84
+      4      85
+      5      85
+      6      85
+      7      85
+      8      87
+      9      87
+      a      87
+      b      87
+      c      87
+      10      88
+      14      88
+      16      89
+      17      89
+      18      89
+      1a      89
+      1d      90
+      2c      93
    }
 }
 
@@ -287,19 +282,18 @@ Lines mapping:
 62 <-> 66
 63 <-> 67
 65 <-> 70
-68 <-> 74
-69 <-> 75
-74 <-> 79
-75 <-> 80
-79 <-> 83
-81 <-> 86
-84 <-> 89
-85 <-> 90
-86 <-> 92
-87 <-> 93
-88 <-> 94
-89 <-> 95
-91 <-> 98
+68 <-> 73
+69 <-> 74
+74 <-> 76
+75 <-> 77
+81 <-> 82
+84 <-> 85
+85 <-> 86
+86 <-> 88
+87 <-> 89
+88 <-> 90
+89 <-> 91
+91 <-> 94
 Not mapped:
 11
 36
@@ -307,3 +301,4 @@ Not mapped:
 53
 60
 76
+79

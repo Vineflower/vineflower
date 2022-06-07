@@ -262,9 +262,16 @@ public final class DomHelper {
 
               CatchAllStatement ca = (CatchAllStatement)next;
 
+              boolean headOk = ca.getFirst().containsMonitorExitOrAthrow();
+
+              if (!headOk) {
+                headOk = hasNoExits(ca.getFirst());
+              }
+
               // If the body of the monitor ends in a throw, it won't have a monitor exit as the catch handler will call it.
+              // We will also not have a monitorexit in an infinite loop as there is no way to leave the statement.
               // However, the handler *must* have a monitorexit!
-              if (ca.getFirst().containsMonitorExitOrAthrow() && ca.getHandler().containsMonitorExit()) {
+              if (headOk && ca.getHandler().containsMonitorExit()) {
 
                 // remove monitorexit
                 ca.getFirst().markMonitorexitDead();
@@ -305,6 +312,27 @@ public final class DomHelper {
         }
       }
     }
+  }
+
+  // Checks if a statement has no exits (disregarding exceptions) that lead outside the statement.
+  private static boolean hasNoExits(Statement head) {
+    Deque<Statement> stack = new LinkedList<>();
+    stack.add(head);
+
+    while (!stack.isEmpty()) {
+      Statement stat = stack.removeFirst();
+
+      List<StatEdge> sucs = stat.getSuccessorEdges(Statement.STATEDGE_DIRECT_ALL);
+      for (StatEdge suc : sucs) {
+        if (!head.containsStatement(suc.getDestination())) {
+          return false;
+        }
+      }
+
+      stack.addAll(stat.getStats());
+    }
+
+    return true;
   }
 
   private static boolean processStatement(Statement general, RootStatement root, HashMap<Integer, Set<Integer>> mapExtPost) {
