@@ -1,8 +1,6 @@
 package pkg;
 
-import java.util.Random;
-
-public class TestIfTernary1 {
+public class TestIfTernary1J17 {
   public void test0(boolean condition, int a, int b, int c) {
     if (condition ? a < b : b > c) {
       System.out.println(1);

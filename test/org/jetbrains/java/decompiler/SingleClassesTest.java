@@ -447,6 +447,10 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestIfTernary2");
     register(JAVA_8, "TestIfTernary3");
     register(JAVA_8, "TestIfTernaryReturn");
+    register(JAVA_8, "TestIfElseTernary1");
+
+    register(JAVA_17, "TestIfTernary1J17");
+    register(JAVA_17, "TestIfElseTernary1J17");
 
     register(JAVA_8, "TestSimpleIf");
     //TODO: figure out why there's no successor

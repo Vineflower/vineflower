@@ -122,4 +122,22 @@ class IfNode {
 
     return ifnode;
   }
+
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append(this.value.id);
+
+    if (this.innerNode != null) {
+      sb.append(": inner(").append(this.innerType).append(") {").append(this.innerNode).append("}");
+    }
+    if (this.successorNode != null) {
+      if (this.innerNode == null){
+        sb.append(": ");
+      }
+      sb.append(" successor(").append(this.successorType).append(") {").append(this.successorNode).append("}");
+    }
+
+    return sb.toString();
+  }
 }

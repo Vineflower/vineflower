@@ -1,78 +1,78 @@
 package pkg;
 
-public class TestIfTernary1 {
+public class TestIfTernary1J17 {
    public void test0(boolean condition, int a, int b, int c) {
-      if (condition ? a < b : b > c) {// 7
-         System.out.println(1);// 8
+      if (condition ? a < b : b > c) {// 5
+         System.out.println(1);// 6
       }
 
-   }// 10
+   }// 8
 
    public void test1(boolean condition, int a, int b, int c) {
-      if (condition ? (a < b ? a == 0 : b == 0) : b > c) {// 13
-         System.out.println(1);// 16
+      if (condition ? (a < b ? a == 0 : b == 0) : b > c) {// 11
+         System.out.println(1);// 14
       }
 
-   }// 18
+   }// 16
 
    public void test2(boolean condition, int a, int b, int c) {
-      if (condition ? a < b : (b > c ? b == 15 : a == 15)) {// 21
-         System.out.println(1);// 24
+      if (condition ? a < b : (b > c ? b == 15 : a == 15)) {// 19
+         System.out.println(1);// 22
       }
 
-   }// 26
+   }// 24
 
    public void test3(boolean condition, int a, int b, int c) {
-      if (condition ? (a < b ? a == 0 : b == 0) : (b > c ? b == 15 : a == 15)) {// 29
-         System.out.println(1);// 32
+      if (condition ? (a < b ? a == 0 : b == 0) : (b > c ? b == 15 : a == 15)) {// 27
+         System.out.println(1);// 30
       }
 
-   }// 34
+   }// 32
 
    public void test4(boolean condition, int a, int b, int c) {
-      if ((condition ? a + c > b : a < b + c) ? a < b : b > c) {// 37
-         System.out.println(1);// 40
+      if ((condition ? a + c > b : a < b + c) ? a < b : b > c) {// 35
+         System.out.println(1);// 38
       }
 
-   }// 42
+   }// 40
 
    public void test5(boolean condition, int a, int b, int c) {
-      if ((condition ? a + c > b : a < b + c) ? (a < b ? a == 0 : b == 0) : b > c) {// 45
-         System.out.println(1);// 48
+      if ((condition ? a + c > b : a < b + c) ? (a < b ? a == 0 : b == 0) : b > c) {// 43
+         System.out.println(1);// 46
       }
 
-   }// 50
+   }// 48
 
    public void test6(boolean condition, int a, int b, int c) {
-      if ((condition ? a + c > b : a < b + c) ? a < b : (b > c ? b == 15 : a == 15)) {// 53
-         System.out.println(1);// 56
+      if ((condition ? a + c > b : a < b + c) ? a < b : (b > c ? b == 15 : a == 15)) {// 51
+         System.out.println(1);// 54
       }
 
-   }// 58
+   }// 56
 
    public void test7(boolean condition, int a, int b, int c) {
-      if ((condition ? a + c > b : a < b + c) ? (a < b ? a == 0 : b == 0) : (b > c ? b == 15 : a == 15)) {// 61
-         System.out.println(1);// 64
+      if ((condition ? a + c > b : a < b + c) ? (a < b ? a == 0 : b == 0) : (b > c ? b == 15 : a == 15)) {// 59
+         System.out.println(1);// 62
       }
 
-   }// 66
+   }// 64
 
    public void test8(boolean condition, int a, int b, int c) {
-      if (a != b && b != c ? (a > b && b > c ? a < b + c && a > 3 * c : condition) : a != b) {// 69
-         System.out.println(1);// 74
+      if (a != b && b != c ? (a > b && b > c ? a < b + c && a > 3 * c : condition) : a != b) {// 67
+         System.out.println(1);// 72
       }
 
-   }// 76
+   }// 74
 
    public void test8b(boolean condition, int a, int b, int c) {
-      if (a == b && b == c ? !condition : (a > b && b > c ? a < b + c && a > 3 * c : condition)) {// 79
-         System.out.println(1);// 84
+      if (a == b && b == c ? !condition : (a > b && b > c ? a < b + c && a > 3 * c : condition)) {// 77
+         System.out.println(1);// 82
       }
 
-   }// 86
+   }// 84
 }
 
-class 'pkg/TestIfTernary1' {
+class 'pkg/TestIfTernary1J17' {
    method 'test0 (ZIII)V' {
       0      4
       1      4
@@ -392,33 +392,33 @@ class 'pkg/TestIfTernary1' {
 }
 
 Lines mapping:
-7 <-> 5
-8 <-> 6
-10 <-> 9
-13 <-> 12
-16 <-> 13
-18 <-> 16
-21 <-> 19
-24 <-> 20
-26 <-> 23
-29 <-> 26
-32 <-> 27
-34 <-> 30
-37 <-> 33
-40 <-> 34
-42 <-> 37
-45 <-> 40
-48 <-> 41
-50 <-> 44
-53 <-> 47
-56 <-> 48
-58 <-> 51
-61 <-> 54
-64 <-> 55
-66 <-> 58
-69 <-> 61
-74 <-> 62
-76 <-> 65
-79 <-> 68
-84 <-> 69
-86 <-> 72
+5 <-> 5
+6 <-> 6
+8 <-> 9
+11 <-> 12
+14 <-> 13
+16 <-> 16
+19 <-> 19
+22 <-> 20
+24 <-> 23
+27 <-> 26
+30 <-> 27
+32 <-> 30
+35 <-> 33
+38 <-> 34
+40 <-> 37
+43 <-> 40
+46 <-> 41
+48 <-> 44
+51 <-> 47
+54 <-> 48
+56 <-> 51
+59 <-> 54
+62 <-> 55
+64 <-> 58
+67 <-> 61
+72 <-> 62
+74 <-> 65
+77 <-> 68
+82 <-> 69
+84 <-> 72
