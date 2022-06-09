@@ -418,7 +418,6 @@ public final class IfHelper {
 
   // if goto A and goto B are swapped in `if (cond2)`, then cond2 is negated
   private static boolean collapseTernary(IfNode rtnode) {
-    ValidationHelper.validateStatement((RootStatement) rtnode.value.getTopParent());
     if (rtnode.innerType == EdgeType.DIRECT && rtnode.successorType == EdgeType.ELSE) {
       // if (cond1) {
       //   if (cond2) {
