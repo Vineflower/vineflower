@@ -418,6 +418,7 @@ public final class IfHelper {
 
   // if goto A and goto B are swapped in `if (cond2)`, then cond2 is negated
   private static boolean collapseTernary(IfNode rtnode) {
+    ValidationHelper.validateStatement((RootStatement) rtnode.value.getTopParent());
     if (rtnode.innerType == EdgeType.DIRECT && rtnode.successorType == EdgeType.ELSE) {
       // if (cond1) {
       //   if (cond2) {
@@ -472,7 +473,9 @@ public final class IfHelper {
 
         // remove (weird?) if else successor, produced by dom parsing
         // TODO: remove when dom parsing is fixed
-        mainIf.getFirstSuccessor().remove();
+        if (mainIf.hasAnySuccessor()) {
+          mainIf.getFirstSuccessor().remove();
+        }
 
         // move seconds successor to be the if's successor
         secondIf.getFirstSuccessor().changeSource(mainIf);
