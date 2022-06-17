@@ -472,7 +472,9 @@ public final class IfHelper {
 
         // remove (weird?) if else successor, produced by dom parsing
         // TODO: remove when dom parsing is fixed
-        mainIf.getFirstSuccessor().remove();
+        if (mainIf.hasAnySuccessor()) {
+          mainIf.getFirstSuccessor().remove();
+        }
 
         // move seconds successor to be the if's successor
         secondIf.getFirstSuccessor().changeSource(mainIf);

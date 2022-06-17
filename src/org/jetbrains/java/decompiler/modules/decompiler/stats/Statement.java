@@ -403,8 +403,10 @@ public abstract class Statement implements IMatchable {
         break;
       default:
         containsMonitorExit = false;
+        isLastAthrow = false;
         for (Statement st : stats) {
           containsMonitorExit |= st.containsMonitorExit();
+          isLastAthrow |= st.isLastAthrow;
         }
     }
   }

@@ -21,8 +21,9 @@ public final class SequenceHelper {
   public static void condenseSequences(Statement root) {
     ValidationHelper.validateStatement((RootStatement) root.getTopParent());
 
-
     condenseSequencesRec(root);
+
+    ValidationHelper.validateStatement((RootStatement) root.getTopParent());
   }
 
   private static void condenseSequencesRec(Statement stat) {
@@ -39,7 +40,6 @@ public final class SequenceHelper {
         if (st instanceof SequenceStatement) {
 
           removeEmptyStatements((SequenceStatement)st);
-          ValidationHelper.validateStatement((RootStatement) st.getTopParent());
 
           if (i == lst.size() - 1 || isSequenceDisbandable(st, lst.get(i + 1))) {
 
@@ -112,7 +112,6 @@ public final class SequenceHelper {
     if (stat instanceof SequenceStatement) {
 
       removeEmptyStatements((SequenceStatement)stat);
-      ValidationHelper.validateStatement((RootStatement) stat.getTopParent());
 
       if (stat.getStats().size() == 1) {
 

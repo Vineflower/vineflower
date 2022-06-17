@@ -452,6 +452,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JASM, "TestCondy");
     register(JASM, "TestBackwardsExceptionHandler");
     register(JASM, "TestLeakyMethod");
+    // FIXME: issue #164: produces `for (var1 : var1)`
+    register(JASM, "TestSelfIterableLoop");
 
     register(JAVA_8, "TestStaticInit");
     register(JAVA_8_NODEBUG, "TestDoubleNestedClass");
@@ -461,6 +463,10 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestIfTernary2");
     register(JAVA_8, "TestIfTernary3");
     register(JAVA_8, "TestIfTernaryReturn");
+    register(JAVA_8, "TestIfElseTernary1");
+
+    register(JAVA_17, "TestIfTernary1J17");
+    register(JAVA_17, "TestIfElseTernary1J17");
 
     register(JAVA_8, "TestSimpleIf");
     //TODO: figure out why there's no successor
@@ -608,6 +614,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestObjectBitwise");
     register(JAVA_17, "TestSealedFinal", "SealedInterface");
     register(JAVA_17, "TestSealedRecord", "SealedInterface");
+    // TODO: empty switch leaves behind a synthetic field access
+    register(JAVA_8, "TestEnumSwitchEmpty");
   }
 
   private void registerEntireClassPath() {
