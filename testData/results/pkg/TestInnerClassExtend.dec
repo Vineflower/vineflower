@@ -1,0 +1,42 @@
+package pkg;
+
+public class TestInnerClassExtend {
+   public class Inner {
+      public Inner(String s) {
+      }// 7
+   }
+
+   public static class Inner2 extends TestInnerClassExtend.Inner {
+      public Inner2(TestInnerClassExtend outer, String s) {
+         outer.getClass();// 12
+         super(s);
+      }// 13
+   }
+}
+
+class 'pkg/TestInnerClassExtend$Inner' {
+   method '<init> (Lpkg/TestInnerClassExtend;Ljava/lang/String;)V' {
+      9      5
+   }
+}
+
+class 'pkg/TestInnerClassExtend$Inner2' {
+   method '<init> (Lpkg/TestInnerClassExtend;Ljava/lang/String;)V' {
+      1      10
+      3      10
+      4      10
+      5      10
+      7      11
+      8      11
+      9      11
+      a      11
+      b      12
+   }
+}
+
+Lines mapping:
+7 <-> 6
+12 <-> 11
+13 <-> 13
+Not mapped:
+5

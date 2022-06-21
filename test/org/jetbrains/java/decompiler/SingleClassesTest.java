@@ -600,6 +600,10 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_17, "TestSealedRecord", "SealedInterface");
     // TODO: empty switch leaves behind a synthetic field access
     register(JAVA_8, "TestEnumSwitchEmpty");
+
+    // TODO: when in different classes, these two decompile incorrectly to super(outer, s)
+    register(JAVA_8, "TestInnerClassExtend");
+    register(JAVA_17, "TestInnerClassExtendJ17");
   }
 
   private void registerEntireClassPath() {
