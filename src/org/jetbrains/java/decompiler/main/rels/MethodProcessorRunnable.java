@@ -278,7 +278,11 @@ public class MethodProcessorRunnable implements Runnable {
       }
 
       if (root.hasSwitch() && SwitchExpressionHelper.hasSwitchExpressions(root)) {
-        if (SwitchExpressionHelper.processAllSwitchExpressions(root)) {
+        if (SwitchPatternMatchProcessor.processPatternMatching(root)) {
+          decompileRecord.add("ProcessSwitchPatternMatch", root);
+          continue;
+        }
+        if (SwitchExpressionHelper.processSwitchExpressions(root)) {
           decompileRecord.add("ProcessSwitchExpr", root);
           continue;
         }
@@ -329,7 +333,7 @@ public class MethodProcessorRunnable implements Runnable {
 
       // If we have simplified switches, try to make switch expressions
       if (SwitchExpressionHelper.hasSwitchExpressions(root)) {
-        if (SwitchExpressionHelper.processAllSwitchExpressions(root)) {
+        if (SwitchExpressionHelper.processSwitchExpressions(root)) {
           decompileRecord.add("ProcessSwitchExpr_SS", root);
 
           // Simplify stack vars to integrate and inline switch expressions

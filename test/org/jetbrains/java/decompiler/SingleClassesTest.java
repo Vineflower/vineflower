@@ -425,13 +425,29 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatching10");
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatching11");
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatching12");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatching13");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatching14");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatching15");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatching16");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatching17");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatching18");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatching19");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatching20");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatching21");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatching22");
 
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingLoop");
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingInstanceof1");
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingInstanceof2");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingInstanceof3");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingInstanceof4");
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingReturn1");
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingReturn2");
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingConstructor1");
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingConstructor2");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingWithNull");
+
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingFuzz1");
 
     register(JASM, "TestCondy");
     register(JASM, "TestBackwardsExceptionHandler");

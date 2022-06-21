@@ -226,7 +226,9 @@ public class ConstExprent extends Exprent {
       return buf.append(ExprProcessor.getCastTypeName(constType));
     }
 
-    switch (constType.type) {
+    VarType unboxed = VarType.UNBOXING_TYPES.getOrDefault(constType, constType);
+
+    switch (unboxed.type) {
       case CodeConstants.TYPE_BOOLEAN:
         return buf.append(Boolean.toString((Integer)value != 0));
 

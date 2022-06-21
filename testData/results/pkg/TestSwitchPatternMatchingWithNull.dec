@@ -1,0 +1,115 @@
+package pkg;
+
+public class TestSwitchPatternMatchingWithNull {
+   public void test(Object o) {
+      switch(o) {// 5
+         case o instanceof Integer i:// 6
+         case null:
+            System.out.println(i);
+            break;
+         case o instanceof String s:
+            System.out.println(s);// 7
+            break;
+         default:
+            System.out.println("Default");// 8
+      }
+
+   }// 10
+
+   public void test2(Object o) {
+      switch(o) {// 13
+         case o instanceof Integer i:// 14
+         case null:
+            System.out.println(i);
+            break;
+         case o instanceof String s:
+            System.out.println(s);// 15
+            break;
+         default:
+            System.out.println("Default");// 16
+      }
+
+   }// 18
+}
+
+class 'pkg/TestSwitchPatternMatchingWithNull' {
+   method 'test (Ljava/lang/Object;)V' {
+      0      4
+      b      4
+      28      5
+      29      5
+      2a      7
+      2b      7
+      2c      7
+      2d      7
+      2e      7
+      2f      7
+      30      7
+      31      7
+      32      8
+      39      9
+      3a      9
+      3b      10
+      3c      10
+      3d      10
+      3e      10
+      3f      10
+      40      10
+      41      10
+      42      10
+      43      11
+      46      13
+      47      13
+      48      13
+      49      13
+      4a      13
+      4b      13
+      4e      16
+   }
+
+   method 'test2 (Ljava/lang/Object;)V' {
+      0      19
+      b      19
+      28      20
+      29      20
+      2a      22
+      2b      22
+      2c      22
+      2d      22
+      2e      22
+      2f      22
+      30      22
+      31      22
+      32      23
+      39      24
+      3a      24
+      3b      25
+      3c      25
+      3d      25
+      3e      25
+      3f      25
+      40      25
+      41      25
+      42      25
+      43      26
+      46      28
+      47      28
+      48      28
+      49      28
+      4a      28
+      4b      28
+      4e      31
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 6
+7 <-> 11
+8 <-> 14
+10 <-> 17
+13 <-> 20
+14 <-> 21
+15 <-> 26
+16 <-> 29
+18 <-> 32

@@ -14,11 +14,11 @@ public class TestSwitchPatternMatchingConstructor1 {
     });
   }
 
-  private abstract class Shape {
+  private abstract static class Shape {
     abstract double calculateArea();
   }
 
-  private class Triangle extends Shape {
+  private static class Triangle extends Shape {
 
     @Override
     double calculateArea() {
