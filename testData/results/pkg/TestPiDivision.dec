@@ -1,0 +1,21 @@
+package pkg;
+
+public class TestPiDivision {
+   public double div(double val) {
+      return val / (180.0 / Math.PI);// 5
+   }
+}
+
+class 'pkg/TestPiDivision' {
+   method 'div (D)D' {
+      0      4
+      1      4
+      2      4
+      3      4
+      4      4
+      5      4
+   }
+}
+
+Lines mapping:
+5 <-> 5

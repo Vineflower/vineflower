@@ -23,6 +23,7 @@ public class ConstExprent extends Exprent {
   private static final Map<Integer, String> CHAR_ESCAPES = new HashMap<>();
   private static final Map<Double, Function<BitSet, TextBuffer>> UNINLINED_DOUBLES = new HashMap<>();
   private static final Map<Float, Function<BitSet, TextBuffer>> UNINLINED_FLOATS = new HashMap<>();
+  private static final Set<Object> NO_PAREN_VALUES = new HashSet<>();
 
   static {
     CHAR_ESCAPES.put(0x8, "\\b");   /* \u0008: backspace BS */
@@ -46,6 +47,9 @@ public class ConstExprent extends Exprent {
     // Positive and negative pi
     UNINLINED_DOUBLES.put(Math.PI, ConstExprent::getPiDouble);
     UNINLINED_DOUBLES.put(-Math.PI, bytecode -> getPiDouble(bytecode).prepend("-"));
+
+    NO_PAREN_VALUES.addAll(UNINLINED_DOUBLES.keySet());
+    UNINLINED_DOUBLES.keySet().forEach(d -> NO_PAREN_VALUES.add(d.floatValue()));
 
     // Positive and negative pi divisors
     for (int i = 2; i <= 20; i++) {
@@ -100,6 +104,7 @@ public class ConstExprent extends Exprent {
       UNINLINED_FLOATS.put(key.floatValue(), bytecode -> {
         TextBuffer doubleValue = valueFunction.apply(bytecode);
         if (doubleValue.count(" ", 0) > 0) { // As long as all uninlined double values with more than one expression have a space in it, this'll work.
+          NO_PAREN_VALUES.add(key.floatValue());
           doubleValue.prepend("(").append(")");
         }
         return doubleValue.prepend("(float) ");
@@ -359,6 +364,34 @@ public class ConstExprent extends Exprent {
     // prevent gc without discarding
     buf.convertToStringAndAllowDataDiscard();
     throw new RuntimeException("invalid constant type: " + constType);
+  }
+
+  @Override
+  public int getPrecedence() {
+    if (value == null || DecompilerContext.getOption(IFernflowerPreferences.LITERALS_AS_IS)) {
+      return super.getPrecedence();
+    }
+
+    VarType unboxed = VarType.UNBOXING_TYPES.getOrDefault(constType, constType);
+
+    switch (unboxed.type) {
+      case CodeConstants.TYPE_FLOAT:
+        float floatVal = (Float)value;
+
+        if (UNINLINED_FLOATS.containsKey(floatVal) && !NO_PAREN_VALUES.contains(floatVal)) {
+          return 4;
+        }
+        break;
+      case CodeConstants.TYPE_DOUBLE:
+        double doubleVal = (Double)value;
+
+        if (UNINLINED_DOUBLES.containsKey(doubleVal) && !NO_PAREN_VALUES.contains(doubleVal)) {
+          return 4;
+        }
+        break;
+    }
+
+    return super.getPrecedence();
   }
 
   private static TextBuffer getPiDouble(BitSet bytecode) {
