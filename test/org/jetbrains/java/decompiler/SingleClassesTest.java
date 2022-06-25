@@ -511,6 +511,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestLocalClassesSwitch"); // Adapted from CFR
     // TODO: return not condensed properly and throw is not put into finally
     register(JAVA_8, "TestFinallyThrow");
+    // TODO: this code would be cleaner if return and continue were used instead of inverting the float comparison
+    register(JAVA_8, "TestFloatInvertedIfConditionEarlyExit");
     register(JAVA_8, "TestWhile1");
     registerRaw(CUSTOM, "TestEclipseSwitchEnum");
     registerRaw(CUSTOM, "TestEclipseSwitchString");
