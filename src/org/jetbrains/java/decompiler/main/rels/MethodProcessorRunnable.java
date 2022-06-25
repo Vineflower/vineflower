@@ -123,12 +123,17 @@ public class MethodProcessorRunnable implements Runnable {
 
     if (ExceptionDeobfuscator.hasObfuscatedExceptions(graph)) {
       DecompilerContext.getLogger().writeMessage("Heavily obfuscated exception ranges found!", IFernflowerLogger.Severity.WARN);
+      DotExporter.toDotFile(graph, mt, "cfgExceptionsPre", true);
+
       if (!ExceptionDeobfuscator.handleMultipleEntryExceptionRanges(graph)) {
         DecompilerContext.getLogger().writeMessage("Found multiple entry exception ranges which could not be splitted", IFernflowerLogger.Severity.WARN);
         graph.addComment("$QF: Could not handle exception ranges with multiple entries");
         graph.addErrorComment = true;
       }
+
+      DotExporter.toDotFile(graph, mt, "cfgMultipleExceptionEntry", true);
       ExceptionDeobfuscator.insertDummyExceptionHandlerBlocks(graph, mt.getBytecodeVersion());
+      DotExporter.toDotFile(graph, mt, "cfgMultipleExceptionDummyHandlers", true);
     }
 
     DotExporter.toDotFile(graph, mt, "cfgParsed", true);
