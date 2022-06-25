@@ -491,7 +491,7 @@ public class VarDefinitionHelper {
   }
 
   private VPPEntry mergeVars(Statement stat) {
-    Map<Integer, VarVersionPair> parent = new HashMap<Integer, VarVersionPair>(); // Always empty dua!
+    Map<Integer, VarVersionPair> parent = new HashMap<>(); // Always empty dua!
     MethodDescriptor md = MethodDescriptor.parseDescriptor(mt.getDescriptor());
 
     int index = 0;
@@ -506,22 +506,22 @@ public class VarDefinitionHelper {
 
     populateTypeBounds(varproc, stat);
 
-    Map<VarVersionPair, VarVersionPair> blacklist = new HashMap<VarVersionPair, VarVersionPair>();
-    VPPEntry remap = mergeVars(stat, parent, new HashMap<Integer, VarVersionPair>(), blacklist);
+    Map<VarVersionPair, VarVersionPair> blacklist = new HashMap<>();
+    VPPEntry remap = mergeVars(stat, parent, new HashMap<>(), blacklist);
     while (remap != null) {
       //System.out.println("Remapping: " + remap.getKey() + " -> " + remap.getValue());
       if (!remapVar(stat, remap.getKey(), remap.getValue())) {
         blacklist.put(remap.getKey(), remap.getValue());
       }
 
-      remap = mergeVars(stat, parent, new HashMap<Integer, VarVersionPair>(), blacklist);
+      remap = mergeVars(stat, parent, new HashMap<>(), blacklist);
     }
     return null;
   }
 
 
   private VPPEntry mergeVars(Statement stat, Map<Integer, VarVersionPair> parent, Map<Integer, VarVersionPair> leaked, Map<VarVersionPair, VarVersionPair> blacklist) {
-    Map<Integer, VarVersionPair> this_vars = new HashMap<Integer, VarVersionPair>();
+    Map<Integer, VarVersionPair> this_vars = new HashMap<>();
     if (parent.size() > 0)
       this_vars.putAll(parent);
 
