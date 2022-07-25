@@ -19,7 +19,6 @@ public class TestSwitchPatternMatchingInstanceof3 {
          default:
             System.out.println("Default");// 9
       }
-
    }// 11
 }
 
@@ -83,7 +82,7 @@ class 'pkg/TestSwitchPatternMatchingInstanceof3' {
       80      19
       81      19
       82      19
-      86      22
+      86      21
    }
 }
 
@@ -93,4 +92,4 @@ Lines mapping:
 7 <-> 13
 8 <-> 16
 9 <-> 20
-11 <-> 23
+11 <-> 22

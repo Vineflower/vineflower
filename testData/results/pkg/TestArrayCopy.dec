@@ -9,7 +9,6 @@ public class TestArrayCopy {
       while((i += c[i]) < len) {// 9
          System.arraycopy(c, i, a, len, len - i);// 10
       }
-
    }// 12
 }
 
@@ -46,7 +45,7 @@ class 'pkg/TestArrayCopy' {
       26      9
       27      9
       28      9
-      2c      12
+      2c      11
    }
 }
 
@@ -56,6 +55,6 @@ Lines mapping:
 8 <-> 7
 9 <-> 9
 10 <-> 10
-12 <-> 13
+12 <-> 12
 Not mapped:
 5

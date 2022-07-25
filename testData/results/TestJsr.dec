@@ -5,7 +5,6 @@ public class TestJsr {
       } finally {
          System.out.println("Jsr");
       }
-
    }// 6
 }
 
@@ -24,11 +23,11 @@ class 'TestJsr' {
       10      5
       11      5
       12      5
-      18      8
+      18      7
    }
 }
 
 Lines mapping:
 3 <-> 4
 4 <-> 4
-6 <-> 9
+6 <-> 8

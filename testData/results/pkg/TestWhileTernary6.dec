@@ -9,7 +9,6 @@ public class TestWhileTernary6 {
             --a;// 10
          }
       } while(condition ? a < b : b > a);// 13
-
    }// 14
 }
 
@@ -36,7 +35,7 @@ class 'pkg/TestWhileTernary6' {
       1e      10
       1f      10
       20      10
-      23      12
+      23      11
    }
 }
 
@@ -46,4 +45,4 @@ Lines mapping:
 9 <-> 8
 10 <-> 9
 13 <-> 11
-14 <-> 13
+14 <-> 12

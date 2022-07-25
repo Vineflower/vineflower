@@ -11,7 +11,6 @@ public class TestTryCatchNested {
       } catch (Exception var4) {// 12
          System.out.println(var1);// 13
       }
-
    }// 15
 }
 
@@ -35,7 +34,7 @@ class 'pkg/TestTryCatchNested' {
       12      11
       13      11
       14      11
-      17      14
+      17      13
    }
 }
 
@@ -46,6 +45,6 @@ Lines mapping:
 10 <-> 10
 12 <-> 11
 13 <-> 12
-15 <-> 15
+15 <-> 14
 Not mapped:
 14

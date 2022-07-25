@@ -23,7 +23,6 @@ public class TestSwitchPatternMatching19 {
          case s instanceof TestSwitchPatternMatching19.XXX var11 && false:
             break;
       }
-
    }// 13
 
    static void test2(TestSwitchPatternMatching19.XXX s) {
@@ -41,7 +40,6 @@ public class TestSwitchPatternMatching19 {
          default:
             System.out.println("default");// 21
       }
-
    }// 23
 
    interface A {
@@ -135,53 +133,53 @@ class 'pkg/TestSwitchPatternMatching19' {
       9a      8
       9b      8
       9c      9
-      9f      26
+      9f      25
    }
 
    method 'test2 (Lpkg/TestSwitchPatternMatching19$XXX;)V' {
-      0      29
-      b      29
-      28      35
-      29      35
-      2a      35
-      2b      35
-      2c      35
-      2d      35
-      2e      35
-      2f      35
-      30      36
-      33      32
-      34      32
-      35      32
-      36      32
-      37      32
-      38      32
-      39      32
-      3a      32
-      3b      33
-      40      37
-      41      37
-      42      37
-      43      37
-      44      37
-      4d      38
-      4e      38
-      4f      38
-      50      38
-      51      38
-      52      38
-      53      38
-      54      38
-      55      39
-      58      41
-      59      41
-      5a      41
-      5b      41
-      5c      41
-      5d      41
-      5e      41
-      5f      41
-      63      44
+      0      28
+      b      28
+      28      34
+      29      34
+      2a      34
+      2b      34
+      2c      34
+      2d      34
+      2e      34
+      2f      34
+      30      35
+      33      31
+      34      31
+      35      31
+      36      31
+      37      31
+      38      31
+      39      31
+      3a      31
+      3b      32
+      40      36
+      41      36
+      42      36
+      43      36
+      44      36
+      4d      37
+      4e      37
+      4f      37
+      50      37
+      51      37
+      52      37
+      53      37
+      54      37
+      55      38
+      58      40
+      59      40
+      5a      40
+      5b      40
+      5c      40
+      5d      40
+      5e      40
+      5f      40
+      63      42
    }
 }
 
@@ -192,13 +190,13 @@ Lines mapping:
 8 <-> 17
 9 <-> 20
 11 <-> 9
-13 <-> 27
-16 <-> 30
-17 <-> 36
-18 <-> 33
-19 <-> 38
-20 <-> 39
-21 <-> 42
-23 <-> 45
+13 <-> 26
+16 <-> 29
+17 <-> 35
+18 <-> 32
+19 <-> 37
+20 <-> 38
+21 <-> 41
+23 <-> 43
 Not mapped:
 10

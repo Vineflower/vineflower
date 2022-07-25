@@ -63,7 +63,6 @@ public abstract class TestAnonymousClass {
          int x = 5;// 20
          System.out.println(5);// 21
       }
-
    }// 23
 
    void bar() {
@@ -180,28 +179,28 @@ class 'pkg/TestAnonymousClass' {
       1a      63
       1b      63
       1c      63
-      1f      66
+      1f      65
    }
 
    method 'bar ()V' {
-      8      73
-      9      73
-      a      73
-      b      73
-      c      73
-      d      74
+      8      72
+      9      72
+      a      72
+      b      72
+      c      72
+      d      73
    }
 
    method 'boo ()V' {
-      0      77
-      1      77
-      2      78
+      0      76
+      1      76
+      2      77
    }
 
    method 'zoo ()V' {
-      0      81
-      1      81
-      2      82
+      0      80
+      1      80
+      2      81
    }
 }
 
@@ -217,39 +216,39 @@ class 'pkg/TestAnonymousClass$1' {
 
 class 'pkg/TestAnonymousClass$2' {
    method 'foo (Ljava/lang/String;)V' {
-      0      71
-      1      71
-      2      71
-      3      71
-      4      71
-      5      71
-      6      71
-      7      72
+      0      70
+      1      70
+      2      70
+      3      70
+      4      70
+      5      70
+      6      70
+      7      71
    }
 }
 
 class 'pkg/TestAnonymousClass$Inner$1' {
    method 'run ()V' {
-      0      92
-      1      92
-      2      93
-      3      93
-      4      94
+      0      91
+      1      91
+      2      92
+      3      92
+      4      93
    }
 }
 
 class 'pkg/TestAnonymousClass$InnerRecursive' {
    method '<init> (Lpkg/TestAnonymousClass$InnerRecursive;)V' {
-      4      102
-      5      102
-      6      102
-      7      102
-      8      102
-      9      103
+      4      101
+      5      101
+      6      101
+      7      101
+      8      101
+      9      102
    }
 
    method 'foo ()V' {
-      0      106
+      0      105
    }
 }
 
@@ -262,28 +261,28 @@ Lines mapping:
 17 <-> 61
 20 <-> 63
 21 <-> 64
-23 <-> 67
-26 <-> 74
-28 <-> 72
-29 <-> 73
-30 <-> 74
-31 <-> 75
+23 <-> 66
+26 <-> 73
+28 <-> 71
+29 <-> 72
+30 <-> 73
+31 <-> 74
 36 <-> 7
 37 <-> 8
 38 <-> 9
-43 <-> 78
-44 <-> 79
-47 <-> 82
-48 <-> 83
+43 <-> 77
+44 <-> 78
+47 <-> 81
+48 <-> 82
 53 <-> 14
 54 <-> 15
 55 <-> 16
 61 <-> 21
 62 <-> 22
 63 <-> 23
-74 <-> 93
-75 <-> 94
-76 <-> 95
+74 <-> 92
+75 <-> 93
+76 <-> 94
 83 <-> 28
 84 <-> 29
 85 <-> 30
@@ -292,9 +291,9 @@ Lines mapping:
 99 <-> 42
 100 <-> 43
 101 <-> 44
-113 <-> 103
-114 <-> 104
-118 <-> 107
+113 <-> 102
+114 <-> 103
+118 <-> 106
 Not mapped:
 18
 112

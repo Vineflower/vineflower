@@ -16,7 +16,6 @@ public class TestInlineSwitchExpression6 {
                var10000 = 2;// 17
          }
       }
-
    }// 21
 }
 
@@ -39,7 +38,7 @@ class 'pkg/TestInlineSwitchExpression6' {
       22      12
       25      15
       26      5
-      2a      19
+      2a      18
    }
 }
 
@@ -51,4 +50,4 @@ Lines mapping:
 10 <-> 10
 13 <-> 13
 17 <-> 16
-21 <-> 20
+21 <-> 19

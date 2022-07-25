@@ -33,7 +33,6 @@ public class TestSwitchOnEnum {
             case B2:
                System.out.println("B2");// 43
          }
-
       }// 46
 
       static enum A {
@@ -97,7 +96,7 @@ class 'pkg/TestSwitchOnEnum$Example' {
       66      33
       67      33
       68      33
-      6b      36
+      6b      35
    }
 }
 
@@ -114,4 +113,4 @@ Lines mapping:
 40 <-> 31
 41 <-> 32
 43 <-> 34
-46 <-> 37
+46 <-> 36

@@ -264,7 +264,6 @@ public class TestTryReturn {
       } finally {
          System.out.println(var3);// 194
       }
-
    }// 187
 }
 
@@ -621,7 +620,7 @@ class 'pkg/TestTryReturn' {
       18      257
       19      257
       26      259
-      36      267
+      36      266
       37      261
       38      261
       39      261
@@ -701,7 +700,7 @@ Lines mapping:
 183 <-> 253
 185 <-> 258
 186 <-> 260
-187 <-> 268
+187 <-> 267
 190 <-> 262
 194 <-> 265
 195 <-> 259

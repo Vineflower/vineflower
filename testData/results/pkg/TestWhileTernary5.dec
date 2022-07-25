@@ -13,7 +13,6 @@ public class TestWhileTernary5 {
 
          System.out.println(1);// 14
       }
-
    }// 16
 }
 
@@ -57,7 +56,7 @@ class 'pkg/TestWhileTernary5' {
       34      13
       35      13
       36      13
-      3a      16
+      3a      15
    }
 }
 
@@ -69,4 +68,4 @@ Lines mapping:
 10 <-> 10
 11 <-> 11
 14 <-> 14
-16 <-> 17
+16 <-> 16

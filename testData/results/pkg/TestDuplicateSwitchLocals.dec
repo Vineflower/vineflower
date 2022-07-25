@@ -26,7 +26,6 @@ public class TestDuplicateSwitchLocals {
             System.out.println(z);// 20
          }
       }
-
    }// 23
 }
 
@@ -91,7 +90,7 @@ class 'pkg/TestDuplicateSwitchLocals' {
       68      25
       69      25
       6a      25
-      6d      29
+      6d      28
    }
 }
 
@@ -105,7 +104,7 @@ Lines mapping:
 16 <-> 22
 19 <-> 25
 20 <-> 26
-23 <-> 30
+23 <-> 29
 Not mapped:
 9
 13

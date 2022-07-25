@@ -13,7 +13,6 @@ public class TestSwitchPatternMatchingWithNull {
          default:
             System.out.println("Default");// 8
       }
-
    }// 10
 
    public void test2(Object o) {
@@ -28,7 +27,6 @@ public class TestSwitchPatternMatchingWithNull {
          default:
             System.out.println("Default");// 16
       }
-
    }// 18
 }
 
@@ -64,41 +62,41 @@ class 'pkg/TestSwitchPatternMatchingWithNull' {
       49      13
       4a      13
       4b      13
-      4e      16
+      4e      15
    }
 
    method 'test2 (Ljava/lang/Object;)V' {
-      0      19
-      b      19
-      28      20
-      29      20
-      2a      22
-      2b      22
-      2c      22
-      2d      22
-      2e      22
-      2f      22
-      30      22
-      31      22
-      32      23
-      39      24
-      3a      24
-      3b      25
-      3c      25
-      3d      25
-      3e      25
-      3f      25
-      40      25
-      41      25
-      42      25
-      43      26
-      46      28
-      47      28
-      48      28
-      49      28
-      4a      28
-      4b      28
-      4e      31
+      0      18
+      b      18
+      28      19
+      29      19
+      2a      21
+      2b      21
+      2c      21
+      2d      21
+      2e      21
+      2f      21
+      30      21
+      31      21
+      32      22
+      39      23
+      3a      23
+      3b      24
+      3c      24
+      3d      24
+      3e      24
+      3f      24
+      40      24
+      41      24
+      42      24
+      43      25
+      46      27
+      47      27
+      48      27
+      49      27
+      4a      27
+      4b      27
+      4e      29
    }
 }
 
@@ -107,9 +105,9 @@ Lines mapping:
 6 <-> 6
 7 <-> 11
 8 <-> 14
-10 <-> 17
-13 <-> 20
-14 <-> 21
-15 <-> 26
-16 <-> 29
-18 <-> 32
+10 <-> 16
+13 <-> 19
+14 <-> 20
+15 <-> 25
+16 <-> 28
+18 <-> 30

@@ -26,7 +26,6 @@ public class TestSwitchPatternMatching16 {
          default:
             System.out.println("default");
       }
-
    }// 38
 }
 
@@ -133,7 +132,7 @@ class 'pkg/TestSwitchPatternMatching16' {
       b1      19
       b2      19
       b3      19
-      b6      29
+      b6      28
    }
 }
 
@@ -155,6 +154,6 @@ Lines mapping:
 32 <-> 17
 33 <-> 18
 36 <-> 20
-38 <-> 30
+38 <-> 29
 Not mapped:
 34

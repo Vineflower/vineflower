@@ -15,7 +15,6 @@ public class TestSwitchPatternMatching2 {
          default:
             System.out.println("Non-triangle");// 13
       }
-
    }// 15
 
    private abstract class Shape {
@@ -80,14 +79,14 @@ class 'pkg/TestSwitchPatternMatching2' {
       65      15
       66      15
       67      15
-      6b      18
+      6b      17
    }
 }
 
 class 'pkg/TestSwitchPatternMatching2$Triangle' {
    method 'calculateArea ()D' {
-      0      27
-      1      27
+      0      26
+      1      26
    }
 }
 
@@ -99,5 +98,5 @@ Lines mapping:
 9 <-> 13
 11 <-> 7
 13 <-> 16
-15 <-> 19
-25 <-> 28
+15 <-> 18
+25 <-> 27

@@ -14,7 +14,6 @@ public class TestSwitchPatternMatching20 {
          default:
             System.out.println("Default");// 8
       }
-
    }// 10
 }
 
@@ -44,7 +43,7 @@ class 'pkg/TestSwitchPatternMatching20' {
       4d      14
       4e      14
       4f      14
-      53      17
+      53      16
    }
 }
 
@@ -52,6 +51,6 @@ Lines mapping:
 5 <-> 7
 7 <-> 12
 8 <-> 15
-10 <-> 18
+10 <-> 17
 Not mapped:
 6

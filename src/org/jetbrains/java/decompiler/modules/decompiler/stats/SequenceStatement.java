@@ -104,11 +104,12 @@ public final class SequenceStatement extends Statement {
 
       Statement st = stats.get(i);
 
-      if (i > 0 && notempty) {
+      TextBuffer str = ExprProcessor.jmpWrapper(st, indent, false);
+
+      if (i > 0 && !str.containsOnlyWhitespaces() && notempty) {
         buf.appendLineSeparator();
       }
 
-      TextBuffer str = ExprProcessor.jmpWrapper(st, indent, false);
       buf.append(str);
 
       notempty = !str.containsOnlyWhitespaces();

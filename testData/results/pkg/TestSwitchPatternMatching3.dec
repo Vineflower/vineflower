@@ -9,7 +9,6 @@ public class TestSwitchPatternMatching3 {
          default:
             System.out.println("default");// 9
       }
-
    }// 11
 }
 
@@ -32,7 +31,7 @@ class 'pkg/TestSwitchPatternMatching3' {
       2a      9
       2b      9
       2c      9
-      2f      12
+      2f      11
    }
 }
 
@@ -40,4 +39,4 @@ Lines mapping:
 5 <-> 5
 7 <-> 7
 9 <-> 10
-11 <-> 13
+11 <-> 12

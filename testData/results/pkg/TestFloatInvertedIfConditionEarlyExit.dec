@@ -13,7 +13,6 @@ public class TestFloatInvertedIfConditionEarlyExit {
             System.out.println("Hello " + f);// 17
          }
       }
-
    }// 19
 }
 
@@ -58,7 +57,7 @@ class 'pkg/TestFloatInvertedIfConditionEarlyExit' {
       28      12
       2b      10
       2d      10
-      32      16
+      32      15
    }
 }
 
@@ -70,6 +69,6 @@ Lines mapping:
 13 <-> 11
 14 <-> 12
 17 <-> 13
-19 <-> 17
+19 <-> 16
 Not mapped:
 15

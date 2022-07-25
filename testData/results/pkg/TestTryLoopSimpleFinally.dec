@@ -17,7 +17,6 @@ public class TestTryLoopSimpleFinally {
       } finally {
          System.out.println("Finally");// 18
       }
-
    }// 20
 }
 
@@ -36,7 +35,7 @@ class 'pkg/TestTryLoopSimpleFinally' {
       31      17
       32      17
       33      17
-      39      20
+      39      19
    }
 }
 
@@ -46,7 +45,7 @@ Lines mapping:
 15 <-> 15
 16 <-> 16
 18 <-> 18
-20 <-> 21
+20 <-> 20
 Not mapped:
 14
 19

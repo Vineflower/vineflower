@@ -25,7 +25,6 @@ public class TestLVT {
          String spam = scope1a + scope2 + scope2a + i + noise;
          System.out.println(spam);
       }
-
    }
 
    public void methoda() {
