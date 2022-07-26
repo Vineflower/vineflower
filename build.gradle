@@ -137,7 +137,8 @@ jar {
     attributes (
       'Multi-Release': 'true',
       'Main-Class': 'org.jetbrains.java.decompiler.main.decompiler.ConsoleDecompiler',
-      'Implementation-Name': "Quiltflower"
+      'Implementation-Name': "Quiltflower",
+      'Implementation-Version': project.version
     )
   }
 }
