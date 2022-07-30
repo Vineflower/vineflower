@@ -655,7 +655,7 @@ public class FinallyProcessor {
 
         for (BasicBlock succ : setSuccs) {
           if (graph.getLast() != succ) { // FIXME: why?
-            mapNext.put(blockSample.getDebugId() + "#" + succ.getDebugId(), new BasicBlock[]{blockSample, succ, isTrueLastBlock ? succ : null});
+            mapNext.put(blockSample.getId() + "#" + succ.getId(), new BasicBlock[]{blockSample, succ, isTrueLastBlock ? succ : null});
           }
         }
       }

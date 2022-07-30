@@ -169,7 +169,7 @@ public class BasicBlock implements IGraphNode {
   /**
    * Only used for printing debugging strings
    */
-  public int getDebugId() {
+  public int getId() {
     return this.id;
   }
 

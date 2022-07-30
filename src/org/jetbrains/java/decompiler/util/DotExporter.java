@@ -378,7 +378,7 @@ public class DotExporter {
       case DO: return "Do";
       case SWITCH: return "Switch";
       case TRY_CATCH: return "Try Catch";
-      case BASIC_BLOCK: return "Basic Block #" + ((BasicBlockStatement)st).getBlock().getDebugId();
+      case BASIC_BLOCK: return "Basic Block #" + ((BasicBlockStatement)st).getBlock().getId();
       case SYNCHRONIZED: return "Synchronized";
       case CATCH_ALL: return "Catch All";
       case ROOT: return "Root";
@@ -419,7 +419,7 @@ public class DotExporter {
 
     List<BasicBlock> blocks = graph.getBlocks();
     for (BasicBlock block : blocks) {
-      buffer.append(block.getDebugId() + " [shape=box,label=\"Block " + block.getDebugId() + "\n" + block.getSeq() + "\"];\r\n");
+      buffer.append(block.getId() + " [shape=box,label=\"Block " + block.getId() + "\n" + block.getSeq() + "\"];\r\n");
 
       List<BasicBlock> suc = block.getSuccs();
       List<BasicBlock> preds = block.getPreds();
@@ -431,7 +431,7 @@ public class DotExporter {
 //      }
 
       for (BasicBlock basicBlock : suc) {
-        buffer.append(block.getDebugId() + " -> " + basicBlock.getDebugId() + ";\r\n");
+        buffer.append(block.getId() + " -> " + basicBlock.getId() + ";\r\n");
       }
 
 //      for (BasicBlock pred : preds) {
@@ -448,7 +448,7 @@ public class DotExporter {
 //      }
 
       for (int j = 0; j < suc.size(); j++) {
-        buffer.append(block.getDebugId() + " -> " + suc.get(j).getDebugId() + " [style=dotted];\r\n");
+        buffer.append(block.getId() + " -> " + suc.get(j).getId() + " [style=dotted];\r\n");
       }
 
 //      for (BasicBlock pred : preds) {
@@ -458,9 +458,9 @@ public class DotExporter {
 
     for (int i = 0; i < graph.getExceptions().size(); i++) {
       ExceptionRangeCFG ex = graph.getExceptions().get(i);
-      buffer.append("subgraph cluster_ex_" + i + " {\r\n\tlabel=\"Exception range for Block " + ex.getHandler().getDebugId() + " \";\r\n");
+      buffer.append("subgraph cluster_ex_" + i + " {\r\n\tlabel=\"Exception range for Block " + ex.getHandler().getId() + " \";\r\n");
       for (BasicBlock bb : ex.getProtectedRange()) {
-        buffer.append("\t" + bb.getDebugId() + ";\r\n");
+        buffer.append("\t" + bb.getId() + ";\r\n");
       }
       buffer.append("\t}\r\n");
     }
