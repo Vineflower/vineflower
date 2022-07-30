@@ -1,5 +1,6 @@
 package pkg;
 
+// Adapted from CFR
 public class TestSwitchStringHashcodeCollision {
     public int test(String s) {
         switch (s) {

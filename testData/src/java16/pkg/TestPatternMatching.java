@@ -7,9 +7,50 @@ public class TestPatternMatching {
         }
     }
 
+    public void testInverted(Object obj) {
+        if (!(obj instanceof String str)) {
+            System.out.println("Oh no");
+        }
+    }
+
     public void testCompound(Object obj) {
         if (obj instanceof String str && str.contains("hi")) {
             System.out.println(str.length());
+        }
+    }
+
+
+    public void testSimpleLoop(Object obj) {
+        while (obj instanceof String str) {
+            System.out.println(str.length());
+            obj = str.intern();
+        }
+    }
+
+  public void testSimpleLoopUnused(Object obj) {
+    while (obj instanceof String str) {
+      obj = obj.hashCode() + "";
+    }
+  }
+
+    public void testInvertedLoop(Object obj) {
+        while (!(obj instanceof String str)) {
+            System.out.println("Oh no");
+            obj = obj.toString();
+        }
+        System.out.println(str.hashCode());
+    }
+
+  public void testInvertedLoopUnused(Object obj) {
+    while (!(obj instanceof String str)) {
+      System.out.println("Oh no");
+      obj = obj.toString();
+    }
+  }
+
+    public void testCompoundLoop(Object obj) {
+        while (obj instanceof String str && str.contains("hi")) {
+            obj = str.substring(1);
         }
     }
 
@@ -31,6 +72,33 @@ public class TestPatternMatching {
             obj = s.substring(1);
 
             System.out.println(s);
+        }
+    }
+
+    public void testSimpleReturn(Object obj) {
+        if (obj instanceof String str) {
+            if (str.length() > 5) {
+                return;
+            }
+        }
+
+        System.out.println("test");
+    }
+
+    public void testMessyLVT(Object obj) {
+        {
+            String a = "a";
+            String b = "b";
+            String c = "c";
+            String d = "d";
+            String e = "e";
+            String f = "f";
+            String g = "g";
+            String h = "h";
+            String i = "i";
+        }
+        if (obj instanceof String str) {
+            System.out.println(str.length());
         }
     }
 }

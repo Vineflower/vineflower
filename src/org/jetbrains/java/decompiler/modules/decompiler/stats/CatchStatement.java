@@ -4,16 +4,16 @@ package org.jetbrains.java.decompiler.modules.decompiler.stats;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.AssignmentExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
-import org.jetbrains.java.decompiler.util.TextBuffer;
-import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
+import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.modules.decompiler.DecHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.AssignmentExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
+import org.jetbrains.java.decompiler.util.TextBuffer;
 
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -21,22 +21,16 @@ import java.util.List;
 import java.util.Set;
 
 public final class CatchStatement extends Statement {
-  public static final int NORMAL = 0;
-  public static final int RESOURCES = 1;
-
   private final List<List<String>> exctstrings = new ArrayList<>();
   private final List<VarExprent> vars = new ArrayList<>();
   private final List<Exprent> resources = new ArrayList<>();
-
-  private int tryType;
 
   // *****************************************************************************
   // constructors
   // *****************************************************************************
 
   private CatchStatement() {
-    type = TYPE_TRYCATCH;
-    tryType = NORMAL;
+    super(StatementType.TRY_CATCH);
   }
 
   private CatchStatement(Statement head, Statement next, Set<Statement> setHandlers) {
@@ -69,7 +63,7 @@ public final class CatchStatement extends Statement {
   // *****************************************************************************
 
   public static Statement isHead(Statement head) {
-    if (head.getLastBasicType() != LASTBASICTYPE_GENERAL) {
+    if (head.getLastBasicType() != LastBasicType.GENERAL) {
       return null;
     }
 
@@ -90,7 +84,7 @@ public final class CatchStatement extends Statement {
         boolean handlerok = true;
 
         if (edge.getExceptions() != null && setHandlers.contains(stat)) {
-          if (stat.getLastBasicType() != LASTBASICTYPE_GENERAL) {
+          if (stat.getLastBasicType() != LastBasicType.GENERAL) {
             handlerok = false;
           }
           else {
@@ -132,6 +126,14 @@ public final class CatchStatement extends Statement {
           }
         }
 
+        // Don't build a trycatch around a loop-head if statement, as we know that DoStatement should be built first.
+        // Since CatchStatement's isHead is run after DoStatement's, we can assume that a loop was not able to be built.
+        if (DecompilerContext.getOption(IFernflowerPreferences.EXPERIMENTAL_TRY_LOOP_FIX)) {
+          if (head instanceof IfStatement && head.getContinueSet().contains(head.first)) {
+            return null;
+          }
+        }
+
         if (DecHelper.checkStatementExceptions(lst)) {
           return new CatchStatement(head, next, setHandlers);
         }
@@ -141,37 +143,33 @@ public final class CatchStatement extends Statement {
   }
 
   @Override
-  public TextBuffer toJava(int indent, BytecodeMappingTracer tracer) {
+  public TextBuffer toJava(int indent) {
     TextBuffer buf = new TextBuffer();
 
-    buf.append(ExprProcessor.listToJava(varDefinitions, indent, tracer));
+    buf.append(ExprProcessor.listToJava(varDefinitions, indent));
 
     if (isLabeled()) {
-      buf.appendIndent(indent).append("label").append(this.id.toString()).append(":").appendLineSeparator();
-      tracer.incrementCurrentSourceLine();
+      buf.appendIndent(indent).append("label").append(this.id).append(":").appendLineSeparator();
     }
 
-    if (tryType == NORMAL) {
+    if (resources.isEmpty()) {
       buf.appendIndent(indent).append("try {").appendLineSeparator();
-      tracer.incrementCurrentSourceLine();
     }
     else {
       buf.appendIndent(indent).append("try (");
 
       if (resources.size() > 1) {
         buf.appendLineSeparator();
-        tracer.incrementCurrentSourceLine();
-        buf.append(ExprProcessor.listToJava(resources, indent + 1, tracer));
+        buf.append(ExprProcessor.listToJava(resources, indent + 1));
         buf.appendIndent(indent);
       }
       else {
-        buf.append(resources.get(0).toJava(indent + 1, tracer));
+        buf.append(resources.get(0).toJava(indent + 1));
       }
       buf.append(") {").appendLineSeparator();
-      tracer.incrementCurrentSourceLine();
     }
 
-    buf.append(ExprProcessor.jmpWrapper(first, indent + 1, true, tracer));
+    buf.append(ExprProcessor.jmpWrapper(first, indent + 1, true));
     buf.appendIndent(indent).append("}");
 
     for (int i = 1; i < stats.size(); i++) {
@@ -180,7 +178,7 @@ public final class CatchStatement extends Statement {
       BasicBlock block = stat.getBasichead().getBlock();
       if (!block.getSeq().isEmpty() && block.getInstruction(0).opcode == CodeConstants.opc_astore) {
         Integer offset = block.getOldOffset(0);
-        if (offset > -1) tracer.addMapping(offset);
+        if (offset > -1) buf.addBytecodeMapping(offset);
       }
 
       buf.append(" catch (");
@@ -194,15 +192,13 @@ public final class CatchStatement extends Statement {
           buf.append(exc_type_name).append(" | ");
         }
       }
-      buf.append(vars.get(i - 1).toJava(indent, tracer));
+      buf.append(vars.get(i - 1).toJava(indent));
       buf.append(") {").appendLineSeparator();
-      tracer.incrementCurrentSourceLine();
-      buf.append(ExprProcessor.jmpWrapper(stat, indent + 1, false, tracer)).appendIndent(indent)
+      buf.append(ExprProcessor.jmpWrapper(stat, indent + 1, false)).appendIndent(indent)
         .append("}");
     }
     buf.appendLineSeparator();
 
-    tracer.incrementCurrentSourceLine();
     return buf;
   }
 
@@ -247,14 +243,6 @@ public final class CatchStatement extends Statement {
 
   public List<VarExprent> getVars() {
     return vars;
-  }
-
-  public int getTryType() {
-    return tryType;
-  }
-
-  public void setTryType(int tryType) {
-    this.tryType = tryType;
   }
 
   public List<Exprent> getResources() {

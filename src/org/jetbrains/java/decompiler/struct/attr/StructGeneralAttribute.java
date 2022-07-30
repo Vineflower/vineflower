@@ -1,6 +1,7 @@
 // Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.struct.attr;
 
+import org.jetbrains.java.decompiler.code.BytecodeVersion;
 import org.jetbrains.java.decompiler.struct.consts.ConstantPool;
 import org.jetbrains.java.decompiler.util.DataInputFullStream;
 
@@ -37,6 +38,7 @@ public class StructGeneralAttribute {
   public static final Key<StructModuleAttribute> ATTRIBUTE_MODULE = new Key<>("Module");
   public static final Key<StructRecordAttribute> ATTRIBUTE_RECORD = new Key<>("Record");
   public static final Key<StructPermittedSubclassesAttribute> ATTRIBUTE_PERMITTED_SUBCLASSES = new Key<>("PermittedSubclasses");
+  public static final Key<StructSourceFileAttribute> ATTRIBUTE_SOURCE_FILE = new Key<>("SourceFile");
 
   @SuppressWarnings("unused")
   public static class Key<T extends StructGeneralAttribute> {
@@ -105,10 +107,13 @@ public class StructGeneralAttribute {
     else if (ATTRIBUTE_PERMITTED_SUBCLASSES.name.equals(name)) {
       return new StructPermittedSubclassesAttribute();
     }
+    else if (ATTRIBUTE_SOURCE_FILE.name.equals(name)) {
+      return new StructSourceFileAttribute();
+    }
     else {
       return null; // unsupported attribute
     }
   }
 
-  public void initContent(DataInputFullStream data, ConstantPool pool) throws IOException { }
+  public void initContent(DataInputFullStream data, ConstantPool pool, BytecodeVersion version) throws IOException { }
 }

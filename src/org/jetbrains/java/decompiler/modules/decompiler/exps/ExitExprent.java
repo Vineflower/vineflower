@@ -4,9 +4,9 @@ package org.jetbrains.java.decompiler.modules.decompiler.exps;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
-import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
+import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
 import org.jetbrains.java.decompiler.struct.attr.StructExceptionsAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
@@ -17,28 +17,29 @@ import org.jetbrains.java.decompiler.struct.match.MatchNode;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 
-import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 
 public class ExitExprent extends Exprent {
+  public enum Type {
+    RETURN, THROW
+  }
 
-  public static final int EXIT_RETURN = 0;
-  public static final int EXIT_THROW = 1;
-
-  private final int exitType;
+  private final Type exitType;
   private Exprent value;
   private final VarType retType;
   private final MethodDescriptor methodDescriptor;
 
-  public ExitExprent(int exitType, Exprent value, VarType retType, BitSet bytecodeOffsets, MethodDescriptor methodDescriptor) {
-    super(EXPRENT_EXIT);
+  public ExitExprent(Type exitType, Exprent value, VarType retType, BitSet bytecodeOffsets, MethodDescriptor methodDescriptor) {
+    super(Exprent.Type.EXIT);
     this.exitType = exitType;
     this.value = value;
     this.retType = retType;
     this.methodDescriptor = methodDescriptor;
 
     addBytecodeOffsets(bytecodeOffsets);
+
+    ValidationHelper.validateExitExprent(this);
   }
 
   @Override
@@ -50,7 +51,7 @@ public class ExitExprent extends Exprent {
   public CheckTypesResult checkExprTypeBounds() {
     CheckTypesResult result = new CheckTypesResult();
 
-    if (exitType == EXIT_RETURN && retType.type != CodeConstants.TYPE_VOID) {
+    if (exitType == Type.RETURN && retType.type != CodeConstants.TYPE_VOID) {
       result.addMinTypeExprent(value, VarType.getMinTypeInFamily(retType.typeFamily));
       result.addMaxTypeExprent(value, retType);
     }
@@ -59,8 +60,7 @@ public class ExitExprent extends Exprent {
   }
 
   @Override
-  public List<Exprent> getAllExprents() {
-    List<Exprent> lst = new ArrayList<>();
+  public List<Exprent> getAllExprents(List<Exprent> lst) {
     if (value != null) {
       lst.add(value);
     }
@@ -68,23 +68,24 @@ public class ExitExprent extends Exprent {
   }
 
   @Override
-  public TextBuffer toJava(int indent, BytecodeMappingTracer tracer) {
-    tracer.addMapping(bytecode);
+  public TextBuffer toJava(int indent) {
+    TextBuffer buf = new TextBuffer();
+    buf.addBytecodeMapping(bytecode);
 
-    if (exitType == EXIT_RETURN) {
-      TextBuffer buffer = new TextBuffer("return");
+    if (exitType == Type.RETURN) {
+      buf.append("return");
 
       if (retType.type != CodeConstants.TYPE_VOID) {
         VarType ret = retType;
         if (methodDescriptor != null && methodDescriptor.genericInfo != null && methodDescriptor.genericInfo.returnType != null) {
           ret = methodDescriptor.genericInfo.returnType;
         }
-        buffer.append(' ');
+        buf.append(' ');
 
-        ExprProcessor.getCastedExprent(value, ret, buffer, indent, false, false, false, false, tracer);
+        ExprProcessor.getCastedExprent(value, ret, buf, indent, ExprProcessor.NullCastType.DONT_CAST_AT_ALL, false, false, false);
       }
 
-      return buffer;
+      return buf;
     }
     else {
       MethodWrapper method = (MethodWrapper)DecompilerContext.getProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
@@ -109,14 +110,14 @@ public class ExitExprent extends Exprent {
 
           if (classname != null) {
             VarType exType = new VarType(classname, true);
-            TextBuffer buffer = new TextBuffer("throw ");
-            ExprProcessor.getCastedExprent(value, exType, buffer, indent, false, tracer);
-            return buffer;
+            buf.append("throw ");
+            ExprProcessor.getCastedExprent(value, exType, buf, indent, false);
+            return buf;
           }
         }
       }
 
-      return value.toJava(indent, tracer).prepend("throw ");
+      return buf.append(value.toJava(indent)).prepend("throw ");
     }
   }
 
@@ -137,7 +138,7 @@ public class ExitExprent extends Exprent {
            InterpreterUtil.equalObjects(value, et.getValue());
   }
 
-  public int getExitType() {
+  public Type getExitType() {
     return exitType;
   }
 
@@ -170,7 +171,7 @@ public class ExitExprent extends Exprent {
       return false;
     }
 
-    Integer type = (Integer)matchNode.getRuleValue(MatchProperties.EXPRENT_EXITTYPE);
+    Type type = (Type)matchNode.getRuleValue(MatchProperties.EXPRENT_EXITTYPE);
     return type == null || this.exitType == type;
   }
 }

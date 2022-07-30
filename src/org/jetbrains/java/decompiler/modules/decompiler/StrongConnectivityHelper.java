@@ -1,6 +1,7 @@
 package org.jetbrains.java.decompiler.modules.decompiler;
 
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement.EdgeDirection;
 import org.jetbrains.java.decompiler.util.ListStack;
 
 import java.util.*;
@@ -98,7 +99,7 @@ public final class StrongConnectivityHelper {
     this.onStack.put(stat, true);
 
     // Get all neighbor successors
-    List<Statement> successors = stat.getNeighbours(StatEdge.TYPE_REGULAR, Statement.DIRECTION_FORWARD); // TODO: set?
+    List<Statement> successors = stat.getNeighbours(StatEdge.TYPE_REGULAR, EdgeDirection.FORWARD); // TODO: set?
     // Remove the ones we've already processed
     successors.removeAll(this.processed);
 
@@ -148,16 +149,19 @@ public final class StrongConnectivityHelper {
     }
   }
 
+  // Returns true if the component has no outgoing edges that aren't accounted for by the component itself
   public static boolean isExitComponent(List<? extends Statement> lst) {
     Set<Statement> set = new HashSet<>();
+
     for (Statement stat : lst) {
-      set.addAll(stat.getNeighbours(StatEdge.TYPE_REGULAR, Statement.DIRECTION_FORWARD));
+      set.addAll(stat.getNeighbours(StatEdge.TYPE_REGULAR, EdgeDirection.FORWARD));
     }
+
     for (Statement stat : lst) {
       set.remove(stat);
     }
 
-    return (set.size() == 0);
+    return set.isEmpty();
   }
 
   public static List<Statement> getExitReps(List<? extends List<Statement>> lst) {

@@ -1,0 +1,34 @@
+/**
+ * This code can be assembled with <a href="https://wiki.openjdk.java.net/display/CodeTools/asmtools">asmtools</a>
+ * using <code>asmtools jasm -g *.jasm</code> command line.
+ */
+package  pkg;
+
+super final class TestOldECJInner$Inner
+	version 51:0
+{
+  final synthetic Field this$0:"Lpkg/TestOldECJInner;";
+
+  private Method "<init>":"(Lpkg/TestOldECJInner;)V"
+	stack 3 locals 2
+  {
+		aload_0;
+		aload_1;
+		putfield	Field this$0:"Lpkg/TestOldECJInner;";
+		aload_0;
+		invokespecial	Method java/lang/Object."<init>":"()V";
+		return;
+
+  }
+  synthetic Method "<init>":"(Lpkg/TestOldECJInner;Lpkg/TestOldECJInner$Inner;)V"
+	stack 2 locals 3
+  {
+		aload_0;
+		aload_1;
+		invokespecial	Method "<init>":"(Lpkg/TestOldECJInner;)V";
+		return;
+  }
+
+  private final InnerClass Inner=class TestOldECJInner$Inner of class TestOldECJInner;
+
+} // end Class TestOldECJInner$Inner

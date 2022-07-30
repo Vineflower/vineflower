@@ -8,8 +8,7 @@ public class TestArrayDoWhile {
       do {
          array[i - 1] = i;// 8
          array[array.length - i] = i * 4;// 9
-         ++i;// 10
-      } while(i < array.length);// 11
+      } while(++i < array.length);// 10 11
 
       return array;// 13
    }
@@ -40,12 +39,11 @@ class 'pkg/TestArrayDoWhile' {
       16      10
       17      10
       18      10
-      19      11
-      1a      11
-      1b      11
-      1c      11
-      1f      13
-      20      13
+      1a      10
+      1b      10
+      1c      10
+      1f      12
+      20      12
    }
 }
 
@@ -55,5 +53,5 @@ Lines mapping:
 8 <-> 9
 9 <-> 10
 10 <-> 11
-11 <-> 12
-13 <-> 14
+11 <-> 11
+13 <-> 13

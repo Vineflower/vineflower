@@ -1,0 +1,135 @@
+package pkg;
+
+import java.util.function.Supplier;
+
+public interface TestUnionTypeAssign {
+   default <E extends Enum<E> & TestUnionTypeAssign> void test(Supplier<E[]> supplier) {
+      E[] array = (E[])supplier.get();// 7
+   }// 8
+
+   default <E extends Enum<E> & TestUnionTypeAssign> void test1(Supplier<E[]> supplier) {
+      Enum[] array = (Enum[])supplier.get();// 11
+   }// 12
+
+   default <E extends Enum<E> & TestUnionTypeAssign> void test2(Supplier<E[]> supplier) {
+      Enum<E>[] array = (Enum[])supplier.get();// 15
+   }// 16
+
+   default <E extends Enum<E> & TestUnionTypeAssign> void test3(Supplier<E[]> supplier) {
+      TestUnionTypeAssign[] array = (TestUnionTypeAssign[])supplier.get();// 19
+   }// 20
+
+   default <E extends Enum<E> & TestUnionTypeAssign> void test4(Supplier<Enum[]> supplier) {
+      E[] array = (Enum[])supplier.get();// 23
+   }// 24
+
+   default <E extends Enum<E> & TestUnionTypeAssign> void test5(Supplier<TestUnionTypeAssign[]> supplier) {
+      E[] array = (Enum[])supplier.get();// 27
+   }// 28
+}
+
+class 'pkg/TestUnionTypeAssign' {
+   method 'test (Ljava/util/function/Supplier;)V' {
+      0      6
+      1      6
+      2      6
+      3      6
+      4      6
+      5      6
+      6      6
+      7      6
+      8      6
+      9      6
+      a      7
+   }
+
+   method 'test1 (Ljava/util/function/Supplier;)V' {
+      0      10
+      1      10
+      2      10
+      3      10
+      4      10
+      5      10
+      6      10
+      7      10
+      8      10
+      9      10
+      a      11
+   }
+
+   method 'test2 (Ljava/util/function/Supplier;)V' {
+      0      14
+      1      14
+      2      14
+      3      14
+      4      14
+      5      14
+      6      14
+      7      14
+      8      14
+      9      14
+      a      15
+   }
+
+   method 'test3 (Ljava/util/function/Supplier;)V' {
+      0      18
+      1      18
+      2      18
+      3      18
+      4      18
+      5      18
+      6      18
+      7      18
+      8      18
+      9      18
+      a      19
+   }
+
+   method 'test4 (Ljava/util/function/Supplier;)V' {
+      0      22
+      1      22
+      2      22
+      3      22
+      4      22
+      5      22
+      6      22
+      7      22
+      8      22
+      9      22
+      a      22
+      b      22
+      c      22
+      d      23
+   }
+
+   method 'test5 (Ljava/util/function/Supplier;)V' {
+      0      26
+      1      26
+      2      26
+      3      26
+      4      26
+      5      26
+      6      26
+      7      26
+      8      26
+      9      26
+      a      26
+      b      26
+      c      26
+      d      27
+   }
+}
+
+Lines mapping:
+7 <-> 7
+8 <-> 8
+11 <-> 11
+12 <-> 12
+15 <-> 15
+16 <-> 16
+19 <-> 19
+20 <-> 20
+23 <-> 23
+24 <-> 24
+27 <-> 27
+28 <-> 28

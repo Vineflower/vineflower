@@ -3,30 +3,30 @@ package pkg;
 public class TestSwitchDefaultBefore {
    public void test(String s) {
       switch(s) {// 5
-      case "a":
-         System.out.println(1);// 7
-         break;// 8
-      case "b":
-         System.out.println(2);// 10
-         break;// 11
-      case "c":
-      default:
-         System.out.println(3);// 14
+         case "a":
+            System.out.println(1);// 7
+            break;// 8
+         case "b":
+            System.out.println(2);// 10
+            break;// 11
+         case "c":
+         default:
+            System.out.println(3);// 14
       }
 
    }// 17
 
    public void test2(int i) {
       switch(i) {// 20
-      case 1:
-         System.out.println(1);// 22
-         break;// 23
-      case 2:
-         System.out.println(2);// 25
-         break;// 26
-      case 3:
-      default:
-         System.out.println(3);// 29
+         case 1:
+            System.out.println(1);// 22
+            break;// 23
+         case 2:
+            System.out.println(2);// 25
+            break;// 26
+         case 3:
+         default:
+            System.out.println(3);// 29
       }
 
    }// 32

@@ -1,0 +1,125 @@
+package pkg;
+
+public class TestGenericCastCall {
+   public TestGenericCastCall.Inner<Boolean> inner;
+
+   private TestGenericCastCall.Inner<Boolean> get() {
+      return this.inner;// 16
+   }
+
+   public boolean test(boolean b) {
+      if (!((TestGenericCastCall.Inner2)this.inner).val() && b) {// 20
+         return true;// 21
+      } else {
+         System.out.println(b);// 24
+         return false;// 26
+      }
+   }
+
+   public boolean test1(boolean b) {
+      if (!((TestGenericCastCall.Inner2)this.get()).val() && b) {// 30
+         return true;// 31
+      } else {
+         System.out.println(b);// 34
+         return false;// 36
+      }
+   }
+
+   public class Inner<T> {
+   }
+
+   public class Inner2<T> extends TestGenericCastCall.Inner<T> {
+      T val() {
+         return null;// 9
+      }
+   }
+}
+
+class 'pkg/TestGenericCastCall' {
+   method 'get ()Lpkg/TestGenericCastCall$Inner;' {
+      0      6
+      1      6
+      2      6
+      3      6
+      4      6
+   }
+
+   method 'test (Z)Z' {
+      0      10
+      1      10
+      2      10
+      3      10
+      4      10
+      5      10
+      6      10
+      7      10
+      8      10
+      9      10
+      d      10
+      e      10
+      f      10
+      10      10
+      13      10
+      14      10
+      17      11
+      18      11
+      19      13
+      1a      13
+      1b      13
+      1c      13
+      1d      13
+      1e      13
+      1f      13
+      20      14
+      21      14
+   }
+
+   method 'test1 (Z)Z' {
+      0      19
+      1      19
+      2      19
+      3      19
+      4      19
+      5      19
+      6      19
+      7      19
+      8      19
+      9      19
+      d      19
+      e      19
+      f      19
+      10      19
+      13      19
+      14      19
+      17      20
+      18      20
+      19      22
+      1a      22
+      1b      22
+      1c      22
+      1d      22
+      1e      22
+      1f      22
+      20      23
+      21      23
+   }
+}
+
+class 'pkg/TestGenericCastCall$Inner2' {
+   method 'val ()Ljava/lang/Object;' {
+      0      32
+      1      32
+   }
+}
+
+Lines mapping:
+9 <-> 33
+16 <-> 7
+20 <-> 11
+21 <-> 12
+24 <-> 14
+26 <-> 15
+30 <-> 20
+31 <-> 21
+34 <-> 23
+36 <-> 24

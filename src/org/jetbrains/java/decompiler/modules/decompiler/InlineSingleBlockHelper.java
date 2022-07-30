@@ -2,8 +2,10 @@
 package org.jetbrains.java.decompiler.modules.decompiler;
 
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement.EdgeDirection;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 
@@ -29,7 +31,7 @@ public final class InlineSingleBlockHelper {
       res |= inlineSingleBlocksRec(st);
     }
 
-    if (stat.type == Statement.TYPE_SEQUENCE) {
+    if (stat instanceof SequenceStatement) {
 
       SequenceStatement seq = (SequenceStatement)stat;
       for (int i = 1; i < seq.getStats().size(); i++) {
@@ -47,7 +49,7 @@ public final class InlineSingleBlockHelper {
 
     Statement first = seq.getStats().get(index);
     Statement pre = seq.getStats().get(index - 1);
-    pre.removeSuccessor(pre.getAllSuccessorEdges().get(0));   // single regular edge
+    pre.removeSuccessor(pre.getFirstSuccessor());   // single regular edge
 
     StatEdge edge = first.getPredecessorEdges(StatEdge.TYPE_BREAK).get(0);
     Statement source = edge.getSource();
@@ -59,9 +61,10 @@ public final class InlineSingleBlockHelper {
       lst.add(0, seq.getStats().remove(i));
     }
 
-    if (parent.type == Statement.TYPE_IF && ((IfStatement)parent).iftype == IfStatement.IFTYPE_IF &&
+    if (parent instanceof IfStatement && ((IfStatement)parent).iftype == IfStatement.IFTYPE_IF &&
         source == parent.getFirst()) {
       IfStatement ifparent = (IfStatement)parent;
+
       SequenceStatement block = new SequenceStatement(lst);
       block.setAllParent();
 
@@ -87,18 +90,42 @@ public final class InlineSingleBlockHelper {
       for (StatEdge prededge : block.getPredecessorEdges(StatEdge.TYPE_CONTINUE)) {
 
         block.removePredecessor(prededge);
-        prededge.getSource().changeEdgeNode(Statement.DIRECTION_FORWARD, prededge, source);
+        prededge.getSource().changeEdgeNode(EdgeDirection.FORWARD, prededge, source);
         source.addPredecessor(prededge);
 
         source.addLabeledEdge(prededge);
       }
 
 
-      if (parent.type == Statement.TYPE_SWITCH) {
+      if (parent instanceof SwitchStatement) {
         ((SwitchStatement)parent).sortEdgesAndNodes();
       }
 
       source.addSuccessor(new StatEdge(StatEdge.TYPE_REGULAR, source, first));
+
+      Statement last = block.getStats().get(block.getStats().size() - 1);
+      if (!last.hasAnySuccessor()){
+        // make sure that the scope of all the break edges are updated correctly
+        for (Iterator<StatEdge> iterator = last.getLabelEdges().iterator(); iterator.hasNext(); ) {
+          StatEdge labelEdge = iterator.next();
+          if (labelEdge.getType() == StatEdge.TYPE_BREAK &&
+              MergeHelper.isDirectPath(last, labelEdge.getDestination())) {
+            // find the correct closure
+            Statement closure = parent;
+            while(!MergeHelper.isDirectPath(closure, labelEdge.getDestination())) {
+              closure = closure.getParent();
+              if (closure == null) {
+                // No valid closure found. Somehow we got inlined in a place where
+                // none of our parents have a way to get to the destination, without
+                // going through other code first.
+                throw new IllegalStateException("Where have we been inlined to?");
+              }
+            }
+            labelEdge.closure = closure;
+            iterator.remove();
+          }
+        }
+      }
     }
   }
 
@@ -111,7 +138,6 @@ public final class InlineSingleBlockHelper {
       return false;
     }
 
-
     List<StatEdge> lst = first.getPredecessorEdges(StatEdge.TYPE_BREAK);
 
     if (lst.size() == 1) {
@@ -121,6 +147,7 @@ public final class InlineSingleBlockHelper {
         if (!edge.canInline) {
           return false; //Dirty hack, but lets do it!
         }
+
         if (!edge.explicit) {
           for (int i = index; i < seq.getStats().size(); i++) {
             if (!noExitLabels(seq.getStats().get(i), seq)) {
@@ -129,7 +156,7 @@ public final class InlineSingleBlockHelper {
           }
         }
 
-        boolean noPreSuccessors = pre.getAllSuccessorEdges().isEmpty();
+        boolean noPreSuccessors = !pre.hasAnySuccessor();
 
         if (noPreSuccessors) {
           // No successors so we can't inline (as we don't know where to go!) [TestInlineNoSuccessor]
@@ -151,19 +178,16 @@ public final class InlineSingleBlockHelper {
     Statement to = edge.getDestination();
 
     while (true) {
-
       Statement parent = from.getParent();
       if (parent.containsStatementStrict(to)) {
         break;
       }
 
-      if (parent.type == Statement.TYPE_TRYCATCH ||
-          parent.type == Statement.TYPE_CATCHALL) {
+      if (parent instanceof CatchStatement || parent instanceof CatchAllStatement) {
         if (parent.getFirst() == from) {
           return false;
         }
-      }
-      else if (parent.type == Statement.TYPE_SYNCRONIZED) {
+      } else if (parent instanceof SynchronizedStatement) {
         if (parent.getStats().get(1) == from) {
           return false;
         }
@@ -176,9 +200,8 @@ public final class InlineSingleBlockHelper {
   }
 
   private static boolean noExitLabels(Statement block, Statement sequence) {
-
     for (StatEdge edge : block.getAllSuccessorEdges()) {
-      if (edge.getType() != StatEdge.TYPE_REGULAR && edge.getDestination().type != Statement.TYPE_DUMMYEXIT) {
+      if (edge.getType() != StatEdge.TYPE_REGULAR && !(edge.getDestination() instanceof DummyExitStatement)) {
         if (!sequence.containsStatementStrict(edge.getDestination())) {
           return false;
         }
@@ -195,10 +218,10 @@ public final class InlineSingleBlockHelper {
   }
 
   public static boolean isBreakEdgeLabeled(Statement source, Statement closure) {
-    if (closure.type == Statement.TYPE_DO || closure.type == Statement.TYPE_SWITCH) {
+    if (closure instanceof DoStatement || closure instanceof SwitchStatement) {
       Statement parent = source.getParent();
       return parent != closure &&
-             (parent.type == Statement.TYPE_DO || parent.type == Statement.TYPE_SWITCH || isBreakEdgeLabeled(parent, closure));
+             (parent instanceof DoStatement || parent instanceof SwitchStatement || isBreakEdgeLabeled(parent, closure));
     }
     else {
       return true;

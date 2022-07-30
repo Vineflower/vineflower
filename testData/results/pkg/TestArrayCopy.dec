@@ -6,17 +6,11 @@ public class TestArrayCopy {
       int[] c = new int[len];// 7
       int i = 0;// 8
 
-      while(true) {
-         int var10001 = c[i];
-         int var10000 = i + c[i];// 9
-         i += var10001;
-         if (var10000 >= len) {
-            return;// 12
-         }
-
+      while((i += c[i]) < len) {// 9
          System.arraycopy(c, i, a, len, len - i);// 10
       }
-   }
+
+   }// 12
 }
 
 class 'pkg/TestArrayCopy' {
@@ -30,32 +24,29 @@ class 'pkg/TestArrayCopy' {
       a      6
       b      6
       c      6
-      d      10
-      e      10
-      f      9
-      10      9
-      11      9
-      12      9
-      13      9
-      14      10
-      16      11
-      17      11
-      18      12
-      19      12
-      1c      16
-      1d      16
-      1e      16
-      1f      16
-      20      16
-      21      16
-      22      16
-      23      16
-      24      16
-      25      16
-      26      16
-      27      16
-      28      16
-      2c      13
+      f      8
+      10      8
+      11      8
+      12      8
+      13      8
+      16      8
+      17      8
+      18      8
+      19      8
+      1c      9
+      1d      9
+      1e      9
+      1f      9
+      20      9
+      21      9
+      22      9
+      23      9
+      24      9
+      25      9
+      26      9
+      27      9
+      28      9
+      2c      12
    }
 }
 
@@ -63,8 +54,8 @@ Lines mapping:
 6 <-> 5
 7 <-> 6
 8 <-> 7
-9 <-> 11
-10 <-> 17
-12 <-> 14
+9 <-> 9
+10 <-> 10
+12 <-> 13
 Not mapped:
 5

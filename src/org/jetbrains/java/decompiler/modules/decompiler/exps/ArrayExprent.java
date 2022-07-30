@@ -1,14 +1,12 @@
 // Copyright 2000-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler.exps;
 
-import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 
-import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 
@@ -18,7 +16,7 @@ public class ArrayExprent extends Exprent {
   private final VarType hardType;
 
   public ArrayExprent(Exprent array, Exprent index, VarType hardType, BitSet bytecodeOffsets) {
-    super(EXPRENT_ARRAY);
+    super(Type.ARRAY);
     this.array = array;
     this.index = index;
     this.hardType = hardType;
@@ -67,18 +65,17 @@ public class ArrayExprent extends Exprent {
   }
 
   @Override
-  public List<Exprent> getAllExprents() {
-    List<Exprent> lst = new ArrayList<>();
+  public List<Exprent> getAllExprents(List<Exprent> lst) {
     lst.add(array);
     lst.add(index);
     return lst;
   }
 
   @Override
-  public TextBuffer toJava(int indent, BytecodeMappingTracer tracer) {
-    TextBuffer res = array.toJava(indent, tracer);
+  public TextBuffer toJava(int indent) {
+    TextBuffer res = array.toJava(indent);
 
-    if (array.getPrecedence() > getPrecedence()) { // array precedence equals 0
+    if (array.getPrecedence() > getPrecedence() && !canSkipParenEnclose(array)) { // array precedence equals 0
       res.enclose("(", ")");
     }
 
@@ -88,9 +85,19 @@ public class ArrayExprent extends Exprent {
       res.enclose("((" + ExprProcessor.getCastTypeName(objArr) + ")", ")");
     }
 
-    tracer.addMapping(bytecode);
+    res.addBytecodeMapping(bytecode);
 
-    return res.append('[').append(index.toJava(indent, tracer)).append(']');
+    return res.append('[').append(index.toJava(indent)).append(']');
+  }
+
+  private boolean canSkipParenEnclose(Exprent instance) {
+    if (!(instance instanceof NewExprent)) {
+      return false;
+    }
+
+    NewExprent newExpr = (NewExprent) instance;
+
+    return newExpr.isDirectArrayInit() || !newExpr.getLstArrayElements().isEmpty();
   }
 
   @Override

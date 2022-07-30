@@ -4,13 +4,8 @@
 package org.jetbrains.java.decompiler.modules.decompiler.exps;
 
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
-import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
-import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
-import org.jetbrains.java.decompiler.util.TextBuffer;
-import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
-import org.jetbrains.java.decompiler.main.rels.ClassWrapper;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
@@ -23,45 +18,42 @@ import org.jetbrains.java.decompiler.struct.match.IMatchable;
 import org.jetbrains.java.decompiler.struct.match.MatchEngine;
 import org.jetbrains.java.decompiler.struct.match.MatchNode;
 import org.jetbrains.java.decompiler.struct.match.MatchNode.RuleValue;
+import org.jetbrains.java.decompiler.util.TextBuffer;
 
-import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 public abstract class Exprent implements IMatchable {
   public static final int MULTIPLE_USES = 1;
   public static final int SIDE_EFFECTS_FREE = 2;
   public static final int BOTH_FLAGS = 3;
 
-  public static final int EXPRENT_ARRAY = 1;
-  public static final int EXPRENT_ASSIGNMENT = 2;
-  public static final int EXPRENT_CONST = 3;
-  public static final int EXPRENT_EXIT = 4;
-  public static final int EXPRENT_FIELD = 5;
-  public static final int EXPRENT_FUNCTION = 6;
-  public static final int EXPRENT_IF = 7;
-  public static final int EXPRENT_INVOCATION = 8;
-  public static final int EXPRENT_MONITOR = 9;
-  public static final int EXPRENT_NEW = 10;
-  public static final int EXPRENT_SWITCH = 11;
-  public static final int EXPRENT_VAR = 12;
-  public static final int EXPRENT_ANNOTATION = 13;
-  public static final int EXPRENT_ASSERT = 14;
+  public enum Type {
+    ANNOTATION,
+    ARRAY,
+    ASSERT,
+    ASSIGNMENT,
+    CONST,
+    EXIT,
+    FIELD,
+    FUNCTION,
+    IF,
+    INVOCATION,
+    MONITOR,
+    NEW,
+    SWITCH,
+    SWITCH_HEAD,
+    VAR,
+    YIELD,
+  }
 
   protected static ThreadLocal<Map<String, VarType>> inferredLambdaTypes = ThreadLocal.withInitial(HashMap::new);
 
-  public final int type;
+  public final Type type;
   public final int id;
   public BitSet bytecode = null;  // offsets of bytecode instructions decompiled to this exprent
 
-  public Exprent(int type) {
+  protected Exprent(Type type) {
     this.type = type;
     this.id = DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.EXPRESSION_COUNTER);
   }
@@ -100,14 +92,33 @@ public abstract class Exprent implements IMatchable {
     return false;
   }
 
-  public List<Exprent> getAllExprents(boolean recursive) {
-    List<Exprent> lst = getAllExprents();
+  public final List<Exprent> getAllExprents(boolean recursive) {
+    return getAllExprents(recursive, false);
+  }
+
+  public final List<Exprent> getAllExprents(boolean recursive, boolean self) {
+    List<Exprent> lst = new ArrayList<>();
+    getAllExprents(recursive, lst);
+
+    if (self) {
+      lst.add(this);
+    }
+
+    return lst;
+  }
+
+  private List<Exprent> getAllExprents(boolean recursive, List<Exprent> list) {
+    int start = list.size();
+    getAllExprents(list);
+    int end = list.size();
+
     if (recursive) {
-      for (int i = lst.size() - 1; i >= 0; i--) {
-        lst.addAll(lst.get(i).getAllExprents(true));
+      for (int i = end - 1; i >= start; i--) {
+        list.get(i).getAllExprents(true, list);
       }
     }
-    return lst;
+
+    return list;
   }
 
   public Set<VarVersionPair> getAllVariables() {
@@ -116,28 +127,31 @@ public abstract class Exprent implements IMatchable {
 
     Set<VarVersionPair> set = new HashSet<>();
     for (Exprent expr : lstAllExprents) {
-      if (expr.type == EXPRENT_VAR) {
+      if (expr instanceof VarExprent) {
         set.add(new VarVersionPair((VarExprent)expr));
       }
     }
     return set;
   }
 
-  public List<Exprent> getAllExprents() {
-    throw new RuntimeException("not implemented");
+  public final List<Exprent> getAllExprents() {
+    List<Exprent> list = new ArrayList<>();
+    getAllExprents(list);
+
+    return list;
   }
 
-  public Exprent copy() {
-    throw new RuntimeException("not implemented");
-  }
+  // Get all the exprents contained within the current one
+  // Preconditions: this list must never be removed from! Only added to!
+  protected abstract List<Exprent> getAllExprents(List<Exprent> list);
+
+  public abstract Exprent copy();
 
   public TextBuffer toJava() {
-    return toJava(0, BytecodeMappingTracer.DUMMY);
+    return toJava(0);
   }
 
-  public TextBuffer toJava(int indent, BytecodeMappingTracer tracer) {
-    throw new RuntimeException("not implemented");
-  }
+  public abstract TextBuffer toJava(int indent);
 
   public void replaceExprent(Exprent oldExpr, Exprent newExpr) { }
 
@@ -259,7 +273,7 @@ public abstract class Exprent implements IMatchable {
         }
       }
 
-      if (class_ == null) {
+      if (class_ == null || class_.parent == null) {
         break;
       }
       method = class_.enclosingMethod == null ? null : class_.parent.getWrapper().getMethods().getWithKey(class_.enclosingMethod);
@@ -268,55 +282,13 @@ public abstract class Exprent implements IMatchable {
     return ret;
   }
 
-  protected void wrapInCast(VarType left, VarType right, TextBuffer buf, int precedence) {
-    boolean needsCast = !left.isSuperset(right) && (right.equals(VarType.VARTYPE_OBJECT) || left.type != CodeConstants.TYPE_OBJECT);
-
-    if (left.isGeneric() || right.isGeneric()) {
-      Map<VarType, List<VarType>> names = this.getNamedGenerics();
-      int arrayDim = 0;
-
-      if (left.arrayDim == right.arrayDim && left.arrayDim > 0) {
-        arrayDim = left.arrayDim;
-        left = left.resizeArrayDim(0);
-        right = right.resizeArrayDim(0);
-      }
-
-      List<? extends VarType> types = names.get(right);
-      if (types == null) {
-        types = names.get(left);
-      }
-
-      if (types != null) {
-        boolean anyMatch = false; //TODO: allMatch instead of anyMatch?
-        for (VarType type : types) {
-          if (type.equals(VarType.VARTYPE_OBJECT) && right.equals(VarType.VARTYPE_OBJECT)) {
-            continue;
-          }
-          anyMatch |= right.value == null /*null const doesn't need cast*/ || DecompilerContext.getStructContext().instanceOf(right.value, type.value);
-        }
-
-        if (anyMatch) {
-          needsCast = false;
-        }
-      }
-
-      if (arrayDim != 0) {
-        left = left.resizeArrayDim(arrayDim);
-      }
-    }
-
-    if (!needsCast) {
-      return;
-    }
-
-    if (precedence >= FunctionExprent.getPrecedence(FunctionExprent.FUNCTION_CAST)) {
-      buf.enclose("(", ")");
-    }
-
-    buf.prepend("(" + ExprProcessor.getCastTypeName(left) + ")");
-  }
-
   public void setInvocationInstance() {}
+
+  public void setIsQualifier() {}
+
+  public boolean allowNewlineAfterQualifier() {
+    return true;
+  }
 
   // *****************************************************************************
   // IMatchable implementation
@@ -354,7 +326,7 @@ public abstract class Exprent implements IMatchable {
 
     for (Entry<MatchProperties, RuleValue> rule : matchNode.getRules().entrySet()) {
       MatchProperties key = rule.getKey();
-      if (key == MatchProperties.EXPRENT_TYPE && this.type != (Integer)rule.getValue().value) {
+      if (key == MatchProperties.EXPRENT_TYPE && this.type != rule.getValue().value) {
         return false;
       }
       if (key == MatchProperties.EXPRENT_RET && !engine.checkAndSetVariableValue((String)rule.getValue().value, this)) {
@@ -367,6 +339,6 @@ public abstract class Exprent implements IMatchable {
 
   @Override
   public String toString() {
-    return toJava(0, BytecodeMappingTracer.DUMMY).toString();
+    return toJava(0).convertToStringAndAllowDataDiscard();
   }
 }

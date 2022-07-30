@@ -8,6 +8,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.ConstExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.ExitExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement.EdgeDirection;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 
 import java.util.ArrayList;
@@ -37,7 +38,7 @@ public final class ExitHelper {
 
         cleanUpUnreachableBlocks(st);
 
-        if (st.type == Statement.TYPE_SEQUENCE && st.getStats().size() > 1) {
+        if (st instanceof SequenceStatement && st.getStats().size() > 1) {
 
           Statement last = st.getStats().getLast();
           Statement secondlast = st.getStats().get(st.getStats().size() - 2);
@@ -45,7 +46,7 @@ public final class ExitHelper {
           if (last.getExprents() == null || !last.getExprents().isEmpty()) {
             if (!secondlast.hasBasicSuccEdge()) {
 
-              Set<Statement> set = last.getNeighboursSet(Statement.STATEDGE_DIRECT_ALL, Statement.DIRECTION_BACKWARD);
+              Set<Statement> set = last.getNeighboursSet(Statement.STATEDGE_DIRECT_ALL, EdgeDirection.BACKWARD);
               set.remove(secondlast);
 
               if (set.isEmpty()) {
@@ -61,7 +62,25 @@ public final class ExitHelper {
     while (found);
   }
 
-  // Turns break edges into returns where necessary
+  // Turns break edges into returns where possible.
+  //
+  // Example:
+  //
+  // label1: {
+  //   if (...) {
+  //     break label1;
+  //   }
+  //   ...
+  // }
+  // return;
+  //
+  // will turn into
+  //
+  // if (...) {
+  //   return;
+  // }
+  // ...
+  //
   private static int integrateExits(Statement stat) {
     int ret = 0;
     Statement dest;
@@ -83,7 +102,7 @@ public final class ExitHelper {
         }
       }
 
-      if (stat.type == Statement.TYPE_IF) {
+      if (stat instanceof IfStatement) {
         IfStatement ifst = (IfStatement)stat;
         if (ifst.getIfstat() == null) {
           StatEdge ifedge = ifst.getIfEdge();
@@ -101,7 +120,7 @@ public final class ExitHelper {
             ifst.getStats().addWithKey(bstat, bstat.id);
             bstat.setParent(ifst);
 
-            StatEdge oldexitedge = dest.getAllSuccessorEdges().get(0);
+            StatEdge oldexitedge = dest.getFirstSuccessor();
             StatEdge newexitedge = new StatEdge(StatEdge.TYPE_BREAK, bstat, oldexitedge.getDestination());
             bstat.addSuccessor(newexitedge);
             oldexitedge.closure.addLabeledEdge(newexitedge);
@@ -116,8 +135,8 @@ public final class ExitHelper {
         stat.getAllSuccessorEdges().get(0).getType() == StatEdge.TYPE_BREAK &&
         stat.getLabelEdges().isEmpty()) {
       Statement parent = stat.getParent();
-      if (stat != parent.getFirst() || (parent.type != Statement.TYPE_IF &&
-                                        parent.type != Statement.TYPE_SWITCH)) {
+      if (stat != parent.getFirst() || !(parent instanceof IfStatement ||
+                                        parent instanceof SwitchStatement)) {
 
         StatEdge destedge = stat.getAllSuccessorEdges().get(0);
         dest = isExitEdge(destedge);
@@ -142,7 +161,7 @@ public final class ExitHelper {
           // do it by hand
           for (StatEdge prededge : block.getPredecessorEdges(StatEdge.TYPE_CONTINUE)) {
             block.removePredecessor(prededge);
-            prededge.getSource().changeEdgeNode(Statement.DIRECTION_FORWARD, prededge, stat);
+            prededge.getSource().changeEdgeNode(EdgeDirection.FORWARD, prededge, stat);
             stat.addPredecessor(prededge);
             stat.addLabeledEdge(prededge);
           }
@@ -154,7 +173,7 @@ public final class ExitHelper {
                 MergeHelper.isDirectPath(edge.getSource().getParent(), bstat)) {
 
               dest.removePredecessor(edge);
-              edge.getSource().changeEdgeNode(Statement.DIRECTION_FORWARD, edge, bstat);
+              edge.getSource().changeEdgeNode(EdgeDirection.FORWARD, edge, bstat);
               bstat.addPredecessor(edge);
 
               if (!stat.containsStatementStrict(edge.closure)) {
@@ -174,11 +193,11 @@ public final class ExitHelper {
   private static Statement isExitEdge(StatEdge edge) {
     Statement dest = edge.getDestination();
 
-    if (edge.getType() == StatEdge.TYPE_BREAK && dest.type == Statement.TYPE_BASICBLOCK && edge.explicit && (edge.labeled || isOnlyEdge(edge)) && edge.canInline) {
+    if (edge.getType() == StatEdge.TYPE_BREAK && dest instanceof BasicBlockStatement && edge.explicit && (edge.labeled || isOnlyEdge(edge)) && edge.canInline) {
       List<Exprent> data = dest.getExprents();
 
       if (data != null && data.size() == 1) {
-        if (data.get(0).type == Exprent.EXPRENT_EXIT) {
+        if (data.get(0) instanceof ExitExprent) {
           return dest;
         }
       }
@@ -195,9 +214,9 @@ public final class ExitHelper {
         if (ed.getType() == StatEdge.TYPE_REGULAR) {
           Statement source = ed.getSource();
 
-          if (source.type == Statement.TYPE_BASICBLOCK || (source.type == Statement.TYPE_IF &&
+          if (source instanceof BasicBlockStatement || (source instanceof IfStatement &&
                                                            ((IfStatement)source).iftype == IfStatement.IFTYPE_IF) ||
-              (source.type == Statement.TYPE_DO && ((DoStatement)source).getLooptype() != DoStatement.LOOP_DO)) {
+              (source instanceof DoStatement && ((DoStatement)source).getLooptype() != DoStatement.Type.INFINITE)) {
             return false;
           }
         }
@@ -210,6 +229,7 @@ public final class ExitHelper {
     return true;
   }
 
+  // Removes return statements from the ends of methods when they aren't returning a value
   public static boolean removeRedundantReturns(RootStatement root) {
     boolean res = false;
     DummyExitStatement dummyExit = root.getDummyExit();
@@ -220,9 +240,9 @@ public final class ExitHelper {
         List<Exprent> lstExpr = source.getExprents();
         if (lstExpr != null && !lstExpr.isEmpty()) {
           Exprent expr = lstExpr.get(lstExpr.size() - 1);
-          if (expr.type == Exprent.EXPRENT_EXIT) {
+          if (expr instanceof ExitExprent) {
             ExitExprent ex = (ExitExprent)expr;
-            if (ex.getExitType() == ExitExprent.EXIT_RETURN && ex.getValue() == null) {
+            if (ex.getExitType() == ExitExprent.Type.RETURN && ex.getValue() == null) {
               // remove redundant return
               dummyExit.addBytecodeOffsets(ex.bytecode);
               lstExpr.remove(lstExpr.size() - 1);
@@ -248,14 +268,14 @@ public final class ExitHelper {
       if (exprents != null && !exprents.isEmpty()) {
         // Get return exprent
         Exprent expr = exprents.get(exprents.size() - 1);
-        if (expr.type == Exprent.EXPRENT_EXIT) {
+        if (expr instanceof ExitExprent) {
           ExitExprent ex = (ExitExprent) expr;
 
           List<Exprent> exitExprents = ex.getAllExprents(true);
 
           // If any of the return expression has constants, adjust them to the return type of the method
           for (Exprent exprent : exitExprents) {
-            if (exprent.type == Exprent.EXPRENT_CONST) {
+            if (exprent instanceof ConstExprent) {
               ((ConstExprent)exprent).adjustConstType(desc.ret);
               res = true;
             }

@@ -2,15 +2,15 @@ package pkg;
 
 public class TestSwitchStringHashcodeCollision {
    public int test(String s) {
-      switch(s) {// 5
-      case "BB":
-         return 1;// 10
-      case "Aa":
-      case "FRED":
-         return 2;// 13
-      default:
-         System.out.println("Test");// 7
-         return 0;// 8 15
+      switch(s) {// 6
+         case "BB":
+            return 1;// 11
+         case "Aa":
+         case "FRED":
+            return 2;// 14
+         default:
+            System.out.println("Test");// 8
+            return 0;// 9 16
       }
    }
 }
@@ -45,9 +45,9 @@ class 'pkg/TestSwitchStringHashcodeCollision' {
 }
 
 Lines mapping:
-5 <-> 5
-7 <-> 12
-8 <-> 13
-10 <-> 7
-13 <-> 10
-15 <-> 13
+6 <-> 5
+8 <-> 12
+9 <-> 13
+11 <-> 7
+14 <-> 10
+16 <-> 13

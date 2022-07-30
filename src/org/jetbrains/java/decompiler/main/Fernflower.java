@@ -10,12 +10,14 @@ import org.jetbrains.java.decompiler.struct.IDecompiledData;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructContext;
 import org.jetbrains.java.decompiler.struct.lazy.LazyLoader;
+import org.jetbrains.java.decompiler.util.ClasspathScanner;
 import org.jetbrains.java.decompiler.util.JADNameProvider;
 import org.jetbrains.java.decompiler.util.JrtFinder;
 import org.jetbrains.java.decompiler.util.TextBuffer;
-import org.jetbrains.java.decompiler.util.ClasspathScanner;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -116,6 +118,11 @@ public class Fernflower implements IDecompiledData {
     classProcessor.loadClasses(helper);
 
     structContext.saveContext();
+    try {
+      structContext.close();
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
   }
 
   public void addWhitelist(String prefix) {
@@ -129,7 +136,7 @@ public class Fernflower implements IDecompiledData {
   @Override
   public String getClassEntryName(StructClass cl, String entryName) {
     ClassNode node = classProcessor.getMapRootClasses().get(cl.qualifiedName);
-    if (node == null || node.type != ClassNode.CLASS_ROOT) {
+    if (node == null || node.type != ClassNode.Type.ROOT) {
       return null;
     }
     else if (converter != null) {
@@ -147,7 +154,12 @@ public class Fernflower implements IDecompiledData {
       TextBuffer buffer = new TextBuffer(ClassesProcessor.AVERAGE_CLASS_SIZE);
       buffer.append(DecompilerContext.getProperty(IFernflowerPreferences.BANNER).toString());
       classProcessor.writeClass(cl, buffer);
-      return buffer.toString();
+      String res = buffer.convertToStringAndAllowDataDiscard();
+      if (res == null) {
+        return "$ FF: Unable to decompile class " + cl.qualifiedName;
+      }
+
+      return res;
     }
     catch (Throwable t) {
       DecompilerContext.getLogger().writeMessage("Class " + cl.qualifiedName + " couldn't be fully decompiled.", t);

@@ -9,9 +9,9 @@ import org.jetbrains.java.decompiler.struct.gen.generics.GenericMethodDescriptor
 import org.jetbrains.java.decompiler.struct.lazy.LazyLoader;
 import org.jetbrains.java.decompiler.util.DataInputFullStream;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.*;
@@ -19,7 +19,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 import java.util.jar.Manifest;
 
-public class StructContext {
+public class StructContext implements Closeable {
   private final IResultSaver saver;
   private final IDecompiledData decompiledData;
   private final LazyLoader loader;
@@ -27,7 +27,7 @@ public class StructContext {
   private final Map<String, ClassProvider> classes = new HashMap<>();
   private final Map<String, StructClass> ownClasses = new HashMap<>();
   private final Map<String, List<String>> abstractNames = new HashMap<>();
-  private final Map<File, FileSystem> zipFiles = new HashMap<>();
+  private final ArrayList<FileSystem> toClose = new ArrayList<>();
 
   public StructContext(IResultSaver saver, IDecompiledData decompiledData, LazyLoader loader) {
     this.saver = saver;
@@ -140,29 +140,20 @@ public class StructContext {
     }
   }
 
-  private FileSystem getZipFileSystem(File file) throws IOException {
-    try {
-      return zipFiles.computeIfAbsent(file, f -> {
-        URI uri = null;
-        try {
-          uri = new URI("jar:file", null, f.toURI().getPath(), null);
-          return FileSystems.newFileSystem(uri, Collections.emptyMap());
-        } catch (FileSystemAlreadyExistsException e) {
-          return FileSystems.getFileSystem(uri);
-        } catch (URISyntaxException e) {
-          throw new RuntimeException(e);
-        } catch (IOException e) {
-          throw new UncheckedIOException(e);
-        }
-      });
-    } catch (UncheckedIOException e) {
-      throw e.getCause();
-    }
-  }
-
   private void addArchive(String externalPath, File file, int type, boolean isOwn) throws IOException {
     DecompilerContext.getLogger().writeMessage("Adding Archive: " + file.getAbsolutePath(), Severity.INFO);
-    FileSystem fs = getZipFileSystem(file);
+    FileSystem fs;
+    try {
+      URI uri = new URI("jar:file", null, file.toURI().getPath(), null);
+      try {
+        fs = FileSystems.newFileSystem(uri, Collections.emptyMap());
+        toClose.add(fs);
+      } catch (FileSystemAlreadyExistsException e) {
+        fs = FileSystems.getFileSystem(uri);
+      }
+    } catch (URISyntaxException e) {
+      throw new RuntimeException(e);
+    }
     addFileSystem(fs, externalPath, file, type, isOwn);
   }
 
@@ -177,7 +168,7 @@ public class StructContext {
         } else {
           name = path.toString().substring(1);
         }
-        if (name.endsWith(".class")) {
+        if (name.endsWith(".class") && !name.startsWith("META-INF/versions/")) {
           addClass(unit, name.substring(0, name.length() - 6), file.getAbsolutePath(), path.toString().substring(1), isOwn, path);
         } else {
           if ("META-INF/MANIFEST.MF".equals(name)) {
@@ -303,6 +294,13 @@ public class StructContext {
   public String renameAbstractParameter(String className, String methodName, String descriptor, int index, String _default) {
     List<String> params = this.abstractNames.get(className + ' ' + methodName + ' ' + descriptor);
     return params != null && index < params.size() ? params.get(index) : _default;
+  }
+
+  @Override
+  public void close() throws IOException {
+    for (FileSystem fs : toClose) {
+      fs.close();
+    }
   }
 
   class ClassProvider {

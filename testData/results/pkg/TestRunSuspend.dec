@@ -1,0 +1,116 @@
+package pkg;
+
+import kotlin.Metadata;
+import kotlin.Result;
+import kotlin.ResultKt;
+import kotlin.Unit;
+import org.jetbrains.annotations.Nullable;
+
+@Metadata(
+   mv = {1, 6, 0},
+   k = 1,
+   xi = 48,
+   d1 = {"\u0000\u0018\n\u0002\u0018\u0002\n\u0002\u0010\u0000\n\u0002\b\u0002\n\u0002\u0018\u0002\n\u0002\u0010\u0002\n\u0002\b\u0006\b\u0002\u0018\u00002\u00020\u0001B\u0005¢\u0006\u0002\u0010\u0002J\u0006\u0010\n\u001a\u00020\u0005R+\u0010\u0003\u001a\n\u0012\u0004\u0012\u00020\u0005\u0018\u00010\u0004X\u0086\u000eø\u0001\u0000ø\u0001\u0001ø\u0001\u0002¢\u0006\u000e\n\u0000\u001a\u0004\b\u0006\u0010\u0007\"\u0004\b\b\u0010\t\u0082\u0002\u000f\n\u0002\b\u0019\n\u0005\b¡\u001e0\u0001\n\u0002\b!¨\u0006\u000b"},
+   d2 = {"Lpkg/TestRunSuspend;", "", "()V", "result", "Lkotlin/Result;", "", "getResult-xLWZpok", "()Lkotlin/Result;", "setResult", "(Lkotlin/Result;)V", "await", "quiltflower_testDataKotlin"}
+)
+final class TestRunSuspend {
+   @Nullable
+   private Result<Unit> result;
+
+   public TestRunSuspend() {
+   }// 4
+
+   @Nullable
+   public final Result<Unit> getResult_xLWZpok/* $QF was: getResult-xLWZpok*/() {
+      return this.result;
+   }
+
+   public final void setResult(@Nullable Result<Unit> var1) {
+      this.result = <set-?>;// 5
+   }
+
+   // $QF: Extended synchronized range to monitorexit
+   public final void await() {
+      synchronized(this) {// 7
+         int $i$a$-synchronized-TestRunSuspend$await$1 = 0;
+
+         while(true) {
+            Result result = this.result;// 9
+            if (result != null) {// 10
+               Object var4 = result.unbox-impl();// 12
+               ResultKt.throwOnFailure(var4);
+               return;
+            }
+
+            this.wait();
+         }
+      }
+   }
+}
+
+class 'pkg/TestRunSuspend' {
+   method '<init> ()V' {
+      4      20
+   }
+
+   method 'getResult-xLWZpok ()Lkotlin/Result;' {
+      0      24
+      1      24
+      2      24
+      3      24
+      4      24
+   }
+
+   method 'setResult (Lkotlin/Result;)V' {
+      0      28
+      1      28
+      2      28
+      3      28
+      4      28
+      5      29
+   }
+
+   method 'await ()V' {
+      0      33
+      3      33
+      5      34
+      6      34
+      8      37
+      9      37
+      a      37
+      b      37
+      c      37
+      d      38
+      e      38
+      11      44
+      12      44
+      13      44
+      14      44
+      15      44
+      16      44
+      17      44
+      1b      39
+      1c      39
+      1d      39
+      1e      39
+      1f      39
+      20      39
+      21      40
+      22      40
+      23      40
+      24      40
+      25      40
+      29      41
+   }
+}
+
+Lines mapping:
+4 <-> 21
+5 <-> 29
+7 <-> 34
+9 <-> 38
+10 <-> 39
+12 <-> 40
+Not mapped:
+8
+13

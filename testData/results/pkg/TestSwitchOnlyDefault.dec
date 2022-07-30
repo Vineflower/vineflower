@@ -3,14 +3,13 @@ package pkg;
 public class TestSwitchOnlyDefault {
    public void test(int i) {
       switch(i) {// 5
-      default:
-         System.out.println("Test");// 7
+         default:
+            System.out.println("Test");// 7
       }
    }// 9
 
    public void test2(int i) {
       switch(i) {// 12
-      default:
       }
    }// 15
 }
@@ -33,7 +32,7 @@ class 'pkg/TestSwitchOnlyDefault' {
    method 'test2 (I)V' {
       0      11
       1      11
-      c      14
+      c      13
    }
 }
 
@@ -42,4 +41,4 @@ Lines mapping:
 7 <-> 7
 9 <-> 9
 12 <-> 12
-15 <-> 15
+15 <-> 14

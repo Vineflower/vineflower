@@ -6,25 +6,25 @@ import org.jetbrains.java.decompiler.code.Instruction;
 import org.jetbrains.java.decompiler.code.SimpleInstructionSequence;
 import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
-import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
-import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.StartEndPair;
+import org.jetbrains.java.decompiler.util.TextBuffer;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class BasicBlockStatement extends Statement {
+public final class BasicBlockStatement extends Statement {
 
   // *****************************************************************************
   // private fields
   // *****************************************************************************
 
   private final BasicBlock block;
+  private boolean removableMonitorexit;
 
   // *****************************************************************************
   // constructors
@@ -32,11 +32,10 @@ public class BasicBlockStatement extends Statement {
 
   public BasicBlockStatement(BasicBlock block) {
 
-    type = Statement.TYPE_BASICBLOCK;
+    super(StatementType.BASIC_BLOCK, block.id);
 
     this.block = block;
 
-    id = block.id;
     CounterContainer coun = DecompilerContext.getCounterContainer();
     if (id >= coun.getCounter(CounterContainer.STATEMENT_COUNTER)) {
       coun.setCounter(CounterContainer.STATEMENT_COUNTER, id + 1);
@@ -45,10 +44,10 @@ public class BasicBlockStatement extends Statement {
     Instruction instr = block.getLastInstruction();
     if (instr != null) {
       if (instr.group == CodeConstants.GROUP_JUMP && instr.opcode != CodeConstants.opc_goto) {
-        lastBasicType = LASTBASICTYPE_IF;
+        lastBasicType = LastBasicType.IF;
       }
       else if (instr.group == CodeConstants.GROUP_SWITCH) {
-        lastBasicType = LASTBASICTYPE_SWITCH;
+        lastBasicType = LastBasicType.SWITCH;
       }
     }
 
@@ -61,9 +60,9 @@ public class BasicBlockStatement extends Statement {
   // *****************************************************************************
 
   @Override
-  public TextBuffer toJava(int indent, BytecodeMappingTracer tracer) {
-    TextBuffer tb = ExprProcessor.listToJava(varDefinitions, indent, tracer);
-    tb.append(ExprProcessor.listToJava(exprents, indent, tracer));
+  public TextBuffer toJava(int indent) {
+    TextBuffer tb = ExprProcessor.listToJava(varDefinitions, indent);
+    tb.append(ExprProcessor.listToJava(exprents, indent));
     return tb;
   }
 
@@ -86,7 +85,7 @@ public class BasicBlockStatement extends Statement {
   // TODO: cache this?
   @Override
   public List<VarExprent> getImplicitlyDefinedVars() {
-    if (getExprents().size() > 0) {
+    if (getExprents() != null && getExprents().size() > 0) {
       List<VarExprent> vars = new ArrayList<>();
       List<Exprent> exps = getExprents();
 
@@ -95,7 +94,7 @@ public class BasicBlockStatement extends Statement {
         inner.add(exp);
 
         for (Exprent exprent : inner) {
-          if (exprent.type == Exprent.EXPRENT_FUNCTION && ((FunctionExprent) exprent).getFuncType() == FunctionExprent.FUNCTION_INSTANCEOF) {
+          if (exprent instanceof FunctionExprent && ((FunctionExprent) exprent).getFuncType() == FunctionExprent.FunctionType.INSTANCEOF) {
             if (((FunctionExprent) exprent).getLstOperands().size() > 2) {
               vars.add((VarExprent) ((FunctionExprent) exprent).getLstOperands().get(2));
             }
@@ -109,12 +108,37 @@ public class BasicBlockStatement extends Statement {
     return null;
   }
 
+  public boolean isRemovableMonitorexit() {
+    return removableMonitorexit;
+  }
+
+  public void setRemovableMonitorexit(boolean removableMonitorexit) {
+    this.removableMonitorexit = removableMonitorexit;
+  }
+
+  public static BasicBlockStatement create() {
+    BasicBlockStatement stat = new BasicBlockStatement(new BasicBlock(DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.STATEMENT_COUNTER)));
+    stat.setExprents(new ArrayList<>());
+
+    return stat;
+  }
+
   // *****************************************************************************
   // getter and setter methods
   // *****************************************************************************
 
   public BasicBlock getBlock() {
     return block;
+  }
+
+  // TODO: is this allowed? SecondaryFunctionsHelper says "only head expressions can be replaced!"
+  @Override
+  public void replaceExprent(Exprent oldexpr, Exprent newexpr) {
+    for (int i = 0; i < this.exprents.size(); i++) {
+      if (this.exprents.get(i) == oldexpr) {
+        this.exprents.set(i, newexpr);
+      }
+    }
   }
 
   @Override

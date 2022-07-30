@@ -2,33 +2,42 @@
 package org.jetbrains.java.decompiler.modules.decompiler;
 
 import org.jetbrains.java.decompiler.code.CodeConstants;
+import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
+import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.SequenceStatement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.attr.StructAnnotationAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructAnnotationParameterAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public final class IdeaNotNullHelper {
 
 
-  public static boolean removeHardcodedChecks(Statement root, StructMethod mt) {
+  public static boolean removeHardcodedChecks(RootStatement root, StructMethod mt) {
 
     boolean checks_removed = false;
 
     // parameter @NotNull annotations
     while (findAndRemoveParameterCheck(root, mt)) { // iterate until nothing found. Each invocation removes one parameter check.
       checks_removed = true;
+
+      // we modified so check again
+      ValidationHelper.validateStatement(root);
     }
 
     // method @NotNull annotation
     while (findAndRemoveReturnCheck(root, mt)) { // iterate until nothing found. Each invocation handles one method exit check.
       checks_removed = true;
+
+      // we modified so check again
+      ValidationHelper.validateStatement(root);
     }
 
     return checks_removed;
@@ -37,11 +46,11 @@ public final class IdeaNotNullHelper {
   private static boolean findAndRemoveParameterCheck(Statement stat, StructMethod mt) {
 
     Statement st = stat.getFirst();
-    while (st.type == Statement.TYPE_SEQUENCE) {
+    while (st instanceof SequenceStatement) {
       st = st.getFirst();
     }
 
-    if (st.type == Statement.TYPE_IF) {
+    if (st instanceof IfStatement) {
 
       IfStatement ifstat = (IfStatement)st;
       Statement ifbranch = ifstat.getIfstat();
@@ -50,21 +59,21 @@ public final class IdeaNotNullHelper {
 
       boolean is_notnull_check = false;
 
-      // TODO: FUNCTION_NE also possible if reversed order (in theory)
+      // TODO: FunctionType.NE also possible if reversed order (in theory)
       if (ifbranch != null &&
-          if_condition.type == Exprent.EXPRENT_FUNCTION &&
-          ((FunctionExprent)if_condition).getFuncType() == FunctionExprent.FUNCTION_EQ &&
-          ifbranch.type == Statement.TYPE_BASICBLOCK &&
+          if_condition instanceof FunctionExprent &&
+          ((FunctionExprent)if_condition).getFuncType() == FunctionType.EQ &&
+          ifbranch instanceof BasicBlockStatement &&
           ifbranch.getExprents().size() == 1 &&
-          ifbranch.getExprents().get(0).type == Exprent.EXPRENT_EXIT) {
+          ifbranch.getExprents().get(0) instanceof InvocationExprent) {
 
         FunctionExprent func = (FunctionExprent)if_condition;
         Exprent first_param = func.getLstOperands().get(0);
         Exprent second_param = func.getLstOperands().get(1);
 
-        if (second_param.type == Exprent.EXPRENT_CONST &&
+        if (second_param instanceof ConstExprent &&
             second_param.getExprType().type == CodeConstants.TYPE_NULL) { // TODO: reversed parameter order
-          if (first_param.type == Exprent.EXPRENT_VAR) {
+          if (first_param instanceof VarExprent && ((InvocationExprent)ifbranch.getExprents().get(0)).getName().equals("$$$reportNull$$$0")) {
             VarExprent var = (VarExprent)first_param;
 
             boolean thisvar = !mt.hasModifier(CodeConstants.ACC_STATIC);
@@ -123,31 +132,41 @@ public final class IdeaNotNullHelper {
   private static void removeParameterCheck(Statement stat) {
 
     Statement st = stat.getFirst();
-    while (st.type == Statement.TYPE_SEQUENCE) {
+    while (st instanceof SequenceStatement) {
       st = st.getFirst();
     }
 
     IfStatement ifstat = (IfStatement)st;
 
-    if (ifstat.getElsestat() != null) { // if - else
+    // In the format of
+    //
+    // if (param == null) {
+    //   $$$reportNull$$$(index); // index is the index of reportNull appearing in the code
+    // }
+    //
+    if (ifstat.getElsestat() == null) {
       StatEdge ifedge = ifstat.getIfEdge();
-      StatEdge elseedge = ifstat.getElseEdge();
 
       Statement ifbranch = ifstat.getIfstat();
-      Statement elsebranch = ifstat.getElsestat();
 
       ifstat.getFirst().removeSuccessor(ifedge);
-      ifstat.getFirst().removeSuccessor(elseedge);
 
       ifstat.getStats().removeWithKey(ifbranch.id);
-      ifstat.getStats().removeWithKey(elsebranch.id);
 
-      if (!ifbranch.getAllSuccessorEdges().isEmpty()) {
-        ifbranch.removeSuccessor(ifbranch.getAllSuccessorEdges().get(0));
+      if (ifbranch.hasAnySuccessor()) {
+        ifbranch.removeSuccessor(ifbranch.getFirstSuccessor());
       }
 
-      ifstat.getParent().replaceStatement(ifstat, elsebranch);
+      // Replace statement with empty block
+      BasicBlockStatement block = new BasicBlockStatement(new BasicBlock(
+        DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.STATEMENT_COUNTER)));
+      block.setExprents(new ArrayList<>());
+
+      ifstat.getParent().replaceStatement(ifstat, block);
       ifstat.getParent().setAllParent();
+
+      // Remove the empty block that we just inserted
+      SequenceHelper.condenseSequences(stat.getTopParent());
     }
   }
 
@@ -176,20 +195,21 @@ public final class IdeaNotNullHelper {
 
     Statement parent = stat.getParent();
 
-    if (parent != null && parent.type == Statement.TYPE_IF && stat.type == Statement.TYPE_BASICBLOCK && stat.getExprents().size() == 1) {
+    // TODO: is this check doing anything? seems like modern notnull creation doesn't cause this to be run.
+    if (parent instanceof IfStatement && stat instanceof BasicBlockStatement && stat.getExprents().size() == 1) {
       Exprent exprent = stat.getExprents().get(0);
-      if (exprent.type == Exprent.EXPRENT_EXIT) {
+      if (exprent instanceof ExitExprent) {
         ExitExprent exit_exprent = (ExitExprent)exprent;
-        if (exit_exprent.getExitType() == ExitExprent.EXIT_RETURN) {
+        if (exit_exprent.getExitType() == ExitExprent.Type.RETURN) {
           Exprent exprent_value = exit_exprent.getValue();
-          //if(exprent_value.type == Exprent.EXPRENT_VAR) {
+          //if(exprent_value instanceof VarExprent) {
           //	VarExprent var_value = (VarExprent)exprent_value;
 
           IfStatement ifparent = (IfStatement)parent;
           Exprent if_condition = ifparent.getHeadexprent().getCondition();
 
-          if (ifparent.getElsestat() == stat && if_condition.type == Exprent.EXPRENT_FUNCTION &&
-              ((FunctionExprent)if_condition).getFuncType() == FunctionExprent.FUNCTION_EQ) { // TODO: reversed order possible (in theory)
+          if (ifparent.getElsestat() == stat && if_condition instanceof FunctionExprent &&
+              ((FunctionExprent)if_condition).getFuncType() == FunctionType.EQ) { // TODO: reversed order possible (in theory)
 
             FunctionExprent func = (FunctionExprent)if_condition;
             Exprent first_param = func.getLstOperands().get(0);
@@ -201,14 +221,14 @@ public final class IdeaNotNullHelper {
             Statement ifbranch = ifparent.getIfstat();
             Statement elsebranch = ifparent.getElsestat();
 
-            if (second_param.type == Exprent.EXPRENT_CONST &&
+            if (second_param instanceof ConstExprent &&
                 second_param.getExprType().type == CodeConstants.TYPE_NULL) { // TODO: reversed parameter order
-              //if(first_param.type == Exprent.EXPRENT_VAR && ((VarExprent)first_param).getIndex() == var_value.getIndex()) {
+              //if(first_param instanceof VarExprent && ((VarExprent)first_param).getIndex() == var_value.getIndex()) {
               if (first_param.equals(exprent_value)) {        // TODO: check for absence of side effects like method invocations etc.
-                if (ifbranch.type == Statement.TYPE_BASICBLOCK &&
+                if (ifbranch instanceof BasicBlockStatement &&
                     ifbranch.getExprents().size() == 1 &&
                     // TODO: special check for IllegalStateException
-                    ifbranch.getExprents().get(0).type == Exprent.EXPRENT_EXIT) {
+                    ifbranch.getExprents().get(0) instanceof ExitExprent) {
 
                   ifparent.getFirst().removeSuccessor(ifedge);
                   ifparent.getFirst().removeSuccessor(elseedge);
@@ -216,8 +236,8 @@ public final class IdeaNotNullHelper {
                   ifparent.getStats().removeWithKey(ifbranch.id);
                   ifparent.getStats().removeWithKey(elsebranch.id);
 
-                  if (!ifbranch.getAllSuccessorEdges().isEmpty()) {
-                    ifbranch.removeSuccessor(ifbranch.getAllSuccessorEdges().get(0));
+                  if (ifbranch.hasAnySuccessor()) {
+                    ifbranch.removeSuccessor(ifbranch.getFirstSuccessor());
                   }
 
                   if (!ifparent.getFirst().getExprents().isEmpty()) {
@@ -237,13 +257,13 @@ public final class IdeaNotNullHelper {
       }
     }
     else if (parent != null &&
-             parent.type == Statement.TYPE_SEQUENCE &&
-             stat.type == Statement.TYPE_BASICBLOCK &&
+             parent instanceof SequenceStatement &&
+             stat instanceof BasicBlockStatement &&
              stat.getExprents().size() == 1) {
       Exprent exprent = stat.getExprents().get(0);
-      if (exprent.type == Exprent.EXPRENT_EXIT) {
+      if (exprent instanceof ExitExprent) {
         ExitExprent exit_exprent = (ExitExprent)exprent;
-        if (exit_exprent.getExitType() == ExitExprent.EXIT_RETURN) {
+        if (exit_exprent.getExitType() == ExitExprent.Type.RETURN) {
           Exprent exprent_value = exit_exprent.getValue();
 
           SequenceStatement sequence = (SequenceStatement)parent;
@@ -251,13 +271,13 @@ public final class IdeaNotNullHelper {
 
           if (sequence_stats_number > 1 &&
               sequence.getStats().getLast() == stat &&
-              sequence.getStats().get(sequence_stats_number - 2).type == Statement.TYPE_IF) {
+              sequence.getStats().get(sequence_stats_number - 2) instanceof IfStatement) {
 
             IfStatement ifstat = (IfStatement)sequence.getStats().get(sequence_stats_number - 2);
             Exprent if_condition = ifstat.getHeadexprent().getCondition();
 
-            if (ifstat.iftype == IfStatement.IFTYPE_IF && if_condition.type == Exprent.EXPRENT_FUNCTION &&
-                ((FunctionExprent)if_condition).getFuncType() == FunctionExprent.FUNCTION_EQ) { // TODO: reversed order possible (in theory)
+            if (ifstat.iftype == IfStatement.IFTYPE_IF && if_condition instanceof FunctionExprent &&
+                ((FunctionExprent)if_condition).getFuncType() == FunctionType.EQ) { // TODO: reversed order possible (in theory)
 
               FunctionExprent func = (FunctionExprent)if_condition;
               Exprent first_param = func.getLstOperands().get(0);
@@ -265,26 +285,33 @@ public final class IdeaNotNullHelper {
 
               Statement ifbranch = ifstat.getIfstat();
 
-              if (second_param.type == Exprent.EXPRENT_CONST &&
+              if (second_param instanceof ConstExprent &&
                   second_param.getExprType().type == CodeConstants.TYPE_NULL) { // TODO: reversed parameter order
                 if (first_param.equals(exprent_value)) {        // TODO: check for absence of side effects like method invocations etc.
-                  if (ifbranch.type == Statement.TYPE_BASICBLOCK &&
+                  if (ifbranch instanceof BasicBlockStatement &&
                       ifbranch.getExprents().size() == 1 &&
-                      // TODO: special check for IllegalStateException
-                      ifbranch.getExprents().get(0).type == Exprent.EXPRENT_EXIT) {
+                      ifbranch.getExprents().get(0) instanceof InvocationExprent && ((InvocationExprent)ifbranch.getExprents().get(0)).getName().equals("$$$reportNull$$$0")) {
 
-                    ifstat.removeSuccessor(ifstat.getAllSuccessorEdges().get(0)); // remove 'else' edge
+                    // In the format of
+                    //
+                    // if (returnValue == null) {
+                    //   $$$reportNull$$$(index); // index is the index of reportNull appearing in the code
+                    // }
+                    //
+                    // return returnValue;
+                    //
+
+                    ifstat.getFirstSuccessor().remove(); // remove 'else' edge
 
                     if (!ifstat.getFirst().getExprents().isEmpty()) {
                       stat.getExprents().addAll(0, ifstat.getFirst().getExprents());
                     }
 
                     for (StatEdge edge : ifstat.getAllPredecessorEdges()) {
-
-                      ifstat.removePredecessor(edge);
-                      edge.getSource().changeEdgeNode(Statement.DIRECTION_FORWARD, edge, stat);
-                      stat.addPredecessor(edge);
+                      edge.changeDestination(stat);
                     }
+
+                    ifbranch.getFirstSuccessor().remove();
 
                     sequence.getStats().removeWithKey(ifstat.id);
                     sequence.setFirst(sequence.getStats().get(0));

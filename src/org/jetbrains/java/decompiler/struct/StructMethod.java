@@ -39,7 +39,7 @@ public class StructMethod extends StructMember {
 
     String[] values = pool.getClassElement(ConstantPool.METHOD, clQualifiedName, nameIndex, descriptorIndex);
 
-    Map<String, StructGeneralAttribute> attributes = readAttributes(in, pool, own);
+    Map<String, StructGeneralAttribute> attributes = readAttributes(in, pool, own, bytecodeVersion);
     StructCodeAttribute code = (StructCodeAttribute)attributes.remove(StructGeneralAttribute.ATTRIBUTE_CODE.name);
     if (code != null) {
       attributes.putAll(code.codeAttributes);
@@ -380,6 +380,11 @@ public class StructMethod extends StructMember {
 
   public InstructionSequence getInstructionSequence() {
     return seq;
+  }
+
+  @Override
+  protected BytecodeVersion getVersion() {
+    return this.bytecodeVersion;
   }
 
   public IVariableNameProvider getVariableNamer() {

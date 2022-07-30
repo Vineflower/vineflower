@@ -1,0 +1,126 @@
+package pkg;
+
+public class TestFinallyThrow {
+   public void test(boolean b) {
+      while(true) {
+         try {
+            System.out.println(1);// 7
+         } finally {
+            label97: {
+               try {
+                  if (!b) {// 10
+                     break label97;
+                  }
+               } catch (Exception var22) {// 13
+                  throw var22;// 14
+               } finally {
+                  System.out.println(2);// 16
+               }
+
+               return;// 11
+            }
+
+         }
+      }
+   }
+
+   public void test1(RuntimeException t) {
+      try {
+         System.out.println(1);// 24
+         throw t;
+      } catch (Throwable var6) {// 25
+         var6.printStackTrace();// 26
+      } finally {
+         ;
+      }
+
+      throw t;// 28
+   }
+
+   public void test2(RuntimeException t) {
+      try {
+         System.out.println(1);// 35
+         throw t;// 36
+      } catch (Throwable var6) {// 37
+         var6.printStackTrace();// 38
+      } finally {
+         ;
+      }
+
+      throw t;// 43
+   }
+}
+
+class 'pkg/TestFinallyThrow' {
+   method 'test (Z)V' {
+      0      6
+      1      6
+      2      6
+      3      6
+      4      6
+      2f      10
+      30      10
+      3a      19
+      45      13
+      49      14
+      4a      16
+      4b      16
+      4c      16
+      4d      16
+      4e      16
+      4f      16
+   }
+
+   method 'test1 (Ljava/lang/RuntimeException;)V' {
+      0      28
+      1      28
+      2      28
+      3      28
+      4      28
+      7      29
+      8      29
+      9      30
+      b      31
+      e      36
+      f      36
+   }
+
+   method 'test2 (Ljava/lang/RuntimeException;)V' {
+      0      41
+      1      41
+      2      41
+      3      41
+      4      41
+      5      41
+      6      41
+      7      42
+      8      42
+      9      43
+      b      44
+      14      49
+      15      49
+   }
+}
+
+Lines mapping:
+7 <-> 7
+10 <-> 11
+11 <-> 20
+13 <-> 14
+14 <-> 15
+16 <-> 17
+24 <-> 29
+25 <-> 31
+26 <-> 32
+28 <-> 37
+35 <-> 42
+36 <-> 43
+37 <-> 44
+38 <-> 45
+43 <-> 50
+Not mapped:
+9
+17
+18
+39
+41

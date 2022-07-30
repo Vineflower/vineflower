@@ -1,36 +1,22 @@
 package pkg;
 
-import java.lang.runtime.SwitchBootstraps;
-
 public class TestSwitchPatternMatching2 {
    static void testTriangle(TestSwitchPatternMatching2.Shape s) {
-      TestSwitchPatternMatching2.Shape var1 = s;// 5
-      byte var2 = 0;
-
-      while(true) {
-         switch(SwitchBootstraps.typeSwitch<"typeSwitch",TestSwitchPatternMatching2.Triangle,TestSwitchPatternMatching2.Triangle>(var1, var2)) {
-         case -1:
+      switch(s) {// 5
+         case null:
             System.out.println("null");// 11
-            return;// 15
-         case 0:
-            TestSwitchPatternMatching2.Triangle t = (TestSwitchPatternMatching2.Triangle)var1;// 6
-            if (!(t.calculateArea() > 100.0)) {
-               var2 = 1;
-               break;
-            }
-
+            break;
+         case s instanceof TestSwitchPatternMatching2.Triangle t && t.calculateArea() > 100.0:// 6
             System.out.println("Large triangle");// 7
-            return;
-         case 1:
-            TestSwitchPatternMatching2.Triangle t = (TestSwitchPatternMatching2.Triangle)var1;// 8
+            break;
+         case s instanceof TestSwitchPatternMatching2.Triangle tx:// 8
             System.out.println("Small triangle");// 9
-            return;
+            break;
          default:
             System.out.println("Non-triangle");// 13
-            return;
-         }
       }
-   }
+
+   }// 15
 
    private abstract class Shape {
       abstract double calculateArea();
@@ -46,91 +32,72 @@ public class TestSwitchPatternMatching2 {
 
 class 'pkg/TestSwitchPatternMatching2' {
    method 'testTriangle (Lpkg/TestSwitchPatternMatching2$Shape;)V' {
-      0      6
-      1      6
-      2      7
-      3      7
-      4      10
-      5      10
-      6      10
-      7      10
-      8      10
-      9      10
-      a      10
-      b      10
-      24      15
-      25      15
-      26      15
-      27      15
-      28      15
-      29      16
-      2a      16
-      2b      16
-      2c      16
-      2d      16
-      2e      16
-      2f      16
-      30      16
-      31      16
-      34      17
-      35      17
-      36      18
-      39      21
-      3a      21
-      3b      21
-      3c      21
-      3d      21
-      3e      21
-      3f      21
-      40      21
-      44      24
-      45      24
-      46      24
-      47      24
-      48      24
-      49      24
-      4a      25
-      4b      25
-      4c      25
-      4d      25
-      4e      25
-      4f      25
-      50      25
-      51      25
-      55      12
-      56      12
-      57      12
-      58      12
-      59      12
-      5a      12
-      5b      12
-      5c      12
-      60      28
-      61      28
-      62      28
-      63      28
-      64      28
-      65      28
-      66      28
-      67      28
-      6b      13
+      0      4
+      b      4
+      28      8
+      29      8
+      2a      8
+      2b      8
+      2c      8
+      2d      8
+      2e      8
+      2f      8
+      30      8
+      39      9
+      3a      9
+      3b      9
+      3c      9
+      3d      9
+      3e      9
+      3f      9
+      40      9
+      41      10
+      48      11
+      49      11
+      4a      12
+      4b      12
+      4c      12
+      4d      12
+      4e      12
+      4f      12
+      50      12
+      51      12
+      52      13
+      55      6
+      56      6
+      57      6
+      58      6
+      59      6
+      5a      6
+      5b      6
+      5c      6
+      5d      7
+      60      15
+      61      15
+      62      15
+      63      15
+      64      15
+      65      15
+      66      15
+      67      15
+      6b      18
    }
 }
 
 class 'pkg/TestSwitchPatternMatching2$Triangle' {
    method 'calculateArea ()D' {
-      0      41
-      1      41
+      0      27
+      1      27
    }
 }
 
 Lines mapping:
-5 <-> 7
-6 <-> 16
-7 <-> 22
-8 <-> 25
-9 <-> 26
-11 <-> 13
-13 <-> 29
-15 <-> 14
-25 <-> 42
+5 <-> 5
+6 <-> 9
+7 <-> 10
+8 <-> 12
+9 <-> 13
+11 <-> 7
+13 <-> 16
+15 <-> 19
+25 <-> 28

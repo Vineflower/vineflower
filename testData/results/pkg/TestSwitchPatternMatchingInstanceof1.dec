@@ -1,133 +1,94 @@
 package pkg;
 
-import java.lang.runtime.SwitchBootstraps;
 import java.util.Objects;
 
 public class TestSwitchPatternMatchingInstanceof1 {
    public void test(Object o) {
       Objects.requireNonNull(o);// 5
-      Object var2 = o;
-      byte var3 = 0;
-
-      while(true) {
-         switch(SwitchBootstraps.typeSwitch<"typeSwitch",String,Integer,String>(var2, var3)) {
-         case 0:
-            String s = (String)var2;// 6
-            if (o instanceof Integer) {
-               Integer a = (Integer)o;
-               System.out.println(s);
-               return;// 11
-            }
-
-            var3 = 1;
-            break;
-         case 1:
-            Integer i = (Integer)var2;// 7
-            System.out.println(i);
-            return;
-         case 2:
-            String s = (String)var2;// 8
+      label17:
+      switch(o) {
+         case o instanceof String s && o instanceof Integer a:// 6
             System.out.println(s);
-            return;
+            break;
+         case o instanceof Integer i:// 7
+            System.out.println(i);
+            break;
+         case o instanceof String sx:// 8
+            System.out.println(sx);
+            break;
          default:
             System.out.println("Default");// 9
-            return;
-         }
       }
-   }
+
+   }// 11
 }
 
 class 'pkg/TestSwitchPatternMatchingInstanceof1' {
    method 'test (Ljava/lang/Object;)V' {
-      0      7
-      2      7
-      3      7
-      4      7
-      6      8
-      7      9
-      8      9
-      9      12
-      a      12
-      b      12
-      c      12
-      d      12
-      e      12
-      f      12
-      10      12
-      2c      14
-      2d      14
-      2e      14
-      2f      14
-      30      14
-      31      14
-      32      15
-      33      15
-      34      15
-      35      15
-      36      15
-      39      16
-      3a      16
-      3b      16
-      3c      16
-      3d      16
-      3e      16
-      3f      17
-      40      17
-      41      17
-      42      17
-      43      17
-      44      17
-      45      17
-      46      17
-      47      17
-      48      17
-      49      17
-      4a      17
-      4b      17
-      52      24
-      53      24
-      54      24
-      55      24
-      56      24
-      57      24
-      58      25
-      59      25
-      5a      25
-      5b      25
-      5c      25
-      5d      25
-      5e      25
-      5f      25
-      63      28
-      64      28
-      65      28
-      66      28
-      67      28
-      68      28
-      69      29
-      6a      29
-      6b      29
-      6c      29
-      6d      29
-      6e      29
-      6f      29
-      70      29
-      74      32
-      75      32
-      76      32
-      77      32
-      78      32
-      79      32
-      7a      32
-      7b      32
-      7f      18
+      0      6
+      2      6
+      3      6
+      4      6
+      10      8
+      30      9
+      31      9
+      32      9
+      33      9
+      34      9
+      35      9
+      3d      9
+      3e      9
+      3f      10
+      40      10
+      41      10
+      42      10
+      43      10
+      44      10
+      45      10
+      46      10
+      47      10
+      48      10
+      49      10
+      4a      10
+      4b      10
+      56      12
+      57      12
+      58      13
+      59      13
+      5a      13
+      5b      13
+      5c      13
+      5d      13
+      5e      13
+      5f      13
+      60      14
+      67      15
+      68      15
+      69      16
+      6a      16
+      6b      16
+      6c      16
+      6d      16
+      6e      16
+      6f      16
+      70      16
+      71      17
+      74      19
+      75      19
+      76      19
+      77      19
+      78      19
+      79      19
+      7a      19
+      7b      19
+      7f      22
    }
 }
 
 Lines mapping:
-5 <-> 8
-6 <-> 15
-7 <-> 25
-8 <-> 29
-9 <-> 33
-11 <-> 19
+5 <-> 7
+6 <-> 10
+7 <-> 13
+8 <-> 16
+9 <-> 20
+11 <-> 23

@@ -1,0 +1,38 @@
+package pkg;
+
+import ext.Direction;
+
+public class TestSwitchPatternMatching12 {
+   static int testTriangle(boolean a, Direction l, Direction r) {
+      Direction var3 = a ? l : r;
+
+      return switch(var3) {// 1 7
+         case null, default -> -1;// 10
+         case NORTH, SOUTH, WEST -> 0;// 8
+         case EAST, UP -> 1;// 9
+      };
+   }
+}
+
+class 'pkg/TestSwitchPatternMatching12' {
+   method 'testTriangle (ZLext/Direction;Lext/Direction;)I' {
+      0      6
+      1      6
+      4      6
+      8      6
+      9      6
+      11      8
+      1a      8
+      48      10
+      4c      11
+      50      9
+      51      8
+   }
+}
+
+Lines mapping:
+1 <-> 9
+7 <-> 9
+8 <-> 11
+9 <-> 12
+10 <-> 10

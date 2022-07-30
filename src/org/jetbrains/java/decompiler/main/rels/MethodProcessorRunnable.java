@@ -11,10 +11,9 @@ import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.modules.code.DeadCodeHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.*;
 import org.jetbrains.java.decompiler.modules.decompiler.deobfuscator.ExceptionDeobfuscator;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.SynchronizedStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarProcessor;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructMethod;
@@ -87,7 +86,10 @@ public class MethodProcessorRunnable implements Runnable {
     DotExporter.toDotFile(graph, mt, "cfgConstructed", true);
 
     DeadCodeHelper.removeDeadBlocks(graph);
-    graph.inlineJsr(cl, mt);
+
+    if (mt.getBytecodeVersion().hasJsr() || DecompilerContext.getOption(IFernflowerPreferences.FORCE_JSR_INLINE)) {
+      graph.inlineJsr(cl, mt);
+    }
 
     // TODO: move to the start, before jsr inlining
     DeadCodeHelper.connectDummyExitBlock(graph);
@@ -123,38 +125,49 @@ public class MethodProcessorRunnable implements Runnable {
       DecompilerContext.getLogger().writeMessage("Heavily obfuscated exception ranges found!", IFernflowerLogger.Severity.WARN);
       if (!ExceptionDeobfuscator.handleMultipleEntryExceptionRanges(graph)) {
         DecompilerContext.getLogger().writeMessage("Found multiple entry exception ranges which could not be splitted", IFernflowerLogger.Severity.WARN);
+        graph.addComment("$QF: Could not handle exception ranges with multiple entries");
+        graph.addErrorComment = true;
       }
       ExceptionDeobfuscator.insertDummyExceptionHandlerBlocks(graph, mt.getBytecodeVersion());
     }
 
+    DotExporter.toDotFile(graph, mt, "cfgParsed", true);
+    RootStatement root = DomHelper.parseGraph(graph, mt);
+
     DecompileRecord decompileRecord = new DecompileRecord(mt);
     debugCurrentDecompileRecord.set(decompileRecord);
-
-    RootStatement root = DomHelper.parseGraph(graph, mt);
 
     decompileRecord.add("Initial", root);
 
     debugCurrentlyDecompiling.set(root);
-    DotExporter.toDotFile(graph, mt, "cfgParsed", true);
 
     FinallyProcessor fProc = new FinallyProcessor(md, varProc);
     int finallyProcessed = 0;
 
     while (fProc.iterateGraph(cl, mt, root, graph)) {
       finallyProcessed++;
+      RootStatement oldRoot = root;
+      decompileRecord.add("ProcessFinallyOld_" + finallyProcessed, root);
+      DotExporter.toDotFile(graph, mt, "cfgProcessFinally_" + finallyProcessed, true);
 
       root = DomHelper.parseGraph(graph, mt);
+      root.addComments(oldRoot);
+
       decompileRecord.add("ProcessFinally_" + finallyProcessed, root);
 
       debugCurrentCFG.set(graph);
       debugCurrentlyDecompiling.set(root);
     }
 
+    decompileRecord.add("ProcessFinally_Post", root);
+
     // remove synchronized exception handler
     // not until now because of comparison between synchronized statements in the finally cycle
     if (DomHelper.removeSynchronizedHandler(root)) {
       decompileRecord.add("RemoveSynchronizedHandler", root);
     }
+
+    root.buildContentFlags();
 
     //		LabelHelper.lowContinueLabels(root, new HashSet<StatEdge>());
 
@@ -186,18 +199,17 @@ public class MethodProcessorRunnable implements Runnable {
       decompileRecord.add("SetVarVersions_PPMM_" + stackVarsProcessed, root);
     } while (new PPandMMHelper(varProc).findPPandMM(root));
 
+    // Inline ppi/mmi that we may have missed
+    if (PPandMMHelper.inlinePPIandMMIIf(root)) {
+      decompileRecord.add("InlinePPIandMMI", root);
+    }
+
     // Process invokedynamic string concat
     if (cl.getVersion().hasIndyStringConcat()) {
       ConcatenationHelper.simplifyStringConcat(root);
       decompileRecord.add("SimplifyStringConcat", root);
     }
 
-    // Process ternary values
-    if (DecompilerContext.getOption(IFernflowerPreferences.TERNARY_CONDITIONS)) {
-      if (TernaryProcessor.processTernary(root)) {
-        decompileRecord.add("ProcessTernary", root);
-      }
-    }
 
     // Main loop
     while (true) {
@@ -207,34 +219,37 @@ public class MethodProcessorRunnable implements Runnable {
       LabelHelper.cleanUpEdges(root);
       decompileRecord.add("CleanupEdges", root);
 
-      // Merge loop
-      while (true) {
-        decompileRecord.incrementMergeLoop();
-        decompileRecord.add("MergeLoopStart", root);
+      if (root.hasLoops()) {
+        // Merge loop
+        while (true) {
 
-        if (EliminateLoopsHelper.eliminateLoops(root, cl)) {
-          decompileRecord.add("EliminateLoops", root);
-          continue;
+          decompileRecord.incrementMergeLoop();
+          decompileRecord.add("MergeLoopStart", root);
+
+          if (EliminateLoopsHelper.eliminateLoops(root, cl)) {
+            decompileRecord.add("EliminateLoops", root);
+            continue;
+          }
+
+          MergeHelper.enhanceLoops(root);
+          decompileRecord.add("EnhanceLoops", root);
+
+          if (LoopExtractHelper.extractLoops(root)) {
+            decompileRecord.add("ExtractLoops", root);
+            continue;
+          }
+
+          if (IfHelper.mergeAllIfs(root)) {
+            decompileRecord.add("MergeAllIfs", root);
+            // Continues with merge loop
+          } else {
+            break;
+          }
         }
 
-        MergeHelper.enhanceLoops(root);
-        decompileRecord.add("EnhanceLoops", root);
-
-        if (LoopExtractHelper.extractLoops(root)) {
-          decompileRecord.add("ExtractLoops", root);
-          continue;
-        }
-
-        if (IfHelper.mergeAllIfs(root)) {
-          decompileRecord.add("MergeAllIfs", root);
-          // Continues with merge loop
-        } else {
-          break;
-        }
+        decompileRecord.resetMergeLoop();
+        decompileRecord.add("MergeLoopEnd", root);
       }
-
-      decompileRecord.resetMergeLoop();
-      decompileRecord.add("MergeLoopEnd", root);
 
       if (DecompilerContext.getOption(IFernflowerPreferences.IDEA_NOT_NULL_ANNOTATION)) {
         if (IdeaNotNullHelper.removeHardcodedChecks(root, mt)) {
@@ -250,19 +265,30 @@ public class MethodProcessorRunnable implements Runnable {
       varProc.setVarVersions(root);
       decompileRecord.add("SetVarVersions", root);
 
+      LabelHelper.identifyLabels(root);
+      decompileRecord.add("IdentifyLabels", root);
+
       if (DecompilerContext.getOption(IFernflowerPreferences.PATTERN_MATCHING)) {
         if (cl.getVersion().hasIfPatternMatching()) {
-          if (PatternMatchProcessor.matchInstanceof(root)) {
+          if (IfPatternMatchProcessor.matchInstanceof(root)) {
             decompileRecord.add("MatchIfInstanceof", root);
             continue;
           }
         }
       }
 
-      LabelHelper.identifyLabels(root);
-      decompileRecord.add("IdentifyLabels", root);
+      if (root.hasSwitch() && SwitchExpressionHelper.hasSwitchExpressions(root)) {
+        if (SwitchPatternMatchProcessor.processPatternMatching(root)) {
+          decompileRecord.add("ProcessSwitchPatternMatch", root);
+          continue;
+        }
+        if (SwitchExpressionHelper.processSwitchExpressions(root)) {
+          decompileRecord.add("ProcessSwitchExpr", root);
+          continue;
+        }
+      }
 
-      if (TryHelper.enhanceTryStats(root, cl)) {
+      if (root.hasTryCatch() && TryHelper.enhanceTryStats(root, cl)) {
         decompileRecord.add("EnhanceTry", root);
         continue;
       }
@@ -273,14 +299,14 @@ public class MethodProcessorRunnable implements Runnable {
       }
 
       // this has to be done last so it does not screw up the formation of for loops
-      if (MergeHelper.makeDoWhileLoops(root)) {
+      if (root.hasLoops() && MergeHelper.makeDoWhileLoops(root)) {
         decompileRecord.add("MatchDoWhile", root);
+        continue;
+      }
 
-        LabelHelper.cleanUpEdges(root);
-        decompileRecord.add("CleanupEdges_MDW", root);
-
-        LabelHelper.identifyLabels(root);
-        decompileRecord.add("IdentifyLabels_MDW", root);
+      if (root.hasLoops() && MergeHelper.condenseInfiniteLoopsWithReturn(root)) {
+        decompileRecord.add("CondenseDo", root);
+        continue;
       }
 
       // initializer may have at most one return point, so no transformation of method exits permitted
@@ -299,11 +325,25 @@ public class MethodProcessorRunnable implements Runnable {
     decompileRecord.add("MainLoopEnd", root);
 
     // this has to be done after all inlining is done so the case values do not get reverted
-    if (SwitchHelper.simplifySwitches(root, mt)) {
+    if (root.hasSwitch() && SwitchHelper.simplifySwitches(root, mt, root)) {
       decompileRecord.add("SimplifySwitches", root);
 
       SequenceHelper.condenseSequences(root); // remove empty blocks
       decompileRecord.add("CondenseSequences_SS", root);
+
+      // If we have simplified switches, try to make switch expressions
+      if (SwitchExpressionHelper.hasSwitchExpressions(root)) {
+        if (SwitchExpressionHelper.processSwitchExpressions(root)) {
+          decompileRecord.add("ProcessSwitchExpr_SS", root);
+
+          // Simplify stack vars to integrate and inline switch expressions
+          stackProc.simplifyStackVars(root, mt, cl);
+          decompileRecord.add("SimplifyStackVars_SS", root);
+
+          varProc.setVarVersions(root);
+          decompileRecord.add("SetVarVersions_SS", root);
+        }
+      }
     }
 
     // Makes constant returns the same type as the method descriptor
@@ -326,6 +366,10 @@ public class MethodProcessorRunnable implements Runnable {
       decompileRecord.add("ClearSynchronized", root);
     }
 
+    if (SynchronizedHelper.insertSink(root, varProc, root)) {
+      decompileRecord.add("InsertSynchronizedAssignments", root);
+    }
+
     varProc.setVarDefinitions(root);
     decompileRecord.add("SetVarDefinitions", root);
 
@@ -334,13 +378,32 @@ public class MethodProcessorRunnable implements Runnable {
       decompileRecord.add("UpdateAssignments", root);
     }
 
+    // Hide empty default edges caused by switch statement processing
+    if (root.hasSwitch() && LabelHelper.hideDefaultSwitchEdges(root)) {
+      decompileRecord.add("HideEmptyDefault", root);
+    }
+
+    if (GenericsProcessor.qualifyChains(root)) {
+      decompileRecord.add("QualifyGenericChains", root);
+    }
+
     // must be the last invocation, because it makes the statement structure inconsistent
     // FIXME: new edge type needed
     if (LabelHelper.replaceContinueWithBreak(root)) {
       decompileRecord.add("ReplaceContinues", root);
     }
 
+    // Mark monitors left behind in the code
+    // No decompile record as statement structure is not modified
+    SynchronizedHelper.markLiveMonitors(root);
+
     DotExporter.toDotFile(root, mt, "finalStatement");
+
+    if (DotExporter.DUMP_DOTS) {
+      FlattenStatementsHelper flatten = new FlattenStatementsHelper();
+      DirectGraph digraph = flatten.buildDirectGraph(root);
+      DotExporter.toDotFile(digraph, mt, "finalStatementDigraph");
+    }
 
     // Debug print the decompile record
     DotExporter.toDotFile(decompileRecord, mt, "decompileRecord", false);

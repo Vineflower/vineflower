@@ -1,0 +1,114 @@
+package pkg;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class TestGenericMapEntireClasspath {
+   public Map<String, TestGenericMapEntireClasspath.Inner<?>> field = new HashMap<>();
+
+   public <T extends Number> TestGenericMapEntireClasspath.Inner<T> get(String s) {
+      return (TestGenericMapEntireClasspath.Inner<T>)this.field.get(s);// 16
+   }
+
+   public <T extends Number> TestGenericMapEntireClasspath.Inner<?> get1(String s) {
+      return this.field.get(s);// 20
+   }
+
+   public TestGenericMapEntireClasspath.Inner<?> get2(String s) {
+      return this.field.get(s);// 24
+   }
+
+   public TestGenericMapEntireClasspath.Inner get3(String s) {
+      return this.field.get(s);// 28
+   }
+
+   public class Inner<T> {
+      T get() {
+         return null;// 9
+      }
+   }
+}
+
+class 'pkg/TestGenericMapEntireClasspath' {
+   method 'get (Ljava/lang/String;)Lpkg/TestGenericMapEntireClasspath$Inner;' {
+      0      9
+      1      9
+      2      9
+      3      9
+      4      9
+      5      9
+      6      9
+      7      9
+      8      9
+      9      9
+      a      9
+      b      9
+      c      9
+      d      9
+   }
+
+   method 'get1 (Ljava/lang/String;)Lpkg/TestGenericMapEntireClasspath$Inner;' {
+      0      13
+      1      13
+      2      13
+      3      13
+      4      13
+      5      13
+      6      13
+      7      13
+      8      13
+      9      13
+      a      13
+      b      13
+      c      13
+      d      13
+   }
+
+   method 'get2 (Ljava/lang/String;)Lpkg/TestGenericMapEntireClasspath$Inner;' {
+      0      17
+      1      17
+      2      17
+      3      17
+      4      17
+      5      17
+      6      17
+      7      17
+      8      17
+      9      17
+      a      17
+      b      17
+      c      17
+      d      17
+   }
+
+   method 'get3 (Ljava/lang/String;)Lpkg/TestGenericMapEntireClasspath$Inner;' {
+      0      21
+      1      21
+      2      21
+      3      21
+      4      21
+      5      21
+      6      21
+      7      21
+      8      21
+      9      21
+      a      21
+      b      21
+      c      21
+      d      21
+   }
+}
+
+class 'pkg/TestGenericMapEntireClasspath$Inner' {
+   method 'get ()Ljava/lang/Object;' {
+      0      26
+      1      26
+   }
+}
+
+Lines mapping:
+9 <-> 27
+16 <-> 10
+20 <-> 14
+24 <-> 18
+28 <-> 22

@@ -34,9 +34,7 @@ public class TestLocalRecord {
       record R() {
       }
 
-      Supplier<R> constr = () -> {// 29
-         return new R();
-      };
+      Supplier<R> constr = () -> new R();// 29
    }// 30
 }
 
@@ -102,13 +100,13 @@ class 'pkg/TestLocalRecord' {
       6      30
    }
 
-   method 'lambda$test4$0 ()Lpkg/TestLocalRecord$3R;' {
-      7      37
-   }
-
    method 'test4 ()V' {
       5      36
-      6      39
+      6      37
+   }
+
+   method 'lambda$test4$0 ()Lpkg/TestLocalRecord$3R;' {
+      7      36
    }
 }
 
@@ -129,4 +127,4 @@ Lines mapping:
 24 <-> 30
 25 <-> 31
 29 <-> 37
-30 <-> 40
+30 <-> 38

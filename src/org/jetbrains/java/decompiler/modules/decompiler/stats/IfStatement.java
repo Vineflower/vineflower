@@ -1,19 +1,19 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler.stats;
 
-import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.modules.decompiler.DecHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.IfExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.struct.match.IMatchable;
 import org.jetbrains.java.decompiler.struct.match.MatchEngine;
 import org.jetbrains.java.decompiler.struct.match.MatchNode;
-import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.StartEndPair;
+import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.TextUtil;
 
 import java.util.ArrayList;
@@ -40,6 +40,8 @@ public final class IfStatement extends Statement {
   private boolean negated = false;
   private boolean patternMatched = false;
 
+  private boolean hasPPMM = false;
+
   private final List<Exprent> headexprent = new ArrayList<>(1); // contains IfExprent
 
   // *****************************************************************************
@@ -47,7 +49,7 @@ public final class IfStatement extends Statement {
   // *****************************************************************************
 
   private IfStatement() {
-    type = TYPE_IF;
+    super(StatementType.IF);
 
     headexprent.add(null);
   }
@@ -162,7 +164,7 @@ public final class IfStatement extends Statement {
 
   public static Statement isHead(Statement head) {
 
-    if (head.type == TYPE_BASICBLOCK && head.getLastBasicType() == LASTBASICTYPE_IF) {
+    if (head instanceof BasicBlockStatement && head.getLastBasicType() == LastBasicType.IF) {
       int regsize = head.getSuccessorEdges(StatEdge.TYPE_REGULAR).size();
 
       Statement p = null;
@@ -192,22 +194,26 @@ public final class IfStatement extends Statement {
   }
 
   @Override
-  public TextBuffer toJava(int indent, BytecodeMappingTracer tracer) {
+  public TextBuffer toJava(int indent) {
     TextBuffer buf = new TextBuffer();
 
-    buf.append(ExprProcessor.listToJava(varDefinitions, indent, tracer));
+    buf.append(ExprProcessor.listToJava(varDefinitions, indent));
 
-    buf.append(first.toJava(indent, tracer));
+    buf.append(first.toJava(indent));
 
     if (isLabeled()) {
-      buf.appendIndent(indent).append("label").append(this.id.toString()).append(":").appendLineSeparator();
-      tracer.incrementCurrentSourceLine();
+      buf.appendIndent(indent).append("label").append(this.id).append(":").appendLineSeparator();
     }
 
     Exprent condition = headexprent.get(0);
+    buf.appendIndent(indent);
     // Condition can be null in early processing stages
-    buf.appendIndent(indent).append((condition == null ? "if <null condition>" : condition.toJava(indent, tracer).toString())).append(" {").appendLineSeparator();
-    tracer.incrementCurrentSourceLine();
+    if (condition != null) {
+      buf.append(condition.toJava(indent));
+    } else {
+      buf.append("if <null condition>");
+    }
+    buf.append(" {").appendLineSeparator();
 
     if (ifstat == null) {
       boolean semicolon = false;
@@ -223,44 +229,38 @@ public final class IfStatement extends Statement {
         }
 
         if (ifedge.labeled) {
-          buf.append(" label").append(ifedge.closure == null ? "<unknownclosure>" : ifedge.closure.id.toString());
+          buf.append(" label").append(ifedge.closure == null ? "<unknownclosure>" : Integer.toString(ifedge.closure.id));
         }
       }
       if(semicolon) {
         buf.append(";").appendLineSeparator();
-        tracer.incrementCurrentSourceLine();
       }
     }
     else {
-      buf.append(ExprProcessor.jmpWrapper(ifstat, indent + 1, true, tracer));
+      buf.append(ExprProcessor.jmpWrapper(ifstat, indent + 1, true));
     }
 
     boolean elseif = false;
 
     if (elsestat != null) {
-      if (elsestat.type == Statement.TYPE_IF
+      if (elsestat instanceof IfStatement
           && elsestat.varDefinitions.isEmpty() && (elsestat.getFirst().getExprents() != null && elsestat.getFirst().getExprents().isEmpty()) &&
           !elsestat.isLabeled() &&
           (elsestat.getSuccessorEdges(STATEDGE_DIRECT_ALL).isEmpty()
            || !elsestat.getSuccessorEdges(STATEDGE_DIRECT_ALL).get(0).explicit)) { // else if
         buf.appendIndent(indent).append("} else ");
 
-        TextBuffer content = ExprProcessor.jmpWrapper(elsestat, indent, false, tracer);
+        TextBuffer content = ExprProcessor.jmpWrapper(elsestat, indent, false);
         content.setStart(TextUtil.getIndentString(indent).length());
         buf.append(content);
 
         elseif = true;
       }
       else {
-        BytecodeMappingTracer else_tracer = new BytecodeMappingTracer(tracer.getCurrentSourceLine() + 1);
-        TextBuffer content = ExprProcessor.jmpWrapper(elsestat, indent + 1, false, else_tracer);
+        TextBuffer content = ExprProcessor.jmpWrapper(elsestat, indent + 1, false);
 
         if (content.length() > 0) {
           buf.appendIndent(indent).append("} else {").appendLineSeparator();
-
-          tracer.setCurrentSourceLine(else_tracer.getCurrentSourceLine());
-          tracer.addTracer(else_tracer);
-
           buf.append(content);
         }
       }
@@ -268,7 +268,6 @@ public final class IfStatement extends Statement {
 
     if (!elseif) {
       buf.appendIndent(indent).append("}").appendLineSeparator();
-      tracer.incrementCurrentSourceLine();
     }
 
     return buf;
@@ -419,6 +418,14 @@ public final class IfStatement extends Statement {
     this.patternMatched = patternMatched;
   }
 
+  public boolean hasPPMM() {
+    return hasPPMM;
+  }
+
+  public void setHasPPMM(boolean hasPPMM) {
+    this.hasPPMM = hasPPMM;
+  }
+
   @Override
   public List<VarExprent> getImplicitlyDefinedVars() {
     List<VarExprent> vars = new ArrayList<>();
@@ -427,11 +434,11 @@ public final class IfStatement extends Statement {
     conditionList.add(getHeadexprent().getCondition());
 
     for (Exprent condition : conditionList) {
-      if (condition.type == Exprent.EXPRENT_FUNCTION) {
+      if (condition instanceof FunctionExprent) {
         FunctionExprent func = ((FunctionExprent)condition);
 
         // Pattern match variable is implicitly defined
-        if (func.getFuncType() == FunctionExprent.FUNCTION_INSTANCEOF && func.getLstOperands().size() > 2) {
+        if (func.getFuncType() == FunctionType.INSTANCEOF && func.getLstOperands().size() > 2) {
           vars.add((VarExprent) func.getLstOperands().get(2));
         }
       }
@@ -474,7 +481,7 @@ public final class IfStatement extends Statement {
       return false;
     }
 
-    Integer type = (Integer)matchNode.getRuleValue(MatchProperties.STATEMENT_IFTYPE);
+    Integer type = (Integer) matchNode.getRuleValue(MatchProperties.STATEMENT_IFTYPE);
     return type == null || this.iftype == type;
   }
 }

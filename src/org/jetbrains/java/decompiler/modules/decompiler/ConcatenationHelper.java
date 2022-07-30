@@ -3,13 +3,17 @@ package org.jetbrains.java.decompiler.modules.decompiler;
 
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.struct.consts.PooledConstant;
 import org.jetbrains.java.decompiler.struct.consts.PrimitiveConstant;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.BitSet;
+import java.util.List;
 
 public final class ConcatenationHelper {
 
@@ -43,7 +47,7 @@ public final class ConcatenationHelper {
       }
     }
 
-    if (exprent.type == Exprent.EXPRENT_INVOCATION) {
+    if (exprent instanceof InvocationExprent) {
       Exprent ret = ConcatenationHelper.contractStringConcat(exprent);
       if (!exprent.equals(ret)) {
         return ret;
@@ -59,7 +63,7 @@ public final class ConcatenationHelper {
     VarType cltype = null;
 
     // first quick test
-    if (expr.type == Exprent.EXPRENT_INVOCATION) {
+    if (expr instanceof InvocationExprent) {
       InvocationExprent iex = (InvocationExprent)expr;
       if ("toString".equals(iex.getName())) {
         if (builderClass.equals(iex.getClassname())) {
@@ -71,8 +75,7 @@ public final class ConcatenationHelper {
         if (cltype != null) {
           exprTmp = iex.getInstance();
         }
-      }
-      else if ("makeConcatWithConstants".equals(iex.getName())) { // java 9 style
+      } else if ("makeConcatWithConstants".equals(iex.getName()) || "makeConcat".equals(iex.getName())) { // java 9 style
         List<Exprent> parameters = extractParameters(iex.getBootstrapArguments(), iex);
 
         // Check if we need to add an empty string to the param list to convert from objects or primitives to strings.
@@ -112,7 +115,7 @@ public final class ConcatenationHelper {
       int found = 0;
 
       switch (exprTmp.type) {
-        case Exprent.EXPRENT_INVOCATION:
+        case INVOCATION:
           InvocationExprent iex = (InvocationExprent)exprTmp;
           if (isAppendConcat(iex, cltype)) {
             lstOperands.add(0, iex.getLstParameters().get(0));
@@ -120,7 +123,7 @@ public final class ConcatenationHelper {
             found = 1;
           }
           break;
-        case Exprent.EXPRENT_NEW:
+        case NEW:
           NewExprent nex = (NewExprent)exprTmp;
           if (isNewConcat(nex, cltype)) {
             VarType[] params = nex.getConstructor().getDescriptor().params;
@@ -178,7 +181,7 @@ public final class ConcatenationHelper {
     Exprent func = lstOperands.get(0);
 
     for (int i = 1; i < lstOperands.size(); i++) {
-      func = new FunctionExprent(FunctionExprent.FUNCTION_STR_CONCAT, Arrays.asList(func, lstOperands.get(i)), bytecode);
+      func = new FunctionExprent(FunctionType.STR_CONCAT, Arrays.asList(func, lstOperands.get(i)), bytecode);
     }
 
     return func;
@@ -186,15 +189,30 @@ public final class ConcatenationHelper {
 
   // See StringConcatFactory in jdk sources
   private static final char TAG_ARG = '\u0001';
+  private static final String TAG_ARG_S = "\u0001";
   private static final char TAG_CONST = '\u0002';
 
   private static List<Exprent> extractParameters(List<PooledConstant> bootstrapArguments, InvocationExprent expr) {
     List<Exprent> parameters = expr.getLstParameters();
-    if (bootstrapArguments != null) {
-      PooledConstant constant = bootstrapArguments.get(0);
-      if (constant.type == CodeConstants.CONSTANT_String) {
-        String recipe = ((PrimitiveConstant)constant).getString();
 
+    // Remove unnecessary String.valueOf() calls to resolve Quiltflower#151
+    parameters.replaceAll(x -> removeStringValueOf(x));
+
+    if (bootstrapArguments != null) {
+      String recipe = null;
+      if (!bootstrapArguments.isEmpty() && bootstrapArguments.get(0).type == CodeConstants.CONSTANT_String) {
+        // Find recipe arg
+        PooledConstant constant = bootstrapArguments.get(0);
+        if (constant.type == CodeConstants.CONSTANT_String) {
+          recipe = ((PrimitiveConstant) constant).getString();
+        }
+      } else if (bootstrapArguments.isEmpty()) { // makeConcat has no recipe, need to fake it (see StringConcatFactory#makeConcat)
+        // Horrific code to have string.repeat() in Java 8
+        // Replace null terminators with \1
+        recipe = new String(new char[parameters.size()]).replace("\0", TAG_ARG_S);
+      }
+
+      if (recipe != null) {
         List<Exprent> res = new ArrayList<>();
         StringBuilder acc = new StringBuilder();
         int parameterId = 0;
@@ -208,14 +226,14 @@ public final class ConcatenationHelper {
               res.add(new ConstExprent(VarType.VARTYPE_STRING, acc.toString(), expr.bytecode));
               acc.setLength(0);
             }
+
             if (c == TAG_CONST) {
               // skip for now
             }
             if (c == TAG_ARG) {
               res.add(parameters.get(parameterId++));
             }
-          }
-          else {
+          } else {
             // Not a special characters, this is a constant embedded into
             // the recipe itself.
             acc.append(c);
@@ -230,6 +248,7 @@ public final class ConcatenationHelper {
         return res;
       }
     }
+
     return new ArrayList<>(parameters);
   }
 
@@ -271,7 +290,7 @@ public final class ConcatenationHelper {
 
   private static Exprent removeStringValueOf(Exprent exprent) {
 
-    if (exprent.type == Exprent.EXPRENT_INVOCATION) {
+    if (exprent instanceof InvocationExprent) {
       InvocationExprent iex = (InvocationExprent)exprent;
       if ("valueOf".equals(iex.getName()) && stringClass.equals(iex.getClassname())) {
         MethodDescriptor md = iex.getDescriptor();

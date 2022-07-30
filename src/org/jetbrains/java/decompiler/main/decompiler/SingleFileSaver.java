@@ -1,9 +1,7 @@
 package org.jetbrains.java.decompiler.main.decompiler;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.jar.JarOutputStream;
@@ -14,32 +12,58 @@ import java.util.zip.ZipOutputStream;
 
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
+import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.extern.IResultSaver;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
+import org.jetbrains.java.decompiler.util.ZipFileCache;
 
-public class SingleFileSaver implements IResultSaver {
+public class SingleFileSaver implements IResultSaver, AutoCloseable {
   private final File target;
   private ZipOutputStream output;
   private Set<String> entries = new HashSet<>();
+  private final ZipFileCache openZips = new ZipFileCache();
 
   public SingleFileSaver(File target) {
     this.target = target;
+    if (target.isDirectory()) {
+      throw new IllegalStateException("Trying to save " + target.getAbsolutePath() + " as a file but there's a directory there already!");
+    }
   }
 
   @Override
   public void saveFolder(String path) {
-    if (!"".equals(path))
-      throw new UnsupportedOperationException("Targeted a single output, but tried to create a directory");
+
   }
 
   @Override
   public void copyFile(String source, String path, String entryName) {
-    throw new UnsupportedOperationException("Targeted a single output, but tried to copy file");
+    if (!checkEntry(entryName))
+      return;
+
+    try {
+      output.putNextEntry(new ZipEntry(entryName));
+      InterpreterUtil.copyStream(new FileInputStream(source), output);
+    } catch (IOException ex) {
+      String message = "Cannot write entry " + entryName + " to " + target;
+      DecompilerContext.getLogger().writeMessage(message, ex);
+    }
   }
 
   @Override
   public void saveClassFile(String path, String qualifiedName, String entryName, String content, int[] mapping) {
-    throw new UnsupportedOperationException("Targeted a single output, but tried to save a class file");
+    if (!checkEntry(qualifiedName + ".java"))
+      return;
+
+    try {
+      output.putNextEntry(new ZipEntry(qualifiedName + ".java"));
+
+      if (content != null) {
+        output.write(content.getBytes(StandardCharsets.UTF_8));
+      }
+    } catch (IOException ex) {
+      String message = "Cannot write entry " + entryName + " to " + target;
+      DecompilerContext.getLogger().writeMessage(message, ex);
+    }
   }
 
   @Override
@@ -56,7 +80,7 @@ public class SingleFileSaver implements IResultSaver {
 
   @Override
   public void saveDirEntry(String path, String archiveName, String entryName) {
-    saveClassEntry(path, archiveName, null, entryName, null);
+//    saveClassEntry(path, archiveName, null, entryName, null);
   }
 
   @Override
@@ -64,7 +88,8 @@ public class SingleFileSaver implements IResultSaver {
     if (!checkEntry(entryName))
       return;
 
-    try (ZipFile srcArchive = new ZipFile(new File(source))) {
+    try {
+      ZipFile srcArchive = this.openZips.get(source);
       ZipEntry entry = srcArchive.getEntry(entryName);
       if (entry != null) {
         try (InputStream in = srcArchive.getInputStream(entry)) {
@@ -80,14 +105,22 @@ public class SingleFileSaver implements IResultSaver {
   }
 
   @Override
-  public synchronized void saveClassEntry(String path, String archiveName, String qualifiedName, String entryName, String content) {
+  public void saveClassEntry(String path, String archiveName, String qualifiedName, String entryName, String content) {
+    this.saveClassEntry(path, archiveName, qualifiedName, entryName, content, null);
+  }
+
+  @Override
+  public synchronized void saveClassEntry(String path, String archiveName, String qualifiedName, String entryName, String content, int[] mapping) {
     if (!checkEntry(entryName))
         return;
 
     try {
-      output.putNextEntry(new ZipEntry(entryName));
+      ZipEntry entry = new ZipEntry(entryName);
+      if (mapping != null && DecompilerContext.getOption(IFernflowerPreferences.DUMP_CODE_LINES))
+        entry.setExtra(this.getCodeLineData(mapping));
+      output.putNextEntry(entry);
       if (content != null)
-          output.write(content.getBytes("UTF-8"));
+          output.write(content.getBytes(StandardCharsets.UTF_8));
     }
     catch (IOException ex) {
       String message = "Cannot write entry " + entryName + " to " + target;
@@ -114,5 +147,10 @@ public class SingleFileSaver implements IResultSaver {
       DecompilerContext.getLogger().writeMessage(message, IFernflowerLogger.Severity.WARN);
     }
     return added;
+  }
+
+  @Override
+  public void close() throws Exception {
+    this.openZips.close();
   }
 }

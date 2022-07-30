@@ -3,9 +3,11 @@
 import org.jetbrains.java.decompiler.build.JasmCompile
 
 plugins {
-  id 'org.jetbrains.kotlin.jvm' version '1.5.21'
+  id 'jacoco'
+  id 'org.jetbrains.kotlin.jvm' version '1.6.21'
 }
 
+apply plugin: 'jacoco'
 apply plugin: 'java'
 apply plugin: 'groovy'
 apply plugin: 'maven-publish'
@@ -18,7 +20,7 @@ compileJava {
 group = 'org.quiltmc'
 archivesBaseName = 'quiltflower'
 
-version = '1.6.0'
+version = '1.9.0'
 
 def ENV = System.getenv()
 version = version + (ENV.GITHUB_ACTIONS ? "" : "+local")
@@ -44,12 +46,26 @@ dependencies {
   testDataGroovyImplementation 'org.codehaus.groovy:groovy:3.0.8'
   testDataKotlinImplementation platform('org.jetbrains.kotlin:kotlin-bom')
   testDataKotlinImplementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+  testRuntimeOnly 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
 }
 
 test {
+  maxHeapSize = "1G"
+  
   useJUnitPlatform()
   systemProperty "DOT_EXPORT_DIR", System.getProperty("DOT_EXPORT_DIR", null)
   systemProperty "DOT_ERROR_EXPORT_DIR", System.getProperty("DOT_ERROR_EXPORT_DIR", null)
+  systemProperty "VALIDATE_DECOMPILED_CODE", System.getProperty("VALIDATE_DECOMPILED_CODE", "false")
+}
+
+jacocoTestReport.dependsOn(test)
+
+build.dependsOn(jacocoTestReport)
+
+jacocoTestReport {
+  reports {
+    xml.required = true
+  }
 }
 
 java.toolchain {
@@ -70,7 +86,7 @@ void createJavaTestDataSet(int version, String suffix = "", List<String> compile
     it.java.srcDirs file("testData/src/java${version}${suffix.toLowerCase()}")
   }
   tasks.getByName("compileTestDataJava${version}${suffix}Java") {
-    destinationDir = file("testData/classes/java${version}${suffix.toLowerCase()}")
+    destinationDirectory = file("testData/classes/java${version}${suffix.toLowerCase()}")
     javaCompiler = javaToolchains.compilerFor {
       languageVersion = JavaLanguageVersion.of(version)
     }
@@ -85,7 +101,7 @@ void createJavaTestDataSet(int version, String suffix = "", List<String> compile
 
 task compileTestDataJasm(type: JasmCompile) {
   source = fileTree("testData/src/jasm/")
-  destinationDir = file("testData/classes/jasm/")
+  destinationDirectory = file("testData/classes/jasm/")
   options.compilerArgs += ["-g"]
 }
 task testDataJasmClasses {
@@ -95,12 +111,12 @@ testDataJasmClasses.dependsOn(compileTestDataJasm)
 testDataClasses.dependsOn(testDataJasmClasses)
 
 compileTestDataGroovyGroovy {
-  destinationDir = file("testData/classes/groovy")
+  destinationDirectory = file("testData/classes/groovy")
 }
 testDataClasses.dependsOn(testDataGroovyClasses)
 
 compileTestDataKotlinKotlin {
-  destinationDir = file("testData/classes/kt")
+  destinationDirectory = file("testData/classes/kt")
 }
 testDataClasses.dependsOn(testDataKotlinClasses)
 
@@ -120,7 +136,8 @@ jar {
   manifest {
     attributes (
       'Multi-Release': 'true',
-      'Main-Class': 'org.jetbrains.java.decompiler.main.decompiler.ConsoleDecompiler'
+      'Main-Class': 'org.jetbrains.java.decompiler.main.decompiler.ConsoleDecompiler',
+      'Implementation-Name': "Quiltflower"
     )
   }
 }
@@ -138,6 +155,9 @@ publishing {
   publications {
     mavenJava(MavenPublication) {
       from components.java
+      if (ENV.SNAPSHOTS_URL) {
+        version = project.version + "-SNAPSHOT"
+      }
       artifact(sourceJar)
     }
   }
@@ -150,6 +170,15 @@ publishing {
         credentials {
           username ENV.MAVEN_USERNAME
           password ENV.MAVEN_PASSWORD
+        }
+      }
+    }
+    if (ENV.SNAPSHOTS_URL) {
+      maven {
+        url ENV.SNAPSHOTS_URL
+        credentials {
+          username ENV.SNAPSHOTS_USERNAME
+          password ENV.SNAPSHOTS_PASSWORD
         }
       }
     }

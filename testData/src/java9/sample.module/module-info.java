@@ -4,6 +4,8 @@ import sample.pkg1.TestModuleAnno;
 module sample.module {
   requires java.desktop;
 
+  requires transitive static java.logging;
+
   uses java.util.spi.ToolProvider;
 
   provides sample.pkg1.TestService with sample.pkg1.TestServiceImpl;

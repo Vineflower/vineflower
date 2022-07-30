@@ -13,9 +13,9 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.AssignmentExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.ExitExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectGraph;
-import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectNode;
-import org.jetbrains.java.decompiler.modules.decompiler.sforms.FlattenStatementsHelper;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectNode;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.SSAConstructorSparseEx;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.BasicBlockStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.CatchAllStatement;
@@ -56,10 +56,7 @@ public class FinallyProcessor {
       Statement stat = stack.pop();
 
       Statement parent = stat.getParent();
-      if (parent != null
-        && parent.type == Statement.TYPE_CATCHALL
-        && stat == parent.getFirst()
-        && !parent.isCopied()) {
+      if (parent instanceof CatchAllStatement && stat == parent.getFirst() && !parent.isCopied()) {
 
         CatchAllStatement fin = (CatchAllStatement) parent;
         BasicBlock head = fin.getBasichead().getBlock();
@@ -77,17 +74,25 @@ public class FinallyProcessor {
           Record inf = this.getFinallyInformation(cl, mt, root, fin);
 
           if (inf == null) { // inconsistent finally
-            this.catchallBlocks.add(handler);
+            catchallBlocks.add(handler);
+            root.addComment("$QF: Could not inline inconsistent finally blocks");
+            root.addErrorComment = true;
           } else {
-            if (
-              DecompilerContext.getOption(IFernflowerPreferences.FINALLY_DEINLINE) &&
-                this.verifyFinallyEx(graph, fin, inf)) {
-              this.finallyBlocks.put(handler, null);
+            if (DecompilerContext.getOption(IFernflowerPreferences.FINALLY_DEINLINE) && verifyFinallyEx(graph, fin, inf)) {
+              // FIXME: inlines improperly, breaks TestLoopFinally#emptyInnerFinally
+//              inlineReturnVar(graph, handler);
+
+              finallyBlocks.put(handler, null);
             } else {
               int varIndex = DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.VAR_COUNTER);
               insertSemaphore(graph, getAllBasicBlocks(fin.getFirst()), head, handler, varIndex, inf, bytecodeVersion);
 
               this.finallyBlocks.put(handler, varIndex);
+
+              if (DecompilerContext.getOption(IFernflowerPreferences.FINALLY_DEINLINE)) {
+                root.addComment("$QF: Could not verify finally blocks. A semaphore variable has been added to preserve control flow.");
+                root.addErrorComment = true;
+              }
             }
 
             DeadCodeHelper.removeDeadBlocks(graph); // e.g. multiple return blocks after a nested finally
@@ -162,8 +167,8 @@ public class FinallyProcessor {
       if (node.block != null) {
         blockStatement = node.block;
       }
-      else if (node.preds.size() == 1) {
-        blockStatement = node.preds.get(0).block;
+      else if (node.preds().size() == 1) {
+        blockStatement = node.preds().get(0).block;
       }
 
       boolean isTrueExit = true;
@@ -181,7 +186,7 @@ public class FinallyProcessor {
 
             boolean found = false;
             for (Exprent expr : lst) {
-              if (expr.type == Exprent.EXPRENT_VAR && new VarVersionPair((VarExprent)expr).equals(varpaar)) {
+              if (expr instanceof VarExprent && new VarVersionPair((VarExprent)expr).equals(varpaar)) {
                 found = true;
                 break;
               }
@@ -189,9 +194,9 @@ public class FinallyProcessor {
 
             if (found) {
               found = false;
-              if (exprent.type == Exprent.EXPRENT_EXIT) {
+              if (exprent instanceof ExitExprent) {
                 ExitExprent exexpr = (ExitExprent)exprent;
-                if (exexpr.getExitType() == ExitExprent.EXIT_THROW && exexpr.getValue().type == Exprent.EXPRENT_VAR) {
+                if (exexpr.getExitType() == ExitExprent.Type.THROW && exexpr.getValue() instanceof VarExprent) {
                   found = true;
                 }
               }
@@ -206,15 +211,15 @@ public class FinallyProcessor {
           }
           else if (firstcode == 2) {
             // search for a load instruction
-            if (exprent.type == Exprent.EXPRENT_ASSIGNMENT) {
+            if (exprent instanceof AssignmentExprent) {
               AssignmentExprent assexpr = (AssignmentExprent)exprent;
-              if (assexpr.getRight().type == Exprent.EXPRENT_VAR &&
+              if (assexpr.getRight() instanceof VarExprent &&
                   new VarVersionPair((VarExprent)assexpr.getRight()).equals(varpaar)) {
 
                 Exprent next = null;
                 if (i == node.exprents.size() - 1) {
-                  if (node.succs.size() == 1) {
-                    DirectNode nd = node.succs.get(0);
+                  if (node.succs().size() == 1) {
+                    DirectNode nd = node.succs().get(0);
                     if (!nd.exprents.isEmpty()) {
                       next = nd.exprents.get(0);
                     }
@@ -225,9 +230,9 @@ public class FinallyProcessor {
                 }
 
                 boolean found = false;
-                if (next != null && next.type == Exprent.EXPRENT_EXIT) {
+                if (next != null && next instanceof ExitExprent) {
                   ExitExprent exexpr = (ExitExprent)next;
-                  if (exexpr.getExitType() == ExitExprent.EXIT_THROW && exexpr.getValue().type == Exprent.EXPRENT_VAR
+                  if (exexpr.getExitType() == ExitExprent.Type.THROW && exexpr.getValue() instanceof VarExprent
                       && assexpr.getLeft().equals(exexpr.getValue())) {
                     found = true;
                   }
@@ -261,11 +266,11 @@ public class FinallyProcessor {
         }
       }
 
-      stack.addAll(node.succs);
+      stack.addAll(node.succs());
     }
 
     // empty finally block?
-    if (fstat.getHandler().type == Statement.TYPE_BASICBLOCK) {
+    if (fstat.getHandler() instanceof BasicBlockStatement) {
 
       boolean isEmpty = false;
       boolean isFirstLast = mapLast.containsKey(firstBasicBlock);
@@ -424,7 +429,7 @@ public class FinallyProcessor {
     do {
       Statement st = lst.get(index);
 
-      if (st.type == Statement.TYPE_BASICBLOCK) {
+      if (st instanceof BasicBlockStatement) {
         index++;
       }
       else {
@@ -832,7 +837,9 @@ public class FinallyProcessor {
       return false;
     }
 
-    if (first.group != CodeConstants.GROUP_JUMP) { // FIXME: switch comparison
+    if (first.group != CodeConstants.GROUP_JUMP && first.group != CodeConstants.GROUP_SWITCH) { // FIXME: switch comparison
+      // NOTE: seems like just checking group_switch works? Why does the above comment have a fix me?
+
       for (int i = 0; i < first.operandsCount(); i++) {
         int firstOp = first.operand(i);
         int secondOp = second.operand(i);
@@ -976,5 +983,122 @@ public class FinallyProcessor {
         }
       }
     }
+  }
+
+  private static final int[] STORE_CODES = {CodeConstants.opc_istore, CodeConstants.opc_lstore, CodeConstants.opc_fstore, CodeConstants.opc_dstore, CodeConstants.opc_astore};
+  private static final int[][] NEXT_CODES = {
+    {CodeConstants.opc_iload, CodeConstants.opc_ireturn},
+    {CodeConstants.opc_lload, CodeConstants.opc_lreturn},
+    {CodeConstants.opc_fload, CodeConstants.opc_freturn},
+    {CodeConstants.opc_dload, CodeConstants.opc_dreturn},
+    {CodeConstants.opc_aload, CodeConstants.opc_areturn}
+  };
+
+  // Try to inline
+  //
+  // istore <v>
+  // (successor)
+  // iload <v>
+  // ireturn
+  //
+  // into the predecessor
+  private static void inlineReturnVar(ControlFlowGraph graph, BasicBlock handler) {
+    List<ExceptionRangeCFG> ranges = new ArrayList<>();
+
+    // Find all exception ranges with this finally block as the handler
+    for (ExceptionRangeCFG ex : graph.getExceptions()) {
+      if (ex.getHandler() == handler) {
+        ranges.add(ex);
+      }
+    }
+
+    Set<BasicBlock> exits = new HashSet<>();
+
+    for (ExceptionRangeCFG ex : ranges) {
+      // For each range, find the exit blocks
+      for (BasicBlock block : ex.getProtectedRange()) {
+        List<BasicBlock> blockEx = block.getSuccExceptions();
+
+        for (BasicBlock suc : block.getSuccs()) {
+          // Leaving the exception handler
+          if (!suc.getSuccExceptions().equals(blockEx)) {
+            exits.add(block);
+          }
+        }
+      }
+    }
+
+    mainloop:
+    for (BasicBlock exit : exits) {
+      // We only want exits with 1 successor block
+      if (exit.getSuccs().size() == 1) {
+        Instruction instr = exit.getLastInstruction();
+
+        int index = indexOf(instr);
+
+        if (index >= 0) {
+
+          // Traverse up predecessors for old stores
+
+          Deque<BasicBlock> stack = new LinkedList<>(exit.getPreds());
+          Set<BasicBlock> visited = new HashSet<>();
+
+          while (!stack.isEmpty()) {
+            BasicBlock pred = stack.pop();
+
+            // Somehow found the handler from predecessor traversal- stop
+            if (pred == handler) {
+              continue mainloop;
+            }
+
+            // Go through all instructions of predecessor
+            for (Instruction predInstr : pred.getSeq()) {
+              if (predInstr.opcode == STORE_CODES[index]) {
+                // Found an earlier store to the same variable, we cannot inline this
+                if (predInstr.operand(0) == instr.operand(0)) {
+                  continue mainloop;
+                }
+              }
+            }
+
+            // Find preds until we reach the start block
+            for (BasicBlock p : pred.getPreds()) {
+              if (visited.add(p)) {
+                stack.push(p);
+              }
+            }
+          }
+
+          InstructionSequence nextSeq = exit.getSuccs().get(0).getSeq();
+          if (nextSeq.length() == 2) {
+            // Check if next block's sequence is load and return
+            if (nextSeq.getInstr(0).opcode == NEXT_CODES[index][0] && nextSeq.getInstr(1).opcode == NEXT_CODES[index][1]) {
+              // Make sure variable index is correct
+              if (instr.operand(0) == nextSeq.getInstr(0).operand(0)) {
+                // remove store
+                exit.getSeq().removeLast();
+                // add return
+                exit.getSeq().addInstruction(nextSeq.getInstr(1), -1);
+
+                // Clear next exception range, mergeBasicBlocks will take care of it
+                nextSeq.clear();
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  private static int indexOf(Instruction instr) {
+    for (int i = 0; i < STORE_CODES.length; i++) {
+      int code = STORE_CODES[i];
+
+      if (instr.opcode == code) {
+        return i;
+      }
+    }
+
+    return -1;
   }
 }

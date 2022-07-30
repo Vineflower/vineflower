@@ -1,0 +1,546 @@
+package pkg;
+
+import java.io.IOException;
+
+public class TestDefiniteAssignment {
+   void testExample16$1$$1(int v) throws IOException {
+      int k;
+      if (v > 0 && (k = System.in.read()) >= 0) {// 8
+         System.out.println(k);// 9
+      }
+
+   }// 10
+
+   void testExample16$1$$2(int n) {
+      while(n < 5) {// 16 17
+         n = 6;// 18
+      }
+
+      System.out.println(n);// 20
+   }// 22
+
+   void testExample16$1$$3modified(int n, int m) {
+      int k;
+      while(true) {
+         if (n >= 4) {// 26
+            k = m;
+            if (m >= 5) {
+               break;
+            }
+         }
+
+         k = n;// 27
+         if (n >= 5) {// 28
+            break;
+         }
+
+         n = 6;// 29
+      }
+
+      System.out.println(k);// 31
+   }// 32
+
+   void testAssignments(int n, boolean bool) {
+      if (bool) {// 36
+         int a = n;
+         if (n > 0 || (a = -n) > 100) {
+            System.out.println(a);// 37
+         }
+      }
+
+      int b;
+      if (!bool && (b = n * n) <= 0) {// 41
+         System.out.println(b);// 44
+      } else {
+         System.out.println("b");// 42
+      }
+
+      double cFake = 0.01;// 48
+      System.out.println(cFake);// 49
+      if ((double)n < 1.0 - (double)n && (cFake = (double)(n + 5)) > cFake * cFake - cFake / 2.0// 53
+         ? !((double)n > cFake)
+         : !((double)n < 5.0 - (cFake = (double)n))) {
+         cFake += 5.0;// 57
+      } else {
+         System.out.println(cFake);// 54
+         cFake += 2.0;// 55
+      }
+
+      System.out.println(cFake);// 59
+      double d;
+      if ((d = (double)n) > 0.0) {// 63
+         System.out.println(d);// 64
+      }
+
+   }// 67
+
+   void testBooleanNormalness(int n) {
+      int p = n * 2;// 71
+      int k;
+      if (n < 5 && (k = n + 5) > 0 && (p /= k) != 0) {// 72
+         System.out.println("hi");// 73
+      }
+
+      p += 8;// 75
+      System.out.println(p);// 76
+   }// 77
+
+   void testBooleanNormalnessInline(int n) {
+      int p = n * 2;// 81
+      int k;
+      n < 5 && (k = n + 5) > 0 && (p /= k) != 0;// 82
+      p += 8;// 83
+      System.out.println(p);// 84
+   }// 85
+
+   void nestedTernaries(int a, int b, int c) {
+      label47: {
+         int x;
+         if (a > 0) {// 89
+            if (c >= b) {
+               break label47;
+            }
+
+            x = b;
+            if (b <= 0) {
+               break label47;
+            }
+         } else {
+            x = c;
+            if (c >= 0 && c != b) {
+               break label47;
+            }
+         }
+
+         System.out.println(x);// 90
+      }
+
+      int y;
+      label38: {
+         int z;
+         label37: {
+            label50: {
+               if (a > 0) {// 94
+                  if (c >= b) {
+                     break label50;
+                  }
+
+                  y = b;
+                  if (b <= 0) {
+                     break label50;
+                  }
+               } else {
+                  y = c;
+                  if (c >= 0 && c != b) {
+                     break label50;
+                  }
+               }
+
+               if (1 <= b - c || (z = b - c) == a) {
+                  break label38;
+               }
+               break label37;
+            }
+
+            y = 5;
+            z = a;
+            if (5 == a) {
+               break label38;
+            }
+         }
+
+         System.out.println(z);// 97
+      }
+
+      System.out.println(y);// 99
+   }// 100
+}
+
+class 'pkg/TestDefiniteAssignment' {
+   method 'testExample16$1$$1 (I)V' {
+      0      7
+      1      7
+      4      7
+      5      7
+      6      7
+      7      7
+      8      7
+      9      7
+      b      7
+      c      7
+      f      8
+      10      8
+      11      8
+      12      8
+      13      8
+      16      11
+   }
+
+   method 'testExample16$1$$2 (I)V' {
+      0      14
+      3      14
+      4      14
+      a      15
+      b      15
+      c      15
+      10      18
+      11      18
+      12      18
+      14      18
+      15      18
+      16      18
+      17      19
+   }
+
+   method 'testExample16$1$$3modified (II)V' {
+      0      24
+      1      24
+      2      24
+      5      25
+      7      25
+      8      26
+      9      26
+      c      31
+      d      31
+      f      32
+      10      32
+      16      36
+      17      36
+      18      36
+      1c      39
+      1d      39
+      1e      39
+      1f      39
+      20      39
+      21      39
+      22      39
+      23      40
+   }
+
+   method 'testAssignments (IZ)V' {
+      0      43
+      1      43
+      4      44
+      6      44
+      7      45
+      a      45
+      b      45
+      d      45
+      e      45
+      f      45
+      10      45
+      13      46
+      14      46
+      15      46
+      16      46
+      17      46
+      1a      51
+      1b      51
+      1e      51
+      24      51
+      26      51
+      27      51
+      28      51
+      2b      54
+      2c      54
+      2d      54
+      2e      54
+      2f      54
+      30      54
+      31      54
+      32      54
+      36      52
+      37      52
+      38      52
+      39      52
+      3a      52
+      3b      52
+      3e      57
+      3f      57
+      40      57
+      41      57
+      42      57
+      43      58
+      44      58
+      45      58
+      46      58
+      47      58
+      48      58
+      49      58
+      4a      58
+      4b      59
+      4c      59
+      4d      59
+      4e      59
+      4f      59
+      50      59
+      51      59
+      52      59
+      55      59
+      56      59
+      57      59
+      58      59
+      5a      59
+      5b      59
+      5c      59
+      5d      59
+      5e      59
+      5f      59
+      60      59
+      61      59
+      62      59
+      63      59
+      64      59
+      65      59
+      66      59
+      67      59
+      68      59
+      69      59
+      6c      61
+      6d      61
+      6e      61
+      6f      61
+      70      61
+      71      61
+      72      61
+      74      61
+      75      61
+      76      61
+      77      61
+      7e      60
+      7f      60
+      80      60
+      81      60
+      82      60
+      86      64
+      87      64
+      88      64
+      89      64
+      8a      64
+      8b      64
+      8c      64
+      8d      64
+      90      65
+      91      65
+      92      65
+      94      65
+      95      65
+      9b      62
+      9c      62
+      9d      62
+      9f      62
+      a0      62
+      a1      68
+      a2      68
+      a3      68
+      a4      68
+      a5      68
+      a6      68
+      a7      68
+      a8      68
+      a9      70
+      aa      70
+      ac      70
+      ad      70
+      ae      70
+      af      70
+      bb      70
+      be      71
+      bf      71
+      c0      71
+      c1      71
+      c2      71
+      c3      71
+      c6      74
+   }
+
+   method 'testBooleanNormalness (I)V' {
+      0      77
+      1      77
+      2      77
+      3      77
+      4      79
+      5      79
+      6      79
+      9      79
+      a      79
+      b      79
+      d      79
+      e      79
+      12      79
+      15      79
+      16      79
+      19      80
+      1a      80
+      1b      80
+      1c      80
+      1d      80
+      1e      80
+      21      83
+      22      83
+      23      83
+      24      84
+      25      84
+      26      84
+      27      84
+      28      84
+      29      84
+      2a      84
+      2b      85
+   }
+
+   method 'testBooleanNormalnessInline (I)V' {
+      0      88
+      1      88
+      2      88
+      3      88
+      4      90
+      5      90
+      6      90
+      9      90
+      a      90
+      b      90
+      d      90
+      e      90
+      12      90
+      15      90
+      16      90
+      1e      90
+      1f      90
+      20      90
+      22      91
+      23      91
+      24      91
+      25      92
+      26      92
+      27      92
+      28      92
+      29      92
+      2a      92
+      2b      92
+      2c      93
+   }
+
+   method 'nestedTernaries (III)V' {
+      0      98
+      1      98
+      4      99
+      5      99
+      6      99
+      9      103
+      b      103
+      c      103
+      d      104
+      13      108
+      15      108
+      16      108
+      17      109
+      1a      109
+      1b      109
+      1c      109
+      1f      114
+      20      114
+      21      114
+      22      114
+      23      114
+      24      114
+      27      122
+      28      122
+      2b      123
+      2c      123
+      2d      123
+      30      127
+      32      127
+      33      127
+      34      128
+      3a      132
+      3c      132
+      3d      132
+      3e      133
+      41      133
+      42      133
+      43      133
+      46      138
+      47      138
+      48      138
+      49      138
+      4a      138
+      4d      138
+      4e      138
+      4f      138
+      51      138
+      52      138
+      53      138
+      54      138
+      5a      144
+      5c      144
+      5d      144
+      5e      145
+      60      145
+      61      145
+      62      146
+      65      151
+      66      151
+      67      151
+      68      151
+      69      151
+      6a      151
+      6d      154
+      6e      154
+      6f      154
+      70      154
+      71      154
+      72      154
+      73      154
+      74      154
+      75      155
+   }
+}
+
+Lines mapping:
+8 <-> 8
+9 <-> 9
+10 <-> 12
+16 <-> 15
+17 <-> 15
+18 <-> 16
+20 <-> 19
+22 <-> 20
+26 <-> 25
+27 <-> 32
+28 <-> 33
+29 <-> 37
+31 <-> 40
+32 <-> 41
+36 <-> 44
+37 <-> 47
+41 <-> 52
+42 <-> 55
+44 <-> 53
+48 <-> 58
+49 <-> 59
+53 <-> 60
+54 <-> 65
+55 <-> 66
+57 <-> 63
+59 <-> 69
+63 <-> 71
+64 <-> 72
+67 <-> 75
+71 <-> 78
+72 <-> 80
+73 <-> 81
+75 <-> 84
+76 <-> 85
+77 <-> 86
+81 <-> 89
+82 <-> 91
+83 <-> 92
+84 <-> 93
+85 <-> 94
+89 <-> 99
+90 <-> 115
+94 <-> 123
+97 <-> 152
+99 <-> 155
+100 <-> 156

@@ -1,35 +1,31 @@
 package org.jetbrains.java.decompiler.modules.decompiler;
 
-import org.jetbrains.java.decompiler.code.BytecodeVersion;
-import org.jetbrains.java.decompiler.code.CodeConstants;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.CatchAllStatement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.CatchStatement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.struct.StructClass;
-import org.jetbrains.java.decompiler.util.StartEndPair;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 public class TryHelper {
   public static boolean enhanceTryStats(RootStatement root, StructClass cl) {
     boolean ret = makeTryWithResourceRec(cl, root);
 
     if (ret) {
-      if (cl.getVersion().hasNewTryWithResources()) {
-        SequenceHelper.condenseSequences(root);
+      SequenceHelper.condenseSequences(root);
 
-        if (mergeTrys(root)) {
-          SequenceHelper.condenseSequences(root);
-        }
-      } else {
-        SequenceHelper.condenseSequences(root);
-
+      if (!cl.getVersion().hasNewTryWithResources()) {
         if (collapseTryRec(root)) {
           SequenceHelper.condenseSequences(root);
         }
+      }
+    }
+
+    if (cl.getVersion().hasNewTryWithResources()) {
+      if (mergeTrys(root)) {
+        SequenceHelper.condenseSequences(root);
+
+        ret = true;
       }
     }
 
@@ -38,26 +34,35 @@ public class TryHelper {
 
   private static boolean makeTryWithResourceRec(StructClass cl, Statement stat) {
     if (cl.getVersion().hasNewTryWithResources()) {
-      if (stat.type == Statement.TYPE_TRYCATCH) {
+      boolean ret = false;
+      if (stat instanceof CatchStatement) {
         if (TryWithResourcesProcessor.makeTryWithResourceJ11((CatchStatement) stat)) {
-          return true;
+          ret = true;
         }
       }
+
+      for (Statement st : new ArrayList<>(stat.getStats())) {
+        if (makeTryWithResourceRec(cl, st)) {
+          ret = true;
+        }
+      }
+
+      return ret;
     } else {
-      if (stat.type == Statement.TYPE_CATCHALL && ((CatchAllStatement) stat).isFinally()) {
+      if (stat instanceof CatchAllStatement && ((CatchAllStatement) stat).isFinally()) {
         if (TryWithResourcesProcessor.makeTryWithResource((CatchAllStatement) stat)) {
           return true;
         }
       }
-    }
 
-    for (Statement st : new ArrayList<>(stat.getStats())) {
-      if (makeTryWithResourceRec(cl, st)) {
-        return true;
+      for (Statement st : new ArrayList<>(stat.getStats())) {
+        if (makeTryWithResourceRec(cl, st)) {
+          return true;
+        }
       }
-    }
 
-    return false;
+      return false;
+    }
   }
 
   // J11+
@@ -65,7 +70,7 @@ public class TryHelper {
   private static boolean mergeTrys(Statement root) {
     boolean ret = false;
 
-    if (root.type == Statement.TYPE_TRYCATCH) {
+    if (root instanceof CatchStatement) {
       if (mergeTry((CatchStatement) root)) {
         ret = true;
       }
@@ -81,7 +86,7 @@ public class TryHelper {
   // J11+
   // Merges try with resource statements that are nested within each other, as well as try with resources statements nested in a normal try.
   private static boolean mergeTry(CatchStatement stat) {
-    if (stat.getStats().size() == 0) {
+    if (stat.getStats().isEmpty()) {
       return false;
     }
 
@@ -89,39 +94,40 @@ public class TryHelper {
     Statement inner = stat.getStats().get(0);
 
     // Check if the inner statement is a try statement
-    if (inner.type == Statement.TYPE_TRYCATCH) {
+    if (inner instanceof CatchStatement) {
       // Filter on try with resources statements
-      if (((CatchStatement)inner).getTryType() == CatchStatement.RESOURCES) {
+      List<Exprent> resources = ((CatchStatement) inner).getResources();
+      if (!resources.isEmpty()) {
         // One try inside of the catch
 
         // Only merge trys that have an inner statement size of 1, a single block
         // TODO: how does this handle nested nullable try stats?
         if (inner.getStats().size() == 1) {
           // Set the outer try to be resources, and initialize
-          stat.setTryType(CatchStatement.RESOURCES);
-          stat.getResources().addAll(((CatchStatement)inner).getResources());
+          stat.getResources().addAll(resources);
           stat.getVarDefinitions().addAll(inner.getVarDefinitions());
 
           // Get inner block of inner try stat
           Statement innerBlock = inner.getStats().get(0);
 
-          // Replace the inner try statement with the block inside
-          stat.replaceStatement(inner, innerBlock);
+          // Remove successors as the replaceStatement call will add the appropriate successor
+          List<StatEdge> innerEdges = inner.getAllSuccessorEdges();
+          for (StatEdge succ : innerBlock.getAllSuccessorEdges()) {
+            boolean found = false;
+            for (StatEdge innerEdge : innerEdges) {
+              if (succ.getDestination() == innerEdge.getDestination() && succ.getType() == innerEdge.getType()) {
+                found = true;
+                break;
+              }
+            }
 
-          // replaceStatement ends up doubling the amount of edges on the inner block, we need to remove the ones we've already seen
-          // TODO: this is an internal bug. The edges need to be manually modified otherwise it creates labels
-
-          Set<StartEndPair> pairs = new HashSet<>();
-          for (StatEdge edge : innerBlock.getAllSuccessorEdges()) {
-            StartEndPair pair = new StartEndPair(edge.getSource().id, edge.getDestination().id);
-
-            // Remove successors that we've already seen
-            if (pairs.contains(pair)) {
-              innerBlock.removeSuccessor(edge);
-            } else {
-              pairs.add(pair);
+            if (found) {
+              innerBlock.removeSuccessor(succ);
             }
           }
+
+          // Replace the inner try statement with the block inside
+          stat.replaceStatement(inner, innerBlock);
 
           return true;
         }
@@ -132,7 +138,7 @@ public class TryHelper {
   }
 
   private static boolean collapseTryRec(Statement stat) {
-    if (stat.type == Statement.TYPE_TRYCATCH && collapseTry((CatchStatement)stat)) {
+    if (stat instanceof CatchStatement && collapseTry((CatchStatement)stat)) {
       return true;
     }
 
@@ -147,15 +153,15 @@ public class TryHelper {
 
   private static boolean collapseTry(CatchStatement catchStat) {
     Statement parent = catchStat;
-    if (parent.getFirst() != null && parent.getFirst().type == Statement.TYPE_SEQUENCE) {
+    if (parent.getFirst() != null && parent.getFirst() instanceof SequenceStatement) {
       parent = parent.getFirst();
     }
-    if (parent != null && parent.getFirst() != null && parent.getFirst().type == Statement.TYPE_TRYCATCH) {
+    if (parent != null && parent.getFirst() != null && parent.getFirst() instanceof CatchStatement) {
       CatchStatement toRemove = (CatchStatement)parent.getFirst();
 
-      if (toRemove.getTryType() == CatchStatement.RESOURCES) {
-        catchStat.setTryType(CatchStatement.RESOURCES);
-        catchStat.getResources().addAll(toRemove.getResources());
+      List<Exprent> resources = toRemove.getResources();
+      if (!resources.isEmpty()) {
+        catchStat.getResources().addAll(resources);
 
         catchStat.getVarDefinitions().addAll(toRemove.getVarDefinitions());
         parent.replaceStatement(toRemove, toRemove.getFirst());

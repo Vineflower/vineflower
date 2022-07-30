@@ -16,11 +16,11 @@ public class aq extends ap {
    }
 
    public void a(long param1) {
-      // $FF: Couldn't be decompiled
+      // $QF: Couldn't be decompiled
    }
 
    public double d() {
-      // $FF: Couldn't be decompiled
+      // $QF: Couldn't be decompiled
    }
 
    public Double e() {

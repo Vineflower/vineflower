@@ -1,70 +1,108 @@
 package pkg;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.net.StandardProtocolFamily;
+import java.net.UnixDomainSocketAddress;
 import java.nio.channels.SocketChannel;
+import java.nio.channels.UnsupportedAddressTypeException;
+import java.util.Objects;
 
 public class TestTryWithResourcesFake {
-   public static SocketChannel open(SocketAddress param0) throws IOException {
-      // $FF: Couldn't be decompiled
-      // java.lang.IndexOutOfBoundsException: Index: 1, Size: 1
-      //   at java.util.ArrayList.rangeCheck(ArrayList.java:659)
-      //   at java.util.ArrayList.get(ArrayList.java:435)
-      //   at org.jetbrains.java.decompiler.util.VBStyleCollection.remove(VBStyleCollection.java:102)
-      //   at org.jetbrains.java.decompiler.modules.decompiler.TryWithResourcesProcessor.makeTryWithResourceJ11(TryWithResourcesProcessor.java:197)
-      //   at org.jetbrains.java.decompiler.modules.decompiler.TryHelper.makeTryWithResourceRec(TryHelper.java:42)
-      //   at org.jetbrains.java.decompiler.modules.decompiler.TryHelper.makeTryWithResourceRec(TryHelper.java:55)
-      //   at org.jetbrains.java.decompiler.modules.decompiler.TryHelper.makeTryWithResourceRec(TryHelper.java:55)
-      //   at org.jetbrains.java.decompiler.modules.decompiler.TryHelper.enhanceTryStats(TryHelper.java:18)
-      //   at org.jetbrains.java.decompiler.main.rels.MethodProcessorRunnable.codeToJava(MethodProcessorRunnable.java:265)
-      //
-      // Bytecode:
-      // 00: aload 0
-      // 01: invokestatic java/util/Objects.requireNonNull (Ljava/lang/Object;)Ljava/lang/Object;
-      // 04: pop
-      // 05: aload 0
-      // 06: instanceof java/net/InetSocketAddress
-      // 09: ifeq 13
-      // 0c: invokestatic java/nio/channels/SocketChannel.open ()Ljava/nio/channels/SocketChannel;
-      // 0f: astore 1
-      // 10: goto 2c
-      // 13: aload 0
-      // 14: instanceof java/net/UnixDomainSocketAddress
-      // 17: ifeq 24
-      // 1a: getstatic java/net/StandardProtocolFamily.UNIX Ljava/net/StandardProtocolFamily;
-      // 1d: invokestatic java/nio/channels/SocketChannel.open (Ljava/net/ProtocolFamily;)Ljava/nio/channels/SocketChannel;
-      // 20: astore 1
-      // 21: goto 2c
-      // 24: new java/nio/channels/UnsupportedAddressTypeException
-      // 27: dup
-      // 28: invokespecial java/nio/channels/UnsupportedAddressTypeException.<init> ()V
-      // 2b: athrow
-      // 2c: aload 1
-      // 2d: aload 0
-      // 2e: invokevirtual java/nio/channels/SocketChannel.connect (Ljava/net/SocketAddress;)Z
-      // 31: pop
-      // 32: goto 45
-      // 35: astore 2
-      // 36: aload 1
-      // 37: invokevirtual java/nio/channels/SocketChannel.close ()V
-      // 3a: goto 43
-      // 3d: astore 3
-      // 3e: aload 2
-      // 3f: aload 3
-      // 40: invokevirtual java/lang/Throwable.addSuppressed (Ljava/lang/Throwable;)V
-      // 43: aload 2
-      // 44: athrow
-      // 45: getstatic pkg/TestTryWithResourcesFake.$assertionsDisabled Z
-      // 48: ifne 5a
-      // 4b: aload 1
-      // 4c: invokevirtual java/nio/channels/SocketChannel.isConnected ()Z
-      // 4f: ifne 5a
-      // 52: new java/lang/AssertionError
-      // 55: dup
-      // 56: invokespecial java/lang/AssertionError.<init> ()V
-      // 59: athrow
-      // 5a: aload 1
-      // 5b: areturn
+   public static SocketChannel open(SocketAddress remote) throws IOException {
+      Objects.requireNonNull(remote);// 20
+      SocketChannel sc;
+      if (remote instanceof InetSocketAddress) {// 21
+         sc = SocketChannel.open();// 22
+      } else {
+         if (!(remote instanceof UnixDomainSocketAddress)) {// 23
+            throw new UnsupportedAddressTypeException();// 26
+         }
+
+         sc = SocketChannel.open(StandardProtocolFamily.UNIX);// 24
+      }
+
+      try {
+         sc.connect(remote);// 29
+      } catch (Throwable var5) {
+         try {
+            sc.close();// 32
+         } catch (Throwable var4) {// 33
+            var5.addSuppressed(var4);// 34
+         }
+
+         throw var5;// 36
+      }
+
+      assert sc.isConnected();// 38
+
+      return sc;// 39
    }
 }
 
+class 'pkg/TestTryWithResourcesFake' {
+   method 'open (Ljava/net/SocketAddress;)Ljava/nio/channels/SocketChannel;' {
+      0      13
+      1      13
+      2      13
+      3      13
+      5      15
+      6      15
+      7      15
+      8      15
+      9      15
+      c      16
+      d      16
+      e      16
+      f      16
+      13      18
+      14      18
+      15      18
+      16      18
+      17      18
+      1a      22
+      1b      22
+      1c      22
+      1d      22
+      1e      22
+      1f      22
+      20      22
+      2b      19
+      2c      26
+      2d      26
+      2e      26
+      2f      26
+      30      26
+      36      29
+      37      29
+      3d      30
+      40      31
+      44      34
+      4b      37
+      4c      37
+      4d      37
+      4e      37
+      5a      39
+      5b      39
+   }
+}
+
+Lines mapping:
+20 <-> 14
+21 <-> 16
+22 <-> 17
+23 <-> 19
+24 <-> 23
+26 <-> 20
+29 <-> 27
+32 <-> 30
+33 <-> 31
+34 <-> 32
+36 <-> 35
+38 <-> 38
+39 <-> 40
+Not mapped:
+30
+35
+37

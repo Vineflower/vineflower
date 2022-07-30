@@ -16,11 +16,30 @@ public class TestNestedLoops {
             for(int j = 0; j < 20; ++j) {// 13
                do {
                   s.substring(j);// 15
-               } while(s.length() < j);// 16
+               } while(s.length() >= j);// 16
             }
          }
 
          ++i;// 19
+      }
+   }
+
+   public void decomp() {
+      List<String> list = new ArrayList<>();// 25
+      int i = 0;// 26
+
+      while(true) {
+         if (i < 10) {// 29
+            for(String s : list) {// 32
+               for(int j = 0; j < 20; ++j) {// 33
+                  do {
+                     s.substring(j);// 35
+                  } while(s.length() >= j);// 36
+               }
+            }
+
+            ++i;// 43
+         }
       }
    }
 }
@@ -82,6 +101,63 @@ class 'pkg/TestNestedLoops' {
       51      22
       52      22
    }
+
+   method 'decomp ()V' {
+      7      27
+      8      28
+      9      28
+      a      31
+      b      31
+      c      31
+      d      31
+      13      32
+      14      32
+      15      32
+      16      32
+      17      32
+      18      32
+      19      32
+      23      32
+      24      32
+      25      32
+      26      32
+      27      32
+      28      32
+      29      32
+      2a      32
+      2b      32
+      2c      32
+      2d      32
+      2e      33
+      2f      33
+      30      33
+      31      33
+      32      33
+      33      33
+      34      33
+      35      33
+      38      35
+      39      35
+      3a      35
+      3b      35
+      3c      35
+      3d      35
+      3e      35
+      40      36
+      41      36
+      42      36
+      43      36
+      44      36
+      45      36
+      46      36
+      47      36
+      4d      33
+      4e      33
+      4f      33
+      56      40
+      57      40
+      58      40
+   }
 }
 
 Lines mapping:
@@ -93,5 +169,15 @@ Lines mapping:
 15 <-> 18
 16 <-> 19
 19 <-> 23
+25 <-> 28
+26 <-> 29
+29 <-> 32
+32 <-> 33
+33 <-> 34
+35 <-> 36
+36 <-> 37
+43 <-> 41
 Not mapped:
 18
+37
+41

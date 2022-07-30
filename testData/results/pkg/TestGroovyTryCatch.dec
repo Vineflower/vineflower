@@ -1,0 +1,265 @@
+package pkg;
+
+import groovy.lang.GroovyObject;
+import groovy.lang.MetaClass;
+import groovy.transform.Generated;
+import groovy.transform.Internal;
+import java.beans.Transient;
+import org.codehaus.groovy.runtime.callsite.CallSite;
+
+public class TestGroovyTryCatch implements GroovyObject {
+   @Generated
+   public TestGroovyTryCatch() {
+      CallSite[] var1 = $getCallSiteArray();
+      super();
+      MetaClass var2 = this.$getStaticMetaClass();
+      this.metaClass = var2;
+   }
+
+   public void test() {
+      CallSite[] var1 = $getCallSiteArray();
+
+      try {
+         try {
+            var1[0].call(var1[1].callGetProperty(System.class), "Hello");// 5 6
+         } catch (Exception var6) {// 7
+            var1[2].call(var1[3].callGetProperty(System.class), "Exception");// 8
+         }
+
+      } finally {
+         ;
+      }
+   }// 9
+
+   public void test1() {
+      CallSite[] var1 = $getCallSiteArray();
+
+      try {
+         try {
+            var1[4].call(var1[5].callGetProperty(System.class), "Hello");// 13 14
+         } catch (Exception var8) {// 15
+            var1[6].call(var1[7].callGetProperty(System.class), "Exception");// 16
+         } catch (Throwable var9) {// 17
+            var1[8].call(var1[9].callGetProperty(System.class), "Throwable");// 18
+         }
+
+      } finally {
+         ;
+      }
+   }// 19
+
+   @Generated
+   @Internal
+   @Transient
+   public MetaClass getMetaClass() {
+      MetaClass var10000 = this.metaClass;
+      if (this.metaClass != null) {
+         return var10000;
+      } else {
+         this.metaClass = this.$getStaticMetaClass();
+         return this.metaClass;
+      }
+   }
+
+   @Generated
+   @Internal
+   public void setMetaClass(MetaClass var1) {
+      this.metaClass = var1;
+   }
+}
+
+class 'pkg/TestGroovyTryCatch' {
+   method '<init> ()V' {
+      1      12
+      2      12
+      3      12
+      4      12
+      6      13
+      7      13
+      8      13
+      9      14
+      a      14
+      b      14
+      c      14
+      d      14
+      e      15
+      f      15
+      11      15
+      12      15
+      13      15
+      16      16
+   }
+
+   method 'test ()V' {
+      1      19
+      2      19
+      3      19
+      4      19
+      5      23
+      6      23
+      7      23
+      8      23
+      9      23
+      a      23
+      b      23
+      c      23
+      d      23
+      e      23
+      f      23
+      10      23
+      11      23
+      12      23
+      13      23
+      14      23
+      15      23
+      16      23
+      17      23
+      18      23
+      19      23
+      1a      23
+      1f      24
+      20      25
+      21      25
+      22      25
+      23      25
+      24      25
+      25      25
+      26      25
+      27      25
+      28      25
+      29      25
+      2a      25
+      2b      25
+      2c      25
+      2d      25
+      2e      25
+      2f      25
+      30      25
+      31      25
+      32      25
+      33      25
+      34      25
+      35      25
+      41      31
+   }
+
+   method 'test1 ()V' {
+      1      34
+      2      34
+      3      34
+      4      34
+      5      38
+      6      38
+      7      38
+      8      38
+      9      38
+      a      38
+      b      38
+      c      38
+      d      38
+      e      38
+      f      38
+      10      38
+      11      38
+      12      38
+      13      38
+      14      38
+      15      38
+      16      38
+      17      38
+      18      38
+      19      38
+      1a      38
+      1f      39
+      20      40
+      21      40
+      22      40
+      23      40
+      24      40
+      25      40
+      26      40
+      27      40
+      28      40
+      29      40
+      2a      40
+      2b      40
+      2c      40
+      2d      40
+      2e      40
+      2f      40
+      30      40
+      31      40
+      32      40
+      33      40
+      34      40
+      35      40
+      3b      41
+      3c      42
+      3d      42
+      3e      42
+      3f      42
+      40      42
+      41      42
+      42      42
+      43      42
+      44      42
+      45      42
+      46      42
+      47      42
+      48      42
+      49      42
+      4a      42
+      4b      42
+      4c      42
+      4d      42
+      4e      42
+      4f      42
+      50      42
+      51      42
+      5f      48
+   }
+
+   method 'getMetaClass ()Lgroovy/lang/MetaClass;' {
+      0      54
+      1      54
+      2      54
+      3      54
+      5      55
+      8      56
+      a      58
+      c      58
+      d      58
+      e      58
+      f      58
+      10      58
+      11      58
+      12      59
+      13      59
+      14      59
+      15      59
+      16      59
+   }
+
+   method 'setMetaClass (Lgroovy/lang/MetaClass;)V' {
+      0      66
+      1      66
+      2      66
+      3      66
+      4      66
+      5      67
+   }
+}
+
+Lines mapping:
+5 <-> 24
+6 <-> 24
+7 <-> 25
+8 <-> 26
+9 <-> 32
+13 <-> 39
+14 <-> 39
+15 <-> 40
+16 <-> 41
+17 <-> 42
+18 <-> 43
+19 <-> 49

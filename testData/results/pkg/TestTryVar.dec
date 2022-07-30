@@ -1,0 +1,108 @@
+package pkg;
+
+public class TestTryVar {
+   public int test(int x, int y) {
+      for(int i = 0; i < 10; ++i) {// 5
+         try {
+            x = y + i;// 7
+            x = 5000 - i;// 8
+            x = y / y;// 9
+         } catch (Throwable var5) {// 10
+         }
+      }
+
+      return x;// 15
+   }
+
+   public int test2(int x, int y) {
+      for(int i = 0; i < 10; ++i) {// 19
+         try {
+            x = y + i;// 21
+            x = (x += 5000 - i / (7 - i)) / y;// 22
+         } catch (Throwable var5) {// 23
+         }
+      }
+
+      return x;// 28
+   }
+}
+
+class 'pkg/TestTryVar' {
+   method 'test (II)I' {
+      0      4
+      1      4
+      2      4
+      3      4
+      4      4
+      5      4
+      8      6
+      9      6
+      a      6
+      b      6
+      c      7
+      d      7
+      e      7
+      f      7
+      10      7
+      11      7
+      12      8
+      13      8
+      14      8
+      15      8
+      19      9
+      1b      4
+      1c      4
+      1d      4
+      21      13
+      22      13
+   }
+
+   method 'test2 (II)I' {
+      0      17
+      1      17
+      2      17
+      3      17
+      4      17
+      5      17
+      8      19
+      9      19
+      a      19
+      b      19
+      d      20
+      e      20
+      f      20
+      10      20
+      11      20
+      12      20
+      13      20
+      14      20
+      15      20
+      16      20
+      19      20
+      1a      20
+      1b      20
+      1c      20
+      20      21
+      22      17
+      23      17
+      24      17
+      28      25
+      29      25
+   }
+}
+
+Lines mapping:
+5 <-> 5
+7 <-> 7
+8 <-> 8
+9 <-> 9
+10 <-> 10
+15 <-> 14
+19 <-> 18
+21 <-> 20
+22 <-> 21
+23 <-> 22
+28 <-> 26
+Not mapped:
+12
+25

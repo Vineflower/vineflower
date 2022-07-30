@@ -1,8 +1,8 @@
 // Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.struct;
 
-import net.fabricmc.fernflower.api.IFabricResultSaver;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.main.decompiler.ConsoleDecompiler;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.extern.IResultSaver;
 import org.jetbrains.java.decompiler.struct.lazy.LazyLoader;
@@ -109,6 +109,11 @@ public class ContextUnit {
   public void save() {
     switch (type) {
       case TYPE_FOLDER:
+        // FIXME: ugly but needs to exist for folder->jar saving to work properly
+        if (!(resultSaver instanceof ConsoleDecompiler)) {
+          resultSaver.createArchive(archivePath, filename, manifest);
+        }
+
         // create folder
         resultSaver.saveFolder(filename);
 
@@ -134,6 +139,10 @@ public class ContextUnit {
               resultSaver.saveClassFile(filename, cl.qualifiedName, entryName, content, mapping);
             }
           }
+        }
+
+        if (!(resultSaver instanceof ConsoleDecompiler)) {
+          resultSaver.closeArchive(archivePath, filename);
         }
 
         break;
@@ -172,11 +181,7 @@ public class ContextUnit {
               if (DecompilerContext.getOption(IFernflowerPreferences.BYTECODE_SOURCE_MAPPING)) {
                 mapping = DecompilerContext.getBytecodeSourceMapper().getOriginalLinesMapping();
               }
-              if (resultSaver instanceof IFabricResultSaver) {
-                ((IFabricResultSaver) resultSaver).saveClassEntry(archivePath, filename, cl.qualifiedName, entryName, content, mapping);
-              } else {
-                resultSaver.saveClassEntry(archivePath, filename, cl.qualifiedName, entryName, content);
-              }
+              resultSaver.saveClassEntry(archivePath, filename, cl.qualifiedName, entryName, content, mapping);
             }));
           }
         }

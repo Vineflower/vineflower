@@ -1,0 +1,62 @@
+package pkg;
+
+public enum TestEclipseSwitchEnum {
+   A,
+   B,
+   C;
+
+   public void test(TestEclipseSwitchEnum var1) {
+      switch(var1) {// 9
+         case A:
+            System.out.println("A");// 11
+            break;// 12
+         case B:
+            System.out.println("B");// 14
+            break;// 15
+         case C:
+            System.out.println("C");// 17
+      }
+
+   }// 20
+}
+
+class 'pkg/TestEclipseSwitchEnum' {
+   method 'test (Lpkg/TestEclipseSwitchEnum;)V' {
+      3      8
+      8      8
+      24      10
+      25      10
+      26      10
+      27      10
+      28      10
+      29      10
+      2a      10
+      2b      10
+      2c      11
+      2f      13
+      30      13
+      31      13
+      32      13
+      33      13
+      34      13
+      35      13
+      36      13
+      37      14
+      3a      16
+      3b      16
+      3c      16
+      3d      16
+      3e      16
+      3f      16
+      42      19
+   }
+}
+
+Lines mapping:
+9 <-> 9
+11 <-> 11
+12 <-> 12
+14 <-> 14
+15 <-> 15
+17 <-> 17
+20 <-> 20

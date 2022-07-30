@@ -31,65 +31,11 @@ public class TestNestedTernaryAssign {
    }// 16
 
    public void test4(boolean b1, int a, int b) {
-      byte var10000;
-      label17: {
-         label16: {
-            if (b1) {// 19
-               if (a > b) {
-                  break label16;
-               }
-            } else if (a < b) {
-               break label16;
-            }
-
-            var10000 = 16;
-            break label17;
-         }
-
-         var10000 = 0;
-      }
-
-      accept(var10000);
+      accept((b1 ? a <= b : a >= b) ? 16 : 0);// 19
    }// 20
 
    public void test5(boolean b1, boolean b2, int a, int b) {
-      byte var10000;
-      label31: {
-         label30: {
-            if (b1) {// 23
-               if (a > b) {
-                  break label30;
-               }
-            } else if (a < b) {
-               break label30;
-            }
-
-            var10000 = 16;
-            break label31;
-         }
-
-         var10000 = 0;
-      }
-
-      byte var10001;
-      label23: {
-         label22: {
-            if (b2) {
-               if (a > b) {
-                  break label22;
-               }
-            } else if (a < b) {
-               break label22;
-            }
-
-            var10001 = 16;
-            break label23;
-         }
-
-         var10001 = 0;
-      }
-
-      accept(var10000, var10001);
+      accept((b1 ? a <= b : a >= b) ? 16 : 0, (b2 ? a <= b : a >= b) ? 16 : 0);// 23
    }// 24
 
    private static void accept(int i) {
@@ -164,59 +110,59 @@ class 'pkg/TestNestedTernaryAssign' {
    }
 
    method 'test4 (ZII)V' {
-      0      36
-      1      36
-      4      37
-      5      37
-      6      37
-      c      40
-      d      40
-      e      40
-      11      48
-      15      44
-      17      51
-      18      51
-      19      51
-      1a      52
+      0      33
+      1      33
+      4      33
+      5      33
+      6      33
+      c      33
+      d      33
+      e      33
+      11      33
+      15      33
+      17      33
+      18      33
+      19      33
+      1a      34
    }
 
    method 'test5 (ZZII)V' {
-      0      58
-      1      58
-      4      59
-      5      59
-      6      59
-      7      59
-      d      62
-      e      62
-      f      62
-      10      62
-      13      70
-      17      66
-      19      76
-      1a      76
-      1d      77
-      1e      77
-      1f      77
-      20      77
-      26      80
-      27      80
-      28      80
-      29      80
-      2c      88
-      30      84
-      32      91
-      33      91
-      34      91
-      35      92
+      0      37
+      1      37
+      4      37
+      5      37
+      6      37
+      7      37
+      d      37
+      e      37
+      f      37
+      10      37
+      13      37
+      17      37
+      19      37
+      1a      37
+      1d      37
+      1e      37
+      1f      37
+      20      37
+      26      37
+      27      37
+      28      37
+      29      37
+      2c      37
+      30      37
+      32      37
+      33      37
+      34      37
+      35      38
    }
 
    method 'accept (I)V' {
-      0      95
+      0      41
    }
 
    method 'accept (II)V' {
-      0      98
+      0      44
    }
 }
 
@@ -228,9 +174,9 @@ Lines mapping:
 13 <-> 29
 15 <-> 30
 16 <-> 31
-19 <-> 37
-20 <-> 53
-23 <-> 59
-24 <-> 93
-28 <-> 96
-32 <-> 99
+19 <-> 34
+20 <-> 35
+23 <-> 38
+24 <-> 39
+28 <-> 42
+32 <-> 45

@@ -1,0 +1,63 @@
+package pkg;
+
+public class TestCompoundAssignmentReplace {
+   private int i_1;
+   private int i_2;
+   private int i_3;
+   private int i_4;
+   private int i_5;
+
+   public void test(int var1, int var2) {
+      var1 += var2;
+      var1 += var2;
+      int var5 = var1;
+      if (var2 > 0) {
+         var1 += var2;
+      }
+
+      this.i_1 = var1;
+      this.i_2 = var1;
+      this.i_3 = var1;
+      this.i_4 = var5;
+   }
+}
+
+class 'pkg/TestCompoundAssignmentReplace' {
+   method 'test (II)V' {
+      0      18
+      3      10
+      5      10
+      6      19
+      a      11
+      c      11
+      d      12
+      e      12
+      f      12
+      10      13
+      11      13
+      15      14
+      17      14
+      18      17
+      19      17
+      1a      17
+      1b      17
+      1c      17
+      1d      18
+      1f      18
+      20      18
+      21      18
+      22      19
+      25      19
+      26      19
+      27      19
+      28      20
+      29      20
+      2a      20
+      2b      20
+      2c      20
+      2d      20
+      2e      21
+   }
+}
+
+Lines mapping:

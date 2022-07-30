@@ -1,0 +1,717 @@
+package pkg;
+
+import java.util.function.Supplier;
+
+public class TestTryReturn {
+   public boolean test(Supplier<Boolean> supplier) {
+      try {
+         return supplier.get();// 9
+      } catch (Exception var3) {// 10
+         throw new RuntimeException(var3);// 11
+      }
+   }
+
+   public boolean testFinally(Supplier<Boolean> supplier) {
+      boolean var2;
+      try {
+         var2 = supplier.get();
+      } finally {
+         System.out.println("Finally");// 19
+      }
+
+      return var2;// 17
+   }
+
+   public void testFinally1(Supplier<Boolean> supplier) {
+      System.out.println("pred");// 24
+
+      label27: {
+         try {
+            if (!supplier.get()) {// 27
+               break label27;
+            }
+         } finally {
+            System.out.println("Finally");// 31
+         }
+
+         return;// 28
+      }
+
+      System.out.println("suc");// 32 34
+   }
+
+   public boolean testFinally2(Supplier<Boolean> supplier) {
+      boolean b;
+      try {
+         b = supplier.get();// 40
+      } finally {
+         System.out.println("Finally");// 42
+      }
+
+      return b;// 43 45
+   }
+
+   public boolean testFinally3(boolean b, boolean c, int a, Supplier<Boolean> supplier) {
+      boolean var5;
+      try {
+         if (b) {// 50
+            return c && supplier.get();// 51
+         }
+
+         if (a <= 0) {// 54
+            return supplier.get();// 58
+         }
+
+         var5 = a == 1;
+      } finally {
+         System.out.println("Finally");// 60
+      }
+
+      return var5;// 55
+   }
+
+   public boolean testFinally4(Supplier<Boolean> supplier) {
+      boolean b = false;// 65
+
+      try {
+         b = supplier.get();// 67
+      } finally {
+         System.out.println("Finally");// 69
+      }
+
+      return b;// 70 72
+   }
+
+   public boolean testFinally5(Supplier<Boolean> supplier) {
+      boolean b = false;// 76
+
+      try {
+         b = supplier.get();// 78
+      } catch (Exception var7) {// 79
+         System.out.println("Catch");// 80
+         b = supplier.get();// 81
+      } finally {
+         System.out.println("Finally");// 83
+      }
+
+      return b;// 86
+   }
+
+   public boolean testFinally6(boolean a, Supplier<Boolean> supplier) {
+      boolean b = false;// 90
+
+      try {
+         if (a) {// 92
+            b = true;// 93
+            System.out.println("If");// 94
+         }
+
+         b = supplier.get();// 97
+      } catch (Exception var8) {// 98
+         System.out.println("Catch");// 99
+         b = supplier.get();// 100
+      } finally {
+         System.out.println("Finally");// 102
+      }
+
+      return b;// 105
+   }
+
+   public void testLoopFinally() {
+      boolean a = true;// 109
+
+      while(true) {
+         try {
+            if (a) {// 113
+               return;// 114
+            }
+         } finally {
+            System.out.println("Finally");// 117
+         }
+      }
+   }
+
+   public void testParsingFailure() {
+      // $QF: Couldn't be decompiled
+      // Bytecode:
+      // 00: bipush 116
+      // 02: istore 1
+      // 03: iload 1
+      // 04: bipush 113
+      // 06: if_icmpeq 2a
+      // 09: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 0c: iload 1
+      // 0d: invokevirtual java/io/PrintStream.println (C)V
+      // 10: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 13: iload 1
+      // 14: invokevirtual java/io/PrintStream.println (C)V
+      // 17: return
+      // 18: astore 2
+      // 19: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 1c: iload 1
+      // 1d: invokevirtual java/io/PrintStream.println (C)V
+      // 20: return
+      // 21: astore 3
+      // 22: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 25: iload 1
+      // 26: invokevirtual java/io/PrintStream.println (C)V
+      // 29: return
+      // 2a: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 2d: iload 1
+      // 2e: invokevirtual java/io/PrintStream.println (C)V
+      // 31: return
+      // 32: astore 4
+      // 34: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 37: iload 1
+      // 38: invokevirtual java/io/PrintStream.println (C)V
+      // 3b: return
+   }
+
+   public void testPostdomFailure() {
+      // $QF: Couldn't be decompiled
+      // Bytecode:
+      // 00: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 03: bipush 1
+      // 04: invokevirtual java/io/PrintStream.println (I)V
+      // 07: new java/util/Random
+      // 0a: dup
+      // 0b: invokespecial java/util/Random.<init> ()V
+      // 0e: invokevirtual java/util/Random.nextBoolean ()Z
+      // 11: ifeq 41
+      // 14: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 17: bipush 2
+      // 18: invokevirtual java/io/PrintStream.println (I)V
+      // 1b: bipush 28
+      // 1d: istore 2
+      // 1e: goto 07
+      // 21: astore 2
+      // 22: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 25: bipush 3
+      // 26: invokevirtual java/io/PrintStream.println (I)V
+      // 29: bipush 28
+      // 2b: istore 3
+      // 2c: goto 07
+      // 2f: astore 4
+      // 31: bipush 28
+      // 33: istore 5
+      // 35: goto 07
+      // 38: astore 6
+      // 3a: bipush 28
+      // 3c: istore 7
+      // 3e: aload 6
+      // 40: athrow
+      // 41: return
+   }
+
+   // $QF: Could not verify finally blocks. A semaphore variable has been added to preserve control flow.
+   public void testVarWrong() {
+      boolean var8 = false;
+
+      label40: {
+         label39: {
+            try {
+               try {
+                  var8 = true;// 164
+                  System.out.println("Hi");
+                  var8 = false;
+                  break label40;
+               } catch (Exception var9) {// 165
+                  if (var9 != null) {
+                     var8 = false;
+                     break label39;
+                  }
+               }
+
+               System.out.println(var9);// 169
+               var8 = false;
+            } finally {
+               if (var8) {
+                  float var5 = 9.18F;// 173
+               }
+            }
+
+            float var3 = 9.18F;
+            return;// 170
+         }
+
+         float var11 = 9.18F;
+         return;// 167
+      }
+
+      float var2 = 9.18F;
+   }// 166 174
+
+   public void testInvalidUse() {
+      boolean var1 = false;// 178
+      String var3 = "Hi!";// 179
+
+      try {
+         Exception var4;
+         try {
+            System.out.println(var1);// 181
+            return;// 182
+         } catch (Exception var15) {// 183
+            var4 = var15;
+         }
+
+         try {
+            System.out.println(var4);// 185
+            return;// 195
+         } catch (Exception var16) {// 186
+         } finally {
+            System.out.println(var4);// 190
+         }
+      } finally {
+         System.out.println(var3);// 194
+      }
+
+   }// 187
+}
+
+class 'pkg/TestTryReturn' {
+   method 'test (Ljava/util/function/Supplier;)Z' {
+      0      7
+      1      7
+      2      7
+      3      7
+      4      7
+      5      7
+      9      7
+      a      7
+      b      7
+      c      7
+      d      8
+      16      9
+   }
+
+   method 'testFinally (Ljava/util/function/Supplier;)Z' {
+      0      16
+      1      16
+      2      16
+      3      16
+      4      16
+      5      16
+      9      16
+      a      16
+      b      16
+      c      16
+      15      21
+      16      21
+      17      18
+      18      18
+      19      18
+      1a      18
+      1b      18
+      1c      18
+   }
+
+   method 'testFinally1 (Ljava/util/function/Supplier;)V' {
+      0      25
+      1      25
+      2      25
+      3      25
+      4      25
+      5      25
+      8      29
+      9      29
+      a      29
+      b      29
+      c      29
+      d      29
+      11      29
+      12      29
+      13      29
+      14      29
+      1f      36
+      28      39
+      29      39
+      2a      39
+      2b      33
+      2c      33
+      2d      33
+      2e      33
+      2f      33
+      30      33
+      31      39
+      32      39
+      33      39
+      34      39
+      35      39
+      36      39
+      37      39
+      38      39
+      39      39
+      3a      39
+      3b      40
+   }
+
+   method 'testFinally2 (Ljava/util/function/Supplier;)Z' {
+      0      45
+      1      45
+      2      45
+      3      45
+      4      45
+      5      45
+      9      45
+      a      45
+      b      45
+      c      45
+      15      50
+      16      50
+      17      50
+      18      47
+      19      47
+      1a      47
+      1b      47
+      1c      47
+      1d      47
+      1e      50
+      1f      50
+      20      50
+      21      50
+      22      50
+      23      50
+   }
+
+   method 'testFinally3 (ZZILjava/util/function/Supplier;)Z' {
+      0      56
+      1      56
+      4      57
+      8      57
+      9      57
+      a      57
+      b      57
+      c      57
+      d      57
+      e      57
+      12      57
+      13      57
+      14      57
+      29      57
+      2a      60
+      2b      60
+      2e      64
+      2f      64
+      30      64
+      38      64
+      39      64
+      42      69
+      43      69
+      44      69
+      45      61
+      46      61
+      47      61
+      48      61
+      49      61
+      4a      61
+      4b      61
+      4f      61
+      50      61
+      51      61
+      5e      61
+      5f      66
+      60      66
+      61      66
+      62      66
+      63      66
+      64      66
+      65      66
+   }
+
+   method 'testFinally4 (Ljava/util/function/Supplier;)Z' {
+      0      73
+      1      73
+      2      76
+      3      76
+      4      76
+      5      76
+      6      76
+      7      76
+      b      76
+      c      76
+      d      76
+      e      76
+      17      81
+      18      81
+      19      81
+      1a      78
+      1b      78
+      1c      78
+      1d      78
+      1e      78
+      1f      78
+      20      81
+      21      81
+      22      81
+      23      81
+      24      81
+      25      81
+   }
+
+   method 'testFinally5 (Ljava/util/function/Supplier;)Z' {
+      0      85
+      1      85
+      2      88
+      3      88
+      4      88
+      5      88
+      6      88
+      7      88
+      b      88
+      c      88
+      d      88
+      e      88
+      1a      89
+      1b      90
+      1c      90
+      1d      90
+      1e      90
+      1f      90
+      20      90
+      21      90
+      22      90
+      23      91
+      24      91
+      25      91
+      26      91
+      27      91
+      28      91
+      2c      91
+      2d      91
+      2e      91
+      2f      91
+      3b      93
+      3c      93
+      3d      93
+      3e      93
+      3f      93
+      40      93
+      41      93
+      48      96
+      49      96
+   }
+
+   method 'testFinally6 (ZLjava/util/function/Supplier;)Z' {
+      0      100
+      1      100
+      2      103
+      3      103
+      6      104
+      7      104
+      8      105
+      9      105
+      a      105
+      b      105
+      c      105
+      d      105
+      10      108
+      11      108
+      12      108
+      13      108
+      14      108
+      15      108
+      19      108
+      1a      108
+      1b      108
+      1c      108
+      28      109
+      2a      110
+      2b      110
+      2c      110
+      2d      110
+      2e      110
+      2f      110
+      30      110
+      31      110
+      32      111
+      33      111
+      34      111
+      35      111
+      36      111
+      37      111
+      3b      111
+      3c      111
+      3d      111
+      3e      111
+      4a      113
+      4b      113
+      4c      113
+      4d      113
+      4e      113
+      4f      113
+      50      113
+      57      116
+      58      116
+   }
+
+   method 'testLoopFinally ()V' {
+      0      120
+      1      120
+      2      124
+      3      124
+      e      125
+      1a      128
+      1b      128
+      1c      128
+      1d      128
+      1e      128
+      1f      128
+   }
+
+   method 'testVarWrong ()V' {
+      0      213
+      1      213
+      2      213
+      3      213
+      4      213
+      5      214
+      8      240
+      9      240
+      a      240
+      b      241
+      c      241
+      d      241
+      e      217
+      f      241
+      10      218
+      11      241
+      12      241
+      13      236
+      14      236
+      15      236
+      16      237
+      17      224
+      18      224
+      19      224
+      1a      241
+      1b      224
+      1c      241
+      1d      241
+      1e      232
+      1f      232
+      20      232
+      21      233
+      22      228
+      23      228
+      24      228
+      25      228
+      26      241
+      27      241
+      28      241
+      29      241
+      2a      241
+   }
+
+   method 'testInvalidUse ()V' {
+      0      244
+      1      244
+      2      245
+      3      245
+      4      245
+      5      250
+      6      250
+      7      250
+      8      250
+      9      250
+      13      251
+      14      252
+      15      257
+      16      257
+      17      257
+      18      257
+      19      257
+      26      259
+      36      267
+      37      261
+      38      261
+      39      261
+      3a      261
+      3b      261
+      3c      261
+      4a      258
+      4d      264
+      4e      264
+      4f      264
+      50      264
+      51      264
+      52      264
+   }
+}
+
+Lines mapping:
+9 <-> 8
+10 <-> 9
+11 <-> 10
+17 <-> 22
+19 <-> 19
+24 <-> 26
+27 <-> 30
+28 <-> 37
+31 <-> 34
+32 <-> 40
+34 <-> 40
+40 <-> 46
+42 <-> 48
+43 <-> 51
+45 <-> 51
+50 <-> 57
+51 <-> 58
+54 <-> 61
+55 <-> 70
+58 <-> 62
+60 <-> 67
+65 <-> 74
+67 <-> 77
+69 <-> 79
+70 <-> 82
+72 <-> 82
+76 <-> 86
+78 <-> 89
+79 <-> 90
+80 <-> 91
+81 <-> 92
+83 <-> 94
+86 <-> 97
+90 <-> 101
+92 <-> 104
+93 <-> 105
+94 <-> 106
+97 <-> 109
+98 <-> 110
+99 <-> 111
+100 <-> 112
+102 <-> 114
+105 <-> 117
+109 <-> 121
+113 <-> 125
+114 <-> 126
+117 <-> 129
+164 <-> 214
+165 <-> 218
+166 <-> 242
+167 <-> 238
+169 <-> 225
+170 <-> 234
+173 <-> 229
+174 <-> 242
+178 <-> 245
+179 <-> 246
+181 <-> 251
+182 <-> 252
+183 <-> 253
+185 <-> 258
+186 <-> 260
+187 <-> 268
+190 <-> 262
+194 <-> 265
+195 <-> 259
+Not mapped:
+20
+35
+61
+84
+103
+118
+175
+191
+196

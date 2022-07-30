@@ -1,0 +1,207 @@
+package pkg;
+
+import java.io.PrintStream;
+
+public final class TestDoublePopAfterJump {
+   public static final double phiApproximation(int var0, int var1, int var2) {
+      int var10000 = var0;// 25
+      int var10001 = var1;// 26
+      int var10002 = var2;// 27
+
+      for(int var10003 = 0; var10002 > var10003; var10003 += 1) {// 28 31 38
+         int var10004 = var10000 + var10001;// 35
+         var10000 = var10001;
+         var10001 = var10004;
+      }
+
+      return (double)var10001 / (double)var10000;// 44 45 46
+   }
+
+   public static final void fizzBuzz() {
+      PrintStream var10000 = System.out;// 53
+      int var10001 = 0;// 54
+
+      while(var10001 - 100 <= 0) {// 57 58 59
+         var10001 += 1;// 60
+         if (var10001 % 3 == 0) {// 63 64 65
+            var10000.print("Fizz");// 69 70
+            var10001 = -var10001;// 72
+         }
+
+         if (var10001 <= 0) {// 75
+            var10001 = -var10001;// 76
+         }
+
+         if (var10001 % 5 == 0) {// 79 80 81
+            var10000.print("Buzz");// 84 85
+            var10001 = -var10001;// 87
+         }
+
+         if (var10001 <= 0) {// 90
+            int var11 = -var10001;// 91
+            var10000.println();// 94
+            var10001 = var11;
+         } else {
+            var10000.println(Integer.toString(var10001));// 100 101
+            var10000 = java/lang/System/out;// 102
+         }
+      }
+
+   }// 108
+
+   public static final void fizzBuzzReduced() {
+      boolean var10000 = false;// 115
+      byte var10001 = 0;// 116
+
+      while(var10001 <= 0) {// 119
+      }
+
+   }// 124
+}
+
+class 'pkg/TestDoublePopAfterJump' {
+   method 'phiApproximation (III)D' {
+      0      6
+      1      7
+      2      8
+      3      10
+      5      10
+      b      11
+      e      10
+      15      16
+      17      16
+      18      16
+      19      16
+   }
+
+   method 'fizzBuzz ()V' {
+      0      20
+      1      20
+      2      20
+      3      21
+      5      23
+      6      23
+      7      23
+      8      23
+      b      24
+      e      25
+      f      25
+      10      25
+      15      26
+      16      26
+      17      26
+      18      26
+      19      26
+      1b      27
+      1d      30
+      20      31
+      22      34
+      23      34
+      24      34
+      29      35
+      2a      35
+      2b      35
+      2c      35
+      2d      35
+      2f      36
+      31      39
+      34      40
+      37      41
+      38      41
+      39      41
+      3f      44
+      40      44
+      41      44
+      42      44
+      43      44
+      44      44
+      45      45
+      46      45
+      47      45
+      4e      49
+   }
+
+   method 'fizzBuzzReduced ()V' {
+      0      52
+      1      53
+      3      55
+      b      58
+   }
+}
+
+Lines mapping:
+25 <-> 7
+26 <-> 8
+27 <-> 9
+28 <-> 11
+31 <-> 11
+35 <-> 12
+38 <-> 11
+44 <-> 17
+45 <-> 17
+46 <-> 17
+53 <-> 21
+54 <-> 22
+57 <-> 24
+58 <-> 24
+59 <-> 24
+60 <-> 25
+63 <-> 26
+64 <-> 26
+65 <-> 26
+69 <-> 27
+70 <-> 27
+72 <-> 28
+75 <-> 31
+76 <-> 32
+79 <-> 35
+80 <-> 35
+81 <-> 35
+84 <-> 36
+85 <-> 36
+87 <-> 37
+90 <-> 40
+91 <-> 41
+94 <-> 42
+100 <-> 45
+101 <-> 45
+102 <-> 46
+108 <-> 50
+115 <-> 53
+116 <-> 54
+119 <-> 56
+124 <-> 59
+Not mapped:
+30
+33
+34
+37
+39
+40
+42
+43
+56
+61
+62
+67
+68
+71
+74
+78
+82
+83
+86
+89
+92
+93
+95
+96
+99
+103
+104
+106
+107
+118
+120
+122
+123

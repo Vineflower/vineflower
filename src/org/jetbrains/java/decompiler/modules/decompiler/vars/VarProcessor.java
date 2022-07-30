@@ -5,6 +5,7 @@ import org.jetbrains.java.decompiler.main.collectors.VarNamesCollector;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
+import org.jetbrains.java.decompiler.modules.decompiler.vars.VarTypeProcessor.FinalType;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribute.LocalVariable;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
@@ -21,10 +22,12 @@ public class VarProcessor {
   private final StructMethod method;
   private final MethodDescriptor methodDescriptor;
   private Map<VarVersionPair, String> mapVarNames = new HashMap<>();
+  private List<VarVersionPair> params = new ArrayList<>();
   private Map<VarVersionPair, LocalVariable> mapVarLVTs = new HashMap<>();
   private VarVersionsProcessor varVersions;
   private final Map<VarVersionPair, String> thisVars = new HashMap<>();
   private final Set<VarVersionPair> externalVars = new HashSet<>();
+  private final Map<VarVersionPair, String> clashingNames = new HashMap<>();
   public boolean nestedProcessed;
 
   public VarProcessor(StructMethod mt, MethodDescriptor md) {
@@ -40,10 +43,12 @@ public class VarProcessor {
 
   public void setVarDefinitions(Statement root) {
     mapVarNames = new HashMap<>();
-    new VarDefinitionHelper(root, method, this).setVarDefinitions();
+    VarDefinitionHelper varDef = new VarDefinitionHelper(root, method, this);
+    varDef.setVarDefinitions();
+    this.clashingNames.putAll(varDef.getClashingNames());
   }
 
-  public void setDebugVarNames(Map<VarVersionPair, String> mapDebugVarNames) {
+  public void setDebugVarNames(RootStatement root, Map<VarVersionPair, String> mapDebugVarNames) {
     if (varVersions == null) {
       return;
     }
@@ -62,7 +67,7 @@ public class VarProcessor {
       VarVersionPair key = mapOriginalVarIndices.get(pair.var);
       if (key != null) {
         String debugName = mapDebugVarNames.get(key);
-        if (debugName != null && TextUtil.isValidIdentifier(debugName, method.getBytecodeVersion())) {
+        if (debugName != null && TextUtil.isValidIdentifier(debugName, method.getBytecodeVersion(), root.mt)) {
           name = debugName;
           lvtName = true;
         }
@@ -76,6 +81,17 @@ public class VarProcessor {
       }
 
       mapVarNames.put(pair, name);
+    }
+
+    // Re-run name clashing analysis
+
+    VarDefinitionHelper vardef = new VarDefinitionHelper(root, method, this, false);
+    vardef.remapClashingNames(root);
+
+    for (Entry<VarVersionPair, String> e : vardef.getClashingNames().entrySet()) {
+      if (!params.contains(e.getKey())) {
+        this.clashingNames.put(e.getKey(), e.getValue());
+      }
     }
   }
 
@@ -102,6 +118,10 @@ public class VarProcessor {
     return varVersions == null ? null : varVersions.getVarType(pair);
   }
 
+  public void markParam(VarVersionPair pair) {
+    params.add(pair);
+  }
+
   public void setVarType(VarVersionPair pair, VarType type) {
     if (varVersions != null) {
       varVersions.setVarType(pair, type);
@@ -110,6 +130,10 @@ public class VarProcessor {
 
   public String getVarName(VarVersionPair pair) {
     return mapVarNames == null ? null : mapVarNames.get(pair);
+  }
+
+  public String getClashingName(VarVersionPair pair) {
+    return this.clashingNames.get(pair);
   }
 
   public void setVarName(VarVersionPair pair, String name) {
@@ -124,11 +148,11 @@ public class VarProcessor {
     return mapVarNames != null ? mapVarNames.values() : Collections.emptySet();
   }
 
-  public int getVarFinal(VarVersionPair pair) {
-    return varVersions == null ? VarTypeProcessor.VAR_FINAL : varVersions.getVarFinal(pair);
+  public FinalType getVarFinal(VarVersionPair pair) {
+    return varVersions == null ? FinalType.FINAL : varVersions.getVarFinal(pair);
   }
 
-  public void setVarFinal(VarVersionPair pair, int finalType) {
+  public void setVarFinal(VarVersionPair pair, FinalType finalType) {
     varVersions.setVarFinal(pair, finalType);
   }
 

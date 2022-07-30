@@ -1,0 +1,244 @@
+package pkg;
+
+import java.util.Objects;
+
+public class TestSwitchPatternMatching18 {
+   static void test(Integer o) {
+      Objects.requireNonNull(o);// 5
+      <unknown> var1;
+      switch(o) {
+         case 42:
+            System.out.println("42");// 6
+            break;
+         case o instanceof Integer var5 && var1 < 50:// 8
+            System.out.println("small");
+            break;
+         case o instanceof Integer var6 && var1.compareTo(17) > 0:// 9
+            System.out.println("comparable");// 10
+            break;
+         default:
+            System.out.println("default");// 11
+      }
+
+   }// 13
+
+   static void test2(Integer o) {
+      <unknown> var1;
+      switch(o) {// 16
+         case 16:
+         case null:
+            System.out.println("maybe 16?");// 18
+            break;
+         case 42:
+            System.out.println("42");// 17
+            break;
+         case o instanceof Integer var4 && var1 < 50:// 19
+            System.out.println("small");
+            break;
+         default:
+            System.out.println("default");// 20
+      }
+
+   }// 22
+
+   static void test3(Integer o) {
+      <unknown> var1;
+      switch(o) {// 25
+         case 16:
+         case null:
+            System.out.println("definitely null");// 29
+            break;
+         case 42:
+            System.out.println("42");// 26
+            break;
+         case o instanceof Integer var4 && var1 < 50:// 27
+            System.out.println("small");
+            break;
+         default:
+            System.out.println("default");// 30
+      }
+
+   }// 32
+}
+
+class 'pkg/TestSwitchPatternMatching18' {
+   method 'test (Ljava/lang/Integer;)V' {
+      0      6
+      2      6
+      3      6
+      4      6
+      10      8
+      2c      10
+      2d      10
+      2e      10
+      2f      10
+      30      10
+      31      10
+      32      10
+      33      10
+      34      11
+      37      12
+      3a      12
+      3b      12
+      3c      12
+      3d      12
+      3e      12
+      3f      12
+      47      13
+      48      13
+      49      13
+      4a      13
+      4b      13
+      4c      13
+      4d      13
+      4e      13
+      4f      14
+      52      15
+      57      15
+      58      15
+      59      15
+      5a      15
+      5b      15
+      5c      15
+      5d      15
+      5e      15
+      5f      15
+      60      15
+      61      15
+      69      16
+      6a      16
+      6b      16
+      6c      16
+      6d      16
+      6e      16
+      6f      16
+      70      16
+      71      17
+      74      19
+      75      19
+      76      19
+      77      19
+      78      19
+      79      19
+      7a      19
+      7b      19
+      7f      22
+   }
+
+   method 'test2 (Ljava/lang/Integer;)V' {
+      0      26
+      b      26
+      28      32
+      29      32
+      2a      32
+      2b      32
+      2c      32
+      2d      32
+      2e      32
+      2f      32
+      30      33
+      33      29
+      34      29
+      35      29
+      36      29
+      37      29
+      38      29
+      39      29
+      3a      29
+      3b      30
+      3e      34
+      41      34
+      42      34
+      43      34
+      44      34
+      45      34
+      46      34
+      4e      35
+      4f      35
+      50      35
+      51      35
+      52      35
+      53      35
+      54      35
+      55      35
+      56      36
+      59      38
+      5a      38
+      5b      38
+      5c      38
+      5d      38
+      5e      38
+      5f      38
+      60      38
+      64      41
+   }
+
+   method 'test3 (Ljava/lang/Integer;)V' {
+      0      45
+      b      45
+      28      51
+      29      51
+      2a      51
+      2b      51
+      2c      51
+      2d      51
+      2e      51
+      2f      51
+      30      52
+      33      53
+      36      53
+      37      53
+      38      53
+      39      53
+      3a      53
+      3b      53
+      43      54
+      44      54
+      45      54
+      46      54
+      47      54
+      48      54
+      49      54
+      4a      54
+      4b      55
+      4e      48
+      4f      48
+      50      48
+      51      48
+      52      48
+      53      48
+      54      48
+      55      48
+      56      49
+      59      57
+      5a      57
+      5b      57
+      5c      57
+      5d      57
+      5e      57
+      5f      57
+      60      57
+      64      60
+   }
+}
+
+Lines mapping:
+5 <-> 7
+6 <-> 11
+8 <-> 13
+9 <-> 16
+10 <-> 17
+11 <-> 20
+13 <-> 23
+16 <-> 27
+17 <-> 33
+18 <-> 30
+19 <-> 35
+20 <-> 39
+22 <-> 42
+25 <-> 46
+26 <-> 52
+27 <-> 54
+29 <-> 49
+30 <-> 58
+32 <-> 61

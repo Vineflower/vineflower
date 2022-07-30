@@ -4,56 +4,73 @@
 package org.jetbrains.java.decompiler.modules.decompiler.exps;
 
 import org.jetbrains.java.decompiler.main.DecompilerContext;
-import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 
+import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 
 public class AnnotationExprent extends Exprent {
-  public static final int ANNOTATION_NORMAL = 1;
-  public static final int ANNOTATION_MARKER = 2;
-  public static final int ANNOTATION_SINGLE_ELEMENT = 3;
+  public enum Type {
+    NORMAL, MARKER, SINGLE_ELEMENT
+  }
 
   private final String className;
   private final List<String> parNames;
   private final List<? extends Exprent> parValues;
 
   public AnnotationExprent(String className, List<String> parNames, List<? extends Exprent> parValues) {
-    super(EXPRENT_ANNOTATION);
+    super(Exprent.Type.ANNOTATION);
     this.className = className;
     this.parNames = parNames;
     this.parValues = parValues;
   }
 
   @Override
-  public TextBuffer toJava(int indent, BytecodeMappingTracer tracer) {
+  protected List<Exprent> getAllExprents(List<Exprent> list) {
+    list.addAll(this.parValues);
+
+    return list;
+  }
+
+  @Override
+  public Exprent copy() {
+    List<Exprent> exps = new ArrayList<>();
+    for (Exprent v : this.parValues) {
+      exps.add(v.copy());
+    }
+
+    return new AnnotationExprent(className, parNames, exps);
+  }
+  
+  @Override
+  public TextBuffer toJava(int indent) {
     TextBuffer buffer = new TextBuffer();
 
     buffer.appendIndent(indent);
     buffer.append('@');
     buffer.append(DecompilerContext.getImportCollector().getShortName(ExprProcessor.buildJavaClassName(className)));
 
-    int type = getAnnotationType();
+    Type type = getAnnotationType();
 
-    if (type != ANNOTATION_MARKER) {
+    if (type != Type.MARKER) {
       buffer.append('(');
 
-      boolean oneLiner = type == ANNOTATION_SINGLE_ELEMENT || indent < 0;
+      boolean oneLiner = type == Type.SINGLE_ELEMENT || indent < 0;
 
       for (int i = 0; i < parNames.size(); i++) {
         if (!oneLiner) {
           buffer.appendLineSeparator().appendIndent(indent + 1);
         }
 
-        if (type != ANNOTATION_SINGLE_ELEMENT) {
+        if (type != Type.SINGLE_ELEMENT) {
           buffer.append(parNames.get(i));
           buffer.append(" = ");
         }
 
-        buffer.append(parValues.get(i).toJava(0, tracer));
+        buffer.append(parValues.get(i).toJava(0));
 
         if (i < parNames.size() - 1) {
           buffer.append(',');
@@ -74,15 +91,15 @@ public class AnnotationExprent extends Exprent {
     return className;
   }
 
-  public int getAnnotationType() {
+  public Type getAnnotationType() {
     if (parNames.isEmpty()) {
-      return ANNOTATION_MARKER;
+      return Type.MARKER;
     }
     else if (parNames.size() == 1 && "value".equals(parNames.get(0))) {
-      return ANNOTATION_SINGLE_ELEMENT;
+      return Type.SINGLE_ELEMENT;
     }
     else {
-      return ANNOTATION_NORMAL;
+      return Type.NORMAL;
     }
   }
 

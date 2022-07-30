@@ -22,7 +22,7 @@ public abstract class ap implements ak {
    }
 
    public boolean equals(Object param1) {
-      // $FF: Couldn't be decompiled
+      // $QF: Couldn't be decompiled
    }
 
    public String toString() {

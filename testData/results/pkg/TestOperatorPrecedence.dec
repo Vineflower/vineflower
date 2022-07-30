@@ -24,8 +24,7 @@ public class TestOperatorPrecedence {
 
    static void testNoBox() {
       int a = 3;// 22
-      ++a;
-      System.out.println(a++ + a);// 23
+      System.out.println(++a + ++a);// 23
    }// 24
 }
 
@@ -178,21 +177,20 @@ class 'pkg/TestOperatorPrecedence' {
    method 'testNoBox ()V' {
       0      25
       1      25
-      2      27
-      3      27
-      4      27
+      2      26
+      3      26
+      4      26
       5      26
       6      26
       7      26
-      9      27
-      a      27
-      b      27
-      c      27
-      d      27
-      e      27
-      f      27
-      10      27
-      11      28
+      9      26
+      a      26
+      b      26
+      d      26
+      e      26
+      f      26
+      10      26
+      11      27
    }
 }
 
@@ -208,5 +206,5 @@ Lines mapping:
 18 <-> 22
 19 <-> 23
 22 <-> 26
-23 <-> 28
-24 <-> 29
+23 <-> 27
+24 <-> 28

@@ -21,7 +21,7 @@ public class TestObjectArrays {
             this.x *= 3 * this.x;// 20
             System.out.println("Hi!");// 21
             this.x += 224;// 25
-            this.hashcode = (new Random()).nextInt() + this.x;// 28
+            this.hashcode = new Random().nextInt() + this.x;// 28
          }
 
          @Override
@@ -30,57 +30,6 @@ public class TestObjectArrays {
          }
       }};
    }// 36
-}
-
-class 'pkg/TestObjectArrays$1' {
-   method '<init> (Lpkg/TestObjectArrays;)V' {
-      e      20
-      13      20
-      14      20
-      15      20
-      16      20
-      17      20
-      18      20
-      1a      20
-      1b      20
-      1c      20
-      1d      21
-      1e      21
-      1f      21
-      20      21
-      21      21
-      22      21
-      23      21
-      24      21
-      25      22
-      2a      22
-      2b      22
-      2c      22
-      2e      22
-      2f      22
-      30      22
-      31      23
-      39      23
-      3a      23
-      3b      23
-      3c      23
-      3d      23
-      3e      23
-      3f      23
-      40      23
-      41      23
-      42      23
-      43      23
-      44      24
-   }
-
-   method 'hashCode ()I' {
-      0      28
-      1      28
-      2      28
-      3      28
-      4      28
-   }
 }
 
 class 'pkg/TestObjectArrays' {
@@ -134,6 +83,57 @@ class 'pkg/TestObjectArrays' {
       6d      15
       7d      15
       7e      31
+   }
+}
+
+class 'pkg/TestObjectArrays$1' {
+   method '<init> (Lpkg/TestObjectArrays;)V' {
+      e      20
+      13      20
+      14      20
+      15      20
+      16      20
+      17      20
+      18      20
+      1a      20
+      1b      20
+      1c      20
+      1d      21
+      1e      21
+      1f      21
+      20      21
+      21      21
+      22      21
+      23      21
+      24      21
+      25      22
+      2a      22
+      2b      22
+      2c      22
+      2e      22
+      2f      22
+      30      22
+      31      23
+      39      23
+      3a      23
+      3b      23
+      3c      23
+      3d      23
+      3e      23
+      3f      23
+      40      23
+      41      23
+      42      23
+      43      23
+      44      24
+   }
+
+   method 'hashCode ()I' {
+      0      28
+      1      28
+      2      28
+      3      28
+      4      28
    }
 }
 

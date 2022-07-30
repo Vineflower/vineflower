@@ -37,7 +37,7 @@ public final class ExprUtil {
       }
       mask = methodWrapper.synthParameters;
     }
-    else if (parameters > 0 && node.type == ClassNode.CLASS_MEMBER && !isStatic(node.classStruct)) {
+    else if (parameters > 0 && node.type == ClassNode.Type.MEMBER && !isStatic(node.classStruct)) {
       // non-static member class
       mask = new ArrayList<>(Collections.nCopies(parameters, null));
       mask.set(0, new VarVersionPair(-1, 0));

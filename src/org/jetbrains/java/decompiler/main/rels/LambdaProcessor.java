@@ -111,11 +111,14 @@ public class LambdaProcessor {
 
     // build class hierarchy on lambda
     for (ClassNode nd : node.nested) {
-      if (nd.type == ClassNode.CLASS_LAMBDA) {
+      if (nd.type == ClassNode.Type.LAMBDA) {
         String parent_class_name = mapMethodsLambda.get(nd.enclosingMethod);
         if (parent_class_name != null) {
           ClassNode parent_class = clProcessor.getMapRootClasses().get(parent_class_name);
 
+          if (nd == parent_class) {
+            throw new IllegalStateException("Lambda " + nd.classStruct.qualifiedName + " is recursive?!");
+          }
           parent_class.nested.add(nd);
           nd.parent = parent_class;
           Collections.sort(parent_class.nested);

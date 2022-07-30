@@ -5,13 +5,13 @@ public class TestInlineSwitchExpression4 {
       String var10000;
       if (i > 0) {// 5
          switch(i) {
-         default:
-            var10000 = "1";
+            default:
+               var10000 = "1";
          }
       } else {
          switch(i) {
-         default:
-            var10000 = "2";
+            default:
+               var10000 = "2";
          }
       }
 

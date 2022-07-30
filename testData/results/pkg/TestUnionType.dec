@@ -4,18 +4,11 @@ import java.util.Comparator;
 
 public interface TestUnionType {
    static Comparator comparingInt() {
-      return (c1, c2) -> {// 8
-         return 1;
-      };
+      return (c1, c2) -> 1;// 8
    }
 }
 
 class 'pkg/TestUnionType' {
-   method 'lambda$comparingInt$ff46620a$1 (Ljava/lang/Object;Ljava/lang/Object;)I' {
-      0      7
-      1      7
-   }
-
    method 'comparingInt ()Ljava/util/Comparator;' {
       5      6
       6      6
@@ -24,6 +17,11 @@ class 'pkg/TestUnionType' {
       9      6
       a      6
       b      6
+   }
+
+   method 'lambda$comparingInt$ff46620a$1 (Ljava/lang/Object;Ljava/lang/Object;)I' {
+      0      6
+      1      6
    }
 }
 

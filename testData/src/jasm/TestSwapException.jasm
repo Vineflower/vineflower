@@ -1,0 +1,31 @@
+/**
+ * This code can be assembled with <a href="https://wiki.openjdk.java.net/display/CodeTools/asmtools">asmtools</a>
+ * using <code>asmtools jasm -g *.jasm</code> command line.
+ */
+package  pkg;
+
+super public class TestSwapException
+  version 52:0
+{
+
+public Method "<init>":"()V"
+  stack 1 locals 1
+{
+    aload_0;
+    invokespecial	Method java/lang/Object."<init>":"()V";
+    return;
+}
+
+public static Method test:"()V"
+  stack 3 locals 0
+{
+    // "Backwards" init of exceptions used by some bytecode generating tools.
+    ldc	String "Hi!";
+    new	class java/lang/RuntimeException;
+    dup_x1;
+    swap;
+    invokespecial Method java/lang/RuntimeException."<init>":"(Ljava/lang/String;)V";
+    athrow;
+}
+
+} // end Class TestSwapException

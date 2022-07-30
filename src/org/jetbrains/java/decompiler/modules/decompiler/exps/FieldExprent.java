@@ -6,7 +6,6 @@ package org.jetbrains.java.decompiler.modules.decompiler.exps;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
-import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
@@ -24,12 +23,7 @@ import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.TextUtil;
 
-import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class FieldExprent extends Exprent {
   private final String name;
@@ -38,23 +32,26 @@ public class FieldExprent extends Exprent {
   private Exprent instance;
   private final FieldDescriptor descriptor;
   private boolean forceQualified = false;
+  private boolean isQualifier = false;
+  private boolean wasCondy = false;
 
   public FieldExprent(LinkConstant cn, Exprent instance, BitSet bytecodeOffsets) {
     this(cn.elementname, cn.classname, instance == null, instance, FieldDescriptor.parseDescriptor(cn.descriptor), bytecodeOffsets);
   }
 
   public FieldExprent(String name, String classname, boolean isStatic, Exprent instance, FieldDescriptor descriptor, BitSet bytecodeOffsets) {
-    this(name, classname, isStatic, instance, descriptor, bytecodeOffsets, false);
+    this(name, classname, isStatic, instance, descriptor, bytecodeOffsets, false, false);
   }
 
-  public FieldExprent(String name, String classname, boolean isStatic, Exprent instance, FieldDescriptor descriptor, BitSet bytecodeOffsets, boolean forceQualified) {
-    super(EXPRENT_FIELD);
+  public FieldExprent(String name, String classname, boolean isStatic, Exprent instance, FieldDescriptor descriptor, BitSet bytecodeOffsets, boolean forceQualified, boolean wasCondy) {
+    super(Type.FIELD);
     this.name = name;
     this.classname = classname;
     this.isStatic = isStatic;
     this.instance = instance;
     this.descriptor = descriptor;
     this.forceQualified = forceQualified;
+    this.wasCondy = wasCondy;
 
     addBytecodeOffsets(bytecodeOffsets);
   }
@@ -117,8 +114,7 @@ public class FieldExprent extends Exprent {
   }
 
   @Override
-  public List<Exprent> getAllExprents() {
-    List<Exprent> lst = new ArrayList<>();
+  public List<Exprent> getAllExprents(List<Exprent> lst) {
     if (instance != null) {
       lst.add(instance);
     }
@@ -127,7 +123,7 @@ public class FieldExprent extends Exprent {
 
   @Override
   public Exprent copy() {
-    return new FieldExprent(name, classname, isStatic, instance == null ? null : instance.copy(), descriptor, bytecode);
+    return new FieldExprent(name, classname, isStatic, instance == null ? null : instance.copy(), descriptor, bytecode, forceQualified, wasCondy);
   }
 
   private boolean isAmbiguous() {
@@ -143,12 +139,15 @@ public class FieldExprent extends Exprent {
   }
 
   @Override
-  public TextBuffer toJava(int indent, BytecodeMappingTracer tracer) {
+  public TextBuffer toJava(int indent) {
     TextBuffer buf = new TextBuffer();
 
+    if (wasCondy) {
+      buf.append("/* $QF: constant dynamic */ ");
+    }
+
     if (isStatic) {
-      ClassNode node = (ClassNode)DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS_NODE);
-      if (node == null || !classname.equals(node.classStruct.qualifiedName) || isAmbiguous() || forceQualified) {
+      if (useQualifiedStatic()) {
         buf.append(DecompilerContext.getImportCollector().getShortNameInClassContext(ExprProcessor.buildJavaClassName(classname)));
         buf.append(".");
       }
@@ -156,7 +155,7 @@ public class FieldExprent extends Exprent {
     else {
       String super_qualifier = null;
 
-      if (instance != null && instance.type == Exprent.EXPRENT_VAR) {
+      if (instance instanceof VarExprent) {
         VarExprent instVar = (VarExprent)instance;
         VarVersionPair pair = new VarVersionPair(instVar);
 
@@ -177,18 +176,29 @@ public class FieldExprent extends Exprent {
         TextUtil.writeQualifiedSuper(buf, super_qualifier);
       }
       else {
+        if (!isQualifier) {
+          buf.pushNewlineGroup(indent, 1);
+        }
+        if (instance != null) {
+          instance.setIsQualifier();
+        }
         TextBuffer buff = new TextBuffer();
-        boolean casted = ExprProcessor.getCastedExprent(instance, new VarType(CodeConstants.TYPE_OBJECT, 0, classname), buff, indent, true, tracer);
-        String res = buff.toString();
+        boolean casted = ExprProcessor.getCastedExprent(instance, new VarType(CodeConstants.TYPE_OBJECT, 0, classname), buff, indent, true);
 
         if (casted || instance.getPrecedence() > getPrecedence()) {
-          res = "(" + res + ")";
+          buff.enclose("(", ")");
         }
 
-        buf.append(res);
+        buf.append(buff);
+        if (instance != null && instance.allowNewlineAfterQualifier()) {
+          buf.appendPossibleNewline();
+        }
+        if (!isQualifier) {
+          buf.popNewlineGroup();
+        }
       }
 
-      if (buf.toString().equals(
+      if (buf.contentEquals(
         VarExprent.VAR_NAMELESS_ENCLOSURE)) { // FIXME: workaround for field access of an anonymous enclosing class. Find a better way.
         buf.setLength(0);
       }
@@ -197,11 +207,16 @@ public class FieldExprent extends Exprent {
       }
     }
 
+    buf.addBytecodeMapping(bytecode);
+
     buf.append(name);
 
-    tracer.addMapping(bytecode);
-
     return buf;
+  }
+
+  private boolean useQualifiedStatic() {
+    ClassNode node = (ClassNode)DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS_NODE);
+    return node == null || !classname.equals(node.classStruct.qualifiedName) || isAmbiguous() || forceQualified;
   }
 
   @Override
@@ -252,6 +267,19 @@ public class FieldExprent extends Exprent {
   public void getBytecodeRange(BitSet values) {
     measureBytecode(values, instance);
     measureBytecode(values);
+  }
+
+  @Override
+  public void setIsQualifier() {
+    isQualifier = true;
+  }
+
+  @Override
+  public boolean allowNewlineAfterQualifier() {
+    if (isStatic && !useQualifiedStatic()) {
+      return false;
+    }
+    return super.allowNewlineAfterQualifier();
   }
 
   // *****************************************************************************

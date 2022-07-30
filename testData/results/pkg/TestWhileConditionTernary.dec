@@ -1,0 +1,90 @@
+package pkg;
+
+public class TestWhileConditionTernary {
+   public void test1() {
+      if (this.blackBox()) {// 5
+         while(!this.blackBox() && (this.blackBox() ? this.blackBox3().equals("a") : this.blackBox2())) {// 6
+            System.out.println("text");// 7
+         }
+      }
+
+   }// 10
+
+   public boolean blackBox() {
+      return true;// 13
+   }
+
+   public boolean blackBox2() {
+      return false;// 17
+   }
+
+   public String blackBox3() {
+      return "thing;";// 21
+   }
+}
+
+class 'pkg/TestWhileConditionTernary' {
+   method 'test1 ()V' {
+      0      4
+      1      4
+      2      4
+      3      4
+      4      4
+      7      5
+      8      5
+      9      5
+      a      5
+      b      5
+      e      5
+      f      5
+      10      5
+      11      5
+      15      5
+      16      5
+      17      5
+      18      5
+      19      5
+      1a      5
+      1b      5
+      1c      5
+      1d      5
+      24      5
+      25      5
+      26      5
+      27      5
+      2b      6
+      2c      6
+      2d      6
+      2e      6
+      2f      6
+      30      6
+      31      6
+      32      6
+      36      10
+   }
+
+   method 'blackBox ()Z' {
+      0      13
+      1      13
+   }
+
+   method 'blackBox2 ()Z' {
+      0      17
+      1      17
+   }
+
+   method 'blackBox3 ()Ljava/lang/String;' {
+      0      21
+      1      21
+      2      21
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 6
+7 <-> 7
+10 <-> 11
+13 <-> 14
+17 <-> 18
+21 <-> 22

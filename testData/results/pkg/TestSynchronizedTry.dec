@@ -1,0 +1,275 @@
+package pkg;
+
+public class TestSynchronizedTry {
+   public void test1() {
+      try {
+         synchronized(this) {// 6
+            this.notifyAll();// 7
+         }// 8
+      } finally {
+         synchronized(this) {// 10
+            this.notifyAll();// 11
+         }// 12
+      }
+
+   }// 14
+
+   public void test2(int i) {
+      try {
+         label36: {
+            System.out.println(0);// 19
+            synchronized(this) {// 21
+               System.out.println(1);// 22
+               if (i > 0) {// 23
+                  break label36;
+               }
+
+               System.out.println(2);// 26
+            }
+
+            System.out.println(3);// 29
+         }
+      } catch (Exception var5) {// 30
+         var5.printStackTrace();// 31
+      }
+
+      if (i > 2) {// 34
+         System.out.println("Hello!");// 35
+      }
+
+   }// 37
+
+   public void test3(int i) {
+      try {
+         label35: {
+            System.out.println(0);// 42
+            synchronized(this) {// 43
+               System.out.println(1);// 44
+               if (i > 0) {// 45
+                  break label35;
+               }
+
+               System.out.println(2);// 49
+            }
+
+            System.out.println(3);// 52
+         }
+      } catch (Exception var5) {// 54
+         var5.printStackTrace();// 55
+      }
+
+      if (i > 2) {// 58
+         System.out.println("Hello!");// 59
+      }
+
+   }// 61
+
+   public void testLabel() {
+      String var1 = "Hi!";// 64
+      Object var8 = null;// 66
+      synchronized(this) {// 67
+         String var9 = "Hi!";// 69
+
+         try {
+            if (var1 == null) {// 72
+               return;// 73
+            }
+         } catch (Exception var7) {// 77
+            break label6;
+         }
+
+         return;// 75
+      }
+
+      System.out.println(var8);// 80
+   }// 81
+}
+
+class 'pkg/TestSynchronizedTry' {
+   method 'test1 ()V' {
+      0      5
+      3      5
+      4      6
+      5      6
+      6      6
+      7      6
+      9      7
+      27      9
+      28      9
+      2b      9
+      2c      9
+      2e      10
+      2f      10
+      30      10
+      31      10
+      34      11
+      43      14
+   }
+
+   method 'test2 (I)V' {
+      0      19
+      1      19
+      2      19
+      3      19
+      4      19
+      5      19
+      6      19
+      7      20
+      a      20
+      b      21
+      c      21
+      d      21
+      e      21
+      f      21
+      10      21
+      11      21
+      12      22
+      13      22
+      1b      26
+      1c      26
+      1d      26
+      1e      26
+      1f      26
+      20      26
+      21      26
+      2c      29
+      2d      29
+      2e      29
+      2f      29
+      30      29
+      36      31
+      38      32
+      3b      35
+      3c      35
+      3d      35
+      40      36
+      41      36
+      42      36
+      43      36
+      44      36
+      45      36
+      48      39
+   }
+
+   method 'test3 (I)V' {
+      0      44
+      1      44
+      2      44
+      3      44
+      4      44
+      5      44
+      6      44
+      7      45
+      a      45
+      b      46
+      c      46
+      d      46
+      e      46
+      f      46
+      10      46
+      11      46
+      12      47
+      13      47
+      1b      51
+      1c      51
+      1d      51
+      1e      51
+      1f      51
+      20      51
+      21      51
+      2c      54
+      2d      54
+      2e      54
+      2f      54
+      30      54
+      36      56
+      38      57
+      3b      60
+      3c      60
+      3d      60
+      40      61
+      41      61
+      42      61
+      43      61
+      44      61
+      45      61
+      48      64
+   }
+
+   method 'testLabel ()V' {
+      0      67
+      1      67
+      2      67
+      3      68
+      4      68
+      5      69
+      8      69
+      9      70
+      a      70
+      b      70
+      c      70
+      d      73
+      e      73
+      13      74
+      16      80
+      17      76
+      25      83
+      26      83
+      27      83
+      28      83
+      29      83
+      2a      83
+      2b      83
+      2c      84
+   }
+}
+
+Lines mapping:
+6 <-> 6
+7 <-> 7
+8 <-> 8
+10 <-> 10
+11 <-> 11
+12 <-> 12
+14 <-> 15
+19 <-> 20
+21 <-> 21
+22 <-> 22
+23 <-> 23
+26 <-> 27
+29 <-> 30
+30 <-> 32
+31 <-> 33
+34 <-> 36
+35 <-> 37
+37 <-> 40
+42 <-> 45
+43 <-> 46
+44 <-> 47
+45 <-> 48
+49 <-> 52
+52 <-> 55
+54 <-> 57
+55 <-> 58
+58 <-> 61
+59 <-> 62
+61 <-> 65
+64 <-> 68
+66 <-> 69
+67 <-> 70
+69 <-> 71
+72 <-> 74
+73 <-> 75
+75 <-> 81
+77 <-> 77
+80 <-> 84
+81 <-> 85
+Not mapped:
+13
+24
+27
+32
+46
+50
+56
+79

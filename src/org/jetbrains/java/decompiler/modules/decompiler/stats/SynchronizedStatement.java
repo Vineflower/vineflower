@@ -3,7 +3,6 @@ package org.jetbrains.java.decompiler.modules.decompiler.stats;
 
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
-import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.SequenceHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
@@ -14,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class SynchronizedStatement extends Statement {
+public final class SynchronizedStatement extends Statement {
 
   private Statement body;
 
@@ -25,7 +24,7 @@ public class SynchronizedStatement extends Statement {
   // *****************************************************************************
 
   public SynchronizedStatement() {
-    type = TYPE_SYNCRONIZED;
+    super(StatementType.SYNCHRONIZED);
 
     headexprent.add(null);
   }
@@ -57,33 +56,39 @@ public class SynchronizedStatement extends Statement {
   // *****************************************************************************
 
   @Override
-  public TextBuffer toJava(int indent, BytecodeMappingTracer tracer) {
+  public TextBuffer toJava(int indent) {
     TextBuffer buf = new TextBuffer();
-    buf.append(ExprProcessor.listToJava(varDefinitions, indent, tracer));
-    buf.append(first.toJava(indent, tracer));
+    buf.append(ExprProcessor.listToJava(varDefinitions, indent));
+    buf.append(first.toJava(indent));
 
     if (isLabeled()) {
-      buf.appendIndent(indent).append("label").append(this.id.toString()).append(":").appendLineSeparator();
-      tracer.incrementCurrentSourceLine();
+      buf.appendIndent(indent).append("label").append(this.id).append(":").appendLineSeparator();
     }
 
-    buf.appendIndent(indent).append(headexprent.get(0).toJava(indent, tracer)).append(" {").appendLineSeparator();
-    tracer.incrementCurrentSourceLine();
+    Exprent headExpr = headexprent.get(0);
+    buf.appendIndent(indent);
+    // monitor can be null in early processing stages
+    if (headExpr != null) {
+      buf.append(headExpr.toJava(indent));
+    } else {
+      buf.append("synchronized <null condition> ");
+    }
+    buf.append(" {").appendLineSeparator();
 
-    buf.append(ExprProcessor.jmpWrapper(body, indent + 1, true, tracer));
+    buf.append(ExprProcessor.jmpWrapper(body, indent + 1, true));
 
-    buf.appendIndent(indent).append("}").appendLineSeparator();
-    mapMonitorExitInstr(tracer);
-    tracer.incrementCurrentSourceLine();
+    buf.appendIndent(indent).append("}");
+    mapMonitorExitInstr(buf);
+    buf.appendLineSeparator();
 
     return buf;
   }
 
-  private void mapMonitorExitInstr(BytecodeMappingTracer tracer) {
+  private void mapMonitorExitInstr(TextBuffer buffer) {
     BasicBlock block = body.getBasichead().getBlock();
     if (!block.getSeq().isEmpty() && block.getLastInstruction().opcode == CodeConstants.opc_monitorexit) {
       Integer offset = block.getOldOffset(block.size() - 1);
-      if (offset > -1) tracer.addMapping(offset);
+      if (offset > -1) buffer.addBytecodeMapping(offset);
     }
   }
 
@@ -144,7 +149,15 @@ public class SynchronizedStatement extends Statement {
     return body;
   }
 
+  public void setBody(Statement body) {
+    this.body = body;
+  }
+
   public List<Exprent> getHeadexprentList() {
     return headexprent;
+  }
+
+  public Exprent getHeadexprent() {
+    return headexprent.get(0);
   }
 }

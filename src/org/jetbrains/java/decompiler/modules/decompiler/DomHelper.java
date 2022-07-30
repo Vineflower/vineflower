@@ -6,10 +6,11 @@ import org.jetbrains.java.decompiler.code.cfg.ControlFlowGraph;
 import org.jetbrains.java.decompiler.code.cfg.ExceptionRangeCFG;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
-import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
+import org.jetbrains.java.decompiler.main.rels.MethodProcessorRunnable;
 import org.jetbrains.java.decompiler.modules.decompiler.decompose.FastExtendedPostdominanceHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.deobfuscator.IrreducibleCFGDeobfuscator;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement.EdgeDirection;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.util.DotExporter;
 import org.jetbrains.java.decompiler.util.FastFixedSetFactory;
@@ -46,20 +47,6 @@ public final class DomHelper {
       return root;
     }
 
-    boolean firstIsException = false;
-
-    if (DecompilerContext.getOption(IFernflowerPreferences.EXPERIMENTAL_TRY_LOOP_FIX)) {
-      // Check if the first block in the graph is covered by an exception range.
-      // If it is, we need to avoid setting the edge type to continue, as that causes problems later down the line.
-
-      for (ExceptionRangeCFG exception : graph.getExceptions()) {
-        if (exception.getProtectedRange().contains(firstblock)) {
-          firstIsException = true;
-          break;
-        }
-      }
-    }
-
     for (BasicBlock block : blocks) {
       Statement stat = stats.getWithKey(block.id);
 
@@ -67,7 +54,7 @@ public final class DomHelper {
         Statement stsucc = stats.getWithKey(succ.id);
 
         int type;
-        if (stsucc == firstst && !firstIsException) {
+        if (stsucc == firstst) {
           type = StatEdge.TYPE_CONTINUE;
           stsucc = general;
         }
@@ -103,60 +90,60 @@ public final class DomHelper {
     return new RootStatement(general, dummyexit, mt);
   }
 
-  public static VBStyleCollection<List<Integer>, Integer> calcPostDominators(Statement container) {
+  // Returns a postdominator tree for a given general statement
+  public static VBStyleCollection<List<Integer>, Integer> calcPostDominators(Statement general) {
 
     HashMap<Statement, FastFixedSet<Statement>> lists = new HashMap<>();
 
-    StrongConnectivityHelper schelper = new StrongConnectivityHelper(container);
+    // Calculate strong connectivity
+    StrongConnectivityHelper schelper = new StrongConnectivityHelper(general);
     List<List<Statement>> components = schelper.getComponents();
 
-    List<Statement> lstStats = container.getPostReversePostOrderList(StrongConnectivityHelper.getExitReps(components));
+    List<Statement> lstStats = general.getPostReversePostOrderList(StrongConnectivityHelper.getExitReps(components));
 
     FastFixedSetFactory<Statement> factory = new FastFixedSetFactory<>(lstStats);
 
-    FastFixedSet<Statement> setFlagNodes = factory.spawnEmptySet();
-    setFlagNodes.setAllElements();
+    FastFixedSet<Statement> setFlagNodes = factory.createCopiedSet();
+    FastFixedSet<Statement> initSet = factory.createCopiedSet();
 
-    FastFixedSet<Statement> initSet = factory.spawnEmptySet();
-    initSet.setAllElements();
-
-    for (List<Statement> lst : components) {
+    for (List<Statement> component : components) {
       FastFixedSet<Statement> tmpSet;
 
-      if (StrongConnectivityHelper.isExitComponent(lst)) {
-        tmpSet = factory.spawnEmptySet();
-        tmpSet.addAll(lst);
-      }
-      else {
+      if (StrongConnectivityHelper.isExitComponent(component)) {
+        tmpSet = factory.createEmptySet();
+        tmpSet.addAll(component);
+      } else {
         tmpSet = initSet.getCopy();
       }
 
-      for (Statement stat : lst) {
+      for (Statement stat : component) {
         lists.put(stat, tmpSet);
       }
     }
 
     do {
-
       for (Statement stat : lstStats) {
 
         if (!setFlagNodes.contains(stat)) {
           continue;
         }
+
         setFlagNodes.remove(stat);
 
         FastFixedSet<Statement> doms = lists.get(stat);
-        FastFixedSet<Statement> domsSuccs = factory.spawnEmptySet();
+        FastFixedSet<Statement> domsSuccs = factory.createEmptySet();
 
-        List<Statement> lstSuccs = stat.getNeighbours(StatEdge.TYPE_REGULAR, Statement.DIRECTION_FORWARD);
-        for (int j = 0; j < lstSuccs.size(); j++) {
-          Statement succ = lstSuccs.get(j);
+        List<Statement> successors = stat.getNeighbours(StatEdge.TYPE_REGULAR, EdgeDirection.FORWARD);
+
+        for (int j = 0; j < successors.size(); j++) {
+          Statement succ = successors.get(j);
           FastFixedSet<Statement> succlst = lists.get(succ);
 
+          // first
           if (j == 0) {
+            // Union the sets as it is empty at this point
             domsSuccs.union(succlst);
-          }
-          else {
+          } else {
             domsSuccs.intersection(succlst);
           }
         }
@@ -169,19 +156,19 @@ public final class DomHelper {
 
           lists.put(stat, domsSuccs);
 
-          List<Statement> lstPreds = stat.getNeighbours(StatEdge.TYPE_REGULAR, Statement.DIRECTION_BACKWARD);
+          List<Statement> lstPreds = stat.getNeighbours(StatEdge.TYPE_REGULAR, EdgeDirection.BACKWARD);
           for (Statement pred : lstPreds) {
             setFlagNodes.add(pred);
           }
         }
       }
-    }
-    while (!setFlagNodes.isEmpty());
+    } while (!setFlagNodes.isEmpty());
 
-    VBStyleCollection<List<Integer>, Integer> ret = new VBStyleCollection<>();
-    List<Statement> lstRevPost = container.getReversePostOrderList(); // sort order crucial!
+    VBStyleCollection<List<Integer>, Integer> postDominators = new VBStyleCollection<>();
 
-    final HashMap<Integer, Integer> mapSortOrder = new HashMap<>();
+    List<Statement> lstRevPost = general.getReversePostOrderList(); // sort order crucial!
+
+    HashMap<Integer, Integer> mapSortOrder = new HashMap<>();
     for (int i = 0; i < lstRevPost.size(); i++) {
       mapSortOrder.put(lstRevPost.get(i).id, i);
     }
@@ -189,6 +176,7 @@ public final class DomHelper {
     for (Statement st : lstStats) {
 
       List<Integer> lstPosts = new ArrayList<>();
+
       for (Statement stt : lists.get(st)) {
         lstPosts.add(stt.id);
       }
@@ -199,21 +187,24 @@ public final class DomHelper {
         lstPosts.add(lstPosts.remove(0));
       }
 
-      ret.addWithKey(lstPosts, st.id);
+      postDominators.addWithKey(lstPosts, st.id);
     }
 
-    return ret;
+    return postDominators;
   }
 
   public static RootStatement parseGraph(ControlFlowGraph graph, StructMethod mt) {
 
     RootStatement root = graphToStatement(graph, mt);
+    root.addComments(graph);
 
-    if (!processStatement(root, new LinkedHashMap<>())) {
+    if (!processStatement(root, root, new LinkedHashMap<>())) {
       DotExporter.errorToDotFile(graph, mt, "parseGraphFail");
       DotExporter.errorToDotFile(root, mt, "parseGraphFailStat");
       throw new RuntimeException("parsing failure!");
     }
+
+    MethodProcessorRunnable.debugCurrentlyDecompiling.set(root);
 
     LabelHelper.lowContinueLabels(root, new LinkedHashSet<>());
 
@@ -233,7 +224,7 @@ public final class DomHelper {
       res |= removeSynchronizedHandler(st);
     }
 
-    if (stat.type == Statement.TYPE_SYNCRONIZED) {
+    if (stat instanceof SynchronizedStatement) {
       ((SynchronizedStatement)stat).removeExc();
       res = true;
     }
@@ -248,7 +239,7 @@ public final class DomHelper {
       buildSynchronized(st);
     }
 
-    if (stat.type == Statement.TYPE_SEQUENCE) {
+    if (stat instanceof SequenceStatement) {
 
       while (true) {
 
@@ -263,22 +254,35 @@ public final class DomHelper {
             Statement next = lst.get(i + 1);
             Statement nextDirect = next;
 
-            while (next.type == Statement.TYPE_SEQUENCE) {
+            while (next instanceof SequenceStatement) {
               next = next.getFirst();
             }
 
-            if (next.type == Statement.TYPE_CATCHALL) {
+            if (next instanceof CatchAllStatement) {
 
               CatchAllStatement ca = (CatchAllStatement)next;
 
-              if (ca.getFirst().isContainsMonitorExit() && ca.getHandler().isContainsMonitorExit()) {
+              boolean headOk = ca.getFirst().containsMonitorExitOrAthrow();
+
+              if (!headOk) {
+                headOk = hasNoExits(ca.getFirst());
+              }
+
+              // If the body of the monitor ends in a throw, it won't have a monitor exit as the catch handler will call it.
+              // We will also not have a monitorexit in an infinite loop as there is no way to leave the statement.
+              // However, the handler *must* have a monitorexit!
+              if (headOk && ca.getHandler().containsMonitorExit()) {
+
+                // remove monitorexit
+                ca.getFirst().markMonitorexitDead();
+                ca.getHandler().markMonitorexitDead();
 
                 // remove the head block from sequence
                 current.removeSuccessor(current.getSuccessorEdges(Statement.STATEDGE_DIRECT_ALL).get(0));
 
                 for (StatEdge edge : current.getPredecessorEdges(Statement.STATEDGE_DIRECT_ALL)) {
                   current.removePredecessor(edge);
-                  edge.getSource().changeEdgeNode(Statement.DIRECTION_FORWARD, edge, nextDirect);
+                  edge.getSource().changeEdgeNode(EdgeDirection.FORWARD, edge, nextDirect);
                   nextDirect.addPredecessor(edge);
                 }
 
@@ -310,30 +314,53 @@ public final class DomHelper {
     }
   }
 
-  private static boolean processStatement(Statement general, HashMap<Integer, Set<Integer>> mapExtPost) {
+  // Checks if a statement has no exits (disregarding exceptions) that lead outside the statement.
+  private static boolean hasNoExits(Statement head) {
+    Deque<Statement> stack = new LinkedList<>();
+    stack.add(head);
 
-    if (general.type == Statement.TYPE_ROOT) {
-      Statement stat = general.getFirst();
-      if (stat.type != Statement.TYPE_GENERAL) {
-        return true;
+    while (!stack.isEmpty()) {
+      Statement stat = stack.removeFirst();
+
+      List<StatEdge> sucs = stat.getSuccessorEdges(Statement.STATEDGE_DIRECT_ALL);
+      for (StatEdge suc : sucs) {
+        if (!head.containsStatement(suc.getDestination())) {
+          return false;
+        }
       }
-      else {
-        boolean complete = processStatement(stat, mapExtPost);
+
+      stack.addAll(stat.getStats());
+    }
+
+    return true;
+  }
+
+  private static boolean processStatement(Statement general, RootStatement root, HashMap<Integer, Set<Integer>> mapExtPost) {
+
+    if (general instanceof RootStatement) {
+      Statement stat = general.getFirst();
+
+      // Root statement consists of a singular basic block
+      if (stat instanceof BasicBlockStatement) {
+        return true;
+      } else {
+        boolean complete = processStatement(stat, root, mapExtPost);
+
         if (complete) {
           // replace general purpose statement with simple one
           general.replaceStatement(stat, stat.getFirst());
         }
+
         return complete;
       }
     }
 
+    // Map is empty or cleaned (only false in the case of an inherited postdominance set from a parent general statement recursion, i.e. subgraph)
     boolean mapRefreshed = mapExtPost.isEmpty();
 
     for (int mapstage = 0; mapstage < 2; mapstage++) {
 
-      for (int reducibility = 0;
-           reducibility < 5;
-           reducibility++) { // FIXME: implement proper node splitting. For now up to 5 nodes in sequence are splitted.
+      for (int reducibility = 0; reducibility < 5; reducibility++) { // FIXME: implement proper node splitting. For now up to 5 nodes in sequence are splitted.
 
         if (reducibility > 0) {
 
@@ -345,13 +372,25 @@ public final class DomHelper {
           if (IrreducibleCFGDeobfuscator.isStatementIrreducible(general)) {
             if (!IrreducibleCFGDeobfuscator.splitIrreducibleNode(general)) {
               DecompilerContext.getLogger().writeMessage("Irreducible statement cannot be decomposed!", IFernflowerLogger.Severity.ERROR);
+
               break;
+            } else {
+              // Mirrors comment from reducibility loop, unsure if this is ever hit but it's here just in case
+              if (reducibility == 4 && (mapstage == 1 || mapRefreshed)) {
+                DecompilerContext.getLogger().writeMessage("Irreducible statement too complex to be decomposed!", IFernflowerLogger.Severity.ERROR);
+
+                root.addComment("$QF: Irreducible bytecode has more than 5 nodes in sequence and was not entirely decomposed");
+                root.addErrorComment = true;
+              }
+
+              root.addComment("$QF: Irreducible bytecode was duplicated to produce valid code");
             }
-          }
-          else {
-            if (mapstage == 2 || mapRefreshed) { // last chance lost
+          } else {
+            // TODO: Originally this check was mapstage == 2, but that condition is never possible- why was it here?
+            if (mapstage == 1 || mapRefreshed) { // last chance lost
               DecompilerContext.getLogger().writeMessage("Statement cannot be decomposed although reducible!", IFernflowerLogger.Severity.ERROR);
             }
+
             break;
           }
 
@@ -363,38 +402,48 @@ public final class DomHelper {
           mapRefreshed = true;
         }
 
+        // Try finding simple statements and subgraphs twice.
+        // First time (i = 0), we try to use the conventional method of finding postdominators with strongly connected components and reverse post order
+        // Second time (i = 1), we use a brute force method of simply using the reverse post order and relying on the extended post dominators
         for (int i = 0; i < 2; i++) {
 
           boolean forceall = i != 0;
 
+          // Keep finding simple statements until subgraphs cannot be created.
+          // This has the effect that after a subgraph is created, simple statements are found again with the contents of the subgraph in mind
           while (true) {
 
+            // Find statements in this subgraph from the basicblocks that comprise it
             if (findSimpleStatements(general, mapExtPost)) {
               reducibility = 0;
             }
 
-            if (general.type == Statement.TYPE_PLACEHOLDER) {
+            // If every statement in this subgraph was discovered, return as we've decomposed this part of the graph
+            if (((GeneralStatement) general).isPlaceholder()) {
               return true;
             }
 
+            // Find another subgraph to decompose within this subgraph, to simplify the current graph
             Statement stat = findGeneralStatement(general, forceall, mapExtPost);
 
             if (stat != null) {
-              boolean complete = processStatement(stat, general.getFirst() == stat ? mapExtPost : new HashMap<>());
+              // Recurse on the subgraph general statement that we found, and inherit the postdominator set if it's the first statement in the current general
+              boolean complete = processStatement(stat, root, general.getFirst() == stat ? mapExtPost : new HashMap<>());
 
               if (complete) {
-                // replace general purpose statement with simple one
+                // replace subgraph general purpose statement with simple one to complete this (outer) subgraph
                 general.replaceStatement(stat, stat.getFirst());
-              }
-              else {
+              } else {
+                // Statement processing failed in an inner subgraph, so we give up here too
                 return false;
               }
 
+              // Replaced subgraph general statement with its contents, iterate simple statements again
               mapExtPost = new HashMap<>();
               mapRefreshed = true;
               reducibility = 0;
-            }
-            else {
+            } else {
+              // Couldn't find subgraph general statement
               break;
             }
           }
@@ -408,9 +457,10 @@ public final class DomHelper {
       }
 
       if (mapRefreshed) {
+        // If the postdominators were refreshed, we know that the graph can't be decomposed and break out of the mapStage iteration, regardless of the stage
         break;
-      }
-      else {
+      } else {
+        // Not refreshed (in the case of inherited postdominance set from parent subgraph) so we clean the map and try again in the hopes that FastExtendedPostdominanceHelper will be able to find something that can help decompose this graph
         mapExtPost = new HashMap<>();
       }
     }
@@ -450,8 +500,7 @@ public final class DomHelper {
           lst.add(id);
         }
       }
-    }
-    else {
+    } else {
       vbPost = calcPostDominators(stat);
     }
 
@@ -490,20 +539,20 @@ public final class DomHelper {
         setHandlers.add(head);
         while (true) {
 
-          boolean hdfound = false;
+          boolean handlerFound = false;
           for (Statement handler : setHandlers) {
             if (setNodes.contains(handler)) {
               continue;
             }
 
-            boolean addhd = (setNodes.size() == 0); // first handler == head
-            if (!addhd) {
-              List<Statement> hdsupp = handler.getNeighbours(StatEdge.TYPE_EXCEPTION, Statement.DIRECTION_BACKWARD);
-              addhd = (setNodes.containsAll(hdsupp) && (setNodes.size() > hdsupp.size()
+            boolean addHandler = (setNodes.size() == 0); // first handler == head
+            if (!addHandler) {
+              List<Statement> hdsupp = handler.getNeighbours(StatEdge.TYPE_EXCEPTION, EdgeDirection.BACKWARD);
+              addHandler = (setNodes.containsAll(hdsupp) && (setNodes.size() > hdsupp.size()
                                                         || setNodes.size() == 1)); // strict subset
             }
 
-            if (addhd) {
+            if (addHandler) {
               LinkedList<Statement> lstStack = new LinkedList<>();
               lstStack.add(handler);
 
@@ -514,24 +563,24 @@ public final class DomHelper {
                   setNodes.add(st);
                   if (st != head) {
                     // record predeccessors except for the head
-                    setPreds.addAll(st.getNeighbours(StatEdge.TYPE_REGULAR, Statement.DIRECTION_BACKWARD));
+                    setPreds.addAll(st.getNeighbours(StatEdge.TYPE_REGULAR, EdgeDirection.BACKWARD));
                   }
 
                   // put successors on the stack
-                  lstStack.addAll(st.getNeighbours(StatEdge.TYPE_REGULAR, Statement.DIRECTION_FORWARD));
+                  lstStack.addAll(st.getNeighbours(StatEdge.TYPE_REGULAR, EdgeDirection.FORWARD));
 
                   // exception edges
-                  setHandlers.addAll(st.getNeighbours(StatEdge.TYPE_EXCEPTION, Statement.DIRECTION_FORWARD));
+                  setHandlers.addAll(st.getNeighbours(StatEdge.TYPE_EXCEPTION, EdgeDirection.FORWARD));
                 }
               }
 
-              hdfound = true;
+              handlerFound = true;
               setHandlers.remove(handler);
               break;
             }
           }
 
-          if (!hdfound) {
+          if (!handlerFound) {
             break;
           }
         }
@@ -539,26 +588,26 @@ public final class DomHelper {
         // check exception handlers
         setHandlers.clear();
         for (Statement st : setNodes) {
-          setHandlers.addAll(st.getNeighbours(StatEdge.TYPE_EXCEPTION, Statement.DIRECTION_FORWARD));
+          setHandlers.addAll(st.getNeighbours(StatEdge.TYPE_EXCEPTION, EdgeDirection.FORWARD));
         }
         setHandlers.removeAll(setNodes);
 
-        boolean excok = true;
+        boolean exceptionsOk = true;
         for (Statement handler : setHandlers) {
-          if (!handler.getNeighbours(StatEdge.TYPE_EXCEPTION, Statement.DIRECTION_BACKWARD).containsAll(setNodes)) {
-            excok = false;
+          if (!handler.getNeighbours(StatEdge.TYPE_EXCEPTION, EdgeDirection.BACKWARD).containsAll(setNodes)) {
+            exceptionsOk = false;
             break;
           }
         }
 
         // build statement and return
-        if (excok) {
+        if (exceptionsOk) {
           Statement res;
 
           setPreds.removeAll(setNodes);
-          if (setPreds.size() == 0) {
+          if (setPreds.isEmpty()) {
             if ((setNodes.size() > 1 ||
-                 head.getNeighbours(StatEdge.TYPE_REGULAR, Statement.DIRECTION_BACKWARD).contains(head))
+                 head.getNeighbours(StatEdge.TYPE_REGULAR, EdgeDirection.BACKWARD).contains(head))
                 && setNodes.size() < stats.size()) {
               if (checkSynchronizedCompleteness(setNodes)) {
                 res = new GeneralStatement(head, setNodes, same ? null : post);
@@ -593,6 +642,7 @@ public final class DomHelper {
     return true;
   }
 
+  // Try to collapse all nodes in the given general statement to a single node. When this transformation is done, the general statement will be marked as placeholder.
   private static boolean findSimpleStatements(Statement stat, HashMap<Integer, Set<Integer>> mapExtPost) {
 
     boolean found, success = false;
@@ -600,6 +650,7 @@ public final class DomHelper {
     do {
       found = false;
 
+      // Orders the statement in reverse post order with respect to post dominance, to ensure that the statement is built from the inside out
       List<Statement> lstStats = stat.getPostReversePostOrderList();
       for (Statement st : lstStats) {
 
@@ -607,10 +658,12 @@ public final class DomHelper {
 
         if (result != null) {
 
-          if (stat.type == Statement.TYPE_GENERAL && result.getFirst() == stat.getFirst() &&
+          // If the statement we created contains the first statement of the general statement as it's first, we know that we've completed iteration to the point where every statment in the subgraph has been explored at least once, due to how the post order is created.
+          // More iteration still happens to discover higher level structures (such as the case where basicblock -> if -> loop)
+          if (stat instanceof GeneralStatement && !((GeneralStatement) stat).isPlaceholder() && result.getFirst() == stat.getFirst() &&
               stat.getStats().size() == result.getStats().size()) {
             // mark general statement
-            stat.type = Statement.TYPE_PLACEHOLDER;
+            ((GeneralStatement) stat).setPlaceholder(true);
           }
 
           stat.collapseNodesToStatement(result);

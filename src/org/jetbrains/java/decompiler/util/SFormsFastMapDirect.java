@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
+// Three part map to hold live var version data for specific variables.
+// Segmented to handle the cases of true variable (index 0), stack variable (index 1), and field access (index 2) seperately as they can have the same index.
 public class SFormsFastMapDirect {
 
   private int size;
@@ -82,8 +84,7 @@ public class SFormsFastMapDirect {
           pointer = arrnext[pointer];
         }
         while (pointer != 0);
-      }
-      else {
+      } else {
         mapelements[i] = FastSparseSet.EMPTY_ARRAY;
         mapnext[i] = InterpreterUtil.EMPTY_INT_ARRAY;
       }
@@ -104,6 +105,10 @@ public class SFormsFastMapDirect {
     putInternal(key, value, false);
   }
 
+  public void remove(int key) {
+    putInternal(key, null, true);
+  }
+
   public void removeAllFields() {
     FastSparseSet<Integer>[] arr = elements[2];
     int[] arrnext = next[2];
@@ -118,15 +123,27 @@ public class SFormsFastMapDirect {
     }
   }
 
-  public void putInternal(final int key, final FastSparseSet<Integer> value, boolean remove) {
+  public void removeAllStacks() {
+    FastSparseSet<Integer>[] arr = elements[1];
+    int[] arrnext = next[1];
 
+    for (int i = arr.length - 1; i >= 0; i--) {
+      FastSparseSet<Integer> val = arr[i];
+      if (val != null) {
+        arr[i] = null;
+        size--;
+      }
+      arrnext[i] = 0;
+    }
+  }
+
+  private void putInternal(final int key, final FastSparseSet<Integer> value, boolean remove) {
     int index = 0;
     int ikey = key;
     if (ikey < 0) {
       index = 2;
       ikey = -ikey;
-    }
-    else if (ikey >= VarExprent.STACK_BASE) {
+    } else if (ikey >= VarExprent.STACK_BASE) {
       index = 1;
       ikey -= VarExprent.STACK_BASE;
     }
@@ -135,8 +152,7 @@ public class SFormsFastMapDirect {
     if (ikey >= arr.length) {
       if (remove) {
         return;
-      }
-      else {
+      } else {
         arr = ensureCapacity(index, ikey + 1, false);
       }
     }
@@ -149,8 +165,7 @@ public class SFormsFastMapDirect {
     if (oldval == null && value != null) {
       size++;
       changeNext(arrnext, ikey, arrnext[ikey], ikey);
-    }
-    else if (oldval != null && value == null) {
+    } else if (oldval != null && value == null) {
       size--;
       changeNext(arrnext, ikey, ikey, arrnext[ikey]);
     }
@@ -160,8 +175,7 @@ public class SFormsFastMapDirect {
     for (int i = key - 1; i >= 0; i--) {
       if (arrnext[i] == oldnext) {
         arrnext[i] = newnext;
-      }
-      else {
+      } else {
         break;
       }
     }
@@ -177,8 +191,7 @@ public class SFormsFastMapDirect {
     if (key < 0) {
       index = 2;
       key = -key;
-    }
-    else if (key >= VarExprent.STACK_BASE) {
+    } else if (key >= VarExprent.STACK_BASE) {
       index = 1;
       key -= VarExprent.STACK_BASE;
     }
@@ -188,6 +201,7 @@ public class SFormsFastMapDirect {
     if (key < arr.length) {
       return arr[key];
     }
+
     return null;
   }
 

@@ -3,26 +3,28 @@ package pkg;
 public class TestDuplicateSwitchLocals {
    void test(int foo) {
       switch(foo) {// 5
-      case 0:
-         int x = 10;// 7
+         case 0:
+            int x = 10;// 7
 
-         for(int i = 0; i < x; ++i) {// 8
-            System.out.println(i);
-         }
-         break;
-      case 1:
-         int y = 11;// 11
+            for(int i = 0; i < x; ++i) {// 8
+               System.out.println(i);
+            }
+            break;
+         case 1:
+            int y = 11;// 11
 
-         for(int i = 0; i < y; ++i) {// 12
-            System.out.println(i);
+            for(int i = 0; i < y; ++i) {// 12
+               System.out.println(i);
+            }
+            break;
+         case 2: {
+            int z = 2;// 15
+            System.out.println(z);// 16
          }
-         break;
-      case 2:
-         int z = 2;// 15
-         System.out.println(z);// 16
-      case 3:
-         int z = 3;// 19
-         System.out.println(z);// 20
+         case 3: {
+            int z = 3;// 19
+            System.out.println(z);// 20
+         }
       }
 
    }// 23
@@ -80,16 +82,16 @@ class 'pkg/TestDuplicateSwitchLocals' {
       5d      21
       5e      21
       5f      21
-      62      23
-      63      23
-      64      23
-      65      24
-      66      24
-      67      24
-      68      24
-      69      24
-      6a      24
-      6d      27
+      62      24
+      63      24
+      64      24
+      65      25
+      66      25
+      67      25
+      68      25
+      69      25
+      6a      25
+      6d      29
    }
 }
 
@@ -101,9 +103,9 @@ Lines mapping:
 12 <-> 16
 15 <-> 21
 16 <-> 22
-19 <-> 24
-20 <-> 25
-23 <-> 28
+19 <-> 25
+20 <-> 26
+23 <-> 30
 Not mapped:
 9
 13

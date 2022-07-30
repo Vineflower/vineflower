@@ -1,0 +1,221 @@
+package pkg;
+
+public class TestDoWhileMerge {
+   public void test(boolean b, int j) {
+      for(int i = 0; i < j; ++i) {// 6
+         do {
+            System.out.println(i);// 8
+            if (++i == 30) {// 9 11
+               return;// 12
+            }
+         } while(b && i < 40);// 14
+
+         System.out.println("test");// 16
+      }
+
+      System.out.println("after");// 19
+   }// 20
+
+   public void test1(boolean b, int j) {
+      for(int i = 0; i < j; ++i) {// 23
+         System.out.println(1);// 24
+
+         do {
+            System.out.println(i);// 27
+            if (++i == 30) {// 28 30
+               return;// 31
+            }
+         } while(!b || i >= 40);// 33
+      }
+
+      System.out.println("after");// 36
+   }// 37
+
+   public void test2(boolean b, int j) {
+      for(int i = 0; i < j; ++i) {// 41
+         System.out.println(1);// 42
+
+         while(true) {
+            System.out.println(i);// 45
+            if (++i == 30) {// 46
+               return;// 47
+            }
+
+            if (!b || i >= 40) {// 50
+               break;
+            }
+
+            System.out.println(j);// 54
+         }
+      }
+
+   }// 57
+}
+
+class 'pkg/TestDoWhileMerge' {
+   method 'test (ZI)V' {
+      0      4
+      1      4
+      2      4
+      3      4
+      4      4
+      7      6
+      8      6
+      9      6
+      a      6
+      b      6
+      c      6
+      d      6
+      e      7
+      f      7
+      10      7
+      12      7
+      13      7
+      14      7
+      17      8
+      18      10
+      1c      10
+      1d      10
+      1e      10
+      1f      10
+      22      12
+      23      12
+      24      12
+      25      12
+      26      12
+      27      12
+      28      12
+      29      12
+      2a      4
+      2b      4
+      2c      4
+      30      15
+      31      15
+      32      15
+      33      15
+      34      15
+      35      15
+      36      15
+      37      15
+      38      16
+   }
+
+   method 'test1 (ZI)V' {
+      0      19
+      1      19
+      2      19
+      3      19
+      4      19
+      7      20
+      8      20
+      9      20
+      a      20
+      b      20
+      e      23
+      f      23
+      10      23
+      11      23
+      12      23
+      13      23
+      14      23
+      15      24
+      16      24
+      17      24
+      19      24
+      1a      24
+      1b      24
+      1e      25
+      1f      27
+      20      27
+      23      27
+      24      27
+      25      27
+      26      27
+      29      19
+      2a      19
+      2b      19
+      2f      30
+      30      30
+      31      30
+      32      30
+      33      30
+      34      30
+      35      30
+      36      30
+      37      31
+   }
+
+   method 'test2 (ZI)V' {
+      0      34
+      1      34
+      2      34
+      3      34
+      4      34
+      7      35
+      8      35
+      9      35
+      a      35
+      b      35
+      e      38
+      f      38
+      10      38
+      11      38
+      12      38
+      13      38
+      14      38
+      15      39
+      16      39
+      17      39
+      19      39
+      1a      39
+      1b      39
+      1e      40
+      1f      43
+      20      43
+      23      43
+      24      43
+      25      43
+      26      43
+      2c      47
+      2d      47
+      2e      47
+      2f      47
+      30      47
+      31      47
+      32      47
+      36      34
+      37      34
+      38      34
+      3c      51
+   }
+}
+
+Lines mapping:
+6 <-> 5
+8 <-> 7
+9 <-> 8
+11 <-> 8
+12 <-> 9
+14 <-> 11
+16 <-> 13
+19 <-> 16
+20 <-> 17
+23 <-> 20
+24 <-> 21
+27 <-> 24
+28 <-> 25
+30 <-> 25
+31 <-> 26
+33 <-> 28
+36 <-> 31
+37 <-> 32
+41 <-> 35
+42 <-> 36
+45 <-> 39
+46 <-> 40
+47 <-> 41
+50 <-> 44
+54 <-> 48
+57 <-> 52
+Not mapped:
+51

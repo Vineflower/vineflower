@@ -4,44 +4,44 @@ public abstract class TestAnonymousClass {
    public static final Runnable R3 = new Runnable() {
       @Override
       public void run() {
-         int a = 5;// 28
-         int b = 5;// 29
-      }// 30
+         int a = 5;// 36
+         int b = 5;// 37
+      }// 38
    };
    public static final Runnable R = new Runnable() {
-      @Override
-      public void run() {
-         int a = 5;// 45
-         int b = 5;// 46
-      }// 47
-   };
-   public static final Runnable R1 = new Runnable() {
       @Override
       public void run() {
          int a = 5;// 53
          int b = 5;// 54
       }// 55
    };
-   private final TestAnonymousClass.InnerRecursive y = new TestAnonymousClass.InnerRecursive(new TestAnonymousClass.InnerRecursive((TestAnonymousClass.InnerRecursive)null) {
+   public static final Runnable R1 = new Runnable() {
+      @Override
+      public void run() {
+         int a = 5;// 61
+         int b = 5;// 62
+      }// 63
+   };
+   private final TestAnonymousClass.InnerRecursive y = new TestAnonymousClass.InnerRecursive(new TestAnonymousClass.InnerRecursive(null) {
       @Override
       void foo() {
-         int a = 5;// 75
-         int b = 5;// 76
-         int g = 5;// 77
-      }// 78
+         int a = 5;// 83
+         int b = 5;// 84
+         int g = 5;// 85
+      }// 86
    }) {
       int v = 5;
       int t = 5;
       int j = 5;
       int o = 5;
    };
-   private final TestAnonymousClass.InnerRecursive x = new TestAnonymousClass.InnerRecursive(new TestAnonymousClass.InnerRecursive((TestAnonymousClass.InnerRecursive)null) {
+   private final TestAnonymousClass.InnerRecursive x = new TestAnonymousClass.InnerRecursive(new TestAnonymousClass.InnerRecursive(null) {
       @Override
       void foo() {
-         int a = 5;// 90
-         int b = 5;// 91
-         int g = 5;// 92
-      }// 93
+         int a = 5;// 98
+         int b = 5;// 99
+         int g = 5;// 100
+      }// 101
    }) {
       int v = 5;
       int t = 5;
@@ -66,13 +66,21 @@ public abstract class TestAnonymousClass {
 
    }// 23
 
+   void bar() {
+      ((<undefinedtype>)(new Object() {
+         public void foo(String s) {
+            System.out.println(s);// 28
+         }// 29
+      })).foo("Hello world");// 26 30
+   }// 31
+
    void boo() {
-      int a = 5;// 35
-   }// 36
+      int a = 5;// 43
+   }// 44
 
    void zoo() {
-      int a = 5;// 39
-   }// 40
+      int a = 5;// 47
+   }// 48
 
    interface I {
       void foo() throws Exception;
@@ -82,9 +90,9 @@ public abstract class TestAnonymousClass {
       private static Runnable R_I = new Runnable() {
          @Override
          public void run() {
-            int a = 5;// 66
-            int b = 5;// 67
-         }// 68
+            int a = 5;// 74
+            int b = 5;// 75
+         }// 76
       };
    }
 
@@ -92,15 +100,15 @@ public abstract class TestAnonymousClass {
       TestAnonymousClass.InnerRecursive r;
 
       public InnerRecursive(TestAnonymousClass.InnerRecursive r) {
-         this.r = r;// 105
-      }// 106
+         this.r = r;// 113
+      }// 114
 
       void foo() {
-      }// 110
+      }// 118
    }
 }
 
-class 'pkg/TestAnonymousClass$2' {
+class 'pkg/TestAnonymousClass$3' {
    method 'run ()V' {
       0      6
       1      6
@@ -110,7 +118,7 @@ class 'pkg/TestAnonymousClass$2' {
    }
 }
 
-class 'pkg/TestAnonymousClass$3' {
+class 'pkg/TestAnonymousClass$4' {
    method 'run ()V' {
       0      13
       1      13
@@ -120,7 +128,7 @@ class 'pkg/TestAnonymousClass$3' {
    }
 }
 
-class 'pkg/TestAnonymousClass$4' {
+class 'pkg/TestAnonymousClass$5' {
    method 'run ()V' {
       0      20
       1      20
@@ -130,7 +138,7 @@ class 'pkg/TestAnonymousClass$4' {
    }
 }
 
-class 'pkg/TestAnonymousClass$5' {
+class 'pkg/TestAnonymousClass$6' {
    method 'foo ()V' {
       0      27
       1      27
@@ -142,7 +150,7 @@ class 'pkg/TestAnonymousClass$5' {
    }
 }
 
-class 'pkg/TestAnonymousClass$7' {
+class 'pkg/TestAnonymousClass$8' {
    method 'foo ()V' {
       0      40
       1      40
@@ -151,16 +159,6 @@ class 'pkg/TestAnonymousClass$7' {
       4      42
       5      42
       6      43
-   }
-}
-
-class 'pkg/TestAnonymousClass$1' {
-   method 'foo ()V' {
-      0      56
-      1      56
-      2      57
-      3      57
-      4      58
    }
 }
 
@@ -185,41 +183,73 @@ class 'pkg/TestAnonymousClass' {
       1f      66
    }
 
+   method 'bar ()V' {
+      8      73
+      9      73
+      a      73
+      b      73
+      c      73
+      d      74
+   }
+
    method 'boo ()V' {
-      0      69
-      1      69
-      2      70
+      0      77
+      1      77
+      2      78
    }
 
    method 'zoo ()V' {
-      0      73
-      1      73
-      2      74
+      0      81
+      1      81
+      2      82
+   }
+}
+
+class 'pkg/TestAnonymousClass$1' {
+   method 'foo ()V' {
+      0      56
+      1      56
+      2      57
+      3      57
+      4      58
+   }
+}
+
+class 'pkg/TestAnonymousClass$2' {
+   method 'foo (Ljava/lang/String;)V' {
+      0      71
+      1      71
+      2      71
+      3      71
+      4      71
+      5      71
+      6      71
+      7      72
    }
 }
 
 class 'pkg/TestAnonymousClass$Inner$1' {
    method 'run ()V' {
-      0      84
-      1      84
-      2      85
-      3      85
-      4      86
+      0      92
+      1      92
+      2      93
+      3      93
+      4      94
    }
 }
 
 class 'pkg/TestAnonymousClass$InnerRecursive' {
    method '<init> (Lpkg/TestAnonymousClass$InnerRecursive;)V' {
-      4      94
-      5      94
-      6      94
-      7      94
-      8      94
-      9      95
+      4      102
+      5      102
+      6      102
+      7      102
+      8      102
+      9      103
    }
 
    method 'foo ()V' {
-      0      98
+      0      106
    }
 }
 
@@ -233,33 +263,38 @@ Lines mapping:
 20 <-> 63
 21 <-> 64
 23 <-> 67
-28 <-> 7
-29 <-> 8
-30 <-> 9
-35 <-> 70
-36 <-> 71
-39 <-> 74
-40 <-> 75
-45 <-> 14
-46 <-> 15
-47 <-> 16
-53 <-> 21
-54 <-> 22
-55 <-> 23
-66 <-> 85
-67 <-> 86
-68 <-> 87
-75 <-> 28
-76 <-> 29
-77 <-> 30
-78 <-> 31
-90 <-> 41
-91 <-> 42
-92 <-> 43
-93 <-> 44
-105 <-> 95
-106 <-> 96
-110 <-> 99
+26 <-> 74
+28 <-> 72
+29 <-> 73
+30 <-> 74
+31 <-> 75
+36 <-> 7
+37 <-> 8
+38 <-> 9
+43 <-> 78
+44 <-> 79
+47 <-> 82
+48 <-> 83
+53 <-> 14
+54 <-> 15
+55 <-> 16
+61 <-> 21
+62 <-> 22
+63 <-> 23
+74 <-> 93
+75 <-> 94
+76 <-> 95
+83 <-> 28
+84 <-> 29
+85 <-> 30
+86 <-> 31
+98 <-> 41
+99 <-> 42
+100 <-> 43
+101 <-> 44
+113 <-> 103
+114 <-> 104
+118 <-> 107
 Not mapped:
 18
-104
+112

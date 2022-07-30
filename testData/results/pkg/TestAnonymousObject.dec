@@ -2,7 +2,7 @@ package pkg;
 
 public class TestAnonymousObject {
    public void test() {
-      Object var10000 = new Object() {
+      new Object() {
          {
             System.out.println("Hi");// 7
          }// 8

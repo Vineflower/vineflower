@@ -32,8 +32,7 @@ public abstract class TestDoubleNestedClass {
 
       Supplier<TestDoubleNestedClass> foo(int var1) {
          byte var2 = 10;
-         return () -> {
-            return new TestDoubleNestedClass() {
+         return () -> new TestDoubleNestedClass() {
                @Override
                Object test() {
                   int var1x = Child1.this.x + var1;
@@ -41,7 +40,6 @@ public abstract class TestDoubleNestedClass {
                   return Child1.this.x + var1x + var2x;
                }
             };
-         };
       }
    }
 }
@@ -70,54 +68,54 @@ class 'pkg/TestDoubleNestedClass$2' {
    }
 }
 
-class 'pkg/TestDoubleNestedClass$Child1$1' {
-   method 'test ()Ljava/lang/Object;' {
-      1      38
-      2      38
-      3      38
-      4      38
-      5      38
-      6      38
-      8      38
-      9      38
-      a      38
-      b      38
-      c      38
-      e      39
-      f      39
-      10      39
-      12      39
-      13      39
-      14      39
-      15      39
-      16      39
-      18      40
-      19      40
-      1a      40
-      1b      40
-      1c      40
-      1d      40
-      1e      40
-      1f      40
-      20      40
-      21      40
-      22      40
-      23      40
-      24      40
-      25      40
-   }
-}
-
 class 'pkg/TestDoubleNestedClass$Child1' {
-   method 'lambda$foo$0 (II)Lpkg/TestDoubleNestedClass;' {
-      a      35
-   }
-
    method 'foo (I)Ljava/util/function/Supplier;' {
       0      33
       1      33
       2      33
       b      34
+   }
+
+   method 'lambda$foo$0 (II)Lpkg/TestDoubleNestedClass;' {
+      a      34
+   }
+}
+
+class 'pkg/TestDoubleNestedClass$Child1$1' {
+   method 'test ()Ljava/lang/Object;' {
+      1      37
+      2      37
+      3      37
+      4      37
+      5      37
+      6      37
+      8      37
+      9      37
+      a      37
+      b      37
+      c      37
+      e      38
+      f      38
+      10      38
+      12      38
+      13      38
+      14      38
+      15      38
+      16      38
+      18      39
+      19      39
+      1a      39
+      1b      39
+      1c      39
+      1d      39
+      1e      39
+      1f      39
+      20      39
+      21      39
+      22      39
+      23      39
+      24      39
+      25      39
    }
 }
 

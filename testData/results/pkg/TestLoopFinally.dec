@@ -1,0 +1,582 @@
+package pkg;
+
+public class TestLoopFinally {
+   public void test() {
+      for(int i = 0; i < 10; ++i) {// 5 16
+         try {
+            System.out.println(i);// 7
+         } finally {
+            System.out.println("finally");// 9
+            if (i == 5) {// 11
+               break;
+            }
+
+            System.out.println("finally2");// 15
+         }
+      }
+
+      System.out.println("after");// 19
+   }// 20
+
+   public void test1() {
+      for(int i = 0; i < 10; ++i) {// 23
+         try {
+            System.out.println(i);// 25
+         } finally {
+            System.out.println("finally");// 27
+            if (i != 5) {// 29
+               if (i == 4) {// 32
+                  System.out.println("break");// 33
+                  break;// 34
+               }
+
+               System.out.println("finally2");// 37
+            }
+
+            System.out.println("continue");// 30
+            continue;// 31
+         }
+      }
+
+      System.out.println("after");// 41
+   }// 42
+
+   public void test2() {
+      for(int i = 0; i < 10; ++i) {// 45
+         try {
+            System.out.println(i);// 47
+         } finally {
+            System.out.println("finally");// 49
+            if (i != 5) {// 51
+               continue;
+            }
+            break;
+         }
+      }
+
+      System.out.println("after");// 59
+   }// 60
+
+   public int test3(int x) {
+      do {
+         try {
+            if (x == 1) {// 66
+               return 1;// 67
+            }
+
+            System.out.println("Oops");// 70
+            if (x == 23) {// 71
+               return 1;// 72
+            }
+
+            System.out.println("Oops");// 75
+            if (x == 25) {// 76
+               return 1;// 77
+            }
+         } finally {
+            if (x == 3) {// 80
+               break;
+            }
+         }
+      } while(x < 45);// 84
+
+      System.out.print(5);// 86
+      return 1;// 87
+   }
+
+   public int test4(int x) {
+      do {
+         try {
+            if (x < 25) {// 94
+               return 5;// 95
+            }
+         } finally {
+            if (x > 3) {// 98
+               return 1;// 104
+            }
+
+         }
+      } while(x < 45);// 102
+
+      return 1;
+   }
+
+   public int test5(int x) {
+      do {
+         try {
+            if (x < 25) {// 114
+               int var2 = 5;// 115
+               byte var3;
+               return var2 + var3;// 128
+            }
+         } finally {
+            if (x > 3) {// 119 120
+               return 1;// 126
+            }
+
+         }
+      } while(x < 45);// 124
+
+      return 1;
+   }
+
+   public void emptyInnerFinally() {
+      int a = 0;// 133
+      int b = 1;
+      int c = 2;
+
+      try {
+         while(true) {
+            try {
+               System.out.println("Hello");// 137
+               return;// 138
+            } catch (Exception var13) {// 139
+            } finally {
+               ;
+            }
+         }
+      } finally {
+         System.out.println("hi");// 144
+      }
+   }
+
+   public void testConditionalBreakInFinally() {
+      int a = 5;// 149
+      if (a != 886) {// 152
+         try {
+            a -= 885;// 157
+         } catch (Exception var6) {// 158
+            System.out.println("hello");// 159
+         } finally {
+            if (a >= -228) {// 161
+               System.out.println("hi");// 169
+               return;// 171
+            } else {
+               <unknown> var3;
+               throw var3_1;// 164
+            }
+         }
+      }
+   }// 153
+
+   public void loopInFinally() {
+      // $QF: Couldn't be decompiled
+      // Bytecode:
+      // 00: bipush 1
+      // 01: istore 1
+      // 02: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 05: iload 1
+      // 06: invokevirtual java/io/PrintStream.println (Z)V
+      // 09: sipush 15080
+      // 0c: istore 2
+      // 0d: iload 2
+      // 0e: sipush -14704
+      // 11: if_icmple 19
+      // 14: bipush 0
+      // 15: istore 3
+      // 16: goto 0d
+      // 19: return
+      // 1a: astore 4
+      // 1c: sipush 15080
+      // 1f: istore 5
+      // 21: iload 5
+      // 23: sipush -14704
+      // 26: if_icmple 2f
+      // 29: bipush 0
+      // 2a: istore 6
+      // 2c: goto 21
+      // 2f: return
+      // 30: astore 7
+      // 32: sipush 15080
+      // 35: istore 8
+      // 37: iload 8
+      // 39: sipush -14704
+      // 3c: if_icmple 45
+      // 3f: bipush 0
+      // 40: istore 9
+      // 42: goto 37
+      // 45: aload 7
+      // 47: athrow
+   }
+}
+
+class 'pkg/TestLoopFinally' {
+   method 'test ()V' {
+      0      4
+      1      4
+      2      4
+      3      4
+      4      4
+      5      4
+      8      6
+      9      6
+      a      6
+      b      6
+      c      6
+      27      4
+      2a      8
+      2b      8
+      2c      8
+      2d      8
+      2e      8
+      2f      8
+      30      9
+      31      9
+      32      9
+      33      9
+      34      9
+      3b      13
+      3c      13
+      3d      13
+      3e      13
+      3f      13
+      40      13
+      41      13
+      42      13
+      4b      17
+      4c      17
+      4d      17
+      4e      17
+      4f      17
+      50      17
+      51      17
+      52      17
+      53      18
+   }
+
+   method 'test1 ()V' {
+      0      21
+      1      21
+      2      21
+      3      21
+      4      21
+      5      21
+      8      23
+      9      23
+      a      23
+      b      23
+      c      23
+      42      25
+      43      25
+      44      25
+      45      25
+      46      25
+      47      25
+      48      26
+      49      26
+      4a      26
+      4b      26
+      4c      26
+      50      35
+      51      35
+      52      35
+      53      35
+      54      35
+      55      35
+      56      35
+      57      35
+      58      36
+      5b      27
+      5c      27
+      5d      27
+      60      28
+      61      28
+      62      28
+      63      28
+      64      28
+      65      28
+      66      28
+      67      28
+      68      29
+      6b      32
+      6c      32
+      6d      32
+      6e      32
+      6f      32
+      70      32
+      71      32
+      72      32
+      75      21
+      76      21
+      77      21
+      7b      40
+      7c      40
+      7d      40
+      7e      40
+      7f      40
+      80      40
+      81      40
+      82      40
+      83      41
+   }
+
+   method 'test2 ()V' {
+      0      44
+      1      44
+      2      44
+      3      44
+      4      44
+      5      44
+      8      46
+      9      46
+      a      46
+      b      46
+      c      46
+      1f      48
+      20      48
+      21      48
+      22      48
+      23      48
+      24      48
+      25      49
+      26      49
+      27      49
+      28      49
+      29      49
+      30      44
+      31      44
+      32      44
+      36      56
+      37      56
+      38      56
+      39      56
+      3a      56
+      3b      56
+      3c      56
+      3d      56
+      3e      57
+   }
+
+   method 'test3 (I)I' {
+      0      62
+      1      62
+      2      62
+      5      63
+      10      63
+      11      66
+      12      66
+      13      66
+      14      66
+      15      66
+      16      66
+      17      66
+      18      66
+      19      67
+      1a      67
+      1b      67
+      1c      67
+      1f      68
+      2a      68
+      2b      71
+      2c      71
+      2d      71
+      2e      71
+      2f      71
+      30      71
+      31      71
+      32      71
+      33      72
+      34      72
+      35      72
+      36      72
+      39      73
+      44      73
+      4d      76
+      4e      76
+      4f      76
+      58      80
+      59      80
+      5a      80
+      5b      80
+      5e      82
+      5f      82
+      60      82
+      61      82
+      62      82
+      63      82
+      64      82
+      65      83
+      66      83
+   }
+
+   method 'test4 (I)I' {
+      0      89
+      1      89
+      2      89
+      3      89
+      6      90
+      11      90
+      1a      93
+      1b      93
+      1c      93
+      25      98
+      26      98
+      27      98
+      28      98
+      2b      94
+      2c      94
+   }
+
+   method 'test5 (I)I' {
+      0      106
+      1      106
+      2      106
+      3      106
+      6      107
+      7      107
+      1f      112
+      20      112
+      21      112
+      2b      117
+      2c      117
+      2d      117
+      2e      117
+      31      113
+      32      113
+      33      109
+      34      109
+      35      109
+      36      109
+   }
+
+   method 'emptyInnerFinally ()V' {
+      0      123
+      1      123
+      2      124
+      3      124
+      4      125
+      5      125
+      6      130
+      7      130
+      8      130
+      9      130
+      a      130
+      b      130
+      16      131
+      17      132
+      24      138
+      25      138
+      26      138
+      27      138
+      28      138
+      29      138
+      2a      138
+   }
+
+   method 'testConditionalBreakInFinally ()V' {
+      0      143
+      1      143
+      2      144
+      3      144
+      4      144
+      5      144
+      6      144
+      9      159
+      a      146
+      1a      147
+      1b      148
+      1c      148
+      1d      148
+      1e      148
+      1f      148
+      20      148
+      2d      150
+      2e      150
+      2f      150
+      30      150
+      31      150
+      38      155
+      39      155
+      43      151
+      44      151
+      45      151
+      46      151
+      47      151
+      48      151
+      49      151
+      4a      151
+      4b      152
+   }
+}
+
+Lines mapping:
+5 <-> 5
+7 <-> 7
+9 <-> 9
+11 <-> 10
+15 <-> 14
+16 <-> 5
+19 <-> 18
+20 <-> 19
+23 <-> 22
+25 <-> 24
+27 <-> 26
+29 <-> 27
+30 <-> 36
+31 <-> 37
+32 <-> 28
+33 <-> 29
+34 <-> 30
+37 <-> 33
+41 <-> 41
+42 <-> 42
+45 <-> 45
+47 <-> 47
+49 <-> 49
+51 <-> 50
+59 <-> 57
+60 <-> 58
+66 <-> 63
+67 <-> 64
+70 <-> 67
+71 <-> 68
+72 <-> 69
+75 <-> 72
+76 <-> 73
+77 <-> 74
+80 <-> 77
+84 <-> 81
+86 <-> 83
+87 <-> 84
+94 <-> 90
+95 <-> 91
+98 <-> 94
+102 <-> 99
+104 <-> 95
+114 <-> 107
+115 <-> 108
+119 <-> 113
+120 <-> 113
+124 <-> 118
+126 <-> 114
+128 <-> 110
+133 <-> 124
+137 <-> 131
+138 <-> 132
+139 <-> 133
+144 <-> 139
+149 <-> 144
+152 <-> 145
+153 <-> 160
+157 <-> 147
+158 <-> 148
+159 <-> 149
+161 <-> 151
+164 <-> 156
+169 <-> 152
+171 <-> 153
+Not mapped:
+12
+38
+52
+81
+83
+99
+101
+121
+123
+140
+141
+145
+162
+166

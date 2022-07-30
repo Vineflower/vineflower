@@ -31,8 +31,15 @@ public class FastFixedSetFactory<E> {
     }
   }
 
-  public FastFixedSet<E> spawnEmptySet() {
+  public FastFixedSet<E> createEmptySet() {
     return new FastFixedSet<>(this);
+  }
+
+  public FastFixedSet<E> createCopiedSet() {
+    FastFixedSet<E> set = new FastFixedSet<>(this);
+    set.setAllElements();
+
+    return set;
   }
 
   private int getDataLength() {
@@ -69,7 +76,7 @@ public class FastFixedSetFactory<E> {
       return copy;
     }
 
-    public void setAllElements() {
+    private void setAllElements() {
 
       int[] lastindex = colValuesInternal.get(colValuesInternal.size() - 1);
 
@@ -99,6 +106,10 @@ public class FastFixedSetFactory<E> {
     public boolean contains(E element) {
       int[] index = colValuesInternal.getWithKey(element);
       return (data[index[0]] & index[1]) != 0;
+    }
+
+    public boolean containsKey(E element) {
+      return colValuesInternal.containsKey(element);
     }
 
     public boolean contains(FastFixedSet<E> set) {

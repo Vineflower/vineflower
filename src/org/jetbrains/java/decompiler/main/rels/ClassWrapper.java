@@ -9,6 +9,7 @@ import org.jetbrains.java.decompiler.main.collectors.VarNamesCollector;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
@@ -25,6 +26,9 @@ import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
 public class ClassWrapper {
+  // Sometimes when debugging you want to be able to only analyze a specific method.
+  // When not null, this skips processing of every method except the one with the name specified.
+  private static final String DEBUG_METHOD_FILTER = null;
   private final StructClass classStruct;
   private final Set<String> hiddenMembers = new HashSet<>();
   private final VBStyleCollection<Exprent, String> staticFieldInitializers = new VBStyleCollection<>();
@@ -56,6 +60,14 @@ public class ClassWrapper {
       RootStatement root = null;
 
       Throwable error = null;
+
+      if (DEBUG_METHOD_FILTER != null && !DEBUG_METHOD_FILTER.equals(mt.getName())) {
+        MethodWrapper methodWrapper = new MethodWrapper(null, varProc, mt, classStruct, counter);
+        methods.addWithKey(methodWrapper, InterpreterUtil.makeUniqueKey(mt.getName(), mt.getDescriptor()));
+        DecompilerContext.getLogger().endMethod();
+
+        continue;
+      }
 
       try {
         if (mt.containsCode()) {
@@ -108,6 +120,7 @@ public class ClassWrapper {
           int varIndex = 0;
           for (int i = 0; i < paramCount; i++) {
             varProc.setVarName(new VarVersionPair(varIndex, 0), vc.getFreeName(varIndex));
+            varProc.markParam(new VarVersionPair(varIndex, 0));
 
             if (thisVar) {
               if (i == 0) {
@@ -130,6 +143,13 @@ public class ClassWrapper {
         RootStatement rootStat = MethodProcessorRunnable.debugCurrentlyDecompiling.get();
         if (rootStat != null) {
           DotExporter.errorToDotFile(rootStat, mt, "fail");
+
+          try {
+            FlattenStatementsHelper flatten = new FlattenStatementsHelper();
+            DotExporter.errorToDotFile(flatten.buildDirectGraph(rootStat), mt, "failDigraph");
+          } catch (Exception e) {
+            // ignore
+          }
         }
 
         ControlFlowGraph graph = MethodProcessorRunnable.debugCurrentCFG.get();
@@ -143,7 +163,7 @@ public class ClassWrapper {
         }
       }
 
-      MethodWrapper methodWrapper = new MethodWrapper(root, varProc, mt, counter);
+      MethodWrapper methodWrapper = new MethodWrapper(root, varProc, mt, classStruct, counter);
       methodWrapper.decompileError = error;
 
       methods.addWithKey(methodWrapper, InterpreterUtil.makeUniqueKey(mt.getName(), mt.getDescriptor()));
@@ -159,7 +179,7 @@ public class ClassWrapper {
           StructLocalVariableTableAttribute attr = mt.getLocalVariableAttr();
           if (attr != null) {
             // only param names here
-            varProc.setDebugVarNames(attr.getMapNames());
+            varProc.setDebugVarNames(root, attr.getMapNames());
 
             /*
             // the rest is here
@@ -167,7 +187,7 @@ public class ClassWrapper {
               List<Exprent> lst = exprent.getAllExprents(true);
               lst.add(exprent);
               lst.stream()
-                .filter(e -> e.type == Exprent.EXPRENT_VAR)
+                .filter(e -> e instanceof VarExprent)
                 .forEach(e -> {
                   VarExprent varExprent = (VarExprent)e;
                   String name = varExprent.getDebugName(mt);

@@ -14,7 +14,7 @@ public class TestTrySynchronized {
       InputStream stream = null;// 15
 
       try {
-         new FileInputStream("nul");// 17
+         stream = new FileInputStream("nul");// 17
       } catch (Throwable var2) {// 18
          stream.close();// 19
       }
@@ -63,6 +63,7 @@ class 'pkg/TestTrySynchronized' {
       19      13
       1e      16
       1f      16
+      23      16
       27      17
       28      18
       29      18

@@ -5,19 +5,11 @@ public class TestInlineSwitchExpression5 {
       int j = 0;// 5
 
       while(true) {
-         byte var10001;
-         switch(i) {
-         case 1:
-            var10001 = 4;// 7
-            break;
-         case 2:
-            var10001 = 8;// 8
-            break;
-         default:
-            var10001 = 5;// 9
-         }
-
-         if (j >= var10001) {// 6
+         if (j >= switch(i) {// 6
+            case 1 -> 4;// 7
+            case 2 -> 8;// 8
+            default -> 5;// 9
+         }) {
             return;// 15
          }
 
@@ -31,37 +23,35 @@ class 'pkg/TestInlineSwitchExpression5' {
    method 'test (I)V' {
       0      4
       1      4
-      2      19
-      3      8
-      4      8
-      20      10
-      21      11
-      24      13
-      25      13
-      26      14
-      29      16
-      2a      19
-      2d      23
-      2e      23
-      2f      23
-      30      24
-      31      24
-      32      24
-      33      24
-      34      24
-      35      24
-      36      24
-      37      24
-      3b      20
+      2      7
+      3      7
+      4      7
+      20      8
+      24      9
+      25      9
+      29      10
+      2a      7
+      2d      15
+      2e      15
+      2f      15
+      30      16
+      31      16
+      32      16
+      33      16
+      34      16
+      35      16
+      36      16
+      37      16
+      3b      12
    }
 }
 
 Lines mapping:
 5 <-> 5
-6 <-> 20
-7 <-> 11
-8 <-> 14
-9 <-> 17
-11 <-> 24
-13 <-> 25
-15 <-> 21
+6 <-> 8
+7 <-> 9
+8 <-> 10
+9 <-> 11
+11 <-> 16
+13 <-> 17
+15 <-> 13

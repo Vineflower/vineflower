@@ -6,46 +6,39 @@ package org.jetbrains.java.decompiler.modules.decompiler.exps;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
-import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
+import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
 import org.jetbrains.java.decompiler.struct.StructField;
+import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
+import org.jetbrains.java.decompiler.struct.gen.generics.GenericClassDescriptor;
+import org.jetbrains.java.decompiler.struct.gen.generics.GenericMethodDescriptor;
+import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
+import java.util.Map;
 
 public class AssignmentExprent extends Exprent {
-
-  public static final int CONDITION_NONE = -1;
-
-  private static final String[] OPERATORS = {
-    " += ",   // FUNCTION_ADD
-    " -= ",   // FUNCTION_SUB
-    " *= ",   // FUNCTION_MUL
-    " /= ",   // FUNCTION_DIV
-    " &= ",   // FUNCTION_AND
-    " |= ",   // FUNCTION_OR
-    " ^= ",   // FUNCTION_XOR
-    " %= ",   // FUNCTION_REM
-    " <<= ",  // FUNCTION_SHL
-    " >>= ",  // FUNCTION_SHR
-    " >>>= "  // FUNCTION_USHR
-  };
-
   private Exprent left;
   private Exprent right;
-  private int condType = CONDITION_NONE;
+  private FunctionExprent.FunctionType condType = null;
 
   public AssignmentExprent(Exprent left, Exprent right, BitSet bytecodeOffsets) {
-    super(EXPRENT_ASSIGNMENT);
+    super(Type.ASSIGNMENT);
     this.left = left;
     this.right = right;
 
     addBytecodeOffsets(bytecodeOffsets);
+  }
+
+  public AssignmentExprent(Exprent left, Exprent right, FunctionExprent.FunctionType condType, BitSet bytecodeOffsets) {
+    this(left, right, bytecodeOffsets);
+    this.condType = condType;
   }
 
   @Override
@@ -79,8 +72,7 @@ public class AssignmentExprent extends Exprent {
   }
 
   @Override
-  public List<Exprent> getAllExprents() {
-    List<Exprent> lst = new ArrayList<>();
+  public List<Exprent> getAllExprents(List<Exprent> lst) {
     lst.add(left);
     lst.add(right);
     return lst;
@@ -88,7 +80,7 @@ public class AssignmentExprent extends Exprent {
 
   @Override
   public Exprent copy() {
-    return new AssignmentExprent(left.copy(), right.copy(), bytecode);
+    return new AssignmentExprent(left.copy(), right.copy(), condType, bytecode);
   }
 
   @Override
@@ -97,12 +89,12 @@ public class AssignmentExprent extends Exprent {
   }
 
   @Override
-  public TextBuffer toJava(int indent, BytecodeMappingTracer tracer) {
+  public TextBuffer toJava(int indent) {
     VarType leftType = left.getInferredExprType(null);
     VarType rightType = right.getInferredExprType(leftType);
 
     boolean fieldInClassInit = false, hiddenField = false;
-    if (left.type == Exprent.EXPRENT_FIELD) { // first assignment to a final field. Field name without "this" in front of it
+    if (left instanceof FieldExprent) { // first assignment to a final field. Field name without "this" in front of it
       FieldExprent field = (FieldExprent) left;
       ClassNode node = ((ClassNode) DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS_NODE));
       if (node != null) {
@@ -127,34 +119,177 @@ public class AssignmentExprent extends Exprent {
     if (fieldInClassInit) {
       buffer.append(((FieldExprent) left).getName());
     } else {
-      buffer.append(left.toJava(indent, tracer));
+      buffer.append(left.toJava(indent));
     }
 
-    if (right.type == EXPRENT_CONST) {
+    if (right instanceof ConstExprent) {
       ((ConstExprent) right).adjustConstType(leftType);
     }
 
-    TextBuffer res = right.toJava(indent, tracer);
+    this.optimizeCastForAssign();
+    TextBuffer res = right.toJava(indent);
 
-    if (condType == CONDITION_NONE &&
-      !leftType.isSuperset(rightType) &&
-      (rightType.equals(VarType.VARTYPE_OBJECT) || leftType.type != CodeConstants.TYPE_OBJECT)) {
-      if (right.getPrecedence() >= FunctionExprent.getPrecedence(FunctionExprent.FUNCTION_CAST)) {
-        res.enclose("(", ")");
-      }
-
-      res.prepend("(" + ExprProcessor.getCastTypeName(leftType) + ")");
-      if (condType == CONDITION_NONE) {
-        this.wrapInCast(leftType, rightType, res, right.getPrecedence());
-      }
-
+    if (condType == null) {
+      this.wrapInCast(leftType, rightType, res, right.getPrecedence());
     }
 
-    buffer.append(condType == CONDITION_NONE ? " = " : OPERATORS[condType]).append(res);
+    if (condType == null) {
+      buffer.append(" = ");
+    } else {
+      buffer.append(" ").append(condType.operator).append("= ");
+    }
+    buffer.append(res);
 
-    tracer.addMapping(bytecode);
+    buffer.addStartBytecodeMapping(bytecode);
 
     return buffer;
+  }
+
+  // E var = (T)expr; -> E var = (E)expr;
+  // when E extends T & A
+  private void optimizeCastForAssign() {
+    if (!(this.right instanceof FunctionExprent)) {
+      return;
+    }
+
+    FunctionExprent func = (FunctionExprent) this.right;
+
+    if (func.getFuncType() != FunctionExprent.FunctionType.CAST) {
+      return;
+    }
+
+    Exprent cast = func.getLstOperands().get(1);
+
+    // Fix for Object[] arr = (Object[])o; where is o is of type Object
+    if (!func.doesCast() && this.left instanceof VarExprent) {
+      // Same logic as FunctionExprent#getInferredExprType
+      if (DecompilerContext.getStructContext().instanceOf(this.right.getExprType().value, cast.getExprType().value)) {
+        Exprent castVal = func.getLstOperands().get(0);
+
+        // Due to a javac bug, 2 checkcasts are produced. We need to go through the cast tree and find the source
+        if (castVal instanceof FunctionExprent && ((FunctionExprent)castVal).getFuncType() == FunctionExprent.FunctionType.CAST) {
+          cast = ((FunctionExprent)castVal).getLstOperands().get(0);
+
+          if (!((FunctionExprent)castVal).doesCast()) {
+            if (this.left.getExprType().arrayDim > cast.getExprType().arrayDim) {
+              func.setNeedsCast(true);
+              return;
+            }
+          }
+        }
+      }
+    }
+
+    VarType leftType = this.left.getInferredExprType(null);
+
+    if (!(leftType instanceof GenericType)) {
+      return;
+    }
+
+    MethodWrapper method = (MethodWrapper) DecompilerContext.getProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
+    if (method == null) {
+      return;
+    }
+
+    StructMethod mt = method.methodStruct;
+    GenericMethodDescriptor descriptor = mt.getSignature();
+
+
+    if (descriptor == null || descriptor.typeParameters.isEmpty()) {
+      return;
+    }
+
+    List<String> params = descriptor.typeParameters;
+    int index = params.indexOf(leftType.value);
+    if (index == -1) {
+      return;
+    }
+
+    List<List<VarType>> bounds = descriptor.typeParameterBounds;
+
+    List<VarType> types = bounds.get(index);
+
+    GenericClassDescriptor classDescriptor = method.classStruct.getSignature();
+    if (classDescriptor != null) {
+      for (VarType type : new ArrayList<>(types)) {
+        int idex = classDescriptor.fparameters.indexOf(type.value);
+
+        if (idex != -1) {
+          types.addAll(classDescriptor.fbounds.get(idex));
+        }
+      }
+    }
+
+    VarType rightType = cast.getInferredExprType(leftType);
+
+    // Check if type bound includes the type that we are attempting to cast to
+    for (VarType type : types) {
+      if (rightType.value.equals(type.value)) {
+        ((ConstExprent)cast).setConstType(leftType);
+      }
+    }
+  }
+
+  private void wrapInCast(VarType left, VarType right, TextBuffer buf, int precedence) {
+    boolean needsCast = !left.isSuperset(right) && (right.equals(VarType.VARTYPE_OBJECT) || left.type != CodeConstants.TYPE_OBJECT);
+
+    if (left.isGeneric() || right.isGeneric()) {
+      Map<VarType, List<VarType>> names = this.getNamedGenerics();
+      int arrayDim = 0;
+
+      if (left.arrayDim == right.arrayDim && left.arrayDim > 0) {
+        arrayDim = left.arrayDim;
+        left = left.resizeArrayDim(0);
+        right = right.resizeArrayDim(0);
+      }
+
+      List<? extends VarType> types = names.get(right);
+      if (types == null) {
+        types = names.get(left);
+      }
+
+      if (types != null) {
+        boolean anyMatch = false; //TODO: allMatch instead of anyMatch?
+        for (VarType type : types) {
+          if (type.equals(VarType.VARTYPE_OBJECT) && right.equals(VarType.VARTYPE_OBJECT)) {
+            continue;
+          }
+          anyMatch |= right.value == null /*null const doesn't need cast*/ || DecompilerContext.getStructContext().instanceOf(right.value, type.value);
+        }
+
+        if (anyMatch) {
+          needsCast = false;
+        }
+      }
+
+      if (arrayDim != 0) {
+        left = left.resizeArrayDim(arrayDim);
+      }
+    }
+
+    if (this.right instanceof FunctionExprent) {
+      FunctionExprent func = (FunctionExprent) this.right;
+      if (func.getFuncType() == FunctionExprent.FunctionType.CAST && func.doesCast()) {
+        // Don't cast if there's already a cast
+        if (func.getLstOperands().get(1).getExprType().equals(left)) {
+          needsCast = false;
+        }
+      }
+    }
+
+    if (!needsCast && ExprProcessor.doesContravarianceNeedCast(left, right)) {
+      needsCast = true;
+    }
+
+    if (!needsCast) {
+      return;
+    }
+
+    if (precedence >= FunctionExprent.FunctionType.CAST.precedence) {
+      buf.enclose("(", ")");
+    }
+
+    buf.prepend("(" + ExprProcessor.getCastTypeName(left) + ")");
   }
 
   @Override
@@ -201,11 +336,14 @@ public class AssignmentExprent extends Exprent {
     this.right = right;
   }
 
-  public int getCondType() {
+  /**
+   * the type of assignment, eg {@code =}, {@code +=}, {@code -=}, etc.
+   */
+  public FunctionExprent.FunctionType getCondType() {
     return condType;
   }
 
-  public void setCondType(int condType) {
+  public void setCondType(FunctionExprent.FunctionType condType) {
     this.condType = condType;
   }
 }

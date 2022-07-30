@@ -1,0 +1,122 @@
+package pkg;
+
+import java.util.function.Supplier;
+
+public class TestLambdaQualified {
+   private static final Supplier<String> S = () -> TestLambdaQualified.STR;// 7
+   private static final String STR = make();
+   private static Runnable r = new Runnable() {
+      private final Supplier<String> S_ = () -> TestLambdaQualified.STR;// 27
+
+      public void run() {
+         System.out.println((String)this.S_.get());// 31
+      }// 32
+   };
+
+   private static String make() {
+      return "str";// 37
+   }
+
+   private static class I1 {
+      private static final Supplier<String> S = () -> TestLambdaQualified.I1.I2.STR2;// 17
+      private static final Supplier<String> S1 = () -> TestLambdaQualified.I1.I2.STR2;// 18
+      private static final Supplier<String> S2 = () -> TestLambdaQualified.I1.I2.STR2;// 19
+
+      private static class I2 {
+         private static final String STR2 = TestLambdaQualified.make();
+      }
+   }
+
+   private class Inner {
+      private final Supplier<String> S = () -> TestLambdaQualified.STR;// 12
+   }
+}
+
+class 'pkg/TestLambdaQualified' {
+   method 'lambda$static$0 ()Ljava/lang/String;' {
+      0      5
+      1      5
+      2      5
+      3      5
+   }
+
+   method 'make ()Ljava/lang/String;' {
+      0      16
+      1      16
+      2      16
+   }
+}
+
+class 'pkg/TestLambdaQualified$1' {
+   method 'lambda$$0 ()Ljava/lang/String;' {
+      0      8
+      1      8
+      2      8
+      3      8
+   }
+
+   method 'run ()V' {
+      0      11
+      1      11
+      2      11
+      3      11
+      4      11
+      5      11
+      6      11
+      7      11
+      8      11
+      9      11
+      a      11
+      b      11
+      c      11
+      d      11
+      e      11
+      f      11
+      10      11
+      11      11
+      12      12
+   }
+}
+
+class 'pkg/TestLambdaQualified$I1' {
+   method 'lambda$static$0 ()Ljava/lang/String;' {
+      0      20
+      1      20
+      2      20
+      3      20
+   }
+
+   method 'lambda$static$1 ()Ljava/lang/String;' {
+      0      21
+      1      21
+      2      21
+      3      21
+   }
+
+   method 'lambda$static$2 ()Ljava/lang/String;' {
+      0      22
+      1      22
+      2      22
+      3      22
+   }
+}
+
+class 'pkg/TestLambdaQualified$Inner' {
+   method 'lambda$new$0 ()Ljava/lang/String;' {
+      0      30
+      1      30
+      2      30
+      3      30
+   }
+}
+
+Lines mapping:
+7 <-> 6
+12 <-> 31
+17 <-> 21
+18 <-> 22
+19 <-> 23
+27 <-> 9
+31 <-> 12
+32 <-> 13
+37 <-> 17

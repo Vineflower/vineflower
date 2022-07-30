@@ -2,63 +2,47 @@ package pkg;
 
 public class TestWhileTernary8 {
    public void test(boolean condition, int a, int b) {
-      while(true) {
-         label19: {
-            if (condition) {// 5
-               if (a < b) {
-                  if (a == 3) {
-                     break label19;
-                  }
-               } else if (b == 4) {
-                  break label19;
-               }
-            } else if (b > a) {
-               break label19;
-            }
-
-            return;// 9
-         }
-
+      while(condition ? (a < b ? a == 3 : b == 4) : b > a) {// 5
          System.out.println(a * b);// 6
          ++a;// 7
       }
-   }
+
+   }// 9
 }
 
 class 'pkg/TestWhileTernary8' {
    method 'test (ZII)V' {
-      0      6
-      1      6
-      4      7
-      5      7
-      6      7
-      9      8
-      a      8
-      b      8
-      11      11
-      12      11
-      13      11
-      19      14
-      1a      14
-      1b      14
-      1e      21
-      1f      21
-      20      21
-      21      21
-      22      21
-      23      21
-      24      21
-      25      21
-      26      21
-      27      22
-      28      22
-      29      22
-      2d      18
+      0      4
+      4      4
+      5      4
+      6      4
+      9      4
+      a      4
+      b      4
+      11      4
+      12      4
+      13      4
+      19      4
+      1a      4
+      1b      4
+      1e      5
+      1f      5
+      20      5
+      21      5
+      22      5
+      23      5
+      24      5
+      25      5
+      26      5
+      27      6
+      28      6
+      29      6
+      2d      9
    }
 }
 
 Lines mapping:
-5 <-> 7
-6 <-> 22
-7 <-> 23
-9 <-> 19
+5 <-> 5
+6 <-> 6
+7 <-> 7
+9 <-> 10

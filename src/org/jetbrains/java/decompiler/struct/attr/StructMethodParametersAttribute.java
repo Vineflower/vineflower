@@ -3,6 +3,7 @@
  */
 package org.jetbrains.java.decompiler.struct.attr;
 
+import org.jetbrains.java.decompiler.code.BytecodeVersion;
 import org.jetbrains.java.decompiler.struct.consts.ConstantPool;
 import org.jetbrains.java.decompiler.util.DataInputFullStream;
 
@@ -21,7 +22,7 @@ public class StructMethodParametersAttribute extends StructGeneralAttribute {
   private List<Entry> myEntries;
 
   @Override
-  public void initContent(DataInputFullStream data, ConstantPool pool) throws IOException {
+  public void initContent(DataInputFullStream data, ConstantPool pool, BytecodeVersion version) throws IOException {
     int len = data.readUnsignedByte();
     List<Entry> entries;
     if (len > 0) {

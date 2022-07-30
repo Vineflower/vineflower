@@ -30,16 +30,19 @@ public class DecompilerTestFixture {
   private TestConsoleDecompiler decompiler;
   private boolean cleanup = true;
 
-  public void setUp(String... optionPairs) throws IOException {
-    assertEquals(0, optionPairs.length % 2);
-
+  public DecompilerTestFixture() {
     testDataDir = Paths.get("testData");
     if (!isTestDataDir(testDataDir)) testDataDir = Paths.get("community/plugins/java-decompiler/engine/testData");
     if (!isTestDataDir(testDataDir)) testDataDir = Paths.get("plugins/java-decompiler/engine/testData");
     if (!isTestDataDir(testDataDir)) testDataDir = Paths.get("../community/plugins/java-decompiler/engine/testData");
     if (!isTestDataDir(testDataDir)) testDataDir = Paths.get("../plugins/java-decompiler/engine/testData");
-    assertTrue(isTestDataDir(testDataDir), "current dir: " + new File("").getAbsolutePath());
     testDataDir = testDataDir.toAbsolutePath();
+  }
+
+  public void setUp(Object... optionPairs) throws IOException {
+    assertEquals(0, optionPairs.length % 2);
+
+    assertTrue(isTestDataDir(testDataDir), "current dir: " + new File("").getAbsolutePath());
 
     tempDir = Files.createTempDirectory("decompiler_test_");
 
@@ -53,8 +56,9 @@ public class DecompilerTestFixture {
     options.put(IFernflowerPreferences.REMOVE_BRIDGE, "1");
     options.put(IFernflowerPreferences.LITERALS_AS_IS, "1");
     options.put(IFernflowerPreferences.UNIT_TEST_MODE, "1");
+    options.put(IFernflowerPreferences.ERROR_MESSAGE, "");
     for (int i = 0; i < optionPairs.length; i += 2) {
-      options.put(optionPairs[i], optionPairs[i + 1]);
+      options.put((String) optionPairs[i], optionPairs[i + 1]);
     }
     decompiler = new TestConsoleDecompiler(targetDir.toFile(), options);
   }
@@ -111,7 +115,9 @@ public class DecompilerTestFixture {
         }
       });
     } catch (IOException e) {
-      throw new UncheckedIOException(e);
+      // issue when deleting temp META-INF on windows, seemingly
+      //throw new UncheckedIOException(e);
+      e.printStackTrace();
     }
   }
 
@@ -146,7 +152,7 @@ public class DecompilerTestFixture {
     private final HashMap<String, ZipFile> zipFiles = new HashMap<>();
 
     TestConsoleDecompiler(File destination, Map<String, Object> options) {
-      super(destination, options, new PrintStreamLogger(System.out));
+      super(destination, options, new PrintStreamLogger(System.out), SaveType.LEGACY_CONSOLEDECOMPILER);
     }
 
     @Override
@@ -154,8 +160,7 @@ public class DecompilerTestFixture {
       File file = new File(externalPath);
       if (internalPath == null) {
         return InterpreterUtil.getBytes(file);
-      }
-      else {
+      } else {
         ZipFile archive = zipFiles.get(file.getName());
         if (archive == null) {
           archive = new ZipFile(file);
@@ -167,7 +172,13 @@ public class DecompilerTestFixture {
       }
     }
 
-    void close() {
+    public void close() {
+      try {
+        super.close();
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
+
       for (ZipFile file : zipFiles.values()) {
         try {
           file.close();

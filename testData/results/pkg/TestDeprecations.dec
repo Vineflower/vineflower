@@ -3,7 +3,6 @@ package pkg;
 public abstract class TestDeprecations {
    /** @deprecated */
    public int byComment;
-   /** @deprecated */
    @Deprecated
    public int byAnno;
 
@@ -15,17 +14,14 @@ public abstract class TestDeprecations {
    /** @deprecated */
    public abstract void byCommentAbstract();
 
-   /** @deprecated */
    @Deprecated
    public void byAnno() {
       int a = 5;// 35
    }// 36
 
-   /** @deprecated */
    @Deprecated
    public abstract void byAnnoAbstract();
 
-   /** @deprecated */
    @Deprecated
    public static class ByAnno {
       int a = 5;
@@ -47,40 +43,40 @@ public abstract class TestDeprecations {
 
 class 'pkg/TestDeprecations' {
    method 'byComment ()V' {
-      0      11
-      1      11
-      2      12
+      0      10
+      1      10
+      2      11
    }
 
    method 'byAnno ()V' {
-      0      20
-      1      20
-      2      21
+      0      18
+      1      18
+      2      19
    }
 }
 
 class 'pkg/TestDeprecations$ByAnno' {
    method 'foo ()V' {
-      0      33
-      1      33
-      2      34
+      0      29
+      1      29
+      2      30
    }
 }
 
 class 'pkg/TestDeprecations$ByComment' {
    method 'foo ()V' {
-      0      42
-      1      42
-      2      43
+      0      38
+      1      38
+      2      39
    }
 }
 
 Lines mapping:
-27 <-> 12
-28 <-> 13
-35 <-> 21
-36 <-> 22
-46 <-> 43
-47 <-> 44
-55 <-> 34
-56 <-> 35
+27 <-> 11
+28 <-> 12
+35 <-> 19
+36 <-> 20
+46 <-> 39
+47 <-> 40
+55 <-> 30
+56 <-> 31
