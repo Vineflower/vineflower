@@ -8,7 +8,6 @@ public class TestGenericMapInput {
       for(N item : source) {// 10
          map.put(item.toString(), item);// 12
       }
-
    }// 14
 }
 
@@ -42,13 +41,13 @@ class 'pkg/TestGenericMapInput' {
       22      8
       23      8
       24      8
-      29      11
+      29      10
    }
 }
 
 Lines mapping:
 10 <-> 8
 12 <-> 9
-14 <-> 12
+14 <-> 11
 Not mapped:
 13

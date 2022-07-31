@@ -3,6 +3,7 @@ package org.jetbrains.java.decompiler.modules.decompiler.sforms;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionNode;
@@ -11,6 +12,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionsGraph;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.util.*;
+import org.jetbrains.java.decompiler.util.FastSparseSetFactory.FastSparseSet;
 
 import java.util.*;
 
@@ -43,6 +45,9 @@ public class SFormsConstructor {
   // node id, var, version
   final HashMap<String, SFormsFastMapDirect> extraVarVersions = new HashMap<>();
 
+  // node id, var, version
+  final HashMap<String, SFormsFastMapDirect> catchableVersions = new HashMap<>();
+
   // var, version
   final HashMap<Integer, Integer> lastversion = new HashMap<>();
 
@@ -51,7 +56,7 @@ public class SFormsConstructor {
 
 
   // (var, version), version
-  private final HashMap<VarVersionPair, FastSparseSetFactory.FastSparseSet<Integer>> phi;
+  private final HashMap<VarVersionPair, FastSparseSet<Integer>> phi;
 
   // version, protected ranges (catch, finally)
   private final Map<VarVersionPair, Integer> mapVersionFirstRange;
@@ -73,6 +78,8 @@ public class SFormsConstructor {
 
   // track assignments for finding effectively final vars (left var, right var)
   private final HashMap<VarVersionPair, VarVersionPair> varAssignmentMap;
+
+  private SFormsFastMapDirect currentCatchableMap = null;
 
 
   private RootStatement root;
@@ -129,6 +136,8 @@ public class SFormsConstructor {
     FlattenStatementsHelper flatthelper = new FlattenStatementsHelper();
     DirectGraph dgraph = flatthelper.buildDirectGraph(root);
     this.dgraph = dgraph;
+    ValidationHelper.validateDGraph(dgraph, root);
+    ValidationHelper.validateAllVarVersionsAreNull(dgraph, root);
 
     DotExporter.toDotFile(dgraph, mt, "ssaSplitVariables");
 
@@ -157,7 +166,7 @@ public class SFormsConstructor {
       this.ssuversions.initDominators();
     }
 
-    if (this.trackSsuVersions && this.trackDirectAssignments){
+    if (this.trackSsuVersions && this.trackDirectAssignments) {
       // Validation testing
       ValidationHelper.validateVarVersionsGraph(this.ssuversions, root, this.varAssignmentMap);
     }
@@ -174,10 +183,17 @@ public class SFormsConstructor {
 
       SFormsFastMapDirect varmap = this.inVarVersions.get(node.id);
       VarMapHolder varmaps = VarMapHolder.ofNormal(varmap);
+      this.currentCatchableMap = null;
 
+      if (node.hasSuccessors(DirectEdgeType.EXCEPTION)) {
+        this.currentCatchableMap = new SFormsFastMapDirect(varmap);
+        this.currentCatchableMap.removeAllStacks(); // stack gets cleared when throwing
+        this.currentCatchableMap.removeAllFields(); // fields gets invalidated when throwing
+        this.catchableVersions.put(node.id, this.currentCatchableMap);
+      }
 
-      // Foreach init node- mark as assignment!
-      if (node.type == DirectNode.NodeType.FOREACH_VARDEF && node.exprents.get(0) instanceof VarExprent) {
+      // Foreach init node: mark as assignment!
+      if (node.type == DirectNodeType.FOREACH_VARDEF && node.exprents.get(0) instanceof VarExprent) {
         this.updateVarExprent((VarExprent) node.exprents.get(0), node.statement, varmaps.getNormal(), calcLiveVars);
       } else if (node.exprents != null) {
         for (Exprent expr : node.exprents) {
@@ -189,11 +205,14 @@ public class SFormsConstructor {
       if (this.blockFieldPropagation) {
         // quick solution: 'dummy' field variables should not cross basic block borders (otherwise problems e.g. with finally loops - usage without assignment in a loop)
         // For the full solution consider adding a dummy assignment at the entry point of the method
-        boolean allow_field_propagation = node.succs.isEmpty() || (node.succs.size() == 1 && node.succs.get(0).preds.size() == 1);
-
-        if (!allow_field_propagation) {
-          varmaps.getIfTrue().removeAllFields();
-          varmaps.getIfFalse().removeAllFields();
+        if (node.hasSuccessors(DirectEdgeType.REGULAR)) {
+          List<DirectEdge> successors = node.getSuccessors(DirectEdgeType.REGULAR);
+          if (successors.size() != 1) {
+            varmaps.removeAllFields();
+          } else if (successors.get(0).getDestination().hasPredecessors(DirectEdgeType.REGULAR) &&
+                     successors.get(0).getDestination().getPredecessors(DirectEdgeType.REGULAR).size() != 1) {
+            varmaps.removeAllFields();
+          }
         }
       }
 
@@ -205,8 +224,12 @@ public class SFormsConstructor {
 
         // Don't update the node if it wasn't discovered normally, as that can lead to infinite recursion due to bad ordering!
         if (!dgraph.extraNodes.contains(node)) {
-          for (DirectNode nd : node.succs) {
-            updated.add(nd.id);
+          for (DirectEdge nd : node.getSuccessors(DirectEdgeType.REGULAR)) {
+            updated.add(nd.getDestination().id);
+          }
+
+          for (DirectEdge nd : node.getSuccessors(DirectEdgeType.EXCEPTION)) {
+            updated.add(nd.getDestination().id);
           }
         }
       }
@@ -410,7 +433,7 @@ public class SFormsConstructor {
 
                   VarVersionNode verNode = this.ssuversions.nodes.getWithKey(varVersion);
 
-                  FastSparseSetFactory.FastSparseSet<Integer> versions = this.factory.spawnEmptySet();
+                  FastSparseSet<Integer> versions = this.factory.spawnEmptySet();
                   if (verNode.preds.size() == 1) {
                     versions.add(verNode.preds.iterator().next().source.version);
                   } else {
@@ -473,7 +496,7 @@ public class SFormsConstructor {
         int varindex = vardest.getIndex();
         int current_vers = vardest.getVersion();
 
-        FastSparseSetFactory.FastSparseSet<Integer> vers = varmap.get(varindex);
+        FastSparseSet<Integer> vers = varmap.get(varindex);
 
         int cardinality = vers != null ? vers.getCardinality() : 0;
         switch (cardinality) {
@@ -611,13 +634,25 @@ public class SFormsConstructor {
         this.ssuversions.createNode(new VarVersionPair(varindex, nextver), varassign.getLVT());
       }
 
-      this.setCurrentVar(varmap, varindex, nextver);
     } else {
       if (calcLiveVars) {
         this.varMapToGraph(new VarVersionPair(varindex, varassign.getVersion()), varmap);
       }
 
-      this.setCurrentVar(varmap, varindex, varassign.getVersion());
+    }
+
+    this.setCurrentVar(varmap, varindex, varassign.getVersion());
+
+    // update catchables map for normal vars only
+    if (this.currentCatchableMap != null && varindex < VarExprent.STACK_BASE && varindex >= 0) {
+
+      if (this.currentCatchableMap.containsKey(varindex)) {
+        this.currentCatchableMap.get(varindex).add(varassign.getVersion());
+      } else {
+        FastSparseSet<Integer> set = this.factory.spawnEmptySet();
+        set.add(varassign.getVersion());
+        varmap.put(varindex, set);
+      }
     }
   }
 
@@ -640,12 +675,24 @@ public class SFormsConstructor {
 
     SFormsFastMapDirect mapNew = new SFormsFastMapDirect();
 
-    for (DirectNode pred : node.preds) {
-      SFormsFastMapDirect mapOut = this.getFilteredOutMap(node.id, pred.id, dgraph, node.id);
+    for (DirectEdge pred : node.getPredecessors(DirectEdgeType.REGULAR)) {
+      SFormsFastMapDirect mapOut = this.getFilteredOutMap(node.id, pred.getSource().id, dgraph, node.id);
       if (mapNew.isEmpty()) {
         mapNew = mapOut.getCopy();
       } else {
         mergeMaps(mapNew, mapOut);
+      }
+    }
+
+    for (DirectEdge pred : node.getPredecessors(DirectEdgeType.EXCEPTION)) {
+      // TODO: interact with finally?
+      SFormsFastMapDirect mapOut = this.catchableVersions.get(pred.getSource().id);
+      if (mapOut != null) {
+        if (mapNew.isEmpty()) {
+          mapNew = mapOut.getCopy();
+        } else {
+          mergeMaps(mapNew, mapOut);
+        }
       }
     }
 
@@ -740,6 +787,55 @@ public class SFormsConstructor {
         }
 
         mapNew.intersection(mapNewTemp);
+
+//      TODO: reimplement
+//        if (this.trackPhantomExitNodes && !mapTrueSource.isEmpty() && !mapNew.isEmpty()) { // FIXME: what for??
+//
+//          // replace phi versions with corresponding phantom ones
+//          HashMap<VarVersionPair, VarVersionPair> mapPhantom = phantomexitnodes.get(predid);
+//          if (mapPhantom == null) {
+//            mapPhantom = new HashMap<>();
+//          }
+//
+//          SFormsFastMapDirect mapExitVar = mapNew.getCopy();
+//          mapExitVar.complement(mapTrueSource);
+//
+//          for (Map.Entry<Integer, FastSparseSet<Integer>> ent : mapExitVar.entryList()) {
+//            for (int version : ent.getValue()) {
+//
+//              int varindex = ent.getKey();
+//              VarVersionPair exitvar = new VarVersionPair(varindex, version);
+//              FastSparseSet<Integer> newSet = mapNew.get(varindex);
+//
+//              // remove the actual exit version
+//              newSet.remove(version);
+//
+//              // get or create phantom version
+//              VarVersionPair phantomvar = mapPhantom.get(exitvar);
+//              if (phantomvar == null) {
+//                int newversion = getNextFreeVersion(exitvar.var, null);
+//                phantomvar = new VarVersionPair(exitvar.var, newversion);
+//
+//                VarVersionNode exitnode = ssuversions.nodes.getWithKey(exitvar);
+//                VarVersionNode phantomnode = ssuversions.createNode(phantomvar);
+//                phantomnode.flags |= VarVersionNode.FLAG_PHANTOM_FINEXIT;
+//
+//                VarVersionEdge edge = new VarVersionEdge(VarVersionEdge.EDGE_PHANTOM, exitnode, phantomnode);
+//                exitnode.addSuccessor(edge);
+//                phantomnode.addPredecessor(edge);
+//
+//                mapPhantom.put(exitvar, phantomvar);
+//              }
+//
+//              // add phantom version
+//              newSet.add(phantomvar.version);
+//            }
+//          }
+//
+//          if (!mapPhantom.isEmpty()) {
+//            phantomexitnodes.put(predid, mapPhantom);
+//          }
+//        }
       }
     }
 
@@ -817,7 +913,7 @@ public class SFormsConstructor {
     for (int i = 0; i < paramcount; i++) {
       int version = this.getNextFreeVersion(varindex, this.root); // == 1
 
-      FastSparseSetFactory.FastSparseSet<Integer> set = this.factory.spawnEmptySet();
+      FastSparseSet<Integer> set = this.factory.spawnEmptySet();
       set.add(version);
       map.put(varindex, set);
 
@@ -839,12 +935,12 @@ public class SFormsConstructor {
     return map;
   }
 
-  public HashMap<VarVersionPair, FastSparseSetFactory.FastSparseSet<Integer>> getPhi() {
+  public HashMap<VarVersionPair, FastSparseSet<Integer>> getPhi() {
     return this.phi;
   }
 
 
-  private void createOrUpdatePhiNode(VarVersionPair phivar, FastSparseSetFactory.FastSparseSet<Integer> vers, Statement stat) {
+  private void createOrUpdatePhiNode(VarVersionPair phivar, FastSparseSet<Integer> vers, Statement stat) {
 
 //    FastSparseSet<Integer> versCopy = vers.getCopy();
     Set<Integer> removed = new HashSet<>();
@@ -933,7 +1029,7 @@ public class SFormsConstructor {
       return false;
     }
 
-    for (Map.Entry<Integer, FastSparseSetFactory.FastSparseSet<Integer>> ent2 : map2.entryList()) {
+    for (Map.Entry<Integer, FastSparseSet<Integer>> ent2 : map2.entryList()) {
       if (!InterpreterUtil.equalObjects(map1.get(ent2.getKey()), ent2.getValue())) {
         return false;
       }
@@ -943,7 +1039,7 @@ public class SFormsConstructor {
   }
 
   void setCurrentVar(SFormsFastMapDirect varmap, int var, int vers) {
-    FastSparseSetFactory.FastSparseSet<Integer> set = this.factory.spawnEmptySet();
+    FastSparseSet<Integer> set = this.factory.spawnEmptySet();
     set.add(vers);
     varmap.put(var, set);
   }

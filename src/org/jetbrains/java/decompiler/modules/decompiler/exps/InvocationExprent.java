@@ -68,6 +68,7 @@ public class InvocationExprent extends Exprent {
   private boolean forceBoxing = false;
   private boolean forceUnboxing = false;
   private boolean isSyntheticNullCheck = false;
+  private boolean wasLazyCondy = false;
 
   public InvocationExprent() {
     super(Exprent.Type.INVOCATION);
@@ -183,6 +184,7 @@ public class InvocationExprent extends Exprent {
     bootstrapMethod = expr.getBootstrapMethod();
     bootstrapArguments = expr.getBootstrapArguments();
     isSyntheticNullCheck = expr.isSyntheticNullCheck();
+    wasLazyCondy = expr.wasLazyCondy;
 
     if (invocationType == InvocationType.DYNAMIC && !isStatic && instance != null && !lstParameters.isEmpty()) {
       // method reference, instance and first param are expected to be the same var object
@@ -358,7 +360,12 @@ public class InvocationExprent extends Exprent {
           int j = 0;
           for (int i = start; i < lstParameters.size(); ++i) {
             if ((mask == null || mask.get(i) == null)) {
-              // FIXME: IOOBE
+              // FIXME: why can this happen?
+              //   See: jdk ReduceOps
+              if (desc.getSignature().parameterTypes.size() <= j) {
+                continue;
+              }
+
               VarType paramType = desc.getSignature().parameterTypes.get(j++);
               if (paramType.isGeneric()) {
 
@@ -515,6 +522,10 @@ public class InvocationExprent extends Exprent {
   @Override
   public TextBuffer toJava(int indent) {
     TextBuffer buf = new TextBuffer();
+
+    if (wasLazyCondy) {
+      buf.append("/* $QF: constant dynamic replaced with non-lazy method call */ ");
+    }
 
     String super_qualifier = null;
     boolean isInstanceThis = false;
@@ -785,6 +796,7 @@ public class InvocationExprent extends Exprent {
         buf.append(stringValue);
       }
     } else if (arg instanceof LinkConstant) {
+      // TODO: errors trying to print condy as const arg
       VarType cls = new VarType(((LinkConstant) arg).classname);
       buf.append(ExprProcessor.getCastTypeName(cls)).append("::").append(((LinkConstant) arg).elementname);
     }
@@ -914,6 +926,10 @@ public class InvocationExprent extends Exprent {
       int y = 0;
       for (int x = start; x < types.length; x++) {
         if (mask == null || mask.get(x) == null) {
+          if (desc.getSignature().parameterTypes.size() <= y) {
+            continue;
+          }
+
           VarType type = desc.getSignature().parameterTypes.get(y++).remap(genericsMap);
           if (type != null && !(type.isGeneric() && ((GenericType)type).hasUnknownGenericType(namedGens))) {
             types[x] = type;
@@ -1590,6 +1606,11 @@ public class InvocationExprent extends Exprent {
     measureBytecode(values, lstParameters);
     measureBytecode(values, instance);
     measureBytecode(values);
+  }
+
+  public InvocationExprent markWasLazyCondy() {
+    wasLazyCondy = true;
+    return this;
   }
 
   // *****************************************************************************

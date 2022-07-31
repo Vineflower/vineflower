@@ -12,12 +12,11 @@ public class TestSynchronizedTrySharing {
       InputStream is = null;// 11
 
       try {
-         new FileInputStream(name);// 13
+         is = new FileInputStream(name);// 13
          name = name.substring(50);// 14
       } catch (Exception var4) {// 15
          is.close();// 16
       }
-
    }// 18
 
    public void test2(String name) throws Exception {
@@ -28,7 +27,7 @@ public class TestSynchronizedTrySharing {
       InputStream is = null;// 25
 
       try {
-         new FileInputStream(name);// 27
+         is = new FileInputStream(name);// 27
          synchronized(name) {// 28
             System.out.println(name);// 29
             name = name.substring(50);// 30
@@ -36,7 +35,6 @@ public class TestSynchronizedTrySharing {
       } catch (Exception var6) {// 32
          is.close();// 33
       }
-
    }// 35
 }
 
@@ -55,6 +53,7 @@ class 'pkg/TestSynchronizedTrySharing' {
       15      11
       16      11
       1b      14
+      1f      14
       20      15
       21      15
       22      15
@@ -65,44 +64,45 @@ class 'pkg/TestSynchronizedTrySharing' {
       2a      16
       2b      17
       2c      17
-      2f      20
+      2f      19
    }
 
    method 'test2 (Ljava/lang/String;)V' {
-      0      23
-      3      23
-      4      24
-      5      24
-      6      24
-      7      24
-      8      24
-      9      24
-      a      24
-      c      25
-      15      27
-      16      27
-      1b      30
-      20      31
-      23      31
-      24      32
-      25      32
-      26      32
-      27      32
-      28      32
-      29      32
-      2a      32
-      2b      33
-      2c      33
-      2d      33
-      2e      33
-      2f      33
-      30      33
-      31      33
-      33      34
-      41      35
-      42      36
-      43      36
-      46      39
+      0      22
+      3      22
+      4      23
+      5      23
+      6      23
+      7      23
+      8      23
+      9      23
+      a      23
+      c      24
+      15      26
+      16      26
+      1b      29
+      1f      29
+      20      30
+      23      30
+      24      31
+      25      31
+      26      31
+      27      31
+      28      31
+      29      31
+      2a      31
+      2b      32
+      2c      32
+      2d      32
+      2e      32
+      2f      32
+      30      32
+      31      32
+      33      33
+      41      34
+      42      35
+      43      35
+      46      37
    }
 }
 
@@ -115,19 +115,19 @@ Lines mapping:
 14 <-> 16
 15 <-> 17
 16 <-> 18
-18 <-> 21
-21 <-> 24
-22 <-> 25
-23 <-> 26
-25 <-> 28
-27 <-> 31
-28 <-> 32
-29 <-> 33
-30 <-> 34
-31 <-> 35
-32 <-> 36
-33 <-> 37
-35 <-> 40
+18 <-> 20
+21 <-> 23
+22 <-> 24
+23 <-> 25
+25 <-> 27
+27 <-> 30
+28 <-> 31
+29 <-> 32
+30 <-> 33
+31 <-> 34
+32 <-> 35
+33 <-> 36
+35 <-> 38
 Not mapped:
 17
 34

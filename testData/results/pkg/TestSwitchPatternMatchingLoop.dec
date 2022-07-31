@@ -1,0 +1,65 @@
+package pkg;
+
+import java.util.Objects;
+
+public class TestSwitchPatternMatchingLoop {
+   public void test(Object o) {
+      while(true) {
+         Objects.requireNonNull(o);// 6
+         switch(o) {
+            case o instanceof Integer i:// 7
+               System.out.println(i);
+               break;
+            case o instanceof String s:// 8
+               System.out.println(s);
+               break;
+            default:
+               System.out.println("Default");// 9
+         }
+      }
+   }
+}
+
+class 'pkg/TestSwitchPatternMatchingLoop' {
+   method 'test (Ljava/lang/Object;)V' {
+      0      7
+      2      7
+      3      7
+      4      7
+      10      8
+      30      9
+      31      9
+      32      10
+      33      10
+      34      10
+      35      10
+      36      10
+      37      10
+      38      10
+      39      10
+      3a      11
+      41      12
+      42      12
+      43      13
+      44      13
+      45      13
+      46      13
+      47      13
+      48      13
+      49      13
+      4a      13
+      4b      14
+      4e      16
+      4f      16
+      50      16
+      51      16
+      52      16
+      53      16
+   }
+}
+
+Lines mapping:
+6 <-> 8
+7 <-> 10
+8 <-> 13
+9 <-> 17

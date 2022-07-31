@@ -7,7 +7,6 @@ public class TestForContinue {
             System.out.println(i);// 10
          }
       }
-
    }// 12
 }
 
@@ -29,7 +28,7 @@ class 'pkg/TestForContinue' {
       16      4
       17      4
       18      4
-      1c      10
+      1c      9
    }
 }
 
@@ -37,6 +36,6 @@ Lines mapping:
 5 <-> 5
 6 <-> 6
 10 <-> 7
-12 <-> 11
+12 <-> 10
 Not mapped:
 7

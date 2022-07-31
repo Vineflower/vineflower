@@ -1,131 +1,94 @@
 package pkg;
 
-import java.lang.runtime.SwitchBootstraps;
 import java.util.Objects;
 
 public class TestSwitchPatternMatchingInstanceof2 {
    public void test(Object o) {
       Objects.requireNonNull(o);// 5
-      Object var2 = o;
-      byte var3 = 0;
-
-      while(true) {
-         switch(SwitchBootstraps.typeSwitch<"typeSwitch",Number,Number,String>(var2, var3)) {
-            case 0: {
-               Number n = (Number)var2;// 6
-               if (n instanceof Integer i) {
-                  System.out.println(i);
-                  return;// 11
-               }
-
-               var3 = 1;
-               break;
-            }
-            case 1: {
-               Number n = (Number)var2;// 7
-               System.out.println(n);
-               return;
-            }
-            case 2:
-               String s = (String)var2;// 8
-               System.out.println(s);
-               return;
-            default:
-               System.out.println("Default");// 9
-               return;
-         }
+      label17:
+      switch(o) {
+         case o instanceof Number n && n instanceof Integer i:// 6
+            System.out.println(i);
+            break;
+         case o instanceof Number nx:// 7
+            System.out.println(nx);
+            break;
+         case o instanceof String s:// 8
+            System.out.println(s);
+            break;
+         default:
+            System.out.println("Default");// 9
       }
-   }
+   }// 11
 }
 
 class 'pkg/TestSwitchPatternMatchingInstanceof2' {
    method 'test (Ljava/lang/Object;)V' {
-      0      7
-      2      7
-      3      7
-      4      7
-      6      8
-      7      9
-      8      9
-      9      12
-      a      12
-      b      12
-      c      12
-      d      12
-      e      12
-      f      12
-      10      12
-      2c      14
-      2d      14
-      2e      14
-      2f      14
-      30      14
-      31      14
-      32      15
-      33      15
-      34      15
-      35      15
-      36      15
-      37      15
-      3f      15
-      40      15
-      41      16
-      42      16
-      43      16
-      44      16
-      45      16
-      46      16
-      47      16
-      48      16
-      49      16
-      4a      16
-      4b      16
-      4c      16
-      4d      16
-      54      24
-      55      24
-      56      24
-      57      24
-      58      24
-      59      24
-      5a      25
-      5b      25
-      5c      25
-      5d      25
-      5e      25
-      5f      25
-      60      25
-      61      25
-      65      29
-      66      29
-      67      29
-      68      29
-      69      29
-      6a      29
-      6b      30
-      6c      30
-      6d      30
-      6e      30
-      6f      30
-      70      30
-      71      30
-      72      30
-      76      33
-      77      33
-      78      33
-      79      33
-      7a      33
-      7b      33
-      7c      33
-      7d      33
-      81      17
+      0      6
+      2      6
+      3      6
+      4      6
+      10      8
+      30      9
+      31      9
+      32      9
+      33      9
+      34      9
+      35      9
+      36      9
+      3f      9
+      40      9
+      41      10
+      42      10
+      43      10
+      44      10
+      45      10
+      46      10
+      47      10
+      48      10
+      49      10
+      4a      10
+      4b      10
+      4c      10
+      4d      10
+      58      12
+      59      12
+      5a      13
+      5b      13
+      5c      13
+      5d      13
+      5e      13
+      5f      13
+      60      13
+      61      13
+      62      14
+      69      15
+      6a      15
+      6b      16
+      6c      16
+      6d      16
+      6e      16
+      6f      16
+      70      16
+      71      16
+      72      16
+      73      17
+      76      19
+      77      19
+      78      19
+      79      19
+      7a      19
+      7b      19
+      7c      19
+      7d      19
+      81      21
    }
 }
 
 Lines mapping:
-5 <-> 8
-6 <-> 15
-7 <-> 25
-8 <-> 30
-9 <-> 34
-11 <-> 18
+5 <-> 7
+6 <-> 10
+7 <-> 13
+8 <-> 16
+9 <-> 20
+11 <-> 22

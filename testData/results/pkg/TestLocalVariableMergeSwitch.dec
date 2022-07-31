@@ -16,7 +16,6 @@ public class TestLocalVariableMergeSwitch {
                System.out.println("hi");// 18
          }
       }
-
    }// 22
 }
 
@@ -49,7 +48,7 @@ class 'pkg/TestLocalVariableMergeSwitch' {
       39      15
       3a      15
       3b      15
-      3f      19
+      3f      18
    }
 }
 
@@ -63,6 +62,6 @@ Lines mapping:
 15 <-> 13
 16 <-> 14
 18 <-> 16
-22 <-> 20
+22 <-> 19
 Not mapped:
 19

@@ -1,0 +1,202 @@
+package pkg;
+
+public class TestSwitchPatternMatching19 {
+   static void test(TestSwitchPatternMatching19.XXX s) {
+      <unknown> var1;
+      switch(s) {// 5
+         case null:
+         default:
+            System.out.println("f");// 11
+            break;
+         case X1:
+            System.out.println("x1");// 6
+            break;
+         case s instanceof TestSwitchPatternMatching19.XXX var8 && var1 != TestSwitchPatternMatching19.XXX.X1:// 7
+            System.out.println("a");
+            break;
+         case s instanceof TestSwitchPatternMatching19.XXX var9 && var1 instanceof TestSwitchPatternMatching19.C:// 8
+            System.out.println("b");
+            break;
+         case s instanceof TestSwitchPatternMatching19.XXX var10 && var1 == var1:// 9
+            System.out.println("d");
+            break;
+         case s instanceof TestSwitchPatternMatching19.XXX var11 && false:
+            break;
+      }
+   }// 13
+
+   static void test2(TestSwitchPatternMatching19.XXX s) {
+      switch(s) {// 16
+         case X2:
+         case null:
+            System.out.println("maybe x2?");// 18
+            break;
+         case X1:
+            System.out.println("x1");// 17
+            break;
+         case s instanceof TestSwitchPatternMatching19.XXX var4 && Math.random() > 0.0:// 19
+            System.out.println("just making sure!");// 20
+            break;
+         default:
+            System.out.println("default");// 21
+      }
+   }// 23
+
+   interface A {
+   }
+
+   interface B {
+   }
+
+   interface C {
+   }
+
+   interface D {
+   }
+
+   interface E {
+   }
+
+   interface F {
+   }
+
+   static enum XXX
+      implements TestSwitchPatternMatching19.A,
+      TestSwitchPatternMatching19.B,
+      TestSwitchPatternMatching19.C,
+      TestSwitchPatternMatching19.D,
+      TestSwitchPatternMatching19.E,
+      TestSwitchPatternMatching19.F {
+      X1,
+      X2,
+      X3;
+   }
+}
+
+class 'pkg/TestSwitchPatternMatching19' {
+   method 'test (Lpkg/TestSwitchPatternMatching19$XXX;)V' {
+      0      5
+      b      5
+      30      11
+      31      11
+      32      11
+      33      11
+      34      11
+      35      11
+      36      11
+      37      11
+      38      12
+      3b      13
+      3e      13
+      3f      13
+      40      13
+      41      13
+      49      14
+      4a      14
+      4b      14
+      4c      14
+      4d      14
+      4e      14
+      4f      14
+      50      14
+      51      15
+      54      16
+      59      16
+      5a      16
+      5b      16
+      64      17
+      65      17
+      66      17
+      67      17
+      68      17
+      69      17
+      6a      17
+      6b      17
+      6c      18
+      6f      19
+      76      19
+      7e      20
+      7f      20
+      80      20
+      81      20
+      82      20
+      83      20
+      84      20
+      85      20
+      86      21
+      94      8
+      95      8
+      96      8
+      97      8
+      98      8
+      99      8
+      9a      8
+      9b      8
+      9c      9
+      9f      25
+   }
+
+   method 'test2 (Lpkg/TestSwitchPatternMatching19$XXX;)V' {
+      0      28
+      b      28
+      28      34
+      29      34
+      2a      34
+      2b      34
+      2c      34
+      2d      34
+      2e      34
+      2f      34
+      30      35
+      33      31
+      34      31
+      35      31
+      36      31
+      37      31
+      38      31
+      39      31
+      3a      31
+      3b      32
+      40      36
+      41      36
+      42      36
+      43      36
+      44      36
+      4d      37
+      4e      37
+      4f      37
+      50      37
+      51      37
+      52      37
+      53      37
+      54      37
+      55      38
+      58      40
+      59      40
+      5a      40
+      5b      40
+      5c      40
+      5d      40
+      5e      40
+      5f      40
+      63      42
+   }
+}
+
+Lines mapping:
+5 <-> 6
+6 <-> 12
+7 <-> 14
+8 <-> 17
+9 <-> 20
+11 <-> 9
+13 <-> 26
+16 <-> 29
+17 <-> 35
+18 <-> 32
+19 <-> 37
+20 <-> 38
+21 <-> 41
+23 <-> 43
+Not mapped:
+10

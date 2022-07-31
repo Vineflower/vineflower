@@ -6,7 +6,6 @@ public class TestDoWhileTrue {
 
       while(++x < 100) {// 7 8
       }
-
    }// 12
 }
 
@@ -20,7 +19,7 @@ class 'pkg/TestDoWhileTrue' {
       6      6
       7      6
       8      6
-      e      9
+      e      8
    }
 }
 
@@ -28,6 +27,6 @@ Lines mapping:
 5 <-> 5
 7 <-> 7
 8 <-> 7
-12 <-> 10
+12 <-> 9
 Not mapped:
 9

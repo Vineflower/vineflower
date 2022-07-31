@@ -13,9 +13,9 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.AssignmentExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.ExitExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectGraph;
-import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectNode;
-import org.jetbrains.java.decompiler.modules.decompiler.sforms.FlattenStatementsHelper;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectNode;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.SSAConstructorSparseEx;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.BasicBlockStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.CatchAllStatement;
@@ -164,8 +164,8 @@ public class FinallyProcessor {
       if (node.block != null) {
         blockStatement = node.block;
       }
-      else if (node.preds.size() == 1) {
-        blockStatement = node.preds.get(0).block;
+      else if (node.preds().size() == 1) {
+        blockStatement = node.preds().get(0).block;
       }
 
       boolean isTrueExit = true;
@@ -215,8 +215,8 @@ public class FinallyProcessor {
 
                 Exprent next = null;
                 if (i == node.exprents.size() - 1) {
-                  if (node.succs.size() == 1) {
-                    DirectNode nd = node.succs.get(0);
+                  if (node.succs().size() == 1) {
+                    DirectNode nd = node.succs().get(0);
                     if (!nd.exprents.isEmpty()) {
                       next = nd.exprents.get(0);
                     }
@@ -263,7 +263,7 @@ public class FinallyProcessor {
         }
       }
 
-      stack.addAll(node.succs);
+      stack.addAll(node.succs());
     }
 
     // empty finally block?

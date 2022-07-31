@@ -2,9 +2,10 @@ package org.jetbrains.java.decompiler.modules.decompiler;
 
 import org.jetbrains.java.decompiler.modules.decompiler.exps.ExitExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
-import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectGraph;
-import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectNode;
-import org.jetbrains.java.decompiler.modules.decompiler.sforms.FlattenStatementsHelper;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectNode;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionNode;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
@@ -304,15 +305,15 @@ public final class ValidationHelper {
         DirectNode node = stack.pop();
 
         // check if predecessors have us as a successor
-        for (DirectNode pred : node.preds) {
-          if (!pred.succs.contains(node)) {
+        for (DirectNode pred : node.preds()) {
+          if (!pred.succs().contains(node)) {
             throw new IllegalStateException("Predecessor " + pred + " does not have " + node + " as a successor");
           }
         }
 
         // check if successors have us as a predecessor, and remove them from the inaccessible set
-        for (DirectNode succ : node.succs) {
-          if (!succ.preds.contains(node)) {
+        for (DirectNode succ : node.succs()) {
+          if (!succ.preds().contains(node)) {
             throw new IllegalStateException("Successor " + succ + " does not have " + node + " as a predecessor");
           }
 
@@ -328,6 +329,32 @@ public final class ValidationHelper {
       }
     } catch (Throwable e) {
       DotExporter.errorToDotFile(graph, root.mt, "erroring_dgraph");
+      throw e;
+    }
+  }
+
+  public static void validateAllVarVersionsAreNull(DirectGraph dgraph, RootStatement root) {
+    if (!VALIDATE) {
+      return;
+    }
+
+    try {
+      for (DirectNode node : dgraph.nodes) {
+        if (node.exprents != null) {
+          for (Exprent exprent : node.exprents) {
+            for (Exprent sub : exprent.getAllExprents(true, true)) {
+              if (sub instanceof VarExprent) {
+                VarExprent var = (VarExprent)sub;
+                if (var.getVersion() != 0) {
+                  throw new IllegalStateException("Var version is not zero: " + var.getIndex() + "_" + var.getVersion());
+                }
+              }
+            }
+          }
+        }
+      }
+    } catch (Throwable e) {
+      DotExporter.errorToDotFile(dgraph, root.mt, "erroring_dgraph");
       throw e;
     }
   }

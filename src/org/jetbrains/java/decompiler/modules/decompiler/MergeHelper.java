@@ -4,11 +4,11 @@ package org.jetbrains.java.decompiler.modules.decompiler;
 import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectNode;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
-import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectGraph;
-import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectNode;
-import org.jetbrains.java.decompiler.modules.decompiler.sforms.FlattenStatementsHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.SFormsConstructor;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement.EdgeDirection;
@@ -447,6 +447,13 @@ public final class MergeHelper {
         }
       }
 
+      Exprent lastExp = lastData.getExprents().get(lastData.getExprents().size() - 1);
+
+      // Cannot integrate if the last exprent is a throw or return
+      if (lastExp instanceof ExitExprent) {
+        return;
+      }
+
       stat.setLooptype(DoStatement.Type.FOR);
       if (hasinit) {
         Exprent exp = preData.getExprents().remove(preData.getExprents().size() - 1);
@@ -455,11 +462,11 @@ public final class MergeHelper {
         }
         stat.setInitExprent(exp);
       }
-      Exprent exp = lastData.getExprents().remove(lastData.getExprents().size() - 1);
+      lastData.getExprents().remove(lastExp);
       if (stat.getIncExprent() != null) {
-        exp.addBytecodeOffsets(stat.getIncExprent().bytecode);
+        lastExp.addBytecodeOffsets(stat.getIncExprent().bytecode);
       }
-      stat.setIncExprent(exp);
+      stat.setIncExprent(lastExp);
     }
 
     cleanEmptyStatements(stat, lastData);
@@ -774,7 +781,7 @@ public final class MergeHelper {
     DirectNode stnd = digraph.nodes.getWithKey(diblockId);
 
     // Only submit predecessors!
-    Deque<DirectNode> stack = new LinkedList<>(stnd.preds);
+    Deque<DirectNode> stack = new LinkedList<>(stnd.preds());
     Set<DirectNode> visited = new HashSet<>();
 
     while (!stack.isEmpty()) {
@@ -797,7 +804,7 @@ public final class MergeHelper {
       }
 
       // Go through predecessors, if we haven't seen them
-      for (DirectNode pred : node.preds) {
+      for (DirectNode pred : node.preds()) {
         if (visited.add(pred)) {
           stack.push(pred);
         }

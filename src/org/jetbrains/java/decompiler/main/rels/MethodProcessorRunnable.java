@@ -12,8 +12,8 @@ import org.jetbrains.java.decompiler.modules.code.DeadCodeHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.*;
 import org.jetbrains.java.decompiler.modules.decompiler.decompose.DomHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.deobfuscator.ExceptionDeobfuscator;
-import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectGraph;
-import org.jetbrains.java.decompiler.modules.decompiler.sforms.FlattenStatementsHelper;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarProcessor;
 import org.jetbrains.java.decompiler.struct.StructClass;
@@ -124,12 +124,17 @@ public class MethodProcessorRunnable implements Runnable {
 
     if (ExceptionDeobfuscator.hasObfuscatedExceptions(graph)) {
       DecompilerContext.getLogger().writeMessage("Heavily obfuscated exception ranges found!", IFernflowerLogger.Severity.WARN);
+      DotExporter.toDotFile(graph, mt, "cfgExceptionsPre", true);
+
       if (!ExceptionDeobfuscator.handleMultipleEntryExceptionRanges(graph)) {
         DecompilerContext.getLogger().writeMessage("Found multiple entry exception ranges which could not be splitted", IFernflowerLogger.Severity.WARN);
         graph.addComment("$QF: Could not handle exception ranges with multiple entries");
         graph.addErrorComment = true;
       }
+
+      DotExporter.toDotFile(graph, mt, "cfgMultipleExceptionEntry", true);
       ExceptionDeobfuscator.insertDummyExceptionHandlerBlocks(graph, mt.getBytecodeVersion());
+      DotExporter.toDotFile(graph, mt, "cfgMultipleExceptionDummyHandlers", true);
     }
 
     DotExporter.toDotFile(graph, mt, "cfgParsed", true);
@@ -279,7 +284,11 @@ public class MethodProcessorRunnable implements Runnable {
       }
 
       if (root.hasSwitch() && SwitchExpressionHelper.hasSwitchExpressions(root)) {
-        if (SwitchExpressionHelper.processAllSwitchExpressions(root)) {
+        if (SwitchPatternMatchProcessor.processPatternMatching(root)) {
+          decompileRecord.add("ProcessSwitchPatternMatch", root);
+          continue;
+        }
+        if (SwitchExpressionHelper.processSwitchExpressions(root)) {
           decompileRecord.add("ProcessSwitchExpr", root);
           continue;
         }
@@ -330,7 +339,7 @@ public class MethodProcessorRunnable implements Runnable {
 
       // If we have simplified switches, try to make switch expressions
       if (SwitchExpressionHelper.hasSwitchExpressions(root)) {
-        if (SwitchExpressionHelper.processAllSwitchExpressions(root)) {
+        if (SwitchExpressionHelper.processSwitchExpressions(root)) {
           decompileRecord.add("ProcessSwitchExpr_SS", root);
 
           // Simplify stack vars to integrate and inline switch expressions

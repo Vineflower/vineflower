@@ -17,7 +17,6 @@ public class TestMultiBoolean {
       if (a && a && a || a || a) {// 17
          System.out.println(4);// 18
       }
-
    }// 20
 }
 
@@ -67,7 +66,7 @@ class 'pkg/TestMultiBoolean' {
       47      17
       48      17
       49      17
-      4c      20
+      4c      19
    }
 }
 
@@ -80,4 +79,4 @@ Lines mapping:
 14 <-> 14
 17 <-> 17
 18 <-> 18
-20 <-> 21
+20 <-> 20

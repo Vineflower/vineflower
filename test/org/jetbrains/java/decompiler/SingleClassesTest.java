@@ -116,6 +116,16 @@ public class SingleClassesTest extends SingleClassesTestBase {
       IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "0",
       IFernflowerPreferences.RENAME_ENTITIES, "1"
     );
+    registerSet("Complex Condys", () -> register(JASM, "TestComplexCondy"),
+      IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
+      IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
+      IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR, "0",
+      IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
+      IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
+      IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "0",
+      IFernflowerPreferences.DECOMPILE_COMPLEX_CONDYS, "1",
+      IFernflowerPreferences.PREFERRED_LINE_LENGTH, "250"
+    );
     // TODO: user renamer class test
   }
 
@@ -276,6 +286,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestSynchronizedLoop");
     // TODO: break out of synchronized isn't explicit
     register(JAVA_8, "TestSynchronizedTry");
+    // TODO: loops still broken
+    register(JAVA_8, "TestSynchronizedThrow");
     register(JAVA_8, "TestSynchronizeNull");
     // TODO: Assignments are removed, producing incorrect code
     // derived from: IDEA-180373
@@ -283,7 +295,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestWhileIterator");
     register(JAVA_8, "TestReturnTernaryChar");
     register(JAVA_8, "TestCompoundAssignment");
-    // TODO: testSuccessor2 makes a = 3 into a boolean
     register(JAVA_8, "TestInfiniteLoop");
     register(JAVA_8, "TestIfLoop");
     // Be careful when touching this class file, your IDE might freeze
@@ -372,6 +383,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16, "TestSwitchExpressionNested1");
     register(JAVA_16, "TestSwitchExprInvoc");
 
+    register(JAVA_16, "TestAccidentalSwitchExpression");
+
     register(JAVA_16_PREVIEW, "TestSealedClasses");
     register(JAVA_16_PREVIEW, "PermittedSubClassA", "TestSealedClasses");
     register(JAVA_16_PREVIEW, "PermittedSubClassB", "PermittedSubClassA", "TestSealedClasses");
@@ -411,17 +424,35 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatching10");
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatching11");
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatching12");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatching13");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatching14");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatching15");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatching16");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatching17");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatching18");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatching19");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatching20");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatching21");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatching22");
 
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingLoop");
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingInstanceof1");
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingInstanceof2");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingInstanceof3");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingInstanceof4");
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingReturn1");
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingReturn2");
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingConstructor1");
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingConstructor2");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingWithNull");
+
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingFuzz1");
 
     register(JASM, "TestCondy");
     register(JASM, "TestBackwardsExceptionHandler");
     register(JASM, "TestLeakyMethod");
+    // TODO: issue #164: produces `for (var1 : var1)`
+    register(JASM, "TestSelfIterableLoop");
 
     register(JAVA_8, "TestStaticInit");
     register(JAVA_8_NODEBUG, "TestDoubleNestedClass");
@@ -431,6 +462,10 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestIfTernary2");
     register(JAVA_8, "TestIfTernary3");
     register(JAVA_8, "TestIfTernaryReturn");
+    register(JAVA_8, "TestIfElseTernary1");
+
+    register(JAVA_17, "TestIfTernary1J17");
+    register(JAVA_17, "TestIfElseTernary1J17");
 
     register(JAVA_8, "TestSimpleIf");
     //TODO: figure out why there's no successor
@@ -469,10 +504,14 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: look at underlying issue with finally and loops here
     // TODO: test5 variable usage in finally block is incorrect, <unknown> variable
     register(JAVA_8, "TestLoopFinally");
+    // TODO: #162 produces a `(<unknown>)` cast between 2 booleans
+    register(JAVA_8, "TestUnknownCast");
     // TODO: local classes not being put in the right spots
     register(JAVA_8, "TestLocalClassesSwitch"); // Adapted from CFR
     // TODO: return not condensed properly and throw is not put into finally
     register(JAVA_8, "TestFinallyThrow");
+    // TODO: this code would be cleaner if return and continue were used instead of inverting the float comparison
+    register(JAVA_8, "TestFloatInvertedIfConditionEarlyExit");
     register(JAVA_8, "TestWhile1");
     registerRaw(CUSTOM, "TestEclipseSwitchEnum");
     registerRaw(CUSTOM, "TestEclipseSwitchString");
@@ -502,6 +541,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestLocalVariableMergeSwitch");
     register(JAVA_8, "TestLoopBreak4");
     register(JAVA_17, "TestDoubleBraceInitializersJ17");
+    // TODO: code doesn't compile (redeclares variable)
+    register(JAVA_17, "TestDuplicateAssignmentInSwitchExpr");
     register(JAVA_8, "TestLoopMerging2");
     register(JAVA_8, "TestAssertConst");
     register(JAVA_8, "TestLambdaLocalCapture");
@@ -576,6 +617,12 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestObjectBitwise");
     register(JAVA_17, "TestSealedFinal", "SealedInterface");
     register(JAVA_17, "TestSealedRecord", "SealedInterface");
+    // TODO: empty switch leaves behind a synthetic field access
+    register(JAVA_8, "TestEnumSwitchEmpty");
+
+    // TODO: when in different classes, these two decompile incorrectly to super(outer, s)
+    register(JAVA_8, "TestInnerClassExtend");
+    register(JAVA_17, "TestInnerClassExtendJ17");
   }
 
   private void registerEntireClassPath() {
@@ -647,6 +694,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestFloatPrecision");
     register(JAVA_8, "TestNotFloatPrecision");
     register(JAVA_8, "TestConstantUninlining");
+    register(JAVA_8, "TestPiDivision");
   }
 
   private void registerPatternMatching() {

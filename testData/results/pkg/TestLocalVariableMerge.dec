@@ -28,7 +28,6 @@ public class TestLocalVariableMerge {
             System.out.println("z != c");// 28
          }
       }
-
    }// 31
 }
 
@@ -104,7 +103,7 @@ class 'pkg/TestLocalVariableMerge' {
       51      27
       52      27
       53      27
-      56      31
+      56      30
    }
 }
 
@@ -123,4 +122,4 @@ Lines mapping:
 24 <-> 24
 27 <-> 27
 28 <-> 28
-31 <-> 32
+31 <-> 31

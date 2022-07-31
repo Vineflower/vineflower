@@ -1,0 +1,95 @@
+package pkg;
+
+import java.util.Objects;
+
+public class TestSwitchPatternMatchingInstanceof3 {
+   public void test(Object o) {
+      Objects.requireNonNull(o);// 5
+      label18:
+      switch(o) {
+         case o instanceof Number n && n instanceof Integer i && i > 0:// 6
+            System.out.println(i);
+            break;
+         case o instanceof Number nx:// 7
+            System.out.println(nx);
+            break;
+         case o instanceof String s:// 8
+            System.out.println(s);
+            break;
+         default:
+            System.out.println("Default");// 9
+      }
+   }// 11
+}
+
+class 'pkg/TestSwitchPatternMatchingInstanceof3' {
+   method 'test (Ljava/lang/Object;)V' {
+      0      6
+      2      6
+      3      6
+      4      6
+      10      8
+      30      9
+      31      9
+      32      9
+      33      9
+      34      9
+      35      9
+      36      9
+      3f      9
+      40      9
+      41      9
+      42      9
+      43      9
+      44      9
+      45      9
+      46      9
+      4e      10
+      4f      10
+      50      10
+      51      10
+      52      10
+      53      10
+      54      10
+      55      10
+      5d      12
+      5e      12
+      5f      13
+      60      13
+      61      13
+      62      13
+      63      13
+      64      13
+      65      13
+      66      13
+      67      14
+      6e      15
+      6f      15
+      70      16
+      71      16
+      72      16
+      73      16
+      74      16
+      75      16
+      76      16
+      77      16
+      78      17
+      7b      19
+      7c      19
+      7d      19
+      7e      19
+      7f      19
+      80      19
+      81      19
+      82      19
+      86      21
+   }
+}
+
+Lines mapping:
+5 <-> 7
+6 <-> 10
+7 <-> 13
+8 <-> 16
+9 <-> 20
+11 <-> 22

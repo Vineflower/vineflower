@@ -1,0 +1,207 @@
+package pkg;
+
+public class TestSynchronizedThrow {
+   public void test() {
+      synchronized(this) {// 5
+         throw new RuntimeException();// 6
+      }
+   }
+
+   public void test1() {
+      System.out.println("Hi");// 11
+      synchronized(this) {// 12
+         System.out.println("Hello");// 13
+         throw new RuntimeException();// 14
+      }
+   }
+
+   public void testConditionalThrow(boolean b) {
+      synchronized(this) {// 19
+         if (b) {// 20
+            throw new RuntimeException();// 21
+         }
+      }
+   }// 24
+
+   public void testConditionalThrow2(boolean b) {
+      System.out.println("Hi");// 27
+      synchronized(this) {// 28
+         System.out.println("Hello");// 29
+         if (b) {// 30
+            throw new RuntimeException();// 31
+         }
+
+         System.out.println("World");// 33
+      }
+
+      System.out.println("Bye");// 35
+   }// 36
+
+   public void testLoopThrow(boolean b) {
+      synchronized(this) {// 39
+         while(b) {// 40
+            System.out.println("oh");// 41
+         }
+
+         throw new RuntimeException();// 43
+      }
+   }
+
+   public void testInfiniteLoopOrThrow(boolean b) {
+      synchronized(this) {// 48
+         if (b) {// 49
+            while(true) {
+               System.out.println("looooooooooop");// 51
+            }
+         }
+
+         throw new RuntimeException();// 54
+      }
+   }
+}
+
+class 'pkg/TestSynchronizedThrow' {
+   method 'test ()V' {
+      0      4
+      3      4
+      b      5
+   }
+
+   method 'test1 ()V' {
+      0      10
+      1      10
+      2      10
+      3      10
+      4      10
+      5      10
+      6      10
+      7      10
+      8      11
+      b      11
+      c      12
+      d      12
+      e      12
+      f      12
+      10      12
+      11      12
+      12      12
+      13      12
+      1b      13
+   }
+
+   method 'testConditionalThrow (Z)V' {
+      0      18
+      3      18
+      4      19
+      5      19
+      f      20
+      1a      23
+   }
+
+   method 'testConditionalThrow2 (Z)V' {
+      0      26
+      1      26
+      2      26
+      3      26
+      4      26
+      5      26
+      6      26
+      7      26
+      8      27
+      b      27
+      c      28
+      d      28
+      e      28
+      f      28
+      10      28
+      11      28
+      12      28
+      13      28
+      14      29
+      15      29
+      1f      30
+      20      33
+      21      33
+      22      33
+      23      33
+      24      33
+      25      33
+      26      33
+      27      33
+      32      36
+      33      36
+      34      36
+      35      36
+      36      36
+      37      36
+      38      36
+      39      36
+      3a      37
+   }
+
+   method 'testLoopThrow (Z)V' {
+      0      40
+      3      40
+      4      41
+      8      42
+      9      42
+      a      42
+      b      42
+      c      42
+      d      42
+      e      42
+      f      42
+      1a      45
+   }
+
+   method 'testInfiniteLoopOrThrow (Z)V' {
+      0      50
+      3      50
+      4      51
+      5      51
+      8      53
+      9      53
+      a      53
+      b      53
+      c      53
+      d      53
+      e      53
+      f      53
+      1a      57
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 6
+11 <-> 11
+12 <-> 12
+13 <-> 13
+14 <-> 14
+19 <-> 19
+20 <-> 20
+21 <-> 21
+24 <-> 24
+27 <-> 27
+28 <-> 28
+29 <-> 29
+30 <-> 30
+31 <-> 31
+33 <-> 34
+35 <-> 37
+36 <-> 38
+39 <-> 41
+40 <-> 42
+41 <-> 43
+43 <-> 46
+48 <-> 51
+49 <-> 52
+51 <-> 54
+54 <-> 58
+Not mapped:
+7
+15
+23
+34
+44
+55

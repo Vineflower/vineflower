@@ -7,7 +7,6 @@ public class TestIterationOverGenericsWithoutLvt1 {
       for(Object var3 : var1) {
          System.out.println(var3.hashCode());
       }
-
    }
 }
 
@@ -37,7 +36,7 @@ class 'pkg/TestIterationOverGenericsWithoutLvt1' {
       1e      7
       1f      7
       20      7
-      24      10
+      24      9
    }
 }
 

@@ -19,7 +19,6 @@ public enum TestEnumArrayStaticInit {
       for(TestEnumArrayStaticInit e : values) {// 19
          VALUES[e.v] = e;// 20
       }
-
    }// 22
 }
 
@@ -69,7 +68,7 @@ class 'pkg/TestEnumArrayStaticInit' {
       71      18
       72      18
       73      18
-      77      22
+      77      21
    }
 }
 
@@ -80,7 +79,7 @@ Lines mapping:
 17 <-> 17
 19 <-> 19
 20 <-> 20
-22 <-> 23
+22 <-> 22
 Not mapped:
 3
 4
