@@ -3,7 +3,9 @@ package org.jetbrains.java.decompiler.modules.decompiler.decompose;
 
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.GeneralStatement;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
+import org.jetbrains.java.decompiler.util.DotExporter;
 import org.jetbrains.java.decompiler.util.FastFixedSetFactory;
 import org.jetbrains.java.decompiler.util.FastFixedSetFactory.FastFixedSet;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
@@ -11,12 +13,23 @@ import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import java.util.*;
 import java.util.Map.Entry;
 
+// Finds the postdominance set of a general statement, in order to figure out how much of the current general statement should be split
+// to recurse on. This is done when the current general statement has been fully explored, but not all nodes have been discovered.
+// By splitting the subgraph, DomHelper is better able to discover statements as the amount of nodes it needs to sort through is reduced.
+// This class provides the information it needs to decide where to split the subgraph.
+//
+// This class only uses the regular edges in the statement graph to run its analysis, with one special case continue edge type. However, an important thing to note is that every edge
+// starts out as a regular edge- with a few exceptions. As statements get discovered by DomHelper, it's type gets refined and thus it
+// becomes invisible to ExtendedPostdominance. This has the result of the statement graph tightening over time, with fewer nodes getting postdominance information
+// in subsequent runs
 public class FastExtendedPostdominanceHelper {
 
   private List<Statement> lstReversePostOrderList;
 
+  // statement, {postdominance set}
   private HashMap<Integer, FastFixedSet<Integer>> mapSupportPoints = new LinkedHashMap<>();
 
+  // statement, {postdominance set}
   private final HashMap<Integer, FastFixedSet<Integer>> mapExtPostdominators = new LinkedHashMap<>();
 
   private Statement statement;
@@ -44,16 +57,24 @@ public class FastExtendedPostdominanceHelper {
     //			ex.printStackTrace();
     //		}
 
+    // Start by calculating the reachability from each node
     calcDefaultReachableSets();
 
+    // Remove nodes that cannot be postdominance, and apply a light filter
+    // Also remove exception handlers
     removeErroneousNodes();
 
     DominatorTreeExceptionFilter filter = new DominatorTreeExceptionFilter(statement);
     filter.initialize();
 
+    // Remove postdominance of exception ranges
     filterOnExceptionRanges(filter);
 
+    // Use the dominator tree to filter postdominance nodes that are not dominated by the current node
     filterOnDominance(filter);
+
+    // Improve postdominance of strongly connected components by adding the loop header to each node dominated by the loop
+    addSupportedComponents(filter);
 
     Set<Entry<Integer, FastFixedSet<Integer>>> entries = mapExtPostdominators.entrySet();
     HashMap<Integer, Set<Integer>> res = new HashMap<>(entries.size());
@@ -64,6 +85,31 @@ public class FastExtendedPostdominanceHelper {
     }
 
     return res;
+  }
+
+  // Add postdominance information to isolated loops entirely dominated by a header
+  // WARNING: This is sailing straight into uncharted territory, as the postdominance of a component with no exit is not defined!
+  // As this is an undefined operation, we give up trying to follow the strict definition and apply transforms that create better code output.
+  // This method adds the supported point as a postdominance node to every node dominated by it, as there is no way to leave the component (with regard to regular edges)
+  // when inside it.
+  private void addSupportedComponents(DominatorTreeExceptionFilter filter) {
+    StrongConnectivityHelper schelp = new StrongConnectivityHelper(this.statement);
+
+    for (List<Statement> comp : schelp.getComponents()) {
+      SupportComponent supcomp = SupportComponent.identify(comp, this.mapSupportPoints, filter.getDomEngine());
+
+      if (supcomp != null) {
+        // If the identified support component is not null, then add additional postdom info
+        for (Statement st : supcomp.stats) {
+          if (st != supcomp.supportedPoint) {
+            this.mapExtPostdominators.computeIfAbsent(st.id, i -> this.factory.createEmptySet()).add(supcomp.supportedPoint.id);
+          }
+
+          // TODO: not entirely correct
+//          this.mapExtPostdominators.computeIfAbsent(supcomp.supportedPoint.id, i -> this.factory.createEmptySet()).add(st.id);
+        }
+      }
+    }
   }
 
 
@@ -101,6 +147,7 @@ public class FastExtendedPostdominanceHelper {
           path.add(stat.id);
         }
 
+        // path == setPostdoms ?
         if (path.contains(setPostdoms)) {
           continue;
         }
@@ -152,6 +199,7 @@ public class FastExtendedPostdominanceHelper {
   private void removeErroneousNodes() {
     mapSupportPoints = new HashMap<>();
 
+    // We need to use continues towards the general statement, as those also are needed for reachability calculation
     calcReachabilitySuppPointsEx();
 
     iterateReachability((node, mapSets) -> {

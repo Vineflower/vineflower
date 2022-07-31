@@ -9,41 +9,27 @@ public class TestForeachMultipleLoops {
       if (a != null) {// 8
          System.out.println(a);// 9
       } else {
-         Iterator var4 = map.entrySet().iterator();// 13
-
-         while(true) {
-            while(true) {
-               Entry<Integer, String> entry;
-               while(true) {
-                  if (!var4.hasNext()) {
-                     return;// 40
-                  }
-
-                  entry = (Entry)var4.next();
-                  String s = (String)entry.getValue();// 14
-                  if (a == null) {// 15
-                     s = s + s;// 16
-                     break;
-                  }
-
-                  if (s == null) {// 18
-                     s = "hello";// 21
-                     break;
-                  }
+         for(Entry<Integer, String> entry : map.entrySet()) {// 13
+            String s = (String)entry.getValue();// 14
+            if (a == null) {// 15
+               s = s + s;// 16
+            } else {
+               if (s != null) {// 18
+                  continue;
                }
 
-               Object v = entry.getValue();// 24
-               if (v == null) {// 25
-                  if (i == 3) {// 26
-                     continue;
-                  }
+               s = "hello";// 21
+            }
 
-                  System.out.println("if");// 29
-                  break;
+            Object v = entry.getValue();// 24
+            if (v == null) {// 25
+               if (i == 3) {// 26
+                  continue;
                }
 
+               System.out.println("if");// 29
+            } else {
                System.out.println("else");// 31
-               break;
             }
 
             try {
@@ -52,8 +38,65 @@ public class TestForeachMultipleLoops {
                var9.printStackTrace();// 37
             }
          }
+
       }
-   }// 10
+   }// 10 40
+
+   public void test1(Object a, Map<Integer, String> map, int i) {
+      if (a != null) {// 43
+         System.out.println(a);// 44
+      } else {
+         Iterator var4 = map.entrySet().iterator();// 48
+
+         while(true) {
+            while(true) {
+               Entry<Integer, String> entry;
+               while(true) {
+                  if (!var4.hasNext()) {
+                     return;// 82
+                  }
+
+                  entry = (Entry)var4.next();
+                  String s = (String)entry.getValue();// 49
+                  if (a == null) {// 50
+                     s = s + s;// 51
+                     break;
+                  }
+
+                  if (s == null) {// 53
+                     s = "hello";// 56
+                     break;
+                  }
+               }
+
+               Object v = entry.getValue();// 59
+               if (v == null) {// 60
+                  if (i == 3) {// 61
+                     continue;
+                  }
+
+                  System.out.println("if");// 64
+                  break;
+               }
+
+               System.out.println("else");// 66
+               break;
+            }
+
+            for(String value : map.values()) {// 69
+               if (value != null) {// 70
+                  System.out.println(value);// 73
+               }
+            }
+
+            try {
+               System.out.println(1);// 77
+            } catch (Exception var10) {// 78
+               var10.printStackTrace();// 79
+            }
+         }
+      }
+   }// 45
 }
 
 class 'pkg/TestForeachMultipleLoops' {
@@ -67,7 +110,7 @@ class 'pkg/TestForeachMultipleLoops' {
       8      9
       9      9
       a      9
-      b      55
+      b      42
       c      11
       d      11
       e      11
@@ -81,119 +124,287 @@ class 'pkg/TestForeachMultipleLoops' {
       16      11
       17      11
       18      11
-      19      17
-      1a      17
-      1b      17
-      1c      17
-      1d      17
-      1e      17
-      1f      17
-      20      17
-      23      21
-      24      21
-      25      21
-      26      21
-      27      21
-      28      21
-      29      21
-      2a      21
-      2b      21
-      2c      21
-      2d      21
-      2e      21
-      2f      22
-      30      22
-      31      22
-      32      22
-      33      22
-      34      22
-      35      22
-      36      22
-      37      22
-      38      22
-      39      22
-      3a      22
-      3b      23
-      3c      23
-      46      24
-      47      24
-      4b      24
-      4c      24
-      50      24
-      51      24
-      52      24
-      53      24
-      54      24
-      55      25
-      58      28
-      59      28
-      5a      28
-      60      29
-      61      29
-      62      29
-      63      29
-      64      34
-      65      34
-      66      34
-      67      34
-      68      34
-      69      34
-      6a      34
-      6b      34
-      6c      34
-      6d      35
-      6e      35
-      6f      35
-      72      36
-      73      36
-      74      36
-      7a      40
-      7b      40
-      7c      40
-      7d      40
-      7e      40
-      7f      40
-      80      40
-      81      40
-      82      41
-      85      44
-      86      44
-      87      44
-      88      44
-      89      44
-      8a      44
-      8d      49
-      8e      49
-      8f      49
-      90      49
-      91      49
-      97      50
-      9b      51
-      a1      18
+      23      11
+      24      11
+      25      11
+      26      11
+      27      11
+      28      11
+      29      11
+      2a      11
+      2b      11
+      2c      11
+      2d      11
+      2e      11
+      2f      12
+      30      12
+      31      12
+      32      12
+      33      12
+      34      12
+      35      12
+      36      12
+      37      12
+      38      12
+      39      12
+      3a      12
+      3b      13
+      3c      13
+      46      14
+      47      14
+      4b      14
+      4c      14
+      50      14
+      51      14
+      52      14
+      53      14
+      54      14
+      58      16
+      59      16
+      5a      16
+      60      20
+      61      20
+      62      20
+      63      20
+      64      23
+      65      23
+      66      23
+      67      23
+      68      23
+      69      23
+      6a      23
+      6b      23
+      6c      23
+      6d      24
+      6e      24
+      6f      24
+      72      25
+      73      25
+      74      25
+      7a      29
+      7b      29
+      7c      29
+      7d      29
+      7e      29
+      7f      29
+      80      29
+      81      29
+      85      31
+      86      31
+      87      31
+      88      31
+      89      31
+      8a      31
+      8d      35
+      8e      35
+      8f      35
+      90      35
+      91      35
+      97      36
+      9b      37
+      a1      42
+   }
+
+   method 'test1 (Ljava/lang/Object;Ljava/util/Map;I)V' {
+      0      45
+      1      45
+      4      46
+      5      46
+      6      46
+      7      46
+      8      46
+      9      46
+      a      46
+      b      98
+      c      48
+      d      48
+      e      48
+      f      48
+      10      48
+      11      48
+      12      48
+      13      48
+      14      48
+      15      48
+      16      48
+      17      48
+      18      48
+      19      54
+      1a      54
+      1b      54
+      1c      54
+      1d      54
+      1e      54
+      1f      54
+      20      54
+      23      58
+      24      58
+      25      58
+      26      58
+      27      58
+      28      58
+      29      58
+      2a      58
+      2b      58
+      2c      58
+      2d      58
+      2e      58
+      2f      59
+      30      59
+      31      59
+      32      59
+      33      59
+      34      59
+      35      59
+      36      59
+      37      59
+      38      59
+      39      59
+      3a      59
+      3b      60
+      3c      60
+      46      61
+      47      61
+      4b      61
+      4c      61
+      50      61
+      51      61
+      52      61
+      53      61
+      54      61
+      55      62
+      58      65
+      59      65
+      5a      65
+      60      66
+      61      66
+      62      66
+      63      66
+      64      71
+      65      71
+      66      71
+      67      71
+      68      71
+      69      71
+      6a      71
+      6b      71
+      6c      71
+      6d      72
+      6e      72
+      6f      72
+      72      73
+      73      73
+      74      73
+      7a      77
+      7b      77
+      7c      77
+      7d      77
+      7e      77
+      7f      77
+      80      77
+      81      77
+      82      78
+      85      81
+      86      81
+      87      81
+      88      81
+      89      81
+      8a      81
+      8d      85
+      8e      85
+      8f      85
+      90      85
+      91      85
+      92      85
+      93      85
+      94      85
+      95      85
+      96      85
+      97      85
+      98      85
+      99      85
+      a4      85
+      a5      85
+      a6      85
+      a7      85
+      a8      85
+      a9      85
+      aa      85
+      ab      85
+      ac      85
+      ad      85
+      ae      85
+      af      85
+      b0      86
+      b1      86
+      b2      86
+      b8      87
+      b9      87
+      ba      87
+      bb      87
+      bc      87
+      bd      87
+      be      87
+      bf      87
+      c3      92
+      c4      92
+      c5      92
+      c6      92
+      c7      92
+      cd      93
+      d1      94
+      d7      55
    }
 }
 
 Lines mapping:
 8 <-> 9
 9 <-> 10
-10 <-> 56
+10 <-> 43
 13 <-> 12
-14 <-> 23
-15 <-> 24
-16 <-> 25
-18 <-> 29
-21 <-> 30
-24 <-> 35
-25 <-> 36
-26 <-> 37
-29 <-> 41
-31 <-> 45
-35 <-> 50
-36 <-> 51
-37 <-> 52
-40 <-> 19
+14 <-> 13
+15 <-> 14
+16 <-> 15
+18 <-> 17
+21 <-> 21
+24 <-> 24
+25 <-> 25
+26 <-> 26
+29 <-> 30
+31 <-> 32
+35 <-> 36
+36 <-> 37
+37 <-> 38
+40 <-> 43
+43 <-> 46
+44 <-> 47
+45 <-> 99
+48 <-> 49
+49 <-> 60
+50 <-> 61
+51 <-> 62
+53 <-> 66
+56 <-> 67
+59 <-> 72
+60 <-> 73
+61 <-> 74
+64 <-> 78
+66 <-> 82
+69 <-> 86
+70 <-> 87
+73 <-> 88
+77 <-> 93
+78 <-> 94
+79 <-> 95
+82 <-> 56
 Not mapped:
 19
 27
 38
 39
+54
+62
+71
+74
+80
+81
