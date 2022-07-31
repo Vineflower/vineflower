@@ -2,10 +2,10 @@ package pkg;
 
 public class TestRenameEntities {
    public class class_1 {
-      // $FF: renamed from: a java.lang.Object
+      // $QF: renamed from: a java.lang.Object
       public Object field_0;
 
-      // $FF: renamed from: a () void
+      // $QF: renamed from: a () void
       public void method_0() {
          this.field_0 = new Object();// 8
          TestRenameEntities.this.new class_0().method_1();// 10
@@ -13,10 +13,10 @@ public class TestRenameEntities {
    }
 
    public class class_0 {
-      // $FF: renamed from: a java.lang.Object
+      // $QF: renamed from: a java.lang.Object
       public Object field_1;
 
-      // $FF: renamed from: a () void
+      // $QF: renamed from: a () void
       public void method_1() {
          this.field_1 = new Object();// 18
          TestRenameEntities.this.new class_1().method_0();// 20
