@@ -56,7 +56,7 @@ public interface CodeConstants {
   int ACC_SYNCHRONIZED = 0x0020;
   int ACC_OPEN = 0x0020;
   int ACC_TRANSITIVE = 0x0020;
-  int ACC_STATIC_PHASE = 0x0040;
+  int ACC_STATIC_PHASE = 0x0040; // modules
   int ACC_NATIVE = 0x0100;
   int ACC_ABSTRACT = 0x0400;
   int ACC_STRICT = 0x0800;
