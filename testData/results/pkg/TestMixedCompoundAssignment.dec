@@ -59,28 +59,24 @@ public class TestMixedCompoundAssignment {
       for(int j = 0; j < i; ++j) {// 64
          holder[j] = (int)((double)holder[j] + inc);// 65
       }
-
    }// 67
 
    public void testArrayIntLong(int[] holder, int i, long inc) {
       for(int j = 0; j < i; ++j) {// 70
          holder[j] = (int)((long)holder[j] + inc);// 71
       }
-
    }// 73
 
    public void testArrayDoubleInt(double[] holder, int i, int inc) {
       for(int j = 0; j < i; ++j) {// 76
          holder[j] += (double)inc;// 77
       }
-
    }// 79
 
    public void testNestedArrayByteFloatLongDouble(byte[] outer, float[] holder, long[] inner, int i, double inc) {
       for(int j = 0; j < i; ++j) {// 82
          outer[i + ~j] = (byte)((int)((float)outer[i + ~j] + (holder[j] -= (float)(inner[j * 3 % i] = (long)((double)inner[j * 3 % i] + inc)))));// 83
       }
-
    }// 85
 }
 
@@ -344,98 +340,98 @@ class 'pkg/TestMixedCompoundAssignment' {
       13      58
       14      58
       15      58
-      19      62
+      19      61
    }
 
    method 'testArrayIntLong ([IIJ)V' {
-      0      65
-      1      65
-      2      65
-      3      65
-      4      65
-      5      65
-      6      65
-      9      66
-      a      66
-      b      66
-      d      66
-      e      66
-      f      66
-      10      66
-      11      66
-      12      66
-      13      65
-      14      65
-      15      65
-      19      69
+      0      64
+      1      64
+      2      64
+      3      64
+      4      64
+      5      64
+      6      64
+      9      65
+      a      65
+      b      65
+      d      65
+      e      65
+      f      65
+      10      65
+      11      65
+      12      65
+      13      64
+      14      64
+      15      64
+      19      67
    }
 
    method 'testArrayDoubleInt ([DII)V' {
-      0      72
-      1      72
-      2      72
-      3      72
-      4      72
-      5      72
-      6      72
-      9      73
-      a      73
-      b      73
-      e      73
-      f      73
-      11      73
-      12      72
-      13      72
-      14      72
-      18      76
+      0      70
+      1      70
+      2      70
+      3      70
+      4      70
+      5      70
+      6      70
+      9      71
+      a      71
+      b      71
+      e      71
+      f      71
+      11      71
+      12      70
+      13      70
+      14      70
+      18      73
    }
 
    method 'testNestedArrayByteFloatLongDouble ([B[F[JID)V' {
-      0      79
-      1      79
-      2      79
-      3      79
-      4      79
-      5      79
-      6      79
-      7      79
-      a      80
-      b      80
-      c      80
-      d      80
-      e      80
-      10      80
-      11      80
-      13      80
-      14      80
-      15      80
-      16      80
-      17      80
-      1a      80
-      1b      80
-      1c      80
-      1d      80
-      1e      80
-      1f      80
-      20      80
-      21      80
-      23      80
-      24      80
-      25      80
-      26      80
-      27      80
-      28      80
-      2a      80
-      2b      80
-      2e      80
-      2f      80
-      30      80
-      31      80
-      32      80
-      33      79
-      34      79
-      35      79
-      39      83
+      0      76
+      1      76
+      2      76
+      3      76
+      4      76
+      5      76
+      6      76
+      7      76
+      a      77
+      b      77
+      c      77
+      d      77
+      e      77
+      10      77
+      11      77
+      13      77
+      14      77
+      15      77
+      16      77
+      17      77
+      1a      77
+      1b      77
+      1c      77
+      1d      77
+      1e      77
+      1f      77
+      20      77
+      21      77
+      23      77
+      24      77
+      25      77
+      26      77
+      27      77
+      28      77
+      2a      77
+      2b      77
+      2e      77
+      2f      77
+      30      77
+      31      77
+      32      77
+      33      76
+      34      76
+      35      76
+      39      79
    }
 }
 
@@ -479,13 +475,13 @@ Lines mapping:
 59 <-> 55
 64 <-> 59
 65 <-> 60
-67 <-> 63
-70 <-> 66
-71 <-> 67
-73 <-> 70
-76 <-> 73
-77 <-> 74
-79 <-> 77
-82 <-> 80
-83 <-> 81
-85 <-> 84
+67 <-> 62
+70 <-> 65
+71 <-> 66
+73 <-> 68
+76 <-> 71
+77 <-> 72
+79 <-> 74
+82 <-> 77
+83 <-> 78
+85 <-> 80

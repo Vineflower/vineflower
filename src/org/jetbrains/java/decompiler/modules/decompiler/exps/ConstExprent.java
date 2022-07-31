@@ -3,11 +3,11 @@ package org.jetbrains.java.decompiler.modules.decompiler.exps;
 
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
-import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.struct.gen.FieldDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
+import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
 import org.jetbrains.java.decompiler.struct.match.MatchEngine;
 import org.jetbrains.java.decompiler.struct.match.MatchNode;
 import org.jetbrains.java.decompiler.struct.match.MatchNode.RuleValue;
@@ -23,6 +23,7 @@ public class ConstExprent extends Exprent {
   private static final Map<Integer, String> CHAR_ESCAPES = new HashMap<>();
   private static final Map<Double, Function<BitSet, TextBuffer>> UNINLINED_DOUBLES = new HashMap<>();
   private static final Map<Float, Function<BitSet, TextBuffer>> UNINLINED_FLOATS = new HashMap<>();
+  private static final Set<Object> NO_PAREN_VALUES = new HashSet<>();
 
   static {
     CHAR_ESCAPES.put(0x8, "\\b");   /* \u0008: backspace BS */
@@ -46,6 +47,9 @@ public class ConstExprent extends Exprent {
     // Positive and negative pi
     UNINLINED_DOUBLES.put(Math.PI, ConstExprent::getPiDouble);
     UNINLINED_DOUBLES.put(-Math.PI, bytecode -> getPiDouble(bytecode).prepend("-"));
+
+    NO_PAREN_VALUES.addAll(UNINLINED_DOUBLES.keySet());
+    UNINLINED_DOUBLES.keySet().forEach(d -> NO_PAREN_VALUES.add(d.floatValue()));
 
     // Positive and negative pi divisors
     for (int i = 2; i <= 20; i++) {
@@ -100,6 +104,7 @@ public class ConstExprent extends Exprent {
       UNINLINED_FLOATS.put(key.floatValue(), bytecode -> {
         TextBuffer doubleValue = valueFunction.apply(bytecode);
         if (doubleValue.count(" ", 0) > 0) { // As long as all uninlined double values with more than one expression have a space in it, this'll work.
+          NO_PAREN_VALUES.add(key.floatValue());
           doubleValue.prepend("(").append(")");
         }
         return doubleValue.prepend("(float) ");
@@ -129,6 +134,7 @@ public class ConstExprent extends Exprent {
   private VarType constType;
   private final Object value;
   private final boolean boolPermitted;
+  private boolean wasCondy = false;
 
   public ConstExprent(int val, boolean boolPermitted, BitSet bytecodeOffsets) {
     this(guessType(val, boolPermitted), val, boolPermitted, bytecodeOffsets);
@@ -138,8 +144,13 @@ public class ConstExprent extends Exprent {
     this(constType, value, false, bytecodeOffsets);
   }
 
+  public ConstExprent(VarType constType, Object value, BitSet bytecodeOffsets, boolean wasCondy) {
+    this(constType, value, false, bytecodeOffsets);
+    this.wasCondy = wasCondy;
+  }
+
   private ConstExprent(VarType constType, Object value, boolean boolPermitted, BitSet bytecodeOffsets) {
-    super(EXPRENT_CONST);
+    super(Type.CONST);
     this.constType = constType;
     this.value = value;
     this.boolPermitted = boolPermitted;
@@ -186,7 +197,7 @@ public class ConstExprent extends Exprent {
 
   @Override
   public Exprent copy() {
-    return new ConstExprent(constType, value, bytecode);
+    return new ConstExprent(constType, value, bytecode, wasCondy);
   }
 
   @Override
@@ -212,11 +223,17 @@ public class ConstExprent extends Exprent {
     TextBuffer buf = new TextBuffer();
     buf.addBytecodeMapping(bytecode);
 
+    if (wasCondy) {
+      buf.append("/* $QF: constant dynamic */ ");
+    }
+
     if (constType.type != CodeConstants.TYPE_NULL && value == null) {
       return buf.append(ExprProcessor.getCastTypeName(constType));
     }
 
-    switch (constType.type) {
+    VarType unboxed = VarType.UNBOXING_TYPES.getOrDefault(constType, constType);
+
+    switch (unboxed.type) {
       case CodeConstants.TYPE_BOOLEAN:
         return buf.append(Boolean.toString((Integer)value != 0));
 
@@ -344,7 +361,37 @@ public class ConstExprent extends Exprent {
         }
     }
 
+    // prevent gc without discarding
+    buf.convertToStringAndAllowDataDiscard();
     throw new RuntimeException("invalid constant type: " + constType);
+  }
+
+  @Override
+  public int getPrecedence() {
+    if (value == null || DecompilerContext.getOption(IFernflowerPreferences.LITERALS_AS_IS)) {
+      return super.getPrecedence();
+    }
+
+    VarType unboxed = VarType.UNBOXING_TYPES.getOrDefault(constType, constType);
+
+    switch (unboxed.type) {
+      case CodeConstants.TYPE_FLOAT:
+        float floatVal = (Float)value;
+
+        if (UNINLINED_FLOATS.containsKey(floatVal) && !NO_PAREN_VALUES.contains(floatVal)) {
+          return 4;
+        }
+        break;
+      case CodeConstants.TYPE_DOUBLE:
+        double doubleVal = (Double)value;
+
+        if (UNINLINED_DOUBLES.containsKey(doubleVal) && !NO_PAREN_VALUES.contains(doubleVal)) {
+          return 4;
+        }
+        break;
+    }
+
+    return super.getPrecedence();
   }
 
   private static TextBuffer getPiDouble(BitSet bytecode) {
@@ -527,6 +574,11 @@ public class ConstExprent extends Exprent {
   @Override
   public void getBytecodeRange(BitSet values) {
     measureBytecode(values);
+  }
+
+  public ConstExprent setWasCondy(boolean wasCondy) {
+    this.wasCondy = wasCondy;
+    return this;
   }
 
   @Override

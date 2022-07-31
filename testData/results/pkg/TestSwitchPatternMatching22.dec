@@ -1,0 +1,278 @@
+package pkg;
+
+public class TestSwitchPatternMatching22 {
+   public void test1() {
+      try {
+         System.out.println("hello");// 13
+      } catch (Exception var8) {// 14
+         Object var2 = new Object();// 15
+         switch(var2) {
+            case var2 instanceof Short var4:// 19
+            case null:
+               break;
+            default:
+               System.out.println("Not a short");// 17
+               throw new RuntimeException();// 18
+         }
+      } finally {
+         System.out.println("world");// 22
+      }
+   }// 24
+
+   public void test2() {
+      try {
+         System.out.println("hello");// 28
+      } catch (Exception var8) {// 29
+         Object var2 = new Object();// 30
+         switch(var2) {
+            case var2 instanceof Short var4:// 34
+            case null:
+            default:
+               System.out.println("Not a short");// 32
+               throw new RuntimeException();// 33
+         }
+      } finally {
+         throw new RuntimeException();// 37
+      }
+   }
+
+   public void test1Null() {
+      try {
+         System.out.println("hello");// 43
+      } catch (Exception var8) {// 44
+         Object var2 = new Object();// 45
+         switch(var2) {
+            case var2 instanceof Short var4:// 50
+            case null:
+               break;
+            default:
+               System.out.println("Not a short");// 47
+               throw new RuntimeException();// 48
+         }
+      } finally {
+         System.out.println("world");// 53
+      }
+   }// 55
+
+   public void test2Null() {
+      try {
+         System.out.println("hello");// 59
+      } catch (Exception var8) {// 60
+         Object var2 = new Object();// 61
+         switch(var2) {
+            case var2 instanceof Short var4:// 66
+            case null:
+            default:
+               System.out.println("Not a short");// 63
+               throw new RuntimeException();// 64
+         }
+      } finally {
+         throw new RuntimeException();// 69
+      }
+   }
+
+   public void testNonPattern() {
+      try {
+         System.out.println("hello");// 75
+      } catch (Exception var5) {// 76
+         switch(0) {// 77
+            case -1:
+            case 10:
+            default:
+               System.out.println("Not a short");// 79
+               throw new RuntimeException();// 80
+         }
+      } finally {
+         throw new RuntimeException();// 85
+      }
+   }
+}
+
+class 'pkg/TestSwitchPatternMatching22' {
+   method 'test1 ()V' {
+      0      5
+      1      5
+      2      5
+      3      5
+      4      5
+      5      5
+      13      6
+      1b      7
+      1e      8
+      25      8
+      40      13
+      41      13
+      42      13
+      43      13
+      44      13
+      45      13
+      46      13
+      47      13
+      4f      14
+      50      9
+      54      9
+      55      9
+      61      17
+      62      17
+      63      17
+      64      17
+      65      17
+      66      17
+      67      17
+      6e      19
+   }
+
+   method 'test2 ()V' {
+      0      23
+      1      23
+      2      23
+      3      23
+      4      23
+      5      23
+      10      24
+      18      25
+      1b      26
+      22      26
+      3c      30
+      3d      30
+      3e      30
+      3f      30
+      40      30
+      41      30
+      42      30
+      43      30
+      4b      31
+      4c      27
+      50      27
+      51      27
+      60      34
+      61      34
+      62      34
+   }
+
+   method 'test1Null ()V' {
+      0      40
+      1      40
+      2      40
+      3      40
+      4      40
+      5      40
+      13      41
+      1b      42
+      1e      43
+      25      43
+      40      48
+      41      48
+      42      48
+      43      48
+      44      48
+      45      48
+      46      48
+      47      48
+      4f      49
+      50      44
+      54      44
+      55      44
+      61      52
+      62      52
+      63      52
+      64      52
+      65      52
+      66      52
+      67      52
+      6e      54
+   }
+
+   method 'test2Null ()V' {
+      0      58
+      1      58
+      2      58
+      3      58
+      4      58
+      5      58
+      10      59
+      18      60
+      1b      61
+      22      61
+      3c      65
+      3d      65
+      3e      65
+      3f      65
+      40      65
+      41      65
+      42      65
+      43      65
+      4b      66
+      4c      62
+      50      62
+      51      62
+      60      69
+      61      69
+      62      69
+   }
+
+   method 'testNonPattern ()V' {
+      0      75
+      1      75
+      2      75
+      3      75
+      4      75
+      5      75
+      10      76
+      11      77
+      12      77
+      2c      81
+      2d      81
+      2e      81
+      2f      81
+      30      81
+      31      81
+      32      81
+      33      81
+      3b      82
+      49      85
+      4a      85
+      4b      85
+   }
+}
+
+Lines mapping:
+13 <-> 6
+14 <-> 7
+15 <-> 8
+17 <-> 14
+18 <-> 15
+19 <-> 10
+22 <-> 18
+24 <-> 20
+28 <-> 24
+29 <-> 25
+30 <-> 26
+32 <-> 31
+33 <-> 32
+34 <-> 28
+37 <-> 35
+43 <-> 41
+44 <-> 42
+45 <-> 43
+47 <-> 49
+48 <-> 50
+50 <-> 45
+53 <-> 53
+55 <-> 55
+59 <-> 59
+60 <-> 60
+61 <-> 61
+63 <-> 66
+64 <-> 67
+66 <-> 63
+69 <-> 70
+75 <-> 76
+76 <-> 77
+77 <-> 78
+79 <-> 82
+80 <-> 83
+85 <-> 86
+Not mapped:
+23
+54

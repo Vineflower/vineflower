@@ -115,7 +115,9 @@ public class DecompilerTestFixture {
         }
       });
     } catch (IOException e) {
-      throw new UncheckedIOException(e);
+      // issue when deleting temp META-INF on windows, seemingly
+      //throw new UncheckedIOException(e);
+      e.printStackTrace();
     }
   }
 

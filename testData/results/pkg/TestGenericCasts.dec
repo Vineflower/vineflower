@@ -22,7 +22,6 @@ public class TestGenericCasts {
             System.out.println(s);// 22
          }
       }
-
    }// 25
 
    public void test4(Collection<String> c) {
@@ -133,28 +132,28 @@ class 'pkg/TestGenericCasts' {
       3c      19
       3d      19
       3e      19
-      42      25
+      42      24
    }
 
    method 'test4 (Ljava/util/Collection;)V' {
-      0      28
-      1      28
-      2      28
-      3      28
-      4      28
-      7      29
-      8      29
-      9      29
-      a      29
-      10      29
-      15      32
-      16      32
-      17      32
-      18      32
-      19      32
-      1a      32
-      1b      32
-      1c      33
+      0      27
+      1      27
+      2      27
+      3      27
+      4      27
+      7      28
+      8      28
+      9      28
+      a      28
+      10      28
+      15      31
+      16      31
+      17      31
+      18      31
+      19      31
+      1a      31
+      1b      31
+      1c      32
    }
 }
 
@@ -168,10 +167,10 @@ Lines mapping:
 20 <-> 20
 21 <-> 21
 22 <-> 22
-25 <-> 26
-28 <-> 29
-29 <-> 30
-31 <-> 33
-32 <-> 34
+25 <-> 25
+28 <-> 28
+29 <-> 29
+31 <-> 32
+32 <-> 33
 Not mapped:
 23

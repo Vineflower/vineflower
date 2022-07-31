@@ -110,7 +110,7 @@ class IfNode {
   private static IfNode buildSubIfNode(Statement statement) {
     IfNode ifnode = new IfNode(statement);
 
-    if (statement.type == Statement.TYPE_IF && ((IfStatement) statement).iftype == IfStatement.IFTYPE_IF) {
+    if (statement instanceof IfStatement && ((IfStatement) statement).iftype == IfStatement.IFTYPE_IF) {
       IfStatement ifStatement = (IfStatement) statement;
       ifnode.setInner(new IfNode(ifStatement.getIfEdge().getDestination()), ifStatement.getIfstat() == null ? INDIRECT : DIRECT);
       // note that the successor is always indirect, cause if it were direct, the 'if' should have been wrapped in a sequence
@@ -121,5 +121,23 @@ class IfNode {
     }
 
     return ifnode;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append(this.value.id);
+
+    if (this.innerNode != null) {
+      sb.append(": inner(").append(this.innerType).append(") {").append(this.innerNode).append("}");
+    }
+    if (this.successorNode != null) {
+      if (this.innerNode == null){
+        sb.append(": ");
+      }
+      sb.append(" successor(").append(this.successorType).append(") {").append(this.successorNode).append("}");
+    }
+
+    return sb.toString();
   }
 }

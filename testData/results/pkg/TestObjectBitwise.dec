@@ -1,0 +1,43 @@
+package pkg;
+
+public class TestObjectBitwise {
+   public boolean test(int i) {
+      return (this.obj() & (long)i) == 0L;// 5
+   }
+
+   public Object obj() {
+      return 100000L;// 9
+   }
+}
+
+class 'pkg/TestObjectBitwise' {
+   method 'test (I)Z' {
+      0      4
+      1      4
+      2      4
+      3      4
+      7      4
+      8      4
+      9      4
+      a      4
+      b      4
+      c      4
+      d      4
+      e      4
+      17      4
+   }
+
+   method 'obj ()Ljava/lang/Object;' {
+      0      8
+      1      8
+      2      8
+      3      8
+      4      8
+      5      8
+      6      8
+   }
+}
+
+Lines mapping:
+5 <-> 5
+9 <-> 9

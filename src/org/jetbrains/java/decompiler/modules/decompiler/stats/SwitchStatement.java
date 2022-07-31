@@ -10,9 +10,10 @@ import org.jetbrains.java.decompiler.modules.decompiler.DecHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
-import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.StartEndPair;
+import org.jetbrains.java.decompiler.util.TextBuffer;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -28,6 +29,8 @@ public final class SwitchStatement extends Statement {
   private List<List<StatEdge>> caseEdges = new ArrayList<>();
 
   private List<List<Exprent>> caseValues = new ArrayList<>();
+
+  private List<Exprent> caseGuards = new ArrayList<>();
 
   private final Set<Statement> scopedCaseStatements = new HashSet<>();
 
@@ -45,7 +48,7 @@ public final class SwitchStatement extends Statement {
   private boolean phantom;
 
   private SwitchStatement() {
-    type = TYPE_SWITCH;
+    super(StatementType.SWITCH);
 
     headexprent.add(null);
   }
@@ -58,7 +61,7 @@ public final class SwitchStatement extends Statement {
     stats.addWithKey(head, head.id);
 
     // find post node
-    Set<Statement> lstNodes = new HashSet<>(head.getNeighbours(StatEdge.TYPE_REGULAR, DIRECTION_FORWARD));
+    Set<Statement> lstNodes = new HashSet<>(head.getNeighbours(StatEdge.TYPE_REGULAR, EdgeDirection.FORWARD));
 
     // cluster nodes
     if (poststat != null) {
@@ -70,12 +73,7 @@ public final class SwitchStatement extends Statement {
 
     //We need to use set above in case we have multiple edges to the same node. But HashSets iterator is not ordered, so sort
     List<Statement> sorted = new ArrayList<>(lstNodes);
-    Collections.sort(sorted, new Comparator<Statement>() {
-      @Override
-      public int compare(Statement o1, Statement o2) {
-        return o1.id - o2.id;
-      }
-    });
+    sorted.sort(Comparator.comparingInt(o -> o.id));
     for (Statement st : sorted) {
       stats.addWithKey(st, st.id);
     }
@@ -87,7 +85,7 @@ public final class SwitchStatement extends Statement {
 
   public static Statement isHead(Statement head) {
 
-    if (head.type == Statement.TYPE_BASICBLOCK && head.getLastBasicType() == Statement.LASTBASICTYPE_SWITCH) {
+    if (head instanceof BasicBlockStatement && head.getLastBasicType() == LastBasicType.SWITCH) {
 
       List<Statement> lst = new ArrayList<>();
       if (DecHelper.isChoiceStatement(head, lst)) {
@@ -123,7 +121,7 @@ public final class SwitchStatement extends Statement {
     }
 
     if (isLabeled()) {
-      buf.appendIndent(indent).append("label").append(this.id.toString()).append(":").appendLineSeparator();
+      buf.appendIndent(indent).append("label").append(this.id).append(":").appendLineSeparator();
     }
 
     buf.appendIndent(indent);
@@ -140,11 +138,12 @@ public final class SwitchStatement extends Statement {
       Statement stat = caseStatements.get(i);
       List<StatEdge> edges = caseEdges.get(i);
       List<Exprent> values = caseValues.get(i);
+      Exprent guard = caseGuards.size() > i ? caseGuards.get(i) : null;
 
       for (int j = 0; j < edges.size(); j++) {
         if (edges.get(j) == defaultEdge) {
           buf.appendIndent(indent + 1).append("default:");
-          if (this.scopedCaseStatements.contains(stat)) {
+          if (this.scopedCaseStatements.contains(stat) && j == edges.size() - 1) {
             buf.append(" {");
           }
 
@@ -157,7 +156,7 @@ public final class SwitchStatement extends Statement {
 
           buf.appendIndent(indent + 1).append("case ");
 
-          if (value instanceof ConstExprent) {
+          if (value instanceof ConstExprent && !value.getExprType().equals(VarType.VARTYPE_NULL)) {
             value = value.copy();
             ((ConstExprent)value).setConstType(switch_type);
           }
@@ -168,8 +167,13 @@ public final class SwitchStatement extends Statement {
             buf.append(value.toJava(indent));
           }
 
+          if (guard != null) {
+            // TODO: check language version for J19
+            buf.append(" && ").append(guard.toJava());
+          }
+
           buf.append(":");
-          if (this.scopedCaseStatements.contains(stat)) {
+          if (this.scopedCaseStatements.contains(stat) && j == edges.size() - 1) {
             buf.append(" {");
           }
           buf.appendLineSeparator();
@@ -194,6 +198,17 @@ public final class SwitchStatement extends Statement {
     return buf;
   }
 
+  // Needed for flatten statements
+  public Statement findCaseBranchContaining(int id) {
+    for (Statement st : this.caseStatements) {
+      if (st.containsStatementById(id)) {
+        return st;
+      }
+    }
+
+    return null;
+  }
+
   @Override
   public void initExprents() {
     SwitchHeadExprent swexpr = (SwitchHeadExprent)first.getExprents().remove(first.getExprents().size() - 1);
@@ -207,6 +222,16 @@ public final class SwitchStatement extends Statement {
 
     List<Object> lst = new ArrayList<>(stats);
     lst.add(1, headexprent.get(0));
+    // make sure guards can be simplified by other helpers
+    for (Exprent caseGuard : getCaseGuards()) {
+      if (caseGuard != null) {
+        lst.add(caseGuard);
+      }
+    }
+
+    for (List<Exprent> caseList : this.caseValues) {
+      lst.addAll(caseList);
+    }
 
     return lst;
   }
@@ -218,17 +243,24 @@ public final class SwitchStatement extends Statement {
     List<Exprent> caseList = this.caseValues.stream()
       .flatMap(List::stream) // List<List<Exprent>> -> List<Exprent>
       .collect(Collectors.toList());
+    // guards can also contain pattern variables
+    caseList.addAll(this.caseGuards);
+    // guards may also contain nested variables, like `a instanceof B b && b == ...`
+    caseList = caseList.stream()
+      .filter(Objects::nonNull)
+      .flatMap(x -> x.getAllExprents(true, true).stream())
+      .collect(Collectors.toList());
 
     for (Exprent caseContent : caseList) {
       if (caseContent == null) {
         continue;
       }
 
-      if (caseContent.type == Exprent.EXPRENT_FUNCTION) {
+      if (caseContent instanceof FunctionExprent) {
         FunctionExprent func = ((FunctionExprent) caseContent);
 
         // Pattern match variable is implicitly defined
-        if (func.getFuncType() == FunctionExprent.FUNCTION_INSTANCEOF && func.getLstOperands().size() > 2) {
+        if (func.getFuncType() == FunctionType.INSTANCEOF && func.getLstOperands().size() > 2) {
           vars.add((VarExprent) func.getLstOperands().get(2));
         }
       }
@@ -241,6 +273,11 @@ public final class SwitchStatement extends Statement {
   public void replaceExprent(Exprent oldexpr, Exprent newexpr) {
     if (headexprent.get(0) == oldexpr) {
       headexprent.set(0, newexpr);
+    } else {
+      int idx = caseGuards.indexOf(oldexpr);
+      if (idx > -1) {
+        caseGuards.set(idx, newexpr);
+      }
     }
   }
 
@@ -285,6 +322,12 @@ public final class SwitchStatement extends Statement {
   // *****************************************************************************
 
   public void sortEdgesAndNodes() {
+
+    // skip for pattern switches
+    if (caseValues.stream().flatMap(Collection::stream).anyMatch(u -> !(u instanceof ConstExprent) || ((ConstExprent) u).isNull())
+      || caseGuards.stream().anyMatch(Objects::nonNull)) {
+      return;
+    }
 
     HashMap<StatEdge, Integer> mapEdgeIndex = new HashMap<>();
 
@@ -351,7 +394,7 @@ public final class SwitchStatement extends Statement {
       Statement stat = nodes.get(index);
 
       if (stat != null) {
-        HashSet<Statement> setPreds = new HashSet<>(stat.getNeighbours(StatEdge.TYPE_REGULAR, DIRECTION_BACKWARD));
+        HashSet<Statement> setPreds = new HashSet<>(stat.getNeighbours(StatEdge.TYPE_REGULAR, EdgeDirection.BACKWARD));
         setPreds.remove(first);
 
         if (!setPreds.isEmpty()) {
@@ -409,11 +452,11 @@ public final class SwitchStatement extends Statement {
 
         for (StatEdge edge : lstEdges.get(i)) {
 
-          edge.getSource().changeEdgeType(DIRECTION_FORWARD, edge, StatEdge.TYPE_REGULAR);
+          edge.getSource().changeEdgeType(EdgeDirection.FORWARD, edge, StatEdge.TYPE_REGULAR);
           edge.closure.getLabelEdges().remove(edge);
 
           edge.getDestination().removePredecessor(edge);
-          edge.getSource().changeEdgeNode(DIRECTION_FORWARD, edge, bstat);
+          edge.getSource().changeEdgeNode(EdgeDirection.FORWARD, edge, bstat);
           bstat.addPredecessor(edge);
         }
 
@@ -458,6 +501,10 @@ public final class SwitchStatement extends Statement {
 
   public void setPhantom(boolean phantom) {
     this.phantom = phantom;
+  }
+
+  public List<Exprent> getCaseGuards() {
+    return caseGuards;
   }
 
   public void scopeCaseStatement(Statement stat) {

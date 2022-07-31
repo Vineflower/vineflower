@@ -242,6 +242,14 @@ public interface IFernflowerPreferences {
   @Description("Add debug comments showing the class SourceFile attribute if present.")
   String SOURCE_FILE_COMMENTS = "sfc";
 
+  @Name("Decompile complex constant-dynamic expressions")
+  @Description("Some constant-dynamic expressions can't be converted to a single Java expression with identical run-time behaviour. This decompiles them to a similar non-lazy expression, marked with a comment.")
+  String DECOMPILE_COMPLEX_CONDYS = "dcc";
+
+  @Name("Force JSR inline")
+  @Description("Forces the processing of JSR instructions even if the class files shouldn't contain it (Java 7+)")
+  String FORCE_JSR_INLINE = "fji";
+
   Map<String, Object> DEFAULTS = getDefaults();
 
   static Map<String, Object> getDefaults() {
@@ -307,6 +315,8 @@ public interface IFernflowerPreferences {
     defaults.put(DUMP_EXCEPTION_ON_ERROR, "1");
     defaults.put(DECOMPILER_COMMENTS, "1");
     defaults.put(SOURCE_FILE_COMMENTS, "0");
+    defaults.put(DECOMPILE_COMPLEX_CONDYS, "0");
+    defaults.put(FORCE_JSR_INLINE, "0");
 
     return Collections.unmodifiableMap(defaults);
   }

@@ -1,9 +1,9 @@
 // Copyright 2000-2017 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
-package org.jetbrains.java.decompiler.modules.decompiler.sforms;
+package org.jetbrains.java.decompiler.modules.decompiler.flow;
 
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
-import org.jetbrains.java.decompiler.modules.decompiler.sforms.FlattenStatementsHelper.FinallyPathWrapper;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper.FinallyPathWrapper;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.DummyExitStatement;
 import org.jetbrains.java.decompiler.util.VBStyleCollection;
 
 import java.util.*;
@@ -29,6 +29,10 @@ public class DirectGraph {
   // nodes, that are exception exits of a finally block with monitor variable
   public final HashMap<String, String> mapFinallyMonitorExceptionPathExits = new HashMap<>();
 
+  // statement.id, node.id(direct), node.id(continue)
+  public final Map<Integer, String[]> mapDestinationNodes = new HashMap<>();
+
+
   public void sortReversePostOrder() {
     LinkedList<DirectNode> res = new LinkedList<>();
     addToReversePostOrderListIterative(this.first, res);
@@ -38,7 +42,7 @@ public class DirectGraph {
       Set<DirectNode> a = new HashSet<>(this.nodes);
       Set<DirectNode> b = new HashSet<>(res);
       a.removeAll(b);
-      a.removeIf(s -> s.statement != null && s.statement.type == Statement.TYPE_DUMMYEXIT);
+      a.removeIf(s -> s.statement instanceof DummyExitStatement);
 
       // FIXME: addFirst is bad! this will mess with the graph structure! but it's needed to properly handle unreachable blocks in SSA, by making these blocks be processed first!
       for (DirectNode nd : a) {
@@ -71,8 +75,8 @@ public class DirectGraph {
 
       setVisited.add(node);
 
-      for (; index < node.succs.size(); index++) {
-        DirectNode succ = node.succs.get(index);
+      for (; index < node.succs().size(); index++) {
+        DirectNode succ = node.succs().get(index);
 
         if (!setVisited.contains(succ)) {
           stackIndex.add(index + 1);
@@ -84,7 +88,7 @@ public class DirectGraph {
         }
       }
 
-      if (index == node.succs.size()) {
+      if (index == node.succs().size()) {
         lst.add(0, node);
 
         stackNode.removeLast();
@@ -122,7 +126,7 @@ public class DirectGraph {
         }
       }
 
-      stack.addAll(node.succs);
+      stack.addAll(node.succs());
     }
 
     return true;

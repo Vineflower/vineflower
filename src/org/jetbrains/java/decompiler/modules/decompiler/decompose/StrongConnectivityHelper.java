@@ -1,6 +1,8 @@
-package org.jetbrains.java.decompiler.modules.decompiler;
+package org.jetbrains.java.decompiler.modules.decompiler.decompose;
 
+import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement.EdgeDirection;
 import org.jetbrains.java.decompiler.util.ListStack;
 
 import java.util.*;
@@ -98,7 +100,7 @@ public final class StrongConnectivityHelper {
     this.onStack.put(stat, true);
 
     // Get all neighbor successors
-    List<Statement> successors = stat.getNeighbours(StatEdge.TYPE_REGULAR, Statement.DIRECTION_FORWARD); // TODO: set?
+    List<Statement> successors = stat.getNeighbours(StatEdge.TYPE_REGULAR, EdgeDirection.FORWARD); // TODO: set?
     // Remove the ones we've already processed
     successors.removeAll(this.processed);
 
@@ -153,7 +155,7 @@ public final class StrongConnectivityHelper {
     Set<Statement> set = new HashSet<>();
 
     for (Statement stat : lst) {
-      set.addAll(stat.getNeighbours(StatEdge.TYPE_REGULAR, Statement.DIRECTION_FORWARD));
+      set.addAll(stat.getNeighbours(StatEdge.TYPE_REGULAR, EdgeDirection.FORWARD));
     }
 
     for (Statement stat : lst) {

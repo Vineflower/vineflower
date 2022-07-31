@@ -18,7 +18,7 @@ package org.jetbrains.java.decompiler.util;
 import java.util.List;
 
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
-import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectGraph.ExprentIterator;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph.ExprentIterator;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 
 public class StatementIterator {

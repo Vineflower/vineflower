@@ -19,4 +19,21 @@ public class TestForeachVardef {
 
     return t;
   }
+
+  public int testArray(int[] a) {
+    int t = 0;
+
+    if (a.length > 10) {
+      int l = a.length;
+      for (int i = 0; i < l; i++) {
+        t = a[i];
+
+        System.out.println(t);
+      }
+    } else {
+      t = a[0];
+    }
+
+    return t;
+  }
 }

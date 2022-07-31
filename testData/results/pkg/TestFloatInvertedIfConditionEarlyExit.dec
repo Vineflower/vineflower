@@ -1,0 +1,74 @@
+package pkg;
+
+public class TestFloatInvertedIfConditionEarlyExit {
+   public static void test1(float value) {
+      if (!(value < 0.0F)) {// 6
+         System.out.println("Hello world!");// 9
+      }
+   }// 7 10
+
+   public static void test2(float value) {
+      for(float f = 0.0F; f < 5.0F; ++f) {// 13
+         if (!(f < value)) {// 14
+            System.out.println("Hello " + f);// 17
+         }
+      }
+   }// 19
+}
+
+class 'pkg/TestFloatInvertedIfConditionEarlyExit' {
+   method 'test1 (F)V' {
+      0      4
+      1      4
+      2      4
+      3      4
+      6      7
+      7      5
+      8      5
+      9      5
+      a      5
+      b      5
+      c      5
+      d      5
+      e      5
+      f      7
+   }
+
+   method 'test2 (F)V' {
+      0      10
+      1      10
+      2      10
+      3      10
+      4      10
+      5      10
+      9      11
+      a      11
+      b      11
+      c      11
+      12      12
+      13      12
+      14      12
+      1c      12
+      1d      12
+      21      12
+      25      12
+      26      12
+      27      12
+      28      12
+      2b      10
+      2d      10
+      32      15
+   }
+}
+
+Lines mapping:
+6 <-> 5
+7 <-> 8
+9 <-> 6
+10 <-> 8
+13 <-> 11
+14 <-> 12
+17 <-> 13
+19 <-> 16
+Not mapped:
+15

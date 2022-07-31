@@ -37,7 +37,7 @@ public final class EnumProcessor {
         Statement firstData = Statements.findFirstData(method.root);
         if (firstData != null && !firstData.getExprents().isEmpty()) {
           Exprent exprent = firstData.getExprents().get(0);
-          if (exprent.type == Exprent.EXPRENT_INVOCATION) {
+          if (exprent instanceof InvocationExprent) {
             InvocationExprent invExpr = (InvocationExprent)exprent;
             if (Statements.isInvocationInitConstructor(invExpr, method, wrapper, false)) {
               firstData.getExprents().remove(0);

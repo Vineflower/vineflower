@@ -1,0 +1,45 @@
+package pkg;
+
+public class TestTernaryAssign {
+   public int test(int i) {
+      int a;
+      this.method(a = i > 10 ? i : i + 20);// 6
+      return a;// 8
+   }
+
+   private void method(Object o) {
+   }// 13
+}
+
+class 'pkg/TestTernaryAssign' {
+   method 'test (I)I' {
+      0      5
+      1      5
+      2      5
+      3      5
+      4      5
+      7      5
+      b      5
+      c      5
+      d      5
+      e      5
+      10      5
+      11      5
+      12      5
+      13      5
+      14      5
+      15      5
+      16      5
+      17      6
+      18      6
+   }
+
+   method 'method (Ljava/lang/Object;)V' {
+      0      10
+   }
+}
+
+Lines mapping:
+6 <-> 6
+8 <-> 7
+13 <-> 11

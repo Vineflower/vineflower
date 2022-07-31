@@ -2,8 +2,8 @@
 package org.jetbrains.java.decompiler.main.rels;
 
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
-import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectGraph;
-import org.jetbrains.java.decompiler.modules.decompiler.sforms.FlattenStatementsHelper;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;

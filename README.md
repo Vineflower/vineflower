@@ -129,6 +129,7 @@ The rest of options can be left as they are: they are aimed at professional reve
 - dee (1): Dump exceptions on errors
 - dec (1): Decompiler error comments
 - sfc (0): Debug comments showing the class SourceFile attribute if present
+- dcc (0): Decompile complex constant-dynamic bootstraps, that might have different or slower run-time behaviour when recompiled
 
 ### Renaming identifiers
 

@@ -9,10 +9,11 @@ import org.jetbrains.java.decompiler.modules.renamer.PoolInterceptor;
 import org.jetbrains.java.decompiler.struct.IDecompiledData;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructContext;
+import org.jetbrains.java.decompiler.struct.lazy.LazyLoader;
+import org.jetbrains.java.decompiler.util.ClasspathScanner;
 import org.jetbrains.java.decompiler.util.JADNameProvider;
 import org.jetbrains.java.decompiler.util.JrtFinder;
 import org.jetbrains.java.decompiler.util.TextBuffer;
-import org.jetbrains.java.decompiler.util.ClasspathScanner;
 
 import java.io.File;
 import java.util.HashMap;
@@ -147,7 +148,7 @@ public class Fernflower implements IDecompiledData {
   @Override
   public String getClassEntryName(StructClass cl, String entryName) {
     ClassNode node = classProcessor.getMapRootClasses().get(cl.qualifiedName);
-    if (node == null || node.type != ClassNode.CLASS_ROOT) {
+    if (node == null || node.type != ClassNode.Type.ROOT) {
       return null;
     }
     else if (converter != null) {

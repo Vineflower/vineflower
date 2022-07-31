@@ -1,3 +1,3 @@
-// $FF: synthetic class
+// $QF: synthetic class
 class af {
 }

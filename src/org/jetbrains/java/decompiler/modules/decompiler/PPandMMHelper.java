@@ -6,9 +6,10 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.ConstExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectGraph;
-import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectNode;
-import org.jetbrains.java.decompiler.modules.decompiler.sforms.FlattenStatementsHelper;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectNode;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
@@ -16,7 +17,10 @@ import org.jetbrains.java.decompiler.modules.decompiler.vars.VarProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 
-import java.util.*;
+import java.util.Deque;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 
 public class PPandMMHelper {
 
@@ -51,7 +55,7 @@ public class PPandMMHelper {
 
       res |= processExprentList(node.exprents);
 
-      stack.addAll(node.succs);
+      stack.addAll(node.succs());
     }
 
     return res;
@@ -96,17 +100,15 @@ public class PPandMMHelper {
       }
     }
 
-    if (exprent.type == Exprent.EXPRENT_ASSIGNMENT) {
+    if (exprent instanceof AssignmentExprent) {
       AssignmentExprent as = (AssignmentExprent)exprent;
 
-      if (as.getRight().type == Exprent.EXPRENT_FUNCTION) {
+      if (as.getRight() instanceof FunctionExprent) {
         FunctionExprent func = (FunctionExprent)as.getRight();
 
-        VarType midlayer = null;
-        if (func.getFuncType() >= FunctionExprent.FUNCTION_I2L &&
-            func.getFuncType() <= FunctionExprent.FUNCTION_I2S) {
-          midlayer = func.getSimpleCastType();
-          if (func.getLstOperands().get(0).type == Exprent.EXPRENT_FUNCTION) {
+        VarType midlayer = func.getFuncType().castType;
+        if (midlayer != null) {
+          if (func.getLstOperands().get(0) instanceof FunctionExprent) {
             func = (FunctionExprent)func.getLstOperands().get(0);
           }
           else {
@@ -114,24 +116,24 @@ public class PPandMMHelper {
           }
         }
 
-        if (func.getFuncType() == FunctionExprent.FUNCTION_ADD ||
-            func.getFuncType() == FunctionExprent.FUNCTION_SUB) {
+        if (func.getFuncType() == FunctionExprent.FunctionType.ADD ||
+            func.getFuncType() == FunctionExprent.FunctionType.SUB) {
           Exprent econd = func.getLstOperands().get(0);
           Exprent econst = func.getLstOperands().get(1);
 
-          if (econst.type != Exprent.EXPRENT_CONST && econd.type == Exprent.EXPRENT_CONST &&
-              func.getFuncType() == FunctionExprent.FUNCTION_ADD) {
+          if (!(econst instanceof ConstExprent) && econd instanceof ConstExprent &&
+              func.getFuncType() == FunctionExprent.FunctionType.ADD) {
             econd = econst;
             econst = func.getLstOperands().get(0);
           }
 
-          if (econst.type == Exprent.EXPRENT_CONST && ((ConstExprent)econst).hasValueOne()) {
+          if (econst instanceof ConstExprent && ((ConstExprent)econst).hasValueOne()) {
             Exprent left = as.getLeft();
 
             VarType condtype = left.getExprType();
             if (exprsEqual(left, econd) && (midlayer == null || midlayer.equals(condtype))) {
               FunctionExprent ret = new FunctionExprent(
-                func.getFuncType() == FunctionExprent.FUNCTION_ADD ? FunctionExprent.FUNCTION_PPI : FunctionExprent.FUNCTION_MMI,
+                func.getFuncType() == FunctionExprent.FunctionType.ADD ? FunctionExprent.FunctionType.PPI : FunctionExprent.FunctionType.MMI,
                 econd, func.bytecode);
               ret.setImplicitType(condtype);
 
@@ -154,7 +156,7 @@ public class PPandMMHelper {
   private boolean exprsEqual(Exprent e1, Exprent e2) {
     if (e1 == e2) return true;
     if (e1 == null || e2 == null) return false;
-    if (e1.type == VarExprent.EXPRENT_VAR) {
+    if (e1 instanceof VarExprent) {
       return varsEqual(e1, e2);
     }
     return e1.equals(e2);
@@ -180,7 +182,7 @@ public class PPandMMHelper {
         lst.add(exprent);
 
         for (Exprent expr : lst) {
-          if (expr.type == Exprent.EXPRENT_VAR) {
+          if (expr instanceof VarExprent) {
             VarExprent var = (VarExprent)expr;
             if (var.getIndex() == oldVVP.var && var.getVersion() == oldVVP.version) {
               var.setIndex(newVVP.var);
@@ -229,22 +231,22 @@ public class PPandMMHelper {
       if (destination != null) {
         // Last exprent
         Exprent expr = stat.getExprents().get(stat.getExprents().size() - 1);
-        if (expr.type == Exprent.EXPRENT_FUNCTION) {
+        if (expr instanceof FunctionExprent) {
           FunctionExprent func = (FunctionExprent)expr;
 
-          if (func.getFuncType() == FunctionExprent.FUNCTION_PPI || func.getFuncType() == FunctionExprent.FUNCTION_MMI) {
+          if (func.getFuncType() == FunctionExprent.FunctionType.PPI || func.getFuncType() == FunctionExprent.FunctionType.MMI) {
             Exprent inner = func.getLstOperands().get(0);
 
-            if (inner.type == Exprent.EXPRENT_VAR) {
+            if (inner instanceof VarExprent) {
               Exprent ifExpr = destination.getHeadexprent().getCondition();
 
-              if (ifExpr.type == Exprent.EXPRENT_FUNCTION) {
+              if (ifExpr instanceof FunctionExprent) {
                 FunctionExprent ifFunc = (FunctionExprent)ifExpr;
 
-                while (ifFunc.getFuncType() == FunctionExprent.FUNCTION_BOOL_NOT) {
+                while (ifFunc.getFuncType() == FunctionExprent.FunctionType.BOOL_NOT) {
                   Exprent innerFunc = ifFunc.getLstOperands().get(0);
 
-                  if (innerFunc.type == Exprent.EXPRENT_FUNCTION) {
+                  if (innerFunc instanceof FunctionExprent) {
                     ifFunc = (FunctionExprent)innerFunc;
                   } else {
                     break;
@@ -255,7 +257,7 @@ public class PPandMMHelper {
                 boolean found = false;
                 VarExprent old = null;
                 for (Exprent ex : ifFunc.getAllExprents(true)) {
-                  if (ex.type == Exprent.EXPRENT_VAR) {
+                  if (ex instanceof VarExprent) {
                     VarExprent var = (VarExprent)ex;
                     if (var.getIndex() == ((VarExprent)inner).getIndex()) {
                       // Found variable to replace
@@ -269,10 +271,10 @@ public class PPandMMHelper {
                       old = var;
                       found = true;
                     }
-                  } else if (ex.type == Exprent.EXPRENT_FUNCTION) {
+                  } else if (ex instanceof FunctionExprent) {
                     FunctionExprent funcEx = (FunctionExprent)ex;
 
-                    if (funcEx.getFuncType() == FunctionExprent.FUNCTION_CADD || funcEx.getFuncType() == FunctionExprent.FUNCTION_COR) {
+                    if (funcEx.getFuncType() == FunctionExprent.FunctionType.BOOLEAN_AND || funcEx.getFuncType() == FunctionExprent.FunctionType.BOOLEAN_OR) {
                       // Cannot yet handle these as we aren't able to decompose a condition into parts that are always run (not short-circuited) and parts that are
                       // FIXME: handle this case
                       return false;
@@ -318,7 +320,7 @@ public class PPandMMHelper {
   }
 
   private static IfStatement findIfSuccessor(Statement stat) {
-    if (stat.getParent().type == Statement.TYPE_IF) {
+    if (stat.getParent() instanceof IfStatement) {
       if (stat.getParent().getFirst() == stat) {
         return (IfStatement) stat.getParent();
       }

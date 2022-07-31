@@ -28,6 +28,11 @@ public class CheckTypesResult {
     return lstMinTypeExprents;
   }
 
+  @Override
+  public String toString() {
+    return "Min: " + this.lstMinTypeExprents + " Max: " + this.lstMaxTypeExprents;
+  }
+
   public static class ExprentTypePair {
     public final Exprent exprent;
     public final VarType type;
@@ -38,6 +43,11 @@ public class CheckTypesResult {
 
       this.exprent = exprent;
       this.type = type;
+    }
+
+    @Override
+    public String toString() {
+      return "<" + exprent.toJava().convertToStringAndAllowDataDiscard() + ", " + type + ">";
     }
   }
 }

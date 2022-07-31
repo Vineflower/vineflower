@@ -1,13 +1,11 @@
 package pkg;
 
-import java.lang.runtime.SwitchBootstraps;
 import java.util.Objects;
 
 public class TestSwitchPatternMatching4 {
    static void test(Object s) {
       Objects.requireNonNull(s);// 5
-      byte var2 = 0;
-      switch(SwitchBootstraps.typeSwitch<"typeSwitch">(s, var2)) {
+      switch(s) {
          default:
             System.out.println("default");// 7
       }
@@ -16,32 +14,24 @@ public class TestSwitchPatternMatching4 {
 
 class 'pkg/TestSwitchPatternMatching4' {
    method 'test (Ljava/lang/Object;)V' {
-      0      7
-      2      7
-      3      7
-      4      7
-      7      8
-      8      8
-      a      9
-      b      9
-      c      9
-      d      9
-      e      9
-      f      9
-      10      9
-      1c      11
-      1d      11
-      1e      11
-      1f      11
-      20      11
-      21      11
-      22      11
-      23      11
-      24      13
+      0      6
+      2      6
+      3      6
+      4      6
+      10      7
+      1c      9
+      1d      9
+      1e      9
+      1f      9
+      20      9
+      21      9
+      22      9
+      23      9
+      24      11
    }
 }
 
 Lines mapping:
-5 <-> 8
-7 <-> 12
-9 <-> 14
+5 <-> 7
+7 <-> 10
+9 <-> 12

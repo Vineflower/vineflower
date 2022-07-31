@@ -4,8 +4,8 @@ public class TestIntBoolMerge {
    public void test() {
       int i = 0;// 6
       System.out.println(i);// 7
-      i = 1;// 10
-      System.out.println((boolean)i);// 11
+      boolean ix = true;// 10
+      System.out.println(ix);// 11
    }// 13
 }
 

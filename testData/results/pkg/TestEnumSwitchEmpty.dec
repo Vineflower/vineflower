@@ -1,0 +1,49 @@
+package pkg;
+
+import java.lang.annotation.ElementType;
+
+public class TestEnumSwitchEmpty {
+   public void test() {
+      ElementType et = ElementType.TYPE;// 7
+      ElementType et2 = ElementType.TYPE;// 8
+      int var10000 = SyntheticClass_1.$SwitchMap$java$lang$annotation$ElementType[et.ordinal()];// 9
+      var10000 = SyntheticClass_1.$SwitchMap$java$lang$annotation$ElementType[et2.ordinal()];// 11
+   }// 13
+}
+
+class 'pkg/TestEnumSwitchEmpty' {
+   method 'test ()V' {
+      0      6
+      1      6
+      2      6
+      3      6
+      4      7
+      5      7
+      6      7
+      7      7
+      8      8
+      9      8
+      a      8
+      b      8
+      c      8
+      d      8
+      e      8
+      f      8
+      11      9
+      12      9
+      13      9
+      14      9
+      15      9
+      16      9
+      17      9
+      18      9
+      1a      10
+   }
+}
+
+Lines mapping:
+7 <-> 7
+8 <-> 8
+9 <-> 9
+11 <-> 10
+13 <-> 11

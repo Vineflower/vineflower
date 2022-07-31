@@ -1,16 +1,18 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
-package org.jetbrains.java.decompiler.modules.decompiler.sforms;
+package org.jetbrains.java.decompiler.modules.decompiler.flow;
 
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.util.DotExporter;
+import org.jetbrains.java.decompiler.util.ListStack;
 
 import java.util.*;
 import java.util.Map.Entry;
 
 
 public class FlattenStatementsHelper {
+  private static final int SWITCH_CONST = 1000000;
 
   // statement.id, node.id(direct), node.id(continue)
   private final Map<Integer, String[]> mapDestinationNodes = new HashMap<>();
@@ -27,6 +29,8 @@ public class FlattenStatementsHelper {
   // positive if branches
   private final Map<String, Integer> mapPosIfBranch = new HashMap<>();
 
+  private final ListStack<List<DirectNode>> tryNodesStack = new ListStack<>();
+
   private DirectGraph graph;
 
   private RootStatement root;
@@ -41,9 +45,7 @@ public class FlattenStatementsHelper {
 
     // dummy exit node
     Statement dummyexit = root.getDummyExit();
-    DirectNode node = DirectNode.forStat(DirectNode.NodeType.DIRECT, dummyexit);
-    node.exprents = new ArrayList<>();
-    graph.nodes.addWithKey(node, node.id);
+    DirectNode node = this.createDirectNode(dummyexit);
     mapDestinationNodes.put(dummyexit.id, new String[]{node.id, null});
 
     setEdges();
@@ -51,7 +53,30 @@ public class FlattenStatementsHelper {
     graph.first = graph.nodes.getWithKey(mapDestinationNodes.get(root.id)[0]);
     graph.sortReversePostOrder();
 
+    graph.mapDestinationNodes.putAll(mapDestinationNodes);
+
     return graph;
+  }
+
+  private DirectNode createDirectNode(Statement stat) {
+    final DirectNode directNode = this.createDirectNode(stat, DirectNodeType.DIRECT);
+    if (stat instanceof BasicBlockStatement) {
+      directNode.block = (BasicBlockStatement) stat;
+    }
+
+    return directNode;
+  }
+
+  private DirectNode createDirectNode(Statement stat, DirectNodeType type) {
+    DirectNode node = DirectNode.forStat(type, stat);
+    this.graph.nodes.addWithKey(node, node.id);
+
+    if (!this.tryNodesStack.isEmpty()) {
+      this.tryNodesStack.peek().add(node);
+      // the try itself will put all nodes in the next try too
+    }
+
+    return node;
   }
 
   private void flattenStatement() {
@@ -94,12 +119,12 @@ public class FlattenStatementsHelper {
       if (statEntry.succEdges == null) {
 
         switch (stat.type) {
-          case Statement.TYPE_BASICBLOCK:
-            node = DirectNode.forBlock(stat);
+          case BASIC_BLOCK:
+            node = this.createDirectNode(stat);
+
             if (stat.getExprents() != null) {
               node.exprents = stat.getExprents();
             }
-            graph.nodes.putWithKey(node, node.id);
             mapDestinationNodes.put(stat.id, new String[]{node.id, null});
 
             lstSuccEdges.addAll(stat.getSuccessorEdges(Statement.STATEDGE_DIRECT_ALL));
@@ -108,9 +133,9 @@ public class FlattenStatementsHelper {
             List<Exprent> tailExprentList = statEntry.tailExprents;
 
             if (tailExprentList != null) {
-              DirectNode tail = DirectNode.forStat(DirectNode.NodeType.TAIL, stat);
-              tail.exprents = tailExprentList;
+              DirectNode tail = this.createDirectNode(stat, DirectNodeType.TAIL);
               graph.nodes.putWithKey(tail, tail.id);
+              tail.exprents = tailExprentList;
 
               mapDestinationNodes.put(-stat.id, new String[]{tail.id, null});
               listEdges.add(new Edge(node.id, -stat.id, StatEdge.TYPE_REGULAR));
@@ -119,7 +144,7 @@ public class FlattenStatementsHelper {
             }
 
             // 'if' statement: record positive branch
-            if (stat.getLastBasicType() == Statement.LASTBASICTYPE_IF) {
+            if (stat.getLastBasicType() == Statement.LastBasicType.IF) {
               if (lstSuccEdges.isEmpty()) {
                 throw new IllegalStateException("Empty successor list for node " + sourcenode.id);
               }
@@ -135,50 +160,76 @@ public class FlattenStatementsHelper {
 
               // Look if this basic block is the successor of a sequence, and connect the sequence to the block if so
               if (predEdge.getType() == StatEdge.TYPE_REGULAR) {
-                if (predEdge.getSource().type == Statement.TYPE_SEQUENCE) {
+                if (predEdge.getSource() instanceof SequenceStatement) {
                   addEdgeIfPossible(predEdge.getSource().getBasichead().id, stat);
                 }
               }
             }
 
             break;
-          case Statement.TYPE_CATCHALL:
-          case Statement.TYPE_TRYCATCH:
-            DirectNode firstnd = DirectNode.forStat(DirectNode.NodeType.TRY, stat);
+          case CATCH_ALL:
+          case TRY_CATCH:
+            if (statementBreakIndex == 0) {
+              DirectNode firstnd = this.createDirectNode(stat, DirectNodeType.TRY);
 
-            if (stat.type == Statement.TYPE_TRYCATCH) {
-              CatchStatement catchStat = (CatchStatement)stat;
-              if (catchStat.getTryType() == CatchStatement.RESOURCES) {
-                firstnd.exprents = catchStat.getResources();
-              }
-            }
-
-            mapDestinationNodes.put(stat.id, new String[]{firstnd.id, null});
-            graph.nodes.putWithKey(firstnd, firstnd.id);
-
-            LinkedList<StatementStackEntry> lst = new LinkedList<>();
-
-            for (Statement st : stat.getStats()) {
-              listEdges.add(new Edge(firstnd.id, st.id, StatEdge.TYPE_REGULAR));
-
-              LinkedList<StackEntry> stack = stackFinally;
-              if (stat.type == Statement.TYPE_CATCHALL && ((CatchAllStatement)stat).isFinally()) {
-                stack = new LinkedList<>(stackFinally);
-
-                if (st == stat.getFirst()) { // catch head
-                  stack.add(new StackEntry((CatchAllStatement)stat, Boolean.FALSE));
-                } else { // handler
-                  stack.add(new StackEntry((CatchAllStatement)stat, Boolean.TRUE, StatEdge.TYPE_BREAK,
-                                           root.getDummyExit(), st, st, firstnd, firstnd, true));
+              if (stat instanceof CatchStatement) {
+                CatchStatement catchStat = (CatchStatement) stat;
+                List<Exprent> resources = catchStat.getResources();
+                if (!resources.isEmpty()) {
+                  firstnd.exprents = resources;
                 }
               }
 
-              lst.add(new StatementStackEntry(st, stack, null));
-            }
+              mapDestinationNodes.put(stat.id, new String[]{firstnd.id, null});
 
-            lstStackStatements.addAll(0, lst);
+              LinkedList<StatementStackEntry> lst = new LinkedList<>();
+
+              for (Statement st : stat.getStats()) {
+                listEdges.add(new Edge(firstnd.id, st.id, StatEdge.TYPE_REGULAR));
+
+                LinkedList<StackEntry> stack = stackFinally;
+                if (stat instanceof CatchAllStatement && ((CatchAllStatement) stat).isFinally()) {
+                  stack = new LinkedList<>(stackFinally);
+
+                  if (st == stat.getFirst()) { // try block
+                    stack.add(new StackEntry((CatchAllStatement) stat, false));
+                  } else { // handler
+                    stack.add(new StackEntry((CatchAllStatement) stat, true, StatEdge.TYPE_BREAK,
+                      root.getDummyExit(), st, st, firstnd, firstnd, true));
+                  }
+                }
+
+                lst.add(new StatementStackEntry(st, stack, null));
+                if (st == stat.getFirst()) { // try block
+                  lst.add(statEntry);
+                  statEntry.statementIndex = 1;
+                }
+              }
+
+              lstStackStatements.addAll(0, lst);
+
+              this.tryNodesStack.add(new ArrayList<>());
+            } else {
+              // just finished try block
+              List<DirectNode> tryNodes = this.tryNodesStack.pop();
+              List<Statement> statements = stat.getStats();
+
+              int end = stat instanceof CatchAllStatement && ((CatchAllStatement) stat).isFinally()
+                ? statements.size() - 1
+                : statements.size();
+
+              for (int i = 1; i < end; i++) {
+                for (DirectNode tryNode : tryNodes) {
+                  listEdges.add(new Edge(tryNode.id, statements.get(i).id, StatEdge.TYPE_EXCEPTION));
+                }
+              }
+
+              if (!this.tryNodesStack.isEmpty()) {
+                this.tryNodesStack.peek().addAll(tryNodes);
+              }
+            }
             break;
-          case Statement.TYPE_DO:
+          case DO:
             if (statementBreakIndex == 0) { // First time encountering this statement
 
               statEntry.statementIndex = 1;
@@ -210,10 +261,10 @@ public class FlattenStatementsHelper {
 
             nd = graph.nodes.getWithKey(mapDestinationNodes.get(stat.getFirst().id)[0]);
 
-            DoStatement dostat = (DoStatement)stat;
-            int looptype = dostat.getLooptype();
+            DoStatement dostat = (DoStatement) stat;
+            DoStatement.Type looptype = dostat.getLooptype();
 
-            if (looptype == DoStatement.LOOP_DO) {
+            if (looptype == DoStatement.Type.INFINITE) {
               mapDestinationNodes.put(stat.id, new String[]{nd.id, nd.id});
               break;
             }
@@ -221,18 +272,16 @@ public class FlattenStatementsHelper {
             lstSuccEdges.add(stat.getSuccessorEdges(Statement.STATEDGE_DIRECT_ALL).get(0));  // exactly one edge
 
             switch (looptype) {
-              case DoStatement.LOOP_WHILE:
-              case DoStatement.LOOP_DOWHILE:
-                node = DirectNode.forStat(DirectNode.NodeType.CONDITION, stat);
+              case WHILE:
+              case DO_WHILE:
+                node = this.createDirectNode(stat, DirectNodeType.CONDITION);
                 node.exprents = dostat.getConditionExprentList();
-                graph.nodes.putWithKey(node, node.id);
 
                 listEdges.add(new Edge(node.id, stat.getFirst().id, StatEdge.TYPE_REGULAR));
 
-                if (looptype == DoStatement.LOOP_WHILE) {
+                if (looptype == DoStatement.Type.WHILE) {
                   mapDestinationNodes.put(stat.id, new String[]{node.id, node.id});
-                }
-                else {
+                } else {
                   mapDestinationNodes.put(stat.id, new String[]{nd.id, node.id});
 
                   boolean found = false;
@@ -248,20 +297,17 @@ public class FlattenStatementsHelper {
                 }
                 sourcenode = node;
                 break;
-              case DoStatement.LOOP_FOR: {
-                DirectNode nodeinit = DirectNode.forStat(DirectNode.NodeType.INIT, stat);
+              case FOR: {
+                DirectNode nodeinit = this.createDirectNode(stat, DirectNodeType.INIT);
                 if (dostat.getInitExprent() != null) {
                   nodeinit.exprents = dostat.getInitExprentList();
                 }
-                graph.nodes.putWithKey(nodeinit, nodeinit.id);
 
-                DirectNode nodecond = DirectNode.forStat(DirectNode.NodeType.CONDITION, stat);
+                DirectNode nodecond = this.createDirectNode(stat, DirectNodeType.CONDITION);
                 nodecond.exprents = dostat.getConditionExprentList();
-                graph.nodes.putWithKey(nodecond, nodecond.id);
 
-                DirectNode nodeinc = DirectNode.forStat(DirectNode.NodeType.INCREMENT, stat);
+                DirectNode nodeinc = this.createDirectNode(stat, DirectNodeType.INCREMENT);
                 nodeinc.exprents = dostat.getIncExprentList();
-                graph.nodes.putWithKey(nodeinc, nodeinc.id);
 
                 mapDestinationNodes.put(stat.id, new String[]{nodeinit.id, nodeinc.id});
                 mapDestinationNodes.put(-stat.id, new String[]{nodecond.id, null});
@@ -285,19 +331,19 @@ public class FlattenStatementsHelper {
                 sourcenode = nodecond;
                 break;
               }
-              case DoStatement.LOOP_FOREACH: {
+              case FOR_EACH: {
                 // for (init : inc)
                 //
                 // is essentially
                 //
                 // for (inc; ; init)
-                DirectNode inc = DirectNode.forStat(DirectNode.NodeType.INCREMENT, stat);
-                graph.nodes.putWithKey(inc, inc.id);
+                // TODO: that ordering does not make sense
+
+                DirectNode inc = this.createDirectNode(stat, DirectNodeType.INCREMENT);
                 inc.exprents = dostat.getIncExprentList();
 
                 // Init is foreach variable definition
-                DirectNode init = DirectNode.forStat(DirectNode.NodeType.FOREACH_VARDEF, stat);
-                graph.nodes.putWithKey(init, init.id);
+                DirectNode init = this.createDirectNode(stat, DirectNodeType.FOREACH_VARDEF);
                 init.exprents = dostat.getInitExprentList();
 
                 mapDestinationNodes.put(stat.id, new String[]{inc.id, init.id});
@@ -323,13 +369,13 @@ public class FlattenStatementsHelper {
               }
             }
             break;
-          case Statement.TYPE_SYNCRONIZED:
-          case Statement.TYPE_SWITCH:
-          case Statement.TYPE_IF:
-          case Statement.TYPE_SEQUENCE:
-          case Statement.TYPE_ROOT:
+          case SYNCHRONIZED:
+          case SWITCH:
+          case IF:
+          case SEQUENCE:
+          case ROOT:
             int statsize = stat.getStats().size();
-            if (stat.type == Statement.TYPE_SYNCRONIZED) {
+            if (stat instanceof SynchronizedStatement) {
               statsize = 2;  // exclude the handler if synchronized
             }
 
@@ -337,22 +383,23 @@ public class FlattenStatementsHelper {
               List<Exprent> tailexprlst = null;
 
               switch (stat.type) {
-                case Statement.TYPE_SYNCRONIZED:
-                  tailexprlst = ((SynchronizedStatement)stat).getHeadexprentList();
+                case SYNCHRONIZED:
+                  tailexprlst = ((SynchronizedStatement) stat).getHeadexprentList();
                   break;
-                case Statement.TYPE_SWITCH:
-                  tailexprlst = ((SwitchStatement)stat).getHeadexprentList();
+                case SWITCH:
+                  tailexprlst = ((SwitchStatement) stat).getHeadexprentList();
                   break;
-                case Statement.TYPE_IF:
-                  tailexprlst = ((IfStatement)stat).getHeadexprentList();
+                case IF:
+                  tailexprlst = ((IfStatement) stat).getHeadexprentList();
               }
 
               for (int i = statementBreakIndex; i < statsize; i++) {
                 statEntry.statementIndex = i + 1;
+
                 lstStackStatements.addFirst(statEntry);
                 lstStackStatements.addFirst(
                   new StatementStackEntry(stat.getStats().get(i), stackFinally,
-                                          (i == 0 && tailexprlst != null && tailexprlst.get(0) != null) ? tailexprlst : null));
+                    (i == 0 && tailexprlst != null && tailexprlst.get(0) != null) ? tailexprlst : null));
 
                 continue mainloop;
               }
@@ -360,19 +407,79 @@ public class FlattenStatementsHelper {
               node = graph.nodes.getWithKey(mapDestinationNodes.get(stat.getFirst().id)[0]);
               mapDestinationNodes.put(stat.id, new String[]{node.id, null});
 
-              if (stat.type == Statement.TYPE_IF && ((IfStatement)stat).iftype == IfStatement.IFTYPE_IF && !stat.getAllSuccessorEdges().isEmpty()) {
+              // Try to intercept the edges leaving the switch head and replace with relevant case nodes
+              if (stat instanceof SwitchStatement) {
+                SwitchStatement switchSt = (SwitchStatement) stat;
+
+                Statement first = stat.getFirst();
+
+                List<Edge> headEdges = new ArrayList<>();
+                // Find edges out of the switch head (tail)
+                for (Edge edge : this.listEdges) {
+                  if (edge.sourceid.equals(first.id + "_tail")) {
+
+                    if (switchSt.getStats().containsKey(edge.statid)) {
+                      headEdges.add(edge);
+                    }
+                  }
+                }
+
+                if (!headEdges.isEmpty()) {
+                  // else, already processed
+
+                  for (Edge edge : headEdges) {
+                    Statement caseSt = switchSt.findCaseBranchContaining(edge.statid);
+                    int index = switchSt.getCaseStatements().indexOf(caseSt);
+
+                    // Possible in the case of default statements leaving switch
+                    if (index == -1) {
+                      continue;
+                    }
+
+                    List<Exprent> values = switchSt.getCaseValues().get(index);
+
+                    // Default case val can be null
+                    List<Exprent> finalVals = null;
+                    if (values != null) {
+                      finalVals = new ArrayList<>();
+                      for (Exprent value : values) {
+                        if (value != null) {
+                          finalVals.add(value);
+                        }
+                      }
+                    }
+
+                    // Build node out of the case exprents
+                    DirectNode casend = DirectNode.forStat(DirectNodeType.CASE, caseSt);
+                    casend.exprents = finalVals;
+                    graph.nodes.addWithKey(casend, casend.id);
+
+                    this.mapDestinationNodes.put(caseSt.id - SWITCH_CONST, new String[]{casend.id, null});
+
+                    // Remove old edge
+                    listEdges.remove(edge);
+
+                    // head->case
+                    listEdges.add(new Edge(edge.sourceid, caseSt.id - SWITCH_CONST, StatEdge.TYPE_REGULAR));
+                    // case->dest
+                    listEdges.add(new Edge(casend.id, edge.statid, StatEdge.TYPE_REGULAR));
+                  }
+                }
+              }
+
+              if (stat instanceof IfStatement && ((IfStatement)stat).iftype == IfStatement.IFTYPE_IF && !stat.getAllSuccessorEdges().isEmpty()) {
                 lstSuccEdges.add(stat.getSuccessorEdges(Statement.STATEDGE_DIRECT_ALL).get(0));  // exactly one edge
                 sourcenode = tailexprlst.get(0) == null ? node : graph.nodes.getWithKey(node.id + "_tail");
               }
 
               // Adds an edge from the last if statement to the current if statement, if the current if statement's head statement has no predecessor
               // This was made to mask a failure in EliminateLoopsHelper and isn't used currently (over the current test set) but could theoretically still happen!
-              if (stat.type == Statement.TYPE_IF && ((IfStatement)stat).iftype == IfStatement.IFTYPE_IF && !stat.getPredecessorEdges(StatEdge.TYPE_REGULAR).isEmpty()) {
+              if (stat instanceof IfStatement && ((IfStatement) stat).iftype == IfStatement.IFTYPE_IF && !stat.getPredecessorEdges(StatEdge.TYPE_REGULAR).isEmpty()) {
                 if (stat.getFirst().getPredecessorEdges(StatEdge.TYPE_REGULAR).isEmpty()) {
                   StatEdge edge = stat.getPredecessorEdges(StatEdge.TYPE_REGULAR).get(0);
 
                   Statement source = edge.getSource();
-                  if (source.type == Statement.TYPE_IF && ((IfStatement) source).iftype == IfStatement.IFTYPE_IF && !source.getAllSuccessorEdges().isEmpty()) {
+                  if (source instanceof IfStatement && ((IfStatement) source).iftype == IfStatement.IFTYPE_IF && !source.getAllSuccessorEdges().isEmpty()) {
                     DirectNode srcnd = graph.nodes.getWithKey(source.getFirst().id + "_tail");
 
                     if (srcnd != null) {
@@ -427,7 +534,7 @@ public class FlattenStatementsHelper {
 
             if (entry == null) {
               saveEdge(sourcenode, destination, edgetype, isFinallyExit ? finallyShortRangeSource : null, finallyLongRangeSource,
-                       finallyShortRangeEntry, finallyLongRangeEntry, isFinallyMonitorExceptionPath);
+                finallyShortRangeEntry, finallyLongRangeEntry, isFinallyMonitorExceptionPath);
             } else {
               CatchAllStatement catchall = entry.catchstatement;
 
@@ -453,7 +560,7 @@ public class FlattenStatementsHelper {
                     created = false;
                   } else {
                     saveEdge(sourcenode, destination, edgetype, isFinallyExit ? finallyShortRangeSource : null, finallyLongRangeSource,
-                             finallyShortRangeEntry, finallyLongRangeEntry, isFinallyMonitorExceptionPath);
+                      finallyShortRangeEntry, finallyLongRangeEntry, isFinallyMonitorExceptionPath);
                   }
                 }
               } else { // finally protected try statement
@@ -465,12 +572,12 @@ public class FlattenStatementsHelper {
                   listEdges.add(new Edge(sourcenode.id, destination.id, edgetype));
 
                   saveEdge(sourcenode, catchall.getHandler(), StatEdge.TYPE_REGULAR, isFinallyExit ? finallyShortRangeSource : null,
-                           finallyLongRangeSource, finallyShortRangeEntry, finallyLongRangeEntry, isFinallyMonitorExceptionPath);
+                    finallyLongRangeSource, finallyShortRangeEntry, finallyLongRangeEntry, isFinallyMonitorExceptionPath);
 
                   stack.removeLast();
-                  stack.add(new StackEntry(catchall, Boolean.TRUE, edgetype, destination, catchall.getHandler(),
-                                           finallyLongRangeEntry == null ? catchall.getHandler() : finallyLongRangeEntry,
-                                           sourcenode, finallyLongRangeSource, false));
+                  stack.add(new StackEntry(catchall, true, edgetype, destination, catchall.getHandler(),
+                    finallyLongRangeEntry == null ? catchall.getHandler() : finallyLongRangeEntry,
+                    sourcenode, finallyLongRangeSource, false));
 
                   statEntry.edgeIndex = edgeindex + 1;
                   statEntry.succEdges = lstSuccEdges;
@@ -480,7 +587,7 @@ public class FlattenStatementsHelper {
                   continue mainloop;
                 } else {
                   saveEdge(sourcenode, destination, edgetype, isFinallyExit ? finallyShortRangeSource : null, finallyLongRangeSource,
-                           finallyShortRangeEntry, finallyLongRangeEntry, isFinallyMonitorExceptionPath);
+                    finallyShortRangeEntry, finallyLongRangeEntry, isFinallyMonitorExceptionPath);
                 }
               }
             }
@@ -530,15 +637,15 @@ public class FlattenStatementsHelper {
 
       mapShortRangeFinallyPathIds.computeIfAbsent(sourcenode.id, k -> new ArrayList<>()).add(new String[]{
         finallyShortRangeSource.id,
-        destination.id.toString(),
-        finallyShortRangeEntry.id.toString(),
+        String.valueOf(destination.id),
+        String.valueOf(finallyShortRangeEntry.id),
         isFinallyMonitorExceptionPath ? "1" : null,
         isContinueEdge ? "1" : null});
 
       mapLongRangeFinallyPathIds.computeIfAbsent(sourcenode.id, k -> new ArrayList<>()).add(new String[]{
         finallyLongRangeSource.id,
-        destination.id.toString(),
-        finallyLongRangeEntry.id.toString(),
+        String.valueOf(destination.id),
+        String.valueOf(finallyLongRangeEntry.id),
         isContinueEdge ? "1" : null});
     }
   }
@@ -558,15 +665,14 @@ public class FlattenStatementsHelper {
 
         throw new IllegalStateException("Could not find destination nodes for stat id " + statid + " from source " + sourceid);
       }
+      // TODO: continue edge type?
       DirectNode dest = graph.nodes.getWithKey(strings[edge.edgetype == StatEdge.TYPE_CONTINUE ? 1 : 0]);
 
-      if (!source.succs.contains(dest)) {
-        source.succs.add(dest);
-      }
+      DirectEdge diedge = edge.edgetype == StatEdge.TYPE_EXCEPTION
+        ? DirectEdge.exception(source, dest)
+        : DirectEdge.of(source, dest);
 
-      if (!dest.preds.contains(source)) {
-        dest.preds.add(source);
-      }
+      source.addSuccessor(diedge);
 
       if (mapPosIfBranch.containsKey(sourceid) && !statid.equals(mapPosIfBranch.get(sourceid))) {
         graph.mapNegIfBranch.put(sourceid, dest.id);
@@ -595,8 +701,8 @@ public class FlattenStatementsHelper {
 
         if (!newLst.isEmpty()) {
           (i == 0 ? graph.mapShortRangeFinallyPaths : graph.mapLongRangeFinallyPaths).put(ent.getKey(),
-                                                                                          new ArrayList<>(
-                                                                                            new HashSet<>(newLst)));
+            new ArrayList<>(
+              new HashSet<>(newLst)));
         }
       }
     }
@@ -622,7 +728,7 @@ public class FlattenStatementsHelper {
       if (o == this) return true;
       if (!(o instanceof FinallyPathWrapper)) return false;
 
-      FinallyPathWrapper fpw = (FinallyPathWrapper)o;
+      FinallyPathWrapper fpw = (FinallyPathWrapper) o;
       return (source + ":" + destination + ":" + entry).equals(fpw.source + ":" + fpw.destination + ":" + fpw.entry);
     }
 
@@ -652,14 +758,14 @@ public class FlattenStatementsHelper {
     public final DirectNode finallyLongRangeSource;
 
     StackEntry(CatchAllStatement catchstatement,
-                      boolean state,
-                      int edgetype,
-                      Statement destination,
-                      Statement finallyShortRangeEntry,
-                      Statement finallyLongRangeEntry,
-                      DirectNode finallyShortRangeSource,
-                      DirectNode finallyLongRangeSource,
-                      boolean isFinallyExceptionPath) {
+               boolean state,
+               int edgetype,
+               Statement destination,
+               Statement finallyShortRangeEntry,
+               Statement finallyLongRangeEntry,
+               DirectNode finallyShortRangeSource,
+               DirectNode finallyLongRangeSource,
+               boolean isFinallyExceptionPath) {
 
       this.catchstatement = catchstatement;
       this.state = state;

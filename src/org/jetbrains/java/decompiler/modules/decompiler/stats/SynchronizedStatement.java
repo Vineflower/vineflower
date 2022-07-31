@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class SynchronizedStatement extends Statement {
+public final class SynchronizedStatement extends Statement {
 
   private Statement body;
 
@@ -24,7 +24,7 @@ public class SynchronizedStatement extends Statement {
   // *****************************************************************************
 
   public SynchronizedStatement() {
-    type = TYPE_SYNCRONIZED;
+    super(StatementType.SYNCHRONIZED);
 
     headexprent.add(null);
   }
@@ -62,7 +62,7 @@ public class SynchronizedStatement extends Statement {
     buf.append(first.toJava(indent));
 
     if (isLabeled()) {
-      buf.appendIndent(indent).append("label").append(this.id.toString()).append(":").appendLineSeparator();
+      buf.appendIndent(indent).append("label").append(this.id).append(":").appendLineSeparator();
     }
 
     Exprent headExpr = headexprent.get(0);

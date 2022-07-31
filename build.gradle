@@ -3,9 +3,11 @@
 import org.jetbrains.java.decompiler.build.JasmCompile
 
 plugins {
+  id 'jacoco'
   id 'org.jetbrains.kotlin.jvm' version '1.6.21'
 }
 
+apply plugin: 'jacoco'
 apply plugin: 'java'
 apply plugin: 'groovy'
 apply plugin: 'maven-publish'
@@ -43,6 +45,16 @@ dependencies {
   testRuntimeOnly 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
 }
 
+
+jacocoTestReport.dependsOn(test)
+
+build.dependsOn(jacocoTestReport)
+
+jacocoTestReport {
+  reports {
+    xml.required = true
+  }
+}
 
 java.toolchain {
   languageVersion = JavaLanguageVersion.of(11)
@@ -141,7 +153,8 @@ jar {
   manifest {
     attributes (
       'Main-Class': 'org.jetbrains.java.decompiler.main.decompiler.ConsoleDecompiler',
-      'Implementation-Name': "Quiltflower"
+      'Implementation-Name': "Quiltflower",
+      'Implementation-Version': project.version
     )
   }
 }

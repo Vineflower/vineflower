@@ -5,6 +5,7 @@ import org.jetbrains.java.decompiler.main.collectors.VarNamesCollector;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
+import org.jetbrains.java.decompiler.modules.decompiler.vars.VarTypeProcessor.FinalType;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribute.LocalVariable;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
@@ -27,6 +28,7 @@ public class VarProcessor {
   private final Map<VarVersionPair, String> thisVars = new HashMap<>();
   private final Set<VarVersionPair> externalVars = new HashSet<>();
   private final Map<VarVersionPair, String> clashingNames = new HashMap<>();
+  private final Set<Integer> syntheticSemaphores = new HashSet<>();
   public boolean nestedProcessed;
 
   public VarProcessor(StructMethod mt, MethodDescriptor md) {
@@ -109,6 +111,10 @@ public class VarProcessor {
     }
   }
 
+  public Set<Integer> getSyntheticSemaphores() {
+    return syntheticSemaphores;
+  }
+
   public VarNamesCollector getVarNamesCollector() {
     return varNamesCollector;
   }
@@ -147,11 +153,11 @@ public class VarProcessor {
     return mapVarNames != null ? mapVarNames.values() : Collections.emptySet();
   }
 
-  public int getVarFinal(VarVersionPair pair) {
-    return varVersions == null ? VarTypeProcessor.VAR_FINAL : varVersions.getVarFinal(pair);
+  public FinalType getVarFinal(VarVersionPair pair) {
+    return varVersions == null ? FinalType.FINAL : varVersions.getVarFinal(pair);
   }
 
-  public void setVarFinal(VarVersionPair pair, int finalType) {
+  public void setVarFinal(VarVersionPair pair, FinalType finalType) {
     varVersions.setVarFinal(pair, finalType);
   }
 

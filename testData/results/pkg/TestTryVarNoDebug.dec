@@ -18,8 +18,7 @@ public class TestTryVarNoDebug {
       for(int var3 = 0; var3 < 10; ++var3) {
          try {
             var1 = var2 + var3;
-            int var7;
-            var1 = (var7 = var1 + (5000 - var3 / (7 - var3))) / var2;
+            var1 = (var1 += 5000 - var3 / (7 - var3)) / var2;
          } catch (Throwable var5) {
          }
       }
@@ -69,28 +68,26 @@ class 'pkg/TestTryVarNoDebug' {
       9      19
       a      19
       b      19
-      c      21
-      d      21
-      e      21
-      f      21
-      10      21
-      11      21
-      12      21
-      13      21
-      14      21
-      15      21
-      16      21
-      17      21
-      19      21
-      1a      21
-      1b      21
-      1c      21
-      20      22
+      d      20
+      e      20
+      f      20
+      10      20
+      11      20
+      12      20
+      13      20
+      14      20
+      15      20
+      16      20
+      19      20
+      1a      20
+      1b      20
+      1c      20
+      20      21
       22      17
       23      17
       24      17
-      28      26
-      29      26
+      28      25
+      29      25
    }
 }
 

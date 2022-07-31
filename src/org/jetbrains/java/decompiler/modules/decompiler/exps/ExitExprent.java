@@ -21,17 +21,17 @@ import java.util.BitSet;
 import java.util.List;
 
 public class ExitExprent extends Exprent {
+  public enum Type {
+    RETURN, THROW
+  }
 
-  public static final int EXIT_RETURN = 0;
-  public static final int EXIT_THROW = 1;
-
-  private final int exitType;
+  private final Type exitType;
   private Exprent value;
   private final VarType retType;
   private final MethodDescriptor methodDescriptor;
 
-  public ExitExprent(int exitType, Exprent value, VarType retType, BitSet bytecodeOffsets, MethodDescriptor methodDescriptor) {
-    super(EXPRENT_EXIT);
+  public ExitExprent(Type exitType, Exprent value, VarType retType, BitSet bytecodeOffsets, MethodDescriptor methodDescriptor) {
+    super(Exprent.Type.EXIT);
     this.exitType = exitType;
     this.value = value;
     this.retType = retType;
@@ -51,7 +51,7 @@ public class ExitExprent extends Exprent {
   public CheckTypesResult checkExprTypeBounds() {
     CheckTypesResult result = new CheckTypesResult();
 
-    if (exitType == EXIT_RETURN && retType.type != CodeConstants.TYPE_VOID) {
+    if (exitType == Type.RETURN && retType.type != CodeConstants.TYPE_VOID) {
       result.addMinTypeExprent(value, VarType.getMinTypeInFamily(retType.typeFamily));
       result.addMaxTypeExprent(value, retType);
     }
@@ -72,7 +72,7 @@ public class ExitExprent extends Exprent {
     TextBuffer buf = new TextBuffer();
     buf.addBytecodeMapping(bytecode);
 
-    if (exitType == EXIT_RETURN) {
+    if (exitType == Type.RETURN) {
       buf.append("return");
 
       if (retType.type != CodeConstants.TYPE_VOID) {
@@ -138,7 +138,7 @@ public class ExitExprent extends Exprent {
            InterpreterUtil.equalObjects(value, et.getValue());
   }
 
-  public int getExitType() {
+  public Type getExitType() {
     return exitType;
   }
 
@@ -171,7 +171,7 @@ public class ExitExprent extends Exprent {
       return false;
     }
 
-    Integer type = (Integer)matchNode.getRuleValue(MatchProperties.EXPRENT_EXITTYPE);
+    Type type = (Type)matchNode.getRuleValue(MatchProperties.EXPRENT_EXITTYPE);
     return type == null || this.exitType == type;
   }
 }

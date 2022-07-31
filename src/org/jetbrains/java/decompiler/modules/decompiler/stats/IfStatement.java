@@ -6,13 +6,14 @@ import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.IfExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.struct.match.IMatchable;
 import org.jetbrains.java.decompiler.struct.match.MatchEngine;
 import org.jetbrains.java.decompiler.struct.match.MatchNode;
-import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.StartEndPair;
+import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.TextUtil;
 
 import java.util.ArrayList;
@@ -48,7 +49,7 @@ public final class IfStatement extends Statement {
   // *****************************************************************************
 
   private IfStatement() {
-    type = TYPE_IF;
+    super(StatementType.IF);
 
     headexprent.add(null);
   }
@@ -163,7 +164,7 @@ public final class IfStatement extends Statement {
 
   public static Statement isHead(Statement head) {
 
-    if (head.type == TYPE_BASICBLOCK && head.getLastBasicType() == LASTBASICTYPE_IF) {
+    if (head instanceof BasicBlockStatement && head.getLastBasicType() == LastBasicType.IF) {
       int regsize = head.getSuccessorEdges(StatEdge.TYPE_REGULAR).size();
 
       Statement p = null;
@@ -201,7 +202,7 @@ public final class IfStatement extends Statement {
     buf.append(first.toJava(indent));
 
     if (isLabeled()) {
-      buf.appendIndent(indent).append("label").append(this.id.toString()).append(":").appendLineSeparator();
+      buf.appendIndent(indent).append("label").append(this.id).append(":").appendLineSeparator();
     }
 
     Exprent condition = headexprent.get(0);
@@ -228,7 +229,7 @@ public final class IfStatement extends Statement {
         }
 
         if (ifedge.labeled) {
-          buf.append(" label").append(ifedge.closure == null ? "<unknownclosure>" : ifedge.closure.id.toString());
+          buf.append(" label").append(ifedge.closure == null ? "<unknownclosure>" : Integer.toString(ifedge.closure.id));
         }
       }
       if(semicolon) {
@@ -242,7 +243,7 @@ public final class IfStatement extends Statement {
     boolean elseif = false;
 
     if (elsestat != null) {
-      if (elsestat.type == Statement.TYPE_IF
+      if (elsestat instanceof IfStatement
           && elsestat.varDefinitions.isEmpty() && (elsestat.getFirst().getExprents() != null && elsestat.getFirst().getExprents().isEmpty()) &&
           !elsestat.isLabeled() &&
           (elsestat.getSuccessorEdges(STATEDGE_DIRECT_ALL).isEmpty()
@@ -433,11 +434,11 @@ public final class IfStatement extends Statement {
     conditionList.add(getHeadexprent().getCondition());
 
     for (Exprent condition : conditionList) {
-      if (condition.type == Exprent.EXPRENT_FUNCTION) {
+      if (condition instanceof FunctionExprent) {
         FunctionExprent func = ((FunctionExprent)condition);
 
         // Pattern match variable is implicitly defined
-        if (func.getFuncType() == FunctionExprent.FUNCTION_INSTANCEOF && func.getLstOperands().size() > 2) {
+        if (func.getFuncType() == FunctionType.INSTANCEOF && func.getLstOperands().size() > 2) {
           vars.add((VarExprent) func.getLstOperands().get(2));
         }
       }

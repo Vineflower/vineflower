@@ -9,36 +9,42 @@ public class TestHotjava {
       } finally {
          System.out.println("Jsr");
       }
-
    }// 10
 
-   // $FF: Could not inline inconsistent finally blocks
+   // $QF: Could not inline inconsistent finally blocks
+   // $QF: Could not create synchronized statement, marking monitor enters and exits
    public void testMonitor1() {
-      synchronized(this){}// 15
+      synchronized(this){} // $QF: monitorenter // 15
 
       try {
          System.out.println("Synchronized");// 16
       } catch (Throwable var3) {
+         // $QF: monitorexit
          throw var3;
       }
 
+      // $QF: monitorexit
    }
 
-   // $FF: Could not inline inconsistent finally blocks
+   // $QF: Could not inline inconsistent finally blocks
+   // $QF: Could not create synchronized statement, marking monitor enters and exits
    public void testMonitor2(Object var1) {
-      synchronized(var1){}// 21
+      synchronized(var1){} // $QF: monitorenter // 21
 
       try {
          System.out.println("Synchronized");// 22
       } catch (Throwable var4) {
+         // $QF: monitorexit
          throw var4;
       }
 
+      // $QF: monitorexit
    }
 
-   // $FF: Could not inline inconsistent finally blocks
+   // $QF: Could not inline inconsistent finally blocks
+   // $QF: Could not create synchronized statement, marking monitor enters and exits
    public void testMonitor3() {
-      synchronized(this){}// 27
+      synchronized(this){} // $QF: monitorenter // 27
 
       try {
          try {
@@ -47,9 +53,11 @@ public class TestHotjava {
             System.out.println("Jsr");
          }
       } catch (Throwable var10) {
+         // $QF: monitorexit
          throw var10;
       }
 
+      // $QF: monitorexit
    }
 }
 
@@ -80,7 +88,7 @@ class 'TestHotjava' {
       10      9
       11      9
       12      9
-      18      12
+      18      11
    }
 
    method 'testMonitor1 ()V' {
@@ -92,42 +100,48 @@ class 'TestHotjava' {
       7      19
       8      19
       9      19
-      e      24
-      11      21
+      d      25
+      e      26
+      10      21
+      11      22
    }
 
    method 'testMonitor2 (Ljava/lang/Object;)V' {
-      0      28
-      3      28
-      4      31
-      5      31
-      6      31
-      7      31
-      8      31
-      9      31
-      e      36
-      11      33
+      0      31
+      3      31
+      4      34
+      5      34
+      6      34
+      7      34
+      8      34
+      9      34
+      d      40
+      e      41
+      10      36
+      11      37
    }
 
    method 'testMonitor3 ()V' {
-      0      40
-      3      40
-      4      44
-      5      44
-      6      44
-      7      44
-      8      44
-      9      44
-      12      46
-      13      46
-      14      46
-      15      46
-      16      46
-      17      46
-      18      46
-      19      46
-      26      52
-      29      49
+      0      46
+      3      46
+      4      50
+      5      50
+      6      50
+      7      50
+      8      50
+      9      50
+      12      52
+      13      52
+      14      52
+      15      52
+      16      52
+      17      52
+      18      52
+      19      52
+      25      59
+      26      60
+      28      55
+      29      56
    }
 }
 
@@ -136,13 +150,13 @@ Lines mapping:
 3 <-> 3
 7 <-> 8
 8 <-> 8
-10 <-> 13
+10 <-> 12
 15 <-> 17
 16 <-> 20
-21 <-> 29
-22 <-> 32
-27 <-> 41
-28 <-> 45
-29 <-> 45
+21 <-> 32
+22 <-> 35
+27 <-> 47
+28 <-> 51
+29 <-> 51
 Not mapped:
 31

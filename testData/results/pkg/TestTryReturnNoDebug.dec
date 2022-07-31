@@ -16,16 +16,16 @@ public class TestTryReturnNoDebug {
    }
 
    public String test2(Supplier<Boolean> var1) {
-      Object var2 = null;
+      String var2 = null;
 
       try {
-         var5 = var1.toString();
-         System.out.println("Try: " + var5);
+         var2 = var1.toString();
+         System.out.println("Try: " + var2);
       } catch (Exception var4) {
          throw new RuntimeException("Catch: " + var2);
       }
 
-      return this.process(var5);
+      return this.process(var2);
    }
 
    private String process(String var1) {
