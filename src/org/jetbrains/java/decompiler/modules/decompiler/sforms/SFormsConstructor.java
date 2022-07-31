@@ -1,5 +1,6 @@
 package org.jetbrains.java.decompiler.modules.decompiler.sforms;
 
+import org.jetbrains.java.decompiler.api.SFormsCreator;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
@@ -18,7 +19,7 @@ import java.util.*;
 
 import static org.jetbrains.java.decompiler.modules.decompiler.sforms.VarMapHolder.mergeMaps;
 
-public class SFormsConstructor {
+public abstract class SFormsConstructor implements SFormsCreator {
 
   private final boolean incrementOnUsage;
   private final boolean simplePhi;
