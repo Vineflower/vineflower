@@ -9,7 +9,6 @@ public class TestTernaryCall {
       if (b ? c : a) {// 9
          System.out.println(c);// 10
       }
-
    }// 12
 }
 
@@ -40,7 +39,7 @@ class 'pkg/TestTernaryCall' {
       11      9
       12      9
       13      9
-      16      12
+      16      11
    }
 }
 
@@ -49,4 +48,4 @@ Lines mapping:
 6 <-> 6
 9 <-> 9
 10 <-> 10
-12 <-> 13
+12 <-> 12

@@ -491,10 +491,11 @@ public class VarDefinitionHelper {
   }
 
   private VPPEntry mergeVars(Statement stat) {
-    Map<Integer, VarVersionPair> parent = new HashMap<Integer, VarVersionPair>(); // Always empty dua!
+    Map<Integer, VarVersionPair> parent = new HashMap<>(); // Always empty dua!
     MethodDescriptor md = MethodDescriptor.parseDescriptor(mt.getDescriptor());
 
     int index = 0;
+    // this var
     if (!mt.hasModifier(CodeConstants.ACC_STATIC)) {
       parent.put(index, new VarVersionPair(index++, 0));
     }
@@ -506,22 +507,22 @@ public class VarDefinitionHelper {
 
     populateTypeBounds(varproc, stat);
 
-    Map<VarVersionPair, VarVersionPair> blacklist = new HashMap<VarVersionPair, VarVersionPair>();
-    VPPEntry remap = mergeVars(stat, parent, new HashMap<Integer, VarVersionPair>(), blacklist);
+    Map<VarVersionPair, VarVersionPair> blacklist = new HashMap<>();
+    VPPEntry remap = mergeVars(stat, parent, new HashMap<>(), blacklist);
     while (remap != null) {
       //System.out.println("Remapping: " + remap.getKey() + " -> " + remap.getValue());
       if (!remapVar(stat, remap.getKey(), remap.getValue())) {
         blacklist.put(remap.getKey(), remap.getValue());
       }
 
-      remap = mergeVars(stat, parent, new HashMap<Integer, VarVersionPair>(), blacklist);
+      remap = mergeVars(stat, parent, new HashMap<>(), blacklist);
     }
     return null;
   }
 
 
   private VPPEntry mergeVars(Statement stat, Map<Integer, VarVersionPair> parent, Map<Integer, VarVersionPair> leaked, Map<VarVersionPair, VarVersionPair> blacklist) {
-    Map<Integer, VarVersionPair> this_vars = new HashMap<Integer, VarVersionPair>();
+    Map<Integer, VarVersionPair> this_vars = new HashMap<>();
     if (parent.size() > 0)
       this_vars.putAll(parent);
 
@@ -586,7 +587,7 @@ public class VarDefinitionHelper {
           }
           */
 
-          if (leaked_n.size() > 0) {
+          if (!leaked_n.isEmpty()) {
             if (stat instanceof IfStatement) {
               IfStatement ifst = (IfStatement)stat;
               if (obj == ifst.getIfstat() || obj == ifst.getElsestat()) {
@@ -606,7 +607,7 @@ public class VarDefinitionHelper {
               }
             }
             else if (stat instanceof CatchStatement || stat instanceof CatchAllStatement) {
-              leaked_n.clear(); // Catches can't leak anything mwhahahahah!
+              leaked_n.clear(); // Catches can't leak anything
             }
             this_vars.putAll(leaked_n);
           }
@@ -614,7 +615,12 @@ public class VarDefinitionHelper {
         else if (obj instanceof Exprent) {
           VPPEntry ret = processExprent((Exprent)obj, this_vars, scoped, blacklist);
           if (ret != null && isVarReadFirst(ret.getValue(), stat, i + 1)) {
-            return ret;
+            VarType t1 = this.varproc.getVarType(ret.getKey());
+            VarType t2 = this.varproc.getVarType(ret.getValue());
+
+            if (t1.isSuperset(t2) || t2.isSuperset(t1)) {
+              return ret;
+            }
           }
         }
       }
@@ -626,7 +632,13 @@ public class VarDefinitionHelper {
         if (ret != null && !isVarReadFirst(ret.getValue(), stat, i + 1)) {
           // TODO: this is where seperate int and bool types are merged
 
-          return ret;
+          VarType t1 = this.varproc.getVarType(ret.getKey());
+          VarType t2 = this.varproc.getVarType(ret.getValue());
+
+          if (t1.isSuperset(t2) || t2.isSuperset(t1)) {
+            // TODO: this only checks for totally disjoint types, there are instances where merging is incorrect with primitives
+            return ret;
+          }
         }
       }
     }
@@ -1048,7 +1060,7 @@ public class VarDefinitionHelper {
     }
   }
   private static class VPPEntry extends SimpleEntry<VarVersionPair, VarVersionPair> {
-    public VPPEntry(VarExprent key, VarVersionPair value) {
+    private VPPEntry(VarExprent key, VarVersionPair value) {
         super(new VarVersionPair(key), value);
     }
   }

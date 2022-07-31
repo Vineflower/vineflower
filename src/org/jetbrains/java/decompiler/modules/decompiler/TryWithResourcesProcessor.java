@@ -323,14 +323,18 @@ public final class TryWithResourcesProcessor {
 
   // TODO: move to better place
   public static void findEdgesLeaving(Statement curr, Statement check, Set<StatEdge> edges) {
+    findEdgesLeaving(curr, check, edges, false);
+  }
+
+  public static void findEdgesLeaving(Statement curr, Statement check, Set<StatEdge> edges, boolean allowExit) {
     for (StatEdge edge : curr.getAllSuccessorEdges()) {
-      if (!check.containsStatement(edge.getDestination()) && !(edge.getDestination() instanceof DummyExitStatement)) {
+      if (!check.containsStatement(edge.getDestination()) && (allowExit || !(edge.getDestination() instanceof DummyExitStatement))) {
         edges.add(edge);
       }
     }
 
     for (Statement stat : curr.getStats()) {
-      findEdgesLeaving(stat, check, edges);
+      findEdgesLeaving(stat, check, edges, allowExit);
     }
   }
 

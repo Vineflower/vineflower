@@ -9,7 +9,7 @@ import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
-import org.jetbrains.java.decompiler.modules.decompiler.StrongConnectivityHelper;
+import org.jetbrains.java.decompiler.modules.decompiler.decompose.StrongConnectivityHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
@@ -403,8 +403,10 @@ public abstract class Statement implements IMatchable {
         break;
       default:
         containsMonitorExit = false;
+        isLastAthrow = false;
         for (Statement st : stats) {
           containsMonitorExit |= st.containsMonitorExit();
+          isLastAthrow |= st.isLastAthrow;
         }
     }
   }
@@ -788,6 +790,11 @@ public abstract class Statement implements IMatchable {
 
   public List<StatEdge> getSuccessorEdges(int type) {
     return getEdges(type, EdgeDirection.FORWARD);
+  }
+
+  // Do not mutate this map!
+  public List<StatEdge> getSuccessorEdgeView(int type) {
+    return this.mapSuccEdges.computeIfAbsent(type, k -> new ArrayList<>());
   }
 
   public List<StatEdge> getPredecessorEdges(int type) {

@@ -10,7 +10,6 @@ public class TestItrLoop {
       for(String s : this.list) {// 11 12
          System.out.println(s);// 13
       }
-
    }// 15
 }
 
@@ -43,7 +42,7 @@ class 'pkg/TestItrLoop' {
       21      10
       22      10
       23      10
-      27      13
+      27      12
    }
 }
 
@@ -51,6 +50,6 @@ Lines mapping:
 11 <-> 10
 12 <-> 10
 13 <-> 11
-15 <-> 14
+15 <-> 13
 Not mapped:
 14

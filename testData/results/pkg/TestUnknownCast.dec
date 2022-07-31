@@ -20,7 +20,6 @@ public class TestUnknownCast {
       for(Object vvv34 = null; vvv34 != null; var8 = var8) {// 15 16 17 19
          System.out.println(vvv34);// 18
       }
-
    }// 21
 }
 
@@ -50,7 +49,7 @@ class 'pkg/TestUnknownCast' {
       29      20
       2a      20
       2c      19
-      30      23
+      30      22
    }
 }
 
@@ -65,7 +64,7 @@ Lines mapping:
 17 <-> 20
 18 <-> 21
 19 <-> 20
-21 <-> 24
+21 <-> 23
 Not mapped:
 12
 13

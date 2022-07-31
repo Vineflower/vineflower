@@ -1,0 +1,306 @@
+package pkg;
+
+import java.util.Objects;
+
+public class TestSwitchPatternMatching21 {
+   public void test1(String it) {
+      Objects.requireNonNull(it);// 5
+      <unknown> var2;
+      switch(it) {
+         case "":
+            System.out.println("nothing");// 6
+            break;
+         case "hi":
+            System.out.println("hello");// 7
+            break;
+         case it instanceof String var7 && Math.random() > 0.0:// 8
+            System.out.println(it + "!");// 9
+            break;
+         case it instanceof String var8 && Math.random() > 0.0:// 10
+            System.out.println(it + "!!");// 11
+            break;
+         case it instanceof String var9 && var2.startsWith("?"):// 12
+            System.out.println(it + "?");// 13
+            break;
+         default:
+            System.out.println("Default");// 14
+      }
+   }// 16
+
+   public void test2(String it) {
+      label21:
+      switch(it) {// 19
+         case null:
+         default:
+            System.out.println(it + "?");// 27
+            break;
+         case "":
+            System.out.println("nothing");// 20
+            break;
+         case "hi":
+            System.out.println("hello");// 21
+            break;
+         case it instanceof String var7 && Math.random() > 0.0:// 22
+            System.out.println(it + "!");// 23
+            break;
+         case it instanceof String var8 && Math.random() > 0.0:// 24
+            System.out.println(it + "!!");// 25
+            break;
+      }
+   }// 29
+
+   public void test3(String it) {
+      switch(it) {// 32
+         case "":
+         case null:
+            System.out.println("nothing");// 33
+            break;
+         case "hi":
+            System.out.println("hello");// 34
+            break;
+         case it instanceof String var5 && Math.random() > 0.0:// 35
+            System.out.println(it + "!");// 36
+            break;
+         default:
+            System.out.println("Default");// 37
+      }
+   }// 39
+}
+
+class 'pkg/TestSwitchPatternMatching21' {
+   method 'test1 (Ljava/lang/String;)V' {
+      0      6
+      2      6
+      3      6
+      4      6
+      10      8
+      34      10
+      35      10
+      36      10
+      37      10
+      38      10
+      39      10
+      3a      10
+      3b      10
+      3c      11
+      3f      13
+      40      13
+      41      13
+      42      13
+      43      13
+      44      13
+      45      13
+      46      13
+      47      14
+      4d      15
+      4e      15
+      4f      15
+      50      15
+      51      15
+      5a      16
+      5b      16
+      5c      16
+      5f      16
+      60      16
+      61      16
+      62      16
+      63      16
+      64      16
+      65      16
+      66      16
+      67      17
+      6d      18
+      6e      18
+      6f      18
+      70      18
+      71      18
+      7a      19
+      7b      19
+      7c      19
+      7f      19
+      80      19
+      81      19
+      82      19
+      83      19
+      84      19
+      85      19
+      86      19
+      87      20
+      8a      21
+      8f      21
+      90      21
+      91      21
+      92      21
+      93      21
+      9c      22
+      9d      22
+      9e      22
+      a1      22
+      a2      22
+      a3      22
+      a4      22
+      a5      22
+      a6      22
+      a7      22
+      a8      22
+      a9      23
+      ac      25
+      ad      25
+      ae      25
+      af      25
+      b0      25
+      b1      25
+      b2      25
+      b3      25
+      b7      27
+   }
+
+   method 'test2 (Ljava/lang/String;)V' {
+      0      31
+      b      31
+      2c      37
+      2d      37
+      2e      37
+      2f      37
+      30      37
+      31      37
+      32      37
+      33      37
+      34      38
+      37      40
+      38      40
+      39      40
+      3a      40
+      3b      40
+      3c      40
+      3d      40
+      3e      40
+      3f      41
+      45      42
+      46      42
+      47      42
+      48      42
+      49      42
+      52      43
+      53      43
+      54      43
+      57      43
+      58      43
+      59      43
+      5a      43
+      5b      43
+      5c      43
+      5d      43
+      5e      43
+      5f      44
+      65      45
+      66      45
+      67      45
+      68      45
+      69      45
+      72      46
+      73      46
+      74      46
+      77      46
+      78      46
+      79      46
+      7a      46
+      7b      46
+      7c      46
+      7d      46
+      7e      46
+      85      34
+      86      34
+      87      34
+      8a      34
+      8b      34
+      8c      34
+      8d      34
+      8e      34
+      8f      34
+      90      34
+      91      34
+      92      35
+      95      49
+   }
+
+   method 'test3 (Ljava/lang/String;)V' {
+      0      52
+      b      52
+      28      55
+      29      55
+      2a      55
+      2b      55
+      2c      55
+      2d      55
+      2e      55
+      2f      55
+      30      56
+      33      58
+      34      58
+      35      58
+      36      58
+      37      58
+      38      58
+      39      58
+      3a      58
+      3b      59
+      41      60
+      42      60
+      43      60
+      44      60
+      45      60
+      4e      61
+      4f      61
+      50      61
+      53      61
+      54      61
+      55      61
+      56      61
+      57      61
+      58      61
+      59      61
+      5a      61
+      5b      62
+      5e      64
+      5f      64
+      60      64
+      61      64
+      62      64
+      63      64
+      64      64
+      65      64
+      69      66
+   }
+}
+
+Lines mapping:
+5 <-> 7
+6 <-> 11
+7 <-> 14
+8 <-> 16
+9 <-> 17
+10 <-> 19
+11 <-> 20
+12 <-> 22
+13 <-> 23
+14 <-> 26
+16 <-> 28
+19 <-> 32
+20 <-> 38
+21 <-> 41
+22 <-> 43
+23 <-> 44
+24 <-> 46
+25 <-> 47
+27 <-> 35
+29 <-> 50
+32 <-> 53
+33 <-> 56
+34 <-> 59
+35 <-> 61
+36 <-> 62
+37 <-> 65
+39 <-> 67
+Not mapped:
+26

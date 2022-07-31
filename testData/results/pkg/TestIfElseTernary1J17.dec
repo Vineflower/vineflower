@@ -1,0 +1,686 @@
+package pkg;
+
+public class TestIfElseTernary1J17 {
+   public void test0(boolean condition, int a, int b, int c) {
+      if (condition ? a >= b : b <= c) {// 5
+         System.out.println(2);// 8
+      } else {
+         System.out.println(1);// 6
+      }
+   }// 10
+
+   public void test1(boolean condition, int a, int b, int c) {
+      if (condition ? (a < b ? a != 0 : b != 0) : b <= c) {// 13
+         System.out.println(2);// 18
+      } else {
+         System.out.println(1);// 16
+      }
+   }// 20
+
+   public void test2(boolean condition, int a, int b, int c) {
+      if (condition ? a >= b : (b > c ? b != 15 : a != 15)) {// 23
+         System.out.println(2);// 28
+      } else {
+         System.out.println(1);// 26
+      }
+   }// 30
+
+   public void test3(boolean condition, int a, int b, int c) {
+      if (condition ? (a < b ? a != 0 : b != 0) : (b > c ? b != 15 : a != 15)) {// 33
+         System.out.println(2);// 38
+      } else {
+         System.out.println(1);// 36
+      }
+   }// 40
+
+   public void test4(boolean condition, int a, int b, int c) {
+      if ((condition ? a + c > b : a < b + c) ? a >= b : b <= c) {// 43
+         System.out.println(2);// 48
+      } else {
+         System.out.println(1);// 46
+      }
+   }// 50
+
+   public void test5(boolean condition, int a, int b, int c) {
+      if ((condition ? a + c > b : a < b + c) ? (a < b ? a != 0 : b != 0) : b <= c) {// 53
+         System.out.println(2);// 58
+      } else {
+         System.out.println(1);// 56
+      }
+   }// 60
+
+   public void test6(boolean condition, int a, int b, int c) {
+      if ((condition ? a + c > b : a < b + c) ? a >= b : (b > c ? b != 15 : a != 15)) {// 63
+         System.out.println(2);// 68
+      } else {
+         System.out.println(1);// 66
+      }
+   }// 70
+
+   public void test7(boolean condition, int a, int b, int c) {
+      if ((condition ? a + c > b : a < b + c) ? (a < b ? a != 0 : b != 0) : (b > c ? b != 15 : a != 15)) {// 73
+         System.out.println(2);// 78
+      } else {
+         System.out.println(1);// 76
+      }
+   }// 80
+
+   public void test8(boolean condition, int a, int b, int c) {
+      if (a != b && b != c ? (a > b && b > c ? a >= b + c || a <= 3 * c : !condition) : a == b) {// 83
+         System.out.println(2);// 90
+      } else {
+         System.out.println(1);// 88
+      }
+   }// 92
+
+   public void test8b(boolean condition, int a, int b, int c) {
+      if (a == b && b == c ? condition : (a > b && b > c ? a >= b + c || a <= 3 * c : !condition)) {// 95
+         System.out.println(2);// 102
+      } else {
+         System.out.println(1);// 100
+      }
+   }// 104
+
+   public void testFuzz1() {
+      int[] vvv1 = new int[0];// 107
+      int[] vvv2 = new int[0];
+      int[] vvv3 = new int[0];
+      if ((vvv1 != null || vvv2 != null) && vvv2 == null ? (vvv2 == null ? vvv2 == null : vvv3 != null && vvv1 == null) : vvv3 != null) {// 108
+         synchronized(this) {// 109
+            vvv2 = vvv3;// 112
+            System.out.println(vvv3);// 113
+            long[][] vvv4 = new long[0][];// 114
+         }// 116
+      } else {
+         try {
+            boolean vvv11 = true;// 122
+         } catch (Exception var15) {// 124
+            System.out.println(var15);// 126
+            System.out.println(vvv3);// 127
+            int vvv8 = 104;// 128
+            int[][][][][] vvv9 = new int[0][][][][];
+            throw new RuntimeException();// 129
+         }
+      }
+
+      System.out.println(vvv2);// 145 146
+      System.out.println(vvv2);// 147 148
+      System.out.println(vvv2);// 150
+      int vvv11 = -103;// 151
+
+      try {
+         throw new RuntimeException();// 156
+      } finally {
+         Object vvv12 = null;// 160
+         vvv11 *= 314;// 161
+         System.out.println(vvv2);// 162
+         throw new RuntimeException();// 163
+      }
+   }
+}
+
+class 'pkg/TestIfElseTernary1J17' {
+   method 'test0 (ZIII)V' {
+      0      4
+      1      4
+      4      4
+      5      4
+      6      4
+      c      4
+      d      4
+      e      4
+      f      4
+      12      7
+      13      7
+      14      7
+      15      7
+      16      7
+      17      7
+      18      7
+      1c      5
+      1d      5
+      1e      5
+      1f      5
+      20      5
+      23      9
+   }
+
+   method 'test1 (ZIII)V' {
+      0      12
+      1      12
+      4      12
+      5      12
+      6      12
+      9      12
+      a      12
+      10      12
+      11      12
+      17      12
+      18      12
+      19      12
+      1a      12
+      1d      15
+      1e      15
+      1f      15
+      20      15
+      21      15
+      22      15
+      23      15
+      27      13
+      28      13
+      29      13
+      2a      13
+      2b      13
+      2e      17
+   }
+
+   method 'test2 (ZIII)V' {
+      0      20
+      1      20
+      4      20
+      5      20
+      6      20
+      c      20
+      d      20
+      e      20
+      f      20
+      12      20
+      13      20
+      14      20
+      15      20
+      1b      20
+      1c      20
+      1d      20
+      1e      20
+      21      23
+      22      23
+      23      23
+      24      23
+      25      23
+      26      23
+      27      23
+      2b      21
+      2c      21
+      2d      21
+      2e      21
+      2f      21
+      32      25
+   }
+
+   method 'test3 (ZIII)V' {
+      0      28
+      1      28
+      4      28
+      5      28
+      6      28
+      9      28
+      a      28
+      10      28
+      11      28
+      17      28
+      18      28
+      19      28
+      1a      28
+      1d      28
+      1e      28
+      1f      28
+      20      28
+      26      28
+      27      28
+      28      28
+      29      28
+      2c      31
+      2d      31
+      2e      31
+      2f      31
+      30      31
+      31      31
+      32      31
+      36      29
+      37      29
+      38      29
+      39      29
+      3a      29
+      3d      33
+   }
+
+   method 'test4 (ZIII)V' {
+      0      36
+      1      36
+      4      36
+      5      36
+      6      36
+      7      36
+      8      36
+      9      36
+      f      36
+      10      36
+      11      36
+      12      36
+      13      36
+      14      36
+      17      36
+      18      36
+      19      36
+      1f      36
+      20      36
+      21      36
+      22      36
+      25      39
+      26      39
+      27      39
+      28      39
+      29      39
+      2a      39
+      2b      39
+      2f      37
+      30      37
+      31      37
+      32      37
+      33      37
+      36      41
+   }
+
+   method 'test5 (ZIII)V' {
+      0      44
+      1      44
+      4      44
+      5      44
+      6      44
+      7      44
+      8      44
+      9      44
+      f      44
+      10      44
+      11      44
+      12      44
+      13      44
+      14      44
+      17      44
+      18      44
+      19      44
+      1c      44
+      1d      44
+      23      44
+      24      44
+      2a      44
+      2b      44
+      2c      44
+      2d      44
+      30      47
+      31      47
+      32      47
+      33      47
+      34      47
+      35      47
+      36      47
+      3a      45
+      3b      45
+      3c      45
+      3d      45
+      3e      45
+      41      49
+   }
+
+   method 'test6 (ZIII)V' {
+      0      52
+      1      52
+      4      52
+      5      52
+      6      52
+      7      52
+      8      52
+      9      52
+      f      52
+      10      52
+      11      52
+      12      52
+      13      52
+      14      52
+      17      52
+      18      52
+      19      52
+      1f      52
+      20      52
+      21      52
+      22      52
+      25      52
+      26      52
+      27      52
+      28      52
+      2e      52
+      2f      52
+      30      52
+      31      52
+      34      55
+      35      55
+      36      55
+      37      55
+      38      55
+      39      55
+      3a      55
+      3e      53
+      3f      53
+      40      53
+      41      53
+      42      53
+      45      57
+   }
+
+   method 'test7 (ZIII)V' {
+      0      60
+      1      60
+      4      60
+      5      60
+      6      60
+      7      60
+      8      60
+      9      60
+      f      60
+      10      60
+      11      60
+      12      60
+      13      60
+      14      60
+      17      60
+      18      60
+      19      60
+      1c      60
+      1d      60
+      23      60
+      24      60
+      2a      60
+      2b      60
+      2c      60
+      2d      60
+      30      60
+      31      60
+      32      60
+      33      60
+      39      60
+      3a      60
+      3b      60
+      3c      60
+      3f      63
+      40      63
+      41      63
+      42      63
+      43      63
+      44      63
+      45      63
+      49      61
+      4a      61
+      4b      61
+      4c      61
+      4d      61
+      50      65
+   }
+
+   method 'test8 (ZIII)V' {
+      0      68
+      1      68
+      2      68
+      5      68
+      6      68
+      7      68
+      8      68
+      b      68
+      c      68
+      d      68
+      13      68
+      14      68
+      15      68
+      18      68
+      19      68
+      1a      68
+      1b      68
+      1e      68
+      1f      68
+      20      68
+      21      68
+      22      68
+      23      68
+      26      68
+      27      68
+      28      68
+      29      68
+      2a      68
+      2b      68
+      31      68
+      32      68
+      35      71
+      36      71
+      37      71
+      38      71
+      39      71
+      3a      71
+      3b      71
+      3f      69
+      40      69
+      41      69
+      42      69
+      43      69
+      46      73
+   }
+
+   method 'test8b (ZIII)V' {
+      0      76
+      1      76
+      2      76
+      5      76
+      6      76
+      7      76
+      8      76
+      b      76
+      12      76
+      13      76
+      14      76
+      17      76
+      18      76
+      19      76
+      1a      76
+      1d      76
+      1e      76
+      1f      76
+      20      76
+      21      76
+      22      76
+      25      76
+      26      76
+      27      76
+      28      76
+      29      76
+      2a      76
+      30      76
+      31      76
+      34      79
+      35      79
+      36      79
+      37      79
+      38      79
+      39      79
+      3a      79
+      3e      77
+      3f      77
+      40      77
+      41      77
+      42      77
+      45      81
+   }
+
+   method 'testFuzz1 ()V' {
+      0      84
+      3      84
+      4      85
+      7      85
+      8      86
+      b      86
+      c      87
+      d      87
+      10      87
+      11      87
+      14      87
+      15      87
+      18      87
+      19      87
+      1f      87
+      20      87
+      23      87
+      24      87
+      2a      87
+      2b      87
+      2e      87
+      2f      87
+      32      88
+      36      88
+      37      89
+      38      89
+      39      90
+      3a      90
+      3b      90
+      3d      90
+      3e      90
+      3f      90
+      40      91
+      44      91
+      45      91
+      4a      92
+      5b      95
+      5c      95
+      5d      95
+      5e      95
+      5f      95
+      63      96
+      65      97
+      66      97
+      67      97
+      6a      97
+      6b      97
+      6c      97
+      6d      98
+      6e      98
+      6f      98
+      70      98
+      71      98
+      72      98
+      73      98
+      74      99
+      75      99
+      76      99
+      77      99
+      78      100
+      7c      100
+      7d      100
+      85      101
+      86      105
+      88      105
+      89      105
+      8a      105
+      8c      105
+      8d      105
+      8e      105
+      8f      106
+      91      106
+      92      106
+      93      106
+      95      106
+      96      106
+      97      106
+      9a      107
+      9b      107
+      9c      107
+      9e      107
+      9f      107
+      a0      107
+      a1      108
+      a2      108
+      a3      108
+      a4      108
+      ae      111
+      af      113
+      b0      113
+      b1      113
+      b2      113
+      b4      114
+      b5      114
+      b9      114
+      ba      114
+      bb      115
+      bf      115
+      c7      116
+      c8      116
+      c9      116
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 8
+8 <-> 6
+10 <-> 10
+13 <-> 13
+16 <-> 16
+18 <-> 14
+20 <-> 18
+23 <-> 21
+26 <-> 24
+28 <-> 22
+30 <-> 26
+33 <-> 29
+36 <-> 32
+38 <-> 30
+40 <-> 34
+43 <-> 37
+46 <-> 40
+48 <-> 38
+50 <-> 42
+53 <-> 45
+56 <-> 48
+58 <-> 46
+60 <-> 50
+63 <-> 53
+66 <-> 56
+68 <-> 54
+70 <-> 58
+73 <-> 61
+76 <-> 64
+78 <-> 62
+80 <-> 66
+83 <-> 69
+88 <-> 72
+90 <-> 70
+92 <-> 74
+95 <-> 77
+100 <-> 80
+102 <-> 78
+104 <-> 82
+107 <-> 85
+108 <-> 88
+109 <-> 89
+112 <-> 90
+113 <-> 91
+114 <-> 92
+116 <-> 93
+122 <-> 96
+124 <-> 97
+126 <-> 98
+127 <-> 99
+128 <-> 100
+129 <-> 102
+145 <-> 106
+146 <-> 106
+147 <-> 107
+148 <-> 107
+150 <-> 108
+151 <-> 109
+156 <-> 112
+160 <-> 114
+161 <-> 115
+162 <-> 116
+163 <-> 117
+Not mapped:
+115
+121
+130
+149
+155

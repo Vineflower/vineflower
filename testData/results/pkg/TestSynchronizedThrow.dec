@@ -37,26 +37,18 @@ public class TestSynchronizedThrow {
       System.out.println("Bye");// 35
    }// 36
 
-   // $QF: Could not create synchronized statement, marking monitor enters and exits
    public void testLoopThrow(boolean b) {
-      synchronized(this){} // $QF: monitorenter // 39
-
-      try {
+      synchronized(this) {// 39
          while(b) {// 40
             System.out.println("oh");// 41
          }
 
          throw new RuntimeException();// 43
-      } finally {
-         // $QF: monitorexit// 44
       }
    }
 
-   // $QF: Could not create synchronized statement, marking monitor enters and exits
    public void testInfiniteLoopOrThrow(boolean b) {
-      synchronized(this){} // $QF: monitorenter // 48
-
-      try {
+      synchronized(this) {// 48
          if (b) {// 49
             while(true) {
                System.out.println("looooooooooop");// 51
@@ -64,8 +56,6 @@ public class TestSynchronizedThrow {
          }
 
          throw new RuntimeException();// 54
-      } finally {
-         // $QF: monitorexit// 55
       }
    }
 }
@@ -150,36 +140,34 @@ class 'pkg/TestSynchronizedThrow' {
    }
 
    method 'testLoopThrow (Z)V' {
-      0      41
-      3      41
-      4      44
-      8      45
-      9      45
-      a      45
-      b      45
-      c      45
-      d      45
-      e      45
-      f      45
-      1a      48
-      1c      50
+      0      40
+      3      40
+      4      41
+      8      42
+      9      42
+      a      42
+      b      42
+      c      42
+      d      42
+      e      42
+      f      42
+      1a      45
    }
 
    method 'testInfiniteLoopOrThrow (Z)V' {
-      0      56
-      3      56
-      4      59
-      5      59
-      8      61
-      9      61
-      a      61
-      b      61
-      c      61
-      d      61
-      e      61
-      f      61
-      1a      65
-      1c      67
+      0      50
+      3      50
+      4      51
+      5      51
+      8      53
+      9      53
+      a      53
+      b      53
+      c      53
+      d      53
+      e      53
+      f      53
+      1a      57
    }
 }
 
@@ -202,18 +190,18 @@ Lines mapping:
 33 <-> 34
 35 <-> 37
 36 <-> 38
-39 <-> 42
-40 <-> 45
-41 <-> 46
-43 <-> 49
-44 <-> 51
-48 <-> 57
-49 <-> 60
-51 <-> 62
-54 <-> 66
-55 <-> 68
+39 <-> 41
+40 <-> 42
+41 <-> 43
+43 <-> 46
+48 <-> 51
+49 <-> 52
+51 <-> 54
+54 <-> 58
 Not mapped:
 7
 15
 23
 34
+44
+55

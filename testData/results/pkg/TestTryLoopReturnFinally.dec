@@ -27,7 +27,6 @@ public class TestTryLoopReturnFinally {
 
          return;// 14
       }
-
    }// 24
 }
 
@@ -51,7 +50,7 @@ class 'pkg/TestTryLoopReturnFinally' {
       3e      24
       3f      24
       40      24
-      46      30
+      46      29
    }
 }
 
@@ -64,6 +63,6 @@ Lines mapping:
 19 <-> 21
 20 <-> 22
 22 <-> 25
-24 <-> 31
+24 <-> 30
 Not mapped:
 23

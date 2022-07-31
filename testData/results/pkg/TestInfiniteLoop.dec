@@ -59,7 +59,6 @@ public class TestInfiniteLoop {
          while(true) {
          }
       }
-
    }// 77
 
    public void testSuccessor4(int i) {
@@ -103,14 +102,14 @@ class 'pkg/TestInfiniteLoop' {
       7      55
       8      55
       9      56
-      f      62
+      f      61
    }
 
    method 'testSuccessor4 (I)V' {
-      0      65
-      1      65
-      2      65
-      3      66
+      0      64
+      1      64
+      2      64
+      3      65
    }
 }
 
@@ -125,9 +124,9 @@ Lines mapping:
 69 <-> 55
 70 <-> 56
 71 <-> 57
-77 <-> 63
-80 <-> 66
-83 <-> 67
+77 <-> 62
+80 <-> 65
+83 <-> 66
 Not mapped:
 50
 61

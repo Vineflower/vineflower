@@ -32,7 +32,6 @@ public class TestLoopBreak4 {
             }
          }
       }
-
    }// 37
 }
 
@@ -143,7 +142,7 @@ class 'pkg/TestLoopBreak4' {
       8d      4
       8e      4
       8f      4
-      93      35
+      93      34
    }
 }
 
@@ -162,7 +161,7 @@ Lines mapping:
 19 <-> 20
 20 <-> 21
 23 <-> 25
-37 <-> 36
+37 <-> 35
 Not mapped:
 21
 25

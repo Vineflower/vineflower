@@ -360,7 +360,12 @@ public class InvocationExprent extends Exprent {
           int j = 0;
           for (int i = start; i < lstParameters.size(); ++i) {
             if ((mask == null || mask.get(i) == null)) {
-              // FIXME: IOOBE
+              // FIXME: why can this happen?
+              //   See: jdk ReduceOps
+              if (desc.getSignature().parameterTypes.size() <= j) {
+                continue;
+              }
+
               VarType paramType = desc.getSignature().parameterTypes.get(j++);
               if (paramType.isGeneric()) {
 
@@ -921,6 +926,10 @@ public class InvocationExprent extends Exprent {
       int y = 0;
       for (int x = start; x < types.length; x++) {
         if (mask == null || mask.get(x) == null) {
+          if (desc.getSignature().parameterTypes.size() <= y) {
+            continue;
+          }
+
           VarType type = desc.getSignature().parameterTypes.get(y++).remap(genericsMap);
           if (type != null && !(type.isGeneric() && ((GenericType)type).hasUnknownGenericType(namedGens))) {
             types[x] = type;

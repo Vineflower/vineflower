@@ -9,14 +9,12 @@ public class TestTryWithResourcesJ16 {
       try (Scanner scanner = new Scanner(file)) {
          scanner.next();// 12
       }
-
    }// 11 13
 
    public void testFunc(File file) throws FileNotFoundException {
       try (Scanner scanner = this.create(file)) {// 17
          scanner.next();// 18
       }
-
    }// 20
 
    private Scanner create(File file) throws FileNotFoundException {
@@ -32,57 +30,57 @@ class 'pkg/TestTryWithResourcesJ16' {
       a      9
       b      9
       c      9
-      12      12
-      13      12
-      14      12
-      15      12
-      16      12
-      17      12
-      18      12
-      19      12
-      1a      12
-      1b      12
-      1c      12
-      1d      12
-      1e      12
-      1f      12
-      20      12
-      21      12
-      22      12
-      23      12
-      24      12
-      25      12
-      26      12
+      12      11
+      13      11
+      14      11
+      15      11
+      16      11
+      17      11
+      18      11
+      19      11
+      1a      11
+      1b      11
+      1c      11
+      1d      11
+      1e      11
+      1f      11
+      20      11
+      21      11
+      22      11
+      23      11
+      24      11
+      25      11
+      26      11
    }
 
    method 'testFunc (Ljava/io/File;)V' {
-      0      15
-      1      15
-      2      15
-      3      15
-      4      15
-      5      15
-      6      16
-      7      16
-      8      16
-      9      16
-      2c      19
+      0      14
+      1      14
+      2      14
+      3      14
+      4      14
+      5      14
+      6      15
+      7      15
+      8      15
+      9      15
+      2c      17
    }
 
    method 'create (Ljava/io/File;)Ljava/util/Scanner;' {
-      4      22
-      8      22
+      4      20
+      8      20
    }
 }
 
 Lines mapping:
-11 <-> 13
+11 <-> 12
 12 <-> 10
-13 <-> 13
-17 <-> 16
-18 <-> 17
-20 <-> 20
-23 <-> 23
+13 <-> 12
+17 <-> 15
+18 <-> 16
+20 <-> 18
+23 <-> 21
 Not mapped:
 14
 19

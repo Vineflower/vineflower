@@ -103,6 +103,16 @@ public class FastFixedSetFactory<E> {
       data[index[0]] &= ~index[1];
     }
 
+    public void removeAll(Collection<E> set) {
+      for (E element : set) {
+        remove(element);
+      }
+    }
+
+    public void clear() {
+      this.removeAll(this.toPlainSet());
+    }
+
     public boolean contains(E element) {
       int[] index = colValuesInternal.getWithKey(element);
       return (data[index[0]] & index[1]) != 0;
@@ -246,6 +256,10 @@ public class FastFixedSetFactory<E> {
 
     public FastFixedSetFactory<E> getFactory() {
       return factory;
+    }
+
+    public int size() {
+      return colValuesInternal.size();
     }
   }
 
