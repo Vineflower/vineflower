@@ -1,6 +1,8 @@
 package org.jetbrains.java.decompiler.modules.decompiler.sforms;
 
 import org.jetbrains.java.decompiler.code.Instruction;
+import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
@@ -29,10 +31,10 @@ public final class SimpleSSAReassign {
     });
 
     // Make new variables to increment the index for
-    int maxVer = vers.stream().max(Integer::compareTo).orElse(-1);
+    int maxVer = DecompilerContext.getCounterContainer().getCounter(CounterContainer.VAR_COUNTER);
 
     // No variables?
-    if (maxVer == -1) {
+    if (vers.isEmpty()) {
       return new HashMap<>();
     }
 
