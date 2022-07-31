@@ -378,7 +378,7 @@ public class DotExporter {
       case DO: return "Do";
       case SWITCH: return "Switch";
       case TRY_CATCH: return "Try Catch";
-      case BASIC_BLOCK: return "Basic Block #" + ((BasicBlockStatement)st).getBlock().id;
+      case BASIC_BLOCK: return "Basic Block #" + ((BasicBlockStatement)st).getBlock().getId();
       case SYNCHRONIZED: return "Synchronized";
       case CATCH_ALL: return "Catch All";
       case ROOT: return "Root";
@@ -419,7 +419,7 @@ public class DotExporter {
 
     List<BasicBlock> blocks = graph.getBlocks();
     for (BasicBlock block : blocks) {
-      buffer.append(block.id + " [shape=box,label=\"Block " + block.id + "\n" + block.getSeq() + "\"];\r\n");
+      buffer.append(block.getId() + " [shape=box,label=\"Block " + block.getId() + "\n" + block.getSeq() + "\"];\r\n");
 
       List<BasicBlock> suc = block.getSuccs();
       List<BasicBlock> preds = block.getPreds();
@@ -431,11 +431,11 @@ public class DotExporter {
 //      }
 
       for (BasicBlock basicBlock : suc) {
-        buffer.append(block.id + " -> " + basicBlock.id + ";\r\n");
+        buffer.append(block.getId() + " -> " + basicBlock.getId() + ";\r\n");
       }
 
 //      for (BasicBlock pred : preds) {
-//        buffer.append(block.id + " -> " + pred.id + " [color=blue];\r\n");
+//        buffer.append(block.getDebugId() + " -> " + pred.getDebugId() + " [color=blue];\r\n");
 //      }
 
       suc = block.getSuccExceptions();
@@ -448,19 +448,19 @@ public class DotExporter {
 //      }
 
       for (int j = 0; j < suc.size(); j++) {
-        buffer.append(block.id + " -> " + suc.get(j).id + " [style=dotted];\r\n");
+        buffer.append(block.getId() + " -> " + suc.get(j).getId() + " [style=dotted];\r\n");
       }
 
 //      for (BasicBlock pred : preds) {
-//        buffer.append(block.id + " -> " + pred.id + " [color=blue,style=dotted];\r\n");
+//        buffer.append(block.getDebugId() + " -> " + pred.getDebugId() + " [color=blue,style=dotted];\r\n");
 //      }
     }
 
     for (int i = 0; i < graph.getExceptions().size(); i++) {
       ExceptionRangeCFG ex = graph.getExceptions().get(i);
-      buffer.append("subgraph cluster_ex_" + i + " {\r\n\tlabel=\"Exception range for Block " + ex.getHandler().id + " \";\r\n");
+      buffer.append("subgraph cluster_ex_" + i + " {\r\n\tlabel=\"Exception range for Block " + ex.getHandler().getId() + " \";\r\n");
       for (BasicBlock bb : ex.getProtectedRange()) {
-        buffer.append("\t" + bb.id + ";\r\n");
+        buffer.append("\t" + bb.getId() + ";\r\n");
       }
       buffer.append("\t}\r\n");
     }
@@ -551,9 +551,7 @@ public class DotExporter {
     buffer.append("digraph G {\r\n");
 
     List<DirectNode> blocks = graph.nodes;
-    for(int i=0;i<blocks.size();i++) {
-      DirectNode block = blocks.get(i);
-
+    for (DirectNode block : blocks) {
       StringBuilder label = new StringBuilder(block.id + " in statement " + block.statement.id + " " + getStatType(block.statement));
       label.append("\\n");
       label.append(block.block != null ? toJava(block.block) : "null block");
@@ -570,7 +568,7 @@ public class DotExporter {
           for (Entry<Integer, FastSparseSet<Integer>> entry : lst) {
             label.append("\\n").append(entry.getKey());
             Set<Integer> set = entry.getValue().toPlainSet();
-            label.append("=").append(set.toString());
+            label.append("=").append(set);
           }
         }
       }

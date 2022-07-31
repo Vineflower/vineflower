@@ -39,16 +39,6 @@ public class BasicBlock implements IGraphNode {
   // public methods
   // *****************************************************************************
 
-  @SuppressWarnings("MethodDoesntCallSuperMethod")
-  public BasicBlock cloneBlock(int id) {
-    BasicBlock block = new BasicBlock(id);
-
-    block.setSeq(seq.clone());
-    block.instrOldOffsets.addAll(instrOldOffsets);
-
-    return block;
-  }
-
   public Instruction getInstruction(int index) {
     return seq.getInstr(index);
   }
@@ -94,6 +84,10 @@ public class BasicBlock implements IGraphNode {
 
   // FIXME: unify block comparisons: id or direct equality
   public void replaceSuccessor(BasicBlock oldBlock, BasicBlock newBlock) {
+    if (oldBlock.equals(newBlock)) {
+      return;
+    }
+
     for (int i = 0; i < succs.size(); i++) {
       if (succs.get(i).id == oldBlock.id) {
         succs.set(i, newBlock);
@@ -139,7 +133,7 @@ public class BasicBlock implements IGraphNode {
 
     String new_line_separator = DecompilerContext.getNewLineSeparator();
 
-    return id + ":" + new_line_separator + seq.toString(indent);
+    return this.id + ":" + new_line_separator + this.seq.toString(indent);
   }
 
   public boolean isSuccessor(BasicBlock block) {
@@ -152,11 +146,31 @@ public class BasicBlock implements IGraphNode {
   }
 
   // *****************************************************************************
+  // package methods
+  // *****************************************************************************
+
+  BasicBlock cloneBlock(int id) {
+    BasicBlock block = new BasicBlock(id);
+
+    block.setSeq(this.seq.clone());
+    block.instrOldOffsets.addAll(this.instrOldOffsets);
+
+    return block;
+  }
+
+  // *****************************************************************************
   // getter and setter methods
   // *****************************************************************************
 
   public List<Integer> getInstrOldOffsets() {
     return instrOldOffsets;
+  }
+
+  /**
+   * Only used for printing debugging strings
+   */
+  public int getId() {
+    return this.id;
   }
 
   @Override

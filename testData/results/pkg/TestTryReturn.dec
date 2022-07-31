@@ -54,20 +54,20 @@ public class TestTryReturn {
    public boolean testFinally3(boolean b, boolean c, int a, Supplier<Boolean> supplier) {
       boolean var5;
       try {
-         if (!b) {// 50
-            if (a > 0) {// 54
-               return a == 1;// 55
-            }
+         if (b) {// 50
+            return c && supplier.get();// 51
+         }
 
+         if (a <= 0) {// 54
             return supplier.get();// 58
          }
 
-         var5 = c && supplier.get();
+         var5 = a == 1;
       } finally {
          System.out.println("Finally");// 60
       }
 
-      return var5;// 51
+      return var5;// 55
    }
 
    public boolean testFinally4(Supplier<Boolean> supplier) {
@@ -375,28 +375,28 @@ class 'pkg/TestTryReturn' {
    method 'testFinally3 (ZZILjava/util/function/Supplier;)Z' {
       0      56
       1      56
-      4      64
-      8      64
-      9      64
-      a      64
-      b      64
-      c      64
-      d      64
-      e      64
-      12      64
-      13      64
-      14      64
-      1d      64
-      1e      64
-      27      69
-      28      69
-      29      69
-      2a      57
-      2b      57
-      2e      58
-      2f      58
-      30      58
-      44      58
+      4      57
+      8      57
+      9      57
+      a      57
+      b      57
+      c      57
+      d      57
+      e      57
+      12      57
+      13      57
+      14      57
+      29      57
+      2a      60
+      2b      60
+      2e      64
+      2f      64
+      30      64
+      38      64
+      39      64
+      42      69
+      43      69
+      44      69
       45      61
       46      61
       47      61
@@ -654,9 +654,9 @@ Lines mapping:
 43 <-> 51
 45 <-> 51
 50 <-> 57
-51 <-> 70
-54 <-> 58
-55 <-> 59
+51 <-> 58
+54 <-> 61
+55 <-> 70
 58 <-> 62
 60 <-> 67
 65 <-> 74
