@@ -7,7 +7,6 @@ public class TestTryFinally {
       } finally {
          long var4 = 5L;// 8
       }
-
    }// 9
 }
 
@@ -19,7 +18,7 @@ class 'pkg/TestTryFinally' {
       3      5
       4      5
       5      5
-      c      10
+      c      9
       f      7
       10      7
       11      7
@@ -30,6 +29,6 @@ class 'pkg/TestTryFinally' {
 Lines mapping:
 6 <-> 6
 8 <-> 8
-9 <-> 11
+9 <-> 10
 Not mapped:
 10
