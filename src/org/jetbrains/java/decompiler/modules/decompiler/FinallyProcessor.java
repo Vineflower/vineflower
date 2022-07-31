@@ -19,6 +19,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHe
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.SFormsConstructor;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.SSAConstructorSparseEx;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.SSAUConstructorSparseEx;
+import org.jetbrains.java.decompiler.modules.decompiler.sforms.SimpleSSAReassign;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.BasicBlockStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.CatchAllStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
@@ -42,11 +43,14 @@ public class FinallyProcessor {
   // seems to store catch-alls that can't be converted to a finally
   private final Set<BasicBlock> catchallBlocks = new HashSet<>();
 
+  private final StructMethod mt;
   private final MethodDescriptor methodDescriptor;
   private final VarProcessor varProcessor;
   private VarVersionsGraph ssuversions;
+  private Map<Instruction, Integer> instrRewrites;
 
-  public FinallyProcessor(MethodDescriptor md, VarProcessor varProc) {
+  public FinallyProcessor(StructMethod mt, MethodDescriptor md, VarProcessor varProc) {
+    this.mt = mt;
     this.methodDescriptor = md;
     this.varProcessor = varProc;
   }
@@ -134,6 +138,13 @@ public class FinallyProcessor {
 
     if (ssuversions == null) {
       // FIXME: don't split SSAU unless needed!
+      SSAConstructorSparseEx ssa = new SSAConstructorSparseEx();
+      ssa.splitVariables(root, mt);
+
+      instrRewrites = SimpleSSAReassign.reassignSSAForm(ssa, root);
+
+      StackVarsProcessor.setVersionsToNull(root);
+
       SFormsConstructor ssau = new SSAUConstructorSparseEx();
       ssau.splitVariables(root, mt);
 
@@ -719,6 +730,7 @@ public class FinallyProcessor {
 
             if (seqNext.length() == seqBlock.length()) {
               for (int i = 0; i < seqNext.length(); i++) {
+                // TODO: can this be merged with the methods to check if instructions are equal?
                 Instruction instrNext = seqNext.getInstr(i);
                 Instruction instrBlock = seqBlock.getInstr(i);
 
@@ -876,6 +888,14 @@ public class FinallyProcessor {
 
           boolean ok = false;
           if (isOpcVar(first.opcode)) {
+            // Find rewritten variables
+            if (instrRewrites.containsKey(first)) {
+              firstOp = instrRewrites.get(first);
+            }
+            if (instrRewrites.containsKey(second)) {
+              secondOp = instrRewrites.get(second);
+            }
+
             if (this.ssuversions.areVarsAnalogous(firstOp, secondOp)) {
               ok = true;
             }
