@@ -2,6 +2,7 @@
 package org.jetbrains.java.decompiler.modules.decompiler.exps;
 
 import org.jetbrains.java.decompiler.code.CodeConstants;
+import org.jetbrains.java.decompiler.code.Instruction;
 import org.jetbrains.java.decompiler.main.ClassWriter;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
@@ -44,6 +45,9 @@ public class VarExprent extends Exprent {
   private boolean classDef = false;
   private boolean stack = false;
   private LocalVariable lvt = null;
+  // Only relevant for first stage of decompilation, used with finally processing
+  // Applies only to real vars, not stack vars
+  private Instruction backing = null;
   private boolean isEffectivelyFinal = false;
   private VarType boundType;
 
@@ -298,6 +302,14 @@ public class VarExprent extends Exprent {
 
   public void setStack(boolean stack) {
     this.stack = stack;
+  }
+
+  public Instruction getBackingInstr() {
+    return backing;
+  }
+
+  public void setBackingInstr(Instruction backing) {
+    this.backing = backing;
   }
 
   public void setLVT(LocalVariable var) {

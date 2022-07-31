@@ -16,17 +16,22 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectNode;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper;
+import org.jetbrains.java.decompiler.modules.decompiler.sforms.SFormsConstructor;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.SSAConstructorSparseEx;
+import org.jetbrains.java.decompiler.modules.decompiler.sforms.SSAUConstructorSparseEx;
+import org.jetbrains.java.decompiler.modules.decompiler.sforms.SimpleSSAReassign;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.BasicBlockStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.CatchAllStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
+import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionsGraph;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
+import org.jetbrains.java.decompiler.util.DotExporter;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.ListStack;
 
@@ -38,15 +43,20 @@ public class FinallyProcessor {
   // seems to store catch-alls that can't be converted to a finally
   private final Set<BasicBlock> catchallBlocks = new HashSet<>();
 
+  private final StructMethod mt;
   private final MethodDescriptor methodDescriptor;
   private final VarProcessor varProcessor;
+  private VarVersionsGraph ssuversions;
+  private Map<Instruction, Integer> instrRewrites;
 
-  public FinallyProcessor(MethodDescriptor md, VarProcessor varProc) {
+  public FinallyProcessor(StructMethod mt, MethodDescriptor md, VarProcessor varProc) {
+    this.mt = mt;
     this.methodDescriptor = md;
     this.varProcessor = varProc;
   }
 
   public boolean iterateGraph(StructClass cl, StructMethod mt, RootStatement root, ControlFlowGraph graph) {
+    this.ssuversions = null;
     BytecodeVersion bytecodeVersion = mt.getBytecodeVersion();
 
     ListStack<Statement> stack = new ListStack<>();
@@ -85,11 +95,13 @@ public class FinallyProcessor {
               finallyBlocks.put(handler, null);
             } else {
               int varIndex = DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.VAR_COUNTER);
+              // Add the semaphore variable to the list so we can create a comment in the output
+              this.varProcessor.getSyntheticSemaphores().add(varIndex);
               insertSemaphore(graph, getAllBasicBlocks(fin.getFirst()), head, handler, varIndex, inf, bytecodeVersion);
 
               this.finallyBlocks.put(handler, varIndex);
 
-              if (DecompilerContext.getOption(IFernflowerPreferences.FINALLY_DEINLINE)) {
+              if (DecompilerContext.getOption(IFernflowerPreferences.DECOMPILER_COMMENTS)) {
                 root.addComment("$QF: Could not verify finally blocks. A semaphore variable has been added to preserve control flow.");
                 root.addErrorComment = true;
               }
@@ -121,6 +133,25 @@ public class FinallyProcessor {
   }
 
   private Record getFinallyInformation(StructClass cl, StructMethod mt, RootStatement root, CatchAllStatement fstat) {
+    ExprProcessor proc = new ExprProcessor(methodDescriptor, varProcessor);
+    proc.processStatement(root, cl);
+
+    if (ssuversions == null) {
+      // FIXME: don't split SSAU unless needed!
+      SSAConstructorSparseEx ssa = new SSAConstructorSparseEx();
+      ssa.splitVariables(root, mt);
+
+      instrRewrites = SimpleSSAReassign.reassignSSAForm(ssa, root);
+
+      StackVarsProcessor.setVersionsToNull(root);
+
+      SFormsConstructor ssau = new SSAUConstructorSparseEx();
+      ssau.splitVariables(root, mt);
+
+      this.ssuversions = ssau.getSsuVersions();
+      StackVarsProcessor.setVersionsToNull(root);
+    }
+
     Map<BasicBlock, Boolean> mapLast = new LinkedHashMap<>();
 
     BasicBlockStatement firstBlockStatement = fstat.getHandler().getBasichead();
@@ -136,9 +167,6 @@ public class FinallyProcessor {
       case CodeConstants.opc_astore:
         firstcode = 2;
     }
-
-    ExprProcessor proc = new ExprProcessor(methodDescriptor, varProcessor);
-    proc.processStatement(root, cl);
 
     SSAConstructorSparseEx ssa = new SSAConstructorSparseEx();
     ssa.splitVariables(root, mt);
@@ -702,6 +730,7 @@ public class FinallyProcessor {
 
             if (seqNext.length() == seqBlock.length()) {
               for (int i = 0; i < seqNext.length(); i++) {
+                // TODO: can this be merged with the methods to check if instructions are equal?
                 Instruction instrNext = seqNext.getInstr(i);
                 Instruction instrBlock = seqBlock.getInstr(i);
 
@@ -857,12 +886,35 @@ public class FinallyProcessor {
             return true;
           }
 
-          return false;
+          boolean ok = false;
+          if (isOpcVar(first.opcode)) {
+            // Find rewritten variables
+            if (instrRewrites.containsKey(first)) {
+              firstOp = instrRewrites.get(first);
+            }
+            if (instrRewrites.containsKey(second)) {
+              secondOp = instrRewrites.get(second);
+            }
+
+            if (this.ssuversions.areVarsAnalogous(firstOp, secondOp)) {
+              ok = true;
+            }
+
+            // TODO: validate direct assignments
+          }
+
+          if (!ok) {
+            return false;
+          }
         }
       }
     }
 
     return true;
+  }
+
+  private static boolean isOpcVar(int opc) {
+    return opc >= CodeConstants.opc_iload && opc <= CodeConstants.opc_sastore;
   }
 
   private static void deleteArea(ControlFlowGraph graph, Area area) {

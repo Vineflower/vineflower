@@ -147,7 +147,7 @@ public class MethodProcessorRunnable implements Runnable {
 
     debugCurrentlyDecompiling.set(root);
 
-    FinallyProcessor fProc = new FinallyProcessor(md, varProc);
+    FinallyProcessor fProc = new FinallyProcessor(mt, md, varProc);
     int finallyProcessed = 0;
 
     while (fProc.iterateGraph(cl, mt, root, graph)) {
