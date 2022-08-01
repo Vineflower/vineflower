@@ -624,6 +624,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestInnerClassExtend");
     register(JAVA_17, "TestInnerClassExtendJ17");
 
+    register(SCALA, "TestCaseClasses", "Option1", "Option1$", "Option2", "Option2$", "Option3", "Option3$", "EnumLike", "EnumLike$");
+    register(SCALA, "TestObject", "TestObject$");
     register(SCALA, "TestCompanionObject", "TestCompanionObject$");
   }
 

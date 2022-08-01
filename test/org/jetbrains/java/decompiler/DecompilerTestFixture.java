@@ -138,7 +138,7 @@ public class DecompilerTestFixture {
     }
   }
 
-  private static String getContent(Path expected) {
+  public static String getContent(Path expected) {
     try {
       return new String(Files.readAllBytes(expected), StandardCharsets.UTF_8).replace("\r\n", "\n");
     }

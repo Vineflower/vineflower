@@ -29,6 +29,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static org.jetbrains.java.decompiler.DecompilerTestFixture.assertFilesEqual;
+import static org.jetbrains.java.decompiler.DecompilerTestFixture.getContent;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
@@ -108,7 +110,7 @@ public abstract class SingleClassesTestBase {
 
     Path parent = classFile.getParent();
     if (parent != null) {
-      final Pattern pattern = Pattern.compile(classFile.getFileName().toString().replace(".class", "") + "\\$.+\\.class");
+      final Pattern pattern = Pattern.compile(classFile.getFileName().toString().replace(".class", "") + "\\$.*\\.class");
       try {
         Files.list(parent).filter(p -> pattern.matcher(p.getFileName().toString()).matches()).forEach(files::add);
       } catch (IOException e) {
@@ -201,6 +203,22 @@ public abstract class SingleClassesTestBase {
       String testName = testFileName.substring(0, testFileName.length() - 6);
       Path decompiledFile = fixture.getTargetDir().resolve(testName + ".java");
       assertTrue(Files.isRegularFile(decompiledFile));
+
+      String decompiledContent = getContent(decompiledFile);
+
+      if (version == Version.SCALA) {
+        // scala likes to generate "unrelated" classfiles for the majority of its functionality
+        // tack those onto the end of the decompiled files
+        for (String companionFile : others) {
+          Path decompiledCompanion = fixture.getTargetDir().resolve(companionFile + ".java");
+          // cut off any packages
+          decompiledCompanion = fixture.getTargetDir().resolve(decompiledCompanion.getFileName());
+          assertTrue(Files.isRegularFile(decompiledCompanion));
+
+          decompiledContent += "\n\n" + "// Decompiled companion from " + companionFile + "\n" + getContent(decompiledCompanion);
+        }
+      }
+
       Path referenceFile = getReferenceFile();
       if (!Files.exists(referenceFile)) {
         try {
@@ -214,7 +232,7 @@ public abstract class SingleClassesTestBase {
       } else {
         try {
           assertTrue(Files.isRegularFile(referenceFile));
-          assertFilesEqual(referenceFile, decompiledFile);
+          assertEquals(getContent(referenceFile), decompiledContent);
         } catch (AssertionFailedError e) {
           if (failable) {
             assumeTrue(false, referenceFile.getFileName() + " failed but was ignored");
