@@ -624,7 +624,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestInnerClassExtend");
     register(JAVA_17, "TestInnerClassExtendJ17");
 
-    register(SCALA, "TestCompanionObject");
+    register(SCALA, "TestCompanionObject", "TestCompanionObject$");
   }
 
   private void registerEntireClassPath() {
