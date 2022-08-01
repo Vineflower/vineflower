@@ -239,6 +239,7 @@ public abstract class SingleClassesTestBase {
       JAVA_17_PREVIEW(17, "preview", "Preview"),
       GROOVY("groovy", "Groovy"),
       KOTLIN("kt", "Kotlin"),
+      SCALA("scala", "Scala"),
       JASM("jasm", "Custom (jasm)"),
       ;
 

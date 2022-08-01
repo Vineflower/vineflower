@@ -623,6 +623,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: when in different classes, these two decompile incorrectly to super(outer, s)
     register(JAVA_8, "TestInnerClassExtend");
     register(JAVA_17, "TestInnerClassExtendJ17");
+
+    register(SCALA, "TestCompanionObject");
   }
 
   private void registerEntireClassPath() {

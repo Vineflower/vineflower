@@ -10,6 +10,7 @@ plugins {
 apply plugin: 'jacoco'
 apply plugin: 'java'
 apply plugin: 'groovy'
+apply plugin: 'scala'
 apply plugin: 'maven-publish'
 
 compileJava {
@@ -32,6 +33,7 @@ sourceSets {
   java9.java.srcDirs 'java9'
   testDataGroovy.groovy.srcDirs files("testData/src/groovy/")
   testDataKotlin.kotlin.srcDirs files("testData/src/kt/")
+  testDataScala.scala.srcDirs files("testData/src/scala")
 }
 
 repositories { mavenCentral() }
@@ -46,6 +48,7 @@ dependencies {
   testDataGroovyImplementation 'org.codehaus.groovy:groovy:3.0.8'
   testDataKotlinImplementation platform('org.jetbrains.kotlin:kotlin-bom')
   testDataKotlinImplementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+  testDataScalaImplementation 'org.scala-lang:scala3-library_3:3.1.3'
   testRuntimeOnly 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
 }
 
@@ -119,6 +122,11 @@ compileTestDataKotlinKotlin {
   destinationDirectory = file("testData/classes/kt")
 }
 testDataClasses.dependsOn(testDataKotlinClasses)
+
+compileTestDataScalaScala {
+  destinationDirectory = file("testData/classes/scala")
+}
+testDataClasses.dependsOn(testDataScalaClasses)
 
 // Compile the java 9 classes
 compileJava9Java {
