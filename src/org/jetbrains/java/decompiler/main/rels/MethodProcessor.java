@@ -23,7 +23,7 @@ import org.jetbrains.java.decompiler.util.DotExporter;
 
 import java.io.IOException;
 
-public class MethodProcessorRunnable implements Runnable {
+public class MethodProcessor implements Runnable {
   public static ThreadLocal<RootStatement> debugCurrentlyDecompiling = ThreadLocal.withInitial(() -> null);
   public static ThreadLocal<ControlFlowGraph> debugCurrentCFG = ThreadLocal.withInitial(() -> null);
   public static ThreadLocal<DecompileRecord> debugCurrentDecompileRecord = ThreadLocal.withInitial(() -> null);
@@ -39,11 +39,11 @@ public class MethodProcessorRunnable implements Runnable {
   private volatile Throwable error;
   private volatile boolean finished = false;
 
-  public MethodProcessorRunnable(StructClass klass,
-                                 StructMethod method,
-                                 MethodDescriptor methodDescriptor,
-                                 VarProcessor varProc,
-                                 DecompilerContext parentContext) {
+  public MethodProcessor(StructClass klass,
+                         StructMethod method,
+                         MethodDescriptor methodDescriptor,
+                         VarProcessor varProc,
+                         DecompilerContext parentContext) {
     this.klass = klass;
     this.method = method;
     this.methodDescriptor = methodDescriptor;
@@ -147,7 +147,7 @@ public class MethodProcessorRunnable implements Runnable {
 
     debugCurrentlyDecompiling.set(root);
 
-    FinallyProcessor fProc = new FinallyProcessor(md, varProc);
+    FinallyProcessor fProc = new FinallyProcessor(mt, md, varProc);
     int finallyProcessed = 0;
 
     while (fProc.iterateGraph(cl, mt, root, graph)) {

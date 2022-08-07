@@ -6,6 +6,7 @@ package org.jetbrains.java.decompiler.modules.decompiler.exps;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
@@ -141,6 +142,16 @@ public class AssignmentExprent extends Exprent {
     buffer.append(res);
 
     buffer.addStartBytecodeMapping(bytecode);
+
+    if (this.left instanceof VarExprent && DecompilerContext.getOption(IFernflowerPreferences.DECOMPILER_COMMENTS)) {
+      VarExprent varLeft = (VarExprent) this.left;
+
+      if (varLeft.isDefinition() && varLeft.getProcessor() != null) {
+        if (varLeft.getProcessor().getSyntheticSemaphores().contains(varLeft.getIndex())) {
+          buffer.append(" /* QF: Semaphore variable */");
+        }
+      }
+    }
 
     return buffer;
   }

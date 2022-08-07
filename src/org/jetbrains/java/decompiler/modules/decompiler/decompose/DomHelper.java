@@ -1,17 +1,16 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler.decompose;
 
+import org.jetbrains.java.decompiler.api.GraphParser;
 import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.code.cfg.ControlFlowGraph;
 import org.jetbrains.java.decompiler.code.cfg.ExceptionRangeCFG;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
-import org.jetbrains.java.decompiler.main.rels.MethodProcessorRunnable;
+import org.jetbrains.java.decompiler.main.rels.MethodProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.LabelHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.SequenceHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
-import org.jetbrains.java.decompiler.modules.decompiler.decompose.FastExtendedPostdominanceHelper;
-import org.jetbrains.java.decompiler.modules.decompiler.decompose.StrongConnectivityHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.deobfuscator.IrreducibleCFGDeobfuscator;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement.EdgeDirection;
@@ -24,7 +23,13 @@ import org.jetbrains.java.decompiler.util.VBStyleCollection;
 
 import java.util.*;
 
-public final class DomHelper {
+public final class DomHelper implements GraphParser {
+
+  @Override
+  public RootStatement createStatement(ControlFlowGraph graph, StructMethod mt) {
+    return parseGraph(graph, mt);
+  }
+
   private static RootStatement graphToStatement(ControlFlowGraph graph, StructMethod mt) {
 
     VBStyleCollection<Statement, Integer> stats = new VBStyleCollection<>();
@@ -210,7 +215,7 @@ public final class DomHelper {
       throw new RuntimeException("parsing failure!");
     }
 
-    MethodProcessorRunnable.debugCurrentlyDecompiling.set(root);
+    MethodProcessor.debugCurrentlyDecompiling.set(root);
 
     LabelHelper.lowContinueLabels(root, new LinkedHashSet<>());
 

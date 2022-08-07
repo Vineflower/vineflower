@@ -1,6 +1,7 @@
 // Copyright 2000-2017 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler.flow;
 
+import org.jetbrains.java.decompiler.api.FlattenedGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper.FinallyPathWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.DummyExitStatement;
@@ -9,7 +10,7 @@ import org.jetbrains.java.decompiler.util.VBStyleCollection;
 import java.util.*;
 
 
-public class DirectGraph {
+public class DirectGraph implements FlattenedGraph {
 
   public final VBStyleCollection<DirectNode, String> nodes = new VBStyleCollection<>();
 

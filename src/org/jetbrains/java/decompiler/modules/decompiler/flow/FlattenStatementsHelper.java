@@ -1,6 +1,7 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler.flow;
 
+import org.jetbrains.java.decompiler.api.GraphFlattener;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
@@ -11,7 +12,7 @@ import java.util.*;
 import java.util.Map.Entry;
 
 
-public class FlattenStatementsHelper {
+public class FlattenStatementsHelper implements GraphFlattener {
   private static final int SWITCH_CONST = 1000000;
 
   // statement.id, node.id(direct), node.id(continue)

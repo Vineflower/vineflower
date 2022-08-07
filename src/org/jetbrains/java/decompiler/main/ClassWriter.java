@@ -2,6 +2,7 @@
 package org.jetbrains.java.decompiler.main;
 
 import net.fabricmc.fernflower.api.IFabricJavadocProvider;
+import org.jetbrains.java.decompiler.api.StatementWriter;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.Instruction;
 import org.jetbrains.java.decompiler.code.InstructionSequence;
@@ -41,10 +42,10 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class ClassWriter {
+public class ClassWriter implements StatementWriter {
   private static final Set<String> ERROR_DUMP_STOP_POINTS = new HashSet<>(Arrays.asList(
     "Fernflower.decompileContext",
-    "MethodProcessorRunnable.codeToJava",
+    "MethodProcessor.codeToJava",
     "ClassWriter.methodToJava",
     "ClassWriter.methodLambdaToJava",
     "ClassWriter.classLambdaToJava"
