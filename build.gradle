@@ -123,7 +123,7 @@ jar {
   manifest {
     attributes (
       'Multi-Release': 'true',
-      'Main-Class': 'org.jetbrains.java.decompiler.main.decompiler.ConsoleMain',
+      'Main-Class': 'org.jetbrains.java.decompiler.main.decompiler.ConsoleDecompiler',
       'Implementation-Name': "Quiltflower"
     )
   }

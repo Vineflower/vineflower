@@ -11,18 +11,181 @@ import org.jetbrains.java.decompiler.util.InterpreterUtil;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
 import java.util.function.Function;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 public class ConsoleDecompiler implements IBytecodeProvider, IResultSaver {
+  @SuppressWarnings("UseOfSystemOutOrSystemErr")
+  public static void main(String[] args) {
+    List<String> params = new ArrayList<String>();
+    for (int x = 0; x < args.length; x++) {
+      if (args[x].startsWith("-cfg")) {
+        String path = null;
+        if (args[x].startsWith("-cfg=")) {
+          path = args[x].substring(5);
+        }
+        else if (args.length > x+1) {
+          path = args[++x];
+        }
+        else {
+          System.out.println("Must specify a file when using -cfg argument.");
+          return;
+        }
+        Path file = Paths.get(path);
+        if (!Files.exists(file)) {
+          System.out.println("error: missing config '" + path + "'");
+          return;
+        }
+        try (Stream<String> stream = Files.lines(file)) {
+          stream.forEach(params::add);
+        } catch (IOException e) {
+          System.out.println("error: Failed to read config file '" + path + "'");
+          throw new RuntimeException(e);
+        }
+      }
+      else {
+        params.add(args[x]);
+      }
+    }
+    args = params.toArray(new String[params.size()]);
+
+    if (Arrays.stream(args).anyMatch(arg -> arg.equals("-h") || arg.equals("--help") || arg.equals("-help"))) {
+      ConsoleHelp.printHelp();
+      return;
+    }
+
+    if (args.length < 2) {
+      System.out.println(
+        "Usage: java -jar fernflower.jar [-<option>=<value>]* [<source>]+ <destination>\n" +
+        "Example: java -jar fernflower.jar -dgs=true c:\\my\\source\\ c:\\my.jar d:\\decompiled\\");
+      return;
+    }
+
+    Map<String, Object> mapOptions = new HashMap<>();
+    List<File> sources = new ArrayList<>();
+    List<File> libraries = new ArrayList<>();
+    Set<String> whitelist = new HashSet<>();
+
+    SaveType userSaveType = null;
+    boolean isOption = true;
+    for (int i = 0; i < args.length - 1; ++i) { // last parameter - destination
+      String arg = args[i];
+
+      switch (arg) {
+        case "--file":
+          if (userSaveType != null) {
+            throw new RuntimeException("Multiple save types specified");
+          }
+
+          userSaveType = SaveType.FILE;
+          continue;
+        case "--folder":
+          if (userSaveType != null) {
+            throw new RuntimeException("Multiple save types specified");
+          }
+
+          userSaveType = SaveType.FOLDER;
+          continue;
+        case "--legacy-saving":
+          if (userSaveType != null) {
+            throw new RuntimeException("Multiple save types specified");
+          }
+
+          userSaveType = SaveType.LEGACY_CONSOLEDECOMPILER;
+          continue;
+      }
+
+      if (isOption && arg.length() > 5 && arg.charAt(0) == '-' && arg.charAt(4) == '=') {
+        String value = arg.substring(5);
+        if ("true".equalsIgnoreCase(value)) {
+          value = "1";
+        }
+        else if ("false".equalsIgnoreCase(value)) {
+          value = "0";
+        }
+
+        mapOptions.put(arg.substring(1, 4), value);
+      }
+      else {
+        isOption = false;
+
+        if (arg.startsWith("-e=")) {
+          addPath(libraries, arg.substring(3));
+        }
+        else if (arg.startsWith("-only=")) {
+          whitelist.add(arg.substring(6));
+        }
+        else {
+          addPath(sources, arg);
+        }
+      }
+    }
+
+    if (sources.isEmpty()) {
+      System.out.println("error: no sources given");
+      return;
+    }
+
+    String name = args[args.length - 1];
+
+    SaveType saveType = SaveType.FOLDER;
+    File destination = new File(name);
+
+    if (userSaveType == null) {
+      if (destination.getName().contains(".zip") || destination.getName().contains(".jar")) {
+        saveType = SaveType.FILE;
+
+        if (destination.getParentFile() != null) {
+          destination.getParentFile().mkdirs();
+        }
+      } else {
+        destination.mkdirs();
+      }
+    } else {
+      saveType = userSaveType;
+    }
+
+
+    PrintStreamLogger logger = new PrintStreamLogger(System.out);
+    ConsoleDecompiler decompiler = new ConsoleDecompiler(destination, mapOptions, logger, saveType);
+
+    for (File library : libraries) {
+      decompiler.addLibrary(library);
+    }
+    for (File source : sources) {
+      decompiler.addSource(source);
+    }
+    for (String prefix : whitelist) {
+      decompiler.addWhitelist(prefix);
+    }
+
+    decompiler.decompileContext();
+  }
+
+  @SuppressWarnings("UseOfSystemOutOrSystemErr")
+  private static void addPath(List<? super File> list, String path) {
+    File file = new File(path);
+    if (file.exists()) {
+      list.add(file);
+    }
+    else {
+      System.out.println("warn: missing '" + path + "', ignored");
+    }
+  }
+
+  // *******************************************************************
+  // Implementation
+  // *******************************************************************
+
   private final File root;
   private final Fernflower engine;
   private final Map<String, ZipOutputStream> mapArchiveStreams = new HashMap<>();
