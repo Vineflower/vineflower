@@ -171,7 +171,7 @@ public class ConsoleDecompiler implements IBytecodeProvider, IResultSaver {
         "~/my/source/ ~/my.jar ~/decompiled/";
 
       System.out.println(
-        "Usage: java -jar quiltflower.jar [-<option>=<value>]* <source> [<sources>]* <destination>\n" +
+        "Usage: java -jar quiltflower.jar [-<option>=<value>]* [<source>]+ <destination>\n" +
         "Example: java -jar quiltflower.jar -dgs=true " + example + "\n" +
         "For all options, run with -help"
       );
