@@ -16,11 +16,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.stream.Stream;
-import java.util.zip.CheckedInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
@@ -59,6 +57,11 @@ public class ConsoleDecompiler implements IBytecodeProvider, IResultSaver {
       }
     }
     args = params.toArray(new String[params.size()]);
+
+    if (Arrays.stream(args).anyMatch(arg -> arg.equals("-h") || arg.equals("--help") || arg.equals("-help"))) {
+      ConsoleHelp.printHelp();
+      return;
+    }
 
     if (args.length < 2) {
       System.out.println(
