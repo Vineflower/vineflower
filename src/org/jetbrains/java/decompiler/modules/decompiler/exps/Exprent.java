@@ -18,6 +18,7 @@ import org.jetbrains.java.decompiler.struct.match.IMatchable;
 import org.jetbrains.java.decompiler.struct.match.MatchEngine;
 import org.jetbrains.java.decompiler.struct.match.MatchNode;
 import org.jetbrains.java.decompiler.struct.match.MatchNode.RuleValue;
+import org.jetbrains.java.decompiler.util.NullableConcurrentHashMap;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 
 import java.util.*;
@@ -48,7 +49,7 @@ public abstract class Exprent implements IMatchable {
     YIELD,
   }
 
-  protected static ThreadLocal<Map<String, VarType>> inferredLambdaTypes = ThreadLocal.withInitial(ConcurrentHashMap::new);
+  protected static ThreadLocal<Map<String, VarType>> inferredLambdaTypes = ThreadLocal.withInitial(NullableConcurrentHashMap::new);
 
   public final Type type;
   public final int id;

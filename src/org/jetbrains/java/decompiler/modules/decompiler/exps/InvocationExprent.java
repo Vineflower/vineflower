@@ -24,10 +24,7 @@ import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
 import org.jetbrains.java.decompiler.struct.match.MatchEngine;
 import org.jetbrains.java.decompiler.struct.match.MatchNode;
 import org.jetbrains.java.decompiler.struct.match.MatchNode.RuleValue;
-import org.jetbrains.java.decompiler.util.InterpreterUtil;
-import org.jetbrains.java.decompiler.util.ListStack;
-import org.jetbrains.java.decompiler.util.TextBuffer;
-import org.jetbrains.java.decompiler.util.TextUtil;
+import org.jetbrains.java.decompiler.util.*;
 
 import java.lang.reflect.Method;
 import java.util.*;
@@ -63,7 +60,7 @@ public class InvocationExprent extends Exprent {
   private List<PooledConstant> bootstrapArguments;
   private final List<VarType> genericArgs = new ArrayList<>();
   public boolean forceGenericQualfication = false;
-  private final Map<VarType, VarType> genericsMap = new ConcurrentHashMap<>();
+  private final Map<VarType, VarType> genericsMap = new NullableConcurrentHashMap<>();
   private boolean isInvocationInstance = false;
   private boolean isQualifier = false;
   private boolean forceBoxing = false;
