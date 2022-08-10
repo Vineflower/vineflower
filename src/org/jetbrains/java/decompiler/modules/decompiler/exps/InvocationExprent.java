@@ -32,6 +32,7 @@ import org.jetbrains.java.decompiler.util.TextUtil;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class InvocationExprent extends Exprent {
   public enum InvocationType {
@@ -62,7 +63,7 @@ public class InvocationExprent extends Exprent {
   private List<PooledConstant> bootstrapArguments;
   private final List<VarType> genericArgs = new ArrayList<>();
   public boolean forceGenericQualfication = false;
-  private final Map<VarType, VarType> genericsMap = new HashMap<>();
+  private final Map<VarType, VarType> genericsMap = new ConcurrentHashMap<>();
   private boolean isInvocationInstance = false;
   private boolean isQualifier = false;
   private boolean forceBoxing = false;

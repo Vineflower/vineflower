@@ -22,6 +22,7 @@ import org.jetbrains.java.decompiler.util.TextBuffer;
 
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class Exprent implements IMatchable {
   public static final int MULTIPLE_USES = 1;
@@ -47,7 +48,7 @@ public abstract class Exprent implements IMatchable {
     YIELD,
   }
 
-  protected static ThreadLocal<Map<String, VarType>> inferredLambdaTypes = ThreadLocal.withInitial(HashMap::new);
+  protected static ThreadLocal<Map<String, VarType>> inferredLambdaTypes = ThreadLocal.withInitial(ConcurrentHashMap::new);
 
   public final Type type;
   public final int id;
