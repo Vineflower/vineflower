@@ -21,7 +21,7 @@ public class IdentifierConverter implements NewClassNameBuilder {
   private final PoolInterceptor interceptor;
   private List<ClassWrapperNode> rootClasses = new ArrayList<>();
   private List<ClassWrapperNode> rootInterfaces = new ArrayList<>();
-  private Map<String, Map<String, String>> interfaceNameMaps = new HashMap<>();
+  private Map<String, Map<String, String>> interfaceNameMaps = new LinkedHashMap<>();
 
   public IdentifierConverter(StructContext context, IIdentifierRenamer helper, PoolInterceptor interceptor) {
     this.context = context;
@@ -38,17 +38,17 @@ public class IdentifierConverter implements NewClassNameBuilder {
       context.reloadContext();
     }
     catch (IOException ex) {
-      throw new RuntimeException("Renaming failed!");
+      throw new RuntimeException("Renaming failed with exception!", ex);
     }
   }
 
   private void renameClasses() {
     List<ClassWrapperNode> lstClasses = getReversePostOrderListIterative(rootClasses);
-    Map<String, Map<String, String>> classNameMaps = new HashMap<>();
+    Map<String, Map<String, String>> classNameMaps = new LinkedHashMap<>();
 
     for (ClassWrapperNode node : lstClasses) {
       StructClass cl = node.getClassStruct();
-      Map<String, String> names = new HashMap<>();
+      Map<String, String> names = new LinkedHashMap<>();
 
       // merge information on super class
       if (cl.superClass != null) {
@@ -81,7 +81,7 @@ public class IdentifierConverter implements NewClassNameBuilder {
   }
 
   private Map<String, String> processExternalInterface(StructClass cl) {
-    Map<String, String> names = new HashMap<>();
+    Map<String, String> names = new LinkedHashMap<>();
 
     for (String ifName : cl.getInterfaceNames()) {
       Map<String, String> mapInt = interfaceNameMaps.get(ifName);
@@ -103,13 +103,13 @@ public class IdentifierConverter implements NewClassNameBuilder {
 
   private void renameInterfaces() {
     List<ClassWrapperNode> lstInterfaces = getReversePostOrderListIterative(rootInterfaces);
-    Map<String, Map<String, String>> interfaceNameMaps = new HashMap<>();
+    Map<String, Map<String, String>> interfaceNameMaps = new LinkedHashMap<>();
 
     // rename methods and fields
     for (ClassWrapperNode node : lstInterfaces) {
 
       StructClass cl = node.getClassStruct();
-      Map<String, String> names = new HashMap<>();
+      Map<String, String> names = new LinkedHashMap<>();
 
       // merge information on super interfaces
       for (String ifName : cl.getInterfaceNames()) {
@@ -294,7 +294,7 @@ public class IdentifierConverter implements NewClassNameBuilder {
   }
 
   private void buildInheritanceTree() {
-    Map<String, ClassWrapperNode> nodes = new HashMap<>();
+    Map<String, ClassWrapperNode> nodes = new LinkedHashMap<>();
     List<StructClass> classes = context.getOwnClasses();
 
     List<ClassWrapperNode> rootClasses = new ArrayList<>();
