@@ -284,9 +284,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestSynchronized");
     // TODO: couldn't make synchronized
     register(JAVA_8, "TestSynchronizedLoop");
-    // TODO: break out of synchronized isn't explicit
     register(JAVA_8, "TestSynchronizedTry");
-    // TODO: loops still broken
     register(JAVA_8, "TestSynchronizedThrow");
     register(JAVA_8, "TestSynchronizeNull");
     // TODO: Assignments are removed, producing incorrect code

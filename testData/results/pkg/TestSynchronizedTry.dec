@@ -65,17 +65,19 @@ public class TestSynchronizedTry {
       String var1 = "Hi!";// 64
       Object var8 = null;// 66
       synchronized(this) {// 67
-         String var9 = "Hi!";// 69
+         label36: {
+            String var9 = "Hi!";// 69
 
-         try {
-            if (var1 == null) {// 72
-               return;// 73
+            try {
+               if (var1 == null) {// 72
+                  return;// 73
+               }
+            } catch (Exception var7) {// 77
+               break label36;
             }
-         } catch (Exception var7) {// 77
-            break label6;
-         }
 
-         return;// 75
+            return;// 75
+         }
       }
 
       System.out.println(var8);// 80
@@ -201,23 +203,23 @@ class 'pkg/TestSynchronizedTry' {
       4      65
       5      66
       8      66
-      9      67
-      a      67
-      b      67
-      c      67
-      d      70
-      e      70
-      13      71
-      16      77
-      17      73
-      25      80
-      26      80
-      27      80
-      28      80
-      29      80
-      2a      80
-      2b      80
-      2c      81
+      9      68
+      a      68
+      b      68
+      c      68
+      d      71
+      e      71
+      13      72
+      16      78
+      17      74
+      25      82
+      26      82
+      27      82
+      28      82
+      29      82
+      2a      82
+      2b      82
+      2c      83
    }
 }
 
@@ -254,13 +256,13 @@ Lines mapping:
 64 <-> 65
 66 <-> 66
 67 <-> 67
-69 <-> 68
-72 <-> 71
-73 <-> 72
-75 <-> 78
-77 <-> 74
-80 <-> 81
-81 <-> 82
+69 <-> 69
+72 <-> 72
+73 <-> 73
+75 <-> 79
+77 <-> 75
+80 <-> 83
+81 <-> 84
 Not mapped:
 13
 24

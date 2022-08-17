@@ -81,7 +81,13 @@ public final class SequenceHelper {
 
             for (StatEdge edge : new HashSet<>(st.getLabelEdges())) {
               if (edge.getSource() != last) {
-                last.addLabeledEdge(edge);
+                if (last instanceof BasicBlockStatement) {
+                  // Basic block cannot support labels so we add to the new top level sequence
+                  // TODO: in what circumstances would you not want the top sequence to receive the edge?
+                  stat.addLabeledEdge(edge);
+                } else {
+                  last.addLabeledEdge(edge);
+                }
               }
             }
 
