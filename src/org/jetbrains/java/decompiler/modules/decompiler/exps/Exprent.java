@@ -49,7 +49,7 @@ public abstract class Exprent implements IMatchable {
     YIELD,
   }
 
-  protected static ThreadLocal<Map<String, VarType>> inferredLambdaTypes = ThreadLocal.withInitial(NullableConcurrentHashMap::new);
+  protected static ThreadLocal<Map<String, VarType>> inferredLambdaTypes = ThreadLocal.withInitial(HashMap::new);
 
   public final Type type;
   public final int id;
