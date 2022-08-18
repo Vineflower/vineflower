@@ -287,7 +287,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestSynchronizedTry");
     register(JAVA_8, "TestSynchronizedThrow");
     register(JAVA_8, "TestSynchronizeNull");
-    // TODO: Assignments are removed, producing incorrect code
     // derived from: IDEA-180373
     register(JAVA_8, "TestSynchronizedTrySharing");
     register(JAVA_8, "TestWhileIterator");
@@ -329,6 +328,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestTrySynchronized");
     // TODO: fields must be placed after enum members
     register(JASM, "TestEnumStaticField");
+    register(JASM, "TestEnumStaticField2");
     // Noted to say this would produce different code each time but it does not from testing
     register(JASM, "TestIrreducible");
     register(JAVA_8, "TestForContinue");
