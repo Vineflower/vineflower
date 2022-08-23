@@ -90,8 +90,15 @@ public final class MethodDescriptor {
         }
         else if (init) {
           // && isEnum
-          if (DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_ENUM) && DecompilerContext.getStructContext().getClass(struct.getClassQualifiedName()).hasModifier(CodeConstants.ACC_ENUM)) {
-            actualParams -= 2;
+          if (DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_ENUM)) {
+            String className = struct.getClassQualifiedName();
+            if (DecompilerContext.getOption(IFernflowerPreferences.RENAME_ENTITIES) && (className = DecompilerContext.getPoolInterceptor().getOldName(className)) == null) {
+              className = struct.getClassQualifiedName();
+            }
+
+            if (DecompilerContext.getStructContext().getClass(className).hasModifier(CodeConstants.ACC_ENUM)) {
+              actualParams -= 2;
+            }
           }
         }
         if (actualParams != sig.parameterTypes.size()) {
