@@ -326,7 +326,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestOperatorPrecedence");
     register(JAVA_8, "TestMultipleStaticBlocks");
     register(JAVA_8, "TestTrySynchronized");
-    // TODO: fields must be placed after enum members
     register(JASM, "TestEnumStaticField");
     register(JASM, "TestEnumStaticField2");
     // Noted to say this would produce different code each time but it does not from testing
@@ -450,6 +449,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JASM, "TestBackwardsExceptionHandler");
     register(JASM, "TestLeakyMethod");
     // TODO: issue #164: produces `for (var1 : var1)`
+    //   seems to be caused by variable merging
     register(JASM, "TestSelfIterableLoop");
 
     register(JAVA_8, "TestStaticInit");

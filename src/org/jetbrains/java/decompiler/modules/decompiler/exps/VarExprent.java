@@ -220,6 +220,14 @@ public class VarExprent extends Exprent {
            InterpreterUtil.equalObjects(getVarType(), ve.getVarType()); // FIXME: varType comparison redundant?
   }
 
+  public boolean equalsVersions(Object o) {
+    if (o == this) return true;
+    if (!(o instanceof VarExprent)) return false;
+
+    VarExprent ve = (VarExprent)o;
+    return index == ve.getIndex() && version == ve.getVersion();
+  }
+
   @Override
   public void getBytecodeRange(BitSet values) {
     measureBytecode(values);
@@ -432,7 +440,7 @@ public class VarExprent extends Exprent {
 
   @Override
   public String toString() {
-    return "VarExprent[" + index + ',' + version +"]";
+    return "VarExprent[" + index + ',' + version +"]: {" + super.toString() + "}";
   }
 
   // *****************************************************************************
