@@ -60,7 +60,7 @@ public class InvocationExprent extends Exprent {
   private List<PooledConstant> bootstrapArguments;
   private final List<VarType> genericArgs = new ArrayList<>();
   public boolean forceGenericQualfication = false;
-  private final Map<VarType, VarType> genericsMap = new NullableConcurrentHashMap<>();
+  private final NullableConcurrentHashMap<VarType, VarType> genericsMap = new NullableConcurrentHashMap<>();
   private boolean isInvocationInstance = false;
   private boolean isQualifier = false;
   private boolean forceBoxing = false;
