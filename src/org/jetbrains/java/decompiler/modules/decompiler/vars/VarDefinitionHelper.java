@@ -771,7 +771,14 @@ public class VarDefinitionHelper {
             continue;
           }
 
-          right.setConstType(merged);
+          // Merged constant assignment, attempt to set the constant type to ensure that it's correct
+
+          VarType type = right.getConstType();
+
+          // We can only do this if the merged type is a superset of the old type
+          if (merged.isSuperset(type)) {
+            right.setConstType(merged);
+          }
         }
       }
       else if (expr instanceof VarExprent) {

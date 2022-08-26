@@ -269,12 +269,7 @@ public class ConstExprent extends Exprent {
 
       case CodeConstants.TYPE_LONG:
 
-        long longVal;
-        if (this.value instanceof Integer) {
-          longVal = (long) (Integer) value; // TODO: figure out how this can be an int!
-        } else {
-          longVal = (Long)value;
-        }
+        long longVal = (Long)value;
 
         if (!literal) {
           if (longVal == Long.MAX_VALUE) {

@@ -36,6 +36,7 @@ import java.util.stream.Collectors;
 public class VarExprent extends Exprent {
   public static final int STACK_BASE = 10000;
   public static final String VAR_NAMELESS_ENCLOSURE = "<VAR_NAMELESS_ENCLOSURE>";
+  private static final boolean FORCE_VARVER_NAME = false; // Debug only!
 
   private int index;
   private VarType varType;
@@ -341,24 +342,26 @@ public class VarExprent extends Exprent {
 
   public String getName() {
     VarVersionPair pair = getVarVersionPair();
+    if (!FORCE_VARVER_NAME) {
 
-    if (this.processor != null) {
-      String clashingName = this.processor.getClashingName(pair);
+      if (this.processor != null) {
+        String clashingName = this.processor.getClashingName(pair);
 
-      // Clashing names take precedence over lvt names (as they are lvt names with an 'x' applied to differentiate them)
-      if (clashingName != null) {
-        return clashingName;
+        // Clashing names take precedence over lvt names (as they are lvt names with an 'x' applied to differentiate them)
+        if (clashingName != null) {
+          return clashingName;
+        }
       }
-    }
 
-    if (this.lvt != null) {
-      return this.lvt.getName();
-    }
+      if (this.lvt != null) {
+        return this.lvt.getName();
+      }
 
-    if (this.processor != null) {
-      String ret = this.processor.getVarName(pair);
-      if (ret != null) {
-        return ret;
+      if (this.processor != null) {
+        String ret = this.processor.getVarName(pair);
+        if (ret != null) {
+          return ret;
+        }
       }
     }
 
