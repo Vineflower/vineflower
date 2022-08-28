@@ -234,10 +234,17 @@ public class AssignmentExprent extends Exprent {
     VarType rightType = cast.getInferredExprType(leftType);
 
     // Check if type bound includes the type that we are attempting to cast to
+    boolean didReset = false;
     for (VarType type : types) {
       if (rightType.value.equals(type.value)) {
         ((ConstExprent)cast).setConstType(leftType);
+        didReset = true;
       }
+    }
+
+    if (didReset) {
+      // Reset cast state
+      func.getInferredExprType(null);
     }
   }
 
