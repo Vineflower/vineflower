@@ -626,6 +626,10 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(SCALA, "TestCaseClasses", "Option1", "Option1$", "Option2", "Option2$", "Option3", "Option3$", "EnumLike", "EnumLike$");
     register(SCALA, "TestObject", "TestObject$");
     register(SCALA, "TestCompanionObject", "TestCompanionObject$");
+    // TODO: crashes in foreach merge
+    register(JAVA_8, "TestForeachCrash");
+    // TODO: <unknown> value and cast, switch is eliminated, test2 contains entirely invalid code
+    register(JAVA_17_PREVIEW, "TestUnknownCastJ17");
   }
 
   private void registerEntireClassPath() {
@@ -695,6 +699,9 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestGenericsHierarchy");
     // TODO: casts on the get() inside the lambda
     register(JAVA_8, "TestLambdaGenericCall");
+    // TODO: crashes in VarTypeProcessor change var type
+    // TODO: crashes in const type
+    register(JAVA_8, "TestTryWithResourcesAfterSwitch");
   }
 
   private void registerLiterals() {

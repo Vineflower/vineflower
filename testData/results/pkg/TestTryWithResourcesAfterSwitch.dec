@@ -1,0 +1,180 @@
+package pkg;
+
+import java.lang.annotation.ElementType;
+
+public class TestTryWithResourcesAfterSwitch {
+   public void test() {
+      // $QF: Couldn't be decompiled
+      // Bytecode:
+      // 00: getstatic java/lang/annotation/ElementType.METHOD Ljava/lang/annotation/ElementType;
+      // 03: astore 1
+      // 04: aload 1
+      // 05: ifnull 10
+      // 08: new java/lang/RuntimeException
+      // 0b: dup
+      // 0c: invokespecial java/lang/RuntimeException.<init> ()V
+      // 0f: athrow
+      // 10: ldc "default"
+      // 12: astore 2
+      // 13: bipush -1
+      // 14: istore 3
+      // 15: aload 2
+      // 16: invokevirtual java/lang/String.hashCode ()I
+      // 19: lookupswitch 30 1 69262893 19
+      // 2c: aload 2
+      // 2d: ldc "HYxSY"
+      // 2f: invokevirtual java/lang/String.equals (Ljava/lang/Object;)Z
+      // 32: ifeq 37
+      // 35: bipush 0
+      // 36: istore 3
+      // 37: iload 3
+      // 38: lookupswitch 20 1 0 20
+      // 4c: getstatic java/lang/annotation/ElementType.METHOD Ljava/lang/annotation/ElementType;
+      // 4f: astore 2
+      // 50: new java/util/Scanner
+      // 53: dup
+      // 54: getstatic java/lang/System.in Ljava/io/InputStream;
+      // 57: invokespecial java/util/Scanner.<init> (Ljava/io/InputStream;)V
+      // 5a: astore 3
+      // 5b: aconst_null
+      // 5c: astore 4
+      // 5e: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 61: ldc "hi"
+      // 63: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
+      // 66: aload 3
+      // 67: ifnull b7
+      // 6a: aload 4
+      // 6c: ifnull 82
+      // 6f: aload 3
+      // 70: invokevirtual java/util/Scanner.close ()V
+      // 73: goto b7
+      // 76: astore 5
+      // 78: aload 4
+      // 7a: aload 5
+      // 7c: invokevirtual java/lang/Throwable.addSuppressed (Ljava/lang/Throwable;)V
+      // 7f: goto b7
+      // 82: aload 3
+      // 83: invokevirtual java/util/Scanner.close ()V
+      // 86: goto b7
+      // 89: astore 5
+      // 8b: aload 5
+      // 8d: astore 4
+      // 8f: aload 5
+      // 91: athrow
+      // 92: astore 6
+      // 94: aload 3
+      // 95: ifnull b4
+      // 98: aload 4
+      // 9a: ifnull b0
+      // 9d: aload 3
+      // 9e: invokevirtual java/util/Scanner.close ()V
+      // a1: goto b4
+      // a4: astore 7
+      // a6: aload 4
+      // a8: aload 7
+      // aa: invokevirtual java/lang/Throwable.addSuppressed (Ljava/lang/Throwable;)V
+      // ad: goto b4
+      // b0: aload 3
+      // b1: invokevirtual java/util/Scanner.close ()V
+      // b4: aload 6
+      // b6: athrow
+      // b7: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // ba: ldc "f"
+      // bc: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
+      // bf: goto cf
+      // c2: astore 8
+      // c4: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // c7: ldc "f"
+      // c9: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
+      // cc: aload 8
+      // ce: athrow
+      // cf: return
+   }
+
+   public void test2() {
+      // $QF: Couldn't be decompiled
+      // Bytecode:
+      // 00: getstatic java/lang/annotation/ElementType.METHOD Ljava/lang/annotation/ElementType;
+      // 03: astore 1
+      // 04: aload 1
+      // 05: ifnull 10
+      // 08: new java/lang/RuntimeException
+      // 0b: dup
+      // 0c: invokespecial java/lang/RuntimeException.<init> ()V
+      // 0f: athrow
+      // 10: ldc "default"
+      // 12: astore 2
+      // 13: bipush -1
+      // 14: istore 3
+      // 15: aload 2
+      // 16: invokevirtual java/lang/String.hashCode ()I
+      // 19: lookupswitch 30 1 69262893 19
+      // 2c: aload 2
+      // 2d: ldc "HYxSY"
+      // 2f: invokevirtual java/lang/String.equals (Ljava/lang/Object;)Z
+      // 32: ifeq 37
+      // 35: bipush 0
+      // 36: istore 3
+      // 37: iload 3
+      // 38: lookupswitch 20 1 0 20
+      // 4c: new java/util/Scanner
+      // 4f: dup
+      // 50: getstatic java/lang/System.in Ljava/io/InputStream;
+      // 53: invokespecial java/util/Scanner.<init> (Ljava/io/InputStream;)V
+      // 56: astore 2
+      // 57: aconst_null
+      // 58: astore 3
+      // 59: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 5c: ldc "hi"
+      // 5e: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
+      // 61: aload 2
+      // 62: ifnull ad
+      // 65: aload 3
+      // 66: ifnull 7b
+      // 69: aload 2
+      // 6a: invokevirtual java/util/Scanner.close ()V
+      // 6d: goto ad
+      // 70: astore 4
+      // 72: aload 3
+      // 73: aload 4
+      // 75: invokevirtual java/lang/Throwable.addSuppressed (Ljava/lang/Throwable;)V
+      // 78: goto ad
+      // 7b: aload 2
+      // 7c: invokevirtual java/util/Scanner.close ()V
+      // 7f: goto ad
+      // 82: astore 4
+      // 84: aload 4
+      // 86: astore 3
+      // 87: aload 4
+      // 89: athrow
+      // 8a: astore 5
+      // 8c: aload 2
+      // 8d: ifnull aa
+      // 90: aload 3
+      // 91: ifnull a6
+      // 94: aload 2
+      // 95: invokevirtual java/util/Scanner.close ()V
+      // 98: goto aa
+      // 9b: astore 6
+      // 9d: aload 3
+      // 9e: aload 6
+      // a0: invokevirtual java/lang/Throwable.addSuppressed (Ljava/lang/Throwable;)V
+      // a3: goto aa
+      // a6: aload 2
+      // a7: invokevirtual java/util/Scanner.close ()V
+      // aa: aload 5
+      // ac: athrow
+      // ad: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // b0: ldc "f"
+      // b2: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
+      // b5: goto c5
+      // b8: astore 7
+      // ba: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // bd: ldc "f"
+      // bf: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
+      // c2: aload 7
+      // c4: athrow
+      // c5: return
+   }
+}
+

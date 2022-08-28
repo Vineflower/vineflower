@@ -1,0 +1,181 @@
+package pkg;
+
+import java.lang.annotation.ElementType;
+import java.util.Objects;
+
+public class TestUnknownCastJ17 {
+   public void test() {
+      ElementType vvv1 = ElementType.METHOD;// 8
+      synchronized(this) {// 9
+         label91: {
+            System.out.println(vvv1);// 10
+            Object var23;
+            Objects.requireNonNull(var23);// 11
+            Object vvv5 = var23;
+
+            <unknown> var10000_1 = (<unknown>)(new Object());
+         }
+      }
+
+      try {
+         throw new RuntimeException();// 28
+      } catch (Exception var14) {// 29
+      }
+   }// 31
+
+   public void test2() {
+      ElementType vvv1 = ElementType.METHOD;// 34
+      synchronized(this) {// 35
+         System.out.println(vvv1);// 36
+         System.out.println(vvv1);// 37
+         Object var10000;
+         Objects.requireNonNull(var10000);// 38
+         Object vvv5 = var10000;
+
+         new Object();
+
+         for(int var9 = switch(vvv5) {
+            default -> {
+               ElementType var5 = ElementType.METHOD;// 40
+               System.out.println(vvv1);// 42
+               yield 140;
+            }
+         }; --var9 <= 395; var9 -= 6) {// 43
+            int vvv6 = -91;// 44
+            System.out.println(vvv1);// 45
+         }
+      }
+
+      try {
+         throw new RuntimeException();// 51
+      } catch (Exception var7) {// 52
+      }
+   }// 54
+}
+
+class 'pkg/TestUnknownCastJ17' {
+   method 'test ()V' {
+      0      7
+      1      7
+      2      7
+      3      7
+      4      8
+      7      8
+      8      10
+      9      10
+      a      10
+      b      10
+      c      10
+      d      10
+      e      10
+      17      12
+      18      12
+      19      12
+      1b      13
+      a8      20
+      a9      21
+      aa      23
+   }
+
+   method 'test2 ()V' {
+      0      26
+      1      26
+      2      26
+      3      26
+      4      27
+      7      27
+      8      28
+      9      28
+      a      28
+      b      28
+      c      28
+      d      28
+      e      28
+      f      29
+      10      29
+      11      29
+      12      29
+      13      29
+      14      29
+      15      29
+      1e      31
+      1f      31
+      20      31
+      22      32
+      26      36
+      2e      36
+      38      38
+      39      38
+      3a      38
+      3b      38
+      3c      38
+      3d      39
+      3e      39
+      3f      39
+      40      39
+      41      39
+      42      39
+      43      39
+      44      40
+      45      40
+      46      40
+      48      42
+      49      42
+      4a      42
+      4c      42
+      4d      42
+      4e      42
+      4f      42
+      52      43
+      53      43
+      54      43
+      55      43
+      56      44
+      57      44
+      58      44
+      59      44
+      5a      44
+      5b      44
+      5c      44
+      5d      42
+      5e      42
+      5f      42
+      76      49
+      77      50
+      78      52
+   }
+}
+
+Lines mapping:
+8 <-> 8
+9 <-> 9
+10 <-> 11
+11 <-> 13
+28 <-> 21
+29 <-> 22
+31 <-> 24
+34 <-> 27
+35 <-> 28
+36 <-> 29
+37 <-> 30
+38 <-> 32
+40 <-> 39
+42 <-> 40
+43 <-> 43
+44 <-> 44
+45 <-> 45
+51 <-> 50
+52 <-> 51
+54 <-> 53
+Not mapped:
+13
+15
+16
+17
+18
+19
+20
+21
+22
+26
+49
