@@ -642,34 +642,6 @@ public class InvocationExprent extends Exprent {
           }
           TextBuffer res = instance.toJava(indent);
 
-          boolean skippedCast = false;
-
-          if (instance instanceof FunctionExprent && ((FunctionExprent)instance).getFuncType() == FunctionType.CAST) {
-            skippedCast = !((FunctionExprent) instance).doesCast();
-
-            // Fixes issue where ((Obj)(Obj)o).m() would become (Obj)o.m(), when it should be ((Obj)o).m()
-            // This happens when there are two checkcast opcodes in succession [TestDoubleCast], so this unwraps casts of the same var type
-            // Does this happen with regular bytecode created by javac?
-            if (skippedCast) {
-              // Unwrap same casts
-              VarType castType = this.instance.getExprType();
-
-              // Get inner cast if it exists
-              Exprent exp = ((FunctionExprent) instance).getLstOperands().get(0);
-              while (exp instanceof FunctionExprent && ((FunctionExprent) exp).getFuncType() == FunctionType.CAST) {
-                if (exp.getExprType().equals(castType)) {
-                  // If we are of the same type as the current cast, Update the values and iterate deeper
-                  skippedCast = !((FunctionExprent) exp).doesCast();
-                  List<Exprent> ops = ((FunctionExprent) exp).getLstOperands();
-                  exp = ops.get(0);
-                } else {
-                  // If it's not the same cast type, break
-                  break;
-                }
-              }
-            }
-          }
-
           if (rightType.equals(VarType.VARTYPE_OBJECT) && !leftType.equals(rightType)) {
             buf.append("((").append(ExprProcessor.getCastTypeName(leftType)).append(")");
 
@@ -678,7 +650,7 @@ public class InvocationExprent extends Exprent {
             }
             buf.append(res).append(")");
           }
-          else if (instance.getPrecedence() > getPrecedence() && !skippedCast && !canSkipParenEnclose(instance)) {
+          else if (instance.getPrecedence() > getPrecedence() && !canSkipParenEnclose(instance)) {
             buf.append("(").append(res).append(")");
           }
           //Java 9+ adds some overrides to java/nio/Buffer's subclasses that alter the return types.

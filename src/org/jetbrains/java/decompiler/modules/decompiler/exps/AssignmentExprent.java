@@ -177,16 +177,9 @@ public class AssignmentExprent extends Exprent {
       if (DecompilerContext.getStructContext().instanceOf(this.right.getExprType().value, cast.getExprType().value)) {
         Exprent castVal = func.getLstOperands().get(0);
 
-        // Due to a javac bug, 2 checkcasts are produced. We need to go through the cast tree and find the source
-        if (castVal instanceof FunctionExprent && ((FunctionExprent)castVal).getFuncType() == FunctionExprent.FunctionType.CAST) {
-          cast = ((FunctionExprent)castVal).getLstOperands().get(0);
-
-          if (!((FunctionExprent)castVal).doesCast()) {
-            if (this.left.getExprType().arrayDim > cast.getExprType().arrayDim) {
-              func.setNeedsCast(true);
-              return;
-            }
-          }
+        if (this.left.getExprType().arrayDim > castVal.getExprType().arrayDim) {
+          func.setNeedsCast(true);
+          return;
         }
       }
     }

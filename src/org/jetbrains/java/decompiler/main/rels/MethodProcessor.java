@@ -393,6 +393,10 @@ public class MethodProcessor implements Runnable {
       decompileRecord.add("QualifyGenericChains", root);
     }
 
+    if (ExprProcessor.canonicalizeCasts(root)) {
+      decompileRecord.add("CanonicalizeCasts", root);
+    }
+
     // must be the last invocation, because it makes the statement structure inconsistent
     // FIXME: new edge type needed
     if (LabelHelper.replaceContinueWithBreak(root)) {

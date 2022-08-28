@@ -725,6 +725,54 @@ public class ExprProcessor implements CodeConstants {
     }
   }
 
+  public static boolean canonicalizeCasts(RootStatement stat) {
+    boolean res = false;
+    while (canonicalizeCasts((Statement) stat)) {
+      res = true;
+    }
+
+    return res;
+  }
+
+  private static boolean canonicalizeCasts(Statement stat) {
+    boolean res = false;
+    for (Statement st : stat.getStats()) {
+      res |= canonicalizeCasts(st);
+    }
+
+    if (stat instanceof BasicBlockStatement) {
+      for (Exprent exprent : stat.getExprents()) {
+        for (Exprent ex : exprent.getAllExprents(true, true)) {
+
+          // Remove Checkcast(Type, Checkcast(Type, ...)) and turn it just into Checkcast(Type, ...) where both have the same type
+          // The extra checkcast causes issues with generic type decompilation
+          if (ex instanceof FunctionExprent && ((FunctionExprent)ex).getFuncType() == FunctionExprent.FunctionType.CAST) {
+            FunctionExprent func = (FunctionExprent)ex;
+            Exprent inner = func.getLstOperands().get(0);
+            Exprent cast = func.getLstOperands().get(1);
+
+            if (inner instanceof FunctionExprent && ((FunctionExprent)inner).getFuncType() == FunctionExprent.FunctionType.CAST) {
+              FunctionExprent func2 = (FunctionExprent)inner;
+              Exprent inner2 = func2.getLstOperands().get(0);
+              Exprent cast2 = func2.getLstOperands().get(1);
+
+              if (cast.getExprType().equals(cast2.getExprType())) {
+                ex.replaceExprent(inner, inner2);
+                ex.addBytecodeOffsets(inner2.bytecode);
+                ex.addBytecodeOffsets(inner.bytecode);
+                res = true;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    return res;
+  }
+
+
+
   public static String getTypeName(VarType type) {
     return getTypeName(type, true);
   }
