@@ -530,7 +530,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestAnnotationFormatting");
     register(JAVA_8, "TestConstructorInvoc");
     register(JAVA_8, "TestInterfaceNullInvoc");
-    // TODO: extraneous casts, not correct ones in test4 and test5
+    // TODO: extraneous casts
     register(JAVA_8, "TestUnionTypeAssign");
     register(JAVA_8, "TestGenericsInvocUnchecked");
     register(JAVA_8, "TestGenericSuperCast");
@@ -693,6 +693,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestGenericInput");
     // TODO: cast on field assign and setField
     register(JAVA_8, "TestGenericsHierarchy");
+    // TODO: casts on the get() inside the lambda
+    register(JAVA_8, "TestLambdaGenericCall");
   }
 
   private void registerLiterals() {
