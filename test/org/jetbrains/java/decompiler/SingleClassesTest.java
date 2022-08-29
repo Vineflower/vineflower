@@ -247,10 +247,9 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestArrayAssignmentEquals");
     register(JAVA_8, "TestArrayCopy");
     register(JAVA_8, "TestArrayDoWhile");
-    // TODO: Creating a new object where the array should be set to null
-    register(JAVA_8, "TestArrayNull1");
+    register(JAVA_8_NODEBUG, "TestArrayNull1");
     // TODO: Object should be int[], cast where there shouldn't be
-    register(JAVA_8, "TestArrayNull2");
+    register(JAVA_8_NODEBUG, "TestArrayNull2");
     // TODO: Redefinition of array, extra cast
     register(JAVA_8, "TestArrayNullAccess");
     register(JAVA_8, "TestArrayTernary");
@@ -282,7 +281,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestStringLiteral");
     register(JAVA_8, "TestSwitchStringHashcodeCollision");
     register(JAVA_8, "TestSynchronized");
-    // TODO: couldn't make synchronized
     register(JAVA_8, "TestSynchronizedLoop");
     register(JAVA_8, "TestSynchronizedTry");
     register(JAVA_8, "TestSynchronizedThrow");
