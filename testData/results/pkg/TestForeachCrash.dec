@@ -1,48 +1,63 @@
 package pkg;
 
+import java.lang.annotation.ElementType;
+
 public class TestForeachCrash {
    public void test() {
-      // $QF: Couldn't be decompiled
-      // Bytecode:
-      // 00: bipush 0
-      // 01: anewarray 2
-      // 04: astore 1
-      // 05: aload 1
-      // 06: astore 2
-      // 07: aload 2
-      // 08: arraylength
-      // 09: istore 3
-      // 0a: bipush 0
-      // 0b: istore 4
-      // 0d: iload 4
-      // 0f: iload 3
-      // 10: if_icmpge 4d
-      // 13: aload 2
-      // 14: iload 4
-      // 16: aaload
-      // 17: astore 5
-      // 19: bipush 1
-      // 1a: lookupswitch 45 1 0 18
-      // 2c: getstatic java/lang/annotation/ElementType.METHOD Ljava/lang/annotation/ElementType;
-      // 2f: astore 6
-      // 31: goto 47
-      // 34: astore 6
-      // 36: aload 1
-      // 37: bipush 0
-      // 38: aaload
-      // 39: bipush 0
-      // 3a: dup2
-      // 3b: iaload
-      // 3c: bipush 1
-      // 3d: iadd
-      // 3e: iastore
-      // 3f: goto 47
-      // 42: astore 7
-      // 44: aload 7
-      // 46: athrow
-      // 47: iinc 4 1
-      // 4a: goto 0d
-      // 4d: return
+      int[][] vvv1 = new int[0][];// 7
+
+      for(int[] vvv2 : vvv1) {// 14
+         switch(1) {// 9
+            case 0:
+               try {
+                  ElementType vvv8 = ElementType.METHOD;// 12
+               } catch (Exception var10) {// 13
+               } finally {
+                  ;
+               }
+            default:
+               int var4;
+               ++var4;// 8
+         }
+      }
+   }// 20
+}
+
+class 'pkg/TestForeachCrash' {
+   method 'test ()V' {
+      0      6
+      4      6
+      5      8
+      6      8
+      9      8
+      b      8
+      c      8
+      17      8
+      18      8
+      19      9
+      1a      9
+      2c      12
+      2d      12
+      2e      12
+      2f      12
+      30      12
+      34      13
+      3d      8
+      47      19
+      48      19
+      49      19
+      4d      22
    }
 }
 
+Lines mapping:
+7 <-> 7
+8 <-> 20
+9 <-> 10
+12 <-> 13
+13 <-> 14
+14 <-> 9
+20 <-> 23
+Not mapped:
+15
+16
