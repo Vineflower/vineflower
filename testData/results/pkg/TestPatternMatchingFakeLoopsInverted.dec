@@ -289,10 +289,12 @@ class 'pkg/TestPatternMatchingFakeLoopsInverted' {
 
    method 'test2 (Ljava/lang/Object;)V' {
       0      11
+      2      11
       3      11
       4      11
       5      11
       6      11
+      9      16
       a      16
       b      16
       c      16
@@ -384,10 +386,12 @@ class 'pkg/TestPatternMatchingFakeLoopsInverted' {
       3      36
       4      36
       7      37
+      9      37
       a      37
       b      37
       c      37
       d      37
+      10      42
       11      42
       12      42
       13      42
@@ -412,6 +416,7 @@ class 'pkg/TestPatternMatchingFakeLoopsInverted' {
       3      48
       4      48
       7      49
+      9      49
       a      49
       b      49
       c      49
@@ -444,10 +449,12 @@ class 'pkg/TestPatternMatchingFakeLoopsInverted' {
       3      59
       4      59
       7      60
+      9      60
       a      60
       b      60
       c      60
       d      60
+      10      65
       11      65
       12      65
       13      65
@@ -480,6 +487,7 @@ class 'pkg/TestPatternMatchingFakeLoopsInverted' {
       3      73
       4      73
       7      74
+      9      74
       a      74
       b      74
       c      74
@@ -575,10 +583,12 @@ class 'pkg/TestPatternMatchingFakeLoopsInverted' {
 
    method 'test4Swap (Ljava/lang/Object;)V' {
       0      103
+      2      103
       3      103
       4      103
       5      103
       6      103
+      9      104
       a      104
       b      104
       c      104
@@ -606,6 +616,7 @@ class 'pkg/TestPatternMatchingFakeLoopsInverted' {
 
    method 'test4xSwap (Ljava/lang/Object;)V' {
       0      116
+      2      116
       3      116
       4      116
       5      116
@@ -615,6 +626,7 @@ class 'pkg/TestPatternMatchingFakeLoopsInverted' {
       f      116
       10      116
       11      116
+      12      116
       15      116
       16      116
       17      116
@@ -637,10 +649,12 @@ class 'pkg/TestPatternMatchingFakeLoopsInverted' {
 
    method 'test4BSwap (Ljava/lang/Object;)V' {
       0      124
+      2      124
       3      124
       4      124
       5      124
       6      124
+      9      125
       a      125
       b      125
       c      125
@@ -676,6 +690,7 @@ class 'pkg/TestPatternMatchingFakeLoopsInverted' {
 
    method 'test4xBSwap (Ljava/lang/Object;)V' {
       0      138
+      2      138
       3      138
       4      138
       5      138
@@ -685,6 +700,7 @@ class 'pkg/TestPatternMatchingFakeLoopsInverted' {
       f      138
       10      138
       11      138
+      12      138
       15      138
       16      138
       17      138
@@ -783,10 +799,12 @@ class 'pkg/TestPatternMatchingFakeLoopsInverted' {
 
    method 'test2A (Ljava/lang/Object;)V' {
       0      167
+      2      167
       3      167
       4      167
       5      167
       6      167
+      9      172
       a      172
       b      172
       c      172
@@ -884,10 +902,12 @@ class 'pkg/TestPatternMatchingFakeLoopsInverted' {
       3      188
       4      188
       7      189
+      9      189
       a      189
       b      189
       c      189
       d      189
+      10      194
       11      194
       12      194
       13      194
@@ -932,6 +952,7 @@ class 'pkg/TestPatternMatchingFakeLoopsInverted' {
       3      203
       4      203
       7      204
+      9      204
       a      204
       b      204
       c      204
@@ -1025,10 +1046,12 @@ class 'pkg/TestPatternMatchingFakeLoopsInverted' {
 
    method 'test4ASwap (Ljava/lang/Object;)V' {
       0      228
+      2      228
       3      228
       4      228
       5      228
       6      228
+      9      229
       a      229
       b      229
       c      229
@@ -1076,6 +1099,7 @@ class 'pkg/TestPatternMatchingFakeLoopsInverted' {
 
    method 'test4xASwap (Ljava/lang/Object;)V' {
       0      243
+      2      243
       3      243
       4      243
       5      243
@@ -1085,6 +1109,7 @@ class 'pkg/TestPatternMatchingFakeLoopsInverted' {
       f      243
       10      243
       11      243
+      12      243
       15      243
       16      243
       17      243

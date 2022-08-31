@@ -38,7 +38,9 @@ public class TestSwitchPatternMatching5 {
 class 'pkg/TestSwitchPatternMatching5' {
    method 'test (Lpkg/TestSwitchPatternMatching5$Shape;)V' {
       0      4
+      4      4
       b      4
+      2c      8
       30      8
       31      8
       32      8
@@ -57,6 +59,7 @@ class 'pkg/TestSwitchPatternMatching5' {
       47      9
       48      9
       49      10
+      4c      11
       50      11
       51      11
       52      11
@@ -77,6 +80,7 @@ class 'pkg/TestSwitchPatternMatching5' {
       69      12
       6a      12
       6b      13
+      6e      14
       72      14
       73      14
       74      14
@@ -97,6 +101,7 @@ class 'pkg/TestSwitchPatternMatching5' {
       8b      15
       8c      15
       8d      16
+      90      17
       94      17
       95      17
       96      18

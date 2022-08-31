@@ -113,7 +113,7 @@ public class TestIfElseTernary1 {
       } finally {
          Object vvv12 = null;// 160
          vvv11 *= 314;// 161
-         System.out.println(vvv2);// 162
+         System.out.println(vvv2);// 149 162
          throw new RuntimeException();// 163
       }
    }
@@ -472,6 +472,7 @@ class 'pkg/TestIfElseTernary1' {
       7      76
       8      76
       b      76
+      c      76
       12      76
       13      76
       14      76
@@ -538,6 +539,7 @@ class 'pkg/TestIfElseTernary1' {
       39      90
       3a      90
       3b      90
+      3c      90
       3d      90
       3e      90
       3f      90
@@ -554,6 +556,8 @@ class 'pkg/TestIfElseTernary1' {
       65      97
       66      97
       67      97
+      68      97
+      69      97
       6a      97
       6b      97
       6c      97
@@ -576,6 +580,7 @@ class 'pkg/TestIfElseTernary1' {
       88      105
       89      105
       8a      105
+      8b      105
       8c      105
       8d      105
       8e      105
@@ -583,12 +588,15 @@ class 'pkg/TestIfElseTernary1' {
       91      106
       92      106
       93      106
+      94      106
       95      106
       96      106
       97      106
+      98      115
       9a      107
       9b      107
       9c      107
+      9d      107
       9e      107
       9f      107
       a0      107
@@ -606,6 +614,9 @@ class 'pkg/TestIfElseTernary1' {
       b9      114
       ba      114
       bb      115
+      bc      115
+      bd      115
+      be      115
       bf      115
       c7      116
       c8      116
@@ -671,6 +682,7 @@ Lines mapping:
 146 <-> 106
 147 <-> 107
 148 <-> 107
+149 <-> 116
 150 <-> 108
 151 <-> 109
 156 <-> 112
@@ -682,5 +694,4 @@ Not mapped:
 115
 121
 130
-149
 155

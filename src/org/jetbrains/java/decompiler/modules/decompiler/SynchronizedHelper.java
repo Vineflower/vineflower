@@ -65,6 +65,7 @@ public final class SynchronizedHelper {
 
         AssignmentExprent assign = new AssignmentExprent(varEx, value, null);
         mon.replaceExprent(value, assign);
+        assign.addBytecodeOffsets(value.bytecode);
         root.addComment("$QF: Added assignment to ensure synchronized validity");
       } else if (value instanceof InvocationExprent) {
         // Force boxing for monitor

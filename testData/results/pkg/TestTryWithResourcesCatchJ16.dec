@@ -61,6 +61,7 @@ class 'pkg/TestTryWithResourcesCatchJ16' {
       b      9
       c      9
       2a      10
+      2b      11
       2c      11
       2f      13
    }
@@ -77,6 +78,7 @@ class 'pkg/TestTryWithResourcesCatchJ16' {
       8      17
       9      17
       2f      18
+      30      19
       31      19
       34      21
    }

@@ -72,6 +72,7 @@ class 'pkg/TestRunSuspend' {
 
    method 'await ()V' {
       0      33
+      2      33
       3      33
       5      34
       6      34

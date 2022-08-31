@@ -81,6 +81,7 @@ class 'pkg/TestArrayFieldAccess1' {
       a      12
       c      12
       e      12
+      10      12
       11      12
       12      12
       13      12
@@ -160,6 +161,7 @@ class 'pkg/TestArrayFieldAccess1' {
       14      28
       15      28
       17      28
+      19      28
       1a      28
       1b      28
       1c      28
@@ -212,6 +214,7 @@ class 'pkg/TestArrayFieldAccess1' {
       9      38
       b      38
       d      38
+      f      38
       10      38
       11      38
       14      39

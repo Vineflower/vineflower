@@ -24,7 +24,9 @@ class 'pkg/TestSwitchPatternMatching1' {
       2      6
       3      6
       4      6
+      9      7
       10      7
+      2c      8
       30      8
       31      8
       32      9
@@ -36,6 +38,7 @@ class 'pkg/TestSwitchPatternMatching1' {
       38      9
       39      9
       3a      10
+      3d      11
       41      11
       42      11
       43      12

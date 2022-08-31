@@ -239,6 +239,7 @@ class 'pkg/TestTryReturn' {
       b      8
       c      8
       d      9
+      12      10
       16      10
    }
 
@@ -335,6 +336,7 @@ class 'pkg/TestTryReturn' {
       0      57
       1      57
       4      58
+      5      58
       8      58
       9      58
       a      58
@@ -345,6 +347,7 @@ class 'pkg/TestTryReturn' {
       12      58
       13      58
       14      58
+      15      58
       29      58
       2a      61
       2b      61
@@ -553,11 +556,13 @@ class 'pkg/TestTryReturn' {
       5      190
       b      191
       e      192
+      f      193
       10      193
       16      200
       17      194
       18      194
       19      194
+      1a      194
       1b      194
       21      195
       22      198

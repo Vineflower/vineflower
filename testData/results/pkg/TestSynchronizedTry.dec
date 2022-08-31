@@ -137,6 +137,7 @@ class 'pkg/TestSynchronizedTry' {
       2f      28
       30      28
       36      30
+      37      31
       38      31
       3b      34
       3c      34
@@ -182,6 +183,7 @@ class 'pkg/TestSynchronizedTry' {
       2f      52
       30      52
       36      54
+      37      55
       38      55
       3b      58
       3c      58

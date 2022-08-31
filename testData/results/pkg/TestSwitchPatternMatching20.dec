@@ -8,8 +8,8 @@ public class TestSwitchPatternMatching20 {
       switch(o) {
          case o instanceof Integer var6 && false:
             break;
-         case o instanceof String s:
-            System.out.println(s);// 7
+         case o instanceof String s:// 7
+            System.out.println(s);
             break;
          default:
             System.out.println("Default");// 8
@@ -23,7 +23,9 @@ class 'pkg/TestSwitchPatternMatching20' {
       2      6
       3      6
       4      6
+      9      7
       10      7
+      37      10
       3b      10
       3c      10
       3d      11
@@ -49,7 +51,7 @@ class 'pkg/TestSwitchPatternMatching20' {
 
 Lines mapping:
 5 <-> 7
-7 <-> 12
+7 <-> 11
 8 <-> 15
 10 <-> 17
 Not mapped:

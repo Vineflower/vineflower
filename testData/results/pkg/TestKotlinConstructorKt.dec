@@ -60,6 +60,7 @@ class 'pkg/TestKotlinConstructorKt' {
       1b      20
       1c      20
       1d      20
+      1e      22
       1f      22
       20      22
       21      22
@@ -97,6 +98,8 @@ class 'pkg/TestKotlinConstructorKt' {
       5c      30
       5d      30
       5e      30
+      5f      31
+      60      31
       62      31
       63      31
       64      31

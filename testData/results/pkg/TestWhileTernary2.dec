@@ -12,6 +12,7 @@ public class TestWhileTernary2 {
 class 'pkg/TestWhileTernary2' {
    method 'test (ZII)V' {
       0      4
+      1      4
       4      4
       5      4
       6      4

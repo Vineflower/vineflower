@@ -93,6 +93,7 @@ public class PPandMMHelper {
         Exprent retexpr = processExprentRecursive(expr);
         if (retexpr != null) {
           exprent.replaceExprent(expr, retexpr);
+          retexpr.addBytecodeOffsets(expr.bytecode);
           replaced = true;
           exprentReplaced = true;
           break;
@@ -293,6 +294,7 @@ public class PPandMMHelper {
                       if (ex == old) {
                         // Replace variable with ppi/mmi
                         exprent.replaceExprent(old, expr);
+                        expr.addBytecodeOffsets(old.bytecode);
 
                         // No more itr
                         stack.clear();

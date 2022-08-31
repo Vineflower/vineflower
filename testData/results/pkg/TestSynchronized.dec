@@ -184,6 +184,7 @@ class 'pkg/TestSynchronized' {
       1      27
       2      27
       3      27
+      7      27
       8      27
       9      28
       a      28
@@ -214,6 +215,7 @@ class 'pkg/TestSynchronized' {
       2      37
       3      37
       5      37
+      7      37
       8      37
       9      38
       a      38
@@ -238,6 +240,7 @@ class 'pkg/TestSynchronized' {
       1      46
       2      46
       3      46
+      7      46
       8      46
       9      47
       a      47
@@ -267,6 +270,7 @@ class 'pkg/TestSynchronized' {
       1      56
       2      56
       3      56
+      7      56
       8      56
       9      57
       a      57
@@ -296,6 +300,7 @@ class 'pkg/TestSynchronized' {
       1      66
       2      66
       3      66
+      7      66
       8      66
       9      67
       a      67
@@ -325,6 +330,7 @@ class 'pkg/TestSynchronized' {
       1      76
       2      76
       3      76
+      7      76
       8      76
       9      77
       a      77

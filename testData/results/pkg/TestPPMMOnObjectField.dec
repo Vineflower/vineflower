@@ -202,6 +202,9 @@ class 'pkg/TestPPMMOnObjectField' {
       3      41
       4      41
       6      41
+      8      41
+      9      41
+      a      41
       b      41
       c      41
       d      41
@@ -210,6 +213,9 @@ class 'pkg/TestPPMMOnObjectField' {
       11      42
       12      42
       14      42
+      16      42
+      17      42
+      18      42
       19      42
       1a      42
       1b      42
@@ -218,6 +224,9 @@ class 'pkg/TestPPMMOnObjectField' {
       1f      43
       20      43
       22      43
+      24      43
+      25      43
+      26      43
       27      43
       28      43
       29      43
@@ -226,6 +235,9 @@ class 'pkg/TestPPMMOnObjectField' {
       2d      44
       2e      44
       30      44
+      32      44
+      33      44
+      34      44
       35      44
       36      44
       37      44
@@ -274,6 +286,9 @@ class 'pkg/TestPPMMOnObjectField' {
       3      55
       4      55
       6      55
+      8      55
+      9      55
+      a      55
       b      55
       c      55
       d      55
@@ -282,6 +297,9 @@ class 'pkg/TestPPMMOnObjectField' {
       11      56
       12      56
       14      56
+      16      56
+      17      56
+      18      56
       19      56
       1a      56
       1b      56
@@ -290,6 +308,9 @@ class 'pkg/TestPPMMOnObjectField' {
       1f      57
       20      57
       22      57
+      24      57
+      25      57
+      26      57
       27      57
       28      57
       29      57
@@ -298,6 +319,9 @@ class 'pkg/TestPPMMOnObjectField' {
       2d      58
       2e      58
       30      58
+      32      58
+      33      58
+      34      58
       35      58
       36      58
       37      58

@@ -18,6 +18,7 @@ public class TestSwitchStringHashcodeCollision {
 class 'pkg/TestSwitchStringHashcodeCollision' {
    method 'test (Ljava/lang/String;)I' {
       0      4
+      4      4
       25      7
       26      7
       33      5

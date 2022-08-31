@@ -126,7 +126,9 @@ class 'pkg/TestClassTypes' {
    method 'testAssignmentType (Ljava/util/List;)V' {
       0      39
       1      39
+      2      40
       3      40
+      a      41
       f      41
       10      41
       11      41

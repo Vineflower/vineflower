@@ -61,6 +61,8 @@ class 'pkg/TestFinallyThrow' {
       30      10
       3a      19
       45      13
+      47      14
+      48      14
       49      14
       4a      16
       4b      16
@@ -79,6 +81,7 @@ class 'pkg/TestFinallyThrow' {
       7      28
       8      28
       9      29
+      a      30
       b      30
       e      35
       f      35
@@ -95,6 +98,7 @@ class 'pkg/TestFinallyThrow' {
       7      41
       8      41
       9      42
+      a      43
       b      43
       14      48
       15      48

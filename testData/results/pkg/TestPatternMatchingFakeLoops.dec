@@ -207,9 +207,11 @@ class 'pkg/TestPatternMatchingFakeLoops' {
 
    method 'test2 (Ljava/lang/Object;)V' {
       0      11
+      2      11
       3      11
       4      11
       5      11
+      9      12
       a      12
       b      12
       c      12
@@ -239,6 +241,7 @@ class 'pkg/TestPatternMatchingFakeLoops' {
       8      19
       9      19
       a      19
+      b      19
       e      20
       f      20
       10      20
@@ -264,6 +267,7 @@ class 'pkg/TestPatternMatchingFakeLoops' {
       8      26
       9      26
       a      26
+      b      26
       e      27
       f      27
       10      27
@@ -294,10 +298,12 @@ class 'pkg/TestPatternMatchingFakeLoops' {
       3      36
       4      36
       7      37
+      9      37
       a      37
       b      37
       c      37
       d      37
+      10      41
       11      41
       12      41
       13      41
@@ -324,6 +330,7 @@ class 'pkg/TestPatternMatchingFakeLoops' {
       3      52
       4      52
       7      53
+      9      53
       a      53
       b      53
       c      53
@@ -356,10 +363,12 @@ class 'pkg/TestPatternMatchingFakeLoops' {
       3      67
       4      67
       7      68
+      9      68
       a      68
       b      68
       c      68
       d      68
+      10      73
       11      73
       12      73
       13      73
@@ -394,6 +403,7 @@ class 'pkg/TestPatternMatchingFakeLoops' {
       3      84
       4      84
       7      85
+      9      85
       a      85
       b      85
       c      85
@@ -432,6 +442,7 @@ class 'pkg/TestPatternMatchingFakeLoops' {
       1      99
       2      99
       3      99
+      4      99
       7      99
       8      99
       9      99
@@ -457,6 +468,7 @@ class 'pkg/TestPatternMatchingFakeLoops' {
       1      106
       2      106
       3      106
+      4      106
       7      106
       8      106
       9      106
@@ -487,10 +499,12 @@ class 'pkg/TestPatternMatchingFakeLoops' {
 
    method 'test4Swap (Ljava/lang/Object;)V' {
       0      116
+      2      116
       3      116
       4      116
       5      116
       6      116
+      9      117
       a      117
       b      117
       c      117
@@ -517,9 +531,11 @@ class 'pkg/TestPatternMatchingFakeLoops' {
 
    method 'test4xSwap (Ljava/lang/Object;)V' {
       0      128
+      2      128
       3      128
       4      128
       5      128
+      6      128
       d      128
       e      128
       f      128
@@ -548,10 +564,12 @@ class 'pkg/TestPatternMatchingFakeLoops' {
 
    method 'test4BSwap (Ljava/lang/Object;)V' {
       0      136
+      2      136
       3      136
       4      136
       5      136
       6      136
+      9      137
       a      137
       b      137
       c      137
@@ -586,9 +604,11 @@ class 'pkg/TestPatternMatchingFakeLoops' {
 
    method 'test4xBSwap (Ljava/lang/Object;)V' {
       0      149
+      2      149
       3      149
       4      149
       5      149
+      6      149
       d      149
       e      149
       f      149

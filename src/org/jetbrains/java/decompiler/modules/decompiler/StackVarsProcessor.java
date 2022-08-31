@@ -241,6 +241,7 @@ public class StackVarsProcessor {
 
   private static void replaceSingleVar(Exprent parent, VarExprent var, Exprent dest, SSAUConstructorSparseEx ssau) {
     parent.replaceExprent(var, dest);
+    dest.addBytecodeOffsets(var.bytecode);
 
     // live sets
     SFormsFastMapDirect liveMap = ssau.getLiveVarVersionsMap(new VarVersionPair(var));
@@ -301,6 +302,7 @@ public class StackVarsProcessor {
             expr = retexpr;
           } else {
             exprent.replaceExprent(expr, retexpr);
+            retexpr.addBytecodeOffsets(expr.bytecode);
           }
 
           changed = 1;
@@ -619,6 +621,7 @@ public class StackVarsProcessor {
             expr = retexpr;
           } else {
             exprent.replaceExprent(expr, retexpr);
+            retexpr.addBytecodeOffsets(expr.bytecode);
           }
 
           changed = true;

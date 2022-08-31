@@ -176,6 +176,7 @@ class 'pkg/TestDefiniteAssignment' {
 
    method 'testExample16$1$$2 (I)V' {
       0      13
+      2      13
       3      13
       4      13
       a      14
@@ -184,6 +185,7 @@ class 'pkg/TestDefiniteAssignment' {
       10      17
       11      17
       12      17
+      13      17
       14      17
       15      17
       16      17
@@ -200,6 +202,7 @@ class 'pkg/TestDefiniteAssignment' {
       9      25
       c      30
       d      30
+      e      31
       f      31
       10      31
       16      35
@@ -235,6 +238,8 @@ class 'pkg/TestDefiniteAssignment' {
       1a      50
       1b      50
       1e      50
+      22      50
+      23      50
       24      50
       26      50
       27      50
@@ -305,11 +310,13 @@ class 'pkg/TestDefiniteAssignment' {
       75      60
       76      60
       77      60
+      78      60
       7e      59
       7f      59
       80      59
       81      59
       82      59
+      83      59
       86      63
       87      63
       88      63
@@ -342,6 +349,7 @@ class 'pkg/TestDefiniteAssignment' {
       ad      69
       ae      69
       af      69
+      b0      69
       bb      69
       be      70
       bf      70

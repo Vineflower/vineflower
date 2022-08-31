@@ -40,7 +40,9 @@ class 'pkg/TestSwitchPatternMatchingConstructor1' {
 
    method '<init> (Lpkg/TestSwitchPatternMatchingConstructor1$Shape;)V' {
       1      8
+      5      8
       c      8
+      28      10
       2c      10
       2d      10
       2e      10
@@ -54,6 +56,7 @@ class 'pkg/TestSwitchPatternMatchingConstructor1' {
       36      10
       3f      10
       40      10
+      44      11
       48      11
       49      11
       4a      11

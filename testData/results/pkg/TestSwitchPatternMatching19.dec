@@ -76,6 +76,7 @@ public class TestSwitchPatternMatching19 {
 class 'pkg/TestSwitchPatternMatching19' {
    method 'test (Lpkg/TestSwitchPatternMatching19$XXX;)V' {
       0      5
+      4      5
       b      5
       30      11
       31      11
@@ -87,6 +88,7 @@ class 'pkg/TestSwitchPatternMatching19' {
       37      11
       38      12
       3b      13
+      3d      13
       3e      13
       3f      13
       40      13
@@ -101,6 +103,8 @@ class 'pkg/TestSwitchPatternMatching19' {
       50      14
       51      15
       54      16
+      57      16
+      58      16
       59      16
       5a      16
       5b      16
@@ -114,6 +118,10 @@ class 'pkg/TestSwitchPatternMatching19' {
       6b      17
       6c      18
       6f      19
+      72      19
+      73      19
+      74      19
+      75      19
       76      19
       7e      20
       7f      20
@@ -138,6 +146,7 @@ class 'pkg/TestSwitchPatternMatching19' {
 
    method 'test2 (Lpkg/TestSwitchPatternMatching19$XXX;)V' {
       0      28
+      4      28
       b      28
       28      34
       29      34
