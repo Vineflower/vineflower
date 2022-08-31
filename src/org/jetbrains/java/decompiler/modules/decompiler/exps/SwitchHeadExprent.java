@@ -73,7 +73,9 @@ public class SwitchHeadExprent extends Exprent {
               continue;
             }
             valType = VarType.getCommonSupertype(caseType, valType);
-            result.addMinTypeExprent(value, valType);
+            if (valType != null) {
+              result.addMinTypeExprent(value, valType);
+            }
           }
         }
       }

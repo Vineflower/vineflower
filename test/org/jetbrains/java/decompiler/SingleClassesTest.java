@@ -697,7 +697,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestGenericsHierarchy");
     // TODO: casts on the get() inside the lambda
     register(JAVA_8, "TestLambdaGenericCall");
-    // TODO: crashes in VarTypeProcessor change var type
     // TODO: crashes in const type
     register(JAVA_8, "TestTryWithResourcesAfterSwitch");
   }
