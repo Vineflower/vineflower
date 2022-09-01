@@ -155,8 +155,7 @@ public final class SwitchHelper {
                   }
                 }
               }
-              root.addComment("$QF: Unable to simplify switch on enum");
-              root.addErrorComment = true;
+              root.addComment("$QF: Unable to simplify switch on enum", true);
               DecompilerContext.getLogger()
                 .writeMessage("Unable to simplify switch on enum: " + exprent + " not found, available: " + mapping + " in method " + mt.getClassQualifiedName() + " " + mt.getName(),
                               IFernflowerLogger.Severity.ERROR);

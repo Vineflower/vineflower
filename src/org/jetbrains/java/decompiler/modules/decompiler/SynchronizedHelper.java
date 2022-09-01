@@ -92,8 +92,7 @@ public final class SynchronizedHelper {
     if (stat instanceof BasicBlockStatement) {
       for (Exprent ex : stat.getExprents()) {
         if (ex instanceof MonitorExprent) {
-          root.addComment("$QF: Could not create synchronized statement, marking monitor enters and exits");
-          root.addErrorComment = true;
+          root.addComment("$QF: Could not create synchronized statement, marking monitor enters and exits", true);
         }
       }
     }
