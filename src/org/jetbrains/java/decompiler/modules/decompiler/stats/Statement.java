@@ -543,8 +543,10 @@ public abstract class Statement implements IMatchable {
     this.parent.replaceStatement(this, stat);
   }
 
-  public final void replaceWithEmpty() {
-    replaceWith(BasicBlockStatement.create());
+  public final BasicBlockStatement replaceWithEmpty() {
+    BasicBlockStatement newStat = BasicBlockStatement.create();
+    replaceWith(newStat);
+    return newStat;
   }
 
   public void replaceStatement(Statement oldstat, Statement newstat) {

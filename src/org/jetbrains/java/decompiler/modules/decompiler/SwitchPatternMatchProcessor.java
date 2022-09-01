@@ -25,13 +25,17 @@ public final class SwitchPatternMatchProcessor {
   }
 
   private static boolean processPatternMatchingRec(Statement stat, Statement root) {
+    ValidationHelper.validateStatement((RootStatement) root);
+
     boolean ret = false;
     for (Statement st : new ArrayList<>(stat.getStats())) {
       ret |= processPatternMatchingRec(st, root);
+      ValidationHelper.validateStatement((RootStatement) root);
     }
 
     if (stat instanceof SwitchStatement) {
       ret |= processStatement((SwitchStatement) stat, root);
+      ValidationHelper.validateStatement((RootStatement) root);
     }
 
     return ret;
@@ -42,7 +46,7 @@ public final class SwitchPatternMatchProcessor {
       return false;
     }
 
-    SwitchHeadExprent head = (SwitchHeadExprent)stat.getHeadexprent();
+    SwitchHeadExprent head = (SwitchHeadExprent) stat.getHeadexprent();
 
     boolean switchPatternMatch = isSwitchPatternMatch(head);
 
@@ -117,13 +121,13 @@ public final class SwitchPatternMatchProcessor {
 
       if (guards.containsKey(allCases)) {
         // add the guard to the same index as this case, padding the list with nulls as necessary
-        while(stat.getCaseGuards().size() <= i) {
+        while (stat.getCaseGuards().size() <= i) {
           stat.getCaseGuards().add(null);
         }
         stat.getCaseGuards().set(i, guards.get(allCases));
       }
       if (caseExpr instanceof ConstExprent) {
-        int caseValue = ((ConstExprent)caseExpr).getIntValue();
+        int caseValue = ((ConstExprent) caseExpr).getIntValue();
 
         // -1 always means null
         if (caseValue == -1) {
@@ -153,13 +157,13 @@ public final class SwitchPatternMatchProcessor {
       if (caseStatBlock.getExprents().size() >= 1) {
         Exprent expr = caseStatBlock.getExprents().get(0);
         if (expr instanceof AssignmentExprent) {
-          AssignmentExprent assign = (AssignmentExprent)expr;
+          AssignmentExprent assign = (AssignmentExprent) expr;
 
           if (assign.getLeft() instanceof VarExprent) {
-            VarExprent var = (VarExprent)assign.getLeft();
+            VarExprent var = (VarExprent) assign.getLeft();
 
-            if (assign.getRight() instanceof FunctionExprent && ((FunctionExprent)assign.getRight()).getFuncType() == FunctionExprent.FunctionType.CAST) {
-              FunctionExprent cast = (FunctionExprent)assign.getRight();
+            if (assign.getRight() instanceof FunctionExprent && ((FunctionExprent) assign.getRight()).getFuncType() == FunctionExprent.FunctionType.CAST) {
+              FunctionExprent cast = (FunctionExprent) assign.getRight();
 
               List<Exprent> operands = new ArrayList<>();
               operands.add(cast.getLstOperands().get(0)); // checking var
@@ -186,7 +190,7 @@ public final class SwitchPatternMatchProcessor {
       int replaceIndex = i;
       for (List<Exprent> caseValueSet : stat.getCaseValues()) {
         if (caseValueSet.get(0) instanceof ConstExprent) {
-          ConstExprent constExpr = (ConstExprent)caseValueSet.get(0);
+          ConstExprent constExpr = (ConstExprent) caseValueSet.get(0);
           if (constExpr.getValue() instanceof Integer && (Integer) constExpr.getValue() == i) {
             replaceIndex = stat.getCaseValues().indexOf(caseValueSet);
           }
@@ -228,9 +232,9 @@ public final class SwitchPatternMatchProcessor {
           // make sure we replace the right constant, null can be shared with anything
           stat.getCaseValues().get(replaceIndex).replaceAll(u ->
             u instanceof ConstExprent
-              && u.getExprType().typeFamily == CodeConstants.TYPE_FAMILY_INTEGER
-              && ((ConstExprent) u).getIntValue() == ix
-                ? nvx : u);
+            && u.getExprType().typeFamily == CodeConstants.TYPE_FAMILY_INTEGER
+            && ((ConstExprent) u).getIntValue() == ix
+              ? nvx : u);
         }
       }
     }
@@ -240,6 +244,8 @@ public final class SwitchPatternMatchProcessor {
     if (guarded && stat.getParent() instanceof DoStatement) {
       // remove the enclosing while(true) loop of a guarded switch
       stat.getParent().replaceWith(stat);
+      // FIXME: this replacement code looks wrong,
+      //  doesn't get any coverage in tests
       // update continue-loops into break-switches
       for (StatEdge edge : stat.getPredecessorEdges(StatEdge.TYPE_CONTINUE)) {
         edge.changeType(StatEdge.TYPE_BREAK);
@@ -256,6 +262,10 @@ public final class SwitchPatternMatchProcessor {
     // alternatively, it can be inverted as `if (guardCond) { /* regular case code... */ break; } idx = __thisIdx + 1;`
     if (reference.b instanceof AssignmentExprent) {
       Statement assignStat = reference.a;
+      // Note: This can probably be checked earlier
+      if (assignStat.getAllPredecessorEdges().size() > 1) {
+        return false;
+      }
       // check if the assignment follows the guard layout
       Statement parent = assignStat.getParent();
       // sometimes the assignment is after the `if` and it's condition is inverted [see TestSwitchPatternMatchingInstanceof1/2/3]
@@ -268,9 +278,12 @@ public final class SwitchPatternMatchProcessor {
       if (assignStat instanceof BasicBlockStatement
           && assignStat.getExprents().size() == 1
           && parent instanceof IfStatement
+          && ((IfStatement) parent).iftype == IfStatement.IFTYPE_IF
+          && ((IfStatement) parent).getIfstat() != null
           && parent.getParent() instanceof SequenceStatement
           && parent.getParent().getParent() == stat) {
-        Statement next = assignStat.getSuccessorEdges(StatEdge.TYPE_CONTINUE).get(0).getDestination();
+        StatEdge continueEdge = assignStat.getSuccessorEdges(StatEdge.TYPE_CONTINUE).get(0);
+        Statement next = continueEdge.getDestination();
         if (next == stat.getParent()) {
           IfStatement guardIf = (IfStatement) parent;
           // the condition of the `if` is the guard condition (usually inverted)
@@ -281,39 +294,38 @@ public final class SwitchPatternMatchProcessor {
             if (caseStatements.get(i).containsStatement(reference.a)) {
               if (simulate) {
                 // we're not actually removing the guard yet
-                if (!invert) {
-                  // only a trivial guard can be handled currently
-                  return parent.getStats().stream()
-                    .map(Statement::getExprents)
-                    .allMatch(Objects::nonNull);
-                }
                 return true;
               }
               // the assignment of the pattern variable may be inside the `if`, take it out and add it to the next statement
               List<Exprent> guardExprs = guardIf.getStats().get(0).getExprents();
               // the assignment might also just not exist, if the switch head is a supertype of the pattern
               List<Exprent> carryExprs = guardExprs.size() > 0 ? Collections.singletonList(guardExprs.get(0)) : Collections.emptyList();
+
+              // remove the continue edge
+              continueEdge.remove();
+
+              // eliminate the guard `if`
+              guardIf.getParent().getStats().remove(0);
+
+              Statement nextStat;
+
+
               if (invert) {
                 // normally the guard condition is inverted, re-invert it here
                 guardExprent = new FunctionExprent(FunctionExprent.FunctionType.BOOL_NOT, guardExprent, guardExprent.bytecode);
+                nextStat = guardIf.getParent().getStats().get(0);
               } else {
-                // if the index assignment is outside the `if`, the contents of the `if` *is* the case statement and should be added to next statement
-                carryExprs = new ArrayList<>();
-                for (Statement statement : parent.getStats()) {
-                  List<Exprent> exprents = statement.getExprents();
-                  if (exprents != null) {
-                    carryExprs.addAll(exprents);
-                  } else { // only a trivial guard can be handled currently
-                    return false;
-                  }
-                }
-                assignStat.replaceWithEmpty(); // normally removed in guardIf.replaceWithEmpty()
+                nextStat = guardIf.getIfstat();
+                // remove assignment
+                guardIf.getParent().getStats().remove(0);
+                guardIf.getParent().getStats().add(nextStat);
               }
+
               guards.put(stat.getCaseValues().get(i), guardExprent);
-              // eliminate the guard `if`, alongside the assignment if not inverted
-              guardIf.replaceWithEmpty();
-              guardIf.getParent().getStats().remove(0);
-              Statement nextStat = guardIf.getParent().getStats().get(0);
+              guardIf.getParent().setFirst(nextStat);
+              for (StatEdge edge : nextStat.getAllPredecessorEdges()) {
+                edge.remove();
+              }
               // add the pattern variable assignment (or case statement for inverted cases) to next statement
               nextStat.getBasichead().getExprents().addAll(0, carryExprs);
               return true;
@@ -330,7 +342,35 @@ public final class SwitchPatternMatchProcessor {
               return true;
             }
             guards.put(stat.getCaseValues().get(i), new ConstExprent(0, true, null));
-            reference.a.replaceWithEmpty();
+            Statement replaced = reference.a.replaceWithEmpty();
+            replaced.getFirstSuccessor().remove();
+            Set<StatEdge> labelEdges = stat.getParent().getLabelEdges();
+            findSuccessor:
+            {
+              // This block is technically unreachable, but most code doesn't
+              // really handle that. So a break edge, mirroring the others
+              // is added
+              Statement target = null;
+              for (StatEdge edge : labelEdges) {
+                if (edge.getType() != StatEdge.TYPE_BREAK) {
+                  continue;
+                }
+
+                if (target == null) {
+                  target = edge.getDestination();
+                } else if (edge.getDestination() != target) {
+                  // inconsistent break targets
+                  break findSuccessor;
+                }
+              }
+
+              if (target != null) {
+                // all breaks go to the same place, so we also add a break to there to help other stages
+                replaced.addSuccessor(new StatEdge(StatEdge.TYPE_BREAK, replaced, target, stat.getParent()));
+              } else{
+                // no break targets to use
+              }
+            }
             return true;
           }
         }
@@ -343,11 +383,11 @@ public final class SwitchPatternMatchProcessor {
     Exprent value = head.getValue();
 
     if (value instanceof InvocationExprent) {
-      InvocationExprent invoc = (InvocationExprent)value;
+      InvocationExprent invoc = (InvocationExprent) value;
 
       // TODO: test for SwitchBootstraps properly
       return invoc.getInvocationType() == InvocationExprent.InvocationType.DYNAMIC
-        && (invoc.getName().equals("typeSwitch") || invoc.getName().equals("enumSwitch"));
+             && (invoc.getName().equals("typeSwitch") || invoc.getName().equals("enumSwitch"));
     }
 
     return false;
