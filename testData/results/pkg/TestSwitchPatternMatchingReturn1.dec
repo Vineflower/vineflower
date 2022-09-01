@@ -7,8 +7,8 @@ public class TestSwitchPatternMatchingReturn1 {
       Objects.requireNonNull(o);
 
       return switch(o) {// 5
-         case o instanceof Integer i -> i;// 6
-         case o instanceof String s -> s.length();// 7
+         case Integer i -> i;// 6
+         case String s -> s.length();// 7
          default -> 0;// 8
       };
    }
@@ -22,7 +22,6 @@ class 'pkg/TestSwitchPatternMatchingReturn1' {
       4      6
       9      8
       10      8
-      2c      9
       30      9
       31      9
       32      9
@@ -30,7 +29,6 @@ class 'pkg/TestSwitchPatternMatchingReturn1' {
       34      9
       35      9
       36      9
-      3a      10
       3e      10
       3f      10
       40      10

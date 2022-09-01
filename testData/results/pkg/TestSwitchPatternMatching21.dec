@@ -13,13 +13,13 @@ public class TestSwitchPatternMatching21 {
          case "hi":
             System.out.println("hello");// 7
             break;
-         case it instanceof String var7 && Math.random() > 0.0:
+         case String var7 when Math.random() > 0.0:
             System.out.println(it + "!");// 8 9
             break;
-         case it instanceof String var8 && Math.random() > 0.0:
+         case String var8 when Math.random() > 0.0:
             System.out.println(it + "!!");// 10 11
             break;
-         case it instanceof String var9 && var2.startsWith("?"):// 12
+         case String var9 when var2.startsWith("?"):// 12
             System.out.println(it + "?");// 13
             break;
          default:
@@ -40,10 +40,10 @@ public class TestSwitchPatternMatching21 {
          case "hi":
             System.out.println("hello");// 21
             break;
-         case it instanceof String var7 && Math.random() > 0.0:
+         case String var7 when Math.random() > 0.0:
             System.out.println(it + "!");// 22 23
             break;
-         case it instanceof String var8 && Math.random() > 0.0:
+         case String var8 when Math.random() > 0.0:
             System.out.println(it + "!!");// 24 25
             break;
       }
@@ -58,7 +58,7 @@ public class TestSwitchPatternMatching21 {
          case "hi":
             System.out.println("hello");// 34
             break;
-         case it instanceof String var5 && Math.random() > 0.0:
+         case String var5 when Math.random() > 0.0:
             System.out.println(it + "!");// 35 36
             break;
          default:

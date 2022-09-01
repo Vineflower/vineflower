@@ -427,6 +427,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatching18");
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatching19");
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatching20");
+    // TODO: <unknown> variable, wrong variables are being used.
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatching21");
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatching22");
 

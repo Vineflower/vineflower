@@ -7,10 +7,10 @@ public class TestSwitchPatternMatchingLoop {
       while(true) {
          Objects.requireNonNull(o);// 6
          switch(o) {
-            case o instanceof Integer i:// 7
+            case Integer i:// 7
                System.out.println(i);
                break;
-            case o instanceof String s:// 8
+            case String s:// 8
                System.out.println(s);
                break;
             default:
@@ -28,7 +28,6 @@ class 'pkg/TestSwitchPatternMatchingLoop' {
       4      7
       9      8
       10      8
-      2c      9
       30      9
       31      9
       32      10
@@ -40,7 +39,6 @@ class 'pkg/TestSwitchPatternMatchingLoop' {
       38      10
       39      10
       3a      11
-      3d      12
       41      12
       42      12
       43      13

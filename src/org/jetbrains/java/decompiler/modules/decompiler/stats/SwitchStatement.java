@@ -159,17 +159,22 @@ public final class SwitchStatement extends Statement {
           if (value instanceof ConstExprent && !value.getExprType().equals(VarType.VARTYPE_NULL)) {
             value = value.copy();
             ((ConstExprent)value).setConstType(switch_type);
-          }
-          if (value instanceof FieldExprent && ((FieldExprent)value).isStatic()) { // enum values
+          } if (value instanceof FieldExprent && ((FieldExprent)value).isStatic()) { // enum values
             buf.append(((FieldExprent)value).getName());
-          }
-          else {
+          } else if (value instanceof FunctionExprent && ((FunctionExprent) value).getFuncType() == FunctionType.INSTANCEOF) {
+            // Pattern matching variables
+            List<Exprent> operands = ((FunctionExprent) value).getLstOperands();
+            buf.append(operands.get(1).toJava(indent));
+            buf.append(" ");
+            // We're pasting the var type, don't do it again
+            ((VarExprent)operands.get(2)).setDefinition(false);
+            buf.append(operands.get(2).toJava(indent));
+          } else {
             buf.append(value.toJava(indent));
           }
 
           if (guard != null) {
-            // TODO: check language version for J19
-            buf.append(" && ").append(guard.toJava());
+            buf.append(" when ").append(guard.toJava());
           }
 
           buf.append(":");

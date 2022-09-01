@@ -3,12 +3,12 @@ package pkg;
 public class TestSwitchPatternMatchingWithNull {
    public void test(Object o) {
       switch(o) {// 5
-         case o instanceof Integer i:// 6
+         case Integer i:// 6
          case null:
             System.out.println(i);
             break;
-         case o instanceof String s:// 7
-            System.out.println(s);
+         case String s:
+            System.out.println(s);// 7
             break;
          default:
             System.out.println("Default");// 8
@@ -17,12 +17,12 @@ public class TestSwitchPatternMatchingWithNull {
 
    public void test2(Object o) {
       switch(o) {// 13
-         case o instanceof Integer i:// 14
+         case Integer i:// 14
          case null:
             System.out.println(i);
             break;
-         case o instanceof String s:// 15
-            System.out.println(s);
+         case String s:
+            System.out.println(s);// 15
             break;
          default:
             System.out.println("Default");// 16
@@ -35,7 +35,6 @@ class 'pkg/TestSwitchPatternMatchingWithNull' {
       0      4
       4      4
       b      4
-      24      5
       28      5
       29      5
       2a      7
@@ -47,7 +46,6 @@ class 'pkg/TestSwitchPatternMatchingWithNull' {
       30      7
       31      7
       32      8
-      35      9
       39      9
       3a      9
       3b      10
@@ -72,7 +70,6 @@ class 'pkg/TestSwitchPatternMatchingWithNull' {
       0      18
       4      18
       b      18
-      24      19
       28      19
       29      19
       2a      21
@@ -84,7 +81,6 @@ class 'pkg/TestSwitchPatternMatchingWithNull' {
       30      21
       31      21
       32      22
-      35      23
       39      23
       3a      23
       3b      24
@@ -109,11 +105,11 @@ class 'pkg/TestSwitchPatternMatchingWithNull' {
 Lines mapping:
 5 <-> 5
 6 <-> 6
-7 <-> 10
+7 <-> 11
 8 <-> 14
 10 <-> 16
 13 <-> 19
 14 <-> 20
-15 <-> 24
+15 <-> 25
 16 <-> 28
 18 <-> 30

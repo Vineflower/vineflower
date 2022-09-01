@@ -7,13 +7,13 @@ public class TestSwitchPatternMatchingInstanceof3 {
       Objects.requireNonNull(o);// 5
       label18:
       switch(o) {
-         case o instanceof Number n && n instanceof Integer i && i > 0:// 6
+         case Number n when n instanceof Integer i && i > 0:// 6
             System.out.println(i);
             break;
-         case o instanceof Number nx:// 7
+         case Number nx:// 7
             System.out.println(nx);
             break;
-         case o instanceof String s:// 8
+         case String s:// 8
             System.out.println(s);
             break;
          default:
@@ -30,7 +30,6 @@ class 'pkg/TestSwitchPatternMatchingInstanceof3' {
       4      6
       9      8
       10      8
-      2c      9
       30      9
       31      9
       32      9
@@ -55,7 +54,6 @@ class 'pkg/TestSwitchPatternMatchingInstanceof3' {
       53      10
       54      10
       55      10
-      59      12
       5d      12
       5e      12
       5f      13
@@ -67,7 +65,6 @@ class 'pkg/TestSwitchPatternMatchingInstanceof3' {
       65      13
       66      13
       67      14
-      6a      15
       6e      15
       6f      15
       70      16

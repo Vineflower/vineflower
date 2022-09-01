@@ -11,16 +11,16 @@ public class TestSwitchPatternMatching19 {
          case X1:
             System.out.println("x1");// 6
             break;
-         case s instanceof TestSwitchPatternMatching19.XXX var8 && var1 != TestSwitchPatternMatching19.XXX.X1:// 7
+         case TestSwitchPatternMatching19.XXX var8 when var1 != TestSwitchPatternMatching19.XXX.X1:// 7
             System.out.println("a");
             break;
-         case s instanceof TestSwitchPatternMatching19.XXX var9 && var1 instanceof TestSwitchPatternMatching19.C:// 8
+         case TestSwitchPatternMatching19.XXX var9 when var1 instanceof TestSwitchPatternMatching19.C:// 8
             System.out.println("b");
             break;
-         case s instanceof TestSwitchPatternMatching19.XXX var10 && var1 == var1:// 9
+         case TestSwitchPatternMatching19.XXX var10 when var1 == var1:// 9
             System.out.println("d");
             break;
-         case s instanceof TestSwitchPatternMatching19.XXX var11 && false:
+         case TestSwitchPatternMatching19.XXX var11 when false:
             break;
       }
    }// 13
@@ -34,7 +34,7 @@ public class TestSwitchPatternMatching19 {
          case X1:
             System.out.println("x1");// 17
             break;
-         case s instanceof TestSwitchPatternMatching19.XXX var4 && Math.random() > 0.0:// 19
+         case TestSwitchPatternMatching19.XXX var4 when Math.random() > 0.0:// 19
             System.out.println("just making sure!");// 20
             break;
          default:

@@ -6,10 +6,10 @@ public class TestSwitchPatternMatching20 {
    public void test(Object o) {
       Objects.requireNonNull(o);// 5
       switch(o) {
-         case o instanceof Integer var6 && false:
+         case Integer var6 when false:
             break;
-         case o instanceof String s:// 7
-            System.out.println(s);
+         case String s:
+            System.out.println(s);// 7
             break;
          default:
             System.out.println("Default");// 8
@@ -25,7 +25,6 @@ class 'pkg/TestSwitchPatternMatching20' {
       4      6
       9      7
       10      7
-      37      10
       3b      10
       3c      10
       3d      11
@@ -51,7 +50,7 @@ class 'pkg/TestSwitchPatternMatching20' {
 
 Lines mapping:
 5 <-> 7
-7 <-> 11
+7 <-> 12
 8 <-> 15
 10 <-> 17
 Not mapped:

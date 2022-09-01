@@ -8,8 +8,8 @@ public class TestSwitchPatternMatchingConstructor1 {
    private TestSwitchPatternMatchingConstructor1(TestSwitchPatternMatchingConstructor1.Shape s) {
       this(switch(s) {// 9
          case null -> "null";// 12
-         case s instanceof TestSwitchPatternMatchingConstructor1.Triangle t && t.calculateArea() > 100.0 -> "Large triangle";// 10
-         case s instanceof TestSwitchPatternMatchingConstructor1.Triangle tx -> "Small triangle";// 11
+         case TestSwitchPatternMatchingConstructor1.Triangle t when t.calculateArea() > 100.0 -> "Large triangle";// 10
+         case TestSwitchPatternMatchingConstructor1.Triangle tx -> "Small triangle";// 11
          default -> "Non-triangle";// 13
       });
    }// 15
@@ -42,7 +42,6 @@ class 'pkg/TestSwitchPatternMatchingConstructor1' {
       1      8
       5      8
       c      8
-      28      10
       2c      10
       2d      10
       2e      10
@@ -56,7 +55,6 @@ class 'pkg/TestSwitchPatternMatchingConstructor1' {
       36      10
       3f      10
       40      10
-      44      11
       48      11
       49      11
       4a      11

@@ -10,10 +10,10 @@ public class TestSwitchPatternMatching18 {
          case 42:
             System.out.println("42");// 6
             break;
-         case o instanceof Integer var5 && var1 < 50:// 8
+         case Integer var5 when var1 < 50:// 8
             System.out.println("small");
             break;
-         case o instanceof Integer var6 && var1.compareTo(17) > 0:// 9
+         case Integer var6 when var1.compareTo(17) > 0:// 9
             System.out.println("comparable");// 10
             break;
          default:
@@ -31,7 +31,7 @@ public class TestSwitchPatternMatching18 {
          case 42:
             System.out.println("42");// 17
             break;
-         case o instanceof Integer var4 && var1 < 50:// 19
+         case Integer var4 when var1 < 50:// 19
             System.out.println("small");
             break;
          default:
@@ -49,7 +49,7 @@ public class TestSwitchPatternMatching18 {
          case 42:
             System.out.println("42");// 26
             break;
-         case o instanceof Integer var4 && var1 < 50:// 27
+         case Integer var4 when var1 < 50:// 27
             System.out.println("small");
             break;
          default:
