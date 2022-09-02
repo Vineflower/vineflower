@@ -345,33 +345,32 @@ public final class SwitchPatternMatchProcessor {
             Statement replaced = reference.a.replaceWithEmpty();
             replaced.getFirstSuccessor().remove();
             Set<StatEdge> labelEdges = stat.getParent().getLabelEdges();
-            {
-              // This block is technically unreachable, but most code doesn't
-              // really handle that. So a break edge, mirroring the others
-              // is added
-              boolean multipleSuccessors = false;
-              Statement target = null;
-              for (StatEdge edge : labelEdges) {
-                if (edge.getType() != StatEdge.TYPE_BREAK) {
-                  continue;
-                }
 
-                if (target == null) {
-                  target = edge.getDestination();
-                } else if (edge.getDestination() != target) {
-                  // inconsistent break targets
-                  multipleSuccessors = true;
-                  break;
-                }
+            // This block is technically unreachable, but most code doesn't
+            // really handle that. So a break edge, mirroring the others
+            // is added
+            boolean multipleSuccessors = false;
+            Statement target = null;
+            for (StatEdge edge : labelEdges) {
+              if (edge.getType() != StatEdge.TYPE_BREAK) {
+                continue;
               }
 
-              if (target != null && !multipleSuccessors) {
-                // all breaks go to the same place, so we also add a break to there to help other stages
-                replaced.addSuccessor(new StatEdge(StatEdge.TYPE_BREAK, replaced, target, stat.getParent()));
-              } else{
-                // no break targets, or multiple targets to use
-                // TODO: figure out how to handle this
+              if (target == null) {
+                target = edge.getDestination();
+              } else if (edge.getDestination() != target) {
+                // inconsistent break targets
+                multipleSuccessors = true;
+                break;
               }
+            }
+
+            if (target != null && !multipleSuccessors) {
+              // all breaks go to the same place, so we also add a break to there to help other stages
+              replaced.addSuccessor(new StatEdge(StatEdge.TYPE_BREAK, replaced, target, stat.getParent()));
+            } else {
+              // no break targets, or multiple targets to use
+              // TODO: figure out how to handle this
             }
             return true;
           }
