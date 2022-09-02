@@ -123,7 +123,7 @@ public class VarExprent extends Exprent {
         if (processor != null && processor.getVarFinal(varVersion) == FinalType.EXPLICIT_FINAL) {
           buffer.append("final ");
         }
-        appendDefinitionType(buffer);
+        buffer.append(getDefinitionType());
         buffer.append(" ");
       }
 
@@ -153,7 +153,7 @@ public class VarExprent extends Exprent {
   }
   */
 
-  private void appendDefinitionType(TextBuffer buffer) {
+  public String getDefinitionType() {
     if (DecompilerContext.getOption(IFernflowerPreferences.USE_DEBUG_VAR_NAMES)) {
 
       if (lvt != null) {
@@ -161,13 +161,11 @@ public class VarExprent extends Exprent {
           if (lvt.getSignature() != null) {
             GenericFieldDescriptor descriptor = GenericMain.parseFieldSignature(lvt.getSignature());
             if (descriptor != null) {
-              buffer.append(ExprProcessor.getCastTypeName(descriptor.type));
-              return;
+              return ExprProcessor.getCastTypeName(descriptor.type);
             }
           }
         }
-        buffer.append(ExprProcessor.getCastTypeName(getVarType()));
-        return;
+        return ExprProcessor.getCastTypeName(getVarType());
       }
 
       MethodWrapper method = (MethodWrapper)DecompilerContext.getProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
@@ -187,8 +185,7 @@ public class VarExprent extends Exprent {
               if (signature != null) {
                 GenericFieldDescriptor descriptor = GenericMain.parseFieldSignature(signature);
                 if (descriptor != null) {
-                  buffer.append(ExprProcessor.getCastTypeName(descriptor.type));
-                  return;
+                  return ExprProcessor.getCastTypeName(descriptor.type);
                 }
               }
             }
@@ -199,15 +196,14 @@ public class VarExprent extends Exprent {
           if (attr != null) {
             String descriptor = attr.getDescriptor(originalIndex, visibleOffset);
             if (descriptor != null) {
-              buffer.append(ExprProcessor.getCastTypeName(new VarType(descriptor)));
-              return;
+              return ExprProcessor.getCastTypeName(new VarType(descriptor));
             }
           }
         }
       }
     }
 
-    buffer.append(ExprProcessor.getCastTypeName(getVarType()));
+    return ExprProcessor.getCastTypeName(getVarType());
   }
 
   @Override

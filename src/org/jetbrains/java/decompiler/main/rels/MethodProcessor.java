@@ -403,9 +403,9 @@ public class MethodProcessor implements Runnable {
       decompileRecord.add("ReplaceContinues", root);
     }
 
-    // Mark monitors left behind in the code
+    // Mark oddities in the decompiled code (left behind monitors, <unknown> variables, etc.)
     // No decompile record as statement structure is not modified
-    SynchronizedHelper.markLiveMonitors(root);
+    ExprProcessor.markExprOddities(root);
 
     DotExporter.toDotFile(root, mt, "finalStatement");
 

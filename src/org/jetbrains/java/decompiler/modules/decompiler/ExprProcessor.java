@@ -26,8 +26,6 @@ import org.jetbrains.java.decompiler.struct.consts.PrimitiveConstant;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
-import org.jetbrains.java.decompiler.util.ListStack;
-import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.TextUtil;
 
 import java.util.*;
@@ -771,7 +769,56 @@ public class ExprProcessor implements CodeConstants {
     return res;
   }
 
+  public static void markExprOddities(RootStatement root) {
+    // We shouldn't have to do this, but turns out getting cast names is not pure. Sigh.
+    DecompilerContext.getImportCollector().setWriteLocked(true);
 
+    markExprOddities(root, root);
+
+    DecompilerContext.getImportCollector().setWriteLocked(false);
+  }
+
+  private static void markExprOddities(RootStatement root, Statement stat) {
+    for (Statement st : stat.getStats()) {
+      markExprOddities(root, st);
+    }
+
+    for (Exprent ex : stat.getVarDefinitions()) {
+      markExprOddity(root, ex);
+    }
+
+    if (stat instanceof BasicBlockStatement) {
+      for (Exprent ex : stat.getExprents()) {
+        markExprOddity(root, ex);
+      }
+    }
+  }
+
+  private static void markExprOddity(RootStatement root, Exprent ex) {
+    if (ex instanceof MonitorExprent) {
+      root.addComment("$QF: Could not create synchronized statement, marking monitor enters and exits", true);
+    }
+    if (ex instanceof IfExprent) {
+      root.addComment("$QF: Accidentally destroyed if statement, the decompiled code is not correct!", true);
+    }
+
+    for (Exprent e : ex.getAllExprents(true, true)) {
+      if (e instanceof VarExprent) {
+        VarExprent var = (VarExprent)e;
+        if (var.isDefinition() && isInvalidTypeName(var.getDefinitionType()) || var.getExprType() == VarType.VARTYPE_UNKNOWN) {
+          root.addComment("$QF: Could not properly define all variable types!", true);
+        }
+      } else if (e instanceof FunctionExprent) {
+        FunctionExprent func = (FunctionExprent)e;
+        if (func.getFuncType() == FunctionType.CAST && func.doesCast()) {
+          List<Exprent> operands = func.getLstOperands();
+          if (isInvalidTypeName(operands.get(1).toString())) {
+            root.addComment("$QF: Could not properly define all variable types!", true);
+          }
+        }
+      }
+    }
+  }
 
   public static String getTypeName(VarType type) {
     return getTypeName(type, true);
@@ -804,13 +851,16 @@ public class ExprProcessor implements CodeConstants {
       }
 
       if (ret == null) {
-        // FIXME: a warning should be logged
         ret = UNDEFINED_TYPE_STRING;
       }
       return ret;
     }
 
     throw new RuntimeException("invalid type: " + tp);
+  }
+
+  public static boolean isInvalidTypeName(String name) {
+    return UNDEFINED_TYPE_STRING.equals(name) || NULL_TYPE_STRING.equals(name) || UNKNOWN_TYPE_STRING.equals(name);
   }
 
   public static String getCastTypeName(VarType type) {
