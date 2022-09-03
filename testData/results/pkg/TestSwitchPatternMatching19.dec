@@ -20,9 +20,7 @@ public class TestSwitchPatternMatching19 {
             break;
          case TestSwitchPatternMatching19.XXX var10 when var1 == var1:// 9
             System.out.println("d");
-            break;
          case TestSwitchPatternMatching19.XXX var11 when false:
-            break;
       }
    }// 13
 
@@ -132,7 +130,6 @@ class 'pkg/TestSwitchPatternMatching19' {
       83      21
       84      21
       85      21
-      86      22
       94      9
       95      9
       96      9
@@ -142,54 +139,54 @@ class 'pkg/TestSwitchPatternMatching19' {
       9a      9
       9b      9
       9c      10
-      9f      26
+      9f      24
    }
 
    method 'test2 (Lpkg/TestSwitchPatternMatching19$XXX;)V' {
-      0      29
-      4      29
-      b      29
-      28      35
-      29      35
-      2a      35
-      2b      35
-      2c      35
-      2d      35
-      2e      35
-      2f      35
-      30      36
-      33      32
-      34      32
-      35      32
-      36      32
-      37      32
-      38      32
-      39      32
-      3a      32
-      3b      33
-      40      37
-      41      37
-      42      37
-      43      37
-      44      37
-      4d      38
-      4e      38
-      4f      38
-      50      38
-      51      38
-      52      38
-      53      38
-      54      38
-      55      39
-      58      41
-      59      41
-      5a      41
-      5b      41
-      5c      41
-      5d      41
-      5e      41
-      5f      41
-      63      43
+      0      27
+      4      27
+      b      27
+      28      33
+      29      33
+      2a      33
+      2b      33
+      2c      33
+      2d      33
+      2e      33
+      2f      33
+      30      34
+      33      30
+      34      30
+      35      30
+      36      30
+      37      30
+      38      30
+      39      30
+      3a      30
+      3b      31
+      40      35
+      41      35
+      42      35
+      43      35
+      44      35
+      4d      36
+      4e      36
+      4f      36
+      50      36
+      51      36
+      52      36
+      53      36
+      54      36
+      55      37
+      58      39
+      59      39
+      5a      39
+      5b      39
+      5c      39
+      5d      39
+      5e      39
+      5f      39
+      63      41
    }
 }
 
@@ -200,13 +197,13 @@ Lines mapping:
 8 <-> 18
 9 <-> 21
 11 <-> 10
-13 <-> 27
-16 <-> 30
-17 <-> 36
-18 <-> 33
-19 <-> 38
-20 <-> 39
-21 <-> 42
-23 <-> 44
+13 <-> 25
+16 <-> 28
+17 <-> 34
+18 <-> 31
+19 <-> 36
+20 <-> 37
+21 <-> 40
+23 <-> 42
 Not mapped:
 10
