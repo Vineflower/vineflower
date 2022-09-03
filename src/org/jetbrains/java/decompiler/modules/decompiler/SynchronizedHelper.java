@@ -79,22 +79,4 @@ public final class SynchronizedHelper {
 
     return res;
   }
-
-  public static void markLiveMonitors(RootStatement root) {
-    markLiveMonitors(root, root);
-  }
-
-  private static void markLiveMonitors(RootStatement root, Statement stat) {
-    for (Statement st : stat.getStats()) {
-      markLiveMonitors(root, st);
-    }
-
-    if (stat instanceof BasicBlockStatement) {
-      for (Exprent ex : stat.getExprents()) {
-        if (ex instanceof MonitorExprent) {
-          root.addComment("$QF: Could not create synchronized statement, marking monitor enters and exits", true);
-        }
-      }
-    }
-  }
 }
