@@ -306,25 +306,25 @@ public final class LabelHelper {
         break;
       case SWITCH:
         SwitchStatement swst = (SwitchStatement)stat;
+        boolean isPatternSwitch = swst.isPattern();
+        int last = swst.getCaseStatements().size() - 1;
 
-        for (int i = 0; i < swst.getCaseStatements().size() - 1; i++) {
+        for (int i = 0; i < last; i++) {
           Statement stt = swst.getCaseStatements().get(i);
           Statement stnext = swst.getCaseStatements().get(i + 1);
 
-          if (stnext.getExprents() != null && stnext.getExprents().isEmpty() && stnext.hasAnySuccessor()) {
+          if (stnext.getExprents() != null && stnext.getExprents().isEmpty() && stnext.hasAnySuccessor() && !isPatternSwitch) {
             stnext = stnext.getAllSuccessorEdges().get(0).getDestination();
           }
           processEdgesWithNext(stt, setExplicitEdges(stt), stnext);
         }
 
-        int last = swst.getCaseStatements().size() - 1;
         if (last >= 0) { // empty switch possible
           Statement stlast = swst.getCaseStatements().get(last);
           if (stlast.getExprents() != null && stlast.getExprents().isEmpty() && stlast.hasAnySuccessor()) {
             StatEdge edge = stlast.getAllSuccessorEdges().get(0);
             mapEdges.put(edge.getDestination(), new ArrayList<>(Collections.singletonList(edge)));
-          }
-          else {
+          } else {
             mapEdges = setExplicitEdges(stlast);
             processEdgesWithNext(stlast, mapEdges, null);
           }

@@ -241,6 +241,25 @@ public final class SwitchStatement extends Statement {
     return lst;
   }
 
+  // Returns true if this switch is a pattern matching switch.
+  public boolean isPattern() {
+    // Simple test, if there's a guard then it is for sure pattern matching
+    if (!this.caseGuards.isEmpty()) {
+      return true;
+    }
+
+    for (List<Exprent> l : this.caseValues) {
+      for (Exprent e : l) {
+        // If we have instanceofs in our case values, we're a pattern matching switch
+        if (e instanceof FunctionExprent && ((FunctionExprent)e).getFuncType() == FunctionType.INSTANCEOF) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
   @Override
   public List<VarExprent> getImplicitlyDefinedVars() {
     List<VarExprent> vars = new ArrayList<>();
