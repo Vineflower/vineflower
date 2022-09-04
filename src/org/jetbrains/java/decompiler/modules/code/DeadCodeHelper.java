@@ -650,6 +650,7 @@ public final class DeadCodeHelper {
     while (true) {
 
       boolean merged = false;
+      int originBlocksCount = graph.getBlocks().size();
 
       for (BasicBlock block : graph.getBlocks()) {
 
@@ -687,7 +688,7 @@ public final class DeadCodeHelper {
         }
       }
 
-      if (!merged) {
+      if (!merged || graph.getBlocks().size() == originBlocksCount) {
         break;
       }
     }
