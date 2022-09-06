@@ -1,6 +1,8 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler;
 
+import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement.EdgeDirection;
@@ -190,6 +192,32 @@ public final class DecHelper {
     Set<Statement> setHandlers = new HashSet<>(head.getNeighbours(StatEdge.TYPE_EXCEPTION, EdgeDirection.FORWARD));
     setHandlers.removeIf(statement -> statement.getPredecessorEdges(StatEdge.TYPE_EXCEPTION).size() > 1);
     return setHandlers;
+  }
+
+  public static boolean invalidHeadMerge(Statement head) {
+    // Don't build a trycatch around a loop-head if statement, as we know that DoStatement should be built first.
+    // Since CatchStatement's isHead is run after DoStatement's, we can assume that a loop was not able to be built.
+    if (DecompilerContext.getOption(IFernflowerPreferences.EXPERIMENTAL_TRY_LOOP_FIX)) {
+      Statement ifhead = findIfHead(head);
+
+      if (ifhead != null && head.getContinueSet().contains(ifhead.getFirst())) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  private static Statement findIfHead(Statement head) {
+    while (head != null && head.type != Statement.StatementType.IF) {
+      if (head.type != Statement.StatementType.SEQUENCE) {
+        return null;
+      }
+
+      head = head.getFirst();
+    }
+
+    return head;
   }
 
   public static List<Exprent> copyExprentList(List<? extends Exprent> lst) {

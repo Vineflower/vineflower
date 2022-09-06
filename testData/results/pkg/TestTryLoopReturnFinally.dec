@@ -8,62 +8,53 @@ public class TestTryLoopReturnFinally {
    private boolean field;
 
    public void test(File file) {
-      while(true) {
-         try {
-            if (!this.field) {// 12
-               break;
+      try {
+         while(this.field) {// 12
+            if (file == null) {// 13
+               return;// 14
             }
 
-            if (file != null) {// 13
-               new Scanner(file);// 17
-               continue;// 18
-            }
-         } catch (FileNotFoundException var6) {// 19
-            var6.printStackTrace();// 20
-            break;
-         } finally {
-            System.out.println("Finally");// 22
+            new Scanner(file);// 17
          }
-
-         return;// 14
+      } catch (FileNotFoundException var6) {
+         var6.printStackTrace();// 20
+      } finally {
+         System.out.println("Finally");// 22
       }
    }// 24
 }
 
 class 'pkg/TestTryLoopReturnFinally' {
    method 'test (Ljava/io/File;)V' {
-      0      12
-      1      12
-      2      12
-      3      12
-      4      12
-      7      16
-      8      16
-      13      27
-      18      17
-      1d      18
-      2b      20
-      2c      21
-      2d      21
-      3b      24
-      3c      24
-      3d      24
-      3e      24
-      3f      24
-      40      24
-      46      29
+      0      11
+      1      11
+      2      11
+      3      11
+      7      12
+      8      12
+      13      13
+      18      16
+      2c      19
+      2d      19
+      3b      21
+      3c      21
+      3d      21
+      3e      21
+      3f      21
+      40      21
+      46      23
    }
 }
 
 Lines mapping:
-12 <-> 13
-13 <-> 17
-14 <-> 28
-17 <-> 18
-18 <-> 19
-19 <-> 21
-20 <-> 22
-22 <-> 25
-24 <-> 30
+12 <-> 12
+13 <-> 13
+14 <-> 14
+17 <-> 17
+20 <-> 20
+22 <-> 22
+24 <-> 24
 Not mapped:
+18
+19
 23
