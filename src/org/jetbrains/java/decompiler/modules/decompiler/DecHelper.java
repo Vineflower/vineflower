@@ -197,7 +197,7 @@ public final class DecHelper {
   public static boolean invalidHeadMerge(Statement head) {
     // Don't build a trycatch around a loop-head if statement, as we know that DoStatement should be built first.
     // Since CatchStatement's isHead is run after DoStatement's, we can assume that a loop was not able to be built.
-    if (DecompilerContext.getOption(IFernflowerPreferences.EXPERIMENTAL_TRY_LOOP_FIX)) {
+    if (DecompilerContext.getOption(IFernflowerPreferences.TRY_LOOP_FIX)) {
       Statement ifhead = findIfHead(head);
 
       if (ifhead != null && head.getContinueSet().contains(ifhead.getFirst())) {

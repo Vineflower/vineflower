@@ -128,9 +128,9 @@ public interface IFernflowerPreferences {
   @Description("Decompile with if and switch pattern matching enabled.")
   String PATTERN_MATCHING = "pam";
 
-  @Name("[Experimental] Try-Loop fix")
-  @Description("Code with a while loop inside of a try-catch block sometimes is malformed. This attempts to fix it, but may cause other issues.")
-  String EXPERIMENTAL_TRY_LOOP_FIX = "tlf";
+  @Name("Try-Loop fix")
+  @Description("Code with a while loop inside of a try-catch block sometimes is malformed, this fixes it.")
+  String TRY_LOOP_FIX = "tlf";
 
   @Name("[Experimental] Ternary In If Conditions")
   @Description("Tries to collapse if statements that have a ternary in their condition.")
@@ -285,7 +285,7 @@ public interface IFernflowerPreferences {
     defaults.put(TERNARY_CONSTANT_SIMPLIFICATION, "0");
     defaults.put(OVERRIDE_ANNOTATION, "1");
     defaults.put(PATTERN_MATCHING, "1"); // Pattern matching is relatively stable
-    defaults.put(EXPERIMENTAL_TRY_LOOP_FIX, "0"); // Causes issues when decompiling certain classes
+    defaults.put(TRY_LOOP_FIX, "1"); // Try loop fix is stable, and fixes hard to notice bugs
     defaults.put(TERNARY_CONDITIONS, "0"); // Causes issues when decompiling certain classes
     defaults.put(SWITCH_EXPRESSIONS, "1"); // While still experimental, switch expressions work pretty well
     defaults.put(SHOW_HIDDEN_STATEMENTS, "0"); // Extra debugging that isn't useful in most cases
