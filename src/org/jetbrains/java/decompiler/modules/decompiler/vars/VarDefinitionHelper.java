@@ -540,7 +540,7 @@ public class VarDefinitionHelper {
             this_vars.put(index, new VarVersionPair(var));
             leaked.put(index, new VarVersionPair(var));
           } else {
-            RootStatement root = (RootStatement) stat.getTopParent();
+            RootStatement root = stat.getTopParent();
 
             root.addComment("$QF: One or more variable merging failures!", true);
           }

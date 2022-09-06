@@ -937,12 +937,18 @@ public abstract class Statement implements IMatchable {
     this.parent = parent;
   }
 
-  public Statement getTopParent() {
+  public RootStatement getTopParent() {
     Statement ret = this;
+
     while (ret.getParent() != null) {
       ret = ret.getParent();
     }
-    return ret;
+
+    if (!(ret instanceof RootStatement)) {
+      throw new IllegalStateException("Top parent is not a root statement! Malformed IR?");
+    }
+
+    return (RootStatement) ret;
   }
 
   public HashSet<StatEdge> getLabelEdges() {  // FIXME: why HashSet?

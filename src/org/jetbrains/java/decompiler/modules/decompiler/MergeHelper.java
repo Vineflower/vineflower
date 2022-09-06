@@ -779,7 +779,7 @@ public final class MergeHelper {
   private static boolean isVarUsedBefore(VarExprent var, Statement st) {
     // Build digraph
     FlattenStatementsHelper flatten = new FlattenStatementsHelper();
-    DirectGraph digraph = flatten.buildDirectGraph((RootStatement) st.getTopParent());
+    DirectGraph digraph = flatten.buildDirectGraph(st.getTopParent());
 
     // Find starting point for iteration
     String diblockId = digraph.mapDestinationNodes.get(st.id)[0];
@@ -939,7 +939,7 @@ public final class MergeHelper {
         matchDoWhile(dostat);
         if (dostat.getLooptype() != DoStatement.Type.INFINITE) {
           ret = true;
-          ValidationHelper.validateStatement((RootStatement) stat.getTopParent());
+          ValidationHelper.validateStatement(stat.getTopParent());
         }
       }
     }

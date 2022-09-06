@@ -291,7 +291,7 @@ public final class SwitchExpressionHelper {
     List<StatEdge> breaks = next.getPredecessorEdges(StatEdge.TYPE_BREAK);
 
     // Add returns
-    breaks.addAll(((RootStatement) stat.getTopParent()).getDummyExit().getPredecessorEdges(StatEdge.TYPE_BREAK));
+    breaks.addAll((stat.getTopParent()).getDummyExit().getPredecessorEdges(StatEdge.TYPE_BREAK));
 
     // Remove breaks that didn't come from our switch statement nodes
     breaks.removeIf(e -> !stat.containsStatement(e.getSource()));
