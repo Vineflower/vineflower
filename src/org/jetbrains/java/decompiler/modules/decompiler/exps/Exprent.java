@@ -82,13 +82,8 @@ public abstract class Exprent implements IMatchable {
   }
 
   public boolean containsExprent(Exprent exprent) {
-    if (equals(exprent)) {
-      return true;
-    }
-
-    List<Exprent> lst = getAllExprents();
-    for (int i = lst.size() - 1; i >= 0; i--) {
-      if (lst.get(i).containsExprent(exprent)) {
+    for (Exprent ex : getAllExprents(true, true)) {
+      if (ex.equals(exprent)) {
         return true;
       }
     }
