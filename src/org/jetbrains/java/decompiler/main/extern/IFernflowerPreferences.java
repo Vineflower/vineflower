@@ -152,6 +152,10 @@ public interface IFernflowerPreferences {
   @Description("Simplify variables across stack bounds to resugar complex statements.")
   String SIMPLIFY_STACK_SECOND_PASS = "ssp";
 
+  @Name("[Experimental] Verify Variable Merges")
+  @Description("Double checks to make sure the validity of variable merges. If you are having strange recompilation issues, this is a good place to start.")
+  String VERIFY_VARIABLE_MERGES = "vvm";
+
   @Name("Include Entire Classpath")
   @Description("Give the decompiler information about every jar on the classpath.")
   String INCLUDE_ENTIRE_CLASSPATH = "iec";
@@ -290,6 +294,7 @@ public interface IFernflowerPreferences {
     defaults.put(SWITCH_EXPRESSIONS, "1"); // While still experimental, switch expressions work pretty well
     defaults.put(SHOW_HIDDEN_STATEMENTS, "0"); // Extra debugging that isn't useful in most cases
     defaults.put(SIMPLIFY_STACK_SECOND_PASS, "1"); // Generally produces better bytecode, useful to debug if it does something strange
+    defaults.put(VERIFY_VARIABLE_MERGES, "0"); // Produces more correct code in rare cases, but hurts code cleanliness in the majority of cases. Default off until a better fix is created.
 
     defaults.put(INCLUDE_ENTIRE_CLASSPATH, "0");
     defaults.put(INCLUDE_JAVA_RUNTIME, "");

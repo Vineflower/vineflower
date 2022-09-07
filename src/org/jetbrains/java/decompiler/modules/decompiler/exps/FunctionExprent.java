@@ -107,19 +107,19 @@ public class FunctionExprent extends Exprent {
       return ordinal() <= USHR.ordinal();
     }
 
-    public boolean isDecrement() {
+    public boolean isMM() {
       return this == MMI || this == IMM;
     }
 
-    public boolean isIncrement() {
+    public boolean isPP() {
       return this == PPI || this == IPP;
     }
 
-    public boolean isIncrementOrDecrement() {
-      return isIncrement() || isDecrement();
+    public boolean isPPMM() {
+      return isPP() || isMM();
     }
 
-    public boolean isPostfix() {
+    public boolean isPostfixPPMM() {
       return this == IMM || this == IPP;
     }
   }

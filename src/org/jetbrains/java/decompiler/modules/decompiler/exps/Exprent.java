@@ -85,12 +85,30 @@ public abstract class Exprent implements IMatchable {
     if (equals(exprent)) {
       return true;
     }
+
     List<Exprent> lst = getAllExprents();
     for (int i = lst.size() - 1; i >= 0; i--) {
       if (lst.get(i).containsExprent(exprent)) {
         return true;
       }
     }
+
+    return false;
+  }
+
+  public boolean containsVar(VarVersionPair var) {
+    if (this instanceof VarExprent) {
+      VarExprent varex = (VarExprent)this;
+      return varex.getVarVersionPair().equals(var);
+    }
+
+    List<Exprent> lst = getAllExprents();
+    for (int i = lst.size() - 1; i >= 0; i--) {
+      if (lst.get(i).containsVar(var)) {
+        return true;
+      }
+    }
+
     return false;
   }
 

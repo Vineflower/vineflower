@@ -101,7 +101,7 @@ public class NestedMemberAccess {
               case FUNCTION:
                 // for now detect only increment/decrement
                 FunctionExprent functionExprent = (FunctionExprent)exprCore;
-                if (functionExprent.getFuncType().isIncrementOrDecrement()) {
+                if (functionExprent.getFuncType().isPPMM()) {
                   if (functionExprent.getLstOperands().get(0) instanceof FieldExprent) {
                     type = MethodAccess.FUNCTION;
                   }

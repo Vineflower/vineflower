@@ -361,7 +361,7 @@ public class StackVarsProcessor {
       } else if (left.isStack() && right instanceof FunctionExprent) {
         FunctionExprent func = (FunctionExprent) right;
 
-        if (func.getFuncType().isPostfix()) {
+        if (func.getFuncType().isPostfixPPMM()) {
           // Unused IPP or IMM, typically from arrays
           lstExprents.set(index, right);
           return new int[]{index, 1};
