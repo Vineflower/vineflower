@@ -92,8 +92,11 @@ public final class MethodDescriptor {
           // && isEnum
           if (DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_ENUM)) {
             String className = struct.getClassQualifiedName();
-            if (DecompilerContext.getOption(IFernflowerPreferences.RENAME_ENTITIES) && (className = DecompilerContext.getPoolInterceptor().getOldName(className)) == null) {
-              className = struct.getClassQualifiedName();
+            if (DecompilerContext.getOption(IFernflowerPreferences.RENAME_ENTITIES)) {
+              className = DecompilerContext.getPoolInterceptor().getOldName(className);
+              if (className == null) {
+                className = struct.getClassQualifiedName();
+              }
             }
 
             if (DecompilerContext.getStructContext().getClass(className).hasModifier(CodeConstants.ACC_ENUM)) {
