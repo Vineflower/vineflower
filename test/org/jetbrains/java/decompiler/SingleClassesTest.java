@@ -135,6 +135,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestClassFields");
     register(JAVA_8, "TestInterfaceFields");
     register(JAVA_8, "TestClassLambda");
+    // TODO: testLoopIpp eliminates loops that it should not!
     register(JAVA_8, "TestClassLoop");
     register(JAVA_8, "TestClassSwitch");
     register(JAVA_8, "TestClassVar");
