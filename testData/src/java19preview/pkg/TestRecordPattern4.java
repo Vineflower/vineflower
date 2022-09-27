@@ -17,7 +17,7 @@ public class TestRecordPattern4 {
         var a, String b, var c, var d, String e, var f, var g, String h, Many(
           var a2, var b2, var c2, var d2, var e2, var f2, var g2, String h2, Many i2
       ) i) mm) {
-      System.out.println(b + e + h + h2 + i2 + i.hashCode() + mm.hashCode());
+      System.out.println(b + c + e + h + h2 + i2 + i.hashCode() + mm.hashCode());
     }
   }
 }

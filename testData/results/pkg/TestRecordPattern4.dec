@@ -63,7 +63,7 @@ public class TestRecordPattern4 {
                         if (var22 instanceof TestRecordPattern4.Many i2) {
                            TestRecordPattern4.Many i = (TestRecordPattern4.Many)var21;// 17
                            TestRecordPattern4.Many mm = (TestRecordPattern4.Many)m;// 16
-                           System.out.println(b + e + h + h2 + i2 + i.hashCode() + mm.hashCode());// 20
+                           System.out.println(b + var21 + e + h + h2 + i2 + i.hashCode() + mm.hashCode());// 20
                         }
                      }
                   }
@@ -314,6 +314,8 @@ class 'pkg/TestRecordPattern4' {
       30      42
       31      42
       32      42
+      33      65
+      34      65
       37      43
       38      43
       39      43
@@ -515,17 +517,14 @@ class 'pkg/TestRecordPattern4' {
       143      65
       144      65
       145      65
-      146      65
-      147      65
-      148      65
       149      65
       14a      65
       14b      65
+      14c      65
+      14d      65
+      14e      65
       14f      65
       150      65
-      151      65
-      152      65
-      153      65
       154      65
       155      65
       156      65
@@ -537,7 +536,12 @@ class 'pkg/TestRecordPattern4' {
       15c      65
       15d      65
       15e      65
-      161      73
+      15f      65
+      160      65
+      161      65
+      162      65
+      163      65
+      166      73
    }
 }
 
