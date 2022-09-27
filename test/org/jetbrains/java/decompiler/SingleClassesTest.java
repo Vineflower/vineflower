@@ -443,6 +443,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingWithNull");
 
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingFuzz1");
+    
+    register(JAVA_19_PREVIEW, "TestRecordPattern1");
 
     register(JASM, "TestCondy");
     register(JASM, "TestBackwardsExceptionHandler");
