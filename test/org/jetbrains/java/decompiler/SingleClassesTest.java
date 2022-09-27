@@ -446,6 +446,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     
     register(JAVA_19_PREVIEW, "TestRecordPattern1");
     register(JAVA_19_PREVIEW, "TestRecordPattern2");
+    register(JAVA_19_PREVIEW, "TestRecordPattern3");
 
     register(JASM, "TestCondy");
     register(JASM, "TestBackwardsExceptionHandler");
