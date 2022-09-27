@@ -24,4 +24,17 @@ public class TestRecordPattern2 {
     }
     System.out.println("Unconditional");
   }
+  
+  Object test3(Pair<?, ?> p) {
+    return switch(p) {
+      case null -> -1;
+      case Pair<?, ?>(Long l, Long r) v -> l + r;
+      case Pair<?, ?>(Integer l, Integer r) v -> (l << r) * v.hashCode();
+      case Pair<?, ?>(Object l, Void r) -> throw new IllegalArgumentException("how");
+      case Pair<?, ?>(String l, String r)
+        when l.length() > 3 && r.length() > 3 && l.length() + r.length() < 23
+        -> l.length() + r.length();
+      case Pair<?, ?>(Object l, Object r) p2 -> -2;
+    };
+  }
 }
