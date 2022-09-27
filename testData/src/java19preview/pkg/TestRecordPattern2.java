@@ -13,4 +13,15 @@ public class TestRecordPattern2 {
       System.out.println("Other pair");
     }
   }
+  
+  void test2(Pair<?, ?> p) {
+    if (p instanceof Pair<?,?>(String s, Long l)) {
+      System.out.println("String-Long pair of \"" + s + "\" and " + l);
+    } else if (p instanceof Pair<?,?>(Long l, Object o)) {
+      System.out.println("Long-Object pair");
+    } else {
+      System.out.println("Other pair");
+    }
+    System.out.println("Unconditional");
+  }
 }

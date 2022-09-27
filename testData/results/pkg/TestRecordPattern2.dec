@@ -2,7 +2,7 @@ package pkg;
 
 public class TestRecordPattern2 {
    void test(TestRecordPattern2.Pair<?, ?> p) {
-      if (p instanceof TestRecordPattern2.Pair) {// 8
+      if (p instanceof TestRecordPattern2.Pair) {
          Object var6 = $proxy$a(p);// 1
          if (var6 instanceof String s) {
             var6 = $proxy$b(p);
@@ -24,6 +24,34 @@ public class TestRecordPattern2 {
 
       System.out.println("Other pair");// 13
    }
+
+   void test2(TestRecordPattern2.Pair<?, ?> p) {
+      label23: {
+         if (p instanceof TestRecordPattern2.Pair) {// 18
+            Object var6 = $proxy$a(p);// 8
+            if (var6 instanceof String s) {
+               var6 = $proxy$b(p);
+               if (var6 instanceof Long l) {
+                  System.out.println("String-Long pair of \"" + s + "\" and " + l);
+                  break label23;
+               }
+            }
+         }
+
+         if (p instanceof TestRecordPattern2.Pair) {// 20
+            Object var8 = $proxy$a(p);// 19
+            if (var8 instanceof Long l) {
+               var8 = $proxy$b(p);
+               System.out.println("Long-Object pair");// 21
+               break label23;
+            }
+         }
+
+         System.out.println("Other pair");// 23
+      }
+
+      System.out.println("Unconditional");// 25
+   }// 26
 
    static record Pair<A, B>(A a, B b) {
    }
@@ -116,13 +144,117 @@ class 'pkg/TestRecordPattern2' {
       75      24
       78      10
    }
+
+   method 'test2 (Lpkg/TestRecordPattern2$Pair;)V' {
+      0      29
+      1      29
+      2      29
+      3      29
+      4      29
+      7      30
+      8      30
+      9      30
+      a      30
+      b      30
+      c      30
+      d      31
+      e      31
+      f      31
+      10      31
+      11      31
+      12      31
+      1a      31
+      1b      32
+      1c      32
+      1d      32
+      1e      32
+      1f      32
+      20      32
+      21      33
+      22      33
+      23      33
+      24      33
+      25      33
+      26      33
+      2e      33
+      2f      34
+      30      34
+      31      34
+      32      34
+      33      34
+      34      34
+      35      34
+      36      34
+      37      34
+      38      34
+      39      34
+      3a      34
+      3b      34
+      3c      35
+      3f      40
+      40      40
+      41      40
+      42      40
+      43      40
+      46      41
+      47      41
+      48      41
+      49      41
+      4a      41
+      4b      41
+      4c      42
+      4d      42
+      4e      42
+      4f      42
+      50      42
+      51      42
+      59      42
+      5a      42
+      5b      43
+      5c      43
+      5d      43
+      5e      43
+      5f      43
+      60      43
+      65      44
+      66      44
+      67      44
+      68      44
+      69      44
+      6a      44
+      6b      44
+      6c      44
+      6d      45
+      70      49
+      71      49
+      72      49
+      73      49
+      74      49
+      75      49
+      78      52
+      79      52
+      7a      52
+      7b      52
+      7c      52
+      7d      52
+      7e      52
+      7f      52
+      80      53
+   }
 }
 
 Lines mapping:
 1 <-> 6
-8 <-> 5
+8 <-> 31
 9 <-> 17
 10 <-> 16
 11 <-> 20
 13 <-> 25
 15 <-> 11
+18 <-> 30
+19 <-> 42
+20 <-> 41
+21 <-> 45
+23 <-> 50
+25 <-> 53
+26 <-> 54
