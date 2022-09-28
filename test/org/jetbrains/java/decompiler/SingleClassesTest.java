@@ -444,9 +444,11 @@ public class SingleClassesTest extends SingleClassesTestBase {
 
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingFuzz1");
     
+    // TODO: non-resugared record patterns reference hidden proxy methods
     register(JAVA_19_PREVIEW, "TestRecordPattern1");
     register(JAVA_19_PREVIEW, "TestRecordPattern2");
     register(JAVA_19_PREVIEW, "TestRecordPattern3");
+    // TODO: incorrect use of reassigned variable `var21` in `test2`
     register(JAVA_19_PREVIEW, "TestRecordPattern4");
 
     register(JASM, "TestCondy");
