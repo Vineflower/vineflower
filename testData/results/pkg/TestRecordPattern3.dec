@@ -1,0 +1,311 @@
+package pkg;
+
+public class TestRecordPattern3 {
+   void test(TestRecordPattern3.Bundle<?> bundle) {
+      if (bundle instanceof TestRecordPattern3.Bundle) {// 8
+         Object var19 = $proxy$a(bundle);// 1
+         if (var19 instanceof String a) {// 9
+            String var21 = $proxy$b(bundle);
+            String var22 = $proxy$c(bundle);
+            int var23 = $proxy$i1(bundle);
+            int i1 = Integer.valueOf(var23);
+            int var24 = $proxy$i2(bundle);
+            int i2 = Integer.valueOf(var24);
+            int var25 = $proxy$i3(bundle);
+            int i3 = Integer.valueOf(var25);
+            int var26 = $proxy$i4(bundle);
+            int i4 = Integer.valueOf(var26);
+            long var27 = $proxy$l1(bundle);
+            long l1 = Long.valueOf(var27);
+            long var28 = $proxy$l2(bundle);
+            long l2 = Long.valueOf(var28);
+            char var29 = $proxy$c1(bundle);
+            char c1 = Character.valueOf(var29);
+            char var30 = $proxy$c2(bundle);
+            char c2 = Character.valueOf(var30);
+            byte var31 = $proxy$bb(bundle);
+            byte bb = Byte.valueOf(var31);
+            double var32 = $proxy$dd(bundle);
+            double dd = Double.valueOf(var32);
+            boolean var33 = $proxy$bool(bundle);
+            boolean bool = Boolean.valueOf(var33);
+            System.out.println(a + var21 + var22 + ((double)((long)(i1 + i2 + i3 + i4) + l1 + l2 + (long)c1 + (long)c2 + (long)bb) + dd) + bool);// 11
+         }
+      }
+   }// 13
+
+   static record Bundle<A>(A a, String b, String c, int i1, int i2, int i3, int i4, long l1, long l2, char c1, char c2, byte bb, double dd, boolean bool) {
+   }
+}
+
+class 'pkg/TestRecordPattern3' {
+   method 'test (Lpkg/TestRecordPattern3$Bundle;)V' {
+      0      4
+      1      4
+      2      4
+      3      4
+      4      4
+      7      5
+      8      5
+      9      5
+      a      5
+      b      5
+      c      5
+      d      6
+      e      6
+      f      6
+      10      6
+      11      6
+      12      6
+      1a      6
+      1b      7
+      1c      7
+      1d      7
+      1e      7
+      1f      7
+      20      7
+      21      31
+      22      31
+      24      8
+      25      8
+      26      8
+      27      8
+      28      8
+      29      8
+      2a      31
+      2b      31
+      2e      9
+      2f      9
+      30      9
+      31      9
+      32      9
+      33      9
+      34      10
+      35      10
+      36      10
+      37      10
+      38      10
+      39      10
+      3a      10
+      3b      10
+      3c      10
+      3d      10
+      3e      11
+      3f      11
+      40      11
+      41      11
+      42      11
+      43      11
+      44      12
+      45      12
+      46      12
+      47      12
+      48      12
+      49      12
+      4a      12
+      4b      12
+      4c      12
+      4d      12
+      4e      13
+      4f      13
+      50      13
+      51      13
+      52      13
+      53      13
+      54      14
+      55      14
+      56      14
+      57      14
+      58      14
+      59      14
+      5a      14
+      5b      14
+      5c      14
+      5d      14
+      5e      15
+      5f      15
+      60      15
+      61      15
+      62      15
+      63      15
+      64      16
+      65      16
+      66      16
+      67      16
+      68      16
+      69      16
+      6a      16
+      6b      16
+      6c      16
+      6d      16
+      6e      17
+      6f      17
+      70      17
+      71      17
+      72      17
+      73      17
+      74      18
+      75      18
+      76      18
+      77      18
+      78      18
+      79      18
+      7a      18
+      7b      18
+      7c      18
+      7d      18
+      7e      19
+      7f      19
+      80      19
+      81      19
+      82      19
+      83      19
+      84      20
+      85      20
+      86      20
+      87      20
+      88      20
+      89      20
+      8a      20
+      8b      20
+      8c      20
+      8d      20
+      8e      21
+      8f      21
+      90      21
+      91      21
+      92      21
+      93      21
+      94      22
+      95      22
+      96      22
+      97      22
+      98      22
+      99      22
+      9a      22
+      9b      22
+      9c      22
+      9d      22
+      9e      23
+      9f      23
+      a0      23
+      a1      23
+      a2      23
+      a3      23
+      a4      24
+      a5      24
+      a6      24
+      a7      24
+      a8      24
+      a9      24
+      aa      24
+      ab      24
+      ac      24
+      ad      24
+      ae      25
+      af      25
+      b0      25
+      b1      25
+      b2      25
+      b3      25
+      b4      26
+      b5      26
+      b6      26
+      b7      26
+      b8      26
+      b9      26
+      ba      26
+      bb      26
+      bc      26
+      bd      26
+      be      27
+      bf      27
+      c0      27
+      c1      27
+      c2      27
+      c3      27
+      c4      28
+      c5      28
+      c6      28
+      c7      28
+      c8      28
+      c9      28
+      ca      28
+      cb      28
+      cc      28
+      cd      28
+      ce      29
+      cf      29
+      d0      29
+      d1      29
+      d2      29
+      d3      29
+      d4      30
+      d5      30
+      d6      30
+      d7      30
+      d8      30
+      d9      30
+      da      30
+      db      30
+      dc      30
+      dd      30
+      de      31
+      df      31
+      e0      31
+      e1      31
+      e2      31
+      e3      31
+      e4      31
+      e5      31
+      e6      31
+      e7      31
+      e8      31
+      e9      31
+      ea      31
+      eb      31
+      ec      31
+      ed      31
+      ee      31
+      ef      31
+      f0      31
+      f1      31
+      f2      31
+      f3      31
+      f4      31
+      f5      31
+      f6      31
+      f7      31
+      f8      31
+      f9      31
+      fa      31
+      fb      31
+      fc      31
+      fd      31
+      fe      31
+      ff      31
+      100      31
+      101      31
+      102      31
+      103      31
+      104      31
+      105      31
+      106      31
+      107      31
+      108      31
+      109      31
+      10a      31
+      10b      31
+      10c      31
+      10d      31
+      10e      31
+      111      34
+   }
+}
+
+Lines mapping:
+1 <-> 6
+8 <-> 5
+9 <-> 7
+11 <-> 32
+13 <-> 35
