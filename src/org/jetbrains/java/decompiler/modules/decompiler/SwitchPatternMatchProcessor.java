@@ -4,6 +4,7 @@ import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.PatternExprent.TypePatternExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.struct.consts.PooledConstant;
 import org.jetbrains.java.decompiler.struct.consts.PrimitiveConstant;
@@ -164,19 +165,13 @@ public final class SwitchPatternMatchProcessor {
 
             if (assign.getRight() instanceof FunctionExprent && ((FunctionExprent) assign.getRight()).getFuncType() == FunctionExprent.FunctionType.CAST) {
               FunctionExprent cast = (FunctionExprent) assign.getRight();
-
-              List<Exprent> operands = new ArrayList<>();
-              operands.add(cast.getLstOperands().get(0)); // checking var
-              operands.add(cast.getLstOperands().get(1)); // type
-              operands.add(var); // pattern match var
-
-              FunctionExprent func = new FunctionExprent(FunctionExprent.FunctionType.INSTANCEOF, operands, null);
+              PatternExprent pattern = new TypePatternExprent(cast.getLstOperands().get(1).getExprType(), (VarExprent)cast.getLstOperands().get(0));
 
               caseStatBlock.getExprents().remove(0);
 
               // TODO: ssau representation
               // any shared nulls will be at the end, and patterns & defaults can't be shared, so its safe to overwrite whatever's here
-              allCases.set(0, func);
+              allCases.set(0, pattern);
             }
           }
         }
@@ -216,13 +211,9 @@ public final class SwitchPatternMatchProcessor {
             // may happen if the switch head is a supertype of the pattern
             if (stat.getCaseValues().get(replaceIndex).stream().allMatch(x -> x instanceof ConstExprent)) {
               VarType castType = new VarType(CodeConstants.TYPE_OBJECT, 0, (String) p.value);
-              List<Exprent> operands = new ArrayList<>();
-              operands.add(realSelector); // checking var
-              operands.add(new ConstExprent(castType, null, null)); // type
-              operands.add(new VarExprent(DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.VAR_COUNTER),
+              newValue = new TypePatternExprent(castType, new VarExprent(DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.VAR_COUNTER),
                 castType,
                 DecompilerContext.getVarProcessor()));
-              newValue = new FunctionExprent(FunctionExprent.FunctionType.INSTANCEOF, operands, null);
             }
             break;
         }

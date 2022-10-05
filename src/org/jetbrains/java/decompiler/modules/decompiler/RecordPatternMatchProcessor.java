@@ -2,6 +2,7 @@ package org.jetbrains.java.decompiler.modules.decompiler;
 
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.PatternExprent.RecordPatternExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.PatternExprent.TypePatternExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.struct.StructClass;
@@ -36,6 +37,13 @@ public final class RecordPatternMatchProcessor {
       res |= handleIf((IfStatement) statement, root);
     }
     
+    // TODO!! guarded record pattern switches
+    if (statement instanceof SwitchStatement) {
+      if (((SwitchStatement)statement).isPattern()) {
+        res |= handleSwitch((SwitchStatement)statement, root);
+      }
+    }
+    
     return res;
   }
   
@@ -65,30 +73,54 @@ public final class RecordPatternMatchProcessor {
       if (func.getLstOperands().size() == 2 && func.getFuncType() == FunctionExprent.FunctionType.INSTANCEOF) {
         Exprent source = func.getLstOperands().get(0);
         Exprent target = func.getLstOperands().get(1);
-        
-        if (isRecordClass(target.getExprType())) {
-          List<VarExprent> proxyVars = new ArrayList<>();
-          List<PatternExprent> components = new ArrayList<>();
-          // keep looking for possible components
-          Statement current = st.getIfstat().getBasichead();
-          // follow control flow through pattern ifs
-          while (true) {
-            var proc = processStat(current, components, proxyVars, source);
-            current = proc.a;
-            if (!proc.b)
-              break;
-          }
-          checkLastProxyVar(components, proxyVars);
-          // if we have the right number of components,
-          // make the pattern,
-          PatternExprent pat = new PatternExprent.RecordPatternExprent(target.getExprType(), components, null);
-          // fix up control flow
-          st.getHeadexprent().setCondition(new FunctionExprent(FunctionExprent.FunctionType.INSTANCEOF, List.of(source, pat), null));
+  
+        var pattern = matchRecordPattern(st.getIfstat(), source, target.getExprType());
+        if(pattern != null){
+          st.getHeadexprent().setCondition(new FunctionExprent(FunctionExprent.FunctionType.INSTANCEOF, List.of(source, pattern), null));
           return true;
         }
       }
     }
     return false;
+  }
+  
+  private static boolean handleSwitch(SwitchStatement st, RootStatement root){
+    // already a pattern matching switch, we're just possibly enhancing it
+    List<List<Exprent>> values = st.getCaseValues();
+    for(int i = 0; i < values.size(); i++){
+      List<Exprent> value = values.get(i);
+      if(value.size() == 1 && value.get(0) instanceof TypePatternExprent){
+        TypePatternExprent patternCase = (TypePatternExprent)value.get(0);
+        var caseVar = patternCase.getVar();
+        if(isRecordClass(caseVar.getExprType())){
+          var pattern = matchRecordPattern(st.getCaseStatements().get(i), caseVar, caseVar.getExprType());
+          if (pattern != null) {
+            value.set(0, pattern);
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
+  
+  private static RecordPatternExprent matchRecordPattern(Statement head, Exprent source, VarType targetType){
+    if (isRecordClass(targetType)) {
+      List<VarExprent> proxyVars = new ArrayList<>();
+      List<PatternExprent> components = new ArrayList<>();
+      // keep looking for possible components
+      Statement current = head.getBasichead();
+      // follow control flow through pattern ifs
+      while (true) {
+        var proc = processStat(current, components, proxyVars, source);
+        current = proc.a;
+        if (!proc.b)
+          break;
+      }
+      checkLastProxyVar(components, proxyVars);
+      return new RecordPatternExprent(targetType, components, null);
+    }
+    return null;
   }
   
   private static Pair<Statement, Boolean> processStat(Statement current, List<PatternExprent> collected, List<VarExprent> proxyVars, Exprent recordExpr) {

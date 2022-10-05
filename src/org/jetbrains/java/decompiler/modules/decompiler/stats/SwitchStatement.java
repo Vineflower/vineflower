@@ -251,7 +251,7 @@ public final class SwitchStatement extends Statement {
     for (List<Exprent> l : this.caseValues) {
       for (Exprent e : l) {
         // If we have instanceofs in our case values, we're a pattern matching switch
-        if (e instanceof FunctionExprent && ((FunctionExprent)e).getFuncType() == FunctionType.INSTANCEOF) {
+        if (e instanceof PatternExprent) {
           return true;
         }
       }
@@ -280,13 +280,11 @@ public final class SwitchStatement extends Statement {
         continue;
       }
 
-      if (caseContent instanceof FunctionExprent) {
-        FunctionExprent func = ((FunctionExprent) caseContent);
+      if (caseContent instanceof PatternExprent) {
+        PatternExprent pattern = ((PatternExprent) caseContent);
 
-        // Pattern match variable is implicitly defined
-        if (func.getFuncType() == FunctionType.INSTANCEOF && func.getLstOperands().size() > 2) {
-          vars.add((VarExprent) func.getLstOperands().get(2));
-        }
+        vars.addAll(pattern.getBindings());
+        
       }
     }
 
