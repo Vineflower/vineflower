@@ -1,10 +1,8 @@
 package org.jetbrains.java.decompiler.modules.decompiler;
 
-import org.jetbrains.java.decompiler.modules.decompiler.exps.AssignmentExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.PatternExprent.TypePatternExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
@@ -18,9 +16,9 @@ import java.util.List;
  *
  * @author SuperCoder79
  */
-public final class IfPatternMatchProcessor {
-  public static boolean matchInstanceof(RootStatement root) {
-    boolean res = matchInstanceofRec(root, root);
+public final class TypePatternMatchProcessor {
+  public static boolean matchTypePattern(RootStatement root) {
+    boolean res = matchTypePatternRec(root, root);
 
     if (res) {
       SequenceHelper.condenseSequences(root);
@@ -29,10 +27,10 @@ public final class IfPatternMatchProcessor {
     return res;
   }
 
-  private static boolean matchInstanceofRec(Statement statement, RootStatement root) {
+  private static boolean matchTypePatternRec(Statement statement, RootStatement root) {
     boolean res = false;
     for (Statement stat : statement.getStats()) {
-      if (matchInstanceofRec(stat, root)) {
+      if (matchTypePatternRec(stat, root)) {
         res = true;
       }
     }
@@ -97,8 +95,9 @@ public final class IfPatternMatchProcessor {
                       // This gets all predecessors of the if statement and gathers all the variable assignments inside.
                       // TODO: cache this
                       findVarsInPredecessors(vvs, statement.getIfstat());
-
-                      VarVersionPair var = ((VarExprent) left).getVarVersionPair();
+  
+                      var leftVar = (VarExprent)left;
+                      VarVersionPair var = leftVar.getVarVersionPair();
 
                       // Stop processing if this variable has already been seen
                       for (VarVersionPair vv : vvs) {
@@ -108,7 +107,7 @@ public final class IfPatternMatchProcessor {
                       }
 
                       // Add the exprent to the instanceof exprent and remove it from the inside of the if statement
-                      iof.getLstOperands().add(2, left);
+                      iof.getLstOperands().set(1, new TypePatternExprent(leftVar.getVarType(), leftVar));
                       head.getExprents().remove(0);
 
                       statement.setPatternMatched(true);

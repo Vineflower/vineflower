@@ -34,6 +34,7 @@ public class VarType {  // TODO: optimize switch
   public static final VarType VARTYPE_SHORT_OBJ = new VarType(CodeConstants.TYPE_OBJECT, 0, "java/lang/Short");
   public static final VarType VARTYPE_BOOLEAN_OBJ = new VarType(CodeConstants.TYPE_OBJECT, 0, "java/lang/Boolean");
   public static final VarType VARTYPE_FLOAT_OBJ = new VarType(CodeConstants.TYPE_OBJECT, 0, "java/lang/Float");
+  public static final VarType VARTYPE_LONG_OBJ = new VarType(CodeConstants.TYPE_OBJECT, 0, "java/lang/Long");
   public static final VarType VARTYPE_DOUBLE_OBJ = new VarType(CodeConstants.TYPE_OBJECT, 0, "java/lang/Double");
   public static final VarType VARTYPE_VOID = new VarType(CodeConstants.TYPE_VOID);
 
@@ -46,6 +47,7 @@ public class VarType {  // TODO: optimize switch
     UNBOXING_TYPES.put(VARTYPE_SHORT_OBJ, VARTYPE_SHORT);
     UNBOXING_TYPES.put(VARTYPE_BOOLEAN_OBJ, VARTYPE_BOOLEAN);
     UNBOXING_TYPES.put(VARTYPE_FLOAT_OBJ, VARTYPE_FLOAT);
+    UNBOXING_TYPES.put(VARTYPE_LONG_OBJ, VARTYPE_LONG);
     UNBOXING_TYPES.put(VARTYPE_DOUBLE_OBJ, VARTYPE_DOUBLE);
   }
 

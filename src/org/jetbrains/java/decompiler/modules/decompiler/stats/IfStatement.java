@@ -4,11 +4,8 @@ package org.jetbrains.java.decompiler.modules.decompiler.stats;
 import org.jetbrains.java.decompiler.modules.decompiler.DecHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.IfExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.struct.match.IMatchable;
 import org.jetbrains.java.decompiler.struct.match.MatchEngine;
 import org.jetbrains.java.decompiler.struct.match.MatchNode;
@@ -438,8 +435,10 @@ public final class IfStatement extends Statement {
         FunctionExprent func = ((FunctionExprent)condition);
 
         // Pattern match variable is implicitly defined
-        if (func.getFuncType() == FunctionType.INSTANCEOF && func.getLstOperands().size() > 2) {
-          vars.add((VarExprent) func.getLstOperands().get(2));
+        if (func.getFuncType() == FunctionType.INSTANCEOF
+          && func.getLstOperands().size() == 2
+          && func.getLstOperands().get(1) instanceof PatternExprent) {
+          vars.addAll(((PatternExprent) func.getLstOperands().get(1)).getBindings());
         }
       }
     }
