@@ -7,8 +7,8 @@ public class TestRecordPattern2 {
       if (p instanceof TestRecordPattern2.Pair) {
          Object var6 = $proxy$a(p);// 1
          if (var6 instanceof String s) {
-            var6 = $proxy$b(p);
-            if (var6 instanceof Long l) {
+            Object var7 = $proxy$b(p);
+            if (var7 instanceof Long l) {
                System.out.println("String-Long pair of \"" + s + "\" and " + l);
                return;// 15
             }
@@ -18,7 +18,7 @@ public class TestRecordPattern2 {
       if (p instanceof TestRecordPattern2.Pair) {// 10
          Object var8 = $proxy$a(p);// 9
          if (var8 instanceof Long l) {
-            var8 = $proxy$b(p);
+            Object var9 = $proxy$b(p);
             System.out.println("Long-Object pair");// 11
             return;
          }
@@ -32,8 +32,8 @@ public class TestRecordPattern2 {
          if (p instanceof TestRecordPattern2.Pair) {// 18
             Object var6 = $proxy$a(p);// 8
             if (var6 instanceof String s) {
-               var6 = $proxy$b(p);
-               if (var6 instanceof Long l) {
+               Object var7 = $proxy$b(p);
+               if (var7 instanceof Long l) {
                   System.out.println("String-Long pair of \"" + s + "\" and " + l);
                   break label23;
                }
@@ -43,7 +43,7 @@ public class TestRecordPattern2 {
          if (p instanceof TestRecordPattern2.Pair) {// 20
             Object var8 = $proxy$a(p);// 19
             if (var8 instanceof Long l) {
-               var8 = $proxy$b(p);
+               Object var9 = $proxy$b(p);
                System.out.println("Long-Object pair");// 21
                break label23;
             }
@@ -70,8 +70,8 @@ public class TestRecordPattern2 {
             case 0:
                Object var18 = $proxy$a(var2);
                if (var18 instanceof Long l) {// 31
-                  var18 = $proxy$b(var2);
-                  if (var18 instanceof Long r) {
+                  Object var19 = $proxy$b(var2);
+                  if (var19 instanceof Long r) {
                      var10000 = l + r;
                      break;
                   }
@@ -82,8 +82,8 @@ public class TestRecordPattern2 {
             case 1:
                Object lx = $proxy$a(var2);
                if (lx instanceof Integer l) {// 32
-                  lx = $proxy$b(var2);
-                  if (lx instanceof Integer r) {
+                  Object var20 = $proxy$b(var2);
+                  if (var20 instanceof Integer r) {
                      var10000 = (l << r) * var2.hashCode();
                      break;
                   }
@@ -93,8 +93,8 @@ public class TestRecordPattern2 {
                continue;
             case 2:
                Object var21 = $proxy$a(var2);
-               var21 = $proxy$b(var2);// 33
-               if (var21 instanceof Void r) {
+               Object var22 = $proxy$b(var2);// 33
+               if (var22 instanceof Void r) {
                   throw new IllegalArgumentException("how");
                }
 
@@ -103,8 +103,8 @@ public class TestRecordPattern2 {
             case 3:
                Object lx = $proxy$a(var2);
                if (lx instanceof String l) {
-                  lx = $proxy$b(var2);
-                  if (lx instanceof String r && l.length() > 3 && r.length() > 3 && l.length() + r.length() < 23) {// 35
+                  Object var23 = $proxy$b(var2);
+                  if (var23 instanceof String r && l.length() > 3 && r.length() > 3 && l.length() + r.length() < 23) {// 35
                      var10000 = l.length() + r.length();// 36
                      break;
                   }
@@ -114,7 +114,7 @@ public class TestRecordPattern2 {
                continue;
             case 4:
                Object var17 = $proxy$a(var2);
-               var17 = $proxy$b(var2);// 37
+               Object var24 = $proxy$b(var2);// 37
                var10000 = -2;
                break;
             default:

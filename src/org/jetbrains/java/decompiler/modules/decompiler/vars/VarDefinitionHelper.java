@@ -512,7 +512,7 @@ public class VarDefinitionHelper {
     Map<VarVersionPair, VarVersionPair> denylist = new HashMap<>();
     VPPEntry remap = mergeVars(stat, parent, new HashMap<>(), denylist);
     while (remap != null) {
-      //System.out.println("Remapping: " + remap.getKey() + " -> " + remap.getValue());
+      System.out.println("Remapping: " + remap.getKey() + " -> " + remap.getValue());
       if (!remapVar(stat, remap.getKey(), remap.getValue())) {
         denylist.put(remap.getKey(), remap.getValue());
       }
@@ -774,7 +774,7 @@ public class VarDefinitionHelper {
       VarVersionPair old = new VarVersionPair(var);
       VarVersionPair deny = denylist.get(old);
       if (deny == null || !deny.equals(new_)) {
-        return new VPPEntry(var, this_vars.get(index));
+        //return new VPPEntry(var, this_vars.get(index));
       }
     }
     this_vars.put(index, new VarVersionPair(var));

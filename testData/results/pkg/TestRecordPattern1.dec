@@ -7,8 +7,8 @@ public class TestRecordPattern1 {
       if (o instanceof TestRecordPattern1.Point) {
          int var4 = $proxy$a((TestRecordPattern1.Point)o);// 1
          int a = Integer.valueOf(var4);// 8
-         var4 = $proxy$b((TestRecordPattern1.Point)o);
-         int b = Integer.valueOf(var4);
+         int var5 = $proxy$b((TestRecordPattern1.Point)o);
+         int b = Integer.valueOf(var5);
          System.out.println(a + b);// 9
       }
    }// 11
@@ -21,8 +21,8 @@ public class TestRecordPattern1 {
          case TestRecordPattern1.Point var8:
             int obj = $proxy$a((TestRecordPattern1.Point)o);
             int a = Integer.valueOf(obj);// 15
-            obj = $proxy$b((TestRecordPattern1.Point)o);
-            int b = Integer.valueOf(obj);
+            int var7 = $proxy$b((TestRecordPattern1.Point)o);
+            int b = Integer.valueOf(var7);
             System.out.println(a + b);
             break;
          default:
@@ -43,8 +43,8 @@ public class TestRecordPattern1 {
             case 0:
                int var8 = $proxy$a((TestRecordPattern1.Point)var2);
                int a = Integer.valueOf(var8);// 24
-               var8 = $proxy$b((TestRecordPattern1.Point)var2);
-               int b = Integer.valueOf(var8);
+               int var9 = $proxy$b((TestRecordPattern1.Point)var2);
+               int b = Integer.valueOf(var9);
                if (a <= 0 || b <= 0) {
                   var3 = 1;
                   continue;

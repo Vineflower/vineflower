@@ -5,22 +5,22 @@ public class TestRecordPattern4 {
       if (m instanceof TestRecordPattern4.Many) {
          Object var12 = $proxy$a((TestRecordPattern4.Many)m);// 1
          if (var12 instanceof String a) {// 9
-            var12 = $proxy$b((TestRecordPattern4.Many)m);
-            if (var12 instanceof String b) {
-               var12 = $proxy$c((TestRecordPattern4.Many)m);
-               if (var12 instanceof String c) {
-                  var12 = $proxy$d((TestRecordPattern4.Many)m);
-                  if (var12 instanceof String d) {
-                     var12 = $proxy$e((TestRecordPattern4.Many)m);
-                     if (var12 instanceof String e) {
-                        var12 = $proxy$f((TestRecordPattern4.Many)m);
-                        if (var12 instanceof String f) {
-                           var12 = $proxy$g((TestRecordPattern4.Many)m);
-                           if (var12 instanceof String g) {
-                              var12 = $proxy$h((TestRecordPattern4.Many)m);
-                              if (var12 instanceof String h) {
-                                 var12 = $proxy$i((TestRecordPattern4.Many)m);
-                                 if (var12 instanceof String i) {
+            Object var13 = $proxy$b((TestRecordPattern4.Many)m);
+            if (var13 instanceof String b) {
+               Object var14 = $proxy$c((TestRecordPattern4.Many)m);
+               if (var14 instanceof String c) {
+                  Object var15 = $proxy$d((TestRecordPattern4.Many)m);
+                  if (var15 instanceof String d) {
+                     Object var16 = $proxy$e((TestRecordPattern4.Many)m);
+                     if (var16 instanceof String e) {
+                        Object var17 = $proxy$f((TestRecordPattern4.Many)m);
+                        if (var17 instanceof String f) {
+                           Object var18 = $proxy$g((TestRecordPattern4.Many)m);
+                           if (var18 instanceof String g) {
+                              Object var19 = $proxy$h((TestRecordPattern4.Many)m);
+                              if (var19 instanceof String h) {
+                                 Object var20 = $proxy$i((TestRecordPattern4.Many)m);
+                                 if (var20 instanceof String i) {
                                     TestRecordPattern4.Many mm = (TestRecordPattern4.Many)m;
                                     System.out.println(a + b + c + d + e + f + g + h + i + mm.hashCode());// 11
                                  }
@@ -38,32 +38,32 @@ public class TestRecordPattern4 {
    void test2(Object m) {
       if (m instanceof TestRecordPattern4.Many) {
          Object var21 = $proxy$a((TestRecordPattern4.Many)m);// 8
-         var21 = $proxy$b((TestRecordPattern4.Many)m);
-         if (var21 instanceof String b) {
-            var21 = $proxy$c((TestRecordPattern4.Many)m);
-            var21 = $proxy$d((TestRecordPattern4.Many)m);
-            var21 = $proxy$e((TestRecordPattern4.Many)m);
-            if (var21 instanceof String e) {
-               var21 = $proxy$f((TestRecordPattern4.Many)m);
-               var21 = $proxy$g((TestRecordPattern4.Many)m);
-               var21 = $proxy$h((TestRecordPattern4.Many)m);
-               if (var21 instanceof String h) {
-                  var21 = $proxy$i((TestRecordPattern4.Many)m);
-                  if (var21 instanceof TestRecordPattern4.Many) {
-                     Object var22 = $proxy$a((TestRecordPattern4.Many)var21);
-                     var22 = $proxy$b((TestRecordPattern4.Many)var21);// 18
-                     var22 = $proxy$c((TestRecordPattern4.Many)var21);
-                     var22 = $proxy$d((TestRecordPattern4.Many)var21);
-                     var22 = $proxy$e((TestRecordPattern4.Many)var21);
-                     var22 = $proxy$f((TestRecordPattern4.Many)var21);
-                     var22 = $proxy$g((TestRecordPattern4.Many)var21);
-                     var22 = $proxy$h((TestRecordPattern4.Many)var21);
-                     if (var22 instanceof String h2) {
-                        var22 = $proxy$i((TestRecordPattern4.Many)var21);
-                        if (var22 instanceof TestRecordPattern4.Many i2) {
-                           TestRecordPattern4.Many i = (TestRecordPattern4.Many)var21;// 17
+         Object var23 = $proxy$b((TestRecordPattern4.Many)m);
+         if (var23 instanceof String b) {
+            Object var24 = $proxy$c((TestRecordPattern4.Many)m);
+            Object var25 = $proxy$d((TestRecordPattern4.Many)m);
+            Object var26 = $proxy$e((TestRecordPattern4.Many)m);
+            if (var26 instanceof String e) {
+               Object var27 = $proxy$f((TestRecordPattern4.Many)m);
+               Object var28 = $proxy$g((TestRecordPattern4.Many)m);
+               Object var29 = $proxy$h((TestRecordPattern4.Many)m);
+               if (var29 instanceof String h) {
+                  Object var30 = $proxy$i((TestRecordPattern4.Many)m);
+                  if (var30 instanceof TestRecordPattern4.Many) {
+                     Object var22 = $proxy$a((TestRecordPattern4.Many)var30);
+                     Object var31 = $proxy$b((TestRecordPattern4.Many)var30);// 18
+                     Object var32 = $proxy$c((TestRecordPattern4.Many)var30);
+                     Object var33 = $proxy$d((TestRecordPattern4.Many)var30);
+                     Object var34 = $proxy$e((TestRecordPattern4.Many)var30);
+                     Object var35 = $proxy$f((TestRecordPattern4.Many)var30);
+                     Object var36 = $proxy$g((TestRecordPattern4.Many)var30);
+                     Object var37 = $proxy$h((TestRecordPattern4.Many)var30);
+                     if (var37 instanceof String h2) {
+                        Object var38 = $proxy$i((TestRecordPattern4.Many)var30);
+                        if (var38 instanceof TestRecordPattern4.Many i2) {
+                           TestRecordPattern4.Many i = (TestRecordPattern4.Many)var30;// 17
                            TestRecordPattern4.Many mm = (TestRecordPattern4.Many)m;// 16
-                           System.out.println(b + var21 + e + h + h2 + i2 + i.hashCode() + mm.hashCode());// 20
+                           System.out.println(b + var24 + e + h + h2 + i2 + i.hashCode() + mm.hashCode());// 20
                         }
                      }
                   }
