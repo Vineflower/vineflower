@@ -2,16 +2,7 @@ package pkg;
 
 public class TestRecordPattern4 {
    void test(Object m) {
-      if (m instanceof TestRecordPattern4.Many(Object var12, Object var13, Object var14, Object var15, Object var16, Object var17, Object var18, Object var19, Object var20)
-         && var12 instanceof String a// 1
-         && var13 instanceof String b
-         && var14 instanceof String c
-         && var15 instanceof String d
-         && var16 instanceof String e
-         && var17 instanceof String f// 9
-         && var18 instanceof String g
-         && var19 instanceof String h
-         && var20 instanceof String i) {
+      if (m instanceof TestRecordPattern4.Many(String a, String b, String c, String d, String e, String f, String g, String h, String i) && true) {// 1 9
          TestRecordPattern4.Many mm = (TestRecordPattern4.Many)m;// 8
          System.out.println(a + b + c + d + e + f + g + h + i + mm.hashCode());// 11
       }
@@ -19,13 +10,8 @@ public class TestRecordPattern4 {
 
    // $QF: Could not properly define all variable types!
    void test2(Object m) {
-      if (m instanceof TestRecordPattern4.Many(Object var21, Object var23, Object var24, Object var25, Object var26, Object var27, Object var28, Object var29, Object var30)
-         && var23 instanceof String b
-         && var26 instanceof String e
-         && var29 instanceof String h
-         && var30 instanceof TestRecordPattern4.Many(Object var22, Object var31, Object var32, Object var33, Object var34, Object var35, Object var36, Object var37, Object var38)
-         && var37 instanceof String h2// 18
-         && var38 instanceof TestRecordPattern4.Many i2) {
+      if (m instanceof TestRecordPattern4.Many(Object var21, String b, Object var24, Object var25, String e, Object var27, Object var28, String h, TestRecordPattern4.Many(Object var22, Object var31, Object var32, Object var33, Object var34, Object var35, Object var36, String h2, TestRecordPattern4.Many i2) var30)// 18
+         && true) {
          TestRecordPattern4.Many i = (TestRecordPattern4.Many)var30;// 17
          TestRecordPattern4.Many mm = (TestRecordPattern4.Many)m;// 16
          System.out.println(b + var24 + e + h + h2 + i2 + i.hashCode() + mm.hashCode());// 20
@@ -40,192 +26,120 @@ class 'pkg/TestRecordPattern4' {
    method 'test (Ljava/lang/Object;)V' {
       0      4
       4      4
-      10      5
-      11      5
-      12      5
-      13      5
-      14      5
-      15      5
-      27      6
-      28      6
-      29      6
-      2a      6
-      2b      6
-      2c      6
-      3e      7
-      3f      7
-      40      7
-      41      7
-      42      7
-      43      7
-      56      8
-      57      8
-      58      8
-      59      8
-      5a      8
-      5b      8
-      6e      9
-      6f      9
-      70      9
-      71      9
-      72      9
-      73      9
-      86      10
-      87      10
-      88      10
-      89      10
-      8a      10
-      8b      10
-      9e      11
-      9f      11
-      a0      11
-      a1      11
-      a2      11
-      a3      11
-      b6      12
-      b7      12
-      b8      12
-      b9      12
-      ba      12
-      bb      12
-      ce      13
-      cf      13
-      d0      13
-      d1      13
-      d2      13
-      d3      13
-      dd      14
-      de      14
-      df      14
-      e0      14
-      e1      14
-      e2      14
-      e3      15
-      e4      15
-      e5      15
-      e6      15
-      e7      15
-      e8      15
-      e9      15
-      ea      15
-      eb      15
-      ec      15
-      ed      15
-      ee      15
-      ef      15
-      f0      15
-      f1      15
-      f2      15
-      f3      15
-      f4      15
-      f5      15
-      f6      15
-      f7      15
-      f8      15
-      f9      15
-      fa      15
-      fb      15
-      fc      15
-      fd      15
-      fe      15
-      ff      15
-      100      15
-      103      17
+      15      4
+      2c      4
+      43      4
+      5b      4
+      73      4
+      8b      4
+      a3      4
+      bb      4
+      d3      4
+      dd      5
+      de      5
+      df      5
+      e0      5
+      e1      5
+      e2      5
+      e3      6
+      e4      6
+      e5      6
+      e6      6
+      e7      6
+      e8      6
+      e9      6
+      ea      6
+      eb      6
+      ec      6
+      ed      6
+      ee      6
+      ef      6
+      f0      6
+      f1      6
+      f2      6
+      f3      6
+      f4      6
+      f5      6
+      f6      6
+      f7      6
+      f8      6
+      f9      6
+      fa      6
+      fb      6
+      fc      6
+      fd      6
+      fe      6
+      ff      6
+      100      6
+      103      8
    }
 
    method 'test2 (Ljava/lang/Object;)V' {
-      0      21
-      4      21
-      1c      22
-      1d      22
-      1e      22
-      1f      22
-      20      22
-      21      22
-      33      30
-      34      30
-      4d      23
-      4e      23
-      4f      23
-      50      23
-      51      23
-      52      23
-      7f      24
-      80      24
-      81      24
-      82      24
-      83      24
-      84      24
-      97      25
-      98      25
-      9c      21
-      10b      26
-      10c      26
-      10d      26
-      10e      26
-      10f      26
-      110      26
-      124      27
-      125      27
-      126      27
-      127      27
-      128      27
-      129      27
-      133      28
-      134      28
-      135      28
-      136      28
-      137      28
-      138      28
-      139      28
-      13a      29
-      13b      29
-      13c      29
-      13d      29
-      13e      29
-      13f      29
-      140      30
-      141      30
-      142      30
-      143      30
-      144      30
-      145      30
-      149      30
-      14a      30
-      14b      30
-      14c      30
-      14d      30
-      14e      30
-      14f      30
-      150      30
-      154      30
-      155      30
-      156      30
-      157      30
-      158      30
-      159      30
-      15a      30
-      15b      30
-      15c      30
-      15d      30
-      15e      30
-      15f      30
-      160      30
-      161      30
-      162      30
-      163      30
-      166      32
+      0      12
+      4      12
+      21      12
+      33      16
+      34      16
+      52      12
+      84      12
+      9c      12
+      110      12
+      129      12
+      133      14
+      134      14
+      135      14
+      136      14
+      137      14
+      138      14
+      139      14
+      13a      15
+      13b      15
+      13c      15
+      13d      15
+      13e      15
+      13f      15
+      140      16
+      141      16
+      142      16
+      143      16
+      144      16
+      145      16
+      149      16
+      14a      16
+      14b      16
+      14c      16
+      14d      16
+      14e      16
+      14f      16
+      150      16
+      154      16
+      155      16
+      156      16
+      157      16
+      158      16
+      159      16
+      15a      16
+      15b      16
+      15c      16
+      15d      16
+      15e      16
+      15f      16
+      160      16
+      161      16
+      162      16
+      163      16
+      166      18
    }
 }
 
 Lines mapping:
-1 <-> 6
-8 <-> 15
-9 <-> 11
-11 <-> 16
-13 <-> 18
-16 <-> 30
-17 <-> 29
-18 <-> 27
-20 <-> 31
-22 <-> 33
+1 <-> 5
+8 <-> 6
+9 <-> 5
+11 <-> 7
+13 <-> 9
+16 <-> 16
+17 <-> 15
+18 <-> 13
+20 <-> 17
+22 <-> 19

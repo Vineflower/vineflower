@@ -4,9 +4,9 @@ import java.lang.runtime.SwitchBootstraps;
 
 public class TestRecordPattern2 {
    void test(TestRecordPattern2.Pair<?, ?> p) {
-      if (p instanceof TestRecordPattern2.Pair(Object var6, Object var7) && var6 instanceof String s && var7 instanceof Long l) {// 1
+      if (p instanceof TestRecordPattern2.Pair(String s, Long l) && true) {// 1
          System.out.println("String-Long pair of \"" + s + "\" and " + l);// 9
-      } else if (p instanceof TestRecordPattern2.Pair(Object var8, Object var9) && var8 instanceof Long l) {// 10
+      } else if (p instanceof TestRecordPattern2.Pair(Long l, Object var9) && true) {// 10
          System.out.println("Long-Object pair");// 11
       } else {
          System.out.println("Other pair");// 13
@@ -14,9 +14,9 @@ public class TestRecordPattern2 {
    }// 15
 
    void test2(TestRecordPattern2.Pair<?, ?> p) {
-      if (p instanceof TestRecordPattern2.Pair(Object var6, Object var7) && var6 instanceof String s && var7 instanceof Long l) {// 8 18
+      if (p instanceof TestRecordPattern2.Pair(String s, Long l) && true) {// 8 18
          System.out.println("String-Long pair of \"" + s + "\" and " + l);// 19
-      } else if (p instanceof TestRecordPattern2.Pair(Object var8, Object var9) && var8 instanceof Long l) {// 20
+      } else if (p instanceof TestRecordPattern2.Pair(Long l, Object var9) && true) {// 20
          System.out.println("Long-Object pair");// 21
       } else {
          System.out.println("Other pair");// 23
@@ -103,17 +103,7 @@ class 'pkg/TestRecordPattern2' {
    method 'test (Lpkg/TestRecordPattern2$Pair;)V' {
       0      6
       4      6
-      d      6
-      e      6
-      f      6
-      10      6
-      11      6
       12      6
-      21      6
-      22      6
-      23      6
-      24      6
-      25      6
       26      6
       2f      7
       30      7
@@ -130,11 +120,6 @@ class 'pkg/TestRecordPattern2' {
       3b      7
       3f      8
       43      8
-      4c      8
-      4d      8
-      4e      8
-      4f      8
-      50      8
       51      8
       65      9
       66      9
@@ -156,17 +141,7 @@ class 'pkg/TestRecordPattern2' {
    method 'test2 (Lpkg/TestRecordPattern2$Pair;)V' {
       0      16
       4      16
-      d      16
-      e      16
-      f      16
-      10      16
-      11      16
       12      16
-      21      16
-      22      16
-      23      16
-      24      16
-      25      16
       26      16
       2f      17
       30      17
@@ -183,11 +158,6 @@ class 'pkg/TestRecordPattern2' {
       3b      17
       3f      18
       43      18
-      4c      18
-      4d      18
-      4e      18
-      4f      18
-      50      18
       51      18
       65      19
       66      19

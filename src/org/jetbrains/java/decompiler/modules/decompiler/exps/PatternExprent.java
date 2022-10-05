@@ -20,7 +20,7 @@ public abstract class PatternExprent extends Exprent {
   public static class TypePatternExprent extends PatternExprent {
     
     private final VarType type;
-    protected final VarExprent var;
+    private final VarExprent var;
   
     public TypePatternExprent(VarType type, VarExprent var){
       this.type = type;
@@ -52,13 +52,17 @@ public abstract class PatternExprent extends Exprent {
     public List<VarExprent> getBindings(){
       return Collections.singletonList(var);
     }
+  
+    public VarExprent getVar(){
+      return var;
+    }
   }
   
   public static class RecordPatternExprent extends PatternExprent {
     
     private final VarType recordType;
     private final List<PatternExprent> nestedPatterns;
-    private final VarExprent name;
+    private VarExprent name;
   
     public RecordPatternExprent(VarType type, List<PatternExprent> patterns, VarExprent name){
       recordType = type;
@@ -115,6 +119,20 @@ public abstract class PatternExprent extends Exprent {
         bindings.add(name);
       }
       return bindings;
+    }
+  
+    public List<PatternExprent> getNestedPatterns() {
+      return nestedPatterns;
+    }
+    
+    public void replacePattern(PatternExprent original, PatternExprent other) {
+      int idx = nestedPatterns.indexOf(original);
+      if (idx != -1)
+        nestedPatterns.set(idx, other);
+    }
+  
+    public void setName(VarExprent name){
+      this.name = name;
     }
   }
 }

@@ -284,6 +284,10 @@ public class MethodProcessor implements Runnable {
             decompileRecord.add("MatchRecordPattern", root);
             continue;
           }
+          if (RecordPatternNestProcessor.nestRecordPatterns(root)) {
+            decompileRecord.add("NestRecordPatterns", root);
+            continue;
+          }
         }
       }
 

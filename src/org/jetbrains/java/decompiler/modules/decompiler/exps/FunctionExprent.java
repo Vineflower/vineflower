@@ -442,6 +442,18 @@ public class FunctionExprent extends Exprent {
       }
     }
   }
+  
+  public void replaceExprentRecursive(Exprent oldExpr, Exprent newExpr) {
+    for (int i = 0; i < lstOperands.size(); i++) {
+      if (oldExpr == lstOperands.get(i)) {
+        lstOperands.set(i, newExpr);
+        return;
+      }
+    }
+    for (Exprent operand : lstOperands) {
+      operand.replaceExprent(oldExpr, newExpr);
+    }
+  }
 
   @Override
   public TextBuffer toJava(int indent) {

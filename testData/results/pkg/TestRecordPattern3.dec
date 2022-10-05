@@ -3,8 +3,8 @@ package pkg;
 public class TestRecordPattern3 {
    // $QF: Could not properly define all variable types!
    void test(TestRecordPattern3.Bundle<?> bundle) {
-      if (bundle instanceof TestRecordPattern3.Bundle(Object var19, String var21, String var22, int i1, int i2, int i3, int i4, long l1, long l2, char c1, char c2, byte bb, double dd, boolean bool)// 8
-         && var19 instanceof String a) {// 1
+      if (bundle instanceof TestRecordPattern3.Bundle(String a, String var21, String var22, int i1, int i2, int i3, int i4, long l1, long l2, char c1, char c2, byte bb, double dd, boolean bool)// 1 8
+         && true) {
          System.out.println(a + var21 + var22 + ((double)((long)(i1 + i2 + i3 + i4) + l1 + l2 + (long)c1 + (long)c2 + (long)bb) + dd) + bool);// 9 11
       }
    }// 13
@@ -17,12 +17,7 @@ class 'pkg/TestRecordPattern3' {
    method 'test (Lpkg/TestRecordPattern3$Bundle;)V' {
       0      5
       4      5
-      d      6
-      e      6
-      f      6
-      10      6
-      11      6
-      12      6
+      12      5
       21      7
       22      7
       2a      7
@@ -81,7 +76,7 @@ class 'pkg/TestRecordPattern3' {
 }
 
 Lines mapping:
-1 <-> 7
+1 <-> 6
 8 <-> 6
 9 <-> 8
 11 <-> 8
