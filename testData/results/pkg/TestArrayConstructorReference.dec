@@ -4,8 +4,9 @@ import java.util.function.IntFunction;
 
 class TestArrayConstructorReference {
    static final IntFunction<int[]> INT = x$0 -> new int[x$0];// 6
-   static final IntFunction<String[]> STRING = x$0 -> new String[x$0];// 7
-   static final IntFunction<String[][]> STRING_ARRAY = x$0 -> new String[x$0][];// 8
+   static final IntFunction<int[][]> INT_ARRAY = x$0 -> new int[x$0][];// 7
+   static final IntFunction<String[]> STRING = x$0 -> new String[x$0];// 8
+   static final IntFunction<String[][]> STRING_ARRAY = x$0 -> new String[x$0][];// 9
 }
 
 class 'pkg/TestArrayConstructorReference' {
@@ -14,14 +15,19 @@ class 'pkg/TestArrayConstructorReference' {
       3      5
    }
 
-   method 'lambda$static$1 (I)[Ljava/lang/String;' {
+   method 'lambda$static$1 (I)[[I' {
       0      6
       4      6
    }
 
-   method 'lambda$static$2 (I)[[Ljava/lang/String;' {
+   method 'lambda$static$2 (I)[Ljava/lang/String;' {
       0      7
       4      7
+   }
+
+   method 'lambda$static$3 (I)[[Ljava/lang/String;' {
+      0      8
+      4      8
    }
 }
 
@@ -29,3 +35,4 @@ Lines mapping:
 6 <-> 6
 7 <-> 7
 8 <-> 8
+9 <-> 9
