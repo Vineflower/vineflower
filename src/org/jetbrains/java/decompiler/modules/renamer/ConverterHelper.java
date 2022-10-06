@@ -31,15 +31,9 @@ public class ConverterHelper implements IIdentifierRenamer {
   public boolean toBeRenamed(Type elementType, String className, String element, String descriptor) {
     String value = elementType == Type.ELEMENT_CLASS ? className : element;
     boolean isWindowsReserved;
-    return value == null ||
-        value.isEmpty() ||
-        !isValidIdentifier(elementType == Type.ELEMENT_METHOD, value) ||
-        KEYWORDS.contains(value) ||
-        (!(isWindowsReserved = RESERVED_WINDOWS_NAMESPACE.contains(value.toLowerCase(Locale.ENGLISH))) &&
-            OBF_REGEX.matcher(value).matches()) ||
-        (elementType == Type.ELEMENT_CLASS && (
-            isWindowsReserved ||
-            value.length() > 255 - 6)); // account for .class
+    return value == null || value.isEmpty() || !isValidIdentifier(elementType == Type.ELEMENT_METHOD, value) || KEYWORDS.contains(value) ||
+        (!(isWindowsReserved = RESERVED_WINDOWS_NAMESPACE.contains(value.toLowerCase(Locale.ENGLISH))) && OBF_REGEX.matcher(value).matches()) ||
+        (elementType == Type.ELEMENT_CLASS && (isWindowsReserved || value.length() > 255 - 6)); // account for .class
   }
 
   /**
