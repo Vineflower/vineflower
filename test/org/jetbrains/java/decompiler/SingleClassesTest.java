@@ -710,6 +710,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestLambdaGenericCall");
     // TODO: crashes in const type
     register(JAVA_8, "TestTryWithResourcesAfterSwitch");
+    register(JAVA_8, "TestArrayConstructorReferenceJrt");
   }
 
   private void registerLiterals() {
