@@ -124,6 +124,7 @@ public enum TestKotlinEnumWhen {
 class 'pkg/TestKotlinEnumWhen' {
    method 'testStatement ()V' {
       0      19
+      8      19
       9      19
       24      21
       25      21
@@ -154,6 +155,7 @@ class 'pkg/TestKotlinEnumWhen' {
 
    method 'testExpression ()V' {
       0      33
+      8      33
       9      33
       24      35
       25      35
@@ -182,6 +184,7 @@ class 'pkg/TestKotlinEnumWhen' {
       2      52
       3      52
       7      53
+      b      53
       c      53
       28      55
       29      55
@@ -224,6 +227,7 @@ class 'pkg/TestKotlinEnumWhen' {
 
    method 'testConsecutive ()V' {
       0      66
+      8      66
       9      66
       24      68
       25      68
@@ -250,6 +254,7 @@ class 'pkg/TestKotlinEnumWhen' {
       40      74
       42      74
       45      77
+      4d      77
       4e      77
       68      79
       69      79
@@ -284,6 +289,7 @@ class 'pkg/TestKotlinEnumWhen' {
       2      90
       3      90
       7      91
+      b      91
       c      91
       28      93
       29      93
@@ -322,6 +328,7 @@ class 'pkg/TestKotlinEnumWhen' {
       50      99
       52      99
       55      102
+      5d      102
       5e      102
       78      104
       79      104

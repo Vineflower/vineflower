@@ -8,7 +8,7 @@ public class TestSwitchPatternMatching14 {
                System.out.println("Lucky null");// 14
             }
             break;
-         case s instanceof TestSwitchPatternMatching14.Triangle t:// 6
+         case TestSwitchPatternMatching14.Triangle t:// 6
             if (t.hashCode() > 0) {// 7
                System.out.println("Larger positive-hash triangle");// 8
             }
@@ -35,6 +35,7 @@ public class TestSwitchPatternMatching14 {
 class 'pkg/TestSwitchPatternMatching14' {
    method 'test (Lpkg/TestSwitchPatternMatching14$Shape;)V' {
       0      4
+      4      4
       b      4
       28      10
       29      11

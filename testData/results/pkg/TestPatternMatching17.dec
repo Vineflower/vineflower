@@ -303,6 +303,7 @@ class 'pkg/TestPatternMatching17' {
       1      58
       2      58
       3      58
+      4      58
       b      58
       c      58
       d      58
@@ -310,6 +311,7 @@ class 'pkg/TestPatternMatching17' {
       f      58
       10      58
       11      58
+      12      58
       15      59
       16      59
       17      59
@@ -380,6 +382,7 @@ class 'pkg/TestPatternMatching17' {
       1      80
       2      80
       3      80
+      4      80
       b      80
       c      80
       d      80

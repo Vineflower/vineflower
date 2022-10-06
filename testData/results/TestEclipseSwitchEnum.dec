@@ -22,6 +22,7 @@ public enum TestEclipseSwitchEnum {
 class 'pkg/TestEclipseSwitchEnum' {
    method 'test (Lpkg/TestEclipseSwitchEnum;)V' {
       3      8
+      7      8
       8      8
       24      10
       25      10

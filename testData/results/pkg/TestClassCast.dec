@@ -18,7 +18,9 @@ class 'pkg/TestClassCast' {
    method 'test (Ljava/util/List;)V' {
       0      7
       1      7
+      2      8
       3      8
+      a      9
       f      9
       10      9
       11      9

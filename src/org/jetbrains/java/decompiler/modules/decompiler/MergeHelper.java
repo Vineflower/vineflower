@@ -711,15 +711,20 @@ public final class MergeHelper {
 
         VarExprent index = (VarExprent)arr.getIndex();
         VarExprent array = (VarExprent)arr.getArray();
-        VarExprent counter = (VarExprent)funcInc.getLstOperands().get(0);
+        Exprent countExpr = funcInc.getLstOperands().get(0);
 
-        if (counter.getIndex() != index.getIndex() ||
+        // Foreach over multi dimensional array initializers can cause this to not be a var exprent
+        if (countExpr instanceof VarExprent) {
+          VarExprent counter = (VarExprent) countExpr;
+
+          if (counter.getIndex() != index.getIndex() ||
             counter.getVersion() != index.getVersion()) {
-          return false;
-        }
+            return false;
+          }
 
-        if (counter.isVarReferenced(stat.getFirst(), index)) {
-          return false;
+          if (counter.isVarReferenced(stat.getFirst(), index)) {
+            return false;
+          }
         }
 
         // Make sure this variable isn't used before
@@ -774,7 +779,7 @@ public final class MergeHelper {
   private static boolean isVarUsedBefore(VarExprent var, Statement st) {
     // Build digraph
     FlattenStatementsHelper flatten = new FlattenStatementsHelper();
-    DirectGraph digraph = flatten.buildDirectGraph((RootStatement) st.getTopParent());
+    DirectGraph digraph = flatten.buildDirectGraph(st.getTopParent());
 
     // Find starting point for iteration
     String diblockId = digraph.mapDestinationNodes.get(st.id)[0];
@@ -934,7 +939,7 @@ public final class MergeHelper {
         matchDoWhile(dostat);
         if (dostat.getLooptype() != DoStatement.Type.INFINITE) {
           ret = true;
-          ValidationHelper.validateStatement((RootStatement) stat.getTopParent());
+          ValidationHelper.validateStatement(stat.getTopParent());
         }
       }
     }

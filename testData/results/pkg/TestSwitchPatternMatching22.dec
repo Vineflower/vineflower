@@ -7,7 +7,7 @@ public class TestSwitchPatternMatching22 {
       } catch (Exception var8) {// 14
          Object var2 = new Object();// 15
          switch(var2) {
-            case var2 instanceof Short var4:// 19
+            case Short var4:// 19
             case null:
                break;
             default:
@@ -23,9 +23,9 @@ public class TestSwitchPatternMatching22 {
       try {
          System.out.println("hello");// 28
       } catch (Exception var8) {// 29
-         Object var2 = new Object();// 30
-         switch(var2) {
-            case var2 instanceof Short var4:// 34
+         Object var2 = new Object();
+         switch(var2) {// 30
+            case Short var4:// 34
             case null:
             default:
                System.out.println("Not a short");// 32
@@ -42,7 +42,7 @@ public class TestSwitchPatternMatching22 {
       } catch (Exception var8) {// 44
          Object var2 = new Object();// 45
          switch(var2) {
-            case var2 instanceof Short var4:// 50
+            case Short var4:// 50
             case null:
                break;
             default:
@@ -58,9 +58,9 @@ public class TestSwitchPatternMatching22 {
       try {
          System.out.println("hello");// 59
       } catch (Exception var8) {// 60
-         Object var2 = new Object();// 61
-         switch(var2) {
-            case var2 instanceof Short var4:// 66
+         Object var2 = new Object();
+         switch(var2) {// 61
+            case Short var4:// 66
             case null:
             default:
                System.out.println("Not a short");// 63
@@ -109,7 +109,6 @@ class 'pkg/TestSwitchPatternMatching22' {
       46      13
       47      13
       4f      14
-      50      9
       54      9
       55      9
       61      17
@@ -142,7 +141,6 @@ class 'pkg/TestSwitchPatternMatching22' {
       42      30
       43      30
       4b      31
-      4c      27
       50      27
       51      27
       60      34
@@ -170,7 +168,6 @@ class 'pkg/TestSwitchPatternMatching22' {
       46      48
       47      48
       4f      49
-      50      44
       54      44
       55      44
       61      52
@@ -203,7 +200,6 @@ class 'pkg/TestSwitchPatternMatching22' {
       42      65
       43      65
       4b      66
-      4c      62
       50      62
       51      62
       60      69
@@ -247,7 +243,7 @@ Lines mapping:
 24 <-> 20
 28 <-> 24
 29 <-> 25
-30 <-> 26
+30 <-> 27
 32 <-> 31
 33 <-> 32
 34 <-> 28
@@ -262,7 +258,7 @@ Lines mapping:
 55 <-> 55
 59 <-> 59
 60 <-> 60
-61 <-> 61
+61 <-> 62
 63 <-> 66
 64 <-> 67
 66 <-> 63

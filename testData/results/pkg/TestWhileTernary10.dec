@@ -59,6 +59,7 @@ class 'pkg/TestWhileTernary10' {
       b      8
       c      8
       d      8
+      e      8
       11      8
       12      8
       13      8
@@ -126,6 +127,7 @@ class 'pkg/TestWhileTernary10' {
       b      24
       c      24
       d      24
+      e      24
       11      24
       12      24
       13      24
@@ -177,6 +179,7 @@ class 'pkg/TestWhileTernary10' {
       b      35
       c      35
       d      35
+      e      35
       11      35
       12      35
       13      35

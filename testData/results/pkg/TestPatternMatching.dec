@@ -112,6 +112,7 @@ public class TestPatternMatching {
 class 'pkg/TestPatternMatching' {
    method 'testSimple (Ljava/lang/Object;)V' {
       0      4
+      2      4
       3      4
       4      4
       5      4
@@ -130,10 +131,12 @@ class 'pkg/TestPatternMatching' {
 
    method 'testInverted (Ljava/lang/Object;)V' {
       0      10
+      2      10
       3      10
       4      10
       5      10
       6      10
+      9      11
       a      11
       b      11
       c      11
@@ -149,6 +152,7 @@ class 'pkg/TestPatternMatching' {
 
    method 'testCompound (Ljava/lang/Object;)V' {
       0      18
+      2      18
       3      18
       4      18
       5      18
@@ -174,9 +178,11 @@ class 'pkg/TestPatternMatching' {
 
    method 'testSimpleLoop (Ljava/lang/Object;)V' {
       0      24
+      2      24
       3      24
       4      24
       5      24
+      9      25
       a      25
       b      25
       c      25
@@ -201,9 +207,11 @@ class 'pkg/TestPatternMatching' {
 
    method 'testSimpleLoopUnused (Ljava/lang/Object;)V' {
       0      32
+      2      32
       3      32
       4      32
       5      32
+      9      33
       a      33
       b      33
       c      33
@@ -223,10 +231,12 @@ class 'pkg/TestPatternMatching' {
 
    method 'testInvertedLoop (Ljava/lang/Object;)V' {
       0      39
+      2      39
       3      39
       4      39
       5      39
       6      39
+      9      44
       a      44
       b      44
       c      44
@@ -264,10 +274,12 @@ class 'pkg/TestPatternMatching' {
 
    method 'testInvertedLoopUnused (Ljava/lang/Object;)V' {
       0      49
+      2      49
       3      49
       4      49
       5      49
       6      49
+      9      54
       a      54
       b      54
       c      54
@@ -295,9 +307,11 @@ class 'pkg/TestPatternMatching' {
 
    method 'testCompoundLoop (Ljava/lang/Object;)V' {
       0      58
+      2      58
       3      58
       4      58
       5      58
+      6      58
       d      58
       e      58
       f      58
@@ -305,6 +319,7 @@ class 'pkg/TestPatternMatching' {
       11      58
       12      58
       13      58
+      14      58
       17      59
       18      59
       19      59
@@ -316,6 +331,7 @@ class 'pkg/TestPatternMatching' {
 
    method 'testReturn (Ljava/lang/Object;)Z' {
       0      64
+      2      64
       3      64
       4      64
       5      64
@@ -334,6 +350,7 @@ class 'pkg/TestPatternMatching' {
 
    method 'testReturnTernary (Ljava/lang/Object;)I' {
       0      72
+      2      72
       3      72
       4      72
       5      72
@@ -349,6 +366,7 @@ class 'pkg/TestPatternMatching' {
 
    method 'testReturnTernaryComplex (Ljava/lang/Object;)I' {
       0      76
+      2      76
       3      76
       4      76
       5      76
@@ -372,9 +390,11 @@ class 'pkg/TestPatternMatching' {
 
    method 'testLoop (Ljava/lang/Object;)V' {
       0      80
+      2      80
       3      80
       4      80
       5      80
+      6      80
       d      80
       e      80
       f      80
@@ -407,6 +427,7 @@ class 'pkg/TestPatternMatching' {
 
    method 'testSimpleReturn (Ljava/lang/Object;)V' {
       0      88
+      2      88
       3      88
       4      88
       5      88
@@ -466,6 +487,7 @@ class 'pkg/TestPatternMatching' {
       20      104
       21      104
       22      105
+      24      105
       25      105
       26      105
       27      105

@@ -44,6 +44,7 @@ public final class ConcatenationHelper {
       Exprent ret = simplifyStringConcat(cexp);
       if (ret != null) {
         exprent.replaceExprent(cexp, ret);
+        ret.addBytecodeOffsets(cexp.bytecode);
       }
     }
 

@@ -15,6 +15,7 @@ public class TestSwitchPatternMatching3 {
 class 'pkg/TestSwitchPatternMatching3' {
    method 'test (Ljava/lang/Object;)V' {
       0      4
+      4      4
       b      4
       1c      6
       1d      6

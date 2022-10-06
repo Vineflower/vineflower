@@ -6,17 +6,18 @@ public class TestSwitchPatternMatching15 {
    static void test(Object s) {
       Objects.requireNonNull(s);// 5
       switch(s) {
-         case s instanceof Integer i && i > 0:// 6
+         case Integer i when i > 0:// 6
             System.out.println("positive integer: " + i);// 7
             break;// 8
-         case s instanceof Number n && n.hashCode() != 0:// 9
+         case Number n when n.hashCode() != 0:// 9
             System.out.println("Normal number: " + n);// 10
             break;// 11
-         case s instanceof Integer ix:// 12
+         case Integer ix:// 12
             System.out.println(ix);// 13
             break;// 14
-         case s instanceof Number nx:// 15
+         case Number nx:// 15
             System.out.println("Number: " + nx);// 16
+            break;// 17
       }
    }// 21
 }
@@ -27,6 +28,7 @@ class 'pkg/TestSwitchPatternMatching15' {
       2      6
       3      6
       4      6
+      9      7
       10      7
       34      8
       35      8
@@ -95,7 +97,8 @@ class 'pkg/TestSwitchPatternMatching15' {
       94      18
       95      18
       96      18
-      9d      20
+      97      19
+      9d      21
    }
 }
 
@@ -112,7 +115,7 @@ Lines mapping:
 14 <-> 17
 15 <-> 18
 16 <-> 19
-21 <-> 21
+17 <-> 20
+21 <-> 22
 Not mapped:
-17
 19

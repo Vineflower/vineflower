@@ -128,9 +128,9 @@ public interface IFernflowerPreferences {
   @Description("Decompile with if and switch pattern matching enabled.")
   String PATTERN_MATCHING = "pam";
 
-  @Name("[Experimental] Try-Loop fix")
-  @Description("Code with a while loop inside of a try-catch block sometimes is malformed. This attempts to fix it, but may cause other issues.")
-  String EXPERIMENTAL_TRY_LOOP_FIX = "tlf";
+  @Name("Try-Loop fix")
+  @Description("Code with a while loop inside of a try-catch block sometimes is malformed, this fixes it.")
+  String TRY_LOOP_FIX = "tlf";
 
   @Name("[Experimental] Ternary In If Conditions")
   @Description("Tries to collapse if statements that have a ternary in their condition.")
@@ -151,6 +151,10 @@ public interface IFernflowerPreferences {
   @Name("Second-Pass Stack Simplficiation")
   @Description("Simplify variables across stack bounds to resugar complex statements.")
   String SIMPLIFY_STACK_SECOND_PASS = "ssp";
+
+  @Name("[Experimental] Verify Variable Merges")
+  @Description("Double checks to make sure the validity of variable merges. If you are having strange recompilation issues, this is a good place to start.")
+  String VERIFY_VARIABLE_MERGES = "vvm";
 
   @Name("Include Entire Classpath")
   @Description("Give the decompiler information about every jar on the classpath.")
@@ -285,11 +289,12 @@ public interface IFernflowerPreferences {
     defaults.put(TERNARY_CONSTANT_SIMPLIFICATION, "0");
     defaults.put(OVERRIDE_ANNOTATION, "1");
     defaults.put(PATTERN_MATCHING, "1"); // Pattern matching is relatively stable
-    defaults.put(EXPERIMENTAL_TRY_LOOP_FIX, "0"); // Causes issues when decompiling certain classes
+    defaults.put(TRY_LOOP_FIX, "1"); // Try loop fix is stable, and fixes hard to notice bugs
     defaults.put(TERNARY_CONDITIONS, "0"); // Causes issues when decompiling certain classes
     defaults.put(SWITCH_EXPRESSIONS, "1"); // While still experimental, switch expressions work pretty well
     defaults.put(SHOW_HIDDEN_STATEMENTS, "0"); // Extra debugging that isn't useful in most cases
     defaults.put(SIMPLIFY_STACK_SECOND_PASS, "1"); // Generally produces better bytecode, useful to debug if it does something strange
+    defaults.put(VERIFY_VARIABLE_MERGES, "0"); // Produces more correct code in rare cases, but hurts code cleanliness in the majority of cases. Default off until a better fix is created.
 
     defaults.put(INCLUDE_ENTIRE_CLASSPATH, "0");
     defaults.put(INCLUDE_JAVA_RUNTIME, "");

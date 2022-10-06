@@ -3,11 +3,11 @@ package pkg;
 public class TestSwitchPatternMatchingWithNull {
    public void test(Object o) {
       switch(o) {// 5
-         case o instanceof Integer i:// 6
+         case Integer i:// 6
          case null:
             System.out.println(i);
             break;
-         case o instanceof String s:
+         case String s:
             System.out.println(s);// 7
             break;
          default:
@@ -17,11 +17,11 @@ public class TestSwitchPatternMatchingWithNull {
 
    public void test2(Object o) {
       switch(o) {// 13
-         case o instanceof Integer i:// 14
+         case Integer i:// 14
          case null:
             System.out.println(i);
             break;
-         case o instanceof String s:
+         case String s:
             System.out.println(s);// 15
             break;
          default:
@@ -33,6 +33,7 @@ public class TestSwitchPatternMatchingWithNull {
 class 'pkg/TestSwitchPatternMatchingWithNull' {
    method 'test (Ljava/lang/Object;)V' {
       0      4
+      4      4
       b      4
       28      5
       29      5
@@ -67,6 +68,7 @@ class 'pkg/TestSwitchPatternMatchingWithNull' {
 
    method 'test2 (Ljava/lang/Object;)V' {
       0      18
+      4      18
       b      18
       28      19
       29      19

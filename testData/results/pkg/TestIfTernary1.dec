@@ -334,6 +334,7 @@ class 'pkg/TestIfTernary1' {
       2a      52
       2b      52
       31      52
+      32      52
       35      53
       36      53
       37      53
@@ -372,6 +373,7 @@ class 'pkg/TestIfTernary1' {
       29      58
       2a      58
       30      58
+      31      58
       34      59
       35      59
       36      59

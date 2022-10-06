@@ -188,10 +188,12 @@ class 'pkg/Option1' {
       1      35
       2      35
       5      37
+      7      37
       8      37
       9      37
       a      37
       b      37
+      e      38
       f      38
       10      38
       11      38
@@ -251,6 +253,7 @@ class 'pkg/Option1' {
    method 'productElement (I)Ljava/lang/Object;' {
       0      69
       2      69
+      3      69
       4      69
       7      70
       8      70
@@ -282,6 +285,7 @@ class 'pkg/Option1' {
    method 'productElementName (I)Ljava/lang/String;' {
       0      77
       2      77
+      3      77
       4      77
       7      78
       8      78
@@ -696,10 +700,12 @@ class 'pkg/Option2' {
       1      41
       2      41
       5      43
+      7      43
       8      43
       9      43
       a      43
       b      43
+      e      44
       f      44
       10      44
       11      44
@@ -779,6 +785,7 @@ class 'pkg/Option2' {
 
    method 'productElement (I)Ljava/lang/Object;' {
       0      76
+      2      76
       3      76
       1c      78
       1d      78
@@ -811,6 +818,7 @@ class 'pkg/Option2' {
 
    method 'productElementName (I)Ljava/lang/String;' {
       0      95
+      2      95
       3      95
       1c      97
       1d      97
@@ -1185,10 +1193,12 @@ class 'pkg/Option3' {
       1      32
       2      32
       5      34
+      7      34
       8      34
       9      34
       a      34
       b      34
+      e      37
       f      37
       10      37
       11      37
@@ -1212,6 +1222,7 @@ class 'pkg/Option3' {
       2c      40
       2d      40
       2e      40
+      2f      40
       32      40
       33      40
       34      40
@@ -1258,6 +1269,7 @@ class 'pkg/Option3' {
    method 'productElement (I)Ljava/lang/Object;' {
       0      68
       2      68
+      3      68
       4      68
       7      69
       8      69
@@ -1286,6 +1298,7 @@ class 'pkg/Option3' {
    method 'productElementName (I)Ljava/lang/String;' {
       0      76
       2      76
+      3      76
       4      76
       7      77
       8      77

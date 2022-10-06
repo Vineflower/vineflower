@@ -18,9 +18,11 @@ class 'pkg/TestTernaryCall' {
       1      4
       2      4
       3      4
+      4      4
       7      4
       e      4
       12      4
+      13      4
       16      4
       1d      4
       26      4
@@ -33,7 +35,9 @@ class 'pkg/TestTernaryCall' {
       0      8
       1      8
       4      8
+      5      8
       b      8
+      c      8
       f      9
       10      9
       11      9

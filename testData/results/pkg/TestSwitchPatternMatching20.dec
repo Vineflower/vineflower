@@ -6,9 +6,9 @@ public class TestSwitchPatternMatching20 {
    public void test(Object o) {
       Objects.requireNonNull(o);// 5
       switch(o) {
-         case o instanceof Integer var6 && false:
+         case Integer var6 when false:
             break;
-         case o instanceof String s:
+         case String s:
             System.out.println(s);// 7
             break;
          default:
@@ -23,6 +23,7 @@ class 'pkg/TestSwitchPatternMatching20' {
       2      6
       3      6
       4      6
+      9      7
       10      7
       3b      10
       3c      10

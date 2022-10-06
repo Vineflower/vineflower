@@ -31,6 +31,7 @@ class 'pkg/TestSynchronizedTryReturn' {
       5      7
       a      12
       b      8
+      10      9
       14      9
    }
 
@@ -41,6 +42,7 @@ class 'pkg/TestSynchronizedTryReturn' {
       3      18
       4      18
       5      19
+      a      20
       e      20
    }
 }

@@ -19,11 +19,11 @@ public final class SequenceHelper {
 
 
   public static void condenseSequences(Statement root) {
-    ValidationHelper.validateStatement((RootStatement) root.getTopParent());
+    ValidationHelper.validateStatement(root.getTopParent());
 
     condenseSequencesRec(root);
 
-    ValidationHelper.validateStatement((RootStatement) root.getTopParent());
+    ValidationHelper.validateStatement(root.getTopParent());
   }
 
   private static void condenseSequencesRec(Statement stat) {
@@ -110,7 +110,7 @@ public final class SequenceHelper {
 
         stat = sequence;
 
-        ValidationHelper.validateStatement((RootStatement) stat.getTopParent());
+        ValidationHelper.validateStatement(stat.getTopParent());
       }
     }
 
@@ -202,7 +202,7 @@ public final class SequenceHelper {
     }
 
     mergeFlatStatements(sequence);
-    ValidationHelper.validateStatement((RootStatement) sequence.getTopParent());
+    ValidationHelper.validateStatement(sequence.getTopParent());
 
     while (true) {
 

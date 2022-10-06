@@ -86,8 +86,7 @@ public final class CatchStatement extends Statement {
         if (edge.getExceptions() != null && setHandlers.contains(stat)) {
           if (stat.getLastBasicType() != LastBasicType.GENERAL) {
             handlerok = false;
-          }
-          else {
+          } else {
             List<StatEdge> lstStatSuccs = stat.getSuccessorEdges(STATEDGE_DIRECT_ALL);
             if (!lstStatSuccs.isEmpty() && lstStatSuccs.get(0).getType() == StatEdge.TYPE_REGULAR) {
 
@@ -95,8 +94,7 @@ public final class CatchStatement extends Statement {
 
               if (next == null) {
                 next = statn;
-              }
-              else if (next != statn) {
+              } else if (next != statn) {
                 handlerok = false;
               }
 
@@ -105,8 +103,7 @@ public final class CatchStatement extends Statement {
               }
             }
           }
-        }
-        else {
+        } else {
           handlerok = false;
         }
 
@@ -126,12 +123,8 @@ public final class CatchStatement extends Statement {
           }
         }
 
-        // Don't build a trycatch around a loop-head if statement, as we know that DoStatement should be built first.
-        // Since CatchStatement's isHead is run after DoStatement's, we can assume that a loop was not able to be built.
-        if (DecompilerContext.getOption(IFernflowerPreferences.EXPERIMENTAL_TRY_LOOP_FIX)) {
-          if (head instanceof IfStatement && head.getContinueSet().contains(head.first)) {
-            return null;
-          }
+        if (DecHelper.invalidHeadMerge(head)) {
+          return null;
         }
 
         if (DecHelper.checkStatementExceptions(lst)) {

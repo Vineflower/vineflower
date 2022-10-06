@@ -8,24 +8,24 @@ public class TestSwitchPatternMatching13 {
                System.out.println("Lucky null");// 28
             }
             break;
-         case s instanceof TestSwitchPatternMatching13.Triangle t && t.calculateArea() > 150.0:// 6
+         case TestSwitchPatternMatching13.Triangle t when t.calculateArea() > 150.0:// 6
             if (t.hashCode() > 0) {// 7
                System.out.println("Larger positive-hash triangle");// 8
             }
 
             System.out.println("Larger triangle: " + t);// 10
             break;// 11
-         case s instanceof TestSwitchPatternMatching13.Triangle tx && tx.calculateArea() > 50.0:// 12
+         case TestSwitchPatternMatching13.Triangle tx when tx.calculateArea() > 50.0:// 12
             System.out.println("Smaller triangle");// 13
             break;
-         case s instanceof TestSwitchPatternMatching13.Triangle txx && txx.calculateArea() > 100.0:// 14
+         case TestSwitchPatternMatching13.Triangle txx when txx.calculateArea() > 100.0:// 14
             System.out.println("Large triangle");// 15
 
             while(Math.random() > 0.5) {// 16
                System.out.println("Keep going");// 17
             }
             break;
-         case s instanceof TestSwitchPatternMatching13.Triangle txxx:// 20
+         case TestSwitchPatternMatching13.Triangle txxx:// 20
             if (txxx.hashCode() > 0) {// 21
                System.out.println("Small positive-hash triangle");// 22
             }
@@ -52,6 +52,7 @@ public class TestSwitchPatternMatching13 {
 class 'pkg/TestSwitchPatternMatching13' {
    method 'test (Lpkg/TestSwitchPatternMatching13$Shape;)V' {
       0      4
+      4      4
       b      4
       30      10
       31      10

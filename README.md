@@ -107,6 +107,7 @@ The rest of options can be left as they are: they are aimed at professional reve
 - shs (0): Display code blocks hidden, for debugging purposes
 - ovr (1): Show override annotations for methods known to the decompiler.
 - ssp (1): Second-Pass Stack Simplficiation
+- vvm (0): Verify variable merges before remapping them
 - iec (0): Give the decompiler information about every jar on the classpath.
 - jrt (0/if running from CLI, `current`): The path to a java runtime to add to the classpath, or `1` or `current` to add the java runtime of the active JVM to the classpath.
 - ega (0): Explicit Generic Arguments

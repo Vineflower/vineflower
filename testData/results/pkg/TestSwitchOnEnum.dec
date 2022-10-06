@@ -50,6 +50,7 @@ public class TestSwitchOnEnum {
 class 'pkg/TestSwitchOnEnum' {
    method 'testSOE (Ljava/util/concurrent/TimeUnit;)I' {
       3      8
+      7      8
       8      8
       24      10
       25      10
@@ -63,6 +64,7 @@ class 'pkg/TestSwitchOnEnum' {
 class 'pkg/TestSwitchOnEnum$Example' {
    method 'test (Lpkg/TestSwitchOnEnum$Example$A;Lpkg/TestSwitchOnEnum$Example$B;)V' {
       3      20
+      7      20
       8      20
       24      22
       25      22
@@ -80,6 +82,7 @@ class 'pkg/TestSwitchOnEnum$Example' {
       33      25
       34      25
       3a      28
+      3e      28
       3f      28
       58      30
       59      30

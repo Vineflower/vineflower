@@ -17,6 +17,7 @@ class 'pkg/TestInlineSwitchExpression3' {
       1      6
       2      6
       6      6
+      a      6
       b      6
       30      7
       34      8

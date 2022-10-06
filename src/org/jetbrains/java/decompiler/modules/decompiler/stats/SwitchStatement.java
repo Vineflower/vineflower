@@ -159,17 +159,22 @@ public final class SwitchStatement extends Statement {
           if (value instanceof ConstExprent && !value.getExprType().equals(VarType.VARTYPE_NULL)) {
             value = value.copy();
             ((ConstExprent)value).setConstType(switch_type);
-          }
-          if (value instanceof FieldExprent && ((FieldExprent)value).isStatic()) { // enum values
+          } if (value instanceof FieldExprent && ((FieldExprent)value).isStatic()) { // enum values
             buf.append(((FieldExprent)value).getName());
-          }
-          else {
+          } else if (value instanceof FunctionExprent && ((FunctionExprent) value).getFuncType() == FunctionType.INSTANCEOF) {
+            // Pattern matching variables
+            List<Exprent> operands = ((FunctionExprent) value).getLstOperands();
+            buf.append(operands.get(1).toJava(indent));
+            buf.append(" ");
+            // We're pasting the var type, don't do it again
+            ((VarExprent)operands.get(2)).setDefinition(false);
+            buf.append(operands.get(2).toJava(indent));
+          } else {
             buf.append(value.toJava(indent));
           }
 
           if (guard != null) {
-            // TODO: check language version for J19
-            buf.append(" && ").append(guard.toJava());
+            buf.append(" when ").append(guard.toJava());
           }
 
           buf.append(":");
@@ -234,6 +239,25 @@ public final class SwitchStatement extends Statement {
     }
 
     return lst;
+  }
+
+  // Returns true if this switch is a pattern matching switch.
+  public boolean isPattern() {
+    // Simple test, if there's a guard then it is for sure pattern matching
+    if (!this.caseGuards.isEmpty()) {
+      return true;
+    }
+
+    for (List<Exprent> l : this.caseValues) {
+      for (Exprent e : l) {
+        // If we have instanceofs in our case values, we're a pattern matching switch
+        if (e instanceof FunctionExprent && ((FunctionExprent)e).getFuncType() == FunctionType.INSTANCEOF) {
+          return true;
+        }
+      }
+    }
+
+    return false;
   }
 
   @Override

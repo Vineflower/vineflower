@@ -38,6 +38,7 @@ class 'pkg/TestObjectArrays' {
       4      6
       5      8
       6      8
+      7      8
       9      8
       b      8
       c      8
@@ -47,6 +48,8 @@ class 'pkg/TestObjectArrays' {
       1a      9
       1b      9
       1c      9
+      1d      9
+      1e      9
       20      9
       21      9
       23      9

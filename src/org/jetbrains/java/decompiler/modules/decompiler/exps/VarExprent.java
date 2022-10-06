@@ -36,6 +36,7 @@ import java.util.stream.Collectors;
 public class VarExprent extends Exprent {
   public static final int STACK_BASE = 10000;
   public static final String VAR_NAMELESS_ENCLOSURE = "<VAR_NAMELESS_ENCLOSURE>";
+  private static final boolean FORCE_VARVER_NAME = false; // Debug only!
 
   private int index;
   private VarType varType;
@@ -122,7 +123,7 @@ public class VarExprent extends Exprent {
         if (processor != null && processor.getVarFinal(varVersion) == FinalType.EXPLICIT_FINAL) {
           buffer.append("final ");
         }
-        appendDefinitionType(buffer);
+        buffer.append(getDefinitionType());
         buffer.append(" ");
       }
 
@@ -152,7 +153,7 @@ public class VarExprent extends Exprent {
   }
   */
 
-  private void appendDefinitionType(TextBuffer buffer) {
+  public String getDefinitionType() {
     if (DecompilerContext.getOption(IFernflowerPreferences.USE_DEBUG_VAR_NAMES)) {
 
       if (lvt != null) {
@@ -160,13 +161,11 @@ public class VarExprent extends Exprent {
           if (lvt.getSignature() != null) {
             GenericFieldDescriptor descriptor = GenericMain.parseFieldSignature(lvt.getSignature());
             if (descriptor != null) {
-              buffer.append(ExprProcessor.getCastTypeName(descriptor.type));
-              return;
+              return ExprProcessor.getCastTypeName(descriptor.type);
             }
           }
         }
-        buffer.append(ExprProcessor.getCastTypeName(getVarType()));
-        return;
+        return ExprProcessor.getCastTypeName(getVarType());
       }
 
       MethodWrapper method = (MethodWrapper)DecompilerContext.getProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
@@ -186,8 +185,7 @@ public class VarExprent extends Exprent {
               if (signature != null) {
                 GenericFieldDescriptor descriptor = GenericMain.parseFieldSignature(signature);
                 if (descriptor != null) {
-                  buffer.append(ExprProcessor.getCastTypeName(descriptor.type));
-                  return;
+                  return ExprProcessor.getCastTypeName(descriptor.type);
                 }
               }
             }
@@ -198,15 +196,14 @@ public class VarExprent extends Exprent {
           if (attr != null) {
             String descriptor = attr.getDescriptor(originalIndex, visibleOffset);
             if (descriptor != null) {
-              buffer.append(ExprProcessor.getCastTypeName(new VarType(descriptor)));
-              return;
+              return ExprProcessor.getCastTypeName(new VarType(descriptor));
             }
           }
         }
       }
     }
 
-    buffer.append(ExprProcessor.getCastTypeName(getVarType()));
+    return ExprProcessor.getCastTypeName(getVarType());
   }
 
   @Override
@@ -218,6 +215,14 @@ public class VarExprent extends Exprent {
     return index == ve.getIndex() &&
            version == ve.getVersion() &&
            InterpreterUtil.equalObjects(getVarType(), ve.getVarType()); // FIXME: varType comparison redundant?
+  }
+
+  public boolean equalsVersions(Object o) {
+    if (o == this) return true;
+    if (!(o instanceof VarExprent)) return false;
+
+    VarExprent ve = (VarExprent)o;
+    return index == ve.getIndex() && version == ve.getVersion();
   }
 
   @Override
@@ -333,24 +338,26 @@ public class VarExprent extends Exprent {
 
   public String getName() {
     VarVersionPair pair = getVarVersionPair();
+    if (!FORCE_VARVER_NAME) {
 
-    if (this.processor != null) {
-      String clashingName = this.processor.getClashingName(pair);
+      if (this.processor != null) {
+        String clashingName = this.processor.getClashingName(pair);
 
-      // Clashing names take precedence over lvt names (as they are lvt names with an 'x' applied to differentiate them)
-      if (clashingName != null) {
-        return clashingName;
+        // Clashing names take precedence over lvt names (as they are lvt names with an 'x' applied to differentiate them)
+        if (clashingName != null) {
+          return clashingName;
+        }
       }
-    }
 
-    if (this.lvt != null) {
-      return this.lvt.getName();
-    }
+      if (this.lvt != null) {
+        return this.lvt.getName();
+      }
 
-    if (this.processor != null) {
-      String ret = this.processor.getVarName(pair);
-      if (ret != null) {
-        return ret;
+      if (this.processor != null) {
+        String ret = this.processor.getVarName(pair);
+        if (ret != null) {
+          return ret;
+        }
       }
     }
 
@@ -432,7 +439,7 @@ public class VarExprent extends Exprent {
 
   @Override
   public String toString() {
-    return "VarExprent[" + index + ',' + version +"]";
+    return "VarExprent[" + index + ',' + version +"]: {" + super.toString() + "}";
   }
 
   // *****************************************************************************

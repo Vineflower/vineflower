@@ -51,7 +51,7 @@ public class DirectoryContextSource implements IContextSource {
     final List<Entry> others,
     final List<IContextSource> jarChildren
   ) {
-    final String relativePath = current.getAbsolutePath().substring(base.length());
+    final String relativePath = relativize(base, current);
     if (current.isDirectory()) {
       directories.add(relativePath);
       final File[] children = current.listFiles();
@@ -74,6 +74,11 @@ public class DirectoryContextSource implements IContextSource {
         others.add(sanitize(relativePath));
       }
     }
+  }
+
+  private String relativize(final String base, final File current) {
+    final String relativePath = current.getAbsolutePath().substring(base.length());
+    return relativePath.startsWith("/") || relativePath.startsWith("\\") ? relativePath.substring(1) : relativePath;
   }
 
   private Entry sanitize(final String path) {
@@ -125,6 +130,4 @@ public class DirectoryContextSource implements IContextSource {
       }
     };
   }
-
-
 }

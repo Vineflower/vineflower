@@ -392,8 +392,7 @@ public final class DomHelper implements GraphParser {
                 DecompilerContext.getLogger().writeMessage("Irreducible statement too complex to be decomposed!", IFernflowerLogger.Severity.ERROR);
 
                 tracer.add(general, "Flow too complex to be decomposed!");
-                root.addComment("$QF: Irreducible bytecode has more than 5 nodes in sequence and was not entirely decomposed");
-                root.addErrorComment = true;
+                root.addComment("$QF: Irreducible bytecode has more than 5 nodes in sequence and was not entirely decomposed", true);
               }
 
               root.addComment("$QF: Irreducible bytecode was duplicated to produce valid code");
@@ -436,7 +435,7 @@ public final class DomHelper implements GraphParser {
             tracer.add(general, "Find simple statements");
 
             // Find statements in this subgraph from the basicblocks that comprise it
-            if (findSimpleStatements(general, mapExtPost)) {
+            if (findSimpleStatements(general, mapExtPost, tracer)) {
               tracer.add(general, "Found some simple statements");
               reducibility = 0;
             }
@@ -678,7 +677,7 @@ public final class DomHelper implements GraphParser {
   }
 
   // Try to collapse all nodes in the given general statement to a single node. When this transformation is done, the general statement will be marked as placeholder.
-  private static boolean findSimpleStatements(Statement stat, HashMap<Integer, Set<Integer>> mapExtPost) {
+  private static boolean findSimpleStatements(Statement stat, HashMap<Integer, Set<Integer>> mapExtPost, DomTracer tracer) {
 
     boolean found, success = false;
 
@@ -692,6 +691,7 @@ public final class DomHelper implements GraphParser {
         Statement result = detectStatement(st);
 
         if (result != null) {
+          tracer.add(stat, "Transformed " + st + " to " + result);
 
           // If the statement we created contains the first statement of the general statement as it's first, we know that we've completed iteration to the point where every statment in the subgraph has been explored at least once, due to how the post order is created.
           // More iteration still happens to discover higher level structures (such as the case where basicblock -> if -> loop)

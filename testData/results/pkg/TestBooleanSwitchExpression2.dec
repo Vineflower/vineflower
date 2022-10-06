@@ -69,6 +69,7 @@ public class TestBooleanSwitchExpression2 {
 class 'pkg/TestBooleanSwitchExpression2' {
    method 'test (Ljava/lang/String;I)V' {
       0      4
+      5      4
       25      5
       26      5
       34      10
@@ -94,10 +95,12 @@ class 'pkg/TestBooleanSwitchExpression2' {
       2      25
       3      25
       4      25
+      5      26
       6      26
       7      26
       8      26
       9      26
+      24      28
       25      28
       26      28
       27      28
@@ -107,6 +110,7 @@ class 'pkg/TestBooleanSwitchExpression2' {
       2d      29
       2e      29
       2f      29
+      33      33
       34      33
       35      33
       36      33

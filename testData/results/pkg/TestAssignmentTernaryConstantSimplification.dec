@@ -163,6 +163,7 @@ class 'pkg/TestAssignmentTernaryConstantSimplification' {
 
    method 'redundantTernary (Z)V' {
       0      41
+      1      41
       9      41
       a      42
       b      42
@@ -199,6 +200,7 @@ class 'pkg/TestAssignmentTernaryConstantSimplification' {
       0      61
       1      61
       4      61
+      5      61
       11      61
       12      62
       13      62

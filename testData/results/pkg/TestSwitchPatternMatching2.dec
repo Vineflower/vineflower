@@ -6,10 +6,10 @@ public class TestSwitchPatternMatching2 {
          case null:
             System.out.println("null");// 11
             break;
-         case s instanceof TestSwitchPatternMatching2.Triangle t && t.calculateArea() > 100.0:// 6
+         case TestSwitchPatternMatching2.Triangle t when t.calculateArea() > 100.0:// 6
             System.out.println("Large triangle");// 7
             break;
-         case s instanceof TestSwitchPatternMatching2.Triangle tx:// 8
+         case TestSwitchPatternMatching2.Triangle tx:// 8
             System.out.println("Small triangle");// 9
             break;
          default:
@@ -32,6 +32,7 @@ public class TestSwitchPatternMatching2 {
 class 'pkg/TestSwitchPatternMatching2' {
    method 'testTriangle (Lpkg/TestSwitchPatternMatching2$Shape;)V' {
       0      4
+      4      4
       b      4
       28      8
       29      8

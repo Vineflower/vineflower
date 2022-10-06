@@ -119,6 +119,7 @@ class 'pkg/TestClassLoop' {
       2      10
       3      10
       4      10
+      5      10
       d      10
       e      14
       f      14
@@ -137,6 +138,7 @@ class 'pkg/TestClassLoop' {
       2      24
       3      24
       4      24
+      5      24
       d      24
       e      28
       f      28
@@ -158,6 +160,7 @@ class 'pkg/TestClassLoop' {
       2      38
       3      38
       4      38
+      5      38
       d      38
       e      43
       f      43

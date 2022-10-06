@@ -15,6 +15,7 @@ public class TestPatternMatchingLocalCapture {
 class 'pkg/TestPatternMatchingLocalCapture' {
    method 'test (Ljava/lang/Object;)V' {
       0      4
+      2      4
       3      4
       4      4
       5      4

@@ -155,8 +155,7 @@ public final class SwitchHelper {
                   }
                 }
               }
-              root.addComment("$QF: Unable to simplify switch on enum");
-              root.addErrorComment = true;
+              root.addComment("$QF: Unable to simplify switch on enum", true);
               DecompilerContext.getLogger()
                 .writeMessage("Unable to simplify switch on enum: " + exprent + " not found, available: " + mapping + " in method " + mt.getClassQualifiedName() + " " + mt.getName(),
                               IFernflowerLogger.Severity.ERROR);
@@ -168,7 +167,9 @@ public final class SwitchHelper {
       }
       caseValues.clear();
       caseValues.addAll(realCaseValues);
-      switchHeadExprent.replaceExprent(value, ((InvocationExprent)array.getIndex()).getInstance().copy());
+      Exprent newExpr = ((InvocationExprent)array.getIndex()).getInstance().copy();
+      switchHeadExprent.replaceExprent(value, newExpr);
+      newExpr.addBytecodeOffsets(value.bytecode);
 
       // If we replaced the only use of the local var, the variable should be removed altogether.
       if (value instanceof VarExprent) {

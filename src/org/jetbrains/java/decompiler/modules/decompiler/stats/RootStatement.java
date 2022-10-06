@@ -42,11 +42,16 @@ public final class RootStatement extends Statement {
   }
 
   public void addComment(String comment) {
+    addComment(comment, false);
+  }
+
+  public void addComment(String comment, boolean error) {
     if (commentLines == null) {
       commentLines = new LinkedHashSet<>();
     }
 
     commentLines.add(comment);
+    addErrorComment |= error;
   }
 
   public void addComments(RootStatement root) {

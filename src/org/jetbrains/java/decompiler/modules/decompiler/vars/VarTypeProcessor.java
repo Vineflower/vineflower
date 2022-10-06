@@ -112,15 +112,18 @@ public class VarTypeProcessor {
   // true -> Do nothing
   // false -> cancel iteration
   private boolean checkTypeExprent(Exprent exprent) {
-
-    for (Exprent expr : exprent.getAllExprents()) {
-      if (!checkTypeExprent(expr)) {
+    for (Exprent expr : exprent.getAllExprents(true)) {
+      if (!checkTypeExpr(expr)) {
         return false;
       }
     }
 
+    return checkTypeExpr(exprent);
+  }
+
+  private boolean checkTypeExpr(Exprent exprent) {
     if (exprent instanceof ConstExprent) {
-      ConstExprent constExpr = (ConstExprent)exprent;
+      ConstExprent constExpr = (ConstExprent) exprent;
       if (constExpr.getConstType().typeFamily <= CodeConstants.TYPE_FAMILY_INTEGER) { // boolean or integer
         VarVersionPair pair = new VarVersionPair(constExpr.id, -1);
         if (!mapExprentMinTypes.containsKey(pair)) {
@@ -143,7 +146,6 @@ public class VarTypeProcessor {
         res &= changeExprentType(entry.exprent, entry.type, 0);
       }
     }
-
     return res;
   }
 

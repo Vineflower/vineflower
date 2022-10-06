@@ -19,6 +19,7 @@ public class TestSwitchPatternMatching10 {
 class 'pkg/TestSwitchPatternMatching10' {
    method 'test (Ljava/lang/String;)V' {
       0      4
+      8      4
       29      5
       2a      5
       37      8
