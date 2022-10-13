@@ -16,7 +16,9 @@ import org.jetbrains.java.decompiler.util.JrtFinder;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -180,7 +182,15 @@ public class Fernflower implements IDecompiledData {
     }
     catch (Throwable t) {
       DecompilerContext.getLogger().writeMessage("Class " + cl.qualifiedName + " couldn't be fully decompiled.", t);
-      return null;
+      if (DecompilerContext.getOption(IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR)) {
+        List<String> lines = new ArrayList<>();
+        lines.add("$QF: Unable to decompile class");
+        lines.addAll(ClassWriter.getErrorComment());
+        ClassWriter.collectErrorLines(t, lines);
+        return String.join("\n", lines);
+      } else {
+        return null;
+      }
     }
   }
 }

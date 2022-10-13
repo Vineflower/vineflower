@@ -283,11 +283,14 @@ public class ConsoleDecompiler implements /* IBytecodeProvider, */ IResultSaver,
   @Override
   public void saveClassFile(String path, String qualifiedName, String entryName, String content, int[] mapping) {
     File file = new File(getAbsolutePath(path), entryName);
-    try (Writer out = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8)) {
-      out.write(content);
-    }
-    catch (IOException ex) {
-      DecompilerContext.getLogger().writeMessage("Cannot write class file " + file, ex);
+    if (content != null) {
+      try (Writer out = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8)) {
+        out.write(content);
+      } catch (IOException ex) {
+        DecompilerContext.getLogger().writeMessage("Cannot write class file " + file, ex);
+      }
+    } else {
+      DecompilerContext.getLogger().writeMessage("Attempted to write null class file to " + file, IFernflowerLogger.Severity.WARN);
     }
   }
 
