@@ -1,8 +1,6 @@
 // Copyright 2000-2022 JetBrains s.r.o. and ForgeFlower contributors Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.struct;
 
-import static java.util.Objects.requireNonNull;
-
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IBytecodeProvider;
 import org.jetbrains.java.decompiler.main.extern.IContextSource;
@@ -13,14 +11,12 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+
+import static java.util.Objects.requireNonNull;
 
 final class JarContextSource implements IContextSource, AutoCloseable {
   private static final String MANIFEST = "META-INF/MANIFEST.MF";
@@ -30,7 +26,7 @@ final class JarContextSource implements IContextSource, AutoCloseable {
   private final String relativePath; // used for nested contexts from DirectoryContextSource
   private final File jarFile;
   private final ZipFile file;
-  private boolean isJar;
+  private final boolean isZip;
 
   @SuppressWarnings("deprecation")
   JarContextSource(final IBytecodeProvider legacyProvider, final File archive) throws IOException {
@@ -43,7 +39,7 @@ final class JarContextSource implements IContextSource, AutoCloseable {
     this.relativePath = relativePath;
     this.jarFile = requireNonNull(archive, "archive");
     this.file = new ZipFile(archive);
-    this.isJar = this.jarFile.getName().endsWith("jar");
+    this.isZip = this.jarFile.getName().endsWith("zip");
   }
 
   @Override
@@ -67,7 +63,7 @@ final class JarContextSource implements IContextSource, AutoCloseable {
         if (name.endsWith(CLASS_SUFFIX)) {
           classes.add(Entry.parse(name.substring(0, name.length() - CLASS_SUFFIX.length())));
         }
-        else if (!this.isJar || !name.equalsIgnoreCase(MANIFEST)) {
+        else if (this.isZip || !name.equalsIgnoreCase(MANIFEST)) {
           others.add(Entry.parse(name));
         }
       }
