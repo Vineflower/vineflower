@@ -3,7 +3,7 @@
 import org.jetbrains.java.decompiler.build.JasmCompile
 
 plugins {
-  id 'org.jetbrains.kotlin.jvm' version '1.5.21'
+  id 'org.jetbrains.kotlin.jvm' version '1.7.20'
 }
 
 apply plugin: 'java'
@@ -35,13 +35,13 @@ sourceSets {
 repositories { mavenCentral() }
 
 dependencies {
-  testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.2'
-  testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.2'
-  testImplementation 'org.hamcrest:hamcrest:2.2'
+  testImplementation("org.junit.jupiter:junit-jupiter-api:${project.junit_bom}")
+  testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${project.junit_bom}")
+  testImplementation("org.hamcrest:hamcrest:${project.hamcrest}")
 
   // Java 9 classes need the main source set
   java9Implementation sourceSets.main.output
-  testDataGroovyImplementation 'org.codehaus.groovy:groovy:3.0.8'
+  testDataGroovyImplementation("org.codehaus.groovy:groovy:${project.groovy}")
   testDataKotlinImplementation platform('org.jetbrains.kotlin:kotlin-bom')
   testDataKotlinImplementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
   testRuntimeOnly 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
