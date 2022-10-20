@@ -235,7 +235,7 @@ public interface IFernflowerPreferences {
   String DUMP_BYTECODE_ON_ERROR = "dbe";
 
   @Name("Dump Exceptions On Error")
-  @Description("Put the exception message in the method body when an error occurs.")
+  @Description("Put the exception message in the method body or source file when an error occurs.")
   String DUMP_EXCEPTION_ON_ERROR = "dee";
 
   @Name("Decompiler Comments")
