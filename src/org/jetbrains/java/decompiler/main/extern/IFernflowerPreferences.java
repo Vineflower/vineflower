@@ -56,6 +56,10 @@ public interface IFernflowerPreferences {
   @Description("Decompile enums.")
   String DECOMPILE_ENUM = "den";
 
+  @Name("Decompile Preview Features")
+  @Description("Decompile features marked as preview or incubating in the latest Java versions.")
+  String DECOMPILE_PREVIEW = "dpr";
+
   @Name("Remove reference getClass()")
   @Description("obj.new Inner() or calling invoking a method on a method reference will create a synthetic getClass() call. This removes it.")
   String REMOVE_GET_CLASS_NEW = "rgn";
@@ -295,6 +299,7 @@ public interface IFernflowerPreferences {
     defaults.put(SHOW_HIDDEN_STATEMENTS, "0"); // Extra debugging that isn't useful in most cases
     defaults.put(SIMPLIFY_STACK_SECOND_PASS, "1"); // Generally produces better bytecode, useful to debug if it does something strange
     defaults.put(VERIFY_VARIABLE_MERGES, "0"); // Produces more correct code in rare cases, but hurts code cleanliness in the majority of cases. Default off until a better fix is created.
+    defaults.put(DECOMPILE_PREVIEW, "1"); // Preview features are useful to decompile in almost all cases
 
     defaults.put(INCLUDE_ENTIRE_CLASSPATH, "0");
     defaults.put(INCLUDE_JAVA_RUNTIME, "");

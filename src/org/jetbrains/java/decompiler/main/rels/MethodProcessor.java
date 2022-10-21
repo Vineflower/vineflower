@@ -283,13 +283,19 @@ public class MethodProcessor implements Runnable {
         }
       }
 
-      if (root.hasSwitch() && SwitchExpressionHelper.hasSwitchExpressions(root)) {
-        if (SwitchPatternMatchProcessor.processPatternMatching(root)) {
+      if (root.hasSwitch()) {
+        boolean changed = false;
+        if (SwitchPatternMatchProcessor.hasPatternMatch(root) && SwitchPatternMatchProcessor.processPatternMatching(root)) {
           decompileRecord.add("ProcessSwitchPatternMatch", root);
-          continue;
+          changed = true;
         }
-        if (SwitchExpressionHelper.processSwitchExpressions(root)) {
+
+        if (SwitchExpressionHelper.hasSwitchExpressions(root) && SwitchExpressionHelper.processSwitchExpressions(root)) {
           decompileRecord.add("ProcessSwitchExpr", root);
+          changed = true;
+        }
+
+        if (changed) {
           continue;
         }
       }
