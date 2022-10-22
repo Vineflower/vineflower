@@ -132,7 +132,7 @@ public class StructContext {
   public void addSpace(File file, boolean isOwn) {
     if (file.isDirectory()) {
       addSpace(new DirectoryContextSource(this.legacyProvider, file), isOwn);
-    } else if (file.isFile()) {
+    } else {
       final String name = file.getName();
       if (name.endsWith(".jar") || name.endsWith(".zip")) {
         // archive

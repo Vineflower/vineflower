@@ -22,9 +22,14 @@ class SingleFileContextSource implements IContextSource {
   @SuppressWarnings("deprecation")
   public SingleFileContextSource(final IBytecodeProvider legacyProvider, final File singleFile) throws IOException {
     this.file = singleFile;
-    if (singleFile.isFile()) {
+    // A "fake" file could be provided via legacyProvider
+    if (!singleFile.isFile() && legacyProvider == null) {
+      this.contents = null;
+      this.qualifiedName = null;
+    } else {
       this.contents = legacyProvider == null ? InterpreterUtil.getBytes(singleFile) : legacyProvider.getBytecode(singleFile.getAbsolutePath(), null);
-      if (singleFile.getName().endsWith(CLASS_SUFFIX)) {
+
+      if (this.contents != null && singleFile.getName().endsWith(CLASS_SUFFIX)) {
         try (final DataInputFullStream is = new DataInputFullStream(this.contents)) {
           var clazz = StructClass.create(is, false);
           this.qualifiedName = clazz.qualifiedName;
@@ -32,9 +37,6 @@ class SingleFileContextSource implements IContextSource {
       } else {
         this.qualifiedName = null;
       }
-    } else {
-      this.contents = null;
-      this.qualifiedName = null;
     }
   }
 
@@ -45,7 +47,7 @@ class SingleFileContextSource implements IContextSource {
 
   @Override
   public Entries getEntries() {
-    if (!this.file.exists()) {
+    if (this.contents == null) {
       return Entries.EMPTY;
     } else if (this.file.getName().endsWith(CLASS_SUFFIX)) {
       return new Entries(List.of(Entry.atBase(this.qualifiedName)), List.of(), List.of());
