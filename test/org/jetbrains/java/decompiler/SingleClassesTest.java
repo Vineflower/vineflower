@@ -640,6 +640,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestForeachCrash");
     // TODO: <unknown> value and cast, switch is eliminated, test2 contains entirely invalid code
     register(JAVA_17_PREVIEW, "TestUnknownCastJ17");
+    // TODO: method call wrong because of same-family-type overrides
     register(JAVA_8_NODEBUG, "TestVarIndex");
     register(JAVA_8_NODEBUG, "TestVarIndex2");
   }
