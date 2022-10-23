@@ -1,20 +1,43 @@
 package pkg;
 
+import java.io.Serializable;
+
 public class TestVarIndex2 {
   public void test() {
     {
-      int a = 1;
-      System.out.println(a);
-    }
-
-    {
       String a = "1";
-      System.out.println(a);
+      consume(a);
     }
 
     {
-      byte a = 1;
-      System.out.println(a);
+      CharSequence a = "1";
+      consume(a);
     }
+
+    {
+      Serializable a = "1";
+      consume(a);
+    }
+
+    {
+      Object a = "1";
+      consume(a);
+    }
+  }
+
+  private void consume(String s) {
+
+  }
+
+  private void consume(CharSequence cs) {
+
+  }
+
+  private void consume(Serializable s) {
+
+  }
+
+  private void consume(Object o) {
+
   }
 }
