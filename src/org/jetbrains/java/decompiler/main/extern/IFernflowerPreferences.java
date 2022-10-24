@@ -294,7 +294,7 @@ public interface IFernflowerPreferences {
     defaults.put(OVERRIDE_ANNOTATION, "1");
     defaults.put(PATTERN_MATCHING, "1"); // Pattern matching is relatively stable
     defaults.put(TRY_LOOP_FIX, "1"); // Try loop fix is stable, and fixes hard to notice bugs
-    defaults.put(TERNARY_CONDITIONS, "0"); // Causes issues when decompiling certain classes
+    defaults.put(TERNARY_CONDITIONS, "1"); // Ternary conditions are stable and don't cause many issues currently
     defaults.put(SWITCH_EXPRESSIONS, "1"); // While still experimental, switch expressions work pretty well
     defaults.put(SHOW_HIDDEN_STATEMENTS, "0"); // Extra debugging that isn't useful in most cases
     defaults.put(SIMPLIFY_STACK_SECOND_PASS, "1"); // Generally produces better bytecode, useful to debug if it does something strange

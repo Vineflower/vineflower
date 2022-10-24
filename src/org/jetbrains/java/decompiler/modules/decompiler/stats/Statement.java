@@ -43,6 +43,9 @@ public abstract class Statement implements IMatchable {
   // Exception edges are implicit from try contents to catch handlers, so they don't represent control flow
   public static final int STATEDGE_DIRECT_ALL = 0x40000000;
 
+  private static final int[] EXCEPTION_EDGE_TYPES = new int[]{STATEDGE_ALL, StatEdge.TYPE_EXCEPTION};
+  private static final int[] REGULAR_EDGE_TYPES = new int[]{STATEDGE_ALL, STATEDGE_DIRECT_ALL};
+
   public enum EdgeDirection {
     BACKWARD, // predecessors
     FORWARD, // successors
@@ -257,10 +260,10 @@ public abstract class Statement implements IMatchable {
 
     int[] arrtypes;
     if (type == StatEdge.TYPE_EXCEPTION) {
-      arrtypes = new int[]{STATEDGE_ALL, StatEdge.TYPE_EXCEPTION};
-    }
-    else {
-      arrtypes = new int[]{STATEDGE_ALL, STATEDGE_DIRECT_ALL, type};
+      arrtypes = EXCEPTION_EDGE_TYPES;
+    } else {
+      arrtypes = REGULAR_EDGE_TYPES;
+      addEdgeDirectInternal(direction, edge, type);
     }
 
     for (int edgetype : arrtypes) {
@@ -288,10 +291,10 @@ public abstract class Statement implements IMatchable {
 
     int[] arrtypes;
     if (type == StatEdge.TYPE_EXCEPTION) {
-      arrtypes = new int[]{STATEDGE_ALL, StatEdge.TYPE_EXCEPTION};
-    }
-    else {
-      arrtypes = new int[]{STATEDGE_ALL, STATEDGE_DIRECT_ALL, type};
+      arrtypes = EXCEPTION_EDGE_TYPES;
+    } else {
+      arrtypes = REGULAR_EDGE_TYPES;
+      removeEdgeDirectInternal(direction, edge, type);
     }
 
     for (int edgetype : arrtypes) {

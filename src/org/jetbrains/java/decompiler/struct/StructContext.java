@@ -132,16 +132,18 @@ public class StructContext {
   public void addSpace(File file, boolean isOwn) {
     if (file.isDirectory()) {
       addSpace(new DirectoryContextSource(this.legacyProvider, file), isOwn);
-    } else if (file.isFile()) {
+    } else {
       final String name = file.getName();
       if (name.endsWith(".jar") || name.endsWith(".zip")) {
-        // archive
-        try {
-          addSpace(new JarContextSource(this.legacyProvider, file), isOwn);
-        } catch (final IOException ex) {
-          final String message = "Invalid archive " + file;
-          DecompilerContext.getLogger().writeMessage(message, IFernflowerLogger.Severity.ERROR, ex);
-          throw new UncheckedIOException(message, ex);
+        if (file.isFile()) {
+          // archive
+          try {
+            addSpace(new JarContextSource(this.legacyProvider, file), isOwn);
+          } catch (final IOException ex) {
+            final String message = "Invalid archive " + file;
+            DecompilerContext.getLogger().writeMessage(message, IFernflowerLogger.Severity.ERROR, ex);
+            throw new UncheckedIOException(message, ex);
+          }
         }
       } else {
         try {

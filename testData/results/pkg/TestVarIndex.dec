@@ -1,0 +1,168 @@
+package pkg;
+
+public class TestVarIndex {
+   public void test() {
+      byte var1 = 1;
+      this.consume((int)var1);
+      var1 = 1;
+      this.consume((short)var1);
+      var1 = 1;
+      this.consume(var1);
+   }
+
+   public void test2() {
+      byte var1 = 1;
+      this.consume((int)var1);
+      var1 = 1;
+      this.consume((short)var1);
+      var1 = 1;
+      this.consume((byte)var1);
+   }
+
+   public void test3() {
+      byte var1 = 1;
+      this.consume((int)var1);
+      var1 = 1;
+      this.consume((short)var1);
+      var1 = 1;
+      this.consume((byte)var1);
+   }
+
+   public void test4() {
+      byte var1 = 1;
+      this.consume((int)var1);
+      var1 = 1;
+      this.consume((short)var1);
+      var1 = 1;
+      this.consume(var1);
+   }
+
+   private void consume(int var1) {
+   }
+
+   private void consume(short var1) {
+   }
+
+   private void consume(byte var1) {
+   }
+}
+
+class 'pkg/TestVarIndex' {
+   method 'test ()V' {
+      0      4
+      1      4
+      2      5
+      3      5
+      4      5
+      5      5
+      6      5
+      7      6
+      8      6
+      9      7
+      a      7
+      b      7
+      c      7
+      d      7
+      e      8
+      f      8
+      10      9
+      11      9
+      12      9
+      13      9
+      14      9
+      15      10
+   }
+
+   method 'test2 ()V' {
+      0      13
+      1      13
+      2      14
+      3      14
+      4      14
+      5      14
+      6      14
+      7      15
+      8      15
+      9      16
+      a      16
+      b      16
+      c      16
+      d      16
+      e      17
+      f      17
+      10      18
+      11      18
+      12      18
+      13      18
+      14      18
+      15      18
+      16      19
+   }
+
+   method 'test3 ()V' {
+      0      22
+      1      22
+      2      23
+      3      23
+      4      23
+      5      23
+      6      23
+      7      24
+      8      24
+      9      25
+      a      25
+      b      25
+      c      25
+      d      25
+      e      25
+      f      26
+      10      26
+      11      27
+      12      27
+      13      27
+      14      27
+      15      27
+      16      27
+      17      28
+   }
+
+   method 'test4 ()V' {
+      0      31
+      1      31
+      2      32
+      3      32
+      4      32
+      5      32
+      6      32
+      7      33
+      8      33
+      9      34
+      a      34
+      b      34
+      c      34
+      d      34
+      e      34
+      f      35
+      10      35
+      11      36
+      12      36
+      13      36
+      14      36
+      15      36
+      16      37
+   }
+
+   method 'consume (I)V' {
+      0      40
+   }
+
+   method 'consume (S)V' {
+      0      43
+   }
+
+   method 'consume (B)V' {
+      0      46
+   }
+}
+
+Lines mapping:

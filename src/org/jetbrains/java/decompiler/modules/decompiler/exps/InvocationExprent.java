@@ -818,6 +818,7 @@ public class InvocationExprent extends Exprent {
                VarType.VARTYPE_CHAR;
           }
 
+          // TODO: better way to select boxing? this doesn't seem to consider superclass implementations
           int count = 0;
           StructClass stClass = DecompilerContext.getStructContext().getClass(classname);
           if (stClass != null) {
@@ -828,7 +829,14 @@ public class InvocationExprent extends Exprent {
                 if (md.params.length == descriptor.params.length) {
                   for (int x = 0; x < md.params.length; x++) {
                     if (md.params[x].typeFamily != descriptor.params[x].typeFamily &&
-                        md.params[x].typeFamily != types[x].typeFamily) {
+                        md.params[x].typeFamily != types[x].typeFamily
+                    ) {
+                      continue nextMethod;
+                    }
+
+                    if (md.params[x].arrayDim != descriptor.params[x].arrayDim &&
+                      md.params[x].arrayDim != types[x].arrayDim
+                    ) {
                       continue nextMethod;
                     }
                   }
@@ -1138,6 +1146,10 @@ public class InvocationExprent extends Exprent {
         if (left[i].typeFamily != right[i].typeFamily) {
           return false;
         }
+
+        if (left[i].arrayDim != right[i].arrayDim) {
+          return false;
+        }
       }
       return true;
     }
@@ -1202,7 +1214,7 @@ public class InvocationExprent extends Exprent {
           // Check if the current parameters and method descriptor are of the same type, or if the descriptor's type is a superset of the parameter's type.
           // This check ensures that parameters that can be safely passed don't have an unneeded cast on them, such as System.out.println((int)5);.
           // TODO: The root cause of the above issue seems to be threading related- When debugging line by line it doesn't cast, but when running normally it does. More digging needs to be done to figure out why this happens.
-          if ((!(md.params[i].equals(exp.getExprType()) || md.params[i].isSuperset(exp.getExprType()))) || (exp instanceof NewExprent && ((NewExprent) exp).isLambda() && !((NewExprent) exp).isMethodReference())) {
+          if ((!(md.params[i].equals(exp.getExprType()) || isSuperset(md, i, exp))) || (exp instanceof NewExprent && ((NewExprent) exp).isLambda() && !((NewExprent) exp).isMethodReference())) {
             exact = false;
             missed.set(i);
           }
@@ -1277,6 +1289,30 @@ public class InvocationExprent extends Exprent {
       }
     }
     return ambiguous;
+  }
+
+  private boolean isSuperset(MethodDescriptor md, int i, Exprent exp) {
+    if (shouldBeAmbiguous(md.params[i], exp)) {
+      return false;
+    }
+
+    return md.params[i].isSuperset(exp.getExprType());
+  }
+
+  // Trying to coerce byte->int can cause ambiguity issues, consider it as ambigous and not a superset
+  // See also: TestVarIndex
+  private boolean shouldBeAmbiguous(VarType param, Exprent exp) {
+    if (exp instanceof VarExprent) {
+      if (exp.getExprType().typeFamily == CodeConstants.TYPE_FAMILY_INTEGER && param.typeFamily == CodeConstants.TYPE_FAMILY_INTEGER) {
+        return !param.equals(exp.getExprType());
+      }
+
+      if (param.equals(VarType.VARTYPE_OBJECT) && param.arrayDim == 0 && exp.getExprType().typeFamily == CodeConstants.TYPE_FAMILY_OBJECT) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   private void processGenericMapping(VarType from, VarType to, Map<VarType, List<VarType>> named, Map<VarType, List<VarType>> bounds) {
