@@ -25,6 +25,16 @@ public class TestVarIndex2 {
     }
   }
 
+  public void test2() {
+    Float f = 4.3f;
+
+    other("object", f);
+  }
+
+  public void test3() {
+    other("boxed", 4.3f);
+  }
+
   private void consume(String s) {
 
   }
@@ -38,6 +48,14 @@ public class TestVarIndex2 {
   }
 
   private void consume(Object o) {
+
+  }
+
+  private void other(String s, Object o) {
+
+  }
+
+  private void other(String s, Object... o) {
 
   }
 }

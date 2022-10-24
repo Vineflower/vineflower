@@ -642,7 +642,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_17_PREVIEW, "TestUnknownCastJ17");
     // TODO: These variables shouldn't be merged, and should be split because each version is used once and has a different type use
     register(JAVA_8_NODEBUG, "TestVarIndex");
-    register(JAVA_8_NODEBUG, "TestVarIndex2");
   }
 
   private void registerEntireClassPath() {
@@ -715,6 +714,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: crashes in const type
     register(JAVA_8, "TestTryWithResourcesAfterSwitch");
     register(JAVA_8, "TestArrayConstructorReferenceJrt");
+    register(JAVA_8_NODEBUG, "TestVarIndex2");
   }
 
   private void registerLiterals() {

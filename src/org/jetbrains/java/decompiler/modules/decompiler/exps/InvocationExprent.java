@@ -1138,6 +1138,10 @@ public class InvocationExprent extends Exprent {
         if (left[i].typeFamily != right[i].typeFamily) {
           return false;
         }
+
+        if (left[i].arrayDim != right[i].arrayDim) {
+          return false;
+        }
       }
       return true;
     }
@@ -1290,8 +1294,14 @@ public class InvocationExprent extends Exprent {
   // Trying to coerce byte->int can cause ambiguity issues, consider it as ambigous and not a superset
   // See also: TestVarIndex
   private boolean shouldBeAmbiguous(VarType param, Exprent exp) {
-    if (exp instanceof VarExprent && exp.getExprType().typeFamily == CodeConstants.TYPE_FAMILY_INTEGER && param.typeFamily == CodeConstants.TYPE_FAMILY_INTEGER) {
-      return !param.equals(exp.getExprType());
+    if (exp instanceof VarExprent) {
+      if (exp.getExprType().typeFamily == CodeConstants.TYPE_FAMILY_INTEGER && param.typeFamily == CodeConstants.TYPE_FAMILY_INTEGER) {
+        return !param.equals(exp.getExprType());
+      }
+
+      if (param.equals(VarType.VARTYPE_OBJECT) && param.arrayDim == 0 && exp.getExprType().typeFamily == CodeConstants.TYPE_FAMILY_OBJECT) {
+        return true;
+      }
     }
 
     return false;
