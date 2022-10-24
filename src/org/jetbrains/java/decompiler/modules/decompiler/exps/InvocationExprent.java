@@ -818,6 +818,7 @@ public class InvocationExprent extends Exprent {
                VarType.VARTYPE_CHAR;
           }
 
+          // TODO: better way to select boxing? this doesn't seem to consider superclass implementations
           int count = 0;
           StructClass stClass = DecompilerContext.getStructContext().getClass(classname);
           if (stClass != null) {
@@ -828,7 +829,14 @@ public class InvocationExprent extends Exprent {
                 if (md.params.length == descriptor.params.length) {
                   for (int x = 0; x < md.params.length; x++) {
                     if (md.params[x].typeFamily != descriptor.params[x].typeFamily &&
-                        md.params[x].typeFamily != types[x].typeFamily) {
+                        md.params[x].typeFamily != types[x].typeFamily
+                    ) {
+                      continue nextMethod;
+                    }
+
+                    if (md.params[x].arrayDim != descriptor.params[x].arrayDim &&
+                      md.params[x].arrayDim != types[x].arrayDim
+                    ) {
                       continue nextMethod;
                     }
                   }

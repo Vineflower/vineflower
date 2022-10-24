@@ -20,7 +20,7 @@ public class TestVarIndex2 {
    }
 
    public void test3() {
-      this.other("boxed", Float.valueOf(4.3F));
+      this.other("boxed", 4.3F);
    }
 
    private void consume(String var1) {
