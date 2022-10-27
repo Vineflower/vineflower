@@ -665,8 +665,9 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestTryWithResources");
     // TODO: continue not explicit
     register(JAVA_8, "TestNestedLoops");
-    // TODO: Cast to <undefinedtype>
     register(JAVA_8, "TestAnonymousClass");
+    // TODO: <undefinedtype> cast and var type
+    register(JAVA_16, "TestAnonymousClassJ16");
     register(JAVA_8, "TestObjectArrays");
     register(JAVA_8, "TestAnonymousParams");
     register(JAVA_8, "TestThrowException");

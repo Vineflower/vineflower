@@ -642,7 +642,10 @@ public class InvocationExprent extends Exprent {
           }
           TextBuffer res = instance.toJava(indent);
 
-          if (rightType.equals(VarType.VARTYPE_OBJECT) && !leftType.equals(rightType)) {
+          ClassNode instNode = DecompilerContext.getClassProcessor().getMapRootClasses().get(classname);
+          // Don't cast to anonymous classes, since they by definition can't have a name
+          // TODO: better fix may be to change equals to isSuperSet? all anonymous classes are superset of Object
+          if (rightType.equals(VarType.VARTYPE_OBJECT) && !leftType.equals(rightType) && (instNode != null && instNode.type != ClassNode.Type.ANONYMOUS)) {
             buf.append("((").append(ExprProcessor.getCastTypeName(leftType)).append(")");
 
             if (instance.getPrecedence() >= FunctionType.CAST.precedence) {
