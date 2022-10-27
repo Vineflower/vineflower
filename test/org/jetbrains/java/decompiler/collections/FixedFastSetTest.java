@@ -145,7 +145,7 @@ public class FixedFastSetTest {
   @ParameterizedTest
   @MethodSource("nonEmptyFactories")
   <T> void addingInRandomOrderMaintainsBaseIterationOrder(List<T> elements, FastFixedSetFactory<T> factory) {
-    Random random = new Random(0x50_B1A5ED); // so biased
+    Random random = newRandom();
     FastFixedSet<T> set = factory.createEmptySet();
 
     List<T> shuffled = new ArrayList<>(elements);
@@ -161,7 +161,7 @@ public class FixedFastSetTest {
   @ParameterizedTest
   @MethodSource("nonEmptyFactories")
   <T> void exhaustedIteratorOfRandomlyPartiallyFilledSetReturnsNull(List<T> elements, FastFixedSetFactory<T> factory) {
-    Random random = new Random(0x50_B1A5ED); // so biased
+    Random random = newRandom();
     FastFixedSet<T> set = factory.createEmptySet();
 
     List<T> shuffled = new ArrayList<>(elements);
@@ -177,7 +177,7 @@ public class FixedFastSetTest {
   @ParameterizedTest
   @MethodSource("nonEmptyFactories")
   <T> void addedItemsShouldBeContained(List<T> elements, FastFixedSetFactory<T> factory) {
-    Random random = new Random(0x50_B1A5ED); // so biased
+    Random random = newRandom();
     FastFixedSet<T> set = factory.createEmptySet();
 
     List<T> shuffled = new ArrayList<>(elements);
@@ -194,7 +194,7 @@ public class FixedFastSetTest {
   @ParameterizedTest
   @MethodSource("nonEmptyFactories")
   <T> void iteratorVisitsAddedItems(List<T> elements, FastFixedSetFactory<T> factory) {
-    Random random = new Random(0x50_B1A5ED); // so biased
+    Random random = newRandom();
     FastFixedSet<T> set = factory.createEmptySet();
 
     List<T> shuffled = new ArrayList<>(elements);
@@ -212,7 +212,7 @@ public class FixedFastSetTest {
   @ParameterizedTest
   @MethodSource("nonEmptyFactories")
   <T> void addedItemsAreContained(List<T> elements, FastFixedSetFactory<T> factory) {
-    Random random = new Random(0x50_B1A5ED); // so biased
+    Random random = newRandom();
     FastFixedSet<T> set = factory.createEmptySet();
 
     List<T> shuffled = new ArrayList<>(elements);
@@ -233,7 +233,7 @@ public class FixedFastSetTest {
   @ParameterizedTest
   @MethodSource("nonEmptyFactories")
   <T> void notAddedItemsAreNotContained(List<T> elements, FastFixedSetFactory<T> factory) {
-    Random random = new Random(0x50_B1A5ED); // so biased
+    Random random = newRandom();
     FastFixedSet<T> set = factory.createEmptySet();
 
     List<T> shuffled = new ArrayList<>(elements);
@@ -254,7 +254,7 @@ public class FixedFastSetTest {
   @ParameterizedTest
   @MethodSource("nonEmptyFactories")
   <T> void plainSetConversionMatchesExpectedSet(List<T> elements, FastFixedSetFactory<T> factory) {
-    Random random = new Random(0x50_B1A5ED); // so biased
+    Random random = newRandom();
     FastFixedSet<T> set = factory.createEmptySet();
 
     List<T> shuffled = new ArrayList<>(elements);
@@ -272,7 +272,7 @@ public class FixedFastSetTest {
   @ParameterizedTest
   @MethodSource("nonEmptyFactories")
   <T> void addingItemsIsIdempotentWithRespectToPlainSetConversion(List<T> elements, FastFixedSetFactory<T> factory) {
-    Random random = new Random(0x50_B1A5ED); // so biased
+    Random random = newRandom();
     FastFixedSet<T> set = factory.createEmptySet();
 
     List<T> shuffled = new ArrayList<>(elements);
@@ -295,7 +295,7 @@ public class FixedFastSetTest {
   @ParameterizedTest
   @MethodSource("nonEmptyFactories")
   <T> void addingItemsAlreadyInSetDoesNotProduceDifferentPlainSet(List<T> elements, FastFixedSetFactory<T> factory) {
-    Random random = new Random(0x50_B1A5ED); // so biased
+    Random random = newRandom();
     FastFixedSet<T> set = factory.createEmptySet();
 
     List<T> shuffled = new ArrayList<>(elements);
@@ -318,7 +318,7 @@ public class FixedFastSetTest {
   @ParameterizedTest
   @MethodSource("nonEmptyFactories")
   <T> void addingItemsAlreadyInSetDoesNotModifyIterationOrder(List<T> elements, FastFixedSetFactory<T> factory) {
-    Random random = new Random(0x50_B1A5ED); // so biased
+    Random random = newRandom();
     FastFixedSet<T> set = factory.createEmptySet();
 
     List<T> shuffled = new ArrayList<>(elements);
@@ -339,7 +339,7 @@ public class FixedFastSetTest {
   @ParameterizedTest
   @MethodSource("nonEmptyFactories")
   <T> void addingItemsAlreadyInSetDoesNotModifyWhichItemsIteratorVisits(List<T> elements, FastFixedSetFactory<T> factory) {
-    Random random = new Random(0x50_B1A5ED); // so biased
+    Random random = newRandom();
     FastFixedSet<T> set = factory.createEmptySet();
 
     List<T> shuffled = new ArrayList<>(elements);
@@ -362,7 +362,7 @@ public class FixedFastSetTest {
   @ParameterizedTest
   @MethodSource("nonEmptyFactories")
   <T> void removedItemsAreNoLongerContained(List<T> elements, FastFixedSetFactory<T> factory) {
-    Random random = new Random(0x50_B1A5ED); // so biased
+    Random random = newRandom();
     FastFixedSet<T> set = factory.createCopiedSet();
 
     List<T> shuffled = new ArrayList<>(elements);
@@ -380,7 +380,7 @@ public class FixedFastSetTest {
   @ParameterizedTest
   @MethodSource("nonEmptyFactories")
   <T> void notRemovedItemsAreContained(List<T> elements, FastFixedSetFactory<T> factory) {
-    Random random = new Random(0x50_B1A5ED); // so biased
+    Random random = newRandom();
     FastFixedSet<T> set = factory.createCopiedSet();
 
     List<T> shuffled = new ArrayList<>(elements);
@@ -401,7 +401,7 @@ public class FixedFastSetTest {
   @ParameterizedTest
   @MethodSource("nonEmptyFactories")
   <T> void plainSetConversionMatchesExpectedSetAfterRemoving(List<T> elements, FastFixedSetFactory<T> factory) {
-    Random random = new Random(0x50_B1A5ED); // so biased
+    Random random = newRandom();
     FastFixedSet<T> set = factory.createCopiedSet();
 
     List<T> shuffled = new ArrayList<>(elements);
@@ -419,7 +419,7 @@ public class FixedFastSetTest {
   @ParameterizedTest
   @MethodSource("nonEmptyFactories")
   <T> void removingItemsIsIdempotentWithRespectToPlainSetConversion(List<T> elements, FastFixedSetFactory<T> factory) {
-    Random random = new Random(0x50_B1A5ED); // so biased
+    Random random = newRandom();
     FastFixedSet<T> set = factory.createCopiedSet();
 
     List<T> shuffled = new ArrayList<>(elements);
@@ -442,7 +442,7 @@ public class FixedFastSetTest {
   @ParameterizedTest
   @MethodSource("nonEmptyFactories")
   <T> void removingItemsThatAreNoLongerInSetDoesNotProduceDifferentPlainSet(List<T> elements, FastFixedSetFactory<T> factory) {
-    Random random = new Random(0x50_B1A5ED); // so biased
+    Random random = newRandom();
     FastFixedSet<T> set = factory.createCopiedSet();
 
     List<T> shuffled = new ArrayList<>(elements);
@@ -465,7 +465,7 @@ public class FixedFastSetTest {
   @ParameterizedTest
   @MethodSource("nonEmptyFactories")
   <T> void removingItemsNoLongerInSetDoesNotModifyIterationOrder(List<T> elements, FastFixedSetFactory<T> factory) {
-    Random random = new Random(0x50_B1A5ED); // so biased
+    Random random = newRandom();
     FastFixedSet<T> set = factory.createCopiedSet();
 
     List<T> shuffled = new ArrayList<>(elements);
@@ -488,7 +488,7 @@ public class FixedFastSetTest {
   @ParameterizedTest
   @MethodSource("nonEmptyFactories")
   <T> void addingItemsDoesNotAddRemovedItems(List<T> elements, FastFixedSetFactory<T> factory) {
-    Random random = new Random(0x50_B1A5ED); // so biased
+    Random random = newRandom();
     FastFixedSet<T> set = factory.createEmptySet();
 
     List<T> shuffled = new ArrayList<>(elements);
@@ -519,7 +519,7 @@ public class FixedFastSetTest {
   @ParameterizedTest
   @MethodSource("nonEmptyFactories")
   <T> void addingRemovedItemsDoesNotAddRemovedItems(List<T> elements, FastFixedSetFactory<T> factory) {
-    Random random = new Random(0x50_B1A5ED); // so biased
+    Random random = newRandom();
     FastFixedSet<T> set = factory.createCopiedSet();
 
     List<T> shuffled = new ArrayList<>(elements);
@@ -549,7 +549,7 @@ public class FixedFastSetTest {
   @ParameterizedTest
   @MethodSource("nonEmptyFactories")
   <T> void itemsRemovedThroughIteratorAreNoLongerInSet(List<T> elements, FastFixedSetFactory<T> factory) {
-    Random random = new Random(0x50_B1A5ED); // so biased
+    Random random = newRandom();
     FastFixedSet<T> set = factory.createEmptySet();
 
     List<T> shuffled = new ArrayList<>(elements);
@@ -626,7 +626,7 @@ public class FixedFastSetTest {
   @ParameterizedTest
   @MethodSource("nonEmptyFactories")
   <T> void setsWithDifferentSizesAreNotEqual(List<T> elements, FastFixedSetFactory<T> factory) {
-    Random random = new Random(0x50_B1A5ED); // so biased
+    Random random = newRandom();
     FastFixedSet<T> set1 = factory.createEmptySet();
     FastFixedSet<T> set2 = factory.createEmptySet();
 
@@ -649,7 +649,7 @@ public class FixedFastSetTest {
   @ParameterizedTest
   @MethodSource("nonEmptyFactories")
   <T> void setsWithDifferentElementsAreNotEqual(List<T> elements, FastFixedSetFactory<T> factory) {
-    Random random = new Random(0x50_B1A5ED); // so biased
+    Random random = newRandom();
     FastFixedSet<T> set1 = factory.createEmptySet();
     FastFixedSet<T> set2 = factory.createEmptySet();
 
@@ -711,7 +711,7 @@ public class FixedFastSetTest {
   @ParameterizedTest
   @MethodSource("nonEmptyFactories")
   <T> void copyOfASetIsEqualToTheOriginal(List<T> elements, FastFixedSetFactory<T> factory) {
-    Random random = new Random(0x50_B1A5ED); // so biased
+    Random random = newRandom();
     FastFixedSet<T> set = factory.createCopiedSet();
 
     List<T> shuffled = new ArrayList<>(elements);
@@ -722,6 +722,112 @@ public class FixedFastSetTest {
       assertEquals(set, set.getCopy());
     }
   }
+
+  private static Random newRandom() {
+    return new Random(0x50_B1A5ED); // so biased
+  }
+
+  // clear() works
+  @ParameterizedTest
+  @MethodSource("nonEmptyFactories")
+  <T> void clearWorks(List<T> elements, FastFixedSetFactory<T> factory) {
+    FastFixedSet<T> set = factory.createCopiedSet();
+    set.clear();
+
+    assertTrue(set.isEmpty());
+    assertTrue(set.toPlainSet().isEmpty());
+    assertFalse(set.iterator().hasNext());
+  }
+
+  // removeAll() works
+  @ParameterizedTest
+  @MethodSource("nonEmptyFactories")
+  <T> void removeAllWorks(List<T> elements, FastFixedSetFactory<T> factory) {
+    Random random = newRandom();
+    FastFixedSet<T> set = factory.createCopiedSet();
+    ArrayList<T> copy = new ArrayList<>(elements);
+
+    Set<T> toRemove = new HashSet<>();
+    for (T element : elements) {
+      if (random.nextInt(4) == 0) {
+        toRemove.add(element);
+      }
+    }
+
+    set.removeAll(toRemove);
+    assertEquals(elements.size() - toRemove.size(), set.toPlainSet().size());
+
+    copy.removeAll(toRemove);
+    assertPlainSetIsEqual(set, new HashSet<>(copy));
+    iteratorVisitsInOrder(set, copy);
+  }
+
+  // addAll() works
+  @ParameterizedTest
+  @MethodSource("nonEmptyFactories")
+  <T> void addAllWorks(List<T> elements, FastFixedSetFactory<T> factory) {
+    FastFixedSet<T> set = factory.createCopiedSet();
+    FastFixedSet<T> empty = factory.createEmptySet();
+
+    empty.addAll(set.toPlainSet());
+    assertEquals(set.toPlainSet().size(), empty.toPlainSet().size());
+
+    assertPlainSetIsEqual(empty, set.toPlainSet());
+    iteratorVisitsInOrder(empty, elements);
+  }
+
+  // union() works
+  @ParameterizedTest
+  @MethodSource("nonEmptyFactories")
+  <T> void unionWorks(List<T> elements, FastFixedSetFactory<T> factory) {
+    Random random = newRandom();
+    FastFixedSet<T> domain = factory.createCopiedSet();
+    FastFixedSet<T> set1 = factory.createEmptySet();
+    FastFixedSet<T> set2 = factory.createEmptySet();
+
+    Set<T> ps = domain.toPlainSet();
+    for (int i = 0; i < ps.size(); i++) {
+      if (random.nextBoolean()) {
+        set1.add(elements.get(i));
+      } else {
+        set2.add(elements.get(i));
+      }
+    }
+
+    set1.union(set2);
+
+    assertEquals(domain.toPlainSet().size(), set1.toPlainSet().size());
+
+    assertPlainSetIsEqual(set1, domain.toPlainSet());
+    iteratorVisitsInOrder(set1, elements);
+  }
+
+  // intersection() works
+  @ParameterizedTest
+  @MethodSource("nonEmptyFactories")
+  <T> void intersectionWorks(List<T> elements, FastFixedSetFactory<T> factory) {
+    Random random = newRandom();
+    FastFixedSet<T> domain = factory.createCopiedSet();
+    FastFixedSet<T> set1 = factory.createEmptySet();
+
+    Set<T> ps = domain.toPlainSet();
+    for (int i = 0; i < ps.size(); i++) {
+      if (random.nextBoolean()) {
+        set1.add(elements.get(i));
+      }
+    }
+
+    domain.intersection(set1);
+    List<T> copy = new ArrayList<>(elements);
+    copy.retainAll(set1.toPlainSet());
+
+    assertEquals(domain.toPlainSet().size(), set1.toPlainSet().size());
+
+    assertPlainSetIsEqual(set1, domain.toPlainSet());
+    iteratorVisitsInOrder(set1, copy);
+  }
+
+  // TODO: complement
 
   private static Stream<Arguments> nonEmptyFactories() {
     return Stream.of(

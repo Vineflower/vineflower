@@ -434,7 +434,7 @@ public abstract class SFormsConstructor implements SFormsCreator {
 
                   VarVersionNode verNode = this.ssuversions.nodes.getWithKey(varVersion);
 
-                  FastSparseSet<Integer> versions = this.factory.spawnEmptySet();
+                  FastSparseSet<Integer> versions = this.factory.createEmptySet();
                   if (verNode.preds.size() == 1) {
                     versions.add(verNode.preds.iterator().next().source.version);
                   } else {
@@ -650,7 +650,7 @@ public abstract class SFormsConstructor implements SFormsCreator {
       if (this.currentCatchableMap.containsKey(varindex)) {
         this.currentCatchableMap.get(varindex).add(varassign.getVersion());
       } else {
-        FastSparseSet<Integer> set = this.factory.spawnEmptySet();
+        FastSparseSet<Integer> set = this.factory.createEmptySet();
         set.add(varassign.getVersion());
         varmap.put(varindex, set);
       }
@@ -914,7 +914,7 @@ public abstract class SFormsConstructor implements SFormsCreator {
     for (int i = 0; i < paramcount; i++) {
       int version = this.getNextFreeVersion(varindex, this.root); // == 1
 
-      FastSparseSet<Integer> set = this.factory.spawnEmptySet();
+      FastSparseSet<Integer> set = this.factory.createEmptySet();
       set.add(version);
       map.put(varindex, set);
 
@@ -1040,7 +1040,7 @@ public abstract class SFormsConstructor implements SFormsCreator {
   }
 
   void setCurrentVar(SFormsFastMapDirect varmap, int var, int vers) {
-    FastSparseSet<Integer> set = this.factory.spawnEmptySet();
+    FastSparseSet<Integer> set = this.factory.createEmptySet();
     set.add(vers);
     varmap.put(var, set);
   }
