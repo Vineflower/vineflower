@@ -85,11 +85,11 @@ public class DecompilerTestFixture {
   public ConsoleDecompiler getDecompiler() {
     return decompiler;
   }
-  
+
   public void setCleanup(boolean value) {
     this.cleanup = value;
   }
-  
+
   public boolean getCleanup() {
     return cleanup;
   }
@@ -115,7 +115,9 @@ public class DecompilerTestFixture {
         }
       });
     } catch (IOException e) {
-      throw new UncheckedIOException(e);
+      // issue when deleting temp META-INF on windows, seemingly
+      //throw new UncheckedIOException(e);
+      e.printStackTrace();
     }
   }
 
@@ -136,7 +138,7 @@ public class DecompilerTestFixture {
     }
   }
 
-  private static String getContent(Path expected) {
+  public static String getContent(Path expected) {
     try {
       return new String(Files.readAllBytes(expected), StandardCharsets.UTF_8).replace("\r\n", "\n");
     }
@@ -158,8 +160,7 @@ public class DecompilerTestFixture {
       File file = new File(externalPath);
       if (internalPath == null) {
         return InterpreterUtil.getBytes(file);
-      }
-      else {
+      } else {
         ZipFile archive = zipFiles.get(file.getName());
         if (archive == null) {
           archive = new ZipFile(file);
@@ -171,7 +172,14 @@ public class DecompilerTestFixture {
       }
     }
 
-    void close() {
+    @Override
+    public void close() {
+      try {
+        super.close();
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
+
       for (ZipFile file : zipFiles.values()) {
         try {
           file.close();

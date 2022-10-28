@@ -5,11 +5,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.stats.DoStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.struct.StructClass;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -41,7 +37,7 @@ public class EliminateLoopsHelper {
       }
     }
 
-    if (stat.type == Statement.TYPE_DO && isLoopRedundant((DoStatement)stat)) {
+    if (stat instanceof DoStatement && isLoopRedundant((DoStatement)stat)) {
       return true;
     }
 
@@ -50,13 +46,13 @@ public class EliminateLoopsHelper {
 
   private static boolean isLoopRedundant(DoStatement loop) {
 
-    if (loop.getLooptype() != DoStatement.LOOP_DO) {
+    if (loop.getLooptype() != DoStatement.Type.INFINITE) {
       return false;
     }
 
     // get parent loop if exists
     Statement parentloop = loop.getParent();
-    while (parentloop != null && parentloop.type != Statement.TYPE_DO) {
+    while (parentloop != null && !(parentloop instanceof DoStatement)) {
       parentloop = parentloop.getParent();
     }
 
@@ -75,9 +71,9 @@ public class EliminateLoopsHelper {
 
     Statement loopcontent = loop.getFirst();
 
-    boolean firstok = loopcontent.getAllSuccessorEdges().isEmpty();
+    boolean firstok = !loopcontent.hasAnySuccessor();
     if (!firstok) {
-      StatEdge edge = loopcontent.getAllSuccessorEdges().get(0);
+      StatEdge edge = loopcontent.getFirstSuccessor();
       firstok = (edge.closure == loop && edge.getType() == StatEdge.TYPE_BREAK);
       if (firstok) {
         lstBreakEdges.remove(edge);
@@ -200,24 +196,23 @@ public class EliminateLoopsHelper {
 
   private static void eliminateLoop(Statement loop, Statement parentloop) {
 
+    // remove the last break edge, if exists
+    Statement loopcontent = loop.getFirst();
+    // TODO: originally was getAllSuccessorEdges
+    if (loopcontent.hasSuccessor(StatEdge.TYPE_BREAK)) {
+      loopcontent.removeSuccessor(loopcontent.getSuccessorEdges(StatEdge.TYPE_BREAK).get(0));
+    }
+
     // move continue edges to the parent loop
     List<StatEdge> lst = new ArrayList<>(loop.getLabelEdges());
+
     for (StatEdge edge : lst) {
-      loop.removePredecessor(edge);
-      edge.getSource().changeEdgeNode(Statement.DIRECTION_FORWARD, edge, parentloop);
-      parentloop.addPredecessor(edge);
+      edge.changeDestination(parentloop);
 
       parentloop.addLabeledEdge(edge);
     }
 
-    // remove the last break edge, if exists
-    Statement loopcontent = loop.getFirst();
-    // TODO: originally was getAllSuccessorEdges
-    if (!loopcontent.getSuccessorEdges(StatEdge.TYPE_BREAK).isEmpty()) {
-      loopcontent.removeSuccessor(loopcontent.getSuccessorEdges(StatEdge.TYPE_BREAK).get(0));
-    }
-
     // replace loop with its content
-    loop.getParent().replaceStatement(loop, loopcontent);
+    loop.replaceWith(loopcontent);
   }
 }

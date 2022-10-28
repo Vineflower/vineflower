@@ -11,6 +11,42 @@ public class TestClassSwitch {
             System.out.println(13);// 24
       }
    }// 25
+
+   public void testFallThrough(int a, int b) {
+      int x = 17;// 33
+      switch(a) {// 35
+         case 6:
+         case 7:
+         case 8:
+         case 9:
+         case 10:
+         case 11:
+         case 12:
+         case 14:
+         case 15:
+         case 16:
+         default:
+            break;
+         case 13:
+            System.out.println(13);// 37
+         case 5:
+            System.out.println(5);// 39
+            x += 17;// 40
+            break;// 41
+         case 17:
+            System.out.println(17);// 43
+            if (b > 0) {// 44
+               x = 5000;// 45
+            }
+         case 18:
+         case 19:
+         case 20:
+            System.out.println("hi");// 50
+            x += 170000;// 51
+      }
+
+      System.out.println(x);// 55
+   }// 56
 }
 
 class 'pkg/TestClassSwitch' {
@@ -33,6 +69,64 @@ class 'pkg/TestClassSwitch' {
       29      6
       2c      8
    }
+
+   method 'testFallThrough (II)V' {
+      0      15
+      1      15
+      2      15
+      3      16
+      4      16
+      54      30
+      55      30
+      56      30
+      57      30
+      58      30
+      59      30
+      5c      32
+      5d      32
+      5e      32
+      5f      32
+      60      32
+      61      32
+      62      32
+      63      33
+      64      33
+      65      33
+      66      34
+      69      36
+      6a      36
+      6b      36
+      6c      36
+      6d      36
+      6e      36
+      6f      36
+      70      36
+      71      37
+      72      37
+      75      38
+      76      38
+      77      38
+      78      38
+      79      43
+      7a      43
+      7b      43
+      7c      43
+      7d      43
+      7e      43
+      7f      43
+      80      43
+      82      44
+      83      44
+      85      44
+      86      47
+      87      47
+      88      47
+      89      47
+      8a      47
+      8b      47
+      8c      47
+      8d      48
+   }
 }
 
 Lines mapping:
@@ -41,3 +135,16 @@ Lines mapping:
 25 <-> 13
 27 <-> 7
 29 <-> 9
+33 <-> 16
+35 <-> 17
+37 <-> 31
+39 <-> 33
+40 <-> 34
+41 <-> 35
+43 <-> 37
+44 <-> 38
+45 <-> 39
+50 <-> 44
+51 <-> 45
+55 <-> 48
+56 <-> 49

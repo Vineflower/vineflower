@@ -17,7 +17,6 @@ public class TestLocalsNames {
          long elapsed = System.currentTimeMillis() - start;// 31
          System.out.println("took " + elapsed + "ms (" + elapsed / (long)files.length + "ms per dir)");// 32
       }
-
    }// 34
 }
 
@@ -42,6 +41,8 @@ class 'pkg/TestLocalsNames' {
       12      10
       13      10
       14      10
+      15      10
+      16      10
       18      10
       19      10
       1b      10
@@ -110,7 +111,7 @@ class 'pkg/TestLocalsNames' {
       b7      17
       b8      17
       b9      17
-      bc      20
+      bc      19
    }
 }
 
@@ -123,4 +124,4 @@ Lines mapping:
 28 <-> 14
 31 <-> 17
 32 <-> 18
-34 <-> 21
+34 <-> 20

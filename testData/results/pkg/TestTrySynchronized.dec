@@ -14,11 +14,10 @@ public class TestTrySynchronized {
       InputStream stream = null;// 15
 
       try {
-         new FileInputStream("nul");// 17
+         stream = new FileInputStream("nul");// 17
       } catch (Throwable var2) {// 18
          stream.close();// 19
       }
-
    }// 21
 
    public static void case02() throws Exception {
@@ -36,7 +35,6 @@ public class TestTrySynchronized {
       } catch (Throwable var4) {// 37
          stream.close();// 38
       }
-
    }// 41
 
    private static InputStream getInputStream() {
@@ -63,54 +61,55 @@ class 'pkg/TestTrySynchronized' {
       19      13
       1e      16
       1f      16
+      23      16
       27      17
       28      18
       29      18
-      2c      21
+      2c      20
    }
 
    method 'case02 ()V' {
-      0      24
-      1      24
-      2      24
-      5      24
-      6      25
-      7      25
-      8      25
-      9      25
-      a      25
-      b      25
-      c      25
-      d      25
-      f      26
-      18      28
-      19      28
-      1a      31
-      1b      31
-      1c      31
-      1d      31
-      1e      32
-      1f      32
-      20      32
-      23      32
-      24      33
-      25      33
-      26      33
-      27      33
-      28      33
-      29      33
-      2a      33
-      2b      33
-      2d      34
-      39      35
-      3a      36
-      3b      36
-      3e      39
+      0      23
+      1      23
+      2      23
+      5      23
+      6      24
+      7      24
+      8      24
+      9      24
+      a      24
+      b      24
+      c      24
+      d      24
+      f      25
+      18      27
+      19      27
+      1a      30
+      1b      30
+      1c      30
+      1d      30
+      1e      31
+      1f      31
+      20      31
+      23      31
+      24      32
+      25      32
+      26      32
+      27      32
+      28      32
+      29      32
+      2a      32
+      2b      32
+      2d      33
+      39      34
+      3a      35
+      3b      35
+      3e      37
    }
 
    method 'getInputStream ()Ljava/io/InputStream;' {
-      0      42
-      1      42
+      0      40
+      1      40
    }
 }
 
@@ -122,19 +121,19 @@ Lines mapping:
 17 <-> 17
 18 <-> 18
 19 <-> 19
-21 <-> 22
-25 <-> 25
-26 <-> 26
-27 <-> 27
-29 <-> 29
-31 <-> 32
-33 <-> 33
-34 <-> 34
-35 <-> 35
-37 <-> 36
-38 <-> 37
-41 <-> 40
-44 <-> 43
+21 <-> 21
+25 <-> 24
+26 <-> 25
+27 <-> 26
+29 <-> 28
+31 <-> 31
+33 <-> 32
+34 <-> 33
+35 <-> 34
+37 <-> 35
+38 <-> 36
+41 <-> 38
+44 <-> 41
 Not mapped:
 20
 39

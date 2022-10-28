@@ -16,7 +16,7 @@ public class ArrayExprent extends Exprent {
   private final VarType hardType;
 
   public ArrayExprent(Exprent array, Exprent index, VarType hardType, BitSet bytecodeOffsets) {
-    super(EXPRENT_ARRAY);
+    super(Type.ARRAY);
     this.array = array;
     this.index = index;
     this.hardType = hardType;
@@ -75,7 +75,7 @@ public class ArrayExprent extends Exprent {
   public TextBuffer toJava(int indent) {
     TextBuffer res = array.toJava(indent);
 
-    if (array.getPrecedence() > getPrecedence()) { // array precedence equals 0
+    if (array.getPrecedence() > getPrecedence() && !canSkipParenEnclose(array)) { // array precedence equals 0
       res.enclose("(", ")");
     }
 
@@ -88,6 +88,16 @@ public class ArrayExprent extends Exprent {
     res.addBytecodeMapping(bytecode);
 
     return res.append('[').append(index.toJava(indent)).append(']');
+  }
+
+  private boolean canSkipParenEnclose(Exprent instance) {
+    if (!(instance instanceof NewExprent)) {
+      return false;
+    }
+
+    NewExprent newExpr = (NewExprent) instance;
+
+    return newExpr.isDirectArrayInit() || !newExpr.getLstArrayElements().isEmpty();
   }
 
   @Override

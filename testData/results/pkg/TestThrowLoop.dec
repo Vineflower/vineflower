@@ -17,7 +17,6 @@ public class TestThrowLoop {
             throw new IllegalArgumentException();// 17
          }
       }
-
    }// 20
 }
 
@@ -68,7 +67,7 @@ class 'pkg/TestThrowLoop' {
       49      14
       4a      14
       4b      14
-      4f      20
+      4f      19
    }
 }
 
@@ -83,6 +82,6 @@ Lines mapping:
 15 <-> 15
 16 <-> 16
 17 <-> 17
-20 <-> 21
+20 <-> 20
 Not mapped:
 14

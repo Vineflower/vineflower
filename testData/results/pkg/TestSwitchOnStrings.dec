@@ -48,6 +48,7 @@ public class TestSwitchOnStrings {
 class 'pkg/TestSwitchOnStrings' {
    method 'testSOS1 (Ljava/lang/String;)I' {
       0      4
+      4      4
       25      5
       26      5
       33      7
@@ -63,6 +64,7 @@ class 'pkg/TestSwitchOnStrings' {
 
    method 'testSOS2 (Ljava/lang/String;)I' {
       0      15
+      4      15
       2d      16
       2e      16
       3b      18
@@ -90,6 +92,7 @@ class 'pkg/TestSwitchOnStrings' {
 
    method 'testSOS3 (Ljava/lang/String;)I' {
       0      32
+      4      32
       2d      33
       2e      33
       3b      35

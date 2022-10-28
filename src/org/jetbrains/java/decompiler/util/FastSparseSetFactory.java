@@ -53,7 +53,7 @@ public class FastSparseSetFactory<E> {
     return pointer;
   }
 
-  public FastSparseSet<E> spawnEmptySet() {
+  public FastSparseSet<E> createEmptySet() {
     return new FastSparseSet<>(this);
   }
 

@@ -6,7 +6,6 @@ public class TestPatternMatchingMerge {
       if (obj instanceof String) {// 7
          s = (String)obj;// 8
       }
-
    }// 10
 
    public void testNoInit(Object obj) {
@@ -34,30 +33,30 @@ class 'pkg/TestPatternMatchingMerge' {
       c      6
       d      6
       e      6
-      f      9
+      f      8
    }
 
    method 'testNoInit (Ljava/lang/Object;)V' {
-      0      12
-      1      12
-      2      13
-      3      13
-      4      13
-      5      13
-      6      13
-      9      14
-      a      14
-      b      14
-      c      14
-      d      14
-      e      17
-      f      17
-      10      17
-      11      17
-      12      17
-      13      17
-      14      17
-      15      18
+      0      11
+      1      11
+      2      12
+      3      12
+      4      12
+      5      12
+      6      12
+      9      13
+      a      13
+      b      13
+      c      13
+      d      13
+      e      16
+      f      16
+      10      16
+      11      16
+      12      16
+      13      16
+      14      16
+      15      17
    }
 }
 
@@ -65,9 +64,9 @@ Lines mapping:
 5 <-> 5
 7 <-> 6
 8 <-> 7
-10 <-> 10
-13 <-> 13
-14 <-> 14
-15 <-> 15
-17 <-> 18
-18 <-> 19
+10 <-> 9
+13 <-> 12
+14 <-> 13
+15 <-> 14
+17 <-> 17
+18 <-> 18

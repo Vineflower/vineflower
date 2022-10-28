@@ -15,4 +15,16 @@ public class TestGenericSuper<T extends Number> {
     U u = io.mutate(this.t1);
     consumer.accept(u);
   }
+
+  public <U extends T> void test2(T[] arr, Consumer<U> consumer) {
+    consumer.accept(null);
+    U u = (U) arr[0];
+    consumer.accept(u);
+  }
+
+  public <U extends T> void test3(U[] arr, Consumer<T> consumer) {
+    consumer.accept(null);
+    T t = arr[0];
+    consumer.accept(t);
+  }
 }

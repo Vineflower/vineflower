@@ -1,24 +1,113 @@
 package pkg;
 
-public class TestGenericsHierarchy<T> {
+import java.util.ArrayList;
+import java.util.List;
+
+public class TestGenericsHierarchy<T extends Number> {
    public T field;
 
    public <V extends T> void test(V v) {
-      this.field = (T)v;// 7
-   }// 8
+      List<V> list = new ArrayList();// 10
+      List<? extends T> list2 = new ArrayList<>();// 11
+      List<T> list3 = new ArrayList<>();// 12
+      if (v != null) {// 14
+         list2 = list;// 15
+      }
+
+      V v1 = list.get(0);// 18
+      T v2 = list2.get(0);// 19
+      list3.add(list2.get(0));// 21
+      this.field = (T)v;// 23
+      this.setField((T)v);// 24
+   }// 25
+
+   public void setField(T field) {
+      this.field = field;// 39
+   }// 40
 }
 
 class 'pkg/TestGenericsHierarchy' {
-   method 'test (Ljava/lang/Object;)V' {
-      0      6
-      1      6
-      2      6
-      3      6
-      4      6
-      5      7
+   method 'test (Ljava/lang/Number;)V' {
+      7      9
+      f      10
+      17      11
+      18      11
+      19      12
+      1a      12
+      1d      13
+      1e      13
+      1f      16
+      20      16
+      21      16
+      22      16
+      23      16
+      24      16
+      25      16
+      26      16
+      27      16
+      28      16
+      29      16
+      2a      16
+      2b      17
+      2c      17
+      2d      17
+      2e      17
+      2f      17
+      30      17
+      31      17
+      32      17
+      33      17
+      34      17
+      35      17
+      36      17
+      37      18
+      38      18
+      39      18
+      3a      18
+      3b      18
+      3c      18
+      3d      18
+      3e      18
+      3f      18
+      40      18
+      41      18
+      42      18
+      43      18
+      44      18
+      46      19
+      47      19
+      48      19
+      49      19
+      4a      19
+      4b      20
+      4c      20
+      4d      20
+      4e      20
+      4f      20
+      50      21
+   }
+
+   method 'setField (Ljava/lang/Number;)V' {
+      0      24
+      1      24
+      2      24
+      3      24
+      4      24
+      5      25
    }
 }
 
 Lines mapping:
-7 <-> 7
-8 <-> 8
+10 <-> 10
+11 <-> 11
+12 <-> 12
+14 <-> 13
+15 <-> 14
+18 <-> 17
+19 <-> 18
+21 <-> 19
+23 <-> 20
+24 <-> 21
+25 <-> 22
+39 <-> 25
+40 <-> 26

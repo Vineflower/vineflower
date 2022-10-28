@@ -16,7 +16,7 @@ public class TestInlineNoSuccessor {
             System.out.println(0);// 13
             if (arg.startsWith("--aa")) {// 15
                if (++i >= args.length) {// 16 18
-                  return new String[0];// 33
+                  break;
                }
 
                System.out.println(1);// 19
@@ -26,7 +26,7 @@ public class TestInlineNoSuccessor {
          }
       }
 
-      return new String[0];
+      return new String[0];// 33
    }
 }
 
@@ -80,6 +80,7 @@ class 'pkg/TestInlineNoSuccessor' {
       37      17
       38      17
       39      17
+      3a      17
       3b      17
       3c      17
       3d      17
@@ -100,8 +101,8 @@ class 'pkg/TestInlineNoSuccessor' {
       53      4
       54      4
       55      4
-      59      18
-      5d      18
+      59      28
+      5d      28
    }
 }
 
@@ -119,4 +120,4 @@ Lines mapping:
 19 <-> 22
 25 <-> 25
 29 <-> 12
-33 <-> 19
+33 <-> 29

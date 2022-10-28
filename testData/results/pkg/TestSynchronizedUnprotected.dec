@@ -4,23 +4,19 @@ import kotlin.Metadata;
 import kotlin.Unit;
 
 @Metadata(
-   mv = {1, 5, 1},
+   mv = {1, 6, 0},
    k = 1,
    xi = 48,
    d1 = {"\u0000\u0012\n\u0002\u0018\u0002\n\u0002\u0010\u0000\n\u0002\b\u0002\n\u0002\u0010\u0002\n\u0000\u0018\u00002\u00020\u0001B\u0005¢\u0006\u0002\u0010\u0002J\u0006\u0010\u0003\u001a\u00020\u0004¨\u0006\u0005"},
    d2 = {"Lpkg/TestSynchronizedUnprotected;", "", "()V", "test", "", "quiltflower_testDataKotlin"}
 )
 public final class TestSynchronizedUnprotected {
-   // $FF: Extended synchronized range to monitorexit
+   // $QF: Extended synchronized range to monitorexit
    public final void test() {
-      boolean var1 = false;
-      boolean var2 = false;
       synchronized(this) {
          int $i$a$-synchronized-TestSynchronizedUnprotected$test$1 = 0;
-         String var4 = "Boom";// 6
-         boolean var5 = false;
-         System.out.println(var4);
-         Unit var7 = Unit.INSTANCE;// 5 7
+         System.out.println("Boom");// 6
+         Unit var4 = Unit.INSTANCE;// 5 7
       }
    }
 }
@@ -28,46 +24,36 @@ public final class TestSynchronizedUnprotected {
 class 'pkg/TestSynchronizedUnprotected' {
    method 'test ()V' {
       0      15
-      1      15
-      2      16
-      3      16
-      4      17
-      5      17
-      7      18
-      8      18
-      9      19
-      a      19
-      b      19
-      c      19
-      d      20
-      e      20
-      f      20
-      10      21
-      11      21
-      12      21
-      13      21
-      14      21
-      15      21
-      16      21
-      17      21
-      19      22
-      1a      22
-      1b      22
-      1c      22
-      1f      24
-      20      24
-      21      24
-      22      24
-      23      24
-      24      24
-      25      24
-      26      24
+      2      15
+      3      15
+      5      16
+      6      16
+      7      17
+      8      17
+      9      17
+      a      17
+      b      17
+      d      17
+      e      17
+      f      17
+      11      18
+      12      18
+      13      18
+      14      18
+      17      20
+      18      20
+      19      20
+      1a      20
+      1b      20
+      1c      20
+      1d      20
+      1e      20
    }
 }
 
 Lines mapping:
-5 <-> 23
-6 <-> 20
-7 <-> 23
+5 <-> 19
+6 <-> 18
+7 <-> 19
 Not mapped:
 8

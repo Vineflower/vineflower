@@ -1,84 +1,55 @@
 package pkg;
 
-import java.io.PrintStream;
-
 public class TestTernaryCall {
    public void test(boolean a, boolean b, boolean c) {
-      PrintStream var10000;
-      boolean var10001;
-      label25: {
-         label27: {
-            var10000 = System.out;// 5
-            if (b ? !c : !a) {
-               if (c) {
-                  if (a) {
-                     break label27;
-                  }
-               } else if (b) {
-                  break label27;
-               }
-
-               var10001 = false;
-            }
-            break label25;
-         }
-
-         var10001 = true;
-      }
-
-      var10000.println(var10001);
+      System.out.println((b ? c : a) || (c ? a : b));// 5
    }// 6
 
    public void test2(boolean a, boolean b, boolean c) {
       if (b ? c : a) {// 9
          System.out.println(c);// 10
       }
-
    }// 12
 }
 
 class 'pkg/TestTernaryCall' {
    method 'test (ZZZ)V' {
-      0      10
-      1      10
-      2      10
-      3      11
-      4      11
-      7      11
-      8      11
-      e      11
-      f      11
-      12      12
-      13      12
-      16      13
-      17      13
-      1d      16
-      1e      16
-      21      25
-      25      20
-      26      28
-      27      28
-      28      28
-      29      29
+      0      4
+      1      4
+      2      4
+      3      4
+      4      4
+      7      4
+      e      4
+      12      4
+      13      4
+      16      4
+      1d      4
+      26      4
+      27      4
+      28      4
+      29      5
    }
 
    method 'test2 (ZZZ)V' {
-      0      32
-      1      32
-      4      32
-      b      32
-      f      33
-      10      33
-      11      33
-      12      33
-      13      33
-      16      36
+      0      8
+      1      8
+      4      8
+      5      8
+      b      8
+      c      8
+      f      9
+      10      9
+      11      9
+      12      9
+      13      9
+      16      11
    }
 }
 
 Lines mapping:
-5 <-> 11
-6 <-> 30
-9 <-> 33
-10 <-> 34
-12 <-> 37
+5 <-> 5
+6 <-> 6
+9 <-> 9
+10 <-> 10
+12 <-> 12

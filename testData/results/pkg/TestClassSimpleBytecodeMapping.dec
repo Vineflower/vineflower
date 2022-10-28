@@ -27,7 +27,6 @@ public class TestClassSimpleBytecodeMapping {
       } finally {
          System.out.println("Finally");// 38
       }
-
    }// 40
 
    void run(Runnable r) {
@@ -104,6 +103,7 @@ class 'pkg/TestClassSimpleBytecodeMapping' {
       11      25
       12      25
       13      25
+      14      25
       15      25
       23      27
       24      27
@@ -111,17 +111,17 @@ class 'pkg/TestClassSimpleBytecodeMapping' {
       26      27
       27      27
       28      27
-      2e      30
+      2e      29
    }
 
    method 'run (Ljava/lang/Runnable;)V' {
-      0      33
-      1      33
-      2      33
-      3      33
-      4      33
-      5      33
-      6      34
+      0      32
+      1      32
+      2      32
+      3      32
+      4      32
+      5      32
+      6      33
    }
 }
 
@@ -141,29 +141,29 @@ class 'pkg/TestClassSimpleBytecodeMapping$1' {
 
 class 'pkg/TestClassSimpleBytecodeMapping$InnerClass' {
    method 'print ()V' {
-      0      38
-      1      38
-      2      38
-      3      38
-      4      38
-      5      38
-      6      38
-      7      38
-      8      39
+      0      37
+      1      37
+      2      37
+      3      37
+      4      37
+      5      37
+      6      37
+      7      37
+      8      38
    }
 }
 
 class 'pkg/TestClassSimpleBytecodeMapping$InnerClass2' {
    method 'print ()V' {
-      0      44
-      1      44
-      2      44
-      3      44
-      4      44
-      5      44
-      6      44
-      7      44
-      8      45
+      0      43
+      1      43
+      2      43
+      3      43
+      4      43
+      5      43
+      6      43
+      7      43
+      8      44
    }
 }
 
@@ -182,12 +182,12 @@ Lines mapping:
 35 <-> 25
 36 <-> 26
 38 <-> 28
-40 <-> 31
-44 <-> 39
-45 <-> 40
-49 <-> 34
-50 <-> 35
-54 <-> 45
-55 <-> 46
+40 <-> 30
+44 <-> 38
+45 <-> 39
+49 <-> 33
+50 <-> 34
+54 <-> 44
+55 <-> 45
 Not mapped:
 39

@@ -5,7 +5,9 @@ public class TestRenameEntities {
     public Object a;
 
     public void a() {
+      this.a = new Object();
 
+      new b().a();
     }
   }
 
@@ -13,7 +15,9 @@ public class TestRenameEntities {
     public Object a;
 
     public void a() {
+      this.a = new Object();
 
+      new a().a();
     }
   }
 }

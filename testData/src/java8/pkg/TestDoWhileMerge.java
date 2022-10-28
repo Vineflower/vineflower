@@ -35,4 +35,24 @@ public class TestDoWhileMerge {
 
     System.out.println("after");
   }
+
+  public void test2(boolean b, int j) {
+    label24:
+    for(int i = 0; i < j; ++i) {
+      System.out.println(1);
+
+      while(true) {
+        System.out.println(i);
+        if (++i == 30) {
+          return;
+        }
+
+        if (!b || i >= 40) {
+          continue label24;
+        }
+
+        System.out.println(j);
+      }
+    }
+  }
 }

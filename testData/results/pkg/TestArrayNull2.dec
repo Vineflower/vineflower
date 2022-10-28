@@ -1,13 +1,13 @@
 package pkg;
 
 public class TestArrayNull2 {
-   private TestArrayNull2(int[] array) {
-   }// 6
+   private TestArrayNull2(int[] var1) {
+   }
 
    public void test() {
-      int[] array = null;// 9
-      new TestArrayNull2(array);// 10
-   }// 11
+      Object var1 = null;
+      new TestArrayNull2((int[])var1);
+   }
 }
 
 class 'pkg/TestArrayNull2' {
@@ -24,9 +24,3 @@ class 'pkg/TestArrayNull2' {
 }
 
 Lines mapping:
-6 <-> 5
-9 <-> 8
-10 <-> 9
-11 <-> 10
-Not mapped:
-4

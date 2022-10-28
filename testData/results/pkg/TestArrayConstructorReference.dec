@@ -1,0 +1,126 @@
+package pkg;
+
+import java.util.function.IntFunction;
+
+class TestArrayConstructorReference {
+   static final IntFunction<int[]> INT_REF = x$0 -> new int[x$0];// 6
+   static final IntFunction<int[]> INT_SIMPLE_LAMBDA = len -> new int[2 * len];// 7
+   static final IntFunction<int[]> INT_LONG_LAMBDA = len -> {
+      len *= 2;// 9
+      return new int[len];// 10
+   };
+   static final IntFunction<int[][]> INT_ARRAY_REF = x$0 -> new int[x$0][];// 12
+   static final IntFunction<int[][]> INT_ARRAY_SIMPLE_LAMBDA = len -> new int[2 * len][];// 13
+   static final IntFunction<int[][]> INT_ARRAY_LONG_LAMBDA = len -> {
+      len *= 2;// 15
+      return new int[len][];// 16
+   };
+   static final IntFunction<String[]> STRING_REF = x$0 -> new String[x$0];// 18
+   static final IntFunction<String[]> STRING_SIMPLE_LAMBDA = len -> new String[2 * len];// 19
+   static final IntFunction<String[]> STRING_LONG_LAMBDA = len -> {
+      len *= 2;// 21
+      return new String[len];// 22
+   };
+   static final IntFunction<String[][]> STRING_ARRAY_REF = x$0 -> new String[x$0][];// 24
+   static final IntFunction<String[][]> STRING_ARRAY_SIMPLE_LAMBDA = len -> new String[2 * len][];// 25
+   static final IntFunction<String[][]> STRING_ARRAY_LONG_LAMBDA = len -> {
+      len *= 2;// 27
+      return new String[len][];// 28
+   };
+}
+
+class 'pkg/TestArrayConstructorReference' {
+   method 'lambda$static$0 (I)[I' {
+      0      5
+      3      5
+   }
+
+   method 'lambda$static$1 (I)[I' {
+      0      6
+      1      6
+      2      6
+      5      6
+   }
+
+   method 'lambda$static$2 (I)[I' {
+      1      8
+      3      8
+      4      9
+      7      9
+   }
+
+   method 'lambda$static$3 (I)[[I' {
+      0      11
+      4      11
+   }
+
+   method 'lambda$static$4 (I)[[I' {
+      0      12
+      1      12
+      2      12
+      6      12
+   }
+
+   method 'lambda$static$5 (I)[[I' {
+      1      14
+      3      14
+      4      15
+      8      15
+   }
+
+   method 'lambda$static$6 (I)[Ljava/lang/String;' {
+      0      17
+      4      17
+   }
+
+   method 'lambda$static$7 (I)[Ljava/lang/String;' {
+      0      18
+      1      18
+      2      18
+      6      18
+   }
+
+   method 'lambda$static$8 (I)[Ljava/lang/String;' {
+      1      20
+      3      20
+      4      21
+      8      21
+   }
+
+   method 'lambda$static$9 (I)[[Ljava/lang/String;' {
+      0      23
+      4      23
+   }
+
+   method 'lambda$static$10 (I)[[Ljava/lang/String;' {
+      0      24
+      1      24
+      2      24
+      6      24
+   }
+
+   method 'lambda$static$11 (I)[[Ljava/lang/String;' {
+      1      26
+      3      26
+      4      27
+      8      27
+   }
+}
+
+Lines mapping:
+6 <-> 6
+7 <-> 7
+9 <-> 9
+10 <-> 10
+12 <-> 12
+13 <-> 13
+15 <-> 15
+16 <-> 16
+18 <-> 18
+19 <-> 19
+21 <-> 21
+22 <-> 22
+24 <-> 24
+25 <-> 25
+27 <-> 27
+28 <-> 28

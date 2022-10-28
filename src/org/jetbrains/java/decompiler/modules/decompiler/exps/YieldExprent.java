@@ -1,7 +1,6 @@
 package org.jetbrains.java.decompiler.modules.decompiler.exps;
 
 import org.jetbrains.java.decompiler.code.CodeConstants;
-import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
@@ -15,7 +14,7 @@ public class YieldExprent extends Exprent {
   private final VarType retType;
 
   public YieldExprent(Exprent content, VarType retType) {
-    super(EXPRENT_YIELD);
+    super(Type.YIELD);
     this.content = content;
     this.retType = retType;
   }

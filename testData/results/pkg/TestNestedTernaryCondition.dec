@@ -2,39 +2,30 @@ package pkg;
 
 public class TestNestedTernaryCondition {
    public void test(boolean bl, int a, int b) {
-      label23: {
-         if (bl) {// 5
-            if (a > b) {
-               break label23;
-            }
-         } else if (a < b) {
-            break label23;
-         }
-
-         boolean var10000 = true;
-         return;// 6
+      if (bl ? a <= b : a >= b) {// 5
+         boolean var5 = true;
+      } else {
+         boolean var10000 = false;
       }
-
-      boolean var5 = false;
-   }
+   }// 6
 }
 
 class 'pkg/TestNestedTernaryCondition' {
    method 'test (ZII)V' {
-      0      5
-      1      5
-      4      6
-      5      6
-      6      6
-      c      9
-      d      9
-      e      9
-      11      17
-      15      13
-      19      14
+      0      4
+      1      4
+      4      4
+      5      4
+      6      4
+      c      4
+      d      4
+      e      4
+      11      7
+      15      5
+      19      9
    }
 }
 
 Lines mapping:
-5 <-> 6
-6 <-> 15
+5 <-> 5
+6 <-> 10

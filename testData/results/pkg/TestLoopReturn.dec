@@ -1,0 +1,235 @@
+package pkg;
+
+public class TestLoopReturn {
+   public void test1(boolean a, boolean b) {
+      System.out.println(1);// 5
+
+      while(a) {// 6
+         if (b) {// 7
+            return;// 8
+         }
+      }
+
+      System.out.println(2);// 12
+   }// 13
+
+   public void test1a(boolean a, boolean b) {
+      while(a) {// 16
+         if (b) {// 17
+            return;// 18
+         }
+      }
+
+      System.out.println(2);// 22
+   }// 23
+
+   public void test1b(boolean a, boolean b) {
+      while(a) {// 26
+         if (b) {// 27
+            return;// 28
+         }
+      }
+   }// 31
+
+   public void test2(boolean b) {
+      while(!b) {// 35
+         System.out.println(1);// 39
+      }
+   }// 36
+
+   public void test2a(boolean b) {
+      System.out.println(0);// 44
+
+      while(!b) {// 47
+         System.out.println(1);// 51
+      }
+   }// 48
+
+   public void test2b(boolean b) {
+      System.out.println(0);// 56
+
+      while(!b) {// 59
+         System.out.println(1);// 64
+      }
+
+      System.out.println(2);// 60
+   }// 61
+
+   public void test3() {
+      Object var2 = null;// 69
+      System.out.println(var2);// 70
+      short var3 = -10198;// 71
+      if (var3 > -27558) {
+         while(true) {
+         }
+      }
+
+      System.out.println(var2);// 78
+   }// 79
+}
+
+class 'pkg/TestLoopReturn' {
+   method 'test1 (ZZ)V' {
+      0      4
+      1      4
+      2      4
+      3      4
+      4      4
+      7      6
+      b      7
+      c      7
+      f      8
+      10      12
+      11      12
+      12      12
+      13      12
+      14      12
+      15      12
+      16      12
+      17      13
+   }
+
+   method 'test1a (ZZ)V' {
+      0      16
+      4      17
+      5      17
+      8      18
+      9      22
+      a      22
+      b      22
+      c      22
+      d      22
+      e      22
+      f      22
+      10      23
+   }
+
+   method 'test1b (ZZ)V' {
+      0      26
+      4      27
+      5      27
+      8      28
+      9      31
+   }
+
+   method 'test2 (Z)V' {
+      0      34
+      1      34
+      4      37
+      5      35
+      6      35
+      7      35
+      8      35
+      9      35
+      a      35
+      b      35
+   }
+
+   method 'test2a (Z)V' {
+      0      40
+      1      40
+      2      40
+      3      40
+      4      40
+      7      42
+      8      42
+      b      45
+      c      43
+      d      43
+      e      43
+      f      43
+      10      43
+      11      43
+      12      43
+   }
+
+   method 'test2b (Z)V' {
+      0      48
+      1      48
+      2      48
+      3      48
+      4      48
+      7      50
+      8      50
+      b      54
+      c      54
+      d      54
+      e      54
+      f      54
+      10      54
+      11      54
+      12      55
+      13      51
+      14      51
+      15      51
+      16      51
+      17      51
+      18      51
+      19      51
+   }
+
+   method 'test3 ()V' {
+      0      58
+      1      58
+      2      59
+      3      59
+      4      59
+      5      59
+      6      59
+      7      59
+      8      59
+      9      60
+      a      60
+      b      60
+      c      60
+      d      61
+      e      61
+      f      61
+      10      61
+      11      61
+      17      66
+      18      66
+      19      66
+      1a      66
+      1b      66
+      1c      66
+      1d      66
+      1e      67
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 7
+7 <-> 8
+8 <-> 9
+12 <-> 13
+13 <-> 14
+16 <-> 17
+17 <-> 18
+18 <-> 19
+22 <-> 23
+23 <-> 24
+26 <-> 27
+27 <-> 28
+28 <-> 29
+31 <-> 32
+35 <-> 35
+36 <-> 38
+39 <-> 36
+44 <-> 41
+47 <-> 43
+48 <-> 46
+51 <-> 44
+56 <-> 49
+59 <-> 51
+60 <-> 55
+61 <-> 56
+64 <-> 52
+69 <-> 59
+70 <-> 60
+71 <-> 61
+78 <-> 67
+79 <-> 68
+Not mapped:
+75

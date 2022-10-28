@@ -1,0 +1,57 @@
+package pkg;
+
+import java.util.Objects;
+
+public class TestSwitchPatternMatching20 {
+   public void test(Object o) {
+      Objects.requireNonNull(o);// 5
+      switch(o) {
+         case Integer var6 when false:
+            break;
+         case String s:
+            System.out.println(s);// 7
+            break;
+         default:
+            System.out.println("Default");// 8
+      }
+   }// 10
+}
+
+class 'pkg/TestSwitchPatternMatching20' {
+   method 'test (Ljava/lang/Object;)V' {
+      0      6
+      2      6
+      3      6
+      4      6
+      9      7
+      10      7
+      3b      10
+      3c      10
+      3d      11
+      3e      11
+      3f      11
+      40      11
+      41      11
+      42      11
+      43      11
+      44      11
+      45      12
+      48      14
+      49      14
+      4a      14
+      4b      14
+      4c      14
+      4d      14
+      4e      14
+      4f      14
+      53      16
+   }
+}
+
+Lines mapping:
+5 <-> 7
+7 <-> 12
+8 <-> 15
+10 <-> 17
+Not mapped:
+6

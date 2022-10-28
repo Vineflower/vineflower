@@ -28,7 +28,6 @@ class TestAmbiguousCall {
       } else {
          this.m2(value.toString());// 24
       }
-
    }// 26
 
    void test3(Object value) {
@@ -37,7 +36,6 @@ class TestAmbiguousCall {
       } else {
          this.m2(value.toString());// 32
       }
-
    }// 34
 }
 
@@ -118,33 +116,33 @@ class 'pkg/TestAmbiguousCall' {
       18      28
       19      28
       1a      28
-      1d      31
+      1d      30
    }
 
    method 'test3 (Ljava/lang/Object;)V' {
-      0      34
-      1      34
-      2      34
-      3      34
-      4      34
-      7      35
-      8      35
-      9      35
-      a      35
-      b      35
-      c      35
-      d      35
-      e      35
-      f      35
-      10      35
-      11      35
-      15      37
-      16      37
-      17      37
-      18      37
-      19      37
-      1a      37
-      1d      40
+      0      33
+      1      33
+      2      33
+      3      33
+      4      33
+      7      34
+      8      34
+      9      34
+      a      34
+      b      34
+      c      34
+      d      34
+      e      34
+      f      34
+      10      34
+      11      34
+      15      36
+      16      36
+      17      36
+      18      36
+      19      36
+      1a      36
+      1d      38
    }
 }
 
@@ -163,8 +161,8 @@ Lines mapping:
 21 <-> 26
 22 <-> 27
 24 <-> 29
-26 <-> 32
-29 <-> 35
-30 <-> 36
-32 <-> 38
-34 <-> 41
+26 <-> 31
+29 <-> 34
+30 <-> 35
+32 <-> 37
+34 <-> 39

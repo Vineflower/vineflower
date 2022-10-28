@@ -10,4 +10,8 @@ public class TestGenericsInvocUnchecked<T extends Number> {
   public void test(int i, TestGenericsInvocUnchecked<?> other) {
     new Inner().testInner( i, this, (TestGenericsInvocUnchecked<T>) other);
   }
+
+  public void test1(Class<?> c, String s) {
+    Enum.valueOf((Class<? extends Enum>) c, s);
+  }
 }

@@ -4,9 +4,7 @@
 package org.jetbrains.java.decompiler.modules.decompiler.exps;
 
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
-import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
-import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
@@ -20,47 +18,44 @@ import org.jetbrains.java.decompiler.struct.match.IMatchable;
 import org.jetbrains.java.decompiler.struct.match.MatchEngine;
 import org.jetbrains.java.decompiler.struct.match.MatchNode;
 import org.jetbrains.java.decompiler.struct.match.MatchNode.RuleValue;
+import org.jetbrains.java.decompiler.util.NullableConcurrentHashMap;
+import org.jetbrains.java.decompiler.util.TextBuffer;
 
-import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class Exprent implements IMatchable {
   public static final int MULTIPLE_USES = 1;
   public static final int SIDE_EFFECTS_FREE = 2;
   public static final int BOTH_FLAGS = 3;
 
-  public static final int EXPRENT_ARRAY = 1;
-  public static final int EXPRENT_ASSIGNMENT = 2;
-  public static final int EXPRENT_CONST = 3;
-  public static final int EXPRENT_EXIT = 4;
-  public static final int EXPRENT_FIELD = 5;
-  public static final int EXPRENT_FUNCTION = 6;
-  public static final int EXPRENT_IF = 7;
-  public static final int EXPRENT_INVOCATION = 8;
-  public static final int EXPRENT_MONITOR = 9;
-  public static final int EXPRENT_NEW = 10;
-  public static final int EXPRENT_SWITCH_HEAD = 11;
-  public static final int EXPRENT_VAR = 12;
-  public static final int EXPRENT_ANNOTATION = 13;
-  public static final int EXPRENT_ASSERT = 14;
-  public static final int EXPRENT_SWITCH = 15;
-  public static final int EXPRENT_YIELD = 15;
+  public enum Type {
+    ANNOTATION,
+    ARRAY,
+    ASSERT,
+    ASSIGNMENT,
+    CONST,
+    EXIT,
+    FIELD,
+    FUNCTION,
+    IF,
+    INVOCATION,
+    MONITOR,
+    NEW,
+    SWITCH,
+    SWITCH_HEAD,
+    VAR,
+    YIELD,
+  }
 
   protected static ThreadLocal<Map<String, VarType>> inferredLambdaTypes = ThreadLocal.withInitial(HashMap::new);
 
-  public final int type;
+  public final Type type;
   public final int id;
   public BitSet bytecode = null;  // offsets of bytecode instructions decompiled to this exprent
 
-  public Exprent(int type) {
+  protected Exprent(Type type) {
     this.type = type;
     this.id = DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.EXPRESSION_COUNTER);
   }
@@ -87,15 +82,28 @@ public abstract class Exprent implements IMatchable {
   }
 
   public boolean containsExprent(Exprent exprent) {
-    if (equals(exprent)) {
-      return true;
-    }
-    List<Exprent> lst = getAllExprents();
-    for (int i = lst.size() - 1; i >= 0; i--) {
-      if (lst.get(i).containsExprent(exprent)) {
+    for (Exprent ex : getAllExprents(true, true)) {
+      if (ex.equals(exprent)) {
         return true;
       }
     }
+
+    return false;
+  }
+
+  public boolean containsVar(VarVersionPair var) {
+    if (this instanceof VarExprent) {
+      VarExprent varex = (VarExprent)this;
+      return varex.getVarVersionPair().equals(var);
+    }
+
+    List<Exprent> lst = getAllExprents();
+    for (int i = lst.size() - 1; i >= 0; i--) {
+      if (lst.get(i).containsVar(var)) {
+        return true;
+      }
+    }
+
     return false;
   }
 
@@ -134,7 +142,7 @@ public abstract class Exprent implements IMatchable {
 
     Set<VarVersionPair> set = new HashSet<>();
     for (Exprent expr : lstAllExprents) {
-      if (expr.type == EXPRENT_VAR) {
+      if (expr instanceof VarExprent) {
         set.add(new VarVersionPair((VarExprent)expr));
       }
     }
@@ -333,7 +341,7 @@ public abstract class Exprent implements IMatchable {
 
     for (Entry<MatchProperties, RuleValue> rule : matchNode.getRules().entrySet()) {
       MatchProperties key = rule.getKey();
-      if (key == MatchProperties.EXPRENT_TYPE && this.type != (Integer)rule.getValue().value) {
+      if (key == MatchProperties.EXPRENT_TYPE && this.type != rule.getValue().value) {
         return false;
       }
       if (key == MatchProperties.EXPRENT_RET && !engine.checkAndSetVariableValue((String)rule.getValue().value, this)) {

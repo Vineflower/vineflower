@@ -1,31 +1,40 @@
 package org.jetbrains.java.decompiler.util;
 
+import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
+import org.jetbrains.java.decompiler.code.cfg.ControlFlowGraph;
+import org.jetbrains.java.decompiler.code.cfg.ExceptionRangeCFG;
+import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.main.rels.DecompileRecord;
+import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
+import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
+import org.jetbrains.java.decompiler.modules.decompiler.decompose.DominatorEngine;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectEdge;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectEdgeType;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectNode;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
+import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionEdge;
+import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionNode;
+import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
+import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionsGraph;
+import org.jetbrains.java.decompiler.struct.StructMethod;
+import org.jetbrains.java.decompiler.util.FastSparseSetFactory.FastSparseSet;
+
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.*;
 import java.util.Map.Entry;
 
-import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
-import org.jetbrains.java.decompiler.code.cfg.ControlFlowGraph;
-import org.jetbrains.java.decompiler.code.cfg.ExceptionRangeCFG;
-import org.jetbrains.java.decompiler.main.rels.DecompileRecord;
-import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
-import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
-import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectGraph;
-import org.jetbrains.java.decompiler.modules.decompiler.sforms.DirectNode;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
-import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionEdge;
-import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionNode;
-import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionsGraph;
-import org.jetbrains.java.decompiler.struct.StructMethod;
-import org.jetbrains.java.decompiler.util.FastSparseSetFactory.FastSparseSet;
-
 public class DotExporter {
   private static final String DOTS_FOLDER = System.getProperty("DOT_EXPORT_DIR", null);
   private static final String DOTS_ERROR_FOLDER = System.getProperty("DOT_ERROR_EXPORT_DIR", null);
   public static final boolean DUMP_DOTS = DOTS_FOLDER != null && !DOTS_FOLDER.trim().isEmpty();
   public static final boolean DUMP_ERROR_DOTS = DOTS_ERROR_FOLDER != null && !DOTS_ERROR_FOLDER.trim().isEmpty();
+
+  private static final boolean EXTENDED_MODE = false;
+  private static final boolean STATEMENT_LR_MODE = false;
+  private static final boolean SAME_RANK_MODE = false;
   // http://graphs.grevian.org/graph is a nice visualizer for the outputed dots.
 
   // Outputs a statement and as much of its information as possible into a dot formatted string.
@@ -40,28 +49,34 @@ public class DotExporter {
   // Statements that aren't found will be circular, and will have a message stating so.
   // Nodes with green borders are the canonical exit of method, but these may not always be emitted.
   private static String statToDot(Statement stat, String name) {
+    DecompilerContext.getImportCollector().setWriteLocked(true);
     StringBuffer buffer = new StringBuffer();
-    List<String> subgraph = new ArrayList<>();
+    // List<String> subgraph = new ArrayList<>();
     Set<Integer> visitedNodes = new HashSet<>();
     Set<Integer> exits = new HashSet<>();
     Set<Integer> referenced = new HashSet<>();
 
     buffer.append("digraph " + name + " {\r\n");
 
+    if (STATEMENT_LR_MODE) {
+      buffer.append("  rankdir = LR;\r\n");
+    }
+
     List<Statement> stats = new ArrayList<>();
     stats.add(stat);
     findAllStats(stats, stat);
 
     DummyExitStatement exit = null;
-    if (stat.type == Statement.TYPE_ROOT) {
+    if (stat instanceof RootStatement) {
       exit = ((RootStatement)stat).getDummyExit();
     }
 
     // Pre process
     Map<StatEdge, String> extraData = new HashMap<>();
+    Set<StatEdge> extraDataSeen = new HashSet<>();
 
     for (Statement st : stats) {
-      if (st.type == Statement.TYPE_IF) {
+      if (st instanceof IfStatement) {
         IfStatement ifs = (IfStatement) st;
 
         if (ifs.getIfEdge() != null) {
@@ -71,6 +86,19 @@ public class DotExporter {
         if (ifs.getElseEdge() != null) {
           extraData.put(ifs.getElseEdge(), "Else Edge");
         }
+      }
+      if (SAME_RANK_MODE && st.getStats().size() > 1){
+        buffer.append(" subgraph { rank = same; ");
+        for (Statement s : st.getStats()) {
+          if (st instanceof IfStatement || st instanceof SwitchStatement) {
+            if (s == st.getFirst()){
+              continue;
+            }
+          }
+
+          buffer.append(s.id + "; ");
+        }
+        buffer.append("}\r\n");
       }
     }
 
@@ -82,18 +110,24 @@ public class DotExporter {
         String destId = edge.getDestination().id + (edge.getDestination().getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty()?"":"000000");
 
         String edgeType = getEdgeType(edge);
+        String meta = getEdgeMeta(edge);
 
         // Add extra edge data
         // TODO do same for predecessors?
         for (Entry<StatEdge, String> entry : extraData.entrySet()) {
-          if (edge.getSource().id.equals(entry.getKey().getSource().id) && edge.getDestination().id.equals(entry.getKey().getDestination().id)) {
+          if (edge.getSource().id == entry.getKey().getSource().id && edge.getDestination().id == entry.getKey().getDestination().id) {
             edgeType = edgeType == null ? entry.getValue() : edgeType + " (" + entry.getValue() + ")";
+            extraDataSeen.add(entry.getKey());
           }
         }
 
-        buffer.append(sourceId + "->" + destId + (edgeType != null ? "[label=\"" + edgeType + "\"]" : "") + ";\r\n");
+        if (edge.closure != null ) {
+          edgeType = edgeType == null ? "Closure: " + edge.closure.id : edgeType + " (Closure: " + edge.closure.id + ")";
+        }
 
-        if (edge.closure != null) {
+        buffer.append(sourceId + "->" + destId + (edgeType != null ? "[label=\"" + edgeType + "\", " + meta + "]" : "[" + meta + "]") + ";\n");
+
+        if (EXTENDED_MODE && edge.closure != null) {
           String clsId = edge.closure.id + (edge.getDestination().getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty()?"":"000000");
           buffer.append(sourceId + "->" + clsId + " [arrowhead=diamond,label=\"Closure\"];\r\n");
         }
@@ -107,37 +141,42 @@ public class DotExporter {
         edges = true;
       }
 
-      for (StatEdge labelEdge : st.getLabelEdges()) {
-        String src = labelEdge.getSource().id + (labelEdge.getSource().getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty()?"":"000000");;
-        String destId = labelEdge.getDestination().id + (labelEdge.getDestination().getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty()?"":"000000");
-        String data = "";
-        if (labelEdge.labeled) {
-          data += "Labeled";
+      if(EXTENDED_MODE) {
+        for (StatEdge labelEdge : st.getLabelEdges()) {
+          String src = labelEdge.getSource().id + (labelEdge.getSource().getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty() ? "" : "000000");
+          String destId = labelEdge.getDestination().id + (labelEdge.getDestination().getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty() ? "" : "000000");
+          String data = "";
+          if (labelEdge.labeled) {
+            data += "Labeled";
+          }
+          if (labelEdge.labeled && labelEdge.explicit) {
+            data += ", ";
+          }
+          if (labelEdge.explicit) {
+            data += "Explicit";
+          }
+          buffer.append(src + "->" + destId + " [color=orange,label=\"Label Edge (" + data + ") (Contained by " + st.id + ")\"];\r\n");
         }
-        if (labelEdge.labeled && labelEdge.explicit) {
-          data += ", ";
-        }
-        if (labelEdge.explicit) {
-          data += "Explicit";
-        }
-        buffer.append(src + "->" + destId + " [color=orange,label=\"Label Edge (" + data + ") (Contained by " + st.id + ")\"];\r\n");
       }
 
-      for (Statement neighbour : st.getNeighbours(Statement.STATEDGE_ALL, Statement.DIRECTION_FORWARD)) {
-        String destId = neighbour.id + (neighbour.getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty()?"":"000000");
-        buffer.append(sourceId + "->" + destId + " [arrowhead=tee,color=purple];\r\n");
-      }
+      // Neighbor set is redundant
+//      for (Statement neighbour : st.getNeighbours(Statement.STATEDGE_ALL, Statement.DIRECTION_FORWARD)) {
+//        String destId = neighbour.id + (neighbour.getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty()?"":"000000");
+//        buffer.append(sourceId + "->" + destId + " [arrowhead=tee,color=purple];\r\n");
+//      }
 
-      for(StatEdge edge : st.getPredecessorEdges(Statement.STATEDGE_ALL)) {
-        String destId = edge.getSource().id + (edge.getSource().getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty() ? "" : "000000");
+      if (EXTENDED_MODE) {
+        for(StatEdge edge : st.getPredecessorEdges(Statement.STATEDGE_ALL)) {
+          String destId = edge.getSource().id + (edge.getSource().getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty() ? "" : "000000");
 
-        String edgeType = getEdgeType(edge);
+          String edgeType = getEdgeType(edge);
 
-        buffer.append(sourceId + "->" + destId + "[color=blue" + (edgeType != null ? ",fontcolor=blue,label=\"" + edgeType + "\"" : "") + "];\r\n");
+          buffer.append(sourceId + "->" + destId + "[color=blue" + (edgeType != null ? ",fontcolor=blue,label=\"" + edgeType + "\"" : "") + "];\r\n");
 
-        referenced.add(edge.getSource().id);
+          referenced.add(edge.getSource().id);
 
-        edges = true;
+          edges = true;
+        }
       }
 
       for(StatEdge edge : st.getSuccessorEdges(StatEdge.TYPE_EXCEPTION)) {
@@ -154,7 +193,7 @@ public class DotExporter {
 
       // Graph tree
       boolean foundFirst = false;
-      boolean isIf = st.type == Statement.TYPE_IF;
+      boolean isIf = st instanceof IfStatement;
       boolean foundIf = false;
       boolean foundElse = false;
       for (Statement s : st.getStats()) {
@@ -167,7 +206,7 @@ public class DotExporter {
           foundFirst = true;
         }
 
-        if (st.type == Statement.TYPE_IF) {
+        if (st instanceof IfStatement) {
           IfStatement ifs = (IfStatement) st;
           if (s == ifs.getIfstat()) {
             label = "If stat";
@@ -202,17 +241,17 @@ public class DotExporter {
 
       visitedNodes.add(st.id);
 
-      String node = sourceId + " [shape=box,label=\"" + st.id + " (" + getStatType(st) + ")\r\n" + toJava(st) + "\"" + (st == stat ? ",color=red" : "") + "];\r\n";
-      if (edges || st == stat) {
+      String node = sourceId + " [shape=box,label=\"" + st.id + " (" + getStatType(st) + ")\\n" + toJava(st) + "\"" + (st == stat ? ",color=red" : "") + "];\n";
+//      if (edges || st == stat) {
         buffer.append(node);
-      } else {
-        subgraph.add(node);
-      }
+//      } else {
+//        subgraph.add(node);
+//      }
     }
 
     // Exits
     if (exit != null) {
-      buffer.append(exit.id + " [color=green,label=\"" + exit.id + " (Canonical Return)\"];\r\n");
+      buffer.append(exit.id + " [color=green,label=\"" + exit.id + " (Canonical Return)\"];\n");
       referenced.remove(exit.id);
     }
 
@@ -231,17 +270,31 @@ public class DotExporter {
       buffer.append(integer + " [color=red,label=\"" + integer + " (Unknown statement!)\"];\r\n");
     }
 
-    if (subgraph.size() > 0) {
-      buffer.append("subgraph cluster_non_parented {\r\n\tlabel=\"Isolated statements\";\r\n");
-
-      for (String s : subgraph) {
-        buffer.append("\t"+s);
+    for (StatEdge labelEdge : extraData.keySet()) {
+      if (extraDataSeen.contains(labelEdge)) {
+        continue;
       }
 
-      buffer.append("\t}\r\n");
+      String src = labelEdge.getSource().id + (labelEdge.getSource().getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty() ? "" : "000000");
+      String destId = labelEdge.getDestination().id + (labelEdge.getDestination().getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty() ? "" : "000000");
+      String label = "Floating extra edge: ("  + extraData.get(labelEdge) + ")";
+
+      buffer.append(src + " -> " + destId + " [arrowhead=vee,color=red,fontcolor=red,label=\"" + label + "\"];\r\n");
     }
 
+//    if (subgraph.size() > 0) {
+//      buffer.append("subgraph cluster_non_parented {\r\n\tlabel=\"Isolated statements\";\r\n");
+//
+//      for (String s : subgraph) {
+//        buffer.append("\t"+s);
+//      }
+//
+//      buffer.append("\t}\r\n");
+//    }
+
     buffer.append("}");
+
+    DecompilerContext.getImportCollector().setWriteLocked(false);
 
     return buffer.toString();
   }
@@ -280,10 +333,13 @@ public class DotExporter {
 
   private static String toJava(Statement statement) {
     try {
-      String java = statement.toJava().convertToStringAndAllowDataDiscard().replace("\"", "\\\"");
+      String java = statement.toJava().convertToStringAndAllowDataDiscard()
+        .replace("\"", "\\\"")
+        .replace("\r", "")
+        .replace("\n", "\\l");
       if (statement instanceof BasicBlockStatement) {
         if (statement.getExprents() == null || statement.getExprents().isEmpty()) {
-          java = "<" + (statement.getExprents() == null ? "null" : "empty") + " basic block>\n" + java;
+          java = "<" + (statement.getExprents() == null ? "null" : "empty") + " basic block>\\n" + java;
         }
       }
 
@@ -304,20 +360,30 @@ public class DotExporter {
     }
   }
 
+  private static String getEdgeMeta(StatEdge edge) {
+    switch (edge.getType()) {
+      case StatEdge.TYPE_REGULAR: return "weight=1, color=black";
+      case StatEdge.TYPE_EXCEPTION: return "weight=1, color=orange, style=dashed";
+      case StatEdge.TYPE_BREAK: return "weight=0.4, color=blue";
+      case StatEdge.TYPE_CONTINUE: return "weight=0.2, color=green";
+      case StatEdge.TYPE_FINALLYEXIT: return "weight=1, color=orange, style=dotted";
+      default: return "weight=1, color=purple";
+    }
+  }
+
   private static String getStatType(Statement st) {
     switch (st.type) {
-      case 0: return "General";
-      case 2: return "If";
-      case 5: return "Do";
-      case 6: return "Switch";
-      case 7: return "Try Catch";
-      case 8: return "Basic Block #" + ((BasicBlockStatement)st).getBlock().id;
-      case 10: return "Synchronized";
-      case 11: return "Placeholder";
-      case 12: return "Catch All";
-      case 13: return "Root";
-      case 14: return "Dummy Exit";
-      case 15: return "Sequence";
+      case GENERAL: return ((GeneralStatement) st).isPlaceholder() ? "General (Placeholder)" : "General";
+      case IF: return "If";
+      case DO: return "Do";
+      case SWITCH: return "Switch";
+      case TRY_CATCH: return "Try Catch";
+      case BASIC_BLOCK: return "Basic Block #" + ((BasicBlockStatement)st).getBlock().getId();
+      case SYNCHRONIZED: return "Synchronized";
+      case CATCH_ALL: return "Catch All";
+      case ROOT: return "Root";
+      case DUMMY_EXIT: return "Dummy Exit";
+      case SEQUENCE: return "Sequence";
       default: return "Unknown";
     }
   }
@@ -328,7 +394,7 @@ public class DotExporter {
         list.add(stat);
       }
 
-      if (stat.type == Statement.TYPE_IF) {
+      if (stat instanceof IfStatement) {
         IfStatement ifs = (IfStatement) stat;
 
         if (ifs.getIfstat() != null && !list.contains(ifs.getIfstat())) {
@@ -353,7 +419,7 @@ public class DotExporter {
 
     List<BasicBlock> blocks = graph.getBlocks();
     for (BasicBlock block : blocks) {
-      buffer.append(block.id + " [shape=box,label=\"Block " + block.id + "\n" + block.getSeq() + "\"];\r\n");
+      buffer.append(block.getId() + " [shape=box,label=\"Block " + block.getId() + "\n" + block.getSeq() + "\"];\r\n");
 
       List<BasicBlock> suc = block.getSuccs();
       List<BasicBlock> preds = block.getPreds();
@@ -365,11 +431,11 @@ public class DotExporter {
 //      }
 
       for (BasicBlock basicBlock : suc) {
-        buffer.append(block.id + " -> " + basicBlock.id + ";\r\n");
+        buffer.append(block.getId() + " -> " + basicBlock.getId() + ";\r\n");
       }
 
 //      for (BasicBlock pred : preds) {
-//        buffer.append(block.id + " -> " + pred.id + " [color=blue];\r\n");
+//        buffer.append(block.getDebugId() + " -> " + pred.getDebugId() + " [color=blue];\r\n");
 //      }
 
       suc = block.getSuccExceptions();
@@ -382,19 +448,19 @@ public class DotExporter {
 //      }
 
       for (int j = 0; j < suc.size(); j++) {
-        buffer.append(block.id + " -> " + suc.get(j).id + " [style=dotted];\r\n");
+        buffer.append(block.getId() + " -> " + suc.get(j).getId() + " [style=dotted];\r\n");
       }
 
 //      for (BasicBlock pred : preds) {
-//        buffer.append(block.id + " -> " + pred.id + " [color=blue,style=dotted];\r\n");
+//        buffer.append(block.getDebugId() + " -> " + pred.getDebugId() + " [color=blue,style=dotted];\r\n");
 //      }
     }
 
     for (int i = 0; i < graph.getExceptions().size(); i++) {
       ExceptionRangeCFG ex = graph.getExceptions().get(i);
-      buffer.append("subgraph cluster_ex_" + i + " {\r\n\tlabel=\"Exception range for Block " + ex.getHandler().id + " \";\r\n");
+      buffer.append("subgraph cluster_ex_" + i + " {\r\n\tlabel=\"Exception range for Block " + ex.getHandler().getId() + " \";\r\n");
       for (BasicBlock bb : ex.getProtectedRange()) {
-        buffer.append("\t" + bb.id + ";\r\n");
+        buffer.append("\t" + bb.getId() + ";\r\n");
       }
       buffer.append("\t}\r\n");
     }
@@ -426,7 +492,7 @@ public class DotExporter {
 
     return builder.toString();
   }
-  private static String varsToDot(VarVersionsGraph graph) {
+  private static String varsToDot(VarVersionsGraph graph, HashMap<VarVersionPair, VarVersionPair> varAssignmentMap) {
 
     StringBuffer buffer = new StringBuffer();
 
@@ -444,21 +510,50 @@ public class DotExporter {
       }
     }
 
+    if (varAssignmentMap != null) {
+      for (Entry<VarVersionPair, VarVersionPair> entry : varAssignmentMap.entrySet()) {
+        VarVersionPair to = entry.getKey();
+        VarVersionPair from = entry.getValue();
+        buffer.append((from.var * 1000 + from.version) + "->" + (to.var * 1000 + to.version) + " [color=green];\r\n");
+      }
+    }
+
     buffer.append("}");
 
     return buffer.toString();
   }
 
+  private static String domEngineToDot(DominatorEngine doms) {
+    StringBuilder builder = new StringBuilder();
+
+    builder.append("digraph G {\r\n");
+
+    Set<Integer> nodes = new HashSet<>();
+
+    for (Integer key : doms.getOrderedIDoms().getLstKeys()) {
+      nodes.add(key);
+      nodes.add(doms.getOrderedIDoms().getWithKey(key));
+      builder.append("x" + doms.getOrderedIDoms().getWithKey(key) + " -> x" + key + ";\n");
+    }
+
+    for (Integer nd : nodes) {
+      builder.append("x" + nd + "[label=\"" + nd + "\"];\n");
+    }
+
+    builder.append("}");
+
+    return builder.toString();
+  }
+
   private static String digraphToDot(DirectGraph graph, Map<String, SFormsFastMapDirect> vars) {
+    DecompilerContext.getImportCollector().setWriteLocked(true);
 
     StringBuffer buffer = new StringBuffer();
 
     buffer.append("digraph G {\r\n");
 
     List<DirectNode> blocks = graph.nodes;
-    for(int i=0;i<blocks.size();i++) {
-      DirectNode block = blocks.get(i);
-
+    for (DirectNode block : blocks) {
       StringBuilder label = new StringBuilder(block.id + " in statement " + block.statement.id + " " + getStatType(block.statement));
       label.append("\\n");
       label.append(block.block != null ? toJava(block.block) : "null block");
@@ -475,19 +570,23 @@ public class DotExporter {
           for (Entry<Integer, FastSparseSet<Integer>> entry : lst) {
             label.append("\\n").append(entry.getKey());
             Set<Integer> set = entry.getValue().toPlainSet();
-            label.append("=").append(set.toString());
+            label.append("=").append(set);
           }
         }
       }
 
-      buffer.append((block.id)+" [shape=box,label=\""+label+"\"];\r\n");
+      buffer.append("x" + (block.id)+" [shape=box,label=\""+label+"\"];\r\n");
 
-      for(DirectNode dest: block.succs) {
-        buffer.append((block.id)+"->"+(dest.id)+";\r\n");
+      for (DirectEdgeType type : DirectEdgeType.TYPES) {
+        for(DirectEdge dest : block.getSuccessors(type)) {
+          buffer.append("x" + (block.id)+" -> x"+(dest.getDestination().id)+ (type == DirectEdgeType.EXCEPTION ? "[style=dotted]" : "") + ";\r\n");
+        }
       }
     }
 
     buffer.append("}");
+
+    DecompilerContext.getImportCollector().setWriteLocked(false);
 
     return buffer.toString();
   }
@@ -524,6 +623,22 @@ public class DotExporter {
       return;
     try{
       BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(DOTS_FOLDER, mt, suffix)));
+      out.write(digraphToDot(dgraph, vars).getBytes());
+      out.close();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  public static void errorToDotFile(DirectGraph dgraph, StructMethod mt, String suffix) {
+    errorToDotFile(dgraph, mt, suffix, null);
+  }
+
+  public static void errorToDotFile(DirectGraph dgraph, StructMethod mt, String suffix, Map<String, SFormsFastMapDirect> vars) {
+    if (!DUMP_ERROR_DOTS)
+      return;
+    try{
+      BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(DOTS_ERROR_FOLDER, mt, suffix)));
       out.write(digraphToDot(dgraph, vars).getBytes());
       out.close();
     } catch (Exception e) {
@@ -595,12 +710,24 @@ public class DotExporter {
     }
   }
 
-  public static void toDotFile(VarVersionsGraph graph, StructMethod mt, String suffix) {
+  public static void toDotFile(VarVersionsGraph graph, StructMethod mt, String suffix, HashMap<VarVersionPair, VarVersionPair> varAssignmentMap) {
     if (!DUMP_DOTS)
       return;
     try{
       BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(DOTS_FOLDER, mt, suffix)));
-      out.write(varsToDot(graph).getBytes());
+      out.write(varsToDot(graph, varAssignmentMap).getBytes());
+      out.close();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  public static void errorToDotFile(VarVersionsGraph graph, StructMethod mt, String suffix, HashMap<VarVersionPair, VarVersionPair> varAssignmentMap) {
+    if (!DUMP_ERROR_DOTS)
+      return;
+    try{
+      BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(DOTS_ERROR_FOLDER, mt, suffix)));
+      out.write(varsToDot(graph, varAssignmentMap).getBytes());
       out.close();
     } catch (Exception e) {
       e.printStackTrace();
@@ -645,6 +772,18 @@ public class DotExporter {
     try{
       BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(DOTS_ERROR_FOLDER, mt, suffix)));
       out.write(cfgToDot(suffix, graph, true).getBytes());
+      out.close();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  public static void toDotFile(DominatorEngine doms, StructMethod mt, String suffix) {
+    if (!DUMP_DOTS)
+      return;
+    try{
+      BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(DOTS_FOLDER, mt, suffix)));
+      out.write(domEngineToDot(doms).getBytes());
       out.close();
     } catch (Exception e) {
       e.printStackTrace();

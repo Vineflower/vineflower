@@ -6,10 +6,10 @@ public class TestFinallyThrow {
          try {
             System.out.println(1);// 7
          } finally {
-            label127: {
+            label97: {
                try {
                   if (!b) {// 10
-                     break label127;
+                     break label97;
                   }
                } catch (Exception var22) {// 13
                   throw var22;// 14
@@ -19,7 +19,6 @@ public class TestFinallyThrow {
 
                return;// 11
             }
-
          }
       }
    }
@@ -62,6 +61,8 @@ class 'pkg/TestFinallyThrow' {
       30      10
       3a      19
       45      13
+      47      14
+      48      14
       49      14
       4a      16
       4b      16
@@ -72,33 +73,35 @@ class 'pkg/TestFinallyThrow' {
    }
 
    method 'test1 (Ljava/lang/RuntimeException;)V' {
-      0      28
-      1      28
-      2      28
-      3      28
-      4      28
-      7      29
-      8      29
-      9      30
-      b      31
-      e      36
-      f      36
+      0      27
+      1      27
+      2      27
+      3      27
+      4      27
+      7      28
+      8      28
+      9      29
+      a      30
+      b      30
+      e      35
+      f      35
    }
 
    method 'test2 (Ljava/lang/RuntimeException;)V' {
-      0      41
-      1      41
-      2      41
-      3      41
-      4      41
-      5      41
-      6      41
-      7      42
-      8      42
-      9      43
-      b      44
-      14      49
-      15      49
+      0      40
+      1      40
+      2      40
+      3      40
+      4      40
+      5      40
+      6      40
+      7      41
+      8      41
+      9      42
+      a      43
+      b      43
+      14      48
+      15      48
    }
 }
 
@@ -109,15 +112,15 @@ Lines mapping:
 13 <-> 14
 14 <-> 15
 16 <-> 17
-24 <-> 29
-25 <-> 31
-26 <-> 32
-28 <-> 37
-35 <-> 42
-36 <-> 43
-37 <-> 44
-38 <-> 45
-43 <-> 50
+24 <-> 28
+25 <-> 30
+26 <-> 31
+28 <-> 36
+35 <-> 41
+36 <-> 42
+37 <-> 43
+38 <-> 44
+43 <-> 49
 Not mapped:
 9
 17

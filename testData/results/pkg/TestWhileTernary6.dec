@@ -2,18 +2,14 @@ package pkg;
 
 public class TestWhileTernary6 {
    public void test(boolean condition, int a, int b) {
-      while(true) {
+      do {
          System.out.println(a);// 6
          ++b;// 7
          if (a > 3) {// 9
             --a;// 10
          }
-
-         if (condition ? a >= b : b <= a) {// 13
-            return;// 14
-         }
-      }
-   }
+      } while(condition ? a < b : b > a);// 13
+   }// 14
 }
 
 class 'pkg/TestWhileTernary6' {
@@ -32,15 +28,15 @@ class 'pkg/TestWhileTernary6' {
       b      7
       c      7
       f      8
-      12      11
-      13      11
-      16      11
-      17      11
-      18      11
-      1e      11
-      1f      11
-      20      11
-      23      12
+      12      10
+      13      10
+      16      10
+      17      10
+      18      10
+      1e      10
+      1f      10
+      20      10
+      23      11
    }
 }
 
@@ -49,5 +45,5 @@ Lines mapping:
 7 <-> 7
 9 <-> 8
 10 <-> 9
-13 <-> 12
-14 <-> 13
+13 <-> 11
+14 <-> 12

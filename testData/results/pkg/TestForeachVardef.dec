@@ -1,0 +1,166 @@
+package pkg;
+
+import java.util.Iterator;
+import java.util.List;
+
+public class TestForeachVardef {
+   public String test(List<String> s) {
+      String t = null;// 8
+      if (s.size() > 10) {// 10
+         Iterator<String> iterator = s.iterator();// 11
+
+         while(iterator.hasNext()) {
+            t = (String)iterator.next();// 12
+            System.out.println(t);// 14
+         }
+      } else {
+         t = ((String)s.get(0)).length() > 20 ? "no" : t;// 17
+      }
+
+      return t;// 20
+   }
+
+   public int testArray(int[] a) {
+      int t = 0;// 24
+      if (a.length > 10) {// 26
+         int l = a.length;// 27
+
+         for(int i = 0; i < l; ++i) {// 28
+            t = a[i];// 29
+            System.out.println(t);// 31
+         }
+      } else {
+         t = a[0];// 34
+      }
+
+      return t;// 37
+   }
+}
+
+class 'pkg/TestForeachVardef' {
+   method 'test (Ljava/util/List;)Ljava/lang/String;' {
+      0      7
+      1      7
+      2      8
+      3      8
+      4      8
+      5      8
+      6      8
+      7      8
+      8      8
+      9      8
+      a      8
+      d      9
+      e      9
+      f      9
+      10      9
+      11      9
+      12      9
+      13      9
+      14      11
+      15      11
+      16      11
+      17      11
+      18      11
+      19      11
+      1d      12
+      1e      12
+      1f      12
+      20      12
+      21      12
+      22      12
+      23      12
+      24      12
+      25      12
+      26      12
+      27      13
+      28      13
+      29      13
+      2a      13
+      2b      13
+      2c      13
+      2d      13
+      34      16
+      35      16
+      36      16
+      37      16
+      38      16
+      39      16
+      3a      16
+      3b      16
+      3c      16
+      3d      16
+      3e      16
+      3f      16
+      40      16
+      41      16
+      42      16
+      43      16
+      46      16
+      47      16
+      4b      16
+      4c      16
+      4d      19
+      4e      19
+   }
+
+   method 'testArray ([I)I' {
+      0      23
+      1      23
+      2      24
+      3      24
+      4      24
+      5      24
+      6      24
+      9      25
+      a      25
+      b      25
+      c      27
+      d      27
+      e      27
+      f      27
+      10      27
+      11      27
+      12      27
+      15      28
+      16      28
+      17      28
+      18      28
+      19      28
+      1a      29
+      1b      29
+      1c      29
+      1d      29
+      1e      29
+      1f      29
+      20      29
+      21      27
+      22      27
+      23      27
+      2a      32
+      2b      32
+      2c      32
+      2d      32
+      2e      35
+      2f      35
+   }
+}
+
+Lines mapping:
+8 <-> 8
+10 <-> 9
+11 <-> 10
+12 <-> 13
+14 <-> 14
+17 <-> 17
+20 <-> 20
+24 <-> 24
+26 <-> 25
+27 <-> 26
+28 <-> 28
+29 <-> 29
+31 <-> 30
+34 <-> 33
+37 <-> 36
+Not mapped:
+33

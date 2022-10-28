@@ -1,6 +1,7 @@
 // Copyright 2000-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler.vars;
 
+import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.decompose.GenericDominatorEngine;
 import org.jetbrains.java.decompiler.modules.decompiler.decompose.IGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.decompose.IGraphNode;
@@ -76,7 +77,6 @@ public class VarVersionsGraph {
       }
     }
 
-    // Validation testing
     // TODO: optimization!! This is called multiple times for each method and the allocations will add up!
     Set<VarVersionNode> reached = rootReachability(roots);
     // If the nodes we reach don't include every node we have, then we need to process further to decompose the cycles
@@ -156,7 +156,7 @@ public class VarVersionsGraph {
     return visited;
   }
 
-  private Set<VarVersionNode> rootReachability(Set<VarVersionNode> roots) {
+  public Set<VarVersionNode> rootReachability(Set<VarVersionNode> roots) {
     Set<VarVersionNode> visited = new HashSet<>();
 
     Deque<VarVersionNode> stack = new LinkedList<>(roots);
@@ -172,6 +172,46 @@ public class VarVersionsGraph {
     }
 
     return visited;
+  }
+
+  public boolean areVarsAnalogous(int varBase, int varCheck) {
+    Deque<VarVersionNode> stack = new LinkedList<>();
+    Set<VarVersionNode> visited = new HashSet<>();
+
+    VarVersionNode start = this.nodes.getWithKey(new VarVersionPair(varBase, 1));
+    stack.add(start);
+
+    while (!stack.isEmpty()) {
+      VarVersionNode node = stack.removeFirst();
+
+      if (visited.contains(node)) {
+        continue;
+      }
+
+      visited.add(node);
+      VarVersionNode analog = this.nodes.getWithKey(new VarVersionPair(varCheck, node.version));
+
+      if (analog == null) {
+        return false;
+      }
+
+      if (node.succs.size() != analog.succs.size()) {
+        return false;
+      }
+
+      // FIXME: better checking
+      for (VarVersionEdge suc : node.succs) {
+        stack.add(suc.dest);
+
+        VarVersionNode sucAnalog = this.nodes.getWithKey(new VarVersionPair(varCheck, suc.dest.version));
+
+        if (sucAnalog == null) {
+          return false;
+        }
+      }
+    }
+
+    return true;
   }
 
   private static List<VarVersionNode> getReversedPostOrder(Collection<VarVersionNode> roots) {

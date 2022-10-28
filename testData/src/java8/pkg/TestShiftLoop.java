@@ -5,10 +5,10 @@ public class TestShiftLoop {
     long x;
 
     x = l[0];
-    for (int i = 0; i < 1; i++) {
-      x <<= 1;
+    for (int i = 1; i < 2; i++) {
+      x <<= 3;
     }
 
-    x = l[1];
+    x = l[4];
   }
 }

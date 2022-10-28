@@ -1,0 +1,247 @@
+package pkg;
+
+public class TestNoUse {
+   private int[] a = new int[10];
+
+   public void test(boolean var1, int var2) {
+      int var3 = this.a[0]++;
+      this.a[1]++;
+      if (var1) {
+         this.a[2]++;
+      }
+
+      System.out.println(var3);
+   }
+
+   public void testPPI(boolean var1, int var2) {
+      int var3 = this.a[0]++;
+      int var4 = ++this.a[1];
+      if (var1) {
+         var4 = ++this.a[2];
+      }
+
+      System.out.println(var3);
+   }
+
+   public void testNeg(boolean var1, int var2) {
+      int var3 = this.a[0]++;
+      this.a[1]--;
+      if (var1) {
+         this.a[2]--;
+      }
+
+      System.out.println(var3);
+   }
+
+   public void test1(boolean var1, int var2) {
+      int var3 = this.a[0]++;
+      ++var2;
+      if (var1) {
+         ++var2;
+      }
+
+      System.out.println(var3);
+   }
+
+   public void testTiny(int var1) {
+      ++var1;
+   }
+
+   public void testUse(boolean var1, int var2) {
+      this.a[0]++;
+      int var4 = this.a[1]++;
+      if (var1) {
+         var4 = this.a[2]++;
+      }
+
+      System.out.println(var4);
+   }
+}
+
+class 'pkg/TestNoUse' {
+   method 'test (ZI)V' {
+      0      6
+      1      6
+      2      6
+      3      6
+      4      6
+      6      6
+      9      6
+      b      6
+      c      7
+      d      7
+      e      7
+      f      7
+      10      7
+      12      7
+      15      7
+      19      8
+      1a      8
+      1d      9
+      1e      9
+      1f      9
+      20      9
+      21      9
+      23      9
+      26      9
+      2a      12
+      2b      12
+      2c      12
+      2d      12
+      2e      12
+      2f      12
+      30      12
+      31      13
+   }
+
+   method 'testPPI (ZI)V' {
+      0      16
+      1      16
+      2      16
+      3      16
+      4      16
+      6      16
+      9      16
+      b      16
+      c      17
+      d      17
+      e      17
+      f      17
+      10      17
+      12      17
+      14      17
+      16      17
+      17      17
+      18      17
+      19      18
+      1a      18
+      1d      19
+      1e      19
+      1f      19
+      20      19
+      21      19
+      23      19
+      25      19
+      27      19
+      28      19
+      29      19
+      2a      22
+      2b      22
+      2c      22
+      2d      22
+      2e      22
+      2f      22
+      30      22
+      31      23
+   }
+
+   method 'testNeg (ZI)V' {
+      0      26
+      1      26
+      2      26
+      3      26
+      4      26
+      6      26
+      9      26
+      b      26
+      c      27
+      d      27
+      e      27
+      f      27
+      10      27
+      12      27
+      15      27
+      19      28
+      1a      28
+      1d      29
+      1e      29
+      1f      29
+      20      29
+      21      29
+      23      29
+      26      29
+      2a      32
+      2b      32
+      2c      32
+      2d      32
+      2e      32
+      2f      32
+      30      32
+      31      33
+   }
+
+   method 'test1 (ZI)V' {
+      0      36
+      1      36
+      2      36
+      3      36
+      4      36
+      6      36
+      9      36
+      b      36
+      d      37
+      e      37
+      f      37
+      12      38
+      13      38
+      17      39
+      18      39
+      19      39
+      1c      42
+      1d      42
+      1e      42
+      1f      42
+      20      42
+      21      42
+      22      42
+      23      43
+   }
+
+   method 'testTiny (I)V' {
+      0      46
+      1      46
+      2      46
+      3      47
+   }
+
+   method 'testUse (ZI)V' {
+      0      50
+      1      50
+      2      50
+      3      50
+      4      50
+      6      50
+      9      50
+      c      51
+      d      51
+      e      51
+      f      51
+      10      51
+      12      51
+      15      51
+      17      51
+      18      51
+      19      52
+      1a      52
+      1d      53
+      1e      53
+      1f      53
+      20      53
+      21      53
+      23      53
+      26      53
+      28      53
+      29      53
+      2a      56
+      2b      56
+      2c      56
+      2d      56
+      2e      56
+      2f      56
+      30      56
+      31      56
+      32      57
+   }
+}
+
+Lines mapping:

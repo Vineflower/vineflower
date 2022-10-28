@@ -2,12 +2,13 @@
 package org.jetbrains.java.decompiler.struct.gen;
 
 import org.jetbrains.java.decompiler.code.CodeConstants;
-import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
+import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
+import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericMethodDescriptor;
 
@@ -82,7 +83,7 @@ public final class MethodDescriptor {
     if (sig != null) {
       if (node != null) {
         MethodWrapper methodWrapper = node.getWrapper().getMethodWrapper(struct.getName(), struct.getDescriptor());
-        boolean init = CodeConstants.INIT_NAME.equals(struct.getName()) && node.type != ClassNode.CLASS_ANONYMOUS;
+        boolean init = CodeConstants.INIT_NAME.equals(struct.getName()) && node.type != ClassNode.Type.ANONYMOUS;
         long actualParams = md.params.length;
         List<VarVersionPair> sigFields = methodWrapper == null ? null : methodWrapper.synthParameters;
         if (sigFields != null) {
@@ -90,8 +91,18 @@ public final class MethodDescriptor {
         }
         else if (init) {
           // && isEnum
-          if (DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_ENUM) && DecompilerContext.getStructContext().getClass(struct.getClassQualifiedName()).hasModifier(CodeConstants.ACC_ENUM)) {
-            actualParams -= 2;
+          if (DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_ENUM)) {
+            String className = struct.getClassQualifiedName();
+            if (DecompilerContext.getOption(IFernflowerPreferences.RENAME_ENTITIES)) {
+              className = DecompilerContext.getPoolInterceptor().getOldName(className);
+              if (className == null) {
+                className = struct.getClassQualifiedName();
+              }
+            }
+
+            if (DecompilerContext.getStructContext().getClass(className).hasModifier(CodeConstants.ACC_ENUM)) {
+              actualParams -= 2;
+            }
           }
         }
         if (actualParams != sig.parameterTypes.size()) {

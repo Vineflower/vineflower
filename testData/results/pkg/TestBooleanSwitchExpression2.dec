@@ -1,0 +1,172 @@
+package pkg;
+
+public class TestBooleanSwitchExpression2 {
+   public void test(String x, int y) {
+      switch(x) {// 5
+         case "a":
+            if (y >= 0) {// 6
+               return;// 12
+            }
+            break;
+         case "b":
+            if (y <= 0) {// 7
+               return;
+            }
+            break;
+         default:
+            if (y != 0) {// 8
+               return;
+            }
+      }
+
+      System.out.println("Nice");// 10
+   }
+
+   public void test1(String x, int y) {
+      byte var4 = -1;
+      switch(x.hashCode()) {// 15
+         case 97:
+            if (x.equals("a")) {
+               var4 = 0;
+            }
+            break;
+         case 98:
+            if (x.equals("b")) {
+               var4 = 1;
+            }
+      }
+
+      label30: {
+         label29: {
+            switch(var4) {
+               case 0:
+                  if (y < 0) {// 16
+                     break label29;
+                  }
+                  break;
+               case 1:
+                  if (y > 0) {// 17
+                     break label29;
+                  }
+                  break;
+               default:
+                  if (y == 0) {// 18
+                     break label29;
+                  }
+            }
+
+            System.out.println("Sad");// 22
+            break label30;
+         }
+
+         System.out.println("Nice");// 20
+      }
+
+      System.out.println("Done");// 25
+   }// 26
+}
+
+class 'pkg/TestBooleanSwitchExpression2' {
+   method 'test (Ljava/lang/String;I)V' {
+      0      4
+      5      4
+      25      5
+      26      5
+      34      10
+      35      10
+      41      4
+      5c      6
+      5d      6
+      63      11
+      64      11
+      6a      16
+      6b      16
+      71      21
+      72      21
+      73      21
+      74      21
+      75      21
+      76      21
+      79      7
+   }
+
+   method 'test1 (Ljava/lang/String;I)V' {
+      0      26
+      2      25
+      3      25
+      4      25
+      5      26
+      6      26
+      7      26
+      8      26
+      9      26
+      24      28
+      25      28
+      26      28
+      27      28
+      28      28
+      29      28
+      2a      28
+      2d      29
+      2e      29
+      2f      29
+      33      33
+      34      33
+      35      33
+      36      33
+      37      33
+      38      33
+      39      33
+      3c      34
+      3d      34
+      3e      34
+      3f      40
+      40      40
+      41      40
+      5c      42
+      5d      42
+      63      47
+      64      47
+      6a      52
+      6b      52
+      71      61
+      72      61
+      73      61
+      74      61
+      75      61
+      76      61
+      77      61
+      78      61
+      7c      57
+      7d      57
+      7e      57
+      7f      57
+      80      57
+      81      57
+      84      64
+      85      64
+      86      64
+      87      64
+      88      64
+      89      64
+      8a      64
+      8b      64
+      8c      65
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 7
+7 <-> 12
+8 <-> 17
+10 <-> 22
+12 <-> 8
+15 <-> 27
+16 <-> 43
+17 <-> 48
+18 <-> 53
+20 <-> 62
+22 <-> 58
+25 <-> 65
+26 <-> 66
