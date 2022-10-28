@@ -100,8 +100,8 @@ The rest of options can be left as they are: they are aimed at professional reve
 - iib (0): Ignore invalid bytecode
 - vac (0): Verify that anonymous classes can be anonymous
 - tcs (0): Simplify boolean constants in ternary operations
-- pam (0): Decompile pattern matching
-- tlf (0): Experimental try loop enhancements (may cause some methods to decompile wrong or not at all!)
+- pam (1): Decompile pattern matching
+- tlf (1): loop-in-try fixes
 - tco (1): Allow ternaries to be generated in if and loop conditions
 - swe (1): Decompile Switch Expressions in modern Java
 - shs (0): Display code blocks hidden, for debugging purposes
