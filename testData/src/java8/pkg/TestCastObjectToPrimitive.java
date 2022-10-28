@@ -15,4 +15,16 @@ public class TestCastObjectToPrimitive {
     short shorXor = (short) ((Short) object1 ^ 58);
     long longXor = 8 ^ (Long) object1;
     boolean integerGe = (Integer) object1 <= 48;
+
+    public void method() {
+       if ((Boolean) object1) {
+           System.out.println("Test");
+       }
+       while (((Boolean) object1) == false) {
+           System.out.println("Test2");
+       }
+       while ((Boolean) object1) {
+           System.out.println("Test3");
+       }
+    }
 }
