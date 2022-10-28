@@ -590,7 +590,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestArrayFieldAccess2");
     register(JAVA_8, "TestNestedArrayPP");
     // TODO: variable stores completely ignored due to variable merging
-
+    //   now is fixed by verify variable merges
     register(JAVA_8_NODEBUG, "TestCompoundAssignmentReplace");
 
     register(JAVA_8, "TestSharedVarIndex");
@@ -640,6 +640,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestForeachCrash");
     // TODO: <unknown> value and cast, switch is eliminated, test2 contains entirely invalid code
     register(JAVA_17_PREVIEW, "TestUnknownCastJ17");
+    // TODO: These variables shouldn't be merged, and should be split because each version is used once and has a different type use
+    register(JAVA_8_NODEBUG, "TestVarIndex");
   }
 
   private void registerEntireClassPath() {
@@ -663,8 +665,9 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestTryWithResources");
     // TODO: continue not explicit
     register(JAVA_8, "TestNestedLoops");
-    // TODO: Cast to <undefinedtype>
     register(JAVA_8, "TestAnonymousClass");
+    // TODO: <undefinedtype> cast and var type
+    register(JAVA_16, "TestAnonymousClassJ16");
     register(JAVA_8, "TestObjectArrays");
     register(JAVA_8, "TestAnonymousParams");
     register(JAVA_8, "TestThrowException");
@@ -712,6 +715,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: crashes in const type
     register(JAVA_8, "TestTryWithResourcesAfterSwitch");
     register(JAVA_8, "TestArrayConstructorReferenceJrt");
+    register(JAVA_8_NODEBUG, "TestVarIndex2");
   }
 
   private void registerLiterals() {

@@ -283,13 +283,19 @@ public class MethodProcessor implements Runnable {
         }
       }
 
-      if (root.hasSwitch() && SwitchExpressionHelper.hasSwitchExpressions(root)) {
-        if (SwitchPatternMatchProcessor.processPatternMatching(root)) {
+      if (root.hasSwitch()) {
+        boolean changed = false;
+        if (SwitchPatternMatchProcessor.hasPatternMatch(root) && SwitchPatternMatchProcessor.processPatternMatching(root)) {
           decompileRecord.add("ProcessSwitchPatternMatch", root);
-          continue;
+          changed = true;
         }
-        if (SwitchExpressionHelper.processSwitchExpressions(root)) {
+
+        if (SwitchExpressionHelper.hasSwitchExpressions(root) && SwitchExpressionHelper.processSwitchExpressions(root)) {
           decompileRecord.add("ProcessSwitchExpr", root);
+          changed = true;
+        }
+
+        if (changed) {
           continue;
         }
       }
@@ -332,10 +338,8 @@ public class MethodProcessor implements Runnable {
 
     // this has to be done after all inlining is done so the case values do not get reverted
     if (root.hasSwitch() && SwitchHelper.simplifySwitches(root, mt, root)) {
-      decompileRecord.add("SimplifySwitches", root);
-
       SequenceHelper.condenseSequences(root); // remove empty blocks
-      decompileRecord.add("CondenseSequences_SS", root);
+      decompileRecord.add("SimplifySwitches", root);
 
       // If we have simplified switches, try to make switch expressions
       if (SwitchExpressionHelper.hasSwitchExpressions(root)) {

@@ -19,6 +19,10 @@ import org.jetbrains.java.decompiler.util.TextBuffer;
 import java.util.*;
 
 public class FunctionExprent extends Exprent {
+
+  private static final int[] TYPE_PRIMITIVES = {CodeConstants.TYPE_DOUBLE, CodeConstants.TYPE_FLOAT, CodeConstants.TYPE_LONG};
+  private static final VarType[] TYPES = {VarType.VARTYPE_DOUBLE, VarType.VARTYPE_FLOAT, VarType.VARTYPE_LONG};;
+
   public enum FunctionType {
     ADD(2, "+", 3, null),
     SUB(2, "-", 3, null),
@@ -687,13 +691,10 @@ public class FunctionExprent extends Exprent {
   }
 
   private static VarType getMaxVarType(VarType ...arr) {
-    int[] types = {CodeConstants.TYPE_DOUBLE, CodeConstants.TYPE_FLOAT, CodeConstants.TYPE_LONG};
-    VarType[] vartypes = {VarType.VARTYPE_DOUBLE, VarType.VARTYPE_FLOAT, VarType.VARTYPE_LONG};
-
-    for (int i = 0; i < types.length; i++) {
+    for (int i = 0; i < TYPE_PRIMITIVES.length; i++) {
       for (VarType anArr : arr) {
-        if (anArr.type == types[i]) {
-          return vartypes[i];
+        if (anArr.type == TYPE_PRIMITIVES[i]) {
+          return TYPES[i];
         }
       }
     }

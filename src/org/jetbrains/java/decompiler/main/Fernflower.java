@@ -184,9 +184,11 @@ public class Fernflower implements IDecompiledData {
       DecompilerContext.getLogger().writeMessage("Class " + cl.qualifiedName + " couldn't be fully decompiled.", t);
       if (DecompilerContext.getOption(IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR)) {
         List<String> lines = new ArrayList<>();
+        lines.add("/*");
         lines.add("$QF: Unable to decompile class");
         lines.addAll(ClassWriter.getErrorComment());
         ClassWriter.collectErrorLines(t, lines);
+        lines.add("*/");
         return String.join("\n", lines);
       } else {
         return null;

@@ -13,6 +13,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.struct.StructField;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
+import org.jetbrains.java.decompiler.util.DotExporter;
 import org.jetbrains.java.decompiler.util.Pair;
 
 import java.util.*;
@@ -258,7 +259,14 @@ public final class SwitchHelper {
 
       if (nullable) {
         // remove the containing `if`
-        containingNullCheck.replaceWithEmpty();
+        Statement replaced = containingNullCheck.replaceWithEmpty();
+
+        // Replace unneeded edges left over from the replaced block
+        new HashSet<>(replaced.getLabelEdges())
+          .forEach(e -> {
+            following.removePredecessor(e);
+            e.removeClosure();
+          });
       }
 
       // Remove phantom references from old switch statement, but ignoring the first statement as that has been extracted out of the switch

@@ -66,11 +66,11 @@ public abstract class TestAnonymousClass {
    }// 23
 
    void bar() {
-      ((<undefinedtype>)(new Object() {
+      (new Object() {
          public void foo(String s) {
             System.out.println(s);// 28
          }// 29
-      })).foo("Hello world");// 26 30
+      }).foo("Hello world");// 26 30
    }// 31
 
    void boo() {

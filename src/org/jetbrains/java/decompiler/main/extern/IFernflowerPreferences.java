@@ -56,6 +56,10 @@ public interface IFernflowerPreferences {
   @Description("Decompile enums.")
   String DECOMPILE_ENUM = "den";
 
+  @Name("Decompile Preview Features")
+  @Description("Decompile features marked as preview or incubating in the latest Java versions.")
+  String DECOMPILE_PREVIEW = "dpr";
+
   @Name("Remove reference getClass()")
   @Description("obj.new Inner() or calling invoking a method on a method reference will create a synthetic getClass() call. This removes it.")
   String REMOVE_GET_CLASS_NEW = "rgn";
@@ -235,7 +239,7 @@ public interface IFernflowerPreferences {
   String DUMP_BYTECODE_ON_ERROR = "dbe";
 
   @Name("Dump Exceptions On Error")
-  @Description("Put the exception message in the method body when an error occurs.")
+  @Description("Put the exception message in the method body or source file when an error occurs.")
   String DUMP_EXCEPTION_ON_ERROR = "dee";
 
   @Name("Decompiler Comments")
@@ -290,11 +294,12 @@ public interface IFernflowerPreferences {
     defaults.put(OVERRIDE_ANNOTATION, "1");
     defaults.put(PATTERN_MATCHING, "1"); // Pattern matching is relatively stable
     defaults.put(TRY_LOOP_FIX, "1"); // Try loop fix is stable, and fixes hard to notice bugs
-    defaults.put(TERNARY_CONDITIONS, "0"); // Causes issues when decompiling certain classes
+    defaults.put(TERNARY_CONDITIONS, "1"); // Ternary conditions are stable and don't cause many issues currently
     defaults.put(SWITCH_EXPRESSIONS, "1"); // While still experimental, switch expressions work pretty well
     defaults.put(SHOW_HIDDEN_STATEMENTS, "0"); // Extra debugging that isn't useful in most cases
     defaults.put(SIMPLIFY_STACK_SECOND_PASS, "1"); // Generally produces better bytecode, useful to debug if it does something strange
     defaults.put(VERIFY_VARIABLE_MERGES, "0"); // Produces more correct code in rare cases, but hurts code cleanliness in the majority of cases. Default off until a better fix is created.
+    defaults.put(DECOMPILE_PREVIEW, "1"); // Preview features are useful to decompile in almost all cases
 
     defaults.put(INCLUDE_ENTIRE_CLASSPATH, "0");
     defaults.put(INCLUDE_JAVA_RUNTIME, "");

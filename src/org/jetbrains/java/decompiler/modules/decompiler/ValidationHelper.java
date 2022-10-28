@@ -325,7 +325,7 @@ public final class ValidationHelper {
       }
 
       if (!inaccessibleNodes.isEmpty()) {
-        throw new IllegalStateException("Inaccessible nodes: " + inaccessibleNodes);
+        throw new IllegalStateException("Inaccessible direct graph nodes: " + inaccessibleNodes);
       }
     } catch (Throwable e) {
       DotExporter.errorToDotFile(graph, root.mt, "erroring_dgraph");

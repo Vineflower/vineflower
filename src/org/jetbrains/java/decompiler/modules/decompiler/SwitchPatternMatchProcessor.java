@@ -3,6 +3,7 @@ package org.jetbrains.java.decompiler.modules.decompiler;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
+import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.struct.consts.PooledConstant;
@@ -392,5 +393,9 @@ public final class SwitchPatternMatchProcessor {
     }
 
     return false;
+  }
+
+  public static boolean hasPatternMatch(RootStatement root) {
+    return root.mt.getBytecodeVersion().hasSwitchPatternMatch() && DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_PREVIEW);
   }
 }
