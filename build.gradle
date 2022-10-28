@@ -41,8 +41,6 @@ dependencies {
   testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${project.junit_bom}")
   testImplementation("org.hamcrest:hamcrest:${project.hamcrest}")
 
-  // Java 9 classes need the main source set
-  java9Implementation sourceSets.main.output
   testDataGroovyImplementation("org.codehaus.groovy:groovy:${project.groovy}")
   testDataKotlinImplementation platform('org.jetbrains.kotlin:kotlin-bom')
   testDataKotlinImplementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
