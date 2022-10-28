@@ -169,7 +169,7 @@ public class StructContext {
         DecompilerContext.getLogger().writeMessage(message, IFernflowerLogger.Severity.ERROR, ex);
         throw new UncheckedIOException(message, ex);
       }
-    } else if (file.isFile()) {
+    } else {
       try {
         addSpace(new SingleFileContextSource(this.legacyProvider, file), isOwn);
       } catch (final IOException ex) {
