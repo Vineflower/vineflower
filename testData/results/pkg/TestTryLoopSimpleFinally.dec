@@ -2,6 +2,8 @@ package pkg;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Scanner;
 
 public class TestTryLoopSimpleFinally {
@@ -9,44 +11,102 @@ public class TestTryLoopSimpleFinally {
 
    public void test(File file) {
       try {
-         while(this.field) {// 12
-            new Scanner(file);// 13
+         while(this.field) {// 15
+            new Scanner(file);// 16
          }
-      } catch (FileNotFoundException var6) {// 15
-         var6.printStackTrace();// 16
+      } catch (FileNotFoundException var6) {// 18
+         var6.printStackTrace();// 19
       } finally {
-         System.out.println("Finally");// 18
+         System.out.println("Finally");// 21
       }
+   }// 23
 
-   }// 20
+   public void test2(int x, Path file) throws IOException {
+      try {
+         while(x >= 0) {// 27
+            Scanner scanner = new Scanner(file);// 28
+            if (x % 11 != 0) {// 30
+               x -= scanner.nextInt();// 35
+            } else {
+               System.out.println("nice");// 31
+               return;// 32
+            }
+         }
+      } finally {
+         System.out.println("Finally");// 38
+      }
+   }// 39
 }
 
 class 'pkg/TestTryLoopSimpleFinally' {
    method 'test (Ljava/io/File;)V' {
-      0      11
-      1      11
-      2      11
-      3      11
-      b      12
-      1e      14
-      20      15
-      2e      17
-      2f      17
-      30      17
-      31      17
-      32      17
-      33      17
-      39      20
+      0      13
+      1      13
+      2      13
+      3      13
+      b      14
+      1e      16
+      1f      17
+      20      17
+      2e      19
+      2f      19
+      30      19
+      31      19
+      32      19
+      33      19
+      39      21
+   }
+
+   method 'test2 (ILjava/nio/file/Path;)V' {
+      0      25
+      1      25
+      8      26
+      c      26
+      d      27
+      e      27
+      f      27
+      10      27
+      11      27
+      14      30
+      15      30
+      16      30
+      17      30
+      18      30
+      19      30
+      24      31
+      26      28
+      27      28
+      28      28
+      29      28
+      2b      28
+      37      37
+      3a      35
+      3b      35
+      3c      35
+      3d      35
+      3e      35
+      3f      35
+      40      35
    }
 }
 
 Lines mapping:
-12 <-> 12
-13 <-> 13
-15 <-> 15
-16 <-> 16
-18 <-> 18
-20 <-> 21
+15 <-> 14
+16 <-> 15
+18 <-> 17
+19 <-> 18
+21 <-> 20
+23 <-> 22
+27 <-> 26
+28 <-> 27
+30 <-> 28
+31 <-> 31
+32 <-> 32
+35 <-> 29
+38 <-> 36
+39 <-> 38
 Not mapped:
-14
-19
+17
+22
+36
+40

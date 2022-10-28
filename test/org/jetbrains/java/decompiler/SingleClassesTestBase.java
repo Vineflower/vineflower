@@ -16,6 +16,7 @@
 package org.jetbrains.java.decompiler;
 
 import org.jetbrains.java.decompiler.main.decompiler.ConsoleDecompiler;
+import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.junit.jupiter.api.*;
 import org.opentest4j.AssertionFailedError;
@@ -29,6 +30,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static org.jetbrains.java.decompiler.DecompilerTestFixture.assertFilesEqual;
+import static org.jetbrains.java.decompiler.DecompilerTestFixture.getContent;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
@@ -41,7 +44,7 @@ public abstract class SingleClassesTestBase {
   private TestSet currentTestSet;
   private final List<TestSet> testSets = new ArrayList<>();
   private final Set<String> classNames = new HashSet<>();
-  
+
   protected String[] getDecompilerOptions() {
     return new String[] {};
   }
@@ -108,7 +111,7 @@ public abstract class SingleClassesTestBase {
 
     Path parent = classFile.getParent();
     if (parent != null) {
-      final Pattern pattern = Pattern.compile(classFile.getFileName().toString().replace(".class", "") + "\\$.+\\.class");
+      final Pattern pattern = Pattern.compile(classFile.getFileName().toString().replace(".class", "") + "\\$.*\\.class");
       try {
         Files.list(parent).filter(p -> pattern.matcher(p.getFileName().toString()).matches()).forEach(files::add);
       } catch (IOException e) {
@@ -137,7 +140,23 @@ public abstract class SingleClassesTestBase {
         if (slash >= 0) name = name.substring(slash + 1);
         Path classFile = def.getClassFile();
         Path ref = def.getReferenceFile();
+
+        // Inject a specific runtime
         DynamicTest test = DynamicTest.dynamicTest(name, Files.exists(ref) ? ref.toUri() : classFile.toUri(), () -> {
+          Object[] options = this.options;
+          if (def.version.runtimeVersion != TestDefinition.Version.UNKNOWN_RUNTIME) {
+            for (int i = 0; i < options.length; i+= 2) {
+              if (options[i].equals(IFernflowerPreferences.INCLUDE_JAVA_RUNTIME)
+                && (options[i + 1].equals("1") || options[i + 1].equals("current"))) {
+                final String versionJavaHome = System.getProperty("java." + def.version.runtimeVersion + ".home");
+                if (versionJavaHome == null) {
+                  throw new IllegalStateException("No Java runtime was provided at system property java." + def.version.runtimeVersion + ".home");
+                }
+                options = Arrays.copyOf(options, options.length);
+                options[i + 1] = versionJavaHome;
+              }
+            }
+          }
           def.run(options);
         });
         tests.computeIfAbsent(def.version, k -> new ArrayList<>()).add(test);
@@ -201,6 +220,22 @@ public abstract class SingleClassesTestBase {
       String testName = testFileName.substring(0, testFileName.length() - 6);
       Path decompiledFile = fixture.getTargetDir().resolve(testName + ".java");
       assertTrue(Files.isRegularFile(decompiledFile));
+
+      String decompiledContent = getContent(decompiledFile);
+
+      if (version == Version.SCALA) {
+        // scala likes to generate "unrelated" classfiles for the majority of its functionality
+        // tack those onto the end of the decompiled files
+        for (String companionFile : others) {
+          Path decompiledCompanion = fixture.getTargetDir().resolve(companionFile + ".java");
+          // cut off any packages
+          decompiledCompanion = fixture.getTargetDir().resolve(decompiledCompanion.getFileName());
+          assertTrue(Files.isRegularFile(decompiledCompanion));
+
+          decompiledContent += "\n\n" + "// Decompiled companion from " + companionFile + "\n" + getContent(decompiledCompanion);
+        }
+      }
+
       Path referenceFile = getReferenceFile();
       if (!Files.exists(referenceFile)) {
         try {
@@ -214,7 +249,7 @@ public abstract class SingleClassesTestBase {
       } else {
         try {
           assertTrue(Files.isRegularFile(referenceFile));
-          assertFilesEqual(referenceFile, decompiledFile);
+          assertEquals(getContent(referenceFile), decompiledContent);
         } catch (AssertionFailedError e) {
           if (failable) {
             assumeTrue(false, referenceFile.getFileName() + " failed but was ignored");
@@ -237,15 +272,21 @@ public abstract class SingleClassesTestBase {
       JAVA_16_NODEBUG(16, "nodebug", "No Debug Info"),
       JAVA_17(17),
       JAVA_17_PREVIEW(17, "preview", "Preview"),
+      JAVA_19_PREVIEW(19, "preview", "Preview"),
       GROOVY("groovy", "Groovy"),
       KOTLIN("kt", "Kotlin"),
+      SCALA("scala", "Scala"),
       JASM("jasm", "Custom (jasm)"),
       ;
 
+      public static final int UNKNOWN_RUNTIME = -1;
+
+      public final int runtimeVersion;
       public final String directory;
       public final String display;
 
       Version(String directory, String display) {
+        this.runtimeVersion = UNKNOWN_RUNTIME;
         this.directory = directory;
         this.display = display;
       }
@@ -255,7 +296,9 @@ public abstract class SingleClassesTestBase {
       }
 
       Version(int javaVersion, String suffix, String display) {
-        this("java" + javaVersion + suffix, "Java " + javaVersion + (!display.isEmpty() ? " " + display : ""));
+        this.runtimeVersion = javaVersion;
+        this.directory = "java" + javaVersion + suffix;
+        this.display = "Java " + javaVersion + (!display.isEmpty() ? " " + display : "");
       }
 
       @Override

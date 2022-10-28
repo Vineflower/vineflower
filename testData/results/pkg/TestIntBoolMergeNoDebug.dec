@@ -1,0 +1,36 @@
+package pkg;
+
+public class TestIntBoolMergeNoDebug {
+   public void test() {
+      byte var1 = 0;
+      System.out.println(var1);
+      boolean var2 = true;
+      System.out.println(var2);
+   }
+}
+
+class 'pkg/TestIntBoolMergeNoDebug' {
+   method 'test ()V' {
+      0      4
+      1      4
+      2      5
+      3      5
+      4      5
+      5      5
+      6      5
+      7      5
+      8      5
+      9      6
+      a      6
+      b      7
+      c      7
+      d      7
+      e      7
+      f      7
+      10      7
+      11      7
+      12      8
+   }
+}
+
+Lines mapping:

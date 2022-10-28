@@ -13,7 +13,6 @@ public class TestNestedTernaryAssign {
       } else {
          4;
       }
-
    }// 6
 
    public void test2(boolean b1, boolean b2, boolean b3) {
@@ -22,7 +21,6 @@ public class TestNestedTernaryAssign {
       } else {
          String var5 = b3 ? "4" : "44";
       }
-
    }// 10
 
    public void test3(boolean b1, boolean b2, int a, int b) {
@@ -31,65 +29,11 @@ public class TestNestedTernaryAssign {
    }// 16
 
    public void test4(boolean b1, int a, int b) {
-      byte var10000;
-      label17: {
-         label16: {
-            if (b1) {// 19
-               if (a > b) {
-                  break label16;
-               }
-            } else if (a < b) {
-               break label16;
-            }
-
-            var10000 = 16;
-            break label17;
-         }
-
-         var10000 = 0;
-      }
-
-      accept(var10000);
+      accept((b1 ? a <= b : a >= b) ? 16 : 0);// 19
    }// 20
 
    public void test5(boolean b1, boolean b2, int a, int b) {
-      byte var10000;
-      label31: {
-         label30: {
-            if (b1) {// 23
-               if (a > b) {
-                  break label30;
-               }
-            } else if (a < b) {
-               break label30;
-            }
-
-            var10000 = 16;
-            break label31;
-         }
-
-         var10000 = 0;
-      }
-
-      byte var10001;
-      label23: {
-         label22: {
-            if (b2) {
-               if (a > b) {
-                  break label22;
-               }
-            } else if (a < b) {
-               break label22;
-            }
-
-            var10001 = 16;
-            break label23;
-         }
-
-         var10001 = 0;
-      }
-
-      accept(var10000, var10001);
+      accept((b1 ? a <= b : a >= b) ? 16 : 0, (b2 ? a <= b : a >= b) ? 16 : 0);// 23
    }// 24
 
    private static void accept(int i) {
@@ -117,120 +61,120 @@ class 'pkg/TestNestedTernaryAssign' {
       19      11
       1d      13
       1e      13
-      23      16
+      23      15
    }
 
    method 'test2 (ZZZ)V' {
-      0      19
-      1      19
-      4      20
-      5      20
-      8      20
-      9      20
-      d      20
-      e      20
-      12      22
-      13      22
-      16      22
-      17      22
-      1b      22
-      1f      25
+      0      18
+      1      18
+      4      19
+      5      19
+      8      19
+      9      19
+      d      19
+      e      19
+      12      21
+      13      21
+      16      21
+      17      21
+      1b      21
+      1f      23
    }
 
    method 'test3 (ZZII)V' {
-      0      28
-      1      28
-      4      28
-      5      28
-      6      28
-      9      28
-      d      28
-      f      28
-      12      28
-      16      28
-      17      28
-      1b      28
-      1d      28
-      1e      28
-      1f      29
-      20      29
-      21      29
-      22      29
-      23      29
-      24      29
-      25      29
-      26      29
-      27      30
+      0      26
+      1      26
+      4      26
+      5      26
+      6      26
+      9      26
+      d      26
+      f      26
+      12      26
+      16      26
+      17      26
+      1b      26
+      1d      26
+      1e      26
+      1f      27
+      20      27
+      21      27
+      22      27
+      23      27
+      24      27
+      25      27
+      26      27
+      27      28
    }
 
    method 'test4 (ZII)V' {
-      0      36
-      1      36
-      4      37
-      5      37
-      6      37
-      c      40
-      d      40
-      e      40
-      11      48
-      15      44
-      17      51
-      18      51
-      19      51
-      1a      52
+      0      31
+      1      31
+      4      31
+      5      31
+      6      31
+      c      31
+      d      31
+      e      31
+      11      31
+      15      31
+      17      31
+      18      31
+      19      31
+      1a      32
    }
 
    method 'test5 (ZZII)V' {
-      0      58
-      1      58
-      4      59
-      5      59
-      6      59
-      7      59
-      d      62
-      e      62
-      f      62
-      10      62
-      13      70
-      17      66
-      19      76
-      1a      76
-      1d      77
-      1e      77
-      1f      77
-      20      77
-      26      80
-      27      80
-      28      80
-      29      80
-      2c      88
-      30      84
-      32      91
-      33      91
-      34      91
-      35      92
+      0      35
+      1      35
+      4      35
+      5      35
+      6      35
+      7      35
+      d      35
+      e      35
+      f      35
+      10      35
+      13      35
+      17      35
+      19      35
+      1a      35
+      1d      35
+      1e      35
+      1f      35
+      20      35
+      26      35
+      27      35
+      28      35
+      29      35
+      2c      35
+      30      35
+      32      35
+      33      35
+      34      35
+      35      36
    }
 
    method 'accept (I)V' {
-      0      95
+      0      39
    }
 
    method 'accept (II)V' {
-      0      98
+      0      42
    }
 }
 
 Lines mapping:
 5 <-> 5
-6 <-> 17
-9 <-> 20
-10 <-> 26
-13 <-> 29
-15 <-> 30
-16 <-> 31
-19 <-> 37
-20 <-> 53
-23 <-> 59
-24 <-> 93
-28 <-> 96
-32 <-> 99
+6 <-> 16
+9 <-> 19
+10 <-> 24
+13 <-> 27
+15 <-> 28
+16 <-> 29
+19 <-> 32
+20 <-> 33
+23 <-> 36
+24 <-> 37
+28 <-> 40
+32 <-> 43

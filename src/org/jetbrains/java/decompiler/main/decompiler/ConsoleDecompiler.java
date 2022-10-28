@@ -3,11 +3,12 @@ package org.jetbrains.java.decompiler.main.decompiler;
 
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.Fernflower;
-import org.jetbrains.java.decompiler.main.extern.IBytecodeProvider;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.extern.IResultSaver;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
+import org.jetbrains.java.decompiler.util.JrtFinder;
+import org.jetbrains.java.decompiler.util.ZipFileCache;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -23,7 +24,11 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
-public class ConsoleDecompiler implements IBytecodeProvider, IResultSaver {
+public class ConsoleDecompiler implements /* IBytecodeProvider, */ IResultSaver, AutoCloseable {
+  private static final Map<String, Object> CONSOLE_DEFAULT_OPTIONS = Map.of(
+    IFernflowerPreferences.INCLUDE_JAVA_RUNTIME, JrtFinder.CURRENT
+  );
+
   @SuppressWarnings("UseOfSystemOutOrSystemErr")
   public static void main(String[] args) {
     List<String> params = new ArrayList<String>();
@@ -63,21 +68,22 @@ public class ConsoleDecompiler implements IBytecodeProvider, IResultSaver {
       return;
     }
 
-    if (args.length < 2) {
+    if (args.length < 1) {
       System.out.println(
-        "Usage: java -jar fernflower.jar [-<option>=<value>]* [<source>]+ <destination>\n" +
-        "Example: java -jar fernflower.jar -dgs=true c:\\my\\source\\ c:\\my.jar d:\\decompiled\\");
+        "Usage: java -jar quiltflower.jar [-<option>=<value>]* [<source>]+ <destination>\n" +
+        "Example: java -jar quiltflower.jar -dgs=true c:\\my\\source\\ c:\\my.jar d:\\decompiled\\");
       return;
     }
 
-    Map<String, Object> mapOptions = new HashMap<>();
+    Map<String, Object> mapOptions = new HashMap<>(CONSOLE_DEFAULT_OPTIONS);
     List<File> sources = new ArrayList<>();
     List<File> libraries = new ArrayList<>();
     Set<String> whitelist = new HashSet<>();
 
     SaveType userSaveType = null;
     boolean isOption = true;
-    for (int i = 0; i < args.length - 1; ++i) { // last parameter - destination
+    int nonOption = 0;
+    for (int i = 0; i < args.length; ++i) { // last parameter - destination
       String arg = args[i];
 
       switch (arg) {
@@ -116,6 +122,12 @@ public class ConsoleDecompiler implements IBytecodeProvider, IResultSaver {
         mapOptions.put(arg.substring(1, 4), value);
       }
       else {
+        nonOption++;
+        // Don't process this, as it is the output
+        if (nonOption > 1 && i == args.length - 1) {
+          break;
+        }
+
         isOption = false;
 
         if (arg.startsWith("-e=")) {
@@ -135,23 +147,28 @@ public class ConsoleDecompiler implements IBytecodeProvider, IResultSaver {
       return;
     }
 
-    String name = args[args.length - 1];
+    SaveType saveType = SaveType.CONSOLE;
 
-    SaveType saveType = SaveType.FOLDER;
-    File destination = new File(name);
+    File destination = new File("."); // Dummy value, when '.' we will be printing to console
+    if (nonOption > 1) {
+      String name = args[args.length - 1];
 
-    if (userSaveType == null) {
-      if (destination.getName().contains(".zip") || destination.getName().contains(".jar")) {
-        saveType = SaveType.FILE;
+      saveType = SaveType.FOLDER;
+      destination = new File(name);
 
-        if (destination.getParentFile() != null) {
-          destination.getParentFile().mkdirs();
+      if (userSaveType == null) {
+        if (destination.getName().contains(".zip") || destination.getName().contains(".jar")) {
+          saveType = SaveType.FILE;
+
+          if (destination.getParentFile() != null) {
+            destination.getParentFile().mkdirs();
+          }
+        } else {
+          destination.mkdirs();
         }
       } else {
-        destination.mkdirs();
+        saveType = userSaveType;
       }
-    } else {
-      saveType = userSaveType;
     }
 
 
@@ -190,6 +207,7 @@ public class ConsoleDecompiler implements IBytecodeProvider, IResultSaver {
   private final Fernflower engine;
   private final Map<String, ZipOutputStream> mapArchiveStreams = new HashMap<>();
   private final Map<String, Set<String>> mapArchiveEntries = new HashMap<>();
+  private final ZipFileCache openZips = new ZipFileCache();
 
   // Legacy support
   protected ConsoleDecompiler(File destination, Map<String, Object> options, IFernflowerLogger logger) {
@@ -198,7 +216,7 @@ public class ConsoleDecompiler implements IBytecodeProvider, IResultSaver {
 
   protected ConsoleDecompiler(File destination, Map<String, Object> options, IFernflowerLogger logger, SaveType saveType) {
     root = destination;
-    engine = new Fernflower(this, saveType == SaveType.LEGACY_CONSOLEDECOMPILER ? this : saveType.getSaver().apply(destination), options, logger);
+    engine = new Fernflower(saveType == SaveType.LEGACY_CONSOLEDECOMPILER ? this : saveType.getSaver().apply(destination), options, logger);
   }
 
   public void addSource(File source) {
@@ -226,18 +244,16 @@ public class ConsoleDecompiler implements IBytecodeProvider, IResultSaver {
   // Interface IBytecodeProvider
   // *******************************************************************
 
-  @Override
-  public byte[] getBytecode(String externalPath, String internalPath) throws IOException {
-    File file = new File(externalPath);
+  // @Override
+  public byte[] getBytecode(String externalPath, String internalPath) throws IOException { // UNUSED
     if (internalPath == null) {
+      File file = new File(externalPath);
       return InterpreterUtil.getBytes(file);
-    }
-    else {
-      try (ZipFile archive = new ZipFile(file)) {
-        ZipEntry entry = archive.getEntry(internalPath);
-        if (entry == null) throw new IOException("Entry not found: " + internalPath);
-        return InterpreterUtil.getBytes(archive, entry);
-      }
+    } else {
+      final ZipFile archive = this.openZips.get(externalPath);
+      ZipEntry entry = archive.getEntry(internalPath);
+      if (entry == null) throw new IOException("Entry not found: " + internalPath);
+      return InterpreterUtil.getBytes(archive, entry);
     }
   }
 
@@ -270,11 +286,14 @@ public class ConsoleDecompiler implements IBytecodeProvider, IResultSaver {
   @Override
   public void saveClassFile(String path, String qualifiedName, String entryName, String content, int[] mapping) {
     File file = new File(getAbsolutePath(path), entryName);
-    try (Writer out = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8)) {
-      out.write(content);
-    }
-    catch (IOException ex) {
-      DecompilerContext.getLogger().writeMessage("Cannot write class file " + file, ex);
+    if (content != null) {
+      try (Writer out = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8)) {
+        out.write(content);
+      } catch (IOException ex) {
+        DecompilerContext.getLogger().writeMessage("Cannot write class file " + file, ex);
+      }
+    } else {
+      DecompilerContext.getLogger().writeMessage("Attempted to write null class file to " + file, IFernflowerLogger.Severity.WARN);
     }
   }
 
@@ -311,7 +330,9 @@ public class ConsoleDecompiler implements IBytecodeProvider, IResultSaver {
       return;
     }
 
-    try (ZipFile srcArchive = new ZipFile(new File(source))) {
+    try {
+      ZipFile srcArchive = this.openZips.get(source);
+
       ZipEntry entry = srcArchive.getEntry(entryName);
       if (entry != null) {
         try (InputStream in = srcArchive.getInputStream(entry)) {
@@ -333,7 +354,7 @@ public class ConsoleDecompiler implements IBytecodeProvider, IResultSaver {
   }
 
   @Override
-  public synchronized void saveClassEntry(String path, String archiveName, String qualifiedName, String entryName, String content, int[] mapping) {
+  public void saveClassEntry(String path, String archiveName, String qualifiedName, String entryName, String content, int[] mapping) {
     String file = new File(getAbsolutePath(path), archiveName).getPath();
 
     if (!checkEntry(entryName, file)) {
@@ -380,10 +401,16 @@ public class ConsoleDecompiler implements IBytecodeProvider, IResultSaver {
     }
   }
 
+  @Override
+  public void close() throws IOException {
+    this.openZips.close();
+  }
+
   public enum SaveType {
     LEGACY_CONSOLEDECOMPILER(null), // handled separately
     FOLDER(DirectoryResultSaver::new),
-    FILE(SingleFileSaver::new);
+    FILE(SingleFileSaver::new),
+    CONSOLE(ConsoleFileSaver::new);
 
     private final Function<File, IResultSaver> saver;
 

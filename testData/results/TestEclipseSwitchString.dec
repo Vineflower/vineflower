@@ -19,25 +19,25 @@ public class TestEclipseSwitchString {
    }
 
    public int test1(String var1) {
-      label20: {
+      label19: {
          switch(var1.hashCode()) {// 19
             case 49:
                if (var1.equals("1")) {
                   return 1;// 24
                }
-               break label20;
+               break label19;
             case 50:
                if (!var1.equals("2")) {
-                  break label20;
+                  break label19;
                }
                break;
             case 51:
                if (!var1.equals("3")) {
-                  break label20;
+                  break label19;
                }
                break;
             default:
-               break label20;
+               break label19;
          }
 
          return 2;// 27
@@ -48,27 +48,27 @@ public class TestEclipseSwitchString {
    }
 
    public int test2(String var1) {
-      label21: {
+      label20: {
          switch(var1.hashCode()) {// 34
             case 49:
                if (!var1.equals("1")) {
-                  break label21;
+                  break label20;
                }
 
                System.out.println("Hello");// 39
                break;
             case 50:
                if (!var1.equals("2")) {
-                  break label21;
+                  break label20;
                }
                break;
             case 51:
                if (!var1.equals("3")) {
-                  break label21;
+                  break label20;
                }
                break;
             default:
-               break label21;
+               break label20;
          }
 
          return 2;// 42
@@ -132,12 +132,14 @@ class 'pkg/TestEclipseSwitchString' {
       4      4
       5      4
       6      4
+      20      6
       21      6
       22      6
       23      6
       24      6
       25      6
       26      6
+      2c      11
       2d      11
       2e      11
       2f      11
@@ -168,18 +170,21 @@ class 'pkg/TestEclipseSwitchString' {
       4      22
       5      22
       6      22
+      28      24
       29      24
       2a      24
       2b      24
       2c      24
       2d      24
       2e      24
+      34      29
       35      29
       36      29
       37      29
       38      29
       39      29
       3a      29
+      40      34
       41      34
       42      34
       43      34
@@ -210,18 +215,21 @@ class 'pkg/TestEclipseSwitchString' {
       4      51
       5      51
       6      51
+      28      53
       29      53
       2a      53
       2b      53
       2c      53
       2d      53
       2e      53
+      34      60
       35      60
       36      60
       37      60
       38      60
       39      60
       3a      60
+      40      65
       41      65
       42      65
       43      65
@@ -258,12 +266,14 @@ class 'pkg/TestEclipseSwitchString' {
       4      81
       5      81
       6      81
+      18      83
       19      83
       1a      83
       1b      83
       1c      83
       1d      83
       1e      83
+      21      85
       22      85
       23      85
       24      85
@@ -294,12 +304,14 @@ class 'pkg/TestEclipseSwitchString' {
       4      95
       5      95
       6      95
+      18      97
       19      97
       1a      97
       1b      97
       1c      97
       1d      97
       1e      97
+      21      97
       22      97
       23      97
       24      97
@@ -328,12 +340,14 @@ class 'pkg/TestEclipseSwitchString' {
       4      107
       5      107
       6      107
+      18      110
       19      110
       1a      110
       1b      110
       1c      110
       1d      110
       1e      110
+      21      111
       22      111
       23      111
       24      111

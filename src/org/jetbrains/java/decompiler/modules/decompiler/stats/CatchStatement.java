@@ -4,16 +4,16 @@ package org.jetbrains.java.decompiler.modules.decompiler.stats;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
-import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.AssignmentExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
-import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
+import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.modules.decompiler.DecHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.AssignmentExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
+import org.jetbrains.java.decompiler.util.TextBuffer;
 
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -21,22 +21,16 @@ import java.util.List;
 import java.util.Set;
 
 public final class CatchStatement extends Statement {
-  public static final int NORMAL = 0;
-  public static final int RESOURCES = 1;
-
   private final List<List<String>> exctstrings = new ArrayList<>();
   private final List<VarExprent> vars = new ArrayList<>();
   private final List<Exprent> resources = new ArrayList<>();
-
-  private int tryType;
 
   // *****************************************************************************
   // constructors
   // *****************************************************************************
 
   private CatchStatement() {
-    type = TYPE_TRYCATCH;
-    tryType = NORMAL;
+    super(StatementType.TRY_CATCH);
   }
 
   private CatchStatement(Statement head, Statement next, Set<Statement> setHandlers) {
@@ -69,7 +63,7 @@ public final class CatchStatement extends Statement {
   // *****************************************************************************
 
   public static Statement isHead(Statement head) {
-    if (head.getLastBasicType() != LASTBASICTYPE_GENERAL) {
+    if (head.getLastBasicType() != LastBasicType.GENERAL) {
       return null;
     }
 
@@ -90,10 +84,9 @@ public final class CatchStatement extends Statement {
         boolean handlerok = true;
 
         if (edge.getExceptions() != null && setHandlers.contains(stat)) {
-          if (stat.getLastBasicType() != LASTBASICTYPE_GENERAL) {
+          if (stat.getLastBasicType() != LastBasicType.GENERAL) {
             handlerok = false;
-          }
-          else {
+          } else {
             List<StatEdge> lstStatSuccs = stat.getSuccessorEdges(STATEDGE_DIRECT_ALL);
             if (!lstStatSuccs.isEmpty() && lstStatSuccs.get(0).getType() == StatEdge.TYPE_REGULAR) {
 
@@ -101,8 +94,7 @@ public final class CatchStatement extends Statement {
 
               if (next == null) {
                 next = statn;
-              }
-              else if (next != statn) {
+              } else if (next != statn) {
                 handlerok = false;
               }
 
@@ -111,8 +103,7 @@ public final class CatchStatement extends Statement {
               }
             }
           }
-        }
-        else {
+        } else {
           handlerok = false;
         }
 
@@ -132,12 +123,8 @@ public final class CatchStatement extends Statement {
           }
         }
 
-        // Don't build a trycatch around a loop-head if statement, as we know that DoStatement should be built first.
-        // Since CatchStatement's isHead is run after DoStatement's, we can assume that a loop was not able to be built.
-        if (DecompilerContext.getOption(IFernflowerPreferences.EXPERIMENTAL_TRY_LOOP_FIX)) {
-          if (head.type == Statement.TYPE_IF && head.getContinueSet().contains(head.first)) {
-            return null;
-          }
+        if (DecHelper.invalidHeadMerge(head)) {
+          return null;
         }
 
         if (DecHelper.checkStatementExceptions(lst)) {
@@ -155,10 +142,10 @@ public final class CatchStatement extends Statement {
     buf.append(ExprProcessor.listToJava(varDefinitions, indent));
 
     if (isLabeled()) {
-      buf.appendIndent(indent).append("label").append(this.id.toString()).append(":").appendLineSeparator();
+      buf.appendIndent(indent).append("label").append(this.id).append(":").appendLineSeparator();
     }
 
-    if (tryType == NORMAL) {
+    if (resources.isEmpty()) {
       buf.appendIndent(indent).append("try {").appendLineSeparator();
     }
     else {
@@ -249,14 +236,6 @@ public final class CatchStatement extends Statement {
 
   public List<VarExprent> getVars() {
     return vars;
-  }
-
-  public int getTryType() {
-    return tryType;
-  }
-
-  public void setTryType(int tryType) {
-    this.tryType = tryType;
   }
 
   public List<Exprent> getResources() {

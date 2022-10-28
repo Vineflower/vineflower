@@ -33,14 +33,12 @@ public class TestArrayFieldAccess {
       if (this.array[this.index]++ == 3) {// 37
          System.out.println(this.array[this.index]);// 38
       }
-
    }// 40
 
    public void test6() {
       if (++this.array[this.index] == 3) {// 43
          System.out.println(this.array[this.index]);// 44
       }
-
    }// 46
 }
 
@@ -75,6 +73,7 @@ class 'pkg/TestArrayFieldAccess' {
       8      12
       a      12
       c      12
+      e      12
       f      12
       10      12
       11      12
@@ -148,6 +147,7 @@ class 'pkg/TestArrayFieldAccess' {
       10      28
       11      28
       13      28
+      15      28
       16      28
       17      28
       18      28
@@ -180,36 +180,37 @@ class 'pkg/TestArrayFieldAccess' {
       1c      33
       1d      33
       1e      33
-      21      36
+      21      35
    }
 
    method 'test6 ()V' {
-      0      39
-      1      39
-      2      39
-      3      39
-      4      39
-      5      39
-      6      39
-      7      39
-      9      39
-      b      39
-      e      39
-      f      39
-      12      40
-      13      40
-      14      40
-      15      40
-      16      40
-      17      40
-      18      40
-      19      40
-      1a      40
-      1b      40
-      1c      40
-      1d      40
-      1e      40
-      21      43
+      0      38
+      1      38
+      2      38
+      3      38
+      4      38
+      5      38
+      6      38
+      7      38
+      9      38
+      b      38
+      d      38
+      e      38
+      f      38
+      12      39
+      13      39
+      14      39
+      15      39
+      16      39
+      17      39
+      18      39
+      19      39
+      1a      39
+      1b      39
+      1c      39
+      1d      39
+      1e      39
+      21      41
    }
 }
 
@@ -231,7 +232,7 @@ Lines mapping:
 34 <-> 30
 37 <-> 33
 38 <-> 34
-40 <-> 37
-43 <-> 40
-44 <-> 41
-46 <-> 44
+40 <-> 36
+43 <-> 39
+44 <-> 40
+46 <-> 42

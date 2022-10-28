@@ -9,6 +9,7 @@ import org.jetbrains.java.decompiler.main.collectors.VarNamesCollector;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
@@ -71,10 +72,10 @@ public class ClassWrapper {
       try {
         if (mt.containsCode()) {
           if (maxSec == 0 || testMode) {
-            root = MethodProcessorRunnable.codeToJava(classStruct, mt, md, varProc);
+            root = MethodProcessor.codeToJava(classStruct, mt, md, varProc);
           }
           else {
-            MethodProcessorRunnable mtProc = new MethodProcessorRunnable(classStruct, mt, md, varProc, DecompilerContext.getCurrentContext());
+            MethodProcessor mtProc = new MethodProcessor(classStruct, mt, md, varProc, DecompilerContext.getCurrentContext());
 
             Thread mtThread = new Thread(mtProc, "Java decompiler");
             long stopAt = System.currentTimeMillis() + maxSec * 1000L;
@@ -119,6 +120,7 @@ public class ClassWrapper {
           int varIndex = 0;
           for (int i = 0; i < paramCount; i++) {
             varProc.setVarName(new VarVersionPair(varIndex, 0), vc.getFreeName(varIndex));
+            varProc.markParam(new VarVersionPair(varIndex, 0));
 
             if (thisVar) {
               if (i == 0) {
@@ -138,17 +140,24 @@ public class ClassWrapper {
         String message = "Method " + mt.getName() + " " + mt.getDescriptor() + " in class " + classStruct.qualifiedName + " couldn't be decompiled.";
         DecompilerContext.getLogger().writeMessage(message, IFernflowerLogger.Severity.WARN, t);
         error = t;
-        RootStatement rootStat = MethodProcessorRunnable.debugCurrentlyDecompiling.get();
+        RootStatement rootStat = MethodProcessor.debugCurrentlyDecompiling.get();
         if (rootStat != null) {
           DotExporter.errorToDotFile(rootStat, mt, "fail");
+
+          try {
+            FlattenStatementsHelper flatten = new FlattenStatementsHelper();
+            DotExporter.errorToDotFile(flatten.buildDirectGraph(rootStat), mt, "failDigraph");
+          } catch (Exception e) {
+            // ignore
+          }
         }
 
-        ControlFlowGraph graph = MethodProcessorRunnable.debugCurrentCFG.get();
+        ControlFlowGraph graph = MethodProcessor.debugCurrentCFG.get();
         if (graph != null) {
           DotExporter.errorToDotFile(graph, mt, "failCFG");
         }
 
-        DecompileRecord decompileRecord = MethodProcessorRunnable.debugCurrentDecompileRecord.get();
+        DecompileRecord decompileRecord = MethodProcessor.debugCurrentDecompileRecord.get();
         if (decompileRecord != null) {
           DotExporter.toDotFile(decompileRecord, mt, "failRecord", true);
         }
@@ -170,7 +179,7 @@ public class ClassWrapper {
           StructLocalVariableTableAttribute attr = mt.getLocalVariableAttr();
           if (attr != null) {
             // only param names here
-            varProc.setDebugVarNames(attr.getMapNames());
+            varProc.setDebugVarNames(root, attr.getMapNames());
 
             /*
             // the rest is here
@@ -178,7 +187,7 @@ public class ClassWrapper {
               List<Exprent> lst = exprent.getAllExprents(true);
               lst.add(exprent);
               lst.stream()
-                .filter(e -> e.type == Exprent.EXPRENT_VAR)
+                .filter(e -> e instanceof VarExprent)
                 .forEach(e -> {
                   VarExprent varExprent = (VarExprent)e;
                   String name = varExprent.getDebugName(mt);

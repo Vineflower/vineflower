@@ -20,6 +20,6 @@ public class ao implements Comparable<ao> {
    }
 
    public int a(ao param1) {
-      // $FF: Couldn't be decompiled
+      // $QF: Couldn't be decompiled
    }
 }

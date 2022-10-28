@@ -123,6 +123,20 @@ public class SFormsFastMapDirect {
     }
   }
 
+  public void removeAllStacks() {
+    FastSparseSet<Integer>[] arr = elements[1];
+    int[] arrnext = next[1];
+
+    for (int i = arr.length - 1; i >= 0; i--) {
+      FastSparseSet<Integer> val = arr[i];
+      if (val != null) {
+        arr[i] = null;
+        size--;
+      }
+      arrnext[i] = 0;
+    }
+  }
+
   private void putInternal(final int key, final FastSparseSet<Integer> value, boolean remove) {
     int index = 0;
     int ikey = key;

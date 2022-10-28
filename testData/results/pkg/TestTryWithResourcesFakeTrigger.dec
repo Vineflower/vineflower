@@ -1,0 +1,99 @@
+package pkg;
+
+public class TestTryWithResourcesFakeTrigger {
+   public void testTrigger1() {
+      String b = "Hi!";// 6
+
+      try {
+         try {
+            System.out.println("Hi");// 10
+         } catch (Exception var6) {// 11
+         }
+      } catch (Exception var7) {
+         try {
+            ;
+         } catch (Exception var5) {// 17
+         }
+      }
+   }// 13 20
+
+   public void testTrigger2() {
+      Object var1 = null;// 23
+
+      while(var1 == null) {// 25
+         try {
+            System.out.println("Hi");// 27
+         } catch (Exception var3) {// 28
+            if (var1 != null) {// 29
+               break;
+            }
+
+            System.out.println(var1);// 32
+         }
+      }
+   }// 35
+}
+
+class 'pkg/TestTryWithResourcesFakeTrigger' {
+   method 'testTrigger1 ()V' {
+      0      4
+      1      4
+      2      4
+      3      8
+      4      8
+      5      8
+      6      8
+      7      8
+      8      8
+      e      9
+      f      17
+      16      14
+      18      17
+   }
+
+   method 'testTrigger2 ()V' {
+      0      20
+      1      20
+      2      22
+      3      22
+      6      24
+      7      24
+      8      24
+      9      24
+      a      24
+      b      24
+      11      25
+      12      26
+      13      26
+      19      30
+      1a      30
+      1b      30
+      1c      30
+      1d      30
+      1e      30
+      1f      30
+      23      33
+   }
+}
+
+Lines mapping:
+6 <-> 5
+10 <-> 9
+11 <-> 10
+13 <-> 18
+17 <-> 15
+20 <-> 18
+23 <-> 21
+25 <-> 23
+27 <-> 25
+28 <-> 26
+29 <-> 27
+32 <-> 31
+35 <-> 34
+Not mapped:
+12
+14
+16
+18
+30
+33

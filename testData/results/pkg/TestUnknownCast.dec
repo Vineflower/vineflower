@@ -1,0 +1,72 @@
+package pkg;
+
+public class TestUnknownCast {
+   // $QF: Could not properly define all variable types!
+   public void test() {
+      boolean vvv1 = true;// 5
+      boolean vvv2 = false;
+
+      try {
+         if (vvv2) {// 7
+            throw new RuntimeException();// 8
+         }
+
+         vvv2 = vvv1;// 10
+      } finally {
+         ;
+      }
+
+      boolean var8 = (<unknown>)vvv2;// 14
+
+      for(Object vvv34 = null; vvv34 != null; var8 = var8) {// 15 16 17 19
+         System.out.println(vvv34);// 18
+      }
+   }// 21
+}
+
+class 'pkg/TestUnknownCast' {
+   method 'test ()V' {
+      0      5
+      1      5
+      2      6
+      3      6
+      4      9
+      5      9
+      f      10
+      10      13
+      11      13
+      1a      18
+      1b      18
+      1c      20
+      1d      20
+      1e      20
+      1f      20
+      22      20
+      24      21
+      25      21
+      26      21
+      27      21
+      28      21
+      29      21
+      2a      21
+      2b      20
+      2c      20
+      30      23
+   }
+}
+
+Lines mapping:
+5 <-> 6
+7 <-> 10
+8 <-> 11
+10 <-> 14
+14 <-> 19
+15 <-> 21
+16 <-> 21
+17 <-> 21
+18 <-> 22
+19 <-> 21
+21 <-> 24
+Not mapped:
+12
+13

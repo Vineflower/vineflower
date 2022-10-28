@@ -33,7 +33,6 @@ public class TestSwitchOnEnum {
             case B2:
                System.out.println("B2");// 43
          }
-
       }// 46
 
       static enum A {
@@ -51,6 +50,7 @@ public class TestSwitchOnEnum {
 class 'pkg/TestSwitchOnEnum' {
    method 'testSOE (Ljava/util/concurrent/TimeUnit;)I' {
       3      8
+      7      8
       8      8
       24      10
       25      10
@@ -64,6 +64,7 @@ class 'pkg/TestSwitchOnEnum' {
 class 'pkg/TestSwitchOnEnum$Example' {
    method 'test (Lpkg/TestSwitchOnEnum$Example$A;Lpkg/TestSwitchOnEnum$Example$B;)V' {
       3      20
+      7      20
       8      20
       24      22
       25      22
@@ -81,6 +82,7 @@ class 'pkg/TestSwitchOnEnum$Example' {
       33      25
       34      25
       3a      28
+      3e      28
       3f      28
       58      30
       59      30
@@ -97,7 +99,7 @@ class 'pkg/TestSwitchOnEnum$Example' {
       66      33
       67      33
       68      33
-      6b      36
+      6b      35
    }
 }
 
@@ -114,4 +116,4 @@ Lines mapping:
 40 <-> 31
 41 <-> 32
 43 <-> 34
-46 <-> 37
+46 <-> 36

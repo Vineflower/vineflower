@@ -1,0 +1,91 @@
+package pkg;
+
+import java.lang.runtime.SwitchBootstraps;
+import java.util.Objects;
+
+public class TestSwitchPatternMatching17 {
+   static void test4(Object o) {
+      Objects.requireNonNull(o);// 5
+      Object var1 = o;
+      byte var2 = 0;
+
+      while(true) {
+         switch(SwitchBootstraps.typeSwitch<"typeSwitch",String>(var1, var2)) {
+            case 0:
+               String s = (String)var1;
+               switch(s.charAt(0)) {// 7
+                  case 'b':
+                     if (s.length() <= 5) {// 9
+                        break;
+                     }
+                  case 'a':
+                     System.out.println(s);// 12
+                     throw new IllegalArgumentException("no");// 14
+               }
+
+               var2 = 1;// 6
+               break;
+            default:
+               throw new IllegalArgumentException("no");
+         }
+      }
+   }
+}
+
+class 'pkg/TestSwitchPatternMatching17' {
+   method 'test4 (Ljava/lang/Object;)V' {
+      0      7
+      2      7
+      3      7
+      4      7
+      6      8
+      7      9
+      8      9
+      9      12
+      a      12
+      b      12
+      c      12
+      d      12
+      e      12
+      f      12
+      10      12
+      24      14
+      25      14
+      26      14
+      27      14
+      28      14
+      29      15
+      2a      15
+      2b      15
+      2c      15
+      2d      15
+      2e      15
+      4b      17
+      4c      17
+      4d      17
+      4e      17
+      4f      17
+      50      17
+      56      25
+      57      25
+      58      26
+      5b      21
+      5c      21
+      5d      21
+      5e      21
+      5f      21
+      66      22
+      67      22
+      6b      22
+   }
+}
+
+Lines mapping:
+5 <-> 8
+6 <-> 26
+7 <-> 16
+9 <-> 18
+12 <-> 22
+14 <-> 23
+Not mapped:
+8

@@ -5,15 +5,12 @@ import java.util.Objects;
 public class TestSwitchPatternMatchingReturn1 {
    public int test(Object o) {
       Objects.requireNonNull(o);
-      byte var3 = 0;
-      int var10000;
 
-      switch(o) {
-         case o instanceof Integer i -> var10000 = i;// 6
-         case o instanceof String s -> var10000 = s.length();// 7
-         default -> var10000 = 0;// 8
+      return switch(o) {// 5
+         case Integer i -> i;// 6
+         case String s -> s.length();// 7
+         default -> 0;// 8
       };
-      return var10000;// 5
    }
 }
 
@@ -23,30 +20,29 @@ class 'pkg/TestSwitchPatternMatchingReturn1' {
       2      6
       3      6
       4      6
-      7      7
-      8      7
-      10      10
-      30      11
-      31      11
-      32      11
-      33      11
-      34      11
-      35      11
-      36      11
-      3e      12
-      3f      12
-      40      12
-      41      12
-      42      12
-      43      12
-      44      12
-      48      13
-      49      15
+      9      8
+      10      8
+      30      9
+      31      9
+      32      9
+      33      9
+      34      9
+      35      9
+      36      9
+      3e      10
+      3f      10
+      40      10
+      41      10
+      42      10
+      43      10
+      44      10
+      48      11
+      49      8
    }
 }
 
 Lines mapping:
-5 <-> 16
-6 <-> 12
-7 <-> 13
-8 <-> 14
+5 <-> 9
+6 <-> 10
+7 <-> 11
+8 <-> 12

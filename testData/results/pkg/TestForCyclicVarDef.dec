@@ -1,0 +1,146 @@
+package pkg;
+
+public class TestForCyclicVarDef {
+   public void test() {
+      short var2 = 12338;// 5
+      if (var2 != -8396) {
+         for(float var9 = 22.22F; var9 > 133.07F; var9 = var3 * 29.43F) {// 9
+            var3 = var9 - -15.01F;// 10
+            System.out.println("Hi");// 11
+         }
+      }
+   }// 6 13
+
+   public void test1() {
+      boolean var9 = true;// 17
+
+      for(float var9x = 22.22F; var9x > 133.07F; var9x = var3 * 29.43F) {// 20
+         var3 = var9x - -15.01F;// 21
+         System.out.println("Hi");// 22
+      }
+   }// 24
+
+   public void testOk() {
+      float var9;
+      for(var9 = 22.22F; var9 > 133.07F; var9 *= 29.43F) {// 27
+         var9 -= -15.01F;// 28
+         System.out.println("Hi");// 29
+      }
+   }// 31
+}
+
+class 'pkg/TestForCyclicVarDef' {
+   method 'test ()V' {
+      0      4
+      1      4
+      2      4
+      3      4
+      4      5
+      5      5
+      6      5
+      7      5
+      8      5
+      b      11
+      c      6
+      d      6
+      e      6
+      f      6
+      10      6
+      11      6
+      12      6
+      16      7
+      17      7
+      18      7
+      19      7
+      1a      7
+      1b      8
+      1c      8
+      1d      8
+      1e      8
+      1f      8
+      20      8
+      21      8
+      22      8
+      23      6
+      24      6
+      25      6
+      26      6
+      27      6
+      2b      11
+   }
+
+   method 'test1 ()V' {
+      0      14
+      1      14
+      2      14
+      3      14
+      4      16
+      5      16
+      6      16
+      7      16
+      8      16
+      9      16
+      a      16
+      e      17
+      f      17
+      10      17
+      11      17
+      12      17
+      13      18
+      14      18
+      15      18
+      16      18
+      17      18
+      18      18
+      19      18
+      1a      18
+      1b      16
+      1c      16
+      1d      16
+      1e      16
+      1f      16
+      23      20
+   }
+
+   method 'testOk ()V' {
+      0      24
+      1      24
+      2      24
+      3      24
+      4      24
+      5      24
+      6      24
+      b      25
+      c      25
+      e      25
+      f      26
+      10      26
+      11      26
+      12      26
+      13      26
+      14      26
+      15      26
+      16      26
+      18      24
+      19      24
+      1b      24
+      1f      28
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 12
+9 <-> 7
+10 <-> 8
+11 <-> 9
+13 <-> 12
+17 <-> 15
+20 <-> 17
+21 <-> 18
+22 <-> 19
+24 <-> 21
+27 <-> 25
+28 <-> 26
+29 <-> 27
+31 <-> 29

@@ -40,6 +40,22 @@ public class TestClassLoop {
     }
   }
 
+  public static void testCatch() {
+
+    boolean a = (Math.random() > 0);
+
+    while (true) {
+      try {
+        if (!a) {
+          return;
+        }
+      }
+      catch (Exception e) {
+        System.out.println("1");
+      }
+    }
+  }
+
   public static void testFinallyContinue() {
 
     boolean a = (Math.random() > 0);
@@ -90,5 +106,21 @@ public class TestClassLoop {
       i++;
     }
     return decPt;
+  }
+
+  public int testLoopIpp(int i, int j) {
+    while (true) {
+      try {
+        while (i < j) {
+          i = j++ / i;
+        }
+      } catch (RuntimeException re) {
+        i = 10;
+        continue;
+      }
+
+      break;
+    }
+    return j;
   }
 }

@@ -10,7 +10,6 @@ public class TestStringLiteral {
       if ("".equals("")) {// 10
          System.out.println("Hi");// 11
       }
-
    }// 13
 
    public void testReplace() {
@@ -54,26 +53,26 @@ class 'pkg/TestStringLiteral' {
       d      10
       e      10
       f      10
-      12      13
+      12      12
    }
 
    method 'testReplace ()V' {
-      0      16
-      1      16
-      2      16
-      3      16
-      4      16
-      5      16
-      6      16
-      7      16
-      8      16
-      9      16
-      a      16
-      b      16
-      c      16
-      d      16
-      e      16
-      f      17
+      0      15
+      1      15
+      2      15
+      3      15
+      4      15
+      5      15
+      6      15
+      7      15
+      8      15
+      9      15
+      a      15
+      b      15
+      c      15
+      d      15
+      e      15
+      f      16
    }
 }
 
@@ -83,6 +82,6 @@ Lines mapping:
 7 <-> 7
 10 <-> 10
 11 <-> 11
-13 <-> 14
-16 <-> 17
-17 <-> 18
+13 <-> 13
+16 <-> 16
+17 <-> 17

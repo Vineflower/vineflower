@@ -86,4 +86,104 @@ public class TestLoopFinally {
     System.out.print(5);
     return 1;
   }
+
+  // simplified version of test3
+  public int test4(int x) {
+    do {
+      try {
+        if (x < 25) {
+          return 5;
+        }
+      } finally {
+        if (x > 3) {
+          break;
+        }
+      }
+    } while (x < 45);
+
+    return 1;
+  }
+
+  public int test5(int x) {
+    int var2;
+    int var3;
+    l:
+    {
+      do {
+        try {
+          if (x < 25) {
+            var2 = 5;
+            break l;
+          }
+        } finally {
+          var3 = x;
+          if (x > 3) {
+            break;
+          }
+        }
+      } while (x < 45);
+
+      return 1;
+    }
+    return var2 + var3;
+  }
+
+
+  public void emptyInnerFinally() {
+    int a = 0, b = 1, c = 2; // load bearing triple assignment
+    try {
+      while (true) {
+        try {
+          System.out.println("Hello");
+          return;
+        } catch (Exception ignored) {
+        } finally {
+        }
+      }
+    } finally {
+      System.out.println("hi");
+    }
+  }
+
+  public void testConditionalBreakInFinally() {
+    int a = 5;
+
+    while (true) {
+      if (a == 886) {
+        return;
+      }
+
+      try {
+        a += -885;
+      } catch (Exception var17) {
+        System.out.println("hello");
+      } finally {
+        if (a >= -228) {
+          break;
+        }
+      }
+
+      a += 616;
+    }
+
+    System.out.println("hi");
+
+  }
+
+  public void loopInFinally() {
+    boolean var1 = true;
+
+    try {
+      try {
+        System.out.println(var1);
+      } finally {
+        return;
+      }
+    } finally {
+      short var18 = (short) 15080;
+      while (var18 > (short) -14704) {
+        int var9 = 0;
+      }
+    }
+  }
 }

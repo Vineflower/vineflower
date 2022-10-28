@@ -1,8 +1,12 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler;
 
+import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
+import org.jetbrains.java.decompiler.modules.decompiler.IfNode.EdgeType;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.IfExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
@@ -49,17 +53,16 @@ public final class IfHelper {
   }
 
   public static boolean mergeIfs(Statement statement, Set<? super Integer> setReorderedIfs) {
-    if (statement.type != Statement.TYPE_IF && statement.type != Statement.TYPE_SEQUENCE) {
+    if (!(statement instanceof IfStatement) && !(statement instanceof SequenceStatement)) {
       return false;
     }
 
     boolean res = false;
 
+    loop:
     while (true) {
-      boolean updated = false;
-
       List<Statement> lst = new ArrayList<>();
-      if (statement.type == Statement.TYPE_IF) {
+      if (statement instanceof IfStatement) {
         lst.add(statement);
       } else {
         lst.addAll(statement.getStats());
@@ -68,84 +71,98 @@ public final class IfHelper {
       boolean stsingle = (lst.size() == 1);
 
       for (Statement stat : lst) {
-        if (stat.type == Statement.TYPE_IF) {
-          IfNode rtnode = buildGraph((IfStatement)stat, stsingle);
-
-          if (rtnode == null) {
-            continue;
-          }
+        if (stat instanceof IfStatement) {
+          IfNode rtnode = IfNode.build((IfStatement) stat, stsingle);
 
           if (collapseIfIf(rtnode)) {
-            updated = true;
-            break;
+            res = true;
+            ValidationHelper.validateStatement(stat.getTopParent());
+            continue loop;
           }
 
           if (!setReorderedIfs.contains(stat.id)) {
             if (collapseIfElse(rtnode)) {
-              updated = true;
-              break;
+              res = true;
+              ValidationHelper.validateStatement(stat.getTopParent());
+              continue loop;
             }
 
             if (collapseElse(rtnode)) {
-              updated = true;
-              break;
+              res = true;
+              ValidationHelper.validateStatement(stat.getTopParent());
+              continue loop;
+            }
+
+            if (DecompilerContext.getOption(IFernflowerPreferences.TERNARY_CONDITIONS) && collapseTernary(rtnode)) {
+              res = true;
+              ValidationHelper.validateStatement(stat.getTopParent());
+              continue loop;
+            }
+
+            // TODO: This should maybe be moved (probably to reorderIf)
+            if (ifElseChainDenesting(rtnode)) {
+              res = true;
+              ValidationHelper.validateStatement(stat.getTopParent());
+              continue loop;
             }
           }
 
-          if (reorderIf((IfStatement)stat)) {
-            updated = true;
+          if (reorderIf((IfStatement) stat)) {
+            res = true;
+            ValidationHelper.validateStatement(stat.getTopParent());
             setReorderedIfs.add(stat.id);
-            break;
+            continue loop;
           }
         }
       }
 
-      if (!updated) {
-        break;
-      }
-
-      res = true;
+      return res;
     }
-
-    return res;
   }
 
+  // if-if branch (&& operation)
+  // if (cond1) {
+  //   if (cond2) {
+  //     A // or goto A
+  //   }
+  //   goto B
+  // }
+  // B // or goto B
+  // into
+  // if (cond1 && cond2) {
+  //   A // or goto A
+  // }
+  // B // or goto B
   private static boolean collapseIfIf(IfNode rtnode) {
-    if (rtnode.edgetypes.get(0) == 0) {
-      IfNode ifbranch = rtnode.succs.get(0);
-      if (ifbranch.succs.size() == 2 && rtnode.succs.size() >= 2) {
+    if (rtnode.innerType == EdgeType.DIRECT) {
+      IfNode ifbranch = rtnode.innerNode;
+      if (ifbranch.innerNode != null) { // make sure that ifBranch is an ifStatement
+        if (rtnode.successorNode.value == ifbranch.successorNode.value) {
 
-        // if-if branch
-        if (ifbranch.succs.get(1).value == rtnode.succs.get(1).value) {
+          IfStatement ifparent = (IfStatement) rtnode.value;
+          IfStatement ifchild = (IfStatement) ifbranch.value;
+          Statement ifinner = ifbranch.innerNode.value;
 
-          IfStatement ifparent = (IfStatement)rtnode.value;
-          IfStatement ifchild = (IfStatement)ifbranch.value;
-          Statement ifinner = ifbranch.succs.get(0).value;
+          if (ifchild.getFirst().getExprents().isEmpty() && !ifchild.hasPPMM()) {
 
-          if (ifchild.getFirst().getExprents().isEmpty()) {
-
-            ifparent.getFirst().removeSuccessor(ifparent.getIfEdge());
-            ifchild.removeSuccessor(ifchild.getAllSuccessorEdges().get(0));
+            ifparent.getIfEdge().remove();
+            ifchild.getFirstSuccessor().remove();
             ifparent.getStats().removeWithKey(ifchild.id);
 
-            if (ifbranch.edgetypes.get(0) == 1) { // target null
-
+            if (ifbranch.innerType == EdgeType.INDIRECT) { // inner code is remote (goto B case)
               ifparent.setIfstat(null);
 
               StatEdge ifedge = ifchild.getIfEdge();
 
-              ifchild.getFirst().removeSuccessor(ifedge);
-              ifedge.setSource(ifparent.getFirst());
+              ifedge.changeSource(ifparent.getFirst());
 
               if (ifedge.closure == ifchild) {
                 ifedge.closure = null;
               }
-              ifparent.getFirst().addSuccessor(ifedge);
 
               ifparent.setIfEdge(ifedge);
-            }
-            else {
-              ifchild.getFirst().removeSuccessor(ifchild.getIfEdge());
+            } else { // inner code is actually code (B case)
+              ifchild.getIfEdge().remove();
 
               StatEdge ifedge = new StatEdge(StatEdge.TYPE_REGULAR, ifparent.getFirst(), ifinner);
               ifparent.getFirst().addSuccessor(ifedge);
@@ -155,10 +172,10 @@ public final class IfHelper {
               ifparent.getStats().addWithKey(ifinner, ifinner.id);
               ifinner.setParent(ifparent);
 
-              if (!ifinner.getAllSuccessorEdges().isEmpty()) {
-                StatEdge edge = ifinner.getAllSuccessorEdges().get(0);
+              if (ifinner.hasAnySuccessor()) {
+                StatEdge edge = ifinner.getFirstSuccessor();
                 if (edge.closure == ifchild) {
-                  edge.closure = null;
+                  edge.closure = ifparent;
                 }
               }
             }
@@ -170,7 +187,7 @@ public final class IfHelper {
             lstOperands.add(statexpr.getCondition());
             lstOperands.add(ifchild.getHeadexprent().getCondition());
 
-            statexpr.setCondition(new FunctionExprent(FunctionExprent.FUNCTION_CADD, lstOperands, null));
+            statexpr.setCondition(new FunctionExprent(FunctionType.BOOLEAN_AND, lstOperands, null));
             statexpr.addBytecodeOffsets(ifchild.getHeadexprent().bytecode);
 
             return true;
@@ -182,46 +199,55 @@ public final class IfHelper {
     return false;
   }
 
+  // if-else branch
+  // if (cond1) {
+  //   if (cond2) {
+  //     goto A
+  //   }
+  //   goto B
+  // }
+  // A // or goto A
+  // into
+  // if (cond1 && !cond2) {
+  //   goto B
+  // }
+  // A // or goto A
   private static boolean collapseIfElse(IfNode rtnode) {
-    if (rtnode.edgetypes.get(0) == 0) {
-      IfNode ifbranch = rtnode.succs.get(0);
-      if (ifbranch.succs.size() == 2 && rtnode.succs.size() >= 2) {
-        // if-else branch
-        if (ifbranch.succs.get(0).value == rtnode.succs.get(1).value) {
+    if (rtnode.innerType == EdgeType.DIRECT) {
+      IfNode ifbranch = rtnode.innerNode;
+      if (ifbranch.innerNode != null) { // make sure that ifBranch is an ifStatement
+        if (rtnode.successorNode.value == ifbranch.innerNode.value) {
 
-          IfStatement ifparent = (IfStatement)rtnode.value;
-          IfStatement ifchild = (IfStatement)ifbranch.value;
+          IfStatement ifparent = (IfStatement) rtnode.value;
+          IfStatement ifchild = (IfStatement) ifbranch.value;
 
           if (ifchild.getFirst().getExprents().isEmpty()) {
 
-            ifparent.getFirst().removeSuccessor(ifparent.getIfEdge());
-            ifchild.getFirst().removeSuccessor(ifchild.getIfEdge());
+            ifparent.getIfEdge().remove();
+            ifchild.getIfEdge().remove();
             ifparent.getStats().removeWithKey(ifchild.id);
 
-            if (ifbranch.edgetypes.get(1) == 1 &&
-                ifbranch.edgetypes.get(0) == 1) { // target null
+            // if (cond1) {
+            //   if (cond2) {
+            //     goto A
+            //   }
+            //   goto B
+            // }
+            // A // or goto A
 
-              ifparent.setIfstat(null);
+            ifparent.setIfstat(null);
 
-              StatEdge ifedge = ifchild.getAllSuccessorEdges().get(0);
-
-              ifchild.removeSuccessor(ifedge);
-              ifedge.setSource(ifparent.getFirst());
-              ifparent.getFirst().addSuccessor(ifedge);
-
-              ifparent.setIfEdge(ifedge);
-            }
-            else {
-              throw new IllegalStateException("inconsistent if structure in statement " + ifbranch.value + "!");
-            }
+            StatEdge ifedge = ifchild.getFirstSuccessor();
+            ifedge.changeSource(ifparent.getFirst());
+            ifparent.setIfEdge(ifedge);
 
             // merge if conditions
             IfExprent statexpr = ifparent.getHeadexprent();
 
             List<Exprent> lstOperands = new ArrayList<>();
             lstOperands.add(statexpr.getCondition());
-            lstOperands.add(new FunctionExprent(FunctionExprent.FUNCTION_BOOL_NOT, ifchild.getHeadexprent().getCondition(), null));
-            statexpr.setCondition(new FunctionExprent(FunctionExprent.FUNCTION_CADD, lstOperands, null));
+            lstOperands.add(new FunctionExprent(FunctionType.BOOL_NOT, ifchild.getHeadexprent().getCondition(), null));
+            statexpr.setCondition(new FunctionExprent(FunctionType.BOOLEAN_AND, lstOperands, null));
             statexpr.addBytecodeOffsets(ifchild.getHeadexprent().bytecode);
 
             return true;
@@ -234,32 +260,60 @@ public final class IfHelper {
   }
 
   private static boolean collapseElse(IfNode rtnode) {
-    if (rtnode.edgetypes.size() >= 2 && rtnode.edgetypes.get(1) == 0) {
-      IfNode elsebranch = rtnode.succs.get(1);
-      if (elsebranch.succs.size() == 2) {
+    if (rtnode.successorType == EdgeType.DIRECT) {
+      IfNode elsebranch = rtnode.successorNode;
+      if (elsebranch.innerNode != null) { // make sure that elseBranch is an ifStatement
 
-        // else-if or else-else branch
-        int path = elsebranch.succs.get(1).value == rtnode.succs.get(0).value ? 2 :
-                   (elsebranch.succs.get(0).value == rtnode.succs.get(0).value ? 1 : 0);
+        int path = elsebranch.successorNode.value == rtnode.innerNode.value ? 2 :
+          (elsebranch.innerNode.value == rtnode.innerNode.value ? 1 : 0);
 
         if (path > 0) {
+          // path == 1
+          // if (cond1) {
+          //   goto A
+          // }
+          // if (cond2) {
+          //   goto A
+          // } else {
+          //   // inner code
+          // }
+          // into
+          // if (cond1 || cond2) {
+          //   goto A
+          // } else {
+          //   // inner code
+          // }
 
-          IfStatement firstif = (IfStatement)rtnode.value;
-          IfStatement secondif = (IfStatement)elsebranch.value;
+          // path == 2
+          // if (cond1) {
+          //   goto A
+          // }
+          // if (cond2) {
+          //   // inner code
+          // }
+          // A // or goto A
+          // into
+          // if (!cond1 && cond2) {
+          //   // inner code
+          // }
+          // A // or goto A
+
+          IfStatement firstif = (IfStatement) rtnode.value;
+          IfStatement secondif = (IfStatement) elsebranch.value;
           Statement parent = firstif.getParent();
 
           if (secondif.getFirst().getExprents().isEmpty()) {
 
-            firstif.getFirst().removeSuccessor(firstif.getIfEdge());
+            firstif.getIfEdge().remove();
 
             // remove first if
             firstif.removeAllSuccessors(secondif);
 
             for (StatEdge edge : firstif.getAllPredecessorEdges()) {
               if (!firstif.containsStatementStrict(edge.getSource())) {
-                firstif.removePredecessor(edge);
-                edge.getSource().changeEdgeNode(Statement.DIRECTION_FORWARD, edge, secondif);
-                secondif.addPredecessor(edge);
+                // TODO: why is this check here? If this check were to fail, this if
+                //  should have been a loop instead of an if statement.
+                edge.changeDestination(secondif);
               }
             }
 
@@ -275,15 +329,15 @@ public final class IfHelper {
             lstOperands.add(firstif.getHeadexprent().getCondition());
 
             if (path == 2) {
-              lstOperands.set(0, new FunctionExprent(FunctionExprent.FUNCTION_BOOL_NOT, lstOperands.get(0), null));
+              lstOperands.set(0, new FunctionExprent(FunctionType.BOOL_NOT, lstOperands.get(0), null));
             }
 
             lstOperands.add(statexpr.getCondition());
 
             statexpr
-              .setCondition(new FunctionExprent(path == 1 ? FunctionExprent.FUNCTION_COR : FunctionExprent.FUNCTION_CADD, lstOperands, null));
+              .setCondition(new FunctionExprent(path == 1 ? FunctionType.BOOLEAN_OR : FunctionType.BOOLEAN_AND, lstOperands, null));
 
-            if (secondif.getFirst().getExprents().isEmpty() &&
+            if (secondif.getFirst().getExprents().isEmpty() && // second is guranteed to be empty already
                 !firstif.getFirst().getExprents().isEmpty()) {
 
               secondif.replaceStatement(secondif.getFirst(), firstif.getFirst());
@@ -292,27 +346,38 @@ public final class IfHelper {
             return true;
           }
         }
-      }
-      else if (elsebranch.succs.size() == 1) {
-        if (elsebranch.succs.get(0).value == rtnode.succs.get(0).value) {
-          IfStatement firstif = (IfStatement)rtnode.value;
+      } else if (elsebranch.successorNode != null) { // else branch is not an if statement, but is direct
+        if (elsebranch.successorNode.value == rtnode.innerNode.value) {
+          // if (cond1) {
+          //   goto A
+          // }
+          // B
+          // goto A;
+          //
+          // into
+          //
+          // if (!cond1) {
+          //   B
+          // }
+          // goto A;
+
+          IfStatement firstif = (IfStatement) rtnode.value;
           Statement second = elsebranch.value;
 
           firstif.removeAllSuccessors(second);
 
           for (StatEdge edge : second.getAllSuccessorEdges()) {
-            second.removeSuccessor(edge);
-            edge.setSource(firstif);
-            firstif.addSuccessor(edge);
+            edge.changeSource(firstif);
           }
 
           StatEdge ifedge = firstif.getIfEdge();
-          firstif.getFirst().removeSuccessor(ifedge);
+          ifedge.remove();
 
           second.addSuccessor(new StatEdge(ifedge.getType(), second, ifedge.getDestination(), ifedge.closure));
 
           StatEdge newifedge = new StatEdge(StatEdge.TYPE_REGULAR, firstif.getFirst(), second);
           firstif.getFirst().addSuccessor(newifedge);
+          firstif.setIfEdge(newifedge);
           firstif.setIfstat(second);
 
           firstif.getStats().addWithKey(second, second.id);
@@ -323,65 +388,182 @@ public final class IfHelper {
           // negate the if condition
           IfExprent statexpr = firstif.getHeadexprent();
           statexpr
-            .setCondition(new FunctionExprent(FunctionExprent.FUNCTION_BOOL_NOT, statexpr.getCondition(), null));
+            .setCondition(new FunctionExprent(FunctionType.BOOL_NOT, statexpr.getCondition(), null));
 
           return true;
         }
       }
     }
+    return false;
+  }
 
-    // Convert
-    //
-    // if (condA) {
-    //   if (condB) {
-    //     X
-    //   } else {
-    //     Y
-    //   }
-    //   goto end
-    // }
-    // Z
-    // end
-    //
-    // To
-    //
-    // if (!condA) {
-    //   Z
-    // }
-    // else {
-    //   if (condB) {
-    //     X
-    //   } else {
-    //     Y
-    //   }
-    // }
-    //
-    // (Which is rendered as if/elseif/else)
+  // convert
+  // if (cond1) {
+  //   if (cond2) {
+  //     goto A
+  //   }
+  //   goto B
+  // } else {
+  //   if (cond3) {
+  //     goto A
+  //   }
+  //   goto B
+  // }
+  //
+  // into
+  // if (cond1 ? cond2 : cond3) {
+  //   goto A
+  // }
+  // goto B
 
-    if (rtnode.edgetypes.get(0) == 0) {
+  // if goto A and goto B are swapped in `if (cond2)`, then cond2 is negated
+  private static boolean collapseTernary(IfNode rtnode) {
+    if (rtnode.innerType == EdgeType.DIRECT && rtnode.successorType == EdgeType.ELSE) {
+      // if (cond1) {
+      //   if (cond2) {
+      //     goto A
+      //   }
+      //   goto B
+      // } else {
+      //   if (cond3) {
+      //     goto A
+      //   }
+      //   goto B
+      // }
+      IfNode ifBranch = rtnode.innerNode;
+      IfNode elseBranch = rtnode.successorNode;
+
+      if (ifBranch.innerType == EdgeType.INDIRECT && ifBranch.successorType == EdgeType.INDIRECT &&
+          elseBranch.innerType == EdgeType.INDIRECT && elseBranch.successorType == EdgeType.INDIRECT &&
+          ifBranch.value.getFirst().getExprents().isEmpty() && elseBranch.value.getFirst().getExprents().isEmpty()) {
+
+        boolean inverted;
+        if (ifBranch.innerNode.value == elseBranch.innerNode.value &&
+            ifBranch.successorNode.value == elseBranch.successorNode.value) {
+          inverted = false;
+        } else if (ifBranch.innerNode.value == elseBranch.successorNode.value &&
+                   ifBranch.successorNode.value == elseBranch.innerNode.value) {
+          inverted = true;
+        } else {
+          return false;
+        }
+
+        IfStatement mainIf = (IfStatement) rtnode.value;
+        IfStatement firstIf = (IfStatement) ifBranch.value;
+        IfStatement secondIf = (IfStatement) elseBranch.value;
+
+        // remove first if
+        mainIf.getStats().removeWithKey(firstIf.id);
+        mainIf.getIfEdge().remove();
+        mainIf.setIfstat(null);
+
+        // remove second if
+        mainIf.getStats().removeWithKey(secondIf.id);
+        mainIf.getElseEdge().remove();
+        mainIf.setElsestat(null);
+
+        // remove unused first if's edges
+        firstIf.getIfEdge().remove();
+        firstIf.getFirstSuccessor().remove();
+
+        // move second if jump to main if
+        mainIf.setIfEdge(secondIf.getIfEdge());
+        mainIf.getIfEdge().changeSource(mainIf.getFirst());
+
+        // remove (weird?) if else successor, produced by dom parsing
+        // TODO: remove when dom parsing is fixed
+        if (mainIf.hasAnySuccessor()) {
+          mainIf.getFirstSuccessor().remove();
+        }
+
+        // move seconds successor to be the if's successor
+        secondIf.getFirstSuccessor().changeSource(mainIf);
+        if (mainIf.getFirstSuccessor().closure == mainIf) {
+          // TODO: is this correct?
+          mainIf.getFirstSuccessor().removeClosure();
+          mainIf.getFirstSuccessor().changeType(StatEdge.TYPE_REGULAR);
+        }
+
+        // mark the if as an if and not an if else
+        mainIf.iftype = IfStatement.IFTYPE_IF;
+        mainIf.setElseEdge(null);
+
+        // merge if conditions
+        IfExprent statexpr = mainIf.getHeadexprent();
+
+        List<Exprent> lstOperands = new ArrayList<>();
+        lstOperands.add(mainIf.getHeadexprent().getCondition());
+        lstOperands.add(firstIf.getHeadexprent().getCondition());
+
+        if (inverted) {
+          lstOperands.set(1, new FunctionExprent(FunctionType.BOOL_NOT, lstOperands.get(1), null));
+        }
+
+        lstOperands.add(secondIf.getHeadexprent().getCondition());
+
+        statexpr.setCondition(new FunctionExprent(FunctionType.TERNARY, lstOperands, null));
+
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+
+  // Convert
+  //
+  // if (condA) {
+  //   if (condB) {
+  //     X
+  //   } else {
+  //     Y
+  //   }
+  //   goto end
+  // }
+  // Z
+  // end
+  //
+  // To
+  //
+  // if (!condA) {
+  //   Z
+  // }
+  // else {
+  //   if (condB) {
+  //     X
+  //   } else {
+  //     Y
+  //   }
+  // }
+  //
+  // (Which is rendered as if/elseif/else)
+  private static boolean ifElseChainDenesting(IfNode rtnode) {
+    if (rtnode.innerType == EdgeType.DIRECT && rtnode.successorType != EdgeType.ELSE) {
       IfStatement outerIf = (IfStatement) rtnode.value;
-      if (outerIf.getParent().type == Statement.TYPE_SEQUENCE) {
+      if (outerIf.getParent() instanceof SequenceStatement) {
         SequenceStatement parent = (SequenceStatement) outerIf.getParent();
-        Statement nestedStat = rtnode.succs.get(0).value;
+        Statement nestedStat = rtnode.innerNode.value;
 
         // check that statements Y and Z (see above) jump to end
         boolean ifdirect = hasDirectEndEdge(nestedStat, parent);
         boolean elsedirect = hasDirectEndEdge(parent.getStats().getLast(), parent);
         if (ifdirect && elsedirect) {
           // check there is a nested if statement that doesn't have any exprents before it, and that statement X jumps to end
-          IfStatement nestedIf = nestedStat.type == Statement.TYPE_IF ? (IfStatement) nestedStat
-            : nestedStat.type == Statement.TYPE_SEQUENCE && nestedStat.getFirst().type == Statement.TYPE_IF ? (IfStatement) nestedStat.getFirst() : null;
+          IfStatement nestedIf = nestedStat instanceof IfStatement ? (IfStatement) nestedStat
+            : nestedStat instanceof SequenceStatement && nestedStat.getFirst() instanceof IfStatement ? (IfStatement) nestedStat.getFirst() : null;
           if (nestedIf != null && nestedIf.getFirst().getExprents().isEmpty() && nestedIf.getIfstat() != null && hasDirectEndEdge(nestedIf.getIfstat(), parent)) {
             // check that statement Z is not an if statement (without exprents before it)
             List<StatEdge> successors = outerIf.getAllSuccessorEdges();
             Statement nextStat = !successors.isEmpty() && successors.get(0).getType() == StatEdge.TYPE_REGULAR ? successors.get(0).getDestination() : null;
-            IfStatement nextIfStat = nextStat == null ? null : nextStat.type == Statement.TYPE_IF ? (IfStatement) nextStat
-              : nextStat.type == Statement.TYPE_SEQUENCE && nextStat.getFirst().type == Statement.TYPE_IF ? (IfStatement) nextStat.getFirst() : null;
+            IfStatement nextIfStat = nextStat == null ? null : nextStat instanceof IfStatement ? (IfStatement) nextStat
+              : nextStat instanceof SequenceStatement && nextStat.getFirst() instanceof IfStatement ? (IfStatement) nextStat.getFirst() : null;
             if (nextStat != null && (nextIfStat == null || !nextIfStat.getFirst().getExprents().isEmpty())) {
               // negate the condition and swap the branches
               IfExprent conditionExprent = outerIf.getHeadexprent();
-              conditionExprent.setCondition(new FunctionExprent(FunctionExprent.FUNCTION_BOOL_NOT, conditionExprent.getCondition(), null));
+              conditionExprent.setCondition(new FunctionExprent(FunctionType.BOOL_NOT, conditionExprent.getCondition(), null));
               swapBranches(outerIf, false, parent);
+              return true;
             }
           }
         }
@@ -389,72 +571,6 @@ public final class IfHelper {
     }
 
     return false;
-  }
-
-  private static IfNode buildGraph(IfStatement stat, boolean stsingle) {
-    if (stat.iftype == IfStatement.IFTYPE_IFELSE) {
-      return null;
-    }
-
-    IfNode res = new IfNode(stat);
-
-    // if branch
-    Statement ifchild = stat.getIfstat();
-    if (ifchild == null) {
-      StatEdge edge = stat.getIfEdge();
-      res.addChild(new IfNode(edge.getDestination()), 1);
-    }
-    else {
-      IfNode ifnode = new IfNode(ifchild);
-      res.addChild(ifnode, 0);
-      if (ifchild.type == Statement.TYPE_IF && ((IfStatement)ifchild).iftype == IfStatement.IFTYPE_IF) {
-        IfStatement stat2 = (IfStatement)ifchild;
-        Statement ifchild2 = stat2.getIfstat();
-        if (ifchild2 == null) {
-          StatEdge edge = stat2.getIfEdge();
-          ifnode.addChild(new IfNode(edge.getDestination()), 1);
-        }
-        else {
-          ifnode.addChild(new IfNode(ifchild2), 0);
-        }
-      }
-
-      if (!ifchild.getAllSuccessorEdges().isEmpty()) {
-        ifnode.addChild(new IfNode(ifchild.getAllSuccessorEdges().get(0).getDestination()), 1);
-      }
-    }
-
-    // else branch
-    List<StatEdge> successorEdges = stat.getAllSuccessorEdges();
-    if (successorEdges.isEmpty()) {
-      return res;
-    }
-    StatEdge edge = successorEdges.get(0);
-    Statement elsechild = edge.getDestination();
-    IfNode elsenode = new IfNode(elsechild);
-
-    if (stsingle || edge.getType() != StatEdge.TYPE_REGULAR) {
-      res.addChild(elsenode, 1);
-    }
-    else {
-      res.addChild(elsenode, 0);
-      if (elsechild.type == Statement.TYPE_IF && ((IfStatement)elsechild).iftype == IfStatement.IFTYPE_IF) {
-        IfStatement stat2 = (IfStatement)elsechild;
-        Statement ifchild2 = stat2.getIfstat();
-        if (ifchild2 == null) {
-          elsenode.addChild(new IfNode(stat2.getIfEdge().getDestination()), 1);
-        }
-        else {
-          elsenode.addChild(new IfNode(ifchild2), 0);
-        }
-      }
-
-      if (!elsechild.getAllSuccessorEdges().isEmpty()) {
-        elsenode.addChild(new IfNode(elsechild.getAllSuccessorEdges().get(0).getDestination()), 1);
-      }
-    }
-
-    return res;
   }
 
   // FIXME: rewrite the entire method!!! keep in mind finally exits!!
@@ -474,7 +590,7 @@ public final class IfHelper {
     boolean ifdirectpath = false, elsedirectpath = false;
 
     Statement parent = ifstat.getParent();
-    Statement from = parent.type == Statement.TYPE_SEQUENCE ? parent : ifstat;
+    Statement from = parent instanceof SequenceStatement ? parent : ifstat;
 
     Statement next = getNextStatement(from);
 
@@ -483,14 +599,13 @@ public final class IfHelper {
 
       ifdirect = ifstat.getIfEdge().getType() == StatEdge.TYPE_FINALLYEXIT ||
                  MergeHelper.isDirectPath(from, ifstat.getIfEdge().getDestination());
-    }
-    else {
+    } else {
       List<StatEdge> lstSuccs = ifstat.getIfstat().getAllSuccessorEdges();
       ifdirect = !lstSuccs.isEmpty() && lstSuccs.get(0).getType() == StatEdge.TYPE_FINALLYEXIT ||
                  hasDirectEndEdge(ifstat.getIfstat(), from);
     }
 
-    Statement last = parent.type == Statement.TYPE_SEQUENCE ? parent.getStats().getLast() : ifstat;
+    Statement last = parent instanceof SequenceStatement ? parent.getStats().getLast() : ifstat;
     noelsestat = (last == ifstat);
 
     elsedirect = !last.getAllSuccessorEdges().isEmpty() && last.getAllSuccessorEdges().get(0).getType() == StatEdge.TYPE_FINALLYEXIT ||
@@ -512,14 +627,13 @@ public final class IfHelper {
     }
 
     if (!elsedirect && !noelsestat) {
-      SequenceStatement sequence = (SequenceStatement)parent;
+      SequenceStatement sequence = (SequenceStatement) parent;
 
       for (int i = sequence.getStats().size() - 1; i >= 0; i--) {
         Statement sttemp = sequence.getStats().get(i);
         if (sttemp == ifstat) {
           break;
-        }
-        else if (existsPath(sttemp, next)) {
+        } else if (existsPath(sttemp, next)) {
           elsedirectpath = true;
           break;
         }
@@ -528,7 +642,7 @@ public final class IfHelper {
 
     if ((ifdirect || ifdirectpath) && (elsedirect || elsedirectpath) && !noifstat && !noelsestat) {  // if - then - else
 
-      SequenceStatement sequence = (SequenceStatement)parent;
+      SequenceStatement sequence = (SequenceStatement) parent;
 
       // build and cut the new else statement
       List<Statement> lst = new ArrayList<>();
@@ -536,8 +650,7 @@ public final class IfHelper {
         Statement sttemp = sequence.getStats().get(i);
         if (sttemp == ifstat) {
           break;
-        }
-        else {
+        } else {
           lst.add(0, sttemp);
         }
       }
@@ -545,13 +658,12 @@ public final class IfHelper {
       Statement stelse;
       if (lst.size() == 1) {
         stelse = lst.get(0);
-      }
-      else {
+      } else {
         stelse = new SequenceStatement(lst);
         stelse.setAllParent();
       }
 
-      ifstat.removeSuccessor(ifstat.getAllSuccessorEdges().get(0));
+      ifstat.removeSuccessor(ifstat.getFirstSuccessor());
       for (Statement st : lst) {
         sequence.getStats().removeWithKey(st.id);
       }
@@ -571,15 +683,14 @@ public final class IfHelper {
       //			}
 
       ifstat.iftype = IfStatement.IFTYPE_IFELSE;
-    }
-    else if (ifdirect && (!elsedirect || (noifstat && !noelsestat)) && !ifstat.getAllSuccessorEdges().isEmpty()) {  // if - then
+    } else if (ifdirect && (!elsedirect || (noifstat && !noelsestat)) && !ifstat.getAllSuccessorEdges().isEmpty()) {  // if - then
       // negate the if condition
       IfExprent statexpr = ifstat.getHeadexprent();
-      statexpr.setCondition(new FunctionExprent(FunctionExprent.FUNCTION_BOOL_NOT, statexpr.getCondition(), null));
+      statexpr.setCondition(new FunctionExprent(FunctionType.BOOL_NOT, statexpr.getCondition(), null));
 
       if (noelsestat) {
         StatEdge ifedge = ifstat.getIfEdge();
-        StatEdge elseedge = ifstat.getAllSuccessorEdges().get(0);
+        StatEdge elseedge = ifstat.getFirstSuccessor();
 
         if (noifstat) {
           ifstat.getFirst().removeSuccessor(ifedge);
@@ -592,8 +703,7 @@ public final class IfHelper {
           ifstat.getFirst().addSuccessor(elseedge);
 
           ifstat.setIfEdge(elseedge);
-        }
-        else {
+        } else {
           Statement ifbranch = ifstat.getIfstat();
           SequenceStatement newseq = new SequenceStatement(Arrays.asList(ifstat, ifbranch));
 
@@ -612,12 +722,10 @@ public final class IfHelper {
 
           ifstat.addSuccessor(new StatEdge(StatEdge.TYPE_REGULAR, ifstat, ifbranch));
         }
-      }
-      else {
+      } else {
         swapBranches(ifstat, noifstat, (SequenceStatement) parent);
       }
-    }
-    else {
+    } else {
       return false;
     }
 
@@ -625,14 +733,14 @@ public final class IfHelper {
   }
 
   private static void swapBranches(IfStatement ifstat, boolean noifstat, SequenceStatement parent) {
+    ValidationHelper.assertTrue(ifstat.iftype == IfStatement.IFTYPE_IF, "This method is meant for swapping the branches of non if-else IfStatements");
     // build and cut the new else statement
     List<Statement> lst = new ArrayList<>();
     for (int i = parent.getStats().size() - 1; i >= 0; i--) {
       Statement sttemp = parent.getStats().get(i);
       if (sttemp == ifstat) {
         break;
-      }
-      else {
+      } else {
         lst.add(0, sttemp);
       }
     }
@@ -640,13 +748,12 @@ public final class IfHelper {
     Statement stelse;
     if (lst.size() == 1) {
       stelse = lst.get(0);
-    }
-    else {
+    } else {
       stelse = new SequenceStatement(lst);
       stelse.setAllParent();
     }
 
-    ifstat.removeSuccessor(ifstat.getAllSuccessorEdges().get(0));
+    ifstat.removeSuccessor(ifstat.getFirstSuccessor());
     for (Statement st : lst) {
       parent.getStats().removeWithKey(st.id);
     }
@@ -657,8 +764,7 @@ public final class IfHelper {
       ifstat.getFirst().removeSuccessor(ifedge);
       ifedge.setSource(ifstat);
       ifstat.addSuccessor(ifedge);
-    }
-    else {
+    } else {
       Statement ifbranch = ifstat.getIfstat();
 
       ifstat.getFirst().removeSuccessor(ifstat.getIfEdge());
@@ -689,26 +795,26 @@ public final class IfHelper {
 
     if (stat.getExprents() == null) {
       switch (stat.type) {
-        case Statement.TYPE_SEQUENCE:
+        case SEQUENCE:
           return hasDirectEndEdge(stat.getStats().getLast(), from);
-        case Statement.TYPE_CATCHALL:
-        case Statement.TYPE_TRYCATCH:
+        case CATCH_ALL:
+        case TRY_CATCH:
           for (Statement st : stat.getStats()) {
             if (hasDirectEndEdge(st, from)) {
               return true;
             }
           }
           break;
-        case Statement.TYPE_IF:
-          IfStatement ifstat = (IfStatement)stat;
+        case IF:
+          IfStatement ifstat = (IfStatement) stat;
           if (ifstat.iftype == IfStatement.IFTYPE_IFELSE) {
             return hasDirectEndEdge(ifstat.getIfstat(), from) ||
                    hasDirectEndEdge(ifstat.getElsestat(), from);
           }
           break;
-        case Statement.TYPE_SYNCRONIZED:
+        case SYNCHRONIZED:
           return hasDirectEndEdge(stat.getStats().get(1), from);
-        case Statement.TYPE_SWITCH:
+        case SWITCH:
           for (Statement st : stat.getStats()) {
             if (hasDirectEndEdge(st, from)) {
               return true;
@@ -723,12 +829,12 @@ public final class IfHelper {
   private static Statement getNextStatement(Statement stat) {
     Statement parent = stat.getParent();
     switch (parent.type) {
-      case Statement.TYPE_ROOT:
-        return ((RootStatement)parent).getDummyExit();
-      case Statement.TYPE_DO:
+      case ROOT:
+        return ((RootStatement) parent).getDummyExit();
+      case DO:
         return parent;
-      case Statement.TYPE_SEQUENCE:
-        SequenceStatement sequence = (SequenceStatement)parent;
+      case SEQUENCE:
+        SequenceStatement sequence = (SequenceStatement) parent;
         if (sequence.getStats().getLast() != stat) {
           for (int i = sequence.getStats().size() - 1; i >= 0; i--) {
             if (sequence.getStats().get(i) == stat) {
@@ -749,38 +855,5 @@ public final class IfHelper {
     }
 
     return false;
-  }
-
-  // Models an if statement, child if statements and their successors.
-  // Does not model grandchild if statements or successors of successors.
-  // Does not model if statements with else branches.
-  // Therefore the maximum amount of information that the root node can contain is:
-  // root [IfStatement] {
-  //   ifstat1 [IfStatement] {
-  //      ifstat2 [Any Statement]
-  //   }
-  //   elsestat2 [Any Statement]
-  // }
-  // elsestat1 [If Statement] {
-  //   ifstat3 [Any Statement]
-  // }
-  // elsestat3 [Any Statement]
-  // Note that an "elsestat" in this context is simply the stat we jump to when the condition is false, even if it's
-  // reachable from the if body (i.e. there should be no "else" keyword in the source code).
-  private static class IfNode {
-    // The stat that this node refers to. Root node will be an if stat, child nodes can be any stat.
-    public final Statement value;
-    public final List<IfNode> succs = new ArrayList<>();
-    // edge types, 0 for direct, 1 for indirect (e.g. continue, break, implicit)
-    public final List<Integer> edgetypes = new ArrayList<>();
-
-    IfNode(Statement value) {
-      this.value = value;
-    }
-
-    public void addChild(IfNode child, int type) {
-      succs.add(child);
-      edgetypes.add(type);
-    }
   }
 }

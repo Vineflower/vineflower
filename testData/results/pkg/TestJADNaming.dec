@@ -15,7 +15,6 @@ public class TestJADNaming {
       boolean flag3 = false;
       if (flag != flag1 && flag2 == flag3) {// 10
       }
-
    }// 11
 }
 
@@ -67,7 +66,7 @@ class 'pkg/TestJADNaming' {
       31      15
       32      15
       33      15
-      36      18
+      36      17
    }
 }
 
@@ -76,4 +75,4 @@ Lines mapping:
 8 <-> 9
 9 <-> 12
 10 <-> 16
-11 <-> 19
+11 <-> 18

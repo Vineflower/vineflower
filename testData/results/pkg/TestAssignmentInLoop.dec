@@ -23,7 +23,6 @@ public class TestAssignmentInLoop {
       for(int j = 0; j < 3; j = get()) {// 23
          System.out.println(j);// 24
       }
-
    }// 26
 
    private static int get() {
@@ -97,18 +96,18 @@ class 'pkg/TestAssignmentInLoop' {
       53      22
       54      22
       55      22
-      59      26
+      59      25
    }
 
    method 'get ()I' {
-      0      29
-      1      29
-      2      29
-      3      29
-      4      29
-      5      29
-      6      29
-      7      29
+      0      28
+      1      28
+      2      28
+      3      28
+      4      28
+      5      28
+      6      28
+      7      28
    }
 }
 
@@ -122,5 +121,5 @@ Lines mapping:
 20 <-> 20
 23 <-> 23
 24 <-> 24
-26 <-> 27
-29 <-> 30
+26 <-> 26
+29 <-> 29

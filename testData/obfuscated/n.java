@@ -41,11 +41,11 @@ public class n<F, S> {
    }
 
    public boolean equals(Object param1) {
-      // $FF: Couldn't be decompiled
+      // $QF: Couldn't be decompiled
    }
 
    private boolean a(Object param1, Object param2) {
-      // $FF: Couldn't be decompiled
+      // $QF: Couldn't be decompiled
    }
 
    public String toString() {
@@ -96,7 +96,7 @@ public class n<F, S> {
    }
 
    public static <T extends n<K, V>, K, V> List<V> b(Collection<T> param0) {
-      // $FF: Couldn't be decompiled
+      // $QF: Couldn't be decompiled
    }
 
    public static <K, V> List<n<K, V>> a(Map<K, V> var0) {

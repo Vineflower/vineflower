@@ -14,7 +14,6 @@ public class TestMissingConstructorCallGood {
          new TestMissingConstructorCallGood();
       } catch (Throwable var2) {// 45
       }
-
    }// 47
 }
 
@@ -41,7 +40,7 @@ class 'pkg/TestMissingConstructorCallGood' {
 
    method 'main ([Ljava/lang/String;)V' {
       b      14
-      c      17
+      c      16
    }
 }
 
@@ -54,7 +53,7 @@ Lines mapping:
 28 <-> 9
 29 <-> 10
 45 <-> 15
-47 <-> 18
+47 <-> 17
 Not mapped:
 14
 15

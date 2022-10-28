@@ -3,6 +3,7 @@ package org.jetbrains.java.decompiler.modules.decompiler;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.BasicBlockStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.SynchronizedStatement;
@@ -17,17 +18,17 @@ public final class SynchronizedHelper {
       res |= cleanSynchronizedVar(st);
     }
 
-    if (stat.type == Statement.TYPE_SYNCRONIZED) {
+    if (stat instanceof SynchronizedStatement) {
       SynchronizedStatement sync = (SynchronizedStatement)stat;
 
-      if (sync.getHeadexprentList().get(0).type == Exprent.EXPRENT_MONITOR) {
+      if (sync.getHeadexprentList().get(0) instanceof MonitorExprent) {
         MonitorExprent mon = (MonitorExprent)sync.getHeadexprentList().get(0);
 
         for (Exprent e : sync.getFirst().getExprents()) {
-          if (e.type == Exprent.EXPRENT_ASSIGNMENT) {
+          if (e instanceof AssignmentExprent) {
             AssignmentExprent ass = (AssignmentExprent)e;
 
-            if (ass.getLeft().type == Exprent.EXPRENT_VAR) {
+            if (ass.getLeft() instanceof VarExprent) {
               VarExprent var = (VarExprent)ass.getLeft();
 
               if (ass.getRight().equals(mon.getValue()) && !var.isVarReferenced(stat.getParent())) {
@@ -50,11 +51,11 @@ public final class SynchronizedHelper {
       res |= insertSink(root, varProcessor, st);
     }
 
-    if (stat.type == Statement.TYPE_SYNCRONIZED) {
+    if (stat instanceof SynchronizedStatement) {
       MonitorExprent mon = (MonitorExprent) ((SynchronizedStatement)stat).getHeadexprent();
       Exprent value = mon.getValue();
 
-      if (value.type == Exprent.EXPRENT_CONST && ((ConstExprent)value).getConstType() != VarType.VARTYPE_STRING && !(((ConstExprent)value).getConstType() instanceof GenericType)) {
+      if (value instanceof ConstExprent && ((ConstExprent)value).getConstType() != VarType.VARTYPE_STRING && !(((ConstExprent)value).getConstType() instanceof GenericType)) {
         // Somehow created a const monitor, add assignment of object to ensure that it functions
         int var = DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.VAR_COUNTER);
 
@@ -64,8 +65,9 @@ public final class SynchronizedHelper {
 
         AssignmentExprent assign = new AssignmentExprent(varEx, value, null);
         mon.replaceExprent(value, assign);
-        root.addComment("$FF: Added assignment to ensure synchronized validity");
-      } else if (value.type == Exprent.EXPRENT_INVOCATION) {
+        assign.addBytecodeOffsets(value.bytecode);
+        root.addComment("$QF: Added assignment to ensure synchronized validity");
+      } else if (value instanceof InvocationExprent) {
         // Force boxing for monitor
         InvocationExprent inv = (InvocationExprent)value;
 

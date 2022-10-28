@@ -181,6 +181,9 @@ class 'pkg/TestPPMMOnStaticField' {
       1      41
       2      41
       4      41
+      6      41
+      7      41
+      8      41
       9      41
       a      41
       b      41
@@ -188,6 +191,9 @@ class 'pkg/TestPPMMOnStaticField' {
       d      42
       e      42
       10      42
+      12      42
+      13      42
+      14      42
       15      42
       16      42
       17      42
@@ -195,6 +201,9 @@ class 'pkg/TestPPMMOnStaticField' {
       19      43
       1a      43
       1c      43
+      1e      43
+      1f      43
+      20      43
       21      43
       22      43
       23      43
@@ -202,6 +211,9 @@ class 'pkg/TestPPMMOnStaticField' {
       25      44
       26      44
       28      44
+      2a      44
+      2b      44
+      2c      44
       2d      44
       2e      44
       2f      44
@@ -245,6 +257,9 @@ class 'pkg/TestPPMMOnStaticField' {
       1      55
       2      55
       4      55
+      6      55
+      7      55
+      8      55
       9      55
       a      55
       b      55
@@ -252,6 +267,9 @@ class 'pkg/TestPPMMOnStaticField' {
       d      56
       e      56
       10      56
+      12      56
+      13      56
+      14      56
       15      56
       16      56
       17      56
@@ -259,6 +277,9 @@ class 'pkg/TestPPMMOnStaticField' {
       19      57
       1a      57
       1c      57
+      1e      57
+      1f      57
+      20      57
       21      57
       22      57
       23      57
@@ -266,6 +287,9 @@ class 'pkg/TestPPMMOnStaticField' {
       25      58
       26      58
       28      58
+      2a      58
+      2b      58
+      2c      58
       2d      58
       2e      58
       2f      58

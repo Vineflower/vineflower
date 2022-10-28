@@ -10,7 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 
 
-public class SequenceStatement extends Statement {
+public final class SequenceStatement extends Statement {
 
 
   // *****************************************************************************
@@ -18,7 +18,7 @@ public class SequenceStatement extends Statement {
   // *****************************************************************************
 
   private SequenceStatement() {
-    type = Statement.TYPE_SEQUENCE;
+    super(StatementType.SEQUENCE);
   }
 
   public SequenceStatement(Statement... stats) {
@@ -59,7 +59,7 @@ public class SequenceStatement extends Statement {
 
   public static Statement isHead2Block(Statement head) {
 
-    if (head.getLastBasicType() != Statement.LASTBASICTYPE_GENERAL) {
+    if (head.getLastBasicType() != LastBasicType.GENERAL) {
       return null;
     }
 
@@ -76,7 +76,7 @@ public class SequenceStatement extends Statement {
       if (stat != head && stat.getPredecessorEdges(StatEdge.TYPE_REGULAR).size() == 1
           && !stat.isMonitorEnter()) {
 
-        if (stat.getLastBasicType() == Statement.LASTBASICTYPE_GENERAL) {
+        if (stat.getLastBasicType() == LastBasicType.GENERAL) {
           if (DecHelper.checkStatementExceptions(Arrays.asList(head, stat))) {
             return new SequenceStatement(head, stat);
           }
@@ -95,7 +95,7 @@ public class SequenceStatement extends Statement {
     buf.append(ExprProcessor.listToJava(varDefinitions, indent));
 
     if (islabeled) {
-      buf.appendIndent(indent++).append("label").append(this.id.toString()).append(": {").appendLineSeparator();
+      buf.appendIndent(indent++).append("label").append(this.id).append(": {").appendLineSeparator();
     }
 
     boolean notempty = false;
@@ -104,11 +104,12 @@ public class SequenceStatement extends Statement {
 
       Statement st = stats.get(i);
 
-      if (i > 0 && notempty) {
+      TextBuffer str = ExprProcessor.jmpWrapper(st, indent, false);
+
+      if (i > 0 && !str.containsOnlyWhitespaces() && notempty) {
         buf.appendLineSeparator();
       }
 
-      TextBuffer str = ExprProcessor.jmpWrapper(st, indent, false);
       buf.append(str);
 
       notempty = !str.containsOnlyWhitespaces();

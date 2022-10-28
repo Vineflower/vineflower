@@ -1,8 +1,8 @@
 package pkg;
 
 public enum TestEnumStaticField {
-   public static Integer field;
    TEST_1,
    TEST_2;
+   public static Integer field;
 }
 

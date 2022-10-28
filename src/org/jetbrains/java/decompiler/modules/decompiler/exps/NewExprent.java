@@ -5,36 +5,29 @@ import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.ClassWriter;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
+import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.rels.ClassWrapper;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
+import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.DummyExitStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
-import org.jetbrains.java.decompiler.struct.StructMethod;
-import org.jetbrains.java.decompiler.struct.consts.PrimitiveConstant;
-import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
-import org.jetbrains.java.decompiler.struct.gen.generics.GenericMethodDescriptor;
-import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
-import org.jetbrains.java.decompiler.util.TextBuffer;
-import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
-import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
-import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.struct.StructClass;
+import org.jetbrains.java.decompiler.struct.StructMethod;
+import org.jetbrains.java.decompiler.struct.consts.PrimitiveConstant;
+import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericClassDescriptor;
+import org.jetbrains.java.decompiler.struct.gen.generics.GenericMethodDescriptor;
+import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.ListStack;
+import org.jetbrains.java.decompiler.util.TextBuffer;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.BitSet;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class NewExprent extends Exprent {
   private InvocationExprent constructor;
@@ -55,7 +48,7 @@ public class NewExprent extends Exprent {
   }
 
   public NewExprent(VarType newType, List<Exprent> lstDims, BitSet bytecodeOffsets) {
-    super(EXPRENT_NEW);
+    super(Type.NEW);
     this.newType = newType;
     this.lstDims = lstDims;
 
@@ -63,9 +56,9 @@ public class NewExprent extends Exprent {
     lambda = false;
     if (newType.type == CodeConstants.TYPE_OBJECT && newType.arrayDim == 0) {
       ClassNode node = DecompilerContext.getClassProcessor().getMapRootClasses().get(newType.value);
-      if (node != null && (node.type == ClassNode.CLASS_ANONYMOUS || node.type == ClassNode.CLASS_LAMBDA)) {
+      if (node != null && (node.type == ClassNode.Type.ANONYMOUS || node.type == ClassNode.Type.LAMBDA)) {
         anonymous = true;
-        if (node.type == ClassNode.CLASS_LAMBDA) {
+        if (node.type == ClassNode.Type.LAMBDA) {
           lambda = true;
           methodReference = node.lambdaInformation.is_method_reference;
         }
@@ -464,7 +457,7 @@ public class NewExprent extends Exprent {
 
         // new String[][]{{"abc"}, {"DEF"}} => new String[]{"abc"}, new String[]{"DEF"}
         Exprent element = lstArrayElements.get(i);
-        if (element.type == EXPRENT_NEW) {
+        if (element instanceof NewExprent) {
           ((NewExprent) element).setDirectArrayInit(false);
         }
         ExprProcessor.getCastedExprent(element, leftType, buf, indent, false);
@@ -485,6 +478,9 @@ public class NewExprent extends Exprent {
         for (int i = 0; i < newType.arrayDim; i++) {
           buf.append('[');
           if (i < lstDims.size()) {
+            if (lstDims.get(i).type == Type.CONST) {
+              ((ConstExprent)lstDims.get(i)).adjustConstType(VarType.VARTYPE_INT);
+            }
             buf.append(lstDims.get(i).toJava(indent));
           }
           buf.append(']');
@@ -519,20 +515,20 @@ public class NewExprent extends Exprent {
   // TODO move to InvocationExprent
   public static boolean probablySyntheticParameter(String className) {
     ClassNode node = DecompilerContext.getClassProcessor().getMapRootClasses().get(className);
-    return node != null && node.type == ClassNode.CLASS_ANONYMOUS;
+    return node != null && node.type == ClassNode.Type.ANONYMOUS;
   }
 
   private static TextBuffer getQualifiedNewInstance(String classname, List<Exprent> lstParams, int indent) {
     ClassNode node = DecompilerContext.getClassProcessor().getMapRootClasses().get(classname);
 
-    if (node != null && node.type != ClassNode.CLASS_ROOT && node.type != ClassNode.CLASS_LOCAL
+    if (node != null && node.type != ClassNode.Type.ROOT && node.type != ClassNode.Type.LOCAL
         && (node.access & CodeConstants.ACC_STATIC) == 0) {
       if (!lstParams.isEmpty()) {
         Exprent enclosing = lstParams.get(0);
 
         boolean isQualifiedNew = false;
 
-        if (enclosing.type == Exprent.EXPRENT_VAR) {
+        if (enclosing instanceof VarExprent) {
           VarExprent varEnclosing = (VarExprent)enclosing;
 
           StructClass current_class = ((ClassNode)DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS_NODE)).classStruct;
@@ -597,9 +593,9 @@ public class NewExprent extends Exprent {
 
           if (lstExpr != null && !lstExpr.isEmpty()) {
             Exprent expr = lstExpr.get(lstExpr.size() - 1);
-            if (expr.type == Exprent.EXPRENT_EXIT) {
+            if (expr instanceof ExitExprent) {
               ExitExprent ex = (ExitExprent)expr;
-              if (ex.getExitType() == ExitExprent.EXIT_RETURN) {
+              if (ex.getExitType() == ExitExprent.Type.RETURN) {
                 VarType realRetType = ex.getValue().getInferredExprType(upperBound);
                 if (realRetType.isGeneric()) {
                   paramNames.forEach(inferredLambdaTypes::remove);
@@ -663,7 +659,7 @@ public class NewExprent extends Exprent {
                     ClassNode childNode = nested.removeFirst();
                     nested.addAll(childNode.nested);
 
-                    if (childNode.type == ClassNode.CLASS_LAMBDA && !childNode.lambdaInformation.is_method_reference) {
+                    if (childNode.type == ClassNode.Type.LAMBDA && !childNode.lambdaInformation.is_method_reference) {
                       MethodWrapper enclosedMethod = wrapper.getMethodWrapper(childNode.lambdaInformation.content_method_name, childNode.lambdaInformation.content_method_descriptor);
 
                       if (enclosedMethod != null && paramName.equals(enclosedMethod.varproc.getVarName(vpp))) {
@@ -691,9 +687,9 @@ public class NewExprent extends Exprent {
 
                 if (lstExpr != null && !lstExpr.isEmpty()) {
                   Exprent expr = lstExpr.get(lstExpr.size() - 1);
-                  if (expr.type == Exprent.EXPRENT_EXIT) {
+                  if (expr instanceof ExitExprent) {
                     ExitExprent ex = (ExitExprent)expr;
-                    if (ex.getExitType() == ExitExprent.EXIT_RETURN) {
+                    if (ex.getExitType() == ExitExprent.Type.RETURN) {
                       ex.getMethodDescriptor().genericInfo = genDesc;
                       break; // desc var should be the same for all returns
                     }
@@ -805,6 +801,10 @@ public class NewExprent extends Exprent {
 
   public void setDirectArrayInit(boolean directArrayInit) {
     this.directArrayInit = directArrayInit;
+  }
+
+  public boolean isDirectArrayInit() {
+    return directArrayInit;
   }
 
   public void setVarArgParam(boolean isVarArgParam) {

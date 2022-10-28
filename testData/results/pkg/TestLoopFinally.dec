@@ -57,67 +57,123 @@ public class TestLoopFinally {
       System.out.println("after");// 59
    }// 60
 
-   public int test3(int param1) {
-      // $FF: Couldn't be decompiled
-      // Bytecode:
-      // 00: iload 1
-      // 01: bipush 1
-      // 02: if_icmpne 11
-      // 05: bipush 1
-      // 06: istore 2
-      // 07: iload 1
-      // 08: bipush 3
-      // 09: if_icmpne 0f
-      // 0c: goto 5e
-      // 0f: iload 2
-      // 10: ireturn
-      // 11: getstatic java/lang/System.out Ljava/io/PrintStream;
-      // 14: ldc "Oops"
-      // 16: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
-      // 19: iload 1
-      // 1a: bipush 23
-      // 1c: if_icmpne 2b
-      // 1f: bipush 1
-      // 20: istore 2
-      // 21: iload 1
-      // 22: bipush 3
-      // 23: if_icmpne 29
-      // 26: goto 5e
-      // 29: iload 2
-      // 2a: ireturn
-      // 2b: getstatic java/lang/System.out Ljava/io/PrintStream;
-      // 2e: ldc "Oops"
-      // 30: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
-      // 33: iload 1
-      // 34: bipush 25
-      // 36: if_icmpne 45
-      // 39: bipush 1
-      // 3a: istore 2
-      // 3b: iload 1
-      // 3c: bipush 3
-      // 3d: if_icmpne 43
-      // 40: goto 5e
-      // 43: iload 2
-      // 44: ireturn
-      // 45: iload 1
-      // 46: bipush 3
-      // 47: if_icmpne 58
-      // 4a: goto 5e
-      // 4d: astore 3
-      // 4e: iload 1
-      // 4f: bipush 3
-      // 50: if_icmpne 56
-      // 53: goto 5e
-      // 56: aload 3
-      // 57: athrow
-      // 58: iload 1
-      // 59: bipush 45
-      // 5b: if_icmplt 00
-      // 5e: getstatic java/lang/System.out Ljava/io/PrintStream;
-      // 61: bipush 5
-      // 62: invokevirtual java/io/PrintStream.print (I)V
-      // 65: bipush 1
-      // 66: ireturn
+   public int test3(int x) {
+      do {
+         try {
+            if (x == 1) {// 66
+               return 1;// 67
+            }
+
+            System.out.println("Oops");// 70
+            if (x == 23) {// 71
+               return 1;// 72
+            }
+
+            System.out.println("Oops");// 75
+            if (x == 25) {// 76
+               return 1;// 77
+            }
+         } finally {
+            if (x == 3) {// 80
+               break;
+            }
+         }
+      } while(x < 45);// 84
+
+      System.out.print(5);// 86
+      return 1;// 87
+   }
+
+   public int test4(int x) {
+      do {
+         try {
+            if (x < 25) {// 94
+               return 5;// 95
+            }
+         } finally {
+            if (x > 3) {// 98
+               return 1;// 104
+            }
+         }
+      } while(x < 45);// 102
+
+      return 1;
+   }
+
+   public int test5(int x) {
+      do {
+         try {
+            if (x < 25) {// 114
+               int var2 = 5;// 115
+               byte var3;
+               return var2 + var3;// 128
+            }
+         } finally {
+            if (x > 3) {// 119 120
+               return 1;// 126
+            }
+         }
+      } while(x < 45);// 124
+
+      return 1;
+   }
+
+   public void emptyInnerFinally() {
+      int a = 0;// 133
+      int b = 1;
+      int c = 2;
+
+      try {
+         while(true) {
+            try {
+               System.out.println("Hello");// 137
+               return;// 138
+            } catch (Exception var13) {// 139
+            } finally {
+               ;
+            }
+         }
+      } finally {
+         System.out.println("hi");// 144
+      }
+   }
+
+   // $QF: Could not properly define all variable types!
+   public void testConditionalBreakInFinally() {
+      int a = 5;// 149
+      if (a != 886) {// 152
+         try {
+            a -= 885;// 157
+         } catch (Exception var6) {// 158
+            System.out.println("hello");// 159
+         } finally {
+            if (a >= -228) {// 161
+               System.out.println("hi");// 169
+               return;// 171
+            } else {
+               <unknown> var3;
+               throw var3_1;// 164
+            }
+         }
+      }
+   }// 153
+
+   public void loopInFinally() {
+      boolean var1 = true;// 174
+
+      try {
+         try {
+            System.out.println(var1);// 178
+         } finally {
+            return;// 180
+         }
+      } finally {
+         short var18 = 15080;// 183
+
+         while(var18 > -14704) {// 184
+            boolean var9 = false;// 185
+         }
+      }
    }
 }
 
@@ -267,6 +323,183 @@ class 'pkg/TestLoopFinally' {
       3d      56
       3e      57
    }
+
+   method 'test3 (I)I' {
+      0      62
+      1      62
+      2      62
+      5      63
+      10      63
+      11      66
+      12      66
+      13      66
+      14      66
+      15      66
+      16      66
+      17      66
+      18      66
+      19      67
+      1a      67
+      1b      67
+      1c      67
+      1f      68
+      2a      68
+      2b      71
+      2c      71
+      2d      71
+      2e      71
+      2f      71
+      30      71
+      31      71
+      32      71
+      33      72
+      34      72
+      35      72
+      36      72
+      39      73
+      44      73
+      4d      76
+      4e      76
+      4f      76
+      58      80
+      59      80
+      5a      80
+      5b      80
+      5e      82
+      5f      82
+      60      82
+      61      82
+      62      82
+      63      82
+      64      82
+      65      83
+      66      83
+   }
+
+   method 'test4 (I)I' {
+      0      89
+      1      89
+      2      89
+      3      89
+      6      90
+      11      90
+      1a      93
+      1b      93
+      1c      93
+      25      97
+      26      97
+      27      97
+      28      97
+      2b      94
+      2c      94
+   }
+
+   method 'test5 (I)I' {
+      0      105
+      1      105
+      2      105
+      3      105
+      6      106
+      7      106
+      1f      111
+      20      111
+      21      111
+      2b      115
+      2c      115
+      2d      115
+      2e      115
+      31      112
+      32      112
+      33      108
+      34      108
+      35      108
+      36      108
+   }
+
+   method 'emptyInnerFinally ()V' {
+      0      121
+      1      121
+      2      122
+      3      122
+      4      123
+      5      123
+      6      128
+      7      128
+      8      128
+      9      128
+      a      128
+      b      128
+      16      129
+      17      130
+      24      136
+      25      136
+      26      136
+      27      136
+      28      136
+      29      136
+      2a      136
+   }
+
+   method 'testConditionalBreakInFinally ()V' {
+      0      142
+      1      142
+      2      143
+      3      143
+      4      143
+      5      143
+      6      143
+      9      158
+      a      145
+      1a      146
+      1b      147
+      1c      147
+      1d      147
+      1e      147
+      1f      147
+      20      147
+      2d      149
+      2e      149
+      2f      149
+      30      149
+      31      149
+      38      154
+      39      154
+      43      150
+      44      150
+      45      150
+      46      150
+      47      150
+      48      150
+      49      150
+      4a      150
+      4b      151
+   }
+
+   method 'loopInFinally ()V' {
+      0      161
+      1      161
+      2      165
+      3      165
+      4      165
+      5      165
+      6      165
+      19      176
+      2f      167
+      30      170
+      31      170
+      32      170
+      33      170
+      34      170
+      37      172
+      38      172
+      39      172
+      3a      172
+      3b      172
+      3c      172
+      3f      173
+      40      173
+      41      173
+   }
 }
 
 Lines mapping:
@@ -296,7 +529,65 @@ Lines mapping:
 51 <-> 50
 59 <-> 57
 60 <-> 58
+66 <-> 63
+67 <-> 64
+70 <-> 67
+71 <-> 68
+72 <-> 69
+75 <-> 72
+76 <-> 73
+77 <-> 74
+80 <-> 77
+84 <-> 81
+86 <-> 83
+87 <-> 84
+94 <-> 90
+95 <-> 91
+98 <-> 94
+102 <-> 98
+104 <-> 95
+114 <-> 106
+115 <-> 107
+119 <-> 112
+120 <-> 112
+124 <-> 116
+126 <-> 113
+128 <-> 109
+133 <-> 122
+137 <-> 129
+138 <-> 130
+139 <-> 131
+144 <-> 137
+149 <-> 143
+152 <-> 144
+153 <-> 159
+157 <-> 146
+158 <-> 147
+159 <-> 148
+161 <-> 150
+164 <-> 155
+169 <-> 151
+171 <-> 152
+174 <-> 162
+178 <-> 166
+180 <-> 168
+183 <-> 171
+184 <-> 173
+185 <-> 174
 Not mapped:
 12
 38
 52
+81
+83
+99
+101
+121
+123
+140
+141
+145
+162
+166
+186
+187

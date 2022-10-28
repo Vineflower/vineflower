@@ -1,0 +1,61 @@
+package pkg;
+
+public class TestSwitchPatternMatching10 {
+   static void test(String s) {
+      switch(s) {// 5
+         case "hi":
+            System.out.println("hi");// 6
+            break;
+         case "bye":
+            System.out.println("bye");// 7
+            break;
+         case null:
+         default:
+            System.out.println("oh");// 8
+      }
+   }// 10
+}
+
+class 'pkg/TestSwitchPatternMatching10' {
+   method 'test (Ljava/lang/String;)V' {
+      0      4
+      8      4
+      29      5
+      2a      5
+      37      8
+      38      8
+      47      4
+      60      6
+      61      6
+      62      6
+      63      6
+      64      6
+      65      6
+      66      6
+      67      6
+      68      7
+      6b      9
+      6c      9
+      6d      9
+      6e      9
+      6f      9
+      70      9
+      71      9
+      72      9
+      73      10
+      76      13
+      77      13
+      78      13
+      79      13
+      7a      13
+      7b      13
+      7e      15
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 7
+7 <-> 10
+8 <-> 14
+10 <-> 16

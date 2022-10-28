@@ -14,7 +14,7 @@ public enum TestConstructorSwitchExpression3 {
       return new Random().nextInt(3);// 22
    }
 
-   // $FF: Failed to inline enum fields
+   // $QF: Failed to inline enum fields
    static {
       T1 = new TestConstructorSwitchExpression3(switch(get()) {// 6
          case 0 -> 1;// 7

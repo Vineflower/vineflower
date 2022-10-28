@@ -1,0 +1,35 @@
+package pkg;
+
+public class TestSwitchPatternMatching8 {
+   static String test(String s) {
+      return switch(s) {// 5
+         case "hi" -> "hi";// 6
+         case "bye" -> "bye";// 7
+         case null, default -> "oh";// 8
+      };
+   }
+}
+
+class 'pkg/TestSwitchPatternMatching8' {
+   method 'test (Ljava/lang/String;)Ljava/lang/String;' {
+      0      4
+      8      4
+      29      5
+      2a      5
+      37      6
+      38      6
+      47      4
+      60      5
+      61      5
+      65      6
+      66      6
+      6a      7
+      6c      4
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 6
+7 <-> 7
+8 <-> 8

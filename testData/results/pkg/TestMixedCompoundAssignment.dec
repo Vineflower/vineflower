@@ -1,0 +1,487 @@
+package pkg;
+
+public class TestMixedCompoundAssignment {
+   public int testSimpleIntFloat(int i, float j) {
+      i = (int)((float)i + j);// 5
+      i = (int)((float)i - j);// 6
+      i = (int)((float)i * j);// 7
+      return (int)((float)i / j);// 8 10
+   }
+
+   public int testSimpleIntLong(int i, long j) {
+      i = (int)((long)i + j);// 14
+      i = (int)((long)i - j);// 15
+      i = (int)((long)i * j);// 16
+      i = (int)((long)i / j);// 17
+      i = (int)((long)i & j);// 18
+      i = (int)((long)i | j);// 19
+      i = (int)((long)i ^ j);// 20
+      i >>= (int)j;// 21
+      i <<= (int)j;// 22
+      return i >>> (int)j;// 23 25
+   }
+
+   public double testSimpleDoubleLong(double i, long j) {
+      i += (double)j;// 29
+      i -= (double)j;// 30
+      i *= (double)j;// 31
+      return i / (double)j;// 32 34
+   }
+
+   public int testNestedIntLongDouble(int i, long j, double k) {
+      long var9;
+      i = (int)((long)i + (var9 = (long)((double)j + k)));// 38
+      i = (int)((long)i - (j = (long)((double)var9 - k)));// 39
+      long var11;
+      i = (int)((long)i * (var11 = (long)((double)j * k)));// 40
+      return (int)((long)i / (long)((double)var11 / k));// 41 44
+   }
+
+   public long testNestedLongIntLong(long i, int j, long k) {
+      int var15;
+      i += (long)(var15 = (int)((long)j + k));// 48
+      i -= (long)(j = (int)((long)var15 - k));// 49
+      int var17;
+      i *= (long)(var17 = (int)((long)j * k));// 50
+      i /= (long)(j = (int)((long)var17 / k));// 51
+      int var19;
+      i &= (long)(var19 = (int)((long)j & k));// 52
+      i |= (long)(j = (int)((long)var19 | k));// 53
+      int var21;
+      i ^= (long)(var21 = (int)((long)j ^ k));// 54
+      i >>= j = var21 >> (int)k;// 55
+      int var23;
+      i <<= var23 = j << (int)k;// 56
+      return i >>> (j = var23 >>> (int)k);// 57 59
+   }
+
+   public void testArrayIntDouble(int[] holder, int i, double inc) {
+      for(int j = 0; j < i; ++j) {// 64
+         holder[j] = (int)((double)holder[j] + inc);// 65
+      }
+   }// 67
+
+   public void testArrayIntLong(int[] holder, int i, long inc) {
+      for(int j = 0; j < i; ++j) {// 70
+         holder[j] = (int)((long)holder[j] + inc);// 71
+      }
+   }// 73
+
+   public void testArrayDoubleInt(double[] holder, int i, int inc) {
+      for(int j = 0; j < i; ++j) {// 76
+         holder[j] += (double)inc;// 77
+      }
+   }// 79
+
+   public void testNestedArrayByteFloatLongDouble(byte[] outer, float[] holder, long[] inner, int i, double inc) {
+      for(int j = 0; j < i; ++j) {// 82
+         outer[i + ~j] = (byte)((int)((float)outer[i + ~j] + (holder[j] -= (float)(inner[j * 3 % i] = (long)((double)inner[j * 3 % i] + inc)))));// 83
+      }
+   }// 85
+}
+
+class 'pkg/TestMixedCompoundAssignment' {
+   method 'testSimpleIntFloat (IF)I' {
+      0      4
+      1      4
+      2      4
+      3      4
+      4      4
+      5      4
+      6      5
+      7      5
+      8      5
+      9      5
+      a      5
+      b      5
+      c      6
+      d      6
+      e      6
+      f      6
+      10      6
+      11      6
+      12      7
+      13      7
+      14      7
+      15      7
+      16      7
+      19      7
+   }
+
+   method 'testSimpleIntLong (IJ)I' {
+      0      11
+      1      11
+      2      11
+      3      11
+      4      11
+      5      11
+      6      12
+      7      12
+      8      12
+      9      12
+      a      12
+      b      12
+      c      13
+      d      13
+      e      13
+      f      13
+      10      13
+      11      13
+      12      14
+      13      14
+      14      14
+      15      14
+      16      14
+      17      14
+      18      15
+      19      15
+      1a      15
+      1b      15
+      1c      15
+      1d      15
+      1e      16
+      1f      16
+      20      16
+      21      16
+      22      16
+      23      16
+      24      17
+      25      17
+      26      17
+      27      17
+      28      17
+      29      17
+      2b      18
+      2c      18
+      2e      18
+      30      19
+      31      19
+      33      19
+      34      20
+      35      20
+      36      20
+      37      20
+      3a      20
+   }
+
+   method 'testSimpleDoubleLong (DJ)D' {
+      1      24
+      2      24
+      4      24
+      6      25
+      7      25
+      9      25
+      b      26
+      c      26
+      e      26
+      f      27
+      10      27
+      11      27
+      12      27
+      15      27
+   }
+
+   method 'testNestedIntLongDouble (IJD)I' {
+      0      32
+      1      32
+      2      32
+      3      32
+      4      32
+      5      32
+      6      32
+      7      32
+      9      32
+      a      32
+      b      32
+      c      32
+      d      33
+      e      33
+      f      33
+      10      33
+      11      33
+      12      33
+      13      33
+      14      33
+      16      33
+      17      33
+      18      33
+      19      33
+      1a      35
+      1b      35
+      1c      35
+      1d      35
+      1e      35
+      1f      35
+      20      35
+      21      35
+      23      35
+      24      35
+      25      35
+      26      35
+      27      36
+      28      36
+      29      36
+      2a      36
+      2b      36
+      2c      36
+      2d      36
+      2e      36
+      31      36
+      32      36
+      35      36
+   }
+
+   method 'testNestedLongIntLong (JIJ)J' {
+      1      41
+      2      41
+      3      41
+      4      41
+      5      41
+      6      41
+      8      41
+      9      41
+      b      41
+      d      42
+      e      42
+      f      42
+      10      42
+      11      42
+      12      42
+      14      42
+      15      42
+      17      42
+      19      44
+      1a      44
+      1b      44
+      1c      44
+      1d      44
+      1e      44
+      20      44
+      21      44
+      23      44
+      25      45
+      26      45
+      27      45
+      28      45
+      29      45
+      2a      45
+      2c      45
+      2d      45
+      2f      45
+      31      47
+      32      47
+      33      47
+      34      47
+      35      47
+      36      47
+      38      47
+      39      47
+      3b      47
+      3d      48
+      3e      48
+      3f      48
+      40      48
+      41      48
+      42      48
+      44      48
+      45      48
+      47      48
+      49      50
+      4a      50
+      4b      50
+      4c      50
+      4d      50
+      4e      50
+      50      50
+      51      50
+      53      50
+      55      51
+      56      51
+      57      51
+      58      51
+      59      51
+      5b      51
+      5d      51
+      5f      53
+      60      53
+      61      53
+      62      53
+      63      53
+      65      53
+      67      53
+      68      54
+      69      54
+      6a      54
+      6b      54
+      6c      54
+      6d      54
+      6f      54
+      70      54
+      73      54
+   }
+
+   method 'testArrayIntDouble ([IID)V' {
+      0      58
+      1      58
+      2      58
+      3      58
+      4      58
+      5      58
+      6      58
+      9      59
+      a      59
+      b      59
+      d      59
+      e      59
+      f      59
+      10      59
+      11      59
+      12      59
+      13      58
+      14      58
+      15      58
+      19      61
+   }
+
+   method 'testArrayIntLong ([IIJ)V' {
+      0      64
+      1      64
+      2      64
+      3      64
+      4      64
+      5      64
+      6      64
+      9      65
+      a      65
+      b      65
+      d      65
+      e      65
+      f      65
+      10      65
+      11      65
+      12      65
+      13      64
+      14      64
+      15      64
+      19      67
+   }
+
+   method 'testArrayDoubleInt ([DII)V' {
+      0      70
+      1      70
+      2      70
+      3      70
+      4      70
+      5      70
+      6      70
+      9      71
+      a      71
+      b      71
+      e      71
+      f      71
+      11      71
+      12      70
+      13      70
+      14      70
+      18      73
+   }
+
+   method 'testNestedArrayByteFloatLongDouble ([B[F[JID)V' {
+      0      76
+      1      76
+      2      76
+      3      76
+      4      76
+      5      76
+      6      76
+      7      76
+      a      77
+      b      77
+      c      77
+      d      77
+      e      77
+      10      77
+      11      77
+      13      77
+      14      77
+      15      77
+      16      77
+      17      77
+      1a      77
+      1b      77
+      1c      77
+      1d      77
+      1e      77
+      1f      77
+      20      77
+      21      77
+      23      77
+      24      77
+      25      77
+      26      77
+      27      77
+      28      77
+      2a      77
+      2b      77
+      2e      77
+      2f      77
+      30      77
+      31      77
+      32      77
+      33      76
+      34      76
+      35      76
+      39      79
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 6
+7 <-> 7
+8 <-> 8
+10 <-> 8
+14 <-> 12
+15 <-> 13
+16 <-> 14
+17 <-> 15
+18 <-> 16
+19 <-> 17
+20 <-> 18
+21 <-> 19
+22 <-> 20
+23 <-> 21
+25 <-> 21
+29 <-> 25
+30 <-> 26
+31 <-> 27
+32 <-> 28
+34 <-> 28
+38 <-> 33
+39 <-> 34
+40 <-> 36
+41 <-> 37
+44 <-> 37
+48 <-> 42
+49 <-> 43
+50 <-> 45
+51 <-> 46
+52 <-> 48
+53 <-> 49
+54 <-> 51
+55 <-> 52
+56 <-> 54
+57 <-> 55
+59 <-> 55
+64 <-> 59
+65 <-> 60
+67 <-> 62
+70 <-> 65
+71 <-> 66
+73 <-> 68
+76 <-> 71
+77 <-> 72
+79 <-> 74
+82 <-> 77
+83 <-> 78
+85 <-> 80

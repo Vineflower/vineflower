@@ -23,4 +23,13 @@ public class TestJava11StringConcat {
   public String test2(String var, int b, Object c) {
     return "(" + var + "-" + b + "---" + c + ")";
   }
+
+
+  public String testEmptyPrefix(int value){
+    return "" + value;
+  }
+
+  public String testEmptyInfix(int value, int value2){
+    return value + "" + value2;
+  }
 }

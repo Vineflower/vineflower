@@ -7,7 +7,7 @@ import kotlin.Metadata;
 import kotlin.collections.CollectionsKt;
 
 @Metadata(
-   mv = {1, 5, 1},
+   mv = {1, 6, 0},
    k = 2,
    xi = 48,
    d1 = {"\u0000\u0016\n\u0000\n\u0002\u0010 \n\u0002\u0018\u0002\n\u0000\n\u0002\u0010\u001e\n\u0002\u0010\u000e\n\u0000\u001a\u001e\u0010\u0000\u001a\b\u0012\u0004\u0012\u00020\u00020\u00012\u000e\u0010\u0003\u001a\n\u0012\u0006\u0012\u0004\u0018\u00010\u00050\u0004H\u0002¨\u0006\u0006"},
@@ -28,9 +28,8 @@ public final class TestKotlinConstructorKt {
             throw new NullPointerException("null cannot be cast to non-null type kotlin.String");
          }
 
-         var10000./* $FF: Unable to resugar constructor */<init>(it);
-         Mapping var11 = var10000;
-         destination$iv$iv.add(var11);// 14
+         var10000./* $QF: Unable to resugar constructor */<init>(it);
+         destination$iv$iv.add(var10000);// 14
       }
 
       return CollectionsKt.toList((List)destination$iv$iv);// 4 6 15
@@ -61,6 +60,7 @@ class 'pkg/TestKotlinConstructorKt' {
       1b      20
       1c      20
       1d      20
+      1e      22
       1f      22
       20      22
       21      22
@@ -77,8 +77,8 @@ class 'pkg/TestKotlinConstructorKt' {
       36      22
       37      22
       38      22
-      39      32
-      3a      32
+      39      31
+      3a      31
       3b      23
       3c      23
       3d      23
@@ -91,44 +91,40 @@ class 'pkg/TestKotlinConstructorKt' {
       46      24
       4b      26
       4c      26
-      4d      26
-      54      27
-      55      27
-      59      27
-      5a      30
-      5b      30
+      4e      26
+      56      27
+      57      27
+      5b      27
       5c      30
       5d      30
       5e      30
       5f      31
       60      31
-      63      32
-      64      32
-      65      32
-      66      32
-      67      32
-      68      32
-      69      32
-      6e      35
-      6f      35
-      70      35
-      71      35
-      72      35
-      74      35
-      75      35
-      76      35
-      77      35
-      78      35
-      79      35
-      7a      35
+      62      31
+      63      31
+      64      31
+      65      31
+      66      31
+      6b      34
+      6c      34
+      6d      34
+      6e      34
+      6f      34
+      71      34
+      72      34
+      73      34
+      74      34
+      75      34
+      76      34
+      77      34
    }
 }
 
 Lines mapping:
-4 <-> 36
+4 <-> 35
 5 <-> 27
-6 <-> 36
+6 <-> 35
 12 <-> 23
 13 <-> 23
-14 <-> 33
-15 <-> 36
+14 <-> 32
+15 <-> 35
