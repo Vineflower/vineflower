@@ -143,6 +143,23 @@ public class FixedFastSetTest {
     }
   }
 
+  // set should contain a subset
+  @ParameterizedTest
+  @MethodSource("nonEmptyFactories")
+  <T> void fullSetContainsSubset(List<T> elements, FastFixedSetFactory<T> factory) {
+    Random random = newRandom();
+    FastFixedSet<T> set1 = factory.createCopiedSet();
+    FastFixedSet<T> set2 = factory.createCopiedSet();
+
+    for (T t : set2.toPlainSet()) {
+      if (random.nextBoolean()) {
+        set2.remove(t);
+      }
+    }
+
+    assertTrue(set1.contains(set2));
+  }
+
   // newly created filled sets should visit each element exactly once
   @ParameterizedTest
   @MethodSource("nonEmptyFactories")

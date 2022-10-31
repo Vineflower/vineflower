@@ -57,7 +57,7 @@ public class FastSparseSetFactory<E> {
     return new FastSparseSet<>(this);
   }
 
-  public int getLastBlock() {
+  private int getLastBlock() {
     return lastBlock;
   }
 
@@ -249,6 +249,10 @@ public class FastSparseSetFactory<E> {
       while (pointer != 0);
     }
 
+    @Override
+    public int hashCode() {
+      return toPlainSet().hashCode();
+    }
 
     public boolean equals(Object o) {
       if (o == this) return true;
