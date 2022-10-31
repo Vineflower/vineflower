@@ -187,7 +187,7 @@ public abstract class SFormsConstructor implements SFormsCreator {
       this.currentCatchableMap = null;
 
       if (node.hasSuccessors(DirectEdgeType.EXCEPTION)) {
-        this.currentCatchableMap = new SFormsFastMapDirect(varmap);
+        this.currentCatchableMap = varmap.getCopy();
         this.currentCatchableMap.removeAllStacks(); // stack gets cleared when throwing
         this.currentCatchableMap.removeAllFields(); // fields gets invalidated when throwing
         this.catchableVersions.put(node.id, this.currentCatchableMap);

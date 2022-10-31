@@ -11,7 +11,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 // Three part map to hold live var version data for specific variables.
-// Segmented to handle the cases of true variable (index 0), stack variable (index 1), and field access (index 2) seperately as they can have the same index.
+// Segmented to handle the cases of true variable (index 0), stack variable (index 1), and field access (index 2) separately as they can have the same index.
 public class SFormsFastMapDirect {
 
   private int size;
@@ -31,25 +31,6 @@ public class SFormsFastMapDirect {
         elements[i] = empty;
         next[i] = InterpreterUtil.EMPTY_INT_ARRAY;
       }
-    }
-  }
-
-  public SFormsFastMapDirect(SFormsFastMapDirect map) {
-    for (int i = 2; i >= 0; i--) {
-      FastSparseSet<Integer>[] arr = map.elements[i];
-      int[] arrnext = map.next[i];
-
-      int length = arr.length;
-      @SuppressWarnings("unchecked") FastSparseSet<Integer>[] arrnew = new FastSparseSet[length];
-      int[] arrnextnew = new int[length];
-
-      System.arraycopy(arr, 0, arrnew, 0, length);
-      System.arraycopy(arrnext, 0, arrnextnew, 0, length);
-
-      elements[i] = arrnew;
-      next[i] = arrnextnew;
-
-      size = map.size;
     }
   }
 
