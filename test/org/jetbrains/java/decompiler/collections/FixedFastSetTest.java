@@ -54,6 +54,11 @@ public class FixedFastSetTest {
     assertFalse(unguardedIterator.hasNext());
   }
 
+  private <T> void assertContains(FastFixedSet<T> set, T element) {
+    assertTrue(set.contains(element));
+    assertTrue(set.containsKey(element));
+  }
+
 
   // newly created sets should be empty
   @ParameterizedTest
@@ -104,7 +109,37 @@ public class FixedFastSetTest {
     FastFixedSet<T> set = factory.createCopiedSet();
 
     for (T element : elements) {
-      assertTrue(set.contains(element));
+      assertContains(set, element);
+    }
+  }
+
+  // multiple newly created filled sets should contain each other's copies
+  @ParameterizedTest
+  @MethodSource("nonEmptyFactories")
+  <T> void fullSetContainsCopied(List<T> elements, FastFixedSetFactory<T> factory) {
+    FastFixedSet<T> set1 = factory.createCopiedSet();
+    FastFixedSet<T> set2 = factory.createCopiedSet();
+
+    assertTrue(set1.contains(set2));
+  }
+
+  // set shouldn't contain a different set
+  @ParameterizedTest
+  @MethodSource("nonEmptyFactories")
+  <T> void fullSetDoesntContainDifferent(List<T> elements, FastFixedSetFactory<T> factory) {
+    Random random = newRandom();
+    FastFixedSet<T> set1 = factory.createCopiedSet();
+    FastFixedSet<T> set2 = factory.createCopiedSet();
+
+    for (T t : set2.toPlainSet()) {
+      if (random.nextBoolean()) {
+        set2.remove(t);
+      }
+    }
+
+    // To prevent against false positives in the case of only 1 element
+    if (set2.toPlainSet().size() != set1.toPlainSet().size()) {
+      assertFalse(set2.contains(set1));
     }
   }
 
@@ -125,6 +160,8 @@ public class FixedFastSetTest {
 
     for (T element : elements) {
       assertFalse(set.contains(element));
+      // empty sets seemingly still have their keys?
+//      assertFalse(set.containsKey(element));
     }
   }
 
@@ -185,7 +222,7 @@ public class FixedFastSetTest {
 
     for (T element : shuffled) {
       set.add(element);
-      assertTrue(set.contains(element));
+      assertContains(set, element);
     }
   }
 
@@ -827,7 +864,42 @@ public class FixedFastSetTest {
     iteratorVisitsInOrder(set1, copy);
   }
 
-  // TODO: complement
+  // complement() works
+
+  @ParameterizedTest
+  @MethodSource("nonEmptyFactories")
+  <T> void complementWorks(List<T> elements, FastFixedSetFactory<T> factory) {
+    Random random = newRandom();
+    FastFixedSet<T> domain = factory.createCopiedSet();
+    FastFixedSet<T> set1 = factory.createEmptySet();
+    FastFixedSet<T> set2 = factory.createEmptySet();
+
+    Set<T> ps = domain.toPlainSet();
+    for (int i = 0; i < ps.size(); i++) {
+      if (random.nextBoolean()) {
+        set1.add(elements.get(i));
+      } else {
+        set2.add(elements.get(i));
+      }
+    }
+
+    domain.complement(set1);
+    List<T> copy = new ArrayList<>(elements);
+    copy.retainAll(set2.toPlainSet());
+
+    assertEquals(domain.toPlainSet().size(), set2.toPlainSet().size());
+
+    assertPlainSetIsEqual(set2, domain.toPlainSet());
+    iteratorVisitsInOrder(set2, copy);
+  }
+
+  // toString() should never be empty
+  @ParameterizedTest
+  @MethodSource("nonEmptyFactories")
+  <T> void toStringNotEmpty(List<T> elements, FastFixedSetFactory<T> factory) {
+    FastFixedSet<T> set = factory.createCopiedSet();
+    assertFalse(set.toString().isEmpty());
+  }
 
   private static Stream<Arguments> nonEmptyFactories() {
     return Stream.of(
