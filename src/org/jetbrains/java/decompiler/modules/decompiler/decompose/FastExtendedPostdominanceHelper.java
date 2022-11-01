@@ -6,8 +6,8 @@ import org.jetbrains.java.decompiler.modules.decompiler.stats.GeneralStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.util.DotExporter;
+import org.jetbrains.java.decompiler.util.FastFixedSet;
 import org.jetbrains.java.decompiler.util.FastFixedSetFactory;
-import org.jetbrains.java.decompiler.util.FastFixedSetFactory.FastFixedSet;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 
 import java.util.*;
@@ -47,7 +47,7 @@ public class FastExtendedPostdominanceHelper {
     for (Statement st : statement.getStats()) {
       set.add(st.id);
     }
-    this.factory = new FastFixedSetFactory<>(set);
+    this.factory = FastFixedSetFactory.create(set);
 
     lstReversePostOrderList = statement.getReversePostOrderList();
 
@@ -79,6 +79,7 @@ public class FastExtendedPostdominanceHelper {
     Set<Entry<Integer, FastFixedSet<Integer>>> entries = mapExtPostdominators.entrySet();
     HashMap<Integer, Set<Integer>> res = new HashMap<>(entries.size());
     for (Entry<Integer, FastFixedSet<Integer>> entry : entries) {
+      // TODO: remove/change plain set
       List<Integer> lst = new ArrayList<>(entry.getValue().toPlainSet());
       Collections.sort(lst); // Order Matters!
       res.put(entry.getKey(), new LinkedHashSet<>(lst));

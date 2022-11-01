@@ -15,11 +15,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.deobfuscator.Irreducible
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement.EdgeDirection;
 import org.jetbrains.java.decompiler.struct.StructMethod;
-import org.jetbrains.java.decompiler.util.DotExporter;
-import org.jetbrains.java.decompiler.util.FastFixedSetFactory;
-import org.jetbrains.java.decompiler.util.FastFixedSetFactory.FastFixedSet;
-import org.jetbrains.java.decompiler.util.InterpreterUtil;
-import org.jetbrains.java.decompiler.util.VBStyleCollection;
+import org.jetbrains.java.decompiler.util.*;
 
 import java.util.*;
 
@@ -110,7 +106,7 @@ public final class DomHelper implements GraphParser {
 
     List<Statement> lstStats = general.getPostReversePostOrderList(StrongConnectivityHelper.getExitReps(components));
 
-    FastFixedSetFactory<Statement> factory = new FastFixedSetFactory<>(lstStats);
+    FastFixedSetFactory<Statement> factory = FastFixedSetFactory.create(lstStats);
 
     FastFixedSet<Statement> setFlagNodes = factory.createCopiedSet();
     FastFixedSet<Statement> initSet = factory.createCopiedSet();
