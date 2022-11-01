@@ -1,5 +1,5 @@
 // Copyright 2000-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
-package org.jetbrains.java.decompiler.util;
+package org.jetbrains.java.decompiler.util.collections;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -143,7 +143,7 @@ public class VBStyleCollection<E, K> extends ArrayList<E> {
     return c;
   }
 
-  public void setMap(HashMap<K, Integer> map) {
+  private void setMap(HashMap<K, Integer> map) {
     this.map = map;
   }
 
@@ -155,7 +155,7 @@ public class VBStyleCollection<E, K> extends ArrayList<E> {
     return lstKeys;
   }
 
-  public void setLstKeys(ArrayList<K> lstKeys) {
+  private void setLstKeys(ArrayList<K> lstKeys) {
     this.lstKeys = lstKeys;
   }
 

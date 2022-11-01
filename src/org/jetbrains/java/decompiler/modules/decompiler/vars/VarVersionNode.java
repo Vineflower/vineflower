@@ -3,7 +3,7 @@ package org.jetbrains.java.decompiler.modules.decompiler.vars;
 
 import org.jetbrains.java.decompiler.modules.decompiler.decompose.IGraphNode;
 import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribute.LocalVariable;
-import org.jetbrains.java.decompiler.util.SFormsFastMapDirect;
+import org.jetbrains.java.decompiler.util.collections.SFormsFastMapDirect;
 
 import java.util.ArrayList;
 import java.util.HashSet;

@@ -1,7 +1,7 @@
 package org.jetbrains.java.decompiler.collections;
 
-import org.jetbrains.java.decompiler.util.FastFixedSet;
-import org.jetbrains.java.decompiler.util.FastFixedSetFactory;
+import org.jetbrains.java.decompiler.util.collections.fixed.FastFixedSet;
+import org.jetbrains.java.decompiler.util.collections.fixed.FastFixedSetFactory;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;

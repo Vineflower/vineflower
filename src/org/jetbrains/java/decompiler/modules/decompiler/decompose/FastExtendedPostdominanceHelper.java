@@ -3,11 +3,9 @@ package org.jetbrains.java.decompiler.modules.decompiler.decompose;
 
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.GeneralStatement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
-import org.jetbrains.java.decompiler.util.DotExporter;
-import org.jetbrains.java.decompiler.util.FastFixedSet;
-import org.jetbrains.java.decompiler.util.FastFixedSetFactory;
+import org.jetbrains.java.decompiler.util.collections.fixed.FastFixedSet;
+import org.jetbrains.java.decompiler.util.collections.fixed.FastFixedSetFactory;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 
 import java.util.*;

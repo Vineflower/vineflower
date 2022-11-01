@@ -1,11 +1,11 @@
-package org.jetbrains.java.decompiler.util;
+package org.jetbrains.java.decompiler.util.collections.fixed;
 
 
 import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 
 import java.util.*;
 
-class ShortFastFixedSetFactory<E> extends FastFixedSetFactory<E> {
+final class ShortFastFixedSetFactory<E> extends FastFixedSetFactory<E> {
   private final Map<E, Long> masks = new LinkedHashMap<>();
   private final long full;
 

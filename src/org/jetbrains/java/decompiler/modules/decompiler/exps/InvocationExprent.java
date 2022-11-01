@@ -25,11 +25,12 @@ import org.jetbrains.java.decompiler.struct.match.MatchEngine;
 import org.jetbrains.java.decompiler.struct.match.MatchNode;
 import org.jetbrains.java.decompiler.struct.match.MatchNode.RuleValue;
 import org.jetbrains.java.decompiler.util.*;
+import org.jetbrains.java.decompiler.util.collections.ListStack;
+import org.jetbrains.java.decompiler.util.collections.NullableConcurrentHashMap;
 
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class InvocationExprent extends Exprent {
   public enum InvocationType {

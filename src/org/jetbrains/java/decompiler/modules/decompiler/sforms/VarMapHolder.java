@@ -1,7 +1,7 @@
 package org.jetbrains.java.decompiler.modules.decompiler.sforms;
 
 import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
-import org.jetbrains.java.decompiler.util.SFormsFastMapDirect;
+import org.jetbrains.java.decompiler.util.collections.SFormsFastMapDirect;
 
 /*
  * The VarMapHolder class is used to hold the variable maps and

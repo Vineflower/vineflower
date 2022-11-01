@@ -11,7 +11,7 @@ import org.jetbrains.java.decompiler.struct.gen.DataPoint;
 import org.jetbrains.java.decompiler.struct.gen.FieldDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
-import org.jetbrains.java.decompiler.util.ListStack;
+import org.jetbrains.java.decompiler.util.collections.ListStack;
 
 public final class InstructionImpact {
 

@@ -16,6 +16,9 @@ import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement.EdgeDirection;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.util.*;
+import org.jetbrains.java.decompiler.util.collections.fixed.FastFixedSet;
+import org.jetbrains.java.decompiler.util.collections.fixed.FastFixedSetFactory;
+import org.jetbrains.java.decompiler.util.collections.VBStyleCollection;
 
 import java.util.*;
 

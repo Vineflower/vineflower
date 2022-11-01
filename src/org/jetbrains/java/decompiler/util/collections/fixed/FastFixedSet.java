@@ -1,4 +1,4 @@
-package org.jetbrains.java.decompiler.util;
+package org.jetbrains.java.decompiler.util.collections.fixed;
 
 
 import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
