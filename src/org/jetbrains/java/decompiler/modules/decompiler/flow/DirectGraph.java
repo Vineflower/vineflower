@@ -35,7 +35,7 @@ public class DirectGraph implements FlattenedGraph {
 
 
   public void sortReversePostOrder() {
-    LinkedList<DirectNode> res = new LinkedList<>();
+    Deque<DirectNode> res = new ArrayDeque<>();
     addToReversePostOrderListIterative(this.first, res);
 
     // Include unreachable nodes in the graph structure
@@ -59,7 +59,7 @@ public class DirectGraph implements FlattenedGraph {
     }
   }
 
-  private static void addToReversePostOrderListIterative(DirectNode root, List<? super DirectNode> lst) {
+  private static void addToReversePostOrderListIterative(DirectNode root, Deque<? super DirectNode> lst) {
 
     LinkedList<DirectNode> stackNode = new LinkedList<>();
     LinkedList<Integer> stackIndex = new LinkedList<>();
@@ -90,7 +90,7 @@ public class DirectGraph implements FlattenedGraph {
       }
 
       if (index == node.succs().size()) {
-        lst.add(0, node);
+        lst.addFirst(node);
 
         stackNode.removeLast();
       }

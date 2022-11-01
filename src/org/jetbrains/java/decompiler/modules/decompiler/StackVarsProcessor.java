@@ -742,11 +742,11 @@ public class StackVarsProcessor {
     Set<VarVersionNode> setVisited = new HashSet<>();
     Set<VarVersionNode> setNotDoms = new HashSet<>();
 
-    LinkedList<VarVersionNode> stack = new LinkedList<>();
+    Deque<VarVersionNode> stack = new ArrayDeque<>();
     stack.add(node);
 
     while (!stack.isEmpty()) {
-      VarVersionNode nd = stack.remove(0);
+      VarVersionNode nd = stack.poll();
       setVisited.add(nd);
 
       if (nd != node && (nd.flags & VarVersionNode.FLAG_PHANTOM_FINEXIT) == 0) {

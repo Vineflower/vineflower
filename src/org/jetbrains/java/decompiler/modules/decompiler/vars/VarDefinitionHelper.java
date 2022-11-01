@@ -101,7 +101,7 @@ public class VarDefinitionHelper {
     mergeVars(root);
 
     // catch variables are implicitly defined
-    LinkedList<Statement> stack = new LinkedList<>();
+    Deque<Statement> stack = new ArrayDeque<>();
     stack.add(root);
 
     while (!stack.isEmpty()) {

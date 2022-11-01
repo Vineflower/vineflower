@@ -787,7 +787,7 @@ public class SimplifyExprentsHelper {
           return true;
         }
 
-        LinkedList<Exprent> lstExprents = new LinkedList<>();
+        Deque<Exprent> lstExprents = new ArrayDeque<>();
         lstExprents.add(second);
 
         final Exprent target;

@@ -38,7 +38,7 @@ public class VarVersionsGraph {
         return true;
       }
 
-      List<VarVersionNode> lstNodes = new LinkedList<>();
+      List<VarVersionNode> lstNodes = new ArrayList<>();
       lstNodes.add(node);
 
       while (!lstNodes.isEmpty()) {
@@ -139,7 +139,7 @@ public class VarVersionsGraph {
 
   private Set<VarVersionNode> findNodes(VarVersionNode start) {
     Set<VarVersionNode> visited = new HashSet<>();
-    Deque<VarVersionNode> stack = new LinkedList<>();
+    Deque<VarVersionNode> stack = new ArrayDeque<>();
     stack.add(start);
 
     while (!stack.isEmpty()) {
@@ -158,7 +158,7 @@ public class VarVersionsGraph {
   public Set<VarVersionNode> rootReachability(Set<VarVersionNode> roots) {
     Set<VarVersionNode> visited = new HashSet<>();
 
-    Deque<VarVersionNode> stack = new LinkedList<>(roots);
+    Deque<VarVersionNode> stack = new ArrayDeque<>(roots);
 
     while (!stack.isEmpty()) {
       VarVersionNode node = stack.removeLast();
@@ -174,7 +174,7 @@ public class VarVersionsGraph {
   }
 
   public boolean areVarsAnalogous(int varBase, int varCheck) {
-    Deque<VarVersionNode> stack = new LinkedList<>();
+    Deque<VarVersionNode> stack = new ArrayDeque<>();
     Set<VarVersionNode> visited = new HashSet<>();
 
     VarVersionNode start = this.nodes.getWithKey(new VarVersionPair(varBase, 1));

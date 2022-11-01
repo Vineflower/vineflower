@@ -84,23 +84,23 @@ public class FlattenStatementsHelper implements GraphFlattener {
 
     class StatementStackEntry {
       public final Statement statement;
-      public final LinkedList<StackEntry> stackFinally;
+      public final Deque<StackEntry> stackFinally;
       public final List<Exprent> tailExprents;
 
       public int statementIndex;
       public int edgeIndex;
       public List<StatEdge> succEdges;
 
-      StatementStackEntry(Statement statement, LinkedList<StackEntry> stackFinally, List<Exprent> tailExprents) {
+      StatementStackEntry(Statement statement, Deque<StackEntry> stackFinally, List<Exprent> tailExprents) {
         this.statement = statement;
         this.stackFinally = stackFinally;
         this.tailExprents = tailExprents;
       }
     }
 
-    LinkedList<StatementStackEntry> lstStackStatements = new LinkedList<>();
+    Deque<StatementStackEntry> lstStackStatements = new ArrayDeque<>();
 
-    lstStackStatements.add(new StatementStackEntry(root, new LinkedList<>(), null));
+    lstStackStatements.add(new StatementStackEntry(root, new ArrayDeque<>(), null));
 
     mainloop:
     while (!lstStackStatements.isEmpty()) {
@@ -109,7 +109,7 @@ public class FlattenStatementsHelper implements GraphFlattener {
 
       Statement stat = statEntry.statement;
 
-      LinkedList<StackEntry> stackFinally = statEntry.stackFinally;
+      Deque<StackEntry> stackFinally = statEntry.stackFinally;
       int statementBreakIndex = statEntry.statementIndex;
 
       DirectNode node, nd;
@@ -183,14 +183,14 @@ public class FlattenStatementsHelper implements GraphFlattener {
 
               mapDestinationNodes.put(stat.id, new String[]{firstnd.id, null});
 
-              LinkedList<StatementStackEntry> lst = new LinkedList<>();
+              List<StatementStackEntry> lst = new ArrayList<>();
 
               for (Statement st : stat.getStats()) {
                 listEdges.add(new Edge(firstnd.id, st.id, StatEdge.TYPE_REGULAR));
 
-                LinkedList<StackEntry> stack = stackFinally;
+                Deque<StackEntry> stack = stackFinally;
                 if (stat instanceof CatchAllStatement && ((CatchAllStatement) stat).isFinally()) {
-                  stack = new LinkedList<>(stackFinally);
+                  stack = new ArrayDeque<>(stackFinally);
 
                   if (st == stat.getFirst()) { // try block
                     stack.add(new StackEntry((CatchAllStatement) stat, false));
@@ -207,7 +207,9 @@ public class FlattenStatementsHelper implements GraphFlattener {
                 }
               }
 
-              lstStackStatements.addAll(0, lst);
+              for (int i = lst.size() - 1; i >= 0; i--) {
+                lstStackStatements.addFirst(lst.get(i));
+              }
 
               this.tryNodesStack.add(new ArrayList<>());
             } else {
@@ -510,7 +512,7 @@ public class FlattenStatementsHelper implements GraphFlattener {
 
           StatEdge edge = lstSuccEdges.get(edgeindex);
 
-          LinkedList<StackEntry> stack = new LinkedList<>(stackFinally);
+          Deque<StackEntry> stack = new ArrayDeque<>(stackFinally);
 
           int edgetype = edge.getType();
           Statement destination = edge.getDestination();

@@ -115,8 +115,8 @@ public class FastExtendedPostdominanceHelper {
   private void filterOnDominance(DominatorTreeExceptionFilter filter) {
 
     DominatorEngine engine = filter.getDomEngine();
-    LinkedList<Statement> stack = new LinkedList<>();
-    LinkedList<FastFixedSet<Integer>> stackPath = new LinkedList<>();
+    Deque<Statement> stack = new ArrayDeque<>();
+    Deque<FastFixedSet<Integer>> stackPath = new ArrayDeque<>();
     Set<Statement> setVisited = new HashSet<>();
 
     for (int head : new HashSet<>(mapExtPostdominators.keySet())) {

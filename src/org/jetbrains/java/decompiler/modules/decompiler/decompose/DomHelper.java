@@ -326,7 +326,7 @@ public final class DomHelper implements GraphParser {
   
   // Checks if a statement has no exits (disregarding exceptions) that lead outside the statement.
   private static boolean hasNoExits(Statement head) {
-    Deque<Statement> stack = new LinkedList<>();
+    Deque<Statement> stack = new ArrayDeque<>();
     stack.add(head);
 
     while (!stack.isEmpty()) {
