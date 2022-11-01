@@ -80,9 +80,13 @@ public class FastSparseSetFactory<E> {
       this.factory = factory;
       this.colValuesInternal = factory.getInternalValuesCollection();
 
-      int length = factory.getLastBlock() + 1;
+      // Originally, this returned factory.getLastBlock() + 1. However, in the most common case, only 1 element is added.
+      // This means that the array is unnecessarily large. Instead, max(lastBlock, 1) is used to ensure empty factories
+      // don't produce -1 lengths.
+      // TODO: the array init of size 1 can be elided, and the array can be lazy initialized when sized above 1
+      int length = Math.max(factory.getLastBlock(), 1);
       this.data = new int[length];
-      this.next = new int[length];
+      this.next = null;
     }
 
     private FastSparseSet(FastSparseSetFactory<E> factory, int[] data, int[] next) {
@@ -95,9 +99,13 @@ public class FastSparseSetFactory<E> {
 
     public FastSparseSet<E> getCopy() {
       int[] newData = new int[this.data.length];
-      int[] newNext = new int[this.next.length];
       System.arraycopy(this.data, 0, newData, 0, newData.length);
-      System.arraycopy(this.next, 0, newNext, 0, newNext.length);
+      int[] newNext = null;
+
+      if (this.next != null) {
+        newNext = new int[this.next.length];
+        System.arraycopy(this.next, 0, newNext, 0, newNext.length);
+      }
 
       return new FastSparseSet<>(factory, newData, newNext);
     }
@@ -114,7 +122,9 @@ public class FastSparseSetFactory<E> {
       }
 
       data = Arrays.copyOf(data, newlength);
-      next = Arrays.copyOf(next, newlength);
+      if (next != null) {
+        next = Arrays.copyOf(next, newlength);
+      }
 
       return data;
     }
@@ -134,7 +144,19 @@ public class FastSparseSetFactory<E> {
 
       data[block] |= PackedMap.unpackHigh(index);
 
-      changeNext(next, block, next[block], block);
+      changeNext(block, getNextIdx(next, block), block);
+    }
+
+    private static int getNextIdx(int[] next, int block) {
+      return next == null ? 0 : next[block];
+    }
+
+    private int[] allocNext() {
+      if (next == null) {
+        next = new int[data.length];
+      }
+
+      return next;
     }
 
     public void remove(E element) {
@@ -150,7 +172,7 @@ public class FastSparseSetFactory<E> {
         data[block] &= ~PackedMap.unpackHigh(index);
 
         if (data[block] == 0) {
-          changeNext(next, block, block, next[block]);
+          changeNext(block, block, getNextIdx(next, block));
         }
       }
     }
@@ -171,19 +193,23 @@ public class FastSparseSetFactory<E> {
 
       int link = 0;
       for (int i = data.length - 1; i >= 0; i--) {
-        next[i] = link;
+        if (link != 0 && next == null) {
+          allocNext();
+          next[i] = link;
+        }
+
         if (data[i] != 0) {
           link = i;
         }
       }
     }
 
-    private static void changeNext(int[] arrnext, int key, int oldnext, int newnext) {
+    private void changeNext(int key, int oldnext, int newnext) {
       for (int i = key - 1; i >= 0; i--) {
-        if (arrnext[i] == oldnext) {
-          arrnext[i] = newnext;
-        }
-        else {
+        if (getNextIdx(next, i) == oldnext) {
+          allocNext();
+          next[i] = newnext;
+        } else {
           break;
         }
       }
@@ -206,10 +232,10 @@ public class FastSparseSetFactory<E> {
         intdata[pointer] |= extdata[pointer];
 
         if (nextrec) {
-          changeNext(next, pointer, next[pointer], pointer);
+          changeNext(pointer, getNextIdx(next, pointer), pointer);
         }
 
-        pointer = extnext[pointer];
+        pointer = getNextIdx(extnext, pointer);
       }
       while (pointer != 0);
     }
@@ -245,10 +271,10 @@ public class FastSparseSetFactory<E> {
 
         intdata[pointer] &= ~extdata[pointer];
         if (intdata[pointer] == 0) {
-          changeNext(next, pointer, pointer, next[pointer]);
+          changeNext(pointer, pointer, getNextIdx(next, pointer));
         }
 
-        pointer = next[pointer];
+        pointer = getNextIdx(next, pointer);
       }
       while (pointer != 0);
     }
@@ -311,7 +337,7 @@ public class FastSparseSetFactory<E> {
     }
 
     public boolean isEmpty() {
-      return data.length == 0 || (next[0] == 0 && data[0] == 0);
+      return data.length == 0 || (getNextIdx(next, 0) == 0 && data[0] == 0);
     }
 
     @Override
@@ -352,7 +378,7 @@ public class FastSparseSetFactory<E> {
       return next;
     }
 
-    public FastSparseSetFactory<E> getFactory() {
+    private FastSparseSetFactory<E> getFactory() {
       return factory;
     }
   }
@@ -395,7 +421,7 @@ public class FastSparseSetFactory<E> {
         }
 
         dindex = 0;
-        bindex = next[bindex];
+        bindex = next == null ? 0 : next[bindex];
 
         if (bindex == 0) {
           break;
