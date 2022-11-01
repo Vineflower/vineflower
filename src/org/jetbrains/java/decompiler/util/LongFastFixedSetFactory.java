@@ -1,6 +1,7 @@
-// Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.util;
 
+
+import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 
 import java.util.*;
 
@@ -48,8 +49,8 @@ class LongFastFixedSetFactory<E> extends FastFixedSetFactory<E> {
 
     @Override
     public void setAllElements() {
+      this.data[this.data.length - 1] = (2L << ((LongFastFixedSetFactory.this.indexes.size() & 63) - 1)) - 1;
       Arrays.fill(this.data, 0, this.data.length - 1, -1L);
-      this.data[this.data.length - 1] = (1L << (LongFastFixedSetFactory.this.indexes.size() & 63)) - 1;
     }
 
     @Override
@@ -91,7 +92,7 @@ class LongFastFixedSetFactory<E> extends FastFixedSetFactory<E> {
     }
 
     private long[] getData(FastFixedSet<E> set) {
-      assert set.factory == LongFastFixedSetFactory.this;
+      ValidationHelper.assertTrue(set.factory == LongFastFixedSetFactory.this, "Incompatible set factories");
       return ((LongFastFixedSet) set).data;
     }
 
@@ -150,7 +151,7 @@ class LongFastFixedSetFactory<E> extends FastFixedSetFactory<E> {
     }
 
     @Override
-    public int size() {
+    public int getRealSize() {
       int size = 0;
       for (long d : this.data) {
         size += Long.bitCount(d);
@@ -188,6 +189,7 @@ class LongFastFixedSetFactory<E> extends FastFixedSetFactory<E> {
       return buffer.toString();
     }
 
+    // TODO: this can be optimized
     private final class LongFastFixedSetIterator implements Iterator<E> {
       private final Iterator<Map.Entry<E, Integer>> data = LongFastFixedSetFactory.this.indexes.entrySet().iterator();
       private Map.Entry<E, Integer> entry;
@@ -210,9 +212,12 @@ class LongFastFixedSetFactory<E> extends FastFixedSetFactory<E> {
       @Override
       public E next() {
         if (this.entry == null && !this.hasNext()) {
-          throw new NoSuchElementException();
+          // TODO: returning null is so wrong
+          ValidationHelper.assertTrue(false, "No more elements");
+          return null;
+          // throw new NoSuchElementException();
         }
-        assert this.entry != null;
+        ValidationHelper.notNull(this.entry);
 
         this.lastEntry = this.entry;
         this.entry = null;

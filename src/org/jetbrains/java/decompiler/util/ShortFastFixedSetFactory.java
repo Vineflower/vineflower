@@ -1,6 +1,7 @@
-// Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.util;
 
+
+import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 
 import java.util.*;
 
@@ -9,7 +10,7 @@ class ShortFastFixedSetFactory<E> extends FastFixedSetFactory<E> {
   private final long full;
 
   ShortFastFixedSetFactory(Collection<E> set) {
-    assert set.size() <= 64;
+    ValidationHelper.assertTrue(set.size() <= 64, "Short fast fixed set can't contain more than 64 elements");
 
     long mask = 1;
 
@@ -117,7 +118,7 @@ class ShortFastFixedSetFactory<E> extends FastFixedSetFactory<E> {
     }
 
     @Override
-    public int size() {
+    public int getRealSize() {
       return Long.bitCount(this.data);
     }
 
@@ -145,6 +146,7 @@ class ShortFastFixedSetFactory<E> extends FastFixedSetFactory<E> {
       return buffer.toString();
     }
 
+    // TODO: this can be optimized
     private final class LongFastFixedSetIterator implements Iterator<E> {
       private final Iterator<Map.Entry<E, Long>> data = ShortFastFixedSetFactory.this.masks.entrySet().iterator();
       private Map.Entry<E, Long> entry;
@@ -167,9 +169,12 @@ class ShortFastFixedSetFactory<E> extends FastFixedSetFactory<E> {
       @Override
       public E next() {
         if (this.entry == null && !this.hasNext()) {
-          throw new NoSuchElementException();
+          // TODO: returning null is so wrong
+          ValidationHelper.assertTrue(false, "No more elements");
+          return null;
+          // throw new NoSuchElementException();
         }
-        assert this.entry != null;
+        ValidationHelper.notNull(this.entry);
 
         this.lastEntry = this.entry;
         this.entry = null;

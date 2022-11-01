@@ -1,7 +1,7 @@
 package org.jetbrains.java.decompiler.collections;
 
+import org.jetbrains.java.decompiler.util.FastFixedSet;
 import org.jetbrains.java.decompiler.util.FastFixedSetFactory;
-import org.jetbrains.java.decompiler.util.FastFixedSetFactory.FastFixedSet;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -930,7 +930,10 @@ public class FixedFastSetTest {
         0x1000_0000, 0x2000_0000, 0x4000_0000, 0x8000_0000,
         0xF000_0000, 0xFFFF_0000, 0xFFFF_0001, 0xFFFF_FFFF),
       IntStream.range(0, 1024).boxed().collect(Collectors.toList()),
+      IntStream.range(0, 1023).boxed().collect(Collectors.toList()),
+      IntStream.range(0, 1025).boxed().collect(Collectors.toList()),
+      IntStream.range(0, 1030).boxed().collect(Collectors.toList()),
       IntStream.range(0, 1024).mapToObj("A"::repeat).collect(Collectors.toList())
-    ).map(list -> Arguments.of(list, new FastFixedSetFactory<>(list)));
+    ).map(list -> Arguments.of(list, FastFixedSetFactory.create(list)));
   }
 }

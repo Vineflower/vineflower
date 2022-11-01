@@ -1,6 +1,8 @@
 package org.jetbrains.java.decompiler.util;
 
 
+import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
+
 import java.util.AbstractCollection;
 import java.util.Collection;
 import java.util.HashSet;
@@ -13,6 +15,14 @@ public abstract class FastFixedSet<E> extends AbstractCollection<E> implements S
     this.factory = factory;
   }
 
+  @Deprecated
+  public final int size() {
+    ValidationHelper.assertTrue(false, "The behaviour of FastFixedSet.size() is not correct");
+    return this.factory.getEntries().size();
+  }
+
+  public abstract int getRealSize();
+
   @Override
   public abstract FastFixedSet<E> clone();
 
@@ -20,6 +30,9 @@ public abstract class FastFixedSet<E> extends AbstractCollection<E> implements S
 
   @Override
   public abstract boolean add(E element);
+
+  @Override
+  public abstract boolean contains(Object element);
 
   public abstract boolean containsAll(FastFixedSet<E> set);
 
@@ -80,7 +93,7 @@ public abstract class FastFixedSet<E> extends AbstractCollection<E> implements S
       }
     }
 
-    // super uses c.contains, which might be  much slower
+    // super uses c.contains, which might be much slower
     // than this.contains, so we just use a simple loop over c
     boolean mutated = false;
     for (Object o : c) {
@@ -97,4 +110,40 @@ public abstract class FastFixedSet<E> extends AbstractCollection<E> implements S
   public abstract int hashCode();
 
   public abstract String toString();
+
+  public Set<E> toPlainSet() {
+    final HashSet<E> set = new HashSet<>(this.getRealSize());
+    set.addAll(this);
+    return set;
+  }
+
+  @Deprecated
+  public boolean containsKey(E id) {
+    return this.factory.getEntries().contains(id);
+  }
+
+  @Deprecated
+  public boolean contains(FastFixedSet<E> set) {
+    return this.containsAll(set);
+  }
+
+  @Deprecated
+  public void complement(FastFixedSet<E> set) {
+    this.removeAll(set);
+  }
+
+  @Deprecated
+  public FastFixedSet<E> getCopy() {
+    return this.clone();
+  }
+
+  @Deprecated
+  public void union(FastFixedSet<E> set) {
+    this.addAll(set);
+  }
+
+  @Deprecated
+  public void intersection(FastFixedSet<E> set) {
+    this.retainAll(set);
+  }
 }
