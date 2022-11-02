@@ -17,6 +17,12 @@ final class PackedMap<K> {
   private final Map<K, Integer> mapKeys = new HashMap<>();
   private int size = 0;
 
+  public long putWithKey(int high, int low, K key) {
+    long packed = PackedMap.pack(high, low);
+    this.putWithKey(packed, key);
+    return packed;
+  }
+
   public void putWithKey(long element, K key) {
     Integer index = mapKeys.get(key);
 

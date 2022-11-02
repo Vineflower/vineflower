@@ -19,16 +19,15 @@ public class FastSparseSetFactory<E> {
 
     for (E element : set) {
 
-      block = index / 32;
+      block = index >> 5;
 
-      if (index % 32 == 0) {
+      if ((index & 31) == 0) {
         mask = 1;
-      }
-      else {
+      } else {
         mask <<= 1;
       }
 
-      colValuesInternal.putWithKey(PackedMap.pack(mask, block), element);
+      colValuesInternal.putWithKey(mask, block, element);
 
       index++;
     }
@@ -38,19 +37,14 @@ public class FastSparseSetFactory<E> {
   }
 
   private long addElement(E element) {
-
-    if (lastMask == -1 || lastMask == 0x80000000) {
+    if (lastMask < 0) {
       lastMask = 1;
       lastBlock++;
-    }
-    else {
+    } else {
       lastMask <<= 1;
     }
 
-    long pointer = PackedMap.pack(lastMask, lastBlock);
-    colValuesInternal.putWithKey(pointer, element);
-
-    return pointer;
+    return colValuesInternal.putWithKey(lastMask, lastBlock, element);
   }
 
   public FastSparseSet<E> createEmptySet() {
@@ -98,14 +92,8 @@ public class FastSparseSetFactory<E> {
     }
 
     public FastSparseSet<E> getCopy() {
-      int[] newData = new int[this.data.length];
-      System.arraycopy(this.data, 0, newData, 0, newData.length);
-      int[] newNext = null;
-
-      if (this.next != null) {
-        newNext = new int[this.next.length];
-        System.arraycopy(this.next, 0, newNext, 0, newNext.length);
-      }
+      int[] newData = this.data.clone();
+      int[] newNext = this.next == null ? null : this.next.clone();
 
       return new FastSparseSet<>(factory, newData, newNext);
     }
@@ -144,10 +132,10 @@ public class FastSparseSetFactory<E> {
 
       data[block] |= PackedMap.unpackHigh(index);
 
-      changeNext(block, getNextIdx(next, block), block);
+      changeNext(block, getNextIdx(block), block);
     }
 
-    private static int getNextIdx(int[] next, int block) {
+    private int getNextIdx(int block) {
       return next == null ? 0 : next[block];
     }
 
@@ -163,6 +151,7 @@ public class FastSparseSetFactory<E> {
       long index;
       if (!colValuesInternal.containsKey(element)) {
         index = factory.addElement(element);
+        // TODO: if the element isn't in the map yet, why does it need to be removed
       } else {
         index = colValuesInternal.getWithKey(element);
       }
@@ -172,7 +161,7 @@ public class FastSparseSetFactory<E> {
         data[block] &= ~PackedMap.unpackHigh(index);
 
         if (data[block] == 0) {
-          changeNext(block, block, getNextIdx(next, block));
+          changeNext(block, block, getNextIdx(block));
         }
       }
     }
@@ -181,6 +170,7 @@ public class FastSparseSetFactory<E> {
       long index;
       if (!colValuesInternal.containsKey(element)) {
         index = factory.addElement(element);
+        // TODO: if the element isn't in the map yet, how can it be contained
       } else {
         index = colValuesInternal.getWithKey(element);
       }
@@ -206,7 +196,7 @@ public class FastSparseSetFactory<E> {
 
     private void changeNext(int key, int oldnext, int newnext) {
       for (int i = key - 1; i >= 0; i--) {
-        if (getNextIdx(next, i) == oldnext) {
+        if (getNextIdx(i) == oldnext) {
           allocNext();
           next[i] = newnext;
         } else {
@@ -218,7 +208,6 @@ public class FastSparseSetFactory<E> {
     public void union(FastSparseSet<E> set) {
 
       int[] extdata = set.getData();
-      int[] extnext = set.getNext();
       int[] intdata = data;
       int intlength = intdata.length;
 
@@ -232,10 +221,10 @@ public class FastSparseSetFactory<E> {
         intdata[pointer] |= extdata[pointer];
 
         if (nextrec) {
-          changeNext(pointer, getNextIdx(next, pointer), pointer);
+          changeNext(pointer, getNextIdx(pointer), pointer);
         }
 
-        pointer = getNextIdx(extnext, pointer);
+        pointer = set.getNextIdx(pointer);
       }
       while (pointer != 0);
     }
@@ -271,10 +260,10 @@ public class FastSparseSetFactory<E> {
 
         intdata[pointer] &= ~extdata[pointer];
         if (intdata[pointer] == 0) {
-          changeNext(pointer, pointer, getNextIdx(next, pointer));
+          changeNext(pointer, pointer, getNextIdx(pointer));
         }
 
-        pointer = getNextIdx(next, pointer);
+        pointer = getNextIdx(pointer);
       }
       while (pointer != 0);
     }
@@ -337,7 +326,7 @@ public class FastSparseSetFactory<E> {
     }
 
     public boolean isEmpty() {
-      return data.length == 0 || (getNextIdx(next, 0) == 0 && data[0] == 0);
+      return data.length == 0 || (getNextIdx( 0) == 0 && data[0] == 0);
     }
 
     @Override
