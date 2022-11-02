@@ -2,6 +2,7 @@ package org.jetbrains.java.decompiler.collections;
 
 import org.jetbrains.java.decompiler.util.collections.FastSparseSetFactory;
 import org.jetbrains.java.decompiler.util.collections.FastSparseSetFactory.FastSparseSet;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -380,6 +381,74 @@ public class FastSparseSetTest {
     FastSparseSet<T> set = factory.createEmptySet();
     copyElements(elements, set);
     assertFalse(set.toString().isEmpty());
+  }
+
+
+  @ParameterizedTest
+  @MethodSource("operationsOnVerySparseSetsSource")
+  void operationsOnVerySparseSets(int sparseFactor, int overlapFactor) {
+    Random random = newRandom();
+    List<Integer> domain = IntStream.range(0, 1_000_000).boxed().collect(Collectors.toList());
+    FastSparseSetFactory<Integer> factory = new FastSparseSetFactory<>(domain);
+
+    FastSparseSet<Integer> set1 = factory.createEmptySet();
+    FastSparseSet<Integer> set2 = factory.createEmptySet();
+
+    for (int i = 0; i < 1_000_000; i++) {
+      if (random.nextInt(sparseFactor) == 0) {
+        set1.add(i);
+
+        if (overlapFactor != 0 && random.nextInt(overlapFactor) == 0) {
+          set2.add(i);
+        }
+      } else if (random.nextInt(sparseFactor - 1) == 0) {
+        set2.add(i);
+      }
+    }
+
+    Set<Integer> ps1 = set1.toPlainSet();
+    Set<Integer> ps2 = set2.toPlainSet();
+
+    // union
+    FastSparseSet<Integer> union = set1.getCopy();
+    union.union(set2);
+    Set<Integer> psUnion = new HashSet<>(ps1);
+    psUnion.addAll(ps2);
+
+    assertPlainSetIsEqual(union, psUnion);
+
+    // intersection
+    FastSparseSet<Integer> intersection = set1.getCopy();
+    intersection.intersection(set2);
+    Set<Integer> psIntersection = new HashSet<>(ps1);
+    psIntersection.retainAll(ps2);
+
+    assertPlainSetIsEqual(intersection, psIntersection);
+
+    // complement
+    FastSparseSet<Integer> complement = set1.getCopy();
+    complement.complement(set2);
+    Set<Integer> psComplement = new HashSet<>(ps1);
+    psComplement.removeAll(ps2);
+
+    assertPlainSetIsEqual(complement, psComplement);
+  }
+
+  static Stream<Arguments> operationsOnVerySparseSetsSource() {
+    return Stream.of(
+        Arguments.of(10, 0),
+        Arguments.of(10, 10),
+        Arguments.of(10, 100),
+        Arguments.of(100, 0),
+        Arguments.of(100, 10),
+        Arguments.of(100, 100),
+        Arguments.of(1000, 0),
+        Arguments.of(1000, 10),
+        Arguments.of(1000, 100),
+        Arguments.of(10000, 0),
+        Arguments.of(10000, 10),
+        Arguments.of(10000, 100)
+    );
   }
 
   private static Random newRandom() {
