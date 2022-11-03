@@ -18,6 +18,7 @@ import org.jetbrains.java.decompiler.util.TextUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 
 public final class IfStatement extends Statement {
@@ -50,6 +51,12 @@ public final class IfStatement extends Statement {
 
   private IfStatement() {
     super(StatementType.IF);
+
+    headexprent.add(null);
+  }
+
+  public IfStatement(int id) {
+    super(StatementType.IF, id);
 
     headexprent.add(null);
   }
@@ -424,6 +431,48 @@ public final class IfStatement extends Statement {
 
   public void setHasPPMM(boolean hasPPMM) {
     this.hasPPMM = hasPPMM;
+  }
+
+  @Override
+  public void addToTapestry(Consumer<String> annotator) {
+    if (iftype == IFTYPE_IF) {
+      annotator.accept("If");
+    } else if (iftype == IFTYPE_IFELSE) {
+      annotator.accept("IfElse");
+    }
+
+    if (negated) {
+      annotator.accept("Neg");
+    }
+
+    if (hasPPMM) {
+      annotator.accept("PPMM");
+    }
+
+    if (patternMatched) {
+      annotator.accept("Matched");
+    }
+  }
+
+  @Override
+  public void readFromTapestry(String annotation) {
+    switch (annotation) {
+      case "If":
+        iftype = IFTYPE_IF;
+        break;
+      case "IfElse":
+        iftype = IFTYPE_IFELSE;
+        break;
+      case "Neg":
+        negated = true;
+        break;
+      case "PPMM":
+        hasPPMM = true;
+        break;
+      case "Matched":
+        patternMatched = true;
+        break;
+    }
   }
 
   @Override

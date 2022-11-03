@@ -6,6 +6,10 @@ import java.util.BitSet;
 public final class DummyExitStatement extends Statement {
   public BitSet bytecode = null;  // offsets of bytecode instructions mapped to dummy exit
 
+  public DummyExitStatement(int id) {
+    super(StatementType.DUMMY_EXIT, id);
+  }
+
   public DummyExitStatement() {
     super(StatementType.DUMMY_EXIT);
   }

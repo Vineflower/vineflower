@@ -14,6 +14,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarTypeProcessor.FinalType;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
+import org.jetbrains.java.decompiler.modules.serializer.ExprParser;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribute;
@@ -362,6 +363,34 @@ public class VarExprent extends Exprent {
     }
 
     return pair.version == 0 ? "var" + pair.var : "var" + pair.var + "_" + version;
+  }
+
+  @Override
+  protected void addToTapestry(StringBuilder sb) {
+    VarVersionPair vvp = getVarVersionPair();
+
+    sb.append(this.varType.toTapestryString());
+    sb.append(" ");
+
+    sb.append(vvp.var);
+    if (vvp.version != 0) {
+      sb.append(" ").append(vvp.version);
+    }
+  }
+
+  public static Exprent fromTapestry(ExprParser.Arg arg) {
+    VarType type = VarType.fromTapestryString(arg.getNextString());
+    int var = Integer.parseInt(arg.getNextString());
+
+    int ver = 0;
+    if (arg.peekNext() == ExprParser.Type.STRING) {
+      ver = Integer.parseInt(arg.getNextString());
+    }
+
+    VarExprent varEx = new VarExprent(var, type, null, null);
+    varEx.setVersion(ver);
+
+    return varEx;
   }
 
   public void setBoundType(VarType boundType) {

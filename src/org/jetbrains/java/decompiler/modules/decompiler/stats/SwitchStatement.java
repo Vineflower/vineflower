@@ -515,6 +515,10 @@ public final class SwitchStatement extends Statement {
     return defaultEdge;
   }
 
+  public void setDefaultEdge(StatEdge defaultEdge) {
+    this.defaultEdge = defaultEdge;
+  }
+
   public List<List<Exprent>> getCaseValues() {
     return caseValues;
   }

@@ -10,6 +10,7 @@ import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
+import org.jetbrains.java.decompiler.modules.serializer.ExprParser;
 import org.jetbrains.java.decompiler.struct.StructField;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
@@ -301,6 +302,30 @@ public class AssignmentExprent extends Exprent {
     }
 
     buf.prepend("(" + ExprProcessor.getCastTypeName(left) + ")");
+  }
+
+  @Override
+  protected void addToTapestry(StringBuilder sb) {
+    if (condType != null) {
+      sb.append(condType.name());
+    }
+
+    sb.append(" ");
+    left.toTapestry(sb);
+    sb.append(" ");
+    right.toTapestry(sb);
+  }
+
+  public static Exprent fromTapestry(ExprParser.Arg arg) {
+    FunctionExprent.FunctionType condType = null;
+    if (arg.peekNext() == ExprParser.Type.STRING) {
+      condType = FunctionExprent.FunctionType.valueOf(arg.getNextString());
+    }
+
+    Exprent left = arg.getNextExprent();
+    Exprent right = arg.getNextExprent();
+
+    return new AssignmentExprent(left, right, condType, null);
   }
 
   @Override

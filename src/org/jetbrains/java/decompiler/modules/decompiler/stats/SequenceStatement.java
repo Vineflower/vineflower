@@ -21,6 +21,10 @@ public final class SequenceStatement extends Statement {
     super(StatementType.SEQUENCE);
   }
 
+  public SequenceStatement(int id) {
+    super(StatementType.SEQUENCE, id);
+  }
+
   public SequenceStatement(Statement... stats) {
     this(Arrays.asList(stats));
   }

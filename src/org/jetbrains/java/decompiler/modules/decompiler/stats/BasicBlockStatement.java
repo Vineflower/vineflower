@@ -30,6 +30,13 @@ public final class BasicBlockStatement extends Statement {
   // constructors
   // *****************************************************************************
 
+  public BasicBlockStatement(int id) {
+    super(StatementType.BASIC_BLOCK, id);
+
+    block = new BasicBlock(id);
+    exprents = new ArrayList<>();
+  }
+
   public BasicBlockStatement(BasicBlock block) {
 
     super(StatementType.BASIC_BLOCK, block.id);

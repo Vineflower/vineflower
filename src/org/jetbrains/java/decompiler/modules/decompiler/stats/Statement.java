@@ -23,6 +23,7 @@ import org.jetbrains.java.decompiler.util.collections.VBStyleCollection;
 
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.function.Consumer;
 
 public abstract class Statement implements IMatchable {
   public enum StatementType {
@@ -35,6 +36,10 @@ public abstract class Statement implements IMatchable {
 
     StatementType(String prettyId) {
       this.prettyId = prettyId;
+    }
+
+    public String getPrettyId() {
+      return prettyId;
     }
   }
   // All edge types
@@ -853,6 +858,14 @@ public abstract class Statement implements IMatchable {
     }
 
     throw new IllegalStateException("No successor exists for " + this);
+  }
+
+  public void addToTapestry(Consumer<String> annotator) {
+
+  }
+
+  public void readFromTapestry(String annotation) {
+
   }
 
   public List<StatEdge> getAllPredecessorEdges() {

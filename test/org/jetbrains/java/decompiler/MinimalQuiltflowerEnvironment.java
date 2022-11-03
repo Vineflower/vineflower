@@ -12,7 +12,7 @@ import java.util.HashMap;
  *
  * @author SuperCoder79
  */
-public final class MinimalFernflowerEnvironment {
+public final class MinimalQuiltflowerEnvironment {
   public static void setup() {
     StructContext sc = new StructContext(null, null, null);
     DecompilerContext context = new DecompilerContext(
