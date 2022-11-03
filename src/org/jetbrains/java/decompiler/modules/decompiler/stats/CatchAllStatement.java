@@ -35,6 +35,10 @@ public class CatchAllStatement extends Statement {
     super(StatementType.CATCH_ALL);
   }
 
+  public CatchAllStatement(int id) {
+    super(StatementType.CATCH_ALL, id);
+  }
+
   protected CatchAllStatement(Statement head, Statement handler) {
 
     this();

@@ -4,6 +4,7 @@
 package org.jetbrains.java.decompiler.modules.decompiler.exps;
 
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
+import org.jetbrains.java.decompiler.modules.serializer.ExprParser;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.SFormsConstructor;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.VarMapHolder;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
@@ -120,6 +121,15 @@ public class IfExprent extends Exprent {
   public IfExprent negateIf() {
     condition = new FunctionExprent(FunctionType.BOOL_NOT, condition, condition.bytecode);
     return this;
+  }
+
+  @Override
+  protected void addToTapestry(StringBuilder sb) {
+    condition.toTapestry(sb);
+  }
+
+  public static Exprent fromTapestry(ExprParser.Arg arg) {
+    return new IfExprent(arg.getNextExprent(), null);
   }
 
   public Exprent getCondition() {

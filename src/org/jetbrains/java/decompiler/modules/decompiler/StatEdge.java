@@ -92,6 +92,41 @@ public class StatEdge {
     return type;
   }
 
+  public String makeEdgeTypeString() {
+    switch (type) {
+      case TYPE_REGULAR:
+        return "Regular";
+      case TYPE_EXCEPTION:
+        return "Except";
+      case TYPE_BREAK:
+        return destination.type == Statement.StatementType.DUMMY_EXIT ? "BreakExit" : "Break";
+      case TYPE_CONTINUE:
+        return "Continue";
+      case TYPE_FINALLYEXIT:
+        return "FinExit";
+      default:
+        throw new RuntimeException("Invalid edge type");
+    }
+  }
+
+  public static int fromEdgeTypeString(String s) {
+    switch (s) {
+      case "Regular":
+        return TYPE_REGULAR;
+      case "Except":
+        return TYPE_EXCEPTION;
+      case "Break":
+      case "BreakExit":
+        return TYPE_BREAK;
+      case "Continue":
+        return TYPE_CONTINUE;
+      case "FinExit":
+        return TYPE_FINALLYEXIT;
+      default:
+        throw new RuntimeException("Invalid edge type");
+    }
+  }
+
   public void setType(int type) {
     this.type = type;
   }

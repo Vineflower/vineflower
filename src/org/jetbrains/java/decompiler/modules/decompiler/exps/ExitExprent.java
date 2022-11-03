@@ -8,6 +8,7 @@ import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
+import org.jetbrains.java.decompiler.modules.serializer.ExprParser;
 import org.jetbrains.java.decompiler.struct.attr.StructExceptionsAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
 import org.jetbrains.java.decompiler.struct.gen.CodeType;
@@ -120,6 +121,30 @@ public class ExitExprent extends Exprent {
 
       return buf.append(value.toJava(indent)).prepend("throw ");
     }
+  }
+
+  @Override
+  protected void addToTapestry(StringBuilder sb) {
+    sb.append(this.exitType.name());
+    sb.append(" ");
+    sb.append(this.retType.toTapestryString());
+
+    if (this.value != null) {
+      sb.append(" ");
+      this.value.toTapestry(sb);
+    }
+  }
+
+  public static Exprent fromTapestry(ExprParser.Arg arg) {
+    Type type = Type.valueOf(arg.getNextString());
+    VarType varType = VarType.fromTapestryString(arg.getNextString());
+
+    Exprent value = null;
+    if (arg.peekNext() == ExprParser.Type.EXPRENT) {
+      value = arg.getNextExprent();
+    }
+
+    return new ExitExprent(type, value, varType, null, null);
   }
 
   @Override

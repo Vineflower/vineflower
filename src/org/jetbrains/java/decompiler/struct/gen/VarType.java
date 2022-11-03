@@ -120,6 +120,47 @@ public class VarType {
     this.stackSize = getStackSize(type, arrayDim);
   }
 
+  public String toTapestryString() {
+    return this.value.replaceAll("\\[", "{");
+  }
+
+  public static VarType fromTapestryString(String tapestryString) {
+    String s = tapestryString.replaceAll("\\{", "[");
+    if (s.length() == 1) {
+      switch (s) {
+        case "B":
+          return VarType.VARTYPE_BYTE;
+        case "C":
+          return VarType.VARTYPE_CHAR;
+        case "D":
+          return VarType.VARTYPE_DOUBLE;
+        case "F":
+          return VarType.VARTYPE_FLOAT;
+        case "I":
+          return VarType.VARTYPE_INT;
+        case "J":
+          return VarType.VARTYPE_LONG;
+        case "S":
+          return VarType.VARTYPE_SHORT;
+        case "Z":
+          return VarType.VARTYPE_BOOLEAN;
+        case "V":
+          return VarType.VARTYPE_VOID;
+        case "X":
+          return VarType.VARTYPE_BYTECHAR;
+        case "Y":
+          return VarType.VARTYPE_SHORTCHAR;
+        case "U":
+          return VarType.VARTYPE_UNKNOWN;
+        default:
+          return new VarType(s);
+      }
+    }
+    else {
+      return new VarType(s);
+    }
+  }
+
   public static String getChar(CodeType type) {
     switch (type) {
       case BYTE:

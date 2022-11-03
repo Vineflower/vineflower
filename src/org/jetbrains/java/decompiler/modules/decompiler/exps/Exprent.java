@@ -23,6 +23,8 @@ import org.jetbrains.java.decompiler.struct.match.MatchNode;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 
 import java.util.*;
+import java.util.Map.Entry;
+import java.util.function.Consumer;
 
 public abstract class Exprent implements IMatchable {
   public static final int MULTIPLE_USES = 1;
@@ -30,26 +32,36 @@ public abstract class Exprent implements IMatchable {
   public static final int BOTH_FLAGS = 3;
 
   public enum Type {
-    ANNOTATION,
-    ARRAY,
-    ASSERT,
-    ASSIGNMENT,
-    CONST,
-    EXIT,
-    FIELD,
-    FUNCTION,
-    IF,
-    INVOCATION,
-    MONITOR,
-    NEW,
-    PATTERN,
-    SWITCH,
-    SWITCH_HEAD,
-    VAR,
-    YIELD,
+    ANNOTATION("Anno"),
+    ARRAY("Array"),
+    ASSERT("Assert"),
+    ASSIGNMENT("Assign"),
+    CONST("Const"),
+    EXIT("Return"),
+    FIELD("Field"),
+    FUNCTION("Func"),
+    IF("If"),
+    INVOCATION("Invoke"),
+    MONITOR("Monitor"),
+    NEW("New"),
+    PATTERN("Pattern"),
+    SWITCH("SwitchExpr"),
+    SWITCH_HEAD("SwitchHead"),
+    VAR("Var"),
+    YIELD("Yield"),
 
     // Catch all for plugins
-    OTHER
+    OTHER("Other");
+
+    private final String prettyId;
+
+    Type(String prettyId) {
+      this.prettyId = prettyId;
+    }
+
+    public String getPrettyId() {
+      return prettyId;
+    }
   }
 
   protected static ThreadLocal<Map<String, VarType>> inferredLambdaTypes = ThreadLocal.withInitial(HashMap::new);
@@ -307,6 +319,22 @@ public abstract class Exprent implements IMatchable {
 
   public boolean allowNewlineAfterQualifier() {
     return true;
+  }
+
+  public final void toTapestry(StringBuilder sb) {
+    sb.append("[");
+    sb.append(type.prettyId);
+    StringBuilder child = new StringBuilder();
+    addToTapestry(child);
+    if (child.length() > 0) {
+      sb.append(" ");
+      sb.append(child);
+    }
+    sb.append("]");
+  }
+
+  protected void addToTapestry(StringBuilder sb) {
+
   }
 
   // processes exprents, much like section 16.1. of the java language specifications

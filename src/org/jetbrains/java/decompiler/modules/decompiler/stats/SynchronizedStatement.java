@@ -29,6 +29,12 @@ public class SynchronizedStatement extends Statement {
     headexprent.add(null);
   }
 
+  public SynchronizedStatement(int id) {
+    super(StatementType.SYNCHRONIZED, id);
+
+    headexprent.add(null);
+  }
+
   public SynchronizedStatement(Statement head, Statement body, Statement exc) {
 
     this();

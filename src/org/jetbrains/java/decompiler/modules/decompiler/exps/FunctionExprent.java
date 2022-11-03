@@ -11,6 +11,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.sforms.VarMapHolder;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
+import org.jetbrains.java.decompiler.modules.serializer.ExprParser;
 import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
@@ -455,6 +456,42 @@ public class FunctionExprent extends Exprent {
     }
 
     return result;
+  }
+
+  @Override
+  protected void addToTapestry(StringBuilder sb) {
+    sb.append(this.funcType.name());
+
+    if (implicitType != null) {
+      sb.append(" ");
+      sb.append(this.implicitType.toTapestryString());
+    }
+
+    List<Exprent> operands = this.getLstOperands();
+
+    for (Exprent operand : operands) {
+      sb.append(" ");
+      operand.toTapestry(sb);
+    }
+  }
+
+  public static Exprent fromTapestry(ExprParser.Arg arg) {
+    FunctionType type = FunctionType.valueOf(arg.getNextString());
+
+    VarType implicitType = null;
+    if (arg.peekNext() == ExprParser.Type.STRING) {
+      implicitType = VarType.fromTapestryString(arg.getNextString());
+    }
+
+    List<Exprent> exprents = new ArrayList<>();
+    while (arg.peekNext() == ExprParser.Type.EXPRENT) {
+      exprents.add(arg.getNextExprent());
+    }
+
+    FunctionExprent func =  new FunctionExprent(type, exprents, null);
+    func.setImplicitType(implicitType);
+
+    return func;
   }
 
   @Override

@@ -16,6 +16,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
+import org.jetbrains.java.decompiler.modules.serializer.ExprParser;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.consts.LinkConstant;
@@ -164,6 +165,25 @@ public class InvocationExprent extends Exprent {
     }
 
     addBytecodeOffsets(bytecodeOffsets);
+  }
+
+  public InvocationExprent(String name, String classname, String stringDescriptor, InvocationType type, Exprent instance, List<Exprent> exprents) {
+    this();
+
+    this.name = name;
+    this.classname = classname;
+    this.isStatic = type == InvocationType.STATIC;
+    this.invocationType = type;
+    this.instance = instance;
+    this.stringDescriptor = stringDescriptor;
+    this.descriptor = MethodDescriptor.parseDescriptor(stringDescriptor);
+    this.lstParameters = exprents;
+
+    if (CodeConstants.INIT_NAME.equals(name)) {
+      functype = Type.INIT;
+    } else if (CodeConstants.CLINIT_NAME.equals(name)) {
+      functype = Type.CLINIT;
+    }
   }
 
   protected InvocationExprent(InvocationExprent expr) {
@@ -399,7 +419,7 @@ public class InvocationExprent extends Exprent {
               start = (newNode.access & CodeConstants.ACC_STATIC) == 0 ? 1 : 0;
             }
           }
-          
+
           Set<VarType> commonGenerics = new HashSet<>();
           ClassNode currentNode = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
           MethodWrapper methodWrapper = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
@@ -412,7 +432,7 @@ public class InvocationExprent extends Exprent {
                 parents.add(search);
                 search = (search.access & CodeConstants.ACC_STATIC) == 0 ? search.parent : null;
               }
-              
+
               search = newNode;
               while (search != null) {
                 if (parents.contains(search) && search.classStruct.getSignature() != null) {
@@ -682,6 +702,49 @@ public class InvocationExprent extends Exprent {
   @Override
   public Exprent copy() {
     return new InvocationExprent(this);
+  }
+
+  @Override
+  protected void addToTapestry(StringBuilder sb) {
+    sb.append(name);
+    sb.append(" ");
+
+    sb.append(classname);
+    sb.append(" ");
+
+    sb.append(stringDescriptor);
+    sb.append(" ");
+
+    sb.append(this.invocationType.name());
+    sb.append(" ");
+
+    if (instance != null) {
+      instance.toTapestry(sb);
+    }
+
+    for (Exprent exprent : lstParameters) {
+      sb.append(" ");
+      exprent.toTapestry(sb);
+    }
+  }
+
+  public static Exprent fromTapestry(ExprParser.Arg arg) {
+    String name = arg.getNextString();
+    String classname = arg.getNextString();
+    String stringDescriptor = arg.getNextString();
+    InvocationType type = InvocationType.valueOf(arg.getNextString());
+    Exprent instance = null;
+    // TODO: invoke dynamic doesn't work
+    if (type != InvocationType.STATIC) {
+      instance = arg.getNextExprent();
+    }
+
+    List<Exprent> exprents = new ArrayList<>();
+    while (arg.peekNext() == ExprParser.Type.EXPRENT) {
+      exprents.add(arg.getNextExprent());
+    }
+
+    return new InvocationExprent(name, classname, stringDescriptor, type, instance, exprents);
   }
 
   @Override

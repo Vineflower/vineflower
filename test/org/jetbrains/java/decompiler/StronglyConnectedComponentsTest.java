@@ -17,7 +17,7 @@ public class StronglyConnectedComponentsTest {
   // Ensures that strongly connected component calculation remains the same.
   @Test
   public void testSCCs() {
-    MinimalFernflowerEnvironment.setup();
+    MinimalQuiltflowerEnvironment.setup();
 
     // Create a simple 0 <--> 1 relationship
     Statement bb = new BasicBlockStatement(new BasicBlock(0));

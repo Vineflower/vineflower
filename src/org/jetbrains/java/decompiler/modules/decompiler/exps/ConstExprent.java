@@ -5,6 +5,7 @@ import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.struct.gen.CodeType;
+import org.jetbrains.java.decompiler.modules.serializer.ExprParser;
 import org.jetbrains.java.decompiler.struct.gen.FieldDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.TypeFamily;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
@@ -601,6 +602,35 @@ public class ConstExprent extends Exprent {
 
   public VarType getConstType() {
     return constType;
+  }
+
+  @Override
+  protected void addToTapestry(StringBuilder sb) {
+    sb.append(constType.toTapestryString()).append(" ").append(value);
+  }
+
+  public static Exprent fromTapestry(ExprParser.Arg arg) {
+    VarType type = VarType.fromTapestryString(arg.getNextString());
+    String rawVal = arg.getNextString();
+    Object val = rawVal;
+
+    if (type.typeFamily == TypeFamily.INTEGER) {
+      val = Integer.parseInt(rawVal);
+    } else if (type == VarType.VARTYPE_LONG) {
+      val = Long.parseLong(rawVal);
+    } else if (type == VarType.VARTYPE_FLOAT) {
+      val = Float.parseFloat(rawVal);
+    } else if (type == VarType.VARTYPE_DOUBLE) {
+      val = Double.parseDouble(rawVal);
+    } else if (type == VarType.VARTYPE_BOOLEAN) {
+      val = Boolean.parseBoolean(rawVal);
+    } else if (type == VarType.VARTYPE_CHAR) {
+      val = rawVal.charAt(0);
+    } else if (type == VarType.VARTYPE_NULL) {
+      val = null;
+    }
+
+    return new ConstExprent(type, val, null);
   }
 
   public void setConstType(VarType constType) {

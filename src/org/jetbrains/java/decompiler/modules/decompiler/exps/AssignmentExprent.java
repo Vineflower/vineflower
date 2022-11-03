@@ -13,6 +13,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.sforms.SFormsConstructor
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.VarMapHolder;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
+import org.jetbrains.java.decompiler.modules.serializer.ExprParser;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.struct.StructField;
 import org.jetbrains.java.decompiler.struct.StructMethod;
@@ -256,6 +257,31 @@ public class AssignmentExprent extends Exprent {
       // Reset cast state
       func.getInferredExprType(null);
     }
+  }
+
+
+  @Override
+  protected void addToTapestry(StringBuilder sb) {
+    if (condType != null) {
+      sb.append(condType.name());
+    }
+
+    sb.append(" ");
+    left.toTapestry(sb);
+    sb.append(" ");
+    right.toTapestry(sb);
+  }
+
+  public static Exprent fromTapestry(ExprParser.Arg arg) {
+    FunctionExprent.FunctionType condType = null;
+    if (arg.peekNext() == ExprParser.Type.STRING) {
+      condType = FunctionExprent.FunctionType.valueOf(arg.getNextString());
+    }
+
+    Exprent left = arg.getNextExprent();
+    Exprent right = arg.getNextExprent();
+
+    return new AssignmentExprent(left, right, condType, null);
   }
 
   @Override

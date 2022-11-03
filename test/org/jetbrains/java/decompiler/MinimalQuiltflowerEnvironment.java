@@ -10,7 +10,7 @@ import java.util.HashMap;
 /**
  * Sets up enough data for statements to work outside of a decompiler setting.
  */
-public final class MinimalFernflowerEnvironment {
+public final class MinimalQuiltflowerEnvironment {
   public static void setup() {
     StructContext sc = new StructContext(null, null, null);
     DecompilerContext context = new DecompilerContext(

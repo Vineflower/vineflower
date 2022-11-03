@@ -12,6 +12,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.sforms.SFormsConstructor
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.VarMapHolder;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
+import org.jetbrains.java.decompiler.modules.serializer.ExprParser;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructField;
 import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribute;
@@ -112,6 +113,34 @@ public class FieldExprent extends Exprent {
     }
 
     return getExprType();
+  }
+
+  @Override
+  protected void addToTapestry(StringBuilder sb) {
+    sb.append(name);
+    sb.append(" ");
+    sb.append(classname);
+    sb.append(" ");
+
+    sb.append(descriptor.descriptorString);
+
+    if (instance != null) {
+      sb.append(" ");
+      instance.toTapestry(sb);
+    }
+  }
+
+  public static Exprent fromTapestry(ExprParser.Arg arg) {
+    String name = arg.getNextString();
+    String classname = arg.getNextString();
+    String descString = arg.getNextString();
+
+    Exprent value = null;
+    if (arg.peekNext() == ExprParser.Type.EXPRENT) {
+      value = arg.getNextExprent();
+    }
+
+    return new FieldExprent(name, classname, value == null, value, FieldDescriptor.parseDescriptor(descString), null);
   }
 
   @Override
