@@ -75,6 +75,13 @@ public class ImportCollector {
     this.writeLocked = other.writeLocked;
   }
 
+  // Unit testing use only!
+  public ImportCollector() {
+    currentPackageSlash = "pkg/";
+    currentPackagePoint = "pkg.";
+
+  }
+
   /**
    * Check whether the package-less name ClassName is shaded by variable in a context of
    * the decompiled class

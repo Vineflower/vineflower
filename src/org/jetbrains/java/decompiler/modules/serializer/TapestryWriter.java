@@ -116,6 +116,7 @@ public final class TapestryWriter {
       if (st instanceof IfStatement) {
         IfStatement ifStat = (IfStatement) st;
         edgeMap.get(ifStat.getIfEdge()).ifId = ifStat.id;
+        edgeMap.get(ifStat.getIfEdge()).hasIfStat = ifStat.getIfstat() != null;
 
         if (ifStat.getElsestat() != null) {
           edgeMap.get(ifStat.getElseEdge()).elseId = ifStat.id;
@@ -124,7 +125,7 @@ public final class TapestryWriter {
 
       if (st instanceof SwitchStatement) {
         SwitchStatement switchStat = (SwitchStatement) st;
-        edgeMap.get(switchStat.getDefaultEdge()).ifId = switchStat.id;
+        edgeMap.get(switchStat.getDefaultEdge()).defaultId = switchStat.id;
       }
     }
 
@@ -166,7 +167,11 @@ public final class TapestryWriter {
       }
 
       if (ed.ifId != -1) {
-        eb.append(" If:").append(ed.ifId);
+        if (ed.hasIfStat) {
+          eb.append(" If:").append(ed.ifId);
+        } else {
+          eb.append(" IfN:").append(ed.ifId);
+        }
       }
 
       if (ed.elseId != -1) {
@@ -241,6 +246,7 @@ public final class TapestryWriter {
     private int ifId = -1;
     private int elseId = -1;
     private int defaultId = -1;
+    private boolean hasIfStat = false;
 
     private StatEdgeData(StatEdge edge) {
       this.edge = edge;

@@ -614,7 +614,7 @@ public class ConstExprent extends Exprent {
     String rawVal = arg.getNextString();
     Object val = rawVal;
 
-    if (type.typeFamily == TypeFamily.INTEGER) {
+    if (type.typeFamily == TypeFamily.INTEGER || type.typeFamily == TypeFamily.BOOLEAN) {
       val = Integer.parseInt(rawVal);
     } else if (type == VarType.VARTYPE_LONG) {
       val = Long.parseLong(rawVal);
@@ -622,8 +622,6 @@ public class ConstExprent extends Exprent {
       val = Float.parseFloat(rawVal);
     } else if (type == VarType.VARTYPE_DOUBLE) {
       val = Double.parseDouble(rawVal);
-    } else if (type == VarType.VARTYPE_BOOLEAN) {
-      val = Boolean.parseBoolean(rawVal);
     } else if (type == VarType.VARTYPE_CHAR) {
       val = rawVal.charAt(0);
     } else if (type == VarType.VARTYPE_NULL) {

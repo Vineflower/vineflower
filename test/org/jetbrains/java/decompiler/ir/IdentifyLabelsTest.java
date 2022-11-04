@@ -7,6 +7,9 @@ public class IdentifyLabelsTest extends IrTestBase {
   @Override
   protected void registerAll() {
     register("TestLoopBreak");
+    register("TestLoopBreakEmptyIf");
+    register("TestLiftSequenceLabel");
+    register("TestIfElse");
   }
 
   @Override

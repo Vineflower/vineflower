@@ -10,6 +10,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public final class TapestryReader {
+  public static final String BLOCK_SEP = "=======================================";
   private static final Map<String, Statement.StatementType> TYPES = Arrays.stream(Statement.StatementType.values())
     .collect(Collectors.toMap(Statement.StatementType::getPrettyId, t -> t));
   public static RootStatement readTapestry(String data) {
@@ -24,6 +25,9 @@ public final class TapestryReader {
       s = s.replaceAll("\\s+", " ");
 
       String[] components = s.split(" ");
+      if (components[0].equals(BLOCK_SEP) || components[0].startsWith("#")) {
+        break;
+      }
 
       if (components[1].equals("->")) {
         // Edge
@@ -85,12 +89,14 @@ public final class TapestryReader {
 
       if (edge.ifId != -1) {
         ((IfStatement)stats.get(edge.ifId)).setIfEdge(statEdge);
-        ((IfStatement)stats.get(edge.ifId)).setIfstat(statEdge.getDestination());
+        if (edge.hasIfStat) {
+          ((IfStatement) stats.get(edge.ifId)).setIfstat(statEdge.getDestination());
+        }
       }
 
       if (edge.elseId != -1) {
-        ((IfStatement)stats.get(edge.elseId)).setIfEdge(statEdge);
-        ((IfStatement)stats.get(edge.ifId)).setElsestat(statEdge.getDestination());
+        ((IfStatement)stats.get(edge.elseId)).setElseEdge(statEdge);
+        ((IfStatement)stats.get(edge.elseId)).setElsestat(statEdge.getDestination());
       }
 
       if (edge.defaultId != -1) {
@@ -207,6 +213,10 @@ public final class TapestryReader {
         builder.setClosureId(Integer.parseInt(component.substring(2)));
       } else if (component.startsWith("If:")) {
         builder.setIfId(Integer.parseInt(component.substring(3)));
+        builder.setHasIfStat(true);
+      } else if (component.startsWith("IfN:")) {
+        builder.setIfId(Integer.parseInt(component.substring(4)));
+        builder.setHasIfStat(false);
       } else if (component.startsWith("IfE:")) {
         builder.setElseId(Integer.parseInt(component.substring(4)));
       } else if (component.startsWith("D:")) {
@@ -271,8 +281,9 @@ public final class TapestryReader {
     private final int ifId;
     private final int elseId;
     private final int defaultId;
+    private final boolean hasIfStat;
 
-    EdgeRec(int edgeType, int sourceId, int destId, int closureId, boolean labeled, boolean explicit, boolean canInline, boolean phantomContinue, int ifId, int elseId, int defaultId) {
+    EdgeRec(int edgeType, int sourceId, int destId, int closureId, boolean labeled, boolean explicit, boolean canInline, boolean phantomContinue, int ifId, int elseId, int defaultId, boolean hasIfStat) {
       this.edgeType = edgeType;
       this.sourceId = sourceId;
       this.destId = destId;
@@ -284,79 +295,86 @@ public final class TapestryReader {
       this.ifId = ifId;
       this.elseId = elseId;
       this.defaultId = defaultId;
+      this.hasIfStat = hasIfStat;
     }
   }
 
   public static class EdgeRecBuilder {
-      private int edgeType;
-      private int sourceId;
-      private int destId;
-      private int closureId = -1;
-      private boolean labeled;
-      private boolean explicit;
-      private boolean canInline = true;
-      private boolean phantomContinue;
-      private int ifId = -1;
-      private int elseId = -1;
-      private int defaultId = -1;
+    private int edgeType;
+    private int sourceId;
+    private int destId;
+    private int closureId = -1;
+    private boolean labeled;
+    private boolean explicit;
+    private boolean canInline = true;
+    private boolean phantomContinue;
+    private int ifId = -1;
+    private int elseId = -1;
+    private int defaultId = -1;
+    private boolean hasIfStat = false;
 
-      public EdgeRecBuilder setEdgeType(int edgeType) {
-          this.edgeType = edgeType;
-          return this;
-      }
+    public EdgeRecBuilder setEdgeType(int edgeType) {
+        this.edgeType = edgeType;
+        return this;
+    }
 
-      public EdgeRecBuilder setSourceId(int sourceId) {
-          this.sourceId = sourceId;
-          return this;
-      }
+    public EdgeRecBuilder setSourceId(int sourceId) {
+        this.sourceId = sourceId;
+        return this;
+    }
 
-      public EdgeRecBuilder setDestId(int destId) {
-          this.destId = destId;
-          return this;
-      }
+    public EdgeRecBuilder setDestId(int destId) {
+        this.destId = destId;
+        return this;
+    }
 
-      public EdgeRecBuilder setClosureId(int closureId) {
-          this.closureId = closureId;
-          return this;
-      }
+    public EdgeRecBuilder setClosureId(int closureId) {
+        this.closureId = closureId;
+        return this;
+    }
 
-      public EdgeRecBuilder setLabeled(boolean labeled) {
-          this.labeled = labeled;
-          return this;
-      }
+    public EdgeRecBuilder setLabeled(boolean labeled) {
+        this.labeled = labeled;
+        return this;
+    }
 
-      public EdgeRecBuilder setExplicit(boolean explicit) {
-          this.explicit = explicit;
-          return this;
-      }
+    public EdgeRecBuilder setExplicit(boolean explicit) {
+        this.explicit = explicit;
+        return this;
+    }
 
-      public EdgeRecBuilder setCanInline(boolean canInline) {
-          this.canInline = canInline;
-          return this;
-      }
+    public EdgeRecBuilder setCanInline(boolean canInline) {
+        this.canInline = canInline;
+        return this;
+    }
 
-      public EdgeRecBuilder setPhantomContinue(boolean phantomContinue) {
-          this.phantomContinue = phantomContinue;
-          return this;
-      }
+    public EdgeRecBuilder setPhantomContinue(boolean phantomContinue) {
+        this.phantomContinue = phantomContinue;
+        return this;
+    }
 
-      public EdgeRecBuilder setIfId(int ifId) {
-          this.ifId = ifId;
-          return this;
-      }
+    public EdgeRecBuilder setIfId(int ifId) {
+        this.ifId = ifId;
+        return this;
+    }
 
-      public EdgeRecBuilder setElseId(int elseId) {
-          this.elseId = elseId;
-          return this;
-      }
+    public EdgeRecBuilder setElseId(int elseId) {
+        this.elseId = elseId;
+        return this;
+    }
 
-      public EdgeRecBuilder setDefaultId(int defaultId) {
-          this.defaultId = defaultId;
-          return this;
-      }
+    public EdgeRecBuilder setDefaultId(int defaultId) {
+        this.defaultId = defaultId;
+        return this;
+    }
 
-      public EdgeRec createEdgeRec() {
-          return new EdgeRec(edgeType, sourceId, destId, closureId, labeled, explicit, canInline, phantomContinue, ifId, elseId, defaultId);
-      }
+    public EdgeRecBuilder setHasIfStat(boolean hasIfStat) {
+        this.hasIfStat = hasIfStat;
+        return this;
+    }
+
+    public EdgeRec createEdgeRec() {
+        return new EdgeRec(edgeType, sourceId, destId, closureId, labeled, explicit, canInline, phantomContinue, ifId, elseId, defaultId, hasIfStat);
+    }
   }
 }

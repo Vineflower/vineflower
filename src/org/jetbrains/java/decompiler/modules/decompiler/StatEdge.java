@@ -123,7 +123,7 @@ public class StatEdge {
       case "FinExit":
         return TYPE_FINALLYEXIT;
       default:
-        throw new RuntimeException("Invalid edge type");
+        throw new RuntimeException("Invalid edge type: " + s);
     }
   }
 

@@ -6,23 +6,22 @@
 2  Block P:9
 5  Block P:13
 6  Exit
-12 -> 5  Regular        L E
-9  -> 5  Break     C:12 L E
+12 -> 5  Regular        L
+9  -> 5  Break     C:12 E
 2  -> 4  Regular        L E If:9
-4  -> 12 Continue  C:12 L E
-5  -> 6  BreakExit C:12 L E
+4  -> 12 Continue  C:12 E
+5  -> 6  BreakExit C:12
 12 < [Func GT [Var U 1] [Const I 10]]
 9  < [If [Func BOOL_NOT [Func EQ [Func PPI I [Var U 1]] [Const I 15]]]]
 4  < [Invoke println java/io/PrintStream (I)V VIRTUAL [Field out java/lang/System Ljava/io/PrintStream;] [Const I 0]]
 5  < [Return RETURN V]
 =======================================
-label12:
 while(var1 > 10) {
    if (!(++var1 == 15)) {
       System.out.println(0);
-      continue label12;
+      continue;
    }
-   break label12;
+   break;
 }
 
 return;
