@@ -63,6 +63,13 @@ public class ImportCollector {
     collectConflictingShortNames(root, new HashMap<>());
   }
 
+  // Unit testing use only!
+  public ImportCollector() {
+    currentPackageSlash = "pkg/";
+    currentPackagePoint = "pkg.";
+
+  }
+
   /**
    * Check whether the package-less name ClassName is shaded by variable in a context of
    * the decompiled class
