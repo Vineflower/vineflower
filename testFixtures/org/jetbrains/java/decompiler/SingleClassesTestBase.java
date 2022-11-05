@@ -173,7 +173,7 @@ public abstract class SingleClassesTestBase {
     }
   }
 
-  static class TestDefinition {
+  public static class TestDefinition {
     public final Version version;
     public final String testClass;
     public final List<String> others;
@@ -261,7 +261,7 @@ public abstract class SingleClassesTestBase {
       fixture.tearDown();
     }
 
-    enum Version {
+    public enum Version {
       CUSTOM("custom", "Custom"),
       JAVA_8(8),
       JAVA_8_NODEBUG(8, "nodebug", "No Debug Info"),

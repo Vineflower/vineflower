@@ -1,6 +1,7 @@
 // Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.struct;
 
+import org.jetbrains.java.decompiler.api.Plugin;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IBytecodeProvider;
 import org.jetbrains.java.decompiler.main.extern.IContextSource;
@@ -49,6 +50,8 @@ public class StructContext {
   private final Map<String, StructClass> classes = new ConcurrentHashMap<>();
   private final Map<String, ContextUnit> unitsByClassName = new ConcurrentHashMap<>();
   private final Map<String, List<String>> abstractNames = new HashMap<>();
+  
+  private final List<Plugin> plugins = new ArrayList<>();
 
   @SuppressWarnings("deprecation")
   public StructContext(IBytecodeProvider legacyProvider, IResultSaver saver, IDecompiledData decompiledData) {
@@ -190,6 +193,14 @@ public class StructContext {
     initUnit(unit);
   }
 
+  public void addPlugin(Plugin plugin){
+    plugins.add(plugin);
+  }
+  
+  public List<Plugin> getPlugins(){
+    return Collections.unmodifiableList(plugins);
+  }
+  
   private void initUnit(final ContextUnit unit) {
     DecompilerContext.getLogger().writeMessage("Scanning classes from " + unit.getName(), IFernflowerLogger.Severity.INFO);
     boolean isOwn = unit.isOwn();

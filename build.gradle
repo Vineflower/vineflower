@@ -9,6 +9,7 @@ plugins {
 
 apply plugin: 'jacoco'
 apply plugin: 'java'
+apply plugin: 'java-test-fixtures'
 apply plugin: 'groovy'
 apply plugin: 'scala'
 apply plugin: 'maven-publish'
@@ -29,6 +30,7 @@ version = version + (ENV.GITHUB_ACTIONS ? "" : "+local")
 sourceSets {
   main.java.srcDirs 'src'
   test.java.srcDirs 'test'
+  testFixtures.java.srcDirs 'testFixtures'
   testDataGroovy.groovy.srcDirs files("testData/src/groovy/")
   testDataKotlin.kotlin.srcDirs files("testData/src/kt/")
   testDataScala.scala.srcDirs files("testData/src/scala")
@@ -41,6 +43,9 @@ dependencies {
   testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
   testImplementation 'org.junit.jupiter:junit-jupiter-params:5.9.0'
   testImplementation 'org.hamcrest:hamcrest:2.2'
+
+  testFixturesImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
+  testFixturesImplementation 'org.hamcrest:hamcrest:2.2'
 
   testDataGroovyImplementation 'org.codehaus.groovy:groovy:3.0.8'
   testDataKotlinImplementation platform('org.jetbrains.kotlin:kotlin-bom')

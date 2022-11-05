@@ -1,6 +1,7 @@
 // Copyright 2000-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.main;
 
+import org.jetbrains.java.decompiler.api.Plugin;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.extern.*;
 import org.jetbrains.java.decompiler.modules.renamer.ConverterHelper;
@@ -16,11 +17,7 @@ import org.jetbrains.java.decompiler.util.JrtFinder;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 public class Fernflower implements IDecompiledData {
   private final StructContext structContext;
@@ -95,6 +92,10 @@ public class Fernflower implements IDecompiledData {
       } else if (!javaRuntime.equalsIgnoreCase("0")) {
         JrtFinder.addRuntime(structContext, new File(javaRuntime));
       }
+    }
+  
+    for (Plugin plugin : ServiceLoader.load(Plugin.class)) {
+      structContext.addPlugin(plugin);
     }
   }
 

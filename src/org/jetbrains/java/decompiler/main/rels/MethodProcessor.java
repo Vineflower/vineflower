@@ -1,6 +1,9 @@
 // Copyright 2000_2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.main.rels;
 
+import org.jetbrains.java.decompiler.api.Plugin;
+import org.jetbrains.java.decompiler.api.passes.Pass;
+import org.jetbrains.java.decompiler.api.passes.PassContext;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.InstructionSequence;
 import org.jetbrains.java.decompiler.code.cfg.ControlFlowGraph;
@@ -218,6 +221,7 @@ public class MethodProcessor implements Runnable {
 
 
     // Main loop
+    main:
     while (true) {
       decompileRecord.incrementMainLoop();
       decompileRecord.add("Start", root);
@@ -255,14 +259,6 @@ public class MethodProcessor implements Runnable {
 
         decompileRecord.resetMergeLoop();
         decompileRecord.add("MergeLoopEnd", root);
-      }
-
-      if (DecompilerContext.getOption(IFernflowerPreferences.IDEA_NOT_NULL_ANNOTATION)) {
-        if (IdeaNotNullHelper.removeHardcodedChecks(root, mt)) {
-          decompileRecord.add("RemoveIdeaNull", root);
-          SequenceHelper.condenseSequences(root);
-          decompileRecord.add("CondenseSequences_RIN", root);
-        }
       }
 
       stackProc.simplifyStackVars(root, mt, cl);
@@ -320,6 +316,14 @@ public class MethodProcessor implements Runnable {
         decompileRecord.add("CondenseDo", root);
         continue;
       }
+  
+      // apply plugin passes
+      // TODO: replace with proper LoopingPassBuilder...
+      PassContext pctx = new PassContext(root, graph, mt, cl, varProc, decompileRecord);
+      for(Plugin plugin : DecompilerContext.getCurrentContext().structContext.getPlugins())
+        for(Pass pass : plugin.passes())
+          if(pass.run(pctx))
+            continue main;
 
       // initializer may have at most one return point, so no transformation of method exits permitted
       if (isInitializer || !ExitHelper.condenseExits(root)) {

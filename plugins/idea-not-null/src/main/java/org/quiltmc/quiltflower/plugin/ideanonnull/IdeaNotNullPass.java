@@ -1,10 +1,14 @@
-// Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
-package org.jetbrains.java.decompiler.modules.decompiler;
+package org.quiltmc.quiltflower.plugin.ideanonnull;
 
+import org.jetbrains.java.decompiler.api.passes.Pass;
+import org.jetbrains.java.decompiler.api.passes.PassContext;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
+import org.jetbrains.java.decompiler.modules.decompiler.SequenceHelper;
+import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
+import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
@@ -17,9 +21,13 @@ import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class IdeaNotNullHelper {
-
-
+public class IdeaNotNullPass implements Pass{
+  
+  public boolean run(PassContext ctx){
+    return removeHardcodedChecks(ctx.getRoot(), ctx.getMethod());
+  }
+  
+  // moved from IdeaNotNullHelper
   public static boolean removeHardcodedChecks(RootStatement root, StructMethod mt) {
 
     boolean checks_removed = false;
