@@ -2,7 +2,7 @@ package pkg;
 
 import java.lang.annotation.ElementType;
 
-public class TestForeachCrash {
+public class TestForeachMultiDimensionalArray {
   public void test() {
     int[][] vvv1 = new int[0][];
     for (int[] vvv2 : vvv1) {
