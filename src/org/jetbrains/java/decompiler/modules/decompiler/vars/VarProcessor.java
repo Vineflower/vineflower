@@ -158,7 +158,9 @@ public class VarProcessor {
   }
 
   public void setVarFinal(VarVersionPair pair, FinalType finalType) {
-    varVersions.setVarFinal(pair, finalType);
+    if (this.varVersions != null) {
+      varVersions.setVarFinal(pair, finalType);
+    }
   }
 
   public Map<VarVersionPair, String> getThisVars() {
