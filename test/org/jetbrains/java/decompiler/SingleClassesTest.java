@@ -643,6 +643,12 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: These variables shouldn't be merged, and should be split because each version is used once and has a different type use
     register(JAVA_8_NODEBUG, "TestVarIndex");
     register(JAVA_8, "TestStaticIterator");
+    // TODO: inline && not collapsed
+    register(JAVA_16, "TestPatternMatchingInline");
+    // TODO: can't understand scopes of && boolean assignment
+    register(JAVA_16, "TestPatternMatchingCompoundBool");
+    // TODO: makes spurious var10002 for some reason
+    register(JAVA_8, "TestStackCastParam");
   }
 
   private void registerEntireClassPath() {

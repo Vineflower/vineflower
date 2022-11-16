@@ -1,0 +1,96 @@
+package pkg;
+
+public class TestPatternMatchingInline {
+   public void test(Object o) {
+      boolean var10002;
+      label12: {
+         if (o instanceof String s && s.length() > 5) {
+            var10002 = true;
+            break label12;
+         }
+
+         var10002 = false;
+      }
+
+      this.accept(o, var10002);// 5
+   }// 6
+
+   public void test2(Object o) {
+      boolean var10002;
+      label12: {
+         if (o instanceof Boolean b && b) {
+            var10002 = true;
+            break label12;
+         }
+
+         var10002 = false;
+      }
+
+      this.accept(o, var10002);// 9
+   }// 10
+
+   private void accept(Object o, boolean b) {
+   }// 14
+}
+
+class 'pkg/TestPatternMatchingInline' {
+   method 'test (Ljava/lang/Object;)V' {
+      0      14
+      1      14
+      2      6
+      4      6
+      5      6
+      6      6
+      7      6
+      8      6
+      f      6
+      10      6
+      11      6
+      12      6
+      13      6
+      14      6
+      15      6
+      18      7
+      19      8
+      1c      11
+      1d      14
+      1e      14
+      1f      14
+      20      15
+   }
+
+   method 'test2 (Ljava/lang/Object;)V' {
+      0      28
+      1      28
+      2      20
+      4      20
+      5      20
+      6      20
+      7      20
+      8      20
+      f      20
+      10      20
+      11      20
+      12      20
+      13      20
+      14      20
+      17      21
+      18      22
+      1b      25
+      1c      28
+      1d      28
+      1e      28
+      1f      29
+   }
+
+   method 'accept (Ljava/lang/Object;Z)V' {
+      0      32
+   }
+}
+
+Lines mapping:
+5 <-> 15
+6 <-> 16
+9 <-> 29
+10 <-> 30
+14 <-> 33
