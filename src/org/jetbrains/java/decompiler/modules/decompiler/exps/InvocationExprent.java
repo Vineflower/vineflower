@@ -352,7 +352,7 @@ public class InvocationExprent extends Exprent {
               mask = ExprUtil.getSyntheticParametersMask(newNode, stringDescriptor, lstParameters.size());
               start = newNode.classStruct.hasModifier(CodeConstants.ACC_ENUM) ? 2 : 0;
             } else if (!newNode.enclosingClasses.isEmpty()) {
-              start = !newNode.classStruct.hasModifier(CodeConstants.ACC_STATIC) ? 1 : 0;
+              start = (newNode.access & CodeConstants.ACC_STATIC) == 0 ? 1 : 0;
             }
           }
 
