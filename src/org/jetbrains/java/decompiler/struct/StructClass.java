@@ -2,7 +2,6 @@
 package org.jetbrains.java.decompiler.struct;
 
 import org.jetbrains.java.decompiler.code.BytecodeVersion;
-import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
@@ -15,10 +14,9 @@ import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericClassDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericMain;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
-import org.jetbrains.java.decompiler.struct.lazy.LazyLoader;
 import org.jetbrains.java.decompiler.util.DataInputFullStream;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
-import org.jetbrains.java.decompiler.util.VBStyleCollection;
+import org.jetbrains.java.decompiler.util.collections.VBStyleCollection;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -51,7 +49,7 @@ import java.util.Set;
   }
 */
 public class StructClass extends StructMember {
-  public static StructClass create(DataInputFullStream in, boolean own, LazyLoader loader) throws IOException {
+  public static StructClass create(DataInputFullStream in, boolean own) throws IOException {
     in.discard(4);
     int minorVersion = in.readUnsignedShort();
     int majorVersion = in.readUnsignedShort();
@@ -103,15 +101,14 @@ public class StructClass extends StructMember {
     }
 
     StructClass cl = new StructClass(
-      accessFlags, attributes, qualifiedName, superClass, own, loader, minorVersion, majorVersion, interfaces, interfaceNames, fields, methods, signature);
-    if (loader == null) cl.pool = pool;
+      accessFlags, attributes, qualifiedName, superClass, own, minorVersion, majorVersion, interfaces, interfaceNames, fields, methods, signature);
+    cl.pool = pool;
     return cl;
   }
 
   public final String qualifiedName;
   public final PrimitiveConstant superClass;
   private final boolean own;
-  private final LazyLoader loader;
   private final BytecodeVersion version;
   private final int[] interfaces;
   private final String[] interfaceNames;
@@ -126,7 +123,6 @@ public class StructClass extends StructMember {
                       String qualifiedName,
                       PrimitiveConstant superClass,
                       boolean own,
-                      LazyLoader loader,
                       int minorVersion,
                       int majorVersion,
                       int[] interfaces,
@@ -138,7 +134,6 @@ public class StructClass extends StructMember {
     this.qualifiedName = qualifiedName;
     this.superClass = superClass;
     this.own = own;
-    this.loader = loader;
     this.version = new BytecodeVersion(majorVersion, minorVersion);
     this.interfaces = interfaces;
     this.interfaceNames = interfaceNames;
@@ -147,6 +142,7 @@ public class StructClass extends StructMember {
     this.signature = signature;
   }
 
+  @Override
   public BytecodeVersion getVersion() {
     return version;
   }
@@ -201,15 +197,9 @@ public class StructClass extends StructMember {
   }
 
   public void releaseResources() {
-    if (loader != null) {
-      pool = null;
-    }
   }
 
   public ConstantPool getPool() {
-    if (pool == null && loader != null) {
-      pool = loader.loadPool(qualifiedName);
-    }
     return pool;
   }
 

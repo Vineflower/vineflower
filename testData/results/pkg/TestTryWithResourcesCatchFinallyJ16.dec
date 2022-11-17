@@ -13,7 +13,6 @@ public class TestTryWithResourcesCatchFinallyJ16 {
       } finally {
          System.out.println("Hello");// 14
       }
-
    }// 16
 
    public void testFunc(File file) {
@@ -24,7 +23,6 @@ public class TestTryWithResourcesCatchFinallyJ16 {
       } finally {
          System.out.println("Hello");// 24
       }
-
    }// 26
 
    private Scanner create(File file) throws FileNotFoundException {
@@ -41,6 +39,7 @@ class 'pkg/TestTryWithResourcesCatchFinallyJ16' {
       b      9
       c      9
       32      10
+      33      11
       34      11
       42      13
       43      13
@@ -49,35 +48,36 @@ class 'pkg/TestTryWithResourcesCatchFinallyJ16' {
       46      13
       47      13
       48      13
-      4f      16
+      4f      15
    }
 
    method 'testFunc (Ljava/io/File;)V' {
-      0      19
-      1      19
-      2      19
-      3      19
-      4      19
-      5      19
-      6      20
-      7      20
-      8      20
-      9      20
-      37      21
-      39      22
-      47      24
-      48      24
-      49      24
-      4a      24
-      4b      24
-      4c      24
-      4d      24
-      54      27
+      0      18
+      1      18
+      2      18
+      3      18
+      4      18
+      5      18
+      6      19
+      7      19
+      8      19
+      9      19
+      37      20
+      38      21
+      39      21
+      47      23
+      48      23
+      49      23
+      4a      23
+      4b      23
+      4c      23
+      4d      23
+      54      25
    }
 
    method 'create (Ljava/io/File;)Ljava/util/Scanner;' {
-      4      30
-      8      30
+      4      28
+      8      28
    }
 }
 
@@ -87,14 +87,14 @@ Lines mapping:
 11 <-> 11
 12 <-> 12
 14 <-> 14
-16 <-> 17
-19 <-> 20
-20 <-> 21
-21 <-> 22
-22 <-> 23
-24 <-> 25
-26 <-> 28
-29 <-> 31
+16 <-> 16
+19 <-> 19
+20 <-> 20
+21 <-> 21
+22 <-> 22
+24 <-> 24
+26 <-> 26
+29 <-> 29
 Not mapped:
 15
 25

@@ -6,6 +6,7 @@ package org.jetbrains.java.decompiler.modules.decompiler.exps;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
@@ -142,6 +143,16 @@ public class AssignmentExprent extends Exprent {
 
     buffer.addStartBytecodeMapping(bytecode);
 
+    if (this.left instanceof VarExprent && DecompilerContext.getOption(IFernflowerPreferences.DECOMPILER_COMMENTS)) {
+      VarExprent varLeft = (VarExprent) this.left;
+
+      if (varLeft.isDefinition() && varLeft.getProcessor() != null) {
+        if (varLeft.getProcessor().getSyntheticSemaphores().contains(varLeft.getIndex())) {
+          buffer.append(" /* QF: Semaphore variable */");
+        }
+      }
+    }
+
     return buffer;
   }
 
@@ -166,16 +177,9 @@ public class AssignmentExprent extends Exprent {
       if (DecompilerContext.getStructContext().instanceOf(this.right.getExprType().value, cast.getExprType().value)) {
         Exprent castVal = func.getLstOperands().get(0);
 
-        // Due to a javac bug, 2 checkcasts are produced. We need to go through the cast tree and find the source
-        if (castVal instanceof FunctionExprent && ((FunctionExprent)castVal).getFuncType() == FunctionExprent.FunctionType.CAST) {
-          cast = ((FunctionExprent)castVal).getLstOperands().get(0);
-
-          if (!((FunctionExprent)castVal).doesCast()) {
-            if (this.left.getExprType().arrayDim > cast.getExprType().arrayDim) {
-              func.setNeedsCast(true);
-              return;
-            }
-          }
+        if (this.left.getExprType().arrayDim > castVal.getExprType().arrayDim) {
+          func.setNeedsCast(true);
+          return;
         }
       }
     }
@@ -223,10 +227,17 @@ public class AssignmentExprent extends Exprent {
     VarType rightType = cast.getInferredExprType(leftType);
 
     // Check if type bound includes the type that we are attempting to cast to
+    boolean didReset = false;
     for (VarType type : types) {
       if (rightType.value.equals(type.value)) {
         ((ConstExprent)cast).setConstType(leftType);
+        didReset = true;
       }
+    }
+
+    if (didReset) {
+      // Reset cast state
+      func.getInferredExprType(null);
     }
   }
 

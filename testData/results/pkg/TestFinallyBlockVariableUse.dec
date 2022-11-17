@@ -1,37 +1,25 @@
 package pkg;
 
 public class TestFinallyBlockVariableUse {
-   // $QF: Could not verify finally blocks. A semaphore variable has been added to preserve control flow.
    public int test(String s, int i, int j) {
       System.out.println("a");// 5
-      boolean var10 = false;
 
       int e;
       try {
-         var10 = true;// 7
-         System.out.println("b");
+         System.out.println("b");// 7
 
          try {
             i = Integer.parseInt(s) - j;// 9
             e = i;
-            var10 = false;
-         } catch (NumberFormatException var11) {// 13
+         } catch (NumberFormatException var10) {// 13
             i = j;// 14
-            throw var11;// 15
+            throw var10;// 15
          }
       } finally {
-         if (var10) {
-            int id = i - j;// 18
-            if (id > 0) {// 19
-               this.accept(new Object[]{id, s, i, j});// 21
-            }
-
+         int id = i - j;// 18
+         if (id > 0) {// 19
+            this.accept(new Object[]{id, s, i, j});// 21
          }
-      }
-
-      int id = i - j;
-      if (id > 0) {
-         this.accept(new Object[]{id, s, i, j});
       }
 
       return e;// 11
@@ -47,111 +35,89 @@ public class TestFinallyBlockVariableUse {
 
 class 'pkg/TestFinallyBlockVariableUse' {
    method 'test (Ljava/lang/String;II)I' {
-      0      5
-      1      5
-      2      5
-      3      5
-      4      5
-      5      5
-      8      10
-      9      10
-      a      10
-      b      10
-      c      10
-      d      11
-      10      14
-      11      14
-      12      14
-      13      14
-      14      14
-      15      14
-      16      14
-      17      15
-      18      15
-      19      15
-      1a      31
-      1b      31
-      1c      31
-      1d      31
-      1e      31
-      1f      32
-      20      32
-      21      32
-      24      33
-      2b      33
-      2c      33
-      2d      33
-      2e      33
-      2f      33
-      33      33
-      37      33
-      38      33
-      39      33
-      3a      33
-      3e      33
-      3f      33
-      40      33
-      41      33
-      43      33
-      46      36
-      47      36
-      48      36
-      49      17
-      4b      18
-      4c      18
-      4f      19
-      50      23
-      51      23
-      52      23
-      53      23
-      54      23
-      55      23
-      56      24
-      57      24
-      58      24
-      5c      25
-      63      25
-      64      25
-      65      25
-      66      25
-      67      25
-      6b      25
-      6f      25
-      70      25
-      71      25
-      72      25
-      76      25
-      77      25
-      78      25
-      79      25
-      7b      25
+      0      4
+      1      4
+      2      4
+      3      4
+      4      4
+      5      4
+      8      8
+      9      8
+      a      8
+      b      8
+      c      8
+      d      8
+      10      11
+      11      11
+      12      11
+      13      11
+      14      11
+      15      11
+      16      11
+      17      12
+      18      12
+      19      12
+      46      24
+      47      24
+      48      24
+      49      13
+      4b      14
+      4c      14
+      4d      15
+      4e      15
+      4f      15
+      50      18
+      51      18
+      52      18
+      53      18
+      54      18
+      55      18
+      56      19
+      57      19
+      58      19
+      5c      20
+      63      20
+      64      20
+      65      20
+      66      20
+      67      20
+      6b      20
+      6f      20
+      70      20
+      71      20
+      72      20
+      76      20
+      77      20
+      78      20
+      79      20
+      7b      20
    }
 
    method 'condition (I)Z' {
-      1      40
-      2      40
-      3      40
-      4      40
-      c      40
+      1      28
+      2      28
+      3      28
+      4      28
+      c      28
    }
 
    method 'accept ([Ljava/lang/Object;)V' {
-      0      44
+      0      32
    }
 }
 
 Lines mapping:
-5 <-> 6
-7 <-> 11
-9 <-> 15
-11 <-> 37
-13 <-> 18
-14 <-> 19
-15 <-> 20
-18 <-> 24
-19 <-> 25
-21 <-> 26
-27 <-> 41
-32 <-> 45
+5 <-> 5
+7 <-> 9
+9 <-> 12
+11 <-> 25
+13 <-> 14
+14 <-> 15
+15 <-> 16
+18 <-> 19
+19 <-> 20
+21 <-> 21
+27 <-> 29
+32 <-> 33
 Not mapped:
 23

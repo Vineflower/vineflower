@@ -11,7 +11,6 @@ public class TestSwitchTernary {
          default:
             System.out.println("no");// 12
       }
-
    }// 14
 
    public void testString(String i, String j, boolean b) {
@@ -25,7 +24,6 @@ public class TestSwitchTernary {
          default:
             System.out.println("no");// 24
       }
-
    }// 26
 
    public void testEnum(TestSwitchTernary.TestEnum i, TestSwitchTernary.TestEnum j, boolean b) {
@@ -38,7 +36,6 @@ public class TestSwitchTernary {
          default:
             System.out.println("no");// 36
       }
-
    }// 38
 
    public static enum TestEnum {
@@ -76,75 +73,76 @@ class 'pkg/TestSwitchTernary' {
       3a      11
       3b      11
       3c      11
-      3f      14
+      3f      13
    }
 
    method 'testString (Ljava/lang/String;Ljava/lang/String;Z)V' {
-      0      17
-      1      17
-      4      17
-      8      17
-      9      17
-      a      17
-      e      18
-      f      18
-      2e      19
-      2f      19
-      3e      22
-      3f      22
-      4b      18
-      64      20
-      65      20
-      66      20
-      67      20
-      68      20
-      69      20
-      6a      20
-      6b      20
-      6c      21
-      6f      23
-      70      23
-      71      23
-      72      23
-      73      23
-      74      23
-      77      25
-      78      25
-      79      25
-      7a      25
-      7b      25
-      7c      25
-      7f      28
+      0      16
+      1      16
+      4      16
+      8      16
+      9      16
+      a      16
+      e      17
+      f      17
+      2e      18
+      2f      18
+      3e      21
+      3f      21
+      4b      17
+      64      19
+      65      19
+      66      19
+      67      19
+      68      19
+      69      19
+      6a      19
+      6b      19
+      6c      20
+      6f      22
+      70      22
+      71      22
+      72      22
+      73      22
+      74      22
+      77      24
+      78      24
+      79      24
+      7a      24
+      7b      24
+      7c      24
+      7f      26
    }
 
    method 'testEnum (Lpkg/TestSwitchTernary$TestEnum;Lpkg/TestSwitchTernary$TestEnum;Z)V' {
-      3      31
-      4      31
-      7      31
-      b      31
-      10      31
-      2c      33
-      2d      33
-      2e      33
-      2f      33
-      30      33
-      31      33
-      32      33
-      33      33
-      34      34
-      37      36
-      38      36
-      39      36
-      3a      36
-      3b      36
-      3c      36
-      3f      38
-      40      38
-      41      38
-      42      38
-      43      38
-      44      38
-      47      41
+      3      29
+      4      29
+      7      29
+      b      29
+      f      29
+      10      29
+      2c      31
+      2d      31
+      2e      31
+      2f      31
+      30      31
+      31      31
+      32      31
+      33      31
+      34      32
+      37      34
+      38      34
+      39      34
+      3a      34
+      3b      34
+      3c      34
+      3f      36
+      40      36
+      41      36
+      42      36
+      43      36
+      44      36
+      47      38
    }
 }
 
@@ -154,16 +152,16 @@ Lines mapping:
 8 <-> 8
 10 <-> 10
 12 <-> 12
-14 <-> 15
-17 <-> 18
-19 <-> 21
-20 <-> 22
-22 <-> 24
-24 <-> 26
-26 <-> 29
-29 <-> 32
-31 <-> 34
-32 <-> 35
-34 <-> 37
-36 <-> 39
-38 <-> 42
+14 <-> 14
+17 <-> 17
+19 <-> 20
+20 <-> 21
+22 <-> 23
+24 <-> 25
+26 <-> 27
+29 <-> 30
+31 <-> 32
+32 <-> 33
+34 <-> 35
+36 <-> 37
+38 <-> 39

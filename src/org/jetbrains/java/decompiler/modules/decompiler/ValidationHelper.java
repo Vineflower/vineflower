@@ -2,6 +2,7 @@ package org.jetbrains.java.decompiler.modules.decompiler;
 
 import org.jetbrains.java.decompiler.modules.decompiler.exps.ExitExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectNode;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper;
@@ -11,8 +12,8 @@ import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionsGraph;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.DotExporter;
-import org.jetbrains.java.decompiler.util.ListStack;
-import org.jetbrains.java.decompiler.util.VBStyleCollection;
+import org.jetbrains.java.decompiler.util.collections.ListStack;
+import org.jetbrains.java.decompiler.util.collections.VBStyleCollection;
 
 import java.util.*;
 
@@ -324,10 +325,36 @@ public final class ValidationHelper {
       }
 
       if (!inaccessibleNodes.isEmpty()) {
-        throw new IllegalStateException("Inaccessible nodes: " + inaccessibleNodes);
+        throw new IllegalStateException("Inaccessible direct graph nodes: " + inaccessibleNodes);
       }
     } catch (Throwable e) {
       DotExporter.errorToDotFile(graph, root.mt, "erroring_dgraph");
+      throw e;
+    }
+  }
+
+  public static void validateAllVarVersionsAreNull(DirectGraph dgraph, RootStatement root) {
+    if (!VALIDATE) {
+      return;
+    }
+
+    try {
+      for (DirectNode node : dgraph.nodes) {
+        if (node.exprents != null) {
+          for (Exprent exprent : node.exprents) {
+            for (Exprent sub : exprent.getAllExprents(true, true)) {
+              if (sub instanceof VarExprent) {
+                VarExprent var = (VarExprent)sub;
+                if (var.getVersion() != 0) {
+                  throw new IllegalStateException("Var version is not zero: " + var.getIndex() + "_" + var.getVersion());
+                }
+              }
+            }
+          }
+        }
+      }
+    } catch (Throwable e) {
+      DotExporter.errorToDotFile(dgraph, root.mt, "erroring_dgraph");
       throw e;
     }
   }

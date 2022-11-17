@@ -100,15 +100,16 @@ The rest of options can be left as they are: they are aimed at professional reve
 - iib (0): Ignore invalid bytecode
 - vac (0): Verify that anonymous classes can be anonymous
 - tcs (0): Simplify boolean constants in ternary operations
-- pam (0): Decompile pattern matching
-- tlf (0): Experimental try loop enhancements (may cause some methods to decompile wrong or not at all!)
+- pam (1): Decompile pattern matching
+- tlf (1): loop-in-try fixes
 - tco (1): Allow ternaries to be generated in if and loop conditions
 - swe (1): Decompile Switch Expressions in modern Java
 - shs (0): Display code blocks hidden, for debugging purposes
 - ovr (1): Show override annotations for methods known to the decompiler.
 - ssp (1): Second-Pass Stack Simplficiation
+- vvm (0): Verify variable merges before remapping them
 - iec (0): Give the decompiler information about every jar on the classpath.
-- jrt (0): Add the currently used Java runtime as a library
+- jrt (0/if running from CLI, `current`): The path to a java runtime to add to the classpath, or `1` or `current` to add the java runtime of the active JVM to the classpath.
 - ega (0): Explicit Generic Arguments
 - isl (1): Inline simple lambdas
 - log (INFO): A logging level, possible values are TRACE, INFO, WARN, ERROR
@@ -129,6 +130,8 @@ The rest of options can be left as they are: they are aimed at professional reve
 - dee (1): Dump exceptions on errors
 - dec (1): Decompiler error comments
 - sfc (0): Debug comments showing the class SourceFile attribute if present
+- dcc (0): Decompile complex constant-dynamic bootstraps, that might have different or slower run-time behaviour when recompiled
+- dpr (1): Decompile preview features in latest Java versions
 
 ### Renaming identifiers
 

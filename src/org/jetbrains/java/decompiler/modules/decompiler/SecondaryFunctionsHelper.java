@@ -234,6 +234,7 @@ public final class SecondaryFunctionsHelper {
         Exprent retexpr = identifySecondaryFunctions(expr, false, varProc);
         if (retexpr != null) {
           exprent.replaceExprent(expr, retexpr);
+          retexpr.addBytecodeOffsets(expr.bytecode);
           replaced = true;
           break;
         }

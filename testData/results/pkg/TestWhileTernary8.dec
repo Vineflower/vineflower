@@ -6,13 +6,13 @@ public class TestWhileTernary8 {
          System.out.println(a * b);// 6
          ++a;// 7
       }
-
    }// 9
 }
 
 class 'pkg/TestWhileTernary8' {
    method 'test (ZII)V' {
       0      4
+      1      4
       4      4
       5      4
       6      4
@@ -37,7 +37,7 @@ class 'pkg/TestWhileTernary8' {
       27      6
       28      6
       29      6
-      2d      9
+      2d      8
    }
 }
 
@@ -45,4 +45,4 @@ Lines mapping:
 5 <-> 5
 6 <-> 6
 7 <-> 7
-9 <-> 10
+9 <-> 9

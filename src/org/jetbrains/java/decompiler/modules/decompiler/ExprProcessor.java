@@ -6,7 +6,7 @@ import org.jetbrains.java.decompiler.code.Instruction;
 import org.jetbrains.java.decompiler.code.InstructionSequence;
 import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
-import org.jetbrains.java.decompiler.util.ListStack;
+import org.jetbrains.java.decompiler.util.collections.ListStack;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
@@ -26,8 +26,6 @@ import org.jetbrains.java.decompiler.struct.consts.PrimitiveConstant;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
-import org.jetbrains.java.decompiler.util.ListStack;
-import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.TextUtil;
 
 import java.util.*;
@@ -136,6 +134,8 @@ public class ExprProcessor implements CodeConstants {
     map.put(null, new PrimitiveExprsList());
     mapData.put(dgraph.first, map);
 
+    Set<DirectNode> seen = new HashSet<>();
+
     while (!stack.isEmpty()) {
 
       DirectNode node = stack.removeFirst();
@@ -170,7 +170,7 @@ public class ExprProcessor implements CodeConstants {
           }
         }
 
-        if (isSuccessor) {
+        if (!seen.contains(nd) && isSuccessor) {
           Map<String, PrimitiveExprsList> mapSucc = mapData.computeIfAbsent(nd, k -> new HashMap<>());
           LinkedList<String> ndentrypoints = new LinkedList<>(entrypoints);
 
@@ -191,6 +191,7 @@ public class ExprProcessor implements CodeConstants {
             }
           }
 
+          seen.add(nd);
           String ndentrykey = buildEntryPointKey(ndentrypoints);
           if (!mapSucc.containsKey(ndentrykey)) {
 
@@ -335,7 +336,7 @@ public class ExprProcessor implements CodeConstants {
               exprlist.add(exprinv);
             }
             else {
-              pushEx(stack, exprlist, exprinv);
+              pushEx(stack, exprlist, CondyHelper.simplifyCondy(exprinv));
             }
           }
           else if (cn instanceof LinkConstant) {
@@ -349,6 +350,7 @@ public class ExprProcessor implements CodeConstants {
         case opc_dload:
         case opc_aload:
           VarExprent varExprent = new VarExprent(instr.operand(0), varTypes[instr.opcode - opc_iload], varProcessor, bytecode_offsets);
+          varExprent.setBackingInstr(instr);
           varProcessor.findLVT(varExprent, bytecode_offset + instr.length);
           pushEx(stack, exprlist, varExprent);
           break;
@@ -384,6 +386,7 @@ public class ExprProcessor implements CodeConstants {
             bytecode_offsets.set(bytecode_offset, bytecode_offset + instr.length);
           }
           varExprent = new VarExprent(varindex, varTypes[instr.opcode - opc_istore], varProcessor, bytecode_offsets);
+          varExprent.setBackingInstr(instr);
           varProcessor.findLVT(varExprent, bytecode_offset + instr.length);
           AssignmentExprent assign = new AssignmentExprent(varExprent, expr, bytecode_offsets);
           exprlist.add(assign);
@@ -448,6 +451,7 @@ public class ExprProcessor implements CodeConstants {
           break;
         case opc_iinc:
           VarExprent vevar = new VarExprent(instr.operand(0), VarType.VARTYPE_INT, varProcessor, bytecode_offsets);
+          vevar.setBackingInstr(instr);
           varProcessor.findLVT(vevar, bytecode_offset + instr.length);
           exprlist.add(new AssignmentExprent(vevar, new FunctionExprent(
             instr.operand(1) < 0 ? FunctionType.SUB : FunctionType.ADD, Arrays
@@ -719,6 +723,103 @@ public class ExprProcessor implements CodeConstants {
     }
   }
 
+  public static boolean canonicalizeCasts(RootStatement stat) {
+    boolean res = false;
+    while (canonicalizeCasts((Statement) stat)) {
+      res = true;
+    }
+
+    return res;
+  }
+
+  private static boolean canonicalizeCasts(Statement stat) {
+    boolean res = false;
+    for (Statement st : stat.getStats()) {
+      res |= canonicalizeCasts(st);
+    }
+
+    if (stat instanceof BasicBlockStatement) {
+      for (Exprent exprent : stat.getExprents()) {
+        for (Exprent ex : exprent.getAllExprents(true, true)) {
+
+          // Remove Checkcast(Type, Checkcast(Type, ...)) and turn it just into Checkcast(Type, ...) where both have the same type
+          // The extra checkcast causes issues with generic type decompilation
+          if (ex instanceof FunctionExprent && ((FunctionExprent)ex).getFuncType() == FunctionExprent.FunctionType.CAST) {
+            FunctionExprent func = (FunctionExprent)ex;
+            Exprent inner = func.getLstOperands().get(0);
+            Exprent cast = func.getLstOperands().get(1);
+
+            if (inner instanceof FunctionExprent && ((FunctionExprent)inner).getFuncType() == FunctionExprent.FunctionType.CAST) {
+              FunctionExprent func2 = (FunctionExprent)inner;
+              Exprent inner2 = func2.getLstOperands().get(0);
+              Exprent cast2 = func2.getLstOperands().get(1);
+
+              if (cast.getExprType().equals(cast2.getExprType())) {
+                ex.replaceExprent(inner, inner2);
+                ex.addBytecodeOffsets(inner2.bytecode);
+                ex.addBytecodeOffsets(inner.bytecode);
+                res = true;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    return res;
+  }
+
+  public static void markExprOddities(RootStatement root) {
+    // We shouldn't have to do this, but turns out getting cast names is not pure. Sigh.
+    DecompilerContext.getImportCollector().setWriteLocked(true);
+
+    markExprOddities(root, root);
+
+    DecompilerContext.getImportCollector().setWriteLocked(false);
+  }
+
+  private static void markExprOddities(RootStatement root, Statement stat) {
+    for (Statement st : stat.getStats()) {
+      markExprOddities(root, st);
+    }
+
+    for (Exprent ex : stat.getVarDefinitions()) {
+      markExprOddity(root, ex);
+    }
+
+    if (stat instanceof BasicBlockStatement) {
+      for (Exprent ex : stat.getExprents()) {
+        markExprOddity(root, ex);
+      }
+    }
+  }
+
+  private static void markExprOddity(RootStatement root, Exprent ex) {
+    if (ex instanceof MonitorExprent) {
+      root.addComment("$QF: Could not create synchronized statement, marking monitor enters and exits", true);
+    }
+    if (ex instanceof IfExprent) {
+      root.addComment("$QF: Accidentally destroyed if statement, the decompiled code is not correct!", true);
+    }
+
+    for (Exprent e : ex.getAllExprents(true, true)) {
+      if (e instanceof VarExprent) {
+        VarExprent var = (VarExprent)e;
+        if (var.isDefinition() && isInvalidTypeName(var.getDefinitionType()) || var.getExprType() == VarType.VARTYPE_UNKNOWN) {
+          root.addComment("$QF: Could not properly define all variable types!", true);
+        }
+      } else if (e instanceof FunctionExprent) {
+        FunctionExprent func = (FunctionExprent)e;
+        if (func.getFuncType() == FunctionType.CAST && func.doesCast()) {
+          List<Exprent> operands = func.getLstOperands();
+          if (isInvalidTypeName(operands.get(1).toString())) {
+            root.addComment("$QF: Could not properly define all variable types!", true);
+          }
+        }
+      }
+    }
+  }
+
   public static String getTypeName(VarType type) {
     return getTypeName(type, true);
   }
@@ -750,13 +851,16 @@ public class ExprProcessor implements CodeConstants {
       }
 
       if (ret == null) {
-        // FIXME: a warning should be logged
         ret = UNDEFINED_TYPE_STRING;
       }
       return ret;
     }
 
     throw new RuntimeException("invalid type: " + tp);
+  }
+
+  public static boolean isInvalidTypeName(String name) {
+    return UNDEFINED_TYPE_STRING.equals(name) || NULL_TYPE_STRING.equals(name) || UNKNOWN_TYPE_STRING.equals(name);
   }
 
   public static String getCastTypeName(VarType type) {

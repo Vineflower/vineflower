@@ -30,6 +30,8 @@ public final class SwitchStatement extends Statement {
 
   private List<List<Exprent>> caseValues = new ArrayList<>();
 
+  private List<Exprent> caseGuards = new ArrayList<>();
+
   private final Set<Statement> scopedCaseStatements = new HashSet<>();
 
   private StatEdge defaultEdge;
@@ -71,12 +73,7 @@ public final class SwitchStatement extends Statement {
 
     //We need to use set above in case we have multiple edges to the same node. But HashSets iterator is not ordered, so sort
     List<Statement> sorted = new ArrayList<>(lstNodes);
-    Collections.sort(sorted, new Comparator<Statement>() {
-      @Override
-      public int compare(Statement o1, Statement o2) {
-        return o1.id - o2.id;
-      }
-    });
+    sorted.sort(Comparator.comparingInt(o -> o.id));
     for (Statement st : sorted) {
       stats.addWithKey(st, st.id);
     }
@@ -141,6 +138,7 @@ public final class SwitchStatement extends Statement {
       Statement stat = caseStatements.get(i);
       List<StatEdge> edges = caseEdges.get(i);
       List<Exprent> values = caseValues.get(i);
+      Exprent guard = caseGuards.size() > i ? caseGuards.get(i) : null;
 
       for (int j = 0; j < edges.size(); j++) {
         if (edges.get(j) == defaultEdge) {
@@ -161,12 +159,22 @@ public final class SwitchStatement extends Statement {
           if (value instanceof ConstExprent && !value.getExprType().equals(VarType.VARTYPE_NULL)) {
             value = value.copy();
             ((ConstExprent)value).setConstType(switch_type);
-          }
-          if (value instanceof FieldExprent && ((FieldExprent)value).isStatic()) { // enum values
+          } if (value instanceof FieldExprent && ((FieldExprent)value).isStatic()) { // enum values
             buf.append(((FieldExprent)value).getName());
-          }
-          else {
+          } else if (value instanceof FunctionExprent && ((FunctionExprent) value).getFuncType() == FunctionType.INSTANCEOF) {
+            // Pattern matching variables
+            List<Exprent> operands = ((FunctionExprent) value).getLstOperands();
+            buf.append(operands.get(1).toJava(indent));
+            buf.append(" ");
+            // We're pasting the var type, don't do it again
+            ((VarExprent)operands.get(2)).setDefinition(false);
+            buf.append(operands.get(2).toJava(indent));
+          } else {
             buf.append(value.toJava(indent));
+          }
+
+          if (guard != null) {
+            buf.append(" when ").append(guard.toJava());
           }
 
           buf.append(":");
@@ -208,8 +216,37 @@ public final class SwitchStatement extends Statement {
 
     List<Object> lst = new ArrayList<>(stats);
     lst.add(1, headexprent.get(0));
+    // make sure guards can be simplified by other helpers
+    for (Exprent caseGuard : getCaseGuards()) {
+      if (caseGuard != null) {
+        lst.add(caseGuard);
+      }
+    }
+
+    for (List<Exprent> caseList : this.caseValues) {
+      lst.addAll(caseList);
+    }
 
     return lst;
+  }
+
+  // Returns true if this switch is a pattern matching switch.
+  public boolean isPattern() {
+    // Simple test, if there's a guard then it is for sure pattern matching
+    if (!this.caseGuards.isEmpty()) {
+      return true;
+    }
+
+    for (List<Exprent> l : this.caseValues) {
+      for (Exprent e : l) {
+        // If we have instanceofs in our case values, we're a pattern matching switch
+        if (e instanceof FunctionExprent && ((FunctionExprent)e).getFuncType() == FunctionType.INSTANCEOF) {
+          return true;
+        }
+      }
+    }
+
+    return false;
   }
 
   @Override
@@ -218,6 +255,13 @@ public final class SwitchStatement extends Statement {
 
     List<Exprent> caseList = this.caseValues.stream()
       .flatMap(List::stream) // List<List<Exprent>> -> List<Exprent>
+      .collect(Collectors.toList());
+    // guards can also contain pattern variables
+    caseList.addAll(this.caseGuards);
+    // guards may also contain nested variables, like `a instanceof B b && b == ...`
+    caseList = caseList.stream()
+      .filter(Objects::nonNull)
+      .flatMap(x -> x.getAllExprents(true, true).stream())
       .collect(Collectors.toList());
 
     for (Exprent caseContent : caseList) {
@@ -242,6 +286,11 @@ public final class SwitchStatement extends Statement {
   public void replaceExprent(Exprent oldexpr, Exprent newexpr) {
     if (headexprent.get(0) == oldexpr) {
       headexprent.set(0, newexpr);
+    } else {
+      int idx = caseGuards.indexOf(oldexpr);
+      if (idx > -1) {
+        caseGuards.set(idx, newexpr);
+      }
     }
   }
 
@@ -286,6 +335,12 @@ public final class SwitchStatement extends Statement {
   // *****************************************************************************
 
   public void sortEdgesAndNodes() {
+
+    // skip for pattern switches
+    if (caseValues.stream().flatMap(Collection::stream).anyMatch(u -> !(u instanceof ConstExprent) || ((ConstExprent) u).isNull())
+      || caseGuards.stream().anyMatch(Objects::nonNull)) {
+      return;
+    }
 
     HashMap<StatEdge, Integer> mapEdgeIndex = new HashMap<>();
 
@@ -459,6 +514,10 @@ public final class SwitchStatement extends Statement {
 
   public void setPhantom(boolean phantom) {
     this.phantom = phantom;
+  }
+
+  public List<Exprent> getCaseGuards() {
+    return caseGuards;
   }
 
   public void scopeCaseStatement(Statement stat) {

@@ -16,79 +16,91 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectNode;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper;
+import org.jetbrains.java.decompiler.modules.decompiler.sforms.SFormsConstructor;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.SSAConstructorSparseEx;
+import org.jetbrains.java.decompiler.modules.decompiler.sforms.SSAUConstructorSparseEx;
+import org.jetbrains.java.decompiler.modules.decompiler.sforms.SimpleSSAReassign;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.BasicBlockStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.CatchAllStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
+import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionsGraph;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
+import org.jetbrains.java.decompiler.util.collections.ListStack;
 
 import java.util.*;
 import java.util.Map.Entry;
 
 public class FinallyProcessor {
-  private final Map<Integer, Integer> finallyBlockIDs = new HashMap<>();
-  private final Map<Integer, Integer> catchallBlockIDs = new HashMap<>();
+  private final Map<BasicBlock, Integer> finallyBlocks = new HashMap<>();
+  // seems to store catch-alls that can't be converted to a finally
+  private final Set<BasicBlock> catchallBlocks = new HashSet<>();
 
+  private final StructMethod mt;
   private final MethodDescriptor methodDescriptor;
   private final VarProcessor varProcessor;
+  private VarVersionsGraph ssuversions;
+  private Map<Instruction, Integer> instrRewrites;
 
-  public FinallyProcessor(MethodDescriptor md, VarProcessor varProc) {
-    methodDescriptor = md;
-    varProcessor = varProc;
+  public FinallyProcessor(StructMethod mt, MethodDescriptor md, VarProcessor varProc) {
+    this.mt = mt;
+    this.methodDescriptor = md;
+    this.varProcessor = varProc;
   }
 
   public boolean iterateGraph(StructClass cl, StructMethod mt, RootStatement root, ControlFlowGraph graph) {
+    this.ssuversions = null;
     BytecodeVersion bytecodeVersion = mt.getBytecodeVersion();
 
-    LinkedList<Statement> stack = new LinkedList<>();
+    ListStack<Statement> stack = new ListStack<>();
     stack.add(root);
 
     while (!stack.isEmpty()) {
-      Statement stat = stack.removeLast();
+      Statement stat = stack.pop();
 
       Statement parent = stat.getParent();
       if (parent instanceof CatchAllStatement && stat == parent.getFirst() && !parent.isCopied()) {
 
-        CatchAllStatement fin = (CatchAllStatement)parent;
+        CatchAllStatement fin = (CatchAllStatement) parent;
         BasicBlock head = fin.getBasichead().getBlock();
         BasicBlock handler = fin.getHandler().getBasichead().getBlock();
 
-        if (catchallBlockIDs.containsKey(handler.id)) {
+        //noinspection StatementWithEmptyBody
+        if (this.catchallBlocks.contains(handler)) {
           // do nothing
-        } else if (finallyBlockIDs.containsKey(handler.id)) {
+        } else if (this.finallyBlocks.containsKey(handler)) {
           fin.setFinally(true);
 
-          Integer var = finallyBlockIDs.get(handler.id);
-          fin.setMonitor(var == null ? null : new VarExprent(var, VarType.VARTYPE_INT, varProcessor));
+          Integer var = this.finallyBlocks.get(handler);
+          fin.setMonitor(var == null ? null : new VarExprent(var, VarType.VARTYPE_INT, this.varProcessor));
         } else {
-          Record inf = getFinallyInformation(cl, mt, root, fin);
+          Record inf = this.getFinallyInformation(cl, mt, root, fin);
 
           if (inf == null) { // inconsistent finally
-            catchallBlockIDs.put(handler.id, null);
-            root.addComment("$QF: Could not inline inconsistent finally blocks");
-            root.addErrorComment = true;
+            catchallBlocks.add(handler);
+            root.addComment("$QF: Could not inline inconsistent finally blocks", true);
           } else {
             if (DecompilerContext.getOption(IFernflowerPreferences.FINALLY_DEINLINE) && verifyFinallyEx(graph, fin, inf)) {
               // FIXME: inlines improperly, breaks TestLoopFinally#emptyInnerFinally
 //              inlineReturnVar(graph, handler);
 
-              finallyBlockIDs.put(handler.id, null);
+              finallyBlocks.put(handler, null);
             } else {
               int varIndex = DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.VAR_COUNTER);
+              // Add the semaphore variable to the list so we can create a comment in the output
+              this.varProcessor.getSyntheticSemaphores().add(varIndex);
               insertSemaphore(graph, getAllBasicBlocks(fin.getFirst()), head, handler, varIndex, inf, bytecodeVersion);
 
-              finallyBlockIDs.put(handler.id, varIndex);
+              this.finallyBlocks.put(handler, varIndex);
 
-              if (DecompilerContext.getOption(IFernflowerPreferences.FINALLY_DEINLINE)) {
-                root.addComment("$QF: Could not verify finally blocks. A semaphore variable has been added to preserve control flow.");
-                root.addErrorComment = true;
+              if (DecompilerContext.getOption(IFernflowerPreferences.DECOMPILER_COMMENTS)) {
+                root.addComment("$QF: Could not verify finally blocks. A semaphore variable has been added to preserve control flow.", true);
               }
             }
 
@@ -118,7 +130,26 @@ public class FinallyProcessor {
   }
 
   private Record getFinallyInformation(StructClass cl, StructMethod mt, RootStatement root, CatchAllStatement fstat) {
-    Map<BasicBlock, Boolean> mapLast = new HashMap<>();
+    ExprProcessor proc = new ExprProcessor(methodDescriptor, varProcessor);
+    proc.processStatement(root, cl);
+
+    if (ssuversions == null) {
+      // FIXME: don't split SSAU unless needed!
+      SSAConstructorSparseEx ssa = new SSAConstructorSparseEx();
+      ssa.splitVariables(root, mt);
+
+      instrRewrites = SimpleSSAReassign.reassignSSAForm(ssa, root);
+
+      StackVarsProcessor.setVersionsToNull(root);
+
+      SFormsConstructor ssau = new SSAUConstructorSparseEx();
+      ssau.splitVariables(root, mt);
+
+      this.ssuversions = ssau.getSsuVersions();
+      StackVarsProcessor.setVersionsToNull(root);
+    }
+
+    Map<BasicBlock, Boolean> mapLast = new LinkedHashMap<>();
 
     BasicBlockStatement firstBlockStatement = fstat.getHandler().getBasichead();
     BasicBlock firstBasicBlock = firstBlockStatement.getBlock();
@@ -133,9 +164,6 @@ public class FinallyProcessor {
       case CodeConstants.opc_astore:
         firstcode = 2;
     }
-
-    ExprProcessor proc = new ExprProcessor(methodDescriptor, varProcessor);
-    proc.processStatement(root, cl);
 
     SSAConstructorSparseEx ssa = new SSAConstructorSparseEx();
     ssa.splitVariables(root, mt);
@@ -436,7 +464,7 @@ public class FinallyProcessor {
     }
     while (index < lst.size());
 
-    Set<BasicBlock> res = new HashSet<>();
+    Set<BasicBlock> res = new LinkedHashSet<>();
 
     for (Statement st : lst) {
       res.add(((BasicBlockStatement)st).getBlock());
@@ -476,7 +504,7 @@ public class FinallyProcessor {
     }
 
     // identify start blocks
-    Set<BasicBlock> startBlocks = new HashSet<>();
+    Set<BasicBlock> startBlocks = new LinkedHashSet<>();
     for (BasicBlock block : tryBlocks) {
       startBlocks.addAll(block.getSuccs());
     }
@@ -484,17 +512,10 @@ public class FinallyProcessor {
     // so remove dummy exit
     startBlocks.remove(graph.getLast());
     startBlocks.removeAll(tryBlocks);
-    List<BasicBlock> starts = new ArrayList<BasicBlock>(startBlocks);
-    Collections.sort(starts, new Comparator<BasicBlock>() {
-      @Override
-      public int compare(BasicBlock o1, BasicBlock o2) {
-        return o2.id - o1.id;
-      }
-    });
 
     List<Area> lstAreas = new ArrayList<>();
 
-    for (BasicBlock start : starts) {
+    for (BasicBlock start : startBlocks) {
 
       Area arr = compareSubgraphsEx(graph, start, catchBlocks, first, finallytype, mapLast, skippedFirst);
       if (arr == null) {
@@ -517,17 +538,8 @@ public class FinallyProcessor {
     //			DotExporter.toDotFile(graph, new File("c:\\Temp\\fern5.dot"), true);
     //		} catch(Exception ex){ex.printStackTrace();}
 
-    List<Entry<BasicBlock, Boolean>> lasts = new ArrayList<Entry<BasicBlock, Boolean>>(mapLast.entrySet());
-    // We must sort here to prevent decompile differences deriving from hash maps.
-    Collections.sort(lasts, new Comparator<Entry<BasicBlock, Boolean>>() {
-      @Override
-      public int compare(Entry<BasicBlock, Boolean> o1, Entry<BasicBlock, Boolean> o2) {
-        return o1.getKey().id - o2.getKey().id;
-      }
-    });
-
     // INFO: empty basic blocks may remain in the graph!
-    for (Entry<BasicBlock, Boolean> entry : lasts) {
+    for (Entry<BasicBlock, Boolean> entry : mapLast.entrySet()) {
       BasicBlock last = entry.getKey();
 
       if (entry.getValue()) {
@@ -668,7 +680,7 @@ public class FinallyProcessor {
 
         for (BasicBlock succ : setSuccs) {
           if (graph.getLast() != succ) { // FIXME: why?
-            mapNext.put(blockSample.id + "#" + succ.id, new BasicBlock[]{blockSample, succ, isTrueLastBlock ? succ : null});
+            mapNext.put(blockSample.getId() + "#" + succ.getId(), new BasicBlock[]{blockSample, succ, isTrueLastBlock ? succ : null});
           }
         }
       }
@@ -715,6 +727,7 @@ public class FinallyProcessor {
 
             if (seqNext.length() == seqBlock.length()) {
               for (int i = 0; i < seqNext.length(); i++) {
+                // TODO: can this be merged with the methods to check if instructions are equal?
                 Instruction instrNext = seqNext.getInstr(i);
                 Instruction instrBlock = seqBlock.getInstr(i);
 
@@ -870,12 +883,35 @@ public class FinallyProcessor {
             return true;
           }
 
-          return false;
+          boolean ok = false;
+          if (isOpcVar(first.opcode)) {
+            // Find rewritten variables
+            if (instrRewrites.containsKey(first)) {
+              firstOp = instrRewrites.get(first);
+            }
+            if (instrRewrites.containsKey(second)) {
+              secondOp = instrRewrites.get(second);
+            }
+
+            if (this.ssuversions.areVarsAnalogous(firstOp, secondOp)) {
+              ok = true;
+            }
+
+            // TODO: validate direct assignments
+          }
+
+          if (!ok) {
+            return false;
+          }
         }
       }
     }
 
     return true;
+  }
+
+  private static boolean isOpcVar(int opc) {
+    return opc >= CodeConstants.opc_iload && opc <= CodeConstants.opc_sastore;
   }
 
   private static void deleteArea(ControlFlowGraph graph, Area area) {

@@ -1,0 +1,41 @@
+package pkg;
+
+super public class TestSelfIterableLoop
+	version 52:0
+{
+
+public Method "<init>":"()V"
+    stack 1 locals 1
+{
+        aload_0;
+        invokespecial Method java/lang/Object."<init>":"()V";
+        return;
+}
+
+
+public Method "testMethod":"(Ljava/lang/Iterable;)V"
+    stack 2 locals 4
+{
+        LMain:
+        aload_1;
+        invokeinterface InterfaceMethod java/lang/Iterable."iterator":"()Ljava/util/Iterator;", 1;
+        astore_2;
+        LForEach:
+        aload_2;
+        invokeinterface InterfaceMethod java/util/Iterator."hasNext":"()Z", 1;
+        ifeq LStop;
+        aload_2;
+        invokeinterface InterfaceMethod java/util/Iterator."next":"()Ljava/lang/Object;", 1;
+        astore_1;
+        aload_1;
+        instanceof Ljava/lang/Iterable;
+        ifeq LForEach;
+        aload_1;
+        checkcast Ljava/lang/Iterable;
+        astore_1;
+        goto LMain;
+        LStop:
+        return;
+}
+
+}

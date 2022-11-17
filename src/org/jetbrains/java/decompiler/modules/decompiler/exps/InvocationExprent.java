@@ -24,10 +24,9 @@ import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
 import org.jetbrains.java.decompiler.struct.match.MatchEngine;
 import org.jetbrains.java.decompiler.struct.match.MatchNode;
 import org.jetbrains.java.decompiler.struct.match.MatchNode.RuleValue;
-import org.jetbrains.java.decompiler.util.InterpreterUtil;
-import org.jetbrains.java.decompiler.util.ListStack;
-import org.jetbrains.java.decompiler.util.TextBuffer;
-import org.jetbrains.java.decompiler.util.TextUtil;
+import org.jetbrains.java.decompiler.util.*;
+import org.jetbrains.java.decompiler.util.collections.ListStack;
+import org.jetbrains.java.decompiler.util.collections.NullableConcurrentHashMap;
 
 import java.lang.reflect.Method;
 import java.util.*;
@@ -62,12 +61,13 @@ public class InvocationExprent extends Exprent {
   private List<PooledConstant> bootstrapArguments;
   private final List<VarType> genericArgs = new ArrayList<>();
   public boolean forceGenericQualfication = false;
-  private final Map<VarType, VarType> genericsMap = new HashMap<>();
+  private final NullableConcurrentHashMap<VarType, VarType> genericsMap = new NullableConcurrentHashMap<>();
   private boolean isInvocationInstance = false;
   private boolean isQualifier = false;
   private boolean forceBoxing = false;
   private boolean forceUnboxing = false;
   private boolean isSyntheticNullCheck = false;
+  private boolean wasLazyCondy = false;
 
   public InvocationExprent() {
     super(Exprent.Type.INVOCATION);
@@ -183,6 +183,7 @@ public class InvocationExprent extends Exprent {
     bootstrapMethod = expr.getBootstrapMethod();
     bootstrapArguments = expr.getBootstrapArguments();
     isSyntheticNullCheck = expr.isSyntheticNullCheck();
+    wasLazyCondy = expr.wasLazyCondy;
 
     if (invocationType == InvocationType.DYNAMIC && !isStatic && instance != null && !lstParameters.isEmpty()) {
       // method reference, instance and first param are expected to be the same var object
@@ -358,7 +359,12 @@ public class InvocationExprent extends Exprent {
           int j = 0;
           for (int i = start; i < lstParameters.size(); ++i) {
             if ((mask == null || mask.get(i) == null)) {
-              // FIXME: IOOBE
+              // FIXME: why can this happen?
+              //   See: jdk ReduceOps
+              if (desc.getSignature().parameterTypes.size() <= j) {
+                continue;
+              }
+
               VarType paramType = desc.getSignature().parameterTypes.get(j++);
               if (paramType.isGeneric()) {
 
@@ -516,6 +522,10 @@ public class InvocationExprent extends Exprent {
   public TextBuffer toJava(int indent) {
     TextBuffer buf = new TextBuffer();
 
+    if (wasLazyCondy) {
+      buf.append("/* $QF: constant dynamic replaced with non-lazy method call */ ");
+    }
+
     String super_qualifier = null;
     boolean isInstanceThis = false;
 
@@ -633,35 +643,10 @@ public class InvocationExprent extends Exprent {
           }
           TextBuffer res = instance.toJava(indent);
 
-          boolean skippedCast = false;
-
-          if (instance instanceof FunctionExprent && ((FunctionExprent)instance).getFuncType() == FunctionType.CAST) {
-            skippedCast = !((FunctionExprent) instance).doesCast();
-
-            // Fixes issue where ((Obj)(Obj)o).m() would become (Obj)o.m(), when it should be ((Obj)o).m()
-            // This happens when there are two checkcast opcodes in succession [TestDoubleCast], so this unwraps casts of the same var type
-            // Does this happen with regular bytecode created by javac?
-            if (skippedCast) {
-              // Unwrap same casts
-              VarType castType = this.instance.getExprType();
-
-              // Get inner cast if it exists
-              Exprent exp = ((FunctionExprent) instance).getLstOperands().get(0);
-              while (exp instanceof FunctionExprent && ((FunctionExprent) exp).getFuncType() == FunctionType.CAST) {
-                if (exp.getExprType().equals(castType)) {
-                  // If we are of the same type as the current cast, Update the values and iterate deeper
-                  skippedCast = !((FunctionExprent) exp).doesCast();
-                  List<Exprent> ops = ((FunctionExprent) exp).getLstOperands();
-                  exp = ops.get(0);
-                } else {
-                  // If it's not the same cast type, break
-                  break;
-                }
-              }
-            }
-          }
-
-          if (rightType.equals(VarType.VARTYPE_OBJECT) && !leftType.equals(rightType)) {
+          ClassNode instNode = DecompilerContext.getClassProcessor().getMapRootClasses().get(classname);
+          // Don't cast to anonymous classes, since they by definition can't have a name
+          // TODO: better fix may be to change equals to isSuperSet? all anonymous classes are superset of Object
+          if (rightType.equals(VarType.VARTYPE_OBJECT) && !leftType.equals(rightType) && (instNode != null && instNode.type != ClassNode.Type.ANONYMOUS)) {
             buf.append("((").append(ExprProcessor.getCastTypeName(leftType)).append(")");
 
             if (instance.getPrecedence() >= FunctionType.CAST.precedence) {
@@ -669,7 +654,7 @@ public class InvocationExprent extends Exprent {
             }
             buf.append(res).append(")");
           }
-          else if (instance.getPrecedence() > getPrecedence() && !skippedCast && !canSkipParenEnclose(instance)) {
+          else if (instance.getPrecedence() > getPrecedence() && !canSkipParenEnclose(instance)) {
             buf.append("(").append(res).append(")");
           }
           //Java 9+ adds some overrides to java/nio/Buffer's subclasses that alter the return types.
@@ -785,6 +770,7 @@ public class InvocationExprent extends Exprent {
         buf.append(stringValue);
       }
     } else if (arg instanceof LinkConstant) {
+      // TODO: errors trying to print condy as const arg
       VarType cls = new VarType(((LinkConstant) arg).classname);
       buf.append(ExprProcessor.getCastTypeName(cls)).append("::").append(((LinkConstant) arg).elementname);
     }
@@ -836,6 +822,7 @@ public class InvocationExprent extends Exprent {
                VarType.VARTYPE_CHAR;
           }
 
+          // TODO: better way to select boxing? this doesn't seem to consider superclass implementations
           int count = 0;
           StructClass stClass = DecompilerContext.getStructContext().getClass(classname);
           if (stClass != null) {
@@ -846,7 +833,14 @@ public class InvocationExprent extends Exprent {
                 if (md.params.length == descriptor.params.length) {
                   for (int x = 0; x < md.params.length; x++) {
                     if (md.params[x].typeFamily != descriptor.params[x].typeFamily &&
-                        md.params[x].typeFamily != types[x].typeFamily) {
+                        md.params[x].typeFamily != types[x].typeFamily
+                    ) {
+                      continue nextMethod;
+                    }
+
+                    if (md.params[x].arrayDim != descriptor.params[x].arrayDim &&
+                      md.params[x].arrayDim != types[x].arrayDim
+                    ) {
                       continue nextMethod;
                     }
                   }
@@ -914,6 +908,10 @@ public class InvocationExprent extends Exprent {
       int y = 0;
       for (int x = start; x < types.length; x++) {
         if (mask == null || mask.get(x) == null) {
+          if (desc.getSignature().parameterTypes.size() <= y) {
+            continue;
+          }
+
           VarType type = desc.getSignature().parameterTypes.get(y++).remap(genericsMap);
           if (type != null && !(type.isGeneric() && ((GenericType)type).hasUnknownGenericType(namedGens))) {
             types[x] = type;
@@ -1152,6 +1150,10 @@ public class InvocationExprent extends Exprent {
         if (left[i].typeFamily != right[i].typeFamily) {
           return false;
         }
+
+        if (left[i].arrayDim != right[i].arrayDim) {
+          return false;
+        }
       }
       return true;
     }
@@ -1216,7 +1218,7 @@ public class InvocationExprent extends Exprent {
           // Check if the current parameters and method descriptor are of the same type, or if the descriptor's type is a superset of the parameter's type.
           // This check ensures that parameters that can be safely passed don't have an unneeded cast on them, such as System.out.println((int)5);.
           // TODO: The root cause of the above issue seems to be threading related- When debugging line by line it doesn't cast, but when running normally it does. More digging needs to be done to figure out why this happens.
-          if ((!(md.params[i].equals(exp.getExprType()) || md.params[i].isSuperset(exp.getExprType()))) || (exp instanceof NewExprent && ((NewExprent) exp).isLambda() && !((NewExprent) exp).isMethodReference())) {
+          if ((!(md.params[i].equals(exp.getExprType()) || isSuperset(md, i, exp))) || (exp instanceof NewExprent && ((NewExprent) exp).isLambda() && !((NewExprent) exp).isMethodReference())) {
             exact = false;
             missed.set(i);
           }
@@ -1291,6 +1293,30 @@ public class InvocationExprent extends Exprent {
       }
     }
     return ambiguous;
+  }
+
+  private boolean isSuperset(MethodDescriptor md, int i, Exprent exp) {
+    if (shouldBeAmbiguous(md.params[i], exp)) {
+      return false;
+    }
+
+    return md.params[i].isSuperset(exp.getExprType());
+  }
+
+  // Trying to coerce byte->int can cause ambiguity issues, consider it as ambigous and not a superset
+  // See also: TestVarIndex
+  private boolean shouldBeAmbiguous(VarType param, Exprent exp) {
+    if (exp instanceof VarExprent) {
+      if (exp.getExprType().typeFamily == CodeConstants.TYPE_FAMILY_INTEGER && param.typeFamily == CodeConstants.TYPE_FAMILY_INTEGER) {
+        return !param.equals(exp.getExprType());
+      }
+
+      if (param.equals(VarType.VARTYPE_OBJECT) && param.arrayDim == 0 && exp.getExprType().typeFamily == CodeConstants.TYPE_FAMILY_OBJECT) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   private void processGenericMapping(VarType from, VarType to, Map<VarType, List<VarType>> named, Map<VarType, List<VarType>> bounds) {
@@ -1590,6 +1616,11 @@ public class InvocationExprent extends Exprent {
     measureBytecode(values, lstParameters);
     measureBytecode(values, instance);
     measureBytecode(values);
+  }
+
+  public InvocationExprent markWasLazyCondy() {
+    wasLazyCondy = true;
+    return this;
   }
 
   // *****************************************************************************

@@ -5,7 +5,6 @@ public class TestWhileTernary7 {
       for(int i = 0; condition ? a < i : b < i; ++i) {// 5
          System.out.println("Test");// 6
       }
-
    }// 8
 }
 
@@ -15,6 +14,7 @@ class 'pkg/TestWhileTernary7' {
       1      4
       2      4
       3      4
+      4      4
       7      4
       8      4
       9      4
@@ -34,11 +34,11 @@ class 'pkg/TestWhileTernary7' {
       1e      4
       1f      4
       20      4
-      24      8
+      24      7
    }
 }
 
 Lines mapping:
 5 <-> 5
 6 <-> 6
-8 <-> 9
+8 <-> 8

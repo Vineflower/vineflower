@@ -3,6 +3,8 @@
  */
 package org.jetbrains.java.decompiler.modules.decompiler.exps;
 
+import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
@@ -11,6 +13,7 @@ import org.jetbrains.java.decompiler.util.TextBuffer;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
+import java.util.Objects;
 
 public class SwitchHeadExprent extends Exprent {
 
@@ -54,10 +57,25 @@ public class SwitchHeadExprent extends Exprent {
     for (List<Exprent> lst : caseValues) {
       for (Exprent expr : lst) {
         if (expr != null) {
-          VarType caseType = expr.getExprType();
+          // TODO: refactor to PatternExprent
+          VarType caseType = expr instanceof FunctionExprent && ((FunctionExprent) expr).getLstOperands().size() == 3
+            ? ((FunctionExprent) expr).getLstOperands().get(1).getExprType()
+            : expr.getExprType();
           if (!caseType.equals(valType)) {
+            if (valType == null) {
+              throw new IllegalStateException("Invalid switch case set: " + caseValues + " for selector of type " + value.getExprType());
+            }
+            // allow coercion of primitive -> boxes [see TestSwitchPatternMatching18]
+            // e.g. `switch(o) { case 40 -> ...; case Integer i -> ...; }`
+            // FIXME: still isn't right?
+            VarType unboxed = VarType.UNBOXING_TYPES.get(valType);
+            if (unboxed != null && unboxed.isSuperset(caseType)) {
+              continue;
+            }
             valType = VarType.getCommonSupertype(caseType, valType);
-            result.addMinTypeExprent(value, valType);
+            if (valType != null) {
+              result.addMinTypeExprent(value, valType);
+            }
           }
         }
       }

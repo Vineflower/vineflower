@@ -298,6 +298,10 @@ public final class ExceptionDeobfuscator {
         }
       }
 
+      if (ent.getValue().contains(graph.getFirst())) {
+        setEntries.add(graph.getFirst());
+      }
+
       if (!setEntries.isEmpty()) {
         if (setEntries.size() > 1 /*|| ent.getValue().contains(first)*/) {
           return true;

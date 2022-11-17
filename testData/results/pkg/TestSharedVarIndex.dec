@@ -2,14 +2,23 @@ package pkg;
 
 public class TestSharedVarIndex {
    public void StringArrayVsString() {
-      // $QF: Couldn't be decompiled
-      // Bytecode:
-      // 0: bipush 0
-      // 1: anewarray 2
-      // 4: astore 1
-      // 5: ldc "lol"
-      // 7: astore 1
-      // 8: return
+      String[] b = new String[0];// 6
+      String bx = "lol";// 9
+   }// 10
+}
+
+class 'pkg/TestSharedVarIndex' {
+   method 'StringArrayVsString ()V' {
+      0      4
+      4      4
+      5      5
+      6      5
+      7      5
+      8      6
    }
 }
 
+Lines mapping:
+6 <-> 5
+9 <-> 6
+10 <-> 7

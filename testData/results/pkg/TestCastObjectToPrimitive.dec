@@ -13,5 +13,75 @@ public class TestCastObjectToPrimitive {
    short shorXor = (short)((Short)object1 ^ 58);
    long longXor = 8L ^ (Long)object1;
    boolean integerGe = (Integer)object1 <= 48;
+
+   public void method() {
+      if (object1) {// 20
+         System.out.println("Test");// 21
+      }
+
+      while(!object1) {// 23
+         System.out.println("Test2");// 24
+      }
+
+      while(object1) {// 26
+         System.out.println("Test3");// 27
+      }
+   }// 29
 }
 
+class 'pkg/TestCastObjectToPrimitive' {
+   method 'method ()V' {
+      0      17
+      1      17
+      2      17
+      6      17
+      7      17
+      8      17
+      9      17
+      c      18
+      d      18
+      e      18
+      f      18
+      10      18
+      11      18
+      14      21
+      15      21
+      16      21
+      1a      21
+      1b      21
+      1c      21
+      1d      21
+      20      22
+      21      22
+      22      22
+      23      22
+      24      22
+      25      22
+      26      22
+      27      22
+      2b      25
+      2c      25
+      2d      25
+      31      25
+      32      25
+      33      25
+      37      26
+      38      26
+      39      26
+      3a      26
+      3b      26
+      3c      26
+      3d      26
+      3e      26
+      42      28
+   }
+}
+
+Lines mapping:
+20 <-> 18
+21 <-> 19
+23 <-> 22
+24 <-> 23
+26 <-> 26
+27 <-> 27
+29 <-> 29

@@ -13,13 +13,13 @@ public class TestSwitchPatternMatching10 {
          default:
             System.out.println("oh");// 8
       }
-
    }// 10
 }
 
 class 'pkg/TestSwitchPatternMatching10' {
    method 'test (Ljava/lang/String;)V' {
       0      4
+      8      4
       29      5
       2a      5
       37      8
@@ -49,7 +49,7 @@ class 'pkg/TestSwitchPatternMatching10' {
       79      13
       7a      13
       7b      13
-      7e      16
+      7e      15
    }
 }
 
@@ -58,4 +58,4 @@ Lines mapping:
 6 <-> 7
 7 <-> 10
 8 <-> 14
-10 <-> 17
+10 <-> 16

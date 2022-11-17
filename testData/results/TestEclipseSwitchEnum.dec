@@ -16,13 +16,13 @@ public enum TestEclipseSwitchEnum {
          case C:
             System.out.println("C");// 17
       }
-
    }// 20
 }
 
 class 'pkg/TestEclipseSwitchEnum' {
    method 'test (Lpkg/TestEclipseSwitchEnum;)V' {
       3      8
+      7      8
       8      8
       24      10
       25      10
@@ -48,7 +48,7 @@ class 'pkg/TestEclipseSwitchEnum' {
       3d      16
       3e      16
       3f      16
-      42      19
+      42      18
    }
 }
 
@@ -59,4 +59,4 @@ Lines mapping:
 14 <-> 14
 15 <-> 15
 17 <-> 17
-20 <-> 20
+20 <-> 19

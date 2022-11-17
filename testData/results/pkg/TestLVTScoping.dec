@@ -19,7 +19,6 @@ public class TestLVTScoping {
          String a = "NAY";
          System.out.println(a);
       }
-
    }
 
    public static void method3() {
@@ -30,6 +29,5 @@ public class TestLVTScoping {
          String a = "NAY";
          System.out.println(a);
       }
-
    }
 }

@@ -7,7 +7,6 @@ public class TestWhileConditionTernary {
             System.out.println("text");// 7
          }
       }
-
    }// 10
 
    public boolean blackBox() {
@@ -39,6 +38,7 @@ class 'pkg/TestWhileConditionTernary' {
       f      5
       10      5
       11      5
+      12      5
       15      5
       16      5
       17      5
@@ -48,10 +48,12 @@ class 'pkg/TestWhileConditionTernary' {
       1b      5
       1c      5
       1d      5
+      1e      5
       24      5
       25      5
       26      5
       27      5
+      28      5
       2b      6
       2c      6
       2d      6
@@ -60,23 +62,23 @@ class 'pkg/TestWhileConditionTernary' {
       30      6
       31      6
       32      6
-      36      10
+      36      9
    }
 
    method 'blackBox ()Z' {
-      0      13
-      1      13
+      0      12
+      1      12
    }
 
    method 'blackBox2 ()Z' {
-      0      17
-      1      17
+      0      16
+      1      16
    }
 
    method 'blackBox3 ()Ljava/lang/String;' {
-      0      21
-      1      21
-      2      21
+      0      20
+      1      20
+      2      20
    }
 }
 
@@ -84,7 +86,7 @@ Lines mapping:
 5 <-> 5
 6 <-> 6
 7 <-> 7
-10 <-> 11
-13 <-> 14
-17 <-> 18
-21 <-> 22
+10 <-> 10
+13 <-> 13
+17 <-> 17
+21 <-> 21

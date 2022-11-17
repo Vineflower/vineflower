@@ -16,7 +16,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.match.MatchEngine;
-import org.jetbrains.java.decompiler.util.FastSparseSetFactory.FastSparseSet;
+import org.jetbrains.java.decompiler.util.collections.FastSparseSetFactory.FastSparseSet;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.Pair;
 
@@ -787,7 +787,7 @@ public class SimplifyExprentsHelper {
           return true;
         }
 
-        LinkedList<Exprent> lstExprents = new LinkedList<>();
+        Deque<Exprent> lstExprents = new ArrayDeque<>();
         lstExprents.add(second);
 
         final Exprent target;

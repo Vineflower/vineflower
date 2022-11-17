@@ -13,7 +13,6 @@ public class TestMultipleStaticBlocks {
       if (value > 4) {// 15
          i = 2;// 16
       }
-
    }// 18
 }
 
@@ -49,7 +48,7 @@ class 'pkg/TestMultipleStaticBlocks' {
       1f      12
       22      13
       23      13
-      26      16
+      26      15
    }
 }
 
@@ -60,4 +59,4 @@ Lines mapping:
 14 <-> 12
 15 <-> 13
 16 <-> 14
-18 <-> 17
+18 <-> 16

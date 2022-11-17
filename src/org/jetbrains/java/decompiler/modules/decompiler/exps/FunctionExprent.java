@@ -13,12 +13,16 @@ import org.jetbrains.java.decompiler.struct.match.MatchEngine;
 import org.jetbrains.java.decompiler.struct.match.MatchNode;
 import org.jetbrains.java.decompiler.util.IntHelper;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
-import org.jetbrains.java.decompiler.util.ListStack;
+import org.jetbrains.java.decompiler.util.collections.ListStack;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 
 import java.util.*;
 
 public class FunctionExprent extends Exprent {
+
+  private static final int[] TYPE_PRIMITIVES = {CodeConstants.TYPE_DOUBLE, CodeConstants.TYPE_FLOAT, CodeConstants.TYPE_LONG};
+  private static final VarType[] TYPES = {VarType.VARTYPE_DOUBLE, VarType.VARTYPE_FLOAT, VarType.VARTYPE_LONG};;
+
   public enum FunctionType {
     ADD(2, "+", 3, null),
     SUB(2, "-", 3, null),
@@ -107,19 +111,19 @@ public class FunctionExprent extends Exprent {
       return ordinal() <= USHR.ordinal();
     }
 
-    public boolean isDecrement() {
+    public boolean isMM() {
       return this == MMI || this == IMM;
     }
 
-    public boolean isIncrement() {
+    public boolean isPP() {
       return this == PPI || this == IPP;
     }
 
-    public boolean isIncrementOrDecrement() {
-      return isIncrement() || isDecrement();
+    public boolean isPPMM() {
+      return isPP() || isMM();
     }
 
-    public boolean isPostfix() {
+    public boolean isPostfixPPMM() {
       return this == IMM || this == IPP;
     }
   }
@@ -687,13 +691,10 @@ public class FunctionExprent extends Exprent {
   }
 
   private static VarType getMaxVarType(VarType ...arr) {
-    int[] types = {CodeConstants.TYPE_DOUBLE, CodeConstants.TYPE_FLOAT, CodeConstants.TYPE_LONG};
-    VarType[] vartypes = {VarType.VARTYPE_DOUBLE, VarType.VARTYPE_FLOAT, VarType.VARTYPE_LONG};
-
-    for (int i = 0; i < types.length; i++) {
+    for (int i = 0; i < TYPE_PRIMITIVES.length; i++) {
       for (VarType anArr : arr) {
-        if (anArr.type == types[i]) {
-          return vartypes[i];
+        if (anArr.type == TYPE_PRIMITIVES[i]) {
+          return TYPES[i];
         }
       }
     }

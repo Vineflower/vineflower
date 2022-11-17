@@ -6,13 +6,13 @@ public class TestWhileTernaryFake {
          System.out.println(a * b);// 14
          ++a;// 15
       }
-
    }// 17
 }
 
 class 'pkg/TestWhileTernaryFake' {
    method 'test2 (ZII)V' {
       0      4
+      1      4
       4      4
       5      4
       6      4
@@ -31,7 +31,7 @@ class 'pkg/TestWhileTernaryFake' {
       1d      6
       1e      6
       1f      6
-      23      9
+      23      8
    }
 }
 
@@ -41,7 +41,7 @@ Lines mapping:
 10 <-> 5
 14 <-> 6
 15 <-> 7
-17 <-> 10
+17 <-> 9
 Not mapped:
 8
 11

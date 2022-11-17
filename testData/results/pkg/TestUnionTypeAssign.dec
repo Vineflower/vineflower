@@ -20,11 +20,11 @@ public interface TestUnionTypeAssign {
    }// 20
 
    default <E extends Enum<E> & TestUnionTypeAssign> void test4(Supplier<Enum[]> supplier) {
-      E[] array = (Enum[])supplier.get();// 23
+      E[] array = (E[])supplier.get();// 23
    }// 24
 
    default <E extends Enum<E> & TestUnionTypeAssign> void test5(Supplier<TestUnionTypeAssign[]> supplier) {
-      E[] array = (Enum[])supplier.get();// 27
+      E[] array = (E[])supplier.get();// 27
    }// 28
 }
 

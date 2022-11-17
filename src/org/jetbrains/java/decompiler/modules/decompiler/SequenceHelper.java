@@ -19,10 +19,11 @@ public final class SequenceHelper {
 
 
   public static void condenseSequences(Statement root) {
-    ValidationHelper.validateStatement((RootStatement) root.getTopParent());
-
+    ValidationHelper.validateStatement(root.getTopParent());
 
     condenseSequencesRec(root);
+
+    ValidationHelper.validateStatement(root.getTopParent());
   }
 
   private static void condenseSequencesRec(Statement stat) {
@@ -39,7 +40,6 @@ public final class SequenceHelper {
         if (st instanceof SequenceStatement) {
 
           removeEmptyStatements((SequenceStatement)st);
-          ValidationHelper.validateStatement((RootStatement) st.getTopParent());
 
           if (i == lst.size() - 1 || isSequenceDisbandable(st, lst.get(i + 1))) {
 
@@ -81,7 +81,13 @@ public final class SequenceHelper {
 
             for (StatEdge edge : new HashSet<>(st.getLabelEdges())) {
               if (edge.getSource() != last) {
-                last.addLabeledEdge(edge);
+                if (last instanceof BasicBlockStatement) {
+                  // Basic block cannot support labels so we add to the new top level sequence
+                  // TODO: in what circumstances would you not want the top sequence to receive the edge?
+                  stat.addLabeledEdge(edge);
+                } else {
+                  last.addLabeledEdge(edge);
+                }
               }
             }
 
@@ -104,7 +110,7 @@ public final class SequenceHelper {
 
         stat = sequence;
 
-        ValidationHelper.validateStatement((RootStatement) stat.getTopParent());
+        ValidationHelper.validateStatement(stat.getTopParent());
       }
     }
 
@@ -112,7 +118,6 @@ public final class SequenceHelper {
     if (stat instanceof SequenceStatement) {
 
       removeEmptyStatements((SequenceStatement)stat);
-      ValidationHelper.validateStatement((RootStatement) stat.getTopParent());
 
       if (stat.getStats().size() == 1) {
 
@@ -197,7 +202,7 @@ public final class SequenceHelper {
     }
 
     mergeFlatStatements(sequence);
-    ValidationHelper.validateStatement((RootStatement) sequence.getTopParent());
+    ValidationHelper.validateStatement(sequence.getTopParent());
 
     while (true) {
 

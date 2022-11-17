@@ -24,7 +24,7 @@ import org.jetbrains.java.decompiler.struct.gen.generics.GenericClassDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericMethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
-import org.jetbrains.java.decompiler.util.ListStack;
+import org.jetbrains.java.decompiler.util.collections.ListStack;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 
 import java.util.*;
@@ -478,6 +478,9 @@ public class NewExprent extends Exprent {
         for (int i = 0; i < newType.arrayDim; i++) {
           buf.append('[');
           if (i < lstDims.size()) {
+            if (lstDims.get(i).type == Type.CONST) {
+              ((ConstExprent)lstDims.get(i)).adjustConstType(VarType.VARTYPE_INT);
+            }
             buf.append(lstDims.get(i).toJava(indent));
           }
           buf.append(']');

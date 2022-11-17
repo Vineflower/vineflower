@@ -46,7 +46,6 @@ public final class TestDoublePopAfterJump {
             var10000 = java/lang/System/out;// 102
          }
       }
-
    }// 108
 
    public static final void fizzBuzzReduced() {
@@ -55,7 +54,6 @@ public final class TestDoublePopAfterJump {
 
       while(var10001 <= 0) {// 119
       }
-
    }// 124
 }
 
@@ -118,14 +116,14 @@ class 'pkg/TestDoublePopAfterJump' {
       45      45
       46      45
       47      45
-      4e      49
+      4e      48
    }
 
    method 'fizzBuzzReduced ()V' {
-      0      52
-      1      53
-      3      55
-      b      58
+      0      51
+      1      52
+      3      54
+      b      56
    }
 }
 
@@ -166,11 +164,11 @@ Lines mapping:
 100 <-> 45
 101 <-> 45
 102 <-> 46
-108 <-> 50
-115 <-> 53
-116 <-> 54
-119 <-> 56
-124 <-> 59
+108 <-> 49
+115 <-> 52
+116 <-> 53
+119 <-> 55
+124 <-> 57
 Not mapped:
 30
 33

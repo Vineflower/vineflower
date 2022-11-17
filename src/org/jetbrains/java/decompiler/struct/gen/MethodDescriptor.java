@@ -8,6 +8,7 @@ import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
+import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericMethodDescriptor;
 
@@ -90,8 +91,18 @@ public final class MethodDescriptor {
         }
         else if (init) {
           // && isEnum
-          if (DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_ENUM) && DecompilerContext.getStructContext().getClass(struct.getClassQualifiedName()).hasModifier(CodeConstants.ACC_ENUM)) {
-            actualParams -= 2;
+          if (DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_ENUM)) {
+            String className = struct.getClassQualifiedName();
+            if (DecompilerContext.getOption(IFernflowerPreferences.RENAME_ENTITIES)) {
+              className = DecompilerContext.getPoolInterceptor().getOldName(className);
+              if (className == null) {
+                className = struct.getClassQualifiedName();
+              }
+            }
+
+            if (DecompilerContext.getStructContext().getClass(className).hasModifier(CodeConstants.ACC_ENUM)) {
+              actualParams -= 2;
+            }
           }
         }
         if (actualParams != sig.parameterTypes.size()) {

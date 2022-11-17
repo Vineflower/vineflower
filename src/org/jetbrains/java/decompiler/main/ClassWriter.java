@@ -2,6 +2,7 @@
 package org.jetbrains.java.decompiler.main;
 
 import net.fabricmc.fernflower.api.IFabricJavadocProvider;
+import org.jetbrains.java.decompiler.api.StatementWriter;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.Instruction;
 import org.jetbrains.java.decompiler.code.InstructionSequence;
@@ -35,16 +36,16 @@ import org.jetbrains.java.decompiler.struct.gen.generics.GenericMethodDescriptor
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.TextUtil;
-import org.jetbrains.java.decompiler.util.VBStyleCollection;
+import org.jetbrains.java.decompiler.util.collections.VBStyleCollection;
 
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class ClassWriter {
+public class ClassWriter implements StatementWriter {
   private static final Set<String> ERROR_DUMP_STOP_POINTS = new HashSet<>(Arrays.asList(
     "Fernflower.decompileContext",
-    "MethodProcessorRunnable.codeToJava",
+    "MethodProcessor.codeToJava",
     "ClassWriter.methodToJava",
     "ClassWriter.methodLambdaToJava",
     "ClassWriter.classLambdaToJava"
@@ -303,9 +304,32 @@ public class ClassWriter {
 
       // FIXME: fields don't have line mappings
       // fields
+
+      // Find the last field marked as an enum
+      int maxEnumIdx = 0;
+      for (int i = 0; i < cl.getFields().size(); i++) {
+        StructField fd = cl.getFields().get(i);
+        boolean isEnum = fd.hasModifier(CodeConstants.ACC_ENUM) && DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_ENUM);
+        if (isEnum) {
+          maxEnumIdx = i;
+        }
+      }
+
+      List<StructField> deferredEnumFields = new ArrayList<>();
+
+      // Find any regular fields mixed in with the enum fields
+      // This is invalid but allowed in bytecode.
+      for (int i = 0; i < cl.getFields().size(); i++) {
+        StructField fd = cl.getFields().get(i);
+        boolean isEnum = fd.hasModifier(CodeConstants.ACC_ENUM) && DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_ENUM);
+        if (i < maxEnumIdx && !isEnum) {
+          deferredEnumFields.add(fd);
+        }
+      }
+
       for (StructField fd : cl.getFields()) {
         boolean hide = fd.isSynthetic() && DecompilerContext.getOption(IFernflowerPreferences.REMOVE_SYNTHETIC) ||
-                       wrapper.getHiddenMembers().contains(InterpreterUtil.makeUniqueKey(fd.getName(), fd.getDescriptor()));
+                       wrapper.getHiddenMembers().contains(InterpreterUtil.makeUniqueKey(fd.getName(), fd.getDescriptor())) || deferredEnumFields.contains(fd);
         if (hide) continue;
 
         if (components != null && fd.getAccessFlags() == (CodeConstants.ACC_FINAL | CodeConstants.ACC_PRIVATE) &&
@@ -326,6 +350,14 @@ public class ClassWriter {
           buffer.appendLineSeparator();
           buffer.appendLineSeparator();
           enumFields = false;
+
+          // If the fields after are non enum, readd the fields found scattered throughout the enum
+          for (StructField fd2 : deferredEnumFields) {
+            TextBuffer fieldBuffer = new TextBuffer();
+            fieldToJava(wrapper, cl, fd2, fieldBuffer, indent + 1);
+            fieldBuffer.clearUnassignedBytecodeMappingData();
+            buffer.append(fieldBuffer);
+          }
         }
 
         TextBuffer fieldBuffer = new TextBuffer();
@@ -338,6 +370,14 @@ public class ClassWriter {
 
       if (enumFields) {
         buffer.append(';').appendLineSeparator();
+
+        // If we end with enum fields, readd the fields found mixed in
+        for (StructField fd2 : deferredEnumFields) {
+          TextBuffer fieldBuffer = new TextBuffer();
+          fieldToJava(wrapper, cl, fd2, fieldBuffer, indent + 1);
+          fieldBuffer.clearUnassignedBytecodeMappingData();
+          buffer.append(fieldBuffer);
+        }
       }
 
       // methods

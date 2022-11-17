@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 public class ConverterHelper implements IIdentifierRenamer {
   private static final Set<String> KEYWORDS = new HashSet<>(Arrays.asList(
@@ -23,18 +24,16 @@ public class ConverterHelper implements IIdentifierRenamer {
   private int classCounter = 0;
   private int fieldCounter = 0;
   private int methodCounter = 0;
+  private static final Pattern OBF_REGEX = Pattern.compile("^(?:.{1,3}(?:$|\\$))+");
   private final Set<String> setNonStandardClassNames = new HashSet<>();
 
   @Override
   public boolean toBeRenamed(Type elementType, String className, String element, String descriptor) {
     String value = elementType == Type.ELEMENT_CLASS ? className : element;
-    return value == null ||
-           value.length() <= 2 ||
-           !isValidIdentifier(elementType == Type.ELEMENT_METHOD, value) ||
-           KEYWORDS.contains(value) ||
-           elementType == Type.ELEMENT_CLASS && (
-             RESERVED_WINDOWS_NAMESPACE.contains(value.toLowerCase(Locale.ENGLISH)) ||
-             value.length() > 255 - ".class".length());
+    boolean isWindowsReserved;
+    return value == null || value.isEmpty() || !isValidIdentifier(elementType == Type.ELEMENT_METHOD, value) || KEYWORDS.contains(value) ||
+        (!(isWindowsReserved = RESERVED_WINDOWS_NAMESPACE.contains(value.toLowerCase(Locale.ENGLISH))) && OBF_REGEX.matcher(value).matches()) ||
+        (elementType == Type.ELEMENT_CLASS && (isWindowsReserved || value.length() > 255 - 6)); // account for .class
   }
 
   /**

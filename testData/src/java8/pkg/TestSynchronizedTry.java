@@ -65,7 +65,7 @@ public class TestSynchronizedTry {
 
     Object var8 = null;
     synchronized (this) {
-      // Causes label to not be
+      // Causes label to not be emitted
       String var9 = "Hi!";
 
       try {

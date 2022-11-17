@@ -27,10 +27,12 @@ public class TestSwitchExpressionNested1 {
 class 'pkg/TestSwitchExpressionNested1' {
    method 'test (Lext/Direction;Lext/Direction;)I' {
       3      6
+      7      6
       8      6
       24      7
       28      8
       2f      10
+      33      10
       34      10
       50      12
       54      14

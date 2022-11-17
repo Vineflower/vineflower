@@ -71,6 +71,7 @@ class 'pkg/TestInvertedFloatComparison' {
       0      4
       1      4
       2      4
+      3      4
       b      4
    }
 
@@ -85,6 +86,7 @@ class 'pkg/TestInvertedFloatComparison' {
       0      12
       1      12
       2      12
+      3      12
       b      12
    }
 
@@ -99,6 +101,7 @@ class 'pkg/TestInvertedFloatComparison' {
       0      20
       1      20
       2      20
+      3      20
       b      20
    }
 
@@ -113,6 +116,7 @@ class 'pkg/TestInvertedFloatComparison' {
       0      28
       1      28
       2      28
+      3      28
       b      28
    }
 
@@ -127,6 +131,7 @@ class 'pkg/TestInvertedFloatComparison' {
       0      36
       1      36
       2      36
+      3      36
       b      36
    }
 
@@ -141,6 +146,7 @@ class 'pkg/TestInvertedFloatComparison' {
       0      44
       1      44
       2      44
+      3      44
       b      44
    }
 
@@ -155,6 +161,7 @@ class 'pkg/TestInvertedFloatComparison' {
       0      52
       1      52
       2      52
+      3      52
       b      52
    }
 
@@ -169,6 +176,7 @@ class 'pkg/TestInvertedFloatComparison' {
       0      60
       1      60
       2      60
+      3      60
       b      60
    }
 

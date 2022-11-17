@@ -65,6 +65,7 @@ public final class SynchronizedHelper {
 
         AssignmentExprent assign = new AssignmentExprent(varEx, value, null);
         mon.replaceExprent(value, assign);
+        assign.addBytecodeOffsets(value.bytecode);
         root.addComment("$QF: Added assignment to ensure synchronized validity");
       } else if (value instanceof InvocationExprent) {
         // Force boxing for monitor
@@ -77,24 +78,5 @@ public final class SynchronizedHelper {
     }
 
     return res;
-  }
-
-  public static void markLiveMonitors(RootStatement root) {
-    markLiveMonitors(root, root);
-  }
-
-  private static void markLiveMonitors(RootStatement root, Statement stat) {
-    for (Statement st : stat.getStats()) {
-      markLiveMonitors(root, st);
-    }
-
-    if (stat instanceof BasicBlockStatement) {
-      for (Exprent ex : stat.getExprents()) {
-        if (ex instanceof MonitorExprent) {
-          root.addComment("$QF: Could not create synchronized statement, marking monitor enters and exits");
-          root.addErrorComment = true;
-        }
-      }
-    }
   }
 }

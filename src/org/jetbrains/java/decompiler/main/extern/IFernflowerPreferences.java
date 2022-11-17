@@ -56,6 +56,10 @@ public interface IFernflowerPreferences {
   @Description("Decompile enums.")
   String DECOMPILE_ENUM = "den";
 
+  @Name("Decompile Preview Features")
+  @Description("Decompile features marked as preview or incubating in the latest Java versions.")
+  String DECOMPILE_PREVIEW = "dpr";
+
   @Name("Remove reference getClass()")
   @Description("obj.new Inner() or calling invoking a method on a method reference will create a synthetic getClass() call. This removes it.")
   String REMOVE_GET_CLASS_NEW = "rgn";
@@ -128,9 +132,9 @@ public interface IFernflowerPreferences {
   @Description("Decompile with if and switch pattern matching enabled.")
   String PATTERN_MATCHING = "pam";
 
-  @Name("[Experimental] Try-Loop fix")
-  @Description("Code with a while loop inside of a try-catch block sometimes is malformed. This attempts to fix it, but may cause other issues.")
-  String EXPERIMENTAL_TRY_LOOP_FIX = "tlf";
+  @Name("Try-Loop fix")
+  @Description("Code with a while loop inside of a try-catch block sometimes is malformed, this fixes it.")
+  String TRY_LOOP_FIX = "tlf";
 
   @Name("[Experimental] Ternary In If Conditions")
   @Description("Tries to collapse if statements that have a ternary in their condition.")
@@ -152,12 +156,16 @@ public interface IFernflowerPreferences {
   @Description("Simplify variables across stack bounds to resugar complex statements.")
   String SIMPLIFY_STACK_SECOND_PASS = "ssp";
 
+  @Name("[Experimental] Verify Variable Merges")
+  @Description("Double checks to make sure the validity of variable merges. If you are having strange recompilation issues, this is a good place to start.")
+  String VERIFY_VARIABLE_MERGES = "vvm";
+
   @Name("Include Entire Classpath")
   @Description("Give the decompiler information about every jar on the classpath.")
   String INCLUDE_ENTIRE_CLASSPATH = "iec";
 
   @Name("Include Java Runtime")
-  @Description("Give the decompiler information about the Java runtime.")
+  @Description("Give the decompiler information about the Java runtime, either 1 or current for the current runtime, or a path to another runtime")
   String INCLUDE_JAVA_RUNTIME = "jrt";
 
   @Name("Explicit Generic Arguments")
@@ -231,7 +239,7 @@ public interface IFernflowerPreferences {
   String DUMP_BYTECODE_ON_ERROR = "dbe";
 
   @Name("Dump Exceptions On Error")
-  @Description("Put the exception message in the method body when an error occurs.")
+  @Description("Put the exception message in the method body or source file when an error occurs.")
   String DUMP_EXCEPTION_ON_ERROR = "dee";
 
   @Name("Decompiler Comments")
@@ -241,6 +249,10 @@ public interface IFernflowerPreferences {
   @Name("SourceFile comments")
   @Description("Add debug comments showing the class SourceFile attribute if present.")
   String SOURCE_FILE_COMMENTS = "sfc";
+
+  @Name("Decompile complex constant-dynamic expressions")
+  @Description("Some constant-dynamic expressions can't be converted to a single Java expression with identical run-time behaviour. This decompiles them to a similar non-lazy expression, marked with a comment.")
+  String DECOMPILE_COMPLEX_CONDYS = "dcc";
 
   @Name("Force JSR inline")
   @Description("Forces the processing of JSR instructions even if the class files shouldn't contain it (Java 7+)")
@@ -281,14 +293,16 @@ public interface IFernflowerPreferences {
     defaults.put(TERNARY_CONSTANT_SIMPLIFICATION, "0");
     defaults.put(OVERRIDE_ANNOTATION, "1");
     defaults.put(PATTERN_MATCHING, "1"); // Pattern matching is relatively stable
-    defaults.put(EXPERIMENTAL_TRY_LOOP_FIX, "0"); // Causes issues when decompiling certain classes
-    defaults.put(TERNARY_CONDITIONS, "0"); // Causes issues when decompiling certain classes
+    defaults.put(TRY_LOOP_FIX, "1"); // Try loop fix is stable, and fixes hard to notice bugs
+    defaults.put(TERNARY_CONDITIONS, "1"); // Ternary conditions are stable and don't cause many issues currently
     defaults.put(SWITCH_EXPRESSIONS, "1"); // While still experimental, switch expressions work pretty well
     defaults.put(SHOW_HIDDEN_STATEMENTS, "0"); // Extra debugging that isn't useful in most cases
     defaults.put(SIMPLIFY_STACK_SECOND_PASS, "1"); // Generally produces better bytecode, useful to debug if it does something strange
+    defaults.put(VERIFY_VARIABLE_MERGES, "0"); // Produces more correct code in rare cases, but hurts code cleanliness in the majority of cases. Default off until a better fix is created.
+    defaults.put(DECOMPILE_PREVIEW, "1"); // Preview features are useful to decompile in almost all cases
 
     defaults.put(INCLUDE_ENTIRE_CLASSPATH, "0");
-    defaults.put(INCLUDE_JAVA_RUNTIME, "0");
+    defaults.put(INCLUDE_JAVA_RUNTIME, "");
     defaults.put(EXPLICIT_GENERIC_ARGUMENTS, "0");
     defaults.put(INLINE_SIMPLE_LAMBDAS, "1");
 
@@ -311,6 +325,7 @@ public interface IFernflowerPreferences {
     defaults.put(DUMP_EXCEPTION_ON_ERROR, "1");
     defaults.put(DECOMPILER_COMMENTS, "1");
     defaults.put(SOURCE_FILE_COMMENTS, "0");
+    defaults.put(DECOMPILE_COMPLEX_CONDYS, "0");
     defaults.put(FORCE_JSR_INLINE, "0");
 
     return Collections.unmodifiableMap(defaults);

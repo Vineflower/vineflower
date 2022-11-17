@@ -20,7 +20,6 @@ public class TestEmptyBlocks {
 
       if (new Random().nextBoolean()) {// 37
       }
-
    }// 40
 }
 
@@ -44,7 +43,7 @@ class 'pkg/TestEmptyBlocks' {
       2b      20
       2c      20
       2d      20
-      30      23
+      30      22
    }
 }
 
@@ -54,6 +53,6 @@ Lines mapping:
 29 <-> 12
 33 <-> 18
 37 <-> 21
-40 <-> 24
+40 <-> 23
 Not mapped:
 27

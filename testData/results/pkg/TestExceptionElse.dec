@@ -22,7 +22,6 @@ public class TestExceptionElse {
             System.out.println(3);// 16
          }
       }
-
    }// 23
 }
 
@@ -119,7 +118,7 @@ class 'pkg/TestExceptionElse' {
       78      16
       79      16
       7d      16
-      81      25
+      81      24
    }
 }
 
@@ -136,6 +135,6 @@ Lines mapping:
 17 <-> 16
 18 <-> 20
 20 <-> 17
-23 <-> 26
+23 <-> 25
 Not mapped:
 22

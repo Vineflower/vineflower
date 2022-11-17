@@ -156,6 +156,15 @@ public final class InlineSingleBlockHelper {
           }
         }
 
+        if (edge.getSource().getParent() instanceof SwitchStatement) {
+          SwitchStatement swst = (SwitchStatement) edge.getSource().getParent();
+
+          // Can't inline into an empty switch statement!
+          if (swst.getCaseStatements().isEmpty()) {
+            return false;
+          }
+        }
+
         boolean noPreSuccessors = !pre.hasAnySuccessor();
 
         if (noPreSuccessors) {

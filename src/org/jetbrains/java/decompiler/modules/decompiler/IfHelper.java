@@ -76,40 +76,40 @@ public final class IfHelper {
 
           if (collapseIfIf(rtnode)) {
             res = true;
-            ValidationHelper.validateStatement((RootStatement) stat.getTopParent());
+            ValidationHelper.validateStatement(stat.getTopParent());
             continue loop;
           }
 
           if (!setReorderedIfs.contains(stat.id)) {
             if (collapseIfElse(rtnode)) {
               res = true;
-              ValidationHelper.validateStatement((RootStatement) stat.getTopParent());
+              ValidationHelper.validateStatement(stat.getTopParent());
               continue loop;
             }
 
             if (collapseElse(rtnode)) {
               res = true;
-              ValidationHelper.validateStatement((RootStatement) stat.getTopParent());
+              ValidationHelper.validateStatement(stat.getTopParent());
               continue loop;
             }
 
             if (DecompilerContext.getOption(IFernflowerPreferences.TERNARY_CONDITIONS) && collapseTernary(rtnode)) {
               res = true;
-              ValidationHelper.validateStatement((RootStatement) stat.getTopParent());
+              ValidationHelper.validateStatement(stat.getTopParent());
               continue loop;
             }
 
             // TODO: This should maybe be moved (probably to reorderIf)
             if (ifElseChainDenesting(rtnode)) {
               res = true;
-              ValidationHelper.validateStatement((RootStatement) stat.getTopParent());
+              ValidationHelper.validateStatement(stat.getTopParent());
               continue loop;
             }
           }
 
           if (reorderIf((IfStatement) stat)) {
             res = true;
-            ValidationHelper.validateStatement((RootStatement) stat.getTopParent());
+            ValidationHelper.validateStatement(stat.getTopParent());
             setReorderedIfs.add(stat.id);
             continue loop;
           }
@@ -472,7 +472,9 @@ public final class IfHelper {
 
         // remove (weird?) if else successor, produced by dom parsing
         // TODO: remove when dom parsing is fixed
-        mainIf.getFirstSuccessor().remove();
+        if (mainIf.hasAnySuccessor()) {
+          mainIf.getFirstSuccessor().remove();
+        }
 
         // move seconds successor to be the if's successor
         secondIf.getFirstSuccessor().changeSource(mainIf);

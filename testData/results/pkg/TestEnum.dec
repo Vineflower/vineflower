@@ -92,6 +92,7 @@ class 'pkg/TestEnum' {
 
    method 'testSwitch ()V' {
       3      30
+      7      30
       8      30
       28      32
       29      32
@@ -129,6 +130,7 @@ class 'pkg/TestEnum' {
       54      44
       55      44
       56      44
+      5a      44
       5b      44
       6c      46
       6d      46

@@ -28,6 +28,7 @@ public class VarProcessor {
   private final Map<VarVersionPair, String> thisVars = new HashMap<>();
   private final Set<VarVersionPair> externalVars = new HashSet<>();
   private final Map<VarVersionPair, String> clashingNames = new HashMap<>();
+  private final Set<Integer> syntheticSemaphores = new HashSet<>();
   public boolean nestedProcessed;
 
   public VarProcessor(StructMethod mt, MethodDescriptor md) {
@@ -108,6 +109,10 @@ public class VarProcessor {
     for (Entry<VarVersionPair, String> ent : tempVarNames.entrySet()) {
       mapVarNames.put(ent.getKey(), vc.getFreeName(ent.getValue()));
     }
+  }
+
+  public Set<Integer> getSyntheticSemaphores() {
+    return syntheticSemaphores;
   }
 
   public VarNamesCollector getVarNamesCollector() {

@@ -1,5 +1,6 @@
 package org.jetbrains.java.decompiler.modules.decompiler.sforms;
 
+import org.jetbrains.java.decompiler.api.SFormsCreator;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
@@ -12,13 +13,16 @@ import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionsGraph;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.util.*;
-import org.jetbrains.java.decompiler.util.FastSparseSetFactory.FastSparseSet;
+import org.jetbrains.java.decompiler.util.collections.FastSparseSetFactory;
+import org.jetbrains.java.decompiler.util.collections.FastSparseSetFactory.FastSparseSet;
+import org.jetbrains.java.decompiler.util.collections.SFormsFastMapDirect;
+import org.jetbrains.java.decompiler.util.collections.VBStyleCollection;
 
 import java.util.*;
 
 import static org.jetbrains.java.decompiler.modules.decompiler.sforms.VarMapHolder.mergeMaps;
 
-public class SFormsConstructor {
+public abstract class SFormsConstructor implements SFormsCreator {
 
   private final boolean incrementOnUsage;
   private final boolean simplePhi;
@@ -136,6 +140,8 @@ public class SFormsConstructor {
     FlattenStatementsHelper flatthelper = new FlattenStatementsHelper();
     DirectGraph dgraph = flatthelper.buildDirectGraph(root);
     this.dgraph = dgraph;
+    ValidationHelper.validateDGraph(dgraph, root);
+    ValidationHelper.validateAllVarVersionsAreNull(dgraph, root);
 
     DotExporter.toDotFile(dgraph, mt, "ssaSplitVariables");
 
@@ -184,7 +190,7 @@ public class SFormsConstructor {
       this.currentCatchableMap = null;
 
       if (node.hasSuccessors(DirectEdgeType.EXCEPTION)) {
-        this.currentCatchableMap = new SFormsFastMapDirect(varmap);
+        this.currentCatchableMap = varmap.getCopy();
         this.currentCatchableMap.removeAllStacks(); // stack gets cleared when throwing
         this.currentCatchableMap.removeAllFields(); // fields gets invalidated when throwing
         this.catchableVersions.put(node.id, this.currentCatchableMap);
@@ -431,7 +437,7 @@ public class SFormsConstructor {
 
                   VarVersionNode verNode = this.ssuversions.nodes.getWithKey(varVersion);
 
-                  FastSparseSet<Integer> versions = this.factory.spawnEmptySet();
+                  FastSparseSet<Integer> versions = this.factory.createEmptySet();
                   if (verNode.preds.size() == 1) {
                     versions.add(verNode.preds.iterator().next().source.version);
                   } else {
@@ -647,7 +653,7 @@ public class SFormsConstructor {
       if (this.currentCatchableMap.containsKey(varindex)) {
         this.currentCatchableMap.get(varindex).add(varassign.getVersion());
       } else {
-        FastSparseSet<Integer> set = this.factory.spawnEmptySet();
+        FastSparseSet<Integer> set = this.factory.createEmptySet();
         set.add(varassign.getVersion());
         varmap.put(varindex, set);
       }
@@ -911,7 +917,7 @@ public class SFormsConstructor {
     for (int i = 0; i < paramcount; i++) {
       int version = this.getNextFreeVersion(varindex, this.root); // == 1
 
-      FastSparseSet<Integer> set = this.factory.spawnEmptySet();
+      FastSparseSet<Integer> set = this.factory.createEmptySet();
       set.add(version);
       map.put(varindex, set);
 
@@ -1037,7 +1043,7 @@ public class SFormsConstructor {
   }
 
   void setCurrentVar(SFormsFastMapDirect varmap, int var, int vers) {
-    FastSparseSet<Integer> set = this.factory.spawnEmptySet();
+    FastSparseSet<Integer> set = this.factory.createEmptySet();
     set.add(vers);
     varmap.put(var, set);
   }

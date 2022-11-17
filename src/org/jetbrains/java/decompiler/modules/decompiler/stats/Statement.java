@@ -9,7 +9,7 @@ import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
-import org.jetbrains.java.decompiler.modules.decompiler.StrongConnectivityHelper;
+import org.jetbrains.java.decompiler.modules.decompiler.decompose.StrongConnectivityHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
@@ -19,7 +19,7 @@ import org.jetbrains.java.decompiler.struct.match.MatchNode;
 import org.jetbrains.java.decompiler.struct.match.MatchNode.RuleValue;
 import org.jetbrains.java.decompiler.util.StartEndPair;
 import org.jetbrains.java.decompiler.util.TextBuffer;
-import org.jetbrains.java.decompiler.util.VBStyleCollection;
+import org.jetbrains.java.decompiler.util.collections.VBStyleCollection;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -42,6 +42,9 @@ public abstract class Statement implements IMatchable {
   // All edge types minus exceptions
   // Exception edges are implicit from try contents to catch handlers, so they don't represent control flow
   public static final int STATEDGE_DIRECT_ALL = 0x40000000;
+
+  private static final int[] EXCEPTION_EDGE_TYPES = new int[]{STATEDGE_ALL, StatEdge.TYPE_EXCEPTION};
+  private static final int[] REGULAR_EDGE_TYPES = new int[]{STATEDGE_ALL, STATEDGE_DIRECT_ALL};
 
   public enum EdgeDirection {
     BACKWARD, // predecessors
@@ -91,8 +94,9 @@ public abstract class Statement implements IMatchable {
 
   protected LastBasicType lastBasicType = LastBasicType.GENERAL;
 
+  // Monitor flags
   protected boolean isMonitorEnter;
-
+  protected boolean isLastAthrow;
   protected boolean containsMonitorExit;
 
   protected HashSet<Statement> continueSet = new HashSet<>();
@@ -256,10 +260,10 @@ public abstract class Statement implements IMatchable {
 
     int[] arrtypes;
     if (type == StatEdge.TYPE_EXCEPTION) {
-      arrtypes = new int[]{STATEDGE_ALL, StatEdge.TYPE_EXCEPTION};
-    }
-    else {
-      arrtypes = new int[]{STATEDGE_ALL, STATEDGE_DIRECT_ALL, type};
+      arrtypes = EXCEPTION_EDGE_TYPES;
+    } else {
+      arrtypes = REGULAR_EDGE_TYPES;
+      addEdgeDirectInternal(direction, edge, type);
     }
 
     for (int edgetype : arrtypes) {
@@ -287,10 +291,10 @@ public abstract class Statement implements IMatchable {
 
     int[] arrtypes;
     if (type == StatEdge.TYPE_EXCEPTION) {
-      arrtypes = new int[]{STATEDGE_ALL, StatEdge.TYPE_EXCEPTION};
-    }
-    else {
-      arrtypes = new int[]{STATEDGE_ALL, STATEDGE_DIRECT_ALL, type};
+      arrtypes = EXCEPTION_EDGE_TYPES;
+    } else {
+      arrtypes = REGULAR_EDGE_TYPES;
+      removeEdgeDirectInternal(direction, edge, type);
     }
 
     for (int edgetype : arrtypes) {
@@ -392,6 +396,7 @@ public abstract class Statement implements IMatchable {
             }
           }
           isMonitorEnter = (seq.getLastInstr().opcode == CodeConstants.opc_monitorenter);
+          isLastAthrow = (seq.getLastInstr().opcode == CodeConstants.opc_athrow);
         }
         break;
 
@@ -401,8 +406,10 @@ public abstract class Statement implements IMatchable {
         break;
       default:
         containsMonitorExit = false;
+        isLastAthrow = false;
         for (Statement st : stats) {
-          containsMonitorExit |= st.isContainsMonitorExit();
+          containsMonitorExit |= st.containsMonitorExit();
+          isLastAthrow |= st.isLastAthrow;
         }
     }
   }
@@ -519,8 +526,10 @@ public abstract class Statement implements IMatchable {
     this.parent.replaceStatement(this, stat);
   }
 
-  public final void replaceWithEmpty() {
-    replaceWith(BasicBlockStatement.create());
+  public final BasicBlockStatement replaceWithEmpty() {
+    BasicBlockStatement newStat = BasicBlockStatement.create();
+    replaceWith(newStat);
+    return newStat;
   }
 
   public void replaceStatement(Statement oldstat, Statement newstat) {
@@ -768,6 +777,11 @@ public abstract class Statement implements IMatchable {
     return getEdges(type, EdgeDirection.FORWARD);
   }
 
+  // Do not mutate this map!
+  public List<StatEdge> getSuccessorEdgeView(int type) {
+    return this.mapSuccEdges.computeIfAbsent(type, k -> new ArrayList<>());
+  }
+
   public List<StatEdge> getPredecessorEdges(int type) {
     return getEdges(type, EdgeDirection.BACKWARD);
   }
@@ -849,8 +863,12 @@ public abstract class Statement implements IMatchable {
     return continueSet;
   }
 
-  public boolean isContainsMonitorExit() {
+  public boolean containsMonitorExit() {
     return containsMonitorExit;
+  }
+
+  public boolean containsMonitorExitOrAthrow() {
+    return this.containsMonitorExit || this.isLastAthrow;
   }
 
   public boolean isMonitorEnter() {
@@ -902,12 +920,18 @@ public abstract class Statement implements IMatchable {
     this.parent = parent;
   }
 
-  public Statement getTopParent() {
+  public RootStatement getTopParent() {
     Statement ret = this;
+
     while (ret.getParent() != null) {
       ret = ret.getParent();
     }
-    return ret;
+
+    if (!(ret instanceof RootStatement)) {
+      throw new IllegalStateException("Top parent is not a root statement! Malformed IR?");
+    }
+
+    return (RootStatement) ret;
   }
 
   public HashSet<StatEdge> getLabelEdges() {  // FIXME: why HashSet?

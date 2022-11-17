@@ -6,13 +6,13 @@ public class TestPatternMatchingAssign {
          String var4 = "hello";
          System.out.println(var4);
       }
-
    }
 }
 
 class 'pkg/TestPatternMatchingAssign' {
    method 'test (Ljava/lang/Object;)V' {
       0      4
+      2      4
       3      4
       4      4
       5      4
@@ -26,7 +26,7 @@ class 'pkg/TestPatternMatchingAssign' {
       13      6
       14      6
       15      6
-      18      9
+      18      8
    }
 }
 

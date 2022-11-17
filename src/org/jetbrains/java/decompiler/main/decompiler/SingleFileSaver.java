@@ -110,7 +110,7 @@ public class SingleFileSaver implements IResultSaver, AutoCloseable {
   }
 
   @Override
-  public synchronized void saveClassEntry(String path, String archiveName, String qualifiedName, String entryName, String content, int[] mapping) {
+  public void saveClassEntry(String path, String archiveName, String qualifiedName, String entryName, String content, int[] mapping) {
     if (!checkEntry(entryName))
         return;
 
@@ -131,9 +131,11 @@ public class SingleFileSaver implements IResultSaver, AutoCloseable {
   @Override
   public void closeArchive(String path, String archiveName) {
     try {
-      output.close();
-      entries.clear();
-      output = null;
+      if (this.output != null) {
+        output.close();
+        entries.clear();
+        output = null;
+      }
     }
     catch (IOException ex) {
       DecompilerContext.getLogger().writeMessage("Cannot close " + target, IFernflowerLogger.Severity.WARN);
@@ -150,7 +152,7 @@ public class SingleFileSaver implements IResultSaver, AutoCloseable {
   }
 
   @Override
-  public void close() throws Exception {
+  public void close() throws IOException {
     this.openZips.close();
   }
 }

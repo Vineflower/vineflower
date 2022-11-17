@@ -85,11 +85,11 @@ public class DecompilerTestFixture {
   public ConsoleDecompiler getDecompiler() {
     return decompiler;
   }
-  
+
   public void setCleanup(boolean value) {
     this.cleanup = value;
   }
-  
+
   public boolean getCleanup() {
     return cleanup;
   }
@@ -138,7 +138,7 @@ public class DecompilerTestFixture {
     }
   }
 
-  private static String getContent(Path expected) {
+  public static String getContent(Path expected) {
     try {
       return new String(Files.readAllBytes(expected), StandardCharsets.UTF_8).replace("\r\n", "\n");
     }
@@ -172,6 +172,7 @@ public class DecompilerTestFixture {
       }
     }
 
+    @Override
     public void close() {
       try {
         super.close();
