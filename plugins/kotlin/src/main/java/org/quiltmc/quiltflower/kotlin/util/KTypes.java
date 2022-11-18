@@ -3,6 +3,10 @@ package org.quiltmc.quiltflower.kotlin.util;
 public final class KTypes {
   // TODO: check clashes with java.lang.* types
   public static String mapJavaTypeToKotlin(String type) {
+    if (type.endsWith("[]")) {
+      return "Array<" + mapJavaTypeToKotlin(type.substring(0, type.length() - 2)) + ">";
+    }
+    
     switch (type) {
       case "boolean":
         return "Boolean";
