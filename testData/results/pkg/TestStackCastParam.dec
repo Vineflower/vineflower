@@ -1,0 +1,66 @@
+package pkg;
+
+public class TestStackCastParam {
+   public int x;
+   public int y;
+
+   public void test(String s) {
+      float var10002 = (float)this.x;
+      get().b.accept(s, var10002, (float)this.y);// 8
+   }// 9
+
+   public static TestStackCastParam.A get() {
+      return new TestStackCastParam.A();// 12
+   }
+
+   public static class A {
+      TestStackCastParam.B b = new TestStackCastParam.B();
+   }
+
+   public static class B {
+      void accept(String s, float x, float y) {
+      }// 22
+   }
+}
+
+class 'pkg/TestStackCastParam' {
+   method 'test (Ljava/lang/String;)V' {
+      0      8
+      1      8
+      2      8
+      3      8
+      4      8
+      5      8
+      6      8
+      7      7
+      8      7
+      9      7
+      a      7
+      b      7
+      c      8
+      d      8
+      e      8
+      f      8
+      10      8
+      11      8
+      12      8
+      13      8
+      14      9
+   }
+
+   method 'get ()Lpkg/TestStackCastParam$A;' {
+      7      12
+   }
+}
+
+class 'pkg/TestStackCastParam$B' {
+   method 'accept (Ljava/lang/String;FF)V' {
+      0      21
+   }
+}
+
+Lines mapping:
+8 <-> 9
+9 <-> 10
+12 <-> 13
+22 <-> 22
