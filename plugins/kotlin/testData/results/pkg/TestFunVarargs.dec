@@ -5,7 +5,7 @@ import kotlin.jvm.internal.Intrinsics;
 import org.jetbrains.annotations.NotNull;
 
 class TestFunVarargs {
-   fun printAll(@NotNull String... messages) {
+   fun printAll(@NotNull vararg messages: String) {
       Intrinsics.checkNotNullParameter(messages, "messages");
       var var2: Int = 0;
 
@@ -15,7 +15,7 @@ class TestFunVarargs {
       }
    }// 6
 
-   fun printAllArray(@NotNull String[] messages) {
+   fun printAllArray(@NotNull messages: String[]) {
       Intrinsics.checkNotNullParameter(messages, "messages");
       var var2: Int = 0;
 
@@ -25,7 +25,7 @@ class TestFunVarargs {
       }
    }// 10
 
-   fun log(@NotNull String... entries) {
+   fun log(@NotNull vararg entries: String) {
       Intrinsics.checkNotNullParameter(entries, "entries");
       this.printAll((String[])Arrays.copyOf(entries, entries.length));// 13
       this.printAllArray(entries);// 14

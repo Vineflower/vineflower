@@ -746,8 +746,31 @@ public class KotlinWriter implements StatementWriter {
               buffer.append(",");
               buffer.appendPossibleNewline(" ");
             }
-
+            
+            // @PAnn vararg? pName: pTy
             appendParameterAnnotations(buffer, mt, paramCount);
+  
+            boolean isVarArg = i == lastVisibleParameterIndex && mt.hasModifier(CodeConstants.ACC_VARARGS) && parameterType.arrayDim > 0;
+            if (isVarArg) {
+              buffer.append("vararg ");
+            }
+            
+            String parameterName;
+            if (methodParameters != null && i < methodParameters.size()) {
+              parameterName = methodParameters.get(i).myName;
+            }
+            else {
+              parameterName = methodWrapper.varproc.getVarName(new VarVersionPair(index, 0));
+            }
+  
+            if ((flags & (CodeConstants.ACC_ABSTRACT | CodeConstants.ACC_NATIVE)) != 0) {
+              String newParameterName = methodWrapper.methodStruct.getVariableNamer().renameAbstractParameter(parameterName, index);
+              parameterName = !newParameterName.equals(parameterName) ? newParameterName : DecompilerContext.getStructContext().renameAbstractParameter(methodWrapper.methodStruct.getClassQualifiedName(), mt.getName(), mt.getDescriptor(), index - (((flags & CodeConstants.ACC_STATIC) == 0) ? 1 : 0), parameterName);
+    
+            }
+  
+            buffer.append(parameterName == null ? "param" + index : parameterName); // null iff decompiled with errors
+            buffer.append(": ");
 
             if (methodParameters != null && i < methodParameters.size()) {
               appendModifiers(buffer, methodParameters.get(i).myAccessFlags, CodeConstants.ACC_FINAL, isInterface, 0);
@@ -757,7 +780,6 @@ public class KotlinWriter implements StatementWriter {
             }
 
             String typeName;
-            boolean isVarArg = i == lastVisibleParameterIndex && mt.hasModifier(CodeConstants.ACC_VARARGS) && parameterType.arrayDim > 0;
             if (isVarArg) {
               parameterType = parameterType.decreaseArrayDim();
             }
@@ -767,28 +789,7 @@ public class KotlinWriter implements StatementWriter {
               DecompilerContext.getOption(IFernflowerPreferences.UNDEFINED_PARAM_TYPE_OBJECT)) {
               typeName = ExprProcessor.getCastTypeName(VarType.VARTYPE_OBJECT);
             }
-            buffer.append(typeName);
-            if (isVarArg) {
-              buffer.append("...");
-            }
-
-            buffer.append(' ');
-
-            String parameterName;
-            if (methodParameters != null && i < methodParameters.size()) {
-              parameterName = methodParameters.get(i).myName;
-            }
-            else {
-              parameterName = methodWrapper.varproc.getVarName(new VarVersionPair(index, 0));
-            }
-
-            if ((flags & (CodeConstants.ACC_ABSTRACT | CodeConstants.ACC_NATIVE)) != 0) {
-              String newParameterName = methodWrapper.methodStruct.getVariableNamer().renameAbstractParameter(parameterName, index);
-              parameterName = !newParameterName.equals(parameterName) ? newParameterName : DecompilerContext.getStructContext().renameAbstractParameter(methodWrapper.methodStruct.getClassQualifiedName(), mt.getName(), mt.getDescriptor(), index - (((flags & CodeConstants.ACC_STATIC) == 0) ? 1 : 0), parameterName);
-
-            }
-
-            buffer.append(parameterName == null ? "param" + index : parameterName); // null iff decompiled with errors
+            buffer.append(KTypes.mapJavaTypeToKotlin(typeName));
 
             paramCount++;
           }

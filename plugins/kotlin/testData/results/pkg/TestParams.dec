@@ -4,32 +4,32 @@ import kotlin.jvm.internal.Intrinsics;
 import org.jetbrains.annotations.NotNull;
 
 class TestParams {
-   fun printMessageUnit(@NotNull String message) {
+   fun printMessageUnit(@NotNull message: String) {
       Intrinsics.checkNotNullParameter(message, "message");
       System.out.println(message);// 5
    }// 6
 
-   fun printMessageVoid(@NotNull String message) {
+   fun printMessageVoid(@NotNull message: String) {
       Intrinsics.checkNotNullParameter(message, "message");
       System.out.println(message);// 9
    }// 10
 
-   fun multiply(int x, int y): Int  {
+   fun multiply(x: Int, y: Int): Int  {
       return x * y;// 12
    }
 
-   fun multiplyBraces(int x, int y): Int  {
+   fun multiplyBraces(x: Int, y: Int): Int  {
       return x * y;// 15
    }
 
-   fun printMessageWithPrefix(@NotNull String message, @NotNull String prefix) {
+   fun printMessageWithPrefix(@NotNull message: String, @NotNull prefix: String) {
       Intrinsics.checkNotNullParameter(message, "message");
       Intrinsics.checkNotNullParameter(prefix, "prefix");
       System.out.println('[' + prefix + "] " + message);// 19
    }// 20
 
    // $QF: synthetic method
-   fun printMessageWithPrefix$default(TestParams var0, String var1, String var2, int var3, Object var4) {
+   fun printMessageWithPrefix$default(var0: TestParams, var1: String, var2: String, var3: Int, var4: Object) {
       if ((var3 & 2) != 0) {// 18
          var2 = "Info";
       }

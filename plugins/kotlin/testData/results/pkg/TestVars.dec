@@ -15,7 +15,7 @@ class TestVars {
       var c: Int = 3;// 15
    }// 16
 
-   fun testPhi(boolean bl) {
+   fun testPhi(bl: Boolean) {
       var d: Int = 0;
       byte var3;
       if (bl) {// 21
@@ -27,7 +27,7 @@ class TestVars {
       System.out.println(var3);// 27
    }// 28
 
-   fun testIfExpr(boolean bl) {
+   fun testIfExpr(bl: Boolean) {
       var d: Int = bl ? 1 : 2;// 31 32 34
       System.out.println(d);// 37
    }// 38

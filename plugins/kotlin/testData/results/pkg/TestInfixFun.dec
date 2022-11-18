@@ -10,7 +10,7 @@ class TestInfixFun {
    }// 8
 
    @NotNull
-   fun mult(int $this$mult, @NotNull String str): String  {
+   fun mult($this$mult: Int, @NotNull str: String): String  {
       Intrinsics.checkNotNullParameter(str, "str");
       return StringsKt.repeat((CharSequence)str, $this$mult);// 10
    }
@@ -23,11 +23,11 @@ class TestInfixFun {
       System.out.println(testDuplicate$mult(2, "Bye "));// 20
    }// 21
 
-   fun test$times(int $this$test_u24times, String str): String  {
+   fun test$times($this$test_u24times: Int, str: String): String  {
       return StringsKt.repeat((CharSequence)str, $this$test_u24times);// 5
    }
 
-   fun testDuplicate$mult(int $this$testDuplicate_u24mult, String str): String  {
+   fun testDuplicate$mult($this$testDuplicate_u24mult: Int, str: String): String  {
       return StringsKt.repeat((CharSequence)str, $this$testDuplicate_u24mult + 1);// 18
    }
 }
