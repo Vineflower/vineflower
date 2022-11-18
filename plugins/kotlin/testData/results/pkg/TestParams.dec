@@ -14,11 +14,11 @@ class TestParams {
       System.out.println(message);// 9
    }// 10
 
-   fun multiply(int x, int y): int  {
+   fun multiply(int x, int y): Int  {
       return x * y;// 12
    }
 
-   fun multiplyBraces(int x, int y): int  {
+   fun multiplyBraces(int x, int y): Int  {
       return x * y;// 15
    }
 

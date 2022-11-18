@@ -9,6 +9,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.vars.VarTypeProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.TextBuffer;
+import org.quiltmc.quiltflower.kotlin.util.KTypes;
 
 import java.util.BitSet;
 
@@ -38,7 +39,7 @@ public class KVarExprent extends VarExprent {
 
     if (definition) {
       buffer.append(": ");
-      buffer.append(getDefinitionType());
+      buffer.append(KTypes.mapJavaTypeToKotlin(getDefinitionType()));
     }
 
     return buffer;

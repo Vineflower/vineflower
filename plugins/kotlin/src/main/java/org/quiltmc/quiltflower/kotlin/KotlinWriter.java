@@ -39,6 +39,7 @@ import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.TextUtil;
 import org.jetbrains.java.decompiler.util.collections.VBStyleCollection;
+import org.quiltmc.quiltflower.kotlin.util.KTypes;
 
 import java.io.IOException;
 import java.util.*;
@@ -805,7 +806,7 @@ public class KotlinWriter implements StatementWriter {
         VarType retType = descriptor == null ? md.ret : descriptor.returnType;
         if (!init && !retType.isSuperset(VarType.VARTYPE_VOID)) {
           buffer.append(": ");
-          buffer.append(ExprProcessor.getCastTypeName(retType));
+          buffer.append(KTypes.mapJavaTypeToKotlin(ExprProcessor.getCastTypeName(retType)));
           buffer.append(' ');
         }
 
