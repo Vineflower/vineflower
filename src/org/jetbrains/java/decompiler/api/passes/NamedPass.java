@@ -9,6 +9,10 @@ public final class NamedPass implements Pass {
     this.pass = pass;
   }
 
+  public static NamedPass of(String name, Pass pass) {
+    return new NamedPass(name, pass);
+  }
+
   @Override
   public boolean run(PassContext ctx) {
     boolean res = this.pass.run(ctx);

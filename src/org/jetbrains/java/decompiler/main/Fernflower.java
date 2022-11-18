@@ -8,9 +8,9 @@ import org.jetbrains.java.decompiler.modules.renamer.ConverterHelper;
 import org.jetbrains.java.decompiler.modules.renamer.IdentifierConverter;
 import org.jetbrains.java.decompiler.modules.renamer.PoolInterceptor;
 import org.jetbrains.java.decompiler.struct.IDecompiledData;
+import org.jetbrains.java.decompiler.main.plugins.PluginContext;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructContext;
-import org.jetbrains.java.decompiler.struct.lazy.LazyLoader;
 import org.jetbrains.java.decompiler.util.ClasspathScanner;
 import org.jetbrains.java.decompiler.util.JADNameProvider;
 import org.jetbrains.java.decompiler.util.JrtFinder;
@@ -93,10 +93,14 @@ public class Fernflower implements IDecompiledData {
         JrtFinder.addRuntime(structContext, new File(javaRuntime));
       }
     }
-  
+
+    PluginContext plugins = structContext.getPluginContext();
+
     for (Plugin plugin : ServiceLoader.load(Plugin.class)) {
-      structContext.addPlugin(plugin);
+      plugins.registerPlugin(plugin);
     }
+
+    plugins.initialize();
   }
 
   private static IIdentifierRenamer loadHelper(String className, IFernflowerLogger logger) {

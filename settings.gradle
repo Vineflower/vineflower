@@ -2,3 +2,5 @@ rootProject.name = 'quiltflower'
 
 include 'idea-not-null'
 project(":idea-not-null").projectDir = (new File(rootProject.projectDir, "plugins/idea-not-null"))
+include 'kotlin'
+project(":kotlin").projectDir = (new File(rootProject.projectDir, "plugins/kotlin"))

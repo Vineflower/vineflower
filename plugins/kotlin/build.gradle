@@ -1,0 +1,41 @@
+plugins {
+  id 'java'
+  id 'org.jetbrains.kotlin.jvm'
+}
+
+group = 'org.quiltmc'
+archivesBaseName = 'quiltflower-kotlin'
+
+repositories {
+  mavenCentral()
+}
+
+sourceSets {
+  testDataKotlin.kotlin.srcDirs files("testData/src/kt/")
+}
+
+dependencies {
+  implementation project(":")
+
+  testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
+  testImplementation testFixtures(project(":"))
+  testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
+
+  testDataKotlinImplementation platform('org.jetbrains.kotlin:kotlin-bom')
+  testDataKotlinImplementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+  testRuntimeOnly 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+}
+
+task testDataClasses {
+  group = 'build'
+}
+testClasses.dependsOn(testDataClasses)
+
+compileTestDataKotlinKotlin {
+  destinationDirectory = file("testData/classes/kt")
+}
+testDataClasses.dependsOn(testDataKotlinClasses)
+
+test {
+  useJUnitPlatform()
+}

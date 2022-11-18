@@ -389,7 +389,7 @@ public class NewExprent extends Exprent {
         new ClassWriter().classLambdaToJava(child, buf, methodObject, indent);
       }
       else if (!selfReference) {
-        new ClassWriter().classToJava(child, buf, indent);
+        new ClassWriter().writeClass(child, buf, indent);
       }
     }
     else if (directArrayInit) {

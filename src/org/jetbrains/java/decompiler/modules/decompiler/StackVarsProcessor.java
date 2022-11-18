@@ -32,7 +32,7 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 public class StackVarsProcessor {
-  public void simplifyStackVars(RootStatement root, StructMethod mt, StructClass cl) {
+  public static void simplifyStackVars(RootStatement root, StructMethod mt, StructClass cl) {
     Set<Integer> setReorderedIfs = new HashSet<>();
     SSAUConstructorSparseEx ssau = null;
 
@@ -112,7 +112,7 @@ public class StackVarsProcessor {
     }
   }
 
-  private boolean iterateStatements(RootStatement root, SSAUConstructorSparseEx ssa) {
+  private static boolean iterateStatements(RootStatement root, SSAUConstructorSparseEx ssa) {
     FlattenStatementsHelper flatthelper = new FlattenStatementsHelper();
     DirectGraph dgraph = flatthelper.buildDirectGraph(root);
 
@@ -279,7 +279,7 @@ public class StackVarsProcessor {
   }
 
   // {nextIndex, (changed ? 1 : 0)}
-  private int[] iterateExprent(List<Exprent> lstExprents,
+  private static int[] iterateExprent(List<Exprent> lstExprents,
                                int index,
                                Exprent next,
                                Map<VarVersionPair, Exprent> mapVarValues,
@@ -472,7 +472,7 @@ public class StackVarsProcessor {
     }
   }
 
-  private Exprent simplifyAcrossStackExprent(List<Exprent> exprents, int index, Exprent next, Exprent right, VarExprent left) {
+  private static Exprent simplifyAcrossStackExprent(List<Exprent> exprents, int index, Exprent next, Exprent right, VarExprent left) {
     Exprent ret = null;
 
     if (next != null && next instanceof AssignmentExprent && index < exprents.size() - 2) {
@@ -517,7 +517,7 @@ public class StackVarsProcessor {
   }
 
   // Checks if 2 exprent trees are equal. Precondition: both trees have the same size
-  private boolean areTreesEqual(VarExprent left, List<Exprent> treeA, List<Exprent> treeB) {
+  private static boolean areTreesEqual(VarExprent left, List<Exprent> treeA, List<Exprent> treeB) {
     boolean ok = true;
 
     for (int i = 0; i < treeA.size(); i++) {

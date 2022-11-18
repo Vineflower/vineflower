@@ -115,7 +115,7 @@ public class VarExprent extends Exprent {
 
     if (classDef) {
       ClassNode child = DecompilerContext.getClassProcessor().getMapRootClasses().get(varType.value);
-      new ClassWriter().classToJava(child, buffer, indent);
+      new ClassWriter().writeClass(child, buffer, indent);
     } else {
       VarVersionPair varVersion = getVarVersionPair();
 

@@ -5,9 +5,9 @@ import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 
 import static org.jetbrains.java.decompiler.SingleClassesTestBase.TestDefinition.Version.CUSTOM;
 
-public class InnClassesTest extends SingleClassesTestBase{
+public class InnClassesTest extends SingleClassesTestBase {
   
-  protected void registerAll(){
+  protected void registerAll() {
     registerSet("With Idea Not Null", this::registerInn,
       IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
       IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
@@ -20,7 +20,7 @@ public class InnClassesTest extends SingleClassesTestBase{
     );
   }
   
-  private void registerInn(){
+  private void registerInn() {
     registerRaw(CUSTOM, "TestIdeaNotNull");
   }
 }

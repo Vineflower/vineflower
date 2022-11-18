@@ -1,12 +1,12 @@
 // Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.struct;
 
-import org.jetbrains.java.decompiler.api.Plugin;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IBytecodeProvider;
 import org.jetbrains.java.decompiler.main.extern.IContextSource;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IResultSaver;
+import org.jetbrains.java.decompiler.main.plugins.PluginContext;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericMain;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericMethodDescriptor;
 import org.jetbrains.java.decompiler.util.DataInputFullStream;
@@ -51,7 +51,7 @@ public class StructContext {
   private final Map<String, ContextUnit> unitsByClassName = new ConcurrentHashMap<>();
   private final Map<String, List<String>> abstractNames = new HashMap<>();
   
-  private final List<Plugin> plugins = new ArrayList<>();
+  private final PluginContext pluginContext = new PluginContext();
 
   @SuppressWarnings("deprecation")
   public StructContext(IBytecodeProvider legacyProvider, IResultSaver saver, IDecompiledData decompiledData) {
@@ -193,12 +193,8 @@ public class StructContext {
     initUnit(unit);
   }
 
-  public void addPlugin(Plugin plugin){
-    plugins.add(plugin);
-  }
-  
-  public List<Plugin> getPlugins(){
-    return Collections.unmodifiableList(plugins);
+  public PluginContext getPluginContext() {
+    return this.pluginContext;
   }
   
   private void initUnit(final ContextUnit unit) {
