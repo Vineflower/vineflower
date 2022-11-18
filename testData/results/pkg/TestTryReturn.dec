@@ -218,7 +218,7 @@ public class TestTryReturn {
             return;// 195
          } catch (Exception var16) {// 186
          } finally {
-            System.out.println(var4);// 190
+            System.out.println(var15);// 190
          }
       } finally {
          System.out.println(var3);// 194
