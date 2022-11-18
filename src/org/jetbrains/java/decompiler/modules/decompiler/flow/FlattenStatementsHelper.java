@@ -600,13 +600,18 @@ public class FlattenStatementsHelper implements GraphFlattener {
           ValidationHelper.assertTrue(dest.type == DirectNodeType.FINALLY_END, "Finally destination mismatch");
           sourcenode.addSuccessor(DirectEdge.of(sourcenode, dest));
         }
-      } else if (edgetype == StatEdge.TYPE_BREAK) {
-        DirectNode dest = this.finallyNodesStack.peek();
-        ValidationHelper.assertTrue(dest.statement == closure, "Finally destination mismatch");
-        // ValidationHelper.assertTrue(dest.type == DirectNodeType.FINALLY, "Finally destination mismatch");
-        sourcenode.addSuccessor(DirectEdge.of(sourcenode, dest));
-      } else {
-        ValidationHelper.assertTrue(false, "Unexpected finally edge type");
+      }
+//      else if (edgetype == StatEdge.TYPE_BREAK) {
+//        DirectNode dest = this.finallyNodesStack.peek();
+//        ValidationHelper.assertTrue(dest.statement == closure, "Finally destination mismatch");
+//        // ValidationHelper.assertTrue(dest.type == DirectNodeType.FINALLY, "Finally destination mismatch");
+//        sourcenode.addSuccessor(DirectEdge.of(sourcenode, dest));
+//      }
+//        else {
+//        ValidationHelper.assertTrue(false, "Unexpected finally edge type");
+//      }
+      else {
+        this.continueEdges.add(new Edge(sourcenode.id, destination.id, edgetype));
       }
     } else  /* if (edgetype != StatEdge.TYPE_FINALLYEXIT) */ {
       this.continueEdges.add(new Edge(sourcenode.id, destination.id, edgetype));
@@ -641,11 +646,13 @@ public class FlattenStatementsHelper implements GraphFlattener {
 
       if (edge.edgetype == StatEdge.TYPE_FINALLYEXIT) {
         if (source.tryFinally != null &&
-            source.tryFinally.type == DirectNodeType.FINALLY_END &&
-            source.tryFinally.tryFinally == dest.tryFinally) {
+            source.tryFinally.type == DirectNodeType.FINALLY_END /*&&
+            source.tryFinally.tryFinally == dest.tryFinally*/) { // dest is always the dummy exit
           dest = source.tryFinally;
         } else {
           // Should only happen if there are unprocessed finallies, should look into a check for that
+          // TODO: finally edges only exist in the graph if there is a finally block, so this should never happen??
+
           continue;
         }
       }
