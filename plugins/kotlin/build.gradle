@@ -10,6 +10,12 @@ repositories {
   mavenCentral()
 }
 
+compileJava {
+  sourceCompatibility '11'
+  targetCompatibility '11'
+}
+
+
 sourceSets {
   testDataKotlin.kotlin.srcDirs files("testData/src/kt/")
 }
@@ -24,6 +30,10 @@ dependencies {
   testDataKotlinImplementation platform('org.jetbrains.kotlin:kotlin-bom')
   testDataKotlinImplementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
   testRuntimeOnly 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+}
+
+java.toolchain {
+  languageVersion = JavaLanguageVersion.of(11)
 }
 
 task testDataClasses {

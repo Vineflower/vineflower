@@ -25,7 +25,7 @@ class TestParams {
    fun printMessageWithPrefix(@NotNull message: String, @NotNull prefix: String) {
       Intrinsics.checkNotNullParameter(message, "message");
       Intrinsics.checkNotNullParameter(prefix, "prefix");
-      System.out.println('[' + prefix + "] " + message);// 19
+      System.out.println("[" + prefix + "] " + message);// 19
    }// 20
 
    // $QF: synthetic method
@@ -105,22 +105,20 @@ class 'pkg/TestParams' {
       9      26
       a      26
       b      26
+      c      27
+      d      27
+      e      27
+      f      27
+      10      27
+      11      27
+      12      27
       13      27
       14      27
+      15      27
+      17      27
       18      27
-      1c      27
-      1d      27
-      21      27
-      25      27
-      26      27
-      27      27
-      28      27
-      29      27
-      2a      27
-      2c      27
-      2d      27
-      2e      27
-      2f      28
+      19      27
+      1a      28
    }
 
    method 'printMessageWithPrefix$default (Lpkg/TestParams;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)V' {
