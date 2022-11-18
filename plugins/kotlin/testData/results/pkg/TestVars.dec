@@ -2,21 +2,21 @@ package pkg
 
 class TestVars {
    fun testVar() {
-      String a = "initial";// 5
+      var a: String = "initial";// 5
       System.out.println(a);// 6
-      int b = 1;// 7
-      int c = 3;// 8
+      var b: int = 1;// 7
+      var c: int = 3;// 8
    }// 9
 
    fun testVal() {
-      String a = "initial";// 12
+      var a: String = "initial";// 12
       System.out.println(a);// 13
-      int b = 1;// 14
-      int c = 3;// 15
+      var b: int = 1;// 14
+      var c: int = 3;// 15
    }// 16
 
    fun testPhi(boolean bl) {
-      int d = 0;
+      var d: int = 0;
       byte var3;
       if (bl) {// 21
          var3 = 1;// 22
@@ -28,7 +28,7 @@ class TestVars {
    }// 28
 
    fun testIfExpr(boolean bl) {
-      int d = bl ? 1 : 2;// 31 32 34
+      var d: int = bl ? 1 : 2;// 31 32 34
       System.out.println(d);// 37
    }// 38
 }

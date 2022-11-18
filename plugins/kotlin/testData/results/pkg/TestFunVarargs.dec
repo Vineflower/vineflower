@@ -7,20 +7,20 @@ import org.jetbrains.annotations.NotNull;
 class TestFunVarargs {
    fun printAll(@NotNull String... messages) {
       Intrinsics.checkNotNullParameter(messages, "messages");
-      int var2 = 0;
+      var var2: int = 0;
 
       for(int var3 = messages.length; var2 < var3; var2 += 1) {// 5
-         String m = messages[var2];
+         var m: String = messages[var2];
          System.out.println(m);
       }
    }// 6
 
    fun printAllArray(@NotNull String[] messages) {
       Intrinsics.checkNotNullParameter(messages, "messages");
-      int var2 = 0;
+      var var2: int = 0;
 
       for(int var3 = messages.length; var2 < var3; var2 += 1) {// 9
-         String m = messages[var2];
+         var m: String = messages[var2];
          System.out.println(m);
       }
    }// 10
@@ -32,7 +32,7 @@ class TestFunVarargs {
    }// 15
 
    fun test() {
-      String[] var1 = new String[]{"a", "b", "c"};
+      var var1: String[] = new String[]{"a", "b", "c"};
       this.log(var1);// 18
    }// 19
 }
