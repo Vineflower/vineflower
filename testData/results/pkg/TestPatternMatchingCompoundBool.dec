@@ -1,0 +1,68 @@
+package pkg;
+
+public class TestPatternMatchingCompoundBool {
+   public void test(boolean bl, Object o) {
+      label14: {
+         if (!bl) {// 5
+            if (!(o instanceof Boolean)) {
+               break label14;
+            }
+
+            Boolean b = (Boolean)o;
+            if (!b) {
+               break label14;
+            }
+         }
+
+         System.out.println("true");// 6
+      }
+
+      System.out.println("false");// 9
+   }// 10
+}
+
+class 'pkg/TestPatternMatchingCompoundBool' {
+   method 'test (ZLjava/lang/Object;)V' {
+      0      5
+      1      5
+      4      6
+      7      6
+      8      6
+      9      6
+      a      6
+      b      6
+      c      6
+      f      10
+      10      10
+      11      10
+      12      10
+      13      10
+      14      10
+      15      11
+      16      11
+      17      11
+      18      11
+      19      11
+      1c      16
+      1d      16
+      1e      16
+      1f      16
+      20      16
+      21      16
+      24      19
+      25      19
+      26      19
+      27      19
+      28      19
+      29      19
+      2a      19
+      2b      19
+      2c      20
+   }
+}
+
+Lines mapping:
+5 <-> 6
+6 <-> 17
+9 <-> 20
+10 <-> 21

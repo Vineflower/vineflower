@@ -31,6 +31,7 @@ import org.jetbrains.java.decompiler.util.collections.NullableConcurrentHashMap;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 public class InvocationExprent extends Exprent {
   public enum InvocationType {
@@ -352,7 +353,7 @@ public class InvocationExprent extends Exprent {
               mask = ExprUtil.getSyntheticParametersMask(newNode, stringDescriptor, lstParameters.size());
               start = newNode.classStruct.hasModifier(CodeConstants.ACC_ENUM) ? 2 : 0;
             } else if (!newNode.enclosingClasses.isEmpty()) {
-              start = !newNode.classStruct.hasModifier(CodeConstants.ACC_STATIC) ? 1 : 0;
+              start = (newNode.access & CodeConstants.ACC_STATIC) == 0 ? 1 : 0;
             }
           }
 
@@ -367,6 +368,58 @@ public class InvocationExprent extends Exprent {
 
               VarType paramType = desc.getSignature().parameterTypes.get(j++);
               if (paramType.isGeneric()) {
+
+                Exprent parameter = lstParameters.get(i);
+                Set<VarType> excluded = new HashSet<>();
+                if (parameter.type == Exprent.Type.NEW) {
+                  NewExprent newExprent = (NewExprent) parameter;
+                  if (newExprent.isLambda()) {
+                    ClassNode node = DecompilerContext.getClassProcessor().getMapRootClasses().get(newExprent.getNewType().value);
+                    int potentialMethodCount = Integer.MAX_VALUE;
+                    if (node.lambdaInformation.is_method_reference) {
+                      StructClass content = (StructClass) DecompilerContext.getStructContext().getClass(node.lambdaInformation.content_class_name);
+
+                      if (content != null) {
+                        StructClass currentCls = (StructClass) DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS);
+                        potentialMethodCount = (int) content.getMethods().stream()
+                          .filter((method) -> canAccess(currentCls, method))
+                          .map(StructMethod::getName)
+                          .filter(node.lambdaInformation.content_method_name::equals)
+                          .count();
+                      }
+                    }
+                    if (potentialMethodCount > 1) {
+                      StructClass base = DecompilerContext.getStructContext().getClass(newExprent.getExprType().value);
+                      if (base != null) {
+                        StructMethod found = null;
+                        for (StructMethod method : base.getMethods()) {
+                          if (!method.hasModifier(CodeConstants.ACC_STATIC) && method.getInstructionSequence() == null) {
+                            found = method;
+                            break;
+                          }
+                        }
+                        if (found != null) {
+                          Map<VarType, VarType> genvars = new HashMap<>();
+                          if (base.getSignature() != null) {
+                            base.getSignature().genericType.mapGenVarsTo((GenericType) paramType, genvars);
+                            excluded.addAll(found.getSignature().parameterTypes.stream()
+                              .filter(VarType::isGeneric)
+                              .map(GenericType.class::cast)
+                              .map(GenericType::getAllGenericVars)
+                              .flatMap(List::stream)
+                              .map(genvars::get)
+                              .filter(Objects::nonNull)
+                              .filter(VarType::isGeneric)
+                              .map(GenericType.class::cast)
+                              .map(GenericType::getAllGenericVars)
+                              .flatMap(List::stream)
+                              .collect(Collectors.toList()));
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
 
                 Map<VarType, VarType> combined = new HashMap<>(genericsMap);
                 upperBoundsMap.forEach((k, v) -> {
@@ -397,7 +450,9 @@ public class InvocationExprent extends Exprent {
 
                     genParamType.mapGenVarsTo(genArgType, tempMap);
                     tempMap.forEach((from, to) -> {
-                      paramGenerics.add(from);
+                      if (!excluded.contains(from)) {
+                        paramGenerics.add(from);
+                      }
                       processGenericMapping(from, to, named, bounds);
                     });
                     tempMap.clear();
@@ -408,7 +463,9 @@ public class InvocationExprent extends Exprent {
                     argtype = argtype.resizeArrayDim(argtype.arrayDim - paramType.arrayDim);
                     paramType = paramType.resizeArrayDim(0);
                   }
-                  paramGenerics.add(paramType);
+                  if (!excluded.contains(paramType)) {
+                    paramGenerics.add(paramType);
+                  }
                   processGenericMapping(paramType, argtype, named, bounds);
                 }
               }
