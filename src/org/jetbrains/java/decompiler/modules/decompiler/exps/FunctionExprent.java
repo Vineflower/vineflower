@@ -642,7 +642,7 @@ public class FunctionExprent extends Exprent {
     return funcType.castType;
   }
 
-  private TextBuffer wrapOperandString(Exprent expr, boolean eq, int indent) {
+  protected TextBuffer wrapOperandString(Exprent expr, boolean eq, int indent) {
     return wrapOperandString(expr, eq, indent, false);
   }
 

@@ -9,7 +9,7 @@ import org.jetbrains.java.decompiler.api.passes.WrappedPass;
 import org.jetbrains.java.decompiler.modules.decompiler.*;
 import org.jetbrains.java.decompiler.modules.decompiler.decompose.DomHelper;
 import org.quiltmc.quiltflower.kotlin.pass.JavaFinallyPass;
-import org.quiltmc.quiltflower.kotlin.pass.ReplaceVarExprentsPass;
+import org.quiltmc.quiltflower.kotlin.pass.ReplaceExprentsPass;
 
 public class KotlinPlugin implements Plugin {
 
@@ -58,7 +58,7 @@ public class KotlinPlugin implements Plugin {
       .addPass("RedundantReturns", ctx -> ExitHelper.removeRedundantReturns(ctx.getRoot()))
       .addPass("IdentifySecondary", ctx -> SecondaryFunctionsHelper.identifySecondaryFunctions(ctx.getRoot(), ctx.getVarProc()))
       .addPass("SetVarDefinitions", WrappedPass.of(ctx -> ctx.getVarProc().setVarDefinitions(ctx.getRoot())))
-      .addPass("ReplaceVars", new ReplaceVarExprentsPass())
+      .addPass("ReplaceExprs", new ReplaceExprentsPass())
       .addPass("ReplaceContinue", ctx -> LabelHelper.replaceContinueWithBreak(ctx.getRoot()))
 
       .build();
