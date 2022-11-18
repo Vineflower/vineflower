@@ -1,0 +1,177 @@
+package pkg
+
+import kotlin.jvm.internal.Intrinsics;
+import org.jetbrains.annotations.NotNull;
+
+class TestParams {
+   fun printMessageUnit(@NotNull String message) {
+      Intrinsics.checkNotNullParameter(message, "message");
+      System.out.println(message);// 5
+   }// 6
+
+   fun printMessageVoid(@NotNull String message) {
+      Intrinsics.checkNotNullParameter(message, "message");
+      System.out.println(message);// 9
+   }// 10
+
+   fun multiply(int x, int y): int  {
+      return x * y;// 12
+   }
+
+   fun multiplyBraces(int x, int y): int  {
+      return x * y;// 15
+   }
+
+   fun printMessageWithPrefix(@NotNull String message, @NotNull String prefix) {
+      Intrinsics.checkNotNullParameter(message, "message");
+      Intrinsics.checkNotNullParameter(prefix, "prefix");
+      System.out.println('[' + prefix + "] " + message);// 19
+   }// 20
+
+   // $QF: synthetic method
+   fun printMessageWithPrefix$default(TestParams var0, String var1, String var2, int var3, Object var4) {
+      if ((var3 & 2) != 0) {// 18
+         var2 = "Info";
+      }
+
+      var0.printMessageWithPrefix(var1, var2);
+   }
+
+   fun callPrintMessage() {
+      printMessageWithPrefix$default(this, "Test", null, 2, null);// 23
+      this.printMessageWithPrefix("Test", "Debug");// 24
+   }// 25
+}
+
+class 'pkg/TestParams' {
+   method 'printMessageUnit (Ljava/lang/String;)V' {
+      0      7
+      1      7
+      2      7
+      3      7
+      4      7
+      5      7
+      6      8
+      7      8
+      8      8
+      9      8
+      a      8
+      b      8
+      c      8
+      d      9
+   }
+
+   method 'printMessageVoid (Ljava/lang/String;)V' {
+      0      12
+      1      12
+      2      12
+      3      12
+      4      12
+      5      12
+      6      13
+      7      13
+      8      13
+      9      13
+      a      13
+      b      13
+      c      13
+      d      14
+   }
+
+   method 'multiply (II)I' {
+      0      17
+      1      17
+      2      17
+      3      17
+   }
+
+   method 'multiplyBraces (II)I' {
+      0      21
+      1      21
+      2      21
+      3      21
+   }
+
+   method 'printMessageWithPrefix (Ljava/lang/String;Ljava/lang/String;)V' {
+      0      25
+      1      25
+      2      25
+      3      25
+      4      25
+      5      25
+      6      26
+      7      26
+      8      26
+      9      26
+      a      26
+      b      26
+      13      27
+      14      27
+      18      27
+      1c      27
+      1d      27
+      21      27
+      25      27
+      26      27
+      27      27
+      28      27
+      29      27
+      2a      27
+      2c      27
+      2d      27
+      2e      27
+      2f      28
+   }
+
+   method 'printMessageWithPrefix$default (Lpkg/TestParams;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)V' {
+      0      32
+      1      32
+      2      32
+      3      32
+      6      33
+      7      33
+      8      33
+      9      36
+      a      36
+      b      36
+      c      36
+      d      36
+      e      36
+      f      37
+   }
+
+   method 'callPrintMessage ()V' {
+      0      40
+      1      40
+      2      40
+      3      40
+      4      40
+      5      40
+      6      40
+      7      40
+      8      40
+      9      41
+      a      41
+      b      41
+      c      41
+      d      41
+      e      41
+      f      41
+      10      41
+      11      42
+   }
+}
+
+Lines mapping:
+5 <-> 9
+6 <-> 10
+9 <-> 14
+10 <-> 15
+12 <-> 18
+15 <-> 22
+18 <-> 33
+19 <-> 28
+20 <-> 29
+23 <-> 41
+24 <-> 42
+25 <-> 43

@@ -1,0 +1,129 @@
+package pkg
+
+class TestVars {
+   fun testVar() {
+      String a = "initial";// 5
+      System.out.println(a);// 6
+      int b = 1;// 7
+      int c = 3;// 8
+   }// 9
+
+   fun testVal() {
+      String a = "initial";// 12
+      System.out.println(a);// 13
+      int b = 1;// 14
+      int c = 3;// 15
+   }// 16
+
+   fun testPhi(boolean bl) {
+      int d = 0;
+      byte var3;
+      if (bl) {// 21
+         var3 = 1;// 22
+      } else {
+         var3 = 2;// 24
+      }
+
+      System.out.println(var3);// 27
+   }// 28
+
+   fun testIfExpr(boolean bl) {
+      int d = bl ? 1 : 2;// 31 32 34
+      System.out.println(d);// 37
+   }// 38
+}
+
+class 'pkg/TestVars' {
+   method 'testVar ()V' {
+      0      4
+      1      4
+      2      4
+      3      5
+      4      5
+      5      5
+      6      5
+      7      5
+      8      5
+      9      5
+      a      6
+      b      6
+      c      7
+      d      7
+      e      8
+   }
+
+   method 'testVal ()V' {
+      0      11
+      1      11
+      2      11
+      3      12
+      4      12
+      5      12
+      6      12
+      7      12
+      8      12
+      9      12
+      a      13
+      b      13
+      c      14
+      d      14
+      e      15
+   }
+
+   method 'testPhi (Z)V' {
+      0      18
+      1      18
+      2      20
+      3      20
+      6      21
+      7      21
+      b      23
+      c      23
+      d      26
+      e      26
+      f      26
+      10      26
+      11      26
+      12      26
+      13      26
+      14      27
+   }
+
+   method 'testIfExpr (Z)V' {
+      0      30
+      1      30
+      4      30
+      8      30
+      9      30
+      a      31
+      b      31
+      c      31
+      d      31
+      e      31
+      f      31
+      10      31
+      11      32
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 6
+7 <-> 7
+8 <-> 8
+9 <-> 9
+12 <-> 12
+13 <-> 13
+14 <-> 14
+15 <-> 15
+16 <-> 16
+21 <-> 21
+22 <-> 22
+24 <-> 24
+27 <-> 27
+28 <-> 28
+31 <-> 31
+32 <-> 31
+34 <-> 31
+37 <-> 32
+38 <-> 33
