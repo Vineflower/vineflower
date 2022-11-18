@@ -228,8 +228,8 @@ public class FlattenStatementsHelper implements GraphFlattener {
               finallyEndNode.statement == stat && finallyEndNode.type == DirectNodeType.FINALLY_END,
               "stackFinally is broken");
 
-            sourceNode = finallyEndNode;
-            lstSuccEdges = stat.getSuccessorEdges(Statement.STATEDGE_DIRECT_ALL);
+//            sourceNode = finallyEndNode;
+//            lstSuccEdges = stat.getSuccessorEdges(Statement.STATEDGE_DIRECT_ALL);
           }
 
           break;

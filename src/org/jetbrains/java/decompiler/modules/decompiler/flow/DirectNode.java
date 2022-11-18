@@ -24,7 +24,7 @@ public class DirectNode {
 
   private final Map<DirectEdgeType, List<DirectEdge>> successors = new HashMap<>();
   private final Map<DirectEdgeType, List<DirectEdge>> predecessors = new HashMap<>();
-  final DirectNode tryFinally;
+  public final DirectNode tryFinally;
 
   private DirectNode(DirectNodeType type, Statement statement, DirectNode tryFinally) {
     this.type = type;

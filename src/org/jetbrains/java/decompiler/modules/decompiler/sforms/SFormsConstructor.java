@@ -680,7 +680,7 @@ public abstract class SFormsConstructor implements SFormsCreator {
     SFormsFastMapDirect mapNew = new SFormsFastMapDirect();
 
     for (DirectEdge pred : node.getPredecessors(DirectEdgeType.REGULAR)) {
-      SFormsFastMapDirect mapOut = this.getFilteredOutMap(node.id, pred.getSource().id, dgraph, node.id);
+      SFormsFastMapDirect mapOut = this.getFilteredOutMap(node, pred.getSource(), dgraph);
       if (mapNew.isEmpty()) {
         mapNew = mapOut.getCopy();
       } else {
@@ -712,140 +712,74 @@ public abstract class SFormsConstructor implements SFormsCreator {
     this.inVarVersions.put(node.id, mapNew);
   }
 
-  private SFormsFastMapDirect getFilteredOutMap(String nodeid, String predid, DirectGraph dgraph, String destid) {
+  private SFormsFastMapDirect getFilteredOutMap(DirectNode node, DirectNode pred, DirectGraph dgraph) {
 
     SFormsFastMapDirect mapNew = new SFormsFastMapDirect();
 
-    if (nodeid.equals(dgraph.mapNegIfBranch.get(predid))) {
-      if (this.outNegVarVersions.containsKey(predid)) {
-        mapNew = this.outNegVarVersions.get(predid).getCopy();
+    if (node.id.equals(dgraph.mapNegIfBranch.get(pred.id))) {
+      if (this.outNegVarVersions.containsKey(pred.id)) {
+        mapNew = this.outNegVarVersions.get(pred.id).getCopy();
       }
-    } else if (this.outVarVersions.containsKey(predid)) {
-      mapNew = this.outVarVersions.get(predid).getCopy();
+    } else if (this.outVarVersions.containsKey(pred.id)) {
+      mapNew = this.outVarVersions.get(pred.id).getCopy();
     }
 
-    boolean isFinallyExit = dgraph.mapShortRangeFinallyPaths.containsKey(predid);
-
-    if (isFinallyExit && !mapNew.isEmpty()) {
-
-      SFormsFastMapDirect mapNewTemp = mapNew.getCopy();
-
-      SFormsFastMapDirect mapTrueSource = new SFormsFastMapDirect();
-
-      String exceptionDest = dgraph.mapFinallyMonitorExceptionPathExits.get(predid);
-      boolean isExceptionMonitorExit = (exceptionDest != null && !nodeid.equals(exceptionDest));
-
-      HashSet<String> setLongPathWrapper = new HashSet<>();
-      for (FlattenStatementsHelper.FinallyPathWrapper finwraplong : dgraph.mapLongRangeFinallyPaths.get(predid)) {
-        setLongPathWrapper.add(finwraplong.destination + "##" + finwraplong.source);
-      }
-
-      for (FlattenStatementsHelper.FinallyPathWrapper finwrap : dgraph.mapShortRangeFinallyPaths.get(predid)) {
-        SFormsFastMapDirect map;
-
-        boolean recFinally = dgraph.mapShortRangeFinallyPaths.containsKey(finwrap.source);
-
-        if (recFinally) {
-          // recursion
-          map = this.getFilteredOutMap(finwrap.entry, finwrap.source, dgraph, destid);
-        } else {
-          if (finwrap.entry.equals(dgraph.mapNegIfBranch.get(finwrap.source))) {
-            map = this.outNegVarVersions.get(finwrap.source);
-          } else {
-            map = this.outVarVersions.get(finwrap.source);
-          }
-        }
-
-        // false path?
-        boolean isFalsePath;
-
-        if (recFinally) {
-          isFalsePath = !finwrap.destination.equals(nodeid);
-        } else {
-          isFalsePath = !setLongPathWrapper.contains(destid + "##" + finwrap.source);
-        }
-
-        if (isFalsePath) {
-          mapNewTemp.complement(map);
-        } else {
-          if (mapTrueSource.isEmpty()) {
-            if (map != null) {
-              mapTrueSource = map.getCopy();
-            }
-          } else {
-            mergeMaps(mapTrueSource, map);
-          }
-        }
-      }
-
-      if (isExceptionMonitorExit) {
-
-        mapNew = mapTrueSource;
+    // handle finally
+    if (node.tryFinally != pred.tryFinally) {
+      if (node.tryFinally != null &&
+          node.tryFinally.type == DirectNodeType.FINALLY &&
+          node.tryFinally.tryFinally == pred.tryFinally) {
+        // we are entering a try, nothing to do here
+      } else if (pred.type == DirectNodeType.FINALLY) {
+        // we are entering the finally block
       } else {
+        DirectNode finallyNode = pred.tryFinally;
+        while (finallyNode != node.tryFinally) {
+          ValidationHelper.notNull(finallyNode);
+          if (finallyNode.type == DirectNodeType.FINALLY) {
 
-        mapNewTemp.union(mapTrueSource);
+            SFormsFastMapDirect map = getDiff(this.inVarVersions.get(finallyNode.statement.id + "_FINALLY"), this.outVarVersions.get(finallyNode.id));
+            overrideMap(mapNew, map);
 
-        SFormsFastMapDirect oldInMap = this.inVarVersions.get(nodeid);
-        if (oldInMap != null) {
-          mapNewTemp.union(oldInMap);
+          }
+          finallyNode = finallyNode.tryFinally;
         }
-
-        mapNew.intersection(mapNewTemp);
-
-//      TODO: reimplement
-//        if (this.trackPhantomExitNodes && !mapTrueSource.isEmpty() && !mapNew.isEmpty()) { // FIXME: what for??
-//
-//          // replace phi versions with corresponding phantom ones
-//          HashMap<VarVersionPair, VarVersionPair> mapPhantom = phantomexitnodes.get(predid);
-//          if (mapPhantom == null) {
-//            mapPhantom = new HashMap<>();
-//          }
-//
-//          SFormsFastMapDirect mapExitVar = mapNew.getCopy();
-//          mapExitVar.complement(mapTrueSource);
-//
-//          for (Map.Entry<Integer, FastSparseSet<Integer>> ent : mapExitVar.entryList()) {
-//            for (int version : ent.getValue()) {
-//
-//              int varindex = ent.getKey();
-//              VarVersionPair exitvar = new VarVersionPair(varindex, version);
-//              FastSparseSet<Integer> newSet = mapNew.get(varindex);
-//
-//              // remove the actual exit version
-//              newSet.remove(version);
-//
-//              // get or create phantom version
-//              VarVersionPair phantomvar = mapPhantom.get(exitvar);
-//              if (phantomvar == null) {
-//                int newversion = getNextFreeVersion(exitvar.var, null);
-//                phantomvar = new VarVersionPair(exitvar.var, newversion);
-//
-//                VarVersionNode exitnode = ssuversions.nodes.getWithKey(exitvar);
-//                VarVersionNode phantomnode = ssuversions.createNode(phantomvar);
-//                phantomnode.flags |= VarVersionNode.FLAG_PHANTOM_FINEXIT;
-//
-//                VarVersionEdge edge = new VarVersionEdge(VarVersionEdge.EDGE_PHANTOM, exitnode, phantomnode);
-//                exitnode.addSuccessor(edge);
-//                phantomnode.addPredecessor(edge);
-//
-//                mapPhantom.put(exitvar, phantomvar);
-//              }
-//
-//              // add phantom version
-//              newSet.add(phantomvar.version);
-//            }
-//          }
-//
-//          if (!mapPhantom.isEmpty()) {
-//            phantomexitnodes.put(predid, mapPhantom);
-//          }
-//        }
       }
     }
 
     return mapNew;
   }
 
+  private static SFormsFastMapDirect getDiff(SFormsFastMapDirect input, SFormsFastMapDirect output) {
+    if (input == null || output == null) {
+      return null;
+    }
+
+    SFormsFastMapDirect res = output.getCopy();
+
+    for (Map.Entry<Integer, FastSparseSet<Integer>> entry : input.entryList()) {
+      if (entry.getValue().isEmpty()) {
+        continue;
+      }
+      Integer first = entry.getValue().iterator().next();
+      if (output.containsKey(entry.getKey())) {
+        if (output.get(entry.getKey()).contains(first)) {
+          res.remove(entry.getKey());
+        }
+      }
+    }
+    return res;
+  }
+
+  private static void overrideMap(SFormsFastMapDirect base, SFormsFastMapDirect overrides) {
+    if (overrides == null) {
+      return;
+    }
+
+    for (Map.Entry<Integer, FastSparseSet<Integer>> entry : overrides.entryList()) {
+      base.put(entry.getKey(), entry.getValue());
+    }
+  }
 
   public static Statement getFirstProtectedRange(Statement stat) {
     while (true) {

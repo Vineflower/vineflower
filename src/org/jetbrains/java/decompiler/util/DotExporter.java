@@ -589,6 +589,10 @@ public class DotExporter {
           buffer.append("x" + (block.id)+" -> x"+(dest.getDestination().id)+ (type == DirectEdgeType.EXCEPTION ? "[style=dotted]" : "") + ";\r\n");
         }
       }
+
+      if (block.tryFinally != null) {
+        buffer.append("x" + (block.id)+" -> x"+(block.tryFinally.id) + "[color=blue];\r\n");
+      }
     }
 
     buffer.append("}");
