@@ -19,9 +19,11 @@ public class DirectGraph implements FlattenedGraph {
   public DirectNode first;
 
   // exit, [source, destination]
+  @Deprecated(forRemoval = true)
   public final HashMap<String, List<FinallyPathWrapper>> mapShortRangeFinallyPaths = new HashMap<>();
 
   // exit, [source, destination]
+  @Deprecated(forRemoval = true)
   public final HashMap<String, List<FinallyPathWrapper>> mapLongRangeFinallyPaths = new HashMap<>();
 
   // negative if branches (recorded for handling of && and ||)

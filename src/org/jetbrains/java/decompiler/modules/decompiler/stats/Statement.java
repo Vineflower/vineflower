@@ -178,6 +178,14 @@ public abstract class Statement implements IMatchable {
 
     if (setNodes.containsKey(first.id)) {
       first = stat;
+
+      if (stat instanceof CatchAllStatement) {
+        for (StatEdge statEdge : this.getLabelEdges().toArray(StatEdge[]::new)) {
+          if (statEdge.getType() == StatEdge.TYPE_FINALLYEXIT) {
+            statEdge.changeClosure(stat);
+          }
+        }
+      }
     }
 
     // exception edges

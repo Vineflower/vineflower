@@ -5,6 +5,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectNode;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectNodeType;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionNode;
@@ -126,7 +127,7 @@ public final class ValidationHelper {
       }
     }
 
-    switch (edge.getType()){
+    switch (edge.getType()) {
       case StatEdge.TYPE_REGULAR: {
         if (edge.closure != null) {
           // throw new IllegalStateException("Edge with closure, but it's a regular edge: " + edge);
@@ -177,6 +178,22 @@ public final class ValidationHelper {
 
         break;
       }
+      case StatEdge.TYPE_FINALLYEXIT: {
+        if (edge.closure == null) {
+          throw new IllegalStateException("Finally exit edge with finally exit type, but no closure: " + edge);
+        }
+
+        if (!(edge.closure instanceof CatchAllStatement)) {
+//          if (edge.closure instanceof SequenceStatement) {
+//            SequenceStatement seq = (SequenceStatement) edge.closure;
+//            if (!(seq.getStats().get(0) instanceof CatchAllStatement)) {
+//              // throw new IllegalStateException("Finally exit edge with closure not pointing to a catch all: " + edge);
+//            }
+//          } else {
+//            throw new IllegalStateException("Finally exit edge with closure not pointing to a catch all: " + edge);
+//          }
+        }
+      }
     }
   }
 
@@ -187,8 +204,10 @@ public final class ValidationHelper {
     }
 
     switch (stat.type) {
-      case IF: validateIfStatement((IfStatement) stat); break;
-      case TRY_CATCH: validateTrycatchStatement((CatchStatement) stat); break;
+      case IF: validateIfStatement((IfStatement) stat);
+        break;
+      case TRY_CATCH: validateTrycatchStatement((CatchStatement) stat);
+        break;
     }
   }
 
@@ -229,7 +248,7 @@ public final class ValidationHelper {
       if (ifStat.getElseEdge() != null) {
         throw new IllegalStateException("If statement with unexpected else edge: " + ifStat);
       }
-      if (ifStat.getSuccessorEdges(Statement.STATEDGE_DIRECT_ALL).isEmpty()){
+      if (ifStat.getSuccessorEdges(Statement.STATEDGE_DIRECT_ALL).isEmpty()) {
         throw new IllegalStateException("If statement with no else edge and no successors: " + ifStat);
       } else if (ifStat.getSuccessorEdges(Statement.STATEDGE_DIRECT_ALL).size() > 1) {
         throw new IllegalStateException("If statement with more than one successor: " + ifStat + " (successors: " + ifStat.getSuccessorEdges(Statement.STATEDGE_DIRECT_ALL) + ")");
@@ -272,12 +291,12 @@ public final class ValidationHelper {
       throw new IllegalStateException("IfElse statement else edge source is not first statement: " + ifStat + " (elseEdge: " + ifStat.getElseEdge() + ")");
     }
 
-    if (stats.size() > 3){
+    if (stats.size() > 3) {
       throw new IllegalStateException("If statement with more than 3 sub statements: " + ifStat);
     }
 
     for (Statement stat : stats) {
-      if ( stat != ifStat.getFirst() && stat != ifStat.getIfstat() && stat != ifStat.getElsestat() ) {
+      if (stat != ifStat.getFirst() && stat != ifStat.getIfstat() && stat != ifStat.getElsestat()) {
         throw new IllegalStateException("If statement contains unknown sub statement: " + ifStat + " (subStatement: " + stat + ")");
       }
     }
@@ -325,7 +344,12 @@ public final class ValidationHelper {
       }
 
       if (!inaccessibleNodes.isEmpty()) {
-        throw new IllegalStateException("Inaccessible direct graph nodes: " + inaccessibleNodes);
+        // FIXME: temp fix for FINALLY_END nodes
+        for (DirectNode inaccessibleNode : inaccessibleNodes) {
+          if (inaccessibleNode.type != DirectNodeType.FINALLY_END) {
+            throw new IllegalStateException("Inaccessible direct graph nodes: " + inaccessibleNodes);
+          }
+        }
       }
     } catch (Throwable e) {
       DotExporter.errorToDotFile(graph, root.mt, "erroring_dgraph");
@@ -344,7 +368,7 @@ public final class ValidationHelper {
           for (Exprent exprent : node.exprents) {
             for (Exprent sub : exprent.getAllExprents(true, true)) {
               if (sub instanceof VarExprent) {
-                VarExprent var = (VarExprent)sub;
+                VarExprent var = (VarExprent) sub;
                 if (var.getVersion() != 0) {
                   throw new IllegalStateException("Var version is not zero: " + var.getIndex() + "_" + var.getVersion());
                 }
@@ -375,7 +399,7 @@ public final class ValidationHelper {
     }
 
     if (exit.getExitType() == ExitExprent.Type.RETURN) {
-      if (exit.getRetType().equals(VarType.VARTYPE_VOID)){
+      if (exit.getRetType().equals(VarType.VARTYPE_VOID)) {
         if (exit.getValue() != null) {
           throw new IllegalStateException("Void return with value: " + exit);
         }
@@ -398,7 +422,8 @@ public final class ValidationHelper {
     }
 
     switch (exprent.type) {
-      case EXIT: validateExitExprent((ExitExprent)exprent); break;
+      case EXIT: validateExitExprent((ExitExprent) exprent);
+        break;
       default: {
         for (Exprent subExprents : exprent.getAllExprents()) {
           validateExprent(subExprents);

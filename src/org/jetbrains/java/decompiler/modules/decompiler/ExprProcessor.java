@@ -106,18 +106,18 @@ public class ExprProcessor implements CodeConstants {
 
     // collect finally entry points
     Set<String> setFinallyShortRangeEntryPoints = new HashSet<>();
-    for (List<FinallyPathWrapper> lst : dgraph.mapShortRangeFinallyPaths.values()) {
-      for (FinallyPathWrapper finwrap : lst) {
-        setFinallyShortRangeEntryPoints.add(finwrap.entry);
-      }
-    }
+//    for (List<FinallyPathWrapper> lst : dgraph.mapShortRangeFinallyPaths.values()) {
+//      for (FinallyPathWrapper finwrap : lst) {
+//        setFinallyShortRangeEntryPoints.add(finwrap.entry);
+//      }
+//    }
 
     Set<String> setFinallyLongRangeEntryPaths = new HashSet<>();
-    for (List<FinallyPathWrapper> lst : dgraph.mapLongRangeFinallyPaths.values()) {
-      for (FinallyPathWrapper finwrap : lst) {
-        setFinallyLongRangeEntryPaths.add(finwrap.source + "##" + finwrap.entry);
-      }
-    }
+//    for (List<FinallyPathWrapper> lst : dgraph.mapLongRangeFinallyPaths.values()) {
+//      for (FinallyPathWrapper finwrap : lst) {
+//        setFinallyLongRangeEntryPaths.add(finwrap.source + "##" + finwrap.entry);
+//      }
+//    }
 
     Map<String, VarExprent> mapCatch = new HashMap<>();
     collectCatchVars(root, flatthelper, mapCatch);
@@ -160,32 +160,31 @@ public class ExprProcessor implements CodeConstants {
       for (DirectNode nd : node.succs()) {
 
         boolean isSuccessor = true;
-        if (currentEntrypoint != null && dgraph.mapLongRangeFinallyPaths.containsKey(node.id)) {
-          isSuccessor = false;
-          for (FinallyPathWrapper finwraplong : dgraph.mapLongRangeFinallyPaths.get(node.id)) {
-            if (finwraplong.source.equals(currentEntrypoint) && finwraplong.destination.equals(nd.id)) {
-              isSuccessor = true;
-              break;
-            }
-          }
-        }
+//        if (currentEntrypoint != null && dgraph.mapLongRangeFinallyPaths.containsKey(node.id)) {
+//          isSuccessor = false;
+//          for (FinallyPathWrapper finwraplong : dgraph.mapLongRangeFinallyPaths.get(node.id)) {
+//            if (finwraplong.source.equals(currentEntrypoint) && finwraplong.destination.equals(nd.id)) {
+//              isSuccessor = true;
+//              break;
+//            }
+//          }
+//        }
 
         if (!seen.contains(nd) && isSuccessor) {
           Map<String, PrimitiveExprsList> mapSucc = mapData.computeIfAbsent(nd, k -> new HashMap<>());
           LinkedList<String> ndentrypoints = new LinkedList<>(entrypoints);
 
-          if (setFinallyLongRangeEntryPaths.contains(node.id + "##" + nd.id)) {
-            ndentrypoints.addLast(node.id);
-          }
-          else if (!setFinallyShortRangeEntryPoints.contains(nd.id) && dgraph.mapLongRangeFinallyPaths.containsKey(node.id)) {
-            ndentrypoints.removeLast(); // currentEntrypoint should
-            // not be null at this point
-          }
+//          if (setFinallyLongRangeEntryPaths.contains(node.id + "##" + nd.id)) {
+//            ndentrypoints.addLast(node.id);
+//          }
+//          else if (!setFinallyShortRangeEntryPoints.contains(nd.id) && dgraph.mapLongRangeFinallyPaths.containsKey(node.id)) {
+//            ndentrypoints.removeLast(); // currentEntrypoint should
+//            // not be null at this point
+//          }
 
           // handling of entry point loops
           int succ_entry_index = ndentrypoints.indexOf(nd.id);
-          if (succ_entry_index >=
-              0) { // we are in a loop (e.g. continue in a finally block), drop all entry points in the list beginning with succ_entry_index
+          if (succ_entry_index >= 0) { // we are in a loop (e.g. continue in a finally block), drop all entry points in the list beginning with succ_entry_index
             for (int elements_to_remove = ndentrypoints.size() - succ_entry_index; elements_to_remove > 0; elements_to_remove--) {
               ndentrypoints.removeLast();
             }
