@@ -14,12 +14,8 @@ import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.rels.ClassWrapper;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
-import org.jetbrains.java.decompiler.modules.decompiler.SwitchHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.BasicBlockStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarTypeProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.modules.renamer.PoolInterceptor;
@@ -51,6 +47,9 @@ public class KotlinWriter implements StatementWriter {
     "MethodProcessor.codeToJava",
     "KotlinWriter.writeMethod"
   ));
+  private static final String NOT_NULL_ANN_NAME = "org/jetbrains/annotations/NotNull";
+  private static final String NULLABLE_ANN_NAME = "org/jetbrains/annotations/Nullable";
+  
   private final PoolInterceptor interceptor;
   private final IFabricJavadocProvider javadocProvider;
 
@@ -748,7 +747,7 @@ public class KotlinWriter implements StatementWriter {
             }
             
             // @PAnn vararg? pName: pTy
-            appendParameterAnnotations(buffer, mt, paramCount);
+            boolean nullable = processParameterAnnotations(buffer, mt, paramCount);
   
             boolean isVarArg = i == lastVisibleParameterIndex && mt.hasModifier(CodeConstants.ACC_VARARGS) && parameterType.arrayDim > 0;
             if (isVarArg) {
@@ -790,6 +789,9 @@ public class KotlinWriter implements StatementWriter {
               typeName = ExprProcessor.getCastTypeName(VarType.VARTYPE_OBJECT);
             }
             buffer.append(KTypes.mapJavaTypeToKotlin(typeName));
+            if (nullable) {
+              buffer.append("?");
+            }
 
             paramCount++;
           }
@@ -808,6 +810,9 @@ public class KotlinWriter implements StatementWriter {
         if (!init && !retType.isSuperset(VarType.VARTYPE_VOID)) {
           buffer.append(": ");
           buffer.append(KTypes.mapJavaTypeToKotlin(ExprProcessor.getCastTypeName(retType)));
+          if (isNullable(mt)) {
+            buffer.append("?");
+          }
           buffer.append(' ');
         }
 
@@ -1206,7 +1211,9 @@ public class KotlinWriter implements StatementWriter {
       StructAnnotationAttribute attribute = (StructAnnotationAttribute)mb.getAttribute(key);
       if (attribute != null) {
         for (AnnotationExprent annotation : attribute.getAnnotations()) {
-          if (annotation.getClassName().equals("kotlin/Metadata")) {
+          if (annotation.getClassName().equals("kotlin/Metadata")
+            || annotation.getClassName().equals(NOT_NULL_ANN_NAME)
+            || annotation.getClassName().equals(NULLABLE_ANN_NAME)) {
             continue;
           }
 
@@ -1224,6 +1231,16 @@ public class KotlinWriter implements StatementWriter {
     }
 
     appendTypeAnnotations(buffer, indent, mb, targetType, -1, filter);
+  }
+  
+  static boolean isNullable(StructMember mb){
+    for (StructGeneralAttribute.Key<?> key : ANNOTATION_ATTRIBUTES){
+      StructAnnotationAttribute attribute = (StructAnnotationAttribute)mb.getAttribute(key);
+      if (attribute != null) {
+        return attribute.getAnnotations().stream().anyMatch(annotation -> annotation.getClassName().equals(NULLABLE_ANN_NAME));
+      }
+    }
+    return false;
   }
 
   // Returns true if a method with the given name and descriptor matches in the inheritance tree of the superclass.
@@ -1272,8 +1289,9 @@ public class KotlinWriter implements StatementWriter {
     return false;
   }
 
-  private static void appendParameterAnnotations(TextBuffer buffer, StructMethod mt, int param) {
+  private static boolean processParameterAnnotations(TextBuffer buffer, StructMethod mt, int param) {
     Set<String> filter = new HashSet<>();
+    boolean ret = false;
 
     for (StructGeneralAttribute.Key<?> key : PARAMETER_ANNOTATION_ATTRIBUTES) {
       StructAnnotationParameterAttribute attribute = (StructAnnotationParameterAttribute)mt.getAttribute(key);
@@ -1281,6 +1299,12 @@ public class KotlinWriter implements StatementWriter {
         List<List<AnnotationExprent>> annotations = attribute.getParamAnnotations();
         if (param < annotations.size()) {
           for (AnnotationExprent annotation : annotations.get(param)) {
+            if (annotation.getClassName().equals(NOT_NULL_ANN_NAME)) {
+              continue;
+            } else if (annotation.getClassName().equals(NULLABLE_ANN_NAME)) {
+              ret = true;
+              continue;
+            }
             String text = annotation.toJava(-1).convertToStringAndAllowDataDiscard();
             filter.add(text);
             buffer.append(text).append(' ');
@@ -1290,6 +1314,7 @@ public class KotlinWriter implements StatementWriter {
     }
 
     appendTypeAnnotations(buffer, -1, mt, TypeAnnotation.METHOD_PARAMETER, param, filter);
+    return ret;
   }
 
   private static void appendTypeAnnotations(TextBuffer buffer, int indent, StructMember mb, int targetType, int index, Set<String> filter) {
