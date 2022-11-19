@@ -827,7 +827,7 @@ public abstract class SFormsConstructor implements SFormsCreator {
           map = new SFormsFastMapDirect();
           this.setCurrentVar(map, varindex, version);
 
-          this.extraVarVersions.put(dgraph.nodes.getWithKey(flatthelper.getMapDestinationNodes().get(stat.getStats().get(i).id)[0]).id, map);
+          this.extraVarVersions.put(flatthelper.getDirectNode(stat.getStats().get(i)).id, map);
           if (this.trackSsuVersions) {
             this.ssuversions.createNode(new VarVersionPair(varindex, version));
           }

@@ -14,19 +14,15 @@ import java.util.*;
 
 
 public class FlattenStatementsHelper implements GraphFlattener {
-  // statement.id, node.id(direct), node.id(continue)
-  private final Map<Integer, String[]> mapDestinationNodes = new HashMap<>();
+  // statement to direct node map
+  private final Map<Statement, DirectNode> mapRegularDestinationNodes = new HashMap<>();
+  private final Map<Statement, DirectNode> mapContinueDestinationNodes = new HashMap<>();
 
-  // Edge.Type.ordinal => statement to direct node map
-  @SuppressWarnings("unchecked")
-  private final Map<Statement, DirectNode>[] mapDestinationNodes2 = new Map[]{new HashMap<>(), new HashMap<>(), new HashMap<>()};
+  // Lazy edges
+  private final List<Edge> indirectEdges = new ArrayList<>();
 
-  // node.id(source), statement.id(destination), edge type
-  @Deprecated(forRemoval = true)
-  private final List<Edge> continueEdges = new ArrayList<>();
-
-  // positive if branches
-  private final Map<String, Integer> mapPosIfBranch = new HashMap<>();
+  // Positive if branches
+  private final Map<DirectNode, Statement> mapPosIfBranch = new HashMap<>();
 
   private final ListStack<List<DirectNode>> tryNodesStack = new ListStack<>();
   private final ListStack<DirectNode> finallyNodesStack = new ListStack<>();
@@ -41,7 +37,7 @@ public class FlattenStatementsHelper implements GraphFlattener {
 
     this.graph = new DirectGraph();
 
-    this.graph.first = this.flattenStatement();
+    this.graph.first = this.flattenStatement(root);
 
     // dummy exit node
     Statement dummyexit = root.getDummyExit();
@@ -52,8 +48,6 @@ public class FlattenStatementsHelper implements GraphFlattener {
 
     this.graph.sortReversePostOrder();
 
-    this.graph.mapDestinationNodes.putAll(this.mapDestinationNodes);
-
     return this.graph;
   }
 
@@ -62,16 +56,12 @@ public class FlattenStatementsHelper implements GraphFlattener {
   }
 
   private void addDestination(Statement stat, DirectNode node, Edge.Type type) {
-    this.mapDestinationNodes2[type.ordinal()].put(stat, node);
     switch (type) {
       case REGULAR:
-        this.mapDestinationNodes.put(stat.id, new String[]{node.id, null});
+        this.mapRegularDestinationNodes.put(stat, node);
         break;
       case CONTINUE:
-        this.mapDestinationNodes.get(stat.id)[1] = node.id;
-        break;
-      case ALTERNATIVE:
-        this.mapDestinationNodes.put(-stat.id, new String[]{node.id, null});
+        this.mapContinueDestinationNodes.put(stat, node);
         break;
       default:
         throw new RuntimeException("Unexpected edge type: " + type);
@@ -87,6 +77,14 @@ public class FlattenStatementsHelper implements GraphFlattener {
     return directNode;
   }
 
+  private DirectNode createDirectNode(Statement stat, List<Exprent> exprents) {
+    DirectNode node = this.createDirectNode(stat);
+    if (exprents != null) {
+      node.exprents = exprents;
+    }
+    return node;
+  }
+
   private DirectNode createDirectNode(Statement stat, DirectNodeType type) {
     DirectNode node = DirectNode.forStat(type, stat, this.finallyNodesStack.isEmpty() ? null : this.finallyNodesStack.peek());
     this.graph.nodes.addWithKey(node, node.id);
@@ -99,696 +97,554 @@ public class FlattenStatementsHelper implements GraphFlattener {
     return node;
   }
 
-  private DirectNode flattenStatement() {
-    return this.flattenStatement(this.root);
+  private DirectNode createDirectNode(Statement stat, DirectNodeType type, List<Exprent> exprents) {
+    DirectNode node = this.createDirectNode(stat, type);
+    if (exprents != null) {
+      node.exprents = exprents;
+    }
+    return node;
   }
 
   private DirectNode flattenStatement(Statement stat) {
-    List<StatEdge> lstSuccEdges = new ArrayList<>();
-    DirectNode sourceNode = null;
-    DirectNode destinationNode = null;
-
-    {
-      switch (stat.type) {
-        case BASIC_BLOCK: {
-          DirectNode node = this.createDirectNode(stat);
-          this.addDestination(stat, node);
-          destinationNode = node;
-          if (stat.getExprents() != null) {
-            node.exprents = stat.getExprents();
-          }
-
-          lstSuccEdges.addAll(stat.getSuccessorEdges(Statement.STATEDGE_DIRECT_ALL));
-          sourceNode = node;
-
-          // 'if' statement: record positive branch
-          if (stat.getLastBasicType() == Statement.LastBasicType.IF) {
-            if (lstSuccEdges.isEmpty()) {
-              throw new IllegalStateException("Empty successor list for node " + sourceNode.id);
-            }
-
-            this.mapPosIfBranch.put(sourceNode.id, lstSuccEdges.get(0).getDestination().id);
-          }
-
-          List<StatEdge> basicPreds = stat.getAllPredecessorEdges();
-
-          // TODO: sourcenode instead of stat.id?
-          if (basicPreds.size() == 1) {
-            StatEdge predEdge = basicPreds.get(0);
-
-            // Look if this basic block is the successor of a sequence,
-            // and connect the sequence to the block if so
-            // TODO: should this be done in the sequence handling instead?
-            // TODO: what is this for?
-            // TODO: why is it adding ad edge from the start of the sequence to the block?
-            // TODO: why is it using the basic head id, instead of the sequence id?
-            // TODO: disabling this seems to not cause any validation errors, or changes in output,
-            //       even though it is being called
-
-            if (predEdge.getType() == StatEdge.TYPE_REGULAR) {
-              if (predEdge.getSource() instanceof SequenceStatement) {
-                this.addEdgeIfPossible(predEdge.getSource().getBasichead().id, stat);
-              }
-            }
-          }
-          break;
+    switch (stat.type) {
+      case BASIC_BLOCK: {
+        DirectNode node = this.createDirectNode(stat);
+        this.addDestination(stat, node);
+        if (stat.getExprents() != null) {
+          node.exprents = stat.getExprents();
         }
-        case CATCH_ALL:
-        case TRY_CATCH: { // TODO: should these 2 be merged into 1 class?
-          DirectNode node = this.createDirectNode(stat, DirectNodeType.TRY);
-          this.addDestination(stat, node);
-          destinationNode = node;
 
-          boolean isFinally = stat instanceof CatchAllStatement && ((CatchAllStatement) stat).isFinally();
-
-          VBStyleCollection<Statement, Integer> stats = stat.getStats();
-
-          int endCatchIndex = isFinally ? stats.size() - 1 : stats.size();
-
-          if (stat instanceof CatchStatement) {
-            CatchStatement catchStat = (CatchStatement) stat;
-            List<Exprent> resources = catchStat.getResources();
-            if (!resources.isEmpty()) {
-              node.exprents = resources;
-            }
+        // 'if' statement: record positive branch
+        if (stat.getLastBasicType() == Statement.LastBasicType.IF) {
+          if (!stat.hasAnyDirectSuccessor()) {
+            throw new IllegalStateException("Empty successor list for node " + node.id);
           }
 
-
-          if (isFinally) {
-            this.finallyNodesStack.push(this.createDirectNode(stat, DirectNodeType.FINALLY));
-          }
-
-          List<DirectNode> tryNodes = new ArrayList<>();
-          this.tryNodesStack.add(tryNodes);
-
-          DirectNode tryBlock = this.flattenStatement(stat.getFirst());
-          node.addSuccessor(DirectEdge.of(node, tryBlock));
-
-          ValidationHelper.assertTrue(tryNodes == this.tryNodesStack.pop(), "tryNodesStack is broken");
-          if (!this.tryNodesStack.isEmpty()) {
-            this.tryNodesStack.peek().addAll(tryNodes);
-          }
-
-          DirectNode combinedCatchNode = this.createDirectNode(stat, DirectNodeType.COMBINED_CATCH);
-
-          for (DirectNode innerTryNode : tryNodes) {
-            innerTryNode.addSuccessor(DirectEdge.exception(innerTryNode, combinedCatchNode));
-          }
-
-          // TODO: should this be an exception edge for catch blocks?
-          node.addSuccessor(DirectEdge.of(node, combinedCatchNode));
-
-          // catch blocks
-          for (int i = 1; i < endCatchIndex; i++) {
-            Statement st = stats.get(i);
-
-            // TODO: add catch variable to this node
-            DirectNode catchNode = this.createDirectNode(st, DirectNodeType.CATCH);
-            DirectNode handlerNode = this.flattenStatement(st);
-
-            combinedCatchNode.addSuccessor(DirectEdge.of(combinedCatchNode, catchNode));
-            catchNode.addSuccessor(DirectEdge.of(catchNode, handlerNode));
-          }
-
-          if (isFinally) {
-
-            Statement st = stats.get(endCatchIndex);
-            DirectNode finallyNode = this.finallyNodesStack.pop();
-            ValidationHelper.assertTrue(
-              finallyNode.statement == stat && finallyNode.type == DirectNodeType.FINALLY,
-              "stackFinally is broken");
-            combinedCatchNode.addSuccessor(DirectEdge.of(combinedCatchNode, finallyNode));
-
-            this.finallyNodesStack.push(this.createDirectNode(stat, DirectNodeType.FINALLY_END));
-            DirectNode finallyBlockNode = this.flattenStatement(st);
-            finallyNode.addSuccessor(DirectEdge.of(finallyNode, finallyBlockNode));
-
-            DirectNode finallyEndNode = this.finallyNodesStack.pop();
-            ValidationHelper.assertTrue(
-              finallyEndNode.statement == stat && finallyEndNode.type == DirectNodeType.FINALLY_END,
-              "stackFinally is broken");
-
-//            sourceNode = finallyEndNode;
-//            lstSuccEdges = stat.getSuccessorEdges(Statement.STATEDGE_DIRECT_ALL);
-          }
-
-          break;
+          this.mapPosIfBranch.put(node, stat.getFirstDirectSuccessor().getDestination());
         }
-        case DO: {
-          if (!stat.hasBasicSuccEdge()) { // infinite loop TODO: why no just check the loop type?
-            if (stat.hasSuccessor(StatEdge.TYPE_REGULAR)) {
-              Statement dest = stat.getSuccessorEdges(StatEdge.TYPE_REGULAR).get(0).getDestination();
 
-              if (dest.getAllPredecessorEdges().size() == 1) {
-                // If the successor only has one backedge, it is the current loop
-                List<StatEdge> prededges = stat.getPredecessorEdges(StatEdge.TYPE_REGULAR);
+        List<StatEdge> basicPreds = stat.getAllPredecessorEdges();
 
-                if (!prededges.isEmpty()) {
-                  StatEdge prededge = prededges.get(0);
+        // TODO: sourcenode instead of stat.id?
+        if (basicPreds.size() == 1) {
+          StatEdge predEdge = basicPreds.get(0);
 
-                  // Find destinations of loop's predecessor
+          // Look if this basic block is the successor of a sequence,
+          // and connect the sequence to the block if so
+          // TODO: should this be done in the sequence handling instead?
+          // TODO: what is this for?
+          // TODO: why is it adding ad edge from the start of the sequence to the block?
+          // TODO: why is it using the basic head id, instead of the sequence id?
+          // TODO: disabling this seems to not cause any validation errors, or changes in output,
+          //       even though it is being called
 
-                  this.addEdgeIfPossible(prededge.getSource().id, dest);
-
-                  // Note: It seems that for infinite loops, the loop's predecessor gets an extra edge
-                  // to the loop's "destination" (usually the place the loop breaks to).
-                  // TODO: This feels wrong. EDIT: seems to try to "fix"
-                  //       a finally processing bug, consider this a temporary
-                  //       bandaid
-                }
-              }
+          if (predEdge.getType() == StatEdge.TYPE_REGULAR) {
+            if (predEdge.getSource() instanceof SequenceStatement) {
+              this.addEdgeIfPossible(predEdge.getSource().getBasichead(), stat);
             }
           }
-
-          DirectNode body = this.flattenStatement(stat.getFirst());
-
-          DoStatement dostat = (DoStatement) stat;
-          DoStatement.Type looptype = dostat.getLooptype();
-
-          if (looptype == DoStatement.Type.INFINITE) {
-            this.addDestination(stat, body);
-            destinationNode = body;
-            this.addDestination(stat, body, Edge.Type.CONTINUE);
-            break;
-          }
-
-          lstSuccEdges.add(stat.getFirstSuccessor());  // exactly one edge
-
-          switch (looptype) {
-            case WHILE:
-            case DO_WHILE: {
-              DirectNode conditionNode = this.createDirectNode(stat, DirectNodeType.CONDITION);
-              conditionNode.exprents = dostat.getConditionExprentList();
-
-              conditionNode.addSuccessor(DirectEdge.of(conditionNode, body));
-
-              if (looptype == DoStatement.Type.WHILE) {
-                this.addDestination(stat, conditionNode); // for a while, the start is the condition
-                destinationNode = conditionNode;
-                this.addDestination(stat, conditionNode, Edge.Type.CONTINUE);
-              } else {
-                this.addDestination(stat, body); // for a do-while, the start is the body
-                destinationNode = body;
-                this.addDestination(stat, conditionNode, Edge.Type.CONTINUE);
-
-                boolean found = false;
-                for (Edge edge : this.continueEdges) {
-                  if (edge.statid.equals(stat.id) && edge.edgetype == StatEdge.TYPE_CONTINUE) {
-                    found = true;
-                    break;
-                  }
-                }
-                if (!found) {
-                  // if no continue edge was found, add one from the body
-                  // TODO: isn't there a better way? also, why is this only an issue for some of the while types?
-
-                  // listEdge target: known (node)
-                  this.continueEdges.add(new Edge(body, stat, Edge.Type.CONTINUE));
-                }
-              }
-              sourceNode = conditionNode;
-              break;
-            }
-            case FOR: {
-              DirectNode initNode = this.createDirectNode(stat, DirectNodeType.INIT);
-              if (dostat.getInitExprent() != null) {
-                initNode.exprents = dostat.getInitExprentList();
-              }
-
-              DirectNode conditionNode = this.createDirectNode(stat, DirectNodeType.CONDITION);
-              conditionNode.exprents = dostat.getConditionExprentList();
-
-              DirectNode incrementNode = this.createDirectNode(stat, DirectNodeType.INCREMENT);
-              incrementNode.exprents = dostat.getIncExprentList();
-
-              this.addDestination(stat, initNode); // for a for, the start is the init
-              destinationNode = initNode;
-              this.addDestination(stat, incrementNode, Edge.Type.CONTINUE); // target for all continue edges
-
-              conditionNode.addSuccessor(DirectEdge.of(conditionNode, body));
-              initNode.addSuccessor(DirectEdge.of(initNode, conditionNode));
-              incrementNode.addSuccessor(DirectEdge.of(incrementNode, conditionNode));
-
-              boolean found = false;
-              for (Edge edge : this.continueEdges) {
-                if (edge.statid.equals(stat.id) && edge.edgetype == StatEdge.TYPE_CONTINUE) {
-                  found = true;
-                  break;
-                }
-              }
-
-              if (!found) {
-                // if no continue edge was found, add one from the body
-                // TODO: isn't there a better way?
-
-                // listEdge target: known (incNode)
-                this.continueEdges.add(new Edge(body, stat, Edge.Type.CONTINUE));
-              }
-
-              sourceNode = conditionNode;
-              break;
-            }
-            case FOR_EACH: {
-              // for (init : inc)
-              //
-              // is essentially
-              //
-              // for (inc; ; init)
-              // TODO: that ordering does not make sense
-
-              DirectNode inc = this.createDirectNode(stat, DirectNodeType.INCREMENT);
-              inc.exprents = dostat.getIncExprentList();
-
-              // Init is foreach variable definition
-              DirectNode init = this.createDirectNode(stat, DirectNodeType.FOREACH_VARDEF);
-              init.exprents = dostat.getInitExprentList();
-
-              this.addDestination(stat, inc);
-              destinationNode = inc;
-              this.addDestination(stat, init, Edge.Type.CONTINUE); // target for all continue edges
-
-              init.addSuccessor(DirectEdge.of(init, body));
-              inc.addSuccessor(DirectEdge.of(inc, init));
-
-              boolean found = false;
-              for (Edge edge : this.continueEdges) {
-                if (edge.statid.equals(stat.id) && edge.edgetype == StatEdge.TYPE_CONTINUE) {
-                  found = true;
-                  break;
-                }
-              }
-
-              if (!found) {
-                // if no continue edge was found, add one from the body
-                // TODO: isn't there a better way?
-
-                // listEdge target: known (init)
-                this.continueEdges.add(new Edge(body, stat, Edge.Type.CONTINUE));
-              }
-
-              sourceNode = init;
-              break;
-            }
-          }
-          break;
         }
-        case SYNCHRONIZED:
-        case SWITCH:
-        case IF: {
-          int statsize = stat.getStats().size();
-          if (stat instanceof SynchronizedStatement) {
-            statsize = 2;  // exclude the handler if synchronized
+
+        this.addEdges(node, stat.getSuccessorEdges(Statement.STATEDGE_DIRECT_ALL));
+        return node;
+      }
+      case CATCH_ALL:
+      case TRY_CATCH: { // TODO: should these 2 paths be split?
+        DirectNode node = this.createDirectNode(stat, DirectNodeType.TRY);
+        this.addDestination(stat, node);
+
+        boolean isFinally = stat instanceof CatchAllStatement && ((CatchAllStatement) stat).isFinally();
+
+        VBStyleCollection<Statement, Integer> stats = stat.getStats();
+
+        int endCatchIndex = isFinally ? stats.size() - 1 : stats.size();
+
+        if (stat instanceof CatchStatement) {
+          CatchStatement catchStat = (CatchStatement) stat;
+          List<Exprent> resources = catchStat.getResources();
+          if (!resources.isEmpty()) {
+            node.exprents = resources;
           }
-
-          List<Exprent> tailexprlst;
-
-          switch (stat.type) {
-            case SYNCHRONIZED:
-              tailexprlst = ((SynchronizedStatement) stat).getHeadexprentList();
-              break;
-            case SWITCH:
-              tailexprlst = ((SwitchStatement) stat).getHeadexprentList();
-              break;
-            case IF:
-              tailexprlst = ((IfStatement) stat).getHeadexprentList();
-              break;
-            default:
-              throw new RuntimeException("Unexpected statement type: " + stat.type);
-          }
-
-          Statement first = stat.getFirst();
-          DirectNode firstNode = this.createDirectNode(first);
-          DirectNode outNode = firstNode;
-          this.addDestination(first, firstNode);
-          if (first.getExprents() != null) {
-            firstNode.exprents = first.getExprents();
-          }
-
-          List<StatEdge> edges = first.getSuccessorEdges(Statement.STATEDGE_DIRECT_ALL);
-
-          if (tailexprlst != null && tailexprlst.get(0) != null) {
-            DirectNode tail = this.createDirectNode(stat, DirectNodeType.TAIL);
-            tail.exprents = tailexprlst;
-
-            firstNode.addSuccessor(DirectEdge.of(firstNode, tail));
-
-            outNode = tail;
-          }
-
-          // 'if' statement: record positive branch
-          if (stat instanceof IfStatement) {
-            this.mapPosIfBranch.put(outNode.id, ((IfStatement) stat).getIfEdge().getDestination().id);
-          }
-
-          {
-            List<StatEdge> basicPreds = stat.getAllPredecessorEdges();
-
-            // TODO: sourcenode instead of stat.id?
-            if (basicPreds.size() == 1) {
-              StatEdge predEdge = basicPreds.get(0);
-
-              // Look if this basic block is the successor of a sequence,
-              // and connect the sequence to the block if so
-              // TODO: should this be done in the sequence handling instead?
-              // TODO: what is this for?
-              // TODO: why is it adding ad edge from the start of the sequence to the block?
-              // TODO: why is it using the basic head id, instead of the sequence id?
-              // TODO: currently never called
-
-              if (predEdge.getType() == StatEdge.TYPE_REGULAR) {
-                if (predEdge.getSource() instanceof SequenceStatement) {
-                  this.addEdgeIfPossible(predEdge.getSource().getBasichead().id, stat);
-                }
-              }
-            }
-          }
-
-
-          for (int i = 1; i < statsize; i++) {
-            this.flattenStatement(stat.getStats().get(i));
-          }
-
-          this.addDestination(stat, firstNode);
-          destinationNode = firstNode;
-
-          // Try to intercept the edges leaving the switch head and replace with relevant case nodes
-          if (stat instanceof SwitchStatement) {
-            SwitchStatement switchSt = (SwitchStatement) stat;
-
-            List<List<StatEdge>> caseEdges = switchSt.getCaseEdges();
-            List<List<Exprent>> caseValues = switchSt.getCaseValues();
-            List<Statement> caseStatements = switchSt.getCaseStatements();
-
-            if (caseEdges.size() != caseValues.size()) {
-              if (caseEdges.size() + 1 != caseValues.size() || caseValues.get(caseValues.size() - 1).size() != 1 || caseValues.get(caseValues.size() - 1).get(0) != null) {
-                throw new RuntimeException("Case edges and case values do not match");
-              }
-            }
-
-            for (int i = 0; i < caseEdges.size(); i++) {
-
-              List<Exprent> values = caseValues.get(i);
-              List<StatEdge> thisCaseEdges = caseEdges.get(i);
-              Statement thisCaseStatement = caseStatements.get(i);
-
-              // Default case val can be null
-              List<Exprent> finalVals = null;
-              if (values != null) {
-                finalVals = new ArrayList<>();
-                for (Exprent value : values) {
-                  if (value != null) {
-                    finalVals.add(value);
-                  }
-                }
-              }
-
-              // Build node out of the case exprents
-              DirectNode caseNode = this.createDirectNode(thisCaseStatement, DirectNodeType.CASE);
-              caseNode.exprents = finalVals;
-
-              outNode.addSuccessor(DirectEdge.of(outNode, caseNode));
-
-              this.handleFinally(thisCaseEdges, caseNode);
-            }
-
-            if (caseEdges.size() < caseValues.size()) {
-              // default case
-              List<StatEdge> thisCaseEdges = new ArrayList<>(1);
-              thisCaseEdges.add(switchSt.getDefaultEdge());
-
-              this.handleFinally(thisCaseEdges, outNode);
-            }
-          } else {
-            // add edges
-            this.handleFinally(edges, outNode);
-          }
-
-          if (stat instanceof IfStatement && ((IfStatement) stat).iftype == IfStatement.IFTYPE_IF && !stat.getAllSuccessorEdges().isEmpty()) {
-            lstSuccEdges.add(stat.getSuccessorEdges(Statement.STATEDGE_DIRECT_ALL).get(0));  // exactly one edge
-            sourceNode = outNode;
-          }
-
-          // Adds an edge from the last if statement to the current if statement, if the current if statement's head statement has no predecessor
-          // This was made to mask a failure in EliminateLoopsHelper and isn't used currently (over the current test set) but could theoretically still happen!
-          // TODO: what?
-          // TODO: use java code gen to generate a test for this?
-          if (stat instanceof IfStatement && ((IfStatement) stat).iftype == IfStatement.IFTYPE_IF && !stat.getPredecessorEdges(StatEdge.TYPE_REGULAR).isEmpty()) {
-            if (stat.getFirst().getPredecessorEdges(StatEdge.TYPE_REGULAR).isEmpty()) {
-              StatEdge edge = stat.getPredecessorEdges(StatEdge.TYPE_REGULAR).get(0);
-
-              Statement source = edge.getSource();
-              if (source instanceof IfStatement && ((IfStatement) source).iftype == IfStatement.IFTYPE_IF && !source.getAllSuccessorEdges().isEmpty()) {
-                DirectNode srcnd = this.graph.nodes.getWithKey(source.getFirst().id + "_tail");
-
-                if (srcnd != null) {
-                  // old ifstat->head
-                  Edge newEdge = new Edge(srcnd, stat, edge.getType() == StatEdge.TYPE_CONTINUE ? Edge.Type.CONTINUE : Edge.Type.REGULAR);
-
-                  // Add if it doesn't exist already
-                  if (!this.continueEdges.contains(newEdge)) {
-                    this.continueEdges.add(newEdge);
-                  }
-                }
-              }
-            }
-          }
-          break;
         }
-        case SEQUENCE:
-        case ROOT: {
-          int statsize = stat.getStats().size();
 
-          DirectNode firstBlock = this.flattenStatement(stat.getFirst());
 
-          for (int i = 1; i < statsize; i++) {
-            this.flattenStatement(stat.getStats().get(i));
+        if (isFinally) {
+          this.finallyNodesStack.push(this.createDirectNode(stat, DirectNodeType.FINALLY));
+        }
+
+        List<DirectNode> tryNodes = new ArrayList<>();
+        this.tryNodesStack.add(tryNodes);
+
+        DirectNode tryBlock = this.flattenStatement(stat.getFirst());
+        node.addSuccessor(DirectEdge.of(node, tryBlock));
+
+        ValidationHelper.assertTrue(tryNodes == this.tryNodesStack.pop(), "tryNodesStack is broken");
+        if (!this.tryNodesStack.isEmpty()) {
+          this.tryNodesStack.peek().addAll(tryNodes);
+        }
+
+        DirectNode combinedCatchNode = this.createDirectNode(stat, DirectNodeType.COMBINED_CATCH);
+
+        for (DirectNode innerTryNode : tryNodes) {
+          innerTryNode.addSuccessor(DirectEdge.exception(innerTryNode, combinedCatchNode));
+        }
+
+        // TODO: should this be an exception edge for catch blocks?
+        node.addSuccessor(DirectEdge.of(node, combinedCatchNode));
+
+        // catch blocks
+        for (int i = 1; i < endCatchIndex; i++) {
+          Statement st = stats.get(i);
+
+          // TODO: add catch variable to this node
+          DirectNode catchNode = this.createDirectNode(st, DirectNodeType.CATCH);
+          DirectNode handlerNode = this.flattenStatement(st);
+
+          combinedCatchNode.addSuccessor(DirectEdge.of(combinedCatchNode, catchNode));
+          catchNode.addSuccessor(DirectEdge.of(catchNode, handlerNode));
+        }
+
+        if (isFinally) {
+
+          Statement st = stats.get(endCatchIndex);
+          DirectNode finallyNode = this.finallyNodesStack.pop();
+          ValidationHelper.assertTrue(
+            finallyNode.statement == stat && finallyNode.type == DirectNodeType.FINALLY,
+            "stackFinally is broken");
+          combinedCatchNode.addSuccessor(DirectEdge.of(combinedCatchNode, finallyNode));
+
+          this.finallyNodesStack.push(this.createDirectNode(stat, DirectNodeType.FINALLY_END));
+          DirectNode finallyBlockNode = this.flattenStatement(st);
+          finallyNode.addSuccessor(DirectEdge.of(finallyNode, finallyBlockNode));
+
+          DirectNode finallyEndNode = this.finallyNodesStack.pop();
+          ValidationHelper.assertTrue(
+            finallyEndNode.statement == stat && finallyEndNode.type == DirectNodeType.FINALLY_END,
+            "stackFinally is broken");
+        }
+
+        return node;
+      }
+      case DO: {
+        if (!stat.hasBasicSuccEdge()) { // infinite loop TODO: why no just check the loop type?
+          if (stat.hasSuccessor(StatEdge.TYPE_REGULAR)) {
+            Statement dest = stat.getSuccessorEdges(StatEdge.TYPE_REGULAR).get(0).getDestination();
+
+            if (dest.getAllPredecessorEdges().size() == 1) {
+              // If the successor only has one backedge, it is the current loop
+              List<StatEdge> prededges = stat.getPredecessorEdges(StatEdge.TYPE_REGULAR);
+
+              if (!prededges.isEmpty()) {
+                StatEdge prededge = prededges.get(0);
+
+                // Find destinations of loop's predecessor
+
+                this.addEdgeIfPossible(prededge.getSource(), dest);
+
+                // Note: It seems that for infinite loops, the loop's predecessor gets an extra edge
+                // to the loop's "destination" (usually the place the loop breaks to).
+                // TODO: This feels wrong. EDIT: seems to try to "fix"
+                //       a finally processing bug, consider this a temporary
+                //       bandaid
+              }
+            }
           }
+        }
 
-          this.addDestination(stat, firstBlock);
-          destinationNode = firstBlock;
+        DirectNode body = this.flattenStatement(stat.getFirst());
 
-          break;
+        DoStatement dostat = (DoStatement) stat;
+        DoStatement.Type looptype = dostat.getLooptype();
+
+        if (looptype == DoStatement.Type.INFINITE) {
+          this.addDestination(stat, body);
+          this.addDestination(stat, body, Edge.Type.CONTINUE);
+          return body;
+        }
+
+        switch (looptype) {
+          case WHILE: {
+            DirectNode conditionNode = this.createDirectNode(stat, DirectNodeType.CONDITION, dostat.getConditionExprentList());
+
+            conditionNode.addSuccessor(DirectEdge.of(conditionNode, body));
+
+            this.addDestination(stat, conditionNode); // for a while, the start is the condition
+            this.addDestination(stat, conditionNode, Edge.Type.CONTINUE); // for a while, continues go to the condition
+
+            this.addEdge(conditionNode, stat.getFirstSuccessor());
+            return conditionNode;
+          }
+          case DO_WHILE: {
+            DirectNode conditionNode = this.createDirectNode(stat, DirectNodeType.CONDITION, dostat.getConditionExprentList());
+
+            conditionNode.addSuccessor(DirectEdge.of(conditionNode, body));
+
+            this.addDestination(stat, body); // for a do-while, the start is the body
+            this.addDestination(stat, conditionNode, Edge.Type.CONTINUE); // for a do-while, continues go to the condition
+
+            this.handleLoopEnd(stat, body);
+
+            this.addEdge(conditionNode, stat.getFirstSuccessor());
+            return body;
+          }
+          case FOR: {
+            DirectNode initNode = this.createDirectNode(stat, DirectNodeType.INIT);
+            if (dostat.getInitExprent() != null) {
+              initNode.exprents = dostat.getInitExprentList();
+            }
+
+            DirectNode conditionNode = this.createDirectNode(stat, DirectNodeType.CONDITION, dostat.getConditionExprentList());
+            DirectNode incrementNode = this.createDirectNode(stat, DirectNodeType.INCREMENT, dostat.getIncExprentList());
+
+            this.addDestination(stat, initNode); // for a for, the start is the init
+            this.addDestination(stat, incrementNode, Edge.Type.CONTINUE); // target for all continue edges
+
+            conditionNode.addSuccessor(DirectEdge.of(conditionNode, body));
+            initNode.addSuccessor(DirectEdge.of(initNode, conditionNode));
+            incrementNode.addSuccessor(DirectEdge.of(incrementNode, conditionNode));
+
+            this.handleLoopEnd(stat, body);
+
+            this.addEdge(conditionNode, stat.getFirstSuccessor());
+            return initNode;
+          }
+          case FOR_EACH: {
+            // for (init : inc)
+            //
+            // is essentially
+            //
+            // for (inc; ; init)
+            // TODO: that ordering does not make sense
+
+            DirectNode inc = this.createDirectNode(stat, DirectNodeType.INCREMENT, dostat.getIncExprentList());
+
+            // Init is foreach variable definition
+            DirectNode init = this.createDirectNode(stat, DirectNodeType.FOREACH_VARDEF, dostat.getInitExprentList());
+
+            this.addDestination(stat, inc);
+            this.addDestination(stat, init, Edge.Type.CONTINUE); // target for all continue edges
+
+            init.addSuccessor(DirectEdge.of(init, body));
+            inc.addSuccessor(DirectEdge.of(inc, init));
+
+            this.handleLoopEnd(stat, body);
+
+            this.addEdge(init, stat.getFirstSuccessor());
+            return inc;
+          }
+          default: {
+            throw new RuntimeException("Unknown loop type: " + looptype);
+          }
         }
       }
-    }
+      case SYNCHRONIZED: {
+        List<Exprent> tailexprlst = ((SynchronizedStatement) stat).getHeadexprentList();
 
-    if (sourceNode != null) {
-      this.handleFinally(lstSuccEdges, sourceNode);
-    }
+        Statement first = stat.getFirst();
+        DirectNode firstNode = this.createDirectNode(first, first.getExprents());
+        this.addDestination(first, firstNode);
+        this.addDestination(stat, firstNode);
 
-    return destinationNode;
-  }
+        if (tailexprlst != null && tailexprlst.get(0) != null) {
+          DirectNode tail = this.createDirectNode(stat, DirectNodeType.TAIL, tailexprlst);
+          firstNode.addSuccessor(DirectEdge.of(firstNode, tail));
 
-  private void handleFinally(List<StatEdge> lstSuccEdges, DirectNode sourcenode) {
-    for (StatEdge edge : lstSuccEdges) {
-      int edgetype = edge.getType();
-      Statement destination = edge.getDestination();
-      this.saveEdge(sourcenode, destination, edgetype, edge.closure);
-    }
-  }
-
-
-  private void saveEdge(DirectNode sourcenode, Statement destination, int edgetype, Statement closure) {
-    if (closure instanceof CatchAllStatement && ((CatchAllStatement) closure).isFinally()) {
-      if (edgetype == StatEdge.TYPE_FINALLYEXIT) {
-        DirectNode dest = this.finallyNodesStack.peek();
-        if (dest.statement == closure) {
-          ValidationHelper.assertTrue(dest.type == DirectNodeType.FINALLY_END, "Finally destination mismatch");
-          sourcenode.addSuccessor(DirectEdge.of(sourcenode, dest));
+          // TODO: can synchronized have multiple successors?
+          this.addEdges(tail, first.getAllDirectSuccessorEdges());
         } else {
-          // FIXME: finally exits often point wrong
-          ValidationHelper.assertTrue(dest.type == DirectNodeType.FINALLY_END, "Finally destination mismatch");
-          sourcenode.addSuccessor(DirectEdge.of(sourcenode, dest));
+          this.addEdges(firstNode, first.getAllDirectSuccessorEdges());
         }
+
+        this.flattenStatement(stat.getStats().get(1));
+
+        this.handleTailedStat(stat);
+
+        return firstNode;
       }
-//      else if (edgetype == StatEdge.TYPE_BREAK) {
-//        DirectNode dest = this.finallyNodesStack.peek();
-//        ValidationHelper.assertTrue(dest.statement == closure, "Finally destination mismatch");
-//        // ValidationHelper.assertTrue(dest.type == DirectNodeType.FINALLY, "Finally destination mismatch");
-//        sourcenode.addSuccessor(DirectEdge.of(sourcenode, dest));
-//      }
-//        else {
-//        ValidationHelper.assertTrue(false, "Unexpected finally edge type");
-//      }
-      else {
-        this.continueEdges.add(new Edge(sourcenode.id, destination.id, edgetype));
+      case SWITCH: {
+        SwitchStatement switchSt = (SwitchStatement) stat;
+        List<Exprent> tailexprlst = switchSt.getHeadexprentList();
+
+        Statement first = stat.getFirst();
+        DirectNode firstNode = this.createDirectNode(first, first.getExprents());
+        DirectNode outNode = firstNode;
+        this.addDestination(first, firstNode);
+        this.addDestination(stat, firstNode);
+
+        if (tailexprlst != null && tailexprlst.get(0) != null) {
+          DirectNode tail = this.createDirectNode(stat, DirectNodeType.TAIL, tailexprlst);
+
+          firstNode.addSuccessor(DirectEdge.of(firstNode, tail));
+
+          outNode = tail;
+        }
+
+        this.handleTailedStat(stat);
+
+        for (int i = 1; i < stat.getStats().size(); i++) {
+          this.flattenStatement(stat.getStats().get(i));
+        }
+
+        // Try to intercept the edges leaving the switch head and replace with relevant case nodes
+        List<List<StatEdge>> caseEdges = switchSt.getCaseEdges();
+        List<List<Exprent>> caseValues = switchSt.getCaseValues();
+        List<Statement> caseStatements = switchSt.getCaseStatements();
+
+        if (caseEdges.size() != caseValues.size()) {
+          if (caseEdges.size() + 1 != caseValues.size() || caseValues.get(caseValues.size() - 1).size() != 1 || caseValues.get(caseValues.size() - 1).get(0) != null) {
+            throw new RuntimeException("Case edges and case values do not match");
+          }
+        }
+
+        for (int i = 0; i < caseEdges.size(); i++) {
+
+          List<Exprent> values = caseValues.get(i);
+          List<StatEdge> thisCaseEdges = caseEdges.get(i);
+          Statement thisCaseStatement = caseStatements.get(i);
+
+          // Default case val can be null
+          List<Exprent> finalVals = null;
+          if (values != null) {
+            finalVals = new ArrayList<>();
+            for (Exprent value : values) {
+              if (value != null) {
+                finalVals.add(value);
+              }
+            }
+          }
+
+          // Build node out of the case exprents
+          DirectNode caseNode = this.createDirectNode(thisCaseStatement, DirectNodeType.CASE, finalVals);
+
+          outNode.addSuccessor(DirectEdge.of(outNode, caseNode));
+
+          this.addEdges(caseNode, thisCaseEdges);
+        }
+
+        if (caseEdges.size() < caseValues.size()) {
+          // default case
+          this.addEdge(outNode, switchSt.getDefaultEdge());
+        }
+
+        return firstNode;
       }
-    } else  /* if (edgetype != StatEdge.TYPE_FINALLYEXIT) */ {
-      this.continueEdges.add(new Edge(sourcenode.id, destination.id, edgetype));
+      case IF: {
+        IfStatement ifStat = (IfStatement) stat;
+
+        List<Exprent> tailexprlst = ifStat.getHeadexprentList();
+
+        Statement first = stat.getFirst();
+        DirectNode firstNode = this.createDirectNode(first, first.getExprents());
+        DirectNode outNode = firstNode;
+        this.addDestination(first, firstNode);
+        this.addDestination(stat, firstNode);
+
+        if (tailexprlst != null && tailexprlst.get(0) != null) {
+          DirectNode tail = this.createDirectNode(stat, DirectNodeType.TAIL, tailexprlst);
+
+          firstNode.addSuccessor(DirectEdge.of(firstNode, tail));
+
+          outNode = tail;
+        }
+
+        // 'if' statement: record positive branch
+        this.mapPosIfBranch.put(outNode, ifStat.getIfEdge().getDestination());
+
+        this.handleTailedStat(stat);
+
+        for (int i = 1; i < stat.getStats().size(); i++) {
+          this.flattenStatement(stat.getStats().get(i));
+        }
+
+        // add edges
+        this.addEdges(outNode, first.getAllDirectSuccessorEdges());
+
+        if (ifStat.iftype == IfStatement.IFTYPE_IF && stat.hasAnyDirectSuccessor()) {
+          // add implicit else edge
+          this.addEdge(outNode, stat.getFirstDirectSuccessor());
+        }
+
+        // Adds an edge from the last if statement to the current if statement,
+        // if the current if statement's head statement has no predecessor
+        // This was made to mask a failure in EliminateLoopsHelper and isn't used currently
+        // (over the current test set) but could theoretically still happen!
+        // TODO: what?
+        // TODO: use java code gen to generate a test for this?
+        if (ifStat.iftype == IfStatement.IFTYPE_IF && !stat.getPredecessorEdges(StatEdge.TYPE_REGULAR).isEmpty()) {
+          if (stat.getFirst().getPredecessorEdges(StatEdge.TYPE_REGULAR).isEmpty()) {
+            StatEdge edge = stat.getPredecessorEdges(StatEdge.TYPE_REGULAR).get(0);
+
+            Statement source = edge.getSource();
+            if (source instanceof IfStatement && ((IfStatement) source).iftype == IfStatement.IFTYPE_IF && !source.getAllSuccessorEdges().isEmpty()) {
+              DirectNode srcnd = this.graph.nodes.getWithKey(source.getFirst().id + "_tail");
+
+              if (srcnd != null) {
+                // old ifstat->head
+                Edge newEdge = new Edge(srcnd, stat, edge.getType() == StatEdge.TYPE_CONTINUE ? Edge.Type.CONTINUE : Edge.Type.REGULAR);
+
+                // Add if it doesn't exist already
+                if (!this.indirectEdges.contains(newEdge)) {
+                  this.indirectEdges.add(newEdge);
+                }
+              }
+            }
+          }
+        }
+        return firstNode;
+      }
+      case SEQUENCE:
+      case ROOT: {
+
+        DirectNode firstBlock = this.flattenStatement(stat.getFirst());
+
+        int statsize = stat.getStats().size();
+        for (int i = 1; i < statsize; i++) {
+          this.flattenStatement(stat.getStats().get(i));
+        }
+
+        this.addDestination(stat, firstBlock);
+        return firstBlock;
+      }
+      default: {
+        throw new RuntimeException("Unexpected statement type");
+      }
     }
   }
 
-  private void addEdgeIfPossible(Integer predEdge, Statement stat) {
-    String[] lastbasicdests = this.mapDestinationNodes.get(predEdge);
+  private void handleTailedStat(Statement stat) {
+    List<StatEdge> basicPreds = stat.getAllPredecessorEdges();
 
-    if (lastbasicdests != null) {
-      this.continueEdges.add(new Edge(this.graph.nodes.getWithKey(lastbasicdests[0]).id, stat.id, StatEdge.TYPE_REGULAR));
+    // TODO: sourcenode instead of stat.id?
+    if (basicPreds.size() == 1) {
+      StatEdge predEdge = basicPreds.get(0);
+
+      // Look if this basic block is the successor of a sequence,
+      // and connect the sequence to the block if so
+      // TODO: should this be done in the sequence handling instead?
+      // TODO: what is this for?
+      // TODO: why is it adding ad edge from the start of the sequence to the block?
+      // TODO: why is it using the basic head id, instead of the sequence id?
+      // TODO: currently never called
+      // TODO: this is the same as the basic block handling?
+
+      if (predEdge.getType() == StatEdge.TYPE_REGULAR) {
+        if (predEdge.getSource() instanceof SequenceStatement) {
+          this.addEdgeIfPossible(predEdge.getSource().getBasichead(), stat);
+        }
+      }
+    }
+  }
+
+  private void handleLoopEnd(Statement stat, DirectNode body) {
+    for (Edge edge : this.indirectEdges) {
+      if (edge.stat == stat && edge.type == Edge.Type.CONTINUE) {
+        return;
+      }
+    }
+
+    // if no continue edge was found, add one from the body
+    // TODO: isn't there a better way?
+    // FIXME: this feels like a hack
+
+    // listEdge target: known (init)
+    this.indirectEdges.add(new Edge(body, stat, Edge.Type.CONTINUE));
+  }
+
+  private void addEdges(DirectNode sourceNode, List<StatEdge> lstSuccEdges) {
+    for (StatEdge edge : lstSuccEdges) {
+      this.addEdge(sourceNode, edge);
+    }
+  }
+
+
+  private void addEdge(DirectNode sourceNode, StatEdge edge) {
+    int edgeType = edge.getType();
+    Statement destination = edge.getDestination();
+    this.saveEdge(sourceNode, destination, edgeType);
+  }
+
+
+  private void saveEdge(DirectNode sourceNode, Statement destination, int edgeType) {
+    this.indirectEdges.add(new Edge(sourceNode, destination, edgeType));
+  }
+
+  private void addEdgeIfPossible(Statement predEdge, Statement stat) {
+    DirectNode lastBasic = this.mapRegularDestinationNodes.get(predEdge);
+
+    if (lastBasic != null) {
+      this.indirectEdges.add(new Edge(lastBasic, stat, Edge.Type.REGULAR));
     }
   }
 
   private void setEdges() {
+    for (Edge edge : this.indirectEdges) {
+      DirectNode source = edge.source;
+      DirectNode dest = this.getDestination(edge);
 
-    for (Edge edge : this.continueEdges) {
-
-      String sourceid = edge.sourceid;
-      Integer statid = edge.statid;
-
-      DirectNode source = edge.source != null ? edge.source : this.graph.nodes.getWithKey(sourceid);
-
-      String[] strings = this.mapDestinationNodes.get(statid);
-      if (strings == null) {
+      if (dest == null) {
         DotExporter.toDotFile(this.graph, this.root.mt, "errorDGraph");
 
-        throw new IllegalStateException("Could not find destination nodes for stat id " + statid + " from source " + sourceid);
+        throw new IllegalStateException("Could not find destination nodes for stat id " + edge.stat + " from source " + source);
       }
-      // TODO: continue edge type?
-      DirectNode dest = this.graph.nodes.getWithKey(strings[edge.edgetype == StatEdge.TYPE_CONTINUE ? 1 : 0]);
 
-      if (edge.edgetype == StatEdge.TYPE_FINALLYEXIT) {
+      if (edge.type == Edge.Type.FINALLY_EXIT) {
         if (source.tryFinally != null &&
-            source.tryFinally.type == DirectNodeType.FINALLY_END /*&&
-            source.tryFinally.tryFinally == dest.tryFinally*/) { // dest is always the dummy exit
+            source.tryFinally.type == DirectNodeType.FINALLY_END) {
           dest = source.tryFinally;
         } else {
           // Should only happen if there are unprocessed finallies, should look into a check for that
           // TODO: finally edges only exist in the graph if there is a finally block, so this should never happen??
-
+          // TODO: think about why these do happen?
           continue;
         }
       }
 
-      DirectEdge diedge = edge.edgetype == StatEdge.TYPE_EXCEPTION ? DirectEdge.exception(source, dest) : DirectEdge.of(source, dest);
+      DirectEdge diedge = edge.type == Edge.Type.EXCEPTION ?
+        DirectEdge.exception(source, dest) : DirectEdge.of(source, dest);
 
       source.addSuccessor(diedge);
 
-      if (this.mapPosIfBranch.containsKey(sourceid) && !statid.equals(this.mapPosIfBranch.get(sourceid))) {
-        this.graph.mapNegIfBranch.put(sourceid, dest.id);
+      if (this.mapPosIfBranch.containsKey(source) && edge.stat != this.mapPosIfBranch.get(source)) {
+        this.graph.mapNegIfBranch.put(source.id, dest.id);
       }
     }
-
-    for (int i = 0; i < 2; i++) {
-//      for (Entry<String, List<String[]>> ent : (i == 0 ? this.mapShortRangeFinallyPathIds : this.mapLongRangeFinallyPathIds).entrySet()) {
-//
-//        List<FinallyPathWrapper> newLst = new ArrayList<>();
-//
-//        List<String[]> lst = ent.getValue();
-//        for (String[] arr : lst) {
-//
-//          boolean isContinueEdge = arr[i == 0 ? 4 : 3] != null;
-//
-//          DirectNode dest = this.graph.nodes.getWithKey(this.mapDestinationNodes.get(Integer.parseInt(arr[1]))[isContinueEdge ? 1 : 0]);
-//          DirectNode enter = this.graph.nodes.getWithKey(this.mapDestinationNodes.get(Integer.parseInt(arr[2]))[0]);
-//
-//          newLst.add(new FinallyPathWrapper(arr[0], dest.id, enter.id));
-//
-//          if (i == 0 && arr[3] != null) {
-//            this.graph.mapFinallyMonitorExceptionPathExits.put(ent.getKey(), dest.id);
-//          }
-//        }
-//
-//        if (!newLst.isEmpty()) {
-//          (i == 0 ? this.graph.mapShortRangeFinallyPaths : this.graph.mapLongRangeFinallyPaths).put(ent.getKey(), new ArrayList<>(new HashSet<>(newLst)));
-//        }
-//      }
-    }
   }
 
-  public Map<Integer, String[]> getMapDestinationNodes() {
-    return this.mapDestinationNodes;
-  }
-
-  public static final class FinallyPathWrapper {
-    public final String source;
-    public final String destination;
-    public final String entry;
-
-    private FinallyPathWrapper(String source, String destination, String entry) {
-      this.source = source;
-      this.destination = destination;
-      this.entry = entry;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (o == this) {
-        return true;
-      }
-      if (!(o instanceof FinallyPathWrapper)) {
-        return false;
-      }
-
-      FinallyPathWrapper fpw = (FinallyPathWrapper) o;
-      return (this.source + ":" + this.destination + ":" + this.entry).equals(fpw.source + ":" + fpw.destination + ":" + fpw.entry);
-    }
-
-    @Override
-    public int hashCode() {
-      return (this.source + ":" + this.destination + ":" + this.entry).hashCode();
-    }
-
-    @Override
-    public String toString() {
-      return this.source + "->(" + this.entry + ")->" + this.destination;
-    }
+  public DirectNode getDirectNode(Statement stat) {
+    return this.mapRegularDestinationNodes.get(stat);
   }
 
 
-  private static class StackEntry {
-
-    public final CatchAllStatement catchstatement;
-    public final boolean state;
-
-    StackEntry(CatchAllStatement catchstatement, boolean state) {
-
-      this.catchstatement = catchstatement;
-      this.state = state;
-    }
+  private DirectNode getDestination(Edge edge) {
+    return (edge.type == Edge.Type.CONTINUE ? this.mapContinueDestinationNodes : this.mapRegularDestinationNodes)
+      .get(edge.stat);
   }
+
 
   private static class Edge {
-    @Deprecated
-    public final String sourceid;
     public DirectNode source;
-    @Deprecated
-    public final Integer statid;
-    public Statement dest;
-    public final int edgetype;
+    public Statement stat;
+    final Type type;
 
-    @Deprecated
-    Edge(String sourceid, Integer statid, int edgetype) {
-      this.sourceid = sourceid;
-      this.statid = statid;
-      this.edgetype = edgetype;
+    Edge(DirectNode source, Statement stat, int edgetype) {
+      this.source = source;
+      this.stat = stat;
+
+      if (edgetype == StatEdge.TYPE_CONTINUE) {
+        this.type = Type.CONTINUE;
+      } else if (edgetype == StatEdge.TYPE_FINALLYEXIT) {
+        this.type = Type.FINALLY_EXIT;
+      } else if (edgetype == StatEdge.TYPE_EXCEPTION) {
+        this.type = Type.EXCEPTION;
+      } else {
+        this.type = Type.REGULAR;
+      }
     }
 
-    Edge(DirectNode source, Statement dest, Type edgetype) {
+    Edge(DirectNode source, Statement stat, Type type) {
       this.source = source;
-      this.sourceid = source.id;
-      this.dest = dest;
-      switch (edgetype) {
-        case REGULAR:
-          this.statid = dest.id;
-          this.edgetype = StatEdge.TYPE_REGULAR;
-          break;
-        case CONTINUE:
-          this.statid = dest.id;
-          this.edgetype = StatEdge.TYPE_CONTINUE;
-          break;
-        case ALTERNATIVE:
-          this.statid = -dest.id;
-          this.edgetype = StatEdge.TYPE_REGULAR;
-          break;
-        case EXCEPTION:
-          this.statid = dest.id;
-          this.edgetype = StatEdge.TYPE_EXCEPTION;
-          break;
-        case FINALLY_EXIT:
-          this.statid = dest.id;
-          this.edgetype = StatEdge.TYPE_FINALLYEXIT;
-          break;
-        default:
-          throw new RuntimeException("Unknown edge type: " + edgetype);
-      }
+      this.stat = stat;
+      this.type = type;
     }
 
     @Override
@@ -802,21 +658,21 @@ public class FlattenStatementsHelper implements GraphFlattener {
       }
 
       Edge edge = (Edge) o;
-      return this.edgetype == edge.edgetype && Objects.equals(this.sourceid, edge.sourceid) && Objects.equals(this.statid, edge.statid);
+      return this.type == edge.type && Objects.equals(this.source, edge.source) && Objects.equals(this.stat, edge.stat);
     }
 
     @Override
     public String toString() {
-      return "Source: " + this.sourceid + " Stat: " + this.statid + " Edge: " + this.edgetype;
+      return "Source: " + this.source + " Dest: " + this.stat + " Edge: " + this.type;
     }
 
     @Override
     public int hashCode() {
-      return Objects.hash(this.sourceid, this.statid, this.edgetype);
+      return Objects.hash(this.source, this.stat, this.type);
     }
 
     enum Type {
-      REGULAR, CONTINUE, ALTERNATIVE, EXCEPTION, FINALLY_EXIT
+      REGULAR, CONTINUE, EXCEPTION, FINALLY_EXIT
     }
   }
 }

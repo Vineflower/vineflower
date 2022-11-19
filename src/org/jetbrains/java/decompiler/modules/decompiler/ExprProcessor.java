@@ -13,7 +13,6 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.Fun
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectNode;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper;
-import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper.FinallyPathWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarProcessor;
 import org.jetbrains.java.decompiler.struct.StructClass;
@@ -249,7 +248,7 @@ public class ExprProcessor implements CodeConstants {
 
     if (lst != null) {
       for (int i = 1; i < stat.getStats().size(); i++) {
-        map.put(flatthelper.getMapDestinationNodes().get(stat.getStats().get(i).id)[0], lst.get(i - 1));
+        map.put(flatthelper.getDirectNode(stat.getStats().get(i)).id, lst.get(i - 1));
       }
     }
 

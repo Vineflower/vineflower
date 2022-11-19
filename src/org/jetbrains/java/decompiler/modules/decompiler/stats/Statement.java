@@ -798,8 +798,16 @@ public abstract class Statement implements IMatchable {
     return getEdges(STATEDGE_ALL, EdgeDirection.FORWARD);
   }
 
+  public List<StatEdge> getAllDirectSuccessorEdges() {
+    return getEdges(STATEDGE_DIRECT_ALL, EdgeDirection.FORWARD);
+  }
+
   public boolean hasAnySuccessor() {
     return hasSuccessor(STATEDGE_ALL);
+  }
+
+  public boolean hasAnyDirectSuccessor() {
+    return hasSuccessor(STATEDGE_DIRECT_ALL);
   }
 
   public boolean hasSuccessor(int type) {
@@ -834,6 +842,21 @@ public abstract class Statement implements IMatchable {
 //    ValidationHelper.oneSuccessor(this);
 
     List<StatEdge> res = this.mapSuccEdges.get(STATEDGE_ALL);
+    if (res != null) {
+      for (StatEdge e : res) {
+        return e;
+      }
+    }
+
+    throw new IllegalStateException("No successor exists for " + this);
+  }
+
+  public StatEdge getFirstDirectSuccessor() {
+    ValidationHelper.successorsExist(this);
+    // TODO: does this make sense here?
+//    ValidationHelper.oneSuccessor(this);
+
+    List<StatEdge> res = this.mapSuccEdges.get(STATEDGE_DIRECT_ALL);
     if (res != null) {
       for (StatEdge e : res) {
         return e;
