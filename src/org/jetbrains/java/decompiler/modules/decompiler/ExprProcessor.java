@@ -6,6 +6,7 @@ import org.jetbrains.java.decompiler.code.Instruction;
 import org.jetbrains.java.decompiler.code.InstructionSequence;
 import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectEdgeType;
 import org.jetbrains.java.decompiler.util.collections.ListStack;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
@@ -98,54 +99,31 @@ public class ExprProcessor implements CodeConstants {
   }
 
   public void processStatement(RootStatement root, StructClass cl) {
-    FlattenStatementsHelper flatthelper = new FlattenStatementsHelper();
-    DirectGraph dgraph = flatthelper.buildDirectGraph(root);
+    FlattenStatementsHelper flatHelper = new FlattenStatementsHelper();
+    DirectGraph dgraph = flatHelper.buildDirectGraph(root);
 
     ValidationHelper.validateDGraph(dgraph, root);
 
-    // collect finally entry points
-    Set<String> setFinallyShortRangeEntryPoints = new HashSet<>();
-//    for (List<FinallyPathWrapper> lst : dgraph.mapShortRangeFinallyPaths.values()) {
-//      for (FinallyPathWrapper finwrap : lst) {
-//        setFinallyShortRangeEntryPoints.add(finwrap.entry);
-//      }
-//    }
-
-    Set<String> setFinallyLongRangeEntryPaths = new HashSet<>();
-//    for (List<FinallyPathWrapper> lst : dgraph.mapLongRangeFinallyPaths.values()) {
-//      for (FinallyPathWrapper finwrap : lst) {
-//        setFinallyLongRangeEntryPaths.add(finwrap.source + "##" + finwrap.entry);
-//      }
-//    }
-
+    // TODO: use DirectNode instead DirectNode.id
     Map<String, VarExprent> mapCatch = new HashMap<>();
-    collectCatchVars(root, flatthelper, mapCatch);
+    collectCatchVars(root, flatHelper, mapCatch);
 
-    Map<DirectNode, Map<String, PrimitiveExprsList>> mapData = new HashMap<>();
+    Map<DirectNode, PrimitiveExprsList> mapData = new HashMap<>();
 
-    LinkedList<DirectNode> stack = new LinkedList<>();
-    LinkedList<LinkedList<String>> stackEntryPoint = new LinkedList<>();
+    ListStack<DirectNode> stack = new ListStack<>();
 
-    stack.add(dgraph.first);
-    stackEntryPoint.add(new LinkedList<>());
-
-    Map<String, PrimitiveExprsList> map = new HashMap<>();
-    map.put(null, new PrimitiveExprsList());
-    mapData.put(dgraph.first, map);
-
-    Set<DirectNode> seen = new HashSet<>();
+    stack.push(dgraph.first);
+    mapData.put(dgraph.first, new PrimitiveExprsList());
 
     while (!stack.isEmpty()) {
 
-      DirectNode node = stack.removeFirst();
-      LinkedList<String> entrypoints = stackEntryPoint.removeFirst();
+      DirectNode node = stack.pop();
 
       PrimitiveExprsList data;
       if (mapCatch.containsKey(node.id)) {
         data = getExpressionData(mapCatch.get(node.id));
-      }
-      else {
-        data = mapData.get(node).get(buildEntryPointKey(entrypoints));
+      } else {
+        data = mapData.get(node);
       }
 
       BasicBlockStatement block = node.block;
@@ -154,70 +132,17 @@ public class ExprProcessor implements CodeConstants {
         block.setExprents(data.getLstExprents());
       }
 
-      String currentEntrypoint = entrypoints.isEmpty() ? null : entrypoints.getLast();
-
-      for (DirectNode nd : node.succs()) {
-
-        boolean isSuccessor = true;
-//        if (currentEntrypoint != null && dgraph.mapLongRangeFinallyPaths.containsKey(node.id)) {
-//          isSuccessor = false;
-//          for (FinallyPathWrapper finwraplong : dgraph.mapLongRangeFinallyPaths.get(node.id)) {
-//            if (finwraplong.source.equals(currentEntrypoint) && finwraplong.destination.equals(nd.id)) {
-//              isSuccessor = true;
-//              break;
-//            }
-//          }
-//        }
-
-        if (!seen.contains(nd) && isSuccessor) {
-          Map<String, PrimitiveExprsList> mapSucc = mapData.computeIfAbsent(nd, k -> new HashMap<>());
-          LinkedList<String> ndentrypoints = new LinkedList<>(entrypoints);
-
-//          if (setFinallyLongRangeEntryPaths.contains(node.id + "##" + nd.id)) {
-//            ndentrypoints.addLast(node.id);
-//          }
-//          else if (!setFinallyShortRangeEntryPoints.contains(nd.id) && dgraph.mapLongRangeFinallyPaths.containsKey(node.id)) {
-//            ndentrypoints.removeLast(); // currentEntrypoint should
-//            // not be null at this point
-//          }
-
-          // handling of entry point loops
-          int succ_entry_index = ndentrypoints.indexOf(nd.id);
-          if (succ_entry_index >= 0) { // we are in a loop (e.g. continue in a finally block), drop all entry points in the list beginning with succ_entry_index
-            for (int elements_to_remove = ndentrypoints.size() - succ_entry_index; elements_to_remove > 0; elements_to_remove--) {
-              ndentrypoints.removeLast();
-            }
-          }
-
-          seen.add(nd);
-          String ndentrykey = buildEntryPointKey(ndentrypoints);
-          if (!mapSucc.containsKey(ndentrykey)) {
-
-            mapSucc.put(ndentrykey, copyVarExprents(data.copyStack()));
-
-            stack.add(nd);
-            stackEntryPoint.add(ndentrypoints);
-          }
+      // TODO: is this copying the stack into catch and finally blocks? It shouldn't do that.
+      for (var cd : node.getSuccessors(DirectEdgeType.REGULAR)) {
+        DirectNode nd = cd.getDestination();
+        if (!mapData.containsKey(nd)) {
+          mapData.put(nd, copyVarExprents(data.copyStack()));
+          stack.add(nd);
         }
       }
     }
 
     initStatementExprents(root);
-  }
-
-  // FIXME: Ugly code, to be rewritten. A tuple class is needed.
-  private static String buildEntryPointKey(LinkedList<String> entrypoints) {
-    if (entrypoints.isEmpty()) {
-      return null;
-    }
-    else {
-      StringBuilder buffer = new StringBuilder();
-      for (String point : entrypoints) {
-        buffer.append(point);
-        buffer.append(":");
-      }
-      return buffer.toString();
-    }
   }
 
   private static PrimitiveExprsList copyVarExprents(PrimitiveExprsList data) {

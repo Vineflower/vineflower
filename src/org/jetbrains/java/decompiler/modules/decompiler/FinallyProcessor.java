@@ -550,13 +550,14 @@ public class FinallyProcessor {
       }
     }
 
-    graph.getFinallyInfos().add(new FinallyInformation(fstat.getHandler().getBasichead().getBlock(), trueExit, sideExits));
+    // graph.getFinallyInfos().add(new FinallyInformation(fstat.getHandler().getBasichead().getBlock(), trueExit, sideExits));
 
     removeExceptionInstructionsEx(fstat.getHandler().getBasichead().getBlock(), 1, finallytype);
 
     return true;
   }
 
+  /*
   public static final class FinallyInformation {
     public final BasicBlock start;
     public final BasicBlock end;
@@ -583,6 +584,7 @@ public class FinallyProcessor {
       return res;
     }
   }
+   */
 
   private static final class Area {
     private final BasicBlock start;

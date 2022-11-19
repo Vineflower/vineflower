@@ -34,7 +34,7 @@ public class DotExporter {
   public static final boolean DUMP_ERROR_DOTS = DOTS_ERROR_FOLDER != null && !DOTS_ERROR_FOLDER.trim().isEmpty();
 
   private static final boolean EXTENDED_MODE = false;
-  private static final boolean STATEMENT_LR_MODE = true;
+  private static final boolean STATEMENT_LR_MODE = false;
   private static final boolean SAME_RANK_MODE = false;
   // http://graphs.grevian.org/graph is a nice visualizer for the outputed dots.
 

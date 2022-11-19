@@ -183,15 +183,8 @@ public final class ValidationHelper {
           throw new IllegalStateException("Finally exit edge with finally exit type, but no closure: " + edge);
         }
 
-        if (!(edge.closure instanceof CatchAllStatement)) {
-//          if (edge.closure instanceof SequenceStatement) {
-//            SequenceStatement seq = (SequenceStatement) edge.closure;
-//            if (!(seq.getStats().get(0) instanceof CatchAllStatement)) {
-//              // throw new IllegalStateException("Finally exit edge with closure not pointing to a catch all: " + edge);
-//            }
-//          } else {
-//            throw new IllegalStateException("Finally exit edge with closure not pointing to a catch all: " + edge);
-//          }
+        if (!(edge.getDestination() instanceof DummyExitStatement)) {
+          throw new IllegalStateException("Finally exit edge where closure isn't pointing to the dummy exit: " + edge);
         }
       }
     }

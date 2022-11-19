@@ -207,7 +207,7 @@ public final class DomHelper implements GraphParser {
 
     DomTracer tracer = new DomTracer("domhelper_" + iteration, mt);
 
-    if (!processStatement(root, root, new LinkedHashMap<>(), tracer, new HashSet<>(graph.getFinallyInfos()))) {
+    if (!processStatement(root, root, new LinkedHashMap<>(), tracer /*, new HashSet<>(graph.getFinallyInfos())*/)) {
       DotExporter.errorToDotFile(graph, mt, "parseGraphFail");
       DotExporter.errorToDotFile(root, mt, "parseGraphFailStat");
       throw new RuntimeException("parsing failure!");
@@ -350,8 +350,8 @@ public final class DomHelper implements GraphParser {
     Statement general,
     RootStatement root,
     HashMap<Integer, Set<Integer>> mapExtPost,
-    DomTracer tracer,
-    Set<FinallyProcessor.FinallyInformation> finallyInfos) {
+    DomTracer tracer
+    /* Set<FinallyProcessor.FinallyInformation> finallyInfos*/) {
     tracer.info(general, "process statement");
     if (general instanceof RootStatement) {
       Statement stat = general.getFirst();
@@ -360,7 +360,7 @@ public final class DomHelper implements GraphParser {
       if (stat instanceof BasicBlockStatement) {
         return true;
       } else {
-        boolean complete = processStatement(stat, root, mapExtPost, tracer, finallyInfos);
+        boolean complete = processStatement(stat, root, mapExtPost, tracer/*, finallyInfos*/);
 
         if (complete) {
           // replace general purpose statement with simple one
@@ -453,12 +453,12 @@ public final class DomHelper implements GraphParser {
             }
 
             // Find another subgraph to decompose within this subgraph, to simplify the current graph
-            Statement stat = findGeneralStatement(general, forceall, mapExtPost, finallyInfos);
+            Statement stat = findGeneralStatement(general, forceall, mapExtPost/*, finallyInfos*/);
 
             if (stat != null) {
               tracer.success(general, "Found general statement: " + stat, stat);
               // Recurse on the subgraph general statement that we found, and inherit the postdominator set if it's the first statement in the current general
-              boolean complete = processStatement(stat, root, general.getFirst() == stat ? mapExtPost : new HashMap<>(), tracer, finallyInfos);
+              boolean complete = processStatement(stat, root, general.getFirst() == stat ? mapExtPost : new HashMap<>(), tracer /*, finallyInfos*/);
 
               if (complete) {
                 // replace subgraph general purpose statement with simple one to complete this (outer) subgraph
@@ -520,8 +520,8 @@ public final class DomHelper implements GraphParser {
   private static Statement findGeneralStatement(
     Statement stat,
     boolean forceall,
-    HashMap<Integer, Set<Integer>> mapExtPost,
-    Set<FinallyProcessor.FinallyInformation> finallyInfos) {
+    HashMap<Integer, Set<Integer>> mapExtPost
+    /* Set<FinallyProcessor.FinallyInformation> finallyInfos*/) {
 //    if(!forceall && !finallyInfos.isEmpty()) {
 //      List<Pair<FinallyProcessor.FinallyInformation, Set<BasicBlock>>> finallyRegions = new ArrayList<>();
 //      for (FinallyProcessor.FinallyInformation finfo : finallyInfos) {

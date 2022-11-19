@@ -36,7 +36,7 @@ public class ControlFlowGraph implements CodeConstants {
   private Map<BasicBlock, BasicBlock> subroutines;
 
   private final Set<BasicBlock> finallyExits = new HashSet<>();
-  private final List<FinallyProcessor.FinallyInformation> finallyInfos = new ArrayList<>();
+  // private final List<FinallyProcessor.FinallyInformation> finallyInfos = new ArrayList<>();
   private final InstructionSequence sequence;
   public Set<String> commentLines = null;
   public boolean addErrorComment = false;
@@ -856,9 +856,11 @@ public class ControlFlowGraph implements CodeConstants {
     return finallyExits;
   }
 
+  /*
   public List<FinallyProcessor.FinallyInformation> getFinallyInfos() {
     return finallyInfos;
   }
+   */
 
   public InstructionSequence getSequence() {
     return sequence;
