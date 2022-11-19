@@ -394,7 +394,7 @@ public class StackVarsProcessor {
     int useflags = right.getExprentUse();
 
     // stack variables only
-    if ((!left.isStack() && options.inlineRegularVars) &&
+    if ((!left.isStack() && !options.inlineRegularVars) &&
         (!(right instanceof VarExprent) || ((VarExprent)right).isStack())) { // special case catch(... ex)
       return new int[]{-1, changed};
     }
@@ -674,7 +674,7 @@ public class StackVarsProcessor {
     }
 
     // stack variable or synchronized head exprent
-    if ((!left.isStack() && options.inlineRegularVars) && !isHeadSynchronized) {
+    if ((!left.isStack() && !options.inlineRegularVars) && !isHeadSynchronized) {
       return new Object[]{null, changed, false};
     }
 
