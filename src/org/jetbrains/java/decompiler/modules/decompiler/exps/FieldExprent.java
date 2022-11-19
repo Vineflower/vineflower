@@ -148,7 +148,7 @@ public class FieldExprent extends Exprent {
 
     if (isStatic) {
       if (useQualifiedStatic()) {
-        buf.append(DecompilerContext.getImportCollector().getShortNameInClassContext(ExprProcessor.buildJavaClassName(classname)));
+        buf.appendClass(DecompilerContext.getImportCollector().getShortNameInClassContext(ExprProcessor.buildJavaClassName(classname)), false, classname);
         buf.append(".");
       }
     }
@@ -209,7 +209,7 @@ public class FieldExprent extends Exprent {
 
     buf.addBytecodeMapping(bytecode);
 
-    buf.append(name);
+    buf.appendField(name, false, classname, name, descriptor);
 
     return buf;
   }

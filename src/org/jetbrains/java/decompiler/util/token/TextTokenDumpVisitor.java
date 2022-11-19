@@ -8,26 +8,29 @@ import org.jetbrains.java.decompiler.util.TextBuffer;
 
 public class TextTokenDumpVisitor extends TextTokenVisitor {
   private final TextBuffer buffer;
-  private StringBuilder textBuilder;
+  private TextBuffer text;
 
   public TextTokenDumpVisitor(TextTokenVisitor next, TextBuffer buffer) {
     super(next);
     this.buffer = buffer;
   }
 
-  private StringBuilder range(TextRange range) {
-    textBuilder.append("(").append(buffer.getPos(range.start));
-    textBuilder.append(", ").append(buffer.getPos(range.getEnd()));
-    return textBuilder.append(")");
+  private TextBuffer range(TextRange range) {
+    text.append("(").append(buffer.getPos(range.start));
+    text.append(", ").append(buffer.getPos(range.getEnd()));
+    return text.append(")");
   }
 
-  private StringBuilder declaration(boolean declaration) {
-    return textBuilder.append(declaration ? "[declaration]" : "[reference]");
+  private TextBuffer declaration(boolean declaration) {
+    return text.append(declaration ? "[declaration]" : "[reference]");
   }
 
   @Override
   public void start() {
-    textBuilder = new StringBuilder("\n/*\nTokens:");
+    text = new TextBuffer();
+    text.appendLineSeparator()
+      .append("/*").appendLineSeparator()
+      .append("Tokens:").appendLineSeparator();
   }
 
   @Override
@@ -35,7 +38,8 @@ public class TextTokenDumpVisitor extends TextTokenVisitor {
     super.visitClass(range, declaration, name);
     range(range).append(" class ");
     declaration(declaration).append(" ");
-    textBuilder.append(name);
+    text.append(name);
+    text.appendLineSeparator();
   }
 
   @Override
@@ -43,9 +47,10 @@ public class TextTokenDumpVisitor extends TextTokenVisitor {
     super.visitField(range, declaration, className, name, descriptor);
     range(range).append(" field ");
     declaration(declaration).append(" ");
-    textBuilder.append(className);
-    textBuilder.append("#").append(name);
-    textBuilder.append(":").append(descriptor.descriptorString);
+    text.append(className);
+    text.append("#").append(name);
+    text.append(":").append(descriptor.descriptorString);
+    text.appendLineSeparator();
   }
 
   @Override
@@ -53,19 +58,21 @@ public class TextTokenDumpVisitor extends TextTokenVisitor {
     super.visitMethod(range, declaration, className, name, descriptor);
     range(range).append(" method ");
     declaration(declaration).append(" ");
-    textBuilder.append(className);
-    textBuilder.append("#").append(name);
-    textBuilder.append(descriptor.toString());
+    text.append(className);
+    text.append("#").append(name);
+    text.append(descriptor.toString());
+    text.appendLineSeparator();
   }
 
   private void visitVariable(boolean declaration, String className, String methodName, MethodDescriptor methodDescriptor, int index, String name, VarType type) {
     declaration(declaration).append(" ");
-    textBuilder.append(className);
-    textBuilder.append("#").append(methodName);
-    textBuilder.append(methodDescriptor.toString());
-    textBuilder.append(":").append(index);
-    textBuilder.append(" ").append(name);
-    textBuilder.append(" ").append(type.toString());
+    text.append(className);
+    text.append("#").append(methodName);
+    text.append(methodDescriptor.toString());
+    text.append(":").append(index);
+    text.append(" ").append(name);
+    text.append(" ").append(type.toString());
+    text.appendLineSeparator();
   }
 
   @Override
@@ -84,7 +91,7 @@ public class TextTokenDumpVisitor extends TextTokenVisitor {
 
   @Override
   public void end() {
-    textBuilder.append("*/");
-    buffer.append(textBuilder.toString());
+    text.append("*/").appendLineSeparator();
+    buffer.append(text.convertToStringAndAllowDataDiscard());
   }
 }

@@ -44,14 +44,14 @@ public class AnnotationExprent extends Exprent {
 
     return new AnnotationExprent(className, parNames, exps);
   }
-  
+
   @Override
   public TextBuffer toJava(int indent) {
     TextBuffer buffer = new TextBuffer();
 
     buffer.appendIndent(indent);
     buffer.append('@');
-    buffer.append(DecompilerContext.getImportCollector().getShortName(ExprProcessor.buildJavaClassName(className)));
+    buffer.appendClass(DecompilerContext.getImportCollector().getShortName(ExprProcessor.buildJavaClassName(className)), false, className);
 
     Type type = getAnnotationType();
 

@@ -136,7 +136,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
       IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
       IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "0",
       IFernflowerPreferences.TERNARY_CONDITIONS, "1",
-      IFernflowerPreferences.FORCE_JSR_INLINE, "1"
+      IFernflowerPreferences.FORCE_JSR_INLINE, "1",
+      IFernflowerPreferences.PREFERRED_LINE_LENGTH, "120"
     );
     // TODO: user renamer class test
   }
@@ -789,5 +790,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
 
   private void registerTextTokens() {
     register(JAVA_8, "TestTextTokens");
+    register(JAVA_16, "TestTextTokens2");
   }
 }

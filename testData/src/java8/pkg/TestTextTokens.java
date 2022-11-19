@@ -2,6 +2,7 @@ package pkg;
 
 import java.util.function.Function;
 
+@MoreAnnotations.NestedAnnotation
 public class TestTextTokens {
   private Bee bee = new Bee();
 

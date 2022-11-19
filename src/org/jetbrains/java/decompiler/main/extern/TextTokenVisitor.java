@@ -8,7 +8,6 @@ import org.jetbrains.java.decompiler.util.token.TextRange;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 
 public abstract class TextTokenVisitor {
   private static final String PROPERTY_NAME = "text_token_visitor";
@@ -39,7 +38,7 @@ public abstract class TextTokenVisitor {
   }
 
   public static TextTokenVisitor createVisitor(Factory factory) {
-    return getFactories().stream().reduce((f1, f2) -> f1.andThen(f2)).orElse(v -> v).andThen(factory).apply(EMPTY);
+    return getFactories().stream().reduce(Factory::andThen).orElse(v -> v).andThen(factory).create(EMPTY);
   }
 
   public void start() {
@@ -78,9 +77,11 @@ public abstract class TextTokenVisitor {
   public void end() {
   }
 
-  public interface Factory extends Function<TextTokenVisitor, TextTokenVisitor> {
+  public interface Factory {
+    TextTokenVisitor create(TextTokenVisitor next);
+
     default Factory andThen(Factory after) {
-      return (Factory) Function.super.andThen(after);
+      return next -> after.create(create(next));
     }
   }
 }

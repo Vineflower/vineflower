@@ -3,11 +3,13 @@
  */
 package org.jetbrains.java.decompiler.util;
 
+import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.extern.TextTokenVisitor;
+import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.struct.gen.FieldDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
@@ -82,9 +84,40 @@ public class TextBuffer {
     return this;
   }
 
+  public TextBuffer appendCastTypeName(VarType type) {
+    if (type.type == CodeConstants.TYPE_OBJECT) {
+      String name = ExprProcessor.getTypeName(type);
+      // FIXME: Handle inner classes, generics properly
+      appendClass(name, false, type.value);
+      TextUtil.append(myStringBuilder, "[]", type.arrayDim);
+      return this;
+    }
+
+    return append(ExprProcessor.getCastTypeName(type));
+  }
+
+  public TextBuffer appendTypeName(String typeName, VarType type) {
+    if (type.type == CodeConstants.TYPE_OBJECT) {
+      // FIXME: Handle generics properly
+      if (type.arrayDim > 0) {
+        appendClass(typeName.substring(0, typeName.length() - type.arrayDim * 2), false, type.value);
+        append(typeName.substring(typeName.length() - type.arrayDim * 2));
+      } else {
+        appendClass(typeName, false, type.value);
+      }
+      return this;
+    }
+
+    return append(typeName);
+  }
+
   public TextBuffer appendClass(String value, boolean declaration, String qualifiedName) {
     addToken(new ClassTextToken(length(), value.length(), declaration, qualifiedName));
     return append(value);
+  }
+
+  public TextBuffer appendField(String value, boolean declaration, String className, String name, String descriptor) {
+    return appendField(value, declaration, className, name, FieldDescriptor.parseDescriptor(descriptor));
   }
 
   public TextBuffer appendField(String value, boolean declaration, String className, String name, FieldDescriptor descriptor) {
@@ -92,9 +125,17 @@ public class TextBuffer {
     return append(value);
   }
 
+  public TextBuffer appendMethod(String value, boolean declaration, String className, String name, String descriptor) {
+    return appendMethod(value, declaration, className, name, MethodDescriptor.parseDescriptor(descriptor));
+  }
+
   public TextBuffer appendMethod(String value, boolean declaration, String className, String name, MethodDescriptor descriptor) {
     addToken(new MethodTextToken(length(), value.length(), declaration, className, name, descriptor));
     return append(value);
+  }
+
+  public TextBuffer appendVariable(String value, boolean declaration, boolean parameter, String className, String methodName, String methodDescriptor, int index, String name, VarType type) {
+    return appendVariable(value, declaration, parameter, className, methodName, MethodDescriptor.parseDescriptor(methodDescriptor), index, name, type);
   }
 
   public TextBuffer appendVariable(String value, boolean declaration, boolean parameter, String className, String methodName, MethodDescriptor methodDescriptor, int index, String name, VarType type) {
@@ -103,7 +144,7 @@ public class TextBuffer {
   }
 
   private void addToken(TextToken token) {
-    // TODO
+    myCurrentGroup.myTokens.add(token);
   }
 
   /**
@@ -533,6 +574,14 @@ public class TextBuffer {
 
   public TextBuffer append(TextBuffer buffer) {
     return append(buffer, null, null);
+  }
+
+  public TextBuffer appendText(TextBuffer buffer) {
+    NewlineGroup otherRoot = buffer.myRootGroup.copy();
+    otherRoot.shift(myStringBuilder.length());
+    myCurrentGroup.myTokens.addAll(otherRoot.myTokens);
+    myStringBuilder.append(buffer.myStringBuilder);
+    return this;
   }
 
   private void shiftMapping(int shiftOffset) {
