@@ -113,7 +113,15 @@ public class AnnotationExprent extends Exprent {
            InterpreterUtil.equalLists(parNames, ann.parNames) &&
            InterpreterUtil.equalLists(parValues, ann.parValues);
   }
-  
+
+  public List<String> getParNames() {
+    return parNames;
+  }
+
+  public List<? extends Exprent> getParValues() {
+    return parValues;
+  }
+
   @Override
   public void getBytecodeRange(BitSet values) {
     measureBytecode(values, parValues);
