@@ -160,7 +160,7 @@ public class InvocationExprent extends Exprent {
     addBytecodeOffsets(bytecodeOffsets);
   }
 
-  private InvocationExprent(InvocationExprent expr) {
+  protected InvocationExprent(InvocationExprent expr) {
     this();
 
     name = expr.getName();
@@ -1637,7 +1637,7 @@ public class InvocationExprent extends Exprent {
       RuleValue value = rule.getValue();
 
       MatchProperties key = rule.getKey();
-      if (key == MatchProperties.EXPRENT_INVOCATION_PARAMETER) {
+      if (key == MatchProperties.EXPRENT_PARAMETER) {
         if (value.isVariable() && (value.parameter >= lstParameters.size() ||
                                    !engine.checkAndSetVariableValue(value.value.toString(), lstParameters.get(value.parameter)))) {
           return false;

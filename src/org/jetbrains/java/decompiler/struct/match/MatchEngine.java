@@ -39,7 +39,7 @@ public class MatchEngine {
     expr_properties.put("constvalue", MatchProperties.EXPRENT_CONSTVALUE);
     expr_properties.put("invclass", MatchProperties.EXPRENT_INVOCATION_CLASS);
     expr_properties.put("signature", MatchProperties.EXPRENT_INVOCATION_SIGNATURE);
-    expr_properties.put("parameter", MatchProperties.EXPRENT_INVOCATION_PARAMETER);
+    expr_properties.put("parameter", MatchProperties.EXPRENT_PARAMETER);
     expr_properties.put("index", MatchProperties.EXPRENT_VAR_INDEX);
     expr_properties.put("name", MatchProperties.EXPRENT_FIELD_NAME);
 
@@ -81,6 +81,10 @@ public class MatchEngine {
 
   private final MatchNode rootNode;
   private final Map<String, Object> variables = new HashMap<>();
+
+  public MatchEngine(String... description) {
+    this(String.join("\n", description));
+  }
 
   public MatchEngine(String description) {
     // each line is a separate statement/exprent
@@ -128,7 +132,7 @@ public class MatchEngine {
             case EXPRENT_POSITION:
             case EXPRENT_INVOCATION_CLASS:
             case EXPRENT_INVOCATION_SIGNATURE:
-            case EXPRENT_INVOCATION_PARAMETER:
+            case EXPRENT_PARAMETER:
             case EXPRENT_VAR_INDEX:
             case EXPRENT_FIELD_NAME:
             case EXPRENT_CONSTVALUE:

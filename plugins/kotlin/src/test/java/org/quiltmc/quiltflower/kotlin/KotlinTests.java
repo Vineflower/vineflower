@@ -25,5 +25,6 @@ public class KotlinTests extends SingleClassesTestBase {
     register(KOTLIN, "TestFunVarargs");
     register(KOTLIN, "TestVars");
     register(KOTLIN, "TestNullable");
+    register(KOTLIN, "TestExtensionFun");
   }
 }
