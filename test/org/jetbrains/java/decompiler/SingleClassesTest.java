@@ -649,6 +649,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16, "TestPatternMatchingCompoundBool");
     // TODO: makes spurious var10002 for some reason
     register(JAVA_8, "TestStackCastParam");
+    register(JAVA_8, "TestObjectPhi");
   }
 
   private void registerEntireClassPath() {

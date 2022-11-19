@@ -876,7 +876,7 @@ public class VarDefinitionHelper {
           VarType type = right.getConstType();
 
           // We can only do this if the merged type is a superset of the old type
-          if (merged.isSuperset(type)) {
+          if (merged.isSuperset(type) && canConstTypeMerge(merged)) {
             right.setConstType(merged);
           }
         }
@@ -903,6 +903,14 @@ public class VarDefinitionHelper {
       }
     }
     return remapped;
+  }
+
+  private static boolean canConstTypeMerge(VarType type) {
+    if (type.typeFamily == CodeConstants.TYPE_FAMILY_OBJECT) {
+      return type == VarType.VARTYPE_STRING || type == VarType.VARTYPE_CLASS || type == VarType.VARTYPE_NULL;
+    }
+
+    return true;
   }
 
   private VarType getMergedType(VarVersionPair from, VarVersionPair to) {
