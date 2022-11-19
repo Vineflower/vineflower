@@ -7,6 +7,15 @@ import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.BytecodeMappingTracer;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
+import org.jetbrains.java.decompiler.main.extern.TextTokenVisitor;
+import org.jetbrains.java.decompiler.struct.gen.FieldDescriptor;
+import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
+import org.jetbrains.java.decompiler.struct.gen.VarType;
+import org.jetbrains.java.decompiler.util.token.ClassTextToken;
+import org.jetbrains.java.decompiler.util.token.FieldTextToken;
+import org.jetbrains.java.decompiler.util.token.MethodTextToken;
+import org.jetbrains.java.decompiler.util.token.TextToken;
+import org.jetbrains.java.decompiler.util.token.VariableTextToken;
 
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
@@ -71,6 +80,30 @@ public class TextBuffer {
       append(myIndent);
     }
     return this;
+  }
+
+  public TextBuffer appendClass(String value, boolean declaration, String qualifiedName) {
+    addToken(new ClassTextToken(length(), value.length(), declaration, qualifiedName));
+    return append(value);
+  }
+
+  public TextBuffer appendField(String value, boolean declaration, String className, String name, FieldDescriptor descriptor) {
+    addToken(new FieldTextToken(length(), value.length(), declaration, className, name, descriptor));
+    return append(value);
+  }
+
+  public TextBuffer appendMethod(String value, boolean declaration, String className, String name, MethodDescriptor descriptor) {
+    addToken(new MethodTextToken(length(), value.length(), declaration, className, name, descriptor));
+    return append(value);
+  }
+
+  public TextBuffer appendVariable(String value, boolean declaration, boolean parameter, String className, String methodName, MethodDescriptor methodDescriptor, int index, String name, VarType type) {
+    addToken(new VariableTextToken(length(), value.length(), declaration, parameter, className, methodName, methodDescriptor, index, name, type));
+    return append(value);
+  }
+
+  private void addToken(TextToken token) {
+    // TODO
   }
 
   /**
@@ -302,6 +335,12 @@ public class TextBuffer {
     // update the offset value here because it might have changed when adding indents after existing newlines
     // the parent relies on the value being correct in the list
     offsetMapping.set(offsetMapping.size() - 1, offset);
+
+    for (TextToken token : group.myTokens) {
+      if (token.getStart() < offsetMapping.size()) {
+        token.shift(offsetMapping.get(token.getStart()));
+      }
+    }
   }
 
 
@@ -486,6 +525,7 @@ public class TextBuffer {
     NewlineGroup otherRoot = buffer.myRootGroup.copy();
     otherRoot.shift(myStringBuilder.length());
     myCurrentGroup.myReplacements.addAll(otherRoot.myReplacements);
+    myCurrentGroup.myTokens.addAll(otherRoot.myTokens);
     myCurrentGroup.myChildren.addAll(otherRoot.myChildren);
     myStringBuilder.append(buffer.myStringBuilder);
     return this;
@@ -579,6 +619,30 @@ public class TextBuffer {
     }
   }
 
+  public String getPos(int index) {
+    String before = myStringBuilder.substring(0, index);
+    int line = before.split(myLineSeparator).length;
+    int lineStart = before.lastIndexOf(myLineSeparator);
+    lineStart += lineStart != -1 ? myLineSeparator.length() : 1;
+    return line + ":" + (index + 1 - lineStart);
+  }
+
+  public List<TextToken> getTokens() {
+    return myRootGroup.flattenTokens();
+  }
+
+  public void visitTokens(TextTokenVisitor visitor) {
+    if (visitor == null) {
+      return;
+    }
+
+    visitor.start();
+    for (TextToken token : getTokens()) {
+      token.visit(visitor);
+    }
+    visitor.end();
+  }
+
   private static final class BytecodeMappingKey {
     private final int myBytecodeOffset;
     // null signifies the current class
@@ -620,6 +684,7 @@ public class TextBuffer {
     final int myExtraIndent;
     final List<NewlineGroup> myChildren = new ArrayList<>();
     final List<Replacement> myReplacements = new ArrayList<>();
+    final List<TextToken> myTokens = new ArrayList<>();
 
     NewlineGroup(NewlineGroup parent, int start, int baseIndent, int extraIndent) {
       this.myParent = parent;
@@ -632,6 +697,9 @@ public class TextBuffer {
       myStart += amount;
       for (Replacement replacement : myReplacements) {
         replacement.myStart += amount;
+      }
+      for (TextToken token : myTokens) {
+        token.shift(amount);
       }
       for (NewlineGroup child : myChildren) {
         child.shift(amount);
@@ -651,6 +719,7 @@ public class TextBuffer {
         }
       }
       myReplacements.removeIf(r -> r.myStart > stringLength);
+      myTokens.removeIf(t -> t.getStart() > stringLength);
     }
 
     void dump(String indent) {
@@ -666,8 +735,21 @@ public class TextBuffer {
       for (NewlineGroup child : myChildren) {
         copy.myChildren.add(child.copy());
       }
+      for (TextToken token : myTokens) {
+        copy.myTokens.add(token.copy());
+      }
       copy.myReplacements.addAll(myReplacements);
       return copy;
+    }
+
+    private List<TextToken> flattenTokens() {
+      List<TextToken> result = new ArrayList<>(myTokens);
+      for (NewlineGroup child : myChildren) {
+        result.addAll(child.flattenTokens());
+      }
+
+      result.sort(Comparator.comparingInt(TextToken::getStart));
+      return result;
     }
 
     private static class Replacement {
