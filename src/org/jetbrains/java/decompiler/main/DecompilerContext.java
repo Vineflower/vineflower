@@ -6,22 +6,28 @@ import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.main.collectors.ImportCollector;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
+import org.jetbrains.java.decompiler.main.rels.ClassWrapper;
+import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarProcessor;
 import org.jetbrains.java.decompiler.main.extern.IVariableNamingFactory;
 import org.jetbrains.java.decompiler.modules.renamer.PoolInterceptor;
+import org.jetbrains.java.decompiler.struct.Key;
+import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructContext;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
 public class DecompilerContext {
-  public static final String CURRENT_CLASS = "CURRENT_CLASS";
-  public static final String CURRENT_CLASS_WRAPPER = "CURRENT_CLASS_WRAPPER";
-  public static final String CURRENT_CLASS_NODE = "CURRENT_CLASS_NODE";
-  public static final String CURRENT_METHOD_WRAPPER = "CURRENT_METHOD_WRAPPER";
-  public static final String CURRENT_VAR_PROCESSOR = "CURRENT_VAR_PROCESSOR";
-  public static final String RENAMER_FACTORY = "RENAMER_FACTORY";
+  public static final Key<StructClass> CURRENT_CLASS = new Key<>("CURRENT_CLASS");
+  public static final Key<ClassWrapper> CURRENT_CLASS_WRAPPER = new Key<>("CURRENT_CLASS_WRAPPER");
+  public static final Key<ClassesProcessor.ClassNode> CURRENT_CLASS_NODE = new Key<>("CURRENT_CLASS_NODE");
+  public static final Key<MethodWrapper> CURRENT_METHOD_WRAPPER = new Key<>("CURRENT_METHOD_WRAPPER");
+  public static final Key<VarProcessor> CURRENT_VAR_PROCESSOR = new Key<>("CURRENT_VAR_PROCESSOR");
+  public static final Key<String> RENAMER_FACTORY = new Key<>("RENAMER_FACTORY");
 
+  public final Map<Key<?>, Object> staticProps = new HashMap<>();
   public final Map<String, Object> properties;
   public final IFernflowerLogger logger;
   public final StructContext structContext;
@@ -67,8 +73,8 @@ public class DecompilerContext {
     currentContext.set(context);
   }
 
-  public static void setProperty(String key, Object value) {
-    getCurrentContext().properties.put(key, value);
+  public static <T> void setProperty(Key<T> key, T value) {
+    getCurrentContext().staticProps.put(key, value);
   }
 
   public static void startClass(ImportCollector importCollector) {
@@ -87,6 +93,10 @@ public class DecompilerContext {
   // *****************************************************************************
   // context access
   // *****************************************************************************
+
+  public static <T> T getContextProperty(Key<T> key) {
+    return (T) getCurrentContext().staticProps.get(key);
+  }
 
   public static Object getProperty(String key) {
     return getCurrentContext().properties.get(key);

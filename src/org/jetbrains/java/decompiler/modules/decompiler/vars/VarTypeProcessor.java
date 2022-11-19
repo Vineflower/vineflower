@@ -47,7 +47,7 @@ public class VarTypeProcessor {
     MethodDescriptor md = methodDescriptor;
 
     if (thisVar) {
-      StructClass cl = (StructClass)DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS);
+      StructClass cl = (StructClass)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS);
       VarType clType = new VarType(CodeConstants.TYPE_OBJECT, 0, cl.qualifiedName);
       mapExprentMinTypes.put(new VarVersionPair(0, 1), clType);
       mapExprentMaxTypes.put(new VarVersionPair(0, 1), clType);

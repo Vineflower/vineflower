@@ -132,7 +132,7 @@ public class CondyHelper {
   private static Exprent toCondyExprent(LinkConstant fieldType) {
     Exprent fieldTypeConst;
     // TODO: is this correct in non-trivial cases?
-    StructClass cl = (StructClass) DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS);
+    StructClass cl = (StructClass) DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS);
     // same as in ExprProcessor, use bootstrap attribute from current file to link the constant to bootstrap method
     StructBootstrapMethodsAttribute bootstrap = cl.getAttribute(StructGeneralAttribute.ATTRIBUTE_BOOTSTRAP_METHODS);
     LinkConstant bootstrapMethod = null;

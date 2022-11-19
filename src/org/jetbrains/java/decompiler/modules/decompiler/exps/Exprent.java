@@ -268,8 +268,8 @@ public abstract class Exprent implements IMatchable {
 
   protected Map<VarType, List<VarType>> getNamedGenerics() {
     Map<VarType, List<VarType>> ret = new HashMap<>();
-    ClassNode class_ = (ClassNode)DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS_NODE);
-    MethodWrapper method = (MethodWrapper)DecompilerContext.getProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
+    ClassNode class_ = (ClassNode)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
+    MethodWrapper method = (MethodWrapper)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
 
     while (true) {
       GenericClassDescriptor cls = class_ == null ? null : class_.classStruct.getSignature();

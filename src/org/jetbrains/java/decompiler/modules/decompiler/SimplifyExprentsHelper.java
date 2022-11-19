@@ -1159,7 +1159,7 @@ public class SimplifyExprentsHelper {
 
       SequenceHelper.destroyAndFlattenStatement(stat);
 
-      ClassWrapper wrapper = (ClassWrapper) DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS_WRAPPER);
+      ClassWrapper wrapper = (ClassWrapper) DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_WRAPPER);
       if (wrapper != null) {
         wrapper.getHiddenMembers().add(InterpreterUtil.makeUniqueKey(fieldExpr.getName(), fieldExpr.getDescriptor().descriptorString));
       }
