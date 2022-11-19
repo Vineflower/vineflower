@@ -253,18 +253,17 @@ public class FlattenStatementsHelper implements GraphFlattener {
 
         DirectNode body = this.flattenStatement(stat.getFirst());
 
-        DoStatement dostat = (DoStatement) stat;
-        DoStatement.Type looptype = dostat.getLooptype();
+        DoStatement doStat = (DoStatement) stat;
+        DoStatement.Type loopType = doStat.getLooptype();
 
-        if (looptype == DoStatement.Type.INFINITE) {
-          this.addDestination(stat, body);
-          this.addDestination(stat, body, Edge.Type.CONTINUE);
-          return body;
-        }
-
-        switch (looptype) {
+        switch (loopType) {
+          case INFINITE: {
+            this.addDestination(stat, body);
+            this.addDestination(stat, body, Edge.Type.CONTINUE);
+            return body;
+          }
           case WHILE: {
-            DirectNode conditionNode = this.createDirectNode(stat, DirectNodeType.CONDITION, dostat.getConditionExprentList());
+            DirectNode conditionNode = this.createDirectNode(stat, DirectNodeType.CONDITION, doStat.getConditionExprentList());
 
             conditionNode.addSuccessor(DirectEdge.of(conditionNode, body));
 
@@ -275,7 +274,7 @@ public class FlattenStatementsHelper implements GraphFlattener {
             return conditionNode;
           }
           case DO_WHILE: {
-            DirectNode conditionNode = this.createDirectNode(stat, DirectNodeType.CONDITION, dostat.getConditionExprentList());
+            DirectNode conditionNode = this.createDirectNode(stat, DirectNodeType.CONDITION, doStat.getConditionExprentList());
 
             conditionNode.addSuccessor(DirectEdge.of(conditionNode, body));
 
@@ -289,12 +288,12 @@ public class FlattenStatementsHelper implements GraphFlattener {
           }
           case FOR: {
             DirectNode initNode = this.createDirectNode(stat, DirectNodeType.INIT);
-            if (dostat.getInitExprent() != null) {
-              initNode.exprents = dostat.getInitExprentList();
+            if (doStat.getInitExprent() != null) {
+              initNode.exprents = doStat.getInitExprentList();
             }
 
-            DirectNode conditionNode = this.createDirectNode(stat, DirectNodeType.CONDITION, dostat.getConditionExprentList());
-            DirectNode incrementNode = this.createDirectNode(stat, DirectNodeType.INCREMENT, dostat.getIncExprentList());
+            DirectNode conditionNode = this.createDirectNode(stat, DirectNodeType.CONDITION, doStat.getConditionExprentList());
+            DirectNode incrementNode = this.createDirectNode(stat, DirectNodeType.INCREMENT, doStat.getIncExprentList());
 
             this.addDestination(stat, initNode); // for a for, the start is the init
             this.addDestination(stat, incrementNode, Edge.Type.CONTINUE); // target for all continue edges
@@ -316,10 +315,10 @@ public class FlattenStatementsHelper implements GraphFlattener {
             // for (inc; ; init)
             // TODO: that ordering does not make sense
 
-            DirectNode inc = this.createDirectNode(stat, DirectNodeType.INCREMENT, dostat.getIncExprentList());
+            DirectNode inc = this.createDirectNode(stat, DirectNodeType.INCREMENT, doStat.getIncExprentList());
 
             // Init is foreach variable definition
-            DirectNode init = this.createDirectNode(stat, DirectNodeType.FOREACH_VARDEF, dostat.getInitExprentList());
+            DirectNode init = this.createDirectNode(stat, DirectNodeType.FOREACH_VARDEF, doStat.getInitExprentList());
 
             this.addDestination(stat, inc);
             this.addDestination(stat, init, Edge.Type.CONTINUE); // target for all continue edges
@@ -333,7 +332,7 @@ public class FlattenStatementsHelper implements GraphFlattener {
             return inc;
           }
           default: {
-            throw new RuntimeException("Unknown loop type: " + looptype);
+            throw new RuntimeException("Unknown loop type: " + loopType);
           }
         }
       }
