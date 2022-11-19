@@ -23,7 +23,6 @@ sourceSets {
 dependencies {
   implementation project(":")
   implementation fileTree(dir: 'libs', include: ['*.jar'])
-  implementation 'com.google.protobuf:protobuf-javalite:3.21.9'
 
   testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
   testImplementation testFixtures(project(":"))
