@@ -7,8 +7,7 @@ class TestFunVarargs {
       var var2: Int = 0;
 
       for(int var3 = messages.length; var2 < var3; var2 += 1) {// 5
-         var m: String = messages[var2];
-         System.out.println(m);
+         System.out.println(messages[var2]);
       }
    }// 6
 
@@ -16,8 +15,7 @@ class TestFunVarargs {
       var var2: Int = 0;
 
       for(int var3 = messages.length; var2 < var3; var2 += 1) {// 9
-         var m: String = messages[var2];
-         System.out.println(m);
+         System.out.println(messages[var2]);
       }
    }// 10
 
@@ -27,8 +25,7 @@ class TestFunVarargs {
    }// 15
 
    fun test() {
-      var var1: Array<String> = new String[]{"a", "b", "c"};
-      this.log(var1);// 18
+      this.log("a", "b", "c");// 18
    }// 19
 
    fun nestedArrays(e0: Array<String>, e1: Array<Object>, e2: Array<Array<Array<String>>>) {
@@ -48,101 +45,95 @@ class 'pkg/TestFunVarargs' {
       10      9
       11      9
       12      9
-      13      9
-      14      9
-      15      10
-      16      10
-      17      10
-      18      10
-      19      10
-      1a      10
-      1b      10
-      1c      10
+      15      9
+      16      9
+      17      9
+      18      9
+      19      9
+      1a      9
+      1b      9
+      1c      9
       1d      8
       1e      8
       1f      8
-      23      12
+      23      11
    }
 
    method 'printAllArray ([Ljava/lang/String;)V' {
-      6      15
-      7      15
-      8      17
-      9      17
-      a      17
-      b      17
-      c      17
-      d      17
-      10      18
-      11      18
-      12      18
-      13      18
-      14      18
-      15      19
-      16      19
-      17      19
-      18      19
-      19      19
-      1a      19
-      1b      19
-      1c      19
-      1d      17
-      1e      17
-      1f      17
-      23      21
+      6      14
+      7      14
+      8      16
+      9      16
+      a      16
+      b      16
+      c      16
+      d      16
+      10      17
+      11      17
+      12      17
+      15      17
+      16      17
+      17      17
+      18      17
+      19      17
+      1a      17
+      1b      17
+      1c      17
+      1d      16
+      1e      16
+      1f      16
+      23      19
    }
 
    method 'log ([Ljava/lang/String;)V' {
-      6      24
-      7      24
-      8      24
-      9      24
-      a      24
-      b      24
-      c      24
-      d      24
-      e      24
-      f      24
-      10      24
-      11      24
-      12      24
-      13      25
-      14      25
-      15      25
-      16      25
-      17      25
-      18      26
+      6      22
+      7      22
+      8      22
+      9      22
+      a      22
+      b      22
+      c      22
+      d      22
+      e      22
+      f      22
+      10      22
+      11      22
+      12      22
+      13      23
+      14      23
+      15      23
+      16      23
+      17      23
+      18      24
    }
 
    method 'test ()V' {
-      0      30
-      5      29
-      8      29
-      9      29
-      d      29
-      e      29
-      12      29
-      13      29
-      15      30
-      16      30
-      17      30
-      18      30
-      19      31
+      0      27
+      8      27
+      9      27
+      d      27
+      e      27
+      12      27
+      13      27
+      16      27
+      17      27
+      18      27
+      19      28
    }
 
    method 'nestedArrays ([Ljava/lang/String;[Ljava/lang/Object;[[[Ljava/lang/String;)V' {
-      12      34
+      12      31
    }
 }
 
 Lines mapping:
 5 <-> 9
-6 <-> 13
-9 <-> 18
-10 <-> 22
-13 <-> 25
-14 <-> 26
-15 <-> 27
-18 <-> 31
-19 <-> 32
-23 <-> 35
+6 <-> 12
+9 <-> 17
+10 <-> 20
+13 <-> 23
+14 <-> 24
+15 <-> 25
+18 <-> 28
+19 <-> 29
+23 <-> 32

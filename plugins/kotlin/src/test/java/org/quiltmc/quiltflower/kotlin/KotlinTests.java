@@ -22,9 +22,11 @@ public class KotlinTests extends SingleClassesTestBase {
     register(KOTLIN, "TestKt");
     register(KOTLIN, "TestParams");
     register(KOTLIN, "TestInfixFun");
+    // TODO: foreach not resugared
     register(KOTLIN, "TestFunVarargs");
     register(KOTLIN, "TestVars");
     register(KOTLIN, "TestNullable");
     register(KOTLIN, "TestExtensionFun");
+    register(KOTLIN, "TestClassDec");
   }
 }

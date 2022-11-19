@@ -32,7 +32,13 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 public class StackVarsProcessor {
+  private static final StackSimplifyOptions DEFAULT_OPTIONS = new StackSimplifyOptions();
+
   public static void simplifyStackVars(RootStatement root, StructMethod mt, StructClass cl) {
+    simplifyStackVars(root, mt, cl, DEFAULT_OPTIONS);
+  }
+
+  public static void simplifyStackVars(RootStatement root, StructMethod mt, StructClass cl, StackSimplifyOptions options) {
     Set<Integer> setReorderedIfs = new HashSet<>();
     SSAUConstructorSparseEx ssau = null;
 
@@ -61,7 +67,7 @@ public class StackVarsProcessor {
         ValidationHelper.validateStatement(root);
       }
 
-      if (iterateStatements(root, ssau)) {
+      if (iterateStatements(root, ssau, options)) {
         ValidationHelper.validateStatement(root);
         found = true;
       }
@@ -78,7 +84,7 @@ public class StackVarsProcessor {
     ssau.splitVariables(root, mt);
     ValidationHelper.validateStatement(root);
 
-    iterateStatements(root, ssau);
+    iterateStatements(root, ssau, options);
 
     setVersionsToNull(root);
   }
@@ -112,7 +118,7 @@ public class StackVarsProcessor {
     }
   }
 
-  private static boolean iterateStatements(RootStatement root, SSAUConstructorSparseEx ssa) {
+  private static boolean iterateStatements(RootStatement root, SSAUConstructorSparseEx ssa, StackSimplifyOptions options) {
     FlattenStatementsHelper flatthelper = new FlattenStatementsHelper();
     DirectGraph dgraph = flatthelper.buildDirectGraph(root);
 
@@ -178,7 +184,7 @@ public class StackVarsProcessor {
             boolean simplifyAcrossStack = stackStage == 1;
 
             // {newIndex, changed}
-            int[] ret = iterateExprent(lst, index, next, mapVarValues, ssa, simplifyAcrossStack);
+            int[] ret = iterateExprent(lst, index, next, mapVarValues, ssa, simplifyAcrossStack, options);
 
             // If index is specified, set to that
             if (ret[0] >= 0) {
@@ -284,14 +290,15 @@ public class StackVarsProcessor {
                                Exprent next,
                                Map<VarVersionPair, Exprent> mapVarValues,
                                SSAUConstructorSparseEx ssau,
-                               boolean simplifyAcrossStack) {
+                               boolean simplifyAcrossStack,
+                               StackSimplifyOptions options) {
     Exprent exprent = lstExprents.get(index);
 
     int changed = 0;
 
     for (Exprent expr : exprent.getAllExprents()) {
       while (true) {
-        Object[] arr = iterateChildExprent(expr, exprent, next, mapVarValues, ssau);
+        Object[] arr = iterateChildExprent(expr, exprent, next, mapVarValues, ssau, options);
         Exprent retexpr = (Exprent)arr[0];
         changed |= (Boolean)arr[1] ? 1 : 0;
 
@@ -344,7 +351,7 @@ public class StackVarsProcessor {
           // new Object(); permitted
           NewExprent nexpr = (NewExprent)right;
           if (
-            // TODO: why is this here? anonymous vars should be simplfiend!
+            // TODO: why is this here? anonymous vars should be simplified!
 //            nexpr.isAnonymous() ||
               nexpr.getNewType().arrayDim > 0 ||
               nexpr.getNewType().type != CodeConstants.TYPE_OBJECT
@@ -387,7 +394,7 @@ public class StackVarsProcessor {
     int useflags = right.getExprentUse();
 
     // stack variables only
-    if (!left.isStack() &&
+    if ((!left.isStack() && options.inlineRegularVars) &&
         (!(right instanceof VarExprent) || ((VarExprent)right).isStack())) { // special case catch(... ex)
       return new int[]{-1, changed};
     }
@@ -605,12 +612,13 @@ public class StackVarsProcessor {
                                               Exprent parent,
                                               Exprent next,
                                               Map<VarVersionPair, Exprent> mapVarValues,
-                                              SSAUConstructorSparseEx ssau) {
+                                              SSAUConstructorSparseEx ssau,
+                                              StackSimplifyOptions options) {
     boolean changed = false;
 
     for (Exprent expr : exprent.getAllExprents()) {
       while (true) {
-        Object[] arr = iterateChildExprent(expr, parent, next, mapVarValues, ssau);
+        Object[] arr = iterateChildExprent(expr, parent, next, mapVarValues, ssau, options);
         Exprent retexpr = (Exprent)arr[0];
         changed |= (Boolean)arr[1];
 
@@ -666,7 +674,7 @@ public class StackVarsProcessor {
     }
 
     // stack variable or synchronized head exprent
-    if (!left.isStack() && !isHeadSynchronized) {
+    if ((!left.isStack() && options.inlineRegularVars) && !isHeadSynchronized) {
       return new Object[]{null, changed, false};
     }
 
@@ -1039,5 +1047,19 @@ public class StackVarsProcessor {
     }
 
     return ret;
+  }
+
+  public static class StackSimplifyOptions {
+    private boolean inlineRegularVars = false;
+    public StackSimplifyOptions() {
+
+    }
+
+    public StackSimplifyOptions inlineRegularVars() {
+      inlineRegularVars = true;
+      return this;
+    }
+
+
   }
 }

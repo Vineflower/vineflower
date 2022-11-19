@@ -8,11 +8,14 @@ import org.jetbrains.java.decompiler.api.passes.Pass;
 import org.jetbrains.java.decompiler.api.passes.WrappedPass;
 import org.jetbrains.java.decompiler.modules.decompiler.*;
 import org.jetbrains.java.decompiler.modules.decompiler.decompose.DomHelper;
+import org.quiltmc.quiltflower.kotlin.pass.EliminateDeadVarsPass;
 import org.quiltmc.quiltflower.kotlin.pass.JavaFinallyPass;
 import org.quiltmc.quiltflower.kotlin.pass.ReplaceExprentsPass;
 import org.quiltmc.quiltflower.kotlin.pass.ResugarKotlinMethodsPass;
 
 public class KotlinPlugin implements Plugin {
+  private static final StackVarsProcessor.StackSimplifyOptions INLINE_ALL_VARS = new StackVarsProcessor.StackSimplifyOptions()
+    .inlineRegularVars();
 
   @Override
   public String id() {
@@ -47,6 +50,7 @@ public class KotlinPlugin implements Plugin {
               .build()
             )
           .addFallthroughPass("SimplifyStack", WrappedPass.of(ctx -> StackVarsProcessor.simplifyStackVars(ctx.getRoot(), ctx.getMethod(), ctx.getEnclosingClass())))
+          .addFallthroughPass("EliminateDead", new EliminateDeadVarsPass())
           .addFallthroughPass("VarVersions", WrappedPass.of(ctx -> ctx.getVarProc().setVarVersions(ctx.getRoot())))
           .addFallthroughPass("IdentifyLabels", WrappedPass.of(ctx -> LabelHelper.identifyLabels(ctx.getRoot())))
           .addLoopingPass("InlineSingleBlocks", ctx -> InlineSingleBlockHelper.inlineSingleBlocks(ctx.getRoot()))
@@ -55,6 +59,8 @@ public class KotlinPlugin implements Plugin {
           .addLoopingPass("CondenseExits", ctx -> ExitHelper.condenseExits(ctx.getRoot()))
           .build()
         )
+      // TODO: preference for this pass
+      .addPass("SimplifyStack", WrappedPass.of(ctx -> StackVarsProcessor.simplifyStackVars(ctx.getRoot(), ctx.getMethod(), ctx.getEnclosingClass(), INLINE_ALL_VARS)))
       .addPass("AdjustReturnType", ctx -> ExitHelper.adjustReturnType(ctx.getRoot(), ctx.getMethodDescriptor()))
       .addPass("RedundantReturns", ctx -> ExitHelper.removeRedundantReturns(ctx.getRoot()))
       .addPass("IdentifySecondary", ctx -> SecondaryFunctionsHelper.identifySecondaryFunctions(ctx.getRoot(), ctx.getVarProc()))

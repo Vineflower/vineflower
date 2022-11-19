@@ -1068,6 +1068,10 @@ public abstract class SFormsConstructor {
     return null;
   }
 
+  public DirectGraph getDirectGraph() {
+    return dgraph;
+  }
+
   public Map<VarVersionPair, Integer> getMapVersionFirstRange() {
     ValidationHelper.assertTrue(this.ssau, "This is an ssau only operation");
     return this.mapVersionFirstRange;
