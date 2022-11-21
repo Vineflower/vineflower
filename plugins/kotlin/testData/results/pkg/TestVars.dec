@@ -10,14 +10,14 @@ class TestVars {
    }// 16
 
    fun testPhi(bl: Boolean) {
-      var d: Byte;
+      var var3: Byte;
       if (bl) {// 21
-         d = 1;// 22
+         var3 = 1;// 22
       } else {
-         d = 2;// 24
+         var3 = 2;// 24
       }
 
-      System.out.println(d);// 27
+      System.out.println(var3);// 27
    }// 28
 
    fun testIfExpr(bl: Boolean) {

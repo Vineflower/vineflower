@@ -8,10 +8,7 @@ import org.jetbrains.java.decompiler.api.passes.Pass;
 import org.jetbrains.java.decompiler.api.passes.WrappedPass;
 import org.jetbrains.java.decompiler.modules.decompiler.*;
 import org.jetbrains.java.decompiler.modules.decompiler.decompose.DomHelper;
-import org.quiltmc.quiltflower.kotlin.pass.EliminateDeadVarsPass;
-import org.quiltmc.quiltflower.kotlin.pass.JavaFinallyPass;
-import org.quiltmc.quiltflower.kotlin.pass.ReplaceExprentsPass;
-import org.quiltmc.quiltflower.kotlin.pass.ResugarKotlinMethodsPass;
+import org.quiltmc.quiltflower.kotlin.pass.*;
 
 public class KotlinPlugin implements Plugin {
   private static final StackVarsProcessor.StackSimplifyOptions INLINE_ALL_VARS = new StackVarsProcessor.StackSimplifyOptions()
@@ -37,6 +34,7 @@ public class KotlinPlugin implements Plugin {
         ctx -> new ExprProcessor(ctx.getMethodDescriptor(), ctx.getVarProc()).processStatement(ctx.getRoot(), ctx.getEnclosingClass()))
       )
       .addPass("CondenseSequences_1", WrappedPass.of(ctx -> SequenceHelper.condenseSequences(ctx.getRoot())))
+      .addPass("StackVars", new StackVarInitialPass())
       .addPass("InlineIfPPMM", ctx -> PPandMMHelper.inlinePPIandMMIIf(ctx.getRoot()))
       .addPass("MainLoop",
         new LoopingPassBuilder("Main")
@@ -44,7 +42,7 @@ public class KotlinPlugin implements Plugin {
           .addFallthroughPass("MergeLoop",
             new LoopingPassBuilder("Merge")
               .addLoopingPass("EliminateLoops", ctx -> EliminateLoopsHelper.eliminateLoops(ctx.getRoot(), ctx.getEnclosingClass()))
-              .addFallthroughPass("EnhanceLoops", WrappedPass.of(ctx -> MergeHelper.enhanceLoops(ctx.getRoot())))
+              .addFallthroughPass("EnhanceLoops", new KMergePass())
               .addLoopingPass("ExtractLoops", ctx -> LoopExtractHelper.extractLoops(ctx.getRoot()))
               .addLoopingPass("MergeAllIfs", ctx -> IfHelper.mergeAllIfs(ctx.getRoot()))
               .build()

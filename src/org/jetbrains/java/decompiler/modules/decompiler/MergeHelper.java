@@ -17,7 +17,7 @@ import org.jetbrains.java.decompiler.struct.gen.VarType;
 
 import java.util.*;
 
-public final class MergeHelper {
+public class MergeHelper {
   public static void enhanceLoops(Statement root) {
     while (enhanceLoopsRec(root)) /**/;
     SequenceHelper.condenseSequences(root);
@@ -159,7 +159,7 @@ public final class MergeHelper {
     return stat.getParent() instanceof DoStatement;
   }
 
-  private static boolean matchWhile(DoStatement stat) {
+  protected static boolean matchWhile(DoStatement stat) {
 
     // search for an if condition at the entrance of the loop
     Statement first = stat.getFirst();
@@ -347,7 +347,7 @@ public final class MergeHelper {
     }
   }
 
-  private static void matchFor(DoStatement stat) {
+  protected static void matchFor(DoStatement stat) {
     Exprent lastDoExprent, initDoExprent;
     Statement lastData, preData = null;
 
@@ -472,7 +472,7 @@ public final class MergeHelper {
     cleanEmptyStatements(stat, lastData);
   }
 
-  private static void cleanEmptyStatements(DoStatement dostat, Statement stat) {
+  protected static void cleanEmptyStatements(DoStatement dostat, Statement stat) {
     if (stat != null && stat.getExprents().isEmpty()) {
       List<StatEdge> lst = stat.getAllSuccessorEdges();
       if (!lst.isEmpty()) {
@@ -488,7 +488,7 @@ public final class MergeHelper {
     }
   }
 
-  private static void removeLastEmptyStatement(DoStatement dostat, Statement stat) {
+  protected static void removeLastEmptyStatement(DoStatement dostat, Statement stat) {
 
     if (stat == dostat.getFirst()) {
       BasicBlockStatement bstat = BasicBlockStatement.create();
@@ -529,7 +529,7 @@ public final class MergeHelper {
     }
   }
 
-  private static Statement getLastDirectData(Statement stat) {
+  protected static Statement getLastDirectData(Statement stat) {
     if (stat.getExprents() != null) {
       return stat;
     }
@@ -543,7 +543,7 @@ public final class MergeHelper {
     return null;
   }
 
-  private static boolean matchForEach(DoStatement stat) {
+  protected static boolean matchForEach(DoStatement stat) {
     AssignmentExprent firstDoExprent = null;
     AssignmentExprent[] initExprents = new AssignmentExprent[3];
     Statement firstData = null, preData = null, lastData = null;
@@ -776,7 +776,7 @@ public final class MergeHelper {
   }
 
   // Use DirectGraph traversal to see if a variable has been used before [TestForeachVardef]
-  private static boolean isVarUsedBefore(VarExprent var, Statement st) {
+  protected static boolean isVarUsedBefore(VarExprent var, Statement st) {
     // Build digraph
     FlattenStatementsHelper flatten = new FlattenStatementsHelper();
     DirectGraph digraph = flatten.buildDirectGraph(st.getTopParent());
@@ -820,7 +820,7 @@ public final class MergeHelper {
     return false;
   }
 
-  private static Exprent drillNots(Exprent exp) {
+  protected static Exprent drillNots(Exprent exp) {
     while (true) {
       if (exp instanceof FunctionExprent) {
         FunctionExprent fun = (FunctionExprent)exp;
@@ -841,7 +841,7 @@ public final class MergeHelper {
     }
   }
 
-  private static Statement getFirstDirectData(Statement stat) {
+  protected static Statement getFirstDirectData(Statement stat) {
     if (stat.getExprents() != null && !stat.getExprents().isEmpty()) {
       return stat;
     }
@@ -855,7 +855,7 @@ public final class MergeHelper {
     return null;
   }
 
-  private static Exprent getUncast(Exprent exp) {
+  protected static Exprent getUncast(Exprent exp) {
     if (exp instanceof FunctionExprent) {
       FunctionExprent func = (FunctionExprent)exp;
       if (func.getFuncType() == FunctionType.CAST) {
@@ -865,7 +865,7 @@ public final class MergeHelper {
     return exp;
   }
 
-  private static InvocationExprent asInvocationExprent(Exprent exp) {
+  protected static InvocationExprent asInvocationExprent(Exprent exp) {
     exp = getUncast(exp);
     if (exp instanceof InvocationExprent) {
       return (InvocationExprent) exp;
@@ -873,7 +873,7 @@ public final class MergeHelper {
     return null;
   }
 
-  private static boolean isIteratorCall(Exprent exp) {
+  protected static boolean isIteratorCall(Exprent exp) {
     final InvocationExprent iexp = asInvocationExprent(exp);
     if (iexp == null) {
       return false;
@@ -887,7 +887,7 @@ public final class MergeHelper {
            "listIterator".equals(name);
   }
 
-  private static boolean isHasNextCall(Exprent exp) {
+  protected static boolean isHasNextCall(Exprent exp) {
     final InvocationExprent iexp = asInvocationExprent(exp);
     if (iexp == null) {
       return false;
@@ -898,7 +898,7 @@ public final class MergeHelper {
     return "hasNext".equals(iexp.getName()) && "()Z".equals(iexp.getStringDescriptor());
   }
 
-  private static boolean isNextCall(Exprent exp) {
+  protected static boolean isNextCall(Exprent exp) {
     final InvocationExprent iexp = asInvocationExprent(exp);
     if (iexp == null) {
       return false;
@@ -909,7 +909,7 @@ public final class MergeHelper {
     return "next".equals(iexp.getName()) && "()Ljava/lang/Object;".equals(iexp.getStringDescriptor());
   }
 
-  private static boolean isNextUnboxing(Exprent exprent) {
+  protected static boolean isNextUnboxing(Exprent exprent) {
     Exprent exp = getUncast(exprent);
     if (!(exp instanceof InvocationExprent))
       return false;
