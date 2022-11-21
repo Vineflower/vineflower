@@ -1,0 +1,88 @@
+package pkg
+
+class TestIfRange {
+   fun testInt(x: Int) {
+      if (1 <= x ? x < 11 : false) {// 5
+         System.out.println(x);// 6
+      }
+   }// 8
+
+   fun testChar(x: Char) {
+      if ('a' <= x ? x < '{' : false) {// 11
+         System.out.println(x);// 12
+      }
+   }// 14
+
+   fun testInvertedInt(x: Int) {
+      if (1 <= x ? x >= 11 : true) {// 17
+         System.out.println(x);// 18
+      }
+   }// 20
+}
+
+class 'pkg/TestIfRange' {
+   method 'testInt (I)V' {
+      0      4
+      1      4
+      2      4
+      5      4
+      6      4
+      7      4
+      8      4
+      13      4
+      14      4
+      17      5
+      18      5
+      19      5
+      1a      5
+      1b      5
+      1e      7
+   }
+
+   method 'testChar (C)V' {
+      0      10
+      1      10
+      2      10
+      3      10
+      6      10
+      7      10
+      8      10
+      9      10
+      14      10
+      15      10
+      18      11
+      19      11
+      1a      11
+      1b      11
+      1c      11
+      1f      13
+   }
+
+   method 'testInvertedInt (I)V' {
+      0      16
+      1      16
+      2      16
+      5      16
+      6      16
+      7      16
+      8      16
+      14      16
+      17      17
+      18      17
+      19      17
+      1a      17
+      1b      17
+      1e      19
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 6
+8 <-> 8
+11 <-> 11
+12 <-> 12
+14 <-> 14
+17 <-> 17
+18 <-> 18
+20 <-> 20

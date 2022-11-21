@@ -1,0 +1,65 @@
+package pkg
+
+class TestForRange {
+   fun testInt() {
+      for(int i = 1; i < 11; ++i) {// 5
+         System.out.println(i);// 6
+      }
+   }// 8
+
+   fun testChar() {
+      for(char c = 'a'; c < '{'; ++c) {// 11
+         System.out.println(c);// 12
+      }
+   }// 14
+}
+
+class 'pkg/TestForRange' {
+   method 'testInt ()V' {
+      0      4
+      1      4
+      2      4
+      3      4
+      4      4
+      5      4
+      8      5
+      9      5
+      a      5
+      b      5
+      c      5
+      d      5
+      e      5
+      f      4
+      10      4
+      11      4
+      15      7
+   }
+
+   method 'testChar ()V' {
+      0      10
+      1      10
+      2      10
+      3      10
+      4      10
+      5      10
+      6      10
+      9      11
+      a      11
+      b      11
+      c      11
+      d      11
+      e      11
+      f      11
+      10      10
+      12      10
+      18      13
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 6
+8 <-> 8
+11 <-> 11
+12 <-> 12
+14 <-> 14
