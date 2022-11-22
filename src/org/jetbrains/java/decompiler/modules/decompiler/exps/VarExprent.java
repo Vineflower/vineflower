@@ -141,7 +141,7 @@ public class VarExprent extends Exprent {
           param = i <= Arrays.stream(descriptor.params).map(v -> v.stackSize).reduce(0, Integer::sum);
         }
 
-        buffer.appendVariable(name, false, param, method.classStruct.qualifiedName, method.methodStruct.getName(), descriptor, index, name);
+        buffer.appendVariable(name, definition, param, method.classStruct.qualifiedName, method.methodStruct.getName(), descriptor, index, name);
       } else {
         buffer.append(name);
       }
