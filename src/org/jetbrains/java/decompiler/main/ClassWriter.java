@@ -205,8 +205,6 @@ public class ClassWriter implements StatementWriter {
           }
           buffer.append(" ->");
 
-          // @martrixx: left here!
-
           RootStatement root = wrapper.getMethodWrapper(mt.getName(), mt.getDescriptor()).root;
           if (DecompilerContext.getOption(IFernflowerPreferences.INLINE_SIMPLE_LAMBDAS) && methodWrapper.decompileError == null && root != null) {
             Statement firstStat = root.getFirst();
@@ -835,7 +833,7 @@ public class ClassWriter implements StatementWriter {
               typeName = ExprProcessor.getCastTypeName(VarType.VARTYPE_OBJECT);
             }
 
-            buffer.appendTypeName(typeName, type);
+            buffer.appendCastTypeName(typeName, type);
             buffer.append(" ");
 
             String parameterName = methodWrapper.varproc.getVarName(new VarVersionPair(index, 0));
@@ -1093,7 +1091,7 @@ public class ClassWriter implements StatementWriter {
                 DecompilerContext.getOption(IFernflowerPreferences.UNDEFINED_PARAM_TYPE_OBJECT)) {
               typeName = ExprProcessor.getCastTypeName(VarType.VARTYPE_OBJECT);
             }
-            buffer.appendTypeName(typeName, parameterType);
+            buffer.appendCastTypeName(typeName, parameterType);
             if (isVarArg) {
               buffer.append("...");
             }
@@ -1114,8 +1112,8 @@ public class ClassWriter implements StatementWriter {
 
             }
 
-            // TODO: var args could have wrong types???
-            buffer.appendVariable(parameterName == null ? "param" + index : parameterName, true, true, cl.qualifiedName, name, md, index, parameterName, parameterType); // null iff decompiled with errors
+            buffer.appendVariable(parameterName == null ? "param" + index : parameterName, // null iff decompiled with errors
+              true, true, cl.qualifiedName, mt.getName(), md, index, parameterName, parameterType);
 
             paramCount++;
           }

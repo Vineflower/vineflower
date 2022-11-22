@@ -154,8 +154,11 @@ Lines mapping:
 Tokens:
 (6:2, 6:18) class [reference] pkg/MoreAnnotations$NestedAnnotation
 (7:14, 7:28) class [declaration] pkg/TestTextTokens
-(8:12, 8:30) class [reference] pkg/TestTextTokens$Bee
+(8:12, 8:26) class [reference] pkg/TestTextTokens
+(8:27, 8:30) class [reference] pkg/TestTextTokens$Bee
 (8:31, 8:34) field [declaration] pkg/TestTextTokens#bee:Lpkg/TestTextTokens$Bee;
+(8:41, 8:55) class [reference] pkg/TestTextTokens
+(8:56, 8:59) class [reference] pkg/TestTextTokens$Bee
 (10:16, 10:19) method [declaration] pkg/TestTextTokens#foo()V
 (11:7, 11:10) method [reference] pkg/TestTextTokens#bar(Ljava/lang/String;)V
 (12:12, 12:15) field [reference] pkg/TestTextTokens#bee:Lpkg/TestTextTokens$Bee;

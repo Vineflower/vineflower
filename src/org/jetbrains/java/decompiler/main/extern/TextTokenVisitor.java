@@ -30,6 +30,7 @@ public abstract class TextTokenVisitor {
       property = new ArrayList<>();
       DecompilerContext.setProperty(PROPERTY_NAME, property);
     }
+
     return property;
   }
 
@@ -37,11 +38,19 @@ public abstract class TextTokenVisitor {
     getFactories().add(factory);
   }
 
-  public static TextTokenVisitor createVisitor(Factory factory) {
-    return getFactories().stream().reduce(Factory::andThen).orElse(v -> v).andThen(factory).create(EMPTY);
+  private static Factory chainFactories() {
+    return getFactories().stream().reduce(Factory::andThen).orElse(v -> v);
   }
 
-  public void start() {
+  public static TextTokenVisitor createVisitor() {
+    return chainFactories().create(EMPTY);
+  }
+
+  public static TextTokenVisitor createVisitor(Factory factory) {
+    return chainFactories().andThen(factory).create(EMPTY);
+  }
+
+  public void start(String content) {
   }
 
   public void visitClass(TextRange range, boolean declaration, String name) {

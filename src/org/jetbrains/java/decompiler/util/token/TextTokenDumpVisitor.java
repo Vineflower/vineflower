@@ -26,7 +26,7 @@ public class TextTokenDumpVisitor extends TextTokenVisitor {
   }
 
   @Override
-  public void start() {
+  public void start(String content) {
     text = new TextBuffer();
     text.appendLineSeparator()
       .append("/*").appendLineSeparator()

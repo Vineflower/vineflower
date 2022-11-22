@@ -123,10 +123,11 @@ public class VarExprent extends Exprent {
         if (processor != null && processor.getVarFinal(varVersion) == FinalType.EXPLICIT_FINAL) {
           buffer.append("final ");
         }
-        buffer.append(getDefinitionType());
+        buffer.appendCastTypeName(getDefinitionVarType());
         buffer.append(" ");
       }
 
+      // FIXME: tokenize - How can I check whether this var is a parameter?
       buffer.append(getName());
     }
 
@@ -154,6 +155,10 @@ public class VarExprent extends Exprent {
   */
 
   public String getDefinitionType() {
+    return ExprProcessor.getCastTypeName(getDefinitionVarType());
+  }
+
+  public VarType getDefinitionVarType() {
     if (DecompilerContext.getOption(IFernflowerPreferences.USE_DEBUG_VAR_NAMES)) {
 
       if (lvt != null) {
@@ -161,11 +166,11 @@ public class VarExprent extends Exprent {
           if (lvt.getSignature() != null) {
             GenericFieldDescriptor descriptor = GenericMain.parseFieldSignature(lvt.getSignature());
             if (descriptor != null) {
-              return ExprProcessor.getCastTypeName(descriptor.type);
+              return descriptor.type;
             }
           }
         }
-        return ExprProcessor.getCastTypeName(getVarType());
+        return getVarType();
       }
 
       MethodWrapper method = (MethodWrapper)DecompilerContext.getProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
@@ -185,7 +190,7 @@ public class VarExprent extends Exprent {
               if (signature != null) {
                 GenericFieldDescriptor descriptor = GenericMain.parseFieldSignature(signature);
                 if (descriptor != null) {
-                  return ExprProcessor.getCastTypeName(descriptor.type);
+                  return descriptor.type;
                 }
               }
             }
@@ -196,14 +201,14 @@ public class VarExprent extends Exprent {
           if (attr != null) {
             String descriptor = attr.getDescriptor(originalIndex, visibleOffset);
             if (descriptor != null) {
-              return ExprProcessor.getCastTypeName(new VarType(descriptor));
+              return new VarType(descriptor);
             }
           }
         }
       }
     }
 
-    return ExprProcessor.getCastTypeName(getVarType());
+    return getVarType();
   }
 
   @Override

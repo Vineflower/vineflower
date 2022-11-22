@@ -148,7 +148,7 @@ public class FieldExprent extends Exprent {
 
     if (isStatic) {
       if (useQualifiedStatic()) {
-        buf.appendClass(DecompilerContext.getImportCollector().getShortNameInClassContext(ExprProcessor.buildJavaClassName(classname)), false, classname);
+        buf.appendAllClasses(DecompilerContext.getImportCollector().getShortNameInClassContext(ExprProcessor.buildJavaClassName(classname)), classname);
         buf.append(".");
       }
     }

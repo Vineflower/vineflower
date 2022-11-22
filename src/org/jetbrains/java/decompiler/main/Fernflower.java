@@ -175,6 +175,8 @@ public class Fernflower implements IDecompiledData {
       classProcessor.writeClass(cl, buffer);
       if (DecompilerContext.getOption(IFernflowerPreferences.DUMP_TEXT_TOKENS)) {
         buffer.visitTokens(TextTokenVisitor.createVisitor(next -> new TextTokenDumpVisitor(next, buffer)));
+      } else {
+        buffer.visitTokens(TextTokenVisitor.createVisitor());
       }
       String res = buffer.convertToStringAndAllowDataDiscard();
       if (res == null) {
