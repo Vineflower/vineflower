@@ -699,6 +699,10 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16, "TestTryWithResourcesNestedLoop");
     register(JAVA_16, "TestTryWithResourcesFakeTrigger");
 
+    register(JAVA_16, "TestTryWithResourcesManyJ16");
+    // TODO: QF doesn't handle the synthetic method in the finally correctly
+//    register(JAVA_9, "TestTryWithResourcesManyJ9");
+
     register(JAVA_8, "TestGenericMapEntireClasspath");
     register(JAVA_8, "TestGenericsTernary");
     // TODO: casts on null and (U)
