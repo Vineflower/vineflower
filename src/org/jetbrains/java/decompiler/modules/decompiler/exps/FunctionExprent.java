@@ -5,6 +5,7 @@ package org.jetbrains.java.decompiler.modules.decompiler.exps;
 
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.main.plugins.PluginImplementationException;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
@@ -83,6 +84,10 @@ public class FunctionExprent extends Exprent {
     BOOLEAN_AND(2, "&&", 10, VarType.VARTYPE_BOOLEAN),
     BOOLEAN_OR(2, "||", 11, VarType.VARTYPE_BOOLEAN),
     STR_CONCAT(2, "+", 3, VarType.VARTYPE_STRING),
+
+    // Catch all for plugins
+
+    OTHER(0, "??????", 999, null)
     ;
 
     public final int arity;
@@ -219,6 +224,7 @@ public class FunctionExprent extends Exprent {
           return supertype;
         }
       }
+      case OTHER: throw new PluginImplementationException("Plugin should implement custom handling");
       default: throw new IllegalStateException("No type for funcType=" + funcType);
     }
   }
@@ -404,7 +410,10 @@ public class FunctionExprent extends Exprent {
             result.addMinTypeExprent(param2, VarType.VARTYPE_BYTECHAR);
           }
         }
+        break;
       }
+
+      case OTHER: throw new PluginImplementationException("Plugin should implement custom handling");
     }
 
     return result;
@@ -585,6 +594,10 @@ public class FunctionExprent extends Exprent {
                  .append(", ")
                  .append(wrapOperandString(lstOperands.get(1), true, indent))
                  .append(")");
+    }
+
+    if (funcType == FunctionType.OTHER) {
+      throw new PluginImplementationException("Plugin should implement custom handling");
     }
 
     if (funcType.castType != null) {

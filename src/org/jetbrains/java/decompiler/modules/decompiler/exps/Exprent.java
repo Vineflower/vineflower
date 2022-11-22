@@ -45,6 +45,9 @@ public abstract class Exprent implements IMatchable {
     SWITCH_HEAD,
     VAR,
     YIELD,
+
+    // Catch all for plugins
+    OTHER
   }
 
   protected static ThreadLocal<Map<String, VarType>> inferredLambdaTypes = ThreadLocal.withInitial(HashMap::new);

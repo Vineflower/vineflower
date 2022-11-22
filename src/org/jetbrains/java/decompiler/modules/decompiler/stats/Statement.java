@@ -29,7 +29,10 @@ public abstract class Statement implements IMatchable {
     ROOT("Root"), BASIC_BLOCK("Block"), SEQUENCE("Seq"), DUMMY_EXIT("Exit"),
     GENERAL("General"),
     IF("If"), DO("Do"), SWITCH("Switch"),
-    SYNCHRONIZED("Monitor"), TRY_CATCH("Catch"), CATCH_ALL("CatchAll");
+    SYNCHRONIZED("Monitor"), TRY_CATCH("Catch"), CATCH_ALL("CatchAll"),
+
+    // Catch all for plugins
+    OTHER("YouHaveMetATerribleFate");
 
     private final String prettyId;
 
