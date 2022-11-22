@@ -192,7 +192,7 @@ public class ClassWriter implements StatementWriter {
 
               VarVersionPair version = new VarVersionPair(index, 0);
               String parameterName = methodWrapper.varproc.getVarName(version);
-              buffer.appendVariable(parameterName == null ? "param" + index : parameterName, true, true, node.lambdaInformation.content_class_name, node.lambdaInformation.content_method_name, node.lambdaInformation.method_descriptor, index, parameterName, methodWrapper.varproc.getVarType(version)); // null iff decompiled with errors
+              buffer.appendVariable(parameterName == null ? "param" + index : parameterName, true, true, node.lambdaInformation.content_class_name, node.lambdaInformation.content_method_name, node.lambdaInformation.method_descriptor, index, parameterName); // null iff decompiled with errors
 
               firstParameter = false;
             }
@@ -837,7 +837,8 @@ public class ClassWriter implements StatementWriter {
             buffer.append(" ");
 
             String parameterName = methodWrapper.varproc.getVarName(new VarVersionPair(index, 0));
-            buffer.appendVariable(parameterName == null ? "param" + index : parameterName, true, true, classWrapper.getClassStruct().qualifiedName, method_name, md_content, index, parameterName, type); // null iff decompiled with errors
+            buffer.appendVariable(parameterName == null ? "param" + index : parameterName, // null iff decompiled with errors
+              true, true, classWrapper.getClassStruct().qualifiedName, method_name, md_content, index, parameterName);
 
             firstParameter = false;
           }
@@ -1113,7 +1114,7 @@ public class ClassWriter implements StatementWriter {
             }
 
             buffer.appendVariable(parameterName == null ? "param" + index : parameterName, // null iff decompiled with errors
-              true, true, cl.qualifiedName, mt.getName(), md, index, parameterName, parameterType);
+              true, true, cl.qualifiedName, mt.getName(), md, index, parameterName);
 
             paramCount++;
           }

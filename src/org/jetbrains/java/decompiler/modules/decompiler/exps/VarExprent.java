@@ -19,6 +19,7 @@ import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribute.LocalVariable;
 import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTypeTableAttribute;
+import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericFieldDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericMain;
@@ -29,6 +30,7 @@ import org.jetbrains.java.decompiler.struct.match.MatchNode.RuleValue;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -127,8 +129,22 @@ public class VarExprent extends Exprent {
         buffer.append(" ");
       }
 
-      // FIXME: tokenize - How can I check whether this var is a parameter?
-      buffer.append(getName());
+      String name = getName();
+      MethodWrapper method = (MethodWrapper) DecompilerContext.getProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
+      if (method != null && (!"this".equals(name) || index != 0)) {
+        MethodDescriptor descriptor = MethodDescriptor.parseDescriptor(method.methodStruct.getDescriptor());
+        boolean param = false;
+
+        if (processor != null) {
+          Integer originalIndex = processor.getVarOriginalIndex(index);
+          int i = originalIndex != null ? originalIndex : index;
+          param = i <= Arrays.stream(descriptor.params).map(v -> v.stackSize).reduce(0, Integer::sum);
+        }
+
+        buffer.appendVariable(name, false, param, method.classStruct.qualifiedName, method.methodStruct.getName(), descriptor, index, name);
+      } else {
+        buffer.append(name);
+      }
     }
 
     return buffer;

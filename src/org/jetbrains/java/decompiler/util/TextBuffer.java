@@ -230,12 +230,12 @@ public class TextBuffer {
     return append(value);
   }
 
-  public TextBuffer appendVariable(String value, boolean declaration, boolean parameter, String className, String methodName, String methodDescriptor, int index, String name, VarType type) {
-    return appendVariable(value, declaration, parameter, className, methodName, MethodDescriptor.parseDescriptor(methodDescriptor), index, name, type);
+  public TextBuffer appendVariable(String value, boolean declaration, boolean parameter, String className, String methodName, String methodDescriptor, int index, String name) {
+    return appendVariable(value, declaration, parameter, className, methodName, MethodDescriptor.parseDescriptor(methodDescriptor), index, name);
   }
 
-  public TextBuffer appendVariable(String value, boolean declaration, boolean parameter, String className, String methodName, MethodDescriptor methodDescriptor, int index, String name, VarType type) {
-    addToken(new VariableTextToken(length(), value.length(), declaration, parameter, className, methodName, methodDescriptor, index, name, type));
+  public TextBuffer appendVariable(String value, boolean declaration, boolean parameter, String className, String methodName, MethodDescriptor methodDescriptor, int index, String name) {
+    addToken(new VariableTextToken(length(), value.length(), declaration, parameter, className, methodName, methodDescriptor, index, name));
     return append(value);
   }
 

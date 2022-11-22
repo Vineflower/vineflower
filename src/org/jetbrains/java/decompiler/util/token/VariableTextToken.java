@@ -11,9 +11,8 @@ public class VariableTextToken extends TextToken {
   public final MethodDescriptor methodDescriptor;
   public final int index;
   public final String name;
-  public final VarType type;
 
-  public VariableTextToken(int start, int length, boolean declaration, boolean parameter, String className, String methodName, MethodDescriptor methodDescriptor, int index, String name, VarType type) {
+  public VariableTextToken(int start, int length, boolean declaration, boolean parameter, String className, String methodName, MethodDescriptor methodDescriptor, int index, String name) {
     super(start, length, declaration);
     this.parameter = parameter;
     this.className = className;
@@ -21,20 +20,19 @@ public class VariableTextToken extends TextToken {
     this.methodDescriptor = methodDescriptor;
     this.index = index;
     this.name = name;
-    this.type = type;
   }
 
   @Override
   public VariableTextToken copy() {
-    return new VariableTextToken(start, length, declaration, parameter, className, methodName, methodDescriptor, index, name, type);
+    return new VariableTextToken(start, length, declaration, parameter, className, methodName, methodDescriptor, index, name);
   }
 
   @Override
   public void visit(TextTokenVisitor visitor) {
     if (parameter) {
-      visitor.visitParameter(new TextRange(start, length), declaration, className, methodName, methodDescriptor, index, name, type);
+      visitor.visitParameter(new TextRange(start, length), declaration, className, methodName, methodDescriptor, index, name);
     } else {
-      visitor.visitLocal(new TextRange(start, length), declaration, className, methodName, methodDescriptor, index, name, type);
+      visitor.visitLocal(new TextRange(start, length), declaration, className, methodName, methodDescriptor, index, name);
     }
   }
 }

@@ -71,15 +71,15 @@ public abstract class TextTokenVisitor {
     }
   }
 
-  public void visitParameter(TextRange range, boolean declaration, String className, String methodName, MethodDescriptor methodDescriptor, int index, String name, VarType type) {
+  public void visitParameter(TextRange range, boolean declaration, String className, String methodName, MethodDescriptor methodDescriptor, int index, String name) {
     if (next != null) {
-      next.visitParameter(range, declaration, className, methodName, methodDescriptor, index, name, type);
+      next.visitParameter(range, declaration, className, methodName, methodDescriptor, index, name);
     }
   }
 
-  public void visitLocal(TextRange range, boolean declaration, String className, String methodName, MethodDescriptor methodDescriptor, int index, String name, VarType type) {
+  public void visitLocal(TextRange range, boolean declaration, String className, String methodName, MethodDescriptor methodDescriptor, int index, String name) {
     if (next != null) {
-      next.visitLocal(range, declaration, className, methodName, methodDescriptor, index, name, type);
+      next.visitLocal(range, declaration, className, methodName, methodDescriptor, index, name);
     }
   }
 
