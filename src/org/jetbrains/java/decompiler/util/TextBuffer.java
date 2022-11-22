@@ -13,6 +13,8 @@ import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.struct.gen.FieldDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
+import org.jetbrains.java.decompiler.struct.gen.generics.GenericMain;
+import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
 import org.jetbrains.java.decompiler.util.token.ClassTextToken;
 import org.jetbrains.java.decompiler.util.token.FieldTextToken;
 import org.jetbrains.java.decompiler.util.token.MethodTextToken;
@@ -85,70 +87,47 @@ public class TextBuffer {
   }
 
   public TextBuffer appendCastTypeName(VarType type) {
-    if (type.type == CodeConstants.TYPE_OBJECT) {
-      String name = ExprProcessor.getTypeName(type);
-      appendAllClasses(name, type.value);
-      TextUtil.append(myStringBuilder, "[]", type.arrayDim);
-      return this;
-    }
-
-    return append(ExprProcessor.getCastTypeName(type));
+    return appendCastTypeName(ExprProcessor.getCastTypeName(type), type);
   }
 
-  public TextBuffer appendCastTypeName(String typeName, VarType type) {
+  public TextBuffer appendCastTypeName(String castName, VarType type) {
     if (type.type == CodeConstants.TYPE_OBJECT) {
       if (type.arrayDim > 0) {
-        appendAllClasses(typeName.substring(0, typeName.length() - type.arrayDim * 2), type.value);
-        append(typeName.substring(typeName.length() - type.arrayDim * 2));
+        String name = castName.substring(0, castName.length() - type.arrayDim * 2);
+        appendAllClasses(name, type.value);
+        addGenericTypeTokens(length() - name.length(), name, type);
+        append(castName.substring(castName.length() - type.arrayDim * 2));
       } else {
-        appendAllClasses(typeName, type.value);
+        appendAllClasses(castName, type.value);
+        addGenericTypeTokens(length() - castName.length(), castName, type);
       }
 
       return this;
     }
 
-    return append(typeName);
+    return append(castName);
   }
 
   public TextBuffer appendTypeName(VarType type) {
-    String typeName = ExprProcessor.getTypeName(type);
+    return appendTypeName(ExprProcessor.getTypeName(type), type);
+  }
+
+  public TextBuffer appendTypeName(String name, VarType type) {
     if (type.type == CodeConstants.TYPE_OBJECT) {
-      appendAllClasses(typeName, type.value);
+      appendAllClasses(name, type.value);
+      addGenericTypeTokens(length() - name.length(), name, type);
 
       return this;
     }
 
-    return append(typeName);
-  }
-
-  public TextBuffer appendTypeName(String typeName, VarType type) {
-    if (type.type == CodeConstants.TYPE_OBJECT) {
-      appendAllClasses(typeName, type.value);
-
-      return this;
-    }
-
-    return append(typeName);
-  }
-
-  public TextBuffer addCastTypeNameToken(VarType type, int index) {
-    if (type.type == CodeConstants.TYPE_OBJECT) {
-      String typeName = ExprProcessor.getCastTypeName(type);
-      int length = typeName.length();
-      if (type.arrayDim > 0) {
-        length -= type.arrayDim * 2;
-      }
-
-      addAllClassTokens(index, typeName.substring(0, length), type.value);
-    }
-
-    return this;
+    return append(name);
   }
 
   public TextBuffer addTypeNameToken(VarType type, int index) {
     if (type.type == CodeConstants.TYPE_OBJECT) {
-      String typeName = ExprProcessor.getTypeName(type);
-      addAllClassTokens(index, typeName, type.value);
+      String name = ExprProcessor.getTypeName(type);
+      addAllClassTokens(index, name, type.value);
+      addGenericTypeTokens(index, name, type);
     }
 
     return this;
@@ -160,7 +139,10 @@ public class TextBuffer {
   }
 
   public TextBuffer addAllClassTokens(int index, String text, String qualifiedName) {
-    // FIXME: Handle generics
+    if (text.contains("<")) {
+      text = text.substring(0, text.indexOf("<"));
+    }
+
     int pos = 0;
     while (text.contains(".") && qualifiedName.substring(pos).contains("$")) {
       int length = text.indexOf(".");
@@ -172,6 +154,49 @@ public class TextBuffer {
 
     if (!text.isBlank()) {
       addClassToken(index, text.length(), qualifiedName);
+    }
+
+    return this;
+  }
+
+  public TextBuffer addGenericTypeTokens(int index, String text, VarType type) {
+    if (!type.isGeneric()) {
+      return this;
+    }
+
+    GenericType genType = (GenericType) type;
+    index += text.indexOf("<") + 1;
+    int offset = 0;
+    for (int i = 0; i < genType.getArguments().size(); i++) {
+      VarType t = genType.getArguments().get(i);
+
+      if (t == null) {
+        offset += 1; // skip '?'
+      } else if (t.isGeneric()) {
+        GenericType gt = (GenericType) t;
+        switch (gt.getWildcard()) {
+          case GenericType.WILDCARD_EXTENDS:
+            offset += 10; // skip "? extends "
+            break;
+          case GenericType.WILDCARD_SUPER:
+            offset += 8; // skip "? super "
+            break;
+        }
+
+        String name = GenericMain.getGenericCastTypeName(gt);
+        if (gt.type == CodeConstants.TYPE_OBJECT) {
+          addAllClassTokens(index + offset, name, gt.value);
+        }
+        addGenericTypeTokens(index + offset, name, gt);
+      } else {
+        if (t.type == CodeConstants.TYPE_OBJECT) {
+          addTypeNameToken(t, index + offset);
+        }
+
+        offset += ExprProcessor.getCastTypeName(t).length();
+      }
+
+      offset += 2; // skip ", "
     }
 
     return this;

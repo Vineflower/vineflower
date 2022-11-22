@@ -554,7 +554,7 @@ public class FunctionExprent extends Exprent {
         if (arr.getExprType().arrayDim == 0) {
           VarType objArr = VarType.VARTYPE_OBJECT.resizeArrayDim(1); // type family does not change
           buf.enclose("((" + ExprProcessor.getCastTypeName(objArr) + ")", ")");
-          buf.addCastTypeNameToken(objArr, 2);
+            buf.addTypeNameToken(objArr, 2);
         }
         return buf.append(".length");
       case TERNARY:

@@ -83,7 +83,7 @@ public class ArrayExprent extends Exprent {
     if (arrType.arrayDim == 0) {
       VarType objArr = VarType.VARTYPE_OBJECT.resizeArrayDim(1); // type family does not change
       res.enclose("((" + ExprProcessor.getCastTypeName(objArr) + ")", ")");
-      res.addCastTypeNameToken(objArr, 2);
+      res.addTypeNameToken(objArr, 2);
     }
 
     res.addBytecodeMapping(bytecode);

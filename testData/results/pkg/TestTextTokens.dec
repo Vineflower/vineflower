@@ -176,9 +176,13 @@ Tokens:
 (18:7, 18:13) class [reference] java/lang/System
 (18:14, 18:17) field [reference] java/lang/System#out:Ljava/io/PrintStream;
 (18:18, 18:25) method [reference] java/io/PrintStream#println(Ljava/lang/String;)V
-(21:19, 21:43) class [reference] java/util/function/Function
+(21:19, 21:27) class [reference] java/util/function/Function
+(21:28, 21:34) class [reference] java/lang/String
+(21:36, 21:42) class [reference] java/lang/String
 (21:44, 21:50) method [declaration] pkg/TestTextTokens#method(Ljava/util/function/Function;)Ljava/util/function/Function;
-(22:7, 22:31) class [reference] java/util/function/Function
+(22:7, 22:15) class [reference] java/util/function/Function
+(22:16, 22:22) class [reference] java/lang/String
+(22:24, 22:30) class [reference] java/lang/String
 (22:32, 22:95) parameter [declaration] pkg/TestTextTokens#method(Ljava/util/function/Function;)Ljava/util/function/Function;:0 extraLongVariableNameToReachPreferredLineLengthAndCauseWrapping Ljava/util/function/Function;<String, String>
 (24:78, 24:85) method [reference] java/util/function/Function#andThen(Ljava/util/function/Function;)Ljava/util/function/Function;
 (24:86, 24:89) parameter [declaration] pkg/TestTextTokens#lambda$method$2(Ljava/lang/String;)Ljava/lang/String;:0 str Ljava/lang/String;
