@@ -2,6 +2,7 @@ package pkg;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 public class TestTryWithResourcesFakeTrigger {
@@ -38,100 +39,146 @@ public class TestTryWithResourcesFakeTrigger {
    }// 41
 
    public void testTrigger3(File file) throws FileNotFoundException {
-      try (Scanner scanner = new Scanner(file)) {// 44
+      Scanner scanner = new Scanner(file);// 44
+
+      try {
          scanner.next();// 47
+      } catch (NoSuchElementException var6) {
+         try {
+            scanner.close();// 50
+         } catch (IllegalStateException var5) {// 51
+            var6.addSuppressed(var5);// 52
+         }
+
+         throw var6;// 55
       }
    }// 57
 
    public void testTrigger4(File file) throws FileNotFoundException {
-      try (Scanner scanner = new Scanner(file)) {// 60
+      Scanner scanner = new Scanner(file);// 60
+
+      try {
          scanner.next();// 63
+      } catch (Throwable var6) {
+         try {
+            scanner.close();// 66
+         } catch (Throwable var5) {// 67
+            var6.addSuppressed(var5);// 68
+         }
+
+         throw var6;// 71
       }
    }// 73
 }
 
 class 'pkg/TestTryWithResourcesFakeTrigger' {
    method 'testTrigger1 ()V' {
-      0      8
-      1      8
-      2      8
-      3      12
-      4      12
-      5      12
-      6      12
-      7      12
-      8      12
-      e      13
-      f      21
-      16      18
-      18      21
+      0      9
+      1      9
+      2      9
+      3      13
+      4      13
+      5      13
+      6      13
+      7      13
+      8      13
+      e      14
+      f      22
+      16      19
+      18      22
    }
 
    method 'testTrigger2 ()V' {
-      0      24
-      1      24
-      2      26
-      3      26
-      6      28
-      7      28
-      8      28
-      9      28
-      a      28
-      b      28
-      11      29
-      12      30
-      13      30
-      19      34
-      1a      34
-      1b      34
-      1c      34
-      1d      34
-      1e      34
-      1f      34
-      23      37
+      0      25
+      1      25
+      2      27
+      3      27
+      6      29
+      7      29
+      8      29
+      9      29
+      a      29
+      b      29
+      11      30
+      12      31
+      13      31
+      19      35
+      1a      35
+      1b      35
+      1c      35
+      1d      35
+      1e      35
+      1f      35
+      23      38
    }
 
    method 'testTrigger3 (Ljava/io/File;)V' {
-      4      40
-      8      40
-      9      41
-      a      41
-      b      41
-      c      41
-      23      43
+      4      41
+      8      41
+      9      44
+      a      44
+      b      44
+      c      44
+      12      47
+      13      47
+      19      48
+      1b      49
+      1c      49
+      1d      49
+      1e      49
+      21      52
+      22      52
+      23      54
    }
 
    method 'testTrigger4 (Ljava/io/File;)V' {
-      4      46
-      8      46
-      9      47
-      a      47
-      b      47
-      c      47
-      23      49
+      4      57
+      8      57
+      9      60
+      a      60
+      b      60
+      c      60
+      12      63
+      13      63
+      19      64
+      1b      65
+      1c      65
+      1d      65
+      1e      65
+      21      68
+      22      68
+      23      70
    }
 }
 
 Lines mapping:
-12 <-> 9
-16 <-> 13
-17 <-> 14
-19 <-> 22
-23 <-> 19
-26 <-> 22
-29 <-> 25
-31 <-> 27
-33 <-> 29
-34 <-> 30
-35 <-> 31
-38 <-> 35
-41 <-> 38
-44 <-> 41
-47 <-> 42
-57 <-> 44
-60 <-> 47
-63 <-> 48
-73 <-> 50
+12 <-> 10
+16 <-> 14
+17 <-> 15
+19 <-> 23
+23 <-> 20
+26 <-> 23
+29 <-> 26
+31 <-> 28
+33 <-> 30
+34 <-> 31
+35 <-> 32
+38 <-> 36
+41 <-> 39
+44 <-> 42
+47 <-> 45
+50 <-> 48
+51 <-> 49
+52 <-> 50
+55 <-> 53
+57 <-> 55
+60 <-> 58
+63 <-> 61
+66 <-> 64
+67 <-> 65
+68 <-> 66
+71 <-> 69
+73 <-> 71
 Not mapped:
 18
 20
@@ -140,16 +187,8 @@ Not mapped:
 36
 39
 48
-50
-51
-52
 53
-55
 56
 64
-66
-67
-68
 69
-71
 72
