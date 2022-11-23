@@ -661,6 +661,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16, "TestPatternMatchingCompoundBool");
     // TODO: makes spurious var10002 for some reason
     register(JAVA_8, "TestStackCastParam");
+    register(JAVA_8, "TestObjectPhi");
   }
 
   private void registerEntireClassPath() {
@@ -709,6 +710,10 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16, "TestTryWithResourcesSwitchJ16");
     register(JAVA_16, "TestTryWithResourcesNestedLoop");
     register(JAVA_16, "TestTryWithResourcesFakeTrigger");
+
+    register(JAVA_16, "TestTryWithResourcesManyJ16");
+    // TODO: QF doesn't handle the synthetic method in the finally correctly
+//    register(JAVA_9, "TestTryWithResourcesManyJ9");
 
     register(JAVA_8, "TestGenericMapEntireClasspath");
     register(JAVA_8, "TestGenericsTernary");
