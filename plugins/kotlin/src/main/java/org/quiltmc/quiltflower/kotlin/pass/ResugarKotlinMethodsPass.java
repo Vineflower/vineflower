@@ -64,9 +64,21 @@ public class ResugarKotlinMethodsPass implements Pass {
     return res;
   }
 
-  private static final MatchEngine INTRINSICS_CHECKNONNULL = new MatchEngine(
-    "exprent type:invocation invclass:kotlin/jvm/internal/Intrinsics signature:checkNotNullParameter(Ljava/lang/Object;Ljava/lang/String;)V"
-  );
+
+  private static final MatchEngine[] NONNULL_INTRINSICS = {
+    new MatchEngine(
+      "exprent type:invocation invclass:kotlin/jvm/internal/Intrinsics signature:checkNotNullParameter(Ljava/lang/Object;Ljava/lang/String;)V"
+    ),
+    new MatchEngine(
+      "exprent type:invocation invclass:kotlin/jvm/internal/Intrinsics signature:checkNotNullExpressionValue(Ljava/lang/Object;Ljava/lang/String;)V"
+    ),
+    new MatchEngine(
+      "exprent type:invocation invclass:kotlin/jvm/internal/Intrinsics signature:checkNotNull(Ljava/lang/Object;Ljava/lang/String;)V"
+    ),
+    new MatchEngine(
+      "exprent type:invocation invclass:kotlin/jvm/internal/Intrinsics signature:checkNotNull(Ljava/lang/Object;)V"
+    )
+  };
 
   private static class ResugarRes {
     public final Exprent expr;
@@ -83,8 +95,10 @@ public class ResugarKotlinMethodsPass implements Pass {
   }
 
   private static ResugarRes resugarExpr(Exprent ex) {
-    if (INTRINSICS_CHECKNONNULL.match(ex)) {
-      return new ResugarRes(null, true);
+    for (MatchEngine engine : NONNULL_INTRINSICS) {
+      if (engine.match(ex)) {
+        return new ResugarRes(null, true);
+      }
     }
 
     return new ResugarRes(null);

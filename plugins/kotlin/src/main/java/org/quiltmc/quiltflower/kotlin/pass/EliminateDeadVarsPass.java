@@ -3,10 +3,7 @@ package org.quiltmc.quiltflower.kotlin.pass;
 import org.jetbrains.java.decompiler.api.passes.Pass;
 import org.jetbrains.java.decompiler.api.passes.PassContext;
 import org.jetbrains.java.decompiler.modules.decompiler.StackVarsProcessor;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.AssignmentExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.ConstExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectNode;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.SSAUConstructorSparseEx;
@@ -54,7 +51,7 @@ public class EliminateDeadVarsPass implements Pass {
               VarExprent var = (VarExprent) left;
 
               VarVersionPair vvp = var.getVarVersionPair();
-              if (right instanceof ConstExprent) {
+              if (isPureToReplace(right)) {
                 if (ssu.nodes.getWithKey(vvp).succs.isEmpty()) {
                   exprents.remove(i);
                   changed = true;
@@ -73,5 +70,19 @@ public class EliminateDeadVarsPass implements Pass {
     StackVarsProcessor.setVersionsToNull(root);
 
     return changedAny;
+  }
+
+  private static boolean isPureToReplace(Exprent expr) {
+    if (expr instanceof ConstExprent) {
+      return true;
+    }
+
+    if (expr instanceof FieldExprent) {
+      FieldExprent field = (FieldExprent) expr;
+
+      return field.isStatic() && field.getClassname().equals("kotlin/Unit");
+    }
+
+    return false;
   }
 }
