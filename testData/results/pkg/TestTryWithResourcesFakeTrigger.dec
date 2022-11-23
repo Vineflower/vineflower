@@ -1,99 +1,155 @@
 package pkg;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
+
 public class TestTryWithResourcesFakeTrigger {
    public void testTrigger1() {
-      String b = "Hi!";// 6
+      String b = "Hi!";// 12
 
       try {
          try {
-            System.out.println("Hi");// 10
-         } catch (Exception var6) {// 11
+            System.out.println("Hi");// 16
+         } catch (Exception var6) {// 17
          }
       } catch (Exception var7) {
          try {
             ;
-         } catch (Exception var5) {// 17
+         } catch (Exception var5) {// 23
          }
       }
-   }// 13 20
+   }// 19 26
 
    public void testTrigger2() {
-      Object var1 = null;// 23
+      Object var1 = null;// 29
 
-      while(var1 == null) {// 25
+      while(var1 == null) {// 31
          try {
-            System.out.println("Hi");// 27
-         } catch (Exception var3) {// 28
-            if (var1 != null) {// 29
+            System.out.println("Hi");// 33
+         } catch (Exception var3) {// 34
+            if (var1 != null) {// 35
                break;
             }
 
-            System.out.println(var1);// 32
+            System.out.println(var1);// 38
          }
       }
-   }// 35
+   }// 41
+
+   public void testTrigger3(File file) throws FileNotFoundException {
+      try (Scanner scanner = new Scanner(file)) {// 44
+         scanner.next();// 47
+      }
+   }// 57
+
+   public void testTrigger4(File file) throws FileNotFoundException {
+      try (Scanner scanner = new Scanner(file)) {// 60
+         scanner.next();// 63
+      }
+   }// 73
 }
 
 class 'pkg/TestTryWithResourcesFakeTrigger' {
    method 'testTrigger1 ()V' {
-      0      4
-      1      4
-      2      4
-      3      8
-      4      8
-      5      8
-      6      8
-      7      8
-      8      8
-      e      9
-      f      17
-      16      14
-      18      17
+      0      8
+      1      8
+      2      8
+      3      12
+      4      12
+      5      12
+      6      12
+      7      12
+      8      12
+      e      13
+      f      21
+      16      18
+      18      21
    }
 
    method 'testTrigger2 ()V' {
-      0      20
-      1      20
-      2      22
-      3      22
-      6      24
-      7      24
-      8      24
-      9      24
-      a      24
-      b      24
-      11      25
-      12      26
-      13      26
-      19      30
-      1a      30
-      1b      30
-      1c      30
-      1d      30
-      1e      30
-      1f      30
-      23      33
+      0      24
+      1      24
+      2      26
+      3      26
+      6      28
+      7      28
+      8      28
+      9      28
+      a      28
+      b      28
+      11      29
+      12      30
+      13      30
+      19      34
+      1a      34
+      1b      34
+      1c      34
+      1d      34
+      1e      34
+      1f      34
+      23      37
+   }
+
+   method 'testTrigger3 (Ljava/io/File;)V' {
+      4      40
+      8      40
+      9      41
+      a      41
+      b      41
+      c      41
+      23      43
+   }
+
+   method 'testTrigger4 (Ljava/io/File;)V' {
+      4      46
+      8      46
+      9      47
+      a      47
+      b      47
+      c      47
+      23      49
    }
 }
 
 Lines mapping:
-6 <-> 5
-10 <-> 9
-11 <-> 10
-13 <-> 18
-17 <-> 15
-20 <-> 18
-23 <-> 21
-25 <-> 23
-27 <-> 25
-28 <-> 26
-29 <-> 27
-32 <-> 31
-35 <-> 34
+12 <-> 9
+16 <-> 13
+17 <-> 14
+19 <-> 22
+23 <-> 19
+26 <-> 22
+29 <-> 25
+31 <-> 27
+33 <-> 29
+34 <-> 30
+35 <-> 31
+38 <-> 35
+41 <-> 38
+44 <-> 41
+47 <-> 42
+57 <-> 44
+60 <-> 47
+63 <-> 48
+73 <-> 50
 Not mapped:
-12
-14
-16
 18
-30
-33
+20
+22
+24
+36
+39
+48
+50
+51
+52
+53
+55
+56
+64
+66
+67
+68
+69
+71
+72
