@@ -9,6 +9,7 @@ import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
+import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
 import org.jetbrains.java.decompiler.struct.StructField;
 import org.jetbrains.java.decompiler.struct.StructMethod;
@@ -93,6 +94,11 @@ public class AssignmentExprent extends Exprent {
   public TextBuffer toJava(int indent) {
     VarType leftType = left.getInferredExprType(null);
     VarType rightType = right.getInferredExprType(leftType);
+
+    if (rightType == null) {
+      // causes npe too late causing a textbuffer error messing up all other tests
+      throw new IllegalStateException("rightType was null");
+    }
 
     boolean fieldInClassInit = false, hiddenField = false;
     if (left instanceof FieldExprent) { // first assignment to a final field. Field name without "this" in front of it
