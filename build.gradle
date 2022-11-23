@@ -4,6 +4,7 @@ import org.jetbrains.java.decompiler.build.JasmCompile
 
 plugins {
   id 'jacoco'
+  id 'com.github.johnrengelman.shadow' version '7.1.2'
   id 'org.jetbrains.kotlin.jvm' version '1.6.21'
 }
 
@@ -164,6 +165,18 @@ test {
 }
 
 jar {
+  from sourceSets.main.output
+
+  // TODO: copies main sourceset output instead of the plugin output
+//  println(project(":kotlin").sourceSets);
+//  from(project(":kotlin").sourceSets.main.output) {
+//    into "META-INF/plugins/kotlin"
+//  }
+//
+//  from(project(":idea-not-null").sourceSets.main.output) {
+//    into "META-INF/plugins/ideanotnull"
+//  }
+
   manifest {
     attributes (
       'Main-Class': 'org.jetbrains.java.decompiler.main.decompiler.ConsoleDecompiler',
@@ -174,8 +187,13 @@ jar {
 }
 
 task sourceJar(type:Jar) {
-  classifier = "sources"
+  archiveClassifier = "sources"
   from sourceSets.main.allSource
+}
+
+task slimJar(type:Jar) {
+  archiveClassifier = "slim"
+  from sourceSets.main.output
 }
 
 tasks.withType(JavaCompile).configureEach {
@@ -190,6 +208,7 @@ publishing {
         version = project.version + "-SNAPSHOT"
       }
       artifact(sourceJar)
+      artifact(slimJar)
     }
   }
 

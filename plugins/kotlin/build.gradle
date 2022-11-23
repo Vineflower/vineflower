@@ -1,9 +1,13 @@
 plugins {
+  id 'com.github.johnrengelman.shadow'
   id 'java'
   id 'org.jetbrains.kotlin.jvm'
 }
 
+apply plugin: 'maven-publish'
+
 group = 'org.quiltmc'
+version = "0.1.0"
 archivesBaseName = 'quiltflower-kotlin'
 
 repositories {
@@ -22,7 +26,7 @@ sourceSets {
 
 dependencies {
   implementation project(":")
-  implementation fileTree(dir: 'libs', include: ['*.jar'])
+  shadow fileTree(dir: 'libs', include: ['*.jar'])
 
   testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
   testImplementation testFixtures(project(":"))
@@ -49,4 +53,15 @@ testDataClasses.dependsOn(testDataKotlinClasses)
 
 test {
   useJUnitPlatform()
+}
+
+build.dependsOn(shadowJar)
+
+publishing {
+  publications {
+    mavenJava(MavenPublication) {
+      artifactId = "quiltflower-kotlin"
+      from components.java
+    }
+  }
 }
