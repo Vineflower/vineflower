@@ -192,7 +192,8 @@ public class ClassWriter implements StatementWriter {
 
               VarVersionPair version = new VarVersionPair(index, 0);
               String parameterName = methodWrapper.varproc.getVarName(version);
-              buffer.appendVariable(parameterName == null ? "param" + index : parameterName, true, true, node.lambdaInformation.content_class_name, node.lambdaInformation.content_method_name, node.lambdaInformation.method_descriptor, index, parameterName); // null iff decompiled with errors
+              buffer.appendVariable(parameterName == null ? "param" + index : parameterName, // null iff decompiled with errors
+                true, true, node.lambdaInformation.content_class_name, node.lambdaInformation.content_method_name, md_content, index, parameterName);
 
               firstParameter = false;
             }
