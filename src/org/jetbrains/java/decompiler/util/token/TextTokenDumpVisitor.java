@@ -68,8 +68,8 @@ public class TextTokenDumpVisitor extends TextTokenVisitor {
     text.append(className);
     text.append("#").append(methodName);
     text.append(methodDescriptor.toString());
-    text.append(":").append(index);
-    text.append(" ").append(name);
+    text.append("(").append(index);
+    text.append(":").append(name).append(")");
     text.appendLineSeparator();
   }
 

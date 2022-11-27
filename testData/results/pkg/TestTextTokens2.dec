@@ -103,16 +103,16 @@ Tokens:
 (13:29, 13:37) class [reference] java/util/Optional
 (13:48, 13:58) class [reference] java/util/function/BiConsumer
 (13:61, 13:67) class [reference] java/lang/String
-(13:72, 13:73) parameter [declaration] pkg/TestTextTokens2#bar(Ljava/util/function/Supplier;)V:1 r
+(13:72, 13:73) parameter [declaration] pkg/TestTextTokens2#bar(Ljava/util/function/Supplier;)V(1:r)
 (14:7, 14:13) class [reference] java/lang/String
-(14:14, 14:15) local [declaration] pkg/TestTextTokens2#bar(Ljava/util/function/Supplier;)V:2 s
+(14:14, 14:15) local [declaration] pkg/TestTextTokens2#bar(Ljava/util/function/Supplier;)V(2:s)
 (15:9, 15:17) class [reference] java/util/Optional
-(15:18, 15:19) parameter [reference] pkg/TestTextTokens2#bar(Ljava/util/function/Supplier;)V:1 r
+(15:18, 15:19) parameter [reference] pkg/TestTextTokens2#bar(Ljava/util/function/Supplier;)V(1:r)
 (15:20, 15:23) method [reference] java/util/function/Supplier#get()Ljava/lang/Object;
 (15:27, 15:36) method [reference] java/util/Optional#ifPresent(Ljava/util/function/Consumer;)V
-(15:37, 15:38) parameter [declaration] pkg/TestTextTokens2#lambda$bar$0(Ljava/lang/String;Ljava/util/function/BiConsumer;)V:2 c
-(15:42, 15:43) parameter [reference] pkg/TestTextTokens2#lambda$bar$0(Ljava/lang/String;Ljava/util/function/BiConsumer;)V:2 c
+(15:37, 15:38) parameter [declaration] pkg/TestTextTokens2#lambda$bar$0(Ljava/lang/String;Ljava/util/function/BiConsumer;)V(2:c)
+(15:42, 15:43) parameter [reference] pkg/TestTextTokens2#lambda$bar$0(Ljava/lang/String;Ljava/util/function/BiConsumer;)V(2:c)
 (15:44, 15:50) method [reference] java/util/function/BiConsumer#accept(Ljava/lang/Object;Ljava/lang/Object;)V
 (15:56, 15:61) field [reference] pkg/TestTextTokens2#value:Ljava/lang/Object;
-(15:63, 15:64) local [reference] pkg/TestTextTokens2#bar(Ljava/util/function/Supplier;)V:2 s
+(15:63, 15:64) local [reference] pkg/TestTextTokens2#bar(Ljava/util/function/Supplier;)V(2:s)
 */
