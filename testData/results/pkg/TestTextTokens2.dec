@@ -114,5 +114,5 @@ Tokens:
 (15:42, 15:43) parameter [reference] pkg/TestTextTokens2#lambda$bar$0(Ljava/lang/String;Ljava/util/function/BiConsumer;)V:2 c
 (15:44, 15:50) method [reference] java/util/function/BiConsumer#accept(Ljava/lang/Object;Ljava/lang/Object;)V
 (15:56, 15:61) field [reference] pkg/TestTextTokens2#value:Ljava/lang/Object;
-(15:63, 15:64) parameter [reference] pkg/TestTextTokens2#lambda$bar$0(Ljava/lang/String;Ljava/util/function/BiConsumer;)V:1 s
+(15:63, 15:64) local [reference] pkg/TestTextTokens2#bar(Ljava/util/function/Supplier;)V:2 s
 */

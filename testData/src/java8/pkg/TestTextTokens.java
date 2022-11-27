@@ -10,7 +10,7 @@ public class TestTextTokens {
     bar("Hello world");
     bee.buzz();
 
-    method(method(s -> method(method(s1 -> s1 + " really long string to cause code reformatting")) + s)).apply("Lorem ipsum dolor sit amet");
+    method(method(s -> method(method(s1 -> s1 + " really long string to cause code reformatting" + s)) + s)).apply("Lorem ipsum dolor sit amet");
   }
 
   private static void bar(String s) {

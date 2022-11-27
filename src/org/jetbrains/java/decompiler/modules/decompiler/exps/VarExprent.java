@@ -28,6 +28,7 @@ import org.jetbrains.java.decompiler.struct.match.MatchEngine;
 import org.jetbrains.java.decompiler.struct.match.MatchNode;
 import org.jetbrains.java.decompiler.struct.match.MatchNode.RuleValue;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
+import org.jetbrains.java.decompiler.util.Pair;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 
 import java.util.Arrays;
@@ -132,16 +133,28 @@ public class VarExprent extends Exprent {
       String name = getName();
       MethodWrapper method = (MethodWrapper) DecompilerContext.getProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
       if (method != null && (!"this".equals(name) || index != 0)) {
-        MethodDescriptor descriptor = MethodDescriptor.parseDescriptor(method.methodStruct.getDescriptor());
-        boolean param = false;
-
+        int varIndex = index;
         if (processor != null) {
-          Integer originalIndex = processor.getVarOriginalIndex(index);
-          int i = originalIndex != null ? originalIndex : index;
+          // Resolve the method/varVersion this var came from
+          Pair<String, VarVersionPair> source = processor.getVarSource(getVarVersionPair());
+          ClassNode node = (ClassNode) DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS_NODE);
+
+          while (source != null && node != null) {
+            method = node.getWrapper().getMethods().getWithKey(source.a);
+            varIndex = source.b.var;
+            source = method.varproc != null ? method.varproc.getVarSource(source.b) : null;
+          }
+        }
+
+        boolean param = false;
+        MethodDescriptor descriptor = MethodDescriptor.parseDescriptor(method.methodStruct.getDescriptor());
+        if (method.varproc != null) {
+          Integer originalIndex = method.varproc.getVarOriginalIndex(varIndex);
+          int i = originalIndex != null ? originalIndex : varIndex;
           param = i <= Arrays.stream(descriptor.params).map(v -> v.stackSize).reduce(0, Integer::sum);
         }
 
-        buffer.appendVariable(name, definition, param, method.classStruct.qualifiedName, method.methodStruct.getName(), descriptor, index, name);
+        buffer.appendVariable(name, definition, param, method.classStruct.qualifiedName, method.methodStruct.getName(), descriptor, varIndex, name);
       } else {
         buffer.append(name);
       }

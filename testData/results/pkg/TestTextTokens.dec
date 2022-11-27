@@ -10,7 +10,7 @@ public class TestTextTokens {
    public void foo() {
       bar("Hello world");// 10
       this.bee.buzz();// 11
-      method(method(s -> method(method(s1 -> s1 + " really long string to cause code reformatting")) + s))// 13
+      method(method(s -> method(method(s1 -> s1 + " really long string to cause code reformatting" + s)) + s))// 13
          .apply("Lorem ipsum dolor sit amet");
    }// 14
 
@@ -66,27 +66,28 @@ class 'pkg/TestTextTokens' {
    }
 
    method 'lambda$foo$1 (Ljava/lang/String;)Ljava/lang/String;' {
-      c      12
       d      12
       e      12
       f      12
       10      12
       11      12
-      15      12
-      19      12
+      12      12
+      16      12
       1a      12
       1b      12
       1c      12
+      1d      12
    }
 
-   method 'lambda$null$0 (Ljava/lang/String;)Ljava/lang/String;' {
+   method 'lambda$null$0 (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;' {
       7      12
       b      12
       c      12
       10      12
-      11      12
-      12      12
-      13      12
+      14      12
+      15      12
+      16      12
+      17      12
    }
 
    method 'bar (Ljava/lang/String;)V' {
@@ -168,9 +169,10 @@ Tokens:
 (13:21, 13:22) parameter [declaration] pkg/TestTextTokens#lambda$foo$1(Ljava/lang/String;)Ljava/lang/String;:0 s
 (13:26, 13:32) method [reference] pkg/TestTextTokens#method(Ljava/util/function/Function;)Ljava/util/function/Function;
 (13:33, 13:39) method [reference] pkg/TestTextTokens#method(Ljava/util/function/Function;)Ljava/util/function/Function;
-(13:40, 13:42) parameter [declaration] pkg/TestTextTokens#lambda$null$0(Ljava/lang/String;)Ljava/lang/String;:0 s1
-(13:46, 13:48) parameter [reference] pkg/TestTextTokens#lambda$null$0(Ljava/lang/String;)Ljava/lang/String;:0 s1
-(13:104, 13:105) parameter [reference] pkg/TestTextTokens#lambda$foo$1(Ljava/lang/String;)Ljava/lang/String;:0 s
+(13:40, 13:42) parameter [declaration] pkg/TestTextTokens#lambda$null$0(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;:1 s1
+(13:46, 13:48) parameter [reference] pkg/TestTextTokens#lambda$null$0(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;:1 s1
+(13:102, 13:103) parameter [reference] pkg/TestTextTokens#lambda$foo$1(Ljava/lang/String;)Ljava/lang/String;:0 s
+(13:108, 13:109) parameter [reference] pkg/TestTextTokens#lambda$foo$1(Ljava/lang/String;)Ljava/lang/String;:0 s
 (14:11, 14:16) method [reference] java/util/function/Function#apply(Ljava/lang/Object;)Ljava/lang/Object;
 (17:24, 17:27) method [declaration] pkg/TestTextTokens#bar(Ljava/lang/String;)V
 (17:28, 17:34) class [reference] java/lang/String
