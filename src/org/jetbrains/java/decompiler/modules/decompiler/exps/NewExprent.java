@@ -360,7 +360,7 @@ public class NewExprent extends Exprent {
           }
 
           if (appendType) {
-            buf.append(typename);
+            buf.appendCastTypeName(typename, child.anonymousClassType);
           }
         }
       }
