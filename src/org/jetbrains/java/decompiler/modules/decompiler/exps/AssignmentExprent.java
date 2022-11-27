@@ -302,7 +302,7 @@ public class AssignmentExprent extends Exprent {
     }
 
     buf.prepend("(" + ExprProcessor.getCastTypeName(left) + ")");
-      buf.addTypeNameToken(left, 1);
+    buf.addTypeNameToken(left, 1);
   }
 
   @Override

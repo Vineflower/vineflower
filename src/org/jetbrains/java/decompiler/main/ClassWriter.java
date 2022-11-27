@@ -162,7 +162,8 @@ public class ClassWriter implements StatementWriter {
         }
 
         buffer.append("::")
-          .appendMethod(CodeConstants.INIT_NAME.equals(node.lambdaInformation.content_method_name) ? "new" : node.lambdaInformation.content_method_name, false, node.lambdaInformation.content_class_name, node.lambdaInformation.content_method_name, node.lambdaInformation.content_method_descriptor);
+          .appendMethod(CodeConstants.INIT_NAME.equals(node.lambdaInformation.content_method_name) ? "new" : node.lambdaInformation.content_method_name,
+            false, node.lambdaInformation.content_class_name, node.lambdaInformation.content_method_name, node.lambdaInformation.content_method_descriptor);
       }
       else {
         // lambda method
@@ -190,8 +191,7 @@ public class ClassWriter implements StatementWriter {
                 buffer.append(", ");
               }
 
-              VarVersionPair version = new VarVersionPair(index, 0);
-              String parameterName = methodWrapper.varproc.getVarName(version);
+              String parameterName = methodWrapper.varproc.getVarName(new VarVersionPair(index, 0));
               buffer.appendVariable(parameterName == null ? "param" + index : parameterName, // null iff decompiled with errors
                 true, true, node.lambdaInformation.content_class_name, node.lambdaInformation.content_method_name, md_content, index, parameterName);
 
