@@ -127,6 +127,18 @@ public class SingleClassesTest extends SingleClassesTestBase {
       IFernflowerPreferences.DECOMPILE_COMPLEX_CONDYS, "1",
       IFernflowerPreferences.PREFERRED_LINE_LENGTH, "250"
     );
+    registerSet("Text Tokens", this::registerTextTokens,
+      IFernflowerPreferences.DUMP_TEXT_TOKENS, "1",
+      IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
+      IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
+      IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR, "0",
+      IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
+      IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
+      IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "0",
+      IFernflowerPreferences.TERNARY_CONDITIONS, "1",
+      IFernflowerPreferences.FORCE_JSR_INLINE, "1",
+      IFernflowerPreferences.PREFERRED_LINE_LENGTH, "120"
+    );
     // TODO: user renamer class test
   }
 
@@ -445,7 +457,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingWithNull");
 
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingFuzz1");
-    
+
     // TODO: non-resugared record patterns reference hidden proxy methods
     register(JAVA_19_PREVIEW, "TestRecordPattern1");
     register(JAVA_19_PREVIEW, "TestRecordPattern2");
@@ -779,5 +791,10 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestTryLoopRecompile");
     register(JAVA_8, "TestTryLoopSimpleFinally");
     register(JAVA_8, "TestTryLoopReturnFinally");
+  }
+
+  private void registerTextTokens() {
+    register(JAVA_8, "TestTextTokens");
+    register(JAVA_16, "TestTextTokens2");
   }
 }

@@ -10,6 +10,7 @@ import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribute.LocalVariable;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
+import org.jetbrains.java.decompiler.util.Pair;
 import org.jetbrains.java.decompiler.util.StartEndPair;
 import org.jetbrains.java.decompiler.util.TextUtil;
 
@@ -29,6 +30,8 @@ public class VarProcessor {
   private final Set<VarVersionPair> externalVars = new HashSet<>();
   private final Map<VarVersionPair, String> clashingNames = new HashMap<>();
   private final Set<Integer> syntheticSemaphores = new HashSet<>();
+  // var -> (method, var in method)
+  private final Map<VarVersionPair, Pair<String, VarVersionPair>> varSources = new HashMap<>();
   public boolean nestedProcessed;
 
   public VarProcessor(StructMethod mt, MethodDescriptor md) {
@@ -145,6 +148,10 @@ public class VarProcessor {
     mapVarNames.put(pair, name);
   }
 
+  public void setVarSource(VarVersionPair pair, String method, VarVersionPair original) {
+    varSources.put(pair, Pair.of(method, original));
+  }
+
   public Set<VarVersionPair> getUsedVarVersions() {
     return mapVarNames != null ? mapVarNames.keySet() : Collections.emptySet();
   }
@@ -155,6 +162,10 @@ public class VarProcessor {
 
   public FinalType getVarFinal(VarVersionPair pair) {
     return varVersions == null ? FinalType.FINAL : varVersions.getVarFinal(pair);
+  }
+
+  public Pair<String, VarVersionPair> getVarSource(VarVersionPair pair) {
+    return varSources.get(pair);
   }
 
   public void setVarFinal(VarVersionPair pair, FinalType finalType) {

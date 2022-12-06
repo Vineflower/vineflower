@@ -132,6 +132,7 @@ The rest of options can be left as they are: they are aimed at professional reve
 - sfc (0): Debug comments showing the class SourceFile attribute if present
 - dcc (0): Decompile complex constant-dynamic bootstraps, that might have different or slower run-time behaviour when recompiled
 - dpr (1): Decompile preview features in latest Java versions
+- dtt (0): Dump text tokens on each decompiled file
 
 ### Renaming identifiers
 

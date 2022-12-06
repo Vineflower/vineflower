@@ -119,8 +119,9 @@ public final class RecordHelper {
     return init != null && init.hasModifier(CodeConstants.ACC_VARARGS);
   }
 
-  private static Set<String> getRecordComponentAnnotations(StructClass cl, StructRecordComponent cd, int param) {
+  private static Set<TextBuffer> getRecordComponentAnnotations(StructClass cl, StructRecordComponent cd, int param) {
     Set<String> annotations = new LinkedHashSet<>();
+    Set<TextBuffer> buffers = new LinkedHashSet<>();
     List<StructMember> members = new ArrayList<>();
     members.add(cd);
     StructMethod getter = getGetter(cl, cd);
@@ -131,8 +132,10 @@ public final class RecordHelper {
         StructAnnotationAttribute attribute = (StructAnnotationAttribute) member.getAttribute(key);
         if (attribute == null) continue;
         for (AnnotationExprent annotation : attribute.getAnnotations()) {
-          String text = annotation.toJava(-1).convertToStringAndAllowDataDiscard();
-          annotations.add(text);
+          TextBuffer text = annotation.toJava(-1);
+          if (annotations.add(text.convertToStringAndAllowDataDiscard())) {
+            buffers.add(text);
+          }
         }
       }
 
@@ -143,15 +146,17 @@ public final class RecordHelper {
           if (!annotation.isTopLevel()) continue;
           int type = annotation.getTargetType();
           if (type == TypeAnnotation.FIELD || type == TypeAnnotation.METHOD_PARAMETER) {
-            String text = annotation.getAnnotation().toJava(-1).convertToStringAndAllowDataDiscard();
-            annotations.add(text);
+            TextBuffer text = annotation.getAnnotation().toJava(-1);
+            if (annotations.add(text.convertToStringAndAllowDataDiscard())) {
+              buffers.add(text);
+            }
           }
         }
       }
     }
 
     StructMember constr = getCanonicalConstructor(cl);
-    if (constr == null) return annotations;
+    if (constr == null) return buffers;
 
     for (StructGeneralAttribute.Key<?> key : ClassWriter.PARAMETER_ANNOTATION_ATTRIBUTES) {
       StructAnnotationParameterAttribute attribute = (StructAnnotationParameterAttribute) constr.getAttribute(key);
@@ -159,18 +164,20 @@ public final class RecordHelper {
       List<List<AnnotationExprent>> paramAnnotations = attribute.getParamAnnotations();
       if (param >= paramAnnotations.size()) continue;
       for (AnnotationExprent annotation : paramAnnotations.get(param)) {
-        String text = annotation.toJava(-1).convertToStringAndAllowDataDiscard();
-        annotations.add(text);
+        TextBuffer text = annotation.toJava(-1);
+        if (annotations.add(text.convertToStringAndAllowDataDiscard())) {
+          buffers.add(text);
+        }
       }
     }
 
-    return annotations;
+    return buffers;
   }
 
   private static void recordComponentToJava(TextBuffer buffer, StructClass cl, StructRecordComponent cd, int param, boolean varArgComponent) {
-    Set<String> annotations = getRecordComponentAnnotations(cl, cd, param);
-    for (String annotation : annotations) {
-      buffer.append(annotation).append(' ');
+    Set<TextBuffer> annotations = getRecordComponentAnnotations(cl, cd, param);
+    for (TextBuffer annotation : annotations) {
+      buffer.appendText(annotation).append(' ');
     }
 
     VarType fieldType = new VarType(cd.getDescriptor(), false);
@@ -178,13 +185,13 @@ public final class RecordHelper {
 
     if (descriptor != null) fieldType = descriptor.type;
 
-    buffer.append(ExprProcessor.getCastTypeName(varArgComponent ? fieldType.decreaseArrayDim() : fieldType));
+    buffer.appendCastTypeName(varArgComponent ? fieldType.decreaseArrayDim() : fieldType);
     if (varArgComponent) {
       buffer.append("...");
     }
     buffer.append(' ');
 
-    buffer.append(cd.getName());
+    buffer.appendField(cd.getName(), true, cl.qualifiedName, cd.getName(), cd.getDescriptor());
   }
   private static boolean hasAnnotations(StructMethod mt) {
     return mt.getAttribute(StructGeneralAttribute.ATTRIBUTE_RUNTIME_INVISIBLE_ANNOTATIONS) != null ||
