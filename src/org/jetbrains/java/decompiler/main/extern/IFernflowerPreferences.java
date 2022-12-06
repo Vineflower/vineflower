@@ -262,6 +262,10 @@ public interface IFernflowerPreferences {
   @Description("Dump Text Tokens on each class file")
   String DUMP_TEXT_TOKENS = "dtt";
 
+  @Name("Remove Imports")
+  @Description("Remove import statements from the decompiled code")
+  String REMOVE_IMPORTS = "rim";
+
   Map<String, Object> DEFAULTS = getDefaults();
 
   static Map<String, Object> getDefaults() {
@@ -332,6 +336,7 @@ public interface IFernflowerPreferences {
     defaults.put(DECOMPILE_COMPLEX_CONDYS, "0");
     defaults.put(FORCE_JSR_INLINE, "0");
     defaults.put(DUMP_TEXT_TOKENS, "0");
+    defaults.put(REMOVE_IMPORTS, "0");
 
     return Collections.unmodifiableMap(defaults);
   }
