@@ -36,5 +36,7 @@ public class KotlinTests extends SingleClassesTestBase {
     register(KOTLIN, "TestIfRange");
     register(KOTLIN, "TestComparison");
     register(KOTLIN, "TestNullableOperator");
+    // TODO: top-level constructs are wrongly put into a class and turned into instance methods
+    register(KOTLIN, "TestTopLevelKt");
   }
 }
