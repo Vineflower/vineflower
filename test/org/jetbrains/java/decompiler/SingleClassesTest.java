@@ -662,6 +662,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: makes spurious var10002 for some reason
     register(JAVA_8, "TestStackCastParam");
     register(JAVA_8, "TestObjectPhi");
+    register(JASM, "TestMethodParamsNoLvt");
   }
 
   private void registerEntireClassPath() {

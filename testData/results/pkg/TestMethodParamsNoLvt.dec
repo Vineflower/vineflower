@@ -1,0 +1,37 @@
+package pkg;
+
+public class TestMethodParamsNoLvt {
+   public void foo(int var1, String var2) {
+      System.out.print(var1);// 24 25 26
+      System.out.println(var2);// 27 28 29
+   }// 30
+}
+
+class 'pkg/TestMethodParamsNoLvt' {
+   method 'foo (ILjava/lang/String;)V' {
+      0      4
+      1      4
+      2      4
+      3      4
+      4      4
+      5      4
+      6      4
+      7      5
+      8      5
+      9      5
+      a      5
+      b      5
+      c      5
+      d      5
+      e      6
+   }
+}
+
+Lines mapping:
+24 <-> 5
+25 <-> 5
+26 <-> 5
+27 <-> 6
+28 <-> 6
+29 <-> 6
+30 <-> 7
