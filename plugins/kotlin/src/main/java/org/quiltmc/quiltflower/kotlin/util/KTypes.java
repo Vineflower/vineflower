@@ -4,7 +4,20 @@ public final class KTypes {
   // TODO: check clashes with java.lang.* types
   public static String mapJavaTypeToKotlin(String type) {
     if (type.endsWith("[]")) {
-      return "Array<" + mapJavaTypeToKotlin(type.substring(0, type.length() - 2)) + ">";
+      String baseType = type.substring(0, type.length() - 2);
+      switch (baseType) {
+        case "boolean":
+        case "byte":
+        case "char":
+        case "short":
+        case "int":
+        case "long":
+        case "float":
+        case "double":
+          return mapJavaTypeToKotlin(baseType) + "Array";
+        default:
+          return "Array<" + mapJavaTypeToKotlin(baseType) + ">";
+      }
     }
     
     switch (type) {
