@@ -1,0 +1,27 @@
+package pkg
+
+class TestGenerics {
+   fun <T> genericFun(v: T): T  {
+      return (T)v;// 5
+   }
+
+   fun <T> nullableGeneric(v: T): T?  {
+      return null;// 9
+   }
+}
+
+class 'pkg/TestGenerics' {
+   method 'genericFun (Ljava/lang/Object;)Ljava/lang/Object;' {
+      0      4
+      1      4
+   }
+
+   method 'nullableGeneric (Ljava/lang/Object;)Ljava/lang/Object;' {
+      0      8
+      1      8
+   }
+}
+
+Lines mapping:
+5 <-> 5
+9 <-> 9

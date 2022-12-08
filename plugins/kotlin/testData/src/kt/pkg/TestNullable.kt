@@ -8,4 +8,8 @@ class TestNullable {
   fun nullableReturn(): String? {
     return null
   }
+
+  fun nullableGenerics(v: List<String?>): List<String?>? {
+    return v
+  }
 }

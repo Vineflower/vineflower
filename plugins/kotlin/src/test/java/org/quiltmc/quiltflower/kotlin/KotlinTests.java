@@ -26,6 +26,7 @@ public class KotlinTests extends SingleClassesTestBase {
     register(KOTLIN, "TestVars");
     // TODO: handle lambda's
     register(KOTLIN, "TestNonInlineLambda");
+    // TODO: Generics containing nullability (like List<String?>) lose the nullability
     register(KOTLIN, "TestNullable");
     register(KOTLIN, "TestExtensionFun");
     register(KOTLIN, "TestClassDec");
@@ -38,5 +39,17 @@ public class KotlinTests extends SingleClassesTestBase {
     register(KOTLIN, "TestNullableOperator");
     // TODO: top-level constructs are wrongly put into a class and turned into instance methods
     register(KOTLIN, "TestTopLevelKt");
+    // TODO: lists, sets, etc. should be considered to be their Kotlin type, not their Java type
+    register(KOTLIN, "TestConvertedK2JOps");
+    // TODO: Does not decompile to data class
+    register(KOTLIN, "TestDataClass");
+    register(KOTLIN, "TestGenerics");
+    // TODO: Nothing, function types
+    register(KOTLIN, "TestKotlinTypes");
+    // TODO: Does not decompile to object literal
+    // FIXME: @JvmStatic function fails to decompile at all
+    register(KOTLIN, "TestObject");
+    // TODO: sealed becomes "open abstract"
+    register(KOTLIN, "TestSealedHierarchy");
   }
 }
