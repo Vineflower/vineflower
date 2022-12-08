@@ -1,0 +1,29 @@
+package pkg
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
+class TestAnnotations {
+   @TestAnnotations.TestAnnotation(
+      first = "test",
+      second = 1
+   )
+   fun test() {
+   }// 11
+
+   @Retention(RetentionPolicy.RUNTIME)
+   open @interface TestAnnotation {
+      fun first(): String ;
+
+      fun second(): Int ;
+   }
+}
+
+class 'pkg/TestAnnotations' {
+   method 'test ()V' {
+      0      11
+   }
+}
+
+Lines mapping:
+11 <-> 12

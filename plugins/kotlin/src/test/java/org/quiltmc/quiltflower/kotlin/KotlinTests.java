@@ -43,6 +43,7 @@ public class KotlinTests extends SingleClassesTestBase {
     register(KOTLIN, "TestConvertedK2JOps");
     // TODO: Does not decompile to data class
     register(KOTLIN, "TestDataClass");
+    // TODO: Type projections are not Kotlin equivalents
     register(KOTLIN, "TestGenerics");
     // TODO: Nothing, function types
     register(KOTLIN, "TestKotlinTypes");
@@ -51,5 +52,7 @@ public class KotlinTests extends SingleClassesTestBase {
     register(KOTLIN, "TestObject");
     // TODO: sealed becomes "open abstract"
     register(KOTLIN, "TestSealedHierarchy");
+    // TODO: Annotation classes decompile entirely incorrectly
+    register(KOTLIN, "TestAnnotations");
   }
 }
