@@ -35,75 +35,18 @@ open class TestNonInlineLambda {
    }// 34
 
    fun testCaptureMutableInt(x: Int) {
-      // $QF: Couldn't be decompiled
-      // Bytecode:
-      // 00: new kotlin/jvm/internal/Ref$IntRef
-      // 03: dup
-      // 04: invokespecial kotlin/jvm/internal/Ref$IntRef.<init> ()V
-      // 07: astore 2
-      // 08: aload 2
-      // 09: iload 1
-      // 0a: putfield kotlin/jvm/internal/Ref$IntRef.element I
-      // 0d: aload 0
-      // 0e: new pkg/TestNonInlineLambda$testCaptureMutableInt$1
-      // 11: dup
-      // 12: aload 2
-      // 13: invokespecial pkg/TestNonInlineLambda$testCaptureMutableInt$1.<init> (Lkotlin/jvm/internal/Ref$IntRef;)V
-      // 16: checkcast kotlin/jvm/functions/Function0
-      // 19: invokevirtual pkg/TestNonInlineLambda.execute (Lkotlin/jvm/functions/Function0;)V
-      // 1c: aload 2
-      // 1d: getfield kotlin/jvm/internal/Ref$IntRef.element I
-      // 20: istore 3
-      // 21: aload 2
-      // 22: iload 3
-      // 23: bipush 1
-      // 24: iadd
-      // 25: putfield kotlin/jvm/internal/Ref$IntRef.element I
-      // 28: aload 0
-      // 29: new pkg/TestNonInlineLambda$testCaptureMutableInt$2
-      // 2c: dup
-      // 2d: aload 2
-      // 2e: invokespecial pkg/TestNonInlineLambda$testCaptureMutableInt$2.<init> (Lkotlin/jvm/internal/Ref$IntRef;)V
-      // 31: checkcast kotlin/jvm/functions/Function0
-      // 34: invokevirtual pkg/TestNonInlineLambda.execute (Lkotlin/jvm/functions/Function0;)V
-      // 37: aload 2
-      // 38: aload 2
-      // 39: getfield kotlin/jvm/internal/Ref$IntRef.element I
-      // 3c: sipush 500
-      // 3f: imul
-      // 40: putfield kotlin/jvm/internal/Ref$IntRef.element I
-      // 43: aload 0
-      // 44: new pkg/TestNonInlineLambda$testCaptureMutableInt$3
-      // 47: dup
-      // 48: aload 2
-      // 49: invokespecial pkg/TestNonInlineLambda$testCaptureMutableInt$3.<init> (Lkotlin/jvm/internal/Ref$IntRef;)V
-      // 4c: checkcast kotlin/jvm/functions/Function0
-      // 4f: invokevirtual pkg/TestNonInlineLambda.execute (Lkotlin/jvm/functions/Function0;)V
-      // 52: aload 2
-      // 53: bipush 100
-      // 55: putfield kotlin/jvm/internal/Ref$IntRef.element I
-      // 58: aload 0
-      // 59: new pkg/TestNonInlineLambda$testCaptureMutableInt$4
-      // 5c: dup
-      // 5d: aload 2
-      // 5e: invokespecial pkg/TestNonInlineLambda$testCaptureMutableInt$4.<init> (Lkotlin/jvm/internal/Ref$IntRef;)V
-      // 61: checkcast kotlin/jvm/functions/Function0
-      // 64: invokevirtual pkg/TestNonInlineLambda.execute (Lkotlin/jvm/functions/Function0;)V
-      // 67: aload 2
-      // 68: aload 2
-      // 69: getfield kotlin/jvm/internal/Ref$IntRef.element I
-      // 6c: iload 1
-      // 6d: iadd
-      // 6e: putfield kotlin/jvm/internal/Ref$IntRef.element I
-      // 71: aload 0
-      // 72: new pkg/TestNonInlineLambda$testCaptureMutableInt$5
-      // 75: dup
-      // 76: aload 2
-      // 77: invokespecial pkg/TestNonInlineLambda$testCaptureMutableInt$5.<init> (Lkotlin/jvm/internal/Ref$IntRef;)V
-      // 7a: checkcast kotlin/jvm/functions/Function0
-      // 7d: invokevirtual pkg/TestNonInlineLambda.execute (Lkotlin/jvm/functions/Function0;)V
-      // 80: return
-   }
+      var y: IntRef = new IntRef();// 37
+      y.element = x;
+      this.execute(new <undefinedtype>(y));// 38
+      var var3: Int = y.element++;// 41
+      this.execute(new <undefinedtype>(y));// 42
+      y.element *= 500;// 45
+      this.execute(new <undefinedtype>(y));// 46
+      y.element = 100;// 49
+      this.execute(new <undefinedtype>(y));// 50
+      y.element += x;// 53
+      this.execute(new <undefinedtype>(y));// 54
+   }// 57
 
    fun testCaptureMutableObject(x: String) {
       var y: ObjectRef = new ObjectRef();// 60
@@ -283,298 +226,372 @@ class 'pkg/TestNonInlineLambda' {
       32      34
    }
 
+   method 'testCaptureMutableInt (I)V' {
+      7      37
+      8      38
+      9      38
+      a      38
+      b      38
+      c      38
+      d      39
+      12      39
+      16      39
+      17      39
+      18      39
+      19      39
+      1a      39
+      1b      39
+      1c      40
+      1d      40
+      1e      40
+      1f      40
+      20      40
+      24      40
+      28      41
+      2d      41
+      31      41
+      32      41
+      33      41
+      34      41
+      35      41
+      36      41
+      37      42
+      3c      42
+      3d      42
+      3e      42
+      40      42
+      41      42
+      42      42
+      43      43
+      48      43
+      4c      43
+      4d      43
+      4e      43
+      4f      43
+      50      43
+      51      43
+      52      44
+      53      44
+      54      44
+      55      44
+      56      44
+      57      44
+      58      45
+      5d      45
+      61      45
+      62      45
+      63      45
+      64      45
+      65      45
+      66      45
+      67      46
+      6c      46
+      6e      46
+      6f      46
+      70      46
+      71      47
+      76      47
+      7a      47
+      7b      47
+      7c      47
+      7d      47
+      7e      47
+      7f      47
+      80      48
+   }
+
    method 'testCaptureMutableObject (Ljava/lang/String;)V' {
-      d      108
-      e      109
-      f      109
-      10      109
-      11      109
-      12      109
-      13      110
-      18      110
-      1c      110
-      1d      110
-      1e      110
-      1f      110
-      20      110
-      21      110
-      22      111
-      23      111
-      24      111
-      25      111
-      26      111
-      27      111
-      28      111
-      29      111
-      2a      111
-      2b      111
-      2c      111
-      2d      111
-      2e      111
-      2f      112
-      34      112
-      38      112
-      39      112
-      3a      112
-      3b      112
-      3c      112
-      3d      112
-      3e      113
-      3f      113
-      40      113
-      41      113
-      42      113
-      43      113
-      44      113
-      45      113
-      46      113
-      47      113
-      48      113
-      49      113
-      4a      113
-      4b      113
-      4c      113
-      4d      113
-      4e      113
-      4f      113
-      50      113
-      51      113
-      52      113
-      53      114
-      58      114
-      5c      114
-      5d      114
-      5e      114
-      5f      114
-      60      114
-      61      114
-      62      115
-      63      115
-      64      115
-      65      115
-      66      115
-      67      115
-      68      116
-      6d      116
-      71      116
-      72      116
-      73      116
-      74      116
-      75      116
-      76      116
-      77      117
-      78      117
-      79      117
-      7a      117
-      7b      117
-      7c      117
-      7d      117
-      7e      117
-      7f      117
-      80      117
-      81      117
-      82      117
-      83      117
-      84      117
-      85      118
-      8a      118
-      8e      118
-      8f      118
-      90      118
-      91      118
-      92      118
-      93      118
-      94      119
+      d      51
+      e      52
+      f      52
+      10      52
+      11      52
+      12      52
+      13      53
+      18      53
+      1c      53
+      1d      53
+      1e      53
+      1f      53
+      20      53
+      21      53
+      22      54
+      23      54
+      24      54
+      25      54
+      26      54
+      27      54
+      28      54
+      29      54
+      2a      54
+      2b      54
+      2c      54
+      2d      54
+      2e      54
+      2f      55
+      34      55
+      38      55
+      39      55
+      3a      55
+      3b      55
+      3c      55
+      3d      55
+      3e      56
+      3f      56
+      40      56
+      41      56
+      42      56
+      43      56
+      44      56
+      45      56
+      46      56
+      47      56
+      48      56
+      49      56
+      4a      56
+      4b      56
+      4c      56
+      4d      56
+      4e      56
+      4f      56
+      50      56
+      51      56
+      52      56
+      53      57
+      58      57
+      5c      57
+      5d      57
+      5e      57
+      5f      57
+      60      57
+      61      57
+      62      58
+      63      58
+      64      58
+      65      58
+      66      58
+      67      58
+      68      59
+      6d      59
+      71      59
+      72      59
+      73      59
+      74      59
+      75      59
+      76      59
+      77      60
+      78      60
+      79      60
+      7a      60
+      7b      60
+      7c      60
+      7d      60
+      7e      60
+      7f      60
+      80      60
+      81      60
+      82      60
+      83      60
+      84      60
+      85      61
+      8a      61
+      8e      61
+      8f      61
+      90      61
+      91      61
+      92      61
+      93      61
+      94      62
    }
 
    method 'testCaptureAndMutateInt (I)V' {
-      7      122
-      8      123
-      d      123
-      11      123
-      12      123
-      13      123
-      14      123
-      15      123
-      16      123
-      17      124
-      18      124
-      19      124
-      1a      124
-      1b      124
-      1c      124
-      1d      124
-      1e      125
-      23      125
-      27      125
-      28      125
-      29      125
-      2a      125
-      2b      125
-      2c      125
-      2d      126
+      7      65
+      8      66
+      d      66
+      11      66
+      12      66
+      13      66
+      14      66
+      15      66
+      16      66
+      17      67
+      18      67
+      19      67
+      1a      67
+      1b      67
+      1c      67
+      1d      67
+      1e      68
+      23      68
+      27      68
+      28      68
+      29      68
+      2a      68
+      2b      68
+      2c      68
+      2d      69
    }
 
    method 'testCaptureAndMutateString (Ljava/lang/String;)V' {
-      d      129
-      e      130
-      f      130
-      10      130
-      11      130
-      12      130
-      13      130
-      14      131
-      19      131
-      1d      131
-      1e      131
-      1f      131
-      20      131
-      21      131
-      22      131
-      23      132
-      24      132
-      25      132
-      26      132
-      27      132
-      28      132
-      29      132
-      2a      132
-      2b      132
-      2c      132
-      2d      133
-      32      133
-      36      133
-      37      133
-      38      133
-      39      133
-      3a      133
-      3b      133
-      3c      134
+      d      72
+      e      73
+      f      73
+      10      73
+      11      73
+      12      73
+      13      73
+      14      74
+      19      74
+      1d      74
+      1e      74
+      1f      74
+      20      74
+      21      74
+      22      74
+      23      75
+      24      75
+      25      75
+      26      75
+      27      75
+      28      75
+      29      75
+      2a      75
+      2b      75
+      2c      75
+      2d      76
+      32      76
+      36      76
+      37      76
+      38      76
+      39      76
+      3a      76
+      3b      76
+      3c      77
    }
 
    method 'getIntField ()I' {
-      0      137
-      1      137
-      2      137
-      3      137
-      4      137
+      0      80
+      1      80
+      2      80
+      3      80
+      4      80
    }
 
    method 'setIntField (I)V' {
-      0      141
-      1      141
-      2      141
-      3      141
-      4      141
-      5      142
+      0      84
+      1      84
+      2      84
+      3      84
+      4      84
+      5      85
    }
 
    method 'testCapturePublicMutableIntField ()V' {
-      0      145
-      5      145
-      9      145
-      a      145
-      b      145
-      c      145
-      d      145
-      e      145
-      f      146
+      0      88
+      5      88
+      9      88
+      a      88
+      b      88
+      c      88
+      d      88
+      e      88
+      f      89
    }
 
    method 'getStringField ()Ljava/lang/String;' {
-      0      149
-      1      149
-      2      149
-      3      149
-      4      149
+      0      92
+      1      92
+      2      92
+      3      92
+      4      92
    }
 
    method 'setStringField (Ljava/lang/String;)V' {
-      6      153
-      7      153
-      8      153
-      9      153
-      a      153
-      b      154
+      6      96
+      7      96
+      8      96
+      9      96
+      a      96
+      b      97
    }
 
    method 'testCapturePublicMutableStringField ()V' {
-      0      157
-      5      157
-      9      157
-      a      157
-      b      157
-      c      157
-      d      157
-      e      157
-      f      158
+      0      100
+      5      100
+      9      100
+      a      100
+      b      100
+      c      100
+      d      100
+      e      100
+      f      101
    }
 
    method 'testCapturePrivateMutableIntField ()V' {
-      0      161
-      5      161
-      9      161
-      a      161
-      b      161
-      c      161
-      d      161
-      e      161
-      f      162
+      0      104
+      5      104
+      9      104
+      a      104
+      b      104
+      c      104
+      d      104
+      e      104
+      f      105
    }
 
    method 'testCapturePrivateMutableStringField ()V' {
-      0      165
-      5      165
-      9      165
-      a      165
-      b      165
-      c      165
-      d      165
-      e      165
-      f      166
+      0      108
+      5      108
+      9      108
+      a      108
+      b      108
+      c      108
+      d      108
+      e      108
+      f      109
    }
 
    method 'execute (Lkotlin/jvm/functions/Function0;)V' {
-      6      169
+      6      112
    }
 
    method 'access$getPrivateIntField$p (Lpkg/TestNonInlineLambda;)I' {
-      0      173
-      1      173
-      2      173
-      3      173
-      4      173
+      0      116
+      1      116
+      2      116
+      3      116
+      4      116
    }
 
    method 'access$setPrivateIntField$p (Lpkg/TestNonInlineLambda;I)V' {
-      0      178
-      1      178
-      2      178
-      3      178
-      4      178
-      5      179
+      0      121
+      1      121
+      2      121
+      3      121
+      4      121
+      5      122
    }
 
    method 'access$setPrivateStringField$p (Lpkg/TestNonInlineLambda;Ljava/lang/String;)V' {
-      0      183
-      1      183
-      2      183
-      3      183
-      4      183
-      5      184
+      0      126
+      1      126
+      2      126
+      3      126
+      4      126
+      5      127
    }
 
    method 'access$getPrivateStringField$p (Lpkg/TestNonInlineLambda;)Ljava/lang/String;' {
-      0      188
-      1      188
-      2      188
-      3      188
-      4      188
+      0      131
+      1      131
+      2      131
+      3      131
+      4      131
    }
 }
 
 Lines mapping:
-3 <-> 189
+3 <-> 132
 7 <-> 16
 8 <-> 16
 11 <-> 17
@@ -587,35 +604,46 @@ Lines mapping:
 29 <-> 32
 30 <-> 33
 34 <-> 35
-60 <-> 109
-61 <-> 111
-64 <-> 112
-65 <-> 113
-68 <-> 114
-69 <-> 115
-72 <-> 116
-73 <-> 117
-76 <-> 118
-77 <-> 119
-80 <-> 120
-83 <-> 123
-84 <-> 124
-89 <-> 125
-90 <-> 126
-95 <-> 127
-98 <-> 130
-99 <-> 132
-105 <-> 133
-106 <-> 134
-112 <-> 135
-114 <-> 142
-117 <-> 146
-118 <-> 147
-120 <-> 154
-123 <-> 158
-124 <-> 159
-129 <-> 162
-130 <-> 163
-135 <-> 166
-136 <-> 167
-141 <-> 170
+37 <-> 38
+38 <-> 40
+41 <-> 41
+42 <-> 42
+45 <-> 43
+46 <-> 44
+49 <-> 45
+50 <-> 46
+53 <-> 47
+54 <-> 48
+57 <-> 49
+60 <-> 52
+61 <-> 54
+64 <-> 55
+65 <-> 56
+68 <-> 57
+69 <-> 58
+72 <-> 59
+73 <-> 60
+76 <-> 61
+77 <-> 62
+80 <-> 63
+83 <-> 66
+84 <-> 67
+89 <-> 68
+90 <-> 69
+95 <-> 70
+98 <-> 73
+99 <-> 75
+105 <-> 76
+106 <-> 77
+112 <-> 78
+114 <-> 85
+117 <-> 89
+118 <-> 90
+120 <-> 97
+123 <-> 101
+124 <-> 102
+129 <-> 105
+130 <-> 106
+135 <-> 109
+136 <-> 110
+141 <-> 113

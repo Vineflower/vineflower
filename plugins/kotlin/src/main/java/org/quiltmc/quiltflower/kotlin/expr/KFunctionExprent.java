@@ -11,6 +11,14 @@ import java.util.List;
 public class KFunctionExprent extends FunctionExprent {
   public KFunctionExprent(FunctionExprent func) {
     super(func.getFuncType(), func.getLstOperands(), func.bytecode);
+    switch (getFuncType()) {
+      case IMM:
+      case MMI:
+      case IPP:
+      case PPI:
+        setImplicitType(func.getExprType());
+        break;
+    }
   }
 
   @Override
