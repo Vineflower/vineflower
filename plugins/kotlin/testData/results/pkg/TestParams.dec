@@ -23,7 +23,7 @@ class TestParams {
 
    @JvmStatic
    @JvmSynthetic
-   fun printMessageWithPrefix$default(var0: TestParams, var1: String, var2: String, var3: Int, var4: Object) {
+   fun `printMessageWithPrefix$default`(var0: TestParams, var1: String, var2: String, var3: Int, var4: Object) {
       if ((var3 & 2) != 0) {// 18
          var2 = "Info";
       }

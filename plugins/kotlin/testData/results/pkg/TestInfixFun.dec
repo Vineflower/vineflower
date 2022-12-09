@@ -20,12 +20,12 @@ class TestInfixFun {
    }// 21
 
    @JvmStatic
-   fun test$times($this$test_u24times: Int, str: String): String  {
+   fun `test$times`($this$test_u24times: Int, str: String): String  {
       return StringsKt.repeat((CharSequence)str, $this$test_u24times);// 5
    }
 
    @JvmStatic
-   fun testDuplicate$mult($this$testDuplicate_u24mult: Int, str: String): String  {
+   fun `testDuplicate$mult`($this$testDuplicate_u24mult: Int, str: String): String  {
       return StringsKt.repeat((CharSequence)str, $this$testDuplicate_u24mult + 1);// 18
    }
 }
