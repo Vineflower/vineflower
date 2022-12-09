@@ -49,6 +49,36 @@ public class KotlinWriter implements StatementWriter {
   ));
   private static final String NOT_NULL_ANN_NAME = "org/jetbrains/annotations/NotNull";
   private static final String NULLABLE_ANN_NAME = "org/jetbrains/annotations/Nullable";
+  private static final Set<String> KT_HARD_KEYWORDS = new HashSet<>(Arrays.asList(
+    "as",
+    "break",
+    "class",
+    "continue",
+    "do",
+    "else",
+    "false",
+    "for",
+    "fun",
+    "if",
+    "in",
+    "interface",
+    "is",
+    "null",
+    "object",
+    "package",
+    "return",
+    "super",
+    "this",
+    "throw",
+    "true",
+    "try",
+    "typealias",
+    "typeof", // Reserved for future use
+    "val",
+    "var",
+    "when",
+    "while"
+  ));
   
   private final PoolInterceptor interceptor;
   private final IFabricJavadocProvider javadocProvider;
@@ -329,10 +359,6 @@ public class KotlinWriter implements StatementWriter {
       appendRenameComment(buffer, oldName, MType.CLASS, indent);
     }
 
-    if (isSynthetic) {
-      appendComment(buffer, "synthetic class", indent);
-    }
-
     if (javadocProvider != null) {
       appendJavadoc(buffer, javadocProvider.getClassDoc(cl), indent);
     }
@@ -361,6 +387,11 @@ public class KotlinWriter implements StatementWriter {
 
     if ((flags & CodeConstants.ACC_FINAL) == 0) {
       buffer.append("open ");
+    }
+
+    // TODO: more robust inner class detection
+    if ((flags & CodeConstants.ACC_STATIC) == 0 && cl.qualifiedName.contains("$")) {
+      buffer.append("inner ");
     }
 
     appendModifiers(buffer, flags, CLASS_ALLOWED, isInterface, CLASS_EXCLUDED);
@@ -495,16 +526,16 @@ public class KotlinWriter implements StatementWriter {
       appendRenameComment(buffer, oldName, MType.FIELD, indent);
     }
 
-    if (fd.isSynthetic()) {
-      appendComment(buffer, "synthetic field", indent);
-    }
-
     if (javadocProvider != null) {
       appendJavadoc(buffer, javadocProvider.getFieldDoc(cl, fd), indent);
     }
     appendAnnotations(buffer, indent, fd, TypeAnnotation.FIELD);
 
     buffer.appendIndent(indent);
+
+    if (!fd.hasModifier(CodeConstants.ACC_FINAL) && !fd.hasModifier(CodeConstants.ACC_STATIC) && !fd.hasModifier(CodeConstants.ACC_PRIVATE)) {
+      buffer.append("open ");
+    }
 
     if (!isEnum) {
       appendModifiers(buffer, fd.getAccessFlags(), FIELD_ALLOWED, isInterface, FIELD_EXCLUDED);
@@ -560,26 +591,30 @@ public class KotlinWriter implements StatementWriter {
     }
   }
 
-  private static String toValidJavaIdentifier(String name) {
+  private static String toValidKotlinIdentifier(String name) {
     if (name == null || name.isEmpty()) return name;
 
-    boolean changed = false;
-    StringBuilder res = new StringBuilder(name.length());
-    for (int i = 0; i < name.length(); i++) {
-      char c = name.charAt(i);
-      if ((i == 0 && !Character.isJavaIdentifierStart(c))
-        || (i > 0 && !Character.isJavaIdentifierPart(c))) {
-        changed = true;
-        res.append("_");
-      }
-      else {
-        res.append(c);
+    if (KT_HARD_KEYWORDS.contains(name)) {
+      return "`" + name + "`";
+    }
+
+    boolean requiresBackticks = !Character.isJavaIdentifierStart(name.charAt(0));
+    for (int i = 1; i < name.length(); i++) {
+      if (!Character.isJavaIdentifierPart(name.charAt(i))) {
+        requiresBackticks = true;
+        break;
       }
     }
-    if (!changed) {
-      return name;
+    boolean needsComment = false;
+    if (name.contains("`")) {
+      name = name.replace("`", "_");
+      needsComment = true;
     }
-    return res.append("/* $QF was: ").append(name).append("*/").toString();
+
+    if (requiresBackticks) {
+      name = "`" + name + "`";
+    }
+    return name + (needsComment ? " /* $QF was: " + name + " */" : "");
   }
 
   public boolean writeMethod(ClassNode node, StructMethod mt, int methodIndex, TextBuffer buffer, int indent) {
@@ -630,11 +665,7 @@ public class KotlinWriter implements StatementWriter {
         appendRenameComment(buffer, oldName, MType.METHOD, indent);
       }
 
-      boolean isSynthetic = (flags & CodeConstants.ACC_SYNTHETIC) != 0 || mt.hasAttribute(StructGeneralAttribute.ATTRIBUTE_SYNTHETIC);
       boolean isBridge = (flags & CodeConstants.ACC_BRIDGE) != 0;
-      if (isSynthetic) {
-        appendComment(buffer, "synthetic method", indent);
-      }
       if (isBridge) {
         appendComment(buffer, "bridge method", indent);
       }
@@ -657,18 +688,7 @@ public class KotlinWriter implements StatementWriter {
 
       appendAnnotations(buffer, indent, mt, TypeAnnotation.METHOD_RETURN_TYPE);
 
-      // Try append @Override after all other annotations
-      if (DecompilerContext.getOption(IFernflowerPreferences.OVERRIDE_ANNOTATION) && mt.getBytecodeVersion().hasOverride() && !CodeConstants.INIT_NAME.equals(mt.getName()) && !CodeConstants.CLINIT_NAME.equals(mt.getName()) && !mt.hasModifier(CodeConstants.ACC_STATIC)  && !mt.hasModifier(CodeConstants.ACC_PRIVATE)) {
-        // Search superclasses for methods that match the name and descriptor of this one.
-        // Make sure not to search the current class otherwise it will return the current method itself!
-        // TODO: record overrides
-        boolean isOverride = searchForMethod(cl, mt.getName(), md, false);
-        if (isOverride) {
-          buffer.appendIndent(indent);
-          buffer.append("@Override");
-          buffer.appendLineSeparator();
-        }
-      }
+      appendJvmAnnotations(buffer, indent, mt, isInterface, cl.getPool(), TypeAnnotation.METHOD_RETURN_TYPE);
 
       buffer.appendIndent(indent);
 
@@ -685,13 +705,30 @@ public class KotlinWriter implements StatementWriter {
         clInit = true;
       }
 
-      if (!dInit) {
-        buffer.append("fun ");
+      boolean didOverride = false;
+      if (!CodeConstants.INIT_NAME.equals(mt.getName()) && !CodeConstants.CLINIT_NAME.equals(mt.getName()) && !mt.hasModifier(CodeConstants.ACC_STATIC)  && !mt.hasModifier(CodeConstants.ACC_PRIVATE)) {
+        // Search superclasses for methods that match the name and descriptor of this one.
+        // Make sure not to search the current class otherwise it will return the current method itself!
+        // TODO: record overrides
+        boolean isOverride = searchForMethod(cl, mt.getName(), md, false);
+        if (isOverride) {
+          buffer.append("override ");
+          didOverride = true;
+          if (mt.hasModifier(CodeConstants.ACC_ABSTRACT)) {
+            buffer.append("abstract ");
+          }
+          if (mt.hasModifier(CodeConstants.ACC_FINAL)) {
+            buffer.append("final ");
+          }
+        }
       }
 
-      if (isInterface && !mt.hasModifier(CodeConstants.ACC_STATIC) && mt.containsCode() && (flags & CodeConstants.ACC_PRIVATE) == 0) {
-        // 'default' modifier (Java 8)
-        buffer.append("default ");
+      if (!didOverride && !mt.hasModifier(CodeConstants.ACC_FINAL) && !mt.hasModifier(CodeConstants.ACC_PRIVATE) && !mt.hasModifier(CodeConstants.ACC_STATIC) && !isInterface && !isAnnotation && !isEnum && !cl.hasModifier(CodeConstants.ACC_FINAL)) {
+        buffer.append(mt.hasModifier(CodeConstants.ACC_ABSTRACT) ? "abstract " : "open ");
+      }
+
+      if (!dInit) {
+        buffer.append("fun ");
       }
 
       GenericMethodDescriptor descriptor = mt.getSignature();
@@ -706,7 +743,7 @@ public class KotlinWriter implements StatementWriter {
           buffer.append(' ');
         }
 
-        buffer.append(toValidJavaIdentifier(name));
+        buffer.append(toValidKotlinIdentifier(name));
         buffer.append('(');
 
         List<VarVersionPair> mask = methodWrapper.synthParameters;
@@ -1232,6 +1269,53 @@ public class KotlinWriter implements StatementWriter {
 
     appendTypeAnnotations(buffer, indent, mb, targetType, -1, filter);
   }
+
+  private static void appendJvmAnnotations(TextBuffer buffer, int indent, StructMember mb, boolean isInterface, ConstantPool pool, int targetType) {
+    switch (targetType) {
+      case TypeAnnotation.METHOD_RETURN_TYPE:
+        if (isInterface && !mb.hasModifier(CodeConstants.ACC_ABSTRACT)) {
+          buffer.appendIndent(indent).append("@JvmDefault").appendLineSeparator();
+        }
+        if (mb.hasAttribute(StructGeneralAttribute.ATTRIBUTE_EXCEPTIONS)) {
+          StructExceptionsAttribute attrib = mb.getAttribute(StructGeneralAttribute.ATTRIBUTE_EXCEPTIONS);
+          buffer.appendIndent(indent).append("@Throws(");
+          buffer.pushNewlineGroup(indent, 1);
+          boolean first = true;
+          for (int i : attrib.getThrowsExceptions()) {
+            if (!first) {
+              buffer.append(",").appendPossibleNewline(" ");
+            }
+            first = false;
+            String name = attrib.getExcClassname(i, pool);
+            buffer.append(name).append("::class");
+          }
+          buffer.popNewlineGroup();
+          buffer.append(")").appendLineSeparator();
+        }
+        break;
+      case TypeAnnotation.FIELD:
+        if (mb.hasModifier(CodeConstants.ACC_STRICT)) {
+          buffer.appendIndent(indent).append("@Strictfp").appendLineSeparator();
+        }
+        if (mb.hasModifier(CodeConstants.ACC_TRANSIENT)) {
+          buffer.appendIndent(indent).append("@Transient").appendLineSeparator();
+        }
+        if (mb.hasModifier(CodeConstants.ACC_VOLATILE)) {
+          buffer.appendIndent(indent).append("@Volatile").appendLineSeparator();
+        }
+        break;
+    }
+
+    if (mb.hasModifier(CodeConstants.ACC_STATIC)) {
+      buffer.appendIndent(indent).append("@JvmStatic").appendLineSeparator();
+    }
+    if (mb.hasModifier(CodeConstants.ACC_SYNCHRONIZED)) {
+      buffer.appendIndent(indent).append("@Synchronized").appendLineSeparator();
+    }
+    if (mb.hasModifier(CodeConstants.ACC_SYNTHETIC)) {
+      buffer.appendIndent(indent).append("@JvmSynthetic").appendLineSeparator();
+    }
+  }
   
   static boolean isNullable(StructMember mb){
     for (StructGeneralAttribute.Key<?> key : ANNOTATION_ATTRIBUTES){
@@ -1346,12 +1430,12 @@ public class KotlinWriter implements StatementWriter {
     MODIFIERS.put(CodeConstants.ACC_PROTECTED, "protected");
     MODIFIERS.put(CodeConstants.ACC_PRIVATE, "private");
     MODIFIERS.put(CodeConstants.ACC_ABSTRACT, "abstract");
-    MODIFIERS.put(CodeConstants.ACC_STATIC, "static");
-    MODIFIERS.put(CodeConstants.ACC_FINAL, "final");
-    MODIFIERS.put(CodeConstants.ACC_STRICT, "strictfp");
-    MODIFIERS.put(CodeConstants.ACC_TRANSIENT, "transient");
-    MODIFIERS.put(CodeConstants.ACC_VOLATILE, "volatile");
-    MODIFIERS.put(CodeConstants.ACC_SYNCHRONIZED, "synchronized");
+//    MODIFIERS.put(CodeConstants.ACC_STATIC, "static");
+//    MODIFIERS.put(CodeConstants.ACC_FINAL, "final");
+//    MODIFIERS.put(CodeConstants.ACC_STRICT, "strictfp");
+//    MODIFIERS.put(CodeConstants.ACC_TRANSIENT, "transient");
+//    MODIFIERS.put(CodeConstants.ACC_VOLATILE, "volatile");
+//    MODIFIERS.put(CodeConstants.ACC_SYNCHRONIZED, "synchronized");
     MODIFIERS.put(CodeConstants.ACC_NATIVE, "native");
   }
 

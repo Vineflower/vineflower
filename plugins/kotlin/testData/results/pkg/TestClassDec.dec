@@ -13,17 +13,17 @@ class TestClassDec {
       System.out.println(this.dot(vec, vec1));// 20
    }// 21
 
-   static class EmptyDec {
+   class EmptyDec {
    }
 
-   static class Vec2i {
+   class Vec2i {
       fun Vec2i(x: Int, y: Int) {
       }// 8
    }
 
-   static class Vec2iVal {
-      private final int x;
-      private final int y;
+   class Vec2iVal {
+      private int x;
+      private int y;
 
       fun Vec2iVal(x: Int, y: Int) {
          this.x = x;
@@ -39,7 +39,7 @@ class TestClassDec {
       }
    }
 
-   static class Vec2iVar {
+   class Vec2iVar {
       private int x;
       private int y;
 
