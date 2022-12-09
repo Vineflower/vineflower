@@ -21,17 +21,18 @@ public class TestTextTokens {
    private static Function<String, String> method(
       Function<String, String> extraLongVariableNameToReachPreferredLineLengthAndCauseWrapping
    ) {
-      return extraLongVariableNameToReachPreferredLineLengthAndCauseWrapping.andThen(str -> str.replace(" ", ""));// 21
+      String s = "Hello world";// 21
+      return extraLongVariableNameToReachPreferredLineLengthAndCauseWrapping.andThen(str -> str.replace(" ", ""));// 22
    }
 
    @Deprecated
    private class Bee {
       private Bee() {
-      }// 25
+      }// 26
 
       public void buzz() {
-         TestTextTokens.bar("bzzz");// 27
-      }// 28
+         TestTextTokens.bar("bzzz");// 28
+      }// 29
    }
 }
 
@@ -103,39 +104,42 @@ class 'pkg/TestTextTokens' {
 
    method 'method (Ljava/util/function/Function;)Ljava/util/function/Function;' {
       0      23
-      6      23
-      7      23
-      8      23
-      9      23
-      a      23
-      b      23
+      1      23
+      2      23
+      3      24
+      9      24
+      a      24
+      b      24
+      c      24
+      d      24
+      e      24
    }
 
    method 'lambda$method$2 (Ljava/lang/String;)Ljava/lang/String;' {
-      0      23
-      1      23
-      2      23
-      3      23
-      4      23
-      5      23
-      6      23
-      7      23
-      8      23
+      0      24
+      1      24
+      2      24
+      3      24
+      4      24
+      5      24
+      6      24
+      7      24
+      8      24
    }
 }
 
 class 'pkg/TestTextTokens$Bee' {
    method '<init> (Lpkg/TestTextTokens;)V' {
-      9      29
+      9      30
    }
 
    method 'buzz ()V' {
-      0      32
-      1      32
-      2      32
-      3      32
-      4      32
-      5      33
+      0      33
+      1      33
+      2      33
+      3      33
+      4      33
+      5      34
    }
 }
 
@@ -147,9 +151,10 @@ Lines mapping:
 17 <-> 18
 18 <-> 19
 21 <-> 24
-25 <-> 30
-27 <-> 33
+22 <-> 25
+26 <-> 31
 28 <-> 34
+29 <-> 35
 
 /*
 Tokens:
@@ -189,15 +194,17 @@ Tokens:
 (22:16, 22:22) class [reference] java/lang/String
 (22:24, 22:30) class [reference] java/lang/String
 (22:32, 22:95) parameter [declaration] pkg/TestTextTokens#method(Ljava/util/function/Function;)Ljava/util/function/Function;(0:extraLongVariableNameToReachPreferredLineLengthAndCauseWrapping)
-(24:14, 24:77) parameter [reference] pkg/TestTextTokens#method(Ljava/util/function/Function;)Ljava/util/function/Function;(0:extraLongVariableNameToReachPreferredLineLengthAndCauseWrapping)
-(24:78, 24:85) method [reference] java/util/function/Function#andThen(Ljava/util/function/Function;)Ljava/util/function/Function;
-(24:86, 24:89) parameter [declaration] pkg/TestTextTokens#lambda$method$2(Ljava/lang/String;)Ljava/lang/String;(0:str)
-(24:93, 24:96) parameter [reference] pkg/TestTextTokens#lambda$method$2(Ljava/lang/String;)Ljava/lang/String;(0:str)
-(24:97, 24:104) method [reference] java/lang/String#replace(Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
-(27:5, 27:15) class [reference] java/lang/Deprecated
-(28:18, 28:21) class [declaration] pkg/TestTextTokens$Bee
-(29:15, 29:18) method [declaration] pkg/TestTextTokens$Bee#<init>(Lpkg/TestTextTokens;)V
-(32:19, 32:23) method [declaration] pkg/TestTextTokens$Bee#buzz()V
-(33:10, 33:24) class [reference] pkg/TestTextTokens
-(33:25, 33:28) method [reference] pkg/TestTextTokens#bar(Ljava/lang/String;)V
+(24:7, 24:13) class [reference] java/lang/String
+(24:14, 24:15) local [declaration] pkg/TestTextTokens#method(Ljava/util/function/Function;)Ljava/util/function/Function;(1:s)
+(25:14, 25:77) parameter [reference] pkg/TestTextTokens#method(Ljava/util/function/Function;)Ljava/util/function/Function;(0:extraLongVariableNameToReachPreferredLineLengthAndCauseWrapping)
+(25:78, 25:85) method [reference] java/util/function/Function#andThen(Ljava/util/function/Function;)Ljava/util/function/Function;
+(25:86, 25:89) parameter [declaration] pkg/TestTextTokens#lambda$method$2(Ljava/lang/String;)Ljava/lang/String;(0:str)
+(25:93, 25:96) parameter [reference] pkg/TestTextTokens#lambda$method$2(Ljava/lang/String;)Ljava/lang/String;(0:str)
+(25:97, 25:104) method [reference] java/lang/String#replace(Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+(28:5, 28:15) class [reference] java/lang/Deprecated
+(29:18, 29:21) class [declaration] pkg/TestTextTokens$Bee
+(30:15, 30:18) method [declaration] pkg/TestTextTokens$Bee#<init>(Lpkg/TestTextTokens;)V
+(33:19, 33:23) method [declaration] pkg/TestTextTokens$Bee#buzz()V
+(34:10, 34:24) class [reference] pkg/TestTextTokens
+(34:25, 34:28) method [reference] pkg/TestTextTokens#bar(Ljava/lang/String;)V
 */

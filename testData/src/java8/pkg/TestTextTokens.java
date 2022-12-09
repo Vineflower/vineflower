@@ -18,6 +18,7 @@ public class TestTextTokens {
   }
 
   private static Function<String, String> method(Function<String, String> extraLongVariableNameToReachPreferredLineLengthAndCauseWrapping) {
+    String s = "Hello world";
     return extraLongVariableNameToReachPreferredLineLengthAndCauseWrapping.andThen(str -> str.replace(" ", ""));
   }
 

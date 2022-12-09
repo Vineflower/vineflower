@@ -151,7 +151,8 @@ public class VarExprent extends Exprent {
         if (method.varproc != null) {
           Integer originalIndex = method.varproc.getVarOriginalIndex(varIndex);
           int i = originalIndex != null ? originalIndex : varIndex;
-          param = i <= Arrays.stream(descriptor.params).map(v -> v.stackSize).reduce(0, Integer::sum);
+          Integer paramsSize = Arrays.stream(descriptor.params).map(v -> v.stackSize).reduce(0, Integer::sum);
+          param = i <= paramsSize - (method.methodStruct.hasModifier(CodeConstants.ACC_STATIC) ? 1 : 0);
         }
 
         buffer.appendVariable(name, definition, param, method.classStruct.qualifiedName, method.methodStruct.getName(), descriptor, varIndex, name);
