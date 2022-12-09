@@ -426,7 +426,7 @@ public class KotlinWriter implements StatementWriter {
     else {
       buffer.append("class ");
     }
-    buffer.append(node.simpleName);
+    buffer.append(toValidKotlinIdentifier(node.simpleName));
 
     GenericClassDescriptor descriptor = cl.getSignature();
     if (descriptor != null && !descriptor.fparameters.isEmpty()) {
