@@ -598,9 +598,9 @@ public class KotlinWriter implements StatementWriter {
       return "`" + name + "`";
     }
 
-    boolean requiresBackticks = !Character.isJavaIdentifierStart(name.charAt(0));
+    boolean requiresBackticks = !Character.isJavaIdentifierStart(name.charAt(0)) || name.charAt(0) == '$';
     for (int i = 1; i < name.length(); i++) {
-      if (!Character.isJavaIdentifierPart(name.charAt(i))) {
+      if (!Character.isJavaIdentifierPart(name.charAt(i)) || name.charAt(i) == '$') {
         requiresBackticks = true;
         break;
       }
