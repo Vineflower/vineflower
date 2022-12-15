@@ -1100,13 +1100,13 @@ public class ClassWriter implements StatementWriter {
 
             buffer.append(' ');
 
-            String parameterName = methodWrapper.varproc.getVarName(new VarVersionPair(index, 0));
-            // if (methodParameters != null && i < methodParameters.size()) {
-            //   parameterName = methodParameters.get(i).myName;
-            // }
-            // else {
-            //   parameterName = methodWrapper.varproc.getVarName(new VarVersionPair(index, 0));
-            // }
+            String parameterName;
+            if (methodParameters != null && i < methodParameters.size()) {
+              parameterName = methodParameters.get(i).myName;
+            }
+            else {
+              parameterName = methodWrapper.varproc.getVarName(new VarVersionPair(index, 0));
+            }
 
             if ((flags & (CodeConstants.ACC_ABSTRACT | CodeConstants.ACC_NATIVE)) != 0) {
               String newParameterName = methodWrapper.methodStruct.getVariableNamer().renameAbstractParameter(parameterName, index);
