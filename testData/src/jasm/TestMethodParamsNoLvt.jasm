@@ -30,5 +30,23 @@ super public class TestMethodParamsNoLvt
 		return;
 
   }
+  public static Method bar:"(IILjava/lang/String;I)V"
+	stack 2 locals 4
 
+  0: #{param0}
+  1: #{param1}
+  2: #{param2}
+  {
+		getstatic	Field java/lang/System.out:"Ljava/io/PrintStream;";
+		iload_0;
+		invokevirtual	Method java/io/PrintStream.print:"(I)V";
+		getstatic	Field java/lang/System.out:"Ljava/io/PrintStream;";
+		iload_1;
+		invokevirtual	Method java/io/PrintStream.print:"(I)V";
+		getstatic	Field java/lang/System.out:"Ljava/io/PrintStream;";
+		aload_2;
+		invokevirtual	Method java/io/PrintStream.println:"(Ljava/lang/String;)V";
+		return;
+
+  }
 } // end Class TestMethodParamsNoLvt

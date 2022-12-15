@@ -12,7 +12,9 @@ import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarTypeProcessor.FinalType;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructMethod;
+import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribute.LocalVariable;
+import org.jetbrains.java.decompiler.struct.attr.StructMethodParametersAttribute;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
@@ -68,13 +70,27 @@ public class VarDefinitionHelper {
     }
     paramcount += md.params.length;
 
+    List<StructMethodParametersAttribute.Entry> methodParameters = null;
+    if (DecompilerContext.getOption(IFernflowerPreferences.USE_METHOD_PARAMETERS)) {
+      StructMethodParametersAttribute attr = mt.getAttribute(StructGeneralAttribute.ATTRIBUTE_METHOD_PARAMETERS);
+      if (attr != null) {
+        methodParameters = attr.getEntries();
+      }
+    }
+
     // method parameters are implicitly defined
     int varindex = 0;
+    int paramIndex = 0;
     for (int i = 0; i < paramcount; i++) {
       implDefVars.add(varindex);
       VarVersionPair vpp = new VarVersionPair(varindex, 0);
       if (varindex != 0 || !thisvar) {
-        varproc.setVarName(vpp, vc.getFreeName(varindex));
+        if (methodParameters != null && paramIndex < methodParameters.size()) {
+          varproc.setVarName(vpp, vc.getFreeName(methodParameters.get(paramIndex).myName));
+          paramIndex++;
+        } else {
+          varproc.setVarName(vpp, vc.getFreeName(varindex));
+        }
       }
 
       if (thisvar) {
