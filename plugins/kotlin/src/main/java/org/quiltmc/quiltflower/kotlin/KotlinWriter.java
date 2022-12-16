@@ -146,11 +146,19 @@ public class KotlinWriter implements StatementWriter {
   public void writeClassHeader(StructClass cl, TextBuffer buffer, ImportCollector importCollector) {
     int index = cl.qualifiedName.lastIndexOf('/');
     if (index >= 0) {
-      String packageName = cl.qualifiedName.substring(0, index).replace('/', '.');
-      buffer.append("package ").append(packageName).appendLineSeparator().appendLineSeparator();
+      buffer.append("package ");
+
+      String[] packageParts = cl.qualifiedName.substring(0, index).split("/");
+      for (int i = 0; i < packageParts.length; i++) {
+        if (i > 0) buffer.append('.');
+        buffer.append(toValidKotlinIdentifier(packageParts[i]));
+      }
+
+      buffer.appendLineSeparator().appendLineSeparator();
     }
 
-    importCollector.writeImports(buffer, true);
+    KotlinImportCollector kotlinImportCollector = new KotlinImportCollector(importCollector);
+    kotlinImportCollector.writeImports(buffer, true);
   }
 
   public void writeClass(ClassNode node, TextBuffer buffer, int indent) {
@@ -591,7 +599,7 @@ public class KotlinWriter implements StatementWriter {
     }
   }
 
-  private static String toValidKotlinIdentifier(String name) {
+  public static String toValidKotlinIdentifier(String name) {
     if (name == null || name.isEmpty()) return name;
 
     if (KT_HARD_KEYWORDS.contains(name)) {
