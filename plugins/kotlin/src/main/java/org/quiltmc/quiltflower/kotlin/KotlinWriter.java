@@ -746,9 +746,38 @@ public class KotlinWriter implements StatementWriter {
       if (!clInit && !dInit) {
         boolean thisVar = !mt.hasModifier(CodeConstants.ACC_STATIC);
 
+        int index = isEnum && init ? 3 : thisVar ? 1 : 0;
+        int start = isEnum && init ? 2 : 0;
+
         if (descriptor != null && !descriptor.typeParameters.isEmpty()) {
           appendTypeParameters(buffer, descriptor.typeParameters, descriptor.typeParameterBounds);
           buffer.append(' ');
+        }
+
+        String varprocName = methodWrapper.varproc.getVarName(new VarVersionPair(index, 0));
+        boolean extension = varprocName != null && varprocName.startsWith("$this$");
+
+        if (extension) {
+          VarType paramType = descriptor != null && descriptor.parameterTypes.size() > 0 ? descriptor.parameterTypes.get(0) : md.params[0];
+          String typeName = ExprProcessor.getCastTypeName(paramType);
+          if (ExprProcessor.UNDEFINED_TYPE_STRING.equals(typeName)) {
+            typeName = "Any";
+          }
+
+          typeName = KTypes.mapJavaTypeToKotlin(typeName);
+
+          buffer.append(typeName);
+
+          boolean isNullable = processParameterAnnotations(buffer, mt, 0);
+          if (isNullable) {
+            buffer.append('?');
+          }
+
+          buffer.append(".");
+
+          paramCount++;
+          start++;
+          index += paramType.stackSize;
         }
 
         buffer.append(toValidKotlinIdentifier(name));
@@ -775,21 +804,21 @@ public class KotlinWriter implements StatementWriter {
           }
         }
 
-        int index = isEnum && init ? 3 : thisVar ? 1 : 0;
-        int start = isEnum && init ? 2 : 0;
         boolean hasDescriptor = descriptor != null;
         //mask should now have the Outer.this in it... so this *shouldn't* be nessasary.
         //if (init && !isEnum && ((node.access & CodeConstants.ACC_STATIC) == 0) && node.type == ClassNode.CLASS_MEMBER)
         //    index++;
 
+        boolean first = true;
         buffer.pushNewlineGroup(indent, 0);
         for (int i = start; i < md.params.length; i++) {
           VarType parameterType = hasDescriptor && paramCount < descriptor.parameterTypes.size() ? descriptor.parameterTypes.get(paramCount) : md.params[i];
           if (mask == null || mask.get(i) == null) {
-            if (paramCount > 0) {
+            if (!first) {
               buffer.append(",");
               buffer.appendPossibleNewline(" ");
             }
+            first = false;
             
             // @PAnn vararg? pName: pTy
             boolean nullable = processParameterAnnotations(buffer, mt, paramCount);

@@ -114,25 +114,25 @@ open class TestNonInlineLambda {
    @JvmStatic
    @JvmSynthetic
    fun `access$getPrivateIntField$p`(`$this`: TestNonInlineLambda): Int  {
-      return $this.privateIntField;
+      return `$this`.privateIntField;
    }
 
    @JvmStatic
    @JvmSynthetic
    fun `access$setPrivateIntField$p`(`$this`: TestNonInlineLambda, var1: Int) {
-      $this.privateIntField = var1;
+      `$this`.privateIntField = var1;
    }
 
    @JvmStatic
    @JvmSynthetic
    fun `access$setPrivateStringField$p`(`$this`: TestNonInlineLambda, var1: String) {
-      $this.privateStringField = var1;
+      `$this`.privateStringField = var1;
    }
 
    @JvmStatic
    @JvmSynthetic
    fun `access$getPrivateStringField$p`(`$this`: TestNonInlineLambda): String  {
-      return $this.privateStringField;// 3
+      return `$this`.privateStringField;// 3
    }
 }
 

@@ -9,6 +9,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.vars.VarTypeProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.TextBuffer;
+import org.quiltmc.quiltflower.kotlin.KotlinWriter;
 import org.quiltmc.quiltflower.kotlin.util.KTypes;
 
 import java.util.BitSet;
@@ -21,6 +22,17 @@ public class KVarExprent extends VarExprent {
   public KVarExprent(VarExprent ex) {
     this(ex.getIndex(), ex.getVarType(), ex.getProcessor(), ex.bytecode);
     this.setDefinition(ex.isDefinition());
+  }
+
+  @Override
+  public String getName() {
+    String name = super.getName();
+
+    if (name.startsWith("this@") || name.equals("this")) {
+      return name;
+    }
+
+    return KotlinWriter.toValidKotlinIdentifier(name);
   }
 
   @Override
