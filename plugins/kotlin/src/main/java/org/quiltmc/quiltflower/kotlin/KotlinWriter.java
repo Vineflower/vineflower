@@ -812,6 +812,8 @@ public class KotlinWriter implements StatementWriter {
               parameterName = !newParameterName.equals(parameterName) ? newParameterName : DecompilerContext.getStructContext().renameAbstractParameter(methodWrapper.methodStruct.getClassQualifiedName(), mt.getName(), mt.getDescriptor(), index - (((flags & CodeConstants.ACC_STATIC) == 0) ? 1 : 0), parameterName);
     
             }
+
+            parameterName = toValidKotlinIdentifier(parameterName);
   
             buffer.append(parameterName == null ? "param" + index : parameterName); // null iff decompiled with errors
             buffer.append(": ");
