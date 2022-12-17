@@ -23,6 +23,9 @@ public class KotlinTests extends SingleClassesTestBase {
     register(KOTLIN, "TestParams");
     register(KOTLIN, "TestInfixFun");
     register(KOTLIN, "TestFunVarargs");
+    register(KOTLIN, "TestTailrecFunctions");
+    register(KOTLIN, "TestTryCatchExpressions");
+    register(KOTLIN, "TestTryFinallyExpressions");
     register(KOTLIN, "TestVars");
     // TODO: handle lambda's
     register(KOTLIN, "TestNonInlineLambda");
