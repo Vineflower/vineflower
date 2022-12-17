@@ -1,11 +1,21 @@
 package org.quiltmc.quiltflower.kotlin;
 
+import org.jetbrains.java.decompiler.DecompilerTestFixture;
 import org.jetbrains.java.decompiler.SingleClassesTestBase;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
+
+import java.nio.file.Path;
 
 import static org.jetbrains.java.decompiler.SingleClassesTestBase.TestDefinition.Version.KOTLIN;
 
 public class KotlinTests extends SingleClassesTestBase {
+
+  protected Path getClassFile(DecompilerTestFixture fixture, TestDefinition.Version version, String name) {
+    Path reg = fixture.getTestDataDir().resolve("classes/" + version.directory + "/" + name + ".class");
+    Path kt = fixture.getTestDataDir().resolve("classes/" + version.directory + "/" + name + "Kt.class");
+
+    return reg.toFile().exists() ? reg : kt;
+  }
   
   protected void registerAll() {
     registerSet("Entire Classpath", this::registerKotlinTests,
@@ -27,7 +37,7 @@ public class KotlinTests extends SingleClassesTestBase {
     register(KOTLIN, "TestTryCatchExpressions");
     register(KOTLIN, "TestTryFinallyExpressions");
     register(KOTLIN, "TestVars");
-    // TODO: handle lambda's
+    // TODO: handle lambdas
     register(KOTLIN, "TestNonInlineLambda");
     register(KOTLIN, "TestNullable");
     register(KOTLIN, "TestExtensionFun");
@@ -39,5 +49,9 @@ public class KotlinTests extends SingleClassesTestBase {
     register(KOTLIN, "TestIfRange");
     register(KOTLIN, "TestComparison");
     register(KOTLIN, "TestNullableOperator");
+    register(KOTLIN, "TestShadowParam");
+    register(KOTLIN, "TestWhenControlFlow");
+    register(KOTLIN, "TestLabeledJumps");
+    register(KOTLIN, "TestFuncRef");
   }
 }

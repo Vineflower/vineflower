@@ -72,6 +72,10 @@ public class ImportCollector {
    */
   public String getShortNameInClassContext(String classToName) {
     String shortName = getShortName(classToName);
+    if (shortName == null) {
+      return "<unknownclass>";
+    }
+    
     if (setFieldNames.contains(shortName)) {
       return classToName;
     }
