@@ -33,6 +33,10 @@ public final class CatchStatement extends Statement {
     super(StatementType.TRY_CATCH);
   }
 
+  public CatchStatement(int id) {
+    super(StatementType.TRY_CATCH, id);
+  }
+
   private CatchStatement(Statement head, Statement next, Set<Statement> setHandlers) {
     this();
 

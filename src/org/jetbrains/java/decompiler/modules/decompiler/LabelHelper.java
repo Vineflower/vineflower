@@ -46,6 +46,7 @@ public final class LabelHelper {
         case StatEdge.TYPE_CONTINUE:
           // If the continue is pointing somewhere that is not it's enclosed statement, move it to it's enclosed statement (and remove it from it's previous closure)
           if (edge.getDestination() != edge.closure) {
+            ValidationHelper.assertTrue(false, "Continue edge is not pointing to it's closure");
             edge.getDestination().addLabeledEdge(edge);
           }
           break;
@@ -280,8 +281,7 @@ public final class LabelHelper {
             for (Entry<Statement, List<StatEdge>> entr : mapEdges1.entrySet()) {
               if (mapEdges.containsKey(entr.getKey())) {
                 mapEdges.get(entr.getKey()).addAll(entr.getValue());
-              }
-              else {
+              } else {
                 mapEdges.put(entr.getKey(), entr.getValue());
               }
             }
@@ -410,9 +410,10 @@ public final class LabelHelper {
               }
             }
 
-            if (edge.closure instanceof DoStatement && stat instanceof IfStatement && edge.getDestination() instanceof DummyExitStatement) {
-              continue;
-            }
+            // TODO: is this needed anymore? It's never hit in the test suite
+//            if (edge.closure instanceof DoStatement && stat instanceof IfStatement && edge.getDestination() instanceof DummyExitStatement) {
+//              continue;
+//            }
 
             edge.explicit = false;
           }

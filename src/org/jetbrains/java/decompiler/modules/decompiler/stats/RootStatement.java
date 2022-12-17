@@ -11,11 +11,16 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 public final class RootStatement extends Statement {
-  private final DummyExitStatement dummyExit;
+  private DummyExitStatement dummyExit;
   public final StructMethod mt;
   public Set<String> commentLines = null;
   public boolean addErrorComment = false;
   private final ContentFlags flags = new ContentFlags();
+
+  public RootStatement(int id) {
+    super(StatementType.ROOT, id);
+    this.mt = null;
+  }
 
   public RootStatement(Statement head, DummyExitStatement dummyExit, StructMethod mt) {
     super(StatementType.ROOT);
@@ -90,6 +95,10 @@ public final class RootStatement extends Statement {
     } else if (stat instanceof SwitchStatement) {
       this.flags.hasSwitch = true;
     }
+  }
+
+  public void setDummyExit(DummyExitStatement dummyExit) {
+    this.dummyExit = dummyExit;
   }
 
   public boolean hasTryCatch() {

@@ -3,6 +3,7 @@ package org.jetbrains.java.decompiler.modules.decompiler.exps;
 
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
+import org.jetbrains.java.decompiler.modules.serializer.ExprParser;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.TextBuffer;
@@ -49,6 +50,21 @@ public class ArrayExprent extends Exprent {
     else {
       return exprType.decreaseArrayDim();
     }
+  }
+
+  @Override
+  protected void addToTapestry(StringBuilder sb) {
+    sb.append(hardType.toTapestryString());
+    sb.append(" ");
+    array.toTapestry(sb);
+    index.toTapestry(sb);
+  }
+
+  public static Exprent fromTapestry(ExprParser.Arg arg) {
+    VarType hardType = VarType.fromTapestryString(arg.getNextString());
+    Exprent array = arg.getNextExprent();
+    Exprent index = arg.getNextExprent();
+    return new ArrayExprent(array, index, hardType, null);
   }
 
   @Override

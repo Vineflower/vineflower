@@ -17,6 +17,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionNode;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionsGraph;
+import org.jetbrains.java.decompiler.modules.serializer.TapestryWriter;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.util.collections.FastSparseSetFactory.FastSparseSet;
 import org.jetbrains.java.decompiler.util.collections.SFormsFastMapDirect;
@@ -65,7 +66,7 @@ public class DotExporter {
 
     List<Statement> stats = new ArrayList<>();
     stats.add(stat);
-    findAllStats(stats, stat);
+    TapestryWriter.findAllStats(stats, stat);
 
     DummyExitStatement exit = null;
     if (stat instanceof RootStatement) {
@@ -386,28 +387,6 @@ public class DotExporter {
       case DUMMY_EXIT: return "Dummy Exit";
       case SEQUENCE: return "Sequence";
       default: return "Unknown";
-    }
-  }
-
-  private static void findAllStats(List<Statement> list, Statement root) {
-    for (Statement stat : root.getStats()) {
-      if (!list.contains(stat)) {
-        list.add(stat);
-      }
-
-      if (stat instanceof IfStatement) {
-        IfStatement ifs = (IfStatement) stat;
-
-        if (ifs.getIfstat() != null && !list.contains(ifs.getIfstat())) {
-          list.add(ifs.getIfstat());
-        }
-
-        if (ifs.getElsestat() != null && !list.contains(ifs.getElsestat())) {
-          list.add(ifs.getElsestat());
-        }
-      }
-
-      findAllStats(list, stat);
     }
   }
 

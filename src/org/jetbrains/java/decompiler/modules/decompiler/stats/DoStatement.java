@@ -11,6 +11,7 @@ import org.jetbrains.java.decompiler.util.TextBuffer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 // Loop statement
 public final class DoStatement extends Statement {
@@ -30,6 +31,15 @@ public final class DoStatement extends Statement {
 
   private DoStatement() {
     super(StatementType.DO);
+    looptype = Type.INFINITE;
+
+    initExprent.add(null);
+    conditionExprent.add(null);
+    incExprent.add(null);
+  }
+
+  public DoStatement(int id) {
+    super(StatementType.DO, id);
     looptype = Type.INFINITE;
 
     initExprent.add(null);
@@ -209,6 +219,42 @@ public final class DoStatement extends Statement {
     }
 
     return vars;
+  }
+
+  @Override
+  public void addToTapestry(Consumer<String> annotator) {
+    if (looptype == Type.FOR_EACH) {
+      annotator.accept("ForEach");
+    } else if (looptype == Type.FOR) {
+      annotator.accept("For");
+    } else if (looptype == Type.WHILE) {
+      annotator.accept("While");
+    } else if (looptype == Type.DO_WHILE) {
+      annotator.accept("DoWhile");
+    } else if (looptype == Type.INFINITE) {
+      annotator.accept("Do");
+    }
+  }
+
+  @Override
+  public void readFromTapestry(String annotation) {
+    switch (annotation) {
+      case "ForEach":
+        looptype = Type.FOR_EACH;
+        break;
+      case "For":
+        looptype = Type.FOR;
+        break;
+      case "While":
+        looptype = Type.WHILE;
+        break;
+      case "DoWhile":
+        looptype = Type.DO_WHILE;
+        break;
+      case "Do":
+        looptype = Type.INFINITE;
+        break;
+    }
   }
 
   @Override

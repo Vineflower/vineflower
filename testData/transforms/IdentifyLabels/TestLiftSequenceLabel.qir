@@ -1,0 +1,38 @@
+8  Root  F:16
+16 Do    P:8  F:19 D:Do
+19 Seq   P:16 F:13
+13 If    P:19 F:1  D:If D:Neg
+18 Seq   P:13 F:11
+1  Block P:13
+11 If    P:18 F:2  D:If D:Matched
+2  Block P:11
+5  Block P:18
+4  Block P:19
+6  Exit
+13 -> 4  Regular        L E
+1  -> 18 Regular        L E If:13
+11 -> 5  Regular        L E
+2  -> 4  Break     C:18 L E If:11
+5  -> 6  BreakExit C:16 L E
+4  -> 16 Continue  C:16 L E
+13 < [If [Func GE [Invoke hashCode java/lang/Object ()I VIRTUAL [Var U 1]] [Const X 0]]]
+11 < [If [Func NE [Func INSTANCEOF [Var U 1] [Const java/lang/String null] [Var java/lang/String 2]] [Const Z 0]]]
+5  < [Return RETURN V]
+4  < [Invoke println java/io/PrintStream (Ljava/lang/Object;)V VIRTUAL [Field out java/lang/System Ljava/io/PrintStream;] [Var U 1]]
+=======================================
+label16:
+while(true) {
+   if (var1.hashCode() >= 0) {
+      label18: {
+         if (var1 instanceof "null" var2 != false) {
+            System.out.println(var1);
+            continue label16;
+         }
+
+         return;
+      }
+   }
+
+   System.out.println(var1);
+   continue label16;
+}
