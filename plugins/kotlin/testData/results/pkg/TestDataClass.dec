@@ -7,13 +7,13 @@ import kotlin.text.Regex;
 class TestDataClass {
    private final Regex dataClassVal;
    private final int variableWithVeryLongName;
-   private final List<String> requestLineMappingsIfTheParamListIsTooLong;
+   private final List<String> requestLineWrapsIfTheParamListIsTooLong;
    private final String nullability;
 
-   fun TestDataClass(dataClassVal: Regex, variableWithVeryLongName: Int, requestLineMappingsIfTheParamListIsTooLong: List<String>, nullability: String?) {
+   fun TestDataClass(dataClassVal: Regex, variableWithVeryLongName: Int, requestLineWrapsIfTheParamListIsTooLong: List<String>, nullability: String?) {
       this.dataClassVal = dataClassVal;
       this.variableWithVeryLongName = variableWithVeryLongName;
-      this.requestLineMappingsIfTheParamListIsTooLong = requestLineMappingsIfTheParamListIsTooLong;
+      this.requestLineWrapsIfTheParamListIsTooLong = requestLineWrapsIfTheParamListIsTooLong;
       this.nullability = nullability;
    }// 3
 
@@ -25,8 +25,8 @@ class TestDataClass {
       return this.variableWithVeryLongName;// 5
    }
 
-   fun getRequestLineMappingsIfTheParamListIsTooLong(): List<String>  {
-      return this.requestLineMappingsIfTheParamListIsTooLong;// 6
+   fun getRequestLineWrapsIfTheParamListIsTooLong(): List<String>  {
+      return this.requestLineWrapsIfTheParamListIsTooLong;// 6
    }
 
    fun getNullability(): String?  {
@@ -42,15 +42,15 @@ class TestDataClass {
    }
 
    fun component3(): List<String>  {
-      return this.requestLineMappingsIfTheParamListIsTooLong;
+      return this.requestLineWrapsIfTheParamListIsTooLong;
    }
 
    fun component4(): String?  {
       return this.nullability;
    }
 
-   fun copy(dataClassVal: Regex, variableWithVeryLongName: Int, requestLineMappingsIfTheParamListIsTooLong: List<String>, nullability: String?): TestDataClass  {
-      return new TestDataClass(dataClassVal, variableWithVeryLongName, requestLineMappingsIfTheParamListIsTooLong, nullability);
+   fun copy(dataClassVal: Regex, variableWithVeryLongName: Int, requestLineWrapsIfTheParamListIsTooLong: List<String>, nullability: String?): TestDataClass  {
+      return new TestDataClass(dataClassVal, variableWithVeryLongName, requestLineWrapsIfTheParamListIsTooLong, nullability);
    }
 
    // $QF: synthetic method
@@ -64,7 +64,7 @@ class TestDataClass {
       }
 
       if ((var5 & 4) != 0) {
-         var3 = var0.requestLineMappingsIfTheParamListIsTooLong;
+         var3 = var0.requestLineWrapsIfTheParamListIsTooLong;
       }
 
       if ((var5 & 8) != 0) {
@@ -79,8 +79,8 @@ class TestDataClass {
          + this.dataClassVal
          + ", variableWithVeryLongName="
          + this.variableWithVeryLongName
-         + ", requestLineMappingsIfTheParamListIsTooLong="
-         + this.requestLineMappingsIfTheParamListIsTooLong
+         + ", requestLineWrapsIfTheParamListIsTooLong="
+         + this.requestLineWrapsIfTheParamListIsTooLong
          + ", nullability="
          + this.nullability
          + ")";
@@ -89,7 +89,7 @@ class TestDataClass {
    fun hashCode(): Int  {
       return (
                (this.dataClassVal.hashCode() * 31 + Integer.hashCode(this.variableWithVeryLongName)) * 31
-                  + this.requestLineMappingsIfTheParamListIsTooLong.hashCode()
+                  + this.requestLineWrapsIfTheParamListIsTooLong.hashCode()
             )
             * 31
          + (this.nullability == null ? 0 : this.nullability.hashCode());
@@ -106,7 +106,7 @@ class TestDataClass {
             return false;
          } else if (this.variableWithVeryLongName != var2.variableWithVeryLongName) {
             return false;
-         } else if (!Intrinsics.areEqual(this.requestLineMappingsIfTheParamListIsTooLong, var2.requestLineMappingsIfTheParamListIsTooLong)) {
+         } else if (!Intrinsics.areEqual(this.requestLineWrapsIfTheParamListIsTooLong, var2.requestLineWrapsIfTheParamListIsTooLong)) {
             return false;
          } else {
             return Intrinsics.areEqual(this.nullability, var2.nullability);
@@ -157,7 +157,7 @@ class 'pkg/TestDataClass' {
       4      24
    }
 
-   method 'getRequestLineMappingsIfTheParamListIsTooLong ()Ljava/util/List;' {
+   method 'getRequestLineWrapsIfTheParamListIsTooLong ()Ljava/util/List;' {
       0      28
       1      28
       2      28

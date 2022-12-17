@@ -6,7 +6,17 @@ class TestAnnotations {
     val second: Int,
   )
 
+  @Repeatable
+  annotation class RepeatableAnnotation(
+    val value: String,
+  )
+
   @TestAnnotation("test", 1)
   fun test() {
+  }
+
+  @RepeatableAnnotation("test")
+  @RepeatableAnnotation("test2")
+  fun test2() {
   }
 }

@@ -54,5 +54,8 @@ public class KotlinTests extends SingleClassesTestBase {
     register(KOTLIN, "TestSealedHierarchy");
     // TODO: Annotation classes decompile entirely incorrectly
     register(KOTLIN, "TestAnnotations");
+    register(KOTLIN, "TestBitwiseFunctions");
+    register(KOTLIN, "TestCompileTimeErrors");
+    register(KOTLIN, "TestPoorNames");
   }
 }
