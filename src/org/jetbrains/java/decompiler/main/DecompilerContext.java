@@ -77,6 +77,10 @@ public class DecompilerContext {
     getCurrentContext().staticProps.put(key, value);
   }
 
+  public static void setProperty(String key, Object value) {
+    getCurrentContext().properties.put(key, value);
+  }
+
   public static void startClass(ImportCollector importCollector) {
     DecompilerContext context = getCurrentContext();
     context.importCollector = importCollector;

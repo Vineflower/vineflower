@@ -131,13 +131,13 @@ public class VarExprent extends Exprent {
       }
 
       String name = getName();
-      MethodWrapper method = (MethodWrapper) DecompilerContext.getProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
+      MethodWrapper method = (MethodWrapper) DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
       if (method != null && (!"this".equals(name) || index != 0)) {
         int varIndex = index;
         if (processor != null) {
           // Resolve the method/varVersion this var came from
           Pair<String, VarVersionPair> source = processor.getVarSource(getVarVersionPair());
-          ClassNode node = (ClassNode) DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS_NODE);
+          ClassNode node = (ClassNode) DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
 
           while (source != null && node != null) {
             method = node.getWrapper().getMethods().getWithKey(source.a);

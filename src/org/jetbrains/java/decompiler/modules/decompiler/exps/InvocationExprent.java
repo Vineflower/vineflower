@@ -380,7 +380,7 @@ public class InvocationExprent extends Exprent {
                       StructClass content = (StructClass) DecompilerContext.getStructContext().getClass(node.lambdaInformation.content_class_name);
 
                       if (content != null) {
-                        StructClass currentCls = (StructClass) DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS);
+                        StructClass currentCls = (StructClass) DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS);
                         potentialMethodCount = (int) content.getMethods().stream()
                           .filter((method) -> canAccess(currentCls, method))
                           .map(StructMethod::getName)
