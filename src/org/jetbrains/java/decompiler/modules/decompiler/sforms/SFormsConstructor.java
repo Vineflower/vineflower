@@ -738,8 +738,7 @@ public abstract class SFormsConstructor implements SFormsCreator {
           ValidationHelper.notNull(finallyNode);
           if (finallyNode.type == DirectNodeType.FINALLY) {
 
-            SFormsFastMapDirect map = getDiff(this.inVarVersions.get(finallyNode.statement.id + "_FINALLY"), this.outVarVersions.get(finallyNode.id));
-            overrideMap(mapNew, map);
+            getAndApplyDiff(this.inVarVersions.get(finallyNode.statement.id + "_FINALLY"), this.outVarVersions.get(finallyNode.id), mapNew);
 
           }
           finallyNode = finallyNode.tryFinally;
@@ -750,34 +749,58 @@ public abstract class SFormsConstructor implements SFormsCreator {
     return mapNew;
   }
 
-  private static SFormsFastMapDirect getDiff(SFormsFastMapDirect input, SFormsFastMapDirect output) {
+  private static void getAndApplyDiff(SFormsFastMapDirect input, SFormsFastMapDirect output, SFormsFastMapDirect target) {
     if (input == null || output == null) {
-      return null;
-    }
-
-    SFormsFastMapDirect res = output.getCopy();
-
-    for (Map.Entry<Integer, FastSparseSet<Integer>> entry : input.entryList()) {
-      if (entry.getValue().isEmpty()) {
-        continue;
-      }
-      Integer first = entry.getValue().iterator().next();
-      if (output.containsKey(entry.getKey())) {
-        if (output.get(entry.getKey()).contains(first)) {
-          res.remove(entry.getKey());
-        }
-      }
-    }
-    return res;
-  }
-
-  private static void overrideMap(SFormsFastMapDirect base, SFormsFastMapDirect overrides) {
-    if (overrides == null) {
       return;
     }
 
-    for (Map.Entry<Integer, FastSparseSet<Integer>> entry : overrides.entryList()) {
-      base.put(entry.getKey(), entry.getValue());
+    for (Map.Entry<Integer, FastSparseSet<Integer>> entry : input.entryList()) {
+      Integer key = entry.getKey();
+
+      if (key >= VarExprent.STACK_BASE) {
+        continue;
+      }
+
+      if (entry.getValue().isEmpty()) {
+        continue;
+      }
+
+      Integer first = entry.getValue().iterator().next();
+      if (output.containsKey(key)) {
+        if (output.get(key).contains(first)) {
+          // the input is still readable
+          FastSparseSet<Integer> check = output.get(key).getCopy();
+          check.complement(entry.getValue());
+          if (check.isEmpty()) {
+            // no writes happened, do nothing
+          } else {
+            // some writes happened, append the additional writes
+            target.get(key).union(check);
+          }
+        } else {
+          // the input is not readable anymore, only set the writes
+          target.put(key, entry.getValue().getCopy());
+        }
+      }
+    }
+
+    for (Map.Entry<Integer, FastSparseSet<Integer>> entry : output.entryList()) {
+      Integer key = entry.getKey();
+
+      if (key >= VarExprent.STACK_BASE) {
+        continue;
+      }
+
+      if (entry.getValue().isEmpty()) {
+        continue;
+      }
+
+      if (input.containsKey(key) && !input.get(key).isEmpty()) {
+        continue; // already handled
+      }
+
+      // set the writes in the output
+      target.put(key, entry.getValue().getCopy());
     }
   }
 
