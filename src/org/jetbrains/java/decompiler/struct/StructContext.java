@@ -47,6 +47,7 @@ public class StructContext {
   private final IDecompiledData decompiledData;
   private final List<ContextUnit> units = new ArrayList<>();
   private final Map<String, StructClass> classes = new ConcurrentHashMap<>();
+  private final Map<String, String> badlyPlacedClasses = new ConcurrentHashMap<>(); // original -> corrected
   private final Map<String, ContextUnit> unitsByClassName = new ConcurrentHashMap<>();
   private final Map<String, List<String>> abstractNames = new HashMap<>();
 
@@ -77,7 +78,8 @@ public class StructContext {
           StructClass clazz = StructClass.create(new DataInputFullStream(unitForClass.getClassBytes(key)), unitForClass.isOwn());
           if (!key.equals(clazz.qualifiedName)) {
             // also place the class in the right key if it's wrong
-            this.classes.put(clazz.qualifiedName, clazz);
+            this.unitsByClassName.put(clazz.qualifiedName, unitForClass);
+            this.badlyPlacedClasses.put(key, clazz.qualifiedName);
           }
           return clazz;
         } catch (final IOException ex) {
@@ -86,7 +88,15 @@ public class StructContext {
       }
       return getSentinel();
     });
-    return ret == getSentinel() ? null : ret;
+    if (ret == getSentinel()) {
+      return null;
+    } else {
+      final var correctedName = this.badlyPlacedClasses.remove(name);
+      if (correctedName != null) {
+        this.classes.put(correctedName, ret);
+      }
+      return ret;
+    }
   }
 
   public boolean hasClass(final String name) {
