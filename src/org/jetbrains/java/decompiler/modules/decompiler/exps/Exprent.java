@@ -261,7 +261,7 @@ public abstract class Exprent implements IMatchable {
     buf.append("<");
     //TODO: Check target output level and use <> operator?
     for (int i = 0; i < genericArgs.size(); i++) {
-      buf.append(ExprProcessor.getCastTypeName(genericArgs.get(i)));
+      buf.appendCastTypeName(genericArgs.get(i));
       if(i + 1 < genericArgs.size()) {
         buf.append(", ");
       }
