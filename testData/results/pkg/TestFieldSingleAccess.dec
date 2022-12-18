@@ -4,9 +4,8 @@ public final class TestFieldSingleAccess {
    public Integer field;
 
    public final void test() {
-      Integer var10000 = this.field;// 24 25
-      if (this.field != null) {// 27
-         System.out.println(var10000);// 28 30
+      if (this.field != null) {// 24 25 27
+         System.out.println(this.field);// 28 30
       }
    }// 32
 
@@ -23,46 +22,46 @@ class 'pkg/TestFieldSingleAccess' {
       1      6
       2      6
       3      6
-      5      7
-      8      8
-      9      8
-      a      8
-      c      8
-      f      10
+      5      6
+      8      7
+      9      7
+      a      7
+      c      7
+      f      9
    }
 
    method 'test1 ()V' {
-      0      13
-      1      13
-      2      13
-      3      13
-      6      13
-      7      14
-      8      14
-      9      14
-      a      14
-      b      14
-      c      14
-      d      14
-      e      14
-      19      16
+      0      12
+      1      12
+      2      12
+      3      12
+      6      12
+      7      13
+      8      13
+      9      13
+      a      13
+      b      13
+      c      13
+      d      13
+      e      13
+      19      15
    }
 }
 
 Lines mapping:
 24 <-> 7
 25 <-> 7
-27 <-> 8
-28 <-> 9
-30 <-> 9
-32 <-> 11
-38 <-> 14
-39 <-> 14
-42 <-> 14
-44 <-> 15
-45 <-> 15
-46 <-> 15
-64 <-> 17
+27 <-> 7
+28 <-> 8
+30 <-> 8
+32 <-> 10
+38 <-> 13
+39 <-> 13
+42 <-> 13
+44 <-> 14
+45 <-> 14
+46 <-> 14
+64 <-> 16
 Not mapped:
 26
 29
