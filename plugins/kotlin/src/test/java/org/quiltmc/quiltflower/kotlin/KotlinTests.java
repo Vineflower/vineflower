@@ -33,12 +33,14 @@ public class KotlinTests extends SingleClassesTestBase {
     register(KOTLIN, "TestParams");
     register(KOTLIN, "TestInfixFun");
     register(KOTLIN, "TestFunVarargs");
+    register(KOTLIN, "TestSmartCasts");
     register(KOTLIN, "TestTailrecFunctions");
     register(KOTLIN, "TestTryCatchExpressions");
     register(KOTLIN, "TestTryFinallyExpressions");
     register(KOTLIN, "TestVars");
     // TODO: handle lambdas
     register(KOTLIN, "TestNonInlineLambda");
+    register(KOTLIN, "TestNothingReturns");
     // TODO: Generics containing nullability (like List<String?>) lose the nullability
     register(KOTLIN, "TestNullable");
     register(KOTLIN, "TestExtensionFun");

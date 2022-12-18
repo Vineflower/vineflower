@@ -1,0 +1,148 @@
+package pkg
+
+import kotlin.KotlinNothingValueException;
+import kotlin.text.StringsKt;
+
+class TestNothingReturns {
+   fun loop(): Void  {
+      while(true) {
+         System.out.println("loop");// 6
+      }
+   }
+
+   fun test1(): Void  {
+      this.loop();// 11
+      throw new KotlinNothingValueException();
+   }
+
+   fun test2(): Long  {
+      this.test1();// 15
+      throw new KotlinNothingValueException();
+   }
+
+   fun test3(i: Int): Int  {
+      if (i == 0) {// 19
+         this.loop();// 20
+         throw new KotlinNothingValueException();
+      } else {
+         return this.test3(i - 1) + 1;// 23
+      }
+   }
+
+   fun test4() {
+      this.loop();// 27
+      throw new KotlinNothingValueException();
+   }
+
+   fun test5(s: String): String  {
+      StringsKt.repeat(s as CharSequence, 5);// 32
+      this.loop();
+      throw new KotlinNothingValueException();
+   }
+
+   fun test6(s: String?): String  {
+      if (s == null) {// 36
+         this.loop();
+         throw new KotlinNothingValueException();
+      } else {
+         return s;
+      }
+   }
+}
+
+class 'pkg/TestNothingReturns' {
+   method 'loop ()Ljava/lang/Void;' {
+      1      8
+      2      8
+      3      8
+      4      8
+      5      8
+      7      8
+      8      8
+      9      8
+   }
+
+   method 'test1 ()Ljava/lang/Void;' {
+      0      13
+      1      13
+      2      13
+      3      13
+      c      14
+   }
+
+   method 'test2 ()J' {
+      0      18
+      1      18
+      2      18
+      3      18
+      c      19
+   }
+
+   method 'test3 (I)I' {
+      0      23
+      1      23
+      4      24
+      5      24
+      6      24
+      7      24
+      10      25
+      11      27
+      12      27
+      13      27
+      14      27
+      15      27
+      16      27
+      17      27
+      18      27
+      19      27
+      1a      27
+   }
+
+   method 'test4 ()V' {
+      0      32
+      1      32
+      2      32
+      3      32
+      c      33
+   }
+
+   method 'test5 (Ljava/lang/String;)Ljava/lang/String;' {
+      6      37
+      7      37
+      8      37
+      9      37
+      a      37
+      b      37
+      c      37
+      d      37
+      e      38
+      f      38
+      10      38
+      11      38
+      1a      39
+   }
+
+   method 'test6 (Ljava/lang/String;)Ljava/lang/String;' {
+      0      43
+      2      43
+      6      44
+      7      44
+      8      44
+      9      44
+      12      45
+      13      47
+   }
+}
+
+Lines mapping:
+6 <-> 9
+11 <-> 14
+15 <-> 19
+19 <-> 24
+20 <-> 25
+23 <-> 28
+27 <-> 33
+32 <-> 38
+36 <-> 44
+Not mapped:
+5
