@@ -16,7 +16,7 @@ public class KotlinTests extends SingleClassesTestBase {
 
     return reg.toFile().exists() ? reg : kt;
   }
-  
+
   protected void registerAll() {
     registerSet("Entire Classpath", this::registerKotlinTests,
       IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
@@ -41,6 +41,7 @@ public class KotlinTests extends SingleClassesTestBase {
     // TODO: handle lambdas
     register(KOTLIN, "TestNonInlineLambda");
     register(KOTLIN, "TestNothingReturns");
+    // TODO: Generics containing nullability (like List<String?>) lose the nullability
     register(KOTLIN, "TestNullable");
     register(KOTLIN, "TestExtensionFun");
     register(KOTLIN, "TestClassDec");
@@ -55,5 +56,25 @@ public class KotlinTests extends SingleClassesTestBase {
     register(KOTLIN, "TestWhenControlFlow");
     register(KOTLIN, "TestLabeledJumps");
     register(KOTLIN, "TestFuncRef");
+    // TODO: top-level constructs are wrongly put into a class and turned into instance methods
+    register(KOTLIN, "TestTopLevelKt");
+    // TODO: lists, sets, etc. should be considered to be their Kotlin type, not their Java type
+    register(KOTLIN, "TestConvertedK2JOps");
+    // TODO: Does not decompile to data class
+    register(KOTLIN, "TestDataClass");
+    // TODO: Type projections are not Kotlin equivalents
+    register(KOTLIN, "TestGenerics");
+    // TODO: Nothing, function types
+    register(KOTLIN, "TestKotlinTypes");
+    // TODO: Does not decompile to object literal
+    // FIXME: @JvmStatic function fails to decompile at all
+    register(KOTLIN, "TestObject");
+    // TODO: sealed becomes "open abstract"
+    register(KOTLIN, "TestSealedHierarchy");
+    // TODO: Annotation classes decompile entirely incorrectly
+    register(KOTLIN, "TestAnnotations");
+    register(KOTLIN, "TestBitwiseFunctions");
+    register(KOTLIN, "TestCompileTimeErrors");
+    register(KOTLIN, "TestPoorNames");
   }
 }

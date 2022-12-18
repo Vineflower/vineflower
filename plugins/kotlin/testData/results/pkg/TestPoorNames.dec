@@ -1,0 +1,98 @@
+package pkg
+
+class TestPoorNames {
+   private final int Property with spaces = 42;
+   private final String Dangerous property name?! = "test";
+
+   fun Function_with_spaces/* $QF was: Function with spaces*/() {
+   }// 5
+
+   fun Dangerous_function_name__/* $QF was: Dangerous function name?!*/() {
+   }// 8
+
+   fun getProperty_with_spaces/* $QF was: getProperty with spaces*/(): Int  {
+      return this.Property with spaces;// 10
+   }
+
+   fun getDangerous_property_name__/* $QF was: getDangerous property name?!*/(): String  {
+      return this.Dangerous property name?!;// 11
+   }
+
+   fun functionWith$Dollar() {
+   }// 14
+
+   fun functionWithParameters(var1: Int, var2: String) {
+   }// 17
+
+   fun test() {
+      new TestPoorNames.Class with spaces();
+      this.Dangerous function name?!();// 23
+      this.functionWithParameters(42, "test");// 24
+   }// 25
+
+   static class Class with spaces {
+   }
+}
+
+class 'pkg/TestPoorNames' {
+   method 'Function with spaces ()V' {
+      0      7
+   }
+
+   method 'Dangerous function name?! ()V' {
+      0      10
+   }
+
+   method 'getProperty with spaces ()I' {
+      0      13
+      1      13
+      2      13
+      3      13
+      4      13
+   }
+
+   method 'getDangerous property name?! ()Ljava/lang/String;' {
+      0      17
+      1      17
+      2      17
+      3      17
+      4      17
+   }
+
+   method 'functionWith$Dollar ()V' {
+      0      21
+   }
+
+   method 'functionWithParameters (ILjava/lang/String;)V' {
+      6      24
+   }
+
+   method 'test ()V' {
+      8      28
+      9      28
+      a      28
+      b      28
+      c      29
+      d      29
+      e      29
+      f      29
+      10      29
+      11      29
+      12      29
+      13      29
+      14      30
+   }
+}
+
+Lines mapping:
+5 <-> 8
+8 <-> 11
+10 <-> 14
+11 <-> 18
+14 <-> 22
+17 <-> 25
+23 <-> 29
+24 <-> 30
+25 <-> 31
+Not mapped:
+22
