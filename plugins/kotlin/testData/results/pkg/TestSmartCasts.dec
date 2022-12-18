@@ -13,7 +13,7 @@ class TestSmartCasts {
          if (o is TestSmartCasts.A.B) {// 24
             System.out.println("B: " + o);
          } else {
-            if (!(o is TestSmartCasts.A.C)) {// 25
+            if (o !is TestSmartCasts.A.C) {// 25
                if (o is Pair) {// 26
                   return "<" + this.testWhen(((Pair)o).getFirst()) + ", " + this.testWhen(((Pair)o).getSecond()) + ">";
                }
@@ -37,7 +37,7 @@ class TestSmartCasts {
    }
 
    fun testIf(a: Object?): String  {
-      return if (!(a is TestSmartCasts.A.B) && !(a is TestSmartCasts.A.C)) "else: " + a else ((TestSmartCasts.A)a).test();// 35 36 39
+      return if (a !is TestSmartCasts.A.B && a !is TestSmartCasts.A.C) "else: " + a else ((TestSmartCasts.A)a).test();// 35 36 39
    }
 
    fun testIf2(a: Object?): String  {
@@ -160,10 +160,6 @@ class 'pkg/TestSmartCasts' {
       1f      13
       20      13
       21      13
-      25      15
-      26      15
-      27      15
-      28      15
       29      15
       2c      27
       2d      27
@@ -237,15 +233,7 @@ class 'pkg/TestSmartCasts' {
    }
 
    method 'testIf (Ljava/lang/Object;)Ljava/lang/String;' {
-      0      39
-      1      39
-      2      39
-      3      39
       4      39
-      7      39
-      8      39
-      9      39
-      a      39
       b      39
       e      39
       f      39

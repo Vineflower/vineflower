@@ -23,7 +23,7 @@ class TestParams {
 
    // $QF: synthetic method
    fun printMessageWithPrefix$default(var0: TestParams, var1: String, var2: String, var3: Int, var4: Object) {
-      if ((var3 & 2) != 0) {// 18
+      if ((var3 and 2) != 0) {// 18
          var2 = "Info";
       }
 
