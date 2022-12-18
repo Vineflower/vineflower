@@ -92,16 +92,16 @@ class TestDataClass {
                   + this.requestLineWrapsIfTheParamListIsTooLong.hashCode()
             )
             * 31
-         + (this.nullability == null ? 0 : this.nullability.hashCode());
+         + (if (this.nullability == null) 0 else this.nullability.hashCode());
    }
 
    fun equals(other: Object?): Boolean  {
       if (this == other) {
          return true;
-      } else if (!(other instanceof TestDataClass)) {
+      } else if (!(other is TestDataClass)) {
          return false;
       } else {
-         var var2: TestDataClass = (TestDataClass)other;
+         var var2: TestDataClass = other as TestDataClass;
          if (!Intrinsics.areEqual(this.dataClassVal, ((TestDataClass)other).dataClassVal)) {
             return false;
          } else if (this.variableWithVeryLongName != var2.variableWithVeryLongName) {
