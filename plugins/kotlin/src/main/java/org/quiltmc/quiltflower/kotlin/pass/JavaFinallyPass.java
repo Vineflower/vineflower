@@ -24,10 +24,11 @@ public class JavaFinallyPass implements Pass {
     FinallyProcessor fProc = new FinallyProcessor(mt, md, varProc);
 
     boolean res = false;
+    int iteration = 0;
     while (fProc.iterateGraph(cl, mt, root, graph)) {
       RootStatement oldRoot = root;
 
-      root = DomHelper.parseGraph(graph, mt);
+      root = DomHelper.parseGraph(graph, mt, ++iteration);
       root.addComments(oldRoot);
 
       res = true;
