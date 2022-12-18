@@ -157,7 +157,7 @@ public class MethodProcessor implements Runnable {
     }
 
     DotExporter.toDotFile(graph, mt, "cfgParsed", true);
-    RootStatement root = DomHelper.parseGraph(graph, mt);
+    RootStatement root = DomHelper.parseGraph(graph, mt, 0);
 
     DecompileRecord decompileRecord = new DecompileRecord(mt);
     debugCurrentDecompileRecord.set(decompileRecord);
@@ -175,7 +175,7 @@ public class MethodProcessor implements Runnable {
       decompileRecord.add("ProcessFinallyOld_" + finallyProcessed, root);
       DotExporter.toDotFile(graph, mt, "cfgProcessFinally_" + finallyProcessed, true);
 
-      root = DomHelper.parseGraph(graph, mt);
+      root = DomHelper.parseGraph(graph, mt, finallyProcessed);
       root.addComments(oldRoot);
 
       decompileRecord.add("ProcessFinally_" + finallyProcessed, root);

@@ -1,8 +1,10 @@
 // Copyright 2000-2017 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler.flow;
 
+import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.BasicBlockStatement;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.CatchAllStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 
 import java.util.*;
@@ -22,15 +24,21 @@ public class DirectNode {
 
   private final Map<DirectEdgeType, List<DirectEdge>> successors = new HashMap<>();
   private final Map<DirectEdgeType, List<DirectEdge>> predecessors = new HashMap<>();
+  public final DirectNode tryFinally;
 
-  private DirectNode(DirectNodeType type, Statement statement) {
+  private DirectNode(DirectNodeType type, Statement statement, DirectNode tryFinally) {
     this.type = type;
     this.statement = statement;
+    this.tryFinally = tryFinally;
     this.id = type.makeId(statement.id);
   }
 
-  public static DirectNode forStat(DirectNodeType type, Statement statement) {
-    return new DirectNode(type, statement);
+  public static DirectNode forStat(
+    DirectNodeType type,
+    Statement statement,
+    DirectNode tryFinally
+  ) {
+    return new DirectNode(type, statement, tryFinally);
   }
 
   public boolean hasSuccessors(DirectEdgeType type) {
@@ -48,6 +56,7 @@ public class DirectNode {
   }
 
   public void addSuccessor(DirectEdge edge) {
+    ValidationHelper.assertTrue(edge.getSource() == this, "Source node mismatch");
     if (!getSuccessors(edge.getType()).contains(edge)) {
       getSuccessors(edge.getType()).add(edge);
     }
