@@ -1,0 +1,129 @@
+package pkg;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
+
+public class TestTryWithResourcesManyJ16 {
+   public void test(File f) throws FileNotFoundException {
+      try (
+         Scanner s1 = new Scanner(f);// 10
+         Scanner s2 = new Scanner(f);// 11
+         Scanner s3 = new Scanner(f);// 12
+         Scanner s4 = new Scanner(f);// 13
+         Scanner s5 = new Scanner(f);// 14
+      ) {
+         System.out.println(s1.nextLine());// 16
+         System.out.println(s2.nextLine());// 17
+         System.out.println(s3.nextLine());// 18
+         System.out.println(s4.nextLine());// 19
+         System.out.println(s5.nextLine());// 20
+      }
+   }// 9 21
+}
+
+class 'pkg/TestTryWithResourcesManyJ16' {
+   method 'test (Ljava/io/File;)V' {
+      4      9
+      8      9
+      d      10
+      11      10
+      16      11
+      1a      11
+      1b      11
+      20      12
+      24      12
+      25      12
+      2a      13
+      2e      13
+      2f      13
+      30      15
+      31      15
+      32      15
+      33      15
+      34      15
+      35      15
+      36      15
+      37      15
+      38      15
+      39      15
+      3a      16
+      3b      16
+      3c      16
+      3d      16
+      3e      16
+      3f      16
+      40      16
+      41      16
+      42      16
+      43      16
+      44      17
+      45      17
+      46      17
+      47      17
+      48      17
+      49      17
+      4a      17
+      4b      17
+      4c      17
+      4d      17
+      4e      17
+      4f      18
+      50      18
+      51      18
+      52      18
+      53      18
+      54      18
+      55      18
+      56      18
+      57      18
+      58      18
+      59      18
+      5a      19
+      5b      19
+      5c      19
+      5d      19
+      5e      19
+      5f      19
+      60      19
+      61      19
+      62      19
+      df      21
+      e0      21
+      e1      21
+      e2      21
+      e3      21
+      e4      21
+      e5      21
+      e6      21
+      e7      21
+      e8      21
+      e9      21
+      ea      21
+      eb      21
+      ec      21
+      ed      21
+      ee      21
+      ef      21
+      f0      21
+      f1      21
+      f2      21
+      f3      21
+   }
+}
+
+Lines mapping:
+9 <-> 22
+10 <-> 10
+11 <-> 11
+12 <-> 12
+13 <-> 13
+14 <-> 14
+16 <-> 16
+17 <-> 17
+18 <-> 18
+19 <-> 19
+20 <-> 20
+21 <-> 22
+Not mapped:
+22

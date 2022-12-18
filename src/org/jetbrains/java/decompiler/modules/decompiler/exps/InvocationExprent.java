@@ -602,12 +602,12 @@ public class InvocationExprent extends Exprent {
       }
 
       if (invocationType == InvocationType.CONSTANT_DYNAMIC) {
-        buf.append('(').append(ExprProcessor.getCastTypeName(descriptor.ret)).append(')');
+        buf.append('(').appendCastTypeName(descriptor.ret).append(')');
       }
 
       ClassNode node = (ClassNode)DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS_NODE);
       if (node == null || !classname.equals(node.classStruct.qualifiedName)) {
-        buf.append(DecompilerContext.getImportCollector().getShortNameInClassContext(ExprProcessor.buildJavaClassName(classname)));
+        buf.appendAllClasses(DecompilerContext.getImportCollector().getShortNameInClassContext(ExprProcessor.buildJavaClassName(classname)), classname);
       }
     }
     else {
@@ -644,7 +644,7 @@ public class InvocationExprent extends Exprent {
 
       // Signature polymorphic methods returning Object require a cast to the return type in the descriptor
       if (CodeConstants.isReturnPolymorphic(classname, name) && !descriptor.ret.equals(VarType.VARTYPE_VOID)) {
-        buf.append('(').append(ExprProcessor.getCastTypeName(descriptor.ret)).append(')');
+        buf.append('(').appendCastTypeName(descriptor.ret).append(')');
       }
 
       if (functype == Type.GENERAL) {
@@ -704,7 +704,7 @@ public class InvocationExprent extends Exprent {
           // Don't cast to anonymous classes, since they by definition can't have a name
           // TODO: better fix may be to change equals to isSuperSet? all anonymous classes are superset of Object
           if (rightType.equals(VarType.VARTYPE_OBJECT) && !leftType.equals(rightType) && (instNode != null && instNode.type != ClassNode.Type.ANONYMOUS)) {
-            buf.append("((").append(ExprProcessor.getCastTypeName(leftType)).append(")");
+            buf.append("((").appendCastTypeName(leftType).append(")");
 
             if (instance.getPrecedence() >= FunctionType.CAST.precedence) {
               res.enclose("(", ")");
@@ -718,7 +718,7 @@ public class InvocationExprent extends Exprent {
           //This isn't properly handled by the compiler. So explicit casts are needed to retain J8 compatibility.
           else if (JAVA_NIO_BUFFER.equals(descriptor.ret) && !JAVA_NIO_BUFFER.equals(rightType)
               && DecompilerContext.getStructContext().instanceOf(rightType.value, JAVA_NIO_BUFFER.value)) {
-              buf.append("((").append(ExprProcessor.getCastTypeName(JAVA_NIO_BUFFER)).append(")").append(res).append(")");
+              buf.append("((").appendCastTypeName(JAVA_NIO_BUFFER).append(")").append(res).append(")");
           }
           else {
             buf.append(res);
@@ -746,7 +746,7 @@ public class InvocationExprent extends Exprent {
 
         if (invocationType == InvocationType.DYNAMIC || invocationType == InvocationType.CONSTANT_DYNAMIC) {
           if (bootstrapMethod == null) {
-            buf.append("<").append(name);
+            buf.append("<").appendMethod(name, false, classname, name, descriptor);
             if (invocationType == InvocationType.DYNAMIC) {
               buf.append(">invokedynamic");
             } else {
@@ -754,7 +754,7 @@ public class InvocationExprent extends Exprent {
             }
           } else {
             buf.append(bootstrapMethod.elementname);
-            buf.append("<\"").append(name).append('"');
+            buf.append("<\"").appendMethod(name, false, classname, name, descriptor).append('"');
             for (PooledConstant arg : bootstrapArguments) {
               buf.append(',');
               appendBootstrapArgument(buf, arg);
@@ -762,7 +762,7 @@ public class InvocationExprent extends Exprent {
             buf.append('>');
           }
         } else {
-          buf.append(name);
+          buf.appendMethod(name, false, classname, name, descriptor);
         }
 
         buf.append("(");
@@ -820,7 +820,7 @@ public class InvocationExprent extends Exprent {
       Object value = prim.value;
       String stringValue = String.valueOf(value);
       if (prim.type == CodeConstants.CONSTANT_Class) {
-        buf.append(ExprProcessor.getCastTypeName(new VarType(stringValue)));
+        buf.appendCastTypeName(new VarType(stringValue));
       } else if (prim.type == CodeConstants.CONSTANT_String) {
         buf.append('"').append(ConstExprent.convertStringToJava(stringValue, false)).append('"');
       } else {
@@ -829,7 +829,7 @@ public class InvocationExprent extends Exprent {
     } else if (arg instanceof LinkConstant) {
       // TODO: errors trying to print condy as const arg
       VarType cls = new VarType(((LinkConstant) arg).classname);
-      buf.append(ExprProcessor.getCastTypeName(cls)).append("::").append(((LinkConstant) arg).elementname);
+      buf.appendCastTypeName(cls).append("::").append(((LinkConstant) arg).elementname);
     }
   }
 
