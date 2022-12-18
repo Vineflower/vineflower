@@ -7,12 +7,12 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.InvocationExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.BasicBlockStatement;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.quiltmc.quiltflower.kotlin.expr.KFunctionExprent;
 import org.quiltmc.quiltflower.kotlin.expr.KInvocationExprent;
 import org.quiltmc.quiltflower.kotlin.expr.KVarExprent;
 
-import java.util.Iterator;
 import java.util.List;
 
 public class ReplaceExprentsPass implements Pass {
@@ -28,10 +28,15 @@ public class ReplaceExprentsPass implements Pass {
       res |= replace(st);
     }
 
+    List<Exprent> exprs = List.of();
     if (stat instanceof BasicBlockStatement) {
-      List<Exprent> exprs = stat.getExprents();
-
-      for (int i = 0; i < exprs.size(); i++) {
+      exprs = stat.getExprents();
+    } else if (stat instanceof IfStatement) {
+      exprs = ((IfStatement)stat).getHeadexprentList();
+    }
+    
+    if (exprs.size() > 0) {
+      for(int i = 0; i < exprs.size(); i++){
         Exprent expr = exprs.get(i);
         Exprent map = map(expr);
 
