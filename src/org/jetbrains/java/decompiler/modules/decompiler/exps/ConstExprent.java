@@ -228,7 +228,7 @@ public class ConstExprent extends Exprent {
     }
 
     if (constType.type != CodeConstants.TYPE_NULL && value == null) {
-      return buf.append(ExprProcessor.getCastTypeName(constType));
+      return buf.appendCastTypeName(constType);
     }
 
     VarType unboxed = VarType.UNBOXING_TYPES.getOrDefault(constType, constType);
@@ -352,13 +352,13 @@ public class ConstExprent extends Exprent {
         else if (constType.equals(VarType.VARTYPE_CLASS)) {
           String stringVal = value.toString();
           VarType type = new VarType(stringVal, !stringVal.startsWith("["));
-          return buf.append(ExprProcessor.getCastTypeName(type)).append(".class");
+          return buf.appendCastTypeName(type).append(".class");
         }
     }
 
     // prevent gc without discarding
     buf.convertToStringAndAllowDataDiscard();
-    throw new RuntimeException("invalid constant type: " + constType);
+    throw new RuntimeException("invalid constant type: " + constType + " with value " + value);
   }
 
   @Override

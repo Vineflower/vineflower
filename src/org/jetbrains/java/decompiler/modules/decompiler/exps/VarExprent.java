@@ -19,6 +19,7 @@ import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribute.LocalVariable;
 import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTypeTableAttribute;
+import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericFieldDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericMain;
@@ -27,8 +28,10 @@ import org.jetbrains.java.decompiler.struct.match.MatchEngine;
 import org.jetbrains.java.decompiler.struct.match.MatchNode;
 import org.jetbrains.java.decompiler.struct.match.MatchNode.RuleValue;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
+import org.jetbrains.java.decompiler.util.Pair;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -123,11 +126,39 @@ public class VarExprent extends Exprent {
         if (processor != null && processor.getVarFinal(varVersion) == FinalType.EXPLICIT_FINAL) {
           buffer.append("final ");
         }
-        buffer.append(getDefinitionType());
+        buffer.appendCastTypeName(getDefinitionVarType());
         buffer.append(" ");
       }
 
-      buffer.append(getName());
+      String name = getName();
+      MethodWrapper method = (MethodWrapper) DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
+      if (method != null && (!"this".equals(name) || index != 0)) {
+        int varIndex = index;
+        if (processor != null) {
+          // Resolve the method/varVersion this var came from
+          Pair<String, VarVersionPair> source = processor.getVarSource(getVarVersionPair());
+          ClassNode node = (ClassNode) DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
+
+          while (source != null && node != null) {
+            method = node.getWrapper().getMethods().getWithKey(source.a);
+            varIndex = source.b.var;
+            source = method.varproc != null ? method.varproc.getVarSource(source.b) : null;
+          }
+        }
+
+        boolean param = false;
+        MethodDescriptor descriptor = MethodDescriptor.parseDescriptor(method.methodStruct.getDescriptor());
+        if (method.varproc != null) {
+          Integer originalIndex = method.varproc.getVarOriginalIndex(varIndex);
+          int i = originalIndex != null ? originalIndex : varIndex;
+          Integer paramsSize = Arrays.stream(descriptor.params).map(v -> v.stackSize).reduce(0, Integer::sum);
+          param = i <= paramsSize - (method.methodStruct.hasModifier(CodeConstants.ACC_STATIC) ? 1 : 0);
+        }
+
+        buffer.appendVariable(name, definition, param, method.classStruct.qualifiedName, method.methodStruct.getName(), descriptor, varIndex, name);
+      } else {
+        buffer.append(name);
+      }
     }
 
     return buffer;
@@ -154,6 +185,10 @@ public class VarExprent extends Exprent {
   */
 
   public String getDefinitionType() {
+    return ExprProcessor.getCastTypeName(getDefinitionVarType());
+  }
+
+  public VarType getDefinitionVarType() {
     if (DecompilerContext.getOption(IFernflowerPreferences.USE_DEBUG_VAR_NAMES)) {
 
       if (lvt != null) {
@@ -161,11 +196,11 @@ public class VarExprent extends Exprent {
           if (lvt.getSignature() != null) {
             GenericFieldDescriptor descriptor = GenericMain.parseFieldSignature(lvt.getSignature());
             if (descriptor != null) {
-              return ExprProcessor.getCastTypeName(descriptor.type);
+              return descriptor.type;
             }
           }
         }
-        return ExprProcessor.getCastTypeName(getVarType());
+        return getVarType();
       }
 
       MethodWrapper method = (MethodWrapper)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
@@ -185,7 +220,7 @@ public class VarExprent extends Exprent {
               if (signature != null) {
                 GenericFieldDescriptor descriptor = GenericMain.parseFieldSignature(signature);
                 if (descriptor != null) {
-                  return ExprProcessor.getCastTypeName(descriptor.type);
+                  return descriptor.type;
                 }
               }
             }
@@ -196,14 +231,14 @@ public class VarExprent extends Exprent {
           if (attr != null) {
             String descriptor = attr.getDescriptor(originalIndex, visibleOffset);
             if (descriptor != null) {
-              return ExprProcessor.getCastTypeName(new VarType(descriptor));
+              return new VarType(descriptor);
             }
           }
         }
       }
     }
 
-    return ExprProcessor.getCastTypeName(getVarType());
+    return getVarType();
   }
 
   @Override

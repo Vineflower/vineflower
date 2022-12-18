@@ -522,10 +522,16 @@ public class FunctionExprent extends Exprent {
 
       if (funcType.ordinal() <= FunctionType.LE.ordinal()) {
         if (right instanceof ConstExprent) {
-          ((ConstExprent) right).adjustConstType(left.getExprType());
+          var other = left.getExprType();
+          if (other != null) {
+            ((ConstExprent) right).adjustConstType(other);
+          }
         }
         else if (left instanceof ConstExprent) {
-          ((ConstExprent) left).adjustConstType(right.getExprType());
+          var other = right.getExprType();
+          if (other != null) {
+            ((ConstExprent) left).adjustConstType(other);
+          }
         }
       }
 
@@ -563,6 +569,7 @@ public class FunctionExprent extends Exprent {
         if (arr.getExprType().arrayDim == 0) {
           VarType objArr = VarType.VARTYPE_OBJECT.resizeArrayDim(1); // type family does not change
           buf.enclose("((" + ExprProcessor.getCastTypeName(objArr) + ")", ")");
+          buf.addTypeNameToken(objArr, 2);
         }
         return buf.append(".length");
       case TERNARY:
@@ -615,7 +622,8 @@ public class FunctionExprent extends Exprent {
         }
       }
       return buf.append(wrapOperandString(lstOperands.get(0), true, indent))
-                .prepend("(" + ExprProcessor.getTypeName(funcType.castType) + ")");
+                .prepend("(" + ExprProcessor.getTypeName(funcType.castType) + ")")
+                .addTypeNameToken(funcType.castType, 1);
     }
 
     //        return "<unknown function>";

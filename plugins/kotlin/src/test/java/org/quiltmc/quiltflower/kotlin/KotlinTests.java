@@ -1,12 +1,22 @@
 package org.quiltmc.quiltflower.kotlin;
 
+import org.jetbrains.java.decompiler.DecompilerTestFixture;
 import org.jetbrains.java.decompiler.SingleClassesTestBase;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
+
+import java.nio.file.Path;
 
 import static org.jetbrains.java.decompiler.SingleClassesTestBase.TestDefinition.Version.KOTLIN;
 
 public class KotlinTests extends SingleClassesTestBase {
-  
+
+  protected Path getClassFile(DecompilerTestFixture fixture, TestDefinition.Version version, String name) {
+    Path reg = fixture.getTestDataDir().resolve("classes/" + version.directory + "/" + name + ".class");
+    Path kt = fixture.getTestDataDir().resolve("classes/" + version.directory + "/" + name + "Kt.class");
+
+    return reg.toFile().exists() ? reg : kt;
+  }
+
   protected void registerAll() {
     registerSet("Entire Classpath", this::registerKotlinTests,
       IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
@@ -23,8 +33,11 @@ public class KotlinTests extends SingleClassesTestBase {
     register(KOTLIN, "TestParams");
     register(KOTLIN, "TestInfixFun");
     register(KOTLIN, "TestFunVarargs");
+    register(KOTLIN, "TestTailrecFunctions");
+    register(KOTLIN, "TestTryCatchExpressions");
+    register(KOTLIN, "TestTryFinallyExpressions");
     register(KOTLIN, "TestVars");
-    // TODO: handle lambda's
+    // TODO: handle lambdas
     register(KOTLIN, "TestNonInlineLambda");
     // TODO: Generics containing nullability (like List<String?>) lose the nullability
     register(KOTLIN, "TestNullable");
@@ -37,6 +50,10 @@ public class KotlinTests extends SingleClassesTestBase {
     register(KOTLIN, "TestIfRange");
     register(KOTLIN, "TestComparison");
     register(KOTLIN, "TestNullableOperator");
+    register(KOTLIN, "TestShadowParam");
+    register(KOTLIN, "TestWhenControlFlow");
+    register(KOTLIN, "TestLabeledJumps");
+    register(KOTLIN, "TestFuncRef");
     // TODO: top-level constructs are wrongly put into a class and turned into instance methods
     register(KOTLIN, "TestTopLevelKt");
     // TODO: lists, sets, etc. should be considered to be their Kotlin type, not their Java type

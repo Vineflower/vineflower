@@ -16,7 +16,7 @@ class TestFunVarargs {
    }// 10
 
    fun log(vararg entries: String) {
-      this.printAll((String[])Arrays.copyOf(entries, entries.length));// 13
+      this.printAll(Arrays.copyOf(entries, entries.length) as String[]);// 13
       this.printAllArray(entries);// 14
    }// 15
 

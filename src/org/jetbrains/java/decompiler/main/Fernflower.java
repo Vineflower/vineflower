@@ -15,6 +15,7 @@ import org.jetbrains.java.decompiler.util.ClasspathScanner;
 import org.jetbrains.java.decompiler.util.JADNameProvider;
 import org.jetbrains.java.decompiler.util.JrtFinder;
 import org.jetbrains.java.decompiler.util.TextBuffer;
+import org.jetbrains.java.decompiler.util.token.TextTokenDumpVisitor;
 
 import java.io.File;
 import java.util.*;
@@ -178,6 +179,13 @@ public class Fernflower implements IDecompiledData {
       TextBuffer buffer = new TextBuffer(ClassesProcessor.AVERAGE_CLASS_SIZE);
       buffer.append(DecompilerContext.getProperty(IFernflowerPreferences.BANNER).toString());
       classProcessor.writeClass(cl, buffer);
+
+      if (DecompilerContext.getOption(IFernflowerPreferences.DUMP_TEXT_TOKENS)) {
+        buffer.visitTokens(TextTokenVisitor.createVisitor(next -> new TextTokenDumpVisitor(next, buffer)));
+      } else {
+        buffer.visitTokens(TextTokenVisitor.createVisitor());
+      }
+
       String res = buffer.convertToStringAndAllowDataDiscard();
       if (res == null) {
         return "$ FF: Unable to decompile class " + cl.qualifiedName;

@@ -1,0 +1,50 @@
+plugins{
+  id 'java'
+  id 'scala'
+}
+
+group = 'org.quiltmc'
+archivesBaseName = 'quiltflower-scala'
+
+repositories{
+  mavenCentral()
+}
+
+compileJava {
+  sourceCompatibility '11'
+  targetCompatibility '11'
+}
+
+java.toolchain {
+  languageVersion = JavaLanguageVersion.of(11)
+}
+
+sourceSets {
+  testDataScala.scala.srcDirs files("testData/src/scala/")
+}
+
+dependencies{
+  implementation project(":")
+
+  //implementation 'org.scala-lang:scala3-tasty-inspector_3:3.2.0'
+
+  testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
+  testImplementation testFixtures(project(":"))
+  testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
+
+  testDataScalaImplementation 'org.scala-lang:scala3-library_3:3.1.3'
+}
+
+test{
+  useJUnitPlatform()
+}
+
+task testDataClasses {
+  group = 'build'
+}
+testClasses.dependsOn(testDataClasses)
+
+compileTestDataScalaScala {
+  destinationDirectory = file("testData/classes/scala")
+}
+testDataClasses.dependsOn(testDataScalaClasses)

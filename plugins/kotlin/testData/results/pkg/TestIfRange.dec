@@ -2,19 +2,19 @@ package pkg
 
 class TestIfRange {
    fun testInt(x: Int) {
-      if (1 <= x ? x < 11 : false) {// 5
+      if (if (1 <= x) x < 11 else false) {// 5
          System.out.println(x);// 6
       }
    }// 8
 
    fun testChar(x: Char) {
-      if ('a' <= x ? x < '{' : false) {// 11
+      if (if ('a' <= x) x < '{' else false) {// 11
          System.out.println(x);// 12
       }
    }// 14
 
    fun testInvertedInt(x: Int) {
-      if (1 <= x ? x >= 11 : true) {// 17
+      if (if (1 <= x) x >= 11 else true) {// 17
          System.out.println(x);// 18
       }
    }// 20

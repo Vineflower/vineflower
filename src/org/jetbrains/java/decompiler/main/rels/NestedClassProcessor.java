@@ -265,6 +265,7 @@ public class NestedClassProcessor {
     }
     VarNamesCollector enclosingCollector = new VarNamesCollector(usedBefore);
 
+    Map<VarVersionPair, VarVersionPair> originalVersions = new HashMap<>();
     Map<VarVersionPair, String> mapNewNames = new HashMap<>();
     Map<VarVersionPair, LocalVariable> lvts = new HashMap<>();
 
@@ -301,9 +302,11 @@ public class NestedClassProcessor {
                 Exprent param = inv_dynamic.getLstParameters().get(param_index + i);
 
                 if (param instanceof VarExprent) {
-                  mapNewNames.put(varVersion, enclosingVarProc.getVarName(new VarVersionPair((VarExprent)param)));
+                  VarVersionPair paramVersion = new VarVersionPair((VarExprent) param);
+                  originalVersions.put(varVersion, paramVersion);
+                  mapNewNames.put(varVersion, enclosingVarProc.getVarName(paramVersion));
                   lvts.put(varVersion, ((VarExprent)param).getLVT());
-                  if (enclosingVarProc.getVarFinal((new VarVersionPair((VarExprent)param))) == FinalType.NON_FINAL) {
+                  if (enclosingVarProc.getVarFinal(paramVersion) == FinalType.NON_FINAL) {
                     //DecompilerContext.getLogger().writeMessage("Lambda in " + parent.simpleName + "." + enclosingMethod.methodStruct.getName() + " given non-final var " + ((VarExprent)param).getName() + "!", IFernflowerLogger.Severity.ERROR);
                   }
                 }
@@ -331,10 +334,14 @@ public class NestedClassProcessor {
     for (Entry<VarVersionPair, String> entry : mapNewNames.entrySet()) {
       VarVersionPair pair = entry.getKey();
       LocalVariable lvt = lvts.get(pair);
+      VarVersionPair original = originalVersions.get(pair);
 
       varProc.setVarName(pair, entry.getValue());
       if (lvt != null) {
         varProc.setVarLVT(pair, lvt);
+      }
+      if (original != null) {
+        varProc.setVarSource(pair, child.enclosingMethod, original);
       }
     }
 

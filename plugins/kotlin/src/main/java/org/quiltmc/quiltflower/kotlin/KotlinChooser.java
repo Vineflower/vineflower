@@ -30,12 +30,13 @@ public class KotlinChooser implements LanguageChooser {
   public boolean isLanguage(StructClass cl) {
     // Try to find @Metadata()
 
-    for (StructGeneralAttribute.Key<?> k : ANNOTATION_ATTRIBUTES) {
-      if (cl.hasAttribute(k)) {
-        StructAnnotationAttribute attr = (StructAnnotationAttribute) cl.getAttribute(k);
+    for (StructGeneralAttribute.Key<?> key : ANNOTATION_ATTRIBUTES) {
+      if (cl.hasAttribute(key)) {
+        StructAnnotationAttribute attr = (StructAnnotationAttribute) cl.getAttribute(key);
         for (AnnotationExprent anno : attr.getAnnotations()) {
           if (anno.getClassName().equals("kotlin/Metadata")) {
 
+            int k = (int) ((ConstExprent) anno.getParValues().get(1)).getValue();
             Exprent d1 = anno.getParValues().get(3);
             Exprent d2 = anno.getParValues().get(4);
 
@@ -49,8 +50,15 @@ public class KotlinChooser implements LanguageChooser {
 
               ByteArrayInputStream input = new ByteArrayInputStream(buf);
               JvmProtoBuf.StringTableTypes types = JvmProtoBuf.StringTableTypes.parseDelimitedFrom(input, EXTENSIONS);
-              // TODO: use kind to figure out which to parse
-              ProtoBuf.Class pcl = ProtoBuf.Class.parseFrom(input, EXTENSIONS);
+              if (k == 1) { // Class file
+                ProtoBuf.Class pcl = ProtoBuf.Class.parseFrom(input, EXTENSIONS);
+              } else if (k == 2) { // File facade
+                ProtoBuf.Package pcl = ProtoBuf.Package.parseFrom(input, EXTENSIONS);
+              } else if (k == 3) { // Synthetic class
+                ProtoBuf.Function func = ProtoBuf.Function.parseFrom(input, EXTENSIONS);
+              } else if (k == 5) { // Multi-file facade
+                ProtoBuf.Package pcl = ProtoBuf.Package.parseFrom(input, EXTENSIONS);
+              }
 
               MetadataNameResolver resolver = new MetadataNameResolver(types, data2);
 //              System.out.println(resolver.resolve(pcl.getFqName()));
@@ -59,6 +67,7 @@ public class KotlinChooser implements LanguageChooser {
 //                System.out.println(resolver.resolve(func.getName()));
 //              }
             } catch (Exception e) {
+              System.out.println("Failed to parse metadata for class " + cl.qualifiedName);
               e.printStackTrace();
             }
 

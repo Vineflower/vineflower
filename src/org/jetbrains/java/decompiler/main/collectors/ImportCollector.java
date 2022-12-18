@@ -3,6 +3,7 @@ package org.jetbrains.java.decompiler.main.collectors;
 
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructContext;
 import org.jetbrains.java.decompiler.struct.StructField;
@@ -71,6 +72,10 @@ public class ImportCollector {
    */
   public String getShortNameInClassContext(String classToName) {
     String shortName = getShortName(classToName);
+    if (shortName == null) {
+      return "<unknownclass>";
+    }
+    
     if (setFieldNames.contains(shortName)) {
       return classToName;
     }
@@ -169,6 +174,10 @@ public class ImportCollector {
   }
 
   public void writeImports(TextBuffer buffer, boolean addSeparator) {
+    if (DecompilerContext.getOption(IFernflowerPreferences.REMOVE_IMPORTS)) {
+      return;
+    }
+
     List<String> imports = packImports();
     for (String line : imports) {
       buffer.append("import ").append(line).append(';').appendLineSeparator();
