@@ -783,11 +783,10 @@ public final class MergeHelper {
   private static boolean isVarUsedBefore(VarExprent var, Statement st) {
     // Build digraph
     FlattenStatementsHelper flatten = new FlattenStatementsHelper();
-    DirectGraph digraph = flatten.buildDirectGraph(st.getTopParent());
+    flatten.buildDirectGraph(st.getTopParent());
 
     // Find starting point for iteration
-    String diblockId = digraph.mapDestinationNodes.get(st.id)[0];
-    DirectNode stnd = digraph.nodes.getWithKey(diblockId);
+    DirectNode stnd = flatten.getDirectNode(st);
 
     // Only submit predecessors!
     Deque<DirectNode> stack = new LinkedList<>(stnd.preds());

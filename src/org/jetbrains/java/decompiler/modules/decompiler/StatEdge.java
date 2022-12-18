@@ -191,4 +191,14 @@ public class StatEdge {
   public String toString() {
     return this.type + ": " + this.source.toString() + " -> " + this.destination.toString() + ((this.closure == null) ? "" : " (" + this.closure + ")") + ((this.exceptions == null) ? "" : " Exceptions: " + this.exceptions);
   }
+
+  public void changeClosure(Statement stat) {
+    if (this.closure != null) {
+      this.closure.getLabelEdges().remove(this);
+    }
+    this.closure = stat;
+    if (this.closure != null) {
+      this.closure.getLabelEdges().add(this);
+    }
+  }
 }

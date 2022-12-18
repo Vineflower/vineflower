@@ -49,7 +49,12 @@ public class DotExporter {
   // Statements with no successors or predecessors (but still contained in the tree) will be in a subgraph titled "Isolated statements".
   // Statements that aren't found will be circular, and will have a message stating so.
   // Nodes with green borders are the canonical exit of method, but these may not always be emitted.
+
   private static String statToDot(Statement stat, String name) {
+    return statToDot(stat, name, null);
+  }
+
+  private static String statToDot(Statement stat, String name, Map<Statement, String> extraProps) {
     DecompilerContext.getImportCollector().setWriteLocked(true);
     StringBuffer buffer = new StringBuffer();
     // List<String> subgraph = new ArrayList<>();
@@ -242,7 +247,9 @@ public class DotExporter {
 
       visitedNodes.add(st.id);
 
-      String node = sourceId + " [shape=box,label=\"" + st.id + " (" + getStatType(st) + ")\\n" + toJava(st) + "\"" + (st == stat ? ",color=red" : "") + "];\n";
+      String extra = extraProps == null || !extraProps.containsKey(st) ? "" : "," + extraProps.get(st);
+
+      String node = sourceId + " [shape=box,label=\"" + st.id + " (" + getStatType(st) + ")\\n" + toJava(st) + "\"" + (st == stat ? ",color=red" : "") + extra + "];\n";
 //      if (edges || st == stat) {
         buffer.append(node);
 //      } else {
@@ -583,6 +590,10 @@ public class DotExporter {
           buffer.append("x" + (block.id)+" -> x"+(dest.getDestination().id)+ (type == DirectEdgeType.EXCEPTION ? "[style=dotted]" : "") + ";\r\n");
         }
       }
+
+      if (block.tryFinally != null) {
+        buffer.append("x" + (block.id)+" -> x"+(block.tryFinally.id) + "[color=blue];\r\n");
+      }
     }
 
     buffer.append("}");
@@ -652,11 +663,15 @@ public class DotExporter {
   }
 
   public static void toDotFile(Statement stat, StructMethod mt, String subdirectory, String suffix) {
+    toDotFile(stat, mt, subdirectory, suffix, null);
+  }
+
+  public static void toDotFile(Statement stat, StructMethod mt, String subdirectory, String suffix, Map<Statement, String> extraProps) {
     if (!DUMP_DOTS)
       return;
     try{
       BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(DOTS_FOLDER, mt, subdirectory, suffix)));
-      out.write(statToDot(stat, suffix).getBytes());
+      out.write(statToDot(stat, suffix, extraProps).getBytes());
       out.close();
     } catch (Exception e) {
       e.printStackTrace();

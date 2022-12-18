@@ -99,21 +99,21 @@ public final class SecondaryFunctionsHelper {
           // see also: TestLoopFinally
 
 
-          if (ifelsestat.hasSuccessor(StatEdge.TYPE_BREAK)) {
-
-            SequenceHelper.destroyStatementContent(ifstat, true);
-            ifelsestat.setIfstat(null);
-
-            StatEdge edge = ifelsestat.getSuccessorEdges(StatEdge.TYPE_BREAK).get(0);
-
-            edge.changeSource(ifelsestat.getFirst());
-
-            ifelsestat.setIfEdge(edge);
-
-            // negate head expression
-            ifelsestat.setNegated(!ifelsestat.isNegated());
-            ifelsestat.getHeadexprentList().set(0, ((IfExprent)ifelsestat.getHeadexprent().copy()).negateIf());
-          }
+//          if (ifelsestat.hasSuccessor(StatEdge.TYPE_BREAK)) {
+//
+//            SequenceHelper.destroyStatementContent(ifstat, true);
+//            ifelsestat.setIfstat(null);
+//
+//            StatEdge edge = ifelsestat.getSuccessorEdges(StatEdge.TYPE_BREAK).get(0);
+//
+//            edge.changeSource(ifelsestat.getFirst());
+//
+//            ifelsestat.setIfEdge(edge);
+//
+//            // negate head expression
+//            ifelsestat.setNegated(!ifelsestat.isNegated());
+//            ifelsestat.getHeadexprentList().set(0, ((IfExprent)ifelsestat.getHeadexprent().copy()).negateIf());
+//          }
 
         }
       }
