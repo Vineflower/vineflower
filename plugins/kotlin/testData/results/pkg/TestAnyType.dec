@@ -2,7 +2,7 @@ package pkg
 
 class TestAnyType {
    fun test(param: Object): Int  {
-      if (param instanceof String) {// 5
+      if (param is String) {// 5
          return ((String)param).length();// 6
       } else {
          System.out.println(param);// 9

@@ -10,7 +10,7 @@ class TestWhenControlFlow {
          }
 
          if (x != 5) {// 11
-            if (3 <= x ? x < 5 : false) {// 12
+            if (if (3 <= x) x < 5 else false) {// 12
                return;
             }
 
