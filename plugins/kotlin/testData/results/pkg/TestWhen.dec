@@ -10,7 +10,7 @@ class TestWhen {
          System.out.println("2");
       } else if (obj is Double) {// 8
          System.out.println("Double");
-      } else if (!(obj instanceof Long)) {// 9
+      } else if (!(obj is Long)) {// 9
          System.out.println("Not Long");
       } else {
          System.out.println("else");// 10
@@ -18,7 +18,7 @@ class TestWhen {
    }// 12
 
    fun testExpression(obj: Object): Int  {
-      return if (Intrinsics.areEqual(obj, 1)) 1 else (obj instanceof Double ? 2 : (Intrinsics.areEqual(obj, "4") ? 4 : (!(obj instanceof Long) ? 3 : 5)));// 15 16 17 18 19 20
+      return if (Intrinsics.areEqual(obj, 1)) 1 else (if (obj is Double) 2 else (if (Intrinsics.areEqual(obj, "4")) 4 else (if (!(obj is Long)) 3 else 5)));// 15 16 17 18 19 20
    }
 }
 

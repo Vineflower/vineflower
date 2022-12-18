@@ -522,10 +522,16 @@ public class FunctionExprent extends Exprent {
 
       if (funcType.ordinal() <= FunctionType.LE.ordinal()) {
         if (right instanceof ConstExprent) {
-          ((ConstExprent) right).adjustConstType(left.getExprType());
+          var other = left.getExprType();
+          if (other != null) {
+            ((ConstExprent) right).adjustConstType(other);
+          }
         }
         else if (left instanceof ConstExprent) {
-          ((ConstExprent) left).adjustConstType(right.getExprType());
+          var other = right.getExprType();
+          if (other != null) {
+            ((ConstExprent) left).adjustConstType(other);
+          }
         }
       }
 

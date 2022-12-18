@@ -69,12 +69,12 @@ public class ReplaceExprentsPass implements Pass {
     boolean res = false;
 
     for (Exprent ex : expr.getAllExprents()) {
+      res |= replace(ex);
       Exprent map = map(ex);
 
       if (map != null) {
         expr.replaceExprent(ex, map);
-      } else {
-        res |= replace(ex);
+        res = true;
       }
     }
 
