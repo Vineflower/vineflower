@@ -124,7 +124,8 @@ public class AssignmentExprent extends Exprent {
     TextBuffer buffer = new TextBuffer();
 
     if (fieldInClassInit) {
-      buffer.append(((FieldExprent) left).getName());
+      FieldExprent field = (FieldExprent) left;
+      buffer.appendField(field.getName(), false, field.getClassname(), field.getName(), field.getDescriptor());
     } else {
       buffer.append(left.toJava(indent));
     }
@@ -307,6 +308,7 @@ public class AssignmentExprent extends Exprent {
     }
 
     buf.prepend("(" + ExprProcessor.getCastTypeName(left) + ")");
+    buf.addTypeNameToken(left, 1);
   }
 
   @Override

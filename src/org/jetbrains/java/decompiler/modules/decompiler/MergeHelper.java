@@ -641,6 +641,10 @@ public class MergeHelper {
         }
 
         InvocationExprent holder = (InvocationExprent)right;
+        // base of the .iterator() call is null, so the iterator comes from a static method: cannot be a foreach
+        if (holder.getInstance() == null) {
+          return false;
+        }
 
         initExprents[0].getBytecodeRange(holder.getInstance().bytecode);
         holder.getBytecodeRange(holder.getInstance().bytecode);

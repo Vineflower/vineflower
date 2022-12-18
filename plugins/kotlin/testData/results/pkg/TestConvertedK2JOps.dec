@@ -1,0 +1,93 @@
+package pkg
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import kotlin.Pair;
+import kotlin.TuplesKt;
+import kotlin.collections.CollectionsKt;
+import kotlin.collections.MapsKt;
+import kotlin.collections.SetsKt;
+
+class TestConvertedK2JOps {
+   private final List<String> list = CollectionsKt.listOf(new String[]{"a", "b", "c"});
+   private final Set<String> set = SetsKt.setOf(new String[]{"a", "b", "c"});
+   private final Map<String, String> map = MapsKt.mapOf(new Pair[]{TuplesKt.to("a", "b"), TuplesKt.to("c", "d")});
+   private final Object any = new Object();
+
+   fun getList(): List<String>  {
+      return this.list;// 4
+   }
+
+   fun getSet(): Set<String>  {
+      return this.set;// 5
+   }
+
+   fun getMap(): Map<String, String>  {
+      return this.map;// 6
+   }
+
+   fun getAny(): Object  {
+      return this.any;// 7
+   }
+
+   fun codeConstructs() {
+      System.out.println("Hello, world!");// 10
+   }// 12
+}
+
+class 'pkg/TestConvertedK2JOps' {
+   method 'getList ()Ljava/util/List;' {
+      0      18
+      1      18
+      2      18
+      3      18
+      4      18
+   }
+
+   method 'getSet ()Ljava/util/Set;' {
+      0      22
+      1      22
+      2      22
+      3      22
+      4      22
+   }
+
+   method 'getMap ()Ljava/util/Map;' {
+      0      26
+      1      26
+      2      26
+      3      26
+      4      26
+   }
+
+   method 'getAny ()Ljava/lang/Object;' {
+      0      30
+      1      30
+      2      30
+      3      30
+      4      30
+   }
+
+   method 'codeConstructs ()V' {
+      0      34
+      1      34
+      2      34
+      3      34
+      4      34
+      6      34
+      7      34
+      8      34
+      c      35
+   }
+}
+
+Lines mapping:
+4 <-> 19
+5 <-> 23
+6 <-> 27
+7 <-> 31
+10 <-> 35
+12 <-> 36
+Not mapped:
+11

@@ -1,0 +1,463 @@
+package pkg
+
+class TestTailrecFunctions {
+   fun sum(x: Long, sum: Long): Long  {
+      var var5: TestTailrecFunctions = this;// 4
+      var var6: Long = x;
+
+      var var8: Long;
+      var var17: Long;
+      for(var8 = sum; var6 != 0L; var8 = var17) {// 5
+         var var15: Long = var6 - 1L;// 6
+         var17 = var8 + var6;
+         var5 = var5;
+         var6 = var15;
+      }
+
+      return var8;
+   }
+
+   fun testFinally() {
+      label12: {
+         try {
+            ;
+         } catch (Throwable var2) {
+            this.testFinally();// 12 13
+         }
+
+         this.testFinally();
+      }
+   }
+
+   fun testFinallyReturn(): Int  {
+      try {
+         ;
+      } catch (Throwable var2) {
+         return this.testFinallyReturn();// 20 21
+      }
+
+      return this.testFinallyReturn();
+   }
+
+   fun fooTry() {
+      try {
+         this.fooTry();// 27
+      } catch (Throwable var2) {// 29
+      }
+   }// 31
+
+   fun testTryCatchFinally() {
+      label31: {
+         label32: {
+            try {
+               try {
+                  this.testTryCatchFinally();// 35
+                  break label32;
+               } catch (Exception var2) {// 36
+                  this.testTryCatchFinally();// 37
+               }
+            } catch (Throwable var3) {
+               this.testTryCatchFinally();// 38 39
+            }
+
+            this.testTryCatchFinally();
+            return;// 41
+         }
+
+         this.testTryCatchFinally();
+      }
+   }
+
+   fun fastPow(x: Long, n: Long, acc: Long): Long  {
+      var var7: TestTailrecFunctions = this;
+      var var8: Long = x;
+      var var10: Long = n;
+      var var12: Long = acc;
+
+      while(var10 != 0L) {// 44
+         if (var10 % (long)2 == 0L) {// 45
+            var var21: Long = var8 * var8;
+            var var23: Long = var10 / (long)2;
+            var7 = var7;
+            var8 = var21;
+            var10 = var23;
+            var12 = var12;
+         } else {
+            var var25: Long = var10 - 1L;// 46
+            var var26: Long = var12 * var8;
+            var7 = var7;
+            var8 = var8;
+            var10 = var25;
+            var12 = var26;
+         }
+      }
+
+      return var12;
+   }
+
+   // $QF: synthetic method
+   fun fastPow$default(var0: TestTailrecFunctions, var1: Long, var3: Long, var5: Long, var7: Int, var8: Object): Long  {
+      if ((var7 & 4) != 0) {// 43
+         var5 = 1L;
+      }
+
+      return var0.fastPow(var1, var3, var5);
+   }
+
+   fun fastPow(x: Long, n: Long): Long  {
+      var var5: TestTailrecFunctions = this;// 49
+      var var6: Long = x;
+      var var8: Long = n;
+
+      var var10000: Long;
+      while(true) {
+         if (var8 == 0L) {// 50
+            var10000 = 1L;
+            break;
+         }
+
+         if (var8 % (long)2 != 0L) {// 51
+            var10000 = var6 * var5.fastPow(var6, var8 - 1L);// 52
+            break;
+         }
+
+         var var15: Long = var6 * var6;
+         var var17: Long = var8 / (long)2;
+         var5 = var5;
+         var6 = var15;
+         var8 = var17;
+      }
+
+      return var10000;// 53
+   }
+}
+
+class 'pkg/TestTailrecFunctions' {
+   method 'sum (JJ)J' {
+      0      4
+      1      4
+      2      4
+      3      5
+      4      5
+      5      5
+      6      9
+      7      9
+      8      9
+      9      12
+      a      12
+      d      9
+      e      9
+      11      11
+      12      11
+      15      9
+      16      9
+      17      9
+      18      9
+      1c      16
+      1d      16
+      1e      16
+      1f      10
+      20      10
+      21      10
+      22      10
+      23      10
+      24      10
+      25      11
+      26      11
+      27      11
+      28      11
+      29      11
+      2a      11
+      2b      11
+      2c      12
+      2d      12
+      2e      12
+      2f      12
+      30      13
+      31      13
+      32      13
+      33      13
+      34      9
+      35      9
+      36      9
+      37      9
+   }
+
+   method 'testFinally ()V' {
+      1      27
+      2      27
+      3      27
+      4      27
+      8      24
+      9      24
+   }
+
+   method 'testFinallyReturn ()I' {
+      1      38
+      2      38
+      3      38
+      4      38
+      5      38
+      6      35
+      7      35
+      8      35
+      9      35
+      a      35
+   }
+
+   method 'fooTry ()V' {
+      1      43
+      2      43
+      3      43
+      4      43
+      5      46
+      6      44
+      7      46
+   }
+
+   method 'testTryCatchFinally ()V' {
+      1      53
+      2      53
+      5      66
+      6      66
+      7      66
+      8      66
+      c      55
+      d      56
+      e      56
+      11      62
+      12      62
+      13      62
+      14      62
+      18      59
+      19      59
+      1f      63
+   }
+
+   method 'fastPow (JJJ)J' {
+      0      71
+      1      71
+      2      71
+      3      72
+      4      72
+      5      72
+      6      73
+      7      73
+      8      73
+      9      74
+      a      74
+      b      74
+      c      74
+      d      80
+      e      80
+      11      78
+      12      78
+      15      76
+      16      76
+      19      83
+      1a      83
+      1d      76
+      1e      76
+      1f      76
+      20      76
+      24      94
+      25      94
+      26      94
+      27      77
+      28      77
+      29      77
+      2a      77
+      2b      77
+      2c      77
+      2d      77
+      2e      77
+      31      78
+      32      78
+      33      78
+      34      78
+      35      78
+      36      78
+      37      78
+      38      79
+      39      79
+      3a      79
+      3b      79
+      3c      79
+      3d      79
+      3e      79
+      3f      80
+      40      80
+      41      80
+      42      80
+      43      81
+      44      81
+      45      81
+      46      81
+      47      82
+      48      82
+      49      82
+      4a      82
+      4b      83
+      4c      83
+      4d      83
+      4e      83
+      52      85
+      53      85
+      54      85
+      55      85
+      56      85
+      57      85
+      58      86
+      59      86
+      5a      86
+      5b      86
+      5c      86
+      5d      86
+      5e      86
+      5f      87
+      60      87
+      61      87
+      62      87
+      63      88
+      64      88
+      65      88
+      66      88
+      67      89
+      68      89
+      69      89
+      6a      89
+      6b      90
+      6c      90
+      6d      90
+      6e      90
+   }
+
+   method 'fastPow$default (Lpkg/TestTailrecFunctions;JJJILjava/lang/Object;)J' {
+      0      99
+      1      99
+      2      99
+      3      99
+      4      99
+      7      100
+      8      100
+      9      100
+      a      103
+      b      103
+      c      103
+      d      103
+      e      103
+      f      103
+      10      103
+      11      103
+      12      103
+   }
+
+   method 'fastPow (JJ)J' {
+      0      107
+      1      107
+      2      107
+      3      108
+      4      108
+      5      108
+      6      109
+      7      109
+      8      109
+      9      119
+      a      119
+      d      119
+      e      119
+      11      113
+      12      113
+      15      113
+      16      113
+      17      113
+      18      113
+      19      113
+      1c      114
+      1d      115
+      20      118
+      21      118
+      22      118
+      23      118
+      24      118
+      25      118
+      26      118
+      27      118
+      2a      123
+      2b      123
+      2c      123
+      2d      123
+      2e      123
+      2f      123
+      30      123
+      31      124
+      32      124
+      33      124
+      34      124
+      35      124
+      36      124
+      37      124
+      38      125
+      39      125
+      3a      125
+      3b      125
+      3c      126
+      3d      126
+      3e      126
+      3f      126
+      40      127
+      41      127
+      42      127
+      43      127
+      47      119
+      48      119
+      49      119
+      4a      119
+      4b      119
+      4c      119
+      4d      119
+      4e      119
+      4f      119
+      50      119
+      51      119
+      52      119
+      53      119
+      54      119
+      55      130
+   }
+}
+
+Lines mapping:
+4 <-> 5
+5 <-> 10
+6 <-> 11
+12 <-> 25
+13 <-> 25
+20 <-> 36
+21 <-> 36
+27 <-> 44
+29 <-> 45
+31 <-> 47
+35 <-> 54
+36 <-> 56
+37 <-> 57
+38 <-> 60
+39 <-> 60
+41 <-> 64
+43 <-> 100
+44 <-> 77
+45 <-> 78
+46 <-> 86
+49 <-> 108
+50 <-> 114
+51 <-> 119
+52 <-> 120
+53 <-> 131
+Not mapped:
+10
+14
+15
+18
+26
+34
+40

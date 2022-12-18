@@ -1,5 +1,7 @@
 package pkg
 
+import java.util.List;
+
 class TestNullable {
    fun nullableParams(v: String, vn: String?) {
    }// 6
@@ -7,19 +9,29 @@ class TestNullable {
    fun nullableReturn(): String?  {
       return null;// 9
    }
+
+   fun nullableGenerics(v: List<String>): List<String>?  {
+      return v;// 13
+   }
 }
 
 class 'pkg/TestNullable' {
    method 'nullableParams (Ljava/lang/String;Ljava/lang/String;)V' {
-      6      4
+      6      6
    }
 
    method 'nullableReturn ()Ljava/lang/String;' {
-      0      7
-      1      7
+      0      9
+      1      9
+   }
+
+   method 'nullableGenerics (Ljava/util/List;)Ljava/util/List;' {
+      6      13
+      7      13
    }
 }
 
 Lines mapping:
-6 <-> 5
-9 <-> 8
+6 <-> 7
+9 <-> 10
+13 <-> 14

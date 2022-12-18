@@ -1,0 +1,210 @@
+package pkg;
+
+import java.util.function.Function;
+import pkg.MoreAnnotations.NestedAnnotation;
+
+@NestedAnnotation
+public class TestTextTokens {
+   private TestTextTokens.Bee bee = new TestTextTokens.Bee();
+
+   public void foo() {
+      bar("Hello world");// 10
+      this.bee.buzz();// 11
+      method(method(s -> method(method(s1 -> s1 + " really long string to cause code reformatting" + s)) + s))// 13
+         .apply("Lorem ipsum dolor sit amet");
+   }// 14
+
+   private static void bar(String s) {
+      System.out.println(s);// 17
+   }// 18
+
+   private static Function<String, String> method(
+      Function<String, String> extraLongVariableNameToReachPreferredLineLengthAndCauseWrapping
+   ) {
+      String s = "Hello world";// 21
+      return extraLongVariableNameToReachPreferredLineLengthAndCauseWrapping.andThen(str -> str.replace(" ", ""));// 22
+   }
+
+   @Deprecated
+   private class Bee {
+      private Bee() {
+      }// 26
+
+      public void buzz() {
+         TestTextTokens.bar("bzzz");// 28
+      }// 29
+   }
+}
+
+class 'pkg/TestTextTokens' {
+   method 'foo ()V' {
+      0      10
+      1      10
+      2      10
+      3      10
+      4      10
+      5      11
+      6      11
+      7      11
+      8      11
+      9      11
+      a      11
+      b      11
+      11      12
+      12      12
+      13      12
+      14      12
+      15      12
+      16      12
+      17      13
+      18      13
+      19      13
+      1a      13
+      1b      13
+      1c      13
+      1d      13
+      1f      14
+   }
+
+   method 'lambda$foo$1 (Ljava/lang/String;)Ljava/lang/String;' {
+      d      12
+      e      12
+      f      12
+      10      12
+      11      12
+      12      12
+      16      12
+      1a      12
+      1b      12
+      1c      12
+      1d      12
+   }
+
+   method 'lambda$null$0 (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;' {
+      7      12
+      b      12
+      c      12
+      10      12
+      14      12
+      15      12
+      16      12
+      17      12
+   }
+
+   method 'bar (Ljava/lang/String;)V' {
+      0      17
+      1      17
+      2      17
+      3      17
+      4      17
+      5      17
+      6      17
+      7      18
+   }
+
+   method 'method (Ljava/util/function/Function;)Ljava/util/function/Function;' {
+      0      23
+      1      23
+      2      23
+      3      24
+      9      24
+      a      24
+      b      24
+      c      24
+      d      24
+      e      24
+   }
+
+   method 'lambda$method$2 (Ljava/lang/String;)Ljava/lang/String;' {
+      0      24
+      1      24
+      2      24
+      3      24
+      4      24
+      5      24
+      6      24
+      7      24
+      8      24
+   }
+}
+
+class 'pkg/TestTextTokens$Bee' {
+   method '<init> (Lpkg/TestTextTokens;)V' {
+      9      30
+   }
+
+   method 'buzz ()V' {
+      0      33
+      1      33
+      2      33
+      3      33
+      4      33
+      5      34
+   }
+}
+
+Lines mapping:
+10 <-> 11
+11 <-> 12
+13 <-> 13
+14 <-> 15
+17 <-> 18
+18 <-> 19
+21 <-> 24
+22 <-> 25
+26 <-> 31
+28 <-> 34
+29 <-> 35
+
+/*
+Tokens:
+(6:2, 6:18) class [reference] pkg/MoreAnnotations$NestedAnnotation
+(7:14, 7:28) class [declaration] pkg/TestTextTokens
+(8:12, 8:26) class [reference] pkg/TestTextTokens
+(8:27, 8:30) class [reference] pkg/TestTextTokens$Bee
+(8:31, 8:34) field [declaration] pkg/TestTextTokens#bee:Lpkg/TestTextTokens$Bee;
+(8:41, 8:55) class [reference] pkg/TestTextTokens
+(8:56, 8:59) class [reference] pkg/TestTextTokens$Bee
+(10:16, 10:19) method [declaration] pkg/TestTextTokens#foo()V
+(11:7, 11:10) method [reference] pkg/TestTextTokens#bar(Ljava/lang/String;)V
+(12:12, 12:15) field [reference] pkg/TestTextTokens#bee:Lpkg/TestTextTokens$Bee;
+(12:16, 12:20) method [reference] pkg/TestTextTokens$Bee#buzz()V
+(13:7, 13:13) method [reference] pkg/TestTextTokens#method(Ljava/util/function/Function;)Ljava/util/function/Function;
+(13:14, 13:20) method [reference] pkg/TestTextTokens#method(Ljava/util/function/Function;)Ljava/util/function/Function;
+(13:21, 13:22) parameter [declaration] pkg/TestTextTokens#lambda$foo$1(Ljava/lang/String;)Ljava/lang/String;(0:s)
+(13:26, 13:32) method [reference] pkg/TestTextTokens#method(Ljava/util/function/Function;)Ljava/util/function/Function;
+(13:33, 13:39) method [reference] pkg/TestTextTokens#method(Ljava/util/function/Function;)Ljava/util/function/Function;
+(13:40, 13:42) parameter [declaration] pkg/TestTextTokens#lambda$null$0(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;(1:s1)
+(13:46, 13:48) parameter [reference] pkg/TestTextTokens#lambda$null$0(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;(1:s1)
+(13:102, 13:103) parameter [reference] pkg/TestTextTokens#lambda$foo$1(Ljava/lang/String;)Ljava/lang/String;(0:s)
+(13:108, 13:109) parameter [reference] pkg/TestTextTokens#lambda$foo$1(Ljava/lang/String;)Ljava/lang/String;(0:s)
+(14:11, 14:16) method [reference] java/util/function/Function#apply(Ljava/lang/Object;)Ljava/lang/Object;
+(17:24, 17:27) method [declaration] pkg/TestTextTokens#bar(Ljava/lang/String;)V
+(17:28, 17:34) class [reference] java/lang/String
+(17:35, 17:36) parameter [declaration] pkg/TestTextTokens#bar(Ljava/lang/String;)V(0:s)
+(18:7, 18:13) class [reference] java/lang/System
+(18:14, 18:17) field [reference] java/lang/System#out:Ljava/io/PrintStream;
+(18:18, 18:25) method [reference] java/io/PrintStream#println(Ljava/lang/String;)V
+(18:26, 18:27) parameter [reference] pkg/TestTextTokens#bar(Ljava/lang/String;)V(0:s)
+(21:19, 21:27) class [reference] java/util/function/Function
+(21:28, 21:34) class [reference] java/lang/String
+(21:36, 21:42) class [reference] java/lang/String
+(21:44, 21:50) method [declaration] pkg/TestTextTokens#method(Ljava/util/function/Function;)Ljava/util/function/Function;
+(22:7, 22:15) class [reference] java/util/function/Function
+(22:16, 22:22) class [reference] java/lang/String
+(22:24, 22:30) class [reference] java/lang/String
+(22:32, 22:95) parameter [declaration] pkg/TestTextTokens#method(Ljava/util/function/Function;)Ljava/util/function/Function;(0:extraLongVariableNameToReachPreferredLineLengthAndCauseWrapping)
+(24:7, 24:13) class [reference] java/lang/String
+(24:14, 24:15) local [declaration] pkg/TestTextTokens#method(Ljava/util/function/Function;)Ljava/util/function/Function;(1:s)
+(25:14, 25:77) parameter [reference] pkg/TestTextTokens#method(Ljava/util/function/Function;)Ljava/util/function/Function;(0:extraLongVariableNameToReachPreferredLineLengthAndCauseWrapping)
+(25:78, 25:85) method [reference] java/util/function/Function#andThen(Ljava/util/function/Function;)Ljava/util/function/Function;
+(25:86, 25:89) parameter [declaration] pkg/TestTextTokens#lambda$method$2(Ljava/lang/String;)Ljava/lang/String;(0:str)
+(25:93, 25:96) parameter [reference] pkg/TestTextTokens#lambda$method$2(Ljava/lang/String;)Ljava/lang/String;(0:str)
+(25:97, 25:104) method [reference] java/lang/String#replace(Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+(28:5, 28:15) class [reference] java/lang/Deprecated
+(29:18, 29:21) class [declaration] pkg/TestTextTokens$Bee
+(30:15, 30:18) method [declaration] pkg/TestTextTokens$Bee#<init>(Lpkg/TestTextTokens;)V
+(33:19, 33:23) method [declaration] pkg/TestTextTokens$Bee#buzz()V
+(34:10, 34:24) class [reference] pkg/TestTextTokens
+(34:25, 34:28) method [reference] pkg/TestTextTokens#bar(Ljava/lang/String;)V
+*/

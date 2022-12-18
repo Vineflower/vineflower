@@ -347,20 +347,20 @@ public class NewExprent extends Exprent {
             GenericClassDescriptor descriptor = child.getWrapper().getClassStruct().getSignature();
             if (descriptor != null) {
               if (descriptor.superinterfaces.isEmpty()) {
-                buf.append(ExprProcessor.getCastTypeName(descriptor.superclass));
+                buf.appendCastTypeName(descriptor.superclass);
               } else {
                 if (descriptor.superinterfaces.size() > 1 && !lambda) {
                   DecompilerContext.getLogger().writeMessage("Inconsistent anonymous class signature: " + child.classStruct.qualifiedName,
                     IFernflowerLogger.Severity.WARN);
                 }
-                buf.append(ExprProcessor.getCastTypeName(descriptor.superinterfaces.get(0)));
+                buf.appendCastTypeName(descriptor.superinterfaces.get(0));
               }
               appendType = false;
             }
           }
 
           if (appendType) {
-            buf.append(typename);
+            buf.appendCastTypeName(typename, child.anonymousClassType);
           }
         }
       }
@@ -436,7 +436,7 @@ public class NewExprent extends Exprent {
             typename = typename.substring(typename.lastIndexOf('.') + 1);
           }
         }
-        buf.append(typename);
+        buf.appendTypeName(typename, newType);
       }
 
       if (constructor != null) {
@@ -468,11 +468,12 @@ public class NewExprent extends Exprent {
         VarType elementType = lstArrayElements.get(0).getExprType();
         if (elementType.type == CodeConstants.TYPE_OBJECT && elementType.value.equals("java/lang/Object") && elementType.arrayDim >= 1) {
           buf.prepend("(Object)");
+          buf.addClassToken(1, 6, "java/lang/Object");
         }
       }
     }
     else {
-      buf.append("new ").append(ExprProcessor.getTypeName(newType));
+      buf.append("new ").appendTypeName(newType);
 
       if (lstArrayElements.isEmpty()) {
         for (int i = 0; i < newType.arrayDim; i++) {

@@ -31,6 +31,7 @@ import org.jetbrains.java.decompiler.util.collections.NullableConcurrentHashMap;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 public class InvocationExprent extends Exprent {
   public enum InvocationType {
@@ -352,7 +353,7 @@ public class InvocationExprent extends Exprent {
               mask = ExprUtil.getSyntheticParametersMask(newNode, stringDescriptor, lstParameters.size());
               start = newNode.classStruct.hasModifier(CodeConstants.ACC_ENUM) ? 2 : 0;
             } else if (!newNode.enclosingClasses.isEmpty()) {
-              start = !newNode.classStruct.hasModifier(CodeConstants.ACC_STATIC) ? 1 : 0;
+              start = (newNode.access & CodeConstants.ACC_STATIC) == 0 ? 1 : 0;
             }
           }
 
@@ -367,6 +368,58 @@ public class InvocationExprent extends Exprent {
 
               VarType paramType = desc.getSignature().parameterTypes.get(j++);
               if (paramType.isGeneric()) {
+
+                Exprent parameter = lstParameters.get(i);
+                Set<VarType> excluded = new HashSet<>();
+                if (parameter.type == Exprent.Type.NEW) {
+                  NewExprent newExprent = (NewExprent) parameter;
+                  if (newExprent.isLambda()) {
+                    ClassNode node = DecompilerContext.getClassProcessor().getMapRootClasses().get(newExprent.getNewType().value);
+                    int potentialMethodCount = Integer.MAX_VALUE;
+                    if (node.lambdaInformation.is_method_reference) {
+                      StructClass content = (StructClass) DecompilerContext.getStructContext().getClass(node.lambdaInformation.content_class_name);
+
+                      if (content != null) {
+                        StructClass currentCls = (StructClass) DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS);
+                        potentialMethodCount = (int) content.getMethods().stream()
+                          .filter((method) -> canAccess(currentCls, method))
+                          .map(StructMethod::getName)
+                          .filter(node.lambdaInformation.content_method_name::equals)
+                          .count();
+                      }
+                    }
+                    if (potentialMethodCount > 1) {
+                      StructClass base = DecompilerContext.getStructContext().getClass(newExprent.getExprType().value);
+                      if (base != null) {
+                        StructMethod found = null;
+                        for (StructMethod method : base.getMethods()) {
+                          if (!method.hasModifier(CodeConstants.ACC_STATIC) && method.getInstructionSequence() == null) {
+                            found = method;
+                            break;
+                          }
+                        }
+                        if (found != null) {
+                          Map<VarType, VarType> genvars = new HashMap<>();
+                          if (base.getSignature() != null) {
+                            base.getSignature().genericType.mapGenVarsTo((GenericType) paramType, genvars);
+                            excluded.addAll(found.getSignature().parameterTypes.stream()
+                              .filter(VarType::isGeneric)
+                              .map(GenericType.class::cast)
+                              .map(GenericType::getAllGenericVars)
+                              .flatMap(List::stream)
+                              .map(genvars::get)
+                              .filter(Objects::nonNull)
+                              .filter(VarType::isGeneric)
+                              .map(GenericType.class::cast)
+                              .map(GenericType::getAllGenericVars)
+                              .flatMap(List::stream)
+                              .collect(Collectors.toList()));
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
 
                 Map<VarType, VarType> combined = new HashMap<>(genericsMap);
                 upperBoundsMap.forEach((k, v) -> {
@@ -397,7 +450,9 @@ public class InvocationExprent extends Exprent {
 
                     genParamType.mapGenVarsTo(genArgType, tempMap);
                     tempMap.forEach((from, to) -> {
-                      paramGenerics.add(from);
+                      if (!excluded.contains(from)) {
+                        paramGenerics.add(from);
+                      }
                       processGenericMapping(from, to, named, bounds);
                     });
                     tempMap.clear();
@@ -408,7 +463,9 @@ public class InvocationExprent extends Exprent {
                     argtype = argtype.resizeArrayDim(argtype.arrayDim - paramType.arrayDim);
                     paramType = paramType.resizeArrayDim(0);
                   }
-                  paramGenerics.add(paramType);
+                  if (!excluded.contains(paramType)) {
+                    paramGenerics.add(paramType);
+                  }
                   processGenericMapping(paramType, argtype, named, bounds);
                 }
               }
@@ -545,12 +602,12 @@ public class InvocationExprent extends Exprent {
       }
 
       if (invocationType == InvocationType.CONSTANT_DYNAMIC) {
-        buf.append('(').append(ExprProcessor.getCastTypeName(descriptor.ret)).append(')');
+        buf.append('(').appendCastTypeName(descriptor.ret).append(')');
       }
 
       ClassNode node = (ClassNode)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
       if (node == null || !classname.equals(node.classStruct.qualifiedName)) {
-        buf.append(DecompilerContext.getImportCollector().getShortNameInClassContext(ExprProcessor.buildJavaClassName(classname)));
+        buf.appendAllClasses(DecompilerContext.getImportCollector().getShortNameInClassContext(ExprProcessor.buildJavaClassName(classname)), classname);
       }
     }
     else {
@@ -587,7 +644,7 @@ public class InvocationExprent extends Exprent {
 
       // Signature polymorphic methods returning Object require a cast to the return type in the descriptor
       if (CodeConstants.isReturnPolymorphic(classname, name) && !descriptor.ret.equals(VarType.VARTYPE_VOID)) {
-        buf.append('(').append(ExprProcessor.getCastTypeName(descriptor.ret)).append(')');
+        buf.append('(').appendCastTypeName(descriptor.ret).append(')');
       }
 
       if (functype == Type.GENERAL) {
@@ -647,7 +704,7 @@ public class InvocationExprent extends Exprent {
           // Don't cast to anonymous classes, since they by definition can't have a name
           // TODO: better fix may be to change equals to isSuperSet? all anonymous classes are superset of Object
           if (rightType.equals(VarType.VARTYPE_OBJECT) && !leftType.equals(rightType) && (instNode != null && instNode.type != ClassNode.Type.ANONYMOUS)) {
-            buf.append("((").append(ExprProcessor.getCastTypeName(leftType)).append(")");
+            buf.append("((").appendCastTypeName(leftType).append(")");
 
             if (instance.getPrecedence() >= FunctionType.CAST.precedence) {
               res.enclose("(", ")");
@@ -661,7 +718,7 @@ public class InvocationExprent extends Exprent {
           //This isn't properly handled by the compiler. So explicit casts are needed to retain J8 compatibility.
           else if (JAVA_NIO_BUFFER.equals(descriptor.ret) && !JAVA_NIO_BUFFER.equals(rightType)
               && DecompilerContext.getStructContext().instanceOf(rightType.value, JAVA_NIO_BUFFER.value)) {
-              buf.append("((").append(ExprProcessor.getCastTypeName(JAVA_NIO_BUFFER)).append(")").append(res).append(")");
+              buf.append("((").appendCastTypeName(JAVA_NIO_BUFFER).append(")").append(res).append(")");
           }
           else {
             buf.append(res);
@@ -689,7 +746,7 @@ public class InvocationExprent extends Exprent {
 
         if (invocationType == InvocationType.DYNAMIC || invocationType == InvocationType.CONSTANT_DYNAMIC) {
           if (bootstrapMethod == null) {
-            buf.append("<").append(name);
+            buf.append("<").appendMethod(name, false, classname, name, descriptor);
             if (invocationType == InvocationType.DYNAMIC) {
               buf.append(">invokedynamic");
             } else {
@@ -697,7 +754,7 @@ public class InvocationExprent extends Exprent {
             }
           } else {
             buf.append(bootstrapMethod.elementname);
-            buf.append("<\"").append(name).append('"');
+            buf.append("<\"").appendMethod(name, false, classname, name, descriptor).append('"');
             for (PooledConstant arg : bootstrapArguments) {
               buf.append(',');
               appendBootstrapArgument(buf, arg);
@@ -705,7 +762,7 @@ public class InvocationExprent extends Exprent {
             buf.append('>');
           }
         } else {
-          buf.append(name);
+          buf.appendMethod(name, false, classname, name, descriptor);
         }
 
         buf.append("(");
@@ -763,7 +820,7 @@ public class InvocationExprent extends Exprent {
       Object value = prim.value;
       String stringValue = String.valueOf(value);
       if (prim.type == CodeConstants.CONSTANT_Class) {
-        buf.append(ExprProcessor.getCastTypeName(new VarType(stringValue)));
+        buf.appendCastTypeName(new VarType(stringValue));
       } else if (prim.type == CodeConstants.CONSTANT_String) {
         buf.append('"').append(ConstExprent.convertStringToJava(stringValue, false)).append('"');
       } else {
@@ -772,7 +829,7 @@ public class InvocationExprent extends Exprent {
     } else if (arg instanceof LinkConstant) {
       // TODO: errors trying to print condy as const arg
       VarType cls = new VarType(((LinkConstant) arg).classname);
-      buf.append(ExprProcessor.getCastTypeName(cls)).append("::").append(((LinkConstant) arg).elementname);
+      buf.appendCastTypeName(cls).append("::").append(((LinkConstant) arg).elementname);
     }
   }
 

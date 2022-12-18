@@ -52,7 +52,7 @@ public abstract class SingleClassesTestBase {
   protected abstract void registerAll();
 
   protected final void registerSet(String name, Runnable initializer, Object ...options) {
-    currentTestSet = new TestSet(name, options);
+    currentTestSet = new TestSet(name, options, this);
     initializer.run();
     testSets.add(currentTestSet);
   }
@@ -97,7 +97,7 @@ public abstract class SingleClassesTestBase {
       .map(s -> DynamicContainer.dynamicContainer(s.name, s.getTests()));
   }
 
-  protected static Path getClassFile(DecompilerTestFixture fixture, TestDefinition.Version version, String name) {
+  protected Path getClassFile(DecompilerTestFixture fixture, TestDefinition.Version version, String name) {
     return fixture.getTestDataDir().resolve("classes/" + version.directory + "/" + name + ".class");
   }
 
@@ -125,11 +125,13 @@ public abstract class SingleClassesTestBase {
   static class TestSet {
     public final String name;
     public final Object[] options;
+    private final SingleClassesTestBase base;
     public final List<TestDefinition> testDefinitions = new ArrayList<>();
 
-    public TestSet(String name, Object[] options) {
+    public TestSet(String name, Object[] options, SingleClassesTestBase base) {
       this.name = name;
       this.options = options;
+      this.base = base;
     }
 
     public Stream<DynamicNode> getTests() {
@@ -138,7 +140,7 @@ public abstract class SingleClassesTestBase {
         String name = def.testClass;
         int slash = name.lastIndexOf('/');
         if (slash >= 0) name = name.substring(slash + 1);
-        Path classFile = def.getClassFile();
+        Path classFile = def.getClassFile(base);
         Path ref = def.getReferenceFile();
 
         // Inject a specific runtime
@@ -157,7 +159,7 @@ public abstract class SingleClassesTestBase {
               }
             }
           }
-          def.run(options);
+          def.run(options, base);
         });
         tests.computeIfAbsent(def.version, k -> new ArrayList<>()).add(test);
       }
@@ -187,25 +189,25 @@ public abstract class SingleClassesTestBase {
       this.failable = failable;
     }
 
-    public Path getClassFile() {
-      return SingleClassesTestBase.getClassFile(fixture, version, testClass);
+    public Path getClassFile(SingleClassesTestBase base) {
+      return base.getClassFile(fixture, version, testClass);
     }
 
     public Path getReferenceFile() {
       return SingleClassesTestBase.getReferenceFile(fixture, testClass);
     }
 
-    public void run(Object[] options) throws IOException {
+    public void run(Object[] options, SingleClassesTestBase base) throws IOException {
       fixture.setUp(options);
       ConsoleDecompiler decompiler = fixture.getDecompiler();
-      Path classFile = getClassFile();
+      Path classFile = getClassFile(base);
       assertTrue(Files.isRegularFile(classFile), classFile + " should exist");
       for (Path file : collectClasses(classFile)) {
         decompiler.addSource(file.toFile());
       }
 
       for (String companionFile : others) {
-        Path companionClassFile = SingleClassesTestBase.getClassFile(fixture, version, companionFile);
+        Path companionClassFile = base.getClassFile(fixture, version, companionFile);
         assertTrue(Files.isRegularFile(companionClassFile), companionFile + " should exist");
         for (Path file : collectClasses(companionClassFile)) {
           decompiler.addSource(file.toFile());

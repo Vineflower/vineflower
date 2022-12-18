@@ -1,0 +1,166 @@
+package pkg
+
+import kotlin.jvm.functions.Function1;
+
+class TestLabeledJumps {
+   fun testContinue(tester: Function1<? super Integer, Boolean>) {
+      label24:
+      for(int i = 1; i < 101; ++i) {// 5
+         for(int j = 1; j < 101; ++j) {// 6
+            if (tester.invoke(j)) {// 7
+               continue label24;
+            }
+
+            System.out.println(j + " " + i);// 11
+         }
+
+         System.out.println("loop");// 14
+      }
+   }// 16
+
+   fun testBreak(tester: Function1<? super Integer, Boolean>) {
+      label22:
+      for(int i = 1; i < 101; ++i) {// 19
+         for(int j = 1; j < 101; ++j) {// 20
+            if (tester.invoke(j)) {// 21
+               break label22;
+            }
+
+            System.out.println(j + " " + i);// 25
+         }
+      }
+
+      System.out.println("end");// 29
+   }// 30
+}
+
+class 'pkg/TestLabeledJumps' {
+   method 'testContinue (Lkotlin/jvm/functions/Function1;)V' {
+      6      7
+      7      7
+      8      7
+      9      7
+      a      7
+      b      7
+      e      8
+      f      8
+      10      8
+      11      8
+      12      8
+      13      8
+      16      9
+      17      9
+      18      9
+      19      9
+      1a      9
+      1b      9
+      1c      9
+      1d      9
+      1e      9
+      1f      9
+      23      9
+      24      9
+      25      9
+      26      9
+      2c      13
+      2d      13
+      2e      13
+      2f      13
+      30      13
+      31      13
+      32      13
+      33      13
+      34      13
+      35      13
+      37      13
+      38      13
+      39      13
+      3a      8
+      3b      8
+      3c      8
+      40      16
+      41      16
+      42      16
+      43      16
+      44      16
+      46      16
+      49      7
+      4a      7
+      4b      7
+      4f      18
+   }
+
+   method 'testBreak (Lkotlin/jvm/functions/Function1;)V' {
+      6      22
+      7      22
+      8      22
+      9      22
+      a      22
+      b      22
+      e      23
+      f      23
+      10      23
+      11      23
+      12      23
+      13      23
+      16      24
+      17      24
+      18      24
+      19      24
+      1a      24
+      1b      24
+      1c      24
+      1d      24
+      1e      24
+      1f      24
+      23      24
+      24      24
+      25      24
+      26      24
+      2c      28
+      2d      28
+      2e      28
+      2f      28
+      30      28
+      31      28
+      32      28
+      33      28
+      34      28
+      35      28
+      37      28
+      38      28
+      39      28
+      3a      23
+      3b      23
+      3c      23
+      40      22
+      41      22
+      42      22
+      46      32
+      47      32
+      48      32
+      49      32
+      4a      32
+      4c      32
+      4d      32
+      4e      32
+      4f      33
+   }
+}
+
+Lines mapping:
+5 <-> 8
+6 <-> 9
+7 <-> 10
+11 <-> 14
+14 <-> 17
+16 <-> 19
+19 <-> 23
+20 <-> 24
+21 <-> 25
+25 <-> 29
+29 <-> 33
+30 <-> 34
+Not mapped:
+8
+22
