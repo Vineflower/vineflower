@@ -5,7 +5,7 @@ jobs:
     if: ${{ github.repository_owner == 'QuiltMC' && contains(github.ref_name, 'develop') }}
     runs-on: ubuntu-20.04
     container:
-      image: openjdk:15-jdk
+      image: eclipse-temurin:17-jdk
       options: --user root
     steps:
       - uses: actions/checkout@v1
