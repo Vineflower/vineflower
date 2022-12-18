@@ -53,6 +53,7 @@ public class DotExporter {
   private static String statToDot(Statement stat, String name) {
     return statToDot(stat, name, null);
   }
+
   private static String statToDot(Statement stat, String name, Map<Statement, String> extraProps) {
     DecompilerContext.getImportCollector().setWriteLocked(true);
     StringBuffer buffer = new StringBuffer();

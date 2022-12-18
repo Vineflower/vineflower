@@ -463,32 +463,6 @@ public class FlattenStatementsHelper implements GraphFlattener {
           this.addEdge(outNode, stat.getFirstDirectSuccessor());
         }
 
-        // Adds an edge from the last if statement to the current if statement,
-        // if the current if statement's head statement has no predecessor
-        // This was made to mask a failure in EliminateLoopsHelper and isn't used currently
-        // (over the current test set) but could theoretically still happen!
-        // TODO: what?
-        // TODO: use java code gen to generate a test for this?
-        if (ifStat.iftype == IfStatement.IFTYPE_IF && !stat.getPredecessorEdges(StatEdge.TYPE_REGULAR).isEmpty()) {
-          if (stat.getFirst().getPredecessorEdges(StatEdge.TYPE_REGULAR).isEmpty()) {
-            StatEdge edge = stat.getPredecessorEdges(StatEdge.TYPE_REGULAR).get(0);
-
-            Statement source = edge.getSource();
-            if (source instanceof IfStatement && ((IfStatement) source).iftype == IfStatement.IFTYPE_IF && !source.getAllSuccessorEdges().isEmpty()) {
-              DirectNode srcnd = this.graph.nodes.getWithKey(source.getFirst().id + "_tail");
-
-              if (srcnd != null) {
-                // old ifstat->head
-                Edge newEdge = new Edge(srcnd, stat, edge.getType() == StatEdge.TYPE_CONTINUE ? Edge.Type.CONTINUE : Edge.Type.REGULAR);
-
-                // Add if it doesn't exist already
-                if (!this.indirectEdges.contains(newEdge)) {
-                  this.indirectEdges.add(newEdge);
-                }
-              }
-            }
-          }
-        }
         return firstNode;
       }
       case SEQUENCE:

@@ -46,8 +46,7 @@ public final class DomHelper implements GraphParser {
     Statement general;
     if (stats.size() > 1 || firstblock.isSuccessor(firstblock)) { // multiple basic blocks or an infinite loop of one block
       general = new GeneralStatement(firstst, stats, null);
-    }
-    else { // one straightforward basic block
+    } else { // one straightforward basic block
       RootStatement root = new RootStatement(firstst, dummyexit, mt);
       firstst.addSuccessor(new StatEdge(StatEdge.TYPE_BREAK, firstst, dummyexit, root));
 
@@ -64,21 +63,18 @@ public final class DomHelper implements GraphParser {
         if (stsucc == firstst) {
           type = StatEdge.TYPE_CONTINUE;
           stsucc = general;
-        }
-        else if (graph.getFinallyExits().contains(block)) {
+        } else if (graph.getFinallyExits().contains(block)) {
           type = StatEdge.TYPE_FINALLYEXIT;
           stsucc = dummyexit;
-        }
-        else if (succ.id == graph.getLast().id) {
+        } else if (succ.id == graph.getLast().id) {
           type = StatEdge.TYPE_BREAK;
           stsucc = dummyexit;
-        }
-        else {
+        } else {
           type = StatEdge.TYPE_REGULAR;
         }
 
         stat.addSuccessor(new StatEdge(type, stat, stsucc,
-                                       (type == StatEdge.TYPE_REGULAR) ? null : general));
+          (type == StatEdge.TYPE_REGULAR) ? null : general));
       }
 
       // exceptions edges
@@ -236,7 +232,7 @@ public final class DomHelper implements GraphParser {
     }
 
     if (stat instanceof SynchronizedStatement) {
-      ((SynchronizedStatement)stat).removeExc();
+      ((SynchronizedStatement) stat).removeExc();
       res = true;
     }
 
@@ -271,7 +267,7 @@ public final class DomHelper implements GraphParser {
 
             if (next instanceof CatchAllStatement) {
 
-              CatchAllStatement ca = (CatchAllStatement)next;
+              CatchAllStatement ca = (CatchAllStatement) next;
 
               boolean headOk = ca.getFirst().containsMonitorExitOrAthrow();
 
@@ -324,7 +320,7 @@ public final class DomHelper implements GraphParser {
       }
     }
   }
-  
+
   // Checks if a statement has no exits (disregarding exceptions) that lead outside the statement.
   private static boolean hasNoExits(Statement head) {
     Deque<Statement> stack = new ArrayDeque<>();
@@ -350,8 +346,7 @@ public final class DomHelper implements GraphParser {
     Statement general,
     RootStatement root,
     HashMap<Integer, Set<Integer>> mapExtPost,
-    DomTracer tracer
-    /* Set<FinallyProcessor.FinallyInformation> finallyInfos*/) {
+    DomTracer tracer) {
     tracer.info(general, "process statement");
     if (general instanceof RootStatement) {
       Statement stat = general.getFirst();
@@ -360,7 +355,7 @@ public final class DomHelper implements GraphParser {
       if (stat instanceof BasicBlockStatement) {
         return true;
       } else {
-        boolean complete = processStatement(stat, root, mapExtPost, tracer/*, finallyInfos*/);
+        boolean complete = processStatement(stat, root, mapExtPost, tracer);
 
         if (complete) {
           // replace general purpose statement with simple one
@@ -508,72 +503,10 @@ public final class DomHelper implements GraphParser {
     return false;
   }
 
-  private static Statement findStatementByBlock(Statement stat, BasicBlock block) {
-    for (Statement st : stat.getStats()) {
-      if (st instanceof BasicBlockStatement && ((BasicBlockStatement) st).getBlock() == block) {
-        return st;
-      }
-    }
-    return null;
-  }
-
   private static Statement findGeneralStatement(
     Statement stat,
     boolean forceall,
-    HashMap<Integer, Set<Integer>> mapExtPost
-    /* Set<FinallyProcessor.FinallyInformation> finallyInfos*/) {
-//    if(!forceall && !finallyInfos.isEmpty()) {
-//      List<Pair<FinallyProcessor.FinallyInformation, Set<BasicBlock>>> finallyRegions = new ArrayList<>();
-//      for (FinallyProcessor.FinallyInformation finfo : finallyInfos) {
-//        finallyRegions.add(Pair.of(finfo, finfo.containedBlocks()));
-//      }
-//
-//      // find a finally region that isn't contained in any other finally region
-//      for (Pair<FinallyProcessor.FinallyInformation, Set<BasicBlock>> finfo : finallyRegions) {
-//        boolean contained = false;
-//        for (Pair<FinallyProcessor.FinallyInformation, Set<BasicBlock>> finfo2 : finallyRegions) {
-//          if (finfo != finfo2 && finfo2.b.contains(finfo.a.start)) {
-//            contained = true;
-//            break;
-//          }
-//        }
-//
-//        if (!contained) {
-//          // I do not know how dom helper is supposed to work
-//
-//          Statement head = findStatementByBlock(stat, finfo.a.start);
-//          Statement end = finfo.a.end != null ? findStatementByBlock(stat, finfo.a.end) : null;
-//          if (head != null) {
-//            Set<Statement> stats = new HashSet<>();
-//            for (BasicBlock block : finfo.b) {
-//              Statement s = findStatementByBlock(stat, block);
-//              ValidationHelper.notNull(s);
-//              stats.add(s);
-//            }
-//            Statement res = new GeneralStatement(head,stats, null);
-//            stat.collapseNodesToStatement(res);
-//            finallyInfos.remove(finfo.a);
-//
-//            for (Statement s : stats) {
-//              for (StatEdge succEdge : s.getSuccessorEdges(StatEdge.TYPE_REGULAR)) {
-//                if (!stats.contains(succEdge.getDestination())) {
-//                  succEdge.changeType(StatEdge.TYPE_BREAK);
-//                  succEdge.changeClosure(res);
-//                }
-//              }
-//            }
-//
-//            if (end != null) {
-//              StatEdge firstSuccessor = end.getFirstSuccessor();
-//              ValidationHelper.assertTrue(firstSuccessor.getType() == StatEdge.TYPE_FINALLYEXIT, "Unexpected edge type");
-//              firstSuccessor.changeClosure(res);
-//            }
-//
-//            return res;
-//          }
-//        }
-//      }
-//    }
+    HashMap<Integer, Set<Integer>> mapExtPost) {
 
     VBStyleCollection<Statement, Integer> stats = stat.getStats();
     VBStyleCollection<List<Integer>, Integer> vbPost;
@@ -660,7 +593,7 @@ public final class DomHelper implements GraphParser {
             if (!addHandler) {
               List<Statement> hdsupp = handler.getNeighbours(StatEdge.TYPE_EXCEPTION, EdgeDirection.BACKWARD);
               addHandler = (setNodes.containsAll(hdsupp) && (setNodes.size() > hdsupp.size()
-                                                        || setNodes.size() == 1)); // strict subset
+                                                             || setNodes.size() == 1)); // strict subset
             }
 
             if (addHandler) {
@@ -800,8 +733,7 @@ public final class DomHelper implements GraphParser {
               if (setOldNodes.contains(key)) {
                 mapExtPost.computeIfAbsent(newid, k -> new LinkedHashSet<>()).addAll(set);
                 mapExtPost.remove(key);
-              }
-              else {
+              } else {
                 if (set.size() < oldsize) {
                   set.add(newid);
                 }

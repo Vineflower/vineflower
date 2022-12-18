@@ -5,7 +5,6 @@ import org.jetbrains.java.decompiler.code.*;
 import org.jetbrains.java.decompiler.code.interpreter.InstructionImpact;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.modules.code.DeadCodeHelper;
-import org.jetbrains.java.decompiler.modules.decompiler.FinallyProcessor;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.consts.ConstantPool;
@@ -36,7 +35,6 @@ public class ControlFlowGraph implements CodeConstants {
   private Map<BasicBlock, BasicBlock> subroutines;
 
   private final Set<BasicBlock> finallyExits = new HashSet<>();
-  // private final List<FinallyProcessor.FinallyInformation> finallyInfos = new ArrayList<>();
   private final InstructionSequence sequence;
   public Set<String> commentLines = null;
   public boolean addErrorComment = false;
@@ -855,12 +853,6 @@ public class ControlFlowGraph implements CodeConstants {
   public Set<BasicBlock> getFinallyExits() {
     return finallyExits;
   }
-
-  /*
-  public List<FinallyProcessor.FinallyInformation> getFinallyInfos() {
-    return finallyInfos;
-  }
-   */
 
   public InstructionSequence getSequence() {
     return sequence;
