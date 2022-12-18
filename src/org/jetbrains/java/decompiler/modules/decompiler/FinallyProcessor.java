@@ -550,8 +550,6 @@ public class FinallyProcessor {
       }
     }
 
-    // graph.getFinallyInfos().add(new FinallyInformation(fstat.getHandler().getBasichead().getBlock(), trueExit, sideExits));
-
     removeExceptionInstructionsEx(fstat.getHandler().getBasichead().getBlock(), 1, finallytype);
 
     return true;

@@ -24,7 +24,6 @@ public final class DomHelper implements GraphParser {
 
   @Override
   public RootStatement createStatement(ControlFlowGraph graph, StructMethod mt) {
-    // TODO: I'm passing in iteration 0 now, but I probably wan to pass this in from the caller
     return parseGraph(graph, mt, 0);
   }
 
