@@ -203,13 +203,11 @@ public final class DomHelper implements GraphParser {
 
     DomTracer tracer = new DomTracer("domhelper_" + iteration, mt);
 
-    if (!processStatement(root, root, new LinkedHashMap<>(), tracer /*, new HashSet<>(graph.getFinallyInfos())*/)) {
+    if (!processStatement(root, root, new LinkedHashMap<>(), tracer)) {
       DotExporter.errorToDotFile(graph, mt, "parseGraphFail");
       DotExporter.errorToDotFile(root, mt, "parseGraphFailStat");
       throw new RuntimeException("parsing failure!");
     }
-
-//    System.out.println(tracer);
 
     MethodProcessor.debugCurrentlyDecompiling.set(root);
 

@@ -557,35 +557,6 @@ public class FinallyProcessor {
     return true;
   }
 
-  /*
-  public static final class FinallyInformation {
-    public final BasicBlock start;
-    public final BasicBlock end;
-    public final Set<BasicBlock> sideExits;
-
-    FinallyInformation(BasicBlock start, BasicBlock end, Set<BasicBlock> sideExits) {
-      this.start = start;
-      this.end = end;
-      this.sideExits = sideExits;
-    }
-
-    public Set<BasicBlock> containedBlocks() {
-      Set<BasicBlock> res = new HashSet<>();
-      ListStack<BasicBlock> stack = new ListStack<>();
-      stack.push(this.start);
-      while (!stack.isEmpty()) {
-        BasicBlock block = stack.pop();
-        if (this.sideExits.contains(block)) {
-          continue;
-        } else if (res.add(block) && block != this.end) {
-          stack.addAll(block.getSuccs());
-        }
-      }
-      return res;
-    }
-  }
-   */
-
   private static final class Area {
     private final BasicBlock start;
     private final Set<BasicBlock> sample;

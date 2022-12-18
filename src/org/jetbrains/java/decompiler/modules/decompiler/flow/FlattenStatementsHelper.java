@@ -132,10 +132,10 @@ public class FlattenStatementsHelper implements GraphFlattener {
           // Look if this basic block is the successor of a sequence,
           // and connect the sequence to the block if so
           // TODO: should this be done in the sequence handling instead?
-          // TODO: what is this for?
-          // TODO: why is it adding ad edge from the start of the sequence to the block?
-          // TODO: why is it using the basic head id, instead of the sequence id?
-          // TODO: disabling this seems to not cause any validation errors, or changes in output,
+          //   what is this for?
+          //   why is it adding ad edge from the start of the sequence to the block?
+          //   why is it using the basic head id, instead of the sequence id?
+          //   disabling this seems to not cause any validation errors, or changes in output,
           //       even though it is being called
 
           if (predEdge.getType() == StatEdge.TYPE_REGULAR) {
@@ -494,11 +494,11 @@ public class FlattenStatementsHelper implements GraphFlattener {
       // Look if this basic block is the successor of a sequence,
       // and connect the sequence to the block if so
       // TODO: should this be done in the sequence handling instead?
-      // TODO: what is this for?
-      // TODO: why is it adding ad edge from the start of the sequence to the block?
-      // TODO: why is it using the basic head id, instead of the sequence id?
-      // TODO: currently never called
-      // TODO: this is the same as the basic block handling?
+      //   what is this for?
+      //   why is it adding ad edge from the start of the sequence to the block?
+      //   why is it using the basic head id, instead of the sequence id?
+      //   currently never called
+      //   this is the same as the basic block handling?
 
       if (predEdge.getType() == StatEdge.TYPE_REGULAR) {
         if (predEdge.getSource() instanceof SequenceStatement) {
@@ -567,7 +567,7 @@ public class FlattenStatementsHelper implements GraphFlattener {
         } else {
           // Should only happen if there are unprocessed finallies, should look into a check for that
           // TODO: finally edges only exist in the graph if there is a finally block, so this should never happen??
-          // TODO: think about why these do happen?
+          //   think about why these do happen?
           continue;
         }
       }

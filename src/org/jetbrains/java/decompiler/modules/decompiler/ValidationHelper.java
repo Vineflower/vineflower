@@ -197,9 +197,11 @@ public final class ValidationHelper {
     }
 
     switch (stat.type) {
-      case IF: validateIfStatement((IfStatement) stat);
+      case IF:
+        validateIfStatement((IfStatement) stat);
         break;
-      case TRY_CATCH: validateTrycatchStatement((CatchStatement) stat);
+      case TRY_CATCH:
+        validateTrycatchStatement((CatchStatement) stat);
         break;
     }
   }
