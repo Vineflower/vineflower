@@ -1,9 +1,8 @@
 package pkg
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import kotlin.annotation.Repeatable;
-import kotlin.jvm.internal.RepeatableContainer;
+import java.lang.annotation.Retention
+import java.lang.annotation.RetentionPolicy
+import kotlin.jvm.internal.RepeatableContainer
 
 class TestAnnotations {
    @TestAnnotations.TestAnnotation(
@@ -40,14 +39,14 @@ class TestAnnotations {
 
 class 'pkg/TestAnnotations' {
    method 'test ()V' {
-      0      13
+      0      12
    }
 
    method 'test2 ()V' {
-      0      17
+      0      16
    }
 }
 
 Lines mapping:
-16 <-> 14
-21 <-> 18
+16 <-> 13
+21 <-> 17

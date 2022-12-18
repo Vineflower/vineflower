@@ -1,14 +1,13 @@
 package pkg
 
-import java.util.List;
-import kotlin.jvm.internal.Intrinsics;
-import kotlin.text.Regex;
+import java.util.List
+import kotlin.jvm.internal.Intrinsics
 
 class TestDataClass {
-   private final Regex dataClassVal;
-   private final int variableWithVeryLongName;
-   private final List<String> requestLineWrapsIfTheParamListIsTooLong;
-   private final String nullability;
+   private Regex dataClassVal;
+   private int variableWithVeryLongName;
+   private List<String> requestLineWrapsIfTheParamListIsTooLong;
+   private String nullability;
 
    fun TestDataClass(dataClassVal: Regex, variableWithVeryLongName: Int, requestLineWrapsIfTheParamListIsTooLong: List<String>, nullability: String?) {
       this.dataClassVal = dataClassVal;
@@ -53,8 +52,9 @@ class TestDataClass {
       return new TestDataClass(dataClassVal, variableWithVeryLongName, requestLineWrapsIfTheParamListIsTooLong, nullability);
    }
 
-   // $QF: synthetic method
-   fun copy$default(var0: TestDataClass, var1: Regex, var2: Int, var3: List, var4: String, var5: Int, var6: Object): TestDataClass  {
+   @JvmStatic
+   @JvmSynthetic
+   fun `copy$default`(var0: TestDataClass, var1: Regex, var2: Int, var3: List, var4: String, var5: Int, var6: Object): TestDataClass  {
       if ((var5 & 1) != 0) {
          var1 = var0.dataClassVal;
       }
@@ -117,101 +117,101 @@ class TestDataClass {
 
 class 'pkg/TestDataClass' {
    method '<init> (Lkotlin/text/Regex;ILjava/util/List;Ljava/lang/String;)V' {
-      10      13
-      11      13
-      12      13
-      13      13
-      14      13
-      15      14
-      16      14
-      17      14
-      18      14
-      19      14
-      1a      15
-      1b      15
-      1c      15
-      1d      15
-      1e      15
-      1f      16
-      20      16
-      21      16
-      22      16
-      23      16
-      24      16
-      25      17
+      10      12
+      11      12
+      12      12
+      13      12
+      14      12
+      15      13
+      16      13
+      17      13
+      18      13
+      19      13
+      1a      14
+      1b      14
+      1c      14
+      1d      14
+      1e      14
+      1f      15
+      20      15
+      21      15
+      22      15
+      23      15
+      24      15
+      25      16
    }
 
    method 'getDataClassVal ()Lkotlin/text/Regex;' {
-      0      20
-      1      20
-      2      20
-      3      20
-      4      20
+      0      19
+      1      19
+      2      19
+      3      19
+      4      19
    }
 
    method 'getVariableWithVeryLongName ()I' {
-      0      24
-      1      24
-      2      24
-      3      24
-      4      24
+      0      23
+      1      23
+      2      23
+      3      23
+      4      23
    }
 
    method 'getRequestLineWrapsIfTheParamListIsTooLong ()Ljava/util/List;' {
-      0      28
-      1      28
-      2      28
-      3      28
-      4      28
+      0      27
+      1      27
+      2      27
+      3      27
+      4      27
    }
 
    method 'getNullability ()Ljava/lang/String;' {
-      0      32
-      1      32
-      2      32
-      3      32
-      4      32
+      0      31
+      1      31
+      2      31
+      3      31
+      4      31
    }
 
    method 'component1 ()Lkotlin/text/Regex;' {
-      0      36
-      1      36
-      2      36
-      3      36
-      4      36
+      0      35
+      1      35
+      2      35
+      3      35
+      4      35
    }
 
    method 'component2 ()I' {
-      0      40
-      1      40
-      2      40
-      3      40
-      4      40
+      0      39
+      1      39
+      2      39
+      3      39
+      4      39
    }
 
    method 'component3 ()Ljava/util/List;' {
-      0      44
-      1      44
-      2      44
-      3      44
-      4      44
+      0      43
+      1      43
+      2      43
+      3      43
+      4      43
    }
 
    method 'component4 ()Ljava/lang/String;' {
-      0      48
-      1      48
-      2      48
-      3      48
-      4      48
+      0      47
+      1      47
+      2      47
+      3      47
+      4      47
    }
 
    method 'copy (Lkotlin/text/Regex;ILjava/util/List;Ljava/lang/String;)Lpkg/TestDataClass;' {
-      10      52
-      11      52
-      12      52
-      13      52
-      14      52
-      18      52
+      10      51
+      11      51
+      12      51
+      13      51
+      14      51
+      18      51
    }
 
    method 'copy$default (Lpkg/TestDataClass;Lkotlin/text/Regex;ILjava/util/List;Ljava/lang/String;ILjava/lang/Object;)Lpkg/TestDataClass;' {
@@ -418,8 +418,8 @@ class 'pkg/TestDataClass' {
 }
 
 Lines mapping:
-3 <-> 18
-4 <-> 21
-5 <-> 25
-6 <-> 29
-7 <-> 33
+3 <-> 17
+4 <-> 20
+5 <-> 24
+6 <-> 28
+7 <-> 32

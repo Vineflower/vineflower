@@ -1,18 +1,18 @@
 package pkg
 
-import kotlin.jvm.internal.DefaultConstructorMarker;
+import kotlin.jvm.internal.DefaultConstructorMarker
 
 open abstract class TestSealedHierarchy {
    fun TestSealedHierarchy() {
    }// 3
 
-   // $QF: synthetic method
-   fun TestSealedHierarchy($constructor_marker: DefaultConstructorMarker) {
+   @JvmSynthetic
+   open fun TestSealedHierarchy(`$constructor_marker`: DefaultConstructorMarker) {
       this();
    }
 
-   static class TestClass extends TestSealedHierarchy {
-      private final int x;
+   class TestClass extends TestSealedHierarchy {
+      private int x;
 
       fun TestClass(x: Int) {
          super(null);
@@ -24,8 +24,9 @@ open abstract class TestSealedHierarchy {
       }
    }
 
-   static class TestObject extends TestSealedHierarchy {
-      public static final TestSealedHierarchy.TestObject INSTANCE = new TestSealedHierarchy.TestObject();
+   class TestObject extends TestSealedHierarchy {
+      @JvmStatic
+      public TestSealedHierarchy.TestObject INSTANCE = new TestSealedHierarchy.TestObject();
 
       fun TestObject() {
          super(null);// 4
@@ -71,15 +72,15 @@ class 'pkg/TestSealedHierarchy$TestClass' {
 
 class 'pkg/TestSealedHierarchy$TestObject' {
    method '<init> ()V' {
-      1      30
-      2      30
-      3      30
-      4      30
-      5      31
+      1      31
+      2      31
+      3      31
+      4      31
+      5      32
    }
 }
 
 Lines mapping:
 3 <-> 7
-4 <-> 31
+4 <-> 32
 5 <-> 23

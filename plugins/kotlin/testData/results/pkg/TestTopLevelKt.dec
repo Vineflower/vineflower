@@ -1,23 +1,28 @@
 package pkg
 
-import kotlin.text.Regex;
-
 class TestTopLevelKt {
-   private static int topLevelVar = 42;
-   private static final Regex topLevelVal = new Regex("");
-   public static final int topLevelConstVal = 926;
+   @JvmStatic
+   private int topLevelVar = 42;
+   @JvmStatic
+   private Regex topLevelVal = new Regex("");
+   @JvmStatic
+   public int topLevelConstVal = 926;
 
+   @JvmStatic
    fun topLevelFun() {
    }// 5
 
+   @JvmStatic
    fun getTopLevelVar(): Int  {
       return topLevelVar;
    }
 
+   @JvmStatic
    fun setTopLevelVar(var0: Int) {
       topLevelVar = var0;// 7
    }
 
+   @JvmStatic
    fun getTopLevelVal(): Regex  {
       return topLevelVal;// 9
    }
@@ -25,35 +30,35 @@ class TestTopLevelKt {
 
 class 'pkg/TestTopLevelKt' {
    method 'topLevelFun ()V' {
-      2      10
+      2      12
    }
 
    method 'getTopLevelVar ()I' {
-      0      13
-      1      13
-      2      13
-      3      13
+      0      16
+      1      16
+      2      16
+      3      16
    }
 
    method 'setTopLevelVar (I)V' {
-      0      17
-      1      17
-      2      17
-      3      17
-      4      18
-   }
-
-   method 'getTopLevelVal ()Lkotlin/text/Regex;' {
       0      21
       1      21
       2      21
       3      21
+      4      22
+   }
+
+   method 'getTopLevelVal ()Lkotlin/text/Regex;' {
+      0      26
+      1      26
+      2      26
+      3      26
    }
 }
 
 Lines mapping:
-5 <-> 11
-7 <-> 18
-9 <-> 22
+5 <-> 13
+7 <-> 22
+9 <-> 27
 Not mapped:
 4

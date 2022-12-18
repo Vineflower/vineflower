@@ -372,6 +372,7 @@ public class KotlinWriter implements StatementWriter {
     }
 
     appendAnnotations(buffer, indent, cl, -1);
+    appendJvmAnnotations(buffer, indent, cl, isInterface, cl.getPool(), TypeAnnotation.CLASS_TYPE_PARAMETER);
 
     buffer.appendIndent(indent);
 
@@ -538,6 +539,7 @@ public class KotlinWriter implements StatementWriter {
       appendJavadoc(buffer, javadocProvider.getFieldDoc(cl, fd), indent);
     }
     appendAnnotations(buffer, indent, fd, TypeAnnotation.FIELD);
+    appendJvmAnnotations(buffer, indent, fd, isInterface, cl.getPool(), TypeAnnotation.FIELD);
 
     buffer.appendIndent(indent);
 
@@ -1315,6 +1317,9 @@ public class KotlinWriter implements StatementWriter {
         if (isInterface && !mb.hasModifier(CodeConstants.ACC_ABSTRACT)) {
           buffer.appendIndent(indent).append("@JvmDefault").appendLineSeparator();
         }
+        if (mb.hasModifier(CodeConstants.ACC_SYNCHRONIZED)) {
+          buffer.appendIndent(indent).append("@Synchronized").appendLineSeparator();
+        }
         if (mb.hasAttribute(StructGeneralAttribute.ATTRIBUTE_EXCEPTIONS)) {
           StructExceptionsAttribute attrib = mb.getAttribute(StructGeneralAttribute.ATTRIBUTE_EXCEPTIONS);
           buffer.appendIndent(indent).append("@Throws(");
@@ -1333,9 +1338,7 @@ public class KotlinWriter implements StatementWriter {
         }
         break;
       case TypeAnnotation.FIELD:
-        if (mb.hasModifier(CodeConstants.ACC_STRICT)) {
-          buffer.appendIndent(indent).append("@Strictfp").appendLineSeparator();
-        }
+        // TODO: use site targets
         if (mb.hasModifier(CodeConstants.ACC_TRANSIENT)) {
           buffer.appendIndent(indent).append("@Transient").appendLineSeparator();
         }
@@ -1345,11 +1348,11 @@ public class KotlinWriter implements StatementWriter {
         break;
     }
 
-    if (mb.hasModifier(CodeConstants.ACC_STATIC)) {
+    if (mb.hasModifier(CodeConstants.ACC_STATIC) && targetType != TypeAnnotation.CLASS_TYPE_PARAMETER) {
       buffer.appendIndent(indent).append("@JvmStatic").appendLineSeparator();
     }
-    if (mb.hasModifier(CodeConstants.ACC_SYNCHRONIZED)) {
-      buffer.appendIndent(indent).append("@Synchronized").appendLineSeparator();
+    if (mb.hasModifier(CodeConstants.ACC_STRICT)) {
+      buffer.appendIndent(indent).append("@Strictfp").appendLineSeparator();
     }
     if (mb.hasModifier(CodeConstants.ACC_SYNTHETIC)) {
       buffer.appendIndent(indent).append("@JvmSynthetic").appendLineSeparator();
