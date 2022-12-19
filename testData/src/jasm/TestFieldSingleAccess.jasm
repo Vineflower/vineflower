@@ -28,6 +28,7 @@ public final Method test:"()V"
 		getstatic	Field java/lang/System.out:"Ljava/io/PrintStream;";
 		swap;
 		invokevirtual	Method java/io/PrintStream.println:"(Ljava/lang/Object;)V";
+		return;
 	L17:	stack_frame_type same;
 		return;
 }
