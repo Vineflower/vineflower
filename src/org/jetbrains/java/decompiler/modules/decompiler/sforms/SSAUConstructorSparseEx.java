@@ -12,7 +12,7 @@ public class SSAUConstructorSparseEx extends SFormsConstructor {
       true,
       true,
       true,
-		    true
+      true
     );
   }
 }
