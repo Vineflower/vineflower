@@ -44,4 +44,15 @@ public class VarVersionEdge { // FIXME: can be removed?
   public String toString() {
     return source.toString() + " ->" + type + "-> " + dest.toString();
   }
+
+  public static VarVersionEdge create(VarVersionNode source, VarVersionNode dest) {
+    return create(EDGE_GENERAL, source, dest);
+  }
+
+  public static VarVersionEdge create(int type, VarVersionNode source, VarVersionNode dest) {
+    VarVersionEdge edge = new VarVersionEdge(type, source, dest);
+    source.addSuccessor(edge);
+    dest.addPredecessor(edge);
+    return edge;
+  }
 }
