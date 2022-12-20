@@ -29,17 +29,31 @@ public class KFunctionExprent extends FunctionExprent {
   
     switch(getFuncType()){
       case TERNARY:
+        Exprent condition = lstOperands.get(0);
+        Exprent ifTrue = lstOperands.get(1);
+        Exprent ifFalse = lstOperands.get(2);
+
+        if (
+          condition instanceof KFunctionExprent && ((KFunctionExprent) condition).getFuncType() == FunctionType.INSTANCEOF
+          && ifTrue instanceof KFunctionExprent && ((KFunctionExprent) ifTrue).getFuncType() == FunctionType.CAST
+          && ifFalse.getExprType() == VarType.VARTYPE_NULL
+        ) {
+          // Safe cast
+          TextBuffer cast = ifTrue.toJava(indent);
+          buf.append(cast.convertToStringAndAllowDataDiscard().replace(" as ", " as? "));
+          return buf;
+        }
       
         buf.pushNewlineGroup(indent, 1);
         buf.append("if (");
-        buf.append(wrapOperandString(lstOperands.get(0), true, indent))
+        buf.append(wrapOperandString(condition, true, indent))
           .append(")")
           .appendPossibleNewline(" ")
-          .append(wrapOperandString(lstOperands.get(1), true, indent))
+          .append(wrapOperandString(ifTrue, true, indent))
           .appendPossibleNewline(" ")
           .append("else")
           .appendPossibleNewline(" ")
-          .append(wrapOperandString(lstOperands.get(2), true, indent));
+          .append(wrapOperandString(ifFalse, true, indent));
         buf.popNewlineGroup();
       
         return buf;
