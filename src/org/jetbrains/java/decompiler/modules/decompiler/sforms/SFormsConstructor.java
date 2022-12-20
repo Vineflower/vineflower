@@ -32,7 +32,6 @@ public abstract class SFormsConstructor implements SFormsCreator {
   private final boolean trackSsuVersions;
   private final boolean doLiveVariableAnalysisRound;
   private final boolean trackDirectAssignments;
-  private final boolean blockFieldPropagation;
   @Deprecated
   private final boolean ssau;
 
@@ -99,7 +98,6 @@ public abstract class SFormsConstructor implements SFormsCreator {
     boolean trackSsuVersions,
     boolean doLiveVariableAnalysisRound,
     boolean trackDirectAssignments,
-    boolean blockFieldPropagation,
     boolean ssau) {
     this.incrementOnUsage = incrementOnUsage;
     this.simplePhi = simplePhi;
@@ -109,7 +107,6 @@ public abstract class SFormsConstructor implements SFormsCreator {
     this.trackSsuVersions = trackSsuVersions;
     this.doLiveVariableAnalysisRound = doLiveVariableAnalysisRound;
     this.trackDirectAssignments = trackDirectAssignments;
-    this.blockFieldPropagation = blockFieldPropagation;
     this.ssau = ssau;
 
 
@@ -203,20 +200,6 @@ public abstract class SFormsConstructor implements SFormsCreator {
         for (Exprent expr : node.exprents) {
           varmaps.toNormal(); // make sure we are in normal form
           this.processExprent(expr, varmaps, node.statement, calcLiveVars);
-        }
-      }
-
-      if (this.blockFieldPropagation) {
-        // quick solution: 'dummy' field variables should not cross basic block borders (otherwise problems e.g. with finally loops - usage without assignment in a loop)
-        // For the full solution consider adding a dummy assignment at the entry point of the method
-        if (node.hasSuccessors(DirectEdgeType.REGULAR)) {
-          List<DirectEdge> successors = node.getSuccessors(DirectEdgeType.REGULAR);
-          if (successors.size() != 1) {
-            varmaps.removeAllFields();
-          } else if (successors.get(0).getDestination().hasPredecessors(DirectEdgeType.REGULAR) &&
-                     successors.get(0).getDestination().getPredecessors(DirectEdgeType.REGULAR).size() != 1) {
-            varmaps.removeAllFields();
-          }
         }
       }
 
