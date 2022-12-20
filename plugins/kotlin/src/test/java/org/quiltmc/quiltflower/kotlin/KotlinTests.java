@@ -48,6 +48,7 @@ public class KotlinTests extends SingleClassesTestBase {
     register(KOTLIN, "TestAnyType");
     // TODO: gets condensed into ternaries
     register(KOTLIN, "TestWhen");
+    register(KOTLIN, "TestWhenBoolean");
     register(KOTLIN, "TestForRange");
     register(KOTLIN, "TestIfRange");
     register(KOTLIN, "TestComparison");

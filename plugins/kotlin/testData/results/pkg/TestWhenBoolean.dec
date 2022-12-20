@@ -1,0 +1,148 @@
+package pkg
+
+class TestWhenBoolean {
+   fun testIf(a: Int, b: Int, c: Int, d: Int) {
+      if (if (a == 1)// 6
+         true
+         else
+         (
+            if (b == 2)// 7
+               true
+               else
+               (
+                  if (c == 3)// 8
+                     false
+                     else
+                     (
+                        if (a > b)// 9
+                           true
+                           else
+                           (
+                              if ((if (a <= c) c <= b else false))// 10
+                                 false
+                                 else
+                                 (
+                                    if (d == 7)// 11
+                                       b == 100 - a
+                                       else
+                                       (
+                                          if (a == -100)// 12
+                                             (
+                                                if (b == 0)// 13
+                                                   true
+                                                   else
+                                                   (if (c == 55) false else (if (d == 66) (if (25 <= c) c < 34 else false) else c < d && a < b))// 14 15 16
+                                             )
+                                             else
+                                             true// 18
+                                       )
+                                 )
+                           )
+                     )
+               )
+         )) {
+         System.out.println("hello");// 21
+      }
+   }// 23
+}
+
+class 'pkg/TestWhenBoolean' {
+   method 'testIf (IIII)V' {
+      1      4
+      2      4
+      3      4
+      6      5
+      a      8
+      b      8
+      c      8
+      f      9
+      13      12
+      14      12
+      15      12
+      18      13
+      1c      16
+      1d      16
+      1e      16
+      21      17
+      25      20
+      26      20
+      27      20
+      2a      20
+      2b      20
+      2c      20
+      37      20
+      38      20
+      3b      21
+      3f      24
+      40      24
+      41      24
+      42      24
+      43      24
+      46      25
+      47      25
+      48      25
+      49      25
+      4a      25
+      4b      25
+      56      28
+      57      28
+      58      28
+      59      28
+      5c      30
+      5d      30
+      60      31
+      64      33
+      65      33
+      66      33
+      67      33
+      6a      33
+      6e      33
+      6f      33
+      70      33
+      71      33
+      72      33
+      75      33
+      76      33
+      77      33
+      78      33
+      7b      33
+      7c      33
+      7d      33
+      7e      33
+      89      33
+      8d      33
+      8e      33
+      8f      33
+      90      33
+      93      33
+      94      33
+      95      33
+      a0      36
+      a1      4
+      a4      43
+      a5      43
+      a6      43
+      a7      43
+      a8      43
+      aa      43
+      ad      45
+   }
+}
+
+Lines mapping:
+6 <-> 5
+7 <-> 9
+8 <-> 13
+9 <-> 17
+10 <-> 21
+11 <-> 25
+12 <-> 29
+13 <-> 31
+14 <-> 34
+15 <-> 34
+16 <-> 34
+18 <-> 37
+21 <-> 44
+23 <-> 46
+Not mapped:
+5
