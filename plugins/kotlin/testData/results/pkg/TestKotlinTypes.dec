@@ -1,10 +1,9 @@
 package pkg
 
-import kotlin.Unit;
-import kotlin.jvm.functions.Function1;
+import kotlin.jvm.functions.Function1
 
 class TestKotlinTypes {
-   private final Function1<Integer, Unit> consumer = <unknownclass>.INSTANCE;
+   private Function1<Integer, Unit> consumer = <unknownclass>.INSTANCE;
 
    fun throwAlways(): Void  {
       throw new Exception();// 5
@@ -17,18 +16,18 @@ class TestKotlinTypes {
 
 class 'pkg/TestKotlinTypes' {
    method 'throwAlways ()Ljava/lang/Void;' {
-      7      9
+      7      8
    }
 
    method 'getConsumer ()Lkotlin/jvm/functions/Function1;' {
-      0      13
-      1      13
-      2      13
-      3      13
-      4      13
+      0      12
+      1      12
+      2      12
+      3      12
+      4      12
    }
 }
 
 Lines mapping:
-5 <-> 10
-8 <-> 14
+5 <-> 9
+8 <-> 13

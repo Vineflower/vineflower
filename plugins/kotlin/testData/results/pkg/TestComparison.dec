@@ -1,6 +1,6 @@
 package pkg
 
-import kotlin.jvm.internal.Intrinsics;
+import kotlin.jvm.internal.Intrinsics
 
 class TestComparison {
    fun test2(a: Object, b: Object): Boolean  {

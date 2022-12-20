@@ -1,6 +1,6 @@
 package pkg
 
-import kotlin.jvm.functions.Function1;
+import kotlin.jvm.functions.Function1
 
 class TestLabeledJumps {
    fun testContinue(tester: Function1<? super Integer, Boolean>) {

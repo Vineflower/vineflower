@@ -1,24 +1,24 @@
 package pkg
 
 class TestPoorNames {
-   private final int Property with spaces = 42;
-   private final String Dangerous property name?! = "test";
+   private int Property with spaces = 42;
+   private String Dangerous property name?! = "test";
 
-   fun Function_with_spaces/* $QF was: Function with spaces*/() {
+   fun `Function with spaces`() {
    }// 5
 
-   fun Dangerous_function_name__/* $QF was: Dangerous function name?!*/() {
+   fun `Dangerous function name?!`() {
    }// 8
 
-   fun getProperty_with_spaces/* $QF was: getProperty with spaces*/(): Int  {
+   fun `getProperty with spaces`(): Int  {
       return this.Property with spaces;// 10
    }
 
-   fun getDangerous_property_name__/* $QF was: getDangerous property name?!*/(): String  {
+   fun `getDangerous property name?!`(): String  {
       return this.Dangerous property name?!;// 11
    }
 
-   fun functionWith$Dollar() {
+   fun `functionWith$Dollar`() {
    }// 14
 
    fun functionWithParameters(var1: Int, var2: String) {
@@ -30,7 +30,7 @@ class TestPoorNames {
       this.functionWithParameters(42, "test");// 24
    }// 25
 
-   static class Class with spaces {
+   class `Class with spaces` {
    }
 }
 

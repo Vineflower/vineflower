@@ -3,12 +3,14 @@ package org.quiltmc.quiltflower.kotlin.expr;
 import org.jetbrains.java.decompiler.main.ClassWriter;
 import org.jetbrains.java.decompiler.main.ClassesProcessor;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarTypeProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.TextBuffer;
+import org.quiltmc.quiltflower.kotlin.KotlinWriter;
 import org.quiltmc.quiltflower.kotlin.util.KTypes;
 
 import java.util.BitSet;
@@ -21,6 +23,17 @@ public class KVarExprent extends VarExprent {
   public KVarExprent(VarExprent ex) {
     this(ex.getIndex(), ex.getVarType(), ex.getProcessor(), ex.bytecode);
     this.setDefinition(ex.isDefinition());
+  }
+
+  @Override
+  public String getName() {
+    String name = super.getName();
+
+    if (name.startsWith("this@") || name.equals("this")) {
+      return name;
+    }
+
+    return KotlinWriter.toValidKotlinIdentifier(name);
   }
 
   @Override
@@ -43,5 +56,10 @@ public class KVarExprent extends VarExprent {
     }
 
     return buffer;
+  }
+
+  @Override
+  public Exprent copy() {
+    return new KVarExprent((VarExprent) super.copy());
   }
 }

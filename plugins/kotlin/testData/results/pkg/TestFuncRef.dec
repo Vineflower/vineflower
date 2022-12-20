@@ -1,17 +1,19 @@
 package pkg
 
-import kotlin.jvm.functions.Function1;
-import kotlin.text.StringsKt;
+import kotlin.jvm.functions.Function1
 
 class TestFuncRefKt {
+   @JvmStatic
    fun accept(f: Function1<? super Integer, String>) {
       System.out.println(f.invoke(5));
    }// 3
 
+   @JvmStatic
    fun function(r: Int): String  {
-      return StringsKt.repeat((CharSequence)"OK", r);// 6
+      return StringsKt.repeat("OK" as CharSequence, r);// 6
    }
 
+   @JvmStatic
    fun test() {
       accept(<unknownclass>.INSTANCE);// 10
    }// 11
@@ -39,34 +41,34 @@ class 'pkg/TestFuncRefKt' {
    }
 
    method 'function (I)Ljava/lang/String;' {
-      0      11
-      1      11
-      2      11
-      3      11
-      4      11
-      5      11
-      6      11
-      7      11
-      8      11
-      9      11
+      0      12
+      1      12
+      2      12
+      3      12
+      4      12
+      5      12
+      6      12
+      7      12
+      8      12
+      9      12
    }
 
    method 'test ()V' {
-      0      15
-      1      15
-      2      15
-      3      15
-      4      15
-      5      15
-      6      15
-      7      15
-      8      15
-      9      16
+      0      17
+      1      17
+      2      17
+      3      17
+      4      17
+      5      17
+      6      17
+      7      17
+      8      17
+      9      18
    }
 }
 
 Lines mapping:
 3 <-> 9
-6 <-> 12
-10 <-> 16
-11 <-> 17
+6 <-> 13
+10 <-> 18
+11 <-> 19

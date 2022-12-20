@@ -1,6 +1,6 @@
 package pkg
 
-import java.util.List;
+import java.util.List
 
 class TestNullable {
    fun nullableParams(v: String, vn: String?) {

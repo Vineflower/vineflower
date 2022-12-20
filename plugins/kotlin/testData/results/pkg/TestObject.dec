@@ -1,13 +1,14 @@
 package pkg
 
-import kotlin.jvm.JvmStatic;
-import kotlin.text.Regex;
-
 class TestObject {
-   public static final TestObject INSTANCE = new TestObject();
-   private static int objectVar = 42;
-   private static final Regex objectVal = new Regex("");
-   public static final int objectConstVal = 926;
+   @JvmStatic
+   public TestObject INSTANCE = new TestObject();
+   @JvmStatic
+   private int objectVar = 42;
+   @JvmStatic
+   private Regex objectVal = new Regex("");
+   @JvmStatic
+   public int objectConstVal = 926;
 
    fun TestObject() {
    }// 3
@@ -21,44 +22,46 @@ class TestObject {
    }
 
    @JvmStatic
+   @JvmStatic
    fun objectJvmStaticFun() {
-      // $QF: Couldn't be decompiled
-      // Bytecode:
-      // 0: getstatic pkg/TestObject.INSTANCE Lpkg/TestObject;
-      // 3: pop
-      // 4: getstatic pkg/TestObject.objectVar I
-      // 7: istore 0
-      // 8: iload 0
-      // 9: bipush 1
-      // a: iadd
-      // b: putstatic pkg/TestObject.objectVar I
-      // e: return
-   }
+      var var0: Int = objectVar++;// 16
+   }// 17
 }
 
 class 'pkg/TestObject' {
    method '<init> ()V' {
-      4      12
+      4      13
    }
 
    method 'objectFun ()V' {
-      5      15
-      7      15
-      8      15
-      9      15
-      a      16
+      5      16
+      7      16
+      8      16
+      9      16
+      a      17
    }
 
    method 'getObjectVal ()Lkotlin/text/Regex;' {
-      0      19
-      1      19
-      2      19
-      3      19
+      0      20
+      1      20
+      2      20
+      3      20
+   }
+
+   method 'objectJvmStaticFun ()V' {
+      4      26
+      5      26
+      6      26
+      7      26
+      a      26
+      e      27
    }
 }
 
 Lines mapping:
-3 <-> 13
-5 <-> 16
-6 <-> 17
-10 <-> 20
+3 <-> 14
+5 <-> 17
+6 <-> 18
+10 <-> 21
+16 <-> 27
+17 <-> 28
