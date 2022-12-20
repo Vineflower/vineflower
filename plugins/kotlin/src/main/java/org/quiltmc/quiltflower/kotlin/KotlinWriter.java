@@ -756,6 +756,7 @@ public class KotlinWriter implements StatementWriter {
           buffer.append(' ');
         }
 
+        // TODO: More robust checks for extension functions
         String varprocName = methodWrapper.varproc.getVarName(new VarVersionPair(index, 0));
         boolean extension = varprocName != null && varprocName.startsWith("$this$");
 

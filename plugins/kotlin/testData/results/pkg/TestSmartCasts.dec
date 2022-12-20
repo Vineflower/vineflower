@@ -160,6 +160,7 @@ class 'pkg/TestSmartCasts' {
       1f      12
       20      12
       21      12
+      25      14
       29      14
       2c      26
       2d      26
@@ -233,7 +234,9 @@ class 'pkg/TestSmartCasts' {
    }
 
    method 'testIf (Ljava/lang/Object;)Ljava/lang/String;' {
+      0      38
       4      38
+      7      38
       b      38
       e      38
       f      38

@@ -39,8 +39,10 @@ public class KFunctionExprent extends FunctionExprent {
           && ifFalse.getExprType() == VarType.VARTYPE_NULL
         ) {
           // Safe cast
-          TextBuffer cast = ifTrue.toJava(indent);
-          buf.append(cast.convertToStringAndAllowDataDiscard().replace(" as ", " as? "));
+          KFunctionExprent cast = (KFunctionExprent) ifTrue;
+          buf.append(cast.getLstOperands().get(0).toJava(indent));
+          buf.append(" as? ");
+          buf.append(cast.getLstOperands().get(1).toJava(indent));
           return buf;
         }
       
@@ -63,6 +65,19 @@ public class KFunctionExprent extends FunctionExprent {
           .append(wrapOperandString(lstOperands.get(1), true, indent));
         
         return buf;
+      case BOOL_NOT:
+        // Special cases for `is` and `!is`
+        // TODO: do the same for `in` and `!in`
+        if (lstOperands.get(0) instanceof KFunctionExprent) {
+          KFunctionExprent func = (KFunctionExprent) lstOperands.get(0);
+          if (func.getFuncType() == FunctionExprent.FunctionType.INSTANCEOF) {
+            buf.append(wrapOperandString(func.getLstOperands().get(0), true, indent))
+              .append(" !is ")
+              .append(wrapOperandString(func.getLstOperands().get(1), true, indent));
+            return buf;
+          }
+        }
+        break;
       case CAST:
         if (!doesCast()) {
           return buf.append(lstOperands.get(0).toJava(indent));
@@ -96,17 +111,6 @@ public class KFunctionExprent extends FunctionExprent {
         buf.append(wrapOperandString(lstOperands.get(0), true, indent)).append(" ushr ")
           .append(wrapOperandString(lstOperands.get(1), true, indent));
         return buf;
-      case BOOL_NOT:
-        // Special cases for `is` and `!is`
-        // TODO: do the same for `in` and `!in`
-        if (lstOperands.get(0) instanceof KFunctionExprent) {
-          KFunctionExprent func = (KFunctionExprent) lstOperands.get(0);
-          if (func.getFuncType() == FunctionExprent.FunctionType.INSTANCEOF) {
-            TextBuffer buf2 = func.toJava(indent);
-            buf.append(buf2.convertToStringAndAllowDataDiscard().replace(" is ", " !is "));
-            return buf;
-          }
-        }
     }
 
     return buf.append(super.toJava(indent));
