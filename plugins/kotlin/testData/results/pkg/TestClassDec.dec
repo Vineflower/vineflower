@@ -2,7 +2,7 @@ package pkg
 
 class TestClassDec {
    fun TestClassDec.Vec2iVal.dot(v: TestClassDec.Vec2iVal): Int  {
-      return $this$dot.getX() * v.getX() + $this$dot.getY() * v.getY();// 11
+      return `$this$dot`.getX() * v.getX() + `$this$dot`.getY() * v.getY();// 11
    }
 
    fun test() {

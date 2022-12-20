@@ -3,7 +3,7 @@ package pkg
 class TestAnyType {
    fun test(param: Object): Int  {
       if (param is String) {// 5
-         return ((String)param).length();// 6
+         return (param as String).length();// 6
       } else {
          System.out.println(param);// 9
          return 0;// 11

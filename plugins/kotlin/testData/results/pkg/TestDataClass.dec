@@ -102,7 +102,7 @@ class TestDataClass {
          return false;
       } else {
          var var2: TestDataClass = other as TestDataClass;
-         if (!Intrinsics.areEqual(this.dataClassVal, ((TestDataClass)other).dataClassVal)) {
+         if (!Intrinsics.areEqual(this.dataClassVal, (other as TestDataClass).dataClassVal)) {
             return false;
          } else if (this.variableWithVeryLongName != var2.variableWithVeryLongName) {
             return false;

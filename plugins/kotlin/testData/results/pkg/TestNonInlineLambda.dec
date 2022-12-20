@@ -23,7 +23,7 @@ open class TestNonInlineLambda {
       var var2: Iterator = x.iterator();// 21
 
       while(var2.hasNext()) {
-         this.execute(new <undefinedtype>(((Number)var2.next()).intValue()));// 22
+         this.execute(new <undefinedtype>((var2.next() as Number).intValue()));// 22
       }
    }// 26
 

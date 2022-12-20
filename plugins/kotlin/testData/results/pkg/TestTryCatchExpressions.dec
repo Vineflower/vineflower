@@ -7,7 +7,7 @@ class TestTryCatchExpressions {
    fun test0(s: String) {
       var var2: String;
       try {
-         var2 = StringsKt.repeat((CharSequence)s, 5);// 9
+         var2 = StringsKt.repeat(s as CharSequence, 5);// 9
       } catch (RuntimeException var4) {// 10
          var var10000: String = var4.getMessage();// 11
          if (var10000 == null) {
@@ -28,7 +28,7 @@ class TestTryCatchExpressions {
       var var10000: TestTryCatchExpressions;
       try {
          var10000 = var6;
-         var4 = StringsKt.repeat((CharSequence)x, 5);// 20
+         var4 = StringsKt.repeat(x as CharSequence, 5);// 20
       } catch (RuntimeException var9) {// 21
          var10000 = this;
          x = b;// 22
@@ -47,7 +47,7 @@ class TestTryCatchExpressions {
       try {
          var10000 = var6;
          var13 = var7;
-         var4 = StringsKt.repeat((CharSequence)x, 5);// 25
+         var4 = StringsKt.repeat(x as CharSequence, 5);// 25
       } catch (RuntimeException var8) {// 26
          var10000 = var10000;
          var13 = var4;
@@ -93,7 +93,7 @@ class TestTryCatchExpressions {
 
       var var10001: String;
       try {
-         var4 = StringsKt.repeat((CharSequence)var15, 5);
+         var4 = StringsKt.repeat(var15 as CharSequence, 5);
          var15 = var4;
          var10000 = var7;
          var10001 = var8;

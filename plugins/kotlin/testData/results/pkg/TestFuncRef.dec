@@ -10,7 +10,7 @@ class TestFuncRefKt {
 
    @JvmStatic
    fun function(r: Int): String  {
-      return StringsKt.repeat((CharSequence)"OK", r);// 6
+      return StringsKt.repeat("OK" as CharSequence, r);// 6
    }
 
    @JvmStatic

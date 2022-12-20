@@ -2,11 +2,11 @@ package pkg
 
 class TestExtensionFun {
    fun CharSequence.repeat2(n: Int): String  {
-      return StringsKt.repeat($this$repeat2, n);// 5
+      return StringsKt.repeat(`$this$repeat2`, n);// 5
    }
 
    fun test() {
-      System.out.println(this.repeat2((CharSequence)"Bye ", 2));// 9
+      System.out.println(this.repeat2("Bye " as CharSequence, 2));// 9
    }// 10
 }
 

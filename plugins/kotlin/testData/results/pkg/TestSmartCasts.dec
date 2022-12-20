@@ -14,7 +14,7 @@ class TestSmartCasts {
          } else {
             if (o !is TestSmartCasts.A.C) {// 25
                if (o is Pair) {// 26
-                  return "<" + this.testWhen(((Pair)o).getFirst()) + ", " + this.testWhen(((Pair)o).getSecond()) + ">";
+                  return "<" + this.testWhen((o as Pair).getFirst()) + ", " + this.testWhen((o as Pair).getSecond()) + ">";
                }
 
                if (o == null) {// 27
@@ -30,29 +30,29 @@ class TestSmartCasts {
          if (o == null) {// 31
             throw new NullPointerException("null cannot be cast to non-null type pkg.TestSmartCasts.A");
          } else {
-            return ((TestSmartCasts.A)o).test();
+            return (o as TestSmartCasts.A).test();
          }
       }
    }
 
    fun testIf(a: Object?): String  {
-      return if (a !is TestSmartCasts.A.B && a !is TestSmartCasts.A.C) "else: " + a else ((TestSmartCasts.A)a).test();// 35 36 39
+      return if (a !is TestSmartCasts.A.B && a !is TestSmartCasts.A.C) "else: " + a else (a as TestSmartCasts.A).test();// 35 36 39
    }
 
    fun testIf2(a: Object?): String  {
       if (a is TestSmartCasts.A) {// 43
          if (a is TestSmartCasts.A.B || a is TestSmartCasts.A.C) {// 44
-            System.out.println(((TestSmartCasts.A)a).test());// 45
+            System.out.println((a as TestSmartCasts.A).test());// 45
          }
 
          if (a is TestSmartCasts.A.B) {// 48
             if (a is TestSmartCasts.A.C) {// 49
-               System.out.println(((TestSmartCasts.A.B)a).testB());// 50
-               System.out.println(((TestSmartCasts.A.C)a).testC());// 51
+               System.out.println((a as TestSmartCasts.A.B).testB());// 50
+               System.out.println((a as TestSmartCasts.A.C).testC());// 51
             }
 
-            if (a is TestSmartCasts.A.C && Intrinsics.areEqual(((TestSmartCasts.A.C)a).testC(), "C") || a is TestSmartCasts.A.B) {// 54
-               System.out.println(((TestSmartCasts.A.B)a).testB());// 55
+            if (a is TestSmartCasts.A.C && Intrinsics.areEqual((a as TestSmartCasts.A.C).testC(), "C") || a is TestSmartCasts.A.B) {// 54
+               System.out.println((a as TestSmartCasts.A.B).testB());// 55
             }
          }
       }
@@ -68,20 +68,20 @@ class TestSmartCasts {
          System.out.println("hello");// 66
          System.out.println(a);// 67
          (a as String).charAt(0);// 68
-         System.out.println(((String)a).charAt(0));// 69
+         System.out.println((a as String).charAt(0));// 69
       }
    }// 70
 
    fun testSealedIf(a: TestSmartCasts.A): String  {
       if (a is TestSmartCasts.A.B) {// 73
-         return ((TestSmartCasts.A.B)a).testB();// 74
+         return (a as TestSmartCasts.A.B).testB();// 74
       } else {
-         return if (a is TestSmartCasts.A.C) ((TestSmartCasts.A.C)a).testC() else a.test();// 75 76 78
+         return if (a is TestSmartCasts.A.C) (a as TestSmartCasts.A.C).testC() else a.test();// 75 76 78
       }
    }
 
    fun testDoubleType(t: List<String>): String  {
-      return if (t is TestSmartCasts.X) ((TestSmartCasts.X)t).woo((Iterable<?>)t) else t.get(0) as String;// 83 84 87
+      return if (t is TestSmartCasts.X) (t as TestSmartCasts.X).woo(t as Iterable<?>) else t.get(0) as String;// 83 84 87
    }
 
    open abstract class A {
@@ -132,122 +132,122 @@ class TestSmartCasts {
 
 class 'pkg/TestSmartCasts' {
    method 'testWhen (Ljava/lang/Object;)Ljava/lang/String;' {
-      0      9
-      2      9
-      3      9
-      4      9
-      5      9
-      6      9
-      9      10
-      a      10
-      b      10
-      c      10
-      d      10
-      e      12
-      f      12
-      10      12
-      11      12
-      12      12
-      15      13
-      16      13
-      17      13
-      18      13
-      19      13
-      1a      13
-      1b      13
-      1c      13
-      1d      13
-      1f      13
-      20      13
-      21      13
-      29      15
-      2c      27
-      2d      27
-      2e      27
-      2f      27
-      30      27
-      31      27
-      32      27
-      33      27
-      34      27
-      36      27
-      37      27
-      38      27
-      3c      16
-      3d      16
-      3e      16
-      3f      16
-      40      16
-      43      17
-      44      17
-      45      17
-      46      17
-      47      17
-      48      17
-      49      17
-      4a      17
-      4b      17
-      4c      17
-      4d      17
-      4e      17
-      4f      17
-      50      17
-      51      17
-      52      17
-      53      17
-      54      17
-      55      17
-      56      17
-      57      17
-      58      17
-      59      17
-      5a      17
-      5b      17
-      5c      17
-      5d      17
-      5e      17
-      5f      20
-      60      20
-      63      21
-      64      21
-      65      21
-      66      24
-      67      24
-      68      24
-      69      24
-      6a      24
-      6b      24
-      6c      24
-      6d      30
-      6f      30
-      77      31
-      78      31
-      7c      31
-      7d      33
-      7e      33
-      7f      33
-      80      33
-      81      33
-      82      33
-      83      33
+      0      8
+      2      8
+      3      8
+      4      8
+      5      8
+      6      8
+      9      9
+      a      9
+      b      9
+      c      9
+      d      9
+      e      11
+      f      11
+      10      11
+      11      11
+      12      11
+      15      12
+      16      12
+      17      12
+      18      12
+      19      12
+      1a      12
+      1b      12
+      1c      12
+      1d      12
+      1f      12
+      20      12
+      21      12
+      29      14
+      2c      26
+      2d      26
+      2e      26
+      2f      26
+      30      26
+      31      26
+      32      26
+      33      26
+      34      26
+      36      26
+      37      26
+      38      26
+      3c      15
+      3d      15
+      3e      15
+      3f      15
+      40      15
+      43      16
+      44      16
+      45      16
+      46      16
+      47      16
+      48      16
+      49      16
+      4a      16
+      4b      16
+      4c      16
+      4d      16
+      4e      16
+      4f      16
+      50      16
+      51      16
+      52      16
+      53      16
+      54      16
+      55      16
+      56      16
+      57      16
+      58      16
+      59      16
+      5a      16
+      5b      16
+      5c      16
+      5d      16
+      5e      16
+      5f      19
+      60      19
+      63      20
+      64      20
+      65      20
+      66      23
+      67      23
+      68      23
+      69      23
+      6a      23
+      6b      23
+      6c      23
+      6d      29
+      6f      29
+      77      30
+      78      30
+      7c      30
+      7d      32
+      7e      32
+      7f      32
+      80      32
+      81      32
+      82      32
+      83      32
    }
 
    method 'testIf (Ljava/lang/Object;)Ljava/lang/String;' {
-      4      39
-      b      39
-      e      39
-      f      39
-      10      39
-      11      39
-      12      39
-      13      39
-      14      39
-      16      39
-      17      39
-      18      39
-      19      39
-      1a      39
-      1b      39
+      4      38
+      b      38
+      e      38
+      f      38
+      10      38
+      11      38
+      12      38
+      13      38
+      14      38
+      16      38
+      17      38
+      18      38
+      19      38
+      1a      38
+      1b      38
    }
 
    method 'testIf2 (Ljava/lang/Object;)Ljava/lang/String;' {
