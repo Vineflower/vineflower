@@ -125,6 +125,7 @@ The rest of options can be left as they are: they are aimed at professional reve
 - thr: maximum number of threads (default is number of threads available to the JVM)
 - jvn (0): Use jad variable naming for local variables
 - sef (0): Skip copying non-class files from the input folder or file to the output
+- wgs (1): Warn about inconsistent generic signatures
 - win (1): Warn about inconsistent inner class attributes
 - dbe (1): Dump bytecode on errors
 - dee (1): Dump exceptions on errors

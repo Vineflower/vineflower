@@ -230,6 +230,10 @@ public interface IFernflowerPreferences {
   @Description("Skip copying non-class files from the input folder or file to the output")
   String SKIP_EXTRA_FILES = "sef";
 
+  @Name("Warn about inconsistent generic signatures")
+  @Description("Warn about inconsistent generic signatures")
+  String WARN_INCONSISTENT_GENERIC_SIGNATURES = "wgs";
+
   @Name("Warn about inconsistent inner attributes")
   @Description("Warn about inconsistent inner class attributes")
   String WARN_INCONSISTENT_INNER_CLASSES = "win";
@@ -328,6 +332,7 @@ public interface IFernflowerPreferences {
     defaults.put(THREADS, String.valueOf(Runtime.getRuntime().availableProcessors()));
     defaults.put(USE_JAD_VARNAMING, "0");
     defaults.put(SKIP_EXTRA_FILES, "0");
+    defaults.put(WARN_INCONSISTENT_GENERIC_SIGNATURES, "1");
     defaults.put(WARN_INCONSISTENT_INNER_CLASSES, "1");
     defaults.put(DUMP_BYTECODE_ON_ERROR, "1");
     defaults.put(DUMP_EXCEPTION_ON_ERROR, "1");
