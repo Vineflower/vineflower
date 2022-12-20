@@ -390,7 +390,7 @@ public class FlattenStatementsHelper {
 
         if (caseEdges.size() != caseValues.size()) {
           if (caseEdges.size() + 1 != caseValues.size() || caseValues.get(caseValues.size() - 1).size() != 1 || caseValues.get(caseValues.size() - 1).get(0) != null) {
-            throw new RuntimeException("Case edges and case values do not match");
+            throw new IllegalStateException("Case edges and case values do not match");
           }
         }
 

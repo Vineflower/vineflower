@@ -11,6 +11,7 @@ import org.jetbrains.java.decompiler.struct.IDecompiledData;
 import org.jetbrains.java.decompiler.main.plugins.PluginContext;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructContext;
+import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
 import org.jetbrains.java.decompiler.util.ClasspathScanner;
 import org.jetbrains.java.decompiler.util.JADNameProvider;
 import org.jetbrains.java.decompiler.util.JrtFinder;
@@ -207,5 +208,10 @@ public class Fernflower implements IDecompiledData {
         return null;
       }
     }
+  }
+
+  static {
+    // Load all Java code attributes
+    StructGeneralAttribute.init();
   }
 }

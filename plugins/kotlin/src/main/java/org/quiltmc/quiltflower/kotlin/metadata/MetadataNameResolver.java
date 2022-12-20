@@ -2,10 +2,7 @@ package org.quiltmc.quiltflower.kotlin.metadata;
 
 import kotlin.reflect.jvm.internal.impl.metadata.jvm.JvmProtoBuf;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class MetadataNameResolver {
   private final JvmProtoBuf.StringTableTypes types;

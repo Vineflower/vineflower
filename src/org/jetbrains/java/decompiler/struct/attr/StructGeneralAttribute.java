@@ -1,7 +1,9 @@
 // Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.struct.attr;
 
+import org.jetbrains.java.decompiler.api.AttributeRegistry;
 import org.jetbrains.java.decompiler.code.BytecodeVersion;
+import org.jetbrains.java.decompiler.struct.Key;
 import org.jetbrains.java.decompiler.struct.consts.ConstantPool;
 import org.jetbrains.java.decompiler.util.DataInputFullStream;
 
@@ -40,79 +42,43 @@ public class StructGeneralAttribute {
   public static final Key<StructPermittedSubclassesAttribute> ATTRIBUTE_PERMITTED_SUBCLASSES = new Key<>("PermittedSubclasses");
   public static final Key<StructSourceFileAttribute> ATTRIBUTE_SOURCE_FILE = new Key<>("SourceFile");
 
-  @SuppressWarnings("unused")
-  public static class Key<T extends StructGeneralAttribute> {
-    public final String name;
-
-    public Key(String name) {
-      this.name = name;
+  public static StructGeneralAttribute createAttribute(String name) {
+    for (Key<? extends StructGeneralAttribute> key : AttributeRegistry.getRegistry().keySet()) {
+      if (key.name.equals(name)) {
+        return AttributeRegistry.get(key);
+      }
     }
+
+    // Unknown attribute
+    return null;
   }
 
-  public static StructGeneralAttribute createAttribute(String name) {
-    if (ATTRIBUTE_CODE.name.equals(name)) {
-      return new StructCodeAttribute();
-    }
-    else if (ATTRIBUTE_INNER_CLASSES.name.equals(name)) {
-      return new StructInnerClassesAttribute();
-    }
-    else if (ATTRIBUTE_CONSTANT_VALUE.name.equals(name)) {
-      return new StructConstantValueAttribute();
-    }
-    else if (ATTRIBUTE_SIGNATURE.name.equals(name)) {
-      return new StructGenericSignatureAttribute();
-    }
-    else if (ATTRIBUTE_ANNOTATION_DEFAULT.name.equals(name)) {
-      return new StructAnnDefaultAttribute();
-    }
-    else if (ATTRIBUTE_EXCEPTIONS.name.equals(name)) {
-      return new StructExceptionsAttribute();
-    }
-    else if (ATTRIBUTE_ENCLOSING_METHOD.name.equals(name)) {
-      return new StructEnclosingMethodAttribute();
-    }
-    else if (ATTRIBUTE_RUNTIME_VISIBLE_ANNOTATIONS.name.equals(name) || ATTRIBUTE_RUNTIME_INVISIBLE_ANNOTATIONS.name.equals(name)) {
-      return new StructAnnotationAttribute();
-    }
-    else if (ATTRIBUTE_RUNTIME_VISIBLE_PARAMETER_ANNOTATIONS.name.equals(name) || ATTRIBUTE_RUNTIME_INVISIBLE_PARAMETER_ANNOTATIONS.name.equals(name)) {
-      return new StructAnnotationParameterAttribute();
-    }
-    else if (ATTRIBUTE_RUNTIME_VISIBLE_TYPE_ANNOTATIONS.name.equals(name) || ATTRIBUTE_RUNTIME_INVISIBLE_TYPE_ANNOTATIONS.name.equals(name)) {
-      return new StructTypeAnnotationAttribute();
-    }
-    else if (ATTRIBUTE_LOCAL_VARIABLE_TABLE.name.equals(name)) {
-      return new StructLocalVariableTableAttribute();
-    }
-    else if (ATTRIBUTE_LOCAL_VARIABLE_TYPE_TABLE.name.equals(name)) {
-      return new StructLocalVariableTypeTableAttribute();
-    }
-    else if (ATTRIBUTE_BOOTSTRAP_METHODS.name.equals(name)) {
-      return new StructBootstrapMethodsAttribute();
-    }
-    else if (ATTRIBUTE_SYNTHETIC.name.equals(name) || ATTRIBUTE_DEPRECATED.name.equals(name)) {
-      return new StructGeneralAttribute();
-    }
-    else if (ATTRIBUTE_LINE_NUMBER_TABLE.name.equals(name)) {
-      return new StructLineNumberTableAttribute();
-    }
-    else if (ATTRIBUTE_METHOD_PARAMETERS.name.equals(name)) {
-      return new StructMethodParametersAttribute();
-    }
-    else if (ATTRIBUTE_MODULE.name.equals(name)) {
-      return new StructModuleAttribute();
-    }
-    else if (ATTRIBUTE_RECORD.name.equals(name)) {
-      return new StructRecordAttribute();
-    }
-    else if (ATTRIBUTE_PERMITTED_SUBCLASSES.name.equals(name)) {
-      return new StructPermittedSubclassesAttribute();
-    }
-    else if (ATTRIBUTE_SOURCE_FILE.name.equals(name)) {
-      return new StructSourceFileAttribute();
-    }
-    else {
-      return null; // unsupported attribute
-    }
+  // Not placed in static intializer to avoid class loading issues
+  public static void init() {
+    AttributeRegistry.register(ATTRIBUTE_CODE, StructCodeAttribute::new);
+    AttributeRegistry.register(ATTRIBUTE_INNER_CLASSES, StructInnerClassesAttribute::new);
+    AttributeRegistry.register(ATTRIBUTE_CONSTANT_VALUE, StructConstantValueAttribute::new);
+    AttributeRegistry.register(ATTRIBUTE_SIGNATURE, StructGenericSignatureAttribute::new);
+    AttributeRegistry.register(ATTRIBUTE_ANNOTATION_DEFAULT, StructAnnDefaultAttribute::new);
+    AttributeRegistry.register(ATTRIBUTE_EXCEPTIONS, StructExceptionsAttribute::new);
+    AttributeRegistry.register(ATTRIBUTE_ENCLOSING_METHOD, StructEnclosingMethodAttribute::new);
+    AttributeRegistry.register(ATTRIBUTE_RUNTIME_VISIBLE_ANNOTATIONS, StructAnnotationAttribute::new);
+    AttributeRegistry.register(ATTRIBUTE_RUNTIME_INVISIBLE_ANNOTATIONS, StructAnnotationAttribute::new);
+    AttributeRegistry.register(ATTRIBUTE_RUNTIME_VISIBLE_PARAMETER_ANNOTATIONS, StructAnnotationParameterAttribute::new);
+    AttributeRegistry.register(ATTRIBUTE_RUNTIME_INVISIBLE_PARAMETER_ANNOTATIONS, StructAnnotationParameterAttribute::new);
+    AttributeRegistry.register(ATTRIBUTE_RUNTIME_VISIBLE_TYPE_ANNOTATIONS, StructTypeAnnotationAttribute::new);
+    AttributeRegistry.register(ATTRIBUTE_RUNTIME_INVISIBLE_TYPE_ANNOTATIONS, StructTypeAnnotationAttribute::new);
+    AttributeRegistry.register(ATTRIBUTE_LOCAL_VARIABLE_TABLE, StructLocalVariableTableAttribute::new);
+    AttributeRegistry.register(ATTRIBUTE_LOCAL_VARIABLE_TYPE_TABLE, StructLocalVariableTypeTableAttribute::new);
+    AttributeRegistry.register(ATTRIBUTE_BOOTSTRAP_METHODS, StructBootstrapMethodsAttribute::new);
+    AttributeRegistry.register(ATTRIBUTE_SYNTHETIC, StructGeneralAttribute::new);
+    AttributeRegistry.register(ATTRIBUTE_DEPRECATED, StructGeneralAttribute::new);
+    AttributeRegistry.register(ATTRIBUTE_LINE_NUMBER_TABLE, StructLineNumberTableAttribute::new);
+    AttributeRegistry.register(ATTRIBUTE_METHOD_PARAMETERS, StructMethodParametersAttribute::new);
+    AttributeRegistry.register(ATTRIBUTE_MODULE, StructModuleAttribute::new);
+    AttributeRegistry.register(ATTRIBUTE_RECORD, StructRecordAttribute::new);
+    AttributeRegistry.register(ATTRIBUTE_PERMITTED_SUBCLASSES, StructPermittedSubclassesAttribute::new);
+    AttributeRegistry.register(ATTRIBUTE_SOURCE_FILE, StructSourceFileAttribute::new);
   }
 
   public void initContent(DataInputFullStream data, ConstantPool pool, BytecodeVersion version) throws IOException { }
