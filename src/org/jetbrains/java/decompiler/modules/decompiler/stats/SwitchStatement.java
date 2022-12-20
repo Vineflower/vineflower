@@ -479,6 +479,19 @@ public final class SwitchStatement extends Statement {
     caseValues = lstValues;
   }
 
+  @Override
+  public boolean hasBasicSuccEdge() {
+    // FIXME: default switch
+
+    return false;
+  }
+
+  @Override
+  protected void onNodeCollapse() {
+    // special case switch, sorting edges and nodes
+    sortEdgesAndNodes();
+  }
+
   public List<Exprent> getHeadexprentList() {
     return headexprent;
   }

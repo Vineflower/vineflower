@@ -334,6 +334,11 @@ public final class IfStatement extends Statement {
   }
 
   @Override
+  public boolean hasBasicSuccEdge() {
+    return iftype == IFTYPE_IF;
+  }
+
+  @Override
   public Statement getSimpleCopy() {
     IfStatement is = new IfStatement();
     is.iftype = this.iftype;

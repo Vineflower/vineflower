@@ -235,10 +235,11 @@ public abstract class Statement implements IMatchable {
     // monitorenter and monitorexit
     stat.buildMonitorFlags();
 
-    if (stat instanceof SwitchStatement) {
-      // special case switch, sorting leaf nodes
-      ((SwitchStatement)stat).sortEdgesAndNodes();
-    }
+    stat.onNodeCollapse();
+  }
+
+  protected void onNodeCollapse() {
+
   }
 
   public void setAllParent() {
@@ -378,10 +379,6 @@ public abstract class Statement implements IMatchable {
       continueSet.add(edge.getDestination().getBasichead());
     }
 
-    if (this instanceof DoStatement) {
-      continueSet.remove(first.getBasichead());
-    }
-
     return continueSet;
   }
 
@@ -425,20 +422,6 @@ public abstract class Statement implements IMatchable {
   public void markMonitorexitDead() {
     for (Statement st : this.stats) {
       st.markMonitorexitDead();
-    }
-
-    if (this instanceof BasicBlockStatement) {
-      BasicBlockStatement bblock = (BasicBlockStatement)this;
-      InstructionSequence seq = bblock.getBlock().getSeq();
-
-      if (seq != null && !seq.isEmpty()) {
-        for (int i = 0; i < seq.length(); i++) {
-          if (seq.getInstr(i).opcode == CodeConstants.opc_monitorexit) {
-            bblock.setRemovableMonitorexit(true);
-            break;
-          }
-        }
-      }
     }
   }
 
@@ -907,11 +890,7 @@ public abstract class Statement implements IMatchable {
   }
 
   public BasicBlockStatement getBasichead() {
-    if (this instanceof BasicBlockStatement) {
-      return (BasicBlockStatement)this;
-    } else {
-      return first.getBasichead();
-    }
+    return first.getBasichead();
   }
 
   public boolean isLabeled() {
@@ -931,15 +910,7 @@ public abstract class Statement implements IMatchable {
   // TODO: many while(true) loops have breaks in their body. Would that not count?
   //       however allowing those seems to break tests.
   public boolean hasBasicSuccEdge() {
-
-    // FIXME: default switch
-
-    switch (this.type) {
-      case BASIC_BLOCK: return true;
-      case IF: return (((IfStatement) this).iftype == IfStatement.IFTYPE_IF);
-      case DO: return ((DoStatement) this).getLooptype() != DoStatement.Type.INFINITE;
-      default: return false;
-    }
+    return false;
   }
 
 
