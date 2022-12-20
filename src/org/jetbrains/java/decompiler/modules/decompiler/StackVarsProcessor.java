@@ -94,13 +94,11 @@ public class StackVarsProcessor {
       for (Object obj : stat.getSequentialObjects()) {
         if (obj instanceof Statement) {
           setVersionsToNull((Statement)obj);
-        }
-        else if (obj instanceof Exprent) {
+        } else if (obj instanceof Exprent) {
           setExprentVersionsToNull((Exprent)obj);
         }
       }
-    }
-    else {
+    } else {
       for (Exprent exprent : stat.getExprents()) {
         setExprentVersionsToNull(exprent);
       }

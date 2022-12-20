@@ -104,6 +104,11 @@ public abstract class Statement implements IMatchable {
 
   protected HashSet<Statement> continueSet = new HashSet<>();
 
+  // When statements need to be expressed as exprents, they become phantom.
+  // This means (for supported statements) that they do not show up in the decompiled code.
+  // As statements have children, their control flow must be preserved and so the phantom statements are kept in the graph.
+  private boolean phantom;
+
   // *****************************************************************************
   // initializers
   // *****************************************************************************
@@ -982,6 +987,14 @@ public abstract class Statement implements IMatchable {
 
   public void setCopied(boolean copied) {
     this.copied = copied;
+  }
+
+  public boolean isPhantom() {
+    return phantom;
+  }
+
+  public void setPhantom(boolean phantom) {
+    this.phantom = phantom;
   }
 
   // helper methods
