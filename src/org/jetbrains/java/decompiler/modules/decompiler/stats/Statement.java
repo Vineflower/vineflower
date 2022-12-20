@@ -494,26 +494,6 @@ public abstract class Statement implements IMatchable {
     return false;
   }
 
-  public boolean containsStatementById(int statId) {
-    return this.id == statId || containsStatementStrictById(statId);
-  }
-
-  public boolean containsStatementStrictById(int statId) {
-    for (Statement stat : stats) {
-      if (stat.id == statId) {
-        return true;
-      }
-    }
-
-    for (Statement st : stats) {
-      if (st.containsStatementStrictById(statId)) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
   public TextBuffer toJava() {
     return toJava(0);
   }
@@ -813,8 +793,16 @@ public abstract class Statement implements IMatchable {
     return getEdges(STATEDGE_ALL, EdgeDirection.FORWARD);
   }
 
+  public List<StatEdge> getAllDirectSuccessorEdges() {
+    return getEdges(STATEDGE_DIRECT_ALL, EdgeDirection.FORWARD);
+  }
+
   public boolean hasAnySuccessor() {
     return hasSuccessor(STATEDGE_ALL);
+  }
+
+  public boolean hasAnyDirectSuccessor() {
+    return hasSuccessor(STATEDGE_DIRECT_ALL);
   }
 
   public boolean hasSuccessor(int type) {
@@ -849,6 +837,21 @@ public abstract class Statement implements IMatchable {
 //    ValidationHelper.oneSuccessor(this);
 
     List<StatEdge> res = this.mapSuccEdges.get(STATEDGE_ALL);
+    if (res != null) {
+      for (StatEdge e : res) {
+        return e;
+      }
+    }
+
+    throw new IllegalStateException("No successor exists for " + this);
+  }
+
+  public StatEdge getFirstDirectSuccessor() {
+    ValidationHelper.successorsExist(this);
+    // TODO: does this make sense here?
+//    ValidationHelper.oneSuccessor(this);
+
+    List<StatEdge> res = this.mapSuccEdges.get(STATEDGE_DIRECT_ALL);
     if (res != null) {
       for (StatEdge e : res) {
         return e;

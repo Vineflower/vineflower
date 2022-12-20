@@ -2,27 +2,27 @@ package pkg
 
 class TestBitwiseFunctions {
    fun and(a: Int, b: Int): Int  {
-      return a & b;// 5
+      return a and b;// 5
    }
 
    fun or(a: Int, b: Int): Int  {
-      return a | b;// 9
+      return a or b;// 9
    }
 
    fun xor(a: Int, b: Int): Int  {
-      return a ^ b;// 13
+      return a xor b;// 13
    }
 
    fun shl(a: Int, b: Int): Int  {
-      return a << b;// 17
+      return a shl b;// 17
    }
 
    fun shr(a: Int, b: Int): Int  {
-      return a >> b;// 21
+      return a shr b;// 21
    }
 
    fun ushr(a: Int, b: Int): Int  {
-      return a >>> b;// 25
+      return a ushr b;// 25
    }
 }
 

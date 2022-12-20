@@ -2,7 +2,6 @@
 package org.jetbrains.java.decompiler.modules.decompiler.flow;
 
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
-import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper.FinallyPathWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.DummyExitStatement;
 import org.jetbrains.java.decompiler.util.collections.VBStyleCollection;
 
@@ -17,20 +16,11 @@ public class DirectGraph {
 
   public DirectNode first;
 
-  // exit, [source, destination]
-  public final HashMap<String, List<FinallyPathWrapper>> mapShortRangeFinallyPaths = new HashMap<>();
-
-  // exit, [source, destination]
-  public final HashMap<String, List<FinallyPathWrapper>> mapLongRangeFinallyPaths = new HashMap<>();
-
   // negative if branches (recorded for handling of && and ||)
   public final HashMap<String, String> mapNegIfBranch = new HashMap<>();
 
   // nodes, that are exception exits of a finally block with monitor variable
   public final HashMap<String, String> mapFinallyMonitorExceptionPathExits = new HashMap<>();
-
-  // statement.id, node.id(direct), node.id(continue)
-  public final Map<Integer, String[]> mapDestinationNodes = new HashMap<>();
 
 
   public void sortReversePostOrder() {

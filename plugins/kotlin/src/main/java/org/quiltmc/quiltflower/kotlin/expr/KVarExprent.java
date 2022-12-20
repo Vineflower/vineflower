@@ -3,6 +3,7 @@ package org.quiltmc.quiltflower.kotlin.expr;
 import org.jetbrains.java.decompiler.main.ClassWriter;
 import org.jetbrains.java.decompiler.main.ClassesProcessor;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarTypeProcessor;
@@ -55,5 +56,10 @@ public class KVarExprent extends VarExprent {
     }
 
     return buffer;
+  }
+
+  @Override
+  public Exprent copy() {
+    return new KVarExprent((VarExprent) super.copy());
   }
 }

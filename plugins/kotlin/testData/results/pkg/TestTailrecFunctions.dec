@@ -98,7 +98,7 @@ class TestTailrecFunctions {
    @JvmStatic
    @JvmSynthetic
    fun `fastPow$default`(var0: TestTailrecFunctions, var1: Long, var3: Long, var5: Long, var7: Int, var8: Object): Long  {
-      if ((var7 & 4) != 0) {// 43
+      if ((var7 and 4) != 0) {// 43
          var5 = 1L;
       }
 

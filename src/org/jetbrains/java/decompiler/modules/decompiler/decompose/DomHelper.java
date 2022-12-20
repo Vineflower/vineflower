@@ -8,9 +8,7 @@ import org.jetbrains.java.decompiler.code.cfg.ExceptionRangeCFG;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.rels.MethodProcessor;
-import org.jetbrains.java.decompiler.modules.decompiler.LabelHelper;
-import org.jetbrains.java.decompiler.modules.decompiler.SequenceHelper;
-import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
+import org.jetbrains.java.decompiler.modules.decompiler.*;
 import org.jetbrains.java.decompiler.modules.decompiler.deobfuscator.IrreducibleCFGDeobfuscator;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement.EdgeDirection;
@@ -26,7 +24,7 @@ public final class DomHelper implements GraphParser {
 
   @Override
   public RootStatement createStatement(ControlFlowGraph graph, StructMethod mt) {
-    return parseGraph(graph, mt);
+    return parseGraph(graph, mt, 0);
   }
 
   private static RootStatement graphToStatement(ControlFlowGraph graph, StructMethod mt) {
@@ -47,8 +45,7 @@ public final class DomHelper implements GraphParser {
     Statement general;
     if (stats.size() > 1 || firstblock.isSuccessor(firstblock)) { // multiple basic blocks or an infinite loop of one block
       general = new GeneralStatement(firstst, stats, null);
-    }
-    else { // one straightforward basic block
+    } else { // one straightforward basic block
       RootStatement root = new RootStatement(firstst, dummyexit, mt);
       firstst.addSuccessor(new StatEdge(StatEdge.TYPE_BREAK, firstst, dummyexit, root));
 
@@ -65,21 +62,18 @@ public final class DomHelper implements GraphParser {
         if (stsucc == firstst) {
           type = StatEdge.TYPE_CONTINUE;
           stsucc = general;
-        }
-        else if (graph.getFinallyExits().contains(block)) {
+        } else if (graph.getFinallyExits().contains(block)) {
           type = StatEdge.TYPE_FINALLYEXIT;
           stsucc = dummyexit;
-        }
-        else if (succ.id == graph.getLast().id) {
+        } else if (succ.id == graph.getLast().id) {
           type = StatEdge.TYPE_BREAK;
           stsucc = dummyexit;
-        }
-        else {
+        } else {
           type = StatEdge.TYPE_REGULAR;
         }
 
         stat.addSuccessor(new StatEdge(type, stat, stsucc,
-                                       (type == StatEdge.TYPE_REGULAR) ? null : general));
+          (type == StatEdge.TYPE_REGULAR) ? null : general));
       }
 
       // exceptions edges
@@ -201,12 +195,12 @@ public final class DomHelper implements GraphParser {
     return postDominators;
   }
 
-  public static RootStatement parseGraph(ControlFlowGraph graph, StructMethod mt) {
+  public static RootStatement parseGraph(ControlFlowGraph graph, StructMethod mt, int iteration) {
 
     RootStatement root = graphToStatement(graph, mt);
     root.addComments(graph);
 
-    DomTracer tracer = new DomTracer();
+    DomTracer tracer = new DomTracer("domhelper_" + iteration, mt);
 
     if (!processStatement(root, root, new LinkedHashMap<>(), tracer)) {
       DotExporter.errorToDotFile(graph, mt, "parseGraphFail");
@@ -235,7 +229,7 @@ public final class DomHelper implements GraphParser {
     }
 
     if (stat instanceof SynchronizedStatement) {
-      ((SynchronizedStatement)stat).removeExc();
+      ((SynchronizedStatement) stat).removeExc();
       res = true;
     }
 
@@ -270,7 +264,7 @@ public final class DomHelper implements GraphParser {
 
             if (next instanceof CatchAllStatement) {
 
-              CatchAllStatement ca = (CatchAllStatement)next;
+              CatchAllStatement ca = (CatchAllStatement) next;
 
               boolean headOk = ca.getFirst().containsMonitorExitOrAthrow();
 
@@ -323,7 +317,7 @@ public final class DomHelper implements GraphParser {
       }
     }
   }
-  
+
   // Checks if a statement has no exits (disregarding exceptions) that lead outside the statement.
   private static boolean hasNoExits(Statement head) {
     Deque<Statement> stack = new ArrayDeque<>();
@@ -345,7 +339,12 @@ public final class DomHelper implements GraphParser {
     return true;
   }
 
-  private static boolean processStatement(Statement general, RootStatement root, HashMap<Integer, Set<Integer>> mapExtPost, DomTracer tracer) {
+  private static boolean processStatement(
+    Statement general,
+    RootStatement root,
+    HashMap<Integer, Set<Integer>> mapExtPost,
+    DomTracer tracer) {
+    tracer.info(general, "process statement");
     if (general instanceof RootStatement) {
       Statement stat = general.getFirst();
 
@@ -380,24 +379,24 @@ public final class DomHelper implements GraphParser {
           // take care of irreducible control flow graphs
           if (IrreducibleCFGDeobfuscator.isStatementIrreducible(general)) {
             if (!IrreducibleCFGDeobfuscator.splitIrreducibleNode(general)) {
-              tracer.add(general, "Could not split irreducible flow");
+              tracer.error(general, "Could not split irreducible flow");
               DecompilerContext.getLogger().writeMessage("Irreducible statement cannot be decomposed!", IFernflowerLogger.Severity.ERROR);
 
               break;
             } else {
-              tracer.add(general, "Split irreducible flow: " + reducibility);
+              tracer.warn(general, "Split irreducible flow: " + reducibility);
               // Mirrors comment from reducibility loop, unsure if this is ever hit but it's here just in case
               if (reducibility == 4 && (mapstage == 1 || mapRefreshed)) {
                 DecompilerContext.getLogger().writeMessage("Irreducible statement too complex to be decomposed!", IFernflowerLogger.Severity.ERROR);
 
-                tracer.add(general, "Flow too complex to be decomposed!");
+                tracer.error(general, "Flow too complex to be decomposed!");
                 root.addComment("$QF: Irreducible bytecode has more than 5 nodes in sequence and was not entirely decomposed", true);
               }
 
               root.addComment("$QF: Irreducible bytecode was duplicated to produce valid code");
             }
           } else {
-            tracer.add(general, "Flow not irreducible, but could not decompose");
+            tracer.error(general, "Flow not irreducible, but could not decompose");
             // TODO: Originally this check was mapstage == 2, but that condition is never possible- why was it here?
             if (mapstage == 1 || mapRefreshed) { // last chance lost
               DecompilerContext.getLogger().writeMessage("Statement cannot be decomposed although reducible!", IFernflowerLogger.Severity.ERROR);
@@ -422,54 +421,54 @@ public final class DomHelper implements GraphParser {
           boolean forceall = i != 0;
 
           if (forceall) {
-            tracer.add(general, "Force-all iteration");
+            tracer.info(general, "Force-all iteration");
           } else {
-            tracer.add(general, "First iteration");
+            tracer.info(general, "First iteration");
           }
 
           // Keep finding simple statements until subgraphs cannot be created.
           // This has the effect that after a subgraph is created, simple statements are found again with the contents of the subgraph in mind
           while (true) {
 
-            tracer.add(general, "Find simple statements");
+            tracer.info(general, "Find simple statements");
 
             // Find statements in this subgraph from the basicblocks that comprise it
             if (findSimpleStatements(general, mapExtPost, tracer)) {
-              tracer.add(general, "Found some simple statements");
+              tracer.success(general, "Found some simple statements");
               reducibility = 0;
             }
 
             // If every statement in this subgraph was discovered, return as we've decomposed this part of the graph
             if (((GeneralStatement) general).isPlaceholder()) {
-              tracer.add(general, "All simple statements found");
+              tracer.success(general, "All simple statements found");
               return true;
             }
 
             // Find another subgraph to decompose within this subgraph, to simplify the current graph
-            Statement stat = findGeneralStatement(general, forceall, mapExtPost);
+            Statement stat = findGeneralStatement(general, forceall, mapExtPost/*, finallyInfos*/);
 
             if (stat != null) {
-              tracer.add(general, "Found general statement: " + stat);
+              tracer.success(general, "Found general statement: " + stat, stat);
               // Recurse on the subgraph general statement that we found, and inherit the postdominator set if it's the first statement in the current general
-              boolean complete = processStatement(stat, root, general.getFirst() == stat ? mapExtPost : new HashMap<>(), tracer);
+              boolean complete = processStatement(stat, root, general.getFirst() == stat ? mapExtPost : new HashMap<>(), tracer /*, finallyInfos*/);
 
               if (complete) {
                 // replace subgraph general purpose statement with simple one to complete this (outer) subgraph
                 general.replaceStatement(stat, stat.getFirst());
               } else {
-                tracer.add(general, "General statement processing failed! " + stat);
+                tracer.error(general, "General statement processing failed! " + stat);
                 // Statement processing failed in an inner subgraph, so we give up here too
                 return false;
               }
 
-              tracer.add(general, "General statement processing success " + stat);
+              tracer.success(general, "General statement processing success " + stat);
 
               // Replaced subgraph general statement with its contents, iterate simple statements again
               mapExtPost = new HashMap<>();
               mapRefreshed = true;
               reducibility = 0;
             } else {
-              tracer.add(general, "No new general statement found");
+              tracer.info(general, "No new general statement found");
               // Couldn't find subgraph general statement
               break;
             }
@@ -486,22 +485,25 @@ public final class DomHelper implements GraphParser {
       if (mapRefreshed) {
         // If the postdominators were refreshed, we know that the graph can't be decomposed and break out of the mapStage iteration, regardless of the stage
 
-        tracer.add(general, "Map already refreshed");
+        tracer.error(general, "Map already refreshed");
         break;
       } else {
         // Not refreshed (in the case of inherited postdominance set from parent subgraph) so we clean the map and try again in the hopes that FastExtendedPostdominanceHelper will be able to find something that can help decompose this graph
         mapExtPost = new HashMap<>();
 
-        tracer.add(general, "Refreshing map for retry");
+        tracer.info(general, "Refreshing map for retry");
       }
     }
 
-    tracer.add(general, "Unable to decompose!");
+    tracer.error(general, "Unable to decompose!");
 
     return false;
   }
 
-  private static Statement findGeneralStatement(Statement stat, boolean forceall, HashMap<Integer, Set<Integer>> mapExtPost) {
+  private static Statement findGeneralStatement(
+    Statement stat,
+    boolean forceall,
+    HashMap<Integer, Set<Integer>> mapExtPost) {
 
     VBStyleCollection<Statement, Integer> stats = stat.getStats();
     VBStyleCollection<List<Integer>, Integer> vbPost;
@@ -518,7 +520,13 @@ public final class DomHelper implements GraphParser {
       for (Statement st : lstAll) {
         Set<Integer> set = mapExtPost.get(st.id);
         if (set != null) {
-          vbPost.addWithKey(new ArrayList<>(set), st.id); // FIXME: sort order!!
+          List<Integer> element = new ArrayList<>(set.size());
+          for (Integer integer : set) {
+            if (!stats.containsKey(integer) || !stats.getWithKey(integer).hasSuccessor(StatEdge.TYPE_FINALLYEXIT)) {
+              element.add(integer);
+            }
+          }
+          vbPost.addWithKey(element, st.id); // FIXME: sort order!!
         }
       }
 
@@ -582,7 +590,7 @@ public final class DomHelper implements GraphParser {
             if (!addHandler) {
               List<Statement> hdsupp = handler.getNeighbours(StatEdge.TYPE_EXCEPTION, EdgeDirection.BACKWARD);
               addHandler = (setNodes.containsAll(hdsupp) && (setNodes.size() > hdsupp.size()
-                                                        || setNodes.size() == 1)); // strict subset
+                                                             || setNodes.size() == 1)); // strict subset
             }
 
             if (addHandler) {
@@ -690,7 +698,7 @@ public final class DomHelper implements GraphParser {
         Statement result = detectStatement(st);
 
         if (result != null) {
-          tracer.add(stat, "Transformed " + st + " to " + result);
+          tracer.success(stat, "Transformed " + st + " to " + result, st);
 
           // If the statement we created contains the first statement of the general statement as it's first, we know that we've completed iteration to the point where every statment in the subgraph has been explored at least once, due to how the post order is created.
           // More iteration still happens to discover higher level structures (such as the case where basicblock -> if -> loop)
@@ -701,6 +709,8 @@ public final class DomHelper implements GraphParser {
           }
 
           stat.collapseNodesToStatement(result);
+
+          tracer.success(stat, "Transformed " + st + " to " + result, result);
 
           // update the postdominator map
           if (!mapExtPost.isEmpty()) {
@@ -720,8 +730,7 @@ public final class DomHelper implements GraphParser {
               if (setOldNodes.contains(key)) {
                 mapExtPost.computeIfAbsent(newid, k -> new LinkedHashSet<>()).addAll(set);
                 mapExtPost.remove(key);
-              }
-              else {
+              } else {
                 if (set.size() < oldsize) {
                   set.add(newid);
                 }
@@ -779,16 +788,4 @@ public final class DomHelper implements GraphParser {
     return null;
   }
 
-  private static class DomTracer {
-    private String string = "";
-
-    private void add(Statement gen, String s) {
-      string += ("[" + gen + "] " + s + "\n");
-    }
-
-    @Override
-    public String toString() {
-      return string;
-    }
-  }
 }
