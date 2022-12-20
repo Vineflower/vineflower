@@ -52,6 +52,7 @@ public class KotlinTests extends SingleClassesTestBase {
     register(KOTLIN, "TestIfRange");
     register(KOTLIN, "TestComparison");
     register(KOTLIN, "TestNullableOperator");
+    // TODO: x = x needs to not have the type attached
     register(KOTLIN, "TestShadowParam");
     register(KOTLIN, "TestWhenControlFlow");
     register(KOTLIN, "TestLabeledJumps");
@@ -76,5 +77,6 @@ public class KotlinTests extends SingleClassesTestBase {
     register(KOTLIN, "TestBitwiseFunctions");
     register(KOTLIN, "TestCompileTimeErrors");
     register(KOTLIN, "TestPoorNames");
+    register(KOTLIN, "TestSynchronized");
   }
 }
