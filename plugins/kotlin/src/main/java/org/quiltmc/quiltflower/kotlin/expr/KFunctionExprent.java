@@ -2,6 +2,7 @@ package org.quiltmc.quiltflower.kotlin.expr;
 
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
+import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 
 import java.util.List;
@@ -87,5 +88,10 @@ public class KFunctionExprent extends FunctionExprent {
     }
 
     return buf.append(super.toJava(indent));
+  }
+
+  @Override
+  public Exprent copy() {
+    return new KFunctionExprent((FunctionExprent) super.copy());
   }
 }
