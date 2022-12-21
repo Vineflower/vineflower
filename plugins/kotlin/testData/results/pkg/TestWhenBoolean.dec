@@ -2,15 +2,15 @@ package pkg
 
 class TestWhenBoolean {
    fun testIf(a: Int, b: Int, c: Int, d: Int) {
-      if (if (a == 1)// 6
+      if (if ((a == 1))// 6
          true
          else
          (
-            if (b == 2)// 7
+            if ((b == 2))// 7
                true
                else
                (
-                  if (c == 3)// 8
+                  if ((c == 3))// 8
                      false
                      else
                      (
@@ -22,16 +22,16 @@ class TestWhenBoolean {
                                  false
                                  else
                                  (
-                                    if (d == 7)// 11
-                                       b == 100 - a
+                                    if ((d == 7))// 11
+                                       (b == 100 - a)
                                        else
                                        (
-                                          if (a == -100)// 12
+                                          if ((a == -100))// 12
                                              (
-                                                if (b == 0)// 13
+                                                if ((b == 0))// 13
                                                    true
                                                    else
-                                                   (if (c == 55) false else (if (d == 66) (if (25 <= c) c < 34 else false) else c < d && a < b))// 14 15 16
+                                                   (if ((c == 55)) false else (if ((d == 66)) (if (25 <= c) c < 34 else false) else c < d && a < b))// 14 15 16
                                              )
                                              else
                                              true// 18
