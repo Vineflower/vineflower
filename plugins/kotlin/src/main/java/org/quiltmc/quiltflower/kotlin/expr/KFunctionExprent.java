@@ -9,6 +9,7 @@ import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.Typed;
 
+import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 
@@ -22,7 +23,7 @@ public class KFunctionExprent extends FunctionExprent {
   }
 
   public KFunctionExprent(FunctionType funcType, List<Exprent> operands, BitSet bytecodeOffsets) {
-    super(funcType, operands, bytecodeOffsets);
+    super(funcType, new ArrayList<>(operands), bytecodeOffsets);
   }
 
   public KFunctionExprent(FunctionExprent func) {
