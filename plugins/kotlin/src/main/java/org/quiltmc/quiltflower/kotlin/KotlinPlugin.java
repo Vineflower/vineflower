@@ -57,14 +57,14 @@ public class KotlinPlugin implements Plugin {
           .addLoopingPass("CondenseExits", ctx -> ExitHelper.condenseExits(ctx.getRoot()))
           .build()
         )
-      // TODO: preference for this pass
-      .addPass("ResugarMethods", new ResugarKotlinMethodsPass())
       .addPass("SimplifyStack", WrappedPass.of(ctx -> StackVarsProcessor.simplifyStackVars(ctx.getRoot(), ctx.getMethod(), ctx.getEnclosingClass(), INLINE_ALL_VARS)))
       .addPass("AdjustReturnType", ctx -> ExitHelper.adjustReturnType(ctx.getRoot(), ctx.getMethodDescriptor()))
       .addPass("RedundantReturns", ctx -> ExitHelper.removeRedundantReturns(ctx.getRoot()))
       .addPass("IdentifySecondary", ctx -> SecondaryFunctionsHelper.identifySecondaryFunctions(ctx.getRoot(), ctx.getVarProc()))
       .addPass("SetVarDefinitions", WrappedPass.of(ctx -> ctx.getVarProc().setVarDefinitions(ctx.getRoot())))
       .addPass("ReplaceExprs", new ReplaceExprentsPass())
+      // TODO: preference for this pass
+      .addPass("ResugarMethods", new ResugarKotlinMethodsPass())
       .addPass("ReplaceContinue", ctx -> LabelHelper.replaceContinueWithBreak(ctx.getRoot()))
 
       .build();

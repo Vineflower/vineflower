@@ -1,7 +1,6 @@
 package pkg
 
 import java.util.List
-import kotlin.jvm.internal.Intrinsics
 
 class TestDataClass {
    private Regex dataClassVal;
@@ -102,14 +101,14 @@ class TestDataClass {
          return false;
       } else {
          var var2: TestDataClass = other as TestDataClass;
-         if (!Intrinsics.areEqual(this.dataClassVal, (other as TestDataClass).dataClassVal)) {
+         if (!(this.dataClassVal == (other as TestDataClass).dataClassVal)) {
             return false;
          } else if (this.variableWithVeryLongName != var2.variableWithVeryLongName) {
             return false;
-         } else if (!Intrinsics.areEqual(this.requestLineWrapsIfTheParamListIsTooLong, var2.requestLineWrapsIfTheParamListIsTooLong)) {
+         } else if (!(this.requestLineWrapsIfTheParamListIsTooLong == var2.requestLineWrapsIfTheParamListIsTooLong)) {
             return false;
          } else {
-            return Intrinsics.areEqual(this.nullability, var2.nullability);
+            return this.nullability == var2.nullability;
          }
       }
    }
@@ -117,306 +116,297 @@ class TestDataClass {
 
 class 'pkg/TestDataClass' {
    method '<init> (Lkotlin/text/Regex;ILjava/util/List;Ljava/lang/String;)V' {
-      10      12
-      11      12
-      12      12
-      13      12
-      14      12
-      15      13
-      16      13
-      17      13
-      18      13
-      19      13
-      1a      14
-      1b      14
-      1c      14
-      1d      14
-      1e      14
-      1f      15
-      20      15
-      21      15
-      22      15
-      23      15
-      24      15
-      25      16
+      10      11
+      11      11
+      12      11
+      13      11
+      14      11
+      15      12
+      16      12
+      17      12
+      18      12
+      19      12
+      1a      13
+      1b      13
+      1c      13
+      1d      13
+      1e      13
+      1f      14
+      20      14
+      21      14
+      22      14
+      23      14
+      24      14
+      25      15
    }
 
    method 'getDataClassVal ()Lkotlin/text/Regex;' {
-      0      19
-      1      19
-      2      19
-      3      19
-      4      19
+      0      18
+      1      18
+      2      18
+      3      18
+      4      18
    }
 
    method 'getVariableWithVeryLongName ()I' {
-      0      23
-      1      23
-      2      23
-      3      23
-      4      23
+      0      22
+      1      22
+      2      22
+      3      22
+      4      22
    }
 
    method 'getRequestLineWrapsIfTheParamListIsTooLong ()Ljava/util/List;' {
-      0      27
-      1      27
-      2      27
-      3      27
-      4      27
+      0      26
+      1      26
+      2      26
+      3      26
+      4      26
    }
 
    method 'getNullability ()Ljava/lang/String;' {
-      0      31
-      1      31
-      2      31
-      3      31
-      4      31
+      0      30
+      1      30
+      2      30
+      3      30
+      4      30
    }
 
    method 'component1 ()Lkotlin/text/Regex;' {
-      0      35
-      1      35
-      2      35
-      3      35
-      4      35
+      0      34
+      1      34
+      2      34
+      3      34
+      4      34
    }
 
    method 'component2 ()I' {
-      0      39
-      1      39
-      2      39
-      3      39
-      4      39
+      0      38
+      1      38
+      2      38
+      3      38
+      4      38
    }
 
    method 'component3 ()Ljava/util/List;' {
-      0      43
-      1      43
-      2      43
-      3      43
-      4      43
+      0      42
+      1      42
+      2      42
+      3      42
+      4      42
    }
 
    method 'component4 ()Ljava/lang/String;' {
-      0      47
-      1      47
-      2      47
-      3      47
-      4      47
+      0      46
+      1      46
+      2      46
+      3      46
+      4      46
    }
 
    method 'copy (Lkotlin/text/Regex;ILjava/util/List;Ljava/lang/String;)Lpkg/TestDataClass;' {
-      10      51
-      11      51
-      12      51
-      13      51
-      14      51
-      18      51
+      10      50
+      11      50
+      12      50
+      13      50
+      14      50
+      18      50
    }
 
    method 'copy$default (Lpkg/TestDataClass;Lkotlin/text/Regex;ILjava/util/List;Ljava/lang/String;ILjava/lang/Object;)Lpkg/TestDataClass;' {
-      0      57
-      1      57
-      2      57
-      3      57
-      4      57
-      7      58
-      8      58
-      9      58
-      a      58
-      b      58
-      c      61
-      d      61
-      e      61
-      f      61
-      10      61
-      13      62
-      14      62
-      15      62
-      16      62
-      17      62
-      18      65
-      19      65
-      1a      65
-      1b      65
-      1c      65
-      1f      66
-      20      66
-      21      66
-      22      66
-      23      66
-      24      69
-      25      69
-      26      69
-      27      69
-      28      69
-      29      69
-      2c      70
-      2d      70
-      2e      70
-      2f      70
-      30      70
-      31      70
-      32      73
-      33      73
-      34      73
-      35      73
-      36      73
-      37      73
-      38      73
-      39      73
-      3a      73
-      3b      73
+      0      56
+      1      56
+      2      56
+      3      56
+      4      56
+      7      57
+      8      57
+      9      57
+      a      57
+      b      57
+      c      60
+      d      60
+      e      60
+      f      60
+      10      60
+      13      61
+      14      61
+      15      61
+      16      61
+      17      61
+      18      64
+      19      64
+      1a      64
+      1b      64
+      1c      64
+      1f      65
+      20      65
+      21      65
+      22      65
+      23      65
+      24      68
+      25      68
+      26      68
+      27      68
+      28      68
+      29      68
+      2c      69
+      2d      69
+      2e      69
+      2f      69
+      30      69
+      31      69
+      32      72
+      33      72
+      34      72
+      35      72
+      36      72
+      37      72
+      38      72
+      39      72
+      3a      72
+      3b      72
    }
 
    method 'toString ()Ljava/lang/String;' {
-      0      78
-      1      78
-      2      78
-      3      78
-      4      80
-      5      80
-      6      80
-      7      80
-      8      82
-      9      82
-      a      82
-      b      82
-      c      84
-      d      84
-      e      84
-      f      84
-      10      77
-      11      77
-      12      77
-      13      77
-      14      77
-      15      77
+      0      77
+      1      77
+      2      77
+      3      77
+      4      79
+      5      79
+      6      79
+      7      79
+      8      81
+      9      81
+      a      81
+      b      81
+      c      83
+      d      83
+      e      83
+      f      83
+      10      76
+      11      76
+      12      76
+      13      76
+      14      76
+      15      76
    }
 
    method 'hashCode ()I' {
-      0      90
-      1      90
-      2      90
-      3      90
-      4      90
-      5      90
-      6      90
-      8      90
-      9      90
-      a      90
-      b      90
-      c      90
-      d      90
-      e      90
-      f      90
-      10      90
-      11      90
-      12      90
-      13      90
-      15      90
-      16      90
-      17      90
-      18      90
-      19      91
-      1a      91
-      1b      91
-      1c      91
-      1d      91
-      1e      91
-      1f      91
-      20      90
-      22      90
-      23      93
-      24      93
-      25      89
-      26      94
-      27      94
-      28      94
-      29      94
-      2a      94
-      2d      94
-      31      94
-      32      94
-      33      94
-      34      94
-      35      94
-      38      89
-      3b      89
+      0      89
+      1      89
+      2      89
+      3      89
+      4      89
+      5      89
+      6      89
+      8      89
+      9      89
+      a      89
+      b      89
+      c      89
+      d      89
+      e      89
+      f      89
+      10      89
+      11      89
+      12      89
+      13      89
+      15      89
+      16      89
+      17      89
+      18      89
+      19      90
+      1a      90
+      1b      90
+      1c      90
+      1d      90
+      1e      90
+      1f      90
+      20      89
+      22      89
+      23      92
+      24      92
+      25      88
+      26      93
+      27      93
+      28      93
+      29      93
+      2a      93
+      2d      93
+      31      93
+      32      93
+      33      93
+      34      93
+      35      93
+      38      88
+      3b      88
    }
 
    method 'equals (Ljava/lang/Object;)Z' {
-      0      98
-      1      98
-      2      98
-      5      99
-      6      99
-      7      100
-      b      100
-      e      101
-      f      101
-      10      103
-      11      103
-      12      103
-      13      103
-      14      103
-      15      104
-      16      104
-      17      104
-      18      104
-      19      104
-      1a      104
-      1b      104
-      1c      104
-      1d      104
-      1e      104
-      1f      104
-      20      104
-      23      105
-      24      105
-      25      106
-      26      106
-      27      106
-      28      106
-      29      106
-      2a      106
-      2b      106
-      2c      106
-      2d      106
-      30      107
-      31      107
-      32      108
-      33      108
-      34      108
-      35      108
-      36      108
-      37      108
-      38      108
-      39      108
-      3a      108
-      3b      108
-      3c      108
-      3d      108
-      40      109
-      41      109
-      42      111
-      43      111
-      44      111
-      45      111
-      46      111
-      47      111
-      48      111
-      49      111
-      4a      111
-      4b      111
-      4c      111
-      4d      111
+      0      97
+      1      97
+      2      97
+      5      98
+      6      98
+      7      99
+      b      99
+      e      100
+      f      100
+      10      102
+      11      102
+      12      102
+      13      102
+      14      102
+      15      103
+      16      103
+      17      103
+      18      103
+      19      103
+      1a      103
+      1b      103
+      1c      103
+      20      103
+      23      104
+      24      104
+      25      105
+      26      105
+      27      105
+      28      105
+      29      105
+      2a      105
+      2b      105
+      2c      105
+      2d      105
+      30      106
+      31      106
+      32      107
+      33      107
+      34      107
+      35      107
+      36      107
+      37      107
+      38      107
+      39      107
+      3d      107
+      40      108
+      41      108
+      42      110
+      43      110
+      44      110
+      45      110
+      46      110
+      47      110
+      48      110
+      49      110
+      4d      110
    }
 }
 
 Lines mapping:
-3 <-> 17
-4 <-> 20
-5 <-> 24
-6 <-> 28
-7 <-> 32
+3 <-> 16
+4 <-> 19
+5 <-> 23
+6 <-> 27
+7 <-> 31
