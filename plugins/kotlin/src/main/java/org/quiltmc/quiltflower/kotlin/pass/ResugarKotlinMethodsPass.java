@@ -4,6 +4,7 @@ import org.jetbrains.java.decompiler.api.passes.Pass;
 import org.jetbrains.java.decompiler.api.passes.PassContext;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.InvocationExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectNode;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper;
@@ -19,7 +20,7 @@ public class ResugarKotlinMethodsPass implements Pass {
   public boolean run(PassContext ctx) {
     boolean res = false;
 
-    DirectGraph digraph = new FlattenStatementsHelper().buildDirectGraph(ctx.getRoot());
+    DirectGraph digraph = FlattenStatementsHelper.build(ctx.getRoot());
 
     for (DirectNode nd : digraph.nodes) {
       List<Exprent> exprs = nd.exprents;
@@ -83,6 +84,16 @@ public class ResugarKotlinMethodsPass implements Pass {
     "exprent type:invocation invclass:kotlin/jvm/internal/Intrinsics name:areEqual parameter:0:$lhs$ parameter:1:$rhs$"
   );
 
+  // ($x$ != null) ? $x$ : $y$
+  private static final MatchEngine TERNARY_NULL_CHECK = new MatchEngine(
+    "exprent type:function functype:ternary",
+    " exprent position:1 ret:$x1$",
+    " exprent position:2 ret:$y$",
+    " exprent position:0 type:function functype:neq",
+    "  exprent ret:$x$",
+    "  exprent type:constant consttype:null"
+  );
+
   private static class ResugarRes {
     public final Exprent expr;
     public final boolean remove;
@@ -108,6 +119,19 @@ public class ResugarKotlinMethodsPass implements Pass {
       return new ResugarRes(new KFunctionExprent(FunctionExprent.FunctionType.EQ, List.of(
         (Exprent) EQUAL_INTRINSIC.getVariableValue("$lhs$"), (Exprent) EQUAL_INTRINSIC.getVariableValue("$rhs$")
       ), null), false);
+    }
+
+    if (TERNARY_NULL_CHECK.match(ex)) {
+      Exprent innerVal = (Exprent)TERNARY_NULL_CHECK.getVariableValue("$x1$");
+      if (innerVal instanceof InvocationExprent && ((InvocationExprent)innerVal).isUnboxingCall()) {
+        innerVal = ((InvocationExprent)innerVal).getInstance();
+      }
+
+      if (TERNARY_NULL_CHECK.getVariableValue("$x$").equals(innerVal)) {
+        return new ResugarRes(new KFunctionExprent(KFunctionExprent.KFunctionType.IF_NULL, List.of(
+          (Exprent) TERNARY_NULL_CHECK.getVariableValue("$x$"), (Exprent) TERNARY_NULL_CHECK.getVariableValue("$y$")
+        ), null), false);
+      }
     }
 
     return new ResugarRes(null);

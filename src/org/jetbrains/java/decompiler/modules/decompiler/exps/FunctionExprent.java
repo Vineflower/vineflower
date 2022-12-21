@@ -217,11 +217,11 @@ public class FunctionExprent extends Exprent {
         if (supertype == null) {
           throw new IllegalStateException("No common supertype for ternary expression");
         }
+
         if (param1 instanceof ConstExprent && param2 instanceof ConstExprent &&
           supertype.type != CodeConstants.TYPE_BOOLEAN && VarType.VARTYPE_INT.isSuperset(supertype)) {
           return VarType.VARTYPE_INT;
-        }
-        else {
+        } else {
           return supertype;
         }
       }

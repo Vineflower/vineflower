@@ -71,6 +71,8 @@ public class MatchEngine {
     expr_type.put("yield", Exprent.Type.YIELD);
 
     expr_func_type.put("eq", FunctionType.EQ);
+    expr_func_type.put("neq", FunctionType.NE);
+    expr_func_type.put("ternary", FunctionType.TERNARY);
 
     expr_exit_type.put("return", ExitExprent.Type.RETURN);
     expr_exit_type.put("throw", ExitExprent.Type.THROW);

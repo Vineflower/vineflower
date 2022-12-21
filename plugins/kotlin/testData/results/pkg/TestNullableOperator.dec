@@ -2,7 +2,7 @@ package pkg
 
 class TestNullableOperator {
    fun test(x: Integer?): Int  {
-      return if (x != null) x else 0;// 5
+      return x ?: 0;// 5
    }
 
    fun test2(x: String?): String  {
@@ -14,8 +14,26 @@ class TestNullableOperator {
       return var10000;
    }
 
+   fun test2_1(x: Object?): Object  {
+      var var10000: Object = x;// 13
+      if (x === null) {
+         var10000 = "default";
+      }
+
+      return var10000;
+   }
+
+   fun test2_2(x: Object?): Object  {
+      var var10000: Object = x;// 17
+      if (x === null) {
+         var10000 = "default";
+      }
+
+      return var10000;
+   }
+
    fun test3(x: Integer?): Int  {
-      if (x != null) {// 13
+      if (x != null) {// 21
          return x;
       } else {
          throw new Exception();
@@ -23,14 +41,14 @@ class TestNullableOperator {
    }
 
    fun test4(x: Exception?) {
-      if (x != null) {// 17
+      if (x != null) {// 25
          x.printStackTrace();
       }
-   }// 18
+   }// 26
 
    fun test5(x: Exception?) {
       var var10000: Unit;
-      if (x != null) {// 21
+      if (x != null) {// 29
          x.printStackTrace();
          var10000 = Unit.INSTANCE;
       } else {
@@ -40,16 +58,28 @@ class TestNullableOperator {
       if (var10000 === null) {
          throw new Exception();
       }
-   }// 22
+   }// 30
+
+   fun test6(x: Integer?): Int  {
+      if (x != null) {// 33
+         var y: Int = x;
+         System.out.println(y);// 35
+         return y;// 37
+      } else {
+         return 0;
+      }
+   }
+
+   fun test6_1(x: Integer?) {
+      if (x != null) {// 41
+         System.out.println(x);// 43
+      }
+   }
 }
 
 class 'pkg/TestNullableOperator' {
    method 'test (Ljava/lang/Integer;)I' {
       0      4
-      2      4
-      5      4
-      6      4
-      7      4
       c      4
       d      4
    }
@@ -61,48 +91,102 @@ class 'pkg/TestNullableOperator' {
       8      13
    }
 
-   method 'test3 (Ljava/lang/Integer;)I' {
+   method 'test2_1 (Ljava/lang/Object;)Ljava/lang/Object;' {
       0      17
-      2      17
-      5      18
-      6      18
-      7      18
-      8      18
-      9      18
-      a      18
-      b      18
-      c      18
-      d      18
-      e      18
-      f      18
-      10      18
-      11      18
-      12      18
-      13      18
+      2      18
+      6      19
+      8      22
+   }
+
+   method 'test2_2 (Ljava/lang/Object;)Ljava/lang/Object;' {
+      0      26
+      2      27
+      6      28
+      8      31
+   }
+
+   method 'test3 (Ljava/lang/Integer;)I' {
+      0      35
+      2      35
+      5      36
+      6      36
+      7      36
+      8      36
+      9      36
+      a      36
+      b      36
+      c      36
+      d      36
+      e      36
+      f      36
+      10      36
+      11      36
+      12      36
+      13      36
    }
 
    method 'test4 (Ljava/lang/Exception;)V' {
-      0      25
-      2      25
-      5      26
-      6      26
-      7      26
-      c      28
+      0      43
+      2      43
+      5      44
+      6      44
+      7      44
+      c      46
    }
 
    method 'test5 (Ljava/lang/Exception;)V' {
-      0      32
-      2      32
-      5      33
-      6      33
-      7      33
-      8      34
-      9      34
-      a      34
-      f      36
-      10      39
-      1a      40
-      1b      42
+      0      50
+      2      50
+      5      51
+      6      51
+      7      51
+      8      52
+      9      52
+      a      52
+      f      54
+      10      57
+      1a      58
+      1b      60
+   }
+
+   method 'test6 (Ljava/lang/Integer;)I' {
+      0      63
+      2      63
+      5      64
+      6      64
+      7      64
+      8      64
+      9      64
+      a      64
+      b      64
+      c      64
+      d      64
+      e      65
+      f      65
+      10      65
+      11      65
+      12      65
+      13      66
+      14      66
+      15      66
+      16      66
+   }
+
+   method 'test6_1 (Ljava/lang/Integer;)V' {
+      0      73
+      2      73
+      5      74
+      6      74
+      7      74
+      c      76
+      d      74
+      e      74
+      f      74
+      10      74
+      11      74
+      12      76
+      13      76
+      14      76
    }
 }
 
@@ -110,7 +194,16 @@ Lines mapping:
 5 <-> 5
 9 <-> 9
 13 <-> 18
-17 <-> 26
-18 <-> 29
-21 <-> 33
-22 <-> 43
+17 <-> 27
+21 <-> 36
+25 <-> 44
+26 <-> 47
+29 <-> 51
+30 <-> 61
+33 <-> 64
+35 <-> 66
+37 <-> 67
+41 <-> 74
+43 <-> 75
+Not mapped:
+44

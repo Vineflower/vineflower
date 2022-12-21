@@ -30,6 +30,10 @@ public class FlattenStatementsHelper {
 
   private RootStatement root;
 
+  public static DirectGraph build(RootStatement root) {
+    return new FlattenStatementsHelper().buildDirectGraph(root);
+  }
+
   public DirectGraph buildDirectGraph(RootStatement root) {
 
     this.root = root;

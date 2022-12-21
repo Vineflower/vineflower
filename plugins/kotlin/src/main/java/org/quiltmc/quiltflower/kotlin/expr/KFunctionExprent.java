@@ -19,7 +19,14 @@ public class KFunctionExprent extends FunctionExprent {
   public enum KFunctionType implements Typed {
     NONE,
 
-    EQUALS3
+    EQUALS3,
+    IF_NULL
+  }
+
+  public KFunctionExprent(KFunctionType funcType, List<Exprent> operands, BitSet bytecodeOffsets) {
+    this(FunctionType.OTHER, operands, bytecodeOffsets);
+
+    this.kType = funcType;
   }
 
   public KFunctionExprent(FunctionType funcType, List<Exprent> operands, BitSet bytecodeOffsets) {
@@ -52,6 +59,11 @@ public class KFunctionExprent extends FunctionExprent {
           case EQUALS3:
             buf.append(wrapOperandString(lstOperands.get(0), true, indent))
               .append(" === ")
+              .append(wrapOperandString(lstOperands.get(1), true, indent));
+            return buf;
+          case IF_NULL:
+            buf.append(wrapOperandString(lstOperands.get(0), true, indent))
+              .append(" ?: ")
               .append(wrapOperandString(lstOperands.get(1), true, indent));
             return buf;
         }
@@ -150,6 +162,17 @@ public class KFunctionExprent extends FunctionExprent {
     switch (kType) {
       case EQUALS3:
         return VarType.VARTYPE_BOOLEAN;
+      case IF_NULL:
+        Exprent param1 = getLstOperands().get(0);
+        Exprent param2 = getLstOperands().get(1);
+        VarType supertype = VarType.getCommonSupertype(param1.getExprType(), param2.getExprType());
+
+        if (supertype != null) {
+          return supertype;
+        } else {
+          // TODO: Needs a better default!
+          return VarType.VARTYPE_OBJECT;
+        }
     }
 
     return super.getExprType();
@@ -170,6 +193,11 @@ public class KFunctionExprent extends FunctionExprent {
     }
 
     switch (kType) {
+      case IF_NULL:
+        VarType supertype = getExprType();
+        result.addMinTypeExprent(param1, VarType.getMinTypeInFamily(supertype.typeFamily));
+        result.addMinTypeExprent(param2, VarType.getMinTypeInFamily(supertype.typeFamily));
+        break;
       case EQUALS3: {
         if (type1.type == CodeConstants.TYPE_BOOLEAN) {
           if (type2.isStrictSuperset(type1)) {
