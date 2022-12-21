@@ -487,7 +487,7 @@ public class VarExprent extends Exprent {
       return false;
     }
 
-    RuleValue rule = matchNode.getRules().get(MatchProperties.EXPRENT_VAR_INDEX);
+    RuleValue rule = matchNode.getRawRule(MatchProperties.EXPRENT_VAR_INDEX);
     if (rule != null) {
       if (rule.isVariable()) {
         return engine.checkAndSetVariableValue((String)rule.value, this.index);

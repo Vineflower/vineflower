@@ -591,22 +591,14 @@ public class ConstExprent extends Exprent {
       return false;
     }
 
-    for (Entry<MatchProperties, RuleValue> rule : matchNode.getRules().entrySet()) {
-      RuleValue value = rule.getValue();
-      MatchProperties key = rule.getKey();
-
+    return matchNode.iterateRules((key, value) -> {
       if (key == MatchProperties.EXPRENT_CONSTTYPE) {
-        if (!value.value.equals(this.constType)) {
-          return false;
-        }
+        return value.value.equals(this.constType);
+      } else if (key == MatchProperties.EXPRENT_CONSTVALUE) {
+        return !value.isVariable() || engine.checkAndSetVariableValue(value.value.toString(), this.value);
       }
-      else if (key == MatchProperties.EXPRENT_CONSTVALUE) {
-        if (value.isVariable() && !engine.checkAndSetVariableValue(value.value.toString(), this.value)) {
-          return false;
-        }
-      }
-    }
 
-    return true;
+      return true;
+    });
   }
 }
