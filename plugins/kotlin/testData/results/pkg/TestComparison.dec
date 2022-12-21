@@ -8,7 +8,23 @@ class TestComparison {
    }
 
    fun test3(a: Object, b: Object): Boolean  {
-      return a == b;// 9
+      return a === b;// 9
+   }
+
+   fun testNull2(a: Object?): Boolean  {
+      return a === null;// 13
+   }
+
+   fun testNull3(a: Object?): Boolean  {
+      return a === null;// 17
+   }
+
+   fun testNullDouble2(a: Object?, b: Object?): Boolean  {
+      return Intrinsics.areEqual(a, b);// 21
+   }
+
+   fun testNullDouble3(a: Object?, b: Object?): Boolean  {
+      return a === b;// 25
    }
 }
 
@@ -28,8 +44,40 @@ class 'pkg/TestComparison' {
       e      10
       16      10
    }
+
+   method 'testNull2 (Ljava/lang/Object;)Z' {
+      0      14
+      1      14
+      9      14
+   }
+
+   method 'testNull3 (Ljava/lang/Object;)Z' {
+      0      18
+      1      18
+      9      18
+   }
+
+   method 'testNullDouble2 (Ljava/lang/Object;Ljava/lang/Object;)Z' {
+      0      22
+      1      22
+      2      22
+      3      22
+      4      22
+      5      22
+   }
+
+   method 'testNullDouble3 (Ljava/lang/Object;Ljava/lang/Object;)Z' {
+      0      26
+      1      26
+      2      26
+      a      26
+   }
 }
 
 Lines mapping:
 5 <-> 7
 9 <-> 11
+13 <-> 15
+17 <-> 19
+21 <-> 23
+25 <-> 27

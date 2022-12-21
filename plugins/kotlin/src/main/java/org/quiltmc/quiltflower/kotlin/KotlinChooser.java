@@ -4,7 +4,7 @@ import kotlin.reflect.jvm.internal.impl.metadata.ProtoBuf;
 import kotlin.reflect.jvm.internal.impl.metadata.jvm.JvmProtoBuf;
 import kotlin.reflect.jvm.internal.impl.protobuf.ExtensionRegistryLite;
 import org.jetbrains.java.decompiler.api.LanguageChooser;
-import org.jetbrains.java.decompiler.struct.Key;
+import org.jetbrains.java.decompiler.util.Key;
 import org.quiltmc.quiltflower.kotlin.metadata.BitEncoding;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.AnnotationExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.ConstExprent;
@@ -13,7 +13,6 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.NewExprent;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.attr.StructAnnotationAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
-import org.quiltmc.quiltflower.kotlin.metadata.MetadataNameResolver;
 
 import java.io.ByteArrayInputStream;
 

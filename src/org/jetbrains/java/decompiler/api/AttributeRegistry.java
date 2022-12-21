@@ -1,6 +1,6 @@
 package org.jetbrains.java.decompiler.api;
 
-import org.jetbrains.java.decompiler.struct.Key;
+import org.jetbrains.java.decompiler.util.Key;
 import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
 
 import java.util.HashMap;

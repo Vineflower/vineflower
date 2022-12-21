@@ -8,7 +8,7 @@ class TestCompileTimeErrors {
    }
 
    fun test2(i: Integer?): TestCompileTimeErrors.Test?  {
-      return if (i == null) null else new TestCompileTimeErrors.Test(i) {
+      return if ((i === null)) null else new TestCompileTimeErrors.Test(i) {
          @Nullable
          private final Integer testValue;
 

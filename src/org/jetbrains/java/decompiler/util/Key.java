@@ -1,4 +1,4 @@
-package org.jetbrains.java.decompiler.struct;
+package org.jetbrains.java.decompiler.util;
 
 public final class Key<T> {
   public final String name;
