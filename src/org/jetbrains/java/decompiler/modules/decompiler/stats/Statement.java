@@ -1042,20 +1042,20 @@ public abstract class Statement implements IMatchable {
       return false;
     }
 
-    for (Entry<MatchProperties, RuleValue> rule : matchNode.getRules().entrySet()) {
-      switch (rule.getKey()) {
+    return matchNode.iterateRules((key, value) -> {
+      switch (key) {
         case STATEMENT_TYPE:
-          if (this.type != rule.getValue().value) {
+          if (this.type != value.value) {
             return false;
           }
           break;
         case STATEMENT_STATSIZE:
-          if (this.stats.size() != (Integer)rule.getValue().value) {
+          if (this.stats.size() != (Integer)value.value) {
             return false;
           }
           break;
         case STATEMENT_EXPRSIZE:
-          int exprsize = (Integer)rule.getValue().value;
+          int exprsize = (Integer)value.value;
           if (exprsize == -1) {
             if (this.exprents != null) {
               return false;
@@ -1068,13 +1068,13 @@ public abstract class Statement implements IMatchable {
           }
           break;
         case STATEMENT_RET:
-          if (!engine.checkAndSetVariableValue((String)rule.getValue().value, this)) {
+          if (!engine.checkAndSetVariableValue((String)value.value, this)) {
             return false;
           }
           break;
       }
-    }
 
-    return true;
+      return true;
+    });
   }
 }

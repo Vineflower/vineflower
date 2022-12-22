@@ -2,19 +2,19 @@ package pkg
 
 class TestIfRange {
    fun testInt(x: Int) {
-      if (if (1 <= x) x < 11 else false) {// 5
+      if (1 <= x && x < 11) {// 5
          System.out.println(x);// 6
       }
    }// 8
 
    fun testChar(x: Char) {
-      if (if ('a' <= x) x < '{' else false) {// 11
+      if ('a' <= x && x < '{') {// 11
          System.out.println(x);// 12
       }
    }// 14
 
    fun testInvertedInt(x: Int) {
-      if (if (1 <= x) x >= 11 else true) {// 17
+      if (1 > x || x >= 11) {// 17
          System.out.println(x);// 18
       }
    }// 20
@@ -32,7 +32,7 @@ class TestIfRange {
    }// 31
 
    fun testIntY(x: Int, y: Int) {
-      if (if (1 <= x) x <= y else false) {// 34
+      if (1 <= x && x <= y) {// 34
          System.out.println(x);// 35
       }
    }// 37
@@ -50,7 +50,7 @@ class TestIfRange {
    }// 49
 
    fun testIntUntil(x: Int) {
-      if (if (1 <= x) x < 10 else false) {// 52
+      if (1 <= x && x < 10) {// 52
          System.out.println(x);// 53
       }
    }// 55
@@ -62,13 +62,13 @@ class TestIfRange {
    }// 61
 
    fun testIntUntilY(x: Int, y: Int) {
-      if (if (1 <= x) x < y else false) {// 64
+      if (1 <= x && x < y) {// 64
          System.out.println(x);// 65
       }
    }// 67
 
    fun testIntUntilSelf(x: Int) {
-      if (if (1 <= x) x < x else false) {// 70
+      if (1 <= x && x < x) {// 70
          System.out.println(x);// 71
       }
    }// 73
@@ -83,7 +83,6 @@ class 'pkg/TestIfRange' {
       6      4
       7      4
       8      4
-      13      4
       14      4
       17      5
       18      5
@@ -102,7 +101,6 @@ class 'pkg/TestIfRange' {
       7      10
       8      10
       9      10
-      14      10
       15      10
       18      11
       19      11
@@ -196,7 +194,6 @@ class 'pkg/TestIfRange' {
       5      34
       6      34
       7      34
-      12      34
       13      34
       16      35
       17      35
@@ -270,7 +267,6 @@ class 'pkg/TestIfRange' {
       6      52
       7      52
       8      52
-      13      52
       14      52
       17      53
       18      53
@@ -320,7 +316,6 @@ class 'pkg/TestIfRange' {
       5      64
       6      64
       7      64
-      12      64
       13      64
       16      65
       17      65
@@ -337,7 +332,6 @@ class 'pkg/TestIfRange' {
       5      70
       6      70
       7      70
-      12      70
       13      70
       16      71
       17      71

@@ -38,7 +38,7 @@ class TestNothingReturns {
    }
 
    fun test6(s: String?): String  {
-      if (s == null) {// 36
+      if (s === null) {// 36
          this.loop();
          throw new KotlinNothingValueException();
       } else {

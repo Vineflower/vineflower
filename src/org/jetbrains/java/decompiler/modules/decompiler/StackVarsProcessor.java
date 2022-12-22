@@ -1057,7 +1057,5 @@ public class StackVarsProcessor {
       inlineRegularVars = true;
       return this;
     }
-
-
   }
 }

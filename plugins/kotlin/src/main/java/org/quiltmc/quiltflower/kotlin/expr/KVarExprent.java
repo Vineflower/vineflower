@@ -22,6 +22,12 @@ public class KVarExprent extends VarExprent {
 
   public KVarExprent(VarExprent ex) {
     this(ex.getIndex(), ex.getVarType(), ex.getProcessor(), ex.bytecode);
+    this.setStack(ex.isStack());
+    this.setClassDef(ex.isClassDef());
+    this.setVersion(ex.getVersion());
+    // FIXME: breaks tests by replacing name with "<set-?>"
+//    this.setLVT(ex.getLVT());
+    this.setEffectivelyFinal(ex.isEffectivelyFinal());
     this.setDefinition(ex.isDefinition());
   }
 

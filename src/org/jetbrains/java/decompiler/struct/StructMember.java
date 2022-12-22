@@ -9,6 +9,7 @@ import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribu
 import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTypeTableAttribute;
 import org.jetbrains.java.decompiler.struct.consts.ConstantPool;
 import org.jetbrains.java.decompiler.util.DataInputFullStream;
+import org.jetbrains.java.decompiler.util.Key;
 
 import java.io.IOException;
 import java.util.HashMap;

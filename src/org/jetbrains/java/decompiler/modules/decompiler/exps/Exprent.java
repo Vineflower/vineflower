@@ -340,17 +340,13 @@ public abstract class Exprent implements IMatchable {
       return false;
     }
 
-    for (Entry<MatchProperties, RuleValue> rule : matchNode.getRules().entrySet()) {
-      MatchProperties key = rule.getKey();
-      if (key == MatchProperties.EXPRENT_TYPE && this.type != rule.getValue().value) {
+    return matchNode.iterateRules((key, value) -> {
+      if (key == MatchProperties.EXPRENT_TYPE && this.type != value.value) {
         return false;
       }
-      if (key == MatchProperties.EXPRENT_RET && !engine.checkAndSetVariableValue((String)rule.getValue().value, this)) {
-        return false;
-      }
-    }
 
-    return true;
+      return key != MatchProperties.EXPRENT_RET || engine.checkAndSetVariableValue((String) value.value, this);
+    });
   }
 
   @Override

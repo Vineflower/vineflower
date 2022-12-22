@@ -14,6 +14,7 @@ import org.jetbrains.java.decompiler.struct.match.MatchEngine;
 import org.jetbrains.java.decompiler.struct.match.MatchNode;
 import org.jetbrains.java.decompiler.util.IntHelper;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
+import org.jetbrains.java.decompiler.util.Typed;
 import org.jetbrains.java.decompiler.util.collections.ListStack;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 
@@ -24,7 +25,7 @@ public class FunctionExprent extends Exprent {
   private static final int[] TYPE_PRIMITIVES = {CodeConstants.TYPE_DOUBLE, CodeConstants.TYPE_FLOAT, CodeConstants.TYPE_LONG};
   private static final VarType[] TYPES = {VarType.VARTYPE_DOUBLE, VarType.VARTYPE_FLOAT, VarType.VARTYPE_LONG};;
 
-  public enum FunctionType {
+  public enum FunctionType implements Typed {
     ADD(2, "+", 3, null),
     SUB(2, "-", 3, null),
     MUL(2, "*", 2, null),
@@ -216,15 +217,15 @@ public class FunctionExprent extends Exprent {
         if (supertype == null) {
           throw new IllegalStateException("No common supertype for ternary expression");
         }
+
         if (param1 instanceof ConstExprent && param2 instanceof ConstExprent &&
           supertype.type != CodeConstants.TYPE_BOOLEAN && VarType.VARTYPE_INT.isSuperset(supertype)) {
           return VarType.VARTYPE_INT;
-        }
-        else {
+        } else {
           return supertype;
         }
       }
-      case OTHER: throw new PluginImplementationException("Plugin should implement custom handling");
+      case OTHER: throw new PluginImplementationException();
       default: throw new IllegalStateException("No type for funcType=" + funcType);
     }
   }
@@ -413,7 +414,7 @@ public class FunctionExprent extends Exprent {
         break;
       }
 
-      case OTHER: throw new PluginImplementationException("Plugin should implement custom handling");
+      case OTHER: throw new PluginImplementationException();
     }
 
     return result;
@@ -458,6 +459,10 @@ public class FunctionExprent extends Exprent {
 
   @Override
   public TextBuffer toJava(int indent) {
+    if (funcType == FunctionType.OTHER) {
+      throw new PluginImplementationException();
+    }
+
     TextBuffer buf = new TextBuffer();
     buf.addBytecodeMapping(bytecode);
 
@@ -601,10 +606,6 @@ public class FunctionExprent extends Exprent {
                  .append(", ")
                  .append(wrapOperandString(lstOperands.get(1), true, indent))
                  .append(")");
-    }
-
-    if (funcType == FunctionType.OTHER) {
-      throw new PluginImplementationException("Plugin should implement custom handling");
     }
 
     if (funcType.castType != null) {

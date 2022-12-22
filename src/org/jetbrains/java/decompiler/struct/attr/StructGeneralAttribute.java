@@ -3,7 +3,7 @@ package org.jetbrains.java.decompiler.struct.attr;
 
 import org.jetbrains.java.decompiler.api.AttributeRegistry;
 import org.jetbrains.java.decompiler.code.BytecodeVersion;
-import org.jetbrains.java.decompiler.struct.Key;
+import org.jetbrains.java.decompiler.util.Key;
 import org.jetbrains.java.decompiler.struct.consts.ConstantPool;
 import org.jetbrains.java.decompiler.util.DataInputFullStream;
 

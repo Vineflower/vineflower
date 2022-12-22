@@ -1,22 +1,46 @@
 package org.quiltmc.quiltflower.kotlin.expr;
 
+import org.jetbrains.java.decompiler.code.CodeConstants;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.ConstExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.TextBuffer;
+import org.jetbrains.java.decompiler.util.Typed;
 
+import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.List;
 
 public class KFunctionExprent extends FunctionExprent {
+  private KFunctionType kType = KFunctionType.NONE;
+
+  public enum KFunctionType implements Typed {
+    NONE,
+
+    EQUALS3,
+    IF_NULL
+  }
+
+  public KFunctionExprent(KFunctionType funcType, List<Exprent> operands, BitSet bytecodeOffsets) {
+    this(FunctionType.OTHER, operands, bytecodeOffsets);
+
+    this.kType = funcType;
+  }
+
+  public KFunctionExprent(FunctionType funcType, List<Exprent> operands, BitSet bytecodeOffsets) {
+    super(funcType, new ArrayList<>(operands), bytecodeOffsets);
+  }
+
   public KFunctionExprent(FunctionExprent func) {
     super(func.getFuncType(), func.getLstOperands(), func.bytecode);
-    switch (getFuncType()) {
-      case IMM:
-      case MMI:
-      case IPP:
-      case PPI:
-        setImplicitType(func.getExprType());
-        break;
+
+    setImplicitType(func.getExprType());
+    setNeedsCast(func.doesCast());
+
+    if (getFuncType() == FunctionType.EQ) {
+      setFuncType(KFunctionType.EQUALS3);
     }
   }
 
@@ -26,8 +50,25 @@ public class KFunctionExprent extends FunctionExprent {
     TextBuffer buf = new TextBuffer();
     buf.addBytecodeMapping(this.bytecode);
     List<Exprent> lstOperands = getLstOperands();
+
+    optimizeType();
   
-    switch(getFuncType()){
+    switch(getFuncType()) {
+      case OTHER:
+        switch (kType) {
+          case EQUALS3:
+            buf.append(wrapOperandString(lstOperands.get(0), true, indent))
+              .append(" === ")
+              .append(wrapOperandString(lstOperands.get(1), true, indent));
+            return buf;
+          case IF_NULL:
+            buf.append(wrapOperandString(lstOperands.get(0), true, indent))
+              .append(" ?: ")
+              .append(wrapOperandString(lstOperands.get(1), true, indent));
+            return buf;
+        }
+
+        throw new IllegalStateException("Unknown function type: " + kType);
       case TERNARY:
         Exprent condition = lstOperands.get(0);
         Exprent ifTrue = lstOperands.get(1);
@@ -114,6 +155,120 @@ public class KFunctionExprent extends FunctionExprent {
     }
 
     return buf.append(super.toJava(indent));
+  }
+
+  @Override
+  public VarType getExprType() {
+    switch (kType) {
+      case EQUALS3:
+        return VarType.VARTYPE_BOOLEAN;
+      case IF_NULL:
+        Exprent param1 = getLstOperands().get(0);
+        Exprent param2 = getLstOperands().get(1);
+        VarType supertype = VarType.getCommonSupertype(param1.getExprType(), param2.getExprType());
+
+        if (supertype != null) {
+          return supertype;
+        } else {
+          // TODO: Needs a better default!
+          return VarType.VARTYPE_OBJECT;
+        }
+    }
+
+    return super.getExprType();
+  }
+
+  @Override
+  public CheckTypesResult checkExprTypeBounds() {
+    CheckTypesResult result = new CheckTypesResult();
+
+    Exprent param1 = getLstOperands().get(0);
+    VarType type1 = param1.getExprType();
+    Exprent param2 = null;
+    VarType type2 = null;
+
+    if (getLstOperands().size() > 1) {
+      param2 = getLstOperands().get(1);
+      type2 = param2.getExprType();
+    }
+
+    switch (kType) {
+      case IF_NULL:
+        VarType supertype = getExprType();
+        result.addMinTypeExprent(param1, VarType.getMinTypeInFamily(supertype.typeFamily));
+        result.addMinTypeExprent(param2, VarType.getMinTypeInFamily(supertype.typeFamily));
+        break;
+      case EQUALS3: {
+        if (type1.type == CodeConstants.TYPE_BOOLEAN) {
+          if (type2.isStrictSuperset(type1)) {
+            result.addMinTypeExprent(param1, VarType.VARTYPE_BYTECHAR);
+          }
+          else { // both are booleans
+            boolean param1_false_boolean =
+              type1.isFalseBoolean() || (param1 instanceof ConstExprent && !((ConstExprent)param1).hasBooleanValue());
+            boolean param2_false_boolean =
+              type1.isFalseBoolean() || (param2 instanceof ConstExprent && !((ConstExprent)param2).hasBooleanValue());
+
+            if (param1_false_boolean || param2_false_boolean) {
+              result.addMinTypeExprent(param1, VarType.VARTYPE_BYTECHAR);
+              result.addMinTypeExprent(param2, VarType.VARTYPE_BYTECHAR);
+            }
+          }
+        }
+        else if (type2.type == CodeConstants.TYPE_BOOLEAN) {
+          if (type1.isStrictSuperset(type2)) {
+            result.addMinTypeExprent(param2, VarType.VARTYPE_BYTECHAR);
+          }
+        }
+      }
+    }
+
+    return super.checkExprTypeBounds();
+  }
+
+  private void optimizeType() {
+    if (getAnyFunctionType() == KFunctionType.EQUALS3) {
+      Exprent l = getLstOperands().get(0);
+      Exprent r = getLstOperands().get(1);
+
+      if (l.getExprType().typeFamily != CodeConstants.TYPE_FAMILY_OBJECT || r.getExprType().typeFamily != CodeConstants.TYPE_FAMILY_OBJECT) {
+        setFuncType(FunctionType.EQ);
+      }
+    }
+  }
+
+  public Typed getAnyFunctionType() {
+    FunctionType funcType = getFuncType();
+
+    if (funcType == FunctionType.OTHER) {
+      if (kType == KFunctionType.NONE) {
+        throw new IllegalStateException("No function type at all set!");
+      }
+
+      return kType;
+    }
+
+    return funcType;
+  }
+
+  @Override
+  public void setFuncType(FunctionType funcType) {
+    // Forward to the implementation below
+    setFuncType((Typed) funcType);
+  }
+
+  public void setFuncType(Typed typed) {
+    if (typed instanceof FunctionType) {
+      // Set only regular func type and remove kotlin type
+      super.setFuncType((FunctionType) typed);
+      kType = KFunctionType.NONE;
+    } else if (typed instanceof KFunctionType) {
+      // Set only kotlin func type and remove regular type
+      super.setFuncType(FunctionType.OTHER);
+      kType = (KFunctionType) typed;
+    } else {
+      throw new IllegalArgumentException("Unknown function type: " + typed);
+    }
   }
 
   @Override

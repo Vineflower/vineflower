@@ -1690,28 +1690,19 @@ public class InvocationExprent extends Exprent {
       return false;
     }
 
-    for (Entry<MatchProperties, RuleValue> rule : matchNode.getRules().entrySet()) {
-      RuleValue value = rule.getValue();
-
-      MatchProperties key = rule.getKey();
+    return matchNode.iterateRules((key, value) -> {
       if (key == MatchProperties.EXPRENT_PARAMETER) {
-        if (value.isVariable() && (value.parameter >= lstParameters.size() ||
-                                   !engine.checkAndSetVariableValue(value.value.toString(), lstParameters.get(value.parameter)))) {
-          return false;
-        }
+        return !value.isVariable() || (value.parameter < lstParameters.size() &&
+          engine.checkAndSetVariableValue(value.value.toString(), lstParameters.get(value.parameter)));
+      } else if (key == MatchProperties.EXPRENT_INVOCATION_CLASS) {
+        return value.value.equals(this.classname);
+      } else if (key == MatchProperties.EXPRENT_INVOCATION_SIGNATURE) {
+        return value.value.equals(this.name + this.stringDescriptor);
+      } else if (key == MatchProperties.EXPRENT_NAME) {
+        return value.value.equals(this.name);
       }
-      else if (key == MatchProperties.EXPRENT_INVOCATION_CLASS) {
-        if (!value.value.equals(this.classname)) {
-          return false;
-        }
-      }
-      else if (key == MatchProperties.EXPRENT_INVOCATION_SIGNATURE) {
-        if (!value.value.equals(this.name + this.stringDescriptor)) {
-          return false;
-        }
-      }
-    }
 
-    return true;
+      return true;
+    });
   }
 }

@@ -292,7 +292,7 @@ public class FieldExprent extends Exprent {
       return false;
     }
 
-    RuleValue rule = matchNode.getRules().get(MatchProperties.EXPRENT_FIELD_NAME);
+    RuleValue rule = matchNode.getRawRule(MatchProperties.EXPRENT_NAME);
     if (rule != null) {
       if (rule.isVariable()) {
         return engine.checkAndSetVariableValue((String)rule.value, this.name);
