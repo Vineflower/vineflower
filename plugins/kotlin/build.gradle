@@ -55,11 +55,13 @@ test {
   useJUnitPlatform()
 }
 
+jar {
+  enabled = false
+}
+
 shadowJar {
   archiveClassifier.set('')
 }
-
-// TODO: shadow all-jar seems to also include the main QF code???
 
 build.dependsOn(shadowJar)
 
@@ -68,6 +70,7 @@ publishing {
     mavenJava(MavenPublication) {
       artifactId = "quiltflower-kotlin"
       from components.java
+      artifact(shadowJar)
     }
   }
 }
