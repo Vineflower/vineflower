@@ -25,9 +25,8 @@ sourceSets {
 }
 
 dependencies {
-  implementation project(":")
+  shadow project(":")
   implementation fileTree(dir: 'libs', include: ['*.jar'])
-  shadow fileTree(dir: 'libs', include: ['*.jar'])
 
   testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
   testImplementation testFixtures(project(":"))
@@ -54,6 +53,10 @@ testDataClasses.dependsOn(testDataKotlinClasses)
 
 test {
   useJUnitPlatform()
+}
+
+shadowJar {
+  archiveClassifier.set('')
 }
 
 // TODO: shadow all-jar seems to also include the main QF code???
