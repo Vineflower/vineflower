@@ -64,6 +64,8 @@ public class KotlinTests extends SingleClassesTestBase {
     register(KOTLIN, "TestConvertedK2JOps");
     // TODO: Does not decompile to data class
     register(KOTLIN, "TestDataClass");
+    // TODO: Does not decompile to destructuring declaration
+    register(KOTLIN, "TestDestructors");
     // TODO: Type projections are not Kotlin equivalents
     register(KOTLIN, "TestGenerics");
     // TODO: Nothing, function types
