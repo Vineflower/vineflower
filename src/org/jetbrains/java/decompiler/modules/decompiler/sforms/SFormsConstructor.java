@@ -68,7 +68,7 @@ public abstract class SFormsConstructor implements SFormsCreator {
   private final Map<VarVersionPair, Integer> mapVersionFirstRange;
 
   // version, version
-  private final Map<VarVersionPair, VarVersionPair> phantomppnodes; // ++ and --
+  private final Map<Id<VarExprent>, VarVersionPair> phantomppnodes; // ++ and --
 
   // node.id, version, version
   private final Map<String, HashMap<VarVersionPair, VarVersionPair>> phantomexitnodes; // finally exits
@@ -417,14 +417,15 @@ public abstract class SFormsConstructor implements SFormsCreator {
               int varIndex = varExprent.getIndex();
               VarVersionPair varVersion = new VarVersionPair(varIndex, varExprent.getVersion());
 
-              VarVersionPair phantomVersion = this.phantomppnodes.get(varVersion);
+              Id<VarExprent> key = new Id<>(varExprent);
+              VarVersionPair phantomVersion = this.phantomppnodes.get(key);
               if (phantomVersion == null) {
 //                   get next version
                 int nextVersion = this.getNextFreeVersion(varIndex, null);
                 phantomVersion = new VarVersionPair(varIndex, nextVersion);
                 //ssuversions.createOrGetNode(phantomVersion);
                 this.ssuversions.createNode(phantomVersion);
-                this.phantomppnodes.put(varVersion, phantomVersion);
+                this.phantomppnodes.put(key, phantomVersion);
               }
 
               FastSparseSet<Integer> versions = varMaps.getNormal().get(varIndex);
@@ -1079,5 +1080,28 @@ public abstract class SFormsConstructor implements SFormsCreator {
     }
 
     return ret;
+  }
+
+  /**
+   * restores the default identity equality for an object
+   */
+  private class Id<T>{
+    private final T value;
+    public Id(T value){
+      this.value = value;
+    }
+    public T getValue(){
+      return this.value;
+    }
+
+    @Override
+    public int hashCode() {
+      return System.identityHashCode(this.value);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      return obj instanceof Id && ((Id<?>)obj).value == this.value;
+    }
   }
 }
