@@ -47,11 +47,11 @@ class TestDestructors {
    }// 55
 
    fun callDestructInlineLambdaWithControlFlow(x: Int) {
-      if (if (100 <= x) x < 1000 else false) {
+      if (100 <= x && x < 1000) {
          var `a$iv`: Int = this.component1(x);// 95
-         if (if (100 <= x) x < 1000 else false) {// 96
+         if (100 <= x && x < 1000) {// 96
             var `b$iv`: Int = this.component2(x);
-            if (if (100 <= x) x < 1000 else false) {// 58 97
+            if (100 <= x && x < 1000) {// 58 97
                System.out.println("" + `a$iv` + `b$iv` + this.component3(x));// 94 98
             }
          }
@@ -499,7 +499,6 @@ class 'pkg/TestDestructors' {
       19      49
       1a      49
       1b      49
-      26      49
       27      49
       2a      50
       2e      58
@@ -526,7 +525,6 @@ class 'pkg/TestDestructors' {
       4f      51
       50      51
       51      51
-      5c      51
       5d      51
       60      52
       64      58
@@ -553,7 +551,6 @@ class 'pkg/TestDestructors' {
       85      53
       86      53
       87      53
-      92      53
       93      53
       96      54
       9a      58
