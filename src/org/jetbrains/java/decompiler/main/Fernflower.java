@@ -4,6 +4,9 @@ package org.jetbrains.java.decompiler.main;
 import org.jetbrains.java.decompiler.api.Plugin;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.extern.*;
+import org.jetbrains.java.decompiler.main.plugins.JarPluginLoader;
+import org.jetbrains.java.decompiler.main.plugins.PluginSource;
+import org.jetbrains.java.decompiler.main.plugins.PluginSources;
 import org.jetbrains.java.decompiler.modules.renamer.ConverterHelper;
 import org.jetbrains.java.decompiler.modules.renamer.IdentifierConverter;
 import org.jetbrains.java.decompiler.modules.renamer.PoolInterceptor;
@@ -98,9 +101,15 @@ public class Fernflower implements IDecompiledData {
 
     PluginContext plugins = structContext.getPluginContext();
 
-    for (Plugin plugin : ServiceLoader.load(Plugin.class)) {
-      plugins.registerPlugin(plugin);
+    int pluginCount = 0;
+    for (PluginSource source : PluginSources.PLUGIN_SOURCES) {
+      for (Plugin plugin : source.findPlugins()) {
+        plugins.registerPlugin(plugin);
+        pluginCount++;
+      }
     }
+
+    DecompilerContext.getLogger().writeMessage("Loaded " + pluginCount + " plugins", IFernflowerLogger.Severity.INFO);
 
     plugins.initialize();
   }
@@ -213,5 +222,8 @@ public class Fernflower implements IDecompiledData {
   static {
     // Load all Java code attributes
     StructGeneralAttribute.init();
+
+    // Class-load all plugins that potentially could be included in the jar
+    JarPluginLoader.init();
   }
 }
