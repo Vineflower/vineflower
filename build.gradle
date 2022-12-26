@@ -165,9 +165,8 @@ test {
 }
 
 jar {
+  archiveClassifier = "slim"
   from sourceSets.main.output
-
-  enabled = false
 
   manifest {
     attributes (
@@ -202,21 +201,7 @@ def allJar = tasks.register('allJar', Jar) {allJar ->
   }
 }
 
-task slimJar(type:Jar) {
-  archiveClassifier = "slim"
-  from sourceSets.main.output
-
-  manifest {
-    attributes (
-      'Main-Class': 'org.jetbrains.java.decompiler.main.decompiler.ConsoleDecompiler',
-      'Implementation-Name': "Quiltflower",
-      'Implementation-Version': project.version
-    )
-  }
-}
-
 build.dependsOn(allJar)
-build.dependsOn(slimJar)
 
 tasks.withType(JavaCompile).configureEach {
   it.options.encoding = "UTF-8"
@@ -230,7 +215,6 @@ publishing {
         version = project.version + "-SNAPSHOT"
       }
       artifact(sourceJar)
-      artifact(slimJar)
       artifact(allJar)
     }
   }
