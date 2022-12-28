@@ -14,207 +14,258 @@ import java.util.Map;
 public interface IFernflowerPreferences {
   @Name("Remove Bridge Methods")
   @Description("Removes any methods that are marked as bridge from the decompiled output.")
-  String REMOVE_BRIDGE = "rbr";
+  @ShortName("rbr")
+  String REMOVE_BRIDGE = "remove-bridge";
 
   @Name("Remove Synthetic Methods And Fields")
   @Description("Removes any methods and fields that are marked as synthetic from the decompiled output.")
-  String REMOVE_SYNTHETIC = "rsy";
+  @ShortName("rsy")
+  String REMOVE_SYNTHETIC = "remove-synthetic";
 
   @Name("Decompile Inner Classes")
   @Description("Process inner classes and add them to the decompiled output.")
-  String DECOMPILE_INNER = "din";
+  @ShortName("din")
+  String DECOMPILE_INNER = "decompile-inner";
 
   @Name("Decompile Java 4 class references")
   @Description("Java 1 to Java 4 had a different class reference format. This resugars them properly.")
-  String DECOMPILE_CLASS_1_4 = "dc4";
+  @ShortName("dc4")
+  String DECOMPILE_CLASS_1_4 = "decompile-java4";
 
   @Name("Decompile Assertions")
   @Description("Decompile assert statements.")
-  String DECOMPILE_ASSERTIONS = "das";
+  @ShortName("das")
+  String DECOMPILE_ASSERTIONS = "decompile-assert";
 
   @Name("Hide Empty super()")
   @Description("Hide super() calls with no parameters.")
-  String HIDE_EMPTY_SUPER = "hes";
+  @ShortName("hes")
+  String HIDE_EMPTY_SUPER = "hide-empty-super";
 
   @Name("Hide Default Constructor")
   @Description("Hide constructors with no parameters and no code.")
-  String HIDE_DEFAULT_CONSTRUCTOR = "hdc";
+  @ShortName("hdc")
+  String HIDE_DEFAULT_CONSTRUCTOR = "hide-default-constructor";
 
   @Name("Decompile Generics")
   @Description("Decompile generics in variables, fields, and statements.")
-  String DECOMPILE_GENERIC_SIGNATURES = "dgs";
+  @ShortName("dgs")
+  String DECOMPILE_GENERIC_SIGNATURES = "decompile-generics";
 
   @Name("No Exceptions In Return")
   @Description("Integrate returns better in try-catch blocks.")
-  String NO_EXCEPTIONS_RETURN = "ner";
+  @ShortName("ner")
+  String NO_EXCEPTIONS_RETURN = "no-exceptions-return";
 
   @Name("Ensure synchronized ranges are complete")
   @Description("If a synchronized block has a monitorenter without any corresponding monitorexit, try to deduce where one should be to ensure the synchronized is proper.")
-  String ENSURE_SYNCHRONIZED_MONITOR = "esm";
+  @ShortName("esm")
+  String ENSURE_SYNCHRONIZED_MONITOR = "ensure-synchronized-montiors";
 
   @Name("Decompile Enums")
   @Description("Decompile enums.")
-  String DECOMPILE_ENUM = "den";
+  @ShortName("den")
+  String DECOMPILE_ENUM = "decompile-enums";
 
   @Name("Decompile Preview Features")
   @Description("Decompile features marked as preview or incubating in the latest Java versions.")
-  String DECOMPILE_PREVIEW = "dpr";
+  @ShortName("dpr")
+  String DECOMPILE_PREVIEW = "decompile-preview";
 
   @Name("Remove reference getClass()")
   @Description("obj.new Inner() or calling invoking a method on a method reference will create a synthetic getClass() call. This removes it.")
-  String REMOVE_GET_CLASS_NEW = "rgn";
+  @ShortName("rgn")
+  String REMOVE_GET_CLASS_NEW = "remove-getclass";
 
   @Name("Keep Literals As Is")
   @Description("Keep NaN, infinties, and pi values as is without resugaring them.")
-  String LITERALS_AS_IS = "lit";
+  @ShortName("lit")
+  String LITERALS_AS_IS = "keep-literals";
 
   @Name("Represent boolean as 0/1")
   @Description("The JVM represents booleans as integers 0 and 1. This decodes 0 and 1 as boolean when it makes sense.")
-  String BOOLEAN_TRUE_ONE = "bto";
+  @ShortName("bto")
+  String BOOLEAN_TRUE_ONE = "boolean-as-int";
 
   @Name("ASCII String Characters")
   @Description("Encode non-ASCII characters in string and character literals as Unicode escapes.")
-  String ASCII_STRING_CHARACTERS = "asc";
+  @ShortName("asc")
+  String ASCII_STRING_CHARACTERS = "ascii-strings";
 
   @Name("Synthetic Not Set")
   @Description("Treat some known structures as synthetic even when not explicitly set.")
-  String SYNTHETIC_NOT_SET = "nns";
+  @ShortName("nns")
+  String SYNTHETIC_NOT_SET = "synthetic-not-set";
 
   @Name("Treat Undefined Param Type As Object")
   @Description("Treat nameless types as java.lang.Object.")
-  String UNDEFINED_PARAM_TYPE_OBJECT = "uto";
+  @ShortName("uto")
+  String UNDEFINED_PARAM_TYPE_OBJECT = "undefined-as-object";
 
   @Name("Use LVT Names")
   @Description("Use LVT names for local variables and parameters instead of var<index>_<version>.")
-  String USE_DEBUG_VAR_NAMES = "udv";
+  @ShortName("udv")
+  String USE_DEBUG_VAR_NAMES = "use-lvt-names";
 
   @Name("Use Method Parameters")
   @Description("Use method parameter names, as given in the MethodParameters attribute.")
-  String USE_METHOD_PARAMETERS = "ump";
+  @ShortName("ump")
+  String USE_METHOD_PARAMETERS = "use-method-parameters";
 
   @Name("Remove Empty try-catch blocks")
   @Description("Remove try-catch blocks with no code.")
-  String REMOVE_EMPTY_RANGES = "rer";
+  @ShortName("rer")
+  String REMOVE_EMPTY_RANGES = "remove-empty-try-catch";
 
   @Name("Decompile Finally")
   @Description("Decompile finally blocks.")
-  String FINALLY_DEINLINE = "fdi";
+  @ShortName("fdi")
+  String FINALLY_DEINLINE = "decompile-finally";
 
   @Name("Resugar Intellij IDEA @NotNull")
   @Description("Resugar Intellij IDEA's code generated by @NotNull annotations.")
-  String IDEA_NOT_NULL_ANNOTATION = "inn";
+  @ShortName("inn")
+  String IDEA_NOT_NULL_ANNOTATION = "resugar-idea-notnull";
 
   @Name("Decompile Lambdas as Anonymous Classes")
   @Description("Decompile lambda expressions as anonymous classes.")
-  String LAMBDA_TO_ANONYMOUS_CLASS = "lac";
+  @ShortName("lac")
+  String LAMBDA_TO_ANONYMOUS_CLASS = "lambda-to-anonymous-class";
 
   @Name("Bytecode to Source Mapping")
   @Description("Map Bytecode to source lines.")
-  String BYTECODE_SOURCE_MAPPING = "bsm";
+  @ShortName("bsm")
+  String BYTECODE_SOURCE_MAPPING = "bytecode-source-mapping";
 
   @Name("Dump Code Lines")
   @Description("Dump line mappings to output archive zip entry extra data")
-  String DUMP_CODE_LINES = "dcl";
+  @ShortName("dcl")
+  String DUMP_CODE_LINES = "dump-code-lines";
 
   @Name("Ignore Invalid Bytecode")
   @Description("Ignore bytecode that is malformed.")
-  String IGNORE_INVALID_BYTECODE = "iib";
+  @ShortName("iib")
+  String IGNORE_INVALID_BYTECODE = "ignore-invalid-bytecode";
 
   @Name("Verify Anonymous Classes")
   @Description("Verify that anonymous classes are local.")
-  String VERIFY_ANONYMOUS_CLASSES = "vac";
+  @ShortName("vac")
+  String VERIFY_ANONYMOUS_CLASSES = "verify-anonymous-classes";
 
   @Name("Ternary Constant Simplification")
   @Description("Fold branches of ternary expressions that have boolean true and false constants.")
-  String TERNARY_CONSTANT_SIMPLIFICATION = "tcs";
+  @ShortName("tcs")
+  String TERNARY_CONSTANT_SIMPLIFICATION = "ternary-constant-simplification";
 
   @Name("Pattern Matching")
   @Description("Decompile with if and switch pattern matching enabled.")
-  String PATTERN_MATCHING = "pam";
+  @ShortName("pam")
+  String PATTERN_MATCHING = "pattern-matching";
 
   @Name("Try-Loop fix")
   @Description("Code with a while loop inside of a try-catch block sometimes is malformed, this fixes it.")
-  String TRY_LOOP_FIX = "tlf";
+  @ShortName("tlf")
+  String TRY_LOOP_FIX = "try-loop-fix";
 
   @Name("[Experimental] Ternary In If Conditions")
   @Description("Tries to collapse if statements that have a ternary in their condition.")
-  String TERNARY_CONDITIONS = "tco";
+  @ShortName("tco")
+  String TERNARY_CONDITIONS = "ternary-in-if";
 
   @Name("Decompile Switch Expressions")
   @Description("Decompile switch expressions in modern Java class files.")
-  String SWITCH_EXPRESSIONS = "swe";
+  @ShortName("swe")
+  String SWITCH_EXPRESSIONS = "decompile-switch-expressions";
 
   @Name("[Debug] Show hidden statements")
   @Description("Display code blocks hidden, for debugging purposes")
-  String SHOW_HIDDEN_STATEMENTS = "shs";
+  @ShortName("shs")
+  String SHOW_HIDDEN_STATEMENTS = "show-hidden-statements";
 
   @Name("Override Annotation")
   @Description("Display override annotations for methods known to the decompiler.")
-  String OVERRIDE_ANNOTATION = "ovr";
+  @ShortName("ovr")
+  String OVERRIDE_ANNOTATION = "override-annotation";
 
   @Name("Second-Pass Stack Simplficiation")
   @Description("Simplify variables across stack bounds to resugar complex statements.")
-  String SIMPLIFY_STACK_SECOND_PASS = "ssp";
+  @ShortName("ssp")
+  String SIMPLIFY_STACK_SECOND_PASS = "simplify-stack";
 
   @Name("[Experimental] Verify Variable Merges")
   @Description("Double checks to make sure the validity of variable merges. If you are having strange recompilation issues, this is a good place to start.")
-  String VERIFY_VARIABLE_MERGES = "vvm";
+  @ShortName("vvm")
+  String VERIFY_VARIABLE_MERGES = "verify-merges";
 
   @Name("Include Entire Classpath")
   @Description("Give the decompiler information about every jar on the classpath.")
-  String INCLUDE_ENTIRE_CLASSPATH = "iec";
+  @ShortName("iec")
+  String INCLUDE_ENTIRE_CLASSPATH = "include-classpath";
 
   @Name("Include Java Runtime")
   @Description("Give the decompiler information about the Java runtime, either 1 or current for the current runtime, or a path to another runtime")
-  String INCLUDE_JAVA_RUNTIME = "jrt";
+  @ShortName("jrt")
+  String INCLUDE_JAVA_RUNTIME = "include-runtime";
 
   @Name("Explicit Generic Arguments")
   @Description("Put explicit diamond generic arguments on method calls.")
-  String EXPLICIT_GENERIC_ARGUMENTS = "ega";
+  @ShortName("ega")
+  String EXPLICIT_GENERIC_ARGUMENTS = "explicit-generics";
 
   @Name("Inline Simple Lambdas")
   @Description("Remove braces on simple, one line, lambda expressions.")
-  String INLINE_SIMPLE_LAMBDAS = "isl";
+  @ShortName("isl")
+  String INLINE_SIMPLE_LAMBDAS = "inline-simple-lambdas";
 
   @Name("Logging Level")
   @Description("Logging level. Must be one of: 'info', 'debug', 'warn', 'error'.")
-  String LOG_LEVEL = "log";
+  @ShortName("log")
+  String LOG_LEVEL = "log-level";
 
   @Name("[DEPRECATED] Max time to process method")
   @Description("Maximum time in seconds to process a method. This is deprecated, do not use.")
-  String MAX_PROCESSING_METHOD = "mpm";
+  @ShortName("mpm")
+  String MAX_PROCESSING_METHOD = "max-time-per-method";
 
   @Name("Rename Members")
   @Description("Rename classes, fields, and methods with a number suffix to help in deobfuscation.")
-  String RENAME_ENTITIES = "ren";
+  @ShortName("ren")
+  String RENAME_ENTITIES = "rename-members";
 
   @Name("User Renamer Class")
   @Description("Path to a class that implements IIdentifierRenamer.")
-  String USER_RENAMER_CLASS = "urc";
+  @ShortName("urc")
+  String USER_RENAMER_CLASS = "user-renamer-class";
 
   @Name("New Line Seperator")
   @Description("Character that seperates lines in the decompiled output.")
-  String NEW_LINE_SEPARATOR = "nls";
+  @ShortName("nls")
+  String NEW_LINE_SEPARATOR = "new-line-separator";
 
   @Name("Indent String")
   @Description("A string of spaces or tabs that is placed for each indent level.")
-  String INDENT_STRING = "ind";
+  @ShortName("ind")
+  String INDENT_STRING = "indent-string";
 
   @Name("Preferred line length")
   @Description("Max line length before formatting is applied.")
-  String PREFERRED_LINE_LENGTH = "pll";
+  @ShortName("pll")
+  String PREFERRED_LINE_LENGTH = "preferred-line-length";
 
   @Name("User Renamer Class")
   @Description("Path to a class that implements IIdentifierRenamer.")
-  String BANNER = "ban";
+  @ShortName("ban")
+  String BANNER = "user-renamer-class";
 
   @Name("Error Message")
   @Description("Message to display when an error occurs in the decompiler.")
-  String ERROR_MESSAGE = "erm";
+  @ShortName("erm")
+  String ERROR_MESSAGE = "error-message";
 
   @Name("Thread Count")
   @Description("How many threads to use to decompile.")
-  String THREADS = "thr";
+  @ShortName("thr")
+  String THREADS = "thread-count";
 
   String DUMP_ORIGINAL_LINES = "__dump_original_lines__";
   String UNIT_TEST_MODE = "__unit_test_mode__";
@@ -224,47 +275,58 @@ public interface IFernflowerPreferences {
 
   @Name("JAD-Style Variable Naming")
   @Description("Use JAD-style variable naming for local variables, instead of var<index>_<version>A.")
-  String USE_JAD_VARNAMING = "jvn";
+  @ShortName("jvn")
+  String USE_JAD_VARNAMING = "jad-style-variable-naming";
 
   @Name("Skip Extra Files")
   @Description("Skip copying non-class files from the input folder or file to the output")
-  String SKIP_EXTRA_FILES = "sef";
+  @ShortName("sef")
+  String SKIP_EXTRA_FILES = "skip-extra-files";
 
   @Name("Warn about inconsistent inner attributes")
   @Description("Warn about inconsistent inner class attributes")
-  String WARN_INCONSISTENT_INNER_CLASSES = "win";
+  @ShortName("win")
+  String WARN_INCONSISTENT_INNER_CLASSES = "warn-inconsistent-inner-attributes";
 
   @Name("Dump Bytecode On Error")
   @Description("Put the bytecode in the method body when an error occurs.")
-  String DUMP_BYTECODE_ON_ERROR = "dbe";
+  @ShortName("dbe")
+  String DUMP_BYTECODE_ON_ERROR = "dump-bytecode-on-error";
 
   @Name("Dump Exceptions On Error")
   @Description("Put the exception message in the method body or source file when an error occurs.")
-  String DUMP_EXCEPTION_ON_ERROR = "dee";
+  @ShortName("dee")
+  String DUMP_EXCEPTION_ON_ERROR = "dump-exception-on-error";
 
   @Name("Decompiler Comments")
   @Description("Sometimes, odd behavior of the bytecode or unfixable problems occur. This enables or disables the adding of those to the decompiled output.")
-  String DECOMPILER_COMMENTS = "dec";
+  @ShortName("dec")
+  String DECOMPILER_COMMENTS = "decompiler-comments";
 
   @Name("SourceFile comments")
   @Description("Add debug comments showing the class SourceFile attribute if present.")
-  String SOURCE_FILE_COMMENTS = "sfc";
+  @ShortName("sfc")
+  String SOURCE_FILE_COMMENTS = "sourcefile-comments";
 
   @Name("Decompile complex constant-dynamic expressions")
   @Description("Some constant-dynamic expressions can't be converted to a single Java expression with identical run-time behaviour. This decompiles them to a similar non-lazy expression, marked with a comment.")
-  String DECOMPILE_COMPLEX_CONDYS = "dcc";
+  @ShortName("dcc")
+  String DECOMPILE_COMPLEX_CONDYS = "decompile-complex-constant-dynamic";
 
   @Name("Force JSR inline")
   @Description("Forces the processing of JSR instructions even if the class files shouldn't contain it (Java 7+)")
-  String FORCE_JSR_INLINE = "fji";
+  @ShortName("fji")
+  String FORCE_JSR_INLINE = "force-jsr-inline";
 
   @Name("Dump Text Tokens")
   @Description("Dump Text Tokens on each class file")
-  String DUMP_TEXT_TOKENS = "dtt";
+  @ShortName("dtt")
+  String DUMP_TEXT_TOKENS = "dump-text-tokens";
 
   @Name("Remove Imports")
   @Description("Remove import statements from the decompiled code")
-  String REMOVE_IMPORTS = "rim";
+  @ShortName("rim")
+  String REMOVE_IMPORTS = "remove-imports";
 
   Map<String, Object> DEFAULTS = getDefaults();
 
@@ -350,6 +412,12 @@ public interface IFernflowerPreferences {
   @Retention(RetentionPolicy.RUNTIME)
   @Target(ElementType.FIELD)
   public @interface Description {
+    String value();
+  }
+
+  @Retention(RetentionPolicy.RUNTIME)
+  @Target(ElementType.FIELD)
+  public @interface ShortName {
     String value();
   }
 }

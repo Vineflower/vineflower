@@ -4,16 +4,17 @@ import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 public class ConsoleHelp {
   private static final String[] DEFAULT_HELP = {
-    "Usage: java -jar quiltflower.jar [-<option>=<value>]* [<source>]+ <destination>",
+    "Usage: java -jar quiltflower.jar [--<option>=<value>]* [<source>]+ <destination>",
     "At least one source file or directory must be specified.",
     "Options:",
-    "--help: Show this help",
+    "-h, --help: Show this help",
     "", "Saving options",
     "A maximum of one of the options can be specified:",
     "--file          - Write the decompiled source to a file",
@@ -22,13 +23,16 @@ public class ConsoleHelp {
     "If unspecified, the decompiled source will be automatically detected based on destination name.",
     "", "General options",
     "These options can be specified multiple times.",
-    "-e=<path>     - Add the specified path to the list of external libraries",
-    "-only=<class> - Only decompile the specified class",
+    "-e=<path>, --add-external=<path> - Add the specified path to the list of external libraries",
+    "-only=<class>, --only=<class>    - Only decompile the specified class",
     "", "Additional options",
     "These options take the last specified value.",
-    "They each are specified with a three-character name followed by an equals sign, followed by the value.",
+    "They are mostly specified with a name followed by an equals sign, followed by the value.",
     "Booleans are traditionally indicated with `0` or `1`, but may also be specified with `true` or `false`.",
-    "Because of this, an option indicated as a boolean may actually be a number."
+    "Because of this, an option shown in this list as a boolean may actually be a number.",
+    "Boolean options can also be specified without a value, in which case they are treated as `true`.",
+    "They can also be specified with a `no-` prefix, in which case they are treated as `false`.",
+    "For example, `--decompile-generics` is equivalent to `--decompile-generics=true`.",
     // Options are added at runtime
   };
 
@@ -43,23 +47,39 @@ public class ConsoleHelp {
 
     Map<String, Object> defaults = IFernflowerPreferences.DEFAULTS;
 
+    fields.sort(Comparator.comparing((Field a) -> {
+      try {
+        return a.get(null).toString();
+      } catch (IllegalAccessException e) {
+        return "";
+      }
+    }));
+
     for (Field field : fields) {
       IFernflowerPreferences.Name name = field.getAnnotation(IFernflowerPreferences.Name.class);
       IFernflowerPreferences.Description description = field.getAnnotation(IFernflowerPreferences.Description.class);
 
       String paramName;
+      boolean isShortName = false;
       try {
         paramName = (String) field.get(null);
       } catch (IllegalAccessException e) {
-        continue;
+        IFernflowerPreferences.ShortName shortName = field.getAnnotation(IFernflowerPreferences.ShortName.class);
+        if (shortName == null) {
+          continue;
+        }
+        paramName = shortName.value();
+        isShortName = true;
       }
 
-      if (paramName.length() != 3) {
+      if (name == null || description == null) {
         continue;
       }
 
       StringBuilder sb = new StringBuilder();
-      sb.append("-").append(paramName).append("=<");
+      sb.append(isShortName ? "-" : "--")
+        .append(paramName)
+        .append("=<");
 
       String type;
       String defaultValue = (String) defaults.get(paramName);
@@ -67,12 +87,12 @@ public class ConsoleHelp {
         sb.append("string>");
         type = null;
       } else if (defaultValue.equals("0") || defaultValue.equals("1")) {
-        sb.append("bool>  ");
+        sb.append("bool>");
         type = "bool";
       } else {
         try {
           Integer.parseInt(defaultValue);
-          sb.append("int>   ");
+          sb.append("int>");
           type = "int";
         } catch (NumberFormatException e) {
           sb.append("string>");
@@ -80,17 +100,10 @@ public class ConsoleHelp {
         }
       }
 
-      sb.append(" - ");
-
-      if (name != null) {
-        sb.append(name.value());
-      } else {
-        sb.append(field.getName());
-      }
-
-      if (description != null) {
-        sb.append(": ").append(description.value());
-      }
+      sb.append(" - ")
+        .append(name.value())
+        .append(": ")
+        .append(description.value());
 
       if (type != null) {
         sb.append(" (default: ");
