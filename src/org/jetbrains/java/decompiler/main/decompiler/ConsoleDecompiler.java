@@ -124,11 +124,11 @@ public class ConsoleDecompiler implements /* IBytecodeProvider, */ IResultSaver,
 
         isOption = false;
 
-        if (arg.startsWith("-e=")) {
-          addPath(libraries, arg.substring(3));
+        if (arg.startsWith("-e=") || arg.startsWith("--add-external=")) {
+          addPath(libraries, arg.substring(arg.indexOf('=') + 1));
         }
-        else if (arg.startsWith("-only=")) {
-          whitelist.add(arg.substring(6));
+        else if (arg.startsWith("-only=") || arg.startsWith("--only=")) {
+          whitelist.add(arg.substring(arg.indexOf('=') + 1));
         }
         else {
           addPath(sources, arg);
