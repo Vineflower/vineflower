@@ -297,11 +297,11 @@ public interface IFernflowerPreferences {
   @Type(Type.INTEGER)
   String PREFERRED_LINE_LENGTH = "preferred-line-length";
 
-  @Name("User Renamer Class")
-  @Description("Path to a class that implements IIdentifierRenamer.")
+  @Name("Banner")
+  @Description("A message to display at the top of the decompiled file.")
   @ShortName("ban")
   @Type(Type.STRING)
-  String BANNER = "user-renamer-class";
+  String BANNER = "banner";
 
   @Name("Error Message")
   @Description("Message to display when an error occurs in the decompiler.")
