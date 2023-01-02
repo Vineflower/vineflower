@@ -15,17 +15,20 @@ public class ConsoleHelp {
     "At least one source file or directory must be specified.",
     "Options:",
     "-h, --help: Show this help",
-    "", "Saving options",
+    "",
+    "Saving options",
     "A maximum of one of the options can be specified:",
     "--file          - Write the decompiled source to a file",
     "--folder        - Write the decompiled source to a folder",
     "--legacy-saving - Use the legacy console-specific method of saving",
     "If unspecified, the decompiled source will be automatically detected based on destination name.",
-    "", "General options",
+    "",
+    "General options",
     "These options can be specified multiple times.",
     "-e=<path>, --add-external=<path> - Add the specified path to the list of external libraries",
     "-only=<class>, --only=<class>    - Only decompile the specified class",
-    "", "Additional options",
+    "",
+    "Additional options",
     "These options take the last specified value.",
     "They are mostly specified with a name followed by an equals sign, followed by the value.",
     "Boolean options can also be specified without a value, in which case they are treated as `true`.",
@@ -88,10 +91,16 @@ public class ConsoleHelp {
       if (defaults.containsKey(paramName)) {
         sb.append(" (default: ");
         Object value = defaults.get(paramName);
-        if (type.value().equals(IFernflowerPreferences.Type.BOOLEAN)) {
-          sb.append(value.equals("1"));
-        } else {
-          sb.append(value);
+        switch (type.value()) {
+          case IFernflowerPreferences.Type.BOOLEAN:
+            sb.append(value.equals("1"));
+            break;
+          case IFernflowerPreferences.Type.STRING:
+            sb.append('"').append(value).append('"');
+            break;
+          default:
+            sb.append(value);
+            break;
         }
         sb.append(")");
       }
