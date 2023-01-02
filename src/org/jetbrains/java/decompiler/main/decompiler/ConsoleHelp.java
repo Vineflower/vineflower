@@ -28,8 +28,6 @@ public class ConsoleHelp {
     "", "Additional options",
     "These options take the last specified value.",
     "They are mostly specified with a name followed by an equals sign, followed by the value.",
-    "Booleans are traditionally indicated with `0` or `1`, but may also be specified with `true` or `false`.",
-    "Because of this, an option shown in this list as a boolean may actually be a number.",
     "Boolean options can also be specified without a value, in which case they are treated as `true`.",
     "They can also be specified with a `no-` prefix, in which case they are treated as `false`.",
     "For example, `--decompile-generics` is equivalent to `--decompile-generics=true`.",
@@ -58,6 +56,7 @@ public class ConsoleHelp {
     for (Field field : fields) {
       IFernflowerPreferences.Name name = field.getAnnotation(IFernflowerPreferences.Name.class);
       IFernflowerPreferences.Description description = field.getAnnotation(IFernflowerPreferences.Description.class);
+      IFernflowerPreferences.Type type = field.getAnnotation(IFernflowerPreferences.Type.class);
 
       String paramName;
       boolean isShortName = false;
@@ -72,51 +71,27 @@ public class ConsoleHelp {
         isShortName = true;
       }
 
-      if (name == null || description == null) {
+      if (name == null || description == null || type == null) {
         continue;
       }
 
       StringBuilder sb = new StringBuilder();
       sb.append(isShortName ? "-" : "--")
         .append(paramName)
-        .append("=<");
-
-      String type;
-      String defaultValue = (String) defaults.get(paramName);
-      if (defaultValue == null) {
-        sb.append("string>");
-        type = null;
-      } else if (defaultValue.equals("0") || defaultValue.equals("1")) {
-        sb.append("bool>");
-        type = "bool";
-      } else {
-        try {
-          Integer.parseInt(defaultValue);
-          sb.append("int>");
-          type = "int";
-        } catch (NumberFormatException e) {
-          sb.append("string>");
-          type = "string";
-        }
-      }
-
-      sb.append(" - ")
+        .append("=<")
+        .append(type.value())
+        .append("> - ")
         .append(name.value())
         .append(": ")
         .append(description.value());
 
-      if (type != null) {
+      if (defaults.containsKey(paramName)) {
         sb.append(" (default: ");
-        switch (type) {
-          case "bool":
-            sb.append(defaultValue.equals("1"));
-            break;
-          case "int":
-            sb.append(defaultValue);
-            break;
-          case "string":
-            sb.append('"').append(defaultValue).append('"');
-            break;
+        Object value = defaults.get(paramName);
+        if (type.value().equals(IFernflowerPreferences.Type.BOOLEAN)) {
+          sb.append(value.equals("1"));
+        } else {
+          sb.append(value);
         }
         sb.append(")");
       }
