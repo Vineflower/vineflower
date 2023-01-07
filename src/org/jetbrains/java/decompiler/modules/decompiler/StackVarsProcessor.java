@@ -291,11 +291,11 @@ public class StackVarsProcessor {
 
     for (Exprent expr : exprent.getAllExprents()) {
       while (true) {
-        Object[] arr = iterateChildExprent(expr, exprent, next, mapVarValues, ssau);
-        Exprent retexpr = (Exprent)arr[0];
-        changed |= (Boolean)arr[1] ? 1 : 0;
+        IterateChildExprentRet arr = iterateChildExprent(expr, exprent, next, mapVarValues, ssau);
+        Exprent retexpr = arr.retexpr;
+        changed |= arr.changed ? 1 : 0;
 
-        boolean isReplaceable = (Boolean)arr[2];
+        boolean isReplaceable = arr.isReplaceable;
         if (retexpr != null) {
           if (isReplaceable) {
             replaceSingleVar(exprent, (VarExprent)expr, retexpr, ssau);
@@ -319,7 +319,7 @@ public class StackVarsProcessor {
     VarExprent left = null;
     Exprent right = null;
 
-    if (exprent instanceof AssignmentExprent) {
+    if (exprent instanceof AssignmentExprent && ((AssignmentExprent)exprent).getCondType() == null ) {
       AssignmentExprent as = (AssignmentExprent)exprent;
       if (as.getLeft() instanceof VarExprent) {
         left = (VarExprent)as.getLeft();
@@ -372,7 +372,7 @@ public class StackVarsProcessor {
         }
 
         return new int[]{-1, changed};
-      } else if (left.isStack() && right instanceof FieldExprent) {
+      } else if (left.isStack() && right instanceof FieldExprent && false) {
         // Unused field access, remove
         // Field access is pure so this should be safe
         // This technically hides that there is a field access though!
@@ -437,7 +437,7 @@ public class StackVarsProcessor {
       VarVersionPair usedver = new VarVersionPair(usedvar.var, usedvar.version);
 
       if (isVersionToBeReplaced(usedver, mapVars, ssau, leftVar) &&
-          (right instanceof ConstExprent || right instanceof VarExprent || right instanceof FieldExprent
+          (right instanceof ConstExprent || right instanceof VarExprent // || right instanceof FieldExprent
            || setNextVars == null || setNextVars.contains(usedver))) {
 
         setTempUsedVers.add(usedver);
@@ -453,9 +453,9 @@ public class StackVarsProcessor {
       for (VarVersionPair usedver : setTempUsedVers) {
         Exprent copy = right.copy();
 
-        if (right instanceof FieldExprent && ssau.getMapFieldVars().containsKey(right.id)) {
-          ssau.getMapFieldVars().put(copy.id, ssau.getMapFieldVars().get(right.id));
-        }
+//        if (right instanceof FieldExprent && ssau.getMapFieldVars().containsKey(right.id)) {
+//          ssau.getMapFieldVars().put(copy.id, ssau.getMapFieldVars().get(right.id));
+//        }
 
         mapVarValues.put(usedver, copy);
       }
@@ -601,7 +601,18 @@ public class StackVarsProcessor {
   }
 
   // {returnExprent, changed, isReplaceable}
-  private static Object[] iterateChildExprent(Exprent exprent,
+  private static class IterateChildExprentRet {
+    final Exprent retexpr;
+    final boolean changed;
+    final boolean isReplaceable;
+
+    private IterateChildExprentRet(Exprent retexpr, boolean changed, boolean isReplaceable) {
+      this.retexpr = retexpr;
+      this.changed = changed;
+      this.isReplaceable = isReplaceable;
+    }
+  }
+  private static IterateChildExprentRet iterateChildExprent(Exprent exprent,
                                               Exprent parent,
                                               Exprent next,
                                               Map<VarVersionPair, Exprent> mapVarValues,
@@ -610,11 +621,11 @@ public class StackVarsProcessor {
 
     for (Exprent expr : exprent.getAllExprents()) {
       while (true) {
-        Object[] arr = iterateChildExprent(expr, parent, next, mapVarValues, ssau);
-        Exprent retexpr = (Exprent)arr[0];
-        changed |= (Boolean)arr[1];
+        IterateChildExprentRet arr = iterateChildExprent(expr, parent, next, mapVarValues, ssau);
+        Exprent retexpr = arr.retexpr;
+        changed |= arr.changed;
 
-        boolean isReplaceable = (Boolean)arr[2];
+        boolean isReplaceable = arr.isReplaceable;
         if (retexpr != null) {
           if (isReplaceable) {
             replaceSingleVar(exprent, (VarExprent)expr, retexpr, ssau);
@@ -636,7 +647,7 @@ public class StackVarsProcessor {
     // Try to replace the exprent if it's a variable found in the var values map
     Exprent dest = isReplaceableVar(exprent, mapVarValues);
     if (dest != null) {
-      return new Object[]{dest, true, true};
+      return new IterateChildExprentRet(dest, true, true);
     }
 
 
@@ -646,7 +657,7 @@ public class StackVarsProcessor {
     // If assignment to variable gather details
     if (exprent instanceof AssignmentExprent) {
       AssignmentExprent as = (AssignmentExprent)exprent;
-      if (as.getLeft() instanceof VarExprent) {
+      if (as.getCondType() == null && as.getLeft() instanceof VarExprent) {
         left = (VarExprent)as.getLeft();
         right = as.getRight();
       }
@@ -654,7 +665,7 @@ public class StackVarsProcessor {
 
     // No variable assignment found or variable assignment is to an effectively final variable, stop
     if (left == null || left.isEffectivelyFinal()) {
-      return new Object[]{null, changed, false};
+      return new IterateChildExprentRet(null, changed, false);
     }
 
     boolean isHeadSynchronized = false;
@@ -667,7 +678,7 @@ public class StackVarsProcessor {
 
     // stack variable or synchronized head exprent
     if (!left.isStack() && !isHeadSynchronized) {
-      return new Object[]{null, changed, false};
+      return new IterateChildExprentRet(null, changed, false);
     }
 
     VarVersionPair leftVar = new VarVersionPair(left);
@@ -676,23 +687,23 @@ public class StackVarsProcessor {
     boolean notdom = getUsedVersions(ssau, leftVar, usedVers);
 
     if (!notdom && usedVers.isEmpty()) {
-      return new Object[]{right, changed, false};
+      return new IterateChildExprentRet(right, changed, false);
     }
 
     // stack variables only
     if (!left.isStack()) {
-      return new Object[]{null, changed, false};
+      return new IterateChildExprentRet(null, changed, false);
     }
 
     int useflags = right.getExprentUse();
 
     if ((useflags & Exprent.BOTH_FLAGS) != Exprent.BOTH_FLAGS) {
-      return new Object[]{null, changed, false};
+      return new IterateChildExprentRet(null, changed, false);
     }
 
     Map<Integer, Set<VarVersionPair>> mapVars = getAllVarVersions(leftVar, right, ssau);
     if (mapVars.containsKey(leftVar.var) && notdom) {
-      return new Object[]{null, changed, false};
+      return new IterateChildExprentRet(null, changed, false);
     }
 
     mapVars.remove(leftVar.var);
@@ -721,18 +732,18 @@ public class StackVarsProcessor {
     if (!notdom && !vernotreplaced) {
       for (VarVersionPair usedver : setTempUsedVers) {
         Exprent copy = right.copy();
-        if (right instanceof FieldExprent && ssau.getMapFieldVars().containsKey(right.id)) {
-          ssau.getMapFieldVars().put(copy.id, ssau.getMapFieldVars().get(right.id));
-        }
+//        if (right instanceof FieldExprent && ssau.getMapFieldVars().containsKey(right.id)) {
+//          ssau.getMapFieldVars().put(copy.id, ssau.getMapFieldVars().get(right.id));
+//        }
 
         mapVarValues.put(usedver, copy);
       }
 
       // remove assignment
-      return new Object[]{right, changed, false};
+      return new IterateChildExprentRet(right, changed, false);
     }
 
-    return new Object[]{null, changed, false};
+    return new IterateChildExprentRet(null, changed, false);
   }
 
   private static boolean getUsedVersions(SSAUConstructorSparseEx ssa, VarVersionPair var, List<? super VarVersionNode> res) {
@@ -856,21 +867,22 @@ public class StackVarsProcessor {
         } else {
           map.put(varindex, null);
         }
-      } else if (expr instanceof FieldExprent) {
-        if (ssau.getMapFieldVars().containsKey(expr.id)) {
-          int varindex = ssau.getMapFieldVars().get(expr.id);
-
-          if (mapLiveVars.containsKey(varindex)) {
-            Set<VarVersionPair> verset = new HashSet<>();
-
-            for (int vers : mapLiveVars.get(varindex)) {
-              verset.add(new VarVersionPair(varindex, vers));
-            }
-
-            map.put(varindex, verset);
-          }
-        }
       }
+//      else if (expr instanceof FieldExprent) {
+//        if (ssau.getMapFieldVars().containsKey(expr.id)) {
+//          int varindex = ssau.getMapFieldVars().get(expr.id);
+//
+//          if (mapLiveVars.containsKey(varindex)) {
+//            Set<VarVersionPair> verset = new HashSet<>();
+//
+//            for (int vers : mapLiveVars.get(varindex)) {
+//              verset.add(new VarVersionPair(varindex, vers));
+//            }
+//
+//            map.put(varindex, verset);
+//          }
+//        }
+//      }
     }
 
     return map;
@@ -948,7 +960,7 @@ public class StackVarsProcessor {
                     VarVersionPair nextVVP = ssau.getVarAssignmentMap().get(new VarVersionPair(vvnode.var, vvnode.version));
                     next = ssau.getSsuVersions().nodes.getWithKey(nextVVP);
 
-                    if (nextVVP != null && nextVVP.var < 0) { // TODO check if field is final?
+                    if (nextVVP != null && nextVVP.var < 0 && false) { // TODO check if field is final?
                       vvp = nextVVP;
                       break;
                     }

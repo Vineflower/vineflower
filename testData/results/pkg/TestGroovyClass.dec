@@ -38,7 +38,7 @@ public class TestGroovyClass implements GroovyObject {
    @Transient
    public MetaClass getMetaClass() {
       MetaClass var10000 = this.metaClass;
-      if (this.metaClass != null) {
+      if (var10000 != null) {
          return var10000;
       } else {
          this.metaClass = this.$getStaticMetaClass();
@@ -86,7 +86,7 @@ public class TestGroovyClass implements GroovyObject {
       @Transient
       public MetaClass getMetaClass() {
          MetaClass var10000 = this.metaClass;
-         if (this.metaClass != null) {
+         if (var10000 != null) {
             return var10000;
          } else {
             this.metaClass = this.$getStaticMetaClass();
@@ -115,7 +115,7 @@ public class TestGroovyClass implements GroovyObject {
       @Transient
       public MetaClass getMetaClass() {
          MetaClass var10000 = this.metaClass;
-         if (this.metaClass != null) {
+         if (var10000 != null) {
             return var10000;
          } else {
             this.metaClass = this.$getStaticMetaClass();

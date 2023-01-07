@@ -514,7 +514,7 @@ public class DotExporter {
 
       for(VarVersionEdge edge: block.succs) {
         VarVersionNode dest = edge.dest;
-        buffer.append((block.var*1000+block.version)+"->"+(dest.var*1000+dest.version)+(edge.type==VarVersionEdge.EDGE_PHANTOM?" [style=dotted]":"")+";\r\n");
+        buffer.append((block.var*1000+block.version)+"->"+(dest.var*1000+dest.version)+(edge.type2==VarVersionEdge.Type.LINKED?" [style=dotted]":"")+";\r\n");
       }
     }
 

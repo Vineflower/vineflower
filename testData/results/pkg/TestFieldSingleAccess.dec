@@ -5,13 +5,13 @@ public final class TestFieldSingleAccess {
 
    public final void test() {
       Integer var10000 = this.field;// 24 25
-      if (this.field != null) {// 27
+      if (var10000 != null) {// 27
          System.out.println(var10000);// 28 30
       }
    }// 32
 
    public final void test1() {
-      synchronized(this.field) {// 38 39 42
+      synchronized(this.field) {// 38 39 41 42
          System.out.println('1');// 44 45 46
       }
    }// 64
@@ -36,6 +36,7 @@ class 'pkg/TestFieldSingleAccess' {
       1      13
       2      13
       3      13
+      5      13
       6      13
       7      14
       8      14
@@ -58,6 +59,7 @@ Lines mapping:
 32 <-> 11
 38 <-> 14
 39 <-> 14
+41 <-> 14
 42 <-> 14
 44 <-> 15
 45 <-> 15
@@ -67,7 +69,6 @@ Not mapped:
 26
 29
 40
-41
 47
 48
 50

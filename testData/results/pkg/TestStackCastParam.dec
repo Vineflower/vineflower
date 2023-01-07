@@ -5,8 +5,7 @@ public class TestStackCastParam {
    public int y;
 
    public void test(String s) {
-      float var10002 = (float)this.x;
-      get().b.accept(s, var10002, (float)this.y);// 8
+      get().b.accept(s, (float)this.x, (float)this.y);// 8
    }// 9
 
    public static TestStackCastParam.A get() {
@@ -25,42 +24,42 @@ public class TestStackCastParam {
 
 class 'pkg/TestStackCastParam' {
    method 'test (Ljava/lang/String;)V' {
-      0      8
-      1      8
-      2      8
-      3      8
-      4      8
-      5      8
-      6      8
+      0      7
+      1      7
+      2      7
+      3      7
+      4      7
+      5      7
+      6      7
       7      7
       8      7
       9      7
       a      7
       b      7
-      c      8
-      d      8
-      e      8
-      f      8
-      10      8
-      11      8
-      12      8
-      13      8
-      14      9
+      c      7
+      d      7
+      e      7
+      f      7
+      10      7
+      11      7
+      12      7
+      13      7
+      14      8
    }
 
    method 'get ()Lpkg/TestStackCastParam$A;' {
-      7      12
+      7      11
    }
 }
 
 class 'pkg/TestStackCastParam$B' {
    method 'accept (Ljava/lang/String;FF)V' {
-      0      21
+      0      20
    }
 }
 
 Lines mapping:
-8 <-> 9
-9 <-> 10
-12 <-> 13
-22 <-> 22
+8 <-> 8
+9 <-> 9
+12 <-> 12
+22 <-> 21

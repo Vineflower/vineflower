@@ -53,7 +53,7 @@ public final class IfPatternMatchProcessor {
 
     FunctionExprent func = (FunctionExprent) condition;
 
-    List<Exprent> exprents = func.getAllExprents(true);
+    List<Exprent> exprents = func.getAllExprents(true, true);
 
     // TODO: need to properly analyze the scope around instanceof to handle negations
 

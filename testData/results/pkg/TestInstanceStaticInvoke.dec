@@ -13,7 +13,8 @@ public class TestInstanceStaticInvoke {
    }// 12
 
    public void test2() {
-      method();// 15
+      TestInstanceStaticInvoke var10000 = this.inst;// 15
+      method();
    }// 16
 
    public static void method() {
@@ -36,14 +37,18 @@ class 'pkg/TestInstanceStaticInvoke' {
    }
 
    method 'test2 ()V' {
-      5      15
-      6      15
-      7      15
-      8      16
+      0      15
+      1      15
+      2      15
+      3      15
+      5      16
+      6      16
+      7      16
+      8      17
    }
 
    method 'method ()V' {
-      0      19
+      0      20
    }
 }
 
@@ -53,5 +58,5 @@ Lines mapping:
 11 <-> 12
 12 <-> 13
 15 <-> 16
-16 <-> 17
-20 <-> 20
+16 <-> 18
+20 <-> 21

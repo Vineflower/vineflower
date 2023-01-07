@@ -91,6 +91,7 @@ class 'pkg/TestLoopReturn' {
 
    method 'test1a (ZZ)V' {
       0      16
+      1      16
       4      17
       5      17
       8      18
@@ -106,6 +107,7 @@ class 'pkg/TestLoopReturn' {
 
    method 'test1b (ZZ)V' {
       0      26
+      1      26
       4      27
       5      27
       8      28

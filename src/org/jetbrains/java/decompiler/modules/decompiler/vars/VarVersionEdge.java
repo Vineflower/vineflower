@@ -3,56 +3,62 @@ package org.jetbrains.java.decompiler.modules.decompiler.vars;
 
 import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 
-public class VarVersionEdge { // FIXME: can be removed?
-
-  public static final int EDGE_GENERAL = 0;
-  public static final int EDGE_PHANTOM = 1;
-
-  public final int type;
+public final class VarVersionEdge {
 
   public final VarVersionNode source;
-
   public final VarVersionNode dest;
+  public final Type type2;
 
-  private final int hashCode;
-
-  public VarVersionEdge(int type, VarVersionNode source, VarVersionNode dest) {
+  private VarVersionEdge(VarVersionNode source, VarVersionNode dest, Type type) {
     ValidationHelper.notNull(source);
     ValidationHelper.notNull(dest);
+    ValidationHelper.notNull(type);
 
-    this.type = type;
     this.source = source;
     this.dest = dest;
-    this.hashCode = source.hashCode() ^ dest.hashCode() + type;
+    this.type2 = type;
   }
 
   @Override
   public boolean equals(Object o) {
-    if (o == this) return true;
-    if (!(o instanceof VarVersionEdge)) return false;
+    if (o == this) {
+      return true;
+    }
+    if (!(o instanceof VarVersionEdge)) {
+      return false;
+    }
 
     VarVersionEdge edge = (VarVersionEdge)o;
-    return type == edge.type && source == edge.source && dest == edge.dest;
+    return this.type2 == edge.type2 && this.source == edge.source && this.dest == edge.dest;
   }
 
   @Override
   public int hashCode() {
-    return hashCode;
+    // TODO: why this weird hashcode?
+    return this.source.hashCode() ^ this.dest.hashCode() + this.type2.ordinal();
   }
 
   @Override
   public String toString() {
-    return source.toString() + " ->" + type + "-> " + dest.toString();
+    return this.type2 + ": " + this.source + " -> " + this.dest;
   }
 
   public static VarVersionEdge create(VarVersionNode source, VarVersionNode dest) {
-    return create(EDGE_GENERAL, source, dest);
+    return create(Type.NORMAL, source, dest);
   }
 
-  public static VarVersionEdge create(int type, VarVersionNode source, VarVersionNode dest) {
-    VarVersionEdge edge = new VarVersionEdge(type, source, dest);
+  public static VarVersionEdge link(VarVersionNode source, VarVersionNode dest) {
+    return create(Type.LINKED, source, dest);
+  }
+
+  public static VarVersionEdge create(Type type, VarVersionNode source, VarVersionNode dest) {
+    VarVersionEdge edge = new VarVersionEdge(source, dest, type);
     source.addSuccessor(edge);
     dest.addPredecessor(edge);
     return edge;
+  }
+
+  public enum Type {
+    NORMAL, LINKED
   }
 }

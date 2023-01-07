@@ -153,11 +153,11 @@ public class SimplifyExprentsHelper {
         continue;
       }
 
-      if (isMethodArrayAssign(current, next)) {
-        list.remove(index);
-        res = true;
-        continue;
-      }
+//      if (isMethodArrayAssign(current, next)) {
+//        list.remove(index);
+//        res = true;
+//        continue;
+//      }
 
       // constructor invocation
       if (isConstructorInvocationRemote(list, index)) {
