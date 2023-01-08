@@ -1,19 +1,11 @@
 package org.jetbrains.java.decompiler.main.plugins;
 
-import org.jetbrains.java.decompiler.main.DecompilerContext;
-import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
-
 import java.io.*;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ServiceLoader;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
+import java.net.URI;
+import java.nio.file.*;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 // Finds plugins included in the main Quiltflower Jar via Jar-In-Jar
 public class JarPluginLoader {
@@ -25,53 +17,35 @@ public class JarPluginLoader {
 
       // Ensure we are running out of a file
       if (myFile.exists() && !myFile.isDirectory() && myFile.getPath().endsWith(".jar")) {
-        try (JarFile qfJar = new JarFile(myFile)) {
-          Iterator<JarEntry> it = qfJar.entries().asIterator();
-          while (it.hasNext()) {
-            JarEntry next = it.next();
+        URI uri = URI.create("jar:" + myFile.toURI());
 
-            if (next.getName().startsWith("META-INF/plugins/") && next.getName().endsWith(".jar")) {
-              InputStream stream = qfJar.getInputStream(next);
-              File pluginFile = File.createTempFile("qf-plugin", "jar");
-              pluginFile.deleteOnExit();
+        Map<String, String> env = new HashMap<>();
+        // TODO: is this needed?
+        env.put("create", "true");
 
-              // Copy the jar from inside the main jar to a temp file
-              try (OutputStream output = new FileOutputStream(pluginFile)) {
-                stream.transferTo(output);
-              } catch (IOException ioException) {
-                ioException.printStackTrace();
-              }
+        FileSystem zipfs = FileSystems.newFileSystem(uri, env);
 
-              // TODO: plugins should really say what their main class is from the manifest
+        try (Stream<Path> pluginStream = Files.list(zipfs.getPath("META-INF", "plugins"))) {
+          List<Path> plugins = pluginStream.collect(Collectors.toList());
 
-              JarFile pluginJar = new JarFile(pluginFile);
-              Iterator<JarEntry> pluginIt = pluginJar.entries().asIterator();
-              while (pluginIt.hasNext()) {
-                JarEntry n = pluginIt.next();
-                // Find the serviceloader definition, and use that to load the plugin class
-                if (n.getName().contains("META-INF/services/org.jetbrains.java.decompiler.api.Plugin")) {
-                  InputStream pStream = pluginJar.getInputStream(n);
+          for (Path pluginJar : plugins) {
+            FileSystem pluginfs = FileSystems.newFileSystem(pluginJar, (ClassLoader) null);
 
-                  // Load in the new class
-                  String path = new String(pStream.readAllBytes());
-                  URLClassLoader child = new URLClassLoader(
-                    new URL[] {pluginFile.toURI().toURL()},
-                    JarPluginLoader.class.getClassLoader()
-                  );
+            Path file = pluginfs.getPath("META-INF", "services", "org.jetbrains.java.decompiler.api.Plugin");
+            String pluginClass = Files.readString(file);
 
-                  Class<?> clazz = Class.forName(path, true, child);
-                  PLUGIN_CLASSES.add(clazz);
+            InJarClassLoader loader = new InJarClassLoader(pluginfs);
 
-                  break;
-                }
-              }
-            }
+            Class<?> clazz = Class.forName(pluginClass, true, loader);
+            PLUGIN_CLASSES.add(clazz);
           }
         }
       }
 
     } catch (Exception e) {
-      DecompilerContext.getLogger().writeMessage("Couldn't load plugins!", IFernflowerLogger.Severity.INFO, e);
+      // TODO: use decompiler logger, but it's not ready yet. potentially set up a logger defer system?
+//      DecompilerContext.getLogger().writeMessage("Couldn't load plugins!", IFernflowerLogger.Severity.INFO, e);
+      e.printStackTrace();
     }
   }
 }
