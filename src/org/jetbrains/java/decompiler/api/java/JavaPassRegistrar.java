@@ -19,7 +19,7 @@ public final class JavaPassRegistrar {
   public Map<JavaPassLocation, List<NamedPass>> getPasses() {
     return Map.copyOf(
       passes.keySet()
-        .stream().collect(Collectors.toMap(k -> k, k -> List.copyOf(passes.get(k))))
+        .stream().collect(Collectors.toMap(k -> k, v -> List.copyOf(passes.get(v))))
     );
   }
 }

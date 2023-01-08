@@ -657,6 +657,11 @@ public class FunctionExprent extends Exprent {
     if (funcType == FunctionType.CAST && !doesCast()) {
       return lstOperands.get(0).getPrecedence();
     }
+
+    if (funcType == FunctionType.OTHER) {
+      throw new PluginImplementationException();
+    }
+
     return funcType.precedence;
   }
 

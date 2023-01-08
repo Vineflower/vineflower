@@ -272,6 +272,17 @@ public class KFunctionExprent extends FunctionExprent {
   }
 
   @Override
+  public int getPrecedence() {
+    if (kType == KFunctionType.EQUALS3) {
+      return 6;
+    } else if (kType == KFunctionType.IF_NULL) {
+      return 11;
+    }
+
+    return super.getPrecedence();
+  }
+
+  @Override
   public Exprent copy() {
     return new KFunctionExprent((FunctionExprent) super.copy());
   }

@@ -91,7 +91,7 @@ class TestDataClass {
                   + this.requestLineWrapsIfTheParamListIsTooLong.hashCode()
             )
             * 31
-         + (if ((this.nullability === null)) 0 else this.nullability.hashCode());
+         + (if (this.nullability === null) 0 else this.nullability.hashCode());
    }
 
    fun equals(other: Object?): Boolean  {
