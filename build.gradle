@@ -9,15 +9,48 @@ plugins {
 }
 
 apply plugin: 'jacoco'
-apply plugin: 'java'
 apply plugin: 'java-test-fixtures'
 apply plugin: 'groovy'
 apply plugin: 'scala'
 apply plugin: 'maven-publish'
 
-compileJava {
-  sourceCompatibility '11'
-  targetCompatibility '11'
+allprojects {
+  apply plugin: 'java'
+
+  group = 'org.quiltmc'
+
+  compileJava {
+    sourceCompatibility = '11'
+    targetCompatibility = '11'
+  }
+
+  java.toolchain {
+    languageVersion = JavaLanguageVersion.of(11)
+  }
+
+  repositories {
+    mavenCentral()
+  }
+
+  dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
+  }
+
+  test {
+    useJUnitPlatform()
+  }
+
+  tasks.withType(JavaCompile).configureEach {
+    it.options.encoding = "UTF-8"
+  }
+}
+
+subprojects {
+  dependencies {
+    implementation project(":")
+    testImplementation testFixtures(project(":"))
+  }
 }
 
 group = 'org.quiltmc'
@@ -40,8 +73,6 @@ sourceSets {
 repositories { mavenCentral() }
 
 dependencies {
-  testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
-  testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
   testImplementation 'org.junit.jupiter:junit-jupiter-params:5.9.0'
   testImplementation 'org.hamcrest:hamcrest:2.2'
 
@@ -64,10 +95,6 @@ jacocoTestReport {
   reports {
     xml.required = true
   }
-}
-
-java.toolchain {
-  languageVersion = JavaLanguageVersion.of(11)
 }
 
 tasks.withType(JavaCompile) {
@@ -151,8 +178,7 @@ class TestDataRuntimesProvider implements CommandLineArgumentProvider {
 
 test {
   maxHeapSize = "512M"
-  
-  useJUnitPlatform()
+
   systemProperty "DOT_EXPORT_DIR", System.getProperty("DOT_EXPORT_DIR", null)
   systemProperty "DOT_ERROR_EXPORT_DIR", System.getProperty("DOT_ERROR_EXPORT_DIR", null)
   systemProperty "VALIDATE_DECOMPILED_CODE", System.getProperty("VALIDATE_DECOMPILED_CODE", "false")
@@ -202,10 +228,6 @@ def allJar = tasks.register('allJar', Jar) {allJar ->
 }
 
 build.dependsOn(allJar)
-
-tasks.withType(JavaCompile).configureEach {
-  it.options.encoding = "UTF-8"
-}
 
 publishing {
   publications {

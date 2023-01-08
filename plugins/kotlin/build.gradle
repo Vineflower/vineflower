@@ -10,16 +10,6 @@ group = 'org.quiltmc'
 version = "0.1.0"
 archivesBaseName = 'quiltflower-kotlin'
 
-repositories {
-  mavenCentral()
-}
-
-compileJava {
-  sourceCompatibility '11'
-  targetCompatibility '11'
-}
-
-
 sourceSets {
   testDataKotlin.kotlin.srcDirs files("testData/src/kt/")
 }
@@ -28,17 +18,9 @@ dependencies {
   shadow project(":")
   implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-  testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
-  testImplementation testFixtures(project(":"))
-  testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
-
   testDataKotlinImplementation platform('org.jetbrains.kotlin:kotlin-bom')
   testDataKotlinImplementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
   testRuntimeOnly 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
-}
-
-java.toolchain {
-  languageVersion = JavaLanguageVersion.of(11)
 }
 
 task testDataClasses {
@@ -50,10 +32,6 @@ compileTestDataKotlinKotlin {
   destinationDirectory = file("testData/classes/kt")
 }
 testDataClasses.dependsOn(testDataKotlinClasses)
-
-test {
-  useJUnitPlatform()
-}
 
 jar {
   enabled = false
