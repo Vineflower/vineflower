@@ -284,12 +284,12 @@ public class StackVarsProcessor {
 
   // {nextIndex, (changed ? 1 : 0)}
   private static int[] iterateExprent(List<Exprent> lstExprents,
-                               int index,
-                               Exprent next,
-                               Map<VarVersionPair, Exprent> mapVarValues,
-                               SSAUConstructorSparseEx ssau,
-                               boolean simplifyAcrossStack,
-                               StackSimplifyOptions options) {
+                                      int index,
+                                      Exprent next,
+                                      Map<VarVersionPair, Exprent> mapVarValues,
+                                      SSAUConstructorSparseEx ssau,
+                                      boolean simplifyAcrossStack,
+                                      StackSimplifyOptions options) {
     Exprent exprent = lstExprents.get(index);
 
     int changed = 0;

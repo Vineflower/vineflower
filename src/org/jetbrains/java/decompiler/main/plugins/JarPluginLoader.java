@@ -20,8 +20,6 @@ public class JarPluginLoader {
         URI uri = URI.create("jar:" + myFile.toURI());
 
         Map<String, String> env = new HashMap<>();
-        // TODO: is this needed?
-        env.put("create", "true");
 
         FileSystem zipfs = FileSystems.newFileSystem(uri, env);
 
