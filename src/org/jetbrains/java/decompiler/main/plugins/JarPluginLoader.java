@@ -23,13 +23,24 @@ public class JarPluginLoader {
 
         FileSystem zipfs = FileSystems.newFileSystem(uri, env);
 
-        try (Stream<Path> pluginStream = Files.list(zipfs.getPath("META-INF", "plugins"))) {
+        Path pluginsDir = zipfs.getPath("META-INF", "plugins");
+        if (!Files.exists(pluginsDir)) {
+          zipfs.close();
+          return;
+        }
+
+        try (Stream<Path> pluginStream = Files.list(pluginsDir)) {
           List<Path> plugins = pluginStream.collect(Collectors.toList());
 
           for (Path pluginJar : plugins) {
             FileSystem pluginfs = FileSystems.newFileSystem(pluginJar, (ClassLoader) null);
 
             Path file = pluginfs.getPath("META-INF", "services", "org.jetbrains.java.decompiler.api.Plugin");
+            if (!Files.exists(file)) {
+              pluginfs.close();
+              continue;
+            }
+
             String pluginClass = Files.readString(file);
 
             InJarClassLoader loader = new InJarClassLoader(pluginfs);
