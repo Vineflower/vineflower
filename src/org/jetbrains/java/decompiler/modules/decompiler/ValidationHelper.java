@@ -477,7 +477,7 @@ public final class ValidationHelper {
     Set<VarVersionNode> roots = new HashSet<>();
 
     for (VarVersionNode node : graph.nodes) {
-      if (node.preds.isEmpty()) {
+      if (node.preds2.isEmpty()) {
         roots.add(node);
       }
     }

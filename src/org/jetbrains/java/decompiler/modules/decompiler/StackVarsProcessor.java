@@ -15,7 +15,6 @@ import org.jetbrains.java.decompiler.modules.decompiler.sforms.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.DoStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
-import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionNode;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionsGraph;
@@ -25,6 +24,7 @@ import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.collections.FastSparseSetFactory.FastSparseSet;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
+import org.jetbrains.java.decompiler.util.collections.ListStack;
 import org.jetbrains.java.decompiler.util.collections.SFormsFastMapDirect;
 
 import java.util.*;
@@ -87,14 +87,12 @@ public class StackVarsProcessor {
     if (stat.getExprents() == null) {
       for (Object obj : stat.getSequentialObjects()) {
         if (obj instanceof Statement) {
-          setVersionsToNull((Statement)obj);
-        }
-        else if (obj instanceof Exprent) {
-          setExprentVersionsToNull((Exprent)obj);
+          setVersionsToNull((Statement) obj);
+        } else if (obj instanceof Exprent) {
+          setExprentVersionsToNull((Exprent) obj);
         }
       }
-    }
-    else {
+    } else {
       for (Exprent exprent : stat.getExprents()) {
         setExprentVersionsToNull(exprent);
       }
@@ -107,7 +105,7 @@ public class StackVarsProcessor {
 
     for (Exprent expr : lst) {
       if (expr instanceof VarExprent) {
-        ((VarExprent)expr).setVersion(0);
+        ((VarExprent) expr).setVersion(0);
       }
     }
   }
@@ -210,15 +208,15 @@ public class StackVarsProcessor {
       // make sure the 3 special exprent lists in a loop (init, condition, increment) are not empty
       // change loop type if necessary
       if (nd.exprents.isEmpty() &&
-          (nd.type == DirectNodeType.INIT || nd.type == DirectNodeType.CONDITION || nd.type == DirectNodeType.INCREMENT)) {
+        (nd.type == DirectNodeType.INIT || nd.type == DirectNodeType.CONDITION || nd.type == DirectNodeType.INCREMENT)) {
         nd.exprents.add(null);
 
         if (nd.statement instanceof DoStatement) {
-          DoStatement loop = (DoStatement)nd.statement;
+          DoStatement loop = (DoStatement) nd.statement;
 
           if (loop.getLooptype() == DoStatement.Type.FOR &&
-              loop.getInitExprent() == null &&
-              loop.getIncExprent() == null) { // "downgrade" loop to 'while'
+            loop.getInitExprent() == null &&
+            loop.getIncExprent() == null) { // "downgrade" loop to 'while'
             loop.setLooptype(DoStatement.Type.WHILE);
           }
         }
@@ -232,7 +230,7 @@ public class StackVarsProcessor {
     Exprent dest = null;
 
     if (exprent instanceof VarExprent) {
-      VarExprent var = (VarExprent)exprent;
+      VarExprent var = (VarExprent) exprent;
       dest = mapVarValues.get(new VarVersionPair(var));
     }
 
@@ -298,7 +296,7 @@ public class StackVarsProcessor {
         boolean isReplaceable = arr.isReplaceable;
         if (retexpr != null) {
           if (isReplaceable) {
-            replaceSingleVar(exprent, (VarExprent)expr, retexpr, ssau);
+            replaceSingleVar(exprent, (VarExprent) expr, retexpr, ssau);
             expr = retexpr;
           } else {
             exprent.replaceExprent(expr, retexpr);
@@ -319,10 +317,10 @@ public class StackVarsProcessor {
     VarExprent left = null;
     Exprent right = null;
 
-    if (exprent instanceof AssignmentExprent && ((AssignmentExprent)exprent).getCondType() == null ) {
-      AssignmentExprent as = (AssignmentExprent)exprent;
+    if (exprent instanceof AssignmentExprent && ((AssignmentExprent) exprent).getCondType() == null) {
+      AssignmentExprent as = (AssignmentExprent) exprent;
       if (as.getLeft() instanceof VarExprent) {
-        left = (VarExprent)as.getLeft();
+        left = (VarExprent) as.getLeft();
         right = as.getRight();
       }
     }
@@ -339,14 +337,14 @@ public class StackVarsProcessor {
 
     if (!notdom && usedVers.isEmpty()) {
       if (left.isStack() && (right instanceof InvocationExprent ||
-                             right instanceof AssignmentExprent || right instanceof NewExprent)) {
+        right instanceof AssignmentExprent || right instanceof NewExprent)) {
         if (right instanceof NewExprent) {
           // new Object(); permitted
-          NewExprent nexpr = (NewExprent)right;
+          NewExprent nexpr = (NewExprent) right;
           if (
             // TODO: why is this here? anonymous vars should be simplfiend!
 //            nexpr.isAnonymous() ||
-              nexpr.getNewType().arrayDim > 0 ||
+            nexpr.getNewType().arrayDim > 0 ||
               nexpr.getNewType().type != CodeConstants.TYPE_OBJECT
           ) {
             return new int[]{-1, changed};
@@ -388,7 +386,7 @@ public class StackVarsProcessor {
 
     // stack variables only
     if (!left.isStack() &&
-        (!(right instanceof VarExprent) || ((VarExprent)right).isStack())) { // special case catch(... ex)
+      (!(right instanceof VarExprent) || ((VarExprent) right).isStack())) { // special case catch(... ex)
       return new int[]{-1, changed};
     }
 
@@ -416,9 +414,9 @@ public class StackVarsProcessor {
 
     // FIXME: fix the entire method!
     if (!(right instanceof ConstExprent) &&
-        !(right instanceof VarExprent) &&
-        setNextVars != null &&
-        mapVars.containsKey(leftVar.var)) {
+      !(right instanceof VarExprent) &&
+      setNextVars != null &&
+      mapVars.containsKey(leftVar.var)) {
       for (VarVersionNode usedvar : usedVers) {
         if (!setNextVars.contains(new VarVersionPair(usedvar.var, usedvar.version))) {
           return new int[]{-1, changed};
@@ -437,8 +435,8 @@ public class StackVarsProcessor {
       VarVersionPair usedver = new VarVersionPair(usedvar.var, usedvar.version);
 
       if (isVersionToBeReplaced(usedver, mapVars, ssau, leftVar) &&
-          (right instanceof ConstExprent || right instanceof VarExprent // || right instanceof FieldExprent
-           || setNextVars == null || setNextVars.contains(usedver))) {
+        (right instanceof ConstExprent || right instanceof VarExprent // || right instanceof FieldExprent
+          || setNextVars == null || setNextVars.contains(usedver))) {
 
         setTempUsedVers.add(usedver);
         verreplaced = true;
@@ -533,8 +531,8 @@ public class StackVarsProcessor {
 
       // Var
       if (a instanceof VarExprent && b instanceof VarExprent) {
-        VarExprent va = (VarExprent)a;
-        VarExprent vb = (VarExprent)b;
+        VarExprent va = (VarExprent) a;
+        VarExprent vb = (VarExprent) b;
 
         // We only care about the index, the version can be different as we've deduced it doesn't exist in the next exprent (thus no assignment or usage) TODO: check for incremented/live?
         if (va.getIndex() != vb.getIndex()) {
@@ -552,15 +550,15 @@ public class StackVarsProcessor {
 
       // Field access
       if (a instanceof FieldExprent && b instanceof FieldExprent) {
-        FieldExprent fa = (FieldExprent)a;
-        FieldExprent fb = (FieldExprent)b;
+        FieldExprent fa = (FieldExprent) a;
+        FieldExprent fb = (FieldExprent) b;
 
         // FieldExprent#equals() minus instance check- that is handled above, with the var check
         if (
           !InterpreterUtil.equalObjects(fa.getName(), fb.getName())
-          || !InterpreterUtil.equalObjects(fa.getClassname(), fb.getClassname())
-          || !InterpreterUtil.equalObjects(fa.isStatic(), fb.isStatic())
-          || !InterpreterUtil.equalObjects(fa.getDescriptor(), fb.getDescriptor())
+            || !InterpreterUtil.equalObjects(fa.getClassname(), fb.getClassname())
+            || !InterpreterUtil.equalObjects(fa.isStatic(), fb.isStatic())
+            || !InterpreterUtil.equalObjects(fa.getDescriptor(), fb.getDescriptor())
         ) {
           // Disjoint field access, not equal!
           ok = false;
@@ -591,7 +589,7 @@ public class StackVarsProcessor {
 
     for (Exprent expr : exprents) {
       if (expr instanceof VarExprent) {
-        VarExprent var = (VarExprent)expr;
+        VarExprent var = (VarExprent) expr;
 
         res.add(new VarVersionPair(var));
       }
@@ -612,11 +610,12 @@ public class StackVarsProcessor {
       this.isReplaceable = isReplaceable;
     }
   }
+
   private static IterateChildExprentRet iterateChildExprent(Exprent exprent,
-                                              Exprent parent,
-                                              Exprent next,
-                                              Map<VarVersionPair, Exprent> mapVarValues,
-                                              SSAUConstructorSparseEx ssau) {
+                                                            Exprent parent,
+                                                            Exprent next,
+                                                            Map<VarVersionPair, Exprent> mapVarValues,
+                                                            SSAUConstructorSparseEx ssau) {
     boolean changed = false;
 
     for (Exprent expr : exprent.getAllExprents()) {
@@ -628,7 +627,7 @@ public class StackVarsProcessor {
         boolean isReplaceable = arr.isReplaceable;
         if (retexpr != null) {
           if (isReplaceable) {
-            replaceSingleVar(exprent, (VarExprent)expr, retexpr, ssau);
+            replaceSingleVar(exprent, (VarExprent) expr, retexpr, ssau);
             expr = retexpr;
           } else {
             exprent.replaceExprent(expr, retexpr);
@@ -656,9 +655,9 @@ public class StackVarsProcessor {
 
     // If assignment to variable gather details
     if (exprent instanceof AssignmentExprent) {
-      AssignmentExprent as = (AssignmentExprent)exprent;
+      AssignmentExprent as = (AssignmentExprent) exprent;
       if (as.getCondType() == null && as.getLeft() instanceof VarExprent) {
-        left = (VarExprent)as.getLeft();
+        left = (VarExprent) as.getLeft();
         right = as.getRight();
       }
     }
@@ -670,7 +669,7 @@ public class StackVarsProcessor {
 
     boolean isHeadSynchronized = false;
     if (next == null && parent instanceof MonitorExprent) {
-      MonitorExprent monexpr = (MonitorExprent)parent;
+      MonitorExprent monexpr = (MonitorExprent) parent;
       if (monexpr.getMonType() == MonitorExprent.Type.ENTER && exprent.equals(monexpr.getValue())) {
         isHeadSynchronized = true;
       }
@@ -720,11 +719,10 @@ public class StackVarsProcessor {
     for (VarVersionNode usedvar : usedVers) {
       VarVersionPair usedver = new VarVersionPair(usedvar.var, usedvar.version);
       if (isVersionToBeReplaced(usedver, mapVars, ssau, leftVar) &&
-          (right instanceof VarExprent || setAllowedVars.contains(usedver))) {
+        (right instanceof VarExprent || setAllowedVars.contains(usedver))) {
 
         setTempUsedVers.add(usedver);
-      }
-      else {
+      } else {
         vernotreplaced = true;
       }
     }
@@ -746,42 +744,45 @@ public class StackVarsProcessor {
     return new IterateChildExprentRet(null, changed, false);
   }
 
-  private static boolean getUsedVersions(SSAUConstructorSparseEx ssa, VarVersionPair var, List<? super VarVersionNode> res) {
+  private static boolean getUsedVersions(
+    SSAUConstructorSparseEx ssa,
+    VarVersionPair var,
+    List<? super VarVersionNode> res) {
+
     VarVersionsGraph ssu = ssa.getSsuVersions();
     VarVersionNode node = ssu.nodes.getWithKey(var);
 
     Set<VarVersionNode> setVisited = new HashSet<>();
     Set<VarVersionNode> setNotDoms = new HashSet<>();
 
-    Deque<VarVersionNode> stack = new ArrayDeque<>();
+    ListStack<VarVersionNode> stack = new ListStack<>();
     stack.add(node);
 
     while (!stack.isEmpty()) {
-      VarVersionNode nd = stack.poll();
+      VarVersionNode nd = stack.pop();
       setVisited.add(nd);
 
       if (nd != node && (nd.flags & VarVersionNode.FLAG_PHANTOM_FINEXIT) == 0) {
         res.add(nd);
       }
 
-      for (VarVersionEdge edge : nd.succs) {
-        VarVersionNode succ = edge.dest;
+      for (VarVersionNode dest : nd.succs2) {
+        if (setVisited.contains(dest)) {
+          continue;
+        }
 
-        if (!setVisited.contains(edge.dest)) {
-
-          boolean isDominated = true;
-          for (VarVersionEdge prededge : succ.preds) {
-            if (!setVisited.contains(prededge.source)) {
-              isDominated = false;
-              break;
-            }
+        boolean isDominated = true;
+        for (VarVersionNode source : dest.preds2) {
+          if (!setVisited.contains(source)) {
+            isDominated = false;
+            break;
           }
+        }
 
-          if (isDominated) {
-            stack.add(succ);
-          } else {
-            setNotDoms.add(succ);
-          }
+        if (isDominated) {
+          stack.add(dest);
+        } else {
+          setNotDoms.add(dest);
         }
       }
     }
@@ -805,7 +806,7 @@ public class StackVarsProcessor {
 
     // compare protected ranges
     if (!InterpreterUtil.equalObjects(ssau.getMapVersionFirstRange().get(leftpaar),
-                                      ssau.getMapVersionFirstRange().get(usedvar))) {
+      ssau.getMapVersionFirstRange().get(usedvar))) {
       return false;
     }
 
@@ -851,7 +852,7 @@ public class StackVarsProcessor {
 
     for (Exprent expr : lst) {
       if (expr instanceof VarExprent) {
-        int varindex = ((VarExprent)expr).getIndex();
+        int varindex = ((VarExprent) expr).getIndex();
 
         if (leftvar.var != varindex) {
           if (mapLiveVars.containsKey(varindex)) {
@@ -900,16 +901,22 @@ public class StackVarsProcessor {
     }
   }
 
-  private static void setEffectivelyFinalVars(Statement stat, Exprent exprent, SSAUConstructorSparseEx ssau, int index, List<Exprent> list, Map<VarVersionPair, VarExprent> varLookupMap) {
+  // TODO: analyse this code
+  private static void setEffectivelyFinalVars(
+    Statement stat,
+    Exprent exprent,
+    SSAUConstructorSparseEx ssau,
+    int index,
+    List<Exprent> list,
+    Map<VarVersionPair, VarExprent> varLookupMap) {
     if (exprent instanceof AssignmentExprent) {
-      AssignmentExprent assign = (AssignmentExprent)exprent;
+      AssignmentExprent assign = (AssignmentExprent) exprent;
       if (assign.getLeft() instanceof VarExprent) {
-        VarExprent var = (VarExprent)assign.getLeft();
+        VarExprent var = (VarExprent) assign.getLeft();
         varLookupMap.put(var.getVarVersionPair(), var);
       }
-    }
-    else if (exprent instanceof NewExprent) {
-      NewExprent newExpr = (NewExprent)exprent;
+    } else if (exprent instanceof NewExprent) {
+      NewExprent newExpr = (NewExprent) exprent;
       if (newExpr.isAnonymous()) {
         ClassNode node = DecompilerContext.getClassProcessor().getMapRootClasses().get(newExpr.getNewType().value);
 
@@ -922,9 +929,9 @@ public class StackVarsProcessor {
                 for (int i = Math.max(0, index - paramTypes.size()); i < index; ++i) {
                   Exprent temp = list.get(i);
                   if (temp instanceof AssignmentExprent) {
-                    Exprent left = ((AssignmentExprent)temp).getLeft();
+                    Exprent left = ((AssignmentExprent) temp).getLeft();
                     if (left instanceof VarExprent) {
-                      VarExprent leftVar = (VarExprent)left;
+                      VarExprent leftVar = (VarExprent) left;
                       if (leftVar.getLVT() != null && paramTypes.contains(leftVar.getLVT().getVarType())) {
                         leftVar.setEffectivelyFinal(true);
                       }
@@ -934,8 +941,7 @@ public class StackVarsProcessor {
                 break;
               }
             }
-          }
-          else if (!newExpr.isMethodReference()) {
+          } else if (!newExpr.isMethodReference()) {
             MethodDescriptor mdLambda = MethodDescriptor.parseDescriptor(node.lambdaInformation.method_descriptor);
             MethodDescriptor mdContent = MethodDescriptor.parseDescriptor(node.lambdaInformation.content_method_descriptor);
             int paramOffset = node.lambdaInformation.is_content_method_static ? 0 : 1;
@@ -944,11 +950,12 @@ public class StackVarsProcessor {
             for (int i = 0; i < varsCount; ++i) {
               Exprent param = newExpr.getConstructor().getLstParameters().get(paramOffset + i);
               if (param instanceof VarExprent) {
-                VarExprent paramVar = (VarExprent)param;
+                VarExprent paramVar = (VarExprent) param;
                 VarVersionPair vvp = paramVar.getVarVersionPair();
                 VarVersionNode vvnode = ssau.getSsuVersions().nodes.getWithKey(vvp);
 
                 // Edge case: vvnode can be null when loops aren't created properly for... some reason?
+                // TODO: check if this is still the case
                 if (vvnode == null) {
                   continue;
                 }
@@ -956,30 +963,29 @@ public class StackVarsProcessor {
                 while (true) {
                   VarVersionNode next = null;
                   if (vvnode.var >= VarExprent.STACK_BASE) {
-                    vvnode = vvnode.preds.iterator().next().source;
+                    vvnode = vvnode.preds2.iterator().next();
                     VarVersionPair nextVVP = ssau.getVarAssignmentMap().get(new VarVersionPair(vvnode.var, vvnode.version));
                     next = ssau.getSsuVersions().nodes.getWithKey(nextVVP);
 
-                    if (nextVVP != null && nextVVP.var < 0 && false) { // TODO check if field is final?
+                    if (nextVVP != null && nextVVP.var < 0) { // TODO check if field is final?
                       vvp = nextVVP;
                       break;
                     }
-                  }
-                  else {
+                  } else {
                     final int j = i;
                     final int varIndex = vvnode.var;
                     final int varVersion = vvnode.version;
                     List<VarVersionNode> roots = getRoots(vvnode);
                     List<VarVersionNode> allRoots = ssau.getSsuVersions().nodes.stream()
-                                                          .distinct()
-                                                          .filter(n -> n.var == varIndex && n.preds.isEmpty())
-                                                          .filter(n -> {
-                                                            if (n.lvt != null) {
-                                                              return mdContent.params[j].equals(new VarType(n.lvt.getDescriptor()));
-                                                            }
-                                                            return n.version > varVersion;
-                                                          })
-                                                          .collect(Collectors.toList());
+                      .distinct()
+                      .filter(n -> n.var == varIndex && n.preds2.isEmpty())
+                      .filter(n -> {
+                        if (n.lvt != null) {
+                          return mdContent.params[j].equals(new VarType(n.lvt.getDescriptor()));
+                        }
+                        return n.version > varVersion;
+                      })
+                      .collect(Collectors.toList());
 
                     if (roots.size() >= allRoots.size()) {
                       if (roots.size() == 1) {
@@ -991,8 +997,7 @@ public class StackVarsProcessor {
                           vvp = nextVVP;
                           break;
                         }
-                      }
-                      else if (roots.size() == 2) {
+                      } else if (roots.size() == 2) {
                         VarVersionNode first = roots.get(0);
                         VarVersionNode second = roots.get(1);
 
@@ -1038,13 +1043,12 @@ public class StackVarsProcessor {
     while (!queue.isEmpty()) {
       VarVersionNode next = queue.removeFirst();
 
-      if (next.preds.isEmpty()) {
+      if (next.preds2.isEmpty()) {
         ret.add(next);
-      }
-      else {
-        next.preds.forEach(vvn -> {
-          if (visited.add(vvn.source)) {
-            queue.add(vvn.source);
+      } else {
+        next.preds2.forEach(source -> {
+          if (visited.add(source)) {
+            queue.add(source);
           }
         });
       }

@@ -13,7 +13,6 @@ import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectEdgeType;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectNode;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
-import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionNode;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionsGraph;
@@ -500,21 +499,50 @@ public class DotExporter {
 
     return builder.toString();
   }
-  private static String varsToDot(VarVersionsGraph graph, HashMap<VarVersionPair, VarVersionPair> varAssignmentMap) {
+  private static String varsToDot(VarVersionsGraph graph, Map<VarVersionPair, VarVersionPair> varAssignmentMap) {
+    StringBuilder builder = new StringBuilder();
 
-    StringBuffer buffer = new StringBuffer();
+    builder.append("digraph G {\r\n");
 
-    buffer.append("digraph G {\r\n");
+    for (VarVersionNode node : graph.nodes) {
+      appendNode(builder, node);
 
-    List<VarVersionNode> blocks = graph.nodes;
-    for(int i=0;i<blocks.size();i++) {
-      VarVersionNode block = blocks.get(i);
+      if (node.state == null) {
+        builder.append(" [shape=box, style=dashed, ");
+      } else {
+        switch (node.state) {
+          case PHI:
+            builder.append(" [shape=oval,");
+            break;
+          case READ:
+            builder.append(" [shape=box, ");
+            break;
+          case WRITE:
+            builder.append(" [shape=box, style=filled, fillcolor=palegreen1, ");
+            break;
+          case PHANTOM:
+            builder.append(" [shape=box; style=dotted, ");
+            break;
+          case DEAD_READ:
+            builder.append(" [shape=box, style=filled, fillcolor=grey59, ");
+            break;
+        }
+      }
 
-      buffer.append((block.var*1000+block.version)+" [shape=box,label=\""+block.var+"_"+block.version+"\"];\r\n");
+      builder.append("label=\"").append(node.var).append("_").append(node.version).append("\"];\r\n");
 
-      for(VarVersionEdge edge: block.succs) {
-        VarVersionNode dest = edge.dest;
-        buffer.append((block.var*1000+block.version)+"->"+(dest.var*1000+dest.version)+(edge.type2==VarVersionEdge.Type.LINKED?" [style=dotted]":"")+";\r\n");
+      for (VarVersionNode dest : node.succs2) {
+        appendNode(builder, node);
+        builder.append("->");
+        appendNode(builder, dest);
+        builder.append(";\r\n");
+      }
+
+      if (node.phantomNode != null) {
+        appendNode(builder, node);
+        builder.append("->");
+        appendNode(builder, node.phantomNode);
+        builder.append(" [style=dotted];\r\n");
       }
     }
 
@@ -522,13 +550,28 @@ public class DotExporter {
       for (Entry<VarVersionPair, VarVersionPair> entry : varAssignmentMap.entrySet()) {
         VarVersionPair to = entry.getKey();
         VarVersionPair from = entry.getValue();
-        buffer.append((from.var * 1000 + from.version) + "->" + (to.var * 1000 + to.version) + " [color=green];\r\n");
+        appendNode(builder, from);
+        builder.append("->");
+        appendNode(builder, to);
+        builder.append(" [color=green];\r\n");
       }
     }
 
-    buffer.append("}");
+    builder.append("}");
 
-    return buffer.toString();
+    return builder.toString();
+  }
+
+  private static void appendNode(StringBuilder builder, VarVersionNode node) {
+    appendNode(builder, node.asPair());
+  }
+
+  private static void appendNode(StringBuilder builder, VarVersionPair pair) {
+    if (pair.var >= 0) {
+      builder.append("var").append(pair.var).append("_").append(pair.version);
+    } else {
+      builder.append("varM").append(-pair.var).append("_").append(pair.version);
+    }
   }
 
   private static String domEngineToDot(DominatorEngine doms) {

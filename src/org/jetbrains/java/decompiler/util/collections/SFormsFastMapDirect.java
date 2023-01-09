@@ -2,6 +2,8 @@
 package org.jetbrains.java.decompiler.util.collections;
 
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionNode;
+import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.collections.FastSparseSetFactory.FastSparseSet;
 
@@ -399,6 +401,14 @@ public class SFormsFastMapDirect {
 
   public void setCurrentVar(VarExprent varExprent) {
     this.setCurrentVar(varExprent.getIndex(), varExprent.getVersion());
+  }
+
+  public void setCurrentVar(VarVersionNode varExprent) {
+    this.setCurrentVar(varExprent.var, varExprent.version);
+  }
+
+  public void setCurrentVar(VarVersionPair varExprent) {
+    this.setCurrentVar(varExprent.var, varExprent.version);
   }
 
   public FastSparseSet<Integer> get(VarExprent varExprent) {

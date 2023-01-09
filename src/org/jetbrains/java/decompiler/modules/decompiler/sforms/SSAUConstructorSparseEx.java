@@ -8,8 +8,7 @@ public class SSAUConstructorSparseEx extends SFormsConstructor {
       false,
       true,
       true,
-      true,
-      true,
+            true,
       true,
       true,
       true

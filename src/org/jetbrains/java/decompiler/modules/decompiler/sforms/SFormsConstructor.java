@@ -6,7 +6,6 @@ import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
-import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionNode;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionsGraph;
@@ -30,7 +29,6 @@ public abstract class SFormsConstructor implements SFormsCreator {
   private final boolean simplePhi;
   private final boolean trackFieldVars;
   private final boolean trackPhantomPPNodes;
-  private final boolean trackPhantomExitNodes;
   private final boolean trackSsuVersions;
   private final boolean doLiveVariableAnalysisRound;
   private final boolean trackDirectAssignments;
@@ -66,14 +64,6 @@ public abstract class SFormsConstructor implements SFormsCreator {
   // version, protected ranges (catch, finally)
   private final Map<VarVersionPair, Integer> mapVersionFirstRange;
 
-  // exprent, version
-  private final Map<Id<VarExprent>, VarVersionPair> phantomppnodes; // ++ and -- and compound assignments
-  // exprent, version
-  private final Map<Id<VarExprent>, VarVersionPair> phantomCompoundNodes; // compound assignments
-
-  // node.id, version, version
-  private final Map<String, HashMap<VarVersionPair, VarVersionPair>> phantomexitnodes; // finally exits
-
   // versions memory dependencies
   private final VarVersionsGraph ssuversions;
 
@@ -98,7 +88,6 @@ public abstract class SFormsConstructor implements SFormsCreator {
     boolean simplePhi,
     boolean trackFieldVars,
     boolean trackPhantomPPNodes,
-    boolean trackPhantomExitNodes,
     boolean trackSsuVersions,
     boolean doLiveVariableAnalysisRound,
     boolean trackDirectAssignments,
@@ -107,7 +96,6 @@ public abstract class SFormsConstructor implements SFormsCreator {
     this.simplePhi = simplePhi;
     this.trackFieldVars = trackFieldVars;
     this.trackPhantomPPNodes = trackPhantomPPNodes;
-    this.trackPhantomExitNodes = trackPhantomExitNodes;
     this.trackSsuVersions = trackSsuVersions;
     this.doLiveVariableAnalysisRound = doLiveVariableAnalysisRound;
     this.trackDirectAssignments = trackDirectAssignments;
@@ -116,9 +104,6 @@ public abstract class SFormsConstructor implements SFormsCreator {
 
     this.phi = simplePhi ? new HashMap<>() : null;
     this.mapVersionFirstRange = ssau ? new HashMap<>() : null;
-    this.phantomppnodes = trackPhantomPPNodes ? new HashMap<>() : null;
-    this.phantomCompoundNodes = trackPhantomPPNodes ? new HashMap<>() : null;
-    this.phantomexitnodes = trackPhantomExitNodes ? new HashMap<>() : null;
     this.ssuversions = trackSsuVersions ? new VarVersionsGraph() : null;
     this.mapFieldVars = trackFieldVars ? new HashMap<>() : null;
     this.varAssignmentMap = trackDirectAssignments ? new HashMap<>() : null;
@@ -263,58 +248,19 @@ public abstract class SFormsConstructor implements SFormsCreator {
             final VarExprent destVar = (VarExprent) dest;
 
             if (assexpr.getCondType() != null) {
+              this.processExprent(destVar, varMaps, stat, calcLiveVars);
+              this.processExprent(assexpr.getRight(), varMaps, stat, calcLiveVars);
+
+              // make sure we are in normal form (eg `x &= ...`)
+              SFormsFastMapDirect varMap = varMaps.toNormal();
+
               if (this.trackPhantomPPNodes) {
-                int version = destVar.getVersion();
-                Id<VarExprent> key = Id.of(destVar);
-                VarVersionPair vvp = new VarVersionPair(destVar);
+                VarVersionNode varNode = this.ssuversions.nodes.getWithKey(destVar.getVarVersionPair());
+                VarVersionNode phantomNode = this.getOrCreatePhantom(varNode);
 
-                // temporary swap the version to the phantom read version
-                int phantomReadVersion = -1;
-                if (this.phantomCompoundNodes.containsKey(key)) {
-                  phantomReadVersion = this.phantomCompoundNodes.get(key).version;
-                  destVar.setVersion(phantomReadVersion);
-                }
-
-                // make a phantom read
-                this.processExprent(destVar, varMaps, stat, calcLiveVars);
-
-                if (destVar.getVersion() != phantomReadVersion) {
-                  // update the phantom read version
-                  this.phantomCompoundNodes.put(key, new VarVersionPair(destVar));
-                  phantomReadVersion = destVar.getVersion();
-                }
-
-                // restore the version
-                destVar.setVersion(version);
-
-                // execute rhs
-                this.processExprent(assexpr.getRight(), varMaps, stat, calcLiveVars);
-
-                // make a phantom write
-                VarVersionPair phantomVersion = this.phantomppnodes.get(key);
-                if (phantomVersion == null) {
-//                   get next version
-                  int nextVersion = this.getNextFreeVersion(vvp.var, null);
-                  phantomVersion = new VarVersionPair(vvp.var, nextVersion);
-                  //ssuversions.createOrGetNode(phantomVersion);
-                  this.ssuversions.createNode(phantomVersion);
-                  this.phantomppnodes.put(key, phantomVersion);
-                }
-
-                // make phi node
-                // make sure we are in normal form
-                SFormsFastMapDirect varMap = varMaps.toNormal();
-                varMap.setCurrentVar(vvp.var, phantomReadVersion);
-                varMap.get(vvp.var).add(phantomVersion.version);
-
-                this.processExprent(destVar, varMaps, stat, calcLiveVars);
+                varMap.setCurrentVar(phantomNode);
               } else {
-                this.processExprent(destVar, varMaps, stat, calcLiveVars);
-                this.processExprent(assexpr.getRight(), varMaps, stat, calcLiveVars);
-
-                // make sure we are in normal form
-                SFormsFastMapDirect varMap = varMaps.toNormal();
-                varMap.setCurrentVar(destVar.id, destVar.getVersion());
+                varMap.setCurrentVar(destVar);
               }
             } else {
               this.processExprent(assexpr.getRight(), varMaps, stat, calcLiveVars);
@@ -450,37 +396,17 @@ public abstract class SFormsConstructor implements SFormsCreator {
           case PPI: {
             // process the var/field/array access
             // Note that ++ and -- are both reads and writes.
+            this.processExprent(func.getLstOperands().get(0), varMaps, stat, calcLiveVars);
 
             if (func.getLstOperands().get(0).type == VAR && this.trackPhantomPPNodes) {
               VarExprent varExprent = (VarExprent) func.getLstOperands().get(0);
 
-              // make sure the exprent has a version
-              this.initVersion(varExprent, stat);
+              VarVersionNode varNode = this.ssuversions.nodes.getWithKey(varExprent.getVarVersionPair());
+              VarVersionNode phantomNode = this.getOrCreatePhantom(varNode);
 
-              int varIndex = varExprent.getIndex();
-              VarVersionPair varVersion = new VarVersionPair(varIndex, varExprent.getVersion());
-
-              Id<VarExprent> key = Id.of(varExprent);
-              VarVersionPair phantomVersion = this.phantomppnodes.get(key);
-              if (phantomVersion == null) {
-//                   get next version
-                int nextVersion = this.getNextFreeVersion(varIndex, null);
-                phantomVersion = new VarVersionPair(varIndex, nextVersion);
-                //ssuversions.createOrGetNode(phantomVersion);
-                this.ssuversions.createNode(phantomVersion);
-                this.phantomppnodes.put(key, phantomVersion);
-              }
-
-              FastSparseSet<Integer> versions = varMaps.getNormal().get(varIndex);
-              if (versions == null) {
-                // FIXME: only happens with finally blocks in loops and enhanced switches.
-                varMaps.getNormal().setCurrentVar(varIndex, phantomVersion.version);
-              } else {
-                versions.add(phantomVersion.version);
-              }
+              varMaps.getNormal().setCurrentVar(phantomNode);
+              return;
             }
-
-            this.processExprent(func.getLstOperands().get(0), varMaps, stat, calcLiveVars);
             // Can't have ++ or -- on a boolean expression.
             SFormsFastMapDirect varmap = varMaps.getNormal();
 
@@ -516,6 +442,31 @@ public abstract class SFormsConstructor implements SFormsCreator {
     }
   }
 
+  // SSAU ONLY
+  private VarVersionNode getOrCreatePhantom(VarVersionNode varNode) {
+    ValidationHelper.assertTrue(this.trackPhantomPPNodes, "SSAU only");
+    if (varNode.phantomNode == null) {
+      VarVersionNode phantomNode = this.createNewReadNode(varNode.var, null, VarVersionNode.State.PHANTOM);
+      varNode.phantomNode = phantomNode;
+      phantomNode.phantomParentNode = varNode;
+      return phantomNode;
+    }
+
+    ValidationHelper.assertTrue(
+      varNode.phantomNode.state == VarVersionNode.State.PHANTOM,
+      "Expected phantom node to be PHANTOM");
+
+    return varNode.phantomNode;
+  }
+
+  // SSAU ONLY
+  private VarVersionNode createRead(VarVersionNode node, Statement stat) {
+    ValidationHelper.assertTrue(this.incrementOnUsage, "SSAU only");
+    VarVersionNode read = this.createNewReadNode(node.var, stat);
+    makeReadEdge(read, node);
+    return read;
+  }
+
   private void varRead(VarMapHolder varMaps, Statement stat, boolean calcLiveVars, VarExprent varExprent) {
     final SFormsFastMapDirect varmap = varMaps.getNormal();
 
@@ -546,28 +497,33 @@ public abstract class SFormsConstructor implements SFormsCreator {
     if (!this.incrementOnUsage) {
       // simply copy the version
       varExprent.setVersion(lastVersion);
-    } else {
-      if (currentVersion == 0) { // first time processing this exprent
-        // split last version
-        int useVersion = this.getNextFreeVersion(varIndex, stat);
-
-        // set version
-        varExprent.setVersion(useVersion);
-
-        // ssu graph
-        VarVersionNode previousNode = this.ssuversions.nodes.getWithKey(new VarVersionPair(varIndex, lastVersion));
-        VarVersionNode useNode = this.ssuversions.createNode(new VarVersionPair(varIndex, useVersion));
-        VarVersionEdge.create(previousNode, useNode);
-      } else {
-        if (calcLiveVars) {
-          this.varMapToGraph(new VarVersionPair(varIndex, currentVersion), varmap);
-        }
-      }
-      varmap.setCurrentVar(varExprent); // update the current var to the usage version
+      return;
     }
+
+    if (currentVersion == 0) {
+      // first time processing this exprent
+
+
+      // ssu graph
+      VarVersionNode previousNode = this.ssuversions.nodes.getWithKey(new VarVersionPair(varIndex, lastVersion));
+      VarVersionNode useNode = this.createRead(previousNode, stat);
+
+      // set version
+      varExprent.setVersion(useNode.version);
+    } else {
+      if (calcLiveVars) {
+        this.varMapToGraph(new VarVersionPair(varIndex, currentVersion), varmap);
+      }
+    }
+    varmap.setCurrentVar(varExprent); // update the current var to the usage version
   }
 
-  private void varReadMultipleVersions(Statement stat, boolean calcLiveVars, VarExprent varExprent, SFormsFastMapDirect varmap, FastSparseSet<Integer> versions) {
+  private void varReadMultipleVersions(
+    Statement stat,
+    boolean calcLiveVars,
+    VarExprent varExprent,
+    SFormsFastMapDirect varmap,
+    FastSparseSet<Integer> versions) {
     int varIndex = varExprent.getIndex();
     int currentVersion = varExprent.getVersion();
     if (!this.incrementOnUsage) {
@@ -594,7 +550,7 @@ public abstract class SFormsConstructor implements SFormsCreator {
         varExprent.setVersion(useVersion);
 
         // ssu node
-        this.ssuversions.createNode(new VarVersionPair(varIndex, useVersion));
+        this.ssuversions.createNode(new VarVersionPair(varIndex, useVersion)).state = VarVersionNode.State.PHI;
 
         currentVersion = useVersion;
       } else {
@@ -660,9 +616,8 @@ public abstract class SFormsConstructor implements SFormsCreator {
 
       if (this.trackSsuVersions) {
         // ssu graph
-        this.ssuversions.createNode(new VarVersionPair(varIndex, nextVersion), varExprent.getLVT());
+        this.ssuversions.createNode(new VarVersionPair(varIndex, nextVersion), varExprent.getLVT()).state = VarVersionNode.State.WRITE;
       }
-
     }
   }
 
@@ -758,8 +713,8 @@ public abstract class SFormsConstructor implements SFormsCreator {
     // handle finally
     if (node.tryFinally != pred.tryFinally) {
       if (node.tryFinally != null &&
-          node.tryFinally.type == DirectNodeType.FINALLY &&
-          node.tryFinally.tryFinally == pred.tryFinally) {
+        node.tryFinally.type == DirectNodeType.FINALLY &&
+        node.tryFinally.tryFinally == pred.tryFinally) {
         // we are entering a try, nothing to do here
       } else if (pred.type == DirectNodeType.FINALLY) {
         // we are entering the finally block
@@ -927,69 +882,77 @@ public abstract class SFormsConstructor implements SFormsCreator {
     return map;
   }
 
-  public HashMap<VarVersionPair, FastSparseSet<Integer>> getPhi() {
+  public Map<VarVersionPair, FastSparseSet<Integer>> getPhi() {
     return this.phi;
   }
 
 
   private void createOrUpdatePhiNode(VarVersionPair phivar, FastSparseSet<Integer> vers, Statement stat) {
-
-//    FastSparseSet<Integer> versCopy = vers.getCopy();
-    Set<Integer> removed = new HashSet<>();
-//    HashSet<Integer> phiVers = new HashSet<>();
-
-    // take into account the corresponding mm/pp node if existing
-    int ppvers = -1;
+    Set<Integer> oldNodes = new HashSet<>();
 
     // ssu graph
-    VarVersionNode phinode = this.ssuversions.nodes.getWithKey(phivar);
-    List<VarVersionEdge> lstPreds = new ArrayList<>(phinode.preds);
-    if (lstPreds.size() == 1) {
+    VarVersionNode phiNode = this.ssuversions.nodes.getWithKey(phivar);
+    ValidationHelper.assertTrue(phiNode.phantomParentNode == null, "phi node can't be a phantom node");
+    if (phiNode.preds2.isEmpty()) {
+      ValidationHelper.assertTrue(
+        phiNode.state == VarVersionNode.State.PHI,
+        "Phi node has the wrong state?");
+    } else if (phiNode.preds2.size() == 1) {
       // not yet a phi node
-      VarVersionEdge edge = lstPreds.get(0);
-      edge.source.removeSuccessor(edge);
-      phinode.removePredecessor(edge);
+      ValidationHelper.assertTrue(
+        phiNode.state == VarVersionNode.State.READ,
+        "Trying to convert a non read node into a phi node");
+      phiNode.state = VarVersionNode.State.PHI;
+      phiNode.getSinglePredecessor().removeSuccessor(phiNode);
+      phiNode.preds2.clear();
     } else {
-      for (VarVersionEdge edge : lstPreds) {
-        int verssrc = edge.source.preds.iterator().next().source.version;
-        if (!vers.contains(verssrc) && verssrc != ppvers) {
-          edge.source.removeSuccessor(edge);
-          phinode.removePredecessor(edge);
+      ValidationHelper.assertTrue(
+        phiNode.state == VarVersionNode.State.PHI,
+        "Phi node has the wrong state?");
+      for (Iterator<VarVersionNode> iterator = phiNode.preds2.iterator(); iterator.hasNext(); ) {
+        VarVersionNode source = iterator.next();
+        ValidationHelper.assertTrue(
+          source.state == VarVersionNode.State.READ,
+          "Phi node is reading from a non READ node");
+
+        // source is the read node, the version in the varmap is the version it read from
+        int verssrc = source.getSinglePredecessor().version;
+        if (!vers.contains(verssrc)) {
+          source.removeSuccessor(phiNode);
+          iterator.remove();
+          source.state = VarVersionNode.State.DEAD_READ;
         } else {
-//          versCopy.remove(verssrc);
-          removed.add(verssrc);
-//          phiVers.add(verssrc);
+          oldNodes.add(verssrc);
         }
       }
     }
 
-    List<VarVersionNode> colnodes = new ArrayList<>();
-    List<VarVersionPair> colpaars = new ArrayList<>();
-
-//    for (int ver : versCopy) {
     for (int ver : vers) {
-      if (removed.contains(ver)) {
+      if (oldNodes.contains(ver)) {
         continue;
       }
 
-      VarVersionNode prenode = this.ssuversions.nodes.getWithKey(new VarVersionPair(phivar.var, ver));
-
-      int tempver = this.getNextFreeVersion(phivar.var, stat);
-
-      VarVersionNode tempnode = new VarVersionNode(phivar.var, tempver);
-
-      colnodes.add(tempnode);
-      colpaars.add(new VarVersionPair(phivar.var, tempver));
-
-      VarVersionEdge.create(prenode, tempnode);
-      VarVersionEdge.create(tempnode, phinode);
-
-//      phiVers.add(tempver);
+      VarVersionNode preNode = this.ssuversions.nodes.getWithKey(new VarVersionPair(phivar.var, ver));
+      VarVersionNode tempNode = this.createRead(preNode, stat);
+      makeReadEdge(phiNode, tempNode);
     }
-
-    this.ssuversions.addNodes(colnodes, colpaars);
   }
 
+  private static void makeReadEdge(VarVersionNode phiNode, VarVersionNode tempNode) {
+    tempNode.succs2.add(phiNode);
+    phiNode.preds2.add(tempNode);
+  }
+
+  private VarVersionNode createNewReadNode(int var, Statement stat) {
+    return this.createNewReadNode(var, stat, VarVersionNode.State.READ);
+  }
+
+  private VarVersionNode createNewReadNode(int var, Statement stat, VarVersionNode.State state) {
+    int version = this.getNextFreeVersion(var, stat);
+    VarVersionNode node = this.ssuversions.createNode(new VarVersionPair(var, version));
+    node.state = state;
+    return node;
+  }
 
   private void varMapToGraph(VarVersionPair varVersion, SFormsFastMapDirect varMap) {
     ValidationHelper.assertTrue(this.trackSsuVersions, "Can't make an ssu graph without ssu tracked");
@@ -1041,7 +1004,7 @@ public abstract class SFormsConstructor implements SFormsCreator {
 
   boolean hasUpdated(DirectNode node, VarMapHolder varmaps) {
     return !mapsEqual(varmaps.getIfTrue(), this.outVarVersions.get(node.id))
-           || (this.outNegVarVersions.containsKey(node.id) && !mapsEqual(varmaps.getIfFalse(), this.outNegVarVersions.get(node.id)));
+      || (this.outNegVarVersions.containsKey(node.id) && !mapsEqual(varmaps.getIfFalse(), this.outNegVarVersions.get(node.id)));
   }
 
 
@@ -1133,12 +1096,14 @@ public abstract class SFormsConstructor implements SFormsCreator {
   /**
    * restores the default identity equality for an object
    */
-  static private class Id<T>{
+  static private class Id<T> {
     private final T value;
-    public Id(T value){
+
+    public Id(T value) {
       this.value = value;
     }
-    public T getValue(){
+
+    public T getValue() {
       return this.value;
     }
 
@@ -1149,10 +1114,10 @@ public abstract class SFormsConstructor implements SFormsCreator {
 
     @Override
     public boolean equals(Object obj) {
-      return obj instanceof Id && ((Id<?>)obj).value == this.value;
+      return obj instanceof Id && ((Id<?>) obj).value == this.value;
     }
 
-    static <T> Id<T> of(T value){
+    static <T> Id<T> of(T value) {
       return new Id<>(value);
     }
   }
