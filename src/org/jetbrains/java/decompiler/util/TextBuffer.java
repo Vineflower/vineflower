@@ -139,6 +139,10 @@ public class TextBuffer {
     return this;
   }
 
+  public TextBuffer encloseWithParens() {
+    return enclose("(", ")");
+  }
+
   public boolean containsOnlyWhitespaces() {
     for (int i = 0; i < myStringBuilder.length(); i++) {
       if (myStringBuilder.charAt(i) != ' ') {
@@ -533,6 +537,22 @@ public class TextBuffer {
       ++count;
       p += length;
     }
+    return count;
+  }
+
+  @Deprecated
+  public int countChars(char c) {
+    convertToStringAndAllowDataDiscard();
+
+    int count = 0;
+
+    CharSequence chars = myStringBuilder.subSequence(0, myStringBuilder.length());
+    for (int i = 0; i < chars.length(); i++) {
+      if (chars.charAt(i) == c) {
+        count++;
+      }
+    }
+
     return count;
   }
 

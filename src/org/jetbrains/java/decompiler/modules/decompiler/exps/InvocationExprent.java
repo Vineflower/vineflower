@@ -649,7 +649,7 @@ public class InvocationExprent extends Exprent {
             buf.append("((").append(ExprProcessor.getCastTypeName(leftType)).append(")");
 
             if (instance.getPrecedence() >= FunctionType.CAST.precedence) {
-              res.enclose("(", ")");
+              res.encloseWithParens();
             }
             buf.append(res).append(")");
           }

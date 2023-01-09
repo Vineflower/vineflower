@@ -546,7 +546,7 @@ public class FunctionExprent extends Exprent {
         if (!needsCast) {
           return buf.append(lstOperands.get(0).toJava(indent));
         }
-        return buf.append(lstOperands.get(1).toJava(indent)).enclose("(", ")").append(wrapOperandString(lstOperands.get(0), true, indent));
+        return buf.append(lstOperands.get(1).toJava(indent)).encloseWithParens().append(wrapOperandString(lstOperands.get(0), true, indent));
       case ARRAY_LENGTH:
         Exprent arr = lstOperands.get(0);
 
