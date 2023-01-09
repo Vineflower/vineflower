@@ -186,7 +186,7 @@ public class FieldExprent extends Exprent {
         boolean casted = ExprProcessor.getCastedExprent(instance, new VarType(CodeConstants.TYPE_OBJECT, 0, classname), buff, indent, true);
 
         if (casted || instance.getPrecedence() > getPrecedence()) {
-          buff.enclose("(", ")");
+          buff.encloseWithParens();
         }
 
         buf.append(buff);

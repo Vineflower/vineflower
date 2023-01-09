@@ -76,7 +76,7 @@ public class ArrayExprent extends Exprent {
     TextBuffer res = array.toJava(indent);
 
     if (array.getPrecedence() > getPrecedence() && !canSkipParenEnclose(array)) { // array precedence equals 0
-      res.enclose("(", ")");
+      res.encloseWithParens();
     }
 
     VarType arrType = array.getExprType();
