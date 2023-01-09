@@ -7,8 +7,9 @@ sourceSets {
   testDataScala.scala.srcDirs files("testData/src/scala/")
 }
 
-dependencies{
+dependencies {
   implementation project(":")
+  testImplementation testFixtures(project(":"))
 
   testDataScalaImplementation 'org.scala-lang:scala3-library_3:3.1.3'
 }

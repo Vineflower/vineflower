@@ -46,13 +46,6 @@ allprojects {
   }
 }
 
-subprojects {
-  dependencies {
-    implementation project(":")
-    testImplementation testFixtures(project(":"))
-  }
-}
-
 group = 'org.quiltmc'
 archivesBaseName = 'quiltflower'
 

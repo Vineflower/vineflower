@@ -16,6 +16,7 @@ sourceSets {
 
 dependencies {
   shadow project(":")
+  testImplementation testFixtures(project(":"))
   implementation fileTree(dir: 'libs', include: ['*.jar'])
 
   testDataKotlinImplementation platform('org.jetbrains.kotlin:kotlin-bom')
