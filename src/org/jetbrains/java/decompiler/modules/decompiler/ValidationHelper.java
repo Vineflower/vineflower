@@ -469,7 +469,7 @@ public final class ValidationHelper {
   }
 
   public static void validateVarVersionsGraph(
-    VarVersionsGraph graph, RootStatement statement, HashMap<VarVersionPair, VarVersionPair> varAssignmentMap) {
+    VarVersionsGraph graph, RootStatement statement, Map<VarVersionPair, VarVersionPair> varAssignmentMap) {
     if (!VALIDATE) {
       return;
     }

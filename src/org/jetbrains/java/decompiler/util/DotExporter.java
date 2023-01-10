@@ -781,7 +781,7 @@ public class DotExporter {
     }
   }
 
-  public static void errorToDotFile(VarVersionsGraph graph, StructMethod mt, String suffix, HashMap<VarVersionPair, VarVersionPair> varAssignmentMap) {
+  public static void errorToDotFile(VarVersionsGraph graph, StructMethod mt, String suffix, Map<VarVersionPair, VarVersionPair> varAssignmentMap) {
     if (!DUMP_ERROR_DOTS)
       return;
     try{
