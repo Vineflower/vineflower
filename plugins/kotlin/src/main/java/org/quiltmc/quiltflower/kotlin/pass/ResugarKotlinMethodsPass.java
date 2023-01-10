@@ -5,6 +5,7 @@ import org.jetbrains.java.decompiler.api.passes.PassContext;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.InvocationExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectNode;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper;
@@ -127,7 +128,7 @@ public class ResugarKotlinMethodsPass implements Pass {
         innerVal = ((InvocationExprent)innerVal).getInstance();
       }
 
-      if (TERNARY_NULL_CHECK.getVariableValue("$x$").equals(innerVal)) {
+      if (innerVal instanceof VarExprent && TERNARY_NULL_CHECK.getVariableValue("$x$").equals(innerVal)) {
         return new ResugarRes(new KFunctionExprent(KFunctionExprent.KFunctionType.IF_NULL, List.of(
           (Exprent) TERNARY_NULL_CHECK.getVariableValue("$x$"), (Exprent) TERNARY_NULL_CHECK.getVariableValue("$y$")
         ), null), false);
