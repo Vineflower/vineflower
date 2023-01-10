@@ -8,7 +8,7 @@ jobs:
       image: eclipse-temurin:17
       options: --user root
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v3
       - uses: gradle/wrapper-validation-action@v1
       - run: ./gradlew publish --stacktrace
         env:
