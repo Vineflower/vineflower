@@ -6,4 +6,8 @@ public final class Key<T> {
   public Key(String name) {
     this.name = name;
   }
+  
+  public static <T> Key<T> of(String name) {
+    return new Key<>(name);
+  }
 }

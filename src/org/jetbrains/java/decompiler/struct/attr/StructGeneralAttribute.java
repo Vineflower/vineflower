@@ -17,30 +17,30 @@ import java.io.IOException;
   }
 */
 public class StructGeneralAttribute {
-  public static final Key<StructCodeAttribute> ATTRIBUTE_CODE = new Key<>("Code");
-  public static final Key<StructInnerClassesAttribute> ATTRIBUTE_INNER_CLASSES = new Key<>("InnerClasses");
-  public static final Key<StructGenericSignatureAttribute> ATTRIBUTE_SIGNATURE = new Key<>("Signature");
-  public static final Key<StructAnnDefaultAttribute> ATTRIBUTE_ANNOTATION_DEFAULT = new Key<>("AnnotationDefault");
-  public static final Key<StructExceptionsAttribute> ATTRIBUTE_EXCEPTIONS = new Key<>("Exceptions");
-  public static final Key<StructEnclosingMethodAttribute> ATTRIBUTE_ENCLOSING_METHOD = new Key<>("EnclosingMethod");
-  public static final Key<StructAnnotationAttribute> ATTRIBUTE_RUNTIME_VISIBLE_ANNOTATIONS = new Key<>("RuntimeVisibleAnnotations");
-  public static final Key<StructAnnotationAttribute> ATTRIBUTE_RUNTIME_INVISIBLE_ANNOTATIONS = new Key<>("RuntimeInvisibleAnnotations");
-  public static final Key<StructAnnotationParameterAttribute> ATTRIBUTE_RUNTIME_VISIBLE_PARAMETER_ANNOTATIONS = new Key<>("RuntimeVisibleParameterAnnotations");
-  public static final Key<StructAnnotationParameterAttribute> ATTRIBUTE_RUNTIME_INVISIBLE_PARAMETER_ANNOTATIONS = new Key<>("RuntimeInvisibleParameterAnnotations");
-  public static final Key<StructTypeAnnotationAttribute> ATTRIBUTE_RUNTIME_VISIBLE_TYPE_ANNOTATIONS = new Key<>("RuntimeVisibleTypeAnnotations");
-  public static final Key<StructTypeAnnotationAttribute> ATTRIBUTE_RUNTIME_INVISIBLE_TYPE_ANNOTATIONS = new Key<>("RuntimeInvisibleTypeAnnotations");
-  public static final Key<StructLocalVariableTableAttribute> ATTRIBUTE_LOCAL_VARIABLE_TABLE = new Key<>("LocalVariableTable");
-  public static final Key<StructLocalVariableTypeTableAttribute> ATTRIBUTE_LOCAL_VARIABLE_TYPE_TABLE = new Key<>("LocalVariableTypeTable");
-  public static final Key<StructConstantValueAttribute> ATTRIBUTE_CONSTANT_VALUE = new Key<>("ConstantValue");
-  public static final Key<StructBootstrapMethodsAttribute> ATTRIBUTE_BOOTSTRAP_METHODS = new Key<>("BootstrapMethods");
-  public static final Key<StructGeneralAttribute> ATTRIBUTE_SYNTHETIC = new Key<>("Synthetic");
-  public static final Key<StructGeneralAttribute> ATTRIBUTE_DEPRECATED = new Key<>("Deprecated");
-  public static final Key<StructLineNumberTableAttribute> ATTRIBUTE_LINE_NUMBER_TABLE = new Key<>("LineNumberTable");
-  public static final Key<StructMethodParametersAttribute> ATTRIBUTE_METHOD_PARAMETERS = new Key<>("MethodParameters");
-  public static final Key<StructModuleAttribute> ATTRIBUTE_MODULE = new Key<>("Module");
-  public static final Key<StructRecordAttribute> ATTRIBUTE_RECORD = new Key<>("Record");
-  public static final Key<StructPermittedSubclassesAttribute> ATTRIBUTE_PERMITTED_SUBCLASSES = new Key<>("PermittedSubclasses");
-  public static final Key<StructSourceFileAttribute> ATTRIBUTE_SOURCE_FILE = new Key<>("SourceFile");
+  public static final Key<StructCodeAttribute> ATTRIBUTE_CODE = Key.of("Code");
+  public static final Key<StructInnerClassesAttribute> ATTRIBUTE_INNER_CLASSES = Key.of("InnerClasses");
+  public static final Key<StructGenericSignatureAttribute> ATTRIBUTE_SIGNATURE = Key.of("Signature");
+  public static final Key<StructAnnDefaultAttribute> ATTRIBUTE_ANNOTATION_DEFAULT = Key.of("AnnotationDefault");
+  public static final Key<StructExceptionsAttribute> ATTRIBUTE_EXCEPTIONS = Key.of("Exceptions");
+  public static final Key<StructEnclosingMethodAttribute> ATTRIBUTE_ENCLOSING_METHOD = Key.of("EnclosingMethod");
+  public static final Key<StructAnnotationAttribute> ATTRIBUTE_RUNTIME_VISIBLE_ANNOTATIONS = Key.of("RuntimeVisibleAnnotations");
+  public static final Key<StructAnnotationAttribute> ATTRIBUTE_RUNTIME_INVISIBLE_ANNOTATIONS = Key.of("RuntimeInvisibleAnnotations");
+  public static final Key<StructAnnotationParameterAttribute> ATTRIBUTE_RUNTIME_VISIBLE_PARAMETER_ANNOTATIONS = Key.of("RuntimeVisibleParameterAnnotations");
+  public static final Key<StructAnnotationParameterAttribute> ATTRIBUTE_RUNTIME_INVISIBLE_PARAMETER_ANNOTATIONS = Key.of("RuntimeInvisibleParameterAnnotations");
+  public static final Key<StructTypeAnnotationAttribute> ATTRIBUTE_RUNTIME_VISIBLE_TYPE_ANNOTATIONS = Key.of("RuntimeVisibleTypeAnnotations");
+  public static final Key<StructTypeAnnotationAttribute> ATTRIBUTE_RUNTIME_INVISIBLE_TYPE_ANNOTATIONS = Key.of("RuntimeInvisibleTypeAnnotations");
+  public static final Key<StructLocalVariableTableAttribute> ATTRIBUTE_LOCAL_VARIABLE_TABLE = Key.of("LocalVariableTable");
+  public static final Key<StructLocalVariableTypeTableAttribute> ATTRIBUTE_LOCAL_VARIABLE_TYPE_TABLE = Key.of("LocalVariableTypeTable");
+  public static final Key<StructConstantValueAttribute> ATTRIBUTE_CONSTANT_VALUE = Key.of("ConstantValue");
+  public static final Key<StructBootstrapMethodsAttribute> ATTRIBUTE_BOOTSTRAP_METHODS = Key.of("BootstrapMethods");
+  public static final Key<StructGeneralAttribute> ATTRIBUTE_SYNTHETIC = Key.of("Synthetic");
+  public static final Key<StructGeneralAttribute> ATTRIBUTE_DEPRECATED = Key.of("Deprecated");
+  public static final Key<StructLineNumberTableAttribute> ATTRIBUTE_LINE_NUMBER_TABLE = Key.of("LineNumberTable");
+  public static final Key<StructMethodParametersAttribute> ATTRIBUTE_METHOD_PARAMETERS = Key.of("MethodParameters");
+  public static final Key<StructModuleAttribute> ATTRIBUTE_MODULE = Key.of("Module");
+  public static final Key<StructRecordAttribute> ATTRIBUTE_RECORD = Key.of("Record");
+  public static final Key<StructPermittedSubclassesAttribute> ATTRIBUTE_PERMITTED_SUBCLASSES = Key.of("PermittedSubclasses");
+  public static final Key<StructSourceFileAttribute> ATTRIBUTE_SOURCE_FILE = Key.of("SourceFile");
 
   public static StructGeneralAttribute createAttribute(String name) {
     for (Key<? extends StructGeneralAttribute> key : AttributeRegistry.getRegistry().keySet()) {

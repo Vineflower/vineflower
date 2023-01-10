@@ -121,8 +121,6 @@ public class KMergePass extends MergeHelper implements Pass {
     if (stat.getLooptype() == DoStatement.Type.WHILE && initExprents[0] != null && firstDoExprent != null) {
       if (isIteratorCall(initExprents[0].getRight())) {
 
-        //Streams mimic Iterable but arnt.. so explicitly disallow their enhancements
-        //TODO: Check inheritance for Iterable instead of just names?
         InvocationExprent invc = (InvocationExprent)getUncast((initExprents[0]).getRight());
         if (invc.getClassname().contains("java/util/stream")) {
           return false;
@@ -297,8 +295,6 @@ public class KMergePass extends MergeHelper implements Pass {
         return true;
       }
     }
-
-    //cleanEmptyStatements(stat, firstData); //TODO: Look into this and see what it does...
 
     return false;
   }

@@ -20,12 +20,12 @@ import java.util.Map;
 import java.util.Objects;
 
 public class DecompilerContext {
-  public static final Key<StructClass> CURRENT_CLASS = new Key<>("CURRENT_CLASS");
-  public static final Key<ClassWrapper> CURRENT_CLASS_WRAPPER = new Key<>("CURRENT_CLASS_WRAPPER");
-  public static final Key<ClassesProcessor.ClassNode> CURRENT_CLASS_NODE = new Key<>("CURRENT_CLASS_NODE");
-  public static final Key<MethodWrapper> CURRENT_METHOD_WRAPPER = new Key<>("CURRENT_METHOD_WRAPPER");
-  public static final Key<VarProcessor> CURRENT_VAR_PROCESSOR = new Key<>("CURRENT_VAR_PROCESSOR");
-  public static final Key<String> RENAMER_FACTORY = new Key<>("RENAMER_FACTORY");
+  public static final Key<StructClass> CURRENT_CLASS = Key.of("CURRENT_CLASS");
+  public static final Key<ClassWrapper> CURRENT_CLASS_WRAPPER = Key.of("CURRENT_CLASS_WRAPPER");
+  public static final Key<ClassesProcessor.ClassNode> CURRENT_CLASS_NODE = Key.of("CURRENT_CLASS_NODE");
+  public static final Key<MethodWrapper> CURRENT_METHOD_WRAPPER = Key.of("CURRENT_METHOD_WRAPPER");
+  public static final Key<VarProcessor> CURRENT_VAR_PROCESSOR = Key.of("CURRENT_VAR_PROCESSOR");
+  public static final Key<String> RENAMER_FACTORY = Key.of("RENAMER_FACTORY");
 
   public final Map<Key<?>, Object> staticProps = new HashMap<>();
   public final Map<String, Object> properties;
