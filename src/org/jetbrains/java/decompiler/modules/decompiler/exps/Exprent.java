@@ -18,12 +18,10 @@ import org.jetbrains.java.decompiler.struct.match.IMatchable;
 import org.jetbrains.java.decompiler.struct.match.MatchEngine;
 import org.jetbrains.java.decompiler.struct.match.MatchNode;
 import org.jetbrains.java.decompiler.struct.match.MatchNode.RuleValue;
-import org.jetbrains.java.decompiler.util.NullableConcurrentHashMap;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class Exprent implements IMatchable {
   public static final int MULTIPLE_USES = 1;
@@ -260,7 +258,7 @@ public abstract class Exprent implements IMatchable {
     buf.append("<");
     //TODO: Check target output level and use <> operator?
     for (int i = 0; i < genericArgs.size(); i++) {
-      buf.append(ExprProcessor.getCastTypeName(genericArgs.get(i)));
+      buf.appendCastTypeName(genericArgs.get(i));
       if(i + 1 < genericArgs.size()) {
         buf.append(", ");
       }

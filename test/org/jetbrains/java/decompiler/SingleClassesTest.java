@@ -127,6 +127,18 @@ public class SingleClassesTest extends SingleClassesTestBase {
       IFernflowerPreferences.DECOMPILE_COMPLEX_CONDYS, "1",
       IFernflowerPreferences.PREFERRED_LINE_LENGTH, "250"
     );
+    registerSet("Text Tokens", this::registerTextTokens,
+      IFernflowerPreferences.DUMP_TEXT_TOKENS, "1",
+      IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
+      IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
+      IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR, "0",
+      IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
+      IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
+      IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "0",
+      IFernflowerPreferences.TERNARY_CONDITIONS, "1",
+      IFernflowerPreferences.FORCE_JSR_INLINE, "1",
+      IFernflowerPreferences.PREFERRED_LINE_LENGTH, "120"
+    );
     // TODO: user renamer class test
   }
 
@@ -445,7 +457,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingWithNull");
 
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingFuzz1");
-    
+
     // TODO: non-resugared record patterns reference hidden proxy methods
     register(JAVA_19_PREVIEW, "TestRecordPattern1");
     register(JAVA_19_PREVIEW, "TestRecordPattern2");
@@ -637,11 +649,20 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(SCALA, "TestObject", "TestObject$");
     register(SCALA, "TestCompanionObject", "TestCompanionObject$");
     // TODO: foreach array index increment is added into default branch of switch statement
-    register(JAVA_8, "TestForeachCrash");
+    register(JAVA_8, "TestForeachMultiDimensionalArray");
     // TODO: <unknown> value and cast, switch is eliminated, test2 contains entirely invalid code
     register(JAVA_17_PREVIEW, "TestUnknownCastJ17");
     // TODO: These variables shouldn't be merged, and should be split because each version is used once and has a different type use
     register(JAVA_8_NODEBUG, "TestVarIndex");
+    register(JAVA_8, "TestStaticIterator");
+    // TODO: inline && not collapsed
+    register(JAVA_16, "TestPatternMatchingInline");
+    // TODO: can't understand scopes of && boolean assignment
+    register(JAVA_16, "TestPatternMatchingCompoundBool");
+    // TODO: makes spurious var10002 for some reason
+    register(JAVA_8, "TestStackCastParam");
+    register(JAVA_8, "TestObjectPhi");
+    register(JASM, "TestMethodParamsNoLvt");
   }
 
   private void registerEntireClassPath() {
@@ -690,6 +711,10 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16, "TestTryWithResourcesSwitchJ16");
     register(JAVA_16, "TestTryWithResourcesNestedLoop");
     register(JAVA_16, "TestTryWithResourcesFakeTrigger");
+
+    register(JAVA_16, "TestTryWithResourcesManyJ16");
+    // TODO: QF doesn't handle the synthetic method in the finally correctly
+//    register(JAVA_9, "TestTryWithResourcesManyJ9");
 
     register(JAVA_8, "TestGenericMapEntireClasspath");
     register(JAVA_8, "TestGenericsTernary");
@@ -767,5 +792,10 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestTryLoopRecompile");
     register(JAVA_8, "TestTryLoopSimpleFinally");
     register(JAVA_8, "TestTryLoopReturnFinally");
+  }
+
+  private void registerTextTokens() {
+    register(JAVA_8, "TestTextTokens");
+    register(JAVA_16, "TestTextTokens2");
   }
 }

@@ -76,13 +76,14 @@ public class ArrayExprent extends Exprent {
     TextBuffer res = array.toJava(indent);
 
     if (array.getPrecedence() > getPrecedence() && !canSkipParenEnclose(array)) { // array precedence equals 0
-      res.enclose("(", ")");
+      res.encloseWithParens();
     }
 
     VarType arrType = array.getExprType();
     if (arrType.arrayDim == 0) {
       VarType objArr = VarType.VARTYPE_OBJECT.resizeArrayDim(1); // type family does not change
       res.enclose("((" + ExprProcessor.getCastTypeName(objArr) + ")", ")");
+      res.addTypeNameToken(objArr, 2);
     }
 
     res.addBytecodeMapping(bytecode);

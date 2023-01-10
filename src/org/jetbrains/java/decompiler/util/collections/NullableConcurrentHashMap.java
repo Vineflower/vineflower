@@ -1,4 +1,4 @@
-package org.jetbrains.java.decompiler.util;
+package org.jetbrains.java.decompiler.util.collections;
 
 import java.util.HashSet;
 import java.util.Map;

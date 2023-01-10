@@ -148,7 +148,7 @@ public class FieldExprent extends Exprent {
 
     if (isStatic) {
       if (useQualifiedStatic()) {
-        buf.append(DecompilerContext.getImportCollector().getShortNameInClassContext(ExprProcessor.buildJavaClassName(classname)));
+        buf.appendAllClasses(DecompilerContext.getImportCollector().getShortNameInClassContext(ExprProcessor.buildJavaClassName(classname)), classname);
         buf.append(".");
       }
     }
@@ -186,7 +186,7 @@ public class FieldExprent extends Exprent {
         boolean casted = ExprProcessor.getCastedExprent(instance, new VarType(CodeConstants.TYPE_OBJECT, 0, classname), buff, indent, true);
 
         if (casted || instance.getPrecedence() > getPrecedence()) {
-          buff.enclose("(", ")");
+          buff.encloseWithParens();
         }
 
         buf.append(buff);
@@ -209,7 +209,7 @@ public class FieldExprent extends Exprent {
 
     buf.addBytecodeMapping(bytecode);
 
-    buf.append(name);
+    buf.appendField(name, false, classname, name, descriptor);
 
     return buf;
   }

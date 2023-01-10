@@ -36,7 +36,7 @@ import org.jetbrains.java.decompiler.struct.gen.generics.GenericMethodDescriptor
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.TextUtil;
-import org.jetbrains.java.decompiler.util.VBStyleCollection;
+import org.jetbrains.java.decompiler.util.collections.VBStyleCollection;
 
 import java.io.IOException;
 import java.util.*;
@@ -158,11 +158,12 @@ public class ClassWriter implements StatementWriter {
         }
         else {
           // reference to a static method
-          buffer.append(ExprProcessor.getCastTypeName(new VarType(node.lambdaInformation.content_class_name, true)));
+          buffer.appendCastTypeName(new VarType(node.lambdaInformation.content_class_name, true));
         }
 
         buffer.append("::")
-          .append(CodeConstants.INIT_NAME.equals(node.lambdaInformation.content_method_name) ? "new" : node.lambdaInformation.content_method_name);
+          .appendMethod(CodeConstants.INIT_NAME.equals(node.lambdaInformation.content_method_name) ? "new" : node.lambdaInformation.content_method_name,
+            false, node.lambdaInformation.content_class_name, node.lambdaInformation.content_method_name, node.lambdaInformation.content_method_descriptor);
       }
       else {
         // lambda method
@@ -191,7 +192,8 @@ public class ClassWriter implements StatementWriter {
               }
 
               String parameterName = methodWrapper.varproc.getVarName(new VarVersionPair(index, 0));
-              buffer.append(parameterName == null ? "param" + index : parameterName); // null iff decompiled with errors
+              buffer.appendVariable(parameterName == null ? "param" + index : parameterName, // null iff decompiled with errors
+                true, true, node.lambdaInformation.content_class_name, node.lambdaInformation.content_method_name, md_content, index, parameterName);
 
               firstParameter = false;
             }
@@ -628,7 +630,7 @@ public class ClassWriter implements StatementWriter {
     else {
       buffer.append("class ");
     }
-    buffer.append(node.simpleName);
+    buffer.appendClass(node.simpleName, true, cl.qualifiedName);
 
     GenericClassDescriptor descriptor = cl.getSignature();
     if (descriptor != null && !descriptor.fparameters.isEmpty()) {
@@ -648,7 +650,7 @@ public class ClassWriter implements StatementWriter {
       if (!VarType.VARTYPE_OBJECT.equals(supertype)) {
         buffer.appendPossibleNewline(" ");
         buffer.append("extends ");
-        buffer.append(ExprProcessor.getCastTypeName(descriptor == null ? supertype : descriptor.superclass));
+        buffer.appendCastTypeName(descriptor == null ? supertype : descriptor.superclass);
       }
     }
 
@@ -664,7 +666,7 @@ public class ClassWriter implements StatementWriter {
           }
 
           if (descriptor == null || descriptor.superinterfaces.size() > i) {
-            buffer.append(ExprProcessor.getCastTypeName(descriptor == null ? new VarType(cl.getInterface(i), true) : descriptor.superinterfaces.get(i)));
+            buffer.appendCastTypeName(descriptor == null ? new VarType(cl.getInterface(i), true) : descriptor.superinterfaces.get(i));
           }
         }
       }
@@ -678,7 +680,7 @@ public class ClassWriter implements StatementWriter {
           buffer.append(",");
           buffer.appendPossibleNewline(" ");
         }
-        buffer.append(ExprProcessor.getCastTypeName(new VarType(permittedSubClasses.get(i), true)));
+        buffer.appendCastTypeName(new VarType(permittedSubClasses.get(i), true));
       }
     }
 
@@ -748,11 +750,11 @@ public class ClassWriter implements StatementWriter {
     GenericFieldDescriptor descriptor = fieldTypeData.getValue();
 
     if (!isEnum) {
-      buffer.append(ExprProcessor.getCastTypeName(descriptor == null ? fieldType : descriptor.type));
+      buffer.appendCastTypeName(descriptor == null ? fieldType : descriptor.type);
       buffer.append(' ');
     }
 
-    buffer.append(name);
+    buffer.appendField(name, true, cl.qualifiedName, name, fd.getDescriptor());
 
     Exprent initializer;
     if (fd.hasModifier(CodeConstants.ACC_STATIC)) {
@@ -825,17 +827,19 @@ public class ClassWriter implements StatementWriter {
               buffer.append(", ");
             }
 
-            String typeName = ExprProcessor.getCastTypeName(md_content.params[i].copy());
+            VarType type = md_content.params[i].copy();
+            String typeName = ExprProcessor.getCastTypeName(type);
             if (ExprProcessor.UNDEFINED_TYPE_STRING.equals(typeName) &&
                 DecompilerContext.getOption(IFernflowerPreferences.UNDEFINED_PARAM_TYPE_OBJECT)) {
               typeName = ExprProcessor.getCastTypeName(VarType.VARTYPE_OBJECT);
             }
 
-            buffer.append(typeName);
+            buffer.appendCastTypeName(typeName, type);
             buffer.append(" ");
 
             String parameterName = methodWrapper.varproc.getVarName(new VarVersionPair(index, 0));
-            buffer.append(parameterName == null ? "param" + index : parameterName); // null iff decompiled with errors
+            buffer.appendVariable(parameterName == null ? "param" + index : parameterName, // null iff decompiled with errors
+              true, true, classWrapper.getClassStruct().qualifiedName, method_name, md_content, index, parameterName);
 
             firstParameter = false;
           }
@@ -1025,11 +1029,11 @@ public class ClassWriter implements StatementWriter {
         }
 
         if (!init) {
-          buffer.append(ExprProcessor.getCastTypeName(descriptor == null ? md.ret : descriptor.returnType));
+          buffer.appendCastTypeName(descriptor == null ? md.ret : descriptor.returnType);
           buffer.append(' ');
         }
 
-        buffer.append(toValidJavaIdentifier(name));
+        buffer.appendMethod(toValidJavaIdentifier(name), true, cl.qualifiedName, mt.getName(), md);
         buffer.append('(');
 
         List<VarVersionPair> mask = methodWrapper.synthParameters;
@@ -1089,7 +1093,7 @@ public class ClassWriter implements StatementWriter {
                 DecompilerContext.getOption(IFernflowerPreferences.UNDEFINED_PARAM_TYPE_OBJECT)) {
               typeName = ExprProcessor.getCastTypeName(VarType.VARTYPE_OBJECT);
             }
-            buffer.append(typeName);
+            buffer.appendCastTypeName(typeName, parameterType);
             if (isVarArg) {
               buffer.append("...");
             }
@@ -1110,7 +1114,8 @@ public class ClassWriter implements StatementWriter {
 
             }
 
-            buffer.append(parameterName == null ? "param" + index : parameterName); // null iff decompiled with errors
+            buffer.appendVariable(parameterName == null ? "param" + index : parameterName, // null iff decompiled with errors
+              true, true, cl.qualifiedName, mt.getName(), md, index, parameterName);
 
             paramCount++;
           }
@@ -1136,7 +1141,7 @@ public class ClassWriter implements StatementWriter {
               buffer.append(", ");
             }
             VarType type = useDescriptor ? descriptor.exceptionTypes.get(i) : new VarType(attr.getExcClassname(i, cl.getPool()), true);
-            buffer.append(ExprProcessor.getCastTypeName(type));
+            buffer.appendCastTypeName(type);
           }
         }
       }
@@ -1520,9 +1525,9 @@ public class ClassWriter implements StatementWriter {
       StructAnnotationAttribute attribute = (StructAnnotationAttribute)mb.getAttribute(key);
       if (attribute != null) {
         for (AnnotationExprent annotation : attribute.getAnnotations()) {
-          String text = annotation.toJava(indent).convertToStringAndAllowDataDiscard();
-          filter.add(text);
-          buffer.append(text);
+          TextBuffer text = annotation.toJava(indent);
+          filter.add(text.convertToStringAndAllowDataDiscard());
+          buffer.appendText(text);
           if (indent < 0) {
             buffer.append(' ');
           }
@@ -1591,9 +1596,9 @@ public class ClassWriter implements StatementWriter {
         List<List<AnnotationExprent>> annotations = attribute.getParamAnnotations();
         if (param < annotations.size()) {
           for (AnnotationExprent annotation : annotations.get(param)) {
-            String text = annotation.toJava(-1).convertToStringAndAllowDataDiscard();
-            filter.add(text);
-            buffer.append(text).append(' ');
+            TextBuffer text = annotation.toJava(-1);
+            filter.add(text.convertToStringAndAllowDataDiscard());
+            buffer.appendText(text).append(' ');
           }
         }
       }
@@ -1608,9 +1613,9 @@ public class ClassWriter implements StatementWriter {
       if (attribute != null) {
         for (TypeAnnotation annotation : attribute.getAnnotations()) {
           if (annotation.isTopLevel() && annotation.getTargetType() == targetType && (index < 0 || annotation.getIndex() == index)) {
-            String text = annotation.getAnnotation().toJava(indent).convertToStringAndAllowDataDiscard();
-            if (!filter.contains(text)) {
-              buffer.append(text);
+            TextBuffer text = annotation.getAnnotation().toJava(indent);
+            if (!filter.contains(text.convertToStringAndAllowDataDiscard())) {
+              buffer.appendText(text);
               if (indent < 0) {
                 buffer.append(' ');
               }
@@ -1684,10 +1689,10 @@ public class ClassWriter implements StatementWriter {
       List<VarType> parameterBounds = bounds.get(i);
       if (parameterBounds.size() > 1 || !"java/lang/Object".equals(parameterBounds.get(0).value)) {
         buffer.append(" extends ");
-        buffer.append(ExprProcessor.getCastTypeName(parameterBounds.get(0)));
+        buffer.appendCastTypeName(parameterBounds.get(0));
         for (int j = 1; j < parameterBounds.size(); j++) {
           buffer.append(" & ");
-          buffer.append(ExprProcessor.getCastTypeName(parameterBounds.get(j)));
+          buffer.appendCastTypeName(parameterBounds.get(j));
         }
       }
     }

@@ -12,7 +12,9 @@ import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarTypeProcessor.FinalType;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructMethod;
+import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribute.LocalVariable;
+import org.jetbrains.java.decompiler.struct.attr.StructMethodParametersAttribute;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
@@ -68,13 +70,27 @@ public class VarDefinitionHelper {
     }
     paramcount += md.params.length;
 
+    List<StructMethodParametersAttribute.Entry> methodParameters = null;
+    if (DecompilerContext.getOption(IFernflowerPreferences.USE_METHOD_PARAMETERS)) {
+      StructMethodParametersAttribute attr = mt.getAttribute(StructGeneralAttribute.ATTRIBUTE_METHOD_PARAMETERS);
+      if (attr != null) {
+        methodParameters = attr.getEntries();
+      }
+    }
+
     // method parameters are implicitly defined
     int varindex = 0;
+    int paramIndex = 0;
     for (int i = 0; i < paramcount; i++) {
       implDefVars.add(varindex);
       VarVersionPair vpp = new VarVersionPair(varindex, 0);
       if (varindex != 0 || !thisvar) {
-        varproc.setVarName(vpp, vc.getFreeName(varindex));
+        if (methodParameters != null && paramIndex < methodParameters.size()) {
+          varproc.setVarName(vpp, vc.getFreeName(methodParameters.get(paramIndex).myName));
+          paramIndex++;
+        } else {
+          varproc.setVarName(vpp, vc.getFreeName(varindex));
+        }
       }
 
       if (thisvar) {
@@ -101,7 +117,7 @@ public class VarDefinitionHelper {
     mergeVars(root);
 
     // catch variables are implicitly defined
-    LinkedList<Statement> stack = new LinkedList<>();
+    Deque<Statement> stack = new ArrayDeque<>();
     stack.add(root);
 
     while (!stack.isEmpty()) {
@@ -876,7 +892,7 @@ public class VarDefinitionHelper {
           VarType type = right.getConstType();
 
           // We can only do this if the merged type is a superset of the old type
-          if (merged.isSuperset(type)) {
+          if (merged.isSuperset(type) && canConstTypeMerge(merged)) {
             right.setConstType(merged);
           }
         }
@@ -903,6 +919,14 @@ public class VarDefinitionHelper {
       }
     }
     return remapped;
+  }
+
+  private static boolean canConstTypeMerge(VarType type) {
+    if (type.typeFamily == CodeConstants.TYPE_FAMILY_OBJECT) {
+      return type == VarType.VARTYPE_STRING || type == VarType.VARTYPE_CLASS || type == VarType.VARTYPE_NULL;
+    }
+
+    return true;
   }
 
   private VarType getMergedType(VarVersionPair from, VarVersionPair to) {

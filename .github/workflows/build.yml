@@ -7,7 +7,7 @@ jobs:
         java: [8, 11, 17]
     runs-on: ubuntu-22.04
     container:
-      image: eclipse-temurin:${{ matrix.java }}
+      image: eclipse-temurin:${{ matrix.java }}-jdk
       options: --user root
     steps:
       - uses: actions/checkout@v3

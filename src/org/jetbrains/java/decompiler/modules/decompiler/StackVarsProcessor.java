@@ -23,9 +23,9 @@ import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
-import org.jetbrains.java.decompiler.util.FastSparseSetFactory.FastSparseSet;
+import org.jetbrains.java.decompiler.util.collections.FastSparseSetFactory.FastSparseSet;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
-import org.jetbrains.java.decompiler.util.SFormsFastMapDirect;
+import org.jetbrains.java.decompiler.util.collections.SFormsFastMapDirect;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -742,11 +742,11 @@ public class StackVarsProcessor {
     Set<VarVersionNode> setVisited = new HashSet<>();
     Set<VarVersionNode> setNotDoms = new HashSet<>();
 
-    LinkedList<VarVersionNode> stack = new LinkedList<>();
+    Deque<VarVersionNode> stack = new ArrayDeque<>();
     stack.add(node);
 
     while (!stack.isEmpty()) {
-      VarVersionNode nd = stack.remove(0);
+      VarVersionNode nd = stack.poll();
       setVisited.add(nd);
 
       if (nd != node && (nd.flags & VarVersionNode.FLAG_PHANTOM_FINEXIT) == 0) {

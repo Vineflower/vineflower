@@ -13,7 +13,7 @@ import org.jetbrains.java.decompiler.struct.match.MatchEngine;
 import org.jetbrains.java.decompiler.struct.match.MatchNode;
 import org.jetbrains.java.decompiler.util.IntHelper;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
-import org.jetbrains.java.decompiler.util.ListStack;
+import org.jetbrains.java.decompiler.util.collections.ListStack;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 
 import java.util.*;
@@ -546,7 +546,7 @@ public class FunctionExprent extends Exprent {
         if (!needsCast) {
           return buf.append(lstOperands.get(0).toJava(indent));
         }
-        return buf.append(lstOperands.get(1).toJava(indent)).enclose("(", ")").append(wrapOperandString(lstOperands.get(0), true, indent));
+        return buf.append(lstOperands.get(1).toJava(indent)).encloseWithParens().append(wrapOperandString(lstOperands.get(0), true, indent));
       case ARRAY_LENGTH:
         Exprent arr = lstOperands.get(0);
 
@@ -554,6 +554,7 @@ public class FunctionExprent extends Exprent {
         if (arr.getExprType().arrayDim == 0) {
           VarType objArr = VarType.VARTYPE_OBJECT.resizeArrayDim(1); // type family does not change
           buf.enclose("((" + ExprProcessor.getCastTypeName(objArr) + ")", ")");
+          buf.addTypeNameToken(objArr, 2);
         }
         return buf.append(".length");
       case TERNARY:
@@ -602,7 +603,8 @@ public class FunctionExprent extends Exprent {
         }
       }
       return buf.append(wrapOperandString(lstOperands.get(0), true, indent))
-                .prepend("(" + ExprProcessor.getTypeName(funcType.castType) + ")");
+                .prepend("(" + ExprProcessor.getTypeName(funcType.castType) + ")")
+                .addTypeNameToken(funcType.castType, 1);
     }
 
     //        return "<unknown function>";

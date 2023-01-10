@@ -40,5 +40,4 @@ class TestConstantUninlining {
 
   static final double DE = Math.E;
   static final double DENeg = -Math.E;
-
 }

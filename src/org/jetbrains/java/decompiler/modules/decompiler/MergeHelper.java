@@ -641,6 +641,10 @@ public final class MergeHelper {
         }
 
         InvocationExprent holder = (InvocationExprent)right;
+        // base of the .iterator() call is null, so the iterator comes from a static method: cannot be a foreach
+        if (holder.getInstance() == null) {
+          return false;
+        }
 
         initExprents[0].getBytecodeRange(holder.getInstance().bytecode);
         holder.getBytecodeRange(holder.getInstance().bytecode);
@@ -779,11 +783,10 @@ public final class MergeHelper {
   private static boolean isVarUsedBefore(VarExprent var, Statement st) {
     // Build digraph
     FlattenStatementsHelper flatten = new FlattenStatementsHelper();
-    DirectGraph digraph = flatten.buildDirectGraph(st.getTopParent());
+    flatten.buildDirectGraph(st.getTopParent());
 
     // Find starting point for iteration
-    String diblockId = digraph.mapDestinationNodes.get(st.id)[0];
-    DirectNode stnd = digraph.nodes.getWithKey(diblockId);
+    DirectNode stnd = flatten.getDirectNode(st);
 
     // Only submit predecessors!
     Deque<DirectNode> stack = new LinkedList<>(stnd.preds());

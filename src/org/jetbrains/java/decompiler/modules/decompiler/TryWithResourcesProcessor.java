@@ -109,6 +109,10 @@ public final class TryWithResourcesProcessor {
       return false;
     }
 
+    if (!tryStatement.getVars().get(0).getVarType().value.equals("java/lang/Throwable")) {
+      return false;
+    }
+
     Statement inner = tryStatement.getStats().get(1); // Get catch block
 
     VarExprent closeable = null;
@@ -122,6 +126,11 @@ public final class TryWithResourcesProcessor {
       // If the catch statement contains a simple try catch, then it's a nonnull resource
       if (inner instanceof CatchStatement) {
         if (inner.getStats().isEmpty()) {
+          return false;
+        }
+
+        CatchStatement innerTry = (CatchStatement)inner;
+        if (!innerTry.getVars().get(0).getVarType().value.equals("java/lang/Throwable")) {
           return false;
         }
 
@@ -164,6 +173,15 @@ public final class TryWithResourcesProcessor {
 
             // Process try catch inside of if statement
             if (inner instanceof CatchStatement && !inner.getStats().isEmpty()) {
+              if (inner.getStats().isEmpty()) {
+                return false;
+              }
+
+              CatchStatement innerTry = (CatchStatement)inner;
+              if (!innerTry.getVars().get(0).getVarType().value.equals("java/lang/Throwable")) {
+                return false;
+              }
+
               Statement inTry = inner.getStats().get(0);
 
               if (inTry instanceof BasicBlockStatement && !inTry.getExprents().isEmpty()) {
@@ -192,6 +210,9 @@ public final class TryWithResourcesProcessor {
     }
 
     Set<Statement> destinations = findExitpoints(tryStatement);
+    if (destinations.isEmpty()) {
+      return false;
+    }
 
     Statement check = tryStatement;
     List<StatEdge> preds = new ArrayList<>();

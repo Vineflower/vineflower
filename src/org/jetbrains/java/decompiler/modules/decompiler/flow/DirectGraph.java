@@ -3,9 +3,8 @@ package org.jetbrains.java.decompiler.modules.decompiler.flow;
 
 import org.jetbrains.java.decompiler.api.FlattenedGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
-import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper.FinallyPathWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.DummyExitStatement;
-import org.jetbrains.java.decompiler.util.VBStyleCollection;
+import org.jetbrains.java.decompiler.util.collections.VBStyleCollection;
 
 import java.util.*;
 
@@ -18,24 +17,15 @@ public class DirectGraph implements FlattenedGraph {
 
   public DirectNode first;
 
-  // exit, [source, destination]
-  public final HashMap<String, List<FinallyPathWrapper>> mapShortRangeFinallyPaths = new HashMap<>();
-
-  // exit, [source, destination]
-  public final HashMap<String, List<FinallyPathWrapper>> mapLongRangeFinallyPaths = new HashMap<>();
-
   // negative if branches (recorded for handling of && and ||)
   public final HashMap<String, String> mapNegIfBranch = new HashMap<>();
 
   // nodes, that are exception exits of a finally block with monitor variable
   public final HashMap<String, String> mapFinallyMonitorExceptionPathExits = new HashMap<>();
 
-  // statement.id, node.id(direct), node.id(continue)
-  public final Map<Integer, String[]> mapDestinationNodes = new HashMap<>();
-
 
   public void sortReversePostOrder() {
-    LinkedList<DirectNode> res = new LinkedList<>();
+    Deque<DirectNode> res = new ArrayDeque<>();
     addToReversePostOrderListIterative(this.first, res);
 
     // Include unreachable nodes in the graph structure
@@ -59,7 +49,7 @@ public class DirectGraph implements FlattenedGraph {
     }
   }
 
-  private static void addToReversePostOrderListIterative(DirectNode root, List<? super DirectNode> lst) {
+  private static void addToReversePostOrderListIterative(DirectNode root, Deque<? super DirectNode> lst) {
 
     LinkedList<DirectNode> stackNode = new LinkedList<>();
     LinkedList<Integer> stackIndex = new LinkedList<>();
@@ -90,7 +80,7 @@ public class DirectGraph implements FlattenedGraph {
       }
 
       if (index == node.succs().size()) {
-        lst.add(0, node);
+        lst.addFirst(node);
 
         stackNode.removeLast();
       }

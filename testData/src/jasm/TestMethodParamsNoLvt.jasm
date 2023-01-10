@@ -1,0 +1,52 @@
+/**
+ * This code can be assembled with <a href="https://wiki.openjdk.java.net/display/CodeTools/asmtools">asmtools</a>
+ * using <code>asmtools jasm -g *.jasm</code> command line.
+ */
+package  pkg;
+
+super public class TestMethodParamsNoLvt
+	version 61:0
+{
+  public Method "<init>":"()V"
+	stack 1 locals 1
+  {
+		aload_0;
+		invokespecial	Method java/lang/Object."<init>":"()V";
+		return;
+
+  }
+  public Method foo:"(ILjava/lang/String;)V"
+	stack 2 locals 3
+
+	0: #{param0}
+	1: #{param1}
+  {
+		getstatic	Field java/lang/System.out:"Ljava/io/PrintStream;";
+		iload_1;
+		invokevirtual	Method java/io/PrintStream.print:"(I)V";
+		getstatic	Field java/lang/System.out:"Ljava/io/PrintStream;";
+		aload_2;
+		invokevirtual	Method java/io/PrintStream.println:"(Ljava/lang/String;)V";
+		return;
+
+  }
+  public static Method bar:"(IILjava/lang/String;I)V"
+	stack 2 locals 4
+
+  0: #{param0}
+  1: #{param1}
+  2: #{param2}
+  {
+		getstatic	Field java/lang/System.out:"Ljava/io/PrintStream;";
+		iload_0;
+		invokevirtual	Method java/io/PrintStream.print:"(I)V";
+		getstatic	Field java/lang/System.out:"Ljava/io/PrintStream;";
+		iload_1;
+		invokevirtual	Method java/io/PrintStream.print:"(I)V";
+		getstatic	Field java/lang/System.out:"Ljava/io/PrintStream;";
+		aload_2;
+		invokevirtual	Method java/io/PrintStream.println:"(Ljava/lang/String;)V";
+		return;
+
+  }
+} // end Class TestMethodParamsNoLvt

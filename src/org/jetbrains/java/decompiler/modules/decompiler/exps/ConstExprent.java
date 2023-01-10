@@ -104,8 +104,7 @@ public class ConstExprent extends Exprent {
       UNINLINED_FLOATS.put(key.floatValue(), bytecode -> {
         TextBuffer doubleValue = valueFunction.apply(bytecode);
         if (doubleValue.count(" ", 0) > 0) { // As long as all uninlined double values with more than one expression have a space in it, this'll work.
-          NO_PAREN_VALUES.add(key.floatValue());
-          doubleValue.prepend("(").append(")");
+          doubleValue.encloseWithParens();
         }
         return doubleValue.prepend("(float) ");
       });
@@ -228,7 +227,7 @@ public class ConstExprent extends Exprent {
     }
 
     if (constType.type != CodeConstants.TYPE_NULL && value == null) {
-      return buf.append(ExprProcessor.getCastTypeName(constType));
+      return buf.appendCastTypeName(constType);
     }
 
     VarType unboxed = VarType.UNBOXING_TYPES.getOrDefault(constType, constType);
@@ -352,13 +351,13 @@ public class ConstExprent extends Exprent {
         else if (constType.equals(VarType.VARTYPE_CLASS)) {
           String stringVal = value.toString();
           VarType type = new VarType(stringVal, !stringVal.startsWith("["));
-          return buf.append(ExprProcessor.getCastTypeName(type)).append(".class");
+          return buf.appendCastTypeName(type).append(".class");
         }
     }
 
     // prevent gc without discarding
     buf.convertToStringAndAllowDataDiscard();
-    throw new RuntimeException("invalid constant type: " + constType);
+    throw new RuntimeException("invalid constant type: " + constType + " with value " + value);
   }
 
   @Override
@@ -369,18 +368,20 @@ public class ConstExprent extends Exprent {
 
     VarType unboxed = VarType.UNBOXING_TYPES.getOrDefault(constType, constType);
 
+    // FIXME: this entire system is terrible, and pi constants need to be fixed to not create field exprents
+
     switch (unboxed.type) {
       case CodeConstants.TYPE_FLOAT:
         float floatVal = (Float)value;
 
-        if (UNINLINED_FLOATS.containsKey(floatVal) && !NO_PAREN_VALUES.contains(floatVal)) {
+        if (UNINLINED_FLOATS.containsKey(floatVal) && !NO_PAREN_VALUES.contains(floatVal) && UNINLINED_FLOATS.get(floatVal).apply(bytecode).countChars('(') < 2) {
           return 4;
         }
         break;
       case CodeConstants.TYPE_DOUBLE:
         double doubleVal = (Double)value;
 
-        if (UNINLINED_DOUBLES.containsKey(doubleVal) && !NO_PAREN_VALUES.contains(doubleVal)) {
+        if (UNINLINED_DOUBLES.containsKey(doubleVal) && !NO_PAREN_VALUES.contains(doubleVal) && UNINLINED_DOUBLES.get(doubleVal).apply(bytecode).countChars('(') < 2) {
           return 4;
         }
         break;
