@@ -14,8 +14,8 @@ jobs:
       - uses: actions/checkout@v3
       - uses: gradle/wrapper-validation-action@v1
       - run: |
-        chmod +x gradlew
-        ./gradlew publish --stacktrace
+         chmod +x gradlew
+         ./gradlew publish --stacktrace
         env:
           MAVEN_URL: ${{ secrets.MAVEN_URL }}
           MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}

@@ -11,8 +11,8 @@ jobs:
       - uses: actions/checkout@v3
       - uses: gradle/wrapper-validation-action@v1
       - run: |
-        chmod +x gradlew
-        ./gradlew publish --stacktrace
+         chmod +x gradlew
+         ./gradlew publish --stacktrace
         env:
           SNAPSHOTS_URL: ${{ secrets.SNAPSHOTS_URL }}
           SNAPSHOTS_USERNAME: ${{ secrets.SNAPSHOTS_USERNAME }}
