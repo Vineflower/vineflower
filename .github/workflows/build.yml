@@ -12,7 +12,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: gradle/wrapper-validation-action@v1
-      - run: |
+      - name: Build with Gradle
+        run: |
          chmod +x gradlew
          ./gradlew build --stacktrace
       - name: Archive test results

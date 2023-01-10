@@ -13,7 +13,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: gradle/wrapper-validation-action@v1
-      - run: |
+      - name: Publish using Gradle
+        run: |
          chmod +x gradlew
          ./gradlew publish --stacktrace
         env:
