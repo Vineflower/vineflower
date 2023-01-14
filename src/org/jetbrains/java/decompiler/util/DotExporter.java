@@ -526,12 +526,18 @@ public class DotExporter {
           case DEAD_READ:
             builder.append(" [shape=box, style=filled, fillcolor=grey59, ");
             break;
+          case PARAM:
+            builder.append(" [shape=box, style=filled, fillcolor=skyblue1, ");
+            break;
+          case CATCH:
+            builder.append(" [shape=box, style=filled, fillcolor=gold, ");
+            break;
         }
       }
 
       builder.append("label=\"").append(node.var).append("_").append(node.version).append("\"];\r\n");
 
-      for (VarVersionNode dest : node.succs2) {
+      for (VarVersionNode dest : node.successors) {
         appendNode(builder, node);
         builder.append("->");
         appendNode(builder, dest);

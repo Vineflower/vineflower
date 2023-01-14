@@ -17,17 +17,13 @@ public class VarVersionsGraph {
   private GenericDominatorEngine engine;
 
   public VarVersionNode createNode(VarVersionPair ver) {
-    return createNode(ver, null);
+    return this.createNode(ver, null);
   }
 
   public VarVersionNode createNode(VarVersionPair ver, LocalVariable lvt) {
     VarVersionNode node;
-    nodes.addWithKey(node = new VarVersionNode(ver.var, ver.version, lvt), ver);
+    this.nodes.addWithKey(node = new VarVersionNode(ver.var, ver.version, lvt), ver);
     return node;
-  }
-
-  public void addNodes(Collection<VarVersionNode> colnodes, Collection<VarVersionPair> colpaars) {
-    nodes.addAllWithKey(colnodes, colpaars);
   }
 
   public boolean isDominatorSet(VarVersionNode node, Set<VarVersionNode> domnodes) {
@@ -50,11 +46,11 @@ public class VarVersionsGraph {
           continue;
         }
 
-        if (nd.preds2.isEmpty()) {
+        if (nd.predecessors.isEmpty()) {
           return false;
         }
 
-        for (VarVersionNode pred : nd.preds2) {
+        for (VarVersionNode pred : nd.predecessors) {
           if (!seen.contains(pred) && !domnodes.contains(pred)) {
             lstNodes.addLast(pred);
           }
@@ -68,8 +64,8 @@ public class VarVersionsGraph {
   public void initDominators() {
     Set<VarVersionNode> roots = new HashSet<>();
 
-    for (VarVersionNode node : nodes) {
-      if (node.preds2.isEmpty()) {
+    for (VarVersionNode node : this.nodes) {
+      if (node.predecessors.isEmpty()) {
         roots.add(node);
       }
     }
@@ -96,7 +92,7 @@ public class VarVersionsGraph {
         }
 
         // DFS to find all nodes reachable from this node
-        Set<VarVersionNode> found = findNodes(node);
+        Set<VarVersionNode> found = this.findReachableNodes(node);
         // Skip all the found nodes from this node in the future
         visited.addAll(found);
 
@@ -139,8 +135,9 @@ public class VarVersionsGraph {
 
   /**
    * Returns the set of nodes that are reachable by the given node.
+   * These are all the nodes that could read a value set at the start node
    */
-  private Set<VarVersionNode> findNodes(VarVersionNode start) {
+  private Set<VarVersionNode> findReachableNodes(VarVersionNode start) {
     Set<VarVersionNode> visited = new HashSet<>();
     ListStack<VarVersionNode> stack = new ListStack<>();
     stack.add(start);
@@ -149,7 +146,7 @@ public class VarVersionsGraph {
       VarVersionNode node = stack.pop();
 
       if (visited.add(node)) {
-        stack.addAll(node.succs2);
+        stack.addAll(node.successors);
       }
     }
 
@@ -168,7 +165,7 @@ public class VarVersionsGraph {
       VarVersionNode node = stack.pop();
 
       if (visited.add(node)) {
-        stack.addAll(node.succs2);
+        stack.addAll(node.successors);
       }
     }
 
@@ -199,12 +196,12 @@ public class VarVersionsGraph {
         return false;
       }
 
-      if (node.succs2.size() != analog.succs2.size()) {
+      if (node.successors.size() != analog.successors.size()) {
         return false;
       }
 
       // FIXME: better checking
-      for (VarVersionNode dest : node.succs2) {
+      for (VarVersionNode dest : node.successors) {
         stack.add(dest);
 
         VarVersionNode sucAnalog = this.nodes.getWithKey(new VarVersionPair(varCheck, dest.version));
@@ -247,7 +244,7 @@ public class VarVersionsGraph {
 
       setVisited.add(node);
 
-      List<VarVersionNode> lstSuccs = new ArrayList<>(node.succs2);
+      List<VarVersionNode> lstSuccs = new ArrayList<>(node.successors);
       for (; index < lstSuccs.size(); index++) {
         VarVersionNode succ = lstSuccs.get(index);
 

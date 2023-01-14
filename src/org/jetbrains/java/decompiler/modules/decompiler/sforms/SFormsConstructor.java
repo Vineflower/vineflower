@@ -53,7 +53,7 @@ public abstract class SFormsConstructor implements SFormsCreator {
   private SFormsFastMapDirect currentCatchableMap = null;
 
 
-  private RootStatement root;
+  protected RootStatement root;
   private StructMethod mt;
   DirectGraph dgraph;
 
@@ -74,6 +74,7 @@ public abstract class SFormsConstructor implements SFormsCreator {
     ValidationHelper.validateDGraph(dgraph, root);
     ValidationHelper.validateAllVarVersionsAreNull(dgraph, root);
 
+    // FIXME: this overrides the previous iteration
     DotExporter.toDotFile(dgraph, mt, "ssaSplitVariables");
 
     List<Integer> setInit = new ArrayList<>();
@@ -87,7 +88,7 @@ public abstract class SFormsConstructor implements SFormsCreator {
     this.setCatchMaps(root, dgraph, flatthelper);
 
     int iteration = 1;
-    HashSet<String> updated = new HashSet<>();
+    Set<String> updated = new HashSet<>();
     do {
       // System.out.println("~~~~~~~~~~~~~ \r\n"+root.toJava());
       this.ssaStatements(dgraph, updated, false, mt, iteration++);
@@ -605,6 +606,7 @@ public abstract class SFormsConstructor implements SFormsCreator {
     return null;
   }
 
+  // TODO: these could instead be VarExprents / PatternExprents in the catch dnode
   private void setCatchMaps(Statement stat, DirectGraph dgraph, FlattenStatementsHelper flatthelper) {
 
     SFormsFastMapDirect map;
@@ -622,17 +624,12 @@ public abstract class SFormsConstructor implements SFormsCreator {
 
         for (int i = 1; i < stat.getStats().size(); i++) {
           int varindex = lstVars.get(i - 1).getIndex();
-          int version = this.getNextFreeVersion(varindex, stat); // == 1
-
           map = new SFormsFastMapDirect(this.factory);
-          this.setCurrentVar(map, varindex, version);
+
+          this.initParameter(varindex, map, true);
 
           this.extraVarVersions.put(flatthelper.getDirectNode(stat.getStats().get(i)).id, map);
 
-          // FIXME:
-          if (this instanceof SSAUConstructorSparseEx) {
-            ((SSAUConstructorSparseEx) this).ssuversions.createNode(new VarVersionPair(varindex, version));
-          }
         }
     }
 
@@ -642,43 +639,35 @@ public abstract class SFormsConstructor implements SFormsCreator {
   }
 
   private SFormsFastMapDirect createFirstMap() {
-    boolean thisvar = !this.mt.hasModifier(CodeConstants.ACC_STATIC);
+    boolean hasThis = !this.mt.hasModifier(CodeConstants.ACC_STATIC);
 
     MethodDescriptor md = MethodDescriptor.parseDescriptor(this.mt.getDescriptor());
 
-    int paramcount = md.params.length + (thisvar ? 1 : 0);
+    int paramCount = md.params.length + (hasThis ? 1 : 0);
 
-    int varindex = 0;
-    SFormsFastMapDirect map = new SFormsFastMapDirect(this.factory);
-    for (int i = 0; i < paramcount; i++) {
-      int version = this.getNextFreeVersion(varindex, this.root); // == 1
+    SFormsFastMapDirect varMap = new SFormsFastMapDirect(this.factory);
+    for (int varIndex = 0, i = 0; i < paramCount; i++) {
+      this.initParameter(varIndex, varMap, false);
 
-      FastSparseSet<Integer> set = this.factory.createEmptySet();
-      set.add(version);
-      map.put(varindex, set);
-
-      // FIXME:
-      if (this instanceof SSAUConstructorSparseEx) {
-        ((SSAUConstructorSparseEx) this).ssuversions.createNode(new VarVersionPair(varindex, version));
-      }
-
-      if (thisvar) {
+      if (hasThis) {
         if (i == 0) {
-          varindex++;
+          varIndex++;
         } else {
-          varindex += md.params[i - 1].stackSize;
+          varIndex += md.params[i - 1].stackSize;
         }
       } else {
-        varindex += md.params[i].stackSize;
+        varIndex += md.params[i].stackSize;
       }
     }
 
-    return map;
+    return varMap;
   }
 
+  abstract public void initParameter(int varIndex, SFormsFastMapDirect varMap, boolean isCatchVar);
+
   public static void makeReadEdge(VarVersionNode phiNode, VarVersionNode tempNode) {
-    tempNode.succs2.add(phiNode);
-    phiNode.preds2.add(tempNode);
+    tempNode.successors.add(phiNode);
+    phiNode.predecessors.add(tempNode);
   }
 
 

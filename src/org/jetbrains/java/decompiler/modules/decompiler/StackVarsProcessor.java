@@ -762,17 +762,17 @@ public class StackVarsProcessor {
       VarVersionNode nd = stack.pop();
       setVisited.add(nd);
 
-      if (nd != node && (nd.flags & VarVersionNode.FLAG_PHANTOM_FINEXIT) == 0) {
+      if (nd != node) {
         res.add(nd);
       }
 
-      for (VarVersionNode dest : nd.succs2) {
+      for (VarVersionNode dest : nd.successors) {
         if (setVisited.contains(dest)) {
           continue;
         }
 
         boolean isDominated = true;
-        for (VarVersionNode source : dest.preds2) {
+        for (VarVersionNode source : dest.predecessors) {
           if (!setVisited.contains(source)) {
             isDominated = false;
             break;
@@ -963,7 +963,7 @@ public class StackVarsProcessor {
                 while (true) {
                   VarVersionNode next = null;
                   if (vvnode.var >= VarExprent.STACK_BASE) {
-                    vvnode = vvnode.preds2.iterator().next();
+                    vvnode = vvnode.predecessors.iterator().next();
                     VarVersionPair nextVVP = ssau.getVarAssignmentMap().get(new VarVersionPair(vvnode.var, vvnode.version));
                     next = ssau.getSsuVersions().nodes.getWithKey(nextVVP);
 
@@ -978,7 +978,7 @@ public class StackVarsProcessor {
                     List<VarVersionNode> roots = getRoots(vvnode);
                     List<VarVersionNode> allRoots = ssau.getSsuVersions().nodes.stream()
                       .distinct()
-                      .filter(n -> n.var == varIndex && n.preds2.isEmpty())
+                      .filter(n -> n.var == varIndex && n.predecessors.isEmpty())
                       .filter(n -> {
                         if (n.lvt != null) {
                           return mdContent.params[j].equals(new VarType(n.lvt.getDescriptor()));
@@ -1043,10 +1043,10 @@ public class StackVarsProcessor {
     while (!queue.isEmpty()) {
       VarVersionNode next = queue.removeFirst();
 
-      if (next.preds2.isEmpty()) {
+      if (next.predecessors.isEmpty()) {
         ret.add(next);
       } else {
-        next.preds2.forEach(source -> {
+        next.predecessors.forEach(source -> {
           if (visited.add(source)) {
             queue.add(source);
           }

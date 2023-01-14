@@ -477,12 +477,12 @@ public final class ValidationHelper {
     Set<VarVersionNode> roots = new HashSet<>();
 
     for (VarVersionNode node : graph.nodes) {
-      if (node.preds2.isEmpty()) {
+      if (node.predecessors.isEmpty()) {
         roots.add(node);
       }
     }
 
-    Set<VarVersionNode> reached = graph.rootReachability(roots);
+    Set<VarVersionNode> reached = VarVersionsGraph.rootReachability(roots);
 
     if (graph.nodes.size() != reached.size()) {
       DotExporter.errorToDotFile(graph, statement.mt, "erroring_varVersionGraph", varAssignmentMap);

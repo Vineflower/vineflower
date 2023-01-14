@@ -23,13 +23,13 @@ public class SSAUConstructorSparseEx extends SFormsConstructor {
   private final Map<VarVersionPair, Integer> mapVersionFirstRange = new HashMap<>();
 
   // versions memory dependencies
-  final VarVersionsGraph ssuversions = new VarVersionsGraph();
+  final VarVersionsGraph ssuVersions = new VarVersionsGraph();
 
   // field access vars (exprent id, var id)
   private final Map<Integer, Integer> mapFieldVars = new HashMap<>();
 
   // field access counter
-  private int fieldvarcounter = -1;
+  private int fieldVarCounter = -1;
 
   public SSAUConstructorSparseEx() {
     super(
@@ -44,10 +44,10 @@ public class SSAUConstructorSparseEx extends SFormsConstructor {
 
     this.ssaStatements(this.dgraph, new HashSet<>(), true, mt, 999_999);
 
-    this.ssuversions.initDominators();
+    this.ssuVersions.initDominators();
 
     // Validation testing
-    ValidationHelper.validateVarVersionsGraph(this.ssuversions, root, this.varAssignmentMap);
+    ValidationHelper.validateVarVersionsGraph(this.ssuVersions, root, this.varAssignmentMap);
   }
 
   public VarVersionNode getNode(VarExprent var) {
@@ -55,11 +55,11 @@ public class SSAUConstructorSparseEx extends SFormsConstructor {
   }
 
   private VarVersionNode getNode(VarVersionPair pair) {
-    return this.ssuversions.nodes.getWithKey(pair);
+    return this.ssuVersions.nodes.getWithKey(pair);
   }
 
   private VarVersionNode getNode(int var, int version) {
-    return this.ssuversions.nodes.getWithKey(new VarVersionPair(var, version));
+    return this.getNode(new VarVersionPair(var, version));
   }
 
 
@@ -90,8 +90,9 @@ public class SSAUConstructorSparseEx extends SFormsConstructor {
     Statement stat,
     boolean calcLiveVars,
     VarExprent varExprent,
-    SFormsFastMapDirect varmap,
+    SFormsFastMapDirect varMap,
     int lastVersion) {
+
     int varIndex = varExprent.getIndex();
     int currentVersion = varExprent.getVersion();
 
@@ -105,8 +106,9 @@ public class SSAUConstructorSparseEx extends SFormsConstructor {
       // set version
       varExprent.setVersion(useNode.version);
     }
-    this.updateLiveMap(new VarVersionPair(varIndex, currentVersion), varmap, calcLiveVars);
-    varmap.setCurrentVar(varExprent); // update the current var to the usage version
+
+    this.updateLiveMap(new VarVersionPair(varIndex, currentVersion), varMap, calcLiveVars);
+    varMap.setCurrentVar(varExprent); // update the current var to the usage version
   }
 
   @Override
@@ -137,25 +139,25 @@ public class SSAUConstructorSparseEx extends SFormsConstructor {
     Set<Integer> oldNodes = new HashSet<>();
 
     // ssu graph
-    VarVersionNode phiNode = this.ssuversions.nodes.getWithKey(phivar);
+    VarVersionNode phiNode = this.ssuVersions.nodes.getWithKey(phivar);
     ValidationHelper.assertTrue(phiNode.phantomParentNode == null, "phi node can't be a phantom node");
-    if (phiNode.preds2.isEmpty()) {
+    if (phiNode.predecessors.isEmpty()) {
       ValidationHelper.assertTrue(
         phiNode.state == VarVersionNode.State.PHI,
         "Phi node has the wrong state?");
-    } else if (phiNode.preds2.size() == 1) {
+    } else if (phiNode.predecessors.size() == 1) {
       // not yet a phi node
       ValidationHelper.assertTrue(
         phiNode.state == VarVersionNode.State.READ,
         "Trying to convert a non read node into a phi node");
       phiNode.state = VarVersionNode.State.PHI;
       phiNode.getSinglePredecessor().removeSuccessor(phiNode);
-      phiNode.preds2.clear();
+      phiNode.predecessors.clear();
     } else {
       ValidationHelper.assertTrue(
         phiNode.state == VarVersionNode.State.PHI,
         "Phi node has the wrong state?");
-      for (Iterator<VarVersionNode> iterator = phiNode.preds2.iterator(); iterator.hasNext(); ) {
+      for (Iterator<VarVersionNode> iterator = phiNode.predecessors.iterator(); iterator.hasNext(); ) {
         VarVersionNode source = iterator.next();
         ValidationHelper.assertTrue(
           source.state == VarVersionNode.State.READ,
@@ -178,7 +180,7 @@ public class SSAUConstructorSparseEx extends SFormsConstructor {
         continue;
       }
 
-      VarVersionNode preNode = this.ssuversions.nodes.getWithKey(new VarVersionPair(phivar.var, ver));
+      VarVersionNode preNode = this.ssuVersions.nodes.getWithKey(new VarVersionPair(phivar.var, ver));
       VarVersionNode tempNode = this.createRead(preNode, stat);
       makeReadEdge(phiNode, tempNode);
     }
@@ -193,7 +195,7 @@ public class SSAUConstructorSparseEx extends SFormsConstructor {
 
   private VarVersionNode createNewNode(int var, Statement stat, VarVersionNode.State state) {
     int version = this.getNextFreeVersion(var, stat);
-    VarVersionNode node = this.ssuversions.createNode(new VarVersionPair(var, version));
+    VarVersionNode node = this.ssuVersions.createNode(new VarVersionPair(var, version));
     node.state = state;
     return node;
   }
@@ -204,11 +206,11 @@ public class SSAUConstructorSparseEx extends SFormsConstructor {
     if (this.mapFieldVars.containsKey(field.id)) {
       return this.mapFieldVars.get(field.id);
     } else {
-      int index = this.fieldvarcounter--;
+      int index = this.fieldVarCounter--;
       this.mapFieldVars.put(field.id, index);
 
       // ssu graph
-      this.ssuversions.createNode(new VarVersionPair(index, 1));
+      this.ssuVersions.createNode(new VarVersionPair(index, 1));
       return index;
     }
   }
@@ -231,11 +233,11 @@ public class SSAUConstructorSparseEx extends SFormsConstructor {
 
 
   public VarVersionsGraph getSsuVersions() {
-    return this.ssuversions;
+    return this.ssuVersions;
   }
 
   public SFormsFastMapDirect getLiveVarVersionsMap(VarVersionPair varVersion) {
-    VarVersionNode node = this.ssuversions.nodes.getWithKey(varVersion);
+    VarVersionNode node = this.ssuVersions.nodes.getWithKey(varVersion);
     if (node != null) {
       return node.live == null ? new SFormsFastMapDirect(this.factory) : node.live;
     }
@@ -276,5 +278,13 @@ public class SSAUConstructorSparseEx extends SFormsConstructor {
       // set version
       varExprent.setVersion(node.version);
     }
+  }
+
+  @Override
+  public void initParameter(int varIndex, SFormsFastMapDirect varMap, boolean isCatch) {
+    VarVersionNode node = this.createNewNode(
+      varIndex, this.root, isCatch ? VarVersionNode.State.CATCH : VarVersionNode.State.PARAM);
+
+    varMap.setCurrentVar(node);
   }
 }

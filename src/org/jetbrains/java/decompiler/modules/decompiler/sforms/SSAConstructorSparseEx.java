@@ -136,14 +136,19 @@ public class SSAConstructorSparseEx extends SFormsConstructor {
 
   @Override
   void initVersion(VarExprent varExprent, Statement stat) {
-    int varIndex = varExprent.getIndex();
-
     if (varExprent.getVersion() == 0) {
       // get next version
-      int nextVersion = this.getNextFreeVersion(varIndex, stat);
+      int nextVersion = this.getNextFreeVersion(varExprent.getIndex(), stat);
 
       // set version
       varExprent.setVersion(nextVersion);
     }
+  }
+
+  @Override
+  public void initParameter(int varIndex, SFormsFastMapDirect varMap, boolean isCatchVar)  {
+    int version = this.getNextFreeVersion(varIndex, this.root); // == 1
+
+    varMap.setCurrentVar(varIndex, version);
   }
 }
