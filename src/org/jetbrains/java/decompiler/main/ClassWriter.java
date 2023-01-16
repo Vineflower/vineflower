@@ -7,6 +7,7 @@ import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.Instruction;
 import org.jetbrains.java.decompiler.code.InstructionSequence;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
+import org.jetbrains.java.decompiler.main.collectors.ImportCollector;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.rels.ClassWrapper;
@@ -34,6 +35,7 @@ import org.jetbrains.java.decompiler.struct.gen.generics.GenericClassDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericFieldDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericMethodDescriptor;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
+import org.jetbrains.java.decompiler.util.Key;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.TextUtil;
 import org.jetbrains.java.decompiler.util.collections.VBStyleCollection;
@@ -46,7 +48,7 @@ public class ClassWriter implements StatementWriter {
   private static final Set<String> ERROR_DUMP_STOP_POINTS = new HashSet<>(Arrays.asList(
     "Fernflower.decompileContext",
     "MethodProcessor.codeToJava",
-    "ClassWriter.methodToJava",
+    "ClassWriter.writeMethod",
     "ClassWriter.methodLambdaToJava",
     "ClassWriter.classLambdaToJava"
   ));
@@ -135,7 +137,7 @@ public class ClassWriter implements StatementWriter {
 
     boolean lambdaToAnonymous = DecompilerContext.getOption(IFernflowerPreferences.LAMBDA_TO_ANONYMOUS_CLASS);
 
-    ClassNode outerNode = (ClassNode)DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS_NODE);
+    ClassNode outerNode = (ClassNode)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
     DecompilerContext.setProperty(DecompilerContext.CURRENT_CLASS_NODE, node);
 
     try {
@@ -220,7 +222,7 @@ public class ClassWriter implements StatementWriter {
 
               if (!isVarDefinition && !isThrow) {
                 simpleLambda = true;
-                MethodWrapper outerWrapper = (MethodWrapper)DecompilerContext.getProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
+                MethodWrapper outerWrapper = (MethodWrapper)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
                 DecompilerContext.setProperty(DecompilerContext.CURRENT_METHOD_WRAPPER, methodWrapper);
                 try {
                   TextBuffer codeBuffer = firstExpr.toJava(indent + 1);
@@ -264,8 +266,18 @@ public class ClassWriter implements StatementWriter {
     DecompilerContext.getLogger().endWriteClass();
   }
 
-  public void classToJava(ClassNode node, TextBuffer buffer, int indent) {
-    ClassNode outerNode = (ClassNode)DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS_NODE);
+  public void writeClassHeader(StructClass cl, TextBuffer buffer, ImportCollector importCollector) {
+    int index = cl.qualifiedName.lastIndexOf('/');
+    if (index >= 0) {
+      String packageName = cl.qualifiedName.substring(0, index).replace('/', '.');
+      buffer.append("package ").append(packageName).append(';').appendLineSeparator().appendLineSeparator();
+    }
+
+    importCollector.writeImports(buffer, true);
+  }
+
+  public void writeClass(ClassNode node, TextBuffer buffer, int indent) {
+    ClassNode outerNode = (ClassNode)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
     DecompilerContext.setProperty(DecompilerContext.CURRENT_CLASS_NODE, node);
 
     try {
@@ -356,14 +368,14 @@ public class ClassWriter implements StatementWriter {
           // If the fields after are non enum, readd the fields found scattered throughout the enum
           for (StructField fd2 : deferredEnumFields) {
             TextBuffer fieldBuffer = new TextBuffer();
-            fieldToJava(wrapper, cl, fd2, fieldBuffer, indent + 1);
+            writeField(wrapper, cl, fd2, fieldBuffer, indent + 1);
             fieldBuffer.clearUnassignedBytecodeMappingData();
             buffer.append(fieldBuffer);
           }
         }
 
         TextBuffer fieldBuffer = new TextBuffer();
-        fieldToJava(wrapper, cl, fd, fieldBuffer, indent + 1);
+        writeField(wrapper, cl, fd, fieldBuffer, indent + 1);
         fieldBuffer.clearUnassignedBytecodeMappingData();
         buffer.append(fieldBuffer);
 
@@ -376,7 +388,7 @@ public class ClassWriter implements StatementWriter {
         // If we end with enum fields, readd the fields found mixed in
         for (StructField fd2 : deferredEnumFields) {
           TextBuffer fieldBuffer = new TextBuffer();
-          fieldToJava(wrapper, cl, fd2, fieldBuffer, indent + 1);
+          writeField(wrapper, cl, fd2, fieldBuffer, indent + 1);
           fieldBuffer.clearUnassignedBytecodeMappingData();
           buffer.append(fieldBuffer);
         }
@@ -392,7 +404,7 @@ public class ClassWriter implements StatementWriter {
         if (hide) continue;
 
         TextBuffer methodBuffer = new TextBuffer();
-        boolean methodSkipped = !methodToJava(node, mt, i, methodBuffer, indent + 1);
+        boolean methodSkipped = !writeMethod(node, mt, i, methodBuffer, indent + 1);
         if (!methodSkipped) {
           if (hasContent) {
             buffer.appendLineSeparator();
@@ -414,7 +426,7 @@ public class ClassWriter implements StatementWriter {
           if (hasContent) {
             buffer.appendLineSeparator();
           }
-          classToJava(inner, buffer, indent + 1);
+          writeClass(inner, buffer, indent + 1);
 
           hasContent = true;
         }
@@ -705,7 +717,7 @@ public class ClassWriter implements StatementWriter {
     return false;
   }
 
-  private void fieldToJava(ClassWrapper wrapper, StructClass cl, StructField fd, TextBuffer buffer, int indent) {
+  public void writeField(ClassWrapper wrapper, StructClass cl, StructField fd, TextBuffer buffer, int indent) {
     boolean isInterface = cl.hasModifier(CodeConstants.ACC_INTERFACE);
     boolean isDeprecated = fd.hasAttribute(StructGeneralAttribute.ATTRIBUTE_DEPRECATED);
     boolean isEnum = fd.hasModifier(CodeConstants.ACC_ENUM) && DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_ENUM);
@@ -803,7 +815,7 @@ public class ClassWriter implements StatementWriter {
                                          boolean codeOnly) {
     MethodWrapper methodWrapper = classWrapper.getMethodWrapper(mt.getName(), mt.getDescriptor());
 
-    MethodWrapper outerWrapper = (MethodWrapper)DecompilerContext.getProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
+    MethodWrapper outerWrapper = (MethodWrapper)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
     DecompilerContext.setProperty(DecompilerContext.CURRENT_METHOD_WRAPPER, methodWrapper);
 
     try {
@@ -904,7 +916,7 @@ public class ClassWriter implements StatementWriter {
     return res.append("/* $QF was: ").append(name).append("*/").toString();
   }
 
-  private boolean methodToJava(ClassNode node, StructMethod mt, int methodIndex, TextBuffer buffer, int indent) {
+  public boolean writeMethod(ClassNode node, StructMethod mt, int methodIndex, TextBuffer buffer, int indent) {
     ClassWrapper wrapper = node.getWrapper();
     StructClass cl = wrapper.getClassStruct();
     // Get method by index, this keeps duplicate methods (with the same key) separate
@@ -912,7 +924,7 @@ public class ClassWriter implements StatementWriter {
 
     boolean hideMethod = false;
 
-    MethodWrapper outerWrapper = (MethodWrapper)DecompilerContext.getProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
+    MethodWrapper outerWrapper = (MethodWrapper)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
     DecompilerContext.setProperty(DecompilerContext.CURRENT_METHOD_WRAPPER, methodWrapper);
 
     try {
@@ -1272,7 +1284,7 @@ public class ClassWriter implements StatementWriter {
   }
 
   private static void collectBytecode(MethodWrapper wrapper, List<String> lines) throws IOException {
-    ClassNode classNode = (ClassNode)DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS_NODE);
+    ClassNode classNode = (ClassNode)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
     StructMethod method = wrapper.methodStruct;
     InstructionSequence instructions = method.getInstructionSequence();
     if (instructions == null) {
@@ -1426,7 +1438,7 @@ public class ClassWriter implements StatementWriter {
   }
 
   private static boolean containsDeprecatedAnnotation(StructMember mb) {
-    for (StructGeneralAttribute.Key<?> key : ANNOTATION_ATTRIBUTES) {
+    for (Key<?> key : ANNOTATION_ATTRIBUTES) {
       StructAnnotationAttribute attribute = (StructAnnotationAttribute) mb.getAttribute(key);
       if (attribute != null) {
         for (AnnotationExprent annotation : attribute.getAnnotations()) {
@@ -1511,17 +1523,17 @@ public class ClassWriter implements StatementWriter {
     buffer.appendIndent(indent).append(" */").appendLineSeparator();
   }
 
-  static final StructGeneralAttribute.Key<?>[] ANNOTATION_ATTRIBUTES = {
+  static final Key<?>[] ANNOTATION_ATTRIBUTES = {
     StructGeneralAttribute.ATTRIBUTE_RUNTIME_VISIBLE_ANNOTATIONS, StructGeneralAttribute.ATTRIBUTE_RUNTIME_INVISIBLE_ANNOTATIONS};
-  static final StructGeneralAttribute.Key<?>[] PARAMETER_ANNOTATION_ATTRIBUTES = {
+  static final Key<?>[] PARAMETER_ANNOTATION_ATTRIBUTES = {
     StructGeneralAttribute.ATTRIBUTE_RUNTIME_VISIBLE_PARAMETER_ANNOTATIONS, StructGeneralAttribute.ATTRIBUTE_RUNTIME_INVISIBLE_PARAMETER_ANNOTATIONS};
-  static final StructGeneralAttribute.Key<?>[] TYPE_ANNOTATION_ATTRIBUTES = {
+  static final Key<?>[] TYPE_ANNOTATION_ATTRIBUTES = {
     StructGeneralAttribute.ATTRIBUTE_RUNTIME_VISIBLE_TYPE_ANNOTATIONS, StructGeneralAttribute.ATTRIBUTE_RUNTIME_INVISIBLE_TYPE_ANNOTATIONS};
 
   static void appendAnnotations(TextBuffer buffer, int indent, StructMember mb, int targetType) {
     Set<String> filter = new HashSet<>();
 
-    for (StructGeneralAttribute.Key<?> key : ANNOTATION_ATTRIBUTES) {
+    for (Key<?> key : ANNOTATION_ATTRIBUTES) {
       StructAnnotationAttribute attribute = (StructAnnotationAttribute)mb.getAttribute(key);
       if (attribute != null) {
         for (AnnotationExprent annotation : attribute.getAnnotations()) {
@@ -1590,7 +1602,7 @@ public class ClassWriter implements StatementWriter {
   private static void appendParameterAnnotations(TextBuffer buffer, StructMethod mt, int param) {
     Set<String> filter = new HashSet<>();
 
-    for (StructGeneralAttribute.Key<?> key : PARAMETER_ANNOTATION_ATTRIBUTES) {
+    for (Key<?> key : PARAMETER_ANNOTATION_ATTRIBUTES) {
       StructAnnotationParameterAttribute attribute = (StructAnnotationParameterAttribute)mt.getAttribute(key);
       if (attribute != null) {
         List<List<AnnotationExprent>> annotations = attribute.getParamAnnotations();
@@ -1608,7 +1620,7 @@ public class ClassWriter implements StatementWriter {
   }
 
   private static void appendTypeAnnotations(TextBuffer buffer, int indent, StructMember mb, int targetType, int index, Set<String> filter) {
-    for (StructGeneralAttribute.Key<?> key : TYPE_ANNOTATION_ATTRIBUTES) {
+    for (Key<?> key : TYPE_ANNOTATION_ATTRIBUTES) {
       StructTypeAnnotationAttribute attribute = (StructTypeAnnotationAttribute)mb.getAttribute(key);
       if (attribute != null) {
         for (TypeAnnotation annotation : attribute.getAnnotations()) {

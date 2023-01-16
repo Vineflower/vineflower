@@ -1,6 +1,8 @@
 // Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.main;
 
+import org.jetbrains.java.decompiler.api.StatementWriter;
+import org.jetbrains.java.decompiler.api.language.LanguageSpec;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.Instruction;
 import org.jetbrains.java.decompiler.code.InstructionSequence;
@@ -450,35 +452,43 @@ public class ClassesProcessor implements CodeConstants {
         // add simple class names to implicit import
         addClassNameToImport(root, importCollector);
 
+        LanguageSpec spec = DecompilerContext.getCurrentContext().structContext.getPluginContext().getLanguageSpec(cl);
+
         // build wrappers for all nested classes (that's where actual processing takes place)
-        initWrappers(root);
+        initWrappers(root, spec);
 
-        try {
-          new NestedClassProcessor().processClass(root, root);
+        if (spec == null) {
+          // Java specific last minute processing
+          try {
+            new NestedClassProcessor().processClass(root, root);
 
-          new NestedMemberAccess().propagateMemberAccess(root);
-        } catch (Throwable t) {
-          DecompilerContext.getLogger().writeMessage("Class " + root.simpleName + " couldn't be written.",
-            IFernflowerLogger.Severity.WARN,
-            t);
-          buffer.append("// $QF: Couldn't be decompiled");
-          buffer.appendLineSeparator();
-          if (DecompilerContext.getOption(IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR)) {
-            List<String> lines = new ArrayList<>();
-            lines.addAll(ClassWriter.getErrorComment());
-            ClassWriter.collectErrorLines(t, lines);
-            for (String line : lines) {
-              buffer.append("//");
-              if (!line.isEmpty()) buffer.append(' ').append(line);
-              buffer.appendLineSeparator();
+            new NestedMemberAccess().propagateMemberAccess(root);
+          } catch (Throwable t) {
+            DecompilerContext.getLogger().writeMessage("Class " + root.simpleName + " couldn't be written.",
+              IFernflowerLogger.Severity.WARN,
+              t);
+            buffer.append("// $QF: Couldn't be decompiled");
+            buffer.appendLineSeparator();
+            if (DecompilerContext.getOption(IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR)) {
+              List<String> lines = new ArrayList<>();
+              lines.addAll(ClassWriter.getErrorComment());
+              ClassWriter.collectErrorLines(t, lines);
+              for (String line : lines) {
+                buffer.append("//");
+                if (!line.isEmpty()) buffer.append(' ').append(line);
+                buffer.appendLineSeparator();
+              }
             }
+            return;
           }
-          return;
         }
 
         TextBuffer classBuffer = new TextBuffer(AVERAGE_CLASS_SIZE);
-        new ClassWriter().classToJava(root, classBuffer, 0);
+        StatementWriter writer = spec != null ? spec.writer : new ClassWriter();
+
+        writer.writeClass(root, classBuffer, 0);
         classBuffer.reformat();
+
         classBuffer.getTracers().forEach((classAndMethod, tracer) -> {
           // get the class by name
           StructClass clazz = DecompilerContext.getStructContext().getClass(classAndMethod.a);
@@ -494,13 +504,7 @@ public class ClassesProcessor implements CodeConstants {
           }
         });
 
-        int index = cl.qualifiedName.lastIndexOf('/');
-        if (index >= 0) {
-          String packageName = cl.qualifiedName.substring(0, index).replace('/', '.');
-          buffer.append("package ").append(packageName).append(';').appendLineSeparator().appendLineSeparator();
-        }
-
-        importCollector.writeImports(buffer, true);
+        writer.writeClassHeader(cl, buffer, importCollector);
 
         int offsetLines = buffer.countLines();
 
@@ -525,7 +529,7 @@ public class ClassesProcessor implements CodeConstants {
     }
   }
 
-  private static void initWrappers(ClassNode node) {
+  private static void initWrappers(ClassNode node, LanguageSpec spec) {
     if (node.type == ClassNode.Type.LAMBDA) {
       return;
     }
@@ -534,18 +538,18 @@ public class ClassesProcessor implements CodeConstants {
 
     for (ClassNode nd : node.nested) {
       if (shouldInitEarly(nd)) {
-        initWrappers(nd);
+        initWrappers(nd, spec);
         nestedCopy.remove(nd);
       }
     }
 
     ClassWrapper wrapper = new ClassWrapper(node.classStruct);
-    wrapper.init();
+    wrapper.init(spec);
 
     node.wrapper = wrapper;
 
     for (ClassNode nd : nestedCopy) {
-      initWrappers(nd);
+      initWrappers(nd, spec);
     }
   }
 

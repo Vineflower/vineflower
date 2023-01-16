@@ -5,8 +5,6 @@ import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructField;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 
-import java.util.Map;
-
 /**
  * Provides (optional) javadoc for Classes/Methods/Fields encountered by
  *  {@link org.jetbrains.java.decompiler.main.ClassWriter}.

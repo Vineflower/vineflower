@@ -6,6 +6,7 @@ import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructContext;
 import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
+import org.jetbrains.java.decompiler.struct.attr.StructModuleAttribute;
 
 import java.io.File;
 import java.io.IOException;
@@ -79,7 +80,7 @@ public class JrtFinder {
 
     @Override
     protected Stream<String> entryNames() throws IOException {
-      try (final var dir = Files.walk(this.module)) {
+      try (final Stream<Path> dir = Files.walk(this.module)) {
         return dir.map(it -> this.module.relativize(it).toString()).collect(Collectors.toList()).stream();
       }
     }
@@ -110,20 +111,20 @@ public class JrtFinder {
       // One child source for every module in the runtime
       final List<IContextSource> children = new ArrayList<>();
       try {
-      final List<Path> modules = Files.list(this.jrtFileSystem.getPath("modules")).collect(Collectors.toList());
-      for (final Path module : modules) {
-        ModuleDescriptor descriptor;
-        try (final InputStream is = Files.newInputStream(module.resolve("module-info.class"))) {
-          var clazz = StructClass.create(new DataInputFullStream(is.readAllBytes()), false);
-          var moduleAttr = clazz.getAttribute(StructGeneralAttribute.ATTRIBUTE_MODULE);
-          if (moduleAttr == null) continue;
+        final List<Path> modules = Files.list(this.jrtFileSystem.getPath("modules")).collect(Collectors.toList());
+        for (final Path module : modules) {
+          ModuleDescriptor descriptor;
+          try (final InputStream is = Files.newInputStream(module.resolve("module-info.class"))) {
+            StructClass clazz = StructClass.create(new DataInputFullStream(is.readAllBytes()), false);
+            StructModuleAttribute moduleAttr = clazz.getAttribute(StructGeneralAttribute.ATTRIBUTE_MODULE);
+            if (moduleAttr == null) continue;
 
-          descriptor = moduleAttr.asDescriptor();
-        } catch (final IOException ex) {
-          continue;
+            descriptor = moduleAttr.asDescriptor();
+          } catch (final IOException ex) {
+            continue;
+          }
+          children.add(new JavaRuntimeModuleContextSource(descriptor, module));
         }
-        children.add(new JavaRuntimeModuleContextSource(descriptor, module));
-      }
 
         return new Entries(List.of(), List.of(), List.of(), children);
       } catch (final IOException ex) {

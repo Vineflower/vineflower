@@ -1,6 +1,5 @@
 package org.jetbrains.java.decompiler.modules.decompiler.sforms;
 
-import org.jetbrains.java.decompiler.api.SFormsCreator;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
@@ -22,7 +21,7 @@ import java.util.*;
 
 import static org.jetbrains.java.decompiler.modules.decompiler.sforms.VarMapHolder.mergeMaps;
 
-public abstract class SFormsConstructor implements SFormsCreator {
+public abstract class SFormsConstructor {
 
   private final boolean incrementOnUsage;
   private final boolean simplePhi;
@@ -1007,6 +1006,10 @@ public abstract class SFormsConstructor implements SFormsCreator {
     }
 
     return null;
+  }
+
+  public DirectGraph getDirectGraph() {
+    return dgraph;
   }
 
   public Map<VarVersionPair, Integer> getMapVersionFirstRange() {

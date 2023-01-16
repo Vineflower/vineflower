@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiFunction;
 
 public class MatchNode {
   public static class RuleValue {
@@ -32,7 +33,7 @@ public class MatchNode {
   public static final int MATCHNODE_EXPRENT = 1;
 
   private final int type;
-  private final Map<MatchProperties, RuleValue> rules = new HashMap<>();
+  private final Map<MatchProperties, List<RuleValue>> rules = new HashMap<>();
   private final List<MatchNode> children = new ArrayList<>();
 
   public MatchNode(int type) {
@@ -44,7 +45,7 @@ public class MatchNode {
   }
 
   public void addRule(MatchProperties property, RuleValue value) {
-    rules.put(property, value);
+    rules.computeIfAbsent(property, k -> new ArrayList<>()).add(value);
   }
 
   public int getType() {
@@ -55,12 +56,23 @@ public class MatchNode {
     return children;
   }
 
-  public Map<MatchProperties, RuleValue> getRules() {
-    return rules;
+  public boolean iterateRules(BiFunction<MatchProperties, RuleValue, Boolean> consumer) {
+    // Make sure that the iterator succeeds for every rule in the map
+    return rules
+      .entrySet()
+      .stream()
+      .allMatch(e -> e.getValue()
+        .stream()
+        .allMatch(rule -> consumer.apply(e.getKey(), rule)));
+  }
+
+  public RuleValue getRawRule(MatchProperties property) {
+    List<RuleValue> list = rules.get(property);
+    return list != null ? list.get(0) : null;
   }
 
   public Object getRuleValue(MatchProperties property) {
-    RuleValue rule = rules.get(property);
-    return rule == null ? null : rule.value;
+    List<RuleValue> rule = rules.get(property);
+    return rule == null ? null : rule.get(0).value;
   }
 }

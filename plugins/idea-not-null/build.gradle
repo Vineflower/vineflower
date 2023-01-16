@@ -1,0 +1,6 @@
+archivesBaseName = 'quiltflower-plugin-idea-not-null'
+
+dependencies {
+  implementation project(":")
+  testImplementation testFixtures(project(":"))
+}

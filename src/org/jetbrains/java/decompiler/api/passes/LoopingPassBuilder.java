@@ -10,16 +10,17 @@ public final class LoopingPassBuilder {
   private final String name;
 
   public LoopingPassBuilder(String name) {
-
     this.name = name;
   }
 
-  public void addFallthroughPass(String name, Pass pass) {
+  public LoopingPassBuilder addFallthroughPass(String name, Pass pass) {
     passes.add(Pair.of(new NamedPass(name, pass), false));
+    return this;
   }
 
-  public void addLoopingPass(String name, Pass pass) {
+  public LoopingPassBuilder addLoopingPass(String name, Pass pass) {
     passes.add(Pair.of(new NamedPass(name, pass), true));
+    return this;
   }
 
   public Pass build() {

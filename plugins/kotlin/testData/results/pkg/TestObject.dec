@@ -1,0 +1,67 @@
+package pkg
+
+class TestObject {
+   @JvmStatic
+   public TestObject INSTANCE = new TestObject();
+   @JvmStatic
+   private int objectVar = 42;
+   @JvmStatic
+   private Regex objectVal = new Regex("");
+   @JvmStatic
+   public int objectConstVal = 926;
+
+   fun TestObject() {
+   }// 3
+
+   fun objectFun() {
+      objectVar += -1;// 5
+   }// 6
+
+   fun getObjectVal(): Regex  {
+      return objectVal;// 10
+   }
+
+   @JvmStatic
+   @JvmStatic
+   fun objectJvmStaticFun() {
+      var var0: Int = objectVar++;// 16
+   }// 17
+}
+
+class 'pkg/TestObject' {
+   method '<init> ()V' {
+      4      13
+   }
+
+   method 'objectFun ()V' {
+      5      16
+      7      16
+      8      16
+      9      16
+      a      17
+   }
+
+   method 'getObjectVal ()Lkotlin/text/Regex;' {
+      0      20
+      1      20
+      2      20
+      3      20
+   }
+
+   method 'objectJvmStaticFun ()V' {
+      4      26
+      5      26
+      6      26
+      7      26
+      a      26
+      e      27
+   }
+}
+
+Lines mapping:
+3 <-> 14
+5 <-> 17
+6 <-> 18
+10 <-> 21
+16 <-> 27
+17 <-> 28

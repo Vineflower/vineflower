@@ -313,7 +313,7 @@ public class NewExprent extends Exprent {
     if (anonymous) {
       ClassNode child = DecompilerContext.getClassProcessor().getMapRootClasses().get(newType.value);
 
-      boolean selfReference = DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS_NODE) == child;
+      boolean selfReference = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE) == child;
 
       // IDEA-204310 - avoid backtracking later on for lambdas (causes spurious imports)
       if (!enumConst && (!lambda || DecompilerContext.getOption(IFernflowerPreferences.LAMBDA_TO_ANONYMOUS_CLASS))) {
@@ -389,7 +389,7 @@ public class NewExprent extends Exprent {
         new ClassWriter().classLambdaToJava(child, buf, methodObject, indent);
       }
       else if (!selfReference) {
-        new ClassWriter().classToJava(child, buf, indent);
+        new ClassWriter().writeClass(child, buf, indent);
       }
     }
     else if (directArrayInit) {
@@ -532,7 +532,7 @@ public class NewExprent extends Exprent {
         if (enclosing instanceof VarExprent) {
           VarExprent varEnclosing = (VarExprent)enclosing;
 
-          StructClass current_class = ((ClassNode)DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS_NODE)).classStruct;
+          StructClass current_class = ((ClassNode)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE)).classStruct;
           String this_classname = varEnclosing.getProcessor().getThisVars().get(new VarVersionPair(varEnclosing));
 
           if (!current_class.qualifiedName.equals(this_classname)) {

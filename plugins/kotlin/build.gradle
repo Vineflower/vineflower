@@ -1,0 +1,55 @@
+plugins {
+  id 'com.github.johnrengelman.shadow'
+  id 'java'
+  id 'org.jetbrains.kotlin.jvm'
+}
+
+apply plugin: 'maven-publish'
+
+group = 'org.quiltmc'
+version = "0.1.0"
+archivesBaseName = 'quiltflower-kotlin'
+
+sourceSets {
+  testDataKotlin.kotlin.srcDirs files("testData/src/kt/")
+}
+
+dependencies {
+  shadow project(":")
+  testImplementation testFixtures(project(":"))
+  implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+  testDataKotlinImplementation platform('org.jetbrains.kotlin:kotlin-bom')
+  testDataKotlinImplementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+  testRuntimeOnly 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+}
+
+task testDataClasses {
+  group = 'build'
+}
+testClasses.dependsOn(testDataClasses)
+
+compileTestDataKotlinKotlin {
+  destinationDirectory = file("testData/classes/kt")
+}
+testDataClasses.dependsOn(testDataKotlinClasses)
+
+jar {
+  enabled = false
+}
+
+shadowJar {
+  archiveClassifier.set('')
+}
+
+build.dependsOn(shadowJar)
+
+publishing {
+  publications {
+    mavenJava(MavenPublication) {
+      artifactId = "quiltflower-kotlin"
+      from components.java
+      artifact(shadowJar)
+    }
+  }
+}

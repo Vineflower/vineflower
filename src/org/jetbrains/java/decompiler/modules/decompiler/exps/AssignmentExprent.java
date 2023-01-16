@@ -9,6 +9,7 @@ import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
+import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
 import org.jetbrains.java.decompiler.struct.StructField;
 import org.jetbrains.java.decompiler.struct.StructMethod;
@@ -94,10 +95,15 @@ public class AssignmentExprent extends Exprent {
     VarType leftType = left.getInferredExprType(null);
     VarType rightType = right.getInferredExprType(leftType);
 
+    if (rightType == null) {
+      // causes npe too late causing a textbuffer error messing up all other tests
+      throw new IllegalStateException("rightType was null");
+    }
+
     boolean fieldInClassInit = false, hiddenField = false;
     if (left instanceof FieldExprent) { // first assignment to a final field. Field name without "this" in front of it
       FieldExprent field = (FieldExprent) left;
-      ClassNode node = ((ClassNode) DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS_NODE));
+      ClassNode node = ((ClassNode) DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE));
       if (node != null) {
         StructField fd = node.classStruct.getField(field.getName(), field.getDescriptor().descriptorString);
         if (fd != null) {
@@ -191,7 +197,7 @@ public class AssignmentExprent extends Exprent {
       return;
     }
 
-    MethodWrapper method = (MethodWrapper) DecompilerContext.getProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
+    MethodWrapper method = (MethodWrapper) DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
     if (method == null) {
       return;
     }

@@ -4,18 +4,46 @@ import org.jetbrains.java.decompiler.build.JasmCompile
 
 plugins {
   id 'jacoco'
+  id 'com.github.johnrengelman.shadow' version '7.1.2'
   id 'org.jetbrains.kotlin.jvm' version '1.6.21'
 }
 
 apply plugin: 'jacoco'
-apply plugin: 'java'
+apply plugin: 'java-test-fixtures'
 apply plugin: 'groovy'
 apply plugin: 'scala'
 apply plugin: 'maven-publish'
 
-compileJava {
-  sourceCompatibility '11'
-  targetCompatibility '11'
+allprojects {
+  apply plugin: 'java'
+
+  group = 'org.quiltmc'
+
+  compileJava {
+    sourceCompatibility = '11'
+    targetCompatibility = '11'
+  }
+
+  java.toolchain {
+    languageVersion = JavaLanguageVersion.of(11)
+  }
+
+  repositories {
+    mavenCentral()
+  }
+
+  dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
+  }
+
+  test {
+    useJUnitPlatform()
+  }
+
+  tasks.withType(JavaCompile).configureEach {
+    it.options.encoding = "UTF-8"
+  }
 }
 
 group = 'org.quiltmc'
@@ -29,6 +57,7 @@ version = version + (ENV.GITHUB_ACTIONS ? "" : "+local")
 sourceSets {
   main.java.srcDirs 'src'
   test.java.srcDirs 'test'
+  testFixtures.java.srcDirs 'testFixtures'
   testDataGroovy.groovy.srcDirs files("testData/src/groovy/")
   testDataKotlin.kotlin.srcDirs files("testData/src/kt/")
   testDataScala.scala.srcDirs files("testData/src/scala")
@@ -37,10 +66,11 @@ sourceSets {
 repositories { mavenCentral() }
 
 dependencies {
-  testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
-  testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
   testImplementation 'org.junit.jupiter:junit-jupiter-params:5.9.0'
   testImplementation 'org.hamcrest:hamcrest:2.2'
+
+  testFixturesImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
+  testFixturesImplementation 'org.hamcrest:hamcrest:2.2'
 
   testDataGroovyImplementation 'org.codehaus.groovy:groovy:3.0.8'
   testDataKotlinImplementation platform('org.jetbrains.kotlin:kotlin-bom')
@@ -58,10 +88,6 @@ jacocoTestReport {
   reports {
     xml.required = true
   }
-}
-
-java.toolchain {
-  languageVersion = JavaLanguageVersion.of(11)
 }
 
 tasks.withType(JavaCompile) {
@@ -145,8 +171,7 @@ class TestDataRuntimesProvider implements CommandLineArgumentProvider {
 
 test {
   maxHeapSize = "512M"
-  
-  useJUnitPlatform()
+
   systemProperty "DOT_EXPORT_DIR", System.getProperty("DOT_EXPORT_DIR", null)
   systemProperty "DOT_ERROR_EXPORT_DIR", System.getProperty("DOT_ERROR_EXPORT_DIR", null)
   systemProperty "VALIDATE_DECOMPILED_CODE", System.getProperty("VALIDATE_DECOMPILED_CODE", "false")
@@ -159,6 +184,9 @@ test {
 }
 
 jar {
+  archiveClassifier = "slim"
+  from sourceSets.main.output
+
   manifest {
     attributes (
       'Main-Class': 'org.jetbrains.java.decompiler.main.decompiler.ConsoleDecompiler',
@@ -169,13 +197,30 @@ jar {
 }
 
 task sourceJar(type:Jar) {
-  classifier = "sources"
+  archiveClassifier = "sources"
   from sourceSets.main.allSource
 }
 
-tasks.withType(JavaCompile).configureEach {
-  it.options.encoding = "UTF-8"
+def allJar = tasks.register('allJar', Jar) {allJar ->
+  archiveClassifier.set('')
+  from sourceSets.main.output
+
+  manifest {
+    attributes (
+      'Main-Class': 'org.jetbrains.java.decompiler.main.decompiler.ConsoleDecompiler',
+      'Implementation-Name': "Quiltflower",
+      'Implementation-Version': project.version
+    )
+  }
+
+  subprojects.each {
+    allJar.from(it.tasks.named(it.plugins.hasPlugin('com.github.johnrengelman.shadow') ? 'shadowJar' : 'jar').get().outputs) {
+      into 'META-INF/plugins/'
+    }
+  }
 }
+
+build.dependsOn(allJar)
 
 publishing {
   publications {
@@ -185,6 +230,7 @@ publishing {
         version = project.version + "-SNAPSHOT"
       }
       artifact(sourceJar)
+      artifact(allJar)
     }
   }
 

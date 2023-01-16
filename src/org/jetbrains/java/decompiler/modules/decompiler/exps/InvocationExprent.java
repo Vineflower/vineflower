@@ -161,7 +161,7 @@ public class InvocationExprent extends Exprent {
     addBytecodeOffsets(bytecodeOffsets);
   }
 
-  private InvocationExprent(InvocationExprent expr) {
+  protected InvocationExprent(InvocationExprent expr) {
     this();
 
     name = expr.getName();
@@ -320,7 +320,7 @@ public class InvocationExprent extends Exprent {
 
         // fix for this() & super()
         if (upperBound == null && isGenNew) {
-          ClassNode currentCls = (ClassNode)DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS_NODE);
+          ClassNode currentCls = (ClassNode)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
 
           if (currentCls != null) {
             if (mthCls.equals(currentCls.classStruct)) {
@@ -380,7 +380,7 @@ public class InvocationExprent extends Exprent {
                       StructClass content = (StructClass) DecompilerContext.getStructContext().getClass(node.lambdaInformation.content_class_name);
 
                       if (content != null) {
-                        StructClass currentCls = (StructClass) DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS);
+                        StructClass currentCls = (StructClass) DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS);
                         potentialMethodCount = (int) content.getMethods().stream()
                           .filter((method) -> canAccess(currentCls, method))
                           .map(StructMethod::getName)
@@ -605,7 +605,7 @@ public class InvocationExprent extends Exprent {
         buf.append('(').appendCastTypeName(descriptor.ret).append(')');
       }
 
-      ClassNode node = (ClassNode)DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS_NODE);
+      ClassNode node = (ClassNode)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
       if (node == null || !classname.equals(node.classStruct.qualifiedName)) {
         buf.appendAllClasses(DecompilerContext.getImportCollector().getShortNameInClassContext(ExprProcessor.buildJavaClassName(classname)), classname);
       }
@@ -618,7 +618,7 @@ public class InvocationExprent extends Exprent {
 
         VarProcessor varProc = instVar.getProcessor();
         if (varProc == null) {
-          MethodWrapper currentMethod = (MethodWrapper)DecompilerContext.getProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
+          MethodWrapper currentMethod = (MethodWrapper)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
           if (currentMethod != null) {
             varProc = currentMethod.varproc;
           }
@@ -845,7 +845,7 @@ public class InvocationExprent extends Exprent {
         isEnum = newNode.classStruct.hasModifier(CodeConstants.ACC_ENUM) && DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_ENUM);
       }
     }
-    ClassNode currCls = ((ClassNode)DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS_NODE));
+    ClassNode currCls = ((ClassNode)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE));
     List<StructMethod> matches = getMatchedDescriptors();
     BitSet setAmbiguousParameters = getAmbiguousParameters(matches);
 
@@ -1153,7 +1153,7 @@ public class InvocationExprent extends Exprent {
 
   private List<StructMethod> getMatchedDescriptors() {
     List<StructMethod> matches = new ArrayList<>();
-    ClassNode currCls = ((ClassNode)DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS_NODE));
+    ClassNode currCls = ((ClassNode)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE));
     StructClass cl = DecompilerContext.getStructContext().getClass(classname);
     if (cl == null) return matches;
 
@@ -1690,28 +1690,19 @@ public class InvocationExprent extends Exprent {
       return false;
     }
 
-    for (Entry<MatchProperties, RuleValue> rule : matchNode.getRules().entrySet()) {
-      RuleValue value = rule.getValue();
+    return matchNode.iterateRules((key, value) -> {
+      if (key == MatchProperties.EXPRENT_PARAMETER) {
+        return !value.isVariable() || (value.parameter < lstParameters.size() &&
+          engine.checkAndSetVariableValue(value.value.toString(), lstParameters.get(value.parameter)));
+      } else if (key == MatchProperties.EXPRENT_INVOCATION_CLASS) {
+        return value.value.equals(this.classname);
+      } else if (key == MatchProperties.EXPRENT_INVOCATION_SIGNATURE) {
+        return value.value.equals(this.name + this.stringDescriptor);
+      } else if (key == MatchProperties.EXPRENT_NAME) {
+        return value.value.equals(this.name);
+      }
 
-      MatchProperties key = rule.getKey();
-      if (key == MatchProperties.EXPRENT_INVOCATION_PARAMETER) {
-        if (value.isVariable() && (value.parameter >= lstParameters.size() ||
-                                   !engine.checkAndSetVariableValue(value.value.toString(), lstParameters.get(value.parameter)))) {
-          return false;
-        }
-      }
-      else if (key == MatchProperties.EXPRENT_INVOCATION_CLASS) {
-        if (!value.value.equals(this.classname)) {
-          return false;
-        }
-      }
-      else if (key == MatchProperties.EXPRENT_INVOCATION_SIGNATURE) {
-        if (!value.value.equals(this.name + this.stringDescriptor)) {
-          return false;
-        }
-      }
-    }
-
-    return true;
+      return true;
+    });
   }
 }
