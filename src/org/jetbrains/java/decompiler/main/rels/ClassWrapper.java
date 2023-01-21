@@ -1,6 +1,7 @@
 // Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.main.rels;
 
+import org.jetbrains.java.decompiler.api.language.LanguageSpec;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.cfg.ControlFlowGraph;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
@@ -39,7 +40,7 @@ public class ClassWrapper {
     this.classStruct = classStruct;
   }
 
-  public void init() {
+  public void init(LanguageSpec spec) {
     DecompilerContext.setProperty(DecompilerContext.CURRENT_CLASS, classStruct);
     DecompilerContext.setProperty(DecompilerContext.CURRENT_CLASS_WRAPPER, this);
     DecompilerContext.getLogger().startClass(classStruct.qualifiedName);
@@ -72,10 +73,10 @@ public class ClassWrapper {
       try {
         if (mt.containsCode()) {
           if (maxSec == 0 || testMode) {
-            root = MethodProcessor.codeToJava(classStruct, mt, md, varProc);
+            root = MethodProcessor.codeToJava(classStruct, mt, md, varProc, spec);
           }
           else {
-            MethodProcessor mtProc = new MethodProcessor(classStruct, mt, md, varProc, DecompilerContext.getCurrentContext());
+            MethodProcessor mtProc = new MethodProcessor(classStruct, mt, md, varProc, spec, DecompilerContext.getCurrentContext());
 
             Thread mtThread = new Thread(mtProc, "Java decompiler");
             long stopAt = System.currentTimeMillis() + maxSec * 1000L;

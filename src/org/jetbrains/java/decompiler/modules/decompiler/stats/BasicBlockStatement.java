@@ -3,6 +3,7 @@ package org.jetbrains.java.decompiler.modules.decompiler.stats;
 
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.Instruction;
+import org.jetbrains.java.decompiler.code.InstructionSequence;
 import org.jetbrains.java.decompiler.code.SimpleInstructionSequence;
 import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
@@ -53,6 +54,25 @@ public final class BasicBlockStatement extends Statement {
 
     // monitorenter and monitorexits
     buildMonitorFlags();
+  }
+
+  @Override
+  public void markMonitorexitDead() {
+    InstructionSequence seq = this.getBlock().getSeq();
+
+    if (seq != null && !seq.isEmpty()) {
+      for (int i = 0; i < seq.length(); i++) {
+        if (seq.getInstr(i).opcode == CodeConstants.opc_monitorexit) {
+          this.setRemovableMonitorexit(true);
+          break;
+        }
+      }
+    }
+  }
+
+  @Override
+  public BasicBlockStatement getBasichead() {
+    return this;
   }
 
   // *****************************************************************************
@@ -121,6 +141,11 @@ public final class BasicBlockStatement extends Statement {
     stat.setExprents(new ArrayList<>());
 
     return stat;
+  }
+
+  @Override
+  public boolean hasBasicSuccEdge() {
+    return true;
   }
 
   // *****************************************************************************

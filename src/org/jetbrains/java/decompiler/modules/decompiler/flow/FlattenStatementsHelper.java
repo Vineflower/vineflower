@@ -1,7 +1,6 @@
 // Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler.flow;
 
-import org.jetbrains.java.decompiler.api.GraphFlattener;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
@@ -13,7 +12,7 @@ import org.jetbrains.java.decompiler.util.collections.VBStyleCollection;
 import java.util.*;
 
 
-public class FlattenStatementsHelper implements GraphFlattener {
+public class FlattenStatementsHelper {
   // statement to direct node map
   private final Map<Statement, DirectNode> mapRegularDestinationNodes = new HashMap<>();
   private final Map<Statement, DirectNode> mapContinueDestinationNodes = new HashMap<>();
@@ -30,6 +29,10 @@ public class FlattenStatementsHelper implements GraphFlattener {
   private DirectGraph graph;
 
   private RootStatement root;
+
+  public static DirectGraph build(RootStatement root) {
+    return new FlattenStatementsHelper().buildDirectGraph(root);
+  }
 
   public DirectGraph buildDirectGraph(RootStatement root) {
 
@@ -391,7 +394,7 @@ public class FlattenStatementsHelper implements GraphFlattener {
 
         if (caseEdges.size() != caseValues.size()) {
           if (caseEdges.size() + 1 != caseValues.size() || caseValues.get(caseValues.size() - 1).size() != 1 || caseValues.get(caseValues.size() - 1).get(0) != null) {
-            throw new RuntimeException("Case edges and case values do not match");
+            throw new IllegalStateException("Case edges and case values do not match");
           }
         }
 

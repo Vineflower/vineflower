@@ -1,0 +1,86 @@
+package pkg
+
+import kotlin.jvm.internal.DefaultConstructorMarker
+
+open abstract class TestSealedHierarchy {
+   fun TestSealedHierarchy() {
+   }// 3
+
+   @JvmSynthetic
+   open fun TestSealedHierarchy(`$constructor_marker`: DefaultConstructorMarker) {
+      this();
+   }
+
+   class TestClass extends TestSealedHierarchy {
+      private int x;
+
+      fun TestClass(x: Int) {
+         super(null);
+         this.x = x;
+      }
+
+      fun getX(): Int  {
+         return this.x;// 5
+      }
+   }
+
+   class TestObject extends TestSealedHierarchy {
+      @JvmStatic
+      public TestSealedHierarchy.TestObject INSTANCE = new TestSealedHierarchy.TestObject();
+
+      fun TestObject() {
+         super(null);// 4
+      }
+   }
+}
+
+class 'pkg/TestSealedHierarchy' {
+   method '<init> ()V' {
+      4      6
+   }
+
+   method '<init> (Lkotlin/jvm/internal/DefaultConstructorMarker;)V' {
+      1      10
+      2      10
+      3      10
+      4      11
+   }
+}
+
+class 'pkg/TestSealedHierarchy$TestClass' {
+   method '<init> (I)V' {
+      1      17
+      2      17
+      3      17
+      4      17
+      5      18
+      6      18
+      7      18
+      8      18
+      9      18
+      a      19
+   }
+
+   method 'getX ()I' {
+      0      22
+      1      22
+      2      22
+      3      22
+      4      22
+   }
+}
+
+class 'pkg/TestSealedHierarchy$TestObject' {
+   method '<init> ()V' {
+      1      31
+      2      31
+      3      31
+      4      31
+      5      32
+   }
+}
+
+Lines mapping:
+3 <-> 7
+4 <-> 32
+5 <-> 23

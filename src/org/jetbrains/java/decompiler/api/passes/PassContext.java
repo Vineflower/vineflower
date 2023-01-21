@@ -6,6 +6,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarProcessor;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructMethod;
+import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 
 public final class PassContext {
   private RootStatement root;
@@ -14,6 +15,7 @@ public final class PassContext {
   private final StructClass cl;
   private final VarProcessor varProc;
   private final DecompileRecord rec;
+  private final MethodDescriptor md;
 
   public PassContext(RootStatement root, ControlFlowGraph graph, StructMethod mt, StructClass cl, VarProcessor varProc, DecompileRecord rec) {
     this.root = root;
@@ -22,6 +24,7 @@ public final class PassContext {
     this.cl = cl;
     this.varProc = varProc;
     this.rec = rec;
+    this.md = MethodDescriptor.parseDescriptor(mt, null);
   }
 
   public RootStatement getRoot() {
@@ -50,5 +53,9 @@ public final class PassContext {
 
   public DecompileRecord getRec() {
     return rec;
+  }
+
+  public MethodDescriptor getMethodDescriptor() {
+    return md;
   }
 }

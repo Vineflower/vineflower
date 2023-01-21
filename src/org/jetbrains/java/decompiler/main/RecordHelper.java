@@ -1,7 +1,6 @@
 package org.jetbrains.java.decompiler.main;
 
 import org.jetbrains.java.decompiler.code.CodeConstants;
-import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.BasicBlockStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
@@ -14,6 +13,7 @@ import org.jetbrains.java.decompiler.struct.attr.StructTypeAnnotationAttribute;
 import org.jetbrains.java.decompiler.struct.consts.LinkConstant;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericFieldDescriptor;
+import org.jetbrains.java.decompiler.util.Key;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 
 import java.util.*;
@@ -128,7 +128,7 @@ public final class RecordHelper {
     if (getter != null) members.add(getter);
 
     for (StructMember member : members) {
-      for (StructGeneralAttribute.Key<?> key : ClassWriter.ANNOTATION_ATTRIBUTES) {
+      for (Key<?> key : ClassWriter.ANNOTATION_ATTRIBUTES) {
         StructAnnotationAttribute attribute = (StructAnnotationAttribute) member.getAttribute(key);
         if (attribute == null) continue;
         for (AnnotationExprent annotation : attribute.getAnnotations()) {
@@ -139,7 +139,7 @@ public final class RecordHelper {
         }
       }
 
-      for (StructGeneralAttribute.Key<?> key : ClassWriter.TYPE_ANNOTATION_ATTRIBUTES) {
+      for (Key<?> key : ClassWriter.TYPE_ANNOTATION_ATTRIBUTES) {
         StructTypeAnnotationAttribute attribute = (StructTypeAnnotationAttribute) member.getAttribute(key);
         if (attribute == null) continue;
         for (TypeAnnotation annotation : attribute.getAnnotations()) {
@@ -158,7 +158,7 @@ public final class RecordHelper {
     StructMember constr = getCanonicalConstructor(cl);
     if (constr == null) return buffers;
 
-    for (StructGeneralAttribute.Key<?> key : ClassWriter.PARAMETER_ANNOTATION_ATTRIBUTES) {
+    for (Key<?> key : ClassWriter.PARAMETER_ANNOTATION_ATTRIBUTES) {
       StructAnnotationParameterAttribute attribute = (StructAnnotationParameterAttribute) constr.getAttribute(key);
       if (attribute == null) continue;
       List<List<AnnotationExprent>> paramAnnotations = attribute.getParamAnnotations();

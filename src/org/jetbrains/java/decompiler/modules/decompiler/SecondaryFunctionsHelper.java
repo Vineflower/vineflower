@@ -16,6 +16,7 @@ import org.jetbrains.java.decompiler.struct.gen.VarType;
 import java.util.*;
 
 public final class SecondaryFunctionsHelper {
+  private static final IdentifySecondaryOptions DEFAULT_OPTIONS = new IdentifySecondaryOptions();
 
   private static final Map<FunctionType, FunctionType> funcsnot = new HashMap<>();
   static {
@@ -41,6 +42,10 @@ public final class SecondaryFunctionsHelper {
   }
 
   public static boolean identifySecondaryFunctions(Statement stat, VarProcessor varProc) {
+    return identifySecondaryFunctions(stat, varProc, DEFAULT_OPTIONS);
+  }
+
+  public static boolean identifySecondaryFunctions(Statement stat, VarProcessor varProc, IdentifySecondaryOptions options) {
     if (stat.getExprents() == null) {
       // if(){;}else{...} -> if(!){...}
       if (stat instanceof IfStatement) {
@@ -130,14 +135,14 @@ public final class SecondaryFunctionsHelper {
         Object obj = lstObjects.get(i);
 
         if (obj instanceof Statement) {
-          if (identifySecondaryFunctions((Statement)obj, varProc)) {
+          if (identifySecondaryFunctions((Statement)obj, varProc, options)) {
             ret = true;
             replaced = true;
             break;
           }
         }
         else if (obj instanceof Exprent) {
-          Exprent retexpr = identifySecondaryFunctions((Exprent)obj, true, varProc);
+          Exprent retexpr = identifySecondaryFunctions((Exprent)obj, true, varProc, options);
           if (retexpr != null) {
             if (stat.getExprents() == null) {
               // only head expressions can be replaced!
@@ -157,7 +162,7 @@ public final class SecondaryFunctionsHelper {
     return ret;
   }
 
-  private static Exprent identifySecondaryFunctions(Exprent exprent, boolean statement_level, VarProcessor varProc) {
+  private static Exprent identifySecondaryFunctions(Exprent exprent, boolean statement_level, VarProcessor varProc, IdentifySecondaryOptions options) {
     if (exprent instanceof FunctionExprent) {
       FunctionExprent fexpr = (FunctionExprent)exprent;
 
@@ -231,7 +236,7 @@ public final class SecondaryFunctionsHelper {
       replaced = false;
 
       for (Exprent expr : exprent.getAllExprents()) {
-        Exprent retexpr = identifySecondaryFunctions(expr, false, varProc);
+        Exprent retexpr = identifySecondaryFunctions(expr, false, varProc, options);
         if (retexpr != null) {
           exprent.replaceExprent(expr, retexpr);
           retexpr.addBytecodeOffsets(expr.bytecode);
@@ -323,7 +328,9 @@ public final class SecondaryFunctionsHelper {
                   return lstOperands.get(0);
                 }
               }
-            } else if (DecompilerContext.getOption(IFernflowerPreferences.TERNARY_CONSTANT_SIMPLIFICATION)) {
+            }
+
+            if (DecompilerContext.getOption(IFernflowerPreferences.TERNARY_CONSTANT_SIMPLIFICATION) || options.forceTernarySimplification) {
               if (expr1 instanceof ConstExprent && expr1.getExprType().type == CodeConstants.TYPE_BOOLEAN) {
                 ConstExprent cexpr1 = (ConstExprent) expr1;
                 boolean val = cexpr1.getIntValue() != 0;
@@ -579,5 +586,15 @@ public final class SecondaryFunctionsHelper {
     }
 
     return res;
+  }
+
+  public static class IdentifySecondaryOptions {
+    private boolean forceTernarySimplification = false;
+
+    public IdentifySecondaryOptions forceTernarySimplification() {
+      forceTernarySimplification = true;
+
+      return this;
+    }
   }
 }

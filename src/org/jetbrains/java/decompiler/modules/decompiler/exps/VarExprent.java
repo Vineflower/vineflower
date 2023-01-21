@@ -118,7 +118,7 @@ public class VarExprent extends Exprent {
 
     if (classDef) {
       ClassNode child = DecompilerContext.getClassProcessor().getMapRootClasses().get(varType.value);
-      new ClassWriter().classToJava(child, buffer, indent);
+      new ClassWriter().writeClass(child, buffer, indent);
     } else {
       VarVersionPair varVersion = getVarVersionPair();
 
@@ -131,13 +131,13 @@ public class VarExprent extends Exprent {
       }
 
       String name = getName();
-      MethodWrapper method = (MethodWrapper) DecompilerContext.getProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
+      MethodWrapper method = (MethodWrapper) DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
       if (method != null && (!"this".equals(name) || index != 0)) {
         int varIndex = index;
         if (processor != null) {
           // Resolve the method/varVersion this var came from
           Pair<String, VarVersionPair> source = processor.getVarSource(getVarVersionPair());
-          ClassNode node = (ClassNode) DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS_NODE);
+          ClassNode node = (ClassNode) DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
 
           while (source != null && node != null) {
             method = node.getWrapper().getMethods().getWithKey(source.a);
@@ -203,7 +203,7 @@ public class VarExprent extends Exprent {
         return getVarType();
       }
 
-      MethodWrapper method = (MethodWrapper)DecompilerContext.getProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
+      MethodWrapper method = (MethodWrapper)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
       if (method != null) {
         Integer originalIndex = null;
         if (processor != null) {
@@ -487,7 +487,7 @@ public class VarExprent extends Exprent {
       return false;
     }
 
-    RuleValue rule = matchNode.getRules().get(MatchProperties.EXPRENT_VAR_INDEX);
+    RuleValue rule = matchNode.getRawRule(MatchProperties.EXPRENT_VAR_INDEX);
     if (rule != null) {
       if (rule.isVariable()) {
         return engine.checkAndSetVariableValue((String)rule.value, this.index);

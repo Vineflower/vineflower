@@ -30,7 +30,7 @@ public final class SwitchStatement extends Statement {
 
   private List<List<Exprent>> caseValues = new ArrayList<>();
 
-  private List<Exprent> caseGuards = new ArrayList<>();
+  private final List<Exprent> caseGuards = new ArrayList<>();
 
   private final Set<Statement> scopedCaseStatements = new HashSet<>();
 
@@ -41,11 +41,6 @@ public final class SwitchStatement extends Statement {
   // *****************************************************************************
   // constructors
   // *****************************************************************************
-
-  // Phantom when converted to a switch expression. Spooky!
-  // We need to do this because switch expressions can have code in their case values, so we need to preserve the statement graph.
-  // The resulting statement isn't shown in the actual decompile (unless enabled specifically!)
-  private boolean phantom;
 
   private SwitchStatement() {
     super(StatementType.SWITCH);
@@ -484,6 +479,19 @@ public final class SwitchStatement extends Statement {
     caseValues = lstValues;
   }
 
+  @Override
+  public boolean hasBasicSuccEdge() {
+    // FIXME: default switch
+
+    return false;
+  }
+
+  @Override
+  protected void onNodeCollapse() {
+    // special case switch, sorting edges and nodes
+    sortEdgesAndNodes();
+  }
+
   public List<Exprent> getHeadexprentList() {
     return headexprent;
   }
@@ -506,14 +514,6 @@ public final class SwitchStatement extends Statement {
 
   public List<List<Exprent>> getCaseValues() {
     return caseValues;
-  }
-
-  public boolean isPhantom() {
-    return phantom;
-  }
-
-  public void setPhantom(boolean phantom) {
-    this.phantom = phantom;
   }
 
   public List<Exprent> getCaseGuards() {

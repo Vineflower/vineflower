@@ -1,0 +1,52 @@
+package pkg
+
+import java.lang.annotation.Retention
+import java.lang.annotation.RetentionPolicy
+import kotlin.jvm.internal.RepeatableContainer
+
+class TestAnnotations {
+   @TestAnnotations.TestAnnotation(
+      first = "test",
+      second = 1
+   )
+   fun test() {
+   }// 16
+
+   @TestAnnotations.RepeatableAnnotation.Container({@TestAnnotations.RepeatableAnnotation("test"), @TestAnnotations.RepeatableAnnotation("test2")})
+   fun test2() {
+   }// 21
+
+   @Repeatable
+   @Retention(RetentionPolicy.RUNTIME)
+   @java.lang.annotation.Repeatable(TestAnnotations.RepeatableAnnotation.Container.class)
+   open @interface RepeatableAnnotation {
+      fun value(): String ;
+
+      @RepeatableContainer
+      @Retention(RetentionPolicy.RUNTIME)
+      open @interface Container {
+         fun value(): Array<TestAnnotations.RepeatableAnnotation> ;
+      }
+   }
+
+   @Retention(RetentionPolicy.RUNTIME)
+   open @interface TestAnnotation {
+      fun first(): String ;
+
+      fun second(): Int ;
+   }
+}
+
+class 'pkg/TestAnnotations' {
+   method 'test ()V' {
+      0      12
+   }
+
+   method 'test2 ()V' {
+      0      16
+   }
+}
+
+Lines mapping:
+16 <-> 13
+21 <-> 17

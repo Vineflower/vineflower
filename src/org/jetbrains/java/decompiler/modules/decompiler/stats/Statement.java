@@ -29,7 +29,10 @@ public abstract class Statement implements IMatchable {
     ROOT("Root"), BASIC_BLOCK("Block"), SEQUENCE("Seq"), DUMMY_EXIT("Exit"),
     GENERAL("General"),
     IF("If"), DO("Do"), SWITCH("Switch"),
-    SYNCHRONIZED("Monitor"), TRY_CATCH("Catch"), CATCH_ALL("CatchAll");
+    SYNCHRONIZED("Monitor"), TRY_CATCH("Catch"), CATCH_ALL("CatchAll"),
+
+    // Catch all for plugins
+    OTHER("YouHaveMetATerribleFate");
 
     private final String prettyId;
 
@@ -100,6 +103,11 @@ public abstract class Statement implements IMatchable {
   protected boolean containsMonitorExit;
 
   protected HashSet<Statement> continueSet = new HashSet<>();
+
+  // When statements need to be expressed as exprents, they become phantom.
+  // This means (for supported statements) that they do not show up in the decompiled code.
+  // As statements have children, their control flow must be preserved and so the phantom statements are kept in the graph.
+  private boolean phantom;
 
   // *****************************************************************************
   // initializers
@@ -227,10 +235,11 @@ public abstract class Statement implements IMatchable {
     // monitorenter and monitorexit
     stat.buildMonitorFlags();
 
-    if (stat instanceof SwitchStatement) {
-      // special case switch, sorting leaf nodes
-      ((SwitchStatement)stat).sortEdgesAndNodes();
-    }
+    stat.onNodeCollapse();
+  }
+
+  protected void onNodeCollapse() {
+
   }
 
   public void setAllParent() {
@@ -370,10 +379,6 @@ public abstract class Statement implements IMatchable {
       continueSet.add(edge.getDestination().getBasichead());
     }
 
-    if (this instanceof DoStatement) {
-      continueSet.remove(first.getBasichead());
-    }
-
     return continueSet;
   }
 
@@ -417,20 +422,6 @@ public abstract class Statement implements IMatchable {
   public void markMonitorexitDead() {
     for (Statement st : this.stats) {
       st.markMonitorexitDead();
-    }
-
-    if (this instanceof BasicBlockStatement) {
-      BasicBlockStatement bblock = (BasicBlockStatement)this;
-      InstructionSequence seq = bblock.getBlock().getSeq();
-
-      if (seq != null && !seq.isEmpty()) {
-        for (int i = 0; i < seq.length(); i++) {
-          if (seq.getInstr(i).opcode == CodeConstants.opc_monitorexit) {
-            bblock.setRemovableMonitorexit(true);
-            break;
-          }
-        }
-      }
     }
   }
 
@@ -899,11 +890,7 @@ public abstract class Statement implements IMatchable {
   }
 
   public BasicBlockStatement getBasichead() {
-    if (this instanceof BasicBlockStatement) {
-      return (BasicBlockStatement)this;
-    } else {
-      return first.getBasichead();
-    }
+    return first.getBasichead();
   }
 
   public boolean isLabeled() {
@@ -923,15 +910,7 @@ public abstract class Statement implements IMatchable {
   // TODO: many while(true) loops have breaks in their body. Would that not count?
   //       however allowing those seems to break tests.
   public boolean hasBasicSuccEdge() {
-
-    // FIXME: default switch
-
-    switch (this.type) {
-      case BASIC_BLOCK: return true;
-      case IF: return (((IfStatement) this).iftype == IfStatement.IFTYPE_IF);
-      case DO: return ((DoStatement) this).getLooptype() != DoStatement.Type.INFINITE;
-      default: return false;
-    }
+    return false;
   }
 
 
@@ -979,6 +958,14 @@ public abstract class Statement implements IMatchable {
 
   public void setCopied(boolean copied) {
     this.copied = copied;
+  }
+
+  public boolean isPhantom() {
+    return phantom;
+  }
+
+  public void setPhantom(boolean phantom) {
+    this.phantom = phantom;
   }
 
   // helper methods
@@ -1055,20 +1042,20 @@ public abstract class Statement implements IMatchable {
       return false;
     }
 
-    for (Entry<MatchProperties, RuleValue> rule : matchNode.getRules().entrySet()) {
-      switch (rule.getKey()) {
+    return matchNode.iterateRules((key, value) -> {
+      switch (key) {
         case STATEMENT_TYPE:
-          if (this.type != rule.getValue().value) {
+          if (this.type != value.value) {
             return false;
           }
           break;
         case STATEMENT_STATSIZE:
-          if (this.stats.size() != (Integer)rule.getValue().value) {
+          if (this.stats.size() != (Integer)value.value) {
             return false;
           }
           break;
         case STATEMENT_EXPRSIZE:
-          int exprsize = (Integer)rule.getValue().value;
+          int exprsize = (Integer)value.value;
           if (exprsize == -1) {
             if (this.exprents != null) {
               return false;
@@ -1081,13 +1068,13 @@ public abstract class Statement implements IMatchable {
           }
           break;
         case STATEMENT_RET:
-          if (!engine.checkAndSetVariableValue((String)rule.getValue().value, this)) {
+          if (!engine.checkAndSetVariableValue((String)value.value, this)) {
             return false;
           }
           break;
       }
-    }
 
-    return true;
+      return true;
+    });
   }
 }

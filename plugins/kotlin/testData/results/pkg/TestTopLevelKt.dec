@@ -1,0 +1,64 @@
+package pkg
+
+class TestTopLevelKt {
+   @JvmStatic
+   private int topLevelVar = 42;
+   @JvmStatic
+   private Regex topLevelVal = new Regex("");
+   @JvmStatic
+   public int topLevelConstVal = 926;
+
+   @JvmStatic
+   fun topLevelFun() {
+   }// 5
+
+   @JvmStatic
+   fun getTopLevelVar(): Int  {
+      return topLevelVar;
+   }
+
+   @JvmStatic
+   fun setTopLevelVar(var0: Int) {
+      topLevelVar = var0;// 7
+   }
+
+   @JvmStatic
+   fun getTopLevelVal(): Regex  {
+      return topLevelVal;// 9
+   }
+}
+
+class 'pkg/TestTopLevelKt' {
+   method 'topLevelFun ()V' {
+      2      12
+   }
+
+   method 'getTopLevelVar ()I' {
+      0      16
+      1      16
+      2      16
+      3      16
+   }
+
+   method 'setTopLevelVar (I)V' {
+      0      21
+      1      21
+      2      21
+      3      21
+      4      22
+   }
+
+   method 'getTopLevelVal ()Lkotlin/text/Regex;' {
+      0      26
+      1      26
+      2      26
+      3      26
+   }
+}
+
+Lines mapping:
+5 <-> 13
+7 <-> 22
+9 <-> 27
+Not mapped:
+4

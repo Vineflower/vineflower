@@ -512,6 +512,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: Returns not processing properly
     registerRaw(CUSTOM, "TestJsr2");
     register(JAVA_8, "TestOverrideIndirect");
+    // INN resugaring is now in a separate plugin, so this produces intentionally "bad" output
     registerRaw(CUSTOM, "TestIdeaNotNull");
     // TODO: Synchronized blocks don't work properly
     registerRaw(CUSTOM, "TestHotjava");

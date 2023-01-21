@@ -107,7 +107,7 @@ public class VarDefinitionHelper {
     }
 
     if (thisvar) {
-      StructClass current_class = (StructClass)DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS);
+      StructClass current_class = (StructClass)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS);
 
       varproc.getThisVars().put(new VarVersionPair(0, 0), current_class.qualifiedName);
       varproc.setVarName(new VarVersionPair(0, 0), "this");

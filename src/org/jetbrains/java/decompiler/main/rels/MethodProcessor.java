@@ -1,6 +1,9 @@
 // Copyright 2000_2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.main.rels;
 
+import org.jetbrains.java.decompiler.api.java.JavaPassLocation;
+import org.jetbrains.java.decompiler.api.language.LanguageSpec;
+import org.jetbrains.java.decompiler.api.passes.PassContext;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.InstructionSequence;
 import org.jetbrains.java.decompiler.code.cfg.ControlFlowGraph;
@@ -8,6 +11,7 @@ import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
+import org.jetbrains.java.decompiler.main.plugins.PluginContext;
 import org.jetbrains.java.decompiler.modules.code.DeadCodeHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.*;
 import org.jetbrains.java.decompiler.modules.decompiler.decompose.DomHelper;
@@ -33,6 +37,7 @@ public class MethodProcessor implements Runnable {
   private final StructMethod method;
   private final MethodDescriptor methodDescriptor;
   private final VarProcessor varProc;
+  private final LanguageSpec spec;
   private final DecompilerContext parentContext;
 
   private volatile RootStatement root;
@@ -43,11 +48,13 @@ public class MethodProcessor implements Runnable {
                          StructMethod method,
                          MethodDescriptor methodDescriptor,
                          VarProcessor varProc,
+                         LanguageSpec spec,
                          DecompilerContext parentContext) {
     this.klass = klass;
     this.method = method;
     this.methodDescriptor = methodDescriptor;
     this.varProc = varProc;
+    this.spec = spec;
     this.parentContext = parentContext;
   }
 
@@ -58,7 +65,7 @@ public class MethodProcessor implements Runnable {
 
     try {
       DecompilerContext.setCurrentContext(parentContext);
-      root = codeToJava(klass, method, methodDescriptor, varProc);
+      root = codeToJava(klass, method, methodDescriptor, varProc, spec);
     }
     catch (Throwable t) {
       error = t;
@@ -73,12 +80,13 @@ public class MethodProcessor implements Runnable {
     }
   }
 
-  public static RootStatement codeToJava(StructClass cl, StructMethod mt, MethodDescriptor md, VarProcessor varProc) throws IOException {
+  public static RootStatement codeToJava(StructClass cl, StructMethod mt, MethodDescriptor md, VarProcessor varProc, LanguageSpec spec) throws IOException {
     debugCurrentlyDecompiling.set(null);
     debugCurrentCFG.set(null);
     debugCurrentDecompileRecord.set(null);
 
     boolean isInitializer = CodeConstants.CLINIT_NAME.equals(mt.getName()); // for now static initializer only
+    PluginContext pluginContext = DecompilerContext.getCurrentContext().structContext.getPluginContext();
 
     mt.expandData(cl);
     InstructionSequence seq = mt.getInstructionSequence();
@@ -137,6 +145,17 @@ public class MethodProcessor implements Runnable {
       DotExporter.toDotFile(graph, mt, "cfgMultipleExceptionDummyHandlers", true);
     }
 
+    if (spec != null) {
+      DecompileRecord decompileRecord = new DecompileRecord(mt);
+
+      RootStatement root = spec.graphParser.createStatement(graph, mt);
+
+      PassContext pctx = new PassContext(root, graph, mt, cl, varProc, decompileRecord);
+      spec.pass.run(pctx);
+
+      return root;
+    }
+
     DotExporter.toDotFile(graph, mt, "cfgParsed", true);
     RootStatement root = DomHelper.parseGraph(graph, mt, 0);
 
@@ -191,19 +210,19 @@ public class MethodProcessor implements Runnable {
     SequenceHelper.condenseSequences(root);
     decompileRecord.add("CondenseSequences_1", root);
 
-    StackVarsProcessor stackProc = new StackVarsProcessor();
-
     // Process and simplify variables on the stack
     int stackVarsProcessed = 0;
     do {
       stackVarsProcessed++;
 
-      stackProc.simplifyStackVars(root, mt, cl);
+      StackVarsProcessor.simplifyStackVars(root, mt, cl);
       decompileRecord.add("SimplifyStackVars_PPMM_" + stackVarsProcessed, root);
 
       varProc.setVarVersions(root);
       decompileRecord.add("SetVarVersions_PPMM_" + stackVarsProcessed, root);
     } while (new PPandMMHelper(varProc).findPPandMM(root));
+
+    PassContext pctx = new PassContext(root, graph, mt, cl, varProc, decompileRecord);
 
     // Inline ppi/mmi that we may have missed
     if (PPandMMHelper.inlinePPIandMMIIf(root)) {
@@ -216,6 +235,8 @@ public class MethodProcessor implements Runnable {
       decompileRecord.add("SimplifyStringConcat", root);
     }
 
+    // Plugin passes to run before the main decompilation loop
+    pluginContext.runPasses(JavaPassLocation.BEFORE_MAIN, pctx);
 
     // Main loop
     while (true) {
@@ -245,6 +266,11 @@ public class MethodProcessor implements Runnable {
             continue;
           }
 
+          // Plugin passes to run inside the merge loop
+          if (pluginContext.runPasses(JavaPassLocation.IN_LOOP_DECOMP, pctx)) {
+            continue;
+          }
+
           if (IfHelper.mergeAllIfs(root)) {
             decompileRecord.add("MergeAllIfs", root);
             // Continues with merge loop
@@ -257,15 +283,7 @@ public class MethodProcessor implements Runnable {
         decompileRecord.add("MergeLoopEnd", root);
       }
 
-      if (DecompilerContext.getOption(IFernflowerPreferences.IDEA_NOT_NULL_ANNOTATION)) {
-        if (IdeaNotNullHelper.removeHardcodedChecks(root, mt)) {
-          decompileRecord.add("RemoveIdeaNull", root);
-          SequenceHelper.condenseSequences(root);
-          decompileRecord.add("CondenseSequences_RIN", root);
-        }
-      }
-
-      stackProc.simplifyStackVars(root, mt, cl);
+      StackVarsProcessor.simplifyStackVars(root, mt, cl);
       decompileRecord.add("SimplifyStackVars", root);
 
       varProc.setVarVersions(root);
@@ -320,6 +338,11 @@ public class MethodProcessor implements Runnable {
         decompileRecord.add("CondenseDo", root);
         continue;
       }
+  
+      // Apply main loop plugin passes
+      if (pluginContext.runPasses(JavaPassLocation.MAIN_LOOP, pctx)) {
+        continue;
+      }
 
       // initializer may have at most one return point, so no transformation of method exits permitted
       if (isInitializer || !ExitHelper.condenseExits(root)) {
@@ -347,7 +370,7 @@ public class MethodProcessor implements Runnable {
           decompileRecord.add("ProcessSwitchExpr_SS", root);
 
           // Simplify stack vars to integrate and inline switch expressions
-          stackProc.simplifyStackVars(root, mt, cl);
+          StackVarsProcessor.simplifyStackVars(root, mt, cl);
           decompileRecord.add("SimplifyStackVars_SS", root);
 
           varProc.setVarVersions(root);
@@ -380,6 +403,9 @@ public class MethodProcessor implements Runnable {
       decompileRecord.add("InsertSynchronizedAssignments", root);
     }
 
+    // Apply plugin passes before setting variable definitions
+    pluginContext.runPasses(JavaPassLocation.AFTER_MAIN, pctx);
+
     varProc.setVarDefinitions(root);
     decompileRecord.add("SetVarDefinitions", root);
 
@@ -400,6 +426,9 @@ public class MethodProcessor implements Runnable {
     if (ExprProcessor.canonicalizeCasts(root)) {
       decompileRecord.add("CanonicalizeCasts", root);
     }
+
+    // Apply plugin passes after setting variable definitions
+    pluginContext.runPasses(JavaPassLocation.AT_END, pctx);
 
     // must be the last invocation, because it makes the statement structure inconsistent
     // FIXME: new edge type needed

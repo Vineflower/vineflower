@@ -127,7 +127,7 @@ public class FieldExprent extends Exprent {
   }
 
   private boolean isAmbiguous() {
-    MethodWrapper method = (MethodWrapper)DecompilerContext.getProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
+    MethodWrapper method = (MethodWrapper)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
     if (method != null) {
       StructLocalVariableTableAttribute attr = method.methodStruct.getLocalVariableAttr();
       if (attr != null) {
@@ -159,7 +159,7 @@ public class FieldExprent extends Exprent {
         VarExprent instVar = (VarExprent)instance;
         VarVersionPair pair = new VarVersionPair(instVar);
 
-        MethodWrapper currentMethod = (MethodWrapper)DecompilerContext.getProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
+        MethodWrapper currentMethod = (MethodWrapper)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
 
         if (currentMethod != null) { // FIXME: remove
           String this_classname = currentMethod.varproc.getThisVars().get(pair);
@@ -215,7 +215,7 @@ public class FieldExprent extends Exprent {
   }
 
   private boolean useQualifiedStatic() {
-    ClassNode node = (ClassNode)DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS_NODE);
+    ClassNode node = (ClassNode)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
     return node == null || !classname.equals(node.classStruct.qualifiedName) || isAmbiguous() || forceQualified;
   }
 
@@ -292,7 +292,7 @@ public class FieldExprent extends Exprent {
       return false;
     }
 
-    RuleValue rule = matchNode.getRules().get(MatchProperties.EXPRENT_FIELD_NAME);
+    RuleValue rule = matchNode.getRawRule(MatchProperties.EXPRENT_NAME);
     if (rule != null) {
       if (rule.isVariable()) {
         return engine.checkAndSetVariableValue((String)rule.value, this.name);
