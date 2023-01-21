@@ -69,11 +69,16 @@ dependencies {
   testImplementation("org.junit.jupiter:junit-jupiter-api:${project.junit_bom}")
   testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${project.junit_bom}")
   testImplementation("org.junit.jupiter:junit-jupiter-params:${project.junit_bom}")
+
   testImplementation("org.hamcrest:hamcrest:${project.hamcrest}")
+
+  testFixturesImplementation("org.junit.jupiter:junit-jupiter-params:${project.junit_bom}")
+  testFixturesImplementation("org.hamcrest:hamcrest:${project.hamcrest}")
 
   testDataGroovyImplementation("org.codehaus.groovy:groovy:${project.groovy}")
   testDataKotlinImplementation platform("org.jetbrains.kotlin:kotlin-bom")
   testDataKotlinImplementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+
   testDataScalaImplementation("org.scala-lang:scala3-library_3:${project.scala_library}")
   testRuntimeOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 }
