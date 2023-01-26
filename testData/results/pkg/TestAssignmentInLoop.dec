@@ -8,19 +8,19 @@ public class TestAssignmentInLoop {
    void test() {
       int i = 10;// 9
 
-      while((i -= get()) > 0) {// 11
+      while ((i -= get()) > 0) {// 11
          System.out.println(i);// 12
       }
 
-      for(int j = 0; j < 10; j = ++j + get()) {// 15
+      for (int j = 0; j < 10; j = ++j + get()) {// 15
          System.out.println(j);// 16
       }
 
-      while((i = get()) == 0) {// 19
+      while ((i = get()) == 0) {// 19
          System.out.println(i);// 20
       }
 
-      for(int j = 0; j < 3; j = get()) {// 23
+      for (int j = 0; j < 3; j = get()) {// 23
          System.out.println(j);// 24
       }
    }// 26

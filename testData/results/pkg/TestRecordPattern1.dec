@@ -14,7 +14,7 @@ public class TestRecordPattern1 {
    }// 11
 
    void test2(Object o) {
-      switch(o) {// 14
+      switch (o) {// 14
          case null:
             System.out.println("null");// 16
             break;
@@ -34,9 +34,9 @@ public class TestRecordPattern1 {
       Object var2 = o;
       byte var3 = 0;
 
-      while(true) {
+      while (true) {
          int var10000;
-         switch(SwitchBootstraps.typeSwitch<"typeSwitch",TestRecordPattern1.Point,TestRecordPattern1.Point,Object>(var2, var3)) {
+         switch (SwitchBootstraps.typeSwitch<"typeSwitch",TestRecordPattern1.Point,TestRecordPattern1.Point,Object>(var2, var3)) {
             case -1:
                var10000 = -1;// 23
                break;

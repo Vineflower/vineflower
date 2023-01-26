@@ -3,7 +3,7 @@ package pkg;
 public class TestSwitchExpressionFallthrough1 {
    public void test(int i) {
       byte var10000;
-      switch(i) {// 5
+      switch (i) {// 5
          case 1:
             System.out.println(i);// 7
          case 2:

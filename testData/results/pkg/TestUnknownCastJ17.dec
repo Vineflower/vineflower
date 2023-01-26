@@ -35,7 +35,7 @@ public class TestUnknownCastJ17 {
 
          new Object();
 
-         for(int var9 = switch(vvv5) {
+         for (int var9 = switch (vvv5) {
             default -> {
                ElementType var5 = ElementType.METHOD;// 40
                System.out.println(vvv1);// 42

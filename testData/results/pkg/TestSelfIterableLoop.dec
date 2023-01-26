@@ -3,8 +3,8 @@ package pkg;
 public class TestSelfIterableLoop {
    public void testMethod(Iterable var1) {
       label14:
-      while(true) {
-         for(var1 : var1) {// 20 21 22 27 28 29
+      while (true) {
+         for (var1 : var1) {// 20 21 22 27 28 29
             if (var1 instanceof Ljava.lang.Iterable) {// 30 31 32
                var1 = (Ljava.lang.Iterable)var1;// 33 34 35
                continue label14;// 36

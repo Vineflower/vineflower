@@ -2,7 +2,7 @@ package pkg;
 
 public class TestSwitchExprInvoc {
    public void test(int i) {
-      String res = (switch(i) {// 5
+      String res = (switch (i) {// 5
          case 1 -> "one";// 6
          case 2 -> "two";// 7
          default -> "default";// 8

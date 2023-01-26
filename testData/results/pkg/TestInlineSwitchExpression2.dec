@@ -5,7 +5,7 @@ import ext.Direction;
 public class TestInlineSwitchExpression2 {
    public void test(Direction direction) {
       int a = 1;// 7
-      switch(direction) {
+      switch (direction) {
          case NORTH:
             a |= direction.ordinal();// 10
          case SOUTH:

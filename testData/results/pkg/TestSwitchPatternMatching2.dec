@@ -2,7 +2,7 @@ package pkg;
 
 public class TestSwitchPatternMatching2 {
    static void testTriangle(TestSwitchPatternMatching2.Shape s) {
-      switch(s) {// 5
+      switch (s) {// 5
          case null:
             System.out.println("null");// 11
             break;

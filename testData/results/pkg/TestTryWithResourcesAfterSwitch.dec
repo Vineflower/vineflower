@@ -10,7 +10,7 @@ public class TestTryWithResourcesAfterSwitch {
          throw new RuntimeException();// 10
       } else {
          String vvv25 = "default";// 14
-         switch(vvv25) {
+         switch (vvv25) {
             case "HYxSY":
             default:
                ElementType vvv25x = ElementType.METHOD;// 19

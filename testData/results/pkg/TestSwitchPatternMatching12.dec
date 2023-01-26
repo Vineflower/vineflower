@@ -6,7 +6,7 @@ public class TestSwitchPatternMatching12 {
    static int testTriangle(boolean a, Direction l, Direction r) {
       Direction var3 = a ? l : r;
 
-      return switch(var3) {// 1 7
+      return switch (var3) {// 1 7
          case null, default -> -1;// 10
          case NORTH, SOUTH, WEST -> 0;// 8
          case EAST, UP -> 1;// 9

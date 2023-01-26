@@ -2,7 +2,7 @@ package pkg;
 
 public class TestFinallyThrow {
    public void test(boolean b) {
-      while(true) {
+      while (true) {
          try {
             System.out.println(1);// 7
          } finally {

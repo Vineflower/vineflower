@@ -8,7 +8,7 @@ public class TestLocalsNames {
          long start = System.currentTimeMillis();// 23
          File[] files = file.listFiles();// 25
 
-         for(File s : files) {// 26
+         for (File s : files) {// 26
             File dest = new File(s.getAbsolutePath() + ".tmp");// 27
 
             assert s.renameTo(dest) : "unable to rename " + s + " to " + dest;// 28

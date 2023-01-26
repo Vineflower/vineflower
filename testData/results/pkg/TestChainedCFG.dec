@@ -3,16 +3,16 @@ package pkg;
 public class TestChainedCFG {
    public static void test(int a, int b, int c, int d) {
       label49:
-      while(true) {
+      while (true) {
          System.out.println("Hello world");// 6
 
-         while(a++ != 0) {// 8
-            while(b++ != 0) {// 12
-               while(c++ != 0) {// 16
-                  while(d++ != 0) {// 20
-                     while((d += c) != 0) {// 24
-                        while((c += b) != 0) {// 28
-                           while((b += a) != 0) {// 32
+         while (a++ != 0) {// 8
+            while (b++ != 0) {// 12
+               while (c++ != 0) {// 16
+                  while (d++ != 0) {// 20
+                     while ((d += c) != 0) {// 24
+                        while ((c += b) != 0) {// 28
+                           while ((b += a) != 0) {// 32
                               if ((a += d) != 0) {// 36
                                  continue label49;
                               }

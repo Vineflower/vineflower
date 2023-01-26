@@ -29,7 +29,7 @@ public class TestIfTernary2 {
       if (a1 == null ? b1 == null : b2 == null) {// 43
          System.out.println(2);// 44
 
-         while(a1 == a2) {// 46
+         while (a1 == a2) {// 46
             a1 = a2.toString();// 47
          }
 

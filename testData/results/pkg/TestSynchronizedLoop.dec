@@ -3,9 +3,9 @@ package pkg;
 public class TestSynchronizedLoop {
    public void test1(int i) {
       try {
-         while(true) {
+         while (true) {
             synchronized(this) {// 7
-               while(i >= i) {// 8
+               while (i >= i) {// 8
                   this.wait();// 9
                }
             }
@@ -20,7 +20,7 @@ public class TestSynchronizedLoop {
    }
 
    public void test2() {
-      while(true) {
+      while (true) {
          synchronized(this) {// 24
             ;
          }// 26
@@ -29,7 +29,7 @@ public class TestSynchronizedLoop {
 
    public void test7(int i) {
       synchronized(this) {// 31
-         while(i > 0) {// 32
+         while (i > 0) {// 32
             System.out.println(--i);// 33 34
          }
       }
@@ -40,7 +40,7 @@ public class TestSynchronizedLoop {
          label79: {
             System.out.println(1);// 42
 
-            while(i > 0) {// 43
+            while (i > 0) {// 43
                --i;// 44
                System.out.println(1.5);// 45
 
@@ -69,7 +69,7 @@ public class TestSynchronizedLoop {
    public void testLoop(double var1) {
       if (var1 >= 88.29) {// 68
          synchronized(this) {// 69
-            while(true) {
+            while (true) {
                long var12 = 399L;// 74
                var1 /= 97.81;// 75
             }
@@ -81,7 +81,7 @@ public class TestSynchronizedLoop {
       long var2 = -151L;// 84
       long var3 = -384L;// 85
 
-      while(var2 == 5L) {// 86
+      while (var2 == 5L) {// 86
          synchronized(this) {// 87
             var3 -= -714L;// 88
          }// 89

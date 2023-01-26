@@ -9,11 +9,11 @@ public class TestSwitchPatternMatching17 {
       Object var1 = o;
       byte var2 = 0;
 
-      while(true) {
-         switch(SwitchBootstraps.typeSwitch<"typeSwitch",String>(var1, var2)) {
+      while (true) {
+         switch (SwitchBootstraps.typeSwitch<"typeSwitch",String>(var1, var2)) {
             case 0:
                String s = (String)var1;
-               switch(s.charAt(0)) {// 7
+               switch (s.charAt(0)) {// 7
                   case 'b':
                      if (s.length() <= 5) {// 9
                         break;

@@ -5,7 +5,7 @@ import java.util.Objects;
 public class TestSwitchPatternMatchingInstanceof3 {
    public void test(Object o) {
       Objects.requireNonNull(o);// 5
-      switch(o) {
+      switch (o) {
          case Number n when n instanceof Integer i && i > 0:// 6
             System.out.println(i);
             break;

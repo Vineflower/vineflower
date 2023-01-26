@@ -39,7 +39,7 @@ public class TestSynchronizedThrow {
 
    public void testLoopThrow(boolean b) {
       synchronized(this) {// 39
-         while(b) {// 40
+         while (b) {// 40
             System.out.println("oh");// 41
          }
 
@@ -50,7 +50,7 @@ public class TestSynchronizedThrow {
    public void testInfiniteLoopOrThrow(boolean b) {
       synchronized(this) {// 48
          if (b) {// 49
-            while(true) {
+            while (true) {
                System.out.println("looooooooooop");// 51
             }
          }

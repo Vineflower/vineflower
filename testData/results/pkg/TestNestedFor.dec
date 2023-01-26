@@ -4,8 +4,8 @@ public class TestNestedFor {
    public int test(int x) {
       int out = x;
 
-      for(int j = x; j < 20; ++j) {// 7
-         for(int i = out = this.accept(0); i < 10; ++i) {// 8
+      for (int j = x; j < 20; ++j) {// 7
+         for (int i = out = this.accept(0); i < 10; ++i) {// 8
             ++out;// 9
          }
       }

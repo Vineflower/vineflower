@@ -8,7 +8,7 @@ public class TestSwitchPatternMatchingConstructor2 {
    }// 6
 
    private TestSwitchPatternMatchingConstructor2(Object s) {
-      this(switch(s) {// 9
+      this(switch (s) {// 9
          case null -> "null";// 10
          default -> "Non-triangle";// 11
       });
@@ -16,7 +16,7 @@ public class TestSwitchPatternMatchingConstructor2 {
 
    private TestSwitchPatternMatchingConstructor2(Object s, boolean unused) {
       Objects.requireNonNull(s);
-      switch(s) {
+      switch (s) {
          default:
             this("Non-triangle");// 16 17
       }

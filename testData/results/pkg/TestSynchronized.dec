@@ -83,7 +83,7 @@ public class TestSynchronized {
    }// 76
 
    public void test11(int i) {
-      switch(i) {// 79
+      switch (i) {// 79
          case 0:
             synchronized(this) {// 81
                break;

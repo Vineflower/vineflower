@@ -4,10 +4,10 @@ public class TestAssignmentSwitchExpression6 {
    public void test(String directionStr, int i) {
       String axis;
       String var10000;
-      for(axis = directionStr; i > 0; axis = var10000) {// 5 6
+      for (axis = directionStr; i > 0; axis = var10000) {// 5 6
          --i;// 7
          String var4 = directionStr.toLowerCase();// 8
-         switch(var4) {
+         switch (var4) {
             case "north":
             case "south":
                var10000 = "y";// 11

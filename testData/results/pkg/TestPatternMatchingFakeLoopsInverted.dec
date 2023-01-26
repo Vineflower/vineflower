@@ -2,14 +2,14 @@ package pkg;
 
 public class TestPatternMatchingFakeLoopsInverted {
    void test1(Object o) {
-      while(!(o instanceof String)) {// 5
+      while (!(o instanceof String)) {// 5
          String s = (String)o;// 6
          System.out.println(s.length());// 7
       }
    }// 9
 
    void test2(Object o) {
-      while(!(o instanceof String)) {// 12
+      while (!(o instanceof String)) {// 12
          String s = (String)o;// 13
          System.out.println(s);// 14
       }
@@ -18,14 +18,14 @@ public class TestPatternMatchingFakeLoopsInverted {
    }// 15
 
    void test3(Object o) {
-      while(o.hashCode() >= 0 && !(o instanceof String)) {// 19
+      while (o.hashCode() >= 0 && !(o instanceof String)) {// 19
          String s = (String)o;// 20
          System.out.println(s);// 21
       }
    }// 23
 
    void test3B(Object o) {
-      while(o.hashCode() >= 0 && !(o instanceof String)) {// 26
+      while (o.hashCode() >= 0 && !(o instanceof String)) {// 26
          String s = (String)o;// 27
          System.out.println(s);// 28
       }
@@ -34,7 +34,7 @@ public class TestPatternMatchingFakeLoopsInverted {
    }// 32
 
    void test4(Object o) {
-      while(o.hashCode() >= 0) {// 35
+      while (o.hashCode() >= 0) {// 35
          if (!(o instanceof String s)) {// 36
             System.out.println(s);// 37
             continue;// 38
@@ -46,7 +46,7 @@ public class TestPatternMatchingFakeLoopsInverted {
    }// 39
 
    void test4x(Object o) {
-      while(o.hashCode() >= 0) {// 42
+      while (o.hashCode() >= 0) {// 42
          if (o instanceof String x && !x.isEmpty()) {
             break;
          }
@@ -57,7 +57,7 @@ public class TestPatternMatchingFakeLoopsInverted {
    }// 46
 
    void test4B(Object o) {
-      while(o.hashCode() >= 0) {// 49
+      while (o.hashCode() >= 0) {// 49
          if (!(o instanceof String s)) {// 50
             System.out.println(s);// 51
             continue;// 52
@@ -71,7 +71,7 @@ public class TestPatternMatchingFakeLoopsInverted {
    }// 54
 
    void test4xB(Object o) {
-      while(o.hashCode() >= 0) {// 57
+      while (o.hashCode() >= 0) {// 57
          if (o instanceof String x && !x.isEmpty()) {
             break;
          }
@@ -84,14 +84,14 @@ public class TestPatternMatchingFakeLoopsInverted {
    }// 62
 
    void test3Swap(Object o) {
-      while(!(o instanceof String) && o.hashCode() >= 0) {// 65
+      while (!(o instanceof String) && o.hashCode() >= 0) {// 65
          String s = (String)o;// 66
          System.out.println(s);// 67
       }
    }// 69
 
    void test3BSwap(Object o) {
-      while(!(o instanceof String) && o.hashCode() >= 0) {// 72
+      while (!(o instanceof String) && o.hashCode() >= 0) {// 72
          String s = (String)o;// 73
          System.out.println(s);// 74
       }
@@ -100,7 +100,7 @@ public class TestPatternMatchingFakeLoopsInverted {
    }// 78
 
    void test4Swap(Object o) {
-      while(true) {
+      while (true) {
          if (o instanceof String) {// 81
             String x = (String)o;
          } else if (o.hashCode() >= 0) {
@@ -114,14 +114,14 @@ public class TestPatternMatchingFakeLoopsInverted {
    }
 
    void test4xSwap(Object o) {
-      while((!(o instanceof String x) || x.isEmpty()) && o.hashCode() >= 0) {// 88
+      while ((!(o instanceof String x) || x.isEmpty()) && o.hashCode() >= 0) {// 88
          String s = (String)o;// 89
          System.out.println(s);// 90
       }
    }// 92
 
    void test4BSwap(Object o) {
-      while(true) {
+      while (true) {
          if (o instanceof String) {// 95
             String x = (String)o;
          } else if (o.hashCode() >= 0) {
@@ -136,7 +136,7 @@ public class TestPatternMatchingFakeLoopsInverted {
    }
 
    void test4xBSwap(Object o) {
-      while((!(o instanceof String x) || x.isEmpty()) && o.hashCode() >= 0) {// 103
+      while ((!(o instanceof String x) || x.isEmpty()) && o.hashCode() >= 0) {// 103
          String s = (String)o;// 104
          System.out.println(s);// 105
       }
@@ -147,7 +147,7 @@ public class TestPatternMatchingFakeLoopsInverted {
    public void testSet(Object obj) {
       String s = "Hi";// 112
 
-      while(!(obj instanceof String)) {// 113
+      while (!(obj instanceof String)) {// 113
          s = (String)obj;// 114
       }
 
@@ -155,7 +155,7 @@ public class TestPatternMatchingFakeLoopsInverted {
    }// 118
 
    void test1A(Object o) {
-      while(!(o instanceof String)) {// 121
+      while (!(o instanceof String)) {// 121
          String s = (String)o;// 122
          System.out.println(s.length());// 123
       }
@@ -165,7 +165,7 @@ public class TestPatternMatchingFakeLoopsInverted {
    }// 127
 
    void test2A(Object o) {
-      while(!(o instanceof String)) {// 130
+      while (!(o instanceof String)) {// 130
          String s = (String)o;// 131
          System.out.println(s);// 132
       }
@@ -176,7 +176,7 @@ public class TestPatternMatchingFakeLoopsInverted {
    }
 
    void test3A(Object o) {
-      while(o.hashCode() >= 0 && !(o instanceof String)) {// 139
+      while (o.hashCode() >= 0 && !(o instanceof String)) {// 139
          String s = (String)o;// 140
          System.out.println(s);// 141
       }
@@ -186,7 +186,7 @@ public class TestPatternMatchingFakeLoopsInverted {
    }// 146
 
    void test4A(Object o) {
-      while(o.hashCode() >= 0) {// 149
+      while (o.hashCode() >= 0) {// 149
          if (!(o instanceof String s)) {// 150
             System.out.println(s);// 151
             continue;// 152
@@ -201,7 +201,7 @@ public class TestPatternMatchingFakeLoopsInverted {
    }// 156
 
    void test4xA(Object o) {
-      while(o.hashCode() >= 0) {// 159
+      while (o.hashCode() >= 0) {// 159
          if (o instanceof String x && !x.isEmpty()) {
             break;
          }
@@ -215,7 +215,7 @@ public class TestPatternMatchingFakeLoopsInverted {
    }// 166
 
    void test3ASwap(Object o) {
-      while(!(o instanceof String) && o.hashCode() >= 0) {// 169
+      while (!(o instanceof String) && o.hashCode() >= 0) {// 169
          String s = (String)o;// 170
          System.out.println(s);// 171
       }
@@ -225,7 +225,7 @@ public class TestPatternMatchingFakeLoopsInverted {
    }// 176
 
    void test4ASwap(Object o) {
-      while(true) {
+      while (true) {
          if (o instanceof String) {// 180
             String x = (String)o;
          } else if (o.hashCode() >= 0) {
@@ -241,7 +241,7 @@ public class TestPatternMatchingFakeLoopsInverted {
    }
 
    void test4xASwap(Object o) {
-      while((!(o instanceof String x) || x.isEmpty()) && o.hashCode() >= 0) {// 190
+      while ((!(o instanceof String x) || x.isEmpty()) && o.hashCode() >= 0) {// 190
          String s = (String)o;// 191
          System.out.println(s);// 192
       }
@@ -253,7 +253,7 @@ public class TestPatternMatchingFakeLoopsInverted {
    public void testSetA(Object obj) {
       String s = "Hi";// 200
 
-      while(!(obj instanceof String)) {// 201
+      while (!(obj instanceof String)) {// 201
          s = (String)obj;// 202
       }
 

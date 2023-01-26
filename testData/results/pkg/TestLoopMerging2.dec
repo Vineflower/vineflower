@@ -5,11 +5,11 @@ public class TestLoopMerging2 {
       int[] array = new int[256];// 5
       int i = 0;
 
-      while(i < 256) {
+      while (i < 256) {
          array[i] = i++;// 7 8
       }
 
-      for(int ix = 0; ix < 256; ++ix) {// 11
+      for (int ix = 0; ix < 256; ++ix) {// 11
          System.out.println(array[ix]);// 12
       }
    }// 14

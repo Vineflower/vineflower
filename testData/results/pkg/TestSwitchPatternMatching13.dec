@@ -2,7 +2,7 @@ package pkg;
 
 public class TestSwitchPatternMatching13 {
    static void test(TestSwitchPatternMatching13.Shape s) {
-      switch(s) {// 5
+      switch (s) {// 5
          case null:
             if (Math.random() > 0.0) {// 27
                System.out.println("Lucky null");// 28
@@ -21,7 +21,7 @@ public class TestSwitchPatternMatching13 {
          case TestSwitchPatternMatching13.Triangle txx when txx.calculateArea() > 100.0:// 14
             System.out.println("Large triangle");// 15
 
-            while(Math.random() > 0.5) {// 16
+            while (Math.random() > 0.5) {// 16
                System.out.println("Keep going");// 17
             }
             break;

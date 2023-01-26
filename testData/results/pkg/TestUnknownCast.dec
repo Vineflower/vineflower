@@ -18,7 +18,7 @@ public class TestUnknownCast {
 
       boolean var8 = (<unknown>)vvv2;// 14
 
-      for(Object vvv34 = null; vvv34 != null; var8 = var8) {// 15 16 17 19
+      for (Object vvv34 = null; vvv34 != null; var8 = var8) {// 15 16 17 19
          System.out.println(vvv34);// 18
       }
    }// 21
