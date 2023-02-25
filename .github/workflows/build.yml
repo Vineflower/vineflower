@@ -7,7 +7,7 @@ jobs:
         java: [8, 11, 17]
     runs-on: ubuntu-22.04
     container:
-      image: eclipse-temurin:${{ matrix.java }}-jdk
+      image: eclipse-temurin:${{ matrix.java }}
       options: --user root
     steps:
       - uses: actions/checkout@v3
@@ -26,7 +26,7 @@ jobs:
             */build/reports/
             build/test-results/**/*.xml
       - name: Codecov
-        uses: codecov/codecov-action@v3.1.0
+        uses: codecov/codecov-action@v3.1.1
   publish-test-results:
     runs-on: ubuntu-22.04
     needs: [build]
@@ -37,7 +37,7 @@ jobs:
         with:
           path: artifacts
       - name: Publish Test Results
-        uses: EnricoMi/publish-unit-test-result-action@v1.19
+        uses: EnricoMi/publish-unit-test-result-action@v2.4.1
         with:
           check_name: Test Results
           files: artifacts/*/build/test-results/**/*.xml
