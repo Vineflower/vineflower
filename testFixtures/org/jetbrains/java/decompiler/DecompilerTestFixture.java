@@ -133,8 +133,6 @@ public class DecompilerTestFixture {
           assertFilesEqual(expected.resolve(name), actual.resolve(name));
         }
       } else if (expected.toAbsolutePath().toString().endsWith(".jar") || expected.toAbsolutePath().toString().endsWith(".zip")) {
-        // Lazy: We just ensure every entry is present and has the same size
-        System.out.println(actual);
         try (ZipFile expectedZip = new ZipFile(expected.toFile())) {
           try (ZipFile actualZip = new ZipFile(actual.toFile())) {
             Enumeration<? extends ZipEntry> expectedEntries = expectedZip.entries();
@@ -146,7 +144,15 @@ public class DecompilerTestFixture {
               assertEquals(expectedEntry.getName(), actualEntry.getName());
 
               if (!expectedEntry.isDirectory()) {
-                assertEquals(expectedEntry.getSize(), actualEntry.getSize());
+                // Compare input streams
+                try (InputStream expectedStream = expectedZip.getInputStream(expectedEntry)) {
+                  try (InputStream actualStream = actualZip.getInputStream(actualEntry)) {
+                    byte[] expectedBytes = expectedStream.readAllBytes();
+                    byte[] actualBytes = actualStream.readAllBytes();
+
+                    assertEquals(new String(expectedBytes).replaceAll("\\r\\n?", "\n"), new String(actualBytes).replaceAll("\\r\\n?", "\n"));
+                  }
+                }
               }
             }
 

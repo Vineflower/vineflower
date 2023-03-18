@@ -394,7 +394,11 @@ public class ConsoleDecompiler implements /* IBytecodeProvider, */ IResultSaver,
     String file = new File(getAbsolutePath(path), archiveName).getPath();
     try {
       mapArchiveEntries.remove(file);
-      mapArchiveStreams.remove(file).close();
+      ZipOutputStream removed = mapArchiveStreams.remove(file);
+      // Can be null if saving out of directory context
+      if (removed != null) {
+        removed.close();
+      }
     }
     catch (IOException ex) {
       DecompilerContext.getLogger().writeMessage("Cannot close " + file, IFernflowerLogger.Severity.WARN);
