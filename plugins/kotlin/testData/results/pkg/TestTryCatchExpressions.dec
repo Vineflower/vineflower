@@ -9,7 +9,7 @@ class TestTryCatchExpressions {
          var2 = StringsKt.repeat(s as CharSequence, 5);// 9
       } catch (RuntimeException var4) {// 10
          var var10000: String = var4.getMessage();// 11
-         if (var10000 === null) {
+         if (var10000 == null) {
             var10000 = "ERROR";
          }
 
@@ -32,7 +32,7 @@ class TestTryCatchExpressions {
          var10000 = this;
          x = b;// 22
          var var10001: String = var9.getMessage();// 23
-         if (var10001 === null) {
+         if (var10001 == null) {
             var10001 = "ERROR";
          }
 
@@ -51,7 +51,7 @@ class TestTryCatchExpressions {
          var10000 = var10000;
          var13 = var4;
          var var10002: String = var8.getMessage();// 27
-         if (var10002 === null) {
+         if (var10002 == null) {
             var10002 = "ERROR";
          }
 
@@ -102,7 +102,7 @@ class TestTryCatchExpressions {
          var10001 = var4;
          System.out.println(var15);// 55
          var var10003: String = var12.getMessage();
-         if (var10003 === null) {
+         if (var10003 == null) {
             var10003 = "";
          }
 
