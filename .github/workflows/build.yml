@@ -37,7 +37,7 @@ jobs:
         with:
           path: artifacts
       - name: Publish Test Results
-        uses: EnricoMi/publish-unit-test-result-action@v2.4.1
+        uses: EnricoMi/publish-unit-test-result-action@v2.5.0
         with:
           check_name: Test Results
           files: artifacts/*/build/test-results/**/*.xml
