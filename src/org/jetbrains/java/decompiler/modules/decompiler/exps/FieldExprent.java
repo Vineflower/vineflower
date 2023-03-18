@@ -35,18 +35,6 @@ public class FieldExprent extends Exprent {
   private boolean isQualifier = false;
   private boolean wasCondy = false;
 
-  private static final Map<String, String> PRIMITIVE_TYPES = Map.of(
-    "java/lang/Boolean", "boolean",
-    "java/lang/Byte", "byte",
-    "java/lang/Character", "char",
-    "java/lang/Short", "short",
-    "java/lang/Integer", "int",
-    "java/lang/Long", "long",
-    "java/lang/Float", "float",
-    "java/lang/Double", "double",
-    "java/lang/Void", "void"
-  );
-
   public FieldExprent(LinkConstant cn, Exprent instance, BitSet bytecodeOffsets) {
     this(cn.elementname, cn.classname, instance == null, instance, FieldDescriptor.parseDescriptor(cn.descriptor), bytecodeOffsets);
   }
@@ -159,8 +147,8 @@ public class FieldExprent extends Exprent {
     }
 
     if (isStatic) {
-      if (name.equals("TYPE") && PRIMITIVE_TYPES.containsKey(classname)) {
-        buf.append(PRIMITIVE_TYPES.get(classname));
+      if (name.equals("TYPE") && ExprUtil.PRIMITIVE_TYPES.containsKey(classname)) {
+        buf.append(ExprUtil.PRIMITIVE_TYPES.get(classname));
         buf.append(".class");
         return buf;
       }

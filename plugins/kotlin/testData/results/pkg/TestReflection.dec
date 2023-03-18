@@ -7,20 +7,20 @@ import kotlin.reflect.KFunction
 class TestReflection {
    fun testClassReference() {
       System.out.println(Reflection.getOrCreateKotlinClass(TestReflection.class));// 5
-      System.out.println(TestReflection.class);// 6
+      System.out.println(TestReflection::class.java);// 6
    }// 7
 
    fun testPrimitiveWrapper() {
       System.out.println(Reflection.getOrCreateKotlinClass(int.class));// 10
-      System.out.println(Integer.class);// 11
+      System.out.println(Integer::class.javaObjectType);// 11
    }// 12
 
    fun testPrimitiveType() {
-      System.out.println(int.class);// 15
+      System.out.println(Integer::class.javaPrimitiveType);// 15
    }// 16
 
    fun testInferredPrimitive() {
-      System.out.println(int.class);// 19
+      System.out.println(Integer::class.javaPrimitiveType);// 19
    }// 20
 
    fun testFunctionReference() {
