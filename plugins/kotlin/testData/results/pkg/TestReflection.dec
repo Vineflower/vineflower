@@ -1,0 +1,136 @@
+package pkg
+
+import kotlin.jvm.functions.Function1
+import kotlin.jvm.internal.Reflection
+import kotlin.reflect.KFunction
+
+class TestReflection {
+   fun testClassReference() {
+      System.out.println(Reflection.getOrCreateKotlinClass(TestReflection.class));// 5
+      System.out.println(TestReflection.class);// 6
+   }// 7
+
+   fun testPrimitiveWrapper() {
+      System.out.println(Reflection.getOrCreateKotlinClass(Integer.TYPE));// 10
+      System.out.println(Integer.TYPE);// 11
+   }// 12
+
+   fun testPrimitiveType() {
+      System.out.println(Integer.TYPE);// 15
+   }// 16
+
+   fun testFunctionReference() {
+      var f: KFunction = <unknownclass>.INSTANCE as KFunction;// 19
+      System.out.println(<unknownclass>.INSTANCE as KFunction);// 20
+      (f as Function1).invoke(new TestReflection());// 21
+   }// 22
+}
+
+class 'pkg/TestReflection' {
+   method 'testClassReference ()V' {
+      0      8
+      1      8
+      2      8
+      3      8
+      4      8
+      6      8
+      7      8
+      8      8
+      9      8
+      a      8
+      b      8
+      c      8
+      d      9
+      e      9
+      10      9
+      11      9
+      12      9
+      13      9
+      14      9
+      15      9
+      16      9
+      17      10
+   }
+
+   method 'testPrimitiveWrapper ()V' {
+      0      13
+      1      13
+      2      13
+      3      13
+      4      13
+      5      13
+      7      13
+      8      13
+      9      13
+      a      13
+      b      13
+      c      13
+      d      13
+      e      14
+      f      14
+      10      14
+      12      14
+      13      14
+      14      14
+      15      14
+      16      14
+      17      14
+      18      14
+      19      15
+   }
+
+   method 'testPrimitiveType ()V' {
+      0      18
+      1      18
+      2      18
+      4      18
+      5      18
+      6      18
+      7      18
+      8      18
+      9      18
+      a      18
+      b      19
+   }
+
+   method 'testFunctionReference ()V' {
+      0      22
+      1      22
+      2      22
+      3      22
+      4      22
+      5      22
+      6      22
+      7      23
+      8      23
+      9      23
+      a      23
+      b      23
+      c      23
+      d      23
+      e      24
+      f      24
+      10      24
+      11      24
+      19      24
+      1a      24
+      1b      24
+      1c      24
+      1d      24
+      1f      25
+   }
+}
+
+Lines mapping:
+5 <-> 9
+6 <-> 10
+7 <-> 11
+10 <-> 14
+11 <-> 15
+12 <-> 16
+15 <-> 19
+16 <-> 20
+19 <-> 23
+20 <-> 24
+21 <-> 25
+22 <-> 26
