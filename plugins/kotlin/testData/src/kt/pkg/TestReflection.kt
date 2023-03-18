@@ -8,11 +8,15 @@ class TestReflection {
 
   fun testPrimitiveWrapper() {
     println(Int::class)
-    println(Int::class.java)
+    println(Int::class.javaObjectType)
   }
 
   fun testPrimitiveType() {
     println(Int::class.javaPrimitiveType)
+  }
+  
+  fun testInferredPrimitive() {
+    println(Int::class.java)
   }
 
   fun testFunctionReference() {

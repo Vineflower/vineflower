@@ -12,18 +12,22 @@ class TestReflection {
 
    fun testPrimitiveWrapper() {
       System.out.println(Reflection.getOrCreateKotlinClass(int.class));// 10
-      System.out.println(int.class);// 11
+      System.out.println(Integer.class);// 11
    }// 12
 
    fun testPrimitiveType() {
       System.out.println(int.class);// 15
    }// 16
 
+   fun testInferredPrimitive() {
+      System.out.println(int.class);// 19
+   }// 20
+
    fun testFunctionReference() {
-      var f: KFunction = <unknownclass>.INSTANCE as KFunction;// 19
-      System.out.println(<unknownclass>.INSTANCE as KFunction);// 20
-      (f as Function1).invoke(new TestReflection());// 21
-   }// 22
+      var f: KFunction = <unknownclass>.INSTANCE as KFunction;// 23
+      System.out.println(<unknownclass>.INSTANCE as KFunction);// 24
+      (f as Function1).invoke(new TestReflection());// 25
+   }// 26
 }
 
 class 'pkg/TestReflection' {
@@ -63,13 +67,16 @@ class 'pkg/TestReflection' {
       b      13
       c      13
       d      13
+      e      14
+      f      14
+      11      14
       12      14
       13      14
       14      14
+      15      14
       16      14
       17      14
-      18      14
-      19      15
+      18      15
    }
 
    method 'testPrimitiveType ()V' {
@@ -82,31 +89,41 @@ class 'pkg/TestReflection' {
       b      19
    }
 
-   method 'testFunctionReference ()V' {
-      0      22
-      1      22
-      2      22
-      3      22
+   method 'testInferredPrimitive ()V' {
       4      22
       5      22
       6      22
-      7      23
-      8      23
-      9      23
-      a      23
+      8      22
+      9      22
+      a      22
       b      23
-      c      23
-      d      23
-      e      24
-      f      24
-      10      24
-      11      24
-      19      24
-      1a      24
-      1b      24
-      1c      24
-      1d      24
-      1f      25
+   }
+
+   method 'testFunctionReference ()V' {
+      0      26
+      1      26
+      2      26
+      3      26
+      4      26
+      5      26
+      6      26
+      7      27
+      8      27
+      9      27
+      a      27
+      b      27
+      c      27
+      d      27
+      e      28
+      f      28
+      10      28
+      11      28
+      19      28
+      1a      28
+      1b      28
+      1c      28
+      1d      28
+      1f      29
    }
 }
 
@@ -121,5 +138,7 @@ Lines mapping:
 16 <-> 20
 19 <-> 23
 20 <-> 24
-21 <-> 25
-22 <-> 26
+23 <-> 27
+24 <-> 28
+25 <-> 29
+26 <-> 30
