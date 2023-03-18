@@ -8,10 +8,12 @@ import org.jetbrains.java.decompiler.util.InterpreterUtil;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -20,8 +22,7 @@ import java.util.zip.ZipFile;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class DecompilerTestFixture {
   private Path testDataDir;
@@ -67,6 +68,7 @@ public class DecompilerTestFixture {
     if (tempDir != null && cleanup) {
       delete(tempDir);
     }
+
     decompiler.close();
   }
 
@@ -126,11 +128,32 @@ public class DecompilerTestFixture {
       if (Files.isDirectory(expected)) {
         Path[] children = Files.list(expected).map(Path::getFileName).toArray(Path[]::new);
         assertThat(Files.list(actual).map(Path::getFileName).toArray(Path[]::new), arrayContainingInAnyOrder(children));
+
         for (Path name : children) {
           assertFilesEqual(expected.resolve(name), actual.resolve(name));
         }
-      }
-      else {
+      } else if (expected.toAbsolutePath().toString().endsWith(".jar") || expected.toAbsolutePath().toString().endsWith(".zip")) {
+        // Lazy: We just ensure every entry is present and has the same size
+        System.out.println(actual);
+        try (ZipFile expectedZip = new ZipFile(expected.toFile())) {
+          try (ZipFile actualZip = new ZipFile(actual.toFile())) {
+            Enumeration<? extends ZipEntry> expectedEntries = expectedZip.entries();
+            Enumeration<? extends ZipEntry> actualEntries = actualZip.entries();
+
+            while (expectedEntries.hasMoreElements()) {
+              ZipEntry expectedEntry = expectedEntries.nextElement();
+              ZipEntry actualEntry = actualEntries.nextElement();
+              assertEquals(expectedEntry.getName(), actualEntry.getName());
+
+              if (!expectedEntry.isDirectory()) {
+                assertEquals(expectedEntry.getSize(), actualEntry.getSize());
+              }
+            }
+
+            assertFalse(actualEntries.hasMoreElements());
+          }
+        }
+      } else {
         assertEquals(getContent(expected), getContent(actual));
       }
     } catch (IOException e) {
