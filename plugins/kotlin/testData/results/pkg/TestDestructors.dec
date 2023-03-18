@@ -32,7 +32,7 @@ class TestDestructors {
       System.out.println("" + this.component1(x) + this.component2(x) + this.component3(x));// 44 45
    }// 46
 
-   fun destructInlineLambda(x: Function0<Integer>) {
+   fun destructInlineLambda(x: () -> Int) {
       System.out
          .println(
             ""
@@ -58,7 +58,7 @@ class TestDestructors {
       }
    }// 99
 
-   fun destructInlineLambdaNoInline(x: Function0<Integer>) {
+   fun destructInlineLambdaNoInline(x: () -> Int) {
       System.out
          .println(
             ""
@@ -91,15 +91,15 @@ class TestDestructors {
       return String.valueOf(`$this$component3`).charAt(2) - 48;// 79
    }
 
-   fun Function0<Integer>.component1(): Int  {
+   fun () -> Int.component1(): Int  {
       return this.component1((`$this$component1`.invoke() as Number).intValue());// 81
    }
 
-   fun Function0<Integer>.component2(): Int  {
+   fun () -> Int.component2(): Int  {
       return this.component2((`$this$component2`.invoke() as Number).intValue());// 82
    }
 
-   fun Function0<Integer>.component3(): Int  {
+   fun () -> Int.component3(): Int  {
       return this.component3((`$this$component3`.invoke() as Number).intValue());// 83
    }
 }

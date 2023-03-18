@@ -9,7 +9,7 @@ class TestKotlinTypes {
       throw new Exception();// 5
    }
 
-   fun getConsumer(): Function1<Integer, Unit>  {
+   fun getConsumer(): (Int?) -> Unit  {
       return this.consumer;// 8
    }
 }

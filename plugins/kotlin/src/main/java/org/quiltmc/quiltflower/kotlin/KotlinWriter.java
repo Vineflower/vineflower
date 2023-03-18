@@ -763,16 +763,15 @@ public class KotlinWriter implements StatementWriter {
 
         if (extension) {
           VarType paramType = descriptor != null && descriptor.parameterTypes.size() > 0 ? descriptor.parameterTypes.get(0) : md.params[0];
-          String typeName = ExprProcessor.getCastTypeName(paramType);
-          if (ExprProcessor.UNDEFINED_TYPE_STRING.equals(typeName)) {
-            typeName = "Any";
-          }
+          String typeName = KTypes.getKotlinType(paramType);
+          boolean isNullable = processParameterAnnotations(buffer, mt, 0);
 
-          typeName = KTypes.mapJavaTypeToKotlin(typeName);
+          if (isNullable && KTypes.isFunctionType(paramType)) {
+            typeName = "(" + typeName + ")";
+          }
 
           buffer.append(typeName);
 
-          boolean isNullable = processParameterAnnotations(buffer, mt, 0);
           if (isNullable) {
             buffer.append('?');
           }
@@ -862,13 +861,14 @@ public class KotlinWriter implements StatementWriter {
             if (isVarArg) {
               parameterType = parameterType.decreaseArrayDim();
             }
-            typeName = ExprProcessor.getCastTypeName(parameterType);
+            typeName = KTypes.getKotlinType(parameterType);
 
-            if (ExprProcessor.UNDEFINED_TYPE_STRING.equals(typeName) &&
-              DecompilerContext.getOption(IFernflowerPreferences.UNDEFINED_PARAM_TYPE_OBJECT)) {
-              typeName = ExprProcessor.getCastTypeName(VarType.VARTYPE_OBJECT);
+            if (KTypes.isFunctionType(parameterType) && nullable) {
+              typeName = "(" + typeName + ")";
             }
-            buffer.append(KTypes.mapJavaTypeToKotlin(typeName));
+
+            buffer.append(typeName);
+
             if (nullable) {
               buffer.append("?");
             }
@@ -889,7 +889,11 @@ public class KotlinWriter implements StatementWriter {
         VarType retType = descriptor == null ? md.ret : descriptor.returnType;
         if (!init && !retType.isSuperset(VarType.VARTYPE_VOID)) {
           buffer.append(": ");
-          buffer.append(KTypes.mapJavaTypeToKotlin(ExprProcessor.getCastTypeName(retType)));
+          String ret = KTypes.getKotlinType(retType);
+          if (KTypes.isFunctionType(retType) && isNullable(mt)) {
+            ret = "(" + ret + ")";
+          }
+          buffer.append(ret);
           if (isNullable(mt)) {
             buffer.append("?");
           }
