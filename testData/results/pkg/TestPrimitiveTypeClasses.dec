@@ -7,7 +7,7 @@ public class TestPrimitiveTypeClasses {
    }// 7
 
    public static void testPrimitiveType() {
-      Class<?> c = Integer.TYPE;// 10
+      Class<?> c = int.class;// 10
       System.out.println(c);// 11
    }// 12
 }
@@ -28,9 +28,6 @@ class 'pkg/TestPrimitiveTypeClasses' {
    }
 
    method 'testPrimitiveType ()V' {
-      0      9
-      1      9
-      2      9
       3      9
       4      10
       5      10

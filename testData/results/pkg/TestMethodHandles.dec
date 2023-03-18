@@ -10,33 +10,33 @@ public class TestMethodHandles {
    private static final Lookup LOOKUP = MethodHandles.lookup();
 
    public void test1() throws Throwable {
-      MethodHandle abs = LOOKUP.findStatic(Math.class, "abs", MethodType.methodType(Long.TYPE, Long.TYPE));// 10
+      MethodHandle abs = LOOKUP.findStatic(Math.class, "abs", MethodType.methodType(long.class, long.class));// 10
       int a = -5;// 11
       long b = (long)abs.invokeExact((long)a);// 12
       System.out.println(b);// 13
    }// 14
 
    public int test2() throws Throwable {
-      MethodHandle abs = LOOKUP.findStatic(Math.class, "abs", MethodType.methodType(Long.TYPE, Long.TYPE));// 17
+      MethodHandle abs = LOOKUP.findStatic(Math.class, "abs", MethodType.methodType(long.class, long.class));// 17
       int a = -5;// 18
       return (int)(long)abs.invokeExact((long)a);// 19
    }
 
    public void test3() throws Throwable {
-      MethodHandle abs = LOOKUP.findStatic(Math.class, "abs", MethodType.methodType(Long.TYPE, Long.TYPE));// 23
+      MethodHandle abs = LOOKUP.findStatic(Math.class, "abs", MethodType.methodType(long.class, long.class));// 23
       int a = -5;// 24
       long b = (long)abs.invoke((long)a);// 25
       System.out.println(b);// 26
    }// 27
 
    public int test4() throws Throwable {
-      MethodHandle abs = LOOKUP.findStatic(Math.class, "abs", MethodType.methodType(Long.TYPE, Long.TYPE));// 30
+      MethodHandle abs = LOOKUP.findStatic(Math.class, "abs", MethodType.methodType(long.class, long.class));// 30
       int a = -5;// 31
       return (int)(long)abs.invoke((long)a);// 32
    }
 
    public void test5() throws Throwable {
-      MethodHandle println = LOOKUP.findVirtual(PrintStream.class, "println", MethodType.methodType(Void.TYPE, Long.TYPE));// 36
+      MethodHandle println = LOOKUP.findVirtual(PrintStream.class, "println", MethodType.methodType(void.class, long.class));// 36
       int a = -5;// 37
       println.invokeExact(System.out, (long)a);// 38
    }// 39
@@ -51,12 +51,6 @@ class 'pkg/TestMethodHandles' {
       4      12
       5      12
       6      12
-      7      12
-      8      12
-      9      12
-      a      12
-      b      12
-      c      12
       d      12
       e      12
       f      12
@@ -92,12 +86,6 @@ class 'pkg/TestMethodHandles' {
       4      19
       5      19
       6      19
-      7      19
-      8      19
-      9      19
-      a      19
-      b      19
-      c      19
       d      19
       e      19
       f      19
@@ -126,12 +114,6 @@ class 'pkg/TestMethodHandles' {
       4      25
       5      25
       6      25
-      7      25
-      8      25
-      9      25
-      a      25
-      b      25
-      c      25
       d      25
       e      25
       f      25
@@ -167,12 +149,6 @@ class 'pkg/TestMethodHandles' {
       4      32
       5      32
       6      32
-      7      32
-      8      32
-      9      32
-      a      32
-      b      32
-      c      32
       d      32
       e      32
       f      32
@@ -201,12 +177,6 @@ class 'pkg/TestMethodHandles' {
       4      38
       5      38
       6      38
-      7      38
-      8      38
-      9      38
-      a      38
-      b      38
-      c      38
       d      38
       e      38
       f      38
