@@ -766,7 +766,8 @@ public class KotlinWriter implements StatementWriter {
           String typeName = KTypes.getKotlinType(paramType);
           boolean isNullable = processParameterAnnotations(buffer, mt, 0);
 
-          if (isNullable && KTypes.isFunctionType(paramType)) {
+          if (KTypes.isFunctionType(paramType)) {
+            // Extension functions always need parentheses for function types as the receiver
             typeName = "(" + typeName + ")";
           }
 
