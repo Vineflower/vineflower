@@ -286,6 +286,10 @@ public final class ValidationHelper {
       throw new IllegalStateException("If statement if edge source is not first statement: [" + ifStat.getIfEdge() + "] " + ifStat + " (source is: " + ifStat.getIfEdge().getSource() + " but first is: " + ifStat.getFirst() + ")");
     }
 
+//    if (ifStat.getIfEdge() != null && ifStat.getIfEdge().labeled && ifStat.getIfEdge().closure == null) {
+//      throw new IllegalStateException("If statement if edge is labeled but has no closure: " + ifStat);
+//    }
+
     if (ifStat.getElseEdge() != null && ifStat.getElseEdge().getSource() != ifStat.getFirst()) {
       throw new IllegalStateException("IfElse statement else edge source is not first statement: " + ifStat + " (elseEdge: " + ifStat.getElseEdge() + ")");
     }
