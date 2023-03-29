@@ -139,6 +139,10 @@ public final class ValidationHelper {
           throw new IllegalStateException("Break edge with break type, but no closure: " + edge);
         }
 
+        if (edge.closure.type == Statement.StatementType.BASIC_BLOCK) {
+          throw new IllegalStateException("Break edge closure to basic block: " + edge);
+        }
+
         if (edge.getSource() == edge.closure && !edge.phantomContinue) {
           throw new IllegalStateException("Break edge with closure pointing to itself: " + edge);
         }
