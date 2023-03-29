@@ -39,7 +39,7 @@ class TestTryFinallyExpressions {
 
    fun test2(a: String, b: String) {
       label68: {
-         var var19: Object = a;// 28
+         var var19: Any = a;// 28
 
          label69: {
             label70: {

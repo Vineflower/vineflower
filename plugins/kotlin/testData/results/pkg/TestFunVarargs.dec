@@ -24,7 +24,7 @@ class TestFunVarargs {
       this.log("a", "b", "c");// 18
    }// 19
 
-   fun nestedArrays(e0: Array<String>, e1: Array<Object>, e2: Array<Array<Array<String>>>) {
+   fun nestedArrays(e0: Array<String>, e1: Array<Any>, e2: Array<Array<Array<String>>>) {
    }// 23
 }
 
