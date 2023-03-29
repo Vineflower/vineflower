@@ -10,16 +10,16 @@ class TestReflection {
    }// 7
 
    fun testPrimitiveWrapper() {
-      System.out.println(Integer::class);// 10
+      System.out.println(Int::class);// 10
       System.out.println(Integer::class.javaObjectType);// 11
    }// 12
 
    fun testPrimitiveType() {
-      System.out.println(Integer::class.javaPrimitiveType);// 15
+      System.out.println(Int::class.javaPrimitiveType);// 15
    }// 16
 
    fun testInferredPrimitive() {
-      System.out.println(Integer::class.javaPrimitiveType);// 19
+      System.out.println(Int::class.javaPrimitiveType);// 19
    }// 20
 
    fun testFunctionReference() {

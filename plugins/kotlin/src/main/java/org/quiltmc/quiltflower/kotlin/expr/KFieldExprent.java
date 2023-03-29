@@ -2,7 +2,9 @@ package org.quiltmc.quiltflower.kotlin.expr;
 
 import org.jetbrains.java.decompiler.modules.decompiler.exps.ExprUtil;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FieldExprent;
+import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.TextBuffer;
+import org.quiltmc.quiltflower.kotlin.util.KTypes;
 
 public class KFieldExprent extends FieldExprent {
   public KFieldExprent(FieldExprent field) {
@@ -13,7 +15,8 @@ public class KFieldExprent extends FieldExprent {
   public TextBuffer toJava(int indent) {
     if (getName().equals("TYPE") && ExprUtil.PRIMITIVE_TYPES.containsKey(getClassname())) {
       TextBuffer buf = new TextBuffer();
-      buf.append(getClassname().substring(10));
+      VarType type = new VarType(getClassname(), true);
+      buf.append(KTypes.getKotlinType(type));
       buf.append("::class.javaPrimitiveType");
       return buf;
     }

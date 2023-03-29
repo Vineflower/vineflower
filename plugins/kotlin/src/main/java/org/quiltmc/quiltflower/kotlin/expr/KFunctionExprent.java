@@ -9,6 +9,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.Typed;
+import org.quiltmc.quiltflower.kotlin.util.KTypes;
 
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -74,11 +75,12 @@ public class KFunctionExprent extends FunctionExprent {
               ConstExprent constExprent = (ConstExprent) operand;
               String value = constExprent.getValue().toString();
               VarType type = new VarType(value, !value.startsWith("["));
-              buf.appendCastTypeName(type);
+              buf.append(KTypes.getKotlinType(type));
             } else {
-              // Primitives are strange
               FieldExprent fieldExprent = (FieldExprent) operand;
-              buf.append(fieldExprent.getClassname().substring(10));
+              String primitiveType = fieldExprent.getClassname();
+              VarType type = new VarType(primitiveType, true);
+              buf.append(KTypes.getKotlinType(type));
             }
             return buf.append("::class");
         }
