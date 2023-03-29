@@ -4,31 +4,36 @@ import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 public class ConsoleHelp {
   private static final String[] DEFAULT_HELP = {
-    "Usage: java -jar quiltflower.jar [-<option>=<value>]* [<source>]+ <destination>",
+    "Usage: java -jar quiltflower.jar [--<option>=<value>]* [<source>]+ <destination>",
     "At least one source file or directory must be specified.",
     "Options:",
-    "--help: Show this help",
-    "", "Saving options",
+    "-h, --help: Show this help",
+    "",
+    "Saving options",
     "A maximum of one of the options can be specified:",
     "--file          - Write the decompiled source to a file",
     "--folder        - Write the decompiled source to a folder",
     "--legacy-saving - Use the legacy console-specific method of saving",
     "If unspecified, the decompiled source will be automatically detected based on destination name.",
-    "", "General options",
+    "",
+    "General options",
     "These options can be specified multiple times.",
-    "-e=<path>     - Add the specified path to the list of external libraries",
-    "-only=<class> - Only decompile the specified class",
-    "", "Additional options",
+    "-e=<path>, --add-external=<path> - Add the specified path to the list of external libraries",
+    "-only=<class>, --only=<class>    - Only decompile the specified class",
+    "",
+    "Additional options",
     "These options take the last specified value.",
-    "They each are specified with a three-character name followed by an equals sign, followed by the value.",
-    "Booleans are traditionally indicated with `0` or `1`, but may also be specified with `true` or `false`.",
-    "Because of this, an option indicated as a boolean may actually be a number."
+    "They are mostly specified with a name followed by an equals sign, followed by the value.",
+    "Boolean options can also be specified without a value, in which case they are treated as `true`.",
+    "They can also be specified with a `no-` prefix, in which case they are treated as `false`.",
+    "For example, `--decompile-generics` is equivalent to `--decompile-generics=true`.",
     // Options are added at runtime
   };
 
@@ -43,66 +48,58 @@ public class ConsoleHelp {
 
     Map<String, Object> defaults = IFernflowerPreferences.DEFAULTS;
 
+    fields.sort(Comparator.comparing((Field a) -> {
+      try {
+        return a.get(null).toString();
+      } catch (IllegalAccessException e) {
+        return "";
+      }
+    }));
+
     for (Field field : fields) {
       IFernflowerPreferences.Name name = field.getAnnotation(IFernflowerPreferences.Name.class);
       IFernflowerPreferences.Description description = field.getAnnotation(IFernflowerPreferences.Description.class);
+      IFernflowerPreferences.Type type = field.getAnnotation(IFernflowerPreferences.Type.class);
 
       String paramName;
+      boolean isShortName = false;
       try {
         paramName = (String) field.get(null);
       } catch (IllegalAccessException e) {
-        continue;
+        IFernflowerPreferences.ShortName shortName = field.getAnnotation(IFernflowerPreferences.ShortName.class);
+        if (shortName == null) {
+          continue;
+        }
+        paramName = shortName.value();
+        isShortName = true;
       }
 
-      if (paramName.length() != 3) {
+      if (name == null || description == null || type == null) {
         continue;
       }
 
       StringBuilder sb = new StringBuilder();
-      sb.append("-").append(paramName).append("=<");
+      sb.append(isShortName ? "-" : "--")
+        .append(paramName)
+        .append("=<")
+        .append(type.value())
+        .append("> - ")
+        .append(name.value())
+        .append(": ")
+        .append(description.value());
 
-      String type;
-      String defaultValue = (String) defaults.get(paramName);
-      if (defaultValue == null) {
-        sb.append("string>");
-        type = null;
-      } else if (defaultValue.equals("0") || defaultValue.equals("1")) {
-        sb.append("bool>  ");
-        type = "bool";
-      } else {
-        try {
-          Integer.parseInt(defaultValue);
-          sb.append("int>   ");
-          type = "int";
-        } catch (NumberFormatException e) {
-          sb.append("string>");
-          type = "string";
-        }
-      }
-
-      sb.append(" - ");
-
-      if (name != null) {
-        sb.append(name.value());
-      } else {
-        sb.append(field.getName());
-      }
-
-      if (description != null) {
-        sb.append(": ").append(description.value());
-      }
-
-      if (type != null) {
+      if (defaults.containsKey(paramName)) {
         sb.append(" (default: ");
-        switch (type) {
-          case "bool":
-            sb.append(defaultValue.equals("1"));
+        Object value = defaults.get(paramName);
+        switch (type.value()) {
+          case IFernflowerPreferences.Type.BOOLEAN:
+            sb.append(value.equals("1"));
             break;
-          case "int":
-            sb.append(defaultValue);
+          case IFernflowerPreferences.Type.STRING:
+            sb.append('"').append(value).append('"');
             break;
-          case "string":
-            sb.append('"').append(defaultValue).append('"');
+          default:
+            sb.append(value);
             break;
         }
         sb.append(")");

@@ -711,6 +711,10 @@ public class ExprProcessor implements CodeConstants {
     }
 
     if (stat instanceof BasicBlockStatement) {
+      if (stat.isLabeled()) {
+        root.addComment("$QF: Made invalid labels!", true);
+      }
+
       for (Exprent ex : stat.getExprents()) {
         markExprOddity(root, ex);
       }

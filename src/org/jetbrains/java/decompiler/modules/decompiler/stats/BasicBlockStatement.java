@@ -82,6 +82,11 @@ public final class BasicBlockStatement extends Statement {
   @Override
   public TextBuffer toJava(int indent) {
     TextBuffer tb = ExprProcessor.listToJava(varDefinitions, indent);
+    boolean islabeled = isLabeled();
+    if (islabeled) {
+      tb.appendIndent(indent).append("label").append(id).append(':').append("// $QF: Invalid label!").appendLineSeparator();
+    }
+
     tb.append(ExprProcessor.listToJava(exprents, indent));
     return tb;
   }

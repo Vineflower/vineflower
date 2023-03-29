@@ -15,15 +15,15 @@ public class TestCastObjectToPrimitive {
    boolean integerGe = (Integer)object1 <= 48;
 
    public void method() {
-      if (object1) {// 20
+      if ((Boolean)object1) {// 20
          System.out.println("Test");// 21
       }
 
-      while(!object1) {// 23
+      while(!(Boolean)object1) {// 23
          System.out.println("Test2");// 24
       }
 
-      while(object1) {// 26
+      while((Boolean)object1) {// 26
          System.out.println("Test3");// 27
       }
    }// 29
@@ -34,6 +34,9 @@ class 'pkg/TestCastObjectToPrimitive' {
       0      17
       1      17
       2      17
+      3      17
+      4      17
+      5      17
       6      17
       7      17
       8      17
@@ -47,6 +50,9 @@ class 'pkg/TestCastObjectToPrimitive' {
       14      21
       15      21
       16      21
+      17      21
+      18      21
+      19      21
       1a      21
       1b      21
       1c      21
@@ -62,6 +68,9 @@ class 'pkg/TestCastObjectToPrimitive' {
       2b      25
       2c      25
       2d      25
+      2e      25
+      2f      25
+      30      25
       31      25
       32      25
       33      25

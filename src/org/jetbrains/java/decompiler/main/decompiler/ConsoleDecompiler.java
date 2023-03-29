@@ -70,8 +70,9 @@ public class ConsoleDecompiler implements /* IBytecodeProvider, */ IResultSaver,
 
     if (args.length < 1) {
       System.out.println(
-        "Usage: java -jar quiltflower.jar [-<option>=<value>]* [<source>]+ <destination>\n" +
-        "Example: java -jar quiltflower.jar -dgs=true c:\\my\\source\\ c:\\my.jar d:\\decompiled\\");
+        "Usage: java -jar quiltflower.jar [--<option>=<value>]* [<source>]+ <destination>\n" +
+        "Example: java -jar quiltflower.jar --decompile-generics c:\\my\\source\\ c:\\my.jar d:\\decompiled\\\n" +
+        "Use -h or --help for more information.");
       return;
     }
 
@@ -110,18 +111,11 @@ public class ConsoleDecompiler implements /* IBytecodeProvider, */ IResultSaver,
           continue;
       }
 
-      if (isOption && arg.length() > 5 && arg.charAt(0) == '-' && arg.charAt(4) == '=') {
-        String value = arg.substring(5);
-        if ("true".equalsIgnoreCase(value)) {
-          value = "1";
-        }
-        else if ("false".equalsIgnoreCase(value)) {
-          value = "0";
-        }
-
-        mapOptions.put(arg.substring(1, 4), value);
+      boolean parsed = false;
+      if (isOption && arg.length() > 5 && arg.startsWith("-")) {
+        parsed = OptionParser.parse(arg, mapOptions);
       }
-      else {
+      if (!parsed) {
         nonOption++;
         // Don't process this, as it is the output
         if (nonOption > 1 && i == args.length - 1) {
@@ -130,11 +124,11 @@ public class ConsoleDecompiler implements /* IBytecodeProvider, */ IResultSaver,
 
         isOption = false;
 
-        if (arg.startsWith("-e=")) {
-          addPath(libraries, arg.substring(3));
+        if (arg.startsWith("-e=") || arg.startsWith("--add-external=")) {
+          addPath(libraries, arg.substring(arg.indexOf('=') + 1));
         }
-        else if (arg.startsWith("-only=")) {
-          whitelist.add(arg.substring(6));
+        else if (arg.startsWith("-only=") || arg.startsWith("--only=")) {
+          whitelist.add(arg.substring(arg.indexOf('=') + 1));
         }
         else {
           addPath(sources, arg);
@@ -394,7 +388,11 @@ public class ConsoleDecompiler implements /* IBytecodeProvider, */ IResultSaver,
     String file = new File(getAbsolutePath(path), archiveName).getPath();
     try {
       mapArchiveEntries.remove(file);
-      mapArchiveStreams.remove(file).close();
+      ZipOutputStream removed = mapArchiveStreams.remove(file);
+      // Can be null if saving out of directory context
+      if (removed != null) {
+        removed.close();
+      }
     }
     catch (IOException ex) {
       DecompilerContext.getLogger().writeMessage("Cannot close " + file, IFernflowerLogger.Severity.WARN);

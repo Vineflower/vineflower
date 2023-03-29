@@ -1,13 +1,8 @@
 package org.quiltmc.quiltflower.kotlin.expr;
 
-import org.jetbrains.java.decompiler.main.ClassWriter;
-import org.jetbrains.java.decompiler.main.ClassesProcessor;
-import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarProcessor;
-import org.jetbrains.java.decompiler.modules.decompiler.vars.VarTypeProcessor;
-import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.quiltmc.quiltflower.kotlin.KotlinWriter;
@@ -58,7 +53,7 @@ public class KVarExprent extends VarExprent {
 
     if (definition) {
       buffer.append(": ");
-      buffer.append(KTypes.mapJavaTypeToKotlin(getDefinitionType()));
+      buffer.append(KTypes.getKotlinType(getDefinitionVarType()));
     }
 
     return buffer;
