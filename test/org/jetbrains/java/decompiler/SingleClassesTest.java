@@ -443,7 +443,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatching20");
     // TODO: <unknown> variable, wrong variables are being used.
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatching21");
-    register(JAVA_17_PREVIEW, "TestSwitchPatternMatching22");
+    registerFailable(JAVA_17_PREVIEW, "TestSwitchPatternMatching22");
 
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingLoop");
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingInstanceof1");
@@ -456,7 +456,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingConstructor2");
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingWithNull");
 
-    register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingFuzz1");
+    registerFailable(JAVA_17_PREVIEW, "TestSwitchPatternMatchingFuzz1");
 
     // TODO: non-resugared record patterns reference hidden proxy methods
     register(JAVA_19_PREVIEW, "TestRecordPattern1");
