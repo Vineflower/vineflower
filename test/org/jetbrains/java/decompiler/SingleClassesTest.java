@@ -270,7 +270,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: Do while loops become standard while loops
     register(JAVA_8, "TestAssignmentInDoWhile");
     register(JAVA_8, "TestBooleanAssignment");
-    // TODO: Extraneous cast to boolean
     register(JAVA_8, "TestCastObjectToPrimitive");
     register(JAVA_8, "TestCastPrimitiveToObject");
     register(JAVA_8, "TestDoWhileTrue");
