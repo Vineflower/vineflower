@@ -129,6 +129,7 @@ public class StackVarsProcessor {
     stack.add(dgraph.first);
     stackMaps.add(new HashMap<>());
 
+    int[] ret = {0, 0};
     while (!stack.isEmpty()) {
       DirectNode nd = stack.removeFirst();
       Map<VarVersionPair, Exprent> mapVarValues = stackMaps.removeFirst();
@@ -145,11 +146,12 @@ public class StackVarsProcessor {
         lstLists.add(nd.exprents);
       }
 
-      if (nd.succs().size() == 1) {
-        DirectNode ndsucc = nd.succs().get(0);
+      List<DirectNode> succs = nd.succs();
+      if (succs.size() == 1) {
+        DirectNode ndsucc = succs.get(0);
 
         if (ndsucc.type == DirectNodeType.TAIL && !ndsucc.exprents.isEmpty()) {
-          lstLists.add(nd.succs().get(0).exprents);
+          lstLists.add(succs.get(0).exprents);
           nd = ndsucc;
         }
       }
@@ -182,7 +184,6 @@ public class StackVarsProcessor {
             boolean simplifyAcrossStack = stackStage == 1;
 
             // {newIndex, changed}
-            int[] ret = {0, 0};
             iterateExprent(lst, index, next, mapVarValues, ssa, simplifyAcrossStack, ret, options);
 
             // If index is specified, set to that
@@ -207,7 +208,7 @@ public class StackVarsProcessor {
         }
       }
 
-      for (DirectNode ndx : nd.succs()) {
+      for (DirectNode ndx : succs) {
         stack.add(ndx);
         stackMaps.add(new HashMap<>(mapVarValues));
       }
@@ -296,9 +297,9 @@ public class StackVarsProcessor {
 
     int changed = 0;
 
+    Object[] arr = {null, false, false};
     for (Exprent expr : exprent.getAllExprents()) {
       while (true) {
-        Object[] arr = {null, false, false};
         iterateChildExprent(expr, exprent, next, mapVarValues, ssau, arr, options);
         Exprent retexpr = (Exprent)arr[0];
         changed |= (Boolean)arr[1] ? 1 : 0;
@@ -641,9 +642,9 @@ public class StackVarsProcessor {
                                               StackSimplifyOptions options) {
     boolean changed = false;
 
+    Object[] arr = {null, false, false};
     for (Exprent expr : exprent.getAllExprents()) {
       while (true) {
-        Object[] arr = {null, false, false};
         iterateChildExprent(expr, parent, next, mapVarValues, ssau, arr, options);
         Exprent retexpr = (Exprent)arr[0];
         changed |= (Boolean)arr[1];
