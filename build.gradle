@@ -179,6 +179,11 @@ tasks.withType(JavaCompile).configureEach {
   it.options.encoding = "UTF-8"
 }
 
+task javadocJar(type: Jar) {
+  classifier = 'javadoc'
+  from javadoc
+}
+
 publishing {
   publications {
     mavenJava(MavenPublication) {
@@ -216,6 +221,7 @@ publishing {
         version = project.version + "-SNAPSHOT"
       }
       artifact(sourceJar)
+      artifact(javadocJar)
     }
   }
 
