@@ -5,6 +5,7 @@ import org.jetbrains.java.decompiler.build.JasmCompile
 plugins {
   id 'jacoco'
   id 'org.jetbrains.kotlin.jvm' version '1.6.21'
+  id("io.github.gradle-nexus.publish-plugin") version '1.3.0'
 }
 
 apply plugin: 'jacoco'
@@ -12,6 +13,7 @@ apply plugin: 'java'
 apply plugin: 'groovy'
 apply plugin: 'scala'
 apply plugin: 'maven-publish'
+apply plugin: 'signing'
 
 compileJava {
   sourceCompatibility '11'
@@ -180,6 +182,35 @@ tasks.withType(JavaCompile).configureEach {
 publishing {
   publications {
     mavenJava(MavenPublication) {
+      pom {
+        name = 'Quiltflower'
+        packaging = 'jar'
+        // optionally artifactId can be defined here
+        description = 'Modern Java & JVM language decompiler aiming to be as accurate as possible, with an emphasis on output quality.'
+        url = 'https://github.com/QuiltMC/quiltflower'
+
+        scm {
+          connection = 'scm:git:https://github.com/QuiltMC/quiltflower.git'
+          developerConnection = 'scm:git:ssh:git@github.com:QuiltMC/quiltflower.git'
+          url = 'https://github.com/QuiltMC/quiltflower'
+        }
+
+        licenses {
+          license {
+            name = 'The Apache License, Version 2.0'
+            url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+          }
+        }
+
+        developers {
+          developer {
+            id = 'quiltmc'
+            name = 'QuiltMC Decompiler Team'
+            email = 'infrastructure@quiltmc.org'
+          }
+        }
+      }
+
       from components.java
       if (ENV.SNAPSHOTS_URL) {
         version = project.version + "-SNAPSHOT"
@@ -199,6 +230,7 @@ publishing {
         }
       }
     }
+
     if (ENV.SNAPSHOTS_URL) {
       maven {
         url ENV.SNAPSHOTS_URL
@@ -208,5 +240,34 @@ publishing {
         }
       }
     }
+
+    if (ENV.SONATYPE_USER) {
+      maven {
+        url "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+        credentials {
+          username ENV.SONATYPE_USER
+          password ENV.SONATYPE_PASS
+        }
+      }
+    }
   }
+}
+
+nexusPublishing {
+  repositories {
+    sonatype {
+      username = ENV.SONATYPE_USER
+      password = ENV.SONATYPE_PASS
+
+      nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
+    }
+  }
+}
+
+signing {
+  def signingKey = ENV.SIGNING_KEY
+  def signingPassword = ENV.SIGNING_KEY_PASSPHRASE
+
+  useInMemoryPgpKeys(signingKey, signingPassword)
+  sign publishing.publications.mavenJava
 }
