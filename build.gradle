@@ -170,6 +170,13 @@ jar {
   }
 }
 
+tasks.withType(Javadoc) {
+  failOnError false
+  options.addStringOption('Xdoclint:none', '-quiet')
+  options.addStringOption('encoding', 'UTF-8')
+  options.addStringOption('charSet', 'UTF-8')
+}
+
 task sourceJar(type:Jar) {
   classifier = "sources"
   from sourceSets.main.allSource
