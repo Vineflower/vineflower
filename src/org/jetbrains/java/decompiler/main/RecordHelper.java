@@ -26,6 +26,20 @@ public final class RecordHelper {
       (mt.getName().equals(CodeConstants.INIT_NAME) && !hasAnnotations(mt) && isDefaultRecordConstructor(cl, root));
   }
 
+  public static boolean isHiddenRecordField(List<StructRecordComponent> components, StructField fd) {
+    if (components == null) {
+      return false;
+    }
+
+    for (StructRecordComponent component : components) {
+      if (component.getName().equals(fd.getName()) && component.getDescriptor().equals(fd.getDescriptor()) && !fd.hasModifier(CodeConstants.ACC_STATIC)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   public static void appendRecordComponents(TextBuffer buffer, StructClass cl, List<StructRecordComponent> components, int indent) {
     buffer.pushNewlineGroup(indent, 1);
     buffer.appendPossibleNewline();
