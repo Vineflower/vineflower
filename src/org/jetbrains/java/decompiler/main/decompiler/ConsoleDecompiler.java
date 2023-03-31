@@ -31,6 +31,10 @@ public class ConsoleDecompiler implements /* IBytecodeProvider, */ IResultSaver,
 
   @SuppressWarnings("UseOfSystemOutOrSystemErr")
   public static void main(String[] args) {
+    if (GuiHelp.check()) {
+      return;
+    }
+
     List<String> params = new ArrayList<String>();
     for (int x = 0; x < args.length; x++) {
       if (args[x].startsWith("-cfg")) {

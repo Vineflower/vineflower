@@ -15,6 +15,7 @@ public class CommandLineTest {
 
   @BeforeEach
   public void setUp() throws IOException {
+    System.setProperty("QF_NO_GUI_HELP", "true");
     fixture = new DecompilerTestFixture();
     fixture.setUp();
   }
