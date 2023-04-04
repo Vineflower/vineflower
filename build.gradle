@@ -177,18 +177,18 @@ tasks.withType(Javadoc) {
   options.addStringOption('charSet', 'UTF-8')
 }
 
-task sourceJar(type:Jar) {
-  classifier = "sources"
-  from sourceSets.main.allSource
+java {
+  withSourcesJar()
+  withJavadocJar()
+}
+
+tasks.withType(Jar) {
+  reproducibleFileOrder = true
+  preserveFileTimestamps = false
 }
 
 tasks.withType(JavaCompile).configureEach {
   it.options.encoding = "UTF-8"
-}
-
-task javadocJar(type: Jar) {
-  classifier = 'javadoc'
-  from javadoc
 }
 
 publishing {
@@ -227,8 +227,6 @@ publishing {
       if (ENV.SNAPSHOTS_URL) {
         version = project.version + "-SNAPSHOT"
       }
-      artifact(sourceJar)
-      artifact(javadocJar)
     }
   }
 
