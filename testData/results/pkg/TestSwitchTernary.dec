@@ -2,7 +2,7 @@ package pkg;
 
 public class TestSwitchTernary {
    public void test(int i, int j, boolean b) {
-      switch(b ? i : j) {// 5
+      switch (b ? i : j) {// 5
          case 1:
             System.out.println("a");// 7
             break;// 8
@@ -15,7 +15,7 @@ public class TestSwitchTernary {
 
    public void testString(String i, String j, boolean b) {
       String var4 = b ? i : j;// 17
-      switch(var4) {
+      switch (var4) {
          case "v":
             System.out.println("a");// 19
             break;// 20
@@ -27,7 +27,7 @@ public class TestSwitchTernary {
    }// 26
 
    public void testEnum(TestSwitchTernary.TestEnum i, TestSwitchTernary.TestEnum j, boolean b) {
-      switch(b ? i : j) {// 29
+      switch (b ? i : j) {// 29
          case B:
             System.out.println("a");// 31
             break;// 32

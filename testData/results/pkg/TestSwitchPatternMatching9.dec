@@ -2,7 +2,7 @@ package pkg;
 
 public class TestSwitchPatternMatching9 {
    static String test(String s) {
-      return switch(s) {// 5
+      return switch (s) {// 5
          case "hi" -> "hi";// 6
          case "bye" -> "bye";// 7
          case "null", null -> "null";// 8

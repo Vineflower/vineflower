@@ -30,13 +30,13 @@ public class TestGenerics<A, B extends TestGenerics.Maps & List> {
    }// 45
 
    public void genericForEach() {
-      for(String s : field.keySet()) {// 48
+      for (String s : field.keySet()) {// 48
          System.out.println(s);// 49
       }
    }// 51
 
    public void genericForEachWithCast() {
-      for(String s : llstring.get(0)) {// 54
+      for (String s : llstring.get(0)) {// 54
          System.out.println(s);// 55
       }
    }// 57
@@ -44,7 +44,7 @@ public class TestGenerics<A, B extends TestGenerics.Maps & List> {
    public <T extends Number> void genericSuperUp() {
       List<T> list = new ArrayList<>();// 60
 
-      for(Number number : bytes) {// 61
+      for (Number number : bytes) {// 61
          list.add((T)number);// 62
       }
    }// 64

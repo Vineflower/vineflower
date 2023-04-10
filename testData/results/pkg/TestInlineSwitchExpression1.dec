@@ -4,7 +4,7 @@ import ext.Direction;
 
 public class TestInlineSwitchExpression1 {
    public void test(Direction direction) {
-      System.out.println(switch(direction) {// 7
+      System.out.println(switch (direction) {// 7
          case NORTH -> Direction.SOUTH;// 9
          case SOUTH -> Direction.NORTH;// 11
          case EAST -> Direction.WEST;// 13

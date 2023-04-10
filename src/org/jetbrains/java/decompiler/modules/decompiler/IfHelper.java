@@ -479,8 +479,11 @@ public final class IfHelper {
         // move seconds successor to be the if's successor
         secondIf.getFirstSuccessor().changeSource(mainIf);
         if (mainIf.getFirstSuccessor().closure == mainIf) {
-          // TODO: is this correct?
-          mainIf.getFirstSuccessor().removeClosure();
+          // TODO: always removing causes some <unknownclosure> bugs, while not removing causes issues with invalid closure validations
+          if (mainIf.getFirstSuccessor().getSource() != mainIf) {
+            mainIf.getFirstSuccessor().removeClosure();
+          }
+
           mainIf.getFirstSuccessor().changeType(StatEdge.TYPE_REGULAR);
         }
 
@@ -502,7 +505,6 @@ public final class IfHelper {
         lstOperands.add(secondIf.getHeadexprent().getCondition());
 
         statexpr.setCondition(new FunctionExprent(FunctionType.TERNARY, lstOperands, null));
-
         return true;
       }
     }

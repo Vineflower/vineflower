@@ -6,8 +6,8 @@ public class TestObjectArrays {
    public void test() {
       Object[][] things = new Object[3][];// 7
 
-      for(Object[] thing : things) {// 9
-         for(Object o : thing) {// 10
+      for (Object[] thing : things) {// 9
+         for (Object o : thing) {// 10
             System.out.println(o);// 11
          }
       }

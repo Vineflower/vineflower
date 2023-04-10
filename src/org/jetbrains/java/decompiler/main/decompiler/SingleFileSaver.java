@@ -18,8 +18,10 @@ import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.ZipFileCache;
 
 public class SingleFileSaver implements IResultSaver, AutoCloseable {
+  public static final String MANIFEST = "META-INF/MANIFEST.MF";
   private final File target;
   private ZipOutputStream output;
+  private boolean isJar;
   private Set<String> entries = new HashSet<>();
   private final ZipFileCache openZips = new ZipFileCache();
 
@@ -72,7 +74,8 @@ public class SingleFileSaver implements IResultSaver, AutoCloseable {
       throw new UnsupportedOperationException("Attempted to write multiple archives at the same time");
     try {
       FileOutputStream stream = new FileOutputStream(target);
-      output = manifest != null ? new JarOutputStream(stream, manifest) : new ZipOutputStream(stream);
+      isJar = manifest != null;
+      output = isJar ? new JarOutputStream(stream, manifest) : new ZipOutputStream(stream);
     } catch (IOException e) {
       DecompilerContext.getLogger().writeMessage("Cannot create archive " + target, e);
     }
@@ -92,6 +95,10 @@ public class SingleFileSaver implements IResultSaver, AutoCloseable {
       ZipFile srcArchive = this.openZips.get(source);
       ZipEntry entry = srcArchive.getEntry(entryName);
       if (entry != null) {
+        if (isJar && MANIFEST.equals(entryName)) {
+          return;
+        }
+
         try (InputStream in = srcArchive.getInputStream(entry)) {
           output.putNextEntry(new ZipEntry(entryName));
           InterpreterUtil.copyStream(in, output);

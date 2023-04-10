@@ -86,7 +86,7 @@ public class TestIfElseTernary1 {
       int[] vvv2 = new int[0];
       int[] vvv3 = new int[0];
       if ((vvv1 != null || vvv2 != null) && vvv2 == null ? (vvv2 == null ? vvv2 == null : vvv3 != null && vvv1 == null) : vvv3 != null) {// 108
-         synchronized(this) {// 109
+         synchronized (this) {// 109
             vvv2 = vvv3;// 112
             System.out.println(vvv3);// 113
             long[][] vvv4 = new long[0][];// 114

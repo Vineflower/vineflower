@@ -1,10 +1,8 @@
 package pkg
 
-import kotlin.jvm.functions.Function1
-
 class TestFuncRefKt {
    @JvmStatic
-   fun accept(f: Function1<? super Integer, String>) {
+   fun accept(f: (Int?) -> String) {
       System.out.println(f.invoke(5));
    }// 3
 
@@ -21,54 +19,54 @@ class TestFuncRefKt {
 
 class 'pkg/TestFuncRefKt' {
    method 'accept (Lkotlin/jvm/functions/Function1;)V' {
-      6      7
-      7      7
-      8      7
-      9      7
-      a      7
-      b      7
-      c      7
-      d      7
-      e      7
-      f      7
-      10      7
-      11      7
-      12      7
-      14      7
-      15      7
-      16      7
-      17      8
+      6      5
+      7      5
+      8      5
+      9      5
+      a      5
+      b      5
+      c      5
+      d      5
+      e      5
+      f      5
+      10      5
+      11      5
+      12      5
+      14      5
+      15      5
+      16      5
+      17      6
    }
 
    method 'function (I)Ljava/lang/String;' {
-      0      12
-      1      12
-      2      12
-      3      12
-      4      12
-      5      12
-      6      12
-      7      12
-      8      12
-      9      12
+      0      10
+      1      10
+      2      10
+      3      10
+      4      10
+      5      10
+      6      10
+      7      10
+      8      10
+      9      10
    }
 
    method 'test ()V' {
-      0      17
-      1      17
-      2      17
-      3      17
-      4      17
-      5      17
-      6      17
-      7      17
-      8      17
-      9      18
+      0      15
+      1      15
+      2      15
+      3      15
+      4      15
+      5      15
+      6      15
+      7      15
+      8      15
+      9      16
    }
 }
 
 Lines mapping:
-3 <-> 9
-6 <-> 13
-10 <-> 18
-11 <-> 19
+3 <-> 7
+6 <-> 11
+10 <-> 16
+11 <-> 17

@@ -2,7 +2,7 @@ package pkg;
 
 public class TestBooleanSwitchExpression2 {
    public void test(String x, int y) {
-      switch(x) {// 5
+      switch (x) {// 5
          case "a":
             if (y >= 0) {// 6
                return;// 12
@@ -24,7 +24,7 @@ public class TestBooleanSwitchExpression2 {
 
    public void test1(String x, int y) {
       byte var4 = -1;
-      switch(x.hashCode()) {// 15
+      switch (x.hashCode()) {// 15
          case 97:
             if (x.equals("a")) {
                var4 = 0;
@@ -38,7 +38,7 @@ public class TestBooleanSwitchExpression2 {
 
       label30: {
          label29: {
-            switch(var4) {
+            switch (var4) {
                case 0:
                   if (y < 0) {// 16
                      break label29;

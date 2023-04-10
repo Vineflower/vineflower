@@ -139,6 +139,10 @@ public final class ValidationHelper {
           throw new IllegalStateException("Break edge with break type, but no closure: " + edge);
         }
 
+        if (edge.closure.type == Statement.StatementType.BASIC_BLOCK) {
+          throw new IllegalStateException("Break edge closure to basic block: " + edge);
+        }
+
         if (edge.getSource() == edge.closure && !edge.phantomContinue) {
           throw new IllegalStateException("Break edge with closure pointing to itself: " + edge);
         }
@@ -281,6 +285,10 @@ public final class ValidationHelper {
     if (ifStat.getIfEdge() != null && ifStat.getIfEdge().getSource() != ifStat.getFirst()) {
       throw new IllegalStateException("If statement if edge source is not first statement: [" + ifStat.getIfEdge() + "] " + ifStat + " (source is: " + ifStat.getIfEdge().getSource() + " but first is: " + ifStat.getFirst() + ")");
     }
+
+//    if (ifStat.getIfEdge() != null && ifStat.getIfEdge().labeled && ifStat.getIfEdge().closure == null) {
+//      throw new IllegalStateException("If statement if edge is labeled but has no closure: " + ifStat);
+//    }
 
     if (ifStat.getElseEdge() != null && ifStat.getElseEdge().getSource() != ifStat.getFirst()) {
       throw new IllegalStateException("IfElse statement else edge source is not first statement: " + ifStat + " (elseEdge: " + ifStat.getElseEdge() + ")");

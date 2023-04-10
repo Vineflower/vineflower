@@ -3,6 +3,7 @@ package org.jetbrains.java.decompiler.main;
 
 import org.jetbrains.java.decompiler.api.Plugin;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
+import org.jetbrains.java.decompiler.main.decompiler.OptionParser;
 import org.jetbrains.java.decompiler.main.extern.*;
 import org.jetbrains.java.decompiler.main.plugins.JarPluginLoader;
 import org.jetbrains.java.decompiler.main.plugins.PluginSource;
@@ -38,7 +39,14 @@ public class Fernflower implements IDecompiledData {
   public Fernflower(IBytecodeProvider provider, IResultSaver saver, Map<String, Object> customProperties, IFernflowerLogger logger) {
     Map<String, Object> properties = new HashMap<>(IFernflowerPreferences.DEFAULTS);
     if (customProperties != null) {
-      properties.putAll(customProperties);
+      for (Map.Entry<String, Object> entry : customProperties.entrySet()) {
+        if (entry.getKey().length() == 3) {
+          // Short name, reparse to long name
+          OptionParser.parseShort("-" + entry.getKey() + "=" + entry.getValue(), properties);
+        } else {
+          properties.put(entry.getKey(), entry.getValue());
+        }
+      }
     }
 
     String level = (String)properties.get(IFernflowerPreferences.LOG_LEVEL);

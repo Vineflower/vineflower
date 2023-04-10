@@ -2,7 +2,7 @@ package pkg;
 
 public class TestSynchronizedTryReturn {
    public int test(String s) {
-      synchronized(this) {// 5
+      synchronized (this) {// 5
          int var10000;
          try {
             var10000 = Integer.parseInt(s);// 7

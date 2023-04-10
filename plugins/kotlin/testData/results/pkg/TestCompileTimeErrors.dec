@@ -7,7 +7,7 @@ class TestCompileTimeErrors {
       throw new NotImplementedError(null, 1, null);// 10
    }
 
-   fun test2(i: Integer?): TestCompileTimeErrors.Test?  {
+   fun test2(i: Int?): TestCompileTimeErrors.Test?  {
       return if (i == null) null else new TestCompileTimeErrors.Test(i) {
          @Nullable
          private final Integer testValue;

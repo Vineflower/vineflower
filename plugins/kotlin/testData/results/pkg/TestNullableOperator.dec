@@ -1,7 +1,7 @@
 package pkg
 
 class TestNullableOperator {
-   fun test(x: Integer?): Int  {
+   fun test(x: Int?): Int  {
       return x ?: 0;// 5
    }
 
@@ -14,8 +14,8 @@ class TestNullableOperator {
       return var10000;
    }
 
-   fun test2_1(x: Object?): Object  {
-      var var10000: Object = x;// 13
+   fun test2_1(x: Any?): Any  {
+      var var10000: Any = x;// 13
       if (x == null) {
          var10000 = "default";
       }
@@ -23,8 +23,8 @@ class TestNullableOperator {
       return var10000;
    }
 
-   fun test2_2(x: Object?): Object  {
-      var var10000: Object = x;// 17
+   fun test2_2(x: Any?): Any  {
+      var var10000: Any = x;// 17
       if (x == null) {
          var10000 = "default";
       }
@@ -32,7 +32,7 @@ class TestNullableOperator {
       return var10000;
    }
 
-   fun test3(x: Integer?): Int  {
+   fun test3(x: Int?): Int  {
       if (x != null) {// 21
          return x;
       } else {
@@ -60,7 +60,7 @@ class TestNullableOperator {
       }
    }// 30
 
-   fun test6(x: Integer?): Int  {
+   fun test6(x: Int?): Int  {
       if (x != null) {// 33
          var y: Int = x;
          System.out.println(y);// 35
@@ -70,7 +70,7 @@ class TestNullableOperator {
       }
    }
 
-   fun test6_1(x: Integer?) {
+   fun test6_1(x: Int?) {
       if (x != null) {// 41
          System.out.println(x);// 43
       }

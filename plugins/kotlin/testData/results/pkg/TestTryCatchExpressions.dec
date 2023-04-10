@@ -62,7 +62,7 @@ class TestTryCatchExpressions {
    }// 30
 
    fun test2(a: String, b: String) {
-      var var15: Object = a;// 33
+      var var15: Any = a;// 33
       var var7: TestTryCatchExpressions = this;
 
       var var4: String;

@@ -2,7 +2,7 @@ package pkg;
 
 public class TestBackwardsExceptionHandler {
    static void testExtraReturn(int var0) {
-      while(true) {
+      while (true) {
          try {
             test(++var0);// 29 31
             return;// 32
@@ -13,7 +13,7 @@ public class TestBackwardsExceptionHandler {
    }
 
    static void test(int var0) {
-      while(true) {
+      while (true) {
          try {
             test(++var0);// 47 49
             return;// 50

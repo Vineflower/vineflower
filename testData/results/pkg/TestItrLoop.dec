@@ -7,7 +7,7 @@ public class TestItrLoop {
    private List list = new ArrayList();
 
    public void test() {
-      for(String s : this.list) {// 11 12
+      for (String s : this.list) {// 11 12
          System.out.println(s);// 13
       }
    }// 15

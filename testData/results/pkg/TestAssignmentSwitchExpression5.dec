@@ -3,10 +3,10 @@ package pkg;
 public class TestAssignmentSwitchExpression5 {
    public void test(String directionStr, int i) {
       String axis;
-      for(axis = directionStr; i > 0; --i) {// 5 6 20
+      for (axis = directionStr; i > 0; --i) {// 5 6 20
          String var4 = directionStr.toLowerCase();// 7
 
-         axis = switch(var4) {
+         axis = switch (var4) {
             case "north", "south" -> "y";// 10
             case "east", "west" -> "x";// 13
             case "up", "down" -> "z";// 16

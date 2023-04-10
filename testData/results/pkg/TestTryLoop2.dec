@@ -8,7 +8,7 @@ public class TestTryLoop2 {
    private boolean field;
 
    public void test(File file) {
-      while(true) {
+      while (true) {
          try {
             if (!this.field) {// 13
                return;// 24

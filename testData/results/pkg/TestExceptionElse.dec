@@ -6,7 +6,7 @@ public class TestExceptionElse {
    public void test(Deque<Number> numbers) {
       System.out.println("Test");// 7
 
-      while(!numbers.isEmpty()) {// 9
+      while (!numbers.isEmpty()) {// 9
          Number number = (Number)numbers.removeFirst();// 10
          if (number instanceof Integer) {// 11
             System.out.println(1);// 12

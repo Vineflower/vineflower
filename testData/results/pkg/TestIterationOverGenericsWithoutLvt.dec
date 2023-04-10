@@ -7,7 +7,7 @@ public class TestIterationOverGenericsWithoutLvt {
    public void test1(List<? extends Number> var1) {
       int var2 = -1;
 
-      for(Number var4 : var1) {
+      for (Number var4 : var1) {
          if (var4.intValue() > var2) {
             var2 = var4.intValue();
          }
@@ -17,14 +17,14 @@ public class TestIterationOverGenericsWithoutLvt {
    }
 
    public <T extends List<T>> void test2(List<T> var1) {
-      for(List var3 : var1) {
+      for (List var3 : var1) {
          this.test2(var3);
       }
    }
 
    public <T extends Collection<?>> void test3(Collection<? extends T> var1) {
-      for(Collection var3 : var1) {
-         for(Object var5 : var3) {
+      for (Collection var3 : var1) {
+         for (Object var5 : var3) {
             System.out.println(var5);
          }
       }
@@ -33,7 +33,7 @@ public class TestIterationOverGenericsWithoutLvt {
    public <T extends Comparable<T>> void test4(Iterable<T> var1) {
       Comparable var2 = null;
 
-      for(Comparable var4 : var1) {
+      for (Comparable var4 : var1) {
          if (var2 == null) {
             var2 = var4;
          } else {

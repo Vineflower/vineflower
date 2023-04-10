@@ -4,18 +4,21 @@ jobs:
   build:
     strategy:
       matrix:
-        java: [8, 11, 17]
-    runs-on: ubuntu-20.04
+        java: [11, 17, 19]
+    runs-on: ubuntu-22.04
     container:
-      image: eclipse-temurin:${{ matrix.java }}-jdk
+      image: eclipse-temurin:${{ matrix.java }}
       options: --user root
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v3
       - uses: gradle/wrapper-validation-action@v1
-      - run: ./gradlew build --stacktrace
+      - name: Build with Gradle
+        run: |
+         chmod +x gradlew
+         ./gradlew build --stacktrace
       - name: Archive test results
         if: "${{ always() }}"
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: "test-results-java${{ matrix.java }}"
           path: |
@@ -23,18 +26,18 @@ jobs:
             */build/reports/
             build/test-results/**/*.xml
       - name: Codecov
-        uses: codecov/codecov-action@v3.1.0
+        uses: codecov/codecov-action@v3.1.1
   publish-test-results:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: [build]
     if: success() || failure()
     steps:
       - name: Download Artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           path: artifacts
       - name: Publish Test Results
-        uses: EnricoMi/publish-unit-test-result-action@v1.19
+        uses: EnricoMi/publish-unit-test-result-action@v2.5.0
         with:
           check_name: Test Results
           files: artifacts/*/build/test-results/**/*.xml

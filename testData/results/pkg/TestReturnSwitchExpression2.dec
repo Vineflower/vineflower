@@ -2,7 +2,7 @@ package pkg;
 
 public class TestReturnSwitchExpression2 {
    public String test(int i) {
-      return switch(switch(i) {// 5
+      return switch (switch (i) {// 5
          case 1 -> 2;// 6
          case 2 -> 1;// 7
          default -> 3;// 8

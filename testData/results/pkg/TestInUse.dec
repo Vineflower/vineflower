@@ -13,7 +13,7 @@ public class TestInUse {
       do {
          d = this.getInt();// 12
          result -= d;// 13
-      } while(++i < 10);// 15
+      } while (++i < 10);// 15
 
       return result;// 16
    }

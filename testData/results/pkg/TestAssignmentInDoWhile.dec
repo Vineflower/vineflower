@@ -4,7 +4,7 @@ public class TestAssignmentInDoWhile {
    public void testPP() {
       int x = 3;// 5
 
-      while(x < 50 && x++ < 100) {// 7 12
+      while (x < 50 && x++ < 100) {// 7 12
       }
 
       System.out.println("Hi");// 13
@@ -13,7 +13,7 @@ public class TestAssignmentInDoWhile {
    public void testPE() {
       int x = 3;// 17
 
-      while(x < 50) {// 19
+      while (x < 50) {// 19
          x += 2;// 24
          if (x >= 100) {
             break;
@@ -27,7 +27,7 @@ public class TestAssignmentInDoWhile {
       int[] array = new int[100];// 29
       int x = 3;// 31
 
-      while(x < 50 && (x = x + array[x]) < 100) {// 33 38
+      while (x < 50 && (x = x + array[x]) < 100) {// 33 38
       }
 
       System.out.println("Hi");// 39
@@ -37,7 +37,7 @@ public class TestAssignmentInDoWhile {
       int[] array = new int[100];// 43
       int x = 3;// 45
 
-      while(x < 50 && (x = x + (array[x] & 7)) < 100) {// 47 52
+      while (x < 50 && (x = x + (array[x] & 7)) < 100) {// 47 52
       }
 
       System.out.println("Hi");// 53
@@ -47,7 +47,7 @@ public class TestAssignmentInDoWhile {
       int[] array = new int[100];// 57
       int x = 3;// 59
 
-      while(x < 50 && (x = x + array[x]) < 100 && x > 10) {// 61 66
+      while (x < 50 && (x = x + array[x]) < 100 && x > 10) {// 61 66
       }
 
       System.out.println("Hi");// 67
@@ -57,7 +57,7 @@ public class TestAssignmentInDoWhile {
       int[] array = new int[100];// 71
       int x = 3;// 73
 
-      while(x < 50 && ((x = x + array[x]) < 100 || x > 10)) {// 75 80
+      while (x < 50 && ((x = x + array[x]) < 100 || x > 10)) {// 75 80
       }
 
       System.out.println("Hi");// 81

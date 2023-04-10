@@ -127,6 +127,7 @@ public class DirectoryContextSource implements IContextSource {
 
       @Override
       public void close() throws IOException {
+        saver.closeArchive("", base.getName() + ".jar");
       }
     };
   }

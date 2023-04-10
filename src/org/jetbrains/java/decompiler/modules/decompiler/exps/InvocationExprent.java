@@ -674,8 +674,9 @@ public class InvocationExprent extends Exprent {
                 ConstExprent _const = (ConstExprent)func.getLstOperands().get(1);
                 boolean skipCast = false;
 
-                if (func.getLstOperands().get(0) instanceof VarExprent) {
-                  VarType inferred = func.getLstOperands().get(0).getInferredExprType(leftType);
+                Exprent firstParam = func.getLstOperands().get(0);
+                if (firstParam instanceof VarExprent || firstParam instanceof FieldExprent) {
+                  VarType inferred = firstParam.getInferredExprType(leftType);
                   skipCast = (inferred.type != CodeConstants.TYPE_OBJECT && inferred.type != CodeConstants.TYPE_GENVAR) ||
                     DecompilerContext.getStructContext().instanceOf(inferred.value, this.classname);
                 } else if (this.classname.equals(_const.getConstType().value)) {
@@ -683,7 +684,7 @@ public class InvocationExprent extends Exprent {
                 }
 
                 if (skipCast) {
-                  buf.append(func.getLstOperands().get(0).toJava(indent));
+                  buf.append(firstParam.toJava(indent));
                   return buf;
                 }
               }
