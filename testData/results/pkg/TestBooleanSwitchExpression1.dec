@@ -2,7 +2,7 @@ package pkg;
 
 public class TestBooleanSwitchExpression1 {
    public void test(int x, int y) {
-      switch(x) {// 5
+      switch (x) {// 5
          case 1:
             if (y >= 0) {// 6
                return;// 12
@@ -25,7 +25,7 @@ public class TestBooleanSwitchExpression1 {
    public void test1(int x, int y) {
       label20: {
          label19: {
-            switch(x) {// 15
+            switch (x) {// 15
                case 1:
                   if (y < 0) {// 16
                      break label19;

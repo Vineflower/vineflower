@@ -2,7 +2,7 @@ package pkg;
 
 public class TestLocalClassesSwitch {
    public void test(int i) {
-      switch(i) {// 6
+      switch (i) {// 6
          case 0: {
             class LocalClass {
                public void test() {
@@ -27,7 +27,7 @@ public class TestLocalClassesSwitch {
    }// 27
 
    public void test1(int i) {
-      switch(i) {// 30
+      switch (i) {// 30
          case 0: {
             class LocalClass {
                public void test() {
@@ -62,7 +62,7 @@ public class TestLocalClassesSwitch {
    }// 63
 
    public void test2(int i) {
-      switch(i) {// 66
+      switch (i) {// 66
          default:
             class LocalClass {
                public void test() {

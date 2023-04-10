@@ -492,7 +492,7 @@ public class Option2 implements TestCaseClasses, Product, Serializable {
 
    public Object productElement(final int n) {
       double var10000;
-      switch(n) {
+      switch (n) {
          case 0:
             var10000 = this._1();
             break;
@@ -510,7 +510,7 @@ public class Option2 implements TestCaseClasses, Product, Serializable {
    }
 
    public String productElementName(final int n) {
-      switch(n) {
+      switch (n) {
          case 0:
             return "x";
          case 1:

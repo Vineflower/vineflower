@@ -4,7 +4,7 @@ public class TestArrayForeach {
    public void test() {
       int[] array = new int[]{1, 2, 3, 4};// 5
 
-      for(int i : array) {// 6
+      for (int i : array) {// 6
          System.out.println(i);// 7
       }
    }// 9

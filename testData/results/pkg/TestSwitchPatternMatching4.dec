@@ -5,7 +5,7 @@ import java.util.Objects;
 public class TestSwitchPatternMatching4 {
    static void test(Object s) {
       Objects.requireNonNull(s);// 5
-      switch(s) {
+      switch (s) {
          default:
             System.out.println("default");// 7
       }

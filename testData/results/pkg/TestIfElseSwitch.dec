@@ -14,7 +14,7 @@ public class TestIfElseSwitch {
          if (i - 1 == 5) {// 14
             return true;// 15
          } else {
-            switch(i) {// 18
+            switch (i) {// 18
                case 0:
                   return false;// 20
                case 1:

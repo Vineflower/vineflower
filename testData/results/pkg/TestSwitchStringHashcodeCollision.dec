@@ -2,7 +2,7 @@ package pkg;
 
 public class TestSwitchStringHashcodeCollision {
    public int test(String s) {
-      switch(s) {// 6
+      switch (s) {// 6
          case "BB":
             return 1;// 11
          case "Aa":

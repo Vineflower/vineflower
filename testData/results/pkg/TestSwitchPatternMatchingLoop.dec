@@ -4,9 +4,9 @@ import java.util.Objects;
 
 public class TestSwitchPatternMatchingLoop {
    public void test(Object o) {
-      while(true) {
+      while (true) {
          Objects.requireNonNull(o);// 6
-         switch(o) {
+         switch (o) {
             case Integer i:// 7
                System.out.println(i);
                break;

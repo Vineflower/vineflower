@@ -59,9 +59,9 @@ public class TestRecordPattern2 {
       TestRecordPattern2.Pair var2 = p;
       byte var3 = 0;
 
-      while(true) {
+      while (true) {
          Object var10000;
-         switch(SwitchBootstraps.typeSwitch<"typeSwitch",TestRecordPattern2.Pair,TestRecordPattern2.Pair,TestRecordPattern2.Pair,TestRecordPattern2.Pair,TestRecordPattern2.Pair>(
+         switch (SwitchBootstraps.typeSwitch<"typeSwitch",TestRecordPattern2.Pair,TestRecordPattern2.Pair,TestRecordPattern2.Pair,TestRecordPattern2.Pair,TestRecordPattern2.Pair>(
             var2, var3
          )) {
             case -1:

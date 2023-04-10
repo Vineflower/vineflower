@@ -6,7 +6,7 @@ public class TestArrayCopy {
       int[] c = new int[len];// 7
       int i = 0;// 8
 
-      while((i += c[i]) < len) {// 9
+      while ((i += c[i]) < len) {// 9
          System.arraycopy(c, i, a, len, len - i);// 10
       }
    }// 12
