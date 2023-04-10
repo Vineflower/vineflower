@@ -489,4 +489,44 @@ public final class IfStatement extends Statement {
     Integer type = (Integer) matchNode.getRuleValue(MatchProperties.STATEMENT_IFTYPE);
     return type == null || this.iftype == type;
   }
+
+  public boolean checkInversion() {
+    // if(){;}else{...} -> if(!){...}
+    Statement ifstat = this.getIfstat();
+
+    if (this.iftype == IfStatement.IFTYPE_IFELSE && ifstat.getExprents() != null &&
+      ifstat.getExprents().isEmpty() && (ifstat.getAllSuccessorEdges().isEmpty() || !ifstat.getFirstSuccessor().explicit)) {
+
+      // move else to the if position
+      this.getStats().removeWithKey(ifstat.id);
+
+      this.iftype = IfStatement.IFTYPE_IF;
+      this.setIfstat(this.getElsestat());
+      this.setElsestat(null);
+
+      if (this.getAllSuccessorEdges().isEmpty() && !ifstat.getAllSuccessorEdges().isEmpty()) {
+        StatEdge endedge = ifstat.getFirstSuccessor();
+
+        ifstat.removeSuccessor(endedge);
+        endedge.setSource(this);
+        if (endedge.closure != null) {
+          this.getParent().addLabeledEdge(endedge);
+        }
+        this.addSuccessor(endedge);
+      }
+
+      this.getFirst().removeSuccessor(this.getIfEdge());
+
+      this.setIfEdge(this.getElseEdge());
+      this.setElseEdge(null);
+
+      // negate head expression
+      this.setNegated(!this.isNegated());
+      this.getHeadexprentList().set(0, ((IfExprent) this.getHeadexprent().copy()).negateIf());
+
+      return true;
+    }
+
+    return false;
+  }
 }

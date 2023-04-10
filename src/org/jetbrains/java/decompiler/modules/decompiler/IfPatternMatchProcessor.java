@@ -1,14 +1,12 @@
 package org.jetbrains.java.decompiler.modules.decompiler;
 
-import org.jetbrains.java.decompiler.modules.decompiler.exps.AssignmentExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
+import org.jetbrains.java.decompiler.struct.gen.VarType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +21,12 @@ public final class IfPatternMatchProcessor {
     boolean res = matchInstanceofRec(root, root);
 
     if (res) {
-      SequenceHelper.condenseSequences(root);
+      //noinspection StatementWithEmptyBody
+      if (IfHelper.mergeAllIfs(root)) {
+        // IfHelper already called SequenceHelper.condenseSequences
+      } else {
+        SequenceHelper.condenseSequences(root);
+      }
     }
 
     return res;
@@ -47,84 +50,119 @@ public final class IfPatternMatchProcessor {
   private static boolean handleIf(IfStatement statement, RootStatement root) {
     Exprent condition = statement.getHeadexprent().getCondition();
 
-    if (!(condition instanceof FunctionExprent)) {
-      return false;
-    }
 
-    FunctionExprent func = (FunctionExprent) condition;
+    Exprent lastIfTrue = getLastExprentWhen(condition, true, true);
+    Exprent lastIfFalse = getLastExprentWhen(condition, false, true);
 
-    List<Exprent> exprents = func.getAllExprents(true);
-
-    // TODO: need to properly analyze the scope around instanceof to handle negations
 
     boolean updated = false;
-    loop:
-    for (Exprent exprent : exprents) {
-      if (exprent instanceof FunctionExprent) {
-        FunctionExprent iof = (FunctionExprent)exprent;
+    if (lastIfTrue != null) {
+      updated = checkBranch(lastIfTrue, statement, statement.getIfEdge().getDestination());
+    }
 
-        // Check for instanceof and isn't a pattern match yet
-        if (iof.getFuncType() == FunctionType.INSTANCEOF && iof.getLstOperands().size() == 2) {
-          Exprent source = iof.getLstOperands().get(0);
-          Exprent target = iof.getLstOperands().get(1);
-
-          // Check to make sure there are more than 1 exprent.
-          // More often than not, when there's less than 1 it means it's assigning into a previous value.
-          // TODO: this isn't always the case, handle it properly
-          Statement head = statement.getIfstat() == null ? null : statement.getIfstat().getBasichead();
-          boolean isHead = head != null && head != statement.getIfstat();
-          if (head != null && head.getExprents() != null && (head.getExprents().size() > (isHead ? 0 : 1))) {
-            Exprent first = head.getExprents().get(0);
-
-            // Check inside of the if statement for a cast
-            if (first instanceof AssignmentExprent) {
-              // If it's an assignement, get both sides
-              Exprent left = first.getAllExprents().get(0);
-              Exprent right = first.getAllExprents().get(1);
-
-              // Right side needs to be a cast function
-              if (right instanceof FunctionExprent) {
-                if (((FunctionExprent)right).getFuncType() == FunctionType.CAST) {
-                  Exprent casted = right.getAllExprents().get(0);
-
-                  // Check if the exprent being casted is the exprent on the left side of the instanceof
-                  if (source.equals(casted)) {
-                    // Make sure the left hand side is a variable and it's type matches the target of the cast
-                    if (left instanceof VarExprent && target.getExprType().equals(left.getExprType())) {
-                      List<VarVersionPair> vvs = new ArrayList<>();
-
-                      // We need to make sure we're not assigning to previously assigned variables.
-                      // This gets all predecessors of the if statement and gathers all the variable assignments inside.
-                      // TODO: cache this
-                      findVarsInPredecessors(vvs, statement.getIfstat());
-
-                      VarVersionPair var = ((VarExprent) left).getVarVersionPair();
-
-                      // Stop processing if this variable has already been seen
-                      for (VarVersionPair vv : vvs) {
-                        if (var.var == vv.var) {
-                          continue loop;
-                        }
-                      }
-
-                      // Add the exprent to the instanceof exprent and remove it from the inside of the if statement
-                      iof.getLstOperands().add(2, left);
-                      head.getExprents().remove(0);
-
-                      statement.setPatternMatched(true);
-
-                      updated = true;
-                    }
-                  }
-                }
-              }
-            }
-          }
+    if (!updated && lastIfFalse != null) {
+      if (statement.getElseEdge() != null) {
+        updated |= checkBranch(lastIfFalse, statement, statement.getElseEdge().getDestination());
+      } else {
+        var allSuc = statement.getAllSuccessorEdges();
+        if (allSuc.size() == 1) {
+          // In theory, the if branch can 'fall through' to here, but then this branch has multiple predecessors
+          // and will get left alone anyway
+          updated |= checkBranch(lastIfFalse, statement, allSuc.get(0).getDestination());
         }
       }
     }
 
+    if (updated) {
+      // It's possible that the if statement is now empty
+      // if(){;}else{...} -> if(!){...}
+      statement.checkInversion();
+    }
+
     return updated;
+  }
+
+  private static boolean checkBranch(Exprent exprent, IfStatement statement, Statement branch) {
+    if (!(exprent instanceof FunctionExprent) || branch.getAllPredecessorEdges().size() != 1) {
+      // We can only inline into 'instanceof', and only if the target branch doesn't have multiple predecessors
+      // TODO: make checking for multiple predecessors less expensive
+      return false;
+    }
+
+    FunctionExprent iof = (FunctionExprent) exprent;
+
+    // Check for instanceof and isn't a pattern match yet
+    if (iof.getFuncType() != FunctionType.INSTANCEOF || iof.getLstOperands().size() != 2) {
+      return false;
+    }
+
+    Exprent source = iof.getLstOperands().get(0);
+    Exprent target = iof.getLstOperands().get(1);
+
+    // Check to make sure there is more than 1 exprent.
+    // More often than not, when there's less than 1 it means it's assigning into a previous value.
+    // TODO: this isn't always the case, handle it properly
+    Statement head = branch.getBasichead();
+
+    if (head == null || head.getExprents() == null) {
+      return false;
+    }
+
+    Exprent first = head.getExprents().get(0);
+
+    // Check inside of the if statement for a cast
+    if (!(first instanceof AssignmentExprent)) {
+      return false;
+    }
+
+    // If it's an assignement, get both sides
+    Exprent left = first.getAllExprents().get(0);
+    Exprent right = first.getAllExprents().get(1);
+
+    // Right side needs to be a cast function
+    if (!(right instanceof FunctionExprent)) {
+      return false;
+    }
+
+    if (((FunctionExprent) right).getFuncType() != FunctionType.CAST) {
+      return false;
+    }
+
+    Exprent casted = right.getAllExprents().get(0);
+
+    // Check if the exprent being casted is the exprent on the left side of the instanceof
+    if (!source.equals(casted)) {
+      return false;
+    }
+
+    // Make sure the left hand side is a variable and it's type matches the target of the cast
+    if (!(left instanceof VarExprent) || !target.getExprType().equals(left.getExprType())) {
+      return false;
+    }
+
+    List<VarVersionPair> vvs = new ArrayList<>();
+
+    // We need to make sure we're not assigning to previously assigned variables.
+    // This gets all predecessors of the if statement and gathers all the variable assignments inside.
+    // TODO: cache this
+    findVarsInPredecessors(vvs, branch);
+
+    VarVersionPair var = ((VarExprent) left).getVarVersionPair();
+
+    // Stop processing if this variable has already been seen
+    for (VarVersionPair vv : vvs) {
+      if (var.var == vv.var) {
+        return false;
+      }
+    }
+
+    // Add the exprent to the instanceof exprent and remove it from the inside of the if statement
+    iof.getLstOperands().add(2, left);
+    head.getExprents().remove(0);
+
+    statement.setPatternMatched(true);
+
+    return true;
   }
 
   // Finds all assignments and their associated variables in a statement's predecessors.
@@ -148,5 +186,88 @@ public final class IfPatternMatchProcessor {
         }
       }
     }
+  }
+
+  /**
+   * Gets the last guaranteed executed exprent in an expression.
+   * @param ifTrue if true, gets the last executed exprent when the condition is true.
+   *               if false, gets the last executed exprent when the condition is false.
+   * @param onlyIfTrue if true, only returns the last executed exprent if the exprent had to return true for
+   *                  the requested outcome to be selected.
+   * @return the last executed exprent
+   */
+  public static Exprent getLastExprentWhen(Exprent base, boolean ifTrue, boolean onlyIfTrue) {
+    switch (base.type){
+      case FUNCTION: {
+        FunctionExprent func = (FunctionExprent) base;
+        switch (func.getFuncType()) {
+          case BOOLEAN_AND: {
+            if (ifTrue) {
+              // when `&&` returns true, the second exprent had to run and return true
+              return getLastExprentWhen(func.getLstOperands().get(1), true, onlyIfTrue);
+            }
+            // when `&&` returns false, either could have returned false, so we go to
+            // the default case of returning ourselves
+            break;
+          }
+          case BOOLEAN_OR: {
+            if (!ifTrue) {
+              // when `||` returns false, the second exprent had to run and return false
+              return getLastExprentWhen(func.getLstOperands().get(1), false, onlyIfTrue);
+            }
+            // when `||` returns true, either could have returned true, so we go to
+            // the default case of returning ourselves
+            break;
+          }
+          case BOOL_NOT: {
+            // when `!` returns true, the exprent had to return false
+            // when `!` returns false, the exprent had to return true
+            return getLastExprentWhen(func.getLstOperands().get(0), !ifTrue, onlyIfTrue);
+          }
+
+          // TEMPORARY
+          case EQ: {
+            Exprent rhs = func.getLstOperands().get(1);
+            if (rhs.type == Exprent.Type.CONST) {
+              ConstExprent constExprent = (ConstExprent) rhs;
+              if (constExprent.getConstType() == VarType.VARTYPE_BOOLEAN) {
+                if (constExprent.getIntValue() == 0) {
+                  // `x == false` is the same as `!x`
+                  return getLastExprentWhen(func.getLstOperands().get(0), !ifTrue, onlyIfTrue);
+                } else {
+                  // `x == true` is the same as `x`
+                  return getLastExprentWhen(func.getLstOperands().get(0), ifTrue, onlyIfTrue);
+                }
+              }
+            }
+            break;
+          }
+          case NE: {
+            Exprent rhs = func.getLstOperands().get(1);
+            if (rhs.type == Exprent.Type.CONST) {
+              ConstExprent constExprent = (ConstExprent) rhs;
+              if (constExprent.getConstType() == VarType.VARTYPE_BOOLEAN) {
+                if (constExprent.getIntValue() == 0) {
+                  // `x != false` is the same as `x`
+                  return getLastExprentWhen(func.getLstOperands().get(0), ifTrue, onlyIfTrue);
+                } else {
+                  // `x != true` is the same as `!x`
+                  return getLastExprentWhen(func.getLstOperands().get(0), !ifTrue, onlyIfTrue);
+                }
+              }
+            }
+            break;
+          }
+        }
+      }
+    }
+
+    // if we're only looking for exprents that had to return true, and this exprent didn't, return null
+    if (onlyIfTrue && !ifTrue) {
+      return null;
+    }
+
+    // otherwise, return ourselves
+    return base;
   }
 }
