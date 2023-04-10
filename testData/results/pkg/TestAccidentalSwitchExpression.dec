@@ -2,13 +2,13 @@ package pkg;
 
 public class TestAccidentalSwitchExpression {
    public void test(Object a) {
-      switch(10000) {// 5
+      switch (10000) {// 5
          case 320:
             break;
          default:
             Object vvv26 = null;// 7
 
-            while(vvv26 == null) {// 8
+            while (vvv26 == null) {// 8
             }
          case -79:
             long var4 = -5851592879203823622L;// 12

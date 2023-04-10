@@ -22,7 +22,7 @@ public class TestPatternMatching17 {
    }// 20
 
    public void testSimpleLoop(Object obj) {
-      while(obj instanceof String) {// 24
+      while (obj instanceof String) {// 24
          String str = (String)obj;
          System.out.println(str.length());// 25
          obj = str.intern();// 26
@@ -30,14 +30,14 @@ public class TestPatternMatching17 {
    }// 28
 
    public void testSimpleLoopUnused(Object obj) {
-      while(obj instanceof String) {// 31
+      while (obj instanceof String) {// 31
          String str = (String)obj;
          obj = obj.hashCode() + "";// 32
       }
    }// 34
 
    public void testInvertedLoop(Object obj) {
-      while(!(obj instanceof String)) {// 37
+      while (!(obj instanceof String)) {// 37
          System.out.println("Oh no");// 38
          obj = obj.toString();// 39
       }
@@ -47,7 +47,7 @@ public class TestPatternMatching17 {
    }
 
    public void testInvertedLoopUnused(Object obj) {
-      while(!(obj instanceof String)) {// 45
+      while (!(obj instanceof String)) {// 45
          System.out.println("Oh no");// 46
          obj = obj.toString();// 47
       }
@@ -56,7 +56,7 @@ public class TestPatternMatching17 {
    }
 
    public void testCompoundLoop(Object obj) {
-      while(obj instanceof String str && str.contains("hi")) {// 52
+      while (obj instanceof String str && str.contains("hi")) {// 52
          obj = str.substring(1);// 53
       }
    }// 55
@@ -78,7 +78,7 @@ public class TestPatternMatching17 {
    }
 
    public void testLoop(Object obj) {
-      while(obj instanceof String s && s.length() > 10) {// 70
+      while (obj instanceof String s && s.length() > 10) {// 70
          String var3 = s.substring(1);// 71
          obj = var3.substring(1);// 72
          System.out.println(var3);// 74

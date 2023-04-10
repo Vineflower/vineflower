@@ -2,7 +2,7 @@ package pkg;
 
 public class TestSwitchReturn {
    public int test(int x) {
-      switch(x) {// 5
+      switch (x) {// 5
          case 1:
          case 2:
          case 3:

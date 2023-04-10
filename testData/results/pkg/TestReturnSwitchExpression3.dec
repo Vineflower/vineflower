@@ -4,7 +4,7 @@ public class TestReturnSwitchExpression3 {
    public String test(int i) {
       System.out.println(2);// 5
 
-      return switch(i) {// 7
+      return switch (i) {// 7
          case 1 -> "1";// 8
          case 2 -> "2";// 9
          default -> "Unknown";// 10

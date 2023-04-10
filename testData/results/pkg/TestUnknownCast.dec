@@ -17,7 +17,7 @@ public class TestUnknownCast {
 
       vvv1 = vvv2;// 14
 
-      for(Object vvv34 = null; vvv34 != null; vvv1 = vvv1) {// 15 16 17 19
+      for (Object vvv34 = null; vvv34 != null; vvv1 = vvv1) {// 15 16 17 19
          System.out.println(vvv34);// 18
       }
    }// 21

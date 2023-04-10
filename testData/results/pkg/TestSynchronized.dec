@@ -2,20 +2,20 @@ package pkg;
 
 public class TestSynchronized {
    public void test1() {
-      synchronized(this) {// 5
+      synchronized (this) {// 5
          ;
       }
    }// 8
 
    public void test2() {
-      synchronized(new Object()) {// 11
+      synchronized (new Object()) {// 11
          ;
       }
    }// 14
 
    public void test3() {
       Object o;
-      synchronized(new Object()) {// 18
+      synchronized (new Object()) {// 18
          o = new Object();// 19
          System.out.println(o);// 20
       }// 21
@@ -25,7 +25,7 @@ public class TestSynchronized {
 
    public void test4() {
       Integer o;
-      synchronized(Integer.valueOf(1)) {// 27
+      synchronized (Integer.valueOf(1)) {// 27
          o = 1;// 28
          System.out.println(o);// 29
       }// 30
@@ -35,7 +35,7 @@ public class TestSynchronized {
 
    public void test4_1() {
       Object o;
-      synchronized(o = 1) {// 36
+      synchronized (o = 1) {// 36
          System.out.println(o);// 37
       }// 38
 
@@ -44,7 +44,7 @@ public class TestSynchronized {
 
    public void test4_2() {
       Double o;
-      synchronized(Double.valueOf(1.0)) {// 44
+      synchronized (Double.valueOf(1.0)) {// 44
          o = 1.0;// 45
          System.out.println(o);// 46
       }// 47
@@ -54,7 +54,7 @@ public class TestSynchronized {
 
    public void test4_3() {
       Float o;
-      synchronized(Float.valueOf(1.0F)) {// 53
+      synchronized (Float.valueOf(1.0F)) {// 53
          o = 1.0F;// 54
          System.out.println(o);// 55
       }// 56
@@ -64,7 +64,7 @@ public class TestSynchronized {
 
    public void test4_4() {
       Boolean o;
-      synchronized(Boolean.valueOf(true)) {// 62
+      synchronized (Boolean.valueOf(true)) {// 62
          o = true;// 63
          System.out.println(o);// 64
       }// 65
@@ -74,7 +74,7 @@ public class TestSynchronized {
 
    public void test4_5() {
       Long o;
-      synchronized(Long.valueOf(1L)) {// 71
+      synchronized (Long.valueOf(1L)) {// 71
          o = 1L;// 72
          System.out.println(o);// 73
       }// 74
@@ -83,19 +83,19 @@ public class TestSynchronized {
    }// 76
 
    public void test11(int i) {
-      switch(i) {// 79
+      switch (i) {// 79
          case 0:
-            synchronized(this) {// 81
+            synchronized (this) {// 81
                break;
             }// 82
          case 1:
-            synchronized(this) {// 85
+            synchronized (this) {// 85
                System.out.println(1);// 86
                break;
             }// 87
          case 2:
             System.out.println(2);// 90
-            synchronized(this) {// 91
+            synchronized (this) {// 91
                break;
             }// 92
          default:
@@ -105,7 +105,7 @@ public class TestSynchronized {
 
    public void test13() {
       Object o = "";// 101
-      synchronized("") {
+      synchronized ("") {
          System.out.println(o);// 102
       }// 103
 
@@ -114,7 +114,7 @@ public class TestSynchronized {
 
    public void test14() {
       Object o = "hi";// 109
-      synchronized("hi") {
+      synchronized ("hi") {
          System.out.println(o);// 110
       }// 111
 
@@ -123,7 +123,7 @@ public class TestSynchronized {
 
    public void test15() {
       String o = "hi";// 117
-      synchronized("hi") {
+      synchronized ("hi") {
          System.out.println(o);// 118
       }// 119
 
@@ -132,7 +132,7 @@ public class TestSynchronized {
 
    public void test16() {
       String o = "a";// 124
-      synchronized("test") {// 125
+      synchronized ("test") {// 125
          System.out.println(o);// 126
       }// 127
 
@@ -140,7 +140,7 @@ public class TestSynchronized {
    }// 129
 
    public void test17() {
-      synchronized(TestSynchronized.class) {// 132
+      synchronized (TestSynchronized.class) {// 132
          System.out.println("test");// 133
       }
    }// 135

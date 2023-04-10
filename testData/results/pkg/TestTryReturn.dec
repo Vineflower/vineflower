@@ -121,7 +121,7 @@ public class TestTryReturn {
    public void testLoopFinally() {
       boolean a = true;// 109
 
-      while(true) {
+      while (true) {
          try {
             if (a) {// 113
                return;// 114
@@ -171,7 +171,7 @@ public class TestTryReturn {
    public void testPostdomFailure() {
       System.out.println(1);// 143
 
-      while(new Random().nextBoolean()) {// 145
+      while (new Random().nextBoolean()) {// 145
          try {
             try {
                System.out.println(2);// 148

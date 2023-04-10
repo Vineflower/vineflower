@@ -2,11 +2,11 @@ package pkg;
 
 public class TestNestedLoops2 {
    public int foo(int i, int j) {
-      while(true) {
+      while (true) {
          System.out.println("hi");// 6
 
          try {
-            while(i < j) {// 8
+            while (i < j) {// 8
                i = j++ / i;// 9
             }
 

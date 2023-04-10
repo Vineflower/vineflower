@@ -4,7 +4,7 @@ public class TestForCyclicVarDef {
    public void test() {
       short var2 = 12338;// 5
       if (var2 != -8396) {
-         for(float var9 = 22.22F; var9 > 133.07F; var9 = var3 * 29.43F) {// 9
+         for (float var9 = 22.22F; var9 > 133.07F; var9 = var3 * 29.43F) {// 9
             var3 = var9 - -15.01F;// 10
             System.out.println("Hi");// 11
          }
@@ -14,7 +14,7 @@ public class TestForCyclicVarDef {
    public void test1() {
       boolean var9 = true;// 17
 
-      for(float var9x = 22.22F; var9x > 133.07F; var9x = var3 * 29.43F) {// 20
+      for (float var9x = 22.22F; var9x > 133.07F; var9x = var3 * 29.43F) {// 20
          var3 = var9x - -15.01F;// 21
          System.out.println("Hi");// 22
       }
@@ -22,7 +22,7 @@ public class TestForCyclicVarDef {
 
    public void testOk() {
       float var9;
-      for(var9 = 22.22F; var9 > 133.07F; var9 *= 29.43F) {// 27
+      for (var9 = 22.22F; var9 > 133.07F; var9 *= 29.43F) {// 27
          var9 -= -15.01F;// 28
          System.out.println("Hi");// 29
       }

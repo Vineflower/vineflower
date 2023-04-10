@@ -23,7 +23,7 @@ public class TestClassTypes {
    }
 
    public void testSwitchConsts(int a) {
-      switch(a) {// 46
+      switch (a) {// 46
          case 88:
             System.out.println("1");// 48
             break;// 49

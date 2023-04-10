@@ -4,7 +4,7 @@ public class TestSwitchExpressionPPMM {
    public int test(int test, int x) {
       System.out.println(x);// 5
 
-      int i = 1 + switch(test) {// 6
+      int i = 1 + switch (test) {// 6
          case 1 -> x++;// 7
          case 2 -> ++x;// 8
          case 3 -> x--;// 9

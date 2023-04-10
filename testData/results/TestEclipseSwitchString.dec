@@ -2,7 +2,7 @@ package pkg;
 
 public class TestEclipseSwitchString {
    public int test(String var1) {
-      switch(var1.hashCode()) {// 5
+      switch (var1.hashCode()) {// 5
          case 49:
             if (var1.equals("1")) {
                return 1;// 10
@@ -20,7 +20,7 @@ public class TestEclipseSwitchString {
 
    public int test1(String var1) {
       label19: {
-         switch(var1.hashCode()) {// 19
+         switch (var1.hashCode()) {// 19
             case 49:
                if (var1.equals("1")) {
                   return 1;// 24
@@ -49,7 +49,7 @@ public class TestEclipseSwitchString {
 
    public int test2(String var1) {
       label20: {
-         switch(var1.hashCode()) {// 34
+         switch (var1.hashCode()) {// 34
             case 49:
                if (!var1.equals("1")) {
                   break label20;
@@ -79,7 +79,7 @@ public class TestEclipseSwitchString {
    }
 
    public int testHashcodeCollision(String var1) {
-      switch(var1.hashCode()) {// 49
+      switch (var1.hashCode()) {// 49
          case 2112:
             if (var1.equals("BB")) {
                return 1;// 54
@@ -93,7 +93,7 @@ public class TestEclipseSwitchString {
    }
 
    public int testHashcodeCollision1(String var1) {
-      switch(var1.hashCode()) {// 62
+      switch (var1.hashCode()) {// 62
          case 2112:
             if (var1.equals("BB") || var1.equals("Aa")) {
                return 2;// 68
@@ -105,7 +105,7 @@ public class TestEclipseSwitchString {
    }
 
    public int testHashcodeCollision2(String var1) {
-      switch(var1.hashCode()) {// 74
+      switch (var1.hashCode()) {// 74
          case 2112:
             label13: {
                if (!var1.equals("BB")) {

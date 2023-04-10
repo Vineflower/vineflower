@@ -6,35 +6,35 @@ public class TestLVTComplex {
    public static void main() {
       int[] x = new int[5];
 
-      for(int x2 : x) {
+      for (int x2 : x) {
          ;
       }
 
-      for(int y : x) {
+      for (int y : x) {
          System.out.println("asdf");
       }
 
       ArrayList<Object> x1 = new ArrayList();
 
-      for(Object var18 : x1) {
+      for (Object var18 : x1) {
          ;
       }
 
-      for(Object y : x1) {
+      for (Object y : x1) {
          int[] x2 = new int[10];
 
-         for(int y2 : x2) {
+         for (int y2 : x2) {
             ;
          }
 
-         for(int y2 : x2) {
+         for (int y2 : x2) {
             System.out.println("asdf");
          }
 
          System.out.println("asdf");
       }
 
-      switch(TestLVTComplex.Bob.HI) {
+      switch (TestLVTComplex.Bob.HI) {
          case HI:
             System.out.println("HI");
             break;
@@ -67,9 +67,9 @@ public class TestLVTComplex {
       LO;
 
       static {
-         for(TestLVTComplex.Bob b : values()) {
-            for(TestLVTComplex.Bob c : values()) {
-               for(TestLVTComplex.Bob d : values()) {
+         for (TestLVTComplex.Bob b : values()) {
+            for (TestLVTComplex.Bob c : values()) {
+               for (TestLVTComplex.Bob d : values()) {
                   if (b == c) {
                      System.out.println("Asdf");
                   }

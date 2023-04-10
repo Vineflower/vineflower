@@ -6,7 +6,7 @@ public enum TestEclipseSwitchEnum {
    C;
 
    public void test(TestEclipseSwitchEnum var1) {
-      switch(var1) {// 9
+      switch (var1) {// 9
          case A:
             System.out.println("A");// 11
             break;// 12
