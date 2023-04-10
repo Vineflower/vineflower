@@ -1,7 +1,11 @@
 package org.jetbrains.java.decompiler.modules.decompiler;
 
-import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.AssignmentExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.ConstExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
@@ -226,6 +230,10 @@ public final class IfPatternMatchProcessor {
           }
 
           // TEMPORARY
+          // (Nothing is as permanent as a temporary solution :p)
+          // This is here because things like `a instanceof B` are initially decompiled as
+          // `(a instanceof B) != false`, and this is only cleaned up at the end by
+          // secondaryFunctionsHelper :/
           case EQ: {
             Exprent rhs = func.getLstOperands().get(1);
             if (rhs.type == Exprent.Type.CONST) {
