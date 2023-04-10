@@ -7,11 +7,11 @@ assignees: ''
 
 ---
 
-**Quiltflower version**
+## Quiltflower version
 Replace this text with the version of Quiltflower that you are using.
 
-**Describe the bug**
+## Describe the bug
 Replace this text with a clear and concise description of what the bug is.
 
-**Additional information**
+## Additional information
 Replace this text with any stacktraces, screenshots, example code, or class files (Only if you have the rights to distribute them!) here.
