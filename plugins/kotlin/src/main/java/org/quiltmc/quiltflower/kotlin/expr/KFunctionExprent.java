@@ -40,7 +40,13 @@ public class KFunctionExprent extends FunctionExprent {
     setNeedsCast(func.doesCast());
 
     if (getFuncType() == FunctionType.EQ) {
-      setFuncType(KFunctionType.EQUALS3);
+      // If one (or both) sides is null, Kotlin uses == instead of === for strict equality
+      Exprent left = (Exprent) getAllExprents().get(0);
+      Exprent right = (Exprent) getAllExprents().get(1);
+
+      if (left.getExprType() != VarType.VARTYPE_NULL && right.getExprType() != VarType.VARTYPE_NULL) {
+        setFuncType(KFunctionType.EQUALS3);
+      }
     }
   }
 

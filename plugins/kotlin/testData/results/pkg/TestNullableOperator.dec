@@ -7,7 +7,7 @@ class TestNullableOperator {
 
    fun test2(x: String?): String  {
       var var10000: String = x;// 9
-      if (x === null) {
+      if (x == null) {
          var10000 = "default";
       }
 
@@ -16,7 +16,7 @@ class TestNullableOperator {
 
    fun test2_1(x: Any?): Any  {
       var var10000: Any = x;// 13
-      if (x === null) {
+      if (x == null) {
          var10000 = "default";
       }
 
@@ -25,7 +25,7 @@ class TestNullableOperator {
 
    fun test2_2(x: Any?): Any  {
       var var10000: Any = x;// 17
-      if (x === null) {
+      if (x == null) {
          var10000 = "default";
       }
 
@@ -55,7 +55,7 @@ class TestNullableOperator {
          var10000 = null;
       }
 
-      if (var10000 === null) {
+      if (var10000 == null) {
          throw new Exception();
       }
    }// 30

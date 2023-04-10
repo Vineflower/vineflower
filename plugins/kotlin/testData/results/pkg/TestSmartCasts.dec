@@ -15,7 +15,7 @@ class TestSmartCasts {
                   return "<" + this.testWhen((o as Pair).getFirst()) + ", " + this.testWhen((o as Pair).getSecond()) + ">";
                }
 
-               if (o === null) {// 27
+               if (o == null) {// 27
                   return "null";
                }
 
@@ -25,7 +25,7 @@ class TestSmartCasts {
             System.out.println("C: " + o);
          }
 
-         if (o === null) {// 31
+         if (o == null) {// 31
             throw new NullPointerException("null cannot be cast to non-null type pkg.TestSmartCasts.A");
          } else {
             return (o as TestSmartCasts.A).test();
@@ -60,7 +60,7 @@ class TestSmartCasts {
 
    fun testCast(a: Any?) {
       System.out.println(a);// 64
-      if (a === null) {// 65
+      if (a == null) {// 65
          throw new NullPointerException("null cannot be cast to non-null type kotlin.String");
       } else {
          System.out.println("hello");// 66
