@@ -2,7 +2,7 @@ package pkg
 
 class TestNothingReturns {
    fun loop(): Void  {
-      while(true) {
+      while (true) {
          System.out.println("loop");// 6
       }
    }

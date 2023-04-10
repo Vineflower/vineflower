@@ -21,13 +21,13 @@ open class TestNonInlineLambda {
    fun testCaptureIntIterationValue(x: Iterable<Integer>) {
       var var2: Iterator = x.iterator();// 21
 
-      while(var2.hasNext()) {
+      while (var2.hasNext()) {
          this.execute(new <undefinedtype>((var2.next() as Number).intValue()));// 22
       }
    }// 26
 
    fun testCaptureObjectIterationValue(x: Iterable<String>) {
-      for(String i : x) {// 29
+      for (String i : x) {// 29
          this.execute(new <undefinedtype>(i));// 30
       }
    }// 34

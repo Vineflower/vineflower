@@ -4,7 +4,7 @@ class TestWhenControlFlow {
    fun test1(x: Int) {
       var x: Int = x;// 5
 
-      while(x > 0) {// 7
+      while (x > 0) {// 7
          if (--x == 10) {// 8 9 10
             break;
          }
