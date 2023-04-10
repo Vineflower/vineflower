@@ -80,7 +80,7 @@ public final class IfPatternMatchProcessor {
     if (updated) {
       // It's possible that the if statement is now empty
       // if(){;}else{...} -> if(!){...}
-      statement.checkInversion();
+      statement.fixInversion();
     }
 
     return updated;
@@ -103,12 +103,9 @@ public final class IfPatternMatchProcessor {
     Exprent source = iof.getLstOperands().get(0);
     Exprent target = iof.getLstOperands().get(1);
 
-    // Check to make sure there is more than 1 exprent.
-    // More often than not, when there's less than 1 it means it's assigning into a previous value.
-    // TODO: this isn't always the case, handle it properly
     Statement head = branch.getBasichead();
 
-    if (head == null || head.getExprents() == null) {
+    if (head.getExprents() == null) {
       return false;
     }
 

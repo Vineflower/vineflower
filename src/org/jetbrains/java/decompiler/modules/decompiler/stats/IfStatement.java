@@ -490,7 +490,7 @@ public final class IfStatement extends Statement {
     return type == null || this.iftype == type;
   }
 
-  public boolean checkInversion() {
+  public boolean fixInversion() {
     // if(){;}else{...} -> if(!){...}
     Statement ifstat = this.getIfstat();
 

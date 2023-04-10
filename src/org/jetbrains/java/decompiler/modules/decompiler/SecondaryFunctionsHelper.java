@@ -52,7 +52,7 @@ public final class SecondaryFunctionsHelper {
         IfStatement ifelsestat = (IfStatement)stat;
         Statement ifstat = ifelsestat.getIfstat();
 
-        if (ifelsestat.checkInversion()) {
+        if (ifelsestat.fixInversion()) {
           return true;
         } else if (ifelsestat.iftype == IfStatement.IFTYPE_IF && ifstat != null && ifstat.getExprents() != null &&
           ifstat.getExprents().isEmpty() && (ifstat.hasAnySuccessor() && ifstat.getFirstSuccessor().getType() == StatEdge.TYPE_FINALLYEXIT)) {
