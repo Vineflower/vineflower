@@ -30,7 +30,7 @@ public class TestTryWithResourcesAfterSwitch {
          throw new RuntimeException();// 30
       } else {
          String vvv26 = "default";// 34
-         switch(vvv26) {
+         switch (vvv26) {
             case "HYxSY":
             default:
                try (Scanner vvv26x = new Scanner(System.in)) {// 39
