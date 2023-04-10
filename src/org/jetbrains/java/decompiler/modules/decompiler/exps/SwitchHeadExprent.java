@@ -92,7 +92,7 @@ public class SwitchHeadExprent extends Exprent {
 
   @Override
   public TextBuffer toJava(int indent) {
-    TextBuffer buf = value.toJava(indent).enclose("switch(", ")");
+    TextBuffer buf = value.toJava(indent).enclose("switch (", ")");
     buf.addStartBytecodeMapping(bytecode);
     return buf;
   }

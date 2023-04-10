@@ -16,7 +16,7 @@ public enum TestEnumArrayStaticInit {
       TestEnumArrayStaticInit[] values = values();// 15
       VALUES = new TestEnumArrayStaticInit[C.v + 1];// 17
 
-      for(TestEnumArrayStaticInit e : values) {// 19
+      for (TestEnumArrayStaticInit e : values) {// 19
          VALUES[e.v] = e;// 20
       }
    }// 22

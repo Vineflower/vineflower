@@ -2,7 +2,7 @@ package pkg;
 
 public class TestAssignmentSwitchExpression7 {
    public void test(int x) {
-      String str = switch(x) {// 5
+      String str = switch (x) {// 5
          case 1 -> "1";// 6
          case 2 -> "2";// 7
          default -> "3";// 8

@@ -4,12 +4,12 @@ public class TestInlineSwitchExpression4 {
    public String test(int i) {
       String var10000;
       if (i > 0) {// 5
-         switch(i) {
+         switch (i) {
             default:
                var10000 = "1";
          }
       } else {
-         switch(i) {
+         switch (i) {
             default:
                var10000 = "2";
          }

@@ -9,8 +9,8 @@ public class TestSwitchPatternMatchingInstanceof4 {
       Object var2 = o;
       byte var3 = 0;
 
-      while(true) {
-         switch(SwitchBootstraps.typeSwitch<"typeSwitch",String>(var2, var3)) {
+      while (true) {
+         switch (SwitchBootstraps.typeSwitch<"typeSwitch",String>(var2, var3)) {
             case 0:
                String s = (String)var2;// 6
                if (o instanceof Class clzz) {

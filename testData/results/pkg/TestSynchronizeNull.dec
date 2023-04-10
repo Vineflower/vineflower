@@ -6,7 +6,7 @@ public class TestSynchronizeNull {
       new Object();
       Object var2 = null;// 6
       Object var5;
-      synchronized(var5 = null) {
+      synchronized (var5 = null) {
          System.out.println("Hi");// 7
       }
    }// 9
@@ -15,7 +15,7 @@ public class TestSynchronizeNull {
    public void test1() {
       Object var2 = null;// 13
       Object var5;
-      synchronized(var5 = null) {
+      synchronized (var5 = null) {
          System.out.println("Hi");// 14
       }
    }// 16
@@ -24,7 +24,7 @@ public class TestSynchronizeNull {
    public void test2() {
       Object var2 = null;// 20
       Object var6;
-      synchronized(var6 = null) {
+      synchronized (var6 = null) {
          Object var5 = null;// 21
          System.out.println("Hi");// 22
       }

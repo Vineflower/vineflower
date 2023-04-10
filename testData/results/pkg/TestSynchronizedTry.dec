@@ -3,11 +3,11 @@ package pkg;
 public class TestSynchronizedTry {
    public void test1() {
       try {
-         synchronized(this) {// 6
+         synchronized (this) {// 6
             this.notifyAll();// 7
          }// 8
       } finally {
-         synchronized(this) {// 10
+         synchronized (this) {// 10
             this.notifyAll();// 11
          }// 12
       }
@@ -17,7 +17,7 @@ public class TestSynchronizedTry {
       try {
          label36: {
             System.out.println(0);// 19
-            synchronized(this) {// 21
+            synchronized (this) {// 21
                System.out.println(1);// 22
                if (i > 0) {// 23
                   break label36;
@@ -41,7 +41,7 @@ public class TestSynchronizedTry {
       try {
          label35: {
             System.out.println(0);// 42
-            synchronized(this) {// 43
+            synchronized (this) {// 43
                System.out.println(1);// 44
                if (i > 0) {// 45
                   break label35;
@@ -64,7 +64,7 @@ public class TestSynchronizedTry {
    public void testLabel() {
       String var1 = "Hi!";// 64
       Object var8 = null;// 66
-      synchronized(this) {// 67
+      synchronized (this) {// 67
          label36: {
             String var9 = "Hi!";// 69
 

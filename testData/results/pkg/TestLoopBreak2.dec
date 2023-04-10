@@ -2,7 +2,7 @@ package pkg;
 
 public class TestLoopBreak2 {
    public boolean test(int i) {
-      while(i > 10) {// 5
+      while (i > 10) {// 5
          if (++i != 15) {// 6 8
             System.out.println(0);// 12
             return true;// 14

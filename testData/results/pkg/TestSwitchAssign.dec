@@ -3,7 +3,7 @@ package pkg;
 public class TestSwitchAssign {
    public void test(int x) {
       int assign = 1;// 5
-      switch(x) {// 6
+      switch (x) {// 6
          case 1:
          case 3:
          case 5:
@@ -20,7 +20,7 @@ public class TestSwitchAssign {
 
    public void test1(String s) {
       int assign;
-      switch(s) {// 24
+      switch (s) {// 24
          case "a":
          default:
             assign = 3;// 27

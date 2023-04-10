@@ -2,7 +2,7 @@ package pkg;
 
 public class TestConstructorSwitchExpression1 {
    public TestConstructorSwitchExpression1(int i) {
-      this(switch(i) {// 5
+      this(switch (i) {// 5
          case 1 -> "1";// 6
          case 2 -> "3";// 7
          default -> "0";// 9

@@ -25,7 +25,7 @@ public class TestTryWithResourcesFakeTrigger {
    public void testTrigger2() {
       Object var1 = null;// 29
 
-      while(var1 == null) {// 31
+      while (var1 == null) {// 31
          try {
             System.out.println("Hi");// 33
          } catch (Exception var3) {// 34

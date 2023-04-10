@@ -2,7 +2,7 @@ package pkg;
 
 public class TestDuplicateAssignmentInSwitchExpr {
    void foo(int bar) {
-      int num = switch(bar) {// 5
+      int num = switch (bar) {// 5
          case 0 -> {
             int num;
             yield num = 1;// 6

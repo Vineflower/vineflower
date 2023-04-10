@@ -11,7 +11,7 @@ public class TestTryLoopSimpleFinally {
 
    public void test(File file) {
       try {
-         while(this.field) {// 15
+         while (this.field) {// 15
             new Scanner(file);// 16
          }
       } catch (FileNotFoundException var6) {// 18
@@ -23,7 +23,7 @@ public class TestTryLoopSimpleFinally {
 
    public void test2(int x, Path file) throws IOException {
       try {
-         while(x >= 0) {// 27
+         while (x >= 0) {// 27
             Scanner scanner = new Scanner(file);// 28
             if (x % 11 != 0) {// 30
                x -= scanner.nextInt();// 35

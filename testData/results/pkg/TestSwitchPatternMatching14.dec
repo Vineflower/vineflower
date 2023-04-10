@@ -2,7 +2,7 @@ package pkg;
 
 public class TestSwitchPatternMatching14 {
    static void test(TestSwitchPatternMatching14.Shape s) {
-      switch(s) {// 5
+      switch (s) {// 5
          case null:
             if (Math.random() > 0.0) {// 13
                System.out.println("Lucky null");// 14

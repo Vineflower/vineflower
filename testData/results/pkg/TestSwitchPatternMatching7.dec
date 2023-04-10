@@ -2,7 +2,7 @@ package pkg;
 
 public class TestSwitchPatternMatching7 {
    static String test(Object s) {
-      switch(s) {
+      switch (s) {
          case null:
          default:
             return "everything";// 5 6

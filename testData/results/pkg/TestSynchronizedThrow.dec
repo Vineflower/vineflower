@@ -2,21 +2,21 @@ package pkg;
 
 public class TestSynchronizedThrow {
    public void test() {
-      synchronized(this) {// 5
+      synchronized (this) {// 5
          throw new RuntimeException();// 6
       }
    }
 
    public void test1() {
       System.out.println("Hi");// 11
-      synchronized(this) {// 12
+      synchronized (this) {// 12
          System.out.println("Hello");// 13
          throw new RuntimeException();// 14
       }
    }
 
    public void testConditionalThrow(boolean b) {
-      synchronized(this) {// 19
+      synchronized (this) {// 19
          if (b) {// 20
             throw new RuntimeException();// 21
          }
@@ -25,7 +25,7 @@ public class TestSynchronizedThrow {
 
    public void testConditionalThrow2(boolean b) {
       System.out.println("Hi");// 27
-      synchronized(this) {// 28
+      synchronized (this) {// 28
          System.out.println("Hello");// 29
          if (b) {// 30
             throw new RuntimeException();// 31
@@ -38,8 +38,8 @@ public class TestSynchronizedThrow {
    }// 36
 
    public void testLoopThrow(boolean b) {
-      synchronized(this) {// 39
-         while(b) {// 40
+      synchronized (this) {// 39
+         while (b) {// 40
             System.out.println("oh");// 41
          }
 
@@ -48,9 +48,9 @@ public class TestSynchronizedThrow {
    }
 
    public void testInfiniteLoopOrThrow(boolean b) {
-      synchronized(this) {// 48
+      synchronized (this) {// 48
          if (b) {// 49
-            while(true) {
+            while (true) {
                System.out.println("looooooooooop");// 51
             }
          }

@@ -4,7 +4,7 @@ import java.util.Random;
 
 public class TestAssignmentSwitchExpression3 {
    public void test(int x) {
-      Random random = switch(x) {// 7
+      Random random = switch (x) {// 7
          case -5, -4, -3, -2, -1 -> {
             int seed = x >> 2;// 14
             yield new Random((long)seed);// 15

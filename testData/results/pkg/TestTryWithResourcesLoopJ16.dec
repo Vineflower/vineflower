@@ -6,7 +6,7 @@ import java.util.Scanner;
 
 public class TestTryWithResourcesLoopJ16 {
    public void test(File f) throws FileNotFoundException {
-      while(true) {
+      while (true) {
          try (Scanner s = this.create(f)) {// 10
             if (s.hasNext()) {// 11
                s.next();// 15
@@ -19,7 +19,7 @@ public class TestTryWithResourcesLoopJ16 {
    }
 
    public void test1(File f) throws FileNotFoundException {
-      while(f.exists()) {// 21
+      while (f.exists()) {// 21
          try (Scanner s = this.create(f)) {// 22
             if (s.hasNext()) {// 23
                s.next();// 27
@@ -31,7 +31,7 @@ public class TestTryWithResourcesLoopJ16 {
    }// 30
 
    public void test2(File f) throws FileNotFoundException {
-      while(f.exists()) {// 33
+      while (f.exists()) {// 33
          try (
             Scanner s = this.create(f);// 34
             Scanner s2 = this.create(f);// 35
@@ -46,7 +46,7 @@ public class TestTryWithResourcesLoopJ16 {
    }// 43
 
    public void test3(File f) throws FileNotFoundException {
-      while(f.exists()) {// 46
+      while (f.exists()) {// 46
          try (
             Scanner s = this.create(f);// 47
             Scanner s2 = this.create(f);// 48
@@ -66,7 +66,7 @@ public class TestTryWithResourcesLoopJ16 {
    }// 58
 
    public void test4(File f) throws FileNotFoundException {
-      while(f.exists()) {// 61
+      while (f.exists()) {// 61
          try (
             Scanner s = this.create(f);// 62
             Scanner s2 = this.create(f);// 63

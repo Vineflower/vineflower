@@ -8,7 +8,7 @@ public class TestTryLoopRecompile {
    private boolean field;
 
    public void test(File file) {
-      while(true) {
+      while (true) {
          try {
             if (this.field) {// 13
                new Scanner(file);// 14
