@@ -662,6 +662,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestStackCastParam");
     register(JAVA_8, "TestObjectPhi");
     register(JASM, "TestMethodParamsNoLvt");
+    register(JAVA_8, "TestPrimitiveTypeClasses");
   }
 
   private void registerEntireClassPath() {
