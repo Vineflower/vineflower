@@ -25,6 +25,7 @@ public final class IfPatternMatchProcessor {
     boolean res = matchInstanceofRec(root, root);
 
     if (res) {
+      ValidationHelper.validateStatement(root);
       //noinspection StatementWithEmptyBody
       if (IfHelper.mergeAllIfs(root)) {
         // IfHelper already called SequenceHelper.condenseSequences
@@ -61,26 +62,34 @@ public final class IfPatternMatchProcessor {
 
     boolean updated = false;
     if (lastIfTrue != null) {
-      updated = checkBranch(lastIfTrue, statement, statement.getIfEdge().getDestination());
+      if(checkBranch(lastIfTrue, statement, statement.getIfEdge().getDestination())) {
+        updated = true;
+
+        // The if branch might be empty now
+        statement.fixIfInvariantEmptyIfBranch();
+      }
     }
 
     if (!updated && lastIfFalse != null) {
       if (statement.getElseEdge() != null) {
-        updated |= checkBranch(lastIfFalse, statement, statement.getElseEdge().getDestination());
+        if(checkBranch(lastIfFalse, statement, statement.getElseEdge().getDestination())) {
+          updated = true;
+
+          // The else branch might be empty now
+          statement.fixIfInvariantEmptyElseBranch();
+        }
       } else {
         var allSuc = statement.getAllSuccessorEdges();
         if (allSuc.size() == 1) {
           // In theory, the if branch can 'fall through' to here, but then this branch has multiple predecessors
           // and will get left alone anyway
-          updated |= checkBranch(lastIfFalse, statement, allSuc.get(0).getDestination());
+          if(checkBranch(lastIfFalse, statement, allSuc.get(0).getDestination())) {
+            updated = true;
+
+            // No need to fix 'if' invariants
+          }
         }
       }
-    }
-
-    if (updated) {
-      // It's possible that the if statement is now empty
-      // if(){;}else{...} -> if(!){...}
-      statement.fixInversion();
     }
 
     return updated;

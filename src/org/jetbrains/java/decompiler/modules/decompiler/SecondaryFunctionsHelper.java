@@ -52,7 +52,36 @@ public final class SecondaryFunctionsHelper {
         IfStatement ifelsestat = (IfStatement)stat;
         Statement ifstat = ifelsestat.getIfstat();
 
-        if (ifelsestat.fixInversion()) {
+        if (ifelsestat.iftype == IfStatement.IFTYPE_IFELSE && ifstat.getExprents() != null &&
+            ifstat.getExprents().isEmpty() && (ifstat.getAllSuccessorEdges().isEmpty() || !ifstat.getFirstSuccessor().explicit)) {
+
+          // move else to the if position
+          ifelsestat.getStats().removeWithKey(ifstat.id);
+
+          ifelsestat.iftype = IfStatement.IFTYPE_IF;
+          ifelsestat.setIfstat(ifelsestat.getElsestat());
+          ifelsestat.setElsestat(null);
+
+          if (ifelsestat.getAllSuccessorEdges().isEmpty() && !ifstat.getAllSuccessorEdges().isEmpty()) {
+            StatEdge endedge = ifstat.getFirstSuccessor();
+
+            ifstat.removeSuccessor(endedge);
+            endedge.setSource(ifelsestat);
+            if (endedge.closure != null) {
+              ifelsestat.getParent().addLabeledEdge(endedge);
+            }
+            ifelsestat.addSuccessor(endedge);
+          }
+
+          ifelsestat.getFirst().removeSuccessor(ifelsestat.getIfEdge());
+
+          ifelsestat.setIfEdge(ifelsestat.getElseEdge());
+          ifelsestat.setElseEdge(null);
+
+          // negate head expression
+          ifelsestat.setNegated(!ifelsestat.isNegated());
+          ifelsestat.getHeadexprentList().set(0, ((IfExprent)ifelsestat.getHeadexprent().copy()).negateIf());
+
           return true;
         } else if (ifelsestat.iftype == IfStatement.IFTYPE_IF && ifstat != null && ifstat.getExprents() != null &&
           ifstat.getExprents().isEmpty() && (ifstat.hasAnySuccessor() && ifstat.getFirstSuccessor().getType() == StatEdge.TYPE_FINALLYEXIT)) {
