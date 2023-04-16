@@ -95,8 +95,7 @@ public final class SimpleSSAReassign {
   }
 
   private static void findAllVars(Exprent exprent, Consumer<VarExprent> action) {
-    List<Exprent> lst = exprent.getAllExprents(true);
-    lst.add(exprent);
+    List<Exprent> lst = exprent.getAllExprents(true, true);
 
     for (Exprent expr : lst) {
       if (expr instanceof VarExprent) {

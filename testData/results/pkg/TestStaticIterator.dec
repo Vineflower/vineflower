@@ -17,13 +17,13 @@ public class TestStaticIterator {
    public static void test() {
       Iterator iter = iterator();// 18
 
-      while(iter.hasNext()) {// 19
+      while (iter.hasNext()) {// 19
          TestStaticIterator var1 = (TestStaticIterator)iter.next();// 20
       }
    }// 22
 
    public static void test1() {
-      for(Object o : iterable()) {// 25
+      for (Object o : iterable()) {// 25
          System.out.println(o);// 26
       }
    }// 28

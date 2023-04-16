@@ -4,13 +4,13 @@ import java.util.Arrays
 
 class TestFunVarargs {
    fun printAll(vararg messages: String) {
-      for(String m : messages) {// 5
+      for (String m : messages) {// 5
          System.out.println(m);
       }
    }// 6
 
    fun printAllArray(messages: Array<String>) {
-      for(String m : messages) {// 9
+      for (String m : messages) {// 9
          System.out.println(m);
       }
    }// 10
@@ -24,7 +24,7 @@ class TestFunVarargs {
       this.log("a", "b", "c");// 18
    }// 19
 
-   fun nestedArrays(e0: Array<String>, e1: Array<Object>, e2: Array<Array<Array<String>>>) {
+   fun nestedArrays(e0: Array<String>, e1: Array<Any>, e2: Array<Array<Array<String>>>) {
    }// 23
 }
 

@@ -155,7 +155,8 @@ public final class SwitchStatement extends Statement {
             value = value.copy();
             ((ConstExprent)value).setConstType(switch_type);
           } if (value instanceof FieldExprent && ((FieldExprent)value).isStatic()) { // enum values
-            buf.append(((FieldExprent)value).getName());
+            FieldExprent field = (FieldExprent) value;
+            buf.appendField(field.getName(), false, field.getClassname(), field.getName(), field.getDescriptor());
           } else if (value instanceof FunctionExprent && ((FunctionExprent) value).getFuncType() == FunctionType.INSTANCEOF) {
             // Pattern matching variables
             List<Exprent> operands = ((FunctionExprent) value).getLstOperands();

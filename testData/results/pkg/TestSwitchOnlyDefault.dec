@@ -2,14 +2,14 @@ package pkg;
 
 public class TestSwitchOnlyDefault {
    public void test(int i) {
-      switch(i) {// 5
+      switch (i) {// 5
          default:
             System.out.println("Test");// 7
       }
    }// 9
 
    public void test2(int i) {
-      switch(i) {// 12
+      switch (i) {// 12
       }
    }// 15
 }

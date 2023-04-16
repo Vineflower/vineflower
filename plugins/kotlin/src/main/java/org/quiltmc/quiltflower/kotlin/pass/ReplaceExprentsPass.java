@@ -2,16 +2,11 @@ package org.quiltmc.quiltflower.kotlin.pass;
 
 import org.jetbrains.java.decompiler.api.passes.Pass;
 import org.jetbrains.java.decompiler.api.passes.PassContext;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.InvocationExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.BasicBlockStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
-import org.quiltmc.quiltflower.kotlin.expr.KFunctionExprent;
-import org.quiltmc.quiltflower.kotlin.expr.KInvocationExprent;
-import org.quiltmc.quiltflower.kotlin.expr.KVarExprent;
+import org.quiltmc.quiltflower.kotlin.expr.*;
 
 import java.util.List;
 
@@ -88,6 +83,10 @@ public class ReplaceExprentsPass implements Pass {
       return new KVarExprent((VarExprent) ex);
     } else if (ex instanceof InvocationExprent) {
       return new KInvocationExprent((InvocationExprent) ex);
+    } else if (ex instanceof ConstExprent) {
+      return new KConstExprent((ConstExprent) ex);
+    } else if (ex instanceof FieldExprent) {
+      return new KFieldExprent((FieldExprent) ex);
     }
 
     return null;

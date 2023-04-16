@@ -75,7 +75,7 @@ public final class TestNamedSuspendFun2Kt {
          label250: {
             Object $result = $continuation.result;
             var4 = IntrinsicsKt.getCOROUTINE_SUSPENDED();
-            switch($continuation.label) {
+            switch ($continuation.label) {
                case 0:
                   ResultKt.throwOnFailure($result);
                   break;
@@ -119,7 +119,7 @@ public final class TestNamedSuspendFun2Kt {
                   throw new IllegalStateException("call to 'resume' before 'invoke' with coroutine");
             }
 
-            while(true) {
+            while (true) {
                try {
                   $continuation.label = 1;
                   var10000 = (Throwable)bar($continuation);// 4

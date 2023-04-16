@@ -10,7 +10,7 @@ public class TestWhileForeach {
       } else {
          Object o = it.next();// 9
 
-         while(o != null) {// 11
+         while (o != null) {// 11
             o = o.toString();// 12
          }
 

@@ -4,11 +4,11 @@ import ext.Direction;
 
 public class TestSwitchExpressionNested1 {
    public int test(Direction dir, Direction dir2) {
-      return switch(dir) {// 7
+      return switch (dir) {// 7
          case NORTH -> 1;// 8
          case SOUTH -> 2;// 9
          case EAST -> {
-            switch(dir2) {// 10
+            switch (dir2) {// 10
                case NORTH:
                   yield 3;// 11
                case SOUTH:

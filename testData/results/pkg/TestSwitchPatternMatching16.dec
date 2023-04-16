@@ -5,7 +5,7 @@ import java.util.Objects;
 public class TestSwitchPatternMatching16 {
    static void test3(Object s) {
       Objects.requireNonNull(s);// 9
-      switch(s) {
+      switch (s) {
          case Integer i when i > 0:// 10
             System.out.println("positive integer: " + i);// 11
             break;// 12

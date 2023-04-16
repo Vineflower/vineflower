@@ -17,7 +17,7 @@ public enum TestKotlinEnumWhen {
    THIRD;
 
    public final void testStatement() {
-      switch(this) {// 7
+      switch (this) {// 7
          case FIRST:
             System.out.println("first!");// 8
             break;
@@ -31,7 +31,7 @@ public enum TestKotlinEnumWhen {
 
    public final void testExpression() {
       String var10000;
-      switch(this) {// 16
+      switch (this) {// 16
          case FIRST:
             var10000 = "first!";// 17
             break;
@@ -51,7 +51,7 @@ public enum TestKotlinEnumWhen {
 
    public final void testAnotherEnum() {
       DeprecationLevel level = testAnotherEnum$getLevel();// 28
-      switch(level) {
+      switch (level) {
          case WARNING:
             System.out.println("warning " + level);// 29
             break;
@@ -64,7 +64,7 @@ public enum TestKotlinEnumWhen {
    }// 33
 
    public final void testConsecutive() {
-      switch(this) {// 36
+      switch (this) {// 36
          case FIRST:
             System.out.println("first!");// 37
             break;
@@ -75,7 +75,7 @@ public enum TestKotlinEnumWhen {
             System.out.println("third!");// 39
       }
 
-      switch(this) {// 42
+      switch (this) {// 42
          case FIRST:
             System.out.println("first, again!");// 43
             break;
@@ -89,7 +89,7 @@ public enum TestKotlinEnumWhen {
 
    public final void testConsecutiveMixed() {
       DeprecationLevel level = testConsecutiveMixed$getLevel-0();// 53
-      switch(level) {
+      switch (level) {
          case WARNING:
             System.out.println("warning " + level);// 54
             break;
@@ -100,7 +100,7 @@ public enum TestKotlinEnumWhen {
             System.out.println("hidden " + level);// 56
       }
 
-      switch(this) {// 59
+      switch (this) {// 59
          case FIRST:
             System.out.println("first!");// 60
             break;

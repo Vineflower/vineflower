@@ -147,6 +147,11 @@ public class FieldExprent extends Exprent {
     }
 
     if (isStatic) {
+      if (name.equals("TYPE") && ExprUtil.PRIMITIVE_TYPES.containsKey(classname)) {
+        buf.append(ExprUtil.PRIMITIVE_TYPES.get(classname));
+        buf.append(".class");
+        return buf;
+      }
       if (useQualifiedStatic()) {
         buf.appendAllClasses(DecompilerContext.getImportCollector().getShortNameInClassContext(ExprProcessor.buildJavaClassName(classname)), classname);
         buf.append(".");

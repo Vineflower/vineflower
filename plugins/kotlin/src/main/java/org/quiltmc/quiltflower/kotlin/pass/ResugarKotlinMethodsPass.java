@@ -9,8 +9,6 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectNode;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.BasicBlockStatement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.struct.match.MatchEngine;
 import org.quiltmc.quiltflower.kotlin.expr.KFunctionExprent;
 
@@ -94,6 +92,11 @@ public class ResugarKotlinMethodsPass implements Pass {
     "  exprent ret:$x$",
     "  exprent type:constant consttype:null"
   );
+  
+  // Reflection.getOrCreateKotlinClass($class$)
+  private static final MatchEngine GET_KCLASS = new MatchEngine(
+    "exprent type:invocation invclass:kotlin/jvm/internal/Reflection name:getOrCreateKotlinClass parameter:0:$class$"
+  );
 
   private static class ResugarRes {
     public final Exprent expr;
@@ -133,6 +136,12 @@ public class ResugarKotlinMethodsPass implements Pass {
           (Exprent) TERNARY_NULL_CHECK.getVariableValue("$x$"), (Exprent) TERNARY_NULL_CHECK.getVariableValue("$y$")
         ), null), false);
       }
+    }
+
+    if (GET_KCLASS.match(ex)) {
+      return new ResugarRes(new KFunctionExprent(KFunctionExprent.KFunctionType.GET_KCLASS, List.of(
+        (Exprent) GET_KCLASS.getVariableValue("$class$")
+      ), null), false);
     }
 
     return new ResugarRes(null);

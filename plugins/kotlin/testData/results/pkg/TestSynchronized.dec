@@ -3,7 +3,7 @@ package pkg
 class TestSynchronized {
    // $QF: Extended synchronized range to monitorexit
    fun test() {
-      synchronized(this) {// 5
+      synchronized (this) {// 5
          System.out.println("Hello");// 6
       }
    }

@@ -2,7 +2,7 @@ package pkg;
 
 public class TestArrayAssign {
    public void test(TestArrayAssign.Holder holder, int i, double inc) {
-      for(int j = 0; j < i; ++j) {// 5
+      for (int j = 0; j < i; ++j) {// 5
          holder.get()[j] += inc;// 6
       }
    }// 8
@@ -12,7 +12,7 @@ public class TestArrayAssign {
    }// 12
 
    public void test2(TestArrayAssign.Holder holder, int i, double inc) {
-      for(int j = 0; j < i; ++j) {// 15
+      for (int j = 0; j < i; ++j) {// 15
          holder.a[j] += inc;// 16
       }
    }// 18

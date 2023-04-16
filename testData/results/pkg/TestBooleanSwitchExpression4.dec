@@ -3,20 +3,20 @@ package pkg;
 public class TestBooleanSwitchExpression4 {
    public void test(int x, int y, int z) {
       label35:
-      switch(x) {// 5
+      switch (x) {// 5
          case 0:
             if (y >= 0) {// 6
                return;// 29
             }
             break;
          case 1:
-            switch(y) {// 7
+            switch (y) {// 7
                case 0:
                   break label35;
                case 1:
                   return;
                case 2:
-                  while(z > 0) {// 11
+                  while (z > 0) {// 11
                      int var4;
                      z -= var4 = x / 2;// 12
                      x = var4 + y;// 13
@@ -52,20 +52,20 @@ public class TestBooleanSwitchExpression4 {
       label39: {
          label38: {
             label37:
-            switch(x) {// 32
+            switch (x) {// 32
                case 0:
                   if (y < 0) {// 33
                      break label38;
                   }
                   break;
                case 1:
-                  switch(y) {// 34
+                  switch (y) {// 34
                      case 0:
                         break label38;
                      case 1:
                         break label37;
                      case 2:
-                        while(z > 0) {// 38
+                        while (z > 0) {// 38
                            int var4;
                            z -= var4 = x / 2;// 39
                            x = var4 + y;// 40

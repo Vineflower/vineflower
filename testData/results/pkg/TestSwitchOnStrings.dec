@@ -2,7 +2,7 @@ package pkg;
 
 public class TestSwitchOnStrings {
    public int testSOS1(String s) {
-      switch(s) {// 5
+      switch (s) {// 5
          case "xxx":
             return 2;// 7
          case "yyy":
@@ -13,7 +13,7 @@ public class TestSwitchOnStrings {
    }
 
    public int testSOS2(String s) {
-      switch(s) {// 15
+      switch (s) {// 15
          case "xxx":
             return 2;// 17
          case "yyy":
@@ -30,7 +30,7 @@ public class TestSwitchOnStrings {
    }
 
    public int testSOS3(String s) {
-      switch(s) {// 31
+      switch (s) {// 31
          case "xxx":
             return 2;// 33
          case "yyy":

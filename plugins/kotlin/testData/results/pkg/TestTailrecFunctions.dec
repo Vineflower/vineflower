@@ -7,7 +7,7 @@ class TestTailrecFunctions {
 
       var var8: Long;
       var var17: Long;
-      for(var8 = sum; var6 != 0L; var8 = var17) {// 5
+      for (var8 = sum; var6 != 0L; var8 = var17) {// 5
          var var15: Long = var6 - 1L;// 6
          var17 = var8 + var6;
          var5 = var5;
@@ -74,7 +74,7 @@ class TestTailrecFunctions {
       var var10: Long = n;
       var var12: Long = acc;
 
-      while(var10 != 0L) {// 44
+      while (var10 != 0L) {// 44
          if (var10 % (long)2 == 0L) {// 45
             var var21: Long = var8 * var8;
             var var23: Long = var10 / (long)2;
@@ -97,7 +97,7 @@ class TestTailrecFunctions {
 
    @JvmStatic
    @JvmSynthetic
-   fun `fastPow$default`(var0: TestTailrecFunctions, var1: Long, var3: Long, var5: Long, var7: Int, var8: Object): Long  {
+   fun `fastPow$default`(var0: TestTailrecFunctions, var1: Long, var3: Long, var5: Long, var7: Int, var8: Any): Long  {
       if ((var7 and 4) != 0) {// 43
          var5 = 1L;
       }
@@ -111,7 +111,7 @@ class TestTailrecFunctions {
       var var8: Long = n;
 
       var var10000: Long;
-      while(true) {
+      while (true) {
          if (var8 == 0L) {// 50
             var10000 = 1L;
             break;

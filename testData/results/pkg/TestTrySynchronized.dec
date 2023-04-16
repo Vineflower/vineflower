@@ -7,7 +7,7 @@ public class TestTrySynchronized {
    private static TestTrySynchronized monitor = new TestTrySynchronized();
 
    public static void case01() throws Exception {
-      synchronized(monitor) {// 11
+      synchronized (monitor) {// 11
          System.out.println("Inside synchronized block.");// 12
       }// 13
 
@@ -21,7 +21,7 @@ public class TestTrySynchronized {
    }// 21
 
    public static void case02() throws Exception {
-      synchronized(monitor) {// 25
+      synchronized (monitor) {// 25
          System.out.println("Inside first synchronized block.");// 26
       }// 27
 
@@ -29,7 +29,7 @@ public class TestTrySynchronized {
 
       try {
          stream = getInputStream();// 31
-         synchronized(monitor) {// 33
+         synchronized (monitor) {// 33
             System.out.println("Inside second synchronized block.");// 34
          }// 35
       } catch (Throwable var4) {// 37

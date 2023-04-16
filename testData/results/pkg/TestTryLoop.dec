@@ -14,7 +14,7 @@ public class TestTryLoop {
 
    public void test(File file) {
       try {
-         while(this.field) {// 16
+         while (this.field) {// 16
             new Scanner(file);// 17
          }
       } catch (FileNotFoundException var3) {// 19
@@ -23,7 +23,7 @@ public class TestTryLoop {
    }// 22
 
    public boolean hasNext(Path p, Iterator<File> f) {
-      while(true) {
+      while (true) {
          try {
             if (Files.exists(p, new LinkOption[0])) {// 28
                File a = (File)f.next();// 29

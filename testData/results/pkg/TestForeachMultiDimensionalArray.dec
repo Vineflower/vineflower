@@ -6,8 +6,8 @@ public class TestForeachMultiDimensionalArray {
    public void test() {
       int[][] vvv1 = new int[0][];// 7
 
-      for(int[] vvv2 : vvv1) {// 14
-         switch(1) {// 9
+      for (int[] vvv2 : vvv1) {// 14
+         switch (1) {// 9
             case 0:
                try {
                   ElementType vvv8 = ElementType.METHOD;// 12

@@ -81,5 +81,6 @@ public class KotlinTests extends SingleClassesTestBase {
     register(KOTLIN, "TestCompileTimeErrors");
     register(KOTLIN, "TestPoorNames");
     register(KOTLIN, "TestSynchronized");
+    register(KOTLIN, "TestReflection");
   }
 }

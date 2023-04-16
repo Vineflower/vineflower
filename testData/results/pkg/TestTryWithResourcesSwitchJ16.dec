@@ -7,7 +7,7 @@ import java.util.Scanner;
 public class TestTryWithResourcesSwitchJ16 {
    public void test(File f) throws FileNotFoundException {
       try (Scanner s = this.create(f)) {// 9
-         switch(s.nextInt()) {// 10
+         switch (s.nextInt()) {// 10
             case 1:
                System.out.println("1");// 12
                break;// 13
@@ -23,7 +23,7 @@ public class TestTryWithResourcesSwitchJ16 {
    public void test1(File f) throws FileNotFoundException {
       try (Scanner s = this.create(f)) {// 25
          label54: {
-            switch(s.nextInt()) {// 26
+            switch (s.nextInt()) {// 26
                case 1:
                   System.out.println("1");// 28
                   break;// 29
@@ -47,7 +47,7 @@ public class TestTryWithResourcesSwitchJ16 {
    public int test2(File f) throws FileNotFoundException {
       try (Scanner s = this.create(f)) {// 48
          label66: {
-            switch(s.nextInt()) {// 49
+            switch (s.nextInt()) {// 49
                case 1:
                   System.out.println("1");// 51
                   break;// 52

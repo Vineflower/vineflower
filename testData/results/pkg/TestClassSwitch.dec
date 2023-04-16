@@ -2,7 +2,7 @@ package pkg;
 
 public class TestClassSwitch {
    public void testCaseOrder(int a) {
-      switch(a) {// 22
+      switch (a) {// 22
          case 5:
             System.out.println(5);// 27
          default:
@@ -14,7 +14,7 @@ public class TestClassSwitch {
 
    public void testFallThrough(int a, int b) {
       int x = 17;// 33
-      switch(a) {// 35
+      switch (a) {// 35
          case 6:
          case 7:
          case 8:

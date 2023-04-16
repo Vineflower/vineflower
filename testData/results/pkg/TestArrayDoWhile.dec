@@ -8,7 +8,7 @@ public class TestArrayDoWhile {
       do {
          array[i - 1] = i;// 8
          array[array.length - i] = i * 4;// 9
-      } while(++i < array.length);// 10 11
+      } while (++i < array.length);// 10 11
 
       return array;// 13
    }

@@ -28,7 +28,7 @@ public enum TestEnum {
    }
 
    private void testSwitch() {
-      switch(this) {// 40
+      switch (this) {// 40
          case E1:
             System.out.println("E1");// 42
             break;// 43
@@ -42,7 +42,7 @@ public enum TestEnum {
             System.out.println("E4");// 51
       }
 
-      switch(TestEnum.Type.ODD) {// 55
+      switch (TestEnum.Type.ODD) {// 55
          case ODD:
             System.out.println("ODD");// 57
       }

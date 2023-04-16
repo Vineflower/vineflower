@@ -54,7 +54,7 @@ public final class TestSuspendLambdaKt {
          @Nullable
          public final Object invokeSuspend(@NotNull Object $result) {
             IntrinsicsKt.getCOROUTINE_SUSPENDED();
-            switch(this.label) {
+            switch (this.label) {
                case 0:
                   ResultKt.throwOnFailure($result);
                   System.out.println("SL1");// 4

@@ -1,12 +1,10 @@
 package pkg
 
-import kotlin.jvm.functions.Function1
-
 class TestLabeledJumps {
-   fun testContinue(tester: Function1<? super Integer, Boolean>) {
+   fun testContinue(tester: (Int?) -> Boolean) {
       label24:
-      for(int i = 1; i < 101; ++i) {// 5
-         for(int j = 1; j < 101; ++j) {// 6
+      for (int i = 1; i < 101; ++i) {// 5
+         for (int j = 1; j < 101; ++j) {// 6
             if (tester.invoke(j)) {// 7
                continue label24;
             }
@@ -18,10 +16,10 @@ class TestLabeledJumps {
       }
    }// 16
 
-   fun testBreak(tester: Function1<? super Integer, Boolean>) {
+   fun testBreak(tester: (Int?) -> Boolean) {
       label22:
-      for(int i = 1; i < 101; ++i) {// 19
-         for(int j = 1; j < 101; ++j) {// 20
+      for (int i = 1; i < 101; ++i) {// 19
+         for (int j = 1; j < 101; ++j) {// 20
             if (tester.invoke(j)) {// 21
                break label22;
             }
@@ -36,131 +34,131 @@ class TestLabeledJumps {
 
 class 'pkg/TestLabeledJumps' {
    method 'testContinue (Lkotlin/jvm/functions/Function1;)V' {
-      6      7
-      7      7
-      8      7
-      9      7
-      a      7
-      b      7
-      e      8
-      f      8
-      10      8
-      11      8
-      12      8
-      13      8
-      16      9
-      17      9
-      18      9
-      19      9
-      1a      9
-      1b      9
-      1c      9
-      1d      9
-      1e      9
-      1f      9
-      23      9
-      24      9
-      25      9
-      26      9
-      2c      13
-      2d      13
-      2e      13
-      2f      13
-      30      13
-      31      13
-      32      13
-      33      13
-      34      13
-      35      13
-      37      13
-      38      13
-      39      13
-      3a      8
-      3b      8
-      3c      8
-      40      16
-      41      16
-      42      16
-      43      16
-      44      16
-      46      16
-      49      7
-      4a      7
-      4b      7
-      4f      18
+      6      5
+      7      5
+      8      5
+      9      5
+      a      5
+      b      5
+      e      6
+      f      6
+      10      6
+      11      6
+      12      6
+      13      6
+      16      7
+      17      7
+      18      7
+      19      7
+      1a      7
+      1b      7
+      1c      7
+      1d      7
+      1e      7
+      1f      7
+      23      7
+      24      7
+      25      7
+      26      7
+      2c      11
+      2d      11
+      2e      11
+      2f      11
+      30      11
+      31      11
+      32      11
+      33      11
+      34      11
+      35      11
+      37      11
+      38      11
+      39      11
+      3a      6
+      3b      6
+      3c      6
+      40      14
+      41      14
+      42      14
+      43      14
+      44      14
+      46      14
+      49      5
+      4a      5
+      4b      5
+      4f      16
    }
 
    method 'testBreak (Lkotlin/jvm/functions/Function1;)V' {
-      6      22
-      7      22
-      8      22
-      9      22
-      a      22
-      b      22
-      e      23
-      f      23
-      10      23
-      11      23
-      12      23
-      13      23
-      16      24
-      17      24
-      18      24
-      19      24
-      1a      24
-      1b      24
-      1c      24
-      1d      24
-      1e      24
-      1f      24
-      23      24
-      24      24
-      25      24
-      26      24
-      2c      28
-      2d      28
-      2e      28
-      2f      28
-      30      28
-      31      28
-      32      28
-      33      28
-      34      28
-      35      28
-      37      28
-      38      28
-      39      28
-      3a      23
-      3b      23
-      3c      23
-      40      22
-      41      22
-      42      22
-      46      32
-      47      32
-      48      32
-      49      32
-      4a      32
-      4c      32
-      4d      32
-      4e      32
-      4f      33
+      6      20
+      7      20
+      8      20
+      9      20
+      a      20
+      b      20
+      e      21
+      f      21
+      10      21
+      11      21
+      12      21
+      13      21
+      16      22
+      17      22
+      18      22
+      19      22
+      1a      22
+      1b      22
+      1c      22
+      1d      22
+      1e      22
+      1f      22
+      23      22
+      24      22
+      25      22
+      26      22
+      2c      26
+      2d      26
+      2e      26
+      2f      26
+      30      26
+      31      26
+      32      26
+      33      26
+      34      26
+      35      26
+      37      26
+      38      26
+      39      26
+      3a      21
+      3b      21
+      3c      21
+      40      20
+      41      20
+      42      20
+      46      30
+      47      30
+      48      30
+      49      30
+      4a      30
+      4c      30
+      4d      30
+      4e      30
+      4f      31
    }
 }
 
 Lines mapping:
-5 <-> 8
-6 <-> 9
-7 <-> 10
-11 <-> 14
-14 <-> 17
-16 <-> 19
-19 <-> 23
-20 <-> 24
-21 <-> 25
-25 <-> 29
-29 <-> 33
-30 <-> 34
+5 <-> 6
+6 <-> 7
+7 <-> 8
+11 <-> 12
+14 <-> 15
+16 <-> 17
+19 <-> 21
+20 <-> 22
+21 <-> 23
+25 <-> 27
+29 <-> 31
+30 <-> 32
 Not mapped:
 8
 22

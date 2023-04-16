@@ -3,11 +3,13 @@ package org.quiltmc.quiltflower.kotlin.expr;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.ConstExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.FieldExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.Typed;
+import org.quiltmc.quiltflower.kotlin.util.KTypes;
 
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -20,7 +22,8 @@ public class KFunctionExprent extends FunctionExprent {
     NONE,
 
     EQUALS3,
-    IF_NULL
+    IF_NULL,
+    GET_KCLASS,
   }
 
   public KFunctionExprent(KFunctionType funcType, List<Exprent> operands, BitSet bytecodeOffsets) {
@@ -40,7 +43,13 @@ public class KFunctionExprent extends FunctionExprent {
     setNeedsCast(func.doesCast());
 
     if (getFuncType() == FunctionType.EQ) {
-      setFuncType(KFunctionType.EQUALS3);
+      // If one (or both) sides is null, Kotlin uses == instead of === for strict equality
+      Exprent left = (Exprent) getAllExprents().get(0);
+      Exprent right = (Exprent) getAllExprents().get(1);
+
+      if (left.getExprType() != VarType.VARTYPE_NULL && right.getExprType() != VarType.VARTYPE_NULL) {
+        setFuncType(KFunctionType.EQUALS3);
+      }
     }
   }
 
@@ -66,6 +75,20 @@ public class KFunctionExprent extends FunctionExprent {
               .append(" ?: ")
               .append(wrapOperandString(lstOperands.get(1), true, indent));
             return buf;
+          case GET_KCLASS:
+            Exprent operand = lstOperands.get(0);
+            if (operand instanceof ConstExprent) {
+              ConstExprent constExprent = (ConstExprent) operand;
+              String value = constExprent.getValue().toString();
+              VarType type = new VarType(value, !value.startsWith("["));
+              buf.append(KTypes.getKotlinType(type));
+            } else {
+              FieldExprent fieldExprent = (FieldExprent) operand;
+              String primitiveType = fieldExprent.getClassname();
+              VarType type = new VarType(primitiveType, true);
+              buf.append(KTypes.getKotlinType(type));
+            }
+            return buf.append("::class");
         }
 
         throw new IllegalStateException("Unknown function type: " + kType);
@@ -173,6 +196,8 @@ public class KFunctionExprent extends FunctionExprent {
           // TODO: Needs a better default!
           return VarType.VARTYPE_OBJECT;
         }
+      case GET_KCLASS:
+        return VarType.VARTYPE_CLASS;
     }
 
     return super.getExprType();
@@ -273,10 +298,15 @@ public class KFunctionExprent extends FunctionExprent {
 
   @Override
   public int getPrecedence() {
-    if (kType == KFunctionType.EQUALS3) {
-      return 6;
-    } else if (kType == KFunctionType.IF_NULL) {
-      return 11;
+    switch (kType) {
+      case EQUALS3:
+        return 6;
+      case IF_NULL:
+        return 11;
+      case GET_KCLASS:
+        return 1;
+      case NONE:
+        break;
     }
 
     return super.getPrecedence();

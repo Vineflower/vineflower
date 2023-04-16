@@ -4,11 +4,9 @@ package org.jetbrains.java.decompiler.modules.decompiler.flow;
 import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.BasicBlockStatement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.CatchAllStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 
 public class DirectNode {
@@ -68,18 +66,24 @@ public class DirectNode {
 
   @Deprecated
   public List<DirectNode> succs() {
-    return getSuccessors(DirectEdgeType.REGULAR)
-      .stream()
-      .map(DirectEdge::getDestination)
-      .collect(Collectors.toList());
+    List<DirectNode> list = new ArrayList<>();
+    for (DirectEdge edge : getSuccessors(DirectEdgeType.REGULAR)) {
+      DirectNode destination = edge.getDestination();
+      list.add(destination);
+    }
+
+    return list;
   }
 
   @Deprecated
   public List<DirectNode> preds() {
-    return getPredecessors(DirectEdgeType.REGULAR)
-      .stream()
-      .map(DirectEdge::getSource)
-      .collect(Collectors.toList());
+    List<DirectNode> list = new ArrayList<>();
+    for (DirectEdge edge : getPredecessors(DirectEdgeType.REGULAR)) {
+      DirectNode source = edge.getSource();
+      list.add(source);
+    }
+
+    return list;
   }
 
   @Override

@@ -2,7 +2,7 @@ package pkg;
 
 public class TestSwitchPatternMatching10 {
    static void test(String s) {
-      switch(s) {// 5
+      switch (s) {// 5
          case "hi":
             System.out.println("hi");// 6
             break;

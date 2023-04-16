@@ -5,12 +5,12 @@ public class TestGoto {
    }// 16
 
    public static void test() {
-      while(true) {
+      while (true) {
       }
    }
 
    public static void test1() {
-      while(true) {
+      while (true) {
          System.out.println("0");// 35 36 37
          System.out.println("2");// 45 46 47
          System.out.println("1");// 40 41 42

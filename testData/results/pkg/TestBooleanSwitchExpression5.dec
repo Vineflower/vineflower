@@ -3,7 +3,7 @@ package pkg;
 public class TestBooleanSwitchExpression5 {
    public void test(int x, int y, int z) {
       int a;
-      switch(x) {// 6
+      switch (x) {// 6
          case 0:
             if (y >= 0) {// 7
                return;// 14
@@ -50,7 +50,7 @@ public class TestBooleanSwitchExpression5 {
       label40: {
          int a;
          label39: {
-            switch(x) {// 18
+            switch (x) {// 18
                case 0:
                   if (y < 0) {// 19
                      a = 5;

@@ -2,14 +2,14 @@ package pkg;
 
 public class TestPatternMatchingFakeLoops {
    void test1(Object o) {
-      while(o instanceof String) {// 5
+      while (o instanceof String) {// 5
          String s = (String)o;// 6
          System.out.println(s.length());// 7
       }
    }// 9
 
    void test2(Object o) {
-      while(o instanceof String) {// 12
+      while (o instanceof String) {// 12
          String x = (String)o;
          String s = (String)o;// 13
          System.out.println(s);// 14
@@ -17,14 +17,14 @@ public class TestPatternMatchingFakeLoops {
    }// 16
 
    void test3(Object o) {
-      while(o.hashCode() < 0 || o instanceof String) {// 19
+      while (o.hashCode() < 0 || o instanceof String) {// 19
          String s = (String)o;// 20
          System.out.println(s);// 21
       }
    }// 23
 
    void test3B(Object o) {
-      while(o.hashCode() < 0 || o instanceof String) {// 26
+      while (o.hashCode() < 0 || o instanceof String) {// 26
          String s = (String)o;// 27
          System.out.println(s);// 28
       }
@@ -33,14 +33,14 @@ public class TestPatternMatchingFakeLoops {
    }// 32
 
    void test4(Object o) {
-      while(o.hashCode() < 0 || o instanceof String var2) {// 35
+      while (o.hashCode() < 0 || o instanceof String var2) {// 35
          String s = (String)o;// 36
          System.out.println(s);// 37
       }
    }// 39
 
    void test4x(Object o) {
-      while(true) {
+      while (true) {
          label13:
          if (o.hashCode() >= 0) {// 42
             if (o instanceof String x && !x.isEmpty()) {
@@ -56,7 +56,7 @@ public class TestPatternMatchingFakeLoops {
    }
 
    void test4B(Object o) {
-      while(o.hashCode() < 0 || o instanceof String var2) {// 49
+      while (o.hashCode() < 0 || o instanceof String var2) {// 49
          String s = (String)o;// 50
          System.out.println(s);// 51
       }
@@ -65,7 +65,7 @@ public class TestPatternMatchingFakeLoops {
    }// 54
 
    void test4xB(Object o) {
-      while(true) {
+      while (true) {
          label13:
          if (o.hashCode() >= 0) {// 57
             if (o instanceof String x && !x.isEmpty()) {
@@ -82,14 +82,14 @@ public class TestPatternMatchingFakeLoops {
    }
 
    void test3Swap(Object o) {
-      while(o instanceof String || o.hashCode() < 0) {// 65
+      while (o instanceof String || o.hashCode() < 0) {// 65
          String s = (String)o;// 66
          System.out.println(s);// 67
       }
    }// 69
 
    void test3BSwap(Object o) {
-      while(o instanceof String || o.hashCode() < 0) {// 72
+      while (o instanceof String || o.hashCode() < 0) {// 72
          String s = (String)o;// 73
          System.out.println(s);// 74
       }
@@ -98,21 +98,21 @@ public class TestPatternMatchingFakeLoops {
    }// 78
 
    void test4Swap(Object o) {
-      while(o instanceof String x || o.hashCode() < 0) {// 81
+      while (o instanceof String x || o.hashCode() < 0) {// 81
          String s = (String)o;// 82
          System.out.println(s);// 83
       }
    }// 85
 
    void test4xSwap(Object o) {
-      while(o instanceof String x && !x.isEmpty() || o.hashCode() < 0) {// 88
+      while (o instanceof String x && !x.isEmpty() || o.hashCode() < 0) {// 88
          String s = (String)o;// 89
          System.out.println(s);// 90
       }
    }// 92
 
    void test4BSwap(Object o) {
-      while(o instanceof String x || o.hashCode() < 0) {// 95
+      while (o instanceof String x || o.hashCode() < 0) {// 95
          String s = (String)o;// 96
          System.out.println(s);// 97
       }
@@ -121,7 +121,7 @@ public class TestPatternMatchingFakeLoops {
    }// 100
 
    void test4xBSwap(Object o) {
-      while(o instanceof String x && !x.isEmpty() || o.hashCode() < 0) {// 103
+      while (o instanceof String x && !x.isEmpty() || o.hashCode() < 0) {// 103
          String s = (String)o;// 104
          System.out.println(s);// 105
       }
@@ -132,7 +132,7 @@ public class TestPatternMatchingFakeLoops {
    public void testSet(Object obj) {
       String s = "Hi";// 112
 
-      while(obj instanceof String) {// 113
+      while (obj instanceof String) {// 113
          s = (String)obj;// 114
       }
 
@@ -142,7 +142,7 @@ public class TestPatternMatchingFakeLoops {
    public void testModifyLeak(Object obj) {
       Integer i = null;// 121
 
-      while(obj instanceof Integer) {// 122
+      while (obj instanceof Integer) {// 122
          i = (Integer)obj;// 123
          if (i > 4) {// 125
             i = i + 3;// 126
