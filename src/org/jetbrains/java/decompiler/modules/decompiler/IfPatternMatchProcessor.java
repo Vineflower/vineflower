@@ -26,10 +26,9 @@ public final class IfPatternMatchProcessor {
 
     if (res) {
       ValidationHelper.validateStatement(root);
-      //noinspection StatementWithEmptyBody
-      if (IfHelper.mergeAllIfs(root)) {
-        // IfHelper already called SequenceHelper.condenseSequences
-      } else {
+
+      // IfHelper already called SequenceHelper.condenseSequences if it returned true
+      if (!IfHelper.mergeAllIfs(root)) {
         SequenceHelper.condenseSequences(root);
       }
     }
