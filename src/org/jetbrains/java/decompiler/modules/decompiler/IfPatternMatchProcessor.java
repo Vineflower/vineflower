@@ -235,10 +235,9 @@ public final class IfPatternMatchProcessor {
           }
 
           // TEMPORARY
-          // (Nothing is as permanent as a temporary solution :p)
           // This is here because things like `a instanceof B` are initially decompiled as
           // `(a instanceof B) != false`, and this is only cleaned up at the end by
-          // secondaryFunctionsHelper :/
+          // secondaryFunctionsHelper
           case EQ: {
             Exprent rhs = func.getLstOperands().get(1);
             if (rhs.type == Exprent.Type.CONST) {
