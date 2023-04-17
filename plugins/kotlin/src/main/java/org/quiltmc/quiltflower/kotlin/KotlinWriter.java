@@ -36,6 +36,7 @@ import org.jetbrains.java.decompiler.util.Key;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.TextUtil;
 import org.jetbrains.java.decompiler.util.collections.VBStyleCollection;
+import org.quiltmc.quiltflower.kotlin.expr.KAnnotationExprent;
 import org.quiltmc.quiltflower.kotlin.util.KTypes;
 
 import java.io.IOException;
@@ -194,6 +195,12 @@ public class KotlinWriter implements StatementWriter {
         }
       }
 
+      if (cl.hasModifier(CodeConstants.ACC_ANNOTATION)) {
+        // Kotlin's annotation classes are treated quite differently from other classes
+        writeAnnotationDefinition(node, buffer, indent);
+        return;
+      }
+
       // write class definition
       writeClassDefinition(node, buffer, indent);
 
@@ -326,9 +333,113 @@ public class KotlinWriter implements StatementWriter {
     }
     finally {
       DecompilerContext.setProperty(DecompilerContext.CURRENT_CLASS_NODE, outerNode);
+      DecompilerContext.getLogger().endWriteClass();
+    }
+  }
+
+  private void writeAnnotationDefinition(ClassesProcessor.ClassNode node, TextBuffer buffer, int indent) {
+    ClassWrapper wrapper = node.getWrapper();
+    StructClass cl = wrapper.getClassStruct();
+
+    appendAnnotations(buffer, indent, cl, -1);
+    appendJvmAnnotations(buffer, indent, cl, true, cl.getPool(), TypeAnnotation.CLASS_TYPE_PARAMETER);
+
+    buffer.appendIndent(indent);
+    appendModifiers(buffer, cl.getAccessFlags(), CLASS_ALLOWED, true, CLASS_EXCLUDED);
+
+    VarType classType = new VarType(cl.qualifiedName, true);
+
+    buffer.append("annotation class ")
+      .append(KTypes.getKotlinType(classType, false))
+      .append(" (")
+      .appendLineSeparator();
+
+    boolean hasCompanion = !cl.getFields().isEmpty();
+
+    if (!cl.getMethods().isEmpty()) {
+      boolean first = true;
+      for (StructMethod mt : cl.getMethods()) {
+        if (mt.hasModifier(CodeConstants.ACC_STATIC)) {
+          hasCompanion = true;
+          continue;
+        }
+
+        if (first) {
+          first = false;
+        } else {
+          buffer.append(',').appendLineSeparator();
+        }
+
+        buffer.appendIndent(indent + 1)
+          .append("val ")
+          .append(mt.getName())
+          .append(": ");
+
+        String type = mt.getDescriptor().substring(2);
+        VarType varType = new VarType(type, false);
+
+        buffer.append(KTypes.getKotlinType(varType));
+
+        if (mt.hasAttribute(StructGeneralAttribute.ATTRIBUTE_ANNOTATION_DEFAULT)) {
+          buffer.append(" = ");
+          StructAnnDefaultAttribute attr = mt.getAttribute(StructGeneralAttribute.ATTRIBUTE_ANNOTATION_DEFAULT);
+          KAnnotationExprent.writeAnnotationValue(attr.getDefaultValue(), buffer);
+        }
+      }
+
+      buffer.appendLineSeparator().appendIndent(indent).append(')');
     }
 
-    DecompilerContext.getLogger().endWriteClass();
+    if (hasCompanion || !node.nested.isEmpty()) {
+      buffer.append(" {").appendLineSeparator();
+
+      // member classes
+      boolean first = false;
+      for (ClassNode inner : node.nested) {
+        if (inner.type == ClassNode.Type.MEMBER) {
+          StructClass innerCl = inner.classStruct;
+          boolean isSynthetic = (inner.access & CodeConstants.ACC_SYNTHETIC) != 0 || innerCl.isSynthetic();
+          boolean hide = isSynthetic && DecompilerContext.getOption(IFernflowerPreferences.REMOVE_SYNTHETIC) ||
+            wrapper.getHiddenMembers().contains(innerCl.qualifiedName);
+          if (hide) continue;
+
+          if (first) {
+            buffer.appendLineSeparator();
+          }
+          writeClass(inner, buffer, indent + 1);
+
+          first = true;
+        }
+      }
+
+      if (hasCompanion) {
+        buffer.appendIndent(indent + 1).append("companion object {").appendLineSeparator();
+
+        for (StructField fd : cl.getFields()) {
+          if (!fd.hasModifier(CodeConstants.ACC_STATIC)) {
+            appendComment(buffer, "Illegal field (must be static): " + fd.getName(), indent + 2);
+          }
+
+          writeField(wrapper, cl, fd, buffer, indent + 2);
+          buffer.appendLineSeparator();
+        }
+
+        for (StructMethod mt : cl.getMethods()) {
+          if (!mt.hasModifier(CodeConstants.ACC_STATIC)) {
+            continue;
+          }
+
+          writeMethod(node, mt, 0, buffer, indent + 2);
+          buffer.appendLineSeparator();
+        }
+
+        buffer.appendIndent(indent + 1).append('}').appendLineSeparator();
+      }
+
+      buffer.appendIndent(indent).append('}');
+    }
+
+    buffer.appendLineSeparator();
   }
 
   private static boolean isGenerated(int flags) {
@@ -1293,7 +1404,7 @@ public class KotlinWriter implements StatementWriter {
     Set<String> filter = new HashSet<>();
 
     for (Key<?> key : ANNOTATION_ATTRIBUTES) {
-      StructAnnotationAttribute attribute = (StructAnnotationAttribute)mb.getAttribute(key);
+      StructAnnotationAttribute attribute = mb.getAttribute(key);
       if (attribute != null) {
         for (AnnotationExprent annotation : attribute.getAnnotations()) {
           if (annotation.getClassName().equals("kotlin/Metadata")
@@ -1302,7 +1413,9 @@ public class KotlinWriter implements StatementWriter {
             continue;
           }
 
-          String text = annotation.toJava(indent).convertToStringAndAllowDataDiscard();
+          KAnnotationExprent kAnnotation = new KAnnotationExprent(annotation);
+
+          String text = kAnnotation.toJava(indent).convertToStringAndAllowDataDiscard();
           filter.add(text);
           buffer.append(text);
           if (indent < 0) {

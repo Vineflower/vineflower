@@ -30,6 +30,10 @@ public final class KTypes {
   );
 
   public static String getKotlinType(VarType type) {
+    return getKotlinType(type, true);
+  }
+
+  public static String getKotlinType(VarType type, boolean includeOuterClasses) {
     String typeStr;
     if (isFunctionType(type)) {
       typeStr = functionTypeToKotlin(type);
@@ -59,6 +63,10 @@ public final class KTypes {
         s = "Any";
       }
       // When going this path, arrays already get captured so no need to fall through to the array handling
+      if (!includeOuterClasses) {
+        s = s.substring(s.lastIndexOf('.') + 1);
+      }
+
       return mapJavaTypeToKotlin(s);
     }
     return "Array<".repeat(type.arrayDim) + typeStr + ">".repeat(type.arrayDim);
