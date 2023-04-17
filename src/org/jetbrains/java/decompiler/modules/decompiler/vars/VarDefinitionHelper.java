@@ -187,11 +187,9 @@ public class VarDefinitionHelper {
       List<Exprent> lst;
       if (first == null) {
         lst = stat.getVarDefinitions();
-      }
-      else if (first.getExprents() == null) {
+      } else if (first.getExprents() == null) {
         lst = first.getVarDefinitions();
-      }
-      else {
+      } else {
         lst = first.getExprents();
       }
 
@@ -1383,6 +1381,10 @@ public class VarDefinitionHelper {
     Set<VarVersionPair> curVarDefs = new HashSet<>();
 
     boolean shouldRemoveAtEnd = false;
+
+    for (Exprent exprent : stat.getVarDefinitions()) {
+      iterateClashingExprent(stat, varDefinitions, exprent, curVarDefs, nameMap);
+    }
 
     if (stat.getExprents() != null) {
       List<Exprent> exprents = new ArrayList<>(stat.getExprents());
