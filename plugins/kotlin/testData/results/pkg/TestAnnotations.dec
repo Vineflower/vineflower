@@ -15,19 +15,19 @@ class TestAnnotations {
 
    @Repeatable
    @Retention(RetentionPolicy.RUNTIME)
-   @java.lang.annotation.Repeatable(TestAnnotations.RepeatableAnnotation.Container.class)
-   annotation class RepeatableAnnotation (
+   @java.lang.annotation.Repeatable(TestAnnotations.RepeatableAnnotation.Container::class)
+   annotation class RepeatableAnnotation(
       val value: String
    ) {
       @RepeatableContainer
       @Retention(RetentionPolicy.RUNTIME)
-      annotation class Container (
+      annotation class Container(
          val value: Array<TestAnnotations.RepeatableAnnotation>
       )
    }
 
    @Retention(RetentionPolicy.RUNTIME)
-   annotation class TestAnnotation (
+   annotation class TestAnnotation(
       val first: String,
       val second: Int
    )
