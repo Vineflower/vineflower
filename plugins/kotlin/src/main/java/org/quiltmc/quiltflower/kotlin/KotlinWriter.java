@@ -351,7 +351,7 @@ public class KotlinWriter implements StatementWriter {
 
     buffer.append("annotation class ")
       .append(KTypes.getKotlinType(classType, false))
-      .append(" (")
+      .append("(")
       .appendLineSeparator();
 
     boolean hasCompanion = !cl.getFields().isEmpty();

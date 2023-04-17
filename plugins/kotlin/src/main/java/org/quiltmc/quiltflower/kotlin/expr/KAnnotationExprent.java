@@ -5,10 +5,11 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.quiltmc.quiltflower.kotlin.util.KTypes;
+import org.quiltmc.quiltflower.kotlin.util.KUtils;
 
-public class KAnnotationExprent extends AnnotationExprent {
+public class KAnnotationExprent extends AnnotationExprent implements KExprent {
   public KAnnotationExprent(AnnotationExprent expr) {
-    super(expr.getClassName(), expr.getParNames(), expr.getParValues());
+    super(expr.getClassName(), expr.getParNames(), KUtils.replaceExprents(expr.getParValues()));
     bytecode = expr.bytecode;
   }
 
@@ -104,10 +105,11 @@ public class KAnnotationExprent extends AnnotationExprent {
       }
     } else if (expr instanceof ConstExprent) {
       ConstExprent constExprent = (ConstExprent) expr;
-      if (constExprent.getConstType() == VarType.VARTYPE_CLASS) {
+      if (constExprent.getConstType().equals(VarType.VARTYPE_CLASS)) {
         VarType type = new VarType((String) constExprent.getValue(), true);
         DecompilerContext.getImportCollector().getShortName((String) constExprent.getValue(), true);
-        buffer.append(KTypes.getKotlinType(type));
+        buffer.append(KTypes.getKotlinType(type))
+          .append("::class");
       } else {
         buffer.append(constExprent.toJava(0));
       }

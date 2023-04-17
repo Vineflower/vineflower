@@ -5,7 +5,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.ExprUtil;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 
-public class KConstExprent extends ConstExprent {
+public class KConstExprent extends ConstExprent implements KExprent {
   public KConstExprent(ConstExprent exprent) {
     super(exprent.getConstType(), exprent.getValue(), exprent.isBoolPermitted(), exprent.bytecode);
   }

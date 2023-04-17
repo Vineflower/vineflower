@@ -7,6 +7,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.stats.BasicBlockStatemen
 import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.quiltmc.quiltflower.kotlin.expr.*;
+import org.quiltmc.quiltflower.kotlin.util.KUtils;
 
 import java.util.List;
 
@@ -33,7 +34,7 @@ public class ReplaceExprentsPass implements Pass {
     if (exprs.size() > 0) {
       for(int i = 0; i < exprs.size(); i++){
         Exprent expr = exprs.get(i);
-        Exprent map = map(expr);
+        Exprent map = KUtils.replaceExprent(expr);
 
         if (map != null) {
           exprs.set(i, map);
@@ -49,7 +50,7 @@ public class ReplaceExprentsPass implements Pass {
     for (int i = 0; i < stat.getVarDefinitions().size(); i++) {
       Exprent expr = stat.getVarDefinitions().get(i);
 
-      Exprent map = map(expr);
+      Exprent map = KUtils.replaceExprent(expr);
       if (map != null) {
         stat.getVarDefinitions().set(i, map);
 
@@ -65,7 +66,7 @@ public class ReplaceExprentsPass implements Pass {
 
     for (Exprent ex : expr.getAllExprents()) {
       res |= replace(ex);
-      Exprent map = map(ex);
+      Exprent map = KUtils.replaceExprent(ex);
 
       if (map != null) {
         expr.replaceExprent(ex, map);
@@ -74,21 +75,5 @@ public class ReplaceExprentsPass implements Pass {
     }
 
     return res;
-  }
-
-  private static Exprent map(Exprent ex) {
-    if (ex instanceof FunctionExprent) {
-      return new KFunctionExprent((FunctionExprent) ex);
-    } else if (ex instanceof VarExprent) {
-      return new KVarExprent((VarExprent) ex);
-    } else if (ex instanceof InvocationExprent) {
-      return new KInvocationExprent((InvocationExprent) ex);
-    } else if (ex instanceof ConstExprent) {
-      return new KConstExprent((ConstExprent) ex);
-    } else if (ex instanceof FieldExprent) {
-      return new KFieldExprent((FieldExprent) ex);
-    }
-
-    return null;
   }
 }

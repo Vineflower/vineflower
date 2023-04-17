@@ -6,7 +6,7 @@ import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.quiltmc.quiltflower.kotlin.util.KTypes;
 
-public class KFieldExprent extends FieldExprent {
+public class KFieldExprent extends FieldExprent implements KExprent {
   public KFieldExprent(FieldExprent field) {
     super(field.getName(), field.getClassname(), field.isStatic(), field.getInstance(), field.getDescriptor(), field.bytecode);
   }
