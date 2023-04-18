@@ -43,7 +43,7 @@ public class JarPluginLoader {
 
             String pluginClass = Files.readString(file);
 
-            InJarClassLoader loader = new InJarClassLoader(pluginfs);
+            InJarClassLoader loader = new InJarClassLoader(pluginfs, JarPluginLoader.class.getClassLoader());
 
             Class<?> clazz = Class.forName(pluginClass, true, loader);
             PLUGIN_CLASSES.add(clazz);
