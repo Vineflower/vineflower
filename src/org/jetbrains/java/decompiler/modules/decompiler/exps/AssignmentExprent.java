@@ -303,6 +303,10 @@ public class AssignmentExprent extends Exprent {
       return;
     }
 
+    if (ExprProcessor.getCastTypeName(left).equals(ExprProcessor.UNREPRESENTABLE_TYPE_STRING)) {
+      return;
+    }
+
     if (precedence >= FunctionExprent.FunctionType.CAST.precedence) {
       buf.encloseWithParens();
     }

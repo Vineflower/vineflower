@@ -32,6 +32,7 @@ import java.util.*;
 
 public class ExprProcessor implements CodeConstants {
   public static final String UNDEFINED_TYPE_STRING = "<undefinedtype>";
+  public static final String UNREPRESENTABLE_TYPE_STRING = "<unrepresentable>";
   public static final String UNKNOWN_TYPE_STRING = "<unknown>";
   public static final String NULL_TYPE_STRING = "<null>";
 
