@@ -129,7 +129,7 @@ public class VarExprent extends Exprent {
         VarType definitionType = getDefinitionVarType();
         String name = ExprProcessor.getCastTypeName(definitionType);
         if (name.equals(ExprProcessor.UNREPRESENTABLE_TYPE_STRING)) {
-          buffer.append("var ");
+          buffer.append("var");
         } else {
           buffer.appendCastTypeName(definitionType);
         }

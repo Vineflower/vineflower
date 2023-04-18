@@ -2,7 +2,7 @@ package pkg;
 
 public class TestAnonymousClassJ16 {
    public void testNamelessTypeVirtual() {
-      var  printer = new Object() {// 5
+      var printer = new Object() {// 5
          void println(String s) {
             System.out.println(s);// 7
          }// 8
@@ -11,7 +11,7 @@ public class TestAnonymousClassJ16 {
    }// 11
 
    public void testNamelessTypeVirtual2() {
-      var  printer = new TestAnonymousClassJ16() {// 14
+      var printer = new TestAnonymousClassJ16() {// 14
          void out(String s) {
             System.out.println(s);// 16
          }// 17
