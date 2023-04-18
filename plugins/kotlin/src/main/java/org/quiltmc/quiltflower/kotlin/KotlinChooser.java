@@ -4,6 +4,8 @@ import kotlin.reflect.jvm.internal.impl.metadata.ProtoBuf;
 import kotlin.reflect.jvm.internal.impl.metadata.jvm.JvmProtoBuf;
 import kotlin.reflect.jvm.internal.impl.protobuf.ExtensionRegistryLite;
 import org.jetbrains.java.decompiler.api.LanguageChooser;
+import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.util.Key;
 import org.quiltmc.quiltflower.kotlin.metadata.BitEncoding;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.AnnotationExprent;
@@ -32,16 +34,20 @@ public class KotlinChooser implements LanguageChooser {
 
     for (Key<?> key : ANNOTATION_ATTRIBUTES) {
       if (cl.hasAttribute(key)) {
-        StructAnnotationAttribute attr = (StructAnnotationAttribute) cl.getAttribute(key);
+        StructAnnotationAttribute attr = cl.getAttribute(key);
         for (AnnotationExprent anno : attr.getAnnotations()) {
           if (anno.getClassName().equals("kotlin/Metadata")) {
 
-            int k = (int) ((ConstExprent) anno.getParValues().get(1)).getValue();
-            Exprent d1 = anno.getParValues().get(3);
-            Exprent d2 = anno.getParValues().get(4);
+            int kIndex = anno.getParNames().indexOf("k");
+            int k = (int) ((ConstExprent) anno.getParValues().get(kIndex)).getValue();
+
+            int d1Index = anno.getParNames().indexOf("d1");
+            Exprent d1 = anno.getParValues().get(d1Index);
+
+            int d2Index = anno.getParNames().indexOf("d2");
+            Exprent d2 = anno.getParValues().get(d2Index);
 
             String[] data1 = getDataFromExpr((NewExprent) d1);
-
 
             try {
               String[] data2 = getDataFromExpr((NewExprent) d2);
@@ -64,16 +70,27 @@ public class KotlinChooser implements LanguageChooser {
 //                  System.out.println(resolver.resolve(func.getName()));
 //                }
 
+                KotlinDecompilationContext.currentType = KotlinDecompilationContext.KotlinType.CLASS;
+                KotlinDecompilationContext.currentClass = pcl;
+
               } else if (k == 2) { // File facade
                 ProtoBuf.Package pcl = ProtoBuf.Package.parseFrom(input, EXTENSIONS);
+                KotlinDecompilationContext.currentType = KotlinDecompilationContext.KotlinType.FILE;
+                KotlinDecompilationContext.filePackage = pcl;
               } else if (k == 3) { // Synthetic class
                 ProtoBuf.Function func = ProtoBuf.Function.parseFrom(input, EXTENSIONS);
+                KotlinDecompilationContext.currentType = KotlinDecompilationContext.KotlinType.SYNTHETIC_CLASS;
+                KotlinDecompilationContext.syntheticClass = func;
               } else if (k == 5) { // Multi-file facade
                 ProtoBuf.Package pcl = ProtoBuf.Package.parseFrom(input, EXTENSIONS);
+                KotlinDecompilationContext.currentType = KotlinDecompilationContext.KotlinType.MULTIFILE_CLASS;
+                KotlinDecompilationContext.multifilePackage = pcl;
+              } else {
+                KotlinDecompilationContext.currentType = null;
               }
             } catch (Exception e) {
-              System.out.println("Failed to parse metadata for class " + cl.qualifiedName);
-              e.printStackTrace();
+              DecompilerContext.getLogger().writeMessage("Failed to parse metadata for class " + cl.qualifiedName, IFernflowerLogger.Severity.WARN, e);
+              KotlinDecompilationContext.currentType = null;
             }
 
             return true;
@@ -81,6 +98,8 @@ public class KotlinChooser implements LanguageChooser {
         }
       }
     }
+
+    KotlinDecompilationContext.currentType = null;
     return false;
   }
 
