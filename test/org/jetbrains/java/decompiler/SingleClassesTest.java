@@ -664,6 +664,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JASM, "TestMethodParamsNoLvt");
     register(JAVA_8, "TestPrimitiveTypeClasses");
     register(JAVA_17, "TestVarRedef");
+    register(JAVA_17, "TestDoubleForeach");
   }
 
   private void registerEntireClassPath() {

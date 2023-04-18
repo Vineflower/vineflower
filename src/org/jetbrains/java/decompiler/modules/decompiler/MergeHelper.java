@@ -613,12 +613,19 @@ public class MergeHelper {
         }
 
         InvocationExprent next = (InvocationExprent)getUncast(ass.getRight());
-        if (isNextUnboxing(next))
-          next = (InvocationExprent)getUncast(next.getInstance());
+        if (isNextUnboxing(next)) {
+          next = (InvocationExprent) getUncast(next.getInstance());
+        }
+
         InvocationExprent hnext = (InvocationExprent)getUncast(drillNots(stat.getConditionExprent()));
         if (!(next.getInstance() instanceof VarExprent) ||
             !(hnext.getInstance() instanceof VarExprent) ||
           ((VarExprent)initExprents[0].getLeft()).isVarReferenced(stat, (VarExprent)next.getInstance(), (VarExprent)hnext.getInstance())) {
+          return false;
+        }
+
+        // TODO: handle this case! don't just fail silently!
+        if (!((VarExprent)initExprents[0].getLeft()).getVarVersionPair().equals(((VarExprent)next.getInstance()).getVarVersionPair())) {
           return false;
         }
 
@@ -729,6 +736,25 @@ public class MergeHelper {
           if (counter.isVarReferenced(stat.getFirst(), index)) {
             return false;
           }
+        }
+
+        VarExprent assignPre = null;
+        for (Exprent e : preData.getExprents()) {
+          if (e instanceof AssignmentExprent) {
+            AssignmentExprent a = (AssignmentExprent)e;
+            if (a.getLeft() instanceof VarExprent) {
+              if (a.getRight() instanceof VarExprent) {
+                if (((VarExprent)a.getLeft()).getVarVersionPair().equals(array.getVarVersionPair())) {
+                  assignPre = (VarExprent)a.getRight();
+                }
+              }
+            }
+          }
+        }
+
+        // TODO: handle this case! don't just fail silently!
+        if (assignPre != null && !((VarExprent)funcRight.getLstOperands().get(0)).getVarVersionPair().equals(assignPre.getVarVersionPair())) {
+          return false;
         }
 
         // Make sure this variable isn't used before
