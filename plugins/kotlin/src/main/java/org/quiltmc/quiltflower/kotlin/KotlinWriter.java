@@ -1409,7 +1409,8 @@ public class KotlinWriter implements StatementWriter {
         for (AnnotationExprent annotation : attribute.getAnnotations()) {
           if (annotation.getClassName().equals("kotlin/Metadata")
             || annotation.getClassName().equals(NOT_NULL_ANN_NAME)
-            || annotation.getClassName().equals(NULLABLE_ANN_NAME)) {
+            || annotation.getClassName().equals(NULLABLE_ANN_NAME)
+            || annotation.getClassName().equals("kotlin/jvm/JvmStatic")) {
             continue;
           }
 
