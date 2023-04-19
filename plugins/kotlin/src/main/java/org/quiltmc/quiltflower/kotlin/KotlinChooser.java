@@ -70,27 +70,27 @@ public class KotlinChooser implements LanguageChooser {
 //                  System.out.println(resolver.resolve(func.getName()));
 //                }
 
-                KotlinDecompilationContext.currentType = KotlinDecompilationContext.KotlinType.CLASS;
-                KotlinDecompilationContext.currentClass = pcl;
+                DecompilerContext.setProperty(KotlinDecompilationContext.CURRENT_TYPE, KotlinDecompilationContext.KotlinType.CLASS);
+                DecompilerContext.setProperty(KotlinDecompilationContext.CURRENT_CLASS, pcl);
 
               } else if (k == 2) { // File facade
                 ProtoBuf.Package pcl = ProtoBuf.Package.parseFrom(input, EXTENSIONS);
-                KotlinDecompilationContext.currentType = KotlinDecompilationContext.KotlinType.FILE;
-                KotlinDecompilationContext.filePackage = pcl;
+                DecompilerContext.setProperty(KotlinDecompilationContext.CURRENT_TYPE, KotlinDecompilationContext.KotlinType.FILE);
+                DecompilerContext.setProperty(KotlinDecompilationContext.FILE_PACKAGE, pcl);
               } else if (k == 3) { // Synthetic class
                 ProtoBuf.Function func = ProtoBuf.Function.parseFrom(input, EXTENSIONS);
-                KotlinDecompilationContext.currentType = KotlinDecompilationContext.KotlinType.SYNTHETIC_CLASS;
-                KotlinDecompilationContext.syntheticClass = func;
+                DecompilerContext.setProperty(KotlinDecompilationContext.CURRENT_TYPE, KotlinDecompilationContext.KotlinType.SYNTHETIC_CLASS);
+                DecompilerContext.setProperty(KotlinDecompilationContext.SYNTHETIC_CLASS, func);
               } else if (k == 5) { // Multi-file facade
                 ProtoBuf.Package pcl = ProtoBuf.Package.parseFrom(input, EXTENSIONS);
-                KotlinDecompilationContext.currentType = KotlinDecompilationContext.KotlinType.MULTIFILE_CLASS;
-                KotlinDecompilationContext.multifilePackage = pcl;
+                DecompilerContext.setProperty(KotlinDecompilationContext.CURRENT_TYPE, KotlinDecompilationContext.KotlinType.MULTIFILE_CLASS);
+                DecompilerContext.setProperty(KotlinDecompilationContext.MULTIFILE_PACKAGE, pcl);
               } else {
-                KotlinDecompilationContext.currentType = null;
+                DecompilerContext.setProperty(KotlinDecompilationContext.CURRENT_TYPE, null);
               }
             } catch (Exception e) {
               DecompilerContext.getLogger().writeMessage("Failed to parse metadata for class " + cl.qualifiedName, IFernflowerLogger.Severity.WARN, e);
-              KotlinDecompilationContext.currentType = null;
+              DecompilerContext.setProperty(KotlinDecompilationContext.CURRENT_TYPE, null);
             }
 
             return true;
@@ -99,7 +99,7 @@ public class KotlinChooser implements LanguageChooser {
       }
     }
 
-    KotlinDecompilationContext.currentType = null;
+    DecompilerContext.setProperty(KotlinDecompilationContext.CURRENT_TYPE, null);
     return false;
   }
 

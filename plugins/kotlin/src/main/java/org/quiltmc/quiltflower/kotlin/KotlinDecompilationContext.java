@@ -1,6 +1,8 @@
 package org.quiltmc.quiltflower.kotlin;
 
 import kotlin.reflect.jvm.internal.impl.metadata.ProtoBuf;
+import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.util.Key;
 
 public class KotlinDecompilationContext {
   public enum KotlinType {
@@ -9,31 +11,30 @@ public class KotlinDecompilationContext {
     SYNTHETIC_CLASS,
     MULTIFILE_CLASS,
   }
-
-  static ProtoBuf.Class currentClass = null;
-  static ProtoBuf.Package filePackage = null;
-  static ProtoBuf.Function syntheticClass = null;
-  static ProtoBuf.Package multifilePackage = null;
-
-  static KotlinType currentType = null;
+  
+  public static final Key<KotlinType> CURRENT_TYPE = Key.of("CURRENT_TYPE");
+  public static final Key<ProtoBuf.Class> CURRENT_CLASS = Key.of("CURRENT_CLASS");
+  public static final Key<ProtoBuf.Package> FILE_PACKAGE = Key.of("FILE_PACKAGE");
+  public static final Key<ProtoBuf.Function> SYNTHETIC_CLASS = Key.of("SYNTHETIC_CLASS");
+  public static final Key<ProtoBuf.Package> MULTIFILE_PACKAGE = Key.of("MULTIFILE_PACKAGE");
 
   public static ProtoBuf.Class getCurrentClass() {
-    return currentType == KotlinType.CLASS ? currentClass : null;
+    return getCurrentType() == KotlinType.CLASS ? DecompilerContext.getContextProperty(CURRENT_CLASS) : null;
   }
 
   public static ProtoBuf.Package getFilePackage() {
-    return currentType == KotlinType.FILE ? filePackage : null;
+    return getCurrentType() == KotlinType.FILE ? DecompilerContext.getContextProperty(FILE_PACKAGE) : null;
   }
 
   public static ProtoBuf.Function getSyntheticClass() {
-    return currentType == KotlinType.SYNTHETIC_CLASS ? syntheticClass : null;
+    return getCurrentType() == KotlinType.SYNTHETIC_CLASS ? DecompilerContext.getContextProperty(SYNTHETIC_CLASS) : null;
   }
 
   public static ProtoBuf.Package getMultifilePackage() {
-    return currentType == KotlinType.MULTIFILE_CLASS ? multifilePackage : null;
+    return getCurrentType() == KotlinType.MULTIFILE_CLASS ? DecompilerContext.getContextProperty(MULTIFILE_PACKAGE) : null;
   }
 
   public static KotlinType getCurrentType() {
-    return currentType;
+    return DecompilerContext.getContextProperty(CURRENT_TYPE);
   }
 }
