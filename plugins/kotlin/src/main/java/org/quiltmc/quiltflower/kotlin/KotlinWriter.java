@@ -146,6 +146,22 @@ public class KotlinWriter implements StatementWriter {
   }
 
   public void writeClassHeader(StructClass cl, TextBuffer buffer, ImportCollector importCollector) {
+    if (KotlinDecompilationContext.getCurrentType() == KotlinDecompilationContext.KotlinType.FILE) {
+      for (Key<?> key : ANNOTATION_ATTRIBUTES) {
+        StructAnnotationAttribute attr = cl.getAttribute(key);
+        if (attr != null) {
+          for (AnnotationExprent expr : attr.getAnnotations()) {
+            if (expr.getClassName().equals("kotlin/Metadata")) {
+              continue;
+            }
+
+            KAnnotationExprent kAnnotationExprent = new KAnnotationExprent(expr, KAnnotationExprent.UseSiteTarget.FILE);
+            buffer.append(kAnnotationExprent.toJava(0)).appendLineSeparator().appendLineSeparator();
+          }
+        }
+      }
+    }
+
     int index = cl.qualifiedName.lastIndexOf('/');
     if (index >= 0) {
       buffer.append("package ");
@@ -198,6 +214,11 @@ public class KotlinWriter implements StatementWriter {
       if (cl.hasModifier(CodeConstants.ACC_ANNOTATION)) {
         // Kotlin's annotation classes are treated quite differently from other classes
         writeAnnotationDefinition(node, buffer, indent);
+        return;
+      }
+
+      if (KotlinDecompilationContext.getCurrentType() == KotlinDecompilationContext.KotlinType.FILE) {
+        writeKotlinFile(node, buffer, indent);
         return;
       }
 
@@ -334,6 +355,39 @@ public class KotlinWriter implements StatementWriter {
     finally {
       DecompilerContext.setProperty(DecompilerContext.CURRENT_CLASS_NODE, outerNode);
       DecompilerContext.getLogger().endWriteClass();
+    }
+  }
+
+  private void writeKotlinFile(ClassNode node, TextBuffer buffer, int indent) {
+    ClassWrapper wrapper = node.getWrapper();
+    StructClass cl = wrapper.getClassStruct();
+
+    for (StructField fd : cl.getFields()) {
+      TextBuffer fieldBuffer = new TextBuffer();
+      writeField(wrapper, cl, fd, fieldBuffer, indent);
+      fieldBuffer.clearUnassignedBytecodeMappingData();
+      buffer.append(fieldBuffer);
+    }
+
+    if (!cl.getFields().isEmpty()) {
+      buffer.appendLineSeparator();
+    }
+
+    for (int i = 0; i < cl.getMethods().size(); i++) {
+      StructMethod mt = cl.getMethods().get(i);
+      if (mt.getName().equals("<clinit>")) continue;
+
+      TextBuffer methodBuffer = new TextBuffer();
+      writeMethod(node, mt, i, methodBuffer, indent);
+      methodBuffer.clearUnassignedBytecodeMappingData();
+      buffer.append(methodBuffer, node.simpleName, mt.getName() + " " + mt.getDescriptor());
+      buffer.appendLineSeparator();
+    }
+
+    for (ClassNode inner : node.nested) {
+      if (inner.type == ClassNode.Type.MEMBER) {
+        writeClass(inner, buffer, indent);
+      }
     }
   }
 
@@ -1469,7 +1523,7 @@ public class KotlinWriter implements StatementWriter {
         break;
     }
 
-    if (mb.hasModifier(CodeConstants.ACC_STATIC) && targetType != TypeAnnotation.CLASS_TYPE_PARAMETER) {
+    if (mb.hasModifier(CodeConstants.ACC_STATIC) && targetType != TypeAnnotation.CLASS_TYPE_PARAMETER && KotlinDecompilationContext.getCurrentType() != KotlinDecompilationContext.KotlinType.FILE) {
       buffer.appendIndent(indent).append("@JvmStatic").appendLineSeparator();
     }
     if (mb.hasModifier(CodeConstants.ACC_STRICT)) {

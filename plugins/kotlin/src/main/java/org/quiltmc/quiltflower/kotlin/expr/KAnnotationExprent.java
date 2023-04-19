@@ -8,9 +8,28 @@ import org.quiltmc.quiltflower.kotlin.util.KTypes;
 import org.quiltmc.quiltflower.kotlin.util.KUtils;
 
 public class KAnnotationExprent extends AnnotationExprent implements KExprent {
+  public enum UseSiteTarget {
+    FILE,
+    PROPERTY,
+    FIELD,
+    GET,
+    SET,
+    RECEIVER,
+    PARAM,
+    SETPARAM,
+    DELEGATE,
+  }
+
+  private final UseSiteTarget useSiteTarget;
+
   public KAnnotationExprent(AnnotationExprent expr) {
+    this(expr, null);
+  }
+
+  public KAnnotationExprent(AnnotationExprent expr, UseSiteTarget useSiteTarget) {
     super(expr.getClassName(), expr.getParNames(), KUtils.replaceExprents(expr.getParValues()));
     bytecode = expr.bytecode;
+    this.useSiteTarget = useSiteTarget;
   }
 
   @Override
@@ -19,6 +38,11 @@ public class KAnnotationExprent extends AnnotationExprent implements KExprent {
     buffer.addBytecodeMapping(bytecode);
 
     buffer.appendIndent(indent).append('@');
+
+    if (useSiteTarget != null) {
+      buffer.append(useSiteTarget.name().toLowerCase()).append(':');
+    }
+
     VarType type = new VarType(getClassName(), true);
     buffer.append(KTypes.getKotlinType(type));
 

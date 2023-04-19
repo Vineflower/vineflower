@@ -32,4 +32,8 @@ public class KotlinDecompilationContext {
   public static ProtoBuf.Package getMultifilePackage() {
     return currentType == KotlinType.MULTIFILE_CLASS ? multifilePackage : null;
   }
+
+  public static KotlinType getCurrentType() {
+    return currentType;
+  }
 }
