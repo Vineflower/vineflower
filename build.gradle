@@ -33,6 +33,7 @@ allprojects {
   }
 
   dependencies {
+    implementation 'org.jetbrains:annotations:24.0.0'
     testImplementation("org.junit.jupiter:junit-jupiter-api:${project.junit_bom}")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${project.junit_bom}")
   }
