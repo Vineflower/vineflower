@@ -317,6 +317,7 @@ public class VarType {  // TODO: optimize switch
   }
 
   // type1 and type2 must not be null
+  // Result should be the intersection of both types
   public static VarType getCommonMinType(VarType type1, VarType type2) {
     if (type1.type == CodeConstants.TYPE_BOOLEAN && type2.type == CodeConstants.TYPE_BOOLEAN) { // special case booleans
       return type1.isFalseBoolean() ? type2 : type1;
@@ -347,6 +348,7 @@ public class VarType {  // TODO: optimize switch
   }
 
   // type1 and type2 must not be null
+  // Result should be the union of both types
   public static VarType getCommonSupertype(VarType type1, VarType type2) {
     if (type1.type == CodeConstants.TYPE_BOOLEAN && type2.type == CodeConstants.TYPE_BOOLEAN) { // special case booleans
       return type1.isFalseBoolean() ? type1 : type2;

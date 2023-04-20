@@ -45,7 +45,9 @@ public class AssignmentExprent extends Exprent {
 
   @Override
   public VarType getExprType() {
-    return left.getExprType();
+    // Union together types
+    VarType rType = VarType.getCommonSupertype(left.getExprType(), right.getExprType());
+    return rType;
   }
 
   @Override
