@@ -980,6 +980,17 @@ public class InvocationExprent extends Exprent {
       }
     }
     if (desc != null && desc.getSignature() != null) {
+      Map<VarType, VarType> hierarchyMap = new HashMap<>();
+      if (!classname.equals(desc.getClassQualifiedName())) {
+        StructClass mthCls = DecompilerContext.getStructContext().getClass(classname);
+        if (mthCls != null) {
+          Map<String, Map<VarType, VarType>> hierarchy = mthCls.getAllGenerics();
+          if (hierarchy.containsKey(desc.getClassQualifiedName())) {
+            hierarchyMap = hierarchy.get(desc.getClassQualifiedName());
+          }
+        }
+      }
+
       Set<VarType> namedGens = getNamedGenerics().keySet();
       int y = 0;
       for (int x = start; x < types.length; x++) {
@@ -988,7 +999,7 @@ public class InvocationExprent extends Exprent {
             continue;
           }
 
-          VarType type = desc.getSignature().parameterTypes.get(y++).remap(genericsMap);
+          VarType type = desc.getSignature().parameterTypes.get(y++).remap(hierarchyMap).remap(genericsMap);
           if (type != null && !(type.isGeneric() && ((GenericType)type).hasUnknownGenericType(namedGens))) {
             types[x] = type;
           }
