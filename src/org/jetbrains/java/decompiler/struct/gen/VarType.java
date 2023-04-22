@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.code.CodeConstants;
+import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 
@@ -272,8 +273,7 @@ public class VarType {  // TODO: optimize switch
       case CodeConstants.TYPE_OBJECT:
         if (valType == CodeConstants.TYPE_NULL) {
           return true;
-        }
-        else if (this.equals(VARTYPE_OBJECT)) {
+        } else if (this.equals(VARTYPE_OBJECT)) {
           return valType == CodeConstants.TYPE_OBJECT && !val.equals(VARTYPE_OBJECT);
         }
     }

@@ -5,7 +5,7 @@ public class TestRecordPattern3 {
       if (bundle instanceof TestRecordPattern3.Bundle) {// 8
          Object var19 = $proxy$a(bundle);// 1
          if (var19 instanceof String a) {// 9
-            String var21 = $proxy$b(bundle);
+            var19 = $proxy$b(bundle);
             String var22 = $proxy$c(bundle);
             int var23 = $proxy$i1(bundle);
             int i1 = Integer.valueOf(var23);
@@ -29,7 +29,7 @@ public class TestRecordPattern3 {
             double dd = Double.valueOf(var32);
             boolean var33 = $proxy$bool(bundle);
             boolean bool = Boolean.valueOf(var33);
-            System.out.println(a + var21 + var22 + ((double)((long)(i1 + i2 + i3 + i4) + l1 + l2 + (long)c1 + (long)c2 + (long)bb) + dd) + bool);// 11
+            System.out.println(a + var19 + var22 + ((double)((long)(i1 + i2 + i3 + i4) + l1 + l2 + (long)c1 + (long)c2 + (long)bb) + dd) + bool);// 11
          }
       }
    }// 13

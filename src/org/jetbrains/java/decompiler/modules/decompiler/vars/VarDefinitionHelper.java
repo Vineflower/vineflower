@@ -948,22 +948,31 @@ public class VarDefinitionHelper {
           // Max types are the highest class that this variable is used as a direct instance of without any casts.
           // This will pull up the to var type if the from requires a higher class type.
           // EXA: Collection -> List
-          if (DecompilerContext.getStructContext().instanceOf(fromMax.value, toMax.value))
+          if (DecompilerContext.getStructContext().instanceOf(fromMax.value, toMax.value)) {
             return fromMax;
-        } else if (fromMin != null) {
+          }
+        } else {
           // Pull to up to from: List -> ArrayList
-          if (DecompilerContext.getStructContext().instanceOf(fromMin.value, toMax.value))
+          if (DecompilerContext.getStructContext().instanceOf(fromMin.value, toMax.value)) {
             return fromMin;
+          }
         }
-      } else if (toMin != null) {
+      } else {
         if (fromMax != null) {
-          if (DecompilerContext.getStructContext().instanceOf(fromMax.value, toMin.value))
+          if (DecompilerContext.getStructContext().instanceOf(fromMax.value, toMin.value)) {
             return fromMax;
-        } else if (fromMin != null) {
-          if (DecompilerContext.getStructContext().instanceOf(toMin.value, fromMin.value))
+          }
+        } else {
+          if (DecompilerContext.getStructContext().instanceOf(toMin.value, fromMin.value)) {
             return toMin;
+          }
+
+          if (DecompilerContext.getStructContext().instanceOf(fromMin.value, toMin.value)) {
+            return toMin;
+          }
         }
       }
+
       return null;
     } else {
 

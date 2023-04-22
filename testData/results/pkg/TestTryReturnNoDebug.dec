@@ -7,12 +7,12 @@ public class TestTryReturnNoDebug {
       Object var2 = null;
 
       try {
-         var5 = var1.toString();
+         var2 = var1.toString();
       } catch (Exception var4) {
          throw new RuntimeException("Catch");
       }
 
-      return this.process(var5);
+      return this.process((String)var2);
    }
 
    public String test2(Supplier<Boolean> var1) {

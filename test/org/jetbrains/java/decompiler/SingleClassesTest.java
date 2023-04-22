@@ -659,6 +659,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestPrimitiveTypeClasses");
     register(JAVA_17, "TestVarRedef");
     register(JAVA_17, "TestDoubleForeach");
+    register(JAVA_8, "TestVarMergeSupertype");
   }
 
   private void registerEntireClassPath() {
