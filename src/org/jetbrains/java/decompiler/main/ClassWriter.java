@@ -106,6 +106,10 @@ public class ClassWriter implements StatementWriter {
       if (DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_ASSERTIONS)) {
         AssertProcessor.buildAssertions(node);
       }
+
+      for (MethodWrapper mw : wrapper.getMethods()) {
+        RecordHelper.fixupCanonicalConstructor(mw, cl);
+      }
     } catch (Throwable t) {
       DecompilerContext.getLogger().writeMessage("Class " + node.simpleName + " couldn't be written.",
         IFernflowerLogger.Severity.WARN,
@@ -1117,10 +1121,12 @@ public class ClassWriter implements StatementWriter {
             buffer.append(' ');
 
             String parameterName;
-            if (methodParameters != null && i < methodParameters.size()) {
+            String clashingName = methodWrapper.varproc.getClashingName(new VarVersionPair(index, 0));
+            if (clashingName != null) {
+              parameterName = clashingName;
+            } else if (methodParameters != null && i < methodParameters.size()) {
               parameterName = methodParameters.get(i).myName;
-            }
-            else {
+            } else {
               parameterName = methodWrapper.varproc.getVarName(new VarVersionPair(index, 0));
             }
 
@@ -1412,15 +1418,15 @@ public class ClassWriter implements StatementWriter {
     }
 
     ClassWrapper wrapper = node.getWrapper();
-	  StructClass cl = wrapper.getClassStruct();
+    StructClass cl = wrapper.getClassStruct();
 
-	  int classAccessFlags = node.type == ClassNode.Type.ROOT ? cl.getAccessFlags() : node.access;
+    int classAccessFlags = node.type == ClassNode.Type.ROOT ? cl.getAccessFlags() : node.access;
     boolean isEnum = cl.hasModifier(CodeConstants.ACC_ENUM) && DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_ENUM);
 
     // default constructor requires same accessibility flags. Exception: enum constructor which is always private
-  	if(!isEnum && ((classAccessFlags & ACCESSIBILITY_FLAGS) != (methodAccessFlags & ACCESSIBILITY_FLAGS))) {
-  	  return false;
-  	}
+    if(!isEnum && ((classAccessFlags & ACCESSIBILITY_FLAGS) != (methodAccessFlags & ACCESSIBILITY_FLAGS))) {
+      return false;
+    }
 
     int count = 0;
     for (StructMethod mt : cl.getMethods()) {

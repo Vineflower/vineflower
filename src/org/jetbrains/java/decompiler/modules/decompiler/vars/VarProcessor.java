@@ -144,6 +144,10 @@ public class VarProcessor {
     return this.clashingNames.get(pair);
   }
 
+  public void setClashingName(VarVersionPair pair, String name) {
+    this.clashingNames.put(pair, name);
+  }
+
   public void setVarName(VarVersionPair pair, String name) {
     mapVarNames.put(pair, name);
   }

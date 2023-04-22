@@ -744,6 +744,10 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: postdom error only when ssau finally is disabled
     register(JAVA_8, "TestTryReturn");
     register(JAVA_8, "TestGenericWildcard");
+    // TODO: wrong variable name
+    register(JAVA_16_NODEBUG, "TestRecordCanonicalConstructor");
+    // TODO: wrong variable name, recursive constructor because missing cast
+    register(JAVA_16_NODEBUG, "TestRecordCanonicalConstructor2");
   }
 
   private void registerLiterals() {

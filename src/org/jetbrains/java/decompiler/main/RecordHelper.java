@@ -1,10 +1,12 @@
 package org.jetbrains.java.decompiler.main;
 
 import org.jetbrains.java.decompiler.code.CodeConstants;
+import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.BasicBlockStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
+import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.struct.*;
 import org.jetbrains.java.decompiler.struct.attr.StructAnnotationAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructAnnotationParameterAttribute;
@@ -207,8 +209,22 @@ public final class RecordHelper {
 
     buffer.appendField(cd.getName(), true, cl.qualifiedName, cd.getName(), cd.getDescriptor());
   }
+
   private static boolean hasAnnotations(StructMethod mt) {
     return mt.getAttribute(StructGeneralAttribute.ATTRIBUTE_RUNTIME_INVISIBLE_ANNOTATIONS) != null ||
       mt.getAttribute(StructGeneralAttribute.ATTRIBUTE_RUNTIME_VISIBLE_ANNOTATIONS) != null;
+  }
+
+  public static void fixupCanonicalConstructor(MethodWrapper mw, StructClass cl) {
+    if (cl.getRecordComponents() == null) {
+      return;
+    }
+
+    if (mw.methodStruct != getCanonicalConstructor(cl)) {
+      return;
+    }
+    for (int i = 0; i < cl.getRecordComponents().size(); i++) {
+      mw.varproc.setClashingName(new VarVersionPair(1 + i, 0), cl.getRecordComponents().get(i).getName());
+    }
   }
 }
