@@ -439,6 +439,10 @@ public class VarType {  // TODO: optimize switch
     }
   }
 
+  public static boolean isPrimitive(VarType type) {
+    return UNBOXING_TYPES.values().contains(type);
+  }
+
   public boolean isGeneric() {
     return false;
   }

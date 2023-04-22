@@ -264,7 +264,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8_NODEBUG, "TestArrayNull1");
     // TODO: Object should be int[], cast where there shouldn't be
     register(JAVA_8_NODEBUG, "TestArrayNull2");
-    // TODO: Redefinition of array, extra cast
     register(JAVA_8, "TestArrayNullAccess");
     register(JAVA_8, "TestArrayTernary");
     // TODO: Do while loops become standard while loops
@@ -574,10 +573,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(KOTLIN, "TestKotlinEnumWhen");
     // TODO: causes invalid stack var simplification
     register(JAVA_8, "TestSynchronizedTryReturn");
-    // TODO: parsing failure, wrong variable use, invalid variable splitting
-    // TODO: finally return parsing wrong
-    // TODO: postdom error only when ssau finally is disabled
-    register(JAVA_8, "TestTryReturn");
     register(JAVA_8, "TestWhileConditionTernary");
 
     register(JAVA_17, "TestDefiniteAssignment");
@@ -720,7 +715,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
 
     register(JAVA_8, "TestGenericMapEntireClasspath");
     register(JAVA_8, "TestGenericsTernary");
-    // TODO: casts on null and (U)
+    // TODO: casts on null
     register(JAVA_8, "TestGenericSuper");
     register(JAVA_8, "TestGenericsQualified");
     // TODO: first method needs a cast
@@ -743,6 +738,11 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestTryWithResourcesAfterSwitch");
     register(JAVA_8, "TestArrayConstructorReferenceJrt");
     register(JAVA_8_NODEBUG, "TestVarIndex2");
+
+    // TODO: parsing failure, wrong variable use, invalid variable splitting
+    // TODO: finally return parsing wrong
+    // TODO: postdom error only when ssau finally is disabled
+    register(JAVA_8, "TestTryReturn");
   }
 
   private void registerLiterals() {

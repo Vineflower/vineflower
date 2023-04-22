@@ -212,12 +212,12 @@ public class InvocationExprent extends Exprent {
       if (instance instanceof FunctionExprent) {
         FunctionExprent func = (FunctionExprent)instance;
         if (func.getFuncType() == FunctionType.CAST) {
-          ConstExprent constexpr = (ConstExprent)func.getLstOperands().get(1);
           VarType inferred = func.getLstOperands().get(0).getInferredExprType(upperBound);
 
           // In the case of `long l = (Long)call()` where `call()` is a generic, we can remove the cast.
           // Don't keep the cast in that case.
-          if (!VarType.UNBOXING_TYPES.get(constexpr.getExprType()).equals(upperBound)) {
+          VarType unboxed = VarType.UNBOXING_TYPES.get(inferred);
+          if (unboxed == null || !unboxed.equals(upperBound)) {
             if (inferred.typeFamily == CodeConstants.TYPE_FAMILY_OBJECT || inferred.isGeneric()) {
               boxing.keepCast = true;
             }
@@ -1473,8 +1473,10 @@ public class InvocationExprent extends Exprent {
         return bound.equals(VarType.VARTYPE_OBJECT) || bound.equals(newTo);
       }
 
-      if (!DecompilerContext.getStructContext().instanceOf(newTo.value, bound.value)) {
-        return false;
+      if (newTo.type != CodeConstants.TYPE_GENVAR) {
+        if (!DecompilerContext.getStructContext().instanceOf(newTo.value, bound.value)) {
+          return false;
+        }
       }
 
       if (bound.isGeneric() && !((GenericType)bound).getArguments().isEmpty()) {

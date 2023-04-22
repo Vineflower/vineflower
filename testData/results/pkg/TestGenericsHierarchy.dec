@@ -7,7 +7,7 @@ public class TestGenericsHierarchy<T extends Number> {
    public T field;
 
    public <V extends T> void test(V v) {
-      List<V> list = new ArrayList();// 10
+      List<V> list = new ArrayList<>();// 10
       List<? extends T> list2 = new ArrayList<>();// 11
       List<T> list3 = new ArrayList<>();// 12
       if (v != null) {// 14
