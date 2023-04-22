@@ -109,6 +109,9 @@ public class ClassWriter implements StatementWriter {
 
       for (MethodWrapper mw : wrapper.getMethods()) {
         RecordHelper.fixupCanonicalConstructor(mw, cl);
+        if (mw.root != null) {
+          mw.varproc.rerunClashing(mw.root);
+        }
       }
     } catch (Throwable t) {
       DecompilerContext.getLogger().writeMessage("Class " + node.simpleName + " couldn't be written.",

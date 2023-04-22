@@ -89,8 +89,12 @@ public class VarProcessor {
 
     // Re-run name clashing analysis
 
+    rerunClashing(root);
+  }
+
+  public void rerunClashing(RootStatement root) {
     VarDefinitionHelper vardef = new VarDefinitionHelper(root, method, this, false);
-    vardef.remapClashingNames(root);
+    vardef.remapClashingNames(root, method);
 
     for (Entry<VarVersionPair, String> e : vardef.getClashingNames().entrySet()) {
       if (!params.contains(e.getKey())) {
@@ -128,6 +132,10 @@ public class VarProcessor {
 
   public void markParam(VarVersionPair pair) {
     params.add(pair);
+  }
+
+  public List<VarVersionPair> getParams() {
+    return params;
   }
 
   public void setVarType(VarVersionPair pair, VarType type) {

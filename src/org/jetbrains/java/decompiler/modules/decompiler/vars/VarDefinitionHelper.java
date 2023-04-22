@@ -6,6 +6,7 @@ import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.VarNamesCollector;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
+import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
@@ -233,7 +234,7 @@ public class VarDefinitionHelper {
     mergeVars(root);
     propogateLVTs(root);
     setNonFinal(root, new HashSet<>());
-    remapClashingNames(root);
+    remapClashingNames(root, mt);
   }
 
 
@@ -1378,22 +1379,47 @@ public class VarDefinitionHelper {
     }
   }
 
-  public void remapClashingNames(Statement root) {
-    Map<Statement, Set<VarVersionPair>> varDefinitions = new HashMap<>();
-    Set<VarVersionPair> liveVarDefs = new HashSet<>();
-    Map<VarVersionPair, String> nameMap = new HashMap<>();
+  private static class VarInMethod {
+    private final VarVersionPair pair;
+    private final StructMethod mt;
 
-    iterateClashingNames(root, varDefinitions, liveVarDefs, nameMap);
+    private VarInMethod(VarVersionPair pair, StructMethod mt) {
+      this.pair = pair;
+      this.mt = mt;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+      VarInMethod that = (VarInMethod) o;
+      return Objects.equals(pair, that.pair) && Objects.equals(mt, that.mt);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(pair, mt);
+    }
   }
 
-  private void iterateClashingNames(Statement stat, Map<Statement, Set<VarVersionPair>> varDefinitions, Set<VarVersionPair> liveVarDefs, Map<VarVersionPair, String> nameMap) {
-    Set<VarVersionPair> curVarDefs = new HashSet<>();
+  public void remapClashingNames(Statement root, StructMethod mt) {
+    Map<Statement, Set<VarInMethod>> varDefinitions = new HashMap<>();
+    Set<VarInMethod> liveVarDefs = new HashSet<>();
+    Map<VarInMethod, String> nameMap = new HashMap<>();
+
+    iterateClashingNames(root, mt, varDefinitions, liveVarDefs, nameMap);
+  }
+
+  private void iterateClashingNames(Statement stat, StructMethod mt, Map<Statement, Set<VarInMethod>> varDefinitions, Set<VarInMethod> liveVarDefs, Map<VarInMethod, String> nameMap) {
+    Set<VarInMethod> curVarDefs = new HashSet<>();
 
     boolean shouldRemoveAtEnd = false;
-    // TODO: rename through lambdas!
 
     for (Exprent exprent : stat.getVarDefinitions()) {
-      iterateClashingExprent(stat, varDefinitions, exprent, curVarDefs, nameMap);
+      Set<VarInMethod> upDefs = new HashSet<>();
+      iterateClashingExprent(stat, mt, varDefinitions, exprent, liveVarDefs, upDefs, nameMap);
+      liveVarDefs.addAll(upDefs);
+      varDefinitions.put(stat.getParent(), upDefs);
     }
 
     if (stat.getExprents() != null) {
@@ -1404,7 +1430,7 @@ public class VarDefinitionHelper {
       }
 
       for (Exprent exprent : exprents) {
-        iterateClashingExprent(stat, varDefinitions, exprent, curVarDefs, nameMap);
+        iterateClashingExprent(stat, mt, varDefinitions, exprent, liveVarDefs, curVarDefs, nameMap);
       }
     } else {
       // Process var definitions in statement head
@@ -1413,7 +1439,7 @@ public class VarDefinitionHelper {
           List<Exprent> exprents = ((Exprent) obj).getAllExprents(true);
 
           for (Exprent exprent : exprents) {
-            iterateClashingExprent(stat, varDefinitions, exprent, curVarDefs, nameMap);
+            iterateClashingExprent(stat, mt, varDefinitions, exprent, liveVarDefs, curVarDefs, nameMap);
           }
         }
       }
@@ -1447,7 +1473,7 @@ public class VarDefinitionHelper {
           }
         }
 
-        iterateClashingNames(st, varDefinitions, liveVarDefs, nameMap);
+        iterateClashingNames(st, mt, varDefinitions, liveVarDefs, nameMap);
       }
     }
 
@@ -1465,7 +1491,7 @@ public class VarDefinitionHelper {
     // Process deferred statements
     if (iterate) {
       for (Statement st : deferred) {
-        iterateClashingNames(st, varDefinitions, liveVarDefs, nameMap);
+        iterateClashingNames(st, mt, varDefinitions, liveVarDefs, nameMap);
       }
     }
 
@@ -1476,21 +1502,42 @@ public class VarDefinitionHelper {
     }
   }
 
-  private void clearStatement(Map<Statement, Set<VarVersionPair>> varDefinitions, Set<VarVersionPair> liveVarDefs, Map<VarVersionPair, String> nameMap, Statement st) {
-    Set<VarVersionPair> removed = varDefinitions.remove(st);
+  private void clearStatement(Map<Statement, Set<VarInMethod>> varDefinitions, Set<VarInMethod> liveVarDefs, Map<VarInMethod, String> nameMap, Statement st) {
+    Set<VarInMethod> removed = varDefinitions.remove(st);
     liveVarDefs.removeAll(removed);
 
-    for (VarVersionPair vvp : removed) {
+    for (VarInMethod vvp : removed) {
       nameMap.remove(vvp);
     }
   }
 
-  private void iterateClashingExprent(Statement stat, Map<Statement, Set<VarVersionPair>> varDefinitions, Exprent exprent, Set<VarVersionPair> curVarDefs, Map<VarVersionPair, String> nameMap) {
+  private void iterateClashingExprent(Statement stat, StructMethod mt, Map<Statement, Set<VarInMethod>> varDefinitions, Exprent exprent, Set<VarInMethod> liveVarDefs, Set<VarInMethod> curVarDefs, Map<VarInMethod, String> nameMap) {
+    if (exprent instanceof NewExprent) {
+      NewExprent newExprent = (NewExprent) exprent;
+      // Check if this is a lambda with a body
+      if (newExprent.isLambda() && !newExprent.isMethodReference()) {
+        ClassNode node = DecompilerContext.getClassProcessor().getMapRootClasses().get(newExprent.getNewType().value);
+        if (node != null && node.getWrapper() != null) {
+          MethodWrapper mw = node.getWrapper().getMethods().getWithKey(node.lambdaInformation.content_method_key);
+          StructMethod mt2 = node.getWrapper().getClassStruct().getMethod(node.lambdaInformation.content_method_key);
+          if (mt2 != null && mw != null) {
+            // Propagate current data through to lambda
+            VarDefinitionHelper vardef = new VarDefinitionHelper(mw.root, mt2, mw.varproc, false);
+            vardef.iterateClashingNames(mw.root, mt2, varDefinitions, liveVarDefs, nameMap);
+
+            for (Entry<VarVersionPair, String> e : vardef.getClashingNames().entrySet()) {
+              mw.varproc.setClashingName(e.getKey(), e.getValue());
+            }
+          }
+        }
+      }
+    }
+
     if (exprent instanceof VarExprent) {
       VarExprent var = (VarExprent) exprent;
 
       if (var.isDefinition()) {
-        curVarDefs.add(var.getVarVersionPair());
+        curVarDefs.add(new VarInMethod(var.getVarVersionPair(), mt));
 
         // Only process vars that have lvt as the default var<index>_<version> names can never conflict
         if (var.getLVT() != null || this.varproc.getVarName(var.getVarVersionPair()) != null) {
@@ -1507,10 +1554,10 @@ public class VarDefinitionHelper {
             // Try to scope switch statements if possible as it's a less destructive operation when considering local variable names
             Statement parent = directParent(stat);
             if (parent instanceof SwitchStatement) {
-              Set<VarVersionPair> sameVarName = new HashSet<>();
+              Set<VarInMethod> sameVarName = new HashSet<>();
 
               // Find vars with the same name
-              for (Entry<VarVersionPair, String> entry : nameMap.entrySet()) {
+              for (Entry<VarInMethod, String> entry : nameMap.entrySet()) {
                 if (entry.getValue().equals(originalName)) {
                   sameVarName.add(entry.getKey());
                 }
@@ -1519,11 +1566,11 @@ public class VarDefinitionHelper {
               SwitchStatement switchStat = (SwitchStatement)parent;
               // Iterate through all cases
               for (Statement st : switchStat.getCaseStatements()) {
-                Set<VarVersionPair> caseVarDefs = varDefinitions.get(st);
+                Set<VarInMethod> caseVarDefs = varDefinitions.get(st);
 
                 // Check if the case branch has var defs
                 if (caseVarDefs != null) {
-                  for (VarVersionPair pair : sameVarName) {
+                  for (VarInMethod pair : sameVarName) {
                     // Try to find var defs
                     if (caseVarDefs.contains(pair)) {
                       switchStat.scopeCaseStatement(st);
@@ -1550,7 +1597,7 @@ public class VarDefinitionHelper {
           }
 
           // Record the changed name if we didn't scope switch
-          nameMap.put(var.getVarVersionPair(), scopedSwitch ? originalName : name);
+          nameMap.put(new VarInMethod(var.getVarVersionPair(), mt), scopedSwitch ? originalName : name);
         }
       }
     }
