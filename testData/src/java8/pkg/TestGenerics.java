@@ -63,6 +63,10 @@ public class TestGenerics<A, B extends TestGenerics.Maps & List>  {
     }
    }
 
+   public String testFuncExprInfer(Map<Integer, String> s) {
+    return "hello " + s.get(0) + " !";
+   }
+
   public static class Maps {
     public static <K, V> HashMap<K, V> newHashMap() {
       return new HashMap<K, V>();

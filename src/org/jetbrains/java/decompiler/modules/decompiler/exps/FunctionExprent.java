@@ -275,6 +275,8 @@ public class FunctionExprent extends Exprent {
       } else { //TODO: Capture generics to make cast better?
         this.needsCast = right.type == CodeConstants.TYPE_NULL || !DecompilerContext.getStructContext().instanceOf(right.value, cast.value);
       }
+
+      return getExprType();
     } else if (funcType == FunctionType.TERNARY) {
       // TODO return common generic type?
       VarType type1 = lstOperands.get(1).getInferredExprType(upperBound);
@@ -285,6 +287,13 @@ public class FunctionExprent extends Exprent {
       } else if (type2.type == CodeConstants.TYPE_NULL) {
         return type1;
       }
+
+      return getExprType();
+    }
+
+    // All operands should be informed about the upper bound here
+    for (Exprent oper : lstOperands) {
+      oper.getInferredExprType(upperBound);
     }
 
     return getExprType();

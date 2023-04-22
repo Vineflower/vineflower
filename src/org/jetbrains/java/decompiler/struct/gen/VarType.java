@@ -4,6 +4,7 @@ package org.jetbrains.java.decompiler.struct.gen;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
@@ -35,6 +36,7 @@ public class VarType {  // TODO: optimize switch
   public static final VarType VARTYPE_BOOLEAN_OBJ = new VarType(CodeConstants.TYPE_OBJECT, 0, "java/lang/Boolean");
   public static final VarType VARTYPE_FLOAT_OBJ = new VarType(CodeConstants.TYPE_OBJECT, 0, "java/lang/Float");
   public static final VarType VARTYPE_DOUBLE_OBJ = new VarType(CodeConstants.TYPE_OBJECT, 0, "java/lang/Double");
+  public static final VarType VARTYPE_LONG_OBJ = new VarType(CodeConstants.TYPE_OBJECT, 0, "java/lang/Long");
   public static final VarType VARTYPE_VOID = new VarType(CodeConstants.TYPE_VOID);
 
   public static final Map<VarType, VarType> UNBOXING_TYPES = new HashMap<>();
@@ -47,6 +49,7 @@ public class VarType {  // TODO: optimize switch
     UNBOXING_TYPES.put(VARTYPE_BOOLEAN_OBJ, VARTYPE_BOOLEAN);
     UNBOXING_TYPES.put(VARTYPE_FLOAT_OBJ, VARTYPE_FLOAT);
     UNBOXING_TYPES.put(VARTYPE_DOUBLE_OBJ, VARTYPE_DOUBLE);
+    UNBOXING_TYPES.put(VARTYPE_LONG_OBJ, VARTYPE_LONG);
   }
 
   public final int type;
@@ -318,7 +321,7 @@ public class VarType {  // TODO: optimize switch
 
   // type1 and type2 must not be null
   // Result should be the intersection of both types
-  public static VarType getCommonMinType(VarType type1, VarType type2) {
+  public static @Nullable VarType getCommonMinType(VarType type1, VarType type2) {
     if (type1.type == CodeConstants.TYPE_BOOLEAN && type2.type == CodeConstants.TYPE_BOOLEAN) { // special case booleans
       return type1.isFalseBoolean() ? type2 : type1;
     }
@@ -349,7 +352,7 @@ public class VarType {  // TODO: optimize switch
 
   // type1 and type2 must not be null
   // Result should be the union of both types
-  public static VarType getCommonSupertype(VarType type1, VarType type2) {
+  public static @Nullable VarType getCommonSupertype(VarType type1, VarType type2) {
     if (type1.type == CodeConstants.TYPE_BOOLEAN && type2.type == CodeConstants.TYPE_BOOLEAN) { // special case booleans
       return type1.isFalseBoolean() ? type1 : type2;
     }
