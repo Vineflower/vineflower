@@ -1019,7 +1019,7 @@ public class ExprProcessor implements CodeConstants {
 
   public enum NullCastType {
     CAST(true), // old boolean true
-    DONT_CAST(false), // old booean false
+    DONT_CAST(false), // old boolean false
     DONT_CAST_AT_ALL(false); // old boolean false and don't cast
 
     private final boolean cast;

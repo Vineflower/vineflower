@@ -275,7 +275,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestExtraClass");
     // TODO: Object foreach should be generic
     register(JAVA_8, "TestGenericMapInput");
-    register(JAVA_8, "TestGenericNull");
     register(JAVA_8, "TestInlineAssignments");
     // TODO: Cast of (Func) is removed
     register(JAVA_8, "TestInterfaceLambdaCast");
@@ -672,6 +671,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: reevaluate behavior, especially with casting
     register(JAVA_8, "TestGenerics");
     register(JAVA_8, "TestClassTypes");
+    register(JAVA_8, "TestGenericNull");
     register(JAVA_8, "TestClassCast");
     // TODO: intValue() call where there shouldn't be
     register(JAVA_8, "TestBoxingConstructor");
