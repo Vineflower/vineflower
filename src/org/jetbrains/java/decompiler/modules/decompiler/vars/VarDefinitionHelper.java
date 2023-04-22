@@ -1381,6 +1381,7 @@ public class VarDefinitionHelper {
     Set<VarVersionPair> curVarDefs = new HashSet<>();
 
     boolean shouldRemoveAtEnd = false;
+    // TODO: rename through lambdas!
 
     for (Exprent exprent : stat.getVarDefinitions()) {
       iterateClashingExprent(stat, varDefinitions, exprent, curVarDefs, nameMap);

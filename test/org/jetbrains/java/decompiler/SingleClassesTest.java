@@ -743,6 +743,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: finally return parsing wrong
     // TODO: postdom error only when ssau finally is disabled
     register(JAVA_8, "TestTryReturn");
+    register(JAVA_8, "TestGenericWildcard");
   }
 
   private void registerLiterals() {
