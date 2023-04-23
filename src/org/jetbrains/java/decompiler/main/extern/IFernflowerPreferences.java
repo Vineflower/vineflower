@@ -57,11 +57,11 @@ public interface IFernflowerPreferences {
   @Type(Type.BOOLEAN)
   String DECOMPILE_GENERIC_SIGNATURES = "decompile-generics";
 
-  @Name("No Exceptions In Return")
-  @Description("Integrate returns better in try-catch blocks.")
+  @Name("Incorporate returns in try-catch blocks")
+  @Description("Integrate returns better in try-catch blocks instead of storing them in a temporary variable.")
   @ShortName("ner")
   @Type(Type.BOOLEAN)
-  String NO_EXCEPTIONS_RETURN = "no-exceptions-return";
+  String INCORPORATE_RETURNS = "incorporate-returns";
 
   @Name("Ensure synchronized ranges are complete")
   @Description("If a synchronized block has a monitorenter without any corresponding monitorexit, try to deduce where one should be to ensure the synchronized is proper.")
@@ -400,7 +400,7 @@ public interface IFernflowerPreferences {
     defaults.put(HIDE_EMPTY_SUPER, "1");
     defaults.put(HIDE_DEFAULT_CONSTRUCTOR, "1");
     defaults.put(DECOMPILE_GENERIC_SIGNATURES, "1");
-    defaults.put(NO_EXCEPTIONS_RETURN, "1");
+    defaults.put(INCORPORATE_RETURNS, "1");
     defaults.put(ENSURE_SYNCHRONIZED_MONITOR, "1");
     defaults.put(DECOMPILE_ENUM, "1");
     defaults.put(REMOVE_GET_CLASS_NEW, "1");
