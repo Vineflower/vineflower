@@ -2,10 +2,10 @@ package pkg
 
 class TestShadowParam {
    fun test(x: Int) {
-      var x: Int = x - 1;// 5 6
+      var xx: Int = x - 1;// 5 6
       System.out.println(x - 1);// 7
-      if (x < 0) {// 8
-         System.out.println(x);// 9
+      if (xx < 0) {// 8
+         System.out.println(xx);// 9
       }
    }// 11
 }
