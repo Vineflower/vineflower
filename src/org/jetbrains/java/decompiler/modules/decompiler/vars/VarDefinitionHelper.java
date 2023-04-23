@@ -1407,6 +1407,15 @@ public class VarDefinitionHelper {
     Set<VarInMethod> liveVarDefs = new HashSet<>();
     Map<VarInMethod, String> nameMap = new HashMap<>();
 
+    MethodDescriptor md = mt.methodDescriptor();
+    int start = mt.hasModifier(CodeConstants.ACC_STATIC) ? 0 : 1;
+    for (int i = 0; i < md.params.length; i++) {
+      VarVersionPair vvp = new VarVersionPair(i + start, 0);
+      VarInMethod vim = new VarInMethod(vvp, mt);
+      liveVarDefs.add(vim);
+      nameMap.put(vim, this.varproc.getVarName(vvp));
+    }
+
     iterateClashingNames(root, mt, varDefinitions, liveVarDefs, nameMap);
   }
 
@@ -1532,6 +1541,7 @@ public class VarDefinitionHelper {
         }
       }
     }
+    // TODO: pass current method's clashing names onto enclosed lambdas
 
     if (exprent instanceof VarExprent) {
       VarExprent var = (VarExprent) exprent;
