@@ -17,7 +17,7 @@ object TestObject {
       objectVar += -1;// 5
    }// 6
 
-   fun getObjectVal(): Regex  {
+   fun getObjectVal(): Regex {
       return objectVal;// 10
    }
 

@@ -5,11 +5,11 @@ import kotlin.jvm.functions.Function1
 class TestKotlinTypes {
    private Function1<Integer, Unit> consumer = <unknownclass>.INSTANCE;
 
-   fun throwAlways(): Void  {
+   fun throwAlways(): Void {
       throw new Exception();// 5
    }
 
-   fun getConsumer(): (Int?) -> Unit  {
+   fun getConsumer(): (Int?) -> Unit {
       return this.consumer;// 8
    }
 }

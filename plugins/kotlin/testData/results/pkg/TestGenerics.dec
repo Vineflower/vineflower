@@ -1,11 +1,11 @@
 package pkg
 
 class TestGenerics<T> {
-   fun <T> genericFun(v: T): T  {
+   fun <T> genericFun(v: T): T {
       return (T)v;// 5
    }
 
-   fun <T> nullableGeneric(v: T): T?  {
+   fun <T> nullableGeneric(v: T): T? {
       return null;// 9
    }
 

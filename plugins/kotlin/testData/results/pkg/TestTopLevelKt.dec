@@ -7,7 +7,7 @@ public int topLevelConstVal = 926;
 fun topLevelFun() {
 }// 5
 
-fun getTopLevelVar(): Int  {
+fun getTopLevelVar(): Int {
    return topLevelVar;
 }
 
@@ -15,7 +15,7 @@ fun setTopLevelVar(var0: Int) {
    topLevelVar = var0;// 7
 }
 
-fun getTopLevelVal(): Regex  {
+fun getTopLevelVal(): Regex {
    return topLevelVal;// 9
 }
 

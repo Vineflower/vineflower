@@ -1,7 +1,7 @@
 package pkg
 
 class TestClassDec {
-   fun TestClassDec.Vec2iVal.dot(v: TestClassDec.Vec2iVal): Int  {
+   fun TestClassDec.Vec2iVal.dot(v: TestClassDec.Vec2iVal): Int {
       return `$this$dot`.getX() * v.getX() + `$this$dot`.getY() * v.getY();// 11
    }
 
@@ -30,11 +30,11 @@ class TestClassDec {
          this.y = y;
       }
 
-      fun getX(): Int  {
+      fun getX(): Int {
          return this.x;
       }
 
-      fun getY(): Int  {
+      fun getY(): Int {
          return this.y;// 7
       }
    }
@@ -48,7 +48,7 @@ class TestClassDec {
          this.y = y;
       }
 
-      fun getX(): Int  {
+      fun getX(): Int {
          return this.x;
       }
 
@@ -56,7 +56,7 @@ class TestClassDec {
          this.x = var1;
       }
 
-      fun getY(): Int  {
+      fun getY(): Int {
          return this.y;
       }
 

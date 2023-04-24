@@ -1,23 +1,23 @@
 package pkg
 
 class TestNothingReturns {
-   fun loop(): Void  {
+   fun loop(): Void {
       while (true) {
          System.out.println("loop");// 6
       }
    }
 
-   fun test1(): Void  {
+   fun test1(): Void {
       this.loop();// 11
       throw new KotlinNothingValueException();
    }
 
-   fun test2(): Long  {
+   fun test2(): Long {
       this.test1();// 15
       throw new KotlinNothingValueException();
    }
 
-   fun test3(i: Int): Int  {
+   fun test3(i: Int): Int {
       if (i == 0) {// 19
          this.loop();// 20
          throw new KotlinNothingValueException();
@@ -31,13 +31,13 @@ class TestNothingReturns {
       throw new KotlinNothingValueException();
    }
 
-   fun test5(s: String): String  {
+   fun test5(s: String): String {
       StringsKt.repeat(s as CharSequence, 5);// 32
       this.loop();
       throw new KotlinNothingValueException();
    }
 
-   fun test6(s: String?): String  {
+   fun test6(s: String?): String {
       if (s == null) {// 36
          this.loop();
          throw new KotlinNothingValueException();

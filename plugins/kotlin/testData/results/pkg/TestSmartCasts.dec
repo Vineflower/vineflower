@@ -3,7 +3,7 @@ package pkg
 import kotlin.jvm.internal.DefaultConstructorMarker
 
 class TestSmartCasts {
-   fun testWhen(o: Any?): String  {
+   fun testWhen(o: Any?): String {
       if (o is String) {// 19 20
          return o as String;// 21
       } else {
@@ -33,11 +33,11 @@ class TestSmartCasts {
       }
    }
 
-   fun testIf(a: Any?): String  {
+   fun testIf(a: Any?): String {
       return if (a !is TestSmartCasts.A.B && a !is TestSmartCasts.A.C) "else: " + a else (a as TestSmartCasts.A).test();// 35 36 39
    }
 
-   fun testIf2(a: Any?): String  {
+   fun testIf2(a: Any?): String {
       if (a is TestSmartCasts.A) {// 43
          if (a is TestSmartCasts.A.B || a is TestSmartCasts.A.C) {// 44
             System.out.println((a as TestSmartCasts.A).test());// 45
@@ -70,7 +70,7 @@ class TestSmartCasts {
       }
    }// 70
 
-   fun testSealedIf(a: TestSmartCasts.A): String  {
+   fun testSealedIf(a: TestSmartCasts.A): String {
       if (a is TestSmartCasts.A.B) {// 73
          return (a as TestSmartCasts.A.B).testB();// 74
       } else {
@@ -78,7 +78,7 @@ class TestSmartCasts {
       }
    }
 
-   fun testDoubleType(t: MutableList<String>): String  {
+   fun testDoubleType(t: MutableList<String>): String {
       return if (t is TestSmartCasts.X) (t as TestSmartCasts.X).woo(t as Iterable<?>) else t.get(0) as String;// 83 84 87
    }
 
@@ -86,7 +86,7 @@ class TestSmartCasts {
       fun A() {
       }// 7
 
-      fun test(): String  {
+      fun test(): String {
          return "";// 15
       }
 
@@ -100,7 +100,7 @@ class TestSmartCasts {
             super(null);// 8
          }
 
-         fun testB(): String  {
+         fun testB(): String {
             return "B";// 9
          }
       }
@@ -110,19 +110,19 @@ class TestSmartCasts {
             super(null);// 11
          }
 
-         fun testC(): String  {
+         fun testC(): String {
             return "C";// 12
          }
       }
    }
 
    interface X {
-      fun woo(var1: Iterable<?>): String ;
+      fun woo(var1: Iterable<?>): String;
 
       // $QF: Class flags could not be determined
       internal class DefaultImpls {
          @JvmStatic
-         fun woo(var0: TestSmartCasts.X, receiver: Iterable<?>): String  {
+         fun woo(var0: TestSmartCasts.X, receiver: Iterable<?>): String {
             return "A";// 5
          }
       }

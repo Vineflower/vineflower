@@ -1047,7 +1047,6 @@ public class KotlinWriter implements StatementWriter {
           if (isNullable(mt)) {
             buffer.append("?");
           }
-          buffer.append(' ');
         }
 
         StructExceptionsAttribute attr = mt.getAttribute(StructGeneralAttribute.ATTRIBUTE_EXCEPTIONS);

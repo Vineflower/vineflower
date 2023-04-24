@@ -4,7 +4,7 @@ fun accept(f: (Int?) -> String) {
    System.out.println(f.invoke(5));
 }// 3
 
-fun function(r: Int): String  {
+fun function(r: Int): String {
    return StringsKt.repeat("OK" as CharSequence, r);// 6
 }
 

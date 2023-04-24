@@ -4,11 +4,11 @@ class TestNullable {
    fun nullableParams(v: String, vn: String?) {
    }// 6
 
-   fun nullableReturn(): String?  {
+   fun nullableReturn(): String? {
       return null;// 9
    }
 
-   fun nullableGenerics(v: MutableList<String>): MutableList<String>?  {
+   fun nullableGenerics(v: MutableList<String>): MutableList<String>? {
       return v;// 13
    }
 }

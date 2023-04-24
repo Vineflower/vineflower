@@ -19,7 +19,7 @@ sealed class TestSealedHierarchy {
          this.x = x;
       }
 
-      fun getX(): Int  {
+      fun getX(): Int {
          return this.x;// 5
       }
    }

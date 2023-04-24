@@ -5,7 +5,7 @@ class TestInfixFun {
       System.out.println(test$times(2, "Bye "));// 7
    }// 8
 
-   fun Int.mult(str: String): String  {
+   fun Int.mult(str: String): String {
       return StringsKt.repeat(str as CharSequence, `$this$mult`);// 10
    }
 
@@ -18,12 +18,12 @@ class TestInfixFun {
    }// 21
 
    @JvmStatic
-   fun Int.`test$times`(str: String): String  {
+   fun Int.`test$times`(str: String): String {
       return StringsKt.repeat(str as CharSequence, `$this$test_u24times`);// 5
    }
 
    @JvmStatic
-   fun Int.`testDuplicate$mult`(str: String): String  {
+   fun Int.`testDuplicate$mult`(str: String): String {
       return StringsKt.repeat(str as CharSequence, `$this$testDuplicate_u24mult` + 1);// 18
    }
 }

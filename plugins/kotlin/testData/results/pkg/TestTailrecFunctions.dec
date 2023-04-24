@@ -1,7 +1,7 @@
 package pkg
 
 class TestTailrecFunctions {
-   fun sum(x: Long, sum: Long): Long  {
+   fun sum(x: Long, sum: Long): Long {
       var var5: TestTailrecFunctions = this;// 4
       var var6: Long = x;
 
@@ -29,7 +29,7 @@ class TestTailrecFunctions {
       }
    }
 
-   fun testFinallyReturn(): Int  {
+   fun testFinallyReturn(): Int {
       try {
          ;
       } catch (Throwable var2) {
@@ -68,7 +68,7 @@ class TestTailrecFunctions {
       }
    }
 
-   fun fastPow(x: Long, n: Long, acc: Long): Long  {
+   fun fastPow(x: Long, n: Long, acc: Long): Long {
       var var7: TestTailrecFunctions = this;
       var var8: Long = x;
       var var10: Long = n;
@@ -97,7 +97,7 @@ class TestTailrecFunctions {
 
    @JvmStatic
    @JvmSynthetic
-   fun `fastPow$default`(var0: TestTailrecFunctions, var1: Long, var3: Long, var5: Long, var7: Int, var8: Any): Long  {
+   fun `fastPow$default`(var0: TestTailrecFunctions, var1: Long, var3: Long, var5: Long, var7: Int, var8: Any): Long {
       if ((var7 and 4) != 0) {// 43
          var5 = 1L;
       }
@@ -105,7 +105,7 @@ class TestTailrecFunctions {
       return var0.fastPow(var1, var3, var5);
    }
 
-   fun fastPow(x: Long, n: Long): Long  {
+   fun fastPow(x: Long, n: Long): Long {
       var var5: TestTailrecFunctions = this;// 49
       var var6: Long = x;
       var var8: Long = n;
