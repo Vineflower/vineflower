@@ -15,6 +15,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.NewExprent;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.attr.StructAnnotationAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
+import org.quiltmc.quiltflower.kotlin.metadata.MetadataNameResolver;
 
 import java.io.ByteArrayInputStream;
 
@@ -56,6 +57,10 @@ public class KotlinChooser implements LanguageChooser {
 
               ByteArrayInputStream input = new ByteArrayInputStream(buf);
               JvmProtoBuf.StringTableTypes types = JvmProtoBuf.StringTableTypes.parseDelimitedFrom(input, EXTENSIONS);
+
+              MetadataNameResolver resolver = new MetadataNameResolver(types, data2);
+              DecompilerContext.setProperty(KotlinDecompilationContext.NAME_RESOLVER, resolver);
+
               if (k == 1) { // Class file
                 ProtoBuf.Class pcl = ProtoBuf.Class.parseFrom(input, EXTENSIONS);
 
@@ -63,7 +68,6 @@ public class KotlinChooser implements LanguageChooser {
 //                  System.out.println(func.getFlags());
 //                }
 //
-//                MetadataNameResolver resolver = new MetadataNameResolver(types, data2);
 //                System.out.println(resolver.resolve(pcl.getFqName()));
 //
 //                for (ProtoBuf.Function func : pcl.getFunctionList()) {

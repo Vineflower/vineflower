@@ -3,6 +3,7 @@ package org.quiltmc.quiltflower.kotlin;
 import kotlin.reflect.jvm.internal.impl.metadata.ProtoBuf;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.util.Key;
+import org.quiltmc.quiltflower.kotlin.metadata.MetadataNameResolver;
 
 public class KotlinDecompilationContext {
   public enum KotlinType {
@@ -17,6 +18,7 @@ public class KotlinDecompilationContext {
   public static final Key<ProtoBuf.Package> FILE_PACKAGE = Key.of("FILE_PACKAGE");
   public static final Key<ProtoBuf.Function> SYNTHETIC_CLASS = Key.of("SYNTHETIC_CLASS");
   public static final Key<ProtoBuf.Package> MULTIFILE_PACKAGE = Key.of("MULTIFILE_PACKAGE");
+  public static final Key<MetadataNameResolver> NAME_RESOLVER = Key.of("NAME_RESOLVER");
 
   public static ProtoBuf.Class getCurrentClass() {
     return getCurrentType() == KotlinType.CLASS ? DecompilerContext.getContextProperty(CURRENT_CLASS) : null;
@@ -36,5 +38,9 @@ public class KotlinDecompilationContext {
 
   public static KotlinType getCurrentType() {
     return DecompilerContext.getContextProperty(CURRENT_TYPE);
+  }
+
+  public static MetadataNameResolver getNameResolver() {
+    return DecompilerContext.getContextProperty(NAME_RESOLVER);
   }
 }
