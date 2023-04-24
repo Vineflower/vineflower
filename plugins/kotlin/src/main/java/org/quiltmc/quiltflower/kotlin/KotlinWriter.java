@@ -1048,33 +1048,9 @@ public class KotlinWriter implements StatementWriter {
             buffer.append("?");
           }
         }
-
-        StructExceptionsAttribute attr = mt.getAttribute(StructGeneralAttribute.ATTRIBUTE_EXCEPTIONS);
-        if ((descriptor != null && !descriptor.exceptionTypes.isEmpty()) || attr != null) {
-          throwsExceptions = true;
-          buffer.append(" throws ");
-
-          boolean useDescriptor = hasDescriptor && !descriptor.exceptionTypes.isEmpty();
-          for (int i = 0; i < attr.getThrowsExceptions().size(); i++) {
-            if (i > 0) {
-              buffer.append(", ");
-            }
-            VarType type = useDescriptor ? descriptor.exceptionTypes.get(i) : new VarType(attr.getExcClassname(i, cl.getPool()), true);
-            buffer.append(ExprProcessor.getCastTypeName(type));
-          }
-        }
       }
 
       if ((flags & (CodeConstants.ACC_ABSTRACT | CodeConstants.ACC_NATIVE)) != 0) { // native or abstract method (explicit or interface)
-        if (isAnnotation) {
-          StructAnnDefaultAttribute attr = mt.getAttribute(StructGeneralAttribute.ATTRIBUTE_ANNOTATION_DEFAULT);
-          if (attr != null) {
-            buffer.append(" default ");
-            buffer.append(attr.getDefaultValue().toJava(0));
-          }
-        }
-
-        buffer.append(';');
         buffer.appendLineSeparator();
       }
       else {

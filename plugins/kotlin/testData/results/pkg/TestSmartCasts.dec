@@ -117,7 +117,7 @@ class TestSmartCasts {
    }
 
    interface X {
-      fun woo(var1: Iterable<?>): String;
+      fun woo(var1: Iterable<?>): String
 
       // $QF: Class flags could not be determined
       internal class DefaultImpls {
