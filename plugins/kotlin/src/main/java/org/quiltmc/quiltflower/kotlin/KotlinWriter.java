@@ -1,6 +1,7 @@
 // Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.quiltmc.quiltflower.kotlin;
 
+import kotlin.reflect.jvm.internal.impl.metadata.ProtoBuf;
 import net.fabricmc.fernflower.api.IFabricJavadocProvider;
 import org.jetbrains.java.decompiler.api.StatementWriter;
 import org.jetbrains.java.decompiler.code.CodeConstants;
@@ -37,7 +38,9 @@ import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.TextUtil;
 import org.jetbrains.java.decompiler.util.collections.VBStyleCollection;
 import org.quiltmc.quiltflower.kotlin.expr.KAnnotationExprent;
+import org.quiltmc.quiltflower.kotlin.metadata.MetadataNameResolver;
 import org.quiltmc.quiltflower.kotlin.util.KTypes;
+import org.quiltmc.quiltflower.kotlin.util.ProtobufFlags;
 
 import java.io.IOException;
 import java.util.*;
@@ -509,6 +512,9 @@ public class KotlinWriter implements StatementWriter {
     ClassWrapper wrapper = node.getWrapper();
     StructClass cl = wrapper.getClassStruct();
 
+    // Ensure that the class data is put in place
+    KotlinChooser.setContextVariables(cl);
+
     int flags = node.type == ClassNode.Type.ROOT ? cl.getAccessFlags() : node.access;
     boolean isDeprecated = cl.hasAttribute(StructGeneralAttribute.ATTRIBUTE_DEPRECATED);
     boolean isSynthetic = (flags & CodeConstants.ACC_SYNTHETIC) != 0 || cl.hasAttribute(StructGeneralAttribute.ATTRIBUTE_SYNTHETIC);
@@ -540,67 +546,60 @@ public class KotlinWriter implements StatementWriter {
     appendAnnotations(buffer, indent, cl, -1);
     appendJvmAnnotations(buffer, indent, cl, isInterface, cl.getPool(), TypeAnnotation.CLASS_TYPE_PARAMETER);
 
+
+    ProtoBuf.Class proto = KotlinDecompilationContext.getCurrentClass();
+    ProtobufFlags.Class kotlinFlags;
+    if (proto != null) {
+      kotlinFlags = new ProtobufFlags.Class(proto.getFlags());
+    } else {
+      appendComment(buffer, "Class flags could not be determined", indent);
+      kotlinFlags = new ProtobufFlags.Class(0);
+    }
+
     buffer.appendIndent(indent);
 
-    if (isEnum) {
-      // remove abstract and final flags (JLS 8.9 Enums)
-      flags &= ~CodeConstants.ACC_ABSTRACT;
-      flags &= ~CodeConstants.ACC_FINAL;
-
-      // remove implicit static flag for local enums (JLS 14.3 Local class and interface declarations)
-      if (node.type == ClassNode.Type.LOCAL) {
-        flags &= ~CodeConstants.ACC_STATIC;
-      }
+    if (kotlinFlags.visibility != ProtoBuf.Visibility.PUBLIC) {
+      buffer.append(ProtobufFlags.toString(kotlinFlags.visibility)).append(' ');
     }
 
-    List<StructRecordComponent> components = cl.getRecordComponents();
-
-    if (components != null) {
-      // records are implicitly final
-      flags &= ~CodeConstants.ACC_FINAL;
+    if (kotlinFlags.isExpect) {
+      buffer.append("expect ");
     }
 
-    if ((flags & CodeConstants.ACC_FINAL) == 0) {
-      buffer.append("open ");
+    if ((!isInterface && kotlinFlags.modality != ProtoBuf.Modality.FINAL) || kotlinFlags.modality == ProtoBuf.Modality.SEALED) {
+      buffer.append(ProtobufFlags.toString(kotlinFlags.modality)).append(' ');
     }
 
-    // TODO: more robust inner class detection
-    if ((flags & CodeConstants.ACC_STATIC) == 0 && cl.qualifiedName.contains("$")) {
+    if (kotlinFlags.isExternal) {
+      buffer.append("external ");
+    }
+    if (kotlinFlags.isInner) {
       buffer.append("inner ");
     }
-
-    appendModifiers(buffer, flags, CLASS_ALLOWED, isInterface, CLASS_EXCLUDED);
-
-    if (!isEnum && isSealed) {
-      buffer.append("sealed ");
-    } else if (isNonSealed) {
-      buffer.append("non-sealed ");
+    if (kotlinFlags.isFun) {
+      buffer.append("fun ");
     }
+    if (kotlinFlags.isInline) {
+      buffer.append("inline ");
+    }
+    if (kotlinFlags.isData) {
+      buffer.append("data ");
+    }
+
     if (isEnum) {
-      buffer.append("enum ");
-    }
-    else if (isInterface) {
-      if (isAnnotation) {
-        buffer.append('@');
-      }
+      buffer.append("enum class ");
+    } else if (isInterface) {
       buffer.append("interface ");
-    }
-    else if (isModuleInfo) {
-      StructModuleAttribute moduleAttribute = cl.getAttribute(StructGeneralAttribute.ATTRIBUTE_MODULE);
-
-      if ((moduleAttribute.moduleFlags & CodeConstants.ACC_OPEN) != 0) {
-        buffer.append("open ");
-      }
-
-      buffer.append("module ");
-      buffer.append(moduleAttribute.moduleName);
-    }
-    else if (components != null) {
-      buffer.append("record ");
-    }
-    else {
+    } else if (isAnnotation) {
+      buffer.append("annotation class");
+    } else if (kotlinFlags.kind == ProtoBuf.Class.Kind.OBJECT) {
+      buffer.append("object ");
+    } else if (kotlinFlags.kind == ProtoBuf.Class.Kind.COMPANION_OBJECT) {
+      buffer.append("companion object ");
+    } else {
       buffer.append("class ");
     }
+
     buffer.append(toValidKotlinIdentifier(node.simpleName));
 
     GenericClassDescriptor descriptor = cl.getSignature();
@@ -608,50 +607,35 @@ public class KotlinWriter implements StatementWriter {
       appendTypeParameters(buffer, descriptor.fparameters, descriptor.fbounds);
     }
 
-    if (components != null) {
-      buffer.append('(');
-      RecordHelper.appendRecordComponents(buffer, cl, components, indent);
-      buffer.append(')');
-    }
-
     buffer.pushNewlineGroup(indent, 1);
 
-    if (!isEnum && !isInterface && components == null && cl.superClass != null) {
+    boolean appendedColon = false;
+    if (!isEnum && !isInterface && cl.superClass != null) {
       VarType supertype = new VarType(cl.superClass.getString(), true);
       if (!VarType.VARTYPE_OBJECT.equals(supertype)) {
+        buffer.append(" :");
         buffer.appendPossibleNewline(" ");
-        buffer.append("extends ");
         buffer.append(ExprProcessor.getCastTypeName(descriptor == null ? supertype : descriptor.superclass));
+        appendedColon = true;
       }
     }
 
     if (!isAnnotation) {
       int[] interfaces = cl.getInterfaces();
       if (interfaces.length > 0) {
-        buffer.appendPossibleNewline(" ");
-        buffer.append(isInterface ? "extends " : "implements ");
         for (int i = 0; i < interfaces.length; i++) {
-          if (i > 0) {
+          if (!appendedColon) {
+            buffer.append(" :");
+            appendedColon = true;
+          } else {
             buffer.append(",");
-            buffer.appendPossibleNewline(" ");
           }
+          buffer.appendPossibleNewline(" ");
 
           if (descriptor == null || descriptor.superinterfaces.size() > i) {
             buffer.append(ExprProcessor.getCastTypeName(descriptor == null ? new VarType(cl.getInterface(i), true) : descriptor.superinterfaces.get(i)));
           }
         }
-      }
-    }
-
-    if (!isEnum && isSealed) {
-      buffer.appendPossibleNewline(" ");
-      buffer.append("permits ");
-      for (int i = 0; i < permittedSubClasses.size(); i++) {
-        if (i > 0) {
-          buffer.append(",");
-          buffer.appendPossibleNewline(" ");
-        }
-        buffer.append(ExprProcessor.getCastTypeName(new VarType(permittedSubClasses.get(i), true)));
       }
     }
 
@@ -1438,6 +1422,10 @@ public class KotlinWriter implements StatementWriter {
     buffer.appendIndent(indent).append("// $QF: ").append(comment).appendLineSeparator();
   }
 
+  private static void appendInlineComment(TextBuffer buffer, String comment) {
+    buffer.append("/* $QF: ").append(comment).append(" */");
+  }
+
   private static void appendJavadoc(TextBuffer buffer, String javaDoc, int indent) {
     if (javaDoc == null) return;
     buffer.appendIndent(indent).append("/**").appendLineSeparator();
@@ -1521,6 +1509,10 @@ public class KotlinWriter implements StatementWriter {
           buffer.appendIndent(indent).append("@Volatile").appendLineSeparator();
         }
         break;
+      case TypeAnnotation.CLASS_TYPE_PARAMETER:
+        if (mb.hasAttribute(StructRecordAttribute.ATTRIBUTE_RECORD)) {
+          buffer.appendIndent(indent).append("@JvmRecord").appendLineSeparator();
+        }
     }
 
     if (mb.hasModifier(CodeConstants.ACC_STATIC) && targetType != TypeAnnotation.CLASS_TYPE_PARAMETER && KotlinDecompilationContext.getCurrentType() != KotlinDecompilationContext.KotlinType.FILE) {

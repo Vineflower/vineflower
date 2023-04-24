@@ -28,7 +28,7 @@ class TestCompileTimeErrors {
       };
    }
 
-   open interface Test {
+   interface Test {
       fun getTestValue(): Int ;
    }
 }

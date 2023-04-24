@@ -2,7 +2,7 @@ package pkg
 
 import kotlin.jvm.internal.DefaultConstructorMarker
 
-open abstract class TestSealedHierarchy {
+sealed class TestSealedHierarchy {
    fun TestSealedHierarchy() {
    }// 3
 
@@ -11,7 +11,7 @@ open abstract class TestSealedHierarchy {
       this();
    }
 
-   class TestClass extends TestSealedHierarchy {
+   class TestClass : TestSealedHierarchy {
       private int x;
 
       fun TestClass(x: Int) {
@@ -24,7 +24,7 @@ open abstract class TestSealedHierarchy {
       }
    }
 
-   class TestObject extends TestSealedHierarchy {
+   object TestObject : TestSealedHierarchy {
       @JvmStatic
       public TestSealedHierarchy.TestObject INSTANCE = new TestSealedHierarchy.TestObject();
 

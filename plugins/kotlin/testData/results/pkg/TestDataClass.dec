@@ -2,7 +2,7 @@ package pkg
 
 import java.util.List
 
-class TestDataClass {
+data class TestDataClass {
    private Regex dataClassVal;
    private int variableWithVeryLongName;
    private List<String> requestLineWrapsIfTheParamListIsTooLong;

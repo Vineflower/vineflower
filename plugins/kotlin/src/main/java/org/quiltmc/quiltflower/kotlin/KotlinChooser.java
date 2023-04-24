@@ -38,31 +38,57 @@ public class KotlinChooser implements LanguageChooser {
         StructAnnotationAttribute attr = cl.getAttribute(key);
         for (AnnotationExprent anno : attr.getAnnotations()) {
           if (anno.getClassName().equals("kotlin/Metadata")) {
+            setContextVariables(cl);
+            return true;
+          }
+        }
+      }
+    }
 
-            int kIndex = anno.getParNames().indexOf("k");
-            int k = (int) ((ConstExprent) anno.getParValues().get(kIndex)).getValue();
+    DecompilerContext.setProperty(KotlinDecompilationContext.CURRENT_TYPE, null);
+    return false;
+  }
 
-            int d1Index = anno.getParNames().indexOf("d1");
-            Exprent d1 = anno.getParValues().get(d1Index);
+  public static void setContextVariables(StructClass cl) {
+    AnnotationExprent anno = null;
 
-            int d2Index = anno.getParNames().indexOf("d2");
-            Exprent d2 = anno.getParValues().get(d2Index);
+    loop:
+    for (Key<?> key : ANNOTATION_ATTRIBUTES) {
+      if (cl.hasAttribute(key)) {
+        StructAnnotationAttribute attr = cl.getAttribute(key);
+        for (AnnotationExprent a : attr.getAnnotations()) {
+          if (a.getClassName().equals("kotlin/Metadata")) {
+            anno = a;
+            break loop;
+          }
+        }
+      }
+    }
 
-            String[] data1 = getDataFromExpr((NewExprent) d1);
+    try {
+      int kIndex = anno.getParNames().indexOf("k");
+      int k = (int) ((ConstExprent) anno.getParValues().get(kIndex)).getValue();
+  
+      int d1Index = anno.getParNames().indexOf("d1");
+      Exprent d1 = anno.getParValues().get(d1Index);
+  
+      int d2Index = anno.getParNames().indexOf("d2");
+      Exprent d2 = anno.getParValues().get(d2Index);
 
-            try {
-              String[] data2 = getDataFromExpr((NewExprent) d2);
+      String[] data1 = getDataFromExpr((NewExprent) d1);
 
-              byte[] buf = BitEncoding.decodeBytes(data1);
+      String[] data2 = getDataFromExpr((NewExprent) d2);
 
-              ByteArrayInputStream input = new ByteArrayInputStream(buf);
-              JvmProtoBuf.StringTableTypes types = JvmProtoBuf.StringTableTypes.parseDelimitedFrom(input, EXTENSIONS);
+      byte[] buf = BitEncoding.decodeBytes(data1);
 
-              MetadataNameResolver resolver = new MetadataNameResolver(types, data2);
-              DecompilerContext.setProperty(KotlinDecompilationContext.NAME_RESOLVER, resolver);
+      ByteArrayInputStream input = new ByteArrayInputStream(buf);
+      JvmProtoBuf.StringTableTypes types = JvmProtoBuf.StringTableTypes.parseDelimitedFrom(input, EXTENSIONS);
 
-              if (k == 1) { // Class file
-                ProtoBuf.Class pcl = ProtoBuf.Class.parseFrom(input, EXTENSIONS);
+      MetadataNameResolver resolver = new MetadataNameResolver(types, data2);
+      DecompilerContext.setProperty(KotlinDecompilationContext.NAME_RESOLVER, resolver);
+
+      if (k == 1) { // Class file
+        ProtoBuf.Class pcl = ProtoBuf.Class.parseFrom(input, EXTENSIONS);
 
 //                for (ProtoBuf.Function func : pcl.getFunctionList()) {
 //                  System.out.println(func.getFlags());
@@ -74,40 +100,31 @@ public class KotlinChooser implements LanguageChooser {
 //                  System.out.println(resolver.resolve(func.getName()));
 //                }
 
-                DecompilerContext.setProperty(KotlinDecompilationContext.CURRENT_TYPE, KotlinDecompilationContext.KotlinType.CLASS);
-                DecompilerContext.setProperty(KotlinDecompilationContext.CURRENT_CLASS, pcl);
+        DecompilerContext.setProperty(KotlinDecompilationContext.CURRENT_TYPE, KotlinDecompilationContext.KotlinType.CLASS);
+        DecompilerContext.setProperty(KotlinDecompilationContext.CURRENT_CLASS, pcl);
 
-              } else if (k == 2) { // File facade
-                ProtoBuf.Package pcl = ProtoBuf.Package.parseFrom(input, EXTENSIONS);
-                DecompilerContext.setProperty(KotlinDecompilationContext.CURRENT_TYPE, KotlinDecompilationContext.KotlinType.FILE);
-                DecompilerContext.setProperty(KotlinDecompilationContext.FILE_PACKAGE, pcl);
-              } else if (k == 3) { // Synthetic class
-                ProtoBuf.Function func = ProtoBuf.Function.parseFrom(input, EXTENSIONS);
-                DecompilerContext.setProperty(KotlinDecompilationContext.CURRENT_TYPE, KotlinDecompilationContext.KotlinType.SYNTHETIC_CLASS);
-                DecompilerContext.setProperty(KotlinDecompilationContext.SYNTHETIC_CLASS, func);
-              } else if (k == 5) { // Multi-file facade
-                ProtoBuf.Package pcl = ProtoBuf.Package.parseFrom(input, EXTENSIONS);
-                DecompilerContext.setProperty(KotlinDecompilationContext.CURRENT_TYPE, KotlinDecompilationContext.KotlinType.MULTIFILE_CLASS);
-                DecompilerContext.setProperty(KotlinDecompilationContext.MULTIFILE_PACKAGE, pcl);
-              } else {
-                DecompilerContext.setProperty(KotlinDecompilationContext.CURRENT_TYPE, null);
-              }
-            } catch (Exception e) {
-              DecompilerContext.getLogger().writeMessage("Failed to parse metadata for class " + cl.qualifiedName, IFernflowerLogger.Severity.WARN, e);
-              DecompilerContext.setProperty(KotlinDecompilationContext.CURRENT_TYPE, null);
-            }
-
-            return true;
-          }
-        }
+      } else if (k == 2) { // File facade
+        ProtoBuf.Package pcl = ProtoBuf.Package.parseFrom(input, EXTENSIONS);
+        DecompilerContext.setProperty(KotlinDecompilationContext.CURRENT_TYPE, KotlinDecompilationContext.KotlinType.FILE);
+        DecompilerContext.setProperty(KotlinDecompilationContext.FILE_PACKAGE, pcl);
+      } else if (k == 3) { // Synthetic class
+        ProtoBuf.Function func = ProtoBuf.Function.parseFrom(input, EXTENSIONS);
+        DecompilerContext.setProperty(KotlinDecompilationContext.CURRENT_TYPE, KotlinDecompilationContext.KotlinType.SYNTHETIC_CLASS);
+        DecompilerContext.setProperty(KotlinDecompilationContext.SYNTHETIC_CLASS, func);
+      } else if (k == 5) { // Multi-file facade
+        ProtoBuf.Package pcl = ProtoBuf.Package.parseFrom(input, EXTENSIONS);
+        DecompilerContext.setProperty(KotlinDecompilationContext.CURRENT_TYPE, KotlinDecompilationContext.KotlinType.MULTIFILE_CLASS);
+        DecompilerContext.setProperty(KotlinDecompilationContext.MULTIFILE_PACKAGE, pcl);
+      } else {
+        DecompilerContext.setProperty(KotlinDecompilationContext.CURRENT_TYPE, null);
       }
+    } catch (Exception e) {
+      DecompilerContext.getLogger().writeMessage("Failed to parse metadata for class " + cl.qualifiedName, IFernflowerLogger.Severity.WARN, e);
+      DecompilerContext.setProperty(KotlinDecompilationContext.CURRENT_TYPE, null);
     }
-
-    DecompilerContext.setProperty(KotlinDecompilationContext.CURRENT_TYPE, null);
-    return false;
   }
 
-  private String[] getDataFromExpr(NewExprent d2) {
+  private static String[] getDataFromExpr(NewExprent d2) {
     return d2.getLstArrayElements()
       .stream()
       .map(ConstExprent.class::cast)

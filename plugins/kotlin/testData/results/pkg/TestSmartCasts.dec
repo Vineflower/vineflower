@@ -82,7 +82,7 @@ class TestSmartCasts {
       return if (t is TestSmartCasts.X) (t as TestSmartCasts.X).woo(t as Iterable<?>) else t.get(0) as String;// 83 84 87
    }
 
-   open abstract class A {
+   sealed class A {
       fun A() {
       }// 7
 
@@ -95,7 +95,7 @@ class TestSmartCasts {
          this();
       }
 
-      class B extends TestSmartCasts.A {
+      class B : TestSmartCasts.A {
          fun B() {
             super(null);// 8
          }
@@ -105,7 +105,7 @@ class TestSmartCasts {
          }
       }
 
-      class C extends TestSmartCasts.A {
+      class C : TestSmartCasts.A {
          fun C() {
             super(null);// 11
          }
@@ -116,10 +116,11 @@ class TestSmartCasts {
       }
    }
 
-   open interface X {
+   interface X {
       fun woo(var1: Iterable<?>): String ;
 
-      class DefaultImpls {
+      // $QF: Class flags could not be determined
+      internal class DefaultImpls {
          @JvmStatic
          fun woo(var0: TestSmartCasts.X, receiver: Iterable<?>): String  {
             return "A";// 5
@@ -524,14 +525,14 @@ class 'pkg/TestSmartCasts$A$C' {
 
 class 'pkg/TestSmartCasts$X$DefaultImpls' {
    method 'woo (Lpkg/TestSmartCasts$X;Ljava/lang/Iterable;)Ljava/lang/String;' {
-      6      124
-      7      124
-      8      124
+      6      125
+      7      125
+      8      125
    }
 }
 
 Lines mapping:
-5 <-> 125
+5 <-> 126
 7 <-> 87
 8 <-> 100
 9 <-> 104

@@ -1,6 +1,6 @@
 package pkg
 
-class TestObject {
+object TestObject {
    @JvmStatic
    public TestObject INSTANCE = new TestObject();
    @JvmStatic
