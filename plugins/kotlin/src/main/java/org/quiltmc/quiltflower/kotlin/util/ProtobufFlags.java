@@ -9,7 +9,7 @@ public interface ProtobufFlags {
 
   int VISIBILITY_MASK = 0x000E;
   int MODALITY_MASK = 0x0030;
-  int KIND_MASK = 0x00C0;
+  int KIND_MASK = 0x01C0;
 
   //region: Constructor
   int CTOR_SECONDARY = 0x0010;
@@ -170,13 +170,13 @@ public interface ProtobufFlags {
   //endregion
 
   //region: Class
-  int CLASS_IS_INNER = 0x0100;
-  int CLASS_IS_DATA = 0x0200;
-  int CLASS_IS_EXTERNAL = 0x0400;
-  int CLASS_IS_EXPECT = 0x0800;
-  int CLASS_IS_INLINE = 0x1000;
-  int CLASS_IS_FUN = 0x2000;
-  int CLASS_HAS_ENUM_ENTRIES = 0x4000;
+  int CLASS_IS_INNER = 0x0200;
+  int CLASS_IS_DATA = 0x0400;
+  int CLASS_IS_EXTERNAL = 0x0800;
+  int CLASS_IS_EXPECT = 0x1000;
+  int CLASS_IS_INLINE = 0x2000;
+  int CLASS_IS_FUN = 0x4000;
+  int CLASS_HAS_ENUM_ENTRIES = 0x8000;
 
   class Class {
     public final boolean hasAnnotations;
@@ -206,4 +206,32 @@ public interface ProtobufFlags {
     }
   }
   //endregion
+
+  static String toString(ProtoBuf.Visibility visibility) {
+    switch (visibility) {
+      case PRIVATE:
+      case PRIVATE_TO_THIS:
+        return "private";
+      case PROTECTED:
+        return "protected";
+      case INTERNAL:
+        return "internal";
+      default:
+        return "public";
+    }
+  }
+
+  static String toString(ProtoBuf.Modality modality) {
+    switch (modality) {
+      case FINAL:
+        return "final";
+      case OPEN:
+        return "open";
+      case ABSTRACT:
+        return "abstract";
+      case SEALED:
+        return "sealed";
+    }
+    throw new IllegalStateException("Unknown modality: " + modality);
+  }
 }
