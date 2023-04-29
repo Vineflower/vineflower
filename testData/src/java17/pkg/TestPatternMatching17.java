@@ -101,4 +101,80 @@ public class TestPatternMatching17 {
             System.out.println(str.length());
         }
     }
+
+    private Object object;
+    private AutoCloseable o1;
+    private int x;
+    private int y;
+
+    public void testEmptyHead() throws Throwable {
+      if (object instanceof String) {
+        if (this.o1 != null) {
+          this.o1.close();
+        }
+
+        this.y = (this.x + 1) % 5;
+        if (this.y == 0) {
+          System.out.println(0);
+        } else {
+          System.out.println(1);
+        }
+      }
+    }
+
+  public void reassign(Object o) {
+    String s = "hello";
+    for (int i = 0; i < 10; i++) {
+      if (o instanceof Number) {
+        s = "goodbye";
+      } else if (o instanceof String) {
+        s = (String) o;
+      }
+    }
+
+    System.out.println(s);
+  }
+
+  public void reassignCopy(Object o) {
+    String s = "hello";
+    for (int i = 0; i < 10; i++) {
+      if (o instanceof Number) {
+        s = "goodbye";
+      } else if (o instanceof String s2) {
+        s = s2;
+      }
+    }
+
+    System.out.println(s);
+  }
+
+  public void reassignField(Object o, String s) {
+    for (int i = 0; i < 10; i++) {
+      if (o instanceof Number) {
+        s = "goodbye";
+      } else if (o instanceof String) {
+        s = (String) o;
+      }
+    }
+
+    System.out.println(s);
+  }
+
+  public void reassignNoUse(Object o) {
+    String s = "hello";
+    for (int i = 0; i < 10; i++) {
+      if (o instanceof Number) {
+        s = "goodbye";
+      } else if (o instanceof String) {
+        s = (String) o;
+      }
+    }
+  }
+
+  public String multiCombo(Object o, String s) {
+      if (o instanceof String s2 && !s.isEmpty()) {
+        return s2 + s;
+      }
+      return s;
+  }
 }
