@@ -48,6 +48,7 @@ public class StructContext {
   private final IResultSaver saver;
   private final IDecompiledData decompiledData;
   private final List<ContextUnit> units = new ArrayList<>();
+  private final List<ContextUnit> lazyUnits = new ArrayList<>();
   private final Map<String, StructClass> classes = new ConcurrentHashMap<>();
   private final Map<String, String> badlyPlacedClasses = new ConcurrentHashMap<>(); // original -> corrected
   private final Map<String, ContextUnit> unitsByClassName = new ConcurrentHashMap<>();
@@ -77,17 +78,15 @@ public class StructContext {
       // load class from a context unit
       final ContextUnit unitForClass = this.unitsByClassName.get(key);
       if (unitForClass != null) {
-        try {
-          DecompilerContext.getLogger().writeMessage("Loading Class: " + key + " from " + unitForClass.getName(), IFernflowerLogger.Severity.INFO);
-          StructClass clazz = StructClass.create(new DataInputFullStream(unitForClass.getClassBytes(key)), unitForClass.isOwn());
-          if (!key.equals(clazz.qualifiedName)) {
-            // also place the class in the right key if it's wrong
-            this.unitsByClassName.put(clazz.qualifiedName, unitForClass);
-            this.badlyPlacedClasses.put(key, clazz.qualifiedName);
-          }
+        final StructClass clazz = tryLoadClass(unitForClass, key);
+        if (clazz != null) {
           return clazz;
-        } catch (final IOException ex) {
-          DecompilerContext.getLogger().writeMessage("Failed to read class " + key + " from " + unitForClass.getName(), IFernflowerLogger.Severity.ERROR, ex);
+        }
+      }
+      for (final ContextUnit unit : this.lazyUnits) {
+        final StructClass clazz = tryLoadClass(unit, key);
+        if (clazz != null) {
+          return clazz;
         }
       }
       return getSentinel();
@@ -105,8 +104,43 @@ public class StructContext {
     }
   }
 
+  private StructClass tryLoadClass(final ContextUnit unitForClass, final String key) {
+    try {
+      DecompilerContext.getLogger().writeMessage("Loading Class: " + key + " from " + unitForClass.getName(), IFernflowerLogger.Severity.INFO);
+      final byte[] classBytes = unitForClass.getClassBytes(key);
+      if (classBytes == null) {
+        return null;
+      }
+      StructClass clazz = StructClass.create(new DataInputFullStream(classBytes), unitForClass.isOwn());
+      if (!key.equals(clazz.qualifiedName)) {
+        // also place the class in the right key if it's wrong
+        this.unitsByClassName.put(clazz.qualifiedName, unitForClass);
+        this.badlyPlacedClasses.put(key, clazz.qualifiedName);
+      }
+      return clazz;
+    } catch (final IOException ex) {
+      DecompilerContext.getLogger().writeMessage("Failed to read class " + key + " from " + unitForClass.getName(), IFernflowerLogger.Severity.ERROR, ex);
+    }
+
+    return null;
+  }
+
   public boolean hasClass(final String name) {
-    return this.unitsByClassName.containsKey(name);
+    if (this.unitsByClassName.containsKey(name)) {
+      return true;
+    }
+
+    for (final ContextUnit unit : this.lazyUnits) {
+      try {
+        if (unit.hasClass(name)) {
+          return true;
+        }
+      } catch (final IOException ex) {
+        DecompilerContext.getLogger().writeMessage("Failed to check if class " + name + " exists in " + unit.getName(), IFernflowerLogger.Severity.ERROR, ex);
+      }
+    }
+
+    return false;
   }
 
   public List<StructClass> getOwnClasses() {
@@ -124,10 +158,14 @@ public class StructContext {
 
     final List<ContextUnit> units = List.copyOf(this.units);
     this.units.clear();
+    this.lazyUnits.clear();
     for (ContextUnit unit : units) {
       if (unit.isRoot()) {
         unit.clear();
         this.units.add(unit);
+        if (unit.isLazy()) {
+          this.lazyUnits.add(unit);
+        }
         this.initUnit(unit);
       }
     }
@@ -200,9 +238,20 @@ public class StructContext {
     this.addSpace(source, isOwn, true);
   }
 
+  public void addLazySpace(final IContextSource source, final boolean isOwn) {
+    this.addSpace(source, isOwn, true, true);
+  }
+
   private void addSpace(final IContextSource source, final boolean isOwn, final boolean isRoot) {
-    final ContextUnit unit = new ContextUnit(source, isOwn, isRoot, saver, decompiledData);
+    this.addSpace(source, isOwn, isRoot, false);
+  }
+
+  private void addSpace(final IContextSource source, final boolean isOwn, final boolean isRoot, boolean isLazy) {
+    final ContextUnit unit = new ContextUnit(source, isOwn, isRoot, isLazy, saver, decompiledData);
     this.units.add(unit);
+    if (isLazy) {
+      this.lazyUnits.add(unit);
+    }
     initUnit(unit);
   }
 

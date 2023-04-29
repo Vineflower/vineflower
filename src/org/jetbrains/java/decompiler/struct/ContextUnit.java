@@ -22,6 +22,7 @@ public class ContextUnit {
   private final IContextSource source;
   private final boolean own;
   private final boolean root;
+  private final boolean lazy;
 
   private final IResultSaver resultSaver;
   private final IDecompiledData decompiledData;
@@ -32,15 +33,20 @@ public class ContextUnit {
   private List<IContextSource.Entry> otherEntries = List.of();
   private List<IContextSource> childContexts = List.of();
 
-  public ContextUnit(IContextSource source, boolean own, boolean root, IResultSaver resultSaver, IDecompiledData decompiledData) {
+  public ContextUnit(IContextSource source, boolean own, boolean root, boolean lazy, IResultSaver resultSaver, IDecompiledData decompiledData) {
     this.source = source;
     this.own = own;
     this.root = root;
+    this.lazy = lazy;
     this.resultSaver = resultSaver;
     this.decompiledData = decompiledData;
   }
 
   private void initEntries() {
+    if (this.lazy) {
+      return;
+    }
+
     if (!this.entriesInitialized) {
       synchronized (this) {
         if (!this.entriesInitialized) {
@@ -75,6 +81,10 @@ public class ContextUnit {
   public List<String> getClassNames() {
     this.initEntries();
     return this.classEntries;
+  }
+
+  public boolean hasClass(final String className) throws IOException {
+    return this.source.hasClass(className);
   }
 
   public byte/* @Nullable */[] getClassBytes(final String className) throws IOException {
@@ -192,6 +202,10 @@ public class ContextUnit {
 
   public boolean isRoot() {
     return this.root;
+  }
+
+  public boolean isLazy() {
+    return this.lazy;
   }
 
   void close() throws Exception {

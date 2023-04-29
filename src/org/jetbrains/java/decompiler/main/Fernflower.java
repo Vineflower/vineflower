@@ -152,6 +152,10 @@ public class Fernflower implements IDecompiledData {
     structContext.addSpace(library, false);
   }
 
+  public void addLazyLibrary(IContextSource library) {
+    structContext.addLazySpace(library, false);
+  }
+
   public void decompileContext() {
     if (converter != null) {
       converter.rename();

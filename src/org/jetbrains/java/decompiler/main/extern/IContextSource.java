@@ -33,6 +33,17 @@ public interface IContextSource {
   Entries getEntries();
 
   /**
+   * Returns whether a class exists in this source.
+   *
+   * @param className the class name, with no trailing {@code /}
+   * @return true if the class exists, false otherwise
+   * @throws IOException if an error is encountered while checking if the class exists
+   */
+  default boolean hasClass(final String className) throws IOException {
+    return getClassBytes(className) != null;
+  }
+
+  /**
    * Get the full bytes for a class's contents.
    *
    * @param className the class name, with no trailing {@code /}

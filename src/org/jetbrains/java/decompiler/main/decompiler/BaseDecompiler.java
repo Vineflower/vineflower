@@ -39,6 +39,10 @@ public class BaseDecompiler {
     engine.addLibrary(library);
   }
 
+  public void addLazyLibrary(IContextSource source) {
+    engine.addLazyLibrary(source);
+  }
+
   public void decompileContext() {
     try {
       engine.decompileContext();
