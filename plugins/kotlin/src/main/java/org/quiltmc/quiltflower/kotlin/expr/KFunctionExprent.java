@@ -10,12 +10,13 @@ import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.Typed;
 import org.quiltmc.quiltflower.kotlin.util.KTypes;
+import org.quiltmc.quiltflower.kotlin.util.KUtils;
 
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 
-public class KFunctionExprent extends FunctionExprent {
+public class KFunctionExprent extends FunctionExprent implements KExprent {
   private KFunctionType kType = KFunctionType.NONE;
 
   public enum KFunctionType implements Typed {
@@ -33,11 +34,11 @@ public class KFunctionExprent extends FunctionExprent {
   }
 
   public KFunctionExprent(FunctionType funcType, List<Exprent> operands, BitSet bytecodeOffsets) {
-    super(funcType, new ArrayList<>(operands), bytecodeOffsets);
+    super(funcType, new ArrayList<>(KUtils.replaceExprents(operands)), bytecodeOffsets);
   }
 
   public KFunctionExprent(FunctionExprent func) {
-    super(func.getFuncType(), func.getLstOperands(), func.bytecode);
+    super(func.getFuncType(), new ArrayList<>(KUtils.replaceExprents(func.getLstOperands())), func.bytecode);
 
     setImplicitType(func.getExprType());
     setNeedsCast(func.doesCast());

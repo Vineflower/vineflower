@@ -7,6 +7,7 @@ import org.jetbrains.java.decompiler.main.extern.IContextSource;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IResultSaver;
 import org.jetbrains.java.decompiler.main.plugins.PluginContext;
+import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericMain;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericMethodDescriptor;
 import org.jetbrains.java.decompiler.util.DataInputFullStream;
@@ -237,6 +238,11 @@ public class StructContext {
     }
 
     StructClass cl = this.getClass(valclass);
+    // Don't know what we are? We must at least be an object.
+    if ((cl == null || cl.superClass == null) && refclass.equals("java/lang/Object")) {
+      return true;
+    }
+
     if (cl == null) {
       return false;
     }

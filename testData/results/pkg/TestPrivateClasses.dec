@@ -42,7 +42,7 @@ class TestPrivateClasses {
                return s;// 52
             }
          };
-         ((String)c1.call() + (String)c2.call()).length();// 56
+         (c1.call() + c2.call()).length();// 56
       }// 57
    };
    private final Runnable R2 = new Runnable() {
@@ -86,7 +86,7 @@ class TestPrivateClasses {
                return s;// 104
             }
          };
-         ((String)c1.call() + (String)c2.call()).length();// 108
+         (c1.call() + c2.call()).length();// 108
       }// 109
    };
 
@@ -128,7 +128,7 @@ class TestPrivateClasses {
             return s;// 152
          }
       };
-      ((String)c1.call() + (String)c2.call()).length();// 156
+      (c1.call() + c2.call()).length();// 156
    }// 157
 
    public void m2(final String s) {
@@ -169,7 +169,7 @@ class TestPrivateClasses {
             return s;// 199
          }
       };
-      ((String)c1.call() + (String)c2.call()).length();// 203
+      (c1.call() + c2.call()).length();// 203
    }// 204
 
    private interface Callable<T> {

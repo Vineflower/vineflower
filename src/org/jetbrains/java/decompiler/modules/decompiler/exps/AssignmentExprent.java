@@ -45,7 +45,9 @@ public class AssignmentExprent extends Exprent {
 
   @Override
   public VarType getExprType() {
-    return left.getExprType();
+    // Union together types
+    VarType rType = VarType.getCommonSupertype(left.getExprType(), right.getExprType());
+    return rType;
   }
 
   @Override
@@ -300,6 +302,10 @@ public class AssignmentExprent extends Exprent {
     }
 
     if (!needsCast) {
+      return;
+    }
+
+    if (ExprProcessor.getCastTypeName(left).equals(ExprProcessor.UNREPRESENTABLE_TYPE_STRING)) {
       return;
     }
 

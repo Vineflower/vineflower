@@ -3,7 +3,7 @@ package org.quiltmc.quiltflower.kotlin.expr;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.InvocationExprent;
 
-public class KInvocationExprent extends InvocationExprent {
+public class KInvocationExprent extends InvocationExprent implements KExprent {
   private boolean shadowStaticBase = false;
 
   public KInvocationExprent(InvocationExprent expr) {

@@ -9,7 +9,7 @@ import java.util.ServiceLoader;
 public class ServicePluginSource implements PluginSource {
     public List<Plugin> findPlugins() {
       List<Plugin> plugins = new ArrayList<>();
-      for (Plugin plugin : ServiceLoader.load(Plugin.class)) {
+      for (Plugin plugin : ServiceLoader.load(Plugin.class, getClass().getClassLoader())) {
         plugins.add(plugin);
       }
 

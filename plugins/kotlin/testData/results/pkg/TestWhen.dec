@@ -15,7 +15,7 @@ class TestWhen {
       }
    }// 12
 
-   fun testExpression(obj: Any): Int  {
+   fun testExpression(obj: Any): Int {
       return if (obj == 1) 1 else (if (obj is Double) 2 else (if (obj == "4") 4 else (if (obj !is Long) 3 else 5)));// 15 16 17 18 19 20
    }
 

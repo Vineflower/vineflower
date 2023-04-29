@@ -3,11 +3,11 @@ package pkg
 import org.jetbrains.annotations.Nullable
 
 class TestCompileTimeErrors {
-   fun <I, O extends I & TestCompileTimeErrors.Test> test(i: I): O  {
+   fun <I, O extends I & TestCompileTimeErrors.Test> test(i: I): O {
       throw new NotImplementedError(null, 1, null);// 10
    }
 
-   fun test2(i: Int?): TestCompileTimeErrors.Test?  {
+   fun test2(i: Int?): TestCompileTimeErrors.Test? {
       return if (i == null) null else new TestCompileTimeErrors.Test(i) {
          @Nullable
          private final Integer testValue;
@@ -28,8 +28,8 @@ class TestCompileTimeErrors {
       };
    }
 
-   open interface Test {
-      fun getTestValue(): Int ;
+   interface Test {
+      fun getTestValue(): Int
    }
 }
 

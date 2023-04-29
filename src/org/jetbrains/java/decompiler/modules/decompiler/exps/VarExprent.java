@@ -126,7 +126,14 @@ public class VarExprent extends Exprent {
         if (processor != null && processor.getVarFinal(varVersion) == FinalType.EXPLICIT_FINAL) {
           buffer.append("final ");
         }
-        buffer.appendCastTypeName(getDefinitionVarType());
+        VarType definitionType = getDefinitionVarType();
+        String name = ExprProcessor.getCastTypeName(definitionType);
+        if (name.equals(ExprProcessor.UNREPRESENTABLE_TYPE_STRING)) {
+          buffer.append("var");
+        } else {
+          buffer.appendCastTypeName(definitionType);
+        }
+
         buffer.append(" ");
       }
 
@@ -185,7 +192,8 @@ public class VarExprent extends Exprent {
   */
 
   public String getDefinitionType() {
-    return ExprProcessor.getCastTypeName(getDefinitionVarType());
+    String name = ExprProcessor.getCastTypeName(getDefinitionVarType());
+    return name.equals(ExprProcessor.UNREPRESENTABLE_TYPE_STRING) ? "var" : name;
   }
 
   public VarType getDefinitionVarType() {

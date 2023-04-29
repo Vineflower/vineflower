@@ -10,7 +10,8 @@ class InJarClassLoader extends ClassLoader {
 
   private final FileSystem fs;
 
-  public InJarClassLoader(FileSystem fs) {
+  public InJarClassLoader(FileSystem fs, ClassLoader parent) {
+    super(parent);
     this.fs = fs;
   }
 

@@ -11,4 +11,14 @@ public class TestIntBoolMerge {
       System.out.println(i);
     }
   }
+
+  public int testLoop(String str, String sub) {
+    int count = 0;
+
+    for (int i = 0; (i = str.indexOf(sub, i)) != -1; i += sub.length()) {
+      ++count;
+    }
+
+    return count;
+  }
 }

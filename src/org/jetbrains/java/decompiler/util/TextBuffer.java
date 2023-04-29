@@ -187,7 +187,9 @@ public class TextBuffer {
         if (gt.type == CodeConstants.TYPE_OBJECT) {
           addAllClassTokens(index + offset, name, gt.value);
         }
+
         addGenericTypeTokens(index + offset, name, gt);
+        offset += name.length();
       } else {
         if (t.type == CodeConstants.TYPE_OBJECT) {
           addTypeNameToken(t, index + offset);

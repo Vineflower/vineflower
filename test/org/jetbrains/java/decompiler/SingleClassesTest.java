@@ -264,7 +264,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8_NODEBUG, "TestArrayNull1");
     // TODO: Object should be int[], cast where there shouldn't be
     register(JAVA_8_NODEBUG, "TestArrayNull2");
-    // TODO: Redefinition of array, extra cast
     register(JAVA_8, "TestArrayNullAccess");
     register(JAVA_8, "TestArrayTernary");
     // TODO: Do while loops become standard while loops
@@ -276,7 +275,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestExtraClass");
     // TODO: Object foreach should be generic
     register(JAVA_8, "TestGenericMapInput");
-    register(JAVA_8, "TestGenericNull");
     register(JAVA_8, "TestInlineAssignments");
     // TODO: Cast of (Func) is removed
     register(JAVA_8, "TestInterfaceLambdaCast");
@@ -574,10 +572,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(KOTLIN, "TestKotlinEnumWhen");
     // TODO: causes invalid stack var simplification
     register(JAVA_8, "TestSynchronizedTryReturn");
-    // TODO: parsing failure, wrong variable use, invalid variable splitting
-    // TODO: finally return parsing wrong
-    // TODO: postdom error only when ssau finally is disabled
-    register(JAVA_8, "TestTryReturn");
     register(JAVA_8, "TestWhileConditionTernary");
 
     register(JAVA_17, "TestDefiniteAssignment");
@@ -663,6 +657,9 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestObjectPhi");
     register(JASM, "TestMethodParamsNoLvt");
     register(JAVA_8, "TestPrimitiveTypeClasses");
+    register(JAVA_17, "TestVarRedef");
+    register(JAVA_17, "TestDoubleForeach");
+    register(JAVA_8, "TestVarMergeSupertype");
   }
 
   private void registerEntireClassPath() {
@@ -675,6 +672,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: reevaluate behavior, especially with casting
     register(JAVA_8, "TestGenerics");
     register(JAVA_8, "TestClassTypes");
+    register(JAVA_8, "TestGenericNull");
     register(JAVA_8, "TestClassCast");
     // TODO: intValue() call where there shouldn't be
     register(JAVA_8, "TestBoxingConstructor");
@@ -718,7 +716,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
 
     register(JAVA_8, "TestGenericMapEntireClasspath");
     register(JAVA_8, "TestGenericsTernary");
-    // TODO: casts on null and (U)
+    // TODO: casts on null
     register(JAVA_8, "TestGenericSuper");
     register(JAVA_8, "TestGenericsQualified");
     // TODO: first method needs a cast
@@ -731,7 +729,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestGenericCastSuper");
     // TODO: cast doesn't have generic type
     register(JAVA_8, "TestGenericCastCall");
-    // TODO: cast to T, because T of Function isn't remapped to List<T>
     register(JAVA_8, "TestGenericInput");
     // TODO: cast on field assign and setField
     register(JAVA_8, "TestGenericsHierarchy");
@@ -741,6 +738,16 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestTryWithResourcesAfterSwitch");
     register(JAVA_8, "TestArrayConstructorReferenceJrt");
     register(JAVA_8_NODEBUG, "TestVarIndex2");
+
+    // TODO: parsing failure, wrong variable use, invalid variable splitting
+    // TODO: finally return parsing wrong
+    // TODO: postdom error only when ssau finally is disabled
+    register(JAVA_8, "TestTryReturn");
+    register(JAVA_8, "TestGenericWildcard");
+    // TODO: wrong variable name
+    register(JAVA_16_NODEBUG, "TestRecordCanonicalConstructor");
+    // TODO: wrong variable name, recursive constructor because missing cast
+    register(JAVA_16_NODEBUG, "TestRecordCanonicalConstructor2");
   }
 
   private void registerLiterals() {

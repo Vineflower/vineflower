@@ -1,27 +1,27 @@
 package pkg
 
 class TestBitwiseFunctions {
-   fun and(a: Int, b: Int): Int  {
+   fun and(a: Int, b: Int): Int {
       return a and b;// 5
    }
 
-   fun or(a: Int, b: Int): Int  {
+   fun or(a: Int, b: Int): Int {
       return a or b;// 9
    }
 
-   fun xor(a: Int, b: Int): Int  {
+   fun xor(a: Int, b: Int): Int {
       return a xor b;// 13
    }
 
-   fun shl(a: Int, b: Int): Int  {
+   fun shl(a: Int, b: Int): Int {
       return a shl b;// 17
    }
 
-   fun shr(a: Int, b: Int): Int  {
+   fun shr(a: Int, b: Int): Int {
       return a shr b;// 21
    }
 
-   fun ushr(a: Int, b: Int): Int  {
+   fun ushr(a: Int, b: Int): Int {
       return a ushr b;// 25
    }
 }

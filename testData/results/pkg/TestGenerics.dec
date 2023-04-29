@@ -49,9 +49,13 @@ public class TestGenerics<A, B extends TestGenerics.Maps & List> {
       }
    }// 64
 
+   public String testFuncExprInfer(Map<Integer, String> s) {
+      return "hello " + s.get(0) + " !";// 67
+   }
+
    public static class Maps {
       public static <K, V> HashMap<K, V> newHashMap() {
-         return new HashMap<>();// 68
+         return new HashMap<>();// 72
       }
    }
 }
@@ -221,11 +225,35 @@ class 'pkg/TestGenerics' {
       2a      47
       2f      49
    }
+
+   method 'testFuncExprInfer (Ljava/util/Map;)Ljava/lang/String;' {
+      7      52
+      8      52
+      c      52
+      d      52
+      e      52
+      f      52
+      10      52
+      11      52
+      12      52
+      13      52
+      14      52
+      15      52
+      16      52
+      17      52
+      18      52
+      1c      52
+      1d      52
+      21      52
+      22      52
+      23      52
+      24      52
+   }
 }
 
 class 'pkg/TestGenerics$Maps' {
    method 'newHashMap ()Ljava/util/HashMap;' {
-      7      53
+      7      57
    }
 }
 
@@ -250,7 +278,8 @@ Lines mapping:
 61 <-> 47
 62 <-> 48
 64 <-> 50
-68 <-> 54
+67 <-> 53
+72 <-> 58
 Not mapped:
 50
 56

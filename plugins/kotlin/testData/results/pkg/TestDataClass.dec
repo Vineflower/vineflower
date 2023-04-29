@@ -2,7 +2,7 @@ package pkg
 
 import java.util.List
 
-class TestDataClass {
+data class TestDataClass {
    private Regex dataClassVal;
    private int variableWithVeryLongName;
    private List<String> requestLineWrapsIfTheParamListIsTooLong;
@@ -15,45 +15,45 @@ class TestDataClass {
       this.nullability = nullability;
    }// 3
 
-   fun getDataClassVal(): Regex  {
+   fun getDataClassVal(): Regex {
       return this.dataClassVal;// 4
    }
 
-   fun getVariableWithVeryLongName(): Int  {
+   fun getVariableWithVeryLongName(): Int {
       return this.variableWithVeryLongName;// 5
    }
 
-   fun getRequestLineWrapsIfTheParamListIsTooLong(): MutableList<String>  {
+   fun getRequestLineWrapsIfTheParamListIsTooLong(): MutableList<String> {
       return this.requestLineWrapsIfTheParamListIsTooLong;// 6
    }
 
-   fun getNullability(): String?  {
+   fun getNullability(): String? {
       return this.nullability;// 7
    }
 
-   fun component1(): Regex  {
+   fun component1(): Regex {
       return this.dataClassVal;
    }
 
-   fun component2(): Int  {
+   fun component2(): Int {
       return this.variableWithVeryLongName;
    }
 
-   fun component3(): MutableList<String>  {
+   fun component3(): MutableList<String> {
       return this.requestLineWrapsIfTheParamListIsTooLong;
    }
 
-   fun component4(): String?  {
+   fun component4(): String? {
       return this.nullability;
    }
 
-   fun copy(dataClassVal: Regex, variableWithVeryLongName: Int, requestLineWrapsIfTheParamListIsTooLong: MutableList<String>, nullability: String?): TestDataClass  {
+   fun copy(dataClassVal: Regex, variableWithVeryLongName: Int, requestLineWrapsIfTheParamListIsTooLong: MutableList<String>, nullability: String?): TestDataClass {
       return new TestDataClass(dataClassVal, variableWithVeryLongName, requestLineWrapsIfTheParamListIsTooLong, nullability);
    }
 
    @JvmStatic
    @JvmSynthetic
-   fun `copy$default`(var0: TestDataClass, var1: Regex, var2: Int, var3: List, var4: String, var5: Int, var6: Any): TestDataClass  {
+   fun `copy$default`(var0: TestDataClass, var1: Regex, var2: Int, var3: List, var4: String, var5: Int, var6: Any): TestDataClass {
       if ((var5 and 1) != 0) {
          var1 = var0.dataClassVal;
       }
@@ -73,7 +73,7 @@ class TestDataClass {
       return var0.copy(var1, var2, var3, var4);
    }
 
-   fun toString(): String  {
+   fun toString(): String {
       return "TestDataClass(dataClassVal="
          + this.dataClassVal
          + ", variableWithVeryLongName="
@@ -85,7 +85,7 @@ class TestDataClass {
          + ")";
    }
 
-   fun hashCode(): Int  {
+   fun hashCode(): Int {
       return (
                (this.dataClassVal.hashCode() * 31 + Integer.hashCode(this.variableWithVeryLongName)) * 31
                   + this.requestLineWrapsIfTheParamListIsTooLong.hashCode()
@@ -94,7 +94,7 @@ class TestDataClass {
          + (if (this.nullability == null) 0 else this.nullability.hashCode());
    }
 
-   fun equals(other: Any?): Boolean  {
+   fun equals(other: Any?): Boolean {
       if (this === other) {
          return true;
       } else if (other !is TestDataClass) {

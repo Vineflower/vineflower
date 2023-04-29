@@ -32,7 +32,7 @@ public final class TestKotlinConstructorKt {
          destination$iv$iv.add(var10000);// 14
       }
 
-      return CollectionsKt.toList((List)destination$iv$iv);// 4 6 15
+      return CollectionsKt.toList(destination$iv$iv);// 4 6 15
    }
 }
 

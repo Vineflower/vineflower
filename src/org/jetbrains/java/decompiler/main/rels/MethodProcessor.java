@@ -118,7 +118,7 @@ public class MethodProcessor implements Runnable {
       DeadCodeHelper.extendSynchronizedRangeToMonitorexit(graph);
     }
 
-    if (DecompilerContext.getOption(IFernflowerPreferences.NO_EXCEPTIONS_RETURN)) {
+    if (DecompilerContext.getOption(IFernflowerPreferences.INCORPORATE_RETURNS)) {
       // special case: single return instruction outside of a protected range
       DeadCodeHelper.incorporateValueReturns(graph);
     }

@@ -10,11 +10,11 @@ class TestPoorNames {
    fun `Dangerous function name?!`() {
    }// 8
 
-   fun `getProperty with spaces`(): Int  {
+   fun `getProperty with spaces`(): Int {
       return this.Property with spaces;// 10
    }
 
-   fun `getDangerous property name?!`(): String  {
+   fun `getDangerous property name?!`(): String {
       return this.Dangerous property name?!;// 11
    }
 

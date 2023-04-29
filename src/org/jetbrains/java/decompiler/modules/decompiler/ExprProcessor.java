@@ -32,6 +32,7 @@ import java.util.*;
 
 public class ExprProcessor implements CodeConstants {
   public static final String UNDEFINED_TYPE_STRING = "<undefinedtype>";
+  public static final String UNREPRESENTABLE_TYPE_STRING = "<unrepresentable>";
   public static final String UNKNOWN_TYPE_STRING = "<unknown>";
   public static final String NULL_TYPE_STRING = "<null>";
 
@@ -1018,7 +1019,7 @@ public class ExprProcessor implements CodeConstants {
 
   public enum NullCastType {
     CAST(true), // old boolean true
-    DONT_CAST(false), // old booean false
+    DONT_CAST(false), // old boolean false
     DONT_CAST_AT_ALL(false); // old boolean false and don't cast
 
     private final boolean cast;
@@ -1062,12 +1063,19 @@ public class ExprProcessor implements CodeConstants {
       for (int i = 0; i < leftGeneric.getArguments().size(); i++) {
         VarType leftType = leftGeneric.getArguments().get(i);
         VarType rightType = rightGeneric.getArguments().get(i);
-
-        if (leftType != null && rightType != null && leftType.isSuperset(rightType) &&
-          (leftType.isGeneric() && rightType.isGeneric()) &&
-          (((GenericType) leftType).getWildcard() == GenericType.WILDCARD_NO || ((GenericType) leftType).getWildcard() == GenericType.WILDCARD_EXTENDS) &&
-          ((GenericType) rightType).getWildcard() == GenericType.WILDCARD_SUPER) {
+        // Casting Clazz<?> to Clazz<T> or Clazz<Concrete>
+        if (rightType == null && leftType != null) {
           return true;
+        }
+
+        if (leftType != null) {
+          if (leftType.isGeneric() && rightType.isGeneric()) {
+            if (leftType.isSuperset(rightType) &&
+              (((GenericType) leftType).getWildcard() == GenericType.WILDCARD_NO || ((GenericType) leftType).getWildcard() == GenericType.WILDCARD_EXTENDS) &&
+              ((GenericType) rightType).getWildcard() == GenericType.WILDCARD_SUPER) {
+              return true;
+            }
+          }
         }
       }
     }

@@ -10,19 +10,19 @@ class TestConvertedK2JOps {
    private Map<String, String> map = MapsKt.mapOf(new Pair[]{TuplesKt.to("a", "b"), TuplesKt.to("c", "d")});
    private Object any = new Object();
 
-   fun getList(): MutableList<String>  {
+   fun getList(): MutableList<String> {
       return this.list;// 4
    }
 
-   fun getSet(): MutableSet<String>  {
+   fun getSet(): MutableSet<String> {
       return this.set;// 5
    }
 
-   fun getMap(): MutableMap<String, String>  {
+   fun getMap(): MutableMap<String, String> {
       return this.map;// 6
    }
 
-   fun getAny(): Any  {
+   fun getAny(): Any {
       return this.any;// 7
    }
 

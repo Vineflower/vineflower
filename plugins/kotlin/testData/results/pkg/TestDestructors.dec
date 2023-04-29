@@ -22,7 +22,7 @@ class TestDestructors {
       System.out.println(y.component1() as Number + " " + y.component3() as String);// 33 34
    }// 35
 
-   fun destructorImpossible(x: Pair): String  {
+   fun destructorImpossible(x: Pair): String {
       var a: String = x.component1() as String;// 38
       x.component2();
       throw new KotlinNothingValueException();
@@ -79,27 +79,27 @@ class TestDestructors {
          );
    }// 69
 
-   fun Int.component1(): Int  {
+   fun Int.component1(): Int {
       return String.valueOf(`$this$component1`).charAt(0) - 48;// 77
    }
 
-   fun Int.component2(): Int  {
+   fun Int.component2(): Int {
       return String.valueOf(`$this$component2`).charAt(1) - 48;// 78
    }
 
-   fun Int.component3(): Int  {
+   fun Int.component3(): Int {
       return String.valueOf(`$this$component3`).charAt(2) - 48;// 79
    }
 
-   fun (() -> Int).component1(): Int  {
+   fun (() -> Int).component1(): Int {
       return this.component1((`$this$component1`.invoke() as Number).intValue());// 81
    }
 
-   fun (() -> Int).component2(): Int  {
+   fun (() -> Int).component2(): Int {
       return this.component2((`$this$component2`.invoke() as Number).intValue());// 82
    }
 
-   fun (() -> Int).component3(): Int  {
+   fun (() -> Int).component3(): Int {
       return this.component3((`$this$component3`.invoke() as Number).intValue());// 83
    }
 }

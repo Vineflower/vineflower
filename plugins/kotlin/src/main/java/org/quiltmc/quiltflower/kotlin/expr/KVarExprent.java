@@ -10,7 +10,7 @@ import org.quiltmc.quiltflower.kotlin.util.KTypes;
 
 import java.util.BitSet;
 
-public class KVarExprent extends VarExprent {
+public class KVarExprent extends VarExprent implements KExprent {
   public KVarExprent(int index, VarType varType, VarProcessor processor, BitSet bytecode) {
     super(index, varType, processor, bytecode);
   }

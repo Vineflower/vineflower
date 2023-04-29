@@ -2,19 +2,19 @@ package pkg
 
 class TestWhenControlFlow {
    fun test1(x: Int) {
-      var x: Int = x;// 5
+      var xx: Int = x;// 5
 
-      while (x > 0) {// 7
-         if (--x == 10) {// 8 9 10
+      while (xx > 0) {// 7
+         if (--xx == 10) {// 8 9 10
             break;
          }
 
-         if (x != 5) {// 11
-            if (3 <= x && x < 5) {// 12
+         if (xx != 5) {// 11
+            if (3 <= xx && xx < 5) {// 12
                return;
             }
 
-            System.out.println(x);// 15
+            System.out.println(xx);// 15
          }
       }
    }// 17

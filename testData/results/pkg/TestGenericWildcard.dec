@@ -1,0 +1,83 @@
+package pkg;
+
+public class TestGenericWildcard<T> {
+   public TestGenericWildcard<?> wildcard() {
+      return null;// 5
+   }
+
+   public TestGenericWildcard<T> generic() {
+      return (TestGenericWildcard<T>)this.wildcard();// 9
+   }
+
+   public TestGenericWildcard<TestGenericWildcard> typed() {
+      return (TestGenericWildcard<TestGenericWildcard>)this.wildcard();// 13
+   }
+
+   class Two<A, B> {
+      public TestGenericWildcard<T>.Two<?, B> wildcard() {
+         return null;// 18
+      }
+
+      public TestGenericWildcard<T>.Two<A, B> generic() {
+         return (TestGenericWildcard<T>.Two<A, B>)this.wildcard();// 22
+      }
+
+      public TestGenericWildcard<T>.Two<TestGenericWildcard.Two, TestGenericWildcard.Two> typed() {
+         return (TestGenericWildcard<T>.Two<TestGenericWildcard.Two, TestGenericWildcard.Two>)this.wildcard();// 26
+      }
+   }
+}
+
+class 'pkg/TestGenericWildcard' {
+   method 'wildcard ()Lpkg/TestGenericWildcard;' {
+      0      4
+      1      4
+   }
+
+   method 'generic ()Lpkg/TestGenericWildcard;' {
+      0      8
+      1      8
+      2      8
+      3      8
+      4      8
+   }
+
+   method 'typed ()Lpkg/TestGenericWildcard;' {
+      0      12
+      1      12
+      2      12
+      3      12
+      4      12
+   }
+}
+
+class 'pkg/TestGenericWildcard$Two' {
+   method 'wildcard ()Lpkg/TestGenericWildcard$Two;' {
+      0      17
+      1      17
+   }
+
+   method 'generic ()Lpkg/TestGenericWildcard$Two;' {
+      0      21
+      1      21
+      2      21
+      3      21
+      4      21
+   }
+
+   method 'typed ()Lpkg/TestGenericWildcard$Two;' {
+      0      25
+      1      25
+      2      25
+      3      25
+      4      25
+   }
+}
+
+Lines mapping:
+5 <-> 5
+9 <-> 9
+13 <-> 13
+18 <-> 18
+22 <-> 22
+26 <-> 26

@@ -23,14 +23,12 @@ import org.jetbrains.java.decompiler.struct.gen.generics.GenericMethodDescriptor
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
 import org.jetbrains.java.decompiler.struct.match.MatchEngine;
 import org.jetbrains.java.decompiler.struct.match.MatchNode;
-import org.jetbrains.java.decompiler.struct.match.MatchNode.RuleValue;
 import org.jetbrains.java.decompiler.util.*;
 import org.jetbrains.java.decompiler.util.collections.ListStack;
 import org.jetbrains.java.decompiler.util.collections.NullableConcurrentHashMap;
 
 import java.lang.reflect.Method;
 import java.util.*;
-import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 public class InvocationExprent extends Exprent {
@@ -65,8 +63,7 @@ public class InvocationExprent extends Exprent {
   private final NullableConcurrentHashMap<VarType, VarType> genericsMap = new NullableConcurrentHashMap<>();
   private boolean isInvocationInstance = false;
   private boolean isQualifier = false;
-  private boolean forceBoxing = false;
-  private boolean forceUnboxing = false;
+  private final BoxState boxing = new BoxState();
   private boolean isSyntheticNullCheck = false;
   private boolean wasLazyCondy = false;
 
@@ -209,6 +206,25 @@ public class InvocationExprent extends Exprent {
     genericsMap.clear();
 
     StructClass mthCls = DecompilerContext.getStructContext().getClass(classname);
+
+    // In the case of `(Long)call() & 100L)`, the boxing call must exist.
+    if (isUnboxingCall() && upperBound != null) {
+      if (instance instanceof FunctionExprent) {
+        FunctionExprent func = (FunctionExprent)instance;
+        if (func.getFuncType() == FunctionType.CAST) {
+          VarType inferred = func.getLstOperands().get(0).getInferredExprType(upperBound);
+
+          // In the case of `long l = (Long)call()` where `call()` is a generic, we can remove the cast.
+          // Don't keep the cast in that case.
+          VarType unboxed = VarType.UNBOXING_TYPES.get(inferred);
+          if (unboxed == null || !unboxed.equals(upperBound)) {
+            if (inferred.typeFamily == CodeConstants.TYPE_FAMILY_OBJECT || inferred.isGeneric()) {
+              boxing.keepCast = true;
+            }
+          }
+        }
+      }
+    }
 
     if (desc != null && mthCls != null) {
       boolean isNew = functype == Type.INIT;
@@ -593,7 +609,7 @@ public class InvocationExprent extends Exprent {
     boolean pushedCallChainGroup = false;
 
     if (isStatic || invocationType == InvocationType.DYNAMIC || invocationType == InvocationType.CONSTANT_DYNAMIC) {
-      if (isBoxingCall() && canIgnoreBoxing && !forceBoxing) {
+      if (isBoxingCall() && canIgnoreBoxing && !boxing.forceBoxing) {
         // process general "boxing" calls, e.g. 'Object[] data = { true }' or 'Byte b = 123'
         // here 'byte' and 'short' values do not need an explicit narrowing type cast
         ExprProcessor.getCastedExprent(lstParameters.get(0), descriptor.params[0], buf, indent, ExprProcessor.NullCastType.DONT_CAST, false, true, false);
@@ -665,13 +681,13 @@ public class InvocationExprent extends Exprent {
           instance.setInvocationInstance();
           VarType rightType = instance.getInferredExprType(leftType);
 
-          if (isUnboxingCall() && !forceUnboxing) {
+          if (isUnboxingCall() && !boxing.forceUnboxing) {
             // we don't print the unboxing call - no need to bother with the instance wrapping / casting
             buf.addBytecodeMapping(bytecode);
             if (instance instanceof FunctionExprent) {
               FunctionExprent func = (FunctionExprent)instance;
-              if (func.getFuncType() == FunctionType.CAST && func.getLstOperands().get(1) instanceof ConstExprent) {
-                ConstExprent _const = (ConstExprent)func.getLstOperands().get(1);
+              if (func.getFuncType() == FunctionType.CAST && func.getLstOperands().get(1) instanceof ConstExprent && !boxing.keepCast) {
+                ConstExprent constexpr = (ConstExprent)func.getLstOperands().get(1);
                 boolean skipCast = false;
 
                 Exprent firstParam = func.getLstOperands().get(0);
@@ -679,7 +695,7 @@ public class InvocationExprent extends Exprent {
                   VarType inferred = firstParam.getInferredExprType(leftType);
                   skipCast = (inferred.type != CodeConstants.TYPE_OBJECT && inferred.type != CodeConstants.TYPE_GENVAR) ||
                     DecompilerContext.getStructContext().instanceOf(inferred.value, this.classname);
-                } else if (this.classname.equals(_const.getConstType().value)) {
+                } else if (this.classname.equals(constexpr.getConstType().value)) {
                   skipCast = true;
                 }
 
@@ -689,6 +705,7 @@ public class InvocationExprent extends Exprent {
                 }
               }
             }
+
             buf.append(instance.toJava(indent));
             return buf;
           }
@@ -910,7 +927,7 @@ public class InvocationExprent extends Exprent {
 
           if (count != matches.size()) { //We become more ambiguous? Lets keep the explicit boxing
             types[i] = descriptor.params[i];
-            inv.forceBoxing = true;
+            inv.boxing.forceBoxing = true;
           } else {
             value.addBytecodeOffsets(inv.bytecode); //Keep the bytecode for matching/debug
             parameters.set(i, value);
@@ -947,6 +964,7 @@ public class InvocationExprent extends Exprent {
     }
 
     if (desc == null) {
+      // FIXME: this is a hack, must remove
       this.getInferredExprType(null);
 
       if (genericsMap.isEmpty() && instance != null && functype != Type.INIT) {
@@ -962,6 +980,17 @@ public class InvocationExprent extends Exprent {
       }
     }
     if (desc != null && desc.getSignature() != null) {
+      Map<VarType, VarType> hierarchyMap = new HashMap<>();
+      if (!classname.equals(desc.getClassQualifiedName())) {
+        StructClass mthCls = DecompilerContext.getStructContext().getClass(classname);
+        if (mthCls != null) {
+          Map<String, Map<VarType, VarType>> hierarchy = mthCls.getAllGenerics();
+          if (hierarchy.containsKey(desc.getClassQualifiedName())) {
+            hierarchyMap = hierarchy.get(desc.getClassQualifiedName());
+          }
+        }
+      }
+
       Set<VarType> namedGens = getNamedGenerics().keySet();
       int y = 0;
       for (int x = start; x < types.length; x++) {
@@ -970,7 +999,7 @@ public class InvocationExprent extends Exprent {
             continue;
           }
 
-          VarType type = desc.getSignature().parameterTypes.get(y++).remap(genericsMap);
+          VarType type = desc.getSignature().parameterTypes.get(y++).remap(hierarchyMap).remap(genericsMap);
           if (type != null && !(type.isGeneric() && ((GenericType)type).hasUnknownGenericType(namedGens))) {
             types[x] = type;
           }
@@ -1021,7 +1050,7 @@ public class InvocationExprent extends Exprent {
         }
 
         // 'byte' and 'short' literals need an explicit narrowing type cast when used as a parameter
-        ExprProcessor.getCastedExprent(lstParameters.get(i), types[i], buff, indent, ambiguous ? ExprProcessor.NullCastType.CAST : ExprProcessor.NullCastType.DONT_CAST, ambiguous, true, true);
+        ExprProcessor.getCastedExprent(lstParameters.get(i), types[i], buff, indent, ambiguous ? ExprProcessor.NullCastType.CAST : ExprProcessor.NullCastType.DONT_CAST_AT_ALL, ambiguous, true, true);
 
         // the last "new Object[0]" in the vararg call is not printed
         if (buff.length() > 0) {
@@ -1137,19 +1166,19 @@ public class InvocationExprent extends Exprent {
   }
 
   public boolean isUnboxingCall() {
-    return !isStatic && lstParameters.size() == 0 && classname.equals(UNBOXING_METHODS.get(name));
+    return !isStatic && lstParameters.isEmpty() && classname.equals(UNBOXING_METHODS.get(name));
   }
 
   public boolean shouldForceBoxing() {
-    return forceBoxing;
+    return boxing.forceBoxing;
   }
 
   public void forceUnboxing(boolean value) {
-    this.forceUnboxing = value;
+    boxing.forceUnboxing = value;
   }
 
   public boolean shouldForceUnboxing() {
-    return this.forceUnboxing;
+    return boxing.forceUnboxing;
   }
 
   private List<StructMethod> getMatchedDescriptors() {
@@ -1455,8 +1484,10 @@ public class InvocationExprent extends Exprent {
         return bound.equals(VarType.VARTYPE_OBJECT) || bound.equals(newTo);
       }
 
-      if (!DecompilerContext.getStructContext().instanceOf(newTo.value, bound.value)) {
-        return false;
+      if (newTo.type != CodeConstants.TYPE_GENVAR) {
+        if (!DecompilerContext.getStructContext().instanceOf(newTo.value, bound.value)) {
+          return false;
+        }
       }
 
       if (bound.isGeneric() && !((GenericType)bound).getArguments().isEmpty()) {
@@ -1705,5 +1736,11 @@ public class InvocationExprent extends Exprent {
 
       return true;
     });
+  }
+
+  protected static class BoxState {
+    private boolean forceBoxing = false;
+    private boolean forceUnboxing = false;
+    private boolean keepCast = false;
   }
 }

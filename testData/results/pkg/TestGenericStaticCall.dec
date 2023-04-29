@@ -4,11 +4,11 @@ public class TestGenericStaticCall<T> {
    public T t;
 
    public static void test() {
-      method(new Object(), (T)null);// 7
+      method(new Object(), null);// 7
    }// 8
 
    public void test1() {
-      method(this, (T)null);// 11
+      method(this, null);// 11
    }// 12
 
    public static <T> void method(Object o, T t) {
