@@ -12,8 +12,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Handles pattern matching for instanceof in statements.
@@ -113,7 +112,7 @@ public final class IfPatternMatchProcessor {
 
     Statement head = branch.getBasichead();
 
-    if (head.getExprents() == null) {
+    if (head.getExprents() == null || head.getExprents().isEmpty()) {
       return false;
     }
 
@@ -175,21 +174,40 @@ public final class IfPatternMatchProcessor {
   }
 
   // Finds all assignments and their associated variables in a statement's predecessors.
-  // FIXME: This isn't working as it should! it should be traversing the predecessor tree!
   private static void findVarsInPredecessors(List<VarVersionPair> vvs, Statement root) {
-    for (StatEdge pred : root.getAllPredecessorEdges()) {
-      Statement stat = pred.getSource();
+    Deque<Statement> stack = new ArrayDeque<>();
+    Set<Statement> seen = new HashSet<>();
 
-      if (stat.getExprents() != null) {
-        for (Exprent exprent : stat.getExprents()) {
+    stack.add(root);
 
-          // Check for assignment exprents
-          if (exprent instanceof AssignmentExprent) {
-            AssignmentExprent assignment = (AssignmentExprent) exprent;
+    while (!stack.isEmpty()) {
+      Statement st = stack.pop();
+      if (!seen.add(st)) {
+        continue;
+      }
 
-            // If the left type of the assignment is a variable, store it's var info
-            if (assignment.getLeft() instanceof VarExprent) {
-              vvs.add(((VarExprent) assignment.getLeft()).getVarVersionPair());
+      if (st.getParent() instanceof IfStatement || st instanceof IfStatement) {
+        stack.add(st.getParent());
+      }
+
+      for (StatEdge pred : st.getAllPredecessorEdges()) {
+        Statement stat = pred.getSource();
+        stack.add(stat);
+        if (stat == root) {
+          continue;
+        }
+
+        if (stat.getExprents() != null) {
+          for (Exprent exprent : stat.getExprents()) {
+
+            // Check for assignment exprents
+            if (exprent instanceof AssignmentExprent) {
+              AssignmentExprent assignment = (AssignmentExprent) exprent;
+
+              // If the left type of the assignment is a variable, store it's var info
+              if (assignment.getLeft() instanceof VarExprent) {
+                vvs.add(((VarExprent) assignment.getLeft()).getVarVersionPair());
+              }
             }
           }
         }
