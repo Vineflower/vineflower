@@ -226,8 +226,8 @@ public class ConsoleDecompiler implements /* IBytecodeProvider, */ IResultSaver,
     engine.addLibrary(library);
   }
 
-  public void addLazyLibrary(IContextSource source) {
-    engine.addLazyLibrary(source);
+  public void addLibrary(IContextSource source) {
+    engine.addLibrary(source);
   }
 
   public void addWhitelist(String prefix) {

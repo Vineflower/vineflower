@@ -238,18 +238,10 @@ public class StructContext {
     this.addSpace(source, isOwn, true);
   }
 
-  public void addLazySpace(final IContextSource source, final boolean isOwn) {
-    this.addSpace(source, isOwn, true, true);
-  }
-
   private void addSpace(final IContextSource source, final boolean isOwn, final boolean isRoot) {
-    this.addSpace(source, isOwn, isRoot, false);
-  }
-
-  private void addSpace(final IContextSource source, final boolean isOwn, final boolean isRoot, boolean isLazy) {
-    final ContextUnit unit = new ContextUnit(source, isOwn, isRoot, isLazy, saver, decompiledData);
+    final ContextUnit unit = new ContextUnit(source, isOwn, isRoot, saver, decompiledData);
     this.units.add(unit);
-    if (isLazy) {
+    if (unit.isLazy()) {
       this.lazyUnits.add(unit);
     }
     initUnit(unit);

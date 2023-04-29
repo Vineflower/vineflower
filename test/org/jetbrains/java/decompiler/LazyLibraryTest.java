@@ -32,7 +32,7 @@ public class LazyLibraryTest {
   public void testLazy() {
     ConsoleDecompiler decompiler = fixture.getDecompiler();
     decompiler.addSource(fixture.getTestDataDir().resolve("classes").resolve("java8").resolve("pkg").resolve("TestLibraryIsOnClasspath.class").toFile());
-    decompiler.addLazyLibrary(new IContextSource() {
+    decompiler.addLibrary(new IContextSource() {
       @Override
       public String getName() {
         return "Test Lazy Library";
@@ -41,6 +41,11 @@ public class LazyLibraryTest {
       @Override
       public Entries getEntries() {
         return Entries.EMPTY;
+      }
+
+      @Override
+      public boolean isLazy() {
+        return true;
       }
 
       @Override

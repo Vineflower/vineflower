@@ -22,7 +22,6 @@ public class ContextUnit {
   private final IContextSource source;
   private final boolean own;
   private final boolean root;
-  private final boolean lazy;
 
   private final IResultSaver resultSaver;
   private final IDecompiledData decompiledData;
@@ -33,17 +32,16 @@ public class ContextUnit {
   private List<IContextSource.Entry> otherEntries = List.of();
   private List<IContextSource> childContexts = List.of();
 
-  public ContextUnit(IContextSource source, boolean own, boolean root, boolean lazy, IResultSaver resultSaver, IDecompiledData decompiledData) {
+  public ContextUnit(IContextSource source, boolean own, boolean root, IResultSaver resultSaver, IDecompiledData decompiledData) {
     this.source = source;
     this.own = own;
     this.root = root;
-    this.lazy = lazy;
     this.resultSaver = resultSaver;
     this.decompiledData = decompiledData;
   }
 
   private void initEntries() {
-    if (this.lazy) {
+    if (this.isLazy()) {
       return;
     }
 
@@ -205,7 +203,7 @@ public class ContextUnit {
   }
 
   public boolean isLazy() {
-    return this.lazy;
+    return !this.own && this.source.isLazy();
   }
 
   void close() throws Exception {
