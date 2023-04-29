@@ -14,6 +14,8 @@ public class PluginContext {
   private final List<Plugin> plugins = new ArrayList<>();
   private boolean initialized = false;
   private Map<JavaPassLocation, List<NamedPass>> passes = new HashMap<>();
+  private final Map<Plugin, LanguageSpec> languageSpecs = new HashMap<>();
+  private final Set<String> ids = new HashSet<>();
 
   public void registerPlugin(Plugin plugin) {
     plugins.add(plugin);
@@ -28,7 +30,15 @@ public class PluginContext {
 
     JavaPassRegistrar registrar = new JavaPassRegistrar();
     for (Plugin plugin : plugins) {
+      if (!ids.add(plugin.id())) {
+        throw new IllegalStateException("Duplicate plugin " + plugin.getClass().getName() + " with id " + plugin.id());
+      }
+
       plugin.registerJavaPasses(registrar);
+      LanguageSpec spec = plugin.getLanguageSpec();
+      if (spec != null) {
+        languageSpecs.put(plugin, spec);
+      }
     }
 
     passes = registrar.getPasses();
@@ -49,7 +59,7 @@ public class PluginContext {
 
   public LanguageSpec getLanguageSpec(StructClass cl) {
     for (Plugin plugin : plugins) {
-      LanguageSpec spec = plugin.getLanguageSpec();
+      LanguageSpec spec = languageSpecs.get(plugin);
       if (spec != null && spec.chooser.isLanguage(cl)) {
         return spec;
       }

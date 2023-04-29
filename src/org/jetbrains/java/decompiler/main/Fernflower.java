@@ -72,7 +72,7 @@ public class Fernflower implements IDecompiledData {
     }
 
     IVariableNamingFactory renamerFactory = null;
-    String factoryClazz = (String) properties.get(DecompilerContext.RENAMER_FACTORY);
+    String factoryClazz = (String) properties.get(DecompilerContext.RENAMER_FACTORY.name);
     if (factoryClazz != null) {
       try {
         renamerFactory = Class.forName(factoryClazz).asSubclass(IVariableNamingFactory.class).getDeclaredConstructor().newInstance();
