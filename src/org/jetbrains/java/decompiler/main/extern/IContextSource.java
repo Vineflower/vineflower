@@ -34,8 +34,8 @@ public interface IContextSource {
 
   /**
    * Returns whether this context source is lazy. A lazy context source may return {@linkplain Entries#EMPTY} from
-   * {@linkplain #getEntries()} in case the {@code getEntries()} would be too slow. This may come at a small runtime
-   * cost.
+   * {@linkplain #getEntries()} in case the {@code getEntries()} implementation would be too slow. This may come at a
+   * small runtime cost.
    *
    * <p>Only libraries can be lazy. This method has no effect on sources.</p>
    *
