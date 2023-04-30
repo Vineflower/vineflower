@@ -6,7 +6,7 @@ import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.decompiler.OptionParser;
 import org.jetbrains.java.decompiler.main.extern.*;
 import org.jetbrains.java.decompiler.main.plugins.JarPluginLoader;
-import org.jetbrains.java.decompiler.main.plugins.PluginSource;
+import org.jetbrains.java.decompiler.api.PluginSource;
 import org.jetbrains.java.decompiler.main.plugins.PluginSources;
 import org.jetbrains.java.decompiler.modules.renamer.ConverterHelper;
 import org.jetbrains.java.decompiler.modules.renamer.IdentifierConverter;

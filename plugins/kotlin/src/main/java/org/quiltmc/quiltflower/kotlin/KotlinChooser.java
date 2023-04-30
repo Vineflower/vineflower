@@ -90,16 +90,6 @@ public class KotlinChooser implements LanguageChooser {
       if (k == 1) { // Class file
         ProtoBuf.Class pcl = ProtoBuf.Class.parseFrom(input, EXTENSIONS);
 
-//                for (ProtoBuf.Function func : pcl.getFunctionList()) {
-//                  System.out.println(func.getFlags());
-//                }
-//
-//                System.out.println(resolver.resolve(pcl.getFqName()));
-//
-//                for (ProtoBuf.Function func : pcl.getFunctionList()) {
-//                  System.out.println(resolver.resolve(func.getName()));
-//                }
-
         DecompilerContext.setProperty(KotlinDecompilationContext.CURRENT_TYPE, KotlinDecompilationContext.KotlinType.CLASS);
         DecompilerContext.setProperty(KotlinDecompilationContext.CURRENT_CLASS, pcl);
 

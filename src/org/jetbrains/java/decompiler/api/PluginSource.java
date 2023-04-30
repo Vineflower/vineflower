@@ -1,4 +1,4 @@
-package org.jetbrains.java.decompiler.main.plugins;
+package org.jetbrains.java.decompiler.api;
 
 import org.jetbrains.java.decompiler.api.Plugin;
 
