@@ -47,7 +47,8 @@ public class AssignmentExprent extends Exprent {
   public VarType getExprType() {
     // Union together types
     VarType rType = VarType.getCommonSupertype(left.getExprType(), right.getExprType());
-    return rType;
+    // TODO: maybe there's a better default for null
+    return rType == null ? left.getExprType() : rType;
   }
 
   @Override

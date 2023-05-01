@@ -537,7 +537,7 @@ public class SimplifyExprentsHelper {
             if (!(left instanceof VarExprent) && left.equals(econd)) {
               FunctionType type = func.getFuncType() == FunctionType.ADD ? FunctionType.PPI : FunctionType.MMI;
               FunctionExprent ret = new FunctionExprent(type, econd, func.bytecode);
-              ret.setImplicitType(VarType.VARTYPE_INT);
+              ret.setImplicitType(econd.getExprType());
               return ret;
             }
           }
