@@ -57,6 +57,7 @@ public class DecompilerTestFixture {
     options.put(IFernflowerPreferences.REMOVE_BRIDGE, "1");
     options.put(IFernflowerPreferences.LITERALS_AS_IS, "1");
     options.put(IFernflowerPreferences.UNIT_TEST_MODE, "1");
+    options.put(IFernflowerPreferences.NEW_LINE_SEPARATOR, "1");
     options.put(IFernflowerPreferences.ERROR_MESSAGE, "");
     for (int i = 0; i < optionPairs.length; i += 2) {
       options.put((String) optionPairs[i], optionPairs[i + 1]);
