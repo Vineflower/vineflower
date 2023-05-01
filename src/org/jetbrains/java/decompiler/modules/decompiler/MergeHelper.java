@@ -206,9 +206,7 @@ public class MergeHelper {
 
               // remove empty if statement as it is now part of the loop
               if (firstif == stat.getFirst()) {
-                BasicBlockStatement bstat = new BasicBlockStatement(new BasicBlock(
-                  DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.STATEMENT_COUNTER)));
-                bstat.setExprents(new ArrayList<>());
+                BasicBlockStatement bstat = BasicBlockStatement.create();
                 stat.replaceStatement(firstif, bstat);
               }
               else {
@@ -230,10 +228,6 @@ public class MergeHelper {
 
           StatEdge elseEdge = firstif.getFirstSuccessor();
           if (isDirectPath(stat, elseEdge.getDestination())) {
-            // FIXME: This is horrible and bad!! Needs an extraction step before loop merging!!
-            if (isIif(firstif.getHeadexprent().getCondition())) {
-              return false;
-            }
 
             // exit condition identified
             stat.setLooptype(DoStatement.Type.WHILE);
@@ -260,9 +254,7 @@ public class MergeHelper {
             }
 
             if (firstif.getIfstat() == null) {
-              BasicBlockStatement bstat = new BasicBlockStatement(new BasicBlock(
-                DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.STATEMENT_COUNTER)));
-              bstat.setExprents(new ArrayList<>());
+              BasicBlockStatement bstat = BasicBlockStatement.create();
 
               ifedge.setSource(bstat);
               bstat.addSuccessor(ifedge);
@@ -292,19 +284,6 @@ public class MergeHelper {
     }
 
     return false;
-  }
-
-  private static boolean isIif(Exprent exprent) {
-    if (!(exprent instanceof FunctionExprent)) {
-      return false;
-    }
-
-    Exprent check = exprent;
-    while (check instanceof FunctionExprent && ((FunctionExprent)check).getFuncType() == FunctionType.BOOL_NOT) {
-      check = ((FunctionExprent)check).getLstOperands().get(0);
-    }
-
-    return check instanceof FunctionExprent && ((FunctionExprent)check).getFuncType() == FunctionType.TERNARY;
   }
 
   // Returns if the statement provided and the end statement provided has a direct control flow path

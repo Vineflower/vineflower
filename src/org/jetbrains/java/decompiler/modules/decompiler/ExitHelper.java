@@ -112,8 +112,7 @@ public final class ExitHelper {
           StatEdge ifedge = ifst.getIfEdge();
           dest = isExitEdge(ifedge);
           if (dest != null) {
-            BasicBlockStatement bstat = new BasicBlockStatement(new BasicBlock(
-              DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.STATEMENT_COUNTER)));
+            BasicBlockStatement bstat = BasicBlockStatement.create();
             bstat.setExprents(DecHelper.copyExprentList(dest.getExprents()));
 
             ifst.getFirst().removeSuccessor(ifedge);
@@ -147,8 +146,7 @@ public final class ExitHelper {
         if (dest != null) {
           stat.removeSuccessor(destedge);
 
-          BasicBlockStatement bstat = new BasicBlockStatement(new BasicBlock(
-            DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.STATEMENT_COUNTER)));
+          BasicBlockStatement bstat = BasicBlockStatement.create();
           bstat.setExprents(DecHelper.copyExprentList(dest.getExprents()));
 
           StatEdge oldexitedge = dest.getAllSuccessorEdges().get(0);

@@ -187,8 +187,7 @@ public final class AssertProcessor {
 
     AssertExprent asexpr = new AssertExprent(lstParams);
 
-    Statement newstat = new BasicBlockStatement(new BasicBlock(
-      DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.STATEMENT_COUNTER)));
+    Statement newstat = BasicBlockStatement.create();
     newstat.setExprents(Arrays.asList(new Exprent[]{asexpr}));
 
     Statement first = stat.getFirst();

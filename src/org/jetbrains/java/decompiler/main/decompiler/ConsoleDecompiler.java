@@ -243,6 +243,7 @@ public class ConsoleDecompiler implements /* IBytecodeProvider, */ IResultSaver,
   // *******************************************************************
 
   // @Override
+  @Deprecated
   public byte[] getBytecode(String externalPath, String internalPath) throws IOException { // UNUSED
     if (internalPath == null) {
       File file = new File(externalPath);

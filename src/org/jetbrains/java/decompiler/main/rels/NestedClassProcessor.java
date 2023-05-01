@@ -214,13 +214,6 @@ public class NestedClassProcessor {
     }
   }*/
 
-  private Statement getNewEmptyStatement() {
-    BasicBlockStatement bstat = new BasicBlockStatement(new BasicBlock(
-      DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.STATEMENT_COUNTER)));
-    bstat.setExprents(new ArrayList<Exprent>());
-    return bstat;
-  }
-
   private static void setLambdaVars(ClassNode parent, ClassNode child) {
     if (child.lambdaInformation.is_method_reference) { // method reference, no code and no parameters
       return;
