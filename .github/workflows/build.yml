@@ -23,7 +23,7 @@ jobs:
           name: "test-results-java${{ matrix.java }}"
           path: |
             build/reports/
-            */build/reports/
+            plugins/*/build/reports/
             build/test-results/**/*.xml
       - name: Codecov
         uses: codecov/codecov-action@v3.1.1
