@@ -87,13 +87,13 @@ public class KotlinChooser implements LanguageChooser {
 
       byte[] buf = BitEncoding.decodeBytes(data1);
 
-              ByteArrayInputStream input = new ByteArrayInputStream(buf);
-              JvmProtoBuf.StringTableTypes types = JvmProtoBuf.StringTableTypes.parseDelimitedFrom(input, EXTENSIONS);
+      ByteArrayInputStream input = new ByteArrayInputStream(buf);
+      JvmProtoBuf.StringTableTypes types = JvmProtoBuf.StringTableTypes.parseDelimitedFrom(input, EXTENSIONS);
 
-              DecompilerContext.setProperty(KotlinDecompilationContext.NAME_RESOLVER, new MetadataNameResolver(types, data2));
+      DecompilerContext.setProperty(KotlinDecompilationContext.NAME_RESOLVER, new MetadataNameResolver(types, data2));
 
-              if (k == 1) { // Class file
-                ProtoBuf.Class pcl = ProtoBuf.Class.parseFrom(input, EXTENSIONS);
+      if (k == 1) { // Class file
+        ProtoBuf.Class pcl = ProtoBuf.Class.parseFrom(input, EXTENSIONS);
 
 //                for (ProtoBuf.Function func : pcl.getFunctionList()) {
 //                  System.out.println(func.getFlags());
