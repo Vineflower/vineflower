@@ -28,6 +28,8 @@ sealed class TestSealedHierarchy {
       @JvmStatic
       public TestSealedHierarchy.TestObject INSTANCE = new TestSealedHierarchy.TestObject();
 
+      public final val x: Any
+
       fun TestObject() {
          super(null);// 4
       }
@@ -72,15 +74,15 @@ class 'pkg/TestSealedHierarchy$TestClass' {
 
 class 'pkg/TestSealedHierarchy$TestObject' {
    method '<init> ()V' {
-      1      31
-      2      31
-      3      31
-      4      31
-      5      32
+      1      33
+      2      33
+      3      33
+      4      33
+      5      34
    }
 }
 
 Lines mapping:
 3 <-> 7
-4 <-> 32
+4 <-> 34
 5 <-> 23

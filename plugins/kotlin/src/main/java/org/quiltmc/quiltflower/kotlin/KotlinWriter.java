@@ -39,6 +39,7 @@ import org.jetbrains.java.decompiler.util.TextUtil;
 import org.jetbrains.java.decompiler.util.collections.VBStyleCollection;
 import org.quiltmc.quiltflower.kotlin.expr.KAnnotationExprent;
 import org.quiltmc.quiltflower.kotlin.metadata.MetadataNameResolver;
+import org.quiltmc.quiltflower.kotlin.struct.KProperty;
 import org.quiltmc.quiltflower.kotlin.util.KTypes;
 import org.quiltmc.quiltflower.kotlin.util.ProtobufFlags;
 
@@ -88,12 +89,16 @@ public class KotlinWriter implements StatementWriter {
   private final PoolInterceptor interceptor;
   private final IFabricJavadocProvider javadocProvider;
 
+  private List<KProperty> properties = List.of();
+  private Set<String> propertyFields = Set.of();
+  private Set<String> propertyAccessors = Set.of();
+
   public KotlinWriter() {
     interceptor = DecompilerContext.getPoolInterceptor();
     javadocProvider = (IFabricJavadocProvider) DecompilerContext.getProperty(IFabricJavadocProvider.PROPERTY_NAME);
   }
 
-  private static boolean invokeProcessors(TextBuffer buffer, ClassNode node) {
+  private boolean invokeProcessors(TextBuffer buffer, ClassNode node) {
     ClassWrapper wrapper = node.getWrapper();
     if (wrapper == null) {
       buffer.append("/* $QF: Couldn't be decompiled. Class " + node.classStruct.qualifiedName + " wasn't processed yet! */");
@@ -124,6 +129,20 @@ public class KotlinWriter implements StatementWriter {
 
       if (DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_ASSERTIONS)) {
         AssertProcessor.buildAssertions(node);
+      }
+
+      List<KProperty> properties = new ArrayList<>();
+      Set<String> propertyFields = new HashSet<>();
+      Set<String> propertyAccessors = new HashSet<>();
+      boolean success = KProperty.parse(node, properties, propertyFields, propertyAccessors);
+      if (success) {
+        this.properties = properties;
+        this.propertyFields = propertyFields;
+        this.propertyAccessors = propertyAccessors;
+      } else {
+        this.properties = List.of();
+        this.propertyFields = Set.of();
+        this.propertyAccessors = Set.of();
       }
     } catch (Throwable t) {
       DecompilerContext.getLogger().writeMessage("Class " + node.simpleName + " couldn't be written.",
@@ -180,6 +199,22 @@ public class KotlinWriter implements StatementWriter {
 
     KotlinImportCollector kotlinImportCollector = new KotlinImportCollector(importCollector);
     kotlinImportCollector.writeImports(buffer, true);
+
+    MetadataNameResolver nameResolver = KotlinDecompilationContext.getNameResolver();
+    if (KotlinDecompilationContext.getCurrentType() == KotlinDecompilationContext.KotlinType.CLASS) {
+      if (KotlinDecompilationContext.getCurrentClass().getTypeAliasCount() > 0) {
+        List<ProtoBuf.TypeAlias> typeAliases = KotlinDecompilationContext.getCurrentClass().getTypeAliasList();
+        for (ProtoBuf.TypeAlias typeAlias : typeAliases) {
+          buffer.append("typealias ");
+          buffer.append(toValidKotlinIdentifier(nameResolver.resolve(typeAlias.getName())));
+          buffer.append(" = ");
+          buffer.append(toValidKotlinIdentifier(nameResolver.resolve(typeAlias.getUnderlyingType().getClassName())));
+          buffer.appendLineSeparator();
+        }
+
+        buffer.appendLineSeparator();
+      }
+    }
   }
 
   public void writeClass(ClassNode node, TextBuffer buffer, int indent) {
@@ -291,12 +326,14 @@ public class KotlinWriter implements StatementWriter {
           }
         }
 
-        TextBuffer fieldBuffer = new TextBuffer();
-        writeField(wrapper, cl, fd, fieldBuffer, indent + 1);
-        fieldBuffer.clearUnassignedBytecodeMappingData();
-        buffer.append(fieldBuffer);
+        if (!propertyFields.contains(fd.getName())) {
+          TextBuffer fieldBuffer = new TextBuffer();
+          writeField(wrapper, cl, fd, fieldBuffer, indent + 1);
+          fieldBuffer.clearUnassignedBytecodeMappingData();
+          buffer.append(fieldBuffer);
 
-        hasContent = true;
+          hasContent = true;
+        }
       }
 
       if (enumFields) {
@@ -311,13 +348,26 @@ public class KotlinWriter implements StatementWriter {
         }
       }
 
+      if (!properties.isEmpty()) {
+        if (hasContent) {
+          buffer.appendLineSeparator();
+        }
+
+        for (KProperty prop : properties) {
+          buffer.append(prop.stringify(indent + 1));
+        }
+
+        hasContent = true;
+      }
+
       // methods
       VBStyleCollection<StructMethod, String> methods = cl.getMethods();
       for (int i = 0; i < methods.size(); i++) {
         StructMethod mt = methods.get(i);
         boolean hide = mt.isSynthetic() && DecompilerContext.getOption(IFernflowerPreferences.REMOVE_SYNTHETIC) ||
           mt.hasModifier(CodeConstants.ACC_BRIDGE) && DecompilerContext.getOption(IFernflowerPreferences.REMOVE_BRIDGE) ||
-          wrapper.getHiddenMembers().contains(InterpreterUtil.makeUniqueKey(mt.getName(), mt.getDescriptor()));
+          wrapper.getHiddenMembers().contains(InterpreterUtil.makeUniqueKey(mt.getName(), mt.getDescriptor())) ||
+          propertyAccessors.contains(InterpreterUtil.makeUniqueKey(mt.getName(), mt.getDescriptor()));
         if (hide) continue;
 
         TextBuffer methodBuffer = new TextBuffer();
