@@ -776,6 +776,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_17, "TestPatternMatching17FakeLoops");
     register(JAVA_17, "TestPatternMatching17FakeLoopsInverted");
     register(JAVA_17, "TestPatternMatching17FakeNew");
+    register(JAVA_17, "TestPatternMatching17AlreadyUsed");
     register(JAVA_17, "TestPatternMatchingInteger");
   }
 
