@@ -28,7 +28,7 @@ sealed class TestSealedHierarchy {
       @JvmStatic
       public TestSealedHierarchy.TestObject INSTANCE = new TestSealedHierarchy.TestObject();
 
-      public final val x: Any
+      public final val x: Int
 
       fun TestObject() {
          super(null);// 4

@@ -4,7 +4,7 @@ import java.util.List
 
 data class TestDataClass {
    public final val dataClassVal: Regex
-   public final val nullability: String
+   public final val nullability: String?
    public final val requestLineWrapsIfTheParamListIsTooLong: List
    public final val variableWithVeryLongName: Int
 

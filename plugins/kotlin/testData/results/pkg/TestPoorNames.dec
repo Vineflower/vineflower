@@ -23,8 +23,8 @@ class TestPoorNames {
    }// 25
 
    class `Class with spaces` {
-      public final val `Dangerous property name?!`: Any
-      public final val `Property with spaces`: Any
+      public final val `Dangerous property name?!`: String
+      public final val `Property with spaces`: Int
    }
 }
 
