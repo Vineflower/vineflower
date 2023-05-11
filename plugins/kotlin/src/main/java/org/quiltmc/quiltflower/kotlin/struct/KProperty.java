@@ -31,7 +31,7 @@ import java.util.Set;
 
 public class KProperty {
   public final String name;
-  public final VarType type;
+  public final KType type;
 
   public final ProtobufFlags.Property flags;
 
@@ -49,7 +49,7 @@ public class KProperty {
 
   public KProperty(
     String name,
-    VarType type,
+    KType type,
     ProtobufFlags.Property flags,
     KPropertyAccessor getter,
     KPropertyAccessor setter,
@@ -112,7 +112,8 @@ public class KProperty {
     buf.append(flags.isVar ? "var " : "val ")
       .append(KotlinWriter.toValidKotlinIdentifier(name))
       .append(": ")
-      .append(KTypes.getKotlinType(type));
+      .append(KTypes.getKotlinType(type.type))
+      .append(type.isNullable ? "?" : "");
 
     if (initializer != null) {
       TextBuffer initializerBuf = initializer.toJava(indent);
@@ -160,7 +161,15 @@ public class KProperty {
 
       String name = nameResolver.resolve(property.getName());
 
-      String propDesc = null;
+      String propDesc;
+      String kotlinType;
+      if (property.hasReturnType() && property.getReturnType().hasClassName()) {
+        kotlinType = nameResolver.resolve(property.getReturnType().getClassName());
+        propDesc = KTypes.getJavaSignature(kotlinType, property.getReturnType().getNullable());
+      } else {
+        kotlinType = null;
+        propDesc = null;
+      }
 
       StructField field = null;
 
@@ -221,6 +230,7 @@ public class KProperty {
       }
 
       VarType varType = propDesc != null ? new VarType(propDesc) : VarType.VARTYPE_OBJECT;
+      KType type = new KType(varType, kotlinType, property.hasReturnType() && property.getReturnType().getNullable());
 
       String key = InterpreterUtil.makeUniqueKey(name, varType.toString());
       Exprent initializer;
@@ -237,7 +247,7 @@ public class KProperty {
         initializer = wrapper.getDynamicFieldInitializers().getWithKey(key);
       }
 
-      list.add(new KProperty(name, varType, flags, getter, setter, field, initializer));
+      list.add(new KProperty(name, type, flags, getter, setter, field, initializer));
     }
 
     return true;
