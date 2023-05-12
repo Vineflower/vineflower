@@ -141,6 +141,7 @@ public class VarExprent extends Exprent {
       MethodWrapper method = (MethodWrapper) DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
       if (method != null && (!"this".equals(name) || index != 0)) {
         int varIndex = index;
+        String thisVar = null;
         if (processor != null) {
           // Resolve the method/varVersion this var came from
           Pair<String, VarVersionPair> source = processor.getVarSource(getVarVersionPair());
@@ -151,6 +152,8 @@ public class VarExprent extends Exprent {
             varIndex = source.b.var;
             source = method.varproc != null ? method.varproc.getVarSource(source.b) : null;
           }
+
+          thisVar = this.processor.getThisVars().get(this.getVarVersionPair());
         }
 
         boolean param = false;
@@ -162,7 +165,13 @@ public class VarExprent extends Exprent {
           param = i <= paramsSize - (method.methodStruct.hasModifier(CodeConstants.ACC_STATIC) ? 1 : 0);
         }
 
-        buffer.appendVariable(name, definition, param, method.classStruct.qualifiedName, method.methodStruct.getName(), descriptor, varIndex, name);
+        if (thisVar == null || !name.contains(".this")) {
+          buffer.appendVariable(name, definition, param, method.classStruct.qualifiedName, method.methodStruct.getName(), descriptor, varIndex, name);
+        } else {
+          int i = name.indexOf(".this");
+          buffer.appendClass(name.substring(0, i), false, thisVar);
+          buffer.append(name.substring(i));
+        }
       } else {
         buffer.append(name);
       }
