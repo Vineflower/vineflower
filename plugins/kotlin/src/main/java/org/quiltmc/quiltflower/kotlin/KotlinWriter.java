@@ -1108,34 +1108,9 @@ public class KotlinWriter implements StatementWriter {
           buffer.append(' ');
         }
 
-        // We do not have line information for method start, lets have it here for now
-        buffer.append('{').appendLineSeparator();
+        boolean hideIfInit = (clInit || dInit || hideConstructor(node, init, throwsExceptions, paramCount, flags));
 
-        RootStatement root = methodWrapper.root;
-
-        if (root != null && methodWrapper.decompileError == null) { // check for existence
-          try {
-            // Avoid generating imports for ObjectMethods during root.toJava(...)
-            if (RecordHelper.isHiddenRecordMethod(cl, mt, root)) {
-              hideMethod = true;
-            } else {
-              TextBuffer code = root.toJava(indent + 1);
-              code.addBytecodeMapping(root.getDummyExit().bytecode);
-              hideMethod = code.length() == 0 && (clInit || dInit || hideConstructor(node, init, throwsExceptions, paramCount, flags));
-              buffer.append(code, cl.qualifiedName, InterpreterUtil.makeUniqueKey(mt.getName(), mt.getDescriptor()));
-            }
-          }
-          catch (Throwable t) {
-            String message = "Method " + mt.getName() + " " + mt.getDescriptor() + " in class " + node.classStruct.qualifiedName + " couldn't be written.";
-            DecompilerContext.getLogger().writeMessage(message, IFernflowerLogger.Severity.WARN, t);
-            methodWrapper.decompileError = t;
-          }
-        }
-
-        if (methodWrapper.decompileError != null) {
-          dumpError(buffer, methodWrapper, indent + 1);
-        }
-        buffer.appendIndent(indent).append('}').appendLineSeparator();
+        hideMethod = !writeMethodBody(node, methodWrapper, buffer, indent, hideIfInit);
       }
     }
     finally {
@@ -1146,6 +1121,47 @@ public class KotlinWriter implements StatementWriter {
     // TODO: optimize
     //tracer.setCurrentSourceLine(buffer.countLines(start_index_method));
 
+    return !hideMethod;
+  }
+
+  public static boolean writeMethodBody(
+    ClassNode node,
+    MethodWrapper methodWrapper,
+    TextBuffer buffer,
+    int indent,
+    boolean hideIfInit
+  ) {
+    boolean hideMethod = true;
+    StructClass cl = node.classStruct;
+    StructMethod mt = methodWrapper.methodStruct;
+
+    buffer.append('{').appendLineSeparator();
+
+    RootStatement root = methodWrapper.root;
+
+    if (root != null && methodWrapper.decompileError == null) { // check for existence
+      try {
+        // Avoid generating imports for ObjectMethods during root.toJava(...)
+        if (RecordHelper.isHiddenRecordMethod(cl, mt, root)) {
+          hideMethod = true;
+        } else {
+          TextBuffer code = root.toJava(indent + 1);
+          code.addBytecodeMapping(root.getDummyExit().bytecode);
+          hideMethod = code.length() == 0 && hideIfInit;
+          buffer.append(code, cl.qualifiedName, InterpreterUtil.makeUniqueKey(mt.getName(), mt.getDescriptor()));
+        }
+      }
+      catch (Throwable t) {
+        String message = "Method " + mt.getName() + " " + mt.getDescriptor() + " in class " + node.classStruct.qualifiedName + " couldn't be written.";
+        DecompilerContext.getLogger().writeMessage(message, IFernflowerLogger.Severity.WARN, t);
+        methodWrapper.decompileError = t;
+      }
+    }
+
+    if (methodWrapper.decompileError != null) {
+      dumpError(buffer, methodWrapper, indent + 1);
+    }
+    buffer.appendIndent(indent).append('}').appendLineSeparator();
     return !hideMethod;
   }
 

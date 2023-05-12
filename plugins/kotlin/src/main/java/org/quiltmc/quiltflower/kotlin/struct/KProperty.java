@@ -6,6 +6,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.ClassesProcessor;
 import org.jetbrains.java.decompiler.main.rels.ClassWrapper;
+import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.ConstExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.struct.StructClass;
@@ -42,10 +43,15 @@ public class KProperty {
   public final KPropertyAccessor setter;
 
   @Nullable
+  public final String setterParamName;
+
+  @Nullable
   public final StructField underlyingField;
 
   @Nullable
   public final Exprent initializer;
+
+  private final ClassesProcessor.ClassNode node;
 
   public KProperty(
     String name,
@@ -53,16 +59,18 @@ public class KProperty {
     ProtobufFlags.Property flags,
     KPropertyAccessor getter,
     KPropertyAccessor setter,
-    StructField underlyingField,
-    Exprent initializer
-  ) {
+    @Nullable String setterParamName, StructField underlyingField,
+    Exprent initializer,
+    ClassesProcessor.ClassNode node) {
     this.name = name;
     this.type = type;
     this.flags = flags;
     this.getter = getter;
     this.setter = setter;
+    this.setterParamName = setterParamName;
     this.underlyingField = underlyingField;
     this.initializer = initializer;
+    this.node = node;
   }
 
   public TextBuffer stringify(int indent) {
@@ -70,25 +78,7 @@ public class KProperty {
 
     buf.appendIndent(indent);
 
-    switch (flags.visibility) {
-      case LOCAL:
-        buf.append("// QF: local property")
-          .appendLineSeparator()
-          .append("internal ");
-        break;
-      case PRIVATE_TO_THIS:
-        buf.append("private ");
-        break;
-      case PUBLIC:
-        String showPublicVisibility = KotlinPreferences.getPreference(KotlinPreferences.SHOW_PUBLIC_VISIBILITY);
-        if (Objects.equals(showPublicVisibility, "1")) {
-          buf.append("public ");
-        }
-        break;
-      default:
-        buf.append(flags.visibility.name().toLowerCase())
-          .append(' ');
-    }
+    appendVisibility(buf, flags.visibility);
 
     if (flags.isExpect) {
       buf.append("expect ");
@@ -117,18 +107,95 @@ public class KProperty {
     if (initializer != null) {
       TextBuffer initializerBuf = initializer.toJava(indent);
       initializerBuf.clearUnassignedBytecodeMappingData();
-      buf.append(" =")
-        .pushNewlineGroup(indent, 1)
-        .appendPossibleNewline(" ")
-        .append(initializerBuf)
-        .popNewlineGroup();
+      if (flags.isDelegated) {
+        buf.append(" by ")
+          .append(initializerBuf);
+      } else {
+        buf.append(" =")
+          .pushNewlineGroup(indent, 1)
+          .appendPossibleNewline(" ")
+          .append(initializerBuf)
+          .popNewlineGroup();
+      }
     }
 
-    //TODO: delegation, getters, and setters
+    if (getter != null && getter.flags.isNotDefault) {
+      buf.pushNewlineGroup(indent, 1)
+          .append('\n')
+          .appendIndent(indent + 1);
+
+      appendVisibility(buf, getter.flags.visibility);
+
+      buf.append(getter.flags.modality.name().toLowerCase())
+        .append(' ');
+
+      if (getter.flags.isExternal) {
+        buf.append("external ");
+      }
+
+      if (getter.flags.isInline) {
+        buf.append("inline ");
+      }
+
+      buf.append("get() ");
+
+      KotlinWriter.writeMethodBody(node, getter.underlyingMethod, buf, indent + 1, false);
+
+      buf.popNewlineGroup();
+    }
+
+    if (setter != null && setter.flags.isNotDefault) {
+      buf.pushNewlineGroup(indent, 1)
+        .append('\n')
+        .appendIndent(indent + 1);
+
+      appendVisibility(buf, getter.flags.visibility);
+
+      buf.append(setter.flags.modality.name().toLowerCase())
+        .append(' ');
+
+      if (setter.flags.isExternal) {
+        buf.append("external ");
+      }
+
+      if (setter.flags.isInline) {
+        buf.append("inline ");
+      }
+
+      buf.append("set(")
+          .append(setterParamName)
+          .append(") ");
+
+      KotlinWriter.writeMethodBody(node, setter.underlyingMethod, buf, indent + 1, false);
+
+      buf.popNewlineGroup();
+    }
 
     buf.appendLineSeparator();
 
     return buf;
+  }
+
+  private static void appendVisibility(TextBuffer buf, ProtoBuf.Visibility visibility) {
+    switch (visibility) {
+      case LOCAL:
+        buf.append("// QF: local property")
+          .appendLineSeparator()
+          .append("internal ");
+        break;
+      case PRIVATE_TO_THIS:
+        buf.append("private ");
+        break;
+      case PUBLIC:
+        String showPublicVisibility = KotlinPreferences.getPreference(KotlinPreferences.SHOW_PUBLIC_VISIBILITY);
+        if (Objects.equals(showPublicVisibility, "1")) {
+          buf.append("public ");
+        }
+        break;
+      default:
+        buf.append(visibility.name().toLowerCase())
+          .append(' ');
+    }
   }
 
   public static boolean parse(ClassesProcessor.ClassNode node, List<KProperty> list, Set<String> discoveredFields, Set<String> discoveredMethods) {
@@ -170,15 +237,24 @@ public class KProperty {
         propDesc = null;
       }
 
-      StructField field = null;
-
-      if (jvmProp.hasField() && jvmProp.getField().hasName() && jvmProp.getField().hasDesc()) {
-        String fieldName = nameResolver.resolve(jvmProp.getField().getName());
-        propDesc = nameResolver.resolve(jvmProp.getField().getDesc());
-        field = structClass.getField(fieldName, propDesc);
-        if (field != null) {
-          discoveredFields.add(fieldName);
+      Exprent delegateExprent;
+      if (flags.isDelegated) {
+        String delegateFieldName = nameResolver.resolve(jvmProp.getField().getName());
+        String delegateDesc = nameResolver.resolve(jvmProp.getField().getDesc());
+        StructField delegateField = structClass.getField(delegateFieldName, delegateDesc);
+        if (delegateField != null) {
+          discoveredFields.add(delegateFieldName);
+          String key = InterpreterUtil.makeUniqueKey(delegateFieldName, delegateDesc);
+          if (delegateField.hasModifier(CodeConstants.ACC_STATIC)) {
+            delegateExprent = wrapper.getStaticFieldInitializers().getWithKey(key);
+          } else {
+            delegateExprent = wrapper.getDynamicFieldInitializers().getWithKey(key);
+          }
+        } else {
+          delegateExprent = null;
         }
+      } else {
+        delegateExprent = null;
       }
 
       KPropertyAccessor getter = null;
@@ -187,7 +263,8 @@ public class KProperty {
         String desc = nameResolver.resolve(jvmProp.getGetter().getDesc());
         StructMethod method = structClass.getMethod(methodName, desc);
         if (method != null) {
-          getter = new KPropertyAccessor(new ProtobufFlags.PropertyAccessor(property.getFlags()), method);
+          MethodWrapper methodWrapper = wrapper.getMethodWrapper(methodName, desc);
+          getter = new KPropertyAccessor(new ProtobufFlags.PropertyAccessor(property.getGetterFlags()), methodWrapper);
           discoveredMethods.add(InterpreterUtil.makeUniqueKey(methodName, desc));
 
           if (propDesc == null) {
@@ -197,26 +274,26 @@ public class KProperty {
       }
 
       KPropertyAccessor setter = null;
+      String setterParamName = null;
       if (flags.hasSetter) {
         String methodName = nameResolver.resolve(jvmProp.getSetter().getName());
         String desc = nameResolver.resolve(jvmProp.getSetter().getDesc());
         StructMethod method = structClass.getMethod(methodName, desc);
         if (method != null) {
-          setter = new KPropertyAccessor(new ProtobufFlags.PropertyAccessor(property.getFlags()), method);
+          MethodWrapper methodWrapper = wrapper.getMethodWrapper(methodName, desc);
+          setter = new KPropertyAccessor(new ProtobufFlags.PropertyAccessor(property.getSetterFlags()), methodWrapper);
           discoveredMethods.add(InterpreterUtil.makeUniqueKey(methodName, desc));
-
-          if (propDesc == null) {
-            propDesc = method.getDescriptor().substring(method.getDescriptor().indexOf(')') + 1);
-          }
+          setterParamName = nameResolver.resolve(property.getSetterValueParameter().getName());
         }
       }
 
-      if (field == null && propDesc != null) {
+      StructField field = null;
+      if (propDesc != null) {
         field = structClass.getField(name, propDesc);
         if (field != null) {
           discoveredFields.add(name);
         }
-      } else if (field == null) {
+      } else {
         VBStyleCollection<StructField, String> fields = structClass.getFields();
         for (StructField f : fields) {
           if (f.getName().equals(name)) {
@@ -233,7 +310,9 @@ public class KProperty {
       String key = InterpreterUtil.makeUniqueKey(name, varType.toString());
       Exprent initializer;
 
-      if (field == null) {
+      if (delegateExprent != null) {
+        initializer = delegateExprent;
+      } else if (field == null) {
         initializer = null;
       } else if (field.hasAttribute(StructGeneralAttribute.ATTRIBUTE_CONSTANT_VALUE)) {
         StructConstantValueAttribute attr = field.getAttribute(StructGeneralAttribute.ATTRIBUTE_CONSTANT_VALUE);
@@ -245,7 +324,7 @@ public class KProperty {
         initializer = wrapper.getDynamicFieldInitializers().getWithKey(key);
       }
 
-      list.add(new KProperty(name, type, flags, getter, setter, field, initializer));
+      list.add(new KProperty(name, type, flags, getter, setter, setterParamName, field, initializer, node));
     }
 
     return true;
