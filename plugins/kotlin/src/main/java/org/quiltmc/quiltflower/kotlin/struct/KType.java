@@ -10,14 +10,13 @@ import org.quiltmc.quiltflower.kotlin.util.KTypes;
 public class KType {
   public final VarType type;
 
-  @Nullable
   public final String kotlinType;
 
   public final boolean isNullable;
 
   public final TypeArgument @Nullable [] typeArguments;
 
-  public KType(VarType type, @Nullable String kotlinType, boolean isNullable, TypeArgument @Nullable [] typeArguments) {
+  public KType(VarType type, String kotlinType, boolean isNullable, TypeArgument @Nullable [] typeArguments) {
     this.type = type;
     this.kotlinType = kotlinType;
     this.isNullable = isNullable;
@@ -47,28 +46,48 @@ public class KType {
   public TextBuffer stringify(int indent) {
     TextBuffer buf = new TextBuffer();
 
-    buf.append(KTypes.getKotlinType(type));
+    if (!kotlinType.startsWith("kotlin/Function")) {
+      buf.append(KTypes.getKotlinType(type));
 
-    if (typeArguments != null) {
-      buf.append("<");
+      if (typeArguments != null) {
+        buf.append("<");
+        buf.pushNewlineGroup(indent, 1);
+        buf.appendPossibleNewline();
+        boolean first = true;
+        for (TypeArgument typeArgument : typeArguments) {
+          if (!first) {
+            buf.append(",")
+              .appendPossibleNewline(" ");
+          }
+          buf.append(typeArgument.stringify(indent + 1));
+          first = false;
+        }
+        buf.appendPossibleNewline("", true);
+        buf.append(">");
+        buf.popNewlineGroup();
+
+      }
+
+      if (isNullable) {
+        buf.append("?");
+      }
+    } else {
+      buf.append(isNullable ? "((" : "(");
       buf.pushNewlineGroup(indent, 1);
       buf.appendPossibleNewline();
-      boolean first = true;
-      for (TypeArgument typeArgument : typeArguments) {
-        if (!first) {
-          buf.append(",")
-            .appendPossibleNewline(" ");
+      for (int i = 0; i < typeArguments.length - 1; i++) {
+        if (i != 0) {
+          buf.append(",").appendPossibleNewline(" ");
         }
-        buf.append(typeArgument.stringify(indent + 1));
-        first = false;
+        buf.append(typeArguments[i].stringify(indent + 1));
       }
       buf.appendPossibleNewline("", true);
-      buf.append(">");
       buf.popNewlineGroup();
-    }
-
-    if (isNullable) {
-      buf.append("?");
+      buf.append(") -> ");
+      buf.append(typeArguments[typeArguments.length - 1].stringify(indent + 1));
+      if (isNullable) {
+        buf.append(")?");
+      }
     }
 
     return buf;
