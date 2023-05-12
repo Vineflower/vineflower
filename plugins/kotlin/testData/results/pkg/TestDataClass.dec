@@ -5,7 +5,7 @@ import java.util.List
 data class TestDataClass {
    public final val dataClassVal: Regex
    public final val nullability: String?
-   public final val requestLineWrapsIfTheParamListIsTooLong: List
+   public final val requestLineWrapsIfTheParamListIsTooLong: List<String>
    public final val variableWithVeryLongName: Int
 
    fun TestDataClass(dataClassVal: Regex, variableWithVeryLongName: Int, requestLineWrapsIfTheParamListIsTooLong: MutableList<String>, nullability: String?) {

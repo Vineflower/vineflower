@@ -3,7 +3,7 @@ package pkg
 import kotlin.jvm.functions.Function1
 
 class TestKotlinTypes {
-   public final val consumer: Function1 = <unknownclass>.INSTANCE as Function1
+   public final val consumer: Function1<Int, Unit> = <unknownclass>.INSTANCE as Function1
 
    fun throwAlways(): Void {
       throw new Exception();// 5

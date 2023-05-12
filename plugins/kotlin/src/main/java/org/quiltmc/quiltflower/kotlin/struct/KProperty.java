@@ -112,8 +112,7 @@ public class KProperty {
     buf.append(flags.isVar ? "var " : "val ")
       .append(KotlinWriter.toValidKotlinIdentifier(name))
       .append(": ")
-      .append(KTypes.getKotlinType(type.type))
-      .append(type.isNullable ? "?" : "");
+      .append(type.stringify(indent)); 
 
     if (initializer != null) {
       TextBuffer initializerBuf = initializer.toJava(indent);
@@ -162,12 +161,12 @@ public class KProperty {
       String name = nameResolver.resolve(property.getName());
 
       String propDesc;
-      String kotlinType;
+      KType type;
       if (property.hasReturnType() && property.getReturnType().hasClassName()) {
-        kotlinType = nameResolver.resolve(property.getReturnType().getClassName());
-        propDesc = KTypes.getJavaSignature(kotlinType, property.getReturnType().getNullable());
+        type = KType.from(property.getReturnType(), nameResolver);
+        propDesc = KTypes.getJavaSignature(type.kotlinType, property.getReturnType().getNullable());
       } else {
-        kotlinType = null;
+        type = null;
         propDesc = null;
       }
 
@@ -230,14 +229,13 @@ public class KProperty {
       }
 
       VarType varType = propDesc != null ? new VarType(propDesc) : VarType.VARTYPE_OBJECT;
-      KType type = new KType(varType, kotlinType, property.hasReturnType() && property.getReturnType().getNullable());
 
       String key = InterpreterUtil.makeUniqueKey(name, varType.toString());
       Exprent initializer;
 
       if (field == null) {
         initializer = null;
-      } else if (flags.isConst && field.hasAttribute(StructGeneralAttribute.ATTRIBUTE_CONSTANT_VALUE)) {
+      } else if (field.hasAttribute(StructGeneralAttribute.ATTRIBUTE_CONSTANT_VALUE)) {
         StructConstantValueAttribute attr = field.getAttribute(StructGeneralAttribute.ATTRIBUTE_CONSTANT_VALUE);
         PrimitiveConstant constant = structClass.getPool().getPrimitiveConstant(attr.getIndex());
         initializer = new ConstExprent(varType, constant.value, null);
