@@ -6,9 +6,11 @@ import kotlin.jvm.internal.Ref.ObjectRef
 
 open class TestNonInlineLambda {
    public final var intField: Int
+      internal set
    private final var privateIntField: Int
    private final var privateStringField: String = ""
    public final var stringField: String = ""
+      internal set
 
    fun testCaptureInt(x: Int) {
       this.execute(new <undefinedtype>(x));// 7 8

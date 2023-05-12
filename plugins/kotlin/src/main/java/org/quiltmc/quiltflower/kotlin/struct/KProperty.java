@@ -142,6 +142,10 @@ public class KProperty {
       KotlinWriter.writeMethodBody(node, getter.underlyingMethod, buf, indent + 1, false);
 
       buf.popNewlineGroup();
+    } else if (getter != null && getter.flags.isExternal) {
+      buf.append('\n')
+        .appendIndent(indent + 1)
+        .append("external get");
     }
 
     if (setter != null && setter.flags.isNotDefault) {
@@ -163,18 +167,41 @@ public class KProperty {
       }
 
       buf.append("set(")
-          .append(setterParamName)
-          .append(") ");
+        .append(setterParamName)
+        .append(") ");
 
       KotlinWriter.writeMethodBody(node, setter.underlyingMethod, buf, indent + 1, false);
 
       buf.popNewlineGroup();
+    } else if (setter != null && (setter.flags.isExternal || setter.flags.visibility != flags.visibility || setter.flags.modality != flags.modality)) {
+      buf.append('\n').appendIndent(indent + 1);
+
+      if (setter.flags.visibility != flags.visibility) {
+        appendVisibility(buf, setter.flags.visibility);
+      }
+
+      if (setter.flags.modality != flags.modality) {
+        buf.append(setter.flags.modality.name().toLowerCase())
+          .append(' ');
+      }
+
+      if (setter.flags.isExternal) {
+        buf.append("external ");
+      }
+
+      buf.append("set");
+    } else if (setter == null && flags.isVar && flags.visibility != ProtoBuf.Visibility.PRIVATE) {
+      buf.append('\n')
+        .appendIndent(indent + 1)
+        .append("private set");
     }
 
     buf.appendLineSeparator();
 
     return buf;
   }
+
+    
 
   private static void appendVisibility(TextBuffer buf, ProtoBuf.Visibility visibility) {
     switch (visibility) {
