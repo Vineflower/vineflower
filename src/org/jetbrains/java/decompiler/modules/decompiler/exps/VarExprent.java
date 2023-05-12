@@ -173,7 +173,18 @@ public class VarExprent extends Exprent {
           buffer.append(name.substring(i));
         }
       } else {
-        buffer.append(name);
+        String thisVar = null;
+        if (this.processor != null) {
+          thisVar = this.processor.getThisVars().get(this.getVarVersionPair());
+        }
+
+        if (thisVar != null && name.contains(".this")) {
+          int i = name.indexOf(".this");
+          buffer.appendClass(name.substring(0, i), false, thisVar);
+          buffer.append(name.substring(i));
+        } else {
+          buffer.append(name);
+        }
       }
     }
 

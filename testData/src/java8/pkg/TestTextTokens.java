@@ -24,6 +24,9 @@ public class TestTextTokens {
 
   @Deprecated
   private class Bee {
+    private String bee = "bee";
+    private Bee parentThis = TestTextTokens.this.bee;
+
     public void buzz() {
       bar("bzzz");
     }
