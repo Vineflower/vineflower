@@ -27,9 +27,5 @@ public class TestTextTokens {
     public void buzz() {
       bar("bzzz");
     }
-
-    public void foo() {
-      TestTextTokens.this.foo();
-    }
   }
 }

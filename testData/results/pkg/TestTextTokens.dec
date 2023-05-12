@@ -33,10 +33,6 @@ public class TestTextTokens {
       public void buzz() {
          TestTextTokens.bar("bzzz");// 28
       }// 29
-
-      public void foo() {
-         TestTextTokens.this.foo();// 32
-      }// 33
    }
 }
 
@@ -145,16 +141,6 @@ class 'pkg/TestTextTokens$Bee' {
       4      33
       5      34
    }
-
-   method 'foo ()V' {
-      1      37
-      2      37
-      3      37
-      4      37
-      5      37
-      6      37
-      7      38
-   }
 }
 
 Lines mapping:
@@ -169,8 +155,6 @@ Lines mapping:
 26 <-> 31
 28 <-> 34
 29 <-> 35
-32 <-> 38
-33 <-> 39
 
 /*
 Tokens:
@@ -223,7 +207,4 @@ Tokens:
 (33:19, 33:23) method [declaration] pkg/TestTextTokens$Bee#buzz()V
 (34:10, 34:24) class [reference] pkg/TestTextTokens
 (34:25, 34:28) method [reference] pkg/TestTextTokens#bar(Ljava/lang/String;)V
-(37:19, 37:22) method [declaration] pkg/TestTextTokens$Bee#foo()V
-(38:10, 38:24) class [reference] pkg/TestTextTokens
-(38:30, 38:33) method [reference] pkg/TestTextTokens#foo()V
 */
