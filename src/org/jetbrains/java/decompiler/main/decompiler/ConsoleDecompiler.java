@@ -3,6 +3,7 @@ package org.jetbrains.java.decompiler.main.decompiler;
 
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.Fernflower;
+import org.jetbrains.java.decompiler.main.extern.IContextSource;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.extern.IResultSaver;
@@ -223,6 +224,10 @@ public class ConsoleDecompiler implements /* IBytecodeProvider, */ IResultSaver,
 
   public void addLibrary(File library) {
     engine.addLibrary(library);
+  }
+
+  public void addLibrary(IContextSource source) {
+    engine.addLibrary(source);
   }
 
   public void addWhitelist(String prefix) {

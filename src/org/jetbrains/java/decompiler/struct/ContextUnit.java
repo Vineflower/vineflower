@@ -41,6 +41,10 @@ public class ContextUnit {
   }
 
   private void initEntries() {
+    if (this.isLazy()) {
+      return;
+    }
+
     if (!this.entriesInitialized) {
       synchronized (this) {
         if (!this.entriesInitialized) {
@@ -75,6 +79,10 @@ public class ContextUnit {
   public List<String> getClassNames() {
     this.initEntries();
     return this.classEntries;
+  }
+
+  public boolean hasClass(final String className) throws IOException {
+    return this.source.hasClass(className);
   }
 
   public byte/* @Nullable */[] getClassBytes(final String className) throws IOException {
@@ -192,6 +200,10 @@ public class ContextUnit {
 
   public boolean isRoot() {
     return this.root;
+  }
+
+  public boolean isLazy() {
+    return !this.own && this.source.isLazy();
   }
 
   void close() throws Exception {
