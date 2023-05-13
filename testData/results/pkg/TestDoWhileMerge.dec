@@ -2,7 +2,7 @@ package pkg;
 
 public class TestDoWhileMerge {
    public void test(boolean b, int j) {
-      for(int i = 0; i < j; ++i) {// 6
+      for(int i = 0; i < j; i++) {// 6
          do {
             System.out.println(i);// 8
             if (++i == 30) {// 9 11
@@ -17,7 +17,7 @@ public class TestDoWhileMerge {
    }// 20
 
    public void test1(boolean b, int j) {
-      for(int i = 0; i < j; ++i) {// 23
+      for(int i = 0; i < j; i++) {// 23
          System.out.println(1);// 24
 
          do {
@@ -32,7 +32,7 @@ public class TestDoWhileMerge {
    }// 37
 
    public void test2(boolean b, int j) {
-      for(int i = 0; i < j; ++i) {// 41
+      for(int i = 0; i < j; i++) {// 41
          System.out.println(1);// 42
 
          while(true) {

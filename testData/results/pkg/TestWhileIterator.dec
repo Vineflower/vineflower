@@ -12,7 +12,7 @@ public class TestWhileIterator {
 
       while(it1.hasNext() && it2.hasNext()) {// 13
          if (it1.next().equals(it2.next())) {// 14
-            ++i;// 15
+            i++;// 15
          }
       }
 

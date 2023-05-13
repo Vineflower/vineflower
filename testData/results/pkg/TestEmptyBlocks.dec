@@ -12,7 +12,7 @@ public class TestEmptyBlocks {
       int i = 0;// 29
 
       while(i < 5) {
-         ++i;
+         i++;
       }
 
       while(new Random().nextBoolean()) {// 33

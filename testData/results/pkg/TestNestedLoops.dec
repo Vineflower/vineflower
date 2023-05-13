@@ -13,14 +13,14 @@ public class TestNestedLoops {
          }
 
          for(String s : list) {// 12
-            for(int j = 0; j < 20; ++j) {// 13
+            for(int j = 0; j < 20; j++) {// 13
                do {
                   s.substring(j);// 15
                } while(s.length() >= j);// 16
             }
          }
 
-         ++i;// 19
+         i++;// 19
       }
    }
 
@@ -31,14 +31,14 @@ public class TestNestedLoops {
       while(true) {
          if (i < 10) {// 29
             for(String s : list) {// 32
-               for(int j = 0; j < 20; ++j) {// 33
+               for(int j = 0; j < 20; j++) {// 33
                   do {
                      s.substring(j);// 35
                   } while(s.length() >= j);// 36
                }
             }
 
-            ++i;// 43
+            i++;// 43
          }
       }
    }

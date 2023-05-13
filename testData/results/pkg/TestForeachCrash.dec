@@ -17,7 +17,7 @@ public class TestForeachCrash {
                }
             default:
                int var4;
-               ++var4;// 8
+               var4++;// 8
          }
       }
    }// 20

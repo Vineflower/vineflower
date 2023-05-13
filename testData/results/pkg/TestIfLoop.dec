@@ -43,11 +43,11 @@ public class TestIfLoop {
    public int testElseIf(int i) {
       while(i > 0) {// 51
          if (i == 10) {// 52
-            ++i;// 53
+            i++;// 53
          } else if (i == 11) {// 54
             i += 2;// 55
          } else if (i == 12) {// 56
-            --i;// 57
+            i--;// 57
          } else if (i == 13) {// 58
             i /= 2;// 59
          } else {

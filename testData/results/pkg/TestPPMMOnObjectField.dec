@@ -4,31 +4,31 @@ public class TestPPMMOnObjectField {
    int a;
 
    public void ipp() {
-      ++this.a;// 23
-      ++this.a;// 24
-      ++this.a;// 25
-      ++this.a;// 26
+      this.a++;// 23
+      this.a++;// 24
+      this.a++;// 25
+      this.a++;// 26
    }// 27
 
    public void ppi() {
-      ++this.a;// 29
-      ++this.a;// 30
-      ++this.a;// 31
-      ++this.a;// 32
+      this.a++;// 29
+      this.a++;// 30
+      this.a++;// 31
+      this.a++;// 32
    }// 33
 
    public void imm() {
-      --this.a;// 35
-      --this.a;// 36
-      --this.a;// 37
-      --this.a;// 38
+      this.a--;// 35
+      this.a--;// 36
+      this.a--;// 37
+      this.a--;// 38
    }// 39
 
    public void mmi() {
-      --this.a;// 41
-      --this.a;// 42
-      --this.a;// 43
-      --this.a;// 44
+      this.a--;// 41
+      this.a--;// 42
+      this.a--;// 43
+      this.a--;// 44
    }// 45
 
    public void ippf() {

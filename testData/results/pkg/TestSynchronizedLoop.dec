@@ -41,7 +41,7 @@ public class TestSynchronizedLoop {
             System.out.println(1);// 42
 
             while(i > 0) {// 43
-               --i;// 44
+               i--;// 44
                System.out.println(1.5);// 45
 
                try {

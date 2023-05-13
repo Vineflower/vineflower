@@ -13,7 +13,7 @@ public class TestInlineSwitchExpression5 {
             return;// 15
          }
 
-         ++j;// 11
+         j++;// 11
          System.out.println("hi");// 13
       }
    }

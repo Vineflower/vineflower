@@ -3,29 +3,29 @@ package pkg;
 public class TestRenameEntities {
    public class class_1 {
       // $QF: renamed from: a java.lang.Object
-      public Object field_0;
+      public Object field_1;
 
       // $QF: renamed from: a () void
-      public void method_0() {
-         this.field_0 = new Object();// 8
-         TestRenameEntities.this.new class_0().method_1();// 10
+      public void method_1() {
+         this.field_1 = new Object();// 8
+         TestRenameEntities.this.new class_0().method_0();// 10
       }// 11
    }
 
    public class class_0 {
       // $QF: renamed from: a java.lang.Object
-      public Object field_1;
+      public Object field_0;
 
       // $QF: renamed from: a () void
-      public void method_1() {
-         this.field_1 = new Object();// 18
-         TestRenameEntities.this.new class_1().method_0();// 20
+      public void method_0() {
+         this.field_0 = new Object();// 18
+         TestRenameEntities.this.new class_1().method_1();// 20
       }// 21
    }
 }
 
 class 'pkg/TestRenameEntities$a' {
-   method 'method_0 ()V' {
+   method 'method_1 ()V' {
       0      9
       8      9
       9      9
@@ -41,7 +41,7 @@ class 'pkg/TestRenameEntities$a' {
 }
 
 class 'pkg/TestRenameEntities$b' {
-   method 'method_1 ()V' {
+   method 'method_0 ()V' {
       0      20
       8      20
       9      20

@@ -63,10 +63,10 @@ public class TestClassLoop {
       int decPt = 0;// 83
       int nLeadZero = 0;// 85
 
-      for(int nTrailZero = 0; i < len; ++i) {// 86 89 106
+      for(int nTrailZero = 0; i < len; i++) {// 86 89 106
          char c = in.charAt(i);// 90
          if (c == '0') {// 91
-            ++nLeadZero;// 92
+            nLeadZero++;// 92
          } else {
             if (c != '.') {// 93
                break;

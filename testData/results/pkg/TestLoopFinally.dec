@@ -2,7 +2,7 @@ package pkg;
 
 public class TestLoopFinally {
    public void test() {
-      for(int i = 0; i < 10; ++i) {// 5 16
+      for(int i = 0; i < 10; i++) {// 5 16
          try {
             System.out.println(i);// 7
          } finally {
@@ -19,7 +19,7 @@ public class TestLoopFinally {
    }// 20
 
    public void test1() {
-      for(int i = 0; i < 10; ++i) {// 23
+      for(int i = 0; i < 10; i++) {// 23
          try {
             System.out.println(i);// 25
          } finally {
@@ -42,7 +42,7 @@ public class TestLoopFinally {
    }// 42
 
    public void test2() {
-      for(int i = 0; i < 10; ++i) {// 45
+      for(int i = 0; i < 10; i++) {// 45
          try {
             System.out.println(i);// 47
          } finally {

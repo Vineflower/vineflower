@@ -222,6 +222,19 @@ public final class SecondaryFunctionsHelper {
               }
             }
           }
+          break;
+        // if ++I or --I is being used as a statement rather than expression
+        // it's safe to replace with I++/I-- and is usually prefered
+        case PPI:
+          if (statement_level) {
+            return new FunctionExprent(FunctionType.IPP, fexpr.getLstOperands(), fexpr.bytecode);
+          }
+          break;
+        case MMI:
+          if (statement_level) {
+            return new FunctionExprent(FunctionType.IMM, fexpr.getLstOperands(), fexpr.bytecode);
+          }
+          break;
       }
     }
 
