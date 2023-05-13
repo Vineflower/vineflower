@@ -3,7 +3,7 @@ package pkg;
 public class TestSwitchLoop {
    public void test(int i) {
       while (i > 0) {// 5
-         --i;// 6
+         i--;// 6
          switch (i) {// 8
             case 0:
                System.out.println("0");// 10
@@ -24,8 +24,8 @@ public class TestSwitchLoop {
    }
 
    public int test2(int i) {
-      for (int a = 0; i > a; ++a) {// 29
-         --i;// 30
+      for (int a = 0; i > a; a++) {// 29
+         i--;// 30
          switch (i) {// 32
             case 0:
                System.out.println("0");// 34
@@ -52,8 +52,8 @@ public class TestSwitchLoop {
 
    public int test3(int i) {
       label18:
-      for (int a = 0; i > a; ++a) {// 58
-         --i;// 59
+      for (int a = 0; i > a; a++) {// 58
+         i--;// 59
          switch (i) {// 61
             case 0:
                System.out.println("0");// 63
@@ -80,8 +80,8 @@ public class TestSwitchLoop {
    }
 
    public void test4(int i) {
-      for (int a = 0; i > a; ++a) {// 88
-         --i;// 89
+      for (int a = 0; i > a; a++) {// 88
+         i--;// 89
          switch (i) {// 91
             case 0:
                System.out.println("0");// 93
@@ -105,7 +105,7 @@ public class TestSwitchLoop {
       while (true) {
          label40: {
             if (i > a) {
-               --i;// 112
+               i--;// 112
                label22:
                switch (i) {// 114
                   case 0:
@@ -121,7 +121,7 @@ public class TestSwitchLoop {
                            case 0:
                               System.out.println(0);// 120
                            default:
-                              ++i1;// 117
+                              i1++;// 117
                               break;
                            case 1:
                               System.out.println(1);// 123
@@ -142,7 +142,7 @@ public class TestSwitchLoop {
          }
 
          System.out.println("after");// 135
-         ++a;// 111
+         a++;// 111
       }
    }
 
@@ -155,7 +155,7 @@ public class TestSwitchLoop {
             case 0:
                System.out.println("0");// 147
 
-               for (int i1 = 0; i1 < 5; ++i1) {// 148
+               for (int i1 = 0; i1 < 5; i1++) {// 148
                   switch (i1) {// 149
                      case 1:
                         System.out.println(1);// 151
@@ -164,7 +164,7 @@ public class TestSwitchLoop {
                }
             default:
                System.out.println("after");// 159
-               ++i;// 143
+               i++;// 143
          }
       }
 
@@ -173,8 +173,8 @@ public class TestSwitchLoop {
 
    public void test7() {
       label21:
-      for (int i = 0; i < 10; ++i) {// 167
-         for (int i1 = 0; i1 < 5; ++i1) {// 168
+      for (int i = 0; i < 10; i++) {// 167
+         for (int i1 = 0; i1 < 5; i1++) {// 168
             switch (i1) {// 169
                case 1:
                   System.out.println(1);// 171
@@ -203,7 +203,7 @@ public class TestSwitchLoop {
                   break;
                }
 
-               ++j;// 186
+               j++;// 186
             }
 
             System.out.println("after");// 194
@@ -231,7 +231,7 @@ public class TestSwitchLoop {
                   break;
                }
 
-               ++j;// 206
+               j++;// 206
             }
          case 1:
             System.out.println(1);// 217
@@ -261,7 +261,7 @@ public class TestSwitchLoop {
                         break label30;
                      }
 
-                     ++j;// 227
+                     j++;// 227
                   }
                case 1:
                   break;
@@ -301,7 +301,7 @@ public class TestSwitchLoop {
                         break label31;
                      }
 
-                     ++j;// 253
+                     j++;// 253
                   }
                case 1:
                   System.out.println(1);// 272

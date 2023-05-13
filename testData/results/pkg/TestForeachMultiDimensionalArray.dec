@@ -17,7 +17,7 @@ public class TestForeachMultiDimensionalArray {
                }
             default:
                int var4;
-               ++var4;// 8
+               var4++;// 8
          }
       }
    }// 20

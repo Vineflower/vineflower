@@ -3,8 +3,8 @@ package pkg
 class TestLabeledJumps {
    fun testContinue(tester: (Int?) -> Boolean) {
       label24:
-      for (int i = 1; i < 101; ++i) {// 5
-         for (int j = 1; j < 101; ++j) {// 6
+      for (int i = 1; i < 101; i++) {// 5
+         for (int j = 1; j < 101; j++) {// 6
             if (tester.invoke(j) as Boolean) {// 7
                continue label24;
             }
@@ -18,8 +18,8 @@ class TestLabeledJumps {
 
    fun testBreak(tester: (Int?) -> Boolean) {
       label22:
-      for (int i = 1; i < 101; ++i) {// 19
-         for (int j = 1; j < 101; ++j) {// 20
+      for (int i = 1; i < 101; i++) {// 19
+         for (int j = 1; j < 101; j++) {// 20
             if (tester.invoke(j) as Boolean) {// 21
                break label22;
             }

@@ -15,7 +15,7 @@ public class TestIdeaNotNull {
 
          return s;
       } else {
-         for (int j = 0; j < i; ++j) {// 17
+         for (int j = 0; j < i; j++) {// 17
             s = s + i;// 18
          }
 
@@ -73,7 +73,7 @@ public class TestIdeaNotNull {
       String s = "";// 46
       int i = new Random().nextInt(12);// 47
 
-      for (int j = 0; j < i; ++j) {// 49
+      for (int j = 0; j < i; j++) {// 49
          s = s + i;// 50
       }
 
@@ -94,7 +94,7 @@ public class TestIdeaNotNull {
 
          return s;
       } else {
-         for (int j = 0; j < i; ++j) {// 64
+         for (int j = 0; j < i; j++) {// 64
             s = s + i;// 65
          }
 

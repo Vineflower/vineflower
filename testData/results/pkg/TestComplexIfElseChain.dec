@@ -23,7 +23,7 @@ public class TestComplexIfElseChain {
       Random randy = new Random();// 23
       int result = randy.nextInt(11);// 24
 
-      for (int i = 0; i < 10; ++i) {// 25
+      for (int i = 0; i < 10; i++) {// 25
          if (result == 0 || result == 1) {// 26
             System.out.println("a");// 27
          } else if (result == 2 || result == 3) {// 28
@@ -113,7 +113,7 @@ public class TestComplexIfElseChain {
       Random randy = new Random();// 105
 
       do {
-         ++i;// 108
+         i++;// 108
          int result = randy.nextInt(11);// 109
          if (result == 0 || result == 1) {// 111
             System.out.println("a");// 112

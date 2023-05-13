@@ -11,11 +11,11 @@ fun topLevelFun() {
 
 class 'pkg/TestTopLevelKt' {
    method 'topLevelFun ()V' {
-      2      7
+      2      8
    }
 }
 
 Lines mapping:
-5 <-> 8
+5 <-> 9
 Not mapped:
 4

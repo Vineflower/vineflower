@@ -7,7 +7,7 @@ public class TestAssertMerge {
             return;// 13
          }
 
-         ++i;// 11
+         i++;// 11
       }
 
       throw new AssertionError();

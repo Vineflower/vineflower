@@ -29,11 +29,11 @@ public class TestDoubleForeach {
       int l = oneArr.length;// 34
       int l2 = twoArr.length;// 35
 
-      for (int i = 0; i < l; ++i) {// 37
+      for (int i = 0; i < l; i++) {// 37
          String myString = x[i];// 38
       }
 
-      for (int i = 0; i < l2; ++i) {// 41
+      for (int i = 0; i < l2; i++) {// 41
          String myString = x2[i];// 42
       }
    }// 44

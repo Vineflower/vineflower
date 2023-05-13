@@ -226,6 +226,22 @@ public final class SecondaryFunctionsHelper {
               }
             }
           }
+          break;
+        // if ++i or --i is being used as a statement rather than expression we may replace with i++/i--
+        case PPI:
+          if (statement_level) {
+            FunctionExprent func = new FunctionExprent(FunctionType.IPP, fexpr.getLstOperands(), fexpr.bytecode);
+            func.setImplicitType(fexpr.getExprType());
+            return func;
+          }
+          break;
+        case MMI:
+          if (statement_level) {
+            FunctionExprent func = new FunctionExprent(FunctionType.IMM, fexpr.getLstOperands(), fexpr.bytecode);
+            func.setImplicitType(fexpr.getExprType());
+            return func;
+          }
+          break;
       }
     }
 

@@ -61,7 +61,7 @@ public class TestPatternMatching17AlreadyUsed {
    void testFakeReuseLoopNoPhi(Object[] o) {
       String s = "Hello";// 80
 
-      for (int i = 0; i < 10; ++i) {// 82
+      for (int i = 0; i < 10; i++) {// 82
          if (o[i] instanceof String var4) {// 83 84
             System.out.println(var4.length());// 85
          }
@@ -71,7 +71,7 @@ public class TestPatternMatching17AlreadyUsed {
    void testFakeReuseLoopPhi(Object[] o) {
       String s = "Hello";// 91
 
-      for (int i = 0; i < 10; ++i) {// 93
+      for (int i = 0; i < 10; i++) {// 93
          if (o[i] instanceof String) {// 94
             s = (String)o[i];// 95
          }

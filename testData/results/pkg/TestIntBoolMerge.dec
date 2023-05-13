@@ -16,7 +16,7 @@ public class TestIntBoolMerge {
 
       int i;
       for (i = 0; (i = str.indexOf(sub, i)) != -1; i += sub.length()) {// 18
-         ++count;// 19
+         count++;// 19
       }
 
       return count;// 22

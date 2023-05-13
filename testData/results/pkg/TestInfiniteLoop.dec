@@ -53,8 +53,8 @@ public class TestInfiniteLoop {
    public void testSuccessor3(int i) {
       int a = 0;// 67
       if (i > 0) {// 69
-         --a;// 70
-         --i;// 71
+         a--;// 70
+         i--;// 71
 
          while (true) {
          }
@@ -63,7 +63,7 @@ public class TestInfiniteLoop {
 
    public void testSuccessor4(int i) {
       i += 2;// 80
-      --i;// 83
+      i--;// 83
 
       while (true) {
       }

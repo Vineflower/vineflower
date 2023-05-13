@@ -35,16 +35,16 @@ public class TestNoUse {
 
    public void test1(boolean var1, int var2) {
       int var3 = this.a[0]++;
-      ++var2;
+      var2++;
       if (var1) {
-         ++var2;
+         var2++;
       }
 
       System.out.println(var3);
    }
 
    public void testTiny(int var1) {
-      ++var1;
+      var1++;
    }
 
    public void testUse(boolean var1, int var2) {

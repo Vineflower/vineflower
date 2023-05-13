@@ -129,7 +129,7 @@ public class TestPatternMatching17 {
    public void reassign(Object o) {
       String s = "hello";// 126
 
-      for (int i = 0; i < 10; ++i) {// 127
+      for (int i = 0; i < 10; i++) {// 127
          if (o instanceof Number) {// 128
             s = "goodbye";// 129
          } else if (o instanceof String) {// 130
@@ -143,7 +143,7 @@ public class TestPatternMatching17 {
    public void reassignCopy(Object o) {
       String s = "hello";// 139
 
-      for (int i = 0; i < 10; ++i) {// 140
+      for (int i = 0; i < 10; i++) {// 140
          if (o instanceof Number) {// 141
             s = "goodbye";// 142
          } else if (o instanceof String s2) {// 143
@@ -155,7 +155,7 @@ public class TestPatternMatching17 {
    }// 149
 
    public void reassignField(Object o, String s) {
-      for (int i = 0; i < 10; ++i) {// 152
+      for (int i = 0; i < 10; i++) {// 152
          if (o instanceof Number) {// 153
             s = "goodbye";// 154
          } else if (o instanceof String) {// 155
@@ -169,7 +169,7 @@ public class TestPatternMatching17 {
    public void reassignNoUse(Object o) {
       String s = "hello";// 164
 
-      for (int i = 0; i < 10; ++i) {// 165
+      for (int i = 0; i < 10; i++) {// 165
          if (o instanceof Number) {// 166
             s = "goodbye";// 167
          } else if (o instanceof String var5) {// 168 169
