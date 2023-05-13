@@ -3,6 +3,7 @@ package org.jetbrains.java.decompiler.modules.decompiler.vars;
 
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
@@ -39,6 +40,8 @@ public class VarTypeProcessor {
 
     //noinspection StatementWithEmptyBody
     while (!processVarTypes(graph)) ;
+
+    ValidationHelper.validateVars(graph, root, var -> var.getVarType() != VarType.VARTYPE_UNKNOWN, "Var type not set!");
   }
 
   private void setInitVars(RootStatement root) {

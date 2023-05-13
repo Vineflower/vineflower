@@ -137,7 +137,7 @@ public abstract class SFormsConstructor {
     DirectGraph dgraph = flatthelper.buildDirectGraph(root);
     this.dgraph = dgraph;
     ValidationHelper.validateDGraph(dgraph, root);
-    ValidationHelper.validateAllVarVersionsAreNull(dgraph, root);
+    ValidationHelper.validateVars(dgraph, root, var -> var.getVersion() == 0, "Var version is not zero");
 
     DotExporter.toDotFile(dgraph, mt, "ssaSplitVariables");
 
