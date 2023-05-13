@@ -45,7 +45,7 @@ public class VarProcessor {
     varVersions.setVarVersions(root, oldProcessor);
   }
 
-  public void setVarDefinitions(Statement root) {
+  public void setVarDefinitions(RootStatement root) {
     mapVarNames = new HashMap<>();
     VarDefinitionHelper varDef = new VarDefinitionHelper(root, method, this);
     varDef.setVarDefinitions();

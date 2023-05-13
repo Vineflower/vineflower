@@ -1550,6 +1550,7 @@ public class ClassWriter implements StatementWriter {
       StructAnnotationAttribute attribute = (StructAnnotationAttribute)mb.getAttribute(key);
       if (attribute != null) {
         for (AnnotationExprent annotation : attribute.getAnnotations()) {
+          buffer.appendIndent(indent);
           TextBuffer text = annotation.toJava(indent);
           filter.add(text.convertToStringAndAllowDataDiscard());
           buffer.appendText(text);
@@ -1640,6 +1641,7 @@ public class ClassWriter implements StatementWriter {
           if (annotation.isTopLevel() && annotation.getTargetType() == targetType && (index < 0 || annotation.getIndex() == index)) {
             TextBuffer text = annotation.getAnnotation().toJava(indent);
             if (!filter.contains(text.convertToStringAndAllowDataDiscard())) {
+              buffer.appendIndent(indent);
               buffer.appendText(text);
               if (indent < 0) {
                 buffer.append(' ');
