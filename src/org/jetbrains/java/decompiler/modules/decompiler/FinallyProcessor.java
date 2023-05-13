@@ -520,7 +520,7 @@ public class FinallyProcessor {
       if (sideExits == null) {
         sideExits = arr.sideExits;
       } else {
-        ValidationHelper.assertTrue(sideExits.equals(arr.sideExits), "Side exits are not equal");
+        ValidationHelper.validateTrue(sideExits.equals(arr.sideExits), "Side exits are not equal");
       }
     }
 
@@ -545,7 +545,7 @@ public class FinallyProcessor {
       if (entry.getValue()) {
         removeExceptionInstructionsEx(last, 2, finallytype);
         graph.getFinallyExits().add(last);
-        ValidationHelper.assertTrue(trueExit == null, "More than one true exit");
+        ValidationHelper.validateTrue(trueExit == null, "More than one true exit");
         trueExit = last;
       }
     }

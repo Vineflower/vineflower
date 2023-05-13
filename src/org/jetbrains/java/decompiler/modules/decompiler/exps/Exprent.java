@@ -7,7 +7,7 @@ import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
-import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
+import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
@@ -17,11 +17,9 @@ import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
 import org.jetbrains.java.decompiler.struct.match.IMatchable;
 import org.jetbrains.java.decompiler.struct.match.MatchEngine;
 import org.jetbrains.java.decompiler.struct.match.MatchNode;
-import org.jetbrains.java.decompiler.struct.match.MatchNode.RuleValue;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 
 import java.util.*;
-import java.util.Map.Entry;
 
 public abstract class Exprent implements IMatchable {
   public static final int MULTIPLE_USES = 1;
@@ -127,6 +125,7 @@ public abstract class Exprent implements IMatchable {
     int start = list.size();
     getAllExprents(list);
     int end = list.size();
+    ValidationHelper.assertTrue(start <= end, "inconsistent list size! " + start + " <= " + end);
 
     if (recursive) {
       for (int i = end - 1; i >= start; i--) {

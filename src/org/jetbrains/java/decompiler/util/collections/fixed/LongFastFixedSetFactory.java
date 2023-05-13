@@ -92,7 +92,7 @@ class LongFastFixedSetFactory<E> extends FastFixedSetFactory<E> {
     }
 
     private long[] getData(FastFixedSet<E> set) {
-      ValidationHelper.assertTrue(set.factory == LongFastFixedSetFactory.this, "Incompatible set factories");
+      ValidationHelper.validateTrue(set.factory == LongFastFixedSetFactory.this, "Incompatible set factories");
       return ((LongFastFixedSet) set).data;
     }
 
@@ -213,7 +213,7 @@ class LongFastFixedSetFactory<E> extends FastFixedSetFactory<E> {
       public E next() {
         if (this.entry == null && !this.hasNext()) {
           // TODO: returning null is so wrong
-          ValidationHelper.assertTrue(false, "No more elements");
+          ValidationHelper.validateTrue(false, "No more elements");
           return null;
           // throw new NoSuchElementException();
         }

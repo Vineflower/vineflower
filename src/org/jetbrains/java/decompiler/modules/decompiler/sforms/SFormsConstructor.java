@@ -118,13 +118,13 @@ public abstract class SFormsConstructor {
     this.varAssignmentMap = trackDirectAssignments ? new HashMap<>() : null;
 
 
-    ValidationHelper.assertTrue(
+    ValidationHelper.validateTrue(
       !this.doLiveVariableAnalysisRound || this.trackSsuVersions,
       "doLiveVariableAnalysisRound -> trackSsuVersions: We need ssu versions to do live variable analysis");
-    ValidationHelper.assertTrue(
+    ValidationHelper.validateTrue(
       !this.incrementOnUsage || this.trackSsuVersions,
       "incrementOnUsage -> trackSsuVersions: We need ssu versions to be able to increment on usage");
-    ValidationHelper.assertTrue(
+    ValidationHelper.validateTrue(
       this.incrementOnUsage || this.simplePhi,
       "!incrementOnUsage -> simplePhi: We need to know if when nodes are already a phi node or not.");
   }
@@ -950,7 +950,7 @@ public abstract class SFormsConstructor {
 
 
   private void varMapToGraph(VarVersionPair varVersion, SFormsFastMapDirect varMap) {
-    ValidationHelper.assertTrue(this.trackSsuVersions, "Can't make an ssu graph without ssu tracked");
+    ValidationHelper.validateTrue(this.trackSsuVersions, "Can't make an ssu graph without ssu tracked");
 
     VBStyleCollection<VarVersionNode, VarVersionPair> nodes = this.ssuversions.nodes;
 
@@ -998,7 +998,7 @@ public abstract class SFormsConstructor {
   }
 
   public SFormsFastMapDirect getLiveVarVersionsMap(VarVersionPair varVersion) {
-    ValidationHelper.assertTrue(this.trackSsuVersions, "Can't get ssu versions if we aren't tracking ssu");
+    ValidationHelper.validateTrue(this.trackSsuVersions, "Can't get ssu versions if we aren't tracking ssu");
 
     VarVersionNode node = this.ssuversions.nodes.getWithKey(varVersion);
     if (node != null) {
@@ -1013,17 +1013,17 @@ public abstract class SFormsConstructor {
   }
 
   public Map<VarVersionPair, Integer> getMapVersionFirstRange() {
-    ValidationHelper.assertTrue(this.ssau, "This is an ssau only operation");
+    ValidationHelper.validateTrue(this.ssau, "This is an ssau only operation");
     return this.mapVersionFirstRange;
   }
 
   public Map<Integer, Integer> getMapFieldVars() {
-    ValidationHelper.assertTrue(this.trackFieldVars, "Can't provide field data, if no field data was tracked");
+    ValidationHelper.validateTrue(this.trackFieldVars, "Can't provide field data, if no field data was tracked");
     return this.mapFieldVars;
   }
 
   public Map<VarVersionPair, VarVersionPair> getVarAssignmentMap() {
-    ValidationHelper.assertTrue(this.trackDirectAssignments, "Can't provide direct assignments, if no direct assignments was tracked");
+    ValidationHelper.validateTrue(this.trackDirectAssignments, "Can't provide direct assignments, if no direct assignments was tracked");
     return this.varAssignmentMap;
   }
 }

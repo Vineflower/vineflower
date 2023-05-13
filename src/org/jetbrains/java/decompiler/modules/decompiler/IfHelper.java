@@ -735,7 +735,7 @@ public final class IfHelper {
   }
 
   private static void swapBranches(IfStatement ifstat, boolean noifstat, SequenceStatement parent) {
-    ValidationHelper.assertTrue(ifstat.iftype == IfStatement.IFTYPE_IF, "This method is meant for swapping the branches of non if-else IfStatements");
+    ValidationHelper.validateTrue(ifstat.iftype == IfStatement.IFTYPE_IF, "This method is meant for swapping the branches of non if-else IfStatements");
     // build and cut the new else statement
     List<Statement> lst = new ArrayList<>();
     for (int i = parent.getStats().size() - 1; i >= 0; i--) {

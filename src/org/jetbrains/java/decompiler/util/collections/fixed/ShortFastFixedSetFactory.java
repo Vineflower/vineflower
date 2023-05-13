@@ -10,7 +10,7 @@ final class ShortFastFixedSetFactory<E> extends FastFixedSetFactory<E> {
   private final long full;
 
   ShortFastFixedSetFactory(Collection<E> set) {
-    ValidationHelper.assertTrue(set.size() <= 64, "Short fast fixed set can't contain more than 64 elements");
+    ValidationHelper.validateTrue(set.size() <= 64, "Short fast fixed set can't contain more than 64 elements");
 
     long mask = 1;
 
@@ -170,7 +170,7 @@ final class ShortFastFixedSetFactory<E> extends FastFixedSetFactory<E> {
       public E next() {
         if (this.entry == null && !this.hasNext()) {
           // TODO: returning null is so wrong
-          ValidationHelper.assertTrue(false, "No more elements");
+          ValidationHelper.validateTrue(false, "No more elements");
           return null;
           // throw new NoSuchElementException();
         }

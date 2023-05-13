@@ -40,7 +40,7 @@ final class VarMapHolder {
    * `makeFullyMutable()` has been called or `isNormal()` returned false.
   */
   SFormsFastMapDirect getIfTrue() {
-    ValidationHelper.assertTrue(
+    ValidationHelper.validateTrue(
       this.ifTrue != null && this.ifTrue != this.ifFalse,
       "VarMapHolder is in an illegal state");
     return this.ifTrue;
@@ -52,7 +52,7 @@ final class VarMapHolder {
    * `makeFullyMutable()` has been called or `isNormal()` returned false.
    */
   SFormsFastMapDirect getIfFalse() {
-    ValidationHelper.assertTrue(
+    ValidationHelper.validateTrue(
       this.ifTrue != null && this.ifTrue != this.ifFalse,
       "VarMapHolder is in an illegal state");
     return this.ifFalse == null ? this.ifTrue : this.ifFalse;
@@ -79,7 +79,7 @@ final class VarMapHolder {
   }
 
   void assertIsNormal() {
-    ValidationHelper.assertTrue(this.isNormal(), "VarMapHolder is not in normal state");
+    ValidationHelper.validateTrue(this.isNormal(), "VarMapHolder is not in normal state");
   }
 
   /**
@@ -186,7 +186,7 @@ final class VarMapHolder {
    */
   void makeFullyMutable() {
     if(this.ifFalse != null) {
-      ValidationHelper.assertTrue(this.ifTrue != this.ifFalse, "VarMapHolder is in an illegal state");
+      ValidationHelper.validateTrue(this.ifTrue != this.ifFalse, "VarMapHolder is in an illegal state");
       return;
     }
 

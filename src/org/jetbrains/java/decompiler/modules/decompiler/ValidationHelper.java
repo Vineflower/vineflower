@@ -470,8 +470,14 @@ public final class ValidationHelper {
     return false;
   }
 
-  public static void assertTrue(boolean condition, String message) {
+  public static void validateTrue(boolean condition, String message) {
     if (VALIDATE && !condition) {
+      throw new IllegalStateException("Validation failed: " + message);
+    }
+  }
+
+  public static void assertTrue(boolean condition, String message) {
+    if (!condition) {
       throw new IllegalStateException("Assertion failed: " + message);
     }
   }

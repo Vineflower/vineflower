@@ -521,7 +521,7 @@ public final class IfStatement extends Statement {
       // No need to check the type, if the if didn't have any successors, the edge can't be a break edge with this
       // as the closure
     } else {
-      ValidationHelper.assertTrue(
+      ValidationHelper.validateTrue(
         this.getFirstSuccessor().getDestination() == elseStat.getFirstSuccessor().getDestination(),
         "Expected the empty elseStat of the if statement to have the same destination as the if statement");
       // no need to change the edge, just deleting the outgoing edge from the ifstat is enough
@@ -562,7 +562,7 @@ public final class IfStatement extends Statement {
       // No need to check the type, if the if didn't have any successors, the edge can't be a break edge with this
       // as the closure
     } else {
-      ValidationHelper.assertTrue(
+      ValidationHelper.validateTrue(
         this.getFirstSuccessor().getDestination() == ifStat.getFirstSuccessor().getDestination(),
         "Expected the empty ifStat of the if statement to have the same destination as the if statement");
       // no need to change the edge, just deleting the outgoing edge from the ifstat is enough
