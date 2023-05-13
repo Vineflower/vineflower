@@ -223,8 +223,7 @@ public final class SecondaryFunctionsHelper {
             }
           }
           break;
-        // if ++I or --I is being used as a statement rather than expression
-        // it's safe to replace with I++/I-- and is usually prefered
+        // if ++i or --i is being used as a statement rather than expression we may replace with i++/i--
         case PPI:
           if (statement_level) {
             return new FunctionExprent(FunctionType.IPP, fexpr.getLstOperands(), fexpr.bytecode);
