@@ -86,7 +86,7 @@ public class MethodProcessor implements Runnable {
     debugCurrentDecompileRecord.set(null);
 
     boolean isInitializer = CodeConstants.CLINIT_NAME.equals(mt.getName()); // for now static initializer only
-    PluginContext pluginContext = DecompilerContext.getCurrentContext().structContext.getPluginContext();
+    PluginContext pluginContext = PluginContext.getCurrentContext();
 
     mt.expandData(cl);
     InstructionSequence seq = mt.getInstructionSequence();
