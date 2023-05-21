@@ -7,6 +7,7 @@ import org.jetbrains.java.decompiler.api.plugin.LanguageSpec;
 import org.jetbrains.java.decompiler.api.plugin.pass.NamedPass;
 import org.jetbrains.java.decompiler.api.plugin.pass.PassContext;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.main.decompiler.CancelationManager;
 import org.jetbrains.java.decompiler.struct.StructClass;
 
 import java.util.*;
@@ -54,6 +55,7 @@ public class PluginContext {
     List<NamedPass> passes = this.passes.getOrDefault(location, Collections.emptyList());
 
     for (NamedPass pass : passes) {
+      CancelationManager.checkCanceled();
       if (pass.run(ctx) && location.isLoop()) {
         return true;
       }

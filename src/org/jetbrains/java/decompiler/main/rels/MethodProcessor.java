@@ -9,6 +9,7 @@ import org.jetbrains.java.decompiler.code.InstructionSequence;
 import org.jetbrains.java.decompiler.code.cfg.ControlFlowGraph;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
+import org.jetbrains.java.decompiler.main.decompiler.CancelationManager;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.plugins.PluginContext;
@@ -67,6 +68,9 @@ public class MethodProcessor implements Runnable {
       DecompilerContext.setCurrentContext(parentContext);
       root = codeToJava(klass, method, methodDescriptor, varProc, spec);
     }
+    catch (CancelationManager.CanceledException e) {
+      throw e;
+    }
     catch (Throwable t) {
       error = t;
     }
@@ -81,6 +85,8 @@ public class MethodProcessor implements Runnable {
   }
 
   public static RootStatement codeToJava(StructClass cl, StructMethod mt, MethodDescriptor md, VarProcessor varProc, LanguageSpec spec) throws IOException {
+    CancelationManager.checkCanceled();
+
     debugCurrentlyDecompiling.set(null);
     debugCurrentCFG.set(null);
     debugCurrentDecompileRecord.set(null);

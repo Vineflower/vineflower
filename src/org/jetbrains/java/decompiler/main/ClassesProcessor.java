@@ -8,6 +8,7 @@ import org.jetbrains.java.decompiler.code.Instruction;
 import org.jetbrains.java.decompiler.code.InstructionSequence;
 import org.jetbrains.java.decompiler.main.collectors.BytecodeSourceMapper;
 import org.jetbrains.java.decompiler.main.collectors.ImportCollector;
+import org.jetbrains.java.decompiler.main.decompiler.CancelationManager;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.extern.IIdentifierRenamer;
@@ -432,6 +433,8 @@ public class ClassesProcessor implements CodeConstants {
             new NestedMemberAccess().propagateMemberAccess(root);
         }
       }
+    } catch (CancelationManager.CanceledException e) {
+      throw e;
     } finally {
       DecompilerContext.getLogger().endProcessingClass();
     }
@@ -501,8 +504,9 @@ public class ClassesProcessor implements CodeConstants {
           }
         }
       }
-    }
-    finally {
+    } catch (CancelationManager.CanceledException e) {
+      throw e;
+    } finally {
       destroyWrappers(root);
       DecompilerContext.getLogger().endReadingClass();
     }
