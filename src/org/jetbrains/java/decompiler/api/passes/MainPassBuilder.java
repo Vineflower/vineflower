@@ -1,6 +1,7 @@
 package org.jetbrains.java.decompiler.api.passes;
 
 import org.jetbrains.java.decompiler.api.GraphParser;
+import org.jetbrains.java.decompiler.main.decompiler.CancelationManager;
 import org.jetbrains.java.decompiler.util.Pair;
 
 import java.util.ArrayList;
@@ -34,6 +35,7 @@ public final class MainPassBuilder {
     public boolean run(PassContext ctx) {
       boolean res = false;
       for (Pass pass : passes) {
+        CancelationManager.checkCanceled();
         res |= pass.run(ctx);
       }
 

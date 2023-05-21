@@ -8,6 +8,7 @@ import org.jetbrains.java.decompiler.code.Instruction;
 import org.jetbrains.java.decompiler.code.InstructionSequence;
 import org.jetbrains.java.decompiler.main.collectors.BytecodeSourceMapper;
 import org.jetbrains.java.decompiler.main.collectors.ImportCollector;
+import org.jetbrains.java.decompiler.main.decompiler.CancelationManager;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.extern.IIdentifierRenamer;
@@ -431,6 +432,8 @@ public class ClassesProcessor implements CodeConstants {
       else {
         try {
           new LambdaProcessor().processClass(root);
+        } catch (CancelationManager.CanceledException e) {
+          throw e;
         } catch (Throwable t) {
           DecompilerContext.getLogger().writeMessage("Class " + root.simpleName + " couldn't be written.",
             IFernflowerLogger.Severity.WARN,
@@ -464,6 +467,8 @@ public class ClassesProcessor implements CodeConstants {
             new NestedClassProcessor().processClass(root, root);
 
             new NestedMemberAccess().propagateMemberAccess(root);
+          } catch (CancelationManager.CanceledException e) {
+            throw e;
           } catch (Throwable t) {
             DecompilerContext.getLogger().writeMessage("Class " + root.simpleName + " couldn't be written.",
               IFernflowerLogger.Severity.WARN,

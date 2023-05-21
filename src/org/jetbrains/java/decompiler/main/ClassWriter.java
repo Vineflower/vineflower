@@ -8,6 +8,7 @@ import org.jetbrains.java.decompiler.code.Instruction;
 import org.jetbrains.java.decompiler.code.InstructionSequence;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.collectors.ImportCollector;
+import org.jetbrains.java.decompiler.main.decompiler.CancelationManager;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.rels.ClassWrapper;
@@ -80,6 +81,8 @@ public class ClassWriter implements StatementWriter {
       if (method.root != null) {
         try {
           SwitchHelper.simplifySwitches(method.root, method.methodStruct, method.root);
+        } catch (CancelationManager.CanceledException e) {
+          throw e;
         } catch (Throwable e) {
           DecompilerContext.getLogger().writeMessage("Method " + method.methodStruct.getName() + " " + method.methodStruct.getDescriptor() + " in class " + node.classStruct.qualifiedName + " couldn't be written.",
             IFernflowerLogger.Severity.WARN,
@@ -113,6 +116,8 @@ public class ClassWriter implements StatementWriter {
           mw.varproc.rerunClashing(mw.root);
         }
       }
+    } catch (CancelationManager.CanceledException e) {
+      throw e;
     } catch (Throwable t) {
       DecompilerContext.getLogger().writeMessage("Class " + node.simpleName + " couldn't be written.",
         IFernflowerLogger.Severity.WARN,
@@ -241,6 +246,9 @@ public class ClassWriter implements StatementWriter {
 
                   codeBuffer.addBytecodeMapping(root.getDummyExit().bytecode);
                   buffer.append(codeBuffer, node.classStruct.qualifiedName, InterpreterUtil.makeUniqueKey(methodWrapper.methodStruct.getName(), methodWrapper.methodStruct.getDescriptor()));
+                }
+                catch (CancelationManager.CanceledException e) {
+                  throw e;
                 }
                 catch (Throwable ex) {
                   DecompilerContext.getLogger().writeMessage("Method " + mt.getName() + " " + mt.getDescriptor() + " in class " + node.classStruct.qualifiedName + " couldn't be written.",
@@ -883,6 +891,9 @@ public class ClassWriter implements StatementWriter {
             childBuf.addBytecodeMapping(root.getDummyExit().bytecode);
             buffer.append(childBuf, classWrapper.getClassStruct().qualifiedName, InterpreterUtil.makeUniqueKey(mt.getName(), mt.getDescriptor()));
           }
+          catch (CancelationManager.CanceledException e) {
+            throw e;
+          }
           catch (Throwable t) {
             String message = "Method " + mt.getName() + " " + mt.getDescriptor() + " in class " + lambdaNode.classStruct.qualifiedName + " couldn't be written.";
             DecompilerContext.getLogger().writeMessage(message, IFernflowerLogger.Severity.WARN, t);
@@ -1204,6 +1215,9 @@ public class ClassWriter implements StatementWriter {
               hideMethod = code.length() == 0 && (clInit || dInit || hideConstructor(node, init, throwsExceptions, paramCount, flags));
               buffer.append(code, cl.qualifiedName, InterpreterUtil.makeUniqueKey(mt.getName(), mt.getDescriptor()));
             }
+          }
+          catch (CancelationManager.CanceledException e) {
+            throw e;
           }
           catch (Throwable t) {
             String message = "Method " + mt.getName() + " " + mt.getDescriptor() + " in class " + node.classStruct.qualifiedName + " couldn't be written.";

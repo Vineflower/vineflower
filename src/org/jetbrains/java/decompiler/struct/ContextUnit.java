@@ -2,6 +2,7 @@
 package org.jetbrains.java.decompiler.struct;
 
 import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.main.decompiler.CancelationManager;
 import org.jetbrains.java.decompiler.main.extern.IContextSource;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
@@ -165,7 +166,13 @@ public class ContextUnit {
     for (Future<?> future : futures) {
       try {
         future.get();
-      } catch (InterruptedException | ExecutionException e) {
+      } catch (ExecutionException e) {
+        if (e.getCause() instanceof CancelationManager.CanceledException) {
+          throw (CancelationManager.CanceledException) e.getCause();
+        } else {
+          throw new RuntimeException(e);
+        }
+      } catch (InterruptedException e) {
         throw new RuntimeException(e);
       }
     }

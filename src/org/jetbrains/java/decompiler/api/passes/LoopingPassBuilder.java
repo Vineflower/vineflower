@@ -1,5 +1,6 @@
 package org.jetbrains.java.decompiler.api.passes;
 
+import org.jetbrains.java.decompiler.main.decompiler.CancelationManager;
 import org.jetbrains.java.decompiler.util.Pair;
 
 import java.util.ArrayList;
@@ -40,6 +41,7 @@ public final class LoopingPassBuilder {
       do {
         loop = false;
         for (Pair<Pass, Boolean> pass : this.passes) {
+          CancelationManager.checkCanceled();
           if (pass.a.run(ctx) && pass.b) {
             loop = true;
             break;

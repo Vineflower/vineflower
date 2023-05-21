@@ -184,7 +184,11 @@ public class ConsoleDecompiler implements /* IBytecodeProvider, */ IResultSaver,
       decompiler.addWhitelist(prefix);
     }
 
-    decompiler.decompileContext();
+    try {
+      decompiler.decompileContext();
+    } catch (CancelationManager.CanceledException e) {
+      System.out.println("Decompilation canceled");
+    }
   }
 
   @SuppressWarnings("UseOfSystemOutOrSystemErr")

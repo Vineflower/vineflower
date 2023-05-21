@@ -5,6 +5,7 @@ import kotlin.reflect.jvm.internal.impl.metadata.jvm.JvmProtoBuf;
 import kotlin.reflect.jvm.internal.impl.protobuf.ExtensionRegistryLite;
 import org.jetbrains.java.decompiler.api.LanguageChooser;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.main.decompiler.CancelationManager;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.util.Key;
 import org.quiltmc.quiltflower.kotlin.metadata.BitEncoding;
@@ -68,10 +69,10 @@ public class KotlinChooser implements LanguageChooser {
     try {
       int kIndex = anno.getParNames().indexOf("k");
       int k = (int) ((ConstExprent) anno.getParValues().get(kIndex)).getValue();
-  
+
       int d1Index = anno.getParNames().indexOf("d1");
       Exprent d1 = anno.getParValues().get(d1Index);
-  
+
       int d2Index = anno.getParNames().indexOf("d2");
       Exprent d2 = anno.getParValues().get(d2Index);
 
@@ -108,6 +109,8 @@ public class KotlinChooser implements LanguageChooser {
       } else {
         DecompilerContext.setProperty(KotlinDecompilationContext.CURRENT_TYPE, null);
       }
+    } catch (CancelationManager.CanceledException e) {
+      throw e;
     } catch (Exception e) {
       DecompilerContext.getLogger().writeMessage("Failed to parse metadata for class " + cl.qualifiedName, IFernflowerLogger.Severity.WARN, e);
       DecompilerContext.setProperty(KotlinDecompilationContext.CURRENT_TYPE, null);
