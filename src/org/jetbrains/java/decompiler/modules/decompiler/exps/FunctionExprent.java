@@ -273,7 +273,7 @@ public class FunctionExprent extends Exprent {
           return right;
         }
       } else { //TODO: Capture generics to make cast better?
-        this.needsCast = right.type == CodeConstants.TYPE_NULL || !DecompilerContext.getStructContext().instanceOf(right.value, cast.value);
+        this.needsCast = right.type == CodeConstants.TYPE_NULL || !DecompilerContext.getStructContext().instanceOf(right.value, cast.value) || right.arrayDim != cast.arrayDim;
       }
 
       return getExprType();
