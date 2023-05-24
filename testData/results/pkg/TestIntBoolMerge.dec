@@ -23,7 +23,7 @@ public class TestIntBoolMerge {
    }
 
    public void testField() {
-      this.m1("s", this.field1 = this.field2++);// 28
+      this.m1("s", this.field1 = (long)(this.field2++));// 28
    }// 29
 
    public void m1(Object o, long l) {
