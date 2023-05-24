@@ -73,7 +73,7 @@ public class SSAUConstructorSparseEx extends SFormsConstructor {
       return phantomNode.asPair();
     }
 
-    ValidationHelper.assertTrue(
+    ValidationHelper.validateTrue(
       varNode.phantomNode.state == VarVersionNode.State.PHANTOM,
       "Expected phantom node to be PHANTOM");
 
@@ -140,26 +140,26 @@ public class SSAUConstructorSparseEx extends SFormsConstructor {
 
     // ssu graph
     VarVersionNode phiNode = this.ssuVersions.nodes.getWithKey(phivar);
-    ValidationHelper.assertTrue(phiNode.phantomParentNode == null, "phi node can't be a phantom node");
+    ValidationHelper.validateTrue(phiNode.phantomParentNode == null, "phi node can't be a phantom node");
     if (phiNode.predecessors.isEmpty()) {
-      ValidationHelper.assertTrue(
+      ValidationHelper.validateTrue(
         phiNode.state == VarVersionNode.State.PHI,
         "Phi node has the wrong state?");
     } else if (phiNode.predecessors.size() == 1) {
       // not yet a phi node
-      ValidationHelper.assertTrue(
+      ValidationHelper.validateTrue(
         phiNode.state == VarVersionNode.State.READ,
         "Trying to convert a non read node into a phi node");
       phiNode.state = VarVersionNode.State.PHI;
       phiNode.getSinglePredecessor().removeSuccessor(phiNode);
       phiNode.predecessors.clear();
     } else {
-      ValidationHelper.assertTrue(
+      ValidationHelper.validateTrue(
         phiNode.state == VarVersionNode.State.PHI,
         "Phi node has the wrong state?");
       for (Iterator<VarVersionNode> iterator = phiNode.predecessors.iterator(); iterator.hasNext(); ) {
         VarVersionNode source = iterator.next();
-        ValidationHelper.assertTrue(
+        ValidationHelper.validateTrue(
           source.state == VarVersionNode.State.READ,
           "Phi node is reading from a non READ node");
 

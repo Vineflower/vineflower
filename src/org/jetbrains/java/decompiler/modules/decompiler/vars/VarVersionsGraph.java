@@ -72,7 +72,7 @@ public class VarVersionsGraph {
 
     // TODO: optimization!! This is called multiple times for each method and the allocations will add up!
     Set<VarVersionNode> reached = rootReachability(roots);
-    ValidationHelper.assertTrue(this.nodes.size() == reached.size(), "Cyclic roots detected");
+    ValidationHelper.validateTrue(this.nodes.size() == reached.size(), "Cyclic roots detected");
     // If the nodes we reach don't include every node we have, then we need to process further to decompose the cycles
     //noinspection ConstantValue
     if (this.nodes.size() != reached.size()) {
@@ -181,7 +181,7 @@ public class VarVersionsGraph {
 
     while (!stack.isEmpty()) {
       VarVersionNode node = stack.removeFirst();
-      ValidationHelper.assertTrue(
+      ValidationHelper.validateTrue(
         node.phantomParentNode == null && node.phantomNode == null,
         "`areVarsAnalogous` should not be called after ppmm or operator assignments resugaring");
 

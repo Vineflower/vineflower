@@ -17,7 +17,7 @@ public final class TestFieldSingleAccess {
    }
 
    public final void test1() {
-      synchronized(this.field) {// 53 54 56 57
+      synchronized (this.field) {// 53 54 56 57
          System.out.println('1');// 59 60 61
       }
    }// 79

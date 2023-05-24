@@ -379,7 +379,7 @@ public abstract class SFormsConstructor {
         // TODO: shouldn't every path from the start of the method to a variable usage have an assignment?
         //   seems to trigger with enhanced switches
         this.updateVarExprent(varExprent, stat, varmap, calcLiveVars);
-        ValidationHelper.assertTrue(false, "Variable read before assignment: " + varExprent);
+        ValidationHelper.validateTrue(false, "Variable read before assignment: " + varExprent);
         break;
       }
       case 1: { // size == 1 (var has only one discovered assignment)

@@ -27,19 +27,19 @@ public class TestArrayAssign {
    }// 27
 
    public void testDouble(TestArrayAssign.Holder holder, int i, double inc) {
-      for(int j = 0; j < i; ++j) {// 30
+      for (int j = 0; j < i; ++j) {// 30
          holder.get()[j] = holder.get()[j] + inc;// 31
       }
    }// 33
 
    public void testIdx(TestArrayAssign.Holder holder, int i, double inc) {
-      for(int j = 0; j < i; ++j) {// 36
+      for (int j = 0; j < i; ++j) {// 36
          holder.get()[holder.idx()] += inc;// 37
       }
    }// 39
 
    public void testIdxDouble(TestArrayAssign.Holder holder, int i, double inc) {
-      for(int j = 0; j < i; ++j) {// 42
+      for (int j = 0; j < i; ++j) {// 42
          holder.get()[holder.idx()] = holder.get()[holder.idx()] + inc;// 43
       }
    }// 45
@@ -57,19 +57,19 @@ public class TestArrayAssign {
    }// 56
 
    public void test2Double(TestArrayAssign.Holder holder, int i, double inc) {
-      for(int j = 0; j < i; ++j) {// 58
+      for (int j = 0; j < i; ++j) {// 58
          holder.a[j] = holder.a[j] + inc;// 59
       }
    }// 61
 
    public void test2Idx(TestArrayAssign.Holder holder, int i, double inc) {
-      for(int j = 0; j < i; ++j) {// 64
+      for (int j = 0; j < i; ++j) {// 64
          holder.a[holder.idx()] += inc;// 65
       }
    }// 67
 
    public void test2IdxDouble(TestArrayAssign.Holder holder, int i, double inc) {
-      for(int j = 0; j < i; ++j) {// 70
+      for (int j = 0; j < i; ++j) {// 70
          holder.a[holder.idx()] = holder.a[holder.idx()] + inc;// 71
       }
    }// 73
