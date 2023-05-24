@@ -8,7 +8,7 @@ public final class TestDoublePopAfterJump {
       int var10001 = var1;// 26
       int var10002 = var2;// 27
 
-      for (int var10003 = 0; var10002 > var10003; var10003 += 1) {// 28 31 38
+      for(byte var10003 = 0; var10002 > var10003; var10003 += 1) {// 28 31 38
          int var10004 = var10000 + var10001;// 35
          var10000 = var10001;
          var10001 = var10004;
@@ -21,9 +21,9 @@ public final class TestDoublePopAfterJump {
       PrintStream var10000 = System.out;// 53
       int var10001 = 0;// 54
 
-      while (var10001 - 100 <= 0) {// 57 58 59
+      while(var10001 - 100 <= 0) {// 57 58 59
          var10001 += 1;// 60
-         if (var10001 % 3 == 0) {// 63 64 65
+         if ((var10001 + 1) % 3 == 0) {// 61 63 64 65
             var10000.print("Fizz");// 69 70
             var10001 = -var10001;// 72
          }
@@ -38,12 +38,14 @@ public final class TestDoublePopAfterJump {
          }
 
          if (var10001 <= 0) {// 90
-            int var11 = -var10001;// 91
+            int var14 = -var10001;// 91
             var10000.println();// 94
-            var10001 = var11;
+            var10001 = var14;
          } else {
             var10000.println(Integer.toString(var10001));// 100 101
-            var10000 = java/lang/System/out;// 102
+            PrintStream var17 = java/lang/System/out;// 102
+            var10001 = var10001;
+            var10000 = var17;
          }
       }
    }// 108
@@ -52,7 +54,7 @@ public final class TestDoublePopAfterJump {
       boolean var10000 = false;// 115
       byte var10001 = 0;// 116
 
-      while (var10001 <= 0) {// 119
+      while(var10001 <= 0) {// 119
       }
    }// 124
 }
@@ -82,6 +84,7 @@ class 'pkg/TestDoublePopAfterJump' {
       7      23
       8      23
       b      24
+      c      25
       e      25
       f      25
       10      25
@@ -116,14 +119,14 @@ class 'pkg/TestDoublePopAfterJump' {
       45      45
       46      45
       47      45
-      4e      48
+      4e      50
    }
 
    method 'fizzBuzzReduced ()V' {
-      0      51
-      1      52
-      3      54
-      b      56
+      0      53
+      1      54
+      3      56
+      b      58
    }
 }
 
@@ -144,6 +147,7 @@ Lines mapping:
 58 <-> 24
 59 <-> 24
 60 <-> 25
+61 <-> 26
 63 <-> 26
 64 <-> 26
 65 <-> 26
@@ -164,11 +168,11 @@ Lines mapping:
 100 <-> 45
 101 <-> 45
 102 <-> 46
-108 <-> 49
-115 <-> 52
-116 <-> 53
-119 <-> 55
-124 <-> 57
+108 <-> 51
+115 <-> 54
+116 <-> 55
+119 <-> 57
+124 <-> 59
 Not mapped:
 30
 33
@@ -179,7 +183,6 @@ Not mapped:
 42
 43
 56
-61
 62
 67
 68

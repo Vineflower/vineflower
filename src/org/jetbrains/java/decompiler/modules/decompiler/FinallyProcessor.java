@@ -142,7 +142,7 @@ public class FinallyProcessor {
 
       StackVarsProcessor.setVersionsToNull(root);
 
-      SFormsConstructor ssau = new SSAUConstructorSparseEx();
+      SSAUConstructorSparseEx ssau = new SSAUConstructorSparseEx();
       ssau.splitVariables(root, mt);
 
       this.ssuversions = ssau.getSsuVersions();

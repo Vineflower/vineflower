@@ -5,17 +5,19 @@ public final class TestFieldSingleAccess {
    public int field2;
 
    public final void test() {
-      if (this.field != null) {// 25 26 28
-         System.out.println(this.field);// 29 31
+      Integer var10000 = this.field;// 25 26
+      if (var10000 != null) {// 28
+         System.out.println(var10000);// 29 31
       }
    }// 32 34
 
    public final void test2() {
-      System.out.println(this.field2 * this.field2);// 41 42 44 45 47
+      int var10000 = this.field2;// 41 42
+      System.out.println(var10000 * var10000);// 44 45 47
    }
 
    public final void test1() {
-      synchronized (this.field) {// 53 54 57
+      synchronized(this.field) {// 53 54 56 57
          System.out.println('1');// 59 60 61
       }
    }// 79
@@ -27,74 +29,75 @@ class 'pkg/TestFieldSingleAccess' {
       1      7
       2      7
       3      7
-      5      7
-      8      8
-      9      8
-      a      8
-      c      8
-      d      8
-      e      8
-      f      10
-      10      10
+      5      8
+      8      9
+      9      9
+      a      9
+      c      9
+      d      9
+      e      9
+      f      11
+      10      11
    }
 
    method 'test2 ()V' {
-      0      13
-      1      13
-      2      13
-      3      13
-      5      13
-      6      13
-      7      13
-      8      13
-      a      13
+      0      14
+      1      14
+      2      14
+      3      14
+      5      15
+      6      15
+      7      15
+      8      15
+      a      15
    }
 
    method 'test1 ()V' {
-      0      17
-      1      17
-      2      17
-      3      17
-      6      17
-      7      18
-      8      18
-      9      18
-      a      18
-      b      18
-      c      18
-      d      18
-      e      18
-      19      20
+      0      19
+      1      19
+      2      19
+      3      19
+      5      19
+      6      19
+      7      20
+      8      20
+      9      20
+      a      20
+      b      20
+      c      20
+      d      20
+      e      20
+      19      22
    }
 }
 
 Lines mapping:
 25 <-> 8
 26 <-> 8
-28 <-> 8
-29 <-> 9
-31 <-> 9
-32 <-> 11
-34 <-> 11
-41 <-> 14
-42 <-> 14
-44 <-> 14
-45 <-> 14
-47 <-> 14
-53 <-> 18
-54 <-> 18
-57 <-> 18
-59 <-> 19
-60 <-> 19
-61 <-> 19
-79 <-> 21
+28 <-> 9
+29 <-> 10
+31 <-> 10
+32 <-> 12
+34 <-> 12
+41 <-> 15
+42 <-> 15
+44 <-> 16
+45 <-> 16
+47 <-> 16
+53 <-> 20
+54 <-> 20
+56 <-> 20
+57 <-> 20
+59 <-> 21
+60 <-> 21
+61 <-> 21
+79 <-> 23
 Not mapped:
 27
 30
 43
 46
 55
-56
 62
 63
 65

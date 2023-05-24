@@ -292,6 +292,12 @@ public class MethodProcessor implements Runnable {
       LabelHelper.identifyLabels(root);
       decompileRecord.add("IdentifyLabels", root);
 
+      // Apply post processing transformations
+      if (SecondaryFunctionsHelper.identifySecondaryFunctions(root, varProc)) {
+        decompileRecord.add("IdentifySecondary", root);
+        continue;
+      }
+
       if (DecompilerContext.getOption(IFernflowerPreferences.PATTERN_MATCHING)) {
         if (cl.getVersion().hasIfPatternMatching()) {
           if (IfPatternMatchProcessor.matchInstanceof(root)) {
@@ -345,16 +351,17 @@ public class MethodProcessor implements Runnable {
       }
 
       // initializer may have at most one return point, so no transformation of method exits permitted
-      if (isInitializer || !ExitHelper.condenseExits(root)) {
-        break;
-      } else {
+      if (!isInitializer && ExitHelper.condenseExits(root)) {
         decompileRecord.add("CondenseExits", root);
+        continue;
       }
 
       // FIXME: !!
-      //if(!EliminateLoopsHelper.eliminateLoops(root)) {
-      //  break;
+      //if(EliminateLoopsHelper.eliminateLoops(root)) {
+      //  continue;
       //}
+
+      break;
     }
     decompileRecord.resetMainLoop();
     decompileRecord.add("MainLoopEnd", root);

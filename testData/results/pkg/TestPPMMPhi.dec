@@ -1,0 +1,60 @@
+package pkg;
+
+public class TestPPMMPhi {
+   public void test() {
+      int a = produce(0);// 20
+      if (a < 0) {// 22
+         a = -a;// 23
+      }
+
+      consume(++a);// 26 28
+   }// 29
+
+   private static void consume(int x) {
+   }// 31
+
+   private static int produce(int x) {
+      return x;// 34
+   }
+}
+
+class 'pkg/TestPPMMPhi' {
+   method 'test ()V' {
+      0      4
+      1      4
+      2      4
+      3      4
+      4      4
+      5      5
+      6      5
+      9      6
+      a      6
+      b      6
+      c      9
+      d      9
+      e      9
+      10      9
+      11      9
+      12      9
+      13      10
+   }
+
+   method 'consume (I)V' {
+      0      13
+   }
+
+   method 'produce (I)I' {
+      0      16
+      1      16
+   }
+}
+
+Lines mapping:
+20 <-> 5
+22 <-> 6
+23 <-> 7
+26 <-> 10
+28 <-> 10
+29 <-> 11
+31 <-> 14
+34 <-> 17
