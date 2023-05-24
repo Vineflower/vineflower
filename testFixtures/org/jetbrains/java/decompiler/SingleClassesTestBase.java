@@ -254,7 +254,7 @@ public abstract class SingleClassesTestBase {
           assertEquals(getContent(referenceFile), decompiledContent);
         } catch (AssertionFailedError e) {
           if (failable) {
-            assumeTrue(false, referenceFile.getFileName() + " failed but was ignored");
+            assumeTrue(false, referenceFile.getFileName() + " failed but was ignored, because it was marked as failable");
           } else {
             throw e;
           }
