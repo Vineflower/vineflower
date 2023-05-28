@@ -22,9 +22,9 @@ import static org.jetbrains.java.decompiler.modules.decompiler.sforms.VarMapHold
 public abstract class SFormsConstructor {
 
   @Deprecated(forRemoval = true)
-  private final boolean trackFieldVars;
+  public final boolean trackFieldVars;
   @Deprecated(forRemoval = true)
-  private final boolean trackDirectAssignments;
+  public final boolean trackDirectAssignments;
 
 
   // node id, var, version
@@ -122,7 +122,7 @@ public abstract class SFormsConstructor {
       } else if (node.exprents != null) {
         for (Exprent expr : node.exprents) {
           varmaps.toNormal(); // make sure we are in normal form
-          this.processExprent(expr, varmaps, node.statement, calcLiveVars);
+          expr.processSforms(this, varmaps, node.statement, calcLiveVars);
         }
       }
 
@@ -146,229 +146,9 @@ public abstract class SFormsConstructor {
     }
   }
 
-  // processes exprents, much like section 16.1. of the java language specifications
-  // (Definite Assignment and Expressions).
-  private void processExprent(Exprent expr, VarMapHolder varMaps, Statement stat, boolean calcLiveVars) {
-
-    if (expr == null) {
-      return;
-    }
-
-    varMaps.removeAllFields();
-
-    // The var map data can't depend yet on the result of this expression.
-    varMaps.assertIsNormal();
-
-    switch (expr.type) {
-      case IF: {
-        // EXPRENT_IF is a wrapper for the head exprent of an if statement.
-        // Therefore, the map needs to stay split, unlike with most other exprents.
-        IfExprent ifexpr = (IfExprent) expr;
-        this.processExprent(ifexpr.getCondition(), varMaps, stat, calcLiveVars);
-        return;
-      }
-      case ASSIGNMENT: {
-        // Assigning a local overrides all the readable versions of that node.
-
-        AssignmentExprent assexpr = (AssignmentExprent) expr;
-
-        Exprent dest = assexpr.getLeft();
-        switch (dest.type) {
-          case VAR: {
-            final VarExprent destVar = (VarExprent) dest;
-
-            if (assexpr.getCondType() != null) {
-              this.processExprent(destVar, varMaps, stat, calcLiveVars);
-              this.processExprent(assexpr.getRight(), varMaps, stat, calcLiveVars);
-
-              // make sure we are in normal form (eg `x &= ...`)
-              SFormsFastMapDirect varMap = varMaps.toNormal();
-
-              varMap.setCurrentVar(this.getOrCreatePhantom(destVar.getVarVersionPair()));
-            } else {
-              this.processExprent(assexpr.getRight(), varMaps, stat, calcLiveVars);
-              this.updateVarExprent(destVar, stat, varMaps.toNormal(), calcLiveVars);
-
-              if (this.trackDirectAssignments) {
-                switch (assexpr.getRight().type) {
-                  case VAR: {
-                    VarVersionPair rightpaar = ((VarExprent) assexpr.getRight()).getVarVersionPair();
-                    this.markDirectAssignment(destVar.getVarVersionPair(), rightpaar);
-                    break;
-                  }
-                  case FIELD: {
-                    int index = this.getFieldIndex((FieldExprent) assexpr.getRight());
-                    VarVersionPair rightpaar = new VarVersionPair(index, 0);
-                    this.markDirectAssignment(destVar.getVarVersionPair(), rightpaar);
-                    break;
-                  }
-                }
-              }
-            }
-
-            return;
-          }
-          case FIELD: {
-            this.processExprent(assexpr.getLeft(), varMaps, stat, calcLiveVars);
-            varMaps.assertIsNormal(); // the left side of an assignment can't be a boolean expression
-            this.processExprent(assexpr.getRight(), varMaps, stat, calcLiveVars);
-            varMaps.toNormal();
-            varMaps.getNormal().removeAllFields();
-            // assignment to a field resets all fields. (could be more precise, but this is easier)
-            return;
-          }
-          default: {
-            this.processExprent(assexpr.getLeft(), varMaps, stat, calcLiveVars);
-            varMaps.assertIsNormal(); // the left side of an assignment can't be a boolean expression
-            this.processExprent(assexpr.getRight(), varMaps, stat, calcLiveVars);
-            varMaps.toNormal();
-            return;
-          }
-        }
-
-      }
-      case FUNCTION: {
-        FunctionExprent func = (FunctionExprent) expr;
-        switch (func.getFuncType()) {
-          case TERNARY: {
-            // `a ? b : c`
-            // Java language spec: 16.1.5.
-            this.processExprent(func.getLstOperands().get(0), varMaps, stat, calcLiveVars);
-
-            VarMapHolder bVarMaps = VarMapHolder.ofNormal(varMaps.getIfTrue());
-            this.processExprent(func.getLstOperands().get(1), bVarMaps, stat, calcLiveVars);
-
-            // reuse the varMaps for the false branch.
-            varMaps.setNormal(varMaps.getIfFalse());
-            this.processExprent(func.getLstOperands().get(2), varMaps, stat, calcLiveVars);
-
-            if (bVarMaps.isNormal() && varMaps.isNormal()) {
-              varMaps.mergeNormal(bVarMaps.getNormal());
-            } else if (!varMaps.isNormal()) {
-              // b and c are boolean expression and at least c had an assignment.
-              varMaps.mergeIfTrue(bVarMaps.getIfTrue());
-              varMaps.mergeIfFalse(bVarMaps.getIfFalse());
-            } else {
-              // b and c are boolean expression and at b had an assignment.
-              // avoid cloning the c varmap.
-              bVarMaps.mergeIfTrue(varMaps.getNormal());
-              bVarMaps.mergeIfFalse(varMaps.getNormal());
-
-              varMaps.set(bVarMaps); // move over the maps.
-            }
-
-            return;
-          }
-          case BOOLEAN_AND: {
-            // `a && b`
-            // Java language spec: 16.1.2.
-            this.processExprent(func.getLstOperands().get(0), varMaps, stat, calcLiveVars);
-
-            varMaps.makeFullyMutable();
-            SFormsFastMapDirect ifFalse = varMaps.getIfFalse();
-            varMaps.setNormal(varMaps.getIfTrue());
-
-            this.processExprent(func.getLstOperands().get(1), varMaps, stat, calcLiveVars);
-            varMaps.mergeIfFalse(ifFalse);
-            return;
-          }
-          case BOOLEAN_OR: {
-            // `a || b`
-            // Java language spec: 16.1.3.
-            this.processExprent(func.getLstOperands().get(0), varMaps, stat, calcLiveVars);
-
-            varMaps.makeFullyMutable();
-            SFormsFastMapDirect ifTrue = varMaps.getIfTrue();
-            varMaps.setNormal(varMaps.getIfFalse());
-
-            this.processExprent(func.getLstOperands().get(1), varMaps, stat, calcLiveVars);
-            varMaps.mergeIfTrue(ifTrue);
-            return;
-          }
-          case BOOL_NOT: {
-            // `!a`
-            // Java language spec: 16.1.4.
-            this.processExprent(func.getLstOperands().get(0), varMaps, stat, calcLiveVars);
-            varMaps.swap();
-
-            return;
-          }
-          case INSTANCEOF: {
-            // `a instanceof B`
-            // pattern matching instanceof creates a new variable when true.
-            this.processExprent(func.getLstOperands().get(0), varMaps, stat, calcLiveVars);
-            varMaps.toNormal();
-
-            if (func.getLstOperands().size() == 3) {
-              // pattern matching
-              // `a instanceof B b`
-              // pattern matching variables are explained in different parts of the spec,
-              // but it comes down to the same ideas.
-              varMaps.makeFullyMutable();
-
-              VarExprent var = (VarExprent) func.getLstOperands().get(2);
-
-              this.updateVarExprent(var, stat, varMaps.getIfTrue(), calcLiveVars);
-            }
-
-            return;
-          }
-          case IMM:
-          case MMI:
-          case IPP:
-          case PPI: {
-            // process the var/field/array access
-            // Note that ++ and -- are both reads and writes.
-            this.processExprent(func.getLstOperands().get(0), varMaps, stat, calcLiveVars);
-
-            switch (func.getLstOperands().get(0).type) {
-              case VAR: {
-                VarExprent varExprent = (VarExprent) func.getLstOperands().get(0);
-
-                VarVersionPair phantomPair = this.getOrCreatePhantom(varExprent.getVarVersionPair());
-
-                // Can't have ++ or -- on a boolean expression.
-                varMaps.getNormal().setCurrentVar(phantomPair);
-                break;
-              }
-              case FIELD: {
-                // assignment to a field resets all fields.
-                // Can't have ++ or -- on a boolean expression.
-                varMaps.getNormal().removeAllFields();
-                break;
-              }
-            }
-            return;
-          }
-        }
-        break;
-      }
-      case FIELD: {
-        FieldExprent field = (FieldExprent) expr;
-        this.processExprent(field.getInstance(), varMaps, stat, calcLiveVars);
-        this.fieldRead(field, varMaps.getNormal());
-        return;
-      }
-      case VAR: {
-        // a read of a variable.
-        VarExprent varExprent = (VarExprent) expr;
-        this.varRead(varMaps, stat, calcLiveVars, varExprent);
-      }
-    }
-
-    for (Exprent ex : expr.getAllExprents()) {
-      this.processExprent(ex, varMaps, stat, calcLiveVars);
-      varMaps.toNormal();
-    }
-
-    if (this.trackFieldVars && makesFieldsDirty(expr)) {
-      varMaps.getNormal().removeAllFields();
-    }
-  }
-
   abstract public VarVersionPair getOrCreatePhantom(VarVersionPair var);
 
-  private void varRead(VarMapHolder varMaps, Statement stat, boolean calcLiveVars, VarExprent varExprent) {
+  public void varRead(VarMapHolder varMaps, Statement stat, boolean calcLiveVars, VarExprent varExprent) {
     final SFormsFastMapDirect varmap = varMaps.getNormal();
 
     FastSparseSet<Integer> versions = varmap.get(varExprent);
@@ -406,7 +186,7 @@ public abstract class SFormsConstructor {
     SFormsFastMapDirect varMap,
     FastSparseSet<Integer> versions);
 
-  abstract void markDirectAssignment(VarVersionPair varVersionPair, VarVersionPair rightPair);
+  public abstract void markDirectAssignment(VarVersionPair varVersionPair, VarVersionPair rightPair);
 
 
   private static boolean makesFieldsDirty(Exprent expr) {
@@ -425,7 +205,7 @@ public abstract class SFormsConstructor {
   abstract void initVersion(VarExprent varExprent, Statement stat);
 
   // Declaration of a variable
-  private void updateVarExprent(VarExprent varassign, Statement stat, SFormsFastMapDirect varmap, boolean calcLiveVars) {
+  public void updateVarExprent(VarExprent varassign, Statement stat, SFormsFastMapDirect varmap, boolean calcLiveVars) {
     int varIndex = varassign.getIndex();
 
     this.initVersion(varassign, stat);
@@ -691,7 +471,7 @@ public abstract class SFormsConstructor {
     return true;
   }
 
-  void fieldRead(FieldExprent field, SFormsFastMapDirect varmap) {
+  public void fieldRead(FieldExprent field, SFormsFastMapDirect varmap) {
     // a read of a field variable.
     if (this.trackFieldVars) {
       int index = this.getFieldIndex(field);
@@ -712,7 +492,7 @@ public abstract class SFormsConstructor {
       || (this.outNegVarVersions.containsKey(node.id) && !mapsEqual(varmaps.getIfFalse(), this.outNegVarVersions.get(node.id)));
   }
 
-  protected abstract Integer getFieldIndex(FieldExprent field);
+  public abstract Integer getFieldIndex(FieldExprent field);
 
   protected int getNextFreeVersion(int var, Statement stat) {
     return this.lastversion.compute(var, (k, v) -> v == null ? 1 : v + 1);

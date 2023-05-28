@@ -21,7 +21,7 @@ import org.jetbrains.java.decompiler.util.collections.SFormsFastMapDirect;
  * `ifTrue` and `ifFalse` fields are not the same object and therefore
  * they can be safely modified.
  */
-final class VarMapHolder {
+public final class VarMapHolder {
   private SFormsFastMapDirect ifTrue;  // not null
   private SFormsFastMapDirect ifFalse; // nullable
 
@@ -30,7 +30,7 @@ final class VarMapHolder {
     this.ifFalse = ifFalse;
   }
 
-  static VarMapHolder ofNormal(SFormsFastMapDirect holder) {
+  public static VarMapHolder ofNormal(SFormsFastMapDirect holder) {
     return new VarMapHolder(holder.getCopy(), null);
   }
 
@@ -39,7 +39,7 @@ final class VarMapHolder {
    * The caller should not mutate this map unless
    * `makeFullyMutable()` has been called or `isNormal()` returned false.
   */
-  SFormsFastMapDirect getIfTrue() {
+  public SFormsFastMapDirect getIfTrue() {
     ValidationHelper.validateTrue(
       this.ifTrue != null && this.ifTrue != this.ifFalse,
       "VarMapHolder is in an illegal state");
@@ -51,7 +51,7 @@ final class VarMapHolder {
    * The caller should not mutate this map unless
    * `makeFullyMutable()` has been called or `isNormal()` returned false.
    */
-  SFormsFastMapDirect getIfFalse() {
+  public SFormsFastMapDirect getIfFalse() {
     ValidationHelper.validateTrue(
       this.ifTrue != null && this.ifTrue != this.ifFalse,
       "VarMapHolder is in an illegal state");
@@ -62,7 +62,7 @@ final class VarMapHolder {
    * Merge the holder from a split state to a normal state. If this holder is
    * already in a normal state, this method does nothing.
    */
-  SFormsFastMapDirect toNormal() {
+  public SFormsFastMapDirect toNormal() {
     final SFormsFastMapDirect result = mergeMaps(this.ifTrue, this.ifFalse);
     this.ifFalse = null;
     return result;
@@ -72,13 +72,13 @@ final class VarMapHolder {
    * Gets the variable map for the related expression. Note: this should only be called
    * when the holder is in a normal state.
    */
-  SFormsFastMapDirect getNormal() {
+  public SFormsFastMapDirect getNormal() {
     this.assertIsNormal();
 
     return this.ifTrue;
   }
 
-  void assertIsNormal() {
+  public void assertIsNormal() {
     ValidationHelper.validateTrue(this.isNormal(), "VarMapHolder is not in normal state");
   }
 
@@ -110,7 +110,7 @@ final class VarMapHolder {
   /**
    * Sets the "normal" variable map to the given map.
    */
-  void setNormal(SFormsFastMapDirect normal) {
+  public void setNormal(SFormsFastMapDirect normal) {
     this.ifFalse = null;
     this.ifTrue = normal;
   }
@@ -128,7 +128,7 @@ final class VarMapHolder {
   /**
    * Merge the given variable map with the "ifTrue" map.
    */
-  void mergeIfTrue(SFormsFastMapDirect map2) {
+  public void mergeIfTrue(SFormsFastMapDirect map2) {
     if(this.ifTrue == map2 || map2 == null || map2.isEmpty()) {
       return;
     }
@@ -140,7 +140,7 @@ final class VarMapHolder {
   /**
    * Merge the given variable map with the "ifFalse" map.
    */
-  void mergeIfFalse(SFormsFastMapDirect map2) {
+  public void mergeIfFalse(SFormsFastMapDirect map2) {
     if(this.ifFalse == map2 || map2 == null || map2.isEmpty()) {
       return;
     }
@@ -152,7 +152,7 @@ final class VarMapHolder {
   /**
    * Merge the given variable map with the "normal" map.
    */
-  void mergeNormal(SFormsFastMapDirect map2) {
+  public void mergeNormal(SFormsFastMapDirect map2) {
     this.assertIsNormal();
 
     if(this.ifTrue == map2 || map2 == null || map2.isEmpty()) {
@@ -162,14 +162,14 @@ final class VarMapHolder {
     this.ifTrue.union(map2);
   }
 
-  boolean isNormal() {
+  public boolean isNormal() {
     return this.ifFalse == null;
   }
 
   /**
    * Swaps the "ifTrue" and "ifFalse" maps.
    */
-  void swap() {
+  public void swap() {
     if(this.ifFalse == null) {
       return;
     }
@@ -184,7 +184,7 @@ final class VarMapHolder {
    * are 2 different maps, and therefore can be mutated without affecting
    * the other map.
    */
-  void makeFullyMutable() {
+  public void makeFullyMutable() {
     if(this.ifFalse != null) {
       ValidationHelper.validateTrue(this.ifTrue != this.ifFalse, "VarMapHolder is in an illegal state");
       return;

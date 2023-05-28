@@ -8,6 +8,9 @@ import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
+import org.jetbrains.java.decompiler.modules.decompiler.sforms.SFormsConstructor;
+import org.jetbrains.java.decompiler.modules.decompiler.sforms.VarMapHolder;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
@@ -303,6 +306,16 @@ public abstract class Exprent implements IMatchable {
 
   public boolean allowNewlineAfterQualifier() {
     return true;
+  }
+
+  // processes exprents, much like section 16.1. of the java language specifications
+  // (Definite Assignment and Expressions).
+  public void processSforms(SFormsConstructor sFormsConstructor, VarMapHolder varMaps, Statement stat, boolean calcLiveVars) {
+
+    for (Exprent ex : this.getAllExprents()) {
+      ex.processSforms(sFormsConstructor, varMaps, stat, calcLiveVars);
+      varMaps.toNormal();
+    }
   }
 
   // *****************************************************************************

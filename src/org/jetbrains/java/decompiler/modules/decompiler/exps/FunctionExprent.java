@@ -7,7 +7,11 @@ import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.plugins.PluginImplementationException;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
+import org.jetbrains.java.decompiler.modules.decompiler.sforms.SFormsConstructor;
+import org.jetbrains.java.decompiler.modules.decompiler.sforms.VarMapHolder;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
+import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
 import org.jetbrains.java.decompiler.struct.match.MatchEngine;
@@ -17,6 +21,7 @@ import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.Typed;
 import org.jetbrains.java.decompiler.util.collections.ListStack;
 import org.jetbrains.java.decompiler.util.TextBuffer;
+import org.jetbrains.java.decompiler.util.collections.SFormsFastMapDirect;
 
 import java.util.*;
 
@@ -797,6 +802,125 @@ public class FunctionExprent extends Exprent {
   public void getBytecodeRange(BitSet values) {
     measureBytecode(values, lstOperands);
     measureBytecode(values);
+  }
+
+  @Override
+  public void processSforms(SFormsConstructor sFormsConstructor, VarMapHolder varMaps, Statement stat, boolean calcLiveVars) {
+    switch (this.getFuncType()) {
+      case TERNARY: {
+        // `a ? b : c`
+        // Java language spec: 16.1.5.
+        this.getLstOperands().get(0).processSforms(sFormsConstructor, varMaps, stat, calcLiveVars);
+
+        VarMapHolder bVarMaps = VarMapHolder.ofNormal(varMaps.getIfTrue());
+        this.getLstOperands().get(1).processSforms(sFormsConstructor, bVarMaps, stat, calcLiveVars);
+
+        // reuse the varMaps for the false branch.
+        varMaps.setNormal(varMaps.getIfFalse());
+        this.getLstOperands().get(2).processSforms(sFormsConstructor, varMaps, stat, calcLiveVars);
+
+        if (bVarMaps.isNormal() && varMaps.isNormal()) {
+          varMaps.mergeNormal(bVarMaps.getNormal());
+        } else if (!varMaps.isNormal()) {
+          // b and c are boolean expression and at least c had an assignment.
+          varMaps.mergeIfTrue(bVarMaps.getIfTrue());
+          varMaps.mergeIfFalse(bVarMaps.getIfFalse());
+        } else {
+          // b and c are boolean expression and at b had an assignment.
+          // avoid cloning the c varmap.
+          bVarMaps.mergeIfTrue(varMaps.getNormal());
+          bVarMaps.mergeIfFalse(varMaps.getNormal());
+
+          varMaps.set(bVarMaps); // move over the maps.
+        }
+
+        return;
+      }
+      case BOOLEAN_AND: {
+        // `a && b`
+        // Java language spec: 16.1.2.
+        this.getLstOperands().get(0).processSforms(sFormsConstructor, varMaps, stat, calcLiveVars);
+
+        varMaps.makeFullyMutable();
+        SFormsFastMapDirect ifFalse = varMaps.getIfFalse();
+        varMaps.setNormal(varMaps.getIfTrue());
+
+        this.getLstOperands().get(1).processSforms(sFormsConstructor, varMaps, stat, calcLiveVars);
+        varMaps.mergeIfFalse(ifFalse);
+        return;
+      }
+      case BOOLEAN_OR: {
+        // `a || b`
+        // Java language spec: 16.1.3.
+        this.getLstOperands().get(0).processSforms(sFormsConstructor, varMaps, stat, calcLiveVars);
+
+        varMaps.makeFullyMutable();
+        SFormsFastMapDirect ifTrue = varMaps.getIfTrue();
+        varMaps.setNormal(varMaps.getIfFalse());
+
+        this.getLstOperands().get(1).processSforms(sFormsConstructor, varMaps, stat, calcLiveVars);
+        varMaps.mergeIfTrue(ifTrue);
+        return;
+      }
+      case BOOL_NOT: {
+        // `!a`
+        // Java language spec: 16.1.4.
+        this.getLstOperands().get(0).processSforms(sFormsConstructor, varMaps, stat, calcLiveVars);
+        varMaps.swap();
+
+        return;
+      }
+      case INSTANCEOF: {
+        // `a instanceof B`
+        // pattern matching instanceof creates a new variable when true.
+        this.getLstOperands().get(0).processSforms(sFormsConstructor, varMaps, stat, calcLiveVars);
+        varMaps.toNormal();
+
+        if (this.getLstOperands().size() == 3) {
+          // pattern matching
+          // `a instanceof B b`
+          // pattern matching variables are explained in different parts of the spec,
+          // but it comes down to the same ideas.
+          varMaps.makeFullyMutable();
+
+          VarExprent var = (VarExprent) this.getLstOperands().get(2);
+
+          sFormsConstructor.updateVarExprent(var, stat, varMaps.getIfTrue(), calcLiveVars);
+        }
+
+        return;
+      }
+      case IMM:
+      case MMI:
+      case IPP:
+      case PPI: {
+        // process the var/field/array access
+        // Note that ++ and -- are both reads and writes.
+        this.getLstOperands().get(0).processSforms(sFormsConstructor, varMaps, stat, calcLiveVars);
+
+        switch (this.getLstOperands().get(0).type) {
+          case VAR: {
+            VarExprent varExprent = (VarExprent) this.getLstOperands().get(0);
+
+            VarVersionPair phantomPair = sFormsConstructor.getOrCreatePhantom(varExprent.getVarVersionPair());
+
+            // Can't have ++ or -- on a boolean expression.
+            varMaps.getNormal().setCurrentVar(phantomPair);
+            break;
+          }
+          case FIELD: {
+            // assignment to a field resets all fields.
+            // Can't have ++ or -- on a boolean expression.
+            varMaps.getNormal().removeAllFields();
+            break;
+          }
+        }
+        return;
+      }
+      default:{
+        super.processSforms(sFormsConstructor, varMaps, stat, calcLiveVars);
+      }
+    }
   }
 
   // *****************************************************************************

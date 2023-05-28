@@ -9,8 +9,11 @@ import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
-import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
+import org.jetbrains.java.decompiler.modules.decompiler.sforms.SFormsConstructor;
+import org.jetbrains.java.decompiler.modules.decompiler.sforms.VarMapHolder;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
+import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.struct.StructField;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
@@ -19,6 +22,7 @@ import org.jetbrains.java.decompiler.struct.gen.generics.GenericMethodDescriptor
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.TextBuffer;
+import org.jetbrains.java.decompiler.util.collections.SFormsFastMapDirect;
 
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -344,6 +348,63 @@ public class AssignmentExprent extends Exprent {
     measureBytecode(values, left);
     measureBytecode(values, right);
     measureBytecode(values);
+  }
+
+  @Override
+  public void processSforms(SFormsConstructor sFormsConstructor, VarMapHolder varMaps, Statement stat, boolean calcLiveVars) {
+    Exprent dest = this.left;
+    switch (dest.type) {
+      case VAR: {
+        final VarExprent destVar = (VarExprent) dest;
+
+        if (this.condType != null) {
+          destVar.processSforms(sFormsConstructor, varMaps, stat, calcLiveVars);
+          this.getRight().processSforms(sFormsConstructor, varMaps, stat, calcLiveVars);
+
+          // make sure we are in normal form (eg `x &= ...`)
+          SFormsFastMapDirect varMap = varMaps.toNormal();
+
+          varMap.setCurrentVar(sFormsConstructor.getOrCreatePhantom(destVar.getVarVersionPair()));
+        } else {
+          this.getRight().processSforms(sFormsConstructor, varMaps, stat, calcLiveVars);
+          sFormsConstructor.updateVarExprent(destVar, stat, varMaps.toNormal(), calcLiveVars);
+
+          if (sFormsConstructor.trackDirectAssignments) {
+            switch (this.right.type) {
+              case VAR: {
+                VarVersionPair rightpaar = ((VarExprent) this.right).getVarVersionPair();
+                sFormsConstructor.markDirectAssignment(destVar.getVarVersionPair(), rightpaar);
+                break;
+              }
+              case FIELD: {
+                int index = sFormsConstructor.getFieldIndex((FieldExprent) this.right);
+                VarVersionPair rightpaar = new VarVersionPair(index, 0);
+                sFormsConstructor.markDirectAssignment(destVar.getVarVersionPair(), rightpaar);
+                break;
+              }
+            }
+          }
+        }
+
+        return;
+      }
+      case FIELD: {
+        this.getLeft().processSforms(sFormsConstructor, varMaps, stat, calcLiveVars);
+        varMaps.assertIsNormal(); // the left side of an assignment can't be a boolean expression
+        this.getRight().processSforms(sFormsConstructor, varMaps, stat, calcLiveVars);
+        varMaps.toNormal();
+        varMaps.getNormal().removeAllFields();
+        // assignment to a field resets all fields. (could be more precise, but this is easier)
+        return;
+      }
+      default: {
+        this.getLeft().processSforms(sFormsConstructor, varMaps, stat, calcLiveVars);
+        varMaps.assertIsNormal(); // the left side of an assignment can't be a boolean expression
+        this.getRight().processSforms(sFormsConstructor, varMaps, stat, calcLiveVars);
+        varMaps.toNormal();
+        return;
+      }
+    }
   }
 
   // *****************************************************************************

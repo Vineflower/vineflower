@@ -262,7 +262,6 @@ class 'pkg/TestPatternMatchingFakeNew' {
       a      40
       b      40
       c      40
-      d      40
       14      40
       15      40
       16      40
@@ -327,7 +326,6 @@ class 'pkg/TestPatternMatchingFakeNew' {
       a      56
       b      56
       c      56
-      d      56
       14      56
       15      56
       16      56

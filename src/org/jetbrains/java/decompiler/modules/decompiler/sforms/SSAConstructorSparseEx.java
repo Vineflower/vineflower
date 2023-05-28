@@ -24,7 +24,7 @@ public class SSAConstructorSparseEx extends SFormsConstructor {
   }
 
   @Override
-  void markDirectAssignment(VarVersionPair varVersionPair, VarVersionPair rightPair) {
+  public void markDirectAssignment(VarVersionPair varVersionPair, VarVersionPair rightPair) {
   }
 
   @Override
@@ -33,7 +33,7 @@ public class SSAConstructorSparseEx extends SFormsConstructor {
   }
 
   @Override
-  protected Integer getFieldIndex(FieldExprent field) {
+  public Integer getFieldIndex(FieldExprent field) {
     return -1;
   }
 

@@ -274,7 +274,6 @@ class 'pkg/TestPatternMatching17FakeLoops' {
       8      35
       9      35
       a      35
-      b      35
       12      35
       13      36
       14      36
@@ -333,7 +332,6 @@ class 'pkg/TestPatternMatching17FakeLoops' {
       8      58
       9      58
       a      58
-      b      58
       12      58
       13      59
       14      59

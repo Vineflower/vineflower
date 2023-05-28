@@ -276,7 +276,6 @@ class 'pkg/TestPatternMatchingFakeLoops' {
       a      35
       b      35
       c      35
-      d      35
       14      35
       15      36
       16      36
@@ -337,7 +336,6 @@ class 'pkg/TestPatternMatchingFakeLoops' {
       a      58
       b      58
       c      58
-      d      58
       14      58
       15      59
       16      59

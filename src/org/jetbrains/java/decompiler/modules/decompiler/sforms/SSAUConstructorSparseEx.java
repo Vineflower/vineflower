@@ -81,7 +81,7 @@ public class SSAUConstructorSparseEx extends SFormsConstructor {
   }
 
   @Override
-  void markDirectAssignment(VarVersionPair varVersionPair, VarVersionPair rightPair) {
+  public void markDirectAssignment(VarVersionPair varVersionPair, VarVersionPair rightPair) {
     this.varAssignmentMap.put(varVersionPair, rightPair);
   }
 
@@ -202,7 +202,7 @@ public class SSAUConstructorSparseEx extends SFormsConstructor {
 
 
   @Override
-  protected Integer getFieldIndex(FieldExprent field) {
+  public Integer getFieldIndex(FieldExprent field) {
     if (this.mapFieldVars.containsKey(field.id)) {
       return this.mapFieldVars.get(field.id);
     } else {
