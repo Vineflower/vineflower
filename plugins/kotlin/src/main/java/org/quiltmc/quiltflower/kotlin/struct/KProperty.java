@@ -26,11 +26,9 @@ import org.quiltmc.quiltflower.kotlin.metadata.MetadataNameResolver;
 import org.quiltmc.quiltflower.kotlin.util.KTypes;
 import org.quiltmc.quiltflower.kotlin.util.ProtobufFlags;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
-public class KProperty {
+public final class KProperty {
   public final String name;
   public final KType type;
 
@@ -53,7 +51,7 @@ public class KProperty {
 
   private final ClassesProcessor.ClassNode node;
 
-  public KProperty(
+  private KProperty(
     String name,
     KType type,
     ProtobufFlags.Property flags,
@@ -78,6 +76,7 @@ public class KProperty {
 
     buf.appendIndent(indent);
 
+    // Modifiers in the order that Kotlin's coding conventions specify
     appendVisibility(buf, flags.visibility);
 
     if (flags.isExpect) {
@@ -86,7 +85,7 @@ public class KProperty {
 
     if (Objects.requireNonNull(flags.modality) == ProtoBuf.Modality.FINAL) {
       buf.append(flags.isConst ? "const " : "final ");
-    } else {
+    } else if (!node.classStruct.hasModifier(CodeConstants.ACC_INTERFACE) || flags.modality != ProtoBuf.Modality.ABSTRACT) {
       buf.append(flags.modality.name().toLowerCase())
         .append(' ');
     }
@@ -119,6 +118,7 @@ public class KProperty {
       }
     }
 
+    // Custom getters and setters, and possible modifier differences
     if (getter != null && getter.flags.isNotDefault) {
       buf.pushNewlineGroup(indent, 1)
           .append('\n')
@@ -190,7 +190,7 @@ public class KProperty {
       }
 
       buf.append("set");
-    } else if (setter == null && flags.isVar && flags.visibility != ProtoBuf.Visibility.PRIVATE) {
+    } else if (setter == null && flags.isVar && flags.visibility != ProtoBuf.Visibility.PRIVATE) { // Special case: no setter is generated if it's a var with a private setter
       buf.append('\n')
         .appendIndent(indent + 1)
         .append("private set");
@@ -200,8 +200,6 @@ public class KProperty {
 
     return buf;
   }
-
-    
 
   private static void appendVisibility(TextBuffer buf, ProtoBuf.Visibility visibility) {
     switch (visibility) {
@@ -225,63 +223,65 @@ public class KProperty {
     }
   }
 
-  public static boolean parse(ClassesProcessor.ClassNode node, List<KProperty> list, Set<String> discoveredFields, Set<String> discoveredMethods) {
+  public static @Nullable Data parse(ClassesProcessor.ClassNode node) {
     MetadataNameResolver nameResolver = KotlinDecompilationContext.getNameResolver();
     ClassWrapper wrapper = node.getWrapper();
     StructClass structClass = wrapper.getClassStruct();
 
-    List<ProtoBuf.Property> properties;
-    switch (KotlinDecompilationContext.getCurrentType()) {
+    List<ProtoBuf.Property> protoProperties;
+
+    KotlinDecompilationContext.KotlinType currentType = KotlinDecompilationContext.getCurrentType();
+    if (currentType == null) return null;
+
+    switch (currentType) {
       case CLASS:
-        properties = KotlinDecompilationContext.getCurrentClass().getPropertyList();
+        protoProperties = KotlinDecompilationContext.getCurrentClass().getPropertyList();
         break;
       case FILE:
-        properties = KotlinDecompilationContext.getFilePackage().getPropertyList();
+        protoProperties = KotlinDecompilationContext.getFilePackage().getPropertyList();
         break;
       case MULTIFILE_CLASS:
-        properties = KotlinDecompilationContext.getMultifilePackage().getPropertyList();
+        protoProperties = KotlinDecompilationContext.getMultifilePackage().getPropertyList();
         break;
       case SYNTHETIC_CLASS:
-        return false; // No property information in synthetic classes
+        return null; // No property information in synthetic classes
       default:
         throw new IllegalStateException("Unexpected value: " + KotlinDecompilationContext.getCurrentType());
     }
 
-    for (ProtoBuf.Property property : properties) {
+    List<KProperty> properties = new ArrayList<>();
+    Set<String> associatedFields = new HashSet<>();
+    Set<String> associatedMethods = new HashSet<>();
+
+    for (ProtoBuf.Property property : protoProperties) {
       JvmProtoBuf.JvmPropertySignature jvmProp = property.getExtension(JvmProtoBuf.propertySignature);
 
       ProtobufFlags.Property flags = new ProtobufFlags.Property(property.getFlags());
 
       String name = nameResolver.resolve(property.getName());
 
-      String propDesc;
-      KType type;
+      String propDesc = null;
+      KType type = null;
       if (property.hasReturnType() && property.getReturnType().hasClassName()) {
         type = KType.from(property.getReturnType(), nameResolver);
         propDesc = KTypes.getJavaSignature(type.kotlinType, property.getReturnType().getNullable());
-      } else {
-        type = null;
-        propDesc = null;
       }
 
-      Exprent delegateExprent;
+      // Delegates create a hidden field containing the created delegate, so reference that instead
+      Exprent delegateExprent = null;
       if (flags.isDelegated) {
         String delegateFieldName = nameResolver.resolve(jvmProp.getField().getName());
         String delegateDesc = nameResolver.resolve(jvmProp.getField().getDesc());
         StructField delegateField = structClass.getField(delegateFieldName, delegateDesc);
         if (delegateField != null) {
-          discoveredFields.add(delegateFieldName);
+          associatedFields.add(delegateFieldName);
           String key = InterpreterUtil.makeUniqueKey(delegateFieldName, delegateDesc);
           if (delegateField.hasModifier(CodeConstants.ACC_STATIC)) {
             delegateExprent = wrapper.getStaticFieldInitializers().getWithKey(key);
           } else {
             delegateExprent = wrapper.getDynamicFieldInitializers().getWithKey(key);
           }
-        } else {
-          delegateExprent = null;
         }
-      } else {
-        delegateExprent = null;
       }
 
       KPropertyAccessor getter = null;
@@ -292,7 +292,7 @@ public class KProperty {
         if (method != null) {
           MethodWrapper methodWrapper = wrapper.getMethodWrapper(methodName, desc);
           getter = new KPropertyAccessor(new ProtobufFlags.PropertyAccessor(property.getGetterFlags()), methodWrapper);
-          discoveredMethods.add(InterpreterUtil.makeUniqueKey(methodName, desc));
+          associatedMethods.add(InterpreterUtil.makeUniqueKey(methodName, desc));
 
           if (propDesc == null) {
             propDesc = method.getDescriptor().substring(method.getDescriptor().indexOf(')') + 1);
@@ -309,7 +309,7 @@ public class KProperty {
         if (method != null) {
           MethodWrapper methodWrapper = wrapper.getMethodWrapper(methodName, desc);
           setter = new KPropertyAccessor(new ProtobufFlags.PropertyAccessor(property.getSetterFlags()), methodWrapper);
-          discoveredMethods.add(InterpreterUtil.makeUniqueKey(methodName, desc));
+          associatedMethods.add(InterpreterUtil.makeUniqueKey(methodName, desc));
           setterParamName = nameResolver.resolve(property.getSetterValueParameter().getName());
         }
       }
@@ -318,7 +318,7 @@ public class KProperty {
       if (propDesc != null) {
         field = structClass.getField(name, propDesc);
         if (field != null) {
-          discoveredFields.add(name);
+          associatedFields.add(name);
         }
       } else {
         VBStyleCollection<StructField, String> fields = structClass.getFields();
@@ -326,7 +326,7 @@ public class KProperty {
           if (f.getName().equals(name)) {
             field = f;
             propDesc = f.getDescriptor();
-            discoveredFields.add(name);
+            associatedFields.add(name);
             break;
           }
         }
@@ -351,9 +351,21 @@ public class KProperty {
         initializer = wrapper.getDynamicFieldInitializers().getWithKey(key);
       }
 
-      list.add(new KProperty(name, type, flags, getter, setter, setterParamName, field, initializer, node));
+      properties.add(new KProperty(name, type, flags, getter, setter, setterParamName, field, initializer, node));
     }
 
-    return true;
+    return new Data(properties, associatedFields, associatedMethods);
+  }
+
+  public static class Data {
+    public final List<KProperty> properties;
+    public final Set<String> associatedFields;
+    public final Set<String> associatedMethods;
+
+    public Data(List<KProperty> properties, Set<String> associatedFields, Set<String> associatedMethods) {
+      this.properties = properties;
+      this.associatedFields = associatedFields;
+      this.associatedMethods = associatedMethods;
+    }
   }
 }

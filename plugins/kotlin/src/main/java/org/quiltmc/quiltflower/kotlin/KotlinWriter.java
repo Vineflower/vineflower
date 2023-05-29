@@ -89,10 +89,6 @@ public class KotlinWriter implements StatementWriter {
   private final PoolInterceptor interceptor;
   private final IFabricJavadocProvider javadocProvider;
 
-  private List<KProperty> properties = List.of();
-  private Set<String> propertyFields = Set.of();
-  private Set<String> propertyAccessors = Set.of();
-
   public KotlinWriter() {
     interceptor = DecompilerContext.getPoolInterceptor();
     javadocProvider = (IFabricJavadocProvider) DecompilerContext.getProperty(IFabricJavadocProvider.PROPERTY_NAME);
@@ -129,20 +125,6 @@ public class KotlinWriter implements StatementWriter {
 
       if (DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_ASSERTIONS)) {
         AssertProcessor.buildAssertions(node);
-      }
-
-      List<KProperty> properties = new ArrayList<>();
-      Set<String> propertyFields = new HashSet<>();
-      Set<String> propertyAccessors = new HashSet<>();
-      boolean success = KProperty.parse(node, properties, propertyFields, propertyAccessors);
-      if (success) {
-        this.properties = properties;
-        this.propertyFields = propertyFields;
-        this.propertyAccessors = propertyAccessors;
-      } else {
-        this.properties = List.of();
-        this.propertyFields = Set.of();
-        this.propertyAccessors = Set.of();
       }
     } catch (Throwable t) {
       DecompilerContext.getLogger().writeMessage("Class " + node.simpleName + " couldn't be written.",
@@ -218,7 +200,7 @@ public class KotlinWriter implements StatementWriter {
   }
 
   public void writeClass(ClassNode node, TextBuffer buffer, int indent) {
-    ClassNode outerNode = (ClassNode)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
+    ClassNode outerNode = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
     DecompilerContext.setProperty(DecompilerContext.CURRENT_CLASS_NODE, node);
 
     try {
@@ -262,6 +244,8 @@ public class KotlinWriter implements StatementWriter {
 
       // write class definition
       writeClassDefinition(node, buffer, indent);
+
+      KProperty.Data propertyData = KProperty.parse(node);
 
       boolean hasContent = false;
       boolean enumFields = false;
@@ -326,7 +310,7 @@ public class KotlinWriter implements StatementWriter {
           }
         }
 
-        if (!propertyFields.contains(fd.getName())) {
+        if (propertyData == null || !propertyData.associatedFields.contains(fd.getName())) {
           TextBuffer fieldBuffer = new TextBuffer();
           writeField(wrapper, cl, fd, fieldBuffer, indent + 1);
           fieldBuffer.clearUnassignedBytecodeMappingData();
@@ -348,12 +332,12 @@ public class KotlinWriter implements StatementWriter {
         }
       }
 
-      if (!properties.isEmpty()) {
+      if (propertyData != null && !propertyData.properties.isEmpty()) {
         if (hasContent) {
           buffer.appendLineSeparator();
         }
 
-        for (KProperty prop : properties) {
+        for (KProperty prop : propertyData.properties) {
           buffer.append(prop.stringify(indent + 1));
         }
 
@@ -367,7 +351,7 @@ public class KotlinWriter implements StatementWriter {
         boolean hide = mt.isSynthetic() && DecompilerContext.getOption(IFernflowerPreferences.REMOVE_SYNTHETIC) ||
           mt.hasModifier(CodeConstants.ACC_BRIDGE) && DecompilerContext.getOption(IFernflowerPreferences.REMOVE_BRIDGE) ||
           wrapper.getHiddenMembers().contains(InterpreterUtil.makeUniqueKey(mt.getName(), mt.getDescriptor())) ||
-          propertyAccessors.contains(InterpreterUtil.makeUniqueKey(mt.getName(), mt.getDescriptor()));
+          (propertyData != null && propertyData.associatedMethods.contains(InterpreterUtil.makeUniqueKey(mt.getName(), mt.getDescriptor())));
         if (hide) continue;
 
         TextBuffer methodBuffer = new TextBuffer();
@@ -1124,13 +1108,7 @@ public class KotlinWriter implements StatementWriter {
     return !hideMethod;
   }
 
-  public static boolean writeMethodBody(
-    ClassNode node,
-    MethodWrapper methodWrapper,
-    TextBuffer buffer,
-    int indent,
-    boolean hideIfInit
-  ) {
+  public static boolean writeMethodBody(ClassNode node, MethodWrapper methodWrapper, TextBuffer buffer, int indent, boolean hideIfInit) {
     boolean hideMethod = true;
     StructClass cl = node.classStruct;
     StructMethod mt = methodWrapper.methodStruct;

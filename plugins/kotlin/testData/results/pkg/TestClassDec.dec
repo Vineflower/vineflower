@@ -22,38 +22,24 @@ class TestClassDec {
    }
 
    class Vec2iVal {
-      private int x;
-      private int y;
+      public final val x: Int
+      public final val y: Int
 
       fun Vec2iVal(x: Int, y: Int) {
-         this.x = x;
+         this.x = x;// 7
          this.y = y;
-      }
-
-      fun getX(): Int {
-         return this.x;
-      }
-
-      fun getY(): Int {
-         return this.y;// 7
       }
    }
 
    class Vec2iVar {
-      public final val x: Int
-      public final val y: Int
+      public final var x: Int
+         internal set
+      public final var y: Int
+         internal set
 
       fun Vec2iVar(x: Int, y: Int) {
-         this.x = x;
+         this.x = x;// 6
          this.y = y;
-      }
-
-      fun setX(var1: Int) {
-         this.x = var1;
-      }
-
-      fun setY(var1: Int) {
-         this.y = var1;// 6
       }
    }
 }
@@ -139,61 +125,27 @@ class 'pkg/TestClassDec$Vec2iVal' {
       d      29
       e      30
    }
-
-   method 'getX ()I' {
-      0      33
-      1      33
-      2      33
-      3      33
-      4      33
-   }
-
-   method 'getY ()I' {
-      0      37
-      1      37
-      2      37
-      3      37
-      4      37
-   }
 }
 
 class 'pkg/TestClassDec$Vec2iVar' {
    method '<init> (II)V' {
-      4      46
-      5      46
-      6      46
-      7      46
-      8      46
-      9      47
-      a      47
-      b      47
-      c      47
-      d      47
-      e      48
-   }
-
-   method 'setX (I)V' {
-      0      51
-      1      51
-      2      51
-      3      51
-      4      51
-      5      52
-   }
-
-   method 'setY (I)V' {
-      0      55
-      1      55
-      2      55
-      3      55
-      4      55
-      5      56
+      4      38
+      5      38
+      6      38
+      7      38
+      8      38
+      9      39
+      a      39
+      b      39
+      c      39
+      d      39
+      e      40
    }
 }
 
 Lines mapping:
-6 <-> 56
-7 <-> 38
+6 <-> 39
+7 <-> 29
 8 <-> 21
 11 <-> 5
 16 <-> 10

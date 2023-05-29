@@ -7,9 +7,7 @@ import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.quiltmc.quiltflower.kotlin.metadata.MetadataNameResolver;
 import org.quiltmc.quiltflower.kotlin.util.KTypes;
 
-public class KType {
-  public final VarType type;
-
+public class KType extends VarType {
   public final String kotlinType;
 
   public final boolean isNullable;
@@ -17,7 +15,7 @@ public class KType {
   public final TypeArgument @Nullable [] typeArguments;
 
   public KType(VarType type, String kotlinType, boolean isNullable, TypeArgument @Nullable [] typeArguments) {
-    this.type = type;
+    super(type.type, type.arrayDim, type.value, type.typeFamily, type.stackSize, type.falseBoolean);
     this.kotlinType = kotlinType;
     this.isNullable = isNullable;
     this.typeArguments = typeArguments;
@@ -29,15 +27,13 @@ public class KType {
     String jvmDesc = KTypes.getJavaSignature(kotlinType, isNullable);
     VarType varType = new VarType(jvmDesc);
 
-    TypeArgument[] typeArguments;
+    TypeArgument[] typeArguments = null;
     if (type.getArgumentCount() > 0) {
       typeArguments = new TypeArgument[type.getArgumentCount()];
       for (int i = 0; i < type.getArgumentCount(); i++) {
         ProtoBuf.Type.Argument argument = type.getArgument(i);
         typeArguments[i] = new TypeArgument(from(argument.getType(), nameResolver), argument.getProjection());
       }
-    } else {
-      typeArguments = null;
     }
 
     return new KType(varType, kotlinType, isNullable, typeArguments);
@@ -46,8 +42,8 @@ public class KType {
   public TextBuffer stringify(int indent) {
     TextBuffer buf = new TextBuffer();
 
-    if (!kotlinType.startsWith("kotlin/Function")) {
-      buf.append(KTypes.getKotlinType(type));
+    if (!kotlinType.startsWith("kotlin/Function")) { // Non-functions are essentially equivalent to Java generic types
+      buf.append(KTypes.getKotlinType(this));
 
       if (typeArguments != null) {
         buf.append("<");
@@ -71,7 +67,7 @@ public class KType {
       if (isNullable) {
         buf.append("?");
       }
-    } else {
+    } else { // Metadata-defined function types always have all param types listed instead of defaulting to `FunctionN`
       buf.append(isNullable ? "((" : "(");
       buf.pushNewlineGroup(indent, 1);
       buf.appendPossibleNewline();
