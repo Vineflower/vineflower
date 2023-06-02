@@ -1,56 +1,21 @@
 package pkg
 
-private int topLevelVar = 42;
-private Regex topLevelVal = new Regex("");
-public int topLevelConstVal = 926;
+public const val topLevelConstVal: Int = 926
+public final val topLevelVal: Regex = new Regex("")
+public final var topLevelVar: Int = 42
+   internal set
 
 fun topLevelFun() {
 }// 5
-
-fun getTopLevelVar(): Int {
-   return topLevelVar;
-}
-
-fun setTopLevelVar(var0: Int) {
-   topLevelVar = var0;// 7
-}
-
-fun getTopLevelVal(): Regex {
-   return topLevelVal;// 9
-}
 
 
 class 'pkg/TestTopLevelKt' {
    method 'topLevelFun ()V' {
       2      7
    }
-
-   method 'getTopLevelVar ()I' {
-      0      10
-      1      10
-      2      10
-      3      10
-   }
-
-   method 'setTopLevelVar (I)V' {
-      0      14
-      1      14
-      2      14
-      3      14
-      4      15
-   }
-
-   method 'getTopLevelVal ()Lkotlin/text/Regex;' {
-      0      18
-      1      18
-      2      18
-      3      18
-   }
 }
 
 Lines mapping:
 5 <-> 8
-7 <-> 15
-9 <-> 19
 Not mapped:
 4

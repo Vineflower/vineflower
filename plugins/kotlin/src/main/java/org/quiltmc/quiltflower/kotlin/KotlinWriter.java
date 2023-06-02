@@ -398,8 +398,15 @@ public class KotlinWriter implements StatementWriter {
   private void writeKotlinFile(ClassNode node, TextBuffer buffer, int indent) {
     ClassWrapper wrapper = node.getWrapper();
     StructClass cl = wrapper.getClassStruct();
+    KProperty.Data propertyData = KProperty.parse(node);
+
+    for (KProperty property : propertyData.properties) {
+      buffer.append(property.stringify(indent));
+    }
 
     for (StructField fd : cl.getFields()) {
+      if (propertyData.associatedFields.contains(fd.getName())) continue;
+
       TextBuffer fieldBuffer = new TextBuffer();
       writeField(wrapper, cl, fd, fieldBuffer, indent);
       fieldBuffer.clearUnassignedBytecodeMappingData();
@@ -412,7 +419,8 @@ public class KotlinWriter implements StatementWriter {
 
     for (int i = 0; i < cl.getMethods().size(); i++) {
       StructMethod mt = cl.getMethods().get(i);
-      if (mt.getName().equals("<clinit>")) continue;
+      String key = InterpreterUtil.makeUniqueKey(mt.getName(), mt.getDescriptor());
+      if (mt.getName().equals("<clinit>") || propertyData.associatedMethods.contains(key)) continue;
 
       TextBuffer methodBuffer = new TextBuffer();
       writeMethod(node, mt, i, methodBuffer, indent);
