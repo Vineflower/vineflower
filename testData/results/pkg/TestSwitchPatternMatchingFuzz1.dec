@@ -1,11 +1,14 @@
 package pkg;
 
+import java.util.Objects;
+
 class TestSwitchPatternMatchingFuzz1 {
    public void test() {
-      Object var1 = new Object();// 7
+      Object var10000 = new Object();
+      Objects.requireNonNull(var10000);// 7
+      Object var1 = var10000;
       switch(var1) {
          case Double var14:
-         case null:
             Double l = (Double)var1;// 10
             long[] var4 = new long[0];// 11
             int var5 = var4.length;
@@ -32,63 +35,66 @@ class TestSwitchPatternMatchingFuzz1 {
 
 class 'pkg/TestSwitchPatternMatchingFuzz1' {
    method 'test ()V' {
-      7      4
-      a      5
-      11      5
-      33      27
-      34      8
-      35      8
-      36      8
-      37      8
-      38      8
-      39      9
-      3c      9
-      3d      9
-      3e      10
-      3f      10
-      40      10
-      41      10
-      42      10
-      43      11
-      44      11
-      45      11
-      46      12
-      47      12
-      48      12
-      49      12
-      4a      12
-      4d      13
-      4e      13
-      4f      13
-      50      13
-      51      13
-      52      13
-      53      13
-      5b      14
-      5c      17
-      5d      17
-      5e      17
-      5f      17
-      60      17
-      61      17
-      62      17
-      63      17
-      64      18
-      65      19
-      75      24
+      8      7
+      9      7
+      a      7
+      c      8
+      f      9
+      16      9
+      2f      30
+      30      11
+      31      11
+      32      11
+      33      11
+      34      11
+      35      12
+      38      12
+      39      12
+      3a      13
+      3b      13
+      3c      13
+      3d      13
+      3e      13
+      3f      14
+      40      14
+      41      14
+      42      15
+      43      15
+      44      15
+      45      15
+      46      15
+      49      16
+      4a      16
+      4b      16
+      4c      16
+      4d      16
+      4e      16
+      4f      16
+      57      17
+      58      20
+      59      20
+      5a      20
+      5b      20
+      5c      20
+      5d      20
+      5e      20
+      5f      20
+      60      21
+      61      22
+      71      27
    }
 }
 
 Lines mapping:
-7 <-> 5
-9 <-> 28
-10 <-> 9
-11 <-> 10
-12 <-> 15
-17 <-> 18
-18 <-> 19
-19 <-> 20
-22 <-> 25
+7 <-> 8
+9 <-> 31
+10 <-> 12
+11 <-> 13
+12 <-> 18
+17 <-> 21
+18 <-> 22
+19 <-> 23
+22 <-> 28
 Not mapped:
 20
 21
