@@ -138,7 +138,7 @@ public class TestLoopFinally {
       }
    }
 
-   // $QF: Could not properly define all variable types!
+   // $VF: Could not properly define all variable types!
    public void testConditionalBreakInFinally() {
       int a = 5;// 149
       if (a != 886) {// 152

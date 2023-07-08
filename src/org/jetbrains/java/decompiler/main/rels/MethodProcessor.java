@@ -128,7 +128,7 @@ public class MethodProcessor implements Runnable {
 
       if (!ExceptionDeobfuscator.handleMultipleEntryExceptionRanges(graph)) {
         DecompilerContext.getLogger().writeMessage("Found multiple entry exception ranges which could not be splitted", IFernflowerLogger.Severity.WARN);
-        graph.addComment("$QF: Could not handle exception ranges with multiple entries");
+        graph.addComment("$VF: Could not handle exception ranges with multiple entries");
         graph.addErrorComment = true;
       }
 

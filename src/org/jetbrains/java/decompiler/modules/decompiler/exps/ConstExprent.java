@@ -224,7 +224,7 @@ public class ConstExprent extends Exprent {
     buf.addBytecodeMapping(bytecode);
 
     if (wasCondy) {
-      buf.append("/* $QF: constant dynamic */ ");
+      buf.append("/* $VF: constant dynamic */ ");
     }
 
     if (constType.type != CodeConstants.TYPE_NULL && value == null) {

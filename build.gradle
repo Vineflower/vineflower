@@ -20,8 +20,8 @@ compileJava {
   targetCompatibility '11'
 }
 
-group = 'org.quiltmc'
-archivesBaseName = 'quiltflower'
+group = 'org.vineflower'
+archivesBaseName = 'vineflower'
 
 version = '1.9.0'
 
@@ -164,7 +164,7 @@ jar {
   manifest {
     attributes (
       'Main-Class': 'org.jetbrains.java.decompiler.main.decompiler.ConsoleDecompiler',
-      'Implementation-Name': "Quiltflower",
+      'Implementation-Name': "Vineflower",
       'Implementation-Version': project.version
     )
   }
@@ -195,16 +195,16 @@ publishing {
   publications {
     mavenJava(MavenPublication) {
       pom {
-        name = 'Quiltflower'
+        name = 'Vineflower'
         packaging = 'jar'
         // optionally artifactId can be defined here
         description = 'Modern Java & JVM language decompiler aiming to be as accurate as possible, with an emphasis on output quality.'
-        url = 'https://github.com/QuiltMC/quiltflower'
+        url = 'https://github.com/Vineflower/vineflower'
 
         scm {
-          connection = 'scm:git:https://github.com/QuiltMC/quiltflower.git'
-          developerConnection = 'scm:git:ssh:git@github.com:QuiltMC/quiltflower.git'
-          url = 'https://github.com/QuiltMC/quiltflower'
+          connection = 'scm:git:https://github.com/Vineflower/vineflower.git'
+          developerConnection = 'scm:git:ssh:git@github.com:Vineflower/vineflower.git'
+          url = 'https://github.com/Vineflower/vineflower'
         }
 
         licenses {
@@ -216,9 +216,9 @@ publishing {
 
         developers {
           developer {
-            id = 'quiltmc'
-            name = 'QuiltMC Decompiler Team'
-            email = 'infrastructure@quiltmc.org'
+            id = 'vineflower'
+            name = 'Vineflower Development Team'
+            email = '<fixme!>'
           }
         }
       }

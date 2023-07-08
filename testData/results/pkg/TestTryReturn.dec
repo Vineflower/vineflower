@@ -133,7 +133,7 @@ public class TestTryReturn {
    }
 
    public void testParsingFailure() {
-      // $QF: Couldn't be decompiled
+      // $VF: Couldn't be decompiled
       // Bytecode:
       // 00: bipush 116
       // 02: istore 1

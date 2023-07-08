@@ -977,7 +977,7 @@ public class NestedClassProcessor {
     RootStatement root = method.root;
 
     if (root == null) {
-      method.addComment("$QF: Couldn't set local class definition as local class statement was null");
+      method.addComment("$VF: Couldn't set local class definition as local class statement was null");
       method.addErrorComment = true;
 
       return;

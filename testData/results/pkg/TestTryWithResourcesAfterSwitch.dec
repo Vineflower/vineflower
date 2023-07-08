@@ -25,7 +25,7 @@ public class TestTryWithResourcesAfterSwitch {
    }// 24
 
    public void test2() {
-      // $QF: Couldn't be decompiled
+      // $VF: Couldn't be decompiled
       // Bytecode:
       // 00: getstatic java/lang/annotation/ElementType.METHOD Ljava/lang/annotation/ElementType;
       // 03: astore 1

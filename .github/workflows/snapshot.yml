@@ -2,7 +2,7 @@ name: Publish Snapshot
 on: [push, pull_request]
 jobs:
   publish:
-    if: ${{ github.repository_owner == 'QuiltMC' && contains(github.ref_name, 'develop') }}
+    if: ${{ github.repository_owner == 'Vineflower' && contains(github.ref_name, 'develop') }}
     runs-on: ubuntu-20.04
     container:
       image: openjdk:15-jdk

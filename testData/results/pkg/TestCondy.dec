@@ -10,15 +10,15 @@ public class TestCondy {
    public static final TestCondy selfField = null;
 
    public static String testNull() {
-      return /* $QF: constant dynamic */ null;// 25
+      return /* $VF: constant dynamic */ null;// 25
    }
 
    public static FakeEnum testEnum() {
-      return /* $QF: constant dynamic */ FakeEnum.FOO;// 32
+      return /* $VF: constant dynamic */ FakeEnum.FOO;// 32
    }
 
    public static Class testPrimitiveClass() {
-      return /* $QF: constant dynamic */ void.class;// 39
+      return /* $VF: constant dynamic */ void.class;// 39
    }
 
    public static Class testWrongPrimitiveClass() {
@@ -26,11 +26,11 @@ public class TestCondy {
    }
 
    public static Class testGetStaticFinal() {
-      return /* $QF: constant dynamic */ field;// 55
+      return /* $VF: constant dynamic */ field;// 55
    }
 
    public static Class testGetSelfStaticFinal() {
-      return /* $QF: constant dynamic */ selfField;// 62
+      return /* $VF: constant dynamic */ selfField;// 62
    }
 
    public static VarHandle testStaticVarHandle() {

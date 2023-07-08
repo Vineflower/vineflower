@@ -257,7 +257,7 @@ public final class InitializerProcessor {
       for (StructField fd : cl.getFields()) {
         if (fd.hasModifier(CodeConstants.ACC_ENUM)) {
           if (wrapper.getStaticFieldInitializers().getWithKey(InterpreterUtil.makeUniqueKey(fd.getName(), fd.getDescriptor())) == null) {
-            method.addComment("$QF: Failed to inline enum fields");
+            method.addComment("$VF: Failed to inline enum fields");
             method.addErrorComment = true;
             break;
           }

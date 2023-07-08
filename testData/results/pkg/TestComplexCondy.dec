@@ -9,19 +9,19 @@ public class TestComplexCondy {
    public int primitive;
 
    public static VarHandle testVarHandle() {
-      return /* $QF: constant dynamic replaced with non-lazy method call */ MethodHandles.lookup().findVarHandle(TestCondy.class, "instance", Integer.class);// 26
+      return /* $VF: constant dynamic replaced with non-lazy method call */ MethodHandles.lookup().findVarHandle(TestCondy.class, "instance", Integer.class);// 26
    }
 
    public static VarHandle testStaticVarHandle() {
-      return /* $QF: constant dynamic replaced with non-lazy method call */ MethodHandles.lookup().findStaticVarHandle(TestCondy.class, "field", Integer.class);// 36
+      return /* $VF: constant dynamic replaced with non-lazy method call */ MethodHandles.lookup().findStaticVarHandle(TestCondy.class, "field", Integer.class);// 36
    }
 
    public static VarHandle testPrimitiveVarHandle() {
-      return /* $QF: constant dynamic replaced with non-lazy method call */ MethodHandles.lookup().findVarHandle(TestCondy.class, "primitive", int.class);// 46
+      return /* $VF: constant dynamic replaced with non-lazy method call */ MethodHandles.lookup().findVarHandle(TestCondy.class, "primitive", int.class);// 46
    }
 
    public static VarHandle testArrayVarHandle() {
-      return /* $QF: constant dynamic replaced with non-lazy method call */ MethodHandles.arrayElementVarHandle(TestCondy[].class);// 55
+      return /* $VF: constant dynamic replaced with non-lazy method call */ MethodHandles.arrayElementVarHandle(TestCondy[].class);// 55
    }
 }
 

@@ -597,7 +597,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
 
     // NOTE: regular fernflower fails to merge the variables here, leading to incorrect results in both
     //  Derived from IDEA-291806
-    // TODO: test2 now successfully triggers the bug in QuiltFlower
+    // TODO: test2 now successfully triggers the bug in Vineflower
     register(JAVA_8, "TestTryVar");
     register(JAVA_8_NODEBUG, "TestTryVarNoDebug");
     // TODO: order of additions is wrong. Addition over floats isn't associative.

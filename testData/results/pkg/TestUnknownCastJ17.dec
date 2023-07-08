@@ -4,7 +4,7 @@ import java.lang.annotation.ElementType;
 import java.util.Objects;
 
 public class TestUnknownCastJ17 {
-   // $QF: Could not properly define all variable types!
+   // $VF: Could not properly define all variable types!
    public void test() {
       ElementType vvv1 = ElementType.METHOD;// 8
       synchronized(this) {// 9

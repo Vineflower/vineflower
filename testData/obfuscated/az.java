@@ -41,7 +41,7 @@ class az {
    }
 
    private void a(String param1, Attributes param2) {
-      // $QF: Couldn't be decompiled
+      // $VF: Couldn't be decompiled
    }
 
    public Node c() {

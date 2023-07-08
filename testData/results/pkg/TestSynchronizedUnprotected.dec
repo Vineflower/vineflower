@@ -11,7 +11,7 @@ import kotlin.Unit;
    d2 = {"Lpkg/TestSynchronizedUnprotected;", "", "()V", "test", "", "quiltflower_testDataKotlin"}
 )
 public final class TestSynchronizedUnprotected {
-   // $QF: Extended synchronized range to monitorexit
+   // $VF: Extended synchronized range to monitorexit
    public final void test() {
       synchronized(this) {
          int $i$a$-synchronized-TestSynchronizedUnprotected$test$1 = 0;
