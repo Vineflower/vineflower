@@ -30,6 +30,7 @@ jobs:
     permissions:
       issues: write
       pull-requests: write
+      checks: write
     if: success() || failure()
     steps:
       - name: Download Artifacts
