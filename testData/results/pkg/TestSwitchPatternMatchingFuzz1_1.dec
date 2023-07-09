@@ -1,0 +1,94 @@
+package pkg;
+
+class TestSwitchPatternMatchingFuzz1 {
+   public void test() {
+      Object var1 = new Object();// 7
+      switch(var1) {
+         case Double var14:
+         case null:
+            Double l = (Double)var1;// 10
+            long[] var4 = new long[0];// 11
+            int var5 = var4.length;
+            byte var6 = 0;
+            if (var6 < var5) {
+               long none = var4[var6];
+               throw new RuntimeException();// 12
+            } else {
+               try {
+                  System.out.println("Hi");// 17
+                  return;// 18
+               } catch (Exception var12) {// 19
+               } finally {
+                  ;
+               }
+
+               throw new RuntimeException();// 22
+            }
+         default:
+            throw new RuntimeException();// 9
+      }
+   }
+}
+
+class 'pkg/TestSwitchPatternMatchingFuzz1' {
+   method 'test ()V' {
+      7      4
+      a      5
+      11      5
+      33      27
+      34      8
+      35      8
+      36      8
+      37      8
+      38      8
+      39      9
+      3c      9
+      3d      9
+      3e      10
+      3f      10
+      40      10
+      41      10
+      42      10
+      43      11
+      44      11
+      45      11
+      46      12
+      47      12
+      48      12
+      49      12
+      4a      12
+      4d      13
+      4e      13
+      4f      13
+      50      13
+      51      13
+      52      13
+      53      13
+      5b      14
+      5c      17
+      5d      17
+      5e      17
+      5f      17
+      60      17
+      61      17
+      62      17
+      63      17
+      64      18
+      65      19
+      75      24
+   }
+}
+
+Lines mapping:
+7 <-> 5
+9 <-> 28
+10 <-> 9
+11 <-> 10
+12 <-> 15
+17 <-> 18
+18 <-> 19
+19 <-> 20
+22 <-> 25
+Not mapped:
+20
+21
