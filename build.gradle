@@ -227,20 +227,6 @@ publishing {
       from components.java
     }
   }
-
-  // select the repositories you want to publish to
-  repositories {
-
-    if (ENV.SONATYPE_USER) {
-      maven {
-        url "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
-        credentials {
-          username ENV.SONATYPE_USER
-          password ENV.SONATYPE_PASS
-        }
-      }
-    }
-  }
 }
 
 nexusPublishing {
