@@ -12,6 +12,7 @@ jobs:
       - uses: gradle/wrapper-validation-action@v1
       - run: ./gradlew publish --stacktrace
         env:
-          SNAPSHOTS_URL: ${{ secrets.SNAPSHOTS_URL }}
-          SNAPSHOTS_USERNAME: ${{ secrets.SNAPSHOTS_USERNAME }}
-          SNAPSHOTS_PASSWORD: ${{ secrets.SNAPSHOTS_PASSWORD }}
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+          SIGNING_KEY_PASSPHRASE: ${{ secrets.SIGNING_KEY_PASSPHRASE }}
+          SONATYPE_USER: ${{ secrets.SONATYPE_USER }}
+          SONATYPE_PASS: ${{ secrets.SONATYPE_PASS }}

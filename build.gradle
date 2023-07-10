@@ -199,7 +199,7 @@ publishing {
         packaging = 'jar'
         // optionally artifactId can be defined here
         description = 'Modern Java & JVM language decompiler aiming to be as accurate as possible, with an emphasis on output quality.'
-        url = 'https://github.com/Vineflower/vineflower'
+        url = 'https://vineflower.org'
 
         scm {
           connection = 'scm:git:https://github.com/Vineflower/vineflower.git'
@@ -232,25 +232,6 @@ publishing {
 
   // select the repositories you want to publish to
   repositories {
-    if (ENV.MAVEN_URL) {
-      maven {
-        url ENV.MAVEN_URL
-        credentials {
-          username ENV.MAVEN_USERNAME
-          password ENV.MAVEN_PASSWORD
-        }
-      }
-    }
-
-    if (ENV.SNAPSHOTS_URL) {
-      maven {
-        url ENV.SNAPSHOTS_URL
-        credentials {
-          username ENV.SNAPSHOTS_USERNAME
-          password ENV.SNAPSHOTS_PASSWORD
-        }
-      }
-    }
 
     if (ENV.SONATYPE_USER) {
       maven {
@@ -271,6 +252,7 @@ nexusPublishing {
       password = ENV.SONATYPE_PASS
 
       nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
+      snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
     }
   }
 }
