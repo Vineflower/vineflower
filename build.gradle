@@ -27,6 +27,7 @@ version = '1.9.0'
 
 def ENV = System.getenv()
 version = version + (ENV.GITHUB_ACTIONS ? "" : "+local")
+version = version + (ENV.STATUS == "snapshot" ? "" : "-SNAPSHOT")
 
 sourceSets {
   main.java.srcDirs 'src'
