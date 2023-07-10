@@ -12,9 +12,9 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - uses: gradle/wrapper-validation-action@v1
-      - run: echo "STATUS=snapshot" >> $GITHUB_ENV
       - run: ./gradlew publish --stacktrace
         env:
+          STATUS: snapshot
           SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
           SIGNING_KEY_PASSPHRASE: ${{ secrets.SIGNING_KEY_PASSPHRASE }}
           SONATYPE_USER: ${{ secrets.SONATYPE_USER }}

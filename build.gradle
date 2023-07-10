@@ -219,15 +219,12 @@ publishing {
           developer {
             id = 'vineflower'
             name = 'Vineflower Development Team'
-            email = '<fixme!>'
+            email = '~jasmine/vineflower-discuss@lists.sr.ht'
           }
         }
       }
 
       from components.java
-      if (ENV.SNAPSHOTS_URL) {
-        version = project.version + "-SNAPSHOT"
-      }
     }
   }
 
