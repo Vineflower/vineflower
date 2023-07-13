@@ -196,7 +196,7 @@ public final class ConcatenationHelper {
   private static List<Exprent> extractParameters(List<PooledConstant> bootstrapArguments, InvocationExprent expr) {
     List<Exprent> parameters = expr.getLstParameters();
 
-    // Remove unnecessary String.valueOf() calls to resolve Quiltflower#151
+    // Remove unnecessary String.valueOf() calls to resolve Vineflower#151
     parameters.replaceAll(x -> removeStringValueOf(x));
 
     if (bootstrapArguments != null) {

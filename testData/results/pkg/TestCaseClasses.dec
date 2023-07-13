@@ -3,8 +3,6 @@ package pkg;
 public interface TestCaseClasses {
 }
 
-
-
 // Decompiled companion from pkg/Option1
 package pkg;
 
@@ -333,7 +331,6 @@ class 'pkg/Option1' {
 Lines mapping:
 5 <-> 98
 
-
 // Decompiled companion from pkg/Option1$
 package pkg;
 
@@ -413,7 +410,6 @@ class 'pkg/Option1$' {
 
 Lines mapping:
 5 <-> 31
-
 
 // Decompiled companion from pkg/Option2
 package pkg;
@@ -908,7 +904,6 @@ class 'pkg/Option2' {
 Lines mapping:
 6 <-> 144
 
-
 // Decompiled companion from pkg/Option2$
 package pkg;
 
@@ -1015,7 +1010,6 @@ class 'pkg/Option2$' {
 
 Lines mapping:
 6 <-> 32
-
 
 // Decompiled companion from pkg/Option3
 package pkg;
@@ -1321,7 +1315,6 @@ class 'pkg/Option3' {
 Lines mapping:
 7 <-> 97
 
-
 // Decompiled companion from pkg/Option3$
 package pkg;
 
@@ -1401,7 +1394,6 @@ class 'pkg/Option3$' {
 
 Lines mapping:
 7 <-> 31
-
 
 // Decompiled companion from pkg/EnumLike
 package pkg;
@@ -1559,7 +1551,6 @@ class 'pkg/EnumLike' {
 }
 
 Lines mapping:
-
 
 // Decompiled companion from pkg/EnumLike$
 package pkg;

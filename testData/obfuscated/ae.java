@@ -22,11 +22,11 @@ public class ae implements ad {
    }
 
    public void a() {
-      // $QF: Couldn't be decompiled
+      // $VF: Couldn't be decompiled
    }
 
    public void b() {
-      // $QF: Couldn't be decompiled
+      // $VF: Couldn't be decompiled
    }
 
    public String a() {

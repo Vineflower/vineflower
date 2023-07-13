@@ -22,7 +22,7 @@ class TestCompileTimeErrors {
          }
 
          /** @deprecated */
-         // $QF: synthetic method
+         // $VF: synthetic method
          public static void getTestValue$annotations() {
          }
       };

@@ -216,7 +216,7 @@ public class Fernflower implements IDecompiledData {
       if (DecompilerContext.getOption(IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR)) {
         List<String> lines = new ArrayList<>();
         lines.add("/*");
-        lines.add("$QF: Unable to decompile class");
+        lines.add("$VF: Unable to decompile class");
         lines.addAll(ClassWriter.getErrorComment());
         ClassWriter.collectErrorLines(t, lines);
         lines.add("*/");

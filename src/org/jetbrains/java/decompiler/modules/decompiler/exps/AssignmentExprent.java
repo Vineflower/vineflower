@@ -158,7 +158,7 @@ public class AssignmentExprent extends Exprent {
 
       if (varLeft.isDefinition() && varLeft.getProcessor() != null) {
         if (varLeft.getProcessor().getSyntheticSemaphores().contains(varLeft.getIndex())) {
-          buffer.append(" /* QF: Semaphore variable */");
+          buffer.append(" /* VF: Semaphore variable */");
         }
       }
     }

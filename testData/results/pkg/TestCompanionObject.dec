@@ -60,7 +60,6 @@ Lines mapping:
 3 <-> 13
 5 <-> 17
 
-
 // Decompiled companion from pkg/TestCompanionObject$
 package pkg;
 

@@ -454,7 +454,7 @@ public final class DeadCodeHelper {
         }
 
         range_extended = true;
-        graph.addComment("$QF: Extended synchronized range to monitorexit");
+        graph.addComment("$VF: Extended synchronized range to monitorexit");
         break;
       }
 

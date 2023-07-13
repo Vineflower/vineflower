@@ -18,7 +18,7 @@ public class v {
    }
 
    private static void a(Object param0, Class<?> param1) {
-      // $QF: Couldn't be decompiled
+      // $VF: Couldn't be decompiled
    }
 
    private static void a(Field var0, Object var1) {

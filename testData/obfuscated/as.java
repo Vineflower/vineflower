@@ -21,7 +21,7 @@ public class as extends ap {
    }
 
    public void a() {
-      // $QF: Couldn't be decompiled
+      // $VF: Couldn't be decompiled
    }
 
    public void a(long var1) {
@@ -36,7 +36,7 @@ public class as extends ap {
    }
 
    public double d() {
-      // $QF: Couldn't be decompiled
+      // $VF: Couldn't be decompiled
    }
 
    public double b() {

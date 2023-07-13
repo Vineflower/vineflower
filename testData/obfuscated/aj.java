@@ -119,7 +119,7 @@ public class aj implements am {
    }
 
    protected void c(k<ak> param1) {
-      // $QF: Couldn't be decompiled
+      // $VF: Couldn't be decompiled
    }
 
    static {
