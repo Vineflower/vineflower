@@ -119,7 +119,7 @@ class TestSmartCasts {
    interface X {
       fun woo(var1: Iterable<?>): String
 
-      // $QF: Class flags could not be determined
+      // $VF: Class flags could not be determined
       internal class DefaultImpls {
          @JvmStatic
          fun woo(var0: TestSmartCasts.X, receiver: Iterable<?>): String {

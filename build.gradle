@@ -233,7 +233,7 @@ def allJar = tasks.register('allJar', Jar) {allJar ->
   manifest {
     attributes (
       'Main-Class': 'org.jetbrains.java.decompiler.main.decompiler.ConsoleDecompiler',
-      'Implementation-Name': "Quiltflower",
+      'Implementation-Name': "Vineflower",
       'Implementation-Version': project.version
     )
   }

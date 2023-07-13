@@ -6,9 +6,9 @@ plugins {
 
 apply plugin: 'maven-publish'
 
-group = 'org.quiltmc'
+group = 'org.vineflower'
 version = "0.1.0"
-archivesBaseName = 'quiltflower-kotlin'
+archivesBaseName = 'vineflower-kotlin'
 
 sourceSets {
   testDataKotlin.kotlin.srcDirs files("testData/src/kt/")
@@ -44,12 +44,13 @@ shadowJar {
 
 build.dependsOn(shadowJar)
 
-publishing {
-  publications {
-    mavenJava(MavenPublication) {
-      artifactId = "quiltflower-kotlin"
-      from components.java
-      artifact(shadowJar)
-    }
-  }
-}
+// TODO: re-enable after we're publishing for this!
+//publishing {
+//  publications {
+//    mavenJava(MavenPublication) {
+//      artifactId = "vineflower-kotlin"
+//      from components.java
+//      artifact(shadowJar)
+//    }
+//  }
+//}

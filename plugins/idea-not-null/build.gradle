@@ -1,4 +1,4 @@
-archivesBaseName = 'quiltflower-plugin-idea-not-null'
+archivesBaseName = 'vineflower-idea-not-null'
 
 dependencies {
   implementation project(":")
