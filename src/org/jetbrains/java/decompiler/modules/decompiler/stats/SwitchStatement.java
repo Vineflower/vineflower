@@ -9,6 +9,7 @@ import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.modules.decompiler.DecHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
+import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
@@ -308,11 +309,15 @@ public final class SwitchStatement extends Statement {
   @Override
   public void replaceStatement(Statement oldstat, Statement newstat) {
 
+    boolean changedAny = false;
     for (int i = 0; i < caseStatements.size(); i++) {
       if (caseStatements.get(i) == oldstat) {
         caseStatements.set(i, newstat);
+        changedAny = true;
       }
     }
+
+    ValidationHelper.assertTrue(changedAny, "Replaced statement in switch without changing any case statements!");
 
     super.replaceStatement(oldstat, newstat);
   }
