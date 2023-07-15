@@ -23,7 +23,7 @@ compileJava {
 group = 'org.vineflower'
 archivesBaseName = 'vineflower'
 
-version = '1.9.1'
+version = '1.9.2'
 
 def ENV = System.getenv()
 version = version + (ENV.GITHUB_ACTIONS ? "" : "+local")
