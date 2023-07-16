@@ -23,8 +23,7 @@ object TestObject {
 
    @JvmStatic
    fun objectJvmStaticFun() {
-      var var10000: TestObject = INSTANCE;// 16
-      var var0: Int = objectVar++;
+      var var0: Int = objectVar++;// 16
    }// 17
 }
 
@@ -49,15 +48,12 @@ class 'pkg/TestObject' {
    }
 
    method 'objectJvmStaticFun ()V' {
-      0      25
-      1      25
-      2      25
-      4      26
-      5      26
-      6      26
-      7      26
-      a      26
-      e      27
+      4      25
+      5      25
+      6      25
+      7      25
+      a      25
+      e      26
    }
 }
 
@@ -67,4 +63,4 @@ Lines mapping:
 6 <-> 18
 10 <-> 21
 16 <-> 26
-17 <-> 28
+17 <-> 27
