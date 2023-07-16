@@ -75,6 +75,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     );
     registerSet("JAD Naming", () -> {
       register(JAVA_8, "TestJADNaming");
+      registerRaw(CUSTOM, "TestLocalVarParamCollision");
     },IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
       IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
       IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR, "0",
@@ -445,7 +446,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingWithNull");
 
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingFuzz1");
-    
+
     // TODO: non-resugared record patterns reference hidden proxy methods
     register(JAVA_19_PREVIEW, "TestRecordPattern1");
     register(JAVA_19_PREVIEW, "TestRecordPattern2");
