@@ -75,8 +75,8 @@ public class ConsoleDecompiler implements /* IBytecodeProvider, */ IResultSaver,
 
     if (args.length < 1) {
       System.out.println(
-        "Usage: java -jar quiltflower.jar [--<option>=<value>]* [<source>]+ <destination>\n" +
-        "Example: java -jar quiltflower.jar --decompile-generics c:\\my\\source\\ c:\\my.jar d:\\decompiled\\\n" +
+        "Usage: java -jar vineflower.jar [--<option>=<value>]* [<source>]+ <destination>\n" +
+        "Example: java -jar vineflower.jar --decompile-generics c:\\my\\source\\ c:\\my.jar d:\\decompiled\\\n" +
         "Use -h or --help for more information.");
       return;
     }

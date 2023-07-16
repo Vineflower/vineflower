@@ -5,7 +5,7 @@ public class a3 {
    private static final String[] b;
 
    private static int a(int param0, boolean param1) {
-      // $QF: Couldn't be decompiled
+      // $VF: Couldn't be decompiled
    }
 
    public static void main(String[] var0) throws Exception {

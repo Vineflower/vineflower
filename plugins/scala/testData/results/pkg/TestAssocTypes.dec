@@ -51,15 +51,12 @@ Lines mapping:
 20 <-> 8
 21 <-> 9
 
-
 // Decompiled companion from pkg/Shuffler
 package pkg;
 
 public interface Shuffler {
    Object shuffle(final Object x);
 }
-
-
 
 // Decompiled companion from pkg/IntShuffler
 package pkg;
@@ -84,7 +81,6 @@ class 'pkg/IntShuffler' {
 }
 
 Lines mapping:
-
 
 // Decompiled companion from pkg/IntShuffler$
 package pkg;
@@ -130,7 +126,6 @@ Lines mapping:
 8 <-> 13
 10 <-> 17
 
-
 // Decompiled companion from pkg/StringShuffler
 package pkg;
 
@@ -154,7 +149,6 @@ class 'pkg/StringShuffler' {
 }
 
 Lines mapping:
-
 
 // Decompiled companion from pkg/StringShuffler$
 package pkg;

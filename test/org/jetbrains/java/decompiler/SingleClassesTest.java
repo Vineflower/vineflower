@@ -440,7 +440,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatching20");
     // TODO: <unknown> variable, wrong variables are being used.
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatching21");
-    registerFailable(JAVA_17_PREVIEW, "TestSwitchPatternMatching22");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatching22");
 
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingLoop");
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingInstanceof1");
@@ -453,7 +453,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingConstructor2");
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingWithNull");
 
-    registerFailable(JAVA_17_PREVIEW, "TestSwitchPatternMatchingFuzz1");
+    register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingFuzz1");
 
     // TODO: non-resugared record patterns reference hidden proxy methods
     register(JAVA_19_PREVIEW, "TestRecordPattern1");
@@ -603,7 +603,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
 
     // NOTE: regular fernflower fails to merge the variables here, leading to incorrect results in both
     //  Derived from IDEA-291806
-    // TODO: test2 now successfully triggers the bug in QuiltFlower
+    // TODO: test2 now successfully triggers the bug in Vineflower
     register(JAVA_8, "TestTryVar");
     register(JAVA_8_NODEBUG, "TestTryVarNoDebug");
     // TODO: order of additions is wrong. Addition over floats isn't associative.
@@ -661,6 +661,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_17, "TestVarRedef");
     register(JAVA_17, "TestDoubleForeach");
     register(JAVA_8, "TestVarMergeSupertype");
+    register(JAVA_8, "TestAmbiguousArraylen");
   }
 
   private void registerEntireClassPath() {

@@ -2,7 +2,7 @@ name: Publish Snapshot
 on: [push, pull_request]
 jobs:
   publish:
-    if: ${{ github.repository_owner == 'QuiltMC' && contains(github.ref_name, 'develop') }}
+    if: ${{ github.repository_owner == 'Vineflower' && contains(github.ref_name, 'develop') }}
     runs-on: ubuntu-22.04
     container:
       image: eclipse-temurin:17
@@ -10,11 +10,10 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: gradle/wrapper-validation-action@v1
-      - name: Publish using Gradle
-        run: |
-         chmod +x gradlew
-         ./gradlew publish --stacktrace
+      - run: ./gradlew publish --stacktrace
         env:
-          SNAPSHOTS_URL: ${{ secrets.SNAPSHOTS_URL }}
-          SNAPSHOTS_USERNAME: ${{ secrets.SNAPSHOTS_USERNAME }}
-          SNAPSHOTS_PASSWORD: ${{ secrets.SNAPSHOTS_PASSWORD }}
+          STATUS: snapshot
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+          SIGNING_KEY_PASSPHRASE: ${{ secrets.SIGNING_KEY_PASSPHRASE }}
+          SONATYPE_USER: ${{ secrets.SONATYPE_USER }}
+          SONATYPE_PASS: ${{ secrets.SONATYPE_PASS }}

@@ -22,7 +22,7 @@ public class o {
    }
 
    public boolean b() {
-      // $QF: Couldn't be decompiled
+      // $VF: Couldn't be decompiled
    }
 
    public boolean c() {
@@ -68,7 +68,7 @@ public class o {
    }
 
    public boolean d() {
-      // $QF: Couldn't be decompiled
+      // $VF: Couldn't be decompiled
    }
 
    public Object e() {
@@ -91,11 +91,11 @@ public class o {
    }
 
    public <T> T a(Class<?> param1, T param2) {
-      // $QF: Couldn't be decompiled
+      // $VF: Couldn't be decompiled
    }
 
    public <V> V b(Class<V> param1, V param2) {
-      // $QF: Couldn't be decompiled
+      // $VF: Couldn't be decompiled
    }
 
    public String f() {
@@ -168,27 +168,27 @@ public class o {
    }
 
    public int a(int param1) {
-      // $QF: Couldn't be decompiled
+      // $VF: Couldn't be decompiled
    }
 
    public Integer i() {
-      // $QF: Couldn't be decompiled
+      // $VF: Couldn't be decompiled
    }
 
    public long a(long param1) {
-      // $QF: Couldn't be decompiled
+      // $VF: Couldn't be decompiled
    }
 
    public Long j() {
-      // $QF: Couldn't be decompiled
+      // $VF: Couldn't be decompiled
    }
 
    public double a(double param1) {
-      // $QF: Couldn't be decompiled
+      // $VF: Couldn't be decompiled
    }
 
    public BigDecimal a(BigDecimal param1) {
-      // $QF: Couldn't be decompiled
+      // $VF: Couldn't be decompiled
    }
 
    public static o b(Object var0) {
@@ -334,7 +334,7 @@ public class o {
    }
 
    public boolean b(Class<?> param1) {
-      // $QF: Couldn't be decompiled
+      // $VF: Couldn't be decompiled
    }
 
    static {

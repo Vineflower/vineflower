@@ -170,7 +170,7 @@ public class DecompilerTestFixture {
 
   public static String getContent(Path expected) {
     try {
-      return new String(Files.readAllBytes(expected), StandardCharsets.UTF_8).replace("\r\n", "\n");
+      return new String(Files.readAllBytes(expected), StandardCharsets.UTF_8).replace("\r\n", "\n").trim();
     }
     catch (IOException e) {
       throw new RuntimeException(e);

@@ -149,7 +149,7 @@ public class FieldExprent extends Exprent {
     TextBuffer buf = new TextBuffer();
 
     if (wasCondy) {
-      buf.append("/* $QF: constant dynamic */ ");
+      buf.append("/* $VF: constant dynamic */ ");
     }
 
     if (isStatic) {

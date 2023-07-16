@@ -492,7 +492,7 @@ public class MergeHelper {
       // parent is a sequence statement
       stat.getParent().getStats().removeWithKey(stat.id);
 
-      // Quiltflower note: Parent isn't always a sequence statement! It can be an if statement, need to check for that case! [TestLoopFinally]
+      // Vineflower note: Parent isn't always a sequence statement! It can be an if statement, need to check for that case! [TestLoopFinally]
       if (stat.getParent() instanceof IfStatement) {
         IfStatement parent = (IfStatement)stat.getParent();
 

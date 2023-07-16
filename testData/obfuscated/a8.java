@@ -2,7 +2,7 @@ final class a8 implements ay {
    private static final String[] a;
 
    public void a(a0 param1) {
-      // $QF: Couldn't be decompiled
+      // $VF: Couldn't be decompiled
    }
 
    static {
