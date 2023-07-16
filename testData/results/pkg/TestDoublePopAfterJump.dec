@@ -23,7 +23,7 @@ public final class TestDoublePopAfterJump {
 
       while (var10001 - 100 <= 0) {// 57 58 59
          var10001 += 1;// 60
-         if ((var10001 + 1) % 3 == 0) {// 61 63 64 65
+         if (var10001 % 3 == 0) {// 63 64 65
             var10000.print("Fizz");// 69 70
             var10001 = -var10001;// 72
          }
@@ -38,14 +38,12 @@ public final class TestDoublePopAfterJump {
          }
 
          if (var10001 <= 0) {// 90
-            int var14 = -var10001;// 91
+            int var11 = -var10001;// 91
             var10000.println();// 94
-            var10001 = var14;
+            var10001 = var11;
          } else {
             var10000.println(Integer.toString(var10001));// 100 101
-            PrintStream var17 = java/lang/System/out;// 102
-            var10001 = var10001;
-            var10000 = var17;
+            var10000 = java/lang/System/out;// 102
          }
       }
    }// 108
@@ -84,7 +82,6 @@ class 'pkg/TestDoublePopAfterJump' {
       7      23
       8      23
       b      24
-      c      25
       e      25
       f      25
       10      25
@@ -119,14 +116,14 @@ class 'pkg/TestDoublePopAfterJump' {
       45      45
       46      45
       47      45
-      4e      50
+      4e      48
    }
 
    method 'fizzBuzzReduced ()V' {
-      0      53
-      1      54
-      3      56
-      b      58
+      0      51
+      1      52
+      3      54
+      b      56
    }
 }
 
@@ -147,7 +144,6 @@ Lines mapping:
 58 <-> 24
 59 <-> 24
 60 <-> 25
-61 <-> 26
 63 <-> 26
 64 <-> 26
 65 <-> 26
@@ -168,11 +164,11 @@ Lines mapping:
 100 <-> 45
 101 <-> 45
 102 <-> 46
-108 <-> 51
-115 <-> 54
-116 <-> 55
-119 <-> 57
-124 <-> 59
+108 <-> 49
+115 <-> 52
+116 <-> 53
+119 <-> 55
+124 <-> 57
 Not mapped:
 30
 33
@@ -183,6 +179,7 @@ Not mapped:
 42
 43
 56
+61
 62
 67
 68

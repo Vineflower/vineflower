@@ -13,7 +13,7 @@ public class TestArrayAssign {
 
    public void test2(TestArrayAssign.Holder holder, int i, double inc) {
       for (int j = 0; j < i; ++j) {// 15
-         holder.a[j] += inc;// 16
+         holder.a[j] = holder.a[j] + inc;// 16
       }
    }// 18
 
@@ -150,7 +150,9 @@ class 'pkg/TestArrayAssign' {
       c      15
       d      15
       e      15
+      10      15
       11      15
+      12      15
       13      15
       14      14
       15      14

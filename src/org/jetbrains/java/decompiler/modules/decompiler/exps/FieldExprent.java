@@ -113,10 +113,10 @@ public class FieldExprent extends Exprent {
     //+            int j1 = l + i1 * this.field_225231_b;
     //+            aint[j1] &= 16777215;
 //    return 0; // multiple references to a field considered dangerous in a multithreaded environment, thus no Exprent.MULTIPLE_USES set here
-//    return instance == null ? Exprent.MULTIPLE_USES : instance.getExprentUse() & Exprent.MULTIPLE_USES;
+    return instance == null ? Exprent.MULTIPLE_USES : instance.getExprentUse() & Exprent.MULTIPLE_USES;
     // getting a field could trigger classloading, so it's technically not pure.
     // TODO: add a decompiler option?
-    return instance == null ? Exprent.SIDE_EFFECTS_FREE : instance.getExprentUse() & Exprent.SIDE_EFFECTS_FREE;
+//    return instance == null ? Exprent.SIDE_EFFECTS_FREE : instance.getExprentUse() & Exprent.SIDE_EFFECTS_FREE;
   }
 
   @Override

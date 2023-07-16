@@ -48,7 +48,7 @@ class TestAmbiguousCall {
       this.m2(this.field++);// 40
       this.m2((long)(this.field++));// 41
       this.m2((int)(this.field2++));// 43
-      this.m2((long)(this.field2++));// 44
+      this.m2(this.field2++);// 44
    }// 45
 }
 

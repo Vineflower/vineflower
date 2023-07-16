@@ -10,27 +10,27 @@ public class TestArrayFieldAccess2 {
    }// 10
 
    public void test1() {
-      this.value = this.array[this.index] += 4;// 13
+      this.value = this.array[this.index] = this.array[this.index] + 4;// 13
    }// 14
 
    public void test2() {
-      this.value = this.array[this.index] -= 4;// 17
+      this.value = this.array[this.index] = this.array[this.index] - 4;// 17
    }// 18
 
    public void test3() {
-      this.value = this.array[this.index] *= 4;// 21
+      this.value = this.array[this.index] = this.array[this.index] * 4;// 21
    }// 22
 
    public void test4() {
-      this.value = this.array[this.index] /= 4;// 25
+      this.value = this.array[this.index] = this.array[this.index] / 4;// 25
    }// 26
 
    public void test5() {
-      this.value = this.array[this.index] |= 4;// 29
+      this.value = this.array[this.index] = this.array[this.index] | 4;// 29
    }// 30
 
    public void test6() {
-      this.value = this.array[this.index] &= 4;// 33
+      this.value = this.array[this.index] = this.array[this.index] & 4;// 33
    }// 34
 
    public void testPP() {
@@ -91,7 +91,9 @@ class 'pkg/TestArrayFieldAccess2' {
       6      12
       7      12
       8      12
+      a      12
       b      12
+      c      12
       e      12
       f      12
       10      12
@@ -109,7 +111,9 @@ class 'pkg/TestArrayFieldAccess2' {
       6      16
       7      16
       8      16
+      a      16
       b      16
+      c      16
       e      16
       f      16
       10      16
@@ -127,7 +131,9 @@ class 'pkg/TestArrayFieldAccess2' {
       6      20
       7      20
       8      20
+      a      20
       b      20
+      c      20
       e      20
       f      20
       10      20
@@ -145,7 +151,9 @@ class 'pkg/TestArrayFieldAccess2' {
       6      24
       7      24
       8      24
+      a      24
       b      24
+      c      24
       e      24
       f      24
       10      24
@@ -163,7 +171,9 @@ class 'pkg/TestArrayFieldAccess2' {
       6      28
       7      28
       8      28
+      a      28
       b      28
+      c      28
       e      28
       f      28
       10      28
@@ -181,7 +191,9 @@ class 'pkg/TestArrayFieldAccess2' {
       6      32
       7      32
       8      32
+      a      32
       b      32
+      c      32
       e      32
       f      32
       10      32
