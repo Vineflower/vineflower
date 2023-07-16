@@ -18,6 +18,7 @@ apply plugin: 'signing'
 
 allprojects {
   apply plugin: 'java'
+  ext.isArm = System.getProperty('os.arch') == 'aarch64'
 
   group = 'org.quiltmc'
 
@@ -113,9 +114,19 @@ void createJavaTestDataSet(int version, String suffix = "", List<String> compile
   }
   tasks.getByName("compileTestDataJava${version}${suffix}Java") {
     destinationDirectory = file("testData/classes/java${version}${suffix.toLowerCase()}")
-    javaCompiler = javaToolchains.compilerFor {
-      languageVersion = JavaLanguageVersion.of(version)
+    if (project.isArm && version > 8 && version < 11) {
+      // On ARM systems, a more limited set of JVM versions are available
+      // We'll accept the `--release` flag so development is at least somewhat possible
+      javaCompiler = javaToolchains.compilerFor {
+        languageVersion = JavaLanguageVersion.of(11)
+      }
+      options.release = version
+    } else {
+      javaCompiler = javaToolchains.compilerFor {
+        languageVersion = JavaLanguageVersion.of(version)
+      }
     }
+
     options.compilerArgs = compilerArgs
   }
   testDataClasses.dependsOn("testDataJava${version}${suffix}Classes")
@@ -123,10 +134,11 @@ void createJavaTestDataSet(int version, String suffix = "", List<String> compile
 
 def testJavaRuntimes = [:]
 
-[8, 9, 11, 16, 17].forEach { version -> 
+[8, 9, 11, 16, 17].forEach { version ->
+    def runtimeVersion = isArm && version > 8 && version < 11 ? 11 : version
     createJavaTestDataSet(version)
     testJavaRuntimes[version] = javaToolchains.launcherFor {
-        languageVersion = JavaLanguageVersion.of(version)
+        languageVersion = JavaLanguageVersion.of(runtimeVersion)
     }
 }
 [16, 17, 19].forEach { version -> createJavaTestDataSet(version, "Preview", ["--enable-preview"]) }
