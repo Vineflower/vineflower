@@ -50,6 +50,10 @@ public class VarVersionNode implements IGraphNode {
     return this.predecessors.size() == 1;
   }
 
+  public boolean hasAnySuccessors() {
+    return !this.successors.isEmpty();
+  }
+
   public VarVersionNode getSinglePredecessor() {
     ValidationHelper.validateTrue(this.hasSinglePredecessor(), "Expected only a single predecessor");
     return this.predecessors.iterator().next();

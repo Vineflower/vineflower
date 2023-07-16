@@ -52,7 +52,7 @@ public class EliminateDeadVarsPass implements Pass {
 
               VarVersionPair vvp = var.getVarVersionPair();
               if (isPureToReplace(right)) {
-                if (ssu.nodes.getWithKey(vvp).succs.isEmpty()) {
+                if (!ssu.nodes.getWithKey(vvp).hasAnySuccessors()) {
                   exprents.remove(i);
                   changed = true;
                   changedAny = true;

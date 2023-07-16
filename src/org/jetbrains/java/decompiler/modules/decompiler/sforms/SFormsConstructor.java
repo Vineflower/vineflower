@@ -497,4 +497,8 @@ public abstract class SFormsConstructor {
   protected int getNextFreeVersion(int var, Statement stat) {
     return this.lastversion.compute(var, (k, v) -> v == null ? 1 : v + 1);
   }
+  
+  public DirectGraph getDirectGraph() {
+    return this.dgraph;
+  }
 }
