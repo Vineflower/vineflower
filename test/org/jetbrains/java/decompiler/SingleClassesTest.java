@@ -445,7 +445,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingWithNull");
 
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingFuzz1");
-    
+
     // TODO: non-resugared record patterns reference hidden proxy methods
     register(JAVA_19_PREVIEW, "TestRecordPattern1");
     register(JAVA_19_PREVIEW, "TestRecordPattern2");
@@ -642,6 +642,9 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_17_PREVIEW, "TestUnknownCastJ17");
     // TODO: These variables shouldn't be merged, and should be split because each version is used once and has a different type use
     register(JAVA_8_NODEBUG, "TestVarIndex");
+    register(JAVA_17, "TestSwitchDefaultCaseReturn");
+    // TODO: switch (s) decompiled as switch (s.hashCode())
+    register(JAVA_17, "TestSingleCaseStrSwitch");
   }
 
   private void registerEntireClassPath() {

@@ -1,0 +1,117 @@
+package pkg;
+
+public class TestSwitchDefaultCaseReturn {
+   public static String test(String s) {
+      if (s.hashCode() == 0) {// 5
+         return switch(s) {// 6
+            case "", " " -> "";// 7
+            default -> s;// 8
+         };
+      } else {
+         int i = s.indexOf(97);// 12
+         boolean bl = false;// 13
+
+         while(true) {
+            switch(s) {// 16
+               case "":
+               case " ":
+                  return "";// 19
+            }
+
+            if (!bl && i != 0) {// 21
+               return "";// 22
+            }
+
+            if (bl) {// 23
+               return "";// 24
+            }
+
+            if (s.indexOf(65 + i) == -1) {// 27
+               bl = true;// 28
+            }
+         }
+      }
+   }
+}
+
+class 'pkg/TestSwitchDefaultCaseReturn' {
+   method 'test (Ljava/lang/String;)Ljava/lang/String;' {
+      0      4
+      1      4
+      2      4
+      3      4
+      4      4
+      7      5
+      b      5
+      29      6
+      2a      6
+      37      6
+      38      6
+      42      5
+      5c      6
+      5d      6
+      61      7
+      62      5
+      63      10
+      64      10
+      65      10
+      66      10
+      67      10
+      68      10
+      69      10
+      6a      11
+      6b      11
+      6c      14
+      71      14
+      91      15
+      92      15
+      a0      16
+      a1      16
+      ad      14
+      c8      17
+      c9      17
+      ca      17
+      cb      20
+      cc      20
+      cf      20
+      d0      20
+      d3      21
+      d4      21
+      d5      21
+      d6      24
+      d7      24
+      da      25
+      db      25
+      dc      25
+      dd      28
+      de      28
+      df      28
+      e0      28
+      e1      28
+      e2      28
+      e3      28
+      e4      28
+      e5      28
+      e6      28
+      e9      29
+      ea      29
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 6
+7 <-> 7
+8 <-> 8
+12 <-> 11
+13 <-> 12
+16 <-> 15
+19 <-> 18
+21 <-> 21
+22 <-> 22
+23 <-> 25
+24 <-> 26
+27 <-> 29
+28 <-> 30
+Not mapped:
+30
