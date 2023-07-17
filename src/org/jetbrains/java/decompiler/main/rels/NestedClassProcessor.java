@@ -273,6 +273,7 @@ public class NestedClassProcessor {
       String name = varProc.getVarName(local);
       if (usedBefore.contains(name) && !"this".equals(name)) {
         mapNewNames.put(local, enclosingCollector.getFreeName(name));
+        lvts.put(local, varProc.getVarLVT(local));
       }
     }
 
