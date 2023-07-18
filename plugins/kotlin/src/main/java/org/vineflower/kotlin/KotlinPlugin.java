@@ -24,7 +24,7 @@ public class KotlinPlugin implements Plugin {
 
   @Override
   public LanguageSpec getLanguageSpec() {
-    return new LanguageSpec("kotlin", new KotlinChooser(), new DomHelper(), new KotlinWriter(), makePass());
+    return new LanguageSpec("kotlin", new KotlinChooser(), new KotlinDomHelper(), new KotlinWriter(), makePass());
   }
 
   private static Pass makePass() {
