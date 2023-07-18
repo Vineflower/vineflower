@@ -80,6 +80,7 @@ public class KotlinTests extends SingleClassesTestBase {
     register(KOTLIN, "TestBitwiseFunctions");
     register(KOTLIN, "TestCompileTimeErrors");
     register(KOTLIN, "TestPoorNames");
+    register(KOTLIN, "TestSafeCasts");
     register(KOTLIN, "TestSynchronized");
     register(KOTLIN, "TestReflection");
     register(KOTLIN, "TestConstructors");
