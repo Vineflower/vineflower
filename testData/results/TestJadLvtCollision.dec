@@ -1,0 +1,35 @@
+public class TestJadLvtCollision {
+   public void test(TestJadLvtCollision testjadlvtcollision) {
+      TestJadLvtCollision testjadlvtcollisionx = new TestJadLvtCollision();// 6
+      System.out.println(testjadlvtcollision.toString() + testjadlvtcollisionx.toString());// 7
+   }// 8
+}
+
+class 'TestJadLvtCollision' {
+   method 'test (LTestJadLvtCollision;)V' {
+      7      2
+      8      3
+      9      3
+      a      3
+      12      3
+      13      3
+      14      3
+      15      3
+      19      3
+      1a      3
+      1b      3
+      1c      3
+      20      3
+      21      3
+      22      3
+      23      3
+      24      3
+      25      3
+      26      4
+   }
+}
+
+Lines mapping:
+6 <-> 3
+7 <-> 4
+8 <-> 5

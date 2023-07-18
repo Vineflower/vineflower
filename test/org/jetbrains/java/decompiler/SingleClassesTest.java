@@ -75,6 +75,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     );
     registerSet("JAD Naming", () -> {
       register(JAVA_8, "TestJADNaming");
+      registerRaw(CUSTOM, "TestJadLvtCollision"); // created by placing a class in java8 sources and remapping its param using tinyremapper
     },IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
       IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
       IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR, "0",
