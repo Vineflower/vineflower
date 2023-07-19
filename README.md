@@ -26,6 +26,7 @@ dependencies {
     implementation 'org.quiltmc:quiltflower:<version>'
 }
 ```
+**VineFlower requires you to use at least Java 11**
 Instructions on how to interface with Vineflower can be found on [the wiki.](https://github.com/Vineflower/vineflower/wiki)
 
 Make sure to report any issues to the [Issues tab!](https://github.com/Vineflower/vineflower/issues)
