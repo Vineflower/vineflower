@@ -1,449 +1,463 @@
 package pkg
 
+import java.util.Dictionary
+import java.util.List
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.jvm.internal.Boxing
 
 class TestSimpleCoroutines {
    fun testA(a: Int, `$completion`: Continuation<? super Integer>): Any? {
-      return Boxing.boxInt(0);// 6
+      return Boxing.boxInt(0);// 8
    }
 
    fun testSingleWait(a: Int, var2: Continuation<? super Integer>): Any? {
-      return Boxing.boxInt(a + (this.testA(a, null) as Number).intValue());// 9 10
+      return Boxing.boxInt(a + (this.testA(a, null) as Number).intValue());// 11 12
    }
 
    fun testSingleWaitAtTail(a: Int, `$completion`: Continuation<? super Integer>): Any? {
-      return this.testA(a + 5, `$completion`);// 14
+      return this.testA(a + 5, `$completion`);// 16
    }
 
    fun testDoubleWait(a: Int, var2: Continuation<? super Integer>): Any? {
-      return Boxing.boxInt(a + (this.testA(a, null) as Number).intValue() + (this.testSingleWait(a + 1, null) as Number).intValue());// 17 18
+      return Boxing.boxInt(a + (this.testA(a, null) as Number).intValue() + (this.testSingleWait(a + 1, null) as Number).intValue());// 19 20
    }
 
    fun testWithWaitAtEnd(a: Int, var2: Continuation<? super Integer>): Any? {
-      return this.testSingleWaitAtTail((this.testA(a, null) as Number).intValue() + (this.testSingleWait(a + 1, null) as Number).intValue(), null);// 21 22
+      return this.testSingleWaitAtTail((this.testA(a, null) as Number).intValue() + (this.testSingleWait(a + 1, null) as Number).intValue(), null);// 23 24
    }
 
    fun testConditionalWait(a: Int, var2: Continuation<? super Integer>): Any? {
-      return if (a > 0) Boxing.boxInt(a + (this.testA(a, null) as Number).intValue()) else Boxing.boxInt(a);// 25 27 30
+      return if (a > 0) Boxing.boxInt(a + (this.testA(a, null) as Number).intValue()) else Boxing.boxInt(a);// 27 29 32
    }
 
    fun testConditionalWaitPhi(a: Int, var2: Continuation<? super Integer>): Any? {
       var var9: Int;
-      if (a > 0) {// 34
-         var9 = a + (this.testA(a, null) as Number).intValue();// 36
+      if (a > 0) {// 36
+         var9 = a + (this.testA(a, null) as Number).intValue();// 38
       } else {
-         var9 = a + 3;// 38
+         var9 = a + 3;// 40
       }
 
-      return Boxing.boxInt(var9);// 41
+      return Boxing.boxInt(var9);// 43
    }
 
    fun testConditionalWaitAtTail(a: Int, `$completion`: Continuation<? super Integer>): Any? {
-      return if (a > 0) this.testA(a + 5, `$completion`) else Boxing.boxInt(a);// 45 46 49
+      return if (a > 0) this.testA(a + 5, `$completion`) else Boxing.boxInt(a);// 47 48 51
    }
 
    fun testMultipleConditionalWait(a: Int, var2: Continuation<? super Integer>): Any? {
       label24:
-      if (a > 0) {// 52
-         return Boxing.boxInt(a + (this.testA(a, null) as Number).intValue());// 54
+      if (a > 0) {// 54
+         return Boxing.boxInt(a + (this.testA(a, null) as Number).intValue());// 56
       } else {
-         return if (a < 10) Boxing.boxInt(a + (this.testA(a + 9, null) as Number).intValue()) else Boxing.boxInt(a);// 57 58 61
+         return if (a < 10) Boxing.boxInt(a + (this.testA(a + 9, null) as Number).intValue()) else Boxing.boxInt(a);// 59 60 63
       }
    }
 
    fun testSuspendInCondition(a: Int, var2: Continuation<? super Boolean>): Any? {
-      if ((this.testA(a, null) as Number).intValue() == 0) {// 64 65
-         System.out.println("testA is 0");// 66
-         return Boxing.boxBoolean(true);// 67
+      if ((this.testA(a, null) as Number).intValue() == 0) {// 66 67
+         System.out.println("testA is 0");// 68
+         return Boxing.boxBoolean(true);// 69
       } else {
-         return Boxing.boxBoolean(false);// 70
+         return Boxing.boxBoolean(false);// 72
       }
    }
 
    fun testSuspendedBooleanInCondition(a: Int, var2: Continuation<? super Boolean>): Any? {
-      if (this.testSuspendInCondition(a, null) as Boolean) {// 73 74
-         System.out.println("testSuspendInCondition is true");// 75
-         return Boxing.boxBoolean(true);// 76
+      if (this.testSuspendInCondition(a, null) as Boolean) {// 75 76
+         System.out.println("testSuspendInCondition is true");// 77
+         return Boxing.boxBoolean(true);// 78
       } else {
-         return Boxing.boxBoolean(false);// 79
+         return Boxing.boxBoolean(false);// 81
       }
+   }
+
+   fun testReturnNullability(a: Int, `$completion`: Continuation<? super Dictionary<String, Dictionary<List<Integer>, List<Integer>>>>): Any? {
+      throw new NotImplementedError(null, 1, null);// 85
    }
 }
 
 class 'pkg/TestSimpleCoroutines' {
    method 'testA (ILkotlin/coroutines/Continuation;)Ljava/lang/Object;' {
-      0      7
-      1      7
-      2      7
-      3      7
-      4      7
+      0      9
+      1      9
+      2      9
+      3      9
+      4      9
    }
 
    method 'testSingleWait (ILkotlin/coroutines/Continuation;)Ljava/lang/Object;' {
-      58      11
-      59      11
-      5d      11
-      5e      11
-      5f      11
-      60      11
-      8a      11
-      8b      11
-      8c      11
-      8d      11
-      8e      11
-      8f      11
-      90      11
-      91      11
-      92      11
-      93      11
-      94      11
-      95      11
-      96      11
-      97      11
+      58      13
+      59      13
+      5d      13
+      5e      13
+      5f      13
+      60      13
+      8a      13
+      8b      13
+      8c      13
+      8d      13
+      8e      13
+      8f      13
+      90      13
+      91      13
+      92      13
+      93      13
+      94      13
+      95      13
+      96      13
+      97      13
    }
 
    method 'testSingleWaitAtTail (ILkotlin/coroutines/Continuation;)Ljava/lang/Object;' {
-      0      15
-      1      15
-      2      15
-      3      15
-      4      15
-      5      15
-      6      15
-      7      15
-      8      15
+      0      17
+      1      17
+      2      17
+      3      17
+      4      17
+      5      17
+      6      17
+      7      17
+      8      17
    }
 
    method 'testDoubleWait (ILkotlin/coroutines/Continuation;)Ljava/lang/Object;' {
-      5c      19
-      5d      19
-      61      19
-      62      19
-      63      19
-      64      19
-      a9      19
-      aa      19
-      ab      19
-      ac      19
-      ad      19
-      ae      19
-      af      19
-      b0      19
-      b1      19
-      b2      19
-      b4      19
-      b5      19
-      b6      19
-      b7      19
-      b8      19
-      b9      19
-      ba      19
-      bb      19
-      e7      19
-      e8      19
-      e9      19
-      ea      19
-      eb      19
-      ec      19
-      ed      19
-      ee      19
-      ef      19
-      f0      19
-      f1      19
-      f2      19
-      f3      19
-      f4      19
+      5c      21
+      5d      21
+      61      21
+      62      21
+      63      21
+      64      21
+      a9      21
+      aa      21
+      ab      21
+      ac      21
+      ad      21
+      ae      21
+      af      21
+      b0      21
+      b1      21
+      b2      21
+      b4      21
+      b5      21
+      b6      21
+      b7      21
+      b8      21
+      b9      21
+      ba      21
+      bb      21
+      e7      21
+      e8      21
+      e9      21
+      ea      21
+      eb      21
+      ec      21
+      ed      21
+      ee      21
+      ef      21
+      f0      21
+      f1      21
+      f2      21
+      f3      21
+      f4      21
    }
 
    method 'testWithWaitAtEnd (ILkotlin/coroutines/Continuation;)Ljava/lang/Object;' {
-      60      23
-      61      23
-      65      23
-      66      23
-      67      23
-      68      23
-      ae      23
-      b0      23
-      b1      23
-      b2      23
-      b3      23
-      b4      23
-      b5      23
-      b9      23
-      ba      23
-      bb      23
-      bc      23
-      bd      23
-      be      23
-      bf      23
-      c0      23
-      fd      23
-      fe      23
-      ff      23
-      100      23
-      101      23
-      102      23
-      103      23
-      104      23
-      105      23
-      106      23
-      107      23
-      108      23
-      109      23
-      10a      23
-      10b      23
-      10c      23
-      12a      23
+      60      25
+      61      25
+      65      25
+      66      25
+      67      25
+      68      25
+      ae      25
+      b0      25
+      b1      25
+      b2      25
+      b3      25
+      b4      25
+      b5      25
+      b9      25
+      ba      25
+      bb      25
+      bc      25
+      bd      25
+      be      25
+      bf      25
+      c0      25
+      fd      25
+      fe      25
+      ff      25
+      100      25
+      101      25
+      102      25
+      103      25
+      104      25
+      105      25
+      106      25
+      107      25
+      108      25
+      109      25
+      10a      25
+      10b      25
+      10c      25
+      12a      25
    }
 
    method 'testConditionalWait (ILkotlin/coroutines/Continuation;)Ljava/lang/Object;' {
-      58      27
-      59      27
-      5a      27
-      5b      27
-      5c      27
-      61      27
-      63      27
-      64      27
-      65      27
-      66      27
-      67      27
-      68      27
-      8e      27
-      8f      27
-      90      27
-      91      27
-      92      27
-      93      27
-      94      27
-      95      27
-      96      27
-      97      27
-      98      27
-      99      27
-      9a      27
-      9c      27
-      9d      27
-      9e      27
-      9f      27
+      58      29
+      59      29
+      5a      29
+      5b      29
+      5c      29
+      61      29
+      63      29
+      64      29
+      65      29
+      66      29
+      67      29
+      68      29
+      8e      29
+      8f      29
+      90      29
+      91      29
+      92      29
+      93      29
+      94      29
+      95      29
+      96      29
+      97      29
+      98      29
+      99      29
+      9a      29
+      9c      29
+      9d      29
+      9e      29
+      9f      29
    }
 
    method 'testConditionalWaitPhi (ILkotlin/coroutines/Continuation;)Ljava/lang/Object;' {
-      5d      32
-      5e      32
-      63      33
-      66      33
-      67      33
-      68      33
-      69      33
-      6a      33
-      6b      33
-      93      33
-      94      33
-      95      33
-      96      33
-      97      33
-      98      33
-      99      33
-      9a      33
-      9b      33
-      9c      33
-      9d      33
-      9e      33
-      a2      35
-      a3      35
-      a4      35
-      a5      35
-      a6      38
-      a7      38
-      a8      38
-      a9      38
-      aa      38
+      5d      34
+      5e      34
+      63      35
+      66      35
+      67      35
+      68      35
+      69      35
+      6a      35
+      6b      35
+      93      35
+      94      35
+      95      35
+      96      35
+      97      35
+      98      35
+      99      35
+      9a      35
+      9b      35
+      9c      35
+      9d      35
+      9e      35
+      a2      37
+      a3      37
+      a4      37
+      a5      37
+      a6      40
+      a7      40
+      a8      40
+      a9      40
+      aa      40
    }
 
    method 'testConditionalWaitAtTail (ILkotlin/coroutines/Continuation;)Ljava/lang/Object;' {
-      0      42
-      1      42
-      4      42
-      5      42
-      6      42
-      7      42
-      8      42
-      9      42
-      a      42
-      b      42
-      d      42
-      e      42
-      f      42
-      10      42
+      0      44
+      1      44
+      4      44
+      5      44
+      6      44
+      7      44
+      8      44
+      9      44
+      a      44
+      b      44
+      d      44
+      e      44
+      f      44
+      10      44
    }
 
    method 'testMultipleConditionalWait (ILkotlin/coroutines/Continuation;)Ljava/lang/Object;' {
-      5c      47
-      5d      47
-      5e      47
-      5f      47
-      60      47
-      65      48
-      67      48
-      68      48
-      69      48
-      6a      48
-      6b      48
-      6c      48
-      92      48
-      93      48
-      94      48
-      95      48
-      96      48
-      97      48
-      98      48
-      99      48
-      9a      48
-      9b      48
-      9c      48
-      9d      48
-      9e      48
-      9f      48
-      a0      50
-      a1      50
-      a2      50
-      a3      50
-      a6      50
-      a8      50
-      a9      50
-      aa      50
-      ab      50
-      ac      50
-      ad      50
-      ae      50
-      af      50
-      b0      50
-      d6      50
-      d7      50
-      d8      50
-      d9      50
-      da      50
-      db      50
-      dc      50
-      dd      50
-      de      50
-      df      50
-      e0      50
-      e1      50
-      e2      50
-      e4      50
-      e5      50
-      e6      50
-      e7      50
+      5c      49
+      5d      49
+      5e      49
+      5f      49
+      60      49
+      65      50
+      67      50
+      68      50
+      69      50
+      6a      50
+      6b      50
+      6c      50
+      92      50
+      93      50
+      94      50
+      95      50
+      96      50
+      97      50
+      98      50
+      99      50
+      9a      50
+      9b      50
+      9c      50
+      9d      50
+      9e      50
+      9f      50
+      a0      52
+      a1      52
+      a2      52
+      a3      52
+      a6      52
+      a8      52
+      a9      52
+      aa      52
+      ab      52
+      ac      52
+      ad      52
+      ae      52
+      af      52
+      b0      52
+      d6      52
+      d7      52
+      d8      52
+      d9      52
+      da      52
+      db      52
+      dc      52
+      dd      52
+      de      52
+      df      52
+      e0      52
+      e1      52
+      e2      52
+      e4      52
+      e5      52
+      e6      52
+      e7      52
    }
 
    method 'testSuspendInCondition (ILkotlin/coroutines/Continuation;)Ljava/lang/Object;' {
-      58      55
-      59      55
-      5a      55
-      5b      55
-      5c      55
-      5d      55
-      77      55
-      78      55
-      79      55
-      7a      55
-      7b      55
-      7c      55
-      7d      55
-      80      56
-      81      56
-      82      56
-      83      56
-      84      56
-      86      56
-      87      56
-      88      56
-      89      57
-      8a      57
-      8b      57
-      8c      57
-      8d      57
-      8e      59
-      8f      59
-      90      59
-      91      59
-      92      59
+      58      57
+      59      57
+      5a      57
+      5b      57
+      5c      57
+      5d      57
+      77      57
+      78      57
+      79      57
+      7a      57
+      7b      57
+      7c      57
+      7d      57
+      80      58
+      81      58
+      82      58
+      83      58
+      84      58
+      86      58
+      87      58
+      88      58
+      89      59
+      8a      59
+      8b      59
+      8c      59
+      8d      59
+      8e      61
+      8f      61
+      90      61
+      91      61
+      92      61
    }
 
    method 'testSuspendedBooleanInCondition (ILkotlin/coroutines/Continuation;)Ljava/lang/Object;' {
-      58      64
-      59      64
-      5a      64
-      5b      64
-      5c      64
-      5d      64
-      77      64
-      78      64
-      79      64
-      7a      64
-      7b      64
-      7c      64
-      7d      64
-      80      65
-      81      65
-      82      65
-      83      65
-      84      65
-      86      65
-      87      65
-      88      65
-      89      66
-      8a      66
-      8b      66
-      8c      66
-      8d      66
-      8e      68
-      8f      68
-      90      68
-      91      68
-      92      68
+      58      66
+      59      66
+      5a      66
+      5b      66
+      5c      66
+      5d      66
+      77      66
+      78      66
+      79      66
+      7a      66
+      7b      66
+      7c      66
+      7d      66
+      80      67
+      81      67
+      82      67
+      83      67
+      84      67
+      86      67
+      87      67
+      88      67
+      89      68
+      8a      68
+      8b      68
+      8c      68
+      8d      68
+      8e      70
+      8f      70
+      90      70
+      91      70
+      92      70
+   }
+
+   method 'testReturnNullability (ILkotlin/coroutines/Continuation;)Ljava/lang/Object;' {
+      4      75
+      5      75
+      6      75
+      a      75
    }
 }
 
 Lines mapping:
-6 <-> 8
-9 <-> 12
-10 <-> 12
-14 <-> 16
-17 <-> 20
-18 <-> 20
-21 <-> 24
-22 <-> 24
-25 <-> 28
-27 <-> 28
-30 <-> 28
-34 <-> 33
-36 <-> 34
+8 <-> 10
+11 <-> 14
+12 <-> 14
+16 <-> 18
+19 <-> 22
+20 <-> 22
+23 <-> 26
+24 <-> 26
+27 <-> 30
+29 <-> 30
+32 <-> 30
+36 <-> 35
 38 <-> 36
-41 <-> 39
-45 <-> 43
-46 <-> 43
-49 <-> 43
-52 <-> 48
-54 <-> 49
-57 <-> 51
-58 <-> 51
-61 <-> 51
-64 <-> 56
-65 <-> 56
-66 <-> 57
+40 <-> 38
+43 <-> 41
+47 <-> 45
+48 <-> 45
+51 <-> 45
+54 <-> 50
+56 <-> 51
+59 <-> 53
+60 <-> 53
+63 <-> 53
+66 <-> 58
 67 <-> 58
-70 <-> 60
-73 <-> 65
-74 <-> 65
-75 <-> 66
+68 <-> 59
+69 <-> 60
+72 <-> 62
+75 <-> 67
 76 <-> 67
-79 <-> 69
+77 <-> 68
+78 <-> 69
+81 <-> 71
+85 <-> 76
 Not mapped:
-26
-33
+28
 35
-53
+37
+55
