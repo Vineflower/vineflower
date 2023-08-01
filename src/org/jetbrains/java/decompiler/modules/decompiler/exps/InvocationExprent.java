@@ -596,7 +596,7 @@ public class InvocationExprent extends Exprent {
     TextBuffer buf = new TextBuffer();
 
     if (wasLazyCondy) {
-      buf.append("/* $QF: constant dynamic replaced with non-lazy method call */ ");
+      buf.append("/* $VF: constant dynamic replaced with non-lazy method call */ ");
     }
 
     String super_qualifier = null;
@@ -800,7 +800,7 @@ public class InvocationExprent extends Exprent {
         else if (instance != null) {
           String s = ".";
           if (DecompilerContext.getOption(IFernflowerPreferences.DECOMPILER_COMMENTS)) {
-            s += "/* $QF: Unable to resugar constructor */";
+            s += "/* $VF: Unable to resugar constructor */";
           }
           s += "<init>(";
 

@@ -1,0 +1,94 @@
+package pkg;
+
+import java.util.Stack;
+import java.util.Vector;
+
+public class TestAmbiguousArraylen {
+   protected final void myMethod(Vector myVector) {
+      if (myVector.firstElement() instanceof Stack) {// 8
+         ((Stack)myVector.firstElement()).size();
+      } else {
+         int var10000 = ((Object[])myVector.firstElement()).length;
+      }
+
+      Object[] myObjects = myVector.firstElement() instanceof Stack ? ((Stack)myVector.get(0)).toArray() : (Object[])myVector.get(0);// 9
+      System.out.println(myObjects);// 10
+   }// 11
+}
+
+class 'pkg/TestAmbiguousArraylen' {
+   method 'myMethod (Ljava/util/Vector;)V' {
+      0      7
+      1      7
+      2      7
+      3      7
+      4      7
+      5      7
+      6      7
+      7      7
+      a      8
+      b      8
+      c      8
+      d      8
+      e      8
+      f      8
+      10      8
+      11      8
+      12      8
+      13      8
+      17      10
+      18      10
+      19      10
+      1a      10
+      1b      10
+      1c      10
+      1d      10
+      1e      10
+      1f      10
+      20      10
+      21      10
+      23      13
+      24      13
+      25      13
+      26      13
+      27      13
+      28      13
+      29      13
+      2a      13
+      2d      13
+      2e      13
+      2f      13
+      30      13
+      31      13
+      32      13
+      33      13
+      34      13
+      35      13
+      36      13
+      37      13
+      3b      13
+      3c      13
+      3d      13
+      3e      13
+      3f      13
+      40      13
+      41      13
+      42      13
+      43      13
+      46      13
+      47      14
+      48      14
+      49      14
+      4a      14
+      4b      14
+      4c      14
+      4d      14
+      4e      15
+   }
+}
+
+Lines mapping:
+8 <-> 8
+9 <-> 14
+10 <-> 15
+11 <-> 16

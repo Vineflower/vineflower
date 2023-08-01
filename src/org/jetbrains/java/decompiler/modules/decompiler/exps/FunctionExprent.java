@@ -273,7 +273,7 @@ public class FunctionExprent extends Exprent {
           return right;
         }
       } else { //TODO: Capture generics to make cast better?
-        this.needsCast = right.type == CodeConstants.TYPE_NULL || !DecompilerContext.getStructContext().instanceOf(right.value, cast.value);
+        this.needsCast = right.type == CodeConstants.TYPE_NULL || !DecompilerContext.getStructContext().instanceOf(right.value, cast.value) || right.arrayDim != cast.arrayDim;
       }
 
       return getExprType();
@@ -422,6 +422,12 @@ public class FunctionExprent extends Exprent {
         }
         break;
       }
+      case INSTANCEOF:
+        if (lstOperands.size() > 2) { // pattern matching instanceof
+          // The type of the defined var must be the type being tested
+          result.addMinTypeExprent(lstOperands.get(2), lstOperands.get(1).getExprType());
+        }
+        break;
 
       case OTHER: throw new PluginImplementationException();
     }

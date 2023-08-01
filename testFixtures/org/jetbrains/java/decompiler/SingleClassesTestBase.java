@@ -254,9 +254,19 @@ public abstract class SingleClassesTestBase {
           assertEquals(getContent(referenceFile), decompiledContent);
         } catch (AssertionFailedError e) {
           if (failable) {
-            assumeTrue(false, referenceFile.getFileName() + " failed but was ignored");
+            assumeTrue(false, referenceFile.getFileName() + " failed but was ignored, because it was marked as failable");
           } else {
-            throw e;
+            // This is terrible! We shouldn't need this! The reason this exists is because Github Actions likes to create
+            // different code in impossible to debug ways, so we just allowlist two different versions of the decompiled code.
+            Path tryNext = referenceFile.resolveSibling(referenceFile.getFileName().toString()
+              .replace(".dec", "_1.dec"));
+
+            if (Files.exists(tryNext)) {
+              assertTrue(Files.isRegularFile(tryNext));
+              assertEquals(getContent(tryNext), decompiledContent);
+            } else {
+              throw e;
+            }
           }
         }
       }

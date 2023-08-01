@@ -84,7 +84,7 @@ public class FinallyProcessor {
 
           if (inf == null) { // inconsistent finally
             this.catchallBlocks.add(handler);
-            root.addComment("$QF: Could not inline inconsistent finally blocks", true);
+            root.addComment("$VF: Could not inline inconsistent finally blocks", true);
           } else {
             if (DecompilerContext.getOption(IFernflowerPreferences.FINALLY_DEINLINE) && this.verifyFinallyEx(graph, fin, inf)) {
               // FIXME: inlines improperly, breaks TestLoopFinally#emptyInnerFinally
@@ -100,7 +100,7 @@ public class FinallyProcessor {
               this.finallyBlocks.put(handler, varIndex);
 
               if (DecompilerContext.getOption(IFernflowerPreferences.DECOMPILER_COMMENTS)) {
-                root.addComment("$QF: Could not verify finally blocks. A semaphore variable has been added to preserve control flow.", true);
+                root.addComment("$VF: Could not verify finally blocks. A semaphore variable has been added to preserve control flow.", true);
               }
             }
 
@@ -520,7 +520,7 @@ public class FinallyProcessor {
       if (sideExits == null) {
         sideExits = arr.sideExits;
       } else {
-        ValidationHelper.assertTrue(sideExits.equals(arr.sideExits), "Side exits are not equal");
+        ValidationHelper.validateTrue(sideExits.equals(arr.sideExits), "Side exits are not equal");
       }
     }
 
@@ -545,7 +545,7 @@ public class FinallyProcessor {
       if (entry.getValue()) {
         removeExceptionInstructionsEx(last, 2, finallytype);
         graph.getFinallyExits().add(last);
-        ValidationHelper.assertTrue(trueExit == null, "More than one true exit");
+        ValidationHelper.validateTrue(trueExit == null, "More than one true exit");
         trueExit = last;
       }
     }

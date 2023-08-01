@@ -8,7 +8,10 @@ import org.jetbrains.java.decompiler.main.collectors.VarNamesCollector;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
+import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarTypeProcessor.FinalType;
 import org.jetbrains.java.decompiler.struct.StructClass;
@@ -40,11 +43,11 @@ public class VarDefinitionHelper {
   private final StructMethod mt;
   private final Map<VarVersionPair, String> clashingNames = new HashMap<>();
 
-  public VarDefinitionHelper(Statement root, StructMethod mt, VarProcessor varproc) {
+  public VarDefinitionHelper(RootStatement root, StructMethod mt, VarProcessor varproc) {
     this(root, mt, varproc, true);
   }
 
-  public VarDefinitionHelper(Statement root, StructMethod mt, VarProcessor varproc, boolean run) {
+  public VarDefinitionHelper(RootStatement root, StructMethod mt, VarProcessor varproc, boolean run) {
 
     mapVarDefStatements = new HashMap<>();
     mapStatementVars = new HashMap<>();
@@ -138,6 +141,10 @@ public class VarDefinitionHelper {
     }
 
     initStatement(root);
+
+    FlattenStatementsHelper flattenHelper = new FlattenStatementsHelper();
+    DirectGraph graph = flattenHelper.buildDirectGraph(root);
+    ValidationHelper.validateVars(graph, root, var -> var.getVarType() != VarType.VARTYPE_UNKNOWN, "Var type not set!");
   }
 
   public void setVarDefinitions() {
@@ -559,7 +566,7 @@ public class VarDefinitionHelper {
           } else {
             RootStatement root = stat.getTopParent();
 
-            root.addComment("$QF: One or more variable merging failures!", true);
+            root.addComment("$VF: One or more variable merging failures!", true);
           }
         }
       }

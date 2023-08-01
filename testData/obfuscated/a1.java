@@ -70,11 +70,11 @@ public class a1 implements a0 {
    }
 
    public String d(String param1) throws XPathExpressionException {
-      // $QF: Couldn't be decompiled
+      // $VF: Couldn't be decompiled
    }
 
    public boolean f(String param1) throws XPathExpressionException {
-      // $QF: Couldn't be decompiled
+      // $VF: Couldn't be decompiled
    }
 
    public String a() {

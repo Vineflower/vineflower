@@ -138,7 +138,7 @@ public class TestTryReturn {
   }
 
   public void testPostdomFailure() {
-    // Load bearing useless string- removing this makes qf emit a parsing error???
+    // Load bearing useless string- removing this makes vf emit a parsing error???
     String var1;
     System.out.println(1);
     label:

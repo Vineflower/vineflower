@@ -23,13 +23,17 @@ jobs:
           name: "test-results-java${{ matrix.java }}"
           path: |
             build/reports/
-            */build/reports/
+            plugins/*/build/reports/
             build/test-results/**/*.xml
       - name: Codecov
         uses: codecov/codecov-action@v3.1.1
   publish-test-results:
     runs-on: ubuntu-22.04
     needs: [build]
+    permissions:
+      issues: write
+      pull-requests: write
+      checks: write
     if: success() || failure()
     steps:
       - name: Download Artifacts
@@ -37,7 +41,7 @@ jobs:
         with:
           path: artifacts
       - name: Publish Test Results
-        uses: EnricoMi/publish-unit-test-result-action@v2.5.0
+        uses: EnricoMi/publish-unit-test-result-action@v2
         with:
           check_name: Test Results
           files: artifacts/*/build/test-results/**/*.xml

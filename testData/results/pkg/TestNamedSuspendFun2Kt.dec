@@ -15,13 +15,13 @@ import org.jetbrains.annotations.Nullable;
    k = 2,
    xi = 48,
    d1 = {"\u0000\n\n\u0000\n\u0002\u0010\b\n\u0002\b\u0003\u001a\u0011\u0010\u0000\u001a\u00020\u0001H\u0086@ø\u0001\u0000¢\u0006\u0002\u0010\u0002\u001a\u0011\u0010\u0003\u001a\u00020\u0001H\u0086@ø\u0001\u0000¢\u0006\u0002\u0010\u0002\u0082\u0002\u0004\n\u0002\b\u0019¨\u0006\u0004"},
-   d2 = {"bar", "", "(Lkotlin/coroutines/Continuation;)Ljava/lang/Object;", "foo2", "quiltflower_testDataKotlin"}
+   d2 = {"bar", "", "(Lkotlin/coroutines/Continuation;)Ljava/lang/Object;", "foo2", "vineflower_testDataKotlin"}
 )
 public final class TestNamedSuspendFun2Kt {
-   // $QF: Handled exception range with multiple entry points by splitting it
-   // $QF: Inserted dummy exception handlers to handle obfuscated exceptions
-   // $QF: Irreducible bytecode was duplicated to produce valid code
-   // $QF: Could not inline inconsistent finally blocks
+   // $VF: Handled exception range with multiple entry points by splitting it
+   // $VF: Inserted dummy exception handlers to handle obfuscated exceptions
+   // $VF: Irreducible bytecode was duplicated to produce valid code
+   // $VF: Could not inline inconsistent finally blocks
    @Nullable
    public static final Object foo2(@NotNull Continuation<? super Integer> var0) {
       Continuation $continuation;

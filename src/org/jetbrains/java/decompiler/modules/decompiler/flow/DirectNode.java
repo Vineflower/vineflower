@@ -54,7 +54,7 @@ public class DirectNode {
   }
 
   public void addSuccessor(DirectEdge edge) {
-    ValidationHelper.assertTrue(edge.getSource() == this, "Source node mismatch");
+    ValidationHelper.validateTrue(edge.getSource() == this, "Source node mismatch");
     if (!getSuccessors(edge.getType()).contains(edge)) {
       getSuccessors(edge.getType()).add(edge);
     }

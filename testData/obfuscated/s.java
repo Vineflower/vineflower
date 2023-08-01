@@ -34,7 +34,7 @@ public class s {
    }
 
    protected p b() {
-      // $QF: Couldn't be decompiled
+      // $VF: Couldn't be decompiled
    }
 
    protected static String b(Throwable var0) {
@@ -178,7 +178,7 @@ public class s {
                if (var10005 <= var1) {
                   label384: {
                      var10000[2] = (new String(var10003)).intern();
-                     var10003 = "QF'".toCharArray();
+                     var10003 = "VF'".toCharArray();
                      var10005 = var10003.length;
                      var1 = 0;
                      var10004 = var10003;
@@ -340,7 +340,7 @@ public class s {
                      if (var2 <= var1) {
                         label492: {
                            var10000[2] = (new String(var10004)).intern();
-                           var10003 = "QF'".toCharArray();
+                           var10003 = "VF'".toCharArray();
                            var10005 = var10003.length;
                            var1 = 0;
                            var10004 = var10003;
@@ -612,7 +612,7 @@ public class s {
                      if (var10005 <= var1) {
                         label173: {
                            var10000[2] = (new String(var10003)).intern();
-                           var10003 = "QF'".toCharArray();
+                           var10003 = "VF'".toCharArray();
                            var10005 = var10003.length;
                            var1 = 0;
                            var10004 = var10003;
@@ -774,7 +774,7 @@ public class s {
                            if (var2 <= var1) {
                               label93: {
                                  var10000[2] = (new String(var10004)).intern();
-                                 var10003 = "QF'".toCharArray();
+                                 var10003 = "VF'".toCharArray();
                                  var10005 = var10003.length;
                                  var1 = 0;
                                  var10004 = var10003;

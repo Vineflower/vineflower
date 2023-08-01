@@ -17,6 +17,7 @@ import org.jetbrains.java.decompiler.util.collections.ListStack;
 import org.jetbrains.java.decompiler.util.collections.VBStyleCollection;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 public final class ValidationHelper {
   private static final boolean VALIDATE = System.getProperty("VALIDATE_DECOMPILED_CODE", "false").equals("true");
@@ -360,7 +361,7 @@ public final class ValidationHelper {
     }
   }
 
-  public static void validateAllVarVersionsAreNull(DirectGraph dgraph, RootStatement root) {
+  public static void validateVars(DirectGraph dgraph, RootStatement root, Predicate<VarExprent> predicate, String message) {
     if (!VALIDATE) {
       return;
     }
@@ -372,8 +373,9 @@ public final class ValidationHelper {
             for (Exprent sub : exprent.getAllExprents(true, true)) {
               if (sub instanceof VarExprent) {
                 VarExprent var = (VarExprent) sub;
-                if (var.getVersion() != 0) {
-                  throw new IllegalStateException("Var version is not zero: " + var.getIndex() + "_" + var.getVersion());
+                if (!predicate.test(var)) {
+                  System.out.println(root.toJava().convertToStringAndAllowDataDiscard());
+                  throw new IllegalStateException(message + ": " + var.getIndex() + "_" + var.getVersion() + " " + var.getVarType());
                 }
               }
             }
@@ -470,8 +472,14 @@ public final class ValidationHelper {
     return false;
   }
 
-  public static void assertTrue(boolean condition, String message) {
+  public static void validateTrue(boolean condition, String message) {
     if (VALIDATE && !condition) {
+      throw new IllegalStateException("Validation failed: " + message);
+    }
+  }
+
+  public static void assertTrue(boolean condition, String message) {
+    if (!condition) {
       throw new IllegalStateException("Assertion failed: " + message);
     }
   }

@@ -47,7 +47,8 @@ public class AssignmentExprent extends Exprent {
   public VarType getExprType() {
     // Union together types
     VarType rType = VarType.getCommonSupertype(left.getExprType(), right.getExprType());
-    return rType;
+    // TODO: maybe there's a better default for null
+    return rType == null ? left.getExprType() : rType;
   }
 
   @Override
@@ -157,7 +158,7 @@ public class AssignmentExprent extends Exprent {
 
       if (varLeft.isDefinition() && varLeft.getProcessor() != null) {
         if (varLeft.getProcessor().getSyntheticSemaphores().contains(varLeft.getIndex())) {
-          buffer.append(" /* QF: Semaphore variable */");
+          buffer.append(" /* VF: Semaphore variable */");
         }
       }
     }

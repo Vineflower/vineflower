@@ -3,10 +3,10 @@ package pkg;
 @TestAnnotationFormatting.Anno(
    x = "This is a very long string that should cause text formatting to happen!",
    y = @TestAnnotationFormatting.Anno2(
-   name = "This is a very long string that should cause text formatting to happen!",
-   size = 100,
-   location = -30
-),
+      name = "This is a very long string that should cause text formatting to happen!",
+      size = 100,
+      location = -30
+   ),
    z = 100000
 )
 public class TestAnnotationFormatting {

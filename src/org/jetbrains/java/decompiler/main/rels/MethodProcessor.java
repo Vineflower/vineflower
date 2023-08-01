@@ -86,7 +86,7 @@ public class MethodProcessor implements Runnable {
     debugCurrentDecompileRecord.set(null);
 
     boolean isInitializer = CodeConstants.CLINIT_NAME.equals(mt.getName()); // for now static initializer only
-    PluginContext pluginContext = DecompilerContext.getCurrentContext().structContext.getPluginContext();
+    PluginContext pluginContext = PluginContext.getCurrentContext();
 
     mt.expandData(cl);
     InstructionSequence seq = mt.getInstructionSequence();
@@ -136,7 +136,7 @@ public class MethodProcessor implements Runnable {
 
       if (!ExceptionDeobfuscator.handleMultipleEntryExceptionRanges(graph)) {
         DecompilerContext.getLogger().writeMessage("Found multiple entry exception ranges which could not be splitted", IFernflowerLogger.Severity.WARN);
-        graph.addComment("$QF: Could not handle exception ranges with multiple entries");
+        graph.addComment("$VF: Could not handle exception ranges with multiple entries");
         graph.addErrorComment = true;
       }
 

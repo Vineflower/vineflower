@@ -3,6 +3,7 @@ package org.jetbrains.java.decompiler.main.decompiler;
 
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.Fernflower;
+import org.jetbrains.java.decompiler.main.extern.IContextSource;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.extern.IResultSaver;
@@ -74,8 +75,8 @@ public class ConsoleDecompiler implements /* IBytecodeProvider, */ IResultSaver,
 
     if (args.length < 1) {
       System.out.println(
-        "Usage: java -jar quiltflower.jar [--<option>=<value>]* [<source>]+ <destination>\n" +
-        "Example: java -jar quiltflower.jar --decompile-generics c:\\my\\source\\ c:\\my.jar d:\\decompiled\\\n" +
+        "Usage: java -jar vineflower.jar [--<option>=<value>]* [<source>]+ <destination>\n" +
+        "Example: java -jar vineflower.jar --decompile-generics c:\\my\\source\\ c:\\my.jar d:\\decompiled\\\n" +
         "Use -h or --help for more information.");
       return;
     }
@@ -225,6 +226,10 @@ public class ConsoleDecompiler implements /* IBytecodeProvider, */ IResultSaver,
     engine.addLibrary(library);
   }
 
+  public void addLibrary(IContextSource source) {
+    engine.addLibrary(source);
+  }
+
   public void addWhitelist(String prefix) {
     engine.addWhitelist(prefix);
   }
@@ -243,6 +248,7 @@ public class ConsoleDecompiler implements /* IBytecodeProvider, */ IResultSaver,
   // *******************************************************************
 
   // @Override
+  @Deprecated
   public byte[] getBytecode(String externalPath, String internalPath) throws IOException { // UNUSED
     if (internalPath == null) {
       File file = new File(externalPath);

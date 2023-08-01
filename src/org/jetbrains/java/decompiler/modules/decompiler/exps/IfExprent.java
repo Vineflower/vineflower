@@ -85,6 +85,9 @@ public class IfExprent extends Exprent {
 
   @Override
   public TextBuffer toJava(int indent) {
+    // The general context of if conditions is that they must always return booleans
+    condition.getInferredExprType(VarType.VARTYPE_BOOLEAN);
+
     TextBuffer buf = condition.toJava(indent);
     buf.pushNewlineGroup(indent, 1);
     buf.appendPossibleNewline();

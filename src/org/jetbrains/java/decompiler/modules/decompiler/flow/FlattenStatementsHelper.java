@@ -181,7 +181,7 @@ public class FlattenStatementsHelper {
         DirectNode tryBlock = this.flattenStatement(stat.getFirst());
         node.addSuccessor(DirectEdge.of(node, tryBlock));
 
-        ValidationHelper.assertTrue(tryNodes == this.tryNodesStack.pop(), "tryNodesStack is broken");
+        ValidationHelper.validateTrue(tryNodes == this.tryNodesStack.pop(), "tryNodesStack is broken");
         if (!this.tryNodesStack.isEmpty()) {
           this.tryNodesStack.peek().addAll(tryNodes);
         }
@@ -211,7 +211,7 @@ public class FlattenStatementsHelper {
 
           Statement st = stats.get(endCatchIndex);
           DirectNode finallyNode = this.finallyNodesStack.pop();
-          ValidationHelper.assertTrue(
+          ValidationHelper.validateTrue(
             finallyNode.statement == stat && finallyNode.type == DirectNodeType.FINALLY,
             "stackFinally is broken");
           combinedCatchNode.addSuccessor(DirectEdge.of(combinedCatchNode, finallyNode));
@@ -221,7 +221,7 @@ public class FlattenStatementsHelper {
           finallyNode.addSuccessor(DirectEdge.of(finallyNode, finallyBlockNode));
 
           DirectNode finallyEndNode = this.finallyNodesStack.pop();
-          ValidationHelper.assertTrue(
+          ValidationHelper.validateTrue(
             finallyEndNode.statement == stat && finallyEndNode.type == DirectNodeType.FINALLY_END,
             "stackFinally is broken");
         }

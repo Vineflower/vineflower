@@ -1,6 +1,7 @@
 package org.jetbrains.java.decompiler.main.plugins;
 
 import org.jetbrains.java.decompiler.api.Plugin;
+import org.jetbrains.java.decompiler.api.PluginSource;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;

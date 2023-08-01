@@ -6,7 +6,7 @@ import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.decompiler.OptionParser;
 import org.jetbrains.java.decompiler.main.extern.*;
 import org.jetbrains.java.decompiler.main.plugins.JarPluginLoader;
-import org.jetbrains.java.decompiler.main.plugins.PluginSource;
+import org.jetbrains.java.decompiler.api.PluginSource;
 import org.jetbrains.java.decompiler.main.plugins.PluginSources;
 import org.jetbrains.java.decompiler.modules.renamer.ConverterHelper;
 import org.jetbrains.java.decompiler.modules.renamer.IdentifierConverter;
@@ -216,7 +216,7 @@ public class Fernflower implements IDecompiledData {
       if (DecompilerContext.getOption(IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR)) {
         List<String> lines = new ArrayList<>();
         lines.add("/*");
-        lines.add("$QF: Unable to decompile class");
+        lines.add("$VF: Unable to decompile class");
         lines.addAll(ClassWriter.getErrorComment());
         ClassWriter.collectErrorLines(t, lines);
         lines.add("*/");

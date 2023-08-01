@@ -6,6 +6,7 @@ import org.jetbrains.java.decompiler.api.java.JavaPassRegistrar;
 import org.jetbrains.java.decompiler.api.language.LanguageSpec;
 import org.jetbrains.java.decompiler.api.passes.NamedPass;
 import org.jetbrains.java.decompiler.api.passes.PassContext;
+import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.struct.StructClass;
 
 import java.util.*;
@@ -16,6 +17,10 @@ public class PluginContext {
   private Map<JavaPassLocation, List<NamedPass>> passes = new HashMap<>();
   private final Map<Plugin, LanguageSpec> languageSpecs = new HashMap<>();
   private final Set<String> ids = new HashSet<>();
+
+  public static PluginContext getCurrentContext() {
+    return DecompilerContext.getCurrentContext().structContext.getPluginContext();
+  }
 
   public void registerPlugin(Plugin plugin) {
     plugins.add(plugin);

@@ -390,10 +390,10 @@ public final class DomHelper implements GraphParser {
                 DecompilerContext.getLogger().writeMessage("Irreducible statement too complex to be decomposed!", IFernflowerLogger.Severity.ERROR);
 
                 tracer.error(general, "Flow too complex to be decomposed!");
-                root.addComment("$QF: Irreducible bytecode has more than 5 nodes in sequence and was not entirely decomposed", true);
+                root.addComment("$VF: Irreducible bytecode has more than 5 nodes in sequence and was not entirely decomposed", true);
               }
 
-              root.addComment("$QF: Irreducible bytecode was duplicated to produce valid code");
+              root.addComment("$VF: Irreducible bytecode was duplicated to produce valid code");
             }
           } else {
             tracer.error(general, "Flow not irreducible, but could not decompose");

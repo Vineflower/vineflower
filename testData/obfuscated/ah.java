@@ -5,7 +5,7 @@ public class ah {
    private volatile long b = 0L;
 
    public void a() {
-      // $QF: Couldn't be decompiled
+      // $VF: Couldn't be decompiled
    }
 
    public double a(TimeUnit var1) {

@@ -97,7 +97,6 @@ Lines mapping:
 32 <-> 20
 33 <-> 21
 
-
 // Decompiled companion from pkg/AddMonoid
 package pkg;
 
@@ -136,7 +135,6 @@ class 'pkg/AddMonoid' {
 }
 
 Lines mapping:
-
 
 // Decompiled companion from pkg/AddMonoid$
 package pkg;
@@ -191,7 +189,6 @@ Lines mapping:
 9 <-> 16
 10 <-> 20
 
-
 // Decompiled companion from pkg/MulMonoid
 package pkg;
 
@@ -230,7 +227,6 @@ class 'pkg/MulMonoid' {
 }
 
 Lines mapping:
-
 
 // Decompiled companion from pkg/MulMonoid$
 package pkg;
@@ -285,7 +281,6 @@ Lines mapping:
 14 <-> 16
 15 <-> 20
 
-
 // Decompiled companion from pkg/ConcatMonoid
 package pkg;
 
@@ -324,7 +319,6 @@ class 'pkg/ConcatMonoid' {
 }
 
 Lines mapping:
-
 
 // Decompiled companion from pkg/ConcatMonoid$
 package pkg;
@@ -392,7 +386,6 @@ Lines mapping:
 19 <-> 17
 20 <-> 21
 
-
 // Decompiled companion from pkg/Monoid
 package pkg;
 
@@ -401,4 +394,3 @@ public interface Monoid<T> {
 
    T id();
 }
-

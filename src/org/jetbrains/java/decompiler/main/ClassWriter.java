@@ -63,7 +63,7 @@ public class ClassWriter implements StatementWriter {
   private static boolean invokeProcessors(TextBuffer buffer, ClassNode node) {
     ClassWrapper wrapper = node.getWrapper();
     if (wrapper == null) {
-      buffer.append("/* $QF: Couldn't be decompiled. Class " + node.classStruct.qualifiedName + " wasn't processed yet! */");
+      buffer.append("/* $VF: Couldn't be decompiled. Class " + node.classStruct.qualifiedName + " wasn't processed yet! */");
       List<String> lines = new ArrayList<>();
       lines.addAll(ClassWriter.getErrorComment());
       for (String line : lines) {
@@ -117,7 +117,7 @@ public class ClassWriter implements StatementWriter {
       DecompilerContext.getLogger().writeMessage("Class " + node.simpleName + " couldn't be written.",
         IFernflowerLogger.Severity.WARN,
         t);
-      buffer.append("// $QF: Couldn't be decompiled");
+      buffer.append("// $VF: Couldn't be decompiled");
       buffer.appendLineSeparator();
       if (DecompilerContext.getOption(IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR)) {
         List<String> lines = new ArrayList<>();
@@ -247,7 +247,7 @@ public class ClassWriter implements StatementWriter {
                     IFernflowerLogger.Severity.WARN,
                     ex);
                   methodWrapper.decompileError = ex;
-                  buffer.append(" // $QF: Couldn't be decompiled");
+                  buffer.append(" // $VF: Couldn't be decompiled");
                 }
                 finally {
                   DecompilerContext.setProperty(DecompilerContext.CURRENT_METHOD_WRAPPER, outerWrapper);
@@ -310,7 +310,7 @@ public class ClassWriter implements StatementWriter {
 
           buffer
             .appendIndent(indent)
-            .append("// $QF: Compiled from " + sourceFile)
+            .append("// $VF: Compiled from " + sourceFile)
             .appendLineSeparator();
         }
       }
@@ -924,7 +924,7 @@ public class ClassWriter implements StatementWriter {
     if (!changed) {
       return name;
     }
-    return res.append("/* $QF was: ").append(name).append("*/").toString();
+    return res.append("/* $VF was: ").append(name).append("*/").toString();
   }
 
   public boolean writeMethod(ClassNode node, StructMethod mt, int methodIndex, TextBuffer buffer, int indent) {
@@ -1231,7 +1231,7 @@ public class ClassWriter implements StatementWriter {
 
   private static void dumpError(TextBuffer buffer, MethodWrapper wrapper, int indent) {
     List<String> lines = new ArrayList<>();
-    lines.add("$QF: Couldn't be decompiled");
+    lines.add("$VF: Couldn't be decompiled");
     boolean exceptions = DecompilerContext.getOption(IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR);
     boolean bytecode = DecompilerContext.getOption(IFernflowerPreferences.DUMP_BYTECODE_ON_ERROR);
     if (exceptions) {
@@ -1475,7 +1475,7 @@ public class ClassWriter implements StatementWriter {
     if (oldName == null) return;
 
     buffer.appendIndent(indent);
-    buffer.append("// $QF: renamed from: ");
+    buffer.append("// $VF: renamed from: ");
 
     switch (type) {
       case CLASS:
@@ -1524,7 +1524,7 @@ public class ClassWriter implements StatementWriter {
   }
 
   private static void appendComment(TextBuffer buffer, String comment, int indent) {
-    buffer.appendIndent(indent).append("// $QF: ").append(comment).appendLineSeparator();
+    buffer.appendIndent(indent).append("// $VF: ").append(comment).appendLineSeparator();
   }
   
   private static void appendJavadoc(TextBuffer buffer, String javaDoc, int indent) {
@@ -1550,6 +1550,7 @@ public class ClassWriter implements StatementWriter {
       StructAnnotationAttribute attribute = (StructAnnotationAttribute)mb.getAttribute(key);
       if (attribute != null) {
         for (AnnotationExprent annotation : attribute.getAnnotations()) {
+          buffer.appendIndent(indent);
           TextBuffer text = annotation.toJava(indent);
           filter.add(text.convertToStringAndAllowDataDiscard());
           buffer.appendText(text);
@@ -1640,6 +1641,7 @@ public class ClassWriter implements StatementWriter {
           if (annotation.isTopLevel() && annotation.getTargetType() == targetType && (index < 0 || annotation.getIndex() == index)) {
             TextBuffer text = annotation.getAnnotation().toJava(indent);
             if (!filter.contains(text.convertToStringAndAllowDataDiscard())) {
+              buffer.appendIndent(indent);
               buffer.appendText(text);
               if (indent < 0) {
                 buffer.append(' ');

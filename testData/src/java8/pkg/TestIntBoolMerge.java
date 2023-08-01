@@ -21,4 +21,18 @@ public class TestIntBoolMerge {
 
     return count;
   }
+
+  public long field1;
+  public long field2;
+  public void testField() {
+    m1("s", field1 = field2++);
+  }
+
+  public void m1(Object o, long l) {
+
+  }
+
+  public void m1(String s, long l) {
+
+  }
 }

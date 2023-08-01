@@ -776,7 +776,6 @@ public class StackVarsProcessor {
     }
 
     setRet(ret, null, changed, false);
-    return;
   }
 
   private static void setRet(Object[] ret, Object a, boolean b, boolean c) {

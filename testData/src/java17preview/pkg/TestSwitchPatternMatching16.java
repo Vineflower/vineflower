@@ -16,7 +16,7 @@ public class TestSwitchPatternMatching16 {
             break outer;
           }
           case Integer i -> {
-            // trick qf into inlining target block
+            // trick vf into inlining target block
           }
           case Number n -> {
             System.out.println("Number: " + n);

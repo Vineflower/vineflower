@@ -1,6 +1,9 @@
 package pkg;
 
 public class TestIntBoolMerge {
+   public long field1;
+   public long field2;
+
    public void test() {
       int i = 0;// 6
       System.out.println(i);// 7
@@ -18,69 +21,110 @@ public class TestIntBoolMerge {
 
       return count;// 22
    }
+
+   public void testField() {
+      this.m1("s", this.field1 = this.field2++);// 28
+   }// 29
+
+   public void m1(Object o, long l) {
+   }// 33
+
+   public void m1(String s, long l) {
+   }// 37
 }
 
 class 'pkg/TestIntBoolMerge' {
    method 'test ()V' {
-      0      4
-      1      4
-      2      5
-      3      5
-      4      5
-      5      5
-      6      5
-      7      5
-      8      5
-      9      6
-      a      6
-      b      7
-      c      7
-      d      7
-      e      7
-      f      7
-      10      7
-      11      7
-      12      8
+      0      7
+      1      7
+      2      8
+      3      8
+      4      8
+      5      8
+      6      8
+      7      8
+      8      8
+      9      9
+      a      9
+      b      10
+      c      10
+      d      10
+      e      10
+      f      10
+      10      10
+      11      10
+      12      11
    }
 
    method 'testLoop (Ljava/lang/String;Ljava/lang/String;)I' {
-      0      11
-      1      11
-      2      14
-      3      14
-      4      14
-      5      14
-      6      14
-      7      14
-      8      14
-      9      14
-      a      14
-      b      14
-      d      14
-      e      14
-      f      14
-      10      14
-      13      15
-      14      15
-      15      15
-      18      14
-      19      14
-      1a      14
-      1b      14
-      1d      14
-      1e      14
-      22      18
-      23      18
+      0      14
+      1      14
+      2      17
+      3      17
+      4      17
+      5      17
+      6      17
+      7      17
+      8      17
+      9      17
+      a      17
+      b      17
+      d      17
+      e      17
+      f      17
+      10      17
+      13      18
+      14      18
+      15      18
+      18      17
+      19      17
+      1a      17
+      1b      17
+      1d      17
+      1e      17
+      22      21
+      23      21
+   }
+
+   method 'testField ()V' {
+      0      25
+      1      25
+      2      25
+      3      25
+      4      25
+      6      25
+      7      25
+      8      25
+      b      25
+      10      25
+      11      25
+      12      25
+      13      25
+      14      25
+      15      25
+      16      26
+   }
+
+   method 'm1 (Ljava/lang/Object;J)V' {
+      0      29
+   }
+
+   method 'm1 (Ljava/lang/String;J)V' {
+      0      32
    }
 }
 
 Lines mapping:
-6 <-> 5
-7 <-> 6
-10 <-> 7
-11 <-> 8
-13 <-> 9
-16 <-> 12
-18 <-> 15
-19 <-> 16
-22 <-> 19
+6 <-> 8
+7 <-> 9
+10 <-> 10
+11 <-> 11
+13 <-> 12
+16 <-> 15
+18 <-> 18
+19 <-> 19
+22 <-> 22
+28 <-> 26
+29 <-> 27
+33 <-> 30
+37 <-> 33

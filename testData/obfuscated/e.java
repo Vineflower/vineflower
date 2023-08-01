@@ -76,7 +76,7 @@ class e<K, V> implements a<K, V> {
    }
 
    public void i() {
-      // $QF: Couldn't be decompiled
+      // $VF: Couldn't be decompiled
    }
 
    public void j() {
@@ -95,7 +95,7 @@ class e<K, V> implements a<K, V> {
    }
 
    public V a(K param1, f<K, V> param2) {
-      // $QF: Couldn't be decompiled
+      // $VF: Couldn't be decompiled
    }
 
    public void a(K var1, V var2) {

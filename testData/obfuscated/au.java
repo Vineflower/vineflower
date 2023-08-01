@@ -11,7 +11,7 @@ class au extends ap {
    }
 
    public double d() {
-      // $QF: Couldn't be decompiled
+      // $VF: Couldn't be decompiled
    }
 
    public String c() {

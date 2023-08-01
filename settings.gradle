@@ -1,8 +1,21 @@
-rootProject.name = 'quiltflower'
+pluginManagement {
+  repositories {
+    mavenCentral() // avoid delegating to JCenter to minimize outages
+    gradlePluginPortal()
+  }
+}
 
-include 'idea-not-null'
-project(":idea-not-null").projectDir = (new File(rootProject.projectDir, "plugins/idea-not-null"))
-include 'kotlin'
-project(":kotlin").projectDir = (new File(rootProject.projectDir, "plugins/kotlin"))
-include 'scala'
-project(":scala").projectDir = (new File(rootProject.projectDir, "plugins/scala"))
+plugins {
+  id 'org.gradle.toolchains.foojay-resolver-convention' version '0.6.0'
+}
+
+rootProject.name = 'vineflower'
+
+[
+  'idea-not-null',
+  'kotlin',
+  'scala'
+].each {
+  include it
+  project(":$it").projectDir = new File(rootProject.projectDir, "plugins/$it")
+}

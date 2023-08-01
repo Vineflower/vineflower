@@ -49,7 +49,6 @@ public class AnnotationExprent extends Exprent {
   public TextBuffer toJava(int indent) {
     TextBuffer buffer = new TextBuffer();
 
-    buffer.appendIndent(indent);
     buffer.append('@');
     buffer.appendAllClasses(DecompilerContext.getImportCollector().getShortName(ExprProcessor.buildJavaClassName(className)), className);
 
@@ -70,7 +69,7 @@ public class AnnotationExprent extends Exprent {
           buffer.append(" = ");
         }
 
-        buffer.append(parValues.get(i).toJava(0));
+        buffer.append(parValues.get(i).toJava(indent + 1));
 
         if (i < parNames.size() - 1) {
           buffer.append(',');

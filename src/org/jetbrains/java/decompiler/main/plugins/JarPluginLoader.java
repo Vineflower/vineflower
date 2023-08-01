@@ -7,7 +7,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-// Finds plugins included in the main Quiltflower Jar via Jar-In-Jar
+// Finds plugins included in the main Vineflower Jar via Jar-In-Jar
 public class JarPluginLoader {
   static List<Class<?>> PLUGIN_CLASSES = new ArrayList<>();
 

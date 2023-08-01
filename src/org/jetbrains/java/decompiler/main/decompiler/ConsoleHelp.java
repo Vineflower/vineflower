@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 public class ConsoleHelp {
   private static final String[] DEFAULT_HELP = {
-    "Usage: java -jar quiltflower.jar [--<option>=<value>]* [<source>]+ <destination>",
+    "Usage: java -jar vineflower.jar [--<option>=<value>]* [<source>]+ <destination>",
     "At least one source file or directory must be specified.",
     "Options:",
     "-h, --help: Show this help",

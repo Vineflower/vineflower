@@ -17,7 +17,7 @@ public abstract class FastFixedSet<E> extends AbstractCollection<E> implements S
 
   @Deprecated
   public final int size() {
-    ValidationHelper.assertTrue(false, "The behaviour of FastFixedSet.size() is not correct");
+    ValidationHelper.validateTrue(false, "The behaviour of FastFixedSet.size() is not correct");
     return this.factory.getEntries().size();
   }
 

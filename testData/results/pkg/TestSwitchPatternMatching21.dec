@@ -3,7 +3,7 @@ package pkg;
 import java.util.Objects;
 
 public class TestSwitchPatternMatching21 {
-   // $QF: Could not properly define all variable types!
+   // $VF: Could not properly define all variable types!
    public void test1(String it) {
       Objects.requireNonNull(it);// 5
       <unknown> var2;

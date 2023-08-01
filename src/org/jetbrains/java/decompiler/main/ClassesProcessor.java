@@ -11,6 +11,7 @@ import org.jetbrains.java.decompiler.main.collectors.ImportCollector;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.extern.IIdentifierRenamer;
+import org.jetbrains.java.decompiler.main.plugins.PluginContext;
 import org.jetbrains.java.decompiler.main.rels.ClassWrapper;
 import org.jetbrains.java.decompiler.main.rels.LambdaProcessor;
 import org.jetbrains.java.decompiler.main.rels.NestedClassProcessor;
@@ -434,7 +435,7 @@ public class ClassesProcessor implements CodeConstants {
           DecompilerContext.getLogger().writeMessage("Class " + root.simpleName + " couldn't be written.",
             IFernflowerLogger.Severity.WARN,
             t);
-          buffer.append("// $QF: Couldn't be decompiled");
+          buffer.append("// $VF: Couldn't be decompiled");
           buffer.appendLineSeparator();
           if (DecompilerContext.getOption(IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR)) {
             List<String> lines = new ArrayList<>();
@@ -452,7 +453,7 @@ public class ClassesProcessor implements CodeConstants {
         // add simple class names to implicit import
         addClassNameToImport(root, importCollector);
 
-        LanguageSpec spec = DecompilerContext.getCurrentContext().structContext.getPluginContext().getLanguageSpec(cl);
+        LanguageSpec spec = PluginContext.getCurrentContext().getLanguageSpec(cl);
 
         // build wrappers for all nested classes (that's where actual processing takes place)
         initWrappers(root, spec);
@@ -467,7 +468,7 @@ public class ClassesProcessor implements CodeConstants {
             DecompilerContext.getLogger().writeMessage("Class " + root.simpleName + " couldn't be written.",
               IFernflowerLogger.Severity.WARN,
               t);
-            buffer.append("// $QF: Couldn't be decompiled");
+            buffer.append("// $VF: Couldn't be decompiled");
             buffer.appendLineSeparator();
             if (DecompilerContext.getOption(IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR)) {
               List<String> lines = new ArrayList<>();
