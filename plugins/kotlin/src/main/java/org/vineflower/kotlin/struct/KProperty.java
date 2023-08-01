@@ -1,4 +1,4 @@
-package org.quiltmc.quiltflower.kotlin.struct;
+package org.vineflower.kotlin.struct;
 
 import kotlin.reflect.jvm.internal.impl.metadata.ProtoBuf;
 import kotlin.reflect.jvm.internal.impl.metadata.jvm.JvmProtoBuf;
@@ -19,12 +19,12 @@ import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.collections.VBStyleCollection;
-import org.quiltmc.quiltflower.kotlin.KotlinDecompilationContext;
-import org.quiltmc.quiltflower.kotlin.KotlinPreferences;
-import org.quiltmc.quiltflower.kotlin.KotlinWriter;
-import org.quiltmc.quiltflower.kotlin.metadata.MetadataNameResolver;
-import org.quiltmc.quiltflower.kotlin.util.KTypes;
-import org.quiltmc.quiltflower.kotlin.util.ProtobufFlags;
+import org.vineflower.kotlin.KotlinDecompilationContext;
+import org.vineflower.kotlin.KotlinPreferences;
+import org.vineflower.kotlin.KotlinWriter;
+import org.vineflower.kotlin.metadata.MetadataNameResolver;
+import org.vineflower.kotlin.util.KTypes;
+import org.vineflower.kotlin.util.ProtobufFlags;
 
 import java.util.*;
 

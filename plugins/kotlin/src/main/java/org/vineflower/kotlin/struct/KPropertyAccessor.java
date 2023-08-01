@@ -1,8 +1,8 @@
-package org.quiltmc.quiltflower.kotlin.struct;
+package org.vineflower.kotlin.struct;
 
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.struct.StructMethod;
-import org.quiltmc.quiltflower.kotlin.util.ProtobufFlags;
+import org.vineflower.kotlin.util.ProtobufFlags;
 
 public class KPropertyAccessor {
   public final ProtobufFlags.PropertyAccessor flags;

@@ -1,11 +1,11 @@
-package org.quiltmc.quiltflower.kotlin.struct;
+package org.vineflower.kotlin.struct;
 
 import kotlin.reflect.jvm.internal.impl.metadata.ProtoBuf;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.TextBuffer;
-import org.quiltmc.quiltflower.kotlin.metadata.MetadataNameResolver;
-import org.quiltmc.quiltflower.kotlin.util.KTypes;
+import org.vineflower.kotlin.metadata.MetadataNameResolver;
+import org.vineflower.kotlin.util.KTypes;
 
 public class KType extends VarType {
   public final String kotlinType;

@@ -1,4 +1,4 @@
-package org.quiltmc.quiltflower.kotlin;
+package org.vineflower.kotlin;
 
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;

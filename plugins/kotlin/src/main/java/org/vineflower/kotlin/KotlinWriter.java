@@ -37,11 +37,11 @@ import org.jetbrains.java.decompiler.util.Key;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.TextUtil;
 import org.jetbrains.java.decompiler.util.collections.VBStyleCollection;
-import org.quiltmc.quiltflower.kotlin.expr.KAnnotationExprent;
-import org.quiltmc.quiltflower.kotlin.metadata.MetadataNameResolver;
-import org.quiltmc.quiltflower.kotlin.struct.KProperty;
-import org.quiltmc.quiltflower.kotlin.util.KTypes;
-import org.quiltmc.quiltflower.kotlin.util.ProtobufFlags;
+import org.vineflower.kotlin.expr.KAnnotationExprent;
+import org.vineflower.kotlin.metadata.MetadataNameResolver;
+import org.vineflower.kotlin.struct.KProperty;
+import org.vineflower.kotlin.util.KTypes;
+import org.vineflower.kotlin.util.ProtobufFlags;
 
 import java.io.IOException;
 import java.util.*;
