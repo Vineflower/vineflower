@@ -7,8 +7,8 @@ public class TestJadLvtCollision implements Iterable<TestJadLvtCollision> {
    }// 10
 
    public void testLoop(TestJadLvtCollision testjadlvtcollision) {
-      for(TestJadLvtCollision testjadlvtcollision : testjadlvtcollision) {// 13
-         System.out.println(testjadlvtcollision.toString() + testjadlvtcollision.toString());// 14
+      for(TestJadLvtCollision testjadlvtcollisionx : testjadlvtcollision) {// 13
+         System.out.println(testjadlvtcollision.toString() + testjadlvtcollisionx.toString());// 14
       }
    }// 16
 

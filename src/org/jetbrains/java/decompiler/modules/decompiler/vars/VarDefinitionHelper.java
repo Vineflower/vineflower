@@ -1355,15 +1355,13 @@ public class VarDefinitionHelper {
     Set<VarVersionPair> liveVarDefs = new HashSet<>();
     Map<VarVersionPair, String> nameMap = new HashMap<>();
 
-    if (root instanceof RootStatement) {
-      StructMethodParametersAttribute paramAttribute = ((RootStatement) root).mt.getAttribute(StructGeneralAttribute.ATTRIBUTE_METHOD_PARAMETERS);
-      StructLocalVariableTableAttribute lvtAttribute = ((RootStatement) root).mt.getAttribute(StructGeneralAttribute.ATTRIBUTE_LOCAL_VARIABLE_TABLE);
-      if (paramAttribute != null && lvtAttribute != null) {
-        for (StructMethodParametersAttribute.Entry entry : paramAttribute.getEntries()) {
-          // for every method param, find lvt entry and put it into the name map
-          Optional<LocalVariable> lvtEntry = lvtAttribute.getVariables().filter(s -> s.getName().equals(entry.myName)).findFirst();
-          lvtEntry.ifPresent(localVariable -> nameMap.put(localVariable.getVersion(), entry.myName));
-        }
+    StructMethodParametersAttribute paramAttribute = ((RootStatement) root).mt.getAttribute(StructGeneralAttribute.ATTRIBUTE_METHOD_PARAMETERS);
+    StructLocalVariableTableAttribute lvtAttribute = ((RootStatement) root).mt.getAttribute(StructGeneralAttribute.ATTRIBUTE_LOCAL_VARIABLE_TABLE);
+    if (paramAttribute != null && lvtAttribute != null) {
+      for (StructMethodParametersAttribute.Entry entry : paramAttribute.getEntries()) {
+        // for every method param, find lvt entry and put it into the name map
+        Optional<LocalVariable> lvtEntry = lvtAttribute.getVariables().filter(s -> s.getName().equals(entry.myName)).findFirst();
+        lvtEntry.ifPresent(localVariable -> nameMap.put(localVariable.getVersion(), entry.myName));
       }
     }
 
@@ -1389,7 +1387,7 @@ public class VarDefinitionHelper {
       // Process var definitions in statement head
       for (Object obj : stat.getSequentialObjects()) {
         if (obj instanceof Exprent) {
-          List<Exprent> exprents = ((Exprent) obj).getAllExprents(true);
+          List<Exprent> exprents = ((Exprent) obj).getAllExprents(true, true);
 
           for (Exprent exprent : exprents) {
             iterateClashingExprent(stat, varDefinitions, exprent, curVarDefs, nameMap);
