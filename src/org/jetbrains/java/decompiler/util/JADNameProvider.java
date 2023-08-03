@@ -37,13 +37,14 @@ import org.jetbrains.java.decompiler.struct.gen.VarType;
 public class JADNameProvider implements IVariableNameProvider {
   private HashMap<String, Holder> last = null;
   private HashMap<String, String> remap = null;
+  private final HashMap<Integer, String> parameters = new HashMap<>();
   private StructMethod method = null;
   private boolean renameParameters = false;
   private static final Pattern CAPS_START = Pattern.compile("^[A-Z]");
   private static final Pattern ARRAY = Pattern.compile("(\\[|\\.\\.\\.)");
 
-  public JADNameProvider(StructMethod wrapper) {
-    last = new HashMap<String, Holder>();
+  public JADNameProvider(boolean renameParameters, StructMethod wrapper) {
+    last = new HashMap<>();
     last.put("int",     new Holder(0, true,  "i", "j", "k", "l"));
     last.put("byte",    new Holder(0, false, "b"       ));
     last.put("char",    new Holder(0, false, "c"       ));
@@ -65,6 +66,7 @@ public class JADNameProvider implements IVariableNameProvider {
     remap.put("long", "int");
 
     this.method = wrapper;
+    this.renameParameters = renameParameters;
   }
 
   @Override
@@ -109,32 +111,32 @@ public class JADNameProvider implements IVariableNameProvider {
       params += param.stackSize;
     }
 
-    List<VarVersionPair> keys = new ArrayList<VarVersionPair>(entries.keySet());
-    Collections.sort(keys, new Comparator<VarVersionPair>(){
-      @Override
-      public int compare(VarVersionPair o1, VarVersionPair o2) {
-        if (o1.var != o2.var) return o1.var - o2.var;
-        return o1.version - o2.version;
-      }
-    });
+    List<VarVersionPair> keys = new ArrayList<>(entries.keySet());
+    Collections.sort(keys, (o1, o2) -> (o1.var != o2.var) ? o1.var - o2.var : o1.version - o2.version);
 
-    Map<VarVersionPair, String> result = new LinkedHashMap<VarVersionPair, String>();
+    Map<VarVersionPair, String> result = new LinkedHashMap<>();
     for (VarVersionPair ver : keys) {
-      String type = entries.get(ver);
+      String type = cleanType(entries.get(ver));
       if ("this".equals(type)) {
         continue;
       }
-      if (type.indexOf('<') != -1) {
-        type = type.substring(0, type.indexOf('<'));
-      }
-      if (type.indexOf('.') != -1) {
-        type = type.substring(type.lastIndexOf('.') + 1);
-      }
-      if (renameParameters || ver.var >= params) {
+      if (ver.var >= params) {
         result.put(ver, getNewName(type));
+      } else if (renameParameters) {
+        result.put(ver, this.parameters.computeIfAbsent(ver.var, k -> getNewName(type)));
       }
     }
     return result;
+  }
+
+  private String cleanType(String type) {
+    if (type.indexOf('<') != -1) {
+      type = type.substring(0, type.indexOf('<'));
+    }
+    if (type.indexOf('.') != -1) {
+      type = type.substring(type.lastIndexOf('.') + 1);
+    }
+    return type;
   }
 
   protected synchronized String getNewName(String type) {
@@ -199,14 +201,24 @@ public class JADNameProvider implements IVariableNameProvider {
   }
 
   @Override
-  public String renameAbstractParameter(String abstractParam, int index) {
-    return abstractParam;
+  public String renameParameter(int flags, String type, String name, int index) {
+    if (!this.renameParameters) {
+      return IVariableNameProvider.super.renameParameter(flags, type, name, index);
+    }
+
+    return this.parameters.computeIfAbsent(index, k -> getNewName(cleanType(type)));
   }
 
   public static class JADNameProviderFactory implements IVariableNamingFactory {
+    private final boolean renameParameters;
+
+    public JADNameProviderFactory(boolean renameParameters) {
+      this.renameParameters = renameParameters;
+    }
+
     @Override
     public IVariableNameProvider createFactory(StructMethod method) {
-      return new JADNameProvider(method);
+      return new JADNameProvider(renameParameters, method);
     }
   }
 }

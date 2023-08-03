@@ -72,7 +72,8 @@ public class Fernflower implements IDecompiledData {
     }
     if (renamerFactory == null) {
       if("1".equals(properties.get(IFernflowerPreferences.USE_JAD_VARNAMING))) {
-        renamerFactory = new JADNameProvider.JADNameProviderFactory();
+        boolean renameParams = "1".equals(properties.get(IFernflowerPreferences.USE_JAD_PARAMETER_NAMING));
+        renamerFactory = new JADNameProvider.JADNameProviderFactory(renameParams);
       } else {
         renamerFactory = new IdentityRenamerFactory();
       }

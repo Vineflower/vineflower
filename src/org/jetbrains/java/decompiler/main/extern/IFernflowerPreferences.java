@@ -223,8 +223,12 @@ public interface IFernflowerPreferences {
   String LINE_SEPARATOR_UNX = "\n";
 
   @Name("JAD-Style Variable Naming")
-  @Description("Use JAD-style variable naming for local variables, instead of var<index>_<version>A.")
+  @Description("Use JAD-style variable naming for local variables, instead of var<index>_<version>.")
   String USE_JAD_VARNAMING = "jvn";
+
+  @Name("JAD-Style Parameter Naming")
+  @Description("Use JAD-style variable naming for parameters.")
+  String USE_JAD_PARAMETER_NAMING = "jpr";
 
   @Name("Skip Extra Files")
   @Description("Skip copying non-class files from the input folder or file to the output")
@@ -319,6 +323,7 @@ public interface IFernflowerPreferences {
     defaults.put(DUMP_ORIGINAL_LINES, "0");
     defaults.put(THREADS, String.valueOf(Runtime.getRuntime().availableProcessors()));
     defaults.put(USE_JAD_VARNAMING, "0");
+    defaults.put(USE_JAD_PARAMETER_NAMING, "0");
     defaults.put(SKIP_EXTRA_FILES, "0");
     defaults.put(WARN_INCONSISTENT_INNER_CLASSES, "1");
     defaults.put(DUMP_BYTECODE_ON_ERROR, "1");
