@@ -823,7 +823,9 @@ public class FinallyProcessor {
         seq.addInstruction(0, seqSample.getInstr(i), -1);
         oldOffsets.addFirst(sample.getOldOffset(i));
         seqSample.removeInstruction(i);
-        instrOldOffsetsSample.remove(i);
+        if (i < instrOldOffsetsSample.size()) {
+          instrOldOffsetsSample.remove(i);
+        }
       }
 
       BasicBlock newblock = new BasicBlock(++graph.last_id);
