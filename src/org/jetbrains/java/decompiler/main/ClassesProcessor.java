@@ -686,6 +686,11 @@ public class ClassesProcessor implements CodeConstants {
       return this.classStruct.qualifiedName.compareTo(o.classStruct.qualifiedName);
     }
 
+    @Override
+    public String toString() {
+      return type + " class " + classStruct.qualifiedName;
+    }
+
     public static class LambdaInformation {
       public String method_name;
       public String method_descriptor;

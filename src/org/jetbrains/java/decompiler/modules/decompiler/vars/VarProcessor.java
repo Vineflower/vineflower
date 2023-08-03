@@ -28,6 +28,7 @@ public class VarProcessor {
   private final Map<VarVersionPair, String> thisVars = new HashMap<>();
   private final Set<VarVersionPair> externalVars = new HashSet<>();
   private final Map<VarVersionPair, String> clashingNames = new HashMap<>();
+  private final Map<VarVersionPair, String> inheritedNames = new HashMap<>();
   private final Set<Integer> syntheticSemaphores = new HashSet<>();
   public boolean nestedProcessed;
 
@@ -96,6 +97,17 @@ public class VarProcessor {
     }
   }
 
+  public void rerunClashing(RootStatement root) {
+    VarDefinitionHelper vardef = new VarDefinitionHelper(root, method, this, false);
+    vardef.remapClashingNames(root);
+
+    for (Entry<VarVersionPair, String> e : vardef.getClashingNames().entrySet()) {
+      if (!params.contains(e.getKey())) {
+        this.clashingNames.put(e.getKey(), e.getValue());
+      }
+    }
+  }
+
   public Integer getVarOriginalIndex(int index) {
     if (varVersions == null) {
       return null;
@@ -143,6 +155,16 @@ public class VarProcessor {
 
   public void setVarName(VarVersionPair pair, String name) {
     mapVarNames.put(pair, name);
+  }
+
+  public void setInheritedName(VarVersionPair pair, String name) {
+    setVarName(pair, name);
+
+    inheritedNames.put(pair, name);
+  }
+
+  public Map<VarVersionPair, String> getInheritedNames() {
+    return this.inheritedNames;
   }
 
   public Set<VarVersionPair> getUsedVarVersions() {

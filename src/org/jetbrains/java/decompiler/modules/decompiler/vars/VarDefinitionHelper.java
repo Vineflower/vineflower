@@ -1354,6 +1354,7 @@ public class VarDefinitionHelper {
     Map<Statement, Set<VarVersionPair>> varDefinitions = new HashMap<>();
     Set<VarVersionPair> liveVarDefs = new HashSet<>();
     Map<VarVersionPair, String> nameMap = new HashMap<>();
+    nameMap.putAll(this.varproc.getInheritedNames());
 
     StructMethodParametersAttribute paramAttribute = ((RootStatement) root).mt.getAttribute(StructGeneralAttribute.ATTRIBUTE_METHOD_PARAMETERS);
     StructLocalVariableTableAttribute lvtAttribute = ((RootStatement) root).mt.getAttribute(StructGeneralAttribute.ATTRIBUTE_LOCAL_VARIABLE_TABLE);

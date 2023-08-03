@@ -30,7 +30,7 @@ public class TestDuplicateLocals {
    public void test3(List<List<Object>> var1) {
       System.out.println(var1);
       var1.forEach(var0 -> {
-         int var1x = var0.size();
+         int var1xx = var0.size();
          System.out.println(var0);
          var0.forEach(var1xx -> System.out.println(var1x));
       });

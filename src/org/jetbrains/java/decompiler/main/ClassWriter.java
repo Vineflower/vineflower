@@ -101,6 +101,13 @@ public class ClassWriter implements StatementWriter {
         EnumProcessor.clearEnum(wrapper);
       }
 
+      // FIXME: when 1.10 merge, this needs to be removed
+      for (MethodWrapper mw : wrapper.getMethods()) {
+        if (mw.root != null) {
+          mw.varproc.rerunClashing(mw.root);
+        }
+      }
+
       if (DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_ASSERTIONS)) {
         AssertProcessor.buildAssertions(node);
       }

@@ -343,7 +343,7 @@ public class NestedClassProcessor {
       VarVersionPair pair = entry.getKey();
       LocalVariable lvt = lvts.get(pair);
 
-      varProc.setVarName(pair, entry.getValue());
+      varProc.setInheritedName(pair, entry.getValue());
       if (lvt != null) {
         varProc.setVarLVT(pair, lvt);
       }
@@ -734,7 +734,7 @@ public class NestedClassProcessor {
           VarType type = mapNewTypes.get(pair);
           LocalVariable lvt = mapNewLVTs.get(pair);
 
-          method.varproc.setVarName(pair, entry.getValue());
+          method.varproc.setInheritedName(pair, entry.getValue());
           if (type != null) {
             method.varproc.setVarType(pair, type);
           }
