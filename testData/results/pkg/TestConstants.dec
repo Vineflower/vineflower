@@ -19,12 +19,12 @@ public class TestConstants {
    static final float FNan = 0.0F / 0.0F;
    static final float FNeg = -1.0F / 0.0F;
    static final float FPos = 1.0F / 0.0F;
-   static final float FMin = 1.4E-45F;
+   static final float FMin = 1.0E-45F;
    static final float FMax = 3.4028235E38F;
    static final double DNan = 0.0 / 0.0;
    static final double DNeg = -1.0 / 0.0;
    static final double DPos = 1.0 / 0.0;
-   static final double DMin = 4.9E-324;
+   static final double DMin = 5.0E-324;
    static final double DMax = 1.7976931348623157E308;
    static final double D10 = 1.0E10;
    static final double DN10 = 1.0E-10;

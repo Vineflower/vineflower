@@ -417,10 +417,6 @@ public class ConstExprent extends Exprent {
       value = value.substring(0, eIdx);
     }
 
-    if (!exp.isEmpty()) {
-      return value + exp;
-    }
-
     // Cut off digits that don't affect the value
     String temp = value;
     int dotIdx = value.indexOf('.');
@@ -462,9 +458,6 @@ public class ConstExprent extends Exprent {
     if (eIdx != -1) {
       exp = value.substring(eIdx);
       value = value.substring(0, eIdx);
-    }
-    if (!exp.isEmpty()) {
-      return value + exp;
     }
 
     // Cut off digits that don't affect the value
