@@ -780,6 +780,7 @@ public class FinallyProcessor {
                                        List<int[]> lstStoreVars) {
     InstructionSequence seqPattern = pattern.getSeq();
     InstructionSequence seqSample = sample.getSeq();
+    List<Integer> instrOldOffsetsSample = sample.getInstrOldOffsets();
 
     if (type != 0) {
       seqPattern = seqPattern.clone();
@@ -822,6 +823,9 @@ public class FinallyProcessor {
         seq.addInstruction(0, seqSample.getInstr(i), -1);
         oldOffsets.addFirst(sample.getOldOffset(i));
         seqSample.removeInstruction(i);
+        if (i < instrOldOffsetsSample.size()) {
+          instrOldOffsetsSample.remove(i);
+        }
       }
 
       BasicBlock newblock = new BasicBlock(++graph.last_id);
@@ -1010,26 +1014,31 @@ public class FinallyProcessor {
 
   private static void removeExceptionInstructionsEx(BasicBlock block, int blocktype, int finallytype) {
     InstructionSequence seq = block.getSeq();
+    List<Integer> instrOldOffsets = block.getInstrOldOffsets();
 
     if (finallytype == 3) { // empty finally handler
       for (int i = seq.length() - 1; i >= 0; i--) {
         seq.removeInstruction(i);
+        instrOldOffsets.remove(i);
       }
     }
     else {
       if ((blocktype & 1) > 0) { // first
         if (finallytype == 2 || finallytype == 1) { // astore or pop
           seq.removeInstruction(0);
+          instrOldOffsets.remove(0);
         }
       }
 
       if ((blocktype & 2) > 0) { // last
         if (finallytype == 2 || finallytype == 0) {
           seq.removeLast();
+          instrOldOffsets.remove(instrOldOffsets.size() - 1);
         }
 
         if (finallytype == 2) { // astore
           seq.removeLast();
+          instrOldOffsets.remove(instrOldOffsets.size() - 1);
         }
       }
     }

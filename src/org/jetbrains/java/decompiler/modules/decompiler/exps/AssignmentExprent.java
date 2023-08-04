@@ -297,7 +297,7 @@ public class AssignmentExprent extends Exprent {
     }
 
     if (precedence >= FunctionExprent.FunctionType.CAST.precedence) {
-      buf.enclose("(", ")");
+      buf.encloseWithParens();
     }
 
     buf.prepend("(" + ExprProcessor.getCastTypeName(left) + ")");

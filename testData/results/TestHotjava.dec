@@ -7,9 +7,9 @@ public class TestHotjava {
       try {
          System.out.println("Try");// 7 8
       } finally {
-         System.out.println("Jsr");
+         System.out.println("Jsr");// 10
       }
-   }// 10
+   }
 
    // $VF: Could not inline inconsistent finally blocks
    // $VF: Could not create synchronized statement, marking monitor enters and exits
@@ -50,7 +50,7 @@ public class TestHotjava {
          try {
             System.out.println("Try");// 28 29
          } finally {
-            System.out.println("Jsr");
+            System.out.println("Jsr");// 31
          }
       } catch (Throwable var10) {
          // $VF: monitorexit
@@ -81,13 +81,15 @@ class 'TestHotjava' {
       3      7
       4      7
       5      7
-      c      9
       d      9
       e      9
       f      9
       10      9
       11      9
       12      9
+      13      9
+      14      9
+      15      9
       18      11
    }
 
@@ -133,7 +135,6 @@ class 'TestHotjava' {
       7      50
       8      50
       9      50
-      12      52
       13      52
       14      52
       15      52
@@ -141,6 +142,9 @@ class 'TestHotjava' {
       17      52
       18      52
       19      52
+      1a      52
+      1b      52
+      1c      52
       25      59
       26      60
       28      55
@@ -153,7 +157,7 @@ Lines mapping:
 3 <-> 3
 7 <-> 8
 8 <-> 8
-10 <-> 12
+10 <-> 10
 15 <-> 17
 16 <-> 20
 21 <-> 32
@@ -161,5 +165,4 @@ Lines mapping:
 27 <-> 47
 28 <-> 51
 29 <-> 51
-Not mapped:
-31
+31 <-> 53

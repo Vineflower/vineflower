@@ -49,7 +49,7 @@ public class TestSwitchFinally {
       try {
          System.out.println(1);// 57
       } finally {
-         System.out.println("finally");// 59
+         System.out.println("finally");
          switch(i) {// 61
             case 0:
                System.out.println("0");// 63
@@ -65,7 +65,7 @@ public class TestSwitchFinally {
          System.out.println("b");
       }
 
-      System.out.println("d");
+      System.out.println("d");// 59
       return 1;
    }
 }
@@ -78,16 +78,16 @@ class 'pkg/TestSwitchFinally' {
       3      5
       4      5
       34      15
-      37      7
       38      7
       39      7
       3a      7
       3b      7
       3c      7
-      3d      8
-      3e      8
-      3f      8
+      3d      7
+      3e      7
+      3f      7
       40      8
+      41      8
       54      10
       55      10
       56      10
@@ -100,8 +100,6 @@ class 'pkg/TestSwitchFinally' {
       5f      13
       60      13
       61      13
-      62      13
-      63      13
    }
 
    method 'test1 (I)V' {
@@ -111,16 +109,16 @@ class 'pkg/TestSwitchFinally' {
       3      19
       4      19
       47      32
-      4a      21
       4b      21
       4c      21
       4d      21
       4e      21
       4f      21
-      50      22
-      51      22
-      52      22
+      50      21
+      51      21
+      52      21
       53      22
+      54      22
       70      24
       71      24
       72      24
@@ -142,8 +140,6 @@ class 'pkg/TestSwitchFinally' {
       86      30
       87      30
       88      30
-      89      30
-      8a      30
    }
 
    method 'test2 (I)V' {
@@ -153,16 +149,16 @@ class 'pkg/TestSwitchFinally' {
       3      36
       4      36
       2c      45
-      2f      38
       30      38
       31      38
       32      38
       33      38
       34      38
-      35      39
-      36      39
-      37      39
+      35      38
+      36      38
+      37      38
       38      39
+      39      39
       44      41
       45      41
       46      41
@@ -177,8 +173,6 @@ class 'pkg/TestSwitchFinally' {
       4f      42
       50      42
       51      42
-      52      42
-      53      42
    }
 
    method 'test3 (I)I' {
@@ -190,17 +184,17 @@ class 'pkg/TestSwitchFinally' {
       52      67
       53      67
       54      67
-      55      51
+      55      67
       56      51
       57      51
       58      51
       59      51
       5a      51
-      5b      52
-      5c      52
-      5d      52
+      5b      51
+      5c      51
+      5d      51
       5e      52
-      5f      67
+      5f      52
       60      67
       61      67
       62      67
@@ -309,7 +303,7 @@ Lines mapping:
 50 <-> 43
 51 <-> 46
 57 <-> 50
-59 <-> 52
+59 <-> 68
 61 <-> 53
 63 <-> 55
 64 <-> 56

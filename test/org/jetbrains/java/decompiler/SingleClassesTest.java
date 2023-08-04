@@ -75,6 +75,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     );
     registerSet("JAD Naming", () -> {
       register(JAVA_8, "TestJADNaming");
+      // TODO: loop part fails
+      registerRaw(CUSTOM, "TestJadLvtCollision"); // created by placing a class in java8 sources and remapping its param using tinyremapper
     },IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
       IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
       IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR, "0",
@@ -153,6 +155,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestAnonymousClassConstructor");
     register(JAVA_8, "TestInnerClassConstructor");
     register(CUSTOM, "v11/TestInnerClassConstructor");
+    // [minor] todo: the linenumbers are incorrect on the finally block
     register(JAVA_8, "TestTryCatchFinally");
     register(JAVA_8, "TestTryFinally");
     register(JAVA_8, "TestAmbiguousCall");
@@ -369,6 +372,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16, "TestReturnSwitchExpression2");
     register(JAVA_16, "TestReturnSwitchExpression3");
     register(JAVA_16, "TestReturnSwitchExpression4");
+    register(JAVA_16, "TestSwitchExprString1");
 
     register(JAVA_16, "TestConstructorSwitchExpression1");
     register(JAVA_16, "TestConstructorSwitchExpression2");
@@ -445,7 +449,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingWithNull");
 
     register(JAVA_17_PREVIEW, "TestSwitchPatternMatchingFuzz1");
-    
+
     // TODO: non-resugared record patterns reference hidden proxy methods
     register(JAVA_19_PREVIEW, "TestRecordPattern1");
     register(JAVA_19_PREVIEW, "TestRecordPattern2");
@@ -642,6 +646,9 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_17_PREVIEW, "TestUnknownCastJ17");
     // TODO: These variables shouldn't be merged, and should be split because each version is used once and has a different type use
     register(JAVA_8_NODEBUG, "TestVarIndex");
+    register(JAVA_17, "TestSwitchDefaultCaseReturn");
+    // TODO: switch (s) decompiled as switch (s.hashCode())
+    register(JAVA_17, "TestSingleCaseStrSwitch");
   }
 
   private void registerEntireClassPath() {

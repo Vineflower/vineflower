@@ -124,12 +124,12 @@ class 'pkg/TestClassLoop' {
       e      14
       f      14
       1a      15
-      26      18
       27      18
       28      18
       29      18
       2a      18
       2b      18
+      2c      18
    }
 
    method 'testCatch ()V' {
@@ -168,8 +168,8 @@ class 'pkg/TestClassLoop' {
       11      43
       12      43
       13      43
-      25      46
       26      46
+      27      46
       2a      47
       2b      47
       2c      47

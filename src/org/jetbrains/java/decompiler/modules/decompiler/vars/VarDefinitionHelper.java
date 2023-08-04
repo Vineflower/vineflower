@@ -12,7 +12,10 @@ import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarTypeProcessor.FinalType;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructMethod;
+import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
+import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribute.LocalVariable;
+import org.jetbrains.java.decompiler.struct.attr.StructMethodParametersAttribute;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
@@ -1351,6 +1354,17 @@ public class VarDefinitionHelper {
     Map<Statement, Set<VarVersionPair>> varDefinitions = new HashMap<>();
     Set<VarVersionPair> liveVarDefs = new HashSet<>();
     Map<VarVersionPair, String> nameMap = new HashMap<>();
+    nameMap.putAll(this.varproc.getInheritedNames());
+
+    StructMethodParametersAttribute paramAttribute = ((RootStatement) root).mt.getAttribute(StructGeneralAttribute.ATTRIBUTE_METHOD_PARAMETERS);
+    StructLocalVariableTableAttribute lvtAttribute = ((RootStatement) root).mt.getAttribute(StructGeneralAttribute.ATTRIBUTE_LOCAL_VARIABLE_TABLE);
+    if (paramAttribute != null && lvtAttribute != null) {
+      for (StructMethodParametersAttribute.Entry entry : paramAttribute.getEntries()) {
+        // for every method param, find lvt entry and put it into the name map
+        Optional<LocalVariable> lvtEntry = lvtAttribute.getVariables().filter(s -> s.getName().equals(entry.myName)).findFirst();
+        lvtEntry.ifPresent(localVariable -> nameMap.put(localVariable.getVersion(), entry.myName));
+      }
+    }
 
     iterateClashingNames(root, varDefinitions, liveVarDefs, nameMap);
   }
@@ -1374,7 +1388,7 @@ public class VarDefinitionHelper {
       // Process var definitions in statement head
       for (Object obj : stat.getSequentialObjects()) {
         if (obj instanceof Exprent) {
-          List<Exprent> exprents = ((Exprent) obj).getAllExprents(true);
+          List<Exprent> exprents = ((Exprent) obj).getAllExprents(true, true);
 
           for (Exprent exprent : exprents) {
             iterateClashingExprent(stat, varDefinitions, exprent, curVarDefs, nameMap);

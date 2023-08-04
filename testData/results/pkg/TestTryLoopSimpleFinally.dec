@@ -48,12 +48,12 @@ class 'pkg/TestTryLoopSimpleFinally' {
       1e      16
       1f      17
       20      17
-      2e      19
       2f      19
       30      19
       31      19
       32      19
       33      19
+      34      19
       39      21
    }
 
@@ -80,13 +80,12 @@ class 'pkg/TestTryLoopSimpleFinally' {
       29      28
       2b      28
       37      37
-      3a      35
-      3b      35
       3c      35
       3d      35
       3e      35
       3f      35
       40      35
+      41      35
    }
 }
 

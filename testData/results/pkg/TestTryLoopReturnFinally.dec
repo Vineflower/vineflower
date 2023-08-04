@@ -36,12 +36,12 @@ class 'pkg/TestTryLoopReturnFinally' {
       18      16
       2c      19
       2d      19
-      3b      21
       3c      21
       3d      21
       3e      21
       3f      21
       40      21
+      41      21
       46      23
    }
 }

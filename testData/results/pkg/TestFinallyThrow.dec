@@ -64,12 +64,11 @@ class 'pkg/TestFinallyThrow' {
       47      14
       48      14
       49      14
-      4a      16
-      4b      16
       4c      16
       4d      16
       4e      16
       4f      16
+      50      16
    }
 
    method 'test1 (Ljava/lang/RuntimeException;)V' {

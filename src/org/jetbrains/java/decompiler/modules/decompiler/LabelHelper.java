@@ -30,7 +30,8 @@ public final class LabelHelper {
 
     setExplicitEdges(root);
 
-    hideDefaultSwitchEdges(root);
+    // TODO: is this correct? we don't want to mess with case statements while processing still happens!
+//    hideDefaultSwitchEdges(root);
 
     processStatementLabel(root);
 

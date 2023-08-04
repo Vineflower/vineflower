@@ -1,0 +1,51 @@
+package pkg;
+
+public class TestSingleCaseStrSwitch {
+   public String test(String s) {
+      byte var3 = -1;
+      switch(s.hashCode()) {
+         case 0:
+            if (s.equals("")) {
+               var3 = 0;
+            }
+         default:
+            return switch(var3) {// 5
+               case 0 -> "foo bar";// 6
+               default -> s;// 7
+            };
+      }
+   }
+}
+
+class 'pkg/TestSingleCaseStrSwitch' {
+   method 'test (Ljava/lang/String;)Ljava/lang/String;' {
+      0      5
+      2      4
+      3      4
+      4      5
+      5      5
+      6      5
+      7      5
+      8      5
+      1c      7
+      1d      7
+      1e      7
+      1f      7
+      20      7
+      21      7
+      22      7
+      25      8
+      26      8
+      27      11
+      28      11
+      3c      12
+      3d      12
+      41      13
+      42      11
+   }
+}
+
+Lines mapping:
+5 <-> 12
+6 <-> 13
+7 <-> 14
