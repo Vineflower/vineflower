@@ -19,11 +19,11 @@ You can then run Vineflower with `java -jar vineflower.jar <arguments> <source> 
 `<source>` can be a jar, zip, folder, or class file, and `<destination>` can be a folder, zip, jar, or excluded, to print to the console.
 
 
-To use Vineflower as a library, you can find distributions on [Quilt's maven](https://maven.quiltmc.org/repository/release/) or on maven central.
+To use Vineflower as a library, you can find distributions on maven central.
 Vineflower can be imported with gradle with:
 ```groovy
 dependencies {
-    implementation 'org.quiltmc:quiltflower:<version>'
+    implementation 'org.vineflower:vineflower:<version>'
 }
 ```
 Instructions on how to interface with Vineflower can be found on [the wiki.](https://github.com/Vineflower/vineflower/wiki)
