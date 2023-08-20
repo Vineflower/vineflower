@@ -31,6 +31,10 @@ public abstract class IFernflowerLogger {
     writeMessage(message, Severity.ERROR, t);
   }
 
+  public void startProcessingClass(String className) { }
+
+  public void endProcessingClass() { }
+
   public void startReadingClass(String className) { }
 
   public void endReadingClass() { }

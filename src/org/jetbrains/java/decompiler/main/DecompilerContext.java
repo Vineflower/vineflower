@@ -70,7 +70,11 @@ public class DecompilerContext {
   }
 
   public static void setCurrentContext(DecompilerContext context) {
-    currentContext.set(context);
+    if (context == null) {
+      currentContext.remove();
+    } else {
+      currentContext.set(context);
+    }
   }
 
   public static <T> void setProperty(Key<T> key, T value) {

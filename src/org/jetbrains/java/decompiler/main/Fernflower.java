@@ -1,6 +1,7 @@
 // Copyright 2000-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.main;
 
+import java.io.IOException;
 import org.jetbrains.java.decompiler.api.Plugin;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.decompiler.OptionParser;
@@ -192,9 +193,14 @@ public class Fernflower implements IDecompiledData {
   }
 
   @Override
+  public void processClass(final StructClass cl) throws IOException {
+      classProcessor.processClass(cl); // unhandled exceptions handled later on
+  }
+
+  @Override
   public String getClassContent(StructClass cl) {
+    TextBuffer buffer = new TextBuffer(ClassesProcessor.AVERAGE_CLASS_SIZE);
     try {
-      TextBuffer buffer = new TextBuffer(ClassesProcessor.AVERAGE_CLASS_SIZE);
       buffer.append(DecompilerContext.getProperty(IFernflowerPreferences.BANNER).toString());
       classProcessor.writeClass(cl, buffer);
 
@@ -206,7 +212,7 @@ public class Fernflower implements IDecompiledData {
 
       String res = buffer.convertToStringAndAllowDataDiscard();
       if (res == null) {
-        return "$ FF: Unable to decompile class " + cl.qualifiedName;
+        return "$ VF: Unable to decompile class " + cl.qualifiedName;
       }
 
       return res;
@@ -220,7 +226,7 @@ public class Fernflower implements IDecompiledData {
         lines.addAll(ClassWriter.getErrorComment());
         ClassWriter.collectErrorLines(t, lines);
         lines.add("*/");
-        return String.join("\n", lines);
+        return String.join(DecompilerContext.getNewLineSeparator(), lines);
       } else {
         return null;
       }
