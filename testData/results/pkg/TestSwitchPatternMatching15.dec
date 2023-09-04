@@ -17,7 +17,6 @@ public class TestSwitchPatternMatching15 {
             break;// 14
          case Number nx:// 15
             System.out.println("Number: " + nx);// 16
-            break;// 17
       }
    }// 21
 }
@@ -97,8 +96,7 @@ class 'pkg/TestSwitchPatternMatching15' {
       94      18
       95      18
       96      18
-      97      19
-      9d      21
+      9d      20
    }
 }
 
@@ -115,7 +113,7 @@ Lines mapping:
 14 <-> 17
 15 <-> 18
 16 <-> 19
-17 <-> 20
-21 <-> 22
+21 <-> 21
 Not mapped:
+17
 19

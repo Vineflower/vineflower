@@ -8,7 +8,7 @@ public final class TestDoublePopAfterJump {
       int var10001 = var1;// 26
       int var10002 = var2;// 27
 
-      for (int var10003 = 0; var10002 > var10003; var10003 += 1) {// 28 31 38
+      for (byte var10003 = 0; var10002 > var10003; var10003 += 1) {// 28 31 38
          int var10004 = var10000 + var10001;// 35
          var10000 = var10001;
          var10001 = var10004;

@@ -31,10 +31,32 @@ public class VarVersionsProcessor {
     typeProcessor = new VarTypeProcessor(mt, md);
   }
 
+  // FIXME: This introduces bugs!! (see the FizzBuzz in TestDoublePopAfterJump & TestCompoundAssignmentReplace)
+  //  consider:
+  //    x = x + 1
+  //    use(x);
+  //    ...
+  //    use(x);
+  //  after splitting:
+  //    a = x + 1
+  //    use(a);
+  //    ...
+  //    use(a);
+  //  after inline 1 of these:
+  //    a = x + 1
+  //    use(x + 1);
+  //    ...
+  //    use(a);
+  //  merge variables again:
+  //    x = x + 1
+  //    use(x + 1);
+  //    ...
+  //    use(x);
   public void setVarVersions(RootStatement root, VarVersionsProcessor previousVersionsProcessor) {
     SSAConstructorSparseEx ssa = new SSAConstructorSparseEx();
     ssa.splitVariables(root, method);
 
+    // TODO: ssa already made a dgraph
     FlattenStatementsHelper flattenHelper = new FlattenStatementsHelper();
     DirectGraph graph = flattenHelper.buildDirectGraph(root);
 

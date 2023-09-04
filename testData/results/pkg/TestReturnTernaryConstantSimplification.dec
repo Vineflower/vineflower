@@ -26,11 +26,7 @@ public class TestReturnTernaryConstantSimplification {
    }
 
    public boolean nestedIf(boolean bl, boolean bl2) {
-      if (bl) {// 37
-         return bl2 || bl;// 38 41
-      } else {
-         return true;// 44
-      }
+      return !bl || bl2 || bl;// 37 38 41
    }
 
    public boolean nestedTernary(boolean bl, boolean bl2) {
@@ -38,11 +34,7 @@ public class TestReturnTernaryConstantSimplification {
    }
 
    public boolean nestedIfs(boolean bl, boolean bl2, boolean bl3) {
-      if (bl) {// 53
-         return !bl2 && bl3;// 54 57
-      } else {
-         return bl3 || bl2;// 60 63
-      }
+      return bl ? !bl2 && bl3 : bl3 || bl2;// 53 54 57 60 63
    }
 }
 
@@ -88,30 +80,28 @@ class 'pkg/TestReturnTernaryConstantSimplification' {
    method 'nestedIf (ZZ)Z' {
       0      28
       1      28
-      4      29
-      5      29
-      a      29
-      c      31
-      d      31
+      4      28
+      5      28
+      a      28
    }
 
    method 'nestedTernary (ZZ)Z' {
+      0      32
+      1      32
+      4      32
+      5      32
+      11      32
+   }
+
+   method 'nestedIfs (ZZZ)Z' {
       0      36
       1      36
       4      36
       5      36
-      11      36
-   }
-
-   method 'nestedIfs (ZZZ)Z' {
-      0      40
-      1      40
-      4      41
-      5      41
-      a      41
-      c      43
-      d      43
-      12      43
+      a      36
+      c      36
+      d      36
+      12      36
    }
 }
 
@@ -124,19 +114,19 @@ Lines mapping:
 25 <-> 21
 33 <-> 25
 37 <-> 29
-38 <-> 30
-41 <-> 30
-44 <-> 32
-49 <-> 37
-53 <-> 41
-54 <-> 42
-57 <-> 42
-60 <-> 44
-63 <-> 44
+38 <-> 29
+41 <-> 29
+49 <-> 33
+53 <-> 37
+54 <-> 37
+57 <-> 37
+60 <-> 37
+63 <-> 37
 Not mapped:
 10
 26
 28
 39
+44
 55
 61

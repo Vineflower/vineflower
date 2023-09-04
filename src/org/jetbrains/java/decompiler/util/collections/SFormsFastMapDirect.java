@@ -2,6 +2,8 @@
 package org.jetbrains.java.decompiler.util.collections;
 
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionNode;
+import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.collections.FastSparseSetFactory.FastSparseSet;
 
@@ -16,16 +18,18 @@ import java.util.Set;
 public class SFormsFastMapDirect {
 
   private int size;
+  private final FastSparseSetFactory<Integer> factory;
 
   @SuppressWarnings("unchecked") private final FastSparseSet<Integer>[][] elements = new FastSparseSet[3][];
 
   private final int[][] next = new int[3][];
 
-  public SFormsFastMapDirect() {
-    this(true);
+  public SFormsFastMapDirect(FastSparseSetFactory<Integer> factory) {
+    this(true, factory);
   }
 
-  private SFormsFastMapDirect(boolean initialize) {
+  private SFormsFastMapDirect(boolean initialize, FastSparseSetFactory<Integer> factory) {
+    this.factory = factory;
     if (initialize) {
       for (int i = 2; i >= 0; i--) {
         @SuppressWarnings("unchecked") FastSparseSet<Integer>[] empty = FastSparseSet.EMPTY_ARRAY;
@@ -37,7 +41,7 @@ public class SFormsFastMapDirect {
 
   public SFormsFastMapDirect getCopy() {
 
-    SFormsFastMapDirect map = new SFormsFastMapDirect(false);
+    SFormsFastMapDirect map = new SFormsFastMapDirect(false, factory);
     map.size = size;
 
     FastSparseSet[][] mapelements = map.elements;
@@ -387,5 +391,27 @@ public class SFormsFastMapDirect {
     next[index] = arrnextnew;
 
     return arrnew;
+  }
+
+  public void setCurrentVar(int var, int version) {
+    FastSparseSet<Integer> set = this.factory.createEmptySet();
+    set.add(version);
+    this.put(var, set);
+  }
+
+  public void setCurrentVar(VarExprent varExprent) {
+    this.setCurrentVar(varExprent.getIndex(), varExprent.getVersion());
+  }
+
+  public void setCurrentVar(VarVersionNode varExprent) {
+    this.setCurrentVar(varExprent.var, varExprent.version);
+  }
+
+  public void setCurrentVar(VarVersionPair varExprent) {
+    this.setCurrentVar(varExprent.var, varExprent.version);
+  }
+
+  public FastSparseSet<Integer> get(VarExprent varExprent) {
+    return this.get(varExprent.getIndex());
   }
 }

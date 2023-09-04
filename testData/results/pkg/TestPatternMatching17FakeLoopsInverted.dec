@@ -576,7 +576,6 @@ class 'pkg/TestPatternMatching17FakeLoopsInverted' {
       d      99
       e      99
       f      99
-      10      99
       13      99
       14      99
       15      99
@@ -643,7 +642,6 @@ class 'pkg/TestPatternMatching17FakeLoopsInverted' {
       d      115
       e      115
       f      115
-      10      115
       13      115
       14      115
       15      115
@@ -1040,7 +1038,6 @@ class 'pkg/TestPatternMatching17FakeLoopsInverted' {
       d      209
       e      209
       f      209
-      10      209
       13      209
       14      209
       15      209

@@ -11,6 +11,8 @@ import org.jetbrains.java.decompiler.main.rels.ClassWrapper;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
+import org.jetbrains.java.decompiler.modules.decompiler.sforms.SFormsConstructor;
+import org.jetbrains.java.decompiler.modules.decompiler.sforms.VarMapHolder;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.DummyExitStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
@@ -844,6 +846,15 @@ public class NewExprent extends Exprent {
   public void setInvocationInstance() {
     if (constructor != null) {
       constructor.setInvocationInstance();
+    }
+  }
+
+  @Override
+  public void processSforms(SFormsConstructor sFormsConstructor, VarMapHolder varMaps, Statement stat, boolean calcLiveVars) {
+    super.processSforms(sFormsConstructor, varMaps, stat, calcLiveVars);
+
+    if (sFormsConstructor.trackFieldVars && this.getNewType().type == CodeConstants.TYPE_OBJECT) {
+      varMaps.getNormal().removeAllFields();
     }
   }
 }

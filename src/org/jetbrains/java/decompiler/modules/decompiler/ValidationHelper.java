@@ -485,7 +485,7 @@ public final class ValidationHelper {
   }
 
   public static void validateVarVersionsGraph(
-    VarVersionsGraph graph, RootStatement statement, HashMap<VarVersionPair, VarVersionPair> varAssignmentMap) {
+    VarVersionsGraph graph, RootStatement statement, Map<VarVersionPair, VarVersionPair> varAssignmentMap) {
     if (!VALIDATE) {
       return;
     }
@@ -493,12 +493,12 @@ public final class ValidationHelper {
     Set<VarVersionNode> roots = new HashSet<>();
 
     for (VarVersionNode node : graph.nodes) {
-      if (node.preds.isEmpty()) {
+      if (node.predecessors.isEmpty()) {
         roots.add(node);
       }
     }
 
-    Set<VarVersionNode> reached = graph.rootReachability(roots);
+    Set<VarVersionNode> reached = VarVersionsGraph.rootReachability(roots);
 
     if (graph.nodes.size() != reached.size()) {
       DotExporter.errorToDotFile(graph, statement.mt, "erroring_varVersionGraph", varAssignmentMap);

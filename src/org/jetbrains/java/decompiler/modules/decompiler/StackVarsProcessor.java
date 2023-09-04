@@ -15,7 +15,6 @@ import org.jetbrains.java.decompiler.modules.decompiler.sforms.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.DoStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
-import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionNode;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionsGraph;
@@ -328,7 +327,7 @@ public class StackVarsProcessor {
     VarExprent left = null;
     Exprent right = null;
 
-    if (exprent instanceof AssignmentExprent) {
+    if (exprent instanceof AssignmentExprent && ((AssignmentExprent) exprent).getCondType() == null) {
       AssignmentExprent as = (AssignmentExprent)exprent;
       if (as.getLeft() instanceof VarExprent) {
         left = (VarExprent)as.getLeft();
@@ -682,7 +681,7 @@ public class StackVarsProcessor {
     // If assignment to variable gather details
     if (exprent instanceof AssignmentExprent) {
       AssignmentExprent as = (AssignmentExprent)exprent;
-      if (as.getLeft() instanceof VarExprent) {
+      if (as.getCondType() == null && as.getLeft() instanceof VarExprent) {
         left = (VarExprent)as.getLeft();
         right = as.getRight();
       }
@@ -798,28 +797,27 @@ public class StackVarsProcessor {
       VarVersionNode nd = stack.poll();
       setVisited.add(nd);
 
-      if (nd != node && (nd.flags & VarVersionNode.FLAG_PHANTOM_FINEXIT) == 0) {
+      if (nd != node) {
         res.add(nd);
       }
 
-      for (VarVersionEdge edge : nd.succs) {
-        VarVersionNode succ = edge.dest;
+      for (VarVersionNode dest : nd.successors) {
+        if (setVisited.contains(dest)) {
+          continue;
+        }
 
-        if (!setVisited.contains(edge.dest)) {
-
-          boolean isDominated = true;
-          for (VarVersionEdge prededge : succ.preds) {
-            if (!setVisited.contains(prededge.source)) {
-              isDominated = false;
-              break;
-            }
+        boolean isDominated = true;
+        for (VarVersionNode source : dest.predecessors) {
+          if (!setVisited.contains(source)) {
+            isDominated = false;
+            break;
           }
+        }
 
-          if (isDominated) {
-            stack.add(succ);
-          } else {
-            setNotDoms.add(succ);
-          }
+        if (isDominated) {
+          stack.add(dest);
+        } else {
+          setNotDoms.add(dest);
         }
       }
     }
@@ -986,6 +984,7 @@ public class StackVarsProcessor {
                 VarVersionNode vvnode = ssau.getSsuVersions().nodes.getWithKey(vvp);
 
                 // Edge case: vvnode can be null when loops aren't created properly for... some reason?
+                // TODO: check if this is still the case
                 if (vvnode == null) {
                   continue;
                 }
@@ -993,7 +992,7 @@ public class StackVarsProcessor {
                 while (true) {
                   VarVersionNode next = null;
                   if (vvnode.var >= VarExprent.STACK_BASE) {
-                    vvnode = vvnode.preds.iterator().next().source;
+                    vvnode = vvnode.predecessors.iterator().next();
                     VarVersionPair nextVVP = ssau.getVarAssignmentMap().get(new VarVersionPair(vvnode.var, vvnode.version));
                     next = ssau.getSsuVersions().nodes.getWithKey(nextVVP);
 
@@ -1009,7 +1008,7 @@ public class StackVarsProcessor {
                     List<VarVersionNode> roots = getRoots(vvnode);
                     List<VarVersionNode> allRoots = ssau.getSsuVersions().nodes.stream()
                                                           .distinct()
-                                                          .filter(n -> n.var == varIndex && n.preds.isEmpty())
+                                                          .filter(n -> n.var == varIndex && n.predecessors.isEmpty())
                                                           .filter(n -> {
                                                             if (n.lvt != null) {
                                                               return mdContent.params[j].equals(new VarType(n.lvt.getDescriptor()));
@@ -1075,13 +1074,12 @@ public class StackVarsProcessor {
     while (!queue.isEmpty()) {
       VarVersionNode next = queue.removeFirst();
 
-      if (next.preds.isEmpty()) {
+      if (next.predecessors.isEmpty()) {
         ret.add(next);
-      }
-      else {
-        next.preds.forEach(vvn -> {
-          if (visited.add(vvn.source)) {
-            queue.add(vvn.source);
+      } else {
+        next.predecessors.forEach(source -> {
+          if (visited.add(source)) {
+            queue.add(source);
           }
         });
       }

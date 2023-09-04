@@ -504,6 +504,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestPPMMBoxed");
     register(JAVA_8, "TestPPMMOnObjectField");
     register(JAVA_8, "TestPPMMOnStaticField");
+    register(JAVA_8, "TestPPMMPhi");
     register(JAVA_17, "TestImplicitlySealedEnum");
     register(JAVA_16, "TestTextBlocks");
     registerRaw(CUSTOM, "Java14Test"); // Used from CFR
