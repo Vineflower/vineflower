@@ -1,11 +1,13 @@
 // Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.struct;
 
+import org.jetbrains.java.decompiler.main.ClassWriter;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IContextSource;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.extern.IResultSaver;
+import org.jetbrains.java.decompiler.util.TextBuffer;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -173,7 +175,9 @@ public class ContextUnit {
     // emit
     for (final ClassContext classCtx : toDump) {
       if (classCtx.pendingError != null) {
-        classCtx.classContent = "error"; // TODO
+        TextBuffer buf = new TextBuffer();
+        ClassWriter.writeException(buf, classCtx.pendingError);
+        classCtx.classContent = buf.convertToStringAndAllowDataDiscard();
         continue;
       }
 
