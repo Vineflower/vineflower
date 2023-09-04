@@ -74,13 +74,12 @@ class 'pkg/TestTryWithResourcesAfterSwitch' {
       62      18
       63      18
       bf      24
-      c2      20
-      c3      20
       c4      20
       c5      20
       c6      20
       c7      20
       c8      20
+      c9      20
    }
 
    method 'test2 ()V' {
@@ -109,13 +108,12 @@ class 'pkg/TestTryWithResourcesAfterSwitch' {
       5d      36
       5e      36
       b5      42
-      b8      38
-      b9      38
       ba      38
       bb      38
       bc      38
       bd      38
       be      38
+      bf      38
    }
 }
 

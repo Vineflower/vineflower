@@ -264,9 +264,20 @@ public class NestedClassProcessor {
 
     // rename colliding local variables
     for (VarVersionPair local : varProc.getUsedVarVersions()) {
-      String name = varProc.getVarName(local);
+      String name = null;
+      LocalVariable lvt = varProc.getVarLVT(local);
+      if (lvt != null) {
+        name = lvt.getName();
+      }
+      if (name == null) {
+        name = varProc.getVarName(local);
+      }
       if (usedBefore.contains(name) && !"this".equals(name)) {
-        mapNewNames.put(local, enclosingCollector.getFreeName(name));
+        name = enclosingCollector.getFreeName(name);
+        mapNewNames.put(local, name);
+        if (lvt != null) {
+          lvts.put(local, lvt.rename(name));
+        }
       }
     }
 
@@ -329,7 +340,7 @@ public class NestedClassProcessor {
       LocalVariable lvt = lvts.get(pair);
       VarVersionPair original = originalVersions.get(pair);
 
-      varProc.setVarName(pair, entry.getValue());
+      varProc.setInheritedName(pair, entry.getValue());
       if (lvt != null) {
         varProc.setVarLVT(pair, lvt);
       }
@@ -723,7 +734,7 @@ public class NestedClassProcessor {
           VarType type = mapNewTypes.get(pair);
           LocalVariable lvt = mapNewLVTs.get(pair);
 
-          method.varproc.setVarName(pair, entry.getValue());
+          method.varproc.setInheritedName(pair, entry.getValue());
           if (type != null) {
             method.varproc.setVarType(pair, type);
           }

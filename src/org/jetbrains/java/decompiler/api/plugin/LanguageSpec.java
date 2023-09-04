@@ -1,9 +1,6 @@
-package org.jetbrains.java.decompiler.api.language;
+package org.jetbrains.java.decompiler.api.plugin;
 
-import org.jetbrains.java.decompiler.api.GraphParser;
-import org.jetbrains.java.decompiler.api.LanguageChooser;
-import org.jetbrains.java.decompiler.api.StatementWriter;
-import org.jetbrains.java.decompiler.api.passes.Pass;
+import org.jetbrains.java.decompiler.api.plugin.pass.Pass;
 
 public final class LanguageSpec {
   public final String name;

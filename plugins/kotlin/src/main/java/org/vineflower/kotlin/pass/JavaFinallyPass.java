@@ -1,7 +1,7 @@
 package org.vineflower.kotlin.pass;
 
-import org.jetbrains.java.decompiler.api.passes.Pass;
-import org.jetbrains.java.decompiler.api.passes.PassContext;
+import org.jetbrains.java.decompiler.api.plugin.pass.Pass;
+import org.jetbrains.java.decompiler.api.plugin.pass.PassContext;
 import org.jetbrains.java.decompiler.code.cfg.ControlFlowGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.FinallyProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.decompose.DomHelper;

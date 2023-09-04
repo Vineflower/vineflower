@@ -1,12 +1,13 @@
 // Copyright 2000-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.main;
 
-import org.jetbrains.java.decompiler.api.Plugin;
+import java.io.IOException;
+import org.jetbrains.java.decompiler.api.plugin.Plugin;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.decompiler.OptionParser;
 import org.jetbrains.java.decompiler.main.extern.*;
 import org.jetbrains.java.decompiler.main.plugins.JarPluginLoader;
-import org.jetbrains.java.decompiler.api.PluginSource;
+import org.jetbrains.java.decompiler.api.plugin.PluginSource;
 import org.jetbrains.java.decompiler.main.plugins.PluginSources;
 import org.jetbrains.java.decompiler.modules.renamer.ConverterHelper;
 import org.jetbrains.java.decompiler.modules.renamer.IdentifierConverter;
@@ -23,7 +24,11 @@ import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.token.TextTokenDumpVisitor;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 public class Fernflower implements IDecompiledData {
   private final StructContext structContext;
@@ -82,7 +87,8 @@ public class Fernflower implements IDecompiledData {
     }
     if (renamerFactory == null) {
       if("1".equals(properties.get(IFernflowerPreferences.USE_JAD_VARNAMING))) {
-        renamerFactory = new JADNameProvider.JADNameProviderFactory();
+        boolean renameParams = "1".equals(properties.get(IFernflowerPreferences.USE_JAD_PARAMETER_NAMING));
+        renamerFactory = new JADNameProvider.JADNameProviderFactory(renameParams);
       } else {
         renamerFactory = new IdentityRenamerFactory();
       }
@@ -192,9 +198,14 @@ public class Fernflower implements IDecompiledData {
   }
 
   @Override
+  public void processClass(final StructClass cl) throws IOException {
+      classProcessor.processClass(cl); // unhandled exceptions handled later on
+  }
+
+  @Override
   public String getClassContent(StructClass cl) {
+    TextBuffer buffer = new TextBuffer(ClassesProcessor.AVERAGE_CLASS_SIZE);
     try {
-      TextBuffer buffer = new TextBuffer(ClassesProcessor.AVERAGE_CLASS_SIZE);
       buffer.append(DecompilerContext.getProperty(IFernflowerPreferences.BANNER).toString());
       classProcessor.writeClass(cl, buffer);
 
@@ -206,7 +217,7 @@ public class Fernflower implements IDecompiledData {
 
       String res = buffer.convertToStringAndAllowDataDiscard();
       if (res == null) {
-        return "$ FF: Unable to decompile class " + cl.qualifiedName;
+        return "$ VF: Unable to decompile class " + cl.qualifiedName;
       }
 
       return res;
@@ -220,7 +231,7 @@ public class Fernflower implements IDecompiledData {
         lines.addAll(ClassWriter.getErrorComment());
         ClassWriter.collectErrorLines(t, lines);
         lines.add("*/");
-        return String.join("\n", lines);
+        return String.join(DecompilerContext.getNewLineSeparator(), lines);
       } else {
         return null;
       }

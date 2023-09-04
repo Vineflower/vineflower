@@ -1,7 +1,7 @@
 package org.vineflower.kotlin.pass;
 
-import org.jetbrains.java.decompiler.api.passes.Pass;
-import org.jetbrains.java.decompiler.api.passes.PassContext;
+import org.jetbrains.java.decompiler.api.plugin.pass.Pass;
+import org.jetbrains.java.decompiler.api.plugin.pass.PassContext;
 import org.jetbrains.java.decompiler.modules.decompiler.StackVarsProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
@@ -11,9 +11,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionsGraph;
 import org.jetbrains.java.decompiler.struct.StructMethod;
-import org.jetbrains.java.decompiler.util.collections.SFormsFastMapDirect;
 
-import java.util.HashMap;
 import java.util.List;
 
 public class EliminateDeadVarsPass implements Pass {

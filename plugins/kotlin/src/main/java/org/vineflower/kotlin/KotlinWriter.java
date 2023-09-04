@@ -3,7 +3,7 @@ package org.vineflower.kotlin;
 
 import kotlin.reflect.jvm.internal.impl.metadata.ProtoBuf;
 import net.fabricmc.fernflower.api.IFabricJavadocProvider;
-import org.jetbrains.java.decompiler.api.StatementWriter;
+import org.jetbrains.java.decompiler.api.plugin.StatementWriter;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.Instruction;
 import org.jetbrains.java.decompiler.code.InstructionSequence;
@@ -816,7 +816,7 @@ public class KotlinWriter implements StatementWriter {
     if (requiresBackticks) {
       name = "`" + name + "`";
     }
-    return name + (needsComment ? " /* $QF was: " + name + " */" : "");
+    return name + (needsComment ? " /* $VF was: " + name + " */" : "");
   }
 
   public boolean writeMethod(ClassNode node, StructMethod mt, int methodIndex, TextBuffer buffer, int indent) {

@@ -35,13 +35,12 @@ class 'pkg/TestTryWithResourcesFinallyJ16' {
       b      9
       c      9
       2f      13
-      32      11
-      33      11
       34      11
       35      11
       36      11
       37      11
       38      11
+      39      11
    }
 
    method 'testFunc (Ljava/io/File;)V' {
@@ -56,13 +55,12 @@ class 'pkg/TestTryWithResourcesFinallyJ16' {
       8      17
       9      17
       34      21
-      37      19
-      38      19
       39      19
       3a      19
       3b      19
       3c      19
       3d      19
+      3e      19
    }
 
    method 'create (Ljava/io/File;)Ljava/util/Scanner;' {

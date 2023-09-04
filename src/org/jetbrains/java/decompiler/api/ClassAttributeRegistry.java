@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
-public class AttributeRegistry {
+public final class ClassAttributeRegistry {
   private static final Map<Key<? extends StructGeneralAttribute>, Supplier<? extends StructGeneralAttribute>> REGISTRY = new HashMap<>();
 
   public static <T extends StructGeneralAttribute> void register(Key<T> key, Supplier<T> supplier) {

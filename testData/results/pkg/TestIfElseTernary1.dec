@@ -605,22 +605,22 @@ class 'pkg/TestIfElseTernary1' {
       a3      108
       a4      108
       ae      111
-      af      113
-      b0      113
       b1      113
       b2      113
-      b4      114
-      b5      114
-      b9      114
+      b3      113
+      b6      114
+      b7      114
+      b8      114
       ba      114
-      bb      115
+      bb      114
       bc      115
       bd      115
       be      115
       bf      115
-      c7      116
-      c8      116
-      c9      116
+      c0      115
+      c1      115
+      c2      115
+      ca      116
    }
 }
 

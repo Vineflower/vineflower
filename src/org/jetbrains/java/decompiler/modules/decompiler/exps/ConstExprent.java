@@ -300,7 +300,7 @@ public class ConstExprent extends Exprent {
             return buf.append("-1.0F / 0.0F");
           }
         }
-        return buf.append(trimZeros(Float.toString(floatVal))).append('F');
+        return buf.append(trimFloat(Float.toString(floatVal), floatVal)).append('F');
 
       case CodeConstants.TYPE_DOUBLE:
         double doubleVal = (Double)value;
@@ -316,13 +316,13 @@ public class ConstExprent extends Exprent {
           // This patch is based on work in ForgeFlower submitted by Pokechu22.
           float floatRepresentation = (float) doubleVal;
           if (floatRepresentation == doubleVal) {
-            if (Float.toString(floatRepresentation).length() < Double.toString(doubleVal).length()) {
+            if (trimFloat(Float.toString(floatRepresentation), floatRepresentation).length() < trimDouble(Double.toString(doubleVal), doubleVal).length()) {
               // Check the uninlined values to see if we have one of those
               if (UNINLINED_FLOATS.containsKey(floatRepresentation)) {
                 return buf.append(UNINLINED_FLOATS.get(floatRepresentation).apply(bytecode));
               } else {
                 // Return the standard representation if the value is not able to be uninlined
-                return buf.append(Float.toString(floatRepresentation)).append("F");
+                return buf.append(trimFloat(Float.toString(floatRepresentation), floatRepresentation)).append("F");
               }
             }
           }
@@ -336,7 +336,7 @@ public class ConstExprent extends Exprent {
         else if (doubleVal == Double.NEGATIVE_INFINITY) {
           return buf.append("-1.0 / 0.0");
         }
-        return buf.append(trimZeros(value.toString()));
+        return buf.append(trimDouble(Double.toString(doubleVal), doubleVal));
 
       case CodeConstants.TYPE_NULL:
         return buf.append("null");
@@ -401,14 +401,90 @@ public class ConstExprent extends Exprent {
 
   // Different JVM implementations/version display Floats and Doubles with different number of trailing zeros.
   // This trims them all down to only the necessary amount.
-  private static String trimZeros(String value) {
-      int i = value.length() - 1;
-      while (i >= 0 && value.charAt(i) == '0') {
-          i--;
+  private static String trimFloat(String value, float start) {
+    // Includes NaN and simple numbers
+    if (value.length() <= 3) {
+      return value;
+    }
+
+    String exp = "";
+    int eIdx = value.indexOf('E');
+    if (eIdx != -1) {
+      exp = value.substring(eIdx);
+      value = value.substring(0, eIdx);
+    }
+
+    // Cut off digits that don't affect the value
+    String temp = value;
+    int dotIdx = value.indexOf('.');
+    do {
+      value = temp;
+      temp = value.substring(0, value.length() - 1);
+    } while (!temp.isEmpty() && !"-".equals(temp) && Float.parseFloat(temp + exp) == start);
+
+    if (dotIdx != -1 && value.indexOf('.') == -1) {
+      value += ".0";
+    } else if (dotIdx != -1) {
+      String integer = value.substring(0, dotIdx);
+      String decimal = value.substring(dotIdx + 1);
+
+      String rounded = (Integer.parseInt(integer) + 1) + ".0" + exp;
+      if (Float.parseFloat(rounded) == start)
+        return rounded;
+
+      long decimalVal = 1;
+      for (int i = 0; i < decimal.length() - 1; i++) {
+        decimalVal = (decimalVal - 1) * 10 + decimal.charAt(i) - '0' + 1;
+        rounded = integer + '.' + decimalVal + exp;
+        if (Float.parseFloat(rounded) == start)
+          return rounded;
       }
-      if (value.charAt(i) == '.')
-        i++;
-      return value.substring(0, i + 1);
+    }
+
+    return value + exp;
+  }
+
+  private static String trimDouble(String value, double start) {
+    // Includes NaN and simple numbers
+    if (value.length() <= 3) {
+      return value;
+    }
+
+    String exp = "";
+    int eIdx = value.indexOf('E');
+    if (eIdx != -1) {
+      exp = value.substring(eIdx);
+      value = value.substring(0, eIdx);
+    }
+
+    // Cut off digits that don't affect the value
+    String temp = value;
+    int dotIdx = value.indexOf('.');
+    do {
+      value = temp;
+      temp = value.substring(0, value.length() - 1);
+    } while (!temp.isEmpty() && !"-".equals(temp) && Double.parseDouble(temp) == start);
+
+    if (dotIdx != -1 && value.indexOf('.') == -1) {
+      value += ".0";
+    } else if (dotIdx != -1) {
+      String integer = value.substring(0, dotIdx);
+      String decimal = value.substring(dotIdx + 1);
+
+      String rounded = (Long.parseLong(integer) + 1) + ".0" + exp;
+      if (Double.parseDouble(rounded) == start)
+        return rounded;
+
+      long decimalVal = 1;
+      for (int i = 0; i < decimal.length() - 1; i++) {
+        decimalVal = (decimalVal - 1) * 10 + decimal.charAt(i) - '0' + 1;
+        rounded = integer + '.' + decimalVal + exp;
+        if (Double.parseDouble(rounded) == start)
+          return rounded;
+      }
+    }
+
+    return value + exp;
   }
 
   public boolean isNull() {

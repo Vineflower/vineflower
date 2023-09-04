@@ -1,6 +1,6 @@
 package org.jetbrains.java.decompiler.api.java;
 
-import org.jetbrains.java.decompiler.api.passes.NamedPass;
+import org.jetbrains.java.decompiler.api.plugin.pass.NamedPass;
 
 import java.util.ArrayList;
 import java.util.HashMap;

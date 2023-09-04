@@ -1,13 +1,14 @@
 // Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.main;
 
-import org.jetbrains.java.decompiler.api.StatementWriter;
-import org.jetbrains.java.decompiler.api.language.LanguageSpec;
+import org.jetbrains.java.decompiler.api.plugin.StatementWriter;
+import org.jetbrains.java.decompiler.api.plugin.LanguageSpec;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.Instruction;
 import org.jetbrains.java.decompiler.code.InstructionSequence;
 import org.jetbrains.java.decompiler.main.collectors.BytecodeSourceMapper;
 import org.jetbrains.java.decompiler.main.collectors.ImportCollector;
+import org.jetbrains.java.decompiler.main.decompiler.CancelationManager;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.extern.IIdentifierRenamer;
@@ -401,7 +402,7 @@ public class ClassesProcessor implements CodeConstants {
     return true;
   }
 
-  public void writeClass(StructClass cl, TextBuffer buffer) throws IOException {
+  public void processClass(StructClass cl) throws IOException {
     ClassNode root = mapRootClasses.get(cl.qualifiedName);
     if (root.type != ClassNode.Type.ROOT) {
       return;
@@ -410,45 +411,12 @@ public class ClassesProcessor implements CodeConstants {
     boolean packageInfo = cl.isSynthetic() && "package-info".equals(root.simpleName);
     boolean moduleInfo = cl.hasModifier(CodeConstants.ACC_MODULE) && cl.hasAttribute(StructGeneralAttribute.ATTRIBUTE_MODULE);
 
-    DecompilerContext.getLogger().startReadingClass(cl.qualifiedName);
+    DecompilerContext.getLogger().startProcessingClass(cl.qualifiedName);
+    ImportCollector importCollector = new ImportCollector(root);
+    DecompilerContext.startClass(importCollector);
     try {
-      ImportCollector importCollector = new ImportCollector(root);
-      DecompilerContext.startClass(importCollector);
-
-      if (packageInfo) {
-        ClassWriter.packageInfoToJava(cl, buffer);
-
-        importCollector.writeImports(buffer, false);
-      }
-      else if (moduleInfo) {
-        TextBuffer moduleBuffer = new TextBuffer(AVERAGE_CLASS_SIZE);
-        ClassWriter.moduleInfoToJava(cl, moduleBuffer);
-
-        importCollector.writeImports(buffer, true);
-
-        buffer.append(moduleBuffer);
-      }
-      else {
-        try {
-          new LambdaProcessor().processClass(root);
-        } catch (Throwable t) {
-          DecompilerContext.getLogger().writeMessage("Class " + root.simpleName + " couldn't be written.",
-            IFernflowerLogger.Severity.WARN,
-            t);
-          buffer.append("// $VF: Couldn't be decompiled");
-          buffer.appendLineSeparator();
-          if (DecompilerContext.getOption(IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR)) {
-            List<String> lines = new ArrayList<>();
-            lines.addAll(ClassWriter.getErrorComment());
-            ClassWriter.collectErrorLines(t, lines);
-            for (String line : lines) {
-              buffer.append("//");
-              if (!line.isEmpty()) buffer.append(' ').append(line);
-              buffer.appendLineSeparator();
-            }
-          }
-          return;
-        }
+      if (!packageInfo && !moduleInfo) {
+        new LambdaProcessor().processClass(root);
 
         // add simple class names to implicit import
         addClassNameToImport(root, importCollector);
@@ -460,30 +428,44 @@ public class ClassesProcessor implements CodeConstants {
 
         if (spec == null) {
           // Java specific last minute processing
-          try {
             new NestedClassProcessor().processClass(root, root);
 
             new NestedMemberAccess().propagateMemberAccess(root);
-          } catch (Throwable t) {
-            DecompilerContext.getLogger().writeMessage("Class " + root.simpleName + " couldn't be written.",
-              IFernflowerLogger.Severity.WARN,
-              t);
-            buffer.append("// $VF: Couldn't be decompiled");
-            buffer.appendLineSeparator();
-            if (DecompilerContext.getOption(IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR)) {
-              List<String> lines = new ArrayList<>();
-              lines.addAll(ClassWriter.getErrorComment());
-              ClassWriter.collectErrorLines(t, lines);
-              for (String line : lines) {
-                buffer.append("//");
-                if (!line.isEmpty()) buffer.append(' ').append(line);
-                buffer.appendLineSeparator();
-              }
-            }
-            return;
-          }
         }
+      }
+    } catch (CancelationManager.CanceledException e) {
+      throw e;
+    } finally {
+      DecompilerContext.getLogger().endProcessingClass();
+    }
+  }
 
+  public void writeClass(StructClass cl, TextBuffer buffer) throws IOException {
+    ClassNode root = mapRootClasses.get(cl.qualifiedName);
+    if (root.type != ClassNode.Type.ROOT) {
+      return;
+    }
+
+    boolean packageInfo = cl.isSynthetic() && "package-info".equals(root.simpleName);
+    boolean moduleInfo = cl.hasModifier(CodeConstants.ACC_MODULE) && cl.hasAttribute(StructGeneralAttribute.ATTRIBUTE_MODULE);
+
+    DecompilerContext.getLogger().startReadingClass(cl.qualifiedName);
+    try {
+      if (packageInfo) {
+        ClassWriter.packageInfoToJava(cl, buffer);
+
+        DecompilerContext.getImportCollector().writeImports(buffer, false);
+      }
+      else if (moduleInfo) {
+        TextBuffer moduleBuffer = new TextBuffer(AVERAGE_CLASS_SIZE);
+        ClassWriter.moduleInfoToJava(cl, moduleBuffer);
+
+        DecompilerContext.getImportCollector().writeImports(buffer, true);
+
+        buffer.append(moduleBuffer);
+      }
+      else {
+        LanguageSpec spec = PluginContext.getCurrentContext().getLanguageSpec(cl);
         TextBuffer classBuffer = new TextBuffer(AVERAGE_CLASS_SIZE);
         StatementWriter writer = spec != null ? spec.writer : new ClassWriter();
 
@@ -505,8 +487,7 @@ public class ClassesProcessor implements CodeConstants {
           }
         });
 
-        writer.writeClassHeader(cl, buffer, importCollector);
-
+        writer.writeClassHeader(cl, buffer, DecompilerContext.getImportCollector());
         int offsetLines = buffer.countLines();
 
         buffer.append(classBuffer);
@@ -523,8 +504,9 @@ public class ClassesProcessor implements CodeConstants {
           }
         }
       }
-    }
-    finally {
+    } catch (CancelationManager.CanceledException e) {
+      throw e;
+    } finally {
       destroyWrappers(root);
       DecompilerContext.getLogger().endReadingClass();
     }
@@ -689,6 +671,11 @@ public class ClassesProcessor implements CodeConstants {
     public int compareTo(ClassNode o) {
       //TODO: Take line numbers into account?
       return this.classStruct.qualifiedName.compareTo(o.classStruct.qualifiedName);
+    }
+
+    @Override
+    public String toString() {
+      return type + " class " + classStruct.qualifiedName;
     }
 
     public static class LambdaInformation {

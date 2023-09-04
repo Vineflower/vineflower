@@ -23,7 +23,6 @@ public final class RootStatement extends Statement {
     first = head;
     this.dummyExit = dummyExit;
     this.mt = mt;
-
     if (this.first == null) {
       throw new IllegalStateException("Root statement has no content!");
     }

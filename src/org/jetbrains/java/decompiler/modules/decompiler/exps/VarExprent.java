@@ -502,7 +502,7 @@ public class VarExprent extends Exprent {
 
   @Override
   public String toString() {
-    return "VarExprent[" + index + ',' + version +"]: {" + super.toString() + "}";
+    return "VarExprent[" + index + ',' + version + (definition ? " Def" : "") + "]: {" + super.toString() + "}";
   }
 
   // *****************************************************************************

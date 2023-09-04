@@ -35,7 +35,7 @@ public class JarPluginLoader {
           for (Path pluginJar : plugins) {
             FileSystem pluginfs = FileSystems.newFileSystem(pluginJar, (ClassLoader) null);
 
-            Path file = pluginfs.getPath("META-INF", "services", "org.jetbrains.java.decompiler.api.Plugin");
+            Path file = pluginfs.getPath("META-INF", "services", "org.jetbrains.java.decompiler.api.plugin.Plugin");
             if (!Files.exists(file)) {
               pluginfs.close();
               continue;

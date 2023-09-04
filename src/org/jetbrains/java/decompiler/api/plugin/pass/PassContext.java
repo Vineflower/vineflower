@@ -1,4 +1,4 @@
-package org.jetbrains.java.decompiler.api.passes;
+package org.jetbrains.java.decompiler.api.plugin.pass;
 
 import org.jetbrains.java.decompiler.code.cfg.ControlFlowGraph;
 import org.jetbrains.java.decompiler.main.rels.DecompileRecord;

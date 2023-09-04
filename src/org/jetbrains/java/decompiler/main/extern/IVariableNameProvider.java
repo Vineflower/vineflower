@@ -17,10 +17,21 @@ package org.jetbrains.java.decompiler.main.extern;
 
 import java.util.Map;
 
+import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 
 public interface IVariableNameProvider {
   public Map<VarVersionPair,String> rename(Map<VarVersionPair,String> variables);
-  public String renameAbstractParameter(String abstractParam, int index);
+  default String renameAbstractParameter(String name, int index) {
+    return name;
+  }
+
+  default String renameParameter(int flags, String type, String name, int index) {
+    if ((flags & (CodeConstants.ACC_ABSTRACT | CodeConstants.ACC_NATIVE)) != 0) {
+      return renameAbstractParameter(name, index);
+    }
+
+    return name;
+  }
   public void addParentContext(IVariableNameProvider renamer);
 }

@@ -2,12 +2,13 @@
 package org.jetbrains.java.decompiler.main;
 
 import net.fabricmc.fernflower.api.IFabricJavadocProvider;
-import org.jetbrains.java.decompiler.api.StatementWriter;
+import org.jetbrains.java.decompiler.api.plugin.StatementWriter;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.Instruction;
 import org.jetbrains.java.decompiler.code.InstructionSequence;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.collectors.ImportCollector;
+import org.jetbrains.java.decompiler.main.decompiler.CancelationManager;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.rels.ClassWrapper;
@@ -80,6 +81,8 @@ public class ClassWriter implements StatementWriter {
       if (method.root != null) {
         try {
           SwitchHelper.simplifySwitches(method.root, method.methodStruct, method.root);
+        } catch (CancelationManager.CanceledException e) {
+          throw e;
         } catch (Throwable e) {
           DecompilerContext.getLogger().writeMessage("Method " + method.methodStruct.getName() + " " + method.methodStruct.getDescriptor() + " in class " + node.classStruct.qualifiedName + " couldn't be written.",
             IFernflowerLogger.Severity.WARN,
@@ -113,27 +116,33 @@ public class ClassWriter implements StatementWriter {
           mw.varproc.rerunClashing(mw.root);
         }
       }
+    } catch (CancelationManager.CanceledException e) {
+      throw e;
     } catch (Throwable t) {
       DecompilerContext.getLogger().writeMessage("Class " + node.simpleName + " couldn't be written.",
         IFernflowerLogger.Severity.WARN,
         t);
-      buffer.append("// $VF: Couldn't be decompiled");
-      buffer.appendLineSeparator();
-      if (DecompilerContext.getOption(IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR)) {
-        List<String> lines = new ArrayList<>();
-        lines.addAll(ClassWriter.getErrorComment());
-        collectErrorLines(t, lines);
-        for (String line : lines) {
-          buffer.append("//");
-          if (!line.isEmpty()) buffer.append(' ').append(line);
-          buffer.appendLineSeparator();
-        }
-      }
+      writeException(buffer, t);
 
       return false;
     }
 
     return true;
+  }
+
+  public static void writeException(TextBuffer buffer, Throwable t) {
+    buffer.append("// $VF: Couldn't be decompiled");
+    buffer.appendLineSeparator();
+    if (DecompilerContext.getOption(IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR)) {
+      List<String> lines = new ArrayList<>();
+      lines.addAll(ClassWriter.getErrorComment());
+      collectErrorLines(t, lines);
+      for (String line : lines) {
+        buffer.append("//");
+        if (!line.isEmpty()) buffer.append(' ').append(line);
+        buffer.appendLineSeparator();
+      }
+    }
   }
 
   public void classLambdaToJava(ClassNode node, TextBuffer buffer, Exprent method_object, int indent) {
@@ -199,10 +208,14 @@ public class ClassWriter implements StatementWriter {
               if (!firstParameter) {
                 buffer.append(", ");
               }
+              VarType type = md_content.params[i];
 
               String parameterName = methodWrapper.varproc.getVarName(new VarVersionPair(index, 0));
-              buffer.appendVariable(parameterName == null ? "param" + index : parameterName, // null iff decompiled with errors
-                true, true, node.lambdaInformation.content_class_name, node.lambdaInformation.content_method_name, md_content, index, parameterName);
+              if (parameterName == null) {
+                parameterName = "param" + index; // null iff decompiled with errors
+              }
+              parameterName = methodWrapper.methodStruct.getVariableNamer().renameParameter(mt.getAccessFlags(), ExprProcessor.getCastTypeName(type), parameterName, index);
+              buffer.appendVariable(parameterName, true, true, node.lambdaInformation.content_class_name, node.lambdaInformation.content_method_name, md_content, index, parameterName);
 
               firstParameter = false;
             }
@@ -241,6 +254,9 @@ public class ClassWriter implements StatementWriter {
 
                   codeBuffer.addBytecodeMapping(root.getDummyExit().bytecode);
                   buffer.append(codeBuffer, node.classStruct.qualifiedName, InterpreterUtil.makeUniqueKey(methodWrapper.methodStruct.getName(), methodWrapper.methodStruct.getDescriptor()));
+                }
+                catch (CancelationManager.CanceledException e) {
+                  throw e;
                 }
                 catch (Throwable ex) {
                   DecompilerContext.getLogger().writeMessage("Method " + mt.getName() + " " + mt.getDescriptor() + " in class " + node.classStruct.qualifiedName + " couldn't be written.",
@@ -861,8 +877,11 @@ public class ClassWriter implements StatementWriter {
             buffer.append(" ");
 
             String parameterName = methodWrapper.varproc.getVarName(new VarVersionPair(index, 0));
-            buffer.appendVariable(parameterName == null ? "param" + index : parameterName, // null iff decompiled with errors
-              true, true, classWrapper.getClassStruct().qualifiedName, method_name, md_content, index, parameterName);
+            if (parameterName == null) {
+              parameterName = "param" + index; // null iff decompiled with errors
+            }
+            parameterName = methodWrapper.methodStruct.getVariableNamer().renameParameter(mt.getAccessFlags(), typeName, parameterName, index);
+            buffer.appendVariable(parameterName, true, true, classWrapper.getClassStruct().qualifiedName, method_name, md_content, index, parameterName);
 
             firstParameter = false;
           }
@@ -882,6 +901,9 @@ public class ClassWriter implements StatementWriter {
             TextBuffer childBuf = root.toJava(indent);
             childBuf.addBytecodeMapping(root.getDummyExit().bytecode);
             buffer.append(childBuf, classWrapper.getClassStruct().qualifiedName, InterpreterUtil.makeUniqueKey(mt.getName(), mt.getDescriptor()));
+          }
+          catch (CancelationManager.CanceledException e) {
+            throw e;
           }
           catch (Throwable t) {
             String message = "Method " + mt.getName() + " " + mt.getDescriptor() + " in class " + lambdaNode.classStruct.qualifiedName + " couldn't be written.";
@@ -1133,11 +1155,11 @@ public class ClassWriter implements StatementWriter {
               parameterName = methodWrapper.varproc.getVarName(new VarVersionPair(index, 0));
             }
 
-            if ((flags & (CodeConstants.ACC_ABSTRACT | CodeConstants.ACC_NATIVE)) != 0) {
-              String newParameterName = methodWrapper.methodStruct.getVariableNamer().renameAbstractParameter(parameterName, index);
-              parameterName = !newParameterName.equals(parameterName) ? newParameterName : DecompilerContext.getStructContext().renameAbstractParameter(methodWrapper.methodStruct.getClassQualifiedName(), mt.getName(), mt.getDescriptor(), index - (((flags & CodeConstants.ACC_STATIC) == 0) ? 1 : 0), parameterName);
-
+            String newParameterName = methodWrapper.methodStruct.getVariableNamer().renameParameter(flags, typeName, parameterName, index);
+            if ((flags & (CodeConstants.ACC_ABSTRACT | CodeConstants.ACC_NATIVE)) != 0 && Objects.equals(newParameterName, parameterName)) {
+              newParameterName = DecompilerContext.getStructContext().renameAbstractParameter(methodWrapper.methodStruct.getClassQualifiedName(), mt.getName(), mt.getDescriptor(), index - (((flags & CodeConstants.ACC_STATIC) == 0) ? 1 : 0), parameterName);
             }
+            parameterName = newParameterName;
 
             buffer.appendVariable(parameterName == null ? "param" + index : parameterName, // null iff decompiled with errors
               true, true, cl.qualifiedName, mt.getName(), md, index, parameterName);
@@ -1204,6 +1226,9 @@ public class ClassWriter implements StatementWriter {
               hideMethod = code.length() == 0 && (clInit || dInit || hideConstructor(node, init, throwsExceptions, paramCount, flags));
               buffer.append(code, cl.qualifiedName, InterpreterUtil.makeUniqueKey(mt.getName(), mt.getDescriptor()));
             }
+          }
+          catch (CancelationManager.CanceledException e) {
+            throw e;
           }
           catch (Throwable t) {
             String message = "Method " + mt.getName() + " " + mt.getDescriptor() + " in class " + node.classStruct.qualifiedName + " couldn't be written.";

@@ -1,7 +1,4 @@
-package org.jetbrains.java.decompiler.api.passes;
-
-import org.jetbrains.java.decompiler.api.GraphParser;
-import org.jetbrains.java.decompiler.util.Pair;
+package org.jetbrains.java.decompiler.api.plugin.pass;
 
 import java.util.ArrayList;
 import java.util.List;

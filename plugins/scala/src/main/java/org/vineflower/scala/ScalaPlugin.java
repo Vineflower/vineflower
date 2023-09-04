@@ -1,6 +1,6 @@
 package org.vineflower.scala;
 
-import org.jetbrains.java.decompiler.api.Plugin;
+import org.jetbrains.java.decompiler.api.plugin.Plugin;
 
 public class ScalaPlugin implements Plugin{
   

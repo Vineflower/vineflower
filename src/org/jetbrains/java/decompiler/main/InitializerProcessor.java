@@ -3,6 +3,7 @@ package org.jetbrains.java.decompiler.main;
 
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
+import org.jetbrains.java.decompiler.main.decompiler.CancelationManager;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.rels.ClassWrapper;
@@ -29,6 +30,8 @@ public final class InitializerProcessor {
       if (method != null && method.root != null) {  // successfully decompiled static constructor
         extractStaticInitializers(wrapper, method);
       }
+    } catch (CancelationManager.CanceledException e) {
+      throw e;
     } catch (Throwable t) {
       StructMethod mt = method.methodStruct;
       String message = "Method " + mt.getName() + " " + mt.getDescriptor() + " in class " + wrapper.getClassStruct().qualifiedName + " couldn't be written.";

@@ -3,6 +3,7 @@ package org.jetbrains.java.decompiler.struct.gen.generics;
 
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.main.decompiler.CancelationManager;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.util.TextUtil;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
@@ -50,6 +51,9 @@ public final class GenericMain {
 
       return descriptor;
     }
+    catch (CancelationManager.CanceledException e) {
+      throw e;
+    }
     catch (RuntimeException e) {
       DecompilerContext.getLogger().writeMessage("Invalid signature: " + original, IFernflowerLogger.Severity.WARN);
       return null;
@@ -59,6 +63,9 @@ public final class GenericMain {
   public static GenericFieldDescriptor parseFieldSignature(String signature) {
     try {
       return new GenericFieldDescriptor(GenericType.parse(signature));
+    }
+    catch (CancelationManager.CanceledException e) {
+      throw e;
     }
     catch (RuntimeException e) {
       DecompilerContext.getLogger().writeMessage("Invalid signature: " + signature, IFernflowerLogger.Severity.WARN);
@@ -97,6 +104,9 @@ public final class GenericMain {
       }
 
       return new GenericMethodDescriptor(typeParameters, typeParameterBounds, parameterTypes, returnType, exceptionTypes);
+    }
+    catch (CancelationManager.CanceledException e) {
+      throw e;
     }
     catch (RuntimeException e) {
       DecompilerContext.getLogger().writeMessage("Invalid signature: " + original, IFernflowerLogger.Severity.WARN);
