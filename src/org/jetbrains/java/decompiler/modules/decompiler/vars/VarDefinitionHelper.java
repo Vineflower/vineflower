@@ -1452,7 +1452,7 @@ public class VarDefinitionHelper {
       // Process var definitions in statement head
       for (Object obj : stat.getSequentialObjects()) {
         if (obj instanceof Exprent) {
-          List<Exprent> exprents = ((Exprent) obj).getAllExprents(true);
+          List<Exprent> exprents = ((Exprent) obj).getAllExprents(true, true);
 
           for (Exprent exprent : exprents) {
             iterateClashingExprent(stat, mt, varDefinitions, exprent, liveVarDefs, curVarDefs, nameMap);

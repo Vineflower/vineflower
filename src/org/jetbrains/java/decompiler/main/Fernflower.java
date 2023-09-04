@@ -24,7 +24,11 @@ import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.token.TextTokenDumpVisitor;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 public class Fernflower implements IDecompiledData {
   private final StructContext structContext;
@@ -83,7 +87,8 @@ public class Fernflower implements IDecompiledData {
     }
     if (renamerFactory == null) {
       if("1".equals(properties.get(IFernflowerPreferences.USE_JAD_VARNAMING))) {
-        renamerFactory = new JADNameProvider.JADNameProviderFactory();
+        boolean renameParams = "1".equals(properties.get(IFernflowerPreferences.USE_JAD_PARAMETER_NAMING));
+        renamerFactory = new JADNameProvider.JADNameProviderFactory(renameParams);
       } else {
         renamerFactory = new IdentityRenamerFactory();
       }

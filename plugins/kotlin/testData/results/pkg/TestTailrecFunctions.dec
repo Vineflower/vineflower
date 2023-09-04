@@ -22,10 +22,10 @@ class TestTailrecFunctions {
          try {
             ;
          } catch (Throwable var2) {
-            this.testFinally();// 12 13
+            this.testFinally();// 13
          }
 
-         this.testFinally();
+         this.testFinally();// 12 14
       }
    }
 
@@ -33,7 +33,7 @@ class TestTailrecFunctions {
       try {
          ;
       } catch (Throwable var2) {
-         return this.testFinallyReturn();// 20 21
+         return this.testFinallyReturn();// 21
       }
 
       return this.testFinallyReturn();
@@ -57,7 +57,7 @@ class TestTailrecFunctions {
                   this.testTryCatchFinally();// 37
                }
             } catch (Throwable var3) {
-               this.testTryCatchFinally();// 38 39
+               this.testTryCatchFinally();// 39
             }
 
             this.testTryCatchFinally();
@@ -189,8 +189,16 @@ class 'pkg/TestTailrecFunctions' {
       2      27
       3      27
       4      27
-      8      24
+      5      27
+      6      27
+      7      27
+      8      27
       9      24
+      a      24
+      b      27
+      c      27
+      d      27
+      e      27
    }
 
    method 'testFinallyReturn ()I' {
@@ -199,11 +207,11 @@ class 'pkg/TestTailrecFunctions' {
       3      38
       4      38
       5      38
-      6      35
       7      35
       8      35
       9      35
       a      35
+      b      35
    }
 
    method 'fooTry ()V' {
@@ -230,8 +238,8 @@ class 'pkg/TestTailrecFunctions' {
       12      62
       13      62
       14      62
-      18      59
       19      59
+      1a      59
       1f      63
    }
 
@@ -432,9 +440,9 @@ Lines mapping:
 4 <-> 5
 5 <-> 10
 6 <-> 11
-12 <-> 25
+12 <-> 28
 13 <-> 25
-20 <-> 36
+14 <-> 28
 21 <-> 36
 27 <-> 44
 29 <-> 45
@@ -442,7 +450,6 @@ Lines mapping:
 35 <-> 54
 36 <-> 56
 37 <-> 57
-38 <-> 60
 39 <-> 60
 41 <-> 64
 43 <-> 101
@@ -456,9 +463,10 @@ Lines mapping:
 53 <-> 132
 Not mapped:
 10
-14
 15
 18
+20
 26
 34
+38
 40

@@ -10,7 +10,7 @@ Vineflower's features include:
 Examples of Vineflower's output, compared to other decompilers, can be found on [the wiki.](https://github.com/Vineflower/vineflower/wiki)
 
 ## Use
-Want to use Vineflower? There are a few ways! For Fabric and Architectury projects, [Loom Quiltflower](https://github.com/Juuxel/LoomQuiltflower) allows you to run genSources with Vineflower.
+Want to use Vineflower? There are a few ways! For Minecraft modding, [Loom Vineflower](https://github.com/Juuxel/loom-vineflower) allows you to generate sources with Vineflower.
 The [Vineflower Intellij IDEA plugin](https://plugins.jetbrains.com/plugin/18032-quiltflower) replaces Fernflower in IDEA with Vineflower, and allows you to modify its settings.
 
 If you want to run Vineflower from the commandline, head over to the [Releases tab](https://github.com/Vineflower/vineflower/releases) and grab the latest release.
@@ -19,11 +19,11 @@ You can then run Vineflower with `java -jar vineflower.jar <arguments> <source> 
 `<source>` can be a jar, zip, folder, or class file, and `<destination>` can be a folder, zip, jar, or excluded, to print to the console.
 
 
-To use Vineflower as a library, you can find distributions on [Quilt's maven](https://maven.quiltmc.org/repository/release/) or on maven central.
+To use Vineflower as a library, you can find distributions on maven central. Vineflower 1.9+ requires Java 11 or higher to run.
 Vineflower can be imported with gradle with:
 ```groovy
 dependencies {
-    implementation 'org.quiltmc:quiltflower:<version>'
+    implementation 'org.vineflower:vineflower:<version>'
 }
 ```
 Instructions on how to interface with Vineflower can be found on [the wiki.](https://github.com/Vineflower/vineflower/wiki)
@@ -45,4 +45,4 @@ Vineflower is a fork of both Jetbrains' Fernflower and MinecraftForge's ForgeFlo
 
 * Jetbrains- For maintaining Fernflower
 * Forge Team- For maintaining ForgeFlower
-* CFR- For it's large suite of very useful tests
+* CFR- For its large suite of very useful tests

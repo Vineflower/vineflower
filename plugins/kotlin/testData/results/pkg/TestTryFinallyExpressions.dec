@@ -8,10 +8,10 @@ class TestTryFinallyExpressions {
          try {
             var var2: String = StringsKt.repeat(s as CharSequence, 5);// 8
          } catch (Throwable var4) {
-            System.out.println("bye");// 9 10
+            System.out.println("bye");// 10
          }
 
-         System.out.println("bye");
+         System.out.println("bye");// 7 9 11
       }
    }
 
@@ -25,15 +25,15 @@ class TestTryFinallyExpressions {
             ;
          }
 
-         x = b;// 19
+         x = b;// 18 19 20
 
          try {
             var var15: String = StringsKt.repeat(x as CharSequence, 5);// 21
          } catch (Throwable var8) {
-            System.out.println(a);// 22 23
+            System.out.println(a);// 23
          }
 
-         System.out.println(a);
+         System.out.println(a);// 16 22 24
       }
    }
 
@@ -59,7 +59,7 @@ class TestTryFinallyExpressions {
                         var var4: String = a;// 39
                      }
                   } catch (Throwable var12) {
-                     var19 = if (var19 == a) b else a;// 40 41 42 44
+                     var19 = if (var19 == a) b else a;// 41 42 44
                   }
 
                   var19 = if (var19 == a) b else a;
@@ -72,10 +72,10 @@ class TestTryFinallyExpressions {
             try {
                var19 = StringsKt.repeat(var19 as CharSequence, 5);// 47
             } catch (Throwable var10) {
-               System.out.println(var19);// 48 49
+               System.out.println(var19);// 49
             }
 
-            System.out.println(var19);
+            System.out.println(var19);// 29 48 50
          }
 
          var19 = if (a == a) b else a;
@@ -102,10 +102,30 @@ class 'pkg/TestTryFinallyExpressions' {
       16      13
       17      13
       18      13
-      1c      10
+      19      13
+      1a      13
+      1b      13
+      1c      13
       1d      10
       1e      10
-      22      10
+      1f      10
+      20      10
+      21      10
+      22      13
+      23      10
+      24      13
+      25      13
+      26      13
+      27      13
+      28      13
+      29      13
+      2a      13
+      2b      13
+      2c      13
+      2d      13
+      2e      13
+      2f      13
+      30      13
    }
 
    method 'test1 (Ljava/lang/String;Ljava/lang/String;)V' {
@@ -123,6 +143,20 @@ class 'pkg/TestTryFinallyExpressions' {
       1d      22
       1e      27
       1f      27
+      20      27
+      21      27
+      22      27
+      23      27
+      24      27
+      25      27
+      26      27
+      27      27
+      28      27
+      29      27
+      2a      27
+      2b      27
+      2c      27
+      2d      27
       35      30
       36      30
       37      30
@@ -140,12 +174,31 @@ class 'pkg/TestTryFinallyExpressions' {
       43      35
       44      35
       45      35
-      49      32
-      4a      32
+      46      35
+      47      35
+      48      35
+      49      35
+      4a      35
       4b      32
       4c      32
       4d      32
       4e      32
+      4f      32
+      50      35
+      51      35
+      52      35
+      53      35
+      54      35
+      55      35
+      56      35
+      57      35
+      58      35
+      59      35
+      5a      35
+      5b      35
+      5c      35
+      5d      35
+      5e      35
    }
 
    method 'test2 (Ljava/lang/String;Ljava/lang/String;)V' {
@@ -198,12 +251,9 @@ class 'pkg/TestTryFinallyExpressions' {
       6a      64
       6b      64
       6c      65
-      6f      61
-      70      61
       71      61
-      73      61
-      74      61
-      75      61
+      72      61
+      76      61
       79      61
       7d      61
       7e      61
@@ -227,24 +277,48 @@ class 'pkg/TestTryFinallyExpressions' {
       b7      77
       b8      77
       b9      77
-      bd      74
-      be      74
+      ba      77
+      bb      77
+      bc      77
+      bd      77
+      be      77
       bf      74
-      c3      74
+      c0      74
+      c1      74
+      c2      74
+      c3      77
+      c4      74
+      c5      77
+      c6      77
+      c7      77
+      c8      77
+      c9      77
+      ca      77
+      cb      77
+      cc      77
+      cd      77
+      ce      77
    }
 }
 
 Lines mapping:
+7 <-> 14
 8 <-> 9
-9 <-> 11
+9 <-> 14
 10 <-> 11
+11 <-> 14
 15 <-> 20
+16 <-> 36
 17 <-> 23
+18 <-> 28
 19 <-> 28
+20 <-> 28
 21 <-> 31
-22 <-> 33
+22 <-> 36
 23 <-> 33
+24 <-> 36
 28 <-> 42
+29 <-> 78
 30 <-> 49
 33 <-> 53
 34 <-> 54
@@ -252,26 +326,19 @@ Lines mapping:
 37 <-> 57
 38 <-> 58
 39 <-> 59
-40 <-> 62
 41 <-> 62
 42 <-> 62
 44 <-> 62
 46 <-> 66
 47 <-> 73
-48 <-> 75
+48 <-> 78
 49 <-> 75
+50 <-> 78
 Not mapped:
-7
-11
 12
-16
-18
-20
-24
 25
-29
 31
 35
-50
+40
 51
 53

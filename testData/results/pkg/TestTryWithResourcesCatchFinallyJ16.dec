@@ -41,13 +41,12 @@ class 'pkg/TestTryWithResourcesCatchFinallyJ16' {
       32      10
       33      11
       34      11
-      42      13
-      43      13
       44      13
       45      13
       46      13
       47      13
       48      13
+      49      13
       4f      15
    }
 
@@ -65,13 +64,12 @@ class 'pkg/TestTryWithResourcesCatchFinallyJ16' {
       37      20
       38      21
       39      21
-      47      23
-      48      23
       49      23
       4a      23
       4b      23
       4c      23
       4d      23
+      4e      23
       54      25
    }
 

@@ -32,13 +32,13 @@ public class TestTryReturn {
                break label27;
             }
          } finally {
-            System.out.println("Finally");// 31
+            System.out.println("Finally");
          }
 
          return;// 28
       }
 
-      System.out.println("suc");// 32 34
+      System.out.println("suc");// 31 32 34
    }
 
    public boolean testFinally2(Supplier<Boolean> supplier) {
@@ -46,10 +46,10 @@ public class TestTryReturn {
       try {
          b = supplier.get();// 40
       } finally {
-         System.out.println("Finally");// 42
+         System.out.println("Finally");
       }
 
-      return b;// 43 45
+      return b;// 42 43 45
    }
 
    public boolean testFinally3(boolean b, boolean c, int a, Supplier<Boolean> supplier) {
@@ -77,10 +77,10 @@ public class TestTryReturn {
       try {
          b = supplier.get();// 67
       } finally {
-         System.out.println("Finally");// 69
+         System.out.println("Finally");
       }
 
-      return b;// 70 72
+      return b;// 69 70 72
    }
 
    public boolean testFinally5(Supplier<Boolean> supplier) {
@@ -178,7 +178,7 @@ public class TestTryReturn {
             } catch (Exception var14) {// 149
                System.out.println(3);// 150
             } finally {
-               continue;// 153
+               continue;
             }
          } finally {
             boolean var7 = true;// 156
@@ -256,12 +256,12 @@ class 'pkg/TestTryReturn' {
       c      17
       15      22
       16      22
-      17      19
       18      19
       19      19
       1a      19
       1b      19
       1c      19
+      1d      19
    }
 
    method 'testFinally1 (Ljava/util/function/Supplier;)V' {
@@ -285,13 +285,13 @@ class 'pkg/TestTryReturn' {
       28      40
       29      40
       2a      40
-      2b      34
+      2b      40
       2c      34
       2d      34
       2e      34
       2f      34
       30      34
-      31      40
+      31      34
       32      40
       33      40
       34      40
@@ -318,13 +318,13 @@ class 'pkg/TestTryReturn' {
       15      51
       16      51
       17      51
-      18      48
+      18      51
       19      48
       1a      48
       1b      48
       1c      48
       1d      48
-      1e      51
+      1e      48
       1f      51
       20      51
       21      51
@@ -370,13 +370,12 @@ class 'pkg/TestTryReturn' {
       50      62
       51      62
       5e      62
-      5f      67
-      60      67
       61      67
       62      67
       63      67
       64      67
       65      67
+      66      67
    }
 
    method 'testFinally4 (Ljava/util/function/Supplier;)Z' {
@@ -395,13 +394,13 @@ class 'pkg/TestTryReturn' {
       17      82
       18      82
       19      82
-      1a      79
+      1a      82
       1b      79
       1c      79
       1d      79
       1e      79
       1f      79
-      20      82
+      20      79
       21      82
       22      82
       23      82
@@ -441,13 +440,12 @@ class 'pkg/TestTryReturn' {
       2d      92
       2e      92
       2f      92
-      3b      94
-      3c      94
       3d      94
       3e      94
       3f      94
       40      94
       41      94
+      42      94
       48      97
       49      97
    }
@@ -494,13 +492,12 @@ class 'pkg/TestTryReturn' {
       3c      112
       3d      112
       3e      112
-      4a      114
-      4b      114
       4c      114
       4d      114
       4e      114
       4f      114
       50      114
+      51      114
       57      117
       58      117
    }
@@ -511,12 +508,12 @@ class 'pkg/TestTryReturn' {
       2      125
       3      125
       e      126
-      1a      129
       1b      129
       1c      129
       1d      129
       1e      129
       1f      129
+      20      129
    }
 
    method 'testPostdomFailure ()V' {
@@ -539,11 +536,10 @@ class 'pkg/TestTryReturn' {
       24      178
       25      178
       26      178
-      2f      180
-      38      183
-      39      183
       3a      183
       3b      183
+      3c      183
+      3d      183
       41      186
    }
 
@@ -565,10 +561,10 @@ class 'pkg/TestTryReturn' {
       1a      194
       1b      194
       21      195
-      22      198
-      23      198
       24      198
       25      198
+      26      198
+      27      198
    }
 
    method 'testInvalidUse ()V' {
@@ -591,19 +587,17 @@ class 'pkg/TestTryReturn' {
       19      216
       26      218
       36      225
-      37      220
-      38      220
       39      220
       3a      220
       3b      220
       3c      220
+      3d      220
       4a      217
-      4d      223
-      4e      223
       4f      223
       50      223
       51      223
       52      223
+      53      223
    }
 }
 
@@ -616,11 +610,11 @@ Lines mapping:
 24 <-> 27
 27 <-> 31
 28 <-> 38
-31 <-> 35
+31 <-> 41
 32 <-> 41
 34 <-> 41
 40 <-> 47
-42 <-> 49
+42 <-> 52
 43 <-> 52
 45 <-> 52
 50 <-> 58
@@ -631,7 +625,7 @@ Lines mapping:
 60 <-> 68
 65 <-> 75
 67 <-> 78
-69 <-> 80
+69 <-> 83
 70 <-> 83
 72 <-> 83
 76 <-> 87
@@ -660,7 +654,6 @@ Lines mapping:
 148 <-> 177
 149 <-> 178
 150 <-> 179
-153 <-> 181
 156 <-> 184
 159 <-> 187
 164 <-> 191
@@ -689,6 +682,7 @@ Not mapped:
 84
 103
 118
+153
 157
 175
 191

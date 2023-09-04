@@ -485,7 +485,6 @@ public class ClassesProcessor implements CodeConstants {
         });
 
         writer.writeClassHeader(cl, buffer, DecompilerContext.getImportCollector());
-
         int offsetLines = buffer.countLines();
 
         buffer.append(classBuffer);
@@ -668,6 +667,11 @@ public class ClassesProcessor implements CodeConstants {
     public int compareTo(ClassNode o) {
       //TODO: Take line numbers into account?
       return this.classStruct.qualifiedName.compareTo(o.classStruct.qualifiedName);
+    }
+
+    @Override
+    public String toString() {
+      return type + " class " + classStruct.qualifiedName;
     }
 
     public static class LambdaInformation {

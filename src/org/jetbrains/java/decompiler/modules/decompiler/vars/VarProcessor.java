@@ -29,6 +29,7 @@ public class VarProcessor {
   private final Map<VarVersionPair, String> thisVars = new HashMap<>();
   private final Set<VarVersionPair> externalVars = new HashSet<>();
   private final Map<VarVersionPair, String> clashingNames = new HashMap<>();
+  private final Map<VarVersionPair, String> inheritedNames = new HashMap<>();
   private final Set<Integer> syntheticSemaphores = new HashSet<>();
   // var -> (method, var in method)
   private final Map<VarVersionPair, Pair<String, VarVersionPair>> varSources = new HashMap<>();
@@ -162,6 +163,16 @@ public class VarProcessor {
 
   public void setVarSource(VarVersionPair pair, String method, VarVersionPair original) {
     varSources.put(pair, Pair.of(method, original));
+  }
+
+  public void setInheritedName(VarVersionPair pair, String name) {
+    setVarName(pair, name);
+
+    inheritedNames.put(pair, name);
+  }
+
+  public Map<VarVersionPair, String> getInheritedNames() {
+    return this.inheritedNames;
   }
 
   public Set<VarVersionPair> getUsedVarVersions() {
