@@ -1,8 +1,8 @@
-package org.jetbrains.java.decompiler.api.passes;
+package org.jetbrains.java.decompiler.api.plugin.pass;
 
 import java.util.function.Consumer;
 
-public class WrappedPass implements Pass {
+public final class WrappedPass implements Pass {
   private final Consumer<PassContext> pass;
 
   private WrappedPass(Consumer<PassContext> pass) {

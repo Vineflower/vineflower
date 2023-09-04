@@ -1,11 +1,11 @@
 package org.vineflower.kotlin;
 
-import org.jetbrains.java.decompiler.api.Plugin;
-import org.jetbrains.java.decompiler.api.language.LanguageSpec;
-import org.jetbrains.java.decompiler.api.passes.LoopingPassBuilder;
-import org.jetbrains.java.decompiler.api.passes.MainPassBuilder;
-import org.jetbrains.java.decompiler.api.passes.Pass;
-import org.jetbrains.java.decompiler.api.passes.WrappedPass;
+import org.jetbrains.java.decompiler.api.plugin.Plugin;
+import org.jetbrains.java.decompiler.api.plugin.LanguageSpec;
+import org.jetbrains.java.decompiler.api.plugin.pass.LoopingPassBuilder;
+import org.jetbrains.java.decompiler.api.plugin.pass.MainPassBuilder;
+import org.jetbrains.java.decompiler.api.plugin.pass.Pass;
+import org.jetbrains.java.decompiler.api.plugin.pass.WrappedPass;
 import org.jetbrains.java.decompiler.modules.decompiler.*;
 import org.jetbrains.java.decompiler.modules.decompiler.decompose.DomHelper;
 import org.vineflower.kotlin.pass.*;

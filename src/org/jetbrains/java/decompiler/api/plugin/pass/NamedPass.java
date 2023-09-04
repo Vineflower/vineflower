@@ -1,4 +1,4 @@
-package org.jetbrains.java.decompiler.api.passes;
+package org.jetbrains.java.decompiler.api.plugin.pass;
 
 public final class NamedPass implements Pass {
   private final String name;

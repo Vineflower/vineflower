@@ -1,4 +1,4 @@
-package org.jetbrains.java.decompiler.api.passes;
+package org.jetbrains.java.decompiler.api.plugin.pass;
 
 /**
  * A pass that can be run on the decompiled code.

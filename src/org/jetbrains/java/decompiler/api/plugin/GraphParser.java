@@ -1,4 +1,4 @@
-package org.jetbrains.java.decompiler.api;
+package org.jetbrains.java.decompiler.api.plugin;
 
 import org.jetbrains.java.decompiler.code.cfg.ControlFlowGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;

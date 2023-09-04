@@ -1,4 +1,4 @@
-package org.jetbrains.java.decompiler.api;
+package org.jetbrains.java.decompiler.api.plugin;
 
 import org.jetbrains.java.decompiler.main.ClassesProcessor;
 import org.jetbrains.java.decompiler.main.collectors.ImportCollector;

@@ -1,7 +1,7 @@
 // Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.struct.attr;
 
-import org.jetbrains.java.decompiler.api.AttributeRegistry;
+import org.jetbrains.java.decompiler.api.ClassAttributeRegistry;
 import org.jetbrains.java.decompiler.code.BytecodeVersion;
 import org.jetbrains.java.decompiler.util.Key;
 import org.jetbrains.java.decompiler.struct.consts.ConstantPool;
@@ -43,9 +43,9 @@ public class StructGeneralAttribute {
   public static final Key<StructSourceFileAttribute> ATTRIBUTE_SOURCE_FILE = Key.of("SourceFile");
 
   public static StructGeneralAttribute createAttribute(String name) {
-    for (Key<? extends StructGeneralAttribute> key : AttributeRegistry.getRegistry().keySet()) {
+    for (Key<? extends StructGeneralAttribute> key : ClassAttributeRegistry.getRegistry().keySet()) {
       if (key.name.equals(name)) {
-        return AttributeRegistry.get(key);
+        return ClassAttributeRegistry.get(key);
       }
     }
 
@@ -55,30 +55,30 @@ public class StructGeneralAttribute {
 
   // Not placed in static intializer to avoid class loading issues
   public static void init() {
-    AttributeRegistry.register(ATTRIBUTE_CODE, StructCodeAttribute::new);
-    AttributeRegistry.register(ATTRIBUTE_INNER_CLASSES, StructInnerClassesAttribute::new);
-    AttributeRegistry.register(ATTRIBUTE_CONSTANT_VALUE, StructConstantValueAttribute::new);
-    AttributeRegistry.register(ATTRIBUTE_SIGNATURE, StructGenericSignatureAttribute::new);
-    AttributeRegistry.register(ATTRIBUTE_ANNOTATION_DEFAULT, StructAnnDefaultAttribute::new);
-    AttributeRegistry.register(ATTRIBUTE_EXCEPTIONS, StructExceptionsAttribute::new);
-    AttributeRegistry.register(ATTRIBUTE_ENCLOSING_METHOD, StructEnclosingMethodAttribute::new);
-    AttributeRegistry.register(ATTRIBUTE_RUNTIME_VISIBLE_ANNOTATIONS, StructAnnotationAttribute::new);
-    AttributeRegistry.register(ATTRIBUTE_RUNTIME_INVISIBLE_ANNOTATIONS, StructAnnotationAttribute::new);
-    AttributeRegistry.register(ATTRIBUTE_RUNTIME_VISIBLE_PARAMETER_ANNOTATIONS, StructAnnotationParameterAttribute::new);
-    AttributeRegistry.register(ATTRIBUTE_RUNTIME_INVISIBLE_PARAMETER_ANNOTATIONS, StructAnnotationParameterAttribute::new);
-    AttributeRegistry.register(ATTRIBUTE_RUNTIME_VISIBLE_TYPE_ANNOTATIONS, StructTypeAnnotationAttribute::new);
-    AttributeRegistry.register(ATTRIBUTE_RUNTIME_INVISIBLE_TYPE_ANNOTATIONS, StructTypeAnnotationAttribute::new);
-    AttributeRegistry.register(ATTRIBUTE_LOCAL_VARIABLE_TABLE, StructLocalVariableTableAttribute::new);
-    AttributeRegistry.register(ATTRIBUTE_LOCAL_VARIABLE_TYPE_TABLE, StructLocalVariableTypeTableAttribute::new);
-    AttributeRegistry.register(ATTRIBUTE_BOOTSTRAP_METHODS, StructBootstrapMethodsAttribute::new);
-    AttributeRegistry.register(ATTRIBUTE_SYNTHETIC, StructGeneralAttribute::new);
-    AttributeRegistry.register(ATTRIBUTE_DEPRECATED, StructGeneralAttribute::new);
-    AttributeRegistry.register(ATTRIBUTE_LINE_NUMBER_TABLE, StructLineNumberTableAttribute::new);
-    AttributeRegistry.register(ATTRIBUTE_METHOD_PARAMETERS, StructMethodParametersAttribute::new);
-    AttributeRegistry.register(ATTRIBUTE_MODULE, StructModuleAttribute::new);
-    AttributeRegistry.register(ATTRIBUTE_RECORD, StructRecordAttribute::new);
-    AttributeRegistry.register(ATTRIBUTE_PERMITTED_SUBCLASSES, StructPermittedSubclassesAttribute::new);
-    AttributeRegistry.register(ATTRIBUTE_SOURCE_FILE, StructSourceFileAttribute::new);
+    ClassAttributeRegistry.register(ATTRIBUTE_CODE, StructCodeAttribute::new);
+    ClassAttributeRegistry.register(ATTRIBUTE_INNER_CLASSES, StructInnerClassesAttribute::new);
+    ClassAttributeRegistry.register(ATTRIBUTE_CONSTANT_VALUE, StructConstantValueAttribute::new);
+    ClassAttributeRegistry.register(ATTRIBUTE_SIGNATURE, StructGenericSignatureAttribute::new);
+    ClassAttributeRegistry.register(ATTRIBUTE_ANNOTATION_DEFAULT, StructAnnDefaultAttribute::new);
+    ClassAttributeRegistry.register(ATTRIBUTE_EXCEPTIONS, StructExceptionsAttribute::new);
+    ClassAttributeRegistry.register(ATTRIBUTE_ENCLOSING_METHOD, StructEnclosingMethodAttribute::new);
+    ClassAttributeRegistry.register(ATTRIBUTE_RUNTIME_VISIBLE_ANNOTATIONS, StructAnnotationAttribute::new);
+    ClassAttributeRegistry.register(ATTRIBUTE_RUNTIME_INVISIBLE_ANNOTATIONS, StructAnnotationAttribute::new);
+    ClassAttributeRegistry.register(ATTRIBUTE_RUNTIME_VISIBLE_PARAMETER_ANNOTATIONS, StructAnnotationParameterAttribute::new);
+    ClassAttributeRegistry.register(ATTRIBUTE_RUNTIME_INVISIBLE_PARAMETER_ANNOTATIONS, StructAnnotationParameterAttribute::new);
+    ClassAttributeRegistry.register(ATTRIBUTE_RUNTIME_VISIBLE_TYPE_ANNOTATIONS, StructTypeAnnotationAttribute::new);
+    ClassAttributeRegistry.register(ATTRIBUTE_RUNTIME_INVISIBLE_TYPE_ANNOTATIONS, StructTypeAnnotationAttribute::new);
+    ClassAttributeRegistry.register(ATTRIBUTE_LOCAL_VARIABLE_TABLE, StructLocalVariableTableAttribute::new);
+    ClassAttributeRegistry.register(ATTRIBUTE_LOCAL_VARIABLE_TYPE_TABLE, StructLocalVariableTypeTableAttribute::new);
+    ClassAttributeRegistry.register(ATTRIBUTE_BOOTSTRAP_METHODS, StructBootstrapMethodsAttribute::new);
+    ClassAttributeRegistry.register(ATTRIBUTE_SYNTHETIC, StructGeneralAttribute::new);
+    ClassAttributeRegistry.register(ATTRIBUTE_DEPRECATED, StructGeneralAttribute::new);
+    ClassAttributeRegistry.register(ATTRIBUTE_LINE_NUMBER_TABLE, StructLineNumberTableAttribute::new);
+    ClassAttributeRegistry.register(ATTRIBUTE_METHOD_PARAMETERS, StructMethodParametersAttribute::new);
+    ClassAttributeRegistry.register(ATTRIBUTE_MODULE, StructModuleAttribute::new);
+    ClassAttributeRegistry.register(ATTRIBUTE_RECORD, StructRecordAttribute::new);
+    ClassAttributeRegistry.register(ATTRIBUTE_PERMITTED_SUBCLASSES, StructPermittedSubclassesAttribute::new);
+    ClassAttributeRegistry.register(ATTRIBUTE_SOURCE_FILE, StructSourceFileAttribute::new);
   }
 
   public void initContent(DataInputFullStream data, ConstantPool pool, BytecodeVersion version) throws IOException { }

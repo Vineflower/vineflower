@@ -1,13 +1,9 @@
-package org.jetbrains.java.decompiler.api;
+package org.jetbrains.java.decompiler.api.plugin;
 
 import org.jetbrains.java.decompiler.api.java.JavaPassRegistrar;
-import org.jetbrains.java.decompiler.api.language.LanguageSpec;
-import org.jetbrains.java.decompiler.api.passes.Pass;
-
-import java.util.List;
 
 /**
- * Plugins allow users to interface with Quiltflower's decompilation process by providing user-defined passes or language specifications.
+ * Plugins allow users to interface with Vineflower's decompilation process by providing user-defined passes or language specifications.
  */
 public interface Plugin {
 
@@ -20,7 +16,7 @@ public interface Plugin {
   /**
    * Allows addition to the list of passes that will be run during Java decompilation.
    *
-   * @param registrar The registrar object to register into.
+   * @param registrar The registrar object to register into
    */
   default void registerJavaPasses(JavaPassRegistrar registrar) {
 
