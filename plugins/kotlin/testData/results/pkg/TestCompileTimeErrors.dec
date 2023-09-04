@@ -29,7 +29,7 @@ class TestCompileTimeErrors {
    }
 
    interface Test {
-      fun getTestValue(): Int
+      public val testValue: Int
    }
 }
 

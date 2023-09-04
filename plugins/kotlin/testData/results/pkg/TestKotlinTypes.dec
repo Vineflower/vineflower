@@ -3,14 +3,10 @@ package pkg
 import kotlin.jvm.functions.Function1
 
 class TestKotlinTypes {
-   private Function1<Integer, Unit> consumer = <unknownclass>.INSTANCE;
+   public final val consumer: (Int) -> Unit = <unknownclass>.INSTANCE as Function1
 
    fun throwAlways(): Void {
       throw new Exception();// 5
-   }
-
-   fun getConsumer(): (Int?) -> Unit {
-      return this.consumer;// 8
    }
 }
 
@@ -18,16 +14,7 @@ class 'pkg/TestKotlinTypes' {
    method 'throwAlways ()Ljava/lang/Void;' {
       7      8
    }
-
-   method 'getConsumer ()Lkotlin/jvm/functions/Function1;' {
-      0      12
-      1      12
-      2      12
-      3      12
-      4      12
-   }
 }
 
 Lines mapping:
 5 <-> 9
-8 <-> 13

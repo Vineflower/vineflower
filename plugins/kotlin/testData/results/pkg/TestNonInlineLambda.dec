@@ -5,10 +5,12 @@ import kotlin.jvm.internal.Ref.IntRef
 import kotlin.jvm.internal.Ref.ObjectRef
 
 open class TestNonInlineLambda {
-   private int intField;
-   private String stringField = "";
-   private int privateIntField;
-   private String privateStringField = "";
+   public final var intField: Int
+      internal set
+   private final var privateIntField: Int
+   private final var privateStringField: String = ""
+   public final var stringField: String = ""
+      internal set
 
    fun testCaptureInt(x: Int) {
       this.execute(new <undefinedtype>(x));// 7 8
@@ -75,25 +77,9 @@ open class TestNonInlineLambda {
       this.execute(new <undefinedtype>(y));// 106
    }// 112
 
-   fun getIntField(): Int {
-      return this.intField;
-   }
-
-   fun setIntField(var1: Int) {
-      this.intField = var1;// 114
-   }
-
    fun testCapturePublicMutableIntField() {
       this.execute(new <undefinedtype>(this));// 117
    }// 118
-
-   fun getStringField(): String {
-      return this.stringField;
-   }
-
-   fun setStringField(var1: String) {
-      this.stringField = var1;// 120
-   }
 
    fun testCapturePublicMutableStringField() {
       this.execute(new <undefinedtype>(this));// 123
@@ -471,24 +457,31 @@ class 'pkg/TestNonInlineLambda' {
       3c      75
    }
 
-   method 'getIntField ()I' {
-      0      78
-      1      78
-      2      78
-      3      78
-      4      78
-   }
-
-   method 'setIntField (I)V' {
-      0      82
-      1      82
-      2      82
-      3      82
-      4      82
-      5      83
-   }
-
    method 'testCapturePublicMutableIntField ()V' {
+      0      78
+      5      78
+      9      78
+      a      78
+      b      78
+      c      78
+      d      78
+      e      78
+      f      79
+   }
+
+   method 'testCapturePublicMutableStringField ()V' {
+      0      82
+      5      82
+      9      82
+      a      82
+      b      82
+      c      82
+      d      82
+      e      82
+      f      83
+   }
+
+   method 'testCapturePrivateMutableIntField ()V' {
       0      86
       5      86
       9      86
@@ -500,100 +493,59 @@ class 'pkg/TestNonInlineLambda' {
       f      87
    }
 
-   method 'getStringField ()Ljava/lang/String;' {
-      0      90
-      1      90
-      2      90
-      3      90
-      4      90
-   }
-
-   method 'setStringField (Ljava/lang/String;)V' {
-      6      94
-      7      94
-      8      94
-      9      94
-      a      94
-      b      95
-   }
-
-   method 'testCapturePublicMutableStringField ()V' {
-      0      98
-      5      98
-      9      98
-      a      98
-      b      98
-      c      98
-      d      98
-      e      98
-      f      99
-   }
-
-   method 'testCapturePrivateMutableIntField ()V' {
-      0      102
-      5      102
-      9      102
-      a      102
-      b      102
-      c      102
-      d      102
-      e      102
-      f      103
-   }
-
    method 'testCapturePrivateMutableStringField ()V' {
-      0      106
-      5      106
-      9      106
-      a      106
-      b      106
-      c      106
-      d      106
-      e      106
-      f      107
+      0      90
+      5      90
+      9      90
+      a      90
+      b      90
+      c      90
+      d      90
+      e      90
+      f      91
    }
 
    method 'execute (Lkotlin/jvm/functions/Function0;)V' {
-      6      110
+      6      94
    }
 
    method 'access$getPrivateIntField$p (Lpkg/TestNonInlineLambda;)I' {
-      0      115
-      1      115
-      2      115
-      3      115
-      4      115
+      0      99
+      1      99
+      2      99
+      3      99
+      4      99
    }
 
    method 'access$setPrivateIntField$p (Lpkg/TestNonInlineLambda;I)V' {
-      0      121
-      1      121
-      2      121
-      3      121
-      4      121
-      5      122
+      0      105
+      1      105
+      2      105
+      3      105
+      4      105
+      5      106
    }
 
    method 'access$setPrivateStringField$p (Lpkg/TestNonInlineLambda;Ljava/lang/String;)V' {
-      0      127
-      1      127
-      2      127
-      3      127
-      4      127
-      5      128
+      0      111
+      1      111
+      2      111
+      3      111
+      4      111
+      5      112
    }
 
    method 'access$getPrivateStringField$p (Lpkg/TestNonInlineLambda;)Ljava/lang/String;' {
-      0      133
-      1      133
-      2      133
-      3      133
-      4      133
+      0      117
+      1      117
+      2      117
+      3      117
+      4      117
    }
 }
 
 Lines mapping:
-3 <-> 134
+3 <-> 118
 7 <-> 14
 8 <-> 14
 11 <-> 15
@@ -638,14 +590,12 @@ Lines mapping:
 105 <-> 74
 106 <-> 75
 112 <-> 76
-114 <-> 83
-117 <-> 87
-118 <-> 88
-120 <-> 95
-123 <-> 99
-124 <-> 100
-129 <-> 103
-130 <-> 104
-135 <-> 107
-136 <-> 108
-141 <-> 111
+117 <-> 79
+118 <-> 80
+123 <-> 83
+124 <-> 84
+129 <-> 87
+130 <-> 88
+135 <-> 91
+136 <-> 92
+141 <-> 95

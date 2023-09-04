@@ -18,6 +18,8 @@ import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
 import org.vineflower.kotlin.metadata.MetadataNameResolver;
 
 import java.io.ByteArrayInputStream;
+import java.util.Arrays;
+import java.util.Objects;
 
 public class KotlinChooser implements LanguageChooser {
   private static final Key<?>[] ANNOTATION_ATTRIBUTES = {
@@ -31,6 +33,10 @@ public class KotlinChooser implements LanguageChooser {
 
   @Override
   public boolean isLanguage(StructClass cl) {
+    if (Objects.equals(KotlinPreferences.getPreference(KotlinPreferences.FORCE_DISABLE), "1")) {
+      return false;
+    }
+
     // Try to find @Metadata()
 
     for (Key<?> key : ANNOTATION_ATTRIBUTES) {
@@ -84,8 +90,7 @@ public class KotlinChooser implements LanguageChooser {
       ByteArrayInputStream input = new ByteArrayInputStream(buf);
       JvmProtoBuf.StringTableTypes types = JvmProtoBuf.StringTableTypes.parseDelimitedFrom(input, EXTENSIONS);
 
-      MetadataNameResolver resolver = new MetadataNameResolver(types, data2);
-      DecompilerContext.setProperty(KotlinDecompilationContext.NAME_RESOLVER, resolver);
+      DecompilerContext.setProperty(KotlinDecompilationContext.NAME_RESOLVER, new MetadataNameResolver(types, data2));
 
       if (k == 1) { // Class file
         ProtoBuf.Class pcl = ProtoBuf.Class.parseFrom(input, EXTENSIONS);

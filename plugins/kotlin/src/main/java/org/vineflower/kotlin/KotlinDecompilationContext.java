@@ -13,12 +13,13 @@ public class KotlinDecompilationContext {
     MULTIFILE_CLASS,
   }
   
-  public static final Key<KotlinType> CURRENT_TYPE = Key.of("CURRENT_TYPE");
-  public static final Key<ProtoBuf.Class> CURRENT_CLASS = Key.of("CURRENT_CLASS");
-  public static final Key<ProtoBuf.Package> FILE_PACKAGE = Key.of("FILE_PACKAGE");
-  public static final Key<ProtoBuf.Function> SYNTHETIC_CLASS = Key.of("SYNTHETIC_CLASS");
-  public static final Key<ProtoBuf.Package> MULTIFILE_PACKAGE = Key.of("MULTIFILE_PACKAGE");
-  public static final Key<MetadataNameResolver> NAME_RESOLVER = Key.of("NAME_RESOLVER");
+  public static final Key<KotlinType> CURRENT_TYPE = Key.of("KT_CURRENT_TYPE");
+  public static final Key<ProtoBuf.Class> CURRENT_CLASS = Key.of("KT_CURRENT_CLASS");
+  public static final Key<ProtoBuf.Package> FILE_PACKAGE = Key.of("KT_FILE_PACKAGE");
+  public static final Key<ProtoBuf.Function> SYNTHETIC_CLASS = Key.of("KT_SYNTHETIC_CLASS");
+  public static final Key<ProtoBuf.Package> MULTIFILE_PACKAGE = Key.of("KT_MULTIFILE_PACKAGE");
+
+  public static final Key<MetadataNameResolver> NAME_RESOLVER = Key.of("KT_NAME_RESOLVER");
 
   public static ProtoBuf.Class getCurrentClass() {
     return getCurrentType() == KotlinType.CLASS ? DecompilerContext.getContextProperty(CURRENT_CLASS) : null;

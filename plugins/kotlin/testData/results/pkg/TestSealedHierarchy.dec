@@ -12,15 +12,11 @@ sealed class TestSealedHierarchy {
    }
 
    class TestClass : TestSealedHierarchy {
-      private int x;
+      public final val x: Int
 
       fun TestClass(x: Int) {
-         super(null);
+         super(null);// 5
          this.x = x;
-      }
-
-      fun getX(): Int {
-         return this.x;// 5
       }
    }
 
@@ -60,27 +56,19 @@ class 'pkg/TestSealedHierarchy$TestClass' {
       9      18
       a      19
    }
-
-   method 'getX ()I' {
-      0      22
-      1      22
-      2      22
-      3      22
-      4      22
-   }
 }
 
 class 'pkg/TestSealedHierarchy$TestObject' {
    method '<init> ()V' {
-      1      31
-      2      31
-      3      31
-      4      31
-      5      32
+      1      27
+      2      27
+      3      27
+      4      27
+      5      28
    }
 }
 
 Lines mapping:
 3 <-> 7
-4 <-> 32
-5 <-> 23
+4 <-> 28
+5 <-> 18

@@ -5,26 +5,10 @@ import java.util.Map
 import java.util.Set
 
 class TestConvertedK2JOps {
-   private List<String> list = CollectionsKt.listOf(new String[]{"a", "b", "c"});
-   private Set<String> set = SetsKt.setOf(new String[]{"a", "b", "c"});
-   private Map<String, String> map = MapsKt.mapOf(new Pair[]{TuplesKt.to("a", "b"), TuplesKt.to("c", "d")});
-   private Object any = new Object();
-
-   fun getList(): MutableList<String> {
-      return this.list;// 4
-   }
-
-   fun getSet(): MutableSet<String> {
-      return this.set;// 5
-   }
-
-   fun getMap(): MutableMap<String, String> {
-      return this.map;// 6
-   }
-
-   fun getAny(): Any {
-      return this.any;// 7
-   }
+   public final val any: Any = new Object()
+   public final val list: List<String> = CollectionsKt.listOf(new String[]{"a", "b", "c"})
+   public final val map: Map<String, String> = MapsKt.mapOf(new Pair[]{TuplesKt.to("a", "b"), TuplesKt.to("c", "d")})
+   public final val set: Set<String> = SetsKt.setOf(new String[]{"a", "b", "c"})
 
    fun codeConstructs() {
       System.out.println("Hello, world!");// 10
@@ -32,57 +16,21 @@ class TestConvertedK2JOps {
 }
 
 class 'pkg/TestConvertedK2JOps' {
-   method 'getList ()Ljava/util/List;' {
+   method 'codeConstructs ()V' {
       0      13
       1      13
       2      13
       3      13
       4      13
-   }
-
-   method 'getSet ()Ljava/util/Set;' {
-      0      17
-      1      17
-      2      17
-      3      17
-      4      17
-   }
-
-   method 'getMap ()Ljava/util/Map;' {
-      0      21
-      1      21
-      2      21
-      3      21
-      4      21
-   }
-
-   method 'getAny ()Ljava/lang/Object;' {
-      0      25
-      1      25
-      2      25
-      3      25
-      4      25
-   }
-
-   method 'codeConstructs ()V' {
-      0      29
-      1      29
-      2      29
-      3      29
-      4      29
-      6      29
-      7      29
-      8      29
-      c      30
+      6      13
+      7      13
+      8      13
+      c      14
    }
 }
 
 Lines mapping:
-4 <-> 14
-5 <-> 18
-6 <-> 22
-7 <-> 26
-10 <-> 30
-12 <-> 31
+10 <-> 14
+12 <-> 15
 Not mapped:
 11

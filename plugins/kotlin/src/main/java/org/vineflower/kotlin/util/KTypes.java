@@ -6,10 +6,13 @@ import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class KTypes {
+  private static final int MAX_KOTLIN_FUNCTION_ARITY = 22;
+
   private static final Pattern GENERICS_PATTERN = Pattern.compile("(.+)<(.+)>");
   private static final Map<String, String> JAVA_CLASS_TRANSLATIONS = Map.of(
     "java/lang/Integer", "Int",
@@ -28,6 +31,66 @@ public final class KTypes {
     "java/util/Map$Entry", "MutableMap.MutableEntry",
     "java/util/Iterable", "MutableIterable"
   );
+  
+  private static final Map<String, String> KOTLIN_TO_JAVA_LANG = Map.of(
+    "kotlin/Int", "java/lang/Integer",
+    "kotlin/Long", "java/lang/Long",
+    "kotlin/Short", "java/lang/Short",
+    "kotlin/Byte", "java/lang/Byte",
+    "kotlin/Boolean", "java/lang/Boolean",
+    "kotlin/Char", "java/lang/Character",
+    "kotlin/Float", "java/lang/Float",
+    "kotlin/Double", "java/lang/Double",
+    "kotlin/String", "java/lang/String",
+    "kotlin/Any", "java/lang/Object"
+  );
+
+  private static final Map<String, String> KOTLIN_TO_JAVA_UTIL = Map.of(
+    "kotlin/collections/MutableMap", "java/util/Map",
+    "kotlin/collections/MutableList", "java/util/List",
+    "kotlin/collections/MutableSet", "java/util/Set",
+    "kotlin/collections/MutableIterator", "java/util/Iterator",
+    "kotlin/collections/MutableIterable", "java/util/Iterable",
+    "kotlin/collections/MutableMap.MutableEntry", "java/util/Map$Entry"
+  );
+  
+  private static final Map<String, String> KOTLIN_PRIMITIVE_TYPES = Map.of(
+    "kotlin/Int", "I",
+    "kotlin/Long", "J",
+    "kotlin/Short", "S",
+    "kotlin/Byte", "B",
+    "kotlin/Boolean", "Z",
+    "kotlin/Char", "C",
+    "kotlin/Float", "F",
+    "kotlin/Double", "D",
+    "kotlin/Unit", "V"
+  );
+
+  public static String getJavaSignature(String kotlinType, boolean isNullable) {
+    if (kotlinType.startsWith("L") && kotlinType.endsWith(";")) {
+      kotlinType = kotlinType.substring(1, kotlinType.length() - 1);
+    }
+
+    if (kotlinType.startsWith("kotlin/")) {
+      if (KOTLIN_PRIMITIVE_TYPES.containsKey(kotlinType) && !isNullable) {
+        return KOTLIN_PRIMITIVE_TYPES.get(kotlinType);
+      } else if (KOTLIN_TO_JAVA_LANG.containsKey(kotlinType)) {
+        return "L" + KOTLIN_TO_JAVA_LANG.get(kotlinType) + ";";
+      } else if (KOTLIN_TO_JAVA_UTIL.containsKey(kotlinType)) {
+        return "L" + KOTLIN_TO_JAVA_UTIL.get(kotlinType) + ";";
+      } else if (kotlinType.startsWith("kotlin/collections/")) {
+        String javaType = kotlinType.substring("kotlin/collections/".length());
+        javaType = javaType.startsWith("Mutable") ? javaType.substring("Mutable".length()) : javaType;
+        return "Ljava/util/" + javaType + ";";
+      } else if (kotlinType.startsWith("kotlin/Function")) {
+        if (Integer.parseInt(kotlinType.substring("kotlin/Function".length())) > MAX_KOTLIN_FUNCTION_ARITY) {
+          return "Lkotlin/jvm/functions/FunctionN;";
+        }
+        return "Lkotlin/jvm/functions" + kotlinType.substring("kotlin".length()) + ";";
+      }
+    }
+    return "L" + kotlinType + ";";
+  }
 
   public static String getKotlinType(VarType type) {
     return getKotlinType(type, true);
