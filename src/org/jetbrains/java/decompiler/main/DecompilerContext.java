@@ -64,7 +64,11 @@ public class DecompilerContext {
   }
 
   public static void setCurrentContext(DecompilerContext context) {
-    currentContext.set(context);
+    if (context == null) {
+      currentContext.remove();
+    } else {
+      currentContext.set(context);
+    }
   }
 
   public static void setProperty(String key, Object value) {

@@ -115,23 +115,27 @@ public class ClassWriter implements StatementWriter {
       DecompilerContext.getLogger().writeMessage("Class " + node.simpleName + " couldn't be written.",
         IFernflowerLogger.Severity.WARN,
         t);
-      buffer.append("// $VF: Couldn't be decompiled");
-      buffer.appendLineSeparator();
-      if (DecompilerContext.getOption(IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR)) {
-        List<String> lines = new ArrayList<>();
-        lines.addAll(ClassWriter.getErrorComment());
-        collectErrorLines(t, lines);
-        for (String line : lines) {
-          buffer.append("//");
-          if (!line.isEmpty()) buffer.append(' ').append(line);
-          buffer.appendLineSeparator();
-        }
-      }
+      writeException(buffer, t);
 
       return false;
     }
 
     return true;
+  }
+
+  public static void writeException(TextBuffer buffer, Throwable t) {
+    buffer.append("// $VF: Couldn't be decompiled");
+    buffer.appendLineSeparator();
+    if (DecompilerContext.getOption(IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR)) {
+      List<String> lines = new ArrayList<>();
+      lines.addAll(ClassWriter.getErrorComment());
+      collectErrorLines(t, lines);
+      for (String line : lines) {
+        buffer.append("//");
+        if (!line.isEmpty()) buffer.append(' ').append(line);
+        buffer.appendLineSeparator();
+      }
+    }
   }
 
   public void classLambdaToJava(ClassNode node, TextBuffer buffer, Exprent method_object, int indent) {
