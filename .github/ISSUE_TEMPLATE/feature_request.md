@@ -1,6 +1,6 @@
 ---
 name: Feature request
-about: Suggest an idea for Quiltflower
+about: Suggest an idea to improve Vineflower
 title: ''
 labels: enhancement
 assignees: ''

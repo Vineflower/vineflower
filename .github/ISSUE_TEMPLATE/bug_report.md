@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Create a report to help improve Quiltflower
+about: Create a report to help improve Vineflower
 title: ''
 labels: bug
 assignees: ''
@@ -8,7 +8,7 @@ assignees: ''
 ---
 
 ## Quiltflower version
-Replace this text with the version of Quiltflower that you are using.
+Replace this text with the version of Vineflower that you are using.
 
 ## Describe the bug
 Replace this text with a clear and concise description of what the bug is.
