@@ -319,7 +319,7 @@ public class ConstExprent extends Exprent {
           // This patch is based on work in ForgeFlower submitted by Pokechu22.
           float floatRepresentation = (float) doubleVal;
           if (floatRepresentation == doubleVal) {
-            if (Float.toString(floatRepresentation).length() < Double.toString(doubleVal).length()) {
+            if (trimFloat(Float.toString(floatRepresentation), floatRepresentation).length() < trimDouble(Double.toString(doubleVal), doubleVal).length()) {
               // Check the uninlined values to see if we have one of those
               if (UNINLINED_FLOATS.containsKey(floatRepresentation)) {
                 return buf.append(UNINLINED_FLOATS.get(floatRepresentation).apply(bytecode));

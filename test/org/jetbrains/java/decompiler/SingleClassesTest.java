@@ -633,6 +633,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
 
     // TODO: when in different classes, these two decompile incorrectly to super(outer, s)
     register(JAVA_8, "TestInnerClassExtend");
+    register(JAVA_8, "TestInnerClassReference", "ext/SomeOuterClass", "ext/SomeOuterClass$SomeInner");
     register(JAVA_17, "TestInnerClassExtendJ17");
 
     // TODO: include scala stdlibs to avoid "import scala.runtime.ScalaRunTime."

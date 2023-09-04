@@ -398,6 +398,38 @@ public class ClassesProcessor implements CodeConstants {
     return true;
   }
 
+  public void processClass(StructClass cl) throws IOException {
+    ClassNode root = mapRootClasses.get(cl.qualifiedName);
+    if (root.type != ClassNode.Type.ROOT) {
+      return;
+    }
+
+    boolean packageInfo = cl.isSynthetic() && "package-info".equals(root.simpleName);
+    boolean moduleInfo = cl.hasModifier(CodeConstants.ACC_MODULE) && cl.hasAttribute(StructGeneralAttribute.ATTRIBUTE_MODULE);
+
+    DecompilerContext.getLogger().startProcessingClass(cl.qualifiedName);
+    ImportCollector importCollector = new ImportCollector(root);
+    DecompilerContext.startClass(importCollector);
+    try {
+      if (!packageInfo && !moduleInfo) {
+        new LambdaProcessor().processClass(root);
+
+        // add simple class names to implicit import
+        addClassNameToImport(root, importCollector);
+
+        // build wrappers for all nested classes (that's where actual processing takes place)
+        initWrappers(root);
+
+        // Java specific last minute processing
+        new NestedClassProcessor().processClass(root, root);
+
+        new NestedMemberAccess().propagateMemberAccess(root);
+      }
+    } finally {
+      DecompilerContext.getLogger().endProcessingClass();
+    }
+  }
+
   public void writeClass(StructClass cl, TextBuffer buffer) throws IOException {
     ClassNode root = mapRootClasses.get(cl.qualifiedName);
     if (root.type != ClassNode.Type.ROOT) {
@@ -409,76 +441,25 @@ public class ClassesProcessor implements CodeConstants {
 
     DecompilerContext.getLogger().startReadingClass(cl.qualifiedName);
     try {
-      ImportCollector importCollector = new ImportCollector(root);
-      DecompilerContext.startClass(importCollector);
-
       if (packageInfo) {
         ClassWriter.packageInfoToJava(cl, buffer);
 
-        importCollector.writeImports(buffer, false);
+        DecompilerContext.getImportCollector().writeImports(buffer, false);
       }
       else if (moduleInfo) {
         TextBuffer moduleBuffer = new TextBuffer(AVERAGE_CLASS_SIZE);
         ClassWriter.moduleInfoToJava(cl, moduleBuffer);
 
-        importCollector.writeImports(buffer, true);
+        DecompilerContext.getImportCollector().writeImports(buffer, true);
 
         buffer.append(moduleBuffer);
       }
       else {
-        try {
-          new LambdaProcessor().processClass(root);
-        } catch (Throwable t) {
-          DecompilerContext.getLogger().writeMessage("Class " + root.simpleName + " couldn't be written.",
-            IFernflowerLogger.Severity.WARN,
-            t);
-          buffer.append("// $VF: Couldn't be decompiled");
-          buffer.appendLineSeparator();
-          if (DecompilerContext.getOption(IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR)) {
-            List<String> lines = new ArrayList<>();
-            lines.addAll(ClassWriter.getErrorComment());
-            ClassWriter.collectErrorLines(t, lines);
-            for (String line : lines) {
-              buffer.append("//");
-              if (!line.isEmpty()) buffer.append(' ').append(line);
-              buffer.appendLineSeparator();
-            }
-          }
-          return;
-        }
-
-        // add simple class names to implicit import
-        addClassNameToImport(root, importCollector);
-
-        // build wrappers for all nested classes (that's where actual processing takes place)
-        initWrappers(root);
-
-        try {
-          new NestedClassProcessor().processClass(root, root);
-
-          new NestedMemberAccess().propagateMemberAccess(root);
-        } catch (Throwable t) {
-          DecompilerContext.getLogger().writeMessage("Class " + root.simpleName + " couldn't be written.",
-            IFernflowerLogger.Severity.WARN,
-            t);
-          buffer.append("// $VF: Couldn't be decompiled");
-          buffer.appendLineSeparator();
-          if (DecompilerContext.getOption(IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR)) {
-            List<String> lines = new ArrayList<>();
-            lines.addAll(ClassWriter.getErrorComment());
-            ClassWriter.collectErrorLines(t, lines);
-            for (String line : lines) {
-              buffer.append("//");
-              if (!line.isEmpty()) buffer.append(' ').append(line);
-              buffer.appendLineSeparator();
-            }
-          }
-          return;
-        }
-
         TextBuffer classBuffer = new TextBuffer(AVERAGE_CLASS_SIZE);
+
         new ClassWriter().classToJava(root, classBuffer, 0);
         classBuffer.reformat();
+
         classBuffer.getTracers().forEach((classAndMethod, tracer) -> {
           // get the class by name
           StructClass clazz = DecompilerContext.getStructContext().getClass(classAndMethod.a);
@@ -500,7 +481,7 @@ public class ClassesProcessor implements CodeConstants {
           buffer.append("package ").append(packageName).append(';').appendLineSeparator().appendLineSeparator();
         }
 
-        importCollector.writeImports(buffer, true);
+        DecompilerContext.getImportCollector().writeImports(buffer, true);
 
         int offsetLines = buffer.countLines();
 
