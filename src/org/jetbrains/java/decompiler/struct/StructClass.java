@@ -208,7 +208,15 @@ public class StructClass extends StructMember {
    */
   public List<StructRecordComponent> getRecordComponents() {
     StructRecordAttribute recordAttr = getAttribute(StructGeneralAttribute.ATTRIBUTE_RECORD);
-    if (recordAttr == null) return null;
+    if (recordAttr == null) {
+      // If our class extends j.l.Record but also has no components, it's probably malformed.
+      // Force processing as a record anyway, in the hopes that we can come to a better result.
+      if (this.superClass.getString().equals("java/lang/Record")) {
+        return new ArrayList<>();
+      }
+
+      return null;
+    }
     return recordAttr.getComponents();
   }
 

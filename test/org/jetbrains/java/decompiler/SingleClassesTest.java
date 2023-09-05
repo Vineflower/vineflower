@@ -566,7 +566,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestAssertConst");
     register(JAVA_8, "TestLambdaLocalCapture");
     register(JAVA_8, "TestArrayFieldAccess");
-    // TODO: needs to inline ppmm properly
     register(JAVA_8, "TestArrayPPMM");
     register(JAVA_8, "TestArrayPPMM1");
     register(JAVA_8, "TestDoubleAdd");
@@ -695,7 +694,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: continue not explicit
     register(JAVA_8, "TestNestedLoops");
     register(JAVA_8, "TestAnonymousClass");
-    // TODO: <undefinedtype> cast and var type
     register(JAVA_16, "TestAnonymousClassJ16");
     register(JAVA_8, "TestObjectArrays");
     register(JAVA_8, "TestAnonymousParams");
