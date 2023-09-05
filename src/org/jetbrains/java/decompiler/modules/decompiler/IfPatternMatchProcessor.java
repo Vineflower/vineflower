@@ -1,7 +1,11 @@
 package org.jetbrains.java.decompiler.modules.decompiler;
 
-import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.AssignmentExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.ConstExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.BasicBlockStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
@@ -57,7 +61,7 @@ public final class IfPatternMatchProcessor {
 
     boolean updated = false;
     if (lastIfTrue != null) {
-      if (checkBranch(lastIfTrue, statement, statement.getIfEdge().getDestination(), root)) {
+      if(checkBranch(lastIfTrue, statement, statement.getIfEdge().getDestination(), root)) {
         updated = true;
 
         // The if branch might be empty now
@@ -67,7 +71,7 @@ public final class IfPatternMatchProcessor {
 
     if (!updated && lastIfFalse != null) {
       if (statement.getElseEdge() != null) {
-        if (checkBranch(lastIfFalse, statement, statement.getElseEdge().getDestination(), root)) {
+        if(checkBranch(lastIfFalse, statement, statement.getElseEdge().getDestination(), root)) {
           updated = true;
 
           // The else branch might be empty now
@@ -78,7 +82,7 @@ public final class IfPatternMatchProcessor {
         if (allSuc.size() == 1) {
           // In theory, the if branch can 'fall through' to here, but then this branch has multiple predecessors
           // and will get left alone anyway
-          if (checkBranch(lastIfFalse, statement, allSuc.get(0).getDestination(), root)) {
+          if(checkBranch(lastIfFalse, statement, allSuc.get(0).getDestination(), root)) {
             updated = true;
 
             // No need to fix 'if' invariants
