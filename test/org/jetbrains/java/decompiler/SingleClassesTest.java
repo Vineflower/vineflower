@@ -669,6 +669,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_17, "TestSwitchDefaultCaseReturn");
     // TODO: switch (s) decompiled as switch (s.hashCode())
     register(JAVA_17, "TestSingleCaseStrSwitch");
+    register(JAVA_16, "TestIfPatternMatchMethod");
   }
 
   private void registerEntireClassPath() {
