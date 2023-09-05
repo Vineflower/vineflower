@@ -752,6 +752,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: finally return parsing wrong
     // TODO: postdom error only when ssau finally is disabled
     register(JAVA_8, "TestTryReturn");
+    // TODO: ExprProcessor.doGenericTypesCast doesn't support checking of nested types
     register(JAVA_8, "TestGenericWildcard");
     register(JAVA_8, "TestGenericObjectType");
     // TODO: wrong variable name

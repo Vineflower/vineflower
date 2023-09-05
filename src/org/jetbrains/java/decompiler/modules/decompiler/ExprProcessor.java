@@ -1067,7 +1067,6 @@ public class ExprProcessor implements CodeConstants {
       for (int i = 0; i < leftGeneric.getArguments().size(); i++) {
         VarType leftType = leftGeneric.getArguments().get(i);
         VarType rightType = rightGeneric.getArguments().get(i);
-        // Casting Clazz<?> to Clazz<T> or Clazz<Concrete>
         if (rightType == null && leftType != null) {
           return true;
         }
@@ -1075,9 +1074,16 @@ public class ExprProcessor implements CodeConstants {
         if (leftType != null) {
           if (leftType.isGeneric()) {
             if (rightType.isGeneric()) {
-              if (leftType.isSuperset(rightType) &&
-                (((GenericType) leftType).getWildcard() == GenericType.WILDCARD_NO || ((GenericType) leftType).getWildcard() == GenericType.WILDCARD_EXTENDS) &&
-                ((GenericType) rightType).getWildcard() == GenericType.WILDCARD_SUPER) {
+              if (leftType.isSuperset(rightType)) {
+                // Casting Clazz<?> to Clazz<T> or Clazz<Concrete>
+                if ((((GenericType) leftType).getWildcard() == GenericType.WILDCARD_NO || ((GenericType) leftType).getWildcard() == GenericType.WILDCARD_EXTENDS) &&
+                  ((GenericType) rightType).getWildcard() == GenericType.WILDCARD_SUPER) {
+                  return true;
+                }
+              }
+
+              if ((((GenericType) leftType).getWildcard() == GenericType.WILDCARD_NO || ((GenericType) leftType).getWildcard() == GenericType.WILDCARD_SUPER) &&
+                ((GenericType) rightType).getWildcard() == GenericType.WILDCARD_EXTENDS) {
                 return true;
               }
             } else {
