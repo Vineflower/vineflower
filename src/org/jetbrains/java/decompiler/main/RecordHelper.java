@@ -13,6 +13,7 @@ import org.jetbrains.java.decompiler.struct.attr.StructAnnotationParameterAttrib
 import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructTypeAnnotationAttribute;
 import org.jetbrains.java.decompiler.struct.consts.LinkConstant;
+import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericFieldDescriptor;
 import org.jetbrains.java.decompiler.util.Key;
@@ -223,8 +224,19 @@ public final class RecordHelper {
     if (mw.methodStruct != getCanonicalConstructor(cl)) {
       return;
     }
+
+    MethodDescriptor md = mw.desc();
+    int params = md.params.length;
+
+    if (params != cl.getRecordComponents().size()) {
+      return;
+    }
+
+    int varidx = 1;
     for (int i = 0; i < cl.getRecordComponents().size(); i++) {
-      mw.varproc.setClashingName(new VarVersionPair(1 + i, 0), cl.getRecordComponents().get(i).getName());
+      mw.varproc.setClashingName(new VarVersionPair(varidx, 0), cl.getRecordComponents().get(i).getName());
+
+      varidx += md.params[i].stackSize;
     }
   }
 }

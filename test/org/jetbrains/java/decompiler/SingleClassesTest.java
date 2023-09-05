@@ -566,7 +566,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestAssertConst");
     register(JAVA_8, "TestLambdaLocalCapture");
     register(JAVA_8, "TestArrayFieldAccess");
-    // TODO: needs to inline ppmm properly
     register(JAVA_8, "TestArrayPPMM");
     register(JAVA_8, "TestArrayPPMM1");
     register(JAVA_8, "TestDoubleAdd");
@@ -670,6 +669,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_17, "TestSwitchDefaultCaseReturn");
     // TODO: switch (s) decompiled as switch (s.hashCode())
     register(JAVA_17, "TestSingleCaseStrSwitch");
+    register(JAVA_16, "TestIfPatternMatchMethod");
   }
 
   private void registerEntireClassPath() {
@@ -695,7 +695,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: continue not explicit
     register(JAVA_8, "TestNestedLoops");
     register(JAVA_8, "TestAnonymousClass");
-    // TODO: <undefinedtype> cast and var type
     register(JAVA_16, "TestAnonymousClassJ16");
     register(JAVA_8, "TestObjectArrays");
     register(JAVA_8, "TestAnonymousParams");
@@ -754,6 +753,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: postdom error only when ssau finally is disabled
     register(JAVA_8, "TestTryReturn");
     register(JAVA_8, "TestGenericWildcard");
+    register(JAVA_8, "TestGenericObjectType");
     // TODO: wrong variable name
     register(JAVA_16_NODEBUG, "TestRecordCanonicalConstructor");
     // TODO: wrong variable name, recursive constructor because missing cast

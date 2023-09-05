@@ -969,7 +969,7 @@ public class ExprProcessor implements CodeConstants {
     boolean doCast = (!leftType.isSuperset(rightType) && (rightType.equals(VarType.VARTYPE_OBJECT) || leftType.type != CodeConstants.TYPE_OBJECT));
     boolean doCastNull = (castNull.cast && rightType.type == CodeConstants.TYPE_NULL && !UNDEFINED_TYPE_STRING.equals(getTypeName(leftType)));
     boolean doCastNarrowing = (castNarrowing && isIntConstant(exprent) && isNarrowedIntType(leftType));
-    boolean doCastGenerics = doesContravarianceNeedCast(leftType, rightType);
+    boolean doCastGenerics = doGenericTypesCast(leftType, rightType);
 
     boolean cast = castAlways || doCast || doCastNull || doCastNarrowing || doCastGenerics;
 
@@ -1051,8 +1051,12 @@ public class ExprProcessor implements CodeConstants {
   }
 
   // Obj<T> var = type; -> Obj<T> var = (Obj<T>) type; Where type is Obj<? super T>
-  public static boolean doesContravarianceNeedCast(VarType left, VarType right) {
-    if (left != null && right != null && left.isGeneric() && right.isGeneric()) {
+  public static boolean doGenericTypesCast(VarType left, VarType right) {
+    if (left == null || right == null) {
+      return false;
+    }
+
+    if (left.isGeneric() && right.isGeneric()) {
       GenericType leftGeneric = (GenericType) left;
       GenericType rightGeneric = (GenericType) right;
 
@@ -1069,11 +1073,20 @@ public class ExprProcessor implements CodeConstants {
         }
 
         if (leftType != null) {
-          if (leftType.isGeneric() && rightType.isGeneric()) {
-            if (leftType.isSuperset(rightType) &&
-              (((GenericType) leftType).getWildcard() == GenericType.WILDCARD_NO || ((GenericType) leftType).getWildcard() == GenericType.WILDCARD_EXTENDS) &&
-              ((GenericType) rightType).getWildcard() == GenericType.WILDCARD_SUPER) {
-              return true;
+          if (leftType.isGeneric()) {
+            if (rightType.isGeneric()) {
+              if (leftType.isSuperset(rightType) &&
+                (((GenericType) leftType).getWildcard() == GenericType.WILDCARD_NO || ((GenericType) leftType).getWildcard() == GenericType.WILDCARD_EXTENDS) &&
+                ((GenericType) rightType).getWildcard() == GenericType.WILDCARD_SUPER) {
+                return true;
+              }
+            } else {
+              // Right is not generic
+              // Check for casting a concrete rightType to a specific left generic
+              // e.g. (List<T>)list where 'list' is List<Object>
+              if (((GenericType) leftType).getWildcard() == GenericType.WILDCARD_NO && ((GenericType) leftType).getArguments().isEmpty()) {
+                return true;
+              }
             }
           }
         }

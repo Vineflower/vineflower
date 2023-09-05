@@ -105,6 +105,10 @@ public final class IfPatternMatchProcessor {
     }
 
     Exprent source = iof.getLstOperands().get(0);
+    if ((source.getExprentUse() & Exprent.MULTIPLE_USES) == 0) {
+      return false;
+    }
+
     Exprent target = iof.getLstOperands().get(1);
     
     if (!(source instanceof VarExprent)) {
