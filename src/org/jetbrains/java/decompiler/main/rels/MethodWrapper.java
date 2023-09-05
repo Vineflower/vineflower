@@ -9,6 +9,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.vars.VarProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructMethod;
+import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 
 import java.util.*;
 
@@ -55,6 +56,10 @@ public class MethodWrapper {
     }
 
     commentLines.add(comment);
+  }
+
+  public MethodDescriptor desc() {
+    return MethodDescriptor.parseDescriptor(methodStruct, null);
   }
 
   @Override
