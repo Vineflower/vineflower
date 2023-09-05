@@ -412,6 +412,7 @@ public class KotlinWriter implements StatementWriter {
     ClassWrapper wrapper = node.getWrapper();
     StructClass cl = wrapper.getClassStruct();
     KProperty.Data propertyData = KProperty.parse(node);
+    Map<StructMethod, KFunction> functions = KFunction.parse(node);
 
     for (KProperty property : propertyData.properties) {
       buffer.append(property.stringify(indent));
@@ -432,6 +433,12 @@ public class KotlinWriter implements StatementWriter {
 
     for (int i = 0; i < cl.getMethods().size(); i++) {
       StructMethod mt = cl.getMethods().get(i);
+      if (functions.containsKey(mt)) {
+        buffer.append(functions.get(mt).stringify(indent));
+        buffer.appendLineSeparator();
+        continue;
+      }
+
       String key = InterpreterUtil.makeUniqueKey(mt.getName(), mt.getDescriptor());
       if (mt.getName().equals("<clinit>") || propertyData.associatedMethods.contains(key)) continue;
 

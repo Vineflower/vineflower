@@ -5,7 +5,7 @@ public final val topLevelVal: Regex = new Regex("")
 public final var topLevelVar: Int = 42
    internal set
 
-fun topLevelFun() {
+public fun topLevelFun() {
 }// 5
 
 

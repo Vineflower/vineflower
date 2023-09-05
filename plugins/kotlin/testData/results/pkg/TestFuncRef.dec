@@ -1,14 +1,14 @@
 package pkg
 
-fun accept(f: (Int?) -> java.lang.String) {
+public fun accept(f: (Int) -> String) {
    System.out.println(f.invoke(5));
 }// 3
 
-fun function(r: Int): java.lang.String {
+public fun function(r: Int): String {
    return StringsKt.repeat("OK" as java.lang.CharSequence, r);// 6
 }
 
-fun test() {
+public fun test() {
    accept(<unknownclass>.INSTANCE);// 10
 }// 11
 
