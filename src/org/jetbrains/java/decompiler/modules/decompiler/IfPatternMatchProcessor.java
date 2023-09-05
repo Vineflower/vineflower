@@ -180,8 +180,10 @@ public final class IfPatternMatchProcessor {
       Exprent last = before.getExprents().get(before.getExprents().size() - 1);
       if (last instanceof AssignmentExprent) {
         Exprent stored = last.getAllExprents().get(0);
+        Exprent method = last.getAllExprents().get(1);
         VarExprent checked = (VarExprent) source;
-        if (checked.equals(stored) && !checked.isVarReferenced(root, (VarExprent) stored)) {
+        if ((!(method instanceof FunctionExprent) || ((FunctionExprent) method).getFuncType() != FunctionType.CAST) 
+            && checked.equals(stored) && !checked.isVarReferenced(root, (VarExprent) stored)) {
           iof.getLstOperands().set(0, last.getAllExprents().get(1));
           before.getExprents().remove(before.getExprents().size() - 1);
         }
