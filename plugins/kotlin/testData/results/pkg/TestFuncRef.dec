@@ -1,11 +1,11 @@
 package pkg
 
-fun accept(f: (Int?) -> String) {
+fun accept(f: (Int?) -> java.lang.String) {
    System.out.println(f.invoke(5));
 }// 3
 
-fun function(r: Int): String {
-   return StringsKt.repeat("OK" as CharSequence, r);// 6
+fun function(r: Int): java.lang.String {
+   return StringsKt.repeat("OK" as java.lang.CharSequence, r);// 6
 }
 
 fun test() {

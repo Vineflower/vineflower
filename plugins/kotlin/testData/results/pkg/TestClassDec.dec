@@ -1,11 +1,11 @@
 package pkg
 
 class TestClassDec {
-   fun TestClassDec.Vec2iVal.dot(v: TestClassDec.Vec2iVal): Int {
+   public fun pkg.TestClassDec.Vec2iVal.dot(v: pkg.TestClassDec.Vec2iVal): Int {
       return `$this$dot`.getX() * v.getX() + `$this$dot`.getY() * v.getY();// 11
    }
 
-   fun test() {
+   public fun test() {
       new TestClassDec.EmptyDec();
       var vec: TestClassDec.Vec2iVal = new TestClassDec.Vec2iVal(1, 2);// 16
       var vec1: TestClassDec.Vec2iVal = new TestClassDec.Vec2iVal(2, 4);// 17

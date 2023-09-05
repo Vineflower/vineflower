@@ -1,12 +1,12 @@
 package pkg
 
 class TestNullableOperator {
-   fun test(x: Int?): Int {
+   public fun test(x: Int?): Int {
       return x ?: 0;// 5
    }
 
-   fun test2(x: String?): String {
-      var var10000: String = x;// 9
+   public fun test2(x: String?): String {
+      var var10000: java.lang.String = x;// 9
       if (x == null) {
          var10000 = "default";
       }
@@ -14,7 +14,7 @@ class TestNullableOperator {
       return var10000;
    }
 
-   fun test2_1(x: Any?): Any {
+   public fun test2_1(x: Any?): Any {
       var var10000: Any = x;// 13
       if (x == null) {
          var10000 = "default";
@@ -23,7 +23,7 @@ class TestNullableOperator {
       return var10000;
    }
 
-   fun test2_2(x: Any?): Any {
+   public fun test2_2(x: Any?): Any {
       var var10000: Any = x;// 17
       if (x == null) {
          var10000 = "default";
@@ -32,7 +32,7 @@ class TestNullableOperator {
       return var10000;
    }
 
-   fun test3(x: Int?): Int {
+   public fun test3(x: Int?): Int {
       if (x != null) {// 21
          return x;
       } else {
@@ -40,13 +40,13 @@ class TestNullableOperator {
       }
    }
 
-   fun test4(x: Exception?) {
+   public fun test4(x: Exception?) {
       if (x != null) {// 25
          x.printStackTrace();
       }
    }// 26
 
-   fun test5(x: Exception?) {
+   public fun test5(x: Exception?) {
       var var10000: Unit;
       if (x != null) {// 29
          x.printStackTrace();
@@ -60,7 +60,7 @@ class TestNullableOperator {
       }
    }// 30
 
-   fun test6(x: Int?): Int {
+   public fun test6(x: Int?): Int {
       if (x != null) {// 33
          var y: Int = x;
          System.out.println(y);// 35
@@ -70,7 +70,7 @@ class TestNullableOperator {
       }
    }
 
-   fun test6_1(x: Int?) {
+   public fun test6_1(x: Int?) {
       if (x != null) {// 41
          System.out.println(x);// 43
       }

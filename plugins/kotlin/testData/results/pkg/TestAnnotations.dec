@@ -6,18 +6,18 @@ import kotlin.jvm.internal.RepeatableContainer
 
 class TestAnnotations {
    @TestAnnotations.TestAnnotation(first = "test", second = 1)
-   fun test() {
+   public fun test() {
    }// 16
 
    @TestAnnotations.RepeatableAnnotation.Container([@TestAnnotations.RepeatableAnnotation("test"), @TestAnnotations.RepeatableAnnotation("test2")])
-   fun test2() {
+   public fun test2() {
    }// 21
 
    @Repeatable
    @Retention(RetentionPolicy.RUNTIME)
    @java.lang.annotation.Repeatable(TestAnnotations.RepeatableAnnotation.Container::class)
    annotation class RepeatableAnnotation(
-      val value: String
+      val value: java.lang.String
    ) {
       @RepeatableContainer
       @Retention(RetentionPolicy.RUNTIME)
@@ -28,7 +28,7 @@ class TestAnnotations {
 
    @Retention(RetentionPolicy.RUNTIME)
    annotation class TestAnnotation(
-      val first: String,
+      val first: java.lang.String,
       val second: Int
    )
 }

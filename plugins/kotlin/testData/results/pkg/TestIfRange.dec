@@ -1,73 +1,73 @@
 package pkg
 
 class TestIfRange {
-   fun testInt(x: Int) {
+   public fun testInt(x: Int) {
       if (1 <= x && x < 11) {// 5
          System.out.println(x);// 6
       }
    }// 8
 
-   fun testChar(x: Char) {
+   public fun testChar(x: Char) {
       if ('a' <= x && x < '{') {// 11
          System.out.println(x);// 12
       }
    }// 14
 
-   fun testInvertedInt(x: Int) {
+   public fun testInvertedInt(x: Int) {
       if (1 > x || x >= 11) {// 17
          System.out.println(x);// 18
       }
    }// 20
 
-   fun testIntStep(x: Int) {
-      if (CollectionsKt.contains(RangesKt.step((new IntRange(1, 100)) as IntProgression, 2) as Iterable, x)) {// 23
+   public fun testIntStep(x: Int) {
+      if (CollectionsKt.contains(RangesKt.step((new IntRange(1, 100)) as IntProgression, 2) as java.lang.Iterable, x)) {// 23
          System.out.println(x);// 24
       }
    }// 26
 
-   fun testIntStepY(x: Int, y: Int) {
-      if (CollectionsKt.contains(RangesKt.step((new IntRange(1, 100)) as IntProgression, y) as Iterable, x)) {// 28
+   public fun testIntStepY(x: Int, y: Int) {
+      if (CollectionsKt.contains(RangesKt.step((new IntRange(1, 100)) as IntProgression, y) as java.lang.Iterable, x)) {// 28
          System.out.println(x);// 29
       }
    }// 31
 
-   fun testIntY(x: Int, y: Int) {
+   public fun testIntY(x: Int, y: Int) {
       if (1 <= x && x <= y) {// 34
          System.out.println(x);// 35
       }
    }// 37
 
-   fun testIntDownTo(x: Int) {
-      if (CollectionsKt.contains(RangesKt.downTo(10, 1) as Iterable, x)) {// 40
+   public fun testIntDownTo(x: Int) {
+      if (CollectionsKt.contains(RangesKt.downTo(10, 1) as java.lang.Iterable, x)) {// 40
          System.out.println(x);// 41
       }
    }// 43
 
-   fun testIntDownToStep(x: Int) {
-      if (CollectionsKt.contains(RangesKt.step(RangesKt.downTo(10, 1), 2) as Iterable, x)) {// 46
+   public fun testIntDownToStep(x: Int) {
+      if (CollectionsKt.contains(RangesKt.step(RangesKt.downTo(10, 1), 2) as java.lang.Iterable, x)) {// 46
          System.out.println(x);// 47
       }
    }// 49
 
-   fun testIntUntil(x: Int) {
+   public fun testIntUntil(x: Int) {
       if (1 <= x && x < 10) {// 52
          System.out.println(x);// 53
       }
    }// 55
 
-   fun testIntUntilStep(x: Int) {
-      if (CollectionsKt.contains(RangesKt.step(RangesKt.until(1, 100) as IntProgression, 2) as Iterable, x)) {// 58
+   public fun testIntUntilStep(x: Int) {
+      if (CollectionsKt.contains(RangesKt.step(RangesKt.until(1, 100) as IntProgression, 2) as java.lang.Iterable, x)) {// 58
          System.out.println(x);// 59
       }
    }// 61
 
-   fun testIntUntilY(x: Int, y: Int) {
+   public fun testIntUntilY(x: Int, y: Int) {
       if (1 <= x && x < y) {// 64
          System.out.println(x);// 65
       }
    }// 67
 
-   fun testIntUntilSelf(x: Int) {
+   public fun testIntUntilSelf(x: Int) {
       if (1 <= x && x < x) {// 70
          System.out.println(x);// 71
       }

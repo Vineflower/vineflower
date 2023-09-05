@@ -12,29 +12,29 @@ open class TestNonInlineLambda {
    public final var stringField: String = ""
       internal set
 
-   fun testCaptureInt(x: Int) {
+   public fun testCaptureInt(x: Int) {
       this.execute(new <undefinedtype>(x));// 7 8
    }// 11
 
-   fun testCaptureObject(x: String) {
+   public fun testCaptureObject(x: String) {
       this.execute(new <undefinedtype>(x));// 14 15
    }// 18
 
-   fun testCaptureIntIterationValue(x: Iterable<Integer>) {
+   public fun testCaptureIntIterationValue(x: Iterable<Int>) {
       var var2: Iterator = x.iterator();// 21
 
       while (var2.hasNext()) {
-         this.execute(new <undefinedtype>((var2.next() as Number).intValue()));// 22
+         this.execute(new <undefinedtype>((var2.next() as java.lang.Number).intValue()));// 22
       }
    }// 26
 
-   fun testCaptureObjectIterationValue(x: Iterable<String>) {
-      for (String i : x) {// 29
+   public fun testCaptureObjectIterationValue(x: Iterable<String>) {
+      for (java.lang.String i : x) {// 29
          this.execute(new <undefinedtype>(i));// 30
       }
    }// 34
 
-   fun testCaptureMutableInt(x: Int) {
+   public fun testCaptureMutableInt(x: Int) {
       var y: IntRef = new IntRef();// 37
       y.element = x;
       this.execute(new <undefinedtype>(y));// 38
@@ -48,7 +48,7 @@ open class TestNonInlineLambda {
       this.execute(new <undefinedtype>(y));// 54
    }// 57
 
-   fun testCaptureMutableObject(x: String) {
+   public fun testCaptureMutableObject(x: String) {
       var y: ObjectRef = new ObjectRef();// 60
       y.element = x;
       this.execute(new <undefinedtype>(y));// 61
@@ -62,14 +62,14 @@ open class TestNonInlineLambda {
       this.execute(new <undefinedtype>(y));// 77
    }// 80
 
-   fun testCaptureAndMutateInt(x: Int) {
+   public fun testCaptureAndMutateInt(x: Int) {
       var y: IntRef = new IntRef();// 83
       this.execute(new <undefinedtype>(y));// 84
       y.element = 5 + x;// 89
       this.execute(new <undefinedtype>(y));// 90
    }// 95
 
-   fun testCaptureAndMutateString(x: String) {
+   public fun testCaptureAndMutateString(x: String) {
       var y: ObjectRef = new ObjectRef();// 98
       y.element = "";
       this.execute(new <undefinedtype>(y));// 99
@@ -77,23 +77,23 @@ open class TestNonInlineLambda {
       this.execute(new <undefinedtype>(y));// 106
    }// 112
 
-   fun testCapturePublicMutableIntField() {
+   public fun testCapturePublicMutableIntField() {
       this.execute(new <undefinedtype>(this));// 117
    }// 118
 
-   fun testCapturePublicMutableStringField() {
+   public fun testCapturePublicMutableStringField() {
       this.execute(new <undefinedtype>(this));// 123
    }// 124
 
-   fun testCapturePrivateMutableIntField() {
+   public fun testCapturePrivateMutableIntField() {
       this.execute(new <undefinedtype>(this));// 129
    }// 130
 
-   fun testCapturePrivateMutableStringField() {
+   public fun testCapturePrivateMutableStringField() {
       this.execute(new <undefinedtype>(this));// 135
    }// 136
 
-   open fun execute(block: () -> Unit) {
+   public open fun execute(block: () -> Unit) {
    }// 141
 
    @JvmStatic
@@ -110,13 +110,13 @@ open class TestNonInlineLambda {
 
    @JvmStatic
    @JvmSynthetic
-   fun `access$setPrivateStringField$p`(`$this`: TestNonInlineLambda, var1: String) {
+   fun `access$setPrivateStringField$p`(`$this`: TestNonInlineLambda, var1: java.lang.String) {
       `$this`.privateStringField = var1;
    }
 
    @JvmStatic
    @JvmSynthetic
-   fun `access$getPrivateStringField$p`(`$this`: TestNonInlineLambda): String {
+   fun `access$getPrivateStringField$p`(`$this`: TestNonInlineLambda): java.lang.String {
       return `$this`.privateStringField;// 3
    }
 }

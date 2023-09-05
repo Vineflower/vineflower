@@ -4,25 +4,25 @@ import kotlin.jvm.functions.Function1
 import kotlin.reflect.KFunction
 
 class TestReflection {
-   fun testClassReference() {
+   public fun testClassReference() {
       System.out.println(TestReflection::class);// 5
       System.out.println(TestReflection::class.java);// 6
    }// 7
 
-   fun testPrimitiveWrapper() {
+   public fun testPrimitiveWrapper() {
       System.out.println(Int::class);// 10
       System.out.println(Integer::class.javaObjectType);// 11
    }// 12
 
-   fun testPrimitiveType() {
+   public fun testPrimitiveType() {
       System.out.println(Int::class.javaPrimitiveType);// 15
    }// 16
 
-   fun testInferredPrimitive() {
+   public fun testInferredPrimitive() {
       System.out.println(Int::class.javaPrimitiveType);// 19
    }// 20
 
-   fun testFunctionReference() {
+   public fun testFunctionReference() {
       var f: KFunction = <unknownclass>.INSTANCE as KFunction;// 23
       System.out.println(<unknownclass>.INSTANCE as KFunction);// 24
       (f as Function1).invoke(new TestReflection());// 25

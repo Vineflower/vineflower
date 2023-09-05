@@ -2,30 +2,57 @@ package org.vineflower.kotlin.struct;
 
 import kotlin.reflect.jvm.internal.impl.metadata.ProtoBuf;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.main.collectors.ImportCollector;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.vineflower.kotlin.metadata.MetadataNameResolver;
 import org.vineflower.kotlin.util.KTypes;
 
+import java.util.Objects;
+
 public class KType extends VarType {
+  public static final KType UNIT = new KType(VARTYPE_VOID, "kotlin/Unit", false, null, null, null);
+  public static final KType NOTHING = new KType(new VarType("java/lang/Void", true), "kotlin/Nothing", false, null, null, null);
+
   public final String kotlinType;
-
   public final boolean isNullable;
-
   public final TypeArgument @Nullable [] typeArguments;
 
-  public KType(VarType type, String kotlinType, boolean isNullable, TypeArgument @Nullable [] typeArguments) {
+  @Nullable
+  public final String typeParameterName;
+
+  @Nullable
+  public final String typeAliasName;
+
+  private KType(
+    VarType type,
+    String kotlinType,
+    boolean isNullable,
+    TypeArgument @Nullable [] typeArguments,
+    @Nullable String typeParameterName,
+    @Nullable String typeAliasName) {
     super(type.type, type.arrayDim, type.value, type.typeFamily, type.stackSize, type.falseBoolean);
     this.kotlinType = kotlinType;
     this.isNullable = isNullable;
     this.typeArguments = typeArguments;
+    this.typeParameterName = typeParameterName;
+    this.typeAliasName = typeAliasName;
   }
   
   public static KType from(ProtoBuf.Type type, MetadataNameResolver nameResolver) {
-    String kotlinType = nameResolver.resolve(type.getClassName());
+    String kotlinType = type.hasClassName() ? nameResolver.resolve(type.getClassName()) : "kotlin/Any";
     boolean isNullable = type.getNullable();
-    String jvmDesc = KTypes.getJavaSignature(kotlinType, isNullable);
-    VarType varType = new VarType(jvmDesc);
+
+    // short-circuit for `Unit`
+    if ("kotlin/Unit".equals(kotlinType) && !isNullable) {
+      return UNIT;
+    }
+
+    // similar short-circuit for `Nothing`
+    if ("kotlin/Nothing".equals(kotlinType) && !isNullable) {
+      return NOTHING;
+    }
 
     TypeArgument[] typeArguments = null;
     if (type.getArgumentCount() > 0) {
@@ -36,14 +63,39 @@ public class KType extends VarType {
       }
     }
 
-    return new KType(varType, kotlinType, isNullable, typeArguments);
+    String jvmDesc = KTypes.getJavaSignature(kotlinType, isNullable);
+    if ("kotlin/Array".equals(kotlinType)) {
+      TypeArgument arrayType = Objects.requireNonNull(typeArguments)[0];
+      if (arrayType.typeProjection == ProtoBuf.Type.Argument.Projection.IN) {
+        jvmDesc = "[Ljava/lang/Object;"; // `in` variance is erased to `Object` (to allow any supertype to be passed in)
+      } else {
+        jvmDesc = "[" + arrayType.type.toString();
+      }
+    }
+    VarType varType = new VarType(jvmDesc);
+
+    String typeParameterName = type.hasTypeParameterName() ? nameResolver.resolve(type.getTypeParameterName()) : null;
+    String typeAliasName = type.hasTypeAliasName() ? nameResolver.resolve(type.getTypeAliasName()) : null;
+
+    return new KType(varType, kotlinType, isNullable, typeArguments, typeParameterName, typeAliasName);
   }
 
+  // stringify is for the decompiler output
   public TextBuffer stringify(int indent) {
     TextBuffer buf = new TextBuffer();
 
+    if (typeParameterName != null) {
+      buf.append(typeParameterName);
+      if (isNullable) {
+        buf.append("?");
+      }
+
+      return buf;
+    }
+
     if (!kotlinType.startsWith("kotlin/Function")) { // Non-functions are essentially equivalent to Java generic types
-      buf.append(KTypes.getKotlinType(this));
+      String type = kotlinType.replace('/', '.');
+      buf.append(DecompilerContext.getImportCollector().getShortName(type));
 
       if (typeArguments != null) {
         buf.append("<");

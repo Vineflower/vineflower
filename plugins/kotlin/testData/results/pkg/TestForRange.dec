@@ -3,19 +3,19 @@ package pkg
 import kotlin.internal.ProgressionUtilKt
 
 class TestForRange {
-   fun testInt() {
+   public fun testInt() {
       for (int i = 1; i < 11; i++) {// 5
          System.out.println(i);// 6
       }
    }// 8
 
-   fun testChar() {
+   public fun testChar() {
       for (char c = 'a'; c < '{'; c++) {// 11
          System.out.println(c);// 12
       }
    }// 14
 
-   fun testIntStep() {
+   public fun testIntStep() {
       var i: Int = 1;
       var var2: Int = ProgressionUtilKt.getProgressionLastElement(1, 10, 2);
       if (1 <= var2) {
@@ -30,7 +30,7 @@ class TestForRange {
       }
    }// 20
 
-   fun testIntStepX(x: Int) {
+   public fun testIntStepX(x: Int) {
       if (x <= 0) {
          throw new IllegalArgumentException("Step must be positive, was: " + x + ".");
       } else {
@@ -49,13 +49,13 @@ class TestForRange {
       }
    }// 26
 
-   fun testIntDownTo() {
+   public fun testIntDownTo() {
       for (int i = 10; 0 < i; i--) {// 29
          System.out.println(i);// 30
       }
    }// 32
 
-   fun testIntDownToStep() {
+   public fun testIntDownToStep() {
       var i: Int = 10;
       var var2: Int = ProgressionUtilKt.getProgressionLastElement(10, 1, -2);
       if (var2 <= 10) {
@@ -70,7 +70,7 @@ class TestForRange {
       }
    }// 38
 
-   fun testIntDownToStepX(x: Int) {
+   public fun testIntDownToStepX(x: Int) {
       if (x <= 0) {
          throw new IllegalArgumentException("Step must be positive, was: " + x + ".");
       } else {
@@ -90,13 +90,13 @@ class TestForRange {
       }
    }// 44
 
-   fun testUntil() {
+   public fun testUntil() {
       for (int i = 1; i < 10; i++) {// 47
          System.out.println(i);// 48
       }
    }// 50
 
-   fun testUntilStep() {
+   public fun testUntilStep() {
       var var1: IntProgression = RangesKt.step(RangesKt.until(1, 100) as IntProgression, 2);
       var i: Int = var1.getFirst();
       var var3: Int = var1.getLast();
@@ -113,7 +113,7 @@ class TestForRange {
       }
    }// 56
 
-   fun testUntilStepX(x: Int) {
+   public fun testUntilStepX(x: Int) {
       var var2: IntProgression = RangesKt.step(RangesKt.until(1, 100) as IntProgression, x);
       var i: Int = var2.getFirst();
       var var4: Int = var2.getLast();
@@ -130,7 +130,7 @@ class TestForRange {
       }
    }// 62
 
-   fun testIntY(x: Int, y: Int) {
+   public fun testIntY(x: Int, y: Int) {
       var i: Int = x;
       if (x <= y) {
          while (true) {
@@ -144,7 +144,7 @@ class TestForRange {
       }
    }// 68
 
-   fun testIntYStep(x: Int, y: Int) {
+   public fun testIntYStep(x: Int, y: Int) {
       var i: Int = x;
       var var4: Int = ProgressionUtilKt.getProgressionLastElement(x, y, 2);
       if (x <= var4) {
@@ -159,7 +159,7 @@ class TestForRange {
       }
    }// 74
 
-   fun testIntYStepX(x: Int, y: Int, z: Int) {
+   public fun testIntYStepX(x: Int, y: Int, z: Int) {
       if (z <= 0) {
          throw new IllegalArgumentException("Step must be positive, was: " + z + ".");
       } else {

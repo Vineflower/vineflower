@@ -1,7 +1,7 @@
 package pkg
 
 class TestShadowParam {
-   fun test(x: Int) {
+   public fun test(x: Int) {
       var xx: Int = x - 1;// 5 6
       System.out.println(x - 1);// 7
       if (xx < 0) {// 8

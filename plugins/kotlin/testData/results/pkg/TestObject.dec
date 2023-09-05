@@ -11,12 +11,12 @@ object TestObject {
    fun TestObject() {
    }// 3
 
-   fun objectFun() {
+   public fun objectFun() {
       objectVar += -1;// 5
    }// 6
 
    @JvmStatic
-   fun objectJvmStaticFun() {
+   public fun objectJvmStaticFun() {
       var var0: Int = objectVar++;// 16
    }// 17
 }

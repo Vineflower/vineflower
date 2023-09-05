@@ -5,7 +5,7 @@ import kotlin.jvm.functions.Function1
 class TestKotlinTypes {
    public final val consumer: (Int) -> Unit = <unknownclass>.INSTANCE as Function1
 
-   fun throwAlways(): Void {
+   public fun throwAlways(): Nothing {
       throw new Exception();// 5
    }
 }

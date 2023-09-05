@@ -1,29 +1,29 @@
 package pkg
 
 class TestParams {
-   fun printMessageUnit(message: String) {
+   public fun printMessageUnit(message: String) {
       System.out.println(message);// 5
    }// 6
 
-   fun printMessageVoid(message: String) {
+   public fun printMessageVoid(message: String) {
       System.out.println(message);// 9
    }// 10
 
-   fun multiply(x: Int, y: Int): Int {
+   public fun multiply(x: Int, y: Int): Int {
       return x * y;// 12
    }
 
-   fun multiplyBraces(x: Int, y: Int): Int {
+   public fun multiplyBraces(x: Int, y: Int): Int {
       return x * y;// 15
    }
 
-   fun printMessageWithPrefix(message: String, prefix: String) {
+   public fun printMessageWithPrefix(message: String, prefix: String) {
       System.out.println("[" + prefix + "] " + message);// 19
    }// 20
 
    @JvmStatic
    @JvmSynthetic
-   fun `printMessageWithPrefix$default`(var0: TestParams, var1: String, var2: String, var3: Int, var4: Any) {
+   fun `printMessageWithPrefix$default`(var0: TestParams, var1: java.lang.String, var2: java.lang.String, var3: Int, var4: Any) {
       if ((var3 and 2) != 0) {// 18
          var2 = "Info";
       }
@@ -31,7 +31,7 @@ class TestParams {
       var0.printMessageWithPrefix(var1, var2);
    }
 
-   fun callPrintMessage() {
+   public fun callPrintMessage() {
       printMessageWithPrefix$default(this, "Test", null, 2, null);// 23
       this.printMessageWithPrefix("Test", "Debug");// 24
    }// 25

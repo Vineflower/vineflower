@@ -39,6 +39,7 @@ import org.jetbrains.java.decompiler.util.TextUtil;
 import org.jetbrains.java.decompiler.util.collections.VBStyleCollection;
 import org.vineflower.kotlin.expr.KAnnotationExprent;
 import org.vineflower.kotlin.metadata.MetadataNameResolver;
+import org.vineflower.kotlin.struct.KFunction;
 import org.vineflower.kotlin.struct.KProperty;
 import org.vineflower.kotlin.util.KTypes;
 import org.vineflower.kotlin.util.ProtobufFlags;
@@ -202,6 +203,7 @@ public class KotlinWriter implements StatementWriter {
   public void writeClass(ClassNode node, TextBuffer buffer, int indent) {
     ClassNode outerNode = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
     DecompilerContext.setProperty(DecompilerContext.CURRENT_CLASS_NODE, node);
+    DecompilerContext.setImportCollector(new KotlinImportCollector(DecompilerContext.getImportCollector()));
 
     try {
       // last minute processing
@@ -213,6 +215,7 @@ public class KotlinWriter implements StatementWriter {
 
       ClassWrapper wrapper = node.getWrapper();
       StructClass cl = wrapper.getClassStruct();
+      ConstantPool pool = cl.getPool();
 
       DecompilerContext.getLogger().startWriteClass(cl.qualifiedName);
 
@@ -221,7 +224,6 @@ public class KotlinWriter implements StatementWriter {
           .getAttribute(StructGeneralAttribute.ATTRIBUTE_SOURCE_FILE);
 
         if (sourceFileAttr != null) {
-          ConstantPool pool = node.classStruct.getPool();
           String sourceFile = sourceFileAttr.getSourceFile(pool);
 
           buffer
@@ -246,6 +248,7 @@ public class KotlinWriter implements StatementWriter {
       writeClassDefinition(node, buffer, indent);
 
       KProperty.Data propertyData = KProperty.parse(node);
+      Map<StructMethod, KFunction> functions = KFunction.parse(node);
 
       boolean hasContent = false;
       boolean enumFields = false;
@@ -353,6 +356,16 @@ public class KotlinWriter implements StatementWriter {
           wrapper.getHiddenMembers().contains(InterpreterUtil.makeUniqueKey(mt.getName(), mt.getDescriptor())) ||
           (propertyData != null && propertyData.associatedMethods.contains(InterpreterUtil.makeUniqueKey(mt.getName(), mt.getDescriptor())));
         if (hide) continue;
+
+        KFunction function = functions.get(mt);
+        if (function != null) {
+          if (hasContent) {
+            buffer.appendLineSeparator();
+          }
+          hasContent = true;
+          buffer.append(function.stringify(indent + 1));
+          continue;
+        }
 
         TextBuffer methodBuffer = new TextBuffer();
         boolean methodSkipped = !writeMethod(node, mt, i, methodBuffer, indent + 1);
@@ -1469,7 +1482,7 @@ public class KotlinWriter implements StatementWriter {
   static final Key<?>[] TYPE_ANNOTATION_ATTRIBUTES = {
     StructGeneralAttribute.ATTRIBUTE_RUNTIME_VISIBLE_TYPE_ANNOTATIONS, StructGeneralAttribute.ATTRIBUTE_RUNTIME_INVISIBLE_TYPE_ANNOTATIONS};
 
-  static void appendAnnotations(TextBuffer buffer, int indent, StructMember mb, int targetType) {
+  public static void appendAnnotations(TextBuffer buffer, int indent, StructMember mb, int targetType) {
     Set<String> filter = new HashSet<>();
 
     for (Key<?> key : ANNOTATION_ATTRIBUTES) {
@@ -1501,7 +1514,7 @@ public class KotlinWriter implements StatementWriter {
     appendTypeAnnotations(buffer, indent, mb, targetType, -1, filter);
   }
 
-  private static void appendJvmAnnotations(TextBuffer buffer, int indent, StructMember mb, boolean isInterface, ConstantPool pool, int targetType) {
+  public static void appendJvmAnnotations(TextBuffer buffer, int indent, StructMember mb, boolean isInterface, ConstantPool pool, int targetType) {
     switch (targetType) {
       case TypeAnnotation.METHOD_RETURN_TYPE:
         if (isInterface && !mb.hasModifier(CodeConstants.ACC_ABSTRACT)) {
@@ -1609,7 +1622,7 @@ public class KotlinWriter implements StatementWriter {
     return false;
   }
 
-  private static boolean processParameterAnnotations(TextBuffer buffer, StructMethod mt, int param) {
+  public static boolean processParameterAnnotations(TextBuffer buffer, StructMethod mt, int param) {
     Set<String> filter = new HashSet<>();
     boolean ret = false;
 

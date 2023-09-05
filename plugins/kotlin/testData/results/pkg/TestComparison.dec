@@ -1,27 +1,27 @@
 package pkg
 
 class TestComparison {
-   fun test2(a: Any, b: Any): Boolean {
+   public fun test2(a: Any, b: Any): Boolean {
       return a == b;// 5
    }
 
-   fun test3(a: Any, b: Any): Boolean {
+   public fun test3(a: Any, b: Any): Boolean {
       return a === b;// 9
    }
 
-   fun testNull2(a: Any?): Boolean {
+   public fun testNull2(a: Any?): Boolean {
       return a == null;// 13
    }
 
-   fun testNull3(a: Any?): Boolean {
+   public fun testNull3(a: Any?): Boolean {
       return a == null;// 17
    }
 
-   fun testNullDouble2(a: Any?, b: Any?): Boolean {
+   public fun testNullDouble2(a: Any?, b: Any?): Boolean {
       return a == b;// 21
    }
 
-   fun testNullDouble3(a: Any?, b: Any?): Boolean {
+   public fun testNullDouble3(a: Any?, b: Any?): Boolean {
       return a === b;// 25
    }
 }

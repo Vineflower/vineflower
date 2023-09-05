@@ -4,19 +4,19 @@ class TestPoorNames {
    public final val `Dangerous property name?!`: String = "test"
    public final val `Property with spaces`: Int = 42
 
-   fun `Function with spaces`() {
+   public fun `Function with spaces`() {
    }// 5
 
-   fun `Dangerous function name?!`() {
+   public fun `Dangerous function name?!`() {
    }// 8
 
-   fun `functionWith$Dollar`() {
+   public fun `functionWith$Dollar`() {
    }// 14
 
-   fun functionWithParameters(var1: Int, var2: String) {
+   public fun functionWithParameters(`Parameter with spaces`: Int, `Dangerous parameter name?!`: String) {
    }// 17
 
-   fun test() {
+   public fun test() {
       new TestPoorNames.Class with spaces();
       this.Dangerous function name?!();// 23
       this.functionWithParameters(42, "test");// 24

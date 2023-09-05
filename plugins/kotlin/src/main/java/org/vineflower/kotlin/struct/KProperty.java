@@ -25,6 +25,7 @@ import org.vineflower.kotlin.KotlinOptions;
 import org.vineflower.kotlin.KotlinWriter;
 import org.vineflower.kotlin.metadata.MetadataNameResolver;
 import org.vineflower.kotlin.util.KTypes;
+import org.vineflower.kotlin.util.KUtils;
 import org.vineflower.kotlin.util.ProtobufFlags;
 
 import java.util.*;
@@ -78,7 +79,7 @@ public final class KProperty {
     buf.appendIndent(indent);
 
     // Modifiers in the order that Kotlin's coding conventions specify
-    appendVisibility(buf, flags.visibility);
+    KUtils.appendVisibility(buf, flags.visibility);
 
     if (flags.isExpect) {
       buf.append("expect ");
@@ -125,7 +126,7 @@ public final class KProperty {
           .append('\n')
           .appendIndent(indent + 1);
 
-      appendVisibility(buf, getter.flags.visibility);
+      KUtils.appendVisibility(buf, getter.flags.visibility);
 
       buf.append(getter.flags.modality.name().toLowerCase())
         .append(' ');
@@ -154,7 +155,7 @@ public final class KProperty {
         .append('\n')
         .appendIndent(indent + 1);
 
-      appendVisibility(buf, getter.flags.visibility);
+      KUtils.appendVisibility(buf, getter.flags.visibility);
 
       buf.append(setter.flags.modality.name().toLowerCase())
         .append(' ');
@@ -178,7 +179,7 @@ public final class KProperty {
       buf.append('\n').appendIndent(indent + 1);
 
       if (setter.flags.visibility != flags.visibility) {
-        appendVisibility(buf, setter.flags.visibility);
+        KUtils.appendVisibility(buf, setter.flags.visibility);
       }
 
       if (setter.flags.modality != flags.modality) {
