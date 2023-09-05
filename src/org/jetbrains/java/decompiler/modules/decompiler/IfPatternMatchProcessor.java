@@ -110,10 +110,6 @@ public final class IfPatternMatchProcessor {
     }
 
     Exprent target = iof.getLstOperands().get(1);
-    
-    if (!(source instanceof VarExprent)) {
-      return false;
-    }
 
     Statement head = branch.getBasichead();
 
