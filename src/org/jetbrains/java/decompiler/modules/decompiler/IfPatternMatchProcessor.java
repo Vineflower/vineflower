@@ -1,11 +1,8 @@
 package org.jetbrains.java.decompiler.modules.decompiler;
 
-import org.jetbrains.java.decompiler.modules.decompiler.exps.AssignmentExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.ConstExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.BasicBlockStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
@@ -60,7 +57,7 @@ public final class IfPatternMatchProcessor {
 
     boolean updated = false;
     if (lastIfTrue != null) {
-      if(checkBranch(lastIfTrue, statement, statement.getIfEdge().getDestination())) {
+      if (checkBranch(lastIfTrue, statement, statement.getIfEdge().getDestination(), root)) {
         updated = true;
 
         // The if branch might be empty now
@@ -70,7 +67,7 @@ public final class IfPatternMatchProcessor {
 
     if (!updated && lastIfFalse != null) {
       if (statement.getElseEdge() != null) {
-        if(checkBranch(lastIfFalse, statement, statement.getElseEdge().getDestination())) {
+        if (checkBranch(lastIfFalse, statement, statement.getElseEdge().getDestination(), root)) {
           updated = true;
 
           // The else branch might be empty now
@@ -81,7 +78,7 @@ public final class IfPatternMatchProcessor {
         if (allSuc.size() == 1) {
           // In theory, the if branch can 'fall through' to here, but then this branch has multiple predecessors
           // and will get left alone anyway
-          if(checkBranch(lastIfFalse, statement, allSuc.get(0).getDestination())) {
+          if (checkBranch(lastIfFalse, statement, allSuc.get(0).getDestination(), root)) {
             updated = true;
 
             // No need to fix 'if' invariants
@@ -93,7 +90,7 @@ public final class IfPatternMatchProcessor {
     return updated;
   }
 
-  private static boolean checkBranch(Exprent exprent, IfStatement statement, Statement branch) {
+  private static boolean checkBranch(Exprent exprent, IfStatement statement, Statement branch, RootStatement root) {
     if (!(exprent instanceof FunctionExprent) || branch.getAllPredecessorEdges().size() != 1) {
       // We can only inline into 'instanceof', and only if the target branch doesn't have multiple predecessors
       // TODO: make checking for multiple predecessors less expensive
@@ -109,6 +106,10 @@ public final class IfPatternMatchProcessor {
 
     Exprent source = iof.getLstOperands().get(0);
     Exprent target = iof.getLstOperands().get(1);
+    
+    if (!(source instanceof VarExprent)) {
+      return false;
+    }
 
     Statement head = branch.getBasichead();
 
@@ -169,6 +170,19 @@ public final class IfPatternMatchProcessor {
     head.getExprents().remove(0);
 
     statement.setPatternMatched(true);
+
+    BasicBlockStatement before = statement.getBasichead();
+    if (before.getExprents() != null && before.getExprents().size() > 0) {
+      Exprent last = before.getExprents().get(before.getExprents().size() - 1);
+      if (last instanceof AssignmentExprent) {
+        Exprent stored = last.getAllExprents().get(0);
+        VarExprent checked = (VarExprent) source;
+        if (checked.equals(stored) && !checked.isVarReferenced(root, (VarExprent) stored)) {
+          iof.getLstOperands().set(0, last.getAllExprents().get(1));
+          before.getExprents().remove(before.getExprents().size() - 1);
+        }
+      }
+    }
 
     return true;
   }
