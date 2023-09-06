@@ -4,6 +4,7 @@ class TestPoorNames {
    public final val `Dangerous property name?!`: String = "test"
    public final val `Property with spaces`: Int = 42
 
+
    public fun `Function with spaces`() {
    }// 5
 
@@ -28,45 +29,45 @@ class TestPoorNames {
 
 class 'pkg/TestPoorNames' {
    method 'Function with spaces ()V' {
-      0      7
+      0      8
    }
 
    method 'Dangerous function name?! ()V' {
-      0      10
+      0      11
    }
 
    method 'functionWith$Dollar ()V' {
-      0      13
+      0      14
    }
 
    method 'functionWithParameters (ILjava/lang/String;)V' {
-      6      16
+      6      17
    }
 
    method 'test ()V' {
-      8      20
-      9      20
-      a      20
-      b      20
-      c      21
-      d      21
-      e      21
-      f      21
-      10      21
-      11      21
-      12      21
-      13      21
-      14      22
+      8      21
+      9      21
+      a      21
+      b      21
+      c      22
+      d      22
+      e      22
+      f      22
+      10      22
+      11      22
+      12      22
+      13      22
+      14      23
    }
 }
 
 Lines mapping:
-5 <-> 8
-8 <-> 11
-14 <-> 14
-17 <-> 17
-23 <-> 21
-24 <-> 22
-25 <-> 23
+5 <-> 9
+8 <-> 12
+14 <-> 15
+17 <-> 18
+23 <-> 22
+24 <-> 23
+25 <-> 24
 Not mapped:
 22
