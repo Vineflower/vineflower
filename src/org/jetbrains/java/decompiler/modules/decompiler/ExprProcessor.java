@@ -1057,6 +1057,10 @@ public class ExprProcessor implements CodeConstants {
     }
 
     if (left.isGeneric() && right.isGeneric()) {
+      if (shouldGenericTypesCast(left, right)) {
+        return true;
+      }
+
       GenericType leftGeneric = (GenericType) left;
       GenericType rightGeneric = (GenericType) right;
 
@@ -1072,41 +1076,49 @@ public class ExprProcessor implements CodeConstants {
         }
 
         if (leftType != null) {
-          if (leftType.isGeneric()) {
-            if (rightType.isGeneric()) {
-              if (leftType.isSuperset(rightType)) {
-                // Casting Clazz<?> to Clazz<T> or Clazz<Concrete>
-                if ((((GenericType) leftType).getWildcard() == GenericType.WILDCARD_NO || ((GenericType) leftType).getWildcard() == GenericType.WILDCARD_EXTENDS) &&
-                  ((GenericType) rightType).getWildcard() == GenericType.WILDCARD_SUPER) {
+          if (shouldGenericTypesCast(leftType, rightType)) {
+            return true;
+          }
+        }
+      }
+    }
 
-                  boolean ok = true;
-                  if (((GenericType) leftType).getWildcard() == GenericType.WILDCARD_EXTENDS) {
-                    // Equals, ignoring wildcards
-                    if (!((GenericType) leftType).getArguments().isEmpty() && !((GenericType) rightType).getArguments().isEmpty() &&
-                      leftType.equals(rightType)) {
-                      ok = false;
-                    }
-                  }
+    return false;
+  }
 
-                  if (ok) {
-                    return true;
-                  }
-                }
-              }
+  private static boolean shouldGenericTypesCast(VarType leftType, VarType rightType) {
+    if (leftType.isGeneric()) {
+      if (rightType.isGeneric()) {
+        if (leftType.isSuperset(rightType)) {
+          // Casting Clazz<?> to Clazz<T> or Clazz<Concrete>
+          if ((((GenericType) leftType).getWildcard() == GenericType.WILDCARD_NO || ((GenericType) leftType).getWildcard() == GenericType.WILDCARD_EXTENDS) &&
+            ((GenericType) rightType).getWildcard() == GenericType.WILDCARD_SUPER) {
 
-              if ((((GenericType) leftType).getWildcard() == GenericType.WILDCARD_NO || ((GenericType) leftType).getWildcard() == GenericType.WILDCARD_SUPER) &&
-                ((GenericType) rightType).getWildcard() == GenericType.WILDCARD_EXTENDS) {
-                return true;
-              }
-            } else {
-              // Right is not generic
-              // Check for casting a concrete rightType to a specific left generic
-              // e.g. (List<T>)list where 'list' is List<Object>
-              if (((GenericType) leftType).getWildcard() == GenericType.WILDCARD_NO && ((GenericType) leftType).getArguments().isEmpty()) {
-                return true;
+            boolean ok = true;
+            if (((GenericType) leftType).getWildcard() == GenericType.WILDCARD_EXTENDS) {
+              // Equals, ignoring wildcards
+              if (!((GenericType) leftType).getArguments().isEmpty() && !((GenericType) rightType).getArguments().isEmpty() &&
+                leftType.equals(rightType)) {
+                ok = false;
               }
             }
+
+            if (ok) {
+              return true;
+            }
           }
+        }
+
+        if ((((GenericType) leftType).getWildcard() == GenericType.WILDCARD_NO || ((GenericType) leftType).getWildcard() == GenericType.WILDCARD_SUPER) &&
+          ((GenericType) rightType).getWildcard() == GenericType.WILDCARD_EXTENDS) {
+          return true;
+        }
+      } else {
+        // Right is not generic
+        // Check for casting a concrete rightType to a specific left generic
+        // e.g. (List<T>)list where 'list' is List<Object>
+        if (((GenericType) leftType).getWildcard() == GenericType.WILDCARD_NO && ((GenericType) leftType).getArguments().isEmpty()) {
+          return true;
         }
       }
     }

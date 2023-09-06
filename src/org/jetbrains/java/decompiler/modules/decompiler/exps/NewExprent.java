@@ -216,7 +216,17 @@ public class NewExprent extends Exprent {
                 boolean add = current == null || returnType == null || returnType.isGeneric() ||
                   (!returnType.equals(genericsMap.get(key)) && (current.type != CodeConstants.TYPE_GENVAR || !named.containsKey(current)));
                 if (add) {
-                  genericsMap.put(key, returnType);
+                  VarType prior = genericsMap.get(key);
+                  boolean addToMap = true;
+                  if (prior != null) {
+                    if (prior.isGeneric() && !((GenericType)prior).isTypeUnfinished() && DecompilerContext.getStructContext().instanceOf(returnType.value, prior.value)) {
+                      addToMap = false;
+                    }
+                  }
+
+                  if (addToMap) {
+                    genericsMap.put(key, returnType);
+                  }
                 }
               }
             }

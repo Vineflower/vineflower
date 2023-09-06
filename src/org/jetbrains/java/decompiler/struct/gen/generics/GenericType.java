@@ -405,6 +405,18 @@ public class GenericType extends VarType {
     return this.argumentsEqual(gt);
   }
 
+  // returns true if there's any genvars abound with empty names
+  // TODO: this is a hack! check why genvars with empty names are made!
+  public boolean isTypeUnfinished() {
+    for (GenericType gv : this.getAllGenericVars()) {
+      if (gv.value.isEmpty()) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   public boolean argumentsEqual(GenericType gt) {
     if (arguments.size() != gt.arguments.size()) {
       return false;
