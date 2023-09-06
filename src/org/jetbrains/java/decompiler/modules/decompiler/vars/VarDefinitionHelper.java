@@ -1614,7 +1614,12 @@ public class VarDefinitionHelper {
           }
 
           // Record the changed name if we didn't scope switch
-          nameMap.put(new VarInMethod(var.getVarVersionPair(), mt), scopedSwitch ? originalName : name);
+          String value = scopedSwitch ? originalName : name;
+          if (value == null) {
+            ValidationHelper.validateTrue(false, "Variable name is null");
+          } else {
+            nameMap.put(new VarInMethod(var.getVarVersionPair(), mt), value);
+          }
         }
       }
     }
