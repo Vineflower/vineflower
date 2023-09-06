@@ -178,7 +178,7 @@ public final class IfPatternMatchProcessor {
     BasicBlockStatement before = statement.getBasichead();
     if (before.getExprents() != null && before.getExprents().size() > 0) {
       Exprent last = before.getExprents().get(before.getExprents().size() - 1);
-      if (last instanceof AssignmentExprent) {
+      if (last instanceof AssignmentExprent && source instanceof VarExprent) {
         Exprent stored = last.getAllExprents().get(0);
         Exprent method = last.getAllExprents().get(1);
         VarExprent checked = (VarExprent) source;
