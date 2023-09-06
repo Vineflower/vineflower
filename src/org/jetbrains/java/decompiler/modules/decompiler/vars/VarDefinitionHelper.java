@@ -1421,6 +1421,8 @@ public class VarDefinitionHelper {
       VarInMethod vim = new VarInMethod(vvp, mt);
       liveVarDefs.add(vim);
       nameMap.put(vim, this.varproc.getVarName(vvp));
+
+      start += (md.params[i].stackSize - 1);
     }
 
     iterateClashingNames(root, mt, varDefinitions, liveVarDefs, nameMap);
