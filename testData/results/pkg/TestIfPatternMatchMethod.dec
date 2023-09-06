@@ -2,8 +2,7 @@ package pkg;
 
 public class TestIfPatternMatchMethod {
    public void testPatternMatchOk() {
-      Object var2 = this.provide();// 5
-      if (var2 instanceof String s) {
+      if (this.provide() instanceof String s) {// 5
          System.out.println("ok " + s);// 6
       }
    }// 8
@@ -26,79 +25,77 @@ class 'pkg/TestIfPatternMatchMethod' {
       1      4
       2      4
       3      4
-      4      4
-      5      5
-      6      5
-      7      5
-      8      5
-      9      5
-      10      5
-      11      6
-      12      6
-      13      6
-      14      6
-      15      6
-      16      6
-      17      6
-      18      6
-      19      6
-      1a      6
-      1d      8
+      6      4
+      7      4
+      8      4
+      9      4
+      10      4
+      11      5
+      12      5
+      13      5
+      14      5
+      15      5
+      16      5
+      17      5
+      18      5
+      19      5
+      1a      5
+      1d      7
    }
 
    method 'testPatternMatchBad ()V' {
-      0      11
-      1      11
-      2      11
-      3      11
-      4      11
-      5      11
-      6      11
-      7      11
-      a      12
-      b      12
-      c      12
-      d      12
-      e      12
-      f      12
-      10      12
-      11      12
-      12      13
-      13      13
-      14      13
-      15      13
-      16      13
-      17      13
-      18      13
-      19      13
-      1a      13
-      1b      13
-      1e      15
+      0      10
+      1      10
+      2      10
+      3      10
+      4      10
+      5      10
+      6      10
+      7      10
+      a      11
+      b      11
+      c      11
+      d      11
+      e      11
+      f      11
+      10      11
+      11      11
+      12      12
+      13      12
+      14      12
+      15      12
+      16      12
+      17      12
+      18      12
+      19      12
+      1a      12
+      1b      12
+      1e      14
    }
 
    method 'provide ()Ljava/lang/Object;' {
-      0      18
-      1      18
-      2      18
-      3      18
-      4      18
-      5      18
-      6      18
-      7      18
-      a      18
-      b      18
-      f      18
-      10      18
-      13      18
+      0      17
+      1      17
+      2      17
+      3      17
+      4      17
+      5      17
+      6      17
+      7      17
+      a      17
+      b      17
+      f      17
+      10      17
+      13      17
    }
 }
 
 Lines mapping:
 5 <-> 5
-6 <-> 7
-8 <-> 9
-11 <-> 12
-12 <-> 13
-13 <-> 14
-15 <-> 16
-18 <-> 19
+6 <-> 6
+8 <-> 8
+11 <-> 11
+12 <-> 12
+13 <-> 13
+15 <-> 15
+18 <-> 18

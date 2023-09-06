@@ -18,9 +18,9 @@ import org.jetbrains.java.decompiler.struct.match.MatchEngine;
 import org.jetbrains.java.decompiler.struct.match.MatchNode;
 import org.jetbrains.java.decompiler.util.IntHelper;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
+import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.Typed;
 import org.jetbrains.java.decompiler.util.collections.ListStack;
-import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.collections.SFormsFastMapDirect;
 
 import java.util.*;
@@ -293,6 +293,11 @@ public class FunctionExprent extends Exprent {
         return type1;
       }
 
+      return getExprType();
+    } else if (funcType == FunctionType.INSTANCEOF) {
+      for (Exprent oper : lstOperands) {
+        oper.getInferredExprType(null);
+      }
       return getExprType();
     }
 
