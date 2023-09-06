@@ -233,24 +233,15 @@ public class KFunction {
       .pushNewlineGroup(indent, 1)
       .appendPossibleNewline("");
 
-    for (int i = 0; i < parameters.length; i++) {
-      KParameter parameter = parameters[i];
-
-      if (parameter.flags.hasAnnotations) {
-        KotlinWriter.processParameterAnnotations(buf, method.methodStruct, i);
+    boolean first = true;
+    for (KParameter parameter : parameters) {
+      if (!first) {
+        buf.append(",").appendPossibleNewline(" ");
       }
 
-      if (parameter.varargType != null) {
-        buf.append("vararg ");
-      }
+      first = false;
 
-      buf.append(KotlinWriter.toValidKotlinIdentifier(parameter.name))
-        .append(": ")
-        .append(parameter.type.stringify(indent + 1));
-
-      if (i < parameters.length - 1) {
-        buf.append(',').appendPossibleNewline(" ");
-      }
+      parameter.stringify(indent + 1, buf);
     }
 
     buf.appendPossibleNewline("", true)
@@ -269,7 +260,7 @@ public class KFunction {
         .appendPossibleNewline(" ")
         .append("where ");
 
-      boolean first = true;
+      first = true;
       for (KTypeParameter typeParameter : complexTypeParams) {
         for (KType upperBound : typeParameter.upperBounds) {
           if (!first) {
