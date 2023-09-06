@@ -670,6 +670,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: switch (s) decompiled as switch (s.hashCode())
     register(JAVA_17, "TestSingleCaseStrSwitch");
     register(JAVA_16, "TestIfPatternMatchMethod");
+    // TODO: Param type information is lost for lambdas where a more specific type is not required by the context
+    register(JAVA_8, "TestLambdaParamTypes");
   }
 
   private void registerEntireClassPath() {
