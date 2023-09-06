@@ -8,6 +8,26 @@ public class TestStringConcat {
    public String test2(String var, int b, Object c) {
       return "(" + var + "-" + b + "---" + c + ")";// 24
    }
+
+   public void testChar(String str) {
+      System.out.println(str + 46);// 28
+   }// 29
+
+   public void testInt(String str) {
+      System.out.println(str + 46);// 32
+   }// 33
+
+   public void testFloat(String str) {
+      System.out.println(str + 10.2F);// 36
+   }// 37
+
+   public void testDouble(String str) {
+      System.out.println(str + 10.2);// 40
+   }// 41
+
+   public void testBoolean(String str) {
+      System.out.println(str + true);// 44
+   }// 45
 }
 
 class 'pkg/TestStringConcat' {
@@ -37,8 +57,98 @@ class 'pkg/TestStringConcat' {
       29      8
       2a      8
    }
+
+   method 'testChar (Ljava/lang/String;)V' {
+      0      12
+      1      12
+      2      12
+      a      12
+      e      12
+      f      12
+      13      12
+      14      12
+      15      12
+      16      12
+      17      12
+      18      12
+      19      13
+   }
+
+   method 'testInt (Ljava/lang/String;)V' {
+      0      16
+      1      16
+      2      16
+      a      16
+      e      16
+      f      16
+      13      16
+      14      16
+      15      16
+      16      16
+      17      16
+      18      16
+      19      17
+   }
+
+   method 'testFloat (Ljava/lang/String;)V' {
+      0      20
+      1      20
+      2      20
+      a      20
+      e      20
+      f      20
+      13      20
+      14      20
+      15      20
+      16      20
+      17      20
+      18      20
+      19      21
+   }
+
+   method 'testDouble (Ljava/lang/String;)V' {
+      0      24
+      1      24
+      2      24
+      a      24
+      e      24
+      f      24
+      10      24
+      14      24
+      15      24
+      16      24
+      17      24
+      18      24
+      19      24
+      1a      25
+   }
+
+   method 'testBoolean (Ljava/lang/String;)V' {
+      0      28
+      1      28
+      2      28
+      a      28
+      e      28
+      12      28
+      13      28
+      14      28
+      15      28
+      16      28
+      17      28
+      18      29
+   }
 }
 
 Lines mapping:
 20 <-> 5
 24 <-> 9
+28 <-> 13
+29 <-> 14
+32 <-> 17
+33 <-> 18
+36 <-> 21
+37 <-> 22
+40 <-> 25
+41 <-> 26
+44 <-> 29
+45 <-> 30
