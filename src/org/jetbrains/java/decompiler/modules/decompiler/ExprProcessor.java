@@ -1078,7 +1078,19 @@ public class ExprProcessor implements CodeConstants {
                 // Casting Clazz<?> to Clazz<T> or Clazz<Concrete>
                 if ((((GenericType) leftType).getWildcard() == GenericType.WILDCARD_NO || ((GenericType) leftType).getWildcard() == GenericType.WILDCARD_EXTENDS) &&
                   ((GenericType) rightType).getWildcard() == GenericType.WILDCARD_SUPER) {
-                  return true;
+
+                  boolean ok = true;
+                  if (((GenericType) leftType).getWildcard() == GenericType.WILDCARD_EXTENDS) {
+                    // Equals, ignoring wildcards
+                    if (!((GenericType) leftType).getArguments().isEmpty() && !((GenericType) rightType).getArguments().isEmpty() &&
+                      leftType.equals(rightType)) {
+                      ok = false;
+                    }
+                  }
+
+                  if (ok) {
+                    return true;
+                  }
                 }
               }
 

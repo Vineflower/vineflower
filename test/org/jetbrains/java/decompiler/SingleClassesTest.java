@@ -755,6 +755,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: ExprProcessor.doGenericTypesCast doesn't support checking of nested types
     register(JAVA_8, "TestGenericWildcard");
     register(JAVA_8, "TestGenericObjectType");
+    // TODO: lambda is missing cast
+    register(JAVA_8, "TestGenericSubclassTypes");
     // TODO: wrong variable name
     register(JAVA_16_NODEBUG, "TestRecordCanonicalConstructor");
     // TODO: wrong variable name, recursive constructor because missing cast
