@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Map;
 
 public class KConstructor {
+  private static final VarType DEFAULT_CONSTRUCTOR_MARKER = new VarType("kotlin/jvm/internal/DefaultConstructorMarker", true);
+
   public final ProtobufFlags.Constructor flags;
   public final KParameter[] parameters;
   public final boolean isPrimary;
@@ -248,14 +250,7 @@ public class KConstructor {
     // replace "super" with the actual class name
     buf.append(superClass).append('(');
 
-    VarType[] params = invocation.getDescriptor().params;
-    if (params.length > 0 && params[0].value.equals("kotlin/jvm/internal/DefaultConstructorMarker")) {
-      // Remove the first parameter (the DefaultConstructorMarker is not meant to be used in user-facing code)
-      invocation.setStringDescriptor(invocation.getStringDescriptor().replace("Lkotlin/jvm/internal/DefaultConstructorMarker;", ""));
-      List<Exprent> args = new ArrayList<>(invocation.getLstParameters());
-      args.remove(0);
-      invocation.setLstParameters(args);
-    }
+    KUtils.removeArguments(invocation, DEFAULT_CONSTRUCTOR_MARKER);
 
     buf.append(invocation.appendParamList(indent + 1));
     buf.append(")");
