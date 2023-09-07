@@ -86,13 +86,13 @@ class TestSmartCasts {
          return "";// 15
       }
 
-      class B : TestSmartCasts.A() {
+      class B : TestSmartCasts.A() {// 8
          public fun testB(): String {
             return "B";// 9
          }
       }
 
-      class C : TestSmartCasts.A() {
+      class C : TestSmartCasts.A() {// 11
          public fun testC(): String {
             return "C";// 12
          }
@@ -465,6 +465,12 @@ class 'pkg/TestSmartCasts$A' {
 }
 
 class 'pkg/TestSmartCasts$A$B' {
+   method '<init> ()V' {
+      2      88
+      3      88
+      4      88
+   }
+
    method 'testB ()Ljava/lang/String;' {
       0      90
       1      90
@@ -473,6 +479,12 @@ class 'pkg/TestSmartCasts$A$B' {
 }
 
 class 'pkg/TestSmartCasts$A$C' {
+   method '<init> ()V' {
+      2      94
+      3      94
+      4      94
+   }
+
    method 'testC ()Ljava/lang/String;' {
       0      96
       1      96
@@ -490,7 +502,9 @@ class 'pkg/TestSmartCasts$X$DefaultImpls' {
 
 Lines mapping:
 5 <-> 110
+8 <-> 89
 9 <-> 91
+11 <-> 95
 12 <-> 97
 15 <-> 86
 19 <-> 5

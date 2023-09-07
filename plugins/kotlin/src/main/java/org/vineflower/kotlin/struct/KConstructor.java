@@ -260,9 +260,11 @@ public class KConstructor {
     buf.append(invocation.appendParamList(indent + 1));
     buf.append(")");
 
-//    root.getFirst().getExprents().remove(0);
+    buf.addBytecodeMapping(invocation.bytecode);
 
-    buffer.append(buf);
+    root.getFirst().getExprents().remove(0);
+
+    buffer.append(buf, node.classStruct.qualifiedName, InterpreterUtil.makeUniqueKey(method.methodStruct.getName(), method.methodStruct.getDescriptor()));
     return true;
   }
 
