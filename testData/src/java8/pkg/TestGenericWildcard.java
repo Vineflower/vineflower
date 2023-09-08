@@ -1,5 +1,6 @@
 package pkg;
 
+import java.util.Comparator;
 import java.util.Optional;
 
 public class TestGenericWildcard<T> {
@@ -42,6 +43,16 @@ public class TestGenericWildcard<T> {
 
     public Two<Two, Two> typed() {
       return (Two<Two, Two>) wildcard();
+    }
+  }
+
+  static class One<T> implements Comparable<One<?>> {
+    public Comparator<T> cmp;
+    public T obj;
+
+    @Override
+    public int compareTo(TestGenericWildcard.One<?> o) {
+      return cmp.compare(obj, (T) o.obj);
     }
   }
 }

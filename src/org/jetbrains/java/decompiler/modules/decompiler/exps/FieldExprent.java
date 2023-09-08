@@ -94,6 +94,8 @@ public class FieldExprent extends Exprent {
 
             if (_new != null) {
               ret = _new;
+            } else {
+              ret = getExprType();
             }
           }
         }
