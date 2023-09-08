@@ -433,6 +433,12 @@ public class MergeHelper {
         return;
       }
 
+      // Check if any final variable assignments in the loop are
+      Set<VarExprent> finalVariables = getFinalVariables(stat, new HashSet<>());
+      if (finalVariables.stream().anyMatch(exp -> exp.isVarReferenced(lastExp))) {
+        return;
+      }
+
       stat.setLooptype(DoStatement.Type.FOR);
       if (hasinit) {
         Exprent exp = preData.getExprents().remove(preData.getExprents().size() - 1);
@@ -449,6 +455,38 @@ public class MergeHelper {
     }
 
     cleanEmptyStatements(stat, lastData);
+  }
+
+  private static Set<VarExprent> getFinalVariables(Statement stat, Set<VarExprent> variables) {
+    if (stat.getExprents() == null) {
+      for (Object o : stat.getSequentialObjects()) {
+        if (o instanceof Statement) {
+          getFinalVariables((Statement) o, variables);
+        } else if (o instanceof Exprent) {
+          getFinalVariables((Exprent) o, variables);
+        }
+      }
+    } else {
+      for (Exprent exp : stat.getExprents()) {
+        getFinalVariables(exp, variables);
+      }
+    }
+    return variables;
+  }
+
+  private static Set<VarExprent> getFinalVariables(Exprent exp, Set<VarExprent> variables) {
+    for (Exprent e : exp.getAllExprents(true, true)) {
+      if (e instanceof AssignmentExprent) {
+        AssignmentExprent assignment = (AssignmentExprent) e;
+        if (assignment.getLeft() instanceof VarExprent) {
+          VarExprent varExprent = (VarExprent) assignment.getLeft();
+          if (varExprent.isEffectivelyFinal()) {
+            variables.add(varExprent);
+          }
+        }
+      }
+    }
+    return variables;
   }
 
   protected static void cleanEmptyStatements(DoStatement dostat, Statement stat) {
