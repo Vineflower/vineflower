@@ -433,7 +433,7 @@ public class MergeHelper {
         return;
       }
 
-      // Check if any final variable assignments in the loop are
+      // Check if any final variable assignments in the loop are used in the line that is being moved to the final part of the for loop
       Set<VarExprent> finalVariables = getFinalVariables(stat, new HashSet<>());
       if (finalVariables.stream().anyMatch(exp -> exp.isVarReferenced(lastExp))) {
         return;
