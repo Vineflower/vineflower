@@ -283,7 +283,6 @@ public class FunctionExprent extends Exprent {
 
       return getExprType();
     } else if (funcType == FunctionType.TERNARY) {
-      // TODO return common generic type?
       VarType type1 = lstOperands.get(1).getInferredExprType(upperBound);
       VarType type2 = lstOperands.get(2).getInferredExprType(upperBound);
 
@@ -293,7 +292,14 @@ public class FunctionExprent extends Exprent {
         return type1;
       }
 
-      return getExprType();
+      VarType union = VarType.getCommonSupertype(type1, type2);
+
+      if (union != null && lstOperands.get(1) instanceof ConstExprent && lstOperands.get(2) instanceof ConstExprent &&
+        union.type != CodeConstants.TYPE_BOOLEAN && VarType.VARTYPE_INT.isSuperset(union)) {
+        union = VarType.VARTYPE_INT;
+      }
+
+      return union != null ? union : getExprType();
     } else if (funcType == FunctionType.INSTANCEOF) {
       for (Exprent oper : lstOperands) {
         oper.getInferredExprType(null);
