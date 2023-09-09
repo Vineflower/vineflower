@@ -193,92 +193,120 @@ public class ClassWriter implements StatementWriter {
         boolean simpleLambda = false;
 
         if (!lambdaToAnonymous) {
-          boolean lambdaParametersNeedParentheses = md_lambda.params.length != 1;
-
-          if (lambdaParametersNeedParentheses) {
-            buffer.append('(');
-          }
-
-          boolean firstParameter = true;
-          int index = node.lambdaInformation.is_content_method_static ? 0 : 1;
-          int start_index = md_content.params.length - md_lambda.params.length;
-
-          for (int i = 0; i < md_content.params.length; i++) {
-            if (i >= start_index) {
-              if (!firstParameter) {
-                buffer.append(", ");
-              }
-              VarType type = md_content.params[i];
-
-              String parameterName = methodWrapper.varproc.getVarName(new VarVersionPair(index, 0));
-              if (parameterName == null) {
-                parameterName = "param" + index; // null iff decompiled with errors
-              }
-              parameterName = methodWrapper.methodStruct.getVariableNamer().renameParameter(mt.getAccessFlags(), ExprProcessor.getCastTypeName(type), parameterName, index);
-              buffer.appendVariable(parameterName, true, true, node.lambdaInformation.content_class_name, node.lambdaInformation.content_method_name, md_content, index, parameterName);
-
-              firstParameter = false;
-            }
-
-            index += md_content.params[i].stackSize;
-          }
-
-          if (lambdaParametersNeedParentheses) {
-            buffer.append(")");
-          }
-          buffer.append(" ->");
-
           RootStatement root = wrapper.getMethodWrapper(mt.getName(), mt.getDescriptor()).root;
-          if (DecompilerContext.getOption(IFernflowerPreferences.INLINE_SIMPLE_LAMBDAS) && methodWrapper.decompileError == null && root != null) {
-            Statement firstStat = root.getFirst();
-            if (firstStat instanceof BasicBlockStatement && firstStat.getExprents() != null && firstStat.getExprents().size() == 1) {
-              Exprent firstExpr = firstStat.getExprents().get(0);
-              boolean isVarDefinition = firstExpr instanceof AssignmentExprent &&
-                ((AssignmentExprent)firstExpr).getLeft() instanceof VarExprent &&
-                ((VarExprent)((AssignmentExprent)firstExpr).getLeft()).isDefinition();
-
-              boolean isThrow = firstExpr instanceof ExitExprent &&
-                ((ExitExprent)firstExpr).getExitType() == ExitExprent.Type.THROW;
-
-              if (!isVarDefinition && !isThrow) {
-                simpleLambda = true;
-                MethodWrapper outerWrapper = (MethodWrapper)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
-                DecompilerContext.setProperty(DecompilerContext.CURRENT_METHOD_WRAPPER, methodWrapper);
-                try {
-                  TextBuffer codeBuffer = firstExpr.toJava(indent + 1);
-
-                  if (firstExpr instanceof ExitExprent)
-                    codeBuffer.setStart(6); // skip return
-                  else
-                    codeBuffer.prepend(" ");
-
-                  codeBuffer.addBytecodeMapping(root.getDummyExit().bytecode);
-                  buffer.append(codeBuffer, node.classStruct.qualifiedName, InterpreterUtil.makeUniqueKey(methodWrapper.methodStruct.getName(), methodWrapper.methodStruct.getDescriptor()));
-                }
-                catch (CancelationManager.CanceledException e) {
-                  throw e;
-                }
-                catch (Throwable ex) {
-                  DecompilerContext.getLogger().writeMessage("Method " + mt.getName() + " " + mt.getDescriptor() + " in class " + node.classStruct.qualifiedName + " couldn't be written.",
-                    IFernflowerLogger.Severity.WARN,
-                    ex);
-                  methodWrapper.decompileError = ex;
-                  buffer.append(" // $VF: Couldn't be decompiled");
-                }
-                finally {
-                  DecompilerContext.setProperty(DecompilerContext.CURRENT_METHOD_WRAPPER, outerWrapper);
+          boolean written = false;
+          // Array constructor lambda
+          if (md_lambda.params.length == 1 && md_lambda.params[0].equals(VarType.VARTYPE_INT) && md_lambda.ret.arrayDim > 0) {
+            if (root.getFirst() instanceof BasicBlockStatement && root.getFirst().getExprents().size() == 1) {
+              Exprent exp = root.getFirst().getExprents().get(0);
+              if (exp instanceof ExitExprent) {
+                ExitExprent exit = (ExitExprent) exp;
+                Exprent returnValue = exit.getValue();
+                if (returnValue instanceof NewExprent) {
+                  NewExprent newExp = (NewExprent) returnValue;
+                  if (newExp.getNewType().arrayDim > 0 && !newExp.isDirectArrayInit() && newExp.getLstArrayElements().isEmpty() && newExp.getLstDims().size() > 0) {
+                    Exprent size = newExp.getLstDims().get(newExp.getLstDims().size() - 1);
+                    if (size instanceof VarExprent) {
+                      VarExprent sizeVar = (VarExprent) size;
+                      if (sizeVar.getIndex() == (node.lambdaInformation.is_content_method_static ? 0 : 1)) {
+                        VarType returnType = md_lambda.ret;
+                        buffer.appendCastTypeName(returnType);
+                        buffer.append("::new");
+                        written = true;
+                      }
+                    }
+                  }
                 }
               }
             }
           }
-        }
-
-        if (!simpleLambda) {
-          buffer.append(" {").appendLineSeparator();
-
-          methodLambdaToJava(node, wrapper, mt, buffer, indent + 1, !lambdaToAnonymous);
-
-          buffer.appendIndent(indent).append("}");
+          if (!written) {
+            boolean lambdaParametersNeedParentheses = md_lambda.params.length != 1;
+  
+            if (lambdaParametersNeedParentheses) {
+              buffer.append('(');
+            }
+  
+            boolean firstParameter = true;
+            int index = node.lambdaInformation.is_content_method_static ? 0 : 1;
+            int start_index = md_content.params.length - md_lambda.params.length;
+  
+            for (int i = 0; i < md_content.params.length; i++) {
+              if (i >= start_index) {
+                if (!firstParameter) {
+                  buffer.append(", ");
+                }
+                VarType type = md_content.params[i];
+  
+                String parameterName = methodWrapper.varproc.getVarName(new VarVersionPair(index, 0));
+                if (parameterName == null) {
+                  parameterName = "param" + index; // null iff decompiled with errors
+                }
+                parameterName = methodWrapper.methodStruct.getVariableNamer().renameParameter(mt.getAccessFlags(), ExprProcessor.getCastTypeName(type), parameterName, index);
+                buffer.appendVariable(parameterName, true, true, node.lambdaInformation.content_class_name, node.lambdaInformation.content_method_name, md_content, index, parameterName);
+  
+                firstParameter = false;
+              }
+  
+              index += md_content.params[i].stackSize;
+            }
+  
+            if (lambdaParametersNeedParentheses) {
+              buffer.append(")");
+            }
+            buffer.append(" ->");
+  
+            if (DecompilerContext.getOption(IFernflowerPreferences.INLINE_SIMPLE_LAMBDAS) && methodWrapper.decompileError == null && root != null) {
+              Statement firstStat = root.getFirst();
+              if (firstStat instanceof BasicBlockStatement && firstStat.getExprents() != null && firstStat.getExprents().size() == 1) {
+                Exprent firstExpr = firstStat.getExprents().get(0);
+                boolean isVarDefinition = firstExpr instanceof AssignmentExprent &&
+                  ((AssignmentExprent)firstExpr).getLeft() instanceof VarExprent &&
+                  ((VarExprent)((AssignmentExprent)firstExpr).getLeft()).isDefinition();
+  
+                boolean isThrow = firstExpr instanceof ExitExprent &&
+                  ((ExitExprent)firstExpr).getExitType() == ExitExprent.Type.THROW;
+  
+                if (!isVarDefinition && !isThrow) {
+                  simpleLambda = true;
+                  MethodWrapper outerWrapper = (MethodWrapper)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
+                  DecompilerContext.setProperty(DecompilerContext.CURRENT_METHOD_WRAPPER, methodWrapper);
+                  try {
+                    TextBuffer codeBuffer = firstExpr.toJava(indent + 1);
+  
+                    if (firstExpr instanceof ExitExprent)
+                      codeBuffer.setStart(6); // skip return
+                    else
+                      codeBuffer.prepend(" ");
+  
+                    codeBuffer.addBytecodeMapping(root.getDummyExit().bytecode);
+                    buffer.append(codeBuffer, node.classStruct.qualifiedName, InterpreterUtil.makeUniqueKey(methodWrapper.methodStruct.getName(), methodWrapper.methodStruct.getDescriptor()));
+                  }
+                  catch (CancelationManager.CanceledException e) {
+                    throw e;
+                  }
+                  catch (Throwable ex) {
+                    DecompilerContext.getLogger().writeMessage("Method " + mt.getName() + " " + mt.getDescriptor() + " in class " + node.classStruct.qualifiedName + " couldn't be written.",
+                      IFernflowerLogger.Severity.WARN,
+                      ex);
+                    methodWrapper.decompileError = ex;
+                    buffer.append(" // $VF: Couldn't be decompiled");
+                  }
+                  finally {
+                    DecompilerContext.setProperty(DecompilerContext.CURRENT_METHOD_WRAPPER, outerWrapper);
+                  }
+                }
+              }
+            }
+  
+            if (!simpleLambda) {
+              buffer.append(" {").appendLineSeparator();
+    
+              methodLambdaToJava(node, wrapper, mt, buffer, indent + 1, !lambdaToAnonymous);
+    
+              buffer.appendIndent(indent).append("}");
+            }
+          }
         }
       }
     }

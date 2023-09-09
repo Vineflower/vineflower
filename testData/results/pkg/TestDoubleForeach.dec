@@ -22,8 +22,8 @@ public class TestDoubleForeach {
    }// 24
 
    public void myMethod2() {
-      String[] oneArr = (String[])this.one.toArray(x$0 -> new String[x$0]);// 27
-      String[] twoArr = (String[])this.two.toArray(x$0 -> new String[x$0]);// 28
+      String[] oneArr = (String[])this.one.toArray(String[]::new);// 27
+      String[] twoArr = (String[])this.two.toArray(String[]::new);// 28
       String[] x = oneArr;// 32
       String[] x2 = twoArr;// 33
       int l = oneArr.length;// 34
@@ -174,16 +174,6 @@ class 'pkg/TestDoubleForeach' {
       5b      35
       5c      35
       60      38
-   }
-
-   method 'lambda$myMethod2$0 (I)[Ljava/lang/String;' {
-      0      24
-      4      24
-   }
-
-   method 'lambda$myMethod2$1 (I)[Ljava/lang/String;' {
-      0      25
-      4      25
    }
 }
 
