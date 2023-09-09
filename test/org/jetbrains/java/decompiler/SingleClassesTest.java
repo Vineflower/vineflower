@@ -353,6 +353,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JASM, "TestDoublePopAfterJump");
     register(JAVA_16, "TestLocalEnum");
     register(JAVA_16, "TestLocalInterface");
+    // TODO: test5 puts the record after the method call, needs to be above
     register(JAVA_16, "TestLocalRecord");
     register(JAVA_9, "TestPrivateInterfaceMethod");
 
@@ -672,6 +673,10 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16, "TestIfPatternMatchMethod");
     // TODO: Param type information is lost for lambdas where a more specific type is not required by the context
     register(JAVA_8, "TestLambdaParamTypes");
+    // TODO: There shouldn't be a cast here, it shouldn't cast to boolean, and it should wait to use generic primitives till valhalla lands, lol
+    register(JAVA_8, "TestGenericComparison");
+    // TODO: Can't inline field initializer for a final field that depends on initialization in a static call
+    register(JAVA_8, "TestStaticBlockFinalField");
     register(JAVA_8, "TestWhileLambda");
   }
 

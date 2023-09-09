@@ -2,6 +2,7 @@ package pkg;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 public class TestLocalRecord {
@@ -9,122 +10,146 @@ public class TestLocalRecord {
       record Color(int red, int green, int blue) {
       }
 
-      Color color = new Color((i >> 16 & 0xFF) / 255, (i >> 8 & 0xFF) / 255, (i & 0xFF) / 255);// 10
-      System.out.println(color);// 11
-   }// 12
+      Color color = new Color((i >> 16 & 0xFF) / 255, (i >> 8 & 0xFF) / 255, (i & 0xFF) / 255);// 11
+      System.out.println(color);// 12
+   }// 13
 
    public void test2() {
       record R() {
       }
 
-      List<R> list = new ArrayList();// 16
-      list.add(new R());// 17
-   }// 18
+      List<R> list = new ArrayList();// 17
+      list.add(new R());// 18
+   }// 19
 
    public void test3() {
       record R() {
          static void nop() {
-         }// 22
+         }// 23
       }
 
-      Runnable nop = R::nop;// 24
-   }// 25
+      Runnable nop = R::nop;// 25
+   }// 26
 
    public void test4() {
       record R() {
       }
 
-      Supplier<R> constr = () -> new R();// 29
-   }// 30
+      Supplier<R> constr = () -> new R();// 30
+   }// 31
+
+   public CompletableFuture<Object> test5() {
+      return new CompletableFuture().thenCombineAsync(null, (x$0, x$1) -> new R(x$0, x$1));// 35 36
+
+      record R(Object a, Object b) {
+      }
+
+   }
 }
 
 class 'pkg/TestLocalRecord' {
    method 'test (I)V' {
-      4      11
-      5      11
-      6      11
-      7      11
-      8      11
-      9      11
-      a      11
-      b      11
-      c      11
-      d      11
-      e      11
-      f      11
-      10      11
-      11      11
-      12      11
-      13      11
-      14      11
-      15      11
-      16      11
-      17      11
-      18      11
-      19      11
-      1a      11
-      1b      11
-      1c      11
-      1d      11
-      1e      11
-      1f      11
-      20      11
-      21      11
-      22      11
-      23      11
-      24      11
-      28      11
-      29      12
-      2a      12
-      2b      12
-      2c      12
-      2d      12
-      2e      12
-      2f      12
-      30      13
+      4      12
+      5      12
+      6      12
+      7      12
+      8      12
+      9      12
+      a      12
+      b      12
+      c      12
+      d      12
+      e      12
+      f      12
+      10      12
+      11      12
+      12      12
+      13      12
+      14      12
+      15      12
+      16      12
+      17      12
+      18      12
+      19      12
+      1a      12
+      1b      12
+      1c      12
+      1d      12
+      1e      12
+      1f      12
+      20      12
+      21      12
+      22      12
+      23      12
+      24      12
+      28      12
+      29      13
+      2a      13
+      2b      13
+      2c      13
+      2d      13
+      2e      13
+      2f      13
+      30      14
    }
 
    method 'test2 ()V' {
-      7      19
-      8      20
-      10      20
-      11      20
-      12      20
-      13      20
-      14      20
-      16      21
+      7      20
+      8      21
+      10      21
+      11      21
+      12      21
+      13      21
+      14      21
+      16      22
    }
 
    method 'test3 ()V' {
-      5      29
-      6      30
+      5      30
+      6      31
    }
 
    method 'test4 ()V' {
-      5      36
-      6      37
+      5      37
+      6      38
    }
 
    method 'lambda$test4$0 ()Lpkg/TestLocalRecord$3R;' {
-      7      36
+      7      37
+   }
+
+   method 'test5 ()Ljava/util/concurrent/CompletableFuture;' {
+      7      41
+      d      41
+      e      41
+      f      41
+      10      41
+   }
+
+   method 'lambda$test5$1 (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;' {
+      4      41
+      5      41
+      9      41
    }
 }
 
 class 'pkg/TestLocalRecord$2R' {
    method 'nop ()V' {
-      0      26
+      0      27
    }
 }
 
 Lines mapping:
-10 <-> 12
 11 <-> 13
 12 <-> 14
-16 <-> 20
+13 <-> 15
 17 <-> 21
 18 <-> 22
-22 <-> 27
-24 <-> 30
+19 <-> 23
+23 <-> 28
 25 <-> 31
-29 <-> 37
+26 <-> 32
 30 <-> 38
+31 <-> 39
+35 <-> 42
+36 <-> 42

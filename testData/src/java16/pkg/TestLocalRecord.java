@@ -2,6 +2,7 @@ package pkg;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 public class TestLocalRecord {
@@ -27,5 +28,11 @@ public class TestLocalRecord {
   public void test4() {
     record R() {}
     Supplier<R> constr = () -> new R();
+  }
+
+  public CompletableFuture<Object> test5() {
+    record R(Object a, Object b) {}
+    return new CompletableFuture<>()
+      .thenCombineAsync(null, R::new);
   }
 }
