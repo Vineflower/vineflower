@@ -2,7 +2,6 @@ package pkg
 
 import java.lang.annotation.Retention
 import java.lang.annotation.RetentionPolicy
-import kotlin.jvm.internal.RepeatableContainer
 
 class TestAnnotations {
    @TestAnnotations.TestAnnotation(first = "test", second = 1)
@@ -15,34 +14,27 @@ class TestAnnotations {
 
    @Repeatable
    @Retention(RetentionPolicy.RUNTIME)
-   @java.lang.annotation.Repeatable(TestAnnotations.RepeatableAnnotation.Container::class)
    annotation class RepeatableAnnotation(
-      val value: java.lang.String
-   ) {
-      @RepeatableContainer
-      @Retention(RetentionPolicy.RUNTIME)
-      annotation class Container(
-         val value: Array<TestAnnotations.RepeatableAnnotation>
-      )
-   }
+      val value: String
+   )
 
    @Retention(RetentionPolicy.RUNTIME)
    annotation class TestAnnotation(
-      val first: java.lang.String,
+      val first: String,
       val second: Int
    )
 }
 
 class 'pkg/TestAnnotations' {
    method 'test ()V' {
-      0      9
+      0      8
    }
 
    method 'test2 ()V' {
-      0      13
+      0      12
    }
 }
 
 Lines mapping:
-16 <-> 10
-21 <-> 14
+16 <-> 9
+21 <-> 13

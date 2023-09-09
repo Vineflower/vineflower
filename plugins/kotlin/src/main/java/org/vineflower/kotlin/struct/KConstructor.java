@@ -88,6 +88,12 @@ public class KConstructor {
       String desc = resolver.resolve(signature.getDesc());
       MethodWrapper method = wrapper.getMethodWrapper("<init>", desc);
       if (method == null) {
+        if (classFlags.kind == ProtoBuf.Class.Kind.ANNOTATION_CLASS) {
+          // Annotation classes are very odd and don't actually have a constructor under the hood
+          KConstructor kConstructor = new KConstructor(parameters, flags, null, false, node);
+          return new Data(null, kConstructor);
+        }
+
         DecompilerContext.getLogger().writeMessage("Method <init>" + desc + " not found in " + struct.qualifiedName, IFernflowerLogger.Severity.WARN);
         continue;
       }

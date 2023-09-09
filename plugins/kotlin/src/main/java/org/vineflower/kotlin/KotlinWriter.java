@@ -32,17 +32,13 @@ import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericClassDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericFieldDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericMethodDescriptor;
-import org.jetbrains.java.decompiler.util.InterpreterUtil;
-import org.jetbrains.java.decompiler.util.Key;
-import org.jetbrains.java.decompiler.util.TextBuffer;
-import org.jetbrains.java.decompiler.util.TextUtil;
+import org.jetbrains.java.decompiler.util.*;
 import org.jetbrains.java.decompiler.util.collections.VBStyleCollection;
 import org.vineflower.kotlin.expr.KAnnotationExprent;
 import org.vineflower.kotlin.metadata.MetadataNameResolver;
-import org.vineflower.kotlin.struct.KConstructor;
-import org.vineflower.kotlin.struct.KFunction;
-import org.vineflower.kotlin.struct.KProperty;
+import org.vineflower.kotlin.struct.*;
 import org.vineflower.kotlin.util.KTypes;
+import org.vineflower.kotlin.util.KUtils;
 import org.vineflower.kotlin.util.ProtobufFlags;
 
 import java.io.IOException;
@@ -57,6 +53,7 @@ public class KotlinWriter implements StatementWriter {
   ));
   private static final String NOT_NULL_ANN_NAME = "org/jetbrains/annotations/NotNull";
   private static final String NULLABLE_ANN_NAME = "org/jetbrains/annotations/Nullable";
+  private static final String REPEATABLE_ANN_NAME = "java/lang/annotation/Repeatable";
   private static final Set<String> KT_HARD_KEYWORDS = new HashSet<>(Arrays.asList(
     "as",
     "break",
@@ -222,6 +219,10 @@ public class KotlinWriter implements StatementWriter {
 
       DecompilerContext.getLogger().startWriteClass(cl.qualifiedName);
 
+      KProperty.Data propertyData = KProperty.parse(node);
+      Map<StructMethod, KFunction> functions = KFunction.parse(node);
+      KConstructor.Data constructorData = KConstructor.parse(node);
+
       if (DecompilerContext.getOption(IFernflowerPreferences.SOURCE_FILE_COMMENTS)) {
         StructSourceFileAttribute sourceFileAttr = node.classStruct
           .getAttribute(StructGeneralAttribute.ATTRIBUTE_SOURCE_FILE);
@@ -238,22 +239,17 @@ public class KotlinWriter implements StatementWriter {
 
       if (cl.hasModifier(CodeConstants.ACC_ANNOTATION)) {
         // Kotlin's annotation classes are treated quite differently from other classes
-        writeAnnotationDefinition(node, buffer, indent);
+        writeAnnotationDefinition(node, buffer, indent, propertyData, functions, constructorData);
         return;
       }
 
       if (KotlinDecompilationContext.getCurrentType() == KotlinDecompilationContext.KotlinType.FILE) {
-        writeKotlinFile(node, buffer, indent);
+        writeKotlinFile(node, buffer, indent, propertyData, functions); // no constructors in top level file
         return;
       }
 
-      KProperty.Data propertyData = KProperty.parse(node);
-      Map<StructMethod, KFunction> functions = KFunction.parse(node);
-      KConstructor.Data constructorData = KConstructor.parse(node);
-
       // write class definition
       writeClassDefinition(node, buffer, indent, constructorData);
-
 
       boolean hasContent = false;
       boolean enumFields = false;
@@ -423,11 +419,9 @@ public class KotlinWriter implements StatementWriter {
     }
   }
 
-  private void writeKotlinFile(ClassNode node, TextBuffer buffer, int indent) {
+  private void writeKotlinFile(ClassNode node, TextBuffer buffer, int indent, KProperty.Data propertyData, Map<StructMethod, KFunction> functions) {
     ClassWrapper wrapper = node.getWrapper();
     StructClass cl = wrapper.getClassStruct();
-    KProperty.Data propertyData = KProperty.parse(node);
-    Map<StructMethod, KFunction> functions = KFunction.parse(node);
 
     for (KProperty property : propertyData.properties) {
       buffer.append(property.stringify(indent));
@@ -471,9 +465,22 @@ public class KotlinWriter implements StatementWriter {
     }
   }
 
-  private void writeAnnotationDefinition(ClassesProcessor.ClassNode node, TextBuffer buffer, int indent) {
+  private void writeAnnotationDefinition(ClassNode node, TextBuffer buffer, int indent, KProperty.Data propertyData, Map<StructMethod, KFunction> functions, KConstructor.Data constructorData) {
     ClassWrapper wrapper = node.getWrapper();
     StructClass cl = wrapper.getClassStruct();
+
+    StructAnnotationAttribute runtimeAnnotations = cl.getAttribute(StructGeneralAttribute.ATTRIBUTE_RUNTIME_VISIBLE_ANNOTATIONS);
+    AnnotationExprent repeatableAnnotation = runtimeAnnotations.getAnnotations().stream()
+      .filter(a -> REPEATABLE_ANN_NAME.equals(a.getClassName()))
+      .findFirst()
+      .orElse(null);
+
+    String repeatableContainer = null;
+
+    if (repeatableAnnotation != null) {
+      repeatableContainer = ((ConstExprent) repeatableAnnotation.getParValues().get(0)).getValue().toString();
+      runtimeAnnotations.getAnnotations().remove(repeatableAnnotation);
+    }
 
     appendAnnotations(buffer, indent, cl, -1);
     appendJvmAnnotations(buffer, indent, cl, true, cl.getPool(), TypeAnnotation.CLASS_TYPE_PARAMETER);
@@ -488,89 +495,88 @@ public class KotlinWriter implements StatementWriter {
       .append("(")
       .appendLineSeparator();
 
-    boolean hasCompanion = !cl.getFields().isEmpty();
+    List<KProperty> nonParameterProperties = new ArrayList<>(propertyData.properties);
 
-    if (!cl.getMethods().isEmpty()) {
-      boolean first = true;
-      for (StructMethod mt : cl.getMethods()) {
-        if (mt.hasModifier(CodeConstants.ACC_STATIC)) {
-          hasCompanion = true;
+    boolean first = true;
+    for (KParameter param : constructorData.primary.parameters) {
+      if (!first) {
+        buffer.append(",").appendLineSeparator();
+      }
+      first = false;
+      buffer.appendIndent(indent + 1)
+        .append("val ")
+        .append(KotlinWriter.toValidKotlinIdentifier(param.name))
+        .append(": ")
+        .append(param.type.stringify(indent + 1));
+
+      // Because Kotlin really doesn't like making this easy for us, defaults are still passed directly via attributes
+      KProperty prop = propertyData.properties.stream()
+        .filter(p -> p.name.equals(param.name))
+        .findFirst()
+        .orElseThrow();
+
+      nonParameterProperties.remove(prop);
+
+      KPropertyAccessor getter = prop.getter;
+      if (getter != null) {
+        StructMethod mt = getter.underlyingMethod.methodStruct;
+        StructAnnDefaultAttribute paramAttr = mt.getAttribute(StructGeneralAttribute.ATTRIBUTE_ANNOTATION_DEFAULT);
+        if (paramAttr != null) {
+          Exprent kExpr = KUtils.replaceExprent(paramAttr.getDefaultValue());
+          Exprent expr = kExpr != null ? kExpr : paramAttr.getDefaultValue();
+          buffer.append(" = ").append(expr.toJava());
+        }
+      }
+    }
+
+    buffer.appendLineSeparator()
+      .appendIndent(indent)
+      .append(")");
+
+    boolean appended = false;
+
+    TextBuffer innerBuffer = new TextBuffer();
+
+    for (KProperty prop : nonParameterProperties) {
+      innerBuffer.append(prop.stringify(indent + 1));
+      appended = true;
+    }
+
+    first = true;
+    for (KFunction function : functions.values()) {
+      if (!first || appended) {
+        innerBuffer.appendLineSeparator();
+      }
+      first = false;
+
+      innerBuffer.append(function.stringify(indent + 1));
+      appended = true;
+    }
+
+    first = true;
+    for (ClassNode inner : node.nested) {
+      if (inner.type == ClassNode.Type.MEMBER) {
+        if (inner.classStruct.qualifiedName.equals(repeatableContainer)) {
+          // Skip the container class
           continue;
         }
 
-        if (first) {
-          first = false;
-        } else {
-          buffer.append(',').appendLineSeparator();
+        if (!first || appended) {
+          innerBuffer.appendLineSeparator();
         }
+        first = false;
 
-        buffer.appendIndent(indent + 1)
-          .append("val ")
-          .append(mt.getName())
-          .append(": ");
-
-        String type = mt.getDescriptor().substring(2);
-        VarType varType = new VarType(type, false);
-
-        buffer.append(KTypes.getKotlinType(varType));
-
-        if (mt.hasAttribute(StructGeneralAttribute.ATTRIBUTE_ANNOTATION_DEFAULT)) {
-          buffer.append(" = ");
-          StructAnnDefaultAttribute attr = mt.getAttribute(StructGeneralAttribute.ATTRIBUTE_ANNOTATION_DEFAULT);
-          KAnnotationExprent.writeAnnotationValue(attr.getDefaultValue(), buffer);
-        }
+        writeClass(inner, innerBuffer, indent + 1);
+        appended = true;
       }
-
-      buffer.appendLineSeparator().appendIndent(indent).append(')');
     }
 
-    if (hasCompanion || !node.nested.isEmpty()) {
-      buffer.append(" {").appendLineSeparator();
-
-      // member classes
-      boolean first = false;
-      for (ClassNode inner : node.nested) {
-        if (inner.type == ClassNode.Type.MEMBER) {
-          StructClass innerCl = inner.classStruct;
-          boolean isSynthetic = (inner.access & CodeConstants.ACC_SYNTHETIC) != 0 || innerCl.isSynthetic();
-          boolean hide = isSynthetic && DecompilerContext.getOption(IFernflowerPreferences.REMOVE_SYNTHETIC) ||
-            wrapper.getHiddenMembers().contains(innerCl.qualifiedName);
-          if (hide) continue;
-
-          if (first) {
-            buffer.appendLineSeparator();
-          }
-          writeClass(inner, buffer, indent + 1);
-
-          first = true;
-        }
-      }
-
-      if (hasCompanion) {
-        buffer.appendIndent(indent + 1).append("companion object {").appendLineSeparator();
-
-        for (StructField fd : cl.getFields()) {
-          if (!fd.hasModifier(CodeConstants.ACC_STATIC)) {
-            appendComment(buffer, "Illegal field (must be static): " + fd.getName(), indent + 2);
-          }
-
-          writeField(wrapper, cl, fd, buffer, indent + 2);
-          buffer.appendLineSeparator();
-        }
-
-        for (StructMethod mt : cl.getMethods()) {
-          if (!mt.hasModifier(CodeConstants.ACC_STATIC)) {
-            continue;
-          }
-
-          writeMethod(node, mt, 0, buffer, indent + 2);
-          buffer.appendLineSeparator();
-        }
-
-        buffer.appendIndent(indent + 1).append('}').appendLineSeparator();
-      }
-
-      buffer.appendIndent(indent).append('}');
+    if (appended) {
+      buffer.append(" {")
+        .appendLineSeparator()
+        .append(innerBuffer)
+        .appendIndent(indent)
+        .append("}");
     }
 
     buffer.appendLineSeparator();
