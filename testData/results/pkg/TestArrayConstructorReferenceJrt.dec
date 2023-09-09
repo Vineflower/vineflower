@@ -3,25 +3,25 @@ package pkg;
 import java.util.function.IntFunction;
 
 class TestArrayConstructorReferenceJrt {
-   static final IntFunction<int[]> INT_REF = x$0 -> new int[x$0];// 6
+   static final IntFunction<int[]> INT_REF = int[]::new;
    static final IntFunction<int[]> INT_SIMPLE_LAMBDA = len -> new int[2 * len];// 7
    static final IntFunction<int[]> INT_LONG_LAMBDA = len -> {
       len *= 2;// 9
       return new int[len];// 10
    };
-   static final IntFunction<int[][]> INT_ARRAY_REF = x$0 -> new int[x$0][];// 12
+   static final IntFunction<int[][]> INT_ARRAY_REF = int[][]::new;
    static final IntFunction<int[][]> INT_ARRAY_SIMPLE_LAMBDA = len -> new int[2 * len][];// 13
    static final IntFunction<int[][]> INT_ARRAY_LONG_LAMBDA = len -> {
       len *= 2;// 15
       return new int[len][];// 16
    };
-   static final IntFunction<String[]> STRING_REF = x$0 -> new String[x$0];// 18
+   static final IntFunction<String[]> STRING_REF = String[]::new;
    static final IntFunction<String[]> STRING_SIMPLE_LAMBDA = len -> new String[2 * len];// 19
    static final IntFunction<String[]> STRING_LONG_LAMBDA = len -> {
       len *= 2;// 21
       return new String[len];// 22
    };
-   static final IntFunction<String[][]> STRING_ARRAY_REF = x$0 -> new String[x$0][];// 24
+   static final IntFunction<String[][]> STRING_ARRAY_REF = String[][]::new;
    static final IntFunction<String[][]> STRING_ARRAY_SIMPLE_LAMBDA = len -> new String[2 * len][];// 25
    static final IntFunction<String[][]> STRING_ARRAY_LONG_LAMBDA = len -> {
       len *= 2;// 27
@@ -30,11 +30,6 @@ class TestArrayConstructorReferenceJrt {
 }
 
 class 'pkg/TestArrayConstructorReferenceJrt' {
-   method 'lambda$static$0 (I)[I' {
-      0      5
-      3      5
-   }
-
    method 'lambda$static$1 (I)[I' {
       0      6
       1      6
@@ -47,11 +42,6 @@ class 'pkg/TestArrayConstructorReferenceJrt' {
       3      8
       4      9
       7      9
-   }
-
-   method 'lambda$static$3 (I)[[I' {
-      0      11
-      4      11
    }
 
    method 'lambda$static$4 (I)[[I' {
@@ -68,11 +58,6 @@ class 'pkg/TestArrayConstructorReferenceJrt' {
       8      15
    }
 
-   method 'lambda$static$6 (I)[Ljava/lang/String;' {
-      0      17
-      4      17
-   }
-
    method 'lambda$static$7 (I)[Ljava/lang/String;' {
       0      18
       1      18
@@ -85,11 +70,6 @@ class 'pkg/TestArrayConstructorReferenceJrt' {
       3      20
       4      21
       8      21
-   }
-
-   method 'lambda$static$9 (I)[[Ljava/lang/String;' {
-      0      23
-      4      23
    }
 
    method 'lambda$static$10 (I)[[Ljava/lang/String;' {
@@ -108,19 +88,15 @@ class 'pkg/TestArrayConstructorReferenceJrt' {
 }
 
 Lines mapping:
-6 <-> 6
 7 <-> 7
 9 <-> 9
 10 <-> 10
-12 <-> 12
 13 <-> 13
 15 <-> 15
 16 <-> 16
-18 <-> 18
 19 <-> 19
 21 <-> 21
 22 <-> 22
-24 <-> 24
 25 <-> 25
 27 <-> 27
 28 <-> 28
