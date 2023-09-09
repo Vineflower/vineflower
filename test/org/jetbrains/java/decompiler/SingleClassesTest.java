@@ -672,6 +672,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16, "TestIfPatternMatchMethod");
     // TODO: Param type information is lost for lambdas where a more specific type is not required by the context
     register(JAVA_8, "TestLambdaParamTypes");
+    register(JAVA_8, "TestWhileLambda");
   }
 
   private void registerEntireClassPath() {
