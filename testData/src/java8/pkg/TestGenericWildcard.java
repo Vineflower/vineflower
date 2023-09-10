@@ -1,7 +1,6 @@
 package pkg;
 
-import java.util.Comparator;
-import java.util.Optional;
+import java.util.*;
 
 public class TestGenericWildcard<T> {
   public TestGenericWildcard<?> wildcard() {
@@ -30,6 +29,14 @@ public class TestGenericWildcard<T> {
 
   public TestGenericWildcard<TestGenericWildcard> typed() {
     return (TestGenericWildcard<TestGenericWildcard>) wildcard();
+  }
+
+  public <S> Collection<S> otherGeneric(List<? extends T> list) {
+    return (Collection<S>) Collections.unmodifiableCollection(list);
+  }
+
+  public <S> TestGenericWildcard<S> otherGenericUnmapped() {
+    return new TestGenericWildcard<>();
   }
 
   class Two<A, B> {

@@ -285,7 +285,22 @@ public class InvocationExprent extends Exprent {
             tempMap.forEach((from, to) -> {
               if (!genericsMap.containsKey(from)) {
                 if (to != null && (to.type != CodeConstants.TYPE_GENVAR || named.containsKey(to))) {
-                  if (isMappingInBounds(from, to, named, bounds)) {
+                  boolean ok = true;
+
+                  // Don't apply generic mappings if we're mapping to a distinct, but unknown generic type
+                  // It's a bit hard to visualize. Consider this:
+                  // public <S> Collection<S> test(Collection<? extends T> list) {
+                  //   return (Collection<S>) Collections.unmodifiableCollection(list);
+                  // }
+                  // the result of "Collections.unmodifiableCollection" *should* be a collection of type T, not of type S.
+                  // S is not part of the hierarchy, so we cannot capture it as the upper bound.
+                  if (to.type == CodeConstants.TYPE_GENVAR && named.containsKey(from) && bounds.containsKey(from) && bounds.get(from).contains(VarType.VARTYPE_OBJECT) && !bounds.containsKey(to)) {
+                    if (!named.get(to).contains(from)) {
+                      ok = false;
+                    }
+                  }
+
+                  if (ok && isMappingInBounds(from, to, named, bounds)) {
                     upperBoundsMap.put(from, to);
                   }
                 }

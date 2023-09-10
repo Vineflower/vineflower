@@ -302,7 +302,7 @@ public class AssignmentExprent extends Exprent {
       }
     }
 
-    if (!needsCast && ExprProcessor.doGenericTypesCast(left, right)) {
+    if (!needsCast && ExprProcessor.doGenericTypesCast(this.right, left, right)) {
       needsCast = true;
     }
 

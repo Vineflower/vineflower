@@ -1,35 +1,46 @@
 package pkg;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 
 public class TestGenericWildcard<T> {
    public TestGenericWildcard<?> wildcard() {
-      return null;// 8
+      return null;// 7
    }
 
    public TestGenericWildcard<T> generic() {
-      return (TestGenericWildcard<T>)this.wildcard();// 12
+      return (TestGenericWildcard<T>)this.wildcard();// 11
    }
 
    public <E> TestGenericWildcard<E> cast(TestGenericWildcard<? extends E> e) {
-      return (TestGenericWildcard<E>)e;// 16
+      return (TestGenericWildcard<E>)e;// 15
    }
 
    public <E> TestGenericWildcard<E> castOtherType(TestGenericWildcard<? extends TestGenericWildcard<E>> e) {
-      return (TestGenericWildcard<E>)e;// 20
+      return (TestGenericWildcard<E>)e;// 19
    }
 
    public <E> Optional<TestGenericWildcard<E>> castOptional(boolean bl, TestGenericWildcard<? extends TestGenericWildcard<E>> e) {
-      return bl ? Optional.of((TestGenericWildcard<E>)e) : Optional.empty();// 24
+      return bl ? Optional.of((TestGenericWildcard<E>)e) : Optional.empty();// 23
    }
 
    public <E> TestGenericWildcard<? super E> cast2(TestGenericWildcard<? extends E> e) {
-      return (TestGenericWildcard<? super E>)e;// 28
+      return (TestGenericWildcard<? super E>)e;// 27
    }
 
    public TestGenericWildcard<TestGenericWildcard> typed() {
-      return (TestGenericWildcard<TestGenericWildcard>)this.wildcard();// 32
+      return (TestGenericWildcard<TestGenericWildcard>)this.wildcard();// 31
+   }
+
+   public <S> Collection<S> otherGeneric(List<? extends T> list) {
+      return (Collection<S>)Collections.unmodifiableCollection(list);// 35
+   }
+
+   public <S> TestGenericWildcard<S> otherGenericUnmapped() {
+      return new TestGenericWildcard();// 39
    }
 
    static class One<T> implements Comparable<TestGenericWildcard.One<?>> {
@@ -37,129 +48,143 @@ public class TestGenericWildcard<T> {
       public T obj;
 
       public int compareTo(TestGenericWildcard.One<?> o) {
-         return this.cmp.compare(this.obj, (T)o.obj);// 55
+         return this.cmp.compare(this.obj, (T)o.obj);// 62
       }
    }
 
    class Two<A, B> {
       public TestGenericWildcard<T>.Two<?, B> wildcard() {
-         return null;// 37
+         return null;// 44
       }
 
       public TestGenericWildcard<T>.Two<A, B> generic() {
-         return (TestGenericWildcard<T>.Two<A, B>)this.wildcard();// 41
+         return (TestGenericWildcard<T>.Two<A, B>)this.wildcard();// 48
       }
 
       public TestGenericWildcard<T>.Two<TestGenericWildcard.Two, TestGenericWildcard.Two> typed() {
-         return (TestGenericWildcard<T>.Two<TestGenericWildcard.Two, TestGenericWildcard.Two>)this.wildcard();// 45
+         return (TestGenericWildcard<T>.Two<TestGenericWildcard.Two, TestGenericWildcard.Two>)this.wildcard();// 52
       }
    }
 }
 
 class 'pkg/TestGenericWildcard' {
    method 'wildcard ()Lpkg/TestGenericWildcard;' {
-      0      7
-      1      7
+      0      10
+      1      10
    }
 
    method 'generic ()Lpkg/TestGenericWildcard;' {
-      0      11
-      1      11
-      2      11
-      3      11
-      4      11
+      0      14
+      1      14
+      2      14
+      3      14
+      4      14
    }
 
    method 'cast (Lpkg/TestGenericWildcard;)Lpkg/TestGenericWildcard;' {
-      0      15
-      1      15
+      0      18
+      1      18
    }
 
    method 'castOtherType (Lpkg/TestGenericWildcard;)Lpkg/TestGenericWildcard;' {
-      0      19
-      1      19
+      0      22
+      1      22
    }
 
    method 'castOptional (ZLpkg/TestGenericWildcard;)Ljava/util/Optional;' {
-      0      23
-      1      23
-      4      23
-      5      23
-      6      23
-      7      23
-      b      23
-      e      23
+      0      26
+      1      26
+      4      26
+      5      26
+      6      26
+      7      26
+      b      26
+      e      26
    }
 
    method 'cast2 (Lpkg/TestGenericWildcard;)Lpkg/TestGenericWildcard;' {
-      0      27
-      1      27
+      0      30
+      1      30
    }
 
    method 'typed ()Lpkg/TestGenericWildcard;' {
-      0      31
-      1      31
-      2      31
-      3      31
-      4      31
+      0      34
+      1      34
+      2      34
+      3      34
+      4      34
+   }
+
+   method 'otherGeneric (Ljava/util/List;)Ljava/util/Collection;' {
+      0      38
+      1      38
+      2      38
+      3      38
+      4      38
+   }
+
+   method 'otherGenericUnmapped ()Lpkg/TestGenericWildcard;' {
+      7      42
    }
 }
 
 class 'pkg/TestGenericWildcard$One' {
    method 'compareTo (Lpkg/TestGenericWildcard$One;)I' {
-      0      39
-      1      39
-      2      39
-      3      39
-      4      39
-      5      39
-      6      39
-      7      39
-      8      39
-      9      39
-      a      39
-      b      39
-      c      39
-      d      39
-      e      39
-      f      39
-      10      39
-      11      39
+      0      50
+      1      50
+      2      50
+      3      50
+      4      50
+      5      50
+      6      50
+      7      50
+      8      50
+      9      50
+      a      50
+      b      50
+      c      50
+      d      50
+      e      50
+      f      50
+      10      50
+      11      50
    }
 }
 
 class 'pkg/TestGenericWildcard$Two' {
    method 'wildcard ()Lpkg/TestGenericWildcard$Two;' {
-      0      45
-      1      45
+      0      56
+      1      56
    }
 
    method 'generic ()Lpkg/TestGenericWildcard$Two;' {
-      0      49
-      1      49
-      2      49
-      3      49
-      4      49
+      0      60
+      1      60
+      2      60
+      3      60
+      4      60
    }
 
    method 'typed ()Lpkg/TestGenericWildcard$Two;' {
-      0      53
-      1      53
-      2      53
-      3      53
-      4      53
+      0      64
+      1      64
+      2      64
+      3      64
+      4      64
    }
 }
 
 Lines mapping:
-8 <-> 8
-12 <-> 12
-16 <-> 16
-20 <-> 20
-24 <-> 24
-28 <-> 28
-32 <-> 32
-37 <-> 46
-41 <-> 50
-45 <-> 54
-55 <-> 40
+7 <-> 11
+11 <-> 15
+15 <-> 19
+19 <-> 23
+23 <-> 27
+27 <-> 31
+31 <-> 35
+35 <-> 39
+39 <-> 43
+44 <-> 57
+48 <-> 61
+52 <-> 65
+62 <-> 51

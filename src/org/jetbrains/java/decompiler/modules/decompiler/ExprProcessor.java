@@ -969,7 +969,7 @@ public class ExprProcessor implements CodeConstants {
     boolean doCast = (!leftType.isSuperset(rightType) && (rightType.equals(VarType.VARTYPE_OBJECT) || leftType.type != CodeConstants.TYPE_OBJECT));
     boolean doCastNull = (castNull.cast && rightType.type == CodeConstants.TYPE_NULL && !UNDEFINED_TYPE_STRING.equals(getTypeName(leftType)));
     boolean doCastNarrowing = (castNarrowing && isIntConstant(exprent) && isNarrowedIntType(leftType));
-    boolean doCastGenerics = doGenericTypesCast(leftType, rightType);
+    boolean doCastGenerics = doGenericTypesCast(exprent, leftType, rightType);
 
     boolean cast = castAlways || doCast || doCastNull || doCastNarrowing || doCastGenerics;
 
@@ -1051,13 +1051,14 @@ public class ExprProcessor implements CodeConstants {
   }
 
   // Obj<T> var = type; -> Obj<T> var = (Obj<T>) type; Where type is Obj<? super T>
-  public static boolean doGenericTypesCast(VarType left, VarType right) {
+  public static boolean doGenericTypesCast(Exprent ex, VarType left, VarType right) {
+    Map<VarType, List<VarType>> named = ex.getNamedGenerics();
     if (left == null || right == null) {
       return false;
     }
 
     if (left.isGeneric() && right.isGeneric()) {
-      if (shouldGenericTypesCast(left, right)) {
+      if (shouldGenericTypesCast(named, left, right)) {
         return true;
       }
 
@@ -1076,7 +1077,7 @@ public class ExprProcessor implements CodeConstants {
         }
 
         if (leftType != null) {
-          if (shouldGenericTypesCast(leftType, rightType)) {
+          if (shouldGenericTypesCast(named, leftType, rightType)) {
             return true;
           }
         }
@@ -1086,7 +1087,7 @@ public class ExprProcessor implements CodeConstants {
     return false;
   }
 
-  private static boolean shouldGenericTypesCast(VarType leftType, VarType rightType) {
+  private static boolean shouldGenericTypesCast(Map<VarType, List<VarType>> named, VarType leftType, VarType rightType) {
     if (leftType.isGeneric()) {
       if (rightType.isGeneric()) {
         if (leftType.isSuperset(rightType)) {
@@ -1104,6 +1105,16 @@ public class ExprProcessor implements CodeConstants {
             }
 
             if (ok) {
+              return true;
+            }
+          }
+        } else {
+          // Trying to cast two independent generics to each other? Check if they're both the base generic type (i.e. Object)
+          // and force a cast if so.
+          if (leftType.type == CodeConstants.TYPE_GENVAR && rightType.type == CodeConstants.TYPE_GENVAR
+            && ((GenericType) leftType).getWildcard() == GenericType.WILDCARD_NO && ((GenericType) leftType).getWildcard() == GenericType.WILDCARD_NO) {
+
+            if (named.containsKey(leftType) && named.containsKey(rightType) && named.get(leftType).contains(VarType.VARTYPE_OBJECT) && named.get(rightType).contains(VarType.VARTYPE_OBJECT)) {
               return true;
             }
           }
