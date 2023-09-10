@@ -90,7 +90,7 @@ public class NestedClassProcessor {
 
         if (child.type == ClassNode.Type.LOCAL && child.enclosingMethod != null) {
           MethodWrapper enclosingMethodWrapper = node.getWrapper().getMethods().getWithKey(child.enclosingMethod);
-          if(enclosingMethodWrapper != null) { // e.g. in case of switch-on-enum. FIXME: some proper handling of multiple enclosing classes 
+          if(enclosingMethodWrapper != null) { // e.g. in case of switch-on-enum. FIXME: some proper handling of multiple enclosing classes
             setLocalClassDefinition(enclosingMethodWrapper, child);
           }
         }
@@ -1142,6 +1142,11 @@ public class NestedClassProcessor {
         case NEW:
           NewExprent newExpr = (NewExprent) expr;
           VarType newType = newExpr.getNewType();
+          if (newExpr.isLambda()) {
+            // TODO: search for classType in lambda body properly, for now we just assume it's in there.
+            res = true;
+            break;
+          }
           res = newType.type == CodeConstants.TYPE_OBJECT && classname.equals(newType.value) || containsType(newExpr.getConstructor(), classType);
           break;
         case VAR:
