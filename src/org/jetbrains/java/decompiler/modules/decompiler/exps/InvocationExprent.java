@@ -275,7 +275,9 @@ public class InvocationExprent extends Exprent {
             }
           }
 
-          if (r.type == CodeConstants.TYPE_GENVAR) {
+          // Don't capture as a real upper bound unless the upperbound is an object or a likewise generic.
+          // FunctionExprent needs to inform its children about the type that it has, so it'll cause conflict here.
+          if (r.type == CodeConstants.TYPE_GENVAR && (upperBound.typeFamily == CodeConstants.TYPE_FAMILY_OBJECT || upperBound.isGeneric())) {
             upperBoundsMap.put(r.resizeArrayDim(0), upperBound.resizeArrayDim(upperBound.arrayDim - r.arrayDim));
           }
           else {
