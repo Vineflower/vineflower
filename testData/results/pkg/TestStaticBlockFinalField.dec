@@ -2,11 +2,12 @@ package pkg;
 
 public class TestStaticBlockFinalField {
    static final String field;
-   static final String dum = field.substring(1);
+   static final String dum;
 
    static {
       String something = String.valueOf(1);// 9
       field = something.length() + "dum";// 10
+      dum = field.substring(1);// 11
    }// 12
 }
 
@@ -29,13 +30,22 @@ class 'pkg/TestStaticBlockFinalField' {
       1b      8
       1c      8
       1d      8
-      28      9
+      1e      9
+      1f      9
+      20      9
+      21      9
+      22      9
+      23      9
+      24      9
+      25      9
+      26      9
+      27      9
+      28      10
    }
 }
 
 Lines mapping:
 9 <-> 8
 10 <-> 9
-12 <-> 10
-Not mapped:
-11
+11 <-> 10
+12 <-> 11
