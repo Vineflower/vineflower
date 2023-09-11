@@ -1089,16 +1089,19 @@ public class ExprProcessor implements CodeConstants {
 
   private static boolean shouldGenericTypesCast(Map<VarType, List<VarType>> named, VarType leftType, VarType rightType) {
     if (leftType.isGeneric()) {
+      GenericType genLeft = (GenericType) leftType;
       if (rightType.isGeneric()) {
+        GenericType genRight = (GenericType) rightType;
+
         if (leftType.isSuperset(rightType)) {
           // Casting Clazz<?> to Clazz<T> or Clazz<Concrete>
-          if ((((GenericType) leftType).getWildcard() == GenericType.WILDCARD_NO || ((GenericType) leftType).getWildcard() == GenericType.WILDCARD_EXTENDS) &&
-            ((GenericType) rightType).getWildcard() == GenericType.WILDCARD_SUPER) {
+          if ((genLeft.getWildcard() == GenericType.WILDCARD_NO || genLeft.getWildcard() == GenericType.WILDCARD_EXTENDS) &&
+            genRight.getWildcard() == GenericType.WILDCARD_SUPER) {
 
             boolean ok = true;
-            if (((GenericType) leftType).getWildcard() == GenericType.WILDCARD_EXTENDS) {
+            if (genLeft.getWildcard() == GenericType.WILDCARD_EXTENDS) {
               // Equals, ignoring wildcards
-              if (!((GenericType) leftType).getArguments().isEmpty() && !((GenericType) rightType).getArguments().isEmpty() &&
+              if (!genLeft.getArguments().isEmpty() && !genRight.getArguments().isEmpty() &&
                 leftType.equals(rightType)) {
                 ok = false;
               }
@@ -1109,10 +1112,13 @@ public class ExprProcessor implements CodeConstants {
             }
           }
         } else {
+          if (genLeft.getWildcard() == GenericType.WILDCARD_EXTENDS && genRight.getWildcard() == GenericType.WILDCARD_SUPER) {
+            return true;
+          }
           // Trying to cast two independent generics to each other? Check if they're both the base generic type (i.e. Object)
           // and force a cast if so.
           if (leftType.type == CodeConstants.TYPE_GENVAR && rightType.type == CodeConstants.TYPE_GENVAR
-            && ((GenericType) leftType).getWildcard() == GenericType.WILDCARD_NO && ((GenericType) leftType).getWildcard() == GenericType.WILDCARD_NO) {
+            && genLeft.getWildcard() == GenericType.WILDCARD_NO && genLeft.getWildcard() == GenericType.WILDCARD_NO) {
 
             if (named.containsKey(leftType) && named.containsKey(rightType) && named.get(leftType).contains(VarType.VARTYPE_OBJECT) && named.get(rightType).contains(VarType.VARTYPE_OBJECT)) {
               return true;
@@ -1120,15 +1126,15 @@ public class ExprProcessor implements CodeConstants {
           }
         }
 
-        if ((((GenericType) leftType).getWildcard() == GenericType.WILDCARD_NO || ((GenericType) leftType).getWildcard() == GenericType.WILDCARD_SUPER) &&
-          ((GenericType) rightType).getWildcard() == GenericType.WILDCARD_EXTENDS) {
+        if ((genLeft.getWildcard() == GenericType.WILDCARD_NO || genLeft.getWildcard() == GenericType.WILDCARD_SUPER) &&
+          genRight.getWildcard() == GenericType.WILDCARD_EXTENDS) {
           return true;
         }
       } else {
         // Right is not generic
         // Check for casting a concrete rightType to a specific left generic
         // e.g. (List<T>)list where 'list' is List<Object>
-        if (((GenericType) leftType).getWildcard() == GenericType.WILDCARD_NO && ((GenericType) leftType).getArguments().isEmpty()) {
+        if (genLeft.getWildcard() == GenericType.WILDCARD_NO && genLeft.getArguments().isEmpty()) {
           return true;
         }
       }

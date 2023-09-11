@@ -763,7 +763,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: otherGenericUnmapped loses mapping when it shouldn't
     register(JAVA_8, "TestGenericWildcard");
     register(JAVA_8, "TestGenericObjectType");
-    // TODO: lambda is missing cast
     register(JAVA_8, "TestGenericSubclassTypes");
     // TODO: wrong variable name
     register(JAVA_16_NODEBUG, "TestRecordCanonicalConstructor");

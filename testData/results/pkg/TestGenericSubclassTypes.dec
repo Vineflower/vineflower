@@ -8,7 +8,7 @@ public interface TestGenericSubclassTypes<T> {
    Stream<TestGenericSubclassTypes.Constant<T>> cons();
 
    default Iterator<TestGenericSubclassTypes.Numerical<T>> get() {
-      return this.cons().map(c -> c).iterator();// 23
+      return this.cons().map(c -> (TestGenericSubclassTypes.Numerical<T>)c).iterator();// 23
    }
 
    default Function<? super TestGenericSubclassTypes.Constant<T>, ? extends TestGenericSubclassTypes.Constant<T>> func() {
