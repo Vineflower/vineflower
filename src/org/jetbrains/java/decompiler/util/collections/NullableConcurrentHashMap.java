@@ -44,7 +44,7 @@ public class NullableConcurrentHashMap<K,V> extends ConcurrentHashMap<K,V> {
       key = NULL_KEY;
     }
 
-    return super.containsKey(key);
+    return super.get(key) != null;
   }
 
   @Override
