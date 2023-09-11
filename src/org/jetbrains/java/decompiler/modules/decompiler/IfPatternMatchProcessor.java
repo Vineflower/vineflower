@@ -168,10 +168,15 @@ public final class IfPatternMatchProcessor {
         return false;
       }
     }
+    
+    VarType storeType = left.getInferredExprType(null);
 
     // Add the exprent to the instanceof exprent and remove it from the inside of the if statement
     iof.getLstOperands().add(2, left);
     head.getExprents().remove(0);
+    if (storeType.isGeneric()) {
+      iof.getLstOperands().set(1, new ConstExprent(storeType, null, iof.getLstOperands().get(1).bytecode));
+    }
 
     statement.setPatternMatched(true);
 

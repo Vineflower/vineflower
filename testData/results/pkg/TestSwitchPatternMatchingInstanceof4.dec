@@ -6,7 +6,7 @@ public class TestSwitchPatternMatchingInstanceof4 {
    public void test(Object o) {
       Objects.requireNonNull(o);// 5
       switch (o) {
-         case String s when o instanceof Class clzz && clzz.getSigners()[0] instanceof Class c2:// 6
+         case String s when o instanceof Class<?> clzz && clzz.getSigners()[0] instanceof Class<?> c2:// 6
             System.out.println("" + clzz + c2);
             break;
          default:
