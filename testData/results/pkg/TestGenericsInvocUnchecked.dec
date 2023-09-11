@@ -2,7 +2,7 @@ package pkg;
 
 public class TestGenericsInvocUnchecked<T extends Number> {
    public void test(int i, TestGenericsInvocUnchecked<?> other) {
-      new TestGenericsInvocUnchecked.Inner().testInner(i, this, other);// 11
+      new TestGenericsInvocUnchecked.Inner().testInner(i, this, (TestGenericsInvocUnchecked<T>)other);// 11
    }// 12
 
    public void test1(Class<?> c, String s) {

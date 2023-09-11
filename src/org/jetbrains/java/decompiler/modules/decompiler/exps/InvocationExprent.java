@@ -485,6 +485,7 @@ public class InvocationExprent extends Exprent {
                     GenericType genArgType = (GenericType)argtype;
 
                     genParamType.mapGenVarsTo(genArgType, tempMap);
+                    GenericType.cleanLoweredGenericTypes(tempMap, genParamType, genArgType);
                     tempMap.forEach((from, to) -> {
                       if (!excluded.contains(from)) {
                         paramGenerics.add(from);

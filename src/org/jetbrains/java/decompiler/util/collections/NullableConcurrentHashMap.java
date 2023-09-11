@@ -8,8 +8,18 @@ import java.util.concurrent.ConcurrentHashMap;
 // This is a non-compliant Map implementation. Use at your own mortal peril.
 // It's also a incomplete implementation. More methods will be added as needed.
 public class NullableConcurrentHashMap<K,V> extends ConcurrentHashMap<K,V> {
-  private final Object NULL_KEY = new Object();
-  private final Object NULL_VALUE = new Object();
+  private final Object NULL_KEY = new Object() {
+    @Override
+    public String toString() {
+      return "NCH-NullKey";
+    }
+  };
+  private final Object NULL_VALUE = new Object() {
+    @Override
+    public String toString() {
+      return "NCH-NullValue";
+    }
+  };
 
   @Override
   public V get(Object key) {
@@ -79,7 +89,7 @@ public class NullableConcurrentHashMap<K,V> extends ConcurrentHashMap<K,V> {
 
       if (mod) {
         entries.remove(entry);
-        entries.add(new SimpleEntry(key, value));
+        entries.add(new SimpleEntry<>(key, value));
       }
     }
 

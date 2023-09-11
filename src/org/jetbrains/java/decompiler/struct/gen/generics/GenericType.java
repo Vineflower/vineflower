@@ -4,6 +4,7 @@ package org.jetbrains.java.decompiler.struct.gen.generics;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.InvocationExprent;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
@@ -557,6 +558,23 @@ public class GenericType extends VarType {
     return ret;
   }
 
+  // In certain cases, we after we map generic variables we *don't* want to lower known generics to wildcards.
+  // This removes mappings where, for example, Type<T> is being mapped to Type<?>. This can't be done generally as there are
+  // cases where we *do* want to map to a wildcard- such as fields.
+  public static void cleanLoweredGenericTypes(Map<VarType, VarType> tempMap, GenericType type1, GenericType type2) {
+    if (type1.getArguments().size() == type2.getArguments().size()) {
+      for (int k = 0; k < type1.getArguments().size(); k++) {
+        VarType arg1 = type1.getArguments().get(k);
+        VarType arg2 = type2.getArguments().get(k);
+
+        // Don't lower the current type from a generic to a wildcard
+        if (arg1 != null && arg2 == null) {
+          tempMap.remove(arg1);
+        }
+      }
+    }
+  }
+
   public void mapGenVarsTo(GenericType other, Map<VarType, VarType> map) {
     if (arguments.size() == other.arguments.size()) {
       for (int i = 0; i < arguments.size(); ++i) {
@@ -639,6 +657,7 @@ public class GenericType extends VarType {
 
         if (derivedType.isGeneric() && dcls.getSignature() != null) {
           dcls.getSignature().genericType.mapGenVarsTo((GenericType)derivedType, tempMap);
+          cleanLoweredGenericTypes(tempMap, dcls.getSignature().genericType, (GenericType)derivedType);
           // Given MyClass<T extends MyClass<T>> implements MyInterface<T>
           // converting MyClass<?> to MyInterface should produce MyInterface<MyClass<?>> not MyInterface<?>
           for (int i = 0; i < dcls.getSignature().fparameters.size(); ++i) {
