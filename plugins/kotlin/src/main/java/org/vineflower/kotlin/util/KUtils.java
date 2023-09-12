@@ -1,6 +1,6 @@
 package org.vineflower.kotlin.util;
 
-import kotlin.reflect.jvm.internal.impl.metadata.ProtoBuf;
+import kotlinx.metadata.internal.metadata.ProtoBuf;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.TextBuffer;

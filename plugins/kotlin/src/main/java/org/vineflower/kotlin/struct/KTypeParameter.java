@@ -1,6 +1,6 @@
 package org.vineflower.kotlin.struct;
 
-import kotlin.reflect.jvm.internal.impl.metadata.ProtoBuf;
+import kotlinx.metadata.internal.metadata.ProtoBuf;
 import org.vineflower.kotlin.metadata.MetadataNameResolver;
 
 import java.util.List;

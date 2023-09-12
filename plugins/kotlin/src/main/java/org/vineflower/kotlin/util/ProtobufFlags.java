@@ -1,6 +1,6 @@
 package org.vineflower.kotlin.util;
 
-import kotlin.reflect.jvm.internal.impl.metadata.ProtoBuf;
+import kotlinx.metadata.internal.metadata.ProtoBuf;
 
 public interface ProtobufFlags {
   //TODO: hasNonStableParameterNames

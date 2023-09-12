@@ -1,8 +1,8 @@
 package org.vineflower.kotlin;
 
-import kotlin.reflect.jvm.internal.impl.metadata.ProtoBuf;
-import kotlin.reflect.jvm.internal.impl.metadata.jvm.JvmProtoBuf;
-import kotlin.reflect.jvm.internal.impl.protobuf.ExtensionRegistryLite;
+import kotlinx.metadata.internal.metadata.ProtoBuf;
+import kotlinx.metadata.internal.metadata.jvm.JvmProtoBuf;
+import kotlinx.metadata.internal.protobuf.ExtensionRegistryLite;
 import org.jetbrains.java.decompiler.api.plugin.LanguageChooser;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
