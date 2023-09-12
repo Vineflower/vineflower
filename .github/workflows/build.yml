@@ -25,8 +25,6 @@ jobs:
             build/reports/
             plugins/*/build/reports/
             build/test-results/**/*.xml
-      - name: Codecov
-        uses: codecov/codecov-action@v3.1.1
   publish-test-results:
     runs-on: ubuntu-22.04
     needs: [build]
