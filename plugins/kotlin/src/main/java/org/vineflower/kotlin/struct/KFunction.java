@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 public class KFunction {
   public final String name;
   public final ProtobufFlags.Function flags;
+  public final List<KType> contextReceiverTypes;
   public final KParameter[] parameters;
   public final List<KTypeParameter> typeParameters;
   public final KType returnType;
@@ -37,6 +38,8 @@ public class KFunction {
   @Nullable
   public final KType receiverType;
 
+  public final boolean knownOverride;
+
   private final ClassesProcessor.ClassNode node;
 
   private KFunction(
@@ -45,16 +48,19 @@ public class KFunction {
     List<KTypeParameter> typeParameters,
     KType returnType,
     ProtobufFlags.Function flags,
-    MethodWrapper method,
+    List<KType> contextReceiverTypes, MethodWrapper method,
     @Nullable KType receiverType,
+    boolean knownOverride,
     ClassesProcessor.ClassNode node) {
     this.name = name;
     this.parameters = parameters;
     this.typeParameters = typeParameters;
     this.returnType = returnType;
     this.flags = flags;
+    this.contextReceiverTypes = contextReceiverTypes;
     this.method = method;
     this.receiverType = receiverType;
+    this.knownOverride = knownOverride;
     this.node = node;
   }
 
@@ -130,7 +136,16 @@ public class KFunction {
         .map(typeParameter -> KTypeParameter.from(typeParameter, resolver))
         .collect(Collectors.toList());
 
-      functions.put(method.methodStruct, new KFunction(name, parameters, typeParameters, returnType, flags, method, receiverType, node));
+      List<KType> contextReceiverTypes = function.getContextReceiverTypeList().stream()
+        .map(ctxType -> KType.from(ctxType, resolver))
+        .collect(Collectors.toList());
+
+      boolean knownOverride = flags.visibility != ProtoBuf.Visibility.PRIVATE
+        && flags.visibility != ProtoBuf.Visibility.PRIVATE_TO_THIS
+        && flags.visibility != ProtoBuf.Visibility.LOCAL
+        && KotlinWriter.searchForMethod(struct, method.methodStruct.getName(), method.desc(), false);
+
+      functions.put(method.methodStruct, new KFunction(name, parameters, typeParameters, returnType, flags, contextReceiverTypes, method, receiverType, knownOverride, node));
     }
 
     return functions;
@@ -143,6 +158,20 @@ public class KFunction {
 
     buf.appendIndent(indent);
 
+    if (!contextReceiverTypes.isEmpty()) {
+      buf.append("context(");
+      boolean first = true;
+      for (KType contextReceiverType : contextReceiverTypes) {
+        if (!first) {
+          buf.append(", ");
+        }
+
+        buf.append(contextReceiverType.stringify(indent + 1));
+        first = false;
+      }
+      buf.append(")\n").appendIndent(indent);
+    }
+
     if (flags.visibility != ProtoBuf.Visibility.PUBLIC || "1".equals(KotlinPreferences.getPreference(KotlinPreferences.SHOW_PUBLIC_VISIBILITY))) {
       KUtils.appendVisibility(buf, flags.visibility);
     }
@@ -152,12 +181,18 @@ public class KFunction {
     }
 
     if (flags.modality != ProtoBuf.Modality.FINAL) {
-      buf.append(flags.modality.name().toLowerCase())
-        .append(' ');
+      if (!knownOverride || flags.modality != ProtoBuf.Modality.OPEN) {
+        buf.append(flags.modality.name().toLowerCase())
+          .append(' ');
+      }
     }
 
     if (flags.isExternal) {
       buf.append("external ");
+    }
+
+    if (knownOverride) {
+      buf.append("override ");
     }
 
     if (flags.isTailrec) {

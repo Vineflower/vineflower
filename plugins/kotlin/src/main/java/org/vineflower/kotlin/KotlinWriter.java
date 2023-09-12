@@ -1597,7 +1597,7 @@ public class KotlinWriter implements StatementWriter {
   }
 
   // Returns true if a method with the given name and descriptor matches in the inheritance tree of the superclass.
-  private static boolean searchForMethod(StructClass cl, String name, MethodDescriptor md, boolean search) {
+  public static boolean searchForMethod(StructClass cl, String name, MethodDescriptor md, boolean search) {
     // Didn't find the class or the library containing the class wasn't loaded, can't search
     if (cl == null) {
       return false;
