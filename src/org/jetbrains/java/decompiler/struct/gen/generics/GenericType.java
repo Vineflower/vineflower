@@ -561,14 +561,14 @@ public class GenericType extends VarType {
   // In certain cases, we after we map generic variables we *don't* want to lower known generics to wildcards.
   // This removes mappings where, for example, Type<T> is being mapped to Type<?>. This can't be done generally as there are
   // cases where we *do* want to map to a wildcard- such as fields.
-  public static void cleanLoweredGenericTypes(Map<VarType, VarType> tempMap, GenericType type1, GenericType type2) {
+  public static void cleanLoweredGenericTypes(Map<VarType, VarType> tempMap, GenericType type1, GenericType type2, Set<VarType> canClean) {
     if (type1.getArguments().size() == type2.getArguments().size()) {
       for (int k = 0; k < type1.getArguments().size(); k++) {
         VarType arg1 = type1.getArguments().get(k);
         VarType arg2 = type2.getArguments().get(k);
 
         // Don't lower the current type from a generic to a wildcard
-        if (arg1 != null && arg2 == null) {
+        if ((canClean == null || canClean.contains(arg1)) && arg1 != null && arg2 == null) {
           tempMap.remove(arg1);
         }
       }
@@ -657,7 +657,7 @@ public class GenericType extends VarType {
 
         if (derivedType.isGeneric() && dcls.getSignature() != null) {
           dcls.getSignature().genericType.mapGenVarsTo((GenericType)derivedType, tempMap);
-          cleanLoweredGenericTypes(tempMap, dcls.getSignature().genericType, (GenericType)derivedType);
+          cleanLoweredGenericTypes(tempMap, dcls.getSignature().genericType, (GenericType)derivedType, null);
           // Given MyClass<T extends MyClass<T>> implements MyInterface<T>
           // converting MyClass<?> to MyInterface should produce MyInterface<MyClass<?>> not MyInterface<?>
           for (int i = 0; i < dcls.getSignature().fparameters.size(); ++i) {

@@ -392,6 +392,32 @@ public class InvocationExprent extends Exprent {
               start = (newNode.access & CodeConstants.ACC_STATIC) == 0 ? 1 : 0;
             }
           }
+          
+          Set<VarType> commonGenerics = new HashSet<>();
+          ClassNode currentNode = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
+          MethodWrapper methodWrapper = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
+          if (methodWrapper != null) {
+            StructMethod currentMethod = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER).methodStruct;
+            if (newNode != null && currentNode != null && !desc.hasModifier(CodeConstants.ACC_STATIC) && !currentMethod.hasModifier(CodeConstants.ACC_STATIC)) {
+              List<ClassNode> parents = new ArrayList<>();
+              ClassNode search = currentNode;
+              while (search != null) {
+                parents.add(search);
+                search = (search.access & CodeConstants.ACC_STATIC) == 0 ? search.parent : null;
+              }
+              
+              search = newNode;
+              while (search != null) {
+                if (parents.contains(search) && search.classStruct.getSignature() != null) {
+                  commonGenerics.addAll(search.classStruct.getSignature().fparameters
+                      .stream()
+                      .map(generic -> GenericType.parse("T" + generic + ";"))
+                      .collect(Collectors.toList()));
+                }
+                search = (search.access & CodeConstants.ACC_STATIC) == 0 ? search.parent : null;
+              }
+            }
+          }
 
           int j = 0;
           for (int i = start; i < lstParameters.size(); ++i) {
@@ -485,7 +511,7 @@ public class InvocationExprent extends Exprent {
                     GenericType genArgType = (GenericType)argtype;
 
                     genParamType.mapGenVarsTo(genArgType, tempMap);
-                    GenericType.cleanLoweredGenericTypes(tempMap, genParamType, genArgType);
+                    GenericType.cleanLoweredGenericTypes(tempMap, genParamType, genArgType, commonGenerics);
                     tempMap.forEach((from, to) -> {
                       if (!excluded.contains(from)) {
                         paramGenerics.add(from);
