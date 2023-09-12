@@ -20,7 +20,7 @@ allprojects {
   apply plugin: 'java'
   ext.isArm = System.getProperty('os.arch') == 'aarch64'
 
-  group = 'org.quiltmc'
+  group = 'org.vineflower'
 
   compileJava {
     sourceCompatibility = '11'
@@ -293,7 +293,12 @@ publishing {
         }
       }
 
-      from components.java
+      // VF-only jar
+      artifact jar
+      // Jar with included plugins
+      artifact allJar
+      artifact sourcesJar
+      artifact javadocJar
     }
   }
 }

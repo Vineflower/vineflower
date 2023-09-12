@@ -7,7 +7,7 @@ assignees: ''
 
 ---
 
-## Quiltflower version
+## Vineflower version
 Replace this text with the version of Vineflower that you are using.
 
 ## Describe the bug
