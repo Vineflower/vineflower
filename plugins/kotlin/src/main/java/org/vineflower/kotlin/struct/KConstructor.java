@@ -119,17 +119,15 @@ public class KConstructor {
     RootStatement root = method.root;
 
     if (!isPrimary) {
-      boolean appended = false;
-
       if (flags.hasAnnotations) {
         KotlinWriter.appendAnnotations(buf, indent, method.methodStruct, TypeAnnotation.METHOD_RETURN_TYPE);
         KotlinWriter.appendJvmAnnotations(buf, indent, method.methodStruct, false, method.classStruct.getPool(), TypeAnnotation.METHOD_RETURN_TYPE);
-        appended = true;
       }
+
+      buf.appendIndent(indent);
 
       if (flags.visibility != ProtoBuf.Visibility.PUBLIC || DecompilerContext.getOption(KotlinOptions.SHOW_PUBLIC_VISIBILITY)) {
         KUtils.appendVisibility(buf, flags.visibility);
-        appended = true;
       }
 
       buf.append("constructor");
@@ -162,6 +160,8 @@ public class KConstructor {
 
     if (root.getFirst().getExprents().isEmpty()) {
       // There is no extra body so all done!
+      if (isPrimary) return false; // avoid extra empty line
+
       buffer.append(buf);
       return true;
     }
