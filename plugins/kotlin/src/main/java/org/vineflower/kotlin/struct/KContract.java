@@ -3,6 +3,7 @@ package org.vineflower.kotlin.struct;
 import kotlinx.metadata.internal.metadata.ProtoBuf;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.vineflower.kotlin.KotlinWriter;
 import org.vineflower.kotlin.metadata.MetadataNameResolver;
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class KContract {
+  private static final String INVOCATION_KIND = "kotlin.contracts.InvocationKind";
   @NotNull
   public final List<KEffect> effects;
 
@@ -82,7 +84,10 @@ public class KContract {
           String name = func.valueParameterReference.name;
           buf.append(KotlinWriter.toValidKotlinIdentifier(name));
           if (kind != null) {
-            buf.append(", InvocationKind.").append(kind.name());
+            buf.append(", ")
+              .append(DecompilerContext.getImportCollector().getShortName(INVOCATION_KIND))
+              .append(".")
+              .append(kind.name());
           }
           buf.append(")");
           break;

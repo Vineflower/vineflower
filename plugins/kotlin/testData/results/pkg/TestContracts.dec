@@ -1,6 +1,7 @@
 package pkg
 
 import java.util.Iterator
+import kotlin.contracts.InvocationKind
 
 class TestContracts {
    public fun testSimpleContract(x: Int?): Int {
@@ -71,155 +72,155 @@ class TestContracts {
 
 class 'pkg/TestContracts' {
    method 'testSimpleContract (Ljava/lang/Integer;)I' {
-      1      10
-      2      10
-      9      11
-      a      11
-      b      11
-      c      11
-      d      11
-      11      11
-      12      13
-      13      13
-      14      13
-      15      13
-      16      13
+      1      11
+      2      11
+      9      12
+      a      12
+      b      12
+      c      12
+      d      12
+      11      12
+      12      14
+      13      14
+      14      14
+      15      14
+      16      14
    }
 
    method 'testBooleanContract (ZZ)Ljava/lang/Boolean;' {
-      1      24
-      2      24
-      5      24
-      6      24
-      9      24
-      d      24
-      e      24
-      11      24
-      12      24
-      1a      24
-      1d      24
+      1      25
+      2      25
+      5      25
+      6      25
+      9      25
+      d      25
+      e      25
+      11      25
+      12      25
+      1a      25
+      1d      25
    }
 
    method 'testTypeContract (Ljava/lang/Object;)I' {
-      1      32
-      5      32
-      c      33
-      d      33
-      e      33
-      f      33
-      10      33
-      14      33
-      15      35
-      16      35
-      17      35
-      18      35
-      19      35
-      1a      35
-      1b      35
-      1c      35
+      1      33
+      5      33
+      c      34
+      d      34
+      e      34
+      f      34
+      10      34
+      14      34
+      15      36
+      16      36
+      17      36
+      18      36
+      19      36
+      1a      36
+      1b      36
+      1c      36
    }
 
    method 'testFunctionalContract (Lkotlin/jvm/functions/Function0;)I' {
-      7      44
-      8      44
-      9      44
-      a      44
-      b      44
-      c      44
-      d      44
-      e      44
-      f      44
-      10      44
-      11      44
-      12      44
-      13      44
+      7      45
+      8      45
+      9      45
+      a      45
+      b      45
+      c      45
+      d      45
+      e      45
+      f      45
+      10      45
+      11      45
+      12      45
+      13      45
    }
 
    method 'testFunctionalContract2 (Lkotlin/jvm/functions/Function0;Z)I' {
-      7      52
-      8      52
-      b      52
-      c      52
-      d      52
-      e      52
-      f      52
-      10      52
-      11      52
-      12      52
-      13      52
-      14      52
-      15      52
-      16      52
-      1a      52
-      1b      52
+      7      53
+      8      53
+      b      53
+      c      53
+      d      53
+      e      53
+      f      53
+      10      53
+      11      53
+      12      53
+      13      53
+      14      53
+      15      53
+      16      53
+      1a      53
+      1b      53
    }
 
    method 'testFunctionalContract3 (Lkotlin/jvm/functions/Function0;I)I' {
-      b      60
-      c      60
-      10      60
-      11      60
-      12      60
-      13      60
-      14      61
-      15      61
-      16      61
-      17      63
-      18      63
-      19      63
-      1a      63
-      1b      63
-      1c      63
-      1d      63
-      1e      63
-      1f      63
-      20      63
-      21      63
-      22      63
-      23      63
-      24      63
-      25      63
-      29      64
-      2a      64
-      2b      64
-      2c      64
-      2d      64
-      2e      64
-      2f      64
-      30      64
-      31      64
-      32      64
-      3e      63
-      3f      63
-      40      63
-      41      63
-      42      63
-      43      63
-      44      63
-      45      63
-      46      63
-      47      63
-      48      63
-      49      63
-      4e      63
-      4f      63
-      51      63
-      52      63
-      56      67
-      57      67
-      58      67
+      b      61
+      c      61
+      10      61
+      11      61
+      12      61
+      13      61
+      14      62
+      15      62
+      16      62
+      17      64
+      18      64
+      19      64
+      1a      64
+      1b      64
+      1c      64
+      1d      64
+      1e      64
+      1f      64
+      20      64
+      21      64
+      22      64
+      23      64
+      24      64
+      25      64
+      29      65
+      2a      65
+      2b      65
+      2c      65
+      2d      65
+      2e      65
+      2f      65
+      30      65
+      31      65
+      32      65
+      3e      64
+      3f      64
+      40      64
+      41      64
+      42      64
+      43      64
+      44      64
+      45      64
+      46      64
+      47      64
+      48      64
+      49      64
+      4e      64
+      4f      64
+      51      64
+      52      64
+      56      68
+      57      68
+      58      68
    }
 }
 
 Lines mapping:
-13 <-> 11
-14 <-> 14
-24 <-> 25
-31 <-> 33
-32 <-> 36
-39 <-> 45
-46 <-> 53
-53 <-> 68
+13 <-> 12
+14 <-> 15
+24 <-> 26
+31 <-> 34
+32 <-> 37
+39 <-> 46
+46 <-> 54
+53 <-> 69
 Not mapped:
 10
 18
