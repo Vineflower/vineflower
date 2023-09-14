@@ -3,9 +3,9 @@ package org.vineflower.kotlin.struct;
 import kotlinx.metadata.internal.metadata.ProtoBuf;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
-import org.jetbrains.java.decompiler.main.collectors.ImportCollector;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.TextBuffer;
+import org.vineflower.kotlin.KotlinDecompilationContext;
 import org.vineflower.kotlin.metadata.MetadataNameResolver;
 import org.vineflower.kotlin.util.KTypes;
 
@@ -78,6 +78,28 @@ public class KType extends VarType {
     String typeAliasName = type.hasTypeAliasName() ? nameResolver.resolve(type.getTypeAliasName()) : null;
 
     return new KType(varType, kotlinType, isNullable, typeArguments, typeParameterName, typeAliasName);
+  }
+
+  public static KType from(int tableIndex, MetadataNameResolver resolver) {
+    ProtoBuf.TypeTable table;
+    switch (KotlinDecompilationContext.getCurrentType()) {
+      case CLASS:
+        table = KotlinDecompilationContext.getCurrentClass().getTypeTable();
+        break;
+      case SYNTHETIC_CLASS:
+        table = KotlinDecompilationContext.getSyntheticClass().getTypeTable();
+        break;
+      case FILE:
+        table = KotlinDecompilationContext.getFilePackage().getTypeTable();
+        break;
+      case MULTIFILE_CLASS:
+        table = KotlinDecompilationContext.getMultifilePackage().getTypeTable();
+        break;
+      default:
+        throw new IllegalStateException("No decompilation context found");
+    }
+
+    return from(table.getType(tableIndex), resolver);
   }
 
   // stringify is for the decompiler output

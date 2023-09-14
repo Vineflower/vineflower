@@ -1185,7 +1185,7 @@ public class KotlinWriter implements StatementWriter {
     return !hideMethod;
   }
 
-  private static void dumpError(TextBuffer buffer, MethodWrapper wrapper, int indent) {
+  public static void dumpError(TextBuffer buffer, MethodWrapper wrapper, int indent) {
     List<String> lines = new ArrayList<>();
     lines.add("$VF: Couldn't be decompiled");
     boolean exceptions = DecompilerContext.getOption(IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR);

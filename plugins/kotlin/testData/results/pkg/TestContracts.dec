@@ -1,0 +1,174 @@
+package pkg
+
+import java.util.Iterator
+
+class TestContracts {
+   public fun testSimpleContract(x: Int?): Int {
+      if (x == null) {// 13
+         throw new IllegalStateException("x is null".toString());
+      } else {
+         return x;// 14
+      }
+   }
+
+   public fun testBooleanContract(a: Boolean, b: Boolean): Boolean? {
+      return if (a && b) null else a || b;// 24
+   }
+
+   public fun testFunctionalContract(f: () -> Int): Int {
+      return (f.invoke() as java.lang.Number).intValue();// 31
+   }
+
+   public fun testFunctionalContract2(f: () -> Int, b: Boolean): Int {
+      return if (b) (f.invoke() as java.lang.Number).intValue() else 0;// 38
+   }
+
+   public fun testFunctionalContract3(f: () -> Int, i: Int): Int {
+      var var3: java.lang.Iterable = (new IntRange(0, i)) as java.lang.Iterable;
+      var var4: Int = 0;
+
+      for (Iterator var5 = var3.iterator(); var5.hasNext(); var4 += ((java.lang.Number)f.invoke()).intValue()) {
+         var var6: Int = (var5 as IntIterator).nextInt();
+      }
+
+      return var4;// 45
+   }
+}
+
+class 'pkg/TestContracts' {
+   method 'testSimpleContract (Ljava/lang/Integer;)I' {
+      1      6
+      2      6
+      9      7
+      a      7
+      b      7
+      c      7
+      d      7
+      11      7
+      12      9
+      13      9
+      14      9
+      15      9
+      16      9
+   }
+
+   method 'testBooleanContract (ZZ)Ljava/lang/Boolean;' {
+      1      14
+      2      14
+      5      14
+      6      14
+      9      14
+      d      14
+      e      14
+      11      14
+      12      14
+      1a      14
+      1d      14
+   }
+
+   method 'testFunctionalContract (Lkotlin/jvm/functions/Function0;)I' {
+      7      18
+      8      18
+      9      18
+      a      18
+      b      18
+      c      18
+      d      18
+      e      18
+      f      18
+      10      18
+      11      18
+      12      18
+      13      18
+   }
+
+   method 'testFunctionalContract2 (Lkotlin/jvm/functions/Function0;Z)I' {
+      7      22
+      8      22
+      b      22
+      c      22
+      d      22
+      e      22
+      f      22
+      10      22
+      11      22
+      12      22
+      13      22
+      14      22
+      15      22
+      16      22
+      1a      22
+      1b      22
+   }
+
+   method 'testFunctionalContract3 (Lkotlin/jvm/functions/Function0;I)I' {
+      b      26
+      c      26
+      10      26
+      11      26
+      12      26
+      13      26
+      14      27
+      15      27
+      16      27
+      17      29
+      18      29
+      19      29
+      1a      29
+      1b      29
+      1c      29
+      1d      29
+      1e      29
+      1f      29
+      20      29
+      21      29
+      22      29
+      23      29
+      24      29
+      25      29
+      29      30
+      2a      30
+      2b      30
+      2c      30
+      2d      30
+      2e      30
+      2f      30
+      30      30
+      31      30
+      32      30
+      3e      29
+      3f      29
+      40      29
+      41      29
+      42      29
+      43      29
+      44      29
+      45      29
+      46      29
+      47      29
+      48      29
+      49      29
+      4e      29
+      4f      29
+      51      29
+      52      29
+      56      33
+      57      33
+      58      33
+   }
+}
+
+Lines mapping:
+13 <-> 7
+14 <-> 10
+24 <-> 15
+31 <-> 19
+38 <-> 23
+45 <-> 34
+Not mapped:
+10
+18
+28
+35
+42
+49

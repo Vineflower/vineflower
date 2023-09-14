@@ -4,12 +4,16 @@ import kotlinx.metadata.internal.metadata.ProtoBuf;
 import kotlinx.metadata.internal.metadata.jvm.JvmProtoBuf;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.main.ClassesProcessor;
+import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.rels.ClassWrapper;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.TypeAnnotation;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
+import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.vineflower.kotlin.KotlinDecompilationContext;
 import org.vineflower.kotlin.KotlinPreferences;
@@ -38,6 +42,9 @@ public class KFunction {
   @Nullable
   public final KType receiverType;
 
+  @Nullable
+  public final KContract contract;
+
   public final boolean knownOverride;
 
   private final ClassesProcessor.ClassNode node;
@@ -50,6 +57,7 @@ public class KFunction {
     ProtobufFlags.Function flags,
     List<KType> contextReceiverTypes, MethodWrapper method,
     @Nullable KType receiverType,
+    @Nullable KContract contract,
     boolean knownOverride,
     ClassesProcessor.ClassNode node) {
     this.name = name;
@@ -60,6 +68,7 @@ public class KFunction {
     this.contextReceiverTypes = contextReceiverTypes;
     this.method = method;
     this.receiverType = receiverType;
+    this.contract = contract;
     this.knownOverride = knownOverride;
     this.node = node;
   }
@@ -145,7 +154,9 @@ public class KFunction {
         && flags.visibility != ProtoBuf.Visibility.LOCAL
         && KotlinWriter.searchForMethod(struct, method.methodStruct.getName(), method.desc(), false);
 
-      functions.put(method.methodStruct, new KFunction(name, parameters, typeParameters, returnType, flags, contextReceiverTypes, method, receiverType, knownOverride, node));
+      KContract contract = function.hasContract() ? KContract.from(function.getContract(), List.of(parameters), resolver) : null;
+
+      functions.put(method.methodStruct, new KFunction(name, parameters, typeParameters, returnType, flags, contextReceiverTypes, method, receiverType, contract, knownOverride, node));
     }
 
     return functions;
@@ -314,7 +325,34 @@ public class KFunction {
         .popNewlineGroup();
     }
 
-    KotlinWriter.writeMethodBody(node, method, buf, indent, false);
+    buf.append('{').appendLineSeparator();
+
+    if (contract != null) {
+      buf.append(contract.stringify(indent + 1));
+    }
+
+    RootStatement root = method.root;
+    if (root != null && method.decompileError == null) {
+      try {
+        TextBuffer body = root.toJava(indent + 1);
+        body.addBytecodeMapping(root.getDummyExit().bytecode);
+        if (body.length() != 0 && contract != null) {
+          buf.appendLineSeparator();
+        }
+
+        buf.append(body, node.classStruct.qualifiedName, InterpreterUtil.makeUniqueKey(method.methodStruct.getName(), method.methodStruct.getDescriptor()));
+      } catch (Throwable t) {
+        String message = "Method " + method.methodStruct.getName() + " " + method.desc() + " in class " + node.classStruct.qualifiedName + " couldn't be written.";
+        DecompilerContext.getLogger().writeMessage(message, IFernflowerLogger.Severity.WARN, t);
+        method.decompileError = t;
+      }
+    }
+
+    if (method.decompileError != null) {
+      KotlinWriter.dumpError(buf, method, indent + 1);
+    }
+
+    buf.appendIndent(indent).append('}').appendLineSeparator();
 
     return buf;
   }
