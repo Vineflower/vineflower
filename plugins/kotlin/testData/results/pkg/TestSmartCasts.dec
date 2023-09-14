@@ -81,7 +81,6 @@ class TestSmartCasts {
    }
 
    sealed class A protected constructor() {
-
       public fun test(): String {
          return "";// 15
       }
@@ -458,55 +457,55 @@ class 'pkg/TestSmartCasts' {
 
 class 'pkg/TestSmartCasts$A' {
    method 'test ()Ljava/lang/String;' {
-      0      85
-      1      85
-      2      85
+      0      84
+      1      84
+      2      84
    }
 }
 
 class 'pkg/TestSmartCasts$A$B' {
    method '<init> ()V' {
-      2      88
-      3      88
-      4      88
+      2      87
+      3      87
+      4      87
    }
 
    method 'testB ()Ljava/lang/String;' {
-      0      90
-      1      90
-      2      90
+      0      89
+      1      89
+      2      89
    }
 }
 
 class 'pkg/TestSmartCasts$A$C' {
    method '<init> ()V' {
-      2      94
-      3      94
-      4      94
+      2      93
+      3      93
+      4      93
    }
 
    method 'testC ()Ljava/lang/String;' {
-      0      96
-      1      96
-      2      96
+      0      95
+      1      95
+      2      95
    }
 }
 
 class 'pkg/TestSmartCasts$X$DefaultImpls' {
    method 'woo (Lpkg/TestSmartCasts$X;Ljava/lang/Iterable;)Ljava/lang/String;' {
-      6      109
-      7      109
-      8      109
+      6      108
+      7      108
+      8      108
    }
 }
 
 Lines mapping:
-5 <-> 110
-8 <-> 89
-9 <-> 91
-11 <-> 95
-12 <-> 97
-15 <-> 86
+5 <-> 109
+8 <-> 88
+9 <-> 90
+11 <-> 94
+12 <-> 96
+15 <-> 85
 19 <-> 5
 20 <-> 5
 21 <-> 6

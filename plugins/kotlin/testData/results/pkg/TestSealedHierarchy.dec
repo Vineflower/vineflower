@@ -1,7 +1,6 @@
 package pkg
 
 sealed class TestSealedHierarchy protected constructor() {
-
    class TestClass(x: Int) : TestSealedHierarchy() {// 5
       public final val x: Int
 
@@ -19,26 +18,26 @@ sealed class TestSealedHierarchy protected constructor() {
 
 class 'pkg/TestSealedHierarchy$TestClass' {
    method '<init> (I)V' {
-      2      4
-      3      4
-      4      4
-      5      8
-      6      8
-      7      8
-      8      8
-      9      8
-      a      9
+      2      3
+      3      3
+      4      3
+      5      7
+      6      7
+      7      7
+      8      7
+      9      7
+      a      8
    }
 }
 
 class 'pkg/TestSealedHierarchy$TestObject' {
    method '<init> ()V' {
-      2      12
-      3      12
-      4      12
+      2      11
+      3      11
+      4      11
    }
 }
 
 Lines mapping:
-4 <-> 13
-5 <-> 5
+4 <-> 12
+5 <-> 4
