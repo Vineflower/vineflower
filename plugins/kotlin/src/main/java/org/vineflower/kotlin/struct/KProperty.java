@@ -5,6 +5,7 @@ import kotlin.reflect.jvm.internal.impl.metadata.jvm.JvmProtoBuf;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.ClassesProcessor;
+import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.rels.ClassWrapper;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.ConstExprent;
@@ -20,7 +21,7 @@ import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.collections.VBStyleCollection;
 import org.vineflower.kotlin.KotlinDecompilationContext;
-import org.vineflower.kotlin.KotlinPreferences;
+import org.vineflower.kotlin.KotlinOptions;
 import org.vineflower.kotlin.KotlinWriter;
 import org.vineflower.kotlin.metadata.MetadataNameResolver;
 import org.vineflower.kotlin.util.KTypes;
@@ -212,8 +213,7 @@ public final class KProperty {
         buf.append("private ");
         break;
       case PUBLIC:
-        String showPublicVisibility = KotlinPreferences.getPreference(KotlinPreferences.SHOW_PUBLIC_VISIBILITY);
-        if (Objects.equals(showPublicVisibility, "1")) {
+        if (DecompilerContext.getOption(KotlinOptions.SHOW_PUBLIC_VISIBILITY)) {
           buf.append("public ");
         }
         break;

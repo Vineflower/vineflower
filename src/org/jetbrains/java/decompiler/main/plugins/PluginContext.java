@@ -4,6 +4,8 @@ import org.jetbrains.java.decompiler.api.plugin.Plugin;
 import org.jetbrains.java.decompiler.api.java.JavaPassLocation;
 import org.jetbrains.java.decompiler.api.java.JavaPassRegistrar;
 import org.jetbrains.java.decompiler.api.plugin.LanguageSpec;
+import org.jetbrains.java.decompiler.api.plugin.PluginOptions;
+import org.jetbrains.java.decompiler.api.plugin.PluginSource;
 import org.jetbrains.java.decompiler.api.plugin.pass.NamedPass;
 import org.jetbrains.java.decompiler.api.plugin.pass.PassContext;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
@@ -23,8 +25,20 @@ public class PluginContext {
     return DecompilerContext.getCurrentContext().structContext.getPluginContext();
   }
 
-  public void registerPlugin(Plugin plugin) {
+  private void registerPlugin(Plugin plugin) {
     plugins.add(plugin);
+  }
+
+  public int findPlugins() {
+    int pluginCount = 0;
+    for (PluginSource source : PluginSources.PLUGIN_SOURCES) {
+      for (Plugin plugin : source.findPlugins()) {
+        registerPlugin(plugin);
+        pluginCount++;
+      }
+    }
+
+    return pluginCount;
   }
 
   public void initialize() {
@@ -44,6 +58,15 @@ public class PluginContext {
       LanguageSpec spec = plugin.getLanguageSpec();
       if (spec != null) {
         languageSpecs.put(plugin, spec);
+      }
+
+      Map<String, Object> props = DecompilerContext.getCurrentContext().properties;
+
+      PluginOptions opt = plugin.getPluginOptions();
+
+      if (opt != null) {
+        // Add default values
+        opt.provideOptions().b.accept(props::putIfAbsent);
       }
     }
 

@@ -115,13 +115,7 @@ public class Fernflower implements IDecompiledData {
 
     PluginContext plugins = structContext.getPluginContext();
 
-    int pluginCount = 0;
-    for (PluginSource source : PluginSources.PLUGIN_SOURCES) {
-      for (Plugin plugin : source.findPlugins()) {
-        plugins.registerPlugin(plugin);
-        pluginCount++;
-      }
-    }
+    int pluginCount = plugins.findPlugins();
 
     DecompilerContext.getLogger().writeMessage("Loaded " + pluginCount + " plugins", IFernflowerLogger.Severity.INFO);
 
@@ -239,10 +233,6 @@ public class Fernflower implements IDecompiledData {
   }
 
   static {
-    // Load all Java code attributes
-    StructGeneralAttribute.init();
-
-    // Class-load all plugins that potentially could be included in the jar
-    JarPluginLoader.init();
+    Init.init();
   }
 }

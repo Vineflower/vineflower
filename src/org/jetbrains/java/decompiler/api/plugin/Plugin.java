@@ -1,5 +1,6 @@
 package org.jetbrains.java.decompiler.api.plugin;
 
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.api.java.JavaPassRegistrar;
 
 /**
@@ -26,7 +27,13 @@ public interface Plugin {
    * Allows the plugin to specify a totally custom decompilation process for a language based on the JVM.
    * @return The language spec, if any.
    */
+  @Nullable
   default LanguageSpec getLanguageSpec() {
+    return null;
+  }
+
+  @Nullable
+  default PluginOptions getPluginOptions() {
     return null;
   }
 }

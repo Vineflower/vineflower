@@ -18,7 +18,6 @@ import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
 import org.vineflower.kotlin.metadata.MetadataNameResolver;
 
 import java.io.ByteArrayInputStream;
-import java.util.Arrays;
 import java.util.Objects;
 
 public class KotlinChooser implements LanguageChooser {
@@ -33,7 +32,7 @@ public class KotlinChooser implements LanguageChooser {
 
   @Override
   public boolean isLanguage(StructClass cl) {
-    if (Objects.equals(KotlinPreferences.getPreference(KotlinPreferences.FORCE_DISABLE), "1")) {
+    if (!DecompilerContext.getOption(KotlinOptions.DECOMPILE_KOTLIN)) {
       return false;
     }
 

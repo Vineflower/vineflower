@@ -1,20 +1,22 @@
 package org.jetbrains.java.decompiler.main.decompiler;
 
+import org.jetbrains.java.decompiler.api.plugin.Plugin;
+import org.jetbrains.java.decompiler.api.plugin.PluginOptions;
+import org.jetbrains.java.decompiler.main.Init;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
+import org.jetbrains.java.decompiler.main.plugins.PluginContext;
 
 import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ConsoleHelp {
   private static final String[] DEFAULT_HELP = {
-    "Usage: java -jar vineflower.jar [--<option>=<value>]* [<source>]+ <destination>",
+    "Usage: java -jar vineflower.jar --<option>=<value>... <source>... <destination>",
     "At least one source file or directory must be specified.",
     "Options:",
     "-h, --help: Show this help",
+    "-s, --silent: Only print to console if an error is raised",
     "",
     "Saving options",
     "A maximum of one of the options can be specified:",
@@ -34,6 +36,8 @@ public class ConsoleHelp {
     "Boolean options can also be specified without a value, in which case they are treated as `true`.",
     "They can also be specified with a `no-` prefix, in which case they are treated as `false`.",
     "For example, `--decompile-generics` is equivalent to `--decompile-generics=true`.",
+    "",
+    "Options from the core decompiler:"
     // Options are added at runtime
   };
 
@@ -48,6 +52,35 @@ public class ConsoleHelp {
 
     Map<String, Object> defaults = IFernflowerPreferences.DEFAULTS;
 
+    writeOptions(fields, defaults);
+
+    PluginContext ctx = new PluginContext();
+
+    ctx.findPlugins();
+
+    for (Plugin plugin : ctx.getPlugins()) {
+      PluginOptions opt = plugin.getPluginOptions();
+
+      if (opt != null) {
+        var opts = opt.provideOptions();
+
+        List<Field> pluginFields = Arrays.stream(opts.a.getDeclaredFields())
+          .filter(field -> field.getType() == String.class)
+          .collect(Collectors.toList());
+
+        Map<String, Object> pluginDefaults = new HashMap<>();
+        opts.b.accept(pluginDefaults::put);
+
+        if (!pluginFields.isEmpty()) {
+          System.out.println();
+          System.out.println("Options for plugin '" + plugin.id() + "':");
+          writeOptions(pluginFields, pluginDefaults);
+        }
+      }
+    }
+  }
+
+  private static void writeOptions(List<Field> fields, Map<String, Object> defaults) {
     fields.sort(Comparator.comparing((Field a) -> {
       try {
         return a.get(null).toString();
@@ -81,10 +114,13 @@ public class ConsoleHelp {
       StringBuilder sb = new StringBuilder();
       sb.append(isShortName ? "-" : "--")
         .append(paramName)
-        .append("=<")
+        .append(" ".repeat(Math.max(40 - paramName.length(), 0)))
+        .append("[")
         .append(type.value())
-        .append("> - ")
+        .append("]")
+        .append(" ".repeat(Math.max(8 - type.value().length(), 0)))
         .append(name.value())
+        .append(" ".repeat(Math.max(50 - name.value().length(), 0)))
         .append(": ")
         .append(description.value());
 
@@ -108,4 +144,8 @@ public class ConsoleHelp {
       System.out.println(sb);
     }
   }
+
+   static {
+     Init.init();
+   }
 }

@@ -14,6 +14,8 @@ public class OptionParser {
     "--add-external=",
     "-only=",
     "--only=",
+    "-s",
+    "--silent"
   };
 
   public static boolean parse(String arg, Map<String, Object> options) {
