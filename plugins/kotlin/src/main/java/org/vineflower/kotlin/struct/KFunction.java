@@ -180,7 +180,7 @@ public class KFunction {
         buf.append(contextReceiverType.stringify(indent + 1));
         first = false;
       }
-      buf.append(")\n").appendIndent(indent);
+      buf.append(")").appendLineSeparator().appendIndent(indent);
     }
 
     if (flags.visibility != ProtoBuf.Visibility.PUBLIC || "1".equals(KotlinPreferences.getPreference(KotlinPreferences.SHOW_PUBLIC_VISIBILITY))) {
@@ -236,7 +236,6 @@ public class KFunction {
       .collect(Collectors.toMap(typeParameter -> typeParameter.id, Function.identity()));
 
     if (!typeParameters.isEmpty()) {
-      MetadataNameResolver resolver = KotlinDecompilationContext.getNameResolver();
       buf.append('<');
 
       for (int i = 0; i < typeParameters.size(); i++) {

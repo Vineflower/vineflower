@@ -179,7 +179,7 @@ public class KConstructor {
     StructMethod mt = method.methodStruct;
     buf.append(body, node.classStruct.qualifiedName, InterpreterUtil.makeUniqueKey(mt.getName(), mt.getDescriptor()));
 
-    buf.appendIndent(indent).append("}\n");
+    buf.appendIndent(indent).append("}").appendLineSeparator();
 
     buffer.append(buf);
     return true;

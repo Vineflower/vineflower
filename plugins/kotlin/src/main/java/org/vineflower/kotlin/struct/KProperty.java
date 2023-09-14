@@ -123,7 +123,7 @@ public final class KProperty {
     // Custom getters and setters, and possible modifier differences
     if (getter != null && getter.flags.isNotDefault) {
       buf.pushNewlineGroup(indent, 1)
-          .append('\n')
+          .appendLineSeparator()
           .appendIndent(indent + 1);
 
       KUtils.appendVisibility(buf, getter.flags.visibility);
@@ -145,14 +145,14 @@ public final class KProperty {
 
       buf.popNewlineGroup();
     } else if (getter != null && getter.flags.isExternal) {
-      buf.append('\n')
+      buf.appendLineSeparator()
         .appendIndent(indent + 1)
         .append("external get");
     }
 
     if (setter != null && setter.flags.isNotDefault) {
       buf.pushNewlineGroup(indent, 1)
-        .append('\n')
+        .appendLineSeparator()
         .appendIndent(indent + 1);
 
       KUtils.appendVisibility(buf, getter.flags.visibility);
@@ -176,7 +176,7 @@ public final class KProperty {
 
       buf.popNewlineGroup();
     } else if (setter != null && (setter.flags.isExternal || setter.flags.visibility != flags.visibility || setter.flags.modality != flags.modality)) {
-      buf.append('\n').appendIndent(indent + 1);
+      buf.appendLineSeparator().appendIndent(indent + 1);
 
       if (setter.flags.visibility != flags.visibility) {
         KUtils.appendVisibility(buf, setter.flags.visibility);
@@ -193,7 +193,7 @@ public final class KProperty {
 
       buf.append("set");
     } else if (setter == null && flags.isVar && flags.visibility != ProtoBuf.Visibility.PRIVATE) { // Special case: no setter is generated if it's a var with a private setter
-      buf.append('\n')
+      buf.appendLineSeparator()
         .appendIndent(indent + 1)
         .append("private set");
     }
