@@ -4,7 +4,7 @@ import org.jetbrains.java.decompiler.build.JasmCompile
 
 plugins {
   id 'jacoco'
-  id 'com.github.johnrengelman.shadow' version '7.1.2'
+  id 'com.github.johnrengelman.shadow' version '8.1.1'
   id 'org.jetbrains.kotlin.jvm' version '1.6.21'
   id("io.github.gradle-nexus.publish-plugin") version '1.3.0'
 }
@@ -17,6 +17,7 @@ apply plugin: 'maven-publish'
 apply plugin: 'signing'
 
 allprojects {
+  apply plugin: 'com.github.johnrengelman.shadow'
   apply plugin: 'java'
   ext.isArm = System.getProperty('os.arch') == 'aarch64'
 
@@ -253,7 +254,12 @@ def allJar = tasks.register('allJar', Jar) {allJar ->
   }
 
   subprojects.each {
-    allJar.from(it.tasks.named(it.plugins.hasPlugin('com.github.johnrengelman.shadow') ? 'shadowJar' : 'jar').get().outputs) {
+    // Check if gradle.properties has 'does_shadow=true', and use the shadowJar configuration if so
+    Task buildTask = it.tasks.named("true".equals(it.does_shadow) ? 'shadowJar' : 'jar').get()
+    // Make sure the task is defined as a dependency
+    dependsOn buildTask
+    // Relocate the jar into META-INF/plugins
+    allJar.from(buildTask.outputs) {
       into 'META-INF/plugins/'
     }
   }
