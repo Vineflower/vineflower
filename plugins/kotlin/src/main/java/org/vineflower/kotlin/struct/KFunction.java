@@ -16,7 +16,7 @@ import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.vineflower.kotlin.KotlinDecompilationContext;
-import org.vineflower.kotlin.KotlinPreferences;
+import org.vineflower.kotlin.KotlinOptions;
 import org.vineflower.kotlin.KotlinWriter;
 import org.vineflower.kotlin.metadata.MetadataNameResolver;
 import org.vineflower.kotlin.util.KUtils;
@@ -183,7 +183,7 @@ public class KFunction {
       buf.append(")").appendLineSeparator().appendIndent(indent);
     }
 
-    if (flags.visibility != ProtoBuf.Visibility.PUBLIC || "1".equals(KotlinPreferences.getPreference(KotlinPreferences.SHOW_PUBLIC_VISIBILITY))) {
+    if (flags.visibility != ProtoBuf.Visibility.PUBLIC || DecompilerContext.getOption(KotlinOptions.SHOW_PUBLIC_VISIBILITY)) {
       KUtils.appendVisibility(buf, flags.visibility);
     }
 

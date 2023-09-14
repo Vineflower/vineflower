@@ -1,10 +1,11 @@
 package org.vineflower.kotlin.util;
 
 import kotlinx.metadata.internal.metadata.ProtoBuf;
+import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.TextBuffer;
-import org.vineflower.kotlin.KotlinPreferences;
+import org.vineflower.kotlin.KotlinOptions;
 import org.vineflower.kotlin.expr.*;
 
 import java.util.ArrayList;
@@ -56,8 +57,7 @@ public class KUtils {
         buf.append("private ");
         break;
       case PUBLIC:
-        String showPublicVisibility = KotlinPreferences.getPreference(KotlinPreferences.SHOW_PUBLIC_VISIBILITY);
-        if (Objects.equals(showPublicVisibility, "1")) {
+        if (DecompilerContext.getOption(KotlinOptions.SHOW_PUBLIC_VISIBILITY)) {
           buf.append("public ");
         }
         break;

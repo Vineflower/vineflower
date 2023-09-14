@@ -18,13 +18,12 @@ import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.vineflower.kotlin.KotlinDecompilationContext;
-import org.vineflower.kotlin.KotlinPreferences;
+import org.vineflower.kotlin.KotlinOptions;
 import org.vineflower.kotlin.KotlinWriter;
 import org.vineflower.kotlin.metadata.MetadataNameResolver;
 import org.vineflower.kotlin.util.KUtils;
 import org.vineflower.kotlin.util.ProtobufFlags;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -128,7 +127,7 @@ public class KConstructor {
         appended = true;
       }
 
-      if (flags.visibility != ProtoBuf.Visibility.PUBLIC || "1".equals(KotlinPreferences.getPreference(KotlinPreferences.SHOW_PUBLIC_VISIBILITY))) {
+      if (flags.visibility != ProtoBuf.Visibility.PUBLIC || DecompilerContext.getOption(KotlinOptions.SHOW_PUBLIC_VISIBILITY)) {
         KUtils.appendVisibility(buf, flags.visibility);
         appended = true;
       }
@@ -200,7 +199,7 @@ public class KConstructor {
     }
 
     // For cleanliness, public primary constructors are not forced public by the config option
-    if (flags.visibility != ProtoBuf.Visibility.PUBLIC || (appended && "1".equals(KotlinPreferences.getPreference(KotlinPreferences.SHOW_PUBLIC_VISIBILITY)))) {
+    if (flags.visibility != ProtoBuf.Visibility.PUBLIC || (appended && DecompilerContext.getOption(KotlinOptions.SHOW_PUBLIC_VISIBILITY))) {
       buf.append(" ");
       KUtils.appendVisibility(buf, flags.visibility);
       appended = true;
