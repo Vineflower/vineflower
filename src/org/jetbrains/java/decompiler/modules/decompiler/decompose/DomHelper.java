@@ -183,9 +183,12 @@ public final class DomHelper implements GraphParser {
         lstPosts.add(stt.id);
       }
 
+      // The postdom list for this statement must be sorted based on the post reverse postorder of the general statement that it's contained in
+      // This should lead to proper iteration during general statement creation.
       lstPosts.sort(Comparator.comparing(mapSortOrder::get));
 
-      if (lstPosts.size() > 1 && (int) lstPosts.get(0) == st.id) {
+      // After sorting, ensure that the statement that owns this postdominance list comes last, if it comes first.
+      if (lstPosts.size() > 1 && lstPosts.get(0) == st.id) {
         lstPosts.add(lstPosts.remove(0));
       }
 
@@ -432,7 +435,7 @@ public final class DomHelper implements GraphParser {
 
             tracer.info(general, "Find simple statements");
 
-            // Find statements in this subgraph from the basicblocks that comprise it
+            // Find statements in this subgraph from the basic blocks that comprise it
             if (findSimpleStatements(general, mapExtPost, tracer)) {
               tracer.success(general, "Found some simple statements");
               reducibility = 0;
@@ -448,7 +451,7 @@ public final class DomHelper implements GraphParser {
             Statement stat = findGeneralStatement(general, forceall, mapExtPost/*, finallyInfos*/);
 
             if (stat != null) {
-              tracer.success(general, "Found general statement: " + stat, stat);
+              tracer.successCreated(general, "Found general statement: " + stat + " (" + stat.getStats() + ")", stat);
               // Recurse on the subgraph general statement that we found, and inherit the postdominator set if it's the first statement in the current general
               boolean complete = processStatement(stat, root, general.getFirst() == stat ? mapExtPost : new HashMap<>(), tracer /*, finallyInfos*/);
 
@@ -633,9 +636,12 @@ public final class DomHelper implements GraphParser {
         }
         setHandlers.removeAll(setNodes);
 
+        // Make sure that all the nodes that we're trying to create a new subgraph from are found in any relevant exception handlers
+        // This serves to avoid breaking the statement finder by having a subgraph only contain part of an exception handler
         boolean exceptionsOk = true;
         for (Statement handler : setHandlers) {
-          if (!handler.getNeighbours(StatEdge.TYPE_EXCEPTION, EdgeDirection.BACKWARD).containsAll(setNodes)) {
+          List<Statement> exceptionRange = handler.getNeighbours(StatEdge.TYPE_EXCEPTION, EdgeDirection.BACKWARD);
+          if (!exceptionRange.containsAll(setNodes)) {
             exceptionsOk = false;
             break;
           }
@@ -698,7 +704,7 @@ public final class DomHelper implements GraphParser {
         Statement result = detectStatement(st);
 
         if (result != null) {
-          tracer.success(stat, "Transformed " + st + " to " + result, st);
+//          tracer.successCreated(stat, "Detected " + st + " to " + result + " (" + result.getStats() + ")", st);
 
           // If the statement we created contains the first statement of the general statement as it's first, we know that we've completed iteration to the point where every statment in the subgraph has been explored at least once, due to how the post order is created.
           // More iteration still happens to discover higher level structures (such as the case where basicblock -> if -> loop)
@@ -710,7 +716,7 @@ public final class DomHelper implements GraphParser {
 
           stat.collapseNodesToStatement(result);
 
-          tracer.success(stat, "Transformed " + st + " to " + result, result);
+          tracer.successCreated(stat, "Transformed " + st + " to " + result + " (" + result.getStats() + ")", result);
 
           // update the postdominator map
           if (!mapExtPost.isEmpty()) {

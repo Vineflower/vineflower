@@ -185,10 +185,13 @@ public class FastExtendedPostdominanceHelper {
     for (int head : new HashSet<>(mapExtPostdominators.keySet())) {
       FastFixedSet<Integer> set = mapExtPostdominators.get(head);
       for (Iterator<Integer> it = set.iterator(); it.hasNext(); ) {
-        if (!filter.acceptStatementPair(head, it.next())) {
+        Integer next = it.next();
+
+        if (!filter.acceptStatementPair(head, next)) {
           it.remove();
         }
       }
+
       if (set.isEmpty()) {
         mapExtPostdominators.remove(head);
       }

@@ -678,6 +678,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: Can't inline field initializer for a final field that depends on initialization in a static call
     register(JAVA_8, "TestStaticBlockFinalField");
     register(JAVA_8, "TestWhileLambda");
+    register(JAVA_8, "TestTrySplit");
   }
 
   private void registerEntireClassPath() {
