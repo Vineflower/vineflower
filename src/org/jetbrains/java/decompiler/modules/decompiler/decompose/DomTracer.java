@@ -8,8 +8,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 class DomTracer {
-  private static final boolean COLLECT_STRINGS = true;
-  private static final boolean COLLECT_DOTS = true;
+  private static final boolean COLLECT_STRINGS = false;
+  private static final boolean COLLECT_DOTS = false;
 
   private final String filePrefix;
   private final StructMethod structMethod;
