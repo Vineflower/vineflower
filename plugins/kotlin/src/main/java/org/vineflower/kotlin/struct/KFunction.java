@@ -137,9 +137,15 @@ public class KFunction {
         desc.append(parameter.type);
       }
 
+      int endOfParams = desc.length();
       desc.append(")").append(returnType);
 
       MethodWrapper method = wrapper.getMethodWrapper(name, desc.toString());
+      if (method == null && flags.isSuspend) {
+        desc.setLength(endOfParams);
+        desc.append("Lkotlin/coroutines/Continuation;)Ljava/lang/Object;");
+        method = wrapper.getMethodWrapper(name, desc.toString());
+      }
 
       List<KTypeParameter> typeParameters = function.getTypeParameterList().stream()
         .map(typeParameter -> KTypeParameter.from(typeParameter, resolver))

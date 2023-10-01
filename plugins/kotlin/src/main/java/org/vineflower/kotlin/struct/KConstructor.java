@@ -147,7 +147,7 @@ public class KConstructor {
 
       buf.appendPossibleNewline("", true).popNewlineGroup().append(") : ");
 
-      Exprent firstExpr = root.getFirst().getExprents().get(0);
+      Exprent firstExpr = method.getOrBuildGraph().first.exprents.get(0);
       if (!(firstExpr instanceof InvocationExprent)) {
         throw new IllegalStateException("First expression of constructor is not InvocationExprent");
       }
@@ -155,10 +155,10 @@ public class KConstructor {
       InvocationExprent invocation = (InvocationExprent) firstExpr;
       buf.append(invocation.toJava(indent + 1), node.classStruct.qualifiedName, InterpreterUtil.makeUniqueKey(method.methodStruct.getName(), method.methodStruct.getDescriptor()));
 
-      root.getFirst().getExprents().remove(0);
+      method.getOrBuildGraph().first.exprents.remove(0);
     }
 
-    if (root.getFirst().getExprents().isEmpty()) {
+    if (method.getOrBuildGraph().first.exprents.isEmpty()) {
       // There is no extra body so all done!
       if (isPrimary) return false; // avoid extra empty line
 
@@ -227,13 +227,13 @@ public class KConstructor {
     }
 
     RootStatement root = method.root;
-    if (root.getFirst().getExprents().isEmpty()) {
+    if (method.getOrBuildGraph().first.exprents.isEmpty()) {
       // No ability to declare super constructor call
       buffer.append(buf);
       return false;
     }
 
-    Exprent firstExpr = root.getFirst().getExprents().get(0);
+    Exprent firstExpr = method.getOrBuildGraph().first.exprents.get(0);
     if (!(firstExpr instanceof InvocationExprent) || !((InvocationExprent) firstExpr).getName().equals("<init>")) {
       // no detected super constructor call
       buffer.append(buf);
@@ -262,7 +262,7 @@ public class KConstructor {
 
     buf.addBytecodeMapping(invocation.bytecode);
 
-    root.getFirst().getExprents().remove(0);
+    method.getOrBuildGraph().first.exprents.remove(0);
 
     buffer.append(buf, node.classStruct.qualifiedName, InterpreterUtil.makeUniqueKey(method.methodStruct.getName(), method.methodStruct.getDescriptor()));
     return true;
