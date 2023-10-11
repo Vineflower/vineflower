@@ -10,6 +10,8 @@ import org.jetbrains.java.decompiler.main.collectors.VarNamesCollector;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectEdge;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectEdgeType;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectNode;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.BasicBlockStatement;
@@ -868,7 +870,7 @@ public class NestedClassProcessor {
 
     // no loop at the begin
     DirectNode firstNode = graph.first;
-    if (firstNode.preds().isEmpty()) {
+    if (!firstNode.hasPredecessors(DirectEdgeType.REGULAR)) {
       // assignment to a synthetic field?
       for (Exprent exprent : firstNode.exprents) {
         if (exprent instanceof AssignmentExprent) {
@@ -1248,7 +1250,9 @@ public class NestedClassProcessor {
         }
       }
 
-      stack.addAll(node.succs());
+      for (DirectEdge suc : node.getSuccessors(DirectEdgeType.REGULAR)) {
+        stack.add(suc.getDestination());
+      }
     }
   }
 }

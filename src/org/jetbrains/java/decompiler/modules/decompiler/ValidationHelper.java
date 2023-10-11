@@ -3,6 +3,8 @@ package org.jetbrains.java.decompiler.modules.decompiler;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.ExitExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectEdge;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectEdgeType;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectNode;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectNodeType;
@@ -328,21 +330,21 @@ public final class ValidationHelper {
         DirectNode node = stack.pop();
 
         // check if predecessors have us as a successor
-        for (DirectNode pred : node.preds()) {
-          if (!pred.succs().contains(node)) {
+        for (DirectEdge pred : node.getPredecessors(DirectEdgeType.REGULAR)) {
+          if (!pred.getSource().getSuccessors(DirectEdgeType.REGULAR).contains(pred)) {
             throw new IllegalStateException("Predecessor " + pred + " does not have " + node + " as a successor");
           }
         }
 
         // check if successors have us as a predecessor, and remove them from the inaccessible set
-        for (DirectNode succ : node.succs()) {
-          if (!succ.preds().contains(node)) {
+        for (DirectEdge succ : node.getSuccessors(DirectEdgeType.REGULAR)) {
+          if (!succ.getDestination().getPredecessors(DirectEdgeType.REGULAR).contains(succ)) {
             throw new IllegalStateException("Successor " + succ + " does not have " + node + " as a predecessor");
           }
 
-          if (inaccessibleNodes.remove(succ)) {
+          if (inaccessibleNodes.remove(succ.getDestination())) {
             // if we find a new accessible node, add it to the stack
-            stack.push(succ);
+            stack.push(succ.getDestination());
           }
         }
       }

@@ -6,6 +6,8 @@ import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectEdge;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectEdgeType;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectNode;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectNodeType;
@@ -145,12 +147,12 @@ public class StackVarsProcessor {
         lstLists.add(nd.exprents);
       }
 
-      List<DirectNode> succs = nd.succs();
+      List<DirectEdge> succs = nd.getSuccessors(DirectEdgeType.REGULAR);
       if (succs.size() == 1) {
-        DirectNode ndsucc = succs.get(0);
+        DirectNode ndsucc = succs.get(0).getDestination();
 
         if (ndsucc.type == DirectNodeType.TAIL && !ndsucc.exprents.isEmpty()) {
-          lstLists.add(succs.get(0).exprents);
+          lstLists.add(succs.get(0).getDestination().exprents);
           nd = ndsucc;
         }
       }
@@ -207,8 +209,8 @@ public class StackVarsProcessor {
         }
       }
 
-      for (DirectNode ndx : succs) {
-        stack.add(ndx);
+      for (DirectEdge ndx : succs) {
+        stack.add(ndx.getDestination());
         stackMaps.add(new HashMap<>(mapVarValues));
       }
 

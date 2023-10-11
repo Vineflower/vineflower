@@ -4,6 +4,8 @@ package org.jetbrains.java.decompiler.modules.decompiler;
 import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectEdge;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectEdgeType;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectNode;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper;
@@ -832,7 +834,10 @@ public class MergeHelper {
     DirectNode stnd = flatten.getDirectNode(st);
 
     // Only submit predecessors!
-    Deque<DirectNode> stack = new LinkedList<>(stnd.preds());
+    Deque<DirectNode> stack = new ArrayDeque<>();
+    for (DirectEdge pred : stnd.getPredecessors(DirectEdgeType.REGULAR)) {
+      stack.add(pred.getSource());
+    }
     Set<DirectNode> visited = new HashSet<>();
 
     while (!stack.isEmpty()) {
@@ -855,9 +860,9 @@ public class MergeHelper {
       }
 
       // Go through predecessors, if we haven't seen them
-      for (DirectNode pred : node.preds()) {
-        if (visited.add(pred)) {
-          stack.push(pred);
+      for (DirectEdge pred : node.getPredecessors(DirectEdgeType.REGULAR)) {
+        if (visited.add(pred.getSource())) {
+          stack.push(pred.getSource());
         }
       }
     }
