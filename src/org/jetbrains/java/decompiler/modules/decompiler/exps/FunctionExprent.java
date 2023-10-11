@@ -444,6 +444,9 @@ public class FunctionExprent extends Exprent {
           result.addMinTypeExprent(lstOperands.get(2), lstOperands.get(1).getExprType());
         }
         break;
+      case STR_CONCAT:
+        result.addMinTypeExprent(param2, this.implicitType);
+        break;
 
       case OTHER: throw new PluginImplementationException();
     }

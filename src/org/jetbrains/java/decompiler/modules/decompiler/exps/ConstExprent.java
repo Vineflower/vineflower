@@ -247,10 +247,11 @@ public class ConstExprent extends Exprent {
         }
         return buf.append(ret).enclose("'", "'");
 
-      case CodeConstants.TYPE_BYTE:
       case CodeConstants.TYPE_BYTECHAR:
-      case CodeConstants.TYPE_SHORT:
       case CodeConstants.TYPE_SHORTCHAR:
+        // TODO: assert here, we should not be writing higher order types
+      case CodeConstants.TYPE_BYTE:
+      case CodeConstants.TYPE_SHORT:
       case CodeConstants.TYPE_INT:
         int intVal = (Integer)value;
         if (!literal) {

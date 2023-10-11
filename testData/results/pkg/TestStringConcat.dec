@@ -10,7 +10,7 @@ public class TestStringConcat {
    }
 
    public void testChar(String str) {
-      System.out.println(str + 46);// 28
+      System.out.println(str + '.');// 28
    }// 29
 
    public void testInt(String str) {

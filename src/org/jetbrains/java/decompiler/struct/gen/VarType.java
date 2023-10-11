@@ -124,7 +124,7 @@ public class VarType {  // TODO: optimize switch
     this.falseBoolean = false;
   }
 
-  private static String getChar(int type) {
+  public static String getChar(int type) {
     switch (type) {
       case CodeConstants.TYPE_BYTE:
         return "B";

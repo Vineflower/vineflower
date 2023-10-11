@@ -182,7 +182,9 @@ public final class ConcatenationHelper {
     Exprent func = lstOperands.get(0);
 
     for (int i = 1; i < lstOperands.size(); i++) {
-      func = new FunctionExprent(FunctionType.STR_CONCAT, Arrays.asList(func, lstOperands.get(i)), bytecode);
+      FunctionExprent tmp = new FunctionExprent(FunctionType.STR_CONCAT, Arrays.asList(func, lstOperands.get(i)), bytecode);
+      tmp.setImplicitType(lstOperands.get(i).getExprType());
+      func = tmp;
     }
 
     return func;
