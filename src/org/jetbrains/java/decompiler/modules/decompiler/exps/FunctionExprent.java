@@ -445,7 +445,15 @@ public class FunctionExprent extends Exprent {
         }
         break;
       case STR_CONCAT:
-        result.addMinTypeExprent(param2, this.implicitType);
+        VarType type = this.implicitType == null ? VarType.VARTYPE_STRING : this.implicitType;
+        // Inform children of the type of string concat that we are
+        if (type1.typeFamily == type.typeFamily) {
+          result.addMinTypeExprent(param1, type);
+        }
+
+        if (type2.typeFamily == type.typeFamily) {
+          result.addMinTypeExprent(param2, type);
+        }
         break;
 
       case OTHER: throw new PluginImplementationException();
