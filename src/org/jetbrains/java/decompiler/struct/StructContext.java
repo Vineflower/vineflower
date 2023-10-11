@@ -75,10 +75,6 @@ public class StructContext {
         try {
           DecompilerContext.getLogger().writeMessage("Loading Class: " + key + " from " + unitForClass.getName(), IFernflowerLogger.Severity.INFO);
           StructClass clazz = StructClass.create(new DataInputFullStream(unitForClass.getClassBytes(key)), unitForClass.isOwn());
-          if (!key.equals(clazz.qualifiedName)) {
-            // also place the class in the right key if it's wrong
-            this.classes.put(clazz.qualifiedName, clazz);
-          }
           return clazz;
         } catch (final IOException ex) {
           DecompilerContext.getLogger().writeMessage("Failed to read class " + key + " from " + unitForClass.getName(), IFernflowerLogger.Severity.ERROR, ex);
@@ -86,6 +82,10 @@ public class StructContext {
       }
       return getSentinel();
     });
+    if (!name.equals(ret.qualifiedName)) {
+      // also place the class in the right key if it's wrong
+      this.classes.putIfAbsent(ret.qualifiedName, ret);
+    }
     return ret == getSentinel() ? null : ret;
   }
 
