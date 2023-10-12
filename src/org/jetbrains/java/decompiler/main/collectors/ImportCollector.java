@@ -96,7 +96,7 @@ public class ImportCollector {
     if (node != null && node.classStruct.isOwn()) {
       result = node.simpleName;
 
-      while (node.parent != null && node.type == ClassNode.Type.MEMBER) {
+      while (node.parent != null && node.parent.simpleName != null && node.type == ClassNode.Type.MEMBER) {
         //noinspection StringConcatenationInLoop
         result = node.parent.simpleName + '.' + result;
         node = node.parent;
