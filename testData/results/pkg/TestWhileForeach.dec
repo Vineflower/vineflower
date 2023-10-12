@@ -1,0 +1,111 @@
+package pkg;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+public class TestWhileForeach {
+   private final List<Object> objects = new ArrayList();
+
+   public Object test() {
+      Iterator<Object> it = itr();// 11
+
+      while (it.hasNext()) {// 12
+         for (Object o = it.next(); o != null; o = o.toString()) {// 13 15 23
+            for (Object o2 : this.objects) {// 16
+               if (o2 != null) {// 17
+                  return o2;// 18
+               }
+
+               o.notify();// 21
+            }
+         }
+      }
+
+      return null;// 27
+   }
+
+   private static Iterator<Object> itr() {
+      return null;// 31
+   }
+}
+
+class 'pkg/TestWhileForeach' {
+   method 'test ()Ljava/lang/Object;' {
+      0      10
+      1      10
+      2      10
+      3      10
+      4      12
+      5      12
+      6      12
+      7      12
+      8      12
+      9      12
+      d      13
+      e      13
+      f      13
+      10      13
+      11      13
+      12      13
+      13      13
+      14      13
+      15      13
+      18      14
+      19      14
+      1a      14
+      1b      14
+      1c      14
+      1d      14
+      1e      14
+      1f      14
+      20      14
+      21      14
+      2b      14
+      2c      14
+      2d      14
+      2e      14
+      2f      14
+      30      14
+      31      14
+      32      14
+      33      15
+      34      15
+      35      15
+      38      16
+      39      16
+      3a      16
+      3b      19
+      3c      19
+      3d      19
+      3e      19
+      42      13
+      43      13
+      44      13
+      45      13
+      46      13
+      4d      24
+      4e      24
+   }
+
+   method 'itr ()Ljava/util/Iterator;' {
+      0      28
+      1      28
+   }
+}
+
+Lines mapping:
+11 <-> 11
+12 <-> 13
+13 <-> 14
+15 <-> 14
+16 <-> 15
+17 <-> 16
+18 <-> 17
+21 <-> 20
+23 <-> 14
+27 <-> 25
+31 <-> 29
+Not mapped:
+22
+25

@@ -13,10 +13,11 @@ public class TestIntBoolMerge {
 
    public int testLoop(String str, String sub) {
       int count = 0;// 16
+      int i = 0;// 18
 
-      int i;
-      for (i = 0; (i = str.indexOf(sub, i)) != -1; i += sub.length()) {// 18
+      while ((i = str.indexOf(sub, i)) != -1) {
          count++;// 19
+         i += sub.length();
       }
 
       return count;// 22
@@ -59,9 +60,9 @@ class 'pkg/TestIntBoolMerge' {
    method 'testLoop (Ljava/lang/String;Ljava/lang/String;)I' {
       0      14
       1      14
-      2      17
-      3      17
-      4      17
+      2      15
+      3      15
+      4      15
       5      17
       6      17
       7      17
@@ -76,41 +77,41 @@ class 'pkg/TestIntBoolMerge' {
       13      18
       14      18
       15      18
-      18      17
-      19      17
-      1a      17
-      1b      17
-      1d      17
-      1e      17
-      22      21
-      23      21
+      18      19
+      19      19
+      1a      19
+      1b      19
+      1d      19
+      1e      19
+      22      22
+      23      22
    }
 
    method 'testField ()V' {
-      0      25
-      1      25
-      2      25
-      3      25
-      4      25
-      6      25
-      7      25
-      8      25
-      b      25
-      10      25
-      11      25
-      12      25
-      13      25
-      14      25
-      15      25
-      16      26
+      0      26
+      1      26
+      2      26
+      3      26
+      4      26
+      6      26
+      7      26
+      8      26
+      b      26
+      10      26
+      11      26
+      12      26
+      13      26
+      14      26
+      15      26
+      16      27
    }
 
    method 'm1 (Ljava/lang/Object;J)V' {
-      0      29
+      0      30
    }
 
    method 'm1 (Ljava/lang/String;J)V' {
-      0      32
+      0      33
    }
 }
 
@@ -121,10 +122,10 @@ Lines mapping:
 11 <-> 11
 13 <-> 12
 16 <-> 15
-18 <-> 18
+18 <-> 16
 19 <-> 19
-22 <-> 22
-28 <-> 26
-29 <-> 27
-33 <-> 30
-37 <-> 33
+22 <-> 23
+28 <-> 27
+29 <-> 28
+33 <-> 31
+37 <-> 34

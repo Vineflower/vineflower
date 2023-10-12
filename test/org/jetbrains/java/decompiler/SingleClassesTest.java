@@ -679,6 +679,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestStaticBlockFinalField");
     register(JAVA_8, "TestWhileLambda");
     register(JAVA_8, "TestTrySplit");
+    register(JAVA_8, "TestWhileForeach");
   }
 
   private void registerEntireClassPath() {

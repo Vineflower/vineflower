@@ -441,6 +441,16 @@ public class MergeHelper {
         return;
       }
 
+      for (Exprent e : lastExp.getAllExprents(true, true)) {
+        if (!(e instanceof VarExprent)) {
+          continue;
+        }
+
+        if (!isVarUsedBefore((VarExprent) e, stat)) {
+          return;
+        }
+      }
+
       stat.setLooptype(DoStatement.Type.FOR);
       if (hasinit) {
         Exprent exp = preData.getExprents().remove(preData.getExprents().size() - 1);
