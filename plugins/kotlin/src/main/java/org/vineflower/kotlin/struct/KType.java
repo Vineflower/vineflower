@@ -15,7 +15,7 @@ public class KType extends VarType {
   public final TypeArgument @Nullable [] typeArguments;
 
   public KType(VarType type, String kotlinType, boolean isNullable, TypeArgument @Nullable [] typeArguments) {
-    super(type.type, type.arrayDim, type.value, type.typeFamily, type.stackSize, type.falseBoolean);
+    super(type.type, type.arrayDim, type.value, type.typeFamily, type.stackSize);
     this.kotlinType = kotlinType;
     this.isNullable = isNullable;
     this.typeArguments = typeArguments;

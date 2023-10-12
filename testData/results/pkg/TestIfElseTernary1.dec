@@ -93,7 +93,7 @@ public class TestIfElseTernary1 {
          }// 116
       } else {
          try {
-            boolean vvv11 = true;// 122
+            short vvv11 = 209;// 122
          } catch (Exception var15) {// 124
             System.out.println(var15);// 126
             System.out.println(vvv3);// 127

@@ -15,7 +15,7 @@ public class TestForCyclicVarDef {
    }// 6 13
 
    public void test1() {
-      boolean var9 = true;// 17
+      short var9 = 12338;// 17
       float var9x = 22.22F;
 
       while (var9x > 133.07F) {

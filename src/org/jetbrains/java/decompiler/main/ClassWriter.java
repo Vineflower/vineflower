@@ -894,7 +894,7 @@ public class ClassWriter implements StatementWriter {
               buffer.append(", ");
             }
 
-            VarType type = md_content.params[i].copy();
+            VarType type = md_content.params[i];
             String typeName = ExprProcessor.getCastTypeName(type);
             if (ExprProcessor.UNDEFINED_TYPE_STRING.equals(typeName) &&
                 DecompilerContext.getOption(IFernflowerPreferences.UNDEFINED_PARAM_TYPE_OBJECT)) {

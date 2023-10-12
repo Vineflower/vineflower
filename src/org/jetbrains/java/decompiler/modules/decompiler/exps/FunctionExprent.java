@@ -420,10 +420,8 @@ public class FunctionExprent extends Exprent {
             result.addMinTypeExprent(param1, VarType.VARTYPE_BYTECHAR);
           }
           else { // both are booleans
-            boolean param1_false_boolean =
-              type1.isFalseBoolean() || (param1 instanceof ConstExprent && !((ConstExprent)param1).hasBooleanValue());
-            boolean param2_false_boolean =
-              type1.isFalseBoolean() || (param2 instanceof ConstExprent && !((ConstExprent)param2).hasBooleanValue());
+            boolean param1_false_boolean = (param1 instanceof ConstExprent && !((ConstExprent)param1).hasBooleanValue());
+            boolean param2_false_boolean = (param2 instanceof ConstExprent && !((ConstExprent)param2).hasBooleanValue());
 
             if (param1_false_boolean || param2_false_boolean) {
               result.addMinTypeExprent(param1, VarType.VARTYPE_BYTECHAR);

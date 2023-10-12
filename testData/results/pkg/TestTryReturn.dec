@@ -181,7 +181,7 @@ public class TestTryReturn {
                continue;
             }
          } finally {
-            boolean var7 = true;// 156
+            byte var7 = 28;// 156
          }
       }
    }// 159
