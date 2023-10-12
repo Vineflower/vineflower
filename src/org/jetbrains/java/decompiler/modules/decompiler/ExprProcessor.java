@@ -1008,6 +1008,13 @@ public class ExprProcessor implements CodeConstants {
       ((ConstExprent) exprent).adjustConstType(leftType);
     }
 
+    if (cast) {
+      // Don't cast vararg array creation! Force regular array creation instead
+      if (exprent instanceof NewExprent && ((NewExprent)exprent).isVarArgParam()) {
+        ((NewExprent) exprent).setVarArgParam(false);
+      }
+    }
+
     buffer.append(exprent.toJava(indent));
 
     if (quote) {

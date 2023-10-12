@@ -824,6 +824,10 @@ public class NewExprent extends Exprent {
     this.isVarArgParam = isVarArgParam;
   }
 
+  public boolean isVarArgParam() {
+    return this.isVarArgParam;
+  }
+
   public boolean isLambda() {
     return lambda;
   }
