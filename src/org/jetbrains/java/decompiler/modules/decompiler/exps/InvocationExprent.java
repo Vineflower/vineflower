@@ -491,11 +491,11 @@ public class InvocationExprent extends Exprent {
                 VarType paramUB = paramType.remap(hierarchyMap).remap(combined);
 
                 VarType argtype;
-                if (lstParameters.get(i) instanceof FunctionExprent && ((FunctionExprent)lstParameters.get(i)).getFuncType() == FunctionType.CAST) {
-                  argtype = ((FunctionExprent)lstParameters.get(i)).getLstOperands().get(0).getInferredExprType(paramUB);
+                if (parameter instanceof FunctionExprent && ((FunctionExprent)parameter).getFuncType() == FunctionType.CAST) {
+                  argtype = ((FunctionExprent)parameter).getLstOperands().get(0).getInferredExprType(paramUB);
                 }
                 else {
-                  argtype = lstParameters.get(i).getInferredExprType(paramUB);
+                  argtype = parameter.getInferredExprType(paramUB);
                 }
 
                 StructClass paramCls = DecompilerContext.getStructContext().getClass(paramType.value);
@@ -516,7 +516,20 @@ public class InvocationExprent extends Exprent {
                       if (!excluded.contains(from)) {
                         paramGenerics.add(from);
                       }
-                      processGenericMapping(from, to, named, bounds);
+                      // If we didn't process the generic mapping here, try to see if this and the old type are both raw types
+                      // If so, we should forcibly stuff the mapping in there to ensure it isn't missed.
+                      // Say, for example in this case, B extends A, and where invoc is "<T> T invoc(SomeType<T> t, ...);
+                      // So, then, if you have:
+                      // return (B)invoc(#SomeType<A>#, ...);
+                      // The known type of invoc *must* be A, and not B.
+                      // Without doing this, we may lose some extra information.
+                      // TODO: generalize this! Seems there's cases where generalizing can cause breakages currently
+                      if (!processGenericMapping(from, to, named, bounds)) {
+                        VarType current = genericsMap.get(from);
+                        if (to != null && current != null && !current.isGeneric() && !to.isGeneric()) {
+                          putGenericMapping(from, to, named, bounds);
+                        }
+                      }
                     });
                     tempMap.clear();
                   }
@@ -538,7 +551,12 @@ public class InvocationExprent extends Exprent {
 
         upperBoundsMap.forEach((k, v) -> {
           if (fparams.contains(k.value) && !GenericType.DUMMY_VAR.equals(v)) {
-            processGenericMapping(k, v ,named, bounds);
+            VarType current = genericsMap.get(k);
+            // Don't replace raw types. See comment above about losing extra information. [TestGenericCasts]
+            if (current != null && v != null && !current.isGeneric() && !v.isGeneric() && !DecompilerContext.getStructContext().instanceOf(current.value, v.value)) {
+              return;
+            }
+            processGenericMapping(k, v, named, bounds);
           }
         });
 
@@ -1451,32 +1469,38 @@ public class InvocationExprent extends Exprent {
     return false;
   }
 
-  private void processGenericMapping(VarType from, VarType to, Map<VarType, List<VarType>> named, Map<VarType, List<VarType>> bounds) {
+  private boolean processGenericMapping(VarType from, VarType to, Map<VarType, List<VarType>> named, Map<VarType, List<VarType>> bounds) {
     if (VarType.VARTYPE_NULL.equals(to) || (to != null && to.type == CodeConstants.TYPE_GENVAR && !named.containsKey(to))) {
-      return;
+      return false;
     }
 
     VarType current = genericsMap.get(from);
     if (!genericsMap.containsKey(from)) {
       putGenericMapping(from, to, named, bounds);
+
+      return true;
     } else if (to != null && current != null && !to.equals(current)) {
       if (named.containsKey(current)) {
-        return;
+        return false;
       }
 
       if (current.type != CodeConstants.TYPE_GENVAR && to.type == CodeConstants.TYPE_GENVAR) {
         if (named.containsKey(to)) {
           VarType bound = named.get(to).get(0);
           if (!bound.equals(VarType.VARTYPE_OBJECT) && DecompilerContext.getStructContext().instanceOf(bound.value, current.value)) {
-            return;
+            return false;
           }
         }
       }
 
       if (to.isGeneric() && current.isGeneric() && GenericType.isAssignable(to, current, named)) {
         putGenericMapping(from, to, named, bounds);
+
+        return true;
       }
     }
+
+    return false;
   }
 
   private void putGenericMapping(VarType from, VarType to, Map<VarType, List<VarType>> named, Map<VarType, List<VarType>> bounds) {
