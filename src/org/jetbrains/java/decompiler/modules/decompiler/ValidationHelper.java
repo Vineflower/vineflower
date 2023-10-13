@@ -22,7 +22,7 @@ import java.util.*;
 import java.util.function.Predicate;
 
 public final class ValidationHelper {
-  private static final boolean VALIDATE = System.getProperty("VALIDATE_DECOMPILED_CODE", "false").equals("true");
+  public static final boolean VALIDATE = System.getProperty("VALIDATE_DECOMPILED_CODE", "false").equals("true");
 
   public static void validateStatement(RootStatement statement) {
     if (!VALIDATE) {
