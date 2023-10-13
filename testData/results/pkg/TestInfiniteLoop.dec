@@ -43,7 +43,7 @@ public class TestInfiniteLoop {
    public void testSuccessor2(int i) {
       int a = 0;// 56
       if (i == 0) {// 57
-         a = 3;// 58
+         int var3 = 3;// 58
       }
 
       while (true) {

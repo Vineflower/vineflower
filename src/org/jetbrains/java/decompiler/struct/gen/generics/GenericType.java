@@ -4,7 +4,6 @@ package org.jetbrains.java.decompiler.struct.gen.generics;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.InvocationExprent;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
@@ -30,7 +29,7 @@ public class GenericType extends VarType {
   public static final GenericType DUMMY_VAR = new GenericType(CodeConstants.TYPE_GENVAR, 0, "", null, null, GenericType.WILDCARD_NO);
 
   public GenericType(int type, int arrayDim, String value, VarType parent, List<VarType> arguments, int wildcard) {
-    super(type, arrayDim, value, getFamily(type, arrayDim), getStackSize(type, arrayDim), false);
+    super(type, arrayDim, value, getFamily(type, arrayDim), getStackSize(type, arrayDim));
     this.parent = parent;
     this.arguments = arguments == null ? Collections.emptyList() : arguments;
     this.wildcard = wildcard;

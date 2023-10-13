@@ -436,14 +436,14 @@ public final class InstructionImpact {
       case CodeConstants.opc_dup_x1:
       case CodeConstants.opc_dup_x2:
         int depth1 = 88 - instr.opcode;
-        stack.insertByOffset(depth1, stack.getByOffset(-1).copy());
+        stack.insertByOffset(depth1, stack.getByOffset(-1));
         break;
       case CodeConstants.opc_dup2:
       case CodeConstants.opc_dup2_x1:
       case CodeConstants.opc_dup2_x2:
         int depth2 = 90 - instr.opcode;
-        stack.insertByOffset(depth2, stack.getByOffset(-2).copy());
-        stack.insertByOffset(depth2, stack.getByOffset(-1).copy());
+        stack.insertByOffset(depth2, stack.getByOffset(-2));
+        stack.insertByOffset(depth2, stack.getByOffset(-1));
         break;
       case CodeConstants.opc_swap:
         var1 = stack.pop();

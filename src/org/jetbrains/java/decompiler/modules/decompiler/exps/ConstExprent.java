@@ -160,12 +160,8 @@ public class ConstExprent extends Exprent {
   }
 
   private static VarType guessType(int val, boolean boolPermitted) {
-    if (boolPermitted) {
-      VarType constType = VarType.VARTYPE_BOOLEAN;
-      if (val != 0 && val != 1) {
-        constType = constType.copy(true);
-      }
-      return constType;
+    if (boolPermitted && (val == 0 || val == 1)) {
+      return VarType.VARTYPE_BOOLEAN;
     }
     else if (0 <= val && val <= 127) {
       return VarType.VARTYPE_BYTECHAR;
