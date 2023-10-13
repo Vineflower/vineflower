@@ -530,7 +530,7 @@ public final class IfStatement extends Statement {
   }
 
   public void fixIfInvariantEmptyIfBranch() {
-    // if(){...}else{;} -> if(!){...}
+    // if(){;}else{...} -> if(!){...}
 
     Statement ifStat = this.getIfstat();
 
