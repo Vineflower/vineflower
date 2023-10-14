@@ -55,7 +55,7 @@ public class TestForeachMultipleLoops {
                      return;// 82
                   }
 
-                  entry = (Entry)var4.next();
+                  entry = (Entry<Integer, String>)var4.next();
                   String s = (String)entry.getValue();// 49
                   if (a == null) {// 50
                      s = s + s;// 51

@@ -7,7 +7,7 @@ public class TestGenericSuper<T extends Number> {
 
    public <U extends T> void test(TestGenericSuper<T>.IO<T, U> io, Consumer<U> consumer) {
       consumer.accept(null);// 14
-      U u = io.mutate(this.t1);// 15
+      U u = (U)io.mutate(this.t1);// 15
       consumer.accept(u);// 16
    }// 17
 
