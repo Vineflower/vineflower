@@ -2,18 +2,18 @@ package pkg;
 
 public class TestPatternMatching17AlreadyUsed {
    void testFakeReuseVarSameNameOutOfScope(Object o) {
-      String sx = "Hello";// 6
-      System.out.println(sx);// 7
-      if (o instanceof String s) {// 10 11
-         System.out.println(s.length());// 12
+      String s = "Hello";// 6
+      System.out.println(s);// 7
+      if (o instanceof String sx) {// 10 11
+         System.out.println(sx.length());// 12
       }
    }// 14
 
    void testRealReuseVarSameNameOutOfScope(Object o) {
-      String sx = "Hello";// 18
-      System.out.println(sx);// 19
-      if (o instanceof String s) {// 22
-         System.out.println(s.length());// 23
+      String s = "Hello";// 18
+      System.out.println(s);// 19
+      if (o instanceof String sx) {// 22
+         System.out.println(sx.length());// 23
       }
    }// 25
 
