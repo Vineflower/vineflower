@@ -1057,8 +1057,11 @@ public class ExprProcessor implements CodeConstants {
     return expr;
   }
 
-  // Obj<T> var = type; -> Obj<T> var = (Obj<T>) type; Where type is Obj<? super T>
-  public static boolean doGenericTypesCast(Exprent ex, VarType left, VarType right) {
+  // Checks if two generic types should cast based on their type parameters.
+  // If both the left and the right types are generics, compare the type parameters based on a set of rules to see if
+  // the types are compatible. If a matching rule is identified, return and inform the type processor that the types
+  // should cast.
+  private static boolean doGenericTypesCast(Exprent ex, VarType left, VarType right) {
     Map<VarType, List<VarType>> named = ex.getNamedGenerics();
     if (left == null || right == null) {
       return false;
@@ -1137,6 +1140,8 @@ public class ExprProcessor implements CodeConstants {
           genRight.getWildcard() == GenericType.WILDCARD_EXTENDS) {
           return true;
         }
+
+        // TODO: recurse?
       } else {
         // Right is not generic
         // Check for casting a concrete rightType to a specific left generic

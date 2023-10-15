@@ -1408,6 +1408,27 @@ public class VarDefinitionHelper {
     }
   }
 
+  // =========== Iterative Variable Renaming ===========
+  // This is the variable renamer, in charge of remapping variables in the case of clashing with other variables with the same name.
+  // The algorithm roughly is as follows:
+  // 1)   Pick the next statement to iterate to (start at root)
+  // 2)   Iterate through all the expressions in the statement, making note of any that have variable definitions.
+  // 2.1) For each variable definition, find its name.
+  // 2.2) If the name has already been defined, pick a new name. If it has not been, record that name as already used.
+  // 3)   Recurse on any child statements, with the context of the variable definitions that the current statement has.
+  // 4)   At the end, remove all the names that we've recorded from the current statement. The variables will have fallen out of scope,
+  //      and such don't need renaming if encountered later.
+  //
+  // This provides a basic overview of the actual algorithm at play. There are, of course, complications. Here are some more details from the actual algorithm,
+  // provided with where they slot into in the process.
+  //
+  // 1.1) The context must start with the method parameters defined. They will never go out of scope.
+  // 1.2) Ensure that all of the 'variable definitions' of the statement are also properly iterated.
+  // 2.3) If a lambda is seen, recurse on the lambda body with the current context, making sure to mark parameters.
+  // 2.4) If the current statement is in a switch, try to see if we can get away with scoping the switch. This is less disruptive and
+  //      will lead to better looking code. This is the bulk of the logic in iterateClashingExprent.
+  // 3.1) Recursion on if statements is incredibly tricky. We need to take extra care to ensure that the head statement iterates *first*
+  //      and that the else branch has a context clear of the if branch. This is because the if and the else branch are independent and should not share variable names.
   public void remapClashingNames(Statement root, StructMethod mt) {
     Map<Statement, Set<VarInMethod>> varDefinitions = new HashMap<>();
     Set<VarInMethod> liveVarDefs = new HashSet<>();
@@ -1459,6 +1480,9 @@ public class VarDefinitionHelper {
     if (stat.getExprents() != null) {
       for (Exprent exprent : stat.getExprents()) {
         for (Exprent ex : exprent.getAllExprents(true, true)) {
+          // Sort order from getAllExprents here is crucial!
+          // Say, for example, "MyType t = method(t -> ....);"
+          // It is imperative that the lhs of the assign comes first, so that any defs in the rhs can be properly seen.
           iterateClashingExprent(stat, mt, varDefinitions, ex, liveVarDefs, curVarDefs, nameMap);
         }
       }

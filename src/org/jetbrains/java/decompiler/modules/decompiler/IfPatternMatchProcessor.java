@@ -15,11 +15,6 @@ import org.jetbrains.java.decompiler.struct.gen.VarType;
 
 import java.util.*;
 
-/**
- * Handles pattern matching for instanceof in statements.
- *
- * @author SuperCoder79
- */
 public final class IfPatternMatchProcessor {
   public static boolean matchInstanceof(RootStatement root) {
     boolean res = matchInstanceofRec(root, root);
