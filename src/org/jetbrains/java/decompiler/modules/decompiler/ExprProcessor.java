@@ -1141,7 +1141,28 @@ public class ExprProcessor implements CodeConstants {
           return true;
         }
 
-        // TODO: recurse?
+        // Recurse on the type
+        // Notably, *only* recurse if the current wildcard types are the same- otherwise we may run into incorrect casting behavior
+        if (genLeft.getArguments().size() != genRight.getArguments().size()) {
+          return false;
+        }
+
+        if (genLeft.getWildcard() == genRight.getWildcard()) {
+          for (int i = 0; i < genLeft.getArguments().size(); i++) {
+            VarType lt = genLeft.getArguments().get(i);
+            VarType rt = genRight.getArguments().get(i);
+            // Subset of Type<?> -> Type<T> check: Only check for genvars. If T is concrete, then don't force casting.
+            if (rt == null && lt != null && lt.type == CodeConstants.TYPE_GENVAR) {
+              return true;
+            }
+
+            if (lt != null && rt != null) {
+              if (shouldGenericTypesCast(named, lt, rt)) {
+                return true;
+              }
+            }
+          }
+        }
       } else {
         // Right is not generic
         // Check for casting a concrete rightType to a specific left generic
