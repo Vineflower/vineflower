@@ -1,6 +1,7 @@
 // Copyright 2000-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.struct.gen.generics;
 
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
@@ -572,6 +573,24 @@ public class GenericType extends VarType {
         }
       }
     }
+  }
+
+  // In the case where Type is defined as "class Type<T>", and the in type is "Type<?>", find the base (un-remapped) type "Type<T>"
+  // out of it. Essentially a wrapper to do a class lookup to find the generic class type descriptor.
+  // Returns null if there is a failure at any point.
+  @Nullable
+  public GenericType findBaseType() {
+    StructClass cl = DecompilerContext.getStructContext().getClass(value);
+    if (cl == null) {
+      return null;
+    }
+
+    GenericClassDescriptor sig = cl.getSignature();
+    if (sig == null) {
+      return null;
+    }
+
+    return sig.genericType;
   }
 
   public void mapGenVarsTo(GenericType other, Map<VarType, VarType> map) {

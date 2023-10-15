@@ -297,7 +297,7 @@ public class VarType {  // TODO: optimize switch
       res.append('L').append(value).append(';');
     }
     else {
-      res.append(value);
+      res.append(value == null ? "--null--" : value);
     }
     return res.toString();
   }

@@ -771,6 +771,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: wrong variable name, recursive constructor because missing cast
     register(JAVA_16_NODEBUG, "TestRecordCanonicalConstructor2");
     register(JAVA_8, "TestGenericArrays");
+    register(JAVA_8, "TestInstanceGeneric");
   }
 
   private void registerLiterals() {

@@ -62,6 +62,7 @@ public class InvocationExprent extends Exprent {
   private LinkConstant bootstrapMethod;
   private List<PooledConstant> bootstrapArguments;
   private final List<VarType> genericArgs = new ArrayList<>();
+  private VarType remappedInstType = null;
   public boolean forceGenericQualfication = false;
   private final NullableConcurrentHashMap<VarType, VarType> genericsMap = new NullableConcurrentHashMap<>();
   private boolean isInvocationInstance = false;
@@ -205,8 +206,10 @@ public class InvocationExprent extends Exprent {
       desc = cl != null ? cl.getMethodRecursive(name, stringDescriptor) : null;
     }
 
+    // Clear existing state
     genericArgs.clear();
     genericsMap.clear();
+    this.remappedInstType = null;
 
     StructClass mthCls = DecompilerContext.getStructContext().getClass(classname);
 
@@ -319,13 +322,13 @@ public class InvocationExprent extends Exprent {
           mthCls.getSignature().fparameters.stream().map(p -> "T" + p + ";").map(GenericType::parse).filter(t -> !upperBoundsMap.containsKey(t)).forEach(t -> upperBoundsMap.put(t, GenericType.DUMMY_VAR));
         }
 
+        VarType instType = null;
+
         // types gathered from the instance have the highest priority
         if (instance != null && !isNew) {
           instance.setInvocationInstance();
 
           VarType instUB = mthCls.getSignature() != null ? mthCls.getSignature().genericType.remap(upperBoundsMap) : upperBound;
-          VarType instType;
-
           // don't want the casted type
           if (instance instanceof FunctionExprent && ((FunctionExprent)instance).getFuncType() == FunctionType.CAST) {
             instType = ((FunctionExprent)instance).getLstOperands().get(0).getInferredExprType(instUB);
@@ -496,6 +499,27 @@ public class InvocationExprent extends Exprent {
                 }
                 else {
                   argtype = parameter.getInferredExprType(paramUB);
+                }
+
+                // If the instance type is a wildcard and the param type can give us more information about the instance
+                // type, then capture that type and cast in toJava.
+                // For example:
+                // Type<T extends Number> contains a method "void accept(T t)". You have a Type<?> inst.
+                // You want to call inst.accept(returnLong()). This would fail, and will need a cast instead.
+                // By changing to ((Type<Long>)inst).accept(returnLong()), it will work.
+                if (paramUB == null && argtype != null && instType instanceof GenericType) {
+                  if (combined.containsKey(paramType) && combined.get(paramType) == null && !VarType.VARTYPE_NULL.equals(argtype)) {
+                    // Remap the type from the wildcard (null) to the actual type here.
+                    combined.put(paramType, argtype);
+
+                    // We need the base type, and not the raw instance's type.
+                    // Taking from the prior example, Type<T> instead of Type<?>.
+                    // This will let us remap with our new argtype in a simple fashion.
+                    GenericType baseType = ((GenericType) instType).findBaseType();
+                    if (baseType != null) {
+                      this.remappedInstType = baseType.remap(hierarchyMap).remap(combined);
+                    }
+                  }
                 }
 
                 StructClass paramCls = DecompilerContext.getStructContext().getClass(paramType.value);
@@ -787,14 +811,11 @@ public class InvocationExprent extends Exprent {
           // Don't cast to anonymous classes, since they by definition can't have a name
           // TODO: better fix may be to change equals to isSuperSet? all anonymous classes are superset of Object
           if (rightType.equals(VarType.VARTYPE_OBJECT) && !leftType.equals(rightType) && (instNode != null && instNode.type != ClassNode.Type.ANONYMOUS)) {
-            buf.append("((").appendCastTypeName(leftType).append(")");
-
-            if (instance.getPrecedence() >= FunctionType.CAST.precedence) {
-              res.encloseWithParens();
-            }
-            buf.append(res).append(")");
-          }
-          else if (instance.getPrecedence() > getPrecedence() && !canSkipParenEnclose(instance)) {
+            appendInstCast(buf, leftType, res);
+          } else if (remappedInstType != null) {
+            // If we have a remap inst type, do a cast
+            appendInstCast(buf, remappedInstType, res);
+          } else if (instance.getPrecedence() > getPrecedence() && !canSkipParenEnclose(instance)) {
             buf.append("(").append(res).append(")");
           }
           //Java 9+ adds some overrides to java/nio/Buffer's subclasses that alter the return types.
@@ -881,6 +902,15 @@ public class InvocationExprent extends Exprent {
       buf.popNewlineGroup();
     }
     return buf;
+  }
+
+  private void appendInstCast(TextBuffer buf, VarType leftType, TextBuffer res) {
+    buf.append("((").appendCastTypeName(leftType).append(")");
+
+    if (instance.getPrecedence() >= FunctionType.CAST.precedence) {
+      res.encloseWithParens();
+    }
+    buf.append(res).append(")");
   }
 
   private boolean canSkipParenEnclose(Exprent instance) {
