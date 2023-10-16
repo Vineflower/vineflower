@@ -53,7 +53,7 @@ public class VarType {  // TODO: optimize switch
 
   public final int type;
   public final int arrayDim;
-  public final String value;
+  public final @Nullable String value;
   public final int typeFamily;
   public final int stackSize;
 

@@ -578,8 +578,7 @@ public class GenericType extends VarType {
   // In the case where Type is defined as "class Type<T>", and the in type is "Type<?>", find the base (un-remapped) type "Type<T>"
   // out of it. Essentially a wrapper to do a class lookup to find the generic class type descriptor.
   // Returns null if there is a failure at any point.
-  @Nullable
-  public GenericType findBaseType() {
+  public @Nullable GenericType findBaseType() {
     StructClass cl = DecompilerContext.getStructContext().getClass(value);
     if (cl == null) {
       return null;

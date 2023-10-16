@@ -1,6 +1,7 @@
 // Copyright 2000-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.main;
 
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.main.collectors.BytecodeSourceMapper;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.main.collectors.ImportCollector;
@@ -102,7 +103,7 @@ public class DecompilerContext {
   // context access
   // *****************************************************************************
 
-  public static <T> T getContextProperty(Key<T> key) {
+  public static <T> @Nullable T getContextProperty(Key<T> key) {
     return (T) getCurrentContext().staticProps.get(key);
   }
 
