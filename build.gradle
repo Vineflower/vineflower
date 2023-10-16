@@ -39,6 +39,7 @@ allprojects {
   dependencies {
     implementation 'org.jetbrains:annotations:24.0.0'
     testImplementation("org.junit.jupiter:junit-jupiter-api:${project.junit_bom}")
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${project.junit_bom}")
   }
 
@@ -215,6 +216,12 @@ jar {
       'Implementation-Version': project.version
     )
   }
+}
+
+// If testFixtures can't be inferred from the build path, it'll need to be manually specified to be able to find
+// the test fixtures class. Put it in a unique place to mark it as such.
+testFixturesJar {
+  destinationDirectory = file("$rootDir/build/extralibs")
 }
 
 task sourceJar(type:Jar) {
