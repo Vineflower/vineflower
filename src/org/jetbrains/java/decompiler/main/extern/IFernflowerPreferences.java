@@ -193,7 +193,8 @@ public interface IFernflowerPreferences {
   String USER_RENAMER_CLASS = "urc";
 
   @Name("New Line Seperator")
-  @Description("Character that seperates lines in the decompiled output.")
+  @Description("Use LF line-endings if enabled, CRLF otherwise.")
+  @DynamicDefaultValue("Disabled on Windows, enabled on other systems")
   String NEW_LINE_SEPARATOR = "nls";
 
   @Name("Indent String")
@@ -214,6 +215,7 @@ public interface IFernflowerPreferences {
 
   @Name("Thread Count")
   @Description("How many threads to use to decompile.")
+  @DynamicDefaultValue("all available processors")
   String THREADS = "thr";
 
   String DUMP_ORIGINAL_LINES = "__dump_original_lines__";
@@ -345,6 +347,12 @@ public interface IFernflowerPreferences {
   @Retention(RetentionPolicy.RUNTIME)
   @Target(ElementType.FIELD)
   public @interface Description {
+    String value();
+  }
+
+  @Retention(RetentionPolicy.RUNTIME)
+  @Target(ElementType.FIELD)
+  public @interface DynamicDefaultValue {
     String value();
   }
 }
