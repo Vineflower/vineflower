@@ -61,9 +61,11 @@ class TestContracts {
 
       var var3: java.lang.Iterable = (new IntRange(0, i)) as java.lang.Iterable;
       var var4: Int = 0;
+      var var5: Iterator = var3.iterator();
 
-      for (Iterator var5 = var3.iterator(); var5.hasNext(); var4 += ((java.lang.Number)f.invoke()).intValue()) {
+      while (var5.hasNext()) {
          var var6: Int = (var5 as IntIterator).nextInt();
+         var4 += (f.invoke() as java.lang.Number).intValue();
       }
 
       return var4;// 53
@@ -165,50 +167,50 @@ class 'pkg/TestContracts' {
       14      62
       15      62
       16      62
-      17      64
-      18      64
-      19      64
-      1a      64
-      1b      64
-      1c      64
-      1d      64
-      1e      64
-      1f      64
-      20      64
-      21      64
-      22      64
-      23      64
-      24      64
-      25      64
-      29      65
-      2a      65
-      2b      65
-      2c      65
-      2d      65
-      2e      65
-      2f      65
-      30      65
-      31      65
-      32      65
-      3e      64
-      3f      64
-      40      64
-      41      64
-      42      64
-      43      64
-      44      64
-      45      64
-      46      64
-      47      64
-      48      64
-      49      64
-      4e      64
-      4f      64
-      51      64
-      52      64
-      56      68
-      57      68
-      58      68
+      17      63
+      18      63
+      19      63
+      1a      63
+      1b      63
+      1c      63
+      1d      63
+      1e      63
+      1f      65
+      20      65
+      21      65
+      22      65
+      23      65
+      24      65
+      25      65
+      29      66
+      2a      66
+      2b      66
+      2c      66
+      2d      66
+      2e      66
+      2f      66
+      30      66
+      31      66
+      32      66
+      3e      67
+      3f      67
+      40      67
+      41      67
+      42      67
+      43      67
+      44      67
+      45      67
+      46      67
+      47      67
+      48      67
+      49      67
+      4e      67
+      4f      67
+      51      67
+      52      67
+      56      70
+      57      70
+      58      70
    }
 }
 
@@ -220,7 +222,7 @@ Lines mapping:
 32 <-> 37
 39 <-> 46
 46 <-> 54
-53 <-> 69
+53 <-> 71
 Not mapped:
 10
 18
