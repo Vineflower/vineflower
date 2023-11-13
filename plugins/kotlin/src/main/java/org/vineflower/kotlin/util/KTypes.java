@@ -44,6 +44,7 @@ public final class KTypes {
     Map.entry("kotlin/Float", "java/lang/Float"),
     Map.entry("kotlin/Int", "java/lang/Integer"),
     Map.entry("kotlin/Long", "java/lang/Long"),
+    Map.entry("kotlin/Nothing", "java/lang/Void"),
     Map.entry("kotlin/Number", "java/lang/Number"),
     Map.entry("kotlin/Short", "java/lang/Short"),
     Map.entry("kotlin/String", "java/lang/String"),
@@ -85,6 +86,10 @@ public final class KTypes {
     if (kotlinType.startsWith("kotlin/")) {
       if (KOTLIN_PRIMITIVE_TYPES.containsKey(kotlinType) && !isNullable) {
         return KOTLIN_PRIMITIVE_TYPES.get(kotlinType);
+      } else if (kotlinType.endsWith("$Companion") && KOTLIN_PRIMITIVE_TYPES.containsKey(kotlinType.replace("$Companion", ""))) {
+        return "Lkotlin/jvm/internal/" + kotlinType.split("/")[1].split("\\$")[0] + "CompanionObject;";
+      } else if (kotlinType.endsWith("Array") && KOTLIN_PRIMITIVE_TYPES.containsKey(kotlinType.replace("Array", ""))) {
+        return "[" + KOTLIN_PRIMITIVE_TYPES.get(kotlinType.replace("Array", ""));
       } else if (KOTLIN_TO_JAVA_LANG.containsKey(kotlinType)) {
         return "L" + KOTLIN_TO_JAVA_LANG.get(kotlinType) + ";";
       } else if (KOTLIN_TO_JAVA_UTIL.containsKey(kotlinType)) {

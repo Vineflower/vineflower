@@ -128,23 +128,31 @@ public class KFunction {
 
       KType returnType = KType.from(function.getReturnType(), resolver);
 
-      StringBuilder desc = new StringBuilder("(");
-      if (receiverType != null) {
-        desc.append(receiverType);
+      MethodWrapper method = null;
+
+      if (jvmData.hasDesc()) {
+        String lookupName = jvmData.hasName() ? resolver.resolve(jvmData.getName()) : name;
+        method = wrapper.getMethodWrapper(lookupName, resolver.resolve(jvmData.getDesc()));
       }
 
-      for (KParameter parameter : parameters) {
-        desc.append(parameter.type);
-      }
+      if (method == null) {
+        StringBuilder desc = new StringBuilder("(");
+        if (receiverType != null) {
+          desc.append(receiverType);
+        }
 
-      int endOfParams = desc.length();
-      desc.append(")").append(returnType);
+        for (KParameter parameter : parameters) {
+          desc.append(parameter.type);
+        }
 
-      MethodWrapper method = wrapper.getMethodWrapper(name, desc.toString());
-      if (method == null && flags.isSuspend) {
-        desc.setLength(endOfParams);
-        desc.append("Lkotlin/coroutines/Continuation;)Ljava/lang/Object;");
+        int endOfParams = desc.length();
+        desc.append(")").append(returnType);
+
         method = wrapper.getMethodWrapper(name, desc.toString());
+
+        if (method == null) {
+          throw new IllegalStateException("Couldn't find method " + name + " " + desc + " in class " + struct.qualifiedName);
+        }
       }
 
       List<KTypeParameter> typeParameters = function.getTypeParameterList().stream()
