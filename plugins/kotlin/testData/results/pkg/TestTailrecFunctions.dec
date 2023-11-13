@@ -4,14 +4,14 @@ class TestTailrecFunctions {
    public tailrec fun sum(x: Long, sum: Long): Long {
       var var5: TestTailrecFunctions = this;// 4
       var var6: Long = x;
+      var var8: Long = sum;
 
-      var var8: Long;
-      var var17: Long;
-      for (var8 = sum; var6 != 0L; var8 = var17) {// 5
+      while (var6 != 0L) {// 5
          var var15: Long = var6 - 1L;// 6
-         var17 = var8 + var6;
+         var var17: Long = var8 + var6;
          var5 = var5;
          var6 = var15;
+         var8 = var17;
       }
 
       return var8;
@@ -141,47 +141,47 @@ class 'pkg/TestTailrecFunctions' {
       3      5
       4      5
       5      5
-      6      9
-      7      9
-      8      9
-      9      12
-      a      12
-      d      9
-      e      9
-      11      11
-      12      11
-      15      9
-      16      9
-      17      9
-      18      9
+      6      6
+      7      6
+      8      6
+      9      11
+      a      11
+      d      8
+      e      8
+      11      10
+      12      10
+      15      8
+      16      8
+      17      8
+      18      8
       1c      16
       1d      16
       1e      16
-      1f      10
-      20      10
-      21      10
-      22      10
-      23      10
-      24      10
-      25      11
-      26      11
-      27      11
-      28      11
-      29      11
-      2a      11
-      2b      11
-      2c      12
-      2d      12
-      2e      12
-      2f      12
-      30      13
-      31      13
-      32      13
-      33      13
-      34      9
-      35      9
-      36      9
-      37      9
+      1f      9
+      20      9
+      21      9
+      22      9
+      23      9
+      24      9
+      25      10
+      26      10
+      27      10
+      28      10
+      29      10
+      2a      10
+      2b      10
+      2c      11
+      2d      11
+      2e      11
+      2f      11
+      30      12
+      31      12
+      32      12
+      33      12
+      34      13
+      35      13
+      36      13
+      37      13
    }
 
    method 'testFinally ()V' {
@@ -438,8 +438,8 @@ class 'pkg/TestTailrecFunctions' {
 
 Lines mapping:
 4 <-> 5
-5 <-> 10
-6 <-> 11
+5 <-> 9
+6 <-> 10
 12 <-> 28
 13 <-> 25
 14 <-> 28

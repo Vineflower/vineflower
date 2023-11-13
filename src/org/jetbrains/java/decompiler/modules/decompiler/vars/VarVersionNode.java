@@ -33,9 +33,8 @@ public class VarVersionNode implements IGraphNode {
   }
 
   @Override
-  public List<IGraphNode> getPredecessors() {
-    // TODO: does this have to return a list?
-    return new ArrayList<>(this.predecessors);
+  public Collection<VarVersionNode> getPredecessors() {
+    return this.predecessors;
   }
 
   public void removeSuccessor(VarVersionNode node) {

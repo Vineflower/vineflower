@@ -1008,6 +1008,13 @@ public class ExprProcessor implements CodeConstants {
       ((ConstExprent) exprent).adjustConstType(leftType);
     }
 
+    if (cast) {
+      // Don't cast vararg array creation! Force regular array creation instead
+      if (exprent instanceof NewExprent && ((NewExprent)exprent).isVarArgParam()) {
+        ((NewExprent) exprent).setVarArgParam(false);
+      }
+    }
+
     buffer.append(exprent.toJava(indent));
 
     if (quote) {
@@ -1050,8 +1057,11 @@ public class ExprProcessor implements CodeConstants {
     return expr;
   }
 
-  // Obj<T> var = type; -> Obj<T> var = (Obj<T>) type; Where type is Obj<? super T>
-  public static boolean doGenericTypesCast(Exprent ex, VarType left, VarType right) {
+  // Checks if two generic types should cast based on their type parameters.
+  // If both the left and the right types are generics, compare the type parameters based on a set of rules to see if
+  // the types are compatible. If a matching rule is identified, return and inform the type processor that the types
+  // should cast.
+  private static boolean doGenericTypesCast(Exprent ex, VarType left, VarType right) {
     Map<VarType, List<VarType>> named = ex.getNamedGenerics();
     if (left == null || right == null) {
       return false;
@@ -1129,6 +1139,29 @@ public class ExprProcessor implements CodeConstants {
         if ((genLeft.getWildcard() == GenericType.WILDCARD_NO || genLeft.getWildcard() == GenericType.WILDCARD_SUPER) &&
           genRight.getWildcard() == GenericType.WILDCARD_EXTENDS) {
           return true;
+        }
+
+        // Recurse on the type
+        // Notably, *only* recurse if the current wildcard types are the same- otherwise we may run into incorrect casting behavior
+        if (genLeft.getArguments().size() != genRight.getArguments().size()) {
+          return false;
+        }
+
+        if (genLeft.getWildcard() == genRight.getWildcard()) {
+          for (int i = 0; i < genLeft.getArguments().size(); i++) {
+            VarType lt = genLeft.getArguments().get(i);
+            VarType rt = genRight.getArguments().get(i);
+            // Subset of Type<?> -> Type<T> check: Only check for genvars. If T is concrete, then don't force casting.
+            if (rt == null && lt != null && lt.type == CodeConstants.TYPE_GENVAR) {
+              return true;
+            }
+
+            if (lt != null && rt != null) {
+              if (shouldGenericTypesCast(named, lt, rt)) {
+                return true;
+              }
+            }
+          }
         }
       } else {
         // Right is not generic

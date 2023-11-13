@@ -238,9 +238,14 @@ public class ClassWriter implements StatementWriter {
                 }
                 VarType type = md_content.params[i];
   
+                String clashingName = methodWrapper.varproc.getClashingName(new VarVersionPair(index, 0));
                 String parameterName = methodWrapper.varproc.getVarName(new VarVersionPair(index, 0));
                 if (parameterName == null) {
                   parameterName = "param" + index; // null iff decompiled with errors
+                }
+                // Must use clashing name if it exists
+                if (clashingName != null) {
+                  parameterName = clashingName;
                 }
                 parameterName = methodWrapper.methodStruct.getVariableNamer().renameParameter(mt.getAccessFlags(), ExprProcessor.getCastTypeName(type), parameterName, index);
                 buffer.appendVariable(parameterName, true, true, node.lambdaInformation.content_class_name, node.lambdaInformation.content_method_name, md_content, index, parameterName);
@@ -894,7 +899,7 @@ public class ClassWriter implements StatementWriter {
               buffer.append(", ");
             }
 
-            VarType type = md_content.params[i].copy();
+            VarType type = md_content.params[i];
             String typeName = ExprProcessor.getCastTypeName(type);
             if (ExprProcessor.UNDEFINED_TYPE_STRING.equals(typeName) &&
                 DecompilerContext.getOption(IFernflowerPreferences.UNDEFINED_PARAM_TYPE_OBJECT)) {

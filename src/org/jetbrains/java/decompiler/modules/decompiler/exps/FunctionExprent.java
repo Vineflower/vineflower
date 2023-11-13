@@ -420,10 +420,8 @@ public class FunctionExprent extends Exprent {
             result.addMinTypeExprent(param1, VarType.VARTYPE_BYTECHAR);
           }
           else { // both are booleans
-            boolean param1_false_boolean =
-              type1.isFalseBoolean() || (param1 instanceof ConstExprent && !((ConstExprent)param1).hasBooleanValue());
-            boolean param2_false_boolean =
-              type1.isFalseBoolean() || (param2 instanceof ConstExprent && !((ConstExprent)param2).hasBooleanValue());
+            boolean param1_false_boolean = (param1 instanceof ConstExprent && !((ConstExprent)param1).hasBooleanValue());
+            boolean param2_false_boolean = (param2 instanceof ConstExprent && !((ConstExprent)param2).hasBooleanValue());
 
             if (param1_false_boolean || param2_false_boolean) {
               result.addMinTypeExprent(param1, VarType.VARTYPE_BYTECHAR);
@@ -442,6 +440,17 @@ public class FunctionExprent extends Exprent {
         if (lstOperands.size() > 2) { // pattern matching instanceof
           // The type of the defined var must be the type being tested
           result.addMinTypeExprent(lstOperands.get(2), lstOperands.get(1).getExprType());
+        }
+        break;
+      case STR_CONCAT:
+        VarType type = this.implicitType == null ? VarType.VARTYPE_STRING : this.implicitType;
+        // Inform children of the type of string concat that we are
+        if (type1.typeFamily == type.typeFamily) {
+          result.addMinTypeExprent(param1, type);
+        }
+
+        if (type2.typeFamily == type.typeFamily) {
+          result.addMinTypeExprent(param2, type);
         }
         break;
 

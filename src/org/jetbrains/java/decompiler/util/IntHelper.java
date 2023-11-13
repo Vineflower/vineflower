@@ -3,11 +3,6 @@ package org.jetbrains.java.decompiler.util;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * A couple of helper methods with integers.
- *
- * @author SuperCoder79
- */
 public final class IntHelper {
   // Special values for adjusting the string representation of ints.
   private static final Map<Integer, String> SPECIAL_VALUES = new HashMap<>();

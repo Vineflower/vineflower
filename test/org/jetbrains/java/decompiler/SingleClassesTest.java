@@ -678,6 +678,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: Can't inline field initializer for a final field that depends on initialization in a static call
     register(JAVA_8, "TestStaticBlockFinalField");
     register(JAVA_8, "TestWhileLambda");
+    register(JAVA_8, "TestTrySplit");
+    register(JAVA_8, "TestWhileForeach");
   }
 
   private void registerEntireClassPath() {
@@ -768,6 +770,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16_NODEBUG, "TestRecordCanonicalConstructor");
     // TODO: wrong variable name, recursive constructor because missing cast
     register(JAVA_16_NODEBUG, "TestRecordCanonicalConstructor2");
+    register(JAVA_8, "TestGenericArrays");
+    register(JAVA_8, "TestInstanceGeneric");
   }
 
   private void registerLiterals() {

@@ -22,10 +22,6 @@ class DomTracer {
   }
 
   private void add(Statement gen, String s, Map<Statement, String> props) {
-    if (COLLECT_STRINGS) {
-      this.string += ("[" + gen + "] " + s + "\n");
-    }
-
     if (COLLECT_DOTS) {
       HashMap<Statement, String> map = new HashMap<>(props);
       if (map.containsKey(gen)) {
@@ -34,6 +30,14 @@ class DomTracer {
         map.put(gen, "xlabel=\"" + s + "\"");
       }
       DotExporter.toDotFile(gen, this.structMethod, this.filePrefix, "g" + this.counter, map);
+
+      if (COLLECT_STRINGS) {
+        string += "(g" + this.counter +") ";
+      }
+    }
+
+    if (COLLECT_STRINGS) {
+      this.string += ("[" + gen + "] " + s + "\n");
     }
 
     this.counter++;
@@ -52,11 +56,17 @@ class DomTracer {
   }
 
   void success(Statement stat, String s) {
-    this.add(stat, s, Map.of(stat, "fillcolor=lightgreen,style=filled"));
+    this.add(stat, s, Map.of(stat, "fillcolor=lawngreen,style=filled"));
   }
 
-  void success(Statement stat, String s, Statement stat2) {
-    this.add(stat, s, Map.of(stat, "fillcolor=lightgreen,style=filled", stat2, "fillcolor=lawngreen,style=filled"));
+  void successCreated(Statement stat, String s, Statement newStat) {
+    Map<Statement, String> props = new HashMap<>();
+    props.put(stat, "fillcolor=orange,style=filled");
+    props.put(newStat, "fillcolor=lawngreen,style=filled");
+    for (Statement st : newStat.getStats()) {
+      props.put(st, "fillcolor=pink,style=filled");
+    }
+    this.add(stat, s, props);
   }
 
   @Override

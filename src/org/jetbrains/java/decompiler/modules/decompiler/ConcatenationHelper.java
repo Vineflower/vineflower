@@ -182,7 +182,11 @@ public final class ConcatenationHelper {
     Exprent func = lstOperands.get(0);
 
     for (int i = 1; i < lstOperands.size(); i++) {
-      func = new FunctionExprent(FunctionType.STR_CONCAT, Arrays.asList(func, lstOperands.get(i)), bytecode);
+      Exprent oper = lstOperands.get(i);
+      FunctionExprent tmp = new FunctionExprent(FunctionType.STR_CONCAT, Arrays.asList(func, oper), bytecode);
+      // Try to pick the non-string type. One is guaranteed to be string.
+      tmp.setImplicitType(VarType.VARTYPE_STRING.equals(func.getExprType()) ? oper.getExprType() : func.getExprType());
+      func = tmp;
     }
 
     return func;
@@ -208,9 +212,7 @@ public final class ConcatenationHelper {
           recipe = ((PrimitiveConstant) constant).getString();
         }
       } else if (bootstrapArguments.isEmpty()) { // makeConcat has no recipe, need to fake it (see StringConcatFactory#makeConcat)
-        // Horrific code to have string.repeat() in Java 8
-        // Replace null terminators with \1
-        recipe = new String(new char[parameters.size()]).replace("\0", TAG_ARG_S);
+        recipe = TAG_ARG_S.repeat(parameters.size());
       }
 
       if (recipe != null) {

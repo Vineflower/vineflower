@@ -32,7 +32,7 @@ public class KType extends VarType {
     TypeArgument @Nullable [] typeArguments,
     @Nullable String typeParameterName,
     @Nullable String typeAliasName) {
-    super(type.type, type.arrayDim, type.value, type.typeFamily, type.stackSize, type.falseBoolean);
+    super(type.type, type.arrayDim, type.value, type.typeFamily, type.stackSize);
     this.kotlinType = kotlinType;
     this.isNullable = isNullable;
     this.typeArguments = typeArguments;

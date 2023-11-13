@@ -160,12 +160,8 @@ public class ConstExprent extends Exprent {
   }
 
   private static VarType guessType(int val, boolean boolPermitted) {
-    if (boolPermitted) {
-      VarType constType = VarType.VARTYPE_BOOLEAN;
-      if (val != 0 && val != 1) {
-        constType = constType.copy(true);
-      }
-      return constType;
+    if (boolPermitted && (val == 0 || val == 1)) {
+      return VarType.VARTYPE_BOOLEAN;
     }
     else if (0 <= val && val <= 127) {
       return VarType.VARTYPE_BYTECHAR;
@@ -247,10 +243,11 @@ public class ConstExprent extends Exprent {
         }
         return buf.append(ret).enclose("'", "'");
 
-      case CodeConstants.TYPE_BYTE:
       case CodeConstants.TYPE_BYTECHAR:
-      case CodeConstants.TYPE_SHORT:
       case CodeConstants.TYPE_SHORTCHAR:
+        // TODO: assert here, we should not be writing higher order types
+      case CodeConstants.TYPE_BYTE:
+      case CodeConstants.TYPE_SHORT:
       case CodeConstants.TYPE_INT:
         int intVal = (Integer)value;
         if (!literal) {

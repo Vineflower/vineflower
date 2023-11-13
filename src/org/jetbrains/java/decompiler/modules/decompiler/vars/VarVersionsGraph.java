@@ -21,8 +21,8 @@ public class VarVersionsGraph {
   }
 
   public VarVersionNode createNode(VarVersionPair ver, LocalVariable lvt) {
-    VarVersionNode node;
-    this.nodes.addWithKey(node = new VarVersionNode(ver.var, ver.version, lvt), ver);
+    VarVersionNode node = new VarVersionNode(ver.var, ver.version, lvt);
+    this.nodes.addWithKey(node, ver);
     return node;
   }
 
@@ -71,51 +71,53 @@ public class VarVersionsGraph {
     }
 
     // TODO: optimization!! This is called multiple times for each method and the allocations will add up!
-    Set<VarVersionNode> reached = rootReachability(roots);
-    ValidationHelper.validateTrue(this.nodes.size() == reached.size(), "Cyclic roots detected");
-    // If the nodes we reach don't include every node we have, then we need to process further to decompose the cycles
-    //noinspection ConstantValue
-    if (this.nodes.size() != reached.size()) {
-      // Not all nodes are reachable, due to cyclic nodes
+    if (ValidationHelper.VALIDATE) {
+      Set<VarVersionNode> reached = rootReachability(roots);
+      ValidationHelper.validateTrue(this.nodes.size() == reached.size(), "Cyclic roots detected");
+      // If the nodes we reach don't include every node we have, then we need to process further to decompose the cycles
+      //noinspection ConstantValue
+      if (this.nodes.size() != reached.size()) {
+        // Not all nodes are reachable, due to cyclic nodes
 
-      // Find only the nodes that aren't accounted for
-      Set<VarVersionNode> intersection = new HashSet<>(this.nodes);
-      intersection.removeAll(reached);
+        // Find only the nodes that aren't accounted for
+        Set<VarVersionNode> intersection = new HashSet<>(this.nodes);
+        intersection.removeAll(reached);
 
-      // Var -> [versions]
-      Map<Integer, List<Integer>> varMap = new HashMap<>();
+        // Var -> [versions]
+        Map<Integer, List<Integer>> varMap = new HashMap<>();
 
-      Set<VarVersionNode> visited = new HashSet<>();
-      for (VarVersionNode node : intersection) {
-        if (visited.contains(node)) {
-          continue;
+        Set<VarVersionNode> visited = new HashSet<>();
+        for (VarVersionNode node : intersection) {
+          if (visited.contains(node)) {
+            continue;
+          }
+
+          // DFS to find all nodes reachable from this node
+          Set<VarVersionNode> found = this.findReachableNodes(node);
+          // Skip all the found nodes from this node in the future
+          visited.addAll(found);
+
+          // For every node that we found, keep track of the var index and the versions of each node
+          // Each disjoint set *should* only reference a single var, so we operate under that assumption and keep track of the versions based on the var index
+          // If this isn't true, then this algorithm won't find every cyclic root as it will account multiple disjoint sets as one!
+          for (VarVersionNode foundNode : found) {
+            varMap.computeIfAbsent(foundNode.var, k -> new ArrayList<>()).add(foundNode.version);
+          }
         }
 
-        // DFS to find all nodes reachable from this node
-        Set<VarVersionNode> found = this.findReachableNodes(node);
-        // Skip all the found nodes from this node in the future
-        visited.addAll(found);
+        for (Integer var : varMap.keySet()) {
+          // Sort versions
+          varMap.get(var).sort(Comparator.naturalOrder());
 
-        // For every node that we found, keep track of the var index and the versions of each node
-        // Each disjoint set *should* only reference a single var, so we operate under that assumption and keep track of the versions based on the var index
-        // If this isn't true, then this algorithm won't find every cyclic root as it will account multiple disjoint sets as one!
-        for (VarVersionNode foundNode : found) {
-          varMap.computeIfAbsent(foundNode.var, k -> new ArrayList<>()).add(foundNode.version);
+          // First version is the lowest version, so that can be considered as the root
+          VarVersionPair pair = new VarVersionPair(var, varMap.get(var).get(0));
+
+          // Add to existing roots
+          roots.add(this.nodes.getWithKey(pair));
         }
+
+        // TODO: needs another validation pass?
       }
-
-      for (Integer var : varMap.keySet()) {
-        // Sort versions
-        varMap.get(var).sort(Comparator.naturalOrder());
-
-        // First version is the lowest version, so that can be considered as the root
-        VarVersionPair pair = new VarVersionPair(var, varMap.get(var).get(0));
-
-        // Add to existing roots
-        roots.add(this.nodes.getWithKey(pair));
-      }
-
-      // TODO: needs another validation pass?
     }
 
     this.engine = new GenericDominatorEngine(new IGraph() {
@@ -126,7 +128,7 @@ public class VarVersionsGraph {
 
       @Override
       public Set<? extends IGraphNode> getRoots() {
-        return new HashSet<IGraphNode>(roots);
+        return roots;
       }
     });
 
@@ -216,12 +218,15 @@ public class VarVersionsGraph {
   }
 
   private static List<VarVersionNode> getReversedPostOrder(Collection<VarVersionNode> roots) {
-    List<VarVersionNode> lst = new LinkedList<>();
+    List<VarVersionNode> lst = new ArrayList<>();
     Set<VarVersionNode> setVisited = new HashSet<>();
+    Deque<VarVersionNode> stackNode = new ArrayDeque<>();
+    Deque<Integer> stackIndex = new ArrayDeque<>();
+    List<VarVersionNode> lstSuccs = new ArrayList<>();
 
     for (VarVersionNode root : roots) {
-      List<VarVersionNode> lstTemp = new LinkedList<>();
-      addToReversePostOrderListIterative(root, lstTemp, setVisited);
+      List<VarVersionNode> lstTemp = new ArrayList<>();
+      addToReversePostOrderListIterative(root, lstTemp, setVisited, stackNode, stackIndex, lstSuccs);
       lst.addAll(lstTemp);
     }
 
@@ -231,20 +236,25 @@ public class VarVersionsGraph {
   private static void addToReversePostOrderListIterative(
     VarVersionNode root,
     List<? super VarVersionNode> lst,
-    Set<? super VarVersionNode> setVisited) {
-    ListStack<VarVersionNode> stackNode = new ListStack<>();
-    ListStack<Integer> stackIndex = new ListStack<>();
+    Set<? super VarVersionNode> setVisited,
+    Deque<VarVersionNode> stackNode,
+    Deque<Integer> stackIndex,
+    List<VarVersionNode> lstSuccs
+  ) {
+    stackNode.clear();
+    stackIndex.clear();
 
     stackNode.add(root);
     stackIndex.add(0);
 
     while (!stackNode.isEmpty()) {
-      VarVersionNode node = stackNode.peek();
-      int index = stackIndex.pop();
+      VarVersionNode node = stackNode.peekLast();
+      int index = stackIndex.removeLast();
 
       setVisited.add(node);
 
-      List<VarVersionNode> lstSuccs = new ArrayList<>(node.successors);
+      lstSuccs.clear();
+      lstSuccs.addAll(node.successors);
       for (; index < lstSuccs.size(); index++) {
         VarVersionNode succ = lstSuccs.get(index);
 
@@ -258,7 +268,7 @@ public class VarVersionsGraph {
 
       if (index == lstSuccs.size()) {
         lst.add(0, node);
-        stackNode.pop();
+        stackNode.removeLast();
       }
     }
   }

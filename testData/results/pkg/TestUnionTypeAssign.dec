@@ -12,7 +12,7 @@ public interface TestUnionTypeAssign {
    }// 12
 
    default <E extends Enum<E> & TestUnionTypeAssign> void test2(Supplier<E[]> supplier) {
-      Enum<E>[] array = (Enum[])supplier.get();// 15
+      Enum<E>[] array = (Enum<E>[])supplier.get();// 15
    }// 16
 
    default <E extends Enum<E> & TestUnionTypeAssign> void test3(Supplier<E[]> supplier) {

@@ -64,6 +64,6 @@ public class MethodWrapper {
 
   @Override
   public String toString() {
-    return methodStruct.getName();
+    return "{" + classStruct.qualifiedName + ": " + methodStruct.getName() + "}";
   }
 }

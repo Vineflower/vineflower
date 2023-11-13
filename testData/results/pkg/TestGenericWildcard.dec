@@ -39,8 +39,17 @@ public class TestGenericWildcard<T> {
       return (Collection<S>)Collections.unmodifiableCollection(list);// 35
    }
 
+   public static <E> TestGenericWildcard.Other<E> makeNestedFromWildcard(
+      TestGenericWildcard.Another<? extends TestGenericWildcard<?>> aa, TestGenericWildcard<?> bb
+   ) {
+      return new TestGenericWildcard.Other<>((TestGenericWildcard.Another<? extends TestGenericWildcard<E>>)aa, (TestGenericWildcard<E>)bb);// 39
+   }
+
    public <S> TestGenericWildcard<S> otherGenericUnmapped() {
-      return new TestGenericWildcard();// 39
+      return new TestGenericWildcard();// 53
+   }
+
+   public static class Another<C> {
    }
 
    static class One<T> implements Comparable<TestGenericWildcard.One<?>> {
@@ -48,21 +57,26 @@ public class TestGenericWildcard<T> {
       public T obj;
 
       public int compareTo(TestGenericWildcard.One<?> o) {
-         return this.cmp.compare(this.obj, (T)o.obj);// 62
+         return this.cmp.compare(this.obj, (T)o.obj);// 76
       }
+   }
+
+   public static class Other<C> {
+      public Other(TestGenericWildcard.Another<? extends TestGenericWildcard<C>> a, TestGenericWildcard<C> b) {
+      }// 45
    }
 
    class Two<A, B> {
       public TestGenericWildcard<T>.Two<?, B> wildcard() {
-         return null;// 44
+         return null;// 58
       }
 
       public TestGenericWildcard<T>.Two<A, B> generic() {
-         return (TestGenericWildcard<T>.Two<A, B>)this.wildcard();// 48
+         return (TestGenericWildcard<T>.Two<A, B>)this.wildcard();// 62
       }
 
       public TestGenericWildcard<T>.Two<TestGenericWildcard.Two, TestGenericWildcard.Two> typed() {
-         return (TestGenericWildcard<T>.Two<TestGenericWildcard.Two, TestGenericWildcard.Two>)this.wildcard();// 52
+         return (TestGenericWildcard<T>.Two<TestGenericWildcard.Two, TestGenericWildcard.Two>)this.wildcard();// 66
       }
    }
 }
@@ -123,54 +137,66 @@ class 'pkg/TestGenericWildcard' {
       4      38
    }
 
+   method 'makeNestedFromWildcard (Lpkg/TestGenericWildcard$Another;Lpkg/TestGenericWildcard;)Lpkg/TestGenericWildcard$Other;' {
+      4      44
+      5      44
+      9      44
+   }
+
    method 'otherGenericUnmapped ()Lpkg/TestGenericWildcard;' {
-      7      42
+      7      48
    }
 }
 
 class 'pkg/TestGenericWildcard$One' {
    method 'compareTo (Lpkg/TestGenericWildcard$One;)I' {
-      0      50
-      1      50
-      2      50
-      3      50
-      4      50
-      5      50
-      6      50
-      7      50
-      8      50
-      9      50
-      a      50
-      b      50
-      c      50
-      d      50
-      e      50
-      f      50
-      10      50
-      11      50
+      0      59
+      1      59
+      2      59
+      3      59
+      4      59
+      5      59
+      6      59
+      7      59
+      8      59
+      9      59
+      a      59
+      b      59
+      c      59
+      d      59
+      e      59
+      f      59
+      10      59
+      11      59
+   }
+}
+
+class 'pkg/TestGenericWildcard$Other' {
+   method '<init> (Lpkg/TestGenericWildcard$Another;Lpkg/TestGenericWildcard;)V' {
+      4      65
    }
 }
 
 class 'pkg/TestGenericWildcard$Two' {
    method 'wildcard ()Lpkg/TestGenericWildcard$Two;' {
-      0      56
-      1      56
+      0      70
+      1      70
    }
 
    method 'generic ()Lpkg/TestGenericWildcard$Two;' {
-      0      60
-      1      60
-      2      60
-      3      60
-      4      60
+      0      74
+      1      74
+      2      74
+      3      74
+      4      74
    }
 
    method 'typed ()Lpkg/TestGenericWildcard$Two;' {
-      0      64
-      1      64
-      2      64
-      3      64
-      4      64
+      0      78
+      1      78
+      2      78
+      3      78
+      4      78
    }
 }
 
@@ -183,8 +209,12 @@ Lines mapping:
 27 <-> 31
 31 <-> 35
 35 <-> 39
-39 <-> 43
-44 <-> 57
-48 <-> 61
-52 <-> 65
-62 <-> 51
+39 <-> 45
+45 <-> 66
+53 <-> 49
+58 <-> 71
+62 <-> 75
+66 <-> 79
+76 <-> 60
+Not mapped:
+43

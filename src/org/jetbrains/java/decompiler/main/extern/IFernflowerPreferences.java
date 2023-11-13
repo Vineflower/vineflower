@@ -28,7 +28,7 @@ public interface IFernflowerPreferences {
   String DECOMPILE_INNER = "decompile-inner";
 
   @Name("Decompile Java 4 class references")
-  @Description("Java 1 to Java 4 had a different class reference format. This resugars them properly.")
+  @Description("Resugar the Java 1-4 class reference format instead of leaving the synthetic code.")
   @ShortName("dc4")
   @Type(Type.BOOLEAN)
   String DECOMPILE_CLASS_1_4 = "decompile-java4";
@@ -52,7 +52,7 @@ public interface IFernflowerPreferences {
   String HIDE_DEFAULT_CONSTRUCTOR = "hide-default-constructor";
 
   @Name("Decompile Generics")
-  @Description("Decompile generics in variables, fields, and statements.")
+  @Description("Decompile generics in classes, methods, fields, and variables.")
   @ShortName("dgs")
   @Type(Type.BOOLEAN)
   String DECOMPILE_GENERIC_SIGNATURES = "decompile-generics";
@@ -64,7 +64,7 @@ public interface IFernflowerPreferences {
   String INCORPORATE_RETURNS = "incorporate-returns";
 
   @Name("Ensure synchronized ranges are complete")
-  @Description("If a synchronized block has a monitorenter without any corresponding monitorexit, try to deduce where one should be to ensure the synchronized is proper.")
+  @Description("If a synchronized block has a monitorenter without any corresponding monitorexit, try to deduce where one should be to ensure the synchronized is correctly decompiled.")
   @ShortName("esm")
   @Type(Type.BOOLEAN)
   String ENSURE_SYNCHRONIZED_MONITOR = "ensure-synchronized-monitors";
@@ -82,7 +82,7 @@ public interface IFernflowerPreferences {
   String DECOMPILE_PREVIEW = "decompile-preview";
 
   @Name("Remove reference getClass()")
-  @Description("obj.new Inner() or calling invoking a method on a method reference will create a synthetic getClass() call. This removes it.")
+  @Description("Remove synthetic getClass() calls created by code such as 'obj.new Inner()'.")
   @ShortName("rgn")
   @Type(Type.BOOLEAN)
   String REMOVE_GET_CLASS_NEW = "remove-getclass";
@@ -94,7 +94,7 @@ public interface IFernflowerPreferences {
   String LITERALS_AS_IS = "keep-literals";
 
   @Name("Represent boolean as 0/1")
-  @Description("The JVM represents booleans as integers 0 and 1. This decodes 0 and 1 as boolean when it makes sense.")
+  @Description("Represent integers 0 and 1 as booleans.")
   @ShortName("bto")
   @Type(Type.BOOLEAN)
   String BOOLEAN_TRUE_ONE = "boolean-as-int";
@@ -154,7 +154,7 @@ public interface IFernflowerPreferences {
   String BYTECODE_SOURCE_MAPPING = "bytecode-source-mapping";
 
   @Name("Dump Code Lines")
-  @Description("Dump line mappings to output archive zip entry extra data")
+  @Description("Dump line mappings to output archive zip entry extra data.")
   @ShortName("dcl")
   @Type(Type.BOOLEAN)
   String DUMP_CODE_LINES = "dump-code-lines";
@@ -184,7 +184,7 @@ public interface IFernflowerPreferences {
   String PATTERN_MATCHING = "pattern-matching";
 
   @Name("Try-Loop fix")
-  @Description("Code with a while loop inside of a try-catch block sometimes is malformed, this fixes it.")
+  @Description("Fixes rare cases of malformed decompilation when try blocks are found inside of while loops")
   @ShortName("tlf")
   @Type(Type.BOOLEAN)
   String TRY_LOOP_FIX = "try-loop-fix";
@@ -202,7 +202,7 @@ public interface IFernflowerPreferences {
   String SWITCH_EXPRESSIONS = "decompile-switch-expressions";
 
   @Name("[Debug] Show hidden statements")
-  @Description("Display code blocks hidden, for debugging purposes")
+  @Description("Display hidden code blocks for debugging purposes.")
   @ShortName("shs")
   @Type(Type.BOOLEAN)
   String SHOW_HIDDEN_STATEMENTS = "show-hidden-statements";
@@ -220,7 +220,7 @@ public interface IFernflowerPreferences {
   String SIMPLIFY_STACK_SECOND_PASS = "simplify-stack";
 
   @Name("[Experimental] Verify Variable Merges")
-  @Description("Double checks to make sure the validity of variable merges. If you are having strange recompilation issues, this is a good place to start.")
+  @Description("Tries harder to verify the validity of variable merges. If there are strange variable recompilation issues, this is a good place to start.")
   @ShortName("vvm")
   @Type(Type.BOOLEAN)
   String VERIFY_VARIABLE_MERGES = "verify-merges";
@@ -273,8 +273,8 @@ public interface IFernflowerPreferences {
   @Type(Type.STRING)
   String USER_RENAMER_CLASS = "user-renamer-class";
 
-  @Name("New Line Seperator")
-  @Description("Use \\n instead of \\r\\n for new lines.")
+  @Name("[DEPRECATED] New Line Seperator")
+  @Description("Use \\n instead of \\r\\n for new lines. Deprecated, do not use.")
   @ShortName("nls")
   @Type(Type.BOOLEAN)
   String NEW_LINE_SEPARATOR = "new-line-separator";
@@ -437,7 +437,7 @@ public interface IFernflowerPreferences {
     defaults.put(LOG_LEVEL, IFernflowerLogger.Severity.INFO.name());
     defaults.put(MAX_PROCESSING_METHOD, "0");
     defaults.put(RENAME_ENTITIES, "0");
-    defaults.put(NEW_LINE_SEPARATOR, (InterpreterUtil.IS_WINDOWS ? "0" : "1"));
+    defaults.put(NEW_LINE_SEPARATOR, "1");
     defaults.put(INDENT_STRING, "   ");
     defaults.put(PREFERRED_LINE_LENGTH, "160");
     defaults.put(BANNER, "");

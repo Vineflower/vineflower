@@ -983,12 +983,6 @@ public class VarDefinitionHelper {
 
       return null;
     } else {
-
-      // Special case: merging from false boolean to integral type, should be correct always
-      if (toMin.typeFamily == CodeConstants.TYPE_FAMILY_INTEGER && fromMin.isFalseBoolean()) {
-        return toMin;
-      }
-
       // Both nonnull at this point
       if (!fromMin.isStrictSuperset(toMin)) {
         // If type we're merging into the old type isn't a strict superset of the old type, we cannot merge
@@ -1407,13 +1401,40 @@ public class VarDefinitionHelper {
     public int hashCode() {
       return Objects.hash(pair, mt);
     }
+
+    @Override
+    public String toString() {
+      return mt.getName() + "->" + pair;
+    }
   }
 
+  // =========== Iterative Variable Renaming ===========
+  // This is the variable renamer, in charge of remapping variables in the case of clashing with other variables with the same name.
+  // The algorithm roughly is as follows:
+  // 1)   Pick the next statement to iterate to (start at root)
+  // 2)   Iterate through all the expressions in the statement, making note of any that have variable definitions.
+  // 2.1) For each variable definition, find its name.
+  // 2.2) If the name has already been defined, pick a new name. If it has not been, record that name as already used.
+  // 3)   Recurse on any child statements, with the context of the variable definitions that the current statement has.
+  // 4)   At the end, remove all the names that we've recorded from the current statement. The variables will have fallen out of scope,
+  //      and such don't need renaming if encountered later.
+  //
+  // This provides a basic overview of the actual algorithm at play. There are, of course, complications. Here are some more details from the actual algorithm,
+  // provided with where they slot into in the process.
+  //
+  // 1.1) The context must start with the method parameters defined. They will never go out of scope.
+  // 1.2) Ensure that all of the 'variable definitions' of the statement are also properly iterated.
+  // 2.3) If a lambda is seen, recurse on the lambda body with the current context, making sure to mark parameters.
+  // 2.4) If the current statement is in a switch, try to see if we can get away with scoping the switch. This is less disruptive and
+  //      will lead to better looking code. This is the bulk of the logic in iterateClashingExprent.
+  // 3.1) Recursion on if statements is incredibly tricky. We need to take extra care to ensure that the head statement iterates *first*
+  //      and that the else branch has a context clear of the if branch. This is because the if and the else branch are independent and should not share variable names.
   public void remapClashingNames(Statement root, StructMethod mt) {
     Map<Statement, Set<VarInMethod>> varDefinitions = new HashMap<>();
     Set<VarInMethod> liveVarDefs = new HashSet<>();
     Map<VarInMethod, String> nameMap = new HashMap<>();
 
+    // Put all of the parameters into the name map
     MethodDescriptor md = mt.methodDescriptor();
     int start = mt.hasModifier(CodeConstants.ACC_STATIC) ? 0 : 1;
     for (int i = 0; i < md.params.length; i++) {
@@ -1433,6 +1454,7 @@ public class VarDefinitionHelper {
 
     boolean shouldRemoveAtEnd = false;
 
+    // Process var definitions as owned by the parent- they come before the statement, and so their scope extends past the actual statement.
     for (Exprent exprent : stat.getVarDefinitions()) {
       Set<VarInMethod> upDefs = new HashSet<>();
       iterateClashingExprent(stat, mt, varDefinitions, exprent, liveVarDefs, upDefs, nameMap);
@@ -1440,15 +1462,29 @@ public class VarDefinitionHelper {
       varDefinitions.put(stat.getParent(), upDefs);
     }
 
-    if (stat.getExprents() != null) {
-      List<Exprent> exprents = new ArrayList<>(stat.getExprents());
-
-      for (Exprent exprent : stat.getExprents()) {
-        exprents.addAll(exprent.getAllExprents(true));
+    // Process head of if first. The head comes *before* the actual if() expression, and so it must be owned by the if's parent.
+    if (stat instanceof IfStatement) {
+      Set<VarInMethod> upDefs = new HashSet<>();
+      BasicBlockStatement basic = stat.getBasichead();
+      for (Exprent exprent : basic.getExprents()) {
+        for (Exprent ex : exprent.getAllExprents(true, true)) {
+          iterateClashingExprent(basic, mt, varDefinitions, ex, liveVarDefs, upDefs, nameMap);
+        }
       }
 
-      for (Exprent exprent : exprents) {
-        iterateClashingExprent(stat, mt, varDefinitions, exprent, liveVarDefs, curVarDefs, nameMap);
+      liveVarDefs.addAll(upDefs);
+      varDefinitions.put(stat.getParent(), upDefs);
+    }
+
+    // If this is a basic block, iterate all exprents
+    if (stat.getExprents() != null) {
+      for (Exprent exprent : stat.getExprents()) {
+        for (Exprent ex : exprent.getAllExprents(true, true)) {
+          // Sort order from getAllExprents here is crucial!
+          // Say, for example, "MyType t = method(t -> ....);"
+          // It is imperative that the lhs of the assign comes first, so that any defs in the rhs can be properly seen.
+          iterateClashingExprent(stat, mt, varDefinitions, ex, liveVarDefs, curVarDefs, nameMap);
+        }
       }
     } else {
       // Process var definitions in statement head
@@ -1463,7 +1499,7 @@ public class VarDefinitionHelper {
       }
 
       shouldRemoveAtEnd = true;
-    } // TODO: consider var defs as owned by parent, or replace shouldRemoveAtEnd with set
+    }
 
     liveVarDefs.addAll(curVarDefs);
     varDefinitions.put(stat, curVarDefs);
@@ -1489,6 +1525,11 @@ public class VarDefinitionHelper {
             deferred.add(st);
             continue;
           }
+
+          // We've already looked at the head- don't look again!
+          if (st == stat.getBasichead()) {
+            continue;
+          }
         }
 
         iterateClashingNames(st, mt, varDefinitions, liveVarDefs, nameMap);
@@ -1500,7 +1541,6 @@ public class VarDefinitionHelper {
     }
 
     for (Statement st : new HashSet<>(varDefinitions.keySet())) {
-      // TODO: consider first statements as owned by the grandparent
       if (st.getParent() == stat) {
         clearStatement(varDefinitions, liveVarDefs, nameMap, st);
       }
@@ -1541,16 +1581,50 @@ public class VarDefinitionHelper {
           if (mt2 != null && mw != null) {
             // Propagate current data through to lambda
             VarDefinitionHelper vardef = new VarDefinitionHelper(mw.root, mt2, mw.varproc, false);
+
+            // Do lambda parameter rename
+
+            // Calculate which varversions are the parameters
+            // This gnarly logic is needed to ensure that the varversions we're looking at are parameters.
+            // Notably, lambdas can reference *outer* variables *before* params are listed, this is to handle that case.
+            MethodDescriptor md = MethodDescriptor.parseDescriptor(node.lambdaInformation.content_method_descriptor);
+            int startIdx = md.params.length - MethodDescriptor.parseDescriptor(node.lambdaInformation.method_descriptor).params.length;
+            int start = node.lambdaInformation.is_content_method_static ? 0 : 1;
+            for (int i = 0; i < md.params.length; i++) {
+              if (i >= startIdx) {
+                VarVersionPair vvp = new VarVersionPair(start, 0);
+
+                // Try to perform a rename
+                String name = mw.varproc.getVarName(vvp);
+                name = rename(nameMap, name);
+
+                // Did we rename? If so, we should add it to the name map and set as clashing
+                if (!mw.varproc.getVarName(vvp).equals(name)) {
+                  mw.varproc.setClashingName(vvp, name);
+                  nameMap.put(new VarInMethod(vvp, mt2), name);
+                }
+              }
+
+              start += md.params[i].stackSize;
+            }
+
+            // Iterate clashing names with the lambda's body, with the context of the outer method
             vardef.iterateClashingNames(mw.root, mt2, varDefinitions, liveVarDefs, nameMap);
 
             for (Entry<VarVersionPair, String> e : vardef.getClashingNames().entrySet()) {
               mw.varproc.setClashingName(e.getKey(), e.getValue());
             }
+
+            // Pop all the variables we've seen, now that the lambda processing is done
+            for (Entry<VarInMethod, String> e : new HashSet<>(nameMap.entrySet())) {
+              if (e.getKey().mt == mt2) {
+                nameMap.remove(e.getKey());
+              }
+            }
           }
         }
       }
     }
-    // TODO: pass current method's clashing names onto enclosed lambdas
 
     if (exprent instanceof VarExprent) {
       VarExprent var = (VarExprent) exprent;
@@ -1563,10 +1637,7 @@ public class VarDefinitionHelper {
           String name = var.getLVT() == null ? this.varproc.getVarName(var.getVarVersionPair()) : var.getLVT().getName();
 
           String originalName = name;
-
-          while (nameMap.containsValue(name)) {
-            name = name + "x";
-          }
+          name = rename(nameMap, name);
 
           boolean scopedSwitch = false;
           if (!originalName.equals(name)) {
@@ -1625,9 +1696,13 @@ public class VarDefinitionHelper {
         }
       }
     }
+  }
 
-    // TODO: Run for lambdas with context of current statement, as their wrappers should be initialized at this point
-    // For lambdas, account for standard varversion names in addition to lvt
+  private static String rename(Map<VarInMethod, String> nameMap, String name) {
+    while (nameMap.containsValue(name)) {
+      name += "x";
+    }
+    return name;
   }
 
   // Finds the case statement that the given statement belongs to

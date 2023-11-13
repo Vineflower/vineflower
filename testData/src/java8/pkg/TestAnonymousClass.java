@@ -1,8 +1,11 @@
 package pkg;
 
+import ext.SomeOuterClass;
+
 import java.lang.Exception;
 import java.lang.Override;
 import java.lang.Runnable;
+import java.util.Iterator;
 
 public abstract class TestAnonymousClass {
   void foo(int i)
@@ -116,5 +119,55 @@ public abstract class TestAnonymousClass {
     void foo() {
 
     }
+  }
+
+  public static Iterable<Integer> innerInAnon() {
+    return new Iterable<Integer>() {
+      public int field = 1491401;
+
+      class Inner implements Iterator<Integer> {
+
+        @Override
+        public boolean hasNext() {
+          return true;
+        }
+
+        @Override
+        public Integer next() {
+          return field ^= 431 * 1493;
+        }
+      }
+
+      @Override
+      public Iterator<Integer> iterator() {
+        return new Inner();
+      }
+    };
+  }
+
+  public static Iterable<Integer> innerInAnon2() {
+    return new Iterable<Integer>() {
+      public int field = 1491401;
+
+      class I2 {
+        class Inner implements Iterator<Integer> {
+
+          @Override
+          public boolean hasNext() {
+            return true;
+          }
+
+          @Override
+          public Integer next() {
+            return field ^= 431 * 1493;
+          }
+        }
+      }
+
+      @Override
+      public Iterator<Integer> iterator() {
+        return new I2().new Inner();
+      }
+    };
   }
 }

@@ -26,7 +26,7 @@ public class TestGenerics<A, B extends TestGenerics.Maps & List> {
    }// 41
 
    public void genericCast() {
-      HashMap<String, Boolean> upcast = (HashMap)field;// 44
+      HashMap<String, Boolean> upcast = (HashMap<String, Boolean>)field;// 44
    }// 45
 
    public void genericForEach() {

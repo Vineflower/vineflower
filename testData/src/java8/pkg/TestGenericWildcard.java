@@ -35,6 +35,20 @@ public class TestGenericWildcard<T> {
     return (Collection<S>) Collections.unmodifiableCollection(list);
   }
 
+  public static <E> Other<E> makeNestedFromWildcard(Another<? extends TestGenericWildcard<?>> aa, TestGenericWildcard<?> bb) {
+    return new Other<>((Another<? extends TestGenericWildcard<E>>)aa, (TestGenericWildcard<E>)bb);
+  }
+
+  public static class Other<C> {
+    public Other(Another<? extends TestGenericWildcard<C>> a, TestGenericWildcard<C> b) {
+
+    }
+  }
+
+  public static class Another<C> {
+
+  }
+
   public <S> TestGenericWildcard<S> otherGenericUnmapped() {
     return new TestGenericWildcard<>();
   }

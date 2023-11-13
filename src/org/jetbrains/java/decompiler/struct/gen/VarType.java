@@ -6,8 +6,6 @@ import java.util.Map;
 
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.code.CodeConstants;
-import org.jetbrains.java.decompiler.main.DecompilerContext;
-import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 
 public class VarType {  // TODO: optimize switch
@@ -55,10 +53,9 @@ public class VarType {  // TODO: optimize switch
 
   public final int type;
   public final int arrayDim;
-  public final String value;
+  public final @Nullable String value;
   public final int typeFamily;
   public final int stackSize;
-  public final boolean falseBoolean;
 
   public VarType(int type) {
     this(type, 0);
@@ -69,16 +66,15 @@ public class VarType {  // TODO: optimize switch
   }
 
   public VarType(int type, int arrayDim, String value) {
-    this(type, arrayDim, value, getFamily(type, arrayDim), getStackSize(type, arrayDim), false);
+    this(type, arrayDim, value, getFamily(type, arrayDim), getStackSize(type, arrayDim));
   }
 
-  protected VarType(int type, int arrayDim, String value, int typeFamily, int stackSize, boolean falseBoolean) {
+  protected VarType(int type, int arrayDim, String value, int typeFamily, int stackSize) {
     this.type = type;
     this.arrayDim = arrayDim;
     this.value = value;
     this.typeFamily = typeFamily;
     this.stackSize = stackSize;
-    this.falseBoolean = falseBoolean;
   }
 
   public VarType(String signature) {
@@ -121,10 +117,9 @@ public class VarType {  // TODO: optimize switch
     this.value = value;
     this.typeFamily = getFamily(type, arrayDim);
     this.stackSize = getStackSize(type, arrayDim);
-    this.falseBoolean = false;
   }
 
-  private static String getChar(int type) {
+  public static String getChar(int type) {
     switch (type) {
       case CodeConstants.TYPE_BYTE:
         return "B";
@@ -221,19 +216,7 @@ public class VarType {  // TODO: optimize switch
   }
 
   public VarType resizeArrayDim(int newArrayDim) {
-    return new VarType(type, newArrayDim, value, typeFamily, stackSize, falseBoolean);
-  }
-
-  public VarType copy() {
-    return copy(false);
-  }
-
-  public VarType copy(boolean forceFalseBoolean) {
-    return new VarType(type, arrayDim, value, typeFamily, stackSize, falseBoolean || forceFalseBoolean);
-  }
-
-  public boolean isFalseBoolean() {
-    return falseBoolean;
+    return new VarType(type, newArrayDim, value, typeFamily, stackSize);
   }
 
   public boolean isSuperset(VarType val) {
@@ -314,7 +297,7 @@ public class VarType {  // TODO: optimize switch
       res.append('L').append(value).append(';');
     }
     else {
-      res.append(value);
+      res.append(value == null ? "--null--" : value);
     }
     return res.toString();
   }
@@ -322,10 +305,6 @@ public class VarType {  // TODO: optimize switch
   // type1 and type2 must not be null
   // Result should be the intersection of both types
   public static @Nullable VarType getCommonMinType(VarType type1, VarType type2) {
-    if (type1.type == CodeConstants.TYPE_BOOLEAN && type2.type == CodeConstants.TYPE_BOOLEAN) { // special case booleans
-      return type1.isFalseBoolean() ? type2 : type1;
-    }
-
     if (type1.isSuperset(type2)) {
       return type2;
     }
@@ -353,10 +332,6 @@ public class VarType {  // TODO: optimize switch
   // type1 and type2 must not be null
   // Result should be the union of both types
   public static @Nullable VarType getCommonSupertype(VarType type1, VarType type2) {
-    if (type1.type == CodeConstants.TYPE_BOOLEAN && type2.type == CodeConstants.TYPE_BOOLEAN) { // special case booleans
-      return type1.isFalseBoolean() ? type1 : type2;
-    }
-
     if (type1.isSuperset(type2)) {
       return type1;
     }

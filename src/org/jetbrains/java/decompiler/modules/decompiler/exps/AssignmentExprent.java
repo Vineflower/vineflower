@@ -100,12 +100,6 @@ public class AssignmentExprent extends Exprent {
   @Override
   public TextBuffer toJava(int indent) {
     VarType leftType = left.getInferredExprType(null);
-    VarType rightType = right.getInferredExprType(leftType);
-
-    if (rightType == null) {
-      // causes npe too late causing a textbuffer error messing up all other tests
-      throw new IllegalStateException("rightType was null");
-    }
 
     boolean fieldInClassInit = false, hiddenField = false;
     if (left instanceof FieldExprent) { // first assignment to a final field. Field name without "this" in front of it
@@ -142,18 +136,27 @@ public class AssignmentExprent extends Exprent {
     }
 
     this.optimizeCastForAssign();
-    TextBuffer res = right.toJava(indent);
-
-    if (condType == null) {
-      this.wrapInCast(leftType, rightType, res, right.getPrecedence());
-    }
 
     if (condType == null) {
       buffer.append(" = ");
+
+      // We must lock the collector: this prevents the retrieval of the cast type name to impact the import list.
+      // This is fine as we're only using the cast type name to ensure that it's not the unrepresentable type.
+      DecompilerContext.getImportCollector().setWriteLocked(true);
+      String castName = ExprProcessor.getCastTypeName(leftType);
+      DecompilerContext.getImportCollector().setWriteLocked(false);
+
+      if (castName.equals(ExprProcessor.UNREPRESENTABLE_TYPE_STRING)) {
+        // Unrepresentable, go ahead and just put the type on the right. The lhs (if a variable) should know about its type and change itself to "var" accordingly.
+        buffer.append(right.toJava(indent));
+      } else {
+        // Cast with the left type
+        ExprProcessor.getCastedExprent(right, leftType, buffer, indent, ExprProcessor.NullCastType.DONT_CAST_AT_ALL, false, false, false);
+      }
     } else {
       buffer.append(" ").append(condType.operator).append("= ");
+      buffer.append(right.toJava(indent));
     }
-    buffer.append(res);
 
     buffer.addStartBytecodeMapping(bytecode);
 
@@ -253,73 +256,6 @@ public class AssignmentExprent extends Exprent {
       // Reset cast state
       func.getInferredExprType(null);
     }
-  }
-
-  private void wrapInCast(VarType left, VarType right, TextBuffer buf, int precedence) {
-    boolean needsCast = !left.isSuperset(right) && (right.equals(VarType.VARTYPE_OBJECT) || left.type != CodeConstants.TYPE_OBJECT);
-
-    if (left.isGeneric() || right.isGeneric()) {
-      Map<VarType, List<VarType>> names = this.getNamedGenerics();
-      int arrayDim = 0;
-
-      if (left.arrayDim == right.arrayDim && left.arrayDim > 0) {
-        arrayDim = left.arrayDim;
-        left = left.resizeArrayDim(0);
-        right = right.resizeArrayDim(0);
-      }
-
-      List<? extends VarType> types = names.get(right);
-      if (types == null) {
-        types = names.get(left);
-      }
-
-      if (types != null) {
-        boolean anyMatch = false; //TODO: allMatch instead of anyMatch?
-        for (VarType type : types) {
-          if (type.equals(VarType.VARTYPE_OBJECT) && right.equals(VarType.VARTYPE_OBJECT)) {
-            continue;
-          }
-          anyMatch |= right.value == null /*null const doesn't need cast*/ || DecompilerContext.getStructContext().instanceOf(right.value, type.value);
-        }
-
-        if (anyMatch) {
-          needsCast = false;
-        }
-      }
-
-      if (arrayDim != 0) {
-        left = left.resizeArrayDim(arrayDim);
-      }
-    }
-
-    if (this.right instanceof FunctionExprent) {
-      FunctionExprent func = (FunctionExprent) this.right;
-      if (func.getFuncType() == FunctionExprent.FunctionType.CAST && func.doesCast()) {
-        // Don't cast if there's already a cast
-        if (func.getLstOperands().get(1).getExprType().equals(left)) {
-          needsCast = false;
-        }
-      }
-    }
-
-    if (!needsCast && ExprProcessor.doGenericTypesCast(this.right, left, right)) {
-      needsCast = true;
-    }
-
-    if (!needsCast) {
-      return;
-    }
-
-    if (ExprProcessor.getCastTypeName(left).equals(ExprProcessor.UNREPRESENTABLE_TYPE_STRING)) {
-      return;
-    }
-
-    if (precedence >= FunctionExprent.FunctionType.CAST.precedence) {
-      buf.encloseWithParens();
-    }
-
-    buf.prepend("(" + ExprProcessor.getCastTypeName(left) + ")");
-    buf.addTypeNameToken(left, 1);
   }
 
   @Override

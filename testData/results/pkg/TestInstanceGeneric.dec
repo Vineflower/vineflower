@@ -1,0 +1,46 @@
+package pkg;
+
+public class TestInstanceGeneric<N extends Number> {
+   public void accept(N num) {
+   }// 6
+
+   public static TestInstanceGeneric<?> get() {
+      return null;// 9
+   }
+
+   public static void test(Long l) {
+      TestInstanceGeneric<?> val = get();// 13
+      ((TestInstanceGeneric<Long>)val).accept(l);// 15
+   }// 16
+}
+
+class 'pkg/TestInstanceGeneric' {
+   method 'accept (Ljava/lang/Number;)V' {
+      0      4
+   }
+
+   method 'get ()Lpkg/TestInstanceGeneric;' {
+      0      7
+      1      7
+   }
+
+   method 'test (Ljava/lang/Long;)V' {
+      0      11
+      1      11
+      2      11
+      3      11
+      4      12
+      5      12
+      6      12
+      7      12
+      8      12
+      9      13
+   }
+}
+
+Lines mapping:
+6 <-> 5
+9 <-> 8
+13 <-> 12
+15 <-> 13
+16 <-> 14

@@ -8,6 +8,7 @@ import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.modules.decompiler.decompose.IGraphNode;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class BasicBlock implements IGraphNode {
@@ -174,7 +175,7 @@ public class BasicBlock implements IGraphNode {
   }
 
   @Override
-  public List<? extends IGraphNode> getPredecessors() {
+  public Collection<? extends IGraphNode> getPredecessors() {
     List<BasicBlock> lst = new ArrayList<>(preds);
     lst.addAll(predExceptions);
     return lst;
