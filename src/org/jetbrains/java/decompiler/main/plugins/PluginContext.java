@@ -13,6 +13,7 @@ import org.jetbrains.java.decompiler.main.decompiler.CancelationManager;
 import org.jetbrains.java.decompiler.struct.StructClass;
 
 import java.util.*;
+import java.util.regex.Pattern;
 
 public class PluginContext {
   private final List<Plugin> plugins = new ArrayList<>();
@@ -50,8 +51,9 @@ public class PluginContext {
 
     JavaPassRegistrar registrar = new JavaPassRegistrar();
     for (Plugin plugin : plugins) {
-      if (!ids.add(plugin.id())) {
-        throw new IllegalStateException("Duplicate plugin " + plugin.getClass().getName() + " with id " + plugin.id());
+      String id = plugin.id();
+      if (!ids.add(id)) {
+        throw new IllegalStateException("Duplicate plugin " + plugin.getClass().getName() + " with id " + id);
       }
 
       plugin.registerJavaPasses(registrar);

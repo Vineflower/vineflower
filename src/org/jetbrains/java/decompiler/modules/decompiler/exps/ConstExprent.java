@@ -5,6 +5,7 @@ import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.struct.gen.FieldDescriptor;
+import org.jetbrains.java.decompiler.struct.gen.TypeFamily;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
 import org.jetbrains.java.decompiler.struct.match.MatchEngine;
@@ -616,7 +617,7 @@ public class ConstExprent extends Exprent {
     }
     // BYTE, BYTECHAR, SHORTCHAR, SHORT, CHAR => INT in the INT context
     else if ((expectedType.equals(VarType.VARTYPE_INT) || expectedType.equals(VarType.VARTYPE_INTEGER)) &&
-            constType.typeFamily == CodeConstants.TYPE_FAMILY_INTEGER) {
+            constType.typeFamily == TypeFamily.INTEGER) {
       setConstType(VarType.VARTYPE_INT);
     }
   }

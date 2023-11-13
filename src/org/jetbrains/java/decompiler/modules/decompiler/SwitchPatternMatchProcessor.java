@@ -9,6 +9,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.struct.consts.PooledConstant;
 import org.jetbrains.java.decompiler.struct.consts.PrimitiveConstant;
 import org.jetbrains.java.decompiler.struct.gen.FieldDescriptor;
+import org.jetbrains.java.decompiler.struct.gen.TypeFamily;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.Pair;
 
@@ -88,7 +89,7 @@ public final class SwitchPatternMatchProcessor {
       Pair<Statement, Exprent> initialUse = references.get(0);
       if (initialUse.b instanceof AssignmentExprent && ((AssignmentExprent) initialUse.b).getRight() instanceof ConstExprent) {
         ConstExprent constExprent = (ConstExprent) ((AssignmentExprent) initialUse.b).getRight();
-        if (constExprent.getConstType().typeFamily == CodeConstants.TYPE_FAMILY_INTEGER && constExprent.getIntValue() == 0) {
+        if (constExprent.getConstType().typeFamily == TypeFamily.INTEGER && constExprent.getIntValue() == 0) {
           references.remove(0);
         } else {
           return false;
@@ -233,7 +234,7 @@ public final class SwitchPatternMatchProcessor {
           // make sure we replace the right constant, null can be shared with anything
           stat.getCaseValues().get(replaceIndex).replaceAll(u ->
             u instanceof ConstExprent
-            && u.getExprType().typeFamily == CodeConstants.TYPE_FAMILY_INTEGER
+            && u.getExprType().typeFamily == TypeFamily.INTEGER
             && ((ConstExprent) u).getIntValue() == ix
               ? nvx : u);
         }

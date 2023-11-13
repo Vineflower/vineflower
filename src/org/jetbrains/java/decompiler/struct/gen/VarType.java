@@ -4,11 +4,12 @@ package org.jetbrains.java.decompiler.struct.gen;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 
-public class VarType {  // TODO: optimize switch
+public class VarType {
 
   public static final VarType[] EMPTY_ARRAY = {};
 
@@ -54,7 +55,7 @@ public class VarType {  // TODO: optimize switch
   public final int type;
   public final int arrayDim;
   public final @Nullable String value;
-  public final int typeFamily;
+  public final @NotNull TypeFamily typeFamily;
   public final int stackSize;
 
   public VarType(int type) {
@@ -69,7 +70,7 @@ public class VarType {  // TODO: optimize switch
     this(type, arrayDim, value, getFamily(type, arrayDim), getStackSize(type, arrayDim));
   }
 
-  protected VarType(int type, int arrayDim, String value, int typeFamily, int stackSize) {
+  protected VarType(int type, int arrayDim, String value, @NotNull TypeFamily typeFamily, int stackSize) {
     this.type = type;
     this.arrayDim = arrayDim;
     this.value = value;
@@ -176,9 +177,9 @@ public class VarType {  // TODO: optimize switch
     }
   }
 
-  protected static int getFamily(int type, int arrayDim) {
+  protected static TypeFamily getFamily(int type, int arrayDim) {
     if (arrayDim > 0) {
-      return CodeConstants.TYPE_FAMILY_OBJECT;
+      return TypeFamily.OBJECT;
     }
 
     switch (type) {
@@ -188,20 +189,20 @@ public class VarType {  // TODO: optimize switch
       case CodeConstants.TYPE_CHAR:
       case CodeConstants.TYPE_SHORT:
       case CodeConstants.TYPE_INT:
-        return CodeConstants.TYPE_FAMILY_INTEGER;
+        return TypeFamily.INTEGER;
       case CodeConstants.TYPE_DOUBLE:
-        return CodeConstants.TYPE_FAMILY_DOUBLE;
+        return TypeFamily.DOUBLE;
       case CodeConstants.TYPE_FLOAT:
-        return CodeConstants.TYPE_FAMILY_FLOAT;
+        return TypeFamily.FLOAT;
       case CodeConstants.TYPE_LONG:
-        return CodeConstants.TYPE_FAMILY_LONG;
+        return TypeFamily.LONG;
       case CodeConstants.TYPE_BOOLEAN:
-        return CodeConstants.TYPE_FAMILY_BOOLEAN;
+        return TypeFamily.BOOLEAN;
       case CodeConstants.TYPE_NULL:
       case CodeConstants.TYPE_OBJECT:
-        return CodeConstants.TYPE_FAMILY_OBJECT;
+        return TypeFamily.OBJECT;
       default:
-        return CodeConstants.TYPE_FAMILY_UNKNOWN;
+        return TypeFamily.UNKNOWN;
     }
   }
 
@@ -313,7 +314,7 @@ public class VarType {  // TODO: optimize switch
     }
     else if (type1.typeFamily == type2.typeFamily) {
       switch (type1.typeFamily) {
-        case CodeConstants.TYPE_FAMILY_INTEGER:
+        case INTEGER:
           if ((type1.type == CodeConstants.TYPE_CHAR && type2.type == CodeConstants.TYPE_SHORT)
               || (type1.type == CodeConstants.TYPE_SHORT && type2.type == CodeConstants.TYPE_CHAR)) {
             return VARTYPE_SHORTCHAR;
@@ -321,7 +322,7 @@ public class VarType {  // TODO: optimize switch
           else {
             return VARTYPE_BYTECHAR;
           }
-        case CodeConstants.TYPE_FAMILY_OBJECT:
+        case OBJECT:
           return VARTYPE_NULL;
       }
     }
@@ -340,7 +341,7 @@ public class VarType {  // TODO: optimize switch
     }
     else if (type1.typeFamily == type2.typeFamily) {
       switch (type1.typeFamily) {
-        case CodeConstants.TYPE_FAMILY_INTEGER:
+        case INTEGER:
           if ((type1.type == CodeConstants.TYPE_SHORTCHAR && type2.type == CodeConstants.TYPE_BYTE)
               || (type1.type == CodeConstants.TYPE_BYTE && type2.type == CodeConstants.TYPE_SHORTCHAR)) {
             return VARTYPE_SHORT;
@@ -348,7 +349,7 @@ public class VarType {  // TODO: optimize switch
           else {
             return VARTYPE_INT;
           }
-        case CodeConstants.TYPE_FAMILY_OBJECT:
+        case OBJECT:
           return VARTYPE_OBJECT;
       }
     }
@@ -356,21 +357,21 @@ public class VarType {  // TODO: optimize switch
     return null;
   }
 
-  public static VarType getMinTypeInFamily(int family) {
+  public static VarType getMinTypeInFamily(TypeFamily family) {
     switch (family) {
-      case CodeConstants.TYPE_FAMILY_BOOLEAN:
+      case BOOLEAN:
         return VARTYPE_BOOLEAN;
-      case CodeConstants.TYPE_FAMILY_INTEGER:
+      case INTEGER:
         return VARTYPE_BYTECHAR;
-      case CodeConstants.TYPE_FAMILY_OBJECT:
+      case OBJECT:
         return VARTYPE_NULL;
-      case CodeConstants.TYPE_FAMILY_FLOAT:
+      case FLOAT:
         return VARTYPE_FLOAT;
-      case CodeConstants.TYPE_FAMILY_LONG:
+      case LONG:
         return VARTYPE_LONG;
-      case CodeConstants.TYPE_FAMILY_DOUBLE:
+      case DOUBLE:
         return VARTYPE_DOUBLE;
-      case CodeConstants.TYPE_FAMILY_UNKNOWN:
+      case UNKNOWN:
         return VARTYPE_UNKNOWN;
       default:
         throw new IllegalArgumentException("Invalid type family: " + family);

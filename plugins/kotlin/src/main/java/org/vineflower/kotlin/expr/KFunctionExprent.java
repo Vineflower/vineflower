@@ -6,6 +6,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FieldExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
+import org.jetbrains.java.decompiler.struct.gen.TypeFamily;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.Typed;
@@ -255,7 +256,7 @@ public class KFunctionExprent extends FunctionExprent implements KExprent {
       Exprent l = getLstOperands().get(0);
       Exprent r = getLstOperands().get(1);
 
-      if (l.getExprType().typeFamily != CodeConstants.TYPE_FAMILY_OBJECT || r.getExprType().typeFamily != CodeConstants.TYPE_FAMILY_OBJECT) {
+      if (l.getExprType().typeFamily != TypeFamily.OBJECT || r.getExprType().typeFamily != TypeFamily.OBJECT) {
         setFuncType(FunctionType.EQ);
       }
     }

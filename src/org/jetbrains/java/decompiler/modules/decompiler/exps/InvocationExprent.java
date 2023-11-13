@@ -21,6 +21,7 @@ import org.jetbrains.java.decompiler.struct.consts.LinkConstant;
 import org.jetbrains.java.decompiler.struct.consts.PooledConstant;
 import org.jetbrains.java.decompiler.struct.consts.PrimitiveConstant;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
+import org.jetbrains.java.decompiler.struct.gen.TypeFamily;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericMethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
@@ -224,7 +225,7 @@ public class InvocationExprent extends Exprent {
           // Don't keep the cast in that case.
           VarType unboxed = VarType.UNBOXING_TYPES.get(inferred);
           if (unboxed == null || !unboxed.equals(upperBound)) {
-            if (inferred.typeFamily == CodeConstants.TYPE_FAMILY_OBJECT || inferred.isGeneric()) {
+            if (inferred.typeFamily == TypeFamily.OBJECT || inferred.isGeneric()) {
               boxing.keepCast = true;
             }
           }
@@ -280,7 +281,7 @@ public class InvocationExprent extends Exprent {
 
           // Don't capture as a real upper bound unless the upperbound is an object or a likewise generic.
           // FunctionExprent needs to inform its children about the type that it has, so it'll cause conflict here.
-          if (r.type == CodeConstants.TYPE_GENVAR && (upperBound.typeFamily == CodeConstants.TYPE_FAMILY_OBJECT || upperBound.isGeneric())) {
+          if (r.type == CodeConstants.TYPE_GENVAR && (upperBound.typeFamily == TypeFamily.OBJECT || upperBound.isGeneric())) {
             upperBoundsMap.put(r.resizeArrayDim(0), upperBound.resizeArrayDim(upperBound.arrayDim - r.arrayDim));
           }
           else {
@@ -984,7 +985,7 @@ public class InvocationExprent extends Exprent {
           Exprent value = inv.lstParameters.get(0);
           types[i] = value.getExprType(); //Infer?
           //Unboxing in this case is lossy, so we need to explicitly set the type
-          if (types[i].typeFamily == CodeConstants.TYPE_FAMILY_INTEGER) {
+          if (types[i].typeFamily == TypeFamily.INTEGER) {
             types[i] =
               "java/lang/Short".equals(inv.classname) ? VarType.VARTYPE_SHORT :
               "java/lang/Byte".equals(inv.classname) ? VarType.VARTYPE_BYTE :
@@ -1191,7 +1192,7 @@ public class InvocationExprent extends Exprent {
         // 'Integer.valueOf(1)' has '1' type detected as TYPE_BYTECHAR
         // 'Integer.valueOf(40_000)' has '40_000' type detected as TYPE_CHAR
         // so we check the type family instead
-        if (lstParameters.get(0).getExprType().typeFamily == CodeConstants.TYPE_FAMILY_INTEGER) {
+        if (lstParameters.get(0).getExprType().typeFamily == TypeFamily.INTEGER) {
           if (classname.equals("java/lang/Integer")) {
             return true;
           }
@@ -1487,11 +1488,11 @@ public class InvocationExprent extends Exprent {
   // See also: TestVarIndex
   private boolean shouldBeAmbiguous(VarType param, Exprent exp) {
     if (exp instanceof VarExprent) {
-      if (exp.getExprType().typeFamily == CodeConstants.TYPE_FAMILY_INTEGER && param.typeFamily == CodeConstants.TYPE_FAMILY_INTEGER) {
+      if (exp.getExprType().typeFamily == TypeFamily.INTEGER && param.typeFamily == TypeFamily.INTEGER) {
         return !param.equals(exp.getExprType());
       }
 
-      if (param.equals(VarType.VARTYPE_OBJECT) && param.arrayDim == 0 && exp.getExprType().typeFamily == CodeConstants.TYPE_FAMILY_OBJECT) {
+      if (param.equals(VarType.VARTYPE_OBJECT) && param.arrayDim == 0 && exp.getExprType().typeFamily == TypeFamily.OBJECT) {
         return true;
       }
     }

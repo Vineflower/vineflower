@@ -20,6 +20,7 @@ import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribute.LocalVariable;
 import org.jetbrains.java.decompiler.struct.attr.StructMethodParametersAttribute;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
+import org.jetbrains.java.decompiler.struct.gen.TypeFamily;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
 import org.jetbrains.java.decompiler.util.ArrayHelper;
@@ -928,7 +929,7 @@ public class VarDefinitionHelper {
   }
 
   private static boolean canConstTypeMerge(VarType type) {
-    if (type.typeFamily == CodeConstants.TYPE_FAMILY_OBJECT) {
+    if (type.typeFamily == TypeFamily.OBJECT) {
       return type == VarType.VARTYPE_STRING || type == VarType.VARTYPE_CLASS || type == VarType.VARTYPE_NULL;
     }
 
