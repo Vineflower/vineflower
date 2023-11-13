@@ -110,6 +110,9 @@ public class KContract {
   }
 
   public static class KExpression {
+    // Placeholder type for receiver type
+    private static final KParameter THIS_TYPE = new KParameter(new ProtobufFlags.ValueParameter(0), "this", KType.NOTHING, null, 0);
+
     @NotNull
     public final ProtobufFlags.Expression flags;
     @Nullable
@@ -140,7 +143,12 @@ public class KContract {
 
     static KExpression from(ProtoBuf.Expression proto, List<KParameter> params, MetadataNameResolver nameResolver) {
       ProtobufFlags.Expression flags = new ProtobufFlags.Expression(proto.getFlags());
-      KParameter valueParameterReference = proto.hasValueParameterReference() ? params.get(proto.getValueParameterReference() - 1) : null;
+      KParameter valueParameterReference = null;
+      if (proto.hasValueParameterReference()) {
+        int index = proto.getValueParameterReference();
+        valueParameterReference = index == 0 ? THIS_TYPE : params.get(index - 1);
+      }
+
       ProtoBuf.Expression.ConstantValue constantValue = proto.hasConstantValue() ? proto.getConstantValue() : null;
       KType instanceofType = null;
       if (proto.hasIsInstanceType()) {
@@ -160,28 +168,36 @@ public class KContract {
       }
 
       boolean appended = true;
+
+      String paramName = null;
+      if (valueParameterReference == THIS_TYPE) {
+        paramName = "this";
+      } else if (valueParameterReference != null) {
+        paramName = KotlinWriter.toValidKotlinIdentifier(valueParameterReference.name);
+      }
+
       if (instanceofType != null) {
-        buf.append(KotlinWriter.toValidKotlinIdentifier(valueParameterReference.name))
+        buf.append(paramName)
           .append(' ')
           .append(flags.isNegated ? "!is" : "is")
           .append(' ')
           .append(instanceofType.stringify(indent));
       } else if (flags.isNullPredicate) {
-        buf.append(KotlinWriter.toValidKotlinIdentifier(valueParameterReference.name))
+        buf.append(paramName)
           .append(' ')
           .append(flags.isNegated ? "!=" : "==")
           .append(' ')
           .append("null");
       } else if (constantValue != null) {
         if (valueParameterReference != null && valueParameterReference.type.isNullable) {
-          buf.append(KotlinWriter.toValidKotlinIdentifier(valueParameterReference.name))
+          buf.append(paramName)
             .append(' ')
             .append(flags.isNegated ? "!=" : "==")
             .append(' ')
             .append(constantValue.name().toLowerCase());
         } else {
           String output = valueParameterReference != null && "kotlin/Boolean".equals(valueParameterReference.type.kotlinType)
-            ? KotlinWriter.toValidKotlinIdentifier(valueParameterReference.name)
+            ? paramName
             : constantValue.name().toLowerCase();
 
           if (flags.isNegated) {
@@ -197,7 +213,7 @@ public class KContract {
         if (flags.isNegated) {
           buf.append('!');
         }
-        buf.append(KotlinWriter.toValidKotlinIdentifier(valueParameterReference.name));
+        buf.append(paramName);
       } else {
         appended = false;
       }
