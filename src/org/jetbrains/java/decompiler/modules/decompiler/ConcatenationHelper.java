@@ -7,6 +7,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.Fun
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.struct.consts.PooledConstant;
 import org.jetbrains.java.decompiler.struct.consts.PrimitiveConstant;
+import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 
@@ -21,8 +22,8 @@ public final class ConcatenationHelper {
   private static final String bufferClass = "java/lang/StringBuffer";
   private static final String stringClass = "java/lang/String";
 
-  private static final VarType builderType = new VarType(CodeConstants.TYPE_OBJECT, 0, "java/lang/StringBuilder");
-  private static final VarType bufferType = new VarType(CodeConstants.TYPE_OBJECT, 0, "java/lang/StringBuffer");
+  private static final VarType builderType = new VarType(CodeType.OBJECT, 0, "java/lang/StringBuilder");
+  private static final VarType bufferType = new VarType(CodeType.OBJECT, 0, "java/lang/StringBuffer");
 
   public static void simplifyStringConcat(Statement stat) {
     for (Statement s : stat.getStats()) {
@@ -262,17 +263,17 @@ public final class ConcatenationHelper {
       if (md.ret.equals(cltype) && md.params.length == 1) {
         VarType param = md.params[0];
         switch (param.type) {
-          case CodeConstants.TYPE_OBJECT:
+          case OBJECT:
             if (!param.equals(VarType.VARTYPE_STRING) &&
                 !param.equals(VarType.VARTYPE_OBJECT)) {
               break;
             }
-          case CodeConstants.TYPE_BOOLEAN:
-          case CodeConstants.TYPE_CHAR:
-          case CodeConstants.TYPE_DOUBLE:
-          case CodeConstants.TYPE_FLOAT:
-          case CodeConstants.TYPE_INT:
-          case CodeConstants.TYPE_LONG:
+          case BOOLEAN:
+          case CHAR:
+          case DOUBLE:
+          case FLOAT:
+          case INT:
+          case LONG:
             return true;
           default:
         }
@@ -300,16 +301,16 @@ public final class ConcatenationHelper {
         if (md.params.length == 1) {
           VarType param = md.params[0];
           switch (param.type) {
-            case CodeConstants.TYPE_OBJECT:
+            case OBJECT:
               if (!param.equals(VarType.VARTYPE_OBJECT)) {
                 break;
               }
-            case CodeConstants.TYPE_BOOLEAN:
-            case CodeConstants.TYPE_CHAR:
-            case CodeConstants.TYPE_DOUBLE:
-            case CodeConstants.TYPE_FLOAT:
-            case CodeConstants.TYPE_INT:
-            case CodeConstants.TYPE_LONG:
+            case BOOLEAN:
+            case CHAR:
+            case DOUBLE:
+            case FLOAT:
+            case INT:
+            case LONG:
               return iex.getLstParameters().get(0);
           }
         }

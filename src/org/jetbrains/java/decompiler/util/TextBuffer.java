@@ -10,6 +10,7 @@ import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.extern.TextTokenVisitor;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
+import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.struct.gen.FieldDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
@@ -91,7 +92,7 @@ public class TextBuffer {
   }
 
   public TextBuffer appendCastTypeName(String castName, VarType type) {
-    if (type.type == CodeConstants.TYPE_OBJECT) {
+    if (type.type == CodeType.OBJECT) {
       if (type.arrayDim > 0) {
         String name = castName.substring(0, castName.length() - type.arrayDim * 2);
         appendAllClasses(name, type.value);
@@ -113,7 +114,7 @@ public class TextBuffer {
   }
 
   public TextBuffer appendTypeName(String name, VarType type) {
-    if (type.type == CodeConstants.TYPE_OBJECT) {
+    if (type.type == CodeType.OBJECT) {
       appendAllClasses(name, type.value);
       addGenericTypeTokens(length() - name.length(), name, type);
 
@@ -124,7 +125,7 @@ public class TextBuffer {
   }
 
   public TextBuffer addTypeNameToken(VarType type, int index) {
-    if (type.type == CodeConstants.TYPE_OBJECT) {
+    if (type.type == CodeType.OBJECT) {
       String name = ExprProcessor.getTypeName(type);
       addAllClassTokens(index, name, type.value);
       addGenericTypeTokens(index, name, type);
@@ -184,14 +185,14 @@ public class TextBuffer {
         }
 
         String name = GenericMain.getGenericCastTypeName(gt);
-        if (gt.type == CodeConstants.TYPE_OBJECT) {
+        if (gt.type == CodeType.OBJECT) {
           addAllClassTokens(index + offset, name, gt.value);
         }
 
         addGenericTypeTokens(index + offset, name, gt);
         offset += name.length();
       } else {
-        if (t.type == CodeConstants.TYPE_OBJECT) {
+        if (t.type == CodeType.OBJECT) {
           addTypeNameToken(t, index + offset);
         }
 

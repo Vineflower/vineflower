@@ -8,6 +8,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.struct.consts.PooledConstant;
 import org.jetbrains.java.decompiler.struct.consts.PrimitiveConstant;
+import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.struct.gen.FieldDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.TypeFamily;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
@@ -217,7 +218,7 @@ public final class SwitchPatternMatchProcessor {
           case CodeConstants.CONSTANT_Class:
             // may happen if the switch head is a supertype of the pattern
             if (stat.getCaseValues().get(replaceIndex).stream().allMatch(x -> x instanceof ConstExprent)) {
-              VarType castType = new VarType(CodeConstants.TYPE_OBJECT, 0, (String) p.value);
+              VarType castType = new VarType(CodeType.OBJECT, 0, (String) p.value);
               List<Exprent> operands = new ArrayList<>();
               operands.add(realSelector); // checking var
               operands.add(new ConstExprent(castType, null, null)); // type

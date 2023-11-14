@@ -12,6 +12,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.sforms.VarMapHolder;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
+import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
 import org.jetbrains.java.decompiler.struct.match.MatchEngine;
@@ -27,7 +28,7 @@ import java.util.*;
 
 public class FunctionExprent extends Exprent {
 
-  private static final int[] TYPE_PRIMITIVES = {CodeConstants.TYPE_DOUBLE, CodeConstants.TYPE_FLOAT, CodeConstants.TYPE_LONG};
+  private static final CodeType[] TYPE_PRIMITIVES = {CodeType.DOUBLE, CodeType.FLOAT, CodeType.LONG};
   private static final VarType[] TYPES = {VarType.VARTYPE_DOUBLE, VarType.VARTYPE_FLOAT, VarType.VARTYPE_LONG};;
 
   public enum FunctionType implements Typed {
@@ -207,7 +208,7 @@ public class FunctionExprent extends Exprent {
       case XOR: {
         VarType type1 = lstOperands.get(0).getExprType();
         VarType type2 = lstOperands.get(1).getExprType();
-        if (type1.type == CodeConstants.TYPE_BOOLEAN && type2.type == CodeConstants.TYPE_BOOLEAN) {
+        if (type1.type == CodeType.BOOLEAN && type2.type == CodeType.BOOLEAN) {
           return VarType.VARTYPE_BOOLEAN;
         } else {
           return getMaxVarType(type1, type2);
@@ -224,7 +225,7 @@ public class FunctionExprent extends Exprent {
         }
 
         if (param1 instanceof ConstExprent && param2 instanceof ConstExprent &&
-          supertype.type != CodeConstants.TYPE_BOOLEAN && VarType.VARTYPE_INT.isSuperset(supertype)) {
+          supertype.type != CodeType.BOOLEAN && VarType.VARTYPE_INT.isSuperset(supertype)) {
           return VarType.VARTYPE_INT;
         } else {
           return supertype;
@@ -267,7 +268,7 @@ public class FunctionExprent extends Exprent {
             this.needsCast = false;
           }
         } else {
-            this.needsCast = right.type == CodeConstants.TYPE_NULL || !DecompilerContext.getStructContext().instanceOf(right.value, upperBound.value) || !areGenericTypesSame(right, upperBound);
+            this.needsCast = right.type == CodeType.NULL || !DecompilerContext.getStructContext().instanceOf(right.value, upperBound.value) || !areGenericTypesSame(right, upperBound);
         }
 
         if (!this.needsCast) {
@@ -278,7 +279,7 @@ public class FunctionExprent extends Exprent {
           return right;
         }
       } else { //TODO: Capture generics to make cast better?
-        this.needsCast = right.type == CodeConstants.TYPE_NULL || !DecompilerContext.getStructContext().instanceOf(right.value, cast.value) || right.arrayDim != cast.arrayDim;
+        this.needsCast = right.type == CodeType.NULL || !DecompilerContext.getStructContext().instanceOf(right.value, cast.value) || right.arrayDim != cast.arrayDim;
       }
 
       return getExprType();
@@ -286,16 +287,16 @@ public class FunctionExprent extends Exprent {
       VarType type1 = lstOperands.get(1).getInferredExprType(upperBound);
       VarType type2 = lstOperands.get(2).getInferredExprType(upperBound);
 
-      if (type1.type == CodeConstants.TYPE_NULL) {
+      if (type1.type == CodeType.NULL) {
         return type2;
-      } else if (type2.type == CodeConstants.TYPE_NULL) {
+      } else if (type2.type == CodeType.NULL) {
         return type1;
       }
 
       VarType union = VarType.getCommonSupertype(type1, type2);
 
       if (union != null && lstOperands.get(1) instanceof ConstExprent && lstOperands.get(2) instanceof ConstExprent &&
-        union.type != CodeConstants.TYPE_BOOLEAN && VarType.VARTYPE_INT.isSuperset(union)) {
+        union.type != CodeType.BOOLEAN && VarType.VARTYPE_INT.isSuperset(union)) {
         union = VarType.VARTYPE_INT;
       }
 
@@ -415,7 +416,7 @@ public class FunctionExprent extends Exprent {
       case XOR:
       case EQ:
       case NE: {
-        if (type1.type == CodeConstants.TYPE_BOOLEAN) {
+        if (type1.type == CodeType.BOOLEAN) {
           if (type2.isStrictSuperset(type1)) {
             result.addMinTypeExprent(param1, VarType.VARTYPE_BYTECHAR);
           }
@@ -429,7 +430,7 @@ public class FunctionExprent extends Exprent {
             }
           }
         }
-        else if (type2.type == CodeConstants.TYPE_BOOLEAN) {
+        else if (type2.type == CodeType.BOOLEAN) {
           if (type1.isStrictSuperset(type2)) {
             result.addMinTypeExprent(param2, VarType.VARTYPE_BYTECHAR);
           }

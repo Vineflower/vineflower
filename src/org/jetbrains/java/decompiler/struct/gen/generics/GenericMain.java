@@ -5,6 +5,7 @@ import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.decompiler.CancelationManager;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
+import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.util.TextUtil;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 
@@ -182,17 +183,17 @@ public final class GenericMain {
   }
 
   private static String getTypeName(GenericType type) {
-    int tp = type.type;
-    if (tp <= CodeConstants.TYPE_BOOLEAN) {
-      return typeNames[tp];
+    CodeType tp = type.type;
+    if (tp.ordinal() <= CodeType.BOOLEAN.ordinal()) {
+      return typeNames[tp.ordinal()];
     }
-    else if (tp == CodeConstants.TYPE_VOID) {
+    else if (tp == CodeType.VOID) {
       return "void";
     }
-    else if (tp == CodeConstants.TYPE_GENVAR) {
+    else if (tp == CodeType.GENVAR) {
       return type.value;
     }
-    else if (tp == CodeConstants.TYPE_OBJECT) {
+    else if (tp == CodeType.OBJECT) {
       return type.getCastName();
     }
 

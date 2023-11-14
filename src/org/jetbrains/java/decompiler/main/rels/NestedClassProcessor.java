@@ -29,6 +29,7 @@ import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribute.LocalVariable;
 import org.jetbrains.java.decompiler.struct.consts.LinkConstant;
 import org.jetbrains.java.decompiler.struct.consts.PooledConstant;
+import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
@@ -152,7 +153,7 @@ public class NestedClassProcessor {
       FieldExprent mapField = (FieldExprent)ass.getLeft();
       NewExprent _new = ((NewExprent)ass.getRight());
       if (!mapField.getClassname().equals(node.classStruct.qualifiedName) || !potentialFields.contains(mapField.getName()) ||
-          _new.getNewType().type != CodeConstants.TYPE_INT || _new.getNewType().arrayDim != 1 ||
+          _new.getNewType().type != CodeType.INT || _new.getNewType().arrayDim != 1 ||
           _new.getLstDims().size() != 1 || _new.getLstDims().get(0).type != Exprent.EXPRENT_FUNCTION) {
         break;
       }
@@ -1149,7 +1150,7 @@ public class NestedClassProcessor {
             res = true;
             break;
           }
-          res = newType.type == CodeConstants.TYPE_OBJECT && classname.equals(newType.value) || containsType(newExpr.getConstructor(), classType);
+          res = newType.type == CodeType.OBJECT && classname.equals(newType.value) || containsType(newExpr.getConstructor(), classType);
           break;
         case VAR:
           VarExprent varExpr = (VarExprent)expr;

@@ -21,6 +21,7 @@ import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribute.LocalVariable;
 import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTypeTableAttribute;
+import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericFieldDescriptor;
@@ -321,13 +322,13 @@ public class VarExprent extends Exprent {
             vt = cls.getSignature().genericType;
           }
           else if (vt == null) {
-            vt = new VarType(CodeConstants.TYPE_OBJECT, 0, qaulName);
+            vt = new VarType(CodeType.OBJECT, 0, qaulName);
           }
         }
       }
     }
 
-    if (vt == null || (varType != null && varType.type != CodeConstants.TYPE_UNKNOWN)) {
+    if (vt == null || (varType != null && varType.type != CodeType.UNKNOWN)) {
       vt = varType;
     }
 

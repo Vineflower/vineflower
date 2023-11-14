@@ -9,6 +9,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructMethod;
+import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.TypeFamily;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
@@ -52,7 +53,7 @@ public class VarTypeProcessor {
 
     if (thisVar) {
       StructClass cl = (StructClass)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS);
-      VarType clType = new VarType(CodeConstants.TYPE_OBJECT, 0, cl.qualifiedName);
+      VarType clType = new VarType(CodeType.OBJECT, 0, cl.qualifiedName);
       mapExprentMinTypes.put(new VarVersionPair(0, 1), clType);
       mapExprentMaxTypes.put(new VarVersionPair(0, 1), clType);
     }

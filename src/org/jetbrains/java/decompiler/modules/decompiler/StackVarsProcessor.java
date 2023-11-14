@@ -22,6 +22,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionsGraph;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructMethod;
+import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.collections.FastSparseSetFactory.FastSparseSet;
@@ -358,7 +359,7 @@ public class StackVarsProcessor {
             // TODO: why is this here? anonymous vars should be simplified!
 //            nexpr.isAnonymous() ||
               nexpr.getNewType().arrayDim > 0 ||
-              nexpr.getNewType().type != CodeConstants.TYPE_OBJECT
+              nexpr.getNewType().type != CodeType.OBJECT
           ) {
             setRet(ret, -1, changed);
             return;

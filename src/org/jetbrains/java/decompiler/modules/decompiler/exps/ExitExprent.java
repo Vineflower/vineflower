@@ -10,6 +10,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
 import org.jetbrains.java.decompiler.struct.attr.StructExceptionsAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
+import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.match.MatchEngine;
@@ -51,7 +52,7 @@ public class ExitExprent extends Exprent {
   public CheckTypesResult checkExprTypeBounds() {
     CheckTypesResult result = new CheckTypesResult();
 
-    if (exitType == Type.RETURN && retType.type != CodeConstants.TYPE_VOID) {
+    if (exitType == Type.RETURN && retType.type != CodeType.VOID) {
       result.addMinTypeExprent(value, VarType.getMinTypeInFamily(retType.typeFamily));
       result.addMaxTypeExprent(value, retType);
     }
@@ -75,7 +76,7 @@ public class ExitExprent extends Exprent {
     if (exitType == Type.RETURN) {
       buf.append("return");
 
-      if (retType.type != CodeConstants.TYPE_VOID) {
+      if (retType.type != CodeType.VOID) {
         VarType ret = retType;
         if (methodDescriptor != null && methodDescriptor.genericInfo != null && methodDescriptor.genericInfo.returnType != null) {
           ret = methodDescriptor.genericInfo.returnType;

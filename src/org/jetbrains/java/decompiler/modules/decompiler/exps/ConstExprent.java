@@ -4,6 +4,7 @@ package org.jetbrains.java.decompiler.modules.decompiler.exps;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
+import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.struct.gen.FieldDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.TypeFamily;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
@@ -220,17 +221,17 @@ public class ConstExprent extends Exprent {
       buf.append("/* $VF: constant dynamic */ ");
     }
 
-    if (constType.type != CodeConstants.TYPE_NULL && value == null) {
+    if (constType.type != CodeType.NULL && value == null) {
       return buf.appendCastTypeName(constType);
     }
 
     VarType unboxed = VarType.UNBOXING_TYPES.getOrDefault(constType, constType);
 
     switch (unboxed.type) {
-      case CodeConstants.TYPE_BOOLEAN:
+      case BOOLEAN:
         return buf.append(Boolean.toString((Integer)value != 0));
 
-      case CodeConstants.TYPE_CHAR:
+      case CHAR:
         Integer val = (Integer)value;
         String ret = CHAR_ESCAPES.get(val);
         if (ret == null) {
@@ -244,12 +245,12 @@ public class ConstExprent extends Exprent {
         }
         return buf.append(ret).enclose("'", "'");
 
-      case CodeConstants.TYPE_BYTECHAR:
-      case CodeConstants.TYPE_SHORTCHAR:
+      case BYTECHAR:
+      case SHORTCHAR:
         // TODO: assert here, we should not be writing higher order types
-      case CodeConstants.TYPE_BYTE:
-      case CodeConstants.TYPE_SHORT:
-      case CodeConstants.TYPE_INT:
+      case BYTE:
+      case SHORT:
+      case INT:
         int intVal = (Integer)value;
         if (!literal) {
           if (intVal == Integer.MAX_VALUE) {
@@ -261,7 +262,7 @@ public class ConstExprent extends Exprent {
         }
         return buf.append(value.toString());
 
-      case CodeConstants.TYPE_LONG:
+      case LONG:
 
         long longVal = (Long)value;
 
@@ -275,7 +276,7 @@ public class ConstExprent extends Exprent {
         }
         return buf.append(value.toString()).append('L');
 
-      case CodeConstants.TYPE_FLOAT:
+      case FLOAT:
         float floatVal = (Float)value;
         if (!literal) {
           if (Float.isNaN(floatVal)) {
@@ -300,7 +301,7 @@ public class ConstExprent extends Exprent {
         }
         return buf.append(trimFloat(Float.toString(floatVal), floatVal)).append('F');
 
-      case CodeConstants.TYPE_DOUBLE:
+      case DOUBLE:
         double doubleVal = (Double)value;
         if (!literal) {
           if (Double.isNaN(doubleVal)) {
@@ -336,10 +337,10 @@ public class ConstExprent extends Exprent {
         }
         return buf.append(trimDouble(Double.toString(doubleVal), doubleVal));
 
-      case CodeConstants.TYPE_NULL:
+      case NULL:
         return buf.append("null");
 
-      case CodeConstants.TYPE_OBJECT:
+      case OBJECT:
         if (constType.equals(VarType.VARTYPE_STRING)) {
           return buf.append(convertStringToJava(value.toString(), ascii)).enclose("\"", "\"");
         }
@@ -366,14 +367,14 @@ public class ConstExprent extends Exprent {
     // FIXME: this entire system is terrible, and pi constants need to be fixed to not create field exprents
 
     switch (unboxed.type) {
-      case CodeConstants.TYPE_FLOAT:
+      case FLOAT:
         float floatVal = (Float)value;
 
         if (UNINLINED_FLOATS.containsKey(floatVal) && !NO_PAREN_VALUES.contains(floatVal) && UNINLINED_FLOATS.get(floatVal).apply(bytecode).countChars('(') < 2) {
           return 4;
         }
         break;
-      case CodeConstants.TYPE_DOUBLE:
+      case DOUBLE:
         double doubleVal = (Double)value;
 
         if (UNINLINED_DOUBLES.containsKey(doubleVal) && !NO_PAREN_VALUES.contains(doubleVal) && UNINLINED_DOUBLES.get(doubleVal).apply(bytecode).countChars('(') < 2) {
@@ -486,7 +487,7 @@ public class ConstExprent extends Exprent {
   }
 
   public boolean isNull() {
-    return CodeConstants.TYPE_NULL == constType.type;
+    return CodeType.NULL == constType.type;
   }
 
   public static String convertStringToJava(String value, boolean ascii) {
@@ -551,13 +552,13 @@ public class ConstExprent extends Exprent {
 
   public boolean hasBooleanValue() {
     switch (constType.type) {
-      case CodeConstants.TYPE_BOOLEAN:
-      case CodeConstants.TYPE_CHAR:
-      case CodeConstants.TYPE_BYTE:
-      case CodeConstants.TYPE_BYTECHAR:
-      case CodeConstants.TYPE_SHORT:
-      case CodeConstants.TYPE_SHORTCHAR:
-      case CodeConstants.TYPE_INT:
+      case BOOLEAN:
+      case CHAR:
+      case BYTE:
+      case BYTECHAR:
+      case SHORT:
+      case SHORTCHAR:
+      case INT:
         int value = (Integer)this.value;
         return value == 0 || (DecompilerContext.getOption(IFernflowerPreferences.BOOLEAN_TRUE_ONE) && value == 1);
     }
@@ -567,31 +568,31 @@ public class ConstExprent extends Exprent {
 
   public boolean hasValueOne() {
     switch (constType.type) {
-      case CodeConstants.TYPE_BOOLEAN:
-      case CodeConstants.TYPE_CHAR:
-      case CodeConstants.TYPE_BYTE:
-      case CodeConstants.TYPE_BYTECHAR:
-      case CodeConstants.TYPE_SHORT:
-      case CodeConstants.TYPE_SHORTCHAR:
-      case CodeConstants.TYPE_INT:
-      case CodeConstants.TYPE_LONG:
-      case CodeConstants.TYPE_DOUBLE:
-      case CodeConstants.TYPE_FLOAT:
+      case BOOLEAN:
+      case CHAR:
+      case BYTE:
+      case BYTECHAR:
+      case SHORT:
+      case SHORTCHAR:
+      case INT:
+      case LONG:
+      case DOUBLE:
+      case FLOAT:
         return ((Number)value).intValue() == 1;
     }
 
     return false;
   }
 
-  public static ConstExprent getZeroConstant(int type) {
+  public static ConstExprent getZeroConstant(CodeType type) {
     switch (type) {
-      case CodeConstants.TYPE_INT:
+      case INT:
         return new ConstExprent(VarType.VARTYPE_INT, 0, null);
-      case CodeConstants.TYPE_LONG:
+      case LONG:
         return new ConstExprent(VarType.VARTYPE_LONG, 0L, null);
-      case CodeConstants.TYPE_DOUBLE:
+      case DOUBLE:
         return new ConstExprent(VarType.VARTYPE_DOUBLE, 0d, null);
-      case CodeConstants.TYPE_FLOAT:
+      case FLOAT:
         return new ConstExprent(VarType.VARTYPE_FLOAT, 0f, null);
     }
 

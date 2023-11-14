@@ -7,6 +7,7 @@ import org.jetbrains.java.decompiler.code.InstructionSequence;
 import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectEdgeType;
+import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.util.collections.ListStack;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
@@ -84,9 +85,9 @@ public class ExprProcessor implements CodeConstants {
   private static final IfExprent.Type[] func7 = {IfExprent.Type.NULL, IfExprent.Type.NONNULL};
   private static final MonitorExprent.Type[] func8 = {MonitorExprent.Type.ENTER, MonitorExprent.Type.EXIT};
 
-  private static final int[] arrTypeIds = {
-    CodeConstants.TYPE_BOOLEAN, CodeConstants.TYPE_CHAR, CodeConstants.TYPE_FLOAT, CodeConstants.TYPE_DOUBLE,
-    CodeConstants.TYPE_BYTE, CodeConstants.TYPE_SHORT, CodeConstants.TYPE_INT, CodeConstants.TYPE_LONG
+  private static final CodeType[] arrTypeIds = {
+    CodeType.BOOLEAN, CodeType.CHAR, CodeType.FLOAT, CodeType.DOUBLE,
+    CodeType.BYTE, CodeType.SHORT, CodeType.INT, CodeType.LONG
   };
 
   private static final String[] typeNames = {"byte", "char", "double", "float", "int", "long", "short", "boolean"};
@@ -256,7 +257,7 @@ public class ExprProcessor implements CodeConstants {
             }
 
             InvocationExprent exprinv = new InvocationExprent(instr.opcode, invoke_constant, bootstrapMethod, bootstrap_arguments, stack, bytecode_offsets);
-            if (exprinv.getDescriptor().ret.type == CodeConstants.TYPE_VOID) {
+            if (exprinv.getDescriptor().ret.type == CodeType.VOID) {
               exprlist.add(exprinv);
             }
             else {
@@ -490,7 +491,7 @@ public class ExprProcessor implements CodeConstants {
             }
 
             InvocationExprent exprinv = new InvocationExprent(instr.opcode, invoke_constant, bootstrapMethod, bootstrap_arguments, stack, bytecode_offsets);
-            if (exprinv.getDescriptor().ret.type == CodeConstants.TYPE_VOID) {
+            if (exprinv.getDescriptor().ret.type == CodeType.VOID) {
               exprlist.add(exprinv);
             }
             else {
@@ -753,23 +754,23 @@ public class ExprProcessor implements CodeConstants {
   }
 
   public static String getTypeName(VarType type, boolean getShort) {
-    int tp = type.type;
-    if (tp <= CodeConstants.TYPE_BOOLEAN) {
-      return typeNames[tp];
+    CodeType tp = type.type;
+    if (tp.ordinal() <= CodeType.BOOLEAN.ordinal()) {
+      return typeNames[tp.ordinal()];
     }
-    else if (tp == CodeConstants.TYPE_UNKNOWN) {
+    else if (tp == CodeType.UNKNOWN) {
       return UNKNOWN_TYPE_STRING; // INFO: should not occur
     }
-    else if (tp == CodeConstants.TYPE_NULL) {
+    else if (tp == CodeType.NULL) {
       return NULL_TYPE_STRING; // INFO: should not occur
     }
-    else if (tp == CodeConstants.TYPE_VOID) {
+    else if (tp == CodeType.VOID) {
       return "void";
     }
-    else if (tp == CodeConstants.TYPE_GENVAR && type.isGeneric()) {
+    else if (tp == CodeType.GENVAR && type.isGeneric()) {
       return type.value;
     }
-    else if (tp == CodeConstants.TYPE_OBJECT) {
+    else if (tp == CodeType.OBJECT) {
       if (type.isGeneric()) {
         return ((GenericType)type).getCastName();
       }
@@ -914,16 +915,16 @@ public class ExprProcessor implements CodeConstants {
 
   public static ConstExprent getDefaultArrayValue(VarType arrType) {
     ConstExprent defaultVal;
-    if (arrType.type == CodeConstants.TYPE_OBJECT || arrType.arrayDim > 0) {
+    if (arrType.type == CodeType.OBJECT || arrType.arrayDim > 0) {
       defaultVal = new ConstExprent(VarType.VARTYPE_NULL, null, null);
     }
-    else if (arrType.type == CodeConstants.TYPE_FLOAT) {
+    else if (arrType.type == CodeType.FLOAT) {
       defaultVal = new ConstExprent(VarType.VARTYPE_FLOAT, 0f, null);
     }
-    else if (arrType.type == CodeConstants.TYPE_LONG) {
+    else if (arrType.type == CodeType.LONG) {
       defaultVal = new ConstExprent(VarType.VARTYPE_LONG, 0L, null);
     }
-    else if (arrType.type == CodeConstants.TYPE_DOUBLE) {
+    else if (arrType.type == CodeType.DOUBLE) {
       defaultVal = new ConstExprent(VarType.VARTYPE_DOUBLE, 0d, null);
     }
     else { // integer types
@@ -955,7 +956,7 @@ public class ExprProcessor implements CodeConstants {
         InvocationExprent invocationExprent = (InvocationExprent) exprent;
         if (invocationExprent.isBoxingCall() && !invocationExprent.shouldForceBoxing()) {
           exprent = invocationExprent.getLstParameters().get(0);
-          int paramType = invocationExprent.getDescriptor().params[0].type;
+          CodeType paramType = invocationExprent.getDescriptor().params[0].type;
           if (exprent instanceof ConstExprent && ((ConstExprent) exprent).getConstType().type != paramType) {
             leftType = new VarType(paramType);
           }
@@ -966,14 +967,14 @@ public class ExprProcessor implements CodeConstants {
     VarType rightType = exprent.getInferredExprType(leftType);
     exprent = narrowGenericCastType(exprent, leftType);
 
-    boolean doCast = (!leftType.isSuperset(rightType) && (rightType.equals(VarType.VARTYPE_OBJECT) || leftType.type != CodeConstants.TYPE_OBJECT));
-    boolean doCastNull = (castNull.cast && rightType.type == CodeConstants.TYPE_NULL && !UNDEFINED_TYPE_STRING.equals(getTypeName(leftType)));
+    boolean doCast = (!leftType.isSuperset(rightType) && (rightType.equals(VarType.VARTYPE_OBJECT) || leftType.type != CodeType.OBJECT));
+    boolean doCastNull = (castNull.cast && rightType.type == CodeType.NULL && !UNDEFINED_TYPE_STRING.equals(getTypeName(leftType)));
     boolean doCastNarrowing = (castNarrowing && isIntConstant(exprent) && isNarrowedIntType(leftType));
     boolean doCastGenerics = doGenericTypesCast(exprent, leftType, rightType);
 
     boolean cast = castAlways || doCast || doCastNull || doCastNarrowing || doCastGenerics;
 
-    if (castNull == NullCastType.DONT_CAST_AT_ALL && rightType.type == CodeConstants.TYPE_NULL) {
+    if (castNull == NullCastType.DONT_CAST_AT_ALL && rightType.type == CodeType.NULL) {
       cast = castAlways;
     }
 
@@ -1127,7 +1128,7 @@ public class ExprProcessor implements CodeConstants {
           }
           // Trying to cast two independent generics to each other? Check if they're both the base generic type (i.e. Object)
           // and force a cast if so.
-          if (leftType.type == CodeConstants.TYPE_GENVAR && rightType.type == CodeConstants.TYPE_GENVAR
+          if (leftType.type == CodeType.GENVAR && rightType.type == CodeType.GENVAR
             && genLeft.getWildcard() == GenericType.WILDCARD_NO && genLeft.getWildcard() == GenericType.WILDCARD_NO) {
 
             if (named.containsKey(leftType) && named.containsKey(rightType) && named.get(leftType).contains(VarType.VARTYPE_OBJECT) && named.get(rightType).contains(VarType.VARTYPE_OBJECT)) {
@@ -1152,7 +1153,7 @@ public class ExprProcessor implements CodeConstants {
             VarType lt = genLeft.getArguments().get(i);
             VarType rt = genRight.getArguments().get(i);
             // Subset of Type<?> -> Type<T> check: Only check for genvars. If T is concrete, then don't force casting.
-            if (rt == null && lt != null && lt.type == CodeConstants.TYPE_GENVAR) {
+            if (rt == null && lt != null && lt.type == CodeType.GENVAR) {
               return true;
             }
 
@@ -1179,11 +1180,11 @@ public class ExprProcessor implements CodeConstants {
   private static boolean isIntConstant(Exprent exprent) {
     if (exprent instanceof ConstExprent) {
       switch (((ConstExprent)exprent).getConstType().type) {
-        case CodeConstants.TYPE_BYTE:
-        case CodeConstants.TYPE_BYTECHAR:
-        case CodeConstants.TYPE_SHORT:
-        case CodeConstants.TYPE_SHORTCHAR:
-        case CodeConstants.TYPE_INT:
+        case BYTE:
+        case BYTECHAR:
+        case SHORT:
+        case SHORTCHAR:
+        case INT:
           return true;
       }
     }
