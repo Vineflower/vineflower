@@ -996,20 +996,12 @@ public class ClassWriter implements StatementWriter {
       appendAnnotations(buffer, indent, mt, TypeAnnotation.METHOD_RETURN_TYPE);
 
       StructAnnotationAttribute annotationAttribute = mt.getAttribute(StructGeneralAttribute.ATTRIBUTE_RUNTIME_VISIBLE_ANNOTATIONS);
-      boolean alreadyHasOverride = false;
-
-      if (annotationAttribute != null) {
-        alreadyHasOverride = annotationAttribute.getAnnotations().stream()
-            .anyMatch(annotation -> "java/lang/Override".equals(annotation.getClassName()));
-      }
-
       boolean shouldApplyOverride = DecompilerContext.getOption(IFernflowerPreferences.OVERRIDE_ANNOTATION)
           && mt.getBytecodeVersion().hasOverride()
           && !CodeConstants.INIT_NAME.equals(mt.getName())
           && !CodeConstants.CLINIT_NAME.equals(mt.getName())
           && !mt.hasModifier(CodeConstants.ACC_STATIC)
-          && !mt.hasModifier(CodeConstants.ACC_PRIVATE)
-          && !alreadyHasOverride;
+          && !mt.hasModifier(CodeConstants.ACC_PRIVATE);
 
       // Try append @Override after all other annotations
       if (shouldApplyOverride) {
@@ -1017,7 +1009,10 @@ public class ClassWriter implements StatementWriter {
         // Make sure not to search the current class otherwise it will return the current method itself!
         // TODO: record overrides
         boolean isOverride = searchForMethod(cl, mt.getName(), md, false);
-        if (isOverride) {
+        boolean alreadyHasOverride = annotationAttribute != null && annotationAttribute.getAnnotations()
+                .stream().anyMatch(annotation -> "java/lang/Override".equals(annotation.getClassName()));
+
+        if (isOverride && !alreadyHasOverride) {
           buffer.appendIndent(indent);
           buffer.append("@Override");
           buffer.appendLineSeparator();
