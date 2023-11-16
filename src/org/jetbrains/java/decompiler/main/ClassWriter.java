@@ -995,8 +995,24 @@ public class ClassWriter implements StatementWriter {
 
       appendAnnotations(buffer, indent, mt, TypeAnnotation.METHOD_RETURN_TYPE);
 
+      StructAnnotationAttribute annotationAttribute = mt.getAttribute(StructGeneralAttribute.ATTRIBUTE_RUNTIME_VISIBLE_ANNOTATIONS);
+      boolean alreadyHasOverride = false;
+
+      if (annotationAttribute != null) {
+        alreadyHasOverride = annotationAttribute.getAnnotations().stream()
+            .anyMatch(annotation -> "java/lang/Override".equals(annotation.getClassName()));
+      }
+
+      boolean shouldApplyOverride = DecompilerContext.getOption(IFernflowerPreferences.OVERRIDE_ANNOTATION)
+          && mt.getBytecodeVersion().hasOverride()
+          && !CodeConstants.INIT_NAME.equals(mt.getName())
+          && !CodeConstants.CLINIT_NAME.equals(mt.getName())
+          && !mt.hasModifier(CodeConstants.ACC_STATIC)
+          && !mt.hasModifier(CodeConstants.ACC_PRIVATE)
+          && !alreadyHasOverride;
+
       // Try append @Override after all other annotations
-      if (DecompilerContext.getOption(IFernflowerPreferences.OVERRIDE_ANNOTATION) && mt.getBytecodeVersion().hasOverride() && !CodeConstants.INIT_NAME.equals(mt.getName()) && !CodeConstants.CLINIT_NAME.equals(mt.getName()) && !mt.hasModifier(CodeConstants.ACC_STATIC)  && !mt.hasModifier(CodeConstants.ACC_PRIVATE)) {
+      if (shouldApplyOverride) {
         // Search superclasses for methods that match the name and descriptor of this one.
         // Make sure not to search the current class otherwise it will return the current method itself!
         // TODO: record overrides
@@ -1516,7 +1532,7 @@ public class ClassWriter implements StatementWriter {
   private static void appendComment(TextBuffer buffer, String comment, int indent) {
     buffer.appendIndent(indent).append("// $VF: ").append(comment).appendLineSeparator();
   }
-  
+
   private static void appendJavadoc(TextBuffer buffer, String javaDoc, int indent) {
     if (javaDoc == null) return;
     buffer.appendIndent(indent).append("/**").appendLineSeparator();
