@@ -1553,7 +1553,7 @@ public class KotlinWriter implements StatementWriter {
               buffer.append(",").appendPossibleNewline(" ");
             }
             first = false;
-            String name = attrib.getExcClassname(i, pool);
+            String name = pool.getPrimitiveConstant(i).getString();
             buffer.append(name).append("::class");
           }
           buffer.popNewlineGroup();
