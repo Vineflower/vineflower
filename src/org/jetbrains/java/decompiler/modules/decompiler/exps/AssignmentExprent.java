@@ -67,10 +67,9 @@ public class AssignmentExprent extends Exprent {
     VarType typeLeft = left.getExprType();
     VarType typeRight = right.getExprType();
 
-    if (typeLeft.typeFamily > typeRight.typeFamily) {
+    if (typeLeft.typeFamily.isGreater(typeRight.typeFamily)) {
       result.addMinTypeExprent(right, VarType.getMinTypeInFamily(typeLeft.typeFamily));
-    }
-    else if (typeLeft.typeFamily < typeRight.typeFamily) {
+    } else if (typeLeft.typeFamily.isLesser(typeRight.typeFamily)) {
       result.addMinTypeExprent(left, typeRight);
     }
     else {

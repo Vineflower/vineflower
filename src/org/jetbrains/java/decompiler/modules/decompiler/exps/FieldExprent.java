@@ -16,6 +16,7 @@ import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructField;
 import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribute;
 import org.jetbrains.java.decompiler.struct.consts.LinkConstant;
+import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.struct.gen.FieldDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
@@ -83,7 +84,7 @@ public class FieldExprent extends Exprent {
       if (instance != null && cl.getSignature() != null) {
         VarType instType = instance.getInferredExprType(null);
 
-        if (instType.isGeneric() && instType.type != CodeConstants.TYPE_GENVAR) {
+        if (instType.isGeneric() && instType.type != CodeType.GENVAR) {
           GenericType ginstance = (GenericType)instType;
 
           cl = DecompilerContext.getStructContext().getClass(instType.value);
@@ -196,7 +197,7 @@ public class FieldExprent extends Exprent {
           instance.setIsQualifier();
         }
         TextBuffer buff = new TextBuffer();
-        boolean casted = ExprProcessor.getCastedExprent(instance, new VarType(CodeConstants.TYPE_OBJECT, 0, classname), buff, indent, true);
+        boolean casted = ExprProcessor.getCastedExprent(instance, new VarType(CodeType.OBJECT, 0, classname), buff, indent, true);
 
         if (casted || instance.getPrecedence() > getPrecedence()) {
           buff.encloseWithParens();

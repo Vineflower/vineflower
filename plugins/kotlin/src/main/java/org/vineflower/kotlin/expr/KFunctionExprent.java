@@ -7,6 +7,8 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FieldExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
+import org.jetbrains.java.decompiler.struct.gen.CodeType;
+import org.jetbrains.java.decompiler.struct.gen.TypeFamily;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.Typed;
@@ -232,7 +234,7 @@ public class KFunctionExprent extends FunctionExprent implements KExprent {
         result.addMinTypeExprent(param2, VarType.getMinTypeInFamily(supertype.typeFamily));
         break;
       case EQUALS3: {
-        if (type1.type == CodeConstants.TYPE_BOOLEAN) {
+        if (type1.type == CodeType.BOOLEAN) {
           if (type2.isStrictSuperset(type1)) {
             result.addMinTypeExprent(param1, VarType.VARTYPE_BYTECHAR);
           }
@@ -246,7 +248,7 @@ public class KFunctionExprent extends FunctionExprent implements KExprent {
             }
           }
         }
-        else if (type2.type == CodeConstants.TYPE_BOOLEAN) {
+        else if (type2.type == CodeType.BOOLEAN) {
           if (type1.isStrictSuperset(type2)) {
             result.addMinTypeExprent(param2, VarType.VARTYPE_BYTECHAR);
           }
@@ -262,7 +264,7 @@ public class KFunctionExprent extends FunctionExprent implements KExprent {
       Exprent l = getLstOperands().get(0);
       Exprent r = getLstOperands().get(1);
 
-      if (l.getExprType().typeFamily != CodeConstants.TYPE_FAMILY_OBJECT || r.getExprType().typeFamily != CodeConstants.TYPE_FAMILY_OBJECT) {
+      if (l.getExprType().typeFamily != TypeFamily.OBJECT || r.getExprType().typeFamily != TypeFamily.OBJECT) {
         setFuncType(FunctionType.EQ);
       }
     }

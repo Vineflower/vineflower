@@ -159,7 +159,7 @@ public final class MethodDescriptor {
   }
 
   private static VarType buildNewType(VarType type, NewClassNameBuilder builder) {
-    if (type.type == CodeConstants.TYPE_OBJECT) {
+    if (type.type == CodeType.OBJECT) {
       String newClassName = builder.buildNewClassname(type.value);
       if (newClassName != null) {
         return new VarType(type.type, type.arrayDim, newClassName);

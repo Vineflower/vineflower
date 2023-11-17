@@ -11,6 +11,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
+import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 
 import java.util.*;
@@ -275,10 +276,10 @@ public final class SecondaryFunctionsHelper {
               VarType operandtype = operand.getExprType();
 
               if (operand instanceof ConstExprent &&
-                operandtype.type != CodeConstants.TYPE_BOOLEAN) {
+                operandtype.type != CodeType.BOOLEAN) {
                 ConstExprent cexpr = (ConstExprent) operand;
                 long val;
-                if (operandtype.type == CodeConstants.TYPE_LONG) {
+                if (operandtype.type == CodeType.LONG) {
                   val = (Long) cexpr.getValue();
                 } else {
                   val = (Integer) cexpr.getValue();
@@ -294,8 +295,8 @@ public final class SecondaryFunctionsHelper {
             break;
           case EQ:
           case NE:
-            if (lstOperands.get(0).getExprType().type == CodeConstants.TYPE_BOOLEAN &&
-              lstOperands.get(1).getExprType().type == CodeConstants.TYPE_BOOLEAN) {
+            if (lstOperands.get(0).getExprType().type == CodeType.BOOLEAN &&
+              lstOperands.get(1).getExprType().type == CodeType.BOOLEAN) {
               for (int i = 0; i < 2; i++) {
                 if (lstOperands.get(i) instanceof ConstExprent) {
                   ConstExprent cexpr = (ConstExprent) lstOperands.get(i);
@@ -332,8 +333,8 @@ public final class SecondaryFunctionsHelper {
               ConstExprent cexpr1 = (ConstExprent) expr1;
               ConstExprent cexpr2 = (ConstExprent) expr2;
 
-              if (cexpr1.getExprType().type == CodeConstants.TYPE_BOOLEAN &&
-                cexpr2.getExprType().type == CodeConstants.TYPE_BOOLEAN) {
+              if (cexpr1.getExprType().type == CodeType.BOOLEAN &&
+                cexpr2.getExprType().type == CodeType.BOOLEAN) {
 
                 if (cexpr1.getIntValue() == 0 && cexpr2.getIntValue() != 0) {
                   return new FunctionExprent(FunctionType.BOOL_NOT, lstOperands.get(0), fexpr.bytecode);
@@ -344,7 +345,7 @@ public final class SecondaryFunctionsHelper {
             }
 
             if (DecompilerContext.getOption(IFernflowerPreferences.TERNARY_CONSTANT_SIMPLIFICATION) || options.forceTernarySimplification) {
-              if (expr1 instanceof ConstExprent && expr1.getExprType().type == CodeConstants.TYPE_BOOLEAN) {
+              if (expr1 instanceof ConstExprent && expr1.getExprType().type == CodeType.BOOLEAN) {
                 ConstExprent cexpr1 = (ConstExprent) expr1;
                 boolean val = cexpr1.getIntValue() != 0;
 
@@ -356,7 +357,7 @@ public final class SecondaryFunctionsHelper {
                   FunctionExprent fnot = new FunctionExprent(FunctionType.BOOL_NOT, lstOperands.get(0), fexpr.bytecode);
                   return new FunctionExprent(FunctionType.BOOLEAN_AND, Arrays.asList(fnot, lstOperands.get(2)), fexpr.bytecode);
                 }
-              } else if (expr2 instanceof ConstExprent && expr2.getExprType().type == CodeConstants.TYPE_BOOLEAN) {
+              } else if (expr2 instanceof ConstExprent && expr2.getExprType().type == CodeType.BOOLEAN) {
                 ConstExprent cexpr2 = (ConstExprent) expr2;
                 boolean val = cexpr2.getIntValue() != 0;
 
@@ -368,10 +369,10 @@ public final class SecondaryFunctionsHelper {
                   // bl ? bl2 : false <-> bl && bl2
                   return new FunctionExprent(FunctionType.BOOLEAN_AND, Arrays.asList(lstOperands.get(0), lstOperands.get(1)), fexpr.bytecode);
                 }
-              } else if (expr1.getExprType().type == CodeConstants.TYPE_BOOLEAN && expr1.equals(expr0)) {
+              } else if (expr1.getExprType().type == CodeType.BOOLEAN && expr1.equals(expr0)) {
                 // bl ? bl : bl2 <-> bl || bl2
                 return new FunctionExprent(FunctionType.BOOLEAN_OR, Arrays.asList(lstOperands.get(0), lstOperands.get(2)), fexpr.bytecode);
-              } else if (expr2.getExprType().type == CodeConstants.TYPE_BOOLEAN && expr2.equals(expr0)) {
+              } else if (expr2.getExprType().type == CodeType.BOOLEAN && expr2.equals(expr0)) {
                 // bl ? bl2 : bl <-> bl && bl2
                 return new FunctionExprent(FunctionType.BOOLEAN_AND, Arrays.asList(lstOperands.get(0), lstOperands.get(1)), fexpr.bytecode);
               }
@@ -556,7 +557,7 @@ public final class SecondaryFunctionsHelper {
                 VarType right = operands.get(1).getExprType();
                 VarType commonSupertype = VarType.getCommonSupertype(left, right);
                 if (commonSupertype != null) {
-                  canSimplify = commonSupertype.type != CodeConstants.TYPE_FLOAT && commonSupertype.type != CodeConstants.TYPE_DOUBLE;
+                  canSimplify = commonSupertype.type != CodeType.FLOAT && commonSupertype.type != CodeType.DOUBLE;
                 }
               }
               if (canSimplify) {

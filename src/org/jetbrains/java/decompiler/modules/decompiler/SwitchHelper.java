@@ -12,6 +12,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.Fun
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.struct.StructField;
 import org.jetbrains.java.decompiler.struct.StructMethod;
+import org.jetbrains.java.decompiler.struct.gen.TypeFamily;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.DotExporter;
 import org.jetbrains.java.decompiler.util.Pair;
@@ -136,7 +137,7 @@ public final class SwitchHelper {
             if (realConst == null) {
               if (exprent instanceof ConstExprent) {
                 ConstExprent constLabel = (ConstExprent) exprent;
-                if (constLabel.getConstType().typeFamily == CodeConstants.TYPE_FAMILY_INTEGER) {
+                if (constLabel.getConstType().typeFamily == TypeFamily.INTEGER) {
                   int intLabel = constLabel.getIntValue();
                   // check for -1, used by nullable switches for the null branch
                   if (intLabel == -1) {
@@ -148,7 +149,7 @@ public final class SwitchHelper {
                   // TODO: more tests
                   for (Exprent key : mapping.keySet()) {
                     if (key instanceof ConstExprent
-                        && ((ConstExprent) key).getConstType().typeFamily == CodeConstants.TYPE_FAMILY_INTEGER
+                        && ((ConstExprent) key).getConstType().typeFamily == TypeFamily.INTEGER
                         && ((ConstExprent) key).getIntValue() > intLabel) {
                       values.add(key.copy());
                       continue cases;

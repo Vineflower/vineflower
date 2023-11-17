@@ -17,6 +17,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructField;
 import org.jetbrains.java.decompiler.struct.StructMethod;
+import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
@@ -115,7 +116,7 @@ public final class InitializerProcessor {
                 continue;
               }
               VarType type = invExpr.getDescriptor().params[i];
-              if (type.type == CodeConstants.TYPE_OBJECT) {
+              if (type.type == CodeType.OBJECT) {
                 ClassNode node = DecompilerContext.getClassProcessor().getMapRootClasses().get(type.value);
                 if (node != null && (node.type == ClassNode.Type.ANONYMOUS || (node.access & CodeConstants.ACC_SYNTHETIC) != 0)) {
                   break; // Should be last
@@ -145,7 +146,7 @@ public final class InitializerProcessor {
         MethodDescriptor md = MethodDescriptor.parseDescriptor(desc);
         if (md.params.length > 0) {
           VarType type = md.params[md.params.length - 1];
-          if (type.type == CodeConstants.TYPE_OBJECT) {
+          if (type.type == CodeType.OBJECT) {
             ClassNode node = DecompilerContext.getClassProcessor().getMapRootClasses().get(type.value);
             if (node != null && ((node.type == ClassNode.Type.ANONYMOUS) || (node.access & CodeConstants.ACC_SYNTHETIC) != 0)) {
               //TODO: Verify that the body is JUST a this([args]) call?

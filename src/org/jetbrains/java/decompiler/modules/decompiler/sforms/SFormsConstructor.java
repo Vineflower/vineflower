@@ -8,6 +8,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionNode;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.struct.StructMethod;
+import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.util.DotExporter;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
@@ -194,7 +195,7 @@ public abstract class SFormsConstructor {
       case INVOCATION:
         return true;
       case NEW:
-        if (((NewExprent) expr).getNewType().type == CodeConstants.TYPE_OBJECT) {
+        if (((NewExprent) expr).getNewType().type == CodeType.OBJECT) {
           return true;
         }
         break;

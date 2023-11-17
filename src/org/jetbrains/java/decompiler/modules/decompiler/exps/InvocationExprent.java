@@ -20,7 +20,9 @@ import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.consts.LinkConstant;
 import org.jetbrains.java.decompiler.struct.consts.PooledConstant;
 import org.jetbrains.java.decompiler.struct.consts.PrimitiveConstant;
+import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
+import org.jetbrains.java.decompiler.struct.gen.TypeFamily;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericMethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
@@ -45,7 +47,7 @@ public class InvocationExprent extends Exprent {
 
   private static final BitSet EMPTY_BIT_SET = new BitSet(0);
 
-  private static final VarType JAVA_NIO_BUFFER = new VarType(CodeConstants.TYPE_OBJECT, 0, "java/nio/Buffer");
+  private static final VarType JAVA_NIO_BUFFER = new VarType(CodeType.OBJECT, 0, "java/nio/Buffer");
 
   private String name;
   private String classname;
@@ -224,7 +226,7 @@ public class InvocationExprent extends Exprent {
           // Don't keep the cast in that case.
           VarType unboxed = VarType.UNBOXING_TYPES.get(inferred);
           if (unboxed == null || !unboxed.equals(upperBound)) {
-            if (inferred.typeFamily == CodeConstants.TYPE_FAMILY_OBJECT || inferred.isGeneric()) {
+            if (inferred.typeFamily == TypeFamily.OBJECT || inferred.isGeneric()) {
               boxing.keepCast = true;
             }
           }
@@ -252,7 +254,7 @@ public class InvocationExprent extends Exprent {
           if (hierarchy.containsKey(desc.getClassQualifiedName())) {
             hierarchyMap = hierarchy.get(desc.getClassQualifiedName());
             hierarchyMap.forEach((from, to) -> {
-              if (to.type == CodeConstants.TYPE_GENVAR) {
+              if (to.type == CodeType.GENVAR) {
                 if (bounds.containsKey(to) && !bounds.containsKey(from)) {
                   bounds.put(from, bounds.get(to));
                 }
@@ -266,10 +268,10 @@ public class InvocationExprent extends Exprent {
 
         // if possible, collect mappings from the ub
         // these mappings will be used to help 'fill in the blanks' when creating the ub types for the instance/params
-        if (upperBound != null && !upperBound.equals(VarType.VARTYPE_OBJECT) && (upperBound.type != CodeConstants.TYPE_GENVAR || named.containsKey(upperBound))) {
+        if (upperBound != null && !upperBound.equals(VarType.VARTYPE_OBJECT) && (upperBound.type != CodeType.GENVAR || named.containsKey(upperBound))) {
           VarType ub = upperBound; // keep original
           VarType r = ret;
-          if (ub.type != CodeConstants.TYPE_GENVAR && r.type != CodeConstants.TYPE_GENVAR && !ub.value.equals(r.value)) {
+          if (ub.type != CodeType.GENVAR && r.type != CodeType.GENVAR && !ub.value.equals(r.value)) {
             if (DecompilerContext.getStructContext().instanceOf(ub.value, r.value)) {
               ub = GenericType.getGenericSuperType(ub, r);
             }
@@ -280,14 +282,14 @@ public class InvocationExprent extends Exprent {
 
           // Don't capture as a real upper bound unless the upperbound is an object or a likewise generic.
           // FunctionExprent needs to inform its children about the type that it has, so it'll cause conflict here.
-          if (r.type == CodeConstants.TYPE_GENVAR && (upperBound.typeFamily == CodeConstants.TYPE_FAMILY_OBJECT || upperBound.isGeneric())) {
+          if (r.type == CodeType.GENVAR && (upperBound.typeFamily == TypeFamily.OBJECT || upperBound.isGeneric())) {
             upperBoundsMap.put(r.resizeArrayDim(0), upperBound.resizeArrayDim(upperBound.arrayDim - r.arrayDim));
           }
           else {
             gatherGenerics(ub, r, tempMap);
             tempMap.forEach((from, to) -> {
               if (!genericsMap.containsKey(from)) {
-                if (to != null && (to.type != CodeConstants.TYPE_GENVAR || named.containsKey(to))) {
+                if (to != null && (to.type != CodeType.GENVAR || named.containsKey(to))) {
                   boolean ok = true;
 
                   // Don't apply generic mappings if we're mapping to a distinct, but unknown generic type
@@ -297,7 +299,7 @@ public class InvocationExprent extends Exprent {
                   // }
                   // the result of "Collections.unmodifiableCollection" *should* be a collection of type T, not of type S.
                   // S is not part of the hierarchy, so we cannot capture it as the upper bound.
-                  if (to.type == CodeConstants.TYPE_GENVAR && named.containsKey(from) && bounds.containsKey(from) && bounds.get(from).contains(VarType.VARTYPE_OBJECT) && !bounds.containsKey(to)) {
+                  if (to.type == CodeType.GENVAR && named.containsKey(from) && bounds.containsKey(from) && bounds.get(from).contains(VarType.VARTYPE_OBJECT) && !bounds.containsKey(to)) {
                     if (!named.get(to).contains(from)) {
                       ok = false;
                     }
@@ -337,11 +339,11 @@ public class InvocationExprent extends Exprent {
             instType = instance.getInferredExprType(instUB);
           }
 
-          if (instType.type == CodeConstants.TYPE_GENVAR && named.containsKey(instType)) {
+          if (instType.type == CodeType.GENVAR && named.containsKey(instType)) {
             instType = named.get(instType).get(0);
           }
 
-          if (instType.isGeneric() && instType.type != CodeConstants.TYPE_GENVAR) {
+          if (instType.isGeneric() && instType.type != CodeType.GENVAR) {
             GenericType ginstance = (GenericType)instType;
 
             cls = DecompilerContext.getStructContext().getClass(instType.value);
@@ -523,7 +525,7 @@ public class InvocationExprent extends Exprent {
                 }
 
                 StructClass paramCls = DecompilerContext.getStructContext().getClass(paramType.value);
-                cls = argtype.type != CodeConstants.TYPE_GENVAR ? DecompilerContext.getStructContext().getClass(argtype.value) : null;
+                cls = argtype.type != CodeType.GENVAR ? DecompilerContext.getStructContext().getClass(argtype.value) : null;
 
                 if (cls != null && paramCls != null) {
                   if (paramType.isGeneric() && !paramType.value.equals(argtype.value)) {
@@ -558,7 +560,7 @@ public class InvocationExprent extends Exprent {
                     tempMap.clear();
                   }
                 }
-                else if (paramType.type == CodeConstants.TYPE_GENVAR && !paramType.equals(argtype) && argtype.arrayDim >= paramType.arrayDim) {
+                else if (paramType.type == CodeType.GENVAR && !paramType.equals(argtype) && argtype.arrayDim >= paramType.arrayDim) {
                   if (paramType.arrayDim > 0) {
                     argtype = argtype.resizeArrayDim(argtype.arrayDim - paramType.arrayDim);
                     paramType = paramType.resizeArrayDim(0);
@@ -759,7 +761,7 @@ public class InvocationExprent extends Exprent {
         else if (instance != null) {
           StructClass cl = DecompilerContext.getStructContext().getClass(classname);
 
-          VarType leftType = new VarType(CodeConstants.TYPE_OBJECT, 0, classname);
+          VarType leftType = new VarType(CodeType.OBJECT, 0, classname);
           if (!genericsMap.isEmpty() && cl != null && cl.getSignature() != null) {
             VarType _new = cl.getSignature().genericType.remap(genericsMap);
             if (_new != cl.getSignature().genericType) {
@@ -782,7 +784,7 @@ public class InvocationExprent extends Exprent {
                 Exprent firstParam = func.getLstOperands().get(0);
                 if (firstParam instanceof VarExprent || firstParam instanceof FieldExprent) {
                   VarType inferred = firstParam.getInferredExprType(leftType);
-                  skipCast = (inferred.type != CodeConstants.TYPE_OBJECT && inferred.type != CodeConstants.TYPE_GENVAR) ||
+                  skipCast = (inferred.type != CodeType.OBJECT && inferred.type != CodeType.GENVAR) ||
                     DecompilerContext.getStructContext().instanceOf(inferred.value, this.classname);
                 } else if (this.classname.equals(constexpr.getConstType().value)) {
                   skipCast = true;
@@ -984,7 +986,7 @@ public class InvocationExprent extends Exprent {
           Exprent value = inv.lstParameters.get(0);
           types[i] = value.getExprType(); //Infer?
           //Unboxing in this case is lossy, so we need to explicitly set the type
-          if (types[i].typeFamily == CodeConstants.TYPE_FAMILY_INTEGER) {
+          if (types[i].typeFamily == TypeFamily.INTEGER) {
             types[i] =
               "java/lang/Short".equals(inv.classname) ? VarType.VARTYPE_SHORT :
               "java/lang/Byte".equals(inv.classname) ? VarType.VARTYPE_BYTE :
@@ -1044,7 +1046,7 @@ public class InvocationExprent extends Exprent {
               if (name.equals(mt.getName()) && (currCls == null || canAccess(currCls.classStruct, mt)) && !stringDescriptor.equals(mt.getDescriptor())) {
                 MethodDescriptor md = MethodDescriptor.parseDescriptor(mt.getDescriptor());
                 if (md.params.length == descriptor.params.length) {
-                  if (md.params[i].type == CodeConstants.TYPE_OBJECT) {
+                  if (md.params[i].type == CodeType.OBJECT) {
                     if (DecompilerContext.getStructContext().instanceOf(inv.getInstance().getExprType().value, md.params[i].value)) {
                       inv.forceUnboxing(true);
                       break;
@@ -1064,7 +1066,7 @@ public class InvocationExprent extends Exprent {
 
       if (genericsMap.isEmpty() && instance != null && functype != Type.INIT) {
         VarType instType = instance.getInferredExprType(null);
-        if (instType.isGeneric() && instType.type != CodeConstants.TYPE_GENVAR) {
+        if (instType.isGeneric() && instType.type != CodeType.GENVAR) {
           GenericType ginstance = (GenericType)instType;
 
           StructClass cls = DecompilerContext.getStructContext().getClass(instType.value);
@@ -1135,7 +1137,7 @@ public class InvocationExprent extends Exprent {
 
         // not passing it along if what we get back is more specific
         VarType exprType = lstParameters.get(i).getInferredExprType(type);
-        if (exprType != null && type != null && type.type == CodeConstants.TYPE_GENVAR) {
+        if (exprType != null && type != null && type.type == CodeType.GENVAR) {
           //type = exprType;
         }
         */
@@ -1184,20 +1186,20 @@ public class InvocationExprent extends Exprent {
 
   public boolean isBoxingCall() {
     if (isStatic && "valueOf".equals(name) && lstParameters.size() == 1) {
-      int paramType = lstParameters.get(0).getExprType().type;
+      CodeType paramType = lstParameters.get(0).getExprType().type;
 
       // special handling for ambiguous types
       if (lstParameters.get(0) instanceof ConstExprent) {
         // 'Integer.valueOf(1)' has '1' type detected as TYPE_BYTECHAR
         // 'Integer.valueOf(40_000)' has '40_000' type detected as TYPE_CHAR
         // so we check the type family instead
-        if (lstParameters.get(0).getExprType().typeFamily == CodeConstants.TYPE_FAMILY_INTEGER) {
+        if (lstParameters.get(0).getExprType().typeFamily == TypeFamily.INTEGER) {
           if (classname.equals("java/lang/Integer")) {
             return true;
           }
         }
 
-        if (paramType == CodeConstants.TYPE_BYTECHAR || paramType == CodeConstants.TYPE_SHORTCHAR) {
+        if (paramType == CodeType.BYTECHAR || paramType == CodeType.SHORTCHAR) {
           if (classname.equals("java/lang/Character") || classname.equals("java/lang/Short")) {
             return true;
           }
@@ -1220,25 +1222,25 @@ public class InvocationExprent extends Exprent {
   }
 
   // TODO: move to CodeConstants ???
-  private static String getClassNameForPrimitiveType(int type) {
+  private static String getClassNameForPrimitiveType(CodeType type) {
     switch (type) {
-      case CodeConstants.TYPE_BOOLEAN:
+      case BOOLEAN:
         return "java/lang/Boolean";
-      case CodeConstants.TYPE_BYTE:
-      case CodeConstants.TYPE_BYTECHAR:
+      case BYTE:
+      case BYTECHAR:
         return "java/lang/Byte";
-      case CodeConstants.TYPE_CHAR:
+      case CHAR:
         return "java/lang/Character";
-      case CodeConstants.TYPE_SHORT:
-      case CodeConstants.TYPE_SHORTCHAR:
+      case SHORT:
+      case SHORTCHAR:
         return "java/lang/Short";
-      case CodeConstants.TYPE_INT:
+      case INT:
         return "java/lang/Integer";
-      case CodeConstants.TYPE_LONG:
+      case LONG:
         return "java/lang/Long";
-      case CodeConstants.TYPE_FLOAT:
+      case FLOAT:
         return "java/lang/Float";
-      case CodeConstants.TYPE_DOUBLE:
+      case DOUBLE:
         return "java/lang/Double";
     }
     return null;
@@ -1432,8 +1434,8 @@ public class InvocationExprent extends Exprent {
               continue;
             }
           }
-          if (md.params[i].type == CodeConstants.TYPE_OBJECT) {
-            if (ptype.type != CodeConstants.TYPE_NULL) {
+          if (md.params[i].type == CodeType.OBJECT) {
+            if (ptype.type != CodeType.NULL) {
               if (!DecompilerContext.getStructContext().instanceOf(ptype.value, md.params[i].value)) {
                 failed = true;
                 break;
@@ -1487,11 +1489,11 @@ public class InvocationExprent extends Exprent {
   // See also: TestVarIndex
   private boolean shouldBeAmbiguous(VarType param, Exprent exp) {
     if (exp instanceof VarExprent) {
-      if (exp.getExprType().typeFamily == CodeConstants.TYPE_FAMILY_INTEGER && param.typeFamily == CodeConstants.TYPE_FAMILY_INTEGER) {
+      if (exp.getExprType().typeFamily == TypeFamily.INTEGER && param.typeFamily == TypeFamily.INTEGER) {
         return !param.equals(exp.getExprType());
       }
 
-      if (param.equals(VarType.VARTYPE_OBJECT) && param.arrayDim == 0 && exp.getExprType().typeFamily == CodeConstants.TYPE_FAMILY_OBJECT) {
+      if (param.equals(VarType.VARTYPE_OBJECT) && param.arrayDim == 0 && exp.getExprType().typeFamily == TypeFamily.OBJECT) {
         return true;
       }
     }
@@ -1500,7 +1502,7 @@ public class InvocationExprent extends Exprent {
   }
 
   private boolean processGenericMapping(VarType from, VarType to, Map<VarType, List<VarType>> named, Map<VarType, List<VarType>> bounds) {
-    if (VarType.VARTYPE_NULL.equals(to) || (to != null && to.type == CodeConstants.TYPE_GENVAR && !named.containsKey(to))) {
+    if (VarType.VARTYPE_NULL.equals(to) || (to != null && to.type == CodeType.GENVAR && !named.containsKey(to))) {
       return false;
     }
 
@@ -1514,7 +1516,7 @@ public class InvocationExprent extends Exprent {
         return false;
       }
 
-      if (current.type != CodeConstants.TYPE_GENVAR && to.type == CodeConstants.TYPE_GENVAR) {
+      if (current.type != CodeType.GENVAR && to.type == CodeType.GENVAR) {
         if (named.containsKey(to)) {
           VarType bound = named.get(to).get(0);
           if (!bound.equals(VarType.VARTYPE_OBJECT) && DecompilerContext.getStructContext().instanceOf(bound.value, current.value)) {
@@ -1544,12 +1546,12 @@ public class InvocationExprent extends Exprent {
       return false;
     }
 
-    if (to == null || (to.type == CodeConstants.TYPE_GENVAR && !named.containsKey(to))) {
+    if (to == null || (to.type == CodeType.GENVAR && !named.containsKey(to))) {
       return true;
     }
 
     java.util.function.BiFunction<VarType, VarType, Boolean>  verifier = (newTo, bound) -> {
-      if (bound.type == CodeConstants.TYPE_GENVAR) {
+      if (bound.type == CodeType.GENVAR) {
         java.util.function.Function<VarType, VarType> map = e -> {
           VarType mapped = genericsMap.get(e);
           if (mapped == null)
@@ -1571,7 +1573,7 @@ public class InvocationExprent extends Exprent {
           }
           bound = last;
 
-          if (bound.type != CodeConstants.TYPE_GENVAR) {
+          if (bound.type != CodeType.GENVAR) {
             return DecompilerContext.getStructContext().instanceOf(newTo.value, bound.value);
           }
         }
@@ -1579,11 +1581,11 @@ public class InvocationExprent extends Exprent {
         return isMappingInBounds(bound, newTo, named, bounds);
       }
 
-      if (newTo.type < CodeConstants.TYPE_OBJECT) {
+      if (newTo.type.ordinal() < CodeType.OBJECT.ordinal()) {
         return bound.equals(VarType.VARTYPE_OBJECT) || bound.equals(newTo);
       }
 
-      if (newTo.type != CodeConstants.TYPE_GENVAR) {
+      if (newTo.type != CodeType.GENVAR) {
         if (!DecompilerContext.getStructContext().instanceOf(newTo.value, bound.value)) {
           return false;
         }
@@ -1630,7 +1632,7 @@ public class InvocationExprent extends Exprent {
       return true;
     };
 
-    List<VarType> toVerify = (to.type == CodeConstants.TYPE_GENVAR) ? named.get(to) : Collections.singletonList(to);
+    List<VarType> toVerify = (to.type == CodeType.GENVAR) ? named.get(to) : Collections.singletonList(to);
 
     // We need to satisfy all the bounds for the type we are mapping to
     // The bounds can be satisfied by any of the bounds for the named type

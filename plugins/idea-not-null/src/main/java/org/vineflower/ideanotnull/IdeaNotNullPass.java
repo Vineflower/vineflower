@@ -16,6 +16,7 @@ import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.attr.StructAnnotationAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructAnnotationParameterAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
+import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 
 import java.util.ArrayList;
@@ -84,7 +85,7 @@ public class IdeaNotNullPass implements Pass{
         Exprent second_param = func.getLstOperands().get(1);
 
         if (second_param instanceof ConstExprent &&
-            second_param.getExprType().type == CodeConstants.TYPE_NULL) { // TODO: reversed parameter order
+            second_param.getExprType().type == CodeType.NULL) { // TODO: reversed parameter order
           if (first_param instanceof VarExprent && ((InvocationExprent)ifbranch.getExprents().get(0)).getName().equals("$$$reportNull$$$0")) {
             VarExprent var = (VarExprent)first_param;
 
@@ -234,7 +235,7 @@ public class IdeaNotNullPass implements Pass{
             Statement elsebranch = ifparent.getElsestat();
 
             if (second_param instanceof ConstExprent &&
-                second_param.getExprType().type == CodeConstants.TYPE_NULL) { // TODO: reversed parameter order
+                second_param.getExprType().type == CodeType.NULL) { // TODO: reversed parameter order
               //if(first_param instanceof VarExprent && ((VarExprent)first_param).getIndex() == var_value.getIndex()) {
               if (first_param.equals(exprent_value)) {        // TODO: check for absence of side effects like method invocations etc.
                 if (ifbranch instanceof BasicBlockStatement &&
@@ -298,7 +299,7 @@ public class IdeaNotNullPass implements Pass{
               Statement ifbranch = ifstat.getIfstat();
 
               if (second_param instanceof ConstExprent &&
-                  second_param.getExprType().type == CodeConstants.TYPE_NULL) { // TODO: reversed parameter order
+                  second_param.getExprType().type == CodeType.NULL) { // TODO: reversed parameter order
                 if (first_param.equals(exprent_value)) {        // TODO: check for absence of side effects like method invocations etc.
                   if (ifbranch instanceof BasicBlockStatement &&
                       ifbranch.getExprents().size() == 1 &&

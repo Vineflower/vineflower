@@ -29,6 +29,7 @@ import org.jetbrains.java.decompiler.struct.consts.ConstantPool;
 import org.jetbrains.java.decompiler.struct.consts.LinkConstant;
 import org.jetbrains.java.decompiler.struct.consts.PooledConstant;
 import org.jetbrains.java.decompiler.struct.consts.PrimitiveConstant;
+import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.struct.gen.FieldDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
@@ -164,7 +165,7 @@ public class ClassWriter implements StatementWriter {
       if (node.lambdaInformation.is_method_reference) {
         if (!node.lambdaInformation.is_content_method_static && method_object != null) {
           // reference to a virtual method
-          method_object.getInferredExprType(new VarType(CodeConstants.TYPE_OBJECT, 0, node.lambdaInformation.content_class_name));
+          method_object.getInferredExprType(new VarType(CodeType.OBJECT, 0, node.lambdaInformation.content_class_name));
           TextBuffer instance = method_object.toJava(indent);
           // If the instance is casted, then we need to wrap it
           if (method_object instanceof FunctionExprent && ((FunctionExprent)method_object).getFuncType() == FunctionType.CAST && ((FunctionExprent)method_object).doesCast()) {

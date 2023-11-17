@@ -19,7 +19,9 @@ import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribute.LocalVariable;
 import org.jetbrains.java.decompiler.struct.attr.StructMethodParametersAttribute;
+import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
+import org.jetbrains.java.decompiler.struct.gen.TypeFamily;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
 import org.jetbrains.java.decompiler.util.ArrayHelper;
@@ -478,13 +480,13 @@ public class VarDefinitionHelper {
 
               if (instance != null && instance instanceof VarExprent) {
                 VarVersionPair key = ((VarExprent)instance).getVarVersionPair();
-                VarType newType = new VarType(CodeConstants.TYPE_OBJECT, 0, target);
+                VarType newType = new VarType(CodeType.OBJECT, 0, target);
                 VarType oldMin = mapExprentMinTypes.get(key);
                 VarType oldMax = mapExprentMaxTypes.get(key);
 
                 /* Everything goes to Object with this... Need a better filter?
                 if (!newType.equals(oldMin)) {
-                  if (oldMin != null && oldMin.type == CodeConstants.TYPE_OBJECT) {
+                  if (oldMin != null && oldMin.type == CodeType.OBJECT) {
                     // If the old min is an instanceof the new target, EXA: ArrayList -> List
                     if (DecompilerContext.getStructContext().instanceOf(oldMin.value, newType.value))
                       mapExprentMinTypes.put(key, newType);
@@ -494,7 +496,7 @@ public class VarDefinitionHelper {
                 */
 
                 if (!newType.equals(oldMax)) {
-                  if (oldMax != null && oldMax.type == CodeConstants.TYPE_OBJECT) {
+                  if (oldMax != null && oldMax.type == CodeType.OBJECT) {
                     // If the old min is an instanceof the new target, EXA: List -> ArrayList
                     if (DecompilerContext.getStructContext().instanceOf(newType.value, oldMax.value))
                       mapExprentMaxTypes.put(key, newType);
@@ -928,7 +930,7 @@ public class VarDefinitionHelper {
   }
 
   private static boolean canConstTypeMerge(VarType type) {
-    if (type.typeFamily == CodeConstants.TYPE_FAMILY_OBJECT) {
+    if (type.typeFamily == TypeFamily.OBJECT) {
       return type == VarType.VARTYPE_STRING || type == VarType.VARTYPE_CLASS || type == VarType.VARTYPE_NULL;
     }
 
@@ -950,7 +952,7 @@ public class VarDefinitionHelper {
     if (type == null || fromMin == null || toMin == null) {
       return null; // no common supertype, skip the remapping
     }
-    if (type.type == CodeConstants.TYPE_OBJECT) {
+    if (type.type == CodeType.OBJECT) {
       if (toMax != null) { // The target var is used in direct invocations
         if (fromMax != null) {
           // Max types are the highest class that this variable is used as a direct instance of without any casts.
