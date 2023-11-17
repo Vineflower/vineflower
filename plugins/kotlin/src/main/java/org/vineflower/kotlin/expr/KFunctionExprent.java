@@ -81,7 +81,13 @@ public class KFunctionExprent extends FunctionExprent implements KExprent {
             return buf;
           case GET_KCLASS:
             Exprent operand = lstOperands.get(0);
-            if (operand instanceof ConstExprent) {
+            if (operand instanceof VarExprent) {
+              VarExprent varExprent = ((VarExprent) operand);
+              if (!varExprent.getVarType().equals(VarType.VARTYPE_CLASS)) {
+                throw new IllegalArgumentException("Variable accessing KClass is not a Class");
+              }
+              return buf.append(varExprent.toJava()).append(".kotlin");
+            } else if (operand instanceof ConstExprent) {
               ConstExprent constExprent = (ConstExprent) operand;
               String value = constExprent.getValue().toString();
               VarType type = new VarType(value, !value.startsWith("["));

@@ -263,7 +263,7 @@ public final class KProperty {
 
       String propDesc = null;
       KType type = null;
-      if (property.hasReturnType() && property.getReturnType().hasClassName()) {
+      if (property.hasReturnType()) {
         type = KType.from(property.getReturnType(), nameResolver);
         propDesc = KTypes.getJavaSignature(type.kotlinType, property.getReturnType().getNullable());
       }

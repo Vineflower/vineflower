@@ -99,10 +99,14 @@ public final class KTypes {
         javaType = javaType.startsWith("Mutable") ? javaType.substring("Mutable".length()) : javaType;
         return "Ljava/util/" + javaType + ";";
       } else if (kotlinType.startsWith("kotlin/Function")) {
-        if (Integer.parseInt(kotlinType.substring("kotlin/Function".length())) > MAX_KOTLIN_FUNCTION_ARITY) {
-          return "Lkotlin/jvm/functions/FunctionN;";
+        try {
+          if (Integer.parseInt(kotlinType.substring("kotlin/Function".length())) > MAX_KOTLIN_FUNCTION_ARITY) {
+            return "Lkotlin/jvm/functions/FunctionN;";
+          }
+          return "Lkotlin/jvm/functions" + kotlinType.substring("kotlin".length()) + ";";
+        } catch (NumberFormatException e) {
+          // Not a function type with arity
         }
-        return "Lkotlin/jvm/functions" + kotlinType.substring("kotlin".length()) + ";";
       }
     }
     return "L" + kotlinType + ";";
