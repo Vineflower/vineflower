@@ -72,12 +72,29 @@ public class KotlinChooser implements LanguageChooser {
 
     try {
       int kIndex = anno.getParNames().indexOf("k");
-      int k = (int) ((ConstExprent) anno.getParValues().get(kIndex)).getValue();
-  
       int d1Index = anno.getParNames().indexOf("d1");
-      Exprent d1 = anno.getParValues().get(d1Index);
-  
       int d2Index = anno.getParNames().indexOf("d2");
+
+      if (kIndex == -1) {
+        DecompilerContext.getLogger().writeMessage("No k attribute in class metadata for class " + cl.qualifiedName, IFernflowerLogger.Severity.WARN);
+        DecompilerContext.setProperty(KotlinDecompilationContext.CURRENT_TYPE, null);
+        return;
+      }
+
+      if (d1Index == -1) {
+        DecompilerContext.getLogger().writeMessage("No d1 attribute in class metadata for class " + cl.qualifiedName, IFernflowerLogger.Severity.WARN);
+        DecompilerContext.setProperty(KotlinDecompilationContext.CURRENT_TYPE, null);
+        return;
+      }
+
+      if (d2Index == -1) {
+        DecompilerContext.getLogger().writeMessage("No d2 attribute in class metadata for class " + cl.qualifiedName, IFernflowerLogger.Severity.WARN);
+        DecompilerContext.setProperty(KotlinDecompilationContext.CURRENT_TYPE, null);
+        return;
+      }
+
+      int k = (int) ((ConstExprent) anno.getParValues().get(kIndex)).getValue();
+      Exprent d1 = anno.getParValues().get(d1Index);
       Exprent d2 = anno.getParValues().get(d2Index);
 
       String[] data1 = getDataFromExpr((NewExprent) d1);
