@@ -1,11 +1,6 @@
 package org.vineflower.kotlin.expr;
 
-import org.jetbrains.java.decompiler.code.CodeConstants;
-import org.jetbrains.java.decompiler.main.plugins.PluginImplementationException;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.ConstExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.FieldExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
 import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.struct.gen.TypeFamily;
@@ -41,15 +36,14 @@ public class KFunctionExprent extends FunctionExprent implements KExprent {
   }
 
   public KFunctionExprent(FunctionExprent func) {
+    this(func, KFunctionType.NONE, func.getExprType());
+  }
+
+  private KFunctionExprent(FunctionExprent func, KFunctionType kType, VarType exprType) {
     super(func.getFuncType(), new ArrayList<>(KUtils.replaceExprents(func.getLstOperands())), func.bytecode);
 
-    if (func instanceof KFunctionExprent) {
-      KFunctionExprent kFunc = (KFunctionExprent) func;
-      this.kType = kFunc.kType;
-    } else {
-      setImplicitType(func.getExprType());
-    }
-
+    this.kType = kType;
+    setImplicitType(exprType);
     setNeedsCast(func.doesCast());
 
     if (getFuncType() == FunctionType.EQ) {
@@ -322,6 +316,6 @@ public class KFunctionExprent extends FunctionExprent implements KExprent {
 
   @Override
   public Exprent copy() {
-    return new KFunctionExprent((FunctionExprent) super.copy());
+    return new KFunctionExprent((FunctionExprent) super.copy(), kType, getExprType());
   }
 }
