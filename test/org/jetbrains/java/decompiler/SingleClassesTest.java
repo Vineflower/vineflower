@@ -141,6 +141,14 @@ public class SingleClassesTest extends SingleClassesTestBase {
       IFernflowerPreferences.FORCE_JSR_INLINE, "1",
       IFernflowerPreferences.PREFERRED_LINE_LENGTH, "120"
     );
+    registerSet("Sythetics Marking", this::registerSytheticsMarking,
+      IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
+      IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
+      IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR, "0",
+      IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
+      IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
+      IFernflowerPreferences.MARK_CORRESPONDING_SYNTHETICS, "1"
+      );
     // TODO: user renamer class test
   }
 
@@ -830,5 +838,10 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestTextTokens");
     register(JAVA_16, "TestTextTokens2");
     register(JAVA_8, "TestTextTokens3");
+  }
+
+  private void registerSytheticsMarking() {
+    register(JAVA_8, "TestLambdaNaming");
+    register(JAVA_8, "TestAnonymousClassNaming");
   }
 }
