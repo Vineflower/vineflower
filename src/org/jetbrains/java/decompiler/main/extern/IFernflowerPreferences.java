@@ -387,10 +387,10 @@ public interface IFernflowerPreferences {
   @Type(Type.BOOLEAN)
   String REMOVE_IMPORTS = "remove-imports";
 
-  @Name("Annotate Lambdas")
-  @Description("Mark lambdas with their respective synthetic method")
-  @ShortName("ala")
-  String ANNOTATE_LAMBDAS = "annotate-lambdas";
+  @Name("Mark Corresponding Sythetics")
+  @Description("Mark lambdas and anonymous classes with their respective ")
+  @ShortName("mcs")
+  String MARK_CORRESPONDING_SYNTHETICS = "annotate-lambdas";
 
   Map<String, Object> DEFAULTS = getDefaults();
 
@@ -463,7 +463,7 @@ public interface IFernflowerPreferences {
     defaults.put(FORCE_JSR_INLINE, "0");
     defaults.put(DUMP_TEXT_TOKENS, "0");
     defaults.put(REMOVE_IMPORTS, "0");
-    defaults.put(ANNOTATE_LAMBDAS, "0");
+    defaults.put(MARK_CORRESPONDING_SYNTHETICS, "0");
 
     return Collections.unmodifiableMap(defaults);
   }

@@ -153,7 +153,7 @@ public class ClassWriter implements StatementWriter {
     }
 
     boolean lambdaToAnonymous = DecompilerContext.getOption(IFernflowerPreferences.LAMBDA_TO_ANONYMOUS_CLASS);
-    boolean annotateLambda = DecompilerContext.getOption(IFernflowerPreferences.ANNOTATE_LAMBDAS);
+    boolean annotateLambda = DecompilerContext.getOption(IFernflowerPreferences.MARK_CORRESPONDING_SYNTHETICS);
 
     ClassNode outerNode = (ClassNode)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
     DecompilerContext.setProperty(DecompilerContext.CURRENT_CLASS_NODE, node);
@@ -610,6 +610,12 @@ public class ClassWriter implements StatementWriter {
 
   private void writeClassDefinition(ClassNode node, TextBuffer buffer, int indent) {
     if (node.type == ClassNode.Type.ANONYMOUS) {
+      if (DecompilerContext.getOption(IFernflowerPreferences.MARK_CORRESPONDING_SYNTHETICS)) {
+        // ClassNode#simpleName is always null for anonymous classes, so we have to get the name from the underlying ClassStruct
+        String qualifiedName = node.getWrapper().getClassStruct().qualifiedName;
+        String className = qualifiedName.substring(qualifiedName.lastIndexOf("/") + 1);
+        buffer.append(" /*").append(className).append("*/");
+      }
       buffer.append(" {").appendLineSeparator();
       return;
     }
