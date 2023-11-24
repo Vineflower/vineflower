@@ -153,6 +153,7 @@ public class ClassWriter implements StatementWriter {
     }
 
     boolean lambdaToAnonymous = DecompilerContext.getOption(IFernflowerPreferences.LAMBDA_TO_ANONYMOUS_CLASS);
+    boolean annotateLambda = DecompilerContext.getOption(IFernflowerPreferences.ANNOTATE_LAMBDAS);
 
     ClassNode outerNode = (ClassNode)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
     DecompilerContext.setProperty(DecompilerContext.CURRENT_CLASS_NODE, node);
@@ -196,6 +197,9 @@ public class ClassWriter implements StatementWriter {
         if (!lambdaToAnonymous) {
           RootStatement root = wrapper.getMethodWrapper(mt.getName(), mt.getDescriptor()).root;
           boolean written = false;
+          if (annotateLambda) {
+            buffer.append("/*").append(node.lambdaInformation.content_method_name).append("*/ ");
+          }
           // Array constructor lambda
           if (md_lambda.params.length == 1 && md_lambda.params[0].equals(VarType.VARTYPE_INT) && md_lambda.ret.arrayDim > 0) {
             if (root.getFirst() instanceof BasicBlockStatement && root.getFirst().getExprents().size() == 1) {
