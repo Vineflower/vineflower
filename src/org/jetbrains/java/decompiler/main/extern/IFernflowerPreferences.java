@@ -388,7 +388,7 @@ public interface IFernflowerPreferences {
   String REMOVE_IMPORTS = "remove-imports";
 
   @Name("Mark Corresponding Sythetics")
-  @Description("Mark lambdas and anonymous classes with their respective ")
+  @Description("Mark lambdas and anonymous and local classes with their respective synthetic constructs")
   @ShortName("mcs")
   String MARK_CORRESPONDING_SYNTHETICS = "annotate-lambdas";
 

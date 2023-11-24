@@ -153,7 +153,6 @@ public class ClassWriter implements StatementWriter {
     }
 
     boolean lambdaToAnonymous = DecompilerContext.getOption(IFernflowerPreferences.LAMBDA_TO_ANONYMOUS_CLASS);
-    boolean annotateLambda = DecompilerContext.getOption(IFernflowerPreferences.MARK_CORRESPONDING_SYNTHETICS);
 
     ClassNode outerNode = (ClassNode)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
     DecompilerContext.setProperty(DecompilerContext.CURRENT_CLASS_NODE, node);
@@ -197,7 +196,7 @@ public class ClassWriter implements StatementWriter {
         if (!lambdaToAnonymous) {
           RootStatement root = wrapper.getMethodWrapper(mt.getName(), mt.getDescriptor()).root;
           boolean written = false;
-          if (annotateLambda) {
+          if (DecompilerContext.getOption(IFernflowerPreferences.MARK_CORRESPONDING_SYNTHETICS)) {
             buffer.append("/*").append(node.lambdaInformation.content_method_name).append("*/ ");
           }
           // Array constructor lambda
@@ -635,6 +634,7 @@ public class ClassWriter implements StatementWriter {
     boolean isSealed = permittedSubClassesAttr != null && !permittedSubClasses.isEmpty();
     boolean isFinal = (flags & CodeConstants.ACC_FINAL) != 0;
     boolean isNonSealed = !isSealed && !isFinal && cl.getVersion().hasSealedClasses() && isSuperClassSealed(cl);
+    boolean markLocal = DecompilerContext.getOption(IFernflowerPreferences.MARK_CORRESPONDING_SYNTHETICS);
 
     if (isDeprecated) {
       if (!containsDeprecatedAnnotation(cl)) {
@@ -764,6 +764,11 @@ public class ClassWriter implements StatementWriter {
     }
 
     buffer.popNewlineGroup();
+
+    if (markLocal && node.type == ClassNode.Type.LOCAL) {
+      String className = cl.qualifiedName.substring(cl.qualifiedName.lastIndexOf("/") + 1);
+      buffer.append(" /*").append(className).append("*/");
+    }
 
     buffer.append(" {").appendLineSeparator();
   }

@@ -843,5 +843,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
   private void registerSytheticsMarking() {
     register(JAVA_8, "TestLambdaNaming");
     register(JAVA_8, "TestAnonymousClassNaming");
+    register(JAVA_8, "TestLocalClassNaming");
   }
 }
