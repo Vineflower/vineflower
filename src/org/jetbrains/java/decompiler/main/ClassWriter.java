@@ -608,19 +608,17 @@ public class ClassWriter implements StatementWriter {
   }
 
   private void writeClassDefinition(ClassNode node, TextBuffer buffer, int indent) {
+    boolean markSynthetics = DecompilerContext.getOption(IFernflowerPreferences.MARK_CORRESPONDING_SYNTHETICS);
+    ClassWrapper wrapper = node.getWrapper();
+    StructClass cl = wrapper.getClassStruct();
+
     if (node.type == ClassNode.Type.ANONYMOUS) {
-      if (DecompilerContext.getOption(IFernflowerPreferences.MARK_CORRESPONDING_SYNTHETICS)) {
-        // ClassNode#simpleName is always null for anonymous classes, so we have to get the name from the underlying ClassStruct
-        String qualifiedName = node.getWrapper().getClassStruct().qualifiedName;
-        String className = qualifiedName.substring(qualifiedName.lastIndexOf("/") + 1);
-        buffer.append(" /*").append(className).append("*/");
+      if (markSynthetics) {
+        appendSyntheticClassComment(cl, buffer);
       }
       buffer.append(" {").appendLineSeparator();
       return;
     }
-
-    ClassWrapper wrapper = node.getWrapper();
-    StructClass cl = wrapper.getClassStruct();
 
     int flags = node.type == ClassNode.Type.ROOT ? cl.getAccessFlags() : node.access;
     boolean isDeprecated = cl.hasAttribute(StructGeneralAttribute.ATTRIBUTE_DEPRECATED);
@@ -634,7 +632,6 @@ public class ClassWriter implements StatementWriter {
     boolean isSealed = permittedSubClassesAttr != null && !permittedSubClasses.isEmpty();
     boolean isFinal = (flags & CodeConstants.ACC_FINAL) != 0;
     boolean isNonSealed = !isSealed && !isFinal && cl.getVersion().hasSealedClasses() && isSuperClassSealed(cl);
-    boolean markLocal = DecompilerContext.getOption(IFernflowerPreferences.MARK_CORRESPONDING_SYNTHETICS);
 
     if (isDeprecated) {
       if (!containsDeprecatedAnnotation(cl)) {
@@ -765,9 +762,8 @@ public class ClassWriter implements StatementWriter {
 
     buffer.popNewlineGroup();
 
-    if (markLocal && node.type == ClassNode.Type.LOCAL) {
-      String className = cl.qualifiedName.substring(cl.qualifiedName.lastIndexOf("/") + 1);
-      buffer.append(" /*").append(className).append("*/");
+    if (markSynthetics && node.type == ClassNode.Type.LOCAL) {
+      appendSyntheticClassComment(cl, buffer);
     }
 
     buffer.append(" {").appendLineSeparator();
@@ -1608,6 +1604,11 @@ public class ClassWriter implements StatementWriter {
       buffer.appendIndent(indent).append(" * ").append(s).appendLineSeparator();
     }
     buffer.appendIndent(indent).append(" */").appendLineSeparator();
+  }
+
+  public static void appendSyntheticClassComment(StructClass cl, TextBuffer buffer) {
+    String className = cl.qualifiedName.substring(cl.qualifiedName.lastIndexOf("/") + 1);
+    buffer.append(" /*").append(className).append("*/");
   }
 
   static final Key<?>[] ANNOTATION_ATTRIBUTES = {
