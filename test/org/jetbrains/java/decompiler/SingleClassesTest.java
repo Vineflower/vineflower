@@ -141,7 +141,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
       IFernflowerPreferences.FORCE_JSR_INLINE, "1",
       IFernflowerPreferences.PREFERRED_LINE_LENGTH, "120"
     );
-    registerSet("Sythetics Marking", this::registerSytheticsMarking,
+    registerSet("Synthetics Marking", this::registerSyntheticsMarking,
       IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
       IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
       IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR, "0",
@@ -840,7 +840,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestTextTokens3");
   }
 
-  private void registerSytheticsMarking() {
+  private void registerSyntheticsMarking() {
     register(JAVA_8, "TestLambdaNaming");
     register(JAVA_8, "TestAnonymousClassNaming");
     register(JAVA_8, "TestLocalClassNaming");

@@ -387,10 +387,10 @@ public interface IFernflowerPreferences {
   @Type(Type.BOOLEAN)
   String REMOVE_IMPORTS = "remove-imports";
 
-  @Name("Mark Corresponding Sythetics")
+  @Name("Mark Corresponding Synthetics")
   @Description("Mark lambdas and anonymous and local classes with their respective synthetic constructs")
   @ShortName("mcs")
-  String MARK_CORRESPONDING_SYNTHETICS = "annotate-lambdas";
+  String MARK_CORRESPONDING_SYNTHETICS = "mark-corresponding-synthetics";
 
   Map<String, Object> DEFAULTS = getDefaults();
 
