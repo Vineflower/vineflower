@@ -2,10 +2,10 @@ package pkg;
 
 public class TestAnonymousClassNaming {
    public void run(int i, final String s) throws Exception {
-      new Object() /*TestAnonymousClassNaming$1*/ {
+      new Object() /* TestAnonymousClassNaming$1 */ {
       };
       if (i < 0) {// 6
-         throw new Exception() /*TestAnonymousClassNaming$2*/ {// 7
+         throw new Exception() /* TestAnonymousClassNaming$2 */ {// 7
             public String getMessage() {
                return s;// 10
             }
@@ -14,7 +14,7 @@ public class TestAnonymousClassNaming {
    }// 14
 
    private static class InnerClass {
-      Object o = new Object() /*TestAnonymousClassNaming$InnerClass$1*/ {
+      Object o = new Object() /* TestAnonymousClassNaming$InnerClass$1 */ {
       };
    }
 }

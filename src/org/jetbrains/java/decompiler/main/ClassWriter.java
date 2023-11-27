@@ -197,7 +197,10 @@ public class ClassWriter implements StatementWriter {
           RootStatement root = wrapper.getMethodWrapper(mt.getName(), mt.getDescriptor()).root;
           boolean written = false;
           if (DecompilerContext.getOption(IFernflowerPreferences.MARK_CORRESPONDING_SYNTHETICS)) {
-            buffer.append("/*").append(node.lambdaInformation.content_method_name).append("*/ ");
+            buffer.append("/* ")
+              .appendMethod(node.lambdaInformation.content_method_name,
+                true, node.lambdaInformation.content_class_name, node.lambdaInformation.content_method_name, node.lambdaInformation.content_method_descriptor)
+              .append(" */ ");
           }
           // Array constructor lambda
           if (md_lambda.params.length == 1 && md_lambda.params[0].equals(VarType.VARTYPE_INT) && md_lambda.ret.arrayDim > 0) {
@@ -1608,7 +1611,7 @@ public class ClassWriter implements StatementWriter {
 
   public static void appendSyntheticClassComment(StructClass cl, TextBuffer buffer) {
     String className = cl.qualifiedName.substring(cl.qualifiedName.lastIndexOf("/") + 1);
-    buffer.append(" /*").append(className).append("*/");
+    buffer.append(" /* ").appendClass(className, true, cl.qualifiedName).append(" */");
   }
 
   static final Key<?>[] ANNOTATION_ATTRIBUTES = {

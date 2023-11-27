@@ -5,9 +5,9 @@ import java.util.function.BiConsumer;
 
 public class TestLambdaNaming {
    public void test() {
-      Runnable f = /*lambda$test$0*/ () -> System.out.println("test");// 8
-      BiConsumer<List<String>, Integer> g = /*lambda$test$3*/ (l, i) -> {// 9
-         Character[] a = (Character[])l.stream().map(/*lambda$null$1*/ st -> st.charAt(i)).toArray(/*lambda$null$2*/ Character[]::new);// 10 11 12
+      Runnable f = /* lambda$test$0 */ () -> System.out.println("test");// 8
+      BiConsumer<List<String>, Integer> g = /* lambda$test$3 */ (l, i) -> {// 9
+         Character[] a = (Character[])l.stream().map(/* lambda$null$1 */ st -> st.charAt(i)).toArray(/* lambda$null$2 */ Character[]::new);// 10 11 12
       };// 13
    }// 14
 }

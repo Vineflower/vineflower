@@ -2,7 +2,7 @@ package pkg;
 
 public abstract class TestLocalClassNaming {
    void foo() {
-      class Local /*TestLocalClassNaming$1Local*/ {
+      class Local /* TestLocalClassNaming$1Local */ {
          int i = 4;
 
          Local() {
