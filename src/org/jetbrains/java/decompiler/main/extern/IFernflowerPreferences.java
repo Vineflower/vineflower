@@ -387,6 +387,11 @@ public interface IFernflowerPreferences {
   @Type(Type.BOOLEAN)
   String REMOVE_IMPORTS = "remove-imports";
 
+  @Name("Mark Corresponding Synthetics")
+  @Description("Mark lambdas and anonymous and local classes with their respective synthetic constructs")
+  @ShortName("mcs")
+  String MARK_CORRESPONDING_SYNTHETICS = "mark-corresponding-synthetics";
+
   Map<String, Object> DEFAULTS = getDefaults();
 
   static Map<String, Object> getDefaults() {
@@ -458,6 +463,7 @@ public interface IFernflowerPreferences {
     defaults.put(FORCE_JSR_INLINE, "0");
     defaults.put(DUMP_TEXT_TOKENS, "0");
     defaults.put(REMOVE_IMPORTS, "0");
+    defaults.put(MARK_CORRESPONDING_SYNTHETICS, "0");
 
     return Collections.unmodifiableMap(defaults);
   }
