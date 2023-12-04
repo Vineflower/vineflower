@@ -2,6 +2,7 @@ package org.jetbrains.java.decompiler.api.plugin;
 
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.api.java.JavaPassRegistrar;
+import org.jetbrains.java.decompiler.main.extern.IVariableNamingFactory;
 
 /**
  * Plugins allow users to interface with Vineflower's decompilation process by providing user-defined passes or language specifications.
@@ -34,6 +35,11 @@ public interface Plugin {
 
   @Nullable
   default PluginOptions getPluginOptions() {
+    return null;
+  }
+
+  @Nullable
+  default IVariableNamingFactory getRenamingFactory() {
     return null;
   }
 }

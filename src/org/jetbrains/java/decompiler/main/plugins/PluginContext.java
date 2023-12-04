@@ -10,6 +10,8 @@ import org.jetbrains.java.decompiler.api.plugin.pass.NamedPass;
 import org.jetbrains.java.decompiler.api.plugin.pass.PassContext;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.decompiler.CancelationManager;
+import org.jetbrains.java.decompiler.main.extern.IVariableNameProvider;
+import org.jetbrains.java.decompiler.main.extern.IVariableNamingFactory;
 import org.jetbrains.java.decompiler.struct.StructClass;
 
 import java.util.*;
@@ -96,6 +98,18 @@ public class PluginContext {
         return spec;
       }
     }
+
+    return null;
+  }
+
+  public IVariableNamingFactory getVariableRenamer() {
+    for (Plugin plugin : plugins) {
+      IVariableNamingFactory factory = plugin.getRenamingFactory();
+      if (factory != null) {
+        return factory;
+      }
+    }
+
     return null;
   }
 

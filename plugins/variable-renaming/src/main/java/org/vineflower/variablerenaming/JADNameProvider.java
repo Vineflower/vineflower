@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jetbrains.java.decompiler.util;
+package org.vineflower.variablerenaming;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -27,19 +26,23 @@ import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
 import org.jetbrains.java.decompiler.code.CodeConstants;
+import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.extern.IVariableNameProvider;
 import org.jetbrains.java.decompiler.main.extern.IVariableNamingFactory;
+import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
+import org.jetbrains.java.decompiler.util.Pair;
 
 public class JADNameProvider implements IVariableNameProvider {
-  private HashMap<String, Holder> last = null;
-  private HashMap<String, String> remap = null;
+  private HashMap<String, Holder> last;
+  private HashMap<String, String> remap;
   private final HashMap<Integer, String> parameters = new HashMap<>();
-  private StructMethod method = null;
-  private boolean renameParameters = false;
+  private final StructMethod method;
+  private final boolean renameParameters;
   private static final Pattern CAPS_START = Pattern.compile("^[A-Z]");
   private static final Pattern ARRAY = Pattern.compile("(\\[|\\.\\.\\.)");
 
@@ -100,7 +103,7 @@ public class JADNameProvider implements IVariableNameProvider {
   }
 
   @Override
-  public Map<VarVersionPair,String> rename(Map<VarVersionPair, String> entries) {
+  public Map<VarVersionPair,String> rename(Map<VarVersionPair, Pair<VarType, String>> entries) {
     int params = 0;
     if ((this.method.getAccessFlags() & CodeConstants.ACC_STATIC) != CodeConstants.ACC_STATIC) {
       params++;
@@ -116,7 +119,7 @@ public class JADNameProvider implements IVariableNameProvider {
 
     Map<VarVersionPair, String> result = new LinkedHashMap<>();
     for (VarVersionPair ver : keys) {
-      String type = cleanType(entries.get(ver));
+      String type = cleanType(entries.get(ver).b);
       if ("this".equals(type)) {
         continue;
       }
@@ -201,24 +204,20 @@ public class JADNameProvider implements IVariableNameProvider {
   }
 
   @Override
-  public String renameParameter(int flags, String type, String name, int index) {
+  public String renameParameter(int flags, VarType type, String name, int index) {
+    String typeName = ExprProcessor.getCastTypeName(type);
     if (!this.renameParameters) {
       return IVariableNameProvider.super.renameParameter(flags, type, name, index);
     }
 
-    return this.parameters.computeIfAbsent(index, k -> getNewName(cleanType(type)));
+    return this.parameters.computeIfAbsent(index, k -> getNewName(cleanType(typeName)));
   }
 
   public static class JADNameProviderFactory implements IVariableNamingFactory {
-    private final boolean renameParameters;
-
-    public JADNameProviderFactory(boolean renameParameters) {
-      this.renameParameters = renameParameters;
-    }
-
     @Override
     public IVariableNameProvider createFactory(StructMethod method) {
-      return new JADNameProvider(renameParameters, method);
+      return new JADNameProvider(DecompilerContext.getOption(VariableRenamingOptions.RENAME_PARAMETERS)
+        || DecompilerContext.getOption(VariableRenamingOptions.USE_JAD_PARAMETER_NAMING), method);
     }
   }
 }
