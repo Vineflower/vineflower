@@ -1,6 +1,7 @@
 // Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 
-import org.jetbrains.java.decompiler.build.JasmCompile
+import org.vineflower.build.JasmCompile
+import org.vineflower.build.TestDataRuntimesProvider
 
 plugins {
   id 'jacoco'
@@ -171,25 +172,6 @@ compileTestDataScalaScala {
   destinationDirectory = file("testData/classes/scala")
 }
 testDataClasses.dependsOn(testDataScalaClasses)
-
-class TestDataRuntimesProvider implements CommandLineArgumentProvider {
-    @Nested
-    final MapProperty<String, JavaLauncher> launchers
-    
-    @Inject
-    TestDataRuntimesProvider(final ObjectFactory objects) {
-        this.launchers = objects.mapProperty(Integer, JavaLauncher)
-    }
-     
-    @Override
-    Iterable<String> asArguments() {
-        def result = []
-        this.launchers.get().each { k, v ->
-            result << "-Djava.${k}.home=${v.metadata.installationPath.asFile.absolutePath}"
-        }
-        return result
-    }
-}
 
 test {
   maxHeapSize = "512M"
