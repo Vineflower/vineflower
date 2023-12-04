@@ -141,10 +141,10 @@ public class AssignmentExprent extends Exprent {
 
       // We must lock the collector: this prevents the retrieval of the cast type name to impact the import list.
       // This is fine as we're only using the cast type name to ensure that it's not the unrepresentable type.
-      boolean lockedImports = DecompilerContext.getImportCollector().isWriteLocked();
-      DecompilerContext.getImportCollector().setWriteLocked(true);
-      String castName = ExprProcessor.getCastTypeName(leftType);
-      DecompilerContext.getImportCollector().setWriteLocked(lockedImports);
+      String castName;
+      try (var lock = DecompilerContext.getImportCollector().lock()) {
+        castName = ExprProcessor.getCastTypeName(leftType);
+      }
 
       if (castName.equals(ExprProcessor.UNREPRESENTABLE_TYPE_STRING)) {
         // Unrepresentable, go ahead and just put the type on the right. The lhs (if a variable) should know about its type and change itself to "var" accordingly.

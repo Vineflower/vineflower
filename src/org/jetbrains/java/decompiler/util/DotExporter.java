@@ -50,11 +50,12 @@ public class DotExporter {
   // Nodes with green borders are the canonical exit of method, but these may not always be emitted.
 
   private static String statToDot(Statement stat, String name) {
-    return statToDot(stat, name, null);
+    try (var lock = DecompilerContext.getImportCollector().lock()) {
+      return statToDot(stat, name, null);
+    }
   }
 
   private static String statToDot(Statement stat, String name, Map<Statement, String> extraProps) {
-    DecompilerContext.getImportCollector().setWriteLocked(true);
     StringBuffer buffer = new StringBuffer();
     // List<String> subgraph = new ArrayList<>();
     Set<Integer> visitedNodes = new HashSet<>();
@@ -300,8 +301,6 @@ public class DotExporter {
 //    }
 
     buffer.append("}");
-
-    DecompilerContext.getImportCollector().setWriteLocked(false);
 
     return buffer.toString();
   }
@@ -603,8 +602,6 @@ public class DotExporter {
   }
 
   private static String digraphToDot(DirectGraph graph, Map<String, SFormsFastMapDirect> vars) {
-    DecompilerContext.getImportCollector().setWriteLocked(true);
-
     StringBuffer buffer = new StringBuffer();
 
     buffer.append("digraph G {\r\n");
@@ -647,8 +644,6 @@ public class DotExporter {
 
     buffer.append("}");
 
-    DecompilerContext.getImportCollector().setWriteLocked(false);
-
     return buffer.toString();
   }
 
@@ -684,7 +679,9 @@ public class DotExporter {
       return;
     try{
       BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(DOTS_FOLDER, mt, suffix)));
-      out.write(digraphToDot(dgraph, vars).getBytes());
+      try (var lock = DecompilerContext.getImportCollector().lock()) {
+        out.write(digraphToDot(dgraph, vars).getBytes());
+      }
       out.close();
     } catch (Exception e) {
       e.printStackTrace();
@@ -700,7 +697,9 @@ public class DotExporter {
       return;
     try{
       BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(DOTS_ERROR_FOLDER, mt, suffix)));
-      out.write(digraphToDot(dgraph, vars).getBytes());
+      try (var lock = DecompilerContext.getImportCollector().lock()) {
+        out.write(digraphToDot(dgraph, vars).getBytes());
+      }
       out.close();
     } catch (Exception e) {
       e.printStackTrace();
@@ -720,7 +719,9 @@ public class DotExporter {
       return;
     try{
       BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(DOTS_FOLDER, mt, subdirectory, suffix)));
-      out.write(statToDot(stat, suffix, extraProps).getBytes());
+      try (var lock = DecompilerContext.getImportCollector().lock()) {
+        out.write(statToDot(stat, suffix, extraProps).getBytes());
+      }
       out.close();
     } catch (Exception e) {
       e.printStackTrace();

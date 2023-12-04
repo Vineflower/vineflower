@@ -1,6 +1,8 @@
 package org.vineflower.variablerenaming;
 
 import org.jetbrains.java.decompiler.code.CodeConstants;
+import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.main.collectors.ImportCollector;
 import org.jetbrains.java.decompiler.main.extern.IVariableNameProvider;
 import org.jetbrains.java.decompiler.main.extern.IVariableNamingFactory;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
@@ -118,7 +120,10 @@ public class TinyNameProvider implements IVariableNameProvider {
 
   @Override
   public String renameParameter(int flags, VarType type, String name, int index) {
-    String typeName = ExprProcessor.getCastTypeName(type);
+    String typeName;
+    try (var lock = DecompilerContext.getImportCollector().lock()) {
+      typeName = ExprProcessor.getCastTypeName(type);
+    }
     if (!this.renameParameters) {
       return IVariableNameProvider.super.renameParameter(flags, type, name, index);
     }
