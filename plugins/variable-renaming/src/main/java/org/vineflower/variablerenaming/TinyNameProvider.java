@@ -182,7 +182,7 @@ public class TinyNameProvider implements IVariableNameProvider {
 
     @Override
     public IVariableNameProvider createFactory(StructMethod structMethod) {
-      return new TinyNameProvider(false, structMethod);
+      return new TinyNameProvider(DecompilerContext.getOption(VariableRenamingOptions.RENAME_PARAMETERS), structMethod);
     }
   }
 }
