@@ -136,7 +136,7 @@ void createJavaTestDataSet(int version, String suffix = "", List<String> compile
 
 def testJavaRuntimes = [:]
 
-[8, 9, 11, 16, 17].forEach { version ->
+[8, 9, 11, 16, 17, 21].forEach { version ->
     def runtimeVersion = isArm && version > 8 && version < 11 ? 11 : version
     createJavaTestDataSet(version)
     testJavaRuntimes[version] = javaToolchains.launcherFor {
