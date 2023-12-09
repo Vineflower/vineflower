@@ -23,4 +23,11 @@ public class TestRecordPatterns1 {
       System.out.println(s);
     }
   }
+
+  public void test4(R r) {
+    if (r instanceof R(int x, var v)) {
+      System.out.println(x);
+      System.out.println(v);
+    }
+  }
 }

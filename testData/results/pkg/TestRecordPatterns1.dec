@@ -117,6 +117,44 @@ public class TestRecordPatterns1 {
       }
    }// 25
 
+   // $VF: Inserted dummy exception handlers to handle obfuscated exceptions
+   public void test4(TestRecordPatterns1.R r) {
+      if (r instanceof TestRecordPatterns1.R) {
+         TestRecordPatterns1.R var10000 = r;
+
+         int var5;
+         label29: {
+            label34: {
+               try {
+                  var10 = var10000.i();
+               } catch (Throwable var7) {
+                  var9 = var7;
+                  boolean var10001 = false;
+                  break label34;
+               }
+
+               var5 = var10;
+               var10000 = r;
+
+               try {
+                  var12 = var10000.o();
+                  break label29;
+               } catch (Throwable var6) {
+                  var9 = var6;
+                  boolean var13 = false;
+               }
+            }
+
+            Throwable var2 = var9;// 28
+            throw new MatchException(var2.toString(), var2);
+         }
+
+         Object var8 = var12;
+         System.out.println(var5);// 29
+         System.out.println(var8);// 30
+      }
+   }// 32
+
    static record R(int i, Object o) {
    }
 }
@@ -259,6 +297,48 @@ class 'pkg/TestRecordPatterns1' {
       50      109
       51      117
    }
+
+   method 'test4 (Lpkg/TestRecordPatterns1$R;)V' {
+      0      121
+      1      121
+      2      121
+      3      121
+      4      121
+      7      122
+      9      122
+      a      128
+      d      135
+      e      135
+      f      152
+      10      152
+      12      136
+      13      139
+      16      151
+      17      151
+      18      153
+      19      153
+      1c      152
+      1d      152
+      1e      152
+      1f      152
+      20      152
+      21      152
+      22      152
+      23      153
+      24      153
+      25      153
+      26      153
+      27      153
+      28      153
+      2e      147
+      33      148
+      34      148
+      35      148
+      36      148
+      37      148
+      3b      148
+      3c      155
+   }
 }
 
 Lines mapping:
@@ -274,3 +354,7 @@ Lines mapping:
 22 <-> 114
 23 <-> 115
 25 <-> 118
+28 <-> 148
+29 <-> 153
+30 <-> 154
+32 <-> 156
