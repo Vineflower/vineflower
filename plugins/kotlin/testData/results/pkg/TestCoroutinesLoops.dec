@@ -1,0 +1,466 @@
+package pkg
+
+import kotlin.coroutines.Continuation
+import kotlin.coroutines.jvm.internal.Boxing
+
+class TestCoroutinesLoops {
+   fun testA(a: Int, `$completion`: Continuation<? super Integer>): Any? {
+      return Boxing.boxInt(0);// 6
+   }
+
+   fun testTruthMachine(a: Int, var2: Continuation<? super Integer>): Any? {
+      if (a != 0) {// 9
+         while (true) {
+            this.testA(a, null);// 15
+         }
+      }
+
+      return Boxing.boxInt(0);// 11
+   }
+
+   fun testForLoop(a: Int, b: Int, var3: Continuation<? super Integer>): Any? {
+      var i: Int = a;// 19
+      if (a <= b) {// 20
+         while (true) {
+            if ((this.testA(i, null) as Number).intValue() == 17) {// 21
+               return Boxing.boxInt(i);// 22
+            }
+
+            if (i == 17) {// 25
+               this.testTruthMachine(a, null);// 26
+            }
+
+            if (i == b) {
+               break;
+            }
+
+            ++i;
+         }
+      }
+
+      return Boxing.boxInt(0);// 30
+   }
+
+   fun testForLoopWithBreak(a: Int, b: Int, var3: Continuation<? super Integer>): Any? {
+      var i: Int = a;// 33
+      if (a <= b) {// 34
+         while (((Number)this.testA(i, null)).intValue() != 17) {// 35
+            if (i == 17) {// 39
+               this.testTruthMachine(a, null);// 40
+            }
+
+            if (i == b) {
+               break;
+            }
+
+            ++i;
+         }
+      }
+
+      return Boxing.boxInt(0);// 44
+   }
+
+   fun testForLoopWithContinue(a: Int, b: Int, var3: Continuation<? super Integer>): Any? {
+      var i: Int = a;// 47
+      if (a <= b) {// 48
+         while (true) {
+            if ((this.testA(i, null) as Number).intValue() != 17 && i == 17) {// 49 53
+               this.testTruthMachine(a, null);// 54
+            }
+
+            if (i == b) {
+               break;
+            }
+
+            ++i;
+         }
+      }
+
+      return Boxing.boxInt(0);// 58
+   }
+
+   fun testNestedForLoop(a: Int, b: Int, var3: Continuation<? super Integer>): Any? {
+      var i: Int = a;// 61
+      if (a <= b) {
+         while (true) {
+            var j: Int = a;// 63
+            if (a <= b) {
+               while (true) {
+                  if ((this.testA(i * j, null) as Number).intValue() == 17) {// 64
+                     return Boxing.boxInt(i);// 65
+                  }
+
+                  if (i == 17 * j) {// 68
+                     this.testTruthMachine(a + j, null);// 69
+                  }
+
+                  if ((this.testA(j, null) as Number).intValue() == 17) {// 72
+                     break;
+                  }
+
+                  if (j == 17 - i) {// 76
+                     this.testTruthMachine(a, null);// 77
+                  }
+
+                  if (j == b) {
+                     break;
+                  }
+
+                  ++j;
+               }
+            }
+
+            if (i == b) {// 62
+               break;
+            }
+
+            ++i;
+         }
+      }
+
+      return Boxing.boxInt(0);// 82
+   }
+}
+
+class 'pkg/TestCoroutinesLoops' {
+   method 'testA (ILkotlin/coroutines/Continuation;)Ljava/lang/Object;' {
+      0      7
+      1      7
+      2      7
+      3      7
+      4      7
+   }
+
+   method 'testTruthMachine (ILkotlin/coroutines/Continuation;)Ljava/lang/Object;' {
+      58      11
+      59      11
+      5a      11
+      5b      11
+      60      17
+      61      17
+      62      17
+      63      17
+      64      17
+      66      13
+      67      13
+      68      13
+      69      13
+      6a      13
+      6b      13
+   }
+
+   method 'testForLoop (IILkotlin/coroutines/Continuation;)Ljava/lang/Object;' {
+      5c      21
+      5d      21
+      5e      21
+      5f      21
+      60      21
+      61      22
+      62      22
+      63      22
+      64      22
+      65      22
+      6a      24
+      6b      24
+      6c      24
+      6d      24
+      6e      24
+      6f      24
+      70      24
+      bd      24
+      be      24
+      bf      24
+      c0      24
+      c1      24
+      c2      24
+      c3      24
+      c4      24
+      c5      24
+      c8      25
+      c9      25
+      ca      25
+      cb      25
+      cc      25
+      cd      25
+      ce      28
+      cf      28
+      d0      28
+      d1      28
+      d2      28
+      d5      29
+      d6      29
+      d7      29
+      d8      29
+      d9      29
+      da      29
+      128      32
+      129      32
+      12a      32
+      12b      32
+      12e      36
+      12f      36
+      130      36
+      134      40
+      135      40
+      136      40
+      137      40
+      138      40
+   }
+
+   method 'testForLoopWithBreak (IILkotlin/coroutines/Continuation;)Ljava/lang/Object;' {
+      5c      44
+      5d      44
+      5e      44
+      5f      44
+      60      44
+      61      45
+      62      45
+      63      45
+      64      45
+      65      45
+      6a      46
+      6b      46
+      6c      46
+      6d      46
+      6e      46
+      6f      46
+      70      46
+      bd      46
+      be      46
+      bf      46
+      c0      46
+      c1      46
+      c2      46
+      c3      46
+      c4      46
+      c5      46
+      cb      47
+      cc      47
+      cd      47
+      ce      47
+      cf      47
+      d2      48
+      d3      48
+      d4      48
+      d5      48
+      d6      48
+      d7      48
+      125      51
+      126      51
+      127      51
+      128      51
+      12b      55
+      12c      55
+      12d      55
+      131      59
+      132      59
+      133      59
+      134      59
+      135      59
+   }
+
+   method 'testForLoopWithContinue (IILkotlin/coroutines/Continuation;)Ljava/lang/Object;' {
+      5c      63
+      5d      63
+      5e      63
+      5f      63
+      60      63
+      61      64
+      62      64
+      63      64
+      64      64
+      65      64
+      6a      66
+      6b      66
+      6c      66
+      6d      66
+      6e      66
+      6f      66
+      70      66
+      bd      66
+      be      66
+      bf      66
+      c0      66
+      c1      66
+      c2      66
+      c3      66
+      c4      66
+      c5      66
+      cb      66
+      cc      66
+      cd      66
+      ce      66
+      cf      66
+      d2      67
+      d3      67
+      d4      67
+      d5      67
+      d6      67
+      d7      67
+      125      70
+      126      70
+      127      70
+      128      70
+      12b      74
+      12c      74
+      12d      74
+      131      78
+      132      78
+      133      78
+      134      78
+      135      78
+   }
+
+   method 'testNestedForLoop (IILkotlin/coroutines/Continuation;)Ljava/lang/Object;' {
+      64      82
+      65      82
+      66      82
+      67      82
+      68      82
+      69      83
+      6a      83
+      6b      83
+      6c      83
+      6d      83
+      72      85
+      73      85
+      74      85
+      75      86
+      76      86
+      77      86
+      78      86
+      7b      88
+      7c      88
+      7d      88
+      7e      88
+      7f      88
+      80      88
+      81      88
+      82      88
+      83      88
+      84      88
+      df      88
+      e0      88
+      e1      88
+      e2      88
+      e3      88
+      e4      88
+      e5      88
+      e6      88
+      e7      88
+      ea      89
+      eb      89
+      ec      89
+      ed      89
+      ee      89
+      ef      89
+      f0      92
+      f1      92
+      f2      92
+      f3      92
+      f4      92
+      f5      92
+      f6      92
+      f7      92
+      fa      93
+      fb      93
+      fc      93
+      fd      93
+      fe      93
+      ff      93
+      100      93
+      101      93
+      102      93
+      15e      96
+      15f      96
+      160      96
+      161      96
+      162      96
+      163      96
+      164      96
+      1bf      96
+      1c0      96
+      1c1      96
+      1c2      96
+      1c3      96
+      1c4      96
+      1c5      96
+      1c6      96
+      1c7      96
+      1cd      100
+      1ce      100
+      1cf      100
+      1d0      100
+      1d1      100
+      1d2      100
+      1d3      100
+      1d4      100
+      1d7      101
+      1d8      101
+      1d9      101
+      1da      101
+      1db      101
+      1dc      101
+      238      104
+      239      104
+      23a      104
+      23b      104
+      23e      108
+      23f      108
+      240      108
+      244      112
+      245      112
+      246      112
+      247      112
+      24a      116
+      24b      116
+      24c      116
+      250      120
+      251      120
+      252      120
+      253      120
+      254      120
+   }
+}
+
+Lines mapping:
+6 <-> 8
+9 <-> 12
+11 <-> 18
+15 <-> 14
+19 <-> 22
+20 <-> 23
+21 <-> 25
+22 <-> 26
+25 <-> 29
+26 <-> 30
+30 <-> 41
+33 <-> 45
+34 <-> 46
+35 <-> 47
+39 <-> 48
+40 <-> 49
+44 <-> 60
+47 <-> 64
+48 <-> 65
+49 <-> 67
+53 <-> 67
+54 <-> 68
+58 <-> 79
+61 <-> 83
+62 <-> 113
+63 <-> 86
+64 <-> 89
+65 <-> 90
+68 <-> 93
+69 <-> 94
+72 <-> 97
+76 <-> 101
+77 <-> 102
+82 <-> 121
+Not mapped:
+10
+14
+36
+50
+73
