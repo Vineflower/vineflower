@@ -310,15 +310,15 @@ public class ClassWriter implements StatementWriter {
                 }
               }
             }
-  
-            if (!simpleLambda) {
-              buffer.append(" {").appendLineSeparator();
-    
-              methodLambdaToJava(node, wrapper, mt, buffer, indent + 1, !lambdaToAnonymous);
-    
-              buffer.appendIndent(indent).append("}");
-            }
           }
+        }
+
+        if (!simpleLambda) {
+          buffer.append(" {").appendLineSeparator();
+
+          methodLambdaToJava(node, wrapper, mt, buffer, indent + 1, !lambdaToAnonymous);
+
+          buffer.appendIndent(indent).append("}");
         }
       }
     }
