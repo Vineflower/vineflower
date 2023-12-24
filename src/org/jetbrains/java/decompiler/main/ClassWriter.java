@@ -192,10 +192,10 @@ public class ClassWriter implements StatementWriter {
         MethodDescriptor md_lambda = MethodDescriptor.parseDescriptor(node.lambdaInformation.method_descriptor);
 
         boolean simpleLambda = false;
+        boolean written = false;
 
         if (!lambdaToAnonymous) {
           RootStatement root = wrapper.getMethodWrapper(mt.getName(), mt.getDescriptor()).root;
-          boolean written = false;
           if (DecompilerContext.getOption(IFernflowerPreferences.MARK_CORRESPONDING_SYNTHETICS)) {
             buffer.append("/* ")
               .appendMethod(node.lambdaInformation.content_method_name,
@@ -313,7 +313,7 @@ public class ClassWriter implements StatementWriter {
           }
         }
 
-        if (!simpleLambda) {
+        if ((!simpleLambda && !written) || lambdaToAnonymous) {
           buffer.append(" {").appendLineSeparator();
 
           methodLambdaToJava(node, wrapper, mt, buffer, indent + 1, !lambdaToAnonymous);
