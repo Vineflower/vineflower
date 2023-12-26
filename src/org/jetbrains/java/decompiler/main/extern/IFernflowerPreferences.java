@@ -148,6 +148,10 @@ public interface IFernflowerPreferences {
   @Description("Display code blocks hidden, for debugging purposes")
   String SHOW_HIDDEN_STATEMENTS = "shs";
 
+  @Name("Show Lambda Names")
+  @Description("Insert a comment when decompiling lambda expressions with the lambda name.")
+    String SHOW_LAMBDA_NAMES = "sln";
+
   @Name("Override Annotation")
   @Description("Display override annotations for methods known to the decompiler.")
   String OVERRIDE_ANNOTATION = "ovr";
@@ -301,6 +305,7 @@ public interface IFernflowerPreferences {
     defaults.put(TERNARY_CONDITIONS, "1"); // Ternary conditions are stable and don't cause many issues currently
     defaults.put(SWITCH_EXPRESSIONS, "1"); // While still experimental, switch expressions work pretty well
     defaults.put(SHOW_HIDDEN_STATEMENTS, "0"); // Extra debugging that isn't useful in most cases
+    defaults.put(SHOW_LAMBDA_NAMES, "0");
     defaults.put(SIMPLIFY_STACK_SECOND_PASS, "1"); // Generally produces better bytecode, useful to debug if it does something strange
     defaults.put(VERIFY_VARIABLE_MERGES, "0"); // Produces more correct code in rare cases, but hurts code cleanliness in the majority of cases. Default off until a better fix is created.
     defaults.put(DECOMPILE_PREVIEW, "1"); // Preview features are useful to decompile in almost all cases

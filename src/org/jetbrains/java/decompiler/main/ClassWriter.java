@@ -187,6 +187,13 @@ public class ClassWriter implements StatementWriter {
         if (!lambdaToAnonymous) {
           boolean lambdaParametersNeedParentheses = md_lambda.params.length != 1;
 
+          // append method name
+          if (DecompilerContext.getOption(IFernflowerPreferences.SHOW_LAMBDA_NAMES)) {
+            buffer.append("/* ");
+            buffer.append(node.lambdaInformation.content_method_name);
+            buffer.append(" */ ");
+          }
+
           if (lambdaParametersNeedParentheses) {
             buffer.append('(');
           }
