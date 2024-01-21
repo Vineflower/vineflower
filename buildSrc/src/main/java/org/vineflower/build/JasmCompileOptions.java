@@ -1,4 +1,4 @@
-package org.jetbrains.java.decompiler.build;
+package org.vineflower.build;
 
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.compile.AbstractOptions;

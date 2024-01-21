@@ -18,7 +18,6 @@ import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructContext;
 import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
 import org.jetbrains.java.decompiler.util.ClasspathScanner;
-import org.jetbrains.java.decompiler.util.JADNameProvider;
 import org.jetbrains.java.decompiler.util.JrtFinder;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.token.TextTokenDumpVisitor;
@@ -76,26 +75,22 @@ public class Fernflower implements IDecompiledData {
       converter = null;
     }
 
-    IVariableNamingFactory renamerFactory = null;
-    String factoryClazz = (String) properties.get(DecompilerContext.RENAMER_FACTORY.name);
-    if (factoryClazz != null) {
-      try {
-        renamerFactory = Class.forName(factoryClazz).asSubclass(IVariableNamingFactory.class).getDeclaredConstructor().newInstance();
-      } catch (Exception e) {
-        logger.writeMessage("Error loading renamer factory class: " + factoryClazz, e);
-      }
-    }
-    if (renamerFactory == null) {
-      if("1".equals(properties.get(IFernflowerPreferences.USE_JAD_VARNAMING))) {
-        boolean renameParams = "1".equals(properties.get(IFernflowerPreferences.USE_JAD_PARAMETER_NAMING));
-        renamerFactory = new JADNameProvider.JADNameProviderFactory(renameParams);
-      } else {
-        renamerFactory = new IdentityRenamerFactory();
-      }
+    DecompilerContext context = new DecompilerContext(properties, logger, structContext, classProcessor, interceptor);
+    DecompilerContext.setCurrentContext(context);
+
+    PluginContext plugins = structContext.getPluginContext();
+    int pluginCount = plugins.findPlugins();
+
+    logger.writeMessage("Loaded " + pluginCount + " plugins", IFernflowerLogger.Severity.INFO);
+
+    plugins.initialize();
+
+    IVariableNamingFactory renamer = plugins.getVariableRenamer();
+    if (renamer == null) {
+      renamer = new IdentityRenamerFactory();
     }
 
-    DecompilerContext context = new DecompilerContext(properties, logger, structContext, classProcessor, interceptor, renamerFactory);
-    DecompilerContext.setCurrentContext(context);
+    context.renamerFactory = renamer;
 
     String vendor = System.getProperty("java.vendor", "missing vendor");
     String javaVersion = System.getProperty("java.version", "missing java version");
@@ -112,14 +107,6 @@ public class Fernflower implements IDecompiledData {
         JrtFinder.addRuntime(structContext, new File(javaRuntime));
       }
     }
-
-    PluginContext plugins = structContext.getPluginContext();
-
-    int pluginCount = plugins.findPlugins();
-
-    DecompilerContext.getLogger().writeMessage("Loaded " + pluginCount + " plugins", IFernflowerLogger.Severity.INFO);
-
-    plugins.initialize();
   }
 
   private static IIdentifierRenamer loadHelper(String className, IFernflowerLogger logger) {

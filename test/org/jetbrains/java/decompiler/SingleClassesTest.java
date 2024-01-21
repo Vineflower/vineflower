@@ -73,15 +73,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
       IFernflowerPreferences.REMOVE_BRIDGE, "1",
       IFernflowerPreferences.USE_DEBUG_VAR_NAMES, "1"
     );
-    registerSet("JAD Naming", () -> {
-      register(JAVA_8, "TestJADNaming");
-      // TODO: loop part fails
-      registerRaw(CUSTOM, "TestJadLvtCollision"); // created by placing a class in java8 sources and remapping its param using tinyremapper
-    },IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
-      IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
-      IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR, "0",
-      IFernflowerPreferences.USE_JAD_VARNAMING, "1"
-    );
     registerSet("Try Loop", this::registerTryLoop,
       IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
       IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",

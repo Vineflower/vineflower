@@ -1,4 +1,4 @@
-package org.jetbrains.java.decompiler.build;
+package org.vineflower.build;
 
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.model.ReplacedBy;
@@ -7,12 +7,9 @@ import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.SourceTask;
 import org.gradle.api.tasks.TaskAction;
-import org.gradle.api.tasks.compile.CompileOptions;
-import org.gradle.work.InputChanges;
 import org.openjdk.asmtools.jasm.Main;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;

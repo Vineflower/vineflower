@@ -25,6 +25,7 @@ import org.jetbrains.java.decompiler.struct.gen.TypeFamily;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
 import org.jetbrains.java.decompiler.util.ArrayHelper;
+import org.jetbrains.java.decompiler.util.Pair;
 import org.jetbrains.java.decompiler.util.StatementIterator;
 
 import java.util.*;
@@ -1020,9 +1021,9 @@ public class VarDefinitionHelper {
 
     findTypes(stat, types);
 
-    Map<VarVersionPair,String> typeNames = new LinkedHashMap<VarVersionPair,String>();
+    Map<VarVersionPair, Pair<VarType, String>> typeNames = new LinkedHashMap<>();
     for (Entry<VarVersionPair, VarInfo> e : types.entrySet()) {
-      typeNames.put(e.getKey(), e.getValue().getCast());
+      typeNames.put(e.getKey(), Pair.of(e.getValue().getType(), e.getValue().getCast()));
     }
 
     Map<VarVersionPair, String> renames = this.mt.getVariableNamer().rename(typeNames);
