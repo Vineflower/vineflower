@@ -140,6 +140,17 @@ public class SingleClassesTest extends SingleClassesTestBase {
       IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
       IFernflowerPreferences.MARK_CORRESPONDING_SYNTHETICS, "1"
       );
+    registerSet("Lambda to Anonymous Class", this::registerLambdaToAnonymousClass,
+      IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
+      IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
+      IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR, "0",
+      IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
+      IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
+      IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "0",
+      IFernflowerPreferences.TERNARY_CONDITIONS, "1",
+      IFernflowerPreferences.FORCE_JSR_INLINE, "1",
+      IFernflowerPreferences.LAMBDA_TO_ANONYMOUS_CLASS, "1"
+    );
     // TODO: user renamer class test
   }
 
@@ -842,5 +853,10 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestLambdaNaming");
     register(JAVA_8, "TestAnonymousClassNaming");
     register(JAVA_8, "TestLocalClassNaming");
+  }
+
+  private void registerLambdaToAnonymousClass() {
+    register(JAVA_8, "TestLambdaToAnonymousClass");
+    register(JAVA_8, "TestLambdaToAnonymousClass2");
   }
 }
