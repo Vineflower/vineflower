@@ -1,0 +1,108 @@
+package pkg;
+
+import java.util.function.Consumer;
+
+public class TestMissingLambdaBody {
+   public void init() {
+      this.visit(var1 -> {// 24 31
+      });// 69
+   }// 32
+
+   public void visit(Consumer var1) {
+      var1.accept("Foo".hashCode());// 38 39 40 41 42
+      var1.accept("Bar".length());// 43 44 45 46 47
+   }// 48
+
+   public Number accept(Number var1) {
+      System.out.println(var1);// 54 55 56
+      return var1;// 57 58
+   }
+}
+
+class 'pkg/TestMissingLambdaBody' {
+   method 'init ()V' {
+      0      6
+      7      6
+      8      6
+      9      6
+      a      8
+   }
+
+   method 'lambda$init$0 (Ljava/lang/Integer;)V' {
+      9      7
+   }
+
+   method 'visit (Ljava/util/function/Consumer;)V' {
+      0      11
+      1      11
+      2      11
+      3      11
+      4      11
+      5      11
+      6      11
+      7      11
+      8      11
+      9      11
+      a      11
+      b      11
+      c      11
+      d      11
+      e      12
+      f      12
+      10      12
+      11      12
+      12      12
+      13      12
+      14      12
+      15      12
+      16      12
+      17      12
+      18      12
+      19      12
+      1a      12
+      1b      12
+      1c      13
+   }
+
+   method 'accept (Ljava/lang/Number;)Ljava/lang/Number;' {
+      0      16
+      1      16
+      2      16
+      3      16
+      4      16
+      5      16
+      6      16
+      7      17
+      8      17
+   }
+}
+
+Lines mapping:
+24 <-> 7
+31 <-> 7
+32 <-> 9
+38 <-> 12
+39 <-> 12
+40 <-> 12
+41 <-> 12
+42 <-> 12
+43 <-> 13
+44 <-> 13
+45 <-> 13
+46 <-> 13
+47 <-> 13
+48 <-> 14
+54 <-> 17
+55 <-> 17
+56 <-> 17
+57 <-> 18
+58 <-> 18
+69 <-> 8
+Not mapped:
+25
+26
+64
+65
+66
+67
+68
