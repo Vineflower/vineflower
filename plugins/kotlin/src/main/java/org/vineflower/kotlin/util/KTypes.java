@@ -29,29 +29,36 @@ public final class KTypes {
     "java/util/Collection", "MutableCollection",
     "java/util/Iterator", "MutableIterator",
     "java/util/Map$Entry", "MutableMap.MutableEntry",
-    "java/util/Iterable", "MutableIterable"
+    "java/lang/Iterable", "MutableIterable"
   );
   
-  private static final Map<String, String> KOTLIN_TO_JAVA_LANG = Map.of(
-    "kotlin/Int", "java/lang/Integer",
-    "kotlin/Long", "java/lang/Long",
-    "kotlin/Short", "java/lang/Short",
-    "kotlin/Byte", "java/lang/Byte",
-    "kotlin/Boolean", "java/lang/Boolean",
-    "kotlin/Char", "java/lang/Character",
-    "kotlin/Float", "java/lang/Float",
-    "kotlin/Double", "java/lang/Double",
-    "kotlin/String", "java/lang/String",
-    "kotlin/Any", "java/lang/Object"
+  public static final Map<String, String> KOTLIN_TO_JAVA_LANG = Map.ofEntries(
+    Map.entry("kotlin/Any", "java/lang/Object"),
+    Map.entry("kotlin/Boolean", "java/lang/Boolean"),
+    Map.entry("kotlin/Byte", "java/lang/Byte"),
+    Map.entry("kotlin/Char", "java/lang/Character"),
+    Map.entry("kotlin/CharSequence", "java/lang/CharSequence"),
+    Map.entry("kotlin/Comparable", "java/lang/Comparable"),
+    Map.entry("kotlin/Double", "java/lang/Double"),
+    Map.entry("kotlin/Enum", "java/lang/Enum"),
+    Map.entry("kotlin/Float", "java/lang/Float"),
+    Map.entry("kotlin/Int", "java/lang/Integer"),
+    Map.entry("kotlin/Long", "java/lang/Long"),
+    Map.entry("kotlin/Nothing", "java/lang/Void"),
+    Map.entry("kotlin/Number", "java/lang/Number"),
+    Map.entry("kotlin/Short", "java/lang/Short"),
+    Map.entry("kotlin/String", "java/lang/String"),
+    Map.entry("kotlin/Throwable", "java/lang/Throwable"),
+    Map.entry("kotlin/collections/MutableIterable", "java/lang/Iterable"),
+    Map.entry("kotlin/collections/Iterable", "java/lang/Iterable")
   );
 
-  private static final Map<String, String> KOTLIN_TO_JAVA_UTIL = Map.of(
+  public static final Map<String, String> KOTLIN_TO_JAVA_UTIL = Map.of(
     "kotlin/collections/MutableMap", "java/util/Map",
     "kotlin/collections/MutableList", "java/util/List",
     "kotlin/collections/MutableSet", "java/util/Set",
     "kotlin/collections/MutableIterator", "java/util/Iterator",
-    "kotlin/collections/MutableIterable", "java/util/Iterable",
-    "kotlin/collections/MutableMap.MutableEntry", "java/util/Map$Entry"
+    "kotlin/collections/MutableMap$MutableEntry", "java/util/Map$Entry"
   );
   
   private static final Map<String, String> KOTLIN_PRIMITIVE_TYPES = Map.of(
@@ -71,9 +78,18 @@ public final class KTypes {
       kotlinType = kotlinType.substring(1, kotlinType.length() - 1);
     }
 
+    // Kotlin uses . instead of $ when referring to inner classes in metadata but keeps $ in the bytecode
+    if (kotlinType.contains(".")) {
+      kotlinType = kotlinType.replace('.', '$');
+    }
+
     if (kotlinType.startsWith("kotlin/")) {
       if (KOTLIN_PRIMITIVE_TYPES.containsKey(kotlinType) && !isNullable) {
         return KOTLIN_PRIMITIVE_TYPES.get(kotlinType);
+      } else if (kotlinType.endsWith("$Companion") && KOTLIN_PRIMITIVE_TYPES.containsKey(kotlinType.replace("$Companion", ""))) {
+        return "Lkotlin/jvm/internal/" + kotlinType.split("/")[1].split("\\$")[0] + "CompanionObject;";
+      } else if (kotlinType.endsWith("Array") && KOTLIN_PRIMITIVE_TYPES.containsKey(kotlinType.replace("Array", ""))) {
+        return "[" + KOTLIN_PRIMITIVE_TYPES.get(kotlinType.replace("Array", ""));
       } else if (KOTLIN_TO_JAVA_LANG.containsKey(kotlinType)) {
         return "L" + KOTLIN_TO_JAVA_LANG.get(kotlinType) + ";";
       } else if (KOTLIN_TO_JAVA_UTIL.containsKey(kotlinType)) {
@@ -97,6 +113,11 @@ public final class KTypes {
   }
 
   public static String getKotlinType(VarType type, boolean includeOuterClasses) {
+    if (type == null) {
+      //TODO: prevent passing null
+      return "*";
+    }
+
     String typeStr;
     if (isFunctionType(type)) {
       typeStr = functionTypeToKotlin(type);

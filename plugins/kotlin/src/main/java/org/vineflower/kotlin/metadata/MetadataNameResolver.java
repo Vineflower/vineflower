@@ -1,6 +1,6 @@
 package org.vineflower.kotlin.metadata;
 
-import kotlin.reflect.jvm.internal.impl.metadata.jvm.JvmProtoBuf;
+import kotlinx.metadata.internal.metadata.jvm.JvmProtoBuf;
 
 import java.util.*;
 

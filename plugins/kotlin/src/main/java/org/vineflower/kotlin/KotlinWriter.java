@@ -1,7 +1,7 @@
 // Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.vineflower.kotlin;
 
-import kotlin.reflect.jvm.internal.impl.metadata.ProtoBuf;
+import kotlinx.metadata.internal.metadata.ProtoBuf;
 import net.fabricmc.fernflower.api.IFabricJavadocProvider;
 import org.jetbrains.java.decompiler.api.plugin.StatementWriter;
 import org.jetbrains.java.decompiler.code.CodeConstants;
@@ -32,15 +32,13 @@ import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericClassDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericFieldDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericMethodDescriptor;
-import org.jetbrains.java.decompiler.util.InterpreterUtil;
-import org.jetbrains.java.decompiler.util.Key;
-import org.jetbrains.java.decompiler.util.TextBuffer;
-import org.jetbrains.java.decompiler.util.TextUtil;
+import org.jetbrains.java.decompiler.util.*;
 import org.jetbrains.java.decompiler.util.collections.VBStyleCollection;
 import org.vineflower.kotlin.expr.KAnnotationExprent;
 import org.vineflower.kotlin.metadata.MetadataNameResolver;
-import org.vineflower.kotlin.struct.KProperty;
+import org.vineflower.kotlin.struct.*;
 import org.vineflower.kotlin.util.KTypes;
+import org.vineflower.kotlin.util.KUtils;
 import org.vineflower.kotlin.util.ProtobufFlags;
 
 import java.io.IOException;
@@ -55,6 +53,7 @@ public class KotlinWriter implements StatementWriter {
   ));
   private static final String NOT_NULL_ANN_NAME = "org/jetbrains/annotations/NotNull";
   private static final String NULLABLE_ANN_NAME = "org/jetbrains/annotations/Nullable";
+  private static final String REPEATABLE_ANN_NAME = "java/lang/annotation/Repeatable";
   private static final Set<String> KT_HARD_KEYWORDS = new HashSet<>(Arrays.asList(
     "as",
     "break",
@@ -85,7 +84,7 @@ public class KotlinWriter implements StatementWriter {
     "when",
     "while"
   ));
-  
+
   private final PoolInterceptor interceptor;
   private final IFabricJavadocProvider javadocProvider;
 
@@ -202,6 +201,7 @@ public class KotlinWriter implements StatementWriter {
   public void writeClass(ClassNode node, TextBuffer buffer, int indent) {
     ClassNode outerNode = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
     DecompilerContext.setProperty(DecompilerContext.CURRENT_CLASS_NODE, node);
+    DecompilerContext.setImportCollector(new KotlinImportCollector(DecompilerContext.getImportCollector()));
 
     try {
       // last minute processing
@@ -213,15 +213,21 @@ public class KotlinWriter implements StatementWriter {
 
       ClassWrapper wrapper = node.getWrapper();
       StructClass cl = wrapper.getClassStruct();
+      ConstantPool pool = cl.getPool();
+
+      KotlinChooser.setContextVariables(cl);
 
       DecompilerContext.getLogger().startWriteClass(cl.qualifiedName);
+
+      KProperty.Data propertyData = KProperty.parse(node);
+      Map<StructMethod, KFunction> functions = KFunction.parse(node);
+      KConstructor.Data constructorData = KConstructor.parse(node);
 
       if (DecompilerContext.getOption(IFernflowerPreferences.SOURCE_FILE_COMMENTS)) {
         StructSourceFileAttribute sourceFileAttr = node.classStruct
           .getAttribute(StructGeneralAttribute.ATTRIBUTE_SOURCE_FILE);
 
         if (sourceFileAttr != null) {
-          ConstantPool pool = node.classStruct.getPool();
           String sourceFile = sourceFileAttr.getSourceFile(pool);
 
           buffer
@@ -233,19 +239,17 @@ public class KotlinWriter implements StatementWriter {
 
       if (cl.hasModifier(CodeConstants.ACC_ANNOTATION)) {
         // Kotlin's annotation classes are treated quite differently from other classes
-        writeAnnotationDefinition(node, buffer, indent);
+        writeAnnotationDefinition(node, buffer, indent, propertyData, functions, constructorData);
         return;
       }
 
       if (KotlinDecompilationContext.getCurrentType() == KotlinDecompilationContext.KotlinType.FILE) {
-        writeKotlinFile(node, buffer, indent);
+        writeKotlinFile(node, buffer, indent, propertyData, functions); // no constructors in top level file
         return;
       }
 
       // write class definition
-      writeClassDefinition(node, buffer, indent);
-
-      KProperty.Data propertyData = KProperty.parse(node);
+      writeClassDefinition(node, buffer, indent, constructorData);
 
       boolean hasContent = false;
       boolean enumFields = false;
@@ -294,8 +298,7 @@ public class KotlinWriter implements StatementWriter {
             buffer.append(',').appendLineSeparator();
           }
           enumFields = true;
-        }
-        else if (enumFields) {
+        } else if (enumFields) {
           buffer.append(';');
           buffer.appendLineSeparator();
           buffer.appendLineSeparator();
@@ -351,8 +354,30 @@ public class KotlinWriter implements StatementWriter {
         boolean hide = mt.isSynthetic() && DecompilerContext.getOption(IFernflowerPreferences.REMOVE_SYNTHETIC) ||
           mt.hasModifier(CodeConstants.ACC_BRIDGE) && DecompilerContext.getOption(IFernflowerPreferences.REMOVE_BRIDGE) ||
           wrapper.getHiddenMembers().contains(InterpreterUtil.makeUniqueKey(mt.getName(), mt.getDescriptor())) ||
-          (propertyData != null && propertyData.associatedMethods.contains(InterpreterUtil.makeUniqueKey(mt.getName(), mt.getDescriptor())));
+          mt.getName().equals("<init>") && mt.getDescriptor().equals("(Lkotlin/jvm/internal/DefaultConstructorMarker;)V") ||
+          propertyData != null && propertyData.associatedMethods.contains(InterpreterUtil.makeUniqueKey(mt.getName(), mt.getDescriptor()));
         if (hide) continue;
+
+        KFunction function = functions.get(mt);
+        if (function != null) {
+          if (hasContent) {
+            buffer.appendLineSeparator();
+          }
+          hasContent = true;
+          buffer.append(function.stringify(indent + 1));
+          continue;
+        }
+
+        if (constructorData != null) {
+          KConstructor constructor = constructorData.constructors.get(mt);
+          if (constructor != null) {
+            if (hasContent) {
+              buffer.appendLineSeparator();
+            }
+            hasContent |= constructor.stringify(buffer, indent + 1);
+            continue;
+          }
+        }
 
         TextBuffer methodBuffer = new TextBuffer();
         boolean methodSkipped = !writeMethod(node, mt, i, methodBuffer, indent + 1);
@@ -388,17 +413,15 @@ public class KotlinWriter implements StatementWriter {
       if (node.type != ClassNode.Type.ANONYMOUS) {
         buffer.appendLineSeparator();
       }
-    }
-    finally {
+    } finally {
       DecompilerContext.setProperty(DecompilerContext.CURRENT_CLASS_NODE, outerNode);
       DecompilerContext.getLogger().endWriteClass();
     }
   }
 
-  private void writeKotlinFile(ClassNode node, TextBuffer buffer, int indent) {
+  private void writeKotlinFile(ClassNode node, TextBuffer buffer, int indent, KProperty.Data propertyData, Map<StructMethod, KFunction> functions) {
     ClassWrapper wrapper = node.getWrapper();
     StructClass cl = wrapper.getClassStruct();
-    KProperty.Data propertyData = KProperty.parse(node);
 
     for (KProperty property : propertyData.properties) {
       buffer.append(property.stringify(indent));
@@ -419,6 +442,12 @@ public class KotlinWriter implements StatementWriter {
 
     for (int i = 0; i < cl.getMethods().size(); i++) {
       StructMethod mt = cl.getMethods().get(i);
+      if (functions.containsKey(mt)) {
+        buffer.append(functions.get(mt).stringify(indent));
+        buffer.appendLineSeparator();
+        continue;
+      }
+
       String key = InterpreterUtil.makeUniqueKey(mt.getName(), mt.getDescriptor());
       if (mt.getName().equals("<clinit>") || propertyData.associatedMethods.contains(key)) continue;
 
@@ -436,9 +465,22 @@ public class KotlinWriter implements StatementWriter {
     }
   }
 
-  private void writeAnnotationDefinition(ClassesProcessor.ClassNode node, TextBuffer buffer, int indent) {
+  private void writeAnnotationDefinition(ClassNode node, TextBuffer buffer, int indent, KProperty.Data propertyData, Map<StructMethod, KFunction> functions, KConstructor.Data constructorData) {
     ClassWrapper wrapper = node.getWrapper();
     StructClass cl = wrapper.getClassStruct();
+
+    StructAnnotationAttribute runtimeAnnotations = cl.getAttribute(StructGeneralAttribute.ATTRIBUTE_RUNTIME_VISIBLE_ANNOTATIONS);
+    AnnotationExprent repeatableAnnotation = runtimeAnnotations.getAnnotations().stream()
+      .filter(a -> REPEATABLE_ANN_NAME.equals(a.getClassName()))
+      .findFirst()
+      .orElse(null);
+
+    String repeatableContainer = null;
+
+    if (repeatableAnnotation != null) {
+      repeatableContainer = ((ConstExprent) repeatableAnnotation.getParValues().get(0)).getValue().toString();
+      runtimeAnnotations.getAnnotations().remove(repeatableAnnotation);
+    }
 
     appendAnnotations(buffer, indent, cl, -1);
     appendJvmAnnotations(buffer, indent, cl, true, cl.getPool(), TypeAnnotation.CLASS_TYPE_PARAMETER);
@@ -453,89 +495,88 @@ public class KotlinWriter implements StatementWriter {
       .append("(")
       .appendLineSeparator();
 
-    boolean hasCompanion = !cl.getFields().isEmpty();
+    List<KProperty> nonParameterProperties = new ArrayList<>(propertyData.properties);
 
-    if (!cl.getMethods().isEmpty()) {
-      boolean first = true;
-      for (StructMethod mt : cl.getMethods()) {
-        if (mt.hasModifier(CodeConstants.ACC_STATIC)) {
-          hasCompanion = true;
+    boolean first = true;
+    for (KParameter param : constructorData.primary.parameters) {
+      if (!first) {
+        buffer.append(",").appendLineSeparator();
+      }
+      first = false;
+      buffer.appendIndent(indent + 1)
+        .append("val ")
+        .append(KotlinWriter.toValidKotlinIdentifier(param.name))
+        .append(": ")
+        .append(param.type.stringify(indent + 1));
+
+      // Because Kotlin really doesn't like making this easy for us, defaults are still passed directly via attributes
+      KProperty prop = propertyData.properties.stream()
+        .filter(p -> p.name.equals(param.name))
+        .findFirst()
+        .orElseThrow();
+
+      nonParameterProperties.remove(prop);
+
+      KPropertyAccessor getter = prop.getter;
+      if (getter != null) {
+        StructMethod mt = getter.underlyingMethod.methodStruct;
+        StructAnnDefaultAttribute paramAttr = mt.getAttribute(StructGeneralAttribute.ATTRIBUTE_ANNOTATION_DEFAULT);
+        if (paramAttr != null) {
+          Exprent kExpr = KUtils.replaceExprent(paramAttr.getDefaultValue());
+          Exprent expr = kExpr != null ? kExpr : paramAttr.getDefaultValue();
+          buffer.append(" = ").append(expr.toJava());
+        }
+      }
+    }
+
+    buffer.appendLineSeparator()
+      .appendIndent(indent)
+      .append(")");
+
+    boolean appended = false;
+
+    TextBuffer innerBuffer = new TextBuffer();
+
+    for (KProperty prop : nonParameterProperties) {
+      innerBuffer.append(prop.stringify(indent + 1));
+      appended = true;
+    }
+
+    first = true;
+    for (KFunction function : functions.values()) {
+      if (!first || appended) {
+        innerBuffer.appendLineSeparator();
+      }
+      first = false;
+
+      innerBuffer.append(function.stringify(indent + 1));
+      appended = true;
+    }
+
+    first = true;
+    for (ClassNode inner : node.nested) {
+      if (inner.type == ClassNode.Type.MEMBER) {
+        if (inner.classStruct.qualifiedName.equals(repeatableContainer)) {
+          // Skip the container class
           continue;
         }
 
-        if (first) {
-          first = false;
-        } else {
-          buffer.append(',').appendLineSeparator();
+        if (!first || appended) {
+          innerBuffer.appendLineSeparator();
         }
+        first = false;
 
-        buffer.appendIndent(indent + 1)
-          .append("val ")
-          .append(mt.getName())
-          .append(": ");
-
-        String type = mt.getDescriptor().substring(2);
-        VarType varType = new VarType(type, false);
-
-        buffer.append(KTypes.getKotlinType(varType));
-
-        if (mt.hasAttribute(StructGeneralAttribute.ATTRIBUTE_ANNOTATION_DEFAULT)) {
-          buffer.append(" = ");
-          StructAnnDefaultAttribute attr = mt.getAttribute(StructGeneralAttribute.ATTRIBUTE_ANNOTATION_DEFAULT);
-          KAnnotationExprent.writeAnnotationValue(attr.getDefaultValue(), buffer);
-        }
+        writeClass(inner, innerBuffer, indent + 1);
+        appended = true;
       }
-
-      buffer.appendLineSeparator().appendIndent(indent).append(')');
     }
 
-    if (hasCompanion || !node.nested.isEmpty()) {
-      buffer.append(" {").appendLineSeparator();
-
-      // member classes
-      boolean first = false;
-      for (ClassNode inner : node.nested) {
-        if (inner.type == ClassNode.Type.MEMBER) {
-          StructClass innerCl = inner.classStruct;
-          boolean isSynthetic = (inner.access & CodeConstants.ACC_SYNTHETIC) != 0 || innerCl.isSynthetic();
-          boolean hide = isSynthetic && DecompilerContext.getOption(IFernflowerPreferences.REMOVE_SYNTHETIC) ||
-            wrapper.getHiddenMembers().contains(innerCl.qualifiedName);
-          if (hide) continue;
-
-          if (first) {
-            buffer.appendLineSeparator();
-          }
-          writeClass(inner, buffer, indent + 1);
-
-          first = true;
-        }
-      }
-
-      if (hasCompanion) {
-        buffer.appendIndent(indent + 1).append("companion object {").appendLineSeparator();
-
-        for (StructField fd : cl.getFields()) {
-          if (!fd.hasModifier(CodeConstants.ACC_STATIC)) {
-            appendComment(buffer, "Illegal field (must be static): " + fd.getName(), indent + 2);
-          }
-
-          writeField(wrapper, cl, fd, buffer, indent + 2);
-          buffer.appendLineSeparator();
-        }
-
-        for (StructMethod mt : cl.getMethods()) {
-          if (!mt.hasModifier(CodeConstants.ACC_STATIC)) {
-            continue;
-          }
-
-          writeMethod(node, mt, 0, buffer, indent + 2);
-          buffer.appendLineSeparator();
-        }
-
-        buffer.appendIndent(indent + 1).append('}').appendLineSeparator();
-      }
-
-      buffer.appendIndent(indent).append('}');
+    if (appended) {
+      buffer.append(" {")
+        .appendLineSeparator()
+        .append(innerBuffer)
+        .appendIndent(indent)
+        .append("}");
     }
 
     buffer.appendLineSeparator();
@@ -545,7 +586,7 @@ public class KotlinWriter implements StatementWriter {
     return (flags & (CodeConstants.ACC_SYNTHETIC | CodeConstants.ACC_MANDATED)) != 0;
   }
 
-  private void writeClassDefinition(ClassNode node, TextBuffer buffer, int indent) {
+  private void writeClassDefinition(ClassNode node, TextBuffer buffer, int indent, KConstructor.Data constructorData) {
     if (node.type == ClassNode.Type.ANONYMOUS) {
       buffer.append(" {").appendLineSeparator();
       return;
@@ -553,9 +594,6 @@ public class KotlinWriter implements StatementWriter {
 
     ClassWrapper wrapper = node.getWrapper();
     StructClass cl = wrapper.getClassStruct();
-
-    // Ensure that the class data is put in place
-    KotlinChooser.setContextVariables(cl);
 
     int flags = node.type == ClassNode.Type.ROOT ? cl.getAccessFlags() : node.access;
     boolean isDeprecated = cl.hasAttribute(StructGeneralAttribute.ATTRIBUTE_DEPRECATED);
@@ -653,12 +691,16 @@ public class KotlinWriter implements StatementWriter {
 
     boolean appendedColon = false;
     if (!isEnum && !isInterface && cl.superClass != null) {
-      VarType supertype = new VarType(cl.superClass.getString(), true);
-      if (!VarType.VARTYPE_OBJECT.equals(supertype)) {
-        buffer.append(" :");
-        buffer.appendPossibleNewline(" ");
-        buffer.append(ExprProcessor.getCastTypeName(descriptor == null ? supertype : descriptor.superclass));
+      if (constructorData != null && constructorData.primary != null && constructorData.primary.writePrimaryConstructor(buffer, indent)) {
         appendedColon = true;
+      } else {
+        VarType supertype = new VarType(cl.superClass.getString(), true);
+        if (!VarType.VARTYPE_OBJECT.equals(supertype)) {
+          buffer.appendPossibleNewline(" ");
+          buffer.append(": ");
+          buffer.append(ExprProcessor.getCastTypeName(descriptor == null ? supertype : descriptor.superclass));
+          appendedColon = true;
+        }
       }
     }
 
@@ -757,18 +799,16 @@ public class KotlinWriter implements StatementWriter {
     Exprent initializer;
     if (fd.hasModifier(CodeConstants.ACC_STATIC)) {
       initializer = wrapper.getStaticFieldInitializers().getWithKey(InterpreterUtil.makeUniqueKey(fd.getName(), fd.getDescriptor()));
-    }
-    else {
+    } else {
       initializer = wrapper.getDynamicFieldInitializers().getWithKey(InterpreterUtil.makeUniqueKey(fd.getName(), fd.getDescriptor()));
     }
 
     if (initializer != null) {
       if (isEnum && initializer instanceof NewExprent) {
-        NewExprent expr = (NewExprent)initializer;
+        NewExprent expr = (NewExprent) initializer;
         expr.setEnumConst(true);
         buffer.append(expr.toJava(indent));
-      }
-      else {
+      } else {
         buffer.append(" = ");
 
         if (initializer instanceof ConstExprent) {
@@ -778,8 +818,7 @@ public class KotlinWriter implements StatementWriter {
         // FIXME: special case field initializer. Can map to more than one method (constructor) and bytecode instruction.
         ExprProcessor.getCastedExprent(initializer, descriptor == null ? fieldType : descriptor.type, buffer, indent, false);
       }
-    }
-    else if (fd.hasModifier(CodeConstants.ACC_FINAL) && fd.hasModifier(CodeConstants.ACC_STATIC)) {
+    } else if (fd.hasModifier(CodeConstants.ACC_FINAL) && fd.hasModifier(CodeConstants.ACC_STATIC)) {
       StructConstantValueAttribute attr = fd.getAttribute(StructGeneralAttribute.ATTRIBUTE_CONSTANT_VALUE);
       if (attr != null) {
         PrimitiveConstant constant = cl.getPool().getPrimitiveConstant(attr.getIndex());
@@ -827,7 +866,7 @@ public class KotlinWriter implements StatementWriter {
 
     boolean hideMethod = false;
 
-    MethodWrapper outerWrapper = (MethodWrapper)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
+    MethodWrapper outerWrapper = (MethodWrapper) DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
     DecompilerContext.setProperty(DecompilerContext.CURRENT_METHOD_WRAPPER, methodWrapper);
 
     try {
@@ -908,7 +947,7 @@ public class KotlinWriter implements StatementWriter {
       }
 
       boolean didOverride = false;
-      if (!CodeConstants.INIT_NAME.equals(mt.getName()) && !CodeConstants.CLINIT_NAME.equals(mt.getName()) && !mt.hasModifier(CodeConstants.ACC_STATIC)  && !mt.hasModifier(CodeConstants.ACC_PRIVATE)) {
+      if (!CodeConstants.INIT_NAME.equals(mt.getName()) && !CodeConstants.CLINIT_NAME.equals(mt.getName()) && !mt.hasModifier(CodeConstants.ACC_STATIC) && !mt.hasModifier(CodeConstants.ACC_PRIVATE)) {
         // Search superclasses for methods that match the name and descriptor of this one.
         // Make sure not to search the current class otherwise it will return the current method itself!
         // TODO: record overrides
@@ -1014,38 +1053,36 @@ public class KotlinWriter implements StatementWriter {
               buffer.appendPossibleNewline(" ");
             }
             first = false;
-            
+
             // @PAnn vararg? pName: pTy
             boolean nullable = processParameterAnnotations(buffer, mt, paramCount);
-  
+
             boolean isVarArg = i == lastVisibleParameterIndex && mt.hasModifier(CodeConstants.ACC_VARARGS) && parameterType.arrayDim > 0;
             if (isVarArg) {
               buffer.append("vararg ");
             }
-            
+
             String parameterName;
             if (methodParameters != null && i < methodParameters.size()) {
               parameterName = methodParameters.get(i).myName;
-            }
-            else {
+            } else {
               parameterName = methodWrapper.varproc.getVarName(new VarVersionPair(index, 0));
             }
-  
+
             if ((flags & (CodeConstants.ACC_ABSTRACT | CodeConstants.ACC_NATIVE)) != 0) {
               String newParameterName = methodWrapper.methodStruct.getVariableNamer().renameAbstractParameter(parameterName, index);
               parameterName = !newParameterName.equals(parameterName) ? newParameterName : DecompilerContext.getStructContext().renameAbstractParameter(methodWrapper.methodStruct.getClassQualifiedName(), mt.getName(), mt.getDescriptor(), index - (((flags & CodeConstants.ACC_STATIC) == 0) ? 1 : 0), parameterName);
-    
+
             }
 
             parameterName = toValidKotlinIdentifier(parameterName);
-  
+
             buffer.append(parameterName == null ? "param" + index : parameterName); // null iff decompiled with errors
             buffer.append(": ");
 
             if (methodParameters != null && i < methodParameters.size()) {
               appendModifiers(buffer, methodParameters.get(i).myAccessFlags, CodeConstants.ACC_FINAL, isInterface, 0);
-            }
-            else if (methodWrapper.varproc.getVarFinal(new VarVersionPair(index, 0)) == VarTypeProcessor.FinalType.EXPLICIT_FINAL) {
+            } else if (methodWrapper.varproc.getVarFinal(new VarVersionPair(index, 0)) == VarTypeProcessor.FinalType.EXPLICIT_FINAL) {
               buffer.append("final ");
             }
 
@@ -1094,8 +1131,7 @@ public class KotlinWriter implements StatementWriter {
 
       if ((flags & (CodeConstants.ACC_ABSTRACT | CodeConstants.ACC_NATIVE)) != 0) { // native or abstract method (explicit or interface)
         buffer.appendLineSeparator();
-      }
-      else {
+      } else {
         if (!clInit && !dInit) {
           buffer.append(' ');
         }
@@ -1104,8 +1140,7 @@ public class KotlinWriter implements StatementWriter {
 
         hideMethod = !writeMethodBody(node, methodWrapper, buffer, indent, hideIfInit);
       }
-    }
-    finally {
+    } finally {
       DecompilerContext.setProperty(DecompilerContext.CURRENT_METHOD_WRAPPER, outerWrapper);
     }
 
@@ -1136,8 +1171,7 @@ public class KotlinWriter implements StatementWriter {
           hideMethod = code.length() == 0 && hideIfInit;
           buffer.append(code, cl.qualifiedName, InterpreterUtil.makeUniqueKey(mt.getName(), mt.getDescriptor()));
         }
-      }
-      catch (Throwable t) {
+      } catch (Throwable t) {
         String message = "Method " + mt.getName() + " " + mt.getDescriptor() + " in class " + node.classStruct.qualifiedName + " couldn't be written.";
         DecompilerContext.getLogger().writeMessage(message, IFernflowerLogger.Severity.WARN, t);
         methodWrapper.decompileError = t;
@@ -1151,7 +1185,7 @@ public class KotlinWriter implements StatementWriter {
     return !hideMethod;
   }
 
-  private static void dumpError(TextBuffer buffer, MethodWrapper wrapper, int indent) {
+  public static void dumpError(TextBuffer buffer, MethodWrapper wrapper, int indent) {
     List<String> lines = new ArrayList<>();
     lines.add("$VF: Couldn't be decompiled");
     boolean exceptions = DecompilerContext.getOption(IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR);
@@ -1219,7 +1253,7 @@ public class KotlinWriter implements StatementWriter {
   }
 
   private static void collectBytecode(MethodWrapper wrapper, List<String> lines) throws IOException {
-    ClassNode classNode = (ClassNode)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
+    ClassNode classNode = (ClassNode) DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
     StructMethod method = wrapper.methodStruct;
     InstructionSequence instructions = method.getInstructionSequence();
     if (instructions == null) {
@@ -1337,7 +1371,7 @@ public class KotlinWriter implements StatementWriter {
     }
   }
 
-  private static boolean hideConstructor(ClassNode node, boolean init, boolean throwsExceptions, int paramCount, int methodAccessFlags) {
+  public static boolean hideConstructor(ClassNode node, boolean init, boolean throwsExceptions, int paramCount, int methodAccessFlags) {
     if (!init || throwsExceptions || paramCount > 0 || !DecompilerContext.getOption(IFernflowerPreferences.HIDE_DEFAULT_CONSTRUCTOR)) {
       return false;
     }
@@ -1349,7 +1383,7 @@ public class KotlinWriter implements StatementWriter {
     boolean isEnum = cl.hasModifier(CodeConstants.ACC_ENUM) && DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_ENUM);
 
     // default constructor requires same accessibility flags. Exception: enum constructor which is always private
-    if(!isEnum && ((classAccessFlags & ACCESSIBILITY_FLAGS) != (methodAccessFlags & ACCESSIBILITY_FLAGS))) {
+    if (!isEnum && ((classAccessFlags & ACCESSIBILITY_FLAGS) != (methodAccessFlags & ACCESSIBILITY_FLAGS))) {
       return false;
     }
 
@@ -1469,7 +1503,7 @@ public class KotlinWriter implements StatementWriter {
   static final Key<?>[] TYPE_ANNOTATION_ATTRIBUTES = {
     StructGeneralAttribute.ATTRIBUTE_RUNTIME_VISIBLE_TYPE_ANNOTATIONS, StructGeneralAttribute.ATTRIBUTE_RUNTIME_INVISIBLE_TYPE_ANNOTATIONS};
 
-  static void appendAnnotations(TextBuffer buffer, int indent, StructMember mb, int targetType) {
+  public static void appendAnnotations(TextBuffer buffer, int indent, StructMember mb, int targetType) {
     Set<String> filter = new HashSet<>();
 
     for (Key<?> key : ANNOTATION_ATTRIBUTES) {
@@ -1490,8 +1524,7 @@ public class KotlinWriter implements StatementWriter {
           buffer.append(text);
           if (indent < 0) {
             buffer.append(' ');
-          }
-          else {
+          } else {
             buffer.appendLineSeparator();
           }
         }
@@ -1501,7 +1534,7 @@ public class KotlinWriter implements StatementWriter {
     appendTypeAnnotations(buffer, indent, mb, targetType, -1, filter);
   }
 
-  private static void appendJvmAnnotations(TextBuffer buffer, int indent, StructMember mb, boolean isInterface, ConstantPool pool, int targetType) {
+  public static void appendJvmAnnotations(TextBuffer buffer, int indent, StructMember mb, boolean isInterface, ConstantPool pool, int targetType) {
     switch (targetType) {
       case TypeAnnotation.METHOD_RETURN_TYPE:
         if (isInterface && !mb.hasModifier(CodeConstants.ACC_ABSTRACT)) {
@@ -1552,10 +1585,10 @@ public class KotlinWriter implements StatementWriter {
       buffer.appendIndent(indent).append("@JvmSynthetic").appendLineSeparator();
     }
   }
-  
-  static boolean isNullable(StructMember mb){
-    for (Key<?> key : ANNOTATION_ATTRIBUTES){
-      StructAnnotationAttribute attribute = (StructAnnotationAttribute)mb.getAttribute(key);
+
+  static boolean isNullable(StructMember mb) {
+    for (Key<?> key : ANNOTATION_ATTRIBUTES) {
+      StructAnnotationAttribute attribute = (StructAnnotationAttribute) mb.getAttribute(key);
       if (attribute != null) {
         return attribute.getAnnotations().stream().anyMatch(annotation -> annotation.getClassName().equals(NULLABLE_ANN_NAME));
       }
@@ -1564,7 +1597,7 @@ public class KotlinWriter implements StatementWriter {
   }
 
   // Returns true if a method with the given name and descriptor matches in the inheritance tree of the superclass.
-  private static boolean searchForMethod(StructClass cl, String name, MethodDescriptor md, boolean search) {
+  public static boolean searchForMethod(StructClass cl, String name, MethodDescriptor md, boolean search) {
     // Didn't find the class or the library containing the class wasn't loaded, can't search
     if (cl == null) {
       return false;
@@ -1585,7 +1618,7 @@ public class KotlinWriter implements StatementWriter {
 
     // If we have a superclass that's not Object, search that as well
     if (cl.superClass != null) {
-      StructClass superClass = DecompilerContext.getStructContext().getClass((String)cl.superClass.value);
+      StructClass superClass = DecompilerContext.getStructContext().getClass((String) cl.superClass.value);
 
       boolean foundInSuperClass = searchForMethod(superClass, name, md, true);
 
@@ -1609,12 +1642,12 @@ public class KotlinWriter implements StatementWriter {
     return false;
   }
 
-  private static boolean processParameterAnnotations(TextBuffer buffer, StructMethod mt, int param) {
+  public static boolean processParameterAnnotations(TextBuffer buffer, StructMethod mt, int param) {
     Set<String> filter = new HashSet<>();
     boolean ret = false;
 
     for (Key<?> key : PARAMETER_ANNOTATION_ATTRIBUTES) {
-      StructAnnotationParameterAttribute attribute = (StructAnnotationParameterAttribute)mt.getAttribute(key);
+      StructAnnotationParameterAttribute attribute = (StructAnnotationParameterAttribute) mt.getAttribute(key);
       if (attribute != null) {
         List<List<AnnotationExprent>> annotations = attribute.getParamAnnotations();
         if (param < annotations.size()) {
@@ -1639,7 +1672,7 @@ public class KotlinWriter implements StatementWriter {
 
   private static void appendTypeAnnotations(TextBuffer buffer, int indent, StructMember mb, int targetType, int index, Set<String> filter) {
     for (Key<?> key : TYPE_ANNOTATION_ATTRIBUTES) {
-      StructTypeAnnotationAttribute attribute = (StructTypeAnnotationAttribute)mb.getAttribute(key);
+      StructTypeAnnotationAttribute attribute = (StructTypeAnnotationAttribute) mb.getAttribute(key);
       if (attribute != null) {
         for (TypeAnnotation annotation : attribute.getAnnotations()) {
           if (annotation.isTopLevel() && annotation.getTargetType() == targetType && (index < 0 || annotation.getIndex() == index)) {
@@ -1648,8 +1681,7 @@ public class KotlinWriter implements StatementWriter {
               buffer.append(text);
               if (indent < 0) {
                 buffer.append(' ');
-              }
-              else {
+              } else {
                 buffer.appendLineSeparator();
               }
             }
@@ -1660,6 +1692,7 @@ public class KotlinWriter implements StatementWriter {
   }
 
   private static final Map<Integer, String> MODIFIERS;
+
   static {
     MODIFIERS = new LinkedHashMap<>();
     MODIFIERS.put(CodeConstants.ACC_PUBLIC, "public");

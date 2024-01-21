@@ -1,21 +1,21 @@
 package pkg
 
 class TestGenerics<T> {
-   fun <T> genericFun(v: T): T {
+   public fun <T> genericFun(v: T): T {
       return (T)v;// 5
    }
 
-   fun <T> nullableGeneric(v: T): T? {
+   public fun <T> nullableGeneric(v: T): T? {
       return null;// 9
    }
 
-   fun <T> subType(v: TestGenerics<? extends T>) {
+   public fun <T> subType(v: TestGenerics<out T>) {
    }// 13
 
-   fun <T> superType(v: TestGenerics<? super T>) {
+   public fun <T> superType(v: TestGenerics<in T>) {
    }// 16
 
-   fun any(v: TestGenerics<?>) {
+   public fun any(v: TestGenerics<*>) {
    }// 19
 }
 

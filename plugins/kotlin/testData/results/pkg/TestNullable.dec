@@ -1,14 +1,14 @@
 package pkg
 
 class TestNullable {
-   fun nullableParams(v: String, vn: String?) {
+   public fun nullableParams(v: String, vn: String?) {
    }// 6
 
-   fun nullableReturn(): String? {
+   public fun nullableReturn(): String? {
       return null;// 9
    }
 
-   fun nullableGenerics(v: MutableList<String>): MutableList<String>? {
+   public fun nullableGenerics(v: List<String?>): List<String?>? {
       return v;// 13
    }
 }

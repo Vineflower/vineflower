@@ -3,12 +3,12 @@ package pkg
 import java.io.IOException
 
 class TestTryCatchExpressions {
-   fun test0(s: String) {
-      var var2: String;
+   public fun test0(s: String) {
+      var var2: java.lang.String;
       try {
-         var2 = StringsKt.repeat(s as CharSequence, 5);// 9
+         var2 = StringsKt.repeat(s as java.lang.CharSequence, 5);// 9
       } catch (RuntimeException var4) {// 10
-         var var10000: String = var4.getMessage();// 11
+         var var10000: java.lang.String = var4.getMessage();// 11
          if (var10000 == null) {
             var10000 = "ERROR";
          }
@@ -19,19 +19,19 @@ class TestTryCatchExpressions {
       System.out.print(var2);// 7
    }// 14
 
-   fun test1(a: String, b: String) {
-      var x: String = a;// 17
+   public fun test1(a: String, b: String) {
+      var x: java.lang.String = a;// 17
       var var6: TestTryCatchExpressions = this;// 19
 
-      var var4: String;
+      var var4: java.lang.String;
       var var10000: TestTryCatchExpressions;
       try {
          var10000 = var6;
-         var4 = StringsKt.repeat(x as CharSequence, 5);// 20
+         var4 = StringsKt.repeat(x as java.lang.CharSequence, 5);// 20
       } catch (RuntimeException var9) {// 21
          var10000 = this;
          x = b;// 22
-         var var10001: String = var9.getMessage();// 23
+         var var10001: java.lang.String = var9.getMessage();// 23
          if (var10001 == null) {
             var10001 = "ERROR";
          }
@@ -39,18 +39,18 @@ class TestTryCatchExpressions {
          var4 = var10001;
       }
 
-      var var7: String = var4;// 24
+      var var7: java.lang.String = var4;// 24
       var6 = var10000;
 
-      var var13: String;
+      var var13: java.lang.String;
       try {
          var10000 = var6;
          var13 = var7;
-         var4 = StringsKt.repeat(x as CharSequence, 5);// 25
+         var4 = StringsKt.repeat(x as java.lang.CharSequence, 5);// 25
       } catch (RuntimeException var8) {// 26
          var10000 = var10000;
          var13 = var4;
-         var var10002: String = var8.getMessage();// 27
+         var var10002: java.lang.String = var8.getMessage();// 27
          if (var10002 == null) {
             var10002 = "ERROR";
          }
@@ -61,11 +61,11 @@ class TestTryCatchExpressions {
       var10000.test0(var13 + var4);// 18
    }// 30
 
-   fun test2(a: String, b: String) {
-      var var15: Any = a;// 33
+   public fun test2(a: String, b: String) {
+      var var15: java.lang.String = a;// 33
       var var7: TestTryCatchExpressions = this;
 
-      var var4: String;
+      var var4: java.lang.String;
       var var10000: TestTryCatchExpressions;
       try {
          var10000 = var7;
@@ -87,12 +87,12 @@ class TestTryCatchExpressions {
          var4 = var15;// 51
       }
 
-      var var8: String = var4;// 52
+      var var8: java.lang.String = var4;// 52
       var7 = var10000;
 
-      var var10001: String;
+      var var10001: java.lang.String;
       try {
-         var4 = StringsKt.repeat(var15 as CharSequence, 5);
+         var4 = StringsKt.repeat(var15 as java.lang.CharSequence, 5);
          var15 = var4;
          var10000 = var7;
          var10001 = var8;
@@ -101,7 +101,7 @@ class TestTryCatchExpressions {
          var10000 = var10000;
          var10001 = var4;
          System.out.println(var15);// 55
-         var var10003: String = var12.getMessage();
+         var var10003: java.lang.String = var12.getMessage();
          if (var10003 == null) {
             var10003 = "";
          }

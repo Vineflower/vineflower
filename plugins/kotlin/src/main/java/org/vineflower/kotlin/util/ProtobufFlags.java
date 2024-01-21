@@ -1,9 +1,11 @@
 package org.vineflower.kotlin.util;
 
-import kotlin.reflect.jvm.internal.impl.metadata.ProtoBuf;
+import kotlinx.metadata.internal.metadata.ProtoBuf;
+import kotlinx.metadata.internal.metadata.deserialization.Flags;
 
 public interface ProtobufFlags {
   //TODO: hasNonStableParameterNames
+  //TODO: Update everything to use Flags class
 
   int HAS_ANNOTATIONS = 0x0001;
 
@@ -203,6 +205,18 @@ public interface ProtobufFlags {
       isInline = (flags & CLASS_IS_INLINE) != 0;
       isFun = (flags & CLASS_IS_FUN) != 0;
       hasEnumEntries = (flags & CLASS_HAS_ENUM_ENTRIES) != 0;
+    }
+  }
+  //endregion
+
+  //region: Contract
+  class Expression {
+    public final boolean isNegated;
+    public final boolean isNullPredicate;
+
+    public Expression(int flags) {
+      isNegated = Flags.IS_NEGATED.get(flags);
+      isNullPredicate = Flags.IS_NULL_CHECK_PREDICATE.get(flags);
     }
   }
   //endregion

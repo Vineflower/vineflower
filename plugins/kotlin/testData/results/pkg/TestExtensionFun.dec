@@ -1,12 +1,12 @@
 package pkg
 
 class TestExtensionFun {
-   fun CharSequence.repeat2(n: Int): String {
+   public fun CharSequence.repeat2(n: Int): String {
       return StringsKt.repeat(`$this$repeat2`, n);// 5
    }
 
-   fun test() {
-      System.out.println(this.repeat2("Bye " as CharSequence, 2));// 9
+   public fun test() {
+      System.out.println(this.repeat2("Bye " as java.lang.CharSequence, 2));// 9
    }// 10
 }
 

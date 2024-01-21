@@ -1,6 +1,6 @@
 package org.vineflower.kotlin;
 
-import kotlin.reflect.jvm.internal.impl.metadata.ProtoBuf;
+import kotlinx.metadata.internal.metadata.ProtoBuf;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.util.Key;
 import org.vineflower.kotlin.metadata.MetadataNameResolver;

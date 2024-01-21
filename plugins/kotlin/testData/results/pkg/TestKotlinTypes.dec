@@ -5,16 +5,17 @@ import kotlin.jvm.functions.Function1
 class TestKotlinTypes {
    public final val consumer: (Int) -> Unit = <unknownclass>.INSTANCE as Function1
 
-   fun throwAlways(): Void {
+
+   public fun throwAlways(): Nothing {
       throw new Exception();// 5
    }
 }
 
 class 'pkg/TestKotlinTypes' {
    method 'throwAlways ()Ljava/lang/Void;' {
-      7      8
+      7      9
    }
 }
 
 Lines mapping:
-5 <-> 9
+5 <-> 10

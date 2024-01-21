@@ -1,7 +1,7 @@
 package pkg
 
 class TestSafeCasts {
-   fun test(obj: Any): Boolean {
+   public fun test(obj: Any): Boolean {
       var t: Int = obj as? Integer;// 5
       if ((obj as? Integer) != null) {// 7
          if (t == 1) {
@@ -12,7 +12,7 @@ class TestSafeCasts {
       return false;
    }
 
-   fun testTestBefore(obj: Any): Boolean? {
+   public fun testTestBefore(obj: Any): Boolean? {
       if (obj !is Integer) {// 11
          return null;// 12
       } else {
@@ -27,15 +27,15 @@ class TestSafeCasts {
       }
    }
 
-   fun testHardIncompatible(obj: Int): Boolean {
-      return (obj as? String) == "1";// 21 23
+   public fun testHardIncompatible(obj: Int): Boolean {
+      return (obj as? java.lang.String) == "1";// 21 23
    }
 
-   fun testSmartCastIncompatible(obj: Any): Boolean {
-      return obj is Integer && (obj as? String) == "1";// 27 31 33
+   public fun testSmartCastIncompatible(obj: Any): Boolean {
+      return obj is Integer && (obj as? java.lang.String) == "1";// 27 31 33
    }
 
-   fun testCastNonNullToNullable(obj: Any): Boolean {
+   public fun testCastNonNullToNullable(obj: Any): Boolean {
       var t: Int = obj as? Integer;// 37
       if ((obj as? Integer) != null) {// 39
          if (t == 1) {
@@ -46,7 +46,7 @@ class TestSafeCasts {
       return false;
    }
 
-   fun testBeforeNonNullToNullable(obj: Any): Boolean? {
+   public fun testBeforeNonNullToNullable(obj: Any): Boolean? {
       if (obj !is Integer) {// 43
          return null;// 44
       } else {
@@ -61,7 +61,7 @@ class TestSafeCasts {
       }
    }
 
-   fun testCastNullableToNullable(obj: Any?): Boolean {
+   public fun testCastNullableToNullable(obj: Any?): Boolean {
       var t: Int = obj as? Integer;// 53
       if ((obj as? Integer) != null) {// 55
          if (t == 1) {
@@ -72,7 +72,7 @@ class TestSafeCasts {
       return false;
    }
 
-   fun testBeforeNullableToNullable(obj: Any?): Boolean? {
+   public fun testBeforeNullableToNullable(obj: Any?): Boolean? {
       if (obj != null && obj !is Integer) {// 59
          return null;// 60
       } else {

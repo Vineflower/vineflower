@@ -3,28 +3,28 @@ package pkg
 import java.util.Arrays
 
 class TestFunVarargs {
-   fun printAll(vararg messages: String) {
-      for (String m : messages) {// 5
+   public fun printAll(vararg messages: String) {
+      for (java.lang.String m : messages) {// 5
          System.out.println(m);
       }
    }// 6
 
-   fun printAllArray(messages: Array<String>) {
-      for (String m : messages) {// 9
+   public fun printAllArray(messages: Array<out String>) {
+      for (java.lang.String m : messages) {// 9
          System.out.println(m);
       }
    }// 10
 
-   fun log(vararg entries: String) {
-      this.printAll(Arrays.copyOf(entries, entries.length) as String[]);// 13
+   public fun log(vararg entries: String) {
+      this.printAll(Arrays.copyOf(entries, entries.length) as java.lang.String[]);// 13
       this.printAllArray(entries);// 14
    }// 15
 
-   fun test() {
+   public fun test() {
       this.log("a", "b", "c");// 18
    }// 19
 
-   fun nestedArrays(e0: Array<String>, e1: Array<Any>, e2: Array<Array<Array<String>>>) {
+   public fun nestedArrays(e0: Array<String>, e1: Array<in String>, e2: Array<Array<Array<String>>>) {
    }// 23
 }
 

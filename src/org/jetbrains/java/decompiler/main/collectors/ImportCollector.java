@@ -18,14 +18,14 @@ import java.util.stream.Collectors;
 public class ImportCollector {
   private static final String JAVA_LANG_PACKAGE = "java.lang";
 
-  private final Map<String, String> mapSimpleNames = new HashMap<>();
-  private final Set<String> setNotImportedNames = new HashSet<>();
+  protected final Map<String, String> mapSimpleNames = new HashMap<>();
+  protected final Set<String> setNotImportedNames = new HashSet<>();
   // set of field names in this class and all its predecessors.
-  private final Set<String> setFieldNames = new HashSet<>();
-  private final Map<String, Map<String, String>> mapInnerClassNames = new HashMap<>();
-  private final String currentPackageSlash;
-  private final String currentPackagePoint;
-  private boolean writeLocked = false;
+  protected final Set<String> setFieldNames = new HashSet<>();
+  protected final Map<String, Map<String, String>> mapInnerClassNames = new HashMap<>();
+  protected final String currentPackageSlash;
+  protected final String currentPackagePoint;
+  protected boolean writeLocked = false;
 
   public ImportCollector(ClassNode root) {
     String clName = root.classStruct.qualifiedName;
@@ -63,6 +63,16 @@ public class ImportCollector {
     }
 
     collectConflictingShortNames(root, new HashMap<>());
+  }
+  
+  public ImportCollector(ImportCollector other) {
+    this.mapSimpleNames.putAll(other.mapSimpleNames);
+    this.setNotImportedNames.addAll(other.setNotImportedNames);
+    this.setFieldNames.addAll(other.setFieldNames);
+    this.mapInnerClassNames.putAll(other.mapInnerClassNames);
+    this.currentPackageSlash = other.currentPackageSlash;
+    this.currentPackagePoint = other.currentPackagePoint;
+    this.writeLocked = other.writeLocked;
   }
 
   /**
@@ -190,19 +200,25 @@ public class ImportCollector {
     }
   }
 
-  private List<String> packImports() {
+  protected List<String> packImports() {
     return mapSimpleNames.entrySet().stream()
-      .filter(ent ->
-                // exclude the current class or one of the nested ones
-                // empty, java.lang and the current packages
-                !setNotImportedNames.contains(ent.getKey()) &&
-                !ent.getValue().isEmpty() &&
-                !JAVA_LANG_PACKAGE.equals(ent.getValue()) &&
-                !ent.getValue().equals(currentPackagePoint)
-      )
+      .filter(this::keepImport)
       .sorted(Map.Entry.<String, String>comparingByValue().thenComparing(Map.Entry.comparingByKey()))
       .map(ent -> ent.getValue() + "." + ent.getKey())
       .collect(Collectors.toList());
+  }
+
+  /**
+   * Check whether to keep the given entry in the import list.
+   *
+   * @param ent the entry in the map containing the class name and its corresponding package name
+   * @return true if the entry should be kept for importing, false otherwise
+   */
+  protected boolean keepImport(Map.Entry<String, String> ent) {
+    return !setNotImportedNames.contains(ent.getKey()) &&
+           !ent.getValue().isEmpty() &&
+           !JAVA_LANG_PACKAGE.equals(ent.getValue()) &&
+           !ent.getValue().equals(currentPackagePoint);
   }
 
   private void collectConflictingShortNames(ClassNode root, Map<String, String> rootNames) {

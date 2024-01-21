@@ -1,7 +1,7 @@
 package org.vineflower.kotlin.struct;
 
-import kotlin.reflect.jvm.internal.impl.metadata.ProtoBuf;
-import kotlin.reflect.jvm.internal.impl.metadata.jvm.JvmProtoBuf;
+import kotlinx.metadata.internal.metadata.ProtoBuf;
+import kotlinx.metadata.internal.metadata.jvm.JvmProtoBuf;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.ClassesProcessor;
@@ -25,6 +25,7 @@ import org.vineflower.kotlin.KotlinOptions;
 import org.vineflower.kotlin.KotlinWriter;
 import org.vineflower.kotlin.metadata.MetadataNameResolver;
 import org.vineflower.kotlin.util.KTypes;
+import org.vineflower.kotlin.util.KUtils;
 import org.vineflower.kotlin.util.ProtobufFlags;
 
 import java.util.*;
@@ -78,7 +79,7 @@ public final class KProperty {
     buf.appendIndent(indent);
 
     // Modifiers in the order that Kotlin's coding conventions specify
-    appendVisibility(buf, flags.visibility);
+    KUtils.appendVisibility(buf, flags.visibility);
 
     if (flags.isExpect) {
       buf.append("expect ");
@@ -122,10 +123,10 @@ public final class KProperty {
     // Custom getters and setters, and possible modifier differences
     if (getter != null && getter.flags.isNotDefault) {
       buf.pushNewlineGroup(indent, 1)
-          .append('\n')
+          .appendLineSeparator()
           .appendIndent(indent + 1);
 
-      appendVisibility(buf, getter.flags.visibility);
+      KUtils.appendVisibility(buf, getter.flags.visibility);
 
       buf.append(getter.flags.modality.name().toLowerCase())
         .append(' ');
@@ -144,17 +145,17 @@ public final class KProperty {
 
       buf.popNewlineGroup();
     } else if (getter != null && getter.flags.isExternal) {
-      buf.append('\n')
+      buf.appendLineSeparator()
         .appendIndent(indent + 1)
         .append("external get");
     }
 
     if (setter != null && setter.flags.isNotDefault) {
       buf.pushNewlineGroup(indent, 1)
-        .append('\n')
+        .appendLineSeparator()
         .appendIndent(indent + 1);
 
-      appendVisibility(buf, getter.flags.visibility);
+      KUtils.appendVisibility(buf, getter.flags.visibility);
 
       buf.append(setter.flags.modality.name().toLowerCase())
         .append(' ');
@@ -175,10 +176,10 @@ public final class KProperty {
 
       buf.popNewlineGroup();
     } else if (setter != null && (setter.flags.isExternal || setter.flags.visibility != flags.visibility || setter.flags.modality != flags.modality)) {
-      buf.append('\n').appendIndent(indent + 1);
+      buf.appendLineSeparator().appendIndent(indent + 1);
 
       if (setter.flags.visibility != flags.visibility) {
-        appendVisibility(buf, setter.flags.visibility);
+        KUtils.appendVisibility(buf, setter.flags.visibility);
       }
 
       if (setter.flags.modality != flags.modality) {
@@ -192,7 +193,7 @@ public final class KProperty {
 
       buf.append("set");
     } else if (setter == null && flags.isVar && flags.visibility != ProtoBuf.Visibility.PRIVATE) { // Special case: no setter is generated if it's a var with a private setter
-      buf.append('\n')
+      buf.appendLineSeparator()
         .appendIndent(indent + 1)
         .append("private set");
     }

@@ -96,6 +96,10 @@ public class DecompilerContext {
     context.counterContainer = new CounterContainer();
   }
 
+  public static void setImportCollector(ImportCollector importCollector) {
+    getCurrentContext().importCollector = importCollector;
+  }
+
   // *****************************************************************************
   // context access
   // *****************************************************************************

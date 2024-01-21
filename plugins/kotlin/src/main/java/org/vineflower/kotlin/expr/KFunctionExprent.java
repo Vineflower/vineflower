@@ -1,6 +1,7 @@
 package org.vineflower.kotlin.expr;
 
 import org.jetbrains.java.decompiler.code.CodeConstants;
+import org.jetbrains.java.decompiler.main.plugins.PluginImplementationException;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.ConstExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FieldExprent;
@@ -42,7 +43,13 @@ public class KFunctionExprent extends FunctionExprent implements KExprent {
   public KFunctionExprent(FunctionExprent func) {
     super(func.getFuncType(), new ArrayList<>(KUtils.replaceExprents(func.getLstOperands())), func.bytecode);
 
-    setImplicitType(func.getExprType());
+    if (func instanceof KFunctionExprent) {
+      KFunctionExprent kFunc = (KFunctionExprent) func;
+      this.kType = kFunc.kType;
+    } else {
+      setImplicitType(func.getExprType());
+    }
+
     setNeedsCast(func.doesCast());
 
     if (getFuncType() == FunctionType.EQ) {

@@ -3,11 +3,11 @@ package pkg
 import java.io.IOException
 
 class TestTryFinallyExpressions {
-   fun test0(s: String) {
+   public fun test0(s: String) {
       label15: {
          try {
-            var var2: String = StringsKt.repeat(s as CharSequence, 5);// 8
-         } catch (Throwable var4) {
+            var var2: java.lang.String = StringsKt.repeat(s as java.lang.CharSequence, 5);// 8
+         } catch (java.lang.Throwable var4) {
             System.out.println("bye");// 10
          }
 
@@ -15,21 +15,21 @@ class TestTryFinallyExpressions {
       }
    }
 
-   fun test1(a: String, b: String) {
+   public fun test1(a: String, b: String) {
       label24: {
-         var x: String = a;// 15
+         var x: java.lang.String = a;// 15
 
          try {
-            var var4: String = StringsKt.repeat(x as CharSequence, 5);// 17
-         } catch (Throwable var9) {
+            var var4: java.lang.String = StringsKt.repeat(x as java.lang.CharSequence, 5);// 17
+         } catch (java.lang.Throwable var9) {
             ;
          }
 
          x = b;// 18 19 20
 
          try {
-            var var15: String = StringsKt.repeat(x as CharSequence, 5);// 21
-         } catch (Throwable var8) {
+            var var15: java.lang.String = StringsKt.repeat(x as java.lang.CharSequence, 5);// 21
+         } catch (java.lang.Throwable var8) {
             System.out.println(a);// 23
          }
 
@@ -37,9 +37,9 @@ class TestTryFinallyExpressions {
       }
    }
 
-   fun test2(a: String, b: String) {
+   public fun test2(a: String, b: String) {
       label68: {
-         var var19: Any = a;// 28
+         var var19: java.lang.String = a;// 28
 
          label69: {
             label70: {
@@ -56,9 +56,9 @@ class TestTryFinallyExpressions {
                      } catch (IOException var11) {// 36
                         var19 = a;// 37
                         this.test1(a, a);// 38
-                        var var4: String = a;// 39
+                        var var4: java.lang.String = a;// 39
                      }
-                  } catch (Throwable var12) {
+                  } catch (java.lang.Throwable var12) {
                      var19 = if (var19 == a) b else a;// 41 42 44
                   }
 
@@ -70,8 +70,8 @@ class TestTryFinallyExpressions {
             }
 
             try {
-               var19 = StringsKt.repeat(var19 as CharSequence, 5);// 47
-            } catch (Throwable var10) {
+               var19 = StringsKt.repeat(var19 as java.lang.CharSequence, 5);// 47
+            } catch (java.lang.Throwable var10) {
                System.out.println(var19);// 49
             }
 

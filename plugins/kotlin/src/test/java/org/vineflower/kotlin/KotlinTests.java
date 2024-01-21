@@ -84,5 +84,6 @@ public class KotlinTests extends SingleClassesTestBase {
     register(KOTLIN, "TestSynchronized");
     register(KOTLIN, "TestReflection");
     register(KOTLIN, "TestConstructors");
+    register(KOTLIN, "TestContracts");
   }
 }
