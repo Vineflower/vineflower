@@ -277,6 +277,7 @@ public interface IFernflowerPreferences {
   @Description("Use \\n instead of \\r\\n for new lines. Deprecated, do not use.")
   @ShortName("nls")
   @Type(Type.BOOLEAN)
+  @DynamicDefaultValue("Disabled on Windows, enabled on other systems")
   String NEW_LINE_SEPARATOR = "new-line-separator";
 
   @Name("Indent String")
@@ -305,6 +306,7 @@ public interface IFernflowerPreferences {
 
   @Name("Thread Count")
   @Description("How many threads to use to decompile.")
+  @DynamicDefaultValue("all available processors")
   @ShortName("thr")
   @Type(Type.INTEGER)
   String THREADS = "thread-count";
@@ -473,7 +475,12 @@ public interface IFernflowerPreferences {
   public @interface Description {
     String value();
   }
-
+  
+  @Retention(RetentionPolicy.RUNTIME)
+  @Target(ElementType.FIELD)
+  public @interface DynamicDefaultValue {
+    String value();
+  }
   /**
    * The "short name" of an option. This is the older syntax,
    * such as {@code -dgs=1}. It is here to ensure some amount
