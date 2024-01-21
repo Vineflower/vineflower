@@ -213,9 +213,9 @@ public class ContextUnit {
         rootContext.logger,
         rootContext.structContext,
         rootContext.classProcessor,
-        rootContext.poolInterceptor,
-        rootContext.renamerFactory
+        rootContext.poolInterceptor
       );
+      current.renamerFactory = rootContext.renamerFactory;
       DecompilerContext.setCurrentContext(current);
     }
   }

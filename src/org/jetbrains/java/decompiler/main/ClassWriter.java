@@ -192,10 +192,16 @@ public class ClassWriter implements StatementWriter {
         MethodDescriptor md_lambda = MethodDescriptor.parseDescriptor(node.lambdaInformation.method_descriptor);
 
         boolean simpleLambda = false;
+        boolean written = false;
 
         if (!lambdaToAnonymous) {
           RootStatement root = wrapper.getMethodWrapper(mt.getName(), mt.getDescriptor()).root;
-          boolean written = false;
+          if (DecompilerContext.getOption(IFernflowerPreferences.MARK_CORRESPONDING_SYNTHETICS)) {
+            buffer.append("/* ")
+              .appendMethod(node.lambdaInformation.content_method_name,
+                true, node.lambdaInformation.content_class_name, node.lambdaInformation.content_method_name, node.lambdaInformation.content_method_descriptor)
+              .append(" */ ");
+          }
           // Array constructor lambda
           if (md_lambda.params.length == 1 && md_lambda.params[0].equals(VarType.VARTYPE_INT) && md_lambda.ret.arrayDim > 0) {
             if (root.getFirst() instanceof BasicBlockStatement && root.getFirst().getExprents().size() == 1) {
@@ -248,7 +254,7 @@ public class ClassWriter implements StatementWriter {
                 if (clashingName != null) {
                   parameterName = clashingName;
                 }
-                parameterName = methodWrapper.methodStruct.getVariableNamer().renameParameter(mt.getAccessFlags(), ExprProcessor.getCastTypeName(type), parameterName, index);
+                parameterName = methodWrapper.methodStruct.getVariableNamer().renameParameter(mt.getAccessFlags(), type, parameterName, index);
                 buffer.appendVariable(parameterName, true, true, node.lambdaInformation.content_class_name, node.lambdaInformation.content_method_name, md_content, index, parameterName);
   
                 firstParameter = false;
@@ -304,15 +310,15 @@ public class ClassWriter implements StatementWriter {
                 }
               }
             }
-  
-            if (!simpleLambda) {
-              buffer.append(" {").appendLineSeparator();
-    
-              methodLambdaToJava(node, wrapper, mt, buffer, indent + 1, !lambdaToAnonymous);
-    
-              buffer.appendIndent(indent).append("}");
-            }
           }
+        }
+
+        if ((!simpleLambda && !written) || lambdaToAnonymous) {
+          buffer.append(" {").appendLineSeparator();
+
+          methodLambdaToJava(node, wrapper, mt, buffer, indent + 1, !lambdaToAnonymous);
+
+          buffer.appendIndent(indent).append("}");
         }
       }
     }
@@ -605,13 +611,17 @@ public class ClassWriter implements StatementWriter {
   }
 
   private void writeClassDefinition(ClassNode node, TextBuffer buffer, int indent) {
+    boolean markSynthetics = DecompilerContext.getOption(IFernflowerPreferences.MARK_CORRESPONDING_SYNTHETICS);
+    ClassWrapper wrapper = node.getWrapper();
+    StructClass cl = wrapper.getClassStruct();
+
     if (node.type == ClassNode.Type.ANONYMOUS) {
+      if (markSynthetics) {
+        appendSyntheticClassComment(cl, buffer);
+      }
       buffer.append(" {").appendLineSeparator();
       return;
     }
-
-    ClassWrapper wrapper = node.getWrapper();
-    StructClass cl = wrapper.getClassStruct();
 
     int flags = node.type == ClassNode.Type.ROOT ? cl.getAccessFlags() : node.access;
     boolean isDeprecated = cl.hasAttribute(StructGeneralAttribute.ATTRIBUTE_DEPRECATED);
@@ -754,6 +764,10 @@ public class ClassWriter implements StatementWriter {
     }
 
     buffer.popNewlineGroup();
+
+    if (markSynthetics && node.type == ClassNode.Type.LOCAL) {
+      appendSyntheticClassComment(cl, buffer);
+    }
 
     buffer.append(" {").appendLineSeparator();
   }
@@ -914,7 +928,7 @@ public class ClassWriter implements StatementWriter {
             if (parameterName == null) {
               parameterName = "param" + index; // null iff decompiled with errors
             }
-            parameterName = methodWrapper.methodStruct.getVariableNamer().renameParameter(mt.getAccessFlags(), typeName, parameterName, index);
+            parameterName = methodWrapper.methodStruct.getVariableNamer().renameParameter(mt.getAccessFlags(), type, parameterName, index);
             buffer.appendVariable(parameterName, true, true, classWrapper.getClassStruct().qualifiedName, method_name, md_content, index, parameterName);
 
             firstParameter = false;
@@ -1058,13 +1072,24 @@ public class ClassWriter implements StatementWriter {
 
       appendAnnotations(buffer, indent, mt, TypeAnnotation.METHOD_RETURN_TYPE);
 
+      StructAnnotationAttribute annotationAttribute = mt.getAttribute(StructGeneralAttribute.ATTRIBUTE_RUNTIME_VISIBLE_ANNOTATIONS);
+      boolean shouldApplyOverride = DecompilerContext.getOption(IFernflowerPreferences.OVERRIDE_ANNOTATION)
+          && mt.getBytecodeVersion().hasOverride()
+          && !CodeConstants.INIT_NAME.equals(mt.getName())
+          && !CodeConstants.CLINIT_NAME.equals(mt.getName())
+          && !mt.hasModifier(CodeConstants.ACC_STATIC)
+          && !mt.hasModifier(CodeConstants.ACC_PRIVATE);
+
       // Try append @Override after all other annotations
-      if (DecompilerContext.getOption(IFernflowerPreferences.OVERRIDE_ANNOTATION) && mt.getBytecodeVersion().hasOverride() && !CodeConstants.INIT_NAME.equals(mt.getName()) && !CodeConstants.CLINIT_NAME.equals(mt.getName()) && !mt.hasModifier(CodeConstants.ACC_STATIC)  && !mt.hasModifier(CodeConstants.ACC_PRIVATE)) {
+      if (shouldApplyOverride) {
         // Search superclasses for methods that match the name and descriptor of this one.
         // Make sure not to search the current class otherwise it will return the current method itself!
         // TODO: record overrides
         boolean isOverride = searchForMethod(cl, mt.getName(), md, false);
-        if (isOverride) {
+        boolean alreadyHasOverride = annotationAttribute != null && annotationAttribute.getAnnotations()
+                .stream().anyMatch(annotation -> "java/lang/Override".equals(annotation.getClassName()));
+
+        if (isOverride && !alreadyHasOverride) {
           buffer.appendIndent(indent);
           buffer.append("@Override");
           buffer.appendLineSeparator();
@@ -1189,7 +1214,7 @@ public class ClassWriter implements StatementWriter {
               parameterName = methodWrapper.varproc.getVarName(new VarVersionPair(index, 0));
             }
 
-            String newParameterName = methodWrapper.methodStruct.getVariableNamer().renameParameter(flags, typeName, parameterName, index);
+            String newParameterName = methodWrapper.methodStruct.getVariableNamer().renameParameter(flags, parameterType, parameterName, index);
             if ((flags & (CodeConstants.ACC_ABSTRACT | CodeConstants.ACC_NATIVE)) != 0 && Objects.equals(newParameterName, parameterName)) {
               newParameterName = DecompilerContext.getStructContext().renameAbstractParameter(methodWrapper.methodStruct.getClassQualifiedName(), mt.getName(), mt.getDescriptor(), index - (((flags & CodeConstants.ACC_STATIC) == 0) ? 1 : 0), parameterName);
             }
@@ -1585,7 +1610,7 @@ public class ClassWriter implements StatementWriter {
   private static void appendComment(TextBuffer buffer, String comment, int indent) {
     buffer.appendIndent(indent).append("// $VF: ").append(comment).appendLineSeparator();
   }
-  
+
   private static void appendJavadoc(TextBuffer buffer, String javaDoc, int indent) {
     if (javaDoc == null) return;
     buffer.appendIndent(indent).append("/**").appendLineSeparator();
@@ -1593,6 +1618,11 @@ public class ClassWriter implements StatementWriter {
       buffer.appendIndent(indent).append(" * ").append(s).appendLineSeparator();
     }
     buffer.appendIndent(indent).append(" */").appendLineSeparator();
+  }
+
+  public static void appendSyntheticClassComment(StructClass cl, TextBuffer buffer) {
+    String className = cl.qualifiedName.substring(cl.qualifiedName.lastIndexOf("/") + 1);
+    buffer.append(" /* ").appendClass(className, true, cl.qualifiedName).append(" */");
   }
 
   static final Key<?>[] ANNOTATION_ATTRIBUTES = {

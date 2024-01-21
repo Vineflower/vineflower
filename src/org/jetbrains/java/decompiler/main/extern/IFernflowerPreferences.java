@@ -277,6 +277,7 @@ public interface IFernflowerPreferences {
   @Description("Use \\n instead of \\r\\n for new lines. Deprecated, do not use.")
   @ShortName("nls")
   @Type(Type.BOOLEAN)
+  @DynamicDefaultValue("Disabled on Windows, enabled on other systems")
   String NEW_LINE_SEPARATOR = "new-line-separator";
 
   @Name("Indent String")
@@ -305,6 +306,7 @@ public interface IFernflowerPreferences {
 
   @Name("Thread Count")
   @Description("How many threads to use to decompile.")
+  @DynamicDefaultValue("all available processors")
   @ShortName("thr")
   @Type(Type.INTEGER)
   String THREADS = "thread-count";
@@ -314,18 +316,6 @@ public interface IFernflowerPreferences {
 
   String LINE_SEPARATOR_WIN = "\r\n";
   String LINE_SEPARATOR_UNX = "\n";
-
-  @Name("JAD-Style Variable Naming")
-  @Description("Use JAD-style variable naming for local variables, instead of var<index>_<version>.")
-  @ShortName("jvn")
-  @Type(Type.BOOLEAN)
-  String USE_JAD_VARNAMING = "jad-style-variable-naming";
-
-  @Name("JAD-Style Parameter Naming")
-  @Description("Use JAD-style variable naming for parameters.")
-  @ShortName("jpr")
-  @Type(Type.BOOLEAN)
-  String USE_JAD_PARAMETER_NAMING = "jad-style-parameter-naming";
 
   @Name("Skip Extra Files")
   @Description("Skip copying non-class files from the input folder or file to the output")
@@ -387,6 +377,11 @@ public interface IFernflowerPreferences {
   @Type(Type.BOOLEAN)
   String REMOVE_IMPORTS = "remove-imports";
 
+  @Name("Mark Corresponding Synthetics")
+  @Description("Mark lambdas and anonymous and local classes with their respective synthetic constructs")
+  @ShortName("mcs")
+  String MARK_CORRESPONDING_SYNTHETICS = "mark-corresponding-synthetics";
+
   Map<String, Object> DEFAULTS = getDefaults();
 
   static Map<String, Object> getDefaults() {
@@ -446,8 +441,6 @@ public interface IFernflowerPreferences {
     defaults.put(UNIT_TEST_MODE, "0");
     defaults.put(DUMP_ORIGINAL_LINES, "0");
     defaults.put(THREADS, String.valueOf(Runtime.getRuntime().availableProcessors()));
-    defaults.put(USE_JAD_VARNAMING, "0");
-    defaults.put(USE_JAD_PARAMETER_NAMING, "0");
     defaults.put(SKIP_EXTRA_FILES, "0");
     defaults.put(WARN_INCONSISTENT_INNER_CLASSES, "1");
     defaults.put(DUMP_BYTECODE_ON_ERROR, "1");
@@ -458,6 +451,7 @@ public interface IFernflowerPreferences {
     defaults.put(FORCE_JSR_INLINE, "0");
     defaults.put(DUMP_TEXT_TOKENS, "0");
     defaults.put(REMOVE_IMPORTS, "0");
+    defaults.put(MARK_CORRESPONDING_SYNTHETICS, "0");
 
     return Collections.unmodifiableMap(defaults);
   }
@@ -481,7 +475,12 @@ public interface IFernflowerPreferences {
   public @interface Description {
     String value();
   }
-
+  
+  @Retention(RetentionPolicy.RUNTIME)
+  @Target(ElementType.FIELD)
+  public @interface DynamicDefaultValue {
+    String value();
+  }
   /**
    * The "short name" of an option. This is the older syntax,
    * such as {@code -dgs=1}. It is here to ensure some amount

@@ -1,4 +1,7 @@
-apply plugin: 'java'
+plugins {
+  id 'java'
+  id 'groovy-gradle-plugin'
+}
 
 repositories {
   mavenCentral()

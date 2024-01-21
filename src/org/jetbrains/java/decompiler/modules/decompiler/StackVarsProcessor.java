@@ -381,7 +381,7 @@ public class StackVarsProcessor {
           lstExprents.set(index, right);
           setRet(ret, index, 1);
           return;
-        } else if (func.getFuncType() == FunctionType.CAST) {
+        } else if (func.getFuncType() == FunctionType.CAST && !(func.getLstOperands().get(0) instanceof InvocationExprent)) {
           // Unused cast, remove
           lstExprents.remove(index);
           setRet(ret, index, 1);

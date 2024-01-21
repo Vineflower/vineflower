@@ -18,7 +18,6 @@ public final class MinimalFernflowerEnvironment {
       new PrintStreamLogger(System.out),
       sc,
       new ClassesProcessor(sc),
-      null,
       null);
     DecompilerContext.setCurrentContext(context);
   }

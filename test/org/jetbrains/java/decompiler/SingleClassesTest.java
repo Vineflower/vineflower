@@ -73,15 +73,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
       IFernflowerPreferences.REMOVE_BRIDGE, "1",
       IFernflowerPreferences.USE_DEBUG_VAR_NAMES, "1"
     );
-    registerSet("JAD Naming", () -> {
-      register(JAVA_8, "TestJADNaming");
-      // TODO: loop part fails
-      registerRaw(CUSTOM, "TestJadLvtCollision"); // created by placing a class in java8 sources and remapping its param using tinyremapper
-    },IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
-      IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
-      IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR, "0",
-      IFernflowerPreferences.USE_JAD_VARNAMING, "1"
-    );
     registerSet("Try Loop", this::registerTryLoop,
       IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
       IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
@@ -140,6 +131,25 @@ public class SingleClassesTest extends SingleClassesTestBase {
       IFernflowerPreferences.TERNARY_CONDITIONS, "1",
       IFernflowerPreferences.FORCE_JSR_INLINE, "1",
       IFernflowerPreferences.PREFERRED_LINE_LENGTH, "120"
+    );
+    registerSet("Synthetics Marking", this::registerSyntheticsMarking,
+      IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
+      IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
+      IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR, "0",
+      IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
+      IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
+      IFernflowerPreferences.MARK_CORRESPONDING_SYNTHETICS, "1"
+      );
+    registerSet("Lambda to Anonymous Class", this::registerLambdaToAnonymousClass,
+      IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
+      IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
+      IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR, "0",
+      IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
+      IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
+      IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "0",
+      IFernflowerPreferences.TERNARY_CONDITIONS, "1",
+      IFernflowerPreferences.FORCE_JSR_INLINE, "1",
+      IFernflowerPreferences.LAMBDA_TO_ANONYMOUS_CLASS, "1"
     );
     // TODO: user renamer class test
   }
@@ -680,6 +690,13 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestWhileLambda");
     register(JAVA_8, "TestTrySplit");
     register(JAVA_8, "TestWhileForeach");
+    register(JAVA_21, "TestRecordPatterns1");
+    register(JAVA_21, "TestRecordPatterns2");
+    register(JAVA_21_PREVIEW, "TestStrProcessor");
+    register(JAVA_21_PREVIEW, "TestRawProcessor");
+    register(JAVA_21_PREVIEW, "TestFmtProcessor");
+    register(JAVA_21_PREVIEW, "TestCustomProcessor");
+    register(JASM, "TestMissingLambdaBody");
   }
 
   private void registerEntireClassPath() {
@@ -830,5 +847,16 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestTextTokens");
     register(JAVA_16, "TestTextTokens2");
     register(JAVA_8, "TestTextTokens3");
+  }
+
+  private void registerSyntheticsMarking() {
+    register(JAVA_8, "TestLambdaNaming");
+    register(JAVA_8, "TestAnonymousClassNaming");
+    register(JAVA_8, "TestLocalClassNaming");
+  }
+
+  private void registerLambdaToAnonymousClass() {
+    register(JAVA_8, "TestLambdaToAnonymousClass");
+    register(JAVA_8, "TestLambdaToAnonymousClass2");
   }
 }

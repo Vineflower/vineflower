@@ -1,0 +1,46 @@
+package pkg;
+
+public class TestAnonymousClassNaming {
+   public void run(int i, final String s) throws Exception {
+      new Object() /* TestAnonymousClassNaming$1 */ {
+      };
+      if (i < 0) {// 6
+         throw new Exception() /* TestAnonymousClassNaming$2 */ {// 7
+            public String getMessage() {
+               return s;// 10
+            }
+         };
+      }
+   }// 14
+
+   private static class InnerClass {
+      Object o = new Object() /* TestAnonymousClassNaming$InnerClass$1 */ {
+      };
+   }
+}
+
+class 'pkg/TestAnonymousClassNaming' {
+   method 'run (ILjava/lang/String;)V' {
+      9      6
+      a      6
+      16      7
+      17      13
+   }
+}
+
+class 'pkg/TestAnonymousClassNaming$2' {
+   method 'getMessage ()Ljava/lang/String;' {
+      1      9
+      2      9
+      3      9
+      4      9
+   }
+}
+
+Lines mapping:
+6 <-> 7
+7 <-> 8
+10 <-> 10
+14 <-> 14
+Not mapped:
+5

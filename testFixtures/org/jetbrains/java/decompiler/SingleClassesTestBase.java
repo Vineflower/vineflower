@@ -285,6 +285,8 @@ public abstract class SingleClassesTestBase {
       JAVA_17(17),
       JAVA_17_PREVIEW(17, "preview", "Preview"),
       JAVA_19_PREVIEW(19, "preview", "Preview"),
+      JAVA_21(21),
+      JAVA_21_PREVIEW(21, "preview", "Preview"),
       GROOVY("groovy", "Groovy"),
       KOTLIN("kt", "Kotlin"),
       SCALA("scala", "Scala"),
