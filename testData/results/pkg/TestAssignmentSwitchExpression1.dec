@@ -2,7 +2,7 @@ package pkg;
 
 public class TestAssignmentSwitchExpression1 {
    public void test(int x) {
-      String month = switch(x) {// 5
+      String month = switch (x) {// 5
          case 1 -> "January";// 6
          case 2 -> "February";// 7
          case 3 -> "March";// 8

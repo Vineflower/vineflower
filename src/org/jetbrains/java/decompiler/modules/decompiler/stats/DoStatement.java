@@ -10,6 +10,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 // Loop statement
@@ -78,6 +79,15 @@ public final class DoStatement extends Statement {
   }
 
   @Override
+  public HashSet<Statement> buildContinueSet() {
+    super.buildContinueSet();
+
+    continueSet.remove(first.getBasichead());
+
+    return continueSet;
+  }
+
+  @Override
   public TextBuffer toJava(int indent) {
     TextBuffer buf = new TextBuffer();
 
@@ -89,14 +99,14 @@ public final class DoStatement extends Statement {
 
     switch (looptype) {
       case INFINITE:
-        buf.appendIndent(indent).append("while(true) {").appendLineSeparator();
+        buf.appendIndent(indent).append("while (true) {").appendLineSeparator();
         buf.append(ExprProcessor.jmpWrapper(first, indent + 1, false));
         buf.appendIndent(indent).append("}").appendLineSeparator();
         break;
       case DO_WHILE:
         buf.appendIndent(indent).append("do {").appendLineSeparator();
         buf.append(ExprProcessor.jmpWrapper(first, indent + 1, false));
-        buf.appendIndent(indent).append("} while(");
+        buf.appendIndent(indent).append("} while (");
         buf.pushNewlineGroup(indent, 1);
         buf.appendPossibleNewline();
         buf.append(conditionExprent.get(0).toJava(indent));
@@ -105,7 +115,7 @@ public final class DoStatement extends Statement {
         buf.append(");").appendLineSeparator();
         break;
       case WHILE:
-        buf.appendIndent(indent).append("while(");
+        buf.appendIndent(indent).append("while (");
         buf.pushNewlineGroup(indent, 1);
         buf.appendPossibleNewline();
         buf.append(conditionExprent.get(0).toJava(indent));
@@ -118,7 +128,7 @@ public final class DoStatement extends Statement {
       case FOR:
         buf.appendIndent(indent);
         buf.pushNewlineGroup(indent, 1);
-        buf.append("for(");
+        buf.append("for (");
         if (initExprent.get(0) != null) {
           buf.append(initExprent.get(0).toJava(indent));
         }
@@ -132,7 +142,7 @@ public final class DoStatement extends Statement {
         buf.appendIndent(indent).append("}").appendLineSeparator();
         break;
       case FOR_EACH:
-        buf.appendIndent(indent).append("for(").append(initExprent.get(0).toJava(indent));
+        buf.appendIndent(indent).append("for (").append(initExprent.get(0).toJava(indent));
         incExprent.get(0).getInferredExprType(null); //TODO: Find a better then null? For now just calls it to clear casts if needed
         buf.append(" : ").append(incExprent.get(0).toJava(indent)).append(") {").appendLineSeparator();
         buf.append(ExprProcessor.jmpWrapper(first, indent + 1, true));
@@ -209,6 +219,11 @@ public final class DoStatement extends Statement {
     }
 
     return vars;
+  }
+
+  @Override
+  public boolean hasBasicSuccEdge() {
+    return looptype != Type.INFINITE;
   }
 
   @Override

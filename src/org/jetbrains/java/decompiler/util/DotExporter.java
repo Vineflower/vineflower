@@ -13,12 +13,12 @@ import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectEdgeType;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectNode;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
-import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionNode;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionsGraph;
 import org.jetbrains.java.decompiler.struct.StructMethod;
-import org.jetbrains.java.decompiler.util.FastSparseSetFactory.FastSparseSet;
+import org.jetbrains.java.decompiler.util.collections.FastSparseSetFactory.FastSparseSet;
+import org.jetbrains.java.decompiler.util.collections.SFormsFastMapDirect;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -48,8 +48,14 @@ public class DotExporter {
   // Statements with no successors or predecessors (but still contained in the tree) will be in a subgraph titled "Isolated statements".
   // Statements that aren't found will be circular, and will have a message stating so.
   // Nodes with green borders are the canonical exit of method, but these may not always be emitted.
+
   private static String statToDot(Statement stat, String name) {
-    DecompilerContext.getImportCollector().setWriteLocked(true);
+    try (var lock = DecompilerContext.getImportCollector().lock()) {
+      return statToDot(stat, name, null);
+    }
+  }
+
+  private static String statToDot(Statement stat, String name, Map<Statement, String> extraProps) {
     StringBuffer buffer = new StringBuffer();
     // List<String> subgraph = new ArrayList<>();
     Set<Integer> visitedNodes = new HashSet<>();
@@ -241,7 +247,9 @@ public class DotExporter {
 
       visitedNodes.add(st.id);
 
-      String node = sourceId + " [shape=box,label=\"" + st.id + " (" + getStatType(st) + ")\\n" + toJava(st) + "\"" + (st == stat ? ",color=red" : "") + "];\n";
+      String extra = extraProps == null || !extraProps.containsKey(st) ? "" : "," + extraProps.get(st);
+
+      String node = sourceId + " [shape=box,label=\"" + st.id + " (" + getStatType(st) + ")\\n" + toJava(st) + "\"" + (st == stat ? ",color=red" : "") + extra + "];\n";
 //      if (edges || st == stat) {
         buffer.append(node);
 //      } else {
@@ -293,8 +301,6 @@ public class DotExporter {
 //    }
 
     buffer.append("}");
-
-    DecompilerContext.getImportCollector().setWriteLocked(false);
 
     return buffer.toString();
   }
@@ -492,21 +498,56 @@ public class DotExporter {
 
     return builder.toString();
   }
-  private static String varsToDot(VarVersionsGraph graph, HashMap<VarVersionPair, VarVersionPair> varAssignmentMap) {
+  private static String varsToDot(VarVersionsGraph graph, Map<VarVersionPair, VarVersionPair> varAssignmentMap) {
+    StringBuilder builder = new StringBuilder();
 
-    StringBuffer buffer = new StringBuffer();
+    builder.append("digraph G {\r\n");
 
-    buffer.append("digraph G {\r\n");
+    for (VarVersionNode node : graph.nodes) {
+      appendNode(builder, node);
 
-    List<VarVersionNode> blocks = graph.nodes;
-    for(int i=0;i<blocks.size();i++) {
-      VarVersionNode block = blocks.get(i);
+      if (node.state == null) {
+        builder.append(" [shape=box, style=dashed, ");
+      } else {
+        switch (node.state) {
+          case PHI:
+            builder.append(" [shape=oval,");
+            break;
+          case READ:
+            builder.append(" [shape=box, ");
+            break;
+          case WRITE:
+            builder.append(" [shape=box, style=filled, fillcolor=palegreen1, ");
+            break;
+          case PHANTOM:
+            builder.append(" [shape=box; style=dotted, ");
+            break;
+          case DEAD_READ:
+            builder.append(" [shape=box, style=filled, fillcolor=grey59, ");
+            break;
+          case PARAM:
+            builder.append(" [shape=box, style=filled, fillcolor=skyblue1, ");
+            break;
+          case CATCH:
+            builder.append(" [shape=box, style=filled, fillcolor=gold, ");
+            break;
+        }
+      }
 
-      buffer.append((block.var*1000+block.version)+" [shape=box,label=\""+block.var+"_"+block.version+"\"];\r\n");
+      builder.append("label=\"").append(node.var).append("_").append(node.version).append("\"];\r\n");
 
-      for(VarVersionEdge edge: block.succs) {
-        VarVersionNode dest = edge.dest;
-        buffer.append((block.var*1000+block.version)+"->"+(dest.var*1000+dest.version)+(edge.type==VarVersionEdge.EDGE_PHANTOM?" [style=dotted]":"")+";\r\n");
+      for (VarVersionNode dest : node.successors) {
+        appendNode(builder, node);
+        builder.append("->");
+        appendNode(builder, dest);
+        builder.append(";\r\n");
+      }
+
+      if (node.phantomNode != null) {
+        appendNode(builder, node);
+        builder.append("->");
+        appendNode(builder, node.phantomNode);
+        builder.append(" [style=dotted];\r\n");
       }
     }
 
@@ -514,13 +555,28 @@ public class DotExporter {
       for (Entry<VarVersionPair, VarVersionPair> entry : varAssignmentMap.entrySet()) {
         VarVersionPair to = entry.getKey();
         VarVersionPair from = entry.getValue();
-        buffer.append((from.var * 1000 + from.version) + "->" + (to.var * 1000 + to.version) + " [color=green];\r\n");
+        appendNode(builder, from);
+        builder.append("->");
+        appendNode(builder, to);
+        builder.append(" [color=green];\r\n");
       }
     }
 
-    buffer.append("}");
+    builder.append("}");
 
-    return buffer.toString();
+    return builder.toString();
+  }
+
+  private static void appendNode(StringBuilder builder, VarVersionNode node) {
+    appendNode(builder, node.asPair());
+  }
+
+  private static void appendNode(StringBuilder builder, VarVersionPair pair) {
+    if (pair.var >= 0) {
+      builder.append("var").append(pair.var).append("_").append(pair.version);
+    } else {
+      builder.append("varM").append(-pair.var).append("_").append(pair.version);
+    }
   }
 
   private static String domEngineToDot(DominatorEngine doms) {
@@ -546,8 +602,6 @@ public class DotExporter {
   }
 
   private static String digraphToDot(DirectGraph graph, Map<String, SFormsFastMapDirect> vars) {
-    DecompilerContext.getImportCollector().setWriteLocked(true);
-
     StringBuffer buffer = new StringBuffer();
 
     buffer.append("digraph G {\r\n");
@@ -582,11 +636,13 @@ public class DotExporter {
           buffer.append("x" + (block.id)+" -> x"+(dest.getDestination().id)+ (type == DirectEdgeType.EXCEPTION ? "[style=dotted]" : "") + ";\r\n");
         }
       }
+
+      if (block.tryFinally != null) {
+        buffer.append("x" + (block.id)+" -> x"+(block.tryFinally.id) + "[color=blue];\r\n");
+      }
     }
 
     buffer.append("}");
-
-    DecompilerContext.getImportCollector().setWriteLocked(false);
 
     return buffer.toString();
   }
@@ -623,7 +679,9 @@ public class DotExporter {
       return;
     try{
       BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(DOTS_FOLDER, mt, suffix)));
-      out.write(digraphToDot(dgraph, vars).getBytes());
+      try (var lock = DecompilerContext.getImportCollector().lock()) {
+        out.write(digraphToDot(dgraph, vars).getBytes());
+      }
       out.close();
     } catch (Exception e) {
       e.printStackTrace();
@@ -639,7 +697,9 @@ public class DotExporter {
       return;
     try{
       BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(DOTS_ERROR_FOLDER, mt, suffix)));
-      out.write(digraphToDot(dgraph, vars).getBytes());
+      try (var lock = DecompilerContext.getImportCollector().lock()) {
+        out.write(digraphToDot(dgraph, vars).getBytes());
+      }
       out.close();
     } catch (Exception e) {
       e.printStackTrace();
@@ -651,11 +711,17 @@ public class DotExporter {
   }
 
   public static void toDotFile(Statement stat, StructMethod mt, String subdirectory, String suffix) {
+    toDotFile(stat, mt, subdirectory, suffix, null);
+  }
+
+  public static void toDotFile(Statement stat, StructMethod mt, String subdirectory, String suffix, Map<Statement, String> extraProps) {
     if (!DUMP_DOTS)
       return;
     try{
       BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getFile(DOTS_FOLDER, mt, subdirectory, suffix)));
-      out.write(statToDot(stat, suffix).getBytes());
+      try (var lock = DecompilerContext.getImportCollector().lock()) {
+        out.write(statToDot(stat, suffix, extraProps).getBytes());
+      }
       out.close();
     } catch (Exception e) {
       e.printStackTrace();
@@ -722,7 +788,7 @@ public class DotExporter {
     }
   }
 
-  public static void errorToDotFile(VarVersionsGraph graph, StructMethod mt, String suffix, HashMap<VarVersionPair, VarVersionPair> varAssignmentMap) {
+  public static void errorToDotFile(VarVersionsGraph graph, StructMethod mt, String suffix, Map<VarVersionPair, VarVersionPair> varAssignmentMap) {
     if (!DUMP_ERROR_DOTS)
       return;
     try{

@@ -2,77 +2,104 @@ package pkg;
 
 public final class TestFieldSingleAccess {
    public Integer field;
+   public int field2;
 
    public final void test() {
-      Integer var10000 = this.field;// 24 25
-      if (this.field != null) {// 27
-         System.out.println(var10000);// 28 30
+      if (this.field != null) {// 25 26 28
+         System.out.println(this.field);// 29 31
       }
-   }// 32
+   }// 32 34
+
+   public final void test2() {
+      System.out.println(this.field2 * this.field2);// 41 42 44 45 47
+   }
 
    public final void test1() {
-      synchronized(this.field) {// 38 39 42
-         System.out.println('1');// 44 45 46
+      synchronized (this.field) {// 53 54 57
+         System.out.println('1');// 59 60 61
       }
-   }// 64
+   }// 79
 }
 
 class 'pkg/TestFieldSingleAccess' {
    method 'test ()V' {
-      0      6
-      1      6
-      2      6
-      3      6
+      0      7
+      1      7
+      2      7
+      3      7
       5      7
       8      8
       9      8
       a      8
       c      8
+      d      8
+      e      8
       f      10
+      10      10
    }
 
-   method 'test1 ()V' {
+   method 'test2 ()V' {
       0      13
       1      13
       2      13
       3      13
+      5      13
       6      13
-      7      14
-      8      14
-      9      14
-      a      14
-      b      14
-      c      14
-      d      14
-      e      14
-      19      16
+      7      13
+      8      13
+      a      13
+   }
+
+   method 'test1 ()V' {
+      0      17
+      1      17
+      2      17
+      3      17
+      6      17
+      7      18
+      8      18
+      9      18
+      a      18
+      b      18
+      c      18
+      d      18
+      e      18
+      19      20
    }
 }
 
 Lines mapping:
-24 <-> 7
-25 <-> 7
-27 <-> 8
-28 <-> 9
-30 <-> 9
+25 <-> 8
+26 <-> 8
+28 <-> 8
+29 <-> 9
+31 <-> 9
 32 <-> 11
-38 <-> 14
-39 <-> 14
+34 <-> 11
+41 <-> 14
 42 <-> 14
-44 <-> 15
-45 <-> 15
-46 <-> 15
-64 <-> 17
+44 <-> 14
+45 <-> 14
+47 <-> 14
+53 <-> 18
+54 <-> 18
+57 <-> 18
+59 <-> 19
+60 <-> 19
+61 <-> 19
+79 <-> 21
 Not mapped:
-26
-29
-40
-41
-47
-48
-50
-57
-58
-59
-61
+27
+30
+43
+46
+55
+56
 62
+63
+65
+72
+73
+74
+76
+77

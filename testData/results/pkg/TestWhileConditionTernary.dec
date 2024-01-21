@@ -3,7 +3,7 @@ package pkg;
 public class TestWhileConditionTernary {
    public void test1() {
       if (this.blackBox()) {// 5
-         while(!this.blackBox() && (this.blackBox() ? this.blackBox3().equals("a") : this.blackBox2())) {// 6
+         while (!this.blackBox() && (this.blackBox() ? this.blackBox3().equals("a") : this.blackBox2())) {// 6
             System.out.println("text");// 7
          }
       }

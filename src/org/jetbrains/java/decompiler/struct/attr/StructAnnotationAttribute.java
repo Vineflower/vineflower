@@ -6,6 +6,7 @@ import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.struct.consts.ConstantPool;
 import org.jetbrains.java.decompiler.struct.consts.PrimitiveConstant;
+import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.struct.gen.FieldDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.DataInputFullStream;
@@ -76,34 +77,34 @@ public class StructAnnotationAttribute extends StructGeneralAttribute {
 
         String value;
         switch (type.type) {
-          case CodeConstants.TYPE_OBJECT:
+          case OBJECT:
             value = type.value;
             break;
-          case CodeConstants.TYPE_BYTE:
+          case BYTE:
             value = byte.class.getName();
             break;
-          case CodeConstants.TYPE_CHAR:
+          case CHAR:
             value = char.class.getName();
             break;
-          case CodeConstants.TYPE_DOUBLE:
+          case DOUBLE:
             value = double.class.getName();
             break;
-          case CodeConstants.TYPE_FLOAT:
+          case FLOAT:
             value = float.class.getName();
             break;
-          case CodeConstants.TYPE_INT:
+          case INT:
             value = int.class.getName();
             break;
-          case CodeConstants.TYPE_LONG:
+          case LONG:
             value = long.class.getName();
             break;
-          case CodeConstants.TYPE_SHORT:
+          case SHORT:
             value = short.class.getName();
             break;
-          case CodeConstants.TYPE_BOOLEAN:
+          case BOOLEAN:
             value = boolean.class.getName();
             break;
-          case CodeConstants.TYPE_VOID:
+          case VOID:
             value = void.class.getName();
             break;
           default:
@@ -123,7 +124,7 @@ public class StructAnnotationAttribute extends StructGeneralAttribute {
 
         VarType newType;
         if (elements.isEmpty()) {
-          newType = new VarType(CodeConstants.TYPE_OBJECT, 1, "java/lang/Object");
+          newType = new VarType(CodeType.OBJECT, 1, "java/lang/Object");
         }
         else {
           VarType elementType = elements.get(0).getExprType();

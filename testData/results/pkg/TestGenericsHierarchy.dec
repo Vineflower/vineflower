@@ -7,16 +7,16 @@ public class TestGenericsHierarchy<T extends Number> {
    public T field;
 
    public <V extends T> void test(V v) {
-      List<V> list = new ArrayList();// 10
+      List<V> list = new ArrayList<>();// 10
       List<? extends T> list2 = new ArrayList<>();// 11
       List<T> list3 = new ArrayList<>();// 12
       if (v != null) {// 14
          list2 = list;// 15
       }
 
-      V v1 = list.get(0);// 18
-      T v2 = list2.get(0);// 19
-      list3.add(list2.get(0));// 21
+      V v1 = (V)list.get(0);// 18
+      T v2 = (T)list2.get(0);// 19
+      list3.add((T)list2.get(0));// 21
       this.field = (T)v;// 23
       this.setField((T)v);// 24
    }// 25

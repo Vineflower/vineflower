@@ -6,11 +6,11 @@ public class TestWhileTernary10 {
    public double test(boolean condition, int n, Stream<Double> doubles) {
       double[] ds = new double[]{(double)n};// 7
 
-      for(int i = 0; condition ? i >= n : n >= i; ++i) {// 9
-         for(int j = 0; j < n; ++j) {// 10
+      for (int i = 0; condition ? i >= n : n >= i; i++) {// 9
+         for (int j = 0; j < n; j++) {// 10
             System.out.println(1);// 11
             if (j > i) {// 13
-               ++j;// 14
+               j++;// 14
             }
          }
       }
@@ -22,7 +22,7 @@ public class TestWhileTernary10 {
    public double test1(boolean condition, int n, Stream<Double> doubles) {
       double[] ds = new double[]{(double)n};// 24
 
-      for(int i = 0; condition ? i >= n : n >= i; ++i) {// 26
+      for (int i = 0; condition ? i >= n : n >= i; i++) {// 26
          ds[0] += (double)i;// 27
       }
 
@@ -33,12 +33,12 @@ public class TestWhileTernary10 {
    public double test2(boolean condition, int n, Stream<Double> doubles) {
       double[] ds = new double[]{(double)n};// 35
 
-      for(int i = 0; condition ? i >= n : n >= i; ++i) {// 37
-         for(int j = 0; j < n; ++j) {// 38
-            for(int k = 0; k < i; ++k) {// 39
+      for (int i = 0; condition ? i >= n : n >= i; i++) {// 37
+         for (int j = 0; j < n; j++) {// 38
+            for (int k = 0; k < i; k++) {// 39
                System.out.println(1);// 40
                if (j > i) {// 42
-                  ++j;// 43
+                  j++;// 43
                }
             }
          }

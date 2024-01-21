@@ -44,14 +44,13 @@ public class AnnotationExprent extends Exprent {
 
     return new AnnotationExprent(className, parNames, exps);
   }
-  
+
   @Override
   public TextBuffer toJava(int indent) {
     TextBuffer buffer = new TextBuffer();
 
-    buffer.appendIndent(indent);
     buffer.append('@');
-    buffer.append(DecompilerContext.getImportCollector().getShortName(ExprProcessor.buildJavaClassName(className)));
+    buffer.appendAllClasses(DecompilerContext.getImportCollector().getShortName(ExprProcessor.buildJavaClassName(className)), className);
 
     Type type = getAnnotationType();
 
@@ -70,7 +69,7 @@ public class AnnotationExprent extends Exprent {
           buffer.append(" = ");
         }
 
-        buffer.append(parValues.get(i).toJava(0));
+        buffer.append(parValues.get(i).toJava(indent + 1));
 
         if (i < parNames.size() - 1) {
           buffer.append(',');
@@ -113,7 +112,15 @@ public class AnnotationExprent extends Exprent {
            InterpreterUtil.equalLists(parNames, ann.parNames) &&
            InterpreterUtil.equalLists(parValues, ann.parValues);
   }
-  
+
+  public List<String> getParNames() {
+    return parNames;
+  }
+
+  public List<? extends Exprent> getParValues() {
+    return parValues;
+  }
+
   @Override
   public void getBytecodeRange(BitSet values) {
     measureBytecode(values, parValues);

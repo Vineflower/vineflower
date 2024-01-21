@@ -26,17 +26,17 @@ public class TestGenerics<A, B extends TestGenerics.Maps & List> {
    }// 41
 
    public void genericCast() {
-      HashMap<String, Boolean> upcast = (HashMap)field;// 44
+      HashMap<String, Boolean> upcast = (HashMap<String, Boolean>)field;// 44
    }// 45
 
    public void genericForEach() {
-      for(String s : field.keySet()) {// 48
+      for (String s : field.keySet()) {// 48
          System.out.println(s);// 49
       }
    }// 51
 
    public void genericForEachWithCast() {
-      for(String s : llstring.get(0)) {// 54
+      for (String s : llstring.get(0)) {// 54
          System.out.println(s);// 55
       }
    }// 57
@@ -44,14 +44,18 @@ public class TestGenerics<A, B extends TestGenerics.Maps & List> {
    public <T extends Number> void genericSuperUp() {
       List<T> list = new ArrayList<>();// 60
 
-      for(Number number : bytes) {// 61
+      for (Number number : bytes) {// 61
          list.add((T)number);// 62
       }
    }// 64
 
+   public String testFuncExprInfer(Map<Integer, String> s) {
+      return "hello " + s.get(0) + " !";// 67
+   }
+
    public static class Maps {
       public static <K, V> HashMap<K, V> newHashMap() {
-         return new HashMap<>();// 68
+         return new HashMap<>();// 72
       }
    }
 }
@@ -221,11 +225,35 @@ class 'pkg/TestGenerics' {
       2a      47
       2f      49
    }
+
+   method 'testFuncExprInfer (Ljava/util/Map;)Ljava/lang/String;' {
+      7      52
+      8      52
+      c      52
+      d      52
+      e      52
+      f      52
+      10      52
+      11      52
+      12      52
+      13      52
+      14      52
+      15      52
+      16      52
+      17      52
+      18      52
+      1c      52
+      1d      52
+      21      52
+      22      52
+      23      52
+      24      52
+   }
 }
 
 class 'pkg/TestGenerics$Maps' {
    method 'newHashMap ()Ljava/util/HashMap;' {
-      7      53
+      7      57
    }
 }
 
@@ -250,7 +278,8 @@ Lines mapping:
 61 <-> 47
 62 <-> 48
 64 <-> 50
-68 <-> 54
+67 <-> 53
+72 <-> 58
 Not mapped:
 50
 56

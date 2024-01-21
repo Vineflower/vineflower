@@ -6,19 +6,19 @@ public class TestGenericSuper<T extends Number> {
    public T t1;
 
    public <U extends T> void test(TestGenericSuper<T>.IO<T, U> io, Consumer<U> consumer) {
-      consumer.accept((T)null);// 14
-      U u = io.mutate(this.t1);// 15
+      consumer.accept(null);// 14
+      U u = (U)io.mutate(this.t1);// 15
       consumer.accept(u);// 16
    }// 17
 
    public <U extends T> void test2(T[] arr, Consumer<U> consumer) {
-      consumer.accept((T)null);// 20
+      consumer.accept(null);// 20
       U u = (U)arr[0];// 21
-      consumer.accept((T)u);// 22
+      consumer.accept(u);// 22
    }// 23
 
    public <U extends T> void test3(U[] arr, Consumer<T> consumer) {
-      consumer.accept((T)null);// 26
+      consumer.accept(null);// 26
       T t = (T)arr[0];// 27
       consumer.accept(t);// 28
    }// 29

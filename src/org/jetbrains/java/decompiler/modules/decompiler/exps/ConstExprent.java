@@ -4,19 +4,18 @@ package org.jetbrains.java.decompiler.modules.decompiler.exps;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
-import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
+import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.struct.gen.FieldDescriptor;
+import org.jetbrains.java.decompiler.struct.gen.TypeFamily;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
 import org.jetbrains.java.decompiler.struct.match.MatchEngine;
 import org.jetbrains.java.decompiler.struct.match.MatchNode;
-import org.jetbrains.java.decompiler.struct.match.MatchNode.RuleValue;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.util.TextUtil;
 
 import java.util.*;
-import java.util.Map.Entry;
 import java.util.function.Function;
 
 public class ConstExprent extends Exprent {
@@ -148,7 +147,7 @@ public class ConstExprent extends Exprent {
     this.wasCondy = wasCondy;
   }
 
-  private ConstExprent(VarType constType, Object value, boolean boolPermitted, BitSet bytecodeOffsets) {
+  protected ConstExprent(VarType constType, Object value, boolean boolPermitted, BitSet bytecodeOffsets) {
     super(Type.CONST);
     this.constType = constType;
     this.value = value;
@@ -163,12 +162,8 @@ public class ConstExprent extends Exprent {
   }
 
   private static VarType guessType(int val, boolean boolPermitted) {
-    if (boolPermitted) {
-      VarType constType = VarType.VARTYPE_BOOLEAN;
-      if (val != 0 && val != 1) {
-        constType = constType.copy(true);
-      }
-      return constType;
+    if (boolPermitted && (val == 0 || val == 1)) {
+      return VarType.VARTYPE_BOOLEAN;
     }
     else if (0 <= val && val <= 127) {
       return VarType.VARTYPE_BYTECHAR;
@@ -226,17 +221,17 @@ public class ConstExprent extends Exprent {
       buf.append("/* $VF: constant dynamic */ ");
     }
 
-    if (constType.type != CodeConstants.TYPE_NULL && value == null) {
-      return buf.append(ExprProcessor.getCastTypeName(constType));
+    if (constType.type != CodeType.NULL && value == null) {
+      return buf.appendCastTypeName(constType);
     }
 
     VarType unboxed = VarType.UNBOXING_TYPES.getOrDefault(constType, constType);
 
     switch (unboxed.type) {
-      case CodeConstants.TYPE_BOOLEAN:
+      case BOOLEAN:
         return buf.append(Boolean.toString((Integer)value != 0));
 
-      case CodeConstants.TYPE_CHAR:
+      case CHAR:
         Integer val = (Integer)value;
         String ret = CHAR_ESCAPES.get(val);
         if (ret == null) {
@@ -250,11 +245,12 @@ public class ConstExprent extends Exprent {
         }
         return buf.append(ret).enclose("'", "'");
 
-      case CodeConstants.TYPE_BYTE:
-      case CodeConstants.TYPE_BYTECHAR:
-      case CodeConstants.TYPE_SHORT:
-      case CodeConstants.TYPE_SHORTCHAR:
-      case CodeConstants.TYPE_INT:
+      case BYTECHAR:
+      case SHORTCHAR:
+        // TODO: assert here, we should not be writing higher order types
+      case BYTE:
+      case SHORT:
+      case INT:
         int intVal = (Integer)value;
         if (!literal) {
           if (intVal == Integer.MAX_VALUE) {
@@ -266,7 +262,7 @@ public class ConstExprent extends Exprent {
         }
         return buf.append(value.toString());
 
-      case CodeConstants.TYPE_LONG:
+      case LONG:
 
         long longVal = (Long)value;
 
@@ -280,7 +276,7 @@ public class ConstExprent extends Exprent {
         }
         return buf.append(value.toString()).append('L');
 
-      case CodeConstants.TYPE_FLOAT:
+      case FLOAT:
         float floatVal = (Float)value;
         if (!literal) {
           if (Float.isNaN(floatVal)) {
@@ -305,7 +301,7 @@ public class ConstExprent extends Exprent {
         }
         return buf.append(trimFloat(Float.toString(floatVal), floatVal)).append('F');
 
-      case CodeConstants.TYPE_DOUBLE:
+      case DOUBLE:
         double doubleVal = (Double)value;
         if (!literal) {
           if (Double.isNaN(doubleVal)) {
@@ -341,23 +337,23 @@ public class ConstExprent extends Exprent {
         }
         return buf.append(trimDouble(Double.toString(doubleVal), doubleVal));
 
-      case CodeConstants.TYPE_NULL:
+      case NULL:
         return buf.append("null");
 
-      case CodeConstants.TYPE_OBJECT:
+      case OBJECT:
         if (constType.equals(VarType.VARTYPE_STRING)) {
           return buf.append(convertStringToJava(value.toString(), ascii)).enclose("\"", "\"");
         }
         else if (constType.equals(VarType.VARTYPE_CLASS)) {
           String stringVal = value.toString();
           VarType type = new VarType(stringVal, !stringVal.startsWith("["));
-          return buf.append(ExprProcessor.getCastTypeName(type)).append(".class");
+          return buf.appendCastTypeName(type).append(".class");
         }
     }
 
     // prevent gc without discarding
     buf.convertToStringAndAllowDataDiscard();
-    throw new RuntimeException("invalid constant type: " + constType);
+    throw new RuntimeException("invalid constant type: " + constType + " with value " + value);
   }
 
   @Override
@@ -371,14 +367,14 @@ public class ConstExprent extends Exprent {
     // FIXME: this entire system is terrible, and pi constants need to be fixed to not create field exprents
 
     switch (unboxed.type) {
-      case CodeConstants.TYPE_FLOAT:
+      case FLOAT:
         float floatVal = (Float)value;
 
         if (UNINLINED_FLOATS.containsKey(floatVal) && !NO_PAREN_VALUES.contains(floatVal) && UNINLINED_FLOATS.get(floatVal).apply(bytecode).countChars('(') < 2) {
           return 4;
         }
         break;
-      case CodeConstants.TYPE_DOUBLE:
+      case DOUBLE:
         double doubleVal = (Double)value;
 
         if (UNINLINED_DOUBLES.containsKey(doubleVal) && !NO_PAREN_VALUES.contains(doubleVal) && UNINLINED_DOUBLES.get(doubleVal).apply(bytecode).countChars('(') < 2) {
@@ -491,7 +487,7 @@ public class ConstExprent extends Exprent {
   }
 
   public boolean isNull() {
-    return CodeConstants.TYPE_NULL == constType.type;
+    return CodeType.NULL == constType.type;
   }
 
   public static String convertStringToJava(String value, boolean ascii) {
@@ -556,13 +552,13 @@ public class ConstExprent extends Exprent {
 
   public boolean hasBooleanValue() {
     switch (constType.type) {
-      case CodeConstants.TYPE_BOOLEAN:
-      case CodeConstants.TYPE_CHAR:
-      case CodeConstants.TYPE_BYTE:
-      case CodeConstants.TYPE_BYTECHAR:
-      case CodeConstants.TYPE_SHORT:
-      case CodeConstants.TYPE_SHORTCHAR:
-      case CodeConstants.TYPE_INT:
+      case BOOLEAN:
+      case CHAR:
+      case BYTE:
+      case BYTECHAR:
+      case SHORT:
+      case SHORTCHAR:
+      case INT:
         int value = (Integer)this.value;
         return value == 0 || (DecompilerContext.getOption(IFernflowerPreferences.BOOLEAN_TRUE_ONE) && value == 1);
     }
@@ -572,31 +568,31 @@ public class ConstExprent extends Exprent {
 
   public boolean hasValueOne() {
     switch (constType.type) {
-      case CodeConstants.TYPE_BOOLEAN:
-      case CodeConstants.TYPE_CHAR:
-      case CodeConstants.TYPE_BYTE:
-      case CodeConstants.TYPE_BYTECHAR:
-      case CodeConstants.TYPE_SHORT:
-      case CodeConstants.TYPE_SHORTCHAR:
-      case CodeConstants.TYPE_INT:
-      case CodeConstants.TYPE_LONG:
-      case CodeConstants.TYPE_DOUBLE:
-      case CodeConstants.TYPE_FLOAT:
+      case BOOLEAN:
+      case CHAR:
+      case BYTE:
+      case BYTECHAR:
+      case SHORT:
+      case SHORTCHAR:
+      case INT:
+      case LONG:
+      case DOUBLE:
+      case FLOAT:
         return ((Number)value).intValue() == 1;
     }
 
     return false;
   }
 
-  public static ConstExprent getZeroConstant(int type) {
+  public static ConstExprent getZeroConstant(CodeType type) {
     switch (type) {
-      case CodeConstants.TYPE_INT:
+      case INT:
         return new ConstExprent(VarType.VARTYPE_INT, 0, null);
-      case CodeConstants.TYPE_LONG:
+      case LONG:
         return new ConstExprent(VarType.VARTYPE_LONG, 0L, null);
-      case CodeConstants.TYPE_DOUBLE:
+      case DOUBLE:
         return new ConstExprent(VarType.VARTYPE_DOUBLE, 0d, null);
-      case CodeConstants.TYPE_FLOAT:
+      case FLOAT:
         return new ConstExprent(VarType.VARTYPE_FLOAT, 0f, null);
     }
 
@@ -622,7 +618,7 @@ public class ConstExprent extends Exprent {
     }
     // BYTE, BYTECHAR, SHORTCHAR, SHORT, CHAR => INT in the INT context
     else if ((expectedType.equals(VarType.VARTYPE_INT) || expectedType.equals(VarType.VARTYPE_INTEGER)) &&
-            constType.typeFamily == CodeConstants.TYPE_FAMILY_INTEGER) {
+            constType.typeFamily == TypeFamily.INTEGER) {
       setConstType(VarType.VARTYPE_INT);
     }
   }
@@ -668,22 +664,14 @@ public class ConstExprent extends Exprent {
       return false;
     }
 
-    for (Entry<MatchProperties, RuleValue> rule : matchNode.getRules().entrySet()) {
-      RuleValue value = rule.getValue();
-      MatchProperties key = rule.getKey();
-
+    return matchNode.iterateRules((key, value) -> {
       if (key == MatchProperties.EXPRENT_CONSTTYPE) {
-        if (!value.value.equals(this.constType)) {
-          return false;
-        }
+        return value.value.equals(this.constType);
+      } else if (key == MatchProperties.EXPRENT_CONSTVALUE) {
+        return !value.isVariable() || engine.checkAndSetVariableValue(value.value.toString(), this.value);
       }
-      else if (key == MatchProperties.EXPRENT_CONSTVALUE) {
-        if (value.isVariable() && !engine.checkAndSetVariableValue(value.value.toString(), this.value)) {
-          return false;
-        }
-      }
-    }
 
-    return true;
+      return true;
+    });
   }
 }

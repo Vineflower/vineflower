@@ -14,7 +14,7 @@ public class TestHotjava {
    // $VF: Could not inline inconsistent finally blocks
    // $VF: Could not create synchronized statement, marking monitor enters and exits
    public void testMonitor1() {
-      synchronized(this){} // $VF: monitorenter // 15
+      synchronized (this){} // $VF: monitorenter // 15
 
       try {
          System.out.println("Synchronized");// 16
@@ -29,7 +29,7 @@ public class TestHotjava {
    // $VF: Could not inline inconsistent finally blocks
    // $VF: Could not create synchronized statement, marking monitor enters and exits
    public void testMonitor2(Object var1) {
-      synchronized(var1){} // $VF: monitorenter // 21
+      synchronized (var1){} // $VF: monitorenter // 21
 
       try {
          System.out.println("Synchronized");// 22
@@ -44,7 +44,7 @@ public class TestHotjava {
    // $VF: Could not inline inconsistent finally blocks
    // $VF: Could not create synchronized statement, marking monitor enters and exits
    public void testMonitor3() {
-      synchronized(this){} // $VF: monitorenter // 27
+      synchronized (this){} // $VF: monitorenter // 27
 
       try {
          try {

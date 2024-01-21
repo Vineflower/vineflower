@@ -13,10 +13,11 @@ import org.jetbrains.java.decompiler.modules.decompiler.sforms.SSAConstructorSpa
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarTypeProcessor.FinalType;
 import org.jetbrains.java.decompiler.struct.StructMethod;
+import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.DotExporter;
-import org.jetbrains.java.decompiler.util.FastSparseSetFactory.FastSparseSet;
+import org.jetbrains.java.decompiler.util.collections.FastSparseSetFactory.FastSparseSet;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -31,10 +32,32 @@ public class VarVersionsProcessor {
     typeProcessor = new VarTypeProcessor(mt, md);
   }
 
+  // FIXME: This introduces bugs!! (see the FizzBuzz in TestDoublePopAfterJump & TestCompoundAssignmentReplace)
+  //  consider:
+  //    x = x + 1
+  //    use(x);
+  //    ...
+  //    use(x);
+  //  after splitting:
+  //    a = x + 1
+  //    use(a);
+  //    ...
+  //    use(a);
+  //  after inline 1 of these:
+  //    a = x + 1
+  //    use(x + 1);
+  //    ...
+  //    use(a);
+  //  merge variables again:
+  //    x = x + 1
+  //    use(x + 1);
+  //    ...
+  //    use(x);
   public void setVarVersions(RootStatement root, VarVersionsProcessor previousVersionsProcessor) {
     SSAConstructorSparseEx ssa = new SSAConstructorSparseEx();
     ssa.splitVariables(root, method);
 
+    // TODO: ssa already made a dgraph
     FlattenStatementsHelper flattenHelper = new FlattenStatementsHelper();
     DirectGraph graph = flattenHelper.buildDirectGraph(root);
 
@@ -122,18 +145,18 @@ public class VarVersionsProcessor {
       VarType type = mapExprentMinTypes.get(paar);
       VarType maxType = mapExprentMaxTypes.get(paar);
 
-      if (type.type == CodeConstants.TYPE_BYTECHAR || type.type == CodeConstants.TYPE_SHORTCHAR) {
-        if (maxType != null && maxType.type == CodeConstants.TYPE_CHAR) {
+      if (type.type == CodeType.BYTECHAR || type.type == CodeType.SHORTCHAR) {
+        if (maxType != null && maxType.type == CodeType.CHAR) {
           type = VarType.VARTYPE_CHAR;
         }
         else {
-          type = type.type == CodeConstants.TYPE_BYTECHAR ? VarType.VARTYPE_BYTE : VarType.VARTYPE_SHORT;
+          type = type.type == CodeType.BYTECHAR ? VarType.VARTYPE_BYTE : VarType.VARTYPE_SHORT;
         }
         mapExprentMinTypes.put(paar, type);
-        //} else if(type.type == CodeConstants.TYPE_CHAR && (maxType == null || maxType.type == CodeConstants.TYPE_INT)) { // when possible, lift char to int
+        //} else if(type.type == CodeType.CHAR && (maxType == null || maxType.type == CodeType.INT)) { // when possible, lift char to int
         //	mapExprentMinTypes.put(paar, VarType.VARTYPE_INT);
       }
-      else if (type.type == CodeConstants.TYPE_NULL) {
+      else if (type.type == CodeType.NULL) {
         mapExprentMinTypes.put(paar, VarType.VARTYPE_OBJECT);
       }
     }
@@ -174,8 +197,8 @@ public class VarVersionsProcessor {
             VarType secondType = mapExprentMinTypes.get(secondPair);
 
             if (firstType.equals(secondType) ||
-                (firstType.equals(VarType.VARTYPE_NULL) && secondType.type == CodeConstants.TYPE_OBJECT) ||
-                (secondType.equals(VarType.VARTYPE_NULL) && firstType.type == CodeConstants.TYPE_OBJECT)) {
+                (firstType.equals(VarType.VARTYPE_NULL) && secondType.type == CodeType.OBJECT) ||
+                (secondType.equals(VarType.VARTYPE_NULL) && firstType.type == CodeType.OBJECT)) {
 
               VarType firstMaxType = mapExprentMaxTypes.get(firstPair);
               VarType secondMaxType = mapExprentMaxTypes.get(secondPair);

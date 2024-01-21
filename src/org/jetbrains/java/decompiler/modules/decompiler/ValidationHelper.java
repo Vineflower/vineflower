@@ -3,8 +3,11 @@ package org.jetbrains.java.decompiler.modules.decompiler;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.ExitExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectEdge;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectEdgeType;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectNode;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectNodeType;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionNode;
@@ -12,13 +15,14 @@ import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionsGraph;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.DotExporter;
-import org.jetbrains.java.decompiler.util.ListStack;
-import org.jetbrains.java.decompiler.util.VBStyleCollection;
+import org.jetbrains.java.decompiler.util.collections.ListStack;
+import org.jetbrains.java.decompiler.util.collections.VBStyleCollection;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 public final class ValidationHelper {
-  private static final boolean VALIDATE = System.getProperty("VALIDATE_DECOMPILED_CODE", "false").equals("true");
+  public static final boolean VALIDATE = System.getProperty("VALIDATE_DECOMPILED_CODE", "false").equals("true");
 
   public static void validateStatement(RootStatement statement) {
     if (!VALIDATE) {
@@ -126,7 +130,7 @@ public final class ValidationHelper {
       }
     }
 
-    switch (edge.getType()){
+    switch (edge.getType()) {
       case StatEdge.TYPE_REGULAR: {
         if (edge.closure != null) {
           // throw new IllegalStateException("Edge with closure, but it's a regular edge: " + edge);
@@ -136,6 +140,10 @@ public final class ValidationHelper {
       case StatEdge.TYPE_BREAK: {
         if (edge.closure == null) {
           throw new IllegalStateException("Break edge with break type, but no closure: " + edge);
+        }
+
+        if (edge.closure.type == Statement.StatementType.BASIC_BLOCK) {
+          throw new IllegalStateException("Break edge closure to basic block: " + edge);
         }
 
         if (edge.getSource() == edge.closure && !edge.phantomContinue) {
@@ -177,6 +185,15 @@ public final class ValidationHelper {
 
         break;
       }
+      case StatEdge.TYPE_FINALLYEXIT: {
+        if (edge.closure == null) {
+          throw new IllegalStateException("Finally exit edge with finally exit type, but no closure: " + edge);
+        }
+
+        if (!(edge.getDestination() instanceof DummyExitStatement)) {
+          throw new IllegalStateException("Finally exit edge where closure isn't pointing to the dummy exit: " + edge);
+        }
+      }
     }
   }
 
@@ -187,8 +204,12 @@ public final class ValidationHelper {
     }
 
     switch (stat.type) {
-      case IF: validateIfStatement((IfStatement) stat); break;
-      case TRY_CATCH: validateTrycatchStatement((CatchStatement) stat); break;
+      case IF:
+        validateIfStatement((IfStatement) stat);
+        break;
+      case TRY_CATCH:
+        validateTrycatchStatement((CatchStatement) stat);
+        break;
     }
   }
 
@@ -229,7 +250,7 @@ public final class ValidationHelper {
       if (ifStat.getElseEdge() != null) {
         throw new IllegalStateException("If statement with unexpected else edge: " + ifStat);
       }
-      if (ifStat.getSuccessorEdges(Statement.STATEDGE_DIRECT_ALL).isEmpty()){
+      if (ifStat.getSuccessorEdges(Statement.STATEDGE_DIRECT_ALL).isEmpty()) {
         throw new IllegalStateException("If statement with no else edge and no successors: " + ifStat);
       } else if (ifStat.getSuccessorEdges(Statement.STATEDGE_DIRECT_ALL).size() > 1) {
         throw new IllegalStateException("If statement with more than one successor: " + ifStat + " (successors: " + ifStat.getSuccessorEdges(Statement.STATEDGE_DIRECT_ALL) + ")");
@@ -268,16 +289,20 @@ public final class ValidationHelper {
       throw new IllegalStateException("If statement if edge source is not first statement: [" + ifStat.getIfEdge() + "] " + ifStat + " (source is: " + ifStat.getIfEdge().getSource() + " but first is: " + ifStat.getFirst() + ")");
     }
 
+//    if (ifStat.getIfEdge() != null && ifStat.getIfEdge().labeled && ifStat.getIfEdge().closure == null) {
+//      throw new IllegalStateException("If statement if edge is labeled but has no closure: " + ifStat);
+//    }
+
     if (ifStat.getElseEdge() != null && ifStat.getElseEdge().getSource() != ifStat.getFirst()) {
       throw new IllegalStateException("IfElse statement else edge source is not first statement: " + ifStat + " (elseEdge: " + ifStat.getElseEdge() + ")");
     }
 
-    if (stats.size() > 3){
+    if (stats.size() > 3) {
       throw new IllegalStateException("If statement with more than 3 sub statements: " + ifStat);
     }
 
     for (Statement stat : stats) {
-      if ( stat != ifStat.getFirst() && stat != ifStat.getIfstat() && stat != ifStat.getElsestat() ) {
+      if (stat != ifStat.getFirst() && stat != ifStat.getIfstat() && stat != ifStat.getElsestat()) {
         throw new IllegalStateException("If statement contains unknown sub statement: " + ifStat + " (subStatement: " + stat + ")");
       }
     }
@@ -305,27 +330,32 @@ public final class ValidationHelper {
         DirectNode node = stack.pop();
 
         // check if predecessors have us as a successor
-        for (DirectNode pred : node.preds()) {
-          if (!pred.succs().contains(node)) {
+        for (DirectEdge pred : node.getPredecessors(DirectEdgeType.REGULAR)) {
+          if (!pred.getSource().getSuccessors(DirectEdgeType.REGULAR).contains(pred)) {
             throw new IllegalStateException("Predecessor " + pred + " does not have " + node + " as a successor");
           }
         }
 
         // check if successors have us as a predecessor, and remove them from the inaccessible set
-        for (DirectNode succ : node.succs()) {
-          if (!succ.preds().contains(node)) {
+        for (DirectEdge succ : node.getSuccessors(DirectEdgeType.REGULAR)) {
+          if (!succ.getDestination().getPredecessors(DirectEdgeType.REGULAR).contains(succ)) {
             throw new IllegalStateException("Successor " + succ + " does not have " + node + " as a predecessor");
           }
 
-          if (inaccessibleNodes.remove(succ)) {
+          if (inaccessibleNodes.remove(succ.getDestination())) {
             // if we find a new accessible node, add it to the stack
-            stack.push(succ);
+            stack.push(succ.getDestination());
           }
         }
       }
 
       if (!inaccessibleNodes.isEmpty()) {
-        throw new IllegalStateException("Inaccessible direct graph nodes: " + inaccessibleNodes);
+        // FIXME: temp fix for FINALLY_END nodes
+        for (DirectNode inaccessibleNode : inaccessibleNodes) {
+          if (inaccessibleNode.type != DirectNodeType.FINALLY_END) {
+            throw new IllegalStateException("Inaccessible direct graph nodes: " + inaccessibleNodes);
+          }
+        }
       }
     } catch (Throwable e) {
       DotExporter.errorToDotFile(graph, root.mt, "erroring_dgraph");
@@ -333,7 +363,7 @@ public final class ValidationHelper {
     }
   }
 
-  public static void validateAllVarVersionsAreNull(DirectGraph dgraph, RootStatement root) {
+  public static void validateVars(DirectGraph dgraph, RootStatement root, Predicate<VarExprent> predicate, String message) {
     if (!VALIDATE) {
       return;
     }
@@ -344,9 +374,10 @@ public final class ValidationHelper {
           for (Exprent exprent : node.exprents) {
             for (Exprent sub : exprent.getAllExprents(true, true)) {
               if (sub instanceof VarExprent) {
-                VarExprent var = (VarExprent)sub;
-                if (var.getVersion() != 0) {
-                  throw new IllegalStateException("Var version is not zero: " + var.getIndex() + "_" + var.getVersion());
+                VarExprent var = (VarExprent) sub;
+                if (!predicate.test(var)) {
+                  System.out.println(root.toJava().convertToStringAndAllowDataDiscard());
+                  throw new IllegalStateException(message + ": " + var.getIndex() + "_" + var.getVersion() + " " + var.getVarType());
                 }
               }
             }
@@ -375,7 +406,7 @@ public final class ValidationHelper {
     }
 
     if (exit.getExitType() == ExitExprent.Type.RETURN) {
-      if (exit.getRetType().equals(VarType.VARTYPE_VOID)){
+      if (exit.getRetType().equals(VarType.VARTYPE_VOID)) {
         if (exit.getValue() != null) {
           throw new IllegalStateException("Void return with value: " + exit);
         }
@@ -398,7 +429,8 @@ public final class ValidationHelper {
     }
 
     switch (exprent.type) {
-      case EXIT: validateExitExprent((ExitExprent)exprent); break;
+      case EXIT: validateExitExprent((ExitExprent) exprent);
+        break;
       default: {
         for (Exprent subExprents : exprent.getAllExprents()) {
           validateExprent(subExprents);
@@ -442,14 +474,20 @@ public final class ValidationHelper {
     return false;
   }
 
-  public static void assertTrue(boolean condition, String message) {
+  public static void validateTrue(boolean condition, String message) {
     if (VALIDATE && !condition) {
+      throw new IllegalStateException("Validation failed: " + message);
+    }
+  }
+
+  public static void assertTrue(boolean condition, String message) {
+    if (!condition) {
       throw new IllegalStateException("Assertion failed: " + message);
     }
   }
 
   public static void validateVarVersionsGraph(
-    VarVersionsGraph graph, RootStatement statement, HashMap<VarVersionPair, VarVersionPair> varAssignmentMap) {
+    VarVersionsGraph graph, RootStatement statement, Map<VarVersionPair, VarVersionPair> varAssignmentMap) {
     if (!VALIDATE) {
       return;
     }
@@ -457,12 +495,12 @@ public final class ValidationHelper {
     Set<VarVersionNode> roots = new HashSet<>();
 
     for (VarVersionNode node : graph.nodes) {
-      if (node.preds.isEmpty()) {
+      if (node.predecessors.isEmpty()) {
         roots.add(node);
       }
     }
 
-    Set<VarVersionNode> reached = graph.rootReachability(roots);
+    Set<VarVersionNode> reached = VarVersionsGraph.rootReachability(roots);
 
     if (graph.nodes.size() != reached.size()) {
       DotExporter.errorToDotFile(graph, statement.mt, "erroring_varVersionGraph", varAssignmentMap);

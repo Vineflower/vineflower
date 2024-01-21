@@ -8,6 +8,28 @@ public class TestStringConcat {
    public String test2(String var, int b, Object c) {
       return "(" + var + "-" + b + "---" + c + ")";// 24
    }
+
+   public void testChar(String str) {
+      System.out.println(str + '.');// 28
+      System.out.println('.' + str + '.');// 29
+   }// 30
+
+   public void testInt(String str) {
+      System.out.println(str + 46);// 33
+      System.out.println(46 + str + 46);// 34
+   }// 35
+
+   public void testFloat(String str) {
+      System.out.println(str + 10.2F);// 38
+   }// 39
+
+   public void testDouble(String str) {
+      System.out.println(str + 10.2);// 42
+   }// 43
+
+   public void testBoolean(String str) {
+      System.out.println(str + true);// 46
+   }// 47
 }
 
 class 'pkg/TestStringConcat' {
@@ -37,8 +59,128 @@ class 'pkg/TestStringConcat' {
       29      8
       2a      8
    }
+
+   method 'testChar (Ljava/lang/String;)V' {
+      0      12
+      1      12
+      2      12
+      a      12
+      e      12
+      f      12
+      13      12
+      14      12
+      15      12
+      16      12
+      17      12
+      18      12
+      19      13
+      1a      13
+      1b      13
+      23      13
+      24      13
+      28      13
+      2c      13
+      2d      13
+      31      13
+      32      13
+      33      13
+      34      13
+      35      13
+      36      13
+      37      14
+   }
+
+   method 'testInt (Ljava/lang/String;)V' {
+      0      17
+      1      17
+      2      17
+      a      17
+      e      17
+      f      17
+      13      17
+      14      17
+      15      17
+      16      17
+      17      17
+      18      17
+      19      18
+      1a      18
+      1b      18
+      23      18
+      24      18
+      28      18
+      2c      18
+      2d      18
+      31      18
+      32      18
+      33      18
+      34      18
+      35      18
+      36      18
+      37      19
+   }
+
+   method 'testFloat (Ljava/lang/String;)V' {
+      0      22
+      1      22
+      2      22
+      a      22
+      e      22
+      f      22
+      13      22
+      14      22
+      15      22
+      16      22
+      17      22
+      18      22
+      19      23
+   }
+
+   method 'testDouble (Ljava/lang/String;)V' {
+      0      26
+      1      26
+      2      26
+      a      26
+      e      26
+      f      26
+      10      26
+      14      26
+      15      26
+      16      26
+      17      26
+      18      26
+      19      26
+      1a      27
+   }
+
+   method 'testBoolean (Ljava/lang/String;)V' {
+      0      30
+      1      30
+      2      30
+      a      30
+      e      30
+      12      30
+      13      30
+      14      30
+      15      30
+      16      30
+      17      30
+      18      31
+   }
 }
 
 Lines mapping:
 20 <-> 5
 24 <-> 9
+28 <-> 13
+29 <-> 14
+30 <-> 15
+33 <-> 18
+34 <-> 19
+35 <-> 20
+38 <-> 23
+39 <-> 24
+42 <-> 27
+43 <-> 28
+46 <-> 31
+47 <-> 32

@@ -31,10 +31,10 @@ final class TestRunSuspend {
 
    // $VF: Extended synchronized range to monitorexit
    public final void await() {
-      synchronized(this) {// 7
+      synchronized (this) {// 7
          int $i$a$-synchronized-TestRunSuspend$await$1 = 0;
 
-         while(true) {
+         while (true) {
             Result result = this.result;// 9
             if (result != null) {// 10
                Object var4 = result.unbox-impl();// 12

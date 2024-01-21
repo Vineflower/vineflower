@@ -4,8 +4,8 @@ public class TestWhileCondition {
    public void test1() {
       int i = -10;// 7
 
-      for(int j = 10; i < 0 && j > 0 || i * j > 3; --j) {// 8 10 12
-         ++i;// 11
+      for (int j = 10; i < 0 && j > 0 || i * j > 3; j--) {// 8 10 12
+         i++;// 11
       }
    }// 14
 
@@ -13,9 +13,9 @@ public class TestWhileCondition {
       int i = -10;// 17
       int j = 10;// 18
 
-      for(boolean b = false; i < 0 && j > 0 || i * j > 3 || !b; b = !b) {// 19 21 24
-         ++i;// 22
-         --j;// 23
+      for (boolean b = false; i < 0 && j > 0 || i * j > 3 || !b; b = !b) {// 19 21 24
+         i++;// 22
+         j--;// 23
       }
    }// 26
 }

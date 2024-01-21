@@ -55,20 +55,20 @@ public class TestTryReturn {
    public boolean testFinally3(boolean b, boolean c, int a, Supplier<Boolean> supplier) {
       boolean var5;
       try {
-         if (b) {// 50
-            return c && supplier.get();// 51
-         }
+         if (!b) {// 50
+            if (a > 0) {// 54
+               return a == 1;// 55
+            }
 
-         if (a <= 0) {// 54
             return supplier.get();// 58
          }
 
-         var5 = a == 1;
+         var5 = c && supplier.get();
       } finally {
          System.out.println("Finally");// 60
       }
 
-      return var5;// 55
+      return var5;// 51
    }
 
    public boolean testFinally4(Supplier<Boolean> supplier) {
@@ -121,7 +121,7 @@ public class TestTryReturn {
    public void testLoopFinally() {
       boolean a = true;// 109
 
-      while(true) {
+      while (true) {
          try {
             if (a) {// 113
                return;// 114
@@ -171,7 +171,7 @@ public class TestTryReturn {
    public void testPostdomFailure() {
       System.out.println(1);// 143
 
-      while(new Random().nextBoolean()) {// 145
+      while (new Random().nextBoolean()) {// 145
          try {
             try {
                System.out.println(2);// 148
@@ -181,7 +181,7 @@ public class TestTryReturn {
                continue;
             }
          } finally {
-            boolean var7 = true;// 156
+            byte var7 = 28;// 156
          }
       }
    }// 159
@@ -218,7 +218,7 @@ public class TestTryReturn {
             return;// 195
          } catch (Exception var16) {// 186
          } finally {
-            System.out.println(var4);// 190
+            System.out.println(var15);// 190
          }
       } finally {
          System.out.println(var3);// 194
@@ -335,30 +335,30 @@ class 'pkg/TestTryReturn' {
    method 'testFinally3 (ZZILjava/util/function/Supplier;)Z' {
       0      57
       1      57
-      4      58
-      5      58
-      8      58
-      9      58
-      a      58
-      b      58
-      c      58
-      d      58
-      e      58
-      12      58
-      13      58
-      14      58
-      15      58
-      29      58
-      2a      61
-      2b      61
-      2e      65
-      2f      65
-      30      65
-      38      65
-      39      65
-      42      70
-      43      70
-      44      70
+      4      65
+      5      65
+      8      65
+      9      65
+      a      65
+      b      65
+      c      65
+      d      65
+      e      65
+      12      65
+      13      65
+      14      65
+      15      65
+      1d      65
+      1e      65
+      27      70
+      28      70
+      29      70
+      2a      58
+      2b      58
+      2e      59
+      2f      59
+      30      59
+      44      59
       45      62
       46      62
       47      62
@@ -618,9 +618,9 @@ Lines mapping:
 43 <-> 52
 45 <-> 52
 50 <-> 58
-51 <-> 59
-54 <-> 62
-55 <-> 71
+51 <-> 71
+54 <-> 59
+55 <-> 60
 58 <-> 63
 60 <-> 68
 65 <-> 75

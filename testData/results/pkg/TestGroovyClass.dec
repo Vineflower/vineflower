@@ -37,9 +37,8 @@ public class TestGroovyClass implements GroovyObject {
    @Internal
    @Transient
    public MetaClass getMetaClass() {
-      MetaClass var10000 = this.metaClass;
       if (this.metaClass != null) {
-         return var10000;
+         return this.metaClass;
       } else {
          this.metaClass = this.$getStaticMetaClass();
          return this.metaClass;
@@ -85,9 +84,8 @@ public class TestGroovyClass implements GroovyObject {
       @Internal
       @Transient
       public MetaClass getMetaClass() {
-         MetaClass var10000 = this.metaClass;
          if (this.metaClass != null) {
-            return var10000;
+            return this.metaClass;
          } else {
             this.metaClass = this.$getStaticMetaClass();
             return this.metaClass;
@@ -114,9 +112,8 @@ public class TestGroovyClass implements GroovyObject {
       @Internal
       @Transient
       public MetaClass getMetaClass() {
-         MetaClass var10000 = this.metaClass;
          if (this.metaClass != null) {
-            return var10000;
+            return this.metaClass;
          } else {
             this.metaClass = this.$getStaticMetaClass();
             return this.metaClass;
@@ -267,260 +264,260 @@ class 'pkg/TestGroovyClass' {
       1      39
       2      39
       3      39
-      5      40
-      8      41
-      a      43
-      c      43
-      d      43
-      e      43
-      f      43
-      10      43
-      11      43
-      12      44
-      13      44
-      14      44
-      15      44
-      16      44
+      5      39
+      8      40
+      a      42
+      c      42
+      d      42
+      e      42
+      f      42
+      10      42
+      11      42
+      12      43
+      13      43
+      14      43
+      15      43
+      16      43
    }
 
    method 'setMetaClass (Lgroovy/lang/MetaClass;)V' {
-      0      51
-      1      51
-      2      51
-      3      51
-      4      51
-      5      52
+      0      50
+      1      50
+      2      50
+      3      50
+      4      50
+      5      51
    }
 
    method 'getN ()Lpkg/TestGroovyClass$Nested;' {
-      0      56
-      1      56
-      2      56
-      3      56
-      4      56
+      0      55
+      1      55
+      2      55
+      3      55
+      4      55
    }
 
    method 'getI ()Lpkg/TestGroovyClass$Inner;' {
-      0      61
-      1      61
-      2      61
-      3      61
-      4      61
+      0      60
+      1      60
+      2      60
+      3      60
+      4      60
    }
 
    method 'getR ()Ljava/lang/Runnable;' {
-      0      66
-      1      66
-      2      66
-      3      66
-      4      66
+      0      65
+      1      65
+      2      65
+      3      65
+      4      65
    }
 
    method 'getC ()Ljava/util/concurrent/Callable;' {
-      0      71
-      1      71
-      2      71
-      3      71
-      4      71
+      0      70
+      1      70
+      2      70
+      3      70
+      4      70
    }
 }
 
 class 'pkg/TestGroovyClass$Inner' {
    method '<init> (Lpkg/TestGroovyClass;)V' {
-      1      77
-      2      77
-      3      77
-      4      77
-      10      78
-      11      78
-      12      78
-      13      79
-      14      79
-      15      79
-      16      79
-      17      79
-      18      79
-      19      80
-      1a      80
-      1b      80
-      1d      80
-      1e      80
-      1f      80
-      23      81
+      1      76
+      2      76
+      3      76
+      4      76
+      10      77
+      11      77
+      12      77
+      13      78
+      14      78
+      15      78
+      16      78
+      17      78
+      18      78
+      19      79
+      1a      79
+      1b      79
+      1d      79
+      1e      79
+      1f      79
+      23      80
    }
 
    method 'getMetaClass ()Lgroovy/lang/MetaClass;' {
-      0      87
-      1      87
-      2      87
-      3      87
-      5      88
-      8      89
-      a      91
-      c      91
-      d      91
-      e      91
-      f      91
-      10      91
-      11      91
-      12      92
-      13      92
-      14      92
-      15      92
-      16      92
+      0      86
+      1      86
+      2      86
+      3      86
+      5      86
+      8      87
+      a      89
+      c      89
+      d      89
+      e      89
+      f      89
+      10      89
+      11      89
+      12      90
+      13      90
+      14      90
+      15      90
+      16      90
    }
 
    method 'setMetaClass (Lgroovy/lang/MetaClass;)V' {
-      0      99
-      1      99
-      2      99
-      3      99
-      4      99
-      5      100
+      0      97
+      1      97
+      2      97
+      3      97
+      4      97
+      5      98
    }
 }
 
 class 'pkg/TestGroovyClass$Nested' {
    method '<init> ()V' {
-      1      106
-      2      106
-      3      106
-      4      106
-      6      107
-      7      107
-      8      107
-      9      108
-      a      108
-      b      108
-      c      108
-      d      108
-      e      109
-      f      109
-      11      109
-      12      109
-      13      109
-      16      110
+      1      104
+      2      104
+      3      104
+      4      104
+      6      105
+      7      105
+      8      105
+      9      106
+      a      106
+      b      106
+      c      106
+      d      106
+      e      107
+      f      107
+      11      107
+      12      107
+      13      107
+      16      108
    }
 
    method 'getMetaClass ()Lgroovy/lang/MetaClass;' {
-      0      116
-      1      116
-      2      116
-      3      116
-      5      117
-      8      118
-      a      120
-      c      120
-      d      120
-      e      120
-      f      120
-      10      120
-      11      120
-      12      121
-      13      121
-      14      121
-      15      121
-      16      121
+      0      114
+      1      114
+      2      114
+      3      114
+      5      114
+      8      115
+      a      117
+      c      117
+      d      117
+      e      117
+      f      117
+      10      117
+      11      117
+      12      118
+      13      118
+      14      118
+      15      118
+      16      118
    }
 
    method 'setMetaClass (Lgroovy/lang/MetaClass;)V' {
-      0      128
-      1      128
-      2      128
-      3      128
-      4      128
-      5      129
+      0      125
+      1      125
+      2      125
+      3      125
+      4      125
+      5      126
    }
 }
 
 class 'pkg/TestGroovyClass$_closure1' {
    method '<init> (Ljava/lang/Object;Ljava/lang/Object;)V' {
-      1      134
-      2      134
-      3      134
-      4      134
-      6      135
-      7      135
-      8      135
-      9      135
-      a      135
-      b      136
+      1      131
+      2      131
+      3      131
+      4      131
+      6      132
+      7      132
+      8      132
+      9      132
+      a      132
+      b      133
    }
 
    method 'doCall (Ljava/lang/Object;)Ljava/lang/Object;' {
-      1      139
-      2      139
-      3      139
-      4      139
-      5      140
-      6      140
-      7      140
-      8      140
-      9      140
-      a      140
-      b      140
-      c      140
-      d      140
-      e      140
-      f      140
-      10      140
-      11      140
+      1      136
+      2      136
+      3      136
+      4      136
+      5      137
+      6      137
+      7      137
+      8      137
+      9      137
+      a      137
+      b      137
+      c      137
+      d      137
+      e      137
+      f      137
+      10      137
+      11      137
    }
 
    method 'doCall ()Ljava/lang/Object;' {
-      1      145
-      2      145
-      3      145
-      4      145
-      5      146
-      6      146
-      7      146
-      8      146
-      9      146
-      a      146
+      1      142
+      2      142
+      3      142
+      4      142
+      5      143
+      6      143
+      7      143
+      8      143
+      9      143
+      a      143
    }
 }
 
 class 'pkg/TestGroovyClass$_closure2' {
    method '<init> (Ljava/lang/Object;Ljava/lang/Object;)V' {
-      1      152
-      2      152
-      3      152
-      4      152
-      6      153
-      7      153
-      8      153
-      9      153
-      a      153
-      b      154
+      1      149
+      2      149
+      3      149
+      4      149
+      6      150
+      7      150
+      8      150
+      9      150
+      a      150
+      b      151
    }
 
    method 'doCall (Ljava/lang/Object;)Ljava/lang/Object;' {
-      1      157
-      2      157
-      3      157
-      4      157
-      5      158
-      6      158
-      7      158
+      1      154
+      2      154
+      3      154
+      4      154
+      5      155
+      6      155
+      7      155
    }
 
    method 'doCall ()Ljava/lang/Object;' {
-      1      163
-      2      163
-      3      163
-      4      163
-      5      164
-      6      164
-      7      164
-      8      164
-      9      164
-      a      164
+      1      160
+      2      160
+      3      160
+      4      160
+      5      161
+      6      161
+      7      161
+      8      161
+      9      161
+      a      161
    }
 }
 
 Lines mapping:
 9 <-> 24
 10 <-> 26
-11 <-> 141
-12 <-> 159
+11 <-> 138
+12 <-> 156

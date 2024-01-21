@@ -2,18 +2,18 @@ package pkg;
 
 public class TestDuplicateSwitchLocals {
    void test(int foo) {
-      switch(foo) {// 5
+      switch (foo) {// 5
          case 0:
             int x = 10;// 7
 
-            for(int i = 0; i < x; ++i) {// 8
+            for (int i = 0; i < x; i++) {// 8
                System.out.println(i);
             }
             break;
          case 1:
             int y = 11;// 11
 
-            for(int i = 0; i < y; ++i) {// 12
+            for (int i = 0; i < y; i++) {// 12
                System.out.println(i);
             }
             break;

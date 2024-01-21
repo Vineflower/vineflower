@@ -1,21 +1,52 @@
 package pkg;
 
+import java.util.Map;
+import java.util.Optional;
+
 public abstract class TestGenericNull<T> {
    public abstract T get();
 
+   public Object doThing(Map<Integer, Optional<T>> map) {
+      return map.get(0).orElse(null);// 18
+   }
+
    public class Int extends TestGenericNull<Integer> {
       public Integer get() {
-         return null;// 10
+         return null;// 13
       }
+   }
+}
+
+class 'pkg/TestGenericNull' {
+   method 'doThing (Ljava/util/Map;)Ljava/lang/Object;' {
+      0      9
+      1      9
+      2      9
+      3      9
+      4      9
+      5      9
+      6      9
+      7      9
+      8      9
+      9      9
+      a      9
+      b      9
+      c      9
+      d      9
+      e      9
+      f      9
+      10      9
+      11      9
    }
 }
 
 class 'pkg/TestGenericNull$Int' {
    method 'get ()Ljava/lang/Integer;' {
-      0      7
-      1      7
+      0      14
+      1      14
    }
 }
 
 Lines mapping:
-10 <-> 8
+13 <-> 15
+18 <-> 10

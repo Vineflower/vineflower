@@ -4,7 +4,7 @@ public class TestWhileTernary9 {
    public void test(boolean condition, boolean a, boolean b) {
       int i = 0;// 5
 
-      while(condition ? a : b) {// 6
+      while (condition ? a : b) {// 6
          if (++i == 8) {// 7 9
             break;
          }
@@ -15,7 +15,7 @@ public class TestWhileTernary9 {
       if (Math.random() > 0.5) {// 16
          int i = 0;// 17
 
-         while(condition ? a : b) {// 18
+         while (condition ? a : b) {// 18
             if (++i == 8) {// 19 21
                break;
             }
@@ -27,7 +27,7 @@ public class TestWhileTernary9 {
       if (Math.random() > 0.5) {// 29
          int i = 0;// 30
 
-         while(condition ? a : b) {// 31
+         while (condition ? a : b) {// 31
             if (++i == 8) {// 32 34
                break;
             }

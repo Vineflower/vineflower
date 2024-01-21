@@ -7,7 +7,7 @@ class TestSwitchPatternMatchingFuzz1 {
       Object var10000 = new Object();
       Objects.requireNonNull(var10000);// 7
       Object var1 = var10000;
-      switch(var1) {
+      switch (var1) {
          case Double var14:
             Double l = (Double)var1;// 10
             long[] var4 = new long[0];// 11

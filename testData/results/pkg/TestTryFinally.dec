@@ -8,6 +8,30 @@ public class TestTryFinally {
          long var4 = 5L;// 8
       }
    }// 9
+
+   public void test1() {
+      try {
+         System.out.println("Hello");// 14
+      } finally {
+         System.out.println("Finally");
+      }
+
+      System.out.println("Bye");// 16 17 19
+   }
+
+   public void test2(int i) {
+      try {
+         System.out.println("Hello");// 25
+      } finally {
+         System.out.println("Finally");// 27
+         if (i > 0) {// 28
+            System.out.println(i);// 29
+            return;// 30
+         }
+      }
+
+      System.out.println("Bye");// 34
+   }// 35
 }
 
 class 'pkg/TestTryFinally' {
@@ -25,11 +49,89 @@ class 'pkg/TestTryFinally' {
       13      7
       14      7
    }
+
+   method 'test1 ()V' {
+      0      13
+      1      13
+      2      13
+      3      13
+      4      13
+      5      13
+      10      18
+      11      18
+      12      18
+      13      18
+      14      15
+      15      15
+      16      15
+      17      15
+      18      15
+      19      15
+      1a      18
+      1b      18
+      1c      18
+      1d      18
+      1e      18
+      1f      18
+      20      18
+      21      18
+      22      18
+      23      19
+   }
+
+   method 'test2 (I)V' {
+      0      23
+      1      23
+      2      23
+      3      23
+      4      23
+      5      23
+      1d      25
+      1e      25
+      1f      25
+      20      25
+      21      25
+      22      25
+      23      25
+      24      25
+      25      26
+      26      26
+      29      27
+      2a      27
+      2b      27
+      2c      27
+      2d      27
+      2e      27
+      2f      27
+      30      28
+      33      32
+      34      32
+      35      32
+      36      32
+      37      32
+      38      32
+      39      32
+      3a      32
+      3b      33
+   }
 }
 
 Lines mapping:
 6 <-> 6
 8 <-> 8
 9 <-> 10
+14 <-> 14
+16 <-> 19
+17 <-> 19
+19 <-> 19
+25 <-> 24
+27 <-> 26
+28 <-> 27
+29 <-> 28
+30 <-> 29
+34 <-> 33
+35 <-> 34
 Not mapped:
 10
+20
+32

@@ -5,9 +5,9 @@ public class TestWhileTernary1 {
       if (a <= 0) {// 5
          return 0;// 13
       } else {
-         while(condition ? a < b : b > a) {// 6
+         while (condition ? a < b : b > a) {// 6
             System.out.println(a * b);// 7
-            ++a;// 8
+            a++;// 8
          }
 
          return 1;// 11

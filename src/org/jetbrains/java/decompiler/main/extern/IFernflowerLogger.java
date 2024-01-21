@@ -3,6 +3,18 @@ package org.jetbrains.java.decompiler.main.extern;
 
 public abstract class IFernflowerLogger {
 
+  public static final IFernflowerLogger NO_OP = new IFernflowerLogger() {
+    @Override
+    public void writeMessage(String message, Severity severity) {
+
+    }
+
+    @Override
+    public void writeMessage(String message, Severity severity, Throwable t) {
+
+    }
+  };
+
   public enum Severity {
     TRACE("TRACE: "), INFO("INFO:  "), WARN("WARN:  "), ERROR("ERROR: ");
 

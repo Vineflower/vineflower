@@ -2,8 +2,8 @@ package pkg;
 
 public class TestSynchronizedMapping {
    public int test(int a) {
-      synchronized(this) {// 8
-         ++a;// 9
+      synchronized (this) {// 8
+         a++;// 9
       }// 10
 
       return a++;// 11

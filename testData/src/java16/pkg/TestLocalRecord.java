@@ -28,4 +28,14 @@ public class TestLocalRecord {
     record R() {}
     Supplier<R> constr = () -> new R();
   }
+
+  public Supplier<Supplier<Object>> test5() {
+    record R() {}
+    return () -> R::new;
+  }
+
+  public Supplier<Object> test6() {
+    record R() {}
+    return R::new;
+  }
 }

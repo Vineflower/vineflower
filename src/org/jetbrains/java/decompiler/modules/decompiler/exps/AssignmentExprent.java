@@ -9,7 +9,11 @@ import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
+import org.jetbrains.java.decompiler.modules.decompiler.sforms.SFormsConstructor;
+import org.jetbrains.java.decompiler.modules.decompiler.sforms.VarMapHolder;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
+import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.struct.StructField;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
@@ -18,6 +22,7 @@ import org.jetbrains.java.decompiler.struct.gen.generics.GenericMethodDescriptor
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.TextBuffer;
+import org.jetbrains.java.decompiler.util.collections.SFormsFastMapDirect;
 
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -44,7 +49,10 @@ public class AssignmentExprent extends Exprent {
 
   @Override
   public VarType getExprType() {
-    return left.getExprType();
+    // Union together types
+    VarType rType = VarType.getCommonSupertype(left.getExprType(), right.getExprType());
+    // TODO: maybe there's a better default for null
+    return rType == null ? left.getExprType() : rType;
   }
 
   @Override
@@ -59,10 +67,9 @@ public class AssignmentExprent extends Exprent {
     VarType typeLeft = left.getExprType();
     VarType typeRight = right.getExprType();
 
-    if (typeLeft.typeFamily > typeRight.typeFamily) {
+    if (typeLeft.typeFamily.isGreater(typeRight.typeFamily)) {
       result.addMinTypeExprent(right, VarType.getMinTypeInFamily(typeLeft.typeFamily));
-    }
-    else if (typeLeft.typeFamily < typeRight.typeFamily) {
+    } else if (typeLeft.typeFamily.isLesser(typeRight.typeFamily)) {
       result.addMinTypeExprent(left, typeRight);
     }
     else {
@@ -92,12 +99,11 @@ public class AssignmentExprent extends Exprent {
   @Override
   public TextBuffer toJava(int indent) {
     VarType leftType = left.getInferredExprType(null);
-    VarType rightType = right.getInferredExprType(leftType);
 
     boolean fieldInClassInit = false, hiddenField = false;
     if (left instanceof FieldExprent) { // first assignment to a final field. Field name without "this" in front of it
       FieldExprent field = (FieldExprent) left;
-      ClassNode node = ((ClassNode) DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS_NODE));
+      ClassNode node = ((ClassNode) DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE));
       if (node != null) {
         StructField fd = node.classStruct.getField(field.getName(), field.getDescriptor().descriptorString);
         if (fd != null) {
@@ -118,7 +124,8 @@ public class AssignmentExprent extends Exprent {
     TextBuffer buffer = new TextBuffer();
 
     if (fieldInClassInit) {
-      buffer.append(((FieldExprent) left).getName());
+      FieldExprent field = (FieldExprent) left;
+      buffer.appendField(field.getName(), false, field.getClassname(), field.getName(), field.getDescriptor());
     } else {
       buffer.append(left.toJava(indent));
     }
@@ -128,18 +135,28 @@ public class AssignmentExprent extends Exprent {
     }
 
     this.optimizeCastForAssign();
-    TextBuffer res = right.toJava(indent);
-
-    if (condType == null) {
-      this.wrapInCast(leftType, rightType, res, right.getPrecedence());
-    }
 
     if (condType == null) {
       buffer.append(" = ");
+
+      // We must lock the collector: this prevents the retrieval of the cast type name to impact the import list.
+      // This is fine as we're only using the cast type name to ensure that it's not the unrepresentable type.
+      String castName;
+      try (var lock = DecompilerContext.getImportCollector().lock()) {
+        castName = ExprProcessor.getCastTypeName(leftType);
+      }
+
+      if (castName.equals(ExprProcessor.UNREPRESENTABLE_TYPE_STRING)) {
+        // Unrepresentable, go ahead and just put the type on the right. The lhs (if a variable) should know about its type and change itself to "var" accordingly.
+        buffer.append(right.toJava(indent));
+      } else {
+        // Cast with the left type
+        ExprProcessor.getCastedExprent(right, leftType, buffer, indent, ExprProcessor.NullCastType.DONT_CAST_AT_ALL, false, false, false);
+      }
     } else {
       buffer.append(" ").append(condType.operator).append("= ");
+      buffer.append(right.toJava(indent));
     }
-    buffer.append(res);
 
     buffer.addStartBytecodeMapping(bytecode);
 
@@ -190,7 +207,7 @@ public class AssignmentExprent extends Exprent {
       return;
     }
 
-    MethodWrapper method = (MethodWrapper) DecompilerContext.getProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
+    MethodWrapper method = (MethodWrapper) DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
     if (method == null) {
       return;
     }
@@ -241,68 +258,6 @@ public class AssignmentExprent extends Exprent {
     }
   }
 
-  private void wrapInCast(VarType left, VarType right, TextBuffer buf, int precedence) {
-    boolean needsCast = !left.isSuperset(right) && (right.equals(VarType.VARTYPE_OBJECT) || left.type != CodeConstants.TYPE_OBJECT);
-
-    if (left.isGeneric() || right.isGeneric()) {
-      Map<VarType, List<VarType>> names = this.getNamedGenerics();
-      int arrayDim = 0;
-
-      if (left.arrayDim == right.arrayDim && left.arrayDim > 0) {
-        arrayDim = left.arrayDim;
-        left = left.resizeArrayDim(0);
-        right = right.resizeArrayDim(0);
-      }
-
-      List<? extends VarType> types = names.get(right);
-      if (types == null) {
-        types = names.get(left);
-      }
-
-      if (types != null) {
-        boolean anyMatch = false; //TODO: allMatch instead of anyMatch?
-        for (VarType type : types) {
-          if (type.equals(VarType.VARTYPE_OBJECT) && right.equals(VarType.VARTYPE_OBJECT)) {
-            continue;
-          }
-          anyMatch |= right.value == null /*null const doesn't need cast*/ || DecompilerContext.getStructContext().instanceOf(right.value, type.value);
-        }
-
-        if (anyMatch) {
-          needsCast = false;
-        }
-      }
-
-      if (arrayDim != 0) {
-        left = left.resizeArrayDim(arrayDim);
-      }
-    }
-
-    if (this.right instanceof FunctionExprent) {
-      FunctionExprent func = (FunctionExprent) this.right;
-      if (func.getFuncType() == FunctionExprent.FunctionType.CAST && func.doesCast()) {
-        // Don't cast if there's already a cast
-        if (func.getLstOperands().get(1).getExprType().equals(left)) {
-          needsCast = false;
-        }
-      }
-    }
-
-    if (!needsCast && ExprProcessor.doesContravarianceNeedCast(left, right)) {
-      needsCast = true;
-    }
-
-    if (!needsCast) {
-      return;
-    }
-
-    if (precedence >= FunctionExprent.FunctionType.CAST.precedence) {
-      buf.encloseWithParens();
-    }
-
-    buf.prepend("(" + ExprProcessor.getCastTypeName(left) + ")");
-  }
-
   @Override
   public void replaceExprent(Exprent oldExpr, Exprent newExpr) {
     if (oldExpr == left) {
@@ -329,6 +284,63 @@ public class AssignmentExprent extends Exprent {
     measureBytecode(values, left);
     measureBytecode(values, right);
     measureBytecode(values);
+  }
+
+  @Override
+  public void processSforms(SFormsConstructor sFormsConstructor, VarMapHolder varMaps, Statement stat, boolean calcLiveVars) {
+    Exprent dest = this.left;
+    switch (dest.type) {
+      case VAR: {
+        final VarExprent destVar = (VarExprent) dest;
+
+        if (this.condType != null) {
+          destVar.processSforms(sFormsConstructor, varMaps, stat, calcLiveVars);
+          this.getRight().processSforms(sFormsConstructor, varMaps, stat, calcLiveVars);
+
+          // make sure we are in normal form (eg `x &= ...`)
+          SFormsFastMapDirect varMap = varMaps.toNormal();
+
+          varMap.setCurrentVar(sFormsConstructor.getOrCreatePhantom(destVar.getVarVersionPair()));
+        } else {
+          this.getRight().processSforms(sFormsConstructor, varMaps, stat, calcLiveVars);
+          sFormsConstructor.updateVarExprent(destVar, stat, varMaps.toNormal(), calcLiveVars);
+
+          if (sFormsConstructor.trackDirectAssignments) {
+            switch (this.right.type) {
+              case VAR: {
+                VarVersionPair rightpaar = ((VarExprent) this.right).getVarVersionPair();
+                sFormsConstructor.markDirectAssignment(destVar.getVarVersionPair(), rightpaar);
+                break;
+              }
+              case FIELD: {
+                int index = sFormsConstructor.getFieldIndex((FieldExprent) this.right);
+                VarVersionPair rightpaar = new VarVersionPair(index, 0);
+                sFormsConstructor.markDirectAssignment(destVar.getVarVersionPair(), rightpaar);
+                break;
+              }
+            }
+          }
+        }
+
+        return;
+      }
+      case FIELD: {
+        this.getLeft().processSforms(sFormsConstructor, varMaps, stat, calcLiveVars);
+        varMaps.assertIsNormal(); // the left side of an assignment can't be a boolean expression
+        this.getRight().processSforms(sFormsConstructor, varMaps, stat, calcLiveVars);
+        varMaps.toNormal();
+        varMaps.getNormal().removeAllFields();
+        // assignment to a field resets all fields. (could be more precise, but this is easier)
+        return;
+      }
+      default: {
+        this.getLeft().processSforms(sFormsConstructor, varMaps, stat, calcLiveVars);
+        varMaps.assertIsNormal(); // the left side of an assignment can't be a boolean expression
+        this.getRight().processSforms(sFormsConstructor, varMaps, stat, calcLiveVars);
+        varMaps.toNormal();
+        return;
+      }
+    }
   }
 
   // *****************************************************************************

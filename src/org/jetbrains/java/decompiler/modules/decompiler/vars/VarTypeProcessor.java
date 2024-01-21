@@ -3,12 +3,15 @@ package org.jetbrains.java.decompiler.modules.decompiler.vars;
 
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructMethod;
+import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
+import org.jetbrains.java.decompiler.struct.gen.TypeFamily;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 
 import java.util.HashMap;
@@ -39,6 +42,8 @@ public class VarTypeProcessor {
 
     //noinspection StatementWithEmptyBody
     while (!processVarTypes(graph)) ;
+
+    ValidationHelper.validateVars(graph, root, var -> var.getVarType() != VarType.VARTYPE_UNKNOWN, "Var type not set!");
   }
 
   private void setInitVars(RootStatement root) {
@@ -47,8 +52,8 @@ public class VarTypeProcessor {
     MethodDescriptor md = methodDescriptor;
 
     if (thisVar) {
-      StructClass cl = (StructClass)DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS);
-      VarType clType = new VarType(CodeConstants.TYPE_OBJECT, 0, cl.qualifiedName);
+      StructClass cl = (StructClass)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS);
+      VarType clType = new VarType(CodeType.OBJECT, 0, cl.qualifiedName);
       mapExprentMinTypes.put(new VarVersionPair(0, 1), clType);
       mapExprentMaxTypes.put(new VarVersionPair(0, 1), clType);
     }
@@ -96,7 +101,7 @@ public class VarTypeProcessor {
         }
         else if (expr instanceof ConstExprent) {
           ConstExprent constExpr = (ConstExprent)expr;
-          if (constExpr.getConstType().typeFamily == CodeConstants.TYPE_FAMILY_INTEGER) {
+          if (constExpr.getConstType().typeFamily == TypeFamily.INTEGER) {
             constExpr.setConstType(new ConstExprent(constExpr.getIntValue(), constExpr.isBoolPermitted(), null).getConstType());
           }
         }
@@ -124,7 +129,7 @@ public class VarTypeProcessor {
   private boolean checkTypeExpr(Exprent exprent) {
     if (exprent instanceof ConstExprent) {
       ConstExprent constExpr = (ConstExprent) exprent;
-      if (constExpr.getConstType().typeFamily <= CodeConstants.TYPE_FAMILY_INTEGER) { // boolean or integer
+      if (constExpr.getConstType().typeFamily.isLesserOrEqual(TypeFamily.INTEGER)) { // boolean or integer
         VarVersionPair pair = new VarVersionPair(constExpr.id, -1);
         if (!mapExprentMinTypes.containsKey(pair)) {
           mapExprentMinTypes.put(pair, constExpr.getConstType());
@@ -137,7 +142,7 @@ public class VarTypeProcessor {
     boolean res = true;
     if (result != null) {
       for (CheckTypesResult.ExprentTypePair entry : result.getLstMaxTypeExprents()) {
-        if (entry.type.typeFamily != CodeConstants.TYPE_FAMILY_OBJECT) {
+        if (entry.type.typeFamily != TypeFamily.OBJECT) {
           changeExprentType(entry.exprent, entry.type, 1);
         }
       }
@@ -159,10 +164,10 @@ public class VarTypeProcessor {
         ConstExprent constExpr = (ConstExprent)exprent;
         VarType constType = constExpr.getConstType();
 
-        if (newType.typeFamily > CodeConstants.TYPE_FAMILY_INTEGER || constType.typeFamily > CodeConstants.TYPE_FAMILY_INTEGER) {
+        if (newType.typeFamily.isGreater(TypeFamily.INTEGER) || constType.typeFamily.isGreater(TypeFamily.INTEGER)) {
           return true;
         }
-        else if (newType.typeFamily == CodeConstants.TYPE_FAMILY_INTEGER) {
+        else if (newType.typeFamily == TypeFamily.INTEGER) {
           VarType minInteger = new ConstExprent((Integer)constExpr.getValue(), false, null).getConstType();
           if (minInteger.isStrictSuperset(newType)) {
             newType = minInteger;
@@ -186,9 +191,9 @@ public class VarTypeProcessor {
     if (minMax == 0) { // min
       VarType currentMinType = mapExprentMinTypes.get(pair);
       VarType newMinType;
-      if (currentMinType == null || newType.typeFamily > currentMinType.typeFamily) {
+      if (currentMinType == null || newType.typeFamily.isGreater(currentMinType.typeFamily)) {
         newMinType = newType;
-      } else if (newType.typeFamily < currentMinType.typeFamily) {
+      } else if (newType.typeFamily.isLesser(currentMinType.typeFamily)) {
         return true;
       } else {
         newMinType = VarType.getCommonSupertype(currentMinType, newType);
@@ -199,15 +204,15 @@ public class VarTypeProcessor {
         ((ConstExprent) exprent).setConstType(newMinType);
       }
 
-      if (currentMinType != null && (newMinType.typeFamily > currentMinType.typeFamily || newMinType.isStrictSuperset(currentMinType))) {
+      if (currentMinType != null && (newMinType.typeFamily.isGreater(currentMinType.typeFamily) || newMinType.isStrictSuperset(currentMinType))) {
         return false;
       }
     } else {  // max
       VarType currentMaxType = mapExprentMaxTypes.get(pair);
       VarType newMaxType;
-      if (currentMaxType == null || newType.typeFamily < currentMaxType.typeFamily) {
+      if (currentMaxType == null || newType.typeFamily.isLesser(currentMaxType.typeFamily)) {
         newMaxType = newType;
-      } else if (newType.typeFamily > currentMaxType.typeFamily) {
+      } else if (newType.typeFamily.isGreater(currentMaxType.typeFamily)) {
         return true;
       } else {
         newMaxType = VarType.getCommonMinType(currentMaxType, newType);

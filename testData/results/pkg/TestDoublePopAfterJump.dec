@@ -8,7 +8,7 @@ public final class TestDoublePopAfterJump {
       int var10001 = var1;// 26
       int var10002 = var2;// 27
 
-      for(int var10003 = 0; var10002 > var10003; var10003 += 1) {// 28 31 38
+      for (byte var10003 = 0; var10002 > var10003; var10003 += 1) {// 28 31 38
          int var10004 = var10000 + var10001;// 35
          var10000 = var10001;
          var10001 = var10004;
@@ -21,7 +21,7 @@ public final class TestDoublePopAfterJump {
       PrintStream var10000 = System.out;// 53
       int var10001 = 0;// 54
 
-      while(var10001 - 100 <= 0) {// 57 58 59
+      while (var10001 - 100 <= 0) {// 57 58 59
          var10001 += 1;// 60
          if (var10001 % 3 == 0) {// 63 64 65
             var10000.print("Fizz");// 69 70
@@ -52,7 +52,7 @@ public final class TestDoublePopAfterJump {
       boolean var10000 = false;// 115
       byte var10001 = 0;// 116
 
-      while(var10001 <= 0) {// 119
+      while (var10001 <= 0) {// 119
       }
    }// 124
 }

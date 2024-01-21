@@ -1,0 +1,37 @@
+package pkg;
+
+public class TestObjectPhi {
+   public Object example(boolean bool) {
+      Object value = "";// 5
+      if (bool) {// 7
+         value = null;// 8
+      } else {
+         value = null;// 11
+      }
+
+      return value;// 14
+   }
+}
+
+class 'pkg/TestObjectPhi' {
+   method 'example (Z)Ljava/lang/Object;' {
+      0      4
+      1      4
+      2      4
+      3      5
+      4      5
+      7      6
+      8      6
+      c      8
+      d      8
+      e      11
+      f      11
+   }
+}
+
+Lines mapping:
+5 <-> 5
+7 <-> 6
+8 <-> 7
+11 <-> 9
+14 <-> 12

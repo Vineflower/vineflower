@@ -4,13 +4,13 @@ public class TestLocalScopes {
    public void test() {
       int i = 0;// 6
 
-      for(int j = 0; j < 10; ++j) {// 7
+      for (int j = 0; j < 10; j++) {// 7
          i += j;// 8
       }
 
       i = 0;// 13
 
-      for(int j = 0; j < 10; ++j) {// 14
+      for (int j = 0; j < 10; j++) {// 14
          i += j;// 15
       }
    }// 18

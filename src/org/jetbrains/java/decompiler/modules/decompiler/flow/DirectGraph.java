@@ -1,16 +1,14 @@
 // Copyright 2000-2017 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler.flow;
 
-import org.jetbrains.java.decompiler.api.FlattenedGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
-import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper.FinallyPathWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.DummyExitStatement;
-import org.jetbrains.java.decompiler.util.VBStyleCollection;
+import org.jetbrains.java.decompiler.util.collections.VBStyleCollection;
 
 import java.util.*;
 
 
-public class DirectGraph implements FlattenedGraph {
+public class DirectGraph {
 
   public final VBStyleCollection<DirectNode, String> nodes = new VBStyleCollection<>();
 
@@ -18,24 +16,15 @@ public class DirectGraph implements FlattenedGraph {
 
   public DirectNode first;
 
-  // exit, [source, destination]
-  public final HashMap<String, List<FinallyPathWrapper>> mapShortRangeFinallyPaths = new HashMap<>();
-
-  // exit, [source, destination]
-  public final HashMap<String, List<FinallyPathWrapper>> mapLongRangeFinallyPaths = new HashMap<>();
-
   // negative if branches (recorded for handling of && and ||)
   public final HashMap<String, String> mapNegIfBranch = new HashMap<>();
 
   // nodes, that are exception exits of a finally block with monitor variable
   public final HashMap<String, String> mapFinallyMonitorExceptionPathExits = new HashMap<>();
 
-  // statement.id, node.id(direct), node.id(continue)
-  public final Map<Integer, String[]> mapDestinationNodes = new HashMap<>();
-
 
   public void sortReversePostOrder() {
-    LinkedList<DirectNode> res = new LinkedList<>();
+    Deque<DirectNode> res = new ArrayDeque<>();
     addToReversePostOrderListIterative(this.first, res);
 
     // Include unreachable nodes in the graph structure
@@ -59,7 +48,7 @@ public class DirectGraph implements FlattenedGraph {
     }
   }
 
-  private static void addToReversePostOrderListIterative(DirectNode root, List<? super DirectNode> lst) {
+  private static void addToReversePostOrderListIterative(DirectNode root, Deque<? super DirectNode> lst) {
 
     LinkedList<DirectNode> stackNode = new LinkedList<>();
     LinkedList<Integer> stackIndex = new LinkedList<>();
@@ -76,8 +65,8 @@ public class DirectGraph implements FlattenedGraph {
 
       setVisited.add(node);
 
-      for (; index < node.succs().size(); index++) {
-        DirectNode succ = node.succs().get(index);
+      for (; index < node.getSuccessors(DirectEdgeType.REGULAR).size(); index++) {
+        DirectNode succ = node.getSuccessors(DirectEdgeType.REGULAR).get(index).getDestination();
 
         if (!setVisited.contains(succ)) {
           stackIndex.add(index + 1);
@@ -89,8 +78,8 @@ public class DirectGraph implements FlattenedGraph {
         }
       }
 
-      if (index == node.succs().size()) {
-        lst.add(0, node);
+      if (index == node.getSuccessors(DirectEdgeType.REGULAR).size()) {
+        lst.addFirst(node);
 
         stackNode.removeLast();
       }
@@ -127,7 +116,9 @@ public class DirectGraph implements FlattenedGraph {
         }
       }
 
-      stack.addAll(node.succs());
+      for (DirectEdge suc : node.getSuccessors(DirectEdgeType.REGULAR)) {
+        stack.add(suc.getDestination());
+      }
     }
 
     return true;

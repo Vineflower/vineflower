@@ -1,0 +1,61 @@
+import org.vineflower.build.TestDataRuntimesProvider
+
+archivesBaseName = 'vineflower-variable-renaming'
+
+dependencies {
+  implementation project(":")
+  testImplementation testFixtures(project(":"))
+}
+
+task testDataClasses {
+  group = 'build'
+}
+testClasses.dependsOn(testDataClasses)
+
+void createJavaTestDataSet(int version, String suffix = "", List<String> compilerArgs = []) {
+  sourceSets.create("testDataJava${version}${suffix}") {
+    it.java.srcDirs file("testData/src/java${version}${suffix.toLowerCase()}")
+  }
+  tasks.getByName("compileTestDataJava${version}${suffix}Java") {
+    destinationDirectory = file("testData/classes/java${version}${suffix.toLowerCase()}")
+    if (project.isArm && version > 8 && version < 11) {
+      // On ARM systems, a more limited set of JVM versions are available
+      // We'll accept the `--release` flag so development is at least somewhat possible
+      javaCompiler = javaToolchains.compilerFor {
+        languageVersion = JavaLanguageVersion.of(11)
+      }
+      options.release = version
+    } else {
+      javaCompiler = javaToolchains.compilerFor {
+        languageVersion = JavaLanguageVersion.of(version)
+      }
+    }
+
+    options.compilerArgs = compilerArgs
+  }
+  testDataClasses.dependsOn("testDataJava${version}${suffix}Classes")
+}
+
+def testJavaRuntimes = [:]
+
+[8].forEach { version ->
+  def runtimeVersion = isArm && version > 8 && version < 11 ? 11 : version
+  createJavaTestDataSet(version)
+  testJavaRuntimes[version] = javaToolchains.launcherFor {
+    languageVersion = JavaLanguageVersion.of(runtimeVersion)
+  }
+}
+
+test {
+  maxHeapSize = "512M"
+
+  systemProperty "DOT_EXPORT_DIR", System.getProperty("DOT_EXPORT_DIR", null)
+  systemProperty "DOT_ERROR_EXPORT_DIR", System.getProperty("DOT_ERROR_EXPORT_DIR", null)
+  systemProperty "VALIDATE_DECOMPILED_CODE", System.getProperty("VALIDATE_DECOMPILED_CODE", "false")
+
+  def provider = objects.newInstance(TestDataRuntimesProvider)
+  testJavaRuntimes.each { k, v ->
+    provider.launchers.put(k, v)
+  }
+  jvmArgumentProviders << provider
+}

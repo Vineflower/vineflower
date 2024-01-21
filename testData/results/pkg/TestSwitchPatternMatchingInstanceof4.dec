@@ -1,117 +1,85 @@
 package pkg;
 
-import java.lang.runtime.SwitchBootstraps;
 import java.util.Objects;
 
 public class TestSwitchPatternMatchingInstanceof4 {
    public void test(Object o) {
       Objects.requireNonNull(o);// 5
-      Object var2 = o;
-      byte var3 = 0;
-
-      while(true) {
-         switch(SwitchBootstraps.typeSwitch<"typeSwitch",String>(var2, var3)) {
-            case 0:
-               String s = (String)var2;// 6
-               if (o instanceof Class clzz) {
-                  Object var7 = clzz.getSigners()[0];
-                  if (var7 instanceof Class c2) {
-                     System.out.println("" + clzz + c2);
-                     return;// 9
-                  }
-               }
-
-               var3 = 1;
-               break;
-            default:
-               System.out.println("Default");// 7
-               return;
-         }
+      switch (o) {
+         case String s when o instanceof Class<?> clzz && clzz.getSigners()[0] instanceof Class<?> c2:// 6
+            System.out.println("" + clzz + c2);
+            break;
+         default:
+            System.out.println("Default");// 7
       }
-   }
+   }// 9
 }
 
 class 'pkg/TestSwitchPatternMatchingInstanceof4' {
    method 'test (Ljava/lang/Object;)V' {
-      0      7
-      2      7
-      3      7
-      4      7
-      6      8
-      7      9
-      8      9
-      9      12
-      a      12
-      b      12
-      c      12
-      d      12
-      e      12
-      f      12
-      10      12
-      24      14
-      25      14
-      26      14
-      27      14
-      28      14
-      29      14
-      2a      15
-      2b      15
-      2c      15
-      2d      15
-      2e      15
-      35      15
-      36      15
-      37      16
-      38      16
-      39      16
-      3a      16
-      3b      16
-      3c      16
-      3d      16
-      3e      16
-      3f      16
-      40      17
-      41      17
-      42      17
-      43      17
-      44      17
-      45      17
-      4d      17
-      4e      17
-      4f      18
-      50      18
-      51      18
-      52      18
-      53      18
-      54      18
-      55      18
-      56      18
-      57      18
-      58      18
-      59      18
-      5a      18
-      5b      18
-      5c      18
-      5d      18
-      5e      18
-      5f      18
-      60      18
-      61      18
-      62      18
-      69      26
-      6a      26
-      6b      26
-      6c      26
-      6d      26
-      6e      26
-      6f      26
-      70      26
-      74      19
+      0      6
+      2      6
+      3      6
+      4      6
+      9      7
+      10      7
+      28      8
+      29      8
+      2a      8
+      2b      8
+      2c      8
+      2d      8
+      2e      8
+      35      8
+      36      8
+      37      8
+      38      8
+      39      8
+      3a      8
+      3b      8
+      3c      8
+      3d      8
+      42      8
+      43      8
+      44      8
+      45      8
+      4d      8
+      4e      8
+      4f      9
+      50      9
+      51      9
+      52      9
+      53      9
+      54      9
+      55      9
+      56      9
+      57      9
+      58      9
+      59      9
+      5a      9
+      5b      9
+      5c      9
+      5d      9
+      5e      9
+      5f      9
+      60      9
+      61      9
+      62      9
+      66      10
+      69      12
+      6a      12
+      6b      12
+      6c      12
+      6d      12
+      6e      12
+      6f      12
+      70      12
+      74      14
    }
 }
 
 Lines mapping:
-5 <-> 8
-6 <-> 15
-7 <-> 27
-9 <-> 20
+5 <-> 7
+6 <-> 9
+7 <-> 13
+9 <-> 15

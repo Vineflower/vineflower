@@ -15,18 +15,40 @@ public class TestCastObjectToPrimitive {
    boolean integerGe = (Integer)object1 <= 48;
 
    public void method() {
-      if (object1) {// 20
+      if ((Boolean)object1) {// 20
          System.out.println("Test");// 21
       }
 
-      while(!object1) {// 23
+      while (!(Boolean)object1) {// 23
          System.out.println("Test2");// 24
       }
 
-      while(object1) {// 26
+      while ((Boolean)object1) {// 26
          System.out.println("Test3");// 27
       }
    }// 29
+
+   public void compound1() {
+      if (this.getObj() == null || !(Boolean)this.getObj()) {// 32
+         ;
+      }
+   }// 33 35
+
+   public void compound2() {
+      if (this.getObj() == null || !(Boolean)this.getObj()) {// 38
+         ;
+      }
+   }// 39 41
+
+   public void compound3() {
+      if (!(Boolean)this.getObj()) {// 44
+         ;
+      }
+   }// 45 47
+
+   public Object getObj() {
+      return new Object();// 50
+   }
 }
 
 class 'pkg/TestCastObjectToPrimitive' {
@@ -34,6 +56,9 @@ class 'pkg/TestCastObjectToPrimitive' {
       0      17
       1      17
       2      17
+      3      17
+      4      17
+      5      17
       6      17
       7      17
       8      17
@@ -47,6 +72,9 @@ class 'pkg/TestCastObjectToPrimitive' {
       14      21
       15      21
       16      21
+      17      21
+      18      21
+      19      21
       1a      21
       1b      21
       1c      21
@@ -62,6 +90,9 @@ class 'pkg/TestCastObjectToPrimitive' {
       2b      25
       2c      25
       2d      25
+      2e      25
+      2f      25
+      30      25
       31      25
       32      25
       33      25
@@ -75,6 +106,68 @@ class 'pkg/TestCastObjectToPrimitive' {
       3e      26
       42      28
    }
+
+   method 'compound1 ()V' {
+      0      31
+      1      31
+      2      31
+      3      31
+      4      31
+      7      31
+      8      31
+      9      31
+      a      31
+      b      31
+      c      31
+      d      31
+      e      31
+      f      31
+      10      31
+      11      31
+      14      34
+      15      34
+   }
+
+   method 'compound2 ()V' {
+      0      37
+      1      37
+      2      37
+      3      37
+      4      37
+      7      37
+      8      37
+      9      37
+      a      37
+      b      37
+      c      37
+      d      37
+      e      37
+      f      37
+      10      37
+      11      37
+      14      40
+      15      40
+   }
+
+   method 'compound3 ()V' {
+      0      43
+      1      43
+      2      43
+      3      43
+      4      43
+      5      43
+      6      43
+      7      43
+      8      43
+      9      43
+      a      43
+      d      46
+      e      46
+   }
+
+   method 'getObj ()Ljava/lang/Object;' {
+      7      49
+   }
 }
 
 Lines mapping:
@@ -85,3 +178,13 @@ Lines mapping:
 26 <-> 26
 27 <-> 27
 29 <-> 29
+32 <-> 32
+33 <-> 35
+35 <-> 35
+38 <-> 38
+39 <-> 41
+41 <-> 41
+44 <-> 44
+45 <-> 47
+47 <-> 47
+50 <-> 50

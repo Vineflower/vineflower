@@ -3,6 +3,7 @@ package org.jetbrains.java.decompiler.struct;
 
 import org.jetbrains.java.decompiler.main.ClassWriter;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.main.decompiler.CancelationManager;
 import org.jetbrains.java.decompiler.main.extern.IContextSource;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
@@ -43,6 +44,10 @@ public class ContextUnit {
   }
 
   private void initEntries() {
+    if (this.isLazy()) {
+      return;
+    }
+
     if (!this.entriesInitialized) {
       synchronized (this) {
         if (!this.entriesInitialized) {
@@ -77,6 +82,10 @@ public class ContextUnit {
   public List<String> getClassNames() {
     this.initEntries();
     return this.classEntries;
+  }
+
+  public boolean hasClass(final String className) throws IOException {
+    return this.source.hasClass(className);
   }
 
   public byte/* @Nullable */[] getClassBytes(final String className) throws IOException {
@@ -204,9 +213,9 @@ public class ContextUnit {
         rootContext.logger,
         rootContext.structContext,
         rootContext.classProcessor,
-        rootContext.poolInterceptor,
-        rootContext.renamerFactory
+        rootContext.poolInterceptor
       );
+      current.renamerFactory = rootContext.renamerFactory;
       DecompilerContext.setCurrentContext(current);
     }
   }
@@ -215,7 +224,13 @@ public class ContextUnit {
     for (Future<?> future : futures) {
       try {
         future.get();
-      } catch (InterruptedException | ExecutionException e) {
+      } catch (ExecutionException e) {
+        if (e.getCause() instanceof CancelationManager.CanceledException) {
+          throw (CancelationManager.CanceledException) e.getCause();
+        } else {
+          throw new RuntimeException(e);
+        }
+      } catch (InterruptedException e) {
         throw new RuntimeException(e);
       }
     }
@@ -227,6 +242,10 @@ public class ContextUnit {
 
   public boolean isRoot() {
     return this.root;
+  }
+
+  public boolean isLazy() {
+    return !this.own && this.source.isLazy();
   }
 
   void close() throws Exception {

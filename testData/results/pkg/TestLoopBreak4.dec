@@ -2,13 +2,13 @@ package pkg;
 
 public class TestLoopBreak4 {
    public void test2(int h, int i, boolean b) {
-      for(int h1 = 0; h1 < h; ++h1) {// 5
-         for(int j = 0; j < i; ++j) {// 6
+      for (int h1 = 0; h1 < h; h1++) {// 5
+         for (int j = 0; j < i; j++) {// 6
             System.out.println(j);// 7
 
-            for(int k = 0; k < j; ++k) {// 9
+            for (int k = 0; k < j; k++) {// 9
                if (k == 2) {// 10
-                  for(int l = 0; l < 2; ++l) {// 11
+                  for (int l = 0; l < 2; l++) {// 11
                      System.out.println(2);// 12
                      if (!b) {// 14
                         break;
@@ -16,7 +16,7 @@ public class TestLoopBreak4 {
 
                      System.out.println(l);// 15
                      if (l == 1) {// 17
-                        for(int j1 = 0; j1 < h1; ++j1) {// 18
+                        for (int j1 = 0; j1 < h1; j1++) {// 18
                            System.out.println(h1);// 19
                            if (j1 == 1) {// 20
                               break;

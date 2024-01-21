@@ -3,14 +3,14 @@ package pkg;
 public class TestSynchronizedLoop {
    public void test1(int i) {
       try {
-         while(true) {
-            synchronized(this) {// 7
-               while(i >= i) {// 8
+         while (true) {
+            synchronized (this) {// 7
+               while (i >= i) {// 8
                   this.wait();// 9
                }
             }
 
-            synchronized(this) {// 13
+            synchronized (this) {// 13
                this.notifyAll();// 14
             }// 15
          }
@@ -20,43 +20,44 @@ public class TestSynchronizedLoop {
    }
 
    public void test2() {
-      while(true) {
-         synchronized(this) {// 24
+      while (true) {
+         synchronized (this) {// 24
             ;
          }// 26
       }
    }
 
    public void test7(int i) {
-      synchronized(this) {// 31
-         while(i > 0) {// 32
+      synchronized (this) {// 31
+         while (i > 0) {// 32
             System.out.println(--i);// 33 34
          }
       }
    }// 37
 
    public void test12(int i) {
-      synchronized(this) {// 41
-         label79: {
-            System.out.println(1);// 42
+      synchronized (this) {// 41
+         System.out.println(1);// 42
 
-            while(i > 0) {// 43
-               --i;// 44
-               System.out.println(1.5);// 45
-
-               try {
-                  System.out.println(1.6);// 47
-               } finally {
-                  System.out.println(1.7);// 49
-                  if (i > 5) {// 50
-                     break label79;
-                  }
+         while (true) {
+            if (i <= 0) {// 43
+               System.out.println(2);// 56
+               if (i > -2) {// 57
+                  System.out.println(3);// 58
                }
+               break;
             }
 
-            System.out.println(2);// 56
-            if (i > -2) {// 57
-               System.out.println(3);// 58
+            i--;// 44
+            System.out.println(1.5);// 45
+
+            try {
+               System.out.println(1.6);// 47
+            } finally {
+               System.out.println(1.7);// 49
+               if (i > 5) {// 50
+                  break;
+               }
             }
          }
       }
@@ -68,8 +69,8 @@ public class TestSynchronizedLoop {
 
    public void testLoop(double var1) {
       if (var1 >= 88.29) {// 68
-         synchronized(this) {// 69
-            while(true) {
+         synchronized (this) {// 69
+            while (true) {
                long var12 = 399L;// 74
                var1 /= 97.81;// 75
             }
@@ -81,8 +82,8 @@ public class TestSynchronizedLoop {
       long var2 = -151L;// 84
       long var3 = -384L;// 85
 
-      while(var2 == 5L) {// 86
-         synchronized(this) {// 87
+      while (var2 == 5L) {// 86
+         synchronized (this) {// 87
             var3 -= -714L;// 88
          }// 89
       }
@@ -138,113 +139,113 @@ class 'pkg/TestSynchronizedLoop' {
    method 'test12 (I)V' {
       0      38
       3      38
-      4      40
-      5      40
-      6      40
-      7      40
-      8      40
+      4      39
+      5      39
+      6      39
+      7      39
+      8      39
       b      42
       c      42
-      f      43
-      10      43
-      11      43
-      12      44
-      13      44
-      14      44
-      15      44
-      16      44
-      17      44
-      18      44
-      1b      47
-      1c      47
-      1d      47
-      1e      47
-      1f      47
-      20      47
-      21      47
-      38      49
-      39      49
-      3a      49
-      3b      49
-      3c      49
-      3d      49
-      3e      49
-      3f      49
-      40      49
-      41      50
-      42      50
-      43      50
-      50      56
-      51      56
-      52      56
-      53      56
-      54      56
-      55      56
-      56      56
-      57      57
-      58      57
-      59      57
-      5a      57
-      5d      58
-      5e      58
-      5f      58
-      60      58
-      61      58
-      70      63
-      71      63
-      72      63
-      75      64
-      76      64
-      77      64
-      78      64
-      79      64
-      7a      64
-      7d      66
+      f      50
+      10      50
+      11      50
+      12      51
+      13      51
+      14      51
+      15      51
+      16      51
+      17      51
+      18      51
+      1b      54
+      1c      54
+      1d      54
+      1e      54
+      1f      54
+      20      54
+      21      54
+      38      56
+      39      56
+      3a      56
+      3b      56
+      3c      56
+      3d      56
+      3e      56
+      3f      56
+      40      56
+      41      57
+      42      57
+      43      57
+      50      43
+      51      43
+      52      43
+      53      43
+      54      43
+      55      43
+      56      43
+      57      44
+      58      44
+      59      44
+      5a      44
+      5d      45
+      5e      45
+      5f      45
+      60      45
+      61      45
+      70      64
+      71      64
+      72      64
+      75      65
+      76      65
+      77      65
+      78      65
+      79      65
+      7a      65
+      7d      67
    }
 
    method 'testLoop (D)V' {
-      0      69
-      1      69
-      2      69
-      3      69
-      4      69
-      5      69
-      8      70
-      b      70
-      c      72
-      d      72
-      e      72
-      f      72
-      10      72
-      12      73
-      13      73
-      14      73
-      16      73
-      21      77
+      0      70
+      1      70
+      2      70
+      3      70
+      4      70
+      5      70
+      8      71
+      b      71
+      c      73
+      d      73
+      e      73
+      f      73
+      10      73
+      12      74
+      13      74
+      14      74
+      16      74
+      21      78
    }
 
    method 'testFlatten ()V' {
-      0      80
-      1      80
-      2      80
-      3      80
-      4      81
-      5      81
-      6      81
-      7      81
-      8      83
-      9      83
-      a      83
-      b      83
-      c      83
-      10      84
-      14      84
-      16      85
-      17      85
-      18      85
-      1a      85
-      1d      86
-      2c      88
+      0      81
+      1      81
+      2      81
+      3      81
+      4      82
+      5      82
+      6      82
+      7      82
+      8      84
+      9      84
+      a      84
+      b      84
+      c      84
+      10      85
+      14      85
+      16      86
+      17      86
+      18      86
+      1a      86
+      1d      87
+      2c      89
    }
 }
 
@@ -265,31 +266,31 @@ Lines mapping:
 34 <-> 33
 37 <-> 36
 41 <-> 39
-42 <-> 41
+42 <-> 40
 43 <-> 43
-44 <-> 44
-45 <-> 45
-47 <-> 48
-49 <-> 50
-50 <-> 51
-56 <-> 57
-57 <-> 58
-58 <-> 59
-62 <-> 64
-63 <-> 65
-65 <-> 67
-68 <-> 70
-69 <-> 71
-74 <-> 73
-75 <-> 74
-81 <-> 78
-84 <-> 81
-85 <-> 82
-86 <-> 84
-87 <-> 85
-88 <-> 86
-89 <-> 87
-91 <-> 89
+44 <-> 51
+45 <-> 52
+47 <-> 55
+49 <-> 57
+50 <-> 58
+56 <-> 44
+57 <-> 45
+58 <-> 46
+62 <-> 65
+63 <-> 66
+65 <-> 68
+68 <-> 71
+69 <-> 72
+74 <-> 74
+75 <-> 75
+81 <-> 79
+84 <-> 82
+85 <-> 83
+86 <-> 85
+87 <-> 86
+88 <-> 87
+89 <-> 88
+91 <-> 90
 Not mapped:
 11
 36

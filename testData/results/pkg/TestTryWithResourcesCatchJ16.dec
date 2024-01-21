@@ -32,7 +32,7 @@ public class TestTryWithResourcesCatchJ16 {
             Scanner scanner2 = this.create(file);
          ) {
             scanner.next();// 31
-            ++i;// 32
+            i++;// 32
          }
       } catch (Exception var11) {// 34
          System.out.println(1);// 35

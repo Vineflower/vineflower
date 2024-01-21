@@ -16,7 +16,7 @@ public final class TestIrreducible {
          }
       }
 
-      while(true) {
+      while (true) {
          System.out.println("3");// 48 49 50
          System.out.println("1");// 40 41 42
          System.out.println("2");

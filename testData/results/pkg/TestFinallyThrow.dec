@@ -2,22 +2,18 @@ package pkg;
 
 public class TestFinallyThrow {
    public void test(boolean b) {
-      while(true) {
+      while (true) {
          try {
             System.out.println(1);// 7
          } finally {
-            label97: {
-               try {
-                  if (!b) {// 10
-                     break label97;
-                  }
-               } catch (Exception var22) {// 13
-                  throw var22;// 14
-               } finally {
-                  System.out.println(2);// 16
+            try {
+               if (b) {// 10
+                  return;// 11
                }
-
-               return;// 11
+            } catch (Exception var22) {// 13
+               throw var22;// 14
+            } finally {
+               System.out.println(2);// 16
             }
          }
       }
@@ -57,69 +53,69 @@ class 'pkg/TestFinallyThrow' {
       2      6
       3      6
       4      6
-      2f      10
-      30      10
-      3a      19
-      45      13
-      47      14
-      48      14
-      49      14
-      4c      16
-      4d      16
-      4e      16
-      4f      16
-      50      16
+      2f      9
+      30      9
+      3a      10
+      45      12
+      47      13
+      48      13
+      49      13
+      4c      15
+      4d      15
+      4e      15
+      4f      15
+      50      15
    }
 
    method 'test1 (Ljava/lang/RuntimeException;)V' {
-      0      27
-      1      27
-      2      27
-      3      27
-      4      27
-      7      28
-      8      28
-      9      29
-      a      30
-      b      30
-      e      35
-      f      35
+      0      23
+      1      23
+      2      23
+      3      23
+      4      23
+      7      24
+      8      24
+      9      25
+      a      26
+      b      26
+      e      31
+      f      31
    }
 
    method 'test2 (Ljava/lang/RuntimeException;)V' {
-      0      40
-      1      40
-      2      40
-      3      40
-      4      40
-      5      40
-      6      40
-      7      41
-      8      41
-      9      42
-      a      43
-      b      43
-      14      48
-      15      48
+      0      36
+      1      36
+      2      36
+      3      36
+      4      36
+      5      36
+      6      36
+      7      37
+      8      37
+      9      38
+      a      39
+      b      39
+      14      44
+      15      44
    }
 }
 
 Lines mapping:
 7 <-> 7
-10 <-> 11
-11 <-> 20
-13 <-> 14
-14 <-> 15
-16 <-> 17
-24 <-> 28
-25 <-> 30
-26 <-> 31
-28 <-> 36
-35 <-> 41
-36 <-> 42
-37 <-> 43
-38 <-> 44
-43 <-> 49
+10 <-> 10
+11 <-> 11
+13 <-> 13
+14 <-> 14
+16 <-> 16
+24 <-> 24
+25 <-> 26
+26 <-> 27
+28 <-> 32
+35 <-> 37
+36 <-> 38
+37 <-> 39
+38 <-> 40
+43 <-> 45
 Not mapped:
 9
 17

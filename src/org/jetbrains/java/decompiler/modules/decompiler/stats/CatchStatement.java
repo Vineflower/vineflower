@@ -12,6 +12,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.AssignmentExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
+import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 
@@ -47,7 +48,7 @@ public final class CatchStatement extends Statement {
         exctstrings.add(new ArrayList<>(edge.getExceptions()));
         
         vars.add(new VarExprent(DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.VAR_COUNTER),
-                                new VarType(CodeConstants.TYPE_OBJECT, 0, edge.getExceptions().get(0)),
+                                new VarType(CodeType.OBJECT, 0, edge.getExceptions().get(0)),
                                 // FIXME: for now simply the first type. Should get the first common superclass when possible.
                                 DecompilerContext.getVarProcessor()));
       }
@@ -179,7 +180,7 @@ public final class CatchStatement extends Statement {
       List<String> exception_types = exctstrings.get(i - 1);
       if (exception_types.size() > 1) { // multi-catch, Java 7 style
         for (int exc_index = 1; exc_index < exception_types.size(); ++exc_index) {
-          VarType exc_type = new VarType(CodeConstants.TYPE_OBJECT, 0, exception_types.get(exc_index));
+          VarType exc_type = new VarType(CodeType.OBJECT, 0, exception_types.get(exc_index));
           String exc_type_name = ExprProcessor.getCastTypeName(exc_type);
 
           buf.append(exc_type_name).append(" | ");
@@ -211,7 +212,7 @@ public final class CatchStatement extends Statement {
     for (List<String> exc : this.exctstrings) {
       cs.exctstrings.add(new ArrayList<>(exc));
       cs.vars.add(new VarExprent(DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.VAR_COUNTER),
-                                 new VarType(CodeConstants.TYPE_OBJECT, 0, exc.get(0)),
+                                 new VarType(CodeType.OBJECT, 0, exc.get(0)),
                                  DecompilerContext.getVarProcessor()));
     }
 

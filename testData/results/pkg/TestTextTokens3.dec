@@ -1,0 +1,83 @@
+package pkg;
+
+public class TestTextTokens3 {
+   public static String get(TestTextTokens3.Entry e) {
+      String s = "abc";// 12
+      switch (e) {// 13
+         case A:
+            return "Hello world";// 15
+         case B:
+            s = "Lorem ipsum";// 17
+         case C:
+            s = s + " dolor sit amet";// 19
+         default:
+            return s;// 21
+      }
+   }
+
+   public static enum Entry {
+      A,
+      B,
+      C,
+      D;
+   }
+}
+
+class 'pkg/TestTextTokens3' {
+   method 'get (Lpkg/TestTextTokens3$Entry;)Ljava/lang/String;' {
+      0      4
+      1      4
+      2      4
+      6      5
+      a      5
+      b      5
+      24      7
+      25      7
+      26      7
+      27      9
+      28      9
+      29      9
+      31      11
+      35      11
+      36      11
+      3a      11
+      3b      11
+      3c      11
+      3d      11
+      3e      13
+      3f      13
+   }
+}
+
+Lines mapping:
+12 <-> 5
+13 <-> 6
+15 <-> 8
+17 <-> 10
+19 <-> 12
+21 <-> 14
+
+/*
+Tokens:
+(3:14, 3:29) class [declaration] pkg/TestTextTokens3
+(4:18, 4:24) class [reference] java/lang/String
+(4:25, 4:28) method [declaration] pkg/TestTextTokens3#get(Lpkg/TestTextTokens3$Entry;)Ljava/lang/String;
+(4:29, 4:44) class [reference] pkg/TestTextTokens3
+(4:45, 4:50) class [reference] pkg/TestTextTokens3$Entry
+(4:51, 4:52) parameter [declaration] pkg/TestTextTokens3#get(Lpkg/TestTextTokens3$Entry;)Ljava/lang/String;(0:e)
+(5:7, 5:13) class [reference] java/lang/String
+(5:14, 5:15) local [declaration] pkg/TestTextTokens3#get(Lpkg/TestTextTokens3$Entry;)Ljava/lang/String;(1:s)
+(6:15, 6:16) parameter [reference] pkg/TestTextTokens3#get(Lpkg/TestTextTokens3$Entry;)Ljava/lang/String;(0:e)
+(7:15, 7:16) field [reference] pkg/TestTextTokens3$Entry#A:Lpkg/TestTextTokens3$Entry;
+(9:15, 9:16) field [reference] pkg/TestTextTokens3$Entry#B:Lpkg/TestTextTokens3$Entry;
+(10:13, 10:14) local [reference] pkg/TestTextTokens3#get(Lpkg/TestTextTokens3$Entry;)Ljava/lang/String;(1:s)
+(11:15, 11:16) field [reference] pkg/TestTextTokens3$Entry#C:Lpkg/TestTextTokens3$Entry;
+(12:13, 12:14) local [reference] pkg/TestTextTokens3#get(Lpkg/TestTextTokens3$Entry;)Ljava/lang/String;(1:s)
+(12:17, 12:18) local [reference] pkg/TestTextTokens3#get(Lpkg/TestTextTokens3$Entry;)Ljava/lang/String;(1:s)
+(14:20, 14:21) local [reference] pkg/TestTextTokens3#get(Lpkg/TestTextTokens3$Entry;)Ljava/lang/String;(1:s)
+(18:23, 18:28) class [declaration] pkg/TestTextTokens3$Entry
+(19:7, 19:8) field [declaration] pkg/TestTextTokens3$Entry#A:Lpkg/TestTextTokens3$Entry;
+(20:7, 20:8) field [declaration] pkg/TestTextTokens3$Entry#B:Lpkg/TestTextTokens3$Entry;
+(21:7, 21:8) field [declaration] pkg/TestTextTokens3$Entry#C:Lpkg/TestTextTokens3$Entry;
+(22:7, 22:8) field [declaration] pkg/TestTextTokens3$Entry#D:Lpkg/TestTextTokens3$Entry;
+*/

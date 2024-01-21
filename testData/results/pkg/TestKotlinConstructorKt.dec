@@ -20,7 +20,7 @@ public final class TestKotlinConstructorKt {
       Collection destination$iv$iv = new ArrayList(CollectionsKt.collectionSizeOrDefault($this$map$iv, 10));
       int $i$f$mapTo = 0;
 
-      for(Object item$iv$iv : $this$map$iv) {// 12 13
+      for (Object item$iv$iv : $this$map$iv) {// 12 13
          String it = (String)item$iv$iv;
          int $i$a$-map-TestKotlinConstructorKt$foo$1 = 0;
          Mapping var10000 = new Mapping;
@@ -32,7 +32,7 @@ public final class TestKotlinConstructorKt {
          destination$iv$iv.add(var10000);// 14
       }
 
-      return CollectionsKt.toList((List)destination$iv$iv);// 4 6 15
+      return CollectionsKt.toList(destination$iv$iv);// 4 6 15
    }
 }
 

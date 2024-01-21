@@ -16,13 +16,13 @@ public enum TestConstructorSwitchExpression3 {
 
    // $VF: Failed to inline enum fields
    static {
-      T1 = new TestConstructorSwitchExpression3(switch(get()) {// 6
+      T1 = new TestConstructorSwitchExpression3(switch (get()) {// 6
          case 0 -> 1;// 7
          case 1 -> 2;// 8
          default -> 3;// 9
       });
 
-      T2 = new TestConstructorSwitchExpression3(switch(get()) {// 11
+      T2 = new TestConstructorSwitchExpression3(switch (get()) {// 11
          case 0 -> 1;// 12
          case 1 -> 2;// 13
          default -> 3;// 14

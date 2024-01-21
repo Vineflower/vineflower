@@ -4,8 +4,8 @@ public class TestLambdaLocalCapture {
    public void test(int x, int z) {
       System.out.println(1);// 5
 
-      for(int x1 = 0; x1 < 100; ++x1) {// 7
-         for(int z1 = 0; z1 < 100; ++z1) {// 8
+      for (int x1 = 0; x1 < 100; x1++) {// 7
+         for (int z1 = 0; z1 < 100; z1++) {// 8
             int finalX = x1;// 9
             int finalZ = z1;// 10
             accept(() -> {// 12

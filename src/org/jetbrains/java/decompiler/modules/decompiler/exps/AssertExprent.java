@@ -5,8 +5,10 @@ package org.jetbrains.java.decompiler.modules.decompiler.exps;
 
 import org.jetbrains.java.decompiler.util.TextBuffer;
 
+import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
+import java.util.Objects;
 
 public class AssertExprent extends Exprent {
 
@@ -19,7 +21,9 @@ public class AssertExprent extends Exprent {
 
   @Override
   protected List<Exprent> getAllExprents(List<Exprent> list) {
-    list.addAll(this.parameters);
+    List<Exprent> copy = new ArrayList<>(this.parameters);
+    copy.removeIf(Objects::isNull);
+    list.addAll(copy);
     return list;
   }
 

@@ -13,6 +13,8 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.AssignmentExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.ExitExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectEdge;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectEdgeType;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectNode;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper;
@@ -31,9 +33,8 @@ import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
-import org.jetbrains.java.decompiler.util.DotExporter;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
-import org.jetbrains.java.decompiler.util.ListStack;
+import org.jetbrains.java.decompiler.util.collections.ListStack;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -84,14 +85,14 @@ public class FinallyProcessor {
           Record inf = this.getFinallyInformation(cl, mt, root, fin);
 
           if (inf == null) { // inconsistent finally
-            catchallBlocks.add(handler);
+            this.catchallBlocks.add(handler);
             root.addComment("$VF: Could not inline inconsistent finally blocks", true);
           } else {
-            if (DecompilerContext.getOption(IFernflowerPreferences.FINALLY_DEINLINE) && verifyFinallyEx(graph, fin, inf)) {
+            if (DecompilerContext.getOption(IFernflowerPreferences.FINALLY_DEINLINE) && this.verifyFinallyEx(graph, fin, inf)) {
               // FIXME: inlines improperly, breaks TestLoopFinally#emptyInnerFinally
 //              inlineReturnVar(graph, handler);
 
-              finallyBlocks.put(handler, null);
+              this.finallyBlocks.put(handler, null);
             } else {
               int varIndex = DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.VAR_COUNTER);
               // Add the semaphore variable to the list so we can create a comment in the output
@@ -131,19 +132,19 @@ public class FinallyProcessor {
   }
 
   private Record getFinallyInformation(StructClass cl, StructMethod mt, RootStatement root, CatchAllStatement fstat) {
-    ExprProcessor proc = new ExprProcessor(methodDescriptor, varProcessor);
+    ExprProcessor proc = new ExprProcessor(this.methodDescriptor, this.varProcessor);
     proc.processStatement(root, cl);
 
-    if (ssuversions == null) {
+    if (this.ssuversions == null) {
       // FIXME: don't split SSAU unless needed!
       SSAConstructorSparseEx ssa = new SSAConstructorSparseEx();
       ssa.splitVariables(root, mt);
 
-      instrRewrites = SimpleSSAReassign.reassignSSAForm(ssa, root);
+      this.instrRewrites = SimpleSSAReassign.reassignSSAForm(ssa, root);
 
       StackVarsProcessor.setVersionsToNull(root);
 
-      SFormsConstructor ssau = new SSAUConstructorSparseEx();
+      SSAUConstructorSparseEx ssau = new SSAUConstructorSparseEx();
       ssau.splitVariables(root, mt);
 
       this.ssuversions = ssau.getSsuVersions();
@@ -171,7 +172,7 @@ public class FinallyProcessor {
 
     List<Exprent> lstExprents = firstBlockStatement.getExprents();
 
-    VarVersionPair varpaar = new VarVersionPair((VarExprent)((AssignmentExprent)lstExprents.get(firstcode == 2 ? 1 : 0)).getLeft());
+    VarVersionPair varpaar = new VarVersionPair((VarExprent) ((AssignmentExprent) lstExprents.get(firstcode == 2 ? 1 : 0)).getLeft());
 
     FlattenStatementsHelper flatthelper = new FlattenStatementsHelper();
     DirectGraph dgraph = flatthelper.buildDirectGraph(root);
@@ -192,9 +193,8 @@ public class FinallyProcessor {
       BasicBlockStatement blockStatement = null;
       if (node.block != null) {
         blockStatement = node.block;
-      }
-      else if (node.preds().size() == 1) {
-        blockStatement = node.preds().get(0).block;
+      } else if (node.getPredecessors(DirectEdgeType.REGULAR).size() == 1) {
+        blockStatement = node.getPredecessors(DirectEdgeType.REGULAR).get(0).getSource().block;
       }
 
       boolean isTrueExit = true;
@@ -212,7 +212,7 @@ public class FinallyProcessor {
 
             boolean found = false;
             for (Exprent expr : lst) {
-              if (expr instanceof VarExprent && new VarVersionPair((VarExprent)expr).equals(varpaar)) {
+              if (expr instanceof VarExprent && new VarVersionPair((VarExprent) expr).equals(varpaar)) {
                 found = true;
                 break;
               }
@@ -221,7 +221,7 @@ public class FinallyProcessor {
             if (found) {
               found = false;
               if (exprent instanceof ExitExprent) {
-                ExitExprent exexpr = (ExitExprent)exprent;
+                ExitExprent exexpr = (ExitExprent) exprent;
                 if (exexpr.getExitType() == ExitExprent.Type.THROW && exexpr.getValue() instanceof VarExprent) {
                   found = true;
                 }
@@ -229,35 +229,32 @@ public class FinallyProcessor {
 
               if (!found) {
                 return null;
-              }
-              else {
+              } else {
                 isTrueExit = true;
               }
             }
-          }
-          else if (firstcode == 2) {
+          } else if (firstcode == 2) {
             // search for a load instruction
             if (exprent instanceof AssignmentExprent) {
-              AssignmentExprent assexpr = (AssignmentExprent)exprent;
+              AssignmentExprent assexpr = (AssignmentExprent) exprent;
               if (assexpr.getRight() instanceof VarExprent &&
-                  new VarVersionPair((VarExprent)assexpr.getRight()).equals(varpaar)) {
+                  new VarVersionPair((VarExprent) assexpr.getRight()).equals(varpaar)) {
 
                 Exprent next = null;
                 if (i == node.exprents.size() - 1) {
-                  if (node.succs().size() == 1) {
-                    DirectNode nd = node.succs().get(0);
+                  if (node.getSuccessors(DirectEdgeType.REGULAR).size() == 1) {
+                    DirectNode nd = node.getSuccessors(DirectEdgeType.REGULAR).get(0).getDestination();
                     if (!nd.exprents.isEmpty()) {
                       next = nd.exprents.get(0);
                     }
                   }
-                }
-                else {
+                } else {
                   next = node.exprents.get(i + 1);
                 }
 
                 boolean found = false;
                 if (next != null && next instanceof ExitExprent) {
-                  ExitExprent exexpr = (ExitExprent)next;
+                  ExitExprent exexpr = (ExitExprent) next;
                   if (exexpr.getExitType() == ExitExprent.Type.THROW && exexpr.getValue() instanceof VarExprent
                       && assexpr.getLeft().equals(exexpr.getValue())) {
                     found = true;
@@ -266,8 +263,7 @@ public class FinallyProcessor {
 
                 if (!found) {
                   return null;
-                }
-                else {
+                } else {
                   isTrueExit = true;
                 }
               }
@@ -292,7 +288,9 @@ public class FinallyProcessor {
         }
       }
 
-      stack.addAll(node.succs());
+      for (DirectEdge suc : node.getSuccessors(DirectEdgeType.REGULAR)) {
+        stack.add(suc.getDestination());
+      }
     }
 
     // empty finally block?
@@ -457,8 +455,7 @@ public class FinallyProcessor {
 
       if (st instanceof BasicBlockStatement) {
         index++;
-      }
-      else {
+      } else {
         lst.addAll(st.getStats());
         lst.remove(index);
       }
@@ -468,7 +465,7 @@ public class FinallyProcessor {
     Set<BasicBlock> res = new LinkedHashSet<>();
 
     for (Statement st : lst) {
-      res.add(((BasicBlockStatement)st).getBlock());
+      res.add(((BasicBlockStatement) st).getBlock());
     }
 
     return res;
@@ -493,8 +490,7 @@ public class FinallyProcessor {
       }
 
       return true;
-    }
-    else {
+    } else {
       if (first.getSeq().length() == 1 && finallytype > 0) {
         BasicBlock firstsuc = first.getSuccs().get(0);
         if (catchBlocks.contains(firstsuc)) {
@@ -515,15 +511,21 @@ public class FinallyProcessor {
     startBlocks.removeAll(tryBlocks);
 
     List<Area> lstAreas = new ArrayList<>();
-
+    Set<BasicBlock> sideExits = null;
     for (BasicBlock start : startBlocks) {
 
-      Area arr = compareSubgraphsEx(graph, start, catchBlocks, first, finallytype, mapLast, skippedFirst);
+      Area arr = this.compareSubgraphsEx(graph, start, catchBlocks, first, finallytype, mapLast, skippedFirst);
       if (arr == null) {
         return false;
       }
 
       lstAreas.add(arr);
+
+      if (sideExits == null) {
+        sideExits = arr.sideExits;
+      } else {
+        ValidationHelper.validateTrue(sideExits.equals(arr.sideExits), "Side exits are not equal");
+      }
     }
 
     //		try {
@@ -540,12 +542,15 @@ public class FinallyProcessor {
     //		} catch(Exception ex){ex.printStackTrace();}
 
     // INFO: empty basic blocks may remain in the graph!
+    BasicBlock trueExit = null;
     for (Entry<BasicBlock, Boolean> entry : mapLast.entrySet()) {
       BasicBlock last = entry.getKey();
 
       if (entry.getValue()) {
         removeExceptionInstructionsEx(last, 2, finallytype);
         graph.getFinallyExits().add(last);
+        ValidationHelper.validateTrue(trueExit == null, "More than one true exit");
+        trueExit = last;
       }
     }
 
@@ -557,12 +562,14 @@ public class FinallyProcessor {
   private static final class Area {
     private final BasicBlock start;
     private final Set<BasicBlock> sample;
-    private final BasicBlock next;
+    private final BasicBlock next; // True exit
+    private final Set<BasicBlock> sideExits;
 
-    private Area(BasicBlock start, Set<BasicBlock> sample, BasicBlock next) {
+    private Area(BasicBlock start, Set<BasicBlock> sample, BasicBlock next, Set<BasicBlock> sideExits) {
       this.start = start;
       this.sample = sample;
       this.next = next;
+      this.sideExits = sideExits;
     }
   }
 
@@ -605,8 +612,8 @@ public class FinallyProcessor {
       boolean isLastBlock = mapLast.containsKey(blockCatch);
       boolean isTrueLastBlock = isLastBlock && mapLast.get(blockCatch);
 
-      if (!compareBasicBlocksEx(graph, blockCatch, blockSample, (isFirstBlock ? 1 : 0) | (isTrueLastBlock ? 2 : 0), finallytype,
-                                entry.lstStoreVars)) {
+      if (!this.compareBasicBlocksEx(graph, blockCatch, blockSample, (isFirstBlock ? 1 : 0) | (isTrueLastBlock ? 2 : 0), finallytype,
+        entry.lstStoreVars)) {
         return null;
       }
 
@@ -629,8 +636,7 @@ public class FinallyProcessor {
       // exception successors
       if (isLastBlock && blockSample.getSeq().isEmpty()) {
         // do nothing, blockSample will be removed anyway
-      }
-      else {
+      } else {
         if (blockCatch.getSuccExceptions().size() == blockSample.getSuccExceptions().size()) {
           for (int i = 0; i < blockCatch.getSuccExceptions().size(); i++) {
             BasicBlock sucCatch = blockCatch.getSuccExceptions().get(i);
@@ -640,7 +646,7 @@ public class FinallyProcessor {
             String excSample = graph.getExceptionRange(sucSample, blockSample).getUniqueExceptionsString();
 
             // FIXME: compare handlers if possible
-            boolean equalexc = excCatch == null ? excSample == null : excCatch.equals(excSample);
+            boolean equalexc = Objects.equals(excCatch, excSample);
 
             if (equalexc) {
               if (catchBlocks.contains(sucCatch) && !setSample.contains(sucSample)) {
@@ -660,13 +666,11 @@ public class FinallyProcessor {
 
                 stack.add(new BlockStackEntry(sucCatch, sucSample, lst));
               }
-            }
-            else {
+            } else {
               return null;
             }
           }
-        }
-        else {
+        } else {
           return null;
         }
       }
@@ -687,7 +691,23 @@ public class FinallyProcessor {
       }
     }
 
-    return new Area(startSample, setSample, getUniqueNext(graph, new HashSet<>(mapNext.values())));
+    return new Area(
+      startSample,
+      setSample,
+      getUniqueNext(graph, new HashSet<>(mapNext.values())),
+      getSideExits(mapNext.values()));
+  }
+
+  private static Set<BasicBlock> getSideExits(Collection<BasicBlock[]> setNext) {
+    Set<BasicBlock> set = new HashSet<>();
+
+    for (BasicBlock[] next : setNext) {
+      if (next[2] == null) {
+        set.add(next[1]);
+      }
+    }
+
+    return set;
   }
 
   private static BasicBlock getUniqueNext(ControlFlowGraph graph, Set<BasicBlock[]> setNext) {
@@ -702,12 +722,10 @@ public class FinallyProcessor {
         next = arr[1];
         multiple = false;
         break;
-      }
-      else {
+      } else {
         if (next == null) {
           next = arr[1];
-        }
-        else if (next != arr[1]) {
+        } else if (next != arr[1]) {
           multiple = true;
         }
 
@@ -741,12 +759,10 @@ public class FinallyProcessor {
                   }
                 }
               }
-            }
-            else {
+            } else {
               return null;
             }
-          }
-          else {
+          } else {
             return null;
           }
         }
@@ -811,7 +827,7 @@ public class FinallyProcessor {
       Instruction instrSample = seqSample.getInstr(i);
 
       // compare instructions with respect to jumps
-      if (!equalInstructions(instrPattern, instrSample, lstStoreVars)) {
+      if (!this.equalInstructions(instrPattern, instrSample, lstStoreVars)) {
         return false;
       }
     }
@@ -882,8 +898,7 @@ public class FinallyProcessor {
                 return true;
               }
             }
-          }
-          else if (first.opcode == CodeConstants.opc_astore) {
+          } else if (first.opcode == CodeConstants.opc_astore) {
             lstStoreVars.add(new int[]{firstOp, secondOp});
             return true;
           }
@@ -891,11 +906,11 @@ public class FinallyProcessor {
           boolean ok = false;
           if (isOpcVar(first.opcode)) {
             // Find rewritten variables
-            if (instrRewrites.containsKey(first)) {
-              firstOp = instrRewrites.get(first);
+            if (this.instrRewrites.containsKey(first)) {
+              firstOp = this.instrRewrites.get(first);
             }
-            if (instrRewrites.containsKey(second)) {
-              secondOp = instrRewrites.get(second);
+            if (this.instrRewrites.containsKey(second)) {
+              secondOp = this.instrRewrites.get(second);
             }
 
             if (this.ssuversions.areVarsAnalogous(firstOp, secondOp)) {
@@ -969,8 +984,7 @@ public class FinallyProcessor {
 
         if (setCommonRemovedExceptionRanges == null) {
           setCommonRemovedExceptionRanges = setRemovedExceptionRanges;
-        }
-        else {
+        } else {
           setCommonRemovedExceptionRanges.retainAll(setRemovedExceptionRanges);
         }
 
@@ -1021,8 +1035,7 @@ public class FinallyProcessor {
         seq.removeInstruction(i);
         instrOldOffsets.remove(i);
       }
-    }
-    else {
+    } else {
       if ((blocktype & 1) > 0) { // first
         if (finallytype == 2 || finallytype == 1) { // astore or pop
           seq.removeInstruction(0);

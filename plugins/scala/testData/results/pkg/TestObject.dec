@@ -1,0 +1,144 @@
+package pkg;
+
+public final class TestObject {
+   public static int SOME_INT() {
+      return TestObject$.MODULE$.SOME_INT();
+   }
+
+   public static String SOME_STRING() {
+      return TestObject$.MODULE$.SOME_STRING();
+   }
+
+   public static int fib(int var0) {
+      return TestObject$.MODULE$.fib(var0);
+   }
+}
+
+class 'pkg/TestObject' {
+   method 'SOME_INT ()I' {
+      0      4
+      1      4
+      2      4
+      3      4
+      4      4
+      5      4
+      6      4
+   }
+
+   method 'SOME_STRING ()Ljava/lang/String;' {
+      0      8
+      1      8
+      2      8
+      3      8
+      4      8
+      5      8
+      6      8
+   }
+
+   method 'fib (I)I' {
+      0      12
+      1      12
+      2      12
+      3      12
+      4      12
+      5      12
+      6      12
+      7      12
+   }
+}
+
+Lines mapping:
+
+// Decompiled companion from pkg/TestObject$
+package pkg;
+
+import java.io.Serializable;
+import scala.runtime.ModuleSerializationProxy;
+
+public final class TestObject$ implements Serializable {
+   private static final String SOME_STRING = "some string";
+   private static final int SOME_INT = 0;
+   public static final TestObject$ MODULE$ = new TestObject$();
+
+   private TestObject$() {
+   }
+
+   private Object writeReplace() {
+      return new ModuleSerializationProxy(TestObject$.class);// 3
+   }
+
+   public String SOME_STRING() {
+      return SOME_STRING;// 5
+   }
+
+   public int SOME_INT() {
+      return SOME_INT;// 6
+   }
+
+   public int fib(final int idx) {
+      return idx == 0 ? 0 : (idx == 1 ? 1 : this.fib(idx - 1) + this.fib(idx - 2));// 9 10 11 12 14
+   }
+}
+
+class 'pkg/TestObject$' {
+   method '<init> ()V' {
+      4      11
+   }
+
+   method 'writeReplace ()Ljava/lang/Object;' {
+      4      14
+      5      14
+      9      14
+   }
+
+   method 'SOME_STRING ()Ljava/lang/String;' {
+      0      18
+      1      18
+      2      18
+      3      18
+   }
+
+   method 'SOME_INT ()I' {
+      0      22
+      1      22
+      2      22
+      3      22
+   }
+
+   method 'fib (I)I' {
+      0      26
+      1      26
+      2      26
+      5      26
+      9      26
+      a      26
+      b      26
+      e      26
+      12      26
+      13      26
+      14      26
+      15      26
+      16      26
+      17      26
+      18      26
+      19      26
+      1a      26
+      1b      26
+      1c      26
+      1d      26
+      1e      26
+      1f      26
+      20      26
+      21      26
+   }
+}
+
+Lines mapping:
+3 <-> 15
+5 <-> 19
+6 <-> 23
+9 <-> 27
+10 <-> 27
+11 <-> 27
+12 <-> 27
+14 <-> 27

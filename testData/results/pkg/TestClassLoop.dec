@@ -2,7 +2,7 @@ package pkg;
 
 public class TestClassLoop {
    public static void testSimpleInfinite() {
-      while(true) {
+      while (true) {
          System.out.println();// 23
       }
    }
@@ -10,7 +10,7 @@ public class TestClassLoop {
    public static void testFinally() {
       boolean a = Math.random() > 0.0;// 29
 
-      while(true) {
+      while (true) {
          try {
             if (!a) {// 33
                return;// 34
@@ -24,7 +24,7 @@ public class TestClassLoop {
    public static void testCatch() {
       boolean a = Math.random() > 0.0;// 45
 
-      while(true) {
+      while (true) {
          try {
             if (!a) {// 49
                return;// 50
@@ -38,8 +38,8 @@ public class TestClassLoop {
    public static void testFinallyContinue() {
       boolean a = Math.random() > 0.0;// 61
 
-      while(true) {
-         while(true) {
+      while (true) {
+         while (true) {
             try {
                System.out.println("1");// 65
                break;
@@ -63,10 +63,10 @@ public class TestClassLoop {
       int decPt = 0;// 83
       int nLeadZero = 0;// 85
 
-      for(int nTrailZero = 0; i < len; ++i) {// 86 89 106
+      for (int nTrailZero = 0; i < len; i++) {// 86 89 106
          char c = in.charAt(i);// 90
          if (c == '0') {// 91
-            ++nLeadZero;// 92
+            nLeadZero++;// 92
          } else {
             if (c != '.') {// 93
                break;
@@ -89,7 +89,7 @@ public class TestClassLoop {
    }
 
    public int testLoopIpp(int i, int j) {
-      while(true) {
+      while (true) {
          try {
             if (i >= j) {// 114
                return j;// 124

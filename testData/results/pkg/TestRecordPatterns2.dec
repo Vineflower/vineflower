@@ -1,0 +1,56 @@
+package pkg;
+
+public class TestRecordPatterns2 {
+   public void test1(TestRecordPatterns2.R r) {
+      if (r instanceof TestRecordPatterns2.R) {
+         TestRecordPatterns2.R var10000 = r;
+
+         try {
+            var6 = var10000.x();
+         } catch (Throwable var5) {// 9
+            throw new MatchException(var5.toString(), var5);
+         }
+
+         int var4 = var6;
+         System.out.println(var4);// 10
+      }
+   }// 12
+
+   static record R(int x) {
+   }
+}
+
+class 'pkg/TestRecordPatterns2' {
+   method 'test1 (Lpkg/TestRecordPatterns2$R;)V' {
+      0      4
+      1      4
+      2      4
+      3      4
+      4      4
+      7      5
+      9      5
+      a      8
+      d      13
+      e      13
+      f      14
+      10      14
+      12      14
+      13      14
+      14      14
+      15      14
+      16      14
+      1c      9
+      21      10
+      22      10
+      23      10
+      24      10
+      25      10
+      29      10
+      2a      16
+   }
+}
+
+Lines mapping:
+9 <-> 10
+10 <-> 15
+12 <-> 17

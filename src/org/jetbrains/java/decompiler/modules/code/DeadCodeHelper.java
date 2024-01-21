@@ -16,7 +16,7 @@ public final class DeadCodeHelper {
 
   public static void removeDeadBlocks(ControlFlowGraph graph) {
 
-    LinkedList<BasicBlock> stack = new LinkedList<>();
+    Deque<BasicBlock> stack = new ArrayDeque<>();
     HashSet<BasicBlock> setStacked = new HashSet<>();
 
     stack.add(graph.getFirst());

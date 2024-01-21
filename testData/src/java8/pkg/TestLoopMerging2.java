@@ -12,4 +12,18 @@ public class TestLoopMerging2 {
       System.out.println(array[i]);
     }
   }
+
+  public static void testVarRef(String stringOne) {
+    while (true) {
+      if (!stringOne.contains("a") && !stringOne.contains("b")) {
+        return;
+      }
+      String stringTwo = "";
+      int i = 1;
+      if (i == -1) {
+        stringTwo = "c";
+      }
+      stringOne = stringOne.replaceFirst(stringTwo, "");
+    }
+  }
 }

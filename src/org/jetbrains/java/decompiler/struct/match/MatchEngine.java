@@ -12,6 +12,9 @@ import org.jetbrains.java.decompiler.struct.match.MatchNode.RuleValue;
 
 import java.util.*;
 
+// Engine to match a statement or exprent tree against a given pattern.
+// The pattern can contain variables, which are set and can be extracted from the match.
+// "It's like regex, but worse"
 public class MatchEngine {
   private static final Map<String, MatchProperties> stat_properties = new HashMap<>();
   private static final Map<String, MatchProperties> expr_properties = new HashMap<>();
@@ -39,9 +42,9 @@ public class MatchEngine {
     expr_properties.put("constvalue", MatchProperties.EXPRENT_CONSTVALUE);
     expr_properties.put("invclass", MatchProperties.EXPRENT_INVOCATION_CLASS);
     expr_properties.put("signature", MatchProperties.EXPRENT_INVOCATION_SIGNATURE);
-    expr_properties.put("parameter", MatchProperties.EXPRENT_INVOCATION_PARAMETER);
+    expr_properties.put("parameter", MatchProperties.EXPRENT_PARAMETER);
     expr_properties.put("index", MatchProperties.EXPRENT_VAR_INDEX);
-    expr_properties.put("name", MatchProperties.EXPRENT_FIELD_NAME);
+    expr_properties.put("name", MatchProperties.EXPRENT_NAME);
 
     stat_type.put("if", Statement.StatementType.IF);
     stat_type.put("do", Statement.StatementType.DO);
@@ -68,6 +71,8 @@ public class MatchEngine {
     expr_type.put("yield", Exprent.Type.YIELD);
 
     expr_func_type.put("eq", FunctionType.EQ);
+    expr_func_type.put("neq", FunctionType.NE);
+    expr_func_type.put("ternary", FunctionType.TERNARY);
 
     expr_exit_type.put("return", ExitExprent.Type.RETURN);
     expr_exit_type.put("throw", ExitExprent.Type.THROW);
@@ -80,7 +85,11 @@ public class MatchEngine {
   }
 
   private final MatchNode rootNode;
-  private final Map<String, Object> variables = new HashMap<>();
+  private final ThreadLocal<Map<String, Object>> variables = ThreadLocal.withInitial(HashMap::new);
+
+  public MatchEngine(String... description) {
+    this(String.join("\n", description));
+  }
 
   public MatchEngine(String description) {
     // each line is a separate statement/exprent
@@ -128,9 +137,9 @@ public class MatchEngine {
             case EXPRENT_POSITION:
             case EXPRENT_INVOCATION_CLASS:
             case EXPRENT_INVOCATION_SIGNATURE:
-            case EXPRENT_INVOCATION_PARAMETER:
+            case EXPRENT_PARAMETER:
             case EXPRENT_VAR_INDEX:
-            case EXPRENT_FIELD_NAME:
+            case EXPRENT_NAME:
             case EXPRENT_CONSTVALUE:
             case STATEMENT_RET:
             case EXPRENT_RET:
@@ -181,7 +190,7 @@ public class MatchEngine {
   }
 
   public boolean match(IMatchable object) {
-    variables.clear();
+    variables.get().clear();
     return match(this.rootNode, object);
   }
 
@@ -212,17 +221,17 @@ public class MatchEngine {
   }
 
   public boolean checkAndSetVariableValue(String name, Object value) {
-    Object old_value = variables.get(name);
+    Object old_value = variables.get().get(name);
     if (old_value != null) {
       return old_value.equals(value);
     }
     else {
-      variables.put(name, value);
+      variables.get().put(name, value);
       return true;
     }
   }
 
   public Object getVariableValue(String name) {
-    return variables.get(name);
+    return variables.get().get(name);
   }
 }

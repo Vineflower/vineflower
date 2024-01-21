@@ -5,7 +5,7 @@ import java.util.Random;
 
 public class TestIfLoop {
    public int testCompoundCondition(int i, int j) {
-      while(i > 0 && j < 3) {// 8
+      while (i > 0 && j < 3) {// 8
          if (j < 0) {// 9
             if (i > 3 && --j == -2) {// 10 12 13
                j = 1;// 14
@@ -21,7 +21,7 @@ public class TestIfLoop {
    }
 
    public Object testCollection(List<Object> list) {
-      while(!list.isEmpty()) {// 29
+      while (!list.isEmpty()) {// 29
          if (list.size() <= 3) {// 30
             return list.remove(0);// 33
          }
@@ -35,19 +35,19 @@ public class TestIfLoop {
    public void testCompound2(int a, int b, Random random) {
       a = random.nextInt(8) - random.nextInt(8) + a;// 41
 
-      for(int var5 = random.nextInt(8) - random.nextInt(8) + b; a >= 0 && a <= 20 && var5 >= 0 && var5 <= 20; var5 -= random.nextInt(4) - random.nextInt(4)) {// 42 44 46
+      for (int var5 = random.nextInt(8) - random.nextInt(8) + b; a >= 0 && a <= 20 && var5 >= 0 && var5 <= 20; var5 -= random.nextInt(4) - random.nextInt(4)) {// 42 44 46
          a -= random.nextInt(4) - random.nextInt(4);// 45
       }
    }// 48
 
    public int testElseIf(int i) {
-      while(i > 0) {// 51
+      while (i > 0) {// 51
          if (i == 10) {// 52
-            ++i;// 53
+            i++;// 53
          } else if (i == 11) {// 54
             i += 2;// 55
          } else if (i == 12) {// 56
-            --i;// 57
+            i--;// 57
          } else if (i == 13) {// 58
             i /= 2;// 59
          } else {

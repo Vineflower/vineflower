@@ -1,0 +1,1703 @@
+package pkg;
+
+public interface TestCaseClasses {
+}
+
+// Decompiled companion from pkg/Option1
+package pkg;
+
+import java.io.Serializable;
+import scala.Product;
+import scala.runtime.BoxesRunTime;
+import scala.runtime.Statics;
+import scala.runtime.ScalaRunTime.;
+
+public class Option1 implements TestCaseClasses, Product, Serializable {
+   private final int value;
+
+   public static Option1 apply(int var0) {
+      return Option1$.MODULE$.apply(var0);
+   }
+
+   public static Option1 fromProduct(Product var0) {
+      return Option1$.MODULE$.fromProduct(var0);
+   }
+
+   public static Option1 unapply(Option1 var0) {
+      return Option1$.MODULE$.unapply(var0);
+   }
+
+   public Option1(final int value) {
+      this.value = value;
+   }
+
+   public int hashCode() {
+      int var1 = -889275714;
+      var1 = Statics.mix(var1, this.productPrefix().hashCode());
+      var1 = Statics.mix(var1, this.value());
+      return Statics.finalizeHash(var1, 1);
+   }
+
+   public boolean equals(final Object x$0) {
+      if (this != x$0) {
+         boolean var10000;
+         if (x$0 instanceof Option1) {
+            Option1 var3 = (Option1)x$0;
+            var10000 = this.value() == var3.value() && var3.canEqual(this);
+         } else {
+            var10000 = false;
+         }
+
+         if (!var10000) {
+            return false;
+         }
+      }
+
+      return true;
+   }
+
+   public String toString() {
+      return .MODULE$._toString(this);
+   }
+
+   public boolean canEqual(final Object that) {
+      return that instanceof Option1;
+   }
+
+   public int productArity() {
+      return 1;
+   }
+
+   public String productPrefix() {
+      return "Option1";
+   }
+
+   public Object productElement(final int n) {
+      if (0 == n) {
+         return BoxesRunTime.boxToInteger(this._1());
+      } else {
+         throw new IndexOutOfBoundsException(BoxesRunTime.boxToInteger(n).toString());
+      }
+   }
+
+   public String productElementName(final int n) {
+      if (0 == n) {
+         return "value";
+      } else {
+         throw new IndexOutOfBoundsException(BoxesRunTime.boxToInteger(n).toString());
+      }
+   }
+
+   public int value() {
+      return this.value;
+   }
+
+   public Option1 copy(final int value) {
+      return new Option1(value);
+   }
+
+   public int copy$default$1() {
+      return this.value();
+   }
+
+   public int _1() {
+      return this.value();// 5
+   }
+}
+
+class 'pkg/Option1' {
+   method 'apply (I)Lpkg/Option1;' {
+      0      12
+      1      12
+      2      12
+      3      12
+      4      12
+      5      12
+      6      12
+      7      12
+   }
+
+   method 'fromProduct (Lscala/Product;)Lpkg/Option1;' {
+      0      16
+      1      16
+      2      16
+      3      16
+      4      16
+      5      16
+      6      16
+      7      16
+   }
+
+   method 'unapply (Lpkg/Option1;)Lpkg/Option1;' {
+      0      20
+      1      20
+      2      20
+      3      20
+      4      20
+      5      20
+      6      20
+      7      20
+   }
+
+   method '<init> (I)V' {
+      0      24
+      1      24
+      2      24
+      3      24
+      4      24
+      9      25
+   }
+
+   method 'hashCode ()I' {
+      0      28
+      1      28
+      2      28
+      3      29
+      4      29
+      5      29
+      6      29
+      7      29
+      8      29
+      9      29
+      a      29
+      b      29
+      c      29
+      d      29
+      e      29
+      f      30
+      10      30
+      11      30
+      12      30
+      13      30
+      14      30
+      15      30
+      16      30
+      17      30
+      18      31
+      19      31
+      1a      31
+      1b      31
+      1c      31
+      1d      31
+   }
+
+   method 'equals (Ljava/lang/Object;)Z' {
+      0      35
+      1      35
+      2      35
+      5      37
+      7      37
+      8      37
+      9      37
+      a      37
+      b      37
+      e      38
+      f      38
+      10      38
+      11      38
+      12      38
+      13      39
+      14      39
+      15      39
+      16      39
+      17      39
+      18      39
+      19      39
+      1a      39
+      1b      39
+      1e      39
+      1f      39
+      20      39
+      21      39
+      22      39
+      23      39
+      2e      41
+      32      44
+      35      49
+      39      45
+      3a      45
+   }
+
+   method 'toString ()Ljava/lang/String;' {
+      0      53
+      1      53
+      2      53
+      3      53
+      4      53
+      5      53
+      6      53
+      7      53
+   }
+
+   method 'canEqual (Ljava/lang/Object;)Z' {
+      0      57
+      1      57
+      2      57
+      3      57
+      4      57
+   }
+
+   method 'productArity ()I' {
+      0      61
+      1      61
+   }
+
+   method 'productPrefix ()Ljava/lang/String;' {
+      0      65
+      1      65
+      2      65
+   }
+
+   method 'productElement (I)Ljava/lang/Object;' {
+      0      69
+      2      69
+      3      69
+      4      69
+      7      70
+      8      70
+      9      70
+      a      70
+      b      70
+      c      70
+      d      70
+      e      70
+      f      70
+      10      70
+      11      70
+      12      70
+      13      70
+      14      70
+      15      70
+      16      70
+      17      70
+      18      70
+      19      70
+      1a      70
+      1b      70
+      1c      70
+      1d      70
+      1e      70
+      1f      70
+   }
+
+   method 'productElementName (I)Ljava/lang/String;' {
+      0      77
+      2      77
+      3      77
+      4      77
+      7      78
+      8      78
+      9      78
+      a      78
+      b      78
+      c      78
+      d      78
+      e      78
+      f      78
+      10      78
+      11      78
+      12      78
+      13      78
+      14      78
+      15      78
+      16      78
+      17      78
+      18      78
+      19      78
+      1a      78
+   }
+
+   method 'value ()I' {
+      0      85
+      1      85
+      2      85
+      3      85
+      4      85
+   }
+
+   method 'copy (I)Lpkg/Option1;' {
+      4      89
+      8      89
+   }
+
+   method 'copy$default$1 ()I' {
+      0      93
+      1      93
+      2      93
+      3      93
+      4      93
+   }
+
+   method '_1 ()I' {
+      0      97
+      1      97
+      2      97
+      3      97
+      4      97
+   }
+}
+
+Lines mapping:
+5 <-> 98
+
+// Decompiled companion from pkg/Option1$
+package pkg;
+
+import java.io.Serializable;
+import scala.deriving.Mirror.Product;
+import scala.runtime.BoxesRunTime;
+import scala.runtime.ModuleSerializationProxy;
+
+public final class Option1$ implements Product, Serializable {
+   public static final Option1$ MODULE$ = new Option1$();
+
+   private Option1$() {
+   }
+
+   private Object writeReplace() {
+      return new ModuleSerializationProxy(Option1$.class);
+   }
+
+   public Option1 apply(final int value) {
+      return new Option1(value);
+   }
+
+   public Option1 unapply(final Option1 x$1) {
+      return x$1;
+   }
+
+   public String toString() {
+      return "Option1";
+   }
+
+   public Option1 fromProduct(final scala.Product x$0) {
+      return new Option1(BoxesRunTime.unboxToInt(x$0.productElement(0)));// 5
+   }
+}
+
+class 'pkg/Option1$' {
+   method '<init> ()V' {
+      4      11
+   }
+
+   method 'writeReplace ()Ljava/lang/Object;' {
+      4      14
+      5      14
+      9      14
+   }
+
+   method 'apply (I)Lpkg/Option1;' {
+      4      18
+      8      18
+   }
+
+   method 'unapply (Lpkg/Option1;)Lpkg/Option1;' {
+      0      22
+      1      22
+   }
+
+   method 'toString ()Ljava/lang/String;' {
+      0      26
+      1      26
+      2      26
+   }
+
+   method 'fromProduct (Lscala/Product;)Lpkg/Option1;' {
+      4      30
+      5      30
+      6      30
+      7      30
+      8      30
+      9      30
+      a      30
+      b      30
+      c      30
+      d      30
+      11      30
+   }
+}
+
+Lines mapping:
+5 <-> 31
+
+// Decompiled companion from pkg/Option2
+package pkg;
+
+import java.io.Serializable;
+import scala.Product;
+import scala.runtime.BoxesRunTime;
+import scala.runtime.Statics;
+import scala.runtime.ScalaRunTime.;
+
+public class Option2 implements TestCaseClasses, Product, Serializable {
+   private final double x;
+   private final double y;
+   private final double z;
+
+   public static Option2 apply(double var0, double var2, double var4) {
+      return Option2$.MODULE$.apply(var0, var2, var4);
+   }
+
+   public static Option2 fromProduct(Product var0) {
+      return Option2$.MODULE$.fromProduct(var0);
+   }
+
+   public static Option2 unapply(Option2 var0) {
+      return Option2$.MODULE$.unapply(var0);
+   }
+
+   public Option2(final double x, final double y, final double z) {
+      this.x = x;
+      this.y = y;
+      this.z = z;
+   }
+
+   public int hashCode() {
+      int var1 = -889275714;
+      var1 = Statics.mix(var1, this.productPrefix().hashCode());
+      var1 = Statics.mix(var1, Statics.doubleHash(this.x()));
+      var1 = Statics.mix(var1, Statics.doubleHash(this.y()));
+      var1 = Statics.mix(var1, Statics.doubleHash(this.z()));
+      return Statics.finalizeHash(var1, 3);
+   }
+
+   public boolean equals(final Object x$0) {
+      if (this != x$0) {
+         boolean var10000;
+         if (x$0 instanceof Option2) {
+            Option2 var3 = (Option2)x$0;
+            var10000 = this.x() == var3.x() && this.y() == var3.y() && this.z() == var3.z() && var3.canEqual(this);
+         } else {
+            var10000 = false;
+         }
+
+         if (!var10000) {
+            return false;
+         }
+      }
+
+      return true;
+   }
+
+   public String toString() {
+      return .MODULE$._toString(this);
+   }
+
+   public boolean canEqual(final Object that) {
+      return that instanceof Option2;
+   }
+
+   public int productArity() {
+      return 3;
+   }
+
+   public String productPrefix() {
+      return "Option2";
+   }
+
+   public Object productElement(final int n) {
+      double var10000;
+      switch (n) {
+         case 0:
+            var10000 = this._1();
+            break;
+         case 1:
+            var10000 = this._2();
+            break;
+         case 2:
+            var10000 = this._3();
+            break;
+         default:
+            throw new IndexOutOfBoundsException(BoxesRunTime.boxToInteger(n).toString());
+      }
+
+      return BoxesRunTime.boxToDouble(var10000);
+   }
+
+   public String productElementName(final int n) {
+      String var10000;
+      switch (n) {
+         case 0:
+            var10000 = "x";
+            break;
+         case 1:
+            var10000 = "y";
+            break;
+         case 2:
+            var10000 = "z";
+            break;
+         default:
+            throw new IndexOutOfBoundsException(BoxesRunTime.boxToInteger(n).toString());
+      }
+
+      return var10000;
+   }
+
+   public double x() {
+      return this.x;
+   }
+
+   public double y() {
+      return this.y;
+   }
+
+   public double z() {
+      return this.z;
+   }
+
+   public Option2 copy(final double x, final double y, final double z) {
+      return new Option2(x, y, z);
+   }
+
+   public double copy$default$1() {
+      return this.x();
+   }
+
+   public double copy$default$2() {
+      return this.y();
+   }
+
+   public double copy$default$3() {
+      return this.z();
+   }
+
+   public double _1() {
+      return this.x();
+   }
+
+   public double _2() {
+      return this.y();
+   }
+
+   public double _3() {
+      return this.z();// 6
+   }
+}
+
+class 'pkg/Option2' {
+   method 'apply (DDD)Lpkg/Option2;' {
+      0      14
+      1      14
+      2      14
+      3      14
+      4      14
+      5      14
+      6      14
+      7      14
+      8      14
+      9      14
+      a      14
+   }
+
+   method 'fromProduct (Lscala/Product;)Lpkg/Option2;' {
+      0      18
+      1      18
+      2      18
+      3      18
+      4      18
+      5      18
+      6      18
+      7      18
+   }
+
+   method 'unapply (Lpkg/Option2;)Lpkg/Option2;' {
+      0      22
+      1      22
+      2      22
+      3      22
+      4      22
+      5      22
+      6      22
+      7      22
+   }
+
+   method '<init> (DDD)V' {
+      0      26
+      1      26
+      2      26
+      3      26
+      4      26
+      5      27
+      6      27
+      7      27
+      8      27
+      9      27
+      a      28
+      b      28
+      c      28
+      d      28
+      e      28
+      f      28
+      14      29
+   }
+
+   method 'hashCode ()I' {
+      0      32
+      1      32
+      2      32
+      3      33
+      4      33
+      5      33
+      6      33
+      7      33
+      8      33
+      9      33
+      a      33
+      b      33
+      c      33
+      d      33
+      e      33
+      f      34
+      10      34
+      11      34
+      12      34
+      13      34
+      14      34
+      15      34
+      16      34
+      17      34
+      18      34
+      19      34
+      1a      34
+      1b      35
+      1c      35
+      1d      35
+      1e      35
+      1f      35
+      20      35
+      21      35
+      22      35
+      23      35
+      24      35
+      25      35
+      26      35
+      27      36
+      28      36
+      29      36
+      2a      36
+      2b      36
+      2c      36
+      2d      36
+      2e      36
+      2f      36
+      30      36
+      31      36
+      32      36
+      33      37
+      34      37
+      35      37
+      36      37
+      37      37
+      38      37
+   }
+
+   method 'equals (Ljava/lang/Object;)Z' {
+      0      41
+      1      41
+      2      41
+      5      43
+      7      43
+      8      43
+      9      43
+      a      43
+      b      43
+      e      44
+      f      44
+      10      44
+      11      44
+      12      44
+      13      45
+      14      45
+      15      45
+      16      45
+      17      45
+      18      45
+      19      45
+      1a      45
+      1b      45
+      1c      45
+      1f      45
+      20      45
+      21      45
+      22      45
+      23      45
+      24      45
+      25      45
+      26      45
+      27      45
+      28      45
+      2b      45
+      2c      45
+      2d      45
+      2e      45
+      2f      45
+      30      45
+      31      45
+      32      45
+      33      45
+      34      45
+      37      45
+      38      45
+      39      45
+      3a      45
+      3b      45
+      3c      45
+      47      47
+      4b      50
+      4e      55
+      52      51
+      53      51
+   }
+
+   method 'toString ()Ljava/lang/String;' {
+      0      59
+      1      59
+      2      59
+      3      59
+      4      59
+      5      59
+      6      59
+      7      59
+   }
+
+   method 'canEqual (Ljava/lang/Object;)Z' {
+      0      63
+      1      63
+      2      63
+      3      63
+      4      63
+   }
+
+   method 'productArity ()I' {
+      0      67
+      1      67
+   }
+
+   method 'productPrefix ()Ljava/lang/String;' {
+      0      71
+      1      71
+      2      71
+   }
+
+   method 'productElement (I)Ljava/lang/Object;' {
+      0      76
+      2      76
+      3      76
+      1c      78
+      1d      78
+      1e      78
+      1f      78
+      20      79
+      26      81
+      27      81
+      28      81
+      29      81
+      2a      82
+      30      84
+      31      84
+      32      84
+      33      84
+      34      85
+      3e      87
+      3f      87
+      40      87
+      41      87
+      42      87
+      43      87
+      44      87
+      48      87
+      4d      90
+      4e      90
+      4f      90
+      50      90
+   }
+
+   method 'productElementName (I)Ljava/lang/String;' {
+      0      95
+      2      95
+      3      95
+      1c      97
+      1d      97
+      1e      98
+      24      100
+      25      100
+      26      101
+      2c      103
+      2d      103
+      2e      104
+      38      106
+      39      106
+      3a      106
+      3b      106
+      3c      106
+      3d      106
+      3e      106
+      42      106
+      47      109
+   }
+
+   method 'x ()D' {
+      0      113
+      1      113
+      2      113
+      3      113
+      4      113
+   }
+
+   method 'y ()D' {
+      0      117
+      1      117
+      2      117
+      3      117
+      4      117
+   }
+
+   method 'z ()D' {
+      0      121
+      1      121
+      2      121
+      3      121
+      4      121
+   }
+
+   method 'copy (DDD)Lpkg/Option2;' {
+      4      125
+      5      125
+      6      125
+      7      125
+      b      125
+   }
+
+   method 'copy$default$1 ()D' {
+      0      129
+      1      129
+      2      129
+      3      129
+      4      129
+   }
+
+   method 'copy$default$2 ()D' {
+      0      133
+      1      133
+      2      133
+      3      133
+      4      133
+   }
+
+   method 'copy$default$3 ()D' {
+      0      137
+      1      137
+      2      137
+      3      137
+      4      137
+   }
+
+   method '_1 ()D' {
+      0      141
+      1      141
+      2      141
+      3      141
+      4      141
+   }
+
+   method '_2 ()D' {
+      0      145
+      1      145
+      2      145
+      3      145
+      4      145
+   }
+
+   method '_3 ()D' {
+      0      149
+      1      149
+      2      149
+      3      149
+      4      149
+   }
+}
+
+Lines mapping:
+6 <-> 150
+
+// Decompiled companion from pkg/Option2$
+package pkg;
+
+import java.io.Serializable;
+import scala.deriving.Mirror.Product;
+import scala.runtime.BoxesRunTime;
+import scala.runtime.ModuleSerializationProxy;
+
+public final class Option2$ implements Product, Serializable {
+   public static final Option2$ MODULE$ = new Option2$();
+
+   private Option2$() {
+   }
+
+   private Object writeReplace() {
+      return new ModuleSerializationProxy(Option2$.class);
+   }
+
+   public Option2 apply(final double x, final double y, final double z) {
+      return new Option2(x, y, z);
+   }
+
+   public Option2 unapply(final Option2 x$1) {
+      return x$1;
+   }
+
+   public String toString() {
+      return "Option2";
+   }
+
+   public Option2 fromProduct(final scala.Product x$0) {
+      return new Option2(
+         BoxesRunTime.unboxToDouble(x$0.productElement(0)),// 6
+         BoxesRunTime.unboxToDouble(x$0.productElement(1)),
+         BoxesRunTime.unboxToDouble(x$0.productElement(2))
+      );
+   }
+}
+
+class 'pkg/Option2$' {
+   method '<init> ()V' {
+      4      11
+   }
+
+   method 'writeReplace ()Ljava/lang/Object;' {
+      4      14
+      5      14
+      9      14
+   }
+
+   method 'apply (DDD)Lpkg/Option2;' {
+      4      18
+      5      18
+      6      18
+      7      18
+      b      18
+   }
+
+   method 'unapply (Lpkg/Option2;)Lpkg/Option2;' {
+      0      22
+      1      22
+   }
+
+   method 'toString ()Ljava/lang/String;' {
+      0      26
+      1      26
+      2      26
+   }
+
+   method 'fromProduct (Lscala/Product;)Lpkg/Option2;' {
+      4      31
+      5      31
+      6      31
+      7      31
+      8      31
+      9      31
+      a      31
+      b      31
+      c      31
+      d      31
+      e      32
+      f      32
+      10      32
+      11      32
+      12      32
+      13      32
+      14      32
+      15      32
+      16      32
+      17      32
+      18      33
+      19      33
+      1a      33
+      1b      33
+      1c      33
+      1d      33
+      1e      33
+      1f      33
+      20      33
+      21      33
+      25      30
+   }
+}
+
+Lines mapping:
+6 <-> 32
+
+// Decompiled companion from pkg/Option3
+package pkg;
+
+import java.io.Serializable;
+import scala.Product;
+import scala.collection.immutable.List;
+import scala.runtime.BoxesRunTime;
+import scala.runtime.ScalaRunTime.;
+
+public class Option3 implements TestCaseClasses, Product, Serializable {
+   private final List value;
+
+   public static Option3 apply(List<String> var0) {
+      return Option3$.MODULE$.apply(var0);
+   }
+
+   public static Option3 fromProduct(Product var0) {
+      return Option3$.MODULE$.fromProduct(var0);
+   }
+
+   public static Option3 unapply(Option3 var0) {
+      return Option3$.MODULE$.unapply(var0);
+   }
+
+   public Option3(final List<String> value) {
+      this.value = value;
+   }
+
+   public int hashCode() {
+      return .MODULE$._hashCode(this);
+   }
+
+   public boolean equals(final Object x$0) {
+      if (this != x$0) {
+         boolean var5;
+         if (!(x$0 instanceof Option3)) {
+            var5 = false;
+         } else {
+            Option3 var3 = (Option3)x$0;
+            List var10000 = this.value();
+            List var4 = var3.value();
+            var5 = (var10000 == null ? var4 == null : var10000.equals(var4)) && var3.canEqual(this);
+         }
+
+         if (!var5) {
+            return false;
+         }
+      }
+
+      return true;
+   }
+
+   public String toString() {
+      return .MODULE$._toString(this);
+   }
+
+   public boolean canEqual(final Object that) {
+      return that instanceof Option3;
+   }
+
+   public int productArity() {
+      return 1;
+   }
+
+   public String productPrefix() {
+      return "Option3";
+   }
+
+   public Object productElement(final int n) {
+      if (0 == n) {
+         return this._1();
+      } else {
+         throw new IndexOutOfBoundsException(BoxesRunTime.boxToInteger(n).toString());
+      }
+   }
+
+   public String productElementName(final int n) {
+      if (0 == n) {
+         return "value";
+      } else {
+         throw new IndexOutOfBoundsException(BoxesRunTime.boxToInteger(n).toString());
+      }
+   }
+
+   public List<String> value() {
+      return this.value;
+   }
+
+   public Option3 copy(final List<String> value) {
+      return new Option3(value);
+   }
+
+   public List<String> copy$default$1() {
+      return this.value();
+   }
+
+   public List<String> _1() {
+      return this.value();// 7
+   }
+}
+
+class 'pkg/Option3' {
+   method 'apply (Lscala/collection/immutable/List;)Lpkg/Option3;' {
+      0      12
+      1      12
+      2      12
+      3      12
+      4      12
+      5      12
+      6      12
+      7      12
+   }
+
+   method 'fromProduct (Lscala/Product;)Lpkg/Option3;' {
+      0      16
+      1      16
+      2      16
+      3      16
+      4      16
+      5      16
+      6      16
+      7      16
+   }
+
+   method 'unapply (Lpkg/Option3;)Lpkg/Option3;' {
+      0      20
+      1      20
+      2      20
+      3      20
+      4      20
+      5      20
+      6      20
+      7      20
+   }
+
+   method '<init> (Lscala/collection/immutable/List;)V' {
+      0      24
+      1      24
+      2      24
+      3      24
+      4      24
+      9      25
+   }
+
+   method 'hashCode ()I' {
+      0      28
+      1      28
+      2      28
+      3      28
+      4      28
+      5      28
+      6      28
+      7      28
+   }
+
+   method 'equals (Ljava/lang/Object;)Z' {
+      0      32
+      1      32
+      2      32
+      5      34
+      7      34
+      8      34
+      9      34
+      a      34
+      b      34
+      e      37
+      f      37
+      10      37
+      11      37
+      12      37
+      13      38
+      14      38
+      15      38
+      16      38
+      17      39
+      18      39
+      19      39
+      1a      39
+      1b      39
+      1c      39
+      1e      40
+      22      40
+      23      40
+      24      40
+      2a      40
+      2b      40
+      2c      40
+      2d      40
+      2e      40
+      2f      40
+      32      40
+      33      40
+      34      40
+      35      40
+      36      40
+      37      40
+      42      35
+      46      43
+      49      48
+      4d      44
+      4e      44
+   }
+
+   method 'toString ()Ljava/lang/String;' {
+      0      52
+      1      52
+      2      52
+      3      52
+      4      52
+      5      52
+      6      52
+      7      52
+   }
+
+   method 'canEqual (Ljava/lang/Object;)Z' {
+      0      56
+      1      56
+      2      56
+      3      56
+      4      56
+   }
+
+   method 'productArity ()I' {
+      0      60
+      1      60
+   }
+
+   method 'productPrefix ()Ljava/lang/String;' {
+      0      64
+      1      64
+      2      64
+   }
+
+   method 'productElement (I)Ljava/lang/Object;' {
+      0      68
+      2      68
+      3      68
+      4      68
+      7      69
+      8      69
+      9      69
+      a      69
+      b      69
+      c      69
+      d      69
+      e      69
+      f      69
+      10      69
+      11      69
+      12      69
+      13      69
+      14      69
+      15      69
+      16      69
+      17      69
+      18      69
+      19      69
+      1a      69
+      1b      69
+      1c      69
+   }
+
+   method 'productElementName (I)Ljava/lang/String;' {
+      0      76
+      2      76
+      3      76
+      4      76
+      7      77
+      8      77
+      9      77
+      a      77
+      b      77
+      c      77
+      d      77
+      e      77
+      f      77
+      10      77
+      11      77
+      12      77
+      13      77
+      14      77
+      15      77
+      16      77
+      17      77
+      18      77
+      19      77
+      1a      77
+   }
+
+   method 'value ()Lscala/collection/immutable/List;' {
+      0      84
+      1      84
+      2      84
+      3      84
+      4      84
+   }
+
+   method 'copy (Lscala/collection/immutable/List;)Lpkg/Option3;' {
+      4      88
+      8      88
+   }
+
+   method 'copy$default$1 ()Lscala/collection/immutable/List;' {
+      0      92
+      1      92
+      2      92
+      3      92
+      4      92
+   }
+
+   method '_1 ()Lscala/collection/immutable/List;' {
+      0      96
+      1      96
+      2      96
+      3      96
+      4      96
+   }
+}
+
+Lines mapping:
+7 <-> 97
+
+// Decompiled companion from pkg/Option3$
+package pkg;
+
+import java.io.Serializable;
+import scala.collection.immutable.List;
+import scala.deriving.Mirror.Product;
+import scala.runtime.ModuleSerializationProxy;
+
+public final class Option3$ implements Product, Serializable {
+   public static final Option3$ MODULE$ = new Option3$();
+
+   private Option3$() {
+   }
+
+   private Object writeReplace() {
+      return new ModuleSerializationProxy(Option3$.class);
+   }
+
+   public Option3 apply(final List<String> value) {
+      return new Option3(value);
+   }
+
+   public Option3 unapply(final Option3 x$1) {
+      return x$1;
+   }
+
+   public String toString() {
+      return "Option3";
+   }
+
+   public Option3 fromProduct(final scala.Product x$0) {
+      return new Option3((List<String>)x$0.productElement(0));// 7
+   }
+}
+
+class 'pkg/Option3$' {
+   method '<init> ()V' {
+      4      11
+   }
+
+   method 'writeReplace ()Ljava/lang/Object;' {
+      4      14
+      5      14
+      9      14
+   }
+
+   method 'apply (Lscala/collection/immutable/List;)Lpkg/Option3;' {
+      4      18
+      8      18
+   }
+
+   method 'unapply (Lpkg/Option3;)Lpkg/Option3;' {
+      0      22
+      1      22
+   }
+
+   method 'toString ()Ljava/lang/String;' {
+      0      26
+      1      26
+      2      26
+   }
+
+   method 'fromProduct (Lscala/Product;)Lpkg/Option3;' {
+      4      30
+      5      30
+      6      30
+      7      30
+      8      30
+      9      30
+      a      30
+      b      30
+      c      30
+      d      30
+      11      30
+   }
+}
+
+Lines mapping:
+7 <-> 31
+
+// Decompiled companion from pkg/EnumLike
+package pkg;
+
+import scala.Product;
+import scala.collection.Iterator;
+import scala.deriving.Mirror.Singleton;
+
+public final class EnumLike {
+   public static boolean canEqual(Object var0) {
+      return EnumLike$.MODULE$.canEqual(var0);
+   }
+
+   public static Singleton fromProduct(Product var0) {
+      return EnumLike$.MODULE$.fromProduct(var0);
+   }
+
+   public static int hashCode() {
+      return EnumLike$.MODULE$.hashCode();
+   }
+
+   public static int productArity() {
+      return EnumLike$.MODULE$.productArity();
+   }
+
+   public static Object productElement(int var0) {
+      return EnumLike$.MODULE$.productElement(var0);
+   }
+
+   public static String productElementName(int var0) {
+      return EnumLike$.MODULE$.productElementName(var0);
+   }
+
+   public static Iterator<String> productElementNames() {
+      return EnumLike$.MODULE$.productElementNames();
+   }
+
+   public static Iterator<Object> productIterator() {
+      return EnumLike$.MODULE$.productIterator();
+   }
+
+   public static String productPrefix() {
+      return EnumLike$.MODULE$.productPrefix();
+   }
+
+   public static String toString() {
+      return EnumLike$.MODULE$.toString();
+   }
+}
+
+class 'pkg/EnumLike' {
+   method 'canEqual (Ljava/lang/Object;)Z' {
+      0      8
+      1      8
+      2      8
+      3      8
+      4      8
+      5      8
+      6      8
+      7      8
+   }
+
+   method 'fromProduct (Lscala/Product;)Lscala/deriving/Mirror$Singleton;' {
+      0      12
+      1      12
+      2      12
+      3      12
+      4      12
+      5      12
+      6      12
+      7      12
+   }
+
+   method 'hashCode ()I' {
+      0      16
+      1      16
+      2      16
+      3      16
+      4      16
+      5      16
+      6      16
+   }
+
+   method 'productArity ()I' {
+      0      20
+      1      20
+      2      20
+      3      20
+      4      20
+      5      20
+      6      20
+   }
+
+   method 'productElement (I)Ljava/lang/Object;' {
+      0      24
+      1      24
+      2      24
+      3      24
+      4      24
+      5      24
+      6      24
+      7      24
+   }
+
+   method 'productElementName (I)Ljava/lang/String;' {
+      0      28
+      1      28
+      2      28
+      3      28
+      4      28
+      5      28
+      6      28
+      7      28
+   }
+
+   method 'productElementNames ()Lscala/collection/Iterator;' {
+      0      32
+      1      32
+      2      32
+      3      32
+      4      32
+      5      32
+      6      32
+   }
+
+   method 'productIterator ()Lscala/collection/Iterator;' {
+      0      36
+      1      36
+      2      36
+      3      36
+      4      36
+      5      36
+      6      36
+   }
+
+   method 'productPrefix ()Ljava/lang/String;' {
+      0      40
+      1      40
+      2      40
+      3      40
+      4      40
+      5      40
+      6      40
+   }
+
+   method 'toString ()Ljava/lang/String;' {
+      0      44
+      1      44
+      2      44
+      3      44
+      4      44
+      5      44
+      6      44
+   }
+}
+
+Lines mapping:
+
+// Decompiled companion from pkg/EnumLike$
+package pkg;
+
+import java.io.Serializable;
+import scala.Product;
+import scala.deriving.Mirror.Singleton;
+import scala.runtime.BoxesRunTime;
+import scala.runtime.ModuleSerializationProxy;
+
+public final class EnumLike$ implements TestCaseClasses, Product, Serializable, Singleton {
+   public static final EnumLike$ MODULE$ = new EnumLike$();
+
+   private EnumLike$() {
+   }
+
+   private Object writeReplace() {
+      return new ModuleSerializationProxy(EnumLike$.class);
+   }
+
+   public int hashCode() {
+      return -2006338472;
+   }
+
+   public String toString() {
+      return "EnumLike";
+   }
+
+   public boolean canEqual(final Object that) {
+      return that instanceof EnumLike$;
+   }
+
+   public int productArity() {
+      return 0;
+   }
+
+   public String productPrefix() {
+      return "EnumLike";
+   }
+
+   public Object productElement(final int n) {
+      throw new IndexOutOfBoundsException(BoxesRunTime.boxToInteger(n).toString());
+   }
+
+   public String productElementName(final int n) {
+      throw new IndexOutOfBoundsException(BoxesRunTime.boxToInteger(n).toString());// 8
+   }
+}
+
+class 'pkg/EnumLike$' {
+   method '<init> ()V' {
+      4      12
+   }
+
+   method 'writeReplace ()Ljava/lang/Object;' {
+      4      15
+      5      15
+      9      15
+   }
+
+   method 'hashCode ()I' {
+      0      19
+      1      19
+      2      19
+   }
+
+   method 'toString ()Ljava/lang/String;' {
+      0      23
+      1      23
+      2      23
+   }
+
+   method 'canEqual (Ljava/lang/Object;)Z' {
+      0      27
+      1      27
+      2      27
+      3      27
+      4      27
+   }
+
+   method 'productArity ()I' {
+      0      31
+      1      31
+   }
+
+   method 'productPrefix ()Ljava/lang/String;' {
+      0      35
+      1      35
+      2      35
+   }
+
+   method 'productElement (I)Ljava/lang/Object;' {
+      6      39
+      7      39
+      8      39
+      9      39
+      a      39
+      b      39
+      c      39
+      10      39
+   }
+
+   method 'productElementName (I)Ljava/lang/String;' {
+      6      43
+      7      43
+      8      43
+      9      43
+      a      43
+      b      43
+      c      43
+      10      43
+   }
+}
+
+Lines mapping:
+8 <-> 44

@@ -6,7 +6,7 @@ public class TestSwitchPatternMatching22 {
          System.out.println("hello");// 13
       } catch (Exception var8) {// 14
          Object var2 = new Object();// 15
-         switch(var2) {
+         switch (var2) {
             case Short var4:// 19
             case null:
                break;
@@ -24,7 +24,7 @@ public class TestSwitchPatternMatching22 {
          System.out.println("hello");// 28
       } catch (Exception var8) {// 29
          Object var2 = new Object();
-         switch(var2) {// 30
+         switch (var2) {// 30
             case Short var4:// 34
             case null:
             default:
@@ -41,7 +41,7 @@ public class TestSwitchPatternMatching22 {
          System.out.println("hello");// 43
       } catch (Exception var8) {// 44
          Object var2 = new Object();// 45
-         switch(var2) {
+         switch (var2) {
             case Short var4:// 50
             case null:
                break;
@@ -59,7 +59,7 @@ public class TestSwitchPatternMatching22 {
          System.out.println("hello");// 59
       } catch (Exception var8) {// 60
          Object var2 = new Object();
-         switch(var2) {// 61
+         switch (var2) {// 61
             case Short var4:// 66
             case null:
             default:
@@ -75,7 +75,7 @@ public class TestSwitchPatternMatching22 {
       try {
          System.out.println("hello");// 75
       } catch (Exception var5) {// 76
-         switch(0) {// 77
+         switch (0) {// 77
             case -1:
             case 10:
             default:

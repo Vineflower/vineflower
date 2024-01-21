@@ -9,8 +9,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 public final class InterpreterUtil {
-  public static final boolean IS_WINDOWS = System.getProperty("os.name", "").startsWith("Windows");
-
   public static final int[] EMPTY_INT_ARRAY = new int[0];
 
   private static final int BUFFER_SIZE = 16 * 1024;

@@ -8,11 +8,15 @@ import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
+import org.jetbrains.java.decompiler.modules.decompiler.sforms.SFormsConstructor;
+import org.jetbrains.java.decompiler.modules.decompiler.sforms.VarMapHolder;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructField;
 import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribute;
 import org.jetbrains.java.decompiler.struct.consts.LinkConstant;
+import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.struct.gen.FieldDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
@@ -80,7 +84,7 @@ public class FieldExprent extends Exprent {
       if (instance != null && cl.getSignature() != null) {
         VarType instType = instance.getInferredExprType(null);
 
-        if (instType.isGeneric() && instType.type != CodeConstants.TYPE_GENVAR) {
+        if (instType.isGeneric() && instType.type != CodeType.GENVAR) {
           GenericType ginstance = (GenericType)instType;
 
           cl = DecompilerContext.getStructContext().getClass(instType.value);
@@ -91,6 +95,8 @@ public class FieldExprent extends Exprent {
 
             if (_new != null) {
               ret = _new;
+            } else {
+              ret = getExprType();
             }
           }
         }
@@ -109,8 +115,11 @@ public class FieldExprent extends Exprent {
     //+            int[] aint = this.field_225230_a;
     //+            int j1 = l + i1 * this.field_225231_b;
     //+            aint[j1] &= 16777215;
-    //return 0; // multiple references to a field considered dangerous in a multithreaded environment, thus no Exprent.MULTIPLE_USES set here
+//    return 0; // multiple references to a field considered dangerous in a multithreaded environment, thus no Exprent.MULTIPLE_USES set here
     return instance == null ? Exprent.MULTIPLE_USES : instance.getExprentUse() & Exprent.MULTIPLE_USES;
+    // getting a field could trigger classloading, so it's technically not pure.
+    // TODO: add a decompiler option?
+//    return instance == null ? Exprent.SIDE_EFFECTS_FREE : instance.getExprentUse() & Exprent.SIDE_EFFECTS_FREE;
   }
 
   @Override
@@ -127,7 +136,7 @@ public class FieldExprent extends Exprent {
   }
 
   private boolean isAmbiguous() {
-    MethodWrapper method = (MethodWrapper)DecompilerContext.getProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
+    MethodWrapper method = (MethodWrapper)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
     if (method != null) {
       StructLocalVariableTableAttribute attr = method.methodStruct.getLocalVariableAttr();
       if (attr != null) {
@@ -147,8 +156,13 @@ public class FieldExprent extends Exprent {
     }
 
     if (isStatic) {
+      if (name.equals("TYPE") && ExprUtil.PRIMITIVE_TYPES.containsKey(classname)) {
+        buf.append(ExprUtil.PRIMITIVE_TYPES.get(classname));
+        buf.append(".class");
+        return buf;
+      }
       if (useQualifiedStatic()) {
-        buf.append(DecompilerContext.getImportCollector().getShortNameInClassContext(ExprProcessor.buildJavaClassName(classname)));
+        buf.appendAllClasses(DecompilerContext.getImportCollector().getShortNameInClassContext(ExprProcessor.buildJavaClassName(classname)), classname);
         buf.append(".");
       }
     }
@@ -159,7 +173,7 @@ public class FieldExprent extends Exprent {
         VarExprent instVar = (VarExprent)instance;
         VarVersionPair pair = new VarVersionPair(instVar);
 
-        MethodWrapper currentMethod = (MethodWrapper)DecompilerContext.getProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
+        MethodWrapper currentMethod = (MethodWrapper)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
 
         if (currentMethod != null) { // FIXME: remove
           String this_classname = currentMethod.varproc.getThisVars().get(pair);
@@ -183,7 +197,7 @@ public class FieldExprent extends Exprent {
           instance.setIsQualifier();
         }
         TextBuffer buff = new TextBuffer();
-        boolean casted = ExprProcessor.getCastedExprent(instance, new VarType(CodeConstants.TYPE_OBJECT, 0, classname), buff, indent, true);
+        boolean casted = ExprProcessor.getCastedExprent(instance, new VarType(CodeType.OBJECT, 0, classname), buff, indent, true);
 
         if (casted || instance.getPrecedence() > getPrecedence()) {
           buff.encloseWithParens();
@@ -209,13 +223,13 @@ public class FieldExprent extends Exprent {
 
     buf.addBytecodeMapping(bytecode);
 
-    buf.append(name);
+    buf.appendField(name, false, classname, name, descriptor);
 
     return buf;
   }
 
   private boolean useQualifiedStatic() {
-    ClassNode node = (ClassNode)DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS_NODE);
+    ClassNode node = (ClassNode)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
     return node == null || !classname.equals(node.classStruct.qualifiedName) || isAmbiguous() || forceQualified;
   }
 
@@ -282,6 +296,14 @@ public class FieldExprent extends Exprent {
     return super.allowNewlineAfterQualifier();
   }
 
+  @Override
+  public void processSforms(SFormsConstructor sFormsConstructor, VarMapHolder varMaps, Statement stat, boolean calcLiveVars) {
+    if(this.instance != null) {
+      this.instance.processSforms(sFormsConstructor, varMaps, stat, calcLiveVars);
+    }
+    sFormsConstructor.fieldRead(this, varMaps.getNormal());
+  }
+
   // *****************************************************************************
   // IMatchable implementation
   // *****************************************************************************
@@ -292,7 +314,7 @@ public class FieldExprent extends Exprent {
       return false;
     }
 
-    RuleValue rule = matchNode.getRules().get(MatchProperties.EXPRENT_FIELD_NAME);
+    RuleValue rule = matchNode.getRawRule(MatchProperties.EXPRENT_NAME);
     if (rule != null) {
       if (rule.isVariable()) {
         return engine.checkAndSetVariableValue((String)rule.value, this.name);

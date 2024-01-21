@@ -1,0 +1,72 @@
+package pkg
+
+class TestPoorNames {
+   public final val `Dangerous property name?!`: String = "test"
+   public final val `Property with spaces`: Int = 42
+
+   fun `Function with spaces`() {
+   }// 5
+
+   fun `Dangerous function name?!`() {
+   }// 8
+
+   fun `functionWith$Dollar`() {
+   }// 14
+
+   fun functionWithParameters(var1: Int, var2: String) {
+   }// 17
+
+   fun test() {
+      new TestPoorNames.Class with spaces();
+      this.Dangerous function name?!();// 23
+      this.functionWithParameters(42, "test");// 24
+   }// 25
+
+   class `Class with spaces` {
+   }
+}
+
+class 'pkg/TestPoorNames' {
+   method 'Function with spaces ()V' {
+      0      7
+   }
+
+   method 'Dangerous function name?! ()V' {
+      0      10
+   }
+
+   method 'functionWith$Dollar ()V' {
+      0      13
+   }
+
+   method 'functionWithParameters (ILjava/lang/String;)V' {
+      6      16
+   }
+
+   method 'test ()V' {
+      8      20
+      9      20
+      a      20
+      b      20
+      c      21
+      d      21
+      e      21
+      f      21
+      10      21
+      11      21
+      12      21
+      13      21
+      14      22
+   }
+}
+
+Lines mapping:
+5 <-> 8
+8 <-> 11
+14 <-> 14
+17 <-> 17
+23 <-> 21
+24 <-> 22
+25 <-> 23
+Not mapped:
+22

@@ -4,7 +4,7 @@ public class TestShiftLoop {
    public static void test(long[] l) {
       long x = l[0];// 7
 
-      for(int i = 1; i < 2; ++i) {// 8
+      for (int i = 1; i < 2; i++) {// 8
          x <<= 3;// 9
       }
 

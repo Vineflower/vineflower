@@ -1,0 +1,198 @@
+package pkg;
+
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+
+public class TestDoubleForeach {
+   private Set<String> one = new HashSet();
+   private Set<String> two = new HashSet();
+
+   public void myMethod() {
+      Iterator oneIterator = this.one.iterator();// 12
+      Iterator twoIterator = this.two.iterator();// 13
+
+      while (oneIterator.hasNext()) {// 17
+         String myString = (String)oneIterator.next();// 18
+      }
+
+      while (twoIterator.hasNext()) {// 21
+         String myString = (String)twoIterator.next();// 22
+      }
+   }// 24
+
+   public void myMethod2() {
+      String[] oneArr = (String[])this.one.toArray(String[]::new);// 27
+      String[] twoArr = (String[])this.two.toArray(String[]::new);// 28
+      String[] x = oneArr;// 32
+      String[] x2 = twoArr;// 33
+      int l = oneArr.length;// 34
+      int l2 = twoArr.length;// 35
+
+      for (int i = 0; i < l; i++) {// 37
+         String myString = x[i];// 38
+      }
+
+      for (int i = 0; i < l2; i++) {// 41
+         String myString = x2[i];// 42
+      }
+   }// 44
+}
+
+class 'pkg/TestDoubleForeach' {
+   method 'myMethod ()V' {
+      0      11
+      1      11
+      2      11
+      3      11
+      4      11
+      5      11
+      6      11
+      7      11
+      8      11
+      9      11
+      a      12
+      b      12
+      c      12
+      d      12
+      e      12
+      f      12
+      10      12
+      11      12
+      12      12
+      13      12
+      14      14
+      15      14
+      16      14
+      17      14
+      18      14
+      19      14
+      1d      15
+      1e      15
+      1f      15
+      20      15
+      21      15
+      22      15
+      23      15
+      24      15
+      25      15
+      26      15
+      2a      18
+      2b      18
+      2c      18
+      2d      18
+      2e      18
+      2f      18
+      33      19
+      34      19
+      35      19
+      36      19
+      37      19
+      38      19
+      39      19
+      3a      19
+      3b      19
+      3c      19
+      40      21
+   }
+
+   method 'myMethod2 ()V' {
+      0      24
+      1      24
+      2      24
+      3      24
+      9      24
+      a      24
+      b      24
+      c      24
+      d      24
+      e      24
+      f      24
+      10      24
+      11      24
+      12      25
+      13      25
+      14      25
+      15      25
+      1b      25
+      1c      25
+      1d      25
+      1e      25
+      1f      25
+      20      25
+      21      25
+      22      25
+      23      25
+      24      26
+      25      26
+      26      26
+      27      27
+      28      27
+      29      27
+      2a      28
+      2b      28
+      2c      28
+      2d      28
+      2e      28
+      2f      29
+      30      29
+      31      29
+      32      29
+      33      29
+      34      31
+      35      31
+      36      31
+      37      31
+      38      31
+      39      31
+      3a      31
+      3b      31
+      3e      32
+      3f      32
+      40      32
+      41      32
+      42      32
+      43      32
+      44      31
+      45      31
+      46      31
+      4a      35
+      4b      35
+      4c      35
+      4d      35
+      4e      35
+      4f      35
+      50      35
+      51      35
+      54      36
+      55      36
+      56      36
+      57      36
+      58      36
+      59      36
+      5a      35
+      5b      35
+      5c      35
+      60      38
+   }
+}
+
+Lines mapping:
+12 <-> 12
+13 <-> 13
+17 <-> 15
+18 <-> 16
+21 <-> 19
+22 <-> 20
+24 <-> 22
+27 <-> 25
+28 <-> 26
+32 <-> 27
+33 <-> 28
+34 <-> 29
+35 <-> 30
+37 <-> 32
+38 <-> 33
+41 <-> 36
+42 <-> 37
+44 <-> 39

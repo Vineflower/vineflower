@@ -9,26 +9,58 @@ public class TestIdeaNotNull {
       String s = "";// 10
       int i = new Random().nextInt(12);// 11
       if (i == 0) {// 13
-         return s;// 14
+         if (s == null) {// 14
+            $$$reportNull$$$0(0);
+         }
+
+         return s;
       } else {
-         for(int j = 0; j < i; ++j) {// 17
+         for (int j = 0; j < i; j++) {// 17
             s = s + i;// 18
          }
 
-         return s;// 21
+         if (s == null) {// 21
+            $$$reportNull$$$0(1);
+         }
+
+         return s;
       }
    }
 
    public void test1(@NotNull String s) {
+      if (s == null) {
+         $$$reportNull$$$0(2);
+      }
+
       System.out.println(s);// 25
    }// 26
 
    public void test2(@NotNull String s, @NotNull Integer i) {
+      if (s == null) {
+         $$$reportNull$$$0(3);
+      }
+
+      if (i == null) {
+         $$$reportNull$$$0(4);
+      }
+
       System.out.println(s);// 29
       System.out.println(i);// 31
    }// 32
 
    public void test3(@NotNull String s, @NotNull Integer i, @NotNull Float f) {
+      if (s == null) {
+         $$$reportNull$$$0(5);
+      }
+
+      if (i == null) {
+         $$$reportNull$$$0(6);
+      }
+
+      if (f == null) {
+         $$$reportNull$$$0(7);
+      }
+
       System.out.println(s);// 35
       System.out.println(i);// 37
       if (i == 0) {// 39
@@ -41,7 +73,7 @@ public class TestIdeaNotNull {
       String s = "";// 46
       int i = new Random().nextInt(12);// 47
 
-      for(int j = 0; j < i; ++j) {// 49
+      for (int j = 0; j < i; j++) {// 49
          s = s + i;// 50
       }
 
@@ -50,15 +82,27 @@ public class TestIdeaNotNull {
 
    @NotNull
    public String test5(@NotNull Integer i) {
+      if (i == null) {
+         $$$reportNull$$$0(8);
+      }
+
       String s = "";// 58
       if (i == 0) {// 60
-         return s;// 61
+         if (s == null) {// 61
+            $$$reportNull$$$0(9);
+         }
+
+         return s;
       } else {
-         for(int j = 0; j < i; ++j) {// 64
+         for (int j = 0; j < i; j++) {// 64
             s = s + i;// 65
          }
 
-         return s;// 68
+         if (s == null) {// 68
+            $$$reportNull$$$0(10);
+         }
+
+         return s;
       }
    }
 }
@@ -77,140 +121,185 @@ class 'pkg/TestIdeaNotNull' {
       10      10
       11      10
       14      11
-      1d      11
-      1e      13
-      1f      13
-      20      13
-      21      13
-      22      13
-      2c      14
-      30      14
-      34      14
-      35      14
-      36      14
-      37      14
-      38      13
-      39      13
-      3a      13
-      3e      17
-      47      17
+      16      11
+      19      12
+      1a      12
+      1d      15
+      1e      17
+      1f      17
+      20      17
+      21      17
+      22      17
+      2c      18
+      30      18
+      34      18
+      35      18
+      36      18
+      37      18
+      38      17
+      39      17
+      3a      17
+      3e      21
+      40      21
+      43      22
+      44      22
+      47      25
    }
 
    method 'test1 (Ljava/lang/String;)V' {
-      8      22
-      9      22
-      a      22
-      b      22
-      c      22
-      d      22
-      e      22
-      f      23
+      0      30
+      1      30
+      4      31
+      5      31
+      8      34
+      9      34
+      a      34
+      b      34
+      c      34
+      d      34
+      e      34
+      f      35
    }
 
    method 'test2 (Ljava/lang/String;Ljava/lang/Integer;)V' {
-      10      26
-      11      26
-      12      26
-      13      26
-      14      26
-      15      26
-      16      26
-      17      27
-      18      27
-      19      27
-      1a      27
-      1b      27
-      1c      27
-      1d      27
-      1e      28
+      0      38
+      1      38
+      4      39
+      5      39
+      8      42
+      9      42
+      c      43
+      d      43
+      10      46
+      11      46
+      12      46
+      13      46
+      14      46
+      15      46
+      16      46
+      17      47
+      18      47
+      19      47
+      1a      47
+      1b      47
+      1c      47
+      1d      47
+      1e      48
    }
 
    method 'test3 (Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Float;)V' {
-      1a      31
-      1b      31
-      1c      31
-      1d      31
-      1e      31
-      1f      31
-      20      31
-      21      32
-      22      32
-      23      32
-      24      32
-      25      32
-      26      32
-      27      32
-      28      33
-      29      33
-      2a      33
-      2b      33
-      2c      33
-      2f      34
-      30      34
-      31      34
-      32      34
-      33      34
-      36      36
+      0      51
+      1      51
+      4      52
+      5      52
+      8      55
+      9      55
+      c      56
+      d      56
+      e      56
+      11      59
+      12      59
+      15      60
+      16      60
+      17      60
+      1a      63
+      1b      63
+      1c      63
+      1d      63
+      1e      63
+      1f      63
+      20      63
+      21      64
+      22      64
+      23      64
+      24      64
+      25      64
+      26      64
+      27      64
+      28      65
+      29      65
+      2a      65
+      2b      65
+      2c      65
+      2f      66
+      30      66
+      31      66
+      32      66
+      33      66
+      36      68
    }
 
    method 'test4 ()Ljava/lang/String;' {
-      0      40
-      1      40
-      2      40
-      a      41
-      b      41
-      c      41
-      d      41
-      e      41
-      f      41
-      10      43
-      11      43
-      12      43
-      13      43
-      14      43
-      1e      44
-      22      44
-      26      44
-      27      44
-      28      44
-      29      44
-      2a      43
-      2b      43
-      2c      43
-      34      47
-      38      47
+      0      72
+      1      72
+      2      72
+      a      73
+      b      73
+      c      73
+      d      73
+      e      73
+      f      73
+      10      75
+      11      75
+      12      75
+      13      75
+      14      75
+      1e      76
+      22      76
+      26      76
+      27      76
+      28      76
+      29      76
+      2a      75
+      2b      75
+      2c      75
+      34      79
+      38      79
    }
 
    method 'test5 (Ljava/lang/Integer;)Ljava/lang/String;' {
-      9      52
-      a      52
-      b      52
-      c      53
-      d      53
-      e      53
-      f      53
-      10      53
-      13      54
-      1d      54
-      1e      56
-      1f      56
-      20      56
-      21      56
-      22      56
-      23      56
-      24      56
-      25      56
-      2f      57
-      33      57
-      37      57
-      38      57
-      39      57
-      3a      57
-      3b      56
-      3c      56
-      3d      56
-      41      60
-      4b      60
+      0      84
+      1      84
+      4      85
+      5      85
+      6      85
+      9      88
+      a      88
+      b      88
+      c      89
+      d      89
+      e      89
+      f      89
+      10      89
+      13      90
+      15      90
+      18      91
+      19      91
+      1a      91
+      1d      94
+      1e      96
+      1f      96
+      20      96
+      21      96
+      22      96
+      23      96
+      24      96
+      25      96
+      2f      97
+      33      97
+      37      97
+      38      97
+      39      97
+      3a      97
+      3b      96
+      3c      96
+      3d      96
+      41      100
+      43      100
+      46      101
+      47      101
+      48      101
+      4b      104
    }
 }
 
@@ -219,27 +308,27 @@ Lines mapping:
 11 <-> 10
 13 <-> 11
 14 <-> 12
-17 <-> 14
-18 <-> 15
-21 <-> 18
-25 <-> 23
-26 <-> 24
-29 <-> 27
-31 <-> 28
-32 <-> 29
-35 <-> 32
-37 <-> 33
-39 <-> 34
-40 <-> 35
-42 <-> 37
-46 <-> 41
-47 <-> 42
-49 <-> 44
-50 <-> 45
-53 <-> 48
-58 <-> 53
-60 <-> 54
-61 <-> 55
-64 <-> 57
-65 <-> 58
-68 <-> 61
+17 <-> 18
+18 <-> 19
+21 <-> 22
+25 <-> 35
+26 <-> 36
+29 <-> 47
+31 <-> 48
+32 <-> 49
+35 <-> 64
+37 <-> 65
+39 <-> 66
+40 <-> 67
+42 <-> 69
+46 <-> 73
+47 <-> 74
+49 <-> 76
+50 <-> 77
+53 <-> 80
+58 <-> 89
+60 <-> 90
+61 <-> 91
+64 <-> 97
+65 <-> 98
+68 <-> 101

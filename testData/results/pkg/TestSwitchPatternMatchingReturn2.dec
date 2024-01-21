@@ -6,7 +6,7 @@ public class TestSwitchPatternMatchingReturn2 {
    public int test(Object o) {
       Objects.requireNonNull(o);
 
-      return switch(o) {// 5
+      return switch (o) {// 5
          case Integer i when i > 100 -> -i;// 6
          case Integer ix -> ix;// 7
          case String s -> s.length();// 8

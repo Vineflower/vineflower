@@ -11,7 +11,7 @@ public class TestTryLoopSimpleFinally {
 
    public void test(File file) {
       try {
-         while(this.field) {// 15
+         while (this.field) {// 15
             new Scanner(file);// 16
          }
       } catch (FileNotFoundException var6) {// 18
@@ -23,14 +23,14 @@ public class TestTryLoopSimpleFinally {
 
    public void test2(int x, Path file) throws IOException {
       try {
-         while(x >= 0) {// 27
+         while (x >= 0) {// 27
             Scanner scanner = new Scanner(file);// 28
-            if (x % 11 != 0) {// 30
-               x -= scanner.nextInt();// 35
-            } else {
+            if (x % 11 == 0) {// 30
                System.out.println("nice");// 31
                return;// 32
             }
+
+            x -= scanner.nextInt();// 35
          }
       } finally {
          System.out.println("Finally");// 38
@@ -67,18 +67,18 @@ class 'pkg/TestTryLoopSimpleFinally' {
       f      27
       10      27
       11      27
-      14      30
-      15      30
-      16      30
-      17      30
-      18      30
-      19      30
-      24      31
-      26      28
-      27      28
-      28      28
-      29      28
-      2b      28
+      14      28
+      15      28
+      16      28
+      17      28
+      18      28
+      19      28
+      24      29
+      26      32
+      27      32
+      28      32
+      29      32
+      2b      32
       37      37
       3c      35
       3d      35
@@ -99,9 +99,9 @@ Lines mapping:
 27 <-> 26
 28 <-> 27
 30 <-> 28
-31 <-> 31
-32 <-> 32
-35 <-> 29
+31 <-> 29
+32 <-> 30
+35 <-> 33
 38 <-> 36
 39 <-> 38
 Not mapped:

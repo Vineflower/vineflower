@@ -11,11 +11,11 @@ public class TestEmptyBlocks {
 
       int i = 0;// 29
 
-      while(i < 5) {
-         ++i;
+      while (i < 5) {
+         i++;
       }
 
-      while(new Random().nextBoolean()) {// 33
+      while (new Random().nextBoolean()) {// 33
       }
 
       if (new Random().nextBoolean()) {// 37

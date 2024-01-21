@@ -10,6 +10,8 @@ import org.jetbrains.java.decompiler.main.collectors.VarNamesCollector;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectEdge;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectEdgeType;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectNode;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.BasicBlockStatement;
@@ -27,6 +29,7 @@ import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribute.LocalVariable;
 import org.jetbrains.java.decompiler.struct.consts.LinkConstant;
 import org.jetbrains.java.decompiler.struct.consts.PooledConstant;
+import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
@@ -90,7 +93,7 @@ public class NestedClassProcessor {
 
         if (child.type == ClassNode.Type.LOCAL && child.enclosingMethod != null) {
           MethodWrapper enclosingMethodWrapper = node.getWrapper().getMethods().getWithKey(child.enclosingMethod);
-          if(enclosingMethodWrapper != null) { // e.g. in case of switch-on-enum. FIXME: some proper handling of multiple enclosing classes 
+          if(enclosingMethodWrapper != null) { // e.g. in case of switch-on-enum. FIXME: some proper handling of multiple enclosing classes
             setLocalClassDefinition(enclosingMethodWrapper, child);
           }
         }
@@ -150,7 +153,7 @@ public class NestedClassProcessor {
       FieldExprent mapField = (FieldExprent)ass.getLeft();
       NewExprent _new = ((NewExprent)ass.getRight());
       if (!mapField.getClassname().equals(node.classStruct.qualifiedName) || !potentialFields.contains(mapField.getName()) ||
-          _new.getNewType().type != CodeConstants.TYPE_INT || _new.getNewType().arrayDim != 1 ||
+          _new.getNewType().type != CodeType.INT || _new.getNewType().arrayDim != 1 ||
           _new.getLstDims().size() != 1 || _new.getLstDims().get(0).type != Exprent.EXPRENT_FUNCTION) {
         break;
       }
@@ -214,13 +217,6 @@ public class NestedClassProcessor {
     }
   }*/
 
-  private Statement getNewEmptyStatement() {
-    BasicBlockStatement bstat = new BasicBlockStatement(new BasicBlock(
-      DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.STATEMENT_COUNTER)));
-    bstat.setExprents(new ArrayList<Exprent>());
-    return bstat;
-  }
-
   private static void setLambdaVars(ClassNode parent, ClassNode child) {
     if (child.lambdaInformation.is_method_reference) { // method reference, no code and no parameters
       return;
@@ -265,6 +261,7 @@ public class NestedClassProcessor {
     }
     VarNamesCollector enclosingCollector = new VarNamesCollector(usedBefore);
 
+    Map<VarVersionPair, VarVersionPair> originalVersions = new HashMap<>();
     Map<VarVersionPair, String> mapNewNames = new HashMap<>();
     Map<VarVersionPair, LocalVariable> lvts = new HashMap<>();
 
@@ -312,9 +309,11 @@ public class NestedClassProcessor {
                 Exprent param = inv_dynamic.getLstParameters().get(param_index + i);
 
                 if (param instanceof VarExprent) {
-                  mapNewNames.put(varVersion, enclosingVarProc.getVarName(new VarVersionPair((VarExprent)param)));
+                  VarVersionPair paramVersion = new VarVersionPair((VarExprent) param);
+                  originalVersions.put(varVersion, paramVersion);
+                  mapNewNames.put(varVersion, enclosingVarProc.getVarName(paramVersion));
                   lvts.put(varVersion, ((VarExprent)param).getLVT());
-                  if (enclosingVarProc.getVarFinal((new VarVersionPair((VarExprent)param))) == FinalType.NON_FINAL) {
+                  if (enclosingVarProc.getVarFinal(paramVersion) == FinalType.NON_FINAL) {
                     //DecompilerContext.getLogger().writeMessage("Lambda in " + parent.simpleName + "." + enclosingMethod.methodStruct.getName() + " given non-final var " + ((VarExprent)param).getName() + "!", IFernflowerLogger.Severity.ERROR);
                   }
                 }
@@ -342,10 +341,14 @@ public class NestedClassProcessor {
     for (Entry<VarVersionPair, String> entry : mapNewNames.entrySet()) {
       VarVersionPair pair = entry.getKey();
       LocalVariable lvt = lvts.get(pair);
+      VarVersionPair original = originalVersions.get(pair);
 
       varProc.setInheritedName(pair, entry.getValue());
       if (lvt != null) {
         varProc.setVarLVT(pair, lvt);
+      }
+      if (original != null) {
+        varProc.setVarSource(pair, child.enclosingMethod, original);
       }
     }
 
@@ -868,7 +871,7 @@ public class NestedClassProcessor {
 
     // no loop at the begin
     DirectNode firstNode = graph.first;
-    if (firstNode.preds().isEmpty()) {
+    if (!firstNode.hasPredecessors(DirectEdgeType.REGULAR)) {
       // assignment to a synthetic field?
       for (Exprent exprent : firstNode.exprents) {
         if (exprent instanceof AssignmentExprent) {
@@ -1142,7 +1145,12 @@ public class NestedClassProcessor {
         case NEW:
           NewExprent newExpr = (NewExprent) expr;
           VarType newType = newExpr.getNewType();
-          res = newType.type == CodeConstants.TYPE_OBJECT && classname.equals(newType.value) || containsType(newExpr.getConstructor(), classType);
+          if (newExpr.isLambda()) {
+            // TODO: search for classType in lambda body properly, for now we just assume it's in there.
+            res = true;
+            break;
+          }
+          res = newType.type == CodeType.OBJECT && classname.equals(newType.value) || containsType(newExpr.getConstructor(), classType);
           break;
         case VAR:
           VarExprent varExpr = (VarExprent)expr;
@@ -1243,7 +1251,9 @@ public class NestedClassProcessor {
         }
       }
 
-      stack.addAll(node.succs());
+      for (DirectEdge suc : node.getSuccessors(DirectEdgeType.REGULAR)) {
+        stack.add(suc.getDestination());
+      }
     }
   }
 }

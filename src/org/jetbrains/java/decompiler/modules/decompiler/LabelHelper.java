@@ -69,8 +69,13 @@ public final class LabelHelper {
               if (lst.get(i) == dest) {
                 // Add labeled break to the last statement behind the target, lifting it from the statement that it used to be a label of.
                 // This is used to lift labels after inlining.
-                lst.get(i - 1).addLabeledEdge(edge);
-                break;
+
+                // Can't break to a basic block!
+                Statement st = lst.get(i - 1);
+                if (!(st instanceof BasicBlockStatement)) {
+                  st.addLabeledEdge(edge);
+                  break;
+                }
               }
             }
           }

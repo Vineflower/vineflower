@@ -1,99 +1,194 @@
 package pkg;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.NoSuchElementException;
+import java.util.Scanner;
+
 public class TestTryWithResourcesFakeTrigger {
    public void testTrigger1() {
-      String b = "Hi!";// 6
+      String b = "Hi!";// 12
 
       try {
          try {
-            System.out.println("Hi");// 10
-         } catch (Exception var6) {// 11
+            System.out.println("Hi");// 16
+         } catch (Exception var6) {// 17
          }
       } catch (Exception var7) {
          try {
             ;
-         } catch (Exception var5) {// 17
+         } catch (Exception var5) {// 23
          }
       }
-   }// 13 20
+   }// 19 26
 
    public void testTrigger2() {
-      Object var1 = null;// 23
+      Object var1 = null;// 29
 
-      while(var1 == null) {// 25
+      while (var1 == null) {// 31
          try {
-            System.out.println("Hi");// 27
-         } catch (Exception var3) {// 28
-            if (var1 != null) {// 29
+            System.out.println("Hi");// 33
+         } catch (Exception var3) {// 34
+            if (var1 != null) {// 35
                break;
             }
 
-            System.out.println(var1);// 32
+            System.out.println(var1);// 38
          }
       }
-   }// 35
+   }// 41
+
+   public void testTrigger3(File file) throws FileNotFoundException {
+      Scanner scanner = new Scanner(file);// 44
+
+      try {
+         scanner.next();// 47
+      } catch (NoSuchElementException var6) {
+         try {
+            scanner.close();// 50
+         } catch (IllegalStateException var5) {// 51
+            var6.addSuppressed(var5);// 52
+         }
+
+         throw var6;// 55
+      }
+   }// 57
+
+   public void testTrigger4(File file) throws FileNotFoundException {
+      Scanner scanner = new Scanner(file);// 60
+
+      try {
+         scanner.next();// 63
+      } catch (Throwable var6) {
+         try {
+            scanner.close();// 66
+         } catch (Throwable var5) {// 67
+            var6.addSuppressed(var5);// 68
+         }
+
+         throw var6;// 71
+      }
+   }// 73
 }
 
 class 'pkg/TestTryWithResourcesFakeTrigger' {
    method 'testTrigger1 ()V' {
-      0      4
-      1      4
-      2      4
-      3      8
-      4      8
-      5      8
-      6      8
-      7      8
-      8      8
-      e      9
-      f      17
-      16      14
-      18      17
+      0      9
+      1      9
+      2      9
+      3      13
+      4      13
+      5      13
+      6      13
+      7      13
+      8      13
+      e      14
+      f      22
+      16      19
+      18      22
    }
 
    method 'testTrigger2 ()V' {
-      0      20
-      1      20
-      2      22
-      3      22
-      6      24
-      7      24
-      8      24
-      9      24
-      a      24
-      b      24
-      11      25
-      12      26
-      13      26
-      19      30
-      1a      30
-      1b      30
-      1c      30
-      1d      30
-      1e      30
-      1f      30
-      23      33
+      0      25
+      1      25
+      2      27
+      3      27
+      6      29
+      7      29
+      8      29
+      9      29
+      a      29
+      b      29
+      11      30
+      12      31
+      13      31
+      19      35
+      1a      35
+      1b      35
+      1c      35
+      1d      35
+      1e      35
+      1f      35
+      23      38
+   }
+
+   method 'testTrigger3 (Ljava/io/File;)V' {
+      4      41
+      8      41
+      9      44
+      a      44
+      b      44
+      c      44
+      12      47
+      13      47
+      19      48
+      1b      49
+      1c      49
+      1d      49
+      1e      49
+      21      52
+      22      52
+      23      54
+   }
+
+   method 'testTrigger4 (Ljava/io/File;)V' {
+      4      57
+      8      57
+      9      60
+      a      60
+      b      60
+      c      60
+      12      63
+      13      63
+      19      64
+      1b      65
+      1c      65
+      1d      65
+      1e      65
+      21      68
+      22      68
+      23      70
    }
 }
 
 Lines mapping:
-6 <-> 5
-10 <-> 9
-11 <-> 10
-13 <-> 18
+12 <-> 10
+16 <-> 14
 17 <-> 15
-20 <-> 18
-23 <-> 21
-25 <-> 23
-27 <-> 25
-28 <-> 26
-29 <-> 27
-32 <-> 31
-35 <-> 34
+19 <-> 23
+23 <-> 20
+26 <-> 23
+29 <-> 26
+31 <-> 28
+33 <-> 30
+34 <-> 31
+35 <-> 32
+38 <-> 36
+41 <-> 39
+44 <-> 42
+47 <-> 45
+50 <-> 48
+51 <-> 49
+52 <-> 50
+55 <-> 53
+57 <-> 55
+60 <-> 58
+63 <-> 61
+66 <-> 64
+67 <-> 65
+68 <-> 66
+71 <-> 69
+73 <-> 71
 Not mapped:
-12
-14
-16
 18
-30
-33
+20
+22
+24
+36
+39
+48
+53
+56
+64
+69
+72

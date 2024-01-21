@@ -2,7 +2,7 @@ package pkg;
 
 public class TestArrayAssign {
    public void test(TestArrayAssign.Holder holder, int i, double inc) {
-      for(int j = 0; j < i; ++j) {// 5
+      for (int j = 0; j < i; j++) {// 5
          holder.get()[j] += inc;// 6
       }
    }// 8
@@ -12,8 +12,8 @@ public class TestArrayAssign {
    }// 12
 
    public void test2(TestArrayAssign.Holder holder, int i, double inc) {
-      for(int j = 0; j < i; ++j) {// 15
-         holder.a[j] += inc;// 16
+      for (int j = 0; j < i; j++) {// 15
+         holder.a[j] = holder.a[j] + inc;// 16
       }
    }// 18
 
@@ -26,11 +26,78 @@ public class TestArrayAssign {
       System.out.println(inc);// 26
    }// 27
 
+   public void testDouble(TestArrayAssign.Holder holder, int i, double inc) {
+      for (int j = 0; j < i; j++) {// 30
+         holder.get()[j] = holder.get()[j] + inc;// 31
+      }
+   }// 33
+
+   public void testIdx(TestArrayAssign.Holder holder, int i, double inc) {
+      for (int j = 0; j < i; j++) {// 36
+         holder.get()[holder.idx()] += inc;// 37
+      }
+   }// 39
+
+   public void testIdxDouble(TestArrayAssign.Holder holder, int i, double inc) {
+      for (int j = 0; j < i; j++) {// 42
+         holder.get()[holder.idx()] = holder.get()[holder.idx()] + inc;// 43
+      }
+   }// 45
+
+   public void test1Double(TestArrayAssign.Holder holder, int i, double inc) {
+      holder.get()[i] = holder.get()[i] + inc;// 47
+   }// 48
+
+   public void test1Idx(TestArrayAssign.Holder holder, int i, double inc) {
+      holder.get()[holder.idx()] += inc;// 51
+   }// 52
+
+   public void test1IdxDouble(TestArrayAssign.Holder holder, int i, double inc) {
+      holder.get()[holder.idx()] = holder.get()[holder.idx()] + inc;// 55
+   }// 56
+
+   public void test2Double(TestArrayAssign.Holder holder, int i, double inc) {
+      for (int j = 0; j < i; j++) {// 58
+         holder.a[j] = holder.a[j] + inc;// 59
+      }
+   }// 61
+
+   public void test2Idx(TestArrayAssign.Holder holder, int i, double inc) {
+      for (int j = 0; j < i; j++) {// 64
+         holder.a[holder.idx()] += inc;// 65
+      }
+   }// 67
+
+   public void test2IdxDouble(TestArrayAssign.Holder holder, int i, double inc) {
+      for (int j = 0; j < i; j++) {// 70
+         holder.a[holder.idx()] = holder.a[holder.idx()] + inc;// 71
+      }
+   }// 73
+
+   public void test3Double(TestArrayAssign.Holder holder, int i, double inc) {
+      holder.a[i] = holder.a[i] + inc;// 76
+   }// 77
+
+   public void test3Idx(TestArrayAssign.Holder holder, int i, double inc) {
+      holder.a[holder.idx()] += inc;// 80
+   }// 81
+
+   public void test3IdxDouble(TestArrayAssign.Holder holder, int i, double inc) {
+      holder.a[holder.idx()] = holder.a[holder.idx()] + inc;// 84
+   }// 85
+
    public class Holder {
       public double[] a;
 
       public double[] get() {
-         return this.a;// 33
+         double[] res = this.a;// 91
+         this.a = new double[(int)(Math.random() * 50.0)];// 92
+         return res;// 93
+      }
+
+      public int idx() {
+         this.a = new double[(int)(Math.random() * 50.0)];// 97
+         return (int)(Math.random() * 50.0);// 98
       }
    }
 }
@@ -83,7 +150,9 @@ class 'pkg/TestArrayAssign' {
       c      15
       d      15
       e      15
+      10      15
       11      15
+      12      15
       13      15
       14      14
       15      14
@@ -118,15 +187,341 @@ class 'pkg/TestArrayAssign' {
       f      25
       10      26
    }
+
+   method 'testDouble (Lpkg/TestArrayAssign$Holder;ID)V' {
+      0      29
+      1      29
+      2      29
+      3      29
+      4      29
+      5      29
+      6      29
+      9      30
+      a      30
+      b      30
+      c      30
+      d      30
+      e      30
+      f      30
+      10      30
+      11      30
+      12      30
+      13      30
+      14      30
+      15      30
+      16      30
+      17      30
+      18      30
+      19      29
+      1a      29
+      1b      29
+      1f      32
+   }
+
+   method 'testIdx (Lpkg/TestArrayAssign$Holder;ID)V' {
+      0      35
+      1      35
+      2      35
+      3      35
+      4      35
+      5      35
+      6      35
+      9      36
+      a      36
+      b      36
+      c      36
+      d      36
+      e      36
+      f      36
+      10      36
+      13      36
+      15      36
+      16      35
+      17      35
+      18      35
+      1c      38
+   }
+
+   method 'testIdxDouble (Lpkg/TestArrayAssign$Holder;ID)V' {
+      0      41
+      1      41
+      2      41
+      3      41
+      4      41
+      5      41
+      6      41
+      9      42
+      a      42
+      b      42
+      c      42
+      d      42
+      e      42
+      f      42
+      10      42
+      11      42
+      12      42
+      13      42
+      14      42
+      15      42
+      16      42
+      17      42
+      18      42
+      19      42
+      1a      42
+      1b      42
+      1c      42
+      1d      41
+      1e      41
+      1f      41
+      23      44
+   }
+
+   method 'test1Double (Lpkg/TestArrayAssign$Holder;ID)V' {
+      0      47
+      1      47
+      2      47
+      3      47
+      4      47
+      5      47
+      6      47
+      7      47
+      8      47
+      9      47
+      a      47
+      b      47
+      c      47
+      d      47
+      e      48
+   }
+
+   method 'test1Idx (Lpkg/TestArrayAssign$Holder;ID)V' {
+      0      51
+      1      51
+      2      51
+      3      51
+      4      51
+      5      51
+      6      51
+      7      51
+      a      51
+      c      51
+      d      52
+   }
+
+   method 'test1IdxDouble (Lpkg/TestArrayAssign$Holder;ID)V' {
+      0      55
+      1      55
+      2      55
+      3      55
+      4      55
+      5      55
+      6      55
+      7      55
+      8      55
+      9      55
+      a      55
+      b      55
+      c      55
+      d      55
+      e      55
+      f      55
+      10      55
+      11      55
+      12      55
+      13      55
+      14      56
+   }
+
+   method 'test2Double (Lpkg/TestArrayAssign$Holder;ID)V' {
+      0      59
+      1      59
+      2      59
+      3      59
+      4      59
+      5      59
+      6      59
+      9      60
+      a      60
+      b      60
+      c      60
+      d      60
+      e      60
+      f      60
+      10      60
+      11      60
+      12      60
+      13      60
+      14      60
+      15      60
+      16      60
+      17      60
+      18      60
+      19      59
+      1a      59
+      1b      59
+      1f      62
+   }
+
+   method 'test2Idx (Lpkg/TestArrayAssign$Holder;ID)V' {
+      0      65
+      1      65
+      2      65
+      3      65
+      4      65
+      5      65
+      6      65
+      9      66
+      a      66
+      b      66
+      c      66
+      d      66
+      e      66
+      f      66
+      10      66
+      13      66
+      15      66
+      16      65
+      17      65
+      18      65
+      1c      68
+   }
+
+   method 'test2IdxDouble (Lpkg/TestArrayAssign$Holder;ID)V' {
+      0      71
+      1      71
+      2      71
+      3      71
+      4      71
+      5      71
+      6      71
+      9      72
+      a      72
+      b      72
+      c      72
+      d      72
+      e      72
+      f      72
+      10      72
+      11      72
+      12      72
+      13      72
+      14      72
+      15      72
+      16      72
+      17      72
+      18      72
+      19      72
+      1a      72
+      1b      72
+      1c      72
+      1d      71
+      1e      71
+      1f      71
+      23      74
+   }
+
+   method 'test3Double (Lpkg/TestArrayAssign$Holder;ID)V' {
+      0      77
+      1      77
+      2      77
+      3      77
+      4      77
+      5      77
+      6      77
+      7      77
+      8      77
+      9      77
+      a      77
+      b      77
+      c      77
+      d      77
+      e      78
+   }
+
+   method 'test3Idx (Lpkg/TestArrayAssign$Holder;ID)V' {
+      0      81
+      1      81
+      2      81
+      3      81
+      4      81
+      5      81
+      6      81
+      7      81
+      a      81
+      c      81
+      d      82
+   }
+
+   method 'test3IdxDouble (Lpkg/TestArrayAssign$Holder;ID)V' {
+      0      85
+      1      85
+      2      85
+      3      85
+      4      85
+      5      85
+      6      85
+      7      85
+      8      85
+      9      85
+      a      85
+      b      85
+      c      85
+      d      85
+      e      85
+      f      85
+      10      85
+      11      85
+      12      85
+      13      85
+      14      86
+   }
 }
 
 class 'pkg/TestArrayAssign$Holder' {
    method 'get ()[D' {
-      0      32
-      1      32
-      2      32
-      3      32
-      4      32
+      0      92
+      1      92
+      2      92
+      3      92
+      4      92
+      5      93
+      6      93
+      7      93
+      8      93
+      9      93
+      a      93
+      b      93
+      c      93
+      d      93
+      10      93
+      11      93
+      12      93
+      13      94
+      14      94
+   }
+
+   method 'idx ()I' {
+      0      98
+      1      98
+      2      98
+      3      98
+      4      98
+      5      98
+      6      98
+      7      98
+      8      98
+      b      98
+      c      98
+      d      98
+      e      99
+      f      99
+      10      99
+      11      99
+      12      99
+      13      99
+      14      99
+      15      99
+      16      99
    }
 }
 
@@ -143,4 +538,38 @@ Lines mapping:
 25 <-> 25
 26 <-> 26
 27 <-> 27
+30 <-> 30
+31 <-> 31
 33 <-> 33
+36 <-> 36
+37 <-> 37
+39 <-> 39
+42 <-> 42
+43 <-> 43
+45 <-> 45
+47 <-> 48
+48 <-> 49
+51 <-> 52
+52 <-> 53
+55 <-> 56
+56 <-> 57
+58 <-> 60
+59 <-> 61
+61 <-> 63
+64 <-> 66
+65 <-> 67
+67 <-> 69
+70 <-> 72
+71 <-> 73
+73 <-> 75
+76 <-> 78
+77 <-> 79
+80 <-> 82
+81 <-> 83
+84 <-> 86
+85 <-> 87
+91 <-> 93
+92 <-> 94
+93 <-> 95
+97 <-> 99
+98 <-> 100

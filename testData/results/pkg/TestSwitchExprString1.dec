@@ -6,13 +6,13 @@ public class TestSwitchExprString1 {
          return TestSwitchExprString1.Type.B;// 10
       } else {
          byte var3 = -1;
-         switch(s.hashCode()) {
+         switch (s.hashCode()) {
             case 97:
                if (s.equals("a")) {
                   var3 = 0;
                }
             default:
-               return switch(var3) {// 13
+               return switch (var3) {// 13
                   case 0 -> TestSwitchExprString1.Type.A;// 14
                   default -> TestSwitchExprString1.Type.B;// 15
                };

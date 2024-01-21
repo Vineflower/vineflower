@@ -5,7 +5,7 @@ import java.util.Objects;
 public class TestSwitchPatternMatchingInstanceof1 {
    public void test(Object o) {
       Objects.requireNonNull(o);// 5
-      switch(o) {
+      switch (o) {
          case String s when o instanceof Integer a:// 6
             System.out.println(s);
             break;
@@ -35,6 +35,7 @@ class 'pkg/TestSwitchPatternMatchingInstanceof1' {
       33      8
       34      8
       35      8
+      36      8
       3d      8
       3e      8
       3f      9

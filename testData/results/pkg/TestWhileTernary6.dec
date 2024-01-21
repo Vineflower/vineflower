@@ -4,11 +4,11 @@ public class TestWhileTernary6 {
    public void test(boolean condition, int a, int b) {
       do {
          System.out.println(a);// 6
-         ++b;// 7
+         b++;// 7
          if (a > 3) {// 9
-            --a;// 10
+            a--;// 10
          }
-      } while(condition ? a < b : b > a);// 13
+      } while (condition ? a < b : b > a);// 13
    }// 14
 }
 

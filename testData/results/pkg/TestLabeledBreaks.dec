@@ -11,7 +11,7 @@ public class TestLabeledBreaks {
    public void test1(int a) {
       int i = 0;
 
-      while(true) {
+      while (true) {
          if (i < a) {
             System.out.println("1");// 22
             if (a == 1) {// 23
@@ -20,7 +20,7 @@ public class TestLabeledBreaks {
 
             if (a != 2) {// 27
                System.out.println("2");// 31
-               ++i;// 21
+               i++;// 21
                continue;
             }
          }
@@ -33,7 +33,7 @@ public class TestLabeledBreaks {
    }// 38
 
    public void test2(int a) {
-      for(int i = 0; i < a; ++i) {// 41
+      for (int i = 0; i < a; i++) {// 41
          System.out.println("1");// 43
          if (a != 1) {// 44
             if (a == 2) {// 48

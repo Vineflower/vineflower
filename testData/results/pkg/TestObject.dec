@@ -76,7 +76,11 @@ public final class TestObject$ implements Serializable {
    }
 
    public int fib(final int idx) {
-      return idx == 0 ? 0 : (idx == 1 ? 1 : this.fib(idx - 1) + this.fib(idx - 2));// 9 10 11 12 14
+      if (idx == 0) {// 9
+         return 0;// 10
+      } else {
+         return idx == 1 ? 1 : this.fib(idx - 1) + this.fib(idx - 2);// 11 12 14
+      }
    }
 }
 
@@ -109,27 +113,27 @@ class 'pkg/TestObject$' {
       0      26
       1      26
       2      26
-      5      26
-      9      26
-      a      26
-      b      26
-      e      26
-      12      26
-      13      26
-      14      26
-      15      26
-      16      26
-      17      26
-      18      26
-      19      26
-      1a      26
-      1b      26
-      1c      26
-      1d      26
-      1e      26
-      1f      26
-      20      26
-      21      26
+      5      27
+      6      27
+      7      29
+      8      29
+      9      29
+      c      29
+      e      29
+      f      29
+      10      29
+      11      29
+      12      29
+      13      29
+      14      29
+      15      29
+      16      29
+      17      29
+      18      29
+      19      29
+      1a      29
+      1b      29
+      1c      29
    }
 }
 
@@ -138,7 +142,7 @@ Lines mapping:
 5 <-> 19
 6 <-> 23
 9 <-> 27
-10 <-> 27
-11 <-> 27
-12 <-> 27
-14 <-> 27
+10 <-> 28
+11 <-> 30
+12 <-> 30
+14 <-> 30

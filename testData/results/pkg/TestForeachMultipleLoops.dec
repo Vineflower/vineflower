@@ -9,7 +9,7 @@ public class TestForeachMultipleLoops {
       if (a != null) {// 8
          System.out.println(a);// 9
       } else {
-         for(Entry<Integer, String> entry : map.entrySet()) {// 13
+         for (Entry<Integer, String> entry : map.entrySet()) {// 13
             String s = (String)entry.getValue();// 14
             if (a == null) {// 15
                s = s + s;// 16
@@ -47,15 +47,15 @@ public class TestForeachMultipleLoops {
       } else {
          Iterator var4 = map.entrySet().iterator();// 48
 
-         while(true) {
-            while(true) {
+         while (true) {
+            while (true) {
                Entry<Integer, String> entry;
-               while(true) {
+               while (true) {
                   if (!var4.hasNext()) {
                      return;// 82
                   }
 
-                  entry = (Entry)var4.next();
+                  entry = (Entry<Integer, String>)var4.next();
                   String s = (String)entry.getValue();// 49
                   if (a == null) {// 50
                      s = s + s;// 51
@@ -82,7 +82,7 @@ public class TestForeachMultipleLoops {
                break;
             }
 
-            for(String value : map.values()) {// 69
+            for (String value : map.values()) {// 69
                if (value != null) {// 70
                   System.out.println(value);// 73
                }

@@ -2,7 +2,7 @@ package pkg;
 
 public class TestWhileTernary7 {
    public void test(boolean condition, int a, int b) {
-      for(int i = 0; condition ? a < i : b < i; ++i) {// 5
+      for (int i = 0; condition ? a < i : b < i; i++) {// 5
          System.out.println("Test");// 6
       }
    }// 8

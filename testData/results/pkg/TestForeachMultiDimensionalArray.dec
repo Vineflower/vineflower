@@ -1,0 +1,64 @@
+package pkg;
+
+import java.lang.annotation.ElementType;
+
+public class TestForeachMultiDimensionalArray {
+   public void test() {
+      int[][] vvv1 = new int[0][];// 7
+
+      for (int[] vvv2 : vvv1) {// 14
+         switch (1) {// 9
+            case 0:
+               try {
+                  ElementType vvv8 = ElementType.METHOD;// 12
+               } catch (Exception var10) {// 13
+               } finally {
+                  ;
+               }
+            default:
+               int var4;
+               var4++;// 8
+         }
+      }
+   }// 20
+}
+
+class 'pkg/TestForeachMultiDimensionalArray' {
+   method 'test ()V' {
+      0      6
+      4      6
+      5      8
+      6      8
+      7      8
+      9      8
+      b      8
+      c      8
+      17      8
+      18      8
+      19      9
+      1a      9
+      2c      12
+      2d      12
+      2e      12
+      2f      12
+      30      12
+      34      13
+      3d      8
+      47      19
+      48      19
+      49      19
+      4d      22
+   }
+}
+
+Lines mapping:
+7 <-> 7
+8 <-> 20
+9 <-> 10
+12 <-> 13
+13 <-> 14
+14 <-> 9
+20 <-> 23
+Not mapped:
+15
+16

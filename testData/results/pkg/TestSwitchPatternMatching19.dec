@@ -4,7 +4,7 @@ public class TestSwitchPatternMatching19 {
    // $VF: Could not properly define all variable types!
    static void test(TestSwitchPatternMatching19.XXX s) {
       <unknown> var1;
-      switch(s) {// 5
+      switch (s) {// 5
          case null:
          default:
             System.out.println("f");// 11
@@ -26,7 +26,7 @@ public class TestSwitchPatternMatching19 {
    }// 13
 
    static void test2(TestSwitchPatternMatching19.XXX s) {
-      switch(s) {// 16
+      switch (s) {// 16
          case X2:
          case null:
             System.out.println("maybe x2?");// 18

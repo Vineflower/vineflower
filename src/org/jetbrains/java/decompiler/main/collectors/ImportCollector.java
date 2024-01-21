@@ -3,6 +3,8 @@ package org.jetbrains.java.decompiler.main.collectors;
 
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
+import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructContext;
 import org.jetbrains.java.decompiler.struct.StructField;
@@ -71,6 +73,10 @@ public class ImportCollector {
    */
   public String getShortNameInClassContext(String classToName) {
     String shortName = getShortName(classToName);
+    if (shortName == null) {
+      return "<unknownclass>";
+    }
+    
     if (setFieldNames.contains(shortName)) {
       return classToName;
     }
@@ -90,7 +96,7 @@ public class ImportCollector {
     if (node != null && node.classStruct.isOwn()) {
       result = node.simpleName;
 
-      while (node.parent != null && node.type == ClassNode.Type.MEMBER) {
+      while (node.parent != null && node.parent.simpleName != null && node.type == ClassNode.Type.MEMBER) {
         //noinspection StringConcatenationInLoop
         result = node.parent.simpleName + '.' + result;
         node = node.parent;
@@ -99,8 +105,10 @@ public class ImportCollector {
       if (node.type == ClassNode.Type.ROOT) {
         fullName = node.classStruct.qualifiedName;
         fullName = fullName.replace('/', '.');
-      }
-      else {
+      } else {
+        if (result == null && node.type == ClassNode.Type.ANONYMOUS) {
+          result = ExprProcessor.UNREPRESENTABLE_TYPE_STRING;
+        }
         return result;
       }
     }
@@ -127,7 +135,7 @@ public class ImportCollector {
       (context.getClass(currentPackageSlash + shortName) != null && !packageName.equals(currentPackagePoint)) || // current package
       (context.getClass(shortName) != null && !currentPackagePoint.isEmpty());
 
-    ClassNode currCls = (ClassNode)DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS_NODE);
+    ClassNode currCls = (ClassNode)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
     String mapKey = currCls == null ? "" : currCls.classStruct.qualifiedName;
     Map<String, String> innerClassNames = mapInnerClassNames.getOrDefault(mapKey, new HashMap<>());
     if (!existsDefaultClass && innerClassNames.containsKey(shortName) && !innerClassNames.get(shortName).equals(fullName)) {
@@ -169,6 +177,10 @@ public class ImportCollector {
   }
 
   public void writeImports(TextBuffer buffer, boolean addSeparator) {
+    if (DecompilerContext.getOption(IFernflowerPreferences.REMOVE_IMPORTS)) {
+      return;
+    }
+
     List<String> imports = packImports();
     for (String line : imports) {
       buffer.append("import ").append(line).append(';').appendLineSeparator();
@@ -241,11 +253,24 @@ public class ImportCollector {
     }
   }
 
-  public boolean isWriteLocked() {
-    return writeLocked;
+  private void setWriteLocked(boolean writeLocked) {
+    this.writeLocked = writeLocked;
   }
 
-  public void setWriteLocked(boolean writeLocked) {
-    this.writeLocked = writeLocked;
+  public Lock lock() {
+    return new Lock();
+  }
+
+  public class Lock implements AutoCloseable {
+    private final boolean target;
+    private Lock() {
+      this.target = writeLocked;
+      setWriteLocked(true);
+    }
+
+    @Override
+    public void close() {
+      setWriteLocked(target);
+    }
   }
 }

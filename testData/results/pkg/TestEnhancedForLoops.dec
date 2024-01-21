@@ -6,19 +6,19 @@ public class TestEnhancedForLoops {
    public void forArray() {
       int[] numbers = new int[]{1, 2, 3, 4, 5, 6};// 23
 
-      for(int number : numbers) {// 24
+      for (int number : numbers) {// 24
          System.out.println(number);// 25
       }
    }// 27
 
    public void forItterator() {
-      for(String string : new ArrayList()) {// 31
+      for (String string : new ArrayList()) {// 31
          System.out.println(string);// 32
       }
    }// 34
 
    public void forItteratorUnboxing() {
-      for(int i : new ArrayList()) {// 38
+      for (int i : new ArrayList()) {// 38
          System.out.println("Value: " + i);// 39
       }
    }// 41

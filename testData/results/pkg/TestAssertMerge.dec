@@ -2,12 +2,12 @@ package pkg;
 
 public class TestAssertMerge {
    public void test(int i, int j) {
-      while($assertionsDisabled || i > 0) {// 6
+      while ($assertionsDisabled || i > 0) {// 6
          if (i < j) {// 7
             return;// 13
          }
 
-         ++i;// 11
+         i++;// 11
       }
 
       throw new AssertionError();

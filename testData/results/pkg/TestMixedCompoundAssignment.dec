@@ -56,25 +56,25 @@ public class TestMixedCompoundAssignment {
    }
 
    public void testArrayIntDouble(int[] holder, int i, double inc) {
-      for(int j = 0; j < i; ++j) {// 64
+      for (int j = 0; j < i; j++) {// 64
          holder[j] = (int)((double)holder[j] + inc);// 65
       }
    }// 67
 
    public void testArrayIntLong(int[] holder, int i, long inc) {
-      for(int j = 0; j < i; ++j) {// 70
+      for (int j = 0; j < i; j++) {// 70
          holder[j] = (int)((long)holder[j] + inc);// 71
       }
    }// 73
 
    public void testArrayDoubleInt(double[] holder, int i, int inc) {
-      for(int j = 0; j < i; ++j) {// 76
+      for (int j = 0; j < i; j++) {// 76
          holder[j] += (double)inc;// 77
       }
    }// 79
 
    public void testNestedArrayByteFloatLongDouble(byte[] outer, float[] holder, long[] inner, int i, double inc) {
-      for(int j = 0; j < i; ++j) {// 82
+      for (int j = 0; j < i; j++) {// 82
          outer[i + ~j] = (byte)((int)((float)outer[i + ~j] + (holder[j] -= (float)(inner[j * 3 % i] = (long)((double)inner[j * 3 % i] + inc)))));// 83
       }
    }// 85
