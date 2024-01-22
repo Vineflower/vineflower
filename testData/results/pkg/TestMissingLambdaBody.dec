@@ -1,117 +1,78 @@
 package pkg;
 
+import ext.TestMissingLambdaBodyExtra;
 import java.util.function.Consumer;
 
-public class TestMissingLambdaBody {
+public class TestMissingLambdaBody extends TestMissingLambdaBodyExtra {
    public void init() {
-      this.visit(var1 -> {// 24 31
-         Integer var10000 = (Integer)this.accept(var1);// 64 65 66 67
-      });// 69
-   }// 32
+      this.visit(x$0 -> {
+         Integer var10000 = (Integer)this.add(x$0);// 9
+      });
+   }// 10
 
-   public void visit(Consumer var1) {
-      var1.accept("Foo".hashCode());// 38 39 40 41 42
-      var1.accept("Bar".length());// 43 44 45 46 47
-   }// 48
-
-   public Number accept(Number var1) {
-      System.out.println(var1);// 54 55 56
-      return var1;// 57 58
-   }
+   public void visit(Consumer<Integer> var1) {
+      var1.accept("Foo".hashCode());// 13
+      var1.accept("Bar".length());// 14
+   }// 15
 }
 
 class 'pkg/TestMissingLambdaBody' {
    method 'init ()V' {
-      0      6
-      7      6
-      8      6
-      9      6
-      a      9
+      0      7
+      7      7
+      8      7
+      9      7
+      a      10
    }
 
-   method 'lambda$init$0 (Ljava/lang/Integer;)V' {
-      0      7
-      1      7
-      2      7
-      3      7
-      4      7
-      5      7
-      6      7
-      7      7
-      9      8
+   method 'lambda$init$0 (Lpkg/TestMissingLambdaBody;Ljava/lang/Number;)V' {
+      0      8
+      1      8
+      2      8
+      3      8
+      4      8
+      5      8
+      6      8
+      7      8
+      9      9
    }
 
    method 'visit (Ljava/util/function/Consumer;)V' {
-      0      12
-      1      12
-      2      12
-      3      12
-      4      12
-      5      12
-      6      12
-      7      12
-      8      12
-      9      12
-      a      12
-      b      12
-      c      12
-      d      12
-      e      13
-      f      13
-      10      13
-      11      13
-      12      13
-      13      13
-      14      13
-      15      13
-      16      13
-      17      13
-      18      13
-      19      13
-      1a      13
-      1b      13
-      1c      14
-   }
-
-   method 'accept (Ljava/lang/Number;)Ljava/lang/Number;' {
-      0      17
-      1      17
-      2      17
-      3      17
-      4      17
-      5      17
-      6      17
-      7      18
-      8      18
+      0      13
+      1      13
+      2      13
+      3      13
+      4      13
+      5      13
+      6      13
+      7      13
+      8      13
+      9      13
+      a      13
+      b      13
+      c      13
+      d      13
+      e      14
+      f      14
+      10      14
+      11      14
+      12      14
+      13      14
+      14      14
+      15      14
+      16      14
+      17      14
+      18      14
+      19      14
+      1a      14
+      1b      14
+      1c      15
    }
 }
 
 Lines mapping:
-24 <-> 7
-31 <-> 7
-32 <-> 10
-38 <-> 13
-39 <-> 13
-40 <-> 13
-41 <-> 13
-42 <-> 13
-43 <-> 14
-44 <-> 14
-45 <-> 14
-46 <-> 14
-47 <-> 14
-48 <-> 15
-54 <-> 18
-55 <-> 18
-56 <-> 18
-57 <-> 19
-58 <-> 19
-64 <-> 8
-65 <-> 8
-66 <-> 8
-67 <-> 8
-69 <-> 9
-Not mapped:
-25
-26
-68
+9 <-> 9
+10 <-> 11
+13 <-> 14
+14 <-> 15
+15 <-> 16
