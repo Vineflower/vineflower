@@ -1,0 +1,213 @@
+package pkg;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import java.util.Scanner;
+
+public class TestUnnamedVar1 {
+   // $VF: Inserted dummy exception handlers to handle obfuscated exceptions
+   public void test(Object o) {
+      if (o instanceof TestUnnamedVar1.Point var2) {
+         TestUnnamedVar1.Point var10000 = var2;
+
+         int var4;
+         label29: {
+            label34: {
+               try {
+                  var9 = var10000.x();
+               } catch (Throwable var6) {
+                  var8 = var6;
+                  boolean var10001 = false;
+                  break label34;
+               }
+
+               var4 = var9;
+               var10000 = var2;
+
+               try {
+                  var10000.y();
+                  break label29;
+               } catch (Throwable var5) {
+                  var8 = var5;
+                  boolean var11 = false;
+               }
+            }
+
+            Throwable var7 = var8;// 12
+            throw new MatchException(var7.toString(), var7);
+         }
+
+         System.out.println(var4);// 13
+      }
+   }// 15
+
+   // $VF: Inserted dummy exception handlers to handle obfuscated exceptions
+   public void test1(Object o) {
+      if (o instanceof TestUnnamedVar1.Point var2) {
+         TestUnnamedVar1.Point var10000 = var2;
+
+         int var5;
+         label31: {
+            label36: {
+               try {
+                  var11 = var10000.x();
+               } catch (Throwable var7) {
+                  var10 = var7;
+                  boolean var10001 = false;
+                  break label36;
+               }
+
+               var5 = var11;
+               var10000 = var2;
+
+               try {
+                  var13 = var10000.y();
+                  break label31;
+               } catch (Throwable var6) {
+                  var10 = var6;
+                  boolean var14 = false;
+               }
+            }
+
+            Throwable var8 = var10;// 18
+            throw new MatchException(var8.toString(), var8);
+         }
+
+         Object var9 = var13;
+         if (var9 instanceof Integer) {
+            System.out.println(var5);// 19
+         }
+      }
+   }// 21
+
+   public List<String> stream(List<String> in) {
+      return in.stream().map(var0 -> "val").toList();// 24
+   }
+
+   public void trycatch(File file) {
+      try {
+         new Scanner(file);// 29
+      } catch (IOException var3) {// 30
+      }
+   }// 33
+
+   static record Point(int x, Object y) {
+   }
+}
+
+class 'pkg/TestUnnamedVar1' {
+   method 'test (Ljava/lang/Object;)V' {
+      0      10
+      1      10
+      2      10
+      3      10
+      4      10
+      b      10
+      c      11
+      d      17
+      10      24
+      11      24
+      12      40
+      13      40
+      15      25
+      16      28
+      1b      40
+      1c      40
+      1d      40
+      1e      40
+      1f      40
+      25      36
+      2a      37
+      2b      37
+      2c      37
+      2d      37
+      2e      37
+      32      37
+      33      42
+   }
+
+   method 'test1 (Ljava/lang/Object;)V' {
+      0      46
+      1      46
+      2      46
+      3      46
+      4      46
+      b      46
+      c      47
+      d      53
+      10      60
+      11      60
+      12      78
+      13      78
+      15      61
+      16      64
+      19      76
+      1a      76
+      1b      77
+      1c      77
+      1d      77
+      1e      77
+      1f      77
+      20      77
+      23      78
+      24      78
+      25      78
+      26      78
+      27      78
+      2d      72
+      32      73
+      33      73
+      34      73
+      35      73
+      36      73
+      3a      73
+      3b      81
+   }
+
+   method 'stream (Ljava/util/List;)Ljava/util/List;' {
+      0      84
+      1      84
+      2      84
+      3      84
+      4      84
+      5      84
+      b      84
+      c      84
+      d      84
+      e      84
+      f      84
+      10      84
+      11      84
+      12      84
+      13      84
+      14      84
+      15      84
+   }
+
+   method 'lambda$stream$0 (Ljava/lang/String;)Ljava/lang/String;' {
+      0      84
+      1      84
+      2      84
+   }
+
+   method 'trycatch (Ljava/io/File;)V' {
+      4      89
+      c      90
+      d      92
+   }
+}
+
+Lines mapping:
+12 <-> 37
+13 <-> 41
+15 <-> 43
+18 <-> 73
+19 <-> 79
+21 <-> 82
+24 <-> 85
+29 <-> 90
+30 <-> 91
+33 <-> 93
+Not mapped:
+32

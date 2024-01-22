@@ -697,6 +697,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_21_PREVIEW, "TestFmtProcessor");
     register(JAVA_21_PREVIEW, "TestCustomProcessor");
     register(JAVA_16, "TestMissingLambdaBody");
+    register(JAVA_21_PREVIEW, "TestUnnamedVar1");
   }
 
   private void registerEntireClassPath() {
