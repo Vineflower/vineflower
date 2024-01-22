@@ -789,6 +789,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16_NODEBUG, "TestRecordCanonicalConstructor2");
     register(JAVA_8, "TestGenericArrays");
     register(JAVA_8, "TestInstanceGeneric");
+    // TODO: wrong cast in lambda for array
+    register(JAVA_8, "TestArrayGenerics");
   }
 
   private void registerLiterals() {

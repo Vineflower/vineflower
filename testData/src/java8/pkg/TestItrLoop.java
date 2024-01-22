@@ -13,4 +13,22 @@ public class TestItrLoop {
       System.out.println(s);
     }
   }
+
+  public void test1() {
+    for (Object o : list) {
+
+    }
+  }
+
+  public void test2() {
+    for (String s : (List<String>) list) {
+
+    }
+  }
+
+  public void test3() {
+    for (String s : (Iterable<String>) list) {
+
+    }
+  }
 }
