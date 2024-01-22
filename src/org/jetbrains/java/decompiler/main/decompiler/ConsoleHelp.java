@@ -12,32 +12,37 @@ import java.util.stream.Collectors;
 
 public class ConsoleHelp {
   private static final String[] DEFAULT_HELP = {
+    "=== Vineflower Decompiler " + ConsoleDecompiler.version() + " ===",
+    "",
+    "--- Command-line options ---",
+    "-h, --help: Print this help screen",
+    "-s, --silent: Only print to the console if an error is raised",
+    "--list-plugins: Displays loaded plugin information",
+    "",
+    "--- Decompiler usage ---",
     "Usage: java -jar vineflower.jar --<option>=<value>... <source>... <destination>",
     "At least one source file or directory must be specified.",
-    "Options:",
-    "-h, --help: Show this help",
-    "-s, --silent: Only print to console if an error is raised",
     "",
-    "Saving options",
+    "--- Saving options ---",
     "A maximum of one of the options can be specified:",
     "--file          - Write the decompiled source to a file",
     "--folder        - Write the decompiled source to a folder",
     "--legacy-saving - Use the legacy console-specific method of saving",
     "If unspecified, the decompiled source will be automatically detected based on destination name.",
     "",
-    "General options",
+    "--- General options ---",
     "These options can be specified multiple times.",
     "-e=<path>, --add-external=<path> - Add the specified path to the list of external libraries",
     "-only=<class>, --only=<class>    - Only decompile the specified class",
     "",
-    "Additional options",
+    "--- Additional options ---",
     "These options take the last specified value.",
     "They are mostly specified with a name followed by an equals sign, followed by the value.",
     "Boolean options can also be specified without a value, in which case they are treated as `true`.",
     "They can also be specified with a `no-` prefix, in which case they are treated as `false`.",
     "For example, `--decompile-generics` is equivalent to `--decompile-generics=true`.",
     "",
-    "Options from the core decompiler:"
+    "====== Options from the core decompiler ======"
     // Options are added at runtime
   };
 
@@ -73,7 +78,7 @@ public class ConsoleHelp {
 
         if (!pluginFields.isEmpty()) {
           System.out.println();
-          System.out.println("Options for plugin '" + plugin.id() + "':");
+          System.out.println("====== Options for plugin '" + plugin.id() + "' ======");
           writeOptions(pluginFields, pluginDefaults);
         }
       }
@@ -121,27 +126,46 @@ public class ConsoleHelp {
         .append(" ".repeat(Math.max(8 - type.value().length(), 0)))
         .append(name.value())
         .append(" ".repeat(Math.max(50 - name.value().length(), 0)))
-        .append(": ")
-        .append(description.value());
+        .append(":");
 
+      StringBuilder sb2 = new StringBuilder();
       if (defaults.containsKey(paramName)) {
-        sb.append(" (default: ");
+        sb2.append(" (default: ");
         Object value = defaults.get(paramName);
         switch (type.value()) {
           case IFernflowerPreferences.Type.BOOLEAN:
-            sb.append(value.equals("1"));
+            sb2.append(value.equals("1"));
             break;
           case IFernflowerPreferences.Type.STRING:
-            sb.append('"').append(value).append('"');
+            sb2.append('"').append(value).append('"');
             break;
           default:
-            sb.append(value);
+            sb2.append(value);
             break;
         }
-        sb.append(")");
+        sb2.append(")");
+        sb2.append(" ".repeat(Math.max(18 - sb2.length(), 1)));
+        sb.append(sb2);
       }
 
+      sb.append(description.value());
+
       System.out.println(sb);
+    }
+  }
+
+  static void printPlugins() {
+    System.out.println("=== Vineflower Decompiler " + ConsoleDecompiler.version() + " ===");
+    System.out.println();
+
+    PluginContext ctx = new PluginContext();
+    ctx.findPlugins();
+
+    System.out.println("Loaded " + ctx.getPlugins().size() + " plugins:");
+    for (Plugin plugin : ctx.getPlugins()) {
+      System.out.println(plugin.id() + " (loaded from " + ctx.getSource(plugin).getClass().getSimpleName() + ")");
+      System.out.println(" - " + plugin.description());
+      System.out.println();
     }
   }
 

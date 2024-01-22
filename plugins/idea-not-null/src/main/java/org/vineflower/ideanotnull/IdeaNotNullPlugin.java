@@ -15,6 +15,11 @@ public class IdeaNotNullPlugin implements Plugin {
   }
 
   @Override
+  public String description() {
+    return "Decompiles code inserted by Intellij IDEA's @NotNull annotation.";
+  }
+
+  @Override
   public void registerJavaPasses(JavaPassRegistrar registrar) {
     registrar.register(JavaPassLocation.MAIN_LOOP, new NamedPass("IdeaNotNull", new IdeaNotNullPass()));
   }

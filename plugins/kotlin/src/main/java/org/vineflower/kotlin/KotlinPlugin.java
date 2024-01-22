@@ -26,6 +26,11 @@ public class KotlinPlugin implements Plugin {
   }
 
   @Override
+  public String description() {
+    return "Detects and decompiles Kotlin class files.";
+  }
+
+  @Override
   public @Nullable PluginOptions getPluginOptions() {
     return () -> Pair.of(KotlinOptions.class, KotlinOptions::addDefaults);
   }

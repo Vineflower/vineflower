@@ -69,10 +69,16 @@ public class ConsoleDecompiler implements /* IBytecodeProvider, */ IResultSaver,
       return;
     }
 
+    if (Arrays.stream(args).anyMatch(arg -> arg.equals("--list-plugins"))) {
+      ConsoleHelp.printPlugins();
+      return;
+    }
+
     if (args.length < 1) {
       System.out.println(
+        "=== Vineflower Decompiler " + version() + " ===\n\n" +
         "Usage: java -jar vineflower.jar --<option>=<value>... <source>... <destination>\n" +
-        "Example: java -jar vineflower.jar --decompile-generics ./MyJar.jar ./out_files\n" +
+        "Example: java -jar vineflower.jar --decompile-generics ./MyJar.jar ./out_files\n\n" +
         "Use -h or --help for more information.");
       return;
     }
@@ -430,5 +436,10 @@ public class ConsoleDecompiler implements /* IBytecodeProvider, */ IResultSaver,
     public Function<File, IResultSaver> getSaver() {
       return saver;
     }
+  }
+
+  public static String version() {
+    String ver = ConsoleDecompiler.class.getPackage().getImplementationVersion();
+    return ver == null ? "<UNK>" : ver;
   }
 }

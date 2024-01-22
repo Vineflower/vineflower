@@ -19,6 +19,7 @@ import java.util.regex.Pattern;
 
 public class PluginContext {
   private final List<Plugin> plugins = new ArrayList<>();
+  private final Map<Plugin, PluginSource> bySource = new HashMap<>();
   private boolean initialized = false;
   private Map<JavaPassLocation, List<NamedPass>> passes = new HashMap<>();
   private final Map<Plugin, LanguageSpec> languageSpecs = new HashMap<>();
@@ -28,15 +29,16 @@ public class PluginContext {
     return DecompilerContext.getCurrentContext().structContext.getPluginContext();
   }
 
-  private void registerPlugin(Plugin plugin) {
+  private void registerPlugin(Plugin plugin, PluginSource source) {
     plugins.add(plugin);
+    bySource.put(plugin, source);
   }
 
   public int findPlugins() {
     int pluginCount = 0;
     for (PluginSource source : PluginSources.PLUGIN_SOURCES) {
       for (Plugin plugin : source.findPlugins()) {
-        registerPlugin(plugin);
+        registerPlugin(plugin, source);
         pluginCount++;
       }
     }
@@ -111,6 +113,10 @@ public class PluginContext {
     }
 
     return null;
+  }
+
+  public PluginSource getSource(Plugin plugin) {
+    return bySource.get(plugin);
   }
 
   public List<Plugin> getPlugins() {

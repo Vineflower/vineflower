@@ -16,6 +16,12 @@ public interface Plugin {
   String id();
 
   /**
+   * Short (1-2 sentence) long description of the plugin and its function. This will be presented to users when requested via terminal.
+   * @return a short description of the plugin
+   */
+  String description();
+
+  /**
    * Allows addition to the list of passes that will be run during Java decompilation.
    *
    * @param registrar The registrar object to register into

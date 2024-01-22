@@ -14,6 +14,11 @@ public class VariableRenamingPlugin implements Plugin {
   }
 
   @Override
+  public String description() {
+    return "Allows automatic renaming of variables with a common naming scheme.";
+  }
+
+  @Override
   public @Nullable PluginOptions getPluginOptions() {
     return () -> Pair.of(VariableRenamingOptions.class, VariableRenamingOptions::addDefaults);
   }
