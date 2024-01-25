@@ -145,17 +145,31 @@ public class KConstructor {
         parameter.stringify(indent + 1, buf);
       }
 
-      buf.appendPossibleNewline("", true).popNewlineGroup().append(") : ");
+      buf.appendPossibleNewline("", true).popNewlineGroup();
 
-      Exprent firstExpr = method.getOrBuildGraph().first.exprents.get(0);
-      if (!(firstExpr instanceof InvocationExprent)) {
-        throw new IllegalStateException("First expression of constructor is not InvocationExprent");
+      String methodDescriptor = method.methodStruct.getName() + method.methodStruct.getDescriptor();
+      String containingClass = node.classStruct.qualifiedName;
+
+      List<Exprent> exprents = method.getOrBuildGraph().first.exprents;
+      if (exprents.isEmpty()) {
+        DecompilerContext.getLogger().writeMessage("Unexpected empty constructor body in " + containingClass + " " + methodDescriptor, IFernflowerLogger.Severity.WARN);
+        return true;
       }
 
-      InvocationExprent invocation = (InvocationExprent) firstExpr;
-      buf.append(invocation.toJava(indent + 1), node.classStruct.qualifiedName, InterpreterUtil.makeUniqueKey(method.methodStruct.getName(), method.methodStruct.getDescriptor()));
+      buf.append(") ");
 
-      method.getOrBuildGraph().first.exprents.remove(0);
+      Exprent firstExpr = exprents.get(0);
+      if (!(firstExpr instanceof InvocationExprent)) {
+        // no detected super / this constructor call (something isn't right)
+        DecompilerContext.getLogger().writeMessage("Unexpected missing super/this constructor call in " + containingClass + " " + methodDescriptor, IFernflowerLogger.Severity.WARN);
+      } else {
+        buf.append(": ");
+
+        InvocationExprent invocation = (InvocationExprent) firstExpr;
+        buf.append(invocation.toJava(indent + 1), node.classStruct.qualifiedName, InterpreterUtil.makeUniqueKey(method.methodStruct.getName(), method.methodStruct.getDescriptor()));
+
+        method.getOrBuildGraph().first.exprents.remove(0);
+      }
     }
 
     if (method.getOrBuildGraph().first.exprents.isEmpty()) {

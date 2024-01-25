@@ -18,6 +18,12 @@ public class KConstExprent extends ConstExprent implements KExprent {
 
     TextBuffer buf = new TextBuffer();
     buf.addBytecodeMapping(bytecode);
+
+    if (getValue() == null) {
+      //TODO figure out why this happens here instead of elsewhere
+      return buf.append("Class<*>");
+    }
+
     String value = getValue().toString();
     VarType type = new VarType(value, !value.startsWith("["));
     buf.appendCastTypeName(type).append("::class.java");

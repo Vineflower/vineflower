@@ -53,14 +53,23 @@ public final class KTypes {
     Map.entry("kotlin/collections/Iterable", "java/lang/Iterable")
   );
 
-  public static final Map<String, String> KOTLIN_TO_JAVA_UTIL = Map.of(
-    "kotlin/collections/MutableMap", "java/util/Map",
-    "kotlin/collections/MutableList", "java/util/List",
-    "kotlin/collections/MutableSet", "java/util/Set",
-    "kotlin/collections/MutableIterator", "java/util/Iterator",
-    "kotlin/collections/MutableMap$MutableEntry", "java/util/Map$Entry"
+  public static final Map<String, String> KOTLIN_TO_JAVA_UTIL = Map.ofEntries(
+    Map.entry("kotlin/collections/MutableCollection", "java/util/Collection"),
+    Map.entry("kotlin/collections/MutableMap", "java/util/Map"),
+    Map.entry("kotlin/collections/MutableList", "java/util/List"),
+    Map.entry("kotlin/collections/MutableSet", "java/util/Set"),
+    Map.entry("kotlin/collections/MutableIterator", "java/util/Iterator"),
+    Map.entry("kotlin/collections/MutableListIterator", "java/util/ListIterator"),
+    Map.entry("kotlin/collections/MutableMap$MutableEntry", "java/util/Map$Entry"),
+    Map.entry("kotlin/collections/Collection", "java/util/Collection"),
+    Map.entry("kotlin/collections/Map", "java/util/Map"),
+    Map.entry("kotlin/collections/List", "java/util/List"),
+    Map.entry("kotlin/collections/ListIterator", "java/util/ListIterator"),
+    Map.entry("kotlin/collections/Set", "java/util/Set"),
+    Map.entry("kotlin/collections/Iterator", "java/util/Iterator"),
+    Map.entry("kotlin/collections/Map$Entry", "java/util/Map$Entry")
   );
-  
+
   private static final Map<String, String> KOTLIN_PRIMITIVE_TYPES = Map.of(
     "kotlin/Int", "I",
     "kotlin/Long", "J",
@@ -94,15 +103,15 @@ public final class KTypes {
         return "L" + KOTLIN_TO_JAVA_LANG.get(kotlinType) + ";";
       } else if (KOTLIN_TO_JAVA_UTIL.containsKey(kotlinType)) {
         return "L" + KOTLIN_TO_JAVA_UTIL.get(kotlinType) + ";";
-      } else if (kotlinType.startsWith("kotlin/collections/")) {
-        String javaType = kotlinType.substring("kotlin/collections/".length());
-        javaType = javaType.startsWith("Mutable") ? javaType.substring("Mutable".length()) : javaType;
-        return "Ljava/util/" + javaType + ";";
       } else if (kotlinType.startsWith("kotlin/Function")) {
-        if (Integer.parseInt(kotlinType.substring("kotlin/Function".length())) > MAX_KOTLIN_FUNCTION_ARITY) {
-          return "Lkotlin/jvm/functions/FunctionN;";
+        try {
+          if (Integer.parseInt(kotlinType.substring("kotlin/Function".length())) > MAX_KOTLIN_FUNCTION_ARITY) {
+            return "Lkotlin/jvm/functions/FunctionN;";
+          }
+          return "Lkotlin/jvm/functions" + kotlinType.substring("kotlin".length()) + ";";
+        } catch (NumberFormatException e) {
+          // Not a function type with arity
         }
-        return "Lkotlin/jvm/functions" + kotlinType.substring("kotlin".length()) + ";";
       }
     }
     return "L" + kotlinType + ";";
