@@ -663,9 +663,12 @@ public class FunctionExprent extends Exprent {
           inv.forceUnboxing(true);
         }
       }
-      return buf.append(wrapOperandString(lstOperands.get(0), true, indent))
-                .prepend("(" + ExprProcessor.getTypeName(funcType.castType) + ")")
-                .addTypeNameToken(funcType.castType, 1);
+
+      if (!needsCast) {
+        return buf.append(lstOperands.get(0).toJava(indent));
+      }
+
+      return buf.append(ExprProcessor.getTypeName(funcType.castType)).encloseWithParens().append(wrapOperandString(lstOperands.get(0), true, indent));
     }
 
     //        return "<unknown function>";
@@ -695,7 +698,7 @@ public class FunctionExprent extends Exprent {
 
   @Override
   public int getPrecedence() {
-    if (funcType == FunctionType.CAST && !doesCast()) {
+    if ((funcType == FunctionType.CAST || funcType.castType != null) && !doesCast()) {
       return lstOperands.get(0).getPrecedence();
     }
 

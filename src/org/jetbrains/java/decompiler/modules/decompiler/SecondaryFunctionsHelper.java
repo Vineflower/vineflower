@@ -12,6 +12,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.struct.gen.CodeType;
+import org.jetbrains.java.decompiler.struct.gen.TypeFamily;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 
 import java.util.*;
@@ -402,6 +403,38 @@ public final class SecondaryFunctionsHelper {
 
             return new FunctionExprent(FunctionType.TERNARY, Arrays.asList(
               head, new ConstExprent(VarType.VARTYPE_INT, 0, null), iff), fexpr.bytecode);
+          case I2B:
+          case I2C:
+          case I2S:
+            if (lstOperands.get(0) instanceof FunctionExprent) {
+              FunctionExprent innerFunction = (FunctionExprent) lstOperands.get(0);
+              VarType castType = innerFunction.getFuncType().castType;
+              if (castType == VarType.VARTYPE_INT) {
+                // longs, floats and doubles are converted to ints before being converted to bytes, shorts or chars
+                innerFunction.setNeedsCast(false);
+                return ret;
+              }
+            }
+            // fallthrough
+          case I2L:
+          case I2F:
+          case I2D:
+          case L2F:
+          case L2D:
+          case F2D:
+            VarType exprType = lstOperands.get(0).getExprType();
+            VarType castType = fexpr.getSimpleCastType();
+
+            // Simplify widening cast
+            if (castType.typeFamily == TypeFamily.INTEGER) {
+              if (castType.isStrictSuperset(exprType)) {
+                fexpr.setNeedsCast(false);
+                return ret;
+              }
+            } else if (castType.typeFamily.isGreater(exprType.typeFamily)) {
+              fexpr.setNeedsCast(false);
+              return ret;
+            }
         }
         break;
       case ASSIGNMENT: // check for conditional assignment

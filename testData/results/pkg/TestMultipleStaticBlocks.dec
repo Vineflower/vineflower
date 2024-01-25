@@ -4,12 +4,12 @@ public class TestMultipleStaticBlocks {
    private static int i;
 
    static {
-      byte value = (byte)((int)(Math.random() * 8.0));// 7
+      byte value = (byte)(Math.random() * 8.0);// 7
       if (value > 4) {// 8
          i = 1;// 9
       }
 
-      value = (byte)((short)((int)(Math.random() * 8.0)));// 14
+      value = (byte)((short)(Math.random() * 8.0));// 14
       if (value > 4) {// 15
          i = 2;// 16
       }

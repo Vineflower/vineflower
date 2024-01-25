@@ -7,11 +7,11 @@ public class TestAssignmentSwitchExpression3 {
       Random random = switch (x) {// 7
          case -5, -4, -3, -2, -1 -> {
             int seed = x >> 2;// 14
-            yield new Random((long)seed);// 15
+            yield new Random(seed);// 15
          }
          default -> throw new IllegalStateException("Unexpected value: " + x);// 17
          case 1, 2, 3, 4, 5 -> {
-            long seed = System.currentTimeMillis() - (long)(x * 1000);// 9
+            long seed = System.currentTimeMillis() - x * 1000;// 9
             yield new Random(seed);// 10
          }
          case 6, 7, 8, 9, 10 -> new Random();
