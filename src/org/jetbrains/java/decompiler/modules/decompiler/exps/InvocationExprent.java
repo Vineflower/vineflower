@@ -960,7 +960,7 @@ public class InvocationExprent extends Exprent {
         isEnum = newNode.classStruct.hasModifier(CodeConstants.ACC_ENUM) && DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_ENUM);
       }
     }
-    ClassNode currCls = ((ClassNode)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE));
+    ClassNode currCls = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
     List<StructMethod> matches = getMatchedDescriptors();
     BitSet setAmbiguousParameters = getAmbiguousParameters(matches);
 
@@ -1278,7 +1278,7 @@ public class InvocationExprent extends Exprent {
 
   private List<StructMethod> getMatchedDescriptors() {
     List<StructMethod> matches = new ArrayList<>();
-    ClassNode currCls = ((ClassNode)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE));
+    ClassNode currCls = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
     StructClass cl = DecompilerContext.getStructContext().getClass(classname);
     if (cl == null) return matches;
 
@@ -1329,7 +1329,9 @@ public class InvocationExprent extends Exprent {
   private boolean matches(VarType[] left, VarType[] right) {
     if (left.length == right.length) {
       for (int i = 0; i < left.length; i++) {
-        if (left[i].typeFamily != right[i].typeFamily) {
+        TypeFamily leftFamily = left[i].typeFamily;
+        TypeFamily rightFamily = right[i].typeFamily;
+        if (leftFamily != rightFamily && !(leftFamily.isNumeric() && rightFamily.isNumeric())) {
           return false;
         }
 
@@ -1397,6 +1399,10 @@ public class InvocationExprent extends Exprent {
         boolean exact = true;
         for (int i = 0; i < md.params.length; i++) {
           Exprent exp = lstParameters.get(i);
+          if (exp instanceof FunctionExprent && ((FunctionExprent) exp).getSimpleCastType() != null) {
+            ((FunctionExprent) exp).setNeedsCast(true);
+          }
+
           // Check if the current parameters and method descriptor are of the same type, or if the descriptor's type is a superset of the parameter's type.
           // This check ensures that parameters that can be safely passed don't have an unneeded cast on them, such as System.out.println((int)5);.
           // TODO: The root cause of the above issue seems to be threading related- When debugging line by line it doesn't cast, but when running normally it does. More digging needs to be done to figure out why this happens.

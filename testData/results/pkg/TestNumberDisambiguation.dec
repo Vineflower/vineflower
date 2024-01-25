@@ -1,0 +1,131 @@
+package pkg;
+
+public class TestNumberDisambiguation {
+   public void foo(byte b) {
+   }// 5
+
+   public void foo(short s) {
+   }// 8
+
+   public void foo(char c) {
+   }// 11
+
+   public void foo(int i) {
+   }// 14
+
+   public void foo(long l) {
+   }// 17
+
+   public void foo(float f) {
+   }// 20
+
+   public void foo(double d) {
+   }// 23
+
+   public void test() {
+      int i = 24;// 26
+      this.foo((byte)i);// 27
+      this.foo((short)i);// 28
+      this.foo((char)i);// 29
+      this.foo(i);// 30
+      this.foo((long)i);// 31
+      this.foo((float)i);// 32
+      this.foo((double)i);// 33
+   }// 34
+}
+
+class 'pkg/TestNumberDisambiguation' {
+   method 'foo (B)V' {
+      0      4
+   }
+
+   method 'foo (S)V' {
+      0      7
+   }
+
+   method 'foo (C)V' {
+      0      10
+   }
+
+   method 'foo (I)V' {
+      0      13
+   }
+
+   method 'foo (J)V' {
+      0      16
+   }
+
+   method 'foo (F)V' {
+      0      19
+   }
+
+   method 'foo (D)V' {
+      0      22
+   }
+
+   method 'test ()V' {
+      0      25
+      1      25
+      2      25
+      3      26
+      4      26
+      5      26
+      6      26
+      7      26
+      8      26
+      9      27
+      a      27
+      b      27
+      c      27
+      d      27
+      e      27
+      f      28
+      10      28
+      11      28
+      12      28
+      13      28
+      14      28
+      15      29
+      16      29
+      17      29
+      18      29
+      19      29
+      1a      30
+      1b      30
+      1c      30
+      1d      30
+      1e      30
+      1f      30
+      20      31
+      21      31
+      22      31
+      23      31
+      24      31
+      25      31
+      26      32
+      27      32
+      28      32
+      29      32
+      2a      32
+      2b      32
+      2c      33
+   }
+}
+
+Lines mapping:
+5 <-> 5
+8 <-> 8
+11 <-> 11
+14 <-> 14
+17 <-> 17
+20 <-> 20
+23 <-> 23
+26 <-> 26
+27 <-> 27
+28 <-> 28
+29 <-> 29
+30 <-> 30
+31 <-> 31
+32 <-> 32
+33 <-> 33
+34 <-> 34
