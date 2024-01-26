@@ -3,7 +3,6 @@
  */
 package org.jetbrains.java.decompiler.modules.decompiler.exps;
 
-import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.plugins.PluginImplementationException;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;

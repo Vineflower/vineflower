@@ -435,6 +435,25 @@ public final class SecondaryFunctionsHelper {
               fexpr.setNeedsCast(false);
               return ret;
             }
+            break;
+          case DIV:
+            Exprent left = lstOperands.get(0);
+            boolean leftImplicitCast = left instanceof FunctionExprent && ((FunctionExprent) left).getSimpleCastType() != null && !((FunctionExprent) left).doesCast();
+            Exprent right = lstOperands.get(1);
+            boolean rightImplicitCast = right instanceof FunctionExprent && ((FunctionExprent) right).getSimpleCastType() != null && !((FunctionExprent) right).doesCast();
+
+            if (leftImplicitCast && rightImplicitCast && right.getExprType() == left.getExprType()) {
+              // Only a single cast is needed explicitly
+              ((FunctionExprent) left).setNeedsCast(true);
+            }
+            break;
+          case SHL:
+          case SHR:
+          case USHR:
+            Exprent op = lstOperands.get(0);
+            if (op instanceof FunctionExprent && ((FunctionExprent) op).getSimpleCastType() != null && !((FunctionExprent) op).doesCast()) {
+              ((FunctionExprent) op).setNeedsCast(true);
+            }
         }
         break;
       case ASSIGNMENT: // check for conditional assignment
@@ -497,6 +516,15 @@ public final class SecondaryFunctionsHelper {
         }
         break;
       case INVOCATION:
+        InvocationExprent invocationExpr = (InvocationExprent) exprent;
+        if (invocationExpr.isBoxingCall()) {
+          Exprent param = invocationExpr.getLstParameters().get(0);
+          // Keep casts of boxed exprents
+          if (param instanceof FunctionExprent && ((FunctionExprent) param).getSimpleCastType() != null && !((FunctionExprent) param).doesCast()) {
+            ((FunctionExprent) param).setNeedsCast(true);
+          }
+        }
+
         if (!statement_level) { // simplify if exprent is a real expression. The opposite case is pretty absurd, can still happen however (and happened at least once).
           Exprent retexpr = ConcatenationHelper.contractStringConcat(exprent);
           if (!exprent.equals(retexpr)) {
