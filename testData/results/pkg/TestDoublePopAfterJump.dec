@@ -14,7 +14,7 @@ public final class TestDoublePopAfterJump {
          var10001 = var10004;
       }
 
-      return (double)var10001 / (double)var10000;// 44 45 46
+      return (double)var10001 / var10000;// 44 45 46
    }
 
    public static final void fizzBuzz() {

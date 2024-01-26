@@ -12,6 +12,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.struct.gen.CodeType;
+import org.jetbrains.java.decompiler.struct.gen.TypeFamily;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 
 import java.util.*;
@@ -402,6 +403,57 @@ public final class SecondaryFunctionsHelper {
 
             return new FunctionExprent(FunctionType.TERNARY, Arrays.asList(
               head, new ConstExprent(VarType.VARTYPE_INT, 0, null), iff), fexpr.bytecode);
+          case I2B:
+          case I2C:
+          case I2S:
+            if (lstOperands.get(0) instanceof FunctionExprent) {
+              FunctionExprent innerFunction = (FunctionExprent) lstOperands.get(0);
+              VarType castType = innerFunction.getFuncType().castType;
+              if (castType == VarType.VARTYPE_INT) {
+                // longs, floats and doubles are converted to ints before being converted to bytes, shorts or chars
+                innerFunction.setNeedsCast(false);
+                return ret;
+              }
+            }
+            // fallthrough
+          case I2L:
+          case I2F:
+          case I2D:
+          case L2F:
+          case L2D:
+          case F2D:
+            VarType exprType = lstOperands.get(0).getExprType();
+            VarType castType = fexpr.getSimpleCastType();
+
+            // Simplify widening cast
+            if (castType.typeFamily == TypeFamily.INTEGER) {
+              if (castType.isStrictSuperset(exprType)) {
+                fexpr.setNeedsCast(false);
+                return ret;
+              }
+            } else if (castType.typeFamily.isGreater(exprType.typeFamily)) {
+              fexpr.setNeedsCast(false);
+              return ret;
+            }
+            break;
+          case DIV:
+            Exprent left = lstOperands.get(0);
+            boolean leftImplicitCast = left instanceof FunctionExprent && ((FunctionExprent) left).getSimpleCastType() != null && !((FunctionExprent) left).doesCast();
+            Exprent right = lstOperands.get(1);
+            boolean rightImplicitCast = right instanceof FunctionExprent && ((FunctionExprent) right).getSimpleCastType() != null && !((FunctionExprent) right).doesCast();
+
+            if (leftImplicitCast && rightImplicitCast && right.getExprType() == left.getExprType()) {
+              // Only a single cast is needed explicitly
+              ((FunctionExprent) left).setNeedsCast(true);
+            }
+            break;
+          case SHL:
+          case SHR:
+          case USHR:
+            Exprent op = lstOperands.get(0);
+            if (op instanceof FunctionExprent && ((FunctionExprent) op).getSimpleCastType() != null && !((FunctionExprent) op).doesCast()) {
+              ((FunctionExprent) op).setNeedsCast(true);
+            }
         }
         break;
       case ASSIGNMENT: // check for conditional assignment
@@ -464,6 +516,15 @@ public final class SecondaryFunctionsHelper {
         }
         break;
       case INVOCATION:
+        InvocationExprent invocationExpr = (InvocationExprent) exprent;
+        if (invocationExpr.isBoxingCall()) {
+          Exprent param = invocationExpr.getLstParameters().get(0);
+          // Keep casts of boxed exprents
+          if (param instanceof FunctionExprent && ((FunctionExprent) param).getSimpleCastType() != null && !((FunctionExprent) param).doesCast()) {
+            ((FunctionExprent) param).setNeedsCast(true);
+          }
+        }
+
         if (!statement_level) { // simplify if exprent is a real expression. The opposite case is pretty absurd, can still happen however (and happened at least once).
           Exprent retexpr = ConcatenationHelper.contractStringConcat(exprent);
           if (!exprent.equals(retexpr)) {

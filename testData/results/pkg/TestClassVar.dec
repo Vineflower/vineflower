@@ -17,7 +17,7 @@ public class TestClassVar {
    }// 37
 
    public Long testFieldSSAU1() {
-      return new Long((long)(this.field_int++));// 40
+      return new Long(this.field_int++);// 40
    }
 
    public void testComplexPropagation() {

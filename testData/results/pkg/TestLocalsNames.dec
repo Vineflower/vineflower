@@ -15,7 +15,7 @@ public class TestLocalsNames {
          }
 
          long elapsed = System.currentTimeMillis() - start;// 31
-         System.out.println("took " + elapsed + "ms (" + elapsed / (long)files.length + "ms per dir)");// 32
+         System.out.println("took " + elapsed + "ms (" + elapsed / files.length + "ms per dir)");// 32
       }
    }// 34
 }
