@@ -361,7 +361,7 @@ public class InvocationExprent extends Exprent {
 
         // fix for this() & super()
         if (upperBound == null && isGenNew) {
-          ClassNode currentCls = (ClassNode)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
+          ClassNode currentCls = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
 
           if (currentCls != null) {
             if (mthCls.equals(currentCls.classStruct)) {
@@ -444,10 +444,10 @@ public class InvocationExprent extends Exprent {
                     ClassNode node = DecompilerContext.getClassProcessor().getMapRootClasses().get(newExprent.getNewType().value);
                     int potentialMethodCount = Integer.MAX_VALUE;
                     if (node.lambdaInformation.is_method_reference) {
-                      StructClass content = (StructClass) DecompilerContext.getStructContext().getClass(node.lambdaInformation.content_class_name);
+                      StructClass content = DecompilerContext.getStructContext().getClass(node.lambdaInformation.content_class_name);
 
                       if (content != null) {
-                        StructClass currentCls = (StructClass) DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS);
+                        StructClass currentCls = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS);
                         potentialMethodCount = (int) content.getMethods().stream()
                           .filter((method) -> canAccess(currentCls, method))
                           .map(StructMethod::getName)
@@ -712,7 +712,7 @@ public class InvocationExprent extends Exprent {
         buf.append('(').appendCastTypeName(descriptor.ret).append(')');
       }
 
-      ClassNode node = (ClassNode)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
+      ClassNode node = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
       if (node == null || !classname.equals(node.classStruct.qualifiedName)) {
         buf.appendAllClasses(DecompilerContext.getImportCollector().getShortNameInClassContext(ExprProcessor.buildJavaClassName(classname)), classname);
       }
@@ -725,7 +725,7 @@ public class InvocationExprent extends Exprent {
 
         VarProcessor varProc = instVar.getProcessor();
         if (varProc == null) {
-          MethodWrapper currentMethod = (MethodWrapper)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
+          MethodWrapper currentMethod = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
           if (currentMethod != null) {
             varProc = currentMethod.varproc;
           }
@@ -960,7 +960,7 @@ public class InvocationExprent extends Exprent {
         isEnum = newNode.classStruct.hasModifier(CodeConstants.ACC_ENUM) && DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_ENUM);
       }
     }
-    ClassNode currCls = ((ClassNode)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE));
+    ClassNode currCls = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
     List<StructMethod> matches = getMatchedDescriptors();
     BitSet setAmbiguousParameters = getAmbiguousParameters(matches);
 
@@ -1264,6 +1264,10 @@ public class InvocationExprent extends Exprent {
     return !isStatic && lstParameters.isEmpty() && classname.equals(UNBOXING_METHODS.get(name));
   }
 
+  public void forceBoxing(boolean value) {
+    boxing.forceBoxing = value;
+  }
+
   public boolean shouldForceBoxing() {
     return boxing.forceBoxing;
   }
@@ -1278,7 +1282,7 @@ public class InvocationExprent extends Exprent {
 
   private List<StructMethod> getMatchedDescriptors() {
     List<StructMethod> matches = new ArrayList<>();
-    ClassNode currCls = ((ClassNode)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE));
+    ClassNode currCls = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
     StructClass cl = DecompilerContext.getStructContext().getClass(classname);
     if (cl == null) return matches;
 

@@ -86,7 +86,7 @@ public class TestDefiniteAssignment {
    void testBooleanNormalnessInline(int n) {
       int p = n * 2;// 81
       int k;
-      n < 5 && (k = n + 5) > 0 && (p /= k) != 0;// 82
+      Boolean.valueOf(n < 5 && (k = n + 5) > 0 && (p /= k) != 0);// 82
       p += 8;// 83
       System.out.println(p);// 84
    }// 85

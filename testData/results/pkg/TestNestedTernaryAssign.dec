@@ -6,12 +6,12 @@ public class TestNestedTernaryAssign {
          if (b2) {
             String var10000 = "3";
          } else {
-            3;
+            Integer.valueOf(3);
          }
       } else if (b3) {
          String var5 = "4";
       } else {
-         4;
+         Integer.valueOf(4);
       }
    }// 6
 

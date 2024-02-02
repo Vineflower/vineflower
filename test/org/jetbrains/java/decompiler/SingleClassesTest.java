@@ -286,7 +286,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestCastPrimitiveToObject");
     register(JAVA_8, "TestDoWhileTrue");
     register(JAVA_8, "TestExtraClass");
-    // TODO: Object foreach should be generic
     register(JAVA_8, "TestGenericMapInput");
     register(JAVA_8, "TestInlineAssignments");
     // TODO: Cast of (Func) is removed
@@ -300,7 +299,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: Shift equals is broken, and bitwise should be x & (x >> 2)
     register(JAVA_8, "TestShiftAssignmentInCall");
     register(JAVA_8, "TestSplitColorComponents");
-    // TODO: extra casts on assignment
     register(JAVA_8, "TestStaticBlockNull");
     register(JAVA_8, "TestStringLiteral");
     register(JAVA_8, "TestSwitchStringHashcodeCollision");
@@ -363,7 +361,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JASM, "TestDoublePopAfterJump");
     register(JAVA_16, "TestLocalEnum");
     register(JAVA_16, "TestLocalInterface");
-    // TODO: test5 puts the record after the method call, needs to be above
     register(JAVA_16, "TestLocalRecord");
     register(JAVA_9, "TestPrivateInterfaceMethod");
 
@@ -400,7 +397,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16, "TestSwitchExpressionFallthrough1");
     register(JAVA_16, "TestConstructorSwitchExpression3");
     register(JAVA_16, "TestSwitchExpressionPPMM");
-    // TODO: inner switch expression not created
     register(JAVA_16, "TestSwitchExpressionNested1");
     register(JAVA_16, "TestSwitchExprInvoc");
 
@@ -428,7 +424,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8_NODEBUG, "TestIterationOverGenericsWithoutLvt");
     register(JAVA_8_NODEBUG, "TestIterationOverGenericsWithoutLvt1");
 
-    // TODO: "3;" is generally not considered valid java code, fix ternaries not being simplified
+    // TODO: fix removed assignments, and ternaries not being simplified
     register(JAVA_8, "TestNestedTernaryAssign");
     register(JAVA_8, "TestNestedTernaryCondition");
 
@@ -626,7 +622,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: many unnecessary casts, and not simplifying to `+=`
     register(JAVA_8, "TestMixedCompoundAssignment");
     register(JAVA_8, "TestForeachVardef");
-    // TODO: casts to T of static method!
     register(JAVA_8, "TestGenericStaticCall");
     // TODO: Assert is bundled into the loop header
     register(JAVA_8, "TestAssertMerge");
@@ -683,7 +678,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16, "TestIfPatternMatchMethod");
     // TODO: Param type information is lost for lambdas where a more specific type is not required by the context
     register(JAVA_8, "TestLambdaParamTypes");
-    // TODO: There shouldn't be a cast here, it shouldn't cast to boolean, and it should wait to use generic primitives till valhalla lands, lol
     register(JAVA_8, "TestGenericComparison");
     // TODO: Can't inline field initializer for a final field that depends on initialization in a static call
     register(JAVA_8, "TestStaticBlockFinalField");
@@ -698,6 +692,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_21_PREVIEW, "TestCustomProcessor");
     register(JAVA_16, "TestMissingLambdaBody");
     register(JAVA_21_PREVIEW, "TestUnnamedVar1");
+    register(JAVA_8, "TestDanglingBoxingCall");
   }
 
   private void registerEntireClassPath() {
@@ -753,7 +748,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
 
     register(JAVA_8, "TestGenericMapEntireClasspath");
     register(JAVA_8, "TestGenericsTernary");
-    // TODO: casts on null
     register(JAVA_8, "TestGenericSuper");
     register(JAVA_8, "TestGenericsQualified");
     // TODO: first method needs a cast
@@ -769,7 +763,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestGenericInput");
     // TODO: cast on field assign and setField
     register(JAVA_8, "TestGenericsHierarchy");
-    // TODO: casts on the get() inside the lambda
     register(JAVA_8, "TestLambdaGenericCall");
     // TODO: crashes in const type
     register(JAVA_8, "TestTryWithResourcesAfterSwitch");
