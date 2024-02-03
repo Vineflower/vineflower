@@ -68,7 +68,7 @@ class TestTailrecFunctions {
       }
    }
 
-   public tailrec fun fastPow(x: Long, n: Long, acc: Long): Long {
+   public tailrec fun fastPow(x: Long, n: Long, acc: Long = 1L): Long {
       var var7: TestTailrecFunctions = this;
       var var8: Long = x;
       var var10: Long = n;
@@ -251,7 +251,7 @@ class 'pkg/TestTailrecFunctions' {
       4      72
       5      72
       6      73
-      7      73
+      7      70
       8      73
       9      74
       a      74

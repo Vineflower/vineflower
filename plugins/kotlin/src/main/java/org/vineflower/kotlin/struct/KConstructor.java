@@ -2,6 +2,7 @@ package org.vineflower.kotlin.struct;
 
 import kotlinx.metadata.internal.metadata.ProtoBuf;
 import kotlinx.metadata.internal.metadata.jvm.JvmProtoBuf;
+import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.ClassesProcessor;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.ImportCollector;
@@ -36,6 +37,7 @@ public class KConstructor {
   public final boolean isPrimary;
 
   public final MethodWrapper method;
+  private final DefaultArgsMap defaultArgs;
   private final ClassesProcessor.ClassNode node;
 
   private KConstructor(
@@ -43,11 +45,13 @@ public class KConstructor {
     ProtobufFlags.Constructor flags,
     MethodWrapper method,
     boolean isPrimary,
+    DefaultArgsMap defaultArgs,
     ClassesProcessor.ClassNode node) {
     this.parameters = parameters;
     this.flags = flags;
     this.method = method;
     this.isPrimary = isPrimary;
+    this.defaultArgs = defaultArgs;
     this.node = node;
   }
 
@@ -89,7 +93,7 @@ public class KConstructor {
       if (method == null) {
         if (classFlags.kind == ProtoBuf.Class.Kind.ANNOTATION_CLASS) {
           // Annotation classes are very odd and don't actually have a constructor under the hood
-          KConstructor kConstructor = new KConstructor(parameters, flags, null, false, node);
+          KConstructor kConstructor = new KConstructor(parameters, flags, null, false, null, node);
           return new Data(null, kConstructor);
         }
 
@@ -99,7 +103,16 @@ public class KConstructor {
 
       boolean isPrimary = !flags.isSecondary;
 
-      KConstructor kConstructor = new KConstructor(parameters, flags, method, isPrimary, node);
+      boolean isStatic = (method.methodStruct.getAccessFlags() & CodeConstants.ACC_STATIC) != 0;
+      StringBuilder defaultArgsDesc = new StringBuilder("(");
+      for (KParameter parameter : parameters) {
+        defaultArgsDesc.append(parameter.type);
+      }
+      defaultArgsDesc.append("ILkotlin/jvm/internal/DefaultConstructorMarker;)V");
+
+      DefaultArgsMap defaultArgs = DefaultArgsMap.from(wrapper.getMethodWrapper("<init>", defaultArgsDesc.toString()), method, parameters, isStatic ? 0 : 1);
+
+      KConstructor kConstructor = new KConstructor(parameters, flags, method, isPrimary, defaultArgs, node);
       constructors.put(method.methodStruct, kConstructor);
 
       if (isPrimary) {
@@ -117,6 +130,8 @@ public class KConstructor {
 
     TextBuffer buf = new TextBuffer();
     RootStatement root = method.root;
+
+    String methodKey = InterpreterUtil.makeUniqueKey(method.methodStruct.getName(), method.methodStruct.getDescriptor());
 
     if (!isPrimary) {
       if (flags.hasAnnotations) {
@@ -143,6 +158,10 @@ public class KConstructor {
         first = false;
 
         parameter.stringify(indent + 1, buf);
+
+        if (parameter.flags.declaresDefault) {
+          buf.append(" = ").append(defaultArgs.toJava(parameter, indent + 1), node.classStruct.qualifiedName, methodKey);
+        }
       }
 
       buf.appendPossibleNewline("", true).popNewlineGroup();
@@ -166,7 +185,7 @@ public class KConstructor {
         buf.append(": ");
 
         InvocationExprent invocation = (InvocationExprent) firstExpr;
-        buf.append(invocation.toJava(indent + 1), node.classStruct.qualifiedName, InterpreterUtil.makeUniqueKey(method.methodStruct.getName(), method.methodStruct.getDescriptor()));
+        buf.append(invocation.toJava(indent + 1), node.classStruct.qualifiedName, methodKey);
 
         method.getOrBuildGraph().first.exprents.remove(0);
       }
@@ -190,7 +209,7 @@ public class KConstructor {
     body.addBytecodeMapping(root.getDummyExit().bytecode);
 
     StructMethod mt = method.methodStruct;
-    buf.append(body, node.classStruct.qualifiedName, InterpreterUtil.makeUniqueKey(mt.getName(), mt.getDescriptor()));
+    buf.append(body, node.classStruct.qualifiedName, methodKey);
 
     buf.appendIndent(indent).append("}").appendLineSeparator();
 
@@ -203,6 +222,8 @@ public class KConstructor {
 
     TextBuffer buf = new TextBuffer();
     boolean appended = false;
+
+    String methodKey = InterpreterUtil.makeUniqueKey(method.methodStruct.getName(), method.methodStruct.getDescriptor());
 
     if (flags.hasAnnotations) {
       buf.append(" ");
@@ -235,6 +256,10 @@ public class KConstructor {
         first = false;
 
         parameter.stringify(indent + 1, buf);
+
+        if (parameter.flags.declaresDefault) {
+          buf.append(" = ").append(defaultArgs.toJava(parameter, indent + 1), node.classStruct.qualifiedName, methodKey);
+        }
       }
 
       buf.appendPossibleNewline("", true).popNewlineGroup().append(")");
@@ -278,7 +303,7 @@ public class KConstructor {
 
     method.getOrBuildGraph().first.exprents.remove(0);
 
-    buffer.append(buf, node.classStruct.qualifiedName, InterpreterUtil.makeUniqueKey(method.methodStruct.getName(), method.methodStruct.getDescriptor()));
+    buffer.append(buf, node.classStruct.qualifiedName, methodKey);
     return true;
   }
 
