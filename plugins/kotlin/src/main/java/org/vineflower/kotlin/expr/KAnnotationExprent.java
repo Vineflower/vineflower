@@ -47,12 +47,12 @@ public class KAnnotationExprent extends AnnotationExprent implements KExprent {
     buffer.append(KTypes.getKotlinType(type));
 
     switch (getAnnotationType()) {
-      case SINGLE_ELEMENT:
+      case SINGLE_ELEMENT -> {
         buffer.append('(').appendPossibleNewline();
         writeAnnotationValue(getParValues().get(0), buffer);
         buffer.append(')');
-        break;
-      case NORMAL:
+      }
+      case NORMAL -> {
         buffer.append('(').appendPossibleNewline();
         boolean first = true;
         for (int i = 0; i < getParValues().size(); i++) {
@@ -67,16 +67,15 @@ public class KAnnotationExprent extends AnnotationExprent implements KExprent {
           writeAnnotationValue(getParValues().get(i), buffer);
         }
         buffer.append(')');
-        break;
+      }
     }
 
     return buffer;
   }
 
   public static void writeAnnotationValue(Exprent expr, TextBuffer buffer) {
-    if (expr instanceof FieldExprent) {
+    if (expr instanceof FieldExprent fieldExprent) {
       // Enum value
-      FieldExprent fieldExprent = (FieldExprent) expr;
       VarType type = new VarType(fieldExprent.getClassname(), true);
       DecompilerContext.getImportCollector().getShortName(fieldExprent.getClassname(), true);
 
@@ -84,9 +83,8 @@ public class KAnnotationExprent extends AnnotationExprent implements KExprent {
         .append(KTypes.getKotlinType(type))
         .append(".")
         .append(fieldExprent.getName());
-    } else if (expr instanceof NewExprent) {
+    } else if (expr instanceof NewExprent newExprent) {
       // Array value
-      NewExprent newExprent = (NewExprent) expr;
       buffer.append('[');
       boolean first = true;
       for (Exprent exprent : newExprent.getLstArrayElements()) {
@@ -98,19 +96,18 @@ public class KAnnotationExprent extends AnnotationExprent implements KExprent {
         writeAnnotationValue(exprent, buffer);
       }
       buffer.append(']');
-    } else if (expr instanceof AnnotationExprent) {
-      AnnotationExprent annotationExprent = (AnnotationExprent) expr;
+    } else if (expr instanceof AnnotationExprent annotationExprent) {
       buffer.append('@');
       VarType type = new VarType(annotationExprent.getClassName(), true);
       buffer.append(KTypes.getKotlinType(type));
 
       switch (annotationExprent.getAnnotationType()) {
-        case SINGLE_ELEMENT:
+        case SINGLE_ELEMENT -> {
           buffer.append('(');
           writeAnnotationValue(annotationExprent.getParValues().get(0), buffer);
           buffer.append(')');
-          break;
-        case NORMAL:
+        }
+        case NORMAL -> {
           buffer.append('(');
           boolean first = true;
           for (int i = 0; i < annotationExprent.getParValues().size(); i++) {
@@ -125,10 +122,9 @@ public class KAnnotationExprent extends AnnotationExprent implements KExprent {
             writeAnnotationValue(annotationExprent.getParValues().get(i), buffer);
           }
           buffer.append(')');
-          break;
+        }
       }
-    } else if (expr instanceof ConstExprent) {
-      ConstExprent constExprent = (ConstExprent) expr;
+    } else if (expr instanceof ConstExprent constExprent) {
       if (constExprent.getConstType().equals(VarType.VARTYPE_CLASS)) {
         VarType type = new VarType((String) constExprent.getValue(), true);
         DecompilerContext.getImportCollector().getShortName((String) constExprent.getValue(), true);
