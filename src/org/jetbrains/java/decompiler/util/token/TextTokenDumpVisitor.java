@@ -90,6 +90,7 @@ public class TextTokenDumpVisitor extends TextTokenVisitor {
 
   @Override
   public void end() {
+    super.end();
     text.append("*/").appendLineSeparator();
     buffer.append(text.convertToStringAndAllowDataDiscard());
   }
