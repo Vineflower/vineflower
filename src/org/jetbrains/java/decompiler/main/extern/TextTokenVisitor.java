@@ -3,7 +3,6 @@ package org.jetbrains.java.decompiler.main.extern;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.struct.gen.FieldDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
-import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.token.TextRange;
 
 import java.util.ArrayList;
@@ -51,6 +50,9 @@ public abstract class TextTokenVisitor {
   }
 
   public void start(String content) {
+    if (next != null) {
+      next.start(content);
+    }
   }
 
   public void visitClass(TextRange range, boolean declaration, String name) {
@@ -84,6 +86,9 @@ public abstract class TextTokenVisitor {
   }
 
   public void end() {
+    if (next != null) {
+      next.end();
+    }
   }
 
   public interface Factory {
