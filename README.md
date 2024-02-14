@@ -41,7 +41,7 @@ Contributions are always welcome! We are always looking for help with bugfixes, 
 Vineflower's codebase is rather old and some concepts may be difficult to navigate. For help, please check out [CONTRIBUTING.md](./CONTRIBUTING.md) and [ARCHITECTURE.md](./ARCHITECTURE.md).
 
 ### Special Thanks
-Vineflower is a fork of both Jetbrains' Fernflower and MinecraftForge's ForgeFlower, and a direct continuation of work on Quiltflower.
+Vineflower is a fork of both Jetbrains' Fernflower and MinecraftForge's ForgeFlower, and a direct continuation of work on Vineflower.
 
 * Jetbrains- For maintaining Fernflower
 * Forge Team- For maintaining ForgeFlower
