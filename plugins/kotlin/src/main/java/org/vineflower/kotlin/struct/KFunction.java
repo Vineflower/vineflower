@@ -162,20 +162,6 @@ public class KFunction {
         }
       }
 
-      boolean isStatic = (method.methodStruct.getAccessFlags() & CodeConstants.ACC_STATIC) != 0;
-      String defaultArgsName = name + "$default";
-      StringBuilder defaultArgsDesc = new StringBuilder("(");
-      if (!isStatic) {
-        defaultArgsDesc.append("L").append(struct.qualifiedName).append(";");
-      }
-      for (KParameter parameter : parameters) {
-        defaultArgsDesc.append(parameter.type);
-      }
-      defaultArgsDesc.append("ILjava/lang/Object;)");
-      defaultArgsDesc.append(returnType);
-
-      DefaultArgsMap defaultArgs = DefaultArgsMap.from(wrapper.getMethodWrapper(defaultArgsName, defaultArgsDesc.toString()), method, parameters, isStatic ? 0 : 1);
-
       List<KTypeParameter> typeParameters = function.getTypeParameterList().stream()
         .map(typeParameter -> KTypeParameter.from(typeParameter, resolver))
         .collect(Collectors.toList());
@@ -183,6 +169,33 @@ public class KFunction {
       List<KType> contextReceiverTypes = function.getContextReceiverTypeList().stream()
         .map(ctxType -> KType.from(ctxType, resolver))
         .collect(Collectors.toList());
+
+      boolean isStatic = (method.methodStruct.getAccessFlags() & CodeConstants.ACC_STATIC) != 0;
+      String defaultArgsName = name + "$default";
+      StringBuilder defaultArgsDesc = new StringBuilder("(");
+      if (!isStatic) {
+        defaultArgsDesc.append("L").append(struct.qualifiedName).append(";");
+      }
+      if (receiverType != null) {
+        defaultArgsDesc.append(receiverType);
+      }
+      for (KParameter parameter : parameters) {
+        if (parameter.type.typeParameterName != null) {
+          typeParameters.stream()
+            .filter(typeParameter -> typeParameter.name.equals(parameter.type.typeParameterName))
+            .findAny()
+            .map(typeParameter -> typeParameter.upperBounds)
+            .filter(bounds -> bounds.size() == 1)
+            .map(bounds -> bounds.get(0))
+            .ifPresentOrElse(defaultArgsDesc::append, () -> defaultArgsDesc.append("Ljava/lang/Object;"));
+        } else {
+          defaultArgsDesc.append(parameter.type);
+        }
+      }
+      defaultArgsDesc.append("ILjava/lang/Object;)");
+      defaultArgsDesc.append(returnType);
+
+      DefaultArgsMap defaultArgs = DefaultArgsMap.from(wrapper.getMethodWrapper(defaultArgsName, defaultArgsDesc.toString()), method, parameters);
 
       boolean knownOverride = flags.visibility != ProtoBuf.Visibility.PRIVATE
         && flags.visibility != ProtoBuf.Visibility.PRIVATE_TO_THIS
@@ -340,7 +353,6 @@ public class KFunction {
 
       parameter.stringify(indent + 1, buf);
       if (parameter.flags.declaresDefault) {
-        buf.append(" = ");
         buf.append(defaultArgs.toJava(parameter, indent + 1), node.classStruct.qualifiedName, methodKey);
       }
     }

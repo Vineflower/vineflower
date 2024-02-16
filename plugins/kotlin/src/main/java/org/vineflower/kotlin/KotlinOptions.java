@@ -12,13 +12,19 @@ public interface KotlinOptions {
   @Type(Type.BOOLEAN)
   String SHOW_PUBLIC_VISIBILITY = "kt-show-public";
 
-  @Name("Decompile Kotlin")
+  @Name("Enable Kotlin plugin")
   @Description("Decompile Kotlin classes as Kotlin instead of Java")
   @Type(Type.BOOLEAN)
-  String DECOMPILE_KOTLIN = "kt-decompile-kotlin";
+  String DECOMPILE_KOTLIN = "kt-enable";
+
+  @Name("Unknown default arg string")
+  @Description("String to use for unknown default arguments, or empty to not indicate defaults")
+  @Type(Type.STRING)
+  String UNKNOWN_DEFAULT_ARG_STRING = "kt-unknown-defaults";
 
   static void addDefaults(PluginOptions.AddDefaults cons) {
     cons.addDefault(SHOW_PUBLIC_VISIBILITY, "1");
     cons.addDefault(DECOMPILE_KOTLIN, "1");
+    cons.addDefault(UNKNOWN_DEFAULT_ARG_STRING, "...");
   }
 }

@@ -103,14 +103,13 @@ public class KConstructor {
 
       boolean isPrimary = !flags.isSecondary;
 
-      boolean isStatic = (method.methodStruct.getAccessFlags() & CodeConstants.ACC_STATIC) != 0;
       StringBuilder defaultArgsDesc = new StringBuilder("(");
       for (KParameter parameter : parameters) {
         defaultArgsDesc.append(parameter.type);
       }
       defaultArgsDesc.append("ILkotlin/jvm/internal/DefaultConstructorMarker;)V");
 
-      DefaultArgsMap defaultArgs = DefaultArgsMap.from(wrapper.getMethodWrapper("<init>", defaultArgsDesc.toString()), method, parameters, isStatic ? 0 : 1);
+      DefaultArgsMap defaultArgs = DefaultArgsMap.from(wrapper.getMethodWrapper("<init>", defaultArgsDesc.toString()), method, parameters);
 
       KConstructor kConstructor = new KConstructor(parameters, flags, method, isPrimary, defaultArgs, node);
       constructors.put(method.methodStruct, kConstructor);

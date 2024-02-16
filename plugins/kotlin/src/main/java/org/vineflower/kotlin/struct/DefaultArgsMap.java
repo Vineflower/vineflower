@@ -1,12 +1,15 @@
 package org.vineflower.kotlin.struct;
 
+import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectNode;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.SequenceStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribute;
 import org.jetbrains.java.decompiler.util.TextBuffer;
+import org.vineflower.kotlin.KotlinOptions;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,29 +21,30 @@ public class DefaultArgsMap {
     this.map = map;
   }
 
-  public static DefaultArgsMap from(MethodWrapper defaults, MethodWrapper calling, KParameter[] params, int startIndex) {
+  public static DefaultArgsMap from(MethodWrapper defaults, MethodWrapper calling, KParameter[] params) {
     if (defaults == null) {
       return new DefaultArgsMap(Map.of());
     }
 
     Map<KParameter, Exprent> map = new HashMap<>();
 
-    SequenceStatement sequence = ((SequenceStatement) defaults.root.getFirst());
-    for (Statement statement : sequence.getStats()) {
+    DirectGraph graph = defaults.getOrBuildGraph();
+    for (DirectNode node : graph.nodes) {
+      Statement statement = node.statement;
       if (statement instanceof IfStatement) {
         IfStatement ifStatement = (IfStatement) statement;
         Exprent condition = ifStatement.getHeadexprent().getCondition();
-        if (!(condition instanceof FunctionExprent)) throw new IllegalStateException("Unexpected exprent type parsing default argument");
+        if (!(condition instanceof FunctionExprent)) continue;
         FunctionExprent function = (FunctionExprent) condition;
 
-        if (!(function.getLstOperands().get(0) instanceof FunctionExprent)) throw new IllegalStateException("Unexpected exprent type parsing default argument");
+        if (!(function.getLstOperands().get(0) instanceof FunctionExprent)) continue;
         FunctionExprent bitmask = (FunctionExprent) function.getLstOperands().get(0);
 
-        if (bitmask.getLstOperands().size() != 2) throw new IllegalStateException("Unexpected number of operands parsing default argument");
+        if (bitmask.getLstOperands().size() != 2) continue;
         Exprent var = bitmask.getLstOperands().get(0);
         Exprent mask = bitmask.getLstOperands().get(1);
 
-        if (!(var instanceof VarExprent) || !(mask instanceof ConstExprent)) throw new IllegalStateException("Unexpected exprent type parsing default argument");
+        if (!(var instanceof VarExprent) || !(mask instanceof ConstExprent)) continue;
 
         int maskValue = ((ConstExprent) mask).getIntValue();
         int maskIndex = 0;
@@ -71,13 +75,18 @@ public class DefaultArgsMap {
 
   public TextBuffer toJava(KParameter parameter, int indent) {
     TextBuffer buffer = new TextBuffer();
+    String argString = DecompilerContext.getProperty(KotlinOptions.UNKNOWN_DEFAULT_ARG_STRING).toString();
 
     Exprent expr = map.get(parameter);
     if (expr == null) {
-      return buffer.append("...");
+      if (!argString.isEmpty()) {
+        buffer.append(" = ").append(argString);
+      }
+
+      return buffer;
     }
 
-    buffer.append(expr.toJava(indent));
+    buffer.append(" = ").append(expr.toJava(indent));
 
     return buffer;
   }
