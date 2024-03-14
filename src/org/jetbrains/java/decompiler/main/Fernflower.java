@@ -24,6 +24,7 @@ import org.jetbrains.java.decompiler.util.token.TextTokenDumpVisitor;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -151,6 +152,10 @@ public class Fernflower implements IDecompiledData {
 
   public void addWhitelist(String prefix) {
     classProcessor.addWhitelist(prefix);
+  }
+
+  public void addExcludeList(Collection<String> excludeList) {
+    classProcessor.addExcludeList(excludeList);
   }
 
   public void clearContext() {

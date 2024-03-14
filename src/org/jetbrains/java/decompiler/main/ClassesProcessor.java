@@ -43,6 +43,7 @@ public class ClassesProcessor implements CodeConstants {
   private final StructContext context;
   private final Map<String, ClassNode> mapRootClasses = new ConcurrentHashMap<>();
   private final Set<String> whitelist = new HashSet<>();
+  private final Set<String> excludeList = new HashSet<>();
 
   private static class Inner {
     private String simpleName;
@@ -85,6 +86,19 @@ public class ClassesProcessor implements CodeConstants {
     return false;
   }
 
+  public void addExcludeList(Collection<String> excludeList) {
+    this.excludeList.addAll(excludeList);
+  }
+
+  public boolean isExcluded(String cls) {
+    for (String prefix : this.excludeList) {
+      if (cls.startsWith(prefix)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   public void loadClasses(IIdentifierRenamer renamer) {
     Map<String, Inner> mapInnerClasses = new HashMap<>();
     Map<String, Set<String>> mapNestedClassReferences = new HashMap<>();
@@ -96,6 +110,9 @@ public class ClassesProcessor implements CodeConstants {
 
     // create class nodes
     for (StructClass cl : context.getOwnClasses()) {
+      if (isExcluded(cl.qualifiedName)) {
+        continue;
+      }
       if (!mapRootClasses.containsKey(cl.qualifiedName)) {
         if (bDecompileInner) {
           StructInnerClassesAttribute inner = cl.getAttribute(StructGeneralAttribute.ATTRIBUTE_INNER_CLASSES);

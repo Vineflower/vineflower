@@ -87,6 +87,7 @@ public class ConsoleDecompiler implements /* IBytecodeProvider, */ IResultSaver,
     List<File> sources = new ArrayList<>();
     List<File> libraries = new ArrayList<>();
     Set<String> whitelist = new HashSet<>();
+    Set<String> excludeList = new HashSet<>();
 
     SaveType userSaveType = null;
     boolean isOption = true;
@@ -138,6 +139,9 @@ public class ConsoleDecompiler implements /* IBytecodeProvider, */ IResultSaver,
           addPath(libraries, arg.substring(arg.indexOf('=') + 1));
         } else if (arg.startsWith("-only=") || arg.startsWith("--only=")) {
           whitelist.add(arg.substring(arg.indexOf('=') + 1));
+        } else if (arg.startsWith("-E=") || arg.startsWith("--exclude=")) {
+          String excluded[] = arg.substring(arg.indexOf('=') + 1).split(",");
+          excludeList.addAll(Arrays.asList(excluded));
         } else {
           addPath(sources, arg);
         }
@@ -186,6 +190,7 @@ public class ConsoleDecompiler implements /* IBytecodeProvider, */ IResultSaver,
     for (String prefix : whitelist) {
       decompiler.addWhitelist(prefix);
     }
+    decompiler.addExcludeList(excludeList);
 
     try {
       decompiler.decompileContext();
@@ -239,6 +244,10 @@ public class ConsoleDecompiler implements /* IBytecodeProvider, */ IResultSaver,
 
   public void addWhitelist(String prefix) {
     engine.addWhitelist(prefix);
+  }
+
+  public void addExcludeList(Set<String> excludeList) {
+    engine.addExcludeList(excludeList);
   }
 
   public void decompileContext() {
