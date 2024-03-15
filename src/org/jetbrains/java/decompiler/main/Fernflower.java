@@ -107,6 +107,13 @@ public class Fernflower implements IDecompiledData {
         JrtFinder.addRuntime(structContext, new File(javaRuntime));
       }
     }
+
+    String excludedClasses = DecompilerContext.getProperty(IFernflowerPreferences.EXCLUDED_CLASSES).toString();
+    if (!excludedClasses.isEmpty()) {
+      for (String excludedClass : excludedClasses.split(",")) {
+        classProcessor.addExcludedClass(excludedClass);
+      }
+    }
   }
 
   private static IIdentifierRenamer loadHelper(String className, IFernflowerLogger logger) {

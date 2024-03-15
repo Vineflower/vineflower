@@ -237,6 +237,12 @@ public interface IFernflowerPreferences {
   @Type(Type.STRING)
   String INCLUDE_JAVA_RUNTIME = "include-runtime";
 
+  @Name("Excluded Classes")
+  @Description("Exclude the specified classes from decompilation. Classes are separated by comma.")
+  @ShortName("exc")
+  @Type(Type.STRING)
+  String EXCLUDED_CLASSES = "excluded-classes";
+
   @Name("Explicit Generic Arguments")
   @Description("Put explicit diamond generic arguments on method calls.")
   @ShortName("ega")
@@ -426,6 +432,7 @@ public interface IFernflowerPreferences {
 
     defaults.put(INCLUDE_ENTIRE_CLASSPATH, "0");
     defaults.put(INCLUDE_JAVA_RUNTIME, "");
+    defaults.put(EXCLUDED_CLASSES, "");
     defaults.put(EXPLICIT_GENERIC_ARGUMENTS, "0");
     defaults.put(INLINE_SIMPLE_LAMBDAS, "1");
 
@@ -475,7 +482,7 @@ public interface IFernflowerPreferences {
   public @interface Description {
     String value();
   }
-  
+
   @Retention(RetentionPolicy.RUNTIME)
   @Target(ElementType.FIELD)
   public @interface DynamicDefaultValue {
@@ -504,7 +511,7 @@ public interface IFernflowerPreferences {
   @Target(ElementType.FIELD)
   public @interface Type {
     String value();
-    
+
     String BOOLEAN = "bool";
     String INTEGER = "int";
     String STRING = "string";
