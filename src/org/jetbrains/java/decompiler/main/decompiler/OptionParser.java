@@ -14,8 +14,6 @@ public class OptionParser {
     "--add-external=",
     "-only=",
     "--only=",
-    "-E=",
-    "--exclude=",
     "-s",
     "--silent"
   };
