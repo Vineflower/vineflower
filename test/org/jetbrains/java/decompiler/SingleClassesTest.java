@@ -693,6 +693,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16, "TestMissingLambdaBody");
     register(JAVA_21_PREVIEW, "TestUnnamedVar1");
     register(JAVA_8, "TestDanglingBoxingCall");
+    register(JAVA_21, "TestSwitchOnEnumJ21");
   }
 
   private void registerEntireClassPath() {
