@@ -2,7 +2,7 @@ package pkg;
 
 public class TestSwitchOnEnumJ21 {
    public int test1(TestSwitchOnEnumJ21.TestEnum a) {
-      return switch (a.ordinal()) {// 5
+      return switch (a) {// 5
          case A -> 1;// 6
          case B -> 2;// 7
          case C -> 3;// 8
@@ -10,14 +10,14 @@ public class TestSwitchOnEnumJ21 {
    }
 
    public int testDefault(TestSwitchOnEnumJ21.TestEnum a) {
-      return switch (a.ordinal()) {// 13
+      return switch (a) {// 13
          case A -> 1;// 14
          default -> 5;// 15
       };
    }
 
    public void testStatement(TestSwitchOnEnumJ21.TestEnum a) {
-      switch (a.ordinal()) {// 20
+      switch (a) {// 20
          case A:
             System.out.println("A");// 22
             break;// 23
@@ -30,7 +30,7 @@ public class TestSwitchOnEnumJ21 {
    }// 30
 
    public void testStatementDefault(TestSwitchOnEnumJ21.TestEnum a) {
-      switch (a.ordinal()) {// 33
+      switch (a) {// 33
          case A:
             System.out.println("A");// 35
             break;// 36
@@ -49,9 +49,6 @@ public class TestSwitchOnEnumJ21 {
 class 'pkg/TestSwitchOnEnumJ21' {
    method 'test1 (Lpkg/TestSwitchOnEnumJ21$TestEnum;)I' {
       0      4
-      1      4
-      2      4
-      3      4
       4      4
       2a      5
       2e      6
@@ -61,9 +58,6 @@ class 'pkg/TestSwitchOnEnumJ21' {
 
    method 'testDefault (Lpkg/TestSwitchOnEnumJ21$TestEnum;)I' {
       0      12
-      1      12
-      2      12
-      3      12
       4      12
       18      13
       1c      14
@@ -72,9 +66,6 @@ class 'pkg/TestSwitchOnEnumJ21' {
 
    method 'testStatement (Lpkg/TestSwitchOnEnumJ21$TestEnum;)V' {
       0      19
-      1      19
-      2      19
-      3      19
       4      19
       20      21
       21      21
@@ -105,9 +96,6 @@ class 'pkg/TestSwitchOnEnumJ21' {
 
    method 'testStatementDefault (Lpkg/TestSwitchOnEnumJ21$TestEnum;)V' {
       0      32
-      1      32
-      2      32
-      3      32
       4      32
       18      34
       19      34

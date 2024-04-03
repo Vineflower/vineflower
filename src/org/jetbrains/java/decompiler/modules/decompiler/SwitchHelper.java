@@ -366,6 +366,9 @@ public final class SwitchHelper {
           }
         }
 
+        // Now replace the 'var.ordinal()' with 'var'
+        head.replaceExprent(inner, ((InvocationExprent)inner).getInstance());
+
         return true;
       }
     }
