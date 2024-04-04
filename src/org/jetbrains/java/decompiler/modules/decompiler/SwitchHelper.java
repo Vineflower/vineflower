@@ -342,23 +342,27 @@ public final class SwitchHelper {
         }
 
         // Success! now let's clean it up. Remove "default -> throw new MatchException", if it exists
-        for (int i = 0; i < values.size(); i++) {
-          List<Exprent> list = values.get(i);
+        // Only do this for switch expression (phantom) switches. Otherwise we might accidentally obliterate
+        // definite assignment for a variable.
+        if (switchSt.isPhantom()) {
+          for (int i = 0; i < values.size(); i++) {
+            List<Exprent> list = values.get(i);
 
-          if (list.size() == 1 && list.get(0) == null) { // default by itself
-            Statement st = switchSt.getCaseStatements().get(i);
-            // Check for a block with something inside
-            if (st.type == Statement.StatementType.BASIC_BLOCK && st.getExprents().size() == 1) {
-              Exprent check = st.getExprents().get(0);
-              // throw ...
-              if (check instanceof ExitExprent && ((ExitExprent)check).getExitType() == ExitExprent.Type.THROW) {
-                Exprent i1 = ((ExitExprent)check).getValue();
-                // throw new ...
-                if (i1 instanceof NewExprent) {
-                  // throw new MatchException
-                  if (((NewExprent)i1).getNewType().toString().equals("Ljava/lang/MatchException;")) {
+            if (list.size() == 1 && list.get(0) == null) { // default by itself
+              Statement st = switchSt.getCaseStatements().get(i);
+              // Check for a block with something inside
+              if (st.type == Statement.StatementType.BASIC_BLOCK && st.getExprents().size() == 1) {
+                Exprent check = st.getExprents().get(0);
+                // throw ...
+                if (check instanceof ExitExprent && ((ExitExprent) check).getExitType() == ExitExprent.Type.THROW) {
+                  Exprent i1 = ((ExitExprent) check).getValue();
+                  // throw new ...
+                  if (i1 instanceof NewExprent) {
+                    // throw new MatchException
+                    if (((NewExprent) i1).getNewType().toString().equals("Ljava/lang/MatchException;")) {
 
-                    st.replaceWithEmpty();
+                      st.replaceWithEmpty();
+                    }
                   }
                 }
               }
