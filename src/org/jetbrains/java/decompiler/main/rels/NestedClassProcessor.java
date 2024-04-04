@@ -727,31 +727,45 @@ public class NestedClassProcessor {
     StructClass cl = wrapper.getClassStruct();
 
     // iterate over constructors
-    for (StructMethod mt : cl.getMethods()) {
-      if (CodeConstants.INIT_NAME.equals(mt.getName())) {
-        MethodDescriptor md = MethodDescriptor.parseDescriptor(mt.getDescriptor());
-        MethodWrapper method = wrapper.getMethodWrapper(CodeConstants.INIT_NAME, mt.getDescriptor());
-        DirectGraph graph = method.getOrBuildGraph();
+    for (int p = 0; p < 2; p++) {
+      boolean found = false;
+      // Do 2 passes. First pass is the "normal" pass, and try again if we find nothing that way.
 
-        if (graph != null) { // something gone wrong, should not be null
-          List<VarFieldPair> fields = new ArrayList<>(md.params.length);
+      for (StructMethod mt : cl.getMethods()) {
+        if (CodeConstants.INIT_NAME.equals(mt.getName())) {
+          MethodDescriptor md = MethodDescriptor.parseDescriptor(mt.getDescriptor());
+          MethodWrapper method = wrapper.getMethodWrapper(CodeConstants.INIT_NAME, mt.getDescriptor());
+          DirectGraph graph = method.getOrBuildGraph();
 
-          int varIndex = 1;
-          for (int i = 0; i < md.params.length; i++) {  // no static methods allowed
-            String keyField = getEnclosingVarField(cl, method, graph, varIndex, i);
-            fields.add(keyField == null ? null : new VarFieldPair(keyField, new VarVersionPair(-1, 0))); // TODO: null?
-            varIndex += md.params[i].stackSize;
+          if (graph != null) { // something gone wrong, should not be null
+            List<VarFieldPair> fields = new ArrayList<>(md.params.length);
+
+            int varIndex = 1;
+            for (int i = 0; i < md.params.length; i++) {  // no static methods allowed
+              // Always assume we can use the heuristic if there's only one metho
+              String keyField = getEnclosingVarField(cl, method, graph, varIndex, i, p == 1 || cl.getMethods().size() == 1);
+              if (!keyField.isEmpty()) {
+                found = true;
+              }
+
+              fields.add(keyField == null ? null : new VarFieldPair(keyField, new VarVersionPair(-1, 0))); // TODO: null?
+              varIndex += md.params[i].stackSize;
+            }
+
+            mapMasks.put(mt.getDescriptor(), fields);
           }
-
-          mapMasks.put(mt.getDescriptor(), fields);
         }
+      }
+
+      if (found) {
+        break;
       }
     }
 
     return mapMasks;
   }
 
-  private static String getEnclosingVarField(StructClass cl, MethodWrapper method, DirectGraph graph, int index, int outerIdx) {
+  private static String getEnclosingVarField(StructClass cl, MethodWrapper method, DirectGraph graph, int index, int outerIdx, boolean useHeuristic) {
     String field = "";
 
     // parameter variable final
@@ -811,7 +825,7 @@ public class NestedClassProcessor {
 
         String name = method.varproc.getVarName(var);
         VarType type = method.varproc.getVarType(var);
-        if (hostName.equals(type.value)) {
+        if (hostName.equals(type.value) && useHeuristic) {
           field = InterpreterUtil.makeUniqueKey(name, type.toString());
         } else {
           // Also check the enclosing class if it's anonymous
