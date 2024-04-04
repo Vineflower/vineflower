@@ -694,6 +694,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_21_PREVIEW, "TestUnnamedVar1");
     register(JAVA_8, "TestDanglingBoxingCall");
     register(JAVA_21, "TestSwitchOnEnumJ21");
+    register(JAVA_21, "TestInnerClassesJ21");
+    register(JAVA_8, "TestInnerClassesJ8");
   }
 
   private void registerEntireClassPath() {

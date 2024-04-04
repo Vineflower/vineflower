@@ -27,6 +27,8 @@ import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.attr.StructEnclosingMethodAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribute.LocalVariable;
+import org.jetbrains.java.decompiler.struct.attr.StructMethodParametersAttribute;
+import org.jetbrains.java.decompiler.struct.attr.StructNestHostAttribute;
 import org.jetbrains.java.decompiler.struct.consts.LinkConstant;
 import org.jetbrains.java.decompiler.struct.consts.PooledConstant;
 import org.jetbrains.java.decompiler.struct.gen.CodeType;
@@ -104,118 +106,6 @@ public class NestedClassProcessor {
       processClass(root, child);
     }
   }
-  /**
-   * When Java introduced Enums they aded the ability to use them in Switch statements.
-   * This was done in a purely syntax sugar way using the old switch on int methods.
-   * The compiler creates a synthetic class with a static int array field.
-   * To support enums changing post compile, It initializes this field with a length of the current enum length.
-   * And then for every referenced enum value it adds a mapping in the form of:
-   *   try {
-   *     field[Enum.VALUE.ordinal()] = 1;
-   *   } catch (FieldNotFoundException e) {}
-   *
-   * If a class has multiple switches on multiple enums, the compiler adds the init and try list to the BEGINNING of the static initalizer.
-   * But they add the field to the END of the fields list.
-   */
-  /*
-  private void gatherEnumSwitchMaps(ClassNode node) {
-    for (ClassNode child : node.nested) {
-      gatherEnumSwitchMaps(child);
-    }
-
-    MethodWrapper clinit = node.getWrapper().getMethodWrapper("<clinit>", "()V");
-    if (clinit == null || clinit.root == null || clinit.root.getFirst().type != Statement.TYPE_SEQUENCE) {
-      return;
-    }
-
-    final int STATIC_FINAL_SYNTHETIC = CodeConstants.ACC_STATIC | CodeConstants.ACC_STATIC | CodeConstants.ACC_FINAL | CodeConstants.ACC_SYNTHETIC;
-    Set<String> potentialFields = new HashSet<String>();
-    for (StructField fd : node.classStruct.getFields()) {
-      if ((fd.getAccessFlags() & STATIC_FINAL_SYNTHETIC) == STATIC_FINAL_SYNTHETIC && "[I".equals(fd.getDescriptor())) {
-        potentialFields.add(fd.getName());
-      }
-    }
-
-    if (potentialFields.size() == 0) {
-      return;
-    }
-
-    SequenceStatement seq = (SequenceStatement)clinit.root.getFirst();
-    for (int x = 0; x < seq.getStats().size();) {
-      Statement stat = seq.getStats().get(x);
-      if (stat.type != Statement.TYPE_BASICBLOCK || stat.getExprents() == null || stat.getExprents().size() != 1 || stat.getExprents().get(0).type != Exprent.EXPRENT_ASSIGNMENT) {
-        break;
-      }
-      AssignmentExprent ass = (AssignmentExprent)stat.getExprents().get(0);
-      if (ass.getLeft().type != Exprent.EXPRENT_FIELD || ass.getRight().type != Exprent.EXPRENT_NEW) {
-        break;
-      }
-      FieldExprent mapField = (FieldExprent)ass.getLeft();
-      NewExprent _new = ((NewExprent)ass.getRight());
-      if (!mapField.getClassname().equals(node.classStruct.qualifiedName) || !potentialFields.contains(mapField.getName()) ||
-          _new.getNewType().type != CodeType.INT || _new.getNewType().arrayDim != 1 ||
-          _new.getLstDims().size() != 1 || _new.getLstDims().get(0).type != Exprent.EXPRENT_FUNCTION) {
-        break;
-      }
-      FunctionExprent func = (FunctionExprent)_new.getLstDims().get(0);
-      if (func.getFuncType() != FunctionExprent.FUNCTION_ARRAY_LENGTH || func.getLstOperands().size() != 1 || func.getLstOperands().get(0).type != Exprent.EXPRENT_INVOCATION) {
-        break;
-      }
-      InvocationExprent invoc = (InvocationExprent)func.getLstOperands().get(0);
-      if (!"values".equals(invoc.getName()) || !("()[L" + invoc.getClassname() + ";").equals(invoc.getStringDescriptor())) {
-        break;
-      }
-
-      String fieldName = mapField.getName();
-      String enumName = invoc.getClassname();
-      Map<Integer, String> idToName = new HashMap<Integer, String>();
-
-      boolean replace = false;
-      int y = x;
-      while (++y < seq.getStats().size()) {
-        if (seq.getStats().get(y).type != Statement.TYPE_TRYCATCH) {
-          break;
-        }
-        CatchStatement _try = (CatchStatement)seq.getStats().get(y);
-        Statement first = _try.getFirst();
-        List<Exprent> exprents = first.getExprents();
-        if (_try.getVars().size() != 1 || !"java/lang/NoSuchFieldError".equals(_try.getVars().get(0).getVarType().value) ||
-            first.type != Statement.TYPE_BASICBLOCK || exprents == null || exprents.size() != 1 || exprents.get(0).type != Exprent.EXPRENT_ASSIGNMENT) {
-          break;
-        }
-        ass = (AssignmentExprent)exprents.get(0);
-        if (ass.getRight().type != Exprent.EXPRENT_CONST || (!(((ConstExprent)ass.getRight()).getValue() instanceof Integer)) ||
-            ass.getLeft().type != Exprent.EXPRENT_ARRAY){
-          break;
-        }
-        ArrayExprent array = (ArrayExprent)ass.getLeft();
-        if (array.getArray().type != Exprent.EXPRENT_FIELD || !array.getArray().equals(mapField) || array.getIndex().type != Exprent.EXPRENT_INVOCATION) {
-          break;
-        }
-        invoc = (InvocationExprent)array.getIndex();
-        if (!enumName.equals(invoc.getClassname()) || !"ordinal".equals(invoc.getName()) || !"()I".equals(invoc.getStringDescriptor()) ||
-            invoc.getInstance().type != Exprent.EXPRENT_FIELD) {
-          break;
-        }
-
-        FieldExprent enumField = (FieldExprent)invoc.getInstance();
-        if (!enumName.equals(enumField.getClassname()) || !enumField.isStatic()) {
-          break;
-        }
-
-        idToName.put((Integer)((ConstExprent)ass.getRight()).getValue(), enumField.getName());
-        seq.replaceStatement(_try, getNewEmptyStatement());
-        replace = true;
-      }
-
-      if (replace) {
-        seq.replaceStatement(seq.getStats().get(x), getNewEmptyStatement());
-        node.classStruct.getEnumSwitchMap().put(fieldName, idToName);
-        node.getWrapper().getHiddenMembers().add(InterpreterUtil.makeUniqueKey(fieldName, "[I"));
-      }
-      x = y;
-    }
-  }*/
 
   private static void setLambdaVars(ClassNode parent, ClassNode child) {
     if (child.lambdaInformation.is_method_reference) { // method reference, no code and no parameters
@@ -721,7 +611,9 @@ public class NestedClassProcessor {
             // hide synthetic field
             if (classNode == child) { // fields higher up the chain were already handled with their classes
               StructField fd = child.classStruct.getFields().getWithKey(entry.getKey());
-              child.getWrapper().getHiddenMembers().add(InterpreterUtil.makeUniqueKey(fd.getName(), fd.getDescriptor()));
+              if (fd != null) { // this can be null if we're in J21 and there is no field. This is fine, just ignore it.
+                child.getWrapper().getHiddenMembers().add(InterpreterUtil.makeUniqueKey(fd.getName(), fd.getDescriptor()));
+              }
             }
           }
         }
@@ -846,7 +738,7 @@ public class NestedClassProcessor {
 
           int varIndex = 1;
           for (int i = 0; i < md.params.length; i++) {  // no static methods allowed
-            String keyField = getEnclosingVarField(cl, method, graph, varIndex);
+            String keyField = getEnclosingVarField(cl, method, graph, varIndex, i);
             fields.add(keyField == null ? null : new VarFieldPair(keyField, new VarVersionPair(-1, 0))); // TODO: null?
             varIndex += md.params[i].stackSize;
           }
@@ -859,11 +751,12 @@ public class NestedClassProcessor {
     return mapMasks;
   }
 
-  private static String getEnclosingVarField(StructClass cl, MethodWrapper method, DirectGraph graph, int index) {
+  private static String getEnclosingVarField(StructClass cl, MethodWrapper method, DirectGraph graph, int index, int outerIdx) {
     String field = "";
 
     // parameter variable final
-    if (method.varproc.getVarFinal(new VarVersionPair(index, 0)) == FinalType.NON_FINAL) {
+    VarVersionPair var = new VarVersionPair(index, 0);
+    if (method.varproc.getVarFinal(var) == FinalType.NON_FINAL) {
       return null;
     }
 
@@ -889,6 +782,37 @@ public class NestedClassProcessor {
               break;
             }
           }
+        }
+      }
+    }
+
+    if ("".equals(field) && cl.getVersion().major >= 21) {
+      // Hack for J21 - if the class doesn't capture the outer state, then the synthetic 'this$0' var won't have an assigntment.
+      // In this case, there's not much info we can gather. Make a best guess based on the MethodParameters struct.
+      if (method.methodStruct.hasAttribute(StructGeneralAttribute.ATTRIBUTE_METHOD_PARAMETERS)) {
+        StructMethodParametersAttribute attr = method.methodStruct.getAttribute(StructGeneralAttribute.ATTRIBUTE_METHOD_PARAMETERS);
+
+        List<StructMethodParametersAttribute.Entry> entries = attr.getEntries();
+        if (outerIdx < entries.size() && (entries.get(outerIdx).myAccessFlags & CodeConstants.ACC_MANDATED) == CodeConstants.ACC_MANDATED) {
+
+          String name = method.varproc.getVarName(var);
+          VarType type = method.varproc.getVarType(var);
+          field = InterpreterUtil.makeUniqueKey(name, type.toString());
+        }
+      }
+    }
+
+    // Still didn't work? We might be missing the mandated flag.
+    // Do an even worse hack to just guess based on the nest host.
+    if ("".equals(field) && cl.getVersion().major >= 21) {
+      if (index == 1 && cl.hasAttribute(StructGeneralAttribute.ATTRIBUTE_NEST_HOST)) {
+        StructNestHostAttribute host = cl.getAttribute(StructGeneralAttribute.ATTRIBUTE_NEST_HOST);
+        String hostName = host.getHostClass(cl.getPool());
+
+        String name = method.varproc.getVarName(var);
+        VarType type = method.varproc.getVarType(var);
+        if (hostName.equals(type.value)) {
+          field = InterpreterUtil.makeUniqueKey(name, type.toString());
         }
       }
     }
@@ -1215,6 +1139,11 @@ public class NestedClassProcessor {
     @Override
     public int hashCode() {
       return fieldKey.hashCode() + varPair.hashCode();
+    }
+
+    @Override
+    public String toString() {
+      return varPair + ": " + fieldKey;
     }
   }
 

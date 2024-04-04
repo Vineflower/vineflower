@@ -147,7 +147,7 @@ public final class RecordHelper {
 
     for (StructMember member : members) {
       for (Key<?> key : ClassWriter.ANNOTATION_ATTRIBUTES) {
-        StructAnnotationAttribute attribute = (StructAnnotationAttribute) member.getAttribute(key);
+        StructAnnotationAttribute attribute = member.getAttribute((Key<StructAnnotationAttribute>) key);
         if (attribute == null) continue;
         for (AnnotationExprent annotation : attribute.getAnnotations()) {
           TextBuffer text = annotation.toJava(-1);
@@ -158,7 +158,7 @@ public final class RecordHelper {
       }
 
       for (Key<?> key : ClassWriter.TYPE_ANNOTATION_ATTRIBUTES) {
-        StructTypeAnnotationAttribute attribute = (StructTypeAnnotationAttribute) member.getAttribute(key);
+        StructTypeAnnotationAttribute attribute = member.getAttribute((Key<StructTypeAnnotationAttribute>) key);
         if (attribute == null) continue;
         for (TypeAnnotation annotation : attribute.getAnnotations()) {
           if (!annotation.isTopLevel()) continue;
@@ -177,7 +177,7 @@ public final class RecordHelper {
     if (constr == null) return buffers;
 
     for (Key<?> key : ClassWriter.PARAMETER_ANNOTATION_ATTRIBUTES) {
-      StructAnnotationParameterAttribute attribute = (StructAnnotationParameterAttribute) constr.getAttribute(key);
+      StructAnnotationParameterAttribute attribute = constr.getAttribute((Key<StructAnnotationParameterAttribute>)key);
       if (attribute == null) continue;
       List<List<AnnotationExprent>> paramAnnotations = attribute.getParamAnnotations();
       if (param >= paramAnnotations.size()) continue;

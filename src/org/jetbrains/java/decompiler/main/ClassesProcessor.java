@@ -435,6 +435,8 @@ public class ClassesProcessor implements CodeConstants {
       }
     } catch (CancelationManager.CanceledException e) {
       throw e;
+    } catch (Exception e) {
+      throw new RuntimeException(e);
     } finally {
       DecompilerContext.getLogger().endProcessingClass();
     }

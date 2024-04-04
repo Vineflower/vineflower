@@ -151,7 +151,7 @@ public class KotlinWriter implements StatementWriter {
   public void writeClassHeader(StructClass cl, TextBuffer buffer, ImportCollector importCollector) {
     if (KotlinDecompilationContext.getCurrentType() == KotlinDecompilationContext.KotlinType.FILE) {
       for (Key<?> key : ANNOTATION_ATTRIBUTES) {
-        StructAnnotationAttribute attr = cl.getAttribute(key);
+        StructAnnotationAttribute attr = cl.getAttribute((Key<StructAnnotationAttribute>) key);
         if (attr != null) {
           for (AnnotationExprent expr : attr.getAnnotations()) {
             if (expr.getClassName().equals("kotlin/Metadata")) {
@@ -1408,7 +1408,7 @@ public class KotlinWriter implements StatementWriter {
 
   private static boolean containsDeprecatedAnnotation(StructMember mb) {
     for (Key<?> key : ANNOTATION_ATTRIBUTES) {
-      StructAnnotationAttribute attribute = (StructAnnotationAttribute) mb.getAttribute(key);
+      StructAnnotationAttribute attribute = (StructAnnotationAttribute) mb.getAttribute((Key<StructAnnotationAttribute>) key);
       if (attribute != null) {
         for (AnnotationExprent annotation : attribute.getAnnotations()) {
           if (annotation.getClassName().equals("java/lang/Deprecated")) {
@@ -1507,7 +1507,7 @@ public class KotlinWriter implements StatementWriter {
     Set<String> filter = new HashSet<>();
 
     for (Key<?> key : ANNOTATION_ATTRIBUTES) {
-      StructAnnotationAttribute attribute = mb.getAttribute(key);
+      StructAnnotationAttribute attribute = mb.getAttribute((Key<StructAnnotationAttribute>) key);
       if (attribute != null) {
         for (AnnotationExprent annotation : attribute.getAnnotations()) {
           if (annotation.getClassName().equals("kotlin/Metadata")
@@ -1588,7 +1588,7 @@ public class KotlinWriter implements StatementWriter {
 
   static boolean isNullable(StructMember mb) {
     for (Key<?> key : ANNOTATION_ATTRIBUTES) {
-      StructAnnotationAttribute attribute = (StructAnnotationAttribute) mb.getAttribute(key);
+      StructAnnotationAttribute attribute = (StructAnnotationAttribute) mb.getAttribute((Key<StructAnnotationAttribute>) key);
       if (attribute != null) {
         return attribute.getAnnotations().stream().anyMatch(annotation -> annotation.getClassName().equals(NULLABLE_ANN_NAME));
       }
@@ -1647,7 +1647,7 @@ public class KotlinWriter implements StatementWriter {
     boolean ret = false;
 
     for (Key<?> key : PARAMETER_ANNOTATION_ATTRIBUTES) {
-      StructAnnotationParameterAttribute attribute = (StructAnnotationParameterAttribute) mt.getAttribute(key);
+      StructAnnotationParameterAttribute attribute = (StructAnnotationParameterAttribute) mt.getAttribute((Key<StructAnnotationParameterAttribute>) key);
       if (attribute != null) {
         List<List<AnnotationExprent>> annotations = attribute.getParamAnnotations();
         if (param < annotations.size()) {
@@ -1672,7 +1672,7 @@ public class KotlinWriter implements StatementWriter {
 
   private static void appendTypeAnnotations(TextBuffer buffer, int indent, StructMember mb, int targetType, int index, Set<String> filter) {
     for (Key<?> key : TYPE_ANNOTATION_ATTRIBUTES) {
-      StructTypeAnnotationAttribute attribute = (StructTypeAnnotationAttribute) mb.getAttribute(key);
+      StructTypeAnnotationAttribute attribute = (StructTypeAnnotationAttribute) mb.getAttribute((Key<StructTypeAnnotationAttribute>) key);
       if (attribute != null) {
         for (TypeAnnotation annotation : attribute.getAnnotations()) {
           if (annotation.isTopLevel() && annotation.getTargetType() == targetType && (index < 0 || annotation.getIndex() == index)) {

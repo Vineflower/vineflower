@@ -40,7 +40,7 @@ public class KotlinChooser implements LanguageChooser {
 
     for (Key<?> key : ANNOTATION_ATTRIBUTES) {
       if (cl.hasAttribute(key)) {
-        StructAnnotationAttribute attr = cl.getAttribute(key);
+        StructAnnotationAttribute attr = cl.getAttribute((Key<StructAnnotationAttribute>) key);
         for (AnnotationExprent anno : attr.getAnnotations()) {
           if (anno.getClassName().equals("kotlin/Metadata")) {
             setContextVariables(cl);
@@ -60,7 +60,7 @@ public class KotlinChooser implements LanguageChooser {
     loop:
     for (Key<?> key : ANNOTATION_ATTRIBUTES) {
       if (cl.hasAttribute(key)) {
-        StructAnnotationAttribute attr = cl.getAttribute(key);
+        StructAnnotationAttribute attr = cl.getAttribute((Key<StructAnnotationAttribute>) key);
         for (AnnotationExprent a : attr.getAnnotations()) {
           if (a.getClassName().equals("kotlin/Metadata")) {
             anno = a;

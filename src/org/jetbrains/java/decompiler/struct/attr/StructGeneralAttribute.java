@@ -41,6 +41,8 @@ public class StructGeneralAttribute {
   public static final Key<StructRecordAttribute> ATTRIBUTE_RECORD = Key.of("Record");
   public static final Key<StructPermittedSubclassesAttribute> ATTRIBUTE_PERMITTED_SUBCLASSES = Key.of("PermittedSubclasses");
   public static final Key<StructSourceFileAttribute> ATTRIBUTE_SOURCE_FILE = Key.of("SourceFile");
+  public static final Key<StructNestHostAttribute> ATTRIBUTE_NEST_HOST = Key.of("NestHost");
+  // TODO: NestMembers
 
   public static StructGeneralAttribute createAttribute(String name) {
     for (Key<? extends StructGeneralAttribute> key : ClassAttributeRegistry.getRegistry().keySet()) {
@@ -79,6 +81,7 @@ public class StructGeneralAttribute {
     ClassAttributeRegistry.register(ATTRIBUTE_RECORD, StructRecordAttribute::new);
     ClassAttributeRegistry.register(ATTRIBUTE_PERMITTED_SUBCLASSES, StructPermittedSubclassesAttribute::new);
     ClassAttributeRegistry.register(ATTRIBUTE_SOURCE_FILE, StructSourceFileAttribute::new);
+    ClassAttributeRegistry.register(ATTRIBUTE_NEST_HOST, StructNestHostAttribute::new);
   }
 
   public void initContent(DataInputFullStream data, ConstantPool pool, BytecodeVersion version) throws IOException { }
