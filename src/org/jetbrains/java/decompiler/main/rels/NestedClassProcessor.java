@@ -813,6 +813,18 @@ public class NestedClassProcessor {
         VarType type = method.varproc.getVarType(var);
         if (hostName.equals(type.value)) {
           field = InterpreterUtil.makeUniqueKey(name, type.toString());
+        } else {
+          // Also check the enclosing class if it's anonymous
+          ClassNode nd = DecompilerContext.getClassProcessor().getMapRootClasses().get(cl.qualifiedName);
+
+          if (nd != null && nd.type == ClassNode.Type.ANONYMOUS) {
+            for (String clazz : nd.enclosingClasses) {
+              if (clazz.equals(type.value)) {
+                field = InterpreterUtil.makeUniqueKey(name, type.toString());
+                break;
+              }
+            }
+          }
         }
       }
     }
