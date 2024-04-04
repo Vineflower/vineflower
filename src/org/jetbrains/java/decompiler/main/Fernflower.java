@@ -1,22 +1,28 @@
 // Copyright 2000-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.main;
 
+import java.io.IOException;
+import org.jetbrains.java.decompiler.api.plugin.Plugin;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
+import org.jetbrains.java.decompiler.main.decompiler.OptionParser;
 import org.jetbrains.java.decompiler.main.extern.*;
+import org.jetbrains.java.decompiler.main.plugins.JarPluginLoader;
+import org.jetbrains.java.decompiler.api.plugin.PluginSource;
+import org.jetbrains.java.decompiler.main.plugins.PluginSources;
 import org.jetbrains.java.decompiler.modules.renamer.ConverterHelper;
 import org.jetbrains.java.decompiler.modules.renamer.IdentifierConverter;
 import org.jetbrains.java.decompiler.modules.renamer.PoolInterceptor;
 import org.jetbrains.java.decompiler.struct.IDecompiledData;
+import org.jetbrains.java.decompiler.main.plugins.PluginContext;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructContext;
-import org.jetbrains.java.decompiler.struct.lazy.LazyLoader;
+import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
 import org.jetbrains.java.decompiler.util.ClasspathScanner;
-import org.jetbrains.java.decompiler.util.JADNameProvider;
 import org.jetbrains.java.decompiler.util.JrtFinder;
 import org.jetbrains.java.decompiler.util.TextBuffer;
+import org.jetbrains.java.decompiler.util.token.TextTokenDumpVisitor;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -37,7 +43,14 @@ public class Fernflower implements IDecompiledData {
   public Fernflower(IBytecodeProvider provider, IResultSaver saver, Map<String, Object> customProperties, IFernflowerLogger logger) {
     Map<String, Object> properties = new HashMap<>(IFernflowerPreferences.DEFAULTS);
     if (customProperties != null) {
-      properties.putAll(customProperties);
+      for (Map.Entry<String, Object> entry : customProperties.entrySet()) {
+        if (entry.getKey().length() == 3) {
+          // Short name, reparse to long name
+          OptionParser.parseShort("-" + entry.getKey() + "=" + entry.getValue(), properties);
+        } else {
+          properties.put(entry.getKey(), entry.getValue());
+        }
+      }
     }
 
     String level = (String)properties.get(IFernflowerPreferences.LOG_LEVEL);
@@ -62,26 +75,22 @@ public class Fernflower implements IDecompiledData {
       converter = null;
     }
 
-    IVariableNamingFactory renamerFactory = null;
-    String factoryClazz = (String) properties.get(DecompilerContext.RENAMER_FACTORY);
-    if (factoryClazz != null) {
-      try {
-        renamerFactory = Class.forName(factoryClazz).asSubclass(IVariableNamingFactory.class).getDeclaredConstructor().newInstance();
-      } catch (Exception e) {
-        logger.writeMessage("Error loading renamer factory class: " + factoryClazz, e);
-      }
-    }
-    if (renamerFactory == null) {
-      if("1".equals(properties.get(IFernflowerPreferences.USE_JAD_VARNAMING))) {
-        boolean renameParams = "1".equals(properties.get(IFernflowerPreferences.USE_JAD_PARAMETER_NAMING));
-        renamerFactory = new JADNameProvider.JADNameProviderFactory(renameParams);
-      } else {
-        renamerFactory = new IdentityRenamerFactory();
-      }
+    DecompilerContext context = new DecompilerContext(properties, logger, structContext, classProcessor, interceptor);
+    DecompilerContext.setCurrentContext(context);
+
+    PluginContext plugins = structContext.getPluginContext();
+    int pluginCount = plugins.findPlugins();
+
+    logger.writeMessage("Loaded " + pluginCount + " plugins", IFernflowerLogger.Severity.INFO);
+
+    plugins.initialize();
+
+    IVariableNamingFactory renamer = plugins.getVariableRenamer();
+    if (renamer == null) {
+      renamer = new IdentityRenamerFactory();
     }
 
-    DecompilerContext context = new DecompilerContext(properties, logger, structContext, classProcessor, interceptor, renamerFactory);
-    DecompilerContext.setCurrentContext(context);
+    context.renamerFactory = renamer;
 
     String vendor = System.getProperty("java.vendor", "missing vendor");
     String javaVersion = System.getProperty("java.version", "missing java version");
@@ -180,6 +189,13 @@ public class Fernflower implements IDecompiledData {
     try {
       buffer.append(DecompilerContext.getProperty(IFernflowerPreferences.BANNER).toString());
       classProcessor.writeClass(cl, buffer);
+
+      if (DecompilerContext.getOption(IFernflowerPreferences.DUMP_TEXT_TOKENS)) {
+        buffer.visitTokens(TextTokenVisitor.createVisitor(next -> new TextTokenDumpVisitor(next, buffer)));
+      } else {
+        buffer.visitTokens(TextTokenVisitor.createVisitor());
+      }
+
       String res = buffer.convertToStringAndAllowDataDiscard();
       if (res == null) {
         return "$ VF: Unable to decompile class " + cl.qualifiedName;
@@ -201,5 +217,9 @@ public class Fernflower implements IDecompiledData {
         return null;
       }
     }
+  }
+
+  static {
+    Init.init();
   }
 }

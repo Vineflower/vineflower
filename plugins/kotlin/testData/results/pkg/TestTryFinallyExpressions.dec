@@ -1,0 +1,344 @@
+package pkg
+
+import java.io.IOException
+
+class TestTryFinallyExpressions {
+   public fun test0(s: String) {
+      label15: {
+         try {
+            var var2: java.lang.String = StringsKt.repeat(s as java.lang.CharSequence, 5);// 8
+         } catch (java.lang.Throwable var4) {
+            System.out.println("bye");// 10
+         }
+
+         System.out.println("bye");// 7 9 11
+      }
+   }
+
+   public fun test1(a: String, b: String) {
+      label24: {
+         var x: java.lang.String = a;// 15
+
+         try {
+            var var4: java.lang.String = StringsKt.repeat(x as java.lang.CharSequence, 5);// 17
+         } catch (java.lang.Throwable var9) {
+            ;
+         }
+
+         x = b;// 18 19 20
+
+         try {
+            var var15: java.lang.String = StringsKt.repeat(x as java.lang.CharSequence, 5);// 21
+         } catch (java.lang.Throwable var8) {
+            System.out.println(a);// 23
+         }
+
+         System.out.println(a);// 16 22 24
+      }
+   }
+
+   public fun test2(a: String, b: String) {
+      label68: {
+         var var19: java.lang.String = a;// 28
+
+         label69: {
+            label70: {
+               label71: {
+                  try {
+                     try {
+                        if (a == b) {// 30
+                           break label69;
+                        }
+
+                        var19 = b;// 33
+                        this.test0(b);// 34
+                        break label71;
+                     } catch (IOException var11) {// 36
+                        var19 = a;// 37
+                        this.test1(a, a);// 38
+                        var var4: java.lang.String = a;// 39
+                     }
+                  } catch (java.lang.Throwable var12) {
+                     var19 = if (var19 == a) b else a;// 41 42 44
+                  }
+
+                  var19 = if (var19 == a) b else a;
+                  break label70;// 46
+               }
+
+               var19 = if (var19 == a) b else a;
+            }
+
+            try {
+               var19 = StringsKt.repeat(var19 as java.lang.CharSequence, 5);// 47
+            } catch (java.lang.Throwable var10) {
+               System.out.println(var19);// 49
+            }
+
+            System.out.println(var19);// 29 48 50
+         }
+
+         var19 = if (a == a) b else a;
+      }
+   }
+}
+
+class 'pkg/TestTryFinallyExpressions' {
+   method 'test0 (Ljava/lang/String;)V' {
+      7      8
+      8      8
+      9      8
+      a      8
+      b      8
+      c      8
+      d      8
+      e      8
+      f      8
+      10      13
+      11      13
+      12      13
+      13      13
+      14      13
+      16      13
+      17      13
+      18      13
+      19      13
+      1a      13
+      1b      13
+      1c      13
+      1d      10
+      1e      10
+      1f      10
+      20      10
+      21      10
+      22      13
+      23      10
+      24      13
+      25      13
+      26      13
+      27      13
+      28      13
+      29      13
+      2a      13
+      2b      13
+      2c      13
+      2d      13
+      2e      13
+      2f      13
+      30      13
+   }
+
+   method 'test1 (Ljava/lang/String;Ljava/lang/String;)V' {
+      c      19
+      d      19
+      14      22
+      15      22
+      16      22
+      17      22
+      18      22
+      19      22
+      1a      22
+      1b      22
+      1c      22
+      1d      22
+      1e      27
+      1f      27
+      20      27
+      21      27
+      22      27
+      23      27
+      24      27
+      25      27
+      26      27
+      27      27
+      28      27
+      29      27
+      2a      27
+      2b      27
+      2c      27
+      2d      27
+      35      30
+      36      30
+      37      30
+      38      30
+      39      30
+      3a      30
+      3b      30
+      3c      30
+      3d      30
+      3e      30
+      3f      35
+      40      35
+      41      35
+      42      35
+      43      35
+      44      35
+      45      35
+      46      35
+      47      35
+      48      35
+      49      35
+      4a      35
+      4b      32
+      4c      32
+      4d      32
+      4e      32
+      4f      32
+      50      35
+      51      35
+      52      35
+      53      35
+      54      35
+      55      35
+      56      35
+      57      35
+      58      35
+      59      35
+      5a      35
+      5b      35
+      5c      35
+      5d      35
+      5e      35
+   }
+
+   method 'test2 (Ljava/lang/String;Ljava/lang/String;)V' {
+      e      41
+      f      41
+      16      48
+      17      48
+      1b      48
+      1f      80
+      20      80
+      24      80
+      27      80
+      2b      80
+      2c      80
+      2e      52
+      2f      52
+      30      53
+      31      53
+      32      53
+      33      53
+      34      53
+      38      68
+      39      68
+      3d      68
+      40      68
+      44      68
+      45      68
+      49      55
+      4d      56
+      4e      56
+      4f      57
+      50      57
+      51      57
+      52      57
+      53      57
+      54      57
+      55      57
+      56      57
+      57      57
+      58      58
+      59      58
+      5a      58
+      5b      58
+      5c      58
+      5d      58
+      5e      64
+      5f      64
+      63      64
+      66      64
+      6a      64
+      6b      64
+      6c      65
+      71      61
+      72      61
+      76      61
+      79      61
+      7d      61
+      7e      61
+      8d      72
+      8e      72
+      8f      72
+      90      72
+      91      72
+      92      72
+      93      72
+      94      72
+      97      72
+      98      72
+      a2      72
+      a3      72
+      a4      72
+      b2      77
+      b3      77
+      b4      77
+      b5      77
+      b7      77
+      b8      77
+      b9      77
+      ba      77
+      bb      77
+      bc      77
+      bd      77
+      be      77
+      bf      74
+      c0      74
+      c1      74
+      c2      74
+      c3      77
+      c4      74
+      c5      77
+      c6      77
+      c7      77
+      c8      77
+      c9      77
+      ca      77
+      cb      77
+      cc      77
+      cd      77
+      ce      77
+   }
+}
+
+Lines mapping:
+7 <-> 14
+8 <-> 9
+9 <-> 14
+10 <-> 11
+11 <-> 14
+15 <-> 20
+16 <-> 36
+17 <-> 23
+18 <-> 28
+19 <-> 28
+20 <-> 28
+21 <-> 31
+22 <-> 36
+23 <-> 33
+24 <-> 36
+28 <-> 42
+29 <-> 78
+30 <-> 49
+33 <-> 53
+34 <-> 54
+36 <-> 56
+37 <-> 57
+38 <-> 58
+39 <-> 59
+41 <-> 62
+42 <-> 62
+44 <-> 62
+46 <-> 66
+47 <-> 73
+48 <-> 78
+49 <-> 75
+50 <-> 78
+Not mapped:
+12
+25
+31
+35
+40
+51
+53

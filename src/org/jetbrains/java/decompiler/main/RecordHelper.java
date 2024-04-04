@@ -1,19 +1,23 @@
 package org.jetbrains.java.decompiler.main;
 
 import org.jetbrains.java.decompiler.code.CodeConstants;
-import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
+import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.BasicBlockStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
+import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.struct.*;
 import org.jetbrains.java.decompiler.struct.attr.StructAnnotationAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructAnnotationParameterAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructTypeAnnotationAttribute;
 import org.jetbrains.java.decompiler.struct.consts.LinkConstant;
+import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericFieldDescriptor;
+import org.jetbrains.java.decompiler.util.Key;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 
 import java.util.*;
@@ -24,6 +28,20 @@ public final class RecordHelper {
     if (cl.getRecordComponents() == null) return false;
     return isSyntheticRecordMethod(mt, root) || isDefaultRecordMethod(mt, root) ||
       (mt.getName().equals(CodeConstants.INIT_NAME) && !hasAnnotations(mt) && isDefaultRecordConstructor(cl, root));
+  }
+
+  public static boolean isHiddenRecordField(List<StructRecordComponent> components, StructField fd) {
+    if (components == null) {
+      return false;
+    }
+
+    for (StructRecordComponent component : components) {
+      if (component.getName().equals(fd.getName()) && component.getDescriptor().equals(fd.getDescriptor()) && !fd.hasModifier(CodeConstants.ACC_STATIC)) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   public static void appendRecordComponents(TextBuffer buffer, StructClass cl, List<StructRecordComponent> components, int indent) {
@@ -119,58 +137,65 @@ public final class RecordHelper {
     return init != null && init.hasModifier(CodeConstants.ACC_VARARGS);
   }
 
-  private static Set<String> getRecordComponentAnnotations(StructClass cl, StructRecordComponent cd, int param) {
+  private static Set<TextBuffer> getRecordComponentAnnotations(StructClass cl, StructRecordComponent cd, int param) {
     Set<String> annotations = new LinkedHashSet<>();
+    Set<TextBuffer> buffers = new LinkedHashSet<>();
     List<StructMember> members = new ArrayList<>();
     members.add(cd);
     StructMethod getter = getGetter(cl, cd);
     if (getter != null) members.add(getter);
 
     for (StructMember member : members) {
-      for (StructGeneralAttribute.Key<?> key : ClassWriter.ANNOTATION_ATTRIBUTES) {
-        StructAnnotationAttribute attribute = (StructAnnotationAttribute) member.getAttribute(key);
+      for (Key<?> key : ClassWriter.ANNOTATION_ATTRIBUTES) {
+        StructAnnotationAttribute attribute = member.getAttribute((Key<StructAnnotationAttribute>) key);
         if (attribute == null) continue;
         for (AnnotationExprent annotation : attribute.getAnnotations()) {
-          String text = annotation.toJava(-1).convertToStringAndAllowDataDiscard();
-          annotations.add(text);
+          TextBuffer text = annotation.toJava(-1);
+          if (annotations.add(text.convertToStringAndAllowDataDiscard())) {
+            buffers.add(text);
+          }
         }
       }
 
-      for (StructGeneralAttribute.Key<?> key : ClassWriter.TYPE_ANNOTATION_ATTRIBUTES) {
-        StructTypeAnnotationAttribute attribute = (StructTypeAnnotationAttribute) member.getAttribute(key);
+      for (Key<?> key : ClassWriter.TYPE_ANNOTATION_ATTRIBUTES) {
+        StructTypeAnnotationAttribute attribute = member.getAttribute((Key<StructTypeAnnotationAttribute>) key);
         if (attribute == null) continue;
         for (TypeAnnotation annotation : attribute.getAnnotations()) {
           if (!annotation.isTopLevel()) continue;
           int type = annotation.getTargetType();
           if (type == TypeAnnotation.FIELD || type == TypeAnnotation.METHOD_PARAMETER) {
-            String text = annotation.getAnnotation().toJava(-1).convertToStringAndAllowDataDiscard();
-            annotations.add(text);
+            TextBuffer text = annotation.getAnnotation().toJava(-1);
+            if (annotations.add(text.convertToStringAndAllowDataDiscard())) {
+              buffers.add(text);
+            }
           }
         }
       }
     }
 
     StructMember constr = getCanonicalConstructor(cl);
-    if (constr == null) return annotations;
+    if (constr == null) return buffers;
 
-    for (StructGeneralAttribute.Key<?> key : ClassWriter.PARAMETER_ANNOTATION_ATTRIBUTES) {
-      StructAnnotationParameterAttribute attribute = (StructAnnotationParameterAttribute) constr.getAttribute(key);
+    for (Key<?> key : ClassWriter.PARAMETER_ANNOTATION_ATTRIBUTES) {
+      StructAnnotationParameterAttribute attribute = constr.getAttribute((Key<StructAnnotationParameterAttribute>)key);
       if (attribute == null) continue;
       List<List<AnnotationExprent>> paramAnnotations = attribute.getParamAnnotations();
       if (param >= paramAnnotations.size()) continue;
       for (AnnotationExprent annotation : paramAnnotations.get(param)) {
-        String text = annotation.toJava(-1).convertToStringAndAllowDataDiscard();
-        annotations.add(text);
+        TextBuffer text = annotation.toJava(-1);
+        if (annotations.add(text.convertToStringAndAllowDataDiscard())) {
+          buffers.add(text);
+        }
       }
     }
 
-    return annotations;
+    return buffers;
   }
 
   private static void recordComponentToJava(TextBuffer buffer, StructClass cl, StructRecordComponent cd, int param, boolean varArgComponent) {
-    Set<String> annotations = getRecordComponentAnnotations(cl, cd, param);
-    for (String annotation : annotations) {
-      buffer.append(annotation).append(' ');
+    Set<TextBuffer> annotations = getRecordComponentAnnotations(cl, cd, param);
+    for (TextBuffer annotation : annotations) {
+      buffer.appendText(annotation).append(' ');
     }
 
     VarType fieldType = new VarType(cd.getDescriptor(), false);
@@ -178,16 +203,41 @@ public final class RecordHelper {
 
     if (descriptor != null) fieldType = descriptor.type;
 
-    buffer.append(ExprProcessor.getCastTypeName(varArgComponent ? fieldType.decreaseArrayDim() : fieldType));
+    buffer.appendCastTypeName(varArgComponent ? fieldType.decreaseArrayDim() : fieldType);
     if (varArgComponent) {
       buffer.append("...");
     }
     buffer.append(' ');
 
-    buffer.append(cd.getName());
+    buffer.appendField(cd.getName(), true, cl.qualifiedName, cd.getName(), cd.getDescriptor());
   }
+
   private static boolean hasAnnotations(StructMethod mt) {
     return mt.getAttribute(StructGeneralAttribute.ATTRIBUTE_RUNTIME_INVISIBLE_ANNOTATIONS) != null ||
       mt.getAttribute(StructGeneralAttribute.ATTRIBUTE_RUNTIME_VISIBLE_ANNOTATIONS) != null;
+  }
+
+  public static void fixupCanonicalConstructor(MethodWrapper mw, StructClass cl) {
+    if (cl.getRecordComponents() == null) {
+      return;
+    }
+
+    if (mw.methodStruct != getCanonicalConstructor(cl)) {
+      return;
+    }
+
+    MethodDescriptor md = mw.desc();
+    int params = md.params.length;
+
+    if (params != cl.getRecordComponents().size()) {
+      return;
+    }
+
+    int varidx = 1;
+    for (int i = 0; i < cl.getRecordComponents().size(); i++) {
+      mw.varproc.setClashingName(new VarVersionPair(varidx, 0), cl.getRecordComponents().get(i).getName());
+
+      varidx += md.params[i].stackSize;
+    }
   }
 }

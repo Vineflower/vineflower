@@ -19,9 +19,9 @@ public interface IMatchable {
     EXPRENT_CONSTVALUE,
     EXPRENT_INVOCATION_CLASS,
     EXPRENT_INVOCATION_SIGNATURE,
-    EXPRENT_INVOCATION_PARAMETER,
+    EXPRENT_PARAMETER,
     EXPRENT_VAR_INDEX,
-    EXPRENT_FIELD_NAME,
+    EXPRENT_NAME,
   }
 
   IMatchable findObject(MatchNode matchNode, int index);

@@ -2,13 +2,13 @@ package pkg;
 
 public class TestDoWhileMerge {
    public void test(boolean b, int j) {
-      for(int i = 0; i < j; ++i) {// 6
+      for (int i = 0; i < j; i++) {// 6
          do {
             System.out.println(i);// 8
             if (++i == 30) {// 9 11
                return;// 12
             }
-         } while(b && i < 40);// 14
+         } while (b && i < 40);// 14
 
          System.out.println("test");// 16
       }
@@ -17,7 +17,7 @@ public class TestDoWhileMerge {
    }// 20
 
    public void test1(boolean b, int j) {
-      for(int i = 0; i < j; ++i) {// 23
+      for (int i = 0; i < j; i++) {// 23
          System.out.println(1);// 24
 
          do {
@@ -25,17 +25,17 @@ public class TestDoWhileMerge {
             if (++i == 30) {// 28 30
                return;// 31
             }
-         } while(!b || i >= 40);// 33
+         } while (!b || i >= 40);// 33
       }
 
       System.out.println("after");// 36
    }// 37
 
    public void test2(boolean b, int j) {
-      for(int i = 0; i < j; ++i) {// 41
+      for (int i = 0; i < j; i++) {// 41
          System.out.println(1);// 42
 
-         while(true) {
+         while (true) {
             System.out.println(i);// 45
             if (++i == 30) {// 46
                return;// 47
@@ -74,7 +74,6 @@ class 'pkg/TestDoWhileMerge' {
       14      7
       17      8
       18      10
-      19      10
       1c      10
       1d      10
       1e      10

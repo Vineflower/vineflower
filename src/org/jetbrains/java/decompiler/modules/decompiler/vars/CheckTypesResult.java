@@ -13,6 +13,9 @@ public class CheckTypesResult {
   private final List<ExprentTypePair> lstMinTypeExprents = new ArrayList<>();
 
   public void addMaxTypeExprent(Exprent exprent, VarType type) {
+    if (type == null) {
+      throw new IllegalArgumentException();
+    }
     lstMaxTypeExprents.add(new ExprentTypePair(exprent, type));
   }
 

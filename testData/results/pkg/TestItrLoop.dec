@@ -7,10 +7,28 @@ public class TestItrLoop {
    private List list = new ArrayList();
 
    public void test() {
-      for(String s : this.list) {// 11 12
+      for (String s : this.list) {// 11 12
          System.out.println(s);// 13
       }
    }// 15
+
+   public void test1() {
+      for (Object var2 : this.list) {// 18
+         ;
+      }
+   }// 21
+
+   public void test2() {
+      for (String var2 : this.list) {// 24
+         ;
+      }
+   }// 27
+
+   public void test3() {
+      for (String var2 : this.list) {// 30
+         ;
+      }
+   }// 33
 }
 
 class 'pkg/TestItrLoop' {
@@ -44,6 +62,75 @@ class 'pkg/TestItrLoop' {
       23      10
       27      12
    }
+
+   method 'test1 ()V' {
+      0      15
+      1      15
+      2      15
+      3      15
+      4      15
+      5      15
+      6      15
+      7      15
+      8      15
+      9      15
+      13      15
+      14      15
+      15      15
+      16      15
+      17      15
+      18      15
+      19      15
+      1d      18
+   }
+
+   method 'test2 ()V' {
+      0      21
+      1      21
+      2      21
+      3      21
+      4      21
+      5      21
+      6      21
+      7      21
+      8      21
+      9      21
+      13      21
+      14      21
+      15      21
+      16      21
+      17      21
+      18      21
+      19      21
+      1a      21
+      1b      21
+      1c      21
+      20      24
+   }
+
+   method 'test3 ()V' {
+      0      27
+      1      27
+      2      27
+      3      27
+      4      27
+      5      27
+      6      27
+      7      27
+      8      27
+      9      27
+      13      27
+      14      27
+      15      27
+      16      27
+      17      27
+      18      27
+      19      27
+      1a      27
+      1b      27
+      1c      27
+      20      30
+   }
 }
 
 Lines mapping:
@@ -51,5 +138,14 @@ Lines mapping:
 12 <-> 10
 13 <-> 11
 15 <-> 13
+18 <-> 16
+21 <-> 19
+24 <-> 22
+27 <-> 25
+30 <-> 28
+33 <-> 31
 Not mapped:
 14
+20
+26
+32

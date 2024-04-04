@@ -15,8 +15,21 @@ import org.jetbrains.java.decompiler.struct.attr.StructInnerClassesAttribute;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public final class ExprUtil {
+  public static final Map<String, String> PRIMITIVE_TYPES = Map.of(
+    "java/lang/Boolean", "boolean",
+    "java/lang/Byte", "byte",
+    "java/lang/Character", "char",
+    "java/lang/Short", "short",
+    "java/lang/Integer", "int",
+    "java/lang/Long", "long",
+    "java/lang/Float", "float",
+    "java/lang/Double", "double",
+    "java/lang/Void", "void"
+  );
+
   public static List<VarVersionPair> getSyntheticParametersMask(String className, String descriptor, int parameters) {
     ClassNode node = DecompilerContext.getClassProcessor().getMapRootClasses().get(className);
     return node != null ? getSyntheticParametersMask(node, descriptor, parameters) : null;

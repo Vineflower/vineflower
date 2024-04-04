@@ -23,4 +23,26 @@ public class TestStringConcat {
   public String test2(String var, int b, Object c) {
     return "(" + var + "-" + b + "---" + c + ")";
   }
+
+  public void testChar(String str) {
+    System.out.println(str + '.');
+    System.out.println('.' + str + '.');
+  }
+
+  public void testInt(String str) {
+    System.out.println(str + 46);
+    System.out.println(46 + str + 46);
+  }
+
+  public void testFloat(String str) {
+    System.out.println(str + 10.2f);
+  }
+
+  public void testDouble(String str) {
+    System.out.println(str + 10.2);
+  }
+
+  public void testBoolean(String str) {
+    System.out.println(str + true);
+  }
 }

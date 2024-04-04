@@ -1,0 +1,232 @@
+package pkg
+
+import kotlin.contracts.InvocationKind
+
+class TestContracts {
+   public fun testSimpleContract(x: Int?): Int {
+      contract {
+         returns() implies (x != null)
+      }
+
+      if (x == null) {// 13
+         throw new IllegalStateException("x is null".toString());
+      } else {
+         return x;// 14
+      }
+   }
+
+   public fun testBooleanContract(a: Boolean, b: Boolean): Boolean? {
+      contract {
+         returns(true) implies (!a && !b)
+         returns(null) implies (a && b)
+         returns(false) implies ((a && !b || (!a && b)
+      }
+
+      return if (a && b) null else a || b;// 24
+   }
+
+   public fun testTypeContract(x: Any?): Int {
+      contract {
+         returns() implies (x is Int)
+      }
+
+      if (x !is Integer) {// 31
+         throw new IllegalStateException("x is not Int".toString());
+      } else {
+         return (x as java.lang.Number).intValue();// 32
+      }
+   }
+
+   public fun testFunctionalContract(f: () -> Int): Int {
+      contract {
+         callsInPlace(f, InvocationKind.EXACTLY_ONCE)
+      }
+
+      return (f.invoke() as java.lang.Number).intValue();// 39
+   }
+
+   public fun testFunctionalContract2(f: () -> Int, b: Boolean): Int {
+      contract {
+         callsInPlace(f, InvocationKind.AT_MOST_ONCE)
+      }
+
+      return if (b) (f.invoke() as java.lang.Number).intValue() else 0;// 46
+   }
+
+   public fun testFunctionalContract3(f: () -> Int, i: Int): Int {
+      contract {
+         callsInPlace(f)
+      }
+
+      var var3: java.lang.Iterable = (new IntRange(0, i)) as java.lang.Iterable;
+      var var4: Int = 0;
+      var var5: java.util.Iterator = var3.iterator();
+
+      while (var5.hasNext()) {
+         var var6: Int = (var5 as IntIterator).nextInt();
+         var4 += (f.invoke() as java.lang.Number).intValue();
+      }
+
+      return var4;// 53
+   }
+}
+
+class 'pkg/TestContracts' {
+   method 'testSimpleContract (Ljava/lang/Integer;)I' {
+      1      10
+      2      10
+      9      11
+      a      11
+      b      11
+      c      11
+      d      11
+      11      11
+      12      13
+      13      13
+      14      13
+      15      13
+      16      13
+   }
+
+   method 'testBooleanContract (ZZ)Ljava/lang/Boolean;' {
+      1      24
+      2      24
+      5      24
+      6      24
+      9      24
+      d      24
+      e      24
+      11      24
+      12      24
+      1a      24
+      1d      24
+   }
+
+   method 'testTypeContract (Ljava/lang/Object;)I' {
+      1      32
+      5      32
+      c      33
+      d      33
+      e      33
+      f      33
+      10      33
+      14      33
+      15      35
+      16      35
+      17      35
+      18      35
+      19      35
+      1a      35
+      1b      35
+      1c      35
+   }
+
+   method 'testFunctionalContract (Lkotlin/jvm/functions/Function0;)I' {
+      7      44
+      8      44
+      9      44
+      a      44
+      b      44
+      c      44
+      d      44
+      e      44
+      f      44
+      10      44
+      11      44
+      12      44
+      13      44
+   }
+
+   method 'testFunctionalContract2 (Lkotlin/jvm/functions/Function0;Z)I' {
+      7      52
+      8      52
+      b      52
+      c      52
+      d      52
+      e      52
+      f      52
+      10      52
+      11      52
+      12      52
+      13      52
+      14      52
+      15      52
+      16      52
+      1a      52
+      1b      52
+   }
+
+   method 'testFunctionalContract3 (Lkotlin/jvm/functions/Function0;I)I' {
+      b      60
+      c      60
+      10      60
+      11      60
+      12      60
+      13      60
+      14      61
+      15      61
+      16      61
+      17      62
+      18      62
+      19      62
+      1a      62
+      1b      62
+      1c      62
+      1d      62
+      1e      62
+      1f      64
+      20      64
+      21      64
+      22      64
+      23      64
+      24      64
+      25      64
+      29      65
+      2a      65
+      2b      65
+      2c      65
+      2d      65
+      2e      65
+      2f      65
+      30      65
+      31      65
+      32      65
+      3e      66
+      3f      66
+      40      66
+      41      66
+      42      66
+      43      66
+      44      66
+      45      66
+      46      66
+      47      66
+      48      66
+      49      66
+      4e      66
+      4f      66
+      51      66
+      52      66
+      56      69
+      57      69
+      58      69
+   }
+}
+
+Lines mapping:
+13 <-> 11
+14 <-> 14
+24 <-> 25
+31 <-> 33
+32 <-> 36
+39 <-> 45
+46 <-> 53
+53 <-> 70
+Not mapped:
+10
+18
+28
+36
+43
+50
+57

@@ -3,6 +3,8 @@ package org.jetbrains.java.decompiler.main.collectors;
 
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
+import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructContext;
 import org.jetbrains.java.decompiler.struct.StructField;
@@ -16,14 +18,14 @@ import java.util.stream.Collectors;
 public class ImportCollector {
   private static final String JAVA_LANG_PACKAGE = "java.lang";
 
-  private final Map<String, String> mapSimpleNames = new HashMap<>();
-  private final Set<String> setNotImportedNames = new HashSet<>();
+  protected final Map<String, String> mapSimpleNames = new HashMap<>();
+  protected final Set<String> setNotImportedNames = new HashSet<>();
   // set of field names in this class and all its predecessors.
-  private final Set<String> setFieldNames = new HashSet<>();
-  private final Map<String, Map<String, String>> mapInnerClassNames = new HashMap<>();
-  private final String currentPackageSlash;
-  private final String currentPackagePoint;
-  private boolean writeLocked = false;
+  protected final Set<String> setFieldNames = new HashSet<>();
+  protected final Map<String, Map<String, String>> mapInnerClassNames = new HashMap<>();
+  protected final String currentPackageSlash;
+  protected final String currentPackagePoint;
+  protected boolean writeLocked = false;
 
   public ImportCollector(ClassNode root) {
     String clName = root.classStruct.qualifiedName;
@@ -62,6 +64,16 @@ public class ImportCollector {
 
     collectConflictingShortNames(root, new HashMap<>());
   }
+  
+  public ImportCollector(ImportCollector other) {
+    this.mapSimpleNames.putAll(other.mapSimpleNames);
+    this.setNotImportedNames.addAll(other.setNotImportedNames);
+    this.setFieldNames.addAll(other.setFieldNames);
+    this.mapInnerClassNames.putAll(other.mapInnerClassNames);
+    this.currentPackageSlash = other.currentPackageSlash;
+    this.currentPackagePoint = other.currentPackagePoint;
+    this.writeLocked = other.writeLocked;
+  }
 
   /**
    * Check whether the package-less name ClassName is shaded by variable in a context of
@@ -71,6 +83,10 @@ public class ImportCollector {
    */
   public String getShortNameInClassContext(String classToName) {
     String shortName = getShortName(classToName);
+    if (shortName == null) {
+      return "<unknownclass>";
+    }
+    
     if (setFieldNames.contains(shortName)) {
       return classToName;
     }
@@ -90,7 +106,7 @@ public class ImportCollector {
     if (node != null && node.classStruct.isOwn()) {
       result = node.simpleName;
 
-      while (node.parent != null && node.type == ClassNode.Type.MEMBER) {
+      while (node.parent != null && node.parent.simpleName != null && node.type == ClassNode.Type.MEMBER) {
         //noinspection StringConcatenationInLoop
         result = node.parent.simpleName + '.' + result;
         node = node.parent;
@@ -99,8 +115,10 @@ public class ImportCollector {
       if (node.type == ClassNode.Type.ROOT) {
         fullName = node.classStruct.qualifiedName;
         fullName = fullName.replace('/', '.');
-      }
-      else {
+      } else {
+        if (result == null && node.type == ClassNode.Type.ANONYMOUS) {
+          result = ExprProcessor.UNREPRESENTABLE_TYPE_STRING;
+        }
         return result;
       }
     }
@@ -127,7 +145,7 @@ public class ImportCollector {
       (context.getClass(currentPackageSlash + shortName) != null && !packageName.equals(currentPackagePoint)) || // current package
       (context.getClass(shortName) != null && !currentPackagePoint.isEmpty());
 
-    ClassNode currCls = (ClassNode)DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS_NODE);
+    ClassNode currCls = (ClassNode)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
     String mapKey = currCls == null ? "" : currCls.classStruct.qualifiedName;
     Map<String, String> innerClassNames = mapInnerClassNames.getOrDefault(mapKey, new HashMap<>());
     if (!existsDefaultClass && innerClassNames.containsKey(shortName) && !innerClassNames.get(shortName).equals(fullName)) {
@@ -169,6 +187,10 @@ public class ImportCollector {
   }
 
   public void writeImports(TextBuffer buffer, boolean addSeparator) {
+    if (DecompilerContext.getOption(IFernflowerPreferences.REMOVE_IMPORTS)) {
+      return;
+    }
+
     List<String> imports = packImports();
     for (String line : imports) {
       buffer.append("import ").append(line).append(';').appendLineSeparator();
@@ -178,19 +200,25 @@ public class ImportCollector {
     }
   }
 
-  private List<String> packImports() {
+  protected List<String> packImports() {
     return mapSimpleNames.entrySet().stream()
-      .filter(ent ->
-                // exclude the current class or one of the nested ones
-                // empty, java.lang and the current packages
-                !setNotImportedNames.contains(ent.getKey()) &&
-                !ent.getValue().isEmpty() &&
-                !JAVA_LANG_PACKAGE.equals(ent.getValue()) &&
-                !ent.getValue().equals(currentPackagePoint)
-      )
+      .filter(this::keepImport)
       .sorted(Map.Entry.<String, String>comparingByValue().thenComparing(Map.Entry.comparingByKey()))
       .map(ent -> ent.getValue() + "." + ent.getKey())
       .collect(Collectors.toList());
+  }
+
+  /**
+   * Check whether to keep the given entry in the import list.
+   *
+   * @param ent the entry in the map containing the class name and its corresponding package name
+   * @return true if the entry should be kept for importing, false otherwise
+   */
+  protected boolean keepImport(Map.Entry<String, String> ent) {
+    return !setNotImportedNames.contains(ent.getKey()) &&
+           !ent.getValue().isEmpty() &&
+           !JAVA_LANG_PACKAGE.equals(ent.getValue()) &&
+           !ent.getValue().equals(currentPackagePoint);
   }
 
   private void collectConflictingShortNames(ClassNode root, Map<String, String> rootNames) {
@@ -241,11 +269,24 @@ public class ImportCollector {
     }
   }
 
-  public boolean isWriteLocked() {
-    return writeLocked;
+  private void setWriteLocked(boolean writeLocked) {
+    this.writeLocked = writeLocked;
   }
 
-  public void setWriteLocked(boolean writeLocked) {
-    this.writeLocked = writeLocked;
+  public Lock lock() {
+    return new Lock();
+  }
+
+  public class Lock implements AutoCloseable {
+    private final boolean target;
+    private Lock() {
+      this.target = writeLocked;
+      setWriteLocked(true);
+    }
+
+    @Override
+    public void close() {
+      setWriteLocked(target);
+    }
   }
 }

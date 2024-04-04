@@ -1,0 +1,105 @@
+package pkg;
+
+import java.io.StringWriter;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.stream.StreamResult;
+
+public class TestVarRedef {
+   public static Transformer newTransformer() {
+      return null;// 10
+   }
+
+   public String myMethod() {
+      Source source = null;// 14
+
+      String streamResult;
+      try {
+         if (source != null) {// 16
+            StringWriter stringWriter = new StringWriter();// 20
+            StreamResult streamResultx = new StreamResult(stringWriter);// 21
+            newTransformer().transform(source, streamResultx);// 22
+            return stringWriter.getBuffer().toString();// 23 24
+         }
+
+         String string = null;// 17
+         streamResult = string;
+      } catch (Exception var9) {// 25
+         throw new RuntimeException(var9);// 26
+      } finally {
+         if (source != null) {// 28
+            System.out.println(".");// 29
+         }
+      }
+
+      return streamResult;// 18
+   }
+}
+
+class 'pkg/TestVarRedef' {
+   method 'newTransformer ()Ljavax/xml/transform/Transformer;' {
+      0      9
+      1      9
+   }
+
+   method 'myMethod ()Ljava/lang/String;' {
+      0      13
+      1      13
+      2      17
+      3      17
+      6      24
+      7      24
+      8      25
+      9      25
+      16      34
+      17      34
+      1f      18
+      24      19
+      28      19
+      29      20
+      2a      20
+      2b      20
+      2c      20
+      2d      20
+      2e      20
+      2f      20
+      30      20
+      31      21
+      32      21
+      33      21
+      34      21
+      35      21
+      36      21
+      37      21
+      4c      21
+      4d      26
+      52      27
+      56      27
+      59      29
+      5a      29
+      5d      30
+      5e      30
+      5f      30
+      60      30
+      61      30
+      62      30
+   }
+}
+
+Lines mapping:
+10 <-> 10
+14 <-> 14
+16 <-> 18
+17 <-> 25
+18 <-> 35
+20 <-> 19
+21 <-> 20
+22 <-> 21
+23 <-> 22
+24 <-> 22
+25 <-> 27
+26 <-> 28
+28 <-> 30
+29 <-> 31
+Not mapped:
+31

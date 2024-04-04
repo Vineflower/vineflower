@@ -1,10 +1,12 @@
 // Copyright 2000-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.struct.gen.generics;
 
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.struct.StructClass;
+import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 
@@ -26,10 +28,10 @@ public class GenericType extends VarType {
   private final List<VarType> arguments;
   private final int wildcard;
 
-  public static final GenericType DUMMY_VAR = new GenericType(CodeConstants.TYPE_GENVAR, 0, "", null, null, GenericType.WILDCARD_NO);
+  public static final GenericType DUMMY_VAR = new GenericType(CodeType.GENVAR, 0, "", null, null, GenericType.WILDCARD_NO);
 
-  public GenericType(int type, int arrayDim, String value, VarType parent, List<VarType> arguments, int wildcard) {
-    super(type, arrayDim, value, getFamily(type, arrayDim), getStackSize(type, arrayDim), false);
+  public GenericType(CodeType type, int arrayDim, String value, VarType parent, List<VarType> arguments, int wildcard) {
+    super(type, arrayDim, value, getFamily(type, arrayDim), getStackSize(type, arrayDim));
     this.parent = parent;
     this.arguments = arguments == null ? Collections.emptyList() : arguments;
     this.wildcard = wildcard;
@@ -40,7 +42,7 @@ public class GenericType extends VarType {
   }
 
   public static VarType parse(String signature, int wildcard) {
-    int type = 0;
+    CodeType type = CodeType.BYTE; // TODO: should be null!
     int arrayDim = 0;
     String value = null;
     List<VarType> params = null;
@@ -55,12 +57,12 @@ public class GenericType extends VarType {
           break;
 
         case 'T':
-          type = CodeConstants.TYPE_GENVAR;
+          type = CodeType.GENVAR;
           value = signature.substring(index + 1, signature.length() - 1);
           break loop;
 
         case 'L':
-          type = CodeConstants.TYPE_OBJECT;
+          type = CodeType.OBJECT;
           signature = signature.substring(index + 1, signature.length() - 1);
           String cl = getNextClassSignature(signature);
 
@@ -102,7 +104,7 @@ public class GenericType extends VarType {
                   parent = GenericType.parse("L" + value + ";");
                 }
                 else {
-                  parent = new GenericType(CodeConstants.TYPE_OBJECT, 0, value, parent, params, wildcard);
+                  parent = new GenericType(CodeType.OBJECT, 0, value, parent, params, wildcard);
                 }
 
                 signature = signature.substring(cl.length() + 1);
@@ -120,10 +122,10 @@ public class GenericType extends VarType {
       index++;
     }
 
-    if (type == CodeConstants.TYPE_GENVAR) {
+    if (type == CodeType.GENVAR) {
       return new GenericType(type, arrayDim, value, null, null, wildcard);
     }
-    else if (type == CodeConstants.TYPE_OBJECT) {
+    else if (type == CodeType.OBJECT) {
       if (parent == null && params == null && wildcard == WILDCARD_NO) {
         return new VarType(type, arrayDim, value);
       }
@@ -269,7 +271,7 @@ public class GenericType extends VarType {
   }
   @Override
   public boolean isGeneric() {
-    return type == CodeConstants.TYPE_GENVAR || !arguments.isEmpty() || parent != null || wildcard != WILDCARD_NO;
+    return type == CodeType.GENVAR || !arguments.isEmpty() || parent != null || wildcard != WILDCARD_NO;
   }
 
   public int getWildcard() {
@@ -405,6 +407,18 @@ public class GenericType extends VarType {
     return this.argumentsEqual(gt);
   }
 
+  // returns true if there's any genvars abound with empty names
+  // TODO: this is a hack! check why genvars with empty names are made!
+  public boolean isTypeUnfinished() {
+    for (GenericType gv : this.getAllGenericVars()) {
+      if (gv.value.isEmpty()) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   public boolean argumentsEqual(GenericType gt) {
     if (arguments.size() != gt.arguments.size()) {
       return false;
@@ -434,13 +448,13 @@ public class GenericType extends VarType {
         return false;
     }
 
-    if (from.type == CodeConstants.TYPE_OBJECT && from.type == to.type) {
+    if (from.type == CodeType.OBJECT && from.type == to.type) {
       if (!DecompilerContext.getStructContext().instanceOf(from.value, to.value)) {
         return false;
       }
     }
     else if (!from.equals(to)) {
-      if (from.type == CodeConstants.TYPE_GENVAR && from.type != to.type && named.containsKey(from)) {
+      if (from.type == CodeType.GENVAR && from.type != to.type && named.containsKey(from)) {
         return named.get(from).stream().anyMatch(bound -> {
           if (to.isGeneric() && !bound.value.equals(to.value)) {
             VarType _new = getGenericSuperType(bound, to);
@@ -496,7 +510,7 @@ public class GenericType extends VarType {
           }
           f = bounds;
         }
-        else if (f.type == CodeConstants.TYPE_GENVAR && f.type != t.type && named.containsKey(f))
+        else if (f.type == CodeType.GENVAR && f.type != t.type && named.containsKey(f))
         {
           f = named.get(f).get(0);
         }
@@ -532,7 +546,7 @@ public class GenericType extends VarType {
   public List<GenericType> getAllGenericVars() {
     List<GenericType> ret = new ArrayList<>();
 
-    if (this.type == CodeConstants.TYPE_GENVAR) {
+    if (this.type == CodeType.GENVAR) {
       ret.add((GenericType)this.resizeArrayDim(0));
       return ret;
     }
@@ -545,6 +559,40 @@ public class GenericType extends VarType {
     return ret;
   }
 
+  // In certain cases, we after we map generic variables we *don't* want to lower known generics to wildcards.
+  // This removes mappings where, for example, Type<T> is being mapped to Type<?>. This can't be done generally as there are
+  // cases where we *do* want to map to a wildcard- such as fields.
+  public static void cleanLoweredGenericTypes(Map<VarType, VarType> tempMap, GenericType type1, GenericType type2, Set<VarType> canClean) {
+    if (type1.getArguments().size() == type2.getArguments().size()) {
+      for (int k = 0; k < type1.getArguments().size(); k++) {
+        VarType arg1 = type1.getArguments().get(k);
+        VarType arg2 = type2.getArguments().get(k);
+
+        // Don't lower the current type from a generic to a wildcard
+        if ((canClean == null || canClean.contains(arg1)) && arg1 != null && arg2 == null) {
+          tempMap.remove(arg1);
+        }
+      }
+    }
+  }
+
+  // In the case where Type is defined as "class Type<T>", and the in type is "Type<?>", find the base (un-remapped) type "Type<T>"
+  // out of it. Essentially a wrapper to do a class lookup to find the generic class type descriptor.
+  // Returns null if there is a failure at any point.
+  public @Nullable GenericType findBaseType() {
+    StructClass cl = DecompilerContext.getStructContext().getClass(value);
+    if (cl == null) {
+      return null;
+    }
+
+    GenericClassDescriptor sig = cl.getSignature();
+    if (sig == null) {
+      return null;
+    }
+
+    return sig.genericType;
+  }
+
   public void mapGenVarsTo(GenericType other, Map<VarType, VarType> map) {
     if (arguments.size() == other.arguments.size()) {
       for (int i = 0; i < arguments.size(); ++i) {
@@ -552,7 +600,7 @@ public class GenericType extends VarType {
         VarType otherArg = other.arguments.get(i);
 
         if (thisArg != null && !DUMMY_VAR.equals(otherArg)) {
-          if (thisArg.type == CodeConstants.TYPE_GENVAR) {
+          if (thisArg.type == CodeType.GENVAR) {
             int tWild = ((GenericType)thisArg).wildcard;
             int oWild = otherArg == null || !otherArg.isGeneric() ? WILDCARD_NO : ((GenericType)otherArg).wildcard;
 
@@ -603,7 +651,7 @@ public class GenericType extends VarType {
   }
 
   public boolean hasUnknownGenericType(Set<VarType> namedGenerics) {
-    if (type == CodeConstants.TYPE_GENVAR) {
+    if (type == CodeType.GENVAR) {
       return !namedGenerics.contains(this.resizeArrayDim(0));
     }
 
@@ -627,6 +675,7 @@ public class GenericType extends VarType {
 
         if (derivedType.isGeneric() && dcls.getSignature() != null) {
           dcls.getSignature().genericType.mapGenVarsTo((GenericType)derivedType, tempMap);
+          cleanLoweredGenericTypes(tempMap, dcls.getSignature().genericType, (GenericType)derivedType, null);
           // Given MyClass<T extends MyClass<T>> implements MyInterface<T>
           // converting MyClass<?> to MyInterface should produce MyInterface<MyClass<?>> not MyInterface<?>
           for (int i = 0; i < dcls.getSignature().fparameters.size(); ++i) {

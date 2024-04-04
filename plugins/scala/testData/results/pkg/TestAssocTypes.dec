@@ -1,0 +1,206 @@
+package pkg;
+
+import scala.Predef.;
+import scala.runtime.BoxesRunTime;
+
+public class TestAssocTypes {
+   public void user() {
+      .MODULE$.print(BoxesRunTime.boxToInteger(IntShuffler$.MODULE$.shuffle(3)));// 19 20
+      .MODULE$.print(StringShuffler$.MODULE$.shuffle("abcd"));// 21
+   }
+}
+
+class 'pkg/TestAssocTypes' {
+   method 'user ()V' {
+      0      7
+      1      7
+      2      7
+      3      7
+      4      7
+      5      7
+      6      7
+      7      7
+      8      7
+      9      7
+      a      7
+      b      7
+      c      7
+      d      7
+      e      7
+      f      7
+      10      8
+      11      8
+      12      8
+      13      8
+      14      8
+      15      8
+      16      8
+      17      8
+      18      8
+      19      8
+      1a      8
+      1b      8
+      1c      8
+      1d      8
+      1e      9
+   }
+}
+
+Lines mapping:
+19 <-> 8
+20 <-> 8
+21 <-> 9
+
+// Decompiled companion from pkg/Shuffler
+package pkg;
+
+public interface Shuffler {
+   Object shuffle(final Object x);
+}
+
+// Decompiled companion from pkg/IntShuffler
+package pkg;
+
+public final class IntShuffler {
+   public static int shuffle(int var0) {
+      return IntShuffler$.MODULE$.shuffle(var0);
+   }
+}
+
+class 'pkg/IntShuffler' {
+   method 'shuffle (I)I' {
+      0      4
+      1      4
+      2      4
+      3      4
+      4      4
+      5      4
+      6      4
+      7      4
+   }
+}
+
+Lines mapping:
+
+// Decompiled companion from pkg/IntShuffler$
+package pkg;
+
+import java.io.Serializable;
+import scala.runtime.ModuleSerializationProxy;
+
+public final class IntShuffler$ implements Shuffler, Serializable {
+   public static final IntShuffler$ MODULE$ = new IntShuffler$();
+
+   private IntShuffler$() {
+   }
+
+   private Object writeReplace() {
+      return new ModuleSerializationProxy(IntShuffler$.class);// 8
+   }
+
+   public int shuffle(final int x) {
+      return x + 1;// 10
+   }
+}
+
+class 'pkg/IntShuffler$' {
+   method '<init> ()V' {
+      4      9
+   }
+
+   method 'writeReplace ()Ljava/lang/Object;' {
+      4      12
+      5      12
+      9      12
+   }
+
+   method 'shuffle (I)I' {
+      0      16
+      1      16
+      2      16
+      3      16
+   }
+}
+
+Lines mapping:
+8 <-> 13
+10 <-> 17
+
+// Decompiled companion from pkg/StringShuffler
+package pkg;
+
+public final class StringShuffler {
+   public static String shuffle(String var0) {
+      return StringShuffler$.MODULE$.shuffle(var0);
+   }
+}
+
+class 'pkg/StringShuffler' {
+   method 'shuffle (Ljava/lang/String;)Ljava/lang/String;' {
+      0      4
+      1      4
+      2      4
+      3      4
+      4      4
+      5      4
+      6      4
+      7      4
+   }
+}
+
+Lines mapping:
+
+// Decompiled companion from pkg/StringShuffler$
+package pkg;
+
+import java.io.Serializable;
+import scala.collection.StringOps.;
+import scala.runtime.ModuleSerializationProxy;
+
+public final class StringShuffler$ implements Shuffler, Serializable {
+   public static final StringShuffler$ MODULE$ = new StringShuffler$();
+
+   private StringShuffler$() {
+   }
+
+   private Object writeReplace() {
+      return new ModuleSerializationProxy(StringShuffler$.class);// 13
+   }
+
+   public String shuffle(final String x) {
+      return .MODULE$.reverse$extension(scala.Predef..MODULE$.augmentString(x));// 15
+   }
+}
+
+class 'pkg/StringShuffler$' {
+   method '<init> ()V' {
+      4      10
+   }
+
+   method 'writeReplace ()Ljava/lang/Object;' {
+      4      13
+      5      13
+      9      13
+   }
+
+   method 'shuffle (Ljava/lang/String;)Ljava/lang/String;' {
+      0      17
+      1      17
+      2      17
+      3      17
+      4      17
+      5      17
+      6      17
+      7      17
+      8      17
+      9      17
+      a      17
+      b      17
+      c      17
+      d      17
+   }
+}
+
+Lines mapping:
+13 <-> 14
+15 <-> 18

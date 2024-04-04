@@ -1,0 +1,76 @@
+package pkg;
+
+import java.util.Iterator;
+import java.util.function.Function;
+import java.util.stream.Stream;
+
+public interface TestGenericSubclassTypes<T> {
+   Stream<TestGenericSubclassTypes.Constant<T>> cons();
+
+   default Iterator<TestGenericSubclassTypes.Numerical<T>> get() {
+      return this.cons().map(c -> (TestGenericSubclassTypes.Numerical<T>)c).iterator();// 23
+   }
+
+   default Function<? super TestGenericSubclassTypes.Constant<T>, ? extends TestGenericSubclassTypes.Constant<T>> func() {
+      return i -> i;// 27
+   }
+
+   public static class Constant<T> implements TestGenericSubclassTypes.Numerical<T> {
+      @Override
+      public int get(T in) {
+         return 1;// 16
+      }
+   }
+
+   public interface Numerical<T> {
+      int get(T var1);
+   }
+}
+
+class 'pkg/TestGenericSubclassTypes' {
+   method 'get ()Ljava/util/Iterator;' {
+      0      10
+      1      10
+      2      10
+      3      10
+      4      10
+      5      10
+      b      10
+      c      10
+      d      10
+      e      10
+      f      10
+      10      10
+      11      10
+      12      10
+      13      10
+      14      10
+      15      10
+   }
+
+   method 'lambda$get$0 (Lpkg/TestGenericSubclassTypes$Constant;)Lpkg/TestGenericSubclassTypes$Numerical;' {
+      0      10
+      1      10
+   }
+
+   method 'func ()Ljava/util/function/Function;' {
+      5      14
+   }
+
+   method 'lambda$func$1 (Lpkg/TestGenericSubclassTypes$Constant;)Lpkg/TestGenericSubclassTypes$Constant;' {
+      0      14
+      1      14
+   }
+}
+
+class 'pkg/TestGenericSubclassTypes$Constant' {
+   method 'get (Ljava/lang/Object;)I' {
+      0      20
+      1      20
+   }
+}
+
+Lines mapping:
+16 <-> 21
+23 <-> 11
+27 <-> 15

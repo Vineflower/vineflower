@@ -4,7 +4,8 @@ package org.jetbrains.java.decompiler.modules.decompiler.decompose;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement.EdgeDirection;
-import org.jetbrains.java.decompiler.util.VBStyleCollection;
+import org.jetbrains.java.decompiler.util.DotExporter;
+import org.jetbrains.java.decompiler.util.collections.VBStyleCollection;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -76,13 +77,16 @@ public class DominatorTreeExceptionFilter {
 
   private void buildExceptionRanges() {
     for (Statement stat : statement.getStats()) {
-      List<Statement> lstPreds = stat.getNeighbours(StatEdge.TYPE_EXCEPTION, EdgeDirection.BACKWARD);
-      if (!lstPreds.isEmpty()) {
+      // Internally, jumps into a finally handler are represented as exception edges with the exceptions field set to null
+      // Don't consider those for exception filtering, as it can lead to incorrect subgraph splitting within catch blocks
+      List<StatEdge> edges = stat.getPredecessorEdges(StatEdge.TYPE_EXCEPTION);
+      edges.removeIf(e -> e.getExceptions() == null);
 
+      if (!edges.isEmpty()) {
         Set<Integer> set = new LinkedHashSet<>();
 
-        for (Statement st : lstPreds) {
-          set.add(st.id);
+        for (StatEdge st : edges) {
+          set.add(st.getSource().id);
         }
 
         mapExceptionRanges.put(stat.id, set);
@@ -131,11 +135,9 @@ public class DominatorTreeExceptionFilter {
             Integer exit;
             if (!range.contains(childid)) {
               exit = childid;
-            }
-            else if (map.containsKey(handler)) {
+            } else if (map.containsKey(handler)) {
               exit = -1;
-            }
-            else {
+            } else {
               exit = mapChild.get(handler);
             }
 

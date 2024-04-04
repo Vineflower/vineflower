@@ -7,7 +7,7 @@ public class TestUnknownCastJ17 {
    // $VF: Could not properly define all variable types!
    public void test() {
       ElementType vvv1 = ElementType.METHOD;// 8
-      synchronized(this) {// 9
+      synchronized (this) {// 9
          label91: {
             System.out.println(vvv1);// 10
             Object var23;
@@ -26,7 +26,7 @@ public class TestUnknownCastJ17 {
 
    public void test2() {
       ElementType vvv1 = ElementType.METHOD;// 34
-      synchronized(this) {// 35
+      synchronized (this) {// 35
          System.out.println(vvv1);// 36
          System.out.println(vvv1);// 37
          Object var10000;
@@ -35,7 +35,7 @@ public class TestUnknownCastJ17 {
 
          new Object();
 
-         for(int var9 = switch(vvv5) {
+         for (int var9 = switch (vvv5) {
             default -> {
                ElementType var5 = ElementType.METHOD;// 40
                System.out.println(vvv1);// 42

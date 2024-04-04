@@ -1,33 +1,39 @@
 // Copyright 2000-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.main;
 
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.main.collectors.BytecodeSourceMapper;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.main.collectors.ImportCollector;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
+import org.jetbrains.java.decompiler.main.rels.ClassWrapper;
+import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarProcessor;
 import org.jetbrains.java.decompiler.main.extern.IVariableNamingFactory;
 import org.jetbrains.java.decompiler.modules.renamer.PoolInterceptor;
+import org.jetbrains.java.decompiler.util.Key;
+import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructContext;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
 public class DecompilerContext {
-  public static final String CURRENT_CLASS = "CURRENT_CLASS";
-  public static final String CURRENT_CLASS_WRAPPER = "CURRENT_CLASS_WRAPPER";
-  public static final String CURRENT_CLASS_NODE = "CURRENT_CLASS_NODE";
-  public static final String CURRENT_METHOD_WRAPPER = "CURRENT_METHOD_WRAPPER";
-  public static final String CURRENT_VAR_PROCESSOR = "CURRENT_VAR_PROCESSOR";
-  public static final String RENAMER_FACTORY = "RENAMER_FACTORY";
+  public static final Key<StructClass> CURRENT_CLASS = Key.of("CURRENT_CLASS");
+  public static final Key<ClassWrapper> CURRENT_CLASS_WRAPPER = Key.of("CURRENT_CLASS_WRAPPER");
+  public static final Key<ClassesProcessor.ClassNode> CURRENT_CLASS_NODE = Key.of("CURRENT_CLASS_NODE");
+  public static final Key<MethodWrapper> CURRENT_METHOD_WRAPPER = Key.of("CURRENT_METHOD_WRAPPER");
+  public static final Key<VarProcessor> CURRENT_VAR_PROCESSOR = Key.of("CURRENT_VAR_PROCESSOR");
 
+  public final Map<Key<?>, Object> staticProps = new HashMap<>();
   public final Map<String, Object> properties;
   public final IFernflowerLogger logger;
   public final StructContext structContext;
   public final ClassesProcessor classProcessor;
   public final PoolInterceptor poolInterceptor;
-  public final IVariableNamingFactory renamerFactory;
+  public IVariableNamingFactory renamerFactory;
   private ImportCollector importCollector;
   private VarProcessor varProcessor;
   private CounterContainer counterContainer;
@@ -37,8 +43,7 @@ public class DecompilerContext {
                            IFernflowerLogger logger,
                            StructContext structContext,
                            ClassesProcessor classProcessor,
-                           PoolInterceptor interceptor,
-                           IVariableNamingFactory renamerFactory) {
+                           PoolInterceptor interceptor) {
     Objects.requireNonNull(properties);
     Objects.requireNonNull(logger);
     Objects.requireNonNull(structContext);
@@ -49,7 +54,6 @@ public class DecompilerContext {
     this.structContext = structContext;
     this.classProcessor = classProcessor;
     this.poolInterceptor = interceptor;
-    this.renamerFactory = renamerFactory;
     this.counterContainer = new CounterContainer();
   }
 
@@ -71,6 +75,10 @@ public class DecompilerContext {
     }
   }
 
+  public static <T> void setProperty(Key<T> key, T value) {
+    getCurrentContext().staticProps.put(key, value);
+  }
+
   public static void setProperty(String key, Object value) {
     getCurrentContext().properties.put(key, value);
   }
@@ -88,9 +96,17 @@ public class DecompilerContext {
     context.counterContainer = new CounterContainer();
   }
 
+  public static void setImportCollector(ImportCollector importCollector) {
+    getCurrentContext().importCollector = importCollector;
+  }
+
   // *****************************************************************************
   // context access
   // *****************************************************************************
+
+  public static <T> @Nullable T getContextProperty(Key<T> key) {
+    return (T) getCurrentContext().staticProps.get(key);
+  }
 
   public static Object getProperty(String key) {
     return getCurrentContext().properties.get(key);

@@ -27,4 +27,26 @@ public class TestCastObjectToPrimitive {
            System.out.println("Test3");
        }
     }
+
+  public void compound1() {
+    if (getObj() != null && (boolean) getObj()) {
+      return;
+    }
+  }
+
+  public void compound2() {
+    if (getObj() != null && (Boolean) getObj()) {
+      return;
+    }
+  }
+
+  public void compound3() {
+    if ((boolean) getObj()) {
+      return;
+    }
+  }
+
+  public Object getObj() {
+    return new Object();
+  }
 }

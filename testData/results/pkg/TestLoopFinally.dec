@@ -2,7 +2,7 @@ package pkg;
 
 public class TestLoopFinally {
    public void test() {
-      for(int i = 0; i < 10; ++i) {// 5 16
+      for (int i = 0; i < 10; i++) {// 5 16
          try {
             System.out.println(i);// 7
          } finally {
@@ -19,7 +19,7 @@ public class TestLoopFinally {
    }// 20
 
    public void test1() {
-      for(int i = 0; i < 10; ++i) {// 23
+      for (int i = 0; i < 10; i++) {// 23
          try {
             System.out.println(i);// 25
          } finally {
@@ -42,7 +42,7 @@ public class TestLoopFinally {
    }// 42
 
    public void test2() {
-      for(int i = 0; i < 10; ++i) {// 45
+      for (int i = 0; i < 10; i++) {// 45
          try {
             System.out.println(i);// 47
          } finally {
@@ -78,7 +78,7 @@ public class TestLoopFinally {
                break;
             }
          }
-      } while(x < 45);// 84
+      } while (x < 45);// 84
 
       System.out.print(5);// 86
       return 1;// 87
@@ -95,7 +95,7 @@ public class TestLoopFinally {
                return 1;// 104
             }
          }
-      } while(x < 45);// 102
+      } while (x < 45);// 102
 
       return 1;
    }
@@ -113,7 +113,7 @@ public class TestLoopFinally {
                return 1;// 126
             }
          }
-      } while(x < 45);// 124
+      } while (x < 45);// 124
 
       return 1;
    }
@@ -124,7 +124,7 @@ public class TestLoopFinally {
       int c = 2;
 
       try {
-         while(true) {
+         while (true) {
             try {
                System.out.println("Hello");// 137
                return;// 138
@@ -170,7 +170,7 @@ public class TestLoopFinally {
       } finally {
          short var18 = 15080;// 183
 
-         while(var18 > -14704) {// 184
+         while (var18 > -14704) {// 184
             boolean var9 = false;// 185
          }
       }

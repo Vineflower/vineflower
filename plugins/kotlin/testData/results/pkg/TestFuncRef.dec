@@ -1,0 +1,68 @@
+package pkg
+
+public fun accept(f: (Int) -> String) {
+   System.out.println(f.invoke(5));
+}// 3
+
+public fun function(r: Int): String {
+   return StringsKt.repeat("OK" as java.lang.CharSequence, r);// 6
+}
+
+public fun test() {
+   accept(<unknownclass>.INSTANCE);// 10
+}// 11
+
+
+class 'pkg/TestFuncRefKt' {
+   method 'accept (Lkotlin/jvm/functions/Function1;)V' {
+      6      3
+      7      3
+      8      3
+      9      3
+      a      3
+      b      3
+      c      3
+      d      3
+      e      3
+      f      3
+      10      3
+      11      3
+      12      3
+      14      3
+      15      3
+      16      3
+      17      4
+   }
+
+   method 'function (I)Ljava/lang/String;' {
+      0      7
+      1      7
+      2      7
+      3      7
+      4      7
+      5      7
+      6      7
+      7      7
+      8      7
+      9      7
+   }
+
+   method 'test ()V' {
+      0      11
+      1      11
+      2      11
+      3      11
+      4      11
+      5      11
+      6      11
+      7      11
+      8      11
+      9      12
+   }
+}
+
+Lines mapping:
+3 <-> 5
+6 <-> 8
+10 <-> 12
+11 <-> 13

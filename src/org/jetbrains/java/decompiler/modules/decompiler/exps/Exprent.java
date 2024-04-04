@@ -7,7 +7,10 @@ import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
-import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
+import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
+import org.jetbrains.java.decompiler.modules.decompiler.sforms.SFormsConstructor;
+import org.jetbrains.java.decompiler.modules.decompiler.sforms.VarMapHolder;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
@@ -17,13 +20,9 @@ import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
 import org.jetbrains.java.decompiler.struct.match.IMatchable;
 import org.jetbrains.java.decompiler.struct.match.MatchEngine;
 import org.jetbrains.java.decompiler.struct.match.MatchNode;
-import org.jetbrains.java.decompiler.struct.match.MatchNode.RuleValue;
-import org.jetbrains.java.decompiler.util.NullableConcurrentHashMap;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 
 import java.util.*;
-import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class Exprent implements IMatchable {
   public static final int MULTIPLE_USES = 1;
@@ -47,6 +46,9 @@ public abstract class Exprent implements IMatchable {
     SWITCH_HEAD,
     VAR,
     YIELD,
+
+    // Catch all for plugins
+    OTHER
   }
 
   protected static ThreadLocal<Map<String, VarType>> inferredLambdaTypes = ThreadLocal.withInitial(HashMap::new);
@@ -126,6 +128,7 @@ public abstract class Exprent implements IMatchable {
     int start = list.size();
     getAllExprents(list);
     int end = list.size();
+    ValidationHelper.assertTrue(start <= end, "inconsistent list size! " + start + " <= " + end);
 
     if (recursive) {
       for (int i = end - 1; i >= start; i--) {
@@ -260,7 +263,7 @@ public abstract class Exprent implements IMatchable {
     buf.append("<");
     //TODO: Check target output level and use <> operator?
     for (int i = 0; i < genericArgs.size(); i++) {
-      buf.append(ExprProcessor.getCastTypeName(genericArgs.get(i)));
+      buf.appendCastTypeName(genericArgs.get(i));
       if(i + 1 < genericArgs.size()) {
         buf.append(", ");
       }
@@ -268,10 +271,10 @@ public abstract class Exprent implements IMatchable {
     buf.append(">");
   }
 
-  protected Map<VarType, List<VarType>> getNamedGenerics() {
+  public Map<VarType, List<VarType>> getNamedGenerics() {
     Map<VarType, List<VarType>> ret = new HashMap<>();
-    ClassNode class_ = (ClassNode)DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS_NODE);
-    MethodWrapper method = (MethodWrapper)DecompilerContext.getProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
+    ClassNode class_ = (ClassNode)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
+    MethodWrapper method = (MethodWrapper)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
 
     while (true) {
       GenericClassDescriptor cls = class_ == null ? null : class_.classStruct.getSignature();
@@ -303,6 +306,16 @@ public abstract class Exprent implements IMatchable {
 
   public boolean allowNewlineAfterQualifier() {
     return true;
+  }
+
+  // processes exprents, much like section 16.1. of the java language specifications
+  // (Definite Assignment and Expressions).
+  public void processSforms(SFormsConstructor sFormsConstructor, VarMapHolder varMaps, Statement stat, boolean calcLiveVars) {
+
+    for (Exprent ex : this.getAllExprents()) {
+      ex.processSforms(sFormsConstructor, varMaps, stat, calcLiveVars);
+      varMaps.toNormal();
+    }
   }
 
   // *****************************************************************************
@@ -339,17 +352,13 @@ public abstract class Exprent implements IMatchable {
       return false;
     }
 
-    for (Entry<MatchProperties, RuleValue> rule : matchNode.getRules().entrySet()) {
-      MatchProperties key = rule.getKey();
-      if (key == MatchProperties.EXPRENT_TYPE && this.type != rule.getValue().value) {
+    return matchNode.iterateRules((key, value) -> {
+      if (key == MatchProperties.EXPRENT_TYPE && this.type != value.value) {
         return false;
       }
-      if (key == MatchProperties.EXPRENT_RET && !engine.checkAndSetVariableValue((String)rule.getValue().value, this)) {
-        return false;
-      }
-    }
 
-    return true;
+      return key != MatchProperties.EXPRENT_RET || engine.checkAndSetVariableValue((String) value.value, this);
+    });
   }
 
   @Override

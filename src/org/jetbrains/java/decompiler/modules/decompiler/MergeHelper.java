@@ -4,6 +4,8 @@ package org.jetbrains.java.decompiler.modules.decompiler;
 import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectEdge;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectEdgeType;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectNode;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper;
@@ -17,7 +19,7 @@ import org.jetbrains.java.decompiler.struct.gen.VarType;
 
 import java.util.*;
 
-public final class MergeHelper {
+public class MergeHelper {
   public static void enhanceLoops(Statement root) {
     while (enhanceLoopsRec(root)) /**/;
     SequenceHelper.condenseSequences(root);
@@ -159,7 +161,7 @@ public final class MergeHelper {
     return stat.getParent() instanceof DoStatement;
   }
 
-  private static boolean matchWhile(DoStatement stat) {
+  protected static boolean matchWhile(DoStatement stat) {
 
     // search for an if condition at the entrance of the loop
     Statement first = stat.getFirst();
@@ -206,9 +208,7 @@ public final class MergeHelper {
 
               // remove empty if statement as it is now part of the loop
               if (firstif == stat.getFirst()) {
-                BasicBlockStatement bstat = new BasicBlockStatement(new BasicBlock(
-                  DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.STATEMENT_COUNTER)));
-                bstat.setExprents(new ArrayList<>());
+                BasicBlockStatement bstat = BasicBlockStatement.create();
                 stat.replaceStatement(firstif, bstat);
               }
               else {
@@ -230,10 +230,6 @@ public final class MergeHelper {
 
           StatEdge elseEdge = firstif.getFirstSuccessor();
           if (isDirectPath(stat, elseEdge.getDestination())) {
-            // FIXME: This is horrible and bad!! Needs an extraction step before loop merging!!
-            if (isIif(firstif.getHeadexprent().getCondition())) {
-              return false;
-            }
 
             // exit condition identified
             stat.setLooptype(DoStatement.Type.WHILE);
@@ -260,9 +256,7 @@ public final class MergeHelper {
             }
 
             if (firstif.getIfstat() == null) {
-              BasicBlockStatement bstat = new BasicBlockStatement(new BasicBlock(
-                DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.STATEMENT_COUNTER)));
-              bstat.setExprents(new ArrayList<>());
+              BasicBlockStatement bstat = BasicBlockStatement.create();
 
               ifedge.setSource(bstat);
               bstat.addSuccessor(ifedge);
@@ -292,19 +286,6 @@ public final class MergeHelper {
     }
 
     return false;
-  }
-
-  private static boolean isIif(Exprent exprent) {
-    if (!(exprent instanceof FunctionExprent)) {
-      return false;
-    }
-
-    Exprent check = exprent;
-    while (check instanceof FunctionExprent && ((FunctionExprent)check).getFuncType() == FunctionType.BOOL_NOT) {
-      check = ((FunctionExprent)check).getLstOperands().get(0);
-    }
-
-    return check instanceof FunctionExprent && ((FunctionExprent)check).getFuncType() == FunctionType.TERNARY;
   }
 
   // Returns if the statement provided and the end statement provided has a direct control flow path
@@ -347,7 +328,7 @@ public final class MergeHelper {
     }
   }
 
-  private static void matchFor(DoStatement stat) {
+  protected static void matchFor(DoStatement stat) {
     Exprent lastDoExprent, initDoExprent;
     Statement lastData, preData = null;
 
@@ -454,6 +435,22 @@ public final class MergeHelper {
         return;
       }
 
+      // Check if any final variable assignments in the loop are used in the line that is being moved to the final part of the for loop
+      Set<VarExprent> finalVariables = getFinalVariables(stat, new HashSet<>());
+      if (finalVariables.stream().anyMatch(exp -> exp.isVarReferenced(lastExp))) {
+        return;
+      }
+
+      for (Exprent e : lastExp.getAllExprents(true, true)) {
+        if (!(e instanceof VarExprent)) {
+          continue;
+        }
+
+        if (!isVarUsedBefore((VarExprent) e, stat)) {
+          return;
+        }
+      }
+
       stat.setLooptype(DoStatement.Type.FOR);
       if (hasinit) {
         Exprent exp = preData.getExprents().remove(preData.getExprents().size() - 1);
@@ -472,7 +469,39 @@ public final class MergeHelper {
     cleanEmptyStatements(stat, lastData);
   }
 
-  private static void cleanEmptyStatements(DoStatement dostat, Statement stat) {
+  private static Set<VarExprent> getFinalVariables(Statement stat, Set<VarExprent> variables) {
+    if (stat.getExprents() == null) {
+      for (Object o : stat.getSequentialObjects()) {
+        if (o instanceof Statement) {
+          getFinalVariables((Statement) o, variables);
+        } else if (o instanceof Exprent) {
+          getFinalVariables((Exprent) o, variables);
+        }
+      }
+    } else {
+      for (Exprent exp : stat.getExprents()) {
+        getFinalVariables(exp, variables);
+      }
+    }
+    return variables;
+  }
+
+  private static Set<VarExprent> getFinalVariables(Exprent exp, Set<VarExprent> variables) {
+    for (Exprent e : exp.getAllExprents(true, true)) {
+      if (e instanceof AssignmentExprent) {
+        AssignmentExprent assignment = (AssignmentExprent) e;
+        if (assignment.getLeft() instanceof VarExprent) {
+          VarExprent varExprent = (VarExprent) assignment.getLeft();
+          if (varExprent.isEffectivelyFinal()) {
+            variables.add(varExprent);
+          }
+        }
+      }
+    }
+    return variables;
+  }
+
+  protected static void cleanEmptyStatements(DoStatement dostat, Statement stat) {
     if (stat != null && stat.getExprents().isEmpty()) {
       List<StatEdge> lst = stat.getAllSuccessorEdges();
       if (!lst.isEmpty()) {
@@ -488,7 +517,7 @@ public final class MergeHelper {
     }
   }
 
-  private static void removeLastEmptyStatement(DoStatement dostat, Statement stat) {
+  protected static void removeLastEmptyStatement(DoStatement dostat, Statement stat) {
 
     if (stat == dostat.getFirst()) {
       BasicBlockStatement bstat = BasicBlockStatement.create();
@@ -529,7 +558,7 @@ public final class MergeHelper {
     }
   }
 
-  private static Statement getLastDirectData(Statement stat) {
+  protected static Statement getLastDirectData(Statement stat) {
     if (stat.getExprents() != null) {
       return stat;
     }
@@ -543,7 +572,7 @@ public final class MergeHelper {
     return null;
   }
 
-  private static boolean matchForEach(DoStatement stat) {
+  protected static boolean matchForEach(DoStatement stat) {
     AssignmentExprent firstDoExprent = null;
     AssignmentExprent[] initExprents = new AssignmentExprent[3];
     Statement firstData = null, preData = null, lastData = null;
@@ -613,12 +642,19 @@ public final class MergeHelper {
         }
 
         InvocationExprent next = (InvocationExprent)getUncast(ass.getRight());
-        if (isNextUnboxing(next))
-          next = (InvocationExprent)getUncast(next.getInstance());
+        if (isNextUnboxing(next)) {
+          next = (InvocationExprent) getUncast(next.getInstance());
+        }
+
         InvocationExprent hnext = (InvocationExprent)getUncast(drillNots(stat.getConditionExprent()));
         if (!(next.getInstance() instanceof VarExprent) ||
             !(hnext.getInstance() instanceof VarExprent) ||
           ((VarExprent)initExprents[0].getLeft()).isVarReferenced(stat, (VarExprent)next.getInstance(), (VarExprent)hnext.getInstance())) {
+          return false;
+        }
+
+        // TODO: handle this case! don't just fail silently!
+        if (!((VarExprent)initExprents[0].getLeft()).getVarVersionPair().equals(((VarExprent)next.getInstance()).getVarVersionPair())) {
           return false;
         }
 
@@ -641,6 +677,10 @@ public final class MergeHelper {
         }
 
         InvocationExprent holder = (InvocationExprent)right;
+        // base of the .iterator() call is null, so the iterator comes from a static method: cannot be a foreach
+        if (holder.getInstance() == null) {
+          return false;
+        }
 
         initExprents[0].getBytecodeRange(holder.getInstance().bytecode);
         holder.getBytecodeRange(holder.getInstance().bytecode);
@@ -727,6 +767,25 @@ public final class MergeHelper {
           }
         }
 
+        VarExprent assignPre = null;
+        for (Exprent e : preData.getExprents()) {
+          if (e instanceof AssignmentExprent) {
+            AssignmentExprent a = (AssignmentExprent)e;
+            if (a.getLeft() instanceof VarExprent) {
+              if (a.getRight() instanceof VarExprent) {
+                if (((VarExprent)a.getLeft()).getVarVersionPair().equals(array.getVarVersionPair())) {
+                  assignPre = (VarExprent)a.getRight();
+                }
+              }
+            }
+          }
+        }
+
+        // TODO: handle this case! don't just fail silently!
+        if (assignPre != null && !((VarExprent)funcRight.getLstOperands().get(0)).getVarVersionPair().equals(assignPre.getVarVersionPair())) {
+          return false;
+        }
+
         // Make sure this variable isn't used before
         if (isVarUsedBefore((VarExprent) firstDoExprent.getLeft(), stat)) {
           return false;
@@ -776,17 +835,19 @@ public final class MergeHelper {
   }
 
   // Use DirectGraph traversal to see if a variable has been used before [TestForeachVardef]
-  private static boolean isVarUsedBefore(VarExprent var, Statement st) {
+  protected static boolean isVarUsedBefore(VarExprent var, Statement st) {
     // Build digraph
     FlattenStatementsHelper flatten = new FlattenStatementsHelper();
-    DirectGraph digraph = flatten.buildDirectGraph(st.getTopParent());
+    flatten.buildDirectGraph(st.getTopParent());
 
     // Find starting point for iteration
-    String diblockId = digraph.mapDestinationNodes.get(st.id)[0];
-    DirectNode stnd = digraph.nodes.getWithKey(diblockId);
+    DirectNode stnd = flatten.getDirectNode(st);
 
     // Only submit predecessors!
-    Deque<DirectNode> stack = new LinkedList<>(stnd.preds());
+    Deque<DirectNode> stack = new ArrayDeque<>();
+    for (DirectEdge pred : stnd.getPredecessors(DirectEdgeType.REGULAR)) {
+      stack.add(pred.getSource());
+    }
     Set<DirectNode> visited = new HashSet<>();
 
     while (!stack.isEmpty()) {
@@ -809,9 +870,9 @@ public final class MergeHelper {
       }
 
       // Go through predecessors, if we haven't seen them
-      for (DirectNode pred : node.preds()) {
-        if (visited.add(pred)) {
-          stack.push(pred);
+      for (DirectEdge pred : node.getPredecessors(DirectEdgeType.REGULAR)) {
+        if (visited.add(pred.getSource())) {
+          stack.push(pred.getSource());
         }
       }
     }
@@ -820,7 +881,7 @@ public final class MergeHelper {
     return false;
   }
 
-  private static Exprent drillNots(Exprent exp) {
+  protected static Exprent drillNots(Exprent exp) {
     while (true) {
       if (exp instanceof FunctionExprent) {
         FunctionExprent fun = (FunctionExprent)exp;
@@ -841,7 +902,7 @@ public final class MergeHelper {
     }
   }
 
-  private static Statement getFirstDirectData(Statement stat) {
+  protected static Statement getFirstDirectData(Statement stat) {
     if (stat.getExprents() != null && !stat.getExprents().isEmpty()) {
       return stat;
     }
@@ -855,7 +916,7 @@ public final class MergeHelper {
     return null;
   }
 
-  private static Exprent getUncast(Exprent exp) {
+  protected static Exprent getUncast(Exprent exp) {
     if (exp instanceof FunctionExprent) {
       FunctionExprent func = (FunctionExprent)exp;
       if (func.getFuncType() == FunctionType.CAST) {
@@ -865,7 +926,7 @@ public final class MergeHelper {
     return exp;
   }
 
-  private static InvocationExprent asInvocationExprent(Exprent exp) {
+  protected static InvocationExprent asInvocationExprent(Exprent exp) {
     exp = getUncast(exp);
     if (exp instanceof InvocationExprent) {
       return (InvocationExprent) exp;
@@ -873,7 +934,7 @@ public final class MergeHelper {
     return null;
   }
 
-  private static boolean isIteratorCall(Exprent exp) {
+  protected static boolean isIteratorCall(Exprent exp) {
     final InvocationExprent iexp = asInvocationExprent(exp);
     if (iexp == null) {
       return false;
@@ -887,7 +948,7 @@ public final class MergeHelper {
            "listIterator".equals(name);
   }
 
-  private static boolean isHasNextCall(Exprent exp) {
+  protected static boolean isHasNextCall(Exprent exp) {
     final InvocationExprent iexp = asInvocationExprent(exp);
     if (iexp == null) {
       return false;
@@ -898,7 +959,7 @@ public final class MergeHelper {
     return "hasNext".equals(iexp.getName()) && "()Z".equals(iexp.getStringDescriptor());
   }
 
-  private static boolean isNextCall(Exprent exp) {
+  protected static boolean isNextCall(Exprent exp) {
     final InvocationExprent iexp = asInvocationExprent(exp);
     if (iexp == null) {
       return false;
@@ -909,7 +970,7 @@ public final class MergeHelper {
     return "next".equals(iexp.getName()) && "()Ljava/lang/Object;".equals(iexp.getStringDescriptor());
   }
 
-  private static boolean isNextUnboxing(Exprent exprent) {
+  protected static boolean isNextUnboxing(Exprent exprent) {
     Exprent exp = getUncast(exprent);
     if (!(exp instanceof InvocationExprent))
       return false;

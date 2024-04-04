@@ -1,0 +1,129 @@
+package pkg
+
+class TestInfixFun {
+   public fun test() {
+      System.out.println(test$times(2, "Bye "));// 7
+   }// 8
+
+   public infix fun Int.mult(str: String): String {
+      return StringsKt.repeat(str as java.lang.CharSequence, `$this$mult`);// 10
+   }
+
+   public fun testOuter() {
+      System.out.println(this.mult(2, "Bye "));// 14
+   }// 15
+
+   public fun testDuplicate() {
+      System.out.println(testDuplicate$mult(2, "Bye "));// 20
+   }// 21
+
+   @JvmStatic
+   fun Int.`test$times`(str: java.lang.String): java.lang.String {
+      return StringsKt.repeat(str as java.lang.CharSequence, `$this$test_u24times`);// 5
+   }
+
+   @JvmStatic
+   fun Int.`testDuplicate$mult`(str: java.lang.String): java.lang.String {
+      return StringsKt.repeat(str as java.lang.CharSequence, `$this$testDuplicate_u24mult` + 1);// 18
+   }
+}
+
+class 'pkg/TestInfixFun' {
+   method 'test ()V' {
+      0      4
+      1      4
+      2      4
+      3      4
+      4      4
+      5      4
+      6      4
+      7      4
+      8      4
+      a      4
+      b      4
+      c      4
+      d      5
+   }
+
+   method 'mult (ILjava/lang/String;)Ljava/lang/String;' {
+      6      8
+      7      8
+      8      8
+      9      8
+      a      8
+      b      8
+      c      8
+      d      8
+      e      8
+   }
+
+   method 'testOuter ()V' {
+      0      12
+      1      12
+      2      12
+      3      12
+      4      12
+      5      12
+      6      12
+      7      12
+      8      12
+      9      12
+      b      12
+      c      12
+      d      12
+      e      13
+   }
+
+   method 'testDuplicate ()V' {
+      0      16
+      1      16
+      2      16
+      3      16
+      4      16
+      5      16
+      6      16
+      7      16
+      8      16
+      a      16
+      b      16
+      c      16
+      d      17
+   }
+
+   method 'test$times (ILjava/lang/String;)Ljava/lang/String;' {
+      0      21
+      1      21
+      2      21
+      3      21
+      4      21
+      5      21
+      6      21
+      7      21
+      8      21
+   }
+
+   method 'testDuplicate$mult (ILjava/lang/String;)Ljava/lang/String;' {
+      0      26
+      1      26
+      2      26
+      3      26
+      4      26
+      5      26
+      6      26
+      7      26
+      8      26
+      9      26
+      a      26
+   }
+}
+
+Lines mapping:
+5 <-> 22
+7 <-> 5
+8 <-> 6
+10 <-> 9
+14 <-> 13
+15 <-> 14
+18 <-> 27
+20 <-> 17
+21 <-> 18

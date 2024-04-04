@@ -3,7 +3,7 @@ package pkg;
 class TestSwitchPatternMatchingFuzz1 {
    public void test() {
       Object var1 = new Object();// 7
-      switch(var1) {
+      switch (var1) {
          case Double var14:
          case null:
             Double l = (Double)var1;// 10

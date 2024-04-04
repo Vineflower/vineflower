@@ -1,0 +1,220 @@
+package pkg;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+
+public class TestGenericWildcard<T> {
+   public TestGenericWildcard<?> wildcard() {
+      return null;// 7
+   }
+
+   public TestGenericWildcard<T> generic() {
+      return (TestGenericWildcard<T>)this.wildcard();// 11
+   }
+
+   public <E> TestGenericWildcard<E> cast(TestGenericWildcard<? extends E> e) {
+      return (TestGenericWildcard<E>)e;// 15
+   }
+
+   public <E> TestGenericWildcard<E> castOtherType(TestGenericWildcard<? extends TestGenericWildcard<E>> e) {
+      return (TestGenericWildcard<E>)e;// 19
+   }
+
+   public <E> Optional<TestGenericWildcard<E>> castOptional(boolean bl, TestGenericWildcard<? extends TestGenericWildcard<E>> e) {
+      return bl ? Optional.of((TestGenericWildcard<E>)e) : Optional.empty();// 23
+   }
+
+   public <E> TestGenericWildcard<? super E> cast2(TestGenericWildcard<? extends E> e) {
+      return (TestGenericWildcard<? super E>)e;// 27
+   }
+
+   public TestGenericWildcard<TestGenericWildcard> typed() {
+      return (TestGenericWildcard<TestGenericWildcard>)this.wildcard();// 31
+   }
+
+   public <S> Collection<S> otherGeneric(List<? extends T> list) {
+      return (Collection<S>)Collections.unmodifiableCollection(list);// 35
+   }
+
+   public static <E> TestGenericWildcard.Other<E> makeNestedFromWildcard(
+      TestGenericWildcard.Another<? extends TestGenericWildcard<?>> aa, TestGenericWildcard<?> bb
+   ) {
+      return new TestGenericWildcard.Other<>((TestGenericWildcard.Another<? extends TestGenericWildcard<E>>)aa, (TestGenericWildcard<E>)bb);// 39
+   }
+
+   public <S> TestGenericWildcard<S> otherGenericUnmapped() {
+      return new TestGenericWildcard();// 53
+   }
+
+   public static class Another<C> {
+   }
+
+   static class One<T> implements Comparable<TestGenericWildcard.One<?>> {
+      public Comparator<T> cmp;
+      public T obj;
+
+      public int compareTo(TestGenericWildcard.One<?> o) {
+         return this.cmp.compare(this.obj, (T)o.obj);// 76
+      }
+   }
+
+   public static class Other<C> {
+      public Other(TestGenericWildcard.Another<? extends TestGenericWildcard<C>> a, TestGenericWildcard<C> b) {
+      }// 45
+   }
+
+   class Two<A, B> {
+      public TestGenericWildcard<T>.Two<?, B> wildcard() {
+         return null;// 58
+      }
+
+      public TestGenericWildcard<T>.Two<A, B> generic() {
+         return (TestGenericWildcard<T>.Two<A, B>)this.wildcard();// 62
+      }
+
+      public TestGenericWildcard<T>.Two<TestGenericWildcard.Two, TestGenericWildcard.Two> typed() {
+         return (TestGenericWildcard<T>.Two<TestGenericWildcard.Two, TestGenericWildcard.Two>)this.wildcard();// 66
+      }
+   }
+}
+
+class 'pkg/TestGenericWildcard' {
+   method 'wildcard ()Lpkg/TestGenericWildcard;' {
+      0      10
+      1      10
+   }
+
+   method 'generic ()Lpkg/TestGenericWildcard;' {
+      0      14
+      1      14
+      2      14
+      3      14
+      4      14
+   }
+
+   method 'cast (Lpkg/TestGenericWildcard;)Lpkg/TestGenericWildcard;' {
+      0      18
+      1      18
+   }
+
+   method 'castOtherType (Lpkg/TestGenericWildcard;)Lpkg/TestGenericWildcard;' {
+      0      22
+      1      22
+   }
+
+   method 'castOptional (ZLpkg/TestGenericWildcard;)Ljava/util/Optional;' {
+      0      26
+      1      26
+      4      26
+      5      26
+      6      26
+      7      26
+      b      26
+      e      26
+   }
+
+   method 'cast2 (Lpkg/TestGenericWildcard;)Lpkg/TestGenericWildcard;' {
+      0      30
+      1      30
+   }
+
+   method 'typed ()Lpkg/TestGenericWildcard;' {
+      0      34
+      1      34
+      2      34
+      3      34
+      4      34
+   }
+
+   method 'otherGeneric (Ljava/util/List;)Ljava/util/Collection;' {
+      0      38
+      1      38
+      2      38
+      3      38
+      4      38
+   }
+
+   method 'makeNestedFromWildcard (Lpkg/TestGenericWildcard$Another;Lpkg/TestGenericWildcard;)Lpkg/TestGenericWildcard$Other;' {
+      4      44
+      5      44
+      9      44
+   }
+
+   method 'otherGenericUnmapped ()Lpkg/TestGenericWildcard;' {
+      7      48
+   }
+}
+
+class 'pkg/TestGenericWildcard$One' {
+   method 'compareTo (Lpkg/TestGenericWildcard$One;)I' {
+      0      59
+      1      59
+      2      59
+      3      59
+      4      59
+      5      59
+      6      59
+      7      59
+      8      59
+      9      59
+      a      59
+      b      59
+      c      59
+      d      59
+      e      59
+      f      59
+      10      59
+      11      59
+   }
+}
+
+class 'pkg/TestGenericWildcard$Other' {
+   method '<init> (Lpkg/TestGenericWildcard$Another;Lpkg/TestGenericWildcard;)V' {
+      4      65
+   }
+}
+
+class 'pkg/TestGenericWildcard$Two' {
+   method 'wildcard ()Lpkg/TestGenericWildcard$Two;' {
+      0      70
+      1      70
+   }
+
+   method 'generic ()Lpkg/TestGenericWildcard$Two;' {
+      0      74
+      1      74
+      2      74
+      3      74
+      4      74
+   }
+
+   method 'typed ()Lpkg/TestGenericWildcard$Two;' {
+      0      78
+      1      78
+      2      78
+      3      78
+      4      78
+   }
+}
+
+Lines mapping:
+7 <-> 11
+11 <-> 15
+15 <-> 19
+19 <-> 23
+23 <-> 27
+27 <-> 31
+31 <-> 35
+35 <-> 39
+39 <-> 45
+45 <-> 66
+53 <-> 49
+58 <-> 71
+62 <-> 75
+66 <-> 79
+76 <-> 60
+Not mapped:
+43

@@ -6,12 +6,12 @@ on:
       - '*'
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     container:
-      image: openjdk:15-jdk
+      image: eclipse-temurin:17
       options: --user root
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v3
       - uses: gradle/wrapper-validation-action@v1
       - run: ./gradlew build publish publishToSonatype closeAndReleaseSonatypeStagingRepository -x test --stacktrace
         env:

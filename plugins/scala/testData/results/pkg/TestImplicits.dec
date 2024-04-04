@@ -1,0 +1,396 @@
+package pkg;
+
+import scala.Predef.;
+import scala.runtime.BoxesRunTime;
+
+public class TestImplicits {
+   public AddMonoid$ am() {
+      return AddMonoid$.MODULE$;// 24
+   }
+
+   public ConcatMonoid$ cm() {
+      return ConcatMonoid$.MODULE$;// 25
+   }
+
+   public <T> T use(final T x, final Monoid<T> monoid) {
+      return (T)monoid.op(x, x);// 27 28
+   }
+
+   public void user() {
+      .MODULE$.print(this.use(BoxesRunTime.boxToInteger(3), this.am()));// 31 32
+      .MODULE$.print(this.use("hia", this.cm()));// 33
+   }
+}
+
+class 'pkg/TestImplicits' {
+   method 'am ()Lpkg/AddMonoid$;' {
+      0      7
+      1      7
+      2      7
+      3      7
+   }
+
+   method 'cm ()Lpkg/ConcatMonoid$;' {
+      0      11
+      1      11
+      2      11
+      3      11
+   }
+
+   method 'use (Ljava/lang/Object;Lpkg/Monoid;)Ljava/lang/Object;' {
+      0      15
+      1      15
+      2      15
+      3      15
+      4      15
+      5      15
+      6      15
+      7      15
+      8      15
+   }
+
+   method 'user ()V' {
+      0      19
+      1      19
+      2      19
+      3      19
+      4      19
+      5      19
+      6      19
+      7      19
+      8      19
+      9      19
+      a      19
+      b      19
+      c      19
+      d      19
+      e      19
+      f      19
+      10      19
+      11      19
+      12      20
+      13      20
+      14      20
+      15      20
+      16      20
+      17      20
+      18      20
+      19      20
+      1a      20
+      1b      20
+      1c      20
+      1d      20
+      1e      20
+      1f      20
+      20      20
+      21      20
+      22      21
+   }
+}
+
+Lines mapping:
+24 <-> 8
+25 <-> 12
+27 <-> 16
+28 <-> 16
+31 <-> 20
+32 <-> 20
+33 <-> 21
+
+// Decompiled companion from pkg/AddMonoid
+package pkg;
+
+public final class AddMonoid {
+   public static int id() {
+      return AddMonoid$.MODULE$.id();
+   }
+
+   public static int op(int var0, int var1) {
+      return AddMonoid$.MODULE$.op(var0, var1);
+   }
+}
+
+class 'pkg/AddMonoid' {
+   method 'id ()I' {
+      0      4
+      1      4
+      2      4
+      3      4
+      4      4
+      5      4
+      6      4
+   }
+
+   method 'op (II)I' {
+      0      8
+      1      8
+      2      8
+      3      8
+      4      8
+      5      8
+      6      8
+      7      8
+      8      8
+   }
+}
+
+Lines mapping:
+
+// Decompiled companion from pkg/AddMonoid$
+package pkg;
+
+import scala.runtime.ModuleSerializationProxy;
+
+public final class AddMonoid$ implements Monoid<Object>,  {
+   public static final AddMonoid$ MODULE$ = new AddMonoid$();
+
+   private AddMonoid$() {
+   }
+
+   private Object writeReplace() {
+      return new ModuleSerializationProxy(AddMonoid$.class);// 8
+   }
+
+   public int op(final int x, final int y) {
+      return x + y;// 9
+   }
+
+   public int id() {
+      return 0;// 10
+   }
+}
+
+class 'pkg/AddMonoid$' {
+   method '<init> ()V' {
+      4      8
+   }
+
+   method 'writeReplace ()Ljava/lang/Object;' {
+      4      11
+      5      11
+      9      11
+   }
+
+   method 'op (II)I' {
+      0      15
+      1      15
+      2      15
+      3      15
+   }
+
+   method 'id ()I' {
+      0      19
+      1      19
+   }
+}
+
+Lines mapping:
+8 <-> 12
+9 <-> 16
+10 <-> 20
+
+// Decompiled companion from pkg/MulMonoid
+package pkg;
+
+public final class MulMonoid {
+   public static int id() {
+      return MulMonoid$.MODULE$.id();
+   }
+
+   public static int op(int var0, int var1) {
+      return MulMonoid$.MODULE$.op(var0, var1);
+   }
+}
+
+class 'pkg/MulMonoid' {
+   method 'id ()I' {
+      0      4
+      1      4
+      2      4
+      3      4
+      4      4
+      5      4
+      6      4
+   }
+
+   method 'op (II)I' {
+      0      8
+      1      8
+      2      8
+      3      8
+      4      8
+      5      8
+      6      8
+      7      8
+      8      8
+   }
+}
+
+Lines mapping:
+
+// Decompiled companion from pkg/MulMonoid$
+package pkg;
+
+import scala.runtime.ModuleSerializationProxy;
+
+public final class MulMonoid$ implements Monoid<Object>,  {
+   public static final MulMonoid$ MODULE$ = new MulMonoid$();
+
+   private MulMonoid$() {
+   }
+
+   private Object writeReplace() {
+      return new ModuleSerializationProxy(MulMonoid$.class);// 13
+   }
+
+   public int op(final int x, final int y) {
+      return x * y;// 14
+   }
+
+   public int id() {
+      return 1;// 15
+   }
+}
+
+class 'pkg/MulMonoid$' {
+   method '<init> ()V' {
+      4      8
+   }
+
+   method 'writeReplace ()Ljava/lang/Object;' {
+      4      11
+      5      11
+      9      11
+   }
+
+   method 'op (II)I' {
+      0      15
+      1      15
+      2      15
+      3      15
+   }
+
+   method 'id ()I' {
+      0      19
+      1      19
+   }
+}
+
+Lines mapping:
+13 <-> 12
+14 <-> 16
+15 <-> 20
+
+// Decompiled companion from pkg/ConcatMonoid
+package pkg;
+
+public final class ConcatMonoid {
+   public static String id() {
+      return ConcatMonoid$.MODULE$.id();
+   }
+
+   public static String op(String var0, String var1) {
+      return ConcatMonoid$.MODULE$.op(var0, var1);
+   }
+}
+
+class 'pkg/ConcatMonoid' {
+   method 'id ()Ljava/lang/String;' {
+      0      4
+      1      4
+      2      4
+      3      4
+      4      4
+      5      4
+      6      4
+   }
+
+   method 'op (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;' {
+      0      8
+      1      8
+      2      8
+      3      8
+      4      8
+      5      8
+      6      8
+      7      8
+      8      8
+   }
+}
+
+Lines mapping:
+
+// Decompiled companion from pkg/ConcatMonoid$
+package pkg;
+
+import scala.collection.StringOps.;
+import scala.runtime.ModuleSerializationProxy;
+
+public final class ConcatMonoid$ implements Monoid<String>,  {
+   public static final ConcatMonoid$ MODULE$ = new ConcatMonoid$();
+
+   private ConcatMonoid$() {
+   }
+
+   private Object writeReplace() {
+      return new ModuleSerializationProxy(ConcatMonoid$.class);// 18
+   }
+
+   public String op(final String x, final String y) {
+      return .MODULE$.$plus$plus$extension(scala.Predef..MODULE$.augmentString(x), y);// 19
+   }
+
+   public String id() {
+      return "";// 20
+   }
+}
+
+class 'pkg/ConcatMonoid$' {
+   method '<init> ()V' {
+      4      9
+   }
+
+   method 'writeReplace ()Ljava/lang/Object;' {
+      4      12
+      5      12
+      9      12
+   }
+
+   method 'op (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;' {
+      0      16
+      1      16
+      2      16
+      3      16
+      4      16
+      5      16
+      6      16
+      7      16
+      8      16
+      9      16
+      a      16
+      b      16
+      c      16
+      d      16
+      e      16
+   }
+
+   method 'id ()Ljava/lang/String;' {
+      0      20
+      1      20
+      2      20
+   }
+}
+
+Lines mapping:
+18 <-> 13
+19 <-> 17
+20 <-> 21
+
+// Decompiled companion from pkg/Monoid
+package pkg;
+
+public interface Monoid<T> {
+   T op(final T x, final T y);
+
+   T id();
+}

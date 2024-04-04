@@ -5,14 +5,26 @@ public class TestLoopMerging2 {
       int[] array = new int[256];// 5
       int i = 0;
 
-      while(i < 256) {
+      while (i < 256) {
          array[i] = i++;// 7 8
       }
 
-      for(int ix = 0; ix < 256; ++ix) {// 11
+      for (int ix = 0; ix < 256; ix++) {// 11
          System.out.println(array[ix]);// 12
       }
    }// 14
+
+   public static void testVarRef(String stringOne) {
+      while (stringOne.contains("a") || stringOne.contains("b")) {// 18
+         String stringTwo = "";// 21
+         int i = 1;// 22
+         if (i == -1) {// 23
+            stringTwo = "c";// 24
+         }
+
+         stringOne = stringOne.replaceFirst(stringTwo, "");// 26
+      }
+   }// 19
 }
 
 class 'pkg/TestLoopMerging2' {
@@ -55,6 +67,43 @@ class 'pkg/TestLoopMerging2' {
       2d      11
       31      14
    }
+
+   method 'testVarRef (Ljava/lang/String;)V' {
+      0      17
+      1      17
+      2      17
+      3      17
+      4      17
+      5      17
+      6      17
+      9      17
+      a      17
+      b      17
+      c      17
+      d      17
+      e      17
+      f      17
+      12      26
+      13      18
+      14      18
+      15      18
+      16      19
+      17      19
+      18      20
+      19      20
+      1a      20
+      1d      21
+      1e      21
+      1f      21
+      20      24
+      21      24
+      22      24
+      23      24
+      24      24
+      25      24
+      26      24
+      27      24
+   }
 }
 
 Lines mapping:
@@ -64,3 +113,12 @@ Lines mapping:
 11 <-> 12
 12 <-> 13
 14 <-> 15
+18 <-> 18
+19 <-> 27
+21 <-> 19
+22 <-> 20
+23 <-> 21
+24 <-> 22
+26 <-> 25
+Not mapped:
+27

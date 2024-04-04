@@ -3,6 +3,7 @@ package org.jetbrains.java.decompiler.main;
 
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
+import org.jetbrains.java.decompiler.main.decompiler.CancelationManager;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.rels.ClassWrapper;
@@ -16,6 +17,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructField;
 import org.jetbrains.java.decompiler.struct.StructMethod;
+import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
@@ -29,6 +31,8 @@ public final class InitializerProcessor {
       if (method != null && method.root != null) {  // successfully decompiled static constructor
         extractStaticInitializers(wrapper, method);
       }
+    } catch (CancelationManager.CanceledException e) {
+      throw e;
     } catch (Throwable t) {
       StructMethod mt = method.methodStruct;
       String message = "Method " + mt.getName() + " " + mt.getDescriptor() + " in class " + wrapper.getClassStruct().qualifiedName + " couldn't be written.";
@@ -112,7 +116,7 @@ public final class InitializerProcessor {
                 continue;
               }
               VarType type = invExpr.getDescriptor().params[i];
-              if (type.type == CodeConstants.TYPE_OBJECT) {
+              if (type.type == CodeType.OBJECT) {
                 ClassNode node = DecompilerContext.getClassProcessor().getMapRootClasses().get(type.value);
                 if (node != null && (node.type == ClassNode.Type.ANONYMOUS || (node.access & CodeConstants.ACC_SYNTHETIC) != 0)) {
                   break; // Should be last
@@ -142,7 +146,7 @@ public final class InitializerProcessor {
         MethodDescriptor md = MethodDescriptor.parseDescriptor(desc);
         if (md.params.length > 0) {
           VarType type = md.params[md.params.length - 1];
-          if (type.type == CodeConstants.TYPE_OBJECT) {
+          if (type.type == CodeType.OBJECT) {
             ClassNode node = DecompilerContext.getClassProcessor().getMapRootClasses().get(type.value);
             if (node != null && ((node.type == ClassNode.Type.ANONYMOUS) || (node.access & CodeConstants.ACC_SYNTHETIC) != 0)) {
               //TODO: Verify that the body is JUST a this([args]) call?
@@ -190,6 +194,8 @@ public final class InitializerProcessor {
         }
       }
 
+      List<FieldExprent> notInlined = new ArrayList<>();
+
       Iterator<Exprent> itr = firstData.getExprents().iterator();
       while (itr.hasNext()) {
         Exprent exprent = itr.next();
@@ -203,7 +209,7 @@ public final class InitializerProcessor {
 
               // interfaces fields should always be initialized inline
               String keyField = InterpreterUtil.makeUniqueKey(fExpr.getName(), fExpr.getDescriptor().descriptorString);
-              boolean exprentIndependent = isExprentIndependent(fExpr, assignExpr.getRight(), method, cl, whitelist, multiAssign, cl.getFields().getIndexByKey(keyField), true);
+              boolean exprentIndependent = isExprentIndependent(fExpr, assignExpr.getRight(), method, cl, whitelist, multiAssign, notInlined, cl.getFields().getIndexByKey(keyField), true);
               if (inlineInitializers || exprentIndependent) {
                 if (!wrapper.getStaticFieldInitializers().containsKey(keyField)) {
                   if (exprentIndependent) {
@@ -233,6 +239,8 @@ public final class InitializerProcessor {
                     }
                   }
                 }
+              } else {
+                notInlined.add(fExpr);
               }
             }
           } else if (inlineInitializers) {
@@ -324,7 +332,7 @@ public final class InitializerProcessor {
 
               String fieldKey = InterpreterUtil.makeUniqueKey(fExpr.getName(), fExpr.getDescriptor().descriptorString);
               int fidx = cl.getFields().getIndexByKey(fieldKey);
-              if (prev_fidx <= fidx && isExprentIndependent(fExpr, assignExpr.getRight(), lstMethodWrappers.get(i), cl, whitelist, new ArrayList<>() /* TODO */,  fidx, false)) {
+              if (prev_fidx <= fidx && isExprentIndependent(fExpr, assignExpr.getRight(), lstMethodWrappers.get(i), cl, whitelist, new ArrayList<>() /* TODO */, new ArrayList<>(),  fidx, false)) {
                 prev_fidx = fidx;
                 if (fieldWithDescr == null) {
                   fieldWithDescr = fieldKey;
@@ -402,10 +410,9 @@ public final class InitializerProcessor {
     return expr;
   }
 
-  private static boolean isExprentIndependent(FieldExprent field, Exprent exprent, MethodWrapper method, StructClass cl, Set<String> whitelist, List<String> multiAssign, int fidx, boolean isStatic) {
+  private static boolean isExprentIndependent(FieldExprent field, Exprent exprent, MethodWrapper method, StructClass cl, Set<String> whitelist, List<String> multiAssign, List<FieldExprent> notInlined, int fidx, boolean isStatic) {
     String keyField = InterpreterUtil.makeUniqueKey(field.getName(), field.getDescriptor().descriptorString);
-    List<Exprent> lst = exprent.getAllExprents(true);
-    lst.add(exprent);
+    List<Exprent> lst = exprent.getAllExprents(true, true);
 
     for (Exprent expr : lst) {
       switch (expr.type) {
@@ -420,6 +427,10 @@ public final class InitializerProcessor {
           break;
         case FIELD:
           FieldExprent fexpr = (FieldExprent)expr;
+          if (notInlined.contains(fexpr)) {
+            return false;
+          }
+
           if (cl.hasField(fexpr.getName(), fexpr.getDescriptor().descriptorString)) {
             String key = InterpreterUtil.makeUniqueKey(fexpr.getName(), fexpr.getDescriptor().descriptorString);
             if (isStatic) {
@@ -428,7 +439,6 @@ public final class InitializerProcessor {
                 return false;
               }
 
-              // There is a very stupid section of the JLS
               if (!fexpr.isStatic()) {
                 return false;
               } else if (cl.getFields().getIndexByKey(key) >= fidx) {

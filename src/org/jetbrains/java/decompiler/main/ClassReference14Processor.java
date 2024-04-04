@@ -14,10 +14,11 @@ import org.jetbrains.java.decompiler.modules.decompiler.stats.CatchStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.struct.StructField;
 import org.jetbrains.java.decompiler.struct.StructMethod;
+import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
-import org.jetbrains.java.decompiler.util.VBStyleCollection;
+import org.jetbrains.java.decompiler.util.collections.VBStyleCollection;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -42,7 +43,7 @@ public final class ClassReference14Processor {
     ctor.setStringDescriptor("()V");
     ctor.setFunctype(InvocationExprent.Type.INIT);
     ctor.setDescriptor(MethodDescriptor.parseDescriptor("()V"));
-    NewExprent newExpr = new NewExprent(new VarType(CodeConstants.TYPE_OBJECT, 0, "java/lang/NoClassDefFoundError"), new ArrayList<>(), null);
+    NewExprent newExpr = new NewExprent(new VarType(CodeType.OBJECT, 0, "java/lang/NoClassDefFoundError"), new ArrayList<>(), null);
     newExpr.setConstructor(ctor);
     InvocationExprent invCause = new InvocationExprent();
     invCause.setName("initCause");
@@ -51,7 +52,7 @@ public final class ClassReference14Processor {
     invCause.setDescriptor(MethodDescriptor.parseDescriptor("(Ljava/lang/Throwable;)Ljava/lang/Throwable;"));
     invCause.setInstance(newExpr);
     invCause.setLstParameters(
-      Collections.singletonList(new VarExprent(2, new VarType(CodeConstants.TYPE_OBJECT, 0, "java/lang/ClassNotFoundException"), null)));
+      Collections.singletonList(new VarExprent(2, new VarType(CodeType.OBJECT, 0, "java/lang/ClassNotFoundException"), null)));
     HANDLER_EXPR = new ExitExprent(ExitExprent.Type.THROW, invCause, null, null, null);
   }
 
@@ -137,7 +138,7 @@ public final class ClassReference14Processor {
           CatchStatement cst = (CatchStatement)root.getFirst();
           if (cst.getStats().size() == 2 && cst.getFirst() instanceof BasicBlockStatement &&
               cst.getStats().get(1) instanceof BasicBlockStatement &&
-              cst.getVars().get(0).getVarType().equals(new VarType(CodeConstants.TYPE_OBJECT, 0, "java/lang/ClassNotFoundException"))) {
+              cst.getVars().get(0).getVarType().equals(new VarType(CodeType.OBJECT, 0, "java/lang/ClassNotFoundException"))) {
 
             BasicBlockStatement body = (BasicBlockStatement)cst.getFirst();
             BasicBlockStatement handler = (BasicBlockStatement)cst.getStats().get(1);

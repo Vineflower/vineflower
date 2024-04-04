@@ -101,7 +101,7 @@ public class TestTryWithResourcesReturnJ16 {
             try (Scanner s = this.create(f3)) {// 50
                scanner.next();// 51
 
-               for(int i = 0; i < s.nextInt(); ++i) {// 53
+               for (int i = 0; i < s.nextInt(); i++) {// 53
                   System.out.println(i);// 54
                }
 

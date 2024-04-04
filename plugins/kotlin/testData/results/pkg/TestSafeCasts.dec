@@ -1,0 +1,268 @@
+package pkg
+
+class TestSafeCasts {
+   public fun test(obj: Any): Boolean {
+      var t: Int = obj as? Integer;// 5
+      if ((obj as? Integer) != null) {// 7
+         if (t == 1) {
+            return true;
+         }
+      }
+
+      return false;
+   }
+
+   public fun testTestBefore(obj: Any): Boolean? {
+      if (obj !is Integer) {// 11
+         return null;// 12
+      } else {
+         var t: Int = obj as? Integer;// 15
+         if ((obj as? Integer) != null) {// 17
+            if (t == 1) {
+               return true;
+            }
+         }
+
+         return false;
+      }
+   }
+
+   public fun testHardIncompatible(obj: Int): Boolean {
+      return (obj as? java.lang.String) == "1";// 21 23
+   }
+
+   public fun testSmartCastIncompatible(obj: Any): Boolean {
+      return obj is Integer && (obj as? java.lang.String) == "1";// 27 31 33
+   }
+
+   public fun testCastNonNullToNullable(obj: Any): Boolean {
+      var t: Int = obj as? Integer;// 37
+      if ((obj as? Integer) != null) {// 39
+         if (t == 1) {
+            return true;
+         }
+      }
+
+      return false;
+   }
+
+   public fun testBeforeNonNullToNullable(obj: Any): Boolean? {
+      if (obj !is Integer) {// 43
+         return null;// 44
+      } else {
+         var t: Int = obj as? Integer;// 47
+         if ((obj as? Integer) != null) {// 49
+            if (t == 1) {
+               return true;
+            }
+         }
+
+         return false;
+      }
+   }
+
+   public fun testCastNullableToNullable(obj: Any?): Boolean {
+      var t: Int = obj as? Integer;// 53
+      if ((obj as? Integer) != null) {// 55
+         if (t == 1) {
+            return true;
+         }
+      }
+
+      return false;
+   }
+
+   public fun testBeforeNullableToNullable(obj: Any?): Boolean? {
+      if (obj != null && obj !is Integer) {// 59
+         return null;// 60
+      } else {
+         var t: Int = obj as? Integer;// 63
+         if ((obj as? Integer) != null) {// 65
+            if (t == 1) {
+               return true;
+            }
+         }
+
+         return false;
+      }
+   }
+}
+
+class 'pkg/TestSafeCasts' {
+   method 'test (Ljava/lang/Object;)Z' {
+      a      4
+      d      4
+      15      4
+      16      5
+      17      6
+      1a      5
+      21      6
+      22      6
+      23      6
+      24      6
+      25      6
+      28      7
+      2c      11
+      2d      7
+   }
+
+   method 'testTestBefore (Ljava/lang/Object;)Ljava/lang/Boolean;' {
+      6      15
+      a      15
+      d      16
+      e      16
+      13      18
+      16      18
+      1e      18
+      1f      19
+      20      20
+      23      19
+      2a      20
+      2b      20
+      2c      20
+      2d      20
+      2e      20
+      31      21
+      35      25
+      36      21
+      37      21
+      38      21
+      39      21
+   }
+
+   method 'testHardIncompatible (I)Z' {
+      7      30
+      a      30
+      b      30
+      c      30
+      d      30
+      16      30
+      17      30
+      18      30
+      1c      30
+   }
+
+   method 'testSmartCastIncompatible (Ljava/lang/Object;)Z' {
+      6      34
+      7      34
+      8      34
+      9      34
+      a      34
+      13      34
+      16      34
+      1f      34
+      20      34
+      21      34
+   }
+
+   method 'testCastNonNullToNullable (Ljava/lang/Object;)Z' {
+      a      38
+      d      38
+      15      38
+      16      39
+      17      40
+      1a      39
+      21      40
+      22      40
+      23      40
+      24      40
+      25      40
+      28      41
+      2c      45
+      2d      41
+   }
+
+   method 'testBeforeNonNullToNullable (Ljava/lang/Object;)Ljava/lang/Boolean;' {
+      6      49
+      a      49
+      d      50
+      e      50
+      13      52
+      16      52
+      1e      52
+      1f      53
+      20      54
+      23      53
+      2a      54
+      2b      54
+      2c      54
+      2d      54
+      2e      54
+      31      55
+      35      59
+      36      55
+      37      55
+      38      55
+      39      55
+   }
+
+   method 'testCastNullableToNullable (Ljava/lang/Object;)Z' {
+      4      64
+      7      64
+      f      64
+      10      65
+      11      66
+      14      65
+      1b      66
+      1c      66
+      1d      66
+      1e      66
+      1f      66
+      22      67
+      26      71
+      27      67
+   }
+
+   method 'testBeforeNullableToNullable (Ljava/lang/Object;)Ljava/lang/Boolean;' {
+      0      75
+      2      75
+      a      75
+      d      75
+      10      76
+      11      76
+      16      78
+      19      78
+      21      78
+      22      79
+      23      80
+      26      79
+      2d      80
+      2e      80
+      2f      80
+      30      80
+      31      80
+      34      81
+      38      85
+      39      81
+      3a      81
+      3b      81
+      3c      81
+   }
+}
+
+Lines mapping:
+5 <-> 5
+7 <-> 6
+11 <-> 16
+12 <-> 17
+15 <-> 19
+17 <-> 20
+21 <-> 31
+23 <-> 31
+27 <-> 35
+31 <-> 35
+33 <-> 35
+37 <-> 39
+39 <-> 40
+43 <-> 50
+44 <-> 51
+47 <-> 53
+49 <-> 54
+53 <-> 65
+55 <-> 66
+59 <-> 76
+60 <-> 77
+63 <-> 79
+65 <-> 80
+Not mapped:
+28

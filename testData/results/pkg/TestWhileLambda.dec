@@ -1,0 +1,39 @@
+package pkg;
+
+import java.util.function.Supplier;
+
+public class TestWhileLambda {
+   public void test() {
+      Object o = new Object();// 7
+
+      while (o != null) {// 8
+         Object o2 = new Object();// 9
+         Supplier var3 = () -> o2;// 10
+      }
+   }// 12
+}
+
+class 'pkg/TestWhileLambda' {
+   method 'test ()V' {
+      7      6
+      8      8
+      9      8
+      13      9
+      1a      10
+      1e      12
+   }
+
+   method 'lambda$test$0 (Ljava/lang/Object;)Ljava/lang/Object;' {
+      0      10
+      1      10
+   }
+}
+
+Lines mapping:
+7 <-> 7
+8 <-> 9
+9 <-> 10
+10 <-> 11
+12 <-> 13
+Not mapped:
+11

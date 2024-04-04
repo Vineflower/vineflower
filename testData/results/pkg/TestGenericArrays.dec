@@ -1,0 +1,40 @@
+package pkg;
+
+public class TestGenericArrays<T extends Number> {
+   public final T[] arr;
+   public final T[][] multi;
+
+   public TestGenericArrays(int i) {
+      this.arr = (T[])(new Number[i]);// 8
+      this.multi = (T[][])(new Number[i][]);// 9
+   }// 10
+}
+
+class 'pkg/TestGenericArrays' {
+   method '<init> (I)V' {
+      4      7
+      5      7
+      9      7
+      a      7
+      b      7
+      c      7
+      d      7
+      e      7
+      f      8
+      10      8
+      14      8
+      15      8
+      16      8
+      17      8
+      18      8
+      19      8
+      1a      9
+   }
+}
+
+Lines mapping:
+8 <-> 8
+9 <-> 9
+10 <-> 10
+Not mapped:
+7

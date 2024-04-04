@@ -1,0 +1,43 @@
+package pkg
+
+sealed class TestSealedHierarchy protected constructor() {
+   class TestClass(x: Int) : TestSealedHierarchy() {// 5
+      public final val x: Int
+
+      init {
+         this.x = x;
+      }
+   }
+
+   object TestObject private constructor() : TestSealedHierarchy() {// 4
+      @JvmStatic
+      public TestSealedHierarchy.TestObject INSTANCE = new TestSealedHierarchy.TestObject();
+
+   }
+}
+
+class 'pkg/TestSealedHierarchy$TestClass' {
+   method '<init> (I)V' {
+      2      3
+      3      3
+      4      3
+      5      7
+      6      7
+      7      7
+      8      7
+      9      7
+      a      8
+   }
+}
+
+class 'pkg/TestSealedHierarchy$TestObject' {
+   method '<init> ()V' {
+      2      11
+      3      11
+      4      11
+   }
+}
+
+Lines mapping:
+4 <-> 12
+5 <-> 4

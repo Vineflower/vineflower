@@ -4,38 +4,40 @@ package org.jetbrains.java.decompiler.struct.gen;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.code.CodeConstants;
-import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 
-public class VarType {  // TODO: optimize switch
+public class VarType {
 
   public static final VarType[] EMPTY_ARRAY = {};
 
-  public static final VarType VARTYPE_UNKNOWN = new VarType(CodeConstants.TYPE_UNKNOWN);
-  public static final VarType VARTYPE_INT = new VarType(CodeConstants.TYPE_INT);
-  public static final VarType VARTYPE_FLOAT = new VarType(CodeConstants.TYPE_FLOAT);
-  public static final VarType VARTYPE_LONG = new VarType(CodeConstants.TYPE_LONG);
-  public static final VarType VARTYPE_DOUBLE = new VarType(CodeConstants.TYPE_DOUBLE);
-  public static final VarType VARTYPE_BYTE = new VarType(CodeConstants.TYPE_BYTE);
-  public static final VarType VARTYPE_CHAR = new VarType(CodeConstants.TYPE_CHAR);
-  public static final VarType VARTYPE_SHORT = new VarType(CodeConstants.TYPE_SHORT);
-  public static final VarType VARTYPE_BOOLEAN = new VarType(CodeConstants.TYPE_BOOLEAN);
-  public static final VarType VARTYPE_BYTECHAR = new VarType(CodeConstants.TYPE_BYTECHAR);
-  public static final VarType VARTYPE_SHORTCHAR = new VarType(CodeConstants.TYPE_SHORTCHAR);
+  public static final VarType VARTYPE_UNKNOWN = new VarType(CodeType.UNKNOWN);
+  public static final VarType VARTYPE_INT = new VarType(CodeType.INT);
+  public static final VarType VARTYPE_FLOAT = new VarType(CodeType.FLOAT);
+  public static final VarType VARTYPE_LONG = new VarType(CodeType.LONG);
+  public static final VarType VARTYPE_DOUBLE = new VarType(CodeType.DOUBLE);
+  public static final VarType VARTYPE_BYTE = new VarType(CodeType.BYTE);
+  public static final VarType VARTYPE_CHAR = new VarType(CodeType.CHAR);
+  public static final VarType VARTYPE_SHORT = new VarType(CodeType.SHORT);
+  public static final VarType VARTYPE_BOOLEAN = new VarType(CodeType.BOOLEAN);
+  public static final VarType VARTYPE_BYTECHAR = new VarType(CodeType.BYTECHAR);
+  public static final VarType VARTYPE_SHORTCHAR = new VarType(CodeType.SHORTCHAR);
 
-  public static final VarType VARTYPE_NULL = new VarType(CodeConstants.TYPE_NULL, 0, null);
-  public static final VarType VARTYPE_STRING = new VarType(CodeConstants.TYPE_OBJECT, 0, "java/lang/String");
-  public static final VarType VARTYPE_CLASS = new VarType(CodeConstants.TYPE_OBJECT, 0, "java/lang/Class");
-  public static final VarType VARTYPE_OBJECT = new VarType(CodeConstants.TYPE_OBJECT, 0, "java/lang/Object");
-  public static final VarType VARTYPE_INTEGER = new VarType(CodeConstants.TYPE_OBJECT, 0, "java/lang/Integer");
-  public static final VarType VARTYPE_CHARACTER = new VarType(CodeConstants.TYPE_OBJECT, 0, "java/lang/Character");
-  public static final VarType VARTYPE_BYTE_OBJ = new VarType(CodeConstants.TYPE_OBJECT, 0, "java/lang/Byte");
-  public static final VarType VARTYPE_SHORT_OBJ = new VarType(CodeConstants.TYPE_OBJECT, 0, "java/lang/Short");
-  public static final VarType VARTYPE_BOOLEAN_OBJ = new VarType(CodeConstants.TYPE_OBJECT, 0, "java/lang/Boolean");
-  public static final VarType VARTYPE_FLOAT_OBJ = new VarType(CodeConstants.TYPE_OBJECT, 0, "java/lang/Float");
-  public static final VarType VARTYPE_DOUBLE_OBJ = new VarType(CodeConstants.TYPE_OBJECT, 0, "java/lang/Double");
-  public static final VarType VARTYPE_VOID = new VarType(CodeConstants.TYPE_VOID);
+  public static final VarType VARTYPE_NULL = new VarType(CodeType.NULL, 0, null);
+  public static final VarType VARTYPE_STRING = new VarType(CodeType.OBJECT, 0, "java/lang/String");
+  public static final VarType VARTYPE_CLASS = new VarType(CodeType.OBJECT, 0, "java/lang/Class");
+  public static final VarType VARTYPE_OBJECT = new VarType(CodeType.OBJECT, 0, "java/lang/Object");
+  public static final VarType VARTYPE_INTEGER = new VarType(CodeType.OBJECT, 0, "java/lang/Integer");
+  public static final VarType VARTYPE_CHARACTER = new VarType(CodeType.OBJECT, 0, "java/lang/Character");
+  public static final VarType VARTYPE_BYTE_OBJ = new VarType(CodeType.OBJECT, 0, "java/lang/Byte");
+  public static final VarType VARTYPE_SHORT_OBJ = new VarType(CodeType.OBJECT, 0, "java/lang/Short");
+  public static final VarType VARTYPE_BOOLEAN_OBJ = new VarType(CodeType.OBJECT, 0, "java/lang/Boolean");
+  public static final VarType VARTYPE_FLOAT_OBJ = new VarType(CodeType.OBJECT, 0, "java/lang/Float");
+  public static final VarType VARTYPE_DOUBLE_OBJ = new VarType(CodeType.OBJECT, 0, "java/lang/Double");
+  public static final VarType VARTYPE_LONG_OBJ = new VarType(CodeType.OBJECT, 0, "java/lang/Long");
+  public static final VarType VARTYPE_VOID = new VarType(CodeType.VOID);
 
   public static final Map<VarType, VarType> UNBOXING_TYPES = new HashMap<>();
 
@@ -47,34 +49,33 @@ public class VarType {  // TODO: optimize switch
     UNBOXING_TYPES.put(VARTYPE_BOOLEAN_OBJ, VARTYPE_BOOLEAN);
     UNBOXING_TYPES.put(VARTYPE_FLOAT_OBJ, VARTYPE_FLOAT);
     UNBOXING_TYPES.put(VARTYPE_DOUBLE_OBJ, VARTYPE_DOUBLE);
+    UNBOXING_TYPES.put(VARTYPE_LONG_OBJ, VARTYPE_LONG);
   }
 
-  public final int type;
+  public final @NotNull CodeType type;
   public final int arrayDim;
-  public final String value;
-  public final int typeFamily;
+  public final @Nullable String value;
+  public final @NotNull TypeFamily typeFamily;
   public final int stackSize;
-  public final boolean falseBoolean;
 
-  public VarType(int type) {
+  public VarType(CodeType type) {
     this(type, 0);
   }
 
-  public VarType(int type, int arrayDim) {
+  public VarType(CodeType type, int arrayDim) {
     this(type, arrayDim, getChar(type));
   }
 
-  public VarType(int type, int arrayDim, String value) {
-    this(type, arrayDim, value, getFamily(type, arrayDim), getStackSize(type, arrayDim), false);
+  public VarType(CodeType type, int arrayDim, String value) {
+    this(type, arrayDim, value, getFamily(type, arrayDim), getStackSize(type, arrayDim));
   }
 
-  protected VarType(int type, int arrayDim, String value, int typeFamily, int stackSize, boolean falseBoolean) {
+  protected VarType(CodeType type, int arrayDim, String value, @NotNull TypeFamily typeFamily, int stackSize) {
     this.type = type;
     this.arrayDim = arrayDim;
     this.value = value;
     this.typeFamily = typeFamily;
     this.stackSize = stackSize;
-    this.falseBoolean = falseBoolean;
   }
 
   public VarType(String signature) {
@@ -82,7 +83,7 @@ public class VarType {  // TODO: optimize switch
   }
 
   public VarType(String signature, boolean clType) {
-    int type = 0;
+    CodeType type = CodeType.BYTE; // TODO: should be null!
     int arrayDim = 0;
     String value = null;
 
@@ -95,7 +96,7 @@ public class VarType {  // TODO: optimize switch
 
         case 'L':
           if (signature.charAt(signature.length() - 1) == ';') {
-            type = CodeConstants.TYPE_OBJECT;
+            type = CodeType.OBJECT;
             value = signature.substring(i + 1, signature.length() - 1);
             break loop;
           }
@@ -103,7 +104,7 @@ public class VarType {  // TODO: optimize switch
         default:
           value = signature.substring(i);
           if ((clType && i == 0) || value.length() > 1) {
-            type = CodeConstants.TYPE_OBJECT;
+            type = CodeType.OBJECT;
           }
           else {
             type = getType(value.charAt(0));
@@ -117,92 +118,91 @@ public class VarType {  // TODO: optimize switch
     this.value = value;
     this.typeFamily = getFamily(type, arrayDim);
     this.stackSize = getStackSize(type, arrayDim);
-    this.falseBoolean = false;
   }
 
-  private static String getChar(int type) {
+  public static String getChar(CodeType type) {
     switch (type) {
-      case CodeConstants.TYPE_BYTE:
+      case BYTE:
         return "B";
-      case CodeConstants.TYPE_CHAR:
+      case CHAR:
         return "C";
-      case CodeConstants.TYPE_DOUBLE:
+      case DOUBLE:
         return "D";
-      case CodeConstants.TYPE_FLOAT:
+      case FLOAT:
         return "F";
-      case CodeConstants.TYPE_INT:
+      case INT:
         return "I";
-      case CodeConstants.TYPE_LONG:
+      case LONG:
         return "J";
-      case CodeConstants.TYPE_SHORT:
+      case SHORT:
         return "S";
-      case CodeConstants.TYPE_BOOLEAN:
+      case BOOLEAN:
         return "Z";
-      case CodeConstants.TYPE_VOID:
+      case VOID:
         return "V";
-      case CodeConstants.TYPE_GROUP2EMPTY:
+      case GROUP2EMPTY:
         return "G";
-      case CodeConstants.TYPE_NOTINITIALIZED:
+      case NOTINITIALIZED:
         return "N";
-      case CodeConstants.TYPE_ADDRESS:
+      case ADDRESS:
         return "A";
-      case CodeConstants.TYPE_BYTECHAR:
+      case BYTECHAR:
         return "X";
-      case CodeConstants.TYPE_SHORTCHAR:
+      case SHORTCHAR:
         return "Y";
-      case CodeConstants.TYPE_UNKNOWN:
+      case UNKNOWN:
         return "U";
-      case CodeConstants.TYPE_NULL:
-      case CodeConstants.TYPE_OBJECT:
+      case NULL:
+      case OBJECT:
         return null;
       default:
         throw new RuntimeException("Invalid type");
     }
   }
 
-  protected static int getStackSize(int type, int arrayDim) {
+  protected static int getStackSize(CodeType type, int arrayDim) {
     if (arrayDim > 0) {
       return 1;
     }
 
     switch (type) {
-      case CodeConstants.TYPE_DOUBLE:
-      case CodeConstants.TYPE_LONG:
+      case DOUBLE:
+      case LONG:
         return 2;
-      case CodeConstants.TYPE_VOID:
-      case CodeConstants.TYPE_GROUP2EMPTY:
+      case VOID:
+      case GROUP2EMPTY:
         return 0;
       default:
         return 1;
     }
   }
 
-  protected static int getFamily(int type, int arrayDim) {
+  protected static TypeFamily getFamily(CodeType type, int arrayDim) {
     if (arrayDim > 0) {
-      return CodeConstants.TYPE_FAMILY_OBJECT;
+      return TypeFamily.OBJECT;
     }
 
     switch (type) {
-      case CodeConstants.TYPE_BYTE:
-      case CodeConstants.TYPE_BYTECHAR:
-      case CodeConstants.TYPE_SHORTCHAR:
-      case CodeConstants.TYPE_CHAR:
-      case CodeConstants.TYPE_SHORT:
-      case CodeConstants.TYPE_INT:
-        return CodeConstants.TYPE_FAMILY_INTEGER;
-      case CodeConstants.TYPE_DOUBLE:
-        return CodeConstants.TYPE_FAMILY_DOUBLE;
-      case CodeConstants.TYPE_FLOAT:
-        return CodeConstants.TYPE_FAMILY_FLOAT;
-      case CodeConstants.TYPE_LONG:
-        return CodeConstants.TYPE_FAMILY_LONG;
-      case CodeConstants.TYPE_BOOLEAN:
-        return CodeConstants.TYPE_FAMILY_BOOLEAN;
-      case CodeConstants.TYPE_NULL:
-      case CodeConstants.TYPE_OBJECT:
-        return CodeConstants.TYPE_FAMILY_OBJECT;
+      case BYTE:
+      case BYTECHAR:
+      case SHORTCHAR:
+      case CHAR:
+      case SHORT:
+      case INT:
+        return TypeFamily.INTEGER;
+      case DOUBLE:
+        return TypeFamily.DOUBLE;
+      case FLOAT:
+        return TypeFamily.FLOAT;
+      case LONG:
+        return TypeFamily.LONG;
+      case BOOLEAN:
+        return TypeFamily.BOOLEAN;
+      case NULL:
+      case OBJECT:
+        return TypeFamily.OBJECT;
       default:
-        return CodeConstants.TYPE_FAMILY_UNKNOWN;
+        return TypeFamily.UNKNOWN;
     }
   }
 
@@ -217,19 +217,7 @@ public class VarType {  // TODO: optimize switch
   }
 
   public VarType resizeArrayDim(int newArrayDim) {
-    return new VarType(type, newArrayDim, value, typeFamily, stackSize, falseBoolean);
-  }
-
-  public VarType copy() {
-    return copy(false);
-  }
-
-  public VarType copy(boolean forceFalseBoolean) {
-    return new VarType(type, arrayDim, value, typeFamily, stackSize, falseBoolean || forceFalseBoolean);
-  }
-
-  public boolean isFalseBoolean() {
-    return falseBoolean;
+    return new VarType(type, newArrayDim, value, typeFamily, stackSize);
   }
 
   public boolean isSuperset(VarType val) {
@@ -237,9 +225,9 @@ public class VarType {  // TODO: optimize switch
   }
 
   public boolean isStrictSuperset(VarType val) {
-    int valType = val.type;
+    CodeType valType = val.type;
 
-    if (valType == CodeConstants.TYPE_UNKNOWN && type != CodeConstants.TYPE_UNKNOWN) {
+    if (valType == CodeType.UNKNOWN && type != CodeType.UNKNOWN) {
       return true;
     }
 
@@ -247,31 +235,30 @@ public class VarType {  // TODO: optimize switch
       return this.equals(VARTYPE_OBJECT);
     }
     else if (arrayDim > 0) {
-      return (valType == CodeConstants.TYPE_NULL);
+      return (valType == CodeType.NULL);
     }
 
     boolean res = false;
 
     switch (type) {
-      case CodeConstants.TYPE_INT:
-        res = (valType == CodeConstants.TYPE_SHORT || valType == CodeConstants.TYPE_CHAR);
-      case CodeConstants.TYPE_SHORT:
-        res |= (valType == CodeConstants.TYPE_BYTE);
-      case CodeConstants.TYPE_CHAR:
-        res |= (valType == CodeConstants.TYPE_SHORTCHAR);
-      case CodeConstants.TYPE_BYTE:
-      case CodeConstants.TYPE_SHORTCHAR:
-        res |= (valType == CodeConstants.TYPE_BYTECHAR);
-      case CodeConstants.TYPE_BYTECHAR:
-        res |= (valType == CodeConstants.TYPE_BOOLEAN);
+      case INT:
+        res = (valType == CodeType.SHORT || valType == CodeType.CHAR);
+      case SHORT:
+        res |= (valType == CodeType.BYTE);
+      case CHAR:
+        res |= (valType == CodeType.SHORTCHAR);
+      case BYTE:
+      case SHORTCHAR:
+        res |= (valType == CodeType.BYTECHAR);
+      case BYTECHAR:
+        res |= (valType == CodeType.BOOLEAN);
         break;
 
-      case CodeConstants.TYPE_OBJECT:
-        if (valType == CodeConstants.TYPE_NULL) {
+      case OBJECT:
+        if (valType == CodeType.NULL) {
           return true;
-        }
-        else if (this.equals(VARTYPE_OBJECT)) {
-          return valType == CodeConstants.TYPE_OBJECT && !val.equals(VARTYPE_OBJECT);
+        } else if (this.equals(VARTYPE_OBJECT)) {
+          return valType == CodeType.OBJECT && !val.equals(VARTYPE_OBJECT);
         }
     }
 
@@ -281,7 +268,7 @@ public class VarType {  // TODO: optimize switch
   @Override
   public int hashCode() {
     int result = 1;
-    result = 37 * result + type;
+    result = 37 * result + type.ordinal();
     result = 37 * result + arrayDim;
     result = 37 * result + (value == null ? 0 : value.hashCode());
     return result;
@@ -307,21 +294,18 @@ public class VarType {  // TODO: optimize switch
     for (int i = 0; i < arrayDim; i++) {
       res.append('[');
     }
-    if (type == CodeConstants.TYPE_OBJECT) {
+    if (type == CodeType.OBJECT) {
       res.append('L').append(value).append(';');
     }
     else {
-      res.append(value);
+      res.append(value == null ? "--null--" : value);
     }
     return res.toString();
   }
 
   // type1 and type2 must not be null
-  public static VarType getCommonMinType(VarType type1, VarType type2) {
-    if (type1.type == CodeConstants.TYPE_BOOLEAN && type2.type == CodeConstants.TYPE_BOOLEAN) { // special case booleans
-      return type1.isFalseBoolean() ? type2 : type1;
-    }
-
+  // Result should be the intersection of both types
+  public static @Nullable VarType getCommonMinType(VarType type1, VarType type2) {
     if (type1.isSuperset(type2)) {
       return type2;
     }
@@ -330,15 +314,15 @@ public class VarType {  // TODO: optimize switch
     }
     else if (type1.typeFamily == type2.typeFamily) {
       switch (type1.typeFamily) {
-        case CodeConstants.TYPE_FAMILY_INTEGER:
-          if ((type1.type == CodeConstants.TYPE_CHAR && type2.type == CodeConstants.TYPE_SHORT)
-              || (type1.type == CodeConstants.TYPE_SHORT && type2.type == CodeConstants.TYPE_CHAR)) {
+        case INTEGER:
+          if ((type1.type == CodeType.CHAR && type2.type == CodeType.SHORT)
+              || (type1.type == CodeType.SHORT && type2.type == CodeType.CHAR)) {
             return VARTYPE_SHORTCHAR;
           }
           else {
             return VARTYPE_BYTECHAR;
           }
-        case CodeConstants.TYPE_FAMILY_OBJECT:
+        case OBJECT:
           return VARTYPE_NULL;
       }
     }
@@ -347,11 +331,8 @@ public class VarType {  // TODO: optimize switch
   }
 
   // type1 and type2 must not be null
-  public static VarType getCommonSupertype(VarType type1, VarType type2) {
-    if (type1.type == CodeConstants.TYPE_BOOLEAN && type2.type == CodeConstants.TYPE_BOOLEAN) { // special case booleans
-      return type1.isFalseBoolean() ? type1 : type2;
-    }
-
+  // Result should be the union of both types
+  public static @Nullable VarType getCommonSupertype(VarType type1, VarType type2) {
     if (type1.isSuperset(type2)) {
       return type1;
     }
@@ -360,15 +341,15 @@ public class VarType {  // TODO: optimize switch
     }
     else if (type1.typeFamily == type2.typeFamily) {
       switch (type1.typeFamily) {
-        case CodeConstants.TYPE_FAMILY_INTEGER:
-          if ((type1.type == CodeConstants.TYPE_SHORTCHAR && type2.type == CodeConstants.TYPE_BYTE)
-              || (type1.type == CodeConstants.TYPE_BYTE && type2.type == CodeConstants.TYPE_SHORTCHAR)) {
+        case INTEGER:
+          if ((type1.type == CodeType.SHORTCHAR && type2.type == CodeType.BYTE)
+              || (type1.type == CodeType.BYTE && type2.type == CodeType.SHORTCHAR)) {
             return VARTYPE_SHORT;
           }
           else {
             return VARTYPE_INT;
           }
-        case CodeConstants.TYPE_FAMILY_OBJECT:
+        case OBJECT:
           return VARTYPE_OBJECT;
       }
     }
@@ -376,62 +357,66 @@ public class VarType {  // TODO: optimize switch
     return null;
   }
 
-  public static VarType getMinTypeInFamily(int family) {
+  public static VarType getMinTypeInFamily(TypeFamily family) {
     switch (family) {
-      case CodeConstants.TYPE_FAMILY_BOOLEAN:
+      case BOOLEAN:
         return VARTYPE_BOOLEAN;
-      case CodeConstants.TYPE_FAMILY_INTEGER:
+      case INTEGER:
         return VARTYPE_BYTECHAR;
-      case CodeConstants.TYPE_FAMILY_OBJECT:
+      case OBJECT:
         return VARTYPE_NULL;
-      case CodeConstants.TYPE_FAMILY_FLOAT:
+      case FLOAT:
         return VARTYPE_FLOAT;
-      case CodeConstants.TYPE_FAMILY_LONG:
+      case LONG:
         return VARTYPE_LONG;
-      case CodeConstants.TYPE_FAMILY_DOUBLE:
+      case DOUBLE:
         return VARTYPE_DOUBLE;
-      case CodeConstants.TYPE_FAMILY_UNKNOWN:
+      case UNKNOWN:
         return VARTYPE_UNKNOWN;
       default:
         throw new IllegalArgumentException("Invalid type family: " + family);
     }
   }
 
-  public static int getType(char c) {
+  public static CodeType getType(char c) {
     switch (c) {
       case 'B':
-        return CodeConstants.TYPE_BYTE;
+        return CodeType.BYTE;
       case 'C':
-        return CodeConstants.TYPE_CHAR;
+        return CodeType.CHAR;
       case 'D':
-        return CodeConstants.TYPE_DOUBLE;
+        return CodeType.DOUBLE;
       case 'F':
-        return CodeConstants.TYPE_FLOAT;
+        return CodeType.FLOAT;
       case 'I':
-        return CodeConstants.TYPE_INT;
+        return CodeType.INT;
       case 'J':
-        return CodeConstants.TYPE_LONG;
+        return CodeType.LONG;
       case 'S':
-        return CodeConstants.TYPE_SHORT;
+        return CodeType.SHORT;
       case 'Z':
-        return CodeConstants.TYPE_BOOLEAN;
+        return CodeType.BOOLEAN;
       case 'V':
-        return CodeConstants.TYPE_VOID;
+        return CodeType.VOID;
       case 'G':
-        return CodeConstants.TYPE_GROUP2EMPTY;
+        return CodeType.GROUP2EMPTY;
       case 'N':
-        return CodeConstants.TYPE_NOTINITIALIZED;
+        return CodeType.NOTINITIALIZED;
       case 'A':
-        return CodeConstants.TYPE_ADDRESS;
+        return CodeType.ADDRESS;
       case 'X':
-        return CodeConstants.TYPE_BYTECHAR;
+        return CodeType.BYTECHAR;
       case 'Y':
-        return CodeConstants.TYPE_SHORTCHAR;
+        return CodeType.SHORTCHAR;
       case 'U':
-        return CodeConstants.TYPE_UNKNOWN;
+        return CodeType.UNKNOWN;
       default:
         throw new IllegalArgumentException("Invalid type: " + c);
     }
+  }
+
+  public static boolean isPrimitive(VarType type) {
+    return UNBOXING_TYPES.values().contains(type);
   }
 
   public boolean isGeneric() {

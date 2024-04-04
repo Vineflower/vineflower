@@ -1,46 +1,119 @@
 package pkg;
 
 public class TestAnonymousClassJ16 {
-   // $VF: Could not properly define all variable types!
    public void testNamelessTypeVirtual() {
-      <undefinedtype> printer = (<undefinedtype>)(new Object() {// 5
+      var printer = new Object() {// 5
          void println(String s) {
             System.out.println(s);// 7
          }// 8
-      });
+      };
       printer.println("goodbye, world!");// 10
    }// 11
+
+   public void testNamelessTypeVirtual2() {
+      var printer = new TestAnonymousClassJ16() {// 14
+         void out(String s) {
+            System.out.println(s);// 16
+         }// 17
+      };
+      printer.out("goodbye, world!");// 20
+   }// 21
+
+   public void testNamelessTypeVirtual3() {
+      TestAnonymousClassJ16 printer = new TestAnonymousClassJ16() {// 24
+         @Override
+         public void testNamelessTypeVirtual() {
+            System.out.println();// 27
+         }// 28
+      };
+      printer.testNamelessTypeVirtual();// 31
+   }// 32
 }
 
 class 'pkg/TestAnonymousClassJ16' {
    method 'testNamelessTypeVirtual ()V' {
-      8      5
-      9      10
-      a      10
-      b      10
-      c      10
-      d      10
-      e      10
-      f      11
+      8      4
+      9      9
+      a      9
+      b      9
+      c      9
+      d      9
+      e      9
+      f      10
+   }
+
+   method 'testNamelessTypeVirtual2 ()V' {
+      8      13
+      9      18
+      a      18
+      b      18
+      c      18
+      d      18
+      e      18
+      f      19
+   }
+
+   method 'testNamelessTypeVirtual3 ()V' {
+      8      22
+      9      28
+      a      28
+      b      28
+      c      28
+      d      29
    }
 }
 
 class 'pkg/TestAnonymousClassJ16$1' {
    method 'println (Ljava/lang/String;)V' {
-      0      7
-      1      7
-      2      7
-      3      7
-      4      7
-      5      7
-      6      7
-      7      8
+      0      6
+      1      6
+      2      6
+      3      6
+      4      6
+      5      6
+      6      6
+      7      7
+   }
+}
+
+class 'pkg/TestAnonymousClassJ16$2' {
+   method 'out (Ljava/lang/String;)V' {
+      0      15
+      1      15
+      2      15
+      3      15
+      4      15
+      5      15
+      6      15
+      7      16
+   }
+}
+
+class 'pkg/TestAnonymousClassJ16$3' {
+   method 'testNamelessTypeVirtual ()V' {
+      0      25
+      1      25
+      2      25
+      3      25
+      4      25
+      5      25
+      6      26
    }
 }
 
 Lines mapping:
-5 <-> 6
-7 <-> 8
-8 <-> 9
-10 <-> 11
-11 <-> 12
+5 <-> 5
+7 <-> 7
+8 <-> 8
+10 <-> 10
+11 <-> 11
+14 <-> 14
+16 <-> 16
+17 <-> 17
+20 <-> 19
+21 <-> 20
+24 <-> 23
+27 <-> 26
+28 <-> 27
+31 <-> 29
+32 <-> 30

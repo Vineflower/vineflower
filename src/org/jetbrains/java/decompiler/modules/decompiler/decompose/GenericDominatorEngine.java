@@ -1,7 +1,8 @@
 // Copyright 2000-2017 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler.decompose;
 
-import org.jetbrains.java.decompiler.util.VBStyleCollection;
+import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
+import org.jetbrains.java.decompiler.util.collections.VBStyleCollection;
 
 import java.util.List;
 import java.util.Set;
@@ -19,7 +20,8 @@ public class GenericDominatorEngine {
   }
 
   public void initialize() {
-    calcIDoms();
+    ValidationHelper.assertTrue(!this.initialized, "Dominator Engine was already initialized");
+    this.calcIDoms();
     this.initialized = true;
   }
 

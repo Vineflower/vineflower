@@ -1,6 +1,7 @@
 // Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler.vars;
 
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.main.collectors.VarNamesCollector;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
@@ -10,6 +11,7 @@ import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribute.LocalVariable;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
+import org.jetbrains.java.decompiler.util.Pair;
 import org.jetbrains.java.decompiler.util.StartEndPair;
 import org.jetbrains.java.decompiler.util.TextUtil;
 
@@ -24,12 +26,14 @@ public class VarProcessor {
   private Map<VarVersionPair, String> mapVarNames = new HashMap<>();
   private List<VarVersionPair> params = new ArrayList<>();
   private Map<VarVersionPair, LocalVariable> mapVarLVTs = new HashMap<>();
-  private VarVersionsProcessor varVersions;
+  private @Nullable VarVersionsProcessor varVersions;
   private final Map<VarVersionPair, String> thisVars = new HashMap<>();
   private final Set<VarVersionPair> externalVars = new HashSet<>();
   private final Map<VarVersionPair, String> clashingNames = new HashMap<>();
   private final Map<VarVersionPair, String> inheritedNames = new HashMap<>();
   private final Set<Integer> syntheticSemaphores = new HashSet<>();
+  // var -> (method, var in method)
+  private final Map<VarVersionPair, Pair<String, VarVersionPair>> varSources = new HashMap<>();
   public boolean nestedProcessed;
 
   public VarProcessor(StructMethod mt, MethodDescriptor md) {
@@ -43,7 +47,7 @@ public class VarProcessor {
     varVersions.setVarVersions(root, oldProcessor);
   }
 
-  public void setVarDefinitions(Statement root) {
+  public void setVarDefinitions(RootStatement root) {
     mapVarNames = new HashMap<>();
     VarDefinitionHelper varDef = new VarDefinitionHelper(root, method, this);
     varDef.setVarDefinitions();
@@ -87,19 +91,12 @@ public class VarProcessor {
 
     // Re-run name clashing analysis
 
-    VarDefinitionHelper vardef = new VarDefinitionHelper(root, method, this, false);
-    vardef.remapClashingNames(root);
-
-    for (Entry<VarVersionPair, String> e : vardef.getClashingNames().entrySet()) {
-      if (!params.contains(e.getKey())) {
-        this.clashingNames.put(e.getKey(), e.getValue());
-      }
-    }
+    rerunClashing(root);
   }
 
   public void rerunClashing(RootStatement root) {
     VarDefinitionHelper vardef = new VarDefinitionHelper(root, method, this, false);
-    vardef.remapClashingNames(root);
+    vardef.remapClashingNames(root, method);
 
     for (Entry<VarVersionPair, String> e : vardef.getClashingNames().entrySet()) {
       if (!params.contains(e.getKey())) {
@@ -108,7 +105,7 @@ public class VarProcessor {
     }
   }
 
-  public Integer getVarOriginalIndex(int index) {
+  public @Nullable Integer getVarOriginalIndex(int index) {
     if (varVersions == null) {
       return null;
     }
@@ -139,22 +136,34 @@ public class VarProcessor {
     params.add(pair);
   }
 
+  public List<VarVersionPair> getParams() {
+    return params;
+  }
+
   public void setVarType(VarVersionPair pair, VarType type) {
     if (varVersions != null) {
       varVersions.setVarType(pair, type);
     }
   }
 
-  public String getVarName(VarVersionPair pair) {
+  public @Nullable String getVarName(VarVersionPair pair) {
     return mapVarNames == null ? null : mapVarNames.get(pair);
   }
 
-  public String getClashingName(VarVersionPair pair) {
+  public @Nullable String getClashingName(VarVersionPair pair) {
     return this.clashingNames.get(pair);
+  }
+
+  public void setClashingName(VarVersionPair pair, String name) {
+    this.clashingNames.put(pair, name);
   }
 
   public void setVarName(VarVersionPair pair, String name) {
     mapVarNames.put(pair, name);
+  }
+
+  public void setVarSource(VarVersionPair pair, String method, VarVersionPair original) {
+    varSources.put(pair, Pair.of(method, original));
   }
 
   public void setInheritedName(VarVersionPair pair, String name) {
@@ -179,8 +188,14 @@ public class VarProcessor {
     return varVersions == null ? FinalType.FINAL : varVersions.getVarFinal(pair);
   }
 
+  public Pair<String, VarVersionPair> getVarSource(VarVersionPair pair) {
+    return varSources.get(pair);
+  }
+
   public void setVarFinal(VarVersionPair pair, FinalType finalType) {
-    varVersions.setVarFinal(pair, finalType);
+    if (this.varVersions != null) {
+      varVersions.setVarFinal(pair, finalType);
+    }
   }
 
   public Map<VarVersionPair, String> getThisVars() {
@@ -209,41 +224,11 @@ public class VarProcessor {
     }
   }
 
-  public void copyVarInfo(VarVersionPair from, VarVersionPair to) {
-    setVarName(to, getVarName(from));
-    setVarFinal(to, getVarFinal(from));
-    setVarType(to, getVarType(from));
-    varVersions.getMapOriginalVarIndices().put(to.var, varVersions.getMapOriginalVarIndices().get(from.var));
-  }
-
   public boolean hasLVT() {
     return method.getLocalVariableAttr() != null;
   }
-  
 
-  public Map<Integer, LocalVariable> getLocalVariables(Statement stat) {
-    if (!hasLVT() || stat == null)
-      return new HashMap<>();
-
-    final StartEndPair sep = stat.getStartEndRange(); 
-    final Set<Integer> blacklist = new HashSet<>();
-    Map<Integer, LocalVariable> ret = method.getLocalVariableAttr().getVariables().filter(lv -> lv.getEnd() > sep.start && lv.getStart() <= sep.end)
-      .collect(Collectors.toMap(lv -> lv.getVersion().var, lv -> lv,
-        (lv1, lv2) -> 
-        {
-          //System.out.println("DUPLICATE INDEX FOR SCOPE: (" +sep +") " + lv1.toString() + " " + lv2.toString());
-          blacklist.add(lv1.getVersion().var);
-          return lv1;
-        }
-      ));
-
-    for (int b : blacklist)
-      ret.remove(b);
-
-    return ret;
-  }
-
-  public VarVersionsProcessor getVarVersions() {
+  public @Nullable VarVersionsProcessor getVarVersions() {
     return varVersions;
   }
 
@@ -251,7 +236,7 @@ public class VarProcessor {
     mapVarLVTs.put(var, lvt);
   }
 
-  public LocalVariable getVarLVT(VarVersionPair var) {
+  public @Nullable LocalVariable getVarLVT(VarVersionPair var) {
     return mapVarLVTs.get(var);
   }
 }

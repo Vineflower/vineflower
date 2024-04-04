@@ -23,7 +23,7 @@ public class TestComplexIfElseChain {
       Random randy = new Random();// 23
       int result = randy.nextInt(11);// 24
 
-      for(int i = 0; i < 10; ++i) {// 25
+      for (int i = 0; i < 10; i++) {// 25
          if (result == 0 || result == 1) {// 26
             System.out.println("a");// 27
          } else if (result == 2 || result == 3) {// 28
@@ -41,7 +41,7 @@ public class TestComplexIfElseChain {
    public void testInLoop1() {
       Random randy = new Random();// 41
 
-      while(true) {
+      while (true) {
          int result = randy.nextInt(11);// 44
          if (result == 0 || result == 1) {// 46
             System.out.println("a");// 47
@@ -63,7 +63,7 @@ public class TestComplexIfElseChain {
    public void testInLoop2() {
       Random randy = new Random();// 62
 
-      while(true) {
+      while (true) {
          int result = randy.nextInt(11);// 65
          if (result != 0 && result != 1) {// 67
             if (result != 2 && result != 3) {// 69
@@ -95,7 +95,7 @@ public class TestComplexIfElseChain {
    public void testInLoop3() {
       Random randy = new Random();// 85
 
-      while(true) {
+      while (true) {
          int result = randy.nextInt(11);// 88
          if (result == 0 || result == 1) {// 90
             System.out.println("a");// 91
@@ -113,7 +113,7 @@ public class TestComplexIfElseChain {
       Random randy = new Random();// 105
 
       do {
-         ++i;// 108
+         i++;// 108
          int result = randy.nextInt(11);// 109
          if (result == 0 || result == 1) {// 111
             System.out.println("a");// 112
@@ -126,13 +126,13 @@ public class TestComplexIfElseChain {
          } else if (result == 8 || result == 9) {// 119
             System.out.println("e");// 120
          }
-      } while(i > 3);// 122
+      } while (i > 3);// 122
    }// 123
 
    public void testSwitch(int i) {
       Random randy = new Random();// 126
       int result = randy.nextInt(11);// 128
-      switch(i) {// 129
+      switch (i) {// 129
          case 0:
             System.out.println(1);// 131
             break;// 132
@@ -159,7 +159,7 @@ public class TestComplexIfElseChain {
    public void testSwitch1(int i) {
       Random randy = new Random();// 154
       int result = randy.nextInt(11);// 156
-      switch(i) {// 157
+      switch (i) {// 157
          case 0:
             System.out.println(1);// 159
             break;// 160

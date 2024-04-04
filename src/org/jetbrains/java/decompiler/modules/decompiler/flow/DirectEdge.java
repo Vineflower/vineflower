@@ -1,5 +1,7 @@
 package org.jetbrains.java.decompiler.modules.decompiler.flow;
 
+import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
+
 import java.util.Objects;
 
 public final class DirectEdge {
@@ -8,6 +10,9 @@ public final class DirectEdge {
   private final DirectEdgeType type;
 
   public DirectEdge(DirectNode source, DirectNode destination, DirectEdgeType type) {
+    ValidationHelper.notNull(source);
+    ValidationHelper.notNull(destination);
+    ValidationHelper.notNull(type);
     this.source = source;
     this.destination = destination;
     this.type = type;

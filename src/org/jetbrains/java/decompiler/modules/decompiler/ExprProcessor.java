@@ -6,14 +6,16 @@ import org.jetbrains.java.decompiler.code.Instruction;
 import org.jetbrains.java.decompiler.code.InstructionSequence;
 import org.jetbrains.java.decompiler.code.cfg.BasicBlock;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
-import org.jetbrains.java.decompiler.util.ListStack;
+import org.jetbrains.java.decompiler.main.collectors.ImportCollector;
+import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectEdgeType;
+import org.jetbrains.java.decompiler.struct.gen.CodeType;
+import org.jetbrains.java.decompiler.util.collections.ListStack;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectNode;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper;
-import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper.FinallyPathWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarProcessor;
 import org.jetbrains.java.decompiler.struct.StructClass;
@@ -32,6 +34,7 @@ import java.util.*;
 
 public class ExprProcessor implements CodeConstants {
   public static final String UNDEFINED_TYPE_STRING = "<undefinedtype>";
+  public static final String UNREPRESENTABLE_TYPE_STRING = "<unrepresentable>";
   public static final String UNKNOWN_TYPE_STRING = "<unknown>";
   public static final String NULL_TYPE_STRING = "<null>";
 
@@ -83,9 +86,9 @@ public class ExprProcessor implements CodeConstants {
   private static final IfExprent.Type[] func7 = {IfExprent.Type.NULL, IfExprent.Type.NONNULL};
   private static final MonitorExprent.Type[] func8 = {MonitorExprent.Type.ENTER, MonitorExprent.Type.EXIT};
 
-  private static final int[] arrTypeIds = {
-    CodeConstants.TYPE_BOOLEAN, CodeConstants.TYPE_CHAR, CodeConstants.TYPE_FLOAT, CodeConstants.TYPE_DOUBLE,
-    CodeConstants.TYPE_BYTE, CodeConstants.TYPE_SHORT, CodeConstants.TYPE_INT, CodeConstants.TYPE_LONG
+  private static final CodeType[] arrTypeIds = {
+    CodeType.BOOLEAN, CodeType.CHAR, CodeType.FLOAT, CodeType.DOUBLE,
+    CodeType.BYTE, CodeType.SHORT, CodeType.INT, CodeType.LONG
   };
 
   private static final String[] typeNames = {"byte", "char", "double", "float", "int", "long", "short", "boolean"};
@@ -99,54 +102,31 @@ public class ExprProcessor implements CodeConstants {
   }
 
   public void processStatement(RootStatement root, StructClass cl) {
-    FlattenStatementsHelper flatthelper = new FlattenStatementsHelper();
-    DirectGraph dgraph = flatthelper.buildDirectGraph(root);
+    FlattenStatementsHelper flatHelper = new FlattenStatementsHelper();
+    DirectGraph dgraph = flatHelper.buildDirectGraph(root);
 
     ValidationHelper.validateDGraph(dgraph, root);
 
-    // collect finally entry points
-    Set<String> setFinallyShortRangeEntryPoints = new HashSet<>();
-    for (List<FinallyPathWrapper> lst : dgraph.mapShortRangeFinallyPaths.values()) {
-      for (FinallyPathWrapper finwrap : lst) {
-        setFinallyShortRangeEntryPoints.add(finwrap.entry);
-      }
-    }
-
-    Set<String> setFinallyLongRangeEntryPaths = new HashSet<>();
-    for (List<FinallyPathWrapper> lst : dgraph.mapLongRangeFinallyPaths.values()) {
-      for (FinallyPathWrapper finwrap : lst) {
-        setFinallyLongRangeEntryPaths.add(finwrap.source + "##" + finwrap.entry);
-      }
-    }
-
+    // TODO: use DirectNode instead DirectNode.id
     Map<String, VarExprent> mapCatch = new HashMap<>();
-    collectCatchVars(root, flatthelper, mapCatch);
+    collectCatchVars(root, flatHelper, mapCatch);
 
-    Map<DirectNode, Map<String, PrimitiveExprsList>> mapData = new HashMap<>();
+    Map<DirectNode, PrimitiveExprsList> mapData = new HashMap<>();
 
-    LinkedList<DirectNode> stack = new LinkedList<>();
-    LinkedList<LinkedList<String>> stackEntryPoint = new LinkedList<>();
+    ListStack<DirectNode> stack = new ListStack<>();
 
-    stack.add(dgraph.first);
-    stackEntryPoint.add(new LinkedList<>());
-
-    Map<String, PrimitiveExprsList> map = new HashMap<>();
-    map.put(null, new PrimitiveExprsList());
-    mapData.put(dgraph.first, map);
-
-    Set<DirectNode> seen = new HashSet<>();
+    stack.push(dgraph.first);
+    mapData.put(dgraph.first, new PrimitiveExprsList());
 
     while (!stack.isEmpty()) {
 
-      DirectNode node = stack.removeFirst();
-      LinkedList<String> entrypoints = stackEntryPoint.removeFirst();
+      DirectNode node = stack.pop();
 
       PrimitiveExprsList data;
       if (mapCatch.containsKey(node.id)) {
         data = getExpressionData(mapCatch.get(node.id));
-      }
-      else {
-        data = mapData.get(node).get(buildEntryPointKey(entrypoints));
+      } else {
+        data = mapData.get(node);
       }
 
       BasicBlockStatement block = node.block;
@@ -155,71 +135,17 @@ public class ExprProcessor implements CodeConstants {
         block.setExprents(data.getLstExprents());
       }
 
-      String currentEntrypoint = entrypoints.isEmpty() ? null : entrypoints.getLast();
-
-      for (DirectNode nd : node.succs()) {
-
-        boolean isSuccessor = true;
-        if (currentEntrypoint != null && dgraph.mapLongRangeFinallyPaths.containsKey(node.id)) {
-          isSuccessor = false;
-          for (FinallyPathWrapper finwraplong : dgraph.mapLongRangeFinallyPaths.get(node.id)) {
-            if (finwraplong.source.equals(currentEntrypoint) && finwraplong.destination.equals(nd.id)) {
-              isSuccessor = true;
-              break;
-            }
-          }
-        }
-
-        if (!seen.contains(nd) && isSuccessor) {
-          Map<String, PrimitiveExprsList> mapSucc = mapData.computeIfAbsent(nd, k -> new HashMap<>());
-          LinkedList<String> ndentrypoints = new LinkedList<>(entrypoints);
-
-          if (setFinallyLongRangeEntryPaths.contains(node.id + "##" + nd.id)) {
-            ndentrypoints.addLast(node.id);
-          }
-          else if (!setFinallyShortRangeEntryPoints.contains(nd.id) && dgraph.mapLongRangeFinallyPaths.containsKey(node.id)) {
-            ndentrypoints.removeLast(); // currentEntrypoint should
-            // not be null at this point
-          }
-
-          // handling of entry point loops
-          int succ_entry_index = ndentrypoints.indexOf(nd.id);
-          if (succ_entry_index >=
-              0) { // we are in a loop (e.g. continue in a finally block), drop all entry points in the list beginning with succ_entry_index
-            for (int elements_to_remove = ndentrypoints.size() - succ_entry_index; elements_to_remove > 0; elements_to_remove--) {
-              ndentrypoints.removeLast();
-            }
-          }
-
-          seen.add(nd);
-          String ndentrykey = buildEntryPointKey(ndentrypoints);
-          if (!mapSucc.containsKey(ndentrykey)) {
-
-            mapSucc.put(ndentrykey, copyVarExprents(data.copyStack()));
-
-            stack.add(nd);
-            stackEntryPoint.add(ndentrypoints);
-          }
+      // TODO: is this copying the stack into catch and finally blocks? It shouldn't do that.
+      for (var cd : node.getSuccessors(DirectEdgeType.REGULAR)) {
+        DirectNode nd = cd.getDestination();
+        if (!mapData.containsKey(nd)) {
+          mapData.put(nd, copyVarExprents(data.copyStack()));
+          stack.add(nd);
         }
       }
     }
 
     initStatementExprents(root);
-  }
-
-  // FIXME: Ugly code, to be rewritten. A tuple class is needed.
-  private static String buildEntryPointKey(LinkedList<String> entrypoints) {
-    if (entrypoints.isEmpty()) {
-      return null;
-    }
-    else {
-      StringBuilder buffer = new StringBuilder();
-      for (String point : entrypoints) {
-        buffer.append(point);
-        buffer.append(":");
-      }
-      return buffer.toString();
-    }
   }
 
   private static PrimitiveExprsList copyVarExprents(PrimitiveExprsList data) {
@@ -250,7 +176,7 @@ public class ExprProcessor implements CodeConstants {
 
     if (lst != null) {
       for (int i = 1; i < stat.getStats().size(); i++) {
-        map.put(flatthelper.getMapDestinationNodes().get(stat.getStats().get(i).id)[0], lst.get(i - 1));
+        map.put(flatthelper.getDirectNode(stat.getStats().get(i)).id, lst.get(i - 1));
       }
     }
 
@@ -332,7 +258,7 @@ public class ExprProcessor implements CodeConstants {
             }
 
             InvocationExprent exprinv = new InvocationExprent(instr.opcode, invoke_constant, bootstrapMethod, bootstrap_arguments, stack, bytecode_offsets);
-            if (exprinv.getDescriptor().ret.type == CodeConstants.TYPE_VOID) {
+            if (exprinv.getDescriptor().ret.type == CodeType.VOID) {
               exprlist.add(exprinv);
             }
             else {
@@ -566,7 +492,7 @@ public class ExprProcessor implements CodeConstants {
             }
 
             InvocationExprent exprinv = new InvocationExprent(instr.opcode, invoke_constant, bootstrapMethod, bootstrap_arguments, stack, bytecode_offsets);
-            if (exprinv.getDescriptor().ret.type == CodeConstants.TYPE_VOID) {
+            if (exprinv.getDescriptor().ret.type == CodeType.VOID) {
               exprlist.add(exprinv);
             }
             else {
@@ -771,11 +697,9 @@ public class ExprProcessor implements CodeConstants {
 
   public static void markExprOddities(RootStatement root) {
     // We shouldn't have to do this, but turns out getting cast names is not pure. Sigh.
-    DecompilerContext.getImportCollector().setWriteLocked(true);
-
-    markExprOddities(root, root);
-
-    DecompilerContext.getImportCollector().setWriteLocked(false);
+    try (var lock = DecompilerContext.getImportCollector().lock()) {
+      markExprOddities(root, root);
+    }
   }
 
   private static void markExprOddities(RootStatement root, Statement stat) {
@@ -788,6 +712,10 @@ public class ExprProcessor implements CodeConstants {
     }
 
     if (stat instanceof BasicBlockStatement) {
+      if (stat.isLabeled()) {
+        root.addComment("$VF: Made invalid labels!", true);
+      }
+
       for (Exprent ex : stat.getExprents()) {
         markExprOddity(root, ex);
       }
@@ -825,23 +753,23 @@ public class ExprProcessor implements CodeConstants {
   }
 
   public static String getTypeName(VarType type, boolean getShort) {
-    int tp = type.type;
-    if (tp <= CodeConstants.TYPE_BOOLEAN) {
-      return typeNames[tp];
+    CodeType tp = type.type;
+    if (tp.ordinal() <= CodeType.BOOLEAN.ordinal()) {
+      return typeNames[tp.ordinal()];
     }
-    else if (tp == CodeConstants.TYPE_UNKNOWN) {
+    else if (tp == CodeType.UNKNOWN) {
       return UNKNOWN_TYPE_STRING; // INFO: should not occur
     }
-    else if (tp == CodeConstants.TYPE_NULL) {
+    else if (tp == CodeType.NULL) {
       return NULL_TYPE_STRING; // INFO: should not occur
     }
-    else if (tp == CodeConstants.TYPE_VOID) {
+    else if (tp == CodeType.VOID) {
       return "void";
     }
-    else if (tp == CodeConstants.TYPE_GENVAR && type.isGeneric()) {
+    else if (tp == CodeType.GENVAR && type.isGeneric()) {
       return type.value;
     }
-    else if (tp == CodeConstants.TYPE_OBJECT) {
+    else if (tp == CodeType.OBJECT) {
       if (type.isGeneric()) {
         return ((GenericType)type).getCastName();
       }
@@ -986,16 +914,16 @@ public class ExprProcessor implements CodeConstants {
 
   public static ConstExprent getDefaultArrayValue(VarType arrType) {
     ConstExprent defaultVal;
-    if (arrType.type == CodeConstants.TYPE_OBJECT || arrType.arrayDim > 0) {
+    if (arrType.type == CodeType.OBJECT || arrType.arrayDim > 0) {
       defaultVal = new ConstExprent(VarType.VARTYPE_NULL, null, null);
     }
-    else if (arrType.type == CodeConstants.TYPE_FLOAT) {
+    else if (arrType.type == CodeType.FLOAT) {
       defaultVal = new ConstExprent(VarType.VARTYPE_FLOAT, 0f, null);
     }
-    else if (arrType.type == CodeConstants.TYPE_LONG) {
+    else if (arrType.type == CodeType.LONG) {
       defaultVal = new ConstExprent(VarType.VARTYPE_LONG, 0L, null);
     }
-    else if (arrType.type == CodeConstants.TYPE_DOUBLE) {
+    else if (arrType.type == CodeType.DOUBLE) {
       defaultVal = new ConstExprent(VarType.VARTYPE_DOUBLE, 0d, null);
     }
     else { // integer types
@@ -1027,7 +955,7 @@ public class ExprProcessor implements CodeConstants {
         InvocationExprent invocationExprent = (InvocationExprent) exprent;
         if (invocationExprent.isBoxingCall() && !invocationExprent.shouldForceBoxing()) {
           exprent = invocationExprent.getLstParameters().get(0);
-          int paramType = invocationExprent.getDescriptor().params[0].type;
+          CodeType paramType = invocationExprent.getDescriptor().params[0].type;
           if (exprent instanceof ConstExprent && ((ConstExprent) exprent).getConstType().type != paramType) {
             leftType = new VarType(paramType);
           }
@@ -1038,14 +966,14 @@ public class ExprProcessor implements CodeConstants {
     VarType rightType = exprent.getInferredExprType(leftType);
     exprent = narrowGenericCastType(exprent, leftType);
 
-    boolean doCast = (!leftType.isSuperset(rightType) && (rightType.equals(VarType.VARTYPE_OBJECT) || leftType.type != CodeConstants.TYPE_OBJECT));
-    boolean doCastNull = (castNull.cast && rightType.type == CodeConstants.TYPE_NULL && !UNDEFINED_TYPE_STRING.equals(getTypeName(leftType)));
+    boolean doCast = (!leftType.isSuperset(rightType) && (rightType.equals(VarType.VARTYPE_OBJECT) || leftType.type != CodeType.OBJECT));
+    boolean doCastNull = (castNull.cast && rightType.type == CodeType.NULL && !UNDEFINED_TYPE_STRING.equals(getTypeName(leftType)));
     boolean doCastNarrowing = (castNarrowing && isIntConstant(exprent) && isNarrowedIntType(leftType));
-    boolean doCastGenerics = doesContravarianceNeedCast(leftType, rightType);
+    boolean doCastGenerics = doGenericTypesCast(exprent, leftType, rightType);
 
     boolean cast = castAlways || doCast || doCastNull || doCastNarrowing || doCastGenerics;
 
-    if (castNull == NullCastType.DONT_CAST_AT_ALL && rightType.type == CodeConstants.TYPE_NULL) {
+    if (castNull == NullCastType.DONT_CAST_AT_ALL && rightType.type == CodeType.NULL) {
       cast = castAlways;
     }
 
@@ -1065,11 +993,11 @@ public class ExprProcessor implements CodeConstants {
     }
 
     if (cast) {
-      buffer.append('(').append(getCastTypeName(leftType)).append(')');
+      buffer.append('(').appendCastTypeName(leftType).append(')');
     }
 
     if (castLambda) {
-      buffer.append('(').append(getCastTypeName(rightType)).append(')');
+      buffer.append('(').appendCastTypeName(rightType).append(')');
     }
 
     if (quote) {
@@ -1078,6 +1006,13 @@ public class ExprProcessor implements CodeConstants {
 
     if (exprent instanceof ConstExprent) {
       ((ConstExprent) exprent).adjustConstType(leftType);
+    }
+
+    if (cast) {
+      // Don't cast vararg array creation! Force regular array creation instead
+      if (exprent instanceof NewExprent && ((NewExprent)exprent).isVarArgParam()) {
+        ((NewExprent) exprent).setVarArgParam(false);
+      }
     }
 
     buffer.append(exprent.toJava(indent));
@@ -1091,7 +1026,7 @@ public class ExprProcessor implements CodeConstants {
 
   public enum NullCastType {
     CAST(true), // old boolean true
-    DONT_CAST(false), // old booean false
+    DONT_CAST(false), // old boolean false
     DONT_CAST_AT_ALL(false); // old boolean false and don't cast
 
     private final boolean cast;
@@ -1122,9 +1057,21 @@ public class ExprProcessor implements CodeConstants {
     return expr;
   }
 
-  // Obj<T> var = type; -> Obj<T> var = (Obj<T>) type; Where type is Obj<? super T>
-  public static boolean doesContravarianceNeedCast(VarType left, VarType right) {
-    if (left != null && right != null && left.isGeneric() && right.isGeneric()) {
+  // Checks if two generic types should cast based on their type parameters.
+  // If both the left and the right types are generics, compare the type parameters based on a set of rules to see if
+  // the types are compatible. If a matching rule is identified, return and inform the type processor that the types
+  // should cast.
+  private static boolean doGenericTypesCast(Exprent ex, VarType left, VarType right) {
+    Map<VarType, List<VarType>> named = ex.getNamedGenerics();
+    if (left == null || right == null) {
+      return false;
+    }
+
+    if (left.isGeneric() && right.isGeneric()) {
+      if (shouldGenericTypesCast(named, left, right)) {
+        return true;
+      }
+
       GenericType leftGeneric = (GenericType) left;
       GenericType rightGeneric = (GenericType) right;
 
@@ -1135,11 +1082,92 @@ public class ExprProcessor implements CodeConstants {
       for (int i = 0; i < leftGeneric.getArguments().size(); i++) {
         VarType leftType = leftGeneric.getArguments().get(i);
         VarType rightType = rightGeneric.getArguments().get(i);
+        if (rightType == null && leftType != null) {
+          return true;
+        }
 
-        if (leftType != null && rightType != null && leftType.isSuperset(rightType) &&
-          (leftType.isGeneric() && rightType.isGeneric()) &&
-          (((GenericType) leftType).getWildcard() == GenericType.WILDCARD_NO || ((GenericType) leftType).getWildcard() == GenericType.WILDCARD_EXTENDS) &&
-          ((GenericType) rightType).getWildcard() == GenericType.WILDCARD_SUPER) {
+        if (leftType != null) {
+          if (shouldGenericTypesCast(named, leftType, rightType)) {
+            return true;
+          }
+        }
+      }
+    }
+
+    return false;
+  }
+
+  private static boolean shouldGenericTypesCast(Map<VarType, List<VarType>> named, VarType leftType, VarType rightType) {
+    if (leftType.isGeneric()) {
+      GenericType genLeft = (GenericType) leftType;
+      if (rightType.isGeneric()) {
+        GenericType genRight = (GenericType) rightType;
+
+        if (leftType.isSuperset(rightType)) {
+          // Casting Clazz<?> to Clazz<T> or Clazz<Concrete>
+          if ((genLeft.getWildcard() == GenericType.WILDCARD_NO || genLeft.getWildcard() == GenericType.WILDCARD_EXTENDS) &&
+            genRight.getWildcard() == GenericType.WILDCARD_SUPER) {
+
+            boolean ok = true;
+            if (genLeft.getWildcard() == GenericType.WILDCARD_EXTENDS) {
+              // Equals, ignoring wildcards
+              if (!genLeft.getArguments().isEmpty() && !genRight.getArguments().isEmpty() &&
+                leftType.equals(rightType)) {
+                ok = false;
+              }
+            }
+
+            if (ok) {
+              return true;
+            }
+          }
+        } else {
+          if (genLeft.getWildcard() == GenericType.WILDCARD_EXTENDS && genRight.getWildcard() == GenericType.WILDCARD_SUPER) {
+            return true;
+          }
+          // Trying to cast two independent generics to each other? Check if they're both the base generic type (i.e. Object)
+          // and force a cast if so.
+          if (leftType.type == CodeType.GENVAR && rightType.type == CodeType.GENVAR
+            && genLeft.getWildcard() == GenericType.WILDCARD_NO && genLeft.getWildcard() == GenericType.WILDCARD_NO) {
+
+            if (named.containsKey(leftType) && named.containsKey(rightType) && named.get(leftType).contains(VarType.VARTYPE_OBJECT) && named.get(rightType).contains(VarType.VARTYPE_OBJECT)) {
+              return true;
+            }
+          }
+        }
+
+        if ((genLeft.getWildcard() == GenericType.WILDCARD_NO || genLeft.getWildcard() == GenericType.WILDCARD_SUPER) &&
+          genRight.getWildcard() == GenericType.WILDCARD_EXTENDS) {
+          return true;
+        }
+
+        // Recurse on the type
+        // Notably, *only* recurse if the current wildcard types are the same- otherwise we may run into incorrect casting behavior
+        if (genLeft.getArguments().size() != genRight.getArguments().size()) {
+          return false;
+        }
+
+        if (genLeft.getWildcard() == genRight.getWildcard()) {
+          for (int i = 0; i < genLeft.getArguments().size(); i++) {
+            VarType lt = genLeft.getArguments().get(i);
+            VarType rt = genRight.getArguments().get(i);
+            // Subset of Type<?> -> Type<T> check: Only check for genvars. If T is concrete, then don't force casting.
+            if (rt == null && lt != null && lt.type == CodeType.GENVAR) {
+              return true;
+            }
+
+            if (lt != null && rt != null) {
+              if (shouldGenericTypesCast(named, lt, rt)) {
+                return true;
+              }
+            }
+          }
+        }
+      } else {
+        // Right is not generic
+        // Check for casting a concrete rightType to a specific left generic
+        // e.g. (List<T>)list where 'list' is List<Object>
+        if (genLeft.getWildcard() == GenericType.WILDCARD_NO && genLeft.getArguments().isEmpty()) {
           return true;
         }
       }
@@ -1151,11 +1179,11 @@ public class ExprProcessor implements CodeConstants {
   private static boolean isIntConstant(Exprent exprent) {
     if (exprent instanceof ConstExprent) {
       switch (((ConstExprent)exprent).getConstType().type) {
-        case CodeConstants.TYPE_BYTE:
-        case CodeConstants.TYPE_BYTECHAR:
-        case CodeConstants.TYPE_SHORT:
-        case CodeConstants.TYPE_SHORTCHAR:
-        case CodeConstants.TYPE_INT:
+        case BYTE:
+        case BYTECHAR:
+        case SHORT:
+        case SHORTCHAR:
+        case INT:
           return true;
       }
     }

@@ -4,8 +4,8 @@ public class TestInlineSwitchExpression5 {
    public void test(int i) {
       int j = 0;// 5
 
-      while(true) {
-         if (j >= switch(i) {// 6
+      while (true) {
+         if (j >= switch (i) {// 6
             case 1 -> 4;// 7
             case 2 -> 8;// 8
             default -> 5;// 9
@@ -13,7 +13,7 @@ public class TestInlineSwitchExpression5 {
             return;// 15
          }
 
-         ++j;// 11
+         j++;// 11
          System.out.println("hi");// 13
       }
    }

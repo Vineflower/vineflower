@@ -2,9 +2,9 @@ package pkg;
 
 public class TestWhileTernary3 {
    public void test(boolean condition, int a, int b) {
-      while(condition ? a < b : b > a) {// 5
+      while (condition ? a < b : b > a) {// 5
          System.out.println(a * b);// 6
-         ++a;// 7
+         a++;// 7
       }
 
       System.out.println(1);// 10

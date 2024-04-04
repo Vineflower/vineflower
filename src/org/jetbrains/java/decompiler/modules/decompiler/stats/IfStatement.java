@@ -4,6 +4,7 @@ package org.jetbrains.java.decompiler.modules.decompiler.stats;
 import org.jetbrains.java.decompiler.modules.decompiler.DecHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
+import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
@@ -334,6 +335,11 @@ public final class IfStatement extends Statement {
   }
 
   @Override
+  public boolean hasBasicSuccEdge() {
+    return iftype == IFTYPE_IF;
+  }
+
+  @Override
   public Statement getSimpleCopy() {
     IfStatement is = new IfStatement();
     is.iftype = this.iftype;
@@ -449,8 +455,8 @@ public final class IfStatement extends Statement {
 
   @Override
   public StartEndPair getStartEndRange() {
-    return StartEndPair.join(super.getStartEndRange(), 
-      ifstat != null ? ifstat.getStartEndRange() : null, 
+    return StartEndPair.join(super.getStartEndRange(),
+      ifstat != null ? ifstat.getStartEndRange() : null,
       elsestat != null ? elsestat.getStartEndRange(): null);
   }
 
@@ -483,5 +489,88 @@ public final class IfStatement extends Statement {
 
     Integer type = (Integer) matchNode.getRuleValue(MatchProperties.STATEMENT_IFTYPE);
     return type == null || this.iftype == type;
+  }
+
+  public void fixIfInvariantEmptyElseBranch() {
+    // if(){...}else{;} -> if(){...}
+
+    Statement elseStat = this.getElsestat();
+
+    if (this.iftype != IfStatement.IFTYPE_IFELSE ||
+        elseStat.type != StatementType.BASIC_BLOCK ||
+        elseStat.getExprents() == null ||
+        !elseStat.getExprents().isEmpty()) {
+      return;
+    }
+
+    // Degrade to an if statement
+    this.getStats().removeWithKey(elseStat.id);
+
+    this.iftype = IfStatement.IFTYPE_IF;
+    this.setElsestat(null);
+
+    // remove the if head -> elseStat edge
+    this.getFirst().removeSuccessor(this.getElseEdge());
+
+    this.setElseEdge(null);
+
+    if (this.getAllSuccessorEdges().isEmpty()) {
+      StatEdge nextEdge = elseStat.getFirstSuccessor();
+
+      nextEdge.changeSource(this);
+      // No need to check the type, if the if didn't have any successors, the edge can't be a break edge with this
+      // as the closure
+    } else {
+      ValidationHelper.validateTrue(
+        this.getFirstSuccessor().getDestination() == elseStat.getFirstSuccessor().getDestination(),
+        "Expected the empty elseStat of the if statement to have the same destination as the if statement");
+      // no need to change the edge, just deleting the outgoing edge from the ifstat is enough
+      elseStat.getFirstSuccessor().remove();
+    }
+  }
+
+  public void fixIfInvariantEmptyIfBranch() {
+    // if(){;}else{...} -> if(!){...}
+
+    Statement ifStat = this.getIfstat();
+
+    if (this.iftype != IfStatement.IFTYPE_IFELSE ||
+      ifStat == null || // should be a different fix
+      ifStat.type != StatementType.BASIC_BLOCK ||
+      ifStat.getExprents() == null ||
+      !ifStat.getExprents().isEmpty()) {
+      return;
+    }
+
+    // move else to the if position
+    this.getStats().removeWithKey(ifStat.id);
+
+    this.iftype = IfStatement.IFTYPE_IF;
+    this.setIfstat(this.getElsestat());
+    this.setElsestat(null);
+
+    // remove the if head -> ifStat edge
+    this.getFirst().removeSuccessor(this.getIfEdge());
+
+    this.setIfEdge(this.getElseEdge());
+    this.setElseEdge(null);
+
+    if (this.getAllSuccessorEdges().isEmpty()) {
+      // Make the ifStat -> next edge point from the if statement to the next statement
+      StatEdge nextEdge = ifStat.getFirstSuccessor();
+      nextEdge.changeSource(this);
+      // No need to check the type, if the if didn't have any successors, the edge can't be a break edge with this
+      // as the closure
+    } else {
+      ValidationHelper.validateTrue(
+        this.getFirstSuccessor().getDestination() == ifStat.getFirstSuccessor().getDestination(),
+        "Expected the empty ifStat of the if statement to have the same destination as the if statement");
+      // no need to change the edge, just deleting the outgoing edge from the ifstat is enough
+      ifStat.getFirstSuccessor().remove();
+    }
+
+    // negate head expression
+    this.setNegated(!this.isNegated());
+    this.getHeadexprentList().set(0, ((IfExprent) this.getHeadexprent().copy()).negateIf());
   }
 }

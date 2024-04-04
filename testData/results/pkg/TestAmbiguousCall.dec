@@ -1,6 +1,9 @@
 package pkg;
 
 class TestAmbiguousCall {
+   int field;
+   long field2;
+
    void m1(RuntimeException e, String s) {
    }// 4
 
@@ -19,150 +22,212 @@ class TestAmbiguousCall {
    void m2(int i) {
    }// 17
 
-   void m2(String s) {
+   void m2(long l) {
    }// 18
 
+   void m2(String s) {
+   }// 19
+
    <T extends Comparable<T>> void test2(T value) {
-      if (value instanceof Integer) {// 21
-         this.m2((Integer)value);// 22
+      if (value instanceof Integer) {// 22
+         this.m2((Integer)value);// 23
       } else {
-         this.m2(value.toString());// 24
+         this.m2(value.toString());// 25
       }
-   }// 26
+   }// 27
 
    void test3(Object value) {
-      if (value instanceof Integer) {// 29
-         this.m2((Integer)value);// 30
+      if (value instanceof Integer) {// 30
+         this.m2((Integer)value);// 31
       } else {
-         this.m2(value.toString());// 32
+         this.m2(value.toString());// 33
       }
-   }// 34
+   }// 35
+
+   void test4() {
+      this.m2(this.field++);// 40
+      this.m2((long)(this.field++));// 41
+      this.m2((int)(this.field2++));// 43
+      this.m2(this.field2++);// 44
+   }// 45
 }
 
 class 'pkg/TestAmbiguousCall' {
    method 'm1 (Ljava/lang/RuntimeException;Ljava/lang/String;)V' {
-      0      4
-   }
-
-   method 'm1 (Ljava/lang/IllegalArgumentException;Ljava/lang/String;)V' {
       0      7
    }
 
+   method 'm1 (Ljava/lang/IllegalArgumentException;Ljava/lang/String;)V' {
+      0      10
+   }
+
    method 'test ()V' {
-      7      10
-      8      11
-      9      11
-      a      11
-      b      11
-      c      11
-      d      11
-      e      11
-      f      12
-      10      12
-      11      12
-      12      12
-      13      12
-      14      12
-      15      12
-      1d      13
-      1e      14
-      1f      14
-      20      14
-      21      14
-      22      14
-      23      14
-      24      14
-      25      15
-      26      15
-      27      15
-      28      15
-      29      15
-      2a      15
-      2b      15
-      2c      15
-      2d      15
-      2e      15
-      2f      16
+      7      13
+      8      14
+      9      14
+      a      14
+      b      14
+      c      14
+      d      14
+      e      14
+      f      15
+      10      15
+      11      15
+      12      15
+      13      15
+      14      15
+      15      15
+      1d      16
+      1e      17
+      1f      17
+      20      17
+      21      17
+      22      17
+      23      17
+      24      17
+      25      18
+      26      18
+      27      18
+      28      18
+      29      18
+      2a      18
+      2b      18
+      2c      18
+      2d      18
+      2e      18
+      2f      19
    }
 
    method 'm2 (I)V' {
-      0      19
-   }
-
-   method 'm2 (Ljava/lang/String;)V' {
       0      22
    }
 
-   method 'test2 (Ljava/lang/Comparable;)V' {
+   method 'm2 (J)V' {
       0      25
-      1      25
-      2      25
-      3      25
-      4      25
-      7      26
-      8      26
-      9      26
-      a      26
-      b      26
-      c      26
-      d      26
-      e      26
-      f      26
-      10      26
-      11      26
-      15      28
-      16      28
-      17      28
-      18      28
-      19      28
-      1a      28
-      1d      30
+   }
+
+   method 'm2 (Ljava/lang/String;)V' {
+      0      28
+   }
+
+   method 'test2 (Ljava/lang/Comparable;)V' {
+      0      31
+      1      31
+      2      31
+      3      31
+      4      31
+      7      32
+      8      32
+      9      32
+      a      32
+      b      32
+      c      32
+      d      32
+      e      32
+      f      32
+      10      32
+      11      32
+      15      34
+      16      34
+      17      34
+      18      34
+      19      34
+      1a      34
+      1d      36
    }
 
    method 'test3 (Ljava/lang/Object;)V' {
-      0      33
-      1      33
-      2      33
-      3      33
-      4      33
-      7      34
-      8      34
-      9      34
-      a      34
-      b      34
-      c      34
-      d      34
-      e      34
-      f      34
-      10      34
-      11      34
-      15      36
-      16      36
-      17      36
-      18      36
-      19      36
-      1a      36
-      1d      38
+      0      39
+      1      39
+      2      39
+      3      39
+      4      39
+      7      40
+      8      40
+      9      40
+      a      40
+      b      40
+      c      40
+      d      40
+      e      40
+      f      40
+      10      40
+      11      40
+      15      42
+      16      42
+      17      42
+      18      42
+      19      42
+      1a      42
+      1d      44
+   }
+
+   method 'test4 ()V' {
+      0      47
+      1      47
+      3      47
+      4      47
+      5      47
+      8      47
+      c      47
+      d      47
+      e      47
+      f      48
+      10      48
+      12      48
+      13      48
+      14      48
+      17      48
+      1b      48
+      1c      48
+      1d      48
+      1e      48
+      1f      49
+      20      49
+      22      49
+      23      49
+      24      49
+      27      49
+      2b      49
+      2c      49
+      2d      49
+      2e      49
+      2f      50
+      30      50
+      32      50
+      33      50
+      34      50
+      37      50
+      3b      50
+      3c      50
+      3d      50
+      3e      51
    }
 }
 
 Lines mapping:
-4 <-> 5
-5 <-> 8
-8 <-> 11
-9 <-> 12
-10 <-> 13
-12 <-> 14
-13 <-> 15
-14 <-> 16
-15 <-> 17
-17 <-> 20
-18 <-> 23
-21 <-> 26
-22 <-> 27
-24 <-> 29
-26 <-> 31
-29 <-> 34
-30 <-> 35
-32 <-> 37
-34 <-> 39
+4 <-> 8
+5 <-> 11
+8 <-> 14
+9 <-> 15
+10 <-> 16
+12 <-> 17
+13 <-> 18
+14 <-> 19
+15 <-> 20
+17 <-> 23
+18 <-> 26
+19 <-> 29
+22 <-> 32
+23 <-> 33
+25 <-> 35
+27 <-> 37
+30 <-> 40
+31 <-> 41
+33 <-> 43
+35 <-> 45
+40 <-> 48
+41 <-> 49
+43 <-> 50
+44 <-> 51
+45 <-> 52

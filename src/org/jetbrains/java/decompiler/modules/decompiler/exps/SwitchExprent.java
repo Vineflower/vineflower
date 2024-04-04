@@ -90,7 +90,8 @@ public class SwitchExprent extends Exprent {
         }
 
         if (value instanceof FieldExprent && ((FieldExprent) value).isStatic()) { // enum values
-          buf.append(((FieldExprent) value).getName());
+          FieldExprent field = (FieldExprent) value;
+          buf.appendField(field.getName(), false, field.getClassname(), field.getName(), field.getDescriptor());
         } else if (value instanceof FunctionExprent && ((FunctionExprent) value).getFuncType() == FunctionExprent.FunctionType.INSTANCEOF) {
           // Pattern matching variables
           List<Exprent> operands = ((FunctionExprent) value).getLstOperands();
@@ -112,6 +113,11 @@ public class SwitchExprent extends Exprent {
 
       if (hasDefault) {
         if (!hasEdge) {
+          // Don't write 'default -> {}'
+          if (stat instanceof BasicBlockStatement && isEmptyDefault(((BasicBlockStatement)stat), backing)) {
+            continue;
+          }
+
           buf.appendIndent(indent + 1).append("default");
         } else {
           buf.append(", default");
@@ -168,6 +174,16 @@ public class SwitchExprent extends Exprent {
     buf.appendIndent(indent).append("}");
 
     return buf;
+  }
+
+  private static boolean isEmptyDefault(BasicBlockStatement block, SwitchStatement head) {
+    if (!block.getExprents().isEmpty()) {
+      return false;
+    }
+
+    List<StatEdge> edges = block.getSuccessorEdgeView(StatEdge.TYPE_BREAK);
+
+    return edges.size() == 1;
   }
 
   private boolean isExhaustive() {

@@ -7,7 +7,7 @@ public class TestGenericInput<T> {
    private TestGenericInput.Inner<T> inner;
 
    public void test(List<T> list) {
-      this.inner.apply((T)list);// 13
+      this.inner.apply(list);// 13
    }// 14
 
    public interface Inner<T> extends Function<List<T>, TestGenericInput<T>> {

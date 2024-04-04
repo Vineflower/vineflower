@@ -43,17 +43,21 @@ public final class ExitHelper {
           Statement last = st.getStats().getLast();
           Statement secondlast = st.getStats().get(st.getStats().size() - 2);
 
-          if (last.getExprents() == null || !last.getExprents().isEmpty()) {
-            if (!secondlast.hasBasicSuccEdge()) {
+          if (!secondlast.hasBasicSuccEdge()) {
+            Set<Statement> set = last.getNeighboursSet(Statement.STATEDGE_DIRECT_ALL, EdgeDirection.BACKWARD);
+            set.remove(secondlast);
 
-              Set<Statement> set = last.getNeighboursSet(Statement.STATEDGE_DIRECT_ALL, EdgeDirection.BACKWARD);
-              set.remove(secondlast);
-
-              if (set.isEmpty()) {
-                last.setExprents(new ArrayList<>());
-                found = true;
-                break;
+            if (set.isEmpty()) {
+              last.getExprents().clear();
+              st.getStats().removeWithKey(last.id);
+              for (StatEdge succEdge : last.getAllSuccessorEdges()) {
+                succEdge.remove();
               }
+              for (StatEdge predEdge : last.getAllPredecessorEdges()) {
+                predEdge.remove();
+              }
+              found = true;
+              break;
             }
           }
         }
@@ -103,13 +107,12 @@ public final class ExitHelper {
       }
 
       if (stat instanceof IfStatement) {
-        IfStatement ifst = (IfStatement)stat;
+        IfStatement ifst = (IfStatement) stat;
         if (ifst.getIfstat() == null) {
           StatEdge ifedge = ifst.getIfEdge();
           dest = isExitEdge(ifedge);
           if (dest != null) {
-            BasicBlockStatement bstat = new BasicBlockStatement(new BasicBlock(
-              DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.STATEMENT_COUNTER)));
+            BasicBlockStatement bstat = BasicBlockStatement.create();
             bstat.setExprents(DecHelper.copyExprentList(dest.getExprents()));
 
             ifst.getFirst().removeSuccessor(ifedge);
@@ -136,15 +139,14 @@ public final class ExitHelper {
         stat.getLabelEdges().isEmpty()) {
       Statement parent = stat.getParent();
       if (stat != parent.getFirst() || !(parent instanceof IfStatement ||
-                                        parent instanceof SwitchStatement)) {
+                                         parent instanceof SwitchStatement)) {
 
         StatEdge destedge = stat.getAllSuccessorEdges().get(0);
         dest = isExitEdge(destedge);
         if (dest != null) {
           stat.removeSuccessor(destedge);
 
-          BasicBlockStatement bstat = new BasicBlockStatement(new BasicBlock(
-            DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.STATEMENT_COUNTER)));
+          BasicBlockStatement bstat = BasicBlockStatement.create();
           bstat.setExprents(DecHelper.copyExprentList(dest.getExprents()));
 
           StatEdge oldexitedge = dest.getAllSuccessorEdges().get(0);
@@ -215,12 +217,11 @@ public final class ExitHelper {
           Statement source = ed.getSource();
 
           if (source instanceof BasicBlockStatement || (source instanceof IfStatement &&
-                                                           ((IfStatement)source).iftype == IfStatement.IFTYPE_IF) ||
-              (source instanceof DoStatement && ((DoStatement)source).getLooptype() != DoStatement.Type.INFINITE)) {
+                                                        ((IfStatement) source).iftype == IfStatement.IFTYPE_IF) ||
+              (source instanceof DoStatement && ((DoStatement) source).getLooptype() != DoStatement.Type.INFINITE)) {
             return false;
           }
-        }
-        else {
+        } else {
           return false;
         }
       }
@@ -241,7 +242,7 @@ public final class ExitHelper {
         if (lstExpr != null && !lstExpr.isEmpty()) {
           Exprent expr = lstExpr.get(lstExpr.size() - 1);
           if (expr instanceof ExitExprent) {
-            ExitExprent ex = (ExitExprent)expr;
+            ExitExprent ex = (ExitExprent) expr;
             if (ex.getExitType() == ExitExprent.Type.RETURN && ex.getValue() == null) {
               // remove redundant return
               dummyExit.addBytecodeOffsets(ex.bytecode);
@@ -276,7 +277,7 @@ public final class ExitHelper {
           // If any of the return expression has constants, adjust them to the return type of the method
           for (Exprent exprent : exitExprents) {
             if (exprent instanceof ConstExprent) {
-              ((ConstExprent)exprent).adjustConstType(desc.ret);
+              ((ConstExprent) exprent).adjustConstType(desc.ret);
               res = true;
             }
           }

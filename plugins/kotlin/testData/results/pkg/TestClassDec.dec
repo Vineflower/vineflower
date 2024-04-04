@@ -1,0 +1,148 @@
+package pkg
+
+class TestClassDec {
+   public fun pkg.TestClassDec.Vec2iVal.dot(v: pkg.TestClassDec.Vec2iVal): Int {
+      return `$this$dot`.getX() * v.getX() + `$this$dot`.getY() * v.getY();// 11
+   }
+
+   public fun test() {
+      new TestClassDec.EmptyDec();
+      var vec: TestClassDec.Vec2iVal = new TestClassDec.Vec2iVal(1, 2);// 16
+      var vec1: TestClassDec.Vec2iVal = new TestClassDec.Vec2iVal(2, 4);// 17
+      System.out.println(vec.getX());// 19
+      System.out.println(this.dot(vec, vec1));// 20
+   }// 21
+
+   class EmptyDec {
+   }
+
+   class Vec2i(x: Int, y: Int) {
+   }
+
+   class Vec2iVal(x: Int, y: Int) {
+      public final val x: Int
+      public final val y: Int
+
+      init {
+         this.x = x;// 7
+         this.y = y;
+      }
+   }
+
+   class Vec2iVar(x: Int, y: Int) {
+      public final var x: Int
+         internal set
+      public final var y: Int
+         internal set
+
+      init {
+         this.x = x;// 6
+         this.y = y;
+      }
+   }
+}
+
+class 'pkg/TestClassDec' {
+   method 'dot (Lpkg/TestClassDec$Vec2iVal;Lpkg/TestClassDec$Vec2iVal;)I' {
+      c      4
+      d      4
+      e      4
+      f      4
+      10      4
+      11      4
+      12      4
+      13      4
+      14      4
+      15      4
+      16      4
+      17      4
+      18      4
+      19      4
+      1a      4
+      1b      4
+      1c      4
+      1d      4
+      1e      4
+      1f      4
+   }
+
+   method 'test ()V' {
+      c      9
+      d      9
+      11      9
+      16      10
+      17      10
+      1b      10
+      1c      11
+      1d      11
+      1e      11
+      1f      11
+      22      11
+      23      11
+      24      11
+      25      11
+      26      11
+      27      11
+      28      11
+      29      11
+      2a      12
+      2b      12
+      2c      12
+      2d      12
+      2e      12
+      2f      12
+      32      12
+      33      12
+      34      12
+      35      12
+      36      12
+      37      12
+      38      12
+      39      12
+      3a      13
+   }
+}
+
+class 'pkg/TestClassDec$Vec2iVal' {
+   method '<init> (II)V' {
+      4      26
+      5      26
+      6      26
+      7      26
+      8      26
+      9      27
+      a      27
+      b      27
+      c      27
+      d      27
+      e      28
+   }
+}
+
+class 'pkg/TestClassDec$Vec2iVar' {
+   method '<init> (II)V' {
+      4      38
+      5      38
+      6      38
+      7      38
+      8      38
+      9      39
+      a      39
+      b      39
+      c      39
+      d      39
+      e      40
+   }
+}
+
+Lines mapping:
+6 <-> 39
+7 <-> 27
+11 <-> 5
+16 <-> 10
+17 <-> 11
+19 <-> 12
+20 <-> 13
+21 <-> 14
+Not mapped:
+15

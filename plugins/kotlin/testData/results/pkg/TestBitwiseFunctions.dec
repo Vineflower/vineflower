@@ -1,0 +1,79 @@
+package pkg
+
+class TestBitwiseFunctions {
+   public fun and(a: Int, b: Int): Int {
+      return a and b;// 5
+   }
+
+   public fun or(a: Int, b: Int): Int {
+      return a or b;// 9
+   }
+
+   public fun xor(a: Int, b: Int): Int {
+      return a xor b;// 13
+   }
+
+   public fun shl(a: Int, b: Int): Int {
+      return a shl b;// 17
+   }
+
+   public fun shr(a: Int, b: Int): Int {
+      return a shr b;// 21
+   }
+
+   public fun ushr(a: Int, b: Int): Int {
+      return a ushr b;// 25
+   }
+}
+
+class 'pkg/TestBitwiseFunctions' {
+   method 'and (II)I' {
+      0      4
+      1      4
+      2      4
+      3      4
+   }
+
+   method 'or (II)I' {
+      0      8
+      1      8
+      2      8
+      3      8
+   }
+
+   method 'xor (II)I' {
+      0      12
+      1      12
+      2      12
+      3      12
+   }
+
+   method 'shl (II)I' {
+      0      16
+      1      16
+      2      16
+      3      16
+   }
+
+   method 'shr (II)I' {
+      0      20
+      1      20
+      2      20
+      3      20
+   }
+
+   method 'ushr (II)I' {
+      0      24
+      1      24
+      2      24
+      3      24
+   }
+}
+
+Lines mapping:
+5 <-> 5
+9 <-> 9
+13 <-> 13
+17 <-> 17
+21 <-> 21
+25 <-> 25

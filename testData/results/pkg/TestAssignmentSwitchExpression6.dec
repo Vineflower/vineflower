@@ -2,27 +2,18 @@ package pkg;
 
 public class TestAssignmentSwitchExpression6 {
    public void test(String directionStr, int i) {
-      String axis;
-      String var10000;
-      for(axis = directionStr; i > 0; axis = var10000) {// 5 6
-         --i;// 7
+      String axis = directionStr;// 5
+
+      while (i > 0) {// 6
+         i--;// 7
          String var4 = directionStr.toLowerCase();// 8
-         switch(var4) {
-            case "north":
-            case "south":
-               var10000 = "y";// 11
-               break;
-            case "east":
-            case "west":
-               var10000 = "x";// 14
-               break;
-            case "up":
-            case "down":
-               var10000 = "z";// 17
-               break;
-            default:
-               throw new IllegalStateException("Unexpected value: " + directionStr);// 19
-         }
+
+         axis = switch (var4) {
+            case "north", "south" -> "y";// 11
+            case "east", "west" -> "x";// 14
+            case "up", "down" -> "z";// 17
+            default -> throw new IllegalStateException("Unexpected value: " + directionStr);// 19
+         };
       }
 
       System.out.println(axis);// 23
@@ -31,8 +22,8 @@ public class TestAssignmentSwitchExpression6 {
 
 class 'pkg/TestAssignmentSwitchExpression6' {
    method 'test (Ljava/lang/String;I)V' {
-      0      6
-      1      6
+      0      4
+      1      4
       2      6
       3      6
       6      7
@@ -44,57 +35,54 @@ class 'pkg/TestAssignmentSwitchExpression6' {
       c      8
       d      8
       e      8
-      12      9
-      13      9
-      52      10
-      53      10
+      12      10
+      13      10
+      52      11
+      53      11
       62      11
       63      11
-      72      14
-      73      14
-      82      15
-      83      15
-      92      18
-      93      18
-      a2      19
-      a3      19
-      af      9
-      d4      12
-      d5      12
-      d6      13
-      d9      16
-      da      16
-      db      17
-      de      20
-      df      20
-      e0      21
-      e7      23
-      e8      23
-      e9      23
-      ea      23
-      eb      23
-      ec      23
-      f0      23
-      f1      6
-      f5      27
-      f6      27
-      f7      27
-      f8      27
-      f9      27
-      fa      27
-      fb      27
-      fc      28
+      72      12
+      73      12
+      82      12
+      83      12
+      92      13
+      93      13
+      a2      13
+      a3      13
+      af      10
+      d4      11
+      d5      11
+      d9      12
+      da      12
+      de      13
+      df      13
+      e7      14
+      e8      14
+      e9      14
+      ea      14
+      eb      14
+      ec      14
+      f0      14
+      f1      10
+      f5      18
+      f6      18
+      f7      18
+      f8      18
+      f9      18
+      fa      18
+      fb      18
+      fc      19
    }
 }
 
 Lines mapping:
-5 <-> 7
+5 <-> 5
 6 <-> 7
 7 <-> 8
 8 <-> 9
-11 <-> 13
-14 <-> 17
-17 <-> 21
-19 <-> 24
-23 <-> 28
-24 <-> 29
+11 <-> 12
+14 <-> 13
+17 <-> 14
+19 <-> 15
+23 <-> 19
+24 <-> 20

@@ -5,12 +5,15 @@ package org.jetbrains.java.decompiler.modules.decompiler.exps;
 
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
+import org.jetbrains.java.decompiler.struct.StructClass;
+import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
+import java.util.Optional;
 
 public class AnnotationExprent extends Exprent {
   public enum Type {
@@ -44,14 +47,13 @@ public class AnnotationExprent extends Exprent {
 
     return new AnnotationExprent(className, parNames, exps);
   }
-  
+
   @Override
   public TextBuffer toJava(int indent) {
     TextBuffer buffer = new TextBuffer();
 
-    buffer.appendIndent(indent);
     buffer.append('@');
-    buffer.append(DecompilerContext.getImportCollector().getShortName(ExprProcessor.buildJavaClassName(className)));
+    buffer.appendAllClasses(DecompilerContext.getImportCollector().getShortName(ExprProcessor.buildJavaClassName(className)), className);
 
     Type type = getAnnotationType();
 
@@ -66,11 +68,24 @@ public class AnnotationExprent extends Exprent {
         }
 
         if (type != Type.SINGLE_ELEMENT) {
-          buffer.append(parNames.get(i));
+          String name = parNames.get(i);
+
+          StructClass structClass = DecompilerContext.getStructContext().getClass(className);
+          if (structClass != null) {
+            Optional<StructMethod> method = structClass.getMethods().stream().filter(m -> m.getName().equals(name)).findAny();
+            if (method.isPresent()) {
+              buffer.appendMethod(name, false, className, name, method.get().getDescriptor());
+            } else {
+              buffer.appendMethod(name, false, className, name, "()" + parValues.get(i).getExprType());
+            }
+          } else {
+            buffer.appendMethod(name, false, className, name, "()" + parValues.get(i).getExprType());
+          }
+
           buffer.append(" = ");
         }
 
-        buffer.append(parValues.get(i).toJava(0));
+        buffer.append(parValues.get(i).toJava(indent + 1));
 
         if (i < parNames.size() - 1) {
           buffer.append(',');
@@ -113,7 +128,15 @@ public class AnnotationExprent extends Exprent {
            InterpreterUtil.equalLists(parNames, ann.parNames) &&
            InterpreterUtil.equalLists(parValues, ann.parValues);
   }
-  
+
+  public List<String> getParNames() {
+    return parNames;
+  }
+
+  public List<? extends Exprent> getParValues() {
+    return parValues;
+  }
+
   @Override
   public void getBytecodeRange(BitSet values) {
     measureBytecode(values, parValues);

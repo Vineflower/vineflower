@@ -5,7 +5,7 @@ public class TestClassVar {
    public int field_int = 0;
 
    public void testFieldSSAU() {
-      for(int i = 0; i < 10; ++i) {// 26
+      for (int i = 0; i < 10; i++) {// 26
          try {
             System.out.println();// 29
          } finally {
@@ -23,11 +23,11 @@ public class TestClassVar {
    public void testComplexPropagation() {
       int a = 0;// 45
 
-      while(a < 10) {// 47
+      while (a < 10) {// 47
          int b = a;// 49
 
-         while(a < 10 && a == 0) {// 51
-            ++a;
+         while (a < 10 && a == 0) {// 51
+            a++;
          }
 
          if (b != a) {// 54

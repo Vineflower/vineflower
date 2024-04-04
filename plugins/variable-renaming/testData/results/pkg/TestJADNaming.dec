@@ -1,0 +1,211 @@
+package pkg;
+
+public class TestJADNaming {
+   public void Func() {
+      int i = 1000;// 5
+      int j = 2000;
+      int k = 3000;
+      int l = 4000;
+      if (i != j && k == l) {// 6
+      }
+
+      boolean flag = true;// 7
+      boolean flag1 = false;
+      boolean flag2 = true;
+      boolean flag3 = false;
+      if (flag != flag1 && flag2 == flag3) {// 8
+      }
+   }// 9
+
+   public void types() {
+      short short1 = 0;// 12
+      short short2 = 0;// 13
+      byte b0 = 0;// 14
+      byte b1 = 0;// 15
+      char c0 = 'c';// 16
+      char c1 = 'c';// 17
+      double d0 = 0.5;// 18
+      double d1 = 0.5;// 19
+      float f = 0.5F;// 20
+      float f1 = 0.5F;// 21
+      int i = 1;// 23
+      int j = 1;// 24
+      long k = 1L;// 25
+      long l = 1L;// 26
+      int i1 = 1;// 27
+      int j1 = 1;// 28
+      long k1 = 1L;// 29
+   }// 30
+
+   public void objects() {
+      Class oclass = null;// 33
+      Class oclass1 = null;// 34
+      Enum oenum = null;// 36
+      Enum oenum1 = null;// 37
+      Package opackage = null;// 39
+      Package opackage1 = null;// 40
+   }// 41
+}
+
+class 'pkg/TestJADNaming' {
+   method 'Func ()V' {
+      0      4
+      1      4
+      2      4
+      3      4
+      4      5
+      5      5
+      6      5
+      7      5
+      8      6
+      9      6
+      a      6
+      b      6
+      c      7
+      d      7
+      e      7
+      f      7
+      10      7
+      11      8
+      12      8
+      13      8
+      16      8
+      17      8
+      18      8
+      19      8
+      1c      11
+      1d      11
+      1e      11
+      1f      12
+      20      12
+      21      12
+      22      13
+      23      13
+      24      13
+      25      14
+      26      14
+      27      14
+      28      15
+      29      15
+      2a      15
+      2b      15
+      2c      15
+      2f      15
+      30      15
+      31      15
+      32      15
+      33      15
+      36      17
+   }
+
+   method 'types ()V' {
+      0      20
+      1      20
+      2      21
+      3      21
+      4      22
+      5      22
+      6      23
+      7      23
+      8      23
+      9      24
+      a      24
+      b      24
+      c      24
+      d      25
+      e      25
+      f      25
+      10      25
+      11      26
+      12      26
+      13      26
+      14      26
+      15      26
+      16      27
+      17      27
+      18      27
+      19      27
+      1a      27
+      1b      28
+      1c      28
+      1d      28
+      1e      28
+      1f      29
+      20      29
+      21      29
+      22      29
+      23      30
+      24      30
+      25      30
+      26      31
+      27      31
+      28      31
+      29      32
+      2a      32
+      2b      32
+      2c      33
+      2d      33
+      2e      33
+      2f      34
+      30      34
+      31      34
+      32      35
+      33      35
+      34      35
+      35      36
+      36      36
+      37      36
+      38      37
+   }
+
+   method 'objects ()V' {
+      0      40
+      1      40
+      2      41
+      3      41
+      4      42
+      5      42
+      6      43
+      7      43
+      8      43
+      9      44
+      a      44
+      b      44
+      c      45
+      d      45
+      e      45
+      f      46
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 9
+7 <-> 12
+8 <-> 16
+9 <-> 18
+12 <-> 21
+13 <-> 22
+14 <-> 23
+15 <-> 24
+16 <-> 25
+17 <-> 26
+18 <-> 27
+19 <-> 28
+20 <-> 29
+21 <-> 30
+23 <-> 31
+24 <-> 32
+25 <-> 33
+26 <-> 34
+27 <-> 35
+28 <-> 36
+29 <-> 37
+30 <-> 38
+33 <-> 41
+34 <-> 42
+36 <-> 43
+37 <-> 44
+39 <-> 45
+40 <-> 46
+41 <-> 47

@@ -1,0 +1,743 @@
+package pkg;
+
+public class TestPatternMatching17AlreadyUsed {
+   void testFakeReuseVarSameNameOutOfScope(Object o) {
+      String s = "Hello";// 6
+      System.out.println(s);// 7
+      if (o instanceof String sx) {// 10 11
+         System.out.println(sx.length());// 12
+      }
+   }// 14
+
+   void testRealReuseVarSameNameOutOfScope(Object o) {
+      String s = "Hello";// 18
+      System.out.println(s);// 19
+      if (o instanceof String sx) {// 22
+         System.out.println(sx.length());// 23
+      }
+   }// 25
+
+   void testFakeReuseVarDifferentNameOutOfScope(Object o) {
+      String sDifferent = "Hello";// 29
+      System.out.println(sDifferent);// 30
+      if (o instanceof String s) {// 33 34
+         System.out.println(s.length());// 35
+      }
+   }// 37
+
+   void testRealReuseVarDifferentNameOutOfScope(Object o) {
+      String sDifferent = "Hello";// 41
+      System.out.println(sDifferent);// 42
+      if (o instanceof String s) {// 45
+         System.out.println(s.length());// 46
+      }
+   }// 48
+
+   void testFakeReuseVarNoPhi(Object o) {
+      String s = "Hello";// 51
+      if (o instanceof String var3) {// 53 54
+         System.out.println(var3.length());// 55
+      }
+   }// 57
+
+   void testFakeReuseVarNoPhiStillUsed(Object o) {
+      String s = "Hello";// 60
+      if (o instanceof String var3) {// 62 63
+         System.out.println(var3.length());// 64
+      } else {
+         System.out.println(s.length());// 66
+      }
+   }// 68
+
+   void testFakeReuseVarPhi(Object o) {
+      String s = "Hello";// 71
+      if (o instanceof String) {// 73
+         s = (String)o;// 74
+      }
+
+      System.out.println(s.length());// 76
+   }// 77
+
+   void testFakeReuseLoopNoPhi(Object[] o) {
+      String s = "Hello";// 80
+
+      for (int i = 0; i < 10; i++) {// 82
+         if (o[i] instanceof String var4) {// 83 84
+            System.out.println(var4.length());// 85
+         }
+      }
+   }// 88
+
+   void testFakeReuseLoopPhi(Object[] o) {
+      String s = "Hello";// 91
+
+      for (int i = 0; i < 10; i++) {// 93
+         if (o[i] instanceof String) {// 94
+            s = (String)o[i];// 95
+         }
+      }
+
+      System.out.println(s.length());// 98
+   }// 99
+
+   void testFakeDoubleReuseNoPhi(Object o) {
+      String s = "Hello";// 102
+      if (o instanceof String var3) {// 103 104
+         System.out.println(var3.length());// 105
+      }
+
+      if (o instanceof String var4) {// 107 108
+         System.out.println(var4.length());// 109
+      }
+   }// 111
+
+   void testFakeQuadrupleReuseNoPhi(Object o) {
+      String s = "Hello";// 114
+      if (o instanceof String var3) {// 115 116
+         System.out.println(var3.length());// 117
+      }
+
+      if (o instanceof String var4) {// 119 120
+         System.out.println(var4.length());// 121
+      }
+
+      if (o instanceof String var5) {// 123 124
+         System.out.println(var5.length());// 125
+      }
+
+      if (o instanceof String var6) {// 127 128
+         System.out.println(var6.length());// 129
+      }
+   }// 131
+
+   void testFakeDoubleReusePhi(Object o) {
+      String s = "Hello";// 134
+      if (o instanceof String) {// 135
+         s = (String)o;// 136
+      }
+
+      System.out.println(s.length());// 138
+      if (o instanceof String) {// 139
+         s = (String)o;// 140
+      }
+
+      System.out.println(s.length());// 142
+   }// 143
+
+   void testFakeQuadrupleReusePhi(Object o) {
+      String s = "Hello";// 146
+      if (o instanceof String) {// 147
+         s = (String)o;// 148
+      }
+
+      System.out.println(s.length());// 150
+      if (o instanceof String) {// 151
+         s = (String)o;// 152
+      }
+
+      System.out.println(s.length());// 154
+      if (o instanceof String) {// 155
+         s = (String)o;// 156
+      }
+
+      System.out.println(s.length());// 158
+      if (o instanceof String) {// 159
+         s = (String)o;// 160
+      }
+
+      System.out.println(s.length());// 162
+   }// 163
+}
+
+class 'pkg/TestPatternMatching17AlreadyUsed' {
+   method 'testFakeReuseVarSameNameOutOfScope (Ljava/lang/Object;)V' {
+      0      4
+      1      4
+      2      4
+      3      5
+      4      5
+      5      5
+      6      5
+      7      5
+      8      5
+      9      5
+      a      6
+      b      6
+      c      6
+      d      6
+      e      6
+      15      6
+      16      7
+      17      7
+      18      7
+      19      7
+      1a      7
+      1b      7
+      1c      7
+      1d      7
+      20      9
+   }
+
+   method 'testRealReuseVarSameNameOutOfScope (Ljava/lang/Object;)V' {
+      0      12
+      1      12
+      2      12
+      3      13
+      4      13
+      5      13
+      6      13
+      7      13
+      8      13
+      9      13
+      a      14
+      b      14
+      c      14
+      d      14
+      e      14
+      15      14
+      16      15
+      17      15
+      18      15
+      19      15
+      1a      15
+      1b      15
+      1c      15
+      1d      15
+      20      17
+   }
+
+   method 'testFakeReuseVarDifferentNameOutOfScope (Ljava/lang/Object;)V' {
+      0      20
+      1      20
+      2      20
+      3      21
+      4      21
+      5      21
+      6      21
+      7      21
+      8      21
+      9      21
+      a      22
+      b      22
+      c      22
+      d      22
+      e      22
+      15      22
+      16      23
+      17      23
+      18      23
+      19      23
+      1a      23
+      1b      23
+      1c      23
+      1d      23
+      20      25
+   }
+
+   method 'testRealReuseVarDifferentNameOutOfScope (Ljava/lang/Object;)V' {
+      0      28
+      1      28
+      2      28
+      3      29
+      4      29
+      5      29
+      6      29
+      7      29
+      8      29
+      9      29
+      a      30
+      b      30
+      c      30
+      d      30
+      e      30
+      15      30
+      16      31
+      17      31
+      18      31
+      19      31
+      1a      31
+      1b      31
+      1c      31
+      1d      31
+      20      33
+   }
+
+   method 'testFakeReuseVarNoPhi (Ljava/lang/Object;)V' {
+      0      36
+      1      36
+      2      36
+      3      37
+      4      37
+      5      37
+      6      37
+      7      37
+      e      37
+      f      38
+      10      38
+      11      38
+      12      38
+      13      38
+      14      38
+      15      38
+      16      38
+      19      40
+   }
+
+   method 'testFakeReuseVarNoPhiStillUsed (Ljava/lang/Object;)V' {
+      0      43
+      1      43
+      2      43
+      3      44
+      4      44
+      5      44
+      6      44
+      7      44
+      e      44
+      f      45
+      10      45
+      11      45
+      12      45
+      13      45
+      14      45
+      15      45
+      16      45
+      17      45
+      18      45
+      1c      47
+      1d      47
+      1e      47
+      1f      47
+      20      47
+      21      47
+      22      47
+      23      47
+      26      49
+   }
+
+   method 'testFakeReuseVarPhi (Ljava/lang/Object;)V' {
+      0      52
+      1      52
+      2      52
+      3      53
+      4      53
+      5      53
+      6      53
+      7      53
+      a      54
+      b      54
+      c      54
+      d      54
+      e      54
+      f      57
+      10      57
+      11      57
+      12      57
+      13      57
+      14      57
+      15      57
+      16      57
+      17      57
+      18      57
+      19      58
+   }
+
+   method 'testFakeReuseLoopNoPhi ([Ljava/lang/Object;)V' {
+      0      61
+      1      61
+      2      61
+      3      63
+      4      63
+      5      63
+      6      63
+      7      63
+      8      63
+      b      64
+      c      64
+      d      64
+      e      64
+      f      64
+      10      64
+      11      64
+      1a      64
+      1b      65
+      1c      65
+      1d      65
+      1e      65
+      1f      65
+      20      65
+      21      65
+      22      65
+      25      63
+      26      63
+      27      63
+      2b      68
+   }
+
+   method 'testFakeReuseLoopPhi ([Ljava/lang/Object;)V' {
+      0      71
+      1      71
+      2      71
+      3      73
+      4      73
+      5      73
+      6      73
+      7      73
+      8      73
+      b      74
+      c      74
+      d      74
+      e      74
+      f      74
+      10      74
+      11      74
+      14      75
+      15      75
+      16      75
+      17      75
+      18      75
+      19      75
+      1a      75
+      1b      73
+      1c      73
+      1d      73
+      21      79
+      22      79
+      23      79
+      24      79
+      25      79
+      26      79
+      27      79
+      28      79
+      29      79
+      2a      79
+      2b      80
+   }
+
+   method 'testFakeDoubleReuseNoPhi (Ljava/lang/Object;)V' {
+      0      83
+      1      83
+      2      83
+      3      84
+      4      84
+      5      84
+      6      84
+      7      84
+      e      84
+      f      85
+      10      85
+      11      85
+      12      85
+      13      85
+      14      85
+      15      85
+      16      85
+      19      88
+      1a      88
+      1b      88
+      1c      88
+      1d      88
+      24      88
+      25      89
+      26      89
+      27      89
+      28      89
+      29      89
+      2a      89
+      2b      89
+      2c      89
+      2f      91
+   }
+
+   method 'testFakeQuadrupleReuseNoPhi (Ljava/lang/Object;)V' {
+      0      94
+      1      94
+      2      94
+      3      95
+      4      95
+      5      95
+      6      95
+      7      95
+      e      95
+      f      96
+      10      96
+      11      96
+      12      96
+      13      96
+      14      96
+      15      96
+      16      96
+      19      99
+      1a      99
+      1b      99
+      1c      99
+      1d      99
+      24      99
+      25      100
+      26      100
+      27      100
+      28      100
+      29      100
+      2a      100
+      2b      100
+      2c      100
+      2f      103
+      30      103
+      31      103
+      32      103
+      33      103
+      3a      103
+      3b      104
+      3c      104
+      3d      104
+      3e      104
+      3f      104
+      40      104
+      41      104
+      42      104
+      45      107
+      46      107
+      47      107
+      48      107
+      49      107
+      50      107
+      51      108
+      52      108
+      53      108
+      54      108
+      55      108
+      56      108
+      57      108
+      58      108
+      5b      110
+   }
+
+   method 'testFakeDoubleReusePhi (Ljava/lang/Object;)V' {
+      0      113
+      1      113
+      2      113
+      3      114
+      4      114
+      5      114
+      6      114
+      7      114
+      a      115
+      b      115
+      c      115
+      d      115
+      e      115
+      f      118
+      10      118
+      11      118
+      12      118
+      13      118
+      14      118
+      15      118
+      16      118
+      17      118
+      18      118
+      19      119
+      1a      119
+      1b      119
+      1c      119
+      1d      119
+      20      120
+      21      120
+      22      120
+      23      120
+      24      120
+      25      123
+      26      123
+      27      123
+      28      123
+      29      123
+      2a      123
+      2b      123
+      2c      123
+      2d      123
+      2e      123
+      2f      124
+   }
+
+   method 'testFakeQuadrupleReusePhi (Ljava/lang/Object;)V' {
+      0      127
+      1      127
+      2      127
+      3      128
+      4      128
+      5      128
+      6      128
+      7      128
+      a      129
+      b      129
+      c      129
+      d      129
+      e      129
+      f      132
+      10      132
+      11      132
+      12      132
+      13      132
+      14      132
+      15      132
+      16      132
+      17      132
+      18      132
+      19      133
+      1a      133
+      1b      133
+      1c      133
+      1d      133
+      20      134
+      21      134
+      22      134
+      23      134
+      24      134
+      25      137
+      26      137
+      27      137
+      28      137
+      29      137
+      2a      137
+      2b      137
+      2c      137
+      2d      137
+      2e      137
+      2f      138
+      30      138
+      31      138
+      32      138
+      33      138
+      36      139
+      37      139
+      38      139
+      39      139
+      3a      139
+      3b      142
+      3c      142
+      3d      142
+      3e      142
+      3f      142
+      40      142
+      41      142
+      42      142
+      43      142
+      44      142
+      45      143
+      46      143
+      47      143
+      48      143
+      49      143
+      4c      144
+      4d      144
+      4e      144
+      4f      144
+      50      144
+      51      147
+      52      147
+      53      147
+      54      147
+      55      147
+      56      147
+      57      147
+      58      147
+      59      147
+      5a      147
+      5b      148
+   }
+}
+
+Lines mapping:
+6 <-> 5
+7 <-> 6
+10 <-> 7
+11 <-> 7
+12 <-> 8
+14 <-> 10
+18 <-> 13
+19 <-> 14
+22 <-> 15
+23 <-> 16
+25 <-> 18
+29 <-> 21
+30 <-> 22
+33 <-> 23
+34 <-> 23
+35 <-> 24
+37 <-> 26
+41 <-> 29
+42 <-> 30
+45 <-> 31
+46 <-> 32
+48 <-> 34
+51 <-> 37
+53 <-> 38
+54 <-> 38
+55 <-> 39
+57 <-> 41
+60 <-> 44
+62 <-> 45
+63 <-> 45
+64 <-> 46
+66 <-> 48
+68 <-> 50
+71 <-> 53
+73 <-> 54
+74 <-> 55
+76 <-> 58
+77 <-> 59
+80 <-> 62
+82 <-> 64
+83 <-> 65
+84 <-> 65
+85 <-> 66
+88 <-> 69
+91 <-> 72
+93 <-> 74
+94 <-> 75
+95 <-> 76
+98 <-> 80
+99 <-> 81
+102 <-> 84
+103 <-> 85
+104 <-> 85
+105 <-> 86
+107 <-> 89
+108 <-> 89
+109 <-> 90
+111 <-> 92
+114 <-> 95
+115 <-> 96
+116 <-> 96
+117 <-> 97
+119 <-> 100
+120 <-> 100
+121 <-> 101
+123 <-> 104
+124 <-> 104
+125 <-> 105
+127 <-> 108
+128 <-> 108
+129 <-> 109
+131 <-> 111
+134 <-> 114
+135 <-> 115
+136 <-> 116
+138 <-> 119
+139 <-> 120
+140 <-> 121
+142 <-> 124
+143 <-> 125
+146 <-> 128
+147 <-> 129
+148 <-> 130
+150 <-> 133
+151 <-> 134
+152 <-> 135
+154 <-> 138
+155 <-> 139
+156 <-> 140
+158 <-> 143
+159 <-> 144
+160 <-> 145
+162 <-> 148
+163 <-> 149

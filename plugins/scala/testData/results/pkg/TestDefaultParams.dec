@@ -1,0 +1,136 @@
+package pkg;
+
+public final class TestDefaultParams {
+   public static void defaulted(String var0) {
+      TestDefaultParams$.MODULE$.defaulted(var0);
+   }
+
+   public static void user() {
+      TestDefaultParams$.MODULE$.user();
+   }
+
+   public static String defaulted$default$1() {
+      return TestDefaultParams$.MODULE$.defaulted$default$1();
+   }
+}
+
+class 'pkg/TestDefaultParams' {
+   method 'defaulted (Ljava/lang/String;)V' {
+      0      4
+      1      4
+      2      4
+      3      4
+      4      4
+      5      4
+      6      4
+      7      5
+   }
+
+   method 'user ()V' {
+      0      8
+      1      8
+      2      8
+      3      8
+      4      8
+      5      8
+      6      9
+   }
+
+   method 'defaulted$default$1 ()Ljava/lang/String;' {
+      0      12
+      1      12
+      2      12
+      3      12
+      4      12
+      5      12
+      6      12
+   }
+}
+
+Lines mapping:
+
+// Decompiled companion from pkg/TestDefaultParams$
+package pkg;
+
+import java.io.Serializable;
+import scala.Predef.;
+import scala.runtime.ModuleSerializationProxy;
+
+public final class TestDefaultParams$ implements Serializable {
+   public static final TestDefaultParams$ MODULE$ = new TestDefaultParams$();
+
+   private TestDefaultParams$() {
+   }
+
+   private Object writeReplace() {
+      return new ModuleSerializationProxy(TestDefaultParams$.class);// 3
+   }
+
+   public void defaulted(final String s) {
+      .MODULE$.print(s);// 6
+   }
+
+   public String defaulted$default$1() {
+      return "hello!";// 5
+   }
+
+   public void user() {
+      this.defaulted(this.defaulted$default$1());// 9 10
+      this.defaulted("world!");// 11
+   }
+}
+
+class 'pkg/TestDefaultParams$' {
+   method '<init> ()V' {
+      4      10
+   }
+
+   method 'writeReplace ()Ljava/lang/Object;' {
+      4      13
+      5      13
+      9      13
+   }
+
+   method 'defaulted (Ljava/lang/String;)V' {
+      0      17
+      1      17
+      2      17
+      3      17
+      4      17
+      5      17
+      6      17
+      7      18
+   }
+
+   method 'defaulted$default$1 ()Ljava/lang/String;' {
+      0      21
+      1      21
+      2      21
+   }
+
+   method 'user ()V' {
+      0      25
+      1      25
+      2      25
+      3      25
+      4      25
+      5      25
+      6      25
+      7      25
+      8      26
+      9      26
+      a      26
+      b      26
+      c      26
+      d      26
+      e      27
+   }
+}
+
+Lines mapping:
+3 <-> 14
+5 <-> 22
+6 <-> 18
+9 <-> 26
+10 <-> 26
+11 <-> 27

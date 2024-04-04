@@ -8,19 +8,19 @@ public class TestNestedLoops {
       List<String> list = new ArrayList<>();// 8
       int i = 0;// 9
 
-      while(true) {
-         while(i >= 10) {// 11
+      while (true) {
+         while (i >= 10) {// 11
          }
 
-         for(String s : list) {// 12
-            for(int j = 0; j < 20; ++j) {// 13
+         for (String s : list) {// 12
+            for (int j = 0; j < 20; j++) {// 13
                do {
                   s.substring(j);// 15
-               } while(s.length() >= j);// 16
+               } while (s.length() >= j);// 16
             }
          }
 
-         ++i;// 19
+         i++;// 19
       }
    }
 
@@ -28,17 +28,17 @@ public class TestNestedLoops {
       List<String> list = new ArrayList<>();// 25
       int i = 0;// 26
 
-      while(true) {
+      while (true) {
          if (i < 10) {// 29
-            for(String s : list) {// 32
-               for(int j = 0; j < 20; ++j) {// 33
+            for (String s : list) {// 32
+               for (int j = 0; j < 20; j++) {// 33
                   do {
                      s.substring(j);// 35
-                  } while(s.length() >= j);// 36
+                  } while (s.length() >= j);// 36
                }
             }
 
-            ++i;// 43
+            i++;// 43
          }
       }
    }

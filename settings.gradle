@@ -1,1 +1,21 @@
+pluginManagement {
+  repositories {
+    mavenCentral() // avoid delegating to JCenter to minimize outages
+    gradlePluginPortal()
+  }
+}
+
+plugins {
+  id 'org.gradle.toolchains.foojay-resolver-convention' version '0.6.0'
+}
+
 rootProject.name = 'vineflower'
+
+[
+  'idea-not-null',
+  'kotlin',
+  'variable-renaming'
+].each {
+  include it
+  project(":$it").projectDir = new File(rootProject.projectDir, "plugins/$it")
+}

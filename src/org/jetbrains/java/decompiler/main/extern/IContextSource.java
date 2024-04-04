@@ -33,6 +33,30 @@ public interface IContextSource {
   Entries getEntries();
 
   /**
+   * Returns whether this context source is lazy. A lazy context source may return {@linkplain Entries#EMPTY} from
+   * {@linkplain #getEntries()} in case the {@code getEntries()} implementation would be too slow. This may come at a
+   * small runtime cost.
+   *
+   * <p>Only libraries can be lazy. This method has no effect on sources.</p>
+   *
+   * @return true if this context source is lazy, false otherwise
+   */
+  default boolean isLazy() {
+    return false;
+  }
+
+  /**
+   * Returns whether a class exists in this source.
+   *
+   * @param className the class name, with no trailing {@code /}
+   * @return true if the class exists, false otherwise
+   * @throws IOException if an error is encountered while checking if the class exists
+   */
+  default boolean hasClass(final String className) throws IOException {
+    return getClassBytes(className) != null;
+  }
+
+  /**
    * Get the full bytes for a class's contents.
    *
    * @param className the class name, with no trailing {@code /}

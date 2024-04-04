@@ -6,6 +6,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class TestGenericCasts {
+   private TestGenericCasts.Func<String, TestGenericCasts.Holder<TestGenericCasts.I>> func;
+
    public void test1(Consumer<String> c) {
       c.accept(null);// 10
    }// 11
@@ -13,12 +15,12 @@ public class TestGenericCasts {
    public void test2(Function<String, List<String>> f) {
       String s = "123abc";// 14
       ((List)f.apply(s)).remove(s);// 15
-      List<String> l = (List)f.apply(s.toUpperCase());// 16
+      List<String> l = (List<String>)f.apply(s.toUpperCase());// 16
    }// 17
 
    public void test3(List<List<String>> l) {
-      for(int i = l.size() - 1; i >= 0; --i) {// 20
-         for(String s : (List)l.get(i)) {// 21
+      for (int i = l.size() - 1; i >= 0; i--) {// 20
+         for (String s : (List)l.get(i)) {// 21
             System.out.println(s);// 22
          }
       }
@@ -31,146 +33,286 @@ public class TestGenericCasts {
 
       System.out.println(c);// 31
    }// 32
+
+   public TestGenericCasts.C conv(String s) {
+      return (TestGenericCasts.C)getOrThrow(this.func.apply(s), IllegalArgumentException::new);// 53
+   }
+
+   public static <T, E extends Throwable> T getOrThrow(TestGenericCasts.Holder<T> holder, Function<String, E> function) throws E {
+      throw new RuntimeException("");// 73
+   }
+
+   class C implements TestGenericCasts.I {
+   }
+
+   interface Func<I, O> {
+      O apply(I var1);
+   }
+
+   final class Holder<T> {
+   }
+
+   interface I {
+   }
+
+   static class Inner<X> {
+      private TestGenericCasts.Func<String, TestGenericCasts.Holder<X>> func2;
+      private TestGenericCasts.Func<String, TestGenericCasts.Holder<TestGenericCasts.I>> func3;
+
+      public <Y extends X> Y conv2(String s) {
+         return TestGenericCasts.getOrThrow(this.func2.apply(s), IllegalArgumentException::new);// 60
+      }
+
+      public <Y extends TestGenericCasts.I> Y conv3(String s) {
+         return TestGenericCasts.getOrThrow(this.func2.apply(s), IllegalArgumentException::new);// 64
+      }
+
+      public <Y extends TestGenericCasts.I> Y conv4(String s) {
+         return TestGenericCasts.getOrThrow((TestGenericCasts.Holder<Y>)this.func3.apply(s), IllegalArgumentException::new);// 68
+      }
+   }
 }
 
 class 'pkg/TestGenericCasts' {
    method 'test1 (Ljava/util/function/Consumer;)V' {
-      0      9
-      1      9
-      2      9
-      3      9
-      4      9
-      5      9
-      6      9
-      7      10
+      0      11
+      1      11
+      2      11
+      3      11
+      4      11
+      5      11
+      6      11
+      7      12
    }
 
    method 'test2 (Ljava/util/function/Function;)V' {
-      0      13
-      1      13
-      2      13
-      3      14
-      4      14
-      5      14
-      6      14
-      7      14
-      8      14
-      9      14
-      a      14
-      b      14
-      c      14
-      d      14
-      e      14
-      f      14
-      10      14
-      11      14
-      12      14
-      14      15
-      15      15
-      16      15
-      17      15
-      18      15
-      19      15
-      1a      15
-      1b      15
-      1c      15
-      1d      15
-      1e      15
-      1f      15
-      20      15
-      21      15
-      22      16
+      0      15
+      1      15
+      2      15
+      3      16
+      4      16
+      5      16
+      6      16
+      7      16
+      8      16
+      9      16
+      a      16
+      b      16
+      c      16
+      d      16
+      e      16
+      f      16
+      10      16
+      11      16
+      12      16
+      14      17
+      15      17
+      16      17
+      17      17
+      18      17
+      19      17
+      1a      17
+      1b      17
+      1c      17
+      1d      17
+      1e      17
+      1f      17
+      20      17
+      21      17
+      22      18
    }
 
    method 'test3 (Ljava/util/List;)V' {
-      0      19
-      1      19
-      2      19
-      3      19
-      4      19
-      5      19
-      6      19
-      7      19
-      8      19
-      9      19
-      a      19
-      d      20
-      e      20
-      f      20
-      10      20
-      11      20
-      12      20
-      13      20
-      14      20
-      15      20
-      16      20
-      17      20
-      18      20
-      19      20
-      1a      20
-      1b      20
-      1c      20
-      26      20
-      27      20
-      28      20
-      29      20
-      2a      20
-      2b      20
-      2c      20
-      2d      20
-      2e      20
-      2f      20
-      30      20
-      31      21
-      32      21
-      33      21
-      34      21
-      35      21
-      36      21
-      37      21
-      38      21
-      3c      19
-      3d      19
-      3e      19
-      42      24
+      0      21
+      1      21
+      2      21
+      3      21
+      4      21
+      5      21
+      6      21
+      7      21
+      8      21
+      9      21
+      a      21
+      d      22
+      e      22
+      f      22
+      10      22
+      11      22
+      12      22
+      13      22
+      14      22
+      15      22
+      16      22
+      17      22
+      18      22
+      19      22
+      1a      22
+      1b      22
+      1c      22
+      26      22
+      27      22
+      28      22
+      29      22
+      2a      22
+      2b      22
+      2c      22
+      2d      22
+      2e      22
+      2f      22
+      30      22
+      31      23
+      32      23
+      33      23
+      34      23
+      35      23
+      36      23
+      37      23
+      38      23
+      3c      21
+      3d      21
+      3e      21
+      42      26
    }
 
    method 'test4 (Ljava/util/Collection;)V' {
-      0      27
-      1      27
-      2      27
-      3      27
-      4      27
-      7      28
-      8      28
-      9      28
-      a      28
-      10      28
-      15      31
-      16      31
-      17      31
-      18      31
-      19      31
-      1a      31
-      1b      31
-      1c      32
+      0      29
+      1      29
+      2      29
+      3      29
+      4      29
+      7      30
+      8      30
+      9      30
+      a      30
+      10      30
+      15      33
+      16      33
+      17      33
+      18      33
+      19      33
+      1a      33
+      1b      33
+      1c      34
+   }
+
+   method 'conv (Ljava/lang/String;)Lpkg/TestGenericCasts$C;' {
+      0      37
+      1      37
+      2      37
+      3      37
+      4      37
+      5      37
+      6      37
+      7      37
+      8      37
+      9      37
+      a      37
+      b      37
+      c      37
+      12      37
+      13      37
+      14      37
+      15      37
+      16      37
+      17      37
+      18      37
+   }
+
+   method 'getOrThrow (Lpkg/TestGenericCasts$Holder;Ljava/util/function/Function;)Ljava/lang/Object;' {
+      4      41
+      5      41
+      9      41
+   }
+}
+
+class 'pkg/TestGenericCasts$Inner' {
+   method 'conv2 (Ljava/lang/String;)Ljava/lang/Object;' {
+      0      62
+      1      62
+      2      62
+      3      62
+      4      62
+      5      62
+      6      62
+      7      62
+      8      62
+      9      62
+      a      62
+      b      62
+      c      62
+      12      62
+      13      62
+      14      62
+      15      62
+   }
+
+   method 'conv3 (Ljava/lang/String;)Lpkg/TestGenericCasts$I;' {
+      0      66
+      1      66
+      2      66
+      3      66
+      4      66
+      5      66
+      6      66
+      7      66
+      8      66
+      9      66
+      a      66
+      b      66
+      c      66
+      12      66
+      13      66
+      14      66
+      15      66
+      16      66
+      17      66
+      18      66
+   }
+
+   method 'conv4 (Ljava/lang/String;)Lpkg/TestGenericCasts$I;' {
+      0      70
+      1      70
+      2      70
+      3      70
+      4      70
+      5      70
+      6      70
+      7      70
+      8      70
+      9      70
+      a      70
+      b      70
+      c      70
+      12      70
+      13      70
+      14      70
+      15      70
+      16      70
+      17      70
+      18      70
    }
 }
 
 Lines mapping:
-10 <-> 10
-11 <-> 11
-14 <-> 14
-15 <-> 15
-16 <-> 16
-17 <-> 17
-20 <-> 20
-21 <-> 21
-22 <-> 22
-25 <-> 25
-28 <-> 28
-29 <-> 29
-31 <-> 32
-32 <-> 33
+10 <-> 12
+11 <-> 13
+14 <-> 16
+15 <-> 17
+16 <-> 18
+17 <-> 19
+20 <-> 22
+21 <-> 23
+22 <-> 24
+25 <-> 27
+28 <-> 30
+29 <-> 31
+31 <-> 34
+32 <-> 35
+53 <-> 38
+60 <-> 63
+64 <-> 67
+68 <-> 71
+73 <-> 42
 Not mapped:
 23

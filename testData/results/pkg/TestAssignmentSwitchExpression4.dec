@@ -4,7 +4,7 @@ public class TestAssignmentSwitchExpression4 {
    public void test(String directionStr) {
       String var3 = directionStr.toLowerCase();// 5
 
-      String axis = switch(var3) {
+      String axis = switch (var3) {
          case "north", "south" -> "y";// 8
          case "east", "west" -> "x";// 11
          case "up", "down" -> "z";// 14

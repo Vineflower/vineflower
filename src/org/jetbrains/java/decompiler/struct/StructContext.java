@@ -6,6 +6,8 @@ import org.jetbrains.java.decompiler.main.extern.IBytecodeProvider;
 import org.jetbrains.java.decompiler.main.extern.IContextSource;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IResultSaver;
+import org.jetbrains.java.decompiler.main.plugins.PluginContext;
+import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericMain;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericMethodDescriptor;
 import org.jetbrains.java.decompiler.util.DataInputFullStream;
@@ -46,9 +48,13 @@ public class StructContext {
   private final IResultSaver saver;
   private final IDecompiledData decompiledData;
   private final List<ContextUnit> units = new ArrayList<>();
+  private final List<ContextUnit> lazyUnits = new ArrayList<>();
   private final Map<String, StructClass> classes = new ConcurrentHashMap<>();
+  private final Map<String, String> badlyPlacedClasses = new ConcurrentHashMap<>(); // original -> corrected
   private final Map<String, ContextUnit> unitsByClassName = new ConcurrentHashMap<>();
   private final Map<String, List<String>> abstractNames = new HashMap<>();
+  
+  private final PluginContext pluginContext = new PluginContext();
 
   @SuppressWarnings("deprecation")
   public StructContext(IBytecodeProvider legacyProvider, IResultSaver saver, IDecompiledData decompiledData) {
@@ -72,25 +78,69 @@ public class StructContext {
       // load class from a context unit
       final ContextUnit unitForClass = this.unitsByClassName.get(key);
       if (unitForClass != null) {
-        try {
-          DecompilerContext.getLogger().writeMessage("Loading Class: " + key + " from " + unitForClass.getName(), IFernflowerLogger.Severity.INFO);
-          StructClass clazz = StructClass.create(new DataInputFullStream(unitForClass.getClassBytes(key)), unitForClass.isOwn());
-          if (!key.equals(clazz.qualifiedName)) {
-            // also place the class in the right key if it's wrong
-            this.classes.put(clazz.qualifiedName, clazz);
-          }
+        final StructClass clazz = tryLoadClass(unitForClass, key);
+        if (clazz != null) {
           return clazz;
-        } catch (final IOException ex) {
-          DecompilerContext.getLogger().writeMessage("Failed to read class " + key + " from " + unitForClass.getName(), IFernflowerLogger.Severity.ERROR, ex);
+        }
+      }
+      for (final ContextUnit unit : this.lazyUnits) {
+        final StructClass clazz = tryLoadClass(unit, key);
+        if (clazz != null) {
+          return clazz;
         }
       }
       return getSentinel();
     });
-    return ret == getSentinel() ? null : ret;
+    if (ret == getSentinel()) {
+      return null;
+    } else {
+      final var correctedName = this.badlyPlacedClasses.remove(name);
+      // Correct the class location
+      if (correctedName != null) {
+        this.classes.put(correctedName, ret);
+        this.classes.remove(name);
+      }
+      return ret;
+    }
+  }
+
+  private StructClass tryLoadClass(final ContextUnit unitForClass, final String key) {
+    try {
+      DecompilerContext.getLogger().writeMessage("Loading Class: " + key + " from " + unitForClass.getName(), IFernflowerLogger.Severity.INFO);
+      final byte[] classBytes = unitForClass.getClassBytes(key);
+      if (classBytes == null) {
+        return null;
+      }
+      StructClass clazz = StructClass.create(new DataInputFullStream(classBytes), unitForClass.isOwn());
+      if (!key.equals(clazz.qualifiedName)) {
+        // also place the class in the right key if it's wrong
+        this.unitsByClassName.put(clazz.qualifiedName, unitForClass);
+        this.badlyPlacedClasses.put(key, clazz.qualifiedName);
+      }
+      return clazz;
+    } catch (final IOException ex) {
+      DecompilerContext.getLogger().writeMessage("Failed to read class " + key + " from " + unitForClass.getName(), IFernflowerLogger.Severity.ERROR, ex);
+    }
+
+    return null;
   }
 
   public boolean hasClass(final String name) {
-    return this.unitsByClassName.containsKey(name);
+    if (this.unitsByClassName.containsKey(name)) {
+      return true;
+    }
+
+    for (final ContextUnit unit : this.lazyUnits) {
+      try {
+        if (unit.hasClass(name)) {
+          return true;
+        }
+      } catch (final IOException ex) {
+        DecompilerContext.getLogger().writeMessage("Failed to check if class " + name + " exists in " + unit.getName(), IFernflowerLogger.Severity.ERROR, ex);
+      }
+    }
+
+    return false;
   }
 
   public List<StructClass> getOwnClasses() {
@@ -108,10 +158,14 @@ public class StructContext {
 
     final List<ContextUnit> units = List.copyOf(this.units);
     this.units.clear();
+    this.lazyUnits.clear();
     for (ContextUnit unit : units) {
       if (unit.isRoot()) {
         unit.clear();
         this.units.add(unit);
+        if (unit.isLazy()) {
+          this.lazyUnits.add(unit);
+        }
         this.initUnit(unit);
       }
     }
@@ -187,9 +241,16 @@ public class StructContext {
   private void addSpace(final IContextSource source, final boolean isOwn, final boolean isRoot) {
     final ContextUnit unit = new ContextUnit(source, isOwn, isRoot, saver, decompiledData);
     this.units.add(unit);
+    if (unit.isLazy()) {
+      this.lazyUnits.add(unit);
+    }
     initUnit(unit);
   }
 
+  public PluginContext getPluginContext() {
+    return this.pluginContext;
+  }
+  
   private void initUnit(final ContextUnit unit) {
     DecompilerContext.getLogger().writeMessage("Scanning classes from " + unit.getName(), IFernflowerLogger.Severity.INFO);
     boolean isOwn = unit.isOwn();
@@ -212,12 +273,18 @@ public class StructContext {
     }
   }
 
+  // return (valclass instanceof reflcass)
   public boolean instanceOf(String valclass, String refclass) {
     if (valclass.equals(refclass)) {
       return true;
     }
 
     StructClass cl = this.getClass(valclass);
+    // Don't know what we are? We must at least be an object.
+    if ((cl == null || cl.superClass == null) && refclass.equals("java/lang/Object")) {
+      return true;
+    }
+
     if (cl == null) {
       return false;
     }

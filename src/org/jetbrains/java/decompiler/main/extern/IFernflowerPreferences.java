@@ -3,10 +3,7 @@ package org.jetbrains.java.decompiler.main.extern;
 
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,207 +11,305 @@ import java.util.Map;
 public interface IFernflowerPreferences {
   @Name("Remove Bridge Methods")
   @Description("Removes any methods that are marked as bridge from the decompiled output.")
-  String REMOVE_BRIDGE = "rbr";
+  @ShortName("rbr")
+  @Type(Type.BOOLEAN)
+  String REMOVE_BRIDGE = "remove-bridge";
 
   @Name("Remove Synthetic Methods And Fields")
   @Description("Removes any methods and fields that are marked as synthetic from the decompiled output.")
-  String REMOVE_SYNTHETIC = "rsy";
+  @ShortName("rsy")
+  @Type(Type.BOOLEAN)
+  String REMOVE_SYNTHETIC = "remove-synthetic";
 
   @Name("Decompile Inner Classes")
   @Description("Process inner classes and add them to the decompiled output.")
-  String DECOMPILE_INNER = "din";
+  @ShortName("din")
+  @Type(Type.BOOLEAN)
+  String DECOMPILE_INNER = "decompile-inner";
 
   @Name("Decompile Java 4 class references")
-  @Description("Java 1 to Java 4 had a different class reference format. This resugars them properly.")
-  String DECOMPILE_CLASS_1_4 = "dc4";
+  @Description("Resugar the Java 1-4 class reference format instead of leaving the synthetic code.")
+  @ShortName("dc4")
+  @Type(Type.BOOLEAN)
+  String DECOMPILE_CLASS_1_4 = "decompile-java4";
 
   @Name("Decompile Assertions")
   @Description("Decompile assert statements.")
-  String DECOMPILE_ASSERTIONS = "das";
+  @ShortName("das")
+  @Type(Type.BOOLEAN)
+  String DECOMPILE_ASSERTIONS = "decompile-assert";
 
   @Name("Hide Empty super()")
   @Description("Hide super() calls with no parameters.")
-  String HIDE_EMPTY_SUPER = "hes";
+  @ShortName("hes")
+  @Type(Type.BOOLEAN)
+  String HIDE_EMPTY_SUPER = "hide-empty-super";
 
   @Name("Hide Default Constructor")
   @Description("Hide constructors with no parameters and no code.")
-  String HIDE_DEFAULT_CONSTRUCTOR = "hdc";
+  @ShortName("hdc")
+  @Type(Type.BOOLEAN)
+  String HIDE_DEFAULT_CONSTRUCTOR = "hide-default-constructor";
 
   @Name("Decompile Generics")
-  @Description("Decompile generics in variables, fields, and statements.")
-  String DECOMPILE_GENERIC_SIGNATURES = "dgs";
+  @Description("Decompile generics in classes, methods, fields, and variables.")
+  @ShortName("dgs")
+  @Type(Type.BOOLEAN)
+  String DECOMPILE_GENERIC_SIGNATURES = "decompile-generics";
 
-  @Name("No Exceptions In Return")
-  @Description("Integrate returns better in try-catch blocks.")
-  String NO_EXCEPTIONS_RETURN = "ner";
+  @Name("Incorporate returns in try-catch blocks")
+  @Description("Integrate returns better in try-catch blocks instead of storing them in a temporary variable.")
+  @ShortName("ner")
+  @Type(Type.BOOLEAN)
+  String INCORPORATE_RETURNS = "incorporate-returns";
 
   @Name("Ensure synchronized ranges are complete")
-  @Description("If a synchronized block has a monitorenter without any corresponding monitorexit, try to deduce where one should be to ensure the synchronized is proper.")
-  String ENSURE_SYNCHRONIZED_MONITOR = "esm";
+  @Description("If a synchronized block has a monitorenter without any corresponding monitorexit, try to deduce where one should be to ensure the synchronized is correctly decompiled.")
+  @ShortName("esm")
+  @Type(Type.BOOLEAN)
+  String ENSURE_SYNCHRONIZED_MONITOR = "ensure-synchronized-monitors";
 
   @Name("Decompile Enums")
   @Description("Decompile enums.")
-  String DECOMPILE_ENUM = "den";
+  @ShortName("den")
+  @Type(Type.BOOLEAN)
+  String DECOMPILE_ENUM = "decompile-enums";
 
   @Name("Decompile Preview Features")
   @Description("Decompile features marked as preview or incubating in the latest Java versions.")
-  String DECOMPILE_PREVIEW = "dpr";
+  @ShortName("dpr")
+  @Type(Type.BOOLEAN)
+  String DECOMPILE_PREVIEW = "decompile-preview";
 
   @Name("Remove reference getClass()")
-  @Description("obj.new Inner() or calling invoking a method on a method reference will create a synthetic getClass() call. This removes it.")
-  String REMOVE_GET_CLASS_NEW = "rgn";
+  @Description("Remove synthetic getClass() calls created by code such as 'obj.new Inner()'.")
+  @ShortName("rgn")
+  @Type(Type.BOOLEAN)
+  String REMOVE_GET_CLASS_NEW = "remove-getclass";
 
   @Name("Keep Literals As Is")
-  @Description("Keep NaN, infinties, and pi values as is without resugaring them.")
-  String LITERALS_AS_IS = "lit";
+  @Description("Keep NaN, infinities, and pi values as is without resugaring them.")
+  @ShortName("lit")
+  @Type(Type.BOOLEAN)
+  String LITERALS_AS_IS = "keep-literals";
 
   @Name("Represent boolean as 0/1")
-  @Description("The JVM represents booleans as integers 0 and 1. This decodes 0 and 1 as boolean when it makes sense.")
-  String BOOLEAN_TRUE_ONE = "bto";
+  @Description("Represent integers 0 and 1 as booleans.")
+  @ShortName("bto")
+  @Type(Type.BOOLEAN)
+  String BOOLEAN_TRUE_ONE = "boolean-as-int";
 
   @Name("ASCII String Characters")
   @Description("Encode non-ASCII characters in string and character literals as Unicode escapes.")
-  String ASCII_STRING_CHARACTERS = "asc";
+  @ShortName("asc")
+  @Type(Type.BOOLEAN)
+  String ASCII_STRING_CHARACTERS = "ascii-strings";
 
   @Name("Synthetic Not Set")
   @Description("Treat some known structures as synthetic even when not explicitly set.")
-  String SYNTHETIC_NOT_SET = "nns";
+  @ShortName("nns")
+  @Type(Type.BOOLEAN)
+  String SYNTHETIC_NOT_SET = "synthetic-not-set";
 
   @Name("Treat Undefined Param Type As Object")
   @Description("Treat nameless types as java.lang.Object.")
-  String UNDEFINED_PARAM_TYPE_OBJECT = "uto";
+  @ShortName("uto")
+  @Type(Type.BOOLEAN)
+  String UNDEFINED_PARAM_TYPE_OBJECT = "undefined-as-object";
 
   @Name("Use LVT Names")
   @Description("Use LVT names for local variables and parameters instead of var<index>_<version>.")
-  String USE_DEBUG_VAR_NAMES = "udv";
+  @ShortName("udv")
+  @Type(Type.BOOLEAN)
+  String USE_DEBUG_VAR_NAMES = "use-lvt-names";
 
   @Name("Use Method Parameters")
   @Description("Use method parameter names, as given in the MethodParameters attribute.")
-  String USE_METHOD_PARAMETERS = "ump";
+  @ShortName("ump")
+  @Type(Type.BOOLEAN)
+  String USE_METHOD_PARAMETERS = "use-method-parameters";
 
   @Name("Remove Empty try-catch blocks")
   @Description("Remove try-catch blocks with no code.")
-  String REMOVE_EMPTY_RANGES = "rer";
+  @ShortName("rer")
+  @Type(Type.BOOLEAN)
+  String REMOVE_EMPTY_RANGES = "remove-empty-try-catch";
 
   @Name("Decompile Finally")
   @Description("Decompile finally blocks.")
-  String FINALLY_DEINLINE = "fdi";
-
-  @Name("Resugar Intellij IDEA @NotNull")
-  @Description("Resugar Intellij IDEA's code generated by @NotNull annotations.")
-  String IDEA_NOT_NULL_ANNOTATION = "inn";
+  @ShortName("fdi")
+  @Type(Type.BOOLEAN)
+  String FINALLY_DEINLINE = "decompile-finally";
 
   @Name("Decompile Lambdas as Anonymous Classes")
   @Description("Decompile lambda expressions as anonymous classes.")
-  String LAMBDA_TO_ANONYMOUS_CLASS = "lac";
+  @ShortName("lac")
+  @Type(Type.BOOLEAN)
+  String LAMBDA_TO_ANONYMOUS_CLASS = "lambda-to-anonymous-class";
 
   @Name("Bytecode to Source Mapping")
   @Description("Map Bytecode to source lines.")
-  String BYTECODE_SOURCE_MAPPING = "bsm";
+  @ShortName("bsm")
+  @Type(Type.BOOLEAN)
+  String BYTECODE_SOURCE_MAPPING = "bytecode-source-mapping";
 
   @Name("Dump Code Lines")
-  @Description("Dump line mappings to output archive zip entry extra data")
-  String DUMP_CODE_LINES = "dcl";
+  @Description("Dump line mappings to output archive zip entry extra data.")
+  @ShortName("dcl")
+  @Type(Type.BOOLEAN)
+  String DUMP_CODE_LINES = "dump-code-lines";
 
   @Name("Ignore Invalid Bytecode")
   @Description("Ignore bytecode that is malformed.")
-  String IGNORE_INVALID_BYTECODE = "iib";
+  @ShortName("iib")
+  @Type(Type.BOOLEAN)
+  String IGNORE_INVALID_BYTECODE = "ignore-invalid-bytecode";
 
   @Name("Verify Anonymous Classes")
   @Description("Verify that anonymous classes are local.")
-  String VERIFY_ANONYMOUS_CLASSES = "vac";
+  @ShortName("vac")
+  @Type(Type.BOOLEAN)
+  String VERIFY_ANONYMOUS_CLASSES = "verify-anonymous-classes";
 
   @Name("Ternary Constant Simplification")
   @Description("Fold branches of ternary expressions that have boolean true and false constants.")
-  String TERNARY_CONSTANT_SIMPLIFICATION = "tcs";
+  @ShortName("tcs")
+  @Type(Type.BOOLEAN)
+  String TERNARY_CONSTANT_SIMPLIFICATION = "ternary-constant-simplification";
 
   @Name("Pattern Matching")
   @Description("Decompile with if and switch pattern matching enabled.")
-  String PATTERN_MATCHING = "pam";
+  @ShortName("pam")
+  @Type(Type.BOOLEAN)
+  String PATTERN_MATCHING = "pattern-matching";
 
   @Name("Try-Loop fix")
-  @Description("Code with a while loop inside of a try-catch block sometimes is malformed, this fixes it.")
-  String TRY_LOOP_FIX = "tlf";
+  @Description("Fixes rare cases of malformed decompilation when try blocks are found inside of while loops")
+  @ShortName("tlf")
+  @Type(Type.BOOLEAN)
+  String TRY_LOOP_FIX = "try-loop-fix";
 
   @Name("[Experimental] Ternary In If Conditions")
   @Description("Tries to collapse if statements that have a ternary in their condition.")
-  String TERNARY_CONDITIONS = "tco";
+  @ShortName("tco")
+  @Type(Type.BOOLEAN)
+  String TERNARY_CONDITIONS = "ternary-in-if";
 
   @Name("Decompile Switch Expressions")
   @Description("Decompile switch expressions in modern Java class files.")
-  String SWITCH_EXPRESSIONS = "swe";
+  @ShortName("swe")
+  @Type(Type.BOOLEAN)
+  String SWITCH_EXPRESSIONS = "decompile-switch-expressions";
 
   @Name("[Debug] Show hidden statements")
-  @Description("Display code blocks hidden, for debugging purposes")
-  String SHOW_HIDDEN_STATEMENTS = "shs";
+  @Description("Display hidden code blocks for debugging purposes.")
+  @ShortName("shs")
+  @Type(Type.BOOLEAN)
+  String SHOW_HIDDEN_STATEMENTS = "show-hidden-statements";
 
   @Name("Override Annotation")
   @Description("Display override annotations for methods known to the decompiler.")
-  String OVERRIDE_ANNOTATION = "ovr";
+  @ShortName("ovr")
+  @Type(Type.BOOLEAN)
+  String OVERRIDE_ANNOTATION = "override-annotation";
 
-  @Name("Second-Pass Stack Simplficiation")
+  @Name("Second-Pass Stack Simplification")
   @Description("Simplify variables across stack bounds to resugar complex statements.")
-  String SIMPLIFY_STACK_SECOND_PASS = "ssp";
+  @ShortName("ssp")
+  @Type(Type.BOOLEAN)
+  String SIMPLIFY_STACK_SECOND_PASS = "simplify-stack";
 
   @Name("[Experimental] Verify Variable Merges")
-  @Description("Double checks to make sure the validity of variable merges. If you are having strange recompilation issues, this is a good place to start.")
-  String VERIFY_VARIABLE_MERGES = "vvm";
+  @Description("Tries harder to verify the validity of variable merges. If there are strange variable recompilation issues, this is a good place to start.")
+  @ShortName("vvm")
+  @Type(Type.BOOLEAN)
+  String VERIFY_VARIABLE_MERGES = "verify-merges";
 
   @Name("Include Entire Classpath")
   @Description("Give the decompiler information about every jar on the classpath.")
-  String INCLUDE_ENTIRE_CLASSPATH = "iec";
+  @ShortName("iec")
+  @Type(Type.BOOLEAN)
+  String INCLUDE_ENTIRE_CLASSPATH = "include-classpath";
 
   @Name("Include Java Runtime")
   @Description("Give the decompiler information about the Java runtime, either 1 or current for the current runtime, or a path to another runtime")
-  String INCLUDE_JAVA_RUNTIME = "jrt";
+  @ShortName("jrt")
+  @Type(Type.STRING)
+  String INCLUDE_JAVA_RUNTIME = "include-runtime";
 
   @Name("Explicit Generic Arguments")
   @Description("Put explicit diamond generic arguments on method calls.")
-  String EXPLICIT_GENERIC_ARGUMENTS = "ega";
+  @ShortName("ega")
+  @Type(Type.BOOLEAN)
+  String EXPLICIT_GENERIC_ARGUMENTS = "explicit-generics";
 
   @Name("Inline Simple Lambdas")
   @Description("Remove braces on simple, one line, lambda expressions.")
-  String INLINE_SIMPLE_LAMBDAS = "isl";
+  @ShortName("isl")
+  @Type(Type.BOOLEAN)
+  String INLINE_SIMPLE_LAMBDAS = "inline-simple-lambdas";
 
   @Name("Logging Level")
   @Description("Logging level. Must be one of: 'info', 'debug', 'warn', 'error'.")
-  String LOG_LEVEL = "log";
+  @ShortName("log")
+  @Type(Type.STRING)
+  String LOG_LEVEL = "log-level";
 
   @Name("[DEPRECATED] Max time to process method")
   @Description("Maximum time in seconds to process a method. This is deprecated, do not use.")
-  String MAX_PROCESSING_METHOD = "mpm";
+  @ShortName("mpm")
+  @Type(Type.INTEGER)
+  String MAX_PROCESSING_METHOD = "max-time-per-method";
 
   @Name("Rename Members")
   @Description("Rename classes, fields, and methods with a number suffix to help in deobfuscation.")
-  String RENAME_ENTITIES = "ren";
+  @ShortName("ren")
+  @Type(Type.BOOLEAN)
+  String RENAME_ENTITIES = "rename-members";
 
   @Name("User Renamer Class")
   @Description("Path to a class that implements IIdentifierRenamer.")
-  String USER_RENAMER_CLASS = "urc";
+  @ShortName("urc")
+  @Type(Type.STRING)
+  String USER_RENAMER_CLASS = "user-renamer-class";
 
-  @Name("New Line Seperator")
-  @Description("Character that seperates lines in the decompiled output.")
-  String NEW_LINE_SEPARATOR = "nls";
+  @Name("[DEPRECATED] New Line Seperator")
+  @Description("Use \\n instead of \\r\\n for new lines. Deprecated, do not use.")
+  @ShortName("nls")
+  @Type(Type.BOOLEAN)
+  @DynamicDefaultValue("Disabled on Windows, enabled on other systems")
+  String NEW_LINE_SEPARATOR = "new-line-separator";
 
   @Name("Indent String")
   @Description("A string of spaces or tabs that is placed for each indent level.")
-  String INDENT_STRING = "ind";
+  @ShortName("ind")
+  @Type(Type.STRING)
+  String INDENT_STRING = "indent-string";
 
   @Name("Preferred line length")
   @Description("Max line length before formatting is applied.")
-  String PREFERRED_LINE_LENGTH = "pll";
+  @ShortName("pll")
+  @Type(Type.INTEGER)
+  String PREFERRED_LINE_LENGTH = "preferred-line-length";
 
-  @Name("User Renamer Class")
-  @Description("Path to a class that implements IIdentifierRenamer.")
-  String BANNER = "ban";
+  @Name("Banner")
+  @Description("A message to display at the top of the decompiled file.")
+  @ShortName("ban")
+  @Type(Type.STRING)
+  String BANNER = "banner";
 
   @Name("Error Message")
   @Description("Message to display when an error occurs in the decompiler.")
-  String ERROR_MESSAGE = "erm";
+  @ShortName("erm")
+  @Type(Type.STRING)
+  String ERROR_MESSAGE = "error-message";
 
   @Name("Thread Count")
   @Description("How many threads to use to decompile.")
-  String THREADS = "thr";
+  @DynamicDefaultValue("all available processors")
+  @ShortName("thr")
+  @Type(Type.INTEGER)
+  String THREADS = "thread-count";
 
   String DUMP_ORIGINAL_LINES = "__dump_original_lines__";
   String UNIT_TEST_MODE = "__unit_test_mode__";
@@ -222,45 +317,70 @@ public interface IFernflowerPreferences {
   String LINE_SEPARATOR_WIN = "\r\n";
   String LINE_SEPARATOR_UNX = "\n";
 
-  @Name("JAD-Style Variable Naming")
-  @Description("Use JAD-style variable naming for local variables, instead of var<index>_<version>.")
-  String USE_JAD_VARNAMING = "jvn";
-
-  @Name("JAD-Style Parameter Naming")
-  @Description("Use JAD-style variable naming for parameters.")
-  String USE_JAD_PARAMETER_NAMING = "jpr";
-
   @Name("Skip Extra Files")
   @Description("Skip copying non-class files from the input folder or file to the output")
-  String SKIP_EXTRA_FILES = "sef";
+  @ShortName("sef")
+  @Type(Type.BOOLEAN)
+  String SKIP_EXTRA_FILES = "skip-extra-files";
 
   @Name("Warn about inconsistent inner attributes")
   @Description("Warn about inconsistent inner class attributes")
-  String WARN_INCONSISTENT_INNER_CLASSES = "win";
+  @ShortName("win")
+  @Type(Type.BOOLEAN)
+  String WARN_INCONSISTENT_INNER_CLASSES = "warn-inconsistent-inner-attributes";
 
   @Name("Dump Bytecode On Error")
   @Description("Put the bytecode in the method body when an error occurs.")
-  String DUMP_BYTECODE_ON_ERROR = "dbe";
+  @ShortName("dbe")
+  @Type(Type.BOOLEAN)
+  String DUMP_BYTECODE_ON_ERROR = "dump-bytecode-on-error";
 
   @Name("Dump Exceptions On Error")
   @Description("Put the exception message in the method body or source file when an error occurs.")
-  String DUMP_EXCEPTION_ON_ERROR = "dee";
+  @ShortName("dee")
+  @Type(Type.BOOLEAN)
+  String DUMP_EXCEPTION_ON_ERROR = "dump-exception-on-error";
 
   @Name("Decompiler Comments")
   @Description("Sometimes, odd behavior of the bytecode or unfixable problems occur. This enables or disables the adding of those to the decompiled output.")
-  String DECOMPILER_COMMENTS = "dec";
+  @ShortName("dec")
+  @Type(Type.BOOLEAN)
+  String DECOMPILER_COMMENTS = "decompiler-comments";
 
   @Name("SourceFile comments")
   @Description("Add debug comments showing the class SourceFile attribute if present.")
-  String SOURCE_FILE_COMMENTS = "sfc";
+  @ShortName("sfc")
+  @Type(Type.BOOLEAN)
+  String SOURCE_FILE_COMMENTS = "sourcefile-comments";
 
   @Name("Decompile complex constant-dynamic expressions")
   @Description("Some constant-dynamic expressions can't be converted to a single Java expression with identical run-time behaviour. This decompiles them to a similar non-lazy expression, marked with a comment.")
-  String DECOMPILE_COMPLEX_CONDYS = "dcc";
+  @ShortName("dcc")
+  @Type(Type.BOOLEAN)
+  String DECOMPILE_COMPLEX_CONDYS = "decompile-complex-constant-dynamic";
 
   @Name("Force JSR inline")
   @Description("Forces the processing of JSR instructions even if the class files shouldn't contain it (Java 7+)")
-  String FORCE_JSR_INLINE = "fji";
+  @ShortName("fji")
+  @Type(Type.BOOLEAN)
+  String FORCE_JSR_INLINE = "force-jsr-inline";
+
+  @Name("Dump Text Tokens")
+  @Description("Dump Text Tokens on each class file")
+  @ShortName("dtt")
+  @Type(Type.BOOLEAN)
+  String DUMP_TEXT_TOKENS = "dump-text-tokens";
+
+  @Name("Remove Imports")
+  @Description("Remove import statements from the decompiled code")
+  @ShortName("rim")
+  @Type(Type.BOOLEAN)
+  String REMOVE_IMPORTS = "remove-imports";
+
+  @Name("Mark Corresponding Synthetics")
+  @Description("Mark lambdas and anonymous and local classes with their respective synthetic constructs")
+  @ShortName("mcs")
+  String MARK_CORRESPONDING_SYNTHETICS = "mark-corresponding-synthetics";
 
   Map<String, Object> DEFAULTS = getDefaults();
 
@@ -275,7 +395,7 @@ public interface IFernflowerPreferences {
     defaults.put(HIDE_EMPTY_SUPER, "1");
     defaults.put(HIDE_DEFAULT_CONSTRUCTOR, "1");
     defaults.put(DECOMPILE_GENERIC_SIGNATURES, "1");
-    defaults.put(NO_EXCEPTIONS_RETURN, "1");
+    defaults.put(INCORPORATE_RETURNS, "1");
     defaults.put(ENSURE_SYNCHRONIZED_MONITOR, "1");
     defaults.put(DECOMPILE_ENUM, "1");
     defaults.put(REMOVE_GET_CLASS_NEW, "1");
@@ -288,7 +408,6 @@ public interface IFernflowerPreferences {
     defaults.put(USE_METHOD_PARAMETERS, "1");
     defaults.put(REMOVE_EMPTY_RANGES, "1");
     defaults.put(FINALLY_DEINLINE, "1");
-    defaults.put(IDEA_NOT_NULL_ANNOTATION, "1");
     defaults.put(LAMBDA_TO_ANONYMOUS_CLASS, "0");
     defaults.put(BYTECODE_SOURCE_MAPPING, "0");
     defaults.put(DUMP_CODE_LINES, "0");
@@ -313,7 +432,7 @@ public interface IFernflowerPreferences {
     defaults.put(LOG_LEVEL, IFernflowerLogger.Severity.INFO.name());
     defaults.put(MAX_PROCESSING_METHOD, "0");
     defaults.put(RENAME_ENTITIES, "0");
-    defaults.put(NEW_LINE_SEPARATOR, (InterpreterUtil.IS_WINDOWS ? "0" : "1"));
+    defaults.put(NEW_LINE_SEPARATOR, "1");
     defaults.put(INDENT_STRING, "   ");
     defaults.put(PREFERRED_LINE_LENGTH, "160");
     defaults.put(BANNER, "");
@@ -322,8 +441,6 @@ public interface IFernflowerPreferences {
     defaults.put(UNIT_TEST_MODE, "0");
     defaults.put(DUMP_ORIGINAL_LINES, "0");
     defaults.put(THREADS, String.valueOf(Runtime.getRuntime().availableProcessors()));
-    defaults.put(USE_JAD_VARNAMING, "0");
-    defaults.put(USE_JAD_PARAMETER_NAMING, "0");
     defaults.put(SKIP_EXTRA_FILES, "0");
     defaults.put(WARN_INCONSISTENT_INNER_CLASSES, "1");
     defaults.put(DUMP_BYTECODE_ON_ERROR, "1");
@@ -332,19 +449,64 @@ public interface IFernflowerPreferences {
     defaults.put(SOURCE_FILE_COMMENTS, "0");
     defaults.put(DECOMPILE_COMPLEX_CONDYS, "0");
     defaults.put(FORCE_JSR_INLINE, "0");
+    defaults.put(DUMP_TEXT_TOKENS, "0");
+    defaults.put(REMOVE_IMPORTS, "0");
+    defaults.put(MARK_CORRESPONDING_SYNTHETICS, "0");
 
     return Collections.unmodifiableMap(defaults);
   }
 
+  /**
+   * A human-friendly name for an option.
+   */
+  @Documented
   @Retention(RetentionPolicy.RUNTIME)
   @Target(ElementType.FIELD)
   public @interface Name {
     String value();
   }
 
+  /**
+   * A short description of an option.
+   */
+  @Documented
   @Retention(RetentionPolicy.RUNTIME)
   @Target(ElementType.FIELD)
   public @interface Description {
     String value();
+  }
+  
+  @Retention(RetentionPolicy.RUNTIME)
+  @Target(ElementType.FIELD)
+  public @interface DynamicDefaultValue {
+    String value();
+  }
+  /**
+   * The "short name" of an option. This is the older syntax,
+   * such as {@code -dgs=1}. It is here to ensure some amount
+   * of backwards compatibility, and as such is not considered
+   * a "documented" option.
+   */
+  @Retention(RetentionPolicy.RUNTIME)
+  @Target(ElementType.FIELD)
+  public @interface ShortName {
+    String value();
+  }
+
+  /**
+   * Indicates the given type of the option. This is not a method
+   * by which to identify what to pass to the option (as all options
+   * should be passed as strings), but rather a more descriptive
+   * type without needing to infer it from the default value.
+   */
+  @Documented
+  @Retention(RetentionPolicy.RUNTIME)
+  @Target(ElementType.FIELD)
+  public @interface Type {
+    String value();
+    
+    String BOOLEAN = "bool";
+    String INTEGER = "int";
+    String STRING = "string";
   }
 }

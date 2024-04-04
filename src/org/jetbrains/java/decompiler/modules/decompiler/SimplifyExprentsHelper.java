@@ -14,9 +14,10 @@ import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.struct.StructClass;
+import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.match.MatchEngine;
-import org.jetbrains.java.decompiler.util.FastSparseSetFactory.FastSparseSet;
+import org.jetbrains.java.decompiler.util.collections.FastSparseSetFactory.FastSparseSet;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.Pair;
 
@@ -26,28 +27,29 @@ import java.util.Map.Entry;
 public class SimplifyExprentsHelper {
   @SuppressWarnings("SpellCheckingInspection")
   private static final MatchEngine class14Builder = new MatchEngine(
-    "statement type:if iftype:if exprsize:-1\n" +
-    " exprent position:head type:if\n" +
-    "  exprent type:function functype:eq\n" +
-    "   exprent type:field name:$fieldname$\n" +
-    "   exprent type:constant consttype:null\n" +
-    " statement type:basicblock\n" +
-    "  exprent position:-1 type:assignment ret:$assignfield$\n" +
-    "   exprent type:var index:$var$\n" +
-    "   exprent type:field name:$fieldname$\n" +
-    " statement type:sequence statsize:2\n" +
-    "  statement type:trycatch\n" +
-    "   statement type:basicblock exprsize:1\n" +
-    "    exprent type:assignment\n" +
-    "     exprent type:var index:$var$\n" +
-    "     exprent type:invocation invclass:java/lang/Class signature:forName(Ljava/lang/String;)Ljava/lang/Class;\n" +
-    "      exprent position:0 type:constant consttype:string constvalue:$classname$\n" +
-    "   statement type:basicblock exprsize:1\n" +
-    "    exprent type:exit exittype:throw\n" +
-    "  statement type:basicblock exprsize:1\n" +
-    "   exprent type:assignment\n" +
-    "    exprent type:field name:$fieldname$ ret:$field$\n" +
-    "    exprent type:var index:$var$");
+    "statement type:if iftype:if exprsize:-1",
+    " exprent position:head type:if",
+    "  exprent type:function functype:eq",
+    "   exprent type:field name:$fieldname$",
+    "   exprent type:constant consttype:null",
+    " statement type:basicblock",
+    "  exprent position:-1 type:assignment ret:$assignfield$",
+    "   exprent type:var index:$var$",
+    "   exprent type:field name:$fieldname$",
+    " statement type:sequence statsize:2",
+    "  statement type:trycatch",
+    "   statement type:basicblock exprsize:1",
+    "    exprent type:assignment",
+    "     exprent type:var index:$var$",
+    "     exprent type:invocation invclass:java/lang/Class signature:forName(Ljava/lang/String;)Ljava/lang/Class;",
+    "      exprent position:0 type:constant consttype:string constvalue:$classname$",
+    "   statement type:basicblock exprsize:1",
+    "    exprent type:exit exittype:throw",
+    "  statement type:basicblock exprsize:1",
+    "   exprent type:assignment",
+    "    exprent type:field name:$fieldname$ ret:$field$",
+    "    exprent type:var index:$var$"
+  );
 
   public static boolean simplifyStackVarsStatement(
     Statement stat,
@@ -153,11 +155,11 @@ public class SimplifyExprentsHelper {
         continue;
       }
 
-      if (isMethodArrayAssign(current, next)) {
-        list.remove(index);
-        res = true;
-        continue;
-      }
+//      if (isMethodArrayAssign(current, next)) {
+//        list.remove(index);
+//        res = true;
+//        continue;
+//      }
 
       // constructor invocation
       if (isConstructorInvocationRemote(list, index)) {
@@ -536,7 +538,7 @@ public class SimplifyExprentsHelper {
             if (!(left instanceof VarExprent) && left.equals(econd)) {
               FunctionType type = func.getFuncType() == FunctionType.ADD ? FunctionType.PPI : FunctionType.MMI;
               FunctionExprent ret = new FunctionExprent(type, econd, func.bytecode);
-              ret.setImplicitType(VarType.VARTYPE_INT);
+              ret.setImplicitType(econd.getExprType());
               return ret;
             }
           }
@@ -787,7 +789,7 @@ public class SimplifyExprentsHelper {
           return true;
         }
 
-        LinkedList<Exprent> lstExprents = new LinkedList<>();
+        Deque<Exprent> lstExprents = new ArrayDeque<>();
         lstExprents.add(second);
 
         final Exprent target;
@@ -901,7 +903,7 @@ public class SimplifyExprentsHelper {
         VarType newType = newExpr.getNewType();
         VarVersionPair leftPair = new VarVersionPair((VarExprent) as.getLeft());
 
-        if (newType.type == CodeConstants.TYPE_OBJECT && newType.arrayDim == 0 && newExpr.getConstructor() == null) {
+        if (newType.type == CodeType.OBJECT && newType.arrayDim == 0 && newExpr.getConstructor() == null) {
           for (int i = index + 1; i < list.size(); i++) {
             Exprent remote = list.get(i);
 
@@ -1159,7 +1161,7 @@ public class SimplifyExprentsHelper {
 
       SequenceHelper.destroyAndFlattenStatement(stat);
 
-      ClassWrapper wrapper = (ClassWrapper) DecompilerContext.getProperty(DecompilerContext.CURRENT_CLASS_WRAPPER);
+      ClassWrapper wrapper = (ClassWrapper) DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_WRAPPER);
       if (wrapper != null) {
         wrapper.getHiddenMembers().add(InterpreterUtil.makeUniqueKey(fieldExpr.getName(), fieldExpr.getDescriptor().descriptorString));
       }

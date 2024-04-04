@@ -9,7 +9,7 @@ public class TestTryLoopReturnFinally {
 
    public void test(File file) {
       try {
-         while(this.field) {// 12
+         while (this.field) {// 12
             if (file == null) {// 13
                return;// 14
             }

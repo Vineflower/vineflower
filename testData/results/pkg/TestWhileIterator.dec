@@ -10,9 +10,9 @@ public class TestWhileIterator {
       Iterator<Object> it2 = set.iterator();// 10
       int i = 0;// 11
 
-      while(it1.hasNext() && it2.hasNext()) {// 13
+      while (it1.hasNext() && it2.hasNext()) {// 13
          if (it1.next().equals(it2.next())) {// 14
-            ++i;// 15
+            i++;// 15
          }
       }
 

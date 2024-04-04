@@ -1,0 +1,68 @@
+package pkg
+
+class TestWhenControlFlow {
+   public fun test1(x: Int) {
+      var xx: Int = x;// 5
+
+      while (xx > 0) {// 7
+         if (--xx == 10) {// 8 9 10
+            break;
+         }
+
+         if (xx != 5) {// 11
+            if (3 <= xx && xx < 5) {// 12
+               return;
+            }
+
+            System.out.println(xx);// 15
+         }
+      }
+   }// 17
+}
+
+class 'pkg/TestWhenControlFlow' {
+   method 'test1 (I)V' {
+      0      4
+      1      4
+      2      6
+      3      6
+      6      7
+      7      7
+      8      7
+      9      7
+      b      7
+      c      7
+      d      7
+      e      7
+      11      11
+      12      11
+      13      11
+      16      12
+      17      12
+      18      12
+      1b      12
+      1c      12
+      1d      12
+      29      12
+      2c      13
+      2d      16
+      2e      16
+      2f      16
+      30      16
+      31      16
+      32      16
+      33      16
+      37      19
+   }
+}
+
+Lines mapping:
+5 <-> 5
+7 <-> 7
+8 <-> 8
+9 <-> 8
+10 <-> 8
+11 <-> 12
+12 <-> 13
+15 <-> 17
+17 <-> 20

@@ -7,7 +7,7 @@ public class TestSwitchPatternMatching18 {
    static void test(Integer o) {
       Objects.requireNonNull(o);// 5
       <unknown> var1;
-      switch(o) {
+      switch (o) {
          case 42:
             System.out.println("42");// 6
             break;
@@ -25,7 +25,7 @@ public class TestSwitchPatternMatching18 {
    // $VF: Could not properly define all variable types!
    static void test2(Integer o) {
       <unknown> var1;
-      switch(o) {// 16
+      switch (o) {// 16
          case 16:
          case null:
             System.out.println("maybe 16?");// 18
@@ -44,7 +44,7 @@ public class TestSwitchPatternMatching18 {
    // $VF: Could not properly define all variable types!
    static void test3(Integer o) {
       <unknown> var1;
-      switch(o) {// 25
+      switch (o) {// 25
          case 16:
          case null:
             System.out.println("definitely null");// 29

@@ -2,7 +2,7 @@ package pkg;
 
 public class TestSynchronizedTernary {
    public void test(boolean bl, Object a, Object b) {
-      synchronized(bl ? a : b) {// 5
+      synchronized (bl ? a : b) {// 5
          System.out.println(a);// 6
       }
    }// 8

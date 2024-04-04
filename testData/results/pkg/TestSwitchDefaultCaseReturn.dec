@@ -3,7 +3,7 @@ package pkg;
 public class TestSwitchDefaultCaseReturn {
    public static String test(String s) {
       if (s.hashCode() == 0) {// 5
-         return switch(s) {// 6
+         return switch (s) {// 6
             case "", " " -> "";// 7
             default -> s;// 8
          };
@@ -11,8 +11,8 @@ public class TestSwitchDefaultCaseReturn {
          int i = s.indexOf(97);// 12
          boolean bl = false;// 13
 
-         while(true) {
-            switch(s) {// 16
+         while (true) {
+            switch (s) {// 16
                case "":
                case " ":
                   return "";// 19

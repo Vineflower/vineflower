@@ -1,0 +1,126 @@
+package pkg;
+
+public interface TestCompanionObject {
+   static String FIELD() {
+      return TestCompanionObject$.MODULE$.FIELD();
+   }
+
+   static void main(String[] var0) {
+      TestCompanionObject$.MODULE$.main(var0);
+   }
+
+   static int defaultMethod$(final TestCompanionObject $this) {
+      return $this.defaultMethod();// 3
+   }
+
+   default int defaultMethod() {
+      return 0;// 5
+   }
+
+   void abstractMethod();
+}
+
+class 'pkg/TestCompanionObject' {
+   method 'FIELD ()Ljava/lang/String;' {
+      0      4
+      1      4
+      2      4
+      3      4
+      4      4
+      5      4
+      6      4
+   }
+
+   method 'main ([Ljava/lang/String;)V' {
+      0      8
+      1      8
+      2      8
+      3      8
+      4      8
+      5      8
+      6      8
+      7      9
+   }
+
+   method 'defaultMethod$ (Lpkg/TestCompanionObject;)I' {
+      0      12
+      1      12
+      2      12
+      3      12
+      4      12
+   }
+
+   method 'defaultMethod ()I' {
+      0      16
+      1      16
+   }
+}
+
+Lines mapping:
+3 <-> 13
+5 <-> 17
+
+// Decompiled companion from pkg/TestCompanionObject$
+package pkg;
+
+import java.io.Serializable;
+import scala.Predef.;
+import scala.runtime.ModuleSerializationProxy;
+
+public final class TestCompanionObject$ implements Serializable {
+   private static final String FIELD = "constant field";
+   public static final TestCompanionObject$ MODULE$ = new TestCompanionObject$();
+
+   private TestCompanionObject$() {
+   }
+
+   private Object writeReplace() {
+      return new ModuleSerializationProxy(TestCompanionObject$.class);// 10
+   }
+
+   public String FIELD() {
+      return FIELD;// 12
+   }
+
+   public void main(final String[] args) {
+      .MODULE$.print(this.FIELD());// 14
+   }
+}
+
+class 'pkg/TestCompanionObject$' {
+   method '<init> ()V' {
+      4      11
+   }
+
+   method 'writeReplace ()Ljava/lang/Object;' {
+      4      14
+      5      14
+      9      14
+   }
+
+   method 'FIELD ()Ljava/lang/String;' {
+      0      18
+      1      18
+      2      18
+      3      18
+   }
+
+   method 'main ([Ljava/lang/String;)V' {
+      0      22
+      1      22
+      2      22
+      3      22
+      4      22
+      5      22
+      6      22
+      7      22
+      8      22
+      9      22
+      a      23
+   }
+}
+
+Lines mapping:
+10 <-> 15
+12 <-> 19
+14 <-> 23

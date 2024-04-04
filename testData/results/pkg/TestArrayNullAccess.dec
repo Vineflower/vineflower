@@ -4,8 +4,8 @@ public class TestArrayNullAccess {
    public int test() {
       byte[] array = new byte[4];// 5
       int n = array.length;// 6
-      byte[] var3 = null;// 7
-      return (int)((Object[])var3)[3];// 8
+      array = null;// 7
+      return array[3];// 8
    }
 }
 

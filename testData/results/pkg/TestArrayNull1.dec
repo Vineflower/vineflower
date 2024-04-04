@@ -4,7 +4,7 @@ public class TestArrayNull1 {
    public int test() {
       byte[] var1 = new byte[4];
       int var2 = var1.length;
-      Object var3 = null;
+      var1 = null;
       return var2;
    }
 }

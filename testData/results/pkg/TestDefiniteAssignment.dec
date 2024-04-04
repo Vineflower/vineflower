@@ -11,7 +11,7 @@ public class TestDefiniteAssignment {
    }// 10
 
    void testExample16$1$$2(int n) {
-      while(n < 5) {// 16 17
+      while (n < 5) {// 16 17
          n = 6;// 18
       }
 
@@ -20,7 +20,7 @@ public class TestDefiniteAssignment {
 
    void testExample16$1$$3modified(int n, int m) {
       int k;
-      while(true) {
+      while (true) {
          if (n >= 4) {// 26
             k = m;
             if (m >= 5) {
@@ -86,7 +86,7 @@ public class TestDefiniteAssignment {
    void testBooleanNormalnessInline(int n) {
       int p = n * 2;// 81
       int k;
-      n < 5 && (k = n + 5) > 0 && (p /= k) != 0;// 82
+      Boolean.valueOf(n < 5 && (k = n + 5) > 0 && (p /= k) != 0);// 82
       p += 8;// 83
       System.out.println(p);// 84
    }// 85

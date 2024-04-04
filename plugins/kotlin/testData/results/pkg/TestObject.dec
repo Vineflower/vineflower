@@ -1,0 +1,45 @@
+package pkg
+
+object TestObject private constructor() {
+   @JvmStatic
+   public TestObject INSTANCE = new TestObject();
+
+   public const val objectConstVal: Int = 926
+   public final val objectVal: Regex = new Regex("")
+   private final var objectVar: Int = 42
+
+
+   public fun objectFun() {
+      objectVar += -1;// 5
+   }// 6
+
+   @JvmStatic
+   public fun objectJvmStaticFun() {
+      var var0: Int = objectVar++;// 16
+   }// 17
+}
+
+class 'pkg/TestObject' {
+   method 'objectFun ()V' {
+      5      12
+      7      12
+      8      12
+      9      12
+      a      13
+   }
+
+   method 'objectJvmStaticFun ()V' {
+      4      17
+      5      17
+      6      17
+      7      17
+      a      17
+      e      18
+   }
+}
+
+Lines mapping:
+5 <-> 13
+6 <-> 14
+16 <-> 18
+17 <-> 19

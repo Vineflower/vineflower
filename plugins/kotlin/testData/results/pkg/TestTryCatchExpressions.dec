@@ -1,0 +1,398 @@
+package pkg
+
+import java.io.IOException
+
+class TestTryCatchExpressions {
+   public fun test0(s: String) {
+      var var2: java.lang.String;
+      try {
+         var2 = StringsKt.repeat(s as java.lang.CharSequence, 5);// 9
+      } catch (RuntimeException var4) {// 10
+         var var10000: java.lang.String = var4.getMessage();// 11
+         if (var10000 == null) {
+            var10000 = "ERROR";
+         }
+
+         var2 = var10000;
+      }
+
+      System.out.print(var2);// 7
+   }// 14
+
+   public fun test1(a: String, b: String) {
+      var x: java.lang.String = a;// 17
+      var var6: TestTryCatchExpressions = this;// 19
+
+      var var4: java.lang.String;
+      var var10000: TestTryCatchExpressions;
+      try {
+         var10000 = var6;
+         var4 = StringsKt.repeat(x as java.lang.CharSequence, 5);// 20
+      } catch (RuntimeException var9) {// 21
+         var10000 = this;
+         x = b;// 22
+         var var10001: java.lang.String = var9.getMessage();// 23
+         if (var10001 == null) {
+            var10001 = "ERROR";
+         }
+
+         var4 = var10001;
+      }
+
+      var var7: java.lang.String = var4;// 24
+      var6 = var10000;
+
+      var var13: java.lang.String;
+      try {
+         var10000 = var6;
+         var13 = var7;
+         var4 = StringsKt.repeat(x as java.lang.CharSequence, 5);// 25
+      } catch (RuntimeException var8) {// 26
+         var10000 = var10000;
+         var13 = var4;
+         var var10002: java.lang.String = var8.getMessage();// 27
+         if (var10002 == null) {
+            var10002 = "ERROR";
+         }
+
+         var4 = var10002;
+      }
+
+      var10000.test0(var13 + var4);// 18
+   }// 30
+
+   public fun test2(a: String, b: String) {
+      var var15: java.lang.String = a;// 33
+      var var7: TestTryCatchExpressions = this;
+
+      var var4: java.lang.String;
+      var var10000: TestTryCatchExpressions;
+      try {
+         var10000 = var7;
+         if (a.length() != b.length()) {// 35
+            return;// 36
+         }
+
+         var15 = b;// 38
+         this.test0(b);// 39
+         var4 = b;// 40
+      } catch (IOException var13) {// 41
+         var10000 = this;
+         var15 = a;// 42
+         this.test1(a, a);// 43
+         var4 = a;// 44
+      } catch (RuntimeException var14) {// 46
+         var10000 = this;// 45
+         var15 = if (var15 == a) b else a;// 47 49
+         var4 = var15;// 51
+      }
+
+      var var8: java.lang.String = var4;// 52
+      var7 = var10000;
+
+      var var10001: java.lang.String;
+      try {
+         var4 = StringsKt.repeat(var15 as java.lang.CharSequence, 5);
+         var15 = var4;
+         var10000 = var7;
+         var10001 = var8;
+         var4 = var4;// 53
+      } catch (RuntimeException var12) {// 54
+         var10000 = var10000;
+         var10001 = var4;
+         System.out.println(var15);// 55
+         var var10003: java.lang.String = var12.getMessage();
+         if (var10003 == null) {
+            var10003 = "";
+         }
+
+         var4 = var15 + "!!" + var10003;// 56
+      }
+
+      var10000.test1(var10001, var4);// 34
+   }// 58
+}
+
+class 'pkg/TestTryCatchExpressions' {
+   method 'test0 (Ljava/lang/String;)V' {
+      7      8
+      8      8
+      9      8
+      a      8
+      b      8
+      c      8
+      d      8
+      e      8
+      f      8
+      13      9
+      14      10
+      15      10
+      16      10
+      17      10
+      19      11
+      1d      12
+      1f      15
+      20      18
+      22      18
+      23      18
+      24      18
+      25      18
+      26      18
+      27      18
+      28      18
+      29      19
+   }
+
+   method 'test1 (Ljava/lang/String;Ljava/lang/String;)V' {
+      c      22
+      d      22
+      e      23
+      f      23
+      10      23
+      12      28
+      13      28
+      14      29
+      15      29
+      16      29
+      17      29
+      18      29
+      19      29
+      1a      29
+      1b      29
+      1c      29
+      1d      29
+      21      30
+      23      31
+      24      31
+      25      32
+      26      32
+      27      33
+      28      33
+      29      33
+      2a      33
+      2b      33
+      2d      34
+      31      35
+      33      38
+      34      38
+      35      41
+      36      41
+      37      41
+      38      41
+      39      42
+      3a      42
+      3c      46
+      3d      46
+      3e      47
+      3f      47
+      40      48
+      41      48
+      42      48
+      43      48
+      44      48
+      45      48
+      46      48
+      47      48
+      48      48
+      49      48
+      4d      49
+      4f      50
+      50      50
+      51      51
+      52      51
+      53      52
+      54      52
+      55      52
+      56      52
+      57      52
+      59      53
+      5d      54
+      5f      57
+      60      57
+      61      60
+      62      60
+      63      60
+      64      60
+      65      60
+      66      60
+      67      60
+      68      60
+      69      60
+      6a      60
+      6b      61
+   }
+
+   method 'test2 (Ljava/lang/String;Ljava/lang/String;)V' {
+      e      64
+      f      64
+      10      65
+      11      65
+      12      65
+      14      70
+      15      70
+      16      71
+      17      71
+      18      71
+      19      71
+      1a      71
+      1b      71
+      1c      71
+      1d      71
+      1e      71
+      21      72
+      22      75
+      23      75
+      24      76
+      25      76
+      26      76
+      27      76
+      28      76
+      29      77
+      2a      77
+      2b      77
+      2f      78
+      31      79
+      32      79
+      33      80
+      34      80
+      35      81
+      36      81
+      37      81
+      38      81
+      39      81
+      3a      81
+      3b      81
+      3c      81
+      3d      81
+      3e      82
+      3f      82
+      40      82
+      41      82
+      42      82
+      43      82
+      49      84
+      4a      84
+      4b      85
+      4c      85
+      50      85
+      53      85
+      57      85
+      58      83
+      59      86
+      5a      86
+      5b      86
+      5c      86
+      5d      86
+      5e      86
+      5f      89
+      60      89
+      61      89
+      62      89
+      63      90
+      64      90
+      66      96
+      67      96
+      68      97
+      69      97
+      6a      94
+      6b      94
+      6c      94
+      6d      94
+      6e      94
+      6f      94
+      70      94
+      71      94
+      72      94
+      73      94
+      74      95
+      75      95
+      7f      95
+      80      95
+      81      95
+      87      96
+      88      96
+      89      97
+      8a      97
+      8b      98
+      8c      98
+      8d      98
+      8e      98
+      92      99
+      94      100
+      95      100
+      96      101
+      97      101
+      98      102
+      99      102
+      9a      102
+      9b      102
+      9d      102
+      9e      102
+      9f      102
+      a0      108
+      a1      103
+      a2      103
+      a3      103
+      a4      103
+      a5      103
+      a7      104
+      ab      105
+      ad      108
+      ae      108
+      af      108
+      b0      108
+      b1      108
+      b2      108
+      b3      108
+      b4      111
+      b5      111
+      b6      111
+      b7      111
+      b8      111
+      b9      112
+   }
+}
+
+Lines mapping:
+7 <-> 19
+9 <-> 9
+10 <-> 10
+11 <-> 11
+14 <-> 20
+17 <-> 23
+18 <-> 61
+19 <-> 24
+20 <-> 30
+21 <-> 31
+22 <-> 33
+23 <-> 34
+24 <-> 42
+25 <-> 49
+26 <-> 50
+27 <-> 53
+30 <-> 62
+33 <-> 65
+34 <-> 112
+35 <-> 72
+36 <-> 73
+38 <-> 76
+39 <-> 77
+40 <-> 78
+41 <-> 79
+42 <-> 81
+43 <-> 82
+44 <-> 83
+45 <-> 85
+46 <-> 84
+47 <-> 86
+49 <-> 86
+51 <-> 87
+52 <-> 90
+53 <-> 99
+54 <-> 100
+55 <-> 103
+56 <-> 109
+58 <-> 113
+Not mapped:
+8
+60

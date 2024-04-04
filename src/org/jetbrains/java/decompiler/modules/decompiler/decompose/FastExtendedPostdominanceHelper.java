@@ -3,11 +3,9 @@ package org.jetbrains.java.decompiler.modules.decompiler.decompose;
 
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.GeneralStatement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
-import org.jetbrains.java.decompiler.util.DotExporter;
-import org.jetbrains.java.decompiler.util.FastFixedSetFactory;
-import org.jetbrains.java.decompiler.util.FastFixedSetFactory.FastFixedSet;
+import org.jetbrains.java.decompiler.util.collections.fixed.FastFixedSet;
+import org.jetbrains.java.decompiler.util.collections.fixed.FastFixedSetFactory;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 
 import java.util.*;
@@ -47,7 +45,7 @@ public class FastExtendedPostdominanceHelper {
     for (Statement st : statement.getStats()) {
       set.add(st.id);
     }
-    this.factory = new FastFixedSetFactory<>(set);
+    this.factory = FastFixedSetFactory.create(set);
 
     lstReversePostOrderList = statement.getReversePostOrderList();
 
@@ -79,6 +77,7 @@ public class FastExtendedPostdominanceHelper {
     Set<Entry<Integer, FastFixedSet<Integer>>> entries = mapExtPostdominators.entrySet();
     HashMap<Integer, Set<Integer>> res = new HashMap<>(entries.size());
     for (Entry<Integer, FastFixedSet<Integer>> entry : entries) {
+      // TODO: remove/change plain set
       List<Integer> lst = new ArrayList<>(entry.getValue().toPlainSet());
       Collections.sort(lst); // Order Matters!
       res.put(entry.getKey(), new LinkedHashSet<>(lst));
@@ -116,8 +115,8 @@ public class FastExtendedPostdominanceHelper {
   private void filterOnDominance(DominatorTreeExceptionFilter filter) {
 
     DominatorEngine engine = filter.getDomEngine();
-    LinkedList<Statement> stack = new LinkedList<>();
-    LinkedList<FastFixedSet<Integer>> stackPath = new LinkedList<>();
+    Deque<Statement> stack = new ArrayDeque<>();
+    Deque<FastFixedSet<Integer>> stackPath = new ArrayDeque<>();
     Set<Statement> setVisited = new HashSet<>();
 
     for (int head : new HashSet<>(mapExtPostdominators.keySet())) {
@@ -186,10 +185,13 @@ public class FastExtendedPostdominanceHelper {
     for (int head : new HashSet<>(mapExtPostdominators.keySet())) {
       FastFixedSet<Integer> set = mapExtPostdominators.get(head);
       for (Iterator<Integer> it = set.iterator(); it.hasNext(); ) {
-        if (!filter.acceptStatementPair(head, it.next())) {
+        Integer next = it.next();
+
+        if (!filter.acceptStatementPair(head, next)) {
           it.remove();
         }
       }
+
       if (set.isEmpty()) {
         mapExtPostdominators.remove(head);
       }

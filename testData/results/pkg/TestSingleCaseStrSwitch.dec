@@ -3,13 +3,13 @@ package pkg;
 public class TestSingleCaseStrSwitch {
    public String test(String s) {
       byte var3 = -1;
-      switch(s.hashCode()) {
+      switch (s.hashCode()) {
          case 0:
             if (s.equals("")) {
                var3 = 0;
             }
          default:
-            return switch(var3) {// 5
+            return switch (var3) {// 5
                case 0 -> "foo bar";// 6
                default -> s;// 7
             };

@@ -1,76 +1,111 @@
 package pkg;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 public class TestWhileForeach {
+   private final List<Object> objects = new ArrayList();
+
    public Object test() {
-      Iterator<Object> it = itr();// 7
-      if (!it.hasNext()) {// 8
-         return null;// 18
-      } else {
-         Object o = it.next();// 9
+      Iterator<Object> it = itr();// 11
 
-         while(o != null) {// 11
-            o = o.toString();// 12
+      while (it.hasNext()) {// 12
+         for (Object o = it.next(); o != null; o = o.toString()) {// 13 15 23
+            for (Object o2 : this.objects) {// 16
+               if (o2 != null) {// 17
+                  return o2;// 18
+               }
+
+               o.notify();// 21
+            }
          }
-
-         return true;// 15
       }
+
+      return null;// 27
    }
 
    private static Iterator<Object> itr() {
-      return null;// 22
+      return null;// 31
    }
 }
 
 class 'pkg/TestWhileForeach' {
    method 'test ()Ljava/lang/Object;' {
-      0      6
-      1      6
-      2      6
-      3      6
-      4      7
-      5      7
-      6      7
-      7      7
-      8      7
-      9      7
-      a      7
-      d      10
-      e      10
-      f      10
-      10      10
-      11      10
-      12      10
-      13      10
-      14      12
-      15      12
-      18      13
-      19      13
-      1a      13
-      1b      13
-      1c      13
-      20      16
-      21      16
-      22      16
-      23      16
-      24      16
-      25      8
-      26      8
+      0      10
+      1      10
+      2      10
+      3      10
+      4      12
+      5      12
+      6      12
+      7      12
+      8      12
+      9      12
+      d      13
+      e      13
+      f      13
+      10      13
+      11      13
+      12      13
+      13      13
+      14      13
+      15      13
+      18      14
+      19      14
+      1a      14
+      1b      14
+      1c      14
+      1d      14
+      1e      14
+      1f      14
+      20      14
+      21      14
+      2b      14
+      2c      14
+      2d      14
+      2e      14
+      2f      14
+      30      14
+      31      14
+      32      14
+      33      15
+      34      15
+      35      15
+      38      16
+      39      16
+      3a      16
+      3b      19
+      3c      19
+      3d      19
+      3e      19
+      42      13
+      43      13
+      44      13
+      45      13
+      46      13
+      4d      24
+      4e      24
    }
 
    method 'itr ()Ljava/util/Iterator;' {
-      0      21
-      1      21
+      0      28
+      1      28
    }
 }
 
 Lines mapping:
-7 <-> 7
-8 <-> 8
-9 <-> 11
-11 <-> 13
-12 <-> 14
-15 <-> 17
-18 <-> 9
-22 <-> 22
+11 <-> 11
+12 <-> 13
+13 <-> 14
+15 <-> 14
+16 <-> 15
+17 <-> 16
+18 <-> 17
+21 <-> 20
+23 <-> 14
+27 <-> 25
+31 <-> 29
+Not mapped:
+22
+25

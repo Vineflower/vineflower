@@ -6,7 +6,7 @@ public class TestPPMMBoxed {
       a = a + 1;// 23
       a = a + 1;// 24
       a = a + 1;// 25
-      a + 1;// 26
+      Integer.valueOf(a + 1);// 26
    }// 27
 
    public void ppi() {
@@ -22,7 +22,7 @@ public class TestPPMMBoxed {
       a = a - 1;// 37
       a = a - 1;// 38
       a = a - 1;// 39
-      a - 1;// 40
+      Integer.valueOf(a - 1);// 40
    }// 41
 
    public void mmi() {
@@ -41,7 +41,7 @@ public class TestPPMMBoxed {
       t(var4);// 54
       Integer var6 = a + 1;
       t(a);// 55
-      var6 + 1;
+      Integer.valueOf(var6 + 1);
       t(var6);// 56
    }// 57
 
@@ -63,7 +63,7 @@ public class TestPPMMBoxed {
       t(var4);// 68
       Integer var6 = a - 1;
       t(a);// 69
-      var6 - 1;
+      Integer.valueOf(var6 - 1);
       t(var6);// 70
    }// 71
 

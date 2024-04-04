@@ -33,7 +33,7 @@ public class ArrayExprent extends Exprent {
   public VarType getExprType() {
     VarType exprType = array.getExprType();
     if (exprType.equals(VarType.VARTYPE_NULL)) {
-      return hardType.copy();
+      return hardType;
     }
     else {
       return exprType.decreaseArrayDim();
@@ -44,7 +44,7 @@ public class ArrayExprent extends Exprent {
   public VarType getInferredExprType(VarType upperBound) {
     VarType exprType = array.getInferredExprType(upperBound);
     if (exprType.equals(VarType.VARTYPE_NULL)) {
-      return hardType.copy();
+      return hardType;
     }
     else {
       return exprType.decreaseArrayDim();
@@ -83,6 +83,7 @@ public class ArrayExprent extends Exprent {
     if (arrType.arrayDim == 0) {
       VarType objArr = VarType.VARTYPE_OBJECT.resizeArrayDim(1); // type family does not change
       res.enclose("((" + ExprProcessor.getCastTypeName(objArr) + ")", ")");
+      res.addTypeNameToken(objArr, 2);
     }
 
     res.addBytecodeMapping(bytecode);

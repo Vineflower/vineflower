@@ -1,0 +1,75 @@
+package pkg
+
+class TestComparison {
+   public fun test2(a: Any, b: Any): Boolean {
+      return a == b;// 5
+   }
+
+   public fun test3(a: Any, b: Any): Boolean {
+      return a === b;// 9
+   }
+
+   public fun testNull2(a: Any?): Boolean {
+      return a == null;// 13
+   }
+
+   public fun testNull3(a: Any?): Boolean {
+      return a == null;// 17
+   }
+
+   public fun testNullDouble2(a: Any?, b: Any?): Boolean {
+      return a == b;// 21
+   }
+
+   public fun testNullDouble3(a: Any?, b: Any?): Boolean {
+      return a === b;// 25
+   }
+}
+
+class 'pkg/TestComparison' {
+   method 'test2 (Ljava/lang/Object;Ljava/lang/Object;)Z' {
+      c      4
+      d      4
+      11      4
+   }
+
+   method 'test3 (Ljava/lang/Object;Ljava/lang/Object;)Z' {
+      c      8
+      d      8
+      e      8
+      16      8
+   }
+
+   method 'testNull2 (Ljava/lang/Object;)Z' {
+      0      12
+      1      12
+      9      12
+   }
+
+   method 'testNull3 (Ljava/lang/Object;)Z' {
+      0      16
+      1      16
+      9      16
+   }
+
+   method 'testNullDouble2 (Ljava/lang/Object;Ljava/lang/Object;)Z' {
+      0      20
+      1      20
+      5      20
+   }
+
+   method 'testNullDouble3 (Ljava/lang/Object;Ljava/lang/Object;)Z' {
+      0      24
+      1      24
+      2      24
+      a      24
+   }
+}
+
+Lines mapping:
+5 <-> 5
+9 <-> 9
+13 <-> 13
+17 <-> 17
+21 <-> 21
+25 <-> 25

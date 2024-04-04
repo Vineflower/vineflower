@@ -1,14 +1,18 @@
 // Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.main;
 
+import org.jetbrains.java.decompiler.api.plugin.StatementWriter;
+import org.jetbrains.java.decompiler.api.plugin.LanguageSpec;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.Instruction;
 import org.jetbrains.java.decompiler.code.InstructionSequence;
 import org.jetbrains.java.decompiler.main.collectors.BytecodeSourceMapper;
 import org.jetbrains.java.decompiler.main.collectors.ImportCollector;
+import org.jetbrains.java.decompiler.main.decompiler.CancelationManager;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.extern.IIdentifierRenamer;
+import org.jetbrains.java.decompiler.main.plugins.PluginContext;
 import org.jetbrains.java.decompiler.main.rels.ClassWrapper;
 import org.jetbrains.java.decompiler.main.rels.LambdaProcessor;
 import org.jetbrains.java.decompiler.main.rels.NestedClassProcessor;
@@ -417,14 +421,22 @@ public class ClassesProcessor implements CodeConstants {
         // add simple class names to implicit import
         addClassNameToImport(root, importCollector);
 
+        LanguageSpec spec = PluginContext.getCurrentContext().getLanguageSpec(cl);
+
         // build wrappers for all nested classes (that's where actual processing takes place)
-        initWrappers(root);
+        initWrappers(root, spec);
 
-        // Java specific last minute processing
-        new NestedClassProcessor().processClass(root, root);
+        if (spec == null) {
+          // Java specific last minute processing
+            new NestedClassProcessor().processClass(root, root);
 
-        new NestedMemberAccess().propagateMemberAccess(root);
+            new NestedMemberAccess().propagateMemberAccess(root);
+        }
       }
+    } catch (CancelationManager.CanceledException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new RuntimeException(e);
     } finally {
       DecompilerContext.getLogger().endProcessingClass();
     }
@@ -455,9 +467,11 @@ public class ClassesProcessor implements CodeConstants {
         buffer.append(moduleBuffer);
       }
       else {
+        LanguageSpec spec = PluginContext.getCurrentContext().getLanguageSpec(cl);
         TextBuffer classBuffer = new TextBuffer(AVERAGE_CLASS_SIZE);
+        StatementWriter writer = spec != null ? spec.writer : new ClassWriter();
 
-        new ClassWriter().classToJava(root, classBuffer, 0);
+        writer.writeClass(root, classBuffer, 0);
         classBuffer.reformat();
 
         classBuffer.getTracers().forEach((classAndMethod, tracer) -> {
@@ -475,14 +489,7 @@ public class ClassesProcessor implements CodeConstants {
           }
         });
 
-        int index = cl.qualifiedName.lastIndexOf('/');
-        if (index >= 0) {
-          String packageName = cl.qualifiedName.substring(0, index).replace('/', '.');
-          buffer.append("package ").append(packageName).append(';').appendLineSeparator().appendLineSeparator();
-        }
-
-        DecompilerContext.getImportCollector().writeImports(buffer, true);
-
+        writer.writeClassHeader(cl, buffer, DecompilerContext.getImportCollector());
         int offsetLines = buffer.countLines();
 
         buffer.append(classBuffer);
@@ -499,14 +506,15 @@ public class ClassesProcessor implements CodeConstants {
           }
         }
       }
-    }
-    finally {
+    } catch (CancelationManager.CanceledException e) {
+      throw e;
+    } finally {
       destroyWrappers(root);
       DecompilerContext.getLogger().endReadingClass();
     }
   }
 
-  private static void initWrappers(ClassNode node) {
+  private static void initWrappers(ClassNode node, LanguageSpec spec) {
     if (node.type == ClassNode.Type.LAMBDA) {
       return;
     }
@@ -515,18 +523,18 @@ public class ClassesProcessor implements CodeConstants {
 
     for (ClassNode nd : node.nested) {
       if (shouldInitEarly(nd)) {
-        initWrappers(nd);
+        initWrappers(nd, spec);
         nestedCopy.remove(nd);
       }
     }
 
     ClassWrapper wrapper = new ClassWrapper(node.classStruct);
-    wrapper.init();
+    wrapper.init(spec);
 
     node.wrapper = wrapper;
 
     for (ClassNode nd : nestedCopy) {
-      initWrappers(nd);
+      initWrappers(nd, spec);
     }
   }
 

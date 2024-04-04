@@ -3,7 +3,7 @@ package org.jetbrains.java.decompiler.struct.gen;
 
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.struct.StructMethod;
-import org.jetbrains.java.decompiler.util.ListStack;
+import org.jetbrains.java.decompiler.util.collections.ListStack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +18,7 @@ public class DataPoint {
   public void setVariable(int index, VarType value) {
     if (index >= localVariables.size()) {
       for (int i = localVariables.size(); i <= index; i++) {
-        localVariables.add(new VarType(CodeConstants.TYPE_NOTINITIALIZED));
+        localVariables.add(new VarType(CodeType.NOTINITIALIZED));
       }
     }
 
@@ -30,7 +30,7 @@ public class DataPoint {
       return localVariables.get(index);
     }
     else {
-      return new VarType(CodeConstants.TYPE_NOTINITIALIZED);
+      return new VarType(CodeType.NOTINITIALIZED);
     }
   }
 
@@ -49,7 +49,7 @@ public class DataPoint {
 
     int k = 0;
     if (!mt.hasModifier(CodeConstants.ACC_STATIC)) {
-      point.setVariable(k++, new VarType(CodeConstants.TYPE_OBJECT, 0, null));
+      point.setVariable(k++, new VarType(CodeType.OBJECT, 0, null));
     }
 
     for (int i = 0; i < md.params.length; i++) {
@@ -57,7 +57,7 @@ public class DataPoint {
 
       point.setVariable(k++, var);
       if (var.stackSize == 2) {
-        point.setVariable(k++, new VarType(CodeConstants.TYPE_GROUP2EMPTY));
+        point.setVariable(k++, new VarType(CodeType.GROUP2EMPTY));
       }
     }
 

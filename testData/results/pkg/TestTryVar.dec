@@ -2,7 +2,7 @@ package pkg;
 
 public class TestTryVar {
    public int test(int x, int y) {
-      for(int i = 0; i < 10; ++i) {// 5
+      for (int i = 0; i < 10; i++) {// 5
          try {
             x = y + i;// 7
             x = 5000 - i;// 8
@@ -15,7 +15,7 @@ public class TestTryVar {
    }
 
    public int test2(int x, int y) {
-      for(int i = 0; i < 10; ++i) {// 19
+      for (int i = 0; i < 10; i++) {// 19
          try {
             x = y + i;// 21
             x = (x += 5000 - i / (7 - i)) / y;// 22

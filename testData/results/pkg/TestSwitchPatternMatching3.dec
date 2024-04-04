@@ -2,7 +2,7 @@ package pkg;
 
 public class TestSwitchPatternMatching3 {
    static void test(Object s) {
-      switch(s) {// 5
+      switch (s) {// 5
          case null:
             System.out.println("null");// 7
             break;

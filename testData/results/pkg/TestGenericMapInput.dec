@@ -5,7 +5,7 @@ import java.util.Map;
 
 public class TestGenericMapInput {
    public static <N extends Number> void addToMap(Map<String, N> map, List<N> source) {
-      for(N item : source) {// 10
+      for (N item : source) {// 10
          map.put(item.toString(), item);// 12
       }
    }// 14

@@ -1,0 +1,109 @@
+package pkg
+
+class TestVars {
+   public fun testVar() {
+      System.out.println("initial");// 5 6
+   }// 9
+
+   public fun testVal() {
+      System.out.println("initial");// 12 13
+   }// 16
+
+   public fun testPhi(bl: Boolean) {
+      var var3: Byte;
+      if (bl) {// 21
+         var3 = 1;// 22
+      } else {
+         var3 = 2;// 24
+      }
+
+      System.out.println(var3);// 27
+   }// 28
+
+   public fun testIfExpr(bl: Boolean) {
+      System.out.println(if (bl) 1 else 2);// 31 32 34 37
+   }// 38
+}
+
+class 'pkg/TestVars' {
+   method 'testVar ()V' {
+      0      4
+      1      4
+      3      4
+      4      4
+      5      4
+      6      4
+      7      4
+      8      4
+      9      4
+      e      5
+   }
+
+   method 'testVal ()V' {
+      0      8
+      1      8
+      3      8
+      4      8
+      5      8
+      6      8
+      7      8
+      8      8
+      9      8
+      e      9
+   }
+
+   method 'testPhi (Z)V' {
+      2      13
+      3      13
+      6      14
+      7      14
+      b      16
+      c      16
+      d      19
+      e      19
+      f      19
+      10      19
+      11      19
+      12      19
+      13      19
+      14      20
+   }
+
+   method 'testIfExpr (Z)V' {
+      0      23
+      1      23
+      4      23
+      8      23
+      a      23
+      b      23
+      c      23
+      d      23
+      e      23
+      f      23
+      10      23
+      11      24
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 5
+9 <-> 6
+12 <-> 9
+13 <-> 9
+16 <-> 10
+21 <-> 14
+22 <-> 15
+24 <-> 17
+27 <-> 20
+28 <-> 21
+31 <-> 24
+32 <-> 24
+34 <-> 24
+37 <-> 24
+38 <-> 25
+Not mapped:
+7
+8
+14
+15

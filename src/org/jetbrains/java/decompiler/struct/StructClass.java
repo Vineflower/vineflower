@@ -2,7 +2,6 @@
 package org.jetbrains.java.decompiler.struct;
 
 import org.jetbrains.java.decompiler.code.BytecodeVersion;
-import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
@@ -15,10 +14,9 @@ import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericClassDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericMain;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
-import org.jetbrains.java.decompiler.struct.lazy.LazyLoader;
 import org.jetbrains.java.decompiler.util.DataInputFullStream;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
-import org.jetbrains.java.decompiler.util.VBStyleCollection;
+import org.jetbrains.java.decompiler.util.collections.VBStyleCollection;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -210,7 +208,15 @@ public class StructClass extends StructMember {
    */
   public List<StructRecordComponent> getRecordComponents() {
     StructRecordAttribute recordAttr = getAttribute(StructGeneralAttribute.ATTRIBUTE_RECORD);
-    if (recordAttr == null) return null;
+    if (recordAttr == null) {
+      // If our class extends j.l.Record but also has no components, it's probably malformed.
+      // Force processing as a record anyway, in the hopes that we can come to a better result.
+      if (this.superClass.getString().equals("java/lang/Record")) {
+        return new ArrayList<>();
+      }
+
+      return null;
+    }
     return recordAttr.getComponents();
   }
 

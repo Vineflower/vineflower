@@ -1,7 +1,6 @@
 package pkg;
 
 public class TestUnknownCast {
-   // $VF: Could not properly define all variable types!
    public void test() {
       boolean vvv1 = true;// 5
       boolean vvv2 = false;
@@ -16,9 +15,9 @@ public class TestUnknownCast {
          ;
       }
 
-      boolean var8 = (<unknown>)vvv2;// 14
+      vvv1 = vvv2;// 14
 
-      for(Object vvv34 = null; vvv34 != null; var8 = var8) {// 15 16 17 19
+      for (Object vvv34 = null; vvv34 != null; vvv1 = vvv1) {// 15 16 17 19
          System.out.println(vvv34);// 18
       }
    }// 21
@@ -26,47 +25,47 @@ public class TestUnknownCast {
 
 class 'pkg/TestUnknownCast' {
    method 'test ()V' {
-      0      5
-      1      5
-      2      6
-      3      6
-      4      9
-      5      9
-      f      10
-      10      13
-      11      13
-      1a      18
-      1b      18
-      1c      20
-      1d      20
-      1e      20
-      1f      20
-      22      20
-      24      21
-      25      21
-      26      21
-      27      21
-      28      21
-      29      21
-      2a      21
-      2b      20
-      2c      20
-      30      23
+      0      4
+      1      4
+      2      5
+      3      5
+      4      8
+      5      8
+      f      9
+      10      12
+      11      12
+      1a      17
+      1b      17
+      1c      19
+      1d      19
+      1e      19
+      1f      19
+      22      19
+      24      20
+      25      20
+      26      20
+      27      20
+      28      20
+      29      20
+      2a      20
+      2b      19
+      2c      19
+      30      22
    }
 }
 
 Lines mapping:
-5 <-> 6
-7 <-> 10
-8 <-> 11
-10 <-> 14
-14 <-> 19
-15 <-> 21
-16 <-> 21
-17 <-> 21
-18 <-> 22
-19 <-> 21
-21 <-> 24
+5 <-> 5
+7 <-> 9
+8 <-> 10
+10 <-> 13
+14 <-> 18
+15 <-> 20
+16 <-> 20
+17 <-> 20
+18 <-> 21
+19 <-> 20
+21 <-> 23
 Not mapped:
 12
 13

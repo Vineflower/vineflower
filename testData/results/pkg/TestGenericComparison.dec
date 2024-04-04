@@ -1,0 +1,50 @@
+package pkg;
+
+public class TestGenericComparison {
+   TestGenericComparison.Generic<?> generic = new TestGenericComparison.Generic();
+
+   void test() {
+      if (this.dum(this.generic) != this.dum(this.generic)) {// 7
+      }
+   }// 10
+
+   <T> T dum(TestGenericComparison.Generic<T> dum) {
+      return null;// 13
+   }
+
+   static class Generic<T> {
+   }
+}
+
+class 'pkg/TestGenericComparison' {
+   method 'test ()V' {
+      0      6
+      1      6
+      2      6
+      3      6
+      4      6
+      5      6
+      6      6
+      7      6
+      8      6
+      9      6
+      a      6
+      b      6
+      c      6
+      d      6
+      e      6
+      f      6
+      10      6
+      13      8
+   }
+
+   method 'dum (Lpkg/TestGenericComparison$Generic;)Ljava/lang/Object;' {
+      0      11
+      1      11
+   }
+}
+
+Lines mapping:
+7 <-> 7
+10 <-> 9
+13 <-> 12

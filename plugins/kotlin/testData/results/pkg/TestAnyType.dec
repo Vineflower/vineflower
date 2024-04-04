@@ -1,0 +1,45 @@
+package pkg
+
+class TestAnyType {
+   public fun test(param: Any): Int {
+      if (param is java.lang.String) {// 5
+         return (param as java.lang.String).length();// 6
+      } else {
+         System.out.println(param);// 9
+         return 0;// 11
+      }
+   }
+}
+
+class 'pkg/TestAnyType' {
+   method 'test (Ljava/lang/Object;)I' {
+      6      4
+      7      4
+      8      4
+      9      4
+      a      4
+      d      5
+      e      5
+      f      5
+      10      5
+      11      5
+      12      5
+      13      5
+      14      5
+      15      7
+      16      7
+      17      7
+      18      7
+      19      7
+      1a      7
+      1b      7
+      1c      8
+      1d      8
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 6
+9 <-> 8
+11 <-> 9

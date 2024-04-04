@@ -5,7 +5,7 @@ public class TestConstType {
    private char zero = 0;
 
    public void setLineBreak(char os) {
-      switch(os) {// 8
+      switch (os) {// 8
          case 'u':
             this.lineBreak = '\r';// 10
             break;// 11
@@ -73,7 +73,7 @@ public class TestConstType {
 
    public int getTypeMaxValue(char type) {
       int maxValue;
-      switch(type) {// 85
+      switch (type) {// 85
          case 'B':
             maxValue = 127;// 90
             break;// 91

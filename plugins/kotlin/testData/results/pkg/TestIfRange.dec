@@ -1,0 +1,381 @@
+package pkg
+
+class TestIfRange {
+   public fun testInt(x: Int) {
+      if (1 <= x && x < 11) {// 5
+         System.out.println(x);// 6
+      }
+   }// 8
+
+   public fun testChar(x: Char) {
+      if ('a' <= x && x < '{') {// 11
+         System.out.println(x);// 12
+      }
+   }// 14
+
+   public fun testInvertedInt(x: Int) {
+      if (1 > x || x >= 11) {// 17
+         System.out.println(x);// 18
+      }
+   }// 20
+
+   public fun testIntStep(x: Int) {
+      if (CollectionsKt.contains(RangesKt.step((new IntRange(1, 100)) as IntProgression, 2) as java.lang.Iterable, x)) {// 23
+         System.out.println(x);// 24
+      }
+   }// 26
+
+   public fun testIntStepY(x: Int, y: Int) {
+      if (CollectionsKt.contains(RangesKt.step((new IntRange(1, 100)) as IntProgression, y) as java.lang.Iterable, x)) {// 28
+         System.out.println(x);// 29
+      }
+   }// 31
+
+   public fun testIntY(x: Int, y: Int) {
+      if (1 <= x && x <= y) {// 34
+         System.out.println(x);// 35
+      }
+   }// 37
+
+   public fun testIntDownTo(x: Int) {
+      if (CollectionsKt.contains(RangesKt.downTo(10, 1) as java.lang.Iterable, x)) {// 40
+         System.out.println(x);// 41
+      }
+   }// 43
+
+   public fun testIntDownToStep(x: Int) {
+      if (CollectionsKt.contains(RangesKt.step(RangesKt.downTo(10, 1), 2) as java.lang.Iterable, x)) {// 46
+         System.out.println(x);// 47
+      }
+   }// 49
+
+   public fun testIntUntil(x: Int) {
+      if (1 <= x && x < 10) {// 52
+         System.out.println(x);// 53
+      }
+   }// 55
+
+   public fun testIntUntilStep(x: Int) {
+      if (CollectionsKt.contains(RangesKt.step(RangesKt.until(1, 100) as IntProgression, 2) as java.lang.Iterable, x)) {// 58
+         System.out.println(x);// 59
+      }
+   }// 61
+
+   public fun testIntUntilY(x: Int, y: Int) {
+      if (1 <= x && x < y) {// 64
+         System.out.println(x);// 65
+      }
+   }// 67
+
+   public fun testIntUntilSelf(x: Int) {
+      if (1 <= x && x < x) {// 70
+         System.out.println(x);// 71
+      }
+   }// 73
+}
+
+class 'pkg/TestIfRange' {
+   method 'testInt (I)V' {
+      0      4
+      1      4
+      2      4
+      5      4
+      6      4
+      7      4
+      8      4
+      14      4
+      17      5
+      18      5
+      19      5
+      1a      5
+      1b      5
+      1e      7
+   }
+
+   method 'testChar (C)V' {
+      0      10
+      1      10
+      2      10
+      3      10
+      6      10
+      7      10
+      8      10
+      9      10
+      15      10
+      18      11
+      19      11
+      1a      11
+      1b      11
+      1c      11
+      1f      13
+   }
+
+   method 'testInvertedInt (I)V' {
+      0      16
+      1      16
+      2      16
+      5      16
+      6      16
+      7      16
+      8      16
+      14      16
+      17      17
+      18      17
+      19      17
+      1a      17
+      1b      17
+      1e      19
+   }
+
+   method 'testIntStep (I)V' {
+      4      22
+      5      22
+      6      22
+      a      22
+      b      22
+      c      22
+      d      22
+      e      22
+      f      22
+      10      22
+      11      22
+      12      22
+      13      22
+      14      22
+      15      22
+      16      22
+      17      22
+      18      22
+      19      22
+      1a      22
+      1b      22
+      1e      23
+      1f      23
+      20      23
+      21      23
+      22      23
+      25      25
+   }
+
+   method 'testIntStepY (II)V' {
+      4      28
+      5      28
+      6      28
+      a      28
+      b      28
+      c      28
+      d      28
+      e      28
+      f      28
+      10      28
+      11      28
+      12      28
+      13      28
+      14      28
+      15      28
+      16      28
+      17      28
+      18      28
+      19      28
+      1a      28
+      1b      28
+      1e      29
+      1f      29
+      20      29
+      21      29
+      22      29
+      25      31
+   }
+
+   method 'testIntY (II)V' {
+      0      34
+      1      34
+      2      34
+      5      34
+      6      34
+      7      34
+      13      34
+      16      35
+      17      35
+      18      35
+      19      35
+      1a      35
+      1d      37
+   }
+
+   method 'testIntDownTo (I)V' {
+      0      40
+      1      40
+      2      40
+      3      40
+      4      40
+      5      40
+      6      40
+      7      40
+      8      40
+      9      40
+      a      40
+      b      40
+      c      40
+      d      40
+      e      40
+      f      40
+      10      40
+      13      41
+      14      41
+      15      41
+      16      41
+      17      41
+      1a      43
+   }
+
+   method 'testIntDownToStep (I)V' {
+      0      46
+      1      46
+      2      46
+      3      46
+      4      46
+      5      46
+      6      46
+      7      46
+      8      46
+      9      46
+      a      46
+      b      46
+      c      46
+      d      46
+      e      46
+      f      46
+      10      46
+      11      46
+      12      46
+      13      46
+      14      46
+      17      47
+      18      47
+      19      47
+      1a      47
+      1b      47
+      1e      49
+   }
+
+   method 'testIntUntil (I)V' {
+      0      52
+      1      52
+      2      52
+      5      52
+      6      52
+      7      52
+      8      52
+      14      52
+      17      53
+      18      53
+      19      53
+      1a      53
+      1b      53
+      1e      55
+   }
+
+   method 'testIntUntilStep (I)V' {
+      0      58
+      1      58
+      2      58
+      3      58
+      4      58
+      5      58
+      6      58
+      7      58
+      8      58
+      9      58
+      a      58
+      b      58
+      c      58
+      d      58
+      e      58
+      f      58
+      10      58
+      11      58
+      12      58
+      13      58
+      14      58
+      15      58
+      16      58
+      17      58
+      1a      59
+      1b      59
+      1c      59
+      1d      59
+      1e      59
+      21      61
+   }
+
+   method 'testIntUntilY (II)V' {
+      0      64
+      1      64
+      2      64
+      5      64
+      6      64
+      7      64
+      13      64
+      16      65
+      17      65
+      18      65
+      19      65
+      1a      65
+      1d      67
+   }
+
+   method 'testIntUntilSelf (I)V' {
+      0      70
+      1      70
+      2      70
+      5      70
+      6      70
+      7      70
+      13      70
+      16      71
+      17      71
+      18      71
+      19      71
+      1a      71
+      1d      73
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 6
+8 <-> 8
+11 <-> 11
+12 <-> 12
+14 <-> 14
+17 <-> 17
+18 <-> 18
+20 <-> 20
+23 <-> 23
+24 <-> 24
+26 <-> 26
+28 <-> 29
+29 <-> 30
+31 <-> 32
+34 <-> 35
+35 <-> 36
+37 <-> 38
+40 <-> 41
+41 <-> 42
+43 <-> 44
+46 <-> 47
+47 <-> 48
+49 <-> 50
+52 <-> 53
+53 <-> 54
+55 <-> 56
+58 <-> 59
+59 <-> 60
+61 <-> 62
+64 <-> 65
+65 <-> 66
+67 <-> 68
+70 <-> 71
+71 <-> 72
+73 <-> 74

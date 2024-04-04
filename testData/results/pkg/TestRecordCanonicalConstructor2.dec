@@ -1,0 +1,80 @@
+package pkg;
+
+public record TestRecordCanonicalConstructor2(String name, Object meta) {
+   public TestRecordCanonicalConstructor2(String var1) {
+      this(var1, null);
+      if (var1 == null) {
+         throw new NullPointerException("name");
+      }
+   }
+
+   public TestRecordCanonicalConstructor2(String name, Object meta) {
+      if (name == null) {
+         throw new NullPointerException("name");
+      } else {
+         this.name = name;
+         this.meta = meta;
+      }
+   }
+
+   public TestRecordCanonicalConstructor2(String var1, String var2) {
+      this(var1, var2.toLowerCase());
+      if (var1 == null) {
+         throw new NullPointerException("name");
+      }
+   }
+}
+
+class 'pkg/TestRecordCanonicalConstructor2' {
+   method '<init> (Ljava/lang/String;)V' {
+      1      4
+      2      4
+      3      4
+      4      4
+      5      4
+      6      5
+      7      5
+      e      6
+      f      6
+      13      6
+      14      8
+   }
+
+   method '<init> (Ljava/lang/String;Ljava/lang/Object;)V' {
+      4      11
+      5      11
+      c      12
+      d      12
+      11      12
+      12      14
+      13      14
+      14      14
+      15      14
+      16      14
+      17      15
+      18      15
+      19      15
+      1a      15
+      1b      15
+      1c      17
+   }
+
+   method '<init> (Ljava/lang/String;Ljava/lang/String;)V' {
+      1      20
+      2      20
+      3      20
+      4      20
+      5      20
+      6      20
+      7      20
+      8      20
+      9      21
+      a      21
+      11      22
+      12      22
+      16      22
+      17      24
+   }
+}
+
+Lines mapping:

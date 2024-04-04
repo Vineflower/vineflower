@@ -9,6 +9,7 @@ super public final class TestFieldSingleAccess
 {
 
 public Field field:"Ljava/lang/Integer;";
+public Field field2:"I";
 
 public Method "<init>":"()V"
 	stack 1 locals 1
@@ -28,8 +29,22 @@ public final Method test:"()V"
 		getstatic	Field java/lang/System.out:"Ljava/io/PrintStream;";
 		swap;
 		invokevirtual	Method java/io/PrintStream.println:"(Ljava/lang/Object;)V";
+		return;
 	L17:	stack_frame_type same;
 		return;
+}
+
+
+public final Method test2:"()V"
+	stack 2 locals 1
+{
+		aload_0;
+		getfield	Field field2:"I";
+		dup;
+		imul;
+		getstatic	Field java/lang/System.out:"Ljava/io/PrintStream;";
+		swap;
+		invokevirtual	Method java/io/PrintStream.println:"(I)V";
 }
 
 public final Method test1:"()V"

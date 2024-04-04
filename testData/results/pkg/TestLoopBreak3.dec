@@ -2,12 +2,12 @@ package pkg;
 
 public class TestLoopBreak3 {
    public void test(int i, boolean b) {
-      for(int j = 0; j < i; ++j) {// 5
+      for (int j = 0; j < i; j++) {// 5
          System.out.println(j);// 6
 
-         for(int k = 0; k < j; ++k) {// 8
+         for (int k = 0; k < j; k++) {// 8
             if (k == 2) {// 9
-               for(int l = 0; l < 2; ++l) {// 10
+               for (int l = 0; l < 2; l++) {// 10
                   System.out.println(2);// 11
                   if (!b) {// 13
                      break;

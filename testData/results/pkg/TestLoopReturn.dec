@@ -4,7 +4,7 @@ public class TestLoopReturn {
    public void test1(boolean a, boolean b) {
       System.out.println(1);// 5
 
-      while(a) {// 6
+      while (a) {// 6
          if (b) {// 7
             return;// 8
          }
@@ -14,7 +14,7 @@ public class TestLoopReturn {
    }// 13
 
    public void test1a(boolean a, boolean b) {
-      while(a) {// 16
+      while (a) {// 16
          if (b) {// 17
             return;// 18
          }
@@ -24,7 +24,7 @@ public class TestLoopReturn {
    }// 23
 
    public void test1b(boolean a, boolean b) {
-      while(a) {// 26
+      while (a) {// 26
          if (b) {// 27
             return;// 28
          }
@@ -32,7 +32,7 @@ public class TestLoopReturn {
    }// 31
 
    public void test2(boolean b) {
-      while(!b) {// 35
+      while (!b) {// 35
          System.out.println(1);// 39
       }
    }// 36
@@ -40,7 +40,7 @@ public class TestLoopReturn {
    public void test2a(boolean b) {
       System.out.println(0);// 44
 
-      while(!b) {// 47
+      while (!b) {// 47
          System.out.println(1);// 51
       }
    }// 48
@@ -48,7 +48,7 @@ public class TestLoopReturn {
    public void test2b(boolean b) {
       System.out.println(0);// 56
 
-      while(!b) {// 59
+      while (!b) {// 59
          System.out.println(1);// 64
       }
 
@@ -60,7 +60,7 @@ public class TestLoopReturn {
       System.out.println(var2);// 70
       short var3 = -10198;// 71
       if (var3 > -27558) {
-         while(true) {
+         while (true) {
          }
       }
 
@@ -91,6 +91,7 @@ class 'pkg/TestLoopReturn' {
 
    method 'test1a (ZZ)V' {
       0      16
+      1      16
       4      17
       5      17
       8      18
@@ -106,6 +107,7 @@ class 'pkg/TestLoopReturn' {
 
    method 'test1b (ZZ)V' {
       0      26
+      1      26
       4      27
       5      27
       8      28

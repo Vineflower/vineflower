@@ -1,0 +1,21 @@
+package pkg
+
+public const val topLevelConstVal: Int = 926
+public final val topLevelVal: Regex = new Regex("")
+public final var topLevelVar: Int = 42
+   internal set
+
+public fun topLevelFun() {
+}// 5
+
+
+class 'pkg/TestTopLevelKt' {
+   method 'topLevelFun ()V' {
+      2      8
+   }
+}
+
+Lines mapping:
+5 <-> 9
+Not mapped:
+4

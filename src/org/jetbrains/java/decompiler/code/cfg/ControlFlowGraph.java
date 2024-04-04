@@ -8,10 +8,11 @@ import org.jetbrains.java.decompiler.modules.code.DeadCodeHelper;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.consts.ConstantPool;
+import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.struct.gen.DataPoint;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
-import org.jetbrains.java.decompiler.util.ListStack;
-import org.jetbrains.java.decompiler.util.VBStyleCollection;
+import org.jetbrains.java.decompiler.util.collections.ListStack;
+import org.jetbrains.java.decompiler.util.collections.VBStyleCollection;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -747,7 +748,7 @@ public class ControlFlowGraph implements CodeConstants {
           break;
         case CodeConstants.opc_astore:
         case CodeConstants.opc_pop:
-          if (var.type == CodeConstants.TYPE_ADDRESS) {
+          if (var.type == CodeType.ADDRESS) {
             seq.removeInstruction(i);
             i--;
           }
@@ -769,7 +770,7 @@ public class ControlFlowGraph implements CodeConstants {
 
         DataPoint point = new DataPoint();
         point.setLocalVariables(new ArrayList<>(data.getLocalVariables()));
-        point.getStack().push(new VarType(CodeConstants.TYPE_OBJECT, 0, null));
+        point.getStack().push(new VarType(CodeType.OBJECT, 0, null));
 
         removeJsrInstructions(pool, suc, point);
       }

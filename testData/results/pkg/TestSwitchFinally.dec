@@ -6,7 +6,7 @@ public class TestSwitchFinally {
          System.out.println(1);// 6
       } finally {
          System.out.println("finally");// 8
-         switch(i) {// 10
+         switch (i) {// 10
             case 0:
                System.out.println("0");// 12
          }
@@ -20,7 +20,7 @@ public class TestSwitchFinally {
          System.out.println(1);// 22
       } finally {
          System.out.println("finally");// 24
-         switch(i) {// 26
+         switch (i) {// 26
             case 0:
                System.out.println("0");// 28
                break;// 29
@@ -37,7 +37,7 @@ public class TestSwitchFinally {
          System.out.println(1);// 41
       } finally {
          System.out.println("finally");// 43
-         switch(i) {// 45
+         switch (i) {// 45
             default:
                System.out.println("default");// 47
                System.out.println("b");// 50
@@ -50,7 +50,7 @@ public class TestSwitchFinally {
          System.out.println(1);// 57
       } finally {
          System.out.println("finally");
-         switch(i) {// 61
+         switch (i) {// 61
             case 0:
                System.out.println("0");// 63
                break;// 64

@@ -1,0 +1,61 @@
+package pkg;
+
+public class TestVarMergeSupertype {
+   public void myMethod() {
+      TestVarMergeSupertype.MyInterface rmcp = null;// 5
+      TestVarMergeSupertype.MyInterface var2 = this.getMyInterfaceImpl();// 6
+   }// 7
+
+   public void myMethod2() {
+      TestVarMergeSupertype.MyInterfaceImpl rmcp = null;// 10
+      rmcp = this.getMyInterfaceImpl();// 11
+   }// 12
+
+   public TestVarMergeSupertype.MyInterfaceImpl getMyInterfaceImpl() {
+      return null;// 15
+   }
+
+   interface MyInterface {
+   }
+
+   class MyInterfaceImpl implements TestVarMergeSupertype.MyInterface {
+   }
+}
+
+class 'pkg/TestVarMergeSupertype' {
+   method 'myMethod ()V' {
+      0      4
+      1      4
+      2      5
+      3      5
+      4      5
+      5      5
+      6      5
+      7      6
+   }
+
+   method 'myMethod2 ()V' {
+      0      9
+      1      9
+      2      10
+      3      10
+      4      10
+      5      10
+      6      10
+      7      11
+   }
+
+   method 'getMyInterfaceImpl ()Lpkg/TestVarMergeSupertype$MyInterfaceImpl;' {
+      0      14
+      1      14
+   }
+}
+
+Lines mapping:
+5 <-> 5
+6 <-> 6
+7 <-> 7
+10 <-> 10
+11 <-> 11
+12 <-> 12
+15 <-> 15

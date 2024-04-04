@@ -19,6 +19,7 @@ import java.util.function.Consumer;
 public final class SimpleSSAReassign {
   public static Map<Instruction, Integer> reassignSSAForm(SSAConstructorSparseEx ssa, RootStatement root) {
     Set<Integer> vers = new HashSet<>();
+    Map<VarVersionPair, Integer> versionLookup = ssa.getSimpleReversePhiLookup();
 
     // Add all found var indices to the set
     findAllVars(root, var -> {
@@ -45,11 +46,20 @@ public final class SimpleSSAReassign {
     Map<VarVersionPair, Integer> newVers = new HashMap<>();
     findAllVars(root, var -> {
       VarVersionPair vvp = var.getVarVersionPair();
+      int version = versionLookup.getOrDefault(vvp, vvp.version);
 
       // When encountering an unseen variable, increment and get counter for next index
-      if (vvp.version > 1 && vers.contains(vvp.var)) {
-        if (!newVers.containsKey(vvp)) {
-          newVers.put(vvp, counter.incrementAndGet());
+      if (version > 1 && vers.contains(vvp.var)) {
+        VarVersionPair base = vvp;
+        if (vvp.version != version) {
+          base = new VarVersionPair(vvp.var, version);
+        }
+        if (!newVers.containsKey(base)) {
+          newVers.put(base, counter.incrementAndGet());
+        }
+
+        if (base != vvp) {
+          newVers.put(vvp, newVers.get(base));
         }
       }
     });
@@ -95,8 +105,7 @@ public final class SimpleSSAReassign {
   }
 
   private static void findAllVars(Exprent exprent, Consumer<VarExprent> action) {
-    List<Exprent> lst = exprent.getAllExprents(true);
-    lst.add(exprent);
+    List<Exprent> lst = exprent.getAllExprents(true, true);
 
     for (Exprent expr : lst) {
       if (expr instanceof VarExprent) {

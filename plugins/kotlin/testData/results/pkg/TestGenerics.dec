@@ -1,0 +1,51 @@
+package pkg
+
+class TestGenerics<T> {
+   public fun <T> genericFun(v: T): T {
+      return (T)v;// 5
+   }
+
+   public fun <T> nullableGeneric(v: T): T? {
+      return null;// 9
+   }
+
+   public fun <T> subType(v: TestGenerics<out T>) {
+   }// 13
+
+   public fun <T> superType(v: TestGenerics<in T>) {
+   }// 16
+
+   public fun any(v: TestGenerics<*>) {
+   }// 19
+}
+
+class 'pkg/TestGenerics' {
+   method 'genericFun (Ljava/lang/Object;)Ljava/lang/Object;' {
+      0      4
+      1      4
+   }
+
+   method 'nullableGeneric (Ljava/lang/Object;)Ljava/lang/Object;' {
+      0      8
+      1      8
+   }
+
+   method 'subType (Lpkg/TestGenerics;)V' {
+      6      12
+   }
+
+   method 'superType (Lpkg/TestGenerics;)V' {
+      6      15
+   }
+
+   method 'any (Lpkg/TestGenerics;)V' {
+      6      18
+   }
+}
+
+Lines mapping:
+5 <-> 5
+9 <-> 9
+13 <-> 13
+16 <-> 16
+19 <-> 19

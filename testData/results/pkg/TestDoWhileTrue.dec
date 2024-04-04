@@ -4,7 +4,7 @@ public class TestDoWhileTrue {
    public void test() {
       int x = 0;// 5
 
-      while(++x < 100) {// 7 8
+      while (++x < 100) {// 7 8
       }
    }// 12
 }

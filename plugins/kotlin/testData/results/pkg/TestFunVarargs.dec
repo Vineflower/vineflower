@@ -1,0 +1,123 @@
+package pkg
+
+import java.util.Arrays
+
+class TestFunVarargs {
+   public fun printAll(vararg messages: String) {
+      for (java.lang.String m : messages) {// 5
+         System.out.println(m);
+      }
+   }// 6
+
+   public fun printAllArray(messages: Array<out String>) {
+      for (java.lang.String m : messages) {// 9
+         System.out.println(m);
+      }
+   }// 10
+
+   public fun log(vararg entries: String) {
+      this.printAll(Arrays.copyOf(entries, entries.length) as java.lang.String[]);// 13
+      this.printAllArray(entries);// 14
+   }// 15
+
+   public fun test() {
+      this.log("a", "b", "c");// 18
+   }// 19
+
+   public fun nestedArrays(e0: Array<String>, e1: Array<in String>, e2: Array<Array<Array<String>>>) {
+   }// 23
+}
+
+class 'pkg/TestFunVarargs' {
+   method 'printAll ([Ljava/lang/String;)V' {
+      7      6
+      8      6
+      a      6
+      13      6
+      14      6
+      15      7
+      16      7
+      17      7
+      18      7
+      19      7
+      1a      7
+      1b      7
+      1c      7
+      1d      6
+      1e      6
+      1f      6
+      23      9
+   }
+
+   method 'printAllArray ([Ljava/lang/String;)V' {
+      7      12
+      8      12
+      a      12
+      13      12
+      14      12
+      15      13
+      16      13
+      17      13
+      18      13
+      19      13
+      1a      13
+      1b      13
+      1c      13
+      1d      12
+      1e      12
+      1f      12
+      23      15
+   }
+
+   method 'log ([Ljava/lang/String;)V' {
+      6      18
+      7      18
+      8      18
+      9      18
+      a      18
+      b      18
+      c      18
+      d      18
+      e      18
+      f      18
+      10      18
+      11      18
+      12      18
+      13      19
+      14      19
+      15      19
+      16      19
+      17      19
+      18      20
+   }
+
+   method 'test ()V' {
+      0      23
+      8      23
+      9      23
+      d      23
+      e      23
+      12      23
+      13      23
+      16      23
+      17      23
+      18      23
+      19      24
+   }
+
+   method 'nestedArrays ([Ljava/lang/String;[Ljava/lang/Object;[[[Ljava/lang/String;)V' {
+      12      27
+   }
+}
+
+Lines mapping:
+5 <-> 7
+6 <-> 10
+9 <-> 13
+10 <-> 16
+13 <-> 19
+14 <-> 20
+15 <-> 21
+18 <-> 24
+19 <-> 25
+23 <-> 28

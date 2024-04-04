@@ -1,0 +1,360 @@
+package pkg;
+
+public class TestRecordPatterns1 {
+   // $VF: Inserted dummy exception handlers to handle obfuscated exceptions
+   public void test1(TestRecordPatterns1.R r) {
+      if (r instanceof TestRecordPatterns1.R) {
+         TestRecordPatterns1.R var10000 = r;
+
+         int var5;
+         label29: {
+            label34: {
+               try {
+                  var10 = var10000.i();
+               } catch (Throwable var7) {
+                  var9 = var7;
+                  boolean var10001 = false;
+                  break label34;
+               }
+
+               var5 = var10;
+               var10000 = r;
+
+               try {
+                  var12 = var10000.o();
+                  break label29;
+               } catch (Throwable var6) {
+                  var9 = var6;
+                  boolean var13 = false;
+               }
+            }
+
+            Throwable var2 = var9;// 7
+            throw new MatchException(var2.toString(), var2);
+         }
+
+         Object var8 = var12;
+         System.out.println(var5);// 8
+         System.out.println(var8);// 9
+      }
+   }// 11
+
+   // $VF: Inserted dummy exception handlers to handle obfuscated exceptions
+   public void test2(TestRecordPatterns1.R r) {
+      if (r instanceof TestRecordPatterns1.R) {
+         TestRecordPatterns1.R var10000 = r;
+
+         int var5;
+         label31: {
+            label36: {
+               try {
+                  var10 = var10000.i();
+               } catch (Throwable var7) {
+                  var9 = var7;
+                  boolean var10001 = false;
+                  break label36;
+               }
+
+               var5 = var10;
+               var10000 = r;
+
+               try {
+                  var12 = var10000.o();
+                  break label31;
+               } catch (Throwable var6) {
+                  var9 = var6;
+                  boolean var13 = false;
+               }
+            }
+
+            Throwable var2 = var9;// 14
+            throw new MatchException(var2.toString(), var2);
+         }
+
+         if (var12 instanceof String s) {
+            System.out.println(var5);// 15
+            System.out.println(s);// 16
+         }
+      }
+   }// 18
+
+   // $VF: Inserted dummy exception handlers to handle obfuscated exceptions
+   public void test3(TestRecordPatterns1.R r) {
+      if (r instanceof TestRecordPatterns1.R) {
+         TestRecordPatterns1.R var10000 = r;
+
+         int var5;
+         label33: {
+            label38: {
+               try {
+                  var10 = var10000.i();
+               } catch (Throwable var7) {
+                  var9 = var7;
+                  boolean var10001 = false;
+                  break label38;
+               }
+
+               var5 = var10;
+               var10000 = r;
+
+               try {
+                  var12 = var10000.o();
+                  break label33;
+               } catch (Throwable var6) {
+                  var9 = var6;
+                  boolean var13 = false;
+               }
+            }
+
+            Throwable var2 = var9;// 21
+            throw new MatchException(var2.toString(), var2);
+         }
+
+         if (var12 instanceof String s && s.length() > 10) {
+            System.out.println(var5);// 22
+            System.out.println(s);// 23
+         }
+      }
+   }// 25
+
+   // $VF: Inserted dummy exception handlers to handle obfuscated exceptions
+   public void test4(TestRecordPatterns1.R r) {
+      if (r instanceof TestRecordPatterns1.R) {
+         TestRecordPatterns1.R var10000 = r;
+
+         int var5;
+         label29: {
+            label34: {
+               try {
+                  var10 = var10000.i();
+               } catch (Throwable var7) {
+                  var9 = var7;
+                  boolean var10001 = false;
+                  break label34;
+               }
+
+               var5 = var10;
+               var10000 = r;
+
+               try {
+                  var12 = var10000.o();
+                  break label29;
+               } catch (Throwable var6) {
+                  var9 = var6;
+                  boolean var13 = false;
+               }
+            }
+
+            Throwable var2 = var9;// 28
+            throw new MatchException(var2.toString(), var2);
+         }
+
+         Object var8 = var12;
+         System.out.println(var5);// 29
+         System.out.println(var8);// 30
+      }
+   }// 32
+
+   static record R(int i, Object o) {
+   }
+}
+
+class 'pkg/TestRecordPatterns1' {
+   method 'test1 (Lpkg/TestRecordPatterns1$R;)V' {
+      0      5
+      1      5
+      2      5
+      3      5
+      4      5
+      7      6
+      9      6
+      a      12
+      d      19
+      e      19
+      f      36
+      10      36
+      12      20
+      13      23
+      16      35
+      17      35
+      18      37
+      19      37
+      1c      36
+      1d      36
+      1e      36
+      1f      36
+      20      36
+      21      36
+      22      36
+      23      37
+      24      37
+      25      37
+      26      37
+      27      37
+      28      37
+      2e      31
+      33      32
+      34      32
+      35      32
+      36      32
+      37      32
+      3b      32
+      3c      39
+   }
+
+   method 'test2 (Lpkg/TestRecordPatterns1$R;)V' {
+      0      43
+      1      43
+      2      43
+      3      43
+      4      43
+      7      44
+      9      44
+      a      50
+      d      57
+      e      57
+      f      74
+      10      74
+      12      58
+      13      61
+      1a      73
+      1b      73
+      1c      73
+      1d      73
+      25      73
+      26      73
+      27      74
+      28      74
+      29      74
+      2a      74
+      2b      74
+      2c      74
+      2d      74
+      2e      75
+      2f      75
+      30      75
+      31      75
+      32      75
+      33      75
+      39      69
+      3e      70
+      3f      70
+      40      70
+      41      70
+      42      70
+      46      70
+      47      78
+   }
+
+   method 'test3 (Lpkg/TestRecordPatterns1$R;)V' {
+      0      82
+      1      82
+      2      82
+      3      82
+      4      82
+      7      83
+      9      83
+      a      89
+      d      96
+      e      96
+      f      113
+      10      113
+      12      97
+      13      100
+      1a      112
+      1b      112
+      1c      112
+      1d      112
+      25      112
+      26      112
+      27      112
+      28      112
+      29      112
+      2a      112
+      2b      112
+      2c      112
+      2d      112
+      2e      112
+      31      113
+      32      113
+      33      113
+      34      113
+      35      113
+      36      113
+      37      113
+      38      114
+      39      114
+      3a      114
+      3b      114
+      3c      114
+      3d      114
+      43      108
+      48      109
+      49      109
+      4a      109
+      4b      109
+      4c      109
+      50      109
+      51      117
+   }
+
+   method 'test4 (Lpkg/TestRecordPatterns1$R;)V' {
+      0      121
+      1      121
+      2      121
+      3      121
+      4      121
+      7      122
+      9      122
+      a      128
+      d      135
+      e      135
+      f      152
+      10      152
+      12      136
+      13      139
+      16      151
+      17      151
+      18      153
+      19      153
+      1c      152
+      1d      152
+      1e      152
+      1f      152
+      20      152
+      21      152
+      22      152
+      23      153
+      24      153
+      25      153
+      26      153
+      27      153
+      28      153
+      2e      147
+      33      148
+      34      148
+      35      148
+      36      148
+      37      148
+      3b      148
+      3c      155
+   }
+}
+
+Lines mapping:
+7 <-> 32
+8 <-> 37
+9 <-> 38
+11 <-> 40
+14 <-> 70
+15 <-> 75
+16 <-> 76
+18 <-> 79
+21 <-> 109
+22 <-> 114
+23 <-> 115
+25 <-> 118
+28 <-> 148
+29 <-> 153
+30 <-> 154
+32 <-> 156

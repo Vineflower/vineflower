@@ -6,8 +6,8 @@ public class TestObjectArrays {
    public void test() {
       Object[][] things = new Object[3][];// 7
 
-      for(Object[] thing : things) {// 9
-         for(Object o : thing) {// 10
+      for (Object[] thing : things) {// 9
+         for (Object o : thing) {// 10
             System.out.println(o);// 11
          }
       }
@@ -18,7 +18,7 @@ public class TestObjectArrays {
          int hashcode;
 
          {
-            this.x *= 3 * this.x;// 20
+            this.x = this.x * 3 * this.x;// 20
             System.out.println("Hi!");// 21
             this.x += 224;// 25
             this.hashcode = new Random().nextInt() + this.x;// 28
@@ -92,12 +92,16 @@ class 'pkg/TestObjectArrays' {
 class 'pkg/TestObjectArrays$1' {
    method '<init> (Lpkg/TestObjectArrays;)V' {
       e      20
+      10      20
+      11      20
+      12      20
       13      20
       14      20
       15      20
       16      20
       17      20
       18      20
+      19      20
       1a      20
       1b      20
       1c      20

@@ -288,23 +288,14 @@ class 'pkg/Option1' {
       7      78
       8      78
       9      78
-      a      78
-      b      78
-      c      78
-      d      78
-      e      78
-      f      78
-      10      78
-      11      78
-      12      78
-      13      78
-      14      78
-      15      78
-      16      78
-      17      78
-      18      78
-      19      78
-      1a      78
+      e      80
+      f      80
+      10      80
+      11      80
+      12      80
+      13      80
+      14      80
+      18      80
    }
 
    method 'value ()I' {
@@ -497,7 +488,7 @@ public class Option2 implements TestCaseClasses, Product, Serializable {
 
    public Object productElement(final int n) {
       double var10000;
-      switch(n) {
+      switch (n) {
          case 0:
             var10000 = this._1();
             break;
@@ -515,22 +506,16 @@ public class Option2 implements TestCaseClasses, Product, Serializable {
    }
 
    public String productElementName(final int n) {
-      String var10000;
-      switch(n) {
+      switch (n) {
          case 0:
-            var10000 = "x";
-            break;
+            return "x";
          case 1:
-            var10000 = "y";
-            break;
+            return "y";
          case 2:
-            var10000 = "z";
-            break;
+            return "z";
          default:
             throw new IndexOutOfBoundsException(BoxesRunTime.boxToInteger(n).toString());
       }
-
-      return var10000;
    }
 
    public double x() {
@@ -788,137 +773,136 @@ class 'pkg/Option2' {
       1e      78
       1f      78
       20      79
+      23      81
+      24      81
+      25      81
       26      81
-      27      81
-      28      81
-      29      81
-      2a      82
-      30      84
-      31      84
-      32      84
-      33      84
-      34      85
-      3e      87
+      27      82
+      2a      84
+      2b      84
+      2c      84
+      2d      84
+      2e      85
+      35      87
+      36      87
+      37      87
+      38      87
+      39      87
+      3a      87
+      3b      87
       3f      87
-      40      87
-      41      87
-      42      87
-      43      87
-      44      87
-      48      87
-      4d      90
-      4e      90
-      4f      90
-      50      90
+      41      90
+      42      90
+      43      90
+      44      90
    }
 
    method 'productElementName (I)Ljava/lang/String;' {
-      0      95
-      2      95
-      3      95
-      1c      97
-      1d      97
-      1e      98
+      0      94
+      2      94
+      3      94
+      1c      96
+      1d      96
+      1e      96
+      1f      98
+      20      98
+      21      98
+      22      100
+      23      100
       24      100
-      25      100
-      26      101
-      2c      103
-      2d      103
-      2e      104
-      38      106
-      39      106
-      3a      106
-      3b      106
-      3c      106
-      3d      106
-      3e      106
-      42      106
-      47      109
+      29      102
+      2a      102
+      2b      102
+      2c      102
+      2d      102
+      2e      102
+      2f      102
+      33      102
    }
 
    method 'x ()D' {
-      0      113
-      1      113
-      2      113
-      3      113
-      4      113
+      0      107
+      1      107
+      2      107
+      3      107
+      4      107
    }
 
    method 'y ()D' {
-      0      117
-      1      117
-      2      117
-      3      117
-      4      117
+      0      111
+      1      111
+      2      111
+      3      111
+      4      111
    }
 
    method 'z ()D' {
-      0      121
-      1      121
-      2      121
-      3      121
-      4      121
+      0      115
+      1      115
+      2      115
+      3      115
+      4      115
    }
 
    method 'copy (DDD)Lpkg/Option2;' {
-      4      125
-      5      125
-      6      125
-      7      125
-      b      125
+      4      119
+      5      119
+      6      119
+      7      119
+      b      119
    }
 
    method 'copy$default$1 ()D' {
-      0      129
-      1      129
-      2      129
-      3      129
-      4      129
+      0      123
+      1      123
+      2      123
+      3      123
+      4      123
    }
 
    method 'copy$default$2 ()D' {
-      0      133
-      1      133
-      2      133
-      3      133
-      4      133
+      0      127
+      1      127
+      2      127
+      3      127
+      4      127
    }
 
    method 'copy$default$3 ()D' {
-      0      137
-      1      137
-      2      137
-      3      137
-      4      137
+      0      131
+      1      131
+      2      131
+      3      131
+      4      131
    }
 
    method '_1 ()D' {
-      0      141
-      1      141
-      2      141
-      3      141
-      4      141
+      0      135
+      1      135
+      2      135
+      3      135
+      4      135
    }
 
    method '_2 ()D' {
-      0      145
-      1      145
-      2      145
-      3      145
-      4      145
+      0      139
+      1      139
+      2      139
+      3      139
+      4      139
    }
 
    method '_3 ()D' {
-      0      149
-      1      149
-      2      149
-      3      149
-      4      149
+      0      143
+      1      143
+      2      143
+      3      143
+      4      143
    }
 }
 
 Lines mapping:
-6 <-> 150
+6 <-> 144
 
 // Decompiled companion from pkg/Option2$
 package pkg;
@@ -1270,23 +1254,14 @@ class 'pkg/Option3' {
       9      69
       a      69
       b      69
-      c      69
-      d      69
-      e      69
-      f      69
-      10      69
-      11      69
-      12      69
-      13      69
-      14      69
-      15      69
-      16      69
-      17      69
-      18      69
-      19      69
-      1a      69
-      1b      69
-      1c      69
+      10      71
+      11      71
+      12      71
+      13      71
+      14      71
+      15      71
+      16      71
+      1a      71
    }
 
    method 'productElementName (I)Ljava/lang/String;' {
@@ -1297,23 +1272,14 @@ class 'pkg/Option3' {
       7      77
       8      77
       9      77
-      a      77
-      b      77
-      c      77
-      d      77
-      e      77
-      f      77
-      10      77
-      11      77
-      12      77
-      13      77
-      14      77
-      15      77
-      16      77
-      17      77
-      18      77
-      19      77
-      1a      77
+      e      79
+      f      79
+      10      79
+      11      79
+      12      79
+      13      79
+      14      79
+      18      79
    }
 
    method 'value ()Lscala/collection/immutable/List;' {

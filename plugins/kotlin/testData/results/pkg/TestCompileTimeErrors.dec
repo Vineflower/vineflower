@@ -1,0 +1,80 @@
+package pkg
+
+import org.jetbrains.annotations.Nullable
+
+class TestCompileTimeErrors {
+   public fun <I, O> test(i: I): O where O : I, O : pkg.TestCompileTimeErrors.Test {
+      throw new NotImplementedError(null, 1, null);// 10
+   }
+
+   public fun test2(i: Int?): pkg.TestCompileTimeErrors.Test? {
+      return if (i == null) null else new TestCompileTimeErrors.Test(i) {
+         @Nullable
+         private final Integer testValue;
+
+         {
+            this.testValue = `$i`;
+         }// 14
+
+         @Nullable
+         public Integer getTestValue() {
+            return this.testValue;// 16
+         }
+
+         /** @deprecated */
+         // $VF: synthetic method
+         public static void getTestValue$annotations() {
+         }
+      };
+   }
+
+   interface Test {
+      public val testValue: Int
+   }
+}
+
+class 'pkg/TestCompileTimeErrors' {
+   method 'test (Ljava/lang/Object;)Ljava/lang/Object;' {
+      4      6
+      5      6
+      6      6
+      a      6
+   }
+
+   method 'test2 (Ljava/lang/Integer;)Lpkg/TestCompileTimeErrors$Test;' {
+      0      10
+      1      10
+      4      10
+      c      10
+      10      10
+      13      10
+   }
+}
+
+class 'pkg/TestCompileTimeErrors$test2$1' {
+   method '<init> (Ljava/lang/Integer;)V' {
+      4      15
+      5      15
+      6      15
+      7      15
+      8      15
+      9      16
+   }
+
+   method 'getTestValue ()Ljava/lang/Integer;' {
+      0      20
+      1      20
+      2      20
+      3      20
+      4      20
+   }
+
+   method 'getTestValue$annotations ()V' {
+      0      26
+   }
+}
+
+Lines mapping:
+10 <-> 7
+14 <-> 17
+16 <-> 21

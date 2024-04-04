@@ -1,34 +1,36 @@
 package pkg;
 
+import java.util.Iterator;
+
 public abstract class TestAnonymousClass {
    public static final Runnable R3 = new Runnable() {
       @Override
       public void run() {
-         int a = 5;// 36
-         int b = 5;// 37
-      }// 38
+         int a = 5;// 39
+         int b = 5;// 40
+      }// 41
    };
    public static final Runnable R = new Runnable() {
       @Override
       public void run() {
-         int a = 5;// 53
-         int b = 5;// 54
-      }// 55
+         int a = 5;// 56
+         int b = 5;// 57
+      }// 58
    };
    public static final Runnable R1 = new Runnable() {
       @Override
       public void run() {
-         int a = 5;// 61
-         int b = 5;// 62
-      }// 63
+         int a = 5;// 64
+         int b = 5;// 65
+      }// 66
    };
    private final TestAnonymousClass.InnerRecursive y = new TestAnonymousClass.InnerRecursive(new TestAnonymousClass.InnerRecursive(null) {
       @Override
       void foo() {
-         int a = 5;// 83
-         int b = 5;// 84
-         int g = 5;// 85
-      }// 86
+         int a = 5;// 86
+         int b = 5;// 87
+         int g = 5;// 88
+      }// 89
    }) {
       int v = 5;
       int t = 5;
@@ -38,10 +40,10 @@ public abstract class TestAnonymousClass {
    private final TestAnonymousClass.InnerRecursive x = new TestAnonymousClass.InnerRecursive(new TestAnonymousClass.InnerRecursive(null) {
       @Override
       void foo() {
-         int a = 5;// 98
-         int b = 5;// 99
-         int g = 5;// 100
-      }// 101
+         int a = 5;// 101
+         int b = 5;// 102
+         int g = 5;// 103
+      }// 104
    }) {
       int v = 5;
       int t = 5;
@@ -50,36 +52,82 @@ public abstract class TestAnonymousClass {
    };
 
    void foo(int i) throws Exception {
-      if (i > 0) {// 10
-         TestAnonymousClass.I r = new TestAnonymousClass.I() {// 11
+      if (i > 0) {// 13
+         TestAnonymousClass.I r = new TestAnonymousClass.I() {// 14
             @Override
             public void foo() throws Exception {
-               int a = 5;// 13
-               int b = 5;// 14
-            }// 15
+               int a = 5;// 16
+               int b = 5;// 17
+            }// 18
          };
-         r.foo();// 17
+         r.foo();// 20
       } else {
-         int x = 5;// 20
-         System.out.println(5);// 21
+         int x = 5;// 23
+         System.out.println(5);// 24
       }
-   }// 23
+   }// 26
 
    void bar() {
       (new Object() {
          public void foo(String s) {
-            System.out.println(s);// 28
-         }// 29
-      }).foo("Hello world");// 26 30
-   }// 31
+            System.out.println(s);// 31
+         }// 32
+      }).foo("Hello world");// 29 33
+   }// 34
 
    void boo() {
-      int a = 5;// 43
-   }// 44
+      int a = 5;// 46
+   }// 47
 
    void zoo() {
-      int a = 5;// 47
-   }// 48
+      int a = 5;// 50
+   }// 51
+
+   public static Iterable<Integer> innerInAnon() {
+      return new Iterable<Integer>() {// 125
+         public int field = 1491401;
+
+         @Override
+         public Iterator<Integer> iterator() {
+            return new Inner();// 143
+         }
+
+         class Inner implements Iterator<Integer> {
+            @Override
+            public boolean hasNext() {
+               return true;// 132
+            }
+
+            public Integer next() {
+               return field ^= 643483;// 137
+            }
+         }
+      };
+   }
+
+   public static Iterable<Integer> innerInAnon2() {
+      return new Iterable<Integer>() {// 149
+         public int field = 1491401;
+
+         @Override
+         public Iterator<Integer> iterator() {
+            return new I2().new Inner();// 169
+         }
+
+         class I2 {
+            class Inner implements Iterator<Integer> {
+               @Override
+               public boolean hasNext() {
+                  return true;// 157
+               }
+
+               public Integer next() {
+                  return field ^= 643483;// 162
+               }
+            }
+         }
+      };
+   }
 
    interface I {
       void foo() throws Exception;
@@ -89,9 +137,9 @@ public abstract class TestAnonymousClass {
       private static Runnable R_I = new Runnable() {
          @Override
          public void run() {
-            int a = 5;// 74
-            int b = 5;// 75
-         }// 76
+            int a = 5;// 77
+            int b = 5;// 78
+         }// 79
       };
    }
 
@@ -99,201 +147,273 @@ public abstract class TestAnonymousClass {
       TestAnonymousClass.InnerRecursive r;
 
       public InnerRecursive(TestAnonymousClass.InnerRecursive r) {
-         this.r = r;// 113
-      }// 114
+         this.r = r;// 116
+      }// 117
 
       void foo() {
-      }// 118
+      }// 121
    }
 }
 
 class 'pkg/TestAnonymousClass$3' {
    method 'run ()V' {
-      0      6
-      1      6
-      2      7
-      3      7
-      4      8
+      0      8
+      1      8
+      2      9
+      3      9
+      4      10
    }
 }
 
 class 'pkg/TestAnonymousClass$4' {
    method 'run ()V' {
-      0      13
-      1      13
-      2      14
-      3      14
-      4      15
+      0      15
+      1      15
+      2      16
+      3      16
+      4      17
    }
 }
 
 class 'pkg/TestAnonymousClass$5' {
    method 'run ()V' {
-      0      20
-      1      20
-      2      21
-      3      21
-      4      22
+      0      22
+      1      22
+      2      23
+      3      23
+      4      24
    }
 }
 
 class 'pkg/TestAnonymousClass$6' {
    method 'foo ()V' {
-      0      27
-      1      27
-      2      28
-      3      28
-      4      29
-      5      29
-      6      30
+      0      29
+      1      29
+      2      30
+      3      30
+      4      31
+      5      31
+      6      32
    }
 }
 
 class 'pkg/TestAnonymousClass$8' {
    method 'foo ()V' {
-      0      40
-      1      40
-      2      41
-      3      41
-      4      42
-      5      42
-      6      43
+      0      42
+      1      42
+      2      43
+      3      43
+      4      44
+      5      44
+      6      45
    }
 }
 
 class 'pkg/TestAnonymousClass' {
    method 'foo (I)V' {
-      0      52
-      1      52
-      c      53
-      d      60
-      e      60
-      f      60
-      10      60
-      11      60
-      12      60
-      16      62
-      17      62
-      18      63
-      19      63
-      1a      63
-      1b      63
-      1c      63
-      1f      65
+      0      54
+      1      54
+      c      55
+      d      62
+      e      62
+      f      62
+      10      62
+      11      62
+      12      62
+      16      64
+      17      64
+      18      65
+      19      65
+      1a      65
+      1b      65
+      1c      65
+      1f      67
    }
 
    method 'bar ()V' {
-      8      72
-      9      72
-      a      72
-      b      72
-      c      72
-      d      73
+      8      74
+      9      74
+      a      74
+      b      74
+      c      74
+      d      75
    }
 
    method 'boo ()V' {
-      0      76
-      1      76
-      2      77
+      0      78
+      1      78
+      2      79
    }
 
    method 'zoo ()V' {
-      0      80
-      1      80
-      2      81
+      0      82
+      1      82
+      2      83
+   }
+
+   method 'innerInAnon ()Ljava/lang/Iterable;' {
+      7      86
+   }
+
+   method 'innerInAnon2 ()Ljava/lang/Iterable;' {
+      7      108
    }
 }
 
 class 'pkg/TestAnonymousClass$1' {
    method 'foo ()V' {
-      0      56
-      1      56
-      2      57
-      3      57
-      4      58
+      0      58
+      1      58
+      2      59
+      3      59
+      4      60
    }
 }
 
 class 'pkg/TestAnonymousClass$2' {
    method 'foo (Ljava/lang/String;)V' {
-      0      70
-      1      70
-      2      70
-      3      70
-      4      70
-      5      70
-      6      70
-      7      71
+      0      72
+      1      72
+      2      72
+      3      72
+      4      72
+      5      72
+      6      72
+      7      73
+   }
+}
+
+class 'pkg/TestAnonymousClass$10' {
+   method 'iterator ()Ljava/util/Iterator;' {
+      8      91
+   }
+}
+
+class 'pkg/TestAnonymousClass$10$Inner' {
+   method 'hasNext ()Z' {
+      0      97
+      1      97
+   }
+
+   method 'next ()Ljava/lang/Integer;' {
+      1      101
+      2      101
+      3      101
+      8      101
+      9      101
+      c      101
+      d      101
+      e      101
+      f      101
+      10      101
+      11      101
+      12      101
+   }
+}
+
+class 'pkg/TestAnonymousClass$11' {
+   method 'iterator ()Ljava/util/Iterator;' {
+      14      113
+   }
+}
+
+class 'pkg/TestAnonymousClass$11$I2$Inner' {
+   method 'hasNext ()Z' {
+      0      120
+      1      120
+   }
+
+   method 'next ()Ljava/lang/Integer;' {
+      4      124
+      5      124
+      6      124
+      b      124
+      c      124
+      f      124
+      10      124
+      11      124
+      12      124
+      13      124
+      14      124
+      15      124
    }
 }
 
 class 'pkg/TestAnonymousClass$Inner$1' {
    method 'run ()V' {
-      0      91
-      1      91
-      2      92
-      3      92
-      4      93
+      0      139
+      1      139
+      2      140
+      3      140
+      4      141
    }
 }
 
 class 'pkg/TestAnonymousClass$InnerRecursive' {
    method '<init> (Lpkg/TestAnonymousClass$InnerRecursive;)V' {
-      4      101
-      5      101
-      6      101
-      7      101
-      8      101
-      9      102
+      4      149
+      5      149
+      6      149
+      7      149
+      8      149
+      9      150
    }
 
    method 'foo ()V' {
-      0      105
+      0      153
    }
 }
 
 Lines mapping:
-10 <-> 53
-11 <-> 54
-13 <-> 57
-14 <-> 58
-15 <-> 59
-17 <-> 61
+13 <-> 55
+14 <-> 56
+16 <-> 59
+17 <-> 60
+18 <-> 61
 20 <-> 63
-21 <-> 64
-23 <-> 66
-26 <-> 73
-28 <-> 71
-29 <-> 72
-30 <-> 73
-31 <-> 74
-36 <-> 7
-37 <-> 8
-38 <-> 9
-43 <-> 77
-44 <-> 78
-47 <-> 81
-48 <-> 82
-53 <-> 14
-54 <-> 15
-55 <-> 16
-61 <-> 21
-62 <-> 22
-63 <-> 23
-74 <-> 92
-75 <-> 93
-76 <-> 94
-83 <-> 28
-84 <-> 29
-85 <-> 30
-86 <-> 31
-98 <-> 41
-99 <-> 42
-100 <-> 43
-101 <-> 44
-113 <-> 102
-114 <-> 103
-118 <-> 106
+23 <-> 65
+24 <-> 66
+26 <-> 68
+29 <-> 75
+31 <-> 73
+32 <-> 74
+33 <-> 75
+34 <-> 76
+39 <-> 9
+40 <-> 10
+41 <-> 11
+46 <-> 79
+47 <-> 80
+50 <-> 83
+51 <-> 84
+56 <-> 16
+57 <-> 17
+58 <-> 18
+64 <-> 23
+65 <-> 24
+66 <-> 25
+77 <-> 140
+78 <-> 141
+79 <-> 142
+86 <-> 30
+87 <-> 31
+88 <-> 32
+89 <-> 33
+101 <-> 43
+102 <-> 44
+103 <-> 45
+104 <-> 46
+116 <-> 150
+117 <-> 151
+121 <-> 154
+125 <-> 87
+132 <-> 98
+137 <-> 102
+143 <-> 92
+149 <-> 109
+157 <-> 121
+162 <-> 125
+169 <-> 114
 Not mapped:
-18
-112
+21
+115

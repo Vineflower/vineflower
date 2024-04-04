@@ -9,6 +9,7 @@ import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribu
 import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTypeTableAttribute;
 import org.jetbrains.java.decompiler.struct.consts.ConstantPool;
 import org.jetbrains.java.decompiler.util.DataInputFullStream;
+import org.jetbrains.java.decompiler.util.Key;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -29,12 +30,12 @@ public abstract class StructMember {
     return accessFlags;
   }
 
-  public <T extends StructGeneralAttribute> T getAttribute(StructGeneralAttribute.Key<T> attribute) {
+  public <T extends StructGeneralAttribute> T getAttribute(Key<T> attribute) {
     @SuppressWarnings("unchecked") T t = (T)attributes.get(attribute.name);
     return t;
   }
 
-  public boolean hasAttribute(StructGeneralAttribute.Key<?> attribute) {
+  public boolean hasAttribute(Key<?> attribute) {
     return attributes.containsKey(attribute.name);
   }
 

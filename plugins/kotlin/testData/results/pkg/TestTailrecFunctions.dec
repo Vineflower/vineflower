@@ -1,0 +1,472 @@
+package pkg
+
+class TestTailrecFunctions {
+   public tailrec fun sum(x: Long, sum: Long): Long {
+      var var5: TestTailrecFunctions = this;// 4
+      var var6: Long = x;
+      var var8: Long = sum;
+
+      while (var6 != 0L) {// 5
+         var var15: Long = var6 - 1L;// 6
+         var var17: Long = var8 + var6;
+         var5 = var5;
+         var6 = var15;
+         var8 = var17;
+      }
+
+      return var8;
+   }
+
+   public tailrec fun testFinally() {
+      label12: {
+         try {
+            ;
+         } catch (java.lang.Throwable var2) {
+            this.testFinally();// 13
+         }
+
+         this.testFinally();// 12 14
+      }
+   }
+
+   public tailrec fun testFinallyReturn(): Int {
+      try {
+         ;
+      } catch (java.lang.Throwable var2) {
+         return this.testFinallyReturn();// 21
+      }
+
+      return this.testFinallyReturn();
+   }
+
+   public tailrec fun fooTry() {
+      try {
+         this.fooTry();// 27
+      } catch (java.lang.Throwable var2) {// 29
+      }
+   }// 31
+
+   public tailrec fun testTryCatchFinally() {
+      label31: {
+         label32: {
+            try {
+               try {
+                  this.testTryCatchFinally();// 35
+                  break label32;
+               } catch (Exception var2) {// 36
+                  this.testTryCatchFinally();// 37
+               }
+            } catch (java.lang.Throwable var3) {
+               this.testTryCatchFinally();// 39
+            }
+
+            this.testTryCatchFinally();
+            return;// 41
+         }
+
+         this.testTryCatchFinally();
+      }
+   }
+
+   public tailrec fun fastPow(x: Long, n: Long, acc: Long): Long {
+      var var7: TestTailrecFunctions = this;
+      var var8: Long = x;
+      var var10: Long = n;
+      var var12: Long = acc;
+
+      while (var10 != 0L) {// 44
+         if (var10 % (long)2 == 0L) {// 45
+            var var21: Long = var8 * var8;
+            var var23: Long = var10 / (long)2;
+            var7 = var7;
+            var8 = var21;
+            var10 = var23;
+            var12 = var12;
+         } else {
+            var var25: Long = var10 - 1L;// 46
+            var var26: Long = var12 * var8;
+            var7 = var7;
+            var8 = var8;
+            var10 = var25;
+            var12 = var26;
+         }
+      }
+
+      return var12;
+   }
+
+   @JvmStatic
+   @JvmSynthetic
+   fun `fastPow$default`(var0: TestTailrecFunctions, var1: Long, var3: Long, var5: Long, var7: Int, var8: Any): Long {
+      if ((var7 and 4) != 0) {// 43
+         var5 = 1L;
+      }
+
+      return var0.fastPow(var1, var3, var5);
+   }
+
+   public tailrec fun fastPow(x: Long, n: Long): Long {
+      var var5: TestTailrecFunctions = this;// 49
+      var var6: Long = x;
+      var var8: Long = n;
+
+      var var10000: Long;
+      while (true) {
+         if (var8 == 0L) {// 50
+            var10000 = 1L;
+            break;
+         }
+
+         if (var8 % (long)2 != 0L) {// 51
+            var10000 = var6 * var5.fastPow(var6, var8 - 1L);// 52
+            break;
+         }
+
+         var var15: Long = var6 * var6;
+         var var17: Long = var8 / (long)2;
+         var5 = var5;
+         var6 = var15;
+         var8 = var17;
+      }
+
+      return var10000;// 53
+   }
+}
+
+class 'pkg/TestTailrecFunctions' {
+   method 'sum (JJ)J' {
+      0      4
+      1      4
+      2      4
+      3      5
+      4      5
+      5      5
+      6      6
+      7      6
+      8      6
+      9      11
+      a      11
+      d      8
+      e      8
+      11      10
+      12      10
+      15      8
+      16      8
+      17      8
+      18      8
+      1c      16
+      1d      16
+      1e      16
+      1f      9
+      20      9
+      21      9
+      22      9
+      23      9
+      24      9
+      25      10
+      26      10
+      27      10
+      28      10
+      29      10
+      2a      10
+      2b      10
+      2c      11
+      2d      11
+      2e      11
+      2f      11
+      30      12
+      31      12
+      32      12
+      33      12
+      34      13
+      35      13
+      36      13
+      37      13
+   }
+
+   method 'testFinally ()V' {
+      1      27
+      2      27
+      3      27
+      4      27
+      5      27
+      6      27
+      7      27
+      8      27
+      9      24
+      a      24
+      b      27
+      c      27
+      d      27
+      e      27
+   }
+
+   method 'testFinallyReturn ()I' {
+      1      38
+      2      38
+      3      38
+      4      38
+      5      38
+      7      35
+      8      35
+      9      35
+      a      35
+      b      35
+   }
+
+   method 'fooTry ()V' {
+      1      43
+      2      43
+      3      43
+      4      43
+      5      46
+      6      44
+      7      46
+   }
+
+   method 'testTryCatchFinally ()V' {
+      1      53
+      2      53
+      5      66
+      6      66
+      7      66
+      8      66
+      c      55
+      d      56
+      e      56
+      11      62
+      12      62
+      13      62
+      14      62
+      19      59
+      1a      59
+      1f      63
+   }
+
+   method 'fastPow (JJJ)J' {
+      0      71
+      1      71
+      2      71
+      3      72
+      4      72
+      5      72
+      6      73
+      7      73
+      8      73
+      9      74
+      a      74
+      b      74
+      c      74
+      d      80
+      e      80
+      11      78
+      12      78
+      15      76
+      16      76
+      19      83
+      1a      83
+      1d      76
+      1e      76
+      1f      76
+      20      76
+      24      94
+      25      94
+      26      94
+      27      77
+      28      77
+      29      77
+      2a      77
+      2b      77
+      2c      77
+      2d      77
+      2e      77
+      31      78
+      32      78
+      33      78
+      34      78
+      35      78
+      36      78
+      37      78
+      38      79
+      39      79
+      3a      79
+      3b      79
+      3c      79
+      3d      79
+      3e      79
+      3f      80
+      40      80
+      41      80
+      42      80
+      43      81
+      44      81
+      45      81
+      46      81
+      47      82
+      48      82
+      49      82
+      4a      82
+      4b      83
+      4c      83
+      4d      83
+      4e      83
+      52      85
+      53      85
+      54      85
+      55      85
+      56      85
+      57      85
+      58      86
+      59      86
+      5a      86
+      5b      86
+      5c      86
+      5d      86
+      5e      86
+      5f      87
+      60      87
+      61      87
+      62      87
+      63      88
+      64      88
+      65      88
+      66      88
+      67      89
+      68      89
+      69      89
+      6a      89
+      6b      90
+      6c      90
+      6d      90
+      6e      90
+   }
+
+   method 'fastPow$default (Lpkg/TestTailrecFunctions;JJJILjava/lang/Object;)J' {
+      0      100
+      1      100
+      2      100
+      3      100
+      4      100
+      7      101
+      8      101
+      9      101
+      a      104
+      b      104
+      c      104
+      d      104
+      e      104
+      f      104
+      10      104
+      11      104
+      12      104
+   }
+
+   method 'fastPow (JJ)J' {
+      0      108
+      1      108
+      2      108
+      3      109
+      4      109
+      5      109
+      6      110
+      7      110
+      8      110
+      9      120
+      a      120
+      d      120
+      e      120
+      11      114
+      12      114
+      15      114
+      16      114
+      17      114
+      18      114
+      19      114
+      1c      115
+      1d      116
+      20      119
+      21      119
+      22      119
+      23      119
+      24      119
+      25      119
+      26      119
+      27      119
+      2a      124
+      2b      124
+      2c      124
+      2d      124
+      2e      124
+      2f      124
+      30      124
+      31      125
+      32      125
+      33      125
+      34      125
+      35      125
+      36      125
+      37      125
+      38      126
+      39      126
+      3a      126
+      3b      126
+      3c      127
+      3d      127
+      3e      127
+      3f      127
+      40      128
+      41      128
+      42      128
+      43      128
+      47      120
+      48      120
+      49      120
+      4a      120
+      4b      120
+      4c      120
+      4d      120
+      4e      120
+      4f      120
+      50      120
+      51      120
+      52      120
+      53      120
+      54      120
+      55      131
+   }
+}
+
+Lines mapping:
+4 <-> 5
+5 <-> 9
+6 <-> 10
+12 <-> 28
+13 <-> 25
+14 <-> 28
+21 <-> 36
+27 <-> 44
+29 <-> 45
+31 <-> 47
+35 <-> 54
+36 <-> 56
+37 <-> 57
+39 <-> 60
+41 <-> 64
+43 <-> 101
+44 <-> 77
+45 <-> 78
+46 <-> 86
+49 <-> 109
+50 <-> 115
+51 <-> 120
+52 <-> 121
+53 <-> 132
+Not mapped:
+10
+15
+18
+20
+26
+34
+38
+40

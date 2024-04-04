@@ -2,12 +2,12 @@ package pkg;
 
 public class TestLocalVariableMergeSwitch {
    public void test(String s, int j) {
-      while(j > 0) {// 5
-         --j;// 6
+      while (j > 0) {// 5
+         j--;// 6
          int i = 0;// 8
-         switch(i) {// 10
+         switch (i) {// 10
             case 1:
-               ++i;// 12
+               i++;// 12
                break;// 13
             case 2:
                i += s.length();// 15

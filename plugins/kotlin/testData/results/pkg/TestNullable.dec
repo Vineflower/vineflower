@@ -1,0 +1,35 @@
+package pkg
+
+class TestNullable {
+   public fun nullableParams(v: String, vn: String?) {
+   }// 6
+
+   public fun nullableReturn(): String? {
+      return null;// 9
+   }
+
+   public fun nullableGenerics(v: List<String?>): List<String?>? {
+      return v;// 13
+   }
+}
+
+class 'pkg/TestNullable' {
+   method 'nullableParams (Ljava/lang/String;Ljava/lang/String;)V' {
+      6      4
+   }
+
+   method 'nullableReturn ()Ljava/lang/String;' {
+      0      7
+      1      7
+   }
+
+   method 'nullableGenerics (Ljava/util/List;)Ljava/util/List;' {
+      6      11
+      7      11
+   }
+}
+
+Lines mapping:
+6 <-> 5
+9 <-> 8
+13 <-> 12

@@ -10,7 +10,7 @@ public class TestSwitchPatternMatching22 {
          Object var10000 = new Object();
          Objects.requireNonNull(var10000);// 15
          Object var2 = var10000;
-         switch(var2) {
+         switch (var2) {
             case Short var4:// 19
                break;
             default:
@@ -29,7 +29,7 @@ public class TestSwitchPatternMatching22 {
          Object var10000 = new Object();
          Objects.requireNonNull(var10000);// 30
          Object var2 = var10000;
-         switch(var2) {
+         switch (var2) {
             case Short var4:// 34
             default:
                System.out.println("Not a short");// 32
@@ -45,7 +45,7 @@ public class TestSwitchPatternMatching22 {
          System.out.println("hello");// 43
       } catch (Exception var8) {// 44
          Object var2 = new Object();// 45
-         switch(var2) {
+         switch (var2) {
             case Short var4:// 50
             case null:
                break;
@@ -63,7 +63,7 @@ public class TestSwitchPatternMatching22 {
          System.out.println("hello");// 59
       } catch (Exception var8) {// 60
          Object var2 = new Object();
-         switch(var2) {// 61
+         switch (var2) {// 61
             case Short var4:// 66
             case null:
             default:
@@ -79,7 +79,7 @@ public class TestSwitchPatternMatching22 {
       try {
          System.out.println("hello");// 75
       } catch (Exception var5) {// 76
-         switch(0) {// 77
+         switch (0) {// 77
             case -1:
             case 10:
             default:

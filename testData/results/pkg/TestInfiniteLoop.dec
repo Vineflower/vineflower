@@ -2,32 +2,32 @@ package pkg;
 
 public class TestInfiniteLoop {
    public void test() {
-      while(true) {
+      while (true) {
       }
    }
 
    public int testRet() {
-      while(true) {
+      while (true) {
       }
    }
 
    public int test2() {
-      while(true) {
+      while (true) {
       }
    }
 
    public int test3() {
-      while(true) {
+      while (true) {
       }
    }
 
    public void test4() {
-      while(true) {
+      while (true) {
       }
    }
 
    public int testIf(int i) {
-      while(i != 3) {// 42
+      while (i != 3) {// 42
       }
 
       return 1;// 43
@@ -36,36 +36,36 @@ public class TestInfiniteLoop {
    public void testSuccessor1() {
       int a = 0;// 49
 
-      while(true) {
+      while (true) {
       }
    }
 
    public void testSuccessor2(int i) {
       int a = 0;// 56
       if (i == 0) {// 57
-         a = 3;// 58
+         int var3 = 3;// 58
       }
 
-      while(true) {
+      while (true) {
       }
    }
 
    public void testSuccessor3(int i) {
       int a = 0;// 67
       if (i > 0) {// 69
-         --a;// 70
-         --i;// 71
+         a--;// 70
+         i--;// 71
 
-         while(true) {
+         while (true) {
          }
       }
    }// 77
 
    public void testSuccessor4(int i) {
       i += 2;// 80
-      --i;// 83
+      i--;// 83
 
-      while(true) {
+      while (true) {
       }
    }
 }

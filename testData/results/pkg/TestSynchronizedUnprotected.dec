@@ -13,7 +13,7 @@ import kotlin.Unit;
 public final class TestSynchronizedUnprotected {
    // $VF: Extended synchronized range to monitorexit
    public final void test() {
-      synchronized(this) {
+      synchronized (this) {
          int $i$a$-synchronized-TestSynchronizedUnprotected$test$1 = 0;
          System.out.println("Boom");// 6
          Unit var4 = Unit.INSTANCE;// 5 7

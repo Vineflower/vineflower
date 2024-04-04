@@ -2,13 +2,13 @@ public class JsHurt {
    public static void main(String[] var0) {
       int var1 = 0;
 
-      while(true) {
+      while (true) {
          System.out.println(var1);
          if (var1 >= 20) {
             return;
          }
 
-         ++var1;
+         var1++;
       }
    }
 }

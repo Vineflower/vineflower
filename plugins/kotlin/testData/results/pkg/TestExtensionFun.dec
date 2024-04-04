@@ -1,0 +1,47 @@
+package pkg
+
+class TestExtensionFun {
+   public fun CharSequence.repeat2(n: Int): String {
+      return StringsKt.repeat(`$this$repeat2`, n);// 5
+   }
+
+   public fun test() {
+      System.out.println(this.repeat2("Bye " as java.lang.CharSequence, 2));// 9
+   }// 10
+}
+
+class 'pkg/TestExtensionFun' {
+   method 'repeat2 (Ljava/lang/CharSequence;I)Ljava/lang/String;' {
+      6      4
+      7      4
+      8      4
+      9      4
+      a      4
+      b      4
+   }
+
+   method 'test ()V' {
+      0      8
+      1      8
+      2      8
+      3      8
+      4      8
+      5      8
+      6      8
+      7      8
+      8      8
+      9      8
+      a      8
+      b      8
+      c      8
+      e      8
+      f      8
+      10      8
+      11      9
+   }
+}
+
+Lines mapping:
+5 <-> 5
+9 <-> 9
+10 <-> 10

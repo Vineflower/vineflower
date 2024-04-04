@@ -1,0 +1,21 @@
+package pkg
+
+import kotlin.jvm.functions.Function1
+
+class TestKotlinTypes {
+   public final val consumer: (Int) -> Unit = <unknownclass>.INSTANCE as Function1
+
+
+   public fun throwAlways(): Nothing {
+      throw new Exception();// 5
+   }
+}
+
+class 'pkg/TestKotlinTypes' {
+   method 'throwAlways ()Ljava/lang/Void;' {
+      7      9
+   }
+}
+
+Lines mapping:
+5 <-> 10

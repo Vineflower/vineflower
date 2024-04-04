@@ -18,8 +18,8 @@ public class TestTryWithResourcesNestedLoop {
             try (ByteArrayInputStream lv3 = new ByteArrayInputStream(new byte[0], n, o)) {// 18
                int p = n / width;// 19
 
-               for(int q = top * p; q < bottom * p; ++q) {// 20
-                  for(int r = left * p; r < right * p; ++r) {// 21
+               for (int q = top * p; q < bottom * p; q++) {// 20
+                  for (int r = left * p; r < right * p; r++) {// 21
                      int s = lv2.read(new byte[0], r, q);// 22
                      int t = lv.read(new byte[0], r, q);// 23
                      lv3.read(new byte[0], r, q);// 25

@@ -1,44 +1,373 @@
 package pkg;
 
-public class TestObjectBitwise {
+public abstract class TestObjectBitwise<T> {
+   abstract T get();
+
    public boolean test(int i) {
-      return (this.obj() & (long)i) == 0L;// 5
+      return ((Long)this.obj() & (long)i) == 0L;// 7
+   }
+
+   public boolean testn(int i) {
+      return ((Long)this.num() & (long)i) == 0L;// 11
+   }
+
+   public boolean testg(int i) {
+      return ((Long)this.get() & (long)i) == 0L;// 15
+   }
+
+   public boolean test1(int i) {
+      return ((Long)this.obj() | (long)i) == 0L;// 50
+   }
+
+   public boolean test3(int i) {
+      return (Long)this.obj() + (long)i == 0L;// 54
+   }
+
+   public boolean test4(int i) {
+      return (Long)this.obj() % (long)i == 0L;// 58
    }
 
    public Object obj() {
-      return 100000L;// 9
+      return 100000L;// 62
+   }
+
+   public Number num() {
+      return 100000L;// 66
+   }
+
+   public static class Inner extends TestObjectBitwise<Long> {
+      private TestObjectBitwise<Long> other;
+
+      Long get() {
+         return 10000L;// 23
+      }
+
+      public boolean testg_inner(int i) {
+         return (this.get() & (long)i) == 0L;// 27
+      }
+
+      public boolean testg_inner2(int i) {
+         long l = this.get();// 31
+         return (l & (long)i) == 0L;// 32
+      }
+
+      public boolean testg_inner3(int i) {
+         long l = this.other.get();// 36
+         return (l & (long)i) == 0L;// 37
+      }
+
+      public boolean testg_inner4(int i) {
+         long l = (Long)this.other.obj();// 41
+         long l2 = (Long)this.other.num();// 42
+         long l3 = (Long)this.obj();// 43
+         long l4 = (Long)this.num();// 44
+         return (l & (long)i & l2 & l3 & l4) == 0L;// 45
+      }
    }
 }
 
 class 'pkg/TestObjectBitwise' {
    method 'test (I)Z' {
-      0      4
-      1      4
-      2      4
-      3      4
-      7      4
-      8      4
-      9      4
-      a      4
-      b      4
-      c      4
-      d      4
-      e      4
-      f      4
-      17      4
+      0      6
+      1      6
+      2      6
+      3      6
+      4      6
+      5      6
+      6      6
+      7      6
+      8      6
+      9      6
+      a      6
+      b      6
+      c      6
+      d      6
+      e      6
+      f      6
+      17      6
+   }
+
+   method 'testn (I)Z' {
+      0      10
+      1      10
+      2      10
+      3      10
+      4      10
+      5      10
+      6      10
+      7      10
+      8      10
+      9      10
+      a      10
+      b      10
+      c      10
+      d      10
+      e      10
+      f      10
+      17      10
+   }
+
+   method 'testg (I)Z' {
+      0      14
+      1      14
+      2      14
+      3      14
+      4      14
+      5      14
+      6      14
+      7      14
+      8      14
+      9      14
+      a      14
+      b      14
+      c      14
+      d      14
+      e      14
+      f      14
+      17      14
+   }
+
+   method 'test1 (I)Z' {
+      0      18
+      1      18
+      2      18
+      3      18
+      4      18
+      5      18
+      6      18
+      7      18
+      8      18
+      9      18
+      a      18
+      b      18
+      c      18
+      d      18
+      e      18
+      f      18
+      17      18
+   }
+
+   method 'test3 (I)Z' {
+      0      22
+      1      22
+      2      22
+      3      22
+      4      22
+      5      22
+      6      22
+      7      22
+      8      22
+      9      22
+      a      22
+      b      22
+      c      22
+      d      22
+      e      22
+      f      22
+      17      22
+   }
+
+   method 'test4 (I)Z' {
+      0      26
+      1      26
+      2      26
+      3      26
+      4      26
+      5      26
+      6      26
+      7      26
+      8      26
+      9      26
+      a      26
+      b      26
+      c      26
+      d      26
+      e      26
+      f      26
+      17      26
    }
 
    method 'obj ()Ljava/lang/Object;' {
-      0      8
-      1      8
-      2      8
-      3      8
-      4      8
-      5      8
-      6      8
+      0      30
+      1      30
+      2      30
+      3      30
+      4      30
+      5      30
+      6      30
+   }
+
+   method 'num ()Ljava/lang/Number;' {
+      0      34
+      1      34
+      2      34
+      3      34
+      4      34
+      5      34
+      6      34
+   }
+}
+
+class 'pkg/TestObjectBitwise$Inner' {
+   method 'get ()Ljava/lang/Long;' {
+      0      41
+      1      41
+      2      41
+      3      41
+      4      41
+      5      41
+      6      41
+   }
+
+   method 'testg_inner (I)Z' {
+      0      45
+      1      45
+      2      45
+      3      45
+      4      45
+      5      45
+      6      45
+      7      45
+      8      45
+      9      45
+      a      45
+      b      45
+      c      45
+      14      45
+   }
+
+   method 'testg_inner2 (I)Z' {
+      0      49
+      1      49
+      2      49
+      3      49
+      4      49
+      5      49
+      6      49
+      7      49
+      8      50
+      9      50
+      a      50
+      b      50
+      c      50
+      d      50
+      e      50
+      16      50
+   }
+
+   method 'testg_inner3 (I)Z' {
+      0      54
+      1      54
+      2      54
+      3      54
+      4      54
+      5      54
+      6      54
+      a      54
+      b      54
+      c      54
+      d      54
+      e      55
+      f      55
+      10      55
+      11      55
+      12      55
+      13      55
+      14      55
+      1c      55
+   }
+
+   method 'testg_inner4 (I)Z' {
+      0      59
+      1      59
+      2      59
+      3      59
+      4      59
+      5      59
+      6      59
+      7      59
+      8      59
+      9      59
+      a      59
+      b      59
+      c      59
+      d      59
+      e      60
+      f      60
+      10      60
+      11      60
+      12      60
+      13      60
+      14      60
+      15      60
+      16      60
+      17      60
+      18      60
+      19      60
+      1a      60
+      1b      60
+      1c      60
+      1d      61
+      1e      61
+      1f      61
+      20      61
+      21      61
+      22      61
+      23      61
+      24      61
+      25      61
+      26      61
+      27      61
+      28      61
+      29      62
+      2a      62
+      2b      62
+      2c      62
+      2d      62
+      2e      62
+      2f      62
+      30      62
+      31      62
+      32      62
+      33      62
+      34      62
+      35      63
+      36      63
+      37      63
+      38      63
+      39      63
+      3a      63
+      3b      63
+      3c      63
+      3d      63
+      3e      63
+      3f      63
+      40      63
+      41      63
+      42      63
+      43      63
+      44      63
+      4c      63
    }
 }
 
 Lines mapping:
-5 <-> 5
-9 <-> 9
+7 <-> 7
+11 <-> 11
+15 <-> 15
+23 <-> 42
+27 <-> 46
+31 <-> 50
+32 <-> 51
+36 <-> 55
+37 <-> 56
+41 <-> 60
+42 <-> 61
+43 <-> 62
+44 <-> 63
+45 <-> 64
+50 <-> 19
+54 <-> 23
+58 <-> 27
+62 <-> 31
+66 <-> 35

@@ -7,7 +7,7 @@ public class TestSwitchPatternMatching21 {
    public void test1(String it) {
       Objects.requireNonNull(it);// 5
       <unknown> var2;
-      switch(it) {
+      switch (it) {
          case "":
             System.out.println("nothing");// 6
             break;
@@ -29,7 +29,7 @@ public class TestSwitchPatternMatching21 {
    }// 16
 
    public void test2(String it) {
-      switch(it) {// 19
+      switch (it) {// 19
          case null:
          default:
             System.out.println(it + "?");// 26 27
@@ -49,7 +49,7 @@ public class TestSwitchPatternMatching21 {
    }// 29
 
    public void test3(String it) {
-      switch(it) {// 32
+      switch (it) {// 32
          case "":
          case null:
             System.out.println("nothing");// 33
@@ -213,6 +213,7 @@ class 'pkg/TestSwitchPatternMatching21' {
       67      45
       68      45
       69      45
+      6a      45
       72      46
       73      46
       74      46

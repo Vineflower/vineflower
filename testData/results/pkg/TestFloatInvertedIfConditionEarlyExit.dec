@@ -8,7 +8,7 @@ public class TestFloatInvertedIfConditionEarlyExit {
    }// 7 10
 
    public static void test2(float value) {
-      for(float f = 0.0F; f < 5.0F; ++f) {// 13
+      for (float f = 0.0F; f < 5.0F; f++) {// 13
          if (!(f < value)) {// 14
             System.out.println("Hello " + f);// 17
          }

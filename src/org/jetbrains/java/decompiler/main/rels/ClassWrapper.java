@@ -1,11 +1,13 @@
 // Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.main.rels;
 
+import org.jetbrains.java.decompiler.api.plugin.LanguageSpec;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.cfg.ControlFlowGraph;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.main.collectors.VarNamesCollector;
+import org.jetbrains.java.decompiler.main.decompiler.CancelationManager;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
@@ -19,7 +21,7 @@ import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribu
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.util.DotExporter;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
-import org.jetbrains.java.decompiler.util.VBStyleCollection;
+import org.jetbrains.java.decompiler.util.collections.VBStyleCollection;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -39,7 +41,7 @@ public class ClassWrapper {
     this.classStruct = classStruct;
   }
 
-  public void init() {
+  public void init(LanguageSpec spec) {
     DecompilerContext.setProperty(DecompilerContext.CURRENT_CLASS, classStruct);
     DecompilerContext.setProperty(DecompilerContext.CURRENT_CLASS_WRAPPER, this);
     DecompilerContext.getLogger().startClass(classStruct.qualifiedName);
@@ -72,10 +74,10 @@ public class ClassWrapper {
       try {
         if (mt.containsCode()) {
           if (maxSec == 0 || testMode) {
-            root = MethodProcessor.codeToJava(classStruct, mt, md, varProc);
+            root = MethodProcessor.codeToJava(classStruct, mt, md, varProc, spec);
           }
           else {
-            MethodProcessor mtProc = new MethodProcessor(classStruct, mt, md, varProc, DecompilerContext.getCurrentContext());
+            MethodProcessor mtProc = new MethodProcessor(classStruct, mt, md, varProc, spec, DecompilerContext.getCurrentContext());
 
             Thread mtThread = new Thread(mtProc, "Java decompiler");
             long stopAt = System.currentTimeMillis() + maxSec * 1000L;
@@ -136,6 +138,9 @@ public class ClassWrapper {
           }
         }
       }
+      catch (CancelationManager.CanceledException e) {
+        throw e;
+      }
       catch (Throwable t) {
         String message = "Method " + mt.getName() + " " + mt.getDescriptor() + " in class " + classStruct.qualifiedName + " couldn't be decompiled.";
         DecompilerContext.getLogger().writeMessage(message, IFernflowerLogger.Severity.WARN, t);
@@ -145,10 +150,8 @@ public class ClassWrapper {
           DotExporter.errorToDotFile(rootStat, mt, "fail");
 
           try {
-            FlattenStatementsHelper flatten = new FlattenStatementsHelper();
-            DotExporter.errorToDotFile(flatten.buildDirectGraph(rootStat), mt, "failDigraph");
-          } catch (Exception e) {
-            // ignore
+            DotExporter.errorToDotFile(new FlattenStatementsHelper().buildDirectGraph(rootStat), mt, "failDGraph");
+          } catch (Exception ignored) {
           }
         }
 

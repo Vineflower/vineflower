@@ -2,9 +2,9 @@ package pkg;
 
 public class TestSimpleWhile {
    public void test(int i) {
-      while(i < 10) {// 5
+      while (i < 10) {// 5
          System.out.println(i);// 6
-         ++i;// 7
+         i++;// 7
       }
    }// 9
 }

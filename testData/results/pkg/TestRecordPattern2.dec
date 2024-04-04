@@ -4,51 +4,23 @@ import java.lang.runtime.SwitchBootstraps;
 
 public class TestRecordPattern2 {
    void test(TestRecordPattern2.Pair<?, ?> p) {
-      if (p instanceof TestRecordPattern2.Pair) {
-         Object var6 = $proxy$a(p);// 1
-         if (var6 instanceof String s) {
-            var6 = $proxy$b(p);
-            if (var6 instanceof Long l) {
-               System.out.println("String-Long pair of \"" + s + "\" and " + l);
-               return;// 15
-            }
-         }
+      if (p instanceof TestRecordPattern2.Pair && $proxy$a(p) instanceof String s && $proxy$b(p) instanceof Long l) {// 1
+         System.out.println("String-Long pair of \"" + s + "\" and " + l);
+      } else if (p instanceof TestRecordPattern2.Pair && $proxy$a(p) instanceof Long l) {// 9 10
+         Object var9 = $proxy$b(p);
+         System.out.println("Long-Object pair");// 11
+      } else {
+         System.out.println("Other pair");// 13
       }
-
-      if (p instanceof TestRecordPattern2.Pair) {// 10
-         Object var8 = $proxy$a(p);// 9
-         if (var8 instanceof Long l) {
-            var8 = $proxy$b(p);
-            System.out.println("Long-Object pair");// 11
-            return;
-         }
-      }
-
-      System.out.println("Other pair");// 13
-   }
+   }// 15
 
    void test2(TestRecordPattern2.Pair<?, ?> p) {
-      label23: {
-         if (p instanceof TestRecordPattern2.Pair) {// 18
-            Object var6 = $proxy$a(p);// 8
-            if (var6 instanceof String s) {
-               var6 = $proxy$b(p);
-               if (var6 instanceof Long l) {
-                  System.out.println("String-Long pair of \"" + s + "\" and " + l);
-                  break label23;
-               }
-            }
-         }
-
-         if (p instanceof TestRecordPattern2.Pair) {// 20
-            Object var8 = $proxy$a(p);// 19
-            if (var8 instanceof Long l) {
-               var8 = $proxy$b(p);
-               System.out.println("Long-Object pair");// 21
-               break label23;
-            }
-         }
-
+      if (p instanceof TestRecordPattern2.Pair && $proxy$a(p) instanceof String s && $proxy$b(p) instanceof Long l) {// 8 18
+         System.out.println("String-Long pair of \"" + s + "\" and " + l);
+      } else if (p instanceof TestRecordPattern2.Pair && $proxy$a(p) instanceof Long l) {// 19 20
+         Object var9 = $proxy$b(p);
+         System.out.println("Long-Object pair");// 21
+      } else {
          System.out.println("Other pair");// 23
       }
 
@@ -59,55 +31,44 @@ public class TestRecordPattern2 {
       TestRecordPattern2.Pair var2 = p;
       byte var3 = 0;
 
-      while(true) {
+      while (true) {
          Object var10000;
-         switch(SwitchBootstraps.typeSwitch<"typeSwitch",TestRecordPattern2.Pair,TestRecordPattern2.Pair,TestRecordPattern2.Pair,TestRecordPattern2.Pair,TestRecordPattern2.Pair>(
+         switch (SwitchBootstraps.typeSwitch<"typeSwitch",TestRecordPattern2.Pair,TestRecordPattern2.Pair,TestRecordPattern2.Pair,TestRecordPattern2.Pair,TestRecordPattern2.Pair>(
             var2, var3
          )) {
             case -1:
                var10000 = -1;// 30
                break;
             case 0:
-               Object var18 = $proxy$a(var2);
-               if (var18 instanceof Long l) {// 31
-                  var18 = $proxy$b(var2);
-                  if (var18 instanceof Long r) {
-                     var10000 = l + r;
-                     break;
-                  }
+               if ($proxy$a(var2) instanceof Long l && $proxy$b(var2) instanceof Long r) {// 31
+                  var10000 = l + r;
+                  break;
                }
 
                var3 = 1;
                continue;
             case 1:
-               Object lx = $proxy$a(var2);
-               if (lx instanceof Integer l) {// 32
-                  lx = $proxy$b(var2);
-                  if (lx instanceof Integer r) {
-                     var10000 = (l << r) * var2.hashCode();
-                     break;
-                  }
+               if ($proxy$a(var2) instanceof Integer l && $proxy$b(var2) instanceof Integer r) {// 32
+                  var10000 = (l << r) * var2.hashCode();
+                  break;
                }
 
                var3 = 2;
                continue;
             case 2:
                Object var21 = $proxy$a(var2);
-               var21 = $proxy$b(var2);// 33
-               if (var21 instanceof Void r) {
+               if ($proxy$b(var2) instanceof Void r) {// 33
                   throw new IllegalArgumentException("how");
                }
 
                var3 = 3;
                continue;
             case 3:
-               Object lx = $proxy$a(var2);
-               if (lx instanceof String l) {
-                  lx = $proxy$b(var2);
-                  if (lx instanceof String r && l.length() > 3 && r.length() > 3 && l.length() + r.length() < 23) {// 35
-                     var10000 = l.length() + r.length();// 36
-                     break;
-                  }
+               if ($proxy$a(var2) instanceof String l && $proxy$b(var2) instanceof String r && l.length() > 3 && r.length() > 3 && l.length() + r.length() < 23// 35
+                  )
+                {
+                  var10000 = l.length() + r.length();// 36
+                  break;
                }
 
                var3 = 4;// 34
@@ -136,58 +97,121 @@ class 'pkg/TestRecordPattern2' {
       2      6
       3      6
       4      6
-      7      7
-      8      7
-      9      7
-      a      7
-      b      7
-      c      7
-      d      8
-      e      8
-      f      8
-      10      8
-      11      8
-      12      8
-      1a      8
-      1b      9
-      1c      9
-      1d      9
-      1e      9
-      1f      9
-      20      9
-      21      10
-      22      10
-      23      10
-      24      10
-      25      10
-      26      10
-      2e      10
-      2f      11
-      30      11
-      31      11
-      32      11
-      33      11
-      34      11
-      35      11
-      36      11
-      37      11
-      38      11
-      39      11
-      3a      11
-      3b      11
-      3f      17
-      40      17
-      41      17
-      42      17
-      43      17
-      46      18
-      47      18
-      48      18
-      49      18
-      4a      18
-      4b      18
-      4c      19
-      4d      19
+      7      6
+      8      6
+      9      6
+      a      6
+      f      6
+      10      6
+      11      6
+      12      6
+      1a      6
+      1b      6
+      1c      6
+      1d      6
+      1e      6
+      23      6
+      24      6
+      25      6
+      26      6
+      2e      6
+      2f      7
+      30      7
+      31      7
+      32      7
+      33      7
+      34      7
+      35      7
+      36      7
+      37      7
+      38      7
+      39      7
+      3a      7
+      3b      7
+      3f      8
+      40      8
+      41      8
+      42      8
+      43      8
+      46      8
+      47      8
+      48      8
+      49      8
+      4e      8
+      4f      8
+      50      8
+      51      8
+      59      8
+      5a      8
+      5b      9
+      5c      9
+      5d      9
+      5e      9
+      5f      9
+      60      9
+      65      10
+      66      10
+      67      10
+      68      10
+      69      10
+      6a      10
+      6b      10
+      6c      10
+      70      12
+      71      12
+      72      12
+      73      12
+      74      12
+      75      12
+      78      14
+   }
+
+   method 'test2 (Lpkg/TestRecordPattern2$Pair;)V' {
+      0      17
+      1      17
+      2      17
+      3      17
+      4      17
+      7      17
+      8      17
+      9      17
+      a      17
+      f      17
+      10      17
+      11      17
+      12      17
+      1a      17
+      1b      17
+      1c      17
+      1d      17
+      1e      17
+      23      17
+      24      17
+      25      17
+      26      17
+      2e      17
+      2f      18
+      30      18
+      31      18
+      32      18
+      33      18
+      34      18
+      35      18
+      36      18
+      37      18
+      38      18
+      39      18
+      3a      18
+      3b      18
+      3f      19
+      40      19
+      41      19
+      42      19
+      43      19
+      46      19
+      47      19
+      48      19
+      49      19
       4e      19
       4f      19
       50      19
@@ -208,380 +232,263 @@ class 'pkg/TestRecordPattern2' {
       6a      21
       6b      21
       6c      21
-      70      26
-      71      26
-      72      26
-      73      26
-      74      26
-      75      26
-      78      12
-   }
-
-   method 'test2 (Lpkg/TestRecordPattern2$Pair;)V' {
-      0      31
-      1      31
-      2      31
-      3      31
-      4      31
-      7      32
-      8      32
-      9      32
-      a      32
-      b      32
-      c      32
-      d      33
-      e      33
-      f      33
-      10      33
-      11      33
-      12      33
-      1a      33
-      1b      34
-      1c      34
-      1d      34
-      1e      34
-      1f      34
-      20      34
-      21      35
-      22      35
-      23      35
-      24      35
-      25      35
-      26      35
-      2e      35
-      2f      36
-      30      36
-      31      36
-      32      36
-      33      36
-      34      36
-      35      36
-      36      36
-      37      36
-      38      36
-      39      36
-      3a      36
-      3b      36
-      3c      37
-      3f      42
-      40      42
-      41      42
-      42      42
-      43      42
-      46      43
-      47      43
-      48      43
-      49      43
-      4a      43
-      4b      43
-      4c      44
-      4d      44
-      4e      44
-      4f      44
-      50      44
-      51      44
-      59      44
-      5a      44
-      5b      45
-      5c      45
-      5d      45
-      5e      45
-      5f      45
-      60      45
-      65      46
-      66      46
-      67      46
-      68      46
-      69      46
-      6a      46
-      6b      46
-      6c      46
-      6d      47
-      70      51
-      71      51
-      72      51
-      73      51
-      74      51
-      75      51
-      78      54
-      79      54
-      7a      54
-      7b      54
-      7c      54
-      7d      54
-      7e      54
-      7f      54
-      80      55
+      70      23
+      71      23
+      72      23
+      73      23
+      74      23
+      75      23
+      78      26
+      79      26
+      7a      26
+      7b      26
+      7c      26
+      7d      26
+      7e      26
+      7f      26
+      80      27
    }
 
    method 'test3 (Lpkg/TestRecordPattern2$Pair;)Ljava/lang/Object;' {
-      0      58
-      1      58
-      2      59
-      3      59
-      4      64
-      5      64
-      6      63
-      7      63
-      8      63
-      9      63
-      a      63
-      b      63
-      34      120
-      35      120
-      39      120
-      3a      67
-      3b      67
-      3c      67
-      3d      67
-      3e      68
-      41      70
-      42      70
-      43      70
-      44      70
-      45      70
-      46      70
-      47      71
-      48      71
-      49      71
-      4a      71
-      4b      71
-      4c      71
-      54      71
-      55      71
-      56      72
-      57      72
-      58      72
-      59      72
-      5a      72
-      5b      72
-      5c      73
-      5d      73
-      5e      73
-      5f      73
-      60      73
-      61      73
-      69      73
-      6a      73
-      6e      74
-      6f      74
-      70      74
-      71      74
-      72      74
-      73      74
-      74      74
-      75      74
-      76      74
-      77      74
-      78      74
-      79      74
-      7a      74
-      7b      74
-      7c      74
-      7d      74
-      7e      74
-      7f      74
-      80      74
-      84      75
-      87      82
-      88      82
-      89      82
-      8a      82
-      8b      82
-      8c      82
-      8d      83
-      8e      83
-      8f      83
-      90      83
-      91      83
-      92      83
-      9a      83
-      9b      83
-      9c      84
-      9d      84
-      9e      84
-      9f      84
-      a0      84
-      a1      84
-      a2      85
-      a3      85
-      a4      85
-      a5      85
-      a6      85
-      a7      85
-      af      85
-      b0      85
-      b1      86
-      b4      86
-      b5      86
-      b6      86
-      b7      86
-      b8      86
-      b9      86
-      ba      86
-      bb      86
-      bc      86
-      bd      86
-      be      86
-      bf      86
-      c0      86
-      c1      86
-      c2      86
-      c3      86
-      c4      86
-      c5      86
-      c6      86
-      c7      86
-      c8      86
-      c9      86
-      ca      86
-      cb      86
-      cc      86
-      d0      87
-      d3      94
-      d4      94
-      d5      94
-      d6      94
-      d7      94
-      d8      94
-      dd      95
-      de      95
-      df      95
-      e0      95
-      e1      95
-      e2      95
-      e3      96
-      e4      96
-      e5      96
-      e6      96
-      e7      96
-      e8      96
-      f0      96
-      f1      96
-      f5      100
-      f6      100
-      f7      101
-      fd      97
-      100      97
-      101      97
-      102      97
-      104      103
-      105      103
-      106      103
-      107      103
-      108      103
-      109      103
-      10a      104
-      10b      104
-      10c      104
-      10d      104
-      10e      104
-      10f      104
-      117      104
-      118      104
-      119      105
-      11a      105
-      11b      105
-      11c      105
-      11d      105
-      11e      105
-      11f      106
-      120      106
-      121      106
-      122      106
-      123      106
-      124      106
-      12c      106
-      12d      106
-      12e      106
-      12f      106
-      130      106
-      131      106
-      132      106
-      133      106
-      134      106
-      137      106
-      138      106
-      139      106
-      13a      106
-      13b      106
-      13c      106
-      13d      106
-      140      106
-      141      106
-      142      106
-      143      106
-      144      106
-      145      106
-      146      106
-      147      106
-      148      106
-      149      106
-      14a      106
-      14b      106
-      14c      106
-      14d      106
-      150      112
-      151      112
-      152      113
-      155      107
-      156      107
-      157      107
-      158      107
-      159      107
-      15a      107
-      15b      107
-      15c      107
-      15d      107
-      15e      107
-      15f      107
-      160      107
-      161      107
-      162      107
-      163      108
-      166      115
-      167      115
-      168      115
-      169      115
-      16a      115
-      16b      115
-      170      116
-      171      116
-      172      116
-      173      116
-      174      116
-      175      116
-      17d      117
-      17e      117
-      17f      117
-      180      117
-      181      117
-      182      118
-      185      123
+      0      30
+      1      30
+      2      31
+      3      31
+      4      36
+      5      36
+      6      35
+      7      35
+      8      35
+      9      35
+      a      35
+      b      35
+      34      81
+      35      81
+      39      81
+      3a      39
+      3b      39
+      3c      39
+      3d      39
+      3e      40
+      41      42
+      42      42
+      43      42
+      44      42
+      49      42
+      4a      42
+      4b      42
+      4c      42
+      54      42
+      55      42
+      56      42
+      57      42
+      58      42
+      59      42
+      5e      42
+      5f      42
+      60      42
+      61      42
+      69      42
+      6a      42
+      6e      43
+      6f      43
+      70      43
+      71      43
+      72      43
+      73      43
+      74      43
+      75      43
+      76      43
+      77      43
+      78      43
+      79      43
+      7a      43
+      7b      43
+      7c      43
+      7d      43
+      7e      43
+      7f      43
+      80      43
+      84      44
+      87      50
+      88      50
+      89      50
+      8a      50
+      8f      50
+      90      50
+      91      50
+      92      50
+      9a      50
+      9b      50
+      9c      50
+      9d      50
+      9e      50
+      9f      50
+      a4      50
+      a5      50
+      a6      50
+      a7      50
+      af      50
+      b0      50
+      b1      51
+      b4      51
+      b5      51
+      b6      51
+      b7      51
+      b8      51
+      b9      51
+      ba      51
+      bb      51
+      bc      51
+      bd      51
+      be      51
+      bf      51
+      c0      51
+      c1      51
+      c2      51
+      c3      51
+      c4      51
+      c5      51
+      c6      51
+      c7      51
+      c8      51
+      c9      51
+      ca      51
+      cb      51
+      cc      51
+      d0      52
+      d3      58
+      d4      58
+      d5      58
+      d6      58
+      d7      58
+      d8      58
+      dd      59
+      de      59
+      df      59
+      e0      59
+      e5      59
+      e6      59
+      e7      59
+      e8      59
+      f0      59
+      f1      59
+      f5      63
+      f6      63
+      f7      64
+      fd      60
+      100      60
+      101      60
+      102      60
+      104      66
+      105      66
+      106      66
+      107      66
+      10c      66
+      10d      66
+      10e      66
+      10f      66
+      117      66
+      118      66
+      119      66
+      11a      66
+      11b      66
+      11c      66
+      121      66
+      122      66
+      123      66
+      124      66
+      12c      66
+      12d      66
+      12e      66
+      12f      66
+      130      66
+      131      66
+      132      66
+      133      66
+      134      66
+      137      66
+      138      66
+      139      66
+      13a      66
+      13b      66
+      13c      66
+      13d      66
+      140      66
+      141      66
+      142      66
+      143      66
+      144      66
+      145      66
+      146      66
+      147      66
+      148      66
+      149      66
+      14a      66
+      14b      66
+      14c      66
+      14d      66
+      150      73
+      151      73
+      152      74
+      155      69
+      156      69
+      157      69
+      158      69
+      159      69
+      15a      69
+      15b      69
+      15c      69
+      15d      69
+      15e      69
+      15f      69
+      160      69
+      161      69
+      162      69
+      163      70
+      166      76
+      167      76
+      168      76
+      169      76
+      16a      76
+      16b      76
+      170      77
+      171      77
+      172      77
+      173      77
+      174      77
+      175      77
+      17d      78
+      17e      78
+      17f      78
+      180      78
+      181      78
+      182      79
+      185      84
    }
 }
 
 Lines mapping:
-1 <-> 8
-8 <-> 33
-9 <-> 19
-10 <-> 18
-11 <-> 22
-13 <-> 27
-15 <-> 13
-18 <-> 32
-19 <-> 44
-20 <-> 43
-21 <-> 47
-23 <-> 52
-25 <-> 55
-26 <-> 56
-29 <-> 124
-30 <-> 68
-31 <-> 72
-32 <-> 84
-33 <-> 96
-34 <-> 113
-35 <-> 107
-36 <-> 108
-37 <-> 117
+1 <-> 7
+8 <-> 18
+9 <-> 9
+10 <-> 9
+11 <-> 11
+13 <-> 13
+15 <-> 15
+18 <-> 18
+19 <-> 20
+20 <-> 20
+21 <-> 22
+23 <-> 24
+25 <-> 27
+26 <-> 28
+29 <-> 85
+30 <-> 40
+31 <-> 43
+32 <-> 51
+33 <-> 60
+34 <-> 74
+35 <-> 67
+36 <-> 70
+37 <-> 78

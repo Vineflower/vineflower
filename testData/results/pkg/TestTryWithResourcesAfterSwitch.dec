@@ -10,7 +10,7 @@ public class TestTryWithResourcesAfterSwitch {
          throw new RuntimeException();// 10
       } else {
          String vvv25 = "default";// 14
-         switch(vvv25) {
+         switch (vvv25) {
             case "HYxSY":
             default:
                ElementType vvv25x = ElementType.METHOD;// 19
@@ -25,90 +25,22 @@ public class TestTryWithResourcesAfterSwitch {
    }// 24
 
    public void test2() {
-      // $VF: Couldn't be decompiled
-      // Bytecode:
-      // 00: getstatic java/lang/annotation/ElementType.METHOD Ljava/lang/annotation/ElementType;
-      // 03: astore 1
-      // 04: aload 1
-      // 05: ifnull 10
-      // 08: new java/lang/RuntimeException
-      // 0b: dup
-      // 0c: invokespecial java/lang/RuntimeException.<init> ()V
-      // 0f: athrow
-      // 10: ldc "default"
-      // 12: astore 2
-      // 13: bipush -1
-      // 14: istore 3
-      // 15: aload 2
-      // 16: invokevirtual java/lang/String.hashCode ()I
-      // 19: lookupswitch 30 1 69262893 19
-      // 2c: aload 2
-      // 2d: ldc "HYxSY"
-      // 2f: invokevirtual java/lang/String.equals (Ljava/lang/Object;)Z
-      // 32: ifeq 37
-      // 35: bipush 0
-      // 36: istore 3
-      // 37: iload 3
-      // 38: lookupswitch 20 1 0 20
-      // 4c: new java/util/Scanner
-      // 4f: dup
-      // 50: getstatic java/lang/System.in Ljava/io/InputStream;
-      // 53: invokespecial java/util/Scanner.<init> (Ljava/io/InputStream;)V
-      // 56: astore 2
-      // 57: aconst_null
-      // 58: astore 3
-      // 59: getstatic java/lang/System.out Ljava/io/PrintStream;
-      // 5c: ldc "hi"
-      // 5e: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
-      // 61: aload 2
-      // 62: ifnull ad
-      // 65: aload 3
-      // 66: ifnull 7b
-      // 69: aload 2
-      // 6a: invokevirtual java/util/Scanner.close ()V
-      // 6d: goto ad
-      // 70: astore 4
-      // 72: aload 3
-      // 73: aload 4
-      // 75: invokevirtual java/lang/Throwable.addSuppressed (Ljava/lang/Throwable;)V
-      // 78: goto ad
-      // 7b: aload 2
-      // 7c: invokevirtual java/util/Scanner.close ()V
-      // 7f: goto ad
-      // 82: astore 4
-      // 84: aload 4
-      // 86: astore 3
-      // 87: aload 4
-      // 89: athrow
-      // 8a: astore 5
-      // 8c: aload 2
-      // 8d: ifnull aa
-      // 90: aload 3
-      // 91: ifnull a6
-      // 94: aload 2
-      // 95: invokevirtual java/util/Scanner.close ()V
-      // 98: goto aa
-      // 9b: astore 6
-      // 9d: aload 3
-      // 9e: aload 6
-      // a0: invokevirtual java/lang/Throwable.addSuppressed (Ljava/lang/Throwable;)V
-      // a3: goto aa
-      // a6: aload 2
-      // a7: invokevirtual java/util/Scanner.close ()V
-      // aa: aload 5
-      // ac: athrow
-      // ad: getstatic java/lang/System.out Ljava/io/PrintStream;
-      // b0: ldc "f"
-      // b2: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
-      // b5: goto c5
-      // b8: astore 7
-      // ba: getstatic java/lang/System.out Ljava/io/PrintStream;
-      // bd: ldc "f"
-      // bf: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
-      // c2: aload 7
-      // c4: athrow
-      // c5: return
-   }
+      ElementType vvv3 = ElementType.METHOD;// 28
+      if (vvv3 != null) {// 29
+         throw new RuntimeException();// 30
+      } else {
+         String vvv26 = "default";// 34
+         switch (vvv26) {
+            case "HYxSY":
+            default:
+               try (Scanner vvv26x = new Scanner(System.in)) {// 39
+                  System.out.println("hi");// 40
+               } finally {
+                  System.out.println("f");// 42
+               }
+         }
+      }
+   }// 43
 }
 
 class 'pkg/TestTryWithResourcesAfterSwitch' {
@@ -149,6 +81,40 @@ class 'pkg/TestTryWithResourcesAfterSwitch' {
       c8      20
       c9      20
    }
+
+   method 'test2 ()V' {
+      0      27
+      1      27
+      2      27
+      3      27
+      4      28
+      5      28
+      f      29
+      10      31
+      11      31
+      12      31
+      15      32
+      2d      33
+      2e      33
+      38      32
+      50      35
+      51      35
+      52      35
+      56      35
+      59      36
+      5a      36
+      5b      36
+      5c      36
+      5d      36
+      5e      36
+      b5      42
+      ba      38
+      bb      38
+      bc      38
+      bd      38
+      be      38
+      bf      38
+   }
 }
 
 Lines mapping:
@@ -161,6 +127,16 @@ Lines mapping:
 21 <-> 19
 23 <-> 21
 24 <-> 25
+28 <-> 28
+29 <-> 29
+30 <-> 30
+34 <-> 32
+39 <-> 36
+40 <-> 37
+42 <-> 39
+43 <-> 43
 Not mapped:
 22
 25
+41
+44

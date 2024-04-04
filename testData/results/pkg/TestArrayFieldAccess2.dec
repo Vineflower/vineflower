@@ -10,27 +10,27 @@ public class TestArrayFieldAccess2 {
    }// 10
 
    public void test1() {
-      this.value = this.array[this.index] += 4;// 13
+      this.value = this.array[this.index] = this.array[this.index] + 4;// 13
    }// 14
 
    public void test2() {
-      this.value = this.array[this.index] -= 4;// 17
+      this.value = this.array[this.index] = this.array[this.index] - 4;// 17
    }// 18
 
    public void test3() {
-      this.value = this.array[this.index] *= 4;// 21
+      this.value = this.array[this.index] = this.array[this.index] * 4;// 21
    }// 22
 
    public void test4() {
-      this.value = this.array[this.index] /= 4;// 25
+      this.value = this.array[this.index] = this.array[this.index] / 4;// 25
    }// 26
 
    public void test5() {
-      this.value = this.array[this.index] |= 4;// 29
+      this.value = this.array[this.index] = this.array[this.index] | 4;// 29
    }// 30
 
    public void test6() {
-      this.value = this.array[this.index] &= 4;// 33
+      this.value = this.array[this.index] = this.array[this.index] & 4;// 33
    }// 34
 
    public void testPP() {
@@ -38,39 +38,27 @@ public class TestArrayFieldAccess2 {
    }// 38
 
    public void test1PP() {
-      int[] var10001 = this.array;
-      int var10002 = this.index++;
-      this.value = var10001[var10002] += 4;// 41
+      this.value = this.array[this.index++] += 4;// 41
    }// 42
 
    public void test2PP() {
-      int[] var10001 = this.array;
-      int var10002 = this.index++;
-      this.value = var10001[var10002] -= 4;// 45
+      this.value = this.array[this.index++] -= 4;// 45
    }// 46
 
    public void test3PP() {
-      int[] var10001 = this.array;
-      int var10002 = this.index++;
-      this.value = var10001[var10002] *= 4;// 49
+      this.value = this.array[this.index++] *= 4;// 49
    }// 50
 
    public void test4PP() {
-      int[] var10001 = this.array;
-      int var10002 = this.index++;
-      this.value = var10001[var10002] /= 4;// 53
+      this.value = this.array[this.index++] /= 4;// 53
    }// 54
 
    public void test5PP() {
-      int[] var10001 = this.array;
-      int var10002 = this.index++;
-      this.value = var10001[var10002] |= 4;// 57
+      this.value = this.array[this.index++] |= 4;// 57
    }// 58
 
    public void test6PP() {
-      int[] var10001 = this.array;
-      int var10002 = this.index++;
-      this.value = var10001[var10002] &= 4;// 61
+      this.value = this.array[this.index++] &= 4;// 61
    }// 62
 }
 
@@ -103,7 +91,9 @@ class 'pkg/TestArrayFieldAccess2' {
       6      12
       7      12
       8      12
+      a      12
       b      12
+      c      12
       e      12
       f      12
       10      12
@@ -121,7 +111,9 @@ class 'pkg/TestArrayFieldAccess2' {
       6      16
       7      16
       8      16
+      a      16
       b      16
+      c      16
       e      16
       f      16
       10      16
@@ -139,7 +131,9 @@ class 'pkg/TestArrayFieldAccess2' {
       6      20
       7      20
       8      20
+      a      20
       b      20
+      c      20
       e      20
       f      20
       10      20
@@ -157,7 +151,9 @@ class 'pkg/TestArrayFieldAccess2' {
       6      24
       7      24
       8      24
+      a      24
       b      24
+      c      24
       e      24
       f      24
       10      24
@@ -175,7 +171,9 @@ class 'pkg/TestArrayFieldAccess2' {
       6      28
       7      28
       8      28
+      a      28
       b      28
+      c      28
       e      28
       f      28
       10      28
@@ -193,7 +191,9 @@ class 'pkg/TestArrayFieldAccess2' {
       6      32
       7      32
       8      32
+      a      32
       b      32
+      c      32
       e      32
       f      32
       10      32
@@ -221,35 +221,54 @@ class 'pkg/TestArrayFieldAccess2' {
    }
 
    method 'test1PP ()V' {
-      0      42
+      0      40
       1      40
       2      40
       3      40
       4      40
-      5      41
-      7      41
-      8      41
-      9      41
-      c      41
-      12      42
-      15      42
-      16      42
-      17      42
-      18      42
-      19      43
+      5      40
+      7      40
+      8      40
+      9      40
+      c      40
+      12      40
+      15      40
+      16      40
+      17      40
+      18      40
+      19      41
    }
 
    method 'test2PP ()V' {
+      0      44
+      1      44
+      2      44
+      3      44
+      4      44
+      5      44
+      7      44
+      8      44
+      9      44
+      c      44
+      12      44
+      15      44
+      16      44
+      17      44
+      18      44
+      19      45
+   }
+
+   method 'test3PP ()V' {
       0      48
-      1      46
-      2      46
-      3      46
-      4      46
-      5      47
-      7      47
-      8      47
-      9      47
-      c      47
+      1      48
+      2      48
+      3      48
+      4      48
+      5      48
+      7      48
+      8      48
+      9      48
+      c      48
       12      48
       15      48
       16      48
@@ -258,80 +277,61 @@ class 'pkg/TestArrayFieldAccess2' {
       19      49
    }
 
-   method 'test3PP ()V' {
-      0      54
+   method 'test4PP ()V' {
+      0      52
       1      52
       2      52
       3      52
       4      52
-      5      53
-      7      53
-      8      53
-      9      53
-      c      53
-      12      54
-      15      54
-      16      54
-      17      54
-      18      54
-      19      55
+      5      52
+      7      52
+      8      52
+      9      52
+      c      52
+      12      52
+      15      52
+      16      52
+      17      52
+      18      52
+      19      53
    }
 
-   method 'test4PP ()V' {
+   method 'test5PP ()V' {
+      0      56
+      1      56
+      2      56
+      3      56
+      4      56
+      5      56
+      7      56
+      8      56
+      9      56
+      c      56
+      12      56
+      15      56
+      16      56
+      17      56
+      18      56
+      19      57
+   }
+
+   method 'test6PP ()V' {
       0      60
-      1      58
-      2      58
-      3      58
-      4      58
-      5      59
-      7      59
-      8      59
-      9      59
-      c      59
+      1      60
+      2      60
+      3      60
+      4      60
+      5      60
+      7      60
+      8      60
+      9      60
+      c      60
       12      60
       15      60
       16      60
       17      60
       18      60
       19      61
-   }
-
-   method 'test5PP ()V' {
-      0      66
-      1      64
-      2      64
-      3      64
-      4      64
-      5      65
-      7      65
-      8      65
-      9      65
-      c      65
-      12      66
-      15      66
-      16      66
-      17      66
-      18      66
-      19      67
-   }
-
-   method 'test6PP ()V' {
-      0      72
-      1      70
-      2      70
-      3      70
-      4      70
-      5      71
-      7      71
-      8      71
-      9      71
-      c      71
-      12      72
-      15      72
-      16      72
-      17      72
-      18      72
-      19      73
    }
 }
 
@@ -352,15 +352,15 @@ Lines mapping:
 34 <-> 34
 37 <-> 37
 38 <-> 38
-41 <-> 43
-42 <-> 44
-45 <-> 49
-46 <-> 50
-49 <-> 55
-50 <-> 56
-53 <-> 61
-54 <-> 62
-57 <-> 67
-58 <-> 68
-61 <-> 73
-62 <-> 74
+41 <-> 41
+42 <-> 42
+45 <-> 45
+46 <-> 46
+49 <-> 49
+50 <-> 50
+53 <-> 53
+54 <-> 54
+57 <-> 57
+58 <-> 58
+61 <-> 61
+62 <-> 62

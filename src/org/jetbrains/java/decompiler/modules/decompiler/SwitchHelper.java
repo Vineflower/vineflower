@@ -12,6 +12,8 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.Fun
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.struct.StructField;
 import org.jetbrains.java.decompiler.struct.StructMethod;
+import org.jetbrains.java.decompiler.struct.gen.FieldDescriptor;
+import org.jetbrains.java.decompiler.struct.gen.TypeFamily;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.DotExporter;
 import org.jetbrains.java.decompiler.util.Pair;
@@ -36,6 +38,10 @@ public final class SwitchHelper {
   }
 
   private static boolean simplify(SwitchStatement switchStatement, StructMethod mt, RootStatement root) {
+    if (simplifyNewEnumSwitch(switchStatement)) {
+      return true;
+    }
+
     SwitchHeadExprent switchHeadExprent = (SwitchHeadExprent)switchStatement.getHeadexprent();
     Exprent value = switchHeadExprent.getValue();
     ArrayExprent array = getEnumArrayExprent(value, root);
@@ -136,7 +142,7 @@ public final class SwitchHelper {
             if (realConst == null) {
               if (exprent instanceof ConstExprent) {
                 ConstExprent constLabel = (ConstExprent) exprent;
-                if (constLabel.getConstType().typeFamily == CodeConstants.TYPE_FAMILY_INTEGER) {
+                if (constLabel.getConstType().typeFamily == TypeFamily.INTEGER) {
                   int intLabel = constLabel.getIntValue();
                   // check for -1, used by nullable switches for the null branch
                   if (intLabel == -1) {
@@ -148,7 +154,7 @@ public final class SwitchHelper {
                   // TODO: more tests
                   for (Exprent key : mapping.keySet()) {
                     if (key instanceof ConstExprent
-                        && ((ConstExprent) key).getConstType().typeFamily == CodeConstants.TYPE_FAMILY_INTEGER
+                        && ((ConstExprent) key).getConstType().typeFamily == TypeFamily.INTEGER
                         && ((ConstExprent) key).getIntValue() > intLabel) {
                       values.add(key.copy());
                       continue cases;
@@ -276,6 +282,101 @@ public final class SwitchHelper {
 
       return true;
     }
+    return false;
+  }
+
+  private static boolean simplifyNewEnumSwitch(SwitchStatement switchSt) {
+    SwitchHeadExprent head = (SwitchHeadExprent) switchSt.getHeadexprent();
+    Exprent inner = head.getValue();
+
+    Map<ConstExprent, String> mapping = new HashMap<>();
+    List<List<Exprent>> values = switchSt.getCaseValues();
+    for (List<Exprent> list : values) {
+      for (Exprent v : list) {
+        if (v == null) {
+          continue; // Default case - fine
+        }
+
+        if (!(v instanceof ConstExprent)) {
+          return false; // no const? can't do anything
+        }
+
+        if (v.getExprType().typeFamily != TypeFamily.INTEGER) {
+          return false; // no integer, can't process
+        }
+
+        mapping.put((ConstExprent) v, null);
+      }
+    }
+
+    // Best guess based on the ordinal
+    if (inner instanceof InvocationExprent && ((InvocationExprent) inner).getName().equals("ordinal")) {
+      InvocationExprent invInner = (InvocationExprent) inner;
+
+      ClassesProcessor.ClassNode classNode = DecompilerContext.getClassProcessor().getMapRootClasses().get(invInner.getClassname());
+
+      // Check for enum
+      if ((classNode.classStruct.getAccessFlags() & CodeConstants.ACC_ENUM) == CodeConstants.ACC_ENUM) {
+        List<String> enumNames = new ArrayList<>();
+
+        // Capture fields
+        for (StructField fd : classNode.classStruct.getFields()) {
+          if ((fd.getAccessFlags() & CodeConstants.ACC_ENUM) == CodeConstants.ACC_ENUM) {
+            enumNames.add(fd.getName());
+          }
+        }
+
+        for (ConstExprent e : new HashSet<>(mapping.keySet())) {
+          for (List<Exprent> lst : values) {
+            for (int i = 0; i < lst.size(); i++) {
+              Exprent ex = lst.get(i);
+
+              if (e == ex) {
+                // now do the replacement
+                int idx = e.getIntValue();
+                String name = enumNames.get(idx);
+                lst.set(i, new FieldExprent(name, invInner.getClassname(), true, null, FieldDescriptor.parseDescriptor("L" + invInner.getClassname() + ";"), null));
+              }
+            }
+          }
+        }
+
+        // Success! now let's clean it up. Remove "default -> throw new MatchException", if it exists
+        // Only do this for switch expression (phantom) switches. Otherwise we might accidentally obliterate
+        // definite assignment for a variable.
+        if (switchSt.isPhantom()) {
+          for (int i = 0; i < values.size(); i++) {
+            List<Exprent> list = values.get(i);
+
+            if (list.size() == 1 && list.get(0) == null) { // default by itself
+              Statement st = switchSt.getCaseStatements().get(i);
+              // Check for a block with something inside
+              if (st.type == Statement.StatementType.BASIC_BLOCK && st.getExprents().size() == 1) {
+                Exprent check = st.getExprents().get(0);
+                // throw ...
+                if (check instanceof ExitExprent && ((ExitExprent) check).getExitType() == ExitExprent.Type.THROW) {
+                  Exprent i1 = ((ExitExprent) check).getValue();
+                  // throw new ...
+                  if (i1 instanceof NewExprent) {
+                    // throw new MatchException
+                    if (((NewExprent) i1).getNewType().toString().equals("Ljava/lang/MatchException;")) {
+
+                      st.replaceWithEmpty();
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        // Now replace the 'var.ordinal()' with 'var'
+        head.replaceExprent(inner, ((InvocationExprent)inner).getInstance());
+
+        return true;
+      }
+    }
+
     return false;
   }
 
