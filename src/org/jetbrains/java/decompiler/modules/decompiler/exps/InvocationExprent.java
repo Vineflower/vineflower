@@ -600,7 +600,7 @@ public class InvocationExprent extends Exprent {
           }
 
           newRet = newRet.remap(genericsMap);
-          if (newRet == null) {
+          if (newRet == null && bounds.get(ret) != null && bounds.get(ret).size() > 0) {
             newRet = bounds.get(ret).get(0).remap(genericsMap);
           }
 
