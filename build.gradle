@@ -3,11 +3,13 @@
 import org.vineflower.build.JasmCompile
 import org.vineflower.build.TestDataRuntimesProvider
 
+import java.time.Duration
+
 plugins {
   id 'jacoco'
   id 'com.github.johnrengelman.shadow' version '8.1.1'
   id 'org.jetbrains.kotlin.jvm' version '1.6.21'
-  id("io.github.gradle-nexus.publish-plugin") version '1.3.0'
+  id("io.github.gradle-nexus.publish-plugin") version '2.0.0-rc-2'
 }
 
 apply plugin: 'jacoco'
@@ -308,6 +310,11 @@ nexusPublishing {
       snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
     }
   }
+
+  // nexus is eepy, give her time to respond
+  def timeout = Duration.ofMinutes(6)
+  clientTimeout = timeout
+  connectTimeout = timeout
 }
 
 signing {
