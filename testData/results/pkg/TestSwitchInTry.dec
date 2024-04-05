@@ -1,0 +1,96 @@
+package pkg;
+
+import java.util.Arrays;
+import java.util.List;
+
+public class TestSwitchInTry {
+   public static List<String> method(String[] args) {
+      String ret = "";// 13
+
+      for (String arg : args) {// 14
+         try {
+            byte var7 = -1;
+            switch (arg.hashCode()) {// 16
+               case 97:
+                  if (arg.equals("a")) {
+                     var7 = 0;
+                  }
+               default:
+                  switch (var7) {
+                     case 0:
+                        ret = "a";// 18
+                        return Arrays.asList(ret);// 24
+                     default:
+                        return Arrays.asList(ret);
+                  }
+            }
+         } catch (Exception var8) {// 21
+         }
+      }
+
+      return Arrays.asList(ret);
+   }
+}
+
+class 'pkg/TestSwitchInTry' {
+   method 'method ([Ljava/lang/String;)Ljava/util/List;' {
+      0      7
+      1      7
+      2      7
+      3      9
+      4      9
+      5      9
+      7      9
+      9      9
+      a      9
+      15      9
+      16      9
+      17      12
+      18      12
+      1b      11
+      1c      11
+      1d      11
+      1e      12
+      1f      12
+      20      12
+      21      12
+      22      12
+      23      12
+      34      14
+      35      14
+      36      14
+      37      14
+      38      14
+      39      14
+      3a      14
+      3b      14
+      3e      15
+      3f      15
+      40      15
+      41      18
+      42      18
+      43      18
+      54      20
+      55      20
+      56      20
+      5a      26
+      5c      9
+      5d      9
+      5e      9
+      68      21
+      6a      21
+      6b      21
+      6c      21
+      6d      21
+   }
+}
+
+Lines mapping:
+13 <-> 8
+14 <-> 10
+16 <-> 13
+18 <-> 21
+21 <-> 27
+24 <-> 22
+Not mapped:
+20
