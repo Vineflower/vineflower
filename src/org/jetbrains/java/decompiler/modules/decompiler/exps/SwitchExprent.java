@@ -200,6 +200,7 @@ public class SwitchExprent extends Exprent {
       }
     }
     StructClass enumTargetClass = DecompilerContext.getStructContext().getClass(backing.getHeadexprent().getExprType().value);
+    System.out.println(enumTargetClass);
     return enumTargetClass != null && enumTargetClass.hasModifier(CodeConstants.ACC_ENUM)
       && enumTargetClass.getFields()
         .stream()
@@ -215,7 +216,8 @@ public class SwitchExprent extends Exprent {
       Exprent targetExpr = targetExprs.get(0);
       return targetExpr instanceof ExitExprent
         && ((ExitExprent) targetExpr).getExitType() == ExitExprent.Type.THROW
-        && ((ExitExprent) targetExpr).getValue().getExprType().value.equals("java/lang/IncompatibleClassChangeError");
+        && (((ExitExprent) targetExpr).getValue().getExprType().value.equals("java/lang/IncompatibleClassChangeError")
+            || ((ExitExprent) targetExpr).getValue().getExprType().value.equals("java/lang/MatchException"));
     }
     return false;
   }
