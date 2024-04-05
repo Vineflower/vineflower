@@ -215,7 +215,8 @@ public class SwitchExprent extends Exprent {
       Exprent targetExpr = targetExprs.get(0);
       return targetExpr instanceof ExitExprent
         && ((ExitExprent) targetExpr).getExitType() == ExitExprent.Type.THROW
-        && ((ExitExprent) targetExpr).getValue().getExprType().value.equals("java/lang/IncompatibleClassChangeError");
+        && (((ExitExprent) targetExpr).getValue().getExprType().value.equals("java/lang/IncompatibleClassChangeError")
+            || ((ExitExprent) targetExpr).getValue().getExprType().value.equals("java/lang/MatchException"));
     }
     return false;
   }

@@ -1,43 +1,78 @@
 package pkg;
 
+import ext.TestEnum2;
+
 public class TestSwitchOnEnumJ21 {
    public int test1(TestSwitchOnEnumJ21.TestEnum a) {
-      return switch (a) {// 5
-         case A -> 1;// 6
-         case B -> 2;// 7
-         case C -> 3;// 8
+      return switch (a) {// 7
+         case A -> 1;// 8
+         case B -> 2;// 9
+         case C -> 3;// 10
+      };
+   }
+
+   public int test2(TestEnum2 a) {
+      return switch (a) {// 15
+         case A -> 1;// 16
+         case B -> 2;// 17
+         case C -> 3;// 18
+      };
+   }
+
+   public int test3(TestSwitchOnEnumJ21.TestEnum a) {
+      return switch (a) {// 23
+         case null -> 4;// 27
+         case A -> 1;// 24
+         case B -> 2;// 25
+         case C -> 3;// 26
+      };
+   }
+
+   public int test4(TestEnum2 a) {
+      return switch (a) {// 32
+         case null -> 4;// 36
+         case A -> 1;// 33
+         case B -> 2;// 34
+         case C -> 3;// 35
       };
    }
 
    public int testDefault(TestSwitchOnEnumJ21.TestEnum a) {
-      return switch (a) {// 13
-         case A -> 1;// 14
-         default -> 5;// 15
+      return switch (a) {// 41
+         case A -> 1;// 42
+         default -> 5;// 43
+      };
+   }
+
+   public int testDefault2(TestEnum2 a) {
+      return switch (a) {// 48
+         case A -> 1;// 49
+         default -> 5;// 50
       };
    }
 
    public void testStatement(TestSwitchOnEnumJ21.TestEnum a) {
-      switch (a) {// 20
+      switch (a) {// 55
          case A:
-            System.out.println("A");// 22
-            break;// 23
+            System.out.println("A");// 57
+            break;// 58
          case B:
-            System.out.println("B");// 25
-            break;// 26
+            System.out.println("B");// 60
+            break;// 61
          case C:
-            System.out.println("C");// 28
+            System.out.println("C");// 63
       }
-   }// 30
+   }// 65
 
    public void testStatementDefault(TestSwitchOnEnumJ21.TestEnum a) {
-      switch (a) {// 33
+      switch (a) {// 68
          case A:
-            System.out.println("A");// 35
-            break;// 36
+            System.out.println("A");// 70
+            break;// 71
          default:
-            System.out.println("C");// 38
+            System.out.println("C");// 73
       }
-   }// 40
+   }// 75
 
    static enum TestEnum {
       A,
@@ -48,91 +83,149 @@ public class TestSwitchOnEnumJ21 {
 
 class 'pkg/TestSwitchOnEnumJ21' {
    method 'test1 (Lpkg/TestSwitchOnEnumJ21$TestEnum;)I' {
-      0      4
-      4      4
-      2a      5
-      2e      6
-      32      7
-      33      4
+      0      6
+      4      6
+      2a      7
+      2e      8
+      32      9
+      33      6
+   }
+
+   method 'test2 (Lext/TestEnum2;)I' {
+      3      14
+      7      14
+      8      14
+      2e      15
+      32      16
+      36      17
+      37      14
+   }
+
+   method 'test3 (Lpkg/TestSwitchOnEnumJ21$TestEnum;)I' {
+      0      22
+      4      22
+      b      22
+      32      24
+      36      25
+      3a      26
+      3e      23
+      3f      22
+   }
+
+   method 'test4 (Lext/TestEnum2;)I' {
+      0      31
+      4      31
+      b      31
+      32      33
+      36      34
+      3a      35
+      3e      32
+      3f      31
    }
 
    method 'testDefault (Lpkg/TestSwitchOnEnumJ21$TestEnum;)I' {
-      0      12
-      4      12
-      18      13
-      1c      14
-      1d      12
+      0      40
+      4      40
+      18      41
+      1c      42
+      1d      40
+   }
+
+   method 'testDefault2 (Lext/TestEnum2;)I' {
+      3      47
+      7      47
+      8      47
+      1c      48
+      20      49
+      21      47
    }
 
    method 'testStatement (Lpkg/TestSwitchOnEnumJ21$TestEnum;)V' {
-      0      19
-      4      19
-      20      21
-      21      21
-      22      21
-      23      21
-      24      21
-      25      21
-      26      21
-      27      21
-      28      22
-      2b      24
-      2c      24
-      2d      24
-      2e      24
-      2f      24
-      30      24
-      31      24
-      32      24
-      33      25
-      36      27
-      37      27
-      38      27
-      39      27
-      3a      27
-      3b      27
-      3e      29
+      0      54
+      4      54
+      20      56
+      21      56
+      22      56
+      23      56
+      24      56
+      25      56
+      26      56
+      27      56
+      28      57
+      2b      59
+      2c      59
+      2d      59
+      2e      59
+      2f      59
+      30      59
+      31      59
+      32      59
+      33      60
+      36      62
+      37      62
+      38      62
+      39      62
+      3a      62
+      3b      62
+      3e      64
    }
 
    method 'testStatementDefault (Lpkg/TestSwitchOnEnumJ21$TestEnum;)V' {
-      0      32
-      4      32
-      18      34
-      19      34
-      1a      34
-      1b      34
-      1c      34
-      1d      34
-      1e      34
-      1f      34
-      20      35
-      23      37
-      24      37
-      25      37
-      26      37
-      27      37
-      28      37
-      2b      39
+      0      67
+      4      67
+      18      69
+      19      69
+      1a      69
+      1b      69
+      1c      69
+      1d      69
+      1e      69
+      1f      69
+      20      70
+      23      72
+      24      72
+      25      72
+      26      72
+      27      72
+      28      72
+      2b      74
    }
 }
 
 Lines mapping:
-5 <-> 5
-6 <-> 6
 7 <-> 7
 8 <-> 8
-13 <-> 13
-14 <-> 14
+9 <-> 9
+10 <-> 10
 15 <-> 15
-20 <-> 20
-22 <-> 22
+16 <-> 16
+17 <-> 17
+18 <-> 18
 23 <-> 23
-25 <-> 25
-26 <-> 26
-28 <-> 28
-30 <-> 30
-33 <-> 33
-35 <-> 35
-36 <-> 36
-38 <-> 38
-40 <-> 40
+24 <-> 25
+25 <-> 26
+26 <-> 27
+27 <-> 24
+32 <-> 32
+33 <-> 34
+34 <-> 35
+35 <-> 36
+36 <-> 33
+41 <-> 41
+42 <-> 42
+43 <-> 43
+48 <-> 48
+49 <-> 49
+50 <-> 50
+55 <-> 55
+57 <-> 57
+58 <-> 58
+60 <-> 60
+61 <-> 61
+63 <-> 63
+65 <-> 65
+68 <-> 68
+70 <-> 70
+71 <-> 71
+73 <-> 73
+75 <-> 75

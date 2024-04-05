@@ -1,5 +1,7 @@
 package pkg;
 
+import ext.TestEnum2;
+
 public class TestSwitchOnEnumJ21 {
   public int test1(TestEnum a) {
     return switch (a) {
@@ -8,8 +10,41 @@ public class TestSwitchOnEnumJ21 {
       case C -> 3;
     };
   }
+  
+  public int test2(TestEnum2 a) {
+    return switch (a) {
+      case A -> 1;
+      case B -> 2;
+      case C -> 3;
+    };
+  }
+  
+  public int test3(TestEnum a) {
+    return switch (a) {
+      case A -> 1;
+      case B -> 2;
+      case C -> 3;
+      case null -> 4;
+    };
+  }
+
+  public int test4(TestEnum2 a) {
+    return switch (a) {
+      case A -> 1;
+      case B -> 2;
+      case C -> 3;
+      case null -> 4;
+    };
+  }
 
   public int testDefault(TestEnum a) {
+    return switch (a) {
+      case A -> 1;
+      default -> 5;
+    };
+  }
+  
+  public int testDefault2(TestEnum2 a) {
     return switch (a) {
       case A -> 1;
       default -> 5;
