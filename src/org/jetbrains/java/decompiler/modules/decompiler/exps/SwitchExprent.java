@@ -200,7 +200,6 @@ public class SwitchExprent extends Exprent {
       }
     }
     StructClass enumTargetClass = DecompilerContext.getStructContext().getClass(backing.getHeadexprent().getExprType().value);
-    System.out.println(enumTargetClass);
     return enumTargetClass != null && enumTargetClass.hasModifier(CodeConstants.ACC_ENUM)
       && enumTargetClass.getFields()
         .stream()
