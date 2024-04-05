@@ -357,6 +357,26 @@ public final class ValidationHelper {
           }
         }
       }
+
+      // ensure all exprents are unique
+      Map<ID<Exprent>, DirectNode> allExprents = new HashMap<>();
+
+      for (var node : graph.nodes) {
+        for (var exprent : node.exprents) {
+          for (var subExprent : exprent.getAllExprents(true, true)) {
+            ID<Exprent> key = new ID<>(subExprent);
+            if (allExprents.containsKey(key)) {
+              throw new IllegalStateException(
+                "Duplicated exprent: " + subExprent + " (Sub exprent of: " + exprent + ") in dgraph. " +
+                  "Appears in both node " + node.id + " and node " + allExprents.get(key).id + "!"
+              );
+            } else {
+              allExprents.put(key, node);
+            }
+          }
+        }
+      }
+
     } catch (Throwable e) {
       DotExporter.errorToDotFile(graph, root.mt, "erroring_dgraph");
       throw e;
@@ -505,6 +525,30 @@ public final class ValidationHelper {
     if (graph.nodes.size() != reached.size()) {
       DotExporter.errorToDotFile(graph, statement.mt, "erroring_varVersionGraph", varAssignmentMap);
       throw new IllegalStateException("Highly cyclic varversions graph!");
+    }
+  }
+
+
+  static private class ID<T> {
+    private final T obj;
+
+
+    private ID(T obj) {
+      this.obj = obj;
+    }
+
+    @Override
+    public int hashCode() {
+      return System.identityHashCode(this.obj);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+
+      ID<?> id = (ID<?>) o;
+      return obj == id.obj;
     }
   }
 }

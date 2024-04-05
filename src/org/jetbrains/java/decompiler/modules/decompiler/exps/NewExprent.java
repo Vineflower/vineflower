@@ -9,6 +9,7 @@ import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.rels.ClassWrapper;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
+import org.jetbrains.java.decompiler.modules.decompiler.DecHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.SFormsConstructor;
@@ -307,7 +308,7 @@ public class NewExprent extends Exprent {
 
     NewExprent ret = new NewExprent(newType, lst, bytecode);
     ret.setConstructor(constructor == null ? null : (InvocationExprent)constructor.copy());
-    ret.setLstArrayElements(lstArrayElements);
+    ret.setLstArrayElements(DecHelper.copyExprentList(lstArrayElements));
     ret.setDirectArrayInit(directArrayInit);
     ret.setAnonymous(anonymous);
     ret.setEnumConst(enumConst);
