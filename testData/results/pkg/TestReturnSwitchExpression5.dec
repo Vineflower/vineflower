@@ -1,0 +1,36 @@
+package pkg;
+
+public class TestReturnSwitchExpression5 {
+   public String test(int i) {
+      return switch (i) {// 6
+         case 1 -> "1";// 7
+         case 2 -> "2";// 8
+         default -> {
+            int a = 0;// 10
+            throw new RuntimeException();// 11
+         }
+      };
+   }
+}
+
+class 'pkg/TestReturnSwitchExpression5' {
+   method 'test (I)Ljava/lang/String;' {
+      0      4
+      1      4
+      1c      5
+      1d      5
+      21      6
+      22      6
+      26      8
+      27      8
+      2f      9
+      30      4
+   }
+}
+
+Lines mapping:
+6 <-> 5
+7 <-> 6
+8 <-> 7
+10 <-> 9
+11 <-> 10
