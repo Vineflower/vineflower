@@ -357,6 +357,7 @@ public final class TryWithResourcesProcessor {
   private static void findEdgesLeaving(Statement curr, Statement check, Set<StatEdge> edges, boolean allowExit, Map<Statement, Set<Statement>> found) {
     for (StatEdge edge : curr.getAllSuccessorEdges()) {
       if (!check.containsStatement(edge.getDestination()) && (allowExit || !(edge.getDestination() instanceof DummyExitStatement))) {
+        // Check if the edge is either explicit or isn't implicit to an already found edge
         if (edge.explicit || found.entrySet().stream().allMatch(e -> !e.getKey().containsStatement(curr) || !e.getValue().contains(edge.getDestination()))) {
           edges.add(edge);
           found.computeIfAbsent(curr, stat -> new HashSet<>()).add(edge.getDestination());
