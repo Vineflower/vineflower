@@ -37,6 +37,22 @@ public class TestSwitchOnEnumJ21 {
     };
   }
 
+  public int test5(TestEnum a, boolean b) {
+    return switch (a) {
+      case A -> 1;
+      case B -> 2;
+      case C -> {
+        if (b) {
+          boolean c = true;
+          yield 3;
+        } else {
+          boolean d = true;
+          yield 4;
+        }
+      }
+    };
+  }
+
   public int testDefault(TestEnum a) {
     return switch (a) {
       case A -> 1;
