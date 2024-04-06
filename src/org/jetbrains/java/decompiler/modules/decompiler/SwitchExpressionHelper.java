@@ -309,10 +309,9 @@ public final class SwitchExpressionHelper {
       List<Exprent> exprents = breakJump.getExprents();
 
       if (exprents != null && !exprents.isEmpty()) {
-        if (exprents.size() == 1 && exprents.get(0) instanceof ExitExprent) {
-          ExitExprent exit = ((ExitExprent) exprents.get(0));
+        if (exprents.size() > 0 && exprents.get(exprents.size() - 1) instanceof ExitExprent exit) {
 
-          // Special case throws
+          // Last exprent throws instead of storing a value
           if (exit.getExitType() == ExitExprent.Type.THROW) {
             map.put(breakJump, null);
             continue;

@@ -37,42 +37,58 @@ public class TestSwitchOnEnumJ21 {
       };
    }
 
-   public int testDefault(TestSwitchOnEnumJ21.TestEnum a) {
+   public int test5(TestSwitchOnEnumJ21.TestEnum a, boolean b) {
       return switch (a) {// 41
          case A -> 1;// 42
-         default -> 5;// 43
+         case B -> 2;// 43
+         case C -> {
+            if (b) {// 45
+               boolean c = true;// 46
+               yield 3;// 47
+            } else {
+               boolean d = true;// 49
+               yield 4;// 50
+            }
+         }
+      };
+   }
+
+   public int testDefault(TestSwitchOnEnumJ21.TestEnum a) {
+      return switch (a) {// 57
+         case A -> 1;// 58
+         default -> 5;// 59
       };
    }
 
    public int testDefault2(TestEnum2 a) {
-      return switch (a) {// 48
-         case A -> 1;// 49
-         default -> 5;// 50
+      return switch (a) {// 64
+         case A -> 1;// 65
+         default -> 5;// 66
       };
    }
 
    public void testStatement(TestSwitchOnEnumJ21.TestEnum a) {
-      switch (a) {// 55
+      switch (a) {// 71
          case A:
-            System.out.println("A");// 57
-            break;// 58
+            System.out.println("A");// 73
+            break;// 74
          case B:
-            System.out.println("B");// 60
-            break;// 61
+            System.out.println("B");// 76
+            break;// 77
          case C:
-            System.out.println("C");// 63
+            System.out.println("C");// 79
       }
-   }// 65
+   }// 81
 
    public void testStatementDefault(TestSwitchOnEnumJ21.TestEnum a) {
-      switch (a) {// 68
+      switch (a) {// 84
          case A:
-            System.out.println("A");// 70
-            break;// 71
+            System.out.println("A");// 86
+            break;// 87
          default:
-            System.out.println("C");// 73
+            System.out.println("C");// 89
       }
-   }// 75
+   }// 91
 
    static enum TestEnum {
       A,
@@ -123,72 +139,88 @@ class 'pkg/TestSwitchOnEnumJ21' {
       3f      31
    }
 
-   method 'testDefault (Lpkg/TestSwitchOnEnumJ21$TestEnum;)I' {
+   method 'test5 (Lpkg/TestSwitchOnEnumJ21$TestEnum;Z)I' {
       0      40
       4      40
-      18      41
-      1c      42
-      1d      40
+      2a      41
+      2e      42
+      32      44
+      33      44
+      36      45
+      37      45
+      38      46
+      3c      48
+      3d      48
+      3e      49
+      42      40
+   }
+
+   method 'testDefault (Lpkg/TestSwitchOnEnumJ21$TestEnum;)I' {
+      0      56
+      4      56
+      18      57
+      1c      58
+      1d      56
    }
 
    method 'testDefault2 (Lext/TestEnum2;)I' {
-      3      47
-      7      47
-      8      47
-      1c      48
-      20      49
-      21      47
+      3      63
+      7      63
+      8      63
+      1c      64
+      20      65
+      21      63
    }
 
    method 'testStatement (Lpkg/TestSwitchOnEnumJ21$TestEnum;)V' {
-      0      54
-      4      54
-      20      56
-      21      56
-      22      56
-      23      56
-      24      56
-      25      56
-      26      56
-      27      56
-      28      57
-      2b      59
-      2c      59
-      2d      59
-      2e      59
-      2f      59
-      30      59
-      31      59
-      32      59
-      33      60
-      36      62
-      37      62
-      38      62
-      39      62
-      3a      62
-      3b      62
-      3e      64
-   }
-
-   method 'testStatementDefault (Lpkg/TestSwitchOnEnumJ21$TestEnum;)V' {
-      0      67
-      4      67
-      18      69
-      19      69
-      1a      69
-      1b      69
-      1c      69
-      1d      69
-      1e      69
-      1f      69
-      20      70
+      0      70
+      4      70
+      20      72
+      21      72
+      22      72
       23      72
       24      72
       25      72
       26      72
       27      72
-      28      72
-      2b      74
+      28      73
+      2b      75
+      2c      75
+      2d      75
+      2e      75
+      2f      75
+      30      75
+      31      75
+      32      75
+      33      76
+      36      78
+      37      78
+      38      78
+      39      78
+      3a      78
+      3b      78
+      3e      80
+   }
+
+   method 'testStatementDefault (Lpkg/TestSwitchOnEnumJ21$TestEnum;)V' {
+      0      83
+      4      83
+      18      85
+      19      85
+      1a      85
+      1b      85
+      1c      85
+      1d      85
+      1e      85
+      1f      85
+      20      86
+      23      88
+      24      88
+      25      88
+      26      88
+      27      88
+      28      88
+      2b      90
    }
 }
 
@@ -214,18 +246,26 @@ Lines mapping:
 41 <-> 41
 42 <-> 42
 43 <-> 43
-48 <-> 48
+45 <-> 45
+46 <-> 46
+47 <-> 47
 49 <-> 49
 50 <-> 50
-55 <-> 55
 57 <-> 57
 58 <-> 58
-60 <-> 60
-61 <-> 61
-63 <-> 63
+59 <-> 59
+64 <-> 64
 65 <-> 65
-68 <-> 68
-70 <-> 70
+66 <-> 66
 71 <-> 71
 73 <-> 73
-75 <-> 75
+74 <-> 74
+76 <-> 76
+77 <-> 77
+79 <-> 79
+81 <-> 81
+84 <-> 84
+86 <-> 86
+87 <-> 87
+89 <-> 89
+91 <-> 91
