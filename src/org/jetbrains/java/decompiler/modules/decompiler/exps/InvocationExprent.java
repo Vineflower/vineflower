@@ -949,8 +949,6 @@ public class InvocationExprent extends Exprent {
   }
 
   public TextBuffer appendParamList(int indent) {
-    TextBuffer buf = new TextBuffer();
-    buf.pushNewlineGroup(indent, 1);
     List<VarVersionPair> mask = null;
     boolean isEnum = false;
     if (functype == Type.INIT) {
@@ -1105,9 +1103,14 @@ public class InvocationExprent extends Exprent {
     }
 
 
+    TextBuffer buf = new TextBuffer();
+
     boolean firstParameter = true;
-    buf.appendPossibleNewline();
-    buf.pushNewlineGroup(indent, 0);
+    if (!lstParameters.isEmpty()) {
+      buf.pushNewlineGroup(indent, 1);
+      buf.appendPossibleNewline();
+      buf.pushNewlineGroup(indent, 0);
+    }
 
     for (int i = start; i < lstParameters.size(); i++) {
       if (mask == null || mask.get(i) == null) {
@@ -1161,9 +1164,11 @@ public class InvocationExprent extends Exprent {
       }
     }
 
-    buf.popNewlineGroup();
-    buf.appendPossibleNewline("", true);
-    buf.popNewlineGroup();
+    if (!lstParameters.isEmpty()) {
+      buf.popNewlineGroup();
+      buf.appendPossibleNewline("", true);
+      buf.popNewlineGroup();
+    }
 
     return buf;
   }
