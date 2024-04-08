@@ -325,6 +325,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestLongMethodDeclaration");
     register(JAVA_8, "TestLongMethodInvocation");
     register(JAVA_8, "TestBinaryOperationWrapping");
+    register(JAVA_8, "TestBlankLinesSpaces");
     register(JAVA_8, "TestLoopBreak");
     register(JAVA_8, "TestLoopBreak2");
     register(JAVA_8, "TestSimpleWhile");

@@ -1,0 +1,83 @@
+package pkg;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.BiFunction;
+
+public class TestBlankLinesSpaces {
+   private static final Map<TestBlankLinesSpaces.LongName, BiFunction<TestBlankLinesSpaces.LongName2, TestBlankLinesSpaces.LongName2, TestBlankLinesSpaces.LongName3>> SHAPE_BUILDERS = TestBlankLinesSpaces.ImmutableMap.<TestBlankLinesSpaces.LongName, BiFunction<TestBlankLinesSpaces.LongName2, TestBlankLinesSpaces.LongName2, TestBlankLinesSpaces.LongName3>>builder()
+      .put(TestBlankLinesSpaces.LongName.A, (a, b) -> null)// 9
+      .put(TestBlankLinesSpaces.LongName.B, (a, b) -> null)// 10
+      .put(TestBlankLinesSpaces.LongName.C, (a, b) -> null)// 11
+      .build();
+
+   static final class ImmutableMap {
+      static <K, V> TestBlankLinesSpaces.ImmutableMap.Builder<K, V> builder() {
+         return new TestBlankLinesSpaces.ImmutableMap.Builder<>();// 23
+      }
+
+      static final class Builder<K, V> {
+         TestBlankLinesSpaces.ImmutableMap.Builder<K, V> put(K key, V value) {
+            return this;// 28
+         }
+
+         Map<K, V> build() {
+            return new HashMap();// 32
+         }
+      }
+   }
+
+   static enum LongName {
+      A,
+      B,
+      C;
+   }
+
+   interface LongName2 {
+   }
+
+   interface LongName3 {
+   }
+}
+
+class 'pkg/TestBlankLinesSpaces' {
+   method 'lambda$static$0 (Lpkg/TestBlankLinesSpaces$LongName2;Lpkg/TestBlankLinesSpaces$LongName2;)Lpkg/TestBlankLinesSpaces$LongName3;' {
+      0      8
+      1      8
+   }
+
+   method 'lambda$static$1 (Lpkg/TestBlankLinesSpaces$LongName2;Lpkg/TestBlankLinesSpaces$LongName2;)Lpkg/TestBlankLinesSpaces$LongName3;' {
+      0      9
+      1      9
+   }
+
+   method 'lambda$static$2 (Lpkg/TestBlankLinesSpaces$LongName2;Lpkg/TestBlankLinesSpaces$LongName2;)Lpkg/TestBlankLinesSpaces$LongName3;' {
+      0      10
+      1      10
+   }
+}
+
+class 'pkg/TestBlankLinesSpaces$ImmutableMap' {
+   method 'builder ()Lpkg/TestBlankLinesSpaces$ImmutableMap$Builder;' {
+      7      15
+   }
+}
+
+class 'pkg/TestBlankLinesSpaces$ImmutableMap$Builder' {
+   method 'put (Ljava/lang/Object;Ljava/lang/Object;)Lpkg/TestBlankLinesSpaces$ImmutableMap$Builder;' {
+      0      20
+      1      20
+   }
+
+   method 'build ()Ljava/util/Map;' {
+      7      24
+   }
+}
+
+Lines mapping:
+9 <-> 9
+10 <-> 10
+11 <-> 11
+23 <-> 16
+28 <-> 21
+32 <-> 25
