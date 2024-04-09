@@ -13,6 +13,7 @@ public class VariableRenamingTest extends SingleClassesTestBase {
         register(JAVA_8, "TestJADNaming");
         // TODO: loop part fails
         registerRaw(CUSTOM, "TestJadLvtCollision"); // created by placing a class in java8 sources and remapping its param using tinyremapper
+        register(JAVA_8, "TestJADLocalClasses");
       }, IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
       IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
       IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR, "0",
