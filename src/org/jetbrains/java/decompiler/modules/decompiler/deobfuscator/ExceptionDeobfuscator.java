@@ -7,6 +7,8 @@ import org.jetbrains.java.decompiler.code.cfg.ControlFlowGraph;
 import org.jetbrains.java.decompiler.code.cfg.ExceptionRangeCFG;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
+import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
+import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.decompose.GenericDominatorEngine;
 import org.jetbrains.java.decompiler.modules.decompiler.decompose.IGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.decompose.IGraphNode;
@@ -395,58 +397,91 @@ public final class ExceptionDeobfuscator {
   }
 
   public static void insertDummyExceptionHandlerBlocks(ControlFlowGraph graph, BytecodeVersion bytecode_version) {
-    Map<BasicBlock, Set<ExceptionRangeCFG>> mapRanges = new HashMap<>();
+    Map<BasicBlock, List<ExceptionRangeCFG>> mapRanges = new HashMap<>();
     for (ExceptionRangeCFG range : graph.getExceptions()) {
-      mapRanges.computeIfAbsent(range.getHandler(), k -> new HashSet<>()).add(range);
+      mapRanges.computeIfAbsent(range.getHandler(), k -> new ArrayList<>()).add(range);
     }
 
-    for (Entry<BasicBlock, Set<ExceptionRangeCFG>> ent : mapRanges.entrySet()) {
+    for (Entry<BasicBlock, List<ExceptionRangeCFG>> ent : mapRanges.entrySet()) {
       BasicBlock handler = ent.getKey();
-      Set<ExceptionRangeCFG> ranges = ent.getValue();
+      List<ExceptionRangeCFG> ranges = ent.getValue();
 
       if (ranges.size() == 1) {
         continue;
       }
 
-      for (ExceptionRangeCFG range : ranges) {
+      if (!DecompilerContext.getOption(IFernflowerPreferences.OLD_TRY_DEDUP)) {
+        for (int i = 1; i < ranges.size(); i++) {
+          ExceptionRangeCFG range = ranges.get(i);
 
-        // add some dummy instructions to prevent optimizing away the empty block
-        SimpleInstructionSequence seq = new SimpleInstructionSequence();
-        seq.addInstruction(Instruction.create(CodeConstants.opc_bipush, false, CodeConstants.GROUP_GENERAL, bytecode_version, new int[]{0}, 1), -1);
-        seq.addInstruction(Instruction.create(CodeConstants.opc_pop, false, CodeConstants.GROUP_GENERAL, bytecode_version, null, 1), -1);
+          // Duplicate block now
+          BasicBlock newBlock = new BasicBlock(++graph.last_id);
+          newBlock.setSeq(handler.getSeq().clone());
 
-        BasicBlock dummyBlock = new BasicBlock(++graph.last_id);
-        dummyBlock.setSeq(seq);
+          graph.getBlocks().addWithKey(newBlock, newBlock.id);
 
-        graph.getBlocks().addWithKey(dummyBlock, dummyBlock.id);
+          // only exception predecessors from this range considered
+          List<BasicBlock> lstPredExceptions = new ArrayList<>(handler.getPredExceptions());
+          lstPredExceptions.retainAll(range.getProtectedRange());
 
-        // only exception predecessors from this range considered
-        List<BasicBlock> lstPredExceptions = new ArrayList<>(handler.getPredExceptions());
-        lstPredExceptions.retainAll(range.getProtectedRange());
+          // replace predecessors
+          for (BasicBlock pred : lstPredExceptions) {
+            pred.replaceSuccessor(handler, newBlock);
+          }
+          range.setHandler(newBlock);
 
-        // replace predecessors
-        for (BasicBlock pred : lstPredExceptions) {
-          pred.replaceSuccessor(handler, dummyBlock);
+          // Add successors
+
+          for (BasicBlock succ : handler.getSuccs()) {
+            newBlock.addSuccessor(succ);
+          }
+
+          for (BasicBlock succ : handler.getSuccExceptions()) {
+            newBlock.addSuccessorException(succ);
+          }
         }
 
-        // replace handler
-        range.setHandler(dummyBlock);
-        // add common exception edges
-        Set<BasicBlock> commonHandlers = new HashSet<>(handler.getSuccExceptions());
-        for (BasicBlock pred : lstPredExceptions) {
-          commonHandlers.retainAll(pred.getSuccExceptions());
+      } else {
+        for (ExceptionRangeCFG range : ranges) {
+
+          // add some dummy instructions to prevent optimizing away the empty block
+          SimpleInstructionSequence seq = new SimpleInstructionSequence();
+          seq.addInstruction(Instruction.create(CodeConstants.opc_bipush, false, CodeConstants.GROUP_GENERAL, bytecode_version, new int[]{0}, 1), -1);
+          seq.addInstruction(Instruction.create(CodeConstants.opc_pop, false, CodeConstants.GROUP_GENERAL, bytecode_version, null, 1), -1);
+
+          BasicBlock dummyBlock = new BasicBlock(++graph.last_id);
+          dummyBlock.setSeq(seq);
+
+          graph.getBlocks().addWithKey(dummyBlock, dummyBlock.id);
+
+          // only exception predecessors from this range considered
+          List<BasicBlock> lstPredExceptions = new ArrayList<>(handler.getPredExceptions());
+          lstPredExceptions.retainAll(range.getProtectedRange());
+
+          // replace predecessors
+          for (BasicBlock pred : lstPredExceptions) {
+            pred.replaceSuccessor(handler, dummyBlock);
+          }
+
+          // replace handler
+          range.setHandler(dummyBlock);
+          // add common exception edges
+          Set<BasicBlock> commonHandlers = new HashSet<>(handler.getSuccExceptions());
+          for (BasicBlock pred : lstPredExceptions) {
+            commonHandlers.retainAll(pred.getSuccExceptions());
+          }
+          // TODO: more sanity checks?
+          for (BasicBlock commonHandler : commonHandlers) {
+            ExceptionRangeCFG commonRange = graph.getExceptionRange(commonHandler, handler);
+
+            dummyBlock.addSuccessorException(commonHandler);
+            commonRange.getProtectedRange().add(dummyBlock);
+          }
+
+          dummyBlock.addSuccessor(handler);
+
+          graph.addComment("$VF: Inserted dummy exception handlers to handle obfuscated exceptions");
         }
-        // TODO: more sanity checks?
-        for (BasicBlock commonHandler : commonHandlers) {
-          ExceptionRangeCFG commonRange = graph.getExceptionRange(commonHandler, handler);
-
-          dummyBlock.addSuccessorException(commonHandler);
-          commonRange.getProtectedRange().add(dummyBlock);
-        }
-
-        dummyBlock.addSuccessor(handler);
-
-        graph.addComment("$VF: Inserted dummy exception handlers to handle obfuscated exceptions");
       }
     }
   }
