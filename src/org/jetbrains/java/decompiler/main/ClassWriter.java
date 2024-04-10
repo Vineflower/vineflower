@@ -1208,7 +1208,7 @@ public class ClassWriter implements StatementWriter {
             String clashingName = methodWrapper.varproc.getClashingName(new VarVersionPair(index, 0));
             if (clashingName != null) {
               parameterName = clashingName;
-            } else if (methodParameters != null && i < methodParameters.size()) {
+            } else if (methodParameters != null && i < methodParameters.size() && methodParameters.get(i).myName != null) {
               parameterName = methodParameters.get(i).myName;
             } else {
               parameterName = methodWrapper.varproc.getVarName(new VarVersionPair(index, 0));
