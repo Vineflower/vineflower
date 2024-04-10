@@ -563,9 +563,8 @@ public class ClassesProcessor implements CodeConstants {
     node.classStruct.releaseResources();
     node.classStruct.getMethods().forEach(m -> m.clearVariableNamer());
 
-    for (ClassNode nd : node.nested) {
-      destroyWrappers(nd);
-    }
+    // Don't destroy inner node wrappers, they may still be needed to process constructor
+    // invocations etc. from other classes.
   }
 
   public Map<String, ClassNode> getMapRootClasses() {
