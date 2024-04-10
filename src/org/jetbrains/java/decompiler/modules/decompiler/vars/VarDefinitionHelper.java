@@ -25,6 +25,7 @@ import org.jetbrains.java.decompiler.struct.gen.TypeFamily;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
 import org.jetbrains.java.decompiler.util.ArrayHelper;
+import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.Pair;
 import org.jetbrains.java.decompiler.util.StatementIterator;
 
@@ -1028,18 +1029,11 @@ public class VarDefinitionHelper {
 
     Map<VarVersionPair, String> renames = this.mt.getVariableNamer().rename(typeNames);
 
+    Set<StructMethod> methods = new HashSet<>();
+
     // Stuff the parent context into enclosed child methods
     StatementIterator.iterate(root, (exprent) -> {
-      List<StructMethod> methods = new ArrayList<>();
-      if (exprent instanceof VarExprent) {
-        VarExprent var = (VarExprent)exprent;
-        if (var.isClassDef()) {
-          ClassNode child = DecompilerContext.getClassProcessor().getMapRootClasses().get(var.getVarType().value);
-          if (child != null)
-            methods.addAll(child.classStruct.getMethods());
-        }
-      }
-      else if (exprent instanceof NewExprent) {
+      if (exprent instanceof NewExprent) {
         NewExprent _new = (NewExprent)exprent;
         if (_new.isAnonymous()) { //TODO: Check for Lambda here?
           ClassNode child = DecompilerContext.getClassProcessor().getMapRootClasses().get(_new.getNewType().value);
@@ -1056,12 +1050,20 @@ public class VarDefinitionHelper {
           }
         }
       }
-
-      for (StructMethod meth : methods) {
-        meth.getVariableNamer().addParentContext(VarDefinitionHelper.this.mt.getVariableNamer());
-      }
       return 0;
     });
+
+    // Local classes aren't added into the method body yet
+    String thisKey = InterpreterUtil.makeUniqueKey(mt.getName(), mt.getDescriptor());
+    for (ClassNode nested : DecompilerContext.getClassProcessor().getMapRootClasses().get(mt.getClassQualifiedName()).nested) {
+      if (nested.type == ClassNode.Type.LOCAL && thisKey.equals(nested.enclosingMethod)) {
+        methods.addAll(nested.classStruct.getMethods());
+      }
+    }
+
+    for (StructMethod meth : methods) {
+      meth.getVariableNamer().addParentContext(VarDefinitionHelper.this.mt.getVariableNamer());
+    }
 
     Map<VarVersionPair, LocalVariable> lvts = new HashMap<>();
 

@@ -30,7 +30,7 @@ public abstract class StructMember {
     return accessFlags;
   }
 
-  public <T extends StructGeneralAttribute> T getAttribute(Key<?> attribute) {
+  public <T extends StructGeneralAttribute> T getAttribute(Key<T> attribute) {
     @SuppressWarnings("unchecked") T t = (T)attributes.get(attribute.name);
     return t;
   }

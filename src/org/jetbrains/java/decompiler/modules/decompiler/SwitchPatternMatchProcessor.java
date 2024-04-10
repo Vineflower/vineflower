@@ -398,6 +398,6 @@ public final class SwitchPatternMatchProcessor {
   }
 
   public static boolean hasPatternMatch(RootStatement root) {
-    return root.mt.getBytecodeVersion().hasSwitchPatternMatch() && DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_PREVIEW);
+    return root.mt.getBytecodeVersion().hasSwitchPatternMatch() && DecompilerContext.getOption(IFernflowerPreferences.PATTERN_MATCHING);
   }
 }

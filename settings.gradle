@@ -14,7 +14,6 @@ rootProject.name = 'vineflower'
 [
   'idea-not-null',
   'kotlin',
-  'scala',
   'variable-renaming'
 ].each {
   include it

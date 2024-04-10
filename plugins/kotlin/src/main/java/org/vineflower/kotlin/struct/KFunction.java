@@ -130,8 +130,8 @@ public class KFunction {
 
       MethodWrapper method = null;
 
+      String lookupName = jvmData.hasName() ? resolver.resolve(jvmData.getName()) : name;
       if (jvmData.hasDesc()) {
-        String lookupName = jvmData.hasName() ? resolver.resolve(jvmData.getName()) : name;
         method = wrapper.getMethodWrapper(lookupName, resolver.resolve(jvmData.getDesc()));
       }
 
@@ -148,7 +148,7 @@ public class KFunction {
         int endOfParams = desc.length();
         desc.append(")").append(returnType);
 
-        method = wrapper.getMethodWrapper(name, desc.toString());
+        method = wrapper.getMethodWrapper(lookupName, desc.toString());
 
         if (method == null) {
           throw new IllegalStateException("Couldn't find method " + name + " " + desc + " in class " + struct.qualifiedName);

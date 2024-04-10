@@ -530,6 +530,12 @@ public final class SecondaryFunctionsHelper {
           if (!exprent.equals(retexpr)) {
             return retexpr;
           }
+        } else {
+          // Force boxing at statement level, wouldn't want a 3; just lying around
+          InvocationExprent invocationExprent = (InvocationExprent) exprent;
+          if (invocationExprent.isBoxingCall()) {
+            invocationExprent.forceBoxing(true);
+          }
         }
     }
 

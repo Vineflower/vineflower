@@ -433,10 +433,13 @@ public class TextBuffer {
 
       // add extra indent after newlines
       if (pos + offset + myLineSeparator.length() < myStringBuilder.length() && myStringBuilder.substring(pos + offset, pos + offset + myLineSeparator.length()).equals(myLineSeparator)) {
-        for (int i = 0; i < extraIndent; i++) {
-          myStringBuilder.insert(pos + offset + myLineSeparator.length(), myIndent);
+        // not for blank lines
+        if (!(pos + offset + myLineSeparator.length() * 2 < myStringBuilder.length()) || !myStringBuilder.substring(pos + offset + myLineSeparator.length(), pos + offset + myLineSeparator.length() * 2).equals(myLineSeparator)) {
+          for (int i = 0; i < extraIndent; i++) {
+            myStringBuilder.insert(pos + offset + myLineSeparator.length(), myIndent);
+          }
+          offset += myIndent.length() * extraIndent;
         }
-        offset += myIndent.length() * extraIndent;
       }
 
       // do multiple passes in an inner loop, as there could be arbitrarily many with the same offset

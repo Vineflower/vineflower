@@ -361,7 +361,7 @@ public class InvocationExprent extends Exprent {
 
         // fix for this() & super()
         if (upperBound == null && isGenNew) {
-          ClassNode currentCls = (ClassNode)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
+          ClassNode currentCls = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
 
           if (currentCls != null) {
             if (mthCls.equals(currentCls.classStruct)) {
@@ -444,10 +444,10 @@ public class InvocationExprent extends Exprent {
                     ClassNode node = DecompilerContext.getClassProcessor().getMapRootClasses().get(newExprent.getNewType().value);
                     int potentialMethodCount = Integer.MAX_VALUE;
                     if (node.lambdaInformation.is_method_reference) {
-                      StructClass content = (StructClass) DecompilerContext.getStructContext().getClass(node.lambdaInformation.content_class_name);
+                      StructClass content = DecompilerContext.getStructContext().getClass(node.lambdaInformation.content_class_name);
 
                       if (content != null) {
-                        StructClass currentCls = (StructClass) DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS);
+                        StructClass currentCls = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS);
                         potentialMethodCount = (int) content.getMethods().stream()
                           .filter((method) -> canAccess(currentCls, method))
                           .map(StructMethod::getName)
@@ -600,7 +600,7 @@ public class InvocationExprent extends Exprent {
           }
 
           newRet = newRet.remap(genericsMap);
-          if (newRet == null) {
+          if (newRet == null && bounds.get(ret) != null && bounds.get(ret).size() > 0) {
             newRet = bounds.get(ret).get(0).remap(genericsMap);
           }
 
@@ -712,7 +712,7 @@ public class InvocationExprent extends Exprent {
         buf.append('(').appendCastTypeName(descriptor.ret).append(')');
       }
 
-      ClassNode node = (ClassNode)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
+      ClassNode node = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
       if (node == null || !classname.equals(node.classStruct.qualifiedName)) {
         buf.appendAllClasses(DecompilerContext.getImportCollector().getShortNameInClassContext(ExprProcessor.buildJavaClassName(classname)), classname);
       }
@@ -725,7 +725,7 @@ public class InvocationExprent extends Exprent {
 
         VarProcessor varProc = instVar.getProcessor();
         if (varProc == null) {
-          MethodWrapper currentMethod = (MethodWrapper)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
+          MethodWrapper currentMethod = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
           if (currentMethod != null) {
             varProc = currentMethod.varproc;
           }
@@ -949,8 +949,6 @@ public class InvocationExprent extends Exprent {
   }
 
   public TextBuffer appendParamList(int indent) {
-    TextBuffer buf = new TextBuffer();
-    buf.pushNewlineGroup(indent, 1);
     List<VarVersionPair> mask = null;
     boolean isEnum = false;
     if (functype == Type.INIT) {
@@ -1105,9 +1103,14 @@ public class InvocationExprent extends Exprent {
     }
 
 
+    TextBuffer buf = new TextBuffer();
+
     boolean firstParameter = true;
-    buf.appendPossibleNewline();
-    buf.pushNewlineGroup(indent, 0);
+    if (!lstParameters.isEmpty()) {
+      buf.pushNewlineGroup(indent, 1);
+      buf.appendPossibleNewline();
+      buf.pushNewlineGroup(indent, 0);
+    }
 
     for (int i = start; i < lstParameters.size(); i++) {
       if (mask == null || mask.get(i) == null) {
@@ -1161,9 +1164,11 @@ public class InvocationExprent extends Exprent {
       }
     }
 
-    buf.popNewlineGroup();
-    buf.appendPossibleNewline("", true);
-    buf.popNewlineGroup();
+    if (!lstParameters.isEmpty()) {
+      buf.popNewlineGroup();
+      buf.appendPossibleNewline("", true);
+      buf.popNewlineGroup();
+    }
 
     return buf;
   }
@@ -1262,6 +1267,10 @@ public class InvocationExprent extends Exprent {
 
   public boolean isUnboxingCall() {
     return !isStatic && lstParameters.isEmpty() && classname.equals(UNBOXING_METHODS.get(name));
+  }
+
+  public void forceBoxing(boolean value) {
+    boxing.forceBoxing = value;
   }
 
   public boolean shouldForceBoxing() {

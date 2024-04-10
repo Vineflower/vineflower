@@ -17,13 +17,11 @@ public interface VariableRenamingOptions {
 
   @Name("[Deprecated] JAD-Style Variable Naming")
   @Description("Use JAD-style variable naming. Deprecated, set \"variable-renamer=jad\" instead.")
-  @ShortName("jvn")
   @Type(Type.BOOLEAN)
   String USE_JAD_VARNAMING = "jad-style-variable-naming";
 
   @Name("[Deprecated] JAD-Style Parameter Naming")
   @Description("Alias for \"rename-parameters\". Deprecated, use that option instead.")
-  @ShortName("jpr")
   @Type(Type.BOOLEAN)
   String USE_JAD_PARAMETER_NAMING = "jad-style-parameter-naming";
 

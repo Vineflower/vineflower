@@ -25,12 +25,12 @@ allprojects {
   group = 'org.vineflower'
 
   compileJava {
-    sourceCompatibility = '11'
-    targetCompatibility = '11'
+    sourceCompatibility = '17'
+    targetCompatibility = '17'
   }
 
   java.toolchain {
-    languageVersion = JavaLanguageVersion.of(11)
+    languageVersion = JavaLanguageVersion.of(17)
   }
 
   repositories {
@@ -56,7 +56,7 @@ allprojects {
 group = 'org.vineflower'
 archivesBaseName = 'vineflower'
 
-version = '1.10.0'
+version = '1.11.0'
 
 def ENV = System.getenv()
 version = version + (ENV.GITHUB_ACTIONS ? "" : "+local")

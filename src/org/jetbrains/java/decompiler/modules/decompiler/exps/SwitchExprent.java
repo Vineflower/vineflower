@@ -113,6 +113,11 @@ public class SwitchExprent extends Exprent {
 
       if (hasDefault) {
         if (!hasEdge) {
+          // Don't write 'default -> {}'
+          if (stat instanceof BasicBlockStatement && isEmptyDefault(((BasicBlockStatement)stat), backing)) {
+            continue;
+          }
+
           buf.appendIndent(indent + 1).append("default");
         } else {
           buf.append(", default");
@@ -171,6 +176,16 @@ public class SwitchExprent extends Exprent {
     return buf;
   }
 
+  private static boolean isEmptyDefault(BasicBlockStatement block, SwitchStatement head) {
+    if (!block.getExprents().isEmpty()) {
+      return false;
+    }
+
+    List<StatEdge> edges = block.getSuccessorEdgeView(StatEdge.TYPE_BREAK);
+
+    return edges.size() == 1;
+  }
+
   private boolean isExhaustive() {
     // exhaustive switches have a synthetic default edge of throw new IncompatibleClassChangeException()
     // see TestInlineSwitchExpression1
@@ -200,7 +215,8 @@ public class SwitchExprent extends Exprent {
       Exprent targetExpr = targetExprs.get(0);
       return targetExpr instanceof ExitExprent
         && ((ExitExprent) targetExpr).getExitType() == ExitExprent.Type.THROW
-        && ((ExitExprent) targetExpr).getValue().getExprType().value.equals("java/lang/IncompatibleClassChangeError");
+        && (((ExitExprent) targetExpr).getValue().getExprType().value.equals("java/lang/IncompatibleClassChangeError")
+            || ((ExitExprent) targetExpr).getValue().getExprType().value.equals("java/lang/MatchException"));
     }
     return false;
   }
