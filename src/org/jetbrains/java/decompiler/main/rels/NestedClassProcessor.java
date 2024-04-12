@@ -807,7 +807,7 @@ public class NestedClassProcessor {
         StructMethodParametersAttribute attr = method.methodStruct.getAttribute(StructGeneralAttribute.ATTRIBUTE_METHOD_PARAMETERS);
 
         List<StructMethodParametersAttribute.Entry> entries = attr.getEntries();
-        if (outerIdx < entries.size() && (entries.get(outerIdx).myAccessFlags & CodeConstants.ACC_MANDATED) == CodeConstants.ACC_MANDATED) {
+        if (outerIdx < entries.size() && (entries.get(outerIdx).myAccessFlags & (CodeConstants.ACC_MANDATED | CodeConstants.ACC_SYNTHETIC)) != 0) {
 
           String name = method.varproc.getVarName(var);
           VarType type = method.varproc.getVarType(var);
