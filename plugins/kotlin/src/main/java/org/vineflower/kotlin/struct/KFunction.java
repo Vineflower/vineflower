@@ -90,23 +90,12 @@ public class KFunction {
     KotlinDecompilationContext.KotlinType type = KotlinDecompilationContext.getCurrentType();
     if (type == null) return Map.of();
 
-    switch (type) {
-      case CLASS:
-        protoFunctions = KotlinDecompilationContext.getCurrentClass().getFunctionList();
-        break;
-      case FILE:
-        protoFunctions = KotlinDecompilationContext.getFilePackage().getFunctionList();
-        break;
-      case MULTIFILE_CLASS:
-        protoFunctions = KotlinDecompilationContext.getMultifilePackage().getFunctionList();
-        break;
-      case SYNTHETIC_CLASS:
-        // indicating lambdas and such
-        protoFunctions = Collections.singletonList(KotlinDecompilationContext.getSyntheticClass());
-        break;
-      default:
-        throw new IllegalStateException("Unexpected value: " + type);
-    }
+    protoFunctions = switch (type) {
+      case CLASS -> KotlinDecompilationContext.getCurrentClass().getFunctionList();
+      case FILE -> KotlinDecompilationContext.getFilePackage().getFunctionList();
+      case MULTIFILE_CLASS -> KotlinDecompilationContext.getMultifilePackage().getFunctionList();
+      case SYNTHETIC_CLASS -> Collections.singletonList(KotlinDecompilationContext.getSyntheticClass()); // Lambdas and similar
+    };
 
     Map<StructMethod, KFunction> functions = new HashMap<>(protoFunctions.size(), 1f);
 
@@ -152,7 +141,6 @@ public class KFunction {
           desc.append(parameter.type);
         }
 
-        int endOfParams = desc.length();
         desc.append(")").append(returnType);
 
         method = wrapper.getMethodWrapper(lookupName, desc.toString());
@@ -295,10 +283,7 @@ public class KFunction {
 
     List<KTypeParameter> complexTypeParams = typeParameters.stream()
       .filter(typeParameter -> typeParameter.upperBounds.size() > 1)
-      .collect(Collectors.toList());
-
-    Map<Integer, KTypeParameter> typeParamsById = typeParameters.stream()
-      .collect(Collectors.toMap(typeParameter -> typeParameter.id, Function.identity()));
+      .toList();
 
     if (!typeParameters.isEmpty()) {
       buf.append('<');

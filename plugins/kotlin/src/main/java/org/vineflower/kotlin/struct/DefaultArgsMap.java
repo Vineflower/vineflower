@@ -31,16 +31,12 @@ public class DefaultArgsMap {
     DirectGraph graph = defaults.getOrBuildGraph();
     for (DirectNode node : graph.nodes) {
       Statement statement = node.statement;
-      if (statement instanceof IfStatement) {
-        IfStatement ifStatement = (IfStatement) statement;
+      if (statement instanceof IfStatement ifStatement) {
         Exprent condition = ifStatement.getHeadexprent().getCondition();
-        if (!(condition instanceof FunctionExprent)) continue;
-        FunctionExprent function = (FunctionExprent) condition;
-
-        if (!(function.getLstOperands().get(0) instanceof FunctionExprent)) continue;
-        FunctionExprent bitmask = (FunctionExprent) function.getLstOperands().get(0);
-
+        if (!(condition instanceof FunctionExprent function)) continue;
+        if (!(function.getLstOperands().get(0) instanceof FunctionExprent bitmask)) continue;
         if (bitmask.getLstOperands().size() != 2) continue;
+
         Exprent var = bitmask.getLstOperands().get(0);
         Exprent mask = bitmask.getLstOperands().get(1);
 
@@ -56,8 +52,7 @@ public class DefaultArgsMap {
         }
 
         Exprent expr = ifStatement.getIfstat().getExprents().get(0);
-        if (expr instanceof AssignmentExprent) {
-          AssignmentExprent assignment = (AssignmentExprent) expr;
+        if (expr instanceof AssignmentExprent assignment) {
           Exprent right = assignment.getRight().copy();
           updateExprent(right, calling);
           KParameter param = params[maskIndex];
@@ -92,11 +87,10 @@ public class DefaultArgsMap {
   }
 
   private static void updateExprent(Exprent expr, MethodWrapper calling) {
-    if (expr instanceof VarExprent) {
-      VarExprent var = (VarExprent) expr;
+    if (expr instanceof VarExprent varExpr) {
       StructLocalVariableTableAttribute attr = calling.methodStruct.getLocalVariableAttr();
       if (attr != null) {
-        calling.varproc.findLVT(var, 0);
+        calling.varproc.findLVT(varExpr, 0);
       }
     }
 

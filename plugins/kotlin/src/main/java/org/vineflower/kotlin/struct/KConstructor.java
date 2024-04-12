@@ -2,7 +2,6 @@ package org.vineflower.kotlin.struct;
 
 import kotlinx.metadata.internal.metadata.ProtoBuf;
 import kotlinx.metadata.internal.metadata.jvm.JvmProtoBuf;
-import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.ClassesProcessor;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.ImportCollector;
@@ -183,8 +182,7 @@ public class KConstructor {
       } else {
         buf.append(": ");
 
-        InvocationExprent invocation = (InvocationExprent) firstExpr;
-        buf.append(invocation.toJava(indent + 1), node.classStruct.qualifiedName, methodKey);
+        buf.append(firstExpr.toJava(indent + 1), node.classStruct.qualifiedName, methodKey);
 
         method.getOrBuildGraph().first.exprents.remove(0);
       }
@@ -207,7 +205,6 @@ public class KConstructor {
     TextBuffer body = root.toJava(indent + 1);
     body.addBytecodeMapping(root.getDummyExit().bytecode);
 
-    StructMethod mt = method.methodStruct;
     buf.append(body, node.classStruct.qualifiedName, methodKey);
 
     buf.appendIndent(indent).append("}").appendLineSeparator();
@@ -264,7 +261,6 @@ public class KConstructor {
       buf.appendPossibleNewline("", true).popNewlineGroup().append(")");
     }
 
-    RootStatement root = method.root;
     if (method.getOrBuildGraph().first.exprents.isEmpty()) {
       // No ability to declare super constructor call
       buffer.append(buf);
@@ -272,14 +268,13 @@ public class KConstructor {
     }
 
     Exprent firstExpr = method.getOrBuildGraph().first.exprents.get(0);
-    if (!(firstExpr instanceof InvocationExprent) || !((InvocationExprent) firstExpr).getName().equals("<init>")) {
+    if (!(firstExpr instanceof InvocationExprent invocation) || !invocation.getName().equals("<init>")) {
       // no detected super constructor call
       buffer.append(buf);
       return false;
 //      throw new IllegalStateException("First expression of constructor is not InvocationExprent");
     }
 
-    InvocationExprent invocation = (InvocationExprent) firstExpr;
     if (invocation.getClassname().equals("java/lang/Object")) {
       // No need to declare super constructor call
       buffer.append(buf);
