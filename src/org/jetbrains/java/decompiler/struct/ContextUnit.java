@@ -18,10 +18,12 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class ContextUnit {
+  private static AtomicInteger THREAD_ID = new AtomicInteger(0);
   private final IContextSource source;
   private final boolean own;
   private final boolean root;
@@ -140,9 +142,12 @@ public class ContextUnit {
     }
 
     //Whooo threads!
-    final List<Future<?>> futures = new LinkedList<>();
-    final int threads = Integer.parseInt((String) DecompilerContext.getProperty(IFernflowerPreferences.THREADS));
-    final ExecutorService workerExec = Executors.newFixedThreadPool(threads > 0 ? threads : Runtime.getRuntime().availableProcessors());
+    List<Future<?>> futures = new ArrayList<>();
+    int threads = Integer.parseInt((String) DecompilerContext.getProperty(IFernflowerPreferences.THREADS));
+    if (threads <= 0) {
+      threads = Runtime.getRuntime().availableProcessors();
+    }
+    ForkJoinPool pool = new ForkJoinPool(threads, namingScheme(), null, true);
     final DecompilerContext rootContext = DecompilerContext.getCurrentContext();
     final List<ClassContext> toDump = new ArrayList<>(classEntries.size());
 
@@ -157,7 +162,7 @@ public class ContextUnit {
 
     // pre-process
     for (final ClassContext classCtx : toDump) {
-      futures.add(workerExec.submit(() -> {
+      futures.add(pool.submit(() -> {
         setContext(rootContext);
         classCtx.ctx = DecompilerContext.getCurrentContext();
         try {
@@ -182,7 +187,7 @@ public class ContextUnit {
         continue;
       }
 
-      futures.add(workerExec.submit(() -> {
+      futures.add(pool.submit(() -> {
         DecompilerContext.setCurrentContext(classCtx.ctx);
         classCtx.classContent = decompiledData.getClassContent(classCtx.cl);
         if (DecompilerContext.getOption(IFernflowerPreferences.BYTECODE_SOURCE_MAPPING)) {
@@ -193,7 +198,8 @@ public class ContextUnit {
 
     waitForAll(futures);
     futures.clear();
-    workerExec.shutdown();
+    pool.shutdown();
+    THREAD_ID.set(0);
 
     // write to file
     for (final ClassContext cls : toDump) {
@@ -203,6 +209,15 @@ public class ContextUnit {
     }
 
     sink.close();
+  }
+
+  private static ForkJoinPool.ForkJoinWorkerThreadFactory namingScheme() {
+    return pool -> {
+      ForkJoinWorkerThread thread = new ForkJoinWorkerThread(pool) {};
+      thread.setName("Vineflower-DecompilerThread-" + THREAD_ID.getAndIncrement());
+
+      return thread;
+    };
   }
 
   public void setContext(DecompilerContext rootContext) {
@@ -221,7 +236,9 @@ public class ContextUnit {
   }
 
   private static void waitForAll(final List<Future<?>> futures) {
-    for (Future<?> future : futures) {
+    for (int i = futures.size() - 1; i >= 0; i--) {
+      Future<?> future = futures.get(i);
+
       try {
         future.get();
       } catch (ExecutionException e) {
