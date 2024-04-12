@@ -75,9 +75,9 @@ class TestTailrecFunctions {
       var var12: Long = acc;
 
       while (var10 != 0L) {// 44
-         if (var10 % (long)2 == 0L) {// 45
+         if (var10 % 2 == 0L) {// 45
             var var21: Long = var8 * var8;
-            var var23: Long = var10 / (long)2;
+            var var23: Long = var10 / 2;
             var7 = var7;
             var8 = var21;
             var10 = var23;
@@ -117,13 +117,13 @@ class TestTailrecFunctions {
             break;
          }
 
-         if (var8 % (long)2 != 0L) {// 51
+         if (var8 % 2 != 0L) {// 51
             var10000 = var6 * var5.fastPow(var6, var8 - 1L);// 52
             break;
          }
 
          var var15: Long = var6 * var6;
-         var var17: Long = var8 / (long)2;
+         var var17: Long = var8 / 2;
          var5 = var5;
          var6 = var15;
          var8 = var17;

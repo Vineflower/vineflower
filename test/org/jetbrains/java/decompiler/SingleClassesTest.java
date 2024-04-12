@@ -253,7 +253,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16, "TestRecordAnno");
     register(JAVA_16, "TestRecordBig");
     register(JAVA_16, "TestRecordGenericSuperclass");
-    // TODO: The (double) in front of the (int) should be removed
     register(JAVA_8, "TestMultiCast");
     // TODO: some tests don't have proper if else chains
     register(JAVA_8, "TestComplexIfElseChain");
@@ -621,7 +620,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: order of additions is wrong. Addition over floats isn't associative.
     // Derived from IDEA-291735
     register(JAVA_8, "TestFloatOrderOfOperations");
-    // TODO: many unnecessary casts, and not simplifying to `+=`
+    // TODO: not simplifying to `+=`
     register(JAVA_8, "TestMixedCompoundAssignment");
     register(JAVA_8, "TestForeachVardef");
     register(JAVA_8, "TestGenericStaticCall");
@@ -635,7 +634,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestTryCatchNested");
     register(JAVA_8, "TestSwitchTernary");
     register(JAVA_8, "TestBooleanExpressions");
-    // TODO: cast not created, incorrect
     register(JAVA_8, "TestObjectBitwise");
     register(JAVA_17, "TestSealedFinal", "SealedInterface");
     register(JAVA_17, "TestSealedRecord", "SealedInterface");
@@ -694,6 +692,9 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_21_PREVIEW, "TestCustomProcessor");
     register(JAVA_16, "TestMissingLambdaBody");
     register(JAVA_21_PREVIEW, "TestUnnamedVar1");
+    register(JAVA_8, "TestNumberCasts");
+    // TODO: Disambiguate only the required parameters
+    register(JAVA_8, "TestNumberDisambiguation");
     register(JAVA_8, "TestDanglingBoxingCall");
     register(JAVA_21, "TestSwitchOnEnumJ21", "ext/TestEnum2");
     register(JAVA_21, "TestInnerClassesJ21");
