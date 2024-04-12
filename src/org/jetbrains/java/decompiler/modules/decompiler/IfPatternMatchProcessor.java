@@ -259,10 +259,31 @@ public final class IfPatternMatchProcessor {
     List<StructRecordComponent> comp = cl.getRecordComponents();
 
     // Iteratively go through the sequence to see if it extracts from the record
+
+    // The general strategy is to identify an "extracting try" [1] for each record component.
+    // If we identify it, continue matching. Between each try we might see pseudo stack ops [2]
+    // that we'll want to clean up as well. If all the components were matched, then we are able
+    // to create the pattern with the variables.
+    //
+    // [1]:
+    // try {
+    //   exVar = <stackVar>.<component>();
+    // } catch (Throwable t) {
+    //   throw new MatchException(...);
+    // }
+    //
+    // [2]:
+    // realVar = exVar;
+    // <stackVar> = <originalVar>;
+
     int stIdx = 1;
+
+    // Map which variable refers to which part of the record
     Map<StructRecordComponent, VarExprent> vars = new LinkedHashMap<>();
 
+    // Ending exprents we may want to remove
     Map<BasicBlockStatement, Exprent> remove = new HashMap<>();
+    // Statements that ought to be destroyed as a result of creating the pattern
     List<Statement> toDestroy = new ArrayList<>();
 
     for (StructRecordComponent c : comp) {
@@ -275,12 +296,15 @@ public final class IfPatternMatchProcessor {
         // Check catch for "throw new MatchException"
         VarExprent foundVar = null;
         if (catchSt.getStats().size() == 2 && isStatementMatchThrow(catchSt.getStats().get(1))) {
+          // Now make sure the inside of the try is ok
           Statement inner = catchSt.getStats().get(0);
           if (inner instanceof BasicBlockStatement) {
             // var<x> = var10000.<comp>()
             if (inner.getExprents().size() == 1 && inner.getExprents().get(0) instanceof AssignmentExprent assign) {
+              // Make sure the invocation matches the record component
               if (assign.getLeft() instanceof VarExprent var && assign.getRight() instanceof InvocationExprent invok && invok.getClassname().equals(type.value)) {
                 if (invok.getName().equals(c.getName())) {
+                  // Found one!
                   foundVar = var;
                 }
               }
@@ -294,18 +318,22 @@ public final class IfPatternMatchProcessor {
 
         toDestroy.add(next);
 
+        // Check the next statement for any pseudo stack ops
         stIdx++;
         if (branch.getStats().size() > stIdx) {
           next = branch.getStats().get(stIdx);
 
           boolean ok = false;
           if (next instanceof BasicBlockStatement bb && next.getExprents().size() > 0) {
+            // look for "realVar = exVar;" to remove it
             if (next.getExprents().get(0) instanceof AssignmentExprent assign && assign.getLeft() instanceof VarExprent var) {
               if (assign.getRight().equals(foundVar)) {
                 vars.put(c, var);
 
                 ok = true;
 
+                // Check for "<stackVar> = <originalVar>;"
+                // If that's the only other thing in the statement, then we can destroy it!
                 boolean destroyed = false;
                 if (next.getExprents().size() == 2) {
                   if (next.getExprents().get(1) instanceof AssignmentExprent nAssign && nAssign.getRight().equals(headRight)) {
@@ -315,6 +343,7 @@ public final class IfPatternMatchProcessor {
                   }
                 }
 
+                // If we haven't destroyed it, we should remove the "realVar = exVar;" anyway. Mark it as such.
                 if (!destroyed) {
                   remove.put(bb, assign);
                 }
@@ -322,12 +351,16 @@ public final class IfPatternMatchProcessor {
             }
           }
 
-          if (ok) {
-            stIdx++;
-          } else {
+          // If we found a "realVar = exVar;" then we can skip over this statement and move on.
+          // Otherwise, "exVar" is probably the real var. Mark it as such.
+          if (!ok) {
             vars.put(c, foundVar);
           }
+
+          stIdx++;
         }
+      } else {
+        return false;
       }
     }
 
