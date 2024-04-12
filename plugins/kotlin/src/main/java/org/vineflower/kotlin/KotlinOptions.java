@@ -1,10 +1,7 @@
 package org.vineflower.kotlin;
 
 import org.jetbrains.java.decompiler.api.plugin.PluginOptions;
-import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences.*;
-
-import java.util.Map;
 
 public interface KotlinOptions {
   @Name("Show public visibility")
@@ -18,7 +15,7 @@ public interface KotlinOptions {
   String DECOMPILE_KOTLIN = "kt-enable";
 
   @Name("Unknown default arg string")
-  @Description("String to use for unknown default arguments, or empty to not indicate defaults")
+  @Description("String to use for unknown default arguments, or empty to not indicate unknown defaults")
   @Type(Type.STRING)
   String UNKNOWN_DEFAULT_ARG_STRING = "kt-unknown-defaults";
 
