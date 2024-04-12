@@ -42,6 +42,7 @@ public abstract class Exprent implements IMatchable {
     INVOCATION,
     MONITOR,
     NEW,
+    PATTERN,
     SWITCH,
     SWITCH_HEAD,
     VAR,

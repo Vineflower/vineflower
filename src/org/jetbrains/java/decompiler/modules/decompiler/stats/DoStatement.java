@@ -6,6 +6,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.StatEdge;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.Pattern;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 
@@ -208,12 +209,11 @@ public final class DoStatement extends Statement {
     List<Exprent> conditionList = getConditionExprent().getAllExprents(true, true);
 
     for (Exprent condition : conditionList) {
-      if (condition instanceof FunctionExprent) {
-        FunctionExprent func = ((FunctionExprent)condition);
+      if (condition instanceof FunctionExprent func) {
 
         // Pattern match variable is implicitly defined
         if (func.getFuncType() == FunctionType.INSTANCEOF && func.getLstOperands().size() > 2) {
-          vars.add((VarExprent) func.getLstOperands().get(2));
+          vars.addAll(((Pattern) func.getLstOperands().get(2)).getPatternVars());
         }
       }
     }

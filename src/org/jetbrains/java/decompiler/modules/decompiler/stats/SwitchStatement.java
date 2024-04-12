@@ -266,12 +266,11 @@ public final class SwitchStatement extends Statement {
         continue;
       }
 
-      if (caseContent instanceof FunctionExprent) {
-        FunctionExprent func = ((FunctionExprent) caseContent);
+      if (caseContent instanceof FunctionExprent func) {
 
         // Pattern match variable is implicitly defined
         if (func.getFuncType() == FunctionType.INSTANCEOF && func.getLstOperands().size() > 2) {
-          vars.add((VarExprent) func.getLstOperands().get(2));
+          vars.addAll(((Pattern) func.getLstOperands().get(2)).getPatternVars());
         }
       }
     }
