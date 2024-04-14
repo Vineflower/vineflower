@@ -2,7 +2,6 @@ package org.vineflower.variablerenaming;
 
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
-import org.jetbrains.java.decompiler.main.collectors.ImportCollector;
 import org.jetbrains.java.decompiler.main.extern.IVariableNameProvider;
 import org.jetbrains.java.decompiler.main.extern.IVariableNamingFactory;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
@@ -29,7 +28,7 @@ public class TinyNameProvider implements IVariableNameProvider {
   }
 
   @Override
-  public Map<VarVersionPair, String> rename(Map<VarVersionPair, Pair<VarType, String>> entries) {
+  public Map<VarVersionPair, String> renameVariables(Map<VarVersionPair, VariableNamingData> entries) {
     int params = 0;
     if ((this.method.getAccessFlags() & CodeConstants.ACC_STATIC) != CodeConstants.ACC_STATIC) {
       params++;
@@ -45,12 +44,12 @@ public class TinyNameProvider implements IVariableNameProvider {
 
     Map<VarVersionPair, String> result = new LinkedHashMap<>();
     for (VarVersionPair ver : keys) {
-      String type = cleanType(entries.get(ver).b);
+      String type = cleanType(entries.get(ver).typeName());
 
       if (ver.var >= params) {
-        result.put(ver, getNewName(Pair.of(entries.get(ver).a, type)));
+        result.put(ver, getNewName(Pair.of(entries.get(ver).type(), type)));
       } else if (renameParameters) {
-        result.put(ver, this.parameters.computeIfAbsent(ver.var, k -> getNewName(Pair.of(entries.get(ver).a, type))));
+        result.put(ver, this.parameters.computeIfAbsent(ver.var, k -> getNewName(Pair.of(entries.get(ver).type(), type))));
       }
     }
 
