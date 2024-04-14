@@ -382,11 +382,10 @@ public interface IFernflowerPreferences {
   @ShortName("mcs")
   String MARK_CORRESPONDING_SYNTHETICS = "mark-corresponding-synthetics";
 
-  @Name("Excluded Class Regex")
+  @Name("Excluded Classes")
   @Description("Exclude classes from decompilation if their fully qualified names match the specified regular expression.")
-  @ShortName("exc")
   @Type(Type.STRING)
-  String EXCLUDED_CLASS_REGEX = "excluded-class-regex";
+  String EXCLUDED_CLASSES = "excluded-classes";
 
   Map<String, Object> DEFAULTS = getDefaults();
 
@@ -458,7 +457,7 @@ public interface IFernflowerPreferences {
     defaults.put(DUMP_TEXT_TOKENS, "0");
     defaults.put(REMOVE_IMPORTS, "0");
     defaults.put(MARK_CORRESPONDING_SYNTHETICS, "0");
-    defaults.put(EXCLUDED_CLASS_REGEX, "");
+    defaults.put(EXCLUDED_CLASSES, "");
 
     return Collections.unmodifiableMap(defaults);
   }

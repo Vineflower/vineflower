@@ -97,7 +97,7 @@ public class ClassesProcessor implements CodeConstants {
     boolean verifyAnonymousClasses = DecompilerContext.getOption(IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES);
 
     Matcher excludedMatcher = null;
-    String excludedRegex = DecompilerContext.getProperty(IFernflowerPreferences.EXCLUDED_CLASS_REGEX).toString();
+    String excludedRegex = DecompilerContext.getProperty(IFernflowerPreferences.EXCLUDED_CLASSES).toString();
     if (!excludedRegex.isEmpty()) {
       excludedMatcher = Pattern.compile(excludedRegex).matcher("");
     }
