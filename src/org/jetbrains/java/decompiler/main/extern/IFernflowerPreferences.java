@@ -385,6 +385,7 @@ public interface IFernflowerPreferences {
   @Name("Excluded Class Regex")
   @Description("Exclude classes from decompilation if their fully qualified names match the specified regular expression.")
   @ShortName("exc")
+  @Type(Type.STRING)
   String EXCLUDED_CLASS_REGEX = "excluded-class-regex";
 
   Map<String, Object> DEFAULTS = getDefaults();
