@@ -3,6 +3,9 @@ package org.jetbrains.java.decompiler.modules.decompiler.exps;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.java.decompiler.modules.decompiler.DecHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
+import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
+import org.jetbrains.java.decompiler.struct.StructClass;
+import org.jetbrains.java.decompiler.struct.StructRecordComponent;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 
@@ -11,11 +14,13 @@ import java.util.BitSet;
 import java.util.List;
 
 public class PatternExprent extends Exprent implements Pattern {
+  private final PatternData data;
   private final VarType varType;
   private final List<Exprent> exprents;
 
-  public PatternExprent(VarType type, List<Exprent> exprents) {
+  public PatternExprent(PatternData data, VarType type, List<Exprent> exprents) {
     super(Type.PATTERN);
+    this.data = data;
     varType = type;
     this.exprents = exprents;
 
@@ -39,7 +44,7 @@ public class PatternExprent extends Exprent implements Pattern {
 
   @Override
   public Exprent copy() {
-    return new PatternExprent(varType, DecHelper.copyExprentList(exprents));
+    return new PatternExprent(data, varType, DecHelper.copyExprentList(exprents));
   }
 
   @Override
@@ -62,6 +67,25 @@ public class PatternExprent extends Exprent implements Pattern {
   }
 
   @Override
+  public CheckTypesResult checkExprTypeBounds() {
+    if (this.data instanceof PatternData.RecordPatternData record) {
+      CheckTypesResult res = new CheckTypesResult();
+
+      ValidationHelper.assertTrue(record.cl.getRecordComponents() != null, "Must not be null!");
+      ValidationHelper.assertTrue(record.cl.getRecordComponents().size() == exprents.size(), "Record component size and expr list size must be equal!");
+
+      // The type lower bound must be
+      for (int i = 0; i < exprents.size(); i++) {
+        res.addMinTypeExprent(exprents.get(i), new VarType(record.cl.getRecordComponents().get(i).getDescriptor()));
+      }
+
+      return res;
+    }
+
+    return super.checkExprTypeBounds();
+  }
+
+  @Override
   public void getBytecodeRange(BitSet values) {
     measureBytecode(values, exprents);
     measureBytecode(values);
@@ -81,5 +105,15 @@ public class PatternExprent extends Exprent implements Pattern {
     }
 
     return vars;
+  }
+
+  public static PatternData recordData(StructClass cl) {
+    return new PatternData.RecordPatternData(cl);
+  }
+
+  public sealed interface PatternData {
+    record RecordPatternData(StructClass cl) implements PatternData {
+
+    }
   }
 }

@@ -438,9 +438,9 @@ public class FunctionExprent extends Exprent {
         break;
       }
       case INSTANCEOF:
-        if (lstOperands.size() > 2) { // pattern matching instanceof
+        if (lstOperands.size() > 2 && lstOperands.get(2) instanceof VarExprent var) { // pattern matching instanceof
           // The type of the defined var must be the type being tested
-          result.addMinTypeExprent(lstOperands.get(2), lstOperands.get(1).getExprType());
+          result.addMinTypeExprent(var, lstOperands.get(1).getExprType());
         }
         break;
       case STR_CONCAT:

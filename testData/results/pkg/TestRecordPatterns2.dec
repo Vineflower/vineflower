@@ -2,7 +2,7 @@ package pkg;
 
 public class TestRecordPatterns2 {
    public void test1(TestRecordPatterns2.R r) {
-      if (r instanceof TestRecordPatterns2.R(byte var4)) {// 9
+      if (r instanceof TestRecordPatterns2.R(int var4)) {// 9
          System.out.println(var4);// 10
       }
    }// 12

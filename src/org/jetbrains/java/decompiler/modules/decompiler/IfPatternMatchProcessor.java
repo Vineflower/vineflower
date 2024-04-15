@@ -366,7 +366,7 @@ public final class IfPatternMatchProcessor {
 
     toDestroy.add(branch.getBasichead());
 
-    PatternExprent pattern = new PatternExprent(type, new ArrayList<>(vars.values()));
+    PatternExprent pattern = new PatternExprent(PatternExprent.recordData(cl), type, new ArrayList<>(vars.values()));
 
     instOf.getLstOperands().add(2, pattern);
     stat.setPatternMatched(true);
