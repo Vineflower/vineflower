@@ -32,8 +32,8 @@ public class DefaultArgsMap {
      * which is called in place of the actual method when defaults are needed. The method containing the defaults
      * contains two extra arguments, a bitmask and a value that is always null. The bitmask specifies which arguments
      * should be replaced with defaults, and it corresponds one-to-one with all the parameters of the actual method,
-     * including non-defaulted ones. Constructors follow the same pattern, but they include an extra parameter
-     * (also always null) to differentiate them from actual constructors.
+     * including non-defaulted ones. Constructors follow the same pattern, but the null extra parameter has a type of
+     * `DefaultConstructorMarker` instead of `Object`, and the default wrappers are true constructors.
      *
      * In the case of 32 or more parameters, additional bitmask fields are created as needed.
      *
