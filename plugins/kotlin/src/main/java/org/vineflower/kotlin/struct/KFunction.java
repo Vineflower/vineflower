@@ -2,7 +2,9 @@ package org.vineflower.kotlin.struct;
 
 import kotlinx.metadata.internal.metadata.ProtoBuf;
 import kotlinx.metadata.internal.metadata.jvm.JvmProtoBuf;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.ClassesProcessor;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
@@ -26,7 +28,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class KFunction {
@@ -47,6 +48,9 @@ public class KFunction {
 
   public final boolean knownOverride;
 
+  @NotNull
+  private final DefaultArgsMap defaultArgs;
+
   private final ClassesProcessor.ClassNode node;
 
   private KFunction(
@@ -59,6 +63,7 @@ public class KFunction {
     @Nullable KType receiverType,
     @Nullable KContract contract,
     boolean knownOverride,
+    @NotNull DefaultArgsMap defaultArgs,
     ClassesProcessor.ClassNode node) {
     this.name = name;
     this.parameters = parameters;
@@ -70,6 +75,7 @@ public class KFunction {
     this.receiverType = receiverType;
     this.contract = contract;
     this.knownOverride = knownOverride;
+    this.defaultArgs = defaultArgs;
     this.node = node;
   }
 
@@ -83,23 +89,12 @@ public class KFunction {
     KotlinDecompilationContext.KotlinType type = KotlinDecompilationContext.getCurrentType();
     if (type == null) return Map.of();
 
-    switch (type) {
-      case CLASS:
-        protoFunctions = KotlinDecompilationContext.getCurrentClass().getFunctionList();
-        break;
-      case FILE:
-        protoFunctions = KotlinDecompilationContext.getFilePackage().getFunctionList();
-        break;
-      case MULTIFILE_CLASS:
-        protoFunctions = KotlinDecompilationContext.getMultifilePackage().getFunctionList();
-        break;
-      case SYNTHETIC_CLASS:
-        // indicating lambdas and such
-        protoFunctions = Collections.singletonList(KotlinDecompilationContext.getSyntheticClass());
-        break;
-      default:
-        throw new IllegalStateException("Unexpected value: " + type);
-    }
+    protoFunctions = switch (type) {
+      case CLASS -> KotlinDecompilationContext.getCurrentClass().getFunctionList();
+      case FILE -> KotlinDecompilationContext.getFilePackage().getFunctionList();
+      case MULTIFILE_CLASS -> KotlinDecompilationContext.getMultifilePackage().getFunctionList();
+      case SYNTHETIC_CLASS -> Collections.singletonList(KotlinDecompilationContext.getSyntheticClass()); // Lambdas and similar
+    };
 
     Map<StructMethod, KFunction> functions = new HashMap<>(protoFunctions.size(), 1f);
 
@@ -145,7 +140,6 @@ public class KFunction {
           desc.append(parameter.type);
         }
 
-        int endOfParams = desc.length();
         desc.append(")").append(returnType);
 
         method = wrapper.getMethodWrapper(lookupName, desc.toString());
@@ -163,6 +157,35 @@ public class KFunction {
         .map(ctxType -> KType.from(ctxType, resolver))
         .collect(Collectors.toList());
 
+      boolean isStatic = (method.methodStruct.getAccessFlags() & CodeConstants.ACC_STATIC) != 0;
+      String defaultArgsName = name + "$default";
+      StringBuilder defaultArgsDesc = new StringBuilder("(");
+      if (!isStatic) {
+        defaultArgsDesc.append("L").append(struct.qualifiedName).append(";");
+      }
+      if (receiverType != null) {
+        defaultArgsDesc.append(receiverType);
+      }
+      for (KParameter parameter : parameters) {
+        if (parameter.type.typeParameterName != null) {
+          typeParameters.stream()
+            .filter(typeParameter -> typeParameter.name.equals(parameter.type.typeParameterName))
+            .findAny()
+            .map(typeParameter -> typeParameter.upperBounds)
+            .filter(bounds -> bounds.size() == 1)
+            .map(bounds -> bounds.get(0))
+            .ifPresentOrElse(defaultArgsDesc::append, () -> defaultArgsDesc.append("Ljava/lang/Object;"));
+        } else {
+          defaultArgsDesc.append(parameter.type);
+        }
+      }
+
+      defaultArgsDesc.append("I".repeat(parameters.length / 32 + 1));
+      defaultArgsDesc.append("Ljava/lang/Object;)");
+      defaultArgsDesc.append(returnType);
+
+      DefaultArgsMap defaultArgs = DefaultArgsMap.from(wrapper.getMethodWrapper(defaultArgsName, defaultArgsDesc.toString()), method, parameters);
+
       boolean knownOverride = flags.visibility != ProtoBuf.Visibility.PRIVATE
         && flags.visibility != ProtoBuf.Visibility.PRIVATE_TO_THIS
         && flags.visibility != ProtoBuf.Visibility.LOCAL
@@ -170,7 +193,22 @@ public class KFunction {
 
       KContract contract = function.hasContract() ? KContract.from(function.getContract(), List.of(parameters), resolver) : null;
 
-      functions.put(method.methodStruct, new KFunction(name, parameters, typeParameters, returnType, flags, contextReceiverTypes, method, receiverType, contract, knownOverride, node));
+      KFunction kFunction = new KFunction(
+        name,
+        parameters,
+        typeParameters,
+        returnType,
+        flags,
+        contextReceiverTypes,
+        method,
+        receiverType,
+        contract,
+        knownOverride,
+        defaultArgs,
+        node
+      );
+
+      functions.put(method.methodStruct, kFunction);
     }
 
     return functions;
@@ -180,6 +218,8 @@ public class KFunction {
     TextBuffer buf = new TextBuffer();
     KotlinWriter.appendAnnotations(buf, indent, method.methodStruct, TypeAnnotation.METHOD_RETURN_TYPE);
     KotlinWriter.appendJvmAnnotations(buf, indent, method.methodStruct, false, method.classStruct.getPool(), TypeAnnotation.METHOD_RETURN_TYPE);
+
+    String methodKey = InterpreterUtil.makeUniqueKey(method.methodStruct.getName(), method.methodStruct.getDescriptor());
 
     buf.appendIndent(indent);
 
@@ -244,10 +284,7 @@ public class KFunction {
 
     List<KTypeParameter> complexTypeParams = typeParameters.stream()
       .filter(typeParameter -> typeParameter.upperBounds.size() > 1)
-      .collect(Collectors.toList());
-
-    Map<Integer, KTypeParameter> typeParamsById = typeParameters.stream()
-      .collect(Collectors.toMap(typeParameter -> typeParameter.id, Function.identity()));
+      .toList();
 
     if (!typeParameters.isEmpty()) {
       buf.append('<');
@@ -301,6 +338,9 @@ public class KFunction {
       first = false;
 
       parameter.stringify(indent + 1, buf);
+      if (parameter.flags.declaresDefault) {
+        buf.append(defaultArgs.toJava(parameter, indent + 1), node.classStruct.qualifiedName, methodKey);
+      }
     }
 
     buf.appendPossibleNewline("", true)
@@ -353,7 +393,7 @@ public class KFunction {
           buf.appendLineSeparator();
         }
 
-        buf.append(body, node.classStruct.qualifiedName, InterpreterUtil.makeUniqueKey(method.methodStruct.getName(), method.methodStruct.getDescriptor()));
+        buf.append(body, node.classStruct.qualifiedName, methodKey);
       } catch (Throwable t) {
         String message = "Method " + method.methodStruct.getName() + " " + method.desc() + " in class " + node.classStruct.qualifiedName + " couldn't be written.";
         DecompilerContext.getLogger().writeMessage(message, IFernflowerLogger.Severity.WARN, t);

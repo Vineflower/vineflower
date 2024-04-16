@@ -17,7 +17,7 @@ class TestParams {
       return x * y;// 15
    }
 
-   public fun printMessageWithPrefix(message: String, prefix: String) {
+   public fun printMessageWithPrefix(message: String, prefix: String = "Info") {
       System.out.println("[" + prefix + "] " + message);// 19
    }// 20
 
@@ -75,6 +75,8 @@ class 'pkg/TestParams' {
    }
 
    method 'printMessageWithPrefix (Ljava/lang/String;Ljava/lang/String;)V' {
+      6      19
+      7      19
       c      20
       d      20
       e      20

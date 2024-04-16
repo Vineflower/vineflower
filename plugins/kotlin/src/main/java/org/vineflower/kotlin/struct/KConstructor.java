@@ -36,6 +36,7 @@ public class KConstructor {
   public final boolean isPrimary;
 
   public final MethodWrapper method;
+  private final DefaultArgsMap defaultArgs;
   private final ClassesProcessor.ClassNode node;
 
   private KConstructor(
@@ -43,11 +44,13 @@ public class KConstructor {
     ProtobufFlags.Constructor flags,
     MethodWrapper method,
     boolean isPrimary,
+    DefaultArgsMap defaultArgs,
     ClassesProcessor.ClassNode node) {
     this.parameters = parameters;
     this.flags = flags;
     this.method = method;
     this.isPrimary = isPrimary;
+    this.defaultArgs = defaultArgs;
     this.node = node;
   }
 
@@ -89,7 +92,7 @@ public class KConstructor {
       if (method == null) {
         if (classFlags.kind == ProtoBuf.Class.Kind.ANNOTATION_CLASS) {
           // Annotation classes are very odd and don't actually have a constructor under the hood
-          KConstructor kConstructor = new KConstructor(parameters, flags, null, false, node);
+          KConstructor kConstructor = new KConstructor(parameters, flags, null, false, null, node);
           return new Data(null, kConstructor);
         }
 
@@ -99,7 +102,17 @@ public class KConstructor {
 
       boolean isPrimary = !flags.isSecondary;
 
-      KConstructor kConstructor = new KConstructor(parameters, flags, method, isPrimary, node);
+      StringBuilder defaultArgsDesc = new StringBuilder("(");
+      for (KParameter parameter : parameters) {
+        defaultArgsDesc.append(parameter.type);
+      }
+
+      defaultArgsDesc.append("I".repeat(parameters.length / 32 + 1));
+      defaultArgsDesc.append("Lkotlin/jvm/internal/DefaultConstructorMarker;)V");
+
+      DefaultArgsMap defaultArgs = DefaultArgsMap.from(wrapper.getMethodWrapper("<init>", defaultArgsDesc.toString()), method, parameters);
+
+      KConstructor kConstructor = new KConstructor(parameters, flags, method, isPrimary, defaultArgs, node);
       constructors.put(method.methodStruct, kConstructor);
 
       if (isPrimary) {
@@ -117,6 +130,8 @@ public class KConstructor {
 
     TextBuffer buf = new TextBuffer();
     RootStatement root = method.root;
+
+    String methodKey = InterpreterUtil.makeUniqueKey(method.methodStruct.getName(), method.methodStruct.getDescriptor());
 
     if (!isPrimary) {
       if (flags.hasAnnotations) {
@@ -143,6 +158,10 @@ public class KConstructor {
         first = false;
 
         parameter.stringify(indent + 1, buf);
+
+        if (parameter.flags.declaresDefault) {
+          buf.append(" = ").append(defaultArgs.toJava(parameter, indent + 1), node.classStruct.qualifiedName, methodKey);
+        }
       }
 
       buf.appendPossibleNewline("", true).popNewlineGroup();
@@ -165,8 +184,7 @@ public class KConstructor {
       } else {
         buf.append(": ");
 
-        InvocationExprent invocation = (InvocationExprent) firstExpr;
-        buf.append(invocation.toJava(indent + 1), node.classStruct.qualifiedName, InterpreterUtil.makeUniqueKey(method.methodStruct.getName(), method.methodStruct.getDescriptor()));
+        buf.append(firstExpr.toJava(indent + 1), node.classStruct.qualifiedName, methodKey);
 
         method.getOrBuildGraph().first.exprents.remove(0);
       }
@@ -189,8 +207,7 @@ public class KConstructor {
     TextBuffer body = root.toJava(indent + 1);
     body.addBytecodeMapping(root.getDummyExit().bytecode);
 
-    StructMethod mt = method.methodStruct;
-    buf.append(body, node.classStruct.qualifiedName, InterpreterUtil.makeUniqueKey(mt.getName(), mt.getDescriptor()));
+    buf.append(body, node.classStruct.qualifiedName, methodKey);
 
     buf.appendIndent(indent).append("}").appendLineSeparator();
 
@@ -203,6 +220,8 @@ public class KConstructor {
 
     TextBuffer buf = new TextBuffer();
     boolean appended = false;
+
+    String methodKey = InterpreterUtil.makeUniqueKey(method.methodStruct.getName(), method.methodStruct.getDescriptor());
 
     if (flags.hasAnnotations) {
       buf.append(" ");
@@ -235,12 +254,15 @@ public class KConstructor {
         first = false;
 
         parameter.stringify(indent + 1, buf);
+
+        if (parameter.flags.declaresDefault) {
+          buf.append(" = ").append(defaultArgs.toJava(parameter, indent + 1), node.classStruct.qualifiedName, methodKey);
+        }
       }
 
       buf.appendPossibleNewline("", true).popNewlineGroup().append(")");
     }
 
-    RootStatement root = method.root;
     if (method.getOrBuildGraph().first.exprents.isEmpty()) {
       // No ability to declare super constructor call
       buffer.append(buf);
@@ -248,14 +270,13 @@ public class KConstructor {
     }
 
     Exprent firstExpr = method.getOrBuildGraph().first.exprents.get(0);
-    if (!(firstExpr instanceof InvocationExprent) || !((InvocationExprent) firstExpr).getName().equals("<init>")) {
+    if (!(firstExpr instanceof InvocationExprent invocation) || !invocation.getName().equals("<init>")) {
       // no detected super constructor call
       buffer.append(buf);
       return false;
 //      throw new IllegalStateException("First expression of constructor is not InvocationExprent");
     }
 
-    InvocationExprent invocation = (InvocationExprent) firstExpr;
     if (invocation.getClassname().equals("java/lang/Object")) {
       // No need to declare super constructor call
       buffer.append(buf);
@@ -278,7 +299,7 @@ public class KConstructor {
 
     method.getOrBuildGraph().first.exprents.remove(0);
 
-    buffer.append(buf, node.classStruct.qualifiedName, InterpreterUtil.makeUniqueKey(method.methodStruct.getName(), method.methodStruct.getDescriptor()));
+    buffer.append(buf, node.classStruct.qualifiedName, methodKey);
     return true;
   }
 
