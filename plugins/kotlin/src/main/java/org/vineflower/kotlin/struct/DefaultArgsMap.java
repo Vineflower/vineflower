@@ -9,6 +9,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectNode;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribute;
+import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.vineflower.kotlin.KotlinOptions;
 
@@ -62,11 +63,15 @@ public class DefaultArgsMap {
 
     Map<KParameter, Exprent> map = new HashMap<>();
 
-    int startOfBitmasks = calling.desc().params.length;
+    int startOfBitmasks = 0;
 
     if (defaults.methodStruct.hasModifier(CodeConstants.ACC_STATIC) && !calling.methodStruct.hasModifier(CodeConstants.ACC_STATIC)) {
       // "this" is passed as an extra parameter to the default method
       startOfBitmasks++;
+    }
+
+    for (VarType var : calling.desc().params) {
+      startOfBitmasks += var.stackSize;
     }
 
     DirectGraph graph = defaults.getOrBuildGraph();
