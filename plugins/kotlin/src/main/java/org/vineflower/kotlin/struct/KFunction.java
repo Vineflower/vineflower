@@ -180,7 +180,9 @@ public class KFunction {
           defaultArgsDesc.append(parameter.type);
         }
       }
-      defaultArgsDesc.append("ILjava/lang/Object;)");
+
+      defaultArgsDesc.append("I".repeat(parameters.length / 32 + 1));
+      defaultArgsDesc.append("Ljava/lang/Object;)");
       defaultArgsDesc.append(returnType);
 
       DefaultArgsMap defaultArgs = DefaultArgsMap.from(wrapper.getMethodWrapper(defaultArgsName, defaultArgsDesc.toString()), method, parameters);

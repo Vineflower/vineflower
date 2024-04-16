@@ -1,5 +1,6 @@
 package org.vineflower.kotlin.struct;
 
+import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
@@ -11,6 +12,7 @@ import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribu
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.vineflower.kotlin.KotlinOptions;
 
+import java.util.BitSet;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -61,6 +63,13 @@ public class DefaultArgsMap {
 
     Map<KParameter, Exprent> map = new HashMap<>();
 
+    int startOfBitmasks = calling.desc().params.length;
+
+    if (defaults.methodStruct.hasModifier(CodeConstants.ACC_STATIC) && !calling.methodStruct.hasModifier(CodeConstants.ACC_STATIC)) {
+      // "this" is passed as an extra parameter to the default method
+      startOfBitmasks++;
+    }
+
     DirectGraph graph = defaults.getOrBuildGraph();
     for (DirectNode node : graph.nodes) {
       Statement statement = node.statement;
@@ -74,18 +83,18 @@ public class DefaultArgsMap {
           continue;
         }
 
-        Exprent var = bitmask.getLstOperands().get(0);
+        Exprent check = bitmask.getLstOperands().get(0);
         Exprent mask = bitmask.getLstOperands().get(1);
 
-        if (!(var instanceof VarExprent) || !(mask instanceof ConstExprent)) {
+        if (!(check instanceof VarExprent var) || !(mask instanceof ConstExprent)) {
           continue;
         }
 
         int maskValue = ((ConstExprent) mask).getIntValue();
-        int maskIndex = 0;
+        int maskIndex = (var.getIndex() - startOfBitmasks) * 32;
         for (int i = 0; i < 32; i++) {
           if ((maskValue & (1 << i)) != 0) {
-            maskIndex = i;
+            maskIndex += i;
             break;
           }
         }

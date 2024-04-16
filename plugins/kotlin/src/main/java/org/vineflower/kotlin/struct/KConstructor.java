@@ -106,7 +106,9 @@ public class KConstructor {
       for (KParameter parameter : parameters) {
         defaultArgsDesc.append(parameter.type);
       }
-      defaultArgsDesc.append("ILkotlin/jvm/internal/DefaultConstructorMarker;)V");
+
+      defaultArgsDesc.append("I".repeat(parameters.length / 32 + 1));
+      defaultArgsDesc.append("Lkotlin/jvm/internal/DefaultConstructorMarker;)V");
 
       DefaultArgsMap defaultArgs = DefaultArgsMap.from(wrapper.getMethodWrapper("<init>", defaultArgsDesc.toString()), method, parameters);
 
