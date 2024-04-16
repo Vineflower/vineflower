@@ -12,7 +12,6 @@ import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribu
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.vineflower.kotlin.KotlinOptions;
 
-import java.util.BitSet;
 import java.util.HashMap;
 import java.util.Map;
 
