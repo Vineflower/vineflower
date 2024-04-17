@@ -699,6 +699,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_21, "TestSwitchOnEnumJ21", "ext/TestEnum2");
     register(JAVA_21, "TestInnerClassesJ21");
     register(JAVA_21, "TestInnerClasses2J21");
+    register(JAVA_21, "TestInnerClasses3J21");
     register(JAVA_8, "TestInnerClassesJ8");
     register(JAVA_8, "TestSwitchInTry");
   }
