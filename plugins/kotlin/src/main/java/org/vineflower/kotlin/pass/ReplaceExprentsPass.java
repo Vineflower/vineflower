@@ -30,7 +30,7 @@ public class ReplaceExprentsPass implements Pass {
       exprs = ((IfStatement)stat).getHeadexprentList();
     }
     
-    if (exprs.size() > 0) {
+    if (!exprs.isEmpty()) {
       for(int i = 0; i < exprs.size(); i++){
         Exprent expr = exprs.get(i);
         Exprent map = KUtils.replaceExprent(expr);

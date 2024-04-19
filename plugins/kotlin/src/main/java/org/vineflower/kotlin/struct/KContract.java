@@ -81,7 +81,7 @@ public class KContract {
         case CALLS:
           buf.append("callsInPlace(");
           KExpression func = expressions.get(0);
-          String name = func.valueParameterReference.name;
+          String name = func.valueParameterReference.name();
           buf.append(KotlinWriter.toValidKotlinIdentifier(name));
           if (kind != null) {
             buf.append(", ")
@@ -109,37 +109,16 @@ public class KContract {
     }
   }
 
-  public static class KExpression {
+  public record KExpression(
+    @NotNull ProtobufFlags.Expression flags,
+    @Nullable KParameter valueParameterReference,
+    @Nullable ProtoBuf.Expression.ConstantValue constantValue,
+    @Nullable KType instanceofType,
+    @NotNull List<KExpression> andArguments,
+    @NotNull List<KExpression> orArguments
+  ) {
     // Placeholder type for receiver type
     private static final KParameter THIS_TYPE = new KParameter(new ProtobufFlags.ValueParameter(0), "this", KType.NOTHING, null, 0);
-
-    @NotNull
-    public final ProtobufFlags.Expression flags;
-    @Nullable
-    public final KParameter valueParameterReference;
-    @Nullable
-    public final ProtoBuf.Expression.ConstantValue constantValue;
-    @Nullable
-    public final KType instanceofType; // isInstanceType
-    @NotNull
-    public final List<KExpression> andArguments;
-    @NotNull
-    public final List<KExpression> orArguments;
-
-    private KExpression(
-      @NotNull ProtobufFlags.Expression flags,
-      @Nullable KParameter valueParameterReference,
-      @Nullable ProtoBuf.Expression.ConstantValue constantValue,
-      @Nullable KType instanceofType,
-      @NotNull List<KExpression> andArguments,
-      @NotNull List<KExpression> orArguments) {
-      this.flags = flags;
-      this.valueParameterReference = valueParameterReference;
-      this.constantValue = constantValue;
-      this.instanceofType = instanceofType;
-      this.andArguments = andArguments;
-      this.orArguments = orArguments;
-    }
 
     static KExpression from(ProtoBuf.Expression proto, List<KParameter> params, MetadataNameResolver nameResolver) {
       ProtobufFlags.Expression flags = new ProtobufFlags.Expression(proto.getFlags());
@@ -173,7 +152,7 @@ public class KContract {
       if (valueParameterReference == THIS_TYPE) {
         paramName = "this";
       } else if (valueParameterReference != null) {
-        paramName = KotlinWriter.toValidKotlinIdentifier(valueParameterReference.name);
+        paramName = KotlinWriter.toValidKotlinIdentifier(valueParameterReference.name());
       }
 
       if (instanceofType != null) {
@@ -189,14 +168,14 @@ public class KContract {
           .append(' ')
           .append("null");
       } else if (constantValue != null) {
-        if (valueParameterReference != null && valueParameterReference.type.isNullable) {
+        if (valueParameterReference != null && valueParameterReference.type().isNullable) {
           buf.append(paramName)
             .append(' ')
             .append(flags.isNegated ? "!=" : "==")
             .append(' ')
             .append(constantValue.name().toLowerCase());
         } else {
-          String output = valueParameterReference != null && "kotlin/Boolean".equals(valueParameterReference.type.kotlinType)
+          String output = valueParameterReference != null && "kotlin/Boolean".equals(valueParameterReference.type().kotlinType)
             ? paramName
             : constantValue.name().toLowerCase();
 
@@ -207,7 +186,7 @@ public class KContract {
           buf.append(output);
         }
       } else if (valueParameterReference != null) {
-        if (!valueParameterReference.type.kotlinType.equals("kotlin/Boolean")) {
+        if (!valueParameterReference.type().kotlinType.equals("kotlin/Boolean")) {
           //TODO figure out why this happens
         }
         if (flags.isNegated) {

@@ -12,6 +12,7 @@ import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribu
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.vineflower.kotlin.KotlinOptions;
+import org.vineflower.kotlin.util.KUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -65,8 +66,8 @@ public class DefaultArgsMap {
 
     int startOfBitmasks = 0;
 
-    if (defaults.methodStruct.hasModifier(CodeConstants.ACC_STATIC) && !calling.methodStruct.hasModifier(CodeConstants.ACC_STATIC)) {
-      // "this" is passed as an extra parameter to the default method
+    if (!calling.methodStruct.hasModifier(CodeConstants.ACC_STATIC)) {
+      // "this" fills the first variable slot
       startOfBitmasks++;
     }
 
@@ -113,8 +114,10 @@ public class DefaultArgsMap {
       }
     }
 
-    for (KParameter param : params) {
-      assert map.containsKey(param) == param.flags.declaresDefault : "Parameter " + param.name + " has default value but no default value was found";
+    if (KUtils.assertionsEnabled()) {
+      for (KParameter param : params) {
+        assert map.containsKey(param) == param.flags().declaresDefault : "Parameter " + param.name() + " has default value but no default value was found";
+      }
     }
 
     return new DefaultArgsMap(map);

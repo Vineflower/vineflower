@@ -30,49 +30,17 @@ import org.vineflower.kotlin.util.ProtobufFlags;
 
 import java.util.*;
 
-public final class KProperty {
-  public final String name;
-  public final KType type;
-
-  public final ProtobufFlags.Property flags;
-
-  @Nullable
-  public final KPropertyAccessor getter;
-
-  @Nullable
-  public final KPropertyAccessor setter;
-
-  @Nullable
-  public final String setterParamName;
-
-  @Nullable
-  public final StructField underlyingField;
-
-  @Nullable
-  public final Exprent initializer;
-
-  private final ClassesProcessor.ClassNode node;
-
-  private KProperty(
-    String name,
-    KType type,
-    ProtobufFlags.Property flags,
-    KPropertyAccessor getter,
-    KPropertyAccessor setter,
-    @Nullable String setterParamName, StructField underlyingField,
-    Exprent initializer,
-    ClassesProcessor.ClassNode node) {
-    this.name = name;
-    this.type = type;
-    this.flags = flags;
-    this.getter = getter;
-    this.setter = setter;
-    this.setterParamName = setterParamName;
-    this.underlyingField = underlyingField;
-    this.initializer = initializer;
-    this.node = node;
-  }
-
+public record KProperty(
+  String name,
+  KType type,
+  ProtobufFlags.Property flags,
+  @Nullable KPropertyAccessor getter,
+  @Nullable KPropertyAccessor setter,
+  @Nullable String setterParamName,
+  @Nullable StructField underlyingField,
+  @Nullable Exprent initializer,
+  ClassesProcessor.ClassNode node
+) {
   public TextBuffer stringify(int indent) {
     TextBuffer buf = new TextBuffer();
 
@@ -121,50 +89,50 @@ public final class KProperty {
     }
 
     // Custom getters and setters, and possible modifier differences
-    if (getter != null && getter.flags.isNotDefault) {
+    if (getter != null && getter.flags().isNotDefault) {
       buf.pushNewlineGroup(indent, 1)
           .appendLineSeparator()
           .appendIndent(indent + 1);
 
-      KUtils.appendVisibility(buf, getter.flags.visibility);
+      KUtils.appendVisibility(buf, getter.flags().visibility);
 
-      buf.append(getter.flags.modality.name().toLowerCase())
+      buf.append(getter.flags().modality.name().toLowerCase())
         .append(' ');
 
-      if (getter.flags.isExternal) {
+      if (getter.flags().isExternal) {
         buf.append("external ");
       }
 
-      if (getter.flags.isInline) {
+      if (getter.flags().isInline) {
         buf.append("inline ");
       }
 
       buf.append("get() ");
 
-      KotlinWriter.writeMethodBody(node, getter.underlyingMethod, buf, indent + 1, false);
+      KotlinWriter.writeMethodBody(node, getter.underlyingMethod(), buf, indent + 1, false);
 
       buf.popNewlineGroup();
-    } else if (getter != null && getter.flags.isExternal) {
+    } else if (getter != null && getter.flags().isExternal) {
       buf.appendLineSeparator()
         .appendIndent(indent + 1)
         .append("external get");
     }
 
-    if (setter != null && setter.flags.isNotDefault) {
+    if (setter != null && setter.flags().isNotDefault) {
       buf.pushNewlineGroup(indent, 1)
         .appendLineSeparator()
         .appendIndent(indent + 1);
 
-      KUtils.appendVisibility(buf, getter.flags.visibility);
+      KUtils.appendVisibility(buf, getter.flags().visibility);
 
-      buf.append(setter.flags.modality.name().toLowerCase())
+      buf.append(setter.flags().modality.name().toLowerCase())
         .append(' ');
 
-      if (setter.flags.isExternal) {
+      if (setter.flags().isExternal) {
         buf.append("external ");
       }
 
-      if (setter.flags.isInline) {
+      if (setter.flags().isInline) {
         buf.append("inline ");
       }
 
@@ -172,22 +140,22 @@ public final class KProperty {
         .append(setterParamName)
         .append(") ");
 
-      KotlinWriter.writeMethodBody(node, setter.underlyingMethod, buf, indent + 1, false);
+      KotlinWriter.writeMethodBody(node, setter.underlyingMethod(), buf, indent + 1, false);
 
       buf.popNewlineGroup();
-    } else if (setter != null && (setter.flags.isExternal || setter.flags.visibility != flags.visibility || setter.flags.modality != flags.modality)) {
+    } else if (setter != null && (setter.flags().isExternal || setter.flags().visibility != flags.visibility || setter.flags().modality != flags.modality)) {
       buf.appendLineSeparator().appendIndent(indent + 1);
 
-      if (setter.flags.visibility != flags.visibility) {
-        KUtils.appendVisibility(buf, setter.flags.visibility);
+      if (setter.flags().visibility != flags.visibility) {
+        KUtils.appendVisibility(buf, setter.flags().visibility);
       }
 
-      if (setter.flags.modality != flags.modality) {
-        buf.append(setter.flags.modality.name().toLowerCase())
+      if (setter.flags().modality != flags.modality) {
+        buf.append(setter.flags().modality.name().toLowerCase())
           .append(' ');
       }
 
-      if (setter.flags.isExternal) {
+      if (setter.flags().isExternal) {
         buf.append("external ");
       }
 
@@ -205,22 +173,16 @@ public final class KProperty {
 
   private static void appendVisibility(TextBuffer buf, ProtoBuf.Visibility visibility) {
     switch (visibility) {
-      case LOCAL:
-        buf.append("// QF: local property")
-          .appendLineSeparator()
-          .append("internal ");
-        break;
-      case PRIVATE_TO_THIS:
-        buf.append("private ");
-        break;
-      case PUBLIC:
+      case LOCAL -> buf.append("// QF: local property")
+        .appendLineSeparator()
+        .append("internal ");
+      case PRIVATE_TO_THIS -> buf.append("private ");
+      case PUBLIC -> {
         if (DecompilerContext.getOption(KotlinOptions.SHOW_PUBLIC_VISIBILITY)) {
           buf.append("public ");
         }
-        break;
-      default:
-        buf.append(visibility.name().toLowerCase())
-          .append(' ');
+      }
+      default -> buf.append(visibility.name().toLowerCase()).append(' ');
     }
   }
 
@@ -229,26 +191,17 @@ public final class KProperty {
     ClassWrapper wrapper = node.getWrapper();
     StructClass structClass = wrapper.getClassStruct();
 
-    List<ProtoBuf.Property> protoProperties;
-
     KotlinDecompilationContext.KotlinType currentType = KotlinDecompilationContext.getCurrentType();
     if (currentType == null) return null;
 
-    switch (currentType) {
-      case CLASS:
-        protoProperties = KotlinDecompilationContext.getCurrentClass().getPropertyList();
-        break;
-      case FILE:
-        protoProperties = KotlinDecompilationContext.getFilePackage().getPropertyList();
-        break;
-      case MULTIFILE_CLASS:
-        protoProperties = KotlinDecompilationContext.getMultifilePackage().getPropertyList();
-        break;
-      case SYNTHETIC_CLASS:
-        return null; // No property information in synthetic classes
-      default:
-        throw new IllegalStateException("Unexpected value: " + KotlinDecompilationContext.getCurrentType());
-    }
+    List<ProtoBuf.Property> protoProperties = switch (currentType) {
+      case CLASS -> KotlinDecompilationContext.getCurrentClass().getPropertyList();
+      case FILE -> KotlinDecompilationContext.getFilePackage().getPropertyList();
+      case MULTIFILE_CLASS -> KotlinDecompilationContext.getMultifilePackage().getPropertyList();
+      case SYNTHETIC_CLASS -> null;
+    };
+
+    if (protoProperties == null) return null;
 
     List<KProperty> properties = new ArrayList<>();
     Set<String> associatedFields = new HashSet<>();
@@ -358,15 +311,6 @@ public final class KProperty {
     return new Data(properties, associatedFields, associatedMethods);
   }
 
-  public static class Data {
-    public final List<KProperty> properties;
-    public final Set<String> associatedFields;
-    public final Set<String> associatedMethods;
-
-    public Data(List<KProperty> properties, Set<String> associatedFields, Set<String> associatedMethods) {
-      this.properties = properties;
-      this.associatedFields = associatedFields;
-      this.associatedMethods = associatedMethods;
-    }
+  public record Data(List<KProperty> properties, Set<String> associatedFields, Set<String> associatedMethods) {
   }
 }

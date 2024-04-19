@@ -30,55 +30,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class KFunction {
-  public final String name;
-  public final ProtobufFlags.Function flags;
-  public final List<KType> contextReceiverTypes;
-  public final KParameter[] parameters;
-  public final List<KTypeParameter> typeParameters;
-  public final KType returnType;
-
-  public final MethodWrapper method;
-
-  @Nullable
-  public final KType receiverType;
-
-  @Nullable
-  public final KContract contract;
-
-  public final boolean knownOverride;
-
-  @NotNull
-  private final DefaultArgsMap defaultArgs;
-
-  private final ClassesProcessor.ClassNode node;
-
-  private KFunction(
-    String name,
-    KParameter[] parameters,
-    List<KTypeParameter> typeParameters,
-    KType returnType,
-    ProtobufFlags.Function flags,
-    List<KType> contextReceiverTypes, MethodWrapper method,
-    @Nullable KType receiverType,
-    @Nullable KContract contract,
-    boolean knownOverride,
-    @NotNull DefaultArgsMap defaultArgs,
-    ClassesProcessor.ClassNode node) {
-    this.name = name;
-    this.parameters = parameters;
-    this.typeParameters = typeParameters;
-    this.returnType = returnType;
-    this.flags = flags;
-    this.contextReceiverTypes = contextReceiverTypes;
-    this.method = method;
-    this.receiverType = receiverType;
-    this.contract = contract;
-    this.knownOverride = knownOverride;
-    this.defaultArgs = defaultArgs;
-    this.node = node;
-  }
-
+public record KFunction(
+  String name,
+  KParameter[] parameters,
+  List<KTypeParameter> typeParameters,
+  KType returnType,
+  ProtobufFlags.Function flags,
+  List<KType> contextReceiverTypes, MethodWrapper method,
+  @Nullable KType receiverType,
+  @Nullable KContract contract,
+  boolean knownOverride,
+  @NotNull DefaultArgsMap defaultArgs,
+  ClassesProcessor.ClassNode node
+) {
   public static Map<StructMethod, KFunction> parse(ClassesProcessor.ClassNode node) {
     MetadataNameResolver resolver = KotlinDecompilationContext.getNameResolver();
     ClassWrapper wrapper = node.getWrapper();
@@ -137,7 +101,7 @@ public class KFunction {
         }
 
         for (KParameter parameter : parameters) {
-          desc.append(parameter.type);
+          desc.append(parameter.type());
         }
 
         desc.append(")").append(returnType);
@@ -167,16 +131,16 @@ public class KFunction {
         defaultArgsDesc.append(receiverType);
       }
       for (KParameter parameter : parameters) {
-        if (parameter.type.typeParameterName != null) {
+        if (parameter.type().typeParameterName != null) {
           typeParameters.stream()
-            .filter(typeParameter -> typeParameter.name.equals(parameter.type.typeParameterName))
+            .filter(typeParameter -> typeParameter.name().equals(parameter.type().typeParameterName))
             .findAny()
-            .map(typeParameter -> typeParameter.upperBounds)
+            .map(KTypeParameter::upperBounds)
             .filter(bounds -> bounds.size() == 1)
             .map(bounds -> bounds.get(0))
             .ifPresentOrElse(defaultArgsDesc::append, () -> defaultArgsDesc.append("Ljava/lang/Object;"));
         } else {
-          defaultArgsDesc.append(parameter.type);
+          defaultArgsDesc.append(parameter.type());
         }
       }
 
@@ -283,7 +247,7 @@ public class KFunction {
     buf.append("fun ");
 
     List<KTypeParameter> complexTypeParams = typeParameters.stream()
-      .filter(typeParameter -> typeParameter.upperBounds.size() > 1)
+      .filter(typeParameter -> typeParameter.upperBounds().size() > 1)
       .toList();
 
     if (!typeParameters.isEmpty()) {
@@ -292,14 +256,14 @@ public class KFunction {
       for (int i = 0; i < typeParameters.size(); i++) {
         KTypeParameter typeParameter = typeParameters.get(i);
 
-        if (typeParameter.reified) {
+        if (typeParameter.reified()) {
           buf.append("reified ");
         }
 
-        buf.append(KotlinWriter.toValidKotlinIdentifier(typeParameter.name));
+        buf.append(KotlinWriter.toValidKotlinIdentifier(typeParameter.name()));
 
-        if (typeParameter.upperBounds.size() == 1) {
-          buf.append(" : ").append(typeParameter.upperBounds.get(0).stringify(indent + 1));
+        if (typeParameter.upperBounds().size() == 1) {
+          buf.append(" : ").append(typeParameter.upperBounds().get(0).stringify(indent + 1));
         }
 
         if (i < typeParameters.size() - 1) {
@@ -338,7 +302,7 @@ public class KFunction {
       first = false;
 
       parameter.stringify(indent + 1, buf);
-      if (parameter.flags.declaresDefault) {
+      if (parameter.flags().declaresDefault) {
         buf.append(defaultArgs.toJava(parameter, indent + 1), node.classStruct.qualifiedName, methodKey);
       }
     }
@@ -361,12 +325,12 @@ public class KFunction {
 
       first = true;
       for (KTypeParameter typeParameter : complexTypeParams) {
-        for (KType upperBound : typeParameter.upperBounds) {
+        for (KType upperBound : typeParameter.upperBounds()) {
           if (!first) {
             buf.appendPossibleNewline(",").appendPossibleNewline(" ");
           }
 
-          buf.append(KotlinWriter.toValidKotlinIdentifier(typeParameter.name))
+          buf.append(KotlinWriter.toValidKotlinIdentifier(typeParameter.name()))
             .append(" : ")
             .append(upperBound.stringify(indent + 1));
 

@@ -81,23 +81,12 @@ public class KType extends VarType {
   }
 
   public static KType from(int tableIndex, MetadataNameResolver resolver) {
-    ProtoBuf.TypeTable table;
-    switch (KotlinDecompilationContext.getCurrentType()) {
-      case CLASS:
-        table = KotlinDecompilationContext.getCurrentClass().getTypeTable();
-        break;
-      case SYNTHETIC_CLASS:
-        table = KotlinDecompilationContext.getSyntheticClass().getTypeTable();
-        break;
-      case FILE:
-        table = KotlinDecompilationContext.getFilePackage().getTypeTable();
-        break;
-      case MULTIFILE_CLASS:
-        table = KotlinDecompilationContext.getMultifilePackage().getTypeTable();
-        break;
-      default:
-        throw new IllegalStateException("No decompilation context found");
-    }
+    ProtoBuf.TypeTable table = switch (KotlinDecompilationContext.getCurrentType()) {
+      case CLASS -> KotlinDecompilationContext.getCurrentClass().getTypeTable();
+      case SYNTHETIC_CLASS -> KotlinDecompilationContext.getSyntheticClass().getTypeTable();
+      case FILE -> KotlinDecompilationContext.getFilePackage().getTypeTable();
+      case MULTIFILE_CLASS -> KotlinDecompilationContext.getMultifilePackage().getTypeTable();
+    };
 
     return from(table.getType(tableIndex), resolver);
   }
@@ -163,29 +152,18 @@ public class KType extends VarType {
     return buf;
   }
 
-  public static class TypeArgument {
-    public final KType type;
-    public final ProtoBuf.Type.Argument.Projection typeProjection;
-
-    public TypeArgument(KType type, ProtoBuf.Type.Argument.Projection typeProjection) {
-      this.type = type;
-      this.typeProjection = typeProjection;
-    }
-    
+  public record TypeArgument(KType type, ProtoBuf.Type.Argument.Projection typeProjection) {
     public TextBuffer stringify(int indent) {
       TextBuffer buf = new TextBuffer();
       switch (typeProjection) {
-        case IN:
-          buf.append("in ");
-          break;
-        case OUT:
-          buf.append("out ");
-          break;
-        case STAR:
+        case IN -> buf.append("in ");
+        case OUT -> buf.append("out ");
+        case STAR -> {
           buf.append("*");
           return buf;
-        case INV:
-          break;
+        }
+        case INV -> {
+        }
       }
       buf.append(type.stringify(indent));
       return buf;

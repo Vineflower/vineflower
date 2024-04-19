@@ -46,24 +46,22 @@ public class KMergePass extends MergeHelper implements Pass {
     DoStatement.Type oldloop = stat.getLooptype();
 
     switch (oldloop) {
-      case INFINITE:
-
+      case INFINITE -> {
         // identify a while loop
         if (matchWhile(stat)) {
           if (!matchForEach(stat)) {
             matchFor(stat);
           }
-        }
-        else {
+        } else {
           // identify a do{}while loop
           //matchDoWhile(stat);
         }
-
-        break;
-      case WHILE:
+      }
+      case WHILE -> {
         if (!matchForEach(stat)) {
           matchFor(stat);
         }
+      }
     }
 
     return (stat.getLooptype() != oldloop);
@@ -126,8 +124,7 @@ public class KMergePass extends MergeHelper implements Pass {
           return false;
         }
 
-        if (!isHasNextCall(drillNots(stat.getConditionExprent())) ||
-          !(firstDoExprent instanceof AssignmentExprent)) {
+        if (!isHasNextCall(drillNots(stat.getConditionExprent()))) {
           return false;
         }
 
@@ -148,8 +145,7 @@ public class KMergePass extends MergeHelper implements Pass {
 
         // Casted foreach
         Exprent right = initExprents[0].getRight();
-        if (right instanceof FunctionExprent) {
-          FunctionExprent fRight = (FunctionExprent) right;
+        if (right instanceof FunctionExprent fRight) {
           if (fRight.getFuncType() == FunctionExprent.FunctionType.CAST) {
             right = fRight.getLstOperands().get(0);
           }
@@ -183,10 +179,8 @@ public class KMergePass extends MergeHelper implements Pass {
         preData.getExprents().remove(initExprents[0]);
         firstData.getExprents().remove(firstDoExprent);
 
-        if (initExprents[1] != null && initExprents[1].getLeft() instanceof VarExprent &&
-          holder.getInstance() instanceof VarExprent) {
-          VarExprent copy = (VarExprent)initExprents[1].getLeft();
-          VarExprent inc = (VarExprent)holder.getInstance();
+        if (initExprents[1] != null && initExprents[1].getLeft() instanceof VarExprent copy &&
+          holder.getInstance() instanceof VarExprent inc) {
           if (copy.getIndex() == inc.getIndex() && copy.getVersion() == inc.getVersion() &&
             !inc.isVarReferenced(stat.getTopParent(), copy) && !isNextCall(initExprents[1].getRight())) {
             preData.getExprents().remove(initExprents[1]);
@@ -206,43 +200,36 @@ public class KMergePass extends MergeHelper implements Pass {
 
         return true;
       } else if (initExprents[1] != null) {
-        if (!(firstDoExprent.getRight() instanceof ArrayExprent) || !(firstDoExprent.getLeft() instanceof VarExprent)) {
+        if (!(firstDoExprent.getRight() instanceof ArrayExprent arr) || !(firstDoExprent.getLeft() instanceof VarExprent)) {
           return false;
         }
 
-        if (!(lastExprent instanceof FunctionExprent)) {
+        if (!(lastExprent instanceof FunctionExprent funcInc)) {
           return false;
         }
 
         // Kotlin: Inverted indices 0 and 1 as kotlinc inverts the cases
 
         if (!(initExprents[1].getRight() instanceof ConstExprent) ||
-          !(initExprents[0].getRight() instanceof FunctionExprent) ||
+          !(initExprents[0].getRight() instanceof FunctionExprent funcRight) ||
           !(stat.getConditionExprent() instanceof FunctionExprent)) {
           return false;
         }
 
         //FunctionExprent funcCond  = (FunctionExprent)drillNots(stat.getConditionExprent()); //TODO: Verify this is counter < copy.length
-        FunctionExprent funcRight = (FunctionExprent)initExprents[0].getRight();
-        FunctionExprent funcInc   = (FunctionExprent)lastExprent;
-        ArrayExprent    arr       = (ArrayExprent)firstDoExprent.getRight();
         FunctionExprent.FunctionType incType = funcInc.getFuncType();
 
         if (funcRight.getFuncType() != FunctionExprent.FunctionType.ARRAY_LENGTH ||
           (incType != FunctionExprent.FunctionType.PPI && incType != FunctionExprent.FunctionType.IPP) ||
-          !(arr.getIndex() instanceof VarExprent) ||
-          !(arr.getArray() instanceof VarExprent)) {
+          !(arr.getIndex() instanceof VarExprent index) ||
+          !(arr.getArray() instanceof VarExprent array)) {
           return false;
         }
 
-        VarExprent index = (VarExprent)arr.getIndex();
-        VarExprent array = (VarExprent)arr.getArray();
         Exprent countExpr = funcInc.getLstOperands().get(0);
 
         // Foreach over multi dimensional array initializers can cause this to not be a var exprent
-        if (countExpr instanceof VarExprent) {
-          VarExprent counter = (VarExprent) countExpr;
-
+        if (countExpr instanceof VarExprent counter) {
           if (counter.getIndex() != index.getIndex() ||
             counter.getVersion() != index.getVersion()) {
             return false;
@@ -273,9 +260,7 @@ public class KMergePass extends MergeHelper implements Pass {
         firstData.getExprents().remove(firstDoExprent);
         lastData.getExprents().remove(lastExprent);
 
-        if (initExprents[2] != null && initExprents[2].getLeft() instanceof VarExprent) {
-          VarExprent copy = (VarExprent)initExprents[2].getLeft();
-
+        if (initExprents[2] != null && initExprents[2].getLeft() instanceof VarExprent copy) {
           if (copy.getIndex() == array.getIndex() && copy.getVersion() == array.getVersion()) {
             preData.getExprents().remove(initExprents[2]);
             initExprents[2].getRight().addBytecodeOffsets(initExprents[2].bytecode);
