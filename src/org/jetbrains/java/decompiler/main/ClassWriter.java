@@ -308,6 +308,9 @@ public class ClassWriter implements StatementWriter {
                     DecompilerContext.setProperty(DecompilerContext.CURRENT_METHOD_WRAPPER, outerWrapper);
                   }
                 }
+              } else if (firstStat instanceof BasicBlockStatement && firstStat.getExprents() != null && firstStat.getExprents().isEmpty()) {
+                buffer.append(" {}");
+                simpleLambda = true;
               }
             }
           }
