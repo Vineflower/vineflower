@@ -377,7 +377,13 @@ public class ClassWriter implements StatementWriter {
       // write class definition
       writeClassDefinition(node, buffer, indent);
 
-      boolean hasContent = false;
+      final boolean[] hasContent = {false};
+      Runnable haveContent = () -> {
+        if (!hasContent[0] && node.type == ClassNode.Type.ANONYMOUS) {
+          buffer.appendLineSeparator();
+        }
+        hasContent[0] = true;
+      };
       boolean enumFields = false;
 
       List<StructRecordComponent> components = cl.getRecordComponents();
@@ -443,9 +449,8 @@ public class ClassWriter implements StatementWriter {
         TextBuffer fieldBuffer = new TextBuffer();
         writeField(wrapper, cl, fd, fieldBuffer, indent + 1);
         fieldBuffer.clearUnassignedBytecodeMappingData();
+        haveContent.run();
         buffer.append(fieldBuffer);
-
-        hasContent = true;
       }
 
       if (enumFields) {
@@ -472,10 +477,10 @@ public class ClassWriter implements StatementWriter {
         TextBuffer methodBuffer = new TextBuffer();
         boolean methodSkipped = !writeMethod(node, mt, i, methodBuffer, indent + 1);
         if (!methodSkipped) {
-          if (hasContent) {
+          if (hasContent[0]) {
             buffer.appendLineSeparator();
           }
-          hasContent = true;
+          haveContent.run();
           buffer.append(methodBuffer);
         }
       }
@@ -489,16 +494,20 @@ public class ClassWriter implements StatementWriter {
                          wrapper.getHiddenMembers().contains(innerCl.qualifiedName);
           if (hide) continue;
 
-          if (hasContent) {
+          if (hasContent[0]) {
             buffer.appendLineSeparator();
           }
-          writeClass(inner, buffer, indent + 1);
-
-          hasContent = true;
+          TextBuffer clsBuffer = new TextBuffer();
+          writeClass(inner, clsBuffer, indent + 1);
+          haveContent.run();
+          buffer.append(clsBuffer);
         }
       }
 
-      buffer.appendIndent(indent).append('}');
+      if (hasContent[0] || node.type != ClassNode.Type.ANONYMOUS) {
+        buffer.appendIndent(indent);
+      }
+      buffer.append('}');
 
       if (node.type != ClassNode.Type.ANONYMOUS) {
         buffer.appendLineSeparator();
@@ -622,7 +631,7 @@ public class ClassWriter implements StatementWriter {
       if (markSynthetics) {
         appendSyntheticClassComment(cl, buffer);
       }
-      buffer.append(" {").appendLineSeparator();
+      buffer.append(" {");
       return;
     }
 
