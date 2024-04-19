@@ -33,13 +33,13 @@ public abstract class TestDoubleNestedClass {
       Supplier<TestDoubleNestedClass> foo(int var1) {
          byte var2 = 10;
          return () -> new TestDoubleNestedClass() {
-               @Override
-               Object test() {
-                  int var1x = Child1.this.x + var1;
-                  int var2x = var1 + var2;
-                  return Child1.this.x + var1x + var2x;
-               }
-            };
+            @Override
+            Object test() {
+               int var1x = Child1.this.x + var1;
+               int var2x = var1 + var2;
+               return Child1.this.x + var1x + var2x;
+            }
+         };
       }
    }
 }

@@ -284,7 +284,7 @@ public class ClassWriter implements StatementWriter {
                   MethodWrapper outerWrapper = (MethodWrapper)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
                   DecompilerContext.setProperty(DecompilerContext.CURRENT_METHOD_WRAPPER, methodWrapper);
                   try {
-                    TextBuffer codeBuffer = firstExpr.toJava(indent + 1);
+                    TextBuffer codeBuffer = firstExpr.toJava(indent);
   
                     if (firstExpr instanceof ExitExprent)
                       codeBuffer.setStart(6); // skip return
