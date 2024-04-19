@@ -1,0 +1,64 @@
+package pkg;
+
+public class TestInnerClasses3J21 {
+   private int i = 0;
+
+   private class Inner {
+      private int j;
+
+      Inner() {
+         this(0);// 9
+      }// 10
+
+      Inner(int i) {
+         this.j = i;// 13
+      }// 14
+
+      private void setI() {
+         TestInnerClasses3J21.this.i = this.j;// 17
+      }// 18
+   }
+}
+
+class 'pkg/TestInnerClasses3J21$Inner' {
+   method '<init> (Lpkg/TestInnerClasses3J21;)V' {
+      2      9
+      3      9
+      4      9
+      5      9
+      6      10
+   }
+
+   method '<init> (Lpkg/TestInnerClasses3J21;I)V' {
+      9      13
+      a      13
+      b      13
+      c      13
+      d      13
+      e      14
+   }
+
+   method 'setI ()V' {
+      1      17
+      2      17
+      3      17
+      4      17
+      5      17
+      6      17
+      7      17
+      8      17
+      9      17
+      a      17
+      b      18
+   }
+}
+
+Lines mapping:
+9 <-> 10
+10 <-> 11
+13 <-> 14
+14 <-> 15
+17 <-> 18
+18 <-> 19
+Not mapped:
+12

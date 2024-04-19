@@ -37,6 +37,7 @@ import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
 import org.jetbrains.java.decompiler.util.DotExporter;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
+import org.jetbrains.java.decompiler.util.Pair;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -384,7 +385,7 @@ public class NestedClassProcessor {
 
                         // FIXME: flags of variables are wrong! Correct the entire functionality.
                         // if(method.varproc.getVarFinal(varPair) != VarTypeProcessor.VAR_NON_FINAL) {
-                        pair = new VarFieldPair(mask.get(i).fieldKey, varPair);
+                        pair = new VarFieldPair(mask.get(i).fieldKey, varPair, mask.get(i).assigned);
                         // }
                       }
 
@@ -467,7 +468,7 @@ public class NestedClassProcessor {
       mergeListSignatures(interPairMask, interMask, true);
 
       for (VarFieldPair pair : interPairMask) {
-        if (pair != null && !pair.fieldKey.isEmpty()) {
+        if (pair != null && !pair.fieldKey.isEmpty() && pair.assigned) {
           nestedNode.mapFieldsToVars.put(pair.fieldKey, pair.varPair);
         }
       }
@@ -743,12 +744,12 @@ public class NestedClassProcessor {
             int varIndex = 1;
             for (int i = 0; i < md.params.length; i++) {  // no static methods allowed
               // Always assume we can use the heuristic if there's only one metho
-              String keyField = getEnclosingVarField(cl, method, graph, varIndex, i, p == 1 || cl.getMethods().size() == 1);
-              if (!keyField.isEmpty()) {
+              Pair<String, Boolean> keyField = getEnclosingVarField(cl, method, graph, varIndex, i, p == 1 || cl.getMethods().size() == 1);
+              if (!keyField.a.isEmpty()) {
                 found = true;
               }
 
-              fields.add(keyField == null ? null : new VarFieldPair(keyField, new VarVersionPair(-1, 0))); // TODO: null?
+              fields.add(keyField == null ? null : new VarFieldPair(keyField.a, new VarVersionPair(-1, 0), keyField.b)); // TODO: null?
               varIndex += md.params[i].stackSize;
             }
 
@@ -765,8 +766,9 @@ public class NestedClassProcessor {
     return mapMasks;
   }
 
-  private static String getEnclosingVarField(StructClass cl, MethodWrapper method, DirectGraph graph, int index, int outerIdx, boolean useHeuristic) {
+  private static Pair<String, Boolean> getEnclosingVarField(StructClass cl, MethodWrapper method, DirectGraph graph, int index, int outerIdx, boolean useHeuristic) {
     String field = "";
+    boolean assigned = false;
 
     // parameter variable final
     VarVersionPair var = new VarVersionPair(index, 0);
@@ -793,6 +795,7 @@ public class NestedClassProcessor {
                 (fd.isSynthetic() || noSynthFlag && possiblySyntheticField(fd))) {
               // local (== not inherited) field
               field = InterpreterUtil.makeUniqueKey(left.getName(), left.getDescriptor().descriptorString);
+              assigned = true;
               break;
             }
           }
@@ -812,6 +815,7 @@ public class NestedClassProcessor {
           String name = method.varproc.getVarName(var);
           VarType type = method.varproc.getVarType(var);
           field = InterpreterUtil.makeUniqueKey(name, type.toString());
+          assigned = false;
         }
       }
     }
@@ -827,6 +831,7 @@ public class NestedClassProcessor {
         VarType type = method.varproc.getVarType(var);
         if (hostName.equals(type.value) && useHeuristic) {
           field = InterpreterUtil.makeUniqueKey(name, type.toString());
+          assigned = false;
         } else {
           // Also check the enclosing class if it's anonymous
           ClassNode nd = DecompilerContext.getClassProcessor().getMapRootClasses().get(cl.qualifiedName);
@@ -835,6 +840,7 @@ public class NestedClassProcessor {
             for (String clazz : nd.enclosingClasses) {
               if (clazz.equals(type.value)) {
                 field = InterpreterUtil.makeUniqueKey(name, type.toString());
+                assigned = false;
                 break;
               }
             }
@@ -843,7 +849,7 @@ public class NestedClassProcessor {
       }
     }
 
-    return field;
+    return Pair.of(field, assigned);
   }
 
   private static boolean possiblySyntheticField(StructField fd) {
@@ -922,12 +928,14 @@ public class NestedClassProcessor {
     }
     else {
       eq = true;
-      if (fObj.fieldKey.length() == 0) {
+      if (!fObj.assigned || fObj.fieldKey.length() == 0) {
         fObj.fieldKey = sObj.fieldKey;
+        fObj.assigned = sObj.assigned;
       }
-      else if (sObj.fieldKey.length() == 0) {
+      else if (!sObj.assigned || sObj.fieldKey.length() == 0) {
         if (both) {
           sObj.fieldKey = fObj.fieldKey;
+          sObj.assigned = fObj.assigned;
         }
       }
       else {
@@ -1147,10 +1155,12 @@ public class NestedClassProcessor {
   private static class VarFieldPair {
     public String fieldKey;
     public VarVersionPair varPair;
+    public boolean assigned;
 
-    VarFieldPair(String field, VarVersionPair varPair) {
+    VarFieldPair(String field, VarVersionPair varPair, boolean assigned) {
       this.fieldKey = field;
       this.varPair = varPair;
+      this.assigned = assigned;
     }
 
     @Override
@@ -1159,17 +1169,17 @@ public class NestedClassProcessor {
       if (!(o instanceof VarFieldPair)) return false;
 
       VarFieldPair pair = (VarFieldPair)o;
-      return fieldKey.equals(pair.fieldKey) && varPair.equals(pair.varPair);
+      return fieldKey.equals(pair.fieldKey) && varPair.equals(pair.varPair) && assigned == pair.assigned;
     }
 
     @Override
     public int hashCode() {
-      return fieldKey.hashCode() + varPair.hashCode();
+      return fieldKey.hashCode() + varPair.hashCode() + Boolean.hashCode(assigned);
     }
 
     @Override
     public String toString() {
-      return varPair + ": " + fieldKey;
+      return varPair + (assigned ? " assigned to " : " stored in variable ") + fieldKey;
     }
   }
 
