@@ -1,6 +1,7 @@
 // Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.main;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import net.fabricmc.fernflower.api.IFabricJavadocProvider;
 import org.jetbrains.java.decompiler.api.plugin.StatementWriter;
 import org.jetbrains.java.decompiler.code.CodeConstants;
@@ -377,13 +378,19 @@ public class ClassWriter implements StatementWriter {
       // write class definition
       writeClassDefinition(node, buffer, indent);
 
-      final boolean[] hasContent = {false};
-      Runnable haveContent = () -> {
-        if (!hasContent[0] && node.type == ClassNode.Type.ANONYMOUS) {
+      final AtomicBoolean hasContent = new AtomicBoolean(false);
+      // writeClassDefinition will skip adding a trailing newline for anonymous classes.
+      // This allows us to only add it if we end up writing any content for the class, so something
+      // like `new Object() {}` will not have a newline in between `{` and `}`.
+      // The runnable should be executed immediately before writing any anonymous class content to the buffer.
+      // hasContent also fills a similar purpose, determining whether elements need an extra newline prepended due to previous content being written.
+      final Runnable haveContent = () -> {
+        if (!hasContent.get() && node.type == ClassNode.Type.ANONYMOUS) {
           buffer.appendLineSeparator();
         }
-        hasContent[0] = true;
+        hasContent.set(true);
       };
+
       boolean enumFields = false;
 
       List<StructRecordComponent> components = cl.getRecordComponents();
@@ -477,7 +484,7 @@ public class ClassWriter implements StatementWriter {
         TextBuffer methodBuffer = new TextBuffer();
         boolean methodSkipped = !writeMethod(node, mt, i, methodBuffer, indent + 1);
         if (!methodSkipped) {
-          if (hasContent[0]) {
+          if (hasContent.get()) {
             buffer.appendLineSeparator();
           }
           haveContent.run();
@@ -494,7 +501,7 @@ public class ClassWriter implements StatementWriter {
                          wrapper.getHiddenMembers().contains(innerCl.qualifiedName);
           if (hide) continue;
 
-          if (hasContent[0]) {
+          if (hasContent.get()) {
             buffer.appendLineSeparator();
           }
           TextBuffer clsBuffer = new TextBuffer();
@@ -504,7 +511,8 @@ public class ClassWriter implements StatementWriter {
         }
       }
 
-      if (hasContent[0] || node.type != ClassNode.Type.ANONYMOUS) {
+      if (hasContent.get() || node.type != ClassNode.Type.ANONYMOUS) {
+        // Skip indent for anonymous classes with no content, since we also skipped the newline in the cls definition
         buffer.appendIndent(indent);
       }
       buffer.append('}');
@@ -632,6 +640,7 @@ public class ClassWriter implements StatementWriter {
         appendSyntheticClassComment(cl, buffer);
       }
       buffer.append(" {");
+      // Omit trailing newline, will be added by the caller if there is any content in the class
       return;
     }
 
