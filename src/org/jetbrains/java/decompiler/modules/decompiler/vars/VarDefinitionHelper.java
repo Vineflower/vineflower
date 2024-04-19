@@ -1438,6 +1438,9 @@ public class VarDefinitionHelper {
     Map<Statement, Set<VarInMethod>> varDefinitions = new HashMap<>();
     Set<VarInMethod> liveVarDefs = new HashSet<>();
     Map<VarInMethod, String> nameMap = new HashMap<>();
+    this.varproc.getInheritedNames().forEach((v, name) -> {
+      nameMap.put(new VarInMethod(v, mt), name);
+    });
 
     // Put all of the parameters into the name map
     MethodDescriptor md = mt.methodDescriptor();
