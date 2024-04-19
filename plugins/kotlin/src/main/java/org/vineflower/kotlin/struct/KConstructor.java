@@ -28,31 +28,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class KConstructor {
+public record KConstructor(
+  KParameter[] parameters,
+  ProtobufFlags.Constructor flags,
+  MethodWrapper method,
+  boolean isPrimary,
+  DefaultArgsMap defaultArgs,
+  ClassesProcessor.ClassNode node
+) {
   private static final VarType DEFAULT_CONSTRUCTOR_MARKER = new VarType("kotlin/jvm/internal/DefaultConstructorMarker", true);
-
-  public final ProtobufFlags.Constructor flags;
-  public final KParameter[] parameters;
-  public final boolean isPrimary;
-
-  public final MethodWrapper method;
-  private final DefaultArgsMap defaultArgs;
-  private final ClassesProcessor.ClassNode node;
-
-  private KConstructor(
-    KParameter[] parameters,
-    ProtobufFlags.Constructor flags,
-    MethodWrapper method,
-    boolean isPrimary,
-    DefaultArgsMap defaultArgs,
-    ClassesProcessor.ClassNode node) {
-    this.parameters = parameters;
-    this.flags = flags;
-    this.method = method;
-    this.isPrimary = isPrimary;
-    this.defaultArgs = defaultArgs;
-    this.node = node;
-  }
 
   public static Data parse(ClassesProcessor.ClassNode node) {
     MetadataNameResolver resolver = KotlinDecompilationContext.getNameResolver();
@@ -104,7 +88,7 @@ public class KConstructor {
 
       StringBuilder defaultArgsDesc = new StringBuilder("(");
       for (KParameter parameter : parameters) {
-        defaultArgsDesc.append(parameter.type);
+        defaultArgsDesc.append(parameter.type());
       }
 
       defaultArgsDesc.append("I".repeat(parameters.length / 32 + 1));
@@ -159,8 +143,8 @@ public class KConstructor {
 
         parameter.stringify(indent + 1, buf);
 
-        if (parameter.flags.declaresDefault) {
-          buf.append(" = ").append(defaultArgs.toJava(parameter, indent + 1), node.classStruct.qualifiedName, methodKey);
+        if (parameter.flags().declaresDefault) {
+          buf.append(defaultArgs.toJava(parameter, indent + 1), node.classStruct.qualifiedName, methodKey);
         }
       }
 
@@ -255,8 +239,8 @@ public class KConstructor {
 
         parameter.stringify(indent + 1, buf);
 
-        if (parameter.flags.declaresDefault) {
-          buf.append(" = ").append(defaultArgs.toJava(parameter, indent + 1), node.classStruct.qualifiedName, methodKey);
+        if (parameter.flags().declaresDefault) {
+          buf.append(defaultArgs.toJava(parameter, indent + 1), node.classStruct.qualifiedName, methodKey);
         }
       }
 
@@ -303,13 +287,6 @@ public class KConstructor {
     return true;
   }
 
-  public static class Data {
-    public final Map<StructMethod, KConstructor> constructors;
-    public final KConstructor primary;
-
-    public Data(Map<StructMethod, KConstructor> constructors, KConstructor primary) {
-      this.constructors = constructors;
-      this.primary = primary;
-    }
+  public record Data(Map<StructMethod, KConstructor> constructors, KConstructor primary) {
   }
 }

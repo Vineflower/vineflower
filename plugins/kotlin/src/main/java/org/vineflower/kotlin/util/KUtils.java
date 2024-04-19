@@ -107,4 +107,13 @@ public class KUtils {
 
     expr.setStringDescriptor(newDesc);
   }
+  
+  public static boolean assertionsEnabled() {
+    try {
+      assert false;
+      return false;
+    } catch (AssertionError e) {
+      return true;
+    }
+  }
 }

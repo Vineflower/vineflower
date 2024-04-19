@@ -168,42 +168,24 @@ public final class KTypes {
   private static String mapJavaTypeToKotlin(String type) {
     if (type.endsWith("[]")) {
       String baseType = type.substring(0, type.length() - 2);
-      switch (baseType) {
-        case "boolean":
-        case "byte":
-        case "char":
-        case "short":
-        case "int":
-        case "long":
-        case "float":
-        case "double":
-          return mapJavaTypeToKotlin(baseType) + "Array";
-        default:
-          return "Array<" + mapJavaTypeToKotlin(baseType) + ">";
-      }
+      return switch (baseType) {
+        case "boolean", "byte", "char", "short", "int", "long", "float", "double" ->
+          mapJavaTypeToKotlin(baseType) + "Array";
+        default -> "Array<" + mapJavaTypeToKotlin(baseType) + ">";
+      };
     }
 
-    switch (type) {
-      case "boolean":
-        return "Boolean";
-      case "byte":
-        return "Byte";
-      case "char":
-        return "Char";
-      case "short":
-        return "Short";
-      case "int":
-        return "Int";
-      case "long":
-        return "Long";
-      case "float":
-        return "Float";
-      case "double":
-        return "Double";
-      case "void":
-        return "Unit";
-
-      default:
+    return switch (type) {
+      case "boolean" -> "Boolean";
+      case "byte" -> "Byte";
+      case "char" -> "Char";
+      case "short" -> "Short";
+      case "int" -> "Int";
+      case "long" -> "Long";
+      case "float" -> "Float";
+      case "double" -> "Double";
+      case "void" -> "Unit";
+      default -> {
         String[] parts = type.split("\\.");
         StringBuilder sb = new StringBuilder();
         boolean appendDot = false;
@@ -229,8 +211,9 @@ public final class KTypes {
             appendDot = true;
           }
         }
-        return sb.toString();
-    }
+        yield sb.toString();
+      }
+    };
   }
 
   public static boolean isFunctionType(VarType type) {
@@ -243,7 +226,7 @@ public final class KTypes {
     }
 
     String paramCount = type.value.substring("kotlin/jvm/functions/Function".length());
-    if (paramCount.equals("N") || !(type instanceof GenericType)) {
+    if (paramCount.equals("N") || !(type instanceof GenericType genericType)) {
       // TODO: support FunctionN properly
       String typeStr = ExprProcessor.getCastTypeName(type);
       if (ExprProcessor.UNDEFINED_TYPE_STRING.equals(typeStr)) {
@@ -251,8 +234,7 @@ public final class KTypes {
       }
       return mapJavaTypeToKotlin(typeStr);
     }
-    
-    GenericType genericType = (GenericType) type;
+
     List<VarType> params = genericType.getArguments();
 
     int paramCountInt = Integer.parseInt(paramCount);
