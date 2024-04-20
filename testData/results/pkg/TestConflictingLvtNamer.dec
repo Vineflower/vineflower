@@ -16,9 +16,9 @@ public class TestConflictingLvtNamer {
             int ix = this.index % o;// 21
             int jx = this.index / o;// 22
             int kx = jx % p;// 23
-            int l = jx / p;// 24
+            int lx = jx / p;// 24
             this.index++;// 25
-            this.cursor.set(i + ix, j + kx, k + l);// 26
+            this.cursor.set(i + ix, j + kx, k + lx);// 26
          }// 27
       };
    }
