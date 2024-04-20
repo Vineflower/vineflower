@@ -9,18 +9,18 @@ public class TestConflictingLvtNamer {
       int q = n - k + 1;// 14
       int r = o * p * q;// 15
       return () -> new Object() {// 16
-            private final TestConflictingLvtNamer.Position cursor = new TestConflictingLvtNamer.Position();
-            private int index;
+         private final TestConflictingLvtNamer.Position cursor = new TestConflictingLvtNamer.Position();
+         private int index;
 
-            void innerMethod() {
-               int ix = this.index % o;// 21
-               int jx = this.index / o;// 22
-               int kx = jx % p;// 23
-               int l = jx / p;// 24
-               this.index++;// 25
-               this.cursor.set(i + ix, j + kx, k + l);// 26
-            }// 27
-         };
+         void innerMethod() {
+            int ix = this.index % o;// 21
+            int jx = this.index / o;// 22
+            int kx = jx % p;// 23
+            int l = jx / p;// 24
+            this.index++;// 25
+            this.cursor.set(i + ix, j + kx, k + l);// 26
+         }// 27
+      };
    }
 
    public static final class Position {
