@@ -1645,9 +1645,8 @@ public class VarDefinitionHelper {
               // Notably, lambdas can reference *outer* variables *before* params are listed, this is to handle that case.
               
               MethodDescriptor md = mt2.methodDescriptor();
-              StructMethod enclosingMethod = node.parent.classStruct.getMethod(node.enclosingMethod);
-              int startIdx = md.params.length - enclosingMethod.methodDescriptor().params.length;
-              int start = enclosingMethod.hasModifier(CodeConstants.ACC_STATIC) ? 0 : 1;
+              int start = mt2.hasModifier(CodeConstants.ACC_STATIC) ? 0 : 1;
+              final int startIdx = start;
               for (int i = 0; i < md.params.length; i++) {
                 if (i >= startIdx) {
                   VarVersionPair vvp = new VarVersionPair(start, 0);
