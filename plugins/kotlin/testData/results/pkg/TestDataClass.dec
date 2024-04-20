@@ -2,9 +2,9 @@ package pkg
 
 data class TestDataClass(dataClassVal: Regex, variableWithVeryLongName: Int, requestLineWrapsIfTheParamListIsTooLong: List<String>, nullability: String?) {
    public final val dataClassVal: Regex
-   public final val nullability: String?
-   public final val requestLineWrapsIfTheParamListIsTooLong: List<String>
    public final val variableWithVeryLongName: Int
+   public final val requestLineWrapsIfTheParamListIsTooLong: List<String>
+   public final val nullability: String?
 
    init {
       this.dataClassVal = dataClassVal;// 4

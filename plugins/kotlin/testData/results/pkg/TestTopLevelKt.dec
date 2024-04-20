@@ -1,9 +1,9 @@
 package pkg
 
-public const val topLevelConstVal: Int = 926
-public final val topLevelVal: Regex = new Regex("")
 public final var topLevelVar: Int = 42
    internal set
+public final val topLevelVal: Regex = new Regex("")
+public const val topLevelConstVal: Int = 926
 
 public fun topLevelFun() {
 }// 5

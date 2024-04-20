@@ -1,21 +1,32 @@
 package pkg
 
-import kotlin.jvm.functions.Function1
-
 class TestKotlinTypes {
-   public final val consumer: (Int) -> Unit = <unknownclass>.INSTANCE as Function1
+   public final val consumer: (Int) -> Unit = TestKotlinTypes::consumer$lambda$0
 
 
    public fun throwAlways(): Nothing {
       throw new Exception();// 5
    }
+
+   @JvmStatic
+   fun `consumer$lambda$0`(it: Int): Unit {
+      return Unit.INSTANCE;// 8
+   }
 }
 
 class 'pkg/TestKotlinTypes' {
    method 'throwAlways ()Ljava/lang/Void;' {
-      7      9
+      7      7
+   }
+
+   method 'consumer$lambda$0 (I)Lkotlin/Unit;' {
+      0      12
+      1      12
+      2      12
+      3      12
    }
 }
 
 Lines mapping:
-5 <-> 10
+5 <-> 8
+8 <-> 13

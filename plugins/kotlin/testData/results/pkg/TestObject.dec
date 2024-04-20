@@ -4,9 +4,9 @@ object TestObject private constructor() {
    @JvmStatic
    public TestObject INSTANCE = new TestObject();
 
-   public const val objectConstVal: Int = 926
-   public final val objectVal: Regex = new Regex("")
    private final var objectVar: Int = 42
+   public final val objectVal: Regex = new Regex("")
+   public const val objectConstVal: Int = 926
 
 
    public fun objectFun() {
@@ -29,10 +29,10 @@ class 'pkg/TestObject' {
    }
 
    method 'objectJvmStaticFun ()V' {
-      4      17
-      5      17
-      6      17
-      7      17
+      0      17
+      1      17
+      2      17
+      3      17
       a      17
       e      18
    }
