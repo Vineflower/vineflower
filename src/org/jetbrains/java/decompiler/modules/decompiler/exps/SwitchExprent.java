@@ -148,17 +148,17 @@ public class SwitchExprent extends Exprent {
             ((ConstExprent)content).setConstType(this.type);
           }
 
-          buf.append(content.toJava(indent).append(";"));
+          buf.append(content.toJava(indent + 1).append(";"));
         } else if (exprent instanceof ExitExprent) {
           ExitExprent exit = (ExitExprent) exprent;
 
           if (exit.getExitType() == ExitExprent.Type.THROW) {
-            buf.append(exit.toJava(indent).append(";"));
+            buf.append(exit.toJava(indent + 1).append(";"));
           } else {
             throw new IllegalStateException("Can't have return in switch expression");
           }
         } else { // Catchall
-          buf.append(exprent.toJava(indent).append(";"));
+          buf.append(exprent.toJava(indent + 1).append(";"));
         }
       } else {
         buf.append("{");
