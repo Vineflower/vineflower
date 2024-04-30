@@ -13,10 +13,10 @@ public class TestTryFinally {
       try {
          System.out.println("Hello");// 14
       } finally {
-         System.out.println("Finally");
+         System.out.println("Finally");// 16
       }
 
-      System.out.println("Bye");// 16 17 19
+      System.out.println("Bye");// 17 19
    }
 
    public void test2(int i) {
@@ -42,6 +42,8 @@ class 'pkg/TestTryFinally' {
       3      5
       4      5
       5      5
+      6      5
+      7      5
       c      9
       10      7
       11      7
@@ -57,26 +59,24 @@ class 'pkg/TestTryFinally' {
       3      13
       4      13
       5      13
+      6      13
+      7      13
       10      18
       11      18
       12      18
-      13      18
       14      15
       15      15
       16      15
       17      15
       18      15
       19      15
-      1a      18
-      1b      18
-      1c      18
-      1d      18
+      1a      15
+      1b      15
       1e      18
       1f      18
-      20      18
       21      18
       22      18
-      23      19
+      23      18
    }
 
    method 'test2 (I)V' {
@@ -86,6 +86,8 @@ class 'pkg/TestTryFinally' {
       3      23
       4      23
       5      23
+      6      23
+      7      23
       1d      25
       1e      25
       1f      25
@@ -96,6 +98,8 @@ class 'pkg/TestTryFinally' {
       24      25
       25      26
       26      26
+      27      26
+      28      26
       29      27
       2a      27
       2b      27
@@ -121,7 +125,7 @@ Lines mapping:
 8 <-> 8
 9 <-> 10
 14 <-> 14
-16 <-> 19
+16 <-> 16
 17 <-> 19
 19 <-> 19
 25 <-> 24

@@ -7,8 +7,8 @@ public class TestSwitchPatternMatchingWithNull {
          case null:
             System.out.println(i);
             break;
-         case String s:
-            System.out.println(s);// 7
+         case String s:// 7
+            System.out.println(s);
             break;
          default:
             System.out.println("Default");// 8
@@ -21,8 +21,8 @@ public class TestSwitchPatternMatchingWithNull {
          case null:
             System.out.println(i);
             break;
-         case String s:
-            System.out.println(s);// 15
+         case String s:// 15
+            System.out.println(s);
             break;
          default:
             System.out.println("Default");// 16
@@ -35,6 +35,30 @@ class 'pkg/TestSwitchPatternMatchingWithNull' {
       0      4
       4      4
       b      4
+      c      4
+      d      4
+      e      4
+      f      4
+      10      4
+      11      4
+      12      4
+      13      4
+      14      4
+      15      4
+      16      4
+      17      4
+      18      4
+      19      4
+      1a      4
+      1b      4
+      1c      4
+      1d      4
+      1e      4
+      1f      4
+      20      4
+      21      4
+      22      4
+      23      4
       28      5
       29      5
       2a      7
@@ -63,6 +87,8 @@ class 'pkg/TestSwitchPatternMatchingWithNull' {
       49      13
       4a      13
       4b      13
+      4c      13
+      4d      13
       4e      15
    }
 
@@ -70,6 +96,30 @@ class 'pkg/TestSwitchPatternMatchingWithNull' {
       0      18
       4      18
       b      18
+      c      18
+      d      18
+      e      18
+      f      18
+      10      18
+      11      18
+      12      18
+      13      18
+      14      18
+      15      18
+      16      18
+      17      18
+      18      18
+      19      18
+      1a      18
+      1b      18
+      1c      18
+      1d      18
+      1e      18
+      1f      18
+      20      18
+      21      18
+      22      18
+      23      18
       28      19
       29      19
       2a      21
@@ -98,6 +148,8 @@ class 'pkg/TestSwitchPatternMatchingWithNull' {
       49      27
       4a      27
       4b      27
+      4c      27
+      4d      27
       4e      29
    }
 }
@@ -105,11 +157,11 @@ class 'pkg/TestSwitchPatternMatchingWithNull' {
 Lines mapping:
 5 <-> 5
 6 <-> 6
-7 <-> 11
+7 <-> 10
 8 <-> 14
 10 <-> 16
 13 <-> 19
 14 <-> 20
-15 <-> 25
+15 <-> 24
 16 <-> 28
 18 <-> 30

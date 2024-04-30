@@ -42,6 +42,8 @@ class 'pkg/TestReturnTernaryConstantSimplification' {
    method 'ternaryNotAnd (ZZ)Z' {
       0      4
       1      4
+      2      4
+      3      4
       8      4
       9      4
    }
@@ -49,12 +51,16 @@ class 'pkg/TestReturnTernaryConstantSimplification' {
    method 'ifOr (ZZ)Z' {
       0      8
       1      8
+      2      8
+      3      8
       6      8
    }
 
    method 'ternaryNotOr (ZZ)Z' {
       0      12
       1      12
+      2      12
+      3      12
       4      12
       9      12
    }
@@ -62,6 +68,8 @@ class 'pkg/TestReturnTernaryConstantSimplification' {
    method 'ternaryAnd (ZZ)Z' {
       0      16
       1      16
+      2      16
+      3      16
       4      16
       9      16
    }
@@ -69,38 +77,56 @@ class 'pkg/TestReturnTernaryConstantSimplification' {
    method 'redundantIf (Z)Z' {
       0      20
       1      20
+      2      20
+      3      20
    }
 
    method 'redundantTernary (Z)Z' {
       0      24
       1      24
+      2      24
+      3      24
       9      24
    }
 
    method 'nestedIf (ZZ)Z' {
       0      28
       1      28
+      2      28
+      3      28
       4      28
       5      28
+      6      28
+      7      28
       a      28
    }
 
    method 'nestedTernary (ZZ)Z' {
       0      32
       1      32
+      2      32
+      3      32
       4      32
       5      32
+      6      32
+      7      32
       11      32
    }
 
    method 'nestedIfs (ZZZ)Z' {
       0      36
       1      36
+      2      36
+      3      36
       4      36
       5      36
+      6      36
+      7      36
       a      36
       c      36
       d      36
+      e      36
+      f      36
       12      36
    }
 }

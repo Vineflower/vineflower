@@ -53,6 +53,8 @@ class 'pkg/TestBlankLinesSpaces' {
       3      19
       4      19
       5      19
+      6      19
+      7      19
       8      20
       9      20
       a      20
@@ -67,11 +69,15 @@ class 'pkg/TestBlankLinesSpaces' {
       1d      23
       1e      23
       1f      23
+      20      23
+      21      23
       22      24
       23      24
       24      24
       25      24
       26      24
+      27      24
+      28      24
       29      26
    }
 }

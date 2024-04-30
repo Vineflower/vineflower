@@ -55,6 +55,8 @@ class 'pkg/TestPatternMatchingInteger' {
       2      4
       3      4
       4      4
+      5      4
+      6      4
       b      4
       c      4
       d      4
@@ -71,12 +73,16 @@ class 'pkg/TestPatternMatchingInteger' {
       2      8
       3      8
       4      8
+      5      8
+      6      8
       b      8
       c      8
       d      8
       e      8
       f      8
       10      8
+      11      8
+      12      8
       17      8
       18      8
       19      9
@@ -95,6 +101,8 @@ class 'pkg/TestPatternMatchingInteger' {
       26      12
       27      12
       28      12
+      29      12
+      2a      12
       2f      12
       30      12
       31      13
@@ -108,6 +116,8 @@ class 'pkg/TestPatternMatchingInteger' {
       39      15
       3a      15
       3b      15
+      3c      15
+      3d      15
       42      15
       43      15
       44      15
@@ -126,6 +136,8 @@ class 'pkg/TestPatternMatchingInteger' {
       4      21
       5      21
       6      21
+      7      21
+      8      21
       d      21
       e      21
       10      22
@@ -139,6 +151,8 @@ class 'pkg/TestPatternMatchingInteger' {
       19      25
       1a      25
       1b      25
+      1c      25
+      1d      25
       22      25
       23      25
       25      26
@@ -157,12 +171,16 @@ class 'pkg/TestPatternMatchingInteger' {
       2      33
       3      33
       4      33
+      5      33
+      6      33
       b      33
       c      33
       d      33
       e      33
       f      33
       10      33
+      11      33
+      12      33
       17      33
       18      33
       19      34
@@ -186,6 +204,8 @@ class 'pkg/TestPatternMatchingInteger' {
       2      41
       3      41
       4      41
+      5      41
+      6      41
       b      41
       c      41
       d      41
@@ -193,6 +213,8 @@ class 'pkg/TestPatternMatchingInteger' {
       f      41
       10      41
       11      41
+      12      41
+      13      41
       14      41
       15      41
       16      41
@@ -200,6 +222,8 @@ class 'pkg/TestPatternMatchingInteger' {
       18      41
       19      41
       1a      41
+      1b      41
+      1c      41
       1d      46
       1e      46
       1f      46
@@ -213,6 +237,8 @@ class 'pkg/TestPatternMatchingInteger' {
       2a      42
       2b      42
       2c      42
+      2d      42
+      2e      42
       2f      43
    }
 }

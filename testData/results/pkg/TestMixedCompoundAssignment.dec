@@ -328,6 +328,8 @@ class 'pkg/TestMixedCompoundAssignment' {
       4      58
       5      58
       6      58
+      7      58
+      8      58
       9      59
       a      59
       b      59
@@ -351,6 +353,8 @@ class 'pkg/TestMixedCompoundAssignment' {
       4      64
       5      64
       6      64
+      7      64
+      8      64
       9      65
       a      65
       b      65
@@ -374,6 +378,8 @@ class 'pkg/TestMixedCompoundAssignment' {
       4      70
       5      70
       6      70
+      7      70
+      8      70
       9      71
       a      71
       b      71
@@ -395,6 +401,8 @@ class 'pkg/TestMixedCompoundAssignment' {
       5      76
       6      76
       7      76
+      8      76
+      9      76
       a      77
       b      77
       c      77

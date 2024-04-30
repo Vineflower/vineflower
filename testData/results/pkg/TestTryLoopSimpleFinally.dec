@@ -48,18 +48,24 @@ class 'pkg/TestTryLoopSimpleFinally' {
       1e      16
       1f      17
       20      17
+      21      17
+      22      17
       2f      19
       30      19
       31      19
       32      19
       33      19
       34      19
+      35      19
+      36      19
       39      21
    }
 
    method 'test2 (ILjava/nio/file/Path;)V' {
       0      25
       1      25
+      2      25
+      3      25
       8      26
       c      26
       d      27
@@ -67,12 +73,16 @@ class 'pkg/TestTryLoopSimpleFinally' {
       f      27
       10      27
       11      27
+      12      27
+      13      27
       14      28
       15      28
       16      28
       17      28
       18      28
       19      28
+      1a      28
+      1b      28
       24      29
       26      32
       27      32
@@ -86,6 +96,8 @@ class 'pkg/TestTryLoopSimpleFinally' {
       3f      35
       40      35
       41      35
+      42      35
+      43      35
    }
 }
 

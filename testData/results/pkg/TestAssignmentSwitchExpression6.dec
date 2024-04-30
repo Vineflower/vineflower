@@ -26,6 +26,8 @@ class 'pkg/TestAssignmentSwitchExpression6' {
       1      4
       2      6
       3      6
+      4      6
+      5      6
       6      7
       7      7
       8      7
@@ -50,6 +52,42 @@ class 'pkg/TestAssignmentSwitchExpression6' {
       a2      13
       a3      13
       af      10
+      b0      10
+      b1      10
+      b2      10
+      b3      10
+      b4      10
+      b5      10
+      b6      10
+      b7      10
+      b8      10
+      b9      10
+      ba      10
+      bb      10
+      bc      10
+      bd      10
+      be      10
+      bf      10
+      c0      10
+      c1      10
+      c2      10
+      c3      10
+      c4      10
+      c5      10
+      c6      10
+      c7      10
+      c8      10
+      c9      10
+      ca      10
+      cb      10
+      cc      10
+      cd      10
+      ce      10
+      cf      10
+      d0      10
+      d1      10
+      d2      10
+      d3      10
       d4      11
       d5      11
       d9      12

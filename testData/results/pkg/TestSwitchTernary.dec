@@ -49,9 +49,37 @@ class 'pkg/TestSwitchTernary' {
    method 'test (IIZ)V' {
       0      4
       1      4
+      2      4
+      3      4
       4      4
       8      4
       9      4
+      a      4
+      b      4
+      c      4
+      d      4
+      e      4
+      f      4
+      10      4
+      11      4
+      12      4
+      13      4
+      14      4
+      15      4
+      16      4
+      17      4
+      18      4
+      19      4
+      1a      4
+      1b      4
+      1c      4
+      1d      4
+      1e      4
+      1f      4
+      20      4
+      21      4
+      22      4
+      23      4
       24      6
       25      6
       26      6
@@ -67,18 +95,24 @@ class 'pkg/TestSwitchTernary' {
       32      9
       33      9
       34      9
+      35      9
+      36      9
       37      11
       38      11
       39      11
       3a      11
       3b      11
       3c      11
+      3d      11
+      3e      11
       3f      13
    }
 
    method 'testString (Ljava/lang/String;Ljava/lang/String;Z)V' {
       0      16
       1      16
+      2      16
+      3      16
       4      16
       8      16
       9      16
@@ -90,6 +124,30 @@ class 'pkg/TestSwitchTernary' {
       3e      21
       3f      21
       4b      17
+      4c      17
+      4d      17
+      4e      17
+      4f      17
+      50      17
+      51      17
+      52      17
+      53      17
+      54      17
+      55      17
+      56      17
+      57      17
+      58      17
+      59      17
+      5a      17
+      5b      17
+      5c      17
+      5d      17
+      5e      17
+      5f      17
+      60      17
+      61      17
+      62      17
+      63      17
       64      19
       65      19
       66      19
@@ -105,22 +163,55 @@ class 'pkg/TestSwitchTernary' {
       72      22
       73      22
       74      22
+      75      22
+      76      22
       77      24
       78      24
       79      24
       7a      24
       7b      24
       7c      24
+      7d      24
+      7e      24
       7f      26
    }
 
    method 'testEnum (Lpkg/TestSwitchTernary$TestEnum;Lpkg/TestSwitchTernary$TestEnum;Z)V' {
       3      29
       4      29
+      5      29
+      6      29
       7      29
       b      29
       f      29
       10      29
+      11      29
+      12      29
+      13      29
+      14      29
+      15      29
+      16      29
+      17      29
+      18      29
+      19      29
+      1a      29
+      1b      29
+      1c      29
+      1d      29
+      1e      29
+      1f      29
+      20      29
+      21      29
+      22      29
+      23      29
+      24      29
+      25      29
+      26      29
+      27      29
+      28      29
+      29      29
+      2a      29
+      2b      29
       2c      31
       2d      31
       2e      31
@@ -136,12 +227,16 @@ class 'pkg/TestSwitchTernary' {
       3a      34
       3b      34
       3c      34
+      3d      34
+      3e      34
       3f      36
       40      36
       41      36
       42      36
       43      36
       44      36
+      45      36
+      46      36
       47      38
    }
 }

@@ -26,6 +26,8 @@ class 'pkg/TestAmbiguousArraylen' {
       5      7
       6      7
       7      7
+      8      7
+      9      7
       a      8
       b      8
       c      8
@@ -55,6 +57,8 @@ class 'pkg/TestAmbiguousArraylen' {
       28      13
       29      13
       2a      13
+      2b      13
+      2c      13
       2d      13
       2e      13
       2f      13
@@ -75,6 +79,8 @@ class 'pkg/TestAmbiguousArraylen' {
       41      13
       42      13
       43      13
+      44      13
+      45      13
       46      13
       47      14
       48      14

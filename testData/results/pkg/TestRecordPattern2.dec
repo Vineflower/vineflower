@@ -97,6 +97,8 @@ class 'pkg/TestRecordPattern2' {
       2      6
       3      6
       4      6
+      5      6
+      6      6
       7      6
       8      6
       9      6
@@ -105,6 +107,8 @@ class 'pkg/TestRecordPattern2' {
       10      6
       11      6
       12      6
+      13      6
+      14      6
       1a      6
       1b      6
       1c      6
@@ -114,6 +118,8 @@ class 'pkg/TestRecordPattern2' {
       24      6
       25      6
       26      6
+      27      6
+      28      6
       2e      6
       2f      7
       30      7
@@ -133,6 +139,8 @@ class 'pkg/TestRecordPattern2' {
       41      8
       42      8
       43      8
+      44      8
+      45      8
       46      8
       47      8
       48      8
@@ -141,6 +149,8 @@ class 'pkg/TestRecordPattern2' {
       4f      8
       50      8
       51      8
+      52      8
+      53      8
       59      8
       5a      8
       5b      9
@@ -163,6 +173,8 @@ class 'pkg/TestRecordPattern2' {
       73      12
       74      12
       75      12
+      76      12
+      77      12
       78      14
    }
 
@@ -172,6 +184,8 @@ class 'pkg/TestRecordPattern2' {
       2      17
       3      17
       4      17
+      5      17
+      6      17
       7      17
       8      17
       9      17
@@ -180,6 +194,8 @@ class 'pkg/TestRecordPattern2' {
       10      17
       11      17
       12      17
+      13      17
+      14      17
       1a      17
       1b      17
       1c      17
@@ -189,6 +205,8 @@ class 'pkg/TestRecordPattern2' {
       24      17
       25      17
       26      17
+      27      17
+      28      17
       2e      17
       2f      18
       30      18
@@ -208,6 +226,8 @@ class 'pkg/TestRecordPattern2' {
       41      19
       42      19
       43      19
+      44      19
+      45      19
       46      19
       47      19
       48      19
@@ -216,6 +236,8 @@ class 'pkg/TestRecordPattern2' {
       4f      19
       50      19
       51      19
+      52      19
+      53      19
       59      19
       5a      19
       5b      20
@@ -238,6 +260,8 @@ class 'pkg/TestRecordPattern2' {
       73      23
       74      23
       75      23
+      76      23
+      77      23
       78      26
       79      26
       7a      26
@@ -262,6 +286,42 @@ class 'pkg/TestRecordPattern2' {
       9      35
       a      35
       b      35
+      c      35
+      d      35
+      e      35
+      f      35
+      10      35
+      11      35
+      12      35
+      13      35
+      14      35
+      15      35
+      16      35
+      17      35
+      18      35
+      19      35
+      1a      35
+      1b      35
+      1c      35
+      1d      35
+      1e      35
+      1f      35
+      20      35
+      21      35
+      22      35
+      23      35
+      24      35
+      25      35
+      26      35
+      27      35
+      28      35
+      29      35
+      2a      35
+      2b      35
+      2c      35
+      2d      35
+      2e      35
+      2f      35
       34      81
       35      81
       39      81
@@ -278,6 +338,8 @@ class 'pkg/TestRecordPattern2' {
       4a      42
       4b      42
       4c      42
+      4d      42
+      4e      42
       54      42
       55      42
       56      42
@@ -288,27 +350,25 @@ class 'pkg/TestRecordPattern2' {
       5f      42
       60      42
       61      42
+      62      42
+      63      42
       69      42
       6a      42
       6e      43
       6f      43
-      70      43
-      71      43
-      72      43
-      73      43
-      74      43
-      75      43
+      71      47
+      72      47
+      73      48
       76      43
       77      43
       78      43
       79      43
-      7a      43
       7b      43
       7c      43
       7d      43
-      7e      43
-      7f      43
       80      43
+      81      43
+      82      43
       84      44
       87      50
       88      50
@@ -318,6 +378,8 @@ class 'pkg/TestRecordPattern2' {
       90      50
       91      50
       92      50
+      93      50
+      94      50
       9a      50
       9b      50
       9c      50
@@ -328,34 +390,30 @@ class 'pkg/TestRecordPattern2' {
       a5      50
       a6      50
       a7      50
+      a8      50
+      a9      50
       af      50
       b0      50
       b1      51
       b4      51
       b5      51
-      b6      51
-      b7      51
-      b8      51
-      b9      51
-      ba      51
-      bb      51
+      b7      55
+      b8      55
+      b9      56
       bc      51
       bd      51
       be      51
       bf      51
-      c0      51
       c1      51
       c2      51
       c3      51
-      c4      51
-      c5      51
       c6      51
       c7      51
       c8      51
       c9      51
-      ca      51
-      cb      51
       cc      51
+      cd      51
+      ce      51
       d0      52
       d3      58
       d4      58
@@ -371,15 +429,16 @@ class 'pkg/TestRecordPattern2' {
       e6      59
       e7      59
       e8      59
+      e9      59
+      ea      59
       f0      59
       f1      59
       f5      63
       f6      63
       f7      64
       fd      60
+      fe      60
       100      60
-      101      60
-      102      60
       104      66
       105      66
       106      66
@@ -388,6 +447,8 @@ class 'pkg/TestRecordPattern2' {
       10d      66
       10e      66
       10f      66
+      110      66
+      111      66
       117      66
       118      66
       119      66
@@ -398,6 +459,8 @@ class 'pkg/TestRecordPattern2' {
       122      66
       123      66
       124      66
+      125      66
+      126      66
       12c      66
       12d      66
       12e      66
@@ -407,6 +470,8 @@ class 'pkg/TestRecordPattern2' {
       132      66
       133      66
       134      66
+      135      66
+      136      66
       137      66
       138      66
       139      66
@@ -414,6 +479,8 @@ class 'pkg/TestRecordPattern2' {
       13b      66
       13c      66
       13d      66
+      13e      66
+      13f      66
       140      66
       141      66
       142      66
@@ -428,6 +495,8 @@ class 'pkg/TestRecordPattern2' {
       14b      66
       14c      66
       14d      66
+      14e      66
+      14f      66
       150      73
       151      73
       152      74

@@ -27,9 +27,13 @@ class 'pkg/TestRecordPatterns2' {
       2      4
       3      4
       4      4
+      5      4
+      6      4
       7      5
       9      5
       a      8
+      b      8
+      c      8
       d      13
       e      13
       f      14
@@ -39,6 +43,8 @@ class 'pkg/TestRecordPatterns2' {
       14      14
       15      14
       16      14
+      17      14
+      18      14
       1c      9
       21      10
       22      10

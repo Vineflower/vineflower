@@ -185,12 +185,18 @@ class 'pkg/TestLoopFinally' {
       3      4
       4      4
       5      4
+      6      4
+      7      4
       8      6
       9      6
       a      6
       b      6
       c      6
+      d      6
+      e      6
       27      4
+      28      4
+      29      4
       2b      8
       2c      8
       2d      8
@@ -202,12 +208,16 @@ class 'pkg/TestLoopFinally' {
       33      9
       34      9
       35      9
+      36      9
+      37      9
       3b      13
       3c      13
       3d      13
       3e      13
       3f      13
       40      13
+      41      13
+      42      13
       4b      17
       4c      17
       4d      17
@@ -226,11 +236,15 @@ class 'pkg/TestLoopFinally' {
       3      21
       4      21
       5      21
+      6      21
+      7      21
       8      23
       9      23
       a      23
       b      23
       c      23
+      d      23
+      e      23
       43      25
       44      25
       45      25
@@ -242,6 +256,8 @@ class 'pkg/TestLoopFinally' {
       4b      26
       4c      26
       4d      26
+      4e      26
+      4f      26
       50      35
       51      35
       52      35
@@ -254,6 +270,8 @@ class 'pkg/TestLoopFinally' {
       5b      27
       5c      27
       5d      27
+      5e      27
+      5f      27
       60      28
       61      28
       62      28
@@ -269,6 +287,8 @@ class 'pkg/TestLoopFinally' {
       6e      32
       6f      32
       70      32
+      71      32
+      72      32
       75      21
       76      21
       77      21
@@ -290,11 +310,15 @@ class 'pkg/TestLoopFinally' {
       3      44
       4      44
       5      44
+      6      44
+      7      44
       8      46
       9      46
       a      46
       b      46
       c      46
+      d      46
+      e      46
       20      48
       21      48
       22      48
@@ -306,6 +330,8 @@ class 'pkg/TestLoopFinally' {
       28      49
       29      49
       2a      49
+      2b      49
+      2c      49
       30      44
       31      44
       32      44
@@ -324,6 +350,8 @@ class 'pkg/TestLoopFinally' {
       0      62
       1      62
       2      62
+      3      62
+      4      62
       5      63
       10      63
       11      66
@@ -338,6 +366,8 @@ class 'pkg/TestLoopFinally' {
       1a      67
       1b      67
       1c      67
+      1d      67
+      1e      67
       1f      68
       2a      68
       2b      71
@@ -352,15 +382,21 @@ class 'pkg/TestLoopFinally' {
       34      72
       35      72
       36      72
+      37      72
+      38      72
       39      73
       44      73
       4e      76
       4f      76
       50      76
+      51      76
+      52      76
       58      80
       59      80
       5a      80
       5b      80
+      5c      80
+      5d      80
       5e      82
       5f      82
       60      82
@@ -377,15 +413,21 @@ class 'pkg/TestLoopFinally' {
       1      89
       2      89
       3      89
+      4      89
+      5      89
       6      90
       11      90
       1b      93
       1c      93
       1d      93
+      1e      93
+      1f      93
       25      97
       26      97
       27      97
       28      97
+      29      97
+      2a      97
       2b      94
       2c      94
    }
@@ -395,15 +437,21 @@ class 'pkg/TestLoopFinally' {
       1      105
       2      105
       3      105
+      4      105
+      5      105
       6      106
       7      106
       20      111
       21      111
       22      111
+      23      111
+      24      111
       2b      115
       2c      115
       2d      115
       2e      115
+      2f      115
+      30      115
       31      112
       32      112
       33      108
@@ -425,6 +473,8 @@ class 'pkg/TestLoopFinally' {
       9      128
       a      128
       b      128
+      c      128
+      d      128
       16      129
       17      130
       26      136
@@ -433,6 +483,8 @@ class 'pkg/TestLoopFinally' {
       29      136
       2a      136
       2b      136
+      2c      136
+      2d      136
    }
 
    method 'testConditionalBreakInFinally ()V' {
@@ -443,8 +495,15 @@ class 'pkg/TestLoopFinally' {
       4      143
       5      143
       6      143
+      7      143
+      8      143
       9      158
       a      145
+      b      145
+      c      145
+      d      145
+      e      145
+      f      145
       1a      146
       1b      147
       1c      147
@@ -452,11 +511,15 @@ class 'pkg/TestLoopFinally' {
       1e      147
       1f      147
       20      147
+      21      147
+      22      147
       2e      149
       2f      149
       30      149
       31      149
       32      149
+      33      149
+      34      149
       38      154
       39      154
       43      150
@@ -478,6 +541,8 @@ class 'pkg/TestLoopFinally' {
       4      165
       5      165
       6      165
+      7      165
+      8      165
       19      176
       2f      167
       32      170
@@ -491,6 +556,8 @@ class 'pkg/TestLoopFinally' {
       3a      172
       3b      172
       3c      172
+      3d      172
+      3e      172
       3f      173
       40      173
       41      173

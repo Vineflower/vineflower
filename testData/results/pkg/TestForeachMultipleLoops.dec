@@ -102,6 +102,8 @@ class 'pkg/TestForeachMultipleLoops' {
    method 'test (Ljava/lang/Object;Ljava/util/Map;I)V' {
       0      8
       1      8
+      2      8
+      3      8
       4      9
       5      9
       6      9
@@ -149,6 +151,8 @@ class 'pkg/TestForeachMultipleLoops' {
       3a      12
       3b      13
       3c      13
+      3d      13
+      3e      13
       46      14
       47      14
       4b      14
@@ -161,6 +165,8 @@ class 'pkg/TestForeachMultipleLoops' {
       58      16
       59      16
       5a      16
+      5b      16
+      5c      16
       60      20
       61      20
       62      20
@@ -177,9 +183,13 @@ class 'pkg/TestForeachMultipleLoops' {
       6d      24
       6e      24
       6f      24
+      70      24
+      71      24
       72      25
       73      25
       74      25
+      75      25
+      76      25
       7a      29
       7b      29
       7c      29
@@ -194,21 +204,29 @@ class 'pkg/TestForeachMultipleLoops' {
       88      31
       89      31
       8a      31
+      8b      31
+      8c      31
       8d      35
       8e      35
       8f      35
       90      35
       91      35
+      92      35
+      93      35
       97      36
       99      37
       9a      37
       9b      37
+      9c      37
+      9d      37
       a1      41
    }
 
    method 'test1 (Ljava/lang/Object;Ljava/util/Map;I)V' {
       0      44
       1      44
+      2      44
+      3      44
       4      45
       5      45
       6      45
@@ -238,6 +256,8 @@ class 'pkg/TestForeachMultipleLoops' {
       1e      53
       1f      53
       20      53
+      21      53
+      22      53
       23      57
       24      57
       25      57
@@ -264,6 +284,8 @@ class 'pkg/TestForeachMultipleLoops' {
       3a      58
       3b      59
       3c      59
+      3d      59
+      3e      59
       46      60
       47      60
       4b      60
@@ -277,6 +299,8 @@ class 'pkg/TestForeachMultipleLoops' {
       58      64
       59      64
       5a      64
+      5b      64
+      5c      64
       60      65
       61      65
       62      65
@@ -293,9 +317,13 @@ class 'pkg/TestForeachMultipleLoops' {
       6d      71
       6e      71
       6f      71
+      70      71
+      71      71
       72      72
       73      72
       74      72
+      75      72
+      76      72
       7a      76
       7b      76
       7c      76
@@ -311,6 +339,8 @@ class 'pkg/TestForeachMultipleLoops' {
       88      80
       89      80
       8a      80
+      8b      80
+      8c      80
       8d      84
       8e      84
       8f      84
@@ -339,6 +369,8 @@ class 'pkg/TestForeachMultipleLoops' {
       b0      85
       b1      85
       b2      85
+      b3      85
+      b4      85
       b8      86
       b9      86
       ba      86
@@ -352,10 +384,14 @@ class 'pkg/TestForeachMultipleLoops' {
       c5      91
       c6      91
       c7      91
+      c8      91
+      c9      91
       cd      92
       cf      93
       d0      93
       d1      93
+      d2      93
+      d3      93
       d7      54
    }
 }

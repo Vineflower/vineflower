@@ -40,6 +40,8 @@ class 'pkg/TestLoopMerging2' {
       a      7
       b      7
       c      7
+      d      7
+      e      7
       f      8
       10      8
       12      8
@@ -53,6 +55,8 @@ class 'pkg/TestLoopMerging2' {
       1d      11
       1e      11
       1f      11
+      20      11
+      21      11
       22      12
       23      12
       24      12
@@ -76,6 +80,8 @@ class 'pkg/TestLoopMerging2' {
       4      17
       5      17
       6      17
+      7      17
+      8      17
       9      17
       a      17
       b      17
@@ -83,6 +89,8 @@ class 'pkg/TestLoopMerging2' {
       d      17
       e      17
       f      17
+      10      17
+      11      17
       12      26
       13      18
       14      18
@@ -92,6 +100,8 @@ class 'pkg/TestLoopMerging2' {
       18      20
       19      20
       1a      20
+      1b      20
+      1c      20
       1d      21
       1e      21
       1f      21

@@ -40,6 +40,8 @@ class 'pkg/TestAssignmentInLoop' {
       6      10
       9      10
       a      10
+      b      10
+      c      10
       d      11
       e      11
       f      11
@@ -53,6 +55,8 @@ class 'pkg/TestAssignmentInLoop' {
       1a      14
       1b      14
       1c      14
+      1d      14
+      1e      14
       1f      15
       20      15
       21      15
@@ -73,6 +77,8 @@ class 'pkg/TestAssignmentInLoop' {
       34      18
       36      18
       37      18
+      38      18
+      39      18
       3a      19
       3b      19
       3c      19
@@ -85,6 +91,8 @@ class 'pkg/TestAssignmentInLoop' {
       46      22
       47      22
       48      22
+      49      22
+      4a      22
       4b      23
       4c      23
       4d      23

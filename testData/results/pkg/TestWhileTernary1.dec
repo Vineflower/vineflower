@@ -19,14 +19,22 @@ class 'pkg/TestWhileTernary1' {
    method 'test (ZII)I' {
       0      4
       1      4
+      2      4
+      3      4
       4      7
       5      7
+      6      7
+      7      7
       8      7
       9      7
       a      7
+      b      7
+      c      7
       10      7
       11      7
       12      7
+      13      7
+      14      7
       15      8
       16      8
       17      8

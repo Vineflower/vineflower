@@ -107,7 +107,7 @@ public final class TestNamedSuspendFun2Kt {
                   break;
                case 2:
                   ResultKt.throwOnFailure($result);
-                  return Boxing.boxInt(1);// 2 7 8 9 11
+                  return Boxing.boxInt(1);// 11
                case 3:
                   ResultKt.throwOnFailure($result);
                   break;
@@ -151,11 +151,11 @@ public final class TestNamedSuspendFun2Kt {
             }
          }
 
-         Throwable x = var10000;
-         $continuation.L$0 = x;
+         Throwable x = var10000;// 7
+         $continuation.L$0 = x;// 8
          $continuation.label = 4;
          if (bar($continuation) == var4) {
-            return var4;
+            return var4;// 2
          }
 
          throw x;
@@ -210,6 +210,8 @@ class 'pkg/TestNamedSuspendFun2Kt' {
       2      60
       3      60
       4      60
+      5      60
+      6      60
       7      61
       8      61
       9      61
@@ -223,6 +225,8 @@ class 'pkg/TestNamedSuspendFun2Kt' {
       11      62
       12      62
       13      62
+      14      62
+      15      62
       16      63
       1b      63
       1c      63
@@ -247,8 +251,42 @@ class 'pkg/TestNamedSuspendFun2Kt' {
       39      77
       3a      77
       3b      77
+      3c      77
+      3d      77
+      3e      77
+      3f      77
+      40      77
+      41      77
+      42      77
+      43      77
+      44      77
+      45      77
+      46      77
+      47      77
+      48      77
+      49      77
+      4a      77
+      4b      77
+      4c      77
+      4d      77
+      4e      77
+      4f      77
+      50      77
+      51      77
+      52      77
+      53      77
+      54      77
+      55      77
+      56      77
+      57      77
+      58      77
+      59      77
+      5a      77
+      5b      77
       5c      79
       5d      79
+      5e      79
+      5f      79
       62      124
       63      123
       64      123
@@ -256,9 +294,13 @@ class 'pkg/TestNamedSuspendFun2Kt' {
       66      123
       67      123
       68      124
+      69      124
+      6a      124
       6c      131
       6d      131
       6e      131
+      6f      131
+      70      131
       71      132
       72      132
       73      132
@@ -276,6 +318,8 @@ class 'pkg/TestNamedSuspendFun2Kt' {
       80      92
       81      93
       82      93
+      83      93
+      84      93
       85      164
       86      163
       87      163
@@ -288,6 +332,8 @@ class 'pkg/TestNamedSuspendFun2Kt' {
       8f      164
       90      164
       91      164
+      92      164
+      93      164
       94      164
       95      164
       97      108
@@ -295,8 +341,6 @@ class 'pkg/TestNamedSuspendFun2Kt' {
       99      108
       9a      108
       9d      109
-      9e      109
-      9f      109
       a0      103
       a1      102
       a2      102
@@ -306,68 +350,58 @@ class 'pkg/TestNamedSuspendFun2Kt' {
       a6      103
       a7      103
       a8      103
-      a9      109
       aa      103
       ab      103
       ac      103
-      ad      109
-      ae      109
+      ad      103
+      ae      103
       af      104
       b0      104
       b1      104
-      b2      109
-      b3      109
-      b4      109
-      b5      109
-      b6      109
-      b7      109
-      b8      109
-      b9      109
-      ba      109
-      bb      109
-      bc      109
-      bd      109
-      be      109
-      bf      109
-      c0      109
-      c1      109
-      c2      109
-      c3      109
-      c4      109
-      c5      109
-      c6      109
-      c7      109
-      c8      109
-      c9      109
-      ca      109
-      cb      109
-      cc      109
-      cd      109
-      ce      109
-      cf      109
-      d0      109
-      d1      109
-      d2      109
-      d3      109
-      d4      109
-      d5      109
-      d6      109
-      d7      109
-      d8      109
-      d9      109
-      da      109
-      db      109
-      dc      109
-      dd      109
-      de      109
-      df      109
-      e0      109
-      e1      109
-      e2      109
+      b2      111
+      b3      111
+      b4      111
+      b5      111
+      bb      153
+      bc      156
+      bd      154
+      be      154
+      bf      154
+      c0      154
+      c1      154
+      c2      155
+      c3      155
+      c4      155
+      c5      155
+      c6      155
+      c7      156
+      c8      156
+      c9      156
+      cb      156
+      cc      156
+      cd      156
+      ce      156
+      cf      156
+      d0      157
+      d1      157
+      d2      157
+      d3      114
+      d4      114
+      d5      114
+      d6      114
+      d7      114
+      d8      114
+      d9      114
+      da      114
+      db      115
+      dc      115
+      dd      115
+      de      115
+      e1      116
+      e2      116
       e3      109
       e4      109
       e5      109
-      e6      109
       ec      118
       ed      118
       f1      118
@@ -383,14 +417,14 @@ class 'pkg/TestNamedSuspendFun2Kt' {
 }
 
 Lines mapping:
-2 <-> 110
+2 <-> 158
 4 <-> 125
 5 <-> 93
 6 <-> 94
-7 <-> 110
-8 <-> 110
-9 <-> 110
+7 <-> 154
+8 <-> 155
 11 <-> 110
 14 <-> 170
 Not mapped:
 3
+9

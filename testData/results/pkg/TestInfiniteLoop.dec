@@ -75,6 +75,8 @@ class 'pkg/TestInfiniteLoop' {
       0      29
       1      29
       2      29
+      3      29
+      4      29
       5      32
       6      32
    }
@@ -89,6 +91,8 @@ class 'pkg/TestInfiniteLoop' {
       1      43
       2      44
       3      44
+      4      44
+      5      44
       6      45
       7      45
    }
@@ -98,10 +102,14 @@ class 'pkg/TestInfiniteLoop' {
       1      53
       2      54
       3      54
+      4      54
+      5      54
       6      55
       7      55
       8      55
       9      56
+      a      56
+      b      56
       f      61
    }
 
@@ -110,6 +118,8 @@ class 'pkg/TestInfiniteLoop' {
       1      64
       2      64
       3      65
+      4      65
+      5      65
    }
 }
 

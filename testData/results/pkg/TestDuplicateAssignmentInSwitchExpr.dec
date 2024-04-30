@@ -17,6 +17,24 @@ class 'pkg/TestDuplicateAssignmentInSwitchExpr' {
    method 'foo (I)V' {
       0      4
       1      4
+      2      4
+      3      4
+      4      4
+      5      4
+      6      4
+      7      4
+      8      4
+      9      4
+      a      4
+      b      4
+      c      4
+      d      4
+      e      4
+      f      4
+      10      4
+      11      4
+      12      4
+      13      4
       14      7
       16      7
       1a      9

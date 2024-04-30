@@ -22,6 +22,36 @@ class 'pkg/TestSwitchPatternMatching9' {
       4d      7
       4e      7
       5d      4
+      5e      4
+      5f      4
+      60      4
+      61      4
+      62      4
+      63      4
+      64      4
+      65      4
+      66      4
+      67      4
+      68      4
+      69      4
+      6a      4
+      6b      4
+      6c      4
+      6d      4
+      6e      4
+      6f      4
+      70      4
+      71      4
+      72      4
+      73      4
+      74      4
+      75      4
+      76      4
+      77      4
+      78      4
+      79      4
+      7a      4
+      7b      4
       7c      5
       7d      5
       81      6
@@ -29,6 +59,7 @@ class 'pkg/TestSwitchPatternMatching9' {
       86      7
       87      7
       8b      8
+      8c      8
       8d      4
    }
 }

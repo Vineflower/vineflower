@@ -188,6 +188,8 @@ class 'pkg/TestDataClass' {
       2      43
       3      43
       4      43
+      5      43
+      6      43
       7      44
       8      44
       9      44
@@ -198,6 +200,8 @@ class 'pkg/TestDataClass' {
       e      47
       f      47
       10      47
+      11      47
+      12      47
       13      48
       14      48
       15      48
@@ -208,6 +212,8 @@ class 'pkg/TestDataClass' {
       1a      51
       1b      51
       1c      51
+      1d      51
+      1e      51
       1f      52
       20      52
       21      52
@@ -219,6 +225,8 @@ class 'pkg/TestDataClass' {
       27      55
       28      55
       29      55
+      2a      55
+      2b      55
       2c      56
       2d      56
       2e      56
@@ -303,12 +311,16 @@ class 'pkg/TestDataClass' {
       28      80
       29      80
       2a      80
+      2b      80
+      2c      80
       2d      80
       31      80
       32      80
       33      80
       34      80
       35      80
+      36      80
+      37      80
       38      75
       3b      75
    }
@@ -317,10 +329,14 @@ class 'pkg/TestDataClass' {
       0      84
       1      84
       2      84
+      3      84
+      4      84
       5      85
       6      85
       7      86
       b      86
+      c      86
+      d      86
       e      87
       f      87
       10      89
@@ -337,6 +353,8 @@ class 'pkg/TestDataClass' {
       1b      90
       1c      90
       20      90
+      21      90
+      22      90
       23      91
       24      91
       25      92
@@ -348,6 +366,8 @@ class 'pkg/TestDataClass' {
       2b      92
       2c      92
       2d      92
+      2e      92
+      2f      92
       30      93
       31      93
       32      94
@@ -359,6 +379,8 @@ class 'pkg/TestDataClass' {
       38      94
       39      94
       3d      94
+      3e      94
+      3f      94
       40      95
       41      95
       42      97
@@ -370,6 +392,8 @@ class 'pkg/TestDataClass' {
       48      97
       49      97
       4d      97
+      4e      97
+      4f      97
    }
 }
 

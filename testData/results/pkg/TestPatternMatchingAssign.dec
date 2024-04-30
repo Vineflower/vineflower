@@ -17,6 +17,8 @@ class 'pkg/TestPatternMatchingAssign' {
       4      4
       5      4
       6      4
+      7      4
+      8      4
       d      4
       e      5
       f      5
@@ -26,6 +28,8 @@ class 'pkg/TestPatternMatchingAssign' {
       13      6
       14      6
       15      6
+      16      6
+      17      6
       18      8
    }
 }

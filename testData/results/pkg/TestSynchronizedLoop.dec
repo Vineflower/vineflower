@@ -97,6 +97,8 @@ class 'pkg/TestSynchronizedLoop' {
       4      7
       5      7
       6      7
+      7      7
+      8      7
       9      8
       a      8
       b      8
@@ -124,6 +126,8 @@ class 'pkg/TestSynchronizedLoop' {
       3      30
       4      31
       5      31
+      6      31
+      7      31
       8      32
       9      32
       a      32
@@ -144,8 +148,12 @@ class 'pkg/TestSynchronizedLoop' {
       6      39
       7      39
       8      39
+      9      39
+      a      39
       b      42
       c      42
+      d      42
+      e      42
       f      50
       10      50
       11      50
@@ -156,6 +164,8 @@ class 'pkg/TestSynchronizedLoop' {
       16      51
       17      51
       18      51
+      19      51
+      1a      51
       1b      54
       1c      54
       1d      54
@@ -163,6 +173,8 @@ class 'pkg/TestSynchronizedLoop' {
       1f      54
       20      54
       21      54
+      22      54
+      23      54
       38      56
       39      56
       3a      56
@@ -175,6 +187,8 @@ class 'pkg/TestSynchronizedLoop' {
       41      57
       42      57
       43      57
+      44      57
+      45      57
       50      43
       51      43
       52      43
@@ -186,20 +200,28 @@ class 'pkg/TestSynchronizedLoop' {
       58      44
       59      44
       5a      44
+      5b      44
+      5c      44
       5d      45
       5e      45
       5f      45
       60      45
       61      45
+      62      45
+      63      45
       70      64
       71      64
       72      64
+      73      64
+      74      64
       75      65
       76      65
       77      65
       78      65
       79      65
       7a      65
+      7b      65
+      7c      65
       7d      67
    }
 
@@ -210,6 +232,8 @@ class 'pkg/TestSynchronizedLoop' {
       3      70
       4      70
       5      70
+      6      70
+      7      70
       8      71
       b      71
       c      73

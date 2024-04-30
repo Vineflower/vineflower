@@ -84,6 +84,8 @@ class 'pkg/TestObjectBitwise' {
       d      6
       e      6
       f      6
+      10      6
+      11      6
       17      6
    }
 
@@ -104,6 +106,8 @@ class 'pkg/TestObjectBitwise' {
       d      10
       e      10
       f      10
+      10      10
+      11      10
       17      10
    }
 
@@ -124,6 +128,8 @@ class 'pkg/TestObjectBitwise' {
       d      14
       e      14
       f      14
+      10      14
+      11      14
       17      14
    }
 
@@ -144,6 +150,8 @@ class 'pkg/TestObjectBitwise' {
       d      18
       e      18
       f      18
+      10      18
+      11      18
       17      18
    }
 
@@ -164,6 +172,8 @@ class 'pkg/TestObjectBitwise' {
       d      22
       e      22
       f      22
+      10      22
+      11      22
       17      22
    }
 
@@ -184,6 +194,8 @@ class 'pkg/TestObjectBitwise' {
       d      26
       e      26
       f      26
+      10      26
+      11      26
       17      26
    }
 
@@ -233,6 +245,8 @@ class 'pkg/TestObjectBitwise$Inner' {
       a      45
       b      45
       c      45
+      d      45
+      e      45
       14      45
    }
 
@@ -252,6 +266,8 @@ class 'pkg/TestObjectBitwise$Inner' {
       c      50
       d      50
       e      50
+      f      50
+      10      50
       16      50
    }
 
@@ -274,6 +290,8 @@ class 'pkg/TestObjectBitwise$Inner' {
       12      55
       13      55
       14      55
+      15      55
+      16      55
       1c      55
    }
 
@@ -347,6 +365,8 @@ class 'pkg/TestObjectBitwise$Inner' {
       42      63
       43      63
       44      63
+      45      63
+      46      63
       4c      63
    }
 }

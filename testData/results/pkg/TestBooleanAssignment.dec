@@ -14,11 +14,15 @@ class 'pkg/TestBooleanAssignment' {
    method 'test (ZZZ)Z' {
       0      4
       3      4
+      4      4
+      5      4
       6      5
       7      5
       8      5
       9      5
       a      5
+      b      5
+      c      5
       d      8
       e      8
    }

@@ -64,6 +64,8 @@ class 'pkg/TestSynchronizedTrySharing' {
       2a      16
       2b      17
       2c      17
+      2d      17
+      2e      17
       2f      19
    }
 
@@ -102,6 +104,8 @@ class 'pkg/TestSynchronizedTrySharing' {
       41      34
       42      35
       43      35
+      44      35
+      45      35
       46      37
    }
 }

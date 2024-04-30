@@ -47,11 +47,14 @@ class 'pkg/TestTernaryReturn2' {
       19      4
       1a      4
       1b      4
+      1c      4
+      1d      4
       1e      4
       1f      4
       20      4
       21      4
       25      4
+      26      4
       27      4
       28      4
       29      4
@@ -66,6 +69,8 @@ class 'pkg/TestTernaryReturn2' {
    method 'b (Lpkg/TestTernaryReturn2$T;)Z' {
       0      8
       1      8
+      2      8
+      3      8
       9      8
    }
 
