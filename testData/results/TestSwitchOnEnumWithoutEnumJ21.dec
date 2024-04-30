@@ -1,0 +1,36 @@
+import TestSwitchOnEnumWithoutEnumJ21.TestEnum;
+
+public class TestSwitchOnEnumWithoutEnumJ21 {
+   // $VF: Unable to simplify switch-on-enum, as the enum class was not able to be found.
+   public int test1(TestEnum a) {
+      return switch (a.ordinal()) {// 3
+         case 0 -> 1;// 4
+         case 1 -> 2;// 5
+         case 2 -> 3;// 6
+         default -> throw new MatchException(null, null);
+      };
+   }
+}
+
+class 'TestSwitchOnEnumWithoutEnumJ21' {
+   method 'test1 (LTestSwitchOnEnumWithoutEnumJ21$TestEnum;)I' {
+      0      5
+      1      5
+      2      5
+      3      5
+      4      5
+      24      9
+      25      9
+      29      9
+      2a      6
+      2e      7
+      32      8
+      33      5
+   }
+}
+
+Lines mapping:
+3 <-> 6
+4 <-> 7
+5 <-> 8
+6 <-> 9

@@ -697,6 +697,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestNumberDisambiguation");
     register(JAVA_8, "TestDanglingBoxingCall");
     register(JAVA_21, "TestSwitchOnEnumJ21", "ext/TestEnum2");
+    // Test switch-on-enum decompilation when enum does not exist in the classpath
+    registerRaw(CUSTOM, "TestSwitchOnEnumWithoutEnumJ21");
     register(JAVA_21, "TestSwitchSimpleMultiLine");
     register(JAVA_21, "TestInnerClassesJ21");
     register(JAVA_21, "TestInnerClasses2J21");

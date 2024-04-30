@@ -10,12 +10,12 @@ import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
+import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructField;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.gen.FieldDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.TypeFamily;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
-import org.jetbrains.java.decompiler.util.DotExporter;
 import org.jetbrains.java.decompiler.util.Pair;
 
 import java.util.*;
@@ -38,7 +38,7 @@ public final class SwitchHelper {
   }
 
   private static boolean simplify(SwitchStatement switchStatement, StructMethod mt, RootStatement root) {
-    if (simplifyNewEnumSwitch(switchStatement)) {
+    if (simplifySwitchOnEnumJ21(switchStatement, root)) {
       return true;
     }
 
@@ -285,7 +285,7 @@ public final class SwitchHelper {
     return false;
   }
 
-  private static boolean simplifyNewEnumSwitch(SwitchStatement switchSt) {
+  private static boolean simplifySwitchOnEnumJ21(SwitchStatement switchSt, RootStatement root) {
     SwitchHeadExprent head = (SwitchHeadExprent) switchSt.getHeadexprent();
     Exprent inner = head.getValue();
 
@@ -313,14 +313,18 @@ public final class SwitchHelper {
     if (inner instanceof InvocationExprent && ((InvocationExprent) inner).getName().equals("ordinal")) {
       InvocationExprent invInner = (InvocationExprent) inner;
 
-      ClassesProcessor.ClassNode classNode = DecompilerContext.getClassProcessor().getMapRootClasses().get(invInner.getClassname());
+      StructClass classStruct = DecompilerContext.getStructContext().getClass(invInner.getClassname());
+      if (classStruct == null) {
+        root.addComment("$VF: Unable to simplify switch-on-enum, as the enum class was not able to be found.", true);
+        return false;
+      }
 
       // Check for enum
-      if ((classNode.classStruct.getAccessFlags() & CodeConstants.ACC_ENUM) == CodeConstants.ACC_ENUM) {
+      if ((classStruct.getAccessFlags() & CodeConstants.ACC_ENUM) == CodeConstants.ACC_ENUM) {
         List<String> enumNames = new ArrayList<>();
 
         // Capture fields
-        for (StructField fd : classNode.classStruct.getFields()) {
+        for (StructField fd : classStruct.getFields()) {
           if ((fd.getAccessFlags() & CodeConstants.ACC_ENUM) == CodeConstants.ACC_ENUM) {
             enumNames.add(fd.getName());
           }
