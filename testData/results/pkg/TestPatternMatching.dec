@@ -115,6 +115,8 @@ class 'pkg/TestPatternMatching' {
       4      4
       5      4
       6      4
+      7      4
+      8      4
       d      4
       e      5
       f      5
@@ -124,6 +126,8 @@ class 'pkg/TestPatternMatching' {
       13      5
       14      5
       15      5
+      16      5
+      17      5
       18      7
    }
 
@@ -134,6 +138,8 @@ class 'pkg/TestPatternMatching' {
       4      10
       5      10
       6      10
+      7      10
+      8      10
       d      10
       11      11
       12      11
@@ -141,6 +147,8 @@ class 'pkg/TestPatternMatching' {
       14      11
       15      11
       16      11
+      17      11
+      18      11
       19      13
    }
 
@@ -151,6 +159,8 @@ class 'pkg/TestPatternMatching' {
       4      16
       5      16
       6      16
+      7      16
+      8      16
       d      16
       e      16
       f      16
@@ -159,6 +169,8 @@ class 'pkg/TestPatternMatching' {
       12      16
       13      16
       14      16
+      15      16
+      16      16
       17      17
       18      17
       19      17
@@ -167,6 +179,8 @@ class 'pkg/TestPatternMatching' {
       1c      17
       1d      17
       1e      17
+      1f      17
+      20      17
       21      19
    }
 
@@ -230,6 +244,8 @@ class 'pkg/TestPatternMatching' {
       4      37
       5      37
       6      37
+      7      37
+      8      37
       9      42
       a      42
       b      42
@@ -251,19 +267,12 @@ class 'pkg/TestPatternMatching' {
       1b      39
       1c      39
       1d      39
-      1e      43
-      1f      43
-      20      43
       21      43
-      22      43
-      23      43
       24      43
       25      43
       26      43
       27      43
       28      44
-      29      44
-      2a      44
    }
 
    method 'testInvertedLoopUnused (Ljava/lang/Object;)V' {
@@ -273,14 +282,14 @@ class 'pkg/TestPatternMatching' {
       4      47
       5      47
       6      47
+      7      47
+      8      47
       9      52
       a      52
       b      52
       c      52
       d      52
       e      53
-      f      53
-      10      53
       11      48
       12      48
       13      48
@@ -294,9 +303,6 @@ class 'pkg/TestPatternMatching' {
       1b      49
       1c      49
       1d      49
-      1e      53
-      1f      53
-      20      53
    }
 
    method 'testCompoundLoop (Ljava/lang/Object;)V' {
@@ -306,6 +312,8 @@ class 'pkg/TestPatternMatching' {
       4      56
       5      56
       6      56
+      7      56
+      8      56
       d      56
       e      56
       f      56
@@ -314,6 +322,8 @@ class 'pkg/TestPatternMatching' {
       12      56
       13      56
       14      56
+      15      56
+      16      56
       17      57
       18      57
       19      57
@@ -330,6 +340,8 @@ class 'pkg/TestPatternMatching' {
       4      62
       5      62
       6      62
+      7      62
+      8      62
       d      62
       e      62
       f      62
@@ -337,6 +349,8 @@ class 'pkg/TestPatternMatching' {
       11      62
       12      62
       13      62
+      14      62
+      15      62
       16      63
       1a      66
       1b      63
@@ -349,6 +363,8 @@ class 'pkg/TestPatternMatching' {
       4      70
       5      70
       6      70
+      7      70
+      8      70
       d      70
       e      70
       f      70
@@ -365,6 +381,8 @@ class 'pkg/TestPatternMatching' {
       4      74
       5      74
       6      74
+      7      74
+      8      74
       d      74
       e      74
       f      74
@@ -372,11 +390,15 @@ class 'pkg/TestPatternMatching' {
       11      74
       12      74
       13      74
+      14      74
+      15      74
       16      74
       17      74
       18      74
       19      74
       1a      74
+      1b      74
+      1c      74
       1d      74
       21      74
       22      74
@@ -389,6 +411,8 @@ class 'pkg/TestPatternMatching' {
       4      78
       5      78
       6      78
+      7      78
+      8      78
       d      78
       e      78
       f      78
@@ -397,6 +421,8 @@ class 'pkg/TestPatternMatching' {
       12      78
       13      78
       14      78
+      15      78
+      16      78
       17      79
       18      79
       19      79
@@ -426,6 +452,8 @@ class 'pkg/TestPatternMatching' {
       4      86
       5      86
       6      86
+      7      86
+      8      86
       d      86
       e      86
       f      86
@@ -433,6 +461,8 @@ class 'pkg/TestPatternMatching' {
       11      86
       12      86
       13      86
+      14      86
+      15      86
       16      87
       17      90
       18      90
@@ -486,6 +516,8 @@ class 'pkg/TestPatternMatching' {
       26      103
       27      103
       28      103
+      29      103
+      2a      103
       2f      103
       30      104
       31      104
@@ -495,6 +527,8 @@ class 'pkg/TestPatternMatching' {
       35      104
       36      104
       37      104
+      38      104
+      39      104
       3a      106
    }
 }

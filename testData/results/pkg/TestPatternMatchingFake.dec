@@ -35,10 +35,10 @@ public class TestPatternMatchingFake {
 
    public void testClash(Object obj) {
       if (obj instanceof String s) {// 39
-         System.out.println(s.length());// 40 42 43 44
+         System.out.println(s.length());// 44
       } else {
-         int s = 0;
-         System.out.println(s);
+         int s = 0;// 40
+         System.out.println(s);// 42
       }
    }// 46
 
@@ -64,6 +64,8 @@ class 'pkg/TestPatternMatchingFake' {
       2      4
       3      4
       4      4
+      5      4
+      6      4
       b      4
       c      5
       d      5
@@ -75,12 +77,16 @@ class 'pkg/TestPatternMatchingFake' {
       13      5
       14      5
       15      5
+      16      5
+      17      5
       18      8
       1a      8
       1b      8
       1c      8
       1d      8
       1e      8
+      1f      8
+      20      8
       25      8
       26      9
       27      9
@@ -92,6 +98,8 @@ class 'pkg/TestPatternMatchingFake' {
       2d      9
       2e      9
       2f      9
+      30      9
+      31      9
       32      11
    }
 
@@ -101,6 +109,8 @@ class 'pkg/TestPatternMatchingFake' {
       2      14
       3      14
       4      14
+      5      14
+      6      14
       b      14
       c      15
       d      15
@@ -112,6 +122,8 @@ class 'pkg/TestPatternMatchingFake' {
       13      15
       14      15
       15      15
+      16      15
+      17      15
       18      17
    }
 
@@ -122,6 +134,8 @@ class 'pkg/TestPatternMatchingFake' {
       4      20
       5      20
       6      20
+      7      20
+      8      20
       d      20
       e      21
       f      21
@@ -133,6 +147,8 @@ class 'pkg/TestPatternMatchingFake' {
       15      21
       16      21
       17      21
+      18      21
+      19      21
       1a      23
    }
 
@@ -142,6 +158,8 @@ class 'pkg/TestPatternMatchingFake' {
       2      26
       3      26
       4      26
+      5      26
+      6      26
       7      27
       8      27
       9      27
@@ -155,12 +173,16 @@ class 'pkg/TestPatternMatchingFake' {
       11      27
       12      27
       13      27
+      14      27
+      15      27
       16      30
       18      30
       19      30
       1a      30
       1b      30
       1c      30
+      1d      30
+      1e      30
       23      30
       24      31
       25      31
@@ -172,6 +194,8 @@ class 'pkg/TestPatternMatchingFake' {
       2b      31
       2c      31
       2d      31
+      2e      31
+      2f      31
       30      33
    }
 
@@ -182,25 +206,22 @@ class 'pkg/TestPatternMatchingFake' {
       4      36
       5      36
       6      36
+      7      36
+      8      36
       d      36
       e      37
       f      37
       10      37
-      11      37
-      12      37
-      13      37
-      14      37
-      15      37
-      16      37
-      17      37
-      18      37
-      19      37
-      1a      37
-      1b      37
-      1c      37
+      11      39
+      12      39
+      13      40
+      14      40
+      15      40
+      16      40
+      17      40
+      18      40
+      19      40
       1d      37
-      1e      37
-      1f      37
       20      37
       21      37
       22      37
@@ -216,6 +237,8 @@ class 'pkg/TestPatternMatchingFake' {
       4      46
       5      46
       6      46
+      7      46
+      8      46
       9      47
       a      47
       b      47
@@ -227,6 +250,8 @@ class 'pkg/TestPatternMatchingFake' {
       11      48
       12      48
       13      48
+      14      48
+      15      48
       16      49
       17      49
       18      49
@@ -239,11 +264,15 @@ class 'pkg/TestPatternMatchingFake' {
       1f      49
       20      53
       21      53
+      22      53
+      23      53
       24      54
       25      54
       26      54
       27      54
       28      54
+      29      54
+      2a      54
       2b      56
    }
 }
@@ -268,9 +297,8 @@ Lines mapping:
 34 <-> 32
 36 <-> 34
 39 <-> 37
-40 <-> 38
-42 <-> 38
-43 <-> 38
+40 <-> 40
+42 <-> 41
 44 <-> 38
 46 <-> 43
 49 <-> 46
@@ -281,3 +309,5 @@ Lines mapping:
 58 <-> 54
 59 <-> 55
 61 <-> 57
+Not mapped:
+43

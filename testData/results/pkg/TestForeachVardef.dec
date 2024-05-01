@@ -50,6 +50,8 @@ class 'pkg/TestForeachVardef' {
       8      8
       9      8
       a      8
+      b      8
+      c      8
       d      9
       e      9
       f      9
@@ -96,6 +98,8 @@ class 'pkg/TestForeachVardef' {
       41      16
       42      16
       43      16
+      44      16
+      45      16
       46      16
       47      16
       4b      16
@@ -112,6 +116,8 @@ class 'pkg/TestForeachVardef' {
       4      24
       5      24
       6      24
+      7      24
+      8      24
       9      25
       a      25
       b      25
@@ -122,6 +128,8 @@ class 'pkg/TestForeachVardef' {
       10      27
       11      27
       12      27
+      13      27
+      14      27
       15      28
       16      28
       17      28

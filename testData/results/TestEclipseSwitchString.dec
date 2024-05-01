@@ -132,6 +132,31 @@ class 'pkg/TestEclipseSwitchString' {
       4      4
       5      4
       6      4
+      7      4
+      8      4
+      9      4
+      a      4
+      b      4
+      c      4
+      d      4
+      e      4
+      f      4
+      10      4
+      11      4
+      12      4
+      13      4
+      14      4
+      15      4
+      16      4
+      17      4
+      18      4
+      19      4
+      1a      4
+      1b      4
+      1c      4
+      1d      4
+      1e      4
+      1f      4
       20      6
       21      6
       22      6
@@ -139,6 +164,8 @@ class 'pkg/TestEclipseSwitchString' {
       24      6
       25      6
       26      6
+      27      6
+      28      6
       2c      11
       2d      11
       2e      11
@@ -146,6 +173,8 @@ class 'pkg/TestEclipseSwitchString' {
       30      11
       31      11
       32      11
+      33      11
+      34      11
       35      16
       36      16
       37      16
@@ -155,8 +184,6 @@ class 'pkg/TestEclipseSwitchString' {
       3b      16
       3c      16
       3d      17
-      3e      17
-      3f      17
       40      7
       41      7
       42      12
@@ -170,6 +197,39 @@ class 'pkg/TestEclipseSwitchString' {
       4      22
       5      22
       6      22
+      7      22
+      8      22
+      9      22
+      a      22
+      b      22
+      c      22
+      d      22
+      e      22
+      f      22
+      10      22
+      11      22
+      12      22
+      13      22
+      14      22
+      15      22
+      16      22
+      17      22
+      18      22
+      19      22
+      1a      22
+      1b      22
+      1c      22
+      1d      22
+      1e      22
+      1f      22
+      20      22
+      21      22
+      22      22
+      23      22
+      24      22
+      25      22
+      26      22
+      27      22
       28      24
       29      24
       2a      24
@@ -177,6 +237,8 @@ class 'pkg/TestEclipseSwitchString' {
       2c      24
       2d      24
       2e      24
+      2f      24
+      30      24
       34      29
       35      29
       36      29
@@ -184,6 +246,8 @@ class 'pkg/TestEclipseSwitchString' {
       38      29
       39      29
       3a      29
+      3b      29
+      3c      29
       40      34
       41      34
       42      34
@@ -191,6 +255,8 @@ class 'pkg/TestEclipseSwitchString' {
       44      34
       45      34
       46      34
+      47      34
+      48      34
       49      45
       4a      45
       4b      45
@@ -200,8 +266,6 @@ class 'pkg/TestEclipseSwitchString' {
       4f      45
       50      45
       51      46
-      52      46
-      53      46
       54      25
       55      25
       56      42
@@ -215,6 +279,39 @@ class 'pkg/TestEclipseSwitchString' {
       4      51
       5      51
       6      51
+      7      51
+      8      51
+      9      51
+      a      51
+      b      51
+      c      51
+      d      51
+      e      51
+      f      51
+      10      51
+      11      51
+      12      51
+      13      51
+      14      51
+      15      51
+      16      51
+      17      51
+      18      51
+      19      51
+      1a      51
+      1b      51
+      1c      51
+      1d      51
+      1e      51
+      1f      51
+      20      51
+      21      51
+      22      51
+      23      51
+      24      51
+      25      51
+      26      51
+      27      51
       28      53
       29      53
       2a      53
@@ -222,6 +319,8 @@ class 'pkg/TestEclipseSwitchString' {
       2c      53
       2d      53
       2e      53
+      2f      53
+      30      53
       34      60
       35      60
       36      60
@@ -229,6 +328,8 @@ class 'pkg/TestEclipseSwitchString' {
       38      60
       39      60
       3a      60
+      3b      60
+      3c      60
       40      65
       41      65
       42      65
@@ -236,6 +337,8 @@ class 'pkg/TestEclipseSwitchString' {
       44      65
       45      65
       46      65
+      47      65
+      48      65
       49      76
       4a      76
       4b      76
@@ -245,16 +348,14 @@ class 'pkg/TestEclipseSwitchString' {
       4f      76
       50      76
       51      77
-      52      77
-      53      77
       54      57
       55      57
       56      57
       57      57
       58      57
       59      57
-      5a      77
-      5b      77
+      5a      57
+      5b      57
       5c      73
       5d      73
       5e      77
@@ -266,6 +367,23 @@ class 'pkg/TestEclipseSwitchString' {
       4      81
       5      81
       6      81
+      7      81
+      8      81
+      9      81
+      a      81
+      b      81
+      c      81
+      d      81
+      e      81
+      f      81
+      10      81
+      11      81
+      12      81
+      13      81
+      14      81
+      15      81
+      16      81
+      17      81
       18      83
       19      83
       1a      83
@@ -273,6 +391,8 @@ class 'pkg/TestEclipseSwitchString' {
       1c      83
       1d      83
       1e      83
+      1f      83
+      20      83
       21      85
       22      85
       23      85
@@ -280,6 +400,8 @@ class 'pkg/TestEclipseSwitchString' {
       25      85
       26      85
       27      85
+      28      85
+      29      85
       2a      89
       2b      89
       2c      89
@@ -289,8 +411,6 @@ class 'pkg/TestEclipseSwitchString' {
       30      89
       31      89
       32      90
-      33      90
-      34      90
       35      84
       36      84
       37      86
@@ -304,6 +424,23 @@ class 'pkg/TestEclipseSwitchString' {
       4      95
       5      95
       6      95
+      7      95
+      8      95
+      9      95
+      a      95
+      b      95
+      c      95
+      d      95
+      e      95
+      f      95
+      10      95
+      11      95
+      12      95
+      13      95
+      14      95
+      15      95
+      16      95
+      17      95
       18      97
       19      97
       1a      97
@@ -311,6 +448,8 @@ class 'pkg/TestEclipseSwitchString' {
       1c      97
       1d      97
       1e      97
+      1f      97
+      20      97
       21      97
       22      97
       23      97
@@ -318,6 +457,8 @@ class 'pkg/TestEclipseSwitchString' {
       25      97
       26      97
       27      97
+      28      97
+      29      97
       2a      102
       2b      102
       2c      102
@@ -327,8 +468,6 @@ class 'pkg/TestEclipseSwitchString' {
       30      102
       31      102
       32      103
-      33      103
-      34      103
       35      98
       36      98
       37      103
@@ -340,6 +479,23 @@ class 'pkg/TestEclipseSwitchString' {
       4      107
       5      107
       6      107
+      7      107
+      8      107
+      9      107
+      a      107
+      b      107
+      c      107
+      d      107
+      e      107
+      f      107
+      10      107
+      11      107
+      12      107
+      13      107
+      14      107
+      15      107
+      16      107
+      17      107
       18      110
       19      110
       1a      110
@@ -347,6 +503,8 @@ class 'pkg/TestEclipseSwitchString' {
       1c      110
       1d      110
       1e      110
+      1f      110
+      20      110
       21      111
       22      111
       23      111
@@ -354,6 +512,8 @@ class 'pkg/TestEclipseSwitchString' {
       25      111
       26      111
       27      111
+      28      111
+      29      111
       2a      122
       2b      122
       2c      122
@@ -363,16 +523,14 @@ class 'pkg/TestEclipseSwitchString' {
       30      122
       31      122
       32      123
-      33      123
-      34      123
       35      115
       36      115
       37      115
       38      115
       39      115
       3a      115
-      3b      123
-      3c      123
+      3b      115
+      3c      115
       3d      118
       3e      118
       3f      123

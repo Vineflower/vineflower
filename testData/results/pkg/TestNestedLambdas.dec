@@ -41,6 +41,8 @@ class 'pkg/TestNestedLambdas' {
    method 'lambda$test$2 (I)I' {
       0      5
       1      5
+      2      5
+      3      5
       a      6
       b      6
       c      6
@@ -51,6 +53,8 @@ class 'pkg/TestNestedLambdas' {
    method 'lambda$null$1 (II)I' {
       0      6
       1      6
+      2      6
+      3      6
       b      6
       c      6
       d      6

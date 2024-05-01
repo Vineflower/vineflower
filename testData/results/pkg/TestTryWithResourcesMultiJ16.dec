@@ -8,13 +8,13 @@ import java.util.Scanner;
 public class TestTryWithResourcesMultiJ16 {
    public void testMulti(File file) throws IOException {
       try (
-         Scanner scanner = new Scanner(file);
+         Scanner scanner = new Scanner(file);// 10
          FileWriter writer = new FileWriter(file);
       ) {
          scanner.next();// 11
          writer.write("hello");// 12
       }
-   }// 10 13
+   }// 13
 }
 
 class 'pkg/TestTryWithResourcesMultiJ16' {
@@ -31,32 +31,14 @@ class 'pkg/TestTryWithResourcesMultiJ16' {
       18      14
       19      14
       1a      14
+      1b      14
+      1c      14
       3d      16
-      3e      16
-      3f      16
-      40      16
-      41      16
-      42      16
-      43      16
-      44      16
-      45      16
-      46      16
-      47      16
-      48      16
-      49      16
-      4a      16
-      4b      16
-      4c      16
-      4d      16
-      4e      16
-      4f      16
-      50      16
-      51      16
    }
 }
 
 Lines mapping:
-10 <-> 17
+10 <-> 11
 11 <-> 14
 12 <-> 15
 13 <-> 17

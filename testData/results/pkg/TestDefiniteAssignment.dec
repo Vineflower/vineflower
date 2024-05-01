@@ -156,6 +156,8 @@ class 'pkg/TestDefiniteAssignment' {
    method 'testExample16$1$$1 (I)V' {
       0      7
       1      7
+      2      7
+      3      7
       4      7
       5      7
       6      7
@@ -164,11 +166,15 @@ class 'pkg/TestDefiniteAssignment' {
       9      7
       b      7
       c      7
+      d      7
+      e      7
       f      8
       10      8
       11      8
       12      8
       13      8
+      14      8
+      15      8
       16      10
    }
 
@@ -177,6 +183,8 @@ class 'pkg/TestDefiniteAssignment' {
       2      13
       3      13
       4      13
+      5      13
+      6      13
       a      14
       b      14
       c      14
@@ -194,15 +202,21 @@ class 'pkg/TestDefiniteAssignment' {
       0      23
       1      23
       2      23
+      3      23
+      4      23
       5      24
       7      24
       8      25
       9      25
+      a      25
+      b      25
       c      30
       d      30
       e      31
       f      31
       10      31
+      11      31
+      12      31
       16      35
       17      35
       18      35
@@ -219,22 +233,32 @@ class 'pkg/TestDefiniteAssignment' {
    method 'testAssignments (IZ)V' {
       0      42
       1      42
+      2      42
+      3      42
       4      43
       6      43
       7      44
+      8      44
+      9      44
       a      44
       b      44
       d      44
       e      44
       f      44
       10      44
+      11      44
+      12      44
       13      45
       14      45
       15      45
       16      45
       17      45
+      18      45
+      19      45
       1a      50
       1b      50
+      1c      50
+      1d      50
       1e      50
       22      50
       23      50
@@ -242,6 +266,8 @@ class 'pkg/TestDefiniteAssignment' {
       26      50
       27      50
       28      50
+      29      50
+      2a      50
       2b      53
       2c      53
       2d      53
@@ -256,6 +282,8 @@ class 'pkg/TestDefiniteAssignment' {
       39      51
       3a      51
       3b      51
+      3c      51
+      3d      51
       3e      56
       3f      56
       40      56
@@ -277,6 +305,8 @@ class 'pkg/TestDefiniteAssignment' {
       50      58
       51      58
       52      58
+      53      58
+      54      58
       55      58
       56      58
       57      58
@@ -297,6 +327,8 @@ class 'pkg/TestDefiniteAssignment' {
       67      58
       68      58
       69      58
+      6a      58
+      6b      58
       6c      58
       6d      58
       6e      58
@@ -309,12 +341,16 @@ class 'pkg/TestDefiniteAssignment' {
       76      58
       77      58
       78      58
+      79      58
+      7a      58
       7e      58
       7f      58
       80      58
       81      58
       82      58
       83      58
+      84      58
+      85      58
       86      61
       87      61
       88      61
@@ -348,13 +384,19 @@ class 'pkg/TestDefiniteAssignment' {
       ae      67
       af      67
       b0      67
+      b1      67
+      b2      67
       bb      67
+      bc      67
+      bd      67
       be      68
       bf      68
       c0      68
       c1      68
       c2      68
       c3      68
+      c4      68
+      c5      68
       c6      70
    }
 
@@ -366,20 +408,28 @@ class 'pkg/TestDefiniteAssignment' {
       4      75
       5      75
       6      75
+      7      75
+      8      75
       9      75
       a      75
       b      75
       d      75
       e      75
+      f      75
+      10      75
       12      75
       15      75
       16      75
+      17      75
+      18      75
       19      76
       1a      76
       1b      76
       1c      76
       1d      76
       1e      76
+      1f      76
+      20      76
       21      79
       22      79
       23      79
@@ -401,14 +451,20 @@ class 'pkg/TestDefiniteAssignment' {
       4      86
       5      86
       6      86
+      7      86
+      8      86
       9      86
       a      86
       b      86
       d      86
       e      86
+      f      86
+      10      86
       12      86
       15      86
       16      86
+      17      86
+      18      86
       1e      86
       1f      86
       20      86
@@ -428,47 +484,71 @@ class 'pkg/TestDefiniteAssignment' {
    method 'nestedTernaries (III)V' {
       0      94
       1      94
+      2      94
+      3      94
       4      95
       5      95
       6      95
+      7      95
+      8      95
       9      99
       b      99
       c      99
       d      100
+      e      100
+      f      100
       13      104
       15      104
       16      104
       17      105
+      18      105
+      19      105
       1a      105
       1b      105
       1c      105
+      1d      105
+      1e      105
       1f      110
       20      110
       21      110
       22      110
       23      110
       24      110
+      25      110
+      26      110
       27      118
       28      118
+      29      118
+      2a      118
       2b      119
       2c      119
       2d      119
+      2e      119
+      2f      119
       30      123
       32      123
       33      123
       34      124
+      35      124
+      36      124
       3a      128
       3c      128
       3d      128
       3e      129
+      3f      129
+      40      129
       41      129
       42      129
       43      129
+      44      129
+      45      129
       46      134
       47      134
       48      134
       49      134
       4a      134
+      4b      134
+      4c      134
       4d      134
       4e      134
       4f      134
@@ -476,6 +556,8 @@ class 'pkg/TestDefiniteAssignment' {
       52      134
       53      134
       54      134
+      55      134
+      56      134
       5a      140
       5c      140
       5d      140
@@ -483,12 +565,16 @@ class 'pkg/TestDefiniteAssignment' {
       60      141
       61      141
       62      142
+      63      142
+      64      142
       65      147
       66      147
       67      147
       68      147
       69      147
       6a      147
+      6b      147
+      6c      147
       6d      150
       6e      150
       6f      150

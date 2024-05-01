@@ -87,47 +87,50 @@ class 'pkg/TestNullableOperator' {
    method 'test2 (Ljava/lang/String;)Ljava/lang/String;' {
       0      8
       2      9
+      3      9
+      4      9
       6      10
+      7      10
       8      13
    }
 
    method 'test2_1 (Ljava/lang/Object;)Ljava/lang/Object;' {
       0      17
       2      18
+      3      18
+      4      18
       6      19
+      7      19
       8      22
    }
 
    method 'test2_2 (Ljava/lang/Object;)Ljava/lang/Object;' {
       0      26
       2      27
+      3      27
+      4      27
       6      28
+      7      28
       8      31
    }
 
    method 'test3 (Ljava/lang/Integer;)I' {
       0      35
       2      35
+      3      35
+      4      35
       5      36
       6      36
       7      36
       8      36
-      9      36
-      a      36
-      b      36
-      c      36
-      d      36
-      e      36
-      f      36
-      10      36
-      11      36
-      12      36
-      13      36
+      13      38
    }
 
    method 'test4 (Ljava/lang/Exception;)V' {
       0      43
       2      43
+      3      43
+      4      43
       5      44
       6      44
       7      44
@@ -137,6 +140,8 @@ class 'pkg/TestNullableOperator' {
    method 'test5 (Ljava/lang/Exception;)V' {
       0      50
       2      50
+      3      50
+      4      50
       5      51
       6      51
       7      51
@@ -145,6 +150,8 @@ class 'pkg/TestNullableOperator' {
       a      52
       f      54
       10      57
+      11      57
+      12      57
       1a      58
       1b      60
    }
@@ -152,29 +159,28 @@ class 'pkg/TestNullableOperator' {
    method 'test6 (Ljava/lang/Integer;)I' {
       0      63
       2      63
+      3      63
+      4      63
       5      64
       6      64
       7      64
       8      64
-      9      64
-      a      64
-      b      64
-      c      64
-      d      64
+      c      68
+      d      68
       e      65
       f      65
       10      65
-      11      65
       12      65
-      13      66
-      14      66
-      15      66
+      13      65
+      14      65
       16      66
    }
 
    method 'test6_1 (Ljava/lang/Integer;)V' {
       0      73
       2      73
+      3      73
+      4      73
       5      74
       6      74
       7      74
@@ -182,11 +188,9 @@ class 'pkg/TestNullableOperator' {
       d      74
       e      74
       f      74
-      10      74
       11      74
-      12      76
-      13      76
-      14      76
+      12      74
+      13      74
    }
 }
 

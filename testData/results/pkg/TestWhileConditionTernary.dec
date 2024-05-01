@@ -29,16 +29,22 @@ class 'pkg/TestWhileConditionTernary' {
       2      4
       3      4
       4      4
+      5      4
+      6      4
       7      5
       8      5
       9      5
       a      5
       b      5
+      c      5
+      d      5
       e      5
       f      5
       10      5
       11      5
       12      5
+      13      5
+      14      5
       15      5
       16      5
       17      5
@@ -49,11 +55,15 @@ class 'pkg/TestWhileConditionTernary' {
       1c      5
       1d      5
       1e      5
+      1f      5
+      20      5
       24      5
       25      5
       26      5
       27      5
       28      5
+      29      5
+      2a      5
       2b      6
       2c      6
       2d      6

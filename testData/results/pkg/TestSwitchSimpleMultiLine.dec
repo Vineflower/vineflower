@@ -27,6 +27,33 @@ class 'pkg/TestSwitchSimpleMultiLine' {
       a      7
       b      9
       c      9
+      d      9
+      e      9
+      f      9
+      10      9
+      11      9
+      12      9
+      13      9
+      14      9
+      15      9
+      16      9
+      17      9
+      18      9
+      19      9
+      1a      9
+      1b      9
+      1c      9
+      1d      9
+      1e      9
+      1f      9
+      20      9
+      21      9
+      22      9
+      23      9
+      24      9
+      25      9
+      26      9
+      27      9
       3d      9
    }
 
@@ -51,8 +78,12 @@ class 'pkg/TestSwitchSimpleMultiLine' {
       15      14
       16      15
       17      15
+      18      15
+      19      15
       1a      15
       1b      15
+      1c      15
+      1d      15
       1e      15
       27      15
       28      15

@@ -130,7 +130,10 @@ class 'pkg/TestTryCatchExpressions' {
       16      10
       17      10
       19      11
+      1a      11
+      1b      11
       1d      12
+      1e      12
       1f      15
       20      18
       22      18
@@ -172,7 +175,10 @@ class 'pkg/TestTryCatchExpressions' {
       2a      33
       2b      33
       2d      34
+      2e      34
+      2f      34
       31      35
+      32      35
       33      38
       34      38
       35      41
@@ -206,7 +212,10 @@ class 'pkg/TestTryCatchExpressions' {
       56      52
       57      52
       59      53
+      5a      53
+      5b      53
       5d      54
+      5e      54
       5f      57
       60      57
       61      60
@@ -239,6 +248,8 @@ class 'pkg/TestTryCatchExpressions' {
       1c      71
       1d      71
       1e      71
+      1f      71
+      20      71
       21      72
       22      75
       23      75
@@ -275,6 +286,8 @@ class 'pkg/TestTryCatchExpressions' {
       4b      85
       4c      85
       50      85
+      51      85
+      52      85
       53      85
       57      85
       58      83
@@ -336,7 +349,10 @@ class 'pkg/TestTryCatchExpressions' {
       a4      103
       a5      103
       a7      104
+      a8      104
+      a9      104
       ab      105
+      ac      105
       ad      108
       ae      108
       af      108

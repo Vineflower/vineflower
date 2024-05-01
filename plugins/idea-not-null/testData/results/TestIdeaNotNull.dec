@@ -76,6 +76,8 @@ class 'pkg/TestIdeaNotNull' {
       f      9
       10      10
       11      10
+      12      10
+      13      10
       14      11
       1d      11
       1e      13
@@ -83,6 +85,8 @@ class 'pkg/TestIdeaNotNull' {
       20      13
       21      13
       22      13
+      23      13
+      24      13
       2c      14
       30      14
       34      14
@@ -145,11 +149,15 @@ class 'pkg/TestIdeaNotNull' {
       2a      33
       2b      33
       2c      33
+      2d      33
+      2e      33
       2f      34
       30      34
       31      34
       32      34
       33      34
+      34      34
+      35      34
       36      36
    }
 
@@ -168,6 +176,8 @@ class 'pkg/TestIdeaNotNull' {
       12      43
       13      43
       14      43
+      15      43
+      16      43
       1e      44
       22      44
       26      44
@@ -190,6 +200,8 @@ class 'pkg/TestIdeaNotNull' {
       e      53
       f      53
       10      53
+      11      53
+      12      53
       13      54
       1d      54
       1e      56
@@ -200,6 +212,8 @@ class 'pkg/TestIdeaNotNull' {
       23      56
       24      56
       25      56
+      26      56
+      27      56
       2f      57
       33      57
       37      57

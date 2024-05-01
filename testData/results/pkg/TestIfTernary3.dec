@@ -14,6 +14,8 @@ class 'pkg/TestIfTernary3' {
    method 'test (ZII)V' {
       0      4
       1      4
+      2      4
+      3      4
       b      4
       c      4
       10      4
@@ -23,6 +25,8 @@ class 'pkg/TestIfTernary3' {
       17      4
       18      4
       19      4
+      1a      4
+      1b      4
       26      4
       27      4
       2b      4
@@ -32,11 +36,15 @@ class 'pkg/TestIfTernary3' {
       32      4
       33      4
       34      4
+      35      4
+      36      4
       37      5
       38      5
       39      5
       3a      5
       3b      5
+      3c      5
+      3d      5
       3e      8
       3f      8
       40      8

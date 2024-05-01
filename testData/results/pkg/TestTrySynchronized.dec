@@ -65,6 +65,8 @@ class 'pkg/TestTrySynchronized' {
       27      17
       28      18
       29      18
+      2a      18
+      2b      18
       2c      20
    }
 
@@ -104,6 +106,8 @@ class 'pkg/TestTrySynchronized' {
       39      34
       3a      35
       3b      35
+      3c      35
+      3d      35
       3e      37
    }
 

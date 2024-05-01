@@ -18,6 +18,8 @@ class 'pkg/TestLoopBreak' {
       1      4
       2      4
       3      4
+      4      4
+      5      4
       6      5
       7      5
       8      5
@@ -25,6 +27,8 @@ class 'pkg/TestLoopBreak' {
       a      5
       b      5
       c      5
+      d      5
+      e      5
       12      6
       13      6
       14      6

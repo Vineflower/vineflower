@@ -82,6 +82,8 @@ class 'pkg/TestTryWithResourcesFakeTrigger' {
       6      13
       7      13
       8      13
+      9      13
+      a      13
       e      14
       f      22
       16      19
@@ -93,15 +95,21 @@ class 'pkg/TestTryWithResourcesFakeTrigger' {
       1      25
       2      27
       3      27
+      4      27
+      5      27
       6      29
       7      29
       8      29
       9      29
       a      29
       b      29
+      c      29
+      d      29
       11      30
       12      31
       13      31
+      14      31
+      15      31
       19      35
       1a      35
       1b      35
@@ -121,11 +129,15 @@ class 'pkg/TestTryWithResourcesFakeTrigger' {
       c      44
       12      47
       13      47
+      14      47
+      15      47
       19      48
       1b      49
       1c      49
       1d      49
       1e      49
+      1f      49
+      20      49
       21      52
       22      52
       23      54
@@ -140,11 +152,15 @@ class 'pkg/TestTryWithResourcesFakeTrigger' {
       c      60
       12      63
       13      63
+      14      63
+      15      63
       19      64
       1b      65
       1c      65
       1d      65
       1e      65
+      1f      65
+      20      65
       21      68
       22      68
       23      70

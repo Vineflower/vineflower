@@ -177,7 +177,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestAnonymousClassConstructor");
     register(JAVA_8, "TestInnerClassConstructor");
     register(CUSTOM, "v11/TestInnerClassConstructor");
-    // [minor] todo: the linenumbers are incorrect on the finally block
     register(JAVA_8, "TestTryCatchFinally");
     register(JAVA_8, "TestTryFinally");
     register(JAVA_8, "TestAmbiguousCall");

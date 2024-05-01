@@ -72,6 +72,8 @@ class 'pkg/TestClassSimpleBytecodeMapping' {
       1d      12
       1e      12
       1f      12
+      20      12
+      21      12
       22      13
       23      13
       24      13
@@ -105,12 +107,16 @@ class 'pkg/TestClassSimpleBytecodeMapping' {
       13      25
       14      25
       15      25
+      16      25
+      17      25
       24      27
       25      27
       26      27
       27      27
       28      27
       29      27
+      2a      27
+      2b      27
       2e      29
    }
 
