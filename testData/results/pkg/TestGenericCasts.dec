@@ -134,6 +134,8 @@ class 'pkg/TestGenericCasts' {
       8      21
       9      21
       a      21
+      b      21
+      c      21
       d      22
       e      22
       f      22
@@ -181,11 +183,17 @@ class 'pkg/TestGenericCasts' {
       2      29
       3      29
       4      29
+      5      29
+      6      29
       7      30
       8      30
       9      30
       a      30
       10      30
+      11      30
+      12      30
+      13      30
+      14      30
       15      33
       16      33
       17      33

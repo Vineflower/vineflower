@@ -6,10 +6,10 @@ import java.util.Scanner;
 
 public class TestTryWithResourcesJ16 {
    public void test(File file) throws FileNotFoundException {
-      try (Scanner scanner = new Scanner(file)) {
+      try (Scanner scanner = new Scanner(file)) {// 11
          scanner.next();// 12
       }
-   }// 11 13
+   }// 13
 
    public void testFunc(File file) throws FileNotFoundException {
       try (Scanner scanner = this.create(file)) {// 17
@@ -31,26 +31,6 @@ class 'pkg/TestTryWithResourcesJ16' {
       b      9
       c      9
       12      11
-      13      11
-      14      11
-      15      11
-      16      11
-      17      11
-      18      11
-      19      11
-      1a      11
-      1b      11
-      1c      11
-      1d      11
-      1e      11
-      1f      11
-      20      11
-      21      11
-      22      11
-      23      11
-      24      11
-      25      11
-      26      11
    }
 
    method 'testFunc (Ljava/io/File;)V' {
@@ -74,7 +54,7 @@ class 'pkg/TestTryWithResourcesJ16' {
 }
 
 Lines mapping:
-11 <-> 12
+11 <-> 9
 12 <-> 10
 13 <-> 12
 17 <-> 15

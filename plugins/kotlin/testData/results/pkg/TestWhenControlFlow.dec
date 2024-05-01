@@ -26,6 +26,8 @@ class 'pkg/TestWhenControlFlow' {
       1      4
       2      6
       3      6
+      4      6
+      5      6
       6      7
       7      7
       8      7
@@ -34,16 +36,26 @@ class 'pkg/TestWhenControlFlow' {
       c      7
       d      7
       e      7
+      f      7
+      10      7
       11      11
       12      11
       13      11
+      14      11
+      15      11
       16      12
       17      12
       18      12
+      19      12
+      1a      12
       1b      12
       1c      12
       1d      12
+      1e      12
+      1f      12
       29      12
+      2a      12
+      2b      12
       2c      13
       2d      16
       2e      16

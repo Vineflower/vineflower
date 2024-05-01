@@ -33,6 +33,8 @@ class 'pkg/TestEmptyBlocks' {
       8      13
       9      13
       a      13
+      b      13
+      c      13
       d      14
       e      14
       f      14
@@ -43,6 +45,8 @@ class 'pkg/TestEmptyBlocks' {
       2b      20
       2c      20
       2d      20
+      2e      20
+      2f      20
       30      22
    }
 }

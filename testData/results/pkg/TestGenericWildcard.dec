@@ -108,11 +108,15 @@ class 'pkg/TestGenericWildcard' {
    method 'castOptional (ZLpkg/TestGenericWildcard;)Ljava/util/Optional;' {
       0      26
       1      26
+      2      26
+      3      26
       4      26
       5      26
       6      26
       7      26
       b      26
+      c      26
+      d      26
       e      26
    }
 

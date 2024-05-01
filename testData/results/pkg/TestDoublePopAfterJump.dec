@@ -64,6 +64,8 @@ class 'pkg/TestDoublePopAfterJump' {
       2      8
       3      10
       5      10
+      6      10
+      7      10
       b      11
       e      10
       15      16
@@ -81,10 +83,14 @@ class 'pkg/TestDoublePopAfterJump' {
       6      23
       7      23
       8      23
+      9      23
+      a      23
       b      24
       e      25
       f      25
       10      25
+      11      25
+      12      25
       15      26
       16      26
       17      26
@@ -92,10 +98,14 @@ class 'pkg/TestDoublePopAfterJump' {
       19      26
       1b      27
       1d      30
+      1e      30
+      1f      30
       20      31
       22      34
       23      34
       24      34
+      25      34
+      26      34
       29      35
       2a      35
       2b      35
@@ -103,6 +113,8 @@ class 'pkg/TestDoublePopAfterJump' {
       2d      35
       2f      36
       31      39
+      32      39
+      33      39
       34      40
       37      41
       38      41
@@ -123,6 +135,8 @@ class 'pkg/TestDoublePopAfterJump' {
       0      51
       1      52
       3      54
+      4      54
+      5      54
       b      56
    }
 }

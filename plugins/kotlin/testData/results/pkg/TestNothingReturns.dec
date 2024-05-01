@@ -78,6 +78,8 @@ class 'pkg/TestNothingReturns' {
    method 'test3 (I)I' {
       0      20
       1      20
+      2      20
+      3      20
       4      21
       5      21
       6      21
@@ -122,6 +124,8 @@ class 'pkg/TestNothingReturns' {
    method 'test6 (Ljava/lang/String;)Ljava/lang/String;' {
       0      40
       2      40
+      3      40
+      4      40
       6      41
       7      41
       8      41

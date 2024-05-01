@@ -120,16 +120,24 @@ class 'pkg/TestIdeaNotNull' {
       f      9
       10      10
       11      10
+      12      10
+      13      10
       14      11
       16      11
+      17      11
+      18      11
       19      12
       1a      12
+      1b      12
+      1c      12
       1d      15
       1e      17
       1f      17
       20      17
       21      17
       22      17
+      23      17
+      24      17
       2c      18
       30      18
       34      18
@@ -141,16 +149,24 @@ class 'pkg/TestIdeaNotNull' {
       3a      17
       3e      21
       40      21
+      41      21
+      42      21
       43      22
       44      22
+      45      22
+      46      22
       47      25
    }
 
    method 'test1 (Ljava/lang/String;)V' {
       0      30
       1      30
+      2      30
+      3      30
       4      31
       5      31
+      6      31
+      7      31
       8      34
       9      34
       a      34
@@ -164,12 +180,20 @@ class 'pkg/TestIdeaNotNull' {
    method 'test2 (Ljava/lang/String;Ljava/lang/Integer;)V' {
       0      38
       1      38
+      2      38
+      3      38
       4      39
       5      39
+      6      39
+      7      39
       8      42
       9      42
+      a      42
+      b      42
       c      43
       d      43
+      e      43
+      f      43
       10      46
       11      46
       12      46
@@ -190,18 +214,30 @@ class 'pkg/TestIdeaNotNull' {
    method 'test3 (Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Float;)V' {
       0      51
       1      51
+      2      51
+      3      51
       4      52
       5      52
+      6      52
+      7      52
       8      55
       9      55
+      a      55
+      b      55
       c      56
       d      56
       e      56
+      f      56
+      10      56
       11      59
       12      59
+      13      59
+      14      59
       15      60
       16      60
       17      60
+      18      60
+      19      60
       1a      63
       1b      63
       1c      63
@@ -221,11 +257,15 @@ class 'pkg/TestIdeaNotNull' {
       2a      65
       2b      65
       2c      65
+      2d      65
+      2e      65
       2f      66
       30      66
       31      66
       32      66
       33      66
+      34      66
+      35      66
       36      68
    }
 
@@ -244,6 +284,8 @@ class 'pkg/TestIdeaNotNull' {
       12      75
       13      75
       14      75
+      15      75
+      16      75
       1e      76
       22      76
       26      76
@@ -260,9 +302,13 @@ class 'pkg/TestIdeaNotNull' {
    method 'test5 (Ljava/lang/Integer;)Ljava/lang/String;' {
       0      84
       1      84
+      2      84
+      3      84
       4      85
       5      85
       6      85
+      7      85
+      8      85
       9      88
       a      88
       b      88
@@ -271,11 +317,17 @@ class 'pkg/TestIdeaNotNull' {
       e      89
       f      89
       10      89
+      11      89
+      12      89
       13      90
       15      90
+      16      90
+      17      90
       18      91
       19      91
       1a      91
+      1b      91
+      1c      91
       1d      94
       1e      96
       1f      96
@@ -285,6 +337,8 @@ class 'pkg/TestIdeaNotNull' {
       23      96
       24      96
       25      96
+      26      96
+      27      96
       2f      97
       33      97
       37      97
@@ -296,9 +350,13 @@ class 'pkg/TestIdeaNotNull' {
       3d      96
       41      100
       43      100
+      44      100
+      45      100
       46      101
       47      101
       48      101
+      49      101
+      4a      101
       4b      104
    }
 }

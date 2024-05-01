@@ -120,9 +120,13 @@ class 'pkg/TestClassLoop' {
       3      10
       4      10
       5      10
+      6      10
+      7      10
       d      10
       e      14
       f      14
+      10      14
+      11      14
       1a      15
       27      18
       28      18
@@ -130,6 +134,8 @@ class 'pkg/TestClassLoop' {
       2a      18
       2b      18
       2c      18
+      2d      18
+      2e      18
    }
 
    method 'testCatch ()V' {
@@ -139,9 +145,13 @@ class 'pkg/TestClassLoop' {
       3      24
       4      24
       5      24
+      6      24
+      7      24
       d      24
       e      28
       f      28
+      10      28
+      11      28
       12      29
       16      31
       17      32
@@ -161,6 +171,8 @@ class 'pkg/TestClassLoop' {
       3      38
       4      38
       5      38
+      6      38
+      7      38
       d      38
       e      43
       f      43
@@ -168,8 +180,12 @@ class 'pkg/TestClassLoop' {
       11      43
       12      43
       13      43
+      14      43
+      15      43
       26      46
       27      46
+      28      46
+      29      46
       2a      47
       2b      47
       2c      47
@@ -185,6 +201,8 @@ class 'pkg/TestClassLoop' {
       3a      53
       3b      53
       3c      53
+      3d      53
+      3e      53
    }
 
    method 'testWhileCombined (Ljava/lang/String;)I' {
@@ -212,6 +230,8 @@ class 'pkg/TestClassLoop' {
       15      65
       16      65
       17      65
+      18      65
+      19      65
       1a      66
       1b      66
       1c      66
@@ -224,6 +244,8 @@ class 'pkg/TestClassLoop' {
       23      67
       24      67
       25      67
+      26      67
+      27      67
       28      68
       29      68
       2a      68
@@ -232,8 +254,12 @@ class 'pkg/TestClassLoop' {
       30      70
       31      70
       32      70
+      33      70
+      34      70
       35      74
       36      74
+      37      74
+      38      74
       3d      75
       3e      75
       42      75
@@ -243,7 +269,11 @@ class 'pkg/TestClassLoop' {
       46      79
       47      79
       48      79
+      49      79
+      4a      79
       4b      80
+      4c      80
+      4d      80
       4e      83
       4f      83
       50      65
@@ -258,6 +288,8 @@ class 'pkg/TestClassLoop' {
       0      93
       1      93
       2      93
+      3      93
+      4      93
       6      97
       7      97
       8      97

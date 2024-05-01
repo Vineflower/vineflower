@@ -91,16 +91,22 @@ class TestSafeCasts {
 class 'pkg/TestSafeCasts' {
    method 'test (Ljava/lang/Object;)Z' {
       a      4
+      b      4
+      c      4
       d      4
       15      4
       16      5
       17      6
       1a      5
+      1b      5
+      1c      5
       21      6
       22      6
       23      6
       24      6
       25      6
+      26      6
+      27      6
       28      7
       2c      11
       2d      7
@@ -109,19 +115,27 @@ class 'pkg/TestSafeCasts' {
    method 'testTestBefore (Ljava/lang/Object;)Ljava/lang/Boolean;' {
       6      15
       a      15
+      b      15
+      c      15
       d      16
       e      16
       13      18
+      14      18
+      15      18
       16      18
       1e      18
       1f      19
       20      20
       23      19
+      24      19
+      25      19
       2a      20
       2b      20
       2c      20
       2d      20
       2e      20
+      2f      20
+      30      20
       31      21
       35      25
       36      21
@@ -132,6 +146,8 @@ class 'pkg/TestSafeCasts' {
 
    method 'testHardIncompatible (I)Z' {
       7      30
+      8      30
+      9      30
       a      30
       b      30
       c      30
@@ -148,7 +164,11 @@ class 'pkg/TestSafeCasts' {
       8      34
       9      34
       a      34
+      b      34
+      c      34
       13      34
+      14      34
+      15      34
       16      34
       1f      34
       20      34
@@ -157,16 +177,22 @@ class 'pkg/TestSafeCasts' {
 
    method 'testCastNonNullToNullable (Ljava/lang/Object;)Z' {
       a      38
+      b      38
+      c      38
       d      38
       15      38
       16      39
       17      40
       1a      39
+      1b      39
+      1c      39
       21      40
       22      40
       23      40
       24      40
       25      40
+      26      40
+      27      40
       28      41
       2c      45
       2d      41
@@ -175,19 +201,27 @@ class 'pkg/TestSafeCasts' {
    method 'testBeforeNonNullToNullable (Ljava/lang/Object;)Ljava/lang/Boolean;' {
       6      49
       a      49
+      b      49
+      c      49
       d      50
       e      50
       13      52
+      14      52
+      15      52
       16      52
       1e      52
       1f      53
       20      54
       23      53
+      24      53
+      25      53
       2a      54
       2b      54
       2c      54
       2d      54
       2e      54
+      2f      54
+      30      54
       31      55
       35      59
       36      55
@@ -198,16 +232,22 @@ class 'pkg/TestSafeCasts' {
 
    method 'testCastNullableToNullable (Ljava/lang/Object;)Z' {
       4      64
+      5      64
+      6      64
       7      64
       f      64
       10      65
       11      66
       14      65
+      15      65
+      16      65
       1b      66
       1c      66
       1d      66
       1e      66
       1f      66
+      20      66
+      21      66
       22      67
       26      71
       27      67
@@ -216,21 +256,33 @@ class 'pkg/TestSafeCasts' {
    method 'testBeforeNullableToNullable (Ljava/lang/Object;)Ljava/lang/Boolean;' {
       0      75
       2      75
+      3      75
+      4      75
       a      75
+      b      75
+      c      75
       d      75
+      e      75
+      f      75
       10      76
       11      76
       16      78
+      17      78
+      18      78
       19      78
       21      78
       22      79
       23      80
       26      79
+      27      79
+      28      79
       2d      80
       2e      80
       2f      80
       30      80
       31      80
+      32      80
+      33      80
       34      81
       38      85
       39      81

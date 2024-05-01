@@ -53,6 +53,8 @@ class 'pkg/TestNestedLoops' {
       b      11
       c      11
       d      11
+      e      11
+      f      11
       10      14
       11      14
       12      14
@@ -79,6 +81,8 @@ class 'pkg/TestNestedLoops' {
       30      15
       31      15
       32      15
+      33      15
+      34      15
       35      17
       36      17
       37      17
@@ -94,6 +98,8 @@ class 'pkg/TestNestedLoops' {
       42      18
       43      18
       44      18
+      45      18
+      46      18
       47      15
       48      15
       49      15
@@ -110,6 +116,8 @@ class 'pkg/TestNestedLoops' {
       b      31
       c      31
       d      31
+      e      31
+      f      31
       13      32
       14      32
       15      32
@@ -136,6 +144,8 @@ class 'pkg/TestNestedLoops' {
       33      33
       34      33
       35      33
+      36      33
+      37      33
       38      35
       39      35
       3a      35
@@ -151,6 +161,8 @@ class 'pkg/TestNestedLoops' {
       45      36
       46      36
       47      36
+      48      36
+      49      36
       4d      33
       4e      33
       4f      33

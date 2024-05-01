@@ -30,13 +30,19 @@ class 'pkg/TestWhileCondition' {
       5      6
       6      6
       7      6
+      8      6
+      9      6
       a      6
       b      6
+      c      6
+      d      6
       e      6
       f      6
       10      6
       11      6
       12      6
+      13      6
+      14      6
       15      7
       16      7
       17      7
@@ -57,15 +63,23 @@ class 'pkg/TestWhileCondition' {
       7      15
       8      15
       9      15
+      a      15
+      b      15
       c      15
       d      15
+      e      15
+      f      15
       10      15
       11      15
       12      15
       13      15
       14      15
+      15      15
+      16      15
       17      15
       18      15
+      19      15
+      1a      15
       1b      16
       1c      16
       1d      16
@@ -74,6 +88,8 @@ class 'pkg/TestWhileCondition' {
       20      17
       21      15
       22      15
+      23      15
+      24      15
       2a      15
       2e      19
    }

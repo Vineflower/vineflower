@@ -50,6 +50,8 @@ class 'pkg/TestTryLoop' {
       16      19
       17      20
       18      20
+      19      20
+      1a      20
       1b      22
    }
 
@@ -60,6 +62,8 @@ class 'pkg/TestTryLoop' {
       6      27
       7      27
       8      27
+      9      27
+      a      27
       b      28
       c      28
       d      28

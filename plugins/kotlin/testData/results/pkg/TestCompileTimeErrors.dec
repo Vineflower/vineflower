@@ -44,9 +44,13 @@ class 'pkg/TestCompileTimeErrors' {
    method 'test2 (Ljava/lang/Integer;)Lpkg/TestCompileTimeErrors$Test;' {
       0      10
       1      10
+      2      10
+      3      10
       4      10
       c      10
       10      10
+      11      10
+      12      10
       13      10
    }
 }

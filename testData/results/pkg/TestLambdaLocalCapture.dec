@@ -38,6 +38,8 @@ class 'pkg/TestLambdaLocalCapture' {
       a      6
       b      6
       c      6
+      d      6
+      e      6
       f      7
       10      7
       11      7
@@ -46,6 +48,8 @@ class 'pkg/TestLambdaLocalCapture' {
       14      7
       15      7
       16      7
+      17      7
+      18      7
       19      8
       1a      8
       1b      8

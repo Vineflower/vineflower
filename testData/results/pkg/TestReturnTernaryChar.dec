@@ -23,9 +23,12 @@ class 'pkg/TestReturnTernaryChar' {
       4      4
       5      4
       6      4
+      7      4
+      8      4
       9      4
       a      4
       e      4
+      f      4
       10      4
    }
 
@@ -37,10 +40,14 @@ class 'pkg/TestReturnTernaryChar' {
       4      8
       5      8
       6      8
+      7      8
+      8      8
       9      8
       a      8
       b      8
       f      8
+      10      8
+      11      8
       12      8
    }
 
@@ -52,9 +59,12 @@ class 'pkg/TestReturnTernaryChar' {
       4      12
       5      12
       6      12
+      7      12
+      8      12
       9      12
       a      12
       e      12
+      f      12
       10      12
    }
 }

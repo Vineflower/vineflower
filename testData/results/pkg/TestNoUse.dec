@@ -77,6 +77,8 @@ class 'pkg/TestNoUse' {
       15      7
       19      8
       1a      8
+      1b      8
+      1c      8
       1d      9
       1e      9
       1f      9
@@ -115,6 +117,8 @@ class 'pkg/TestNoUse' {
       18      17
       19      18
       1a      18
+      1b      18
+      1c      18
       1d      19
       1e      19
       1f      19
@@ -153,6 +157,8 @@ class 'pkg/TestNoUse' {
       15      27
       19      28
       1a      28
+      1b      28
+      1c      28
       1d      29
       1e      29
       1f      29
@@ -184,6 +190,8 @@ class 'pkg/TestNoUse' {
       f      37
       12      38
       13      38
+      14      38
+      15      38
       17      39
       18      39
       19      39
@@ -223,6 +231,8 @@ class 'pkg/TestNoUse' {
       18      51
       19      52
       1a      52
+      1b      52
+      1c      52
       1d      53
       1e      53
       1f      53

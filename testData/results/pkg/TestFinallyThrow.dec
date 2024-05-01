@@ -53,8 +53,12 @@ class 'pkg/TestFinallyThrow' {
       2      6
       3      6
       4      6
+      5      6
+      6      6
       2f      9
       30      9
+      31      9
+      32      9
       3a      10
       45      12
       47      13
@@ -65,6 +69,8 @@ class 'pkg/TestFinallyThrow' {
       4e      15
       4f      15
       50      15
+      51      15
+      52      15
    }
 
    method 'test1 (Ljava/lang/RuntimeException;)V' {
@@ -73,11 +79,15 @@ class 'pkg/TestFinallyThrow' {
       2      23
       3      23
       4      23
+      5      23
+      6      23
       7      24
       8      24
       9      25
       a      26
       b      26
+      c      26
+      d      26
       e      31
       f      31
    }
@@ -95,6 +105,8 @@ class 'pkg/TestFinallyThrow' {
       9      38
       a      39
       b      39
+      c      39
+      d      39
       14      44
       15      44
    }

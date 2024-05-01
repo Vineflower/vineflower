@@ -203,12 +203,16 @@ class 'pkg/TestTryWithResourcesReturnJ16' {
       17      99
       18      99
       19      99
+      1a      99
+      1b      99
       1c      99
       1d      99
       1e      99
       1f      99
       20      99
       21      99
+      22      99
+      23      99
       24      111
       25      111
       26      111
@@ -238,6 +242,8 @@ class 'pkg/TestTryWithResourcesReturnJ16' {
       53      103
       54      103
       55      103
+      56      103
+      57      103
       58      104
       59      104
       5a      104
@@ -278,12 +284,16 @@ class 'pkg/TestTryWithResourcesReturnJ16' {
       11      122
       12      122
       13      122
+      14      122
+      15      122
       16      122
       17      122
       18      122
       19      122
       1a      122
       1b      122
+      1c      122
+      1d      122
       1e      123
       1f      123
       20      123
@@ -313,6 +323,8 @@ class 'pkg/TestTryWithResourcesReturnJ16' {
       a      134
       b      134
       c      134
+      d      134
+      e      134
       f      135
       10      135
       11      135

@@ -23,13 +23,35 @@ class 'pkg/TestInlineSwitchExpression4' {
    method 'test (I)Ljava/lang/String;' {
       0      5
       1      5
+      2      5
+      3      5
       4      6
       5      6
+      6      6
+      7      6
+      8      6
+      9      6
+      a      6
+      b      6
+      c      6
+      d      6
+      e      6
+      f      6
       10      8
       11      8
       15      11
       16      11
+      17      11
+      18      11
+      19      11
+      1a      11
+      1b      11
+      1c      11
+      1d      11
+      1e      11
+      1f      11
       20      13
+      21      13
       22      17
    }
 }

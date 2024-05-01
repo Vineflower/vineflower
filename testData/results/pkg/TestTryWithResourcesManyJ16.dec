@@ -19,7 +19,7 @@ public class TestTryWithResourcesManyJ16 {
          System.out.println(s4.nextLine());// 19
          System.out.println(s5.nextLine());// 20
       }
-   }// 9 21
+   }// 21
 }
 
 class 'pkg/TestTryWithResourcesManyJ16' {
@@ -88,32 +88,13 @@ class 'pkg/TestTryWithResourcesManyJ16' {
       60      19
       61      19
       62      19
+      63      19
+      64      19
       df      21
-      e0      21
-      e1      21
-      e2      21
-      e3      21
-      e4      21
-      e5      21
-      e6      21
-      e7      21
-      e8      21
-      e9      21
-      ea      21
-      eb      21
-      ec      21
-      ed      21
-      ee      21
-      ef      21
-      f0      21
-      f1      21
-      f2      21
-      f3      21
    }
 }
 
 Lines mapping:
-9 <-> 22
 10 <-> 10
 11 <-> 11
 12 <-> 12
@@ -126,4 +107,5 @@ Lines mapping:
 20 <-> 20
 21 <-> 22
 Not mapped:
+9
 22

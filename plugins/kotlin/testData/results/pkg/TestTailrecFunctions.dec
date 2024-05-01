@@ -25,7 +25,7 @@ class TestTailrecFunctions {
             this.testFinally();// 13
          }
 
-         this.testFinally();// 12 14
+         this.testFinally();
       }
    }
 
@@ -189,16 +189,10 @@ class 'pkg/TestTailrecFunctions' {
       2      27
       3      27
       4      27
-      5      27
-      6      27
-      7      27
-      8      27
       9      24
       a      24
-      b      27
-      c      27
-      d      27
-      e      27
+      b      24
+      c      24
    }
 
    method 'testFinallyReturn ()I' {
@@ -227,6 +221,8 @@ class 'pkg/TestTailrecFunctions' {
    method 'testTryCatchFinally ()V' {
       1      53
       2      53
+      3      53
+      4      53
       5      66
       6      66
       7      66
@@ -234,12 +230,16 @@ class 'pkg/TestTailrecFunctions' {
       c      55
       d      56
       e      56
+      f      56
+      10      56
       11      62
       12      62
       13      62
       14      62
       19      59
       1a      59
+      1b      59
+      1c      59
       1f      63
    }
 
@@ -280,6 +280,8 @@ class 'pkg/TestTailrecFunctions' {
       2c      77
       2d      77
       2e      77
+      2f      77
+      30      77
       31      78
       32      78
       33      78
@@ -347,6 +349,8 @@ class 'pkg/TestTailrecFunctions' {
       2      100
       3      100
       4      100
+      5      100
+      6      100
       7      101
       8      101
       9      101
@@ -382,6 +386,8 @@ class 'pkg/TestTailrecFunctions' {
       17      114
       18      114
       19      114
+      1a      114
+      1b      114
       1c      115
       1d      116
       20      119
@@ -392,6 +398,8 @@ class 'pkg/TestTailrecFunctions' {
       25      119
       26      119
       27      119
+      28      119
+      29      119
       2a      124
       2b      124
       2c      124
@@ -440,9 +448,7 @@ Lines mapping:
 4 <-> 5
 5 <-> 9
 6 <-> 10
-12 <-> 28
 13 <-> 25
-14 <-> 28
 21 <-> 36
 27 <-> 44
 29 <-> 45
@@ -463,6 +469,8 @@ Lines mapping:
 53 <-> 132
 Not mapped:
 10
+12
+14
 15
 18
 20
