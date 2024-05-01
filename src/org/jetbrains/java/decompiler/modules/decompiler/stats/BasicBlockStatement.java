@@ -11,6 +11,7 @@ import org.jetbrains.java.decompiler.main.collectors.CounterContainer;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.Pattern;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.util.StartEndPair;
 import org.jetbrains.java.decompiler.util.TextBuffer;
@@ -119,9 +120,9 @@ public final class BasicBlockStatement extends Statement {
         inner.add(exp);
 
         for (Exprent exprent : inner) {
-          if (exprent instanceof FunctionExprent && ((FunctionExprent) exprent).getFuncType() == FunctionExprent.FunctionType.INSTANCEOF) {
-            if (((FunctionExprent) exprent).getLstOperands().size() > 2) {
-              vars.add((VarExprent) ((FunctionExprent) exprent).getLstOperands().get(2));
+          if (exprent instanceof FunctionExprent func && func.getFuncType() == FunctionExprent.FunctionType.INSTANCEOF) {
+            if (func.getLstOperands().size() > 2) {
+              vars.addAll(((Pattern) func.getLstOperands().get(2)).getPatternVars());
             }
           }
         }

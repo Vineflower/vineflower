@@ -1,16 +1,12 @@
 package org.jetbrains.java.decompiler.modules.decompiler;
 
-import org.jetbrains.java.decompiler.modules.decompiler.exps.AssignmentExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.ConstExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
+import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
-import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.BasicBlockStatement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
-import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
+import org.jetbrains.java.decompiler.struct.StructClass;
+import org.jetbrains.java.decompiler.struct.StructRecordComponent;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 
 import java.util.*;
@@ -128,8 +124,9 @@ public final class IfPatternMatchProcessor {
     Exprent right = first.getAllExprents().get(1);
 
     // Right side needs to be a cast function
+    // If it's not, we might be a record pattern match
     if (!(right instanceof FunctionExprent)) {
-      return false;
+      return identifyRecordPatternMatch(statement, branch, iof, (AssignmentExprent) first);
     }
 
     if (((FunctionExprent) right).getFuncType() != FunctionType.CAST) {
@@ -233,6 +230,171 @@ public final class IfPatternMatchProcessor {
         }
       }
     }
+  }
+
+  private static boolean identifyRecordPatternMatch(IfStatement stat, Statement branch, FunctionExprent instOf, AssignmentExprent head) {
+    if (!stat.getTopParent().mt.getBytecodeVersion().hasRecordPatternMatching()) {
+      return false;
+    }
+
+    Exprent headLeft = head.getLeft();
+    Exprent headRight = head.getRight();
+
+    // Check for:
+    //
+    // if (v instanceof MyType) {
+    //   var10000 = v;
+    // ...
+    if (!instOf.getLstOperands().get(0).equals(headRight)) {
+      return false;
+    }
+
+    VarType type = instOf.getLstOperands().get(1).getExprType();
+
+    StructClass cl = DecompilerContext.getStructContext().getClass(type.value);
+    if (cl == null || cl.getRecordComponents() == null) {
+      return false; // No idea what class, or not a record!
+    }
+
+    List<StructRecordComponent> comp = cl.getRecordComponents();
+
+    // Iteratively go through the sequence to see if it extracts from the record
+
+    // The general strategy is to identify an "extracting try" [1] for each record component.
+    // If we identify it, continue matching. Between each try we might see pseudo stack ops [2]
+    // that we'll want to clean up as well. If all the components were matched, then we are able
+    // to create the pattern with the variables.
+    //
+    // [1]:
+    // try {
+    //   exVar = <stackVar>.<component>();
+    // } catch (Throwable t) {
+    //   throw new MatchException(...);
+    // }
+    //
+    // [2]:
+    // realVar = exVar;
+    // <stackVar> = <originalVar>;
+
+    int stIdx = 1;
+
+    // Map which variable refers to which part of the record
+    Map<StructRecordComponent, VarExprent> vars = new LinkedHashMap<>();
+
+    // Ending exprents we may want to remove
+    Map<BasicBlockStatement, Exprent> remove = new HashMap<>();
+    // Statements that ought to be destroyed as a result of creating the pattern
+    List<Statement> toDestroy = new ArrayList<>();
+
+    for (StructRecordComponent c : comp) {
+      if (branch.getStats().size() <= stIdx) {
+        return false;
+      }
+
+      Statement next = branch.getStats().get(stIdx);
+      if (next instanceof CatchStatement catchSt && catchSt.getVars().size() == 1 && catchSt.getVars().get(0).getVarType().value.equals("java/lang/Throwable")) {
+        // Check catch for "throw new MatchException"
+        VarExprent foundVar = null;
+        if (catchSt.getStats().size() == 2 && isStatementMatchThrow(catchSt.getStats().get(1))) {
+          // Now make sure the inside of the try is ok
+          Statement inner = catchSt.getStats().get(0);
+          if (inner instanceof BasicBlockStatement) {
+            // var<x> = var10000.<comp>()
+            if (inner.getExprents().size() == 1 && inner.getExprents().get(0) instanceof AssignmentExprent assign) {
+              // Make sure the invocation matches the record component
+              if (assign.getLeft() instanceof VarExprent var && assign.getRight() instanceof InvocationExprent invok && invok.getClassname().equals(type.value)) {
+                if (invok.getName().equals(c.getName())) {
+                  // Found one!
+                  foundVar = var;
+                }
+              }
+            }
+          }
+        }
+
+        if (foundVar == null) {
+          return false;
+        }
+
+        toDestroy.add(next);
+
+        // Check the next statement for any pseudo stack ops
+        stIdx++;
+        if (branch.getStats().size() > stIdx) {
+          next = branch.getStats().get(stIdx);
+
+          boolean ok = false;
+          if (next instanceof BasicBlockStatement bb && next.getExprents().size() > 0) {
+            // look for "realVar = exVar;" to remove it
+            if (next.getExprents().get(0) instanceof AssignmentExprent assign && assign.getLeft() instanceof VarExprent var) {
+              if (assign.getRight().equals(foundVar)) {
+                vars.put(c, var);
+
+                ok = true;
+
+                // Check for "<stackVar> = <originalVar>;"
+                // If that's the only other thing in the statement, then we can destroy it!
+                boolean destroyed = false;
+                if (next.getExprents().size() == 2) {
+                  if (next.getExprents().get(1) instanceof AssignmentExprent nAssign && nAssign.getRight().equals(headRight)) {
+                    toDestroy.add(next);
+
+                    destroyed = true;
+                  }
+                }
+
+                // If we haven't destroyed it, we should remove the "realVar = exVar;" anyway. Mark it as such.
+                if (!destroyed) {
+                  remove.put(bb, assign);
+                }
+              }
+            }
+          }
+
+          // If we found a "realVar = exVar;" then we can skip over this statement and move on.
+          // Otherwise, "exVar" is probably the real var. Mark it as such.
+          if (!ok) {
+            vars.put(c, foundVar);
+          }
+
+          stIdx++;
+        }
+      } else {
+        return false;
+      }
+    }
+
+    toDestroy.add(branch.getBasichead());
+
+    PatternExprent pattern = new PatternExprent(PatternExprent.recordData(cl), type, new ArrayList<>(vars.values()));
+
+    instOf.getLstOperands().add(2, pattern);
+    stat.setPatternMatched(true);
+
+    for (Statement st : toDestroy) {
+      st.replaceWithEmpty();
+    }
+
+    for (Map.Entry<BasicBlockStatement, Exprent> e : remove.entrySet()) {
+      e.getKey().getExprents().remove(e.getValue());
+    }
+
+    return true;
+  }
+
+  public static boolean isStatementMatchThrow(Statement st) {
+    if (st instanceof BasicBlockStatement && st.getExprents().size() == 1) {
+      // throw ...
+      if (st.getExprents().get(0) instanceof ExitExprent exit && exit.getExitType() == ExitExprent.Type.THROW) {
+        // throw new ...
+        if (exit.getValue() instanceof NewExprent newEx) {
+          // throw new MatchException
+          return newEx.getNewType().value.equals("java/lang/MatchException");
+        }
+      }
+    }
+
+    return false;
   }
 
   /**
