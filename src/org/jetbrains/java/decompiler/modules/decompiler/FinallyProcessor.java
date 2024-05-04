@@ -18,7 +18,6 @@ import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectEdgeType;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectNode;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper;
-import org.jetbrains.java.decompiler.modules.decompiler.sforms.SFormsConstructor;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.SSAConstructorSparseEx;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.SSAUConstructorSparseEx;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.SimpleSSAReassign;
@@ -351,9 +350,9 @@ public class FinallyProcessor {
         // break out
         if (dest != graph.getLast() && !setCopy.contains(dest)) {
           // disable semaphore
-          SimpleInstructionSequence seq = new SimpleInstructionSequence();
-          seq.addInstruction(Instruction.create(CodeConstants.opc_bipush, false, CodeConstants.GROUP_GENERAL, bytecode_version, new int[]{0}, 1), -1);
-          seq.addInstruction(Instruction.create(CodeConstants.opc_istore, false, CodeConstants.GROUP_GENERAL, bytecode_version, new int[]{var}, store_length), -1);
+          InstructionSequence seq = new InstructionSequence();
+          seq.addInstruction(Instruction.create(CodeConstants.opc_bipush, false, CodeConstants.GROUP_GENERAL, bytecode_version, new int[]{0}, -1, 1));
+          seq.addInstruction(Instruction.create(CodeConstants.opc_istore, false, CodeConstants.GROUP_GENERAL, bytecode_version, new int[]{var}, -1, store_length));
 
           // build a separate block
           BasicBlock newblock = new BasicBlock(++graph.last_id);
@@ -381,9 +380,9 @@ public class FinallyProcessor {
     }
 
     // enable semaphore at the statement entrance
-    SimpleInstructionSequence seq = new SimpleInstructionSequence();
-    seq.addInstruction(Instruction.create(CodeConstants.opc_bipush, false, CodeConstants.GROUP_GENERAL, bytecode_version, new int[]{1}, 1), -1);
-    seq.addInstruction(Instruction.create(CodeConstants.opc_istore, false, CodeConstants.GROUP_GENERAL, bytecode_version, new int[]{var}, store_length), -1);
+    InstructionSequence seq = new InstructionSequence();
+    seq.addInstruction(Instruction.create(CodeConstants.opc_bipush, false, CodeConstants.GROUP_GENERAL, bytecode_version, new int[]{1}, -1, 1));
+    seq.addInstruction(Instruction.create(CodeConstants.opc_istore, false, CodeConstants.GROUP_GENERAL, bytecode_version, new int[]{var}, -1, store_length));
 
     BasicBlock newhead = new BasicBlock(++graph.last_id);
     newhead.setSeq(seq);
@@ -391,9 +390,9 @@ public class FinallyProcessor {
     insertBlockBefore(graph, head, newhead);
 
     // initialize semaphor with false
-    seq = new SimpleInstructionSequence();
-    seq.addInstruction(Instruction.create(CodeConstants.opc_bipush, false, CodeConstants.GROUP_GENERAL, bytecode_version, new int[]{0}, 1), -1);
-    seq.addInstruction(Instruction.create(CodeConstants.opc_istore, false, CodeConstants.GROUP_GENERAL, bytecode_version, new int[]{var}, store_length), -1);
+    seq = new InstructionSequence();
+    seq.addInstruction(Instruction.create(CodeConstants.opc_bipush, false, CodeConstants.GROUP_GENERAL, bytecode_version, new int[]{0}, -1, 1));
+    seq.addInstruction(Instruction.create(CodeConstants.opc_istore, false, CodeConstants.GROUP_GENERAL, bytecode_version, new int[]{var}, -1, store_length));
 
     BasicBlock newheadinit = new BasicBlock(++graph.last_id);
     newheadinit.setSeq(seq);
@@ -833,10 +832,10 @@ public class FinallyProcessor {
     }
 
     if (seqPattern.length() < seqSample.length()) { // split in two blocks
-      SimpleInstructionSequence seq = new SimpleInstructionSequence();
+      InstructionSequence seq = new InstructionSequence();
       LinkedList<Integer> oldOffsets = new LinkedList<>();
       for (int i = seqSample.length() - 1; i >= seqPattern.length(); i--) {
-        seq.addInstruction(0, seqSample.getInstr(i), -1);
+        seq.addInstruction(0, seqSample.getInstr(i));
         oldOffsets.addFirst(sample.getOldOffset(i));
         seqSample.removeInstruction(i);
         if (i < instrOldOffsetsSample.size()) {
@@ -1150,7 +1149,7 @@ public class FinallyProcessor {
                 // remove store
                 exit.getSeq().removeLast();
                 // add return
-                exit.getSeq().addInstruction(nextSeq.getInstr(1), -1);
+                exit.getSeq().addInstruction(nextSeq.getInstr(1));
 
                 // Clear next exception range, mergeBasicBlocks will take care of it
                 nextSeq.clear();

@@ -36,7 +36,7 @@ public class ControlFlowGraph implements CodeConstants {
   private Map<BasicBlock, BasicBlock> subroutines;
 
   private final Set<BasicBlock> finallyExits = new HashSet<>();
-  private final InstructionSequence sequence;
+  private final FullInstructionSequence sequence;
   public Set<String> commentLines = null;
   public boolean addErrorComment = false;
 
@@ -44,7 +44,7 @@ public class ControlFlowGraph implements CodeConstants {
   // constructors
   // *****************************************************************************
 
-  public ControlFlowGraph(InstructionSequence seq) {
+  public ControlFlowGraph(FullInstructionSequence seq) {
     this.sequence = seq;
 
     buildBlocks(seq);
@@ -194,7 +194,7 @@ public class ControlFlowGraph implements CodeConstants {
   // private methods
   // *****************************************************************************
 
-  private void buildBlocks(InstructionSequence instrseq) {
+  private void buildBlocks(FullInstructionSequence instrseq) {
 
     short[] states = findStartInstructions(instrseq);
 
@@ -221,17 +221,17 @@ public class ControlFlowGraph implements CodeConstants {
    *   <li> instructions after a return, throw or after a jump</li>
    * </ul>
    */
-  private static short[] findStartInstructions(InstructionSequence seq) {
+  private static short[] findStartInstructions(FullInstructionSequence seq) {
     int len = seq.length();
     short[] inststates = new short[len];
 
     // exception blocks
-    for (ExceptionHandler handler : seq.getExceptionTable().getHandlers()) {
-      inststates[handler.from_instr] = 1;
-      inststates[handler.handler_instr] = 1;
+    for (ExceptionHandler handler : seq.exceptionTable().getHandlers()) {
+      inststates[handler.from()] = 1;
+      inststates[handler.handler()] = 1;
 
-      if (handler.to_instr < len) {
-        inststates[handler.to_instr] = 1;
+      if (handler.to() < len) {
+        inststates[handler.to()] = 1;
       }
     }
 
@@ -275,7 +275,8 @@ public class ControlFlowGraph implements CodeConstants {
    */
   private Map<Integer, BasicBlock> createBasicBlocks(
     short[] startblock,
-    InstructionSequence instrseq) {
+    FullInstructionSequence instrSeq
+  ) {
     Map<Integer, BasicBlock> mapInstrBlocks = new HashMap<>();
 
     this.blocks = new VBStyleCollection<>();
@@ -285,7 +286,6 @@ public class ControlFlowGraph implements CodeConstants {
 
     int len = startblock.length;
     short counter = 0;
-    int blockoffset = 0;
 
     BasicBlock currentBlock = null;
     for (int i = 0; i < len; i++) {
@@ -298,8 +298,6 @@ public class ControlFlowGraph implements CodeConstants {
 
         // index: $i, key: $i+1, value BasicBlock(id = $i + 1)
         this.blocks.addWithKey(currentBlock, currentBlock.id);
-
-        blockoffset = instrseq.getOffset(i);
       }
 
       startblock[i] = counter;
@@ -307,8 +305,9 @@ public class ControlFlowGraph implements CodeConstants {
 
       // can't throw npe cause startblock[0] == 1 is always true
       assert currseq != null && lstOffs != null;
-      currseq.addInstruction(instrseq.getInstr(i), instrseq.getOffset(i) - blockoffset);
-      lstOffs.add(instrseq.getOffset(i));
+      Instruction instr = instrSeq.getInstr(i);
+      currseq.addInstruction(instr);
+      lstOffs.add(instr.startOffset);
     }
 
     this.first = this.blocks.get(0);
@@ -383,7 +382,7 @@ public class ControlFlowGraph implements CodeConstants {
     }
   }
 
-  private void setExceptionEdges(InstructionSequence instrseq, Map<Integer, BasicBlock> instrBlocks) {
+  private void setExceptionEdges(FullInstructionSequence instrseq, Map<Integer, BasicBlock> instrBlocks) {
 
     exceptions = new ArrayList<>();
 
@@ -392,18 +391,18 @@ public class ControlFlowGraph implements CodeConstants {
     // + 1 cause block id are 1 indexed
     int endInstructionBlocks = this.blocks.size() + 1;
 
-    for (ExceptionHandler handler : instrseq.getExceptionTable().getHandlers()) {
+    for (ExceptionHandler handler : instrseq.exceptionTable().getHandlers()) {
 
-      BasicBlock from = instrBlocks.get(handler.from_instr);
+      BasicBlock from = instrBlocks.get(handler.from());
       // NOTE: to_instr can be this.blocks.size
-      BasicBlock to = instrBlocks.get(handler.to_instr);
-      BasicBlock handle = instrBlocks.get(handler.handler_instr);
+      BasicBlock to = instrBlocks.get(handler.to());
+      BasicBlock handle = instrBlocks.get(handler.handler());
 
       String key = from.id + ":" + to.id + ":" + handle.id;
 
       if (mapRanges.containsKey(key)) {
         ExceptionRangeCFG range = mapRanges.get(key);
-        range.addExceptionType(handler.exceptionClass);
+        range.addExceptionType(handler.exceptionClass());
       }
       else {
 
@@ -414,7 +413,7 @@ public class ControlFlowGraph implements CodeConstants {
           block.addSuccessorException(handle);
         }
 
-        ExceptionRangeCFG range = new ExceptionRangeCFG(protectedRange, handle, handler.exceptionClass);
+        ExceptionRangeCFG range = new ExceptionRangeCFG(protectedRange, handle, handler.exceptionClass());
         mapRanges.put(key, range);
 
         exceptions.add(range);
@@ -855,7 +854,7 @@ public class ControlFlowGraph implements CodeConstants {
     return finallyExits;
   }
 
-  public InstructionSequence getSequence() {
+  public FullInstructionSequence getSequence() {
     return sequence;
   }
 
