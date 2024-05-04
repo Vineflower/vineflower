@@ -5,8 +5,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import net.fabricmc.fernflower.api.IFabricJavadocProvider;
 import org.jetbrains.java.decompiler.api.plugin.StatementWriter;
 import org.jetbrains.java.decompiler.code.CodeConstants;
-import org.jetbrains.java.decompiler.code.Instruction;
-import org.jetbrains.java.decompiler.code.InstructionSequence;
+import org.jetbrains.java.decompiler.code.FullInstructionSequence;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.collectors.ImportCollector;
 import org.jetbrains.java.decompiler.main.decompiler.CancelationManager;
@@ -1526,21 +1525,19 @@ public class ClassWriter implements StatementWriter {
   private static void collectBytecode(MethodWrapper wrapper, List<String> lines) throws IOException {
     ClassNode classNode = (ClassNode)DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
     StructMethod method = wrapper.methodStruct;
-    InstructionSequence instructions = method.getInstructionSequence();
+    FullInstructionSequence instructions = method.getInstructionSequence();
     if (instructions == null) {
       method.expandData(classNode.classStruct);
       instructions = method.getInstructionSequence();
     }
-    int lastOffset = instructions.getOffset(instructions.length() - 1);
+    int lastOffset = instructions.getLast().startOffset;
     int digits = 8 - Integer.numberOfLeadingZeros(lastOffset) / 4;
     ConstantPool pool = classNode.classStruct.getPool();
     StructBootstrapMethodsAttribute bootstrap = classNode.classStruct.getAttribute(StructGeneralAttribute.ATTRIBUTE_BOOTSTRAP_METHODS);
 
-    for (int idx = 0; idx < instructions.length(); idx++) {
-      int offset = instructions.getOffset(idx);
-      Instruction instr = instructions.getInstr(idx);
+    for (var instr : instructions) {
       StringBuilder sb = new StringBuilder();
-      String offHex = Integer.toHexString(offset);
+      String offHex = Integer.toHexString(instr.startOffset);
       for (int i = offHex.length(); i < digits; i++) sb.append('0');
       sb.append(offHex).append(": ");
       if (instr.wide) {
@@ -1567,7 +1564,7 @@ public class ClassWriter implements StatementWriter {
         }
         case CodeConstants.GROUP_JUMP: {
           sb.append(' ');
-          int dest = offset + instr.operand(0);
+          int dest = instr.startOffset + instr.operand(0);
           String destHex = Integer.toHexString(dest);
           for (int i = destHex.length(); i < digits; i++) sb.append('0');
           sb.append(destHex);

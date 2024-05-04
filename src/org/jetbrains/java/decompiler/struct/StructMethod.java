@@ -14,10 +14,10 @@ import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericMain;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericMethodDescriptor;
 import org.jetbrains.java.decompiler.util.DataInputFullStream;
-import org.jetbrains.java.decompiler.util.collections.VBStyleCollection;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -67,7 +67,7 @@ public class StructMethod extends StructMember {
   private final BytecodeVersion bytecodeVersion;
   private final int localVariables;
   private final byte[] codeAndExceptions;
-  private InstructionSequence seq = null;
+  private FullInstructionSequence seq = null;
   private boolean expanded = false;
   private final String classQualifiedName;
   private final GenericMethodDescriptor signature;
@@ -111,8 +111,9 @@ public class StructMethod extends StructMember {
   }
 
   @SuppressWarnings("AssignmentToForLoopParameter")
-  private InstructionSequence parseBytecode(DataInputFullStream in, ConstantPool pool) throws IOException {
-    VBStyleCollection<Instruction, Integer> instructions = new VBStyleCollection<>();
+  private FullInstructionSequence parseBytecode(DataInputFullStream in, ConstantPool pool) throws IOException {
+    List<Instruction> instructions = new ArrayList<>();
+    Map<Integer, Integer> offsetToIndex = new HashMap<>();
 
     int length = in.readInt();
     for (int i = 0; i < length; ) {
@@ -319,9 +320,10 @@ public class StructMethod extends StructMember {
 
       i++;
 
-      Instruction instr = Instruction.create(opcode, wide, group, bytecodeVersion, ops, i - offset);
+      Instruction instr = Instruction.create(opcode, wide, group, bytecodeVersion, ops, offset, i - offset);
 
-      instructions.addWithKey(instr, offset);
+      offsetToIndex.put(offset, instructions.size());
+      instructions.add(instr);
     }
 
     // initialize exception table
@@ -329,31 +331,29 @@ public class StructMethod extends StructMember {
 
     int exception_count = in.readUnsignedShort();
     for (int i = 0; i < exception_count; i++) {
-      ExceptionHandler handler = new ExceptionHandler();
-      handler.from = in.readUnsignedShort();
-      handler.to = in.readUnsignedShort();
-      handler.handler = in.readUnsignedShort();
+      int from = offsetToIndex.get(in.readUnsignedShort());
+      // catch block can go to the end of the method
+      int to = offsetToIndex.getOrDefault(in.readUnsignedShort(), instructions.size());
+      int handler = offsetToIndex.get(in.readUnsignedShort());
 
-      int excclass = in.readUnsignedShort();
-      if (excclass != 0) {
-        handler.exceptionClass = pool.getPrimitiveConstant(excclass).getString();
+      int excClass = in.readUnsignedShort();
+      String exceptionClass;
+      if (excClass == 0) {
+        exceptionClass = null;
+      } else {
+        exceptionClass = pool.getPrimitiveConstant(excClass).getString();
       }
 
-      lstHandlers.add(handler);
+      lstHandlers.add(new ExceptionHandler(from, to, handler, exceptionClass));
     }
 
-    InstructionSequence seq = new FullInstructionSequence(instructions, new ExceptionTable(lstHandlers));
+    FullInstructionSequence seq = new FullInstructionSequence(
+      instructions,
+      offsetToIndex,
+      new ExceptionTable(lstHandlers));
 
-    // initialize instructions
-    int i = seq.length() - 1;
-    seq.setPointer(i);
-
-    while (i >= 0) {
-      Instruction instr = seq.getInstr(i--);
-      if (instr.group != GROUP_GENERAL) {
-        instr.initInstruction(seq);
-      }
-      seq.addToPointer(-1);
+    for (var instr : seq) {
+      instr.initInstruction(seq);
     }
 
     return seq;
@@ -383,7 +383,7 @@ public class StructMethod extends StructMember {
     return localVariables;
   }
 
-  public InstructionSequence getInstructionSequence() {
+  public FullInstructionSequence getInstructionSequence() {
     return seq;
   }
 

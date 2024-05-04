@@ -94,8 +94,8 @@ public final class ExceptionDeobfuscator {
                     // split the handler
                     if (seq.length() > 1) {
                       newblock = new BasicBlock(++graph.last_id);
-                      InstructionSequence newseq = new SimpleInstructionSequence();
-                      newseq.addInstruction(firstinstr.clone(), -1);
+                      InstructionSequence newseq = new InstructionSequence();
+                      newseq.addInstruction(firstinstr.clone());
 
                       newblock.setSeq(newseq);
                       graph.getBlocks().addWithKey(newblock, newblock.id);
@@ -452,9 +452,9 @@ public final class ExceptionDeobfuscator {
         for (ExceptionRangeCFG range : ranges) {
 
           // add some dummy instructions to prevent optimizing away the empty block
-          SimpleInstructionSequence seq = new SimpleInstructionSequence();
-          seq.addInstruction(Instruction.create(CodeConstants.opc_bipush, false, CodeConstants.GROUP_GENERAL, bytecode_version, new int[]{0}, 1), -1);
-          seq.addInstruction(Instruction.create(CodeConstants.opc_pop, false, CodeConstants.GROUP_GENERAL, bytecode_version, null, 1), -1);
+          InstructionSequence seq = new InstructionSequence();
+          seq.addInstruction(Instruction.create(CodeConstants.opc_bipush, false, CodeConstants.GROUP_GENERAL, bytecode_version, new int[]{0}, -1, 1));
+          seq.addInstruction(Instruction.create(CodeConstants.opc_pop, false, CodeConstants.GROUP_GENERAL, bytecode_version, null, -1, 1));
 
           BasicBlock dummyBlock = new BasicBlock(++graph.last_id);
           dummyBlock.setSeq(seq);
