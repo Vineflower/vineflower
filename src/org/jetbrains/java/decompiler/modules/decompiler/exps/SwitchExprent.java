@@ -75,7 +75,7 @@ public class SwitchExprent extends Exprent {
       List<Exprent> removedValue = this.backing.getCaseValues().remove(defaultIdx);
       this.backing.getCaseValues().add(removedValue);
 
-      Exprent removedGuard = this.backing.getCaseGuards().size() > defaultIdx ? this.backing.getCaseGuards().get(defaultIdx) : null;
+      Exprent removedGuard = this.backing.getCaseGuards().size() > defaultIdx ? this.backing.getCaseGuards().remove(defaultIdx) : null;
       if (removedGuard != null) {
         this.backing.getCaseGuards().add(removedGuard);
       }
