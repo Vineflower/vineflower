@@ -5,9 +5,9 @@ import ext.Direction;
 public class TestSwitchPatternMatching6 {
    static int testTriangle(Direction d) {
       return switch (d) {// 1 7
-         case null, default -> -1;// 10
          case NORTH, SOUTH, WEST -> 0;// 8
          case EAST, UP -> 1;// 9
+         case null, default -> -1;// 10
       };
    }
 }
@@ -65,9 +65,9 @@ class 'pkg/TestSwitchPatternMatching6' {
       3d      6
       3e      6
       3f      6
-      40      8
-      44      9
-      48      7
+      40      7
+      44      8
+      48      9
       49      6
    }
 }
@@ -75,6 +75,6 @@ class 'pkg/TestSwitchPatternMatching6' {
 Lines mapping:
 1 <-> 7
 7 <-> 7
-8 <-> 9
-9 <-> 10
-10 <-> 8
+8 <-> 8
+9 <-> 9
+10 <-> 10

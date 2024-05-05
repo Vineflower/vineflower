@@ -7,9 +7,9 @@ public class TestSwitchPatternMatching12 {
       Direction var3 = a ? l : r;
 
       return switch (var3) {// 1 7
-         case null, default -> -1;// 10
          case NORTH, SOUTH, WEST -> 0;// 8
          case EAST, UP -> 1;// 9
+         case null, default -> -1;// 10
       };
    }
 }
@@ -73,9 +73,9 @@ class 'pkg/TestSwitchPatternMatching12' {
       45      8
       46      8
       47      8
-      48      10
-      4c      11
-      50      9
+      48      9
+      4c      10
+      50      11
       51      8
    }
 }
@@ -83,6 +83,6 @@ class 'pkg/TestSwitchPatternMatching12' {
 Lines mapping:
 1 <-> 9
 7 <-> 9
-8 <-> 11
-9 <-> 12
-10 <-> 10
+8 <-> 10
+9 <-> 11
+10 <-> 12

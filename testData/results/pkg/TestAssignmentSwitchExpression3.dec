@@ -9,12 +9,12 @@ public class TestAssignmentSwitchExpression3 {
             int seed = x >> 2;// 14
             yield new Random(seed);// 15
          }
-         default -> throw new IllegalStateException("Unexpected value: " + x);// 17
          case 1, 2, 3, 4, 5 -> {
             long seed = System.currentTimeMillis() - x * 1000;// 9
             yield new Random(seed);// 10
          }
          case 6, 7, 8, 9, 10 -> new Random();
+         default -> throw new IllegalStateException("Unexpected value: " + x);// 17
       };
       System.out.println(random.nextInt());// 19
    }// 20
@@ -102,31 +102,31 @@ class 'pkg/TestAssignmentSwitchExpression3' {
       4d      6
       4e      6
       4f      6
-      50      13
-      51      13
-      52      13
-      53      13
-      54      13
-      55      13
-      56      13
-      57      13
-      58      13
-      59      13
-      5a      13
-      5f      14
+      50      12
+      51      12
+      52      12
+      53      12
+      54      12
+      55      12
+      56      12
+      57      12
+      58      12
+      59      12
+      5a      12
+      5f      13
       70      8
       71      8
       72      8
       73      8
       78      9
       79      9
-      84      11
-      85      11
-      86      11
-      87      11
-      88      11
-      89      11
-      8d      11
+      84      16
+      85      16
+      86      16
+      87      16
+      88      16
+      89      16
+      8d      16
       8e      6
       8f      18
       90      18
@@ -144,11 +144,11 @@ class 'pkg/TestAssignmentSwitchExpression3' {
 
 Lines mapping:
 7 <-> 7
-9 <-> 14
-10 <-> 15
+9 <-> 13
+10 <-> 14
 14 <-> 9
 15 <-> 10
-17 <-> 12
+17 <-> 17
 19 <-> 19
 20 <-> 20
 Not mapped:

@@ -42,138 +42,156 @@ public class SwitchExprent extends Exprent {
     boolean isExhaustive = isExhaustive();
 
     buf.append(this.backing.getHeadexprent().toJava(indent)).append(" {").appendLineSeparator();
+    int delayedDefaultCaseIdx = -1;
     for (int i = 0; i < this.backing.getCaseStatements().size(); i++) {
-      Statement stat = this.backing.getCaseStatements().get(i);
-      List<StatEdge> edges = this.backing.getCaseEdges().get(i);
-      List<Exprent> values = this.backing.getCaseValues().get(i);
-      Exprent guard = this.backing.getCaseGuards().size() > i ? this.backing.getCaseGuards().get(i) : null;
-
-      boolean hasDefault = false;
-      // As switch expressions can be compiled to a tableswitch, any gaps will contain a jump to the default element.
-      // Switch expressions cannot have a case point to the same statement as the default, so we check for default first and don't check for cases if it exists [TestConstructorSwitchExpression1]
-
-      for (StatEdge edge : edges) {
-        if (edge == this.backing.getDefaultEdge()) {
-          if (isExhaustive) {
-            if (isSyntheticThrowEdge(edge)) {
-              break; // just don't mark as default
-            }
-          }
-          hasDefault = true;
-          break;
+      if (caseToJava(indent, i, isExhaustive, buf, switchType, true)) {
+        if (delayedDefaultCaseIdx != -1) {
+          throw new IllegalStateException("Already found default case?");
         }
+        delayedDefaultCaseIdx = i;
       }
-
-      boolean hasEdge = false;
-      for (int j = 0; j < edges.size(); j++) {
-        Exprent value = edges.get(j) == backing.getDefaultEdge() && values.size() <= j
-          ? new ConstExprent(VarType.VARTYPE_NULL, null, null) // a total branch in j17 would act as a null branch too
-          : values.get(j);
-        if (value == null) { // TODO: how can this be null? Is it trying to inject a synthetic case value in switch-on-string processing? [TestSwitchDefaultBefore]
-          continue;
-        }
-
-        // only a null label changes `default` label semantics
-        if (hasDefault && (value.getExprType() != VarType.VARTYPE_NULL)) {
-          continue;
-        }
-
-        if (!hasEdge) {
-          buf.appendIndent(indent + 1).append("case ");
-        } else {
-          buf.append(", ");
-        }
-
-        if (value instanceof ConstExprent && !standalone && !Objects.equals(value.getExprType(), VarType.VARTYPE_NULL)) {
-          value = value.copy();
-          ((ConstExprent) value).setConstType(switchType);
-        }
-
-        if (value instanceof FieldExprent && ((FieldExprent) value).isStatic()) { // enum values
-          FieldExprent field = (FieldExprent) value;
-          buf.appendField(field.getName(), false, field.getClassname(), field.getName(), field.getDescriptor());
-        } else if (value instanceof FunctionExprent && ((FunctionExprent) value).getFuncType() == FunctionExprent.FunctionType.INSTANCEOF) {
-          // Pattern matching variables
-          List<Exprent> operands = ((FunctionExprent) value).getLstOperands();
-          buf.append(operands.get(1).toJava(indent));
-          buf.append(" ");
-          // We're pasting the var type, don't do it again
-          ((VarExprent)operands.get(2)).setDefinition(false);
-          buf.append(operands.get(2).toJava(indent));
-        } else {
-          buf.append(value.toJava(indent));
-        }
-
-        hasEdge = true;
-      }
-
-      if (guard != null) {
-        buf.append(" when ").append(guard.toJava());
-      }
-
-      if (hasDefault) {
-        if (!hasEdge) {
-          // Don't write 'default -> {}'
-          if (stat instanceof BasicBlockStatement && isEmptyDefault(((BasicBlockStatement)stat), backing)) {
-            continue;
-          }
-
-          buf.appendIndent(indent + 1).append("default");
-        } else {
-          buf.append(", default");
-        }
-        hasEdge = true;
-      }
-
-      if (!hasEdge) { // if we're the synthetic throw edge, we have no cases
-        continue;
-      }
-
-      buf.append(" -> ");
-
-      boolean simple = stat instanceof BasicBlockStatement;
-
-      if (stat.getExprents() != null && stat.getExprents().size() != 1) {
-        simple = false;
-      }
-
-      // Single yield or throw
-      if (simple) {
-        Exprent exprent = stat.getExprents().get(0);
-
-        if (exprent instanceof YieldExprent) {
-          Exprent content = ((YieldExprent) exprent).getContent();
-
-          if (content instanceof ConstExprent && !Objects.equals(content.getExprType(), VarType.VARTYPE_NULL)) {
-            ((ConstExprent)content).setConstType(this.type);
-          }
-
-          buf.append(content.toJava(indent + 1).append(";"));
-        } else if (exprent instanceof ExitExprent) {
-          ExitExprent exit = (ExitExprent) exprent;
-
-          if (exit.getExitType() == ExitExprent.Type.THROW) {
-            buf.append(exit.toJava(indent + 1).append(";"));
-          } else {
-            throw new IllegalStateException("Can't have return in switch expression");
-          }
-        } else { // Catchall
-          buf.append(exprent.toJava(indent + 1).append(";"));
-        }
-      } else {
-        buf.append("{");
-        buf.appendLineSeparator();
-        TextBuffer statBuf = stat.toJava(indent + 2);
-        buf.append(statBuf);
-        buf.appendIndent(indent + 1).append("}");
-      }
-
-      buf.appendLineSeparator();
+    }
+    if (delayedDefaultCaseIdx != -1) {
+      caseToJava(indent, delayedDefaultCaseIdx, isExhaustive, buf, switchType, false);
     }
 
     buf.appendIndent(indent).append("}");
 
     return buf;
+  }
+
+  private boolean caseToJava(int indent, int i, boolean isExhaustive, TextBuffer buf, VarType switchType, boolean delayDefault) {
+    Statement stat = this.backing.getCaseStatements().get(i);
+    List<StatEdge> edges = this.backing.getCaseEdges().get(i);
+    List<Exprent> values = this.backing.getCaseValues().get(i);
+    Exprent guard = this.backing.getCaseGuards().size() > i ? this.backing.getCaseGuards().get(i) : null;
+
+    boolean hasDefault = false;
+    // As switch expressions can be compiled to a tableswitch, any gaps will contain a jump to the default element.
+    // Switch expressions cannot have a case point to the same statement as the default, so we check for default first and don't check for cases if it exists [TestConstructorSwitchExpression1]
+
+    for (StatEdge edge : edges) {
+      if (edge == this.backing.getDefaultEdge()) {
+        if (isExhaustive) {
+          if (isSyntheticThrowEdge(edge)) {
+            break; // just don't mark as default
+          }
+        }
+        hasDefault = true;
+        break;
+      }
+    }
+
+    if (delayDefault && hasDefault) {
+      return true;
+    }
+
+    boolean hasEdge = false;
+    for (int j = 0; j < edges.size(); j++) {
+      Exprent value = edges.get(j) == backing.getDefaultEdge() && values.size() <= j
+        ? new ConstExprent(VarType.VARTYPE_NULL, null, null) // a total branch in j17 would act as a null branch too
+        : values.get(j);
+      if (value == null) { // TODO: how can this be null? Is it trying to inject a synthetic case value in switch-on-string processing? [TestSwitchDefaultBefore]
+        continue;
+      }
+
+      // only a null label changes `default` label semantics
+      if (hasDefault && (value.getExprType() != VarType.VARTYPE_NULL)) {
+        continue;
+      }
+
+      if (!hasEdge) {
+        buf.appendIndent(indent + 1).append("case ");
+      } else {
+        buf.append(", ");
+      }
+
+      if (value instanceof ConstExprent && !standalone && !Objects.equals(value.getExprType(), VarType.VARTYPE_NULL)) {
+        value = value.copy();
+        ((ConstExprent) value).setConstType(switchType);
+      }
+
+      if (value instanceof FieldExprent && ((FieldExprent) value).isStatic()) { // enum values
+        FieldExprent field = (FieldExprent) value;
+        buf.appendField(field.getName(), false, field.getClassname(), field.getName(), field.getDescriptor());
+      } else if (value instanceof FunctionExprent && ((FunctionExprent) value).getFuncType() == FunctionExprent.FunctionType.INSTANCEOF) {
+        // Pattern matching variables
+        List<Exprent> operands = ((FunctionExprent) value).getLstOperands();
+        buf.append(operands.get(1).toJava(indent));
+        buf.append(" ");
+        // We're pasting the var type, don't do it again
+        ((VarExprent)operands.get(2)).setDefinition(false);
+        buf.append(operands.get(2).toJava(indent));
+      } else {
+        buf.append(value.toJava(indent));
+      }
+
+      hasEdge = true;
+    }
+
+    if (guard != null) {
+      buf.append(" when ").append(guard.toJava());
+    }
+
+    if (hasDefault) {
+      if (!hasEdge) {
+        // Don't write 'default -> {}'
+        if (stat instanceof BasicBlockStatement && isEmptyDefault(((BasicBlockStatement)stat), backing)) {
+          return false;
+        }
+
+        buf.appendIndent(indent + 1).append("default");
+      } else {
+        buf.append(", default");
+      }
+      hasEdge = true;
+    }
+
+    if (!hasEdge) { // if we're the synthetic throw edge, we have no cases
+      return false;
+    }
+
+    buf.append(" -> ");
+
+    boolean simple = stat instanceof BasicBlockStatement;
+
+    if (stat.getExprents() != null && stat.getExprents().size() != 1) {
+      simple = false;
+    }
+
+    // Single yield or throw
+    if (simple) {
+      Exprent exprent = stat.getExprents().get(0);
+
+      if (exprent instanceof YieldExprent) {
+        Exprent content = ((YieldExprent) exprent).getContent();
+
+        if (content instanceof ConstExprent && !Objects.equals(content.getExprType(), VarType.VARTYPE_NULL)) {
+          ((ConstExprent)content).setConstType(this.type);
+        }
+
+        buf.append(content.toJava(indent + 1).append(";"));
+      } else if (exprent instanceof ExitExprent) {
+        ExitExprent exit = (ExitExprent) exprent;
+
+        if (exit.getExitType() == ExitExprent.Type.THROW) {
+          buf.append(exit.toJava(indent + 1).append(";"));
+        } else {
+          throw new IllegalStateException("Can't have return in switch expression");
+        }
+      } else { // Catchall
+        buf.append(exprent.toJava(indent + 1).append(";"));
+      }
+    } else {
+      buf.append("{");
+      buf.appendLineSeparator();
+      TextBuffer statBuf = stat.toJava(indent + 2);
+      buf.append(statBuf);
+      buf.appendIndent(indent + 1).append("}");
+    }
+
+    buf.appendLineSeparator();
+    return false;
   }
 
   private static boolean isEmptyDefault(BasicBlockStatement block, SwitchStatement head) {
