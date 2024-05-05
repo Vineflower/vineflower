@@ -66,15 +66,9 @@ public class SwitchExprent extends Exprent {
     }
     // Shift found default statement to end if needed
     if (defaultIdx != -1 && defaultIdx != this.backing.getCaseEdges().size() - 1) {
-      Statement removedStmt = this.backing.getCaseStatements().remove(defaultIdx);
-      this.backing.getCaseStatements().add(removedStmt);
-
-      List<StatEdge> removedEdge = this.backing.getCaseEdges().remove(defaultIdx);
-      this.backing.getCaseEdges().add(removedEdge);
-
-      List<Exprent> removedValue = this.backing.getCaseValues().remove(defaultIdx);
-      this.backing.getCaseValues().add(removedValue);
-
+      this.backing.getCaseStatements().add(this.backing.getCaseStatements().remove(defaultIdx));
+      this.backing.getCaseEdges().add(this.backing.getCaseEdges().remove(defaultIdx));
+      this.backing.getCaseValues().add(this.backing.getCaseValues().remove(defaultIdx));
       Exprent removedGuard = this.backing.getCaseGuards().size() > defaultIdx ? this.backing.getCaseGuards().remove(defaultIdx) : null;
       if (removedGuard != null) {
         this.backing.getCaseGuards().add(removedGuard);
