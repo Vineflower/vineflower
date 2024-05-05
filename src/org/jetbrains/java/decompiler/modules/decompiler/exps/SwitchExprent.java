@@ -42,7 +42,6 @@ public class SwitchExprent extends Exprent {
     boolean isExhaustive = isExhaustive();
 
     buf.append(this.backing.getHeadexprent().toJava(indent)).append(" {").appendLineSeparator();
-
     for (int i = 0; i < this.backing.getCaseStatements().size(); i++) {
       Statement stat = this.backing.getCaseStatements().get(i);
       List<StatEdge> edges = this.backing.getCaseEdges().get(i);
