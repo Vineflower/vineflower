@@ -326,6 +326,7 @@ public class MethodProcessor implements Runnable {
         }
 
         if (changed) {
+          SwitchHelper.ensureDefaultCaseLast(root);
           continue;
         }
       }

@@ -24,6 +24,45 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public final class SwitchHelper {
+  public static void ensureDefaultCaseLast(Statement stat) {
+    for (Statement st : new ArrayList<>(stat.getStats())) {
+      ensureDefaultCaseLast(st);
+    }
+
+    if (stat instanceof SwitchStatement switchStmt) {
+      ensureDefaultCaseLast(switchStmt);
+    }
+  }
+
+  private static void ensureDefaultCaseLast(final SwitchStatement stat) {
+    // Ensure default case is last. Mostly needed when edges are merged and it loses it's initial ending position.
+    int defaultIdx = -1;
+    // First, find default case if it exists.
+    for (int i = 0; i < stat.getCaseStatements().size(); i++) {
+      List<StatEdge> edges = stat.getCaseEdges().get(i);
+
+      // As switch expressions can be compiled to a tableswitch, any gaps will contain a jump to the default element.
+      // Switch expressions cannot have a case point to the same statement as the default, so we check for default first and don't check for cases if it exists [TestConstructorSwitchExpression1]
+
+      for (StatEdge edge : edges) {
+        if (edge == stat.getDefaultEdge()) {
+          defaultIdx = i;
+          break;
+        }
+      }
+    }
+    // Shift found default statement to end if needed
+    if (defaultIdx != -1 && defaultIdx != stat.getCaseEdges().size() - 1) {
+      stat.getCaseStatements().add(stat.getCaseStatements().remove(defaultIdx));
+      stat.getCaseEdges().add(stat.getCaseEdges().remove(defaultIdx));
+      stat.getCaseValues().add(stat.getCaseValues().remove(defaultIdx));
+      Exprent removedGuard = stat.getCaseGuards().size() > defaultIdx ? stat.getCaseGuards().remove(defaultIdx) : null;
+      if (removedGuard != null) {
+        stat.getCaseGuards().add(removedGuard);
+      }
+    }
+  }
+
   public static boolean simplifySwitches(Statement stat, StructMethod mt, RootStatement root) {
     boolean ret = false;
     if (stat instanceof SwitchStatement) {

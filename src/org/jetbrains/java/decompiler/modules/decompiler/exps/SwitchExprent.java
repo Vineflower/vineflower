@@ -43,38 +43,6 @@ public class SwitchExprent extends Exprent {
 
     buf.append(this.backing.getHeadexprent().toJava(indent)).append(" {").appendLineSeparator();
 
-    // Ensure default case is last. Mostly needed when edges are merged and it loses it's initial ending position.
-    int defaultIdx = -1;
-    // First, find default case if it exists.
-    for (int i = 0; i < this.backing.getCaseStatements().size(); i++) {
-      List<StatEdge> edges = this.backing.getCaseEdges().get(i);
-
-      // As switch expressions can be compiled to a tableswitch, any gaps will contain a jump to the default element.
-      // Switch expressions cannot have a case point to the same statement as the default, so we check for default first and don't check for cases if it exists [TestConstructorSwitchExpression1]
-
-      for (StatEdge edge : edges) {
-        if (edge == this.backing.getDefaultEdge()) {
-          if (isExhaustive) {
-            if (isSyntheticThrowEdge(edge)) {
-              break; // just don't mark as default
-            }
-          }
-          defaultIdx = i;
-          break;
-        }
-      }
-    }
-    // Shift found default statement to end if needed
-    if (defaultIdx != -1 && defaultIdx != this.backing.getCaseEdges().size() - 1) {
-      this.backing.getCaseStatements().add(this.backing.getCaseStatements().remove(defaultIdx));
-      this.backing.getCaseEdges().add(this.backing.getCaseEdges().remove(defaultIdx));
-      this.backing.getCaseValues().add(this.backing.getCaseValues().remove(defaultIdx));
-      Exprent removedGuard = this.backing.getCaseGuards().size() > defaultIdx ? this.backing.getCaseGuards().remove(defaultIdx) : null;
-      if (removedGuard != null) {
-        this.backing.getCaseGuards().add(removedGuard);
-      }
-    }
-
     for (int i = 0; i < this.backing.getCaseStatements().size(); i++) {
       Statement stat = this.backing.getCaseStatements().get(i);
       List<StatEdge> edges = this.backing.getCaseEdges().get(i);
