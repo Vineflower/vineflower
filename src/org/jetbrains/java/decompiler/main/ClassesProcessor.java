@@ -176,7 +176,8 @@ public class ClassesProcessor implements CodeConstants {
               if (enclClassName == null || innerName.equals(enclClassName)) {
                 continue;  // invalid name or self reference
               }
-              if (rec.type == ClassNode.Type.MEMBER && !innerName.equals(enclClassName + '$' + entry.simpleName)) {
+              if (DecompilerContext.getOption(IFernflowerPreferences.VALIDATE_INNER_CLASSES_NAMES) &&
+                  rec.type == ClassNode.Type.MEMBER && !innerName.equals(enclClassName + '$' + entry.simpleName)) {
                 continue;  // not a real inner class
               }
 
