@@ -67,5 +67,9 @@ public class TestNumberCasts {
     l((long) d);
     f((float) d);
     d(d);
+
+    int num1 = 400321932;
+    int num2 = 400321932;
+    l((long) num1 * num2);
   }
 }

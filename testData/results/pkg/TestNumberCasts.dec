@@ -62,7 +62,10 @@ public class TestNumberCasts {
       l((long)d);// 67
       f((float)d);// 68
       d(d);// 69
-   }// 70
+      int num1 = 400321932;// 71
+      int num2 = 400321932;// 72
+      l((long)num1 * num2);// 73
+   }// 74
 }
 
 class 'pkg/TestNumberCasts' {
