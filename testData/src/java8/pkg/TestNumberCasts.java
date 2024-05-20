@@ -27,6 +27,9 @@ public class TestNumberCasts {
     l(b);
     f(b);
     d(b);
+    s((short) (b * b));
+    s((short) (b + b));
+    s((short) (-b - b));
 
     short s = 32767;
     b((byte) s);
@@ -35,6 +38,9 @@ public class TestNumberCasts {
     l(s);
     f(s);
     d(s);
+    i((int) s * s);
+    i((int) s + s);
+    i((int) -s - s);
 
     int i = 2147483647;
     b((byte) i);
@@ -43,6 +49,13 @@ public class TestNumberCasts {
     l(i);
     f(i);
     d(i);
+    l(i * i); // not a good idea, but should test for it
+    l(i + b); // not a good idea, but should test for it
+    l((long) (i * i)); // not a good idea, but should test for it
+    l((long) i * i);
+    l((long) i + i);
+    l((long) -i - i);
+    l((long) i + b);
 
     long l = 9223372036854775807L;
     b((byte) l);
