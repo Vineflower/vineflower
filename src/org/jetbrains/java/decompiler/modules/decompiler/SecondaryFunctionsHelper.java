@@ -436,6 +436,9 @@ public final class SecondaryFunctionsHelper {
               return ret;
             }
             break;
+          case ADD:
+          case SUB:
+          case MUL:
           case DIV:
             Exprent left = lstOperands.get(0);
             boolean leftImplicitCast = left instanceof FunctionExprent && ((FunctionExprent) left).getSimpleCastType() != null && !((FunctionExprent) left).doesCast();
