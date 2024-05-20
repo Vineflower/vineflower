@@ -186,6 +186,26 @@ public final class SwitchPatternMatchProcessor {
       }
     }
 
+    for (int i = 0; i < stat.getCaseValues().size(); i++) {
+      if (stat.getCaseValues().get(i).contains(null)) {
+        // Default case statements are required to be last
+        stat.getCaseValues().add(stat.getCaseValues().remove(i));
+        stat.getCaseStatements().add(stat.getCaseStatements().remove(i));
+        stat.getCaseEdges().add(stat.getCaseEdges().remove(i));
+        if (i < stat.getCaseGuards().size()) {
+          if (stat.getCaseGuards().get(i) != null) {
+            while (stat.getCaseGuards().size() < stat.getCaseStatements().size()) {
+              stat.getCaseGuards().add(null);
+            }
+            stat.getCaseGuards().add(stat.getCaseGuards().remove(i));
+          } else {
+            stat.getCaseGuards().remove(i);
+          }
+        }
+        break;
+      }
+    }
+
     // go through bootstrap arguments to ensure types are correct & add enum/integer/string constants
     for (int i = 0; i < value.getBootstrapArguments().size(); i++) {
       PooledConstant bsa = value.getBootstrapArguments().get(i);

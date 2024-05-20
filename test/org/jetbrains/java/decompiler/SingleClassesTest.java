@@ -704,6 +704,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_21, "TestInnerClasses3J21");
     register(JAVA_8, "TestInnerClassesJ8");
     register(JAVA_8, "TestSwitchInTry");
+    register(JAVA_21, "TestSwitchPatternMatchingJ21");
   }
 
   private void registerEntireClassPath() {
