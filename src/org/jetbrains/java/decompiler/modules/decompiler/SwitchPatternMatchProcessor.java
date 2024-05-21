@@ -266,12 +266,28 @@ public final class SwitchPatternMatchProcessor {
       }
     }
 
+    // Try to inline:
+    // var stackVar = ...
+    // Objects.requireNonNull(stackVar)
+    // var var1 = stackVar
+    // switch (var1) {
+    //
+    // to:
+    // switch (...) {
+
     Exprent oldSelector = realSelector;
     // inline head
     List<Exprent> basicHead = stat.getBasichead().getExprents();
     if (realSelector instanceof VarExprent var && basicHead != null && basicHead.size() >= 1) {
       if (basicHead.get(basicHead.size() - 1) instanceof AssignmentExprent assignment && assignment.getLeft() instanceof VarExprent assigned) {
-        if (var.equals(assigned) && !var.isVarReferenced(root, Stream.concat(Stream.of(assigned), stat.getCaseValues().stream().flatMap(List::stream).filter(exp -> exp instanceof FunctionExprent func && func.getFuncType() == FunctionType.INSTANCEOF && func.getLstOperands().get(0) instanceof VarExprent checked && checked.equals(var)).map(exp -> (VarExprent) ((FunctionExprent) exp).getLstOperands().get(0))).toArray(VarExprent[]::new))) {
+        if (var.equals(assigned) && !var.isVarReferenced(root,
+            Stream.concat(
+                Stream.of(assigned),
+                stat.getCaseValues().stream()
+                    .flatMap(List::stream)
+                    .filter(exp -> exp instanceof FunctionExprent func && func.getFuncType() == FunctionType.INSTANCEOF && func.getLstOperands().get(0) instanceof VarExprent checked && checked.equals(var))
+                    .map(exp -> (VarExprent) ((FunctionExprent) exp).getLstOperands().get(0)))
+                .toArray(VarExprent[]::new))) {
           realSelector = assignment.getRight();
           basicHead.remove(basicHead.size() - 1);
         }
@@ -298,7 +314,12 @@ public final class SwitchPatternMatchProcessor {
 
     if (oldSelector != realSelector) {
       Exprent finalSelector = realSelector;
-      stat.getCaseValues().stream().flatMap(List::stream).filter(Objects::nonNull).filter(exp -> exp instanceof FunctionExprent func && func.getFuncType() == FunctionType.INSTANCEOF && func.getLstOperands().get(0).equals(oldSelector)).forEach(exp -> ((FunctionExprent) exp).getLstOperands().set(0, finalSelector));
+      // Replace the original selector with the new selector in instanceof check in case values
+      stat.getCaseValues().stream()
+          .flatMap(List::stream)
+          .filter(Objects::nonNull)
+          .filter(exp -> exp instanceof FunctionExprent func && func.getFuncType() == FunctionType.INSTANCEOF && func.getLstOperands().get(0).equals(oldSelector))
+          .forEach(exp -> ((FunctionExprent) exp).getLstOperands().set(0, finalSelector));
     }
 
     head.setValue(realSelector); // SwitchBootstraps.typeSwitch(o, var1) -> o
