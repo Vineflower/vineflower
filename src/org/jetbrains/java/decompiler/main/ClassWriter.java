@@ -1191,8 +1191,9 @@ public class ClassWriter implements StatementWriter {
 
         buffer.pushNewlineGroup(indent, 0);
         for (int i = start; i < md.params.length; i++) {
-          VarType parameterType = hasDescriptor && paramCount < descriptor.parameterTypes.size() ? descriptor.parameterTypes.get(paramCount) : md.params[i];
-          if (mask == null || mask.get(i) == null) {
+          boolean real = mask == null || mask.get(i) == null;
+          VarType parameterType = real && hasDescriptor && paramCount < descriptor.parameterTypes.size() ? descriptor.parameterTypes.get(paramCount) : md.params[i];
+          if (real) {
             if (paramCount > 0) {
               buffer.append(",");
               buffer.appendPossibleNewline(" ");
