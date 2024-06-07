@@ -18,6 +18,7 @@ public class BasicBlock implements IGraphNode {
 
   public final int id;
   public int mark = 0;
+  public Instruction oldGotoInstruction = null;
 
   // *****************************************************************************
   // private fields
@@ -27,7 +28,6 @@ public class BasicBlock implements IGraphNode {
 
   private final List<BasicBlock> preds = new ArrayList<>();
   private final List<BasicBlock> succs = new ArrayList<>();
-  private final List<Integer> instrOldOffsets = new ArrayList<>();
   private final List<BasicBlock> predExceptions = new ArrayList<>();
   private final List<BasicBlock> succExceptions = new ArrayList<>();
 
@@ -53,8 +53,8 @@ public class BasicBlock implements IGraphNode {
   }
 
   public Integer getOldOffset(int index) {
-    if(index < instrOldOffsets.size()) {
-      return instrOldOffsets.get(index);
+    if(index < seq.length()) {
+      return getInstruction(index).startOffset;
     } else {
       return -1;
     }
@@ -153,7 +153,7 @@ public class BasicBlock implements IGraphNode {
     BasicBlock block = new BasicBlock(id);
 
     block.setSeq(this.seq.clone());
-    block.instrOldOffsets.addAll(this.instrOldOffsets);
+    block.oldGotoInstruction = this.oldGotoInstruction;
 
     return block;
   }
@@ -161,10 +161,6 @@ public class BasicBlock implements IGraphNode {
   // *****************************************************************************
   // getter and setter methods
   // *****************************************************************************
-
-  public List<Integer> getInstrOldOffsets() {
-    return instrOldOffsets;
-  }
 
   /**
    * Only used for printing debugging strings
@@ -208,14 +204,14 @@ public class BasicBlock implements IGraphNode {
       if (seq.isEmpty()) {
           return 0;
       }
-      return instrOldOffsets.get(0);
+      return seq.getInstr(0).startOffset;
   }
 
   public int getEndInstruction() {
       if (seq.isEmpty()) {
           return 0;
       }
-      int end = seq.getLastInstr().length;
-      return end + instrOldOffsets.get(size() -1);
+      Instruction last = seq.getLastInstr();
+      return last.startOffset + last.length;
   }
 }

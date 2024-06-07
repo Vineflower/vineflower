@@ -42,7 +42,7 @@ public class TestPatternMatching {
 
       String str = (String)obj;
       System.out.println(str.hashCode());// 41
-   }
+   }// 42
 
    public void testInvertedLoopUnused(Object obj) {
       while (!(obj instanceof String)) {// 45
@@ -51,7 +51,7 @@ public class TestPatternMatching {
       }
 
       String str = (String)obj;
-   }
+   }// 49
 
    public void testCompoundLoop(Object obj) {
       while (obj instanceof String str && str.contains("hi")) {// 52
@@ -251,9 +251,6 @@ class 'pkg/TestPatternMatching' {
       b      42
       c      42
       d      42
-      e      43
-      f      43
-      10      43
       11      38
       12      38
       13      38
@@ -268,11 +265,16 @@ class 'pkg/TestPatternMatching' {
       1c      39
       1d      39
       21      43
+      22      43
+      23      43
       24      43
       25      43
       26      43
       27      43
-      28      44
+      28      43
+      29      43
+      2a      43
+      2b      44
    }
 
    method 'testInvertedLoopUnused (Ljava/lang/Object;)V' {
@@ -289,7 +291,6 @@ class 'pkg/TestPatternMatching' {
       b      52
       c      52
       d      52
-      e      53
       11      48
       12      48
       13      48
@@ -303,6 +304,7 @@ class 'pkg/TestPatternMatching' {
       1b      49
       1c      49
       1d      49
+      21      53
    }
 
    method 'testCompoundLoop (Ljava/lang/Object;)V' {
@@ -554,9 +556,11 @@ Lines mapping:
 38 <-> 39
 39 <-> 40
 41 <-> 44
+42 <-> 45
 45 <-> 48
 46 <-> 49
 47 <-> 50
+49 <-> 54
 52 <-> 57
 53 <-> 58
 55 <-> 60
@@ -585,6 +589,3 @@ Lines mapping:
 100 <-> 104
 101 <-> 105
 103 <-> 107
-Not mapped:
-42
-49

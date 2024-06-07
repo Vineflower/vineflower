@@ -66,6 +66,8 @@ class 'pkg/TestSwitchPatternMatchingLoop' {
       38      10
       39      10
       3a      11
+      3b      11
+      3c      11
       41      12
       42      12
       43      13
@@ -77,6 +79,8 @@ class 'pkg/TestSwitchPatternMatchingLoop' {
       49      13
       4a      13
       4b      14
+      4c      14
+      4d      14
       4e      16
       4f      16
       50      16

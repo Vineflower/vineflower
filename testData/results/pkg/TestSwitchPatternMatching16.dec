@@ -89,6 +89,8 @@ class 'pkg/TestSwitchPatternMatching16' {
       4b      9
       4c      9
       4d      10
+      4e      10
+      4f      10
       54      11
       55      11
       56      11
@@ -113,11 +115,10 @@ class 'pkg/TestSwitchPatternMatching16' {
       6e      12
       6f      12
       70      13
+      71      13
+      72      13
       77      14
       78      14
-      79      15
-      7a      15
-      7b      15
       80      22
       81      22
       82      23
@@ -134,6 +135,8 @@ class 'pkg/TestSwitchPatternMatching16' {
       8d      23
       8e      23
       8f      24
+      90      24
+      91      24
       92      26
       93      26
       94      26
@@ -146,9 +149,12 @@ class 'pkg/TestSwitchPatternMatching16' {
       9e      15
       9f      15
       a0      15
+      a1      15
+      a2      15
       a3      15
       a4      15
       a5      15
+      a6      15
       a7      16
       a8      16
       a9      17

@@ -2,7 +2,7 @@ package pkg;
 
 public class TestLoopFinally {
    public void test() {
-      for (int i = 0; i < 10; i++) {// 5 16
+      for (int i = 0; i < 10; i++) {// 5
          try {
             System.out.println(i);// 7
          } finally {
@@ -194,9 +194,6 @@ class 'pkg/TestLoopFinally' {
       c      6
       d      6
       e      6
-      27      4
-      28      4
-      29      4
       2b      8
       2c      8
       2d      8
@@ -218,6 +215,9 @@ class 'pkg/TestLoopFinally' {
       40      13
       41      13
       42      13
+      45      4
+      46      4
+      47      4
       4b      17
       4c      17
       4d      17
@@ -267,6 +267,8 @@ class 'pkg/TestLoopFinally' {
       56      35
       57      35
       58      36
+      59      36
+      5a      36
       5b      27
       5c      27
       5d      27
@@ -281,6 +283,8 @@ class 'pkg/TestLoopFinally' {
       66      28
       67      28
       68      29
+      69      29
+      6a      29
       6b      32
       6c      32
       6d      32
@@ -570,7 +574,6 @@ Lines mapping:
 9 <-> 9
 11 <-> 10
 15 <-> 14
-16 <-> 5
 19 <-> 18
 20 <-> 19
 23 <-> 22
@@ -637,6 +640,7 @@ Lines mapping:
 185 <-> 174
 Not mapped:
 12
+16
 38
 52
 81

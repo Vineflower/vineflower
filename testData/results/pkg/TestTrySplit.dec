@@ -6,7 +6,7 @@ public class TestTrySplit {
 
       try {
          obj = new Object();// 7
-         return;// 17
+         return;// 18
       } catch (ArithmeticException var6) {// 8
          if (obj != null) {// 9
             System.out.println("a");// 10
@@ -28,7 +28,6 @@ class 'pkg/TestTrySplit' {
       0      4
       1      4
       9      7
-      12      8
       15      9
       16      10
       17      10
@@ -58,6 +57,7 @@ class 'pkg/TestTrySplit' {
       38      16
       39      16
       3a      16
+      3d      8
    }
 
    method 'throwMyException (Ljava/lang/String;)V' {
@@ -75,7 +75,7 @@ Lines mapping:
 13 <-> 15
 14 <-> 19
 16 <-> 17
-17 <-> 9
+18 <-> 9
 21 <-> 22
 Not mapped:
-18
+17

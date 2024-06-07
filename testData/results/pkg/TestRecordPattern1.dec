@@ -202,6 +202,8 @@ class 'pkg/TestRecordPattern1' {
       53      25
       54      25
       55      26
+      56      26
+      57      26
       58      18
       59      18
       5a      18
@@ -211,6 +213,8 @@ class 'pkg/TestRecordPattern1' {
       5e      18
       5f      18
       60      19
+      61      19
+      62      19
       66      28
       67      28
       68      28
@@ -261,6 +265,8 @@ class 'pkg/TestRecordPattern1' {
       23      38
       24      40
       25      41
+      26      41
+      27      41
       28      43
       29      43
       2a      43
@@ -312,12 +318,16 @@ class 'pkg/TestRecordPattern1' {
       58      48
       59      48
       5a      49
+      5b      49
+      5c      49
       5d      52
       5e      52
       5f      52
       60      52
       61      52
       62      53
+      63      53
+      64      53
       65      55
       66      55
       67      55

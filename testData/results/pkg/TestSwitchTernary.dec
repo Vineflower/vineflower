@@ -89,6 +89,8 @@ class 'pkg/TestSwitchTernary' {
       2a      6
       2b      6
       2c      7
+      2d      7
+      2e      7
       2f      9
       30      9
       31      9
@@ -157,6 +159,8 @@ class 'pkg/TestSwitchTernary' {
       6a      19
       6b      19
       6c      20
+      6d      20
+      6e      20
       6f      22
       70      22
       71      22
@@ -221,6 +225,8 @@ class 'pkg/TestSwitchTernary' {
       32      31
       33      31
       34      32
+      35      32
+      36      32
       37      34
       38      34
       39      34

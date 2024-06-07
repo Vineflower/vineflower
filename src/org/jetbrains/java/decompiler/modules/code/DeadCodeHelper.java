@@ -243,6 +243,7 @@ public final class DeadCodeHelper {
         }
 
         block.getSeq().removeLast();
+        block.oldGotoInstruction = instr;
       }
     }
 
@@ -445,6 +446,7 @@ public final class DeadCodeHelper {
         }
 
         // copy instructions (handler successor block)
+        handlerBlock.oldGotoInstruction = null; // clear old goto instruction information
         InstructionSequence handlerSeq = handlerBlock.getSeq();
         for(int counter = 0; counter < handler_monitorexit_index; counter++) {
           handlerSeq.addInstruction(succHandlerSeq.getInstr(0));
@@ -673,7 +675,6 @@ public final class DeadCodeHelper {
 
               if (sameRanges) {
                 seq.addSequence(next.getSeq());
-                block.getInstrOldOffsets().addAll(next.getInstrOldOffsets());
                 next.getSeq().clear();
 
                 removeEmptyBlock(graph, next, true);

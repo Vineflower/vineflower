@@ -282,7 +282,6 @@ public class ControlFlowGraph implements CodeConstants {
     this.blocks = new VBStyleCollection<>();
 
     InstructionSequence currseq = null;
-    List<Integer> lstOffs = null;
 
     int len = startblock.length;
     short counter = 0;
@@ -294,7 +293,6 @@ public class ControlFlowGraph implements CodeConstants {
         currentBlock = new BasicBlock(++counter);
 
         currseq = currentBlock.getSeq();
-        lstOffs = currentBlock.getInstrOldOffsets();
 
         // index: $i, key: $i+1, value BasicBlock(id = $i + 1)
         this.blocks.addWithKey(currentBlock, currentBlock.id);
@@ -304,10 +302,9 @@ public class ControlFlowGraph implements CodeConstants {
       mapInstrBlocks.put(i, currentBlock);
 
       // can't throw npe cause startblock[0] == 1 is always true
-      assert currseq != null && lstOffs != null;
+      assert currseq != null;
       Instruction instr = instrSeq.getInstr(i);
       currseq.addInstruction(instr);
-      lstOffs.add(instr.startOffset);
     }
 
     this.first = this.blocks.get(0);

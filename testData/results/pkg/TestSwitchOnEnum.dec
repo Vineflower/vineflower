@@ -129,6 +129,8 @@ class 'pkg/TestSwitchOnEnum$Example' {
       2a      22
       2b      22
       2c      23
+      2d      23
+      2e      23
       2f      25
       30      25
       31      25
@@ -173,6 +175,8 @@ class 'pkg/TestSwitchOnEnum$Example' {
       5e      30
       5f      30
       60      31
+      61      31
+      62      31
       63      33
       64      33
       65      33

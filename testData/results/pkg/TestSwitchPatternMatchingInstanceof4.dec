@@ -68,11 +68,12 @@ class 'pkg/TestSwitchPatternMatchingInstanceof4' {
       47      8
       4d      8
       4e      8
-      4f      9
-      50      9
-      51      9
+      4f      10
+      50      10
+      51      10
       57      9
       58      9
+      59      9
       5a      9
       5b      9
       5c      9
@@ -80,7 +81,11 @@ class 'pkg/TestSwitchPatternMatchingInstanceof4' {
       5e      9
       5f      9
       60      9
-      66      10
+      61      9
+      62      9
+      63      9
+      64      9
+      65      9
       69      12
       6a      12
       6b      12

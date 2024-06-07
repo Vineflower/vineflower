@@ -60,6 +60,8 @@ class 'pkg/TestEclipseSwitchEnum' {
       2a      10
       2b      10
       2c      11
+      2d      11
+      2e      11
       2f      13
       30      13
       31      13
@@ -69,6 +71,8 @@ class 'pkg/TestEclipseSwitchEnum' {
       35      13
       36      13
       37      14
+      38      14
+      39      14
       3a      16
       3b      16
       3c      16

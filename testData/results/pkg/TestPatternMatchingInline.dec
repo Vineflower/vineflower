@@ -56,6 +56,8 @@ class 'pkg/TestPatternMatchingInline' {
       17      6
       18      7
       19      8
+      1a      8
+      1b      8
       1c      11
       1d      14
       1e      14
@@ -84,6 +86,8 @@ class 'pkg/TestPatternMatchingInline' {
       16      20
       17      21
       18      22
+      19      22
+      1a      22
       1b      25
       1c      28
       1d      28

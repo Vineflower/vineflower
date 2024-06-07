@@ -13,7 +13,7 @@ public class TestSwitchFinally {
 
          System.out.println("b");// 16
       }
-   }// 17
+   }// 18
 
    public void test1(int i) {
       try {
@@ -30,7 +30,7 @@ public class TestSwitchFinally {
 
          System.out.println("b");// 35
       }
-   }// 36
+   }// 37
 
    public void test2(int i) {
       try {
@@ -43,7 +43,7 @@ public class TestSwitchFinally {
                System.out.println("b");// 50
          }
       }
-   }// 51
+   }// 52
 
    public int test3(int i) {
       try {
@@ -56,7 +56,7 @@ public class TestSwitchFinally {
                break;// 64
             case 1:
                System.out.println("1");// 66
-               System.out.println("c");// 67 80
+               System.out.println("c");// 80
                return 0;// 81
             default:
                System.out.println("Default");// 69
@@ -65,7 +65,7 @@ public class TestSwitchFinally {
          System.out.println("b");// 72
       }
 
-      System.out.println("d");// 74 76
+      System.out.println("d");// 76
       return 1;// 77
    }
 }
@@ -79,7 +79,6 @@ class 'pkg/TestSwitchFinally' {
       4      5
       5      5
       6      5
-      34      15
       38      7
       39      7
       3a      7
@@ -124,6 +123,7 @@ class 'pkg/TestSwitchFinally' {
       61      13
       62      13
       63      13
+      66      15
    }
 
    method 'test1 (I)V' {
@@ -134,7 +134,6 @@ class 'pkg/TestSwitchFinally' {
       4      19
       5      19
       6      19
-      47      32
       4b      21
       4c      21
       4d      21
@@ -181,6 +180,8 @@ class 'pkg/TestSwitchFinally' {
       76      24
       77      24
       78      25
+      79      25
+      7a      25
       7b      27
       7c      27
       7d      27
@@ -197,6 +198,7 @@ class 'pkg/TestSwitchFinally' {
       88      30
       89      30
       8a      30
+      8d      32
    }
 
    method 'test2 (I)V' {
@@ -207,7 +209,6 @@ class 'pkg/TestSwitchFinally' {
       4      36
       5      36
       6      36
-      2c      45
       30      38
       31      38
       32      38
@@ -244,6 +245,7 @@ class 'pkg/TestSwitchFinally' {
       51      42
       52      42
       53      42
+      56      45
    }
 
    method 'test3 (I)I' {
@@ -254,9 +256,6 @@ class 'pkg/TestSwitchFinally' {
       4      49
       5      49
       6      49
-      52      67
-      53      67
-      54      67
       56      51
       57      51
       58      51
@@ -300,6 +299,8 @@ class 'pkg/TestSwitchFinally' {
       7e      54
       7f      54
       80      55
+      81      55
+      82      55
       83      57
       84      57
       85      57
@@ -308,9 +309,6 @@ class 'pkg/TestSwitchFinally' {
       88      57
       89      57
       8a      57
-      8b      58
-      8c      58
-      8d      58
       8e      61
       8f      61
       90      61
@@ -329,16 +327,24 @@ class 'pkg/TestSwitchFinally' {
       9d      64
       a0      67
       a1      67
+      a2      67
       a3      67
       a4      67
       a5      67
+      a6      67
+      a7      67
       a8      68
+      a9      68
       aa      58
       ab      58
+      ac      58
       ad      58
       ae      58
       af      58
+      b0      58
+      b1      58
       b2      59
+      b3      59
    }
 }
 
@@ -348,7 +354,7 @@ Lines mapping:
 10 <-> 9
 12 <-> 11
 16 <-> 14
-17 <-> 16
+18 <-> 16
 22 <-> 20
 24 <-> 22
 26 <-> 23
@@ -356,28 +362,28 @@ Lines mapping:
 29 <-> 26
 31 <-> 28
 35 <-> 31
-36 <-> 33
+37 <-> 33
 41 <-> 37
 43 <-> 39
 45 <-> 40
 47 <-> 42
 50 <-> 43
-51 <-> 46
+52 <-> 46
 57 <-> 50
 59 <-> 52
 61 <-> 53
 63 <-> 55
 64 <-> 56
 66 <-> 58
-67 <-> 59
 69 <-> 62
 72 <-> 65
-74 <-> 68
 76 <-> 68
 77 <-> 69
 80 <-> 59
 81 <-> 60
 Not mapped:
-18
-37
-52
+17
+36
+51
+67
+74

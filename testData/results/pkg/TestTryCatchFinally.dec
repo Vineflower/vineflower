@@ -33,7 +33,7 @@ public class TestTryCatchFinally {
          System.out.println("Finally");// 55
       }
 
-      return -1;// 56 57
+      return -1;// 57
    }
 }
 
@@ -103,7 +103,6 @@ class 'pkg/TestTryCatchFinally' {
       26      30
       27      30
       28      30
-      31      35
       35      32
       36      32
       37      32
@@ -113,6 +112,7 @@ class 'pkg/TestTryCatchFinally' {
       3b      32
       3c      32
       3f      35
+      40      35
    }
 }
 
@@ -131,9 +131,9 @@ Lines mapping:
 52 <-> 30
 53 <-> 31
 55 <-> 33
-56 <-> 36
 57 <-> 36
 Not mapped:
 25
 32
 35
+56

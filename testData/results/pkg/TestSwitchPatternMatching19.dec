@@ -123,6 +123,8 @@ class 'pkg/TestSwitchPatternMatching19' {
       36      12
       37      12
       38      13
+      39      13
+      3a      13
       3b      14
       3d      14
       3e      14
@@ -140,6 +142,8 @@ class 'pkg/TestSwitchPatternMatching19' {
       4f      15
       50      15
       51      16
+      52      16
+      53      16
       54      17
       57      17
       58      17
@@ -155,6 +159,8 @@ class 'pkg/TestSwitchPatternMatching19' {
       6a      18
       6b      18
       6c      19
+      6d      19
+      6e      19
       6f      20
       72      20
       73      20
@@ -172,6 +178,8 @@ class 'pkg/TestSwitchPatternMatching19' {
       84      21
       85      21
       86      22
+      87      22
+      88      22
       94      9
       95      9
       96      9
@@ -181,6 +189,8 @@ class 'pkg/TestSwitchPatternMatching19' {
       9a      9
       9b      9
       9c      10
+      9d      10
+      9e      10
       9f      25
    }
 
@@ -225,6 +235,8 @@ class 'pkg/TestSwitchPatternMatching19' {
       2e      34
       2f      34
       30      35
+      31      35
+      32      35
       33      31
       34      31
       35      31
@@ -234,6 +246,8 @@ class 'pkg/TestSwitchPatternMatching19' {
       39      31
       3a      31
       3b      32
+      3c      32
+      3d      32
       40      36
       41      36
       42      36
@@ -248,6 +262,8 @@ class 'pkg/TestSwitchPatternMatching19' {
       53      37
       54      37
       55      38
+      56      38
+      57      38
       58      40
       59      40
       5a      40

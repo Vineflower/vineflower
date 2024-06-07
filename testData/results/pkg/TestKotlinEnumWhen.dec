@@ -151,6 +151,8 @@ class 'pkg/TestKotlinEnumWhen' {
       2b      21
       2c      21
       2d      22
+      2e      22
+      2f      22
       30      24
       31      24
       32      24
@@ -160,6 +162,8 @@ class 'pkg/TestKotlinEnumWhen' {
       37      24
       38      24
       39      25
+      3a      25
+      3b      25
       3c      27
       3d      27
       3e      27
@@ -267,6 +271,8 @@ class 'pkg/TestKotlinEnumWhen' {
       33      45
       34      45
       35      46
+      36      46
+      37      46
       38      48
       39      48
       3a      48
@@ -280,6 +286,8 @@ class 'pkg/TestKotlinEnumWhen' {
       43      48
       44      48
       45      49
+      46      49
+      47      49
       48      51
       49      51
       4a      51
@@ -334,6 +342,8 @@ class 'pkg/TestKotlinEnumWhen' {
       2b      58
       2c      58
       2d      59
+      2e      59
+      2f      59
       30      61
       31      61
       32      61
@@ -343,6 +353,8 @@ class 'pkg/TestKotlinEnumWhen' {
       37      61
       38      61
       39      62
+      3a      62
+      3b      62
       3c      64
       3d      64
       3e      64
@@ -388,6 +400,8 @@ class 'pkg/TestKotlinEnumWhen' {
       6f      69
       70      69
       71      70
+      72      70
+      73      70
       74      72
       75      72
       76      72
@@ -397,6 +411,8 @@ class 'pkg/TestKotlinEnumWhen' {
       7b      72
       7c      72
       7d      73
+      7e      73
+      7f      73
       80      75
       81      75
       82      75
@@ -456,6 +472,8 @@ class 'pkg/TestKotlinEnumWhen' {
       33      83
       34      83
       35      84
+      36      84
+      37      84
       38      86
       39      86
       3a      86
@@ -469,6 +487,8 @@ class 'pkg/TestKotlinEnumWhen' {
       43      86
       44      86
       45      87
+      46      87
+      47      87
       48      89
       49      89
       4a      89
@@ -518,6 +538,8 @@ class 'pkg/TestKotlinEnumWhen' {
       7f      94
       80      94
       81      95
+      82      95
+      83      95
       84      97
       85      97
       86      97
@@ -527,6 +549,8 @@ class 'pkg/TestKotlinEnumWhen' {
       8b      97
       8c      97
       8d      98
+      8e      98
+      8f      98
       90      100
       91      100
       92      100

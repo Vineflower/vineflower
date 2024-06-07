@@ -815,12 +815,10 @@ public class ExprProcessor implements CodeConstants {
   }
 
   private static void addDeletedGotoInstructionMapping(Statement stat, TextBuffer buffer) {
-    if (stat instanceof BasicBlockStatement) {
-      BasicBlock block = ((BasicBlockStatement)stat).getBlock();
-      List<Integer> offsets = block.getInstrOldOffsets();
-      if (!offsets.isEmpty() &&
-          offsets.size() > block.getSeq().length()) { // some instructions have been deleted, but we still have offsets
-        buffer.addBytecodeMapping(offsets.get(offsets.size() - 1)); // add the last offset
+    if (stat instanceof BasicBlockStatement blockStat) {
+      BasicBlock block = blockStat.getBlock();
+      if (block.oldGotoInstruction != null) {
+        buffer.addBytecodeMapping(block.oldGotoInstruction.startOffset, block.oldGotoInstruction.length);
       }
     }
   }

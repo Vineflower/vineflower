@@ -633,9 +633,6 @@ class 'pkg/TestPatternMatchingFakeNew' {
       7      113
       8      113
       d      113
-      e      114
-      f      114
-      10      114
       11      116
       12      116
       13      117
@@ -646,10 +643,15 @@ class 'pkg/TestPatternMatchingFakeNew' {
       18      117
       19      117
       1d      114
+      1e      114
+      1f      114
       20      114
       21      114
       22      114
       23      114
+      24      114
+      25      114
+      26      114
       27      119
    }
 

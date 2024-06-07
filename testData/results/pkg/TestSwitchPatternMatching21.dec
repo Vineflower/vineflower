@@ -118,6 +118,8 @@ class 'pkg/TestSwitchPatternMatching21' {
       3a      11
       3b      11
       3c      12
+      3d      12
+      3e      12
       3f      14
       40      14
       41      14
@@ -127,6 +129,8 @@ class 'pkg/TestSwitchPatternMatching21' {
       45      14
       46      14
       47      15
+      48      15
+      49      15
       4a      17
       4d      16
       4e      16
@@ -147,6 +151,8 @@ class 'pkg/TestSwitchPatternMatching21' {
       65      17
       66      17
       67      18
+      68      18
+      69      18
       6a      20
       6d      19
       6e      19
@@ -167,6 +173,8 @@ class 'pkg/TestSwitchPatternMatching21' {
       85      20
       86      20
       87      21
+      88      21
+      89      21
       8a      22
       8d      22
       8e      22
@@ -189,6 +197,8 @@ class 'pkg/TestSwitchPatternMatching21' {
       a7      23
       a8      23
       a9      24
+      aa      24
+      ab      24
       ac      26
       ad      26
       ae      26
@@ -245,6 +255,8 @@ class 'pkg/TestSwitchPatternMatching21' {
       32      37
       33      37
       34      38
+      35      38
+      36      38
       37      40
       38      40
       39      40
@@ -254,6 +266,8 @@ class 'pkg/TestSwitchPatternMatching21' {
       3d      40
       3e      40
       3f      41
+      40      41
+      41      41
       42      43
       45      42
       46      42
@@ -274,6 +288,8 @@ class 'pkg/TestSwitchPatternMatching21' {
       5d      43
       5e      43
       5f      44
+      60      44
+      61      44
       62      46
       65      45
       66      45
@@ -311,6 +327,8 @@ class 'pkg/TestSwitchPatternMatching21' {
       90      34
       91      34
       92      35
+      93      35
+      94      35
       95      48
    }
 
@@ -355,6 +373,8 @@ class 'pkg/TestSwitchPatternMatching21' {
       2e      54
       2f      54
       30      55
+      31      55
+      32      55
       33      57
       34      57
       35      57
@@ -364,6 +384,8 @@ class 'pkg/TestSwitchPatternMatching21' {
       39      57
       3a      57
       3b      58
+      3c      58
+      3d      58
       3e      60
       41      59
       42      59
@@ -384,6 +406,8 @@ class 'pkg/TestSwitchPatternMatching21' {
       59      60
       5a      60
       5b      61
+      5c      61
+      5d      61
       5e      63
       5f      63
       60      63

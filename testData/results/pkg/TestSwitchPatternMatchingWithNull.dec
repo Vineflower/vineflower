@@ -70,6 +70,8 @@ class 'pkg/TestSwitchPatternMatchingWithNull' {
       30      7
       31      7
       32      8
+      33      8
+      34      8
       39      9
       3a      9
       3b      10
@@ -81,6 +83,8 @@ class 'pkg/TestSwitchPatternMatchingWithNull' {
       41      10
       42      10
       43      11
+      44      11
+      45      11
       46      13
       47      13
       48      13
@@ -131,6 +135,8 @@ class 'pkg/TestSwitchPatternMatchingWithNull' {
       30      21
       31      21
       32      22
+      33      22
+      34      22
       39      23
       3a      23
       3b      24
@@ -142,6 +148,8 @@ class 'pkg/TestSwitchPatternMatchingWithNull' {
       41      24
       42      24
       43      25
+      44      25
+      45      25
       46      27
       47      27
       48      27

@@ -80,6 +80,8 @@ class 'pkg/TestSwitchDefaultBefore' {
       71      6
       72      6
       73      7
+      74      7
+      75      7
       76      9
       77      9
       78      9
@@ -88,6 +90,8 @@ class 'pkg/TestSwitchDefaultBefore' {
       7b      9
       7c      9
       7d      10
+      7e      10
+      7f      10
       80      13
       81      13
       82      13
@@ -135,6 +139,8 @@ class 'pkg/TestSwitchDefaultBefore' {
       21      20
       22      20
       23      21
+      24      21
+      25      21
       26      23
       27      23
       28      23
@@ -143,6 +149,8 @@ class 'pkg/TestSwitchDefaultBefore' {
       2b      23
       2c      23
       2d      24
+      2e      24
+      2f      24
       30      27
       31      27
       32      27

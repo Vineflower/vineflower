@@ -370,6 +370,8 @@ class 'pkg/TestSwitchLoop' {
       2a      8
       2b      8
       2c      9
+      2d      9
+      2e      9
       2f      11
       30      11
       31      11
@@ -379,6 +381,8 @@ class 'pkg/TestSwitchLoop' {
       35      11
       36      11
       37      12
+      38      12
+      39      12
       3a      14
       3b      14
       3c      14
@@ -388,6 +392,8 @@ class 'pkg/TestSwitchLoop' {
       40      14
       41      14
       42      15
+      43      15
+      44      15
       45      17
       46      17
       47      17
@@ -505,6 +511,8 @@ class 'pkg/TestSwitchLoop' {
       6a      26
       6b      26
       6c      33
+      6d      33
+      6e      33
       6f      42
       70      42
    }
@@ -591,6 +599,8 @@ class 'pkg/TestSwitchLoop' {
       51      69
       52      69
       53      70
+      54      70
+      55      70
       56      72
       57      72
       58      72
@@ -600,6 +610,8 @@ class 'pkg/TestSwitchLoop' {
       5c      72
       5d      72
       5e      73
+      5f      73
+      60      73
       61      60
       62      60
       63      60
@@ -612,6 +624,8 @@ class 'pkg/TestSwitchLoop' {
       6a      54
       6b      54
       6c      61
+      6d      61
+      6e      61
       6f      77
       70      77
       71      77
@@ -799,11 +813,15 @@ class 'pkg/TestSwitchLoop' {
       5f      126
       60      126
       61      127
+      62      127
+      63      127
       64      129
       65      123
       66      123
       67      123
       68      124
+      69      124
+      6a      124
       6e      133
       6f      133
       70      133
@@ -907,6 +925,8 @@ class 'pkg/TestSwitchLoop' {
       45      160
       46      160
       47      161
+      48      161
+      49      161
       4a      157
       4b      157
       4c      157
@@ -977,6 +997,8 @@ class 'pkg/TestSwitchLoop' {
       29      179
       2a      179
       2b      180
+      2c      180
+      2d      180
       2e      176
       2f      176
       30      176
@@ -1133,6 +1155,8 @@ class 'pkg/TestSwitchLoop' {
       37      224
       38      224
       39      225
+      3a      225
+      3b      225
       3c      229
       3d      229
       3e      229
@@ -1317,6 +1341,8 @@ class 'pkg/TestSwitchLoop' {
       52      314
       53      314
       54      315
+      55      315
+      56      315
       57      306
       58      306
       59      306

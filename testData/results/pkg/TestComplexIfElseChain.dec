@@ -52,7 +52,7 @@ public class TestComplexIfElseChain {
          } else if (result != 6 && result != 7) {// 52
             if (result == 8 || result == 9) {// 54
                System.out.println("e");// 55
-               return;// 56
+               return;// 59
             }
          } else {
             System.out.println("d");// 53
@@ -614,7 +614,7 @@ class 'pkg/TestComplexIfElseChain' {
       75      53
       76      53
       77      53
-      78      54
+      7e      54
    }
 
    method 'testInLoop2 ()V' {
@@ -680,6 +680,8 @@ class 'pkg/TestComplexIfElseChain' {
       48      83
       49      83
       4a      84
+      4b      84
+      4c      84
       4d      70
       4e      70
       4f      70
@@ -701,6 +703,8 @@ class 'pkg/TestComplexIfElseChain' {
       5f      79
       60      79
       61      80
+      62      80
+      63      80
       64      71
       65      71
       66      71
@@ -722,6 +726,8 @@ class 'pkg/TestComplexIfElseChain' {
       76      75
       77      75
       78      76
+      79      76
+      7a      76
       7e      92
    }
 
@@ -965,6 +971,8 @@ class 'pkg/TestComplexIfElseChain' {
       31      136
       32      136
       33      137
+      34      137
+      35      137
       36      139
       37      139
       38      139
@@ -1122,6 +1130,8 @@ class 'pkg/TestComplexIfElseChain' {
       31      163
       32      163
       33      164
+      34      164
+      35      164
       36      166
       37      166
       38      166
@@ -1176,6 +1186,8 @@ class 'pkg/TestComplexIfElseChain' {
       6f      170
       70      170
       71      171
+      72      171
+      73      171
       74      174
       75      174
       76      174
@@ -1197,6 +1209,8 @@ class 'pkg/TestComplexIfElseChain' {
       86      175
       87      175
       88      176
+      89      176
+      8a      176
       8b      179
       8c      179
       8d      179
@@ -1218,6 +1232,8 @@ class 'pkg/TestComplexIfElseChain' {
       9d      180
       9e      180
       9f      181
+      a0      181
+      a1      181
       a2      187
       a3      187
       a4      187
@@ -1226,6 +1242,8 @@ class 'pkg/TestComplexIfElseChain' {
       a7      187
       a8      187
       a9      188
+      aa      188
+      ab      188
       ac      190
       ad      190
       ae      190
@@ -1757,7 +1775,7 @@ Lines mapping:
 53 <-> 58
 54 <-> 53
 55 <-> 54
-56 <-> 55
+59 <-> 55
 62 <-> 64
 65 <-> 67
 67 <-> 68
@@ -1898,8 +1916,8 @@ Lines mapping:
 277 <-> 286
 281 <-> 290
 Not mapped:
+56
 58
-59
 81
 95
 97

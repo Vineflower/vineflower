@@ -81,6 +81,8 @@ class 'pkg/TestSwitchAssign' {
       28      9
       29      9
       2a      10
+      2b      10
+      2c      10
       2d      14
       2e      14
       2f      17
@@ -137,10 +139,14 @@ class 'pkg/TestSwitchAssign' {
       78      25
       79      25
       7a      26
+      7b      26
+      7c      26
       7d      28
       7e      28
       7f      28
       80      29
+      81      29
+      82      29
       83      31
       84      31
       85      31

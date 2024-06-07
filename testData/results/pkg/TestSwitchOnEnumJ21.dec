@@ -388,6 +388,8 @@ class 'pkg/TestSwitchOnEnumJ21' {
       26      72
       27      72
       28      73
+      29      73
+      2a      73
       2b      75
       2c      75
       2d      75
@@ -397,6 +399,8 @@ class 'pkg/TestSwitchOnEnumJ21' {
       31      75
       32      75
       33      76
+      34      76
+      35      76
       36      78
       37      78
       38      78
@@ -439,6 +443,8 @@ class 'pkg/TestSwitchOnEnumJ21' {
       1e      85
       1f      85
       20      86
+      21      86
+      22      86
       23      88
       24      88
       25      88

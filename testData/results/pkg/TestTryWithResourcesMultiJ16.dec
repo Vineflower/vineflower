@@ -14,7 +14,7 @@ public class TestTryWithResourcesMultiJ16 {
          scanner.next();// 11
          writer.write("hello");// 12
       }
-   }// 13
+   }// 14
 }
 
 class 'pkg/TestTryWithResourcesMultiJ16' {
@@ -33,7 +33,7 @@ class 'pkg/TestTryWithResourcesMultiJ16' {
       1a      14
       1b      14
       1c      14
-      3d      16
+      52      16
    }
 }
 
@@ -41,6 +41,6 @@ Lines mapping:
 10 <-> 11
 11 <-> 14
 12 <-> 15
-13 <-> 17
+14 <-> 17
 Not mapped:
-14
+13

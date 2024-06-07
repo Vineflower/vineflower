@@ -296,6 +296,8 @@ class 'pkg/TestForeachMultipleLoops' {
       53      60
       54      60
       55      61
+      56      61
+      57      61
       58      64
       59      64
       5a      64
@@ -333,6 +335,8 @@ class 'pkg/TestForeachMultipleLoops' {
       80      76
       81      76
       82      77
+      83      77
+      84      77
       85      80
       86      80
       87      80
