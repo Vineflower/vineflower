@@ -304,6 +304,10 @@ public class MethodProcessor implements Runnable {
         continue;
       }
 
+      if (IntersectionCastProcessor.makeIntersectionCasts(root)) {
+        decompileRecord.add("intersectionCasts", root);
+      }
+
       if (DecompilerContext.getOption(IFernflowerPreferences.PATTERN_MATCHING)) {
         if (cl.getVersion().hasIfPatternMatching()) {
           if (IfPatternMatchProcessor.matchInstanceof(root)) {

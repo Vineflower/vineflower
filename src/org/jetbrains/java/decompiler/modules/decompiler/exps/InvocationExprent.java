@@ -1809,6 +1809,10 @@ public class InvocationExprent extends Exprent {
   }
 
   public StructMethod getDesc() {
+    if (desc == null) {
+      StructClass cl = DecompilerContext.getStructContext().getClass(classname);
+      desc = cl != null ? cl.getMethodRecursive(name, stringDescriptor) : null;
+    }
     return desc;
   }
 
