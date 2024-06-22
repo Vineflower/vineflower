@@ -10,12 +10,12 @@ public class TestCastIntersectionJ21 {
    }// 10
 
    public void test3(TestCastIntersectionJ21.I1 i1) {
-      TestCastIntersectionJ21.I1 i = (TestCastIntersectionJ21.I1)((TestCastIntersectionJ21.I2)i1);// 13
+      var i = (TestCastIntersectionJ21.I1 & TestCastIntersectionJ21.I2)i1;// 13
       this.method(i);// 14
    }// 15
 
    public void test4(TestCastIntersectionJ21.I2 i2) {
-      TestCastIntersectionJ21.I1 i = (TestCastIntersectionJ21.I1)i2;// 18
+      var i = (TestCastIntersectionJ21.I1 & TestCastIntersectionJ21.I2)i2;// 18
       this.method(i);// 19
    }// 20
 
@@ -56,9 +56,6 @@ class 'pkg/TestCastIntersectionJ21' {
 
    method 'test3 (Lpkg/TestCastIntersectionJ21$I1;)V' {
       0      12
-      1      12
-      2      12
-      3      12
       4      12
       5      12
       6      12

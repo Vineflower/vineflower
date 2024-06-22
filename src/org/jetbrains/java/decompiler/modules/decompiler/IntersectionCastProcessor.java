@@ -111,7 +111,10 @@ public class IntersectionCastProcessor {
         if (!bounds.isEmpty() && bounds.stream().allMatch(bound -> DecompilerContext.getStructContext().instanceOf(inner.getExprType().value, bound.value))) {
           types.add(new ConstExprent(inner.getExprType(), null, null));
         }
-        return replaceCasts(cast, types, inner);
+        if (replaceCasts(cast, types, inner)) {
+          varExp.setIntersectionType(true);
+          return true;
+        }
       }
     }
     return false;

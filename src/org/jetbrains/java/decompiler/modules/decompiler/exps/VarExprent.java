@@ -57,6 +57,7 @@ public class VarExprent extends Exprent {
   private Instruction backing = null;
   private boolean isEffectivelyFinal = false;
   private VarType boundType;
+  private boolean isIntersectionType = false;
 
   public VarExprent(int index, VarType varType, VarProcessor processor) {
     this(index, varType, processor, null);
@@ -131,7 +132,7 @@ public class VarExprent extends Exprent {
         }
         VarType definitionType = getDefinitionVarType();
         String name = ExprProcessor.getCastTypeName(definitionType);
-        if (name.equals(ExprProcessor.UNREPRESENTABLE_TYPE_STRING)) {
+        if (name.equals(ExprProcessor.UNREPRESENTABLE_TYPE_STRING) || isIntersectionType) {
           buffer.append("var");
         } else {
           buffer.appendCastTypeName(definitionType);
@@ -512,6 +513,14 @@ public class VarExprent extends Exprent {
   @Override
   public String toString() {
     return "VarExprent[" + index + ',' + version + (definition ? " Def" : "") + "]: {" + super.toString() + "}";
+  }
+
+  public void setIntersectionType(boolean intersection) {
+    this.isIntersectionType = intersection;
+  }
+
+  public boolean isIntersectionType() {
+    return this.isIntersectionType;
   }
 
   // *****************************************************************************
