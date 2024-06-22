@@ -46,9 +46,6 @@ public class IntersectionCastProcessor {
 
   private static boolean makeIntersectionCasts(Exprent exp, RootStatement root) {
     if (exp instanceof InvocationExprent inv) {
-      if (root.mt.getClassQualifiedName().contains("CastIntersection") && root.mt.getName().contains("test2")) {
-        System.out.println();
-      }
       if (handleInvocation(inv, root)) {
         return true;
       }
@@ -73,12 +70,14 @@ public class IntersectionCastProcessor {
         Pair<List<Exprent>, Exprent> casts = getCasts(cast);
         List<Exprent> types = casts.a;
         Exprent inner = casts.b;
+        // Checks for any bounds not supported by the current list of casts
         List<VarType> bounds = getBounds(exp, i).stream()
             .filter(bound -> !types
                 .stream()
                 .anyMatch(constant -> DecompilerContext.getStructContext().instanceOf(constant.getExprType().value, bound.value)))
             .toList();
 
+        // Checks if the original type supports the remaining bounds
         if (!bounds.isEmpty() && bounds.stream().allMatch(bound -> DecompilerContext.getStructContext().instanceOf(inner.getExprType().value, bound.value))) {
           types.add(new ConstExprent(inner.getExprType(), null, null));
         }
@@ -96,22 +95,29 @@ public class IntersectionCastProcessor {
         List<Exprent> types = casts.a;
         Exprent inner = casts.b;
         List<VariablePosition> references = findReferences(varExp, root);
+
+        // Convert the variable references into a set of bounds
         Set<VarType> bounds = new HashSet<>();
         for (VariablePosition position : references) {
           bounds.addAll(switch (position.position) {
             case METHOD_PARAMETER -> getBounds((InvocationExprent) position.exp, position.index);
           });
         }
+
+        // Checks for any bounds not supported by the current list of casts
         bounds = bounds.stream()
             .filter(bound -> !types
                 .stream()
                 .anyMatch(constant -> DecompilerContext.getStructContext().instanceOf(constant.getExprType().value, bound.value)))
             .collect(Collectors.toSet());
 
+        // Checks if the original type supports the remaining bounds
         if (!bounds.isEmpty() && bounds.stream().allMatch(bound -> DecompilerContext.getStructContext().instanceOf(inner.getExprType().value, bound.value))) {
           types.add(new ConstExprent(inner.getExprType(), null, null));
         }
         if (replaceCasts(cast, types, inner)) {
+          // If the casts were replaced make sure that the variable uses "var" instead of
+          // a type
           varExp.setIntersectionType(true);
           return true;
         }
@@ -121,6 +127,7 @@ public class IntersectionCastProcessor {
   }
 
   private static List<VarType> getBounds(InvocationExprent exp, int parameter) {
+    // Gets the bounds of a type parameter of a parameter of a method
     StructMethod method = exp.getDesc();
     GenericMethodDescriptor gmd = method != null ? method.getSignature() : null;
     int start = gmd != null && DecompilerContext.getStructContext().getClass(method.getClassQualifiedName()).hasModifier(CodeConstants.ACC_ENUM) && method.getName().equals(CodeConstants.INIT_NAME) ? 2 : 0;
@@ -137,6 +144,9 @@ public class IntersectionCastProcessor {
     return List.of();
   }
 
+  /**
+   * Searches for where a variable is referenced and returns the context
+   */
   private static List<VariablePosition> findReferences(VarExprent varExp, RootStatement root) {
     List<VariablePosition> list = new ArrayList<>();
     findReferencesRec(varExp, root, root, list);
@@ -180,6 +190,7 @@ public class IntersectionCastProcessor {
   }
 
   private static Pair<List<Exprent>, Exprent> getCasts(Exprent exp) {
+    // Gets the list of casts done and gets the original exprent
     List<Exprent> types = new ArrayList<>();
     Exprent inner = exp;
     while (inner instanceof FunctionExprent cast && isValidCast(cast)) {
@@ -192,6 +203,7 @@ public class IntersectionCastProcessor {
   private static boolean isValidCast(FunctionExprent cast) {
     if (cast.getFuncType() == FunctionType.CAST && cast.getLstOperands().size() == 2) {
       VarType type = cast.getLstOperands().get(1).getExprType();
+      // Intersection casts cannot include arrays
       return type.typeFamily == TypeFamily.OBJECT && type.arrayDim == 0;
     }
     return false;
@@ -199,6 +211,7 @@ public class IntersectionCastProcessor {
 
   private static boolean replaceCasts(FunctionExprent cast, List<Exprent> types, Exprent inner) {
     if (types.size() > 1) {
+      // Reorders the list of types to make sure that the class is always first
       Exprent nonInterface = null;
       for (Exprent type : types) {
         StructClass clazz = DecompilerContext.getStructContext().getClass(type.getExprType().value);
@@ -211,10 +224,10 @@ public class IntersectionCastProcessor {
         }
       }
       if (nonInterface != null) {
-        // The class is required to be first
         types.remove(types.indexOf(nonInterface));
         types.add(0, nonInterface);
       }
+      // Replaces the operands of the cast with the casted exprent and the list of needed casts
       cast.getLstOperands().clear();
       cast.getLstOperands().add(inner);
       cast.getLstOperands().addAll(types);
