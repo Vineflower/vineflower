@@ -240,7 +240,7 @@ public class FunctionExprent extends Exprent {
     if (funcType == FunctionType.CAST) {
       this.needsCast = true;
       VarType right = lstOperands.get(0).getInferredExprType(upperBound);
-      VarType cast = lstOperands.get(1).getExprType();
+      List<VarType> cast = lstOperands.subList(1, lstOperands.size()).stream().map(Exprent::getExprType).toList();
 
       if (upperBound != null && (upperBound.isGeneric() || right.isGeneric())) {
         Map<VarType, List<VarType>> names = this.getNamedGenerics();
@@ -258,12 +258,8 @@ public class FunctionExprent extends Exprent {
         }
 
         if (types != null) {
-          boolean anyMatch = false; //TODO: allMatch instead of anyMatch?
-          for (VarType type : types) {
-            anyMatch |= DecompilerContext.getStructContext().instanceOf(type.value, cast.value);
-          }
-
-          if (anyMatch) {
+          List<VarType> finalTypes = types;
+          if (cast.stream().allMatch(castType -> finalTypes.stream().anyMatch(type -> DecompilerContext.getStructContext().instanceOf(type.value, castType.value)))) {
             this.needsCast = false;
           }
         } else {
@@ -278,7 +274,8 @@ public class FunctionExprent extends Exprent {
           return right;
         }
       } else { //TODO: Capture generics to make cast better?
-        this.needsCast = right.type == CodeType.NULL || !DecompilerContext.getStructContext().instanceOf(right.value, cast.value) || right.arrayDim != cast.arrayDim;
+        final VarType finalRight = right;
+        this.needsCast = right.type == CodeType.NULL || cast.stream().anyMatch(castType -> !DecompilerContext.getStructContext().instanceOf(finalRight.value, castType.value)) || cast.stream().anyMatch(castType -> finalRight.arrayDim != castType.arrayDim);
       }
 
       return getExprType();
@@ -606,7 +603,13 @@ public class FunctionExprent extends Exprent {
         if (!needsCast) {
           return buf.append(lstOperands.get(0).toJava(indent));
         }
-        return buf.append(lstOperands.get(1).toJava(indent)).encloseWithParens().append(wrapOperandString(lstOperands.get(0), true, indent));
+        for (int i = 1; i < lstOperands.size(); i++) {
+          if (i > 1) {
+            buf.append(" & ");
+          }
+          buf.append(lstOperands.get(i).toJava(indent));
+        }
+        return buf.encloseWithParens().append(wrapOperandString(lstOperands.get(0), true, indent));
       case ARRAY_LENGTH:
         Exprent arr = lstOperands.get(0);
 
