@@ -10,7 +10,7 @@ public class TestThrowException {
          this.r = new Runnable() {// 12
             @Override
             public void run() {
-               int a = 5;// 15
+               int ax = 5;// 15
             }// 16
          };
       }
