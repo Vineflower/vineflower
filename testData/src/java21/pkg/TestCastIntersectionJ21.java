@@ -19,6 +19,11 @@ public class TestCastIntersectionJ21 {
     method(i);
   }
 
+  public void test5(I2 i2) {
+    var i = (I1 & I2) i2;
+    i.method();
+  }
+
   public <I extends I1 & I2> void method(I i) {
   }
 
@@ -26,5 +31,6 @@ public class TestCastIntersectionJ21 {
   }
 
   private static interface I2 {
+    public void method();
   }
 }

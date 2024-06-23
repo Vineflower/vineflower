@@ -101,6 +101,14 @@ public class IntersectionCastProcessor {
         for (VariablePosition position : references) {
           bounds.addAll(switch (position.position) {
             case METHOD_PARAMETER -> getBounds((InvocationExprent) position.exp, position.index);
+            case CASTED -> {
+              FunctionExprent func = (FunctionExprent) position.exp;
+              if (func.getLstOperands().size() == 2) {
+                yield List.of(func.getLstOperands().get(1).getExprType());
+              } else {
+                yield List.of();
+              }
+            }
           });
         }
 
@@ -112,7 +120,7 @@ public class IntersectionCastProcessor {
             .collect(Collectors.toSet());
 
         // Checks if the original type supports the remaining bounds
-        if (!bounds.isEmpty() && bounds.stream().allMatch(bound -> DecompilerContext.getStructContext().instanceOf(inner.getExprType().value, bound.value))) {
+        if (!bounds.isEmpty() && bounds.stream().anyMatch(bound -> DecompilerContext.getStructContext().instanceOf(inner.getExprType().value, bound.value))) {
           types.add(new ConstExprent(inner.getExprType(), null, null));
         }
         if (replaceCasts(cast, types, inner)) {
@@ -170,9 +178,12 @@ public class IntersectionCastProcessor {
   }
 
   private static void findReferences(VarExprent varExp, Exprent exp, RootStatement root, List<VariablePosition> list) {
-    // TODO: other places that variables can be referenced
     if (exp instanceof InvocationExprent inv) {
       findReferences(varExp, inv, list);
+    } else if (exp instanceof FunctionExprent func && func.getFuncType() == FunctionType.CAST) {
+      if (func.getLstOperands().get(0) instanceof VarExprent otherVar && varExp.getVarVersionPair().equals(otherVar.getVarVersionPair())) {
+        list.add(new VariablePosition(VariablePositionEnum.CASTED, exp, -1));
+      }
     }
     for (Exprent sub : exp.getAllExprents()) {
       findReferences(varExp, sub, root, list);
@@ -241,6 +252,7 @@ public class IntersectionCastProcessor {
   }
 
   private static enum VariablePositionEnum {
-    METHOD_PARAMETER;
+    METHOD_PARAMETER,
+    CASTED;
   }
 }
