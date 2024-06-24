@@ -2,8 +2,7 @@
 package org.jetbrains.java.decompiler.main.rels;
 
 import org.jetbrains.java.decompiler.code.CodeConstants;
-import org.jetbrains.java.decompiler.code.Instruction;
-import org.jetbrains.java.decompiler.code.InstructionSequence;
+import org.jetbrains.java.decompiler.code.FullInstructionSequence;
 import org.jetbrains.java.decompiler.main.ClassesProcessor;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
@@ -65,13 +64,9 @@ public class LambdaProcessor {
     for (StructMethod mt : cl.getMethods()) {
       mt.expandData(cl);
 
-      InstructionSequence seq = mt.getInstructionSequence();
-      if (seq != null && seq.length() > 0) {
-        int len = seq.length();
-
-        for (int i = 0; i < len; ++i) {
-          Instruction instr = seq.getInstr(i);
-
+      FullInstructionSequence seq = mt.getInstructionSequence();
+      if (seq != null) {
+        for (var instr : seq) {
           if (instr.opcode == CodeConstants.opc_invokedynamic) {
             LinkConstant invoke_dynamic = cl.getPool().getLinkConstant(instr.operand(0));
 

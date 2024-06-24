@@ -3,116 +3,72 @@ package org.jetbrains.java.decompiler.code;
 
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.util.TextUtil;
-import org.jetbrains.java.decompiler.util.collections.VBStyleCollection;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
-public abstract class InstructionSequence implements Iterable<Instruction> {
+public class InstructionSequence implements Iterable<Instruction> {
+  private final List<Instruction> instructions;
 
-  // *****************************************************************************
-  // private fields
-  // *****************************************************************************
-
-  protected final VBStyleCollection<Instruction, Integer> collinstr;
-
-  protected int pointer = 0;
-
-  protected ExceptionTable exceptionTable = ExceptionTable.EMPTY;
-
-  protected InstructionSequence() {
-    this(new VBStyleCollection<>());
+  public InstructionSequence() {
+    this(new ArrayList<>());
   }
 
-  protected InstructionSequence(VBStyleCollection<Instruction, Integer> collinstr) {
-    this.collinstr = collinstr;
+  public InstructionSequence(Collection<Instruction> instructions) {
+    this.instructions = new ArrayList<>(instructions);
   }
 
   // *****************************************************************************
   // public methods
   // *****************************************************************************
 
-  // to nbe overwritten
   @Override
   public InstructionSequence clone() {
-    return null;
+    return new InstructionSequence(this.instructions); // Constructor takes a copy
   }
 
   public void clear() {
-    collinstr.clear();
-    pointer = 0;
-    exceptionTable = ExceptionTable.EMPTY;
+    this.instructions.clear();
   }
 
-  public void addInstruction(Instruction inst, int offset) {
-    collinstr.addWithKey(inst, offset);
+  public void addInstruction(Instruction inst) {
+    this.instructions.add(inst);
   }
 
-  public void addInstruction(int index, Instruction inst, int offset) {
-    collinstr.addWithKeyAndIndex(index, inst, offset);
+  public void addInstruction(int index, Instruction inst) {
+    this.instructions.add(index, inst);
   }
 
   public void addSequence(InstructionSequence seq) {
-    for (int i = 0; i < seq.length(); i++) {
-      addInstruction(seq.getInstr(i), -1); // TODO: any sensible value possible?
-    }
+    this.instructions.addAll(seq.instructions);
   }
 
   public void removeInstruction(int index) {
-    collinstr.remove(index);
-  }
-
-  public void removeInstruction(Instruction inst) {
-    // VBStyle remove(Object) is not implemented
-    collinstr.removeIf(i -> i == inst);
+    this.instructions.remove(index);
   }
 
   public void removeLast() {
-    if (!collinstr.isEmpty()) {
-      collinstr.remove(collinstr.size() - 1);
+    if (!this.instructions.isEmpty()) {
+      this.instructions.remove(this.instructions.size() - 1);
     }
   }
 
   public Instruction getInstr(int index) {
-  return collinstr.get(index);
+    return this.instructions.get(index);
   }
 
   public Instruction getLastInstr() {
-  return collinstr.getLast();
-  }
-
-  public int getOffset(int index) {
-    return collinstr.getKey(index);
-  }
-
-  public int getPointerByAbsOffset(int offset) {
-    if (collinstr.containsKey(offset)) {
-      return collinstr.getIndexByKey(offset);
-    }
-    else {
-      return -1;
-    }
-  }
-
-  public int getPointerByRelOffset(int offset) {
-    int absoffset = collinstr.getKey(pointer) + offset;
-    if (collinstr.containsKey(absoffset)) {
-      return collinstr.getIndexByKey(absoffset);
-    }
-    else {
-      return -1;
-    }
+    return this.instructions.get(this.instructions.size() - 1);
   }
 
   public int length() {
-    return collinstr.size();
+    return this.instructions.size();
   }
 
   public boolean isEmpty() {
-    return collinstr.isEmpty();
-  }
-
-  public void addToPointer(int diff) {
-    this.pointer += diff;
+    return this.instructions.isEmpty();
   }
 
   public String toString() {
@@ -125,11 +81,11 @@ public abstract class InstructionSequence implements Iterable<Instruction> {
 
     StringBuilder buf = new StringBuilder();
 
-    for (int i = 0; i < collinstr.size(); i++) {
-    buf.append(TextUtil.getIndentString(indent));
-      buf.append((int) collinstr.getKey(i));
+    for (var instr : this.instructions) {
+      buf.append(TextUtil.getIndentString(indent));
+      buf.append(instr.startOffset);
       buf.append(": ");
-      buf.append(collinstr.get(i).toString());
+      buf.append(instr);
       buf.append(new_line_separator);
     }
 
@@ -140,20 +96,8 @@ public abstract class InstructionSequence implements Iterable<Instruction> {
   // getter and setter methods
   // *****************************************************************************
 
-  public int getPointer() {
-    return pointer;
-  }
-
-  public void setPointer(int pointer) {
-    this.pointer = pointer;
-  }
-
-  public ExceptionTable getExceptionTable() {
-    return exceptionTable;
-  }
-
   @Override
   public Iterator<Instruction> iterator() {
-    return this.collinstr.iterator();
+    return this.instructions.iterator();
   }
 }

@@ -4,8 +4,7 @@ package org.jetbrains.java.decompiler.main;
 import org.jetbrains.java.decompiler.api.plugin.StatementWriter;
 import org.jetbrains.java.decompiler.api.plugin.LanguageSpec;
 import org.jetbrains.java.decompiler.code.CodeConstants;
-import org.jetbrains.java.decompiler.code.Instruction;
-import org.jetbrains.java.decompiler.code.InstructionSequence;
+import org.jetbrains.java.decompiler.code.FullInstructionSequence;
 import org.jetbrains.java.decompiler.main.collectors.BytecodeSourceMapper;
 import org.jetbrains.java.decompiler.main.collectors.ImportCollector;
 import org.jetbrains.java.decompiler.main.decompiler.CancelationManager;
@@ -364,11 +363,9 @@ public class ClassesProcessor implements CodeConstants {
       try {
         mt.expandData(enclosingCl);
 
-        InstructionSequence seq = mt.getInstructionSequence();
+        FullInstructionSequence seq = mt.getInstructionSequence();
         if (seq != null) {
-          int len = seq.length();
-          for (int i = 0; i < len; i++) {
-            Instruction instr = seq.getInstr(i);
+          for (var instr : seq) {
             switch (instr.opcode) {
               case opc_checkcast:
               case opc_instanceof:
