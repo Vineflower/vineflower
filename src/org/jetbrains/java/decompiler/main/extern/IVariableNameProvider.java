@@ -17,13 +17,38 @@ package org.jetbrains.java.decompiler.main.extern;
 
 import java.util.Map;
 
+import java.util.stream.Collectors;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
+import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribute;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.Pair;
 
 public interface IVariableNameProvider {
-  Map<VarVersionPair, String> rename(Map<VarVersionPair, Pair<VarType, String>> variables);
+  interface VariableNamingData {
+    VarType type();
+    String typeName();
+    StructLocalVariableTableAttribute.LocalVariable lvt();
+  }
+
+  default Map<VarVersionPair, String> renameVariables(Map<VarVersionPair, VariableNamingData> variables) {
+    return this.rename(variables.entrySet().stream().collect(Collectors.toMap(
+      Map.Entry::getKey,
+      e -> Pair.of(e.getValue().type(), e.getValue().typeName())
+    )));
+  }
+
+  /**
+   * Renames the variables.
+   *
+   * @param variables variables
+   * @return map of variable pairs to new names
+   * @deprecated implement {@link #renameVariables(Map)} instead. this method exists for backwards ABI compatibility
+   */
+  @Deprecated
+  default Map<VarVersionPair, String> rename(Map<VarVersionPair, Pair<VarType, String>> variables) {
+    throw new UnsupportedOperationException();
+  }
 
   default String renameAbstractParameter(String name, int index) {
     return name;
@@ -36,5 +61,6 @@ public interface IVariableNameProvider {
 
     return name;
   }
+
   public void addParentContext(IVariableNameProvider renamer);
 }

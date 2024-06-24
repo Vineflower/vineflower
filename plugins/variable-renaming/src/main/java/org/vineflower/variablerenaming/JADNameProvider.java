@@ -27,7 +27,6 @@ import java.util.regex.Pattern;
 
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
-import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.extern.IVariableNameProvider;
 import org.jetbrains.java.decompiler.main.extern.IVariableNamingFactory;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
@@ -35,7 +34,6 @@ import org.jetbrains.java.decompiler.modules.decompiler.vars.VarVersionPair;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
-import org.jetbrains.java.decompiler.util.Pair;
 
 public class JADNameProvider implements IVariableNameProvider {
   private HashMap<String, Holder> last;
@@ -103,7 +101,7 @@ public class JADNameProvider implements IVariableNameProvider {
   }
 
   @Override
-  public Map<VarVersionPair,String> rename(Map<VarVersionPair, Pair<VarType, String>> entries) {
+  public Map<VarVersionPair,String> renameVariables(Map<VarVersionPair, VariableNamingData> entries) {
     int params = 0;
     if ((this.method.getAccessFlags() & CodeConstants.ACC_STATIC) != CodeConstants.ACC_STATIC) {
       params++;
@@ -119,7 +117,7 @@ public class JADNameProvider implements IVariableNameProvider {
 
     Map<VarVersionPair, String> result = new LinkedHashMap<>();
     for (VarVersionPair ver : keys) {
-      String type = cleanType(entries.get(ver).b);
+      String type = cleanType(entries.get(ver).typeName());
       if ("this".equals(type)) {
         continue;
       }

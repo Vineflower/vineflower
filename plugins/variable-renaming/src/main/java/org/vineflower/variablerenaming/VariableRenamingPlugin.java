@@ -41,5 +41,6 @@ public class VariableRenamingPlugin implements Plugin {
   static {
     Renamers.registerProvider("jad", new JADNameProvider.JADNameProviderFactory());
     Renamers.registerProvider("tiny", new TinyNameProvider.TinyNameProviderFactory());
+    Renamers.registerProvider("fix_clashing_lvt", new SimpleNameProvider.SimpleNameProviderFactory());
   }
 }
