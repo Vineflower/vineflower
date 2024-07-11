@@ -1,208 +1,352 @@
 package pkg;
 
-public class TestRecordPatterns1 {
-   public void test1(TestRecordPatterns1.R r) {
-      if (r instanceof TestRecordPatterns1.R(int var5, Object var8)) {// 7
-         System.out.println(var5);// 8
-         System.out.println(var8);// 9
+import java.lang.runtime.SwitchBootstraps;
+
+public class TestRecordPattern1 {
+   void test(Object o) {
+      if (o instanceof TestRecordPattern1.Point) {
+         int var4 = $proxy$a((TestRecordPattern1.Point)o);// 1
+         int a = Integer.valueOf(var4);// 8
+         var4 = $proxy$b((TestRecordPattern1.Point)o);
+         int b = Integer.valueOf(var4);
+         System.out.println(a + b);// 9
       }
    }// 11
 
-   public void test2(TestRecordPatterns1.R r) {
-      if (r instanceof TestRecordPatterns1.R(int var5, Object var11) && var11 instanceof String s) {// 14
-         System.out.println(var5);// 15
-         System.out.println(s);// 16
+   void test2(Object o) {
+      switch (o) {// 14
+         case null:
+            System.out.println("null");// 16
+            break;
+         case TestRecordPattern1.Point var8:
+            int obj = $proxy$a((TestRecordPattern1.Point)o);
+            int a = Integer.valueOf(obj);// 15
+            obj = $proxy$b((TestRecordPattern1.Point)o);
+            int b = Integer.valueOf(obj);
+            System.out.println(a + b);
+            break;
+         default:
+            System.out.println("everything else");// 17
       }
-   }// 18
+   }// 19
 
-   public void test3(TestRecordPatterns1.R r) {
-      if (r instanceof TestRecordPatterns1.R(int var5, Object var11) && var11 instanceof String s && s.length() > 10) {// 21
-         System.out.println(var5);// 22
-         System.out.println(s);// 23
+   int test3(Object o) {
+      Object var2 = o;
+      byte var3 = 0;
+
+      while (true) {
+         int var10000;
+         switch (SwitchBootstraps.typeSwitch<"typeSwitch",TestRecordPattern1.Point,TestRecordPattern1.Point,Object>(var2, var3)) {
+            case -1:
+               var10000 = -1;// 23
+               break;
+            case 0:
+               int var8 = $proxy$a((TestRecordPattern1.Point)var2);
+               int a = Integer.valueOf(var8);// 24
+               var8 = $proxy$b((TestRecordPattern1.Point)var2);
+               int b = Integer.valueOf(var8);
+               if (a <= 0 || b <= 0) {
+                  var3 = 1;
+                  continue;
+               }
+
+               var10000 = a + b;// 26
+               break;
+            case 1:
+               TestRecordPattern1.Point p = (TestRecordPattern1.Point)var2;// 27
+               throw new IllegalArgumentException("Negative point not allowed");
+            default:
+               throw new IllegalArgumentException("Only points or null allowed");// 28
+         }
+
+         return var10000;// 22
       }
-   }// 25
+   }
 
-   public void test4(TestRecordPatterns1.R r) {
-      if (r instanceof TestRecordPatterns1.R(int var5, Object var8)) {// 28
-         System.out.println(var5);// 29
-         System.out.println(var8);// 30
-      }
-   }// 32
-
-   static record R(int i, Object o) {
+   static record Point(int a, int b) {
    }
 }
 
-class 'pkg/TestRecordPatterns1' {
-   method 'test1 (Lpkg/TestRecordPatterns1$R;)V' {
-      0      4
-      1      4
-      2      4
-      3      4
-      4      4
-      5      4
-      6      4
-      d      4
-      e      4
-      f      5
-      10      5
-      16      4
-      17      4
-      18      6
-      19      6
-      1c      5
-      1d      5
-      1e      5
-      1f      5
-      20      5
-      21      5
-      22      5
-      23      6
-      24      6
-      25      6
-      26      6
-      27      6
-      28      6
-      29      6
-      2a      6
-      3c      8
-   }
-
-   method 'test2 (Lpkg/TestRecordPatterns1$R;)V' {
-      0      11
-      1      11
-      2      11
-      3      11
-      4      11
-      5      11
-      6      11
-      d      11
-      e      11
-      f      12
-      10      12
-      1a      11
-      1b      11
-      1c      11
-      1d      11
-      1e      11
-      1f      11
-      25      11
-      26      11
-      27      12
-      28      12
-      29      12
-      2a      12
-      2b      12
-      2c      12
-      2d      12
-      2e      13
-      2f      13
-      30      13
-      31      13
-      32      13
-      33      13
+class 'pkg/TestRecordPattern1' {
+   method 'test (Ljava/lang/Object;)V' {
+      0      6
+      1      6
+      2      6
+      3      6
+      4      6
+      5      6
+      6      6
+      7      7
+      8      7
+      9      7
+      a      7
+      b      7
+      c      7
+      d      7
+      e      7
+      f      7
+      10      8
+      11      8
+      12      8
+      13      8
+      14      8
+      15      8
+      16      8
+      17      8
+      18      8
+      19      9
+      1a      9
+      1b      9
+      1c      9
+      1d      9
+      1e      9
+      1f      9
+      20      9
+      21      9
+      22      10
+      23      10
+      24      10
+      25      10
+      26      10
+      27      10
+      28      10
+      29      10
+      2a      10
+      2b      11
+      2c      11
+      2d      11
+      2e      11
+      2f      11
+      30      11
+      31      11
+      32      11
+      33      11
       34      13
-      35      13
-      47      15
    }
 
-   method 'test3 (Lpkg/TestRecordPatterns1$R;)V' {
-      0      18
-      1      18
-      2      18
-      3      18
-      4      18
-      5      18
-      6      18
-      d      18
-      e      18
-      f      19
-      10      19
-      1a      18
-      1b      18
-      1c      18
-      1d      18
-      1e      18
-      1f      18
-      25      18
-      26      18
-      27      18
-      28      18
-      29      18
-      2a      18
-      2b      18
-      2c      18
-      2d      18
-      2e      18
-      2f      18
-      30      18
-      31      19
-      32      19
-      33      19
-      34      19
-      35      19
-      36      19
-      37      19
-      38      20
-      39      20
-      3a      20
-      3b      20
-      3c      20
-      3d      20
-      3e      20
-      3f      20
-      51      22
+   method 'test2 (Ljava/lang/Object;)V' {
+      0      16
+      4      16
+      b      16
+      c      16
+      d      16
+      e      16
+      f      16
+      10      16
+      11      16
+      12      16
+      13      16
+      14      16
+      15      16
+      16      16
+      17      16
+      18      16
+      19      16
+      1a      16
+      1b      16
+      1c      16
+      1d      16
+      1e      16
+      1f      16
+      20      16
+      21      16
+      22      16
+      23      16
+      24      21
+      25      21
+      26      21
+      27      21
+      28      21
+      29      21
+      2a      21
+      2b      21
+      2c      21
+      2d      22
+      2e      22
+      2f      22
+      30      22
+      31      22
+      32      22
+      33      22
+      34      22
+      35      22
+      36      22
+      37      23
+      38      23
+      39      23
+      3a      23
+      3b      23
+      3c      23
+      3d      23
+      3e      23
+      3f      23
+      40      24
+      41      24
+      42      24
+      43      24
+      44      24
+      45      24
+      46      24
+      47      24
+      48      24
+      49      24
+      4a      25
+      4b      25
+      4c      25
+      4d      25
+      4e      25
+      4f      25
+      50      25
+      51      25
+      52      25
+      53      25
+      54      25
+      55      26
+      58      18
+      59      18
+      5a      18
+      5b      18
+      5c      18
+      5d      18
+      5e      18
+      5f      18
+      60      19
+      66      28
+      67      28
+      68      28
+      69      28
+      6a      28
+      6b      28
+      6c      28
+      6d      28
+      6e      30
    }
 
-   method 'test4 (Lpkg/TestRecordPatterns1$R;)V' {
-      0      25
-      1      25
-      2      25
-      3      25
-      4      25
-      5      25
-      6      25
-      d      25
-      e      25
-      f      26
-      10      26
-      16      25
-      17      25
-      18      27
-      19      27
-      1c      26
-      1d      26
-      1e      26
-      1f      26
-      20      26
-      21      26
-      22      26
-      23      27
-      24      27
-      25      27
-      26      27
-      27      27
-      28      27
-      29      27
-      2a      27
-      3c      29
+   method 'test3 (Ljava/lang/Object;)I' {
+      0      33
+      1      33
+      2      34
+      3      34
+      4      38
+      5      38
+      6      38
+      7      38
+      8      38
+      9      38
+      a      38
+      b      38
+      c      38
+      d      38
+      e      38
+      f      38
+      10      38
+      11      38
+      12      38
+      13      38
+      14      38
+      15      38
+      16      38
+      17      38
+      18      38
+      19      38
+      1a      38
+      1b      38
+      1c      38
+      1d      38
+      1e      38
+      1f      38
+      20      38
+      21      38
+      22      38
+      23      38
+      24      40
+      25      41
+      28      43
+      29      43
+      2a      43
+      2b      43
+      2c      43
+      2d      43
+      2e      43
+      2f      43
+      30      43
+      31      44
+      32      44
+      33      44
+      34      44
+      35      44
+      36      44
+      37      44
+      38      44
+      39      44
+      3a      44
+      3b      45
+      3c      45
+      3d      45
+      3e      45
+      3f      45
+      40      45
+      41      45
+      42      45
+      43      45
+      44      46
+      45      46
+      46      46
+      47      46
+      48      46
+      49      46
+      4a      46
+      4b      46
+      4c      46
+      4d      46
+      4e      47
+      4f      47
+      50      47
+      51      47
+      52      47
+      53      47
+      54      47
+      55      47
+      56      47
+      57      47
+      58      48
+      59      48
+      5a      49
+      5d      52
+      5e      52
+      5f      52
+      60      52
+      61      52
+      62      53
+      65      55
+      66      55
+      67      55
+      68      55
+      69      55
+      6a      55
+      6f      56
+      70      56
+      74      56
+      7c      58
+      7d      58
+      81      58
+      82      61
    }
 }
 
 Lines mapping:
-7 <-> 5
-8 <-> 6
-9 <-> 7
-11 <-> 9
-14 <-> 12
-15 <-> 13
-16 <-> 14
-18 <-> 16
-21 <-> 19
-22 <-> 20
-23 <-> 21
-25 <-> 23
-28 <-> 26
-29 <-> 27
-30 <-> 28
-32 <-> 30
+1 <-> 8
+8 <-> 9
+9 <-> 12
+11 <-> 14
+14 <-> 17
+15 <-> 23
+16 <-> 19
+17 <-> 29
+19 <-> 31
+22 <-> 62
+23 <-> 41
+24 <-> 45
+26 <-> 53
+27 <-> 56
+28 <-> 59
