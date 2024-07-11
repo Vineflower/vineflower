@@ -210,11 +210,15 @@ class 'pkg/TestPatternMatching17FakeLoops' {
       2      19
       3      19
       4      19
+      5      19
+      6      19
       7      19
       8      19
       9      19
       a      19
       b      19
+      c      19
+      d      19
       e      20
       f      20
       10      20
@@ -236,11 +240,15 @@ class 'pkg/TestPatternMatching17FakeLoops' {
       2      26
       3      26
       4      26
+      5      26
+      6      26
       7      26
       8      26
       9      26
       a      26
       b      26
+      c      26
+      d      26
       e      27
       f      27
       10      27
@@ -270,6 +278,8 @@ class 'pkg/TestPatternMatching17FakeLoops' {
       2      35
       3      35
       4      35
+      5      35
+      6      35
       7      35
       8      35
       9      35
@@ -296,17 +306,23 @@ class 'pkg/TestPatternMatching17FakeLoops' {
       2      44
       3      44
       4      44
+      5      44
+      6      44
       7      45
       8      45
       9      45
       a      45
       b      45
+      c      45
+      d      45
       12      45
       13      45
       14      45
       15      45
       16      45
       17      45
+      18      45
+      19      45
       1a      52
       1b      52
       1c      52
@@ -328,6 +344,8 @@ class 'pkg/TestPatternMatching17FakeLoops' {
       2      58
       3      58
       4      58
+      5      58
+      6      58
       7      58
       8      58
       9      58
@@ -362,17 +380,23 @@ class 'pkg/TestPatternMatching17FakeLoops' {
       2      69
       3      69
       4      69
+      5      69
+      6      69
       7      70
       8      70
       9      70
       a      70
       b      70
+      c      70
+      d      70
       12      70
       13      70
       14      70
       15      70
       16      70
       17      70
+      18      70
+      19      70
       1a      78
       1b      78
       1c      78
@@ -402,11 +426,15 @@ class 'pkg/TestPatternMatching17FakeLoops' {
       2      84
       3      84
       4      84
+      5      84
+      6      84
       7      84
       8      84
       9      84
       a      84
       b      84
+      c      84
+      d      84
       e      85
       f      85
       10      85
@@ -428,11 +456,15 @@ class 'pkg/TestPatternMatching17FakeLoops' {
       2      91
       3      91
       4      91
+      5      91
+      6      91
       7      91
       8      91
       9      91
       a      91
       b      91
+      c      91
+      d      91
       e      92
       f      92
       10      92
@@ -462,12 +494,16 @@ class 'pkg/TestPatternMatching17FakeLoops' {
       2      100
       3      100
       4      100
+      5      100
+      6      100
       b      100
       f      100
       10      100
       11      100
       12      100
       13      100
+      14      100
+      15      100
       16      101
       17      101
       18      101
@@ -489,17 +525,23 @@ class 'pkg/TestPatternMatching17FakeLoops' {
       2      107
       3      107
       4      107
+      5      107
+      6      107
       b      107
       c      107
       d      107
       e      107
       f      107
       10      107
+      11      107
+      12      107
       13      107
       14      107
       15      107
       16      107
       17      107
+      18      107
+      19      107
       1a      108
       1b      108
       1c      108
@@ -521,12 +563,16 @@ class 'pkg/TestPatternMatching17FakeLoops' {
       2      114
       3      114
       4      114
+      5      114
+      6      114
       b      114
       f      114
       10      114
       11      114
       12      114
       13      114
+      14      114
+      15      114
       16      115
       17      115
       18      115
@@ -556,17 +602,23 @@ class 'pkg/TestPatternMatching17FakeLoops' {
       2      123
       3      123
       4      123
+      5      123
+      6      123
       b      123
       c      123
       d      123
       e      123
       f      123
       10      123
+      11      123
+      12      123
       13      123
       14      123
       15      123
       16      123
       17      123
+      18      123
+      19      123
       1a      124
       1b      124
       1c      124
@@ -631,6 +683,8 @@ class 'pkg/TestPatternMatching17FakeLoops' {
       11      146
       12      146
       13      146
+      14      146
+      15      146
       16      147
       17      147
       18      147
@@ -643,11 +697,15 @@ class 'pkg/TestPatternMatching17FakeLoops' {
       1f      147
       23      151
       24      151
+      25      151
+      26      151
       27      152
       28      152
       29      152
       2a      152
       2b      152
+      2c      152
+      2d      152
       2e      154
    }
 }

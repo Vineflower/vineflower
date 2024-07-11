@@ -31,6 +31,8 @@ class 'pkg/TestUnknownCast' {
       3      5
       4      8
       5      8
+      6      8
+      7      8
       f      9
       10      12
       11      12
@@ -40,6 +42,8 @@ class 'pkg/TestUnknownCast' {
       1d      19
       1e      19
       1f      19
+      20      19
+      21      19
       22      19
       24      20
       25      20

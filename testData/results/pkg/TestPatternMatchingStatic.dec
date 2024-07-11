@@ -18,7 +18,11 @@ class 'pkg/TestPatternMatchingStatic' {
       2      4
       3      4
       4      4
+      5      4
+      6      4
       c      5
+      d      5
+      e      5
       f      7
    }
 

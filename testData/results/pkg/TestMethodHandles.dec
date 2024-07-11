@@ -12,33 +12,33 @@ public class TestMethodHandles {
    public void test1() throws Throwable {
       MethodHandle abs = LOOKUP.findStatic(Math.class, "abs", MethodType.methodType(long.class, long.class));// 10
       int a = -5;// 11
-      long b = (long)abs.invokeExact((long)a);// 12
+      long b = (long)abs.invokeExact(a);// 12
       System.out.println(b);// 13
    }// 14
 
    public int test2() throws Throwable {
       MethodHandle abs = LOOKUP.findStatic(Math.class, "abs", MethodType.methodType(long.class, long.class));// 17
       int a = -5;// 18
-      return (int)(long)abs.invokeExact((long)a);// 19
+      return (int)(long)abs.invokeExact(a);// 19
    }
 
    public void test3() throws Throwable {
       MethodHandle abs = LOOKUP.findStatic(Math.class, "abs", MethodType.methodType(long.class, long.class));// 23
       int a = -5;// 24
-      long b = (long)abs.invoke((long)a);// 25
+      long b = (long)abs.invoke(a);// 25
       System.out.println(b);// 26
    }// 27
 
    public int test4() throws Throwable {
       MethodHandle abs = LOOKUP.findStatic(Math.class, "abs", MethodType.methodType(long.class, long.class));// 30
       int a = -5;// 31
-      return (int)(long)abs.invoke((long)a);// 32
+      return (int)(long)abs.invoke(a);// 32
    }
 
    public void test5() throws Throwable {
       MethodHandle println = LOOKUP.findVirtual(PrintStream.class, "println", MethodType.methodType(void.class, long.class));// 36
       int a = -5;// 37
-      println.invokeExact(System.out, (long)a);// 38
+      println.invokeExact(System.out, a);// 38
    }// 39
 }
 

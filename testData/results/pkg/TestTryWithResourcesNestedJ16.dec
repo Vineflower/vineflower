@@ -7,14 +7,14 @@ import java.util.Scanner;
 public class TestTryWithResourcesNestedJ16 {
    public void testNested(File file) throws IOException {
       try (
-         Scanner scanner = new Scanner(file);
+         Scanner scanner = new Scanner(file);// 10
          Scanner scanner1 = new Scanner(file);// 11
          Scanner scanner2 = new Scanner(file);// 12
          Scanner scanner3 = new Scanner(file);// 13
       ) {
          scanner.next();// 14
       }
-   }// 10 18
+   }// 18
 
    public void testNestedFinally(File file) throws IOException {
       try (Scanner scanner = new Scanner(file)) {// 22
@@ -54,26 +54,6 @@ class 'pkg/TestTryWithResourcesNestedJ16' {
       28      14
       29      14
       87      16
-      88      16
-      89      16
-      8a      16
-      8b      16
-      8c      16
-      8d      16
-      8e      16
-      8f      16
-      90      16
-      91      16
-      92      16
-      93      16
-      94      16
-      95      16
-      96      16
-      97      16
-      98      16
-      99      16
-      9a      16
-      9b      16
    }
 
    method 'testNestedFinally (Ljava/io/File;)V' {
@@ -96,27 +76,35 @@ class 'pkg/TestTryWithResourcesNestedJ16' {
       57      25
       58      25
       59      25
+      5a      25
+      5b      25
       89      28
       8a      28
       8b      28
       8c      28
       8d      28
+      8e      28
+      8f      28
       bb      31
       bc      31
       bd      31
       be      31
       bf      31
+      c0      31
+      c1      31
       e5      36
       ea      34
       eb      34
       ec      34
       ed      34
       ee      34
+      ef      34
+      f0      34
    }
 }
 
 Lines mapping:
-10 <-> 17
+10 <-> 10
 11 <-> 11
 12 <-> 12
 13 <-> 13

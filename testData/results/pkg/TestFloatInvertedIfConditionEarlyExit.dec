@@ -22,6 +22,8 @@ class 'pkg/TestFloatInvertedIfConditionEarlyExit' {
       1      4
       2      4
       3      4
+      4      4
+      5      4
       6      7
       7      5
       8      5
@@ -45,6 +47,8 @@ class 'pkg/TestFloatInvertedIfConditionEarlyExit' {
       a      11
       b      11
       c      11
+      d      11
+      e      11
       12      12
       13      12
       14      12
@@ -55,6 +59,8 @@ class 'pkg/TestFloatInvertedIfConditionEarlyExit' {
       26      12
       27      12
       28      12
+      29      12
+      2a      12
       2b      10
       2d      10
       32      15

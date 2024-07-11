@@ -949,8 +949,6 @@ public class InvocationExprent extends Exprent {
   }
 
   public TextBuffer appendParamList(int indent) {
-    TextBuffer buf = new TextBuffer();
-    buf.pushNewlineGroup(indent, 1);
     List<VarVersionPair> mask = null;
     boolean isEnum = false;
     if (functype == Type.INIT) {
@@ -1105,9 +1103,14 @@ public class InvocationExprent extends Exprent {
     }
 
 
+    TextBuffer buf = new TextBuffer();
+
     boolean firstParameter = true;
-    buf.appendPossibleNewline();
-    buf.pushNewlineGroup(indent, 0);
+    if (!lstParameters.isEmpty()) {
+      buf.pushNewlineGroup(indent, 1);
+      buf.appendPossibleNewline();
+      buf.pushNewlineGroup(indent, 0);
+    }
 
     for (int i = start; i < lstParameters.size(); i++) {
       if (mask == null || mask.get(i) == null) {
@@ -1161,9 +1164,11 @@ public class InvocationExprent extends Exprent {
       }
     }
 
-    buf.popNewlineGroup();
-    buf.appendPossibleNewline("", true);
-    buf.popNewlineGroup();
+    if (!lstParameters.isEmpty()) {
+      buf.popNewlineGroup();
+      buf.appendPossibleNewline("", true);
+      buf.popNewlineGroup();
+    }
 
     return buf;
   }
@@ -1333,7 +1338,9 @@ public class InvocationExprent extends Exprent {
   private boolean matches(VarType[] left, VarType[] right) {
     if (left.length == right.length) {
       for (int i = 0; i < left.length; i++) {
-        if (left[i].typeFamily != right[i].typeFamily) {
+        TypeFamily leftFamily = left[i].typeFamily;
+        TypeFamily rightFamily = right[i].typeFamily;
+        if (leftFamily != rightFamily && !(leftFamily.isNumeric() && rightFamily.isNumeric())) {
           return false;
         }
 
@@ -1401,6 +1408,10 @@ public class InvocationExprent extends Exprent {
         boolean exact = true;
         for (int i = 0; i < md.params.length; i++) {
           Exprent exp = lstParameters.get(i);
+          if (exp instanceof FunctionExprent && ((FunctionExprent) exp).getSimpleCastType() != null) {
+            ((FunctionExprent) exp).setNeedsCast(true);
+          }
+
           // Check if the current parameters and method descriptor are of the same type, or if the descriptor's type is a superset of the parameter's type.
           // This check ensures that parameters that can be safely passed don't have an unneeded cast on them, such as System.out.println((int)5);.
           // TODO: The root cause of the above issue seems to be threading related- When debugging line by line it doesn't cast, but when running normally it does. More digging needs to be done to figure out why this happens.
@@ -1798,6 +1809,10 @@ public class InvocationExprent extends Exprent {
   }
 
   public StructMethod getDesc() {
+    if (desc == null) {
+      StructClass cl = DecompilerContext.getStructContext().getClass(classname);
+      desc = cl != null ? cl.getMethodRecursive(name, stringDescriptor) : null;
+    }
     return desc;
   }
 

@@ -120,6 +120,8 @@ class 'pkg/TestSmartCasts' {
       4      4
       5      4
       6      4
+      7      4
+      8      4
       9      5
       a      5
       b      5
@@ -130,6 +132,8 @@ class 'pkg/TestSmartCasts' {
       10      7
       11      7
       12      7
+      13      7
+      14      7
       15      8
       16      8
       17      8
@@ -144,6 +148,8 @@ class 'pkg/TestSmartCasts' {
       21      8
       25      10
       29      10
+      2a      10
+      2b      10
       2c      22
       2d      22
       2e      22
@@ -161,6 +167,8 @@ class 'pkg/TestSmartCasts' {
       3e      11
       3f      11
       40      11
+      41      11
+      42      11
       43      12
       44      12
       45      12
@@ -191,6 +199,8 @@ class 'pkg/TestSmartCasts' {
       5e      12
       5f      15
       60      15
+      61      15
+      62      15
       63      16
       64      16
       65      16
@@ -203,6 +213,8 @@ class 'pkg/TestSmartCasts' {
       6c      19
       6d      25
       6f      25
+      70      25
+      71      25
       77      26
       78      26
       7c      26
@@ -218,8 +230,12 @@ class 'pkg/TestSmartCasts' {
    method 'testIf (Ljava/lang/Object;)Ljava/lang/String;' {
       0      34
       4      34
+      5      34
+      6      34
       7      34
       b      34
+      c      34
+      d      34
       e      34
       f      34
       10      34
@@ -241,16 +257,22 @@ class 'pkg/TestSmartCasts' {
       2      38
       3      38
       4      38
+      5      38
+      6      38
       7      39
       8      39
       9      39
       a      39
       b      39
+      c      39
+      d      39
       e      39
       f      39
       10      39
       11      39
       12      39
+      13      39
+      14      39
       15      40
       16      40
       17      40
@@ -262,16 +284,22 @@ class 'pkg/TestSmartCasts' {
       1d      40
       1e      40
       20      40
+      21      40
+      22      40
       23      43
       24      43
       25      43
       26      43
       27      43
+      28      43
+      29      43
       2a      44
       2b      44
       2c      44
       2d      44
       2e      44
+      2f      44
+      30      44
       31      45
       32      45
       33      45
@@ -296,11 +324,15 @@ class 'pkg/TestSmartCasts' {
       47      46
       48      46
       4a      46
+      4b      46
+      4c      46
       4d      49
       4e      49
       4f      49
       50      49
       51      49
+      52      49
+      53      49
       54      49
       55      49
       56      49
@@ -311,11 +343,15 @@ class 'pkg/TestSmartCasts' {
       5b      49
       5c      49
       60      49
+      61      49
+      62      49
       63      49
       64      49
       65      49
       66      49
       67      49
+      68      49
+      69      49
       6a      50
       6b      50
       6c      50
@@ -327,6 +363,8 @@ class 'pkg/TestSmartCasts' {
       72      50
       73      50
       75      50
+      76      50
+      77      50
       78      55
       79      55
       7a      55
@@ -346,6 +384,8 @@ class 'pkg/TestSmartCasts' {
       6      59
       7      60
       9      60
+      a      60
+      b      60
       11      61
       12      61
       16      61
@@ -396,6 +436,8 @@ class 'pkg/TestSmartCasts' {
       8      71
       9      71
       a      71
+      b      71
+      c      71
       d      72
       e      72
       f      72
@@ -409,6 +451,8 @@ class 'pkg/TestSmartCasts' {
       17      74
       18      74
       19      74
+      1a      74
+      1b      74
       1c      74
       1d      74
       1e      74
@@ -428,6 +472,8 @@ class 'pkg/TestSmartCasts' {
       8      79
       9      79
       a      79
+      b      79
+      c      79
       d      79
       11      79
       12      79

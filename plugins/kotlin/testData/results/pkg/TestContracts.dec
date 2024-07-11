@@ -75,6 +75,8 @@ class 'pkg/TestContracts' {
    method 'testSimpleContract (Ljava/lang/Integer;)I' {
       1      10
       2      10
+      3      10
+      4      10
       9      11
       a      11
       b      11
@@ -91,20 +93,32 @@ class 'pkg/TestContracts' {
    method 'testBooleanContract (ZZ)Ljava/lang/Boolean;' {
       1      24
       2      24
+      3      24
+      4      24
       5      24
       6      24
+      7      24
+      8      24
       9      24
       d      24
       e      24
+      f      24
+      10      24
       11      24
       12      24
+      13      24
+      14      24
       1a      24
+      1b      24
+      1c      24
       1d      24
    }
 
    method 'testTypeContract (Ljava/lang/Object;)I' {
       1      32
       5      32
+      6      32
+      7      32
       c      33
       d      33
       e      33
@@ -140,6 +154,8 @@ class 'pkg/TestContracts' {
    method 'testFunctionalContract2 (Lkotlin/jvm/functions/Function0;Z)I' {
       7      52
       8      52
+      9      52
+      a      52
       b      52
       c      52
       d      52

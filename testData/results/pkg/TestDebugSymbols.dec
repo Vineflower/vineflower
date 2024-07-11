@@ -5,7 +5,7 @@ class TestDebugSymbols {
       String text = "text";// 21
       long prolonged = 42L;// 22
       float decimated = (float)prolonged / 10.0F;// 23
-      double doubled = (double)(2.0F * decimated);// 24
+      double doubled = 2.0F * decimated;// 24
       return (text + ":" + prolonged + ":" + decimated + ":" + doubled).length();// 25
    }
 }

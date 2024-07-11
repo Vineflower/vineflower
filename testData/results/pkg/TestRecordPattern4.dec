@@ -60,6 +60,8 @@ class 'pkg/TestRecordPattern4' {
       2      4
       3      4
       4      4
+      5      4
+      6      4
       7      5
       8      5
       9      5
@@ -71,6 +73,8 @@ class 'pkg/TestRecordPattern4' {
       13      5
       14      5
       15      5
+      16      5
+      17      5
       1d      5
       1e      6
       1f      6
@@ -83,6 +87,8 @@ class 'pkg/TestRecordPattern4' {
       2a      6
       2b      6
       2c      6
+      2d      6
+      2e      6
       34      6
       35      7
       36      7
@@ -95,6 +101,8 @@ class 'pkg/TestRecordPattern4' {
       41      7
       42      7
       43      7
+      44      7
+      45      7
       4b      7
       4c      7
       4d      8
@@ -108,6 +116,8 @@ class 'pkg/TestRecordPattern4' {
       59      8
       5a      8
       5b      8
+      5c      8
+      5d      8
       63      8
       64      8
       65      9
@@ -121,6 +131,8 @@ class 'pkg/TestRecordPattern4' {
       71      9
       72      9
       73      9
+      74      9
+      75      9
       7b      9
       7c      9
       7d      10
@@ -134,6 +146,8 @@ class 'pkg/TestRecordPattern4' {
       89      10
       8a      10
       8b      10
+      8c      10
+      8d      10
       93      10
       94      10
       95      11
@@ -147,6 +161,8 @@ class 'pkg/TestRecordPattern4' {
       a1      11
       a2      11
       a3      11
+      a4      11
+      a5      11
       ab      11
       ac      11
       ad      12
@@ -160,6 +176,8 @@ class 'pkg/TestRecordPattern4' {
       b9      12
       ba      12
       bb      12
+      bc      12
+      bd      12
       c3      12
       c4      12
       c5      13
@@ -173,6 +191,8 @@ class 'pkg/TestRecordPattern4' {
       d1      13
       d2      13
       d3      13
+      d4      13
+      d5      13
       db      13
       dc      13
       dd      14
@@ -211,6 +231,8 @@ class 'pkg/TestRecordPattern4' {
       fe      15
       ff      15
       100      15
+      101      15
+      102      15
       103      17
    }
 
@@ -220,6 +242,8 @@ class 'pkg/TestRecordPattern4' {
       2      20
       3      20
       4      20
+      5      20
+      6      20
       7      21
       8      21
       9      21
@@ -240,6 +264,8 @@ class 'pkg/TestRecordPattern4' {
       1f      22
       20      22
       21      22
+      22      22
+      23      22
       29      22
       2a      23
       2b      23
@@ -272,6 +298,8 @@ class 'pkg/TestRecordPattern4' {
       50      25
       51      25
       52      25
+      53      25
+      54      25
       5a      25
       5b      25
       5c      26
@@ -303,6 +331,8 @@ class 'pkg/TestRecordPattern4' {
       82      28
       83      28
       84      28
+      85      28
+      86      28
       8c      28
       8d      28
       8e      29
@@ -320,6 +350,8 @@ class 'pkg/TestRecordPattern4' {
       9a      30
       9b      30
       9c      30
+      9d      30
+      9e      30
       9f      31
       a0      31
       a1      31
@@ -402,6 +434,8 @@ class 'pkg/TestRecordPattern4' {
       10e      38
       10f      38
       110      38
+      111      38
+      112      38
       118      38
       119      38
       11a      39
@@ -416,6 +450,8 @@ class 'pkg/TestRecordPattern4' {
       127      39
       128      39
       129      39
+      12a      39
+      12b      39
       131      39
       132      39
       133      40
@@ -461,6 +497,8 @@ class 'pkg/TestRecordPattern4' {
       161      42
       162      42
       163      42
+      164      42
+      165      42
       166      49
    }
 }

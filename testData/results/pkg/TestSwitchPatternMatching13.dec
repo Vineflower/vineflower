@@ -54,6 +54,38 @@ class 'pkg/TestSwitchPatternMatching13' {
       0      4
       4      4
       b      4
+      c      4
+      d      4
+      e      4
+      f      4
+      10      4
+      11      4
+      12      4
+      13      4
+      14      4
+      15      4
+      16      4
+      17      4
+      18      4
+      19      4
+      1a      4
+      1b      4
+      1c      4
+      1d      4
+      1e      4
+      1f      4
+      20      4
+      21      4
+      22      4
+      23      4
+      24      4
+      25      4
+      26      4
+      27      4
+      28      4
+      29      4
+      2a      4
+      2b      4
       30      10
       31      10
       32      10
@@ -68,12 +100,16 @@ class 'pkg/TestSwitchPatternMatching13' {
       43      11
       44      11
       45      11
+      46      11
+      47      11
       48      12
       49      12
       4a      12
       4b      12
       4c      12
       4d      12
+      4e      12
+      4f      12
       50      15
       51      15
       52      15
@@ -124,6 +160,8 @@ class 'pkg/TestSwitchPatternMatching13' {
       9b      21
       9c      21
       9d      21
+      9e      21
+      9f      21
       a0      23
       a1      23
       a2      23
@@ -147,12 +185,16 @@ class 'pkg/TestSwitchPatternMatching13' {
       be      28
       bf      28
       c0      28
+      c1      28
+      c2      28
       c3      29
       c4      29
       c5      29
       c6      29
       c7      29
       c8      29
+      c9      29
+      ca      29
       cb      32
       cc      32
       cd      32
@@ -168,6 +210,8 @@ class 'pkg/TestSwitchPatternMatching13' {
       d9      6
       da      6
       db      6
+      dc      6
+      dd      6
       de      7
       df      7
       e0      7

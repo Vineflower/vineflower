@@ -23,6 +23,8 @@ class 'pkg/TestLocalVariableMergeSwitch' {
    method 'test (Ljava/lang/String;I)V' {
       0      4
       1      4
+      2      4
+      3      4
       4      5
       5      5
       6      5
@@ -30,6 +32,31 @@ class 'pkg/TestLocalVariableMergeSwitch' {
       8      6
       9      7
       a      7
+      b      7
+      c      7
+      d      7
+      e      7
+      f      7
+      10      7
+      11      7
+      12      7
+      13      7
+      14      7
+      15      7
+      16      7
+      17      7
+      18      7
+      19      7
+      1a      7
+      1b      7
+      1c      7
+      1d      7
+      1e      7
+      1f      7
+      20      7
+      21      7
+      22      7
+      23      7
       24      9
       25      9
       26      9

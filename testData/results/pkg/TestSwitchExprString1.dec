@@ -30,6 +30,8 @@ class 'pkg/TestSwitchExprString1' {
    method 'get (Ljava/lang/String;)Lpkg/TestSwitchExprString1$Type;' {
       0      4
       1      4
+      2      4
+      3      4
       4      5
       5      5
       6      5
@@ -42,6 +44,25 @@ class 'pkg/TestSwitchExprString1' {
       e      8
       f      8
       10      8
+      11      8
+      12      8
+      13      8
+      14      8
+      15      8
+      16      8
+      17      8
+      18      8
+      19      8
+      1a      8
+      1b      8
+      1c      8
+      1d      8
+      1e      8
+      1f      8
+      20      8
+      21      8
+      22      8
+      23      8
       24      10
       25      10
       26      10
@@ -49,14 +70,37 @@ class 'pkg/TestSwitchExprString1' {
       28      10
       29      10
       2a      10
+      2b      10
+      2c      10
       2d      11
       2e      11
       2f      14
       30      14
+      31      14
+      32      14
+      33      14
+      34      14
+      35      14
+      36      14
+      37      14
+      38      14
+      39      14
+      3a      14
+      3b      14
+      3c      14
+      3d      14
+      3e      14
+      3f      14
+      40      14
+      41      14
+      42      14
+      43      14
       44      15
       45      15
       46      15
       4a      16
+      4b      16
+      4c      16
       4d      14
    }
 }

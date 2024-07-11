@@ -55,18 +55,17 @@ public class MetadataNameResolver {
     }
 
     var operation = record.getOperation() == null ? JvmProtoBuf.StringTableTypes.Record.Operation.NONE : record.getOperation();
-    switch (operation) {
-      case INTERNAL_TO_CLASS_ID:
-        string = string.replace('$', '.');
-        break;
-      case DESC_TO_CLASS_ID:
+    string = switch (operation) {
+      case INTERNAL_TO_CLASS_ID -> string.replace('$', '.');
+      case DESC_TO_CLASS_ID -> {
         if (string.length() >= 2) {
           string = string.substring(1, string.length() - 1);
         }
 
-        string = string.replace('$', '.');
-        break;
-    }
+        yield string.replace('$', '.');
+      }
+      default -> string;
+    };
 
     return string;
   }

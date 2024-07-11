@@ -36,6 +36,8 @@ import java.io.IOException;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ClassesProcessor implements CodeConstants {
   public static final int AVERAGE_CLASS_SIZE = 16 * 1024;
@@ -94,8 +96,17 @@ public class ClassesProcessor implements CodeConstants {
     boolean bDecompileInner = DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_INNER);
     boolean verifyAnonymousClasses = DecompilerContext.getOption(IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES);
 
+    Matcher excludedMatcher = null;
+    String excludedRegex = DecompilerContext.getProperty(IFernflowerPreferences.EXCLUDED_CLASSES).toString();
+    if (!excludedRegex.isEmpty()) {
+      excludedMatcher = Pattern.compile(excludedRegex).matcher("");
+    }
+
     // create class nodes
     for (StructClass cl : context.getOwnClasses()) {
+      if (excludedMatcher != null && excludedMatcher.reset(cl.qualifiedName).matches()) {
+        continue;
+      }
       if (!mapRootClasses.containsKey(cl.qualifiedName)) {
         if (bDecompileInner) {
           StructInnerClassesAttribute inner = cl.getAttribute(StructGeneralAttribute.ATTRIBUTE_INNER_CLASSES);
@@ -563,9 +574,8 @@ public class ClassesProcessor implements CodeConstants {
     node.classStruct.releaseResources();
     node.classStruct.getMethods().forEach(m -> m.clearVariableNamer());
 
-    for (ClassNode nd : node.nested) {
-      destroyWrappers(nd);
-    }
+    // Don't destroy inner node wrappers, they may still be needed to process constructor
+    // invocations etc. from other classes.
   }
 
   public Map<String, ClassNode> getMapRootClasses() {

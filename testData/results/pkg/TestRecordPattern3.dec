@@ -27,7 +27,7 @@ public class TestRecordPattern3 {
          double dd = Double.valueOf(var32);
          boolean var33 = $proxy$bool(bundle);
          boolean bool = Boolean.valueOf(var33);
-         System.out.println(a + var21 + var22 + ((double)((long)(i1 + i2 + i3 + i4) + l1 + l2 + (long)c1 + (long)c2 + (long)bb) + dd) + bool);// 11
+         System.out.println(a + var21 + var22 + (i1 + i2 + i3 + i4 + l1 + l2 + c1 + c2 + bb + dd) + bool);// 11
       }
    }// 13
 
@@ -42,6 +42,8 @@ class 'pkg/TestRecordPattern3' {
       2      4
       3      4
       4      4
+      5      4
+      6      4
       7      4
       8      4
       9      4
@@ -50,6 +52,8 @@ class 'pkg/TestRecordPattern3' {
       10      4
       11      4
       12      4
+      13      4
+      14      4
       1a      4
       1b      5
       1c      5
@@ -292,6 +296,8 @@ class 'pkg/TestRecordPattern3' {
       10c      29
       10d      29
       10e      29
+      10f      29
+      110      29
       111      31
    }
 }

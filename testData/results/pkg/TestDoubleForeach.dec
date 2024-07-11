@@ -147,6 +147,8 @@ class 'pkg/TestDoubleForeach' {
       39      31
       3a      31
       3b      31
+      3c      31
+      3d      31
       3e      32
       3f      32
       40      32
@@ -164,6 +166,8 @@ class 'pkg/TestDoubleForeach' {
       4f      35
       50      35
       51      35
+      52      35
+      53      35
       54      36
       55      36
       56      36

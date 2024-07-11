@@ -112,10 +112,10 @@ public class TestPatternMatching17FakeNew {
 
    public void testClash(Object obj) {
       if (obj instanceof String s) {// 112
-         System.out.println(s.length());// 113 115 116 117
+         System.out.println(s.length());// 117
       } else {
-         int s = 0;
-         System.out.println(s);
+         int s = 0;// 113
+         System.out.println(s);// 115
       }
    }// 119
 
@@ -136,6 +136,8 @@ class 'pkg/TestPatternMatching17FakeNew' {
       2      4
       3      4
       4      4
+      5      4
+      6      4
       b      4
       c      5
       d      5
@@ -145,6 +147,8 @@ class 'pkg/TestPatternMatching17FakeNew' {
       11      5
       12      5
       13      5
+      14      5
+      15      5
       16      7
    }
 
@@ -154,6 +158,8 @@ class 'pkg/TestPatternMatching17FakeNew' {
       2      10
       3      10
       4      10
+      5      10
+      6      10
       b      10
       c      11
       d      11
@@ -165,6 +171,8 @@ class 'pkg/TestPatternMatching17FakeNew' {
       13      12
       14      12
       15      12
+      16      12
+      17      12
       18      14
    }
 
@@ -174,11 +182,15 @@ class 'pkg/TestPatternMatching17FakeNew' {
       2      17
       3      17
       4      17
+      5      17
+      6      17
       7      17
       8      17
       9      17
       a      17
       b      17
+      c      17
+      d      17
       e      18
       f      18
       10      18
@@ -189,6 +201,8 @@ class 'pkg/TestPatternMatching17FakeNew' {
       15      19
       16      19
       17      19
+      18      19
+      19      19
       1a      21
    }
 
@@ -198,11 +212,15 @@ class 'pkg/TestPatternMatching17FakeNew' {
       2      24
       3      24
       4      24
+      5      24
+      6      24
       7      24
       8      24
       9      24
       a      24
       b      24
+      c      24
+      d      24
       e      25
       f      25
       10      25
@@ -213,6 +231,8 @@ class 'pkg/TestPatternMatching17FakeNew' {
       15      26
       16      26
       17      26
+      18      26
+      19      26
       1a      29
       1b      29
       1c      29
@@ -230,11 +250,15 @@ class 'pkg/TestPatternMatching17FakeNew' {
       2      33
       3      33
       4      33
+      5      33
+      6      33
       7      33
       8      33
       9      33
       a      33
       b      33
+      c      33
+      d      33
       12      33
       13      34
       14      34
@@ -246,6 +270,8 @@ class 'pkg/TestPatternMatching17FakeNew' {
       1a      35
       1b      35
       1c      35
+      1d      35
+      1e      35
       1f      37
    }
 
@@ -255,6 +281,8 @@ class 'pkg/TestPatternMatching17FakeNew' {
       2      40
       3      40
       4      40
+      5      40
+      6      40
       7      40
       8      40
       9      40
@@ -265,6 +293,8 @@ class 'pkg/TestPatternMatching17FakeNew' {
       15      40
       16      40
       17      40
+      18      40
+      19      40
       1a      41
       1b      41
       1c      41
@@ -275,6 +305,8 @@ class 'pkg/TestPatternMatching17FakeNew' {
       21      42
       22      42
       23      42
+      24      42
+      25      42
       26      44
    }
 
@@ -284,11 +316,15 @@ class 'pkg/TestPatternMatching17FakeNew' {
       2      47
       3      47
       4      47
+      5      47
+      6      47
       7      47
       8      47
       9      47
       a      47
       b      47
+      c      47
+      d      47
       12      47
       13      48
       14      48
@@ -300,6 +336,8 @@ class 'pkg/TestPatternMatching17FakeNew' {
       1a      49
       1b      49
       1c      49
+      1d      49
+      1e      49
       1f      52
       20      52
       21      52
@@ -317,6 +355,8 @@ class 'pkg/TestPatternMatching17FakeNew' {
       2      56
       3      56
       4      56
+      5      56
+      6      56
       7      56
       8      56
       9      56
@@ -327,6 +367,8 @@ class 'pkg/TestPatternMatching17FakeNew' {
       15      56
       16      56
       17      56
+      18      56
+      19      56
       1a      57
       1b      57
       1c      57
@@ -337,6 +379,8 @@ class 'pkg/TestPatternMatching17FakeNew' {
       21      58
       22      58
       23      58
+      24      58
+      25      58
       26      61
       27      61
       28      61
@@ -354,11 +398,15 @@ class 'pkg/TestPatternMatching17FakeNew' {
       2      65
       3      65
       4      65
+      5      65
+      6      65
       7      65
       8      65
       9      65
       a      65
       b      65
+      c      65
+      d      65
       e      66
       f      66
       10      66
@@ -369,6 +417,8 @@ class 'pkg/TestPatternMatching17FakeNew' {
       15      67
       16      67
       17      67
+      18      67
+      19      67
       1a      69
    }
 
@@ -378,11 +428,15 @@ class 'pkg/TestPatternMatching17FakeNew' {
       2      72
       3      72
       4      72
+      5      72
+      6      72
       7      72
       8      72
       9      72
       a      72
       b      72
+      c      72
+      d      72
       e      73
       f      73
       10      73
@@ -393,6 +447,8 @@ class 'pkg/TestPatternMatching17FakeNew' {
       15      74
       16      74
       17      74
+      18      74
+      19      74
       1a      77
       1b      77
       1c      77
@@ -410,12 +466,16 @@ class 'pkg/TestPatternMatching17FakeNew' {
       2      81
       3      81
       4      81
+      5      81
+      6      81
       b      81
       f      81
       10      81
       11      81
       12      81
       13      81
+      14      81
+      15      81
       16      82
       17      82
       18      82
@@ -426,6 +486,8 @@ class 'pkg/TestPatternMatching17FakeNew' {
       1d      83
       1e      83
       1f      83
+      20      83
+      21      83
       22      85
    }
 
@@ -435,17 +497,23 @@ class 'pkg/TestPatternMatching17FakeNew' {
       2      88
       3      88
       4      88
+      5      88
+      6      88
       b      88
       c      88
       d      88
       e      88
       f      88
       10      88
+      11      88
+      12      88
       13      88
       14      88
       15      88
       16      88
       17      88
+      18      88
+      19      88
       1a      89
       1b      89
       1c      89
@@ -456,6 +524,8 @@ class 'pkg/TestPatternMatching17FakeNew' {
       21      90
       22      90
       23      90
+      24      90
+      25      90
       26      92
    }
 
@@ -465,12 +535,16 @@ class 'pkg/TestPatternMatching17FakeNew' {
       2      95
       3      95
       4      95
+      5      95
+      6      95
       b      95
       f      95
       10      95
       11      95
       12      95
       13      95
+      14      95
+      15      95
       16      96
       17      96
       18      96
@@ -481,6 +555,8 @@ class 'pkg/TestPatternMatching17FakeNew' {
       1d      97
       1e      97
       1f      97
+      20      97
+      21      97
       22      100
       23      100
       24      100
@@ -498,17 +574,23 @@ class 'pkg/TestPatternMatching17FakeNew' {
       2      104
       3      104
       4      104
+      5      104
+      6      104
       b      104
       c      104
       d      104
       e      104
       f      104
       10      104
+      11      104
+      12      104
       13      104
       14      104
       15      104
       16      104
       17      104
+      18      104
+      19      104
       1a      105
       1b      105
       1c      105
@@ -519,6 +601,8 @@ class 'pkg/TestPatternMatching17FakeNew' {
       21      106
       22      106
       23      106
+      24      106
+      25      106
       26      109
       27      109
       28      109
@@ -536,25 +620,22 @@ class 'pkg/TestPatternMatching17FakeNew' {
       2      113
       3      113
       4      113
+      5      113
+      6      113
       b      113
       c      114
       d      114
       e      114
-      f      114
-      10      114
-      11      114
-      12      114
-      13      114
-      14      114
-      15      114
-      16      114
-      17      114
-      18      114
-      19      114
-      1a      114
+      f      116
+      10      116
+      11      117
+      12      117
+      13      117
+      14      117
+      15      117
+      16      117
+      17      117
       1b      114
-      1c      114
-      1d      114
       1e      114
       1f      114
       20      114
@@ -571,6 +652,8 @@ class 'pkg/TestPatternMatching17FakeNew' {
       5      123
       6      123
       7      123
+      8      123
+      9      123
       a      124
       b      124
       c      124
@@ -651,9 +734,8 @@ Lines mapping:
 107 <-> 110
 108 <-> 111
 112 <-> 114
-113 <-> 115
-115 <-> 115
-116 <-> 115
+113 <-> 117
+115 <-> 118
 117 <-> 115
 119 <-> 120
 122 <-> 123
@@ -661,3 +743,5 @@ Lines mapping:
 124 <-> 125
 127 <-> 128
 128 <-> 129
+Not mapped:
+116

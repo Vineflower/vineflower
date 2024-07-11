@@ -387,6 +387,11 @@ public interface IFernflowerPreferences {
   @ShortName("mcs")
   String MARK_CORRESPONDING_SYNTHETICS = "mark-corresponding-synthetics";
 
+  @Name("Excluded Classes")
+  @Description("Exclude classes from decompilation if their fully qualified names match the specified regular expression.")
+  @Type(Type.STRING)
+  String EXCLUDED_CLASSES = "excluded-classes";
+
   Map<String, Object> DEFAULTS = getDefaults();
 
   static Map<String, Object> getDefaults() {
@@ -458,6 +463,7 @@ public interface IFernflowerPreferences {
     defaults.put(DUMP_TEXT_TOKENS, "0");
     defaults.put(REMOVE_IMPORTS, "0");
     defaults.put(MARK_CORRESPONDING_SYNTHETICS, "0");
+    defaults.put(EXCLUDED_CLASSES, "");
 
     return Collections.unmodifiableMap(defaults);
   }
@@ -481,7 +487,7 @@ public interface IFernflowerPreferences {
   public @interface Description {
     String value();
   }
-  
+
   @Retention(RetentionPolicy.RUNTIME)
   @Target(ElementType.FIELD)
   public @interface DynamicDefaultValue {
@@ -510,7 +516,7 @@ public interface IFernflowerPreferences {
   @Target(ElementType.FIELD)
   public @interface Type {
     String value();
-    
+
     String BOOLEAN = "bool";
     String INTEGER = "int";
     String STRING = "string";

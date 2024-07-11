@@ -71,6 +71,8 @@ class 'pkg/TestTryWithResourcesNestedLoop' {
       27      16
       28      16
       29      16
+      2a      16
+      2b      16
       2c      16
       2d      16
       2e      16
@@ -79,6 +81,8 @@ class 'pkg/TestTryWithResourcesNestedLoop' {
       31      16
       32      16
       33      16
+      34      16
+      35      16
       3a      17
       3d      17
       3e      17
@@ -107,6 +111,8 @@ class 'pkg/TestTryWithResourcesNestedLoop' {
       58      20
       59      20
       5a      20
+      5b      20
+      5c      20
       5d      21
       5e      21
       5f      21
@@ -121,6 +127,8 @@ class 'pkg/TestTryWithResourcesNestedLoop' {
       68      21
       69      21
       6a      21
+      6b      21
+      6c      21
       6d      22
       6e      22
       6f      22

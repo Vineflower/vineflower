@@ -17,7 +17,7 @@ public final class TestKotlinConstructorKt {
    private static final List<Mapping> foo(Collection<String> list) {
       Iterable $this$map$iv = list;
       int $i$f$map = 0;
-      Collection destination$iv$iv = new ArrayList(CollectionsKt.collectionSizeOrDefault($this$map$iv, 10));
+      var destination$iv$iv = new ArrayList(CollectionsKt.collectionSizeOrDefault($this$map$iv, 10));
       int $i$f$mapTo = 0;
 
       for (Object item$iv$iv : $this$map$iv) {// 12 13
@@ -92,6 +92,8 @@ class 'pkg/TestKotlinConstructorKt' {
       4b      26
       4c      26
       4e      26
+      4f      26
+      50      26
       56      27
       57      27
       5b      27
@@ -107,9 +109,6 @@ class 'pkg/TestKotlinConstructorKt' {
       66      31
       6b      34
       6c      34
-      6d      34
-      6e      34
-      6f      34
       71      34
       72      34
       73      34

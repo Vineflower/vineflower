@@ -52,6 +52,8 @@ class 'pkg/TestTryWithResourcesFake' {
       7      15
       8      15
       9      15
+      a      15
+      b      15
       c      16
       d      16
       e      16
@@ -61,6 +63,8 @@ class 'pkg/TestTryWithResourcesFake' {
       15      18
       16      18
       17      18
+      18      18
+      19      18
       1a      22
       1b      22
       1c      22
@@ -76,10 +80,14 @@ class 'pkg/TestTryWithResourcesFake' {
       30      26
       36      29
       37      29
+      38      29
+      39      29
       3d      30
       3e      31
       3f      31
       40      31
+      41      31
+      42      31
       43      34
       44      34
       4b      37

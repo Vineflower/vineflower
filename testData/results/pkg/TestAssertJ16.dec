@@ -10,6 +10,8 @@ class 'pkg/TestAssertJ16' {
    method 'test (I)V' {
       6      4
       7      4
+      8      4
+      9      4
       12      5
    }
 }

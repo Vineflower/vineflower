@@ -19,10 +19,14 @@ class 'pkg/TestTernaryCall' {
       2      4
       3      4
       4      4
+      5      4
+      6      4
       7      4
       e      4
       12      4
       13      4
+      14      4
+      15      4
       16      4
       1d      4
       26      4
@@ -34,15 +38,23 @@ class 'pkg/TestTernaryCall' {
    method 'test2 (ZZZ)V' {
       0      8
       1      8
+      2      8
+      3      8
       4      8
       5      8
+      6      8
+      7      8
       b      8
       c      8
+      d      8
+      e      8
       f      9
       10      9
       11      9
       12      9
       13      9
+      14      9
+      15      9
       16      11
    }
 }

@@ -41,12 +41,16 @@ class 'pkg/TestFinallyBlockVariableUse' {
       3      4
       4      4
       5      4
+      6      4
+      7      4
       8      8
       9      8
       a      8
       b      8
       c      8
       d      8
+      e      8
+      f      8
       10      11
       11      11
       12      11
@@ -74,6 +78,8 @@ class 'pkg/TestFinallyBlockVariableUse' {
       57      19
       58      19
       59      19
+      5a      19
+      5b      19
       5c      20
       63      20
       64      20
@@ -90,6 +96,8 @@ class 'pkg/TestFinallyBlockVariableUse' {
       78      20
       79      20
       7b      20
+      7c      20
+      7d      20
    }
 
    method 'condition (I)Z' {
@@ -97,6 +105,8 @@ class 'pkg/TestFinallyBlockVariableUse' {
       2      28
       3      28
       4      28
+      5      28
+      6      28
       c      28
    }
 

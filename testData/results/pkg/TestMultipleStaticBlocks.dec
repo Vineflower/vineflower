@@ -4,12 +4,12 @@ public class TestMultipleStaticBlocks {
    private static int i;
 
    static {
-      byte value = (byte)((int)(Math.random() * 8.0));// 7
+      byte value = (byte)(Math.random() * 8.0);// 7
       if (value > 4) {// 8
          i = 1;// 9
       }
 
-      value = (byte)((short)((int)(Math.random() * 8.0)));// 14
+      value = (byte)((short)(Math.random() * 8.0));// 14
       if (value > 4) {// 15
          i = 2;// 16
       }
@@ -31,8 +31,12 @@ class 'pkg/TestMultipleStaticBlocks' {
       a      7
       b      7
       c      7
+      d      7
+      e      7
       f      8
       10      8
+      11      8
+      12      8
       13      11
       14      11
       15      11
@@ -46,8 +50,12 @@ class 'pkg/TestMultipleStaticBlocks' {
       1d      12
       1e      12
       1f      12
+      20      12
+      21      12
       22      13
       23      13
+      24      13
+      25      13
       26      15
    }
 }

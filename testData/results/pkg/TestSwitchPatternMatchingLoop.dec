@@ -1,12 +1,9 @@
 package pkg;
 
-import java.util.Objects;
-
 public class TestSwitchPatternMatchingLoop {
    public void test(Object o) {
       while (true) {
-         Objects.requireNonNull(o);// 6
-         switch (o) {
+         switch (o) {// 6
             case Integer i:// 7
                System.out.println(i);
                break;
@@ -22,45 +19,71 @@ public class TestSwitchPatternMatchingLoop {
 
 class 'pkg/TestSwitchPatternMatchingLoop' {
    method 'test (Ljava/lang/Object;)V' {
-      0      7
-      2      7
-      3      7
-      4      7
-      9      8
-      10      8
-      30      9
-      31      9
-      32      10
-      33      10
-      34      10
-      35      10
-      36      10
-      37      10
-      38      10
-      39      10
-      3a      11
-      41      12
-      42      12
-      43      13
-      44      13
-      45      13
-      46      13
-      47      13
-      48      13
-      49      13
-      4a      13
-      4b      14
-      4e      16
-      4f      16
-      50      16
-      51      16
-      52      16
-      53      16
+      0      5
+      9      5
+      10      5
+      11      5
+      12      5
+      13      5
+      14      5
+      15      5
+      16      5
+      17      5
+      18      5
+      19      5
+      1a      5
+      1b      5
+      1c      5
+      1d      5
+      1e      5
+      1f      5
+      20      5
+      21      5
+      22      5
+      23      5
+      24      5
+      25      5
+      26      5
+      27      5
+      28      5
+      29      5
+      2a      5
+      2b      5
+      30      6
+      31      6
+      32      7
+      33      7
+      34      7
+      35      7
+      36      7
+      37      7
+      38      7
+      39      7
+      3a      8
+      41      9
+      42      9
+      43      10
+      44      10
+      45      10
+      46      10
+      47      10
+      48      10
+      49      10
+      4a      10
+      4b      11
+      4e      13
+      4f      13
+      50      13
+      51      13
+      52      13
+      53      13
+      54      13
+      55      13
    }
 }
 
 Lines mapping:
-6 <-> 8
-7 <-> 10
-8 <-> 13
-9 <-> 17
+6 <-> 6
+7 <-> 7
+8 <-> 10
+9 <-> 14

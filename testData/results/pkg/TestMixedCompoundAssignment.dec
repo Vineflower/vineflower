@@ -2,53 +2,53 @@ package pkg;
 
 public class TestMixedCompoundAssignment {
    public int testSimpleIntFloat(int i, float j) {
-      i = (int)((float)i + j);// 5
-      i = (int)((float)i - j);// 6
-      i = (int)((float)i * j);// 7
-      return (int)((float)i / j);// 8 10
+      i = (int)(i + j);// 5
+      i = (int)(i - j);// 6
+      i = (int)(i * j);// 7
+      return (int)(i / j);// 8 10
    }
 
    public int testSimpleIntLong(int i, long j) {
-      i = (int)((long)i + j);// 14
-      i = (int)((long)i - j);// 15
-      i = (int)((long)i * j);// 16
-      i = (int)((long)i / j);// 17
-      i = (int)((long)i & j);// 18
-      i = (int)((long)i | j);// 19
-      i = (int)((long)i ^ j);// 20
+      i = (int)(i + j);// 14
+      i = (int)(i - j);// 15
+      i = (int)(i * j);// 16
+      i = (int)(i / j);// 17
+      i = (int)(i & j);// 18
+      i = (int)(i | j);// 19
+      i = (int)(i ^ j);// 20
       i >>= (int)j;// 21
       i <<= (int)j;// 22
       return i >>> (int)j;// 23 25
    }
 
    public double testSimpleDoubleLong(double i, long j) {
-      i += (double)j;// 29
-      i -= (double)j;// 30
-      i *= (double)j;// 31
-      return i / (double)j;// 32 34
+      i += j;// 29
+      i -= j;// 30
+      i *= j;// 31
+      return i / j;// 32 34
    }
 
    public int testNestedIntLongDouble(int i, long j, double k) {
       long var9;
-      i = (int)((long)i + (var9 = (long)((double)j + k)));// 38
-      i = (int)((long)i - (j = (long)((double)var9 - k)));// 39
+      i = (int)(i + (var9 = (long)(j + k)));// 38
+      i = (int)(i - (j = (long)(var9 - k)));// 39
       long var11;
-      i = (int)((long)i * (var11 = (long)((double)j * k)));// 40
-      return (int)((long)i / (long)((double)var11 / k));// 41 44
+      i = (int)(i * (var11 = (long)(j * k)));// 40
+      return (int)(i / (long)(var11 / k));// 41 44
    }
 
    public long testNestedLongIntLong(long i, int j, long k) {
       int var15;
-      i += (long)(var15 = (int)((long)j + k));// 48
-      i -= (long)(j = (int)((long)var15 - k));// 49
+      i += var15 = (int)(j + k);// 48
+      i -= j = (int)(var15 - k);// 49
       int var17;
-      i *= (long)(var17 = (int)((long)j * k));// 50
-      i /= (long)(j = (int)((long)var17 / k));// 51
+      i *= var17 = (int)(j * k);// 50
+      i /= j = (int)(var17 / k);// 51
       int var19;
-      i &= (long)(var19 = (int)((long)j & k));// 52
-      i |= (long)(j = (int)((long)var19 | k));// 53
+      i &= var19 = (int)(j & k);// 52
+      i |= j = (int)(var19 | k);// 53
       int var21;
-      i ^= (long)(var21 = (int)((long)j ^ k));// 54
+      i ^= var21 = (int)(j ^ k);// 54
       i >>= j = var21 >> (int)k;// 55
       int var23;
       i <<= var23 = j << (int)k;// 56
@@ -57,25 +57,25 @@ public class TestMixedCompoundAssignment {
 
    public void testArrayIntDouble(int[] holder, int i, double inc) {
       for (int j = 0; j < i; j++) {// 64
-         holder[j] = (int)((double)holder[j] + inc);// 65
+         holder[j] = (int)(holder[j] + inc);// 65
       }
    }// 67
 
    public void testArrayIntLong(int[] holder, int i, long inc) {
       for (int j = 0; j < i; j++) {// 70
-         holder[j] = (int)((long)holder[j] + inc);// 71
+         holder[j] = (int)(holder[j] + inc);// 71
       }
    }// 73
 
    public void testArrayDoubleInt(double[] holder, int i, int inc) {
       for (int j = 0; j < i; j++) {// 76
-         holder[j] += (double)inc;// 77
+         holder[j] += inc;// 77
       }
    }// 79
 
    public void testNestedArrayByteFloatLongDouble(byte[] outer, float[] holder, long[] inner, int i, double inc) {
       for (int j = 0; j < i; j++) {// 82
-         outer[i + ~j] = (byte)((int)((float)outer[i + ~j] + (holder[j] -= (float)(inner[j * 3 % i] = (long)((double)inner[j * 3 % i] + inc)))));// 83
+         outer[i + ~j] = (byte)(outer[i + ~j] + (holder[j] -= (float)(inner[j * 3 % i] = (long)(inner[j * 3 % i] + inc))));// 83
       }
    }// 85
 }
@@ -328,6 +328,8 @@ class 'pkg/TestMixedCompoundAssignment' {
       4      58
       5      58
       6      58
+      7      58
+      8      58
       9      59
       a      59
       b      59
@@ -351,6 +353,8 @@ class 'pkg/TestMixedCompoundAssignment' {
       4      64
       5      64
       6      64
+      7      64
+      8      64
       9      65
       a      65
       b      65
@@ -374,6 +378,8 @@ class 'pkg/TestMixedCompoundAssignment' {
       4      70
       5      70
       6      70
+      7      70
+      8      70
       9      71
       a      71
       b      71
@@ -395,6 +401,8 @@ class 'pkg/TestMixedCompoundAssignment' {
       5      76
       6      76
       7      76
+      8      76
+      9      76
       a      77
       b      77
       c      77
