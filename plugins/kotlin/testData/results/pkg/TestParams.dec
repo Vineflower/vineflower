@@ -18,7 +18,7 @@ class TestParams {
    }
 
    public fun printMessageWithPrefix(message: String, prefix: String = "Info") {
-      System.out.println("[" + prefix + "] " + message);// 19
+      System.out.println("[$prefix] $message");// 19
    }// 20
 
    @JvmStatic

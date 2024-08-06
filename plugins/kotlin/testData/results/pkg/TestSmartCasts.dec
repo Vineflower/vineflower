@@ -6,21 +6,21 @@ class TestSmartCasts {
          return o as java.lang.String;// 21
       } else {
          if (o is TestSmartCasts.A.B) {// 24
-            System.out.println("B: " + o);
+            System.out.println("B: $o");
          } else {
             if (o !is TestSmartCasts.A.C) {// 25
                if (o is Pair) {// 26
-                  return "<" + this.testWhen((o as Pair).getFirst()) + ", " + this.testWhen((o as Pair).getSecond()) + ">";
+                  return "<${this.testWhen((o as Pair).getFirst())}, ${this.testWhen((o as Pair).getSecond())}>";
                }
 
                if (o == null) {// 27
                   return "null";
                }
 
-               return "else: " + o;// 28
+               return "else: $o";// 28
             }
 
-            System.out.println("C: " + o);
+            System.out.println("C: $o");
          }
 
          return (o as TestSmartCasts.A).test();// 31
@@ -28,7 +28,7 @@ class TestSmartCasts {
    }
 
    public fun testIf(a: Any?): String {
-      return if (a !is TestSmartCasts.A.B && a !is TestSmartCasts.A.C) "else: " + a else (a as TestSmartCasts.A).test();// 35 36 39
+      return if (a !is TestSmartCasts.A.B && a !is TestSmartCasts.A.C) "else: $a" else (a as TestSmartCasts.A).test();// 35 36 39
    }
 
    public fun testIf2(a: Any?): String {
@@ -49,7 +49,7 @@ class TestSmartCasts {
          }
       }
 
-      return "else: " + a;// 60
+      return "else: $a";// 60
    }
 
    public fun testCast(a: Any?) {

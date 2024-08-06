@@ -60,7 +60,7 @@ class TestTryCatchExpressions {
          var4 = var10002;
       }
 
-      var10000.test0(var13 + var4);// 18
+      var10000.test0("$var13$var4");// 18
    }// 30
 
    public fun test2(a: String, b: String) {
@@ -108,7 +108,7 @@ class TestTryCatchExpressions {
             var10003 = "";
          }
 
-         var4 = var15 + "!!" + var10003;// 56
+         var4 = "$var15!!$var10003";// 56
       }
 
       var10000.test1(var10001, var4);// 34

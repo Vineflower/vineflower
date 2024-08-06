@@ -61,15 +61,7 @@ data class TestDataClass(dataClassVal: Regex, variableWithVeryLongName: Int, req
    }
 
    public open fun toString(): String {
-      return "TestDataClass(dataClassVal="
-         + this.dataClassVal
-         + ", variableWithVeryLongName="
-         + this.variableWithVeryLongName
-         + ", requestLineWrapsIfTheParamListIsTooLong="
-         + this.requestLineWrapsIfTheParamListIsTooLong
-         + ", nullability="
-         + this.nullability
-         + ")";
+      return "TestDataClass(dataClassVal=${this.dataClassVal}, variableWithVeryLongName=${this.variableWithVeryLongName}, requestLineWrapsIfTheParamListIsTooLong=${this.requestLineWrapsIfTheParamListIsTooLong}, nullability=${this.nullability})";
    }
 
    public open fun hashCode(): Int {
@@ -246,22 +238,22 @@ class 'pkg/TestDataClass' {
    }
 
    method 'toString ()Ljava/lang/String;' {
-      0      64
-      1      64
-      2      64
-      3      64
-      4      66
-      5      66
-      6      66
-      7      66
-      8      68
-      9      68
-      a      68
-      b      68
-      c      70
-      d      70
-      e      70
-      f      70
+      0      63
+      1      63
+      2      63
+      3      63
+      4      63
+      5      63
+      6      63
+      7      63
+      8      63
+      9      63
+      a      63
+      b      63
+      c      63
+      d      63
+      e      63
+      f      63
       10      63
       11      63
       12      63
@@ -271,129 +263,129 @@ class 'pkg/TestDataClass' {
    }
 
    method 'hashCode ()I' {
+      0      68
+      1      68
+      2      68
+      3      68
+      4      68
+      5      68
+      6      68
+      8      68
+      9      68
+      a      68
+      b      68
+      c      68
+      d      68
+      e      68
+      f      68
+      10      68
+      11      68
+      12      68
+      13      68
+      15      68
+      16      68
+      17      68
+      18      68
+      19      69
+      1a      69
+      1b      69
+      1c      69
+      1d      69
+      1e      69
+      1f      69
+      20      68
+      22      68
+      23      71
+      24      71
+      25      67
+      26      72
+      27      72
+      28      72
+      29      72
+      2a      72
+      2b      72
+      2c      72
+      2d      72
+      31      72
+      32      72
+      33      72
+      34      72
+      35      72
+      36      72
+      37      72
+      38      67
+      3b      67
+   }
+
+   method 'equals (Ljava/lang/Object;)Z' {
       0      76
       1      76
       2      76
       3      76
       4      76
-      5      76
-      6      76
-      8      76
-      9      76
-      a      76
-      b      76
-      c      76
-      d      76
-      e      76
-      f      76
-      10      76
-      11      76
-      12      76
-      13      76
-      15      76
-      16      76
-      17      76
-      18      76
-      19      77
-      1a      77
-      1b      77
-      1c      77
-      1d      77
-      1e      77
-      1f      77
-      20      76
-      22      76
-      23      79
-      24      79
-      25      75
-      26      80
-      27      80
-      28      80
-      29      80
-      2a      80
-      2b      80
-      2c      80
-      2d      80
-      31      80
-      32      80
-      33      80
-      34      80
-      35      80
-      36      80
-      37      80
-      38      75
-      3b      75
-   }
-
-   method 'equals (Ljava/lang/Object;)Z' {
-      0      84
-      1      84
-      2      84
-      3      84
-      4      84
-      5      85
-      6      85
-      7      86
-      b      86
-      c      86
-      d      86
-      e      87
-      f      87
-      10      89
-      11      89
-      12      89
-      13      89
-      14      89
-      15      90
-      16      90
-      17      90
-      18      90
-      19      90
-      1a      90
-      1b      90
-      1c      90
-      20      90
-      21      90
-      22      90
-      23      91
-      24      91
-      25      92
-      26      92
-      27      92
-      28      92
-      29      92
-      2a      92
-      2b      92
-      2c      92
-      2d      92
-      2e      92
-      2f      92
-      30      93
-      31      93
-      32      94
-      33      94
-      34      94
-      35      94
-      36      94
-      37      94
-      38      94
-      39      94
-      3d      94
-      3e      94
-      3f      94
-      40      95
-      41      95
-      42      97
-      43      97
-      44      97
-      45      97
-      46      97
-      47      97
-      48      97
-      49      97
-      4d      97
-      4e      97
-      4f      97
+      5      77
+      6      77
+      7      78
+      b      78
+      c      78
+      d      78
+      e      79
+      f      79
+      10      81
+      11      81
+      12      81
+      13      81
+      14      81
+      15      82
+      16      82
+      17      82
+      18      82
+      19      82
+      1a      82
+      1b      82
+      1c      82
+      20      82
+      21      82
+      22      82
+      23      83
+      24      83
+      25      84
+      26      84
+      27      84
+      28      84
+      29      84
+      2a      84
+      2b      84
+      2c      84
+      2d      84
+      2e      84
+      2f      84
+      30      85
+      31      85
+      32      86
+      33      86
+      34      86
+      35      86
+      36      86
+      37      86
+      38      86
+      39      86
+      3d      86
+      3e      86
+      3f      86
+      40      87
+      41      87
+      42      89
+      43      89
+      44      89
+      45      89
+      46      89
+      47      89
+      48      89
+      49      89
+      4d      89
+      4e      89
+      4f      89
    }
 }
 
