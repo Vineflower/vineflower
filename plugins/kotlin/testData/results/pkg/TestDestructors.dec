@@ -6,21 +6,21 @@ import kotlin.jvm.internal.SourceDebugExtension
 @SourceDebugExtension(["SMAP\nTestDestructors.kt\nKotlin\n*S Kotlin\n*F\n+ 1 TestDestructors.kt\npkg/TestDestructors\n*L\n1#1,71:1\n68#1,3:72\n68#1,3:75\n*S KotlinDebug\n*F\n+ 1 TestDestructors.kt\npkg/TestDestructors\n*L\n49#1:72,3\n54#1:75,3\n*E\n"])
 class TestDestructors {
    public fun destructDataClasses(x: Pair<String, Int?>, y: Triple<Number, Boolean?, String>) {
-      System.out.println(x.component1() as java.lang.String + " " + x.component2() as Integer);// 8 9
-      System.out.println(y.component1() as java.lang.Number + " " + y.component2() as java.lang.Boolean + " " + y.component3() as java.lang.String);// 11 12
+      System.out.println("${x.component1() as java.lang.String} ${x.component2() as Integer}");// 8 9
+      System.out.println("${y.component1() as java.lang.Number} ${y.component2() as java.lang.Boolean} ${y.component3() as java.lang.String}");// 11 12
    }// 13
 
    public fun destructDataClassesSpecial(x: Pair<Int, String>, y: Triple<List<Int>, Nothing?, Unit>) {
-      System.out.println((x.component1() as java.lang.Number).intValue() + " " + x.component2() as java.lang.String);// 19 20
+      System.out.println("${(x.component1() as java.lang.Number).intValue()} ${x.component2() as java.lang.String}");// 19 20
       var c: java.util.List = y.component1() as java.util.List;// 22
       var d: Void = y.component2() as Void;
       y.component3();
-      System.out.println(c + " " + d + " " + Unit.INSTANCE);// 23
+      System.out.println("$c $d ${Unit.INSTANCE}");// 23
    }// 24
 
    public fun destructDataClassesSkip(x: Triple<String, Int?, String>, y: Triple<Number, Boolean?, String>) {
       System.out.println(x.component2() as Integer);// 30 31
-      System.out.println(y.component1() as java.lang.Number + " " + y.component3() as java.lang.String);// 33 34
+      System.out.println("${y.component1() as java.lang.Number} ${y.component3() as java.lang.String}");// 33 34
    }// 35
 
    public fun destructorImpossible(x: Pair<String, Nothing>): String {
@@ -30,16 +30,15 @@ class TestDestructors {
    }
 
    public fun destructExtensionFunction(x: Int) {
-      System.out.println("" + this.component1(x) + this.component2(x) + this.component3(x));// 44 45
+      System.out.println("${this.component1(x)}${this.component2(x)}${this.component3(x)}");// 44 45
    }// 46
 
    public fun destructInlineLambdaNoInline(x: () -> Int) {
       System.out
          .println(
-            ""
-               + this.component1((x.invoke() as java.lang.Number).intValue())// 49 50 72
-               + this.component2((x.invoke() as java.lang.Number).intValue())// 73
-               + this.component3((x.invoke() as java.lang.Number).intValue())// 74
+            "${this.component1((x.invoke() as java.lang.Number).intValue())}${this.component2((x.invoke() as java.lang.Number).intValue())}${this.component3(// 49 50 72 73 74
+               (x.invoke() as java.lang.Number).intValue()
+            )}"
          );
    }// 51
 
@@ -47,10 +46,9 @@ class TestDestructors {
       var var2: Function0 = TestDestructors::destructLambdaInline$lambda$0;
       System.out
          .println(
-            ""
-               + this.component1((var2.invoke() as java.lang.Number).intValue())// 55 75
-               + this.component2((var2.invoke() as java.lang.Number).intValue())// 76
-               + this.component3((var2.invoke() as java.lang.Number).intValue())// 77
+            "${this.component1((var2.invoke() as java.lang.Number).intValue())}${this.component2((var2.invoke() as java.lang.Number).intValue())}${this.component3(// 55 75 76 77
+               (var2.invoke() as java.lang.Number).intValue()
+            )}"
          );
    }// 56
 
@@ -330,69 +328,69 @@ class 'pkg/TestDestructors' {
    }
 
    method 'destructInlineLambdaNoInline (Lkotlin/jvm/functions/Function0;)V' {
-      6      39
-      8      39
-      e      39
-      f      39
-      10      39
-      11      39
-      12      39
-      13      39
-      14      39
-      15      39
-      16      39
-      17      39
-      18      39
-      19      39
-      1a      39
-      1b      39
-      1c      39
-      1d      39
-      1e      39
-      20      40
-      23      40
-      29      40
-      2a      40
-      2b      40
-      2c      40
-      2d      40
-      2e      40
-      2f      40
-      30      40
-      31      40
-      32      40
-      33      40
-      34      40
-      35      40
-      36      40
-      37      40
-      38      40
-      39      40
-      3a      40
-      3c      41
-      3f      41
-      45      41
-      46      41
-      47      41
-      48      41
-      49      41
-      4a      41
-      4b      41
-      4c      41
-      4d      41
-      4e      41
-      4f      41
-      50      41
-      51      41
-      52      41
-      53      41
-      54      41
-      55      41
-      56      41
-      59      39
-      5a      40
-      5b      41
-      5c      41
+      6      38
+      8      38
+      e      38
+      f      38
+      10      38
+      11      38
+      12      38
+      13      38
+      14      38
+      15      38
+      16      38
+      17      38
+      18      38
+      19      38
+      1a      38
+      1b      38
+      1c      38
+      1d      38
+      1e      38
+      20      38
+      23      38
+      29      38
+      2a      38
+      2b      38
+      2c      38
+      2d      38
+      2e      38
+      2f      38
+      30      38
+      31      38
+      32      38
+      33      38
+      34      38
+      35      38
+      36      38
+      37      38
+      38      38
+      39      38
+      3a      38
+      3c      38
+      3f      39
+      45      38
+      46      38
+      47      39
+      48      39
+      49      39
+      4a      39
+      4b      39
+      4c      39
+      4d      39
+      4e      39
+      4f      39
+      50      39
+      51      39
+      52      39
+      53      39
+      54      38
+      55      38
+      56      38
+      59      38
+      5a      38
+      5b      38
+      5c      38
       5d      38
       5e      38
       5f      38
@@ -404,198 +402,198 @@ class 'pkg/TestDestructors' {
       66      37
       67      37
       68      37
-      69      43
+      69      42
    }
 
    method 'destructLambdaInline (I)V' {
-      6      46
-      7      50
-      a      50
-      10      50
-      11      50
-      12      50
-      13      50
-      14      50
-      15      50
-      16      50
-      17      50
-      18      50
-      19      50
-      1a      50
-      1b      50
-      1c      50
-      1d      50
-      1e      50
-      1f      50
-      20      50
-      21      50
-      23      51
-      26      51
-      2c      51
-      2d      51
-      2e      51
-      2f      51
-      30      51
-      31      51
-      32      51
-      33      51
-      34      51
-      35      51
-      36      51
-      37      51
-      38      51
-      39      51
-      3a      51
-      3b      51
-      3c      51
-      3d      51
-      40      52
-      43      52
-      49      52
-      4a      52
-      4b      52
-      4c      52
-      4d      52
-      4e      52
-      4f      52
-      50      52
-      51      52
-      52      52
-      53      52
-      54      52
-      55      52
-      56      52
-      57      52
-      58      52
-      59      52
-      5a      52
-      5d      50
-      5e      51
-      5f      51
-      60      52
-      61      52
-      62      49
-      63      49
-      64      49
-      65      49
-      66      49
-      67      47
-      68      47
-      69      47
-      6b      48
-      6c      48
-      6d      48
-      6e      54
+      6      45
+      7      48
+      a      48
+      10      48
+      11      48
+      12      48
+      13      48
+      14      48
+      15      48
+      16      48
+      17      48
+      18      48
+      19      48
+      1a      48
+      1b      48
+      1c      48
+      1d      48
+      1e      48
+      1f      48
+      20      48
+      21      48
+      23      48
+      26      48
+      2c      48
+      2d      48
+      2e      48
+      2f      48
+      30      48
+      31      48
+      32      48
+      33      48
+      34      48
+      35      48
+      36      48
+      37      48
+      38      48
+      39      48
+      3a      48
+      3b      48
+      3c      48
+      3d      48
+      40      48
+      43      49
+      49      48
+      4a      48
+      4b      49
+      4c      49
+      4d      49
+      4e      49
+      4f      49
+      50      49
+      51      49
+      52      49
+      53      49
+      54      49
+      55      49
+      56      49
+      57      49
+      58      48
+      59      48
+      5a      48
+      5d      48
+      5e      48
+      5f      48
+      60      48
+      61      48
+      62      48
+      63      48
+      64      48
+      65      48
+      66      48
+      67      46
+      68      46
+      69      46
+      6b      47
+      6c      47
+      6d      47
+      6e      52
    }
 
    method 'component1 (I)I' {
-      0      57
-      1      57
-      2      57
-      3      57
-      4      57
-      5      57
-      6      57
-      7      57
-      8      57
-      9      57
-      a      57
-      b      57
+      0      55
+      1      55
+      2      55
+      3      55
+      4      55
+      5      55
+      6      55
+      7      55
+      8      55
+      9      55
+      a      55
+      b      55
    }
 
    method 'component2 (I)I' {
-      0      61
-      1      61
-      2      61
-      3      61
-      4      61
-      5      61
-      6      61
-      7      61
-      8      61
-      9      61
-      a      61
-      b      61
+      0      59
+      1      59
+      2      59
+      3      59
+      4      59
+      5      59
+      6      59
+      7      59
+      8      59
+      9      59
+      a      59
+      b      59
    }
 
    method 'component3 (I)I' {
-      0      65
-      1      65
-      2      65
-      3      65
-      4      65
-      5      65
-      6      65
-      7      65
-      8      65
-      9      65
-      a      65
-      b      65
+      0      63
+      1      63
+      2      63
+      3      63
+      4      63
+      5      63
+      6      63
+      7      63
+      8      63
+      9      63
+      a      63
+      b      63
    }
 
    method 'component1 (Lkotlin/jvm/functions/Function0;)I' {
-      8      69
-      9      69
-      a      69
-      b      69
-      c      69
-      d      69
-      e      69
-      f      69
-      10      69
-      11      69
-      12      69
-      13      69
-      14      69
-      15      69
-      16      69
-      17      69
-      18      69
+      8      67
+      9      67
+      a      67
+      b      67
+      c      67
+      d      67
+      e      67
+      f      67
+      10      67
+      11      67
+      12      67
+      13      67
+      14      67
+      15      67
+      16      67
+      17      67
+      18      67
    }
 
    method 'component2 (Lkotlin/jvm/functions/Function0;)I' {
-      8      73
-      9      73
-      a      73
-      b      73
-      c      73
-      d      73
-      e      73
-      f      73
-      10      73
-      11      73
-      12      73
-      13      73
-      14      73
-      15      73
-      16      73
-      17      73
-      18      73
+      8      71
+      9      71
+      a      71
+      b      71
+      c      71
+      d      71
+      e      71
+      f      71
+      10      71
+      11      71
+      12      71
+      13      71
+      14      71
+      15      71
+      16      71
+      17      71
+      18      71
    }
 
    method 'component3 (Lkotlin/jvm/functions/Function0;)I' {
-      8      77
-      9      77
-      a      77
-      b      77
-      c      77
-      d      77
-      e      77
-      f      77
-      10      77
-      11      77
-      12      77
-      13      77
-      14      77
-      15      77
-      16      77
-      17      77
-      18      77
+      8      75
+      9      75
+      a      75
+      b      75
+      c      75
+      d      75
+      e      75
+      f      75
+      10      75
+      11      75
+      12      75
+      13      75
+      14      75
+      15      75
+      16      75
+      17      75
+      18      75
    }
 
    method 'destructLambdaInline$lambda$0 (I)I' {
-      0      82
-      1      82
+      0      80
+      1      80
    }
 }
 
@@ -619,21 +617,21 @@ Lines mapping:
 44 <-> 33
 45 <-> 33
 46 <-> 34
-49 <-> 40
-50 <-> 40
-51 <-> 44
-54 <-> 83
-55 <-> 51
-56 <-> 55
-64 <-> 58
-65 <-> 62
-66 <-> 66
-68 <-> 70
-69 <-> 74
-70 <-> 78
-72 <-> 40
-73 <-> 41
-74 <-> 42
-75 <-> 51
-76 <-> 52
-77 <-> 53
+49 <-> 39
+50 <-> 39
+51 <-> 43
+54 <-> 81
+55 <-> 49
+56 <-> 53
+64 <-> 56
+65 <-> 60
+66 <-> 64
+68 <-> 68
+69 <-> 72
+70 <-> 76
+72 <-> 39
+73 <-> 39
+74 <-> 39
+75 <-> 49
+76 <-> 49
+77 <-> 49

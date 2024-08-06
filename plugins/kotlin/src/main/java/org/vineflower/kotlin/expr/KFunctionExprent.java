@@ -1,5 +1,7 @@
 package org.vineflower.kotlin.expr;
 
+import org.jetbrains.java.decompiler.main.DecompilerContext;
+import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
 import org.jetbrains.java.decompiler.struct.gen.CodeType;
@@ -194,6 +196,22 @@ public class KFunctionExprent extends FunctionExprent implements KExprent {
       case USHR -> {
         buf.append(wrapOperandString(lstOperands.get(0), true, indent)).append(" ushr ")
           .append(wrapOperandString(lstOperands.get(1), true, indent));
+        return buf;
+      }
+      case STR_CONCAT -> {
+        buf.append('"');
+        for (Exprent expr : lstOperands) {
+          if (expr instanceof ConstExprent constExpr && VarType.VARTYPE_STRING.equals(constExpr.getExprType())) {
+            boolean ascii = DecompilerContext.getOption(IFernflowerPreferences.ASCII_STRING_CHARACTERS);
+            String value = ConstExprent.convertStringToJava((String) constExpr.getValue(), ascii);
+            buf.append(value.replace("$", "\\$"));
+          } else if (expr instanceof VarExprent var) {
+            buf.append("$").append(var.toJava(indent));
+          } else {
+            buf.append("${").append(expr.toJava(indent)).append("}");
+          }
+        }
+        buf.append('"');
         return buf;
       }
     }

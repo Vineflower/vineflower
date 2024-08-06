@@ -52,13 +52,13 @@ open class TestNonInlineLambda {
       var y: ObjectRef = new ObjectRef();// 60
       y.element = x;
       this.execute(TestNonInlineLambda::testCaptureMutableObject$lambda$9);// 61
-      y.element = y.element + "!!";// 64
+      y.element = "${y.element}!!";// 64
       this.execute(TestNonInlineLambda::testCaptureMutableObject$lambda$10);// 65
-      y.element = "" + y.element + y.element + y.element;// 68
+      y.element = "${y.element}${y.element}${y.element}";// 68
       this.execute(TestNonInlineLambda::testCaptureMutableObject$lambda$11);// 69
       y.element = "Hello: ";// 72
       this.execute(TestNonInlineLambda::testCaptureMutableObject$lambda$12);// 73
-      y.element = y.element + x;// 76
+      y.element = "${y.element}$x";// 76
       this.execute(TestNonInlineLambda::testCaptureMutableObject$lambda$13);// 77
    }// 80
 
@@ -73,7 +73,7 @@ open class TestNonInlineLambda {
       var y: ObjectRef = new ObjectRef();// 98
       y.element = "";
       this.execute(TestNonInlineLambda::testCaptureAndMutateString$lambda$16);// 99
-      y.element = "Hello: " + x;// 105
+      y.element = "Hello: $x";// 105
       this.execute(TestNonInlineLambda::testCaptureAndMutateString$lambda$17);// 106
    }// 112
 
@@ -203,7 +203,7 @@ open class TestNonInlineLambda {
    @JvmStatic
    fun `testCaptureAndMutateString$lambda$16`(`$y`: ObjectRef): Unit {
       while (((java.lang.String)$y.element).length() < 10) {// 100
-         `$y`.element = " " + `$y`.element;// 101
+         `$y`.element = " ${`$y`.element}";// 101
          System.out.println(`$y`.element);// 102
       }
 
@@ -228,7 +228,7 @@ open class TestNonInlineLambda {
 
    @JvmStatic
    fun `testCapturePublicMutableStringField$lambda$19`(`this$0`: TestNonInlineLambda): Unit {
-      `this$0`.stringField = `this$0`.stringField + "!";// 123
+      `this$0`.stringField = "${`this$0`.stringField}!";// 123
       return Unit.INSTANCE;
    }
 
@@ -240,7 +240,7 @@ open class TestNonInlineLambda {
 
    @JvmStatic
    fun `testCapturePrivateMutableStringField$lambda$21`(`this$0`: TestNonInlineLambda): Unit {
-      `this$0`.privateStringField = `this$0`.privateStringField + "!";// 135
+      `this$0`.privateStringField = "${`this$0`.privateStringField}!";// 135
       return Unit.INSTANCE;
    }
 }

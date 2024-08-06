@@ -32,7 +32,7 @@ class TestForRange {
 
    public fun testIntStepX(x: Int) {
       if (x <= 0) {
-         throw new IllegalArgumentException("Step must be positive, was: " + x + ".");
+         throw new IllegalArgumentException("Step must be positive, was: $x.");
       } else {
          var i: Int = 1;
          var var3: Int = ProgressionUtilKt.getProgressionLastElement(1, 100, x);
@@ -72,7 +72,7 @@ class TestForRange {
 
    public fun testIntDownToStepX(x: Int) {
       if (x <= 0) {
-         throw new IllegalArgumentException("Step must be positive, was: " + x + ".");
+         throw new IllegalArgumentException("Step must be positive, was: $x.");
       } else {
          var var2: Int = -x;
          var i: Int = 100;
@@ -161,7 +161,7 @@ class TestForRange {
 
    public fun testIntYStepX(x: Int, y: Int, z: Int) {
       if (z <= 0) {
-         throw new IllegalArgumentException("Step must be positive, was: " + z + ".");
+         throw new IllegalArgumentException("Step must be positive, was: $z.");
       } else {
          var i: Int = x;
          var var5: Int = ProgressionUtilKt.getProgressionLastElement(x, y, z);
