@@ -19,7 +19,7 @@ public class TestTailrecFunctions {
       label12: {
          try {
             ;
-         } catch (java.lang.Throwable var2) {
+         } catch (var2: java.lang.Throwable) {
             this.testFinally();
          }
 
@@ -30,7 +30,7 @@ public class TestTailrecFunctions {
    public tailrec fun testFinallyReturn(): Int {
       try {
          ;
-      } catch (java.lang.Throwable var2) {
+      } catch (var2: java.lang.Throwable) {
          return this.testFinallyReturn();
       }
 
@@ -40,7 +40,7 @@ public class TestTailrecFunctions {
    public tailrec fun fooTry() {
       try {
          this.fooTry();// 27
-      } catch (java.lang.Throwable var2) {// 29
+      } catch (var2: java.lang.Throwable) {// 29
       }
    }// 31
 
@@ -51,10 +51,10 @@ public class TestTailrecFunctions {
                try {
                   this.testTryCatchFinally();// 35
                   break label32;
-               } catch (Exception var2) {// 36
+               } catch (var2: Exception) {// 36
                   this.testTryCatchFinally();// 37
                }
-            } catch (java.lang.Throwable var3) {
+            } catch (var3: java.lang.Throwable) {
                this.testTryCatchFinally();
             }
 
