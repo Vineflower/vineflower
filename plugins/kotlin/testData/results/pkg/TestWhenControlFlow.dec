@@ -1,6 +1,6 @@
 package pkg
 
-class TestWhenControlFlow {
+public class TestWhenControlFlow {
    public fun test1(x: Int) {
       var xx: Int = x;// 5
 

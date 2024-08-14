@@ -1,6 +1,6 @@
 package pkg
 
-object TestObject private constructor() {
+public object TestObject private constructor() {
    @JvmStatic
    public TestObject INSTANCE = new TestObject();
 

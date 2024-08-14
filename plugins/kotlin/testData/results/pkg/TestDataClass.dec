@@ -1,6 +1,6 @@
 package pkg
 
-data class TestDataClass(dataClassVal: Regex, variableWithVeryLongName: Int, requestLineWrapsIfTheParamListIsTooLong: List<String>, nullability: String?) {
+public data class TestDataClass(dataClassVal: Regex, variableWithVeryLongName: Int, requestLineWrapsIfTheParamListIsTooLong: List<String>, nullability: String?) {
    public final val dataClassVal: Regex
    public final val variableWithVeryLongName: Int
    public final val requestLineWrapsIfTheParamListIsTooLong: List<String>

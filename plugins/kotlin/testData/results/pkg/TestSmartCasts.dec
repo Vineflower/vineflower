@@ -1,6 +1,6 @@
 package pkg
 
-class TestSmartCasts {
+public class TestSmartCasts {
    public fun testWhen(o: Any?): String {
       if (o is java.lang.String) {// 19 20
          return o as java.lang.String;// 21
@@ -72,25 +72,25 @@ class TestSmartCasts {
       return if (t is TestSmartCasts.X) (t as TestSmartCasts.X).woo(t as java.lang.Iterable<?>) else t.get(0) as java.lang.String;// 83 84 87
    }
 
-   sealed class A protected constructor() {
+   public sealed class A protected constructor() {
       public fun test(): String {
          return "";// 15
       }
 
-      class B : TestSmartCasts.A() {// 8
+      public class B : TestSmartCasts.A() {// 8
          public fun testB(): String {
             return "B";// 9
          }
       }
 
-      class C : TestSmartCasts.A() {// 11
+      public class C : TestSmartCasts.A() {// 11
          public fun testC(): String {
             return "C";// 12
          }
       }
    }
 
-   interface X {
+   public interface X {
       public open fun Iterable<*>.woo(): String {
       }
 

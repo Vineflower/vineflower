@@ -1,6 +1,6 @@
 package pkg
 
-class TestSafeCasts {
+public class TestSafeCasts {
    public fun test(obj: Any): Boolean {
       var t: Int = obj as? Integer;// 5
       if ((obj as? Integer) != null) {// 7

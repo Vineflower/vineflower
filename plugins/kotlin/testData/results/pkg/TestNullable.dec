@@ -1,6 +1,6 @@
 package pkg
 
-class TestNullable {
+public class TestNullable {
    public fun nullableParams(v: String, vn: String?) {
    }// 6
 

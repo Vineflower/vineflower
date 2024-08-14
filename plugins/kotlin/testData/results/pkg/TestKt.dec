@@ -1,6 +1,6 @@
 package pkg
 
-class TestKt {
+public class TestKt {
    public fun test() {
       System.out.println("Hello, world!");// 5
    }// 6

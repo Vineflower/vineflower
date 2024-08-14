@@ -1,6 +1,6 @@
 package pkg
 
-class TestConstructors private constructor() {
+public class TestConstructors private constructor() {
    public constructor(a: Int) : this() {// 4
       System.out.println("a = $a");// 5
    }// 6

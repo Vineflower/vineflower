@@ -1,6 +1,6 @@
 package pkg
 
-class TestWhenBoolean {
+public class TestWhenBoolean {
    public fun testIf(a: Int, b: Int, c: Int, d: Int) {
       if (a == 1// 6 18
          || b == 2// 7

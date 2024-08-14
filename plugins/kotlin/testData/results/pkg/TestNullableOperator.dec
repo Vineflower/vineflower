@@ -1,6 +1,6 @@
 package pkg
 
-class TestNullableOperator {
+public class TestNullableOperator {
    public fun test(x: Int?): Int {
       return x ?: 0;// 5
    }

@@ -1,6 +1,6 @@
 package pkg
 
-class TestShadowParam {
+public class TestShadowParam {
    public fun test(x: Int) {
       var xx: Int = x - 1;// 5 6
       System.out.println(x - 1);// 7

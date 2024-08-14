@@ -1,6 +1,6 @@
 package pkg
 
-class TestVars {
+public class TestVars {
    public fun testVar() {
       System.out.println("initial");// 5 6
    }// 9

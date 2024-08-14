@@ -1,6 +1,6 @@
 package pkg
 
-class TestTailrecFunctions {
+public class TestTailrecFunctions {
    public tailrec fun sum(x: Long, sum: Long): Long {
       var var5: TestTailrecFunctions = this;// 4
 

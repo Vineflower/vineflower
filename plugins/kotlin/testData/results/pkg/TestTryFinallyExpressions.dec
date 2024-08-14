@@ -4,7 +4,7 @@ import java.io.IOException
 import kotlin.jvm.internal.SourceDebugExtension
 
 @SourceDebugExtension(["SMAP\nTestTryFinallyExpressions.kt\nKotlin\n*S Kotlin\n*F\n+ 1 TestTryFinallyExpressions.kt\npkg/TestTryFinallyExpressions\n+ 2 fake.kt\nkotlin/jvm/internal/FakeKt\n*L\n1#1,52:1\n1#2:53\n*E\n"])
-class TestTryFinallyExpressions {
+public class TestTryFinallyExpressions {
    public fun test0(s: String) {
       label15: {
          try {
