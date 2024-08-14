@@ -19,9 +19,15 @@ public interface KotlinOptions {
   @Type(Type.STRING)
   String UNKNOWN_DEFAULT_ARG_STRING = "kt-unknown-defaults";
 
+  @Name("Collapse string concatenation")
+  @Description("Convert string concatenations to Kotlin string templates.")
+  @Type(Type.BOOLEAN)
+  String COLLAPSE_STRING_CONCATENATION = "kt-collapse-string-concat";
+
   static void addDefaults(PluginOptions.AddDefaults cons) {
     cons.addDefault(SHOW_PUBLIC_VISIBILITY, "1");
     cons.addDefault(DECOMPILE_KOTLIN, "1");
     cons.addDefault(UNKNOWN_DEFAULT_ARG_STRING, "...");
+    cons.addDefault(COLLAPSE_STRING_CONCATENATION, "1");
   }
 }

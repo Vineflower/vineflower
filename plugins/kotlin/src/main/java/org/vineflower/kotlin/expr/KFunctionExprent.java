@@ -27,6 +27,7 @@ public class KFunctionExprent extends FunctionExprent implements KExprent {
     EQUALS3,
     IF_NULL,
     GET_KCLASS,
+    STR_TEMPLATE
   }
 
   public KFunctionExprent(KFunctionType funcType, List<Exprent> operands, BitSet bytecodeOffsets) {
@@ -103,6 +104,36 @@ public class KFunctionExprent extends FunctionExprent implements KExprent {
               buf.append(KTypes.getKotlinType(type));
             }
             return buf.append("::class");
+          }
+          case STR_TEMPLATE -> {
+            buf.append('"');
+            for (Exprent expr : lstOperands) {
+              if (expr instanceof ConstExprent constExpr) {
+                // Strings can be directly placed into the resulting string, but other constants are a little more touchy.
+                // Kotlin will inline any primitive constants. If any are found, warn on the presence of such cases as that
+                // implies that either the compiler or decompiler is not working as expected.
+                if (VarType.VARTYPE_STRING.equals(constExpr.getConstType())) {
+                  boolean ascii = DecompilerContext.getOption(IFernflowerPreferences.ASCII_STRING_CHARACTERS);
+                  String value = ConstExprent.convertStringToJava((String) constExpr.getValue(), ascii);
+                  buf.append(value.replace("$", "\\$"));
+                } else if (VarType.VARTYPE_CHAR.equals(constExpr.getConstType())) {
+                  // The compiler uses `StringBuilder.append(char)` on single characters when using StringBuilder
+                  // instead of makeConcatWithConstants. Inline the character directly - intentional behavior.
+                  buf.append((char) (int) constExpr.getValue());
+                } else {
+                  if (VarType.isPrimitive(constExpr.getConstType())) {
+                    DecompilerContext.getLogger().writeMessage("Primitive constant type in string concatenation: " + constExpr.getConstType(), IFernflowerLogger.Severity.WARN);
+                  }
+                  buf.append("${").append(constExpr.toJava(indent)).append("}");
+                }
+              } else if (expr instanceof VarExprent var) {
+                buf.append("$").append(var.toJava(indent));
+              } else {
+                buf.append("${").append(expr.toJava(indent)).append("}");
+              }
+            }
+            buf.append('"');
+            return buf;
           }
         }
 
@@ -199,36 +230,6 @@ public class KFunctionExprent extends FunctionExprent implements KExprent {
           .append(wrapOperandString(lstOperands.get(1), true, indent));
         return buf;
       }
-      case STR_CONCAT -> {
-        buf.append('"');
-        for (Exprent expr : lstOperands) {
-          if (expr instanceof ConstExprent constExpr) {
-            // Strings can be directly placed into the resulting string, but other constants are a little more touchy.
-            // Kotlin will inline any primitive constants. If any are found, warn on the presence of such cases as that
-            // implies that either the compiler or decompiler is not working as expected.
-            if (VarType.VARTYPE_STRING.equals(constExpr.getConstType())) {
-              boolean ascii = DecompilerContext.getOption(IFernflowerPreferences.ASCII_STRING_CHARACTERS);
-              String value = ConstExprent.convertStringToJava((String) constExpr.getValue(), ascii);
-              buf.append(value.replace("$", "\\$"));
-            } else if (VarType.VARTYPE_CHAR.equals(constExpr.getConstType())) {
-              // The compiler uses `StringBuilder.append(char)` on single characters when using StringBuilder
-              // instead of makeConcatWithConstants. Inline the character directly - intentional behavior.
-              buf.append((char) (int) constExpr.getValue());
-            } else {
-              if (VarType.isPrimitive(constExpr.getConstType())) {
-                DecompilerContext.getLogger().writeMessage("Primitive constant type in string concatenation: " + constExpr.getConstType(), IFernflowerLogger.Severity.WARN);
-              }
-              buf.append("${").append(constExpr.toJava(indent)).append("}");
-            }
-          } else if (expr instanceof VarExprent var) {
-            buf.append("$").append(var.toJava(indent));
-          } else {
-            buf.append("${").append(expr.toJava(indent)).append("}");
-          }
-        }
-        buf.append('"');
-        return buf;
-      }
     }
 
     return buf.append(super.toJava(indent));
@@ -247,6 +248,7 @@ public class KFunctionExprent extends FunctionExprent implements KExprent {
         yield Objects.requireNonNullElse(supertype, VarType.VARTYPE_OBJECT);
       }
       case GET_KCLASS -> VarType.VARTYPE_CLASS;
+      case STR_TEMPLATE -> VarType.VARTYPE_STRING;
       case NONE -> super.getExprType();
     };
   }
@@ -346,6 +348,7 @@ public class KFunctionExprent extends FunctionExprent implements KExprent {
       case EQUALS3 -> 6;
       case IF_NULL -> 11;
       case GET_KCLASS -> 1;
+      case STR_TEMPLATE -> FunctionType.STR_CONCAT.precedence;
       case NONE -> super.getPrecedence();
     };
   }
