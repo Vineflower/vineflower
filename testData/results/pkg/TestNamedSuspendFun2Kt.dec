@@ -11,11 +11,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @Metadata(
-   mv = {1, 6, 0},
+   mv = {2, 0, 0},
    k = 2,
    xi = 48,
-   d1 = {"\u0000\n\n\u0000\n\u0002\u0010\b\n\u0002\b\u0003\u001a\u0011\u0010\u0000\u001a\u00020\u0001H\u0086@ø\u0001\u0000¢\u0006\u0002\u0010\u0002\u001a\u0011\u0010\u0003\u001a\u00020\u0001H\u0086@ø\u0001\u0000¢\u0006\u0002\u0010\u0002\u0082\u0002\u0004\n\u0002\b\u0019¨\u0006\u0004"},
-   d2 = {"bar", "", "(Lkotlin/coroutines/Continuation;)Ljava/lang/Object;", "foo2", "vineflower_testDataKotlin"}
+   d1 = {"\u0000\n\n\u0000\n\u0002\u0010\b\n\u0002\b\u0003\u001a\u000e\u0010\u0000\u001a\u00020\u0001H\u0086@¢\u0006\u0002\u0010\u0002\u001a\u000e\u0010\u0003\u001a\u00020\u0001H\u0086@¢\u0006\u0002\u0010\u0002¨\u0006\u0004"},
+   d2 = {"foo2", "", "(Lkotlin/coroutines/Continuation;)Ljava/lang/Object;", "bar", "vineflower_testDataKotlin"}
 )
 public final class TestNamedSuspendFun2Kt {
    // $VF: Handled exception range with multiple entry points by splitting it
@@ -23,7 +23,7 @@ public final class TestNamedSuspendFun2Kt {
    // $VF: Irreducible bytecode was duplicated to produce valid code
    // $VF: Could not inline inconsistent finally blocks
    @Nullable
-   public static final Object foo2(@NotNull Continuation<? super Integer> var0) {
+   public static final Object foo2(@NotNull Continuation<? super Integer> $completion) {
       Continuation $continuation;
 
       @DebugMetadata(
@@ -36,7 +36,7 @@ public final class TestNamedSuspendFun2Kt {
          c = "pkg.TestNamedSuspendFun2Kt"
       )
       @Metadata(
-         mv = {1, 6, 0},
+         mv = {2, 0, 0},
          k = 3,
          xi = 48
       )
@@ -58,15 +58,15 @@ public final class TestNamedSuspendFun2Kt {
       }
 
       label261: {
-         if (var0 instanceof NamelessClass_1) {
-            $continuation = (NamelessClass_1)var0;
+         if ($completion instanceof NamelessClass_1) {
+            $continuation = (NamelessClass_1)$completion;
             if (($continuation.label & -2147483648) != 0) {
                $continuation.label -= -2147483648;
                break label261;
             }
          }
 
-         $continuation = new NamelessClass_1(var0);
+         $continuation = new NamelessClass_1($completion);
       }
 
       Object var4;
@@ -151,8 +151,8 @@ public final class TestNamedSuspendFun2Kt {
             }
          }
 
-         Throwable x = var10000;// 7
-         $continuation.L$0 = x;// 8
+         Throwable x = var10000;// 8
+         $continuation.L$0 = x;
          $continuation.label = 4;
          if (bar($continuation) == var4) {
             return var4;// 2
@@ -421,8 +421,7 @@ Lines mapping:
 4 <-> 125
 5 <-> 93
 6 <-> 94
-7 <-> 154
-8 <-> 155
+8 <-> 154
 11 <-> 110
 14 <-> 170
 Not mapped:

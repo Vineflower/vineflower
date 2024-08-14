@@ -1,7 +1,5 @@
 package pkg
 
-import org.jetbrains.annotations.Nullable
-
 class TestCompileTimeErrors {
    public fun <I, O> test(i: I): O where O : I, O : pkg.TestCompileTimeErrors.Test {
       throw new NotImplementedError(null, 1, null);// 10
@@ -9,16 +7,14 @@ class TestCompileTimeErrors {
 
    public fun test2(i: Int?): pkg.TestCompileTimeErrors.Test? {
       return if (i == null) null else new TestCompileTimeErrors.Test(i) {
-         @Nullable
          private final Integer testValue;
 
          {
-            this.testValue = `$i`;
+            this.testValue = `$i`;// 16
          }// 14
 
-         @Nullable
          public Integer getTestValue() {
-            return this.testValue;// 16
+            return this.testValue;// 15
          }
 
          /** @deprecated */
@@ -35,50 +31,51 @@ class TestCompileTimeErrors {
 
 class 'pkg/TestCompileTimeErrors' {
    method 'test (Ljava/lang/Object;)Ljava/lang/Object;' {
-      4      6
-      5      6
-      6      6
-      a      6
+      4      4
+      5      4
+      6      4
+      a      4
    }
 
    method 'test2 (Ljava/lang/Integer;)Lpkg/TestCompileTimeErrors$Test;' {
-      0      10
-      1      10
-      2      10
-      3      10
-      4      10
-      c      10
-      10      10
-      11      10
-      12      10
-      13      10
+      0      8
+      1      8
+      2      8
+      3      8
+      4      8
+      c      8
+      10      8
+      11      8
+      12      8
+      13      8
    }
 }
 
 class 'pkg/TestCompileTimeErrors$test2$1' {
    method '<init> (Ljava/lang/Integer;)V' {
-      4      15
-      5      15
-      6      15
-      7      15
-      8      15
-      9      16
+      4      12
+      5      12
+      6      12
+      7      12
+      8      12
+      9      13
    }
 
    method 'getTestValue ()Ljava/lang/Integer;' {
-      0      20
-      1      20
-      2      20
-      3      20
-      4      20
+      0      16
+      1      16
+      2      16
+      3      16
+      4      16
    }
 
    method 'getTestValue$annotations ()V' {
-      0      26
+      0      22
    }
 }
 
 Lines mapping:
-10 <-> 7
-14 <-> 17
-16 <-> 21
+10 <-> 5
+14 <-> 14
+15 <-> 17
+16 <-> 13
