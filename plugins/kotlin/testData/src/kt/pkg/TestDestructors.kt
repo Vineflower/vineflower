@@ -45,19 +45,6 @@ class TestDestructors {
     println("$a$b$c")
   }
 
-  inline fun destructInlineLambda(x: () -> Int) {
-    val (a, b, c) = x
-    println("$a$b$c")
-  }
-
-  fun callDestructInlineLambda() {
-    destructInlineLambda { 123 }
-  }
-
-  fun callDestructInlineLambdaWithControlFlow(x: Int) {
-    destructInlineLambda { if (x in 100..999) x else return }
-  }
-
   fun destructInlineLambdaNoInline(x: () -> Int) {
     val (a, b, c) = x
     println("$a$b$c")

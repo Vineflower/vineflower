@@ -1,8 +1,8 @@
 package pkg
 
 class TestPoorNames {
-   public final val `Dangerous property name?!`: String = "test"
    public final val `Property with spaces`: Int = 42
+   public final val `Dangerous property name?!`: String = "test"
 
 
    public fun `Function with spaces`() {

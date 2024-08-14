@@ -3,13 +3,15 @@ package pkg;
 import kotlin.DeprecationLevel;
 import kotlin.Metadata;
 import kotlin.NoWhenBranchMatchedException;
+import kotlin.enums.EnumEntries;
+import org.jetbrains.annotations.NotNull;
 
 @Metadata(
-   mv = {1, 6, 0},
+   mv = {2, 0, 0},
    k = 1,
    xi = 48,
-   d1 = {"\u0000\u0014\n\u0002\u0018\u0002\n\u0002\u0010\u0010\n\u0002\b\u0002\n\u0002\u0010\u0002\n\u0002\b\b\b\u0086\u0001\u0018\u00002\b\u0012\u0004\u0012\u00020\u00000\u0001B\u0007\b\u0002¢\u0006\u0002\u0010\u0002J\u0006\u0010\u0003\u001a\u00020\u0004J\u0006\u0010\u0005\u001a\u00020\u0004J\u0006\u0010\u0006\u001a\u00020\u0004J\u0006\u0010\u0007\u001a\u00020\u0004J\u0006\u0010\b\u001a\u00020\u0004j\u0002\b\tj\u0002\b\nj\u0002\b\u000b¨\u0006\f"},
-   d2 = {"Lpkg/TestKotlinEnumWhen;", "", "(Ljava/lang/String;I)V", "testAnotherEnum", "", "testConsecutive", "testConsecutiveMixed", "testExpression", "testStatement", "FIRST", "SECOND", "THIRD", "vineflower_testDataKotlin"}
+   d1 = {"\u0000\u0014\n\u0002\u0018\u0002\n\u0002\u0010\u0010\n\u0002\b\u0006\n\u0002\u0010\u0002\n\u0002\b\u0005\b\u0086\u0081\u0002\u0018\u00002\b\u0012\u0004\u0012\u00020\u00000\u0001B\t\b\u0002¢\u0006\u0004\b\u0002\u0010\u0003J\u0006\u0010\u0007\u001a\u00020\bJ\u0006\u0010\t\u001a\u00020\bJ\u0006\u0010\n\u001a\u00020\bJ\u0006\u0010\u000b\u001a\u00020\bJ\u0006\u0010\f\u001a\u00020\bj\u0002\b\u0004j\u0002\b\u0005j\u0002\b\u0006¨\u0006\r"},
+   d2 = {"Lpkg/TestKotlinEnumWhen;", "", "<init>", "(Ljava/lang/String;I)V", "FIRST", "SECOND", "THIRD", "testStatement", "", "testExpression", "testAnotherEnum", "testConsecutive", "testConsecutiveMixed", "vineflower_testDataKotlin"}
 )
 public enum TestKotlinEnumWhen {
    FIRST,
@@ -26,6 +28,9 @@ public enum TestKotlinEnumWhen {
             break;
          case THIRD:
             System.out.println("third!");// 10
+            break;
+         default:
+            throw new NoWhenBranchMatchedException();
       }
    }// 12
 
@@ -50,6 +55,9 @@ public enum TestKotlinEnumWhen {
             break;
          case HIDDEN:
             System.out.println("hidden " + level);// 31
+            break;
+         default:
+            throw new NoWhenBranchMatchedException();
       }
    }// 33
 
@@ -63,6 +71,9 @@ public enum TestKotlinEnumWhen {
             break;
          case THIRD:
             System.out.println("third!");// 39
+            break;
+         default:
+            throw new NoWhenBranchMatchedException();
       }
 
       switch (this) {// 42
@@ -74,11 +85,14 @@ public enum TestKotlinEnumWhen {
             break;
          case THIRD:
             System.out.println("third, again!");// 45
+            break;
+         default:
+            throw new NoWhenBranchMatchedException();
       }
    }// 47
 
    public final void testConsecutiveMixed() {
-      DeprecationLevel level = testConsecutiveMixed$getLevel-0();// 53
+      DeprecationLevel level = testConsecutiveMixed$getLevel$0();// 53
       switch (level) {
          case WARNING:
             System.out.println("warning " + level);// 54
@@ -88,6 +102,9 @@ public enum TestKotlinEnumWhen {
             break;
          case HIDDEN:
             System.out.println("hidden " + level);// 56
+            break;
+         default:
+            throw new NoWhenBranchMatchedException();
       }
 
       switch (this) {// 59
@@ -99,488 +116,518 @@ public enum TestKotlinEnumWhen {
             break;
          case THIRD:
             System.out.println("third!");// 62
+            break;
+         default:
+            throw new NoWhenBranchMatchedException();
       }
    }// 64
+
+   @NotNull
+   public static EnumEntries<TestKotlinEnumWhen> getEntries() {
+      return $ENTRIES;// 65
+   }
 
    private static final DeprecationLevel testAnotherEnum$getLevel() {
       throw new Exception();// 26
    }
 
-   private static final DeprecationLevel testConsecutiveMixed$getLevel_0/* $VF was: testConsecutiveMixed$getLevel-0*/() {
+   private static final DeprecationLevel testConsecutiveMixed$getLevel$0() {
       throw new Exception();// 51
    }
 }
 
 class 'pkg/TestKotlinEnumWhen' {
    method 'testStatement ()V' {
-      0      19
-      8      19
-      9      19
-      a      19
-      b      19
-      c      19
-      d      19
-      e      19
-      f      19
-      10      19
-      11      19
-      12      19
-      13      19
-      14      19
-      15      19
-      16      19
-      17      19
-      18      19
-      19      19
-      1a      19
-      1b      19
-      1c      19
-      1d      19
-      1e      19
-      1f      19
-      20      19
-      21      19
-      22      19
-      23      19
-      24      21
-      25      21
-      26      21
-      27      21
-      28      21
-      2a      21
-      2b      21
-      2c      21
-      2d      22
-      30      24
-      31      24
-      32      24
-      33      24
-      34      24
-      36      24
-      37      24
-      38      24
-      39      25
-      3c      27
-      3d      27
-      3e      27
-      3f      27
-      40      27
-      42      27
-      43      27
-      44      27
-      45      29
+      0      21
+      8      21
+      9      21
+      a      21
+      b      21
+      c      21
+      d      21
+      e      21
+      f      21
+      10      21
+      11      21
+      12      21
+      13      21
+      14      21
+      15      21
+      16      21
+      17      21
+      18      21
+      19      21
+      1a      21
+      1b      21
+      1c      21
+      1d      21
+      1e      21
+      1f      21
+      20      21
+      21      21
+      22      21
+      23      21
+      24      23
+      25      23
+      26      23
+      27      23
+      28      23
+      2a      23
+      2b      23
+      2c      23
+      2d      24
+      30      26
+      31      26
+      32      26
+      33      26
+      34      26
+      36      26
+      37      26
+      38      26
+      39      27
+      3c      29
+      3d      29
+      3e      29
+      3f      29
+      40      29
+      42      29
+      43      29
+      44      29
+      45      30
+      4f      32
+      50      34
    }
 
    method 'testExpression ()V' {
-      0      32
-      8      32
-      9      32
-      a      32
-      b      32
-      c      32
-      d      32
-      e      32
-      f      32
-      10      32
-      11      32
-      12      32
-      13      32
-      14      32
-      15      32
-      16      32
-      17      32
-      18      32
-      19      32
-      1a      32
-      1b      32
-      1c      32
-      1d      32
-      1e      32
-      1f      32
-      20      32
-      21      32
-      22      32
-      23      32
-      24      33
-      25      33
-      29      34
-      2a      34
-      2e      35
-      2f      35
-      3a      36
-      3b      32
-      3c      38
-      3d      38
-      3e      38
-      3f      38
-      40      38
-      41      38
-      42      38
-      43      39
+      0      37
+      8      37
+      9      37
+      a      37
+      b      37
+      c      37
+      d      37
+      e      37
+      f      37
+      10      37
+      11      37
+      12      37
+      13      37
+      14      37
+      15      37
+      16      37
+      17      37
+      18      37
+      19      37
+      1a      37
+      1b      37
+      1c      37
+      1d      37
+      1e      37
+      1f      37
+      20      37
+      21      37
+      22      37
+      23      37
+      24      38
+      25      38
+      29      39
+      2a      39
+      2e      40
+      2f      40
+      3a      41
+      3b      37
+      3c      43
+      3d      43
+      3e      43
+      3f      43
+      40      43
+      41      43
+      42      43
+      43      44
    }
 
    method 'testAnotherEnum ()V' {
-      0      42
-      1      42
-      2      42
-      3      42
-      7      43
-      b      43
-      c      43
-      d      43
-      e      43
-      f      43
-      10      43
-      11      43
-      12      43
-      13      43
-      14      43
-      15      43
-      16      43
-      17      43
-      18      43
-      19      43
-      1a      43
-      1b      43
-      1c      43
-      1d      43
-      1e      43
-      1f      43
-      20      43
-      21      43
-      22      43
-      23      43
-      24      43
-      25      43
-      26      43
-      27      43
-      28      45
-      29      45
-      2a      45
-      2b      45
-      2c      45
-      2d      45
-      2e      45
-      2f      45
-      30      45
-      32      45
-      33      45
-      34      45
-      35      46
-      38      48
-      39      48
-      3a      48
-      3b      48
-      3c      48
-      3d      48
-      3e      48
-      3f      48
-      40      48
-      42      48
-      43      48
-      44      48
-      45      49
-      48      51
-      49      51
-      4a      51
-      4b      51
-      4c      51
-      4d      51
-      4e      51
-      4f      51
-      50      51
-      52      51
-      53      51
-      54      51
-      55      53
+      0      47
+      1      47
+      2      47
+      3      47
+      7      48
+      b      48
+      c      48
+      d      48
+      e      48
+      f      48
+      10      48
+      11      48
+      12      48
+      13      48
+      14      48
+      15      48
+      16      48
+      17      48
+      18      48
+      19      48
+      1a      48
+      1b      48
+      1c      48
+      1d      48
+      1e      48
+      1f      48
+      20      48
+      21      48
+      22      48
+      23      48
+      24      48
+      25      48
+      26      48
+      27      48
+      28      50
+      29      50
+      2a      50
+      2b      50
+      2c      50
+      2d      50
+      2e      50
+      2f      50
+      30      50
+      32      50
+      33      50
+      34      50
+      35      51
+      38      53
+      39      53
+      3a      53
+      3b      53
+      3c      53
+      3d      53
+      3e      53
+      3f      53
+      40      53
+      42      53
+      43      53
+      44      53
+      45      54
+      48      56
+      49      56
+      4a      56
+      4b      56
+      4c      56
+      4d      56
+      4e      56
+      4f      56
+      50      56
+      52      56
+      53      56
+      54      56
+      55      57
+      5f      59
+      60      61
    }
 
    method 'testConsecutive ()V' {
-      0      56
-      8      56
-      9      56
-      a      56
-      b      56
-      c      56
-      d      56
-      e      56
-      f      56
-      10      56
-      11      56
-      12      56
-      13      56
-      14      56
-      15      56
-      16      56
-      17      56
-      18      56
-      19      56
-      1a      56
-      1b      56
-      1c      56
-      1d      56
-      1e      56
-      1f      56
-      20      56
-      21      56
-      22      56
-      23      56
-      24      58
-      25      58
-      26      58
-      27      58
-      28      58
-      2a      58
-      2b      58
-      2c      58
-      2d      59
-      30      61
-      31      61
-      32      61
-      33      61
-      34      61
-      36      61
-      37      61
-      38      61
-      39      62
-      3c      64
-      3d      64
-      3e      64
-      3f      64
-      40      64
-      42      64
-      43      64
-      44      64
-      45      67
-      4d      67
-      4e      67
-      4f      67
-      50      67
-      51      67
-      52      67
-      53      67
-      54      67
-      55      67
-      56      67
-      57      67
-      58      67
-      59      67
-      5a      67
-      5b      67
-      5c      67
-      5d      67
-      5e      67
-      5f      67
-      60      67
-      61      67
-      62      67
-      63      67
-      64      67
-      65      67
-      66      67
-      67      67
-      68      69
-      69      69
-      6a      69
-      6b      69
-      6c      69
-      6e      69
-      6f      69
-      70      69
-      71      70
-      74      72
-      75      72
-      76      72
-      77      72
-      78      72
-      7a      72
-      7b      72
-      7c      72
-      7d      73
-      80      75
-      81      75
-      82      75
-      83      75
-      84      75
-      86      75
-      87      75
-      88      75
-      89      77
+      0      64
+      8      64
+      9      64
+      a      64
+      b      64
+      c      64
+      d      64
+      e      64
+      f      64
+      10      64
+      11      64
+      12      64
+      13      64
+      14      64
+      15      64
+      16      64
+      17      64
+      18      64
+      19      64
+      1a      64
+      1b      64
+      1c      64
+      1d      64
+      1e      64
+      1f      64
+      20      64
+      21      64
+      22      64
+      23      64
+      24      66
+      25      66
+      26      66
+      27      66
+      28      66
+      2a      66
+      2b      66
+      2c      66
+      2d      67
+      30      69
+      31      69
+      32      69
+      33      69
+      34      69
+      36      69
+      37      69
+      38      69
+      39      70
+      3c      72
+      3d      72
+      3e      72
+      3f      72
+      40      72
+      42      72
+      43      72
+      44      72
+      45      73
+      4f      75
+      50      78
+      58      78
+      59      78
+      5a      78
+      5b      78
+      5c      78
+      5d      78
+      5e      78
+      5f      78
+      60      78
+      61      78
+      62      78
+      63      78
+      64      78
+      65      78
+      66      78
+      67      78
+      68      78
+      69      78
+      6a      78
+      6b      78
+      6c      78
+      6d      78
+      6e      78
+      6f      78
+      70      78
+      71      78
+      72      78
+      73      78
+      74      80
+      75      80
+      76      80
+      77      80
+      78      80
+      7a      80
+      7b      80
+      7c      80
+      7d      81
+      80      83
+      81      83
+      82      83
+      83      83
+      84      83
+      86      83
+      87      83
+      88      83
+      89      84
+      8c      86
+      8d      86
+      8e      86
+      8f      86
+      90      86
+      92      86
+      93      86
+      94      86
+      95      87
+      9f      89
+      a0      91
    }
 
    method 'testConsecutiveMixed ()V' {
-      0      80
-      1      80
-      2      80
-      3      80
-      7      81
-      b      81
-      c      81
-      d      81
-      e      81
-      f      81
-      10      81
-      11      81
-      12      81
-      13      81
-      14      81
-      15      81
-      16      81
-      17      81
-      18      81
-      19      81
-      1a      81
-      1b      81
-      1c      81
-      1d      81
-      1e      81
-      1f      81
-      20      81
-      21      81
-      22      81
-      23      81
-      24      81
-      25      81
-      26      81
-      27      81
-      28      83
-      29      83
-      2a      83
-      2b      83
-      2c      83
-      2d      83
-      2e      83
-      2f      83
-      30      83
-      32      83
-      33      83
-      34      83
-      35      84
-      38      86
-      39      86
-      3a      86
-      3b      86
-      3c      86
-      3d      86
-      3e      86
-      3f      86
-      40      86
-      42      86
-      43      86
-      44      86
-      45      87
-      48      89
-      49      89
-      4a      89
-      4b      89
-      4c      89
-      4d      89
-      4e      89
-      4f      89
-      50      89
-      52      89
-      53      89
-      54      89
-      55      92
-      5d      92
-      5e      92
-      5f      92
-      60      92
-      61      92
-      62      92
-      63      92
-      64      92
-      65      92
-      66      92
-      67      92
-      68      92
-      69      92
-      6a      92
-      6b      92
-      6c      92
-      6d      92
-      6e      92
-      6f      92
-      70      92
-      71      92
-      72      92
-      73      92
-      74      92
-      75      92
-      76      92
-      77      92
-      78      94
-      79      94
-      7a      94
-      7b      94
-      7c      94
-      7e      94
-      7f      94
-      80      94
-      81      95
-      84      97
-      85      97
-      86      97
-      87      97
-      88      97
-      8a      97
-      8b      97
-      8c      97
-      8d      98
-      90      100
-      91      100
-      92      100
-      93      100
-      94      100
-      96      100
-      97      100
-      98      100
-      99      102
+      0      94
+      1      94
+      2      94
+      3      94
+      7      95
+      b      95
+      c      95
+      d      95
+      e      95
+      f      95
+      10      95
+      11      95
+      12      95
+      13      95
+      14      95
+      15      95
+      16      95
+      17      95
+      18      95
+      19      95
+      1a      95
+      1b      95
+      1c      95
+      1d      95
+      1e      95
+      1f      95
+      20      95
+      21      95
+      22      95
+      23      95
+      24      95
+      25      95
+      26      95
+      27      95
+      28      97
+      29      97
+      2a      97
+      2b      97
+      2c      97
+      2d      97
+      2e      97
+      2f      97
+      30      97
+      32      97
+      33      97
+      34      97
+      35      98
+      38      100
+      39      100
+      3a      100
+      3b      100
+      3c      100
+      3d      100
+      3e      100
+      3f      100
+      40      100
+      42      100
+      43      100
+      44      100
+      45      101
+      48      103
+      49      103
+      4a      103
+      4b      103
+      4c      103
+      4d      103
+      4e      103
+      4f      103
+      50      103
+      52      103
+      53      103
+      54      103
+      55      104
+      5f      106
+      60      109
+      68      109
+      69      109
+      6a      109
+      6b      109
+      6c      109
+      6d      109
+      6e      109
+      6f      109
+      70      109
+      71      109
+      72      109
+      73      109
+      74      109
+      75      109
+      76      109
+      77      109
+      78      109
+      79      109
+      7a      109
+      7b      109
+      7c      109
+      7d      109
+      7e      109
+      7f      109
+      80      109
+      81      109
+      82      109
+      83      109
+      84      111
+      85      111
+      86      111
+      87      111
+      88      111
+      8a      111
+      8b      111
+      8c      111
+      8d      112
+      90      114
+      91      114
+      92      114
+      93      114
+      94      114
+      96      114
+      97      114
+      98      114
+      99      115
+      9c      117
+      9d      117
+      9e      117
+      9f      117
+      a0      117
+      a2      117
+      a3      117
+      a4      117
+      a5      118
+      af      120
+      b0      122
+   }
+
+   method 'getEntries ()Lkotlin/enums/EnumEntries;' {
+      0      126
+      1      126
+      2      126
+      3      126
    }
 
    method 'testAnotherEnum$getLevel ()Lkotlin/DeprecationLevel;' {
-      7      105
+      7      130
    }
 
-   method 'testConsecutiveMixed$getLevel-0 ()Lkotlin/DeprecationLevel;' {
-      7      109
+   method 'testConsecutiveMixed$getLevel$0 ()Lkotlin/DeprecationLevel;' {
+      7      134
    }
 }
 
 Lines mapping:
-7 <-> 20
-8 <-> 22
-9 <-> 25
-10 <-> 28
-12 <-> 30
-15 <-> 39
-16 <-> 33
-17 <-> 34
-18 <-> 35
-19 <-> 36
-22 <-> 40
-26 <-> 106
-28 <-> 43
-29 <-> 46
-30 <-> 49
-31 <-> 52
-33 <-> 54
-36 <-> 57
-37 <-> 59
-38 <-> 62
-39 <-> 65
-42 <-> 68
-43 <-> 70
-44 <-> 73
-45 <-> 76
-47 <-> 78
-51 <-> 110
-53 <-> 81
-54 <-> 84
-55 <-> 87
-56 <-> 90
-59 <-> 93
-60 <-> 95
-61 <-> 98
-62 <-> 101
-64 <-> 103
+7 <-> 22
+8 <-> 24
+9 <-> 27
+10 <-> 30
+12 <-> 35
+15 <-> 44
+16 <-> 38
+17 <-> 39
+18 <-> 40
+19 <-> 41
+22 <-> 45
+26 <-> 131
+28 <-> 48
+29 <-> 51
+30 <-> 54
+31 <-> 57
+33 <-> 62
+36 <-> 65
+37 <-> 67
+38 <-> 70
+39 <-> 73
+42 <-> 79
+43 <-> 81
+44 <-> 84
+45 <-> 87
+47 <-> 92
+51 <-> 135
+53 <-> 95
+54 <-> 98
+55 <-> 101
+56 <-> 104
+59 <-> 110
+60 <-> 112
+61 <-> 115
+62 <-> 118
+64 <-> 123
+65 <-> 127
