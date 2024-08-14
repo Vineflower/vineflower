@@ -9,7 +9,7 @@ public class TestTryCatchExpressions {
       var var2: java.lang.String;
       try {
          var2 = StringsKt.repeat(s as java.lang.CharSequence, 5);// 9
-      } catch (RuntimeException var4) {// 10
+      } catch (var4: RuntimeException) {// 10
          var var10000: java.lang.String = var4.getMessage();// 11
          if (var10000 == null) {
             var10000 = "ERROR";
@@ -30,7 +30,7 @@ public class TestTryCatchExpressions {
       try {
          var10000 = var6;
          var4 = StringsKt.repeat(x as java.lang.CharSequence, 5);// 20
-      } catch (RuntimeException var9) {// 21
+      } catch (var9: RuntimeException) {// 21
          var10000 = this;
          x = b;// 22
          var var10001: java.lang.String = var9.getMessage();// 23
@@ -49,7 +49,7 @@ public class TestTryCatchExpressions {
          var10000 = var6;
          var13 = var7;
          var4 = StringsKt.repeat(x as java.lang.CharSequence, 5);// 25
-      } catch (RuntimeException var8) {// 26
+      } catch (var8: RuntimeException) {// 26
          var10000 = var10000;
          var13 = var4;
          var var10002: java.lang.String = var8.getMessage();// 27
@@ -78,12 +78,12 @@ public class TestTryCatchExpressions {
          var15 = b;// 38
          this.test0(b);// 39
          var4 = b;// 40
-      } catch (IOException var13) {// 41
+      } catch (var13: IOException) {// 41
          var10000 = this;
          var15 = a;// 42
          this.test1(a, a);// 43
          var4 = a;// 44
-      } catch (RuntimeException var14) {// 46
+      } catch (var14: RuntimeException) {// 46
          var10000 = this;// 45
          var15 = if (var15 == a) b else a;// 47 49
          var4 = var15;// 51
@@ -99,7 +99,7 @@ public class TestTryCatchExpressions {
          var10000 = var7;
          var10001 = var8;
          var4 = var4;// 53
-      } catch (RuntimeException var12) {// 54
+      } catch (var12: RuntimeException) {// 54
          var10000 = var10000;
          var10001 = var4;
          System.out.println(var15);// 55
