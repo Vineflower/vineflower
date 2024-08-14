@@ -462,6 +462,7 @@ public class KotlinWriter implements StatementWriter {
     }
   }
 
+  //TODO update this to use Kotlin's metadata
   private void writeAnnotationDefinition(ClassNode node, TextBuffer buffer, int indent, KProperty.Data propertyData, Map<StructMethod, KFunction> functions, KConstructor.Data constructorData) {
     ClassWrapper wrapper = node.getWrapper();
     StructClass cl = wrapper.getClassStruct();
@@ -624,7 +625,7 @@ public class KotlinWriter implements StatementWriter {
 
     buffer.appendIndent(indent);
 
-    if (kotlinFlags.visibility != ProtoBuf.Visibility.PUBLIC) {
+    if (kotlinFlags.visibility != ProtoBuf.Visibility.PUBLIC || DecompilerContext.getOption(KotlinOptions.SHOW_PUBLIC_VISIBILITY)) {
       buffer.append(ProtobufFlags.toString(kotlinFlags.visibility)).append(' ');
     }
 

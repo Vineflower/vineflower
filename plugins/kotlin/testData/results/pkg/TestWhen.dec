@@ -1,6 +1,6 @@
 package pkg
 
-class TestWhen {
+public class TestWhen {
    public fun testStatement(obj: Any) {
       if (obj == 1) {// 5 6
          System.out.println("1");

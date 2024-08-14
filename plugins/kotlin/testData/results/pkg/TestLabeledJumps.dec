@@ -1,6 +1,6 @@
 package pkg
 
-class TestLabeledJumps {
+public class TestLabeledJumps {
    public fun testContinue(tester: (Int) -> Boolean) {
       label24:
       for (int i = 1; i < 101; i++) {// 5

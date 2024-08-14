@@ -1,6 +1,6 @@
 package pkg
 
-class TestKotlinTypes {
+public class TestKotlinTypes {
    public final val consumer: (Int) -> Unit = TestKotlinTypes::consumer$lambda$0
 
 

@@ -1,6 +1,6 @@
 package pkg
 
-class TestBitwiseFunctions {
+public class TestBitwiseFunctions {
    public fun and(a: Int, b: Int): Int {
       return a and b;// 5
    }

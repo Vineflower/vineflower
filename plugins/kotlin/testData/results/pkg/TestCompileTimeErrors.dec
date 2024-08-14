@@ -1,6 +1,6 @@
 package pkg
 
-class TestCompileTimeErrors {
+public class TestCompileTimeErrors {
    public fun <I, O> test(i: I): O where O : I, O : pkg.TestCompileTimeErrors.Test {
       throw new NotImplementedError(null, 1, null);// 10
    }
@@ -24,7 +24,7 @@ class TestCompileTimeErrors {
       };
    }
 
-   interface Test {
+   public interface Test {
       public val testValue: Int
    }
 }

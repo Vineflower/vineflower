@@ -3,7 +3,7 @@ package pkg
 import kotlin.jvm.internal.Ref.IntRef
 import kotlin.jvm.internal.Ref.ObjectRef
 
-open class TestNonInlineLambda {
+public open class TestNonInlineLambda {
    public final var intField: Int
       internal set
    public final var stringField: String = ""

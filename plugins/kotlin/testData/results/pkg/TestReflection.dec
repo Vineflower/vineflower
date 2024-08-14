@@ -3,7 +3,7 @@ package pkg
 import kotlin.jvm.functions.Function1
 import kotlin.reflect.KFunction
 
-class TestReflection {
+public class TestReflection {
    public fun testClassReference() {
       System.out.println(TestReflection::class);// 5
       System.out.println(TestReflection::class.java);// 6

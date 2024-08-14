@@ -1,6 +1,6 @@
 package pkg
 
-class TestClassicStringInterpolation {
+public class TestClassicStringInterpolation {
    public final val x: Int = 5
 
 

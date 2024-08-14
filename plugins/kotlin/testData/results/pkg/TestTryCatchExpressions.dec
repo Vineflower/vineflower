@@ -4,7 +4,7 @@ import java.io.IOException
 import kotlin.jvm.internal.SourceDebugExtension
 
 @SourceDebugExtension(["SMAP\nTestTryCatchExpressions.kt\nKotlin\n*S Kotlin\n*F\n+ 1 TestTryCatchExpressions.kt\npkg/TestTryCatchExpressions\n+ 2 fake.kt\nkotlin/jvm/internal/FakeKt\n*L\n1#1,59:1\n1#2:60\n*E\n"])
-class TestTryCatchExpressions {
+public class TestTryCatchExpressions {
    public fun test0(s: String) {
       var var2: java.lang.String;
       try {

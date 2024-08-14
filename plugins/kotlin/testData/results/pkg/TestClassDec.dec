@@ -1,6 +1,6 @@
 package pkg
 
-class TestClassDec {
+public class TestClassDec {
    public fun pkg.TestClassDec.Vec2iVal.dot(v: pkg.TestClassDec.Vec2iVal): Int {
       return `$this$dot`.getX() * v.getX() + `$this$dot`.getY() * v.getY();// 11
    }
@@ -13,13 +13,13 @@ class TestClassDec {
       System.out.println(this.dot(vec, vec1));// 20
    }// 21
 
-   class EmptyDec {
+   public class EmptyDec {
    }
 
-   class Vec2i(x: Int, y: Int) {
+   public class Vec2i(x: Int, y: Int) {
    }
 
-   class Vec2iVal(x: Int, y: Int) {
+   public class Vec2iVal(x: Int, y: Int) {
       public final val x: Int
       public final val y: Int
 
@@ -29,7 +29,7 @@ class TestClassDec {
       }
    }
 
-   class Vec2iVar(x: Int, y: Int) {
+   public class Vec2iVar(x: Int, y: Int) {
       public final var x: Int
          internal set
       public final var y: Int

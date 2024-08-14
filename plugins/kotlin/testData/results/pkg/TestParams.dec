@@ -1,6 +1,6 @@
 package pkg
 
-class TestParams {
+public class TestParams {
    public fun printMessageUnit(message: String) {
       System.out.println(message);// 5
    }// 6
