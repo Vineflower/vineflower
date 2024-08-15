@@ -79,7 +79,7 @@ public data class TestDataClass(dataClassVal: Regex, variableWithVeryLongName: I
       } else if (other !is TestDataClass) {
          return false;
       } else {
-         var var2: TestDataClass = other as TestDataClass;
+         val var2: TestDataClass = other as TestDataClass;
          if (!(this.dataClassVal == (other as TestDataClass).dataClassVal)) {
             return false;
          } else if (this.variableWithVeryLongName != var2.variableWithVeryLongName) {

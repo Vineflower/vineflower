@@ -3,6 +3,7 @@ package org.vineflower.kotlin.expr;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.VarExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.VarProcessor;
+import org.jetbrains.java.decompiler.modules.decompiler.vars.VarTypeProcessor;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.vineflower.kotlin.KotlinWriter;
@@ -47,8 +48,12 @@ public class KVarExprent extends VarExprent implements KExprent {
 
     boolean definition = isDefinition();
     if (definition && !isExceptionType) {
-      // TODO: inference of var/val
-      buffer.append("var ");
+      VarProcessor processor = getProcessor();
+
+      boolean isFinal = isEffectivelyFinal() ||
+        (processor != null && processor.getVarFinal(getVarVersionPair()) != VarTypeProcessor.FinalType.NON_FINAL);
+
+      buffer.append(isFinal ? "val " : "var ");
     }
 
     buffer.append(getName());

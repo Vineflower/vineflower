@@ -56,7 +56,7 @@ public class TestNullableOperator {
 
    public fun test6(x: Int?): Int {
       if (x != null) {// 33
-         var y: Int = x;
+         val y: Int = x;
          System.out.println(y);// 35
          return y;// 37
       } else {

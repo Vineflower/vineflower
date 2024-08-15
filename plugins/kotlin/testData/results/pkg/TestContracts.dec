@@ -60,12 +60,12 @@ public class TestContracts {
          callsInPlace(f)
       }
 
-      var var3: java.lang.Iterable = (new IntRange(0, i)) as java.lang.Iterable;
+      val var3: java.lang.Iterable = (new IntRange(0, i)) as java.lang.Iterable;
       var var4: Int = 0;
-      var var5: java.util.Iterator = var3.iterator();
+      val var5: java.util.Iterator = var3.iterator();
 
       while (var5.hasNext()) {
-         var var6: Int = (var5 as IntIterator).nextInt();
+         val var6: Int = (var5 as IntIterator).nextInt();
          var4 += (f.invoke() as java.lang.Number).intValue();
       }
 

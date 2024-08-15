@@ -23,7 +23,7 @@ public class TestReflection {
    }// 20
 
    public fun testFunctionReference() {
-      var f: KFunction = <unknownclass>.INSTANCE as KFunction;// 23
+      val f: KFunction = <unknownclass>.INSTANCE as KFunction;// 23
       System.out.println(<unknownclass>.INSTANCE as KFunction);// 24
       (f as Function1).invoke(new TestReflection());// 25
    }// 26
