@@ -41,7 +41,7 @@ public class TestTryCatchExpressions {
          var4 = var10001;
       }
 
-      var var7: java.lang.String = var4;// 24
+      val var7: java.lang.String = var4;// 24
       var6 = var10000;
 
       var var13: java.lang.String;
@@ -89,7 +89,7 @@ public class TestTryCatchExpressions {
          var4 = var15;// 51
       }
 
-      var var8: java.lang.String = var4;// 52
+      val var8: java.lang.String = var4;// 52
       var7 = var10000;
 
       var var10001: java.lang.String;

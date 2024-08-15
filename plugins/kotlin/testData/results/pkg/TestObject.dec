@@ -15,7 +15,7 @@ public object TestObject private constructor() {
 
    @JvmStatic
    public fun objectJvmStaticFun() {
-      var var0: Int = objectVar++;// 16
+      val var0: Int = objectVar++;// 16
    }// 17
 }
 

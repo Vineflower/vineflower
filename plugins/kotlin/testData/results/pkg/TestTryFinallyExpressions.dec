@@ -8,7 +8,7 @@ public class TestTryFinallyExpressions {
    public fun test0(s: String) {
       label15: {
          try {
-            var var2: java.lang.String = StringsKt.repeat(s as java.lang.CharSequence, 5);// 8
+            val var2: java.lang.String = StringsKt.repeat(s as java.lang.CharSequence, 5);// 8
          } catch (var4: java.lang.Throwable) {
             System.out.println("bye");
          }
@@ -22,7 +22,7 @@ public class TestTryFinallyExpressions {
          var x: java.lang.String = a;// 15
 
          try {
-            var var4: java.lang.String = StringsKt.repeat(x as java.lang.CharSequence, 5);// 17
+            val var4: java.lang.String = StringsKt.repeat(x as java.lang.CharSequence, 5);// 17
          } catch (var9: java.lang.Throwable) {
             ;
          }
@@ -30,7 +30,7 @@ public class TestTryFinallyExpressions {
          x = b;// 19
 
          try {
-            var var15: java.lang.String = StringsKt.repeat(x as java.lang.CharSequence, 5);// 21
+            val var15: java.lang.String = StringsKt.repeat(x as java.lang.CharSequence, 5);// 21
          } catch (var8: java.lang.Throwable) {
             System.out.println(a);
          }
@@ -58,7 +58,7 @@ public class TestTryFinallyExpressions {
                      } catch (var11: IOException) {// 36
                         var19 = a;// 37
                         this.test1(a, a);// 38
-                        var var4: java.lang.String = a;// 39
+                        val var4: java.lang.String = a;// 39
                      }
                   } catch (var12: java.lang.Throwable) {
                      var19 = if (var19 == a) b else a;// 41 42 44

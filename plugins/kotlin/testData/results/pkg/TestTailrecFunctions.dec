@@ -5,8 +5,8 @@ public class TestTailrecFunctions {
       var var5: TestTailrecFunctions = this;// 4
 
       while (x != 0L) {// 5
-         var var7: Long = x - 1L;
-         var var9: Long = sum + x;
+         val var7: Long = x - 1L;
+         val var9: Long = sum + x;
          var5 = var5;// 6
          x = var7;
          sum = var9;
@@ -71,15 +71,15 @@ public class TestTailrecFunctions {
 
       while (n != 0L) {// 44
          if (n % 2 == 0L) {// 45
-            var var9: Long = x * x;
-            var var11: Long = n / 2;
+            val var9: Long = x * x;
+            val var11: Long = n / 2;
             var7 = var7;
             x = var9;
             n = var11;
             acc = acc;
          } else {
-            var var15: Long = n - 1L;
-            var var13: Long = acc * x;
+            val var15: Long = n - 1L;
+            val var13: Long = acc * x;
             var7 = var7;// 46
             x = x;
             n = var15;
@@ -115,8 +115,8 @@ public class TestTailrecFunctions {
             break;
          }
 
-         var var7: Long = x * x;
-         var var9: Long = n / 2;
+         val var7: Long = x * x;
+         val var9: Long = n / 2;
          var5 = var5;
          x = var7;
          n = var9;

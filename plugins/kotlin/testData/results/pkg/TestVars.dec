@@ -10,7 +10,7 @@ public class TestVars {
    }// 16
 
    public fun testPhi(bl: Boolean) {
-      var var3: Byte;
+      val var3: Byte;
       if (bl) {// 21
          var3 = 1;// 22
       } else {

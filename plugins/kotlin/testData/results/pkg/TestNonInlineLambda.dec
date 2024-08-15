@@ -21,7 +21,7 @@ public open class TestNonInlineLambda {
    }// 18
 
    public fun testCaptureIntIterationValue(x: Iterable<Int>) {
-      var var2: java.util.Iterator = x.iterator();// 21
+      val var2: java.util.Iterator = x.iterator();// 21
 
       while (var2.hasNext()) {
          this.execute(TestNonInlineLambda::testCaptureIntIterationValue$lambda$2);// 22
@@ -35,10 +35,10 @@ public open class TestNonInlineLambda {
    }// 34
 
    public fun testCaptureMutableInt(x: Int) {
-      var y: IntRef = new IntRef();// 37
+      val y: IntRef = new IntRef();// 37
       y.element = x;
       this.execute(TestNonInlineLambda::testCaptureMutableInt$lambda$4);// 38
-      var var3: Int = y.element++;// 41
+      val var3: Int = y.element++;// 41
       this.execute(TestNonInlineLambda::testCaptureMutableInt$lambda$5);// 42
       y.element *= 500;// 45
       this.execute(TestNonInlineLambda::testCaptureMutableInt$lambda$6);// 46
@@ -49,7 +49,7 @@ public open class TestNonInlineLambda {
    }// 57
 
    public fun testCaptureMutableObject(x: String) {
-      var y: ObjectRef = new ObjectRef();// 60
+      val y: ObjectRef = new ObjectRef();// 60
       y.element = x;
       this.execute(TestNonInlineLambda::testCaptureMutableObject$lambda$9);// 61
       y.element = "${y.element}!!";// 64
@@ -63,14 +63,14 @@ public open class TestNonInlineLambda {
    }// 80
 
    public fun testCaptureAndMutateInt(x: Int) {
-      var y: IntRef = new IntRef();// 83
+      val y: IntRef = new IntRef();// 83
       this.execute(TestNonInlineLambda::testCaptureAndMutateInt$lambda$14);// 84
       y.element = 5 + x;// 89
       this.execute(TestNonInlineLambda::testCaptureAndMutateInt$lambda$15);// 90
    }// 95
 
    public fun testCaptureAndMutateString(x: String) {
-      var y: ObjectRef = new ObjectRef();// 98
+      val y: ObjectRef = new ObjectRef();// 98
       y.element = "";
       this.execute(TestNonInlineLambda::testCaptureAndMutateString$lambda$16);// 99
       y.element = "Hello: $x";// 105
@@ -192,7 +192,7 @@ public open class TestNonInlineLambda {
    @JvmStatic
    fun `testCaptureAndMutateInt$lambda$15`(`$y`: IntRef): Unit {
       while ($y.element > 0) {// 91
-         var var1: Int = `$y`.element;// 92
+         val var1: Int = `$y`.element;// 92
          `$y`.element += -1;
          System.out.println(var1);
       }
@@ -222,7 +222,7 @@ public open class TestNonInlineLambda {
 
    @JvmStatic
    fun `testCapturePublicMutableIntField$lambda$18`(`this$0`: TestNonInlineLambda): Unit {
-      var var1: Int = `this$0`.intField++;// 117
+      val var1: Int = `this$0`.intField++;// 117
       return Unit.INSTANCE;
    }
 
@@ -234,7 +234,7 @@ public open class TestNonInlineLambda {
 
    @JvmStatic
    fun `testCapturePrivateMutableIntField$lambda$20`(`this$0`: TestNonInlineLambda): Unit {
-      var var1: Int = `this$0`.privateIntField++;// 129
+      val var1: Int = `this$0`.privateIntField++;// 129
       return Unit.INSTANCE;
    }
 

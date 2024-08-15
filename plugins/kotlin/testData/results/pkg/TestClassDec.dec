@@ -7,8 +7,8 @@ public class TestClassDec {
 
    public fun test() {
       new TestClassDec.EmptyDec();
-      var vec: TestClassDec.Vec2iVal = new TestClassDec.Vec2iVal(1, 2);// 16
-      var vec1: TestClassDec.Vec2iVal = new TestClassDec.Vec2iVal(2, 4);// 17
+      val vec: TestClassDec.Vec2iVal = new TestClassDec.Vec2iVal(1, 2);// 16
+      val vec1: TestClassDec.Vec2iVal = new TestClassDec.Vec2iVal(2, 4);// 17
       System.out.println(vec.getX());// 19
       System.out.println(this.dot(vec, vec1));// 20
    }// 21

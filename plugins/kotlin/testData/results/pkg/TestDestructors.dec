@@ -12,8 +12,8 @@ public class TestDestructors {
 
    public fun destructDataClassesSpecial(x: Pair<Int, String>, y: Triple<List<Int>, Nothing?, Unit>) {
       System.out.println("${(x.component1() as java.lang.Number).intValue()} ${x.component2() as java.lang.String}");// 19 20
-      var c: java.util.List = y.component1() as java.util.List;// 22
-      var d: Void = y.component2() as Void;
+      val c: java.util.List = y.component1() as java.util.List;// 22
+      val d: Void = y.component2() as Void;
       y.component3();
       System.out.println("$c $d ${Unit.INSTANCE}");// 23
    }// 24
@@ -24,7 +24,7 @@ public class TestDestructors {
    }// 35
 
    public fun destructorImpossible(x: Pair<String, Nothing>): String {
-      var a: java.lang.String = x.component1() as java.lang.String;// 38
+      val a: java.lang.String = x.component1() as java.lang.String;// 38
       x.component2();
       throw new KotlinNothingValueException();
    }
@@ -43,7 +43,7 @@ public class TestDestructors {
    }// 51
 
    public fun destructLambdaInline(x: Int) {
-      var var2: Function0 = TestDestructors::destructLambdaInline$lambda$0;
+      val var2: Function0 = TestDestructors::destructLambdaInline$lambda$0;
       System.out
          .println(
             "${this.component1((var2.invoke() as java.lang.Number).intValue())}${this.component2((var2.invoke() as java.lang.Number).intValue())}${this.component3(// 55 75 76 77
