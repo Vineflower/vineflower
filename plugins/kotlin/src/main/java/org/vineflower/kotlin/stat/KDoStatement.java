@@ -7,6 +7,7 @@ import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 import org.vineflower.kotlin.expr.KConstExprent;
 import org.vineflower.kotlin.expr.KVarExprent;
+import org.vineflower.kotlin.util.KUtils;
 
 public class KDoStatement extends KStatement<DoStatement> {
   public KDoStatement(DoStatement statement) {
@@ -41,21 +42,31 @@ public class KDoStatement extends KStatement<DoStatement> {
         buf.appendIndent(indent).append("}").appendLineSeparator();
       }
       case DO_WHILE -> {
+        Exprent expr = KUtils.replaceExprent(statement.getConditionExprent());
+        if (expr == null) {
+          expr = statement.getConditionExprent();
+        }
+
         buf.append("do {").appendLineSeparator();
         buf.append(ExprProcessor.jmpWrapper(statement.getFirst(), indent + 1, false));
         buf.appendIndent(indent).append("} while (");
         buf.pushNewlineGroup(indent, 1);
         buf.appendPossibleNewline();
-        buf.append(statement.getConditionExprent().toJava(indent));
+        buf.append(expr.toJava(indent));
         buf.appendPossibleNewline("", true);
         buf.popNewlineGroup();
         buf.append(")").appendLineSeparator();
       }
       case WHILE -> {
+        Exprent expr = KUtils.replaceExprent(statement.getConditionExprent());
+        if (expr == null) {
+          expr = statement.getConditionExprent();
+        }
+
         buf.append("while (");
         buf.pushNewlineGroup(indent, 1);
         buf.appendPossibleNewline();
-        buf.append(statement.getConditionExprent().toJava(indent));
+        buf.append(expr.toJava(indent));
         buf.appendPossibleNewline("", true);
         buf.popNewlineGroup();
         buf.append(") {").appendLineSeparator();
@@ -63,9 +74,17 @@ public class KDoStatement extends KStatement<DoStatement> {
         buf.appendIndent(indent).append("}").appendLineSeparator();
       }
       case FOR_EACH -> {
-        buf.append("for (").append(statement.getInitExprent().toJava(indent));
-        statement.getIncExprent().getInferredExprType(null); //TODO: see DoStatement
-        buf.append(" in ").append(statement.getIncExprent().toJava(indent)).append(") {").appendLineSeparator();
+        KVarExprent init = new KVarExprent((VarExprent) statement.getInitExprent());
+        init.setExcludeVarVal(true);
+
+        Exprent inc = KUtils.replaceExprent(statement.getIncExprent());
+        if (inc == null) {
+          inc = statement.getIncExprent();
+        }
+
+        buf.append("for (").append(init.toJava(indent));
+        inc.getInferredExprType(null); //TODO: see DoStatement
+        buf.append(" in ").append(inc.toJava(indent)).append(") {").appendLineSeparator();
         buf.append(ExprProcessor.jmpWrapper(statement.getFirst(), indent + 1, false));
         buf.appendIndent(indent).append("}").appendLineSeparator();
       }
@@ -78,36 +97,71 @@ public class KDoStatement extends KStatement<DoStatement> {
           init.getRight() instanceof ConstExprent constExpr &&
 
           statement.getIncExprent() instanceof FunctionExprent inc &&
-          inc.getFuncType() == FunctionExprent.FunctionType.IPP &&
+          inc.getFuncType().isPPMM() &&
 
           statement.getConditionExprent() instanceof FunctionExprent condition &&
-          condition.getFuncType() == FunctionExprent.FunctionType.LT &&
-          condition.getLstOperands().get(condition.getLstOperands().size() - 1) instanceof ConstExprent conditionConst
+          condition.getFuncType() == FunctionExprent.FunctionType.LT
         ) {
           // Turn for loop into range
           varExpr = new KVarExprent(varExpr);
           ((KVarExprent) varExpr).setExcludeVarVal(true);
 
-          constExpr.setConstType(varExpr.getExprType());
-          conditionConst.setConstType(varExpr.getExprType());
-          if (conditionConst.getValue() instanceof Integer i) {
-            conditionConst = new ConstExprent(varExpr.getExprType(), i - 1, conditionConst.bytecode);
-            conditionConst = new KConstExprent(conditionConst);
+          KConstExprent conditionConst;
+          if (condition.getLstOperands().get(1) instanceof ConstExprent c) {
+            conditionConst = new KConstExprent(c);
+          } else {
+            conditionConst = new KConstExprent((ConstExprent) condition.getLstOperands().get(0));
           }
 
-          buf.append("for (")
+          conditionConst.setConstType(varExpr.getExprType());
+          if (conditionConst.getValue() instanceof Integer i) {
+            int newValue = inc.getFuncType().isPP() ? i - 1 : i + 1;
+            conditionConst = new KConstExprent(new ConstExprent(varExpr.getExprType(), newValue, conditionConst.bytecode));
+          }
+
+          constExpr.setConstType(varExpr.getExprType());
+
+          if (constExpr.getValue() instanceof Integer i && i == 0) {
+            buf.append("repeat(")
+              .append(conditionConst.toJava())
+              .append(") {");
+
+            if (!"it".equals(varExpr.getName())) {
+              buf.append(" ")
+                .append(varExpr.toJava(indent))
+                .append(" ->");
+            }
+            buf.appendLineSeparator();
+          } else {
+            buf.append("for (")
               .append(varExpr.toJava(indent))
               .append(" in ")
               .append(constExpr.toJava())
-              .append("..")
+              .append(inc.getFuncType().isPP() ? ".." : " downTo ")
               .append(conditionConst.toJava())
               .append(") {")
               .appendLineSeparator();
+          }
 
           buf.append(ExprProcessor.jmpWrapper(statement.getFirst(), indent + 1, false));
           buf.appendIndent(indent).append("}").appendLineSeparator();
         } else {
           //TODO other cases
+          Exprent init = KUtils.replaceExprent(statement.getInitExprent());
+          if (init == null) {
+            init = statement.getInitExprent();
+          }
+
+          Exprent condition = KUtils.replaceExprent(statement.getConditionExprent());
+          if (condition == null) {
+            condition = statement.getConditionExprent();
+          }
+
+          Exprent inc = KUtils.replaceExprent(statement.getIncExprent());
+          if (inc == null) {
+            inc = statement.getIncExprent();
+          }
+
           if (labeled) {
             buf.setLength(0); // Clear buffer, label needs to be treated differently
             buf.appendIndent(indent);
@@ -125,18 +179,18 @@ public class KDoStatement extends KStatement<DoStatement> {
               .appendIndent(++indent);
           }
 
-          if (statement.getInitExprent() != null) {
-            buf.append(statement.getInitExprent().toJava(indent)).appendLineSeparator().appendIndent(indent);
+          if (init != null) {
+            buf.append(init.toJava(indent)).appendLineSeparator().appendIndent(indent);
           }
 
           buf.append("while (true) {").appendLineSeparator();
           buf.appendIndent(indent + 1);
           buf.append("if (");
-          buf.append(statement.getConditionExprent().toJava(indent + 1));
+          buf.append(condition.toJava(indent + 1));
           buf.append(") break").appendLineSeparator();
           buf.append(ExprProcessor.jmpWrapper(statement.getFirst(), indent + 1, false));
           buf.appendLineSeparator();
-          buf.appendIndent(indent + 1).append(statement.getIncExprent().toJava(indent + 1)).appendLineSeparator();
+          buf.appendIndent(indent + 1).append(inc.toJava(indent + 1)).appendLineSeparator();
           buf.appendIndent(indent).append("}").appendLineSeparator();
 
           if (labeled) {
