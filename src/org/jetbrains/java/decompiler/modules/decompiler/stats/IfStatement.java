@@ -55,12 +55,17 @@ public final class IfStatement extends Statement {
     headexprent.add(null);
   }
 
-  private IfStatement(Statement head, int regedges, Statement postst) {
 
+  public IfStatement(Statement head) {
     this();
 
     first = head;
     stats.addWithKey(head, head.id);
+  }
+
+  private IfStatement(Statement head, int regedges, Statement postst) {
+
+    this(head);
 
     List<StatEdge> lstHeadSuccs = head.getSuccessorEdges(STATEDGE_DIRECT_ALL);
 

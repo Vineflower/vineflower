@@ -9,7 +9,7 @@ import java.util.Map;
 
 class DomTracer {
   private static final boolean COLLECT_STRINGS = false;
-  private static final boolean COLLECT_DOTS = false;
+  private static final boolean COLLECT_DOTS = true;
 
   private final String filePrefix;
   private final StructMethod structMethod;

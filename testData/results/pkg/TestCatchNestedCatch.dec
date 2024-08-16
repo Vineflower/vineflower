@@ -1,0 +1,69 @@
+package pkg;
+
+public class TestCatchNestedCatch {
+   public void test() {
+      try {
+         System.out.println("test0 try");// 6
+      } catch (Exception var4) {// 7
+         System.out.println("test0 catch");// 8
+
+         try {
+            System.out.println("test1 try");// 11
+         } catch (Exception var3) {// 12
+            System.out.println("test1 catch");// 13
+         }
+      }
+   }// 16
+}
+
+class 'pkg/TestCatchNestedCatch' {
+   method 'test ()V' {
+      0      5
+      1      5
+      2      5
+      3      5
+      4      5
+      5      5
+      6      5
+      7      5
+      b      6
+      c      7
+      d      7
+      e      7
+      f      7
+      10      7
+      11      7
+      12      7
+      13      7
+      14      10
+      15      10
+      16      10
+      17      10
+      18      10
+      19      10
+      1a      10
+      1b      10
+      1f      11
+      20      12
+      21      12
+      22      12
+      23      12
+      24      12
+      25      12
+      26      12
+      27      12
+      28      15
+   }
+}
+
+Lines mapping:
+6 <-> 6
+7 <-> 7
+8 <-> 8
+11 <-> 11
+12 <-> 12
+13 <-> 13
+16 <-> 16
+Not mapped:
+14
+15

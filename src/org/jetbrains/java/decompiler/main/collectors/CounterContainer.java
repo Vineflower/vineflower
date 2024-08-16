@@ -5,8 +5,9 @@ public class CounterContainer {
   public static final int STATEMENT_COUNTER = 0;
   public static final int EXPRESSION_COUNTER = 1;
   public static final int VAR_COUNTER = 2;
+  public static final int DOM_BLOCK_COUNTER = 3;
 
-  private final int[] values = new int[]{1, 1, 1};
+  private final int[] values = new int[]{1, 1, 1, 1};
 
   public void setCounter(int counter, int value) {
     values[counter] = value;

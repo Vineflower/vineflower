@@ -42,15 +42,7 @@ public final class BasicBlockStatement extends Statement {
       coun.setCounter(CounterContainer.STATEMENT_COUNTER, id + 1);
     }
 
-    Instruction instr = block.getLastInstruction();
-    if (instr != null) {
-      if (instr.group == CodeConstants.GROUP_JUMP && instr.opcode != CodeConstants.opc_goto) {
-        lastBasicType = LastBasicType.IF;
-      }
-      else if (instr.group == CodeConstants.GROUP_SWITCH) {
-        lastBasicType = LastBasicType.SWITCH;
-      }
-    }
+    lastBasicType = block.getLastBasicType();
 
     // monitorenter and monitorexits
     buildMonitorFlags();

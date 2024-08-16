@@ -27,13 +27,13 @@ import java.util.*;
 import java.util.Map.Entry;
 
 public class DotExporter {
-  private static final String DOTS_FOLDER = System.getProperty("DOT_EXPORT_DIR", null);
-  private static final String DOTS_ERROR_FOLDER = System.getProperty("DOT_ERROR_EXPORT_DIR", null);
+  public static final String DOTS_FOLDER = System.getProperty("DOT_EXPORT_DIR", null);
+  private static final String DOTS_ERROR_FOLDER = System.getProperty("DOT_ERROR_EXPORT_DIR", DOTS_FOLDER);
   public static final boolean DUMP_DOTS = DOTS_FOLDER != null && !DOTS_FOLDER.trim().isEmpty();
   public static final boolean DUMP_ERROR_DOTS = DOTS_ERROR_FOLDER != null && !DOTS_ERROR_FOLDER.trim().isEmpty();
 
   private static final boolean EXTENDED_MODE = false;
-  private static final boolean STATEMENT_LR_MODE = false;
+  private static final boolean STATEMENT_LR_MODE = true;
   private static final boolean SAME_RANK_MODE = false;
   // http://graphs.grevian.org/graph is a nice visualizer for the outputed dots.
 
@@ -131,7 +131,12 @@ public class DotExporter {
           edgeType = edgeType == null ? "Closure: " + edge.closure.id : edgeType + " (Closure: " + edge.closure.id + ")";
         }
 
-        buffer.append(sourceId + "->" + destId + (edgeType != null ? "[label=\"" + edgeType + "\", " + meta + "]" : "[" + meta + "]") + ";\n");
+        if (edge.getType() == StatEdge.TYPE_CONTINUE) {
+          buffer.append(destId + "->" + sourceId);
+        } else {
+          buffer.append(sourceId + "->" + destId);
+        }
+        buffer.append((edgeType != null ? "[label=\"" + edgeType + "\", " + meta + "]" : "[" + meta + "]") + ";\n");
 
         if (EXTENDED_MODE && edge.closure != null) {
           String clsId = edge.closure.id + (edge.getDestination().getSuccessorEdges(StatEdge.TYPE_EXCEPTION).isEmpty()?"":"000000");
@@ -371,7 +376,7 @@ public class DotExporter {
       case StatEdge.TYPE_REGULAR: return "weight=1, color=black";
       case StatEdge.TYPE_EXCEPTION: return "weight=1, color=orange, style=dashed";
       case StatEdge.TYPE_BREAK: return "weight=0.4, color=blue";
-      case StatEdge.TYPE_CONTINUE: return "weight=0.2, color=green";
+      case StatEdge.TYPE_CONTINUE: return "weight=0.3, color=green, dir=back";
       case StatEdge.TYPE_FINALLYEXIT: return "weight=1, color=orange, style=dotted";
       default: return "weight=1, color=purple";
     }
@@ -651,7 +656,7 @@ public class DotExporter {
     return getFile(folder, mt, "", suffix);
   }
 
-  private static File getFile(String folder, StructMethod mt, String subdirectory, String suffix) {
+  public static File getFile(String folder, StructMethod mt, String subdirectory, String suffix) {
     File root = new File(folder + mt.getClassQualifiedName() + (subdirectory.isEmpty() ? "" : "/" + subdirectory));
     if (!root.isDirectory()) {
       root.mkdirs();

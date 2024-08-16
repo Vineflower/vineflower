@@ -92,6 +92,7 @@ public class ExprProcessor implements CodeConstants {
   };
 
   private static final String[] typeNames = {"byte", "char", "double", "float", "int", "long", "short", "boolean"};
+  private static final String[] typeNames2 = {"object", "address", "void", "any", "group2empty", "null", "notinitialized", "bytechar", "shortchar", "unknown", "genvar"};
 
   private final MethodDescriptor methodDescriptor;
   private final VarProcessor varProcessor;
@@ -780,7 +781,8 @@ public class ExprProcessor implements CodeConstants {
       return ret;
     }
 
-    throw new RuntimeException("invalid type: " + tp);
+//    throw new RuntimeException("invalid type: " + tp);
+    return "<$" + typeNames2[tp.ordinal() - CodeType.OBJECT.ordinal()] + "$>";
   }
 
   public static boolean isInvalidTypeName(String name) {

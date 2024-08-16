@@ -1,0 +1,55 @@
+package pkg;
+
+public class TestCatchMultiParent {
+   public void test() {
+      try {
+         System.out.println("test0 try");// 6
+      } catch (IllegalStateException var2) {// 7
+         System.out.println("test0 catch 0");// 8
+      } catch (Exception var3) {// 9
+         System.out.println("test0 catch 1");// 10
+      }
+   }// 12
+}
+
+class 'pkg/TestCatchMultiParent' {
+   method 'test ()V' {
+      0      5
+      1      5
+      2      5
+      3      5
+      4      5
+      5      5
+      6      5
+      7      5
+      b      6
+      c      7
+      d      7
+      e      7
+      f      7
+      10      7
+      11      7
+      12      7
+      13      7
+      17      8
+      18      9
+      19      9
+      1a      9
+      1b      9
+      1c      9
+      1d      9
+      1e      9
+      1f      9
+      20      11
+   }
+}
+
+Lines mapping:
+6 <-> 6
+7 <-> 7
+8 <-> 8
+9 <-> 9
+10 <-> 10
+12 <-> 12
+Not mapped:
+11

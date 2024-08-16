@@ -16,6 +16,7 @@ import org.jetbrains.java.decompiler.main.plugins.PluginContext;
 import org.jetbrains.java.decompiler.modules.code.DeadCodeHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.*;
 import org.jetbrains.java.decompiler.modules.decompiler.decompose.DomHelper;
+import org.jetbrains.java.decompiler.modules.decompiler.decompose.DomHelper2;
 import org.jetbrains.java.decompiler.modules.decompiler.deobfuscator.ExceptionDeobfuscator;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper;
@@ -163,6 +164,7 @@ public class MethodProcessor implements Runnable {
     }
 
     DotExporter.toDotFile(graph, mt, "cfgParsed", true);
+//    RootStatement root = DomHelper2.parseGraph(graph, mt, 0);
     RootStatement root = DomHelper.parseGraph(graph, mt, 0);
 
     DecompileRecord decompileRecord = new DecompileRecord(mt);
@@ -181,6 +183,7 @@ public class MethodProcessor implements Runnable {
       decompileRecord.add("ProcessFinallyOld_" + finallyProcessed, root);
       DotExporter.toDotFile(graph, mt, "cfgProcessFinally_" + finallyProcessed, true);
 
+//      root = DomHelper2.parseGraph(graph, mt, finallyProcessed);
       root = DomHelper.parseGraph(graph, mt, finallyProcessed);
       root.addComments(oldRoot);
 

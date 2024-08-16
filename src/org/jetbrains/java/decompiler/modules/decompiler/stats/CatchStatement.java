@@ -16,10 +16,7 @@ import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 
-import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public final class CatchStatement extends Statement {
   private final List<List<String>> exctstrings = new ArrayList<>();
@@ -34,7 +31,33 @@ public final class CatchStatement extends Statement {
     super(StatementType.TRY_CATCH);
   }
 
-  private CatchStatement(Statement head, Statement next, Set<Statement> setHandlers) {
+  public CatchStatement(Statement head, Map<List<String>, Statement> setHandlers) {
+    this();
+
+    first = head;
+    stats.addWithKey(first, first.id);
+
+    for (var entry : setHandlers.entrySet()) {
+      Statement stat = entry.getValue();
+
+      stats.addWithKey(stat, stat.id);
+      exctstrings.add(new ArrayList<>(entry.getKey()));
+
+      vars.add(
+        new VarExprent(
+          DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.VAR_COUNTER),
+          new VarType(
+            CodeType.OBJECT,
+            0,
+          // FIXME: for now simply the first type. Should get the first common superclass when possible.
+            entry.getKey().get(0)),
+          DecompilerContext.getVarProcessor()
+        )
+      );
+    }
+  }
+
+  public CatchStatement(Statement head, Statement next, Set<Statement> setHandlers) {
     this();
 
     first = head;

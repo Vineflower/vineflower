@@ -248,6 +248,15 @@ public abstract class Statement implements IMatchable {
     }
   }
 
+  public void setAllParent(boolean recursive) {
+    for (Statement st : stats) {
+      st.setParent(this);
+      if (recursive) {
+        st.setAllParent(true);
+      }
+    }
+  }
+
   public void addLabeledEdge(StatEdge edge) {
     if (edge.closure != null) {
       edge.closure.getLabelEdges().remove(edge);

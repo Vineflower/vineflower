@@ -1,0 +1,64 @@
+package pkg;
+
+public class TestCatchLoopAfterCatch {
+   public void test() {
+      Exception e = new Exception();// 5
+
+      try {
+         System.out.println("test0 try");// 7
+      } catch (Exception var3) {// 8
+         e = var3;// 9
+         System.out.println("test0 catch");// 10
+      }
+
+      while (e.hashCode() > 0) {// 13
+         e = new Exception();// 14
+      }
+   }// 16
+}
+
+class 'pkg/TestCatchLoopAfterCatch' {
+   method 'test ()V' {
+      7      4
+      8      7
+      9      7
+      a      7
+      b      7
+      c      7
+      d      7
+      e      7
+      f      7
+      13      8
+      14      9
+      15      9
+      16      10
+      17      10
+      18      10
+      19      10
+      1a      10
+      1b      10
+      1c      10
+      1d      10
+      1e      13
+      1f      13
+      20      13
+      21      13
+      22      13
+      23      13
+      24      13
+      2c      14
+      30      16
+   }
+}
+
+Lines mapping:
+5 <-> 5
+7 <-> 8
+8 <-> 9
+9 <-> 10
+10 <-> 11
+13 <-> 14
+14 <-> 15
+16 <-> 17
+Not mapped:
+11

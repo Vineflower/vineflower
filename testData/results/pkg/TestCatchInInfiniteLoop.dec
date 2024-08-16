@@ -1,0 +1,68 @@
+package pkg;
+
+public class TestCatchInInfiniteLoop {
+   public void test(int i) {
+      while (true) {
+         try {
+            System.out.println("test0 try");// 7
+         } catch (Exception var3) {// 8
+            System.out.println("test0 catch");// 9
+            if (var3.hashCode() == i) {// 10
+               return;// 16
+            }
+
+            System.out.println("test0 after break");// 13
+         }
+      }
+   }
+}
+
+class 'pkg/TestCatchInInfiniteLoop' {
+   method 'test (I)V' {
+      0      6
+      1      6
+      2      6
+      3      6
+      4      6
+      5      6
+      6      6
+      7      6
+      b      7
+      c      8
+      d      8
+      e      8
+      f      8
+      10      8
+      11      8
+      12      8
+      13      8
+      14      9
+      15      9
+      16      9
+      17      9
+      18      9
+      19      9
+      1a      9
+      1b      9
+      1f      13
+      20      13
+      21      13
+      22      13
+      23      13
+      24      13
+      25      13
+      26      13
+      2a      10
+   }
+}
+
+Lines mapping:
+7 <-> 7
+8 <-> 8
+9 <-> 9
+10 <-> 10
+13 <-> 14
+16 <-> 11
+Not mapped:
+11
+14

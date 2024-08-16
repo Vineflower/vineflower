@@ -256,6 +256,13 @@ public abstract class SingleClassesTestBase {
           if (failable) {
             assumeTrue(false, referenceFile.getFileName() + " failed but was ignored, because it was marked as failable");
           } else {
+//            try {
+//              Files.delete(referenceFile);
+//              Files.copy(decompiledFile, referenceFile);
+//            } catch (IOException e2) {
+//              throw new UncheckedIOException(e2);
+//            }
+
             // This is terrible! We shouldn't need this! The reason this exists is because Github Actions likes to create
             // different code in impossible to debug ways, so we just allowlist two different versions of the decompiled code.
             Path tryNext = referenceFile.resolveSibling(referenceFile.getFileName().toString()

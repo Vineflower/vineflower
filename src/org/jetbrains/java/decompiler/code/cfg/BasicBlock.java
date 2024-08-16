@@ -1,11 +1,13 @@
 // Copyright 2000-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.code.cfg;
 
+import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.Instruction;
 import org.jetbrains.java.decompiler.code.InstructionSequence;
 import org.jetbrains.java.decompiler.code.SimpleInstructionSequence;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.modules.decompiler.decompose.IGraphNode;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -218,5 +220,17 @@ public class BasicBlock implements IGraphNode {
       }
       int end = seq.getLastInstr().length;
       return end + instrOldOffsets.get(size() -1);
+  }
+
+  public Statement.LastBasicType getLastBasicType() {
+    Instruction instr = this.getLastInstruction();
+    if (instr != null) {
+      if (instr.group == CodeConstants.GROUP_JUMP && instr.opcode != CodeConstants.opc_goto) {
+        return Statement.LastBasicType.IF;
+      } else if (instr.group == CodeConstants.GROUP_SWITCH) {
+        return Statement.LastBasicType.SWITCH;
+      }
+    }
+    return Statement.LastBasicType.GENERAL;
   }
 }

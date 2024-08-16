@@ -554,7 +554,7 @@ public final class DomHelper implements GraphParser {
       List<Integer> posts = vbPost.get(k);
 
       if (!mapExtPost.containsKey(headid) &&
-          !(posts.size() == 1 && posts.get(0).equals(headid))) {
+        !(posts.size() == 1 && posts.get(0).equals(headid))) {
         continue;
       }
 
@@ -593,7 +593,7 @@ public final class DomHelper implements GraphParser {
             if (!addHandler) {
               List<Statement> hdsupp = handler.getNeighbours(StatEdge.TYPE_EXCEPTION, EdgeDirection.BACKWARD);
               addHandler = (setNodes.containsAll(hdsupp) && (setNodes.size() > hdsupp.size()
-                                                             || setNodes.size() == 1)); // strict subset
+                || setNodes.size() == 1)); // strict subset
             }
 
             if (addHandler) {
@@ -654,8 +654,8 @@ public final class DomHelper implements GraphParser {
           setPreds.removeAll(setNodes);
           if (setPreds.isEmpty()) {
             if ((setNodes.size() > 1 ||
-                 head.getNeighbours(StatEdge.TYPE_REGULAR, EdgeDirection.BACKWARD).contains(head))
-                && setNodes.size() < stats.size()) {
+              head.getNeighbours(StatEdge.TYPE_REGULAR, EdgeDirection.BACKWARD).contains(head))
+              && setNodes.size() < stats.size()) {
               if (checkSynchronizedCompleteness(setNodes)) {
                 res = new GeneralStatement(head, setNodes, same ? null : post);
                 stat.collapseNodesToStatement(res);
@@ -689,65 +689,78 @@ public final class DomHelper implements GraphParser {
     return true;
   }
 
-  // Try to collapse all nodes in the given general statement to a single node. When this transformation is done, the general statement will be marked as placeholder.
-  private static boolean findSimpleStatements(Statement stat, HashMap<Integer, Set<Integer>> mapExtPost, DomTracer tracer) {
+  // Try to collapse all nodes in the given general statement to a single node.
+  // When this transformation is done, the general statement will be marked as placeholder.
+  private static boolean findSimpleStatements(
+    Statement stat,
+    HashMap<Integer, Set<Integer>> mapExtPost,
+    DomTracer tracer
+  ) {
 
     boolean found, success = false;
 
     do {
       found = false;
 
-      // Orders the statement in reverse post order with respect to post dominance, to ensure that the statement is built from the inside out
+      // Orders the statement in reverse post order with respect to post dominance,
+      // to ensure that the statement is built from the inside out
       List<Statement> lstStats = stat.getPostReversePostOrderList();
       for (Statement st : lstStats) {
 
         Statement result = detectStatement(st);
 
-        if (result != null) {
-//          tracer.successCreated(stat, "Detected " + st + " to " + result + " (" + result.getStats() + ")", st);
+        if (result == null) {
+          continue;
+        }
 
-          // If the statement we created contains the first statement of the general statement as it's first, we know that we've completed iteration to the point where every statment in the subgraph has been explored at least once, due to how the post order is created.
-          // More iteration still happens to discover higher level structures (such as the case where basicblock -> if -> loop)
-          if (stat instanceof GeneralStatement && !((GeneralStatement) stat).isPlaceholder() && result.getFirst() == stat.getFirst() &&
-              stat.getStats().size() == result.getStats().size()) {
-            // mark general statement
-            ((GeneralStatement) stat).setPlaceholder(true);
+        // tracer.successCreated(stat, "Detected " + st + " to " + result + " (" + result.getStats() + ")", st);
+
+        // If the statement we created contains the first statement of the general statement as it's first,
+        // we know that we've completed iteration to the point where every statement in the subgraph
+        // has been explored at least once, due to how the post order is created.
+        // More iteration still happens to discover higher level structures
+        // (such as the case where basicblock -> if -> loop)
+        if (stat instanceof GeneralStatement genStat
+          && !genStat.isPlaceholder()
+          && result.getFirst() == stat.getFirst()
+          && stat.getStats().size() == result.getStats().size()) {
+          // mark general statement
+          ((GeneralStatement) stat).setPlaceholder(true);
+        }
+
+        stat.collapseNodesToStatement(result);
+
+        tracer.successCreated(stat, "Transformed " + st + " to " + result + " (" + result.getStats() + ")", result);
+
+        // update the postdominator map
+        if (!mapExtPost.isEmpty()) {
+          HashSet<Integer> setOldNodes = new HashSet<>();
+          for (Statement old : result.getStats()) {
+            setOldNodes.add(old.id);
           }
 
-          stat.collapseNodesToStatement(result);
+          Integer newid = result.id;
 
-          tracer.successCreated(stat, "Transformed " + st + " to " + result + " (" + result.getStats() + ")", result);
+          for (int key : new ArrayList<>(mapExtPost.keySet())) {
+            Set<Integer> set = mapExtPost.get(key);
 
-          // update the postdominator map
-          if (!mapExtPost.isEmpty()) {
-            HashSet<Integer> setOldNodes = new HashSet<>();
-            for (Statement old : result.getStats()) {
-              setOldNodes.add(old.id);
-            }
+            int oldsize = set.size();
+            set.removeAll(setOldNodes);
 
-            Integer newid = result.id;
-
-            for (int key : new ArrayList<>(mapExtPost.keySet())) {
-              Set<Integer> set = mapExtPost.get(key);
-
-              int oldsize = set.size();
-              set.removeAll(setOldNodes);
-
-              if (setOldNodes.contains(key)) {
-                mapExtPost.computeIfAbsent(newid, k -> new LinkedHashSet<>()).addAll(set);
-                mapExtPost.remove(key);
-              } else {
-                if (set.size() < oldsize) {
-                  set.add(newid);
-                }
+            if (setOldNodes.contains(key)) {
+              mapExtPost.computeIfAbsent(newid, k -> new LinkedHashSet<>()).addAll(set);
+              mapExtPost.remove(key);
+            } else {
+              if (set.size() < oldsize) {
+                set.add(newid);
               }
             }
           }
-
-
-          found = true;
-          break;
         }
+
+
+        found = true;
+        break;
       }
 
       if (found) {

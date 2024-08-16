@@ -1,0 +1,57 @@
+package pkg;
+
+public class TestCatchLoopInCatch {
+   public void test() {
+      try {
+         System.out.println("test0 try");// 6
+      } catch (Exception var2) {// 7
+         Exception e = var2;
+         System.out.println("test0 catch");// 8
+
+         while (e.hashCode() > 0) {// 10
+            e = new Exception();// 11
+         }
+      }
+   }// 14
+}
+
+class 'pkg/TestCatchLoopInCatch' {
+   method 'test ()V' {
+      0      5
+      1      5
+      2      5
+      3      5
+      4      5
+      5      5
+      6      5
+      7      5
+      b      6
+      c      8
+      d      8
+      e      8
+      f      8
+      10      8
+      11      8
+      12      8
+      13      8
+      14      10
+      15      10
+      16      10
+      17      10
+      18      10
+      19      10
+      1a      10
+      22      11
+      26      14
+   }
+}
+
+Lines mapping:
+6 <-> 6
+7 <-> 7
+8 <-> 9
+10 <-> 11
+11 <-> 12
+14 <-> 15
+Not mapped:
+13

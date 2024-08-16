@@ -38,7 +38,7 @@ public final class DoStatement extends Statement {
     incExprent.add(null);
   }
 
-  private DoStatement(Statement head) {
+  public DoStatement(Statement head) {
 
     this();
 

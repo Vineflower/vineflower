@@ -363,6 +363,17 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16, "TestLocalRecord");
     register(JAVA_9, "TestPrivateInterfaceMethod");
 
+    register(JAVA_8, "TestCatchInInfiniteLoop");
+    register(JAVA_8, "TestCatchInLoop");
+    register(JAVA_8, "TestCatchLoopAfterCatch");
+    register(JAVA_8, "TestCatchLoopInCatch");
+    register(JAVA_8, "TestCatchLoopInCatchWithAfterSection");
+    register(JAVA_8, "TestCatchMulti");
+    register(JAVA_8, "TestCatchMultiParent");
+    register(JAVA_8, "TestCatchNestedCatch");
+    register(JAVA_8, "TestCatchNestedTry");
+    register(JAVA_8, "TestCatchSimple");
+
     register(JAVA_16, "TestAssignmentSwitchExpression1");
     register(JAVA_16, "TestAssignmentSwitchExpression2");
     register(JAVA_16, "TestAssignmentSwitchExpression3");

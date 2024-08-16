@@ -30,6 +30,7 @@ public final class ValidationHelper {
     }
 
     VBStyleCollection<Statement, Integer> statements = new VBStyleCollection<>();
+    Map<Integer, Statement> statementsMap = new HashMap<>();
 
     Deque<Statement> stack = new LinkedList<>();
     stack.push(statement.getDummyExit());
@@ -37,6 +38,13 @@ public final class ValidationHelper {
 
     while (!stack.isEmpty()) {
       Statement stat = stack.pop();
+
+      if (statementsMap.containsKey(stat.id)) {
+        Statement other = statementsMap.get(stat.id);
+        throw new IllegalStateException("Duplicate statement id: " + stat + " (id: " + stat.id + ") and " + other + " (id: " + other.id + ")");
+      } else {
+        statementsMap.put(stat.id, stat);
+      }
 
       statements.putWithKey(stat, stat.id);
 
@@ -214,8 +222,19 @@ public final class ValidationHelper {
   }
 
   public static void validateTrycatchStatement(CatchStatement catchStat) {
+    if (!VALIDATE) {
+      return;
+    }
+
     if (catchStat.getStats().size() == 1 && catchStat.getResources().isEmpty()) {
       throw new IllegalStateException("Try statement with single statement: " + catchStat);
+    }
+
+    var blockSuccessors = catchStat.getStats().get(0).getAllDirectSuccessorEdges();
+    if (blockSuccessors.size() != 1) {
+//      throw new IllegalStateException("Try block has multiple successors: " + catchStat);
+    } else if (blockSuccessors.get(0).getType() != StatEdge.TYPE_REGULAR) {
+//      throw new IllegalStateException("Try block successor edge is not regular: " + catchStat);
     }
   }
 

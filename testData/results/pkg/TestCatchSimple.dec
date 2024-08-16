@@ -1,0 +1,42 @@
+package pkg;
+
+public class TestCatchSimple {
+   public void test() {
+      try {
+         System.out.println("test0 try");// 6
+      } catch (Exception var2) {// 7
+         System.out.println("test0 catch");// 8
+      }
+   }// 10
+}
+
+class 'pkg/TestCatchSimple' {
+   method 'test ()V' {
+      0      5
+      1      5
+      2      5
+      3      5
+      4      5
+      5      5
+      6      5
+      7      5
+      b      6
+      c      7
+      d      7
+      e      7
+      f      7
+      10      7
+      11      7
+      12      7
+      13      7
+      14      9
+   }
+}
+
+Lines mapping:
+6 <-> 6
+7 <-> 7
+8 <-> 8
+10 <-> 10
+Not mapped:
+9
