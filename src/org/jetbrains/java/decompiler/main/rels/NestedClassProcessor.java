@@ -743,9 +743,9 @@ public class NestedClassProcessor {
 
             int varIndex = 1;
             for (int i = 0; i < md.params.length; i++) {  // no static methods allowed
-              // Always assume we can use the heuristic if there's only one metho
+              // Always assume we can use the heuristic if there's only one method
               Pair<String, Boolean> keyField = getEnclosingVarField(cl, method, graph, varIndex, i, p == 1 || cl.getMethods().size() == 1);
-              if (!keyField.a.isEmpty()) {
+              if (keyField != null && !keyField.a.isEmpty()) {
                 found = true;
               }
 
