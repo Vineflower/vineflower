@@ -90,7 +90,7 @@ public class KDoStatement extends KStatement<DoStatement> {
       }
       case FOR -> {
         // This is a hard one as Kotlin has no one-to-one equivalent to Java's for loop
-        if (
+        resugar: if (
           statement.getInitExprent() instanceof AssignmentExprent init &&
           init.getLeft() instanceof VarExprent varExpr &&
           isIntegerType(varExpr.getExprType()) &&
@@ -106,24 +106,36 @@ public class KDoStatement extends KStatement<DoStatement> {
           varExpr = new KVarExprent(varExpr);
           ((KVarExprent) varExpr).setExcludeVarVal(true);
 
-          KConstExprent conditionConst;
+          Exprent conditionExpr;
           if (condition.getLstOperands().get(1) instanceof ConstExprent c) {
-            conditionConst = new KConstExprent(c);
+            conditionExpr = new KConstExprent(c);
+          } else if (condition.getLstOperands().get(0) instanceof ConstExprent c) {
+            conditionExpr = new KConstExprent(c);
           } else {
-            conditionConst = new KConstExprent((ConstExprent) condition.getLstOperands().get(0));
+            Exprent left = condition.getLstOperands().get(0);
+            Exprent right = condition.getLstOperands().get(1);
+            if (left instanceof VarExprent var && var.equals(varExpr) && right instanceof VarExprent compareVar) {
+              conditionExpr = new KVarExprent(compareVar);
+            } else if (right instanceof VarExprent var && var.equals(varExpr) && left instanceof VarExprent compareVar) {
+              conditionExpr = new KVarExprent(compareVar);
+            } else {
+              break resugar;
+            }
           }
 
-          conditionConst.setConstType(varExpr.getExprType());
-          if (conditionConst.getValue() instanceof Integer i) {
-            int newValue = inc.getFuncType().isPP() ? i - 1 : i + 1;
-            conditionConst = new KConstExprent(new ConstExprent(varExpr.getExprType(), newValue, conditionConst.bytecode));
+          if (conditionExpr instanceof ConstExprent conditionConst) {
+            conditionConst.setConstType(varExpr.getExprType());
+            if (conditionConst.getValue() instanceof Integer i) {
+              int newValue = inc.getFuncType().isPP() ? i - 1 : i + 1;
+              conditionExpr = new KConstExprent(new ConstExprent(varExpr.getExprType(), newValue, conditionConst.bytecode));
+            }
           }
 
           constExpr.setConstType(varExpr.getExprType());
 
           if (constExpr.getValue() instanceof Integer i && i == 0) {
             buf.append("repeat(")
-              .append(conditionConst.toJava())
+              .append(conditionExpr.toJava())
               .append(") {");
 
             if (!"it".equals(varExpr.getName())) {
@@ -138,7 +150,7 @@ public class KDoStatement extends KStatement<DoStatement> {
               .append(" in ")
               .append(constExpr.toJava())
               .append(inc.getFuncType().isPP() ? ".." : " downTo ")
-              .append(conditionConst.toJava())
+              .append(conditionExpr.toJava())
               .append(") {")
               .appendLineSeparator();
           }
