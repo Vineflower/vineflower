@@ -12,7 +12,7 @@ import org.vineflower.kotlin.util.KTypes;
 import java.util.BitSet;
 
 public class KVarExprent extends VarExprent implements KExprent {
-  private boolean isExceptionType;
+  private boolean excludeVarVal;
 
   public KVarExprent(int index, VarType varType, VarProcessor processor, BitSet bytecode) {
     super(index, varType, processor, bytecode);
@@ -47,7 +47,7 @@ public class KVarExprent extends VarExprent implements KExprent {
     buffer.addBytecodeMapping(bytecode);
 
     boolean definition = isDefinition();
-    if (definition && !isExceptionType) {
+    if (definition && !excludeVarVal) {
       VarProcessor processor = getProcessor();
 
       boolean isFinal = isEffectivelyFinal() ||
@@ -58,7 +58,7 @@ public class KVarExprent extends VarExprent implements KExprent {
 
     buffer.append(getName());
 
-    if (definition || isExceptionType) {
+    if (definition || excludeVarVal) {
       buffer.append(": ");
       buffer.append(KTypes.getKotlinType(getDefinitionVarType()));
     }
@@ -66,8 +66,8 @@ public class KVarExprent extends VarExprent implements KExprent {
     return buffer;
   }
 
-  public void setExceptionType(boolean isExceptionType) {
-    this.isExceptionType = isExceptionType;
+  public void setExcludeVarVal(boolean isExceptionType) {
+    this.excludeVarVal = isExceptionType;
   }
 
   @Override

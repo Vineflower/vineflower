@@ -2,7 +2,6 @@ package org.vineflower.kotlin.pass;
 
 import org.jetbrains.java.decompiler.api.plugin.pass.Pass;
 import org.jetbrains.java.decompiler.api.plugin.pass.PassContext;
-import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.vineflower.kotlin.expr.KVarExprent;
@@ -33,7 +32,7 @@ public class ReplaceExprentsPass implements Pass {
       for (int i = 0; i < vars.size(); i++) {
         VarExprent expr = vars.get(i);
         KVarExprent map = new KVarExprent(expr);
-        map.setExceptionType(true);
+        map.setExcludeVarVal(true);
         vars.set(i, map);
       }
     }

@@ -83,6 +83,7 @@ public class KotlinPlugin implements Plugin {
       .addPass("ResugarMethods", new ResugarKotlinMethodsPass())
       .addPass("ReplaceContinue", ctx -> LabelHelper.replaceContinueWithBreak(ctx.getRoot()))
       .addPass("CollapseStringConcat", new CollapseStringConcatPass())
+      .addPass("ReplaceStats", new ReplaceStatsPass())
 
       .build();
   }
