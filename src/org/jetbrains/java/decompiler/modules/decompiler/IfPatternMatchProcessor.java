@@ -18,8 +18,12 @@ public final class IfPatternMatchProcessor {
     if (res) {
       ValidationHelper.validateStatement(root);
 
+      SequenceHelper.condenseSequences(root);
+
       // IfHelper already called SequenceHelper.condenseSequences if it returned true
-      if (!IfHelper.mergeAllIfs(root)) {
+      if (IfHelper.mergeAllIfs(root)) {
+        improvePatternTypes(root);
+      } else {
         SequenceHelper.condenseSequences(root);
       }
     }
@@ -349,6 +353,23 @@ public final class IfPatternMatchProcessor {
                 }
               }
             }
+          } else {
+            // Is the next statement an if with an instanceof inside? It might be a type-improving if. Search inside it too.
+            if (next instanceof IfStatement ifSt && ifSt.iftype == IfStatement.IFTYPE_IF
+              && ifSt.getHeadexprent().getCondition() instanceof FunctionExprent func && func.getFuncType() == FunctionType.INSTANCEOF) {
+
+              // "<stackVar> = <originalVar>;" idiom
+              // Ensure this is the right idiom be fore we mark it for destruction.
+              if (branch.getBasichead().getExprents().size() == 1) {
+                if (branch.getBasichead().getExprents().get(0) instanceof AssignmentExprent assign
+                  && assign.getLeft() instanceof VarExprent && assign.getRight() instanceof VarExprent) {
+                  toDestroy.add(branch.getBasichead());
+                }
+              }
+
+              branch = ifSt.getIfstat();
+              stIdx = 0;
+            }
           }
 
           // If we found a "realVar = exVar;" then we can skip over this statement and move on.
@@ -363,8 +384,6 @@ public final class IfPatternMatchProcessor {
         return false;
       }
     }
-
-    toDestroy.add(branch.getBasichead());
 
     PatternExprent pattern = new PatternExprent(PatternExprent.recordData(cl), type, new ArrayList<>(vars.values()));
 
@@ -481,5 +500,105 @@ public final class IfPatternMatchProcessor {
 
     // otherwise, return ourselves
     return base;
+  }
+
+  private static boolean improvePatternTypes(Statement stat) {
+    boolean res = false;
+    for (Statement st : stat.getStats()) {
+      res |= improvePatternTypes(st);
+    }
+
+    if (stat instanceof IfStatement ifSt) {
+      Exprent cond = ifSt.getHeadexprent().getCondition();
+
+      if (improvePatternType(ifSt.getHeadexprent(), cond, ifSt.getIfstat())) {
+        res = true;
+      }
+    }
+
+    return res;
+  }
+
+  private static boolean improvePatternType(Exprent parent, Exprent ex, Statement st) {
+    boolean res = false;
+    for (Exprent e : ex.getAllExprents(false, true)) {
+      // don't recurse on self
+      if (e != ex) {
+        res |= improvePatternType(ex, e, st);
+      }
+
+      if (e instanceof FunctionExprent fn && fn.getFuncType() == FunctionType.BOOLEAN_AND) {
+        Exprent base = fn.getLstOperands().get(0);
+
+        // Check for record pattern instanceof
+        if (base instanceof FunctionExprent baseFn && baseFn.getFuncType() == FunctionType.INSTANCEOF
+          && baseFn.getLstOperands().size() > 2 && baseFn.getLstOperands().get(2) instanceof PatternExprent pattern
+          && pattern.getData() instanceof PatternExprent.PatternData.RecordPatternData) {
+          // Found one? now find type-enhancing instanceofs in the other arm
+
+          // Map a list of vars 1:1 with the exprents in the pattern
+          List<VarExprent> vars = new ArrayList<>();
+
+          for (Exprent patternEx : pattern.getExprents()) {
+            if (patternEx instanceof VarExprent var) {
+              vars.add(var);
+            } else {
+              vars.add(null);
+            }
+
+            // TODO: recursively look?
+          }
+
+          for (int j = 0; j < vars.size(); j++) {
+            VarExprent var = vars.get(j);
+            if (var == null) {
+              continue;
+            }
+
+            // Now go through the following ordeal to improve pattern types.
+            // Look for cases that look like 'Rec(Object synth) && synth instanceof Type t' where 'synth' is a synthetic
+            // variable that is only used in the pattern.
+
+            // Is the 'synth' variable used outside the pattern? All hope is lost.
+            if (var.isVarReferenced(st)) {
+              continue;
+            }
+
+            // Go through all of the exprents one by one to see if we can find redundant instanceofs
+            // We need to start at the parent, as in the case where there is only one instanceof, such as
+            // 'o instanceof Rec(Object x) && x instanceof String s', we need to replace the whole expression with the
+            // left hand side.
+            out:
+            for (Exprent exp : parent.getAllExprents(true, true)) {
+              for (Exprent inst : exp.getAllExprents()) {
+                if (inst instanceof FunctionExprent instFun && instFun.getFuncType() == FunctionType.BOOLEAN_AND) {
+                  // Search each arm of the boolean and
+                  for (int i = 0; i < 2; i++) {
+                    Exprent inner = instFun.getLstOperands().get(i);
+                    if (inner instanceof FunctionExprent innerFun && innerFun.getFuncType() == FunctionType.INSTANCEOF && innerFun.getLstOperands().size() > 2) {
+                      if (innerFun.getLstOperands().get(0).equals(var)) {
+
+                        // Replace the var
+                        pattern.getExprents().set(j, innerFun.getLstOperands().get(2));
+                        pattern.getVarTypes().set(j, innerFun.getLstOperands().get(1).getExprType());
+
+                        // replace 'A && B' where A is the redundant instanceof with simply 'B'
+                        exp.replaceExprent(inst, instFun.getLstOperands().get(i ^ 1));
+
+                        break out;
+                      }
+                    }
+                  }
+                }
+              }
+            }
+
+            // Iterate again, to try to replace all components
+          }
+        }
+      }
+    }
+
+    return res;
   }
 }

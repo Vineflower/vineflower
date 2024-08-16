@@ -1,6 +1,7 @@
 package org.jetbrains.java.decompiler.modules.decompiler.exps;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.modules.decompiler.DecHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.vars.CheckTypesResult;
@@ -17,17 +18,20 @@ public class PatternExprent extends Exprent implements Pattern {
   private final PatternData data;
   private final VarType varType;
   private final List<Exprent> exprents;
+  private final List<@Nullable VarType> varTypes;
 
   public PatternExprent(PatternData data, VarType type, List<Exprent> exprents) {
     super(Type.PATTERN);
     this.data = data;
     varType = type;
     this.exprents = exprents;
+    this.varTypes = new ArrayList<>();
 
     for (Exprent exprent : exprents) {
       if (!(exprent instanceof Pattern)) {
         ValidationHelper.assertTrue(false, "Illegal input for PatternExprent");
       }
+      varTypes.add(null);
     }
   }
 
@@ -76,7 +80,12 @@ public class PatternExprent extends Exprent implements Pattern {
 
       // The type lower bound must be
       for (int i = 0; i < exprents.size(); i++) {
-        res.addMinTypeExprent(exprents.get(i), new VarType(record.cl.getRecordComponents().get(i).getDescriptor()));
+        VarType type = varTypes.get(i);
+        if (type != null) {
+          res.addMinTypeExprent(exprents.get(i), type);
+        } else {
+          res.addMinTypeExprent(exprents.get(i), new VarType(record.cl.getRecordComponents().get(i).getDescriptor()));
+        }
       }
 
       return res;
@@ -105,6 +114,18 @@ public class PatternExprent extends Exprent implements Pattern {
     }
 
     return vars;
+  }
+
+  public PatternData getData() {
+    return data;
+  }
+
+  public List<Exprent> getExprents() {
+    return exprents;
+  }
+
+  public List<@Nullable VarType> getVarTypes() {
+    return varTypes;
   }
 
   public static PatternData recordData(StructClass cl) {
