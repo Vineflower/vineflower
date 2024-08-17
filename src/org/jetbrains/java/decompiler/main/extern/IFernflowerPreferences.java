@@ -387,6 +387,11 @@ public interface IFernflowerPreferences {
   @Type(Type.STRING)
   String EXCLUDED_CLASSES = "excluded-classes";
 
+  @Name("Validate inner classes names")
+  @Description("Validates that the inner class name is correct (if it is separated using \"$\" for example BaseClass$InnerClass). If not then inner class won't be processed.")
+  @Type(Type.STRING)
+  String VALIDATE_INNER_CLASSES_NAMES = "validate-inner-classes-names";
+
   Map<String, Object> DEFAULTS = getDefaults();
 
   static Map<String, Object> getDefaults() {
@@ -458,6 +463,7 @@ public interface IFernflowerPreferences {
     defaults.put(REMOVE_IMPORTS, "0");
     defaults.put(MARK_CORRESPONDING_SYNTHETICS, "0");
     defaults.put(EXCLUDED_CLASSES, "");
+    defaults.put(VALIDATE_INNER_CLASSES_NAMES, "1");
 
     return Collections.unmodifiableMap(defaults);
   }
