@@ -86,7 +86,7 @@ public class TestRecordPattern2 {
       }
    }
 
-   static record Pair<A, B>(A a, B b) {
+   record Pair<A, B>(A a, B b) {
    }
 }
 

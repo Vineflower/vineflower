@@ -63,7 +63,7 @@ public class TestRecordPattern1 {
       }
    }
 
-   static record Point(int a, int b) {
+   record Point(int a, int b) {
    }
 }
 

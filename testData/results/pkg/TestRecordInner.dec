@@ -5,7 +5,7 @@ public class TestRecordInner {
       return new TestRecordInner.Rec(x);// 7
    }
 
-   private static record Rec(int x) {
+   private record Rec(int x) {
    }
 }
 

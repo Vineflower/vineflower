@@ -49,7 +49,7 @@ public class TestRecordPattern4 {
       }
    }// 22
 
-   static record Many(Object a, Object b, Object c, Object d, Object e, Object f, Object g, Object h, Object i) {
+   record Many(Object a, Object b, Object c, Object d, Object e, Object f, Object g, Object h, Object i) {
    }
 }
 
