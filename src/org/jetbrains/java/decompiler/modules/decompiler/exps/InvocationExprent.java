@@ -467,7 +467,7 @@ public class InvocationExprent extends Exprent {
                         }
                         if (found != null) {
                           Map<VarType, VarType> genvars = new HashMap<>();
-                          if (base.getSignature() != null) {
+                          if (base.getSignature() != null && found.getSignature() != null) {
                             base.getSignature().genericType.mapGenVarsTo((GenericType) paramType, genvars);
                             excluded.addAll(found.getSignature().parameterTypes.stream()
                               .filter(VarType::isGeneric)
