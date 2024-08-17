@@ -333,7 +333,8 @@ public class NestedClassProcessor {
       if (nd.type != ClassNode.Type.LAMBDA &&
           !nd.classStruct.isSynthetic() &&
           (nd.access & CodeConstants.ACC_STATIC) == 0 &&
-          (nd.access & CodeConstants.ACC_INTERFACE) == 0) {
+          (nd.access & CodeConstants.ACC_INTERFACE) == 0 &&
+          nd.classStruct.getRecordComponents() == null) {
         clTypes.add(nd.type);
 
         Map<String, List<VarFieldPair>> mask = getMaskLocalVars(nd.getWrapper());
