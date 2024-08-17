@@ -4,6 +4,7 @@ package org.jetbrains.java.decompiler.modules.decompiler;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.FunctionType;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.RootStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
 import org.jetbrains.java.decompiler.struct.consts.PooledConstant;
 import org.jetbrains.java.decompiler.struct.consts.PrimitiveConstant;
@@ -32,7 +33,7 @@ public final class ConcatenationHelper {
 
     if (stat.getExprents() != null) {
       for (int i = 0; i < stat.getExprents().size(); ++i) {
-        Exprent ret = simplifyStringConcat(stat.getExprents().get(i));
+        Exprent ret = simplifyStringConcat(stat.getTopParent(), stat.getExprents().get(i));
         if (ret != null) {
           stat.getExprents().set(i, ret);
         }
@@ -40,9 +41,9 @@ public final class ConcatenationHelper {
     }
   }
 
-  private static Exprent simplifyStringConcat(Exprent exprent) {
+  private static Exprent simplifyStringConcat(RootStatement root, Exprent exprent) {
     for (Exprent cexp : exprent.getAllExprents()) {
-      Exprent ret = simplifyStringConcat(cexp);
+      Exprent ret = simplifyStringConcat(root, cexp);
       if (ret != null) {
         exprent.replaceExprent(cexp, ret);
         ret.addBytecodeOffsets(cexp.bytecode);
@@ -50,7 +51,7 @@ public final class ConcatenationHelper {
     }
 
     if (exprent instanceof InvocationExprent) {
-      Exprent ret = ConcatenationHelper.contractStringConcat(exprent);
+      Exprent ret = ConcatenationHelper.contractStringConcat(root, exprent);
       if (!exprent.equals(ret)) {
         return ret;
       }
@@ -59,7 +60,7 @@ public final class ConcatenationHelper {
     return null;
   }
 
-  public static Exprent contractStringConcat(Exprent expr) {
+  public static Exprent contractStringConcat(RootStatement root, Exprent expr) {
 
     Exprent exprTmp = null;
     VarType cltype = null;
@@ -78,7 +79,7 @@ public final class ConcatenationHelper {
           exprTmp = iex.getInstance();
         }
       } else if ("makeConcatWithConstants".equals(iex.getName()) || "makeConcat".equals(iex.getName())) { // java 9 style
-        List<Exprent> parameters = extractParameters(iex.getBootstrapArguments(), iex);
+        List<Exprent> parameters = extractParameters(root, iex.getBootstrapArguments(), iex);
 
         // Check if we need to add an empty string to the param list to convert from objects or primitives to strings.
         boolean addEmptyString = true;
@@ -198,7 +199,7 @@ public final class ConcatenationHelper {
   private static final String TAG_ARG_S = "\u0001";
   private static final char TAG_CONST = '\u0002';
 
-  private static List<Exprent> extractParameters(List<PooledConstant> bootstrapArguments, InvocationExprent expr) {
+  private static List<Exprent> extractParameters(RootStatement root, List<PooledConstant> bootstrapArguments, InvocationExprent expr) {
     List<Exprent> parameters = expr.getLstParameters();
 
     // Remove unnecessary String.valueOf() calls to resolve Vineflower#151
@@ -235,6 +236,10 @@ public final class ConcatenationHelper {
               // skip for now
             }
             if (c == TAG_ARG) {
+              if (parameterId >= parameters.size()) {
+                root.addComment("$VF: Could not fully resugar string concatentation!");
+                continue;
+              }
               res.add(parameters.get(parameterId++));
             }
           } else {
