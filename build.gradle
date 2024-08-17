@@ -144,7 +144,7 @@ def testJavaRuntimes = [:]
         languageVersion = JavaLanguageVersion.of(runtimeVersion)
     }
 }
-[16, 17, 19, 21].forEach { version -> createJavaTestDataSet(version, "Preview", ["--enable-preview"]) }
+[16, 17, 21].forEach { version -> createJavaTestDataSet(version, "Preview", ["--enable-preview"]) }
 [8, 16].forEach { version -> createJavaTestDataSet(version, "NoDebug", ["-g:none"])}
 
 task compileTestDataJasm(type: JasmCompile) {
