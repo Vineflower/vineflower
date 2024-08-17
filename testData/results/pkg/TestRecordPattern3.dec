@@ -31,7 +31,7 @@ public class TestRecordPattern3 {
       }
    }// 13
 
-   static record Bundle<A>(A a, String b, String c, int i1, int i2, int i3, int i4, long l1, long l2, char c1, char c2, byte bb, double dd, boolean bool) {
+   record Bundle<A>(A a, String b, String c, int i1, int i2, int i3, int i4, long l1, long l2, char c1, char c2, byte bb, double dd, boolean bool) {
    }
 }
 

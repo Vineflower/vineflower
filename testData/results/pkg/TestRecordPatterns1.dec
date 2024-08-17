@@ -155,7 +155,7 @@ public class TestRecordPatterns1 {
       }
    }// 32
 
-   static record R(int i, Object o) {
+   record R(int i, Object o) {
    }
 }
 

@@ -5,7 +5,7 @@ public class TestRecordGenericSuperclass<G extends Number> {
       return null;// 5
    }
 
-   public static record Rec<G>(G num) {
+   public record Rec<G>(G num) {
       public G getNum() {
          return this.num;// 10
       }
