@@ -260,6 +260,11 @@ public final class IfPatternMatchProcessor {
     // if (v instanceof MyType) {
     //   var10000 = v;
     // ...
+    // or:
+    //
+    // if (v instanceof MyType var10000) {
+    // ...
+
     if (!(instOf.getLstOperands().size() > 2 ? instOf.getLstOperands().get(2) : instOf.getLstOperands().get(0)).equals(headRight)) {
       return false;
     }
@@ -269,24 +274,6 @@ public final class IfPatternMatchProcessor {
     VarType type = instOf.getLstOperands().get(1).getExprType();
 
     StructClass cl = DecompilerContext.getStructContext().getClass(type.value);
-
-    // Iteratively go through the sequence to see if it extracts from the record
-
-    // The general strategy is to identify an "extracting try" [1] for each record component.
-    // If we identify it, continue matching. Between each try we might see pseudo stack ops [2]
-    // that we'll want to clean up as well. If all the components were matched, then we are able
-    // to create the pattern with the variables.
-    //
-    // [1]:
-    // try {
-    //   exVar = <stackVar>.<component>();
-    // } catch (Throwable t) {
-    //   throw new MatchException(...);
-    // }
-    //
-    // [2]:
-    // realVar = exVar;
-    // <stackVar> = <originalVar>;
 
     // Ending exprents we may want to remove
     Map<BasicBlockStatement, Exprent> remove = new HashMap<>();
@@ -321,6 +308,24 @@ public final class IfPatternMatchProcessor {
   }
 
   private static PatternData getChildPattern(StructClass cl, Exprent storeVariable, VarType type, Statement branch, int stIdx, List<Statement> toDestroy, Map<BasicBlockStatement, Exprent> remove) {
+    // Iteratively go through the sequence to see if it extracts from the record
+
+    // The general strategy is to identify an "extracting try" [1] for each record component.
+    // If we identify it, continue matching. Between each try we might see pseudo stack ops [2]
+    // that we'll want to clean up as well. If all the components were matched, then we are able
+    // to create the pattern with the variables.
+    //
+    // [1]:
+    // try {
+    //   exVar = <stackVar>.<component>();
+    // } catch (Throwable t) {
+    //   throw new MatchException(...);
+    // }
+    //
+    // [2]:
+    // realVar = exVar;
+    // <stackVar> = <originalVar>;
+
     if (cl == null || cl.getRecordComponents() == null) {
       return null; // No idea what class, or not a record!
     }
@@ -434,6 +439,7 @@ public final class IfPatternMatchProcessor {
       }
     }
 
+    // Check for any nested record patterns
     for (PatternStore patternStore : patternStores) {
       List<Statement> tmpToDestroy = new ArrayList<>();
       Map<BasicBlockStatement, Exprent> tmpRemove = new HashMap<>();
