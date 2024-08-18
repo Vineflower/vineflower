@@ -14,7 +14,7 @@ import java.util.HashSet;
 import java.util.List;
 
 // Loop statement
-public final class DoStatement extends Statement {
+public class DoStatement extends Statement {
   public enum Type {
     INFINITE, DO_WHILE, WHILE, FOR, FOR_EACH
   }
