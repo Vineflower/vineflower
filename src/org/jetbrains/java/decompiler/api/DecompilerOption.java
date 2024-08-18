@@ -69,6 +69,10 @@ public record DecompilerOption(
     return id.compareTo(decompilerOption.id);
   }
 
+  /**
+   * Get all decompiler options from all plugins and the core decompiler.
+   * @return A list of all decompiler options, sorted by plugin and id, with core decompiler options first.
+   */
   public static List<DecompilerOption> getAll() {
     List<DecompilerOption> options = new ArrayList<>();
 
@@ -104,6 +108,11 @@ public record DecompilerOption(
     return options;
   }
 
+  /**
+   * Get all decompiler options from all plugins and the core decompiler, grouped by plugin.
+   * Calling {@link Map#get} with {@code null} will return the core decompiler options.
+   * @return A map of plugins to their decompiler options, sorted by id within each plugin.
+   */
   public static Map<Plugin, List<DecompilerOption>> getAllByPlugin() {
     Map<Plugin, List<DecompilerOption>> options = new HashMap<>();
 
