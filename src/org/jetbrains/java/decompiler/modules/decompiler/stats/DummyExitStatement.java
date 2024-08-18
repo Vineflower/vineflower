@@ -3,7 +3,7 @@ package org.jetbrains.java.decompiler.modules.decompiler.stats;
 
 import java.util.BitSet;
 
-public final class DummyExitStatement extends Statement {
+public class DummyExitStatement extends Statement {
   public BitSet bytecode = null;  // offsets of bytecode instructions mapped to dummy exit
 
   public DummyExitStatement() {

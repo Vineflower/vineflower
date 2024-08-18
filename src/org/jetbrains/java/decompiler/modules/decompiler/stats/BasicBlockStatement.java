@@ -18,7 +18,7 @@ import org.jetbrains.java.decompiler.util.TextBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class BasicBlockStatement extends Statement {
+public class BasicBlockStatement extends Statement {
 
   // *****************************************************************************
   // private fields
