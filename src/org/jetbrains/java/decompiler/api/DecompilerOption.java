@@ -169,7 +169,8 @@ public record DecompilerOption(
       String friendlyName = name.value();
       String friendlyDescription = description.value();
       Type friendlyType = type.value();
-      String defaultValue = defaults.containsKey(paramName) ? defaults.get(paramName).toString() : null;
+      Object defaultValue = defaults.get(paramName);
+      String defaultValueString = defaultValue != null ? defaultValue.toString() : null;
 
       options.add(new DecompilerOption(
         paramName,
@@ -177,7 +178,7 @@ public record DecompilerOption(
         friendlyDescription,
         friendlyType,
         plugin != null ? plugin.id() : null,
-        defaultValue
+        defaultValueString
       ));
     }
   }
