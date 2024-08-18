@@ -1,98 +1,26 @@
 package pkg;
 
-import java.lang.runtime.SwitchBootstraps;
 import java.util.Objects;
 
 public class TestRecordPatterns6 {
    public Object test1(TestRecordPatterns6.I in) {
-      Object var17;
-      switch (in) {
-         case TestRecordPatterns6.I.R1 var4:// 12
-            TestRecordPatterns6.I.R1 var20 = var4;
-
-            try {
-               var17 = (TestRecordPatterns6.I.R3)var20.o();
-            } catch (Throwable var13) {// 14
-               throw new MatchException(var13.toString(), var13);
-            }
-
-            Object var14 = var17;
-            var17 = (TestRecordPatterns6.I.R3)var14;
-            break;
-         case TestRecordPatterns6.I.R2 var6:// 13
-            TestRecordPatterns6.I.R2 var18 = var6;
-
-            try {
-               var19 = var18.i();
-            } catch (Throwable var12) {
-               throw new MatchException(var12.toString(), var12);
-            }
-
-            int var15 = var19;
-            var17 = var15;
-            break;
-         case TestRecordPatterns6.I.R3 var8:
-            var17 = var8;
-
-            try {
-               var16 = var17.s();
-            } catch (Throwable var11) {
-               throw new MatchException(var11.toString(), var11);
-            }
-
-            String var10 = var16;
-            var17 = var10;
-            break;
-         default:
-            throw new MatchException(null, null);
-      }
-
-      return var17;// 11
+      return switch (in) {// 11
+         case TestRecordPatterns6.I.R1(Object var14) -> var14;// 12
+         case TestRecordPatterns6.I.R2(int var15) -> var15;// 13
+         case TestRecordPatterns6.I.R3(String var10) -> var10;// 14
+         default -> throw new MatchException(null, null);
+      };
    }
 
    public String test2(TestRecordPatterns6.I in) {
       Objects.requireNonNull(in);
-      TestRecordPatterns6.I var2 = in;
-      byte var3 = 0;
 
       while (true) {
-         String var13;
-         switch (SwitchBootstraps.typeSwitch<"typeSwitch",TestRecordPatterns6.I.R1,TestRecordPatterns6.I.R3>(var2, var3)) {
-            case 0:
-               TestRecordPatterns6.I.R1 var4 = (TestRecordPatterns6.I.R1)var2;// 20
-               TestRecordPatterns6.I.R1 var14 = var4;
-
-               try {
-                  var15 = var14.o();
-               } catch (Throwable var10) {// 21
-                  throw new MatchException(var10.toString(), var10);
-               }
-
-               if (!(var15 instanceof String s)) {
-                  var3 = 1;
-                  continue;
-               }
-
-               var13 = s;
-               break;
-            case 1:
-               TestRecordPatterns6.I.R3 var6 = (TestRecordPatterns6.I.R3)var2;
-               TestRecordPatterns6.I.R3 var10000 = var6;
-
-               try {
-                  var13 = var10000.s();
-               } catch (Throwable var9) {
-                  throw new MatchException(var9.toString(), var9);
-               }
-
-               String var8 = var13;
-               var13 = var8;
-               break;
-            default:
-               throw new IllegalStateException();// 22
-         }
-
-         return var13;// 19
+         return (String)(switch (in) {// 19
+            case TestRecordPatterns6.I.R1(String s) -> s;// 20
+            case TestRecordPatterns6.I.R3(String var8) -> var8;// 21
+            default -> throw new IllegalStateException();// 22
+         });
       }
    }
 
@@ -110,197 +38,118 @@ public class TestRecordPatterns6 {
 
 class 'pkg/TestRecordPatterns6' {
    method 'test1 (Lpkg/TestRecordPatterns6$I;)Ljava/lang/Object;' {
-      0      8
-      9      8
-      10      8
-      11      8
-      12      8
-      13      8
-      14      8
-      15      8
-      16      8
-      17      8
-      18      8
-      19      8
-      1a      8
-      1b      8
-      1c      8
-      1d      8
-      1e      8
-      1f      8
-      20      8
-      21      8
-      22      8
-      23      8
-      24      8
-      25      8
-      26      8
-      27      8
-      28      8
-      29      8
-      2a      8
-      2b      8
-      30      46
-      31      46
-      35      46
-      3a      9
-      3b      9
-      3c      10
-      3d      10
-      3e      13
-      3f      13
-      40      13
-      41      18
-      42      18
-      43      19
-      44      19
-      47      19
-      48      19
-      49      20
-      50      21
-      51      21
-      52      22
-      53      22
-      54      25
-      55      25
-      56      25
-      57      30
-      58      30
-      59      31
-      5a      31
-      5d      31
-      5e      31
-      5f      31
-      60      31
-      61      31
-      62      32
-      69      33
-      6a      33
-      6b      34
-      6c      34
-      6d      37
-      6e      37
-      6f      37
-      70      42
-      71      42
-      72      43
-      73      43
-      76      43
-      77      43
-      78      49
-      79      14
-      7e      15
-      7f      15
-      80      15
-      81      15
-      82      15
-      86      15
+      0      6
+      9      6
+      10      6
+      11      6
+      12      6
+      13      6
+      14      6
+      15      6
+      16      6
+      17      6
+      18      6
+      19      6
+      1a      6
+      1b      6
+      1c      6
+      1d      6
+      1e      6
+      1f      6
+      20      6
+      21      6
+      22      6
+      23      6
+      24      6
+      25      6
+      26      6
+      27      6
+      28      6
+      29      6
+      2a      6
+      2b      6
+      30      10
+      31      10
+      35      10
+      41      7
+      42      7
+      43      7
+      44      7
+      47      7
+      48      7
+      57      8
+      58      8
+      59      8
+      5a      8
+      5d      8
+      5e      8
+      5f      8
+      60      8
+      61      8
+      70      9
+      71      9
+      72      9
+      73      9
+      76      9
+      77      9
+      78      6
    }
 
    method 'test2 (Lpkg/TestRecordPatterns6$I;)Ljava/lang/String;' {
-      0      53
-      2      53
-      3      53
-      4      53
-      6      54
-      7      55
-      8      55
-      9      59
-      a      59
-      b      59
-      c      59
-      d      59
-      e      59
-      f      59
-      10      59
-      11      59
-      12      59
-      13      59
-      14      59
-      15      59
-      16      59
-      17      59
-      18      59
-      19      59
-      1a      59
-      1b      59
-      1c      59
-      1d      59
-      1e      59
-      1f      59
-      20      59
-      21      59
-      22      59
-      23      59
-      24      59
-      25      59
-      26      59
-      27      59
-      28      59
-      29      59
-      2a      59
-      2b      59
-      2c      61
-      2d      61
-      2e      61
-      2f      61
-      30      61
-      31      61
-      32      62
-      33      62
-      34      65
-      35      65
-      36      65
-      3b      70
-      3c      70
-      3d      70
-      3e      70
-      3f      70
-      40      70
-      46      70
-      47      70
-      48      75
-      49      75
-      4b      71
-      4c      71
-      4d      72
-      52      76
-      55      78
-      56      78
-      57      78
-      58      78
-      59      78
-      5a      78
-      5b      79
-      5c      79
-      5d      82
-      5e      82
-      5f      82
-      60      87
-      61      87
-      62      88
-      63      88
-      66      88
-      67      88
-      68      89
-      72      91
-      73      94
-      74      66
-      79      67
-      7a      67
-      7b      67
-      7c      67
-      7d      67
-      81      67
+      0      15
+      2      15
+      3      15
+      4      15
+      9      18
+      10      18
+      11      18
+      12      18
+      13      18
+      14      18
+      15      18
+      16      18
+      17      18
+      18      18
+      19      18
+      1a      18
+      1b      18
+      1c      18
+      1d      18
+      1e      18
+      1f      18
+      20      18
+      21      18
+      22      18
+      23      18
+      24      18
+      25      18
+      26      18
+      27      18
+      28      18
+      29      18
+      2a      18
+      2b      18
+      46      19
+      47      19
+      48      19
+      49      19
+      60      20
+      61      20
+      62      20
+      63      20
+      66      20
+      67      20
+      72      21
+      73      18
    }
 }
 
 Lines mapping:
-11 <-> 50
-12 <-> 10
-13 <-> 22
-14 <-> 15
-19 <-> 95
-20 <-> 62
-21 <-> 67
-22 <-> 92
+11 <-> 7
+12 <-> 8
+13 <-> 9
+14 <-> 10
+19 <-> 19
+20 <-> 20
+21 <-> 21
+22 <-> 22

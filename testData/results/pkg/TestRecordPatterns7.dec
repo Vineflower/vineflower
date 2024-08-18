@@ -1,7 +1,5 @@
 package pkg;
 
-import java.io.PrintStream;
-import java.lang.runtime.SwitchBootstraps;
 import java.util.Objects;
 
 public class TestRecordPatterns7 {
@@ -14,116 +12,20 @@ public class TestRecordPatterns7 {
    }// 8
 
    public void test2(Object o) {
-      PrintStream var10000 = System.out;
       Objects.requireNonNull(o);
-      Object var2 = o;
-      byte var3 = 0;
 
-      int var10001;
-      label85:
-      while (true) {
-         switch (SwitchBootstraps.typeSwitch<"typeSwitch",TestRecordPatterns7.A>(var2, var3)) {
-            case 0:
-               TestRecordPatterns7.A var4 = (TestRecordPatterns7.A)var2;
-               TestRecordPatterns7.A var32 = var4;
-
-               try {
-                  var33 = var32.c();
-               } catch (Throwable var23) {// 12
-                  throw new MatchException(var23.toString(), var23);
-               }
-
-               TestRecordPatterns7.C var14 = var33;
-               if (var14 instanceof TestRecordPatterns7.C) {
-                  TestRecordPatterns7.A var34 = var4;
-
-                  try {
-                     var10001 = var34.i();
-                  } catch (Throwable var22) {
-                     throw new MatchException(var22.toString(), var22);
-                  }
-
-                  int var24 = var10001;
-                  TestRecordPatterns7.A var36 = var4;
-
-                  try {
-                     var37 = var36.b2();
-                  } catch (Throwable var21) {
-                     throw new MatchException(var21.toString(), var21);
-                  }
-
-                  TestRecordPatterns7.B var25 = var37;
-                  if (var25 instanceof TestRecordPatterns7.B) {
-                     TestRecordPatterns7.C var38 = var14;
-
-                     try {
-                        var39 = var38.b();
-                     } catch (Throwable var20) {
-                        throw new MatchException(var20.toString(), var20);
-                     }
-
-                     TestRecordPatterns7.B var26 = var39;
-                     if (var26 instanceof TestRecordPatterns7.B) {
-                        TestRecordPatterns7.C var40 = var14;
-
-                        try {
-                           var10001 = var40.i();
-                        } catch (Throwable var19) {
-                           throw new MatchException(var19.toString(), var19);
-                        }
-
-                        int var27 = var10001;
-                        TestRecordPatterns7.B var42 = var26;
-
-                        try {
-                           var10001 = var42.i1();
-                        } catch (Throwable var18) {
-                           throw new MatchException(var18.toString(), var18);
-                        }
-
-                        int var28 = var10001;
-                        TestRecordPatterns7.B var44 = var26;
-
-                        try {
-                           var10001 = var44.i2();
-                        } catch (Throwable var17) {
-                           throw new MatchException(var17.toString(), var17);
-                        }
-
-                        int var29 = var10001;
-                        TestRecordPatterns7.B var46 = var25;
-
-                        try {
-                           var10001 = var46.i1();
-                        } catch (Throwable var16) {
-                           throw new MatchException(var16.toString(), var16);
-                        }
-
-                        int var30 = var10001;
-                        TestRecordPatterns7.B var48 = var25;
-
-                        try {
-                           var10001 = var48.i2();
-                        } catch (Throwable var15) {
-                           throw new MatchException(var15.toString(), var15);
-                        }
-
-                        int var31 = var10001;
-                        var10001 = var28 + var29 + var27 + var24 + var30 + var31;
-                        break label85;
-                     }
-                  }
-               }
-
-               var3 = 1;
-               break;
-            default:
-               var10001 = 0;// 13
-               break label85;
-         }
-      }
-
-      var10000.println(var10001);// 11
+      System.out
+         .println(// 11
+            switch (o) {
+               case TestRecordPatterns7.A(TestRecordPatterns7.C(TestRecordPatterns7.B(int var28, int var29), int var27), int var24, TestRecordPatterns7.B(int var30, int var31)) -> var28// 12
+                  + var29
+                  + var27
+                  + var24
+                  + var30
+                  + var31;
+               default -> 0;// 13
+            }
+         );
    }
 
    static record A(TestRecordPatterns7.C c, int i, TestRecordPatterns7.B b2) {
@@ -138,248 +40,140 @@ public class TestRecordPatterns7 {
 
 class 'pkg/TestRecordPatterns7' {
    method 'test (Ljava/lang/Object;)V' {
-      0      8
-      1      8
-      2      8
-      3      8
-      4      8
-      5      8
-      6      8
-      21      8
-      22      8
-      23      11
-      24      11
-      4f      8
-      50      8
-      51      11
-      52      11
-      5a      8
-      5b      8
-      5c      11
-      5d      11
-      65      8
-      66      8
-      67      11
-      68      11
-      70      8
-      71      8
-      72      11
-      73      11
-      7b      8
-      7c      8
-      7d      11
-      7e      11
-      81      11
-      82      11
-      83      11
-      84      11
-      85      11
-      86      11
-      87      11
-      88      11
-      89      11
-      8a      11
-      8b      11
-      8c      11
-      8d      11
-      8e      11
-      8f      11
-      90      11
-      91      11
-      92      11
-      93      11
-      94      11
-      95      11
-      96      11
-      97      11
-      a9      13
+      0      6
+      1      6
+      2      6
+      3      6
+      4      6
+      5      6
+      6      6
+      21      6
+      22      6
+      23      9
+      24      9
+      4f      6
+      50      6
+      51      9
+      52      9
+      5a      6
+      5b      6
+      5c      9
+      5d      9
+      65      6
+      66      6
+      67      9
+      68      9
+      70      6
+      71      6
+      72      9
+      73      9
+      7b      6
+      7c      6
+      7d      9
+      7e      9
+      81      9
+      82      9
+      83      9
+      84      9
+      85      9
+      86      9
+      87      9
+      88      9
+      89      9
+      8a      9
+      8b      9
+      8c      9
+      8d      9
+      8e      9
+      8f      9
+      90      9
+      91      9
+      92      9
+      93      9
+      94      9
+      95      9
+      96      9
+      97      9
+      a9      11
    }
 
    method 'test2 (Ljava/lang/Object;)V' {
       0      16
       1      16
       2      16
-      3      17
-      5      17
-      6      17
-      7      17
-      9      18
-      a      19
-      b      19
-      c      24
-      d      24
-      e      24
-      f      24
-      10      24
-      11      24
-      12      24
-      13      24
-      14      24
-      15      24
-      16      24
-      17      24
-      18      24
-      19      24
-      1a      24
-      1b      24
-      1c      24
-      1d      24
-      1e      24
-      1f      24
-      20      24
-      21      24
-      22      24
-      23      24
-      24      26
-      25      26
-      26      26
-      27      26
-      28      26
-      29      26
-      2a      27
-      2b      27
-      2c      30
-      2d      30
-      2e      30
-      2f      35
-      30      35
-      31      36
-      32      36
-      33      36
-      34      36
-      35      36
-      36      36
-      37      36
-      38      36
-      39      56
-      3a      56
-      3d      37
-      3e      37
-      3f      40
-      40      40
-      41      40
-      42      45
-      43      45
-      44      111
-      45      111
-      48      46
-      49      46
-      4a      49
-      4b      49
-      4c      49
-      4d      54
-      4e      54
-      4f      55
-      50      55
-      51      55
-      52      55
-      53      55
-      54      55
-      55      55
-      56      55
-      57      93
-      58      93
-      5b      56
-      5c      56
-      5d      59
-      5e      59
-      5f      59
-      60      64
-      61      64
-      62      65
-      63      65
-      64      65
-      65      65
-      66      65
-      67      65
-      68      65
-      69      65
-      6a      75
-      6b      75
-      6e      66
-      6f      66
-      70      69
-      71      69
-      72      69
-      73      74
-      74      74
-      75      111
-      76      111
-      79      75
-      7a      75
-      7b      78
-      7c      78
-      7d      78
-      7e      83
-      7f      83
-      80      111
-      81      111
-      84      84
-      85      84
-      86      87
-      87      87
-      88      87
-      89      92
-      8a      92
-      8b      111
-      8c      111
-      8f      93
-      90      93
-      91      96
-      92      96
-      93      96
-      94      101
-      95      101
-      96      111
-      97      111
-      9a      102
-      9b      102
-      9c      105
-      9d      105
-      9e      105
-      9f      110
-      a0      110
-      a1      111
-      a2      111
-      a5      111
-      a6      111
-      a8      117
-      a9      117
-      aa      118
-      ad      111
-      ae      111
-      af      111
-      b1      111
-      b2      111
-      b4      111
-      b5      111
-      b7      111
-      b8      111
-      ba      111
-      bb      111
-      be      112
-      c1      120
-      c2      121
-      c5      125
-      c6      125
-      c7      125
-      c8      126
-      cb      31
-      d0      32
-      d1      32
-      d2      32
-      d3      32
-      d4      32
-      d8      32
+      3      14
+      5      14
+      6      14
+      7      14
+      c      18
+      13      18
+      14      18
+      15      18
+      16      18
+      17      18
+      18      18
+      19      18
+      1a      18
+      1b      18
+      1c      18
+      1d      18
+      1e      18
+      1f      18
+      20      18
+      21      18
+      22      18
+      23      18
+      42      19
+      43      19
+      44      22
+      45      22
+      73      19
+      74      19
+      75      21
+      76      21
+      7e      19
+      7f      19
+      80      19
+      81      19
+      89      19
+      8a      19
+      8b      20
+      8c      20
+      94      19
+      95      19
+      96      23
+      97      23
+      9f      19
+      a0      19
+      a1      24
+      a2      24
+      a5      19
+      a6      19
+      ad      20
+      ae      20
+      af      19
+      b1      21
+      b2      19
+      b4      22
+      b5      19
+      b7      23
+      b8      19
+      ba      24
+      bb      19
+      c1      25
+      c5      17
+      c6      17
+      c7      17
+      c8      28
    }
 }
 
 Lines mapping:
-5 <-> 9
-6 <-> 12
-8 <-> 14
-11 <-> 126
-12 <-> 32
-13 <-> 121
+5 <-> 7
+6 <-> 10
+8 <-> 12
+11 <-> 18
+12 <-> 20
+13 <-> 26
 Not mapped:
 15

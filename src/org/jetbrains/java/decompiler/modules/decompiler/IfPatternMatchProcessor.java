@@ -137,7 +137,7 @@ public final class IfPatternMatchProcessor {
       // Right side needs to be a cast function
       // If it's not, we might be a record pattern match
       if (!(right instanceof FunctionExprent)) {
-        result |= identifyRecordPatternMatch(statement, branch, iof, assignment);
+        result |= identifyIfRecordPatternMatch(statement, branch, iof, assignment);
       }
     }
 
@@ -247,7 +247,7 @@ public final class IfPatternMatchProcessor {
     }
   }
 
-  private static boolean identifyRecordPatternMatch(IfStatement stat, Statement branch, FunctionExprent instOf, AssignmentExprent head) {
+  private static boolean identifyIfRecordPatternMatch(IfStatement stat, Statement branch, FunctionExprent instOf, AssignmentExprent head) {
     if (!stat.getTopParent().mt.getBytecodeVersion().hasRecordPatternMatching()) {
       return false;
     }
@@ -269,31 +269,49 @@ public final class IfPatternMatchProcessor {
       return false;
     }
 
-    Statement original = branch;
-
     VarType type = instOf.getLstOperands().get(1).getExprType();
 
+    PatternExprent exprent = identifyRecordPatternMatch(stat, branch, headRight, type, false);
+    if (exprent == null) {
+      return false;
+    }
+
+    if (instOf.getLstOperands().size() > 2) {
+      instOf.getLstOperands().set(2, exprent);
+    } else {
+      instOf.getLstOperands().add(2, exprent);
+    }
+
+    stat.setPatternMatched(true);
+    return true;
+  }
+
+  public static PatternExprent identifyRecordPatternMatch(Statement parent, Statement branch, Exprent storeVariable, VarType type, boolean simulate) {
+    Statement original = branch;
+
     StructClass cl = DecompilerContext.getStructContext().getClass(type.value);
+
+    if (cl == null || cl.getRecordComponents() == null || cl.getRecordComponents().isEmpty()) {
+      return null;
+    }
 
     // Ending exprents we may want to remove
     Map<BasicBlockStatement, Exprent> remove = new HashMap<>();
     // Statements that ought to be destroyed as a result of creating the pattern
     List<Statement> toDestroy = new ArrayList<>();
 
-    PatternData pattern = getChildPattern(cl, headRight, type, branch, 1, toDestroy, remove);
+    PatternData pattern = getChildPattern(cl, storeVariable, type, branch, 1, toDestroy, remove);
     if (pattern == null) {
-      return false;
+      return null;
     }
     branch = pattern.stat;
-    if (instOf.getLstOperands().size() > 2) {
-      instOf.getLstOperands().set(2, pattern.exp);
-    } else {
-      instOf.getLstOperands().add(2, pattern.exp);
+
+    if (simulate) {
+      return pattern.exp;
     }
-    stat.setPatternMatched(true);
 
     if (original != branch) {
-      stat.replaceStatement(original, branch);
+      parent.replaceStatement(original, branch);
     }
 
     for (Statement st : toDestroy) {
@@ -304,7 +322,7 @@ public final class IfPatternMatchProcessor {
       e.getKey().getExprents().remove(e.getValue());
     }
 
-    return true;
+    return pattern.exp;
   }
 
   private static PatternData getChildPattern(StructClass cl, Exprent storeVariable, VarType type, Statement branch, int stIdx, List<Statement> toDestroy, Map<BasicBlockStatement, Exprent> remove) {
@@ -400,11 +418,21 @@ public final class IfPatternMatchProcessor {
                 }
               }
             }
-          } else {
+          } else if (next instanceof IfStatement ifSt && ifSt.iftype == IfStatement.IFTYPE_IF && ifSt.getHeadexprent().getCondition() instanceof FunctionExprent func) {
             // Is the next statement an if with an instanceof inside? It might be a type-improving if. Search inside it too.
-            if (next instanceof IfStatement ifSt && ifSt.iftype == IfStatement.IFTYPE_IF
-              && ifSt.getHeadexprent().getCondition() instanceof FunctionExprent func && func.getFuncType() == FunctionType.INSTANCEOF) {
+            FunctionExprent function = null;
+            boolean found = false;
+            boolean inverted = false;
+            if (func.getFuncType() == FunctionType.INSTANCEOF) {
+              found = true;
+              function = func;
+            } else if (func.getFuncType() == FunctionType.BOOL_NOT && func.getLstOperands().get(0) instanceof FunctionExprent inner && inner.getFuncType() == FunctionType.INSTANCEOF) {
+              found = true;
+              inverted = true;
+              function = inner;
+            }
 
+            if (found) {
               // "<stackVar> = <originalVar>;" idiom
               // Ensure this is the right idiom be fore we mark it for destruction.
               if (branch.getBasichead().getExprents().size() == 1) {
@@ -414,15 +442,20 @@ public final class IfPatternMatchProcessor {
                 }
               }
 
-              Exprent store = func.getLstOperands().size() > 2 ? func.getLstOperands().get(2) : func.getLstOperands().get(0);
+              Exprent store = function.getLstOperands().size() > 2 ? function.getLstOperands().get(2) : function.getLstOperands().get(0);
               if (store instanceof VarExprent variable) {
                 patternStores.add(new PatternStore(c, DecompilerContext.getStructContext().getClass(variable.getExprType().value), variable.getExprType(), variable));
                 vars.put(c, variable);
                 ok = true;
               }
 
-              branch = ifSt.getIfstat();
-              stIdx = 0;
+              if (inverted) {
+                stIdx++;
+                toDestroy.add(ifSt);
+              } else {
+                branch = ifSt.getIfstat();
+                stIdx = 0;
+              }
             }
           }
 
