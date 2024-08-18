@@ -694,8 +694,9 @@ public class ClassWriter implements StatementWriter {
     List<StructRecordComponent> components = cl.getRecordComponents();
 
     if (components != null) {
-      // records are implicitly final
+      // records are implicitly static and final
       flags &= ~CodeConstants.ACC_FINAL;
+      flags &= ~CodeConstants.ACC_STATIC;
     }
 
     appendModifiers(buffer, flags, CLASS_ALLOWED, isInterface, CLASS_EXCLUDED);

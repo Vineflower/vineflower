@@ -16,7 +16,7 @@ public class TestRecordPatterns2 {
       }
    }// 12
 
-   static record R(int x) {
+   record R(int x) {
    }
 }
 
