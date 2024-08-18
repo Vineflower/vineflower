@@ -13,10 +13,7 @@ import org.jetbrains.java.decompiler.util.TextBuffer;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
@@ -150,13 +147,18 @@ public class ContextUnit {
     ForkJoinPool pool = new ForkJoinPool(threads, namingScheme(), null, true);
     final DecompilerContext rootContext = DecompilerContext.getCurrentContext();
     final List<ClassContext> toDump = new ArrayList<>(classEntries.size());
+    Set<String> seen = new LinkedHashSet<>();
 
     // collect classes
     for (int i = 0; i < classEntries.size(); i++) {
       StructClass cl = loader.apply(classEntries.get(i));
       String entryName = decompiledData.getClassEntryName(cl, classEntries.get(i));
       if (entryName != null) {
-        toDump.add(new ClassContext(cl, entryName));
+        if (seen.add(cl.qualifiedName)) {
+          toDump.add(new ClassContext(cl, entryName));
+        } else {
+          DecompilerContext.getLogger().writeMessage("Skipping writing already existing class: " + cl.qualifiedName, IFernflowerLogger.Severity.ERROR);
+        }
       }
     }
 

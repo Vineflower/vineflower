@@ -260,6 +260,9 @@ public interface IContextSource {
       }
     }
 
-
+    @Override
+    public String toString() {
+      return "E[" + basePath + "]";
+    }
   }
 }

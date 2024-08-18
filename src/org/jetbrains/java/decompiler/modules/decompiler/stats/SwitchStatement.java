@@ -19,7 +19,7 @@ import org.jetbrains.java.decompiler.util.TextBuffer;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public final class SwitchStatement extends Statement {
+public class SwitchStatement extends Statement {
 
   // *****************************************************************************
   // private fields
