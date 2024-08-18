@@ -49,13 +49,13 @@ public class IfStatement extends Statement {
   // constructors
   // *****************************************************************************
 
-  private IfStatement() {
+  protected IfStatement() {
     super(StatementType.IF);
 
     headexprent.add(null);
   }
 
-  private IfStatement(Statement head, int regedges, Statement postst) {
+  protected IfStatement(Statement head, int regedges, Statement postst) {
 
     this();
 

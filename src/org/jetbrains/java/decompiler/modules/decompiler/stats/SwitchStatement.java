@@ -43,13 +43,13 @@ public class SwitchStatement extends Statement {
   // constructors
   // *****************************************************************************
 
-  private SwitchStatement() {
+  protected SwitchStatement() {
     super(StatementType.SWITCH);
 
     headexprent.add(null);
   }
 
-  private SwitchStatement(Statement head, Statement poststat) {
+  protected SwitchStatement(Statement head, Statement poststat) {
 
     this();
 
