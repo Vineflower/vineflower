@@ -8,7 +8,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 
-public class GeneralStatement extends Statement {
+public final class GeneralStatement extends Statement {
   private boolean placeholder;
 
   // *****************************************************************************

@@ -10,7 +10,7 @@ import org.jetbrains.java.decompiler.util.TextBuffer;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-public class RootStatement extends Statement {
+public final class RootStatement extends Statement {
   private final DummyExitStatement dummyExit;
   public final StructMethod mt;
   public Set<String> commentLines = null;
