@@ -21,7 +21,7 @@ import java.util.BitSet;
 import java.util.List;
 import java.util.Set;
 
-public final class CatchStatement extends Statement {
+public class CatchStatement extends Statement {
   private final List<List<String>> exctstrings = new ArrayList<>();
   private final List<VarExprent> vars = new ArrayList<>();
   private final List<Exprent> resources = new ArrayList<>();

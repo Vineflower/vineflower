@@ -10,7 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 
 
-public final class SequenceStatement extends Statement {
+public class SequenceStatement extends Statement {
 
 
   // *****************************************************************************
