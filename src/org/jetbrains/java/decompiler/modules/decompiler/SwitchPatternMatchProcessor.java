@@ -365,23 +365,23 @@ public final class SwitchPatternMatchProcessor {
     // alternatively, it can be inverted as `if (guardCond) { /* regular case code... */ break; } idx = __thisIdx + 1;`
     if (reference.b instanceof AssignmentExprent) {
       Statement assignStat = reference.a;
-      int statementIndex = -1;
+
+      // If a record pattern contains an `instanceof` check then a guard is used so
+      // attempt to eliminate it
       for (int i = 0; i < stat.getCaseStatements().size(); i++) {
         if (stat.getCaseStatements().get(i).containsStatement(assignStat)) {
-          statementIndex = i;
+          Statement patternStat = stat.getCaseStatements().get(i);
+          PatternExprent pattern = identifySwitchRecordPatternMatch(stat, patternStat, simulate);
+          if (pattern != null) {
+            if (!simulate) {
+              guards.put(stat.getCaseValues().get(i), pattern);
+            }
+            return true;
+          }
+          break;
         }
       }
-      Statement patternStat = assignStat;
-      while (patternStat.getParent() != null && !(patternStat.getParent() instanceof SwitchStatement)) {
-        patternStat = patternStat.getParent();
-      }
-      PatternExprent pattern = identifySwitchRecordPatternMatch(stat, patternStat, simulate);
-      if (pattern != null && statementIndex != -1) {
-        if (!simulate) {
-          guards.put(stat.getCaseValues().get(statementIndex), pattern);
-        }
-        return true;
-      }
+
       // Note: This can probably be checked earlier
       if (assignStat.getAllPredecessorEdges().size() > 1) {
         return false;
