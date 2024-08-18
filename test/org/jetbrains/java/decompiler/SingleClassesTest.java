@@ -689,6 +689,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_21, "TestRecordPatterns4");
     register(JAVA_21, "TestRecordPatterns5");
     register(JAVA_21, "TestRecordPatterns6");
+    register(JAVA_21, "TestRecordPatterns7");
     register(JAVA_21_PREVIEW, "TestStrProcessor");
     register(JAVA_21_PREVIEW, "TestRawProcessor");
     register(JAVA_21_PREVIEW, "TestFmtProcessor");

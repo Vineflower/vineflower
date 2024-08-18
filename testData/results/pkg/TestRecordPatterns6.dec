@@ -4,7 +4,7 @@ import java.lang.runtime.SwitchBootstraps;
 import java.util.Objects;
 
 public class TestRecordPatterns6 {
-   public Object res(TestRecordPatterns6.I in) {
+   public Object test1(TestRecordPatterns6.I in) {
       Object var17;
       switch (in) {
          case TestRecordPatterns6.I.R1 var4:// 12
@@ -50,7 +50,7 @@ public class TestRecordPatterns6 {
       return var17;// 11
    }
 
-   public String test(TestRecordPatterns6.I in) {
+   public String test2(TestRecordPatterns6.I in) {
       Objects.requireNonNull(in);
       TestRecordPatterns6.I var2 = in;
       byte var3 = 0;
@@ -109,7 +109,7 @@ public class TestRecordPatterns6 {
 }
 
 class 'pkg/TestRecordPatterns6' {
-   method 'res (Lpkg/TestRecordPatterns6$I;)Ljava/lang/Object;' {
+   method 'test1 (Lpkg/TestRecordPatterns6$I;)Ljava/lang/Object;' {
       0      8
       9      8
       10      8
@@ -197,7 +197,7 @@ class 'pkg/TestRecordPatterns6' {
       86      15
    }
 
-   method 'test (Lpkg/TestRecordPatterns6$I;)Ljava/lang/String;' {
+   method 'test2 (Lpkg/TestRecordPatterns6$I;)Ljava/lang/String;' {
       0      53
       2      53
       3      53
