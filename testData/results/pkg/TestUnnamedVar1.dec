@@ -30,28 +30,8 @@ public class TestUnnamedVar1 {
    }// 15
 
    public void test1(Object o) {
-      if (o instanceof TestUnnamedVar1.Point var2) {
-         TestUnnamedVar1.Point var10000 = var2;
-
-         try {
-            var9 = var10000.x();
-         } catch (Throwable var7) {// 18
-            throw new MatchException(var7.toString(), var7);
-         }
-
-         int var5 = var9;
-         var10000 = var2;
-
-         try {
-            var11 = var10000.y();
-         } catch (Throwable var6) {
-            throw new MatchException(var6.toString(), var6);
-         }
-
-         Object var8 = var11;
-         if (var8 instanceof Integer) {
-            System.out.println(var5);// 19
-         }
+      if (o instanceof TestUnnamedVar1.Point(int var5, Object var8)) {// 18
+         System.out.println(var5);// 19
       }
    }// 21
 
@@ -117,76 +97,52 @@ class 'pkg/TestUnnamedVar1' {
       4      32
       5      32
       6      32
-      b      32
-      c      33
-      d      36
-      e      36
-      f      36
-      10      41
-      11      41
-      12      52
-      13      52
-      15      42
-      16      45
-      17      45
-      18      45
-      19      50
-      1a      50
-      1b      51
-      1c      51
-      1d      51
-      1e      51
-      1f      51
-      20      51
-      21      51
-      22      51
-      23      52
-      24      52
-      25      52
-      26      52
-      27      52
-      28      52
-      29      52
-      2d      37
-      32      38
-      33      38
-      34      38
-      35      38
-      36      38
-      3a      38
-      3b      55
+      10      32
+      11      32
+      12      33
+      13      33
+      1b      32
+      1c      32
+      23      33
+      24      33
+      25      33
+      26      33
+      27      33
+      28      33
+      29      33
+      3b      35
    }
 
    method 'stream (Ljava/util/List;)Ljava/util/List;' {
-      0      58
-      1      58
-      2      58
-      3      58
-      4      58
-      5      58
-      b      58
-      c      58
-      d      58
-      e      58
-      f      58
-      10      58
-      11      58
-      12      58
-      13      58
-      14      58
-      15      58
+      0      38
+      1      38
+      2      38
+      3      38
+      4      38
+      5      38
+      b      38
+      c      38
+      d      38
+      e      38
+      f      38
+      10      38
+      11      38
+      12      38
+      13      38
+      14      38
+      15      38
    }
 
    method 'lambda$stream$0 (Ljava/lang/String;)Ljava/lang/String;' {
-      0      58
-      1      58
-      2      58
+      0      38
+      1      38
+      2      38
    }
 
    method 'trycatch (Ljava/io/File;)V' {
-      4      63
-      c      64
-      d      66
+      4      43
+      c      44
+      d      46
    }
 }
 
@@ -194,12 +150,12 @@ Lines mapping:
 12 <-> 15
 13 <-> 28
 15 <-> 30
-18 <-> 38
-19 <-> 53
-21 <-> 56
-24 <-> 59
-29 <-> 64
-30 <-> 65
-33 <-> 67
+18 <-> 33
+19 <-> 34
+21 <-> 36
+24 <-> 39
+29 <-> 44
+30 <-> 45
+33 <-> 47
 Not mapped:
 32

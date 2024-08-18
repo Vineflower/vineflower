@@ -80,9 +80,6 @@ class 'pkg/TestRecordPatterns1' {
       e      11
       f      12
       10      12
-      1d      11
-      1e      11
-      1f      11
       25      11
       26      11
       27      12
@@ -115,9 +112,6 @@ class 'pkg/TestRecordPatterns1' {
       e      18
       f      19
       10      19
-      1d      18
-      1e      18
-      1f      18
       25      18
       26      18
       27      18

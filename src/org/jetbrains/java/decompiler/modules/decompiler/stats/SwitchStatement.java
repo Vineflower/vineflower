@@ -160,12 +160,13 @@ public final class SwitchStatement extends Statement {
             buf.appendField(field.getName(), false, field.getClassname(), field.getName(), field.getDescriptor());
           } else if (value instanceof FunctionExprent && ((FunctionExprent) value).getFuncType() == FunctionType.INSTANCEOF) {
             // Pattern matching variables
-            List<Exprent> operands = ((FunctionExprent) value).getLstOperands();
-            buf.append(operands.get(1).toJava(indent));
-            buf.append(" ");
-            // We're pasting the var type, don't do it again
-            ((VarExprent)operands.get(2)).setDefinition(false);
-            buf.append(operands.get(2).toJava(indent));
+
+            Pattern pattern = (Pattern) value.getAllExprents().get(2);
+            for (VarExprent var : pattern.getPatternVars()) {
+              var.setWritingPattern();
+            }
+
+            buf.append(value.getAllExprents().get(2).toJava(indent));
           } else {
             buf.append(value.toJava(indent));
           }
