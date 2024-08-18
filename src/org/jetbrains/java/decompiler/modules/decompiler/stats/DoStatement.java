@@ -29,7 +29,7 @@ public class DoStatement extends Statement {
   // constructors
   // *****************************************************************************
 
-  private DoStatement() {
+  protected DoStatement() {
     super(StatementType.DO);
     looptype = Type.INFINITE;
 
@@ -38,7 +38,7 @@ public class DoStatement extends Statement {
     incExprent.add(null);
   }
 
-  private DoStatement(Statement head) {
+  protected DoStatement(Statement head) {
 
     this();
 

@@ -31,11 +31,11 @@ public class CatchAllStatement extends Statement {
   // constructors
   // *****************************************************************************
 
-  private CatchAllStatement() {
+  protected CatchAllStatement() {
     super(StatementType.CATCH_ALL);
   }
 
-  private CatchAllStatement(Statement head, Statement handler) {
+  protected CatchAllStatement(Statement head, Statement handler) {
 
     this();
 
