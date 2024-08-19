@@ -601,6 +601,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestNestedArrayPP");
     // TODO: variable stores completely ignored due to variable merging
     //   now is fixed by verify variable merges
+    //   seems also is a bug in stack vars processing, disable main loop stackvars to replicate
     register(JAVA_8_NODEBUG, "TestCompoundAssignmentReplace");
 
     register(JAVA_8, "TestSharedVarIndex");
