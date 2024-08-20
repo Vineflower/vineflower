@@ -18,20 +18,20 @@ public class PatternExprent extends Exprent implements Pattern {
   private final PatternData data;
   private final VarType varType;
   private final List<Exprent> exprents;
-  private final List<@Nullable VarType> varTypes;
+  private final List<@Nullable VarType> boundTypes;
 
   public PatternExprent(PatternData data, VarType type, List<Exprent> exprents) {
     super(Type.PATTERN);
     this.data = data;
-    varType = type;
+    this.varType = type;
     this.exprents = exprents;
-    this.varTypes = new ArrayList<>();
+    this.boundTypes = new ArrayList<>();
 
     for (Exprent exprent : exprents) {
       if (!(exprent instanceof Pattern)) {
         ValidationHelper.assertTrue(false, "Illegal input for PatternExprent");
       }
-      varTypes.add(null);
+      boundTypes.add(null);
     }
   }
 
@@ -78,9 +78,9 @@ public class PatternExprent extends Exprent implements Pattern {
       ValidationHelper.assertTrue(record.cl.getRecordComponents() != null, "Must not be null!");
       ValidationHelper.assertTrue(record.cl.getRecordComponents().size() == exprents.size(), "Record component size and expr list size must be equal!");
 
-      // The type lower bound must be
+      // The type lower bound must be at least the type of the record. However, we might have found a stronger lower bound, use that instead in that case.
       for (int i = 0; i < exprents.size(); i++) {
-        VarType type = varTypes.get(i);
+        VarType type = boundTypes.get(i);
         if (type != null) {
           res.addMinTypeExprent(exprents.get(i), type);
         } else {
@@ -124,8 +124,8 @@ public class PatternExprent extends Exprent implements Pattern {
     return exprents;
   }
 
-  public List<@Nullable VarType> getVarTypes() {
-    return varTypes;
+  public List<@Nullable VarType> getBoundTypes() {
+    return boundTypes;
   }
 
   public static PatternData recordData(StructClass cl) {
