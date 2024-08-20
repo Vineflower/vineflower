@@ -81,8 +81,8 @@ public class KotlinPlugin implements Plugin {
       .addPass("ReplaceExprs", new ReplaceExprentsPass())
       // TODO: preference for this pass
       .addPass("ResugarMethods", new ResugarKotlinMethodsPass())
-      .addPass("ReplaceContinue", ctx -> LabelHelper.replaceContinueWithBreak(ctx.getRoot()))
       .addPass("CollapseStringConcat", new CollapseStringConcatPass())
+      .addPass("ReplaceContinue", ctx -> LabelHelper.replaceContinueWithBreak(ctx.getRoot()))
 
       .build();
   }
