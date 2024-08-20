@@ -354,21 +354,9 @@ public final class SwitchHelper {
 
             if (list.size() == 1 && list.get(0) == null) { // default by itself
               Statement st = switchSt.getCaseStatements().get(i);
-              // Check for a block with something inside
-              if (st.type == Statement.StatementType.BASIC_BLOCK && st.getExprents().size() == 1) {
-                Exprent check = st.getExprents().get(0);
-                // throw ...
-                if (check instanceof ExitExprent && ((ExitExprent) check).getExitType() == ExitExprent.Type.THROW) {
-                  Exprent i1 = ((ExitExprent) check).getValue();
-                  // throw new ...
-                  if (i1 instanceof NewExprent) {
-                    // throw new MatchException
-                    if (((NewExprent) i1).getNewType().toString().equals("Ljava/lang/MatchException;")) {
-
-                      st.replaceWithEmpty();
-                    }
-                  }
-                }
+              if (IfPatternMatchProcessor.isStatementMatchThrow(st)) {
+                // Replace it with an empty block
+                st.replaceWithEmpty();
               }
             }
           }

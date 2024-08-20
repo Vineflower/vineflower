@@ -1,6 +1,7 @@
 // Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.struct;
 
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IBytecodeProvider;
 import org.jetbrains.java.decompiler.main.extern.IContextSource;
@@ -69,7 +70,7 @@ public class StructContext {
     this.decompiledData = decompiledData;
   }
 
-  public StructClass getClass(String name) {
+  public @Nullable StructClass getClass(String name) {
     if (name == null) {
       return null;
     }

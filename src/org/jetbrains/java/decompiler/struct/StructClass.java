@@ -1,6 +1,8 @@
 // Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.struct;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.code.BytecodeVersion;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
@@ -206,7 +208,7 @@ public class StructClass extends StructMember {
   /**
    * @return list of record components; null if this class is not a record
    */
-  public List<StructRecordComponent> getRecordComponents() {
+  public @Nullable List<StructRecordComponent> getRecordComponents() {
     StructRecordAttribute recordAttr = getAttribute(StructGeneralAttribute.ATTRIBUTE_RECORD);
     if (recordAttr == null) {
       // If our class extends j.l.Record but also has no components, it's probably malformed.

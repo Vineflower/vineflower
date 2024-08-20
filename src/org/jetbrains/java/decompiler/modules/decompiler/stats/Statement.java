@@ -968,6 +968,10 @@ public abstract class Statement implements IMatchable {
     this.phantom = phantom;
   }
 
+  public String toDebug() {
+    return toJava().convertToStringAndAllowDataDiscard();
+  }
+
   // helper methods
   public String toString() {
     return "{" + type.prettyId + "}:" + id;
