@@ -12,6 +12,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
 import org.jetbrains.java.decompiler.modules.decompiler.decompose.GenericDominatorEngine;
 import org.jetbrains.java.decompiler.modules.decompiler.decompose.IGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.decompose.IGraphNode;
+import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 
 import java.util.*;
@@ -441,7 +442,9 @@ public final class ExceptionDeobfuscator {
           }
         }
 
-        // TODO: write comment if not matchexception
+        if (!isMatchException(handler)) {
+          graph.addComment("$VF: Duplicated exception handlers to handle obfuscated exceptions");
+        }
 
       } else {
         for (ExceptionRangeCFG range : ranges) {
@@ -486,5 +489,21 @@ public final class ExceptionDeobfuscator {
         }
       }
     }
+  }
+
+  private static boolean isMatchException(BasicBlock block) {
+    StructClass cl = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS);
+
+    // Check if block has any "new MatchException;"
+    for (Instruction instr : block.getSeq()) {
+      if (instr.opcode == CodeConstants.opc_new) {
+        if ("java/lang/MatchException".equals(cl.getPool().getPrimitiveConstant(instr.operand(0)).getString())) {
+          return true;
+
+        }
+      }
+    }
+
+    return false;
   }
 }

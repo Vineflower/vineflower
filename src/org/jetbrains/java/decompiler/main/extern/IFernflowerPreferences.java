@@ -226,7 +226,7 @@ public interface IFernflowerPreferences {
   String VERIFY_VARIABLE_MERGES = "verify-merges";
 
   @Name("[Experimental] Use old try deduplication")
-  @Description("Uses the older try deduplication algorithm for methods with obfuscated exceptions, which prefers ")
+  @Description("Use the old try deduplication algorithm for methods with obfuscated exceptions, which inserts dummy exception handlers instead of duplicating blocks")
   @Type(DecompilerOption.Type.BOOLEAN)
   String OLD_TRY_DEDUP = "old-try-dedup";
 

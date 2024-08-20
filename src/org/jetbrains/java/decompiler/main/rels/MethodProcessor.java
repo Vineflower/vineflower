@@ -137,7 +137,6 @@ public class MethodProcessor implements Runnable {
     DecompilerContext.getCounterContainer().setCounter(CounterContainer.VAR_COUNTER, mt.getLocalVariables());
 
     if (ExceptionDeobfuscator.hasObfuscatedExceptions(graph)) {
-      DecompilerContext.getLogger().writeMessage("Heavily obfuscated exception ranges found!", IFernflowerLogger.Severity.WARN);
       DotExporter.toDotFile(graph, mt, "cfgExceptionsPre", true);
 
       if (!ExceptionDeobfuscator.handleMultipleEntryExceptionRanges(graph)) {
