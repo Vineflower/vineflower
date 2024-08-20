@@ -1,6 +1,6 @@
 package pkg
 
-class TestGenerics<T> {
+public class TestGenerics<T> {
    public fun <T> genericFun(v: T): T {
       return (T)v;// 5
    }

@@ -46,7 +46,7 @@ public class TestUnnamedVar1 {
       }
    }// 33
 
-   static record Point(int x, Object y) {
+   record Point(int x, Object y) {
    }
 }
 

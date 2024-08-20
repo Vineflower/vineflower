@@ -155,6 +155,11 @@ public class FinallyProcessor {
 
     BasicBlockStatement firstBlockStatement = fstat.getHandler().getBasichead();
     BasicBlock firstBasicBlock = firstBlockStatement.getBlock();
+
+    if (firstBasicBlock.getSeq().isEmpty()) {
+      return null;
+    }
+
     Instruction instrFirst = firstBasicBlock.getInstruction(0);
 
     int firstcode = 0;

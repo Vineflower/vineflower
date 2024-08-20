@@ -144,7 +144,7 @@ public final class SecondaryFunctionsHelper {
             break;
           }
         } else if (obj instanceof Exprent) {
-          Exprent retexpr = identifySecondaryFunctions((Exprent) obj, true, varProc, options);
+          Exprent retexpr = identifySecondaryFunctions(stat, (Exprent) obj, true, varProc, options);
           if (retexpr != null) {
             if (stat.getExprents() == null) {
               // only head expressions can be replaced!
@@ -163,7 +163,7 @@ public final class SecondaryFunctionsHelper {
     return ret;
   }
 
-  private static Exprent identifySecondaryFunctions(Exprent exprent, boolean statement_level, VarProcessor varProc, IdentifySecondaryOptions options) {
+  private static Exprent identifySecondaryFunctions(Statement stat, Exprent exprent, boolean statement_level, VarProcessor varProc, IdentifySecondaryOptions options) {
     if (exprent instanceof FunctionExprent) {
       FunctionExprent fexpr = (FunctionExprent) exprent;
 
@@ -254,7 +254,7 @@ public final class SecondaryFunctionsHelper {
       replaced = false;
 
       for (Exprent expr : exprent.getAllExprents()) {
-        Exprent retexpr = identifySecondaryFunctions(expr, false, varProc, options);
+        Exprent retexpr = identifySecondaryFunctions(stat, expr, false, varProc, options);
         if (retexpr != null) {
           exprent.replaceExprent(expr, retexpr);
           retexpr.addBytecodeOffsets(expr.bytecode);
@@ -529,7 +529,7 @@ public final class SecondaryFunctionsHelper {
         }
 
         if (!statement_level) { // simplify if exprent is a real expression. The opposite case is pretty absurd, can still happen however (and happened at least once).
-          Exprent retexpr = ConcatenationHelper.contractStringConcat(exprent);
+          Exprent retexpr = ConcatenationHelper.contractStringConcat(stat.getTopParent(), exprent);
           if (!exprent.equals(retexpr)) {
             return retexpr;
           }

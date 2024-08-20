@@ -180,14 +180,15 @@ public class NewExprent extends Exprent {
             // generated lambda methods have no generic info, so only map to generic var parameters
             List<VarType> types = method.getSignature() != null ? method.getSignature().parameterTypes : Arrays.asList(desc.params);
             for (int i = 0; i < types.size(); ++i) {
-              if (refMethod.getSignature().parameterTypes.get(i).type == CodeType.GENVAR) {
-                if (!genericsMap.containsKey(refMethod.getSignature().parameterTypes.get(i))) {
+              List<VarType> parameterTypes = refMethod.getSignature().parameterTypes;
+              if (i < parameterTypes.size() && parameterTypes.get(i).type == CodeType.GENVAR) {
+                if (!genericsMap.containsKey(parameterTypes.get(i))) {
                   VarType realType = types.get(i);
                   StructClass typeCls = DecompilerContext.getStructContext().getClass(realType.value);
                   if (typeCls != null && typeCls.getSignature() != null && !realType.equals(typeCls.getSignature().genericType)) {
                     realType = typeCls.getSignature().genericType.resizeArrayDim(realType.arrayDim);
                   }
-                  genericsMap.put(refMethod.getSignature().parameterTypes.get(i), realType);
+                  genericsMap.put(parameterTypes.get(i), realType);
                 }
               }
             }

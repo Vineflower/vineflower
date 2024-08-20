@@ -1,6 +1,6 @@
 package pkg
 
-class TestNothingReturns {
+public class TestNothingReturns {
    public fun loop(): Nothing {
       while (true) {
          System.out.println("loop");// 6

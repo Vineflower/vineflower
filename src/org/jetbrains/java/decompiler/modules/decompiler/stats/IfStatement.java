@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public final class IfStatement extends Statement {
+public class IfStatement extends Statement {
 
   public static final int IFTYPE_IF = 0;
   public static final int IFTYPE_IFELSE = 1;
@@ -46,13 +46,13 @@ public final class IfStatement extends Statement {
   // constructors
   // *****************************************************************************
 
-  private IfStatement() {
+  protected IfStatement() {
     super(StatementType.IF);
 
     headexprent.add(null);
   }
 
-  private IfStatement(Statement head, int regedges, Statement postst) {
+  protected IfStatement(Statement head, int regedges, Statement postst) {
 
     this();
 

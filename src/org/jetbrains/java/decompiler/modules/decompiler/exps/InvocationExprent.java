@@ -467,7 +467,7 @@ public class InvocationExprent extends Exprent {
                         }
                         if (found != null) {
                           Map<VarType, VarType> genvars = new HashMap<>();
-                          if (base.getSignature() != null) {
+                          if (base.getSignature() != null && found.getSignature() != null) {
                             base.getSignature().genericType.mapGenVarsTo((GenericType) paramType, genvars);
                             excluded.addAll(found.getSignature().parameterTypes.stream()
                               .filter(VarType::isGeneric)
@@ -616,8 +616,8 @@ public class InvocationExprent extends Exprent {
               }
             }
 
-            boolean suppress = (!missing || !isInvocationInstance) &&
-              (upperBound == null || !newRet.isGeneric() || DecompilerContext.getStructContext().instanceOf(newRet.value, upperBound.value));
+            boolean suppress = (!missing || !isInvocationInstance) && newRet != null &&
+            (upperBound == null || !newRet.isGeneric() || DecompilerContext.getStructContext().instanceOf(newRet.value, upperBound.value));
 
             if (this.forceGenericQualfication) {
               suppress = false;
@@ -631,7 +631,7 @@ public class InvocationExprent extends Exprent {
             }
           }
 
-          if (newRet != ret && !(newRet.isGeneric() && ((GenericType)newRet).hasUnknownGenericType(named.keySet()))) {
+          if (newRet != ret && newRet != null && !(newRet.isGeneric() && ((GenericType)newRet).hasUnknownGenericType(named.keySet()))) {
             return newRet;
           }
         }

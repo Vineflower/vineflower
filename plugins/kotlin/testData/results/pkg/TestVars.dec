@@ -1,6 +1,6 @@
 package pkg
 
-class TestVars {
+public class TestVars {
    public fun testVar() {
       System.out.println("initial");// 5 6
    }// 9
@@ -10,7 +10,7 @@ class TestVars {
    }// 16
 
    public fun testPhi(bl: Boolean) {
-      var var3: Byte;
+      val var3: Byte;
       if (bl) {// 21
          var3 = 1;// 22
       } else {
@@ -111,3 +111,4 @@ Not mapped:
 8
 14
 15
+19

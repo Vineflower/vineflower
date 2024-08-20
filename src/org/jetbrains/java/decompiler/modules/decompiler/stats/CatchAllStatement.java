@@ -17,7 +17,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-public final class CatchAllStatement extends Statement {
+public class CatchAllStatement extends Statement {
 
   private Statement handler;
 
@@ -31,11 +31,11 @@ public final class CatchAllStatement extends Statement {
   // constructors
   // *****************************************************************************
 
-  private CatchAllStatement() {
+  protected CatchAllStatement() {
     super(StatementType.CATCH_ALL);
   }
 
-  private CatchAllStatement(Statement head, Statement handler) {
+  protected CatchAllStatement(Statement head, Statement handler) {
 
     this();
 

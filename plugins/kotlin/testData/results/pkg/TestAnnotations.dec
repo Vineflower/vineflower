@@ -3,7 +3,7 @@ package pkg
 import java.lang.annotation.Retention
 import java.lang.annotation.RetentionPolicy
 
-class TestAnnotations {
+public class TestAnnotations {
    @TestAnnotations.TestAnnotation(first = "test", second = 1)
    public fun test() {
    }// 16

@@ -1,6 +1,6 @@
 package pkg
 
-class TestComparison {
+public class TestComparison {
    public fun test2(a: Any, b: Any): Boolean {
       return a == b;// 5
    }

@@ -102,8 +102,22 @@ public class ClassesProcessor implements CodeConstants {
       excludedMatcher = Pattern.compile(excludedRegex).matcher("");
     }
 
+    // Filter any duplicate classes
+
+    List<StructClass> ownClasses = context.getOwnClasses();
+    List<StructClass> classes = new ArrayList<>();
+    Set<String> names = new LinkedHashSet<>();
+
+    for (StructClass cl : ownClasses) {
+      if (names.add(cl.qualifiedName)) {
+        classes.add(cl);
+      } else {
+        DecompilerContext.getLogger().writeMessage("Skipping processing already existing class: " + cl.qualifiedName, IFernflowerLogger.Severity.ERROR);
+      }
+    }
+
     // create class nodes
-    for (StructClass cl : context.getOwnClasses()) {
+    for (StructClass cl : classes) {
       if (excludedMatcher != null && excludedMatcher.reset(cl.qualifiedName).matches()) {
         continue;
       }
@@ -176,7 +190,8 @@ public class ClassesProcessor implements CodeConstants {
               if (enclClassName == null || innerName.equals(enclClassName)) {
                 continue;  // invalid name or self reference
               }
-              if (rec.type == ClassNode.Type.MEMBER && !innerName.equals(enclClassName + '$' + entry.simpleName)) {
+              if (DecompilerContext.getOption(IFernflowerPreferences.VALIDATE_INNER_CLASSES_NAMES) &&
+                  rec.type == ClassNode.Type.MEMBER && !innerName.equals(enclClassName + '$' + entry.simpleName)) {
                 continue;  // not a real inner class
               }
 

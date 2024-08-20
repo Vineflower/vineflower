@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public final class SynchronizedStatement extends Statement {
+public class SynchronizedStatement extends Statement {
 
   private Statement body;
 

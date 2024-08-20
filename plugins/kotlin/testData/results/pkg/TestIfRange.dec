@@ -1,6 +1,6 @@
 package pkg
 
-class TestIfRange {
+public class TestIfRange {
    public fun testInt(x: Int) {
       if (1 <= x && x < 11) {// 5
          System.out.println(x);// 6

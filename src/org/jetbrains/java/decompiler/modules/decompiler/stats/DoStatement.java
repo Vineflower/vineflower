@@ -15,7 +15,7 @@ import java.util.HashSet;
 import java.util.List;
 
 // Loop statement
-public final class DoStatement extends Statement {
+public class DoStatement extends Statement {
   public enum Type {
     INFINITE, DO_WHILE, WHILE, FOR, FOR_EACH
   }
@@ -30,7 +30,7 @@ public final class DoStatement extends Statement {
   // constructors
   // *****************************************************************************
 
-  private DoStatement() {
+  protected DoStatement() {
     super(StatementType.DO);
     looptype = Type.INFINITE;
 
@@ -39,7 +39,7 @@ public final class DoStatement extends Statement {
     incExprent.add(null);
   }
 
-  private DoStatement(Statement head) {
+  protected DoStatement(Statement head) {
 
     this();
 

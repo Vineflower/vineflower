@@ -289,6 +289,7 @@ public abstract class SingleClassesTestBase {
       JAVA_21_PREVIEW(21, "preview", "Preview"),
       GROOVY("groovy", "Groovy"),
       KOTLIN("kt", "Kotlin"),
+      KOTLIN_OLD("ktold", "Kotlin (old defaults)"),
       SCALA("scala", "Scala"),
       JASM("jasm", "Custom (jasm)"),
       ;

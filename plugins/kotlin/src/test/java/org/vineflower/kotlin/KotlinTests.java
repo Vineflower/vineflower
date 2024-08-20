@@ -7,6 +7,7 @@ import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import java.nio.file.Path;
 
 import static org.jetbrains.java.decompiler.SingleClassesTestBase.TestDefinition.Version.KOTLIN;
+import static org.jetbrains.java.decompiler.SingleClassesTestBase.TestDefinition.Version.KOTLIN_OLD;
 
 public class KotlinTests extends SingleClassesTestBase {
 
@@ -85,5 +86,7 @@ public class KotlinTests extends SingleClassesTestBase {
     register(KOTLIN, "TestReflection");
     register(KOTLIN, "TestConstructors");
     register(KOTLIN, "TestContracts");
+    register(KOTLIN, "TestStringInterpolation");
+    register(KOTLIN_OLD, "TestClassicStringInterpolation");
   }
 }

@@ -1,0 +1,128 @@
+package pkg
+
+public class TestStringInterpolation {
+   public final val x: Int = 5
+
+
+   public fun stringInterpolation(x: Int, y: String) {
+      System.out.println("$x $y");// 5
+   }// 6
+
+   public fun testConstant(x: Int) {
+      System.out.println("$x 5");// 9
+   }// 10
+
+   public fun testExpression(x: Int) {
+      System.out.println("$x ${x + 1}");// 13
+   }// 14
+
+   public fun testProperty() {
+      System.out.println("${this.x}!");// 18
+   }// 19
+
+   public fun testLiteralClass() {
+      System.out.println("${TestStringInterpolation::class.java}!");// 22
+   }// 23
+}
+
+class 'pkg/TestStringInterpolation' {
+   method 'stringInterpolation (ILjava/lang/String;)V' {
+      6      7
+      7      7
+      8      7
+      9      7
+      a      7
+      b      7
+      c      7
+      d      7
+      e      7
+      f      7
+      11      7
+      12      7
+      13      7
+      14      8
+   }
+
+   method 'testConstant (I)V' {
+      0      11
+      1      11
+      2      11
+      3      11
+      4      11
+      5      11
+      6      11
+      7      11
+      8      11
+      a      11
+      b      11
+      c      11
+      d      12
+   }
+
+   method 'testExpression (I)V' {
+      0      15
+      1      15
+      2      15
+      3      15
+      4      15
+      5      15
+      6      15
+      7      15
+      8      15
+      9      15
+      a      15
+      b      15
+      d      15
+      e      15
+      f      15
+      10      16
+   }
+
+   method 'testProperty ()V' {
+      0      19
+      1      19
+      2      19
+      3      19
+      4      19
+      5      19
+      6      19
+      7      19
+      8      19
+      9      19
+      a      19
+      b      19
+      d      19
+      e      19
+      f      19
+      10      20
+   }
+
+   method 'testLiteralClass ()V' {
+      0      23
+      1      23
+      2      23
+      3      23
+      4      23
+      5      23
+      6      23
+      7      23
+      8      23
+      9      23
+      b      23
+      c      23
+      d      23
+      e      24
+   }
+}
+
+Lines mapping:
+5 <-> 8
+6 <-> 9
+9 <-> 12
+10 <-> 13
+13 <-> 16
+14 <-> 17
+18 <-> 20
+19 <-> 21
+22 <-> 24
+23 <-> 25

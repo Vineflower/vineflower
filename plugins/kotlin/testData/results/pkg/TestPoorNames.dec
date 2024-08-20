@@ -1,8 +1,8 @@
 package pkg
 
-class TestPoorNames {
-   public final val `Dangerous property name?!`: String = "test"
+public class TestPoorNames {
    public final val `Property with spaces`: Int = 42
+   public final val `Dangerous property name?!`: String = "test"
 
 
    public fun `Function with spaces`() {
@@ -23,7 +23,7 @@ class TestPoorNames {
       this.functionWithParameters(42, "test");// 24
    }// 25
 
-   class `Class with spaces` {
+   public class `Class with spaces` {
    }
 }
 

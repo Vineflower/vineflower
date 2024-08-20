@@ -1,8 +1,8 @@
 package pkg
 
-class TestSafeCasts {
+public class TestSafeCasts {
    public fun test(obj: Any): Boolean {
-      var t: Int = obj as? Integer;// 5
+      val t: Int = obj as? Integer;// 5
       if ((obj as? Integer) != null) {// 7
          if (t == 1) {
             return true;
@@ -16,7 +16,7 @@ class TestSafeCasts {
       if (obj !is Integer) {// 11
          return null;// 12
       } else {
-         var t: Int = obj as? Integer;// 15
+         val t: Int = obj as? Integer;// 15
          if ((obj as? Integer) != null) {// 17
             if (t == 1) {
                return true;
@@ -36,7 +36,7 @@ class TestSafeCasts {
    }
 
    public fun testCastNonNullToNullable(obj: Any): Boolean {
-      var t: Int = obj as? Integer;// 37
+      val t: Int = obj as? Integer;// 37
       if ((obj as? Integer) != null) {// 39
          if (t == 1) {
             return true;
@@ -50,7 +50,7 @@ class TestSafeCasts {
       if (obj !is Integer) {// 43
          return null;// 44
       } else {
-         var t: Int = obj as? Integer;// 47
+         val t: Int = obj as? Integer;// 47
          if ((obj as? Integer) != null) {// 49
             if (t == 1) {
                return true;
@@ -62,7 +62,7 @@ class TestSafeCasts {
    }
 
    public fun testCastNullableToNullable(obj: Any?): Boolean {
-      var t: Int = obj as? Integer;// 53
+      val t: Int = obj as? Integer;// 53
       if ((obj as? Integer) != null) {// 55
          if (t == 1) {
             return true;
@@ -76,7 +76,7 @@ class TestSafeCasts {
       if (obj != null && obj !is Integer) {// 59
          return null;// 60
       } else {
-         var t: Int = obj as? Integer;// 63
+         val t: Int = obj as? Integer;// 63
          if ((obj as? Integer) != null) {// 65
             if (t == 1) {
                return true;
@@ -119,29 +119,30 @@ class 'pkg/TestSafeCasts' {
       c      15
       d      16
       e      16
-      13      18
-      14      18
+      f      18
       15      18
       16      18
-      1e      18
-      1f      19
-      20      20
-      23      19
-      24      19
+      17      18
+      18      18
+      20      18
+      21      19
+      22      20
       25      19
-      2a      20
-      2b      20
+      26      19
+      27      19
       2c      20
       2d      20
       2e      20
       2f      20
       30      20
-      31      21
-      35      25
-      36      21
-      37      21
+      31      20
+      32      20
+      33      21
+      37      25
       38      21
       39      21
+      3a      21
+      3b      21
    }
 
    method 'testHardIncompatible (I)Z' {
@@ -166,13 +167,14 @@ class 'pkg/TestSafeCasts' {
       a      34
       b      34
       c      34
-      13      34
-      14      34
+      f      34
       15      34
       16      34
-      1f      34
-      20      34
+      17      34
+      18      34
       21      34
+      22      34
+      23      34
    }
 
    method 'testCastNonNullToNullable (Ljava/lang/Object;)Z' {
@@ -205,29 +207,30 @@ class 'pkg/TestSafeCasts' {
       c      49
       d      50
       e      50
-      13      52
-      14      52
+      f      52
       15      52
       16      52
-      1e      52
-      1f      53
-      20      54
-      23      53
-      24      53
+      17      52
+      18      52
+      20      52
+      21      53
+      22      54
       25      53
-      2a      54
-      2b      54
+      26      53
+      27      53
       2c      54
       2d      54
       2e      54
       2f      54
       30      54
-      31      55
-      35      59
-      36      55
-      37      55
+      31      54
+      32      54
+      33      55
+      37      59
       38      55
       39      55
+      3a      55
+      3b      55
    }
 
    method 'testCastNullableToNullable (Ljava/lang/Object;)Z' {
@@ -266,29 +269,30 @@ class 'pkg/TestSafeCasts' {
       f      75
       10      76
       11      76
-      16      78
-      17      78
+      12      78
       18      78
       19      78
-      21      78
-      22      79
-      23      80
-      26      79
-      27      79
+      1a      78
+      1b      78
+      23      78
+      24      79
+      25      80
       28      79
-      2d      80
-      2e      80
+      29      79
+      2a      79
       2f      80
       30      80
       31      80
       32      80
       33      80
-      34      81
-      38      85
-      39      81
-      3a      81
+      34      80
+      35      80
+      36      81
+      3a      85
       3b      81
       3c      81
+      3d      81
+      3e      81
    }
 }
 

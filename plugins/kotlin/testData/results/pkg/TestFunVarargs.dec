@@ -2,7 +2,7 @@ package pkg
 
 import java.util.Arrays
 
-class TestFunVarargs {
+public class TestFunVarargs {
    public fun printAll(vararg messages: String) {
       for (java.lang.String m : messages) {// 5
          System.out.println(m);

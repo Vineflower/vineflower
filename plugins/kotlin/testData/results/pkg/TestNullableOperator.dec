@@ -1,6 +1,6 @@
 package pkg
 
-class TestNullableOperator {
+public class TestNullableOperator {
    public fun test(x: Int?): Int {
       return x ?: 0;// 5
    }
@@ -47,22 +47,16 @@ class TestNullableOperator {
    }// 26
 
    public fun test5(x: Exception?) {
-      var var10000: Unit;
       if (x != null) {// 29
          x.printStackTrace();
-         var10000 = Unit.INSTANCE;
       } else {
-         var10000 = null;
-      }
-
-      if (var10000 == null) {
          throw new Exception();
       }
-   }// 30
+   }
 
    public fun test6(x: Int?): Int {
       if (x != null) {// 33
-         var y: Int = x;
+         val y: Int = x;
          System.out.println(y);// 35
          return y;// 37
       } else {
@@ -138,59 +132,52 @@ class 'pkg/TestNullableOperator' {
    }
 
    method 'test5 (Ljava/lang/Exception;)V' {
-      0      50
-      2      50
-      3      50
-      4      50
-      5      51
-      6      51
-      7      51
-      8      52
-      9      52
-      a      52
-      f      54
-      10      57
-      11      57
-      12      57
-      1a      58
-      1b      60
+      0      49
+      2      49
+      3      49
+      4      49
+      5      50
+      6      50
+      7      50
+      8      54
+      13      52
    }
 
    method 'test6 (Ljava/lang/Integer;)I' {
-      0      63
-      2      63
-      3      63
-      4      63
-      5      64
-      6      64
-      7      64
-      8      64
-      c      68
-      d      68
-      e      65
-      f      65
-      10      65
-      12      65
-      13      65
-      14      65
-      16      66
+      0      57
+      2      57
+      3      57
+      4      57
+      5      58
+      6      58
+      7      58
+      8      58
+      c      62
+      d      62
+      e      59
+      f      59
+      10      59
+      12      59
+      13      59
+      14      59
+      16      60
    }
 
    method 'test6_1 (Ljava/lang/Integer;)V' {
-      0      73
-      2      73
-      3      73
-      4      73
-      5      74
-      6      74
-      7      74
-      c      76
-      d      74
-      e      74
-      f      74
-      11      74
-      12      74
-      13      74
+      0      67
+      2      67
+      3      67
+      4      67
+      5      68
+      6      68
+      7      68
+      c      70
+      d      68
+      e      68
+      f      68
+      11      68
+      12      68
+      13      68
    }
 }
 
@@ -202,12 +189,12 @@ Lines mapping:
 21 <-> 36
 25 <-> 44
 26 <-> 47
-29 <-> 51
-30 <-> 61
-33 <-> 64
-35 <-> 66
-37 <-> 67
-41 <-> 74
-43 <-> 75
+29 <-> 50
+33 <-> 58
+35 <-> 60
+37 <-> 61
+41 <-> 68
+43 <-> 69
 Not mapped:
+30
 44

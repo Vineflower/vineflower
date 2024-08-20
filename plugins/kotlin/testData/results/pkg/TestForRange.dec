@@ -2,7 +2,7 @@ package pkg
 
 import kotlin.internal.ProgressionUtilKt
 
-class TestForRange {
+public class TestForRange {
    public fun testInt() {
       for (int i = 1; i < 11; i++) {// 5
          System.out.println(i);// 6
@@ -17,7 +17,7 @@ class TestForRange {
 
    public fun testIntStep() {
       var i: Int = 1;
-      var var2: Int = ProgressionUtilKt.getProgressionLastElement(1, 10, 2);
+      val var2: Int = ProgressionUtilKt.getProgressionLastElement(1, 10, 2);
       if (1 <= var2) {
          while (true) {
             System.out.println(i);// 18
@@ -32,10 +32,10 @@ class TestForRange {
 
    public fun testIntStepX(x: Int) {
       if (x <= 0) {
-         throw new IllegalArgumentException("Step must be positive, was: " + x + ".");
+         throw new IllegalArgumentException("Step must be positive, was: $x.");
       } else {
          var i: Int = 1;
-         var var3: Int = ProgressionUtilKt.getProgressionLastElement(1, 100, x);
+         val var3: Int = ProgressionUtilKt.getProgressionLastElement(1, 100, x);
          if (1 <= var3) {
             while (true) {
                System.out.println(i);// 24
@@ -57,7 +57,7 @@ class TestForRange {
 
    public fun testIntDownToStep() {
       var i: Int = 10;
-      var var2: Int = ProgressionUtilKt.getProgressionLastElement(10, 1, -2);
+      val var2: Int = ProgressionUtilKt.getProgressionLastElement(10, 1, -2);
       if (var2 <= 10) {
          while (true) {
             System.out.println(i);// 36
@@ -72,11 +72,11 @@ class TestForRange {
 
    public fun testIntDownToStepX(x: Int) {
       if (x <= 0) {
-         throw new IllegalArgumentException("Step must be positive, was: " + x + ".");
+         throw new IllegalArgumentException("Step must be positive, was: $x.");
       } else {
-         var var2: Int = -x;
+         val var2: Int = -x;
          var i: Int = 100;
-         var var4: Int = ProgressionUtilKt.getProgressionLastElement(100, 1, var2);
+         val var4: Int = ProgressionUtilKt.getProgressionLastElement(100, 1, var2);
          if (var4 <= 100) {
             while (true) {
                System.out.println(i);// 42
@@ -97,10 +97,10 @@ class TestForRange {
    }// 50
 
    public fun testUntilStep() {
-      var var1: IntProgression = RangesKt.step(RangesKt.until(1, 100) as IntProgression, 2);
+      val var1: IntProgression = RangesKt.step(RangesKt.until(1, 100) as IntProgression, 2);
       var i: Int = var1.getFirst();
-      var var3: Int = var1.getLast();
-      var var4: Int = var1.getStep();
+      val var3: Int = var1.getLast();
+      val var4: Int = var1.getStep();
       if (var4 > 0 && i <= var3 || var4 < 0 && var3 <= i) {
          while (true) {
             System.out.println(i);// 54
@@ -114,10 +114,10 @@ class TestForRange {
    }// 56
 
    public fun testUntilStepX(x: Int) {
-      var var2: IntProgression = RangesKt.step(RangesKt.until(1, 100) as IntProgression, x);
+      val var2: IntProgression = RangesKt.step(RangesKt.until(1, 100) as IntProgression, x);
       var i: Int = var2.getFirst();
-      var var4: Int = var2.getLast();
-      var var5: Int = var2.getStep();
+      val var4: Int = var2.getLast();
+      val var5: Int = var2.getStep();
       if (var5 > 0 && i <= var4 || var5 < 0 && var4 <= i) {
          while (true) {
             System.out.println(i);// 60
@@ -146,7 +146,7 @@ class TestForRange {
 
    public fun testIntYStep(x: Int, y: Int) {
       var i: Int = x;
-      var var4: Int = ProgressionUtilKt.getProgressionLastElement(x, y, 2);
+      val var4: Int = ProgressionUtilKt.getProgressionLastElement(x, y, 2);
       if (x <= var4) {
          while (true) {
             System.out.println(i);// 72
@@ -161,10 +161,10 @@ class TestForRange {
 
    public fun testIntYStepX(x: Int, y: Int, z: Int) {
       if (z <= 0) {
-         throw new IllegalArgumentException("Step must be positive, was: " + z + ".");
+         throw new IllegalArgumentException("Step must be positive, was: $z.");
       } else {
          var i: Int = x;
-         var var5: Int = ProgressionUtilKt.getProgressionLastElement(x, y, z);
+         val var5: Int = ProgressionUtilKt.getProgressionLastElement(x, y, z);
          if (x <= var5) {
             while (true) {
                System.out.println(i);// 78

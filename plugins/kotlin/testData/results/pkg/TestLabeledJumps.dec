@@ -1,6 +1,6 @@
 package pkg
 
-class TestLabeledJumps {
+public class TestLabeledJumps {
    public fun testContinue(tester: (Int) -> Boolean) {
       label24:
       for (int i = 1; i < 101; i++) {// 5
@@ -9,7 +9,7 @@ class TestLabeledJumps {
                continue label24;
             }
 
-            System.out.println(j + " " + i);// 11
+            System.out.println("$j $i");// 11
          }
 
          System.out.println("loop");// 14
@@ -24,7 +24,7 @@ class TestLabeledJumps {
                break label22;
             }
 
-            System.out.println(j + " " + i);// 25
+            System.out.println("$j $i");// 25
          }
       }
 

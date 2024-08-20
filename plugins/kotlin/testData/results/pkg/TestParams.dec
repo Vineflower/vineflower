@@ -1,6 +1,6 @@
 package pkg
 
-class TestParams {
+public class TestParams {
    public fun printMessageUnit(message: String) {
       System.out.println(message);// 5
    }// 6
@@ -18,7 +18,7 @@ class TestParams {
    }
 
    public fun printMessageWithPrefix(message: String, prefix: String = "Info") {
-      System.out.println("[" + prefix + "] " + message);// 19
+      System.out.println("[$prefix] $message");// 19
    }// 20
 
    @JvmStatic
