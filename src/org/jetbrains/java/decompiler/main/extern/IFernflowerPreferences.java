@@ -225,6 +225,11 @@ public interface IFernflowerPreferences {
   @Type(DecompilerOption.Type.BOOLEAN)
   String VERIFY_VARIABLE_MERGES = "verify-merges";
 
+  @Name("[Experimental] Use old try deduplication")
+  @Description("Use the old try deduplication algorithm for methods with obfuscated exceptions, which inserts dummy exception handlers instead of duplicating blocks")
+  @Type(DecompilerOption.Type.BOOLEAN)
+  String OLD_TRY_DEDUP = "old-try-dedup";
+
   @Name("Include Entire Classpath")
   @Description("Give the decompiler information about every jar on the classpath.")
   @ShortName("iec")
@@ -432,6 +437,7 @@ public interface IFernflowerPreferences {
     defaults.put(SHOW_HIDDEN_STATEMENTS, "0"); // Extra debugging that isn't useful in most cases
     defaults.put(SIMPLIFY_STACK_SECOND_PASS, "1"); // Generally produces better bytecode, useful to debug if it does something strange
     defaults.put(VERIFY_VARIABLE_MERGES, "0"); // Produces more correct code in rare cases, but hurts code cleanliness in the majority of cases. Default off until a better fix is created.
+    defaults.put(OLD_TRY_DEDUP, "0");
     defaults.put(DECOMPILE_PREVIEW, "1"); // Preview features are useful to decompile in almost all cases
 
     defaults.put(INCLUDE_ENTIRE_CLASSPATH, "0");

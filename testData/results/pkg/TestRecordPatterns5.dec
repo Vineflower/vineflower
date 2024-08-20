@@ -1,0 +1,170 @@
+package pkg;
+
+public class TestRecordPatterns5 {
+   public void test1(TestRecordPatterns5.R r) {
+      if (r instanceof TestRecordPatterns5.R(Integer x, String var8)) {// 7
+         System.out.println(x);// 8
+         System.out.println(var8);// 9
+      }
+   }// 11
+
+   public void test2(TestRecordPatterns5.R r) {
+      if (r instanceof TestRecordPatterns5.R(Integer x, String var11)) {// 14
+         String var8 = var11;
+         if (var8.length() > 10) {
+            System.out.println(x);// 15
+            System.out.println(var8);// 16
+         }
+      }
+   }// 18
+
+   public void test3(TestRecordPatterns5.R r) {
+      if (r instanceof TestRecordPatterns5.R(Integer x, String var11)) {// 21
+         String var8 = var11;
+         if (var8.length() > 10 && x == 3) {
+            System.out.println(x);// 22
+            System.out.println(var8);// 23
+         }
+      }
+   }// 25
+
+   record R(Number a, String b) {
+   }
+}
+
+class 'pkg/TestRecordPatterns5' {
+   method 'test1 (Lpkg/TestRecordPatterns5$R;)V' {
+      0      4
+      1      4
+      2      4
+      3      4
+      4      4
+      5      4
+      6      4
+      1c      4
+      21      4
+      22      4
+      23      6
+      24      6
+      27      5
+      28      5
+      29      5
+      2a      5
+      2b      5
+      2c      5
+      2d      5
+      2e      6
+      2f      6
+      30      6
+      31      6
+      32      6
+      33      6
+      34      6
+      35      6
+      47      8
+   }
+
+   method 'test2 (Lpkg/TestRecordPatterns5$R;)V' {
+      0      11
+      1      11
+      2      11
+      3      11
+      4      11
+      5      11
+      6      11
+      1c      11
+      21      12
+      22      12
+      23      13
+      24      13
+      27      13
+      28      13
+      29      13
+      2a      13
+      2b      13
+      2c      13
+      2d      13
+      2e      13
+      2f      13
+      30      13
+      31      14
+      32      14
+      33      14
+      34      14
+      35      14
+      36      14
+      37      14
+      38      15
+      39      15
+      3a      15
+      3b      15
+      3c      15
+      3d      15
+      3e      15
+      3f      15
+      51      18
+   }
+
+   method 'test3 (Lpkg/TestRecordPatterns5$R;)V' {
+      0      21
+      1      21
+      2      21
+      3      21
+      4      21
+      5      21
+      6      21
+      1c      21
+      21      22
+      22      22
+      23      23
+      24      23
+      27      23
+      28      23
+      29      23
+      2a      23
+      2b      23
+      2c      23
+      2d      23
+      2e      23
+      2f      23
+      30      23
+      31      23
+      32      23
+      33      23
+      34      23
+      35      23
+      36      23
+      37      23
+      38      23
+      39      24
+      3a      24
+      3b      24
+      3c      24
+      3d      24
+      3e      24
+      3f      24
+      40      25
+      41      25
+      42      25
+      43      25
+      44      25
+      45      25
+      46      25
+      47      25
+      59      28
+   }
+}
+
+Lines mapping:
+7 <-> 5
+8 <-> 6
+9 <-> 7
+11 <-> 9
+14 <-> 12
+15 <-> 15
+16 <-> 16
+18 <-> 19
+21 <-> 22
+22 <-> 25
+23 <-> 26
+25 <-> 29

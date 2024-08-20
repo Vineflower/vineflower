@@ -680,6 +680,11 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestWhileForeach");
     register(JAVA_21, "TestRecordPatterns1");
     register(JAVA_21, "TestRecordPatterns2");
+    register(JAVA_21, "TestRecordPatterns3");
+    register(JAVA_21, "TestRecordPatterns4");
+    register(JAVA_21, "TestRecordPatterns5");
+    register(JAVA_21, "TestRecordPatterns6");
+    register(JAVA_21, "TestRecordPatterns7");
     register(JAVA_21_PREVIEW, "TestStrProcessor");
     register(JAVA_21_PREVIEW, "TestRawProcessor");
     register(JAVA_21_PREVIEW, "TestFmtProcessor");
