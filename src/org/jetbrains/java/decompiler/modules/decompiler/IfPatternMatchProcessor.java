@@ -252,7 +252,6 @@ public final class IfPatternMatchProcessor {
       return false;
     }
 
-    Exprent headLeft = head.getLeft();
     Exprent headRight = head.getRight();
 
     // Check for:
@@ -442,6 +441,7 @@ public final class IfPatternMatchProcessor {
                 }
               }
 
+              // Find any nested record patterns
               Exprent store = function.getLstOperands().size() > 2 ? function.getLstOperands().get(2) : function.getLstOperands().get(0);
               if (store instanceof VarExprent variable) {
                 patternStores.add(new PatternStore(c, DecompilerContext.getStructContext().getClass(variable.getExprType().value), variable.getExprType(), variable));
@@ -627,7 +627,7 @@ public final class IfPatternMatchProcessor {
           && pattern.getData() instanceof PatternExprent.PatternData.RecordPatternData) {
           // Found one? now find type-enhancing instanceofs in the other arm
 
-          // Map a list of vars 1:1 with the exprents in the pattern
+          // Map a list of vars 1:1 with the exprents in the pattern, with any nested patterns represented with null
           List<VarExprent> vars = new ArrayList<>();
 
           for (Exprent patternEx : pattern.getExprents()) {
@@ -636,8 +636,6 @@ public final class IfPatternMatchProcessor {
             } else {
               vars.add(null);
             }
-
-            // TODO: recursively look?
           }
 
           for (int j = 0; j < vars.size(); j++) {
