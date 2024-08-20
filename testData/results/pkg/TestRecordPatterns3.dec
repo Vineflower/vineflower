@@ -37,7 +37,7 @@ public class TestRecordPatterns3 {
       }
    }// 42
 
-   static record R() {
+   record R() {
    }
 }
 

@@ -22,7 +22,7 @@ public class TestRecordPatterns4 {
       }
    }// 25
 
-   static record R(Object a, Object b) {
+   record R(Object a, Object b) {
    }
 }
 

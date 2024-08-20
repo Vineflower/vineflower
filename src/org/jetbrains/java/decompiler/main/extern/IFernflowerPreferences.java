@@ -227,7 +227,7 @@ public interface IFernflowerPreferences {
 
   @Name("[Experimental] Use old try deduplication")
   @Description("Uses the older try deduplication algorithm for methods with obfuscated exceptions, which prefers ")
-  @Type(Type.BOOLEAN)
+  @Type(DecompilerOption.Type.BOOLEAN)
   String OLD_TRY_DEDUP = "old-try-dedup";
 
   @Name("Include Entire Classpath")

@@ -28,7 +28,7 @@ public class TestRecordPatterns5 {
       }
    }// 25
 
-   static record R(Number a, String b) {
+   record R(Number a, String b) {
    }
 }
 

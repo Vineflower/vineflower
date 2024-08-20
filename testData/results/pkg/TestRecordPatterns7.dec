@@ -28,13 +28,13 @@ public class TestRecordPatterns7 {
          );
    }
 
-   static record A(TestRecordPatterns7.C c, int i, TestRecordPatterns7.B b2) {
+   record A(TestRecordPatterns7.C c, int i, TestRecordPatterns7.B b2) {
    }
 
-   static record B(int i1, int i2) {
+   record B(int i1, int i2) {
    }
 
-   static record C(TestRecordPatterns7.B b, int i) {
+   record C(TestRecordPatterns7.B b, int i) {
    }
 }
 
