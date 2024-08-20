@@ -13,11 +13,9 @@ public class TestClassDec {
       System.out.println(this.dot(vec, vec1));// 20
    }// 21
 
-   public class EmptyDec {
-   }
+   public class EmptyDec
 
-   public class Vec2i(x: Int, y: Int) {
-   }
+   public class Vec2i(x: Int, y: Int)
 
    public class Vec2iVal(x: Int, y: Int) {
       public final val x: Int
@@ -105,39 +103,39 @@ class 'pkg/TestClassDec' {
 
 class 'pkg/TestClassDec$Vec2iVal' {
    method '<init> (II)V' {
-      4      26
-      5      26
-      6      26
-      7      26
-      8      26
-      9      27
-      a      27
-      b      27
-      c      27
-      d      27
-      e      28
+      4      24
+      5      24
+      6      24
+      7      24
+      8      24
+      9      25
+      a      25
+      b      25
+      c      25
+      d      25
+      e      26
    }
 }
 
 class 'pkg/TestClassDec$Vec2iVar' {
    method '<init> (II)V' {
-      4      38
-      5      38
-      6      38
-      7      38
-      8      38
-      9      39
-      a      39
-      b      39
-      c      39
-      d      39
-      e      40
+      4      36
+      5      36
+      6      36
+      7      36
+      8      36
+      9      37
+      a      37
+      b      37
+      c      37
+      d      37
+      e      38
    }
 }
 
 Lines mapping:
-6 <-> 39
-7 <-> 27
+6 <-> 37
+7 <-> 25
 11 <-> 5
 16 <-> 10
 17 <-> 11

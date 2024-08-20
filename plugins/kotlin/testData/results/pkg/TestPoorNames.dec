@@ -23,8 +23,7 @@ public class TestPoorNames {
       this.functionWithParameters(42, "test");// 24
    }// 25
 
-   public class `Class with spaces` {
-   }
+   public class `Class with spaces`
 }
 
 class 'pkg/TestPoorNames' {

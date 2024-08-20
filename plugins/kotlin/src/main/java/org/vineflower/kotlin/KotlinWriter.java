@@ -248,6 +248,8 @@ public class KotlinWriter implements StatementWriter {
       // write class definition
       writeClassDefinition(node, buffer, indent, constructorData);
 
+      TextBuffer innerBuffer = new TextBuffer();
+
       boolean hasContent = false;
       boolean enumFields = false;
 
@@ -292,13 +294,13 @@ public class KotlinWriter implements StatementWriter {
         boolean isEnum = fd.hasModifier(CodeConstants.ACC_ENUM) && DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_ENUM);
         if (isEnum) {
           if (enumFields) {
-            buffer.append(',').appendLineSeparator();
+            innerBuffer.append(',').appendLineSeparator();
           }
           enumFields = true;
         } else if (enumFields) {
-          buffer.append(';');
-          buffer.appendLineSeparator();
-          buffer.appendLineSeparator();
+          innerBuffer.append(';');
+          innerBuffer.appendLineSeparator();
+          innerBuffer.appendLineSeparator();
           enumFields = false;
 
           // If the fields after are non enum, readd the fields found scattered throughout the enum
@@ -306,7 +308,7 @@ public class KotlinWriter implements StatementWriter {
             TextBuffer fieldBuffer = new TextBuffer();
             writeField(wrapper, cl, fd2, fieldBuffer, indent + 1);
             fieldBuffer.clearUnassignedBytecodeMappingData();
-            buffer.append(fieldBuffer);
+            innerBuffer.append(fieldBuffer);
           }
         }
 
@@ -314,31 +316,31 @@ public class KotlinWriter implements StatementWriter {
           TextBuffer fieldBuffer = new TextBuffer();
           writeField(wrapper, cl, fd, fieldBuffer, indent + 1);
           fieldBuffer.clearUnassignedBytecodeMappingData();
-          buffer.append(fieldBuffer);
+          innerBuffer.append(fieldBuffer);
 
           hasContent = true;
         }
       }
 
       if (enumFields) {
-        buffer.append(';').appendLineSeparator();
+        innerBuffer.append(';').appendLineSeparator();
 
         // If we end with enum fields, readd the fields found mixed in
         for (StructField fd2 : deferredEnumFields) {
           TextBuffer fieldBuffer = new TextBuffer();
           writeField(wrapper, cl, fd2, fieldBuffer, indent + 1);
           fieldBuffer.clearUnassignedBytecodeMappingData();
-          buffer.append(fieldBuffer);
+          innerBuffer.append(fieldBuffer);
         }
       }
 
       if (propertyData != null && !propertyData.properties().isEmpty()) {
         if (hasContent) {
-          buffer.appendLineSeparator();
+          innerBuffer.appendLineSeparator();
         }
 
         for (KProperty prop : propertyData.properties()) {
-          buffer.append(prop.stringify(indent + 1));
+          innerBuffer.append(prop.stringify(indent + 1));
         }
 
         hasContent = true;
@@ -358,10 +360,10 @@ public class KotlinWriter implements StatementWriter {
         KFunction function = functions.get(mt);
         if (function != null) {
           if (hasContent) {
-            buffer.appendLineSeparator();
+            innerBuffer.appendLineSeparator();
           }
           hasContent = true;
-          buffer.append(function.stringify(indent + 1));
+          innerBuffer.append(function.stringify(indent + 1));
           continue;
         }
 
@@ -369,9 +371,9 @@ public class KotlinWriter implements StatementWriter {
           KConstructor constructor = constructorData.constructors().get(mt);
           if (constructor != null) {
             if (hasContent) {
-              buffer.appendLineSeparator();
+              innerBuffer.appendLineSeparator();
             }
-            hasContent |= constructor.stringify(buffer, indent + 1);
+            hasContent |= constructor.stringify(innerBuffer, indent + 1);
             continue;
           }
         }
@@ -380,10 +382,10 @@ public class KotlinWriter implements StatementWriter {
         boolean methodSkipped = !writeMethod(node, mt, i, methodBuffer, indent + 1);
         if (!methodSkipped) {
           if (hasContent) {
-            buffer.appendLineSeparator();
+            innerBuffer.appendLineSeparator();
           }
           hasContent = true;
-          buffer.append(methodBuffer);
+          innerBuffer.append(methodBuffer);
         }
       }
 
@@ -397,18 +399,27 @@ public class KotlinWriter implements StatementWriter {
           if (hide) continue;
 
           if (hasContent) {
-            buffer.appendLineSeparator();
+            innerBuffer.appendLineSeparator();
           }
-          writeClass(inner, buffer, indent + 1);
+          writeClass(inner, innerBuffer, indent + 1);
 
           hasContent = true;
         }
       }
 
-      buffer.appendIndent(indent).append('}');
+      if (!innerBuffer.containsOnlyWhitespaces()) {
+        // Only add braces if a class body is present
+        buffer.append(" {")
+          .appendLineSeparator()
+          .append(innerBuffer)
+          .appendIndent(indent)
+          .append("}");
+      }
+
+      buffer.appendLineSeparator();
 
       if (node.type != ClassNode.Type.ANONYMOUS) {
-        buffer.appendLineSeparator();
+        innerBuffer.appendLineSeparator();
       }
     } finally {
       DecompilerContext.setProperty(DecompilerContext.CURRENT_CLASS_NODE, outerNode);
@@ -711,8 +722,6 @@ public class KotlinWriter implements StatementWriter {
     }
 
     buffer.popNewlineGroup();
-
-    buffer.append(" {").appendLineSeparator();
   }
 
   public void writeField(ClassWrapper wrapper, StructClass cl, StructField fd, TextBuffer buffer, int indent) {
