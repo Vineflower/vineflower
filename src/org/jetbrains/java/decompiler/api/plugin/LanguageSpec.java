@@ -8,12 +8,18 @@ public final class LanguageSpec {
   public final GraphParser graphParser;
   public final StatementWriter writer;
   public final Pass pass;
-
+  public final String extension;
+  
   public LanguageSpec(String name, LanguageChooser chooser, GraphParser graphParser, StatementWriter writer, Pass pass) {
+    this(name, chooser, graphParser, writer, pass, "java");
+  }
+
+  public LanguageSpec(String name, LanguageChooser chooser, GraphParser graphParser, StatementWriter writer, Pass pass, String extension) {
     this.name = name;
     this.chooser = chooser;
     this.graphParser = graphParser;
     this.writer = writer;
     this.pass = pass;
+    this.extension = extension;
   }
 }

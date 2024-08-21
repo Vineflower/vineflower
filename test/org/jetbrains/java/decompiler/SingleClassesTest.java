@@ -173,7 +173,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestConstants");
     register(JAVA_8, "TestEnum");
     register(JAVA_8, "TestDebugSymbols");
-    registerRaw(CUSTOM, "InvalidMethodSignature");
+    registerRaw(CUSTOM, "InvalidMethodSignature").setExpectedFileName("i.java");
     register(JAVA_8, "TestAnonymousClassConstructor");
     register(JAVA_8, "TestInnerClassConstructor");
     register(CUSTOM, "v11/TestInnerClassConstructor");
