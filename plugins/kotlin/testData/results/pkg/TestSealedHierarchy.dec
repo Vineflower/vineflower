@@ -9,11 +9,7 @@ public sealed class TestSealedHierarchy protected constructor() {
       }
    }
 
-   public object TestObject private constructor() : TestSealedHierarchy() {// 4
-      @JvmStatic
-      public TestSealedHierarchy.TestObject INSTANCE = new TestSealedHierarchy.TestObject();
-
-   }
+   public object TestObject : TestSealedHierarchy()// 4
 }
 
 class 'pkg/TestSealedHierarchy$TestClass' {

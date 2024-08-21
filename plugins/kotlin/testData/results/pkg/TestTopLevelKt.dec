@@ -2,6 +2,7 @@ package pkg
 
 public final var topLevelVar: Int = 42
    internal set
+
 public final val topLevelVal: Regex = new Regex("")
 public const val topLevelConstVal: Int = 926
 
@@ -13,43 +14,42 @@ public fun interpolateTopLevel() {
    System.out.println("topLevelConstVal = 926");// 15
 }// 16
 
-
 class 'pkg/TestTopLevelKt' {
    method 'topLevelFun ()V' {
-      2      8
+      2      9
    }
 
    method 'interpolateTopLevel ()V' {
-      0      11
-      1      11
-      2      11
-      3      11
-      4      11
-      5      11
-      6      11
-      7      11
-      8      11
-      9      11
-      a      11
-      c      11
-      d      11
-      e      11
-      f      12
-      10      12
-      11      12
-      12      12
-      13      12
-      15      12
-      16      12
-      17      12
-      18      13
+      0      12
+      1      12
+      2      12
+      3      12
+      4      12
+      5      12
+      6      12
+      7      12
+      8      12
+      9      12
+      a      12
+      c      12
+      d      12
+      e      12
+      f      13
+      10      13
+      11      13
+      12      13
+      13      13
+      15      13
+      16      13
+      17      13
+      18      14
    }
 }
 
 Lines mapping:
-5 <-> 9
-14 <-> 12
-15 <-> 13
-16 <-> 14
+5 <-> 10
+14 <-> 13
+15 <-> 14
+16 <-> 15
 Not mapped:
 4
