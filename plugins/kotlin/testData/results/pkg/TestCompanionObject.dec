@@ -6,16 +6,6 @@ public class TestCompanionObject {
    }// 6
 
    @JvmStatic
-   fun getCompanionValJvmStatic(): java.lang.String {
-      return Companion.getCompanionValJvmStatic();// 12
-   }
-
-   @JvmStatic
-   fun inCompanionJvmStatic() {
-      Companion.inCompanionJvmStatic();
-   }// 21
-
-   @JvmStatic
    @JvmSynthetic
    fun `access$getCompanionVal$cp`(): java.lang.String {
       return companionVal;
@@ -25,6 +15,21 @@ public class TestCompanionObject {
    @JvmSynthetic
    fun `access$getCompanionValJvmStatic$cp`(): java.lang.String {
       return companionValJvmStatic;// 3
+   }
+
+   public companion object {
+      public final val companionVal: String
+
+      @JvmStatic
+      public final val companionValJvmStatic: String
+
+      public fun inCompanion() {
+         System.out.println("inCompanion");// 15
+      }// 16
+
+      public fun inCompanionJvmStatic() {
+         System.out.println("inCompanionJvmStatic");// 20
+      }// 21
    }
 }
 
@@ -41,44 +46,52 @@ class 'pkg/TestCompanionObject' {
       9      5
    }
 
-   method 'getCompanionValJvmStatic ()Ljava/lang/String;' {
-      0      9
-      1      9
-      2      9
-      3      9
-      4      9
-      5      9
-      6      9
-   }
-
-   method 'inCompanionJvmStatic ()V' {
-      0      14
-      1      14
-      2      14
-      3      14
-      4      14
-      5      14
-      6      15
-   }
-
    method 'access$getCompanionVal$cp ()Ljava/lang/String;' {
-      0      20
-      1      20
-      2      20
-      3      20
+      0      10
+      1      10
+      2      10
+      3      10
    }
 
    method 'access$getCompanionValJvmStatic$cp ()Ljava/lang/String;' {
+      0      16
+      1      16
+      2      16
+      3      16
+   }
+}
+
+class 'pkg/TestCompanionObject$Companion' {
+   method 'inCompanion ()V' {
       0      26
       1      26
       2      26
       3      26
+      4      26
+      6      26
+      7      26
+      8      26
+      9      27
+   }
+
+   method 'inCompanionJvmStatic ()V' {
+      0      30
+      1      30
+      2      30
+      3      30
+      4      30
+      6      30
+      7      30
+      8      30
+      9      31
    }
 }
 
 Lines mapping:
-3 <-> 27
+3 <-> 17
 5 <-> 5
 6 <-> 6
-12 <-> 10
-21 <-> 16
+15 <-> 27
+16 <-> 28
+20 <-> 31
+21 <-> 32

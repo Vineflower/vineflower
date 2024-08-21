@@ -30,6 +30,7 @@ public class TestClassDec {
    public class Vec2iVar(x: Int, y: Int) {
       public final var x: Int
          internal set
+
       public final var y: Int
          internal set
 
@@ -119,22 +120,22 @@ class 'pkg/TestClassDec$Vec2iVal' {
 
 class 'pkg/TestClassDec$Vec2iVar' {
    method '<init> (II)V' {
-      4      36
-      5      36
-      6      36
-      7      36
-      8      36
-      9      37
-      a      37
-      b      37
-      c      37
-      d      37
-      e      38
+      4      37
+      5      37
+      6      37
+      7      37
+      8      37
+      9      38
+      a      38
+      b      38
+      c      38
+      d      38
+      e      39
    }
 }
 
 Lines mapping:
-6 <-> 37
+6 <-> 38
 7 <-> 25
 11 <-> 5
 16 <-> 10

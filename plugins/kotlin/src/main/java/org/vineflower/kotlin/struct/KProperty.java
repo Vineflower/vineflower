@@ -2,17 +2,20 @@ package org.vineflower.kotlin.struct;
 
 import kotlinx.metadata.internal.metadata.ProtoBuf;
 import kotlinx.metadata.internal.metadata.jvm.JvmProtoBuf;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.ClassesProcessor;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.rels.ClassWrapper;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.AnnotationExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.ConstExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructField;
 import org.jetbrains.java.decompiler.struct.StructMethod;
+import org.jetbrains.java.decompiler.struct.attr.StructAnnotationAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructConstantValueAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
 import org.jetbrains.java.decompiler.struct.consts.PrimitiveConstant;
@@ -39,10 +42,20 @@ public record KProperty(
   @Nullable String setterParamName,
   @Nullable StructField underlyingField,
   @Nullable Exprent initializer,
+  @Nullable StructAnnotationAttribute annotations,
   ClassesProcessor.ClassNode node
 ) {
   public TextBuffer stringify(int indent) {
     TextBuffer buf = new TextBuffer();
+
+    if (flags.hasAnnotations) {
+      assert annotations != null;
+      for (AnnotationExprent anno : annotations.getAnnotations()) {
+        buf.appendIndent(indent)
+          .append(anno.toJava(indent))
+          .appendLineSeparator();
+      }
+    }
 
     buf.appendIndent(indent);
 
@@ -166,8 +179,6 @@ public record KProperty(
         .append("private set");
     }
 
-    buf.appendLineSeparator();
-
     return buf;
   }
 
@@ -204,11 +215,25 @@ public record KProperty(
     if (protoProperties == null) return null;
 
     List<KProperty> properties = new ArrayList<>();
-    Set<String> associatedFields = new HashSet<>();
-    Set<String> associatedMethods = new HashSet<>();
+    Set<StructField> associatedFields = new HashSet<>();
+    Set<StructMethod> associatedMethods = new HashSet<>();
 
     for (ProtoBuf.Property property : protoProperties) {
       JvmProtoBuf.JvmPropertySignature jvmProp = property.getExtension(JvmProtoBuf.propertySignature);
+
+      StructAnnotationAttribute annotations = null;
+      if (jvmProp.hasSyntheticMethod()) {
+        // Properties containing annotations receive a synthetic method which has the annotations in place of the property.
+        // https://github.com/JetBrains/kotlin/blob/master/core/metadata.jvm/src/jvm_metadata.proto#L84
+        JvmProtoBuf.JvmMethodSignature syntheticMethod = jvmProp.getSyntheticMethod();
+        String methodName = nameResolver.resolve(syntheticMethod.getName());
+        String desc = nameResolver.resolve(syntheticMethod.getDesc());
+        StructMethod method = structClass.getMethod(methodName, desc);
+        if (method != null) {
+          associatedMethods.add(method);
+          annotations = method.getAttribute(StructGeneralAttribute.ATTRIBUTE_RUNTIME_VISIBLE_ANNOTATIONS);
+        }
+      }
 
       ProtobufFlags.Property flags = new ProtobufFlags.Property(property.getFlags());
 
@@ -228,7 +253,7 @@ public record KProperty(
         String delegateDesc = nameResolver.resolve(jvmProp.getField().getDesc());
         StructField delegateField = structClass.getField(delegateFieldName, delegateDesc);
         if (delegateField != null) {
-          associatedFields.add(delegateFieldName);
+          associatedFields.add(delegateField);
           String key = InterpreterUtil.makeUniqueKey(delegateFieldName, delegateDesc);
           if (delegateField.hasModifier(CodeConstants.ACC_STATIC)) {
             delegateExprent = wrapper.getStaticFieldInitializers().getWithKey(key);
@@ -246,7 +271,7 @@ public record KProperty(
         if (method != null) {
           MethodWrapper methodWrapper = wrapper.getMethodWrapper(methodName, desc);
           getter = new KPropertyAccessor(new ProtobufFlags.PropertyAccessor(property.getGetterFlags()), methodWrapper);
-          associatedMethods.add(InterpreterUtil.makeUniqueKey(methodName, desc));
+          associatedMethods.add(method);
 
           if (propDesc == null) {
             propDesc = method.getDescriptor().substring(method.getDescriptor().indexOf(')') + 1);
@@ -263,7 +288,7 @@ public record KProperty(
         if (method != null) {
           MethodWrapper methodWrapper = wrapper.getMethodWrapper(methodName, desc);
           setter = new KPropertyAccessor(new ProtobufFlags.PropertyAccessor(property.getSetterFlags()), methodWrapper);
-          associatedMethods.add(InterpreterUtil.makeUniqueKey(methodName, desc));
+          associatedMethods.add(method);
           setterParamName = nameResolver.resolve(property.getSetterValueParameter().getName());
         }
       }
@@ -272,7 +297,7 @@ public record KProperty(
       if (propDesc != null) {
         field = structClass.getField(name, propDesc);
         if (field != null) {
-          associatedFields.add(name);
+          associatedFields.add(field);
         }
       } else {
         VBStyleCollection<StructField, String> fields = structClass.getFields();
@@ -280,7 +305,7 @@ public record KProperty(
           if (f.getName().equals(name)) {
             field = f;
             propDesc = f.getDescriptor();
-            associatedFields.add(name);
+            associatedFields.add(field);
             break;
           }
         }
@@ -305,12 +330,15 @@ public record KProperty(
         initializer = wrapper.getDynamicFieldInitializers().getWithKey(key);
       }
 
-      properties.add(new KProperty(name, type, flags, getter, setter, setterParamName, field, initializer, node));
+      properties.add(new KProperty(name, type, flags, getter, setter, setterParamName, field, initializer, annotations, node));
     }
 
     return new Data(properties, associatedFields, associatedMethods);
   }
 
-  public record Data(List<KProperty> properties, Set<String> associatedFields, Set<String> associatedMethods) {
-  }
+  public record Data(
+    @NotNull List<KProperty> properties,
+    @NotNull Set<StructField> associatedFields,
+    @NotNull Set<StructMethod> associatedMethods
+  ) { }
 }
