@@ -13,15 +13,15 @@ public class TestPatternMatchingInvoke {
       System.out.println("Before");// 25
       if (this.bool()) {// 27
          System.out.println("Inner");// 28
-         TestPatternMatchingInvoke.I i = this.get();// 29 30
-         if (cond && i instanceof TestPatternMatchingInvoke.A) {// 31
-            TestPatternMatchingInvoke.I i2 = this.get();// 32
-            System.out.println(i2);// 33
+         TestPatternMatchingInvoke.I i = this.get();// 29
+         if (cond && i instanceof TestPatternMatchingInvoke.A) {// 30
+            TestPatternMatchingInvoke.I i2 = this.get();// 31
+            System.out.println(i2);// 32
          }
       }
 
-      System.out.println("After");// 37
-   }// 38
+      System.out.println("After");// 36
+   }// 37
 
    class A implements TestPatternMatchingInvoke.I {
    }
@@ -68,11 +68,12 @@ class 'pkg/TestPatternMatchingInvoke' {
       15      14
       16      14
       17      15
+      18      15
       19      15
       1a      15
       1b      15
-      1c      15
-      1d      15
+      1c      16
+      1d      16
       1e      16
       1f      16
       20      16
@@ -82,31 +83,27 @@ class 'pkg/TestPatternMatchingInvoke' {
       24      16
       25      16
       26      16
-      27      16
-      28      16
+      27      17
+      28      17
       29      17
       2a      17
       2b      17
-      2c      17
-      2d      17
-      2e      17
+      2c      18
+      2d      18
+      2e      18
       2f      18
       30      18
       31      18
       32      18
-      33      18
-      34      18
-      35      18
-      36      18
+      33      22
+      34      22
+      35      22
+      36      22
       37      22
       38      22
       39      22
       3a      22
-      3b      22
-      3c      22
-      3d      22
-      3e      22
-      3f      23
+      3b      23
    }
 }
 
@@ -117,9 +114,8 @@ Lines mapping:
 27 <-> 14
 28 <-> 15
 29 <-> 16
-30 <-> 16
-31 <-> 17
-32 <-> 18
-33 <-> 19
-37 <-> 23
-38 <-> 24
+30 <-> 17
+31 <-> 18
+32 <-> 19
+36 <-> 23
+37 <-> 24
