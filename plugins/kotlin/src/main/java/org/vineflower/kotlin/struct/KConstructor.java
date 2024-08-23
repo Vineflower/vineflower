@@ -88,6 +88,11 @@ public record KConstructor(
       boolean isPrimary = !flags.isSecondary;
 
       StringBuilder defaultArgsDesc = new StringBuilder("(");
+      if (classFlags.kind == ProtoBuf.Class.Kind.ENUM_CLASS) {
+        // Kotlin drops hidden name/ordinal parameters for enum constructors in its metadata
+        defaultArgsDesc.append("Ljava/lang/String;").append("I");
+      }
+
       for (KParameter parameter : parameters) {
         defaultArgsDesc.append(parameter.type());
       }
@@ -218,7 +223,9 @@ public record KConstructor(
       }
 
       // For cleanliness, public primary constructors are not forced public by the config option
-      if (flags.visibility != ProtoBuf.Visibility.PUBLIC || (appended && DecompilerContext.getOption(KotlinOptions.SHOW_PUBLIC_VISIBILITY))) {
+      if ((flags.visibility != ProtoBuf.Visibility.PUBLIC || (appended && DecompilerContext.getOption(KotlinOptions.SHOW_PUBLIC_VISIBILITY))) &&
+        classFlags.kind != ProtoBuf.Class.Kind.ENUM_CLASS // Enum constructors are always private implicitly
+      ) {
         buf.append(" ");
         KUtils.appendVisibility(buf, flags.visibility);
         appended = true;
@@ -264,7 +271,7 @@ public record KConstructor(
 //      throw new IllegalStateException("First expression of constructor is not InvocationExprent");
     }
 
-    if (invocation.getClassname().equals("java/lang/Object")) {
+    if (invocation.getClassname().equals("java/lang/Object") || classFlags.kind == ProtoBuf.Class.Kind.ENUM_CLASS) {
       // No need to declare super constructor call
       buffer.append(buf);
       return false;

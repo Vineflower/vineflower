@@ -1,0 +1,106 @@
+package pkg
+
+import kotlin.enums.EnumEntries
+import kotlin.jvm.internal.DefaultConstructorMarker
+
+public enum class TestEnumClass {
+,
+,
+,
+;
+
+   private int number;
+   public final val number: Int
+
+   init {
+      this.number = number;
+   }
+
+   @JvmSynthetic
+   fun TestEnumClass(var3: Int, var4: Int, var5: DefaultConstructorMarker) {
+      if ((var4 and 1) != 0) {// 3
+         var3 = 4;
+      }
+
+      this(var3);
+   }
+
+   public fun foo(): Int {
+      return this.number;// 7
+   }
+
+   @JvmStatic
+   fun getEntries(): EnumEntries<TestEnumClass> {
+      return $ENTRIES;// 8
+   }
+
+   @JvmStatic
+   @JvmSynthetic
+   fun `$values`(): Array<TestEnumClass> {
+      return new TestEnumClass[]{A, B, C, D};
+   }
+}
+
+class 'pkg/TestEnumClass' {
+   method '<init> (Ljava/lang/String;II)V' {
+      6      15
+      7      15
+      8      15
+      9      15
+      a      15
+      b      16
+   }
+
+   method '<init> (Ljava/lang/String;IIILkotlin/jvm/internal/DefaultConstructorMarker;)V' {
+      0      20
+      1      20
+      2      20
+      3      20
+      4      20
+      5      20
+      6      20
+      7      21
+      8      21
+      c      24
+      d      24
+      e      24
+      f      24
+      10      25
+   }
+
+   method 'foo ()I' {
+      0      28
+      1      28
+      2      28
+      3      28
+      4      28
+   }
+
+   method 'getEntries ()Lkotlin/enums/EnumEntries;' {
+      0      33
+      1      33
+      2      33
+      3      33
+   }
+
+   method '$values ()[Lpkg/TestEnumClass;' {
+      7      39
+      8      39
+      9      39
+      d      39
+      e      39
+      f      39
+      13      39
+      14      39
+      15      39
+      19      39
+      1a      39
+      1b      39
+      1e      39
+   }
+}
+
+Lines mapping:
+3 <-> 21
+7 <-> 29
+8 <-> 34
