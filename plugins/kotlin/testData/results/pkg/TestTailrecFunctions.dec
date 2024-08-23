@@ -67,7 +67,7 @@ public class TestTailrecFunctions {
    }
 
    public tailrec fun fastPow(x: Long, n: Long, acc: Long = 1L): Long {
-      var var7: TestTailrecFunctions = this;
+      var var7: TestTailrecFunctions = this;// 43
 
       while (n != 0L) {// 44
          if (n % 2 == 0L) {// 45
@@ -88,16 +88,6 @@ public class TestTailrecFunctions {
       }
 
       return acc;
-   }
-
-   @JvmStatic
-   @JvmSynthetic
-   fun `fastPow$default`(var0: TestTailrecFunctions, var1: Long, var3: Long, var5: Long, var7: Int, var8: Any): Long {
-      if ((var7 and 4) != 0) {// 43
-         var5 = 1L;
-      }
-
-      return var0.fastPow(var1, var3, var5);
    }
 
    public tailrec fun fastPow(x: Long, n: Long): Long {
@@ -298,84 +288,62 @@ class 'pkg/TestTailrecFunctions' {
       58      85
    }
 
-   method 'fastPow$default (Lpkg/TestTailrecFunctions;JJJILjava/lang/Object;)J' {
-      0      95
-      1      95
-      2      95
-      3      95
-      4      95
-      5      95
-      6      95
-      7      96
-      8      96
-      9      96
-      a      99
-      b      99
-      c      99
-      d      99
-      e      99
-      f      99
-      10      99
-      11      99
-      12      99
-   }
-
    method 'fastPow (JJ)J' {
-      0      103
-      1      103
-      2      103
-      3      107
-      4      107
-      5      107
-      6      107
-      7      107
-      8      107
-      9      108
-      a      109
-      d      112
-      e      112
-      f      112
-      10      112
-      11      112
-      12      112
-      13      112
-      14      112
-      15      112
-      16      119
-      17      119
-      1a      117
-      1b      117
-      1c      117
-      1d      117
-      1e      117
-      1f      118
-      20      118
-      21      118
-      22      118
-      23      118
-      24      118
-      25      119
-      26      119
-      27      119
-      28      119
-      29      120
-      2a      120
-      2b      120
-      2c      121
-      2d      121
-      2e      121
-      32      113
-      33      113
-      34      113
-      35      113
-      36      113
-      37      113
-      38      113
-      39      113
-      3a      113
-      3b      113
-      3c      113
-      3d      124
+      0      93
+      1      93
+      2      93
+      3      97
+      4      97
+      5      97
+      6      97
+      7      97
+      8      97
+      9      98
+      a      99
+      d      102
+      e      102
+      f      102
+      10      102
+      11      102
+      12      102
+      13      102
+      14      102
+      15      102
+      16      109
+      17      109
+      1a      107
+      1b      107
+      1c      107
+      1d      107
+      1e      107
+      1f      108
+      20      108
+      21      108
+      22      108
+      23      108
+      24      108
+      25      109
+      26      109
+      27      109
+      28      109
+      29      110
+      2a      110
+      2b      110
+      2c      111
+      2d      111
+      2e      111
+      32      103
+      33      103
+      34      103
+      35      103
+      36      103
+      37      103
+      38      103
+      39      103
+      3a      103
+      3b      103
+      3c      103
+      3d      114
    }
 }
 
@@ -393,15 +361,15 @@ Lines mapping:
 37 <-> 55
 39 <-> 61
 41 <-> 62
-43 <-> 96
+43 <-> 70
 44 <-> 72
 45 <-> 73
 46 <-> 83
-49 <-> 104
-50 <-> 108
-51 <-> 113
-52 <-> 114
-53 <-> 125
+49 <-> 94
+50 <-> 98
+51 <-> 103
+52 <-> 104
+53 <-> 115
 Not mapped:
 10
 14
