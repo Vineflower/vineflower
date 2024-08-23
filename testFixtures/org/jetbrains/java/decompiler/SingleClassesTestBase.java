@@ -29,10 +29,9 @@ import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import static org.jetbrains.java.decompiler.DecompilerTestFixture.assertFilesEqual;
 import static org.jetbrains.java.decompiler.DecompilerTestFixture.getContent;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assumptions.abort;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 /*
  * Set individual test duration time limit to 60 seconds.
@@ -230,19 +229,19 @@ public abstract class SingleClassesTestBase {
       String testName = testFileName.substring(0, testFileName.length() - 6);
 
       Path decompiledFile;
-      if (expectedFileName == null) {
+      if (expectedFileName != null) {
+        decompiledFile = fixture.getTargetDir().resolve(expectedFileName);
+      } else {
+        // First try a name copying that of the original classfile along with the extension matching the compiler's language
         decompiledFile = fixture.getTargetDir().resolve(testName + '.' + version.extension);
 
         if (!Files.isRegularFile(decompiledFile)) {
+          // If that fails, try with a .java extension
           decompiledFile = fixture.getTargetDir().resolve(testName + ".java");
-
-          if (!Files.isRegularFile(decompiledFile)) {
-            fail("Decompiled file not found: " + decompiledFile);
-          }
         }
-      } else {
-        decompiledFile = fixture.getTargetDir().resolve(expectedFileName);
       }
+
+      assertTrue(Files.isRegularFile(decompiledFile), "Decompiled file not found: " + decompiledFile);
 
       String decompiledContent = getContent(decompiledFile);
 
@@ -268,14 +267,14 @@ public abstract class SingleClassesTestBase {
           throw new UncheckedIOException(e);
         }
         //noinspection ConstantConditions
-        abort(referenceFile.getFileName() + " was not present yet");
+        assumeTrue(false, referenceFile.getFileName() + " was not present yet");
       } else {
         try {
           assertTrue(Files.isRegularFile(referenceFile));
           assertEquals(getContent(referenceFile), decompiledContent);
         } catch (AssertionFailedError e) {
           if (failable) {
-            abort(referenceFile.getFileName() + " failed but was ignored, because it was marked as failable");
+            assumeTrue(false, referenceFile.getFileName() + " failed but was ignored, because it was marked as failable");
           } else {
             // This is terrible! We shouldn't need this! The reason this exists is because Github Actions likes to create
             // different code in impossible to debug ways, so we just allowlist two different versions of the decompiled code.
