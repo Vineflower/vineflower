@@ -286,6 +286,20 @@ public class KotlinWriter implements StatementWriter {
         methodsToIgnore.addAll(propertyData.associatedMethods());
       }
 
+      for (KFunction function : functions.values()) {
+        if (function.defaultArgs().getDefaultMethod() != null) {
+          methodsToIgnore.add(function.defaultArgs().getDefaultMethod());
+        }
+      }
+
+      if (constructorData != null) {
+        for (KConstructor constructor : constructorData.constructors().values()) {
+          if (constructor.defaultArgs().getDefaultMethod() != null) {
+            methodsToIgnore.add(constructor.defaultArgs().getDefaultMethod());
+          }
+        }
+      }
+
       if (companion.isPresent()) {
         ClassNode companionNode = companion.get();
         KotlinChooser.setContextVariables(companionNode.classStruct);
@@ -350,17 +364,9 @@ public class KotlinWriter implements StatementWriter {
           innerBuffer.appendLineSeparator();
           innerBuffer.appendLineSeparator();
           enumFields = false;
-
-          // If the fields after are non enum, readd the fields found scattered throughout the enum
-          for (StructField fd2 : deferredEnumFields) {
-            TextBuffer fieldBuffer = new TextBuffer();
-            writeField(wrapper, cl, fd2, fieldBuffer, indent + 1);
-            fieldBuffer.clearUnassignedBytecodeMappingData();
-            innerBuffer.append(fieldBuffer);
-          }
         }
 
-        if (propertyData == null) {
+        if (propertyData == null || enumFields) { // Enum fields are not considered Kotlin properties
           TextBuffer fieldBuffer = new TextBuffer();
           writeField(wrapper, cl, fd, fieldBuffer, indent + 1);
           fieldBuffer.clearUnassignedBytecodeMappingData();
@@ -370,19 +376,10 @@ public class KotlinWriter implements StatementWriter {
         }
       }
 
-      if (enumFields) {
-        innerBuffer.append(';').appendLineSeparator();
+      if (propertyData != null) {
+        // Any deferred fields that are property fields should be removed to prevent duplication
+        deferredEnumFields.removeAll(propertyData.associatedFields());
 
-        // If we end with enum fields, readd the fields found mixed in
-        for (StructField fd2 : deferredEnumFields) {
-          TextBuffer fieldBuffer = new TextBuffer();
-          writeField(wrapper, cl, fd2, fieldBuffer, indent + 1);
-          fieldBuffer.clearUnassignedBytecodeMappingData();
-          innerBuffer.append(fieldBuffer);
-        }
-      }
-
-      if (propertyData != null && !propertyData.properties().isEmpty()) {
         boolean addedLineAtEnd = false;
         for (KProperty prop : propertyData.properties()) {
           if (hasContent) {
@@ -407,9 +404,17 @@ public class KotlinWriter implements StatementWriter {
           hasContent = true;
         }
 
-        if (!addedLineAtEnd) {
+        if (!addedLineAtEnd && !propertyData.properties().isEmpty()) {
           innerBuffer.appendLineSeparator();
         }
+      }
+
+      // If any fields remaining were deferred but not enum fields, re-add them
+      for (StructField fd2 : deferredEnumFields) {
+        TextBuffer fieldBuffer = new TextBuffer();
+        writeField(wrapper, cl, fd2, fieldBuffer, indent + 1);
+        fieldBuffer.clearUnassignedBytecodeMappingData();
+        innerBuffer.append(fieldBuffer);
       }
 
       // methods
@@ -788,17 +793,15 @@ public class KotlinWriter implements StatementWriter {
     buffer.pushNewlineGroup(indent, 1);
 
     boolean appendedColon = false;
-    if (!isEnum && !isInterface && cl.superClass != null) {
-      if (constructorData != null && constructorData.primary() != null && constructorData.primary().writePrimaryConstructor(buffer, indent)) {
+    if (constructorData != null && constructorData.primary() != null && constructorData.primary().writePrimaryConstructor(buffer, indent)) {
+      appendedColon = true;
+    } else if (!isEnum && !isInterface && cl.superClass != null) {
+      VarType supertype = new VarType(cl.superClass.getString(), true);
+      if (!VarType.VARTYPE_OBJECT.equals(supertype)) {
+        buffer.appendPossibleNewline(" ");
+        buffer.append(": ");
+        buffer.append(ExprProcessor.getCastTypeName(descriptor == null ? supertype : descriptor.superclass));
         appendedColon = true;
-      } else {
-        VarType supertype = new VarType(cl.superClass.getString(), true);
-        if (!VarType.VARTYPE_OBJECT.equals(supertype)) {
-          buffer.appendPossibleNewline(" ");
-          buffer.append(": ");
-          buffer.append(ExprProcessor.getCastTypeName(descriptor == null ? supertype : descriptor.superclass));
-          appendedColon = true;
-        }
       }
     }
 
@@ -1642,7 +1645,7 @@ public class KotlinWriter implements StatementWriter {
         }
     }
 
-    if (mb.hasModifier(CodeConstants.ACC_STATIC) && targetType != TypeAnnotation.CLASS_TYPE_PARAMETER && KotlinDecompilationContext.getCurrentType() != KotlinDecompilationContext.KotlinType.FILE) {
+    if (mb.hasModifier(CodeConstants.ACC_STATIC) && targetType != TypeAnnotation.CLASS_TYPE_PARAMETER && KotlinDecompilationContext.getCurrentType() != KotlinDecompilationContext.KotlinType.FILE && !mb.hasModifier(CodeConstants.ACC_ENUM)) {
       buffer.appendIndent(indent).append("@JvmStatic").appendLineSeparator();
     }
     if (mb.hasModifier(CodeConstants.ACC_STRICT)) {
