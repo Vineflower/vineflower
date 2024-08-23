@@ -42,17 +42,28 @@ public record KProperty(
   @Nullable String setterParamName,
   @Nullable StructField underlyingField,
   @Nullable Exprent initializer,
-  @Nullable StructAnnotationAttribute annotations,
+  @Nullable List<AnnotationExprent> annotations,
   ClassesProcessor.ClassNode node
 ) {
+  private static final AnnotationExprent DEPRECATED_ANNOTATION = new AnnotationExprent(
+    new VarType("kotlin/Deprecated").value,
+    List.of("message"),
+    List.of(new ConstExprent(VarType.VARTYPE_STRING, "Deprecated by attribute.", null))
+  );
+
   public TextBuffer stringify(int indent) {
     TextBuffer buf = new TextBuffer();
 
     if (flags.hasAnnotations) {
-      assert annotations != null;
-      for (AnnotationExprent anno : annotations.getAnnotations()) {
+      if (annotations != null) {
+        for (AnnotationExprent anno : annotations) {
+          buf.appendIndent(indent)
+            .append(anno.toJava(indent))
+            .appendLineSeparator();
+        }
+      } else {
         buf.appendIndent(indent)
-          .append(anno.toJava(indent))
+          .append("// $VF: failed to identify property annotations")
           .appendLineSeparator();
       }
     }
@@ -219,9 +230,11 @@ public record KProperty(
     Set<StructMethod> associatedMethods = new HashSet<>();
 
     for (ProtoBuf.Property property : protoProperties) {
+      ProtobufFlags.Property flags = new ProtobufFlags.Property(property.getFlags());
+
       JvmProtoBuf.JvmPropertySignature jvmProp = property.getExtension(JvmProtoBuf.propertySignature);
 
-      StructAnnotationAttribute annotations = null;
+      List<AnnotationExprent> annotations = new ArrayList<>();
       if (jvmProp.hasSyntheticMethod()) {
         // Properties containing annotations receive a synthetic method which has the annotations in place of the property.
         // https://github.com/JetBrains/kotlin/blob/master/core/metadata.jvm/src/jvm_metadata.proto#L84
@@ -231,11 +244,16 @@ public record KProperty(
         StructMethod method = structClass.getMethod(methodName, desc);
         if (method != null) {
           associatedMethods.add(method);
-          annotations = method.getAttribute(StructGeneralAttribute.ATTRIBUTE_RUNTIME_VISIBLE_ANNOTATIONS);
+          if (method.hasAttribute(StructGeneralAttribute.ATTRIBUTE_RUNTIME_VISIBLE_ANNOTATIONS)) {
+            StructAnnotationAttribute attribute = method.getAttribute(StructGeneralAttribute.ATTRIBUTE_RUNTIME_VISIBLE_ANNOTATIONS);
+            annotations = attribute.getAnnotations();
+          }
+          if (method.hasAttribute(StructGeneralAttribute.ATTRIBUTE_RUNTIME_INVISIBLE_ANNOTATIONS)) {
+            StructAnnotationAttribute attribute = method.getAttribute(StructGeneralAttribute.ATTRIBUTE_RUNTIME_INVISIBLE_ANNOTATIONS);
+            annotations.addAll(attribute.getAnnotations());
+          }
         }
       }
-
-      ProtobufFlags.Property flags = new ProtobufFlags.Property(property.getFlags());
 
       String name = nameResolver.resolve(property.getName());
 
@@ -308,6 +326,22 @@ public record KProperty(
             associatedFields.add(field);
             break;
           }
+        }
+      }
+
+      if (flags.hasAnnotations && annotations == null && field != null) {
+        annotations = new ArrayList<>();
+
+        if (field.hasAttribute(StructGeneralAttribute.ATTRIBUTE_RUNTIME_VISIBLE_ANNOTATIONS)) {
+          StructAnnotationAttribute attribute = field.getAttribute(StructGeneralAttribute.ATTRIBUTE_RUNTIME_VISIBLE_ANNOTATIONS);
+          annotations.addAll(attribute.getAnnotations());
+        }
+        if (field.hasAttribute(StructGeneralAttribute.ATTRIBUTE_RUNTIME_INVISIBLE_ANNOTATIONS)) {
+          StructAnnotationAttribute attribute = field.getAttribute(StructGeneralAttribute.ATTRIBUTE_RUNTIME_INVISIBLE_ANNOTATIONS);
+          annotations.addAll(attribute.getAnnotations());
+        }
+        if (field.hasAttribute(StructGeneralAttribute.ATTRIBUTE_DEPRECATED)) {
+          annotations.add(DEPRECATED_ANNOTATION);
         }
       }
 
