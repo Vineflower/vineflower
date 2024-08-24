@@ -383,6 +383,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16, "TestInlineSwitchExpression4");
     register(JAVA_16, "TestInlineSwitchExpression5");
     register(JAVA_16, "TestInlineSwitchExpression6");
+    register(JAVA_16, "TestInlineSwitchExpression7");
 
     register(JAVA_16, "TestReturnSwitchExpression1");
     register(JAVA_16, "TestReturnSwitchExpression2");
