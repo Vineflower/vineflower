@@ -170,6 +170,7 @@ public class ContextUnit {
         try {
           decompiledData.processClass(classCtx.cl);
         } catch (final Throwable thr) {
+          DecompilerContext.getLogger().writeMessage("Class " + classCtx.cl.qualifiedName + " couldn't be fully decompiled.", thr);
           classCtx.onError(thr);
         } finally {
           DecompilerContext.setCurrentContext(null);
