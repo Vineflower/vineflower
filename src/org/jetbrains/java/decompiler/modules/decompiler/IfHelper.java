@@ -581,12 +581,6 @@ public final class IfHelper {
       return false;
     }
 
-    // Cannot reorder pattern matches, causes semantic issues!
-    // TODO: proper pattern match reorder analysis
-    if (ifstat.isPatternMatched()) {
-      return false;
-    }
-
     boolean ifdirect, elsedirect;
     boolean noifstat = false, noelsestat;
     boolean ifdirectpath = false, elsedirectpath = false;
