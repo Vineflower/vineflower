@@ -1636,7 +1636,7 @@ public class VarDefinitionHelper {
           for (String mthKey : node.getWrapper().getMethods().getLstKeys()) {
             MethodWrapper mw = node.getWrapper().getMethods().getWithKey(mthKey);
             StructMethod mt2 = node.getWrapper().getClassStruct().getMethod(mthKey);
-            if (mt2 != null && mw != null) {
+            if (mt2 != null && mw != null && !mt2.hasModifier(CodeConstants.ACC_SYNTHETIC)) {
               // Propagate current data through to method
               VarDefinitionHelper vardef = new VarDefinitionHelper(mw.root, mt2, mw.varproc, false);
 
