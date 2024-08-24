@@ -4,7 +4,7 @@ public class TestAnonymousClassToLambda {
    public Object test1(final Object o) {
       return new Object() {// 5
          public Runnable getRunnable() {
-            return () -> System.out.println(ox);// 7
+            return () -> System.out.println(o);// 7
          }
       };
    }
