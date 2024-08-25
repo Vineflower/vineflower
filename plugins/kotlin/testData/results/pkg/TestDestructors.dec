@@ -6,7 +6,7 @@ import kotlin.jvm.internal.SourceDebugExtension
 @SourceDebugExtension(["SMAP\nTestDestructors.kt\nKotlin\n*S Kotlin\n*F\n+ 1 TestDestructors.kt\npkg/TestDestructors\n*L\n1#1,71:1\n68#1,3:72\n68#1,3:75\n*S KotlinDebug\n*F\n+ 1 TestDestructors.kt\npkg/TestDestructors\n*L\n49#1:72,3\n54#1:75,3\n*E\n"])
 public class TestDestructors {
    public fun destructDataClasses(x: Pair<String, Int?>, y: Triple<Number, Boolean?, String>) {
-      System.out.println("${x.component1() as java.lang.String} ${x.component2() as Integer}");// 8 9
+      System.out.println("${x.component1() as java.lang.String} ${x.component2() as Int}");// 8 9
       System.out.println("${y.component1() as java.lang.Number} ${y.component2() as java.lang.Boolean} ${y.component3() as java.lang.String}");// 11 12
    }// 13
 
@@ -19,7 +19,7 @@ public class TestDestructors {
    }// 24
 
    public fun destructDataClassesSkip(x: Triple<String, Int?, String>, y: Triple<Number, Boolean?, String>) {
-      System.out.println(x.component2() as Integer);// 30 31
+      System.out.println(x.component2() as Int);// 30 31
       System.out.println("${y.component1() as java.lang.Number} ${y.component3() as java.lang.String}");// 33 34
    }// 35
 

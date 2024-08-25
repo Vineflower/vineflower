@@ -24,7 +24,7 @@ public class TestWhen {
          System.out.println("a == 15");
       } else if (a == "!!") {// 27
          System.out.println("a == !!");
-      } else if (a is Integer) {// 28
+      } else if (a is Int) {// 28
          System.out.println("a is Int");
       } else if (a is java.lang.String) {// 29
          System.out.println("a is String");

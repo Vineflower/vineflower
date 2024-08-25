@@ -2,8 +2,8 @@ package pkg
 
 public class TestSafeCasts {
    public fun test(obj: Any): Boolean {
-      val t: Int = obj as? Integer;// 5
-      if ((obj as? Integer) != null) {// 7
+      val t: Int = obj as? Int;// 5
+      if ((obj as? Int) != null) {// 7
          if (t == 1) {
             return true;
          }
@@ -13,11 +13,11 @@ public class TestSafeCasts {
    }
 
    public fun testTestBefore(obj: Any): Boolean? {
-      if (obj !is Integer) {// 11
+      if (obj !is Int) {// 11
          return null;// 12
       } else {
-         val t: Int = obj as? Integer;// 15
-         if ((obj as? Integer) != null) {// 17
+         val t: Int = obj as? Int;// 15
+         if ((obj as? Int) != null) {// 17
             if (t == 1) {
                return true;
             }
@@ -32,12 +32,12 @@ public class TestSafeCasts {
    }
 
    public fun testSmartCastIncompatible(obj: Any): Boolean {
-      return obj is Integer && (obj as? java.lang.String) == "1";// 27 31 33
+      return obj is Int && (obj as? java.lang.String) == "1";// 27 31 33
    }
 
    public fun testCastNonNullToNullable(obj: Any): Boolean {
-      val t: Int = obj as? Integer;// 37
-      if ((obj as? Integer) != null) {// 39
+      val t: Int = obj as? Int;// 37
+      if ((obj as? Int) != null) {// 39
          if (t == 1) {
             return true;
          }
@@ -47,11 +47,11 @@ public class TestSafeCasts {
    }
 
    public fun testBeforeNonNullToNullable(obj: Any): Boolean? {
-      if (obj !is Integer) {// 43
+      if (obj !is Int) {// 43
          return null;// 44
       } else {
-         val t: Int = obj as? Integer;// 47
-         if ((obj as? Integer) != null) {// 49
+         val t: Int = obj as? Int;// 47
+         if ((obj as? Int) != null) {// 49
             if (t == 1) {
                return true;
             }
@@ -62,8 +62,8 @@ public class TestSafeCasts {
    }
 
    public fun testCastNullableToNullable(obj: Any?): Boolean {
-      val t: Int = obj as? Integer;// 53
-      if ((obj as? Integer) != null) {// 55
+      val t: Int = obj as? Int;// 53
+      if ((obj as? Int) != null) {// 55
          if (t == 1) {
             return true;
          }
@@ -73,11 +73,11 @@ public class TestSafeCasts {
    }
 
    public fun testBeforeNullableToNullable(obj: Any?): Boolean? {
-      if (obj != null && obj !is Integer) {// 59
+      if (obj != null && obj !is Int) {// 59
          return null;// 60
       } else {
-         val t: Int = obj as? Integer;// 63
-         if ((obj as? Integer) != null) {// 65
+         val t: Int = obj as? Int;// 63
+         if ((obj as? Int) != null) {// 65
             if (t == 1) {
                return true;
             }
