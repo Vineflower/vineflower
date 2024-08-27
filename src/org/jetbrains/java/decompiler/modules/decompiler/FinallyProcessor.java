@@ -18,7 +18,6 @@ import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectEdgeType;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectNode;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.FlattenStatementsHelper;
-import org.jetbrains.java.decompiler.modules.decompiler.sforms.SFormsConstructor;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.SSAConstructorSparseEx;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.SSAUConstructorSparseEx;
 import org.jetbrains.java.decompiler.modules.decompiler.sforms.SimpleSSAReassign;
@@ -208,7 +207,18 @@ public class FinallyProcessor {
 
         isTrueExit = false;
 
-        for (int i = 0; i < node.exprents.size(); i++) {
+        // Try to find the "true path" of the finally block by searching for a relevant 'athrow <var>'.
+        // We should search from the initial expression of each block, except in the case where the block we're searching
+        // contains the relevant var itself, in which case we should search from the 2nd or 3rd expression, depending on
+        // the firstcode. This is because we might accidentally stumble into the same expression we were searching from,
+        // leading to a false failure of finally processing.
+        int startIdx = 0;
+        if (firstBlockStatement == node.block) {
+          // firstcode (only 0 or 2 here) determines which instruction to start from.
+          startIdx = firstcode == 2 ? 2 : 1;
+        }
+
+        for (int i = startIdx; i < node.exprents.size(); i++) {
           Exprent exprent = node.exprents.get(i);
 
           if (firstcode == 0) {

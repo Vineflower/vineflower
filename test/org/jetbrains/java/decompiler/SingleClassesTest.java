@@ -517,8 +517,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestOverrideIndirect");
     // INN resugaring is now in a separate plugin, so this produces intentionally "bad" output
     registerRaw(CUSTOM, "TestIdeaNotNull");
-    // TODO: Synchronized blocks don't work properly
     registerRaw(CUSTOM, "TestHotjava");
+    registerRaw(CUSTOM, "TestJava1Synchronized");
     register(JAVA_8, "TestLabeledBreaks");
     // TODO: test9&10- for loop not created, loop extractor needs another pass
     register(JAVA_8, "TestSwitchLoop");
