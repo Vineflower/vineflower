@@ -213,12 +213,25 @@ public class KotlinWriter implements StatementWriter {
       ConstantPool pool = cl.getPool();
 
       KotlinChooser.setContextVariables(cl);
+      KotlinDecompilationContext.KotlinType current = KotlinDecompilationContext.getCurrentType();
 
       DecompilerContext.getLogger().startWriteClass(cl.qualifiedName);
 
       KProperty.Data propertyData = KProperty.parse(node);
       Map<StructMethod, KFunction> functions = KFunction.parse(node);
       KConstructor.Data constructorData = KConstructor.parse(node);
+
+      ProtoBuf.Class proto = KotlinDecompilationContext.getCurrentClass();
+
+      ProtobufFlags.Class kotlinFlags;
+      if (proto != null) {
+        kotlinFlags = new ProtobufFlags.Class(proto.getFlags());
+      } else {
+        if (KotlinDecompilationContext.getCurrentType() == null) {
+          appendComment(buffer, "Class flags could not be determined", indent);
+        }
+        kotlinFlags = new ProtobufFlags.Class(0);
+      }
 
       if (DecompilerContext.getOption(IFernflowerPreferences.SOURCE_FILE_COMMENTS)) {
         StructSourceFileAttribute sourceFileAttr = node.classStruct
@@ -234,24 +247,73 @@ public class KotlinWriter implements StatementWriter {
         }
       }
 
-      if (cl.hasModifier(CodeConstants.ACC_ANNOTATION)) {
+      if (kotlinFlags.kind == ProtoBuf.Class.Kind.ANNOTATION_CLASS || cl.hasModifier(CodeConstants.ACC_ANNOTATION)) {
         // Kotlin's annotation classes are treated quite differently from other classes
         writeAnnotationDefinition(node, buffer, indent, propertyData, functions, constructorData);
         return;
       }
 
-      if (KotlinDecompilationContext.getCurrentType() == KotlinDecompilationContext.KotlinType.FILE) {
+      if (current == KotlinDecompilationContext.KotlinType.FILE) {
         writeKotlinFile(node, buffer, indent, propertyData, functions); // no constructors in top level file
         return;
       }
 
+      Optional<ClassNode> companion;
+      if (current == KotlinDecompilationContext.KotlinType.CLASS && KotlinDecompilationContext.getCurrentClass().hasCompanionObjectName()) {
+        String name = KotlinDecompilationContext.getNameResolver().resolve(KotlinDecompilationContext.getCurrentClass().getCompanionObjectName());
+        companion = node.nested.stream()
+          .filter(n -> n.simpleName.equals(name))
+          .findAny();
+      } else {
+        companion = Optional.empty();
+      }
+
       // write class definition
-      writeClassDefinition(node, buffer, indent, constructorData);
+      writeClassDefinition(node, buffer, indent, constructorData, kotlinFlags);
+
+      TextBuffer innerBuffer = new TextBuffer();
 
       boolean hasContent = false;
       boolean enumFields = false;
 
       List<StructRecordComponent> components = cl.getRecordComponents();
+
+      Set<StructField> fieldsToIgnore = new HashSet<>();
+      Set<StructMethod> methodsToIgnore = new HashSet<>();
+
+      if (propertyData != null) {
+        fieldsToIgnore.addAll(propertyData.associatedFields());
+        methodsToIgnore.addAll(propertyData.associatedMethods());
+      }
+
+      for (KFunction function : functions.values()) {
+        if (function.defaultArgs().getDefaultMethod() != null) {
+          methodsToIgnore.add(function.defaultArgs().getDefaultMethod());
+        }
+      }
+
+      if (constructorData != null) {
+        for (KConstructor constructor : constructorData.constructors().values()) {
+          if (constructor.defaultArgs().getDefaultMethod() != null) {
+            methodsToIgnore.add(constructor.defaultArgs().getDefaultMethod());
+          }
+        }
+      }
+
+      if (companion.isPresent()) {
+        ClassNode companionNode = companion.get();
+        KotlinChooser.setContextVariables(companionNode.classStruct);
+
+        KProperty.Data companionPropertyData = KProperty.parse(companionNode);
+        Map<StructMethod, KFunction> companionFunctions = KFunction.parse(companionNode);
+
+        if (companionPropertyData != null) {
+          fieldsToIgnore.addAll(companionPropertyData.associatedFields());
+          methodsToIgnore.addAll(companionPropertyData.associatedMethods());
+        }
+
+        methodsToIgnore.addAll(companionFunctions.keySet());
+      }
 
       // FIXME: fields don't have line mappings
       // fields
@@ -280,7 +342,9 @@ public class KotlinWriter implements StatementWriter {
 
       for (StructField fd : cl.getFields()) {
         boolean hide = fd.isSynthetic() && DecompilerContext.getOption(IFernflowerPreferences.REMOVE_SYNTHETIC) ||
-          wrapper.getHiddenMembers().contains(InterpreterUtil.makeUniqueKey(fd.getName(), fd.getDescriptor())) || deferredEnumFields.contains(fd);
+          wrapper.getHiddenMembers().contains(InterpreterUtil.makeUniqueKey(fd.getName(), fd.getDescriptor())) ||
+          deferredEnumFields.contains(fd) ||
+          fieldsToIgnore.contains(fd);
         if (hide) continue;
 
         if (components != null && fd.getAccessFlags() == (CodeConstants.ACC_FINAL | CodeConstants.ACC_PRIVATE) &&
@@ -292,56 +356,65 @@ public class KotlinWriter implements StatementWriter {
         boolean isEnum = fd.hasModifier(CodeConstants.ACC_ENUM) && DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_ENUM);
         if (isEnum) {
           if (enumFields) {
-            buffer.append(',').appendLineSeparator();
+            innerBuffer.append(',').appendLineSeparator();
           }
           enumFields = true;
         } else if (enumFields) {
-          buffer.append(';');
-          buffer.appendLineSeparator();
-          buffer.appendLineSeparator();
+          innerBuffer.append(';');
+          innerBuffer.appendLineSeparator();
+          innerBuffer.appendLineSeparator();
           enumFields = false;
-
-          // If the fields after are non enum, readd the fields found scattered throughout the enum
-          for (StructField fd2 : deferredEnumFields) {
-            TextBuffer fieldBuffer = new TextBuffer();
-            writeField(wrapper, cl, fd2, fieldBuffer, indent + 1);
-            fieldBuffer.clearUnassignedBytecodeMappingData();
-            buffer.append(fieldBuffer);
-          }
         }
 
-        if (propertyData == null || !propertyData.associatedFields().contains(fd.getName())) {
+        if (propertyData == null || enumFields) { // Enum fields are not considered Kotlin properties
           TextBuffer fieldBuffer = new TextBuffer();
           writeField(wrapper, cl, fd, fieldBuffer, indent + 1);
           fieldBuffer.clearUnassignedBytecodeMappingData();
-          buffer.append(fieldBuffer);
+          innerBuffer.append(fieldBuffer);
 
           hasContent = true;
         }
       }
 
-      if (enumFields) {
-        buffer.append(';').appendLineSeparator();
+      if (propertyData != null) {
+        // Any deferred fields that are property fields should be removed to prevent duplication
+        deferredEnumFields.removeAll(propertyData.associatedFields());
 
-        // If we end with enum fields, readd the fields found mixed in
-        for (StructField fd2 : deferredEnumFields) {
-          TextBuffer fieldBuffer = new TextBuffer();
-          writeField(wrapper, cl, fd2, fieldBuffer, indent + 1);
-          fieldBuffer.clearUnassignedBytecodeMappingData();
-          buffer.append(fieldBuffer);
+        boolean addedLineAtEnd = false;
+        for (KProperty prop : propertyData.properties()) {
+          if (hasContent) {
+            innerBuffer.appendLineSeparator();
+          }
+
+          TextBuffer propBuffer = prop.stringify(indent + 1);
+
+          boolean isMultiline = propBuffer.countLines() >= 1; // countLines() counts occurrences of the newline separator, so it's one less than the actual number of lines
+
+          if (isMultiline && hasContent && !addedLineAtEnd) {
+            innerBuffer.appendLineSeparator();
+          }
+
+          innerBuffer.append(propBuffer);
+
+          if (isMultiline) {
+            innerBuffer.appendLineSeparator();
+          }
+
+          addedLineAtEnd = isMultiline;
+          hasContent = true;
+        }
+
+        if (!addedLineAtEnd && !propertyData.properties().isEmpty()) {
+          innerBuffer.appendLineSeparator();
         }
       }
 
-      if (propertyData != null && !propertyData.properties().isEmpty()) {
-        if (hasContent) {
-          buffer.appendLineSeparator();
-        }
-
-        for (KProperty prop : propertyData.properties()) {
-          buffer.append(prop.stringify(indent + 1));
-        }
-
-        hasContent = true;
+      // If any fields remaining were deferred but not enum fields, re-add them
+      for (StructField fd2 : deferredEnumFields) {
+        TextBuffer fieldBuffer = new TextBuffer();
+        writeField(wrapper, cl, fd2, fieldBuffer, indent + 1);
+        fieldBuffer.clearUnassignedBytecodeMappingData();
+        innerBuffer.append(fieldBuffer);
       }
 
       // methods
@@ -352,27 +425,34 @@ public class KotlinWriter implements StatementWriter {
           mt.hasModifier(CodeConstants.ACC_BRIDGE) && DecompilerContext.getOption(IFernflowerPreferences.REMOVE_BRIDGE) ||
           wrapper.getHiddenMembers().contains(InterpreterUtil.makeUniqueKey(mt.getName(), mt.getDescriptor())) ||
           mt.getName().equals("<init>") && mt.getDescriptor().equals("(Lkotlin/jvm/internal/DefaultConstructorMarker;)V") ||
-          propertyData != null && propertyData.associatedMethods().contains(InterpreterUtil.makeUniqueKey(mt.getName(), mt.getDescriptor()));
+          companion.map(c -> c.getWrapper().getMethods().containsKey(InterpreterUtil.makeUniqueKey(mt.getName(), mt.getDescriptor()))).orElse(false) && mt.hasModifier(CodeConstants.ACC_STATIC) ||
+          methodsToIgnore.contains(mt);
         if (hide) continue;
 
         KFunction function = functions.get(mt);
         if (function != null) {
           if (hasContent) {
-            buffer.appendLineSeparator();
+            innerBuffer.appendLineSeparator();
           }
           hasContent = true;
-          buffer.append(function.stringify(indent + 1));
+          innerBuffer.append(function.stringify(indent + 1));
           continue;
         }
 
         if (constructorData != null) {
           KConstructor constructor = constructorData.constructors().get(mt);
           if (constructor != null) {
-            if (hasContent) {
-              buffer.appendLineSeparator();
+            TextBuffer ctorBuffer = new TextBuffer();
+            boolean ctorSkipped = !constructor.stringify(ctorBuffer, indent + 1);
+            if (!ctorSkipped) {
+              if (hasContent) {
+                innerBuffer.appendLineSeparator();
+              }
+              hasContent = true;
+              innerBuffer.append(ctorBuffer);
             }
-            hasContent |= constructor.stringify(buffer, indent + 1);
-            continue;
+
+            continue; // Skip writing the constructor as a method, even if nothing was written
           }
         }
 
@@ -380,10 +460,10 @@ public class KotlinWriter implements StatementWriter {
         boolean methodSkipped = !writeMethod(node, mt, i, methodBuffer, indent + 1);
         if (!methodSkipped) {
           if (hasContent) {
-            buffer.appendLineSeparator();
+            innerBuffer.appendLineSeparator();
           }
           hasContent = true;
-          buffer.append(methodBuffer);
+          innerBuffer.append(methodBuffer);
         }
       }
 
@@ -397,18 +477,27 @@ public class KotlinWriter implements StatementWriter {
           if (hide) continue;
 
           if (hasContent) {
-            buffer.appendLineSeparator();
+            innerBuffer.appendLineSeparator();
           }
-          writeClass(inner, buffer, indent + 1);
+          writeClass(inner, innerBuffer, indent + 1);
 
           hasContent = true;
         }
       }
 
-      buffer.appendIndent(indent).append('}');
+      if (!innerBuffer.containsOnlyWhitespaces()) {
+        // Only add braces if a class body is present
+        buffer.append(" {")
+          .appendLineSeparator()
+          .append(innerBuffer)
+          .appendIndent(indent)
+          .append("}");
+      }
+
+      buffer.appendLineSeparator();
 
       if (node.type != ClassNode.Type.ANONYMOUS) {
-        buffer.appendLineSeparator();
+        innerBuffer.appendLineSeparator();
       }
     } finally {
       DecompilerContext.setProperty(DecompilerContext.CURRENT_CLASS_NODE, outerNode);
@@ -419,13 +508,41 @@ public class KotlinWriter implements StatementWriter {
   private void writeKotlinFile(ClassNode node, TextBuffer buffer, int indent, KProperty.Data propertyData, Map<StructMethod, KFunction> functions) {
     ClassWrapper wrapper = node.getWrapper();
     StructClass cl = wrapper.getClassStruct();
+    
+    boolean hasContent = false;
 
-    for (KProperty property : propertyData.properties()) {
-      buffer.append(property.stringify(indent));
+    if (propertyData != null && !propertyData.properties().isEmpty()) {
+      boolean addedLineAtEnd = false;
+      for (KProperty prop : propertyData.properties()) {
+        if (hasContent) {
+          buffer.appendLineSeparator();
+        }
+
+        TextBuffer propBuffer = prop.stringify(indent);
+
+        boolean isMultiline = propBuffer.countLines() >= 1;
+
+        if (!addedLineAtEnd && isMultiline && hasContent) {
+          buffer.appendLineSeparator();
+        }
+
+        buffer.append(propBuffer);
+
+        if (isMultiline) {
+          buffer.appendLineSeparator();
+        }
+
+        addedLineAtEnd = isMultiline;
+        hasContent = true;
+      }
+      
+      if (!addedLineAtEnd) {
+        buffer.appendLineSeparator();
+      }
     }
 
     for (StructField fd : cl.getFields()) {
-      if (propertyData.associatedFields().contains(fd.getName())) continue;
+      if (propertyData.associatedFields().contains(fd)) continue;
 
       TextBuffer fieldBuffer = new TextBuffer();
       writeField(wrapper, cl, fd, fieldBuffer, indent);
@@ -433,26 +550,32 @@ public class KotlinWriter implements StatementWriter {
       buffer.append(fieldBuffer);
     }
 
-    if (!cl.getFields().isEmpty()) {
-      buffer.appendLineSeparator();
-    }
-
     for (int i = 0; i < cl.getMethods().size(); i++) {
       StructMethod mt = cl.getMethods().get(i);
       if (functions.containsKey(mt)) {
+        if (hasContent) {
+          buffer.appendLineSeparator();
+        }
+        hasContent = true;
+
         buffer.append(functions.get(mt).stringify(indent));
-        buffer.appendLineSeparator();
         continue;
       }
 
-      String key = InterpreterUtil.makeUniqueKey(mt.getName(), mt.getDescriptor());
-      if (mt.getName().equals("<clinit>") || propertyData.associatedMethods().contains(key)) continue;
+      if (mt.getName().equals("<clinit>") || propertyData.associatedMethods().contains(mt)) continue;
 
       TextBuffer methodBuffer = new TextBuffer();
-      writeMethod(node, mt, i, methodBuffer, indent);
-      methodBuffer.clearUnassignedBytecodeMappingData();
-      buffer.append(methodBuffer, node.simpleName, mt.getName() + " " + mt.getDescriptor());
-      buffer.appendLineSeparator();
+      boolean written = writeMethod(node, mt, i, methodBuffer, indent);
+
+      if (written) {
+        if (hasContent) {
+          buffer.appendLineSeparator();
+        }
+
+        methodBuffer.clearUnassignedBytecodeMappingData();
+        buffer.append(methodBuffer, node.simpleName, mt.getName() + " " + mt.getDescriptor());
+        hasContent = true;
+      }
     }
 
     for (ClassNode inner : node.nested) {
@@ -580,7 +703,7 @@ public class KotlinWriter implements StatementWriter {
     buffer.appendLineSeparator();
   }
 
-  private void writeClassDefinition(ClassNode node, TextBuffer buffer, int indent, KConstructor.Data constructorData) {
+  private void writeClassDefinition(ClassNode node, TextBuffer buffer, int indent, KConstructor.Data constructorData, ProtobufFlags.Class kotlinFlags) {
     if (node.type == ClassNode.Type.ANONYMOUS) {
       buffer.append(" {").appendLineSeparator();
       return;
@@ -614,15 +737,6 @@ public class KotlinWriter implements StatementWriter {
     appendJvmAnnotations(buffer, indent, cl, isInterface, cl.getPool(), TypeAnnotation.CLASS_TYPE_PARAMETER);
 
 
-    ProtoBuf.Class proto = KotlinDecompilationContext.getCurrentClass();
-    ProtobufFlags.Class kotlinFlags;
-    if (proto != null) {
-      kotlinFlags = new ProtobufFlags.Class(proto.getFlags());
-    } else {
-      appendComment(buffer, "Class flags could not be determined", indent);
-      kotlinFlags = new ProtobufFlags.Class(0);
-    }
-
     buffer.appendIndent(indent);
 
     if (kotlinFlags.visibility != ProtoBuf.Visibility.PUBLIC || DecompilerContext.getOption(KotlinOptions.SHOW_PUBLIC_VISIBILITY)) {
@@ -654,20 +768,22 @@ public class KotlinWriter implements StatementWriter {
     }
 
     if (isEnum) {
-      buffer.append("enum class ");
+      buffer.append("enum class");
     } else if (isInterface) {
-      buffer.append("interface ");
+      buffer.append("interface");
     } else if (isAnnotation) {
       buffer.append("annotation class");
     } else if (kotlinFlags.kind == ProtoBuf.Class.Kind.OBJECT) {
-      buffer.append("object ");
+      buffer.append("object");
     } else if (kotlinFlags.kind == ProtoBuf.Class.Kind.COMPANION_OBJECT) {
-      buffer.append("companion object ");
+      buffer.append("companion object");
     } else {
-      buffer.append("class ");
+      buffer.append("class");
     }
 
-    buffer.append(toValidKotlinIdentifier(node.simpleName));
+    if (kotlinFlags.kind != ProtoBuf.Class.Kind.COMPANION_OBJECT || !node.simpleName.equals("Companion")) {
+      buffer.append(" ").append(toValidKotlinIdentifier(node.simpleName));
+    }
 
     GenericClassDescriptor descriptor = cl.getSignature();
     if (descriptor != null && !descriptor.fparameters.isEmpty()) {
@@ -677,17 +793,15 @@ public class KotlinWriter implements StatementWriter {
     buffer.pushNewlineGroup(indent, 1);
 
     boolean appendedColon = false;
-    if (!isEnum && !isInterface && cl.superClass != null) {
-      if (constructorData != null && constructorData.primary() != null && constructorData.primary().writePrimaryConstructor(buffer, indent)) {
+    if (constructorData != null && constructorData.primary() != null && constructorData.primary().writePrimaryConstructor(buffer, indent)) {
+      appendedColon = true;
+    } else if (!isEnum && !isInterface && cl.superClass != null) {
+      VarType supertype = new VarType(cl.superClass.getString(), true);
+      if (!VarType.VARTYPE_OBJECT.equals(supertype)) {
+        buffer.appendPossibleNewline(" ");
+        buffer.append(": ");
+        buffer.append(ExprProcessor.getCastTypeName(descriptor == null ? supertype : descriptor.superclass));
         appendedColon = true;
-      } else {
-        VarType supertype = new VarType(cl.superClass.getString(), true);
-        if (!VarType.VARTYPE_OBJECT.equals(supertype)) {
-          buffer.appendPossibleNewline(" ");
-          buffer.append(": ");
-          buffer.append(ExprProcessor.getCastTypeName(descriptor == null ? supertype : descriptor.superclass));
-          appendedColon = true;
-        }
       }
     }
 
@@ -711,8 +825,6 @@ public class KotlinWriter implements StatementWriter {
     }
 
     buffer.popNewlineGroup();
-
-    buffer.append(" {").appendLineSeparator();
   }
 
   public void writeField(ClassWrapper wrapper, StructClass cl, StructField fd, TextBuffer buffer, int indent) {
@@ -1533,7 +1645,7 @@ public class KotlinWriter implements StatementWriter {
         }
     }
 
-    if (mb.hasModifier(CodeConstants.ACC_STATIC) && targetType != TypeAnnotation.CLASS_TYPE_PARAMETER && KotlinDecompilationContext.getCurrentType() != KotlinDecompilationContext.KotlinType.FILE) {
+    if (mb.hasModifier(CodeConstants.ACC_STATIC) && targetType != TypeAnnotation.CLASS_TYPE_PARAMETER && KotlinDecompilationContext.getCurrentType() != KotlinDecompilationContext.KotlinType.FILE && !mb.hasModifier(CodeConstants.ACC_ENUM)) {
       buffer.appendIndent(indent).append("@JvmStatic").appendLineSeparator();
     }
     if (mb.hasModifier(CodeConstants.ACC_STRICT)) {

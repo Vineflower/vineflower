@@ -240,10 +240,10 @@ public final class DomHelper implements GraphParser {
   }
 
 
-  private static void buildSynchronized(Statement stat) {
-
+  public static boolean buildSynchronized(Statement stat) {
+    boolean res = false;
     for (Statement st : stat.getStats()) {
-      buildSynchronized(st);
+      res |= buildSynchronized(st);
     }
 
     if (stat instanceof SequenceStatement) {
@@ -265,14 +265,23 @@ public final class DomHelper implements GraphParser {
               next = next.getFirst();
             }
 
-            if (next instanceof CatchAllStatement) {
+            if (next instanceof CatchAllStatement ca) {
 
-              CatchAllStatement ca = (CatchAllStatement) next;
-
+              // See if the head of the synchronized is suitable.
+              // In most cases, the synchronized block will contain a monitorexit in the exit block of the catchall.
+              // If the synchronized statement ends in a throw expression, check for that too.
               boolean headOk = ca.getFirst().containsMonitorExitOrAthrow();
 
+              // In case the statement has no exit points, it will not have a monitorexit on the exit block because
+              // there is no exit block. Consider it ok too.
               if (!headOk) {
                 headOk = hasNoExits(ca.getFirst());
+              }
+
+              // In the final case, we may have incorporated all the monitorexits into a finally block, which should be
+              // semantically identical. Handle that too.
+              if (!headOk) {
+                headOk = ca.isFinally();
               }
 
               // If the body of the monitor ends in a throw, it won't have a monitor exit as the catch handler will call it.
@@ -283,6 +292,15 @@ public final class DomHelper implements GraphParser {
                 // remove monitorexit
                 ca.getFirst().markMonitorexitDead();
                 ca.getHandler().markMonitorexitDead();
+
+                // Sometimes trailing monitorexits occur in our or our parent's successor edges too, remove them too.
+                for (StatEdge edge : ca.getSuccessorEdgeView(StatEdge.TYPE_REGULAR)) {
+                  edge.getDestination().markMonitorexitDead();
+                }
+
+                for (StatEdge edge : ca.getParent().getSuccessorEdgeView(StatEdge.TYPE_REGULAR)) {
+                  edge.getDestination().markMonitorexitDead();
+                }
 
                 // remove the head block from sequence
                 current.removeSuccessor(current.getSuccessorEdges(Statement.STATEDGE_DIRECT_ALL).get(0));
@@ -308,6 +326,7 @@ public final class DomHelper implements GraphParser {
 
                 ca.getParent().replaceStatement(ca, sync);
                 found = true;
+                res = true;
                 break;
               }
             }
@@ -319,6 +338,8 @@ public final class DomHelper implements GraphParser {
         }
       }
     }
+
+    return res;
   }
 
   // Checks if a statement has no exits (disregarding exceptions) that lead outside the statement.

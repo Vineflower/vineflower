@@ -1,27 +1,28 @@
 package org.vineflower.kotlin;
 
+import org.jetbrains.java.decompiler.api.DecompilerOption;
 import org.jetbrains.java.decompiler.api.plugin.PluginOptions;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences.*;
 
 public interface KotlinOptions {
   @Name("Show public visibility")
   @Description("If a construct is public, show the public keyword")
-  @Type(Type.BOOLEAN)
+  @Type(DecompilerOption.Type.BOOLEAN)
   String SHOW_PUBLIC_VISIBILITY = "kt-show-public";
 
   @Name("Enable Kotlin plugin")
   @Description("Decompile Kotlin classes as Kotlin instead of Java")
-  @Type(Type.BOOLEAN)
+  @Type(DecompilerOption.Type.BOOLEAN)
   String DECOMPILE_KOTLIN = "kt-enable";
 
   @Name("Unknown default arg string")
   @Description("String to use for unknown default arguments, or empty to not indicate unknown defaults")
-  @Type(Type.STRING)
+  @Type(DecompilerOption.Type.STRING)
   String UNKNOWN_DEFAULT_ARG_STRING = "kt-unknown-defaults";
 
   @Name("Collapse string concatenation")
   @Description("Convert string concatenations to Kotlin string templates.")
-  @Type(Type.BOOLEAN)
+  @Type(DecompilerOption.Type.BOOLEAN)
   String COLLAPSE_STRING_CONCATENATION = "kt-collapse-string-concat";
 
   static void addDefaults(PluginOptions.AddDefaults cons) {

@@ -1,0 +1,79 @@
+package pkg
+
+import kotlin.enums.EnumEntries
+
+public enum class TestEnumClass(number: Int = 4) {
+   A(0, 1, null),
+   B(0, 1, null),
+   C(3),
+   D(5);
+
+
+   public final val number: Int
+
+   init {
+      this.number = number;// 3
+   }
+
+   public fun foo(): Int {
+      return this.number;// 7
+   }
+
+   @JvmStatic
+   fun getEntries(): EnumEntries<TestEnumClass> {
+      return $ENTRIES;// 8
+   }
+
+   @JvmStatic
+   @JvmSynthetic
+   fun `$values`(): Array<TestEnumClass> {
+      return new TestEnumClass[]{A, B, C, D};
+   }
+}
+
+class 'pkg/TestEnumClass' {
+   method '<init> (Ljava/lang/String;II)V' {
+      6      14
+      7      4
+      8      14
+      9      14
+      a      14
+      b      15
+   }
+
+   method 'foo ()I' {
+      0      18
+      1      18
+      2      18
+      3      18
+      4      18
+   }
+
+   method 'getEntries ()Lkotlin/enums/EnumEntries;' {
+      0      23
+      1      23
+      2      23
+      3      23
+   }
+
+   method '$values ()[Lpkg/TestEnumClass;' {
+      7      29
+      8      29
+      9      29
+      d      29
+      e      29
+      f      29
+      13      29
+      14      29
+      15      29
+      19      29
+      1a      29
+      1b      29
+      1e      29
+   }
+}
+
+Lines mapping:
+3 <-> 15
+7 <-> 19
+8 <-> 24

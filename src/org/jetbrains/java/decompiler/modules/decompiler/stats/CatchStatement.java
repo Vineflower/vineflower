@@ -30,11 +30,11 @@ public class CatchStatement extends Statement {
   // constructors
   // *****************************************************************************
 
-  private CatchStatement() {
+  protected CatchStatement() {
     super(StatementType.TRY_CATCH);
   }
 
-  private CatchStatement(Statement head, Statement next, Set<Statement> setHandlers) {
+  protected CatchStatement(Statement head, Statement next, Set<Statement> setHandlers) {
     this();
 
     first = head;

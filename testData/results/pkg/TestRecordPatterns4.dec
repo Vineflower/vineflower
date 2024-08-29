@@ -1,0 +1,158 @@
+package pkg;
+
+public class TestRecordPatterns4 {
+   public void test1(TestRecordPatterns4.R r) {
+      if (r instanceof TestRecordPatterns4.R(Number x, String s)) {// 7
+         System.out.println(x);// 8
+         System.out.println(s);// 9
+      }
+   }// 11
+
+   public void test2(TestRecordPatterns4.R r) {
+      if (r instanceof TestRecordPatterns4.R(Number x, String s) && s.length() > 10) {// 14
+         System.out.println(x);// 15
+         System.out.println(s);// 16
+      }
+   }// 18
+
+   public void test3(TestRecordPatterns4.R r) {
+      if (r instanceof TestRecordPatterns4.R(Number x, String s) && s.length() > 10 && x.intValue() == 3) {// 21
+         System.out.println(x);// 22
+         System.out.println(s);// 23
+      }
+   }// 25
+
+   record R(Object a, Object b) {
+   }
+}
+
+class 'pkg/TestRecordPatterns4' {
+   method 'test1 (Lpkg/TestRecordPatterns4$R;)V' {
+      0      4
+      1      4
+      2      4
+      3      4
+      4      4
+      5      4
+      6      4
+      1c      4
+      30      4
+      31      4
+      32      5
+      33      5
+      34      5
+      35      5
+      36      5
+      37      5
+      38      5
+      39      6
+      3a      6
+      3b      6
+      3c      6
+      3d      6
+      3e      6
+      3f      6
+      40      6
+      52      8
+   }
+
+   method 'test2 (Lpkg/TestRecordPatterns4$R;)V' {
+      0      11
+      1      11
+      2      11
+      3      11
+      4      11
+      5      11
+      6      11
+      1c      11
+      30      11
+      31      11
+      32      11
+      33      11
+      34      11
+      35      11
+      36      11
+      37      11
+      38      11
+      39      11
+      3a      11
+      3b      11
+      3c      12
+      3d      12
+      3e      12
+      3f      12
+      40      12
+      41      12
+      42      12
+      43      13
+      44      13
+      45      13
+      46      13
+      47      13
+      48      13
+      49      13
+      4a      13
+      5c      15
+   }
+
+   method 'test3 (Lpkg/TestRecordPatterns4$R;)V' {
+      0      18
+      1      18
+      2      18
+      3      18
+      4      18
+      5      18
+      6      18
+      1c      18
+      30      18
+      31      18
+      32      18
+      33      18
+      34      18
+      35      18
+      36      18
+      37      18
+      38      18
+      39      18
+      3a      18
+      3b      18
+      3c      18
+      3d      18
+      3e      18
+      3f      18
+      40      18
+      41      18
+      42      18
+      43      18
+      44      19
+      45      19
+      46      19
+      47      19
+      48      19
+      49      19
+      4a      19
+      4b      20
+      4c      20
+      4d      20
+      4e      20
+      4f      20
+      50      20
+      51      20
+      52      20
+      64      22
+   }
+}
+
+Lines mapping:
+7 <-> 5
+8 <-> 6
+9 <-> 7
+11 <-> 9
+14 <-> 12
+15 <-> 13
+16 <-> 14
+18 <-> 16
+21 <-> 19
+22 <-> 20
+23 <-> 21
+25 <-> 23

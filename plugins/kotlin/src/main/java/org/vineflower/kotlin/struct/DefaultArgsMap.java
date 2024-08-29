@@ -8,6 +8,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectNode;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.IfStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
+import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribute;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.TextBuffer;
@@ -19,13 +20,16 @@ import java.util.Map;
 
 public class DefaultArgsMap {
   private final Map<KParameter, Exprent> map;
+  private final StructMethod defaultMethod;
 
-  private DefaultArgsMap(Map<KParameter, Exprent> map) {
+  private DefaultArgsMap(Map<KParameter, Exprent> map, StructMethod defaultMethod) {
     this.map = map;
+    this.defaultMethod = defaultMethod;
   }
+
   public static DefaultArgsMap from(MethodWrapper defaults, MethodWrapper calling, KParameter[] params) {
     if (defaults == null) {
-      return new DefaultArgsMap(Map.of());
+      return new DefaultArgsMap(Map.of(), null);
     }
 
     /*
@@ -120,7 +124,7 @@ public class DefaultArgsMap {
       }
     }
 
-    return new DefaultArgsMap(map);
+    return new DefaultArgsMap(map, defaults.methodStruct);
   }
 
   public TextBuffer toJava(KParameter parameter, int indent) {
@@ -152,5 +156,9 @@ public class DefaultArgsMap {
     for (Exprent child : expr.getAllExprents()) {
       updateExprent(child, calling);
     }
+  }
+
+  public StructMethod getDefaultMethod() {
+    return defaultMethod;
   }
 }

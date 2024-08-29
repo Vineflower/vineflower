@@ -46,7 +46,7 @@ public class TestTailrecFunctions {
 
    public tailrec fun testTryCatchFinally() {
       label31: {
-         run label32@{
+         label32: {
             try {
                try {
                   this.testTryCatchFinally();// 35
@@ -67,7 +67,7 @@ public class TestTailrecFunctions {
    }
 
    public tailrec fun fastPow(x: Long, n: Long, acc: Long = 1L): Long {
-      var var7: TestTailrecFunctions = this;
+      var var7: TestTailrecFunctions = this;// 43
 
       while (n != 0L) {// 44
          if (n % 2 == 0L) {// 45
@@ -90,19 +90,10 @@ public class TestTailrecFunctions {
       return acc;
    }
 
-   @JvmStatic
-   @JvmSynthetic
-   fun `fastPow$default`(var0: TestTailrecFunctions, var1: Long, var3: Long, var5: Long, var7: Int, var8: Any): Long {
-      if ((var7 and 4) != 0) {// 43
-         var5 = 1L;
-      }
-
-      return var0.fastPow(var1, var3, var5);
-   }
-
    public tailrec fun fastPow(x: Long, n: Long): Long {
       var var5: TestTailrecFunctions = this;// 49
 
+      var var10000: Long;
       while (true) {
          if (n == 0L) {// 50
             var10000 = 1L;
@@ -297,84 +288,62 @@ class 'pkg/TestTailrecFunctions' {
       58      85
    }
 
-   method 'fastPow$default (Lpkg/TestTailrecFunctions;JJJILjava/lang/Object;)J' {
-      0      95
-      1      95
-      2      95
-      3      95
-      4      95
-      5      95
-      6      95
-      7      96
-      8      96
-      9      96
-      a      99
-      b      99
-      c      99
-      d      99
-      e      99
-      f      99
-      10      99
-      11      99
-      12      99
-   }
-
    method 'fastPow (JJ)J' {
-      0      103
-      1      103
-      2      103
-      3      106
-      4      106
-      5      106
-      6      106
-      7      106
-      8      106
-      9      107
-      a      108
-      d      111
-      e      111
-      f      111
-      10      111
-      11      111
-      12      111
-      13      111
-      14      111
-      15      111
-      16      118
-      17      118
-      1a      116
-      1b      116
-      1c      116
-      1d      116
-      1e      116
-      1f      117
-      20      117
-      21      117
-      22      117
-      23      117
-      24      117
-      25      118
-      26      118
-      27      118
-      28      118
-      29      119
-      2a      119
-      2b      119
-      2c      120
-      2d      120
-      2e      120
-      32      112
-      33      112
-      34      112
-      35      112
-      36      112
-      37      112
-      38      112
-      39      112
-      3a      112
-      3b      112
-      3c      112
-      3d      123
+      0      93
+      1      93
+      2      93
+      3      97
+      4      97
+      5      97
+      6      97
+      7      97
+      8      97
+      9      98
+      a      99
+      d      102
+      e      102
+      f      102
+      10      102
+      11      102
+      12      102
+      13      102
+      14      102
+      15      102
+      16      109
+      17      109
+      1a      107
+      1b      107
+      1c      107
+      1d      107
+      1e      107
+      1f      108
+      20      108
+      21      108
+      22      108
+      23      108
+      24      108
+      25      109
+      26      109
+      27      109
+      28      109
+      29      110
+      2a      110
+      2b      110
+      2c      111
+      2d      111
+      2e      111
+      32      103
+      33      103
+      34      103
+      35      103
+      36      103
+      37      103
+      38      103
+      39      103
+      3a      103
+      3b      103
+      3c      103
+      3d      114
    }
 }
 
@@ -392,15 +361,15 @@ Lines mapping:
 37 <-> 55
 39 <-> 61
 41 <-> 62
-43 <-> 96
+43 <-> 70
 44 <-> 72
 45 <-> 73
 46 <-> 83
-49 <-> 104
-50 <-> 107
-51 <-> 112
-52 <-> 113
-53 <-> 124
+49 <-> 94
+50 <-> 98
+51 <-> 103
+52 <-> 104
+53 <-> 115
 Not mapped:
 10
 14

@@ -1,6 +1,7 @@
 // Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler.exps;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.code.Instruction;
 import org.jetbrains.java.decompiler.main.ClassWriter;
@@ -39,7 +40,7 @@ import java.util.BitSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class VarExprent extends Exprent {
+public class VarExprent extends Exprent implements Pattern {
   public static final int STACK_BASE = 10000;
   public static final String VAR_NAMELESS_ENCLOSURE = "<VAR_NAMELESS_ENCLOSURE>";
   private static final boolean FORCE_VARVER_NAME = false; // Debug only!
@@ -56,6 +57,7 @@ public class VarExprent extends Exprent {
   // Applies only to real vars, not stack vars
   private Instruction backing = null;
   private boolean isEffectivelyFinal = false;
+  private boolean writingPattern = false;
   private VarType boundType;
   private boolean isIntersectionType = false;
 
@@ -127,7 +129,7 @@ public class VarExprent extends Exprent {
       VarVersionPair varVersion = getVarVersionPair();
 
       if (definition) {
-        if (processor != null && processor.getVarFinal(varVersion) == FinalType.EXPLICIT_FINAL) {
+        if (!writingPattern && processor != null && processor.getVarFinal(varVersion) == FinalType.EXPLICIT_FINAL) {
           buffer.append("final ");
         }
         VarType definitionType = getDefinitionVarType();
@@ -403,6 +405,10 @@ public class VarExprent extends Exprent {
     return this.isEffectivelyFinal;
   }
 
+  public void setWritingPattern() {
+    writingPattern = true;
+  }
+
   public String getName() {
     VarVersionPair pair = getVarVersionPair();
     if (!FORCE_VARVER_NAME) {
@@ -544,5 +550,10 @@ public class VarExprent extends Exprent {
     }
 
     return true;
+  }
+
+  @Override
+  public @NotNull List<VarExprent> getPatternVars() {
+    return List.of(this);
   }
 }

@@ -1,5 +1,6 @@
 package org.jetbrains.java.decompiler.main.decompiler;
 
+import org.jetbrains.java.decompiler.api.DecompilerOption;
 import org.jetbrains.java.decompiler.api.plugin.Plugin;
 import org.jetbrains.java.decompiler.api.plugin.PluginOptions;
 import org.jetbrains.java.decompiler.main.Init;
@@ -51,104 +52,55 @@ public class ConsoleHelp {
       System.out.println(line);
     }
 
-    List<Field> fields = Arrays.stream(IFernflowerPreferences.class.getDeclaredFields())
-      .filter(field -> field.getType() == String.class)
-      .collect(Collectors.toList());
+    Map<Plugin, List<DecompilerOption>> options = DecompilerOption.getAllByPlugin();
 
-    Map<String, Object> defaults = IFernflowerPreferences.DEFAULTS;
-
-    writeOptions(fields, defaults);
-
-    PluginContext ctx = new PluginContext();
-
-    ctx.findPlugins();
-
-    for (Plugin plugin : ctx.getPlugins()) {
-      PluginOptions opt = plugin.getPluginOptions();
-
-      if (opt != null) {
-        var opts = opt.provideOptions();
-
-        List<Field> pluginFields = Arrays.stream(opts.a.getDeclaredFields())
-          .filter(field -> field.getType() == String.class)
-          .collect(Collectors.toList());
-
-        Map<String, Object> pluginDefaults = new HashMap<>();
-        opts.b.accept(pluginDefaults::put);
-
-        if (!pluginFields.isEmpty()) {
-          System.out.println();
-          System.out.println("====== Options for plugin '" + plugin.id() + "' ======");
-          writeOptions(pluginFields, pluginDefaults);
-        }
-      }
+    List<DecompilerOption> coreOptions = options.remove(null);
+    if (coreOptions != null) {
+      writeOptions(coreOptions);
     }
-  }
 
-  private static void writeOptions(List<Field> fields, Map<String, Object> defaults) {
-    fields.sort(Comparator.comparing((Field a) -> {
-      try {
-        return a.get(null).toString();
-      } catch (IllegalAccessException e) {
-        return "";
-      }
-    }));
-
-    for (Field field : fields) {
-      IFernflowerPreferences.Name name = field.getAnnotation(IFernflowerPreferences.Name.class);
-      IFernflowerPreferences.Description description = field.getAnnotation(IFernflowerPreferences.Description.class);
-      IFernflowerPreferences.Type type = field.getAnnotation(IFernflowerPreferences.Type.class);
-
-      String paramName;
-      boolean isShortName = false;
-      try {
-        paramName = (String) field.get(null);
-      } catch (IllegalAccessException e) {
-        IFernflowerPreferences.ShortName shortName = field.getAnnotation(IFernflowerPreferences.ShortName.class);
-        if (shortName == null) {
-          continue;
-        }
-        paramName = shortName.value();
-        isShortName = true;
-      }
-
-      if (name == null || description == null || type == null) {
+    for (Map.Entry<Plugin, List<DecompilerOption>> entry : options.entrySet()) {
+      if (entry.getValue().isEmpty()) {
         continue;
       }
 
+      System.out.println();
+      System.out.println("====== Options from " + entry.getKey().id() + " ======");
+      writeOptions(entry.getValue());
+    }
+  }
+
+  private static void writeOptions(List<DecompilerOption> options) {
+    for (DecompilerOption option : options) {
       StringBuilder sb = new StringBuilder();
-      sb.append(isShortName ? "-" : "--")
-        .append(paramName)
-        .append(" ".repeat(Math.max(40 - paramName.length(), 0)))
+      sb.append("--")
+        .append(option.id())
+        .append(" ".repeat(Math.max(40 - option.id().length(), 0)))
         .append("[")
-        .append(type.value())
+        .append(option.type())
         .append("]")
-        .append(" ".repeat(Math.max(8 - type.value().length(), 0)))
-        .append(name.value())
-        .append(" ".repeat(Math.max(50 - name.value().length(), 0)))
-        .append(":");
+        .append(" ".repeat(Math.max(8 - option.type().toString().length(), 0)))
+        .append(option.name())
+        .append(" ".repeat(Math.max(50 - option.name().length(), 0)))
+        .append(": ");
 
       StringBuilder sb2 = new StringBuilder();
-      if (defaults.containsKey(paramName)) {
-        sb2.append(" (default: ");
-        Object value = defaults.get(paramName);
-        switch (type.value()) {
-          case IFernflowerPreferences.Type.BOOLEAN:
-            sb2.append(value.equals("1"));
-            break;
-          case IFernflowerPreferences.Type.STRING:
-            sb2.append('"').append(value).append('"');
-            break;
-          default:
-            sb2.append(value);
-            break;
+      if (option.defaultValue() != null) {
+        sb2.append("(default: ");
+        String value = option.defaultValue();
+        switch (option.type()) {
+          case BOOLEAN -> sb2.append(value.equals("1"));
+          case STRING -> sb2.append('"').append(value).append('"');
+          case INTEGER -> sb2.append(value);
         }
         sb2.append(")");
         sb2.append(" ".repeat(Math.max(18 - sb2.length(), 1)));
         sb.append(sb2);
       }
 
-      sb.append(description.value());
+      if (option.description() != null) {
+        sb.append(option.description());
+      }
 
       System.out.println(sb);
     }

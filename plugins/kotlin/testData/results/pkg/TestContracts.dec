@@ -32,7 +32,7 @@ public class TestContracts {
          returns() implies (x is Int)
       }
 
-      if (x !is Integer) {// 31
+      if (x !is Int) {// 31
          throw new IllegalStateException("x is not Int".toString());
       } else {
          return (x as java.lang.Number).intValue();// 32

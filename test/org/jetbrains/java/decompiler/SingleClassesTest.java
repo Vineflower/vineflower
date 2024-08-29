@@ -173,7 +173,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestConstants");
     register(JAVA_8, "TestEnum");
     register(JAVA_8, "TestDebugSymbols");
-    registerRaw(CUSTOM, "InvalidMethodSignature");
+    registerRaw(CUSTOM, "InvalidMethodSignature").setExpectedFileName("i.java");
     register(JAVA_8, "TestAnonymousClassConstructor");
     register(JAVA_8, "TestInnerClassConstructor");
     register(CUSTOM, "v11/TestInnerClassConstructor");
@@ -383,6 +383,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16, "TestInlineSwitchExpression4");
     register(JAVA_16, "TestInlineSwitchExpression5");
     register(JAVA_16, "TestInlineSwitchExpression6");
+    register(JAVA_16, "TestInlineSwitchExpression7");
 
     register(JAVA_16, "TestReturnSwitchExpression1");
     register(JAVA_16, "TestReturnSwitchExpression2");
@@ -516,8 +517,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestOverrideIndirect");
     // INN resugaring is now in a separate plugin, so this produces intentionally "bad" output
     registerRaw(CUSTOM, "TestIdeaNotNull");
-    // TODO: Synchronized blocks don't work properly
     registerRaw(CUSTOM, "TestHotjava");
+    registerRaw(CUSTOM, "TestJava1Synchronized");
     register(JAVA_8, "TestLabeledBreaks");
     // TODO: test9&10- for loop not created, loop extractor needs another pass
     register(JAVA_8, "TestSwitchLoop");
@@ -601,6 +602,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestNestedArrayPP");
     // TODO: variable stores completely ignored due to variable merging
     //   now is fixed by verify variable merges
+    //   seems also is a bug in stack vars processing, disable main loop stackvars to replicate
     register(JAVA_8_NODEBUG, "TestCompoundAssignmentReplace");
 
     register(JAVA_8, "TestSharedVarIndex");
@@ -669,6 +671,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: switch (s) decompiled as switch (s.hashCode())
     register(JAVA_17, "TestSingleCaseStrSwitch");
     register(JAVA_16, "TestIfPatternMatchMethod");
+    register(JAVA_16, "TestPatternMatchingInvoke");
     // TODO: Param type information is lost for lambdas where a more specific type is not required by the context
     register(JAVA_8, "TestLambdaParamTypes");
     register(JAVA_8, "TestGenericComparison");
@@ -679,6 +682,11 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestWhileForeach");
     register(JAVA_21, "TestRecordPatterns1");
     register(JAVA_21, "TestRecordPatterns2");
+    register(JAVA_21, "TestRecordPatterns3");
+    register(JAVA_21, "TestRecordPatterns4");
+    register(JAVA_21, "TestRecordPatterns5");
+    register(JAVA_21, "TestRecordPatterns6");
+    register(JAVA_21, "TestRecordPatterns7");
     register(JAVA_21_PREVIEW, "TestStrProcessor");
     register(JAVA_21_PREVIEW, "TestRawProcessor");
     register(JAVA_21_PREVIEW, "TestFmtProcessor");
@@ -702,6 +710,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_21, "TestSwitchPatternMatchingJ21");
     register(JAVA_21, "TestCastIntersectionJ21");
     register(JAVA_16, "TestRecordLocal");
+    register(JAVA_8, "TestAnonymousClassToLambda");
   }
 
   private void registerEntireClassPath() {

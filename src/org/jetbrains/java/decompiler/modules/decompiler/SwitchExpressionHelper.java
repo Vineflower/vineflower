@@ -324,13 +324,16 @@ public final class SwitchExpressionHelper {
         // Iterate in reverse, as we want the last assignment to be the one that we set the switch expression to
         for (int i = exprents.size() - 1; i >= 0; i--) {
           Exprent exprent = exprents.get(i);
-          if (exprent instanceof AssignmentExprent) {
-            AssignmentExprent assign = (AssignmentExprent) exprent;
+          if (exprent instanceof AssignmentExprent assign) {
 
-            if (assign.getLeft() instanceof VarExprent) {
-              VarExprent var = ((VarExprent) assign.getLeft());
+            if (assign.getLeft() instanceof VarExprent var) {
 
               list.add(var.getVarVersionPair());
+
+              // Found a stack variable at the end? This is probably our candidate, return it.
+              if (var.getIndex() >= VarExprent.STACK_BASE) {
+                break;
+              }
               continue;
             }
           }

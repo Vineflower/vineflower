@@ -1,0 +1,97 @@
+package pkg
+
+public class TestCompanionObject {
+   public fun notInCompanion() {
+      System.out.println("notInCompanion");// 5
+   }// 6
+
+   @JvmStatic
+   @JvmSynthetic
+   fun `access$getCompanionVal$cp`(): java.lang.String {
+      return companionVal;
+   }
+
+   @JvmStatic
+   @JvmSynthetic
+   fun `access$getCompanionValJvmStatic$cp`(): java.lang.String {
+      return companionValJvmStatic;// 3
+   }
+
+   public companion object {
+      public final val companionVal: String
+
+      @JvmStatic
+      public final val companionValJvmStatic: String
+
+      public fun inCompanion() {
+         System.out.println("inCompanion");// 15
+      }// 16
+
+      public fun inCompanionJvmStatic() {
+         System.out.println("inCompanionJvmStatic");// 20
+      }// 21
+   }
+}
+
+class 'pkg/TestCompanionObject' {
+   method 'notInCompanion ()V' {
+      0      4
+      1      4
+      2      4
+      3      4
+      4      4
+      6      4
+      7      4
+      8      4
+      9      5
+   }
+
+   method 'access$getCompanionVal$cp ()Ljava/lang/String;' {
+      0      10
+      1      10
+      2      10
+      3      10
+   }
+
+   method 'access$getCompanionValJvmStatic$cp ()Ljava/lang/String;' {
+      0      16
+      1      16
+      2      16
+      3      16
+   }
+}
+
+class 'pkg/TestCompanionObject$Companion' {
+   method 'inCompanion ()V' {
+      0      26
+      1      26
+      2      26
+      3      26
+      4      26
+      6      26
+      7      26
+      8      26
+      9      27
+   }
+
+   method 'inCompanionJvmStatic ()V' {
+      0      30
+      1      30
+      2      30
+      3      30
+      4      30
+      6      30
+      7      30
+      8      30
+      9      31
+   }
+}
+
+Lines mapping:
+3 <-> 17
+5 <-> 5
+6 <-> 6
+15 <-> 27
+16 <-> 28
+20 <-> 31
+21 <-> 32

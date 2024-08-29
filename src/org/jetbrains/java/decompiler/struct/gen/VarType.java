@@ -423,7 +423,7 @@ public class VarType {
     return false;
   }
 
-  public VarType remap(Map<VarType, VarType> map) {
+  public @Nullable VarType remap(Map<VarType, VarType> map) {
     VarType key = arrayDim == 0 ? this : this.resizeArrayDim(0);
     if (map.containsKey(key)) {
       VarType ret = map.get(key);

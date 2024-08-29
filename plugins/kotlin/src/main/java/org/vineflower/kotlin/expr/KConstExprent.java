@@ -4,6 +4,8 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.ConstExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.ExprUtil;
 import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.util.TextBuffer;
+import org.vineflower.kotlin.util.KTypes;
+import org.vineflower.kotlin.util.KUtils;
 
 public class KConstExprent extends ConstExprent implements KExprent {
   public KConstExprent(ConstExprent exprent) {
@@ -12,17 +14,23 @@ public class KConstExprent extends ConstExprent implements KExprent {
 
   @Override
   public TextBuffer toJava(int indent) {
+    if (getValue() == null) {
+      if (getConstType().equals(VarType.VARTYPE_NULL)) {
+        return super.toJava(indent);
+      }
+
+      TextBuffer buf = new TextBuffer();
+      buf.addBytecodeMapping(bytecode);
+      buf.append(KTypes.getKotlinType(getConstType()));
+      return buf;
+    }
+
     if (!getConstType().equals(VarType.VARTYPE_CLASS)) {
       return super.toJava(indent);
     }
 
     TextBuffer buf = new TextBuffer();
     buf.addBytecodeMapping(bytecode);
-
-    if (getValue() == null) {
-      //TODO figure out why this happens here instead of elsewhere
-      return buf.append("Class<*>");
-    }
 
     String value = getValue().toString();
     VarType type = new VarType(value, !value.startsWith("["));

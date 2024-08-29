@@ -69,7 +69,7 @@ public class TestSmartCasts {
    }
 
    public fun testDoubleType(t: List<String>): String {
-      return if (t is TestSmartCasts.X) (t as TestSmartCasts.X).woo(t as java.lang.Iterable<?>) else t.get(0) as java.lang.String;// 83 84 87
+      return if (t is TestSmartCasts.X) (t as TestSmartCasts.X).woo(t as MutableIterable<*>) else t.get(0) as java.lang.String;// 83 84 87
    }
 
    public sealed class A protected constructor() {

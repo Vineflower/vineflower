@@ -53,11 +53,11 @@ public class SingleFileSaver implements IResultSaver, AutoCloseable {
 
   @Override
   public void saveClassFile(String path, String qualifiedName, String entryName, String content, int[] mapping) {
-    if (!checkEntry(qualifiedName + ".java"))
+    if (!checkEntry(entryName))
       return;
 
     try {
-      output.putNextEntry(new ZipEntry(qualifiedName + ".java"));
+      output.putNextEntry(new ZipEntry(entryName));
 
       if (content != null) {
         output.write(content.getBytes(StandardCharsets.UTF_8));

@@ -434,9 +434,9 @@ public class FunctionExprent extends Exprent {
         break;
       }
       case INSTANCEOF:
-        if (lstOperands.size() > 2) { // pattern matching instanceof
+        if (lstOperands.size() > 2 && lstOperands.get(2) instanceof VarExprent var) { // pattern matching instanceof
           // The type of the defined var must be the type being tested
-          result.addMinTypeExprent(lstOperands.get(2), lstOperands.get(1).getExprType());
+          result.addMinTypeExprent(var, lstOperands.get(1).getExprType());
         }
         break;
       case STR_CONCAT:
@@ -630,14 +630,22 @@ public class FunctionExprent extends Exprent {
         buf.popNewlineGroup();
         return buf;
       case INSTANCEOF:
-        buf.append(wrapOperandString(lstOperands.get(0), true, indent)).append(" instanceof ").append(wrapOperandString(lstOperands.get(1), true, indent));
+        buf.append(wrapOperandString(lstOperands.get(0), true, indent)).append(" instanceof ");
 
         if (this.lstOperands.size() > 2) {
           // Pattern instanceof creation- only happens when we have more than 2 exprents
-          buf.append(" ");
-          ((VarExprent)this.lstOperands.get(2)).setDefinition(false);
+
+          Pattern pattern = (Pattern) this.lstOperands.get(2);
+          for (VarExprent var : pattern.getPatternVars()) {
+            var.setWritingPattern();
+          }
+
           buf.append(wrapOperandString(this.lstOperands.get(2), true, indent));
+        } else {
+          buf.append(wrapOperandString(lstOperands.get(1), true, indent));
         }
+
+
         return buf;
       case LCMP:
       case FCMPL:
@@ -909,9 +917,11 @@ public class FunctionExprent extends Exprent {
           // but it comes down to the same ideas.
           varMaps.makeFullyMutable();
 
-          VarExprent var = (VarExprent) this.getLstOperands().get(2);
+          Pattern pattern = (Pattern) this.getLstOperands().get(2);
 
-          sFormsConstructor.updateVarExprent(var, stat, varMaps.getIfTrue(), calcLiveVars);
+          for (VarExprent var : pattern.getPatternVars()) {
+            sFormsConstructor.updateVarExprent(var, stat, varMaps.getIfTrue(), calcLiveVars);
+          }
         }
 
         return;

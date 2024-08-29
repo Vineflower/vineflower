@@ -1,6 +1,7 @@
 // Copyright 2000-2017 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler.vars;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
@@ -1601,10 +1602,11 @@ public class VarDefinitionHelper {
 
                 // Try to perform a rename
                 String name = mw.varproc.getVarName(vvp);
+                String original = name;
                 name = rename(nameMap, name);
 
                 // Did we rename? If so, we should add it to the name map and set as clashing
-                if (!mw.varproc.getVarName(vvp).equals(name)) {
+                if (original != null && !original.equals(name)) {
                   mw.varproc.setClashingName(vvp, name);
                   nameMap.put(new VarInMethod(vvp, mt2), name);
                 }
@@ -1634,7 +1636,7 @@ public class VarDefinitionHelper {
           for (String mthKey : node.getWrapper().getMethods().getLstKeys()) {
             MethodWrapper mw = node.getWrapper().getMethods().getWithKey(mthKey);
             StructMethod mt2 = node.getWrapper().getClassStruct().getMethod(mthKey);
-            if (mt2 != null && mw != null) {
+            if (mt2 != null && mw != null && !mt2.hasModifier(CodeConstants.ACC_SYNTHETIC)) {
               // Propagate current data through to method
               VarDefinitionHelper vardef = new VarDefinitionHelper(mw.root, mt2, mw.varproc, false);
 
@@ -1653,10 +1655,11 @@ public class VarDefinitionHelper {
 
                   // Try to perform a rename
                   String name = mw.varproc.getVarName(vvp);
+                  String original = name;
                   name = rename(nameMap, name);
 
                   // Did we rename? If so, we should add it to the name map and set as clashing
-                  if (!mw.varproc.getVarName(vvp).equals(name)) {
+                  if (original != null && !original.equals(name)) {
                     mw.varproc.setClashingName(vvp, name);
                     nameMap.put(new VarInMethod(vvp, mt2), name);
                   }
@@ -1756,7 +1759,7 @@ public class VarDefinitionHelper {
     }
   }
 
-  private static String rename(Map<VarInMethod, String> nameMap, String name) {
+  private static @NotNull String rename(Map<VarInMethod, String> nameMap, String name) {
     while (nameMap.containsValue(name)) {
       name += "x";
     }
