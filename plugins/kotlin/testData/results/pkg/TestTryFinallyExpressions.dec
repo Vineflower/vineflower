@@ -43,9 +43,9 @@ public class TestTryFinallyExpressions {
       label68: {
          var var19: java.lang.String = a;// 28
 
-         label69: {
-            label70: {
-               label71: {
+         run label138@{
+            run label137@{
+               run label136@{
                   try {
                      try {
                         if (a == b) {// 30
