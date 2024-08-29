@@ -46,7 +46,7 @@ public class TestTailrecFunctions {
 
    public tailrec fun testTryCatchFinally() {
       label31: {
-         label32: {
+         run label33@{
             try {
                try {
                   this.testTryCatchFinally();// 35
