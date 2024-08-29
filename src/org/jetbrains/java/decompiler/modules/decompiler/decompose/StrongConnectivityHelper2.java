@@ -65,6 +65,7 @@ public final class StrongConnectivityHelper2 {
 
   private final List<DomBlock> sources;
   private final Set<DomBlock> sourceSet;
+  private final DomBlock entryPoint;
   private final List<List<DomBlock>> components = new ArrayList<>(); // List of strongly connected components, each entry is a list of statements that compose the component
   private final Set<DomBlock> processed = new HashSet<>(); // Already processed statements, persistent
   private final ListStack<DomBlock> stack = new ListStack<>(); // Stack of statements currently being tracked
@@ -77,6 +78,7 @@ public final class StrongConnectivityHelper2 {
   private StrongConnectivityHelper2(List<DomBlock> doms, DomBlock entryPoint) {
     this.sources = doms;
     this.sourceSet = new HashSet<>(doms);
+    this.entryPoint = entryPoint;
 
     visitTree(entryPoint);
 //
@@ -222,7 +224,7 @@ public final class StrongConnectivityHelper2 {
     }
 
     // Add the first statement as an entry point
-    DomBlock first = this.sources.get(0);
+    DomBlock first = this.entryPoint;
     entryPoints.get(statementToComponentMap.get(first)).add(first);
 
     for (int i = 0; i < exitPoints.size(); i++) {
