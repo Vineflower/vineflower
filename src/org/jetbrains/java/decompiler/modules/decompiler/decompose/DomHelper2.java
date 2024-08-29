@@ -704,20 +704,11 @@ public final class DomHelper2 implements GraphParser {
         }
       }
     } else if (block instanceof DomTryCatchBlock tryCatchBlock) {
-      SequenceStatement stat = (SequenceStatement) blockToStatement.get(block);
-      CatchStatement tryCatch = (CatchStatement) stat.getStats().get(0);
-      Statement body = tryCatch.getFirst();
-      BasicBlockStatement postStat = (BasicBlockStatement) stat.getStats().get(1);
-      body.addSuccessor(new StatEdge(StatEdge.TYPE_BREAK, body, postStat, tryCatch));
-      body.addSuccessor(new StatEdge(StatEdge.TYPE_REGULAR, tryCatch, postStat));
-      for (var edge : body.getAllSuccessorEdges()) {
+      CatchStatement tryCatch = (CatchStatement) blockToStatement.get(block);
+
+      for (var edge : tryCatch.getLabelEdges()) {
         if (edge.getType() == StatEdge.TYPE_BREAK) {
-          edge.changeSource(postStat);
-        }
-      }
-      for (var edge : stat.getLabelEdges()) {
-        if (edge.getType() == StatEdge.TYPE_BREAK) {
-          stat.addSuccessor(new StatEdge(StatEdge.TYPE_REGULAR, stat, edge.getDestination()));
+          tryCatch.addSuccessor(new StatEdge(StatEdge.TYPE_REGULAR, tryCatch, edge.getDestination()));
           break; // only add regular out edge
         }
       }
@@ -757,10 +748,8 @@ public final class DomHelper2 implements GraphParser {
         handlers.put(entry.getValue().exceptionTypes, handler);
       }
       CatchStatement tryCatch = new CatchStatement(head, handlers);
-      Statement postStat = BasicBlockStatement.create();
-      SequenceStatement stat = new SequenceStatement(new ArrayList<>(Arrays.asList(tryCatch, postStat)));
-      blockToStatement.put(block, stat);
-      return stat;
+      blockToStatement.put(block, tryCatch);
+      return tryCatch;
     } else if (block instanceof DomCatchBlock) {
       Statement stat = BasicBlockStatement.create();
       blockToStatement.put(block, stat);
