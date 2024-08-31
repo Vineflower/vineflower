@@ -183,7 +183,7 @@ public open class TestNonInlineLambda {
 
    @JvmStatic
    fun `testCaptureAndMutateInt$lambda$14`(`$y`: IntRef): Unit {
-      while ($y.element < 10) {// 85
+      while (`$y`.element < 10) {// 85
          System.out.println(`$y`.element++);// 86
       }
 
@@ -192,7 +192,7 @@ public open class TestNonInlineLambda {
 
    @JvmStatic
    fun `testCaptureAndMutateInt$lambda$15`(`$y`: IntRef): Unit {
-      while ($y.element > 0) {// 91
+      while (`$y`.element > 0) {// 91
          val var1: Int = `$y`.element;// 92
          `$y`.element += -1;
          System.out.println(var1);
@@ -203,7 +203,7 @@ public open class TestNonInlineLambda {
 
    @JvmStatic
    fun `testCaptureAndMutateString$lambda$16`(`$y`: ObjectRef): Unit {
-      while (((java.lang.String)$y.element).length() < 10) {// 100
+      while ((`$y`.element as java.lang.String).length() < 10) {// 100
          `$y`.element = " ${`$y`.element}";// 101
          System.out.println(`$y`.element);// 102
       }
@@ -213,7 +213,7 @@ public open class TestNonInlineLambda {
 
    @JvmStatic
    fun `testCaptureAndMutateString$lambda$17`(`$y`: ObjectRef): Unit {
-      while (!StringsKt.isBlank((java.lang.CharSequence)$y.element)) {// 107
+      while (!StringsKt.isBlank(`$y`.element as java.lang.CharSequence)) {// 107
          System.out.println();// 108
          `$y`.element = StringsKt.drop(`$y`.element as java.lang.String, 1);// 109
       }

@@ -8,6 +8,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.vineflower.kotlin.expr.KVarExprent;
 import org.vineflower.kotlin.util.KUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ReplaceExprentsPass implements Pass {
@@ -23,12 +24,12 @@ public class ReplaceExprentsPass implements Pass {
       res |= replace(st);
     }
 
-    List<Exprent> exprs = List.of();
-    if (stat instanceof BasicBlockStatement) {
-      exprs = stat.getExprents();
-    } else if (stat instanceof IfStatement) {
-      exprs = ((IfStatement)stat).getHeadexprentList();
-    } else if (stat instanceof CatchAllStatement || stat instanceof CatchStatement) {
+    List<List<Exprent>> exprLists = new ArrayList<>();
+    exprLists.add(stat.getExprents());
+    exprLists.add(stat.getVarDefinitions());
+
+    if (stat instanceof CatchAllStatement || stat instanceof CatchStatement) {
+      // Special handling for catch declarations
       List<VarExprent> vars = stat instanceof CatchAllStatement ? ((CatchAllStatement)stat).getVars() : ((CatchStatement)stat).getVars();
       for (int i = 0; i < vars.size(); i++) {
         VarExprent expr = vars.get(i);
@@ -36,9 +37,31 @@ public class ReplaceExprentsPass implements Pass {
         map.setExceptionType(true);
         vars.set(i, map);
       }
+
+      if (stat instanceof CatchAllStatement catchAll && catchAll.getMonitor() != null) {
+        catchAll.setMonitor(new KVarExprent(catchAll.getMonitor()));
+      } else if (stat instanceof CatchStatement catchStat) {
+        exprLists.add(catchStat.getResources());
+      }
+    } else if (stat instanceof DoStatement doStat) {
+      exprLists.add(doStat.getInitExprentList());
+      exprLists.add(doStat.getConditionExprentList());
+      exprLists.add(doStat.getIncExprentList());
+    } else if (stat instanceof IfStatement ifStat) {
+      exprLists.add(ifStat.getHeadexprentList());
+    } else if (stat instanceof SwitchStatement switchStat) {
+      exprLists.addAll(switchStat.getCaseValues());
+      exprLists.add(switchStat.getCaseGuards());
+      exprLists.add(switchStat.getHeadexprentList());
+    } else if (stat instanceof SynchronizedStatement syncStat) {
+      exprLists.add(syncStat.getHeadexprentList());
     }
 
-    if (!exprs.isEmpty()) {
+    for (List<Exprent> exprs : exprLists) {
+      if (exprs == null) {
+        continue;
+      }
+
       for(int i = 0; i < exprs.size(); i++){
         Exprent expr = exprs.get(i);
         Exprent map = KUtils.replaceExprent(expr);
@@ -50,18 +73,11 @@ public class ReplaceExprentsPass implements Pass {
       }
 
       for (Exprent ex : exprs) {
+        if (ex == null) {
+          continue;
+        }
+
         res |= replace(ex);
-      }
-    }
-
-    for (int i = 0; i < stat.getVarDefinitions().size(); i++) {
-      Exprent expr = stat.getVarDefinitions().get(i);
-
-      Exprent map = KUtils.replaceExprent(expr);
-      if (map != null) {
-        stat.getVarDefinitions().set(i, map);
-
-        res = true;
       }
     }
 
