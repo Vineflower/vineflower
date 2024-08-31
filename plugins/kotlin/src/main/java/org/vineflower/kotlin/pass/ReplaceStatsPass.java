@@ -5,8 +5,10 @@ import org.jetbrains.java.decompiler.api.plugin.pass.PassContext;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.DoStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.SequenceStatement;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement;
+import org.jetbrains.java.decompiler.modules.decompiler.stats.SwitchStatement;
 import org.vineflower.kotlin.stat.KDoStatement;
 import org.vineflower.kotlin.stat.KSequenceStatement;
+import org.vineflower.kotlin.stat.KSwitchStatement;
 
 public class ReplaceStatsPass implements Pass {
   @Override
@@ -25,6 +27,9 @@ public class ReplaceStatsPass implements Pass {
         res = true;
       } else if (st instanceof DoStatement) {
         stat.getStats().set(i, new KDoStatement((DoStatement) st));
+        res = true;
+      } else if (st instanceof SwitchStatement) {
+        stat.getStats().set(i, new KSwitchStatement((SwitchStatement) st));
         res = true;
       }
     }
