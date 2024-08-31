@@ -33,6 +33,23 @@ class TestWhen {
     }
   }
 
+  fun testCompilesToTableSwitch(a: Int) {
+    when (a) {
+      1 -> println("The loneliest number")
+      2, 3 -> println("Small prime")
+      else -> println("Number")
+    }
+  }
+  
+  fun testCompilesToLookupSwitch(a: Int) {
+    when (a) {
+      1 -> println("Go for gold")
+      9 -> println("The cat's meow")
+      42 -> println("The answer")
+      else -> println("Number")
+    }
+  }
+
   fun booleanNightmares(a: Boolean, b: Boolean, c:Boolean, d:Boolean, e:Boolean, f:Boolean, g:Boolean) {
     when(a) {
       (b != c) -> println("-_-")
