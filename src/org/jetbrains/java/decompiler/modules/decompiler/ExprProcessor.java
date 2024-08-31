@@ -814,7 +814,7 @@ public class ExprProcessor implements CodeConstants {
              (expr instanceof VarExprent && ((VarExprent)expr).isClassDef()));
   }
 
-  private static void addDeletedGotoInstructionMapping(Statement stat, TextBuffer buffer) {
+  public static void addDeletedGotoInstructionMapping(Statement stat, TextBuffer buffer) {
     if (stat instanceof BasicBlockStatement) {
       BasicBlock block = ((BasicBlockStatement)stat).getBlock();
       List<Integer> offsets = block.getInstrOldOffsets();
