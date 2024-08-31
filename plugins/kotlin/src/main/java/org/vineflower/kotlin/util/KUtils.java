@@ -41,6 +41,8 @@ public class KUtils {
       return new KFieldExprent((FieldExprent) ex);
     } else if (ex instanceof AnnotationExprent) {
       return new KAnnotationExprent((AnnotationExprent) ex);
+    } else if (ex instanceof SwitchHeadExprent) {
+      return new KSwitchHeadExprent((SwitchHeadExprent) ex);
     }
 
     return null;
