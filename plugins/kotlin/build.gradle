@@ -3,13 +3,13 @@ plugins {
   id 'org.jetbrains.kotlin.jvm'
 }
 
-apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'com.gradleup.shadow'
 apply plugin: 'java'
 apply plugin: 'maven-publish'
 
 group = 'org.vineflower'
 version = "0.1.0"
-archivesBaseName = 'vineflower-kotlin'
+base.archivesName = 'vineflower-kotlin'
 
 sourceSets {
   testDataKotlin.kotlin.srcDirs files("testData/src/kt/")

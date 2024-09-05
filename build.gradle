@@ -5,9 +5,9 @@ import org.vineflower.build.TestDataRuntimesProvider
 
 plugins {
   id 'jacoco'
-  id 'com.github.johnrengelman.shadow' version '8.1.1'
+  id 'com.gradleup.shadow' version '8.3.0'
   id 'org.jetbrains.kotlin.jvm' version '2.0.0'
-  id("io.github.gradle-nexus.publish-plugin") version '1.3.0'
+  id("io.github.gradle-nexus.publish-plugin") version '2.0.0'
 }
 
 apply plugin: 'jacoco'
@@ -18,7 +18,7 @@ apply plugin: 'maven-publish'
 apply plugin: 'signing'
 
 allprojects {
-  apply plugin: 'com.github.johnrengelman.shadow'
+  apply plugin: 'com.gradleup.shadow'
   apply plugin: 'java'
   ext.isArm = System.getProperty('os.arch') == 'aarch64'
 
@@ -54,7 +54,7 @@ allprojects {
 }
 
 group = 'org.vineflower'
-archivesBaseName = 'vineflower'
+base.archivesName = 'vineflower'
 
 version = '1.11.0'
 
