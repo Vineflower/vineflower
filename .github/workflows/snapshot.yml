@@ -3,13 +3,15 @@ on: [push, pull_request]
 jobs:
   publish:
     if: ${{ github.repository_owner == 'Vineflower' && contains(github.ref_name, 'develop') }}
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     container:
       image: eclipse-temurin:17
       options: --user root
     steps:
-      - uses: actions/checkout@v3
-      - uses: gradle/wrapper-validation-action@v1
+      - uses: actions/checkout@v4
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: false
       - run: ./gradlew publish --stacktrace
         env:
           STATUS: snapshot
