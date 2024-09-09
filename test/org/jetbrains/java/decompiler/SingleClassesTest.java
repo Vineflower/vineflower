@@ -711,6 +711,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_21, "TestCastIntersectionJ21");
     register(JAVA_16, "TestRecordLocal");
     register(JAVA_8, "TestAnonymousClassToLambda");
+    register(JAVA_8, "TryToPreserveCast");
   }
 
   private void registerEntireClassPath() {
