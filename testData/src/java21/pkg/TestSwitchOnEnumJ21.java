@@ -90,7 +90,25 @@ public class TestSwitchOnEnumJ21 {
     }
   }
 
-  enum TestEnum {
+  public void testComplexPattern(A a) {
+    switch (a) {
+      case TestEnum.B -> System.out.println("b");
+      case TestEnum others -> System.out.println("enum");
+      case A x when x instanceof C -> System.out.println(x.getClass());
+      case null -> System.out.println("null");
+      default -> System.out.println("default");
+    }
+  }
+
+  interface A {
+
+  }
+
+  public static class C implements A {
+
+  }
+
+  enum TestEnum implements A {
     A,
     B,
     C

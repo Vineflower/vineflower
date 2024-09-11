@@ -10,7 +10,7 @@ final class ShortFastFixedSetFactory<E> extends FastFixedSetFactory<E> {
   private final long full;
 
   ShortFastFixedSetFactory(Collection<E> set) {
-    ValidationHelper.validateTrue(set.size() <= 64, "Short fast fixed set can't contain more than 64 elements");
+    ValidationHelper.assertTrue(set.size() <= 64, "Short fast fixed set can't contain more than 64 elements");
 
     long mask = 1;
 

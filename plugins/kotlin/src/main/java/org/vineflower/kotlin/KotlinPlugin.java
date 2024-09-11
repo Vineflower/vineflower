@@ -43,6 +43,7 @@ public class KotlinPlugin implements Plugin {
   private static Pass makePass() {
     return new MainPassBuilder()
       .addPass("Finally", new JavaFinallyPass())
+      .addPass("BuildFinallySynchronized", ctx -> DomHelper.buildSynchronized(ctx.getRoot()))
       .addPass("RemoveSynchronized", ctx -> DomHelper.removeSynchronizedHandler(ctx.getRoot()))
       .addPass("CondenseSequences", WrappedPass.of(ctx -> SequenceHelper.condenseSequences(ctx.getRoot())))
       .addPass("ClearStatements", WrappedPass.of(ctx -> ClearStructHelper.clearStatements(ctx.getRoot())))
