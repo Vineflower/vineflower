@@ -192,7 +192,7 @@ public class MethodProcessor implements Runnable {
 
     // In rare cases, the final round of finally processing can reveal another synchronized statement. Try to parse it now.
     if (DomHelper.buildSynchronized(root)) {
-      decompileRecord.add("BuiltFinallySynchronized", root);
+      decompileRecord.add("BuildFinallySynchronized", root);
     }
 
     if (finallyProcessed > 0) {

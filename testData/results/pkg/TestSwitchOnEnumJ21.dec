@@ -90,7 +90,59 @@ public class TestSwitchOnEnumJ21 {
       }
    }// 91
 
-   static enum TestEnum {
+   public void testComplexPattern(TestSwitchOnEnumJ21.A param1) {
+      // $VF: Couldn't be decompiled
+      // Bytecode:
+      // 00: aload 1
+      // 01: astore 2
+      // 02: bipush 0
+      // 03: istore 3
+      // 04: aload 2
+      // 05: iload 3
+      // 06: invokedynamic typeSwitch (Ljava/lang/Object;I)I bsm=java/lang/runtime/SwitchBootstraps.typeSwitch (Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite; args=[ null.invoke Ljava/lang/Enum$EnumDesc;, pkg/TestSwitchOnEnumJ21$TestEnum, pkg/TestSwitchOnEnumJ21$A ]
+      // 0b: tableswitch 100 -1 2 89 29 40 57
+      // 28: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 2b: ldc "b"
+      // 2d: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
+      // 30: goto 7a
+      // 33: aload 2
+      // 34: checkcast pkg/TestSwitchOnEnumJ21$TestEnum
+      // 37: astore 4
+      // 39: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 3c: ldc "enum"
+      // 3e: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
+      // 41: goto 7a
+      // 44: aload 2
+      // 45: astore 5
+      // 47: aload 5
+      // 49: instanceof pkg/TestSwitchOnEnumJ21$C
+      // 4c: ifne 54
+      // 4f: bipush 3
+      // 50: istore 3
+      // 51: goto 04
+      // 54: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 57: aload 5
+      // 59: invokeinterface pkg/TestSwitchOnEnumJ21$A.getClass ()Ljava/lang/Class; 1
+      // 5e: invokevirtual java/io/PrintStream.println (Ljava/lang/Object;)V
+      // 61: goto 7a
+      // 64: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 67: ldc "null"
+      // 69: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
+      // 6c: goto 7a
+      // 6f: getstatic java/lang/System.out Ljava/io/PrintStream;
+      // 72: ldc "default"
+      // 74: invokevirtual java/io/PrintStream.println (Ljava/lang/String;)V
+      // 77: goto 7a
+      // 7a: return
+   }
+
+   interface A {
+   }
+
+   public static class C implements TestSwitchOnEnumJ21.A {
+   }
+
+   static enum TestEnum implements TestSwitchOnEnumJ21.A {
       A,
       B,
       C;
