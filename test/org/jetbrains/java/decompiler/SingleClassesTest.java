@@ -731,6 +731,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_16, "TestSwitchExpressionReturnType");
     register(JAVA_8, "TestGenericMapping");
 
+    registerRaw(CUSTOM, "TestCorruptedSignatures").setExpectedFileName("Signatures.java");
   }
 
   private void registerEntireClassPath() {

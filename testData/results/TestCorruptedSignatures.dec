@@ -1,0 +1,19 @@
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+abstract class Signatures implements Map<String, String> {
+   Map<String, String> field = new ArrayList();
+
+   void method(Map<String, String> o) {
+   }// 9
+}
+
+class 'Signatures' {
+   method 'method (Ljava/util/List;)V' {
+      0      8
+   }
+}
+
+Lines mapping:
+9 <-> 9
