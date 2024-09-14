@@ -769,6 +769,15 @@ public class KotlinWriter implements StatementWriter {
     }
 
     GenericClassDescriptor descriptor = cl.getSignature();
+    if (descriptor != null) {
+      VarType superclass = new VarType(cl.superClass.getString(), true);
+      List<VarType> interfaces = Arrays.stream(cl.getInterfaceNames())
+        .map(s -> new VarType(s, true))
+        .toList();
+
+      descriptor.verifyTypes(superclass, interfaces);
+    }
+
     if (descriptor != null && !descriptor.fparameters.isEmpty()) {
       appendTypeParameters(buffer, descriptor.fparameters, descriptor.fbounds);
     }
@@ -861,6 +870,9 @@ public class KotlinWriter implements StatementWriter {
     Map.Entry<VarType, GenericFieldDescriptor> fieldTypeData = getFieldTypeData(fd);
     VarType fieldType = fieldTypeData.getKey();
     GenericFieldDescriptor descriptor = fieldTypeData.getValue();
+    if (descriptor != null) { 
+      descriptor.verifyType(cl.getSignature(), fieldType);
+    }
 
     if (!isEnum) {
       buffer.append(ExprProcessor.getCastTypeName(descriptor == null ? fieldType : descriptor.type));
@@ -1045,6 +1057,27 @@ public class KotlinWriter implements StatementWriter {
       }
 
       GenericMethodDescriptor descriptor = mt.getSignature();
+      if (descriptor != null) {
+        List<VarType> params = new ArrayList<>(Arrays.asList(mt.methodDescriptor().params));
+        if ((node.access & CodeConstants.ACC_ENUM) != 0 && init) {
+          // Signatures skip enum parameters, the checker must as well
+          params.remove(0);
+          params.remove(0);
+        }
+
+        StructExceptionsAttribute attr = mt.getAttribute(StructGeneralAttribute.ATTRIBUTE_EXCEPTIONS);
+        List<VarType> exceptions = new ArrayList<>();
+        if (attr != null) {
+          for (int i = 0; i < attr.getThrowsExceptions().size(); i++) {
+            exceptions.add(new VarType(attr.getExcClassname(i, node.classStruct.getPool()), true));
+          }
+        }
+        
+        GenericClassDescriptor classSig = (mt.getAccessFlags() & CodeConstants.ACC_STATIC) == 0 ? node.classStruct.getSignature() : null;
+
+        descriptor.verifyTypes(classSig, params, mt.methodDescriptor().ret, exceptions);
+      }
+
       boolean throwsExceptions = false;
       int paramCount = 0;
 
