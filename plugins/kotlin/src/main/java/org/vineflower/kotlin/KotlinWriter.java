@@ -32,6 +32,7 @@ import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericClassDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericFieldDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericMethodDescriptor;
+import org.jetbrains.java.decompiler.struct.gen.generics.GenericsChecker;
 import org.jetbrains.java.decompiler.util.*;
 import org.jetbrains.java.decompiler.util.collections.VBStyleCollection;
 import org.vineflower.kotlin.expr.KAnnotationExprent;
@@ -1072,10 +1073,24 @@ public class KotlinWriter implements StatementWriter {
             exceptions.add(new VarType(attr.getExcClassname(i, node.classStruct.getPool()), true));
           }
         }
-        
-        GenericClassDescriptor classSig = (mt.getAccessFlags() & CodeConstants.ACC_STATIC) == 0 ? node.classStruct.getSignature() : null;
 
-        descriptor.verifyTypes(classSig, params, mt.methodDescriptor().ret, exceptions);
+        GenericClassDescriptor classSig = (mt.getAccessFlags() & CodeConstants.ACC_STATIC) == 0 ? node.classStruct.getSignature() : null;
+        GenericsChecker checker = null;
+        if (classSig != null) {
+          checker = classSig.getChecker();
+
+          ClassNode currentParent = node.parent;
+          while (currentParent != null) {
+            GenericClassDescriptor parentSignature = currentParent.classStruct.getSignature();
+            if (parentSignature != null) {
+              checker = checker.copy(parentSignature.getChecker());
+            }
+  
+            currentParent = currentParent.parent;
+          }
+        }
+
+        descriptor.verifyTypes(checker, params, mt.methodDescriptor().ret, exceptions);
       }
 
       boolean throwsExceptions = false;

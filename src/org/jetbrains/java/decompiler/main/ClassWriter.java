@@ -37,6 +37,7 @@ import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericClassDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericFieldDescriptor;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericMethodDescriptor;
+import org.jetbrains.java.decompiler.struct.gen.generics.GenericsChecker;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 import org.jetbrains.java.decompiler.util.Key;
 import org.jetbrains.java.decompiler.util.TextBuffer;
@@ -1134,10 +1135,21 @@ public class ClassWriter implements StatementWriter {
       GenericMethodDescriptor descriptor = mt.getSignature();
       if (descriptor != null) {
         List<VarType> params = new ArrayList<>(Arrays.asList(mt.methodDescriptor().params));
-        if ((node.access & CodeConstants.ACC_ENUM) != 0 && init) {
-          // Signatures skip enum parameters, the checker must as well
+
+        if (init && node.classStruct.hasModifier(CodeConstants.ACC_ENUM)) {
+          // Enum name and ordinal parameters need to be explicitly excluded
           params.remove(0);
           params.remove(0);
+        }
+
+        // Exclude any parameters that the signature itself won't contain
+        List<VarVersionPair> mask = methodWrapper.synthParameters;
+        if (mask != null) {
+          for (int i = 0, j = 0; i < mask.size(); i++, j++) {
+            if (mask.get(i) != null) {
+              params.remove(j--);
+            }
+          }
         }
 
         StructExceptionsAttribute attr = mt.getAttribute(StructGeneralAttribute.ATTRIBUTE_EXCEPTIONS);
@@ -1148,9 +1160,19 @@ public class ClassWriter implements StatementWriter {
           }
         }
 
-        GenericClassDescriptor classSig = (mt.getAccessFlags() & CodeConstants.ACC_STATIC) == 0 ? node.classStruct.getSignature() : null;
+        GenericsChecker checker = new GenericsChecker();
 
-        descriptor.verifyTypes(classSig, params, mt.methodDescriptor().ret, exceptions);
+        ClassNode currentNode = node;
+        while (currentNode != null) {
+          GenericClassDescriptor parentSignature = currentNode.classStruct.getSignature();
+          if (parentSignature != null) {
+            checker = checker.copy(parentSignature.getChecker());
+          }
+
+          currentNode = currentNode.parent;
+        }
+
+        descriptor.verifyTypes(checker, params, mt.methodDescriptor().ret, exceptions);
       }
 
       boolean throwsExceptions = false;

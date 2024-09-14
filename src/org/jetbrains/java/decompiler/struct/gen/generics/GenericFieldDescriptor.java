@@ -13,18 +13,18 @@ public class GenericFieldDescriptor {
     this.type = type;
   }
 
-  public void verifyType(GenericClassDescriptor containingClassGenerics, VarType actualType) {
+  public void verifyType(GenericClassDescriptor containingClassGenerics, VarType realType) {
     if (containingClassGenerics == null) {
       DecompilerContext.getLogger().writeMessage("Class generics were not found, verifying type loosely", IFernflowerLogger.Severity.INFO);
-      verifyLoosely(actualType);
+      verifyLoosely(realType);
       return;
     }
 
     GenericsChecker checker = containingClassGenerics.getChecker();
 
-    if (!checker.isProperlyBounded(actualType, type)) {
-      DecompilerContext.getLogger().writeMessage("Mismatched field signature, expected: " + type.value + ", actual: " + actualType.value, IFernflowerLogger.Severity.WARN);
-      type = actualType;
+    if (!checker.isProperlyBounded(type, realType)) {
+      DecompilerContext.getLogger().writeMessage("Mismatched field signature, expected: " + realType.value + ", actual: " + type.value, IFernflowerLogger.Severity.WARN);
+      type = realType;
     }
   }
 

@@ -31,22 +31,30 @@ public class GenericMethodDescriptor {
     return list.isEmpty() ? Collections.emptyList() : list;
   }
 
-  public void verifyTypes(GenericClassDescriptor descriptor, List<VarType> realParamTypes, VarType realReturnType, List<VarType> realExceptionTypes) {
-    GenericsChecker checker = descriptor == null ? new GenericsChecker(typeParameters, typeParameterBounds) : descriptor.getChecker().copy(typeParameters, typeParameterBounds);
+  public void verifyTypes(GenericsChecker checker, List<VarType> realParamTypes, VarType realReturnType, List<VarType> realExceptionTypes) {
+    checker = checker == null ? new GenericsChecker(typeParameters, typeParameterBounds) : checker.copy(typeParameters, typeParameterBounds);
 
     for (int i = 0; i < parameterTypes.size(); i++) {
       VarType parameterType = parameterTypes.get(i);
-      VarType actualType = realParamTypes.get(i);
+      VarType realType = realParamTypes.get(i);
 
-      if (!checker.isProperlyBounded(parameterType, actualType)) {
-        DecompilerContext.getLogger().writeMessage("Mismatched method parameter signature, expected: " + actualType.value + ", actual: " + parameterType.value, IFernflowerLogger.Severity.WARN);
-        parameterTypes.set(i, actualType);
+      if (!checker.isProperlyBounded(parameterType, realType)) {
+        DecompilerContext.getLogger().writeMessage("Mismatched method parameter signature, expected: " + realType.value + ", actual: " + parameterType.value, IFernflowerLogger.Severity.WARN);
+        parameterTypes.set(i, realType);
       }
     }
 
     if (!checker.isProperlyBounded(returnType, realReturnType)) {
-      DecompilerContext.getLogger().writeMessage("Mismatched method parameter signature, expected: " + realReturnType.value + ", actual: " + returnType.value, IFernflowerLogger.Severity.WARN);
+      DecompilerContext.getLogger().writeMessage("Mismatched method return signature, expected: " + realReturnType.value + ", actual: " + returnType.value, IFernflowerLogger.Severity.WARN);
       returnType = realReturnType;
+    }
+    
+    for (int i = 0; i < exceptionTypes.size(); i++) {
+      VarType exceptionType = exceptionTypes.get(i);
+      VarType realType = realExceptionTypes.get(i);
+      if (!checker.isProperlyBounded(exceptionType, realType)) {
+        DecompilerContext.getLogger().writeMessage("Mismatched method exception signature, expected: " + realType.value + ", actual: " + exceptionType.value, IFernflowerLogger.Severity.WARN);
+      }
     }
   }
 }
