@@ -277,7 +277,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8_NODEBUG, "TestArrayNull2");
     register(JAVA_8, "TestArrayNullAccess");
     register(JAVA_8, "TestArrayTernary");
-    // TODO: Do while loops become standard while loops
+    // TODO: Do while loops become standard while loops, and creates incorrect short-circuiting
     register(JAVA_8, "TestAssignmentInDoWhile");
     register(JAVA_8, "TestBooleanAssignment");
     register(JAVA_8, "TestCastObjectToPrimitive");
@@ -520,6 +520,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     registerRaw(CUSTOM, "TestHotjava");
     registerRaw(CUSTOM, "TestJava1Synchronized");
     register(JAVA_8, "TestLabeledBreaks");
+    // TODO: the super() call ends up inside the labeled block
+    register(JAVA_8, "TestLabeledBlockInConstructor");
     // TODO: test9&10- for loop not created, loop extractor needs another pass
     register(JAVA_8, "TestSwitchLoop");
     register(JAVA_8, "TestSwitchFinally");
