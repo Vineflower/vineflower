@@ -25,4 +25,25 @@ public class TestSwitchPatternMatchingJ21 {
       default -> "null";
     };
   }
+
+  Object test4;
+  public String test4() {
+    return switch (this.test4) {
+      case Integer i -> Integer.toString(i);
+      case String s -> s;
+      default -> null;
+    };
+  }
+
+  public void test4(Object o) {
+    switch (o) {
+      case Integer i:
+        System.out.println(Integer.toString(i));
+        break;
+      case String s:
+        System.out.println(s);
+        break;
+      default:
+    }
+  }
 }

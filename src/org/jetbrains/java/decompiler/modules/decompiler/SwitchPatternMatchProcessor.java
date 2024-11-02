@@ -317,14 +317,22 @@ public final class SwitchPatternMatchProcessor {
     // Check for non null
     if (basicHead != null && basicHead.size() >= 1 && realSelector instanceof VarExprent var && !nullCase) {
       Exprent last = basicHead.get(basicHead.size() - 1);
-      if (last instanceof InvocationExprent inv && inv.isStatic() && inv.getClassname().equals("java/util/Objects") && inv.getName().equals("requireNonNull") && inv.getStringDescriptor().equals("(Ljava/lang/Object;)Ljava/lang/Object;") && var.equals(inv.getLstParameters().get(0))) {
-        basicHead.remove(basicHead.size() - 1);
-        // Check for other assignment
-        if (basicHead.size() >= 1 && var.isStack() && !nullCase) {
-          last = basicHead.get(basicHead.size() - 1);
-          if (last instanceof AssignmentExprent assignment && assignment.getLeft() instanceof VarExprent assigned && var.equals(assigned)) {
-            if (!var.isVarReferenced(root, assigned)) {
-              realSelector = assignment.getRight();
+      AssignmentExprent stackAssignment = null;
+      if (last instanceof InvocationExprent inv && inv.isStatic() && inv.getClassname().equals("java/util/Objects") && inv.getName().equals("requireNonNull") && inv.getStringDescriptor().equals("(Ljava/lang/Object;)Ljava/lang/Object;")) {
+        VarExprent requireNonNullStackVar = null;
+        if (inv.getLstParameters().get(0) instanceof VarExprent varExprent) {
+          requireNonNullStackVar = varExprent;
+        }
+        if (basicHead.size() >= 2 && var.isStack() && !nullCase && basicHead.get(basicHead.size() - 2) instanceof AssignmentExprent assignment && assignment.getLeft() instanceof VarExprent assigned && var.equals(assigned) && !var.isVarReferenced(root, assigned, requireNonNullStackVar)) {
+          stackAssignment = assignment;
+        }
+        if (var.equals(inv.getLstParameters().get(0)) || (inv.getLstParameters().get(0).getExprentUse() & Exprent.MULTIPLE_USES) != 0 && inv.getLstParameters().get(0).equals(stackAssignment.getRight())) {
+          basicHead.remove(basicHead.size() - 1);
+          // Check for other assignment
+          if (basicHead.size() >= 1 && var.isStack() && !nullCase) {
+            last = basicHead.get(basicHead.size() - 1);
+            if (stackAssignment != null) {
+              realSelector = stackAssignment.getRight();
               basicHead.remove(basicHead.size() - 1);
             }
           }
