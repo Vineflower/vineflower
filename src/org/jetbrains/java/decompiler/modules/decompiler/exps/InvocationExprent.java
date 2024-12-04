@@ -47,8 +47,6 @@ public class InvocationExprent extends Exprent {
 
   private static final BitSet EMPTY_BIT_SET = new BitSet(0);
 
-  private static final VarType JAVA_NIO_BUFFER = new VarType(CodeType.OBJECT, 0, "java/nio/Buffer");
-
   private String name;
   private String classname;
   private boolean isStatic;
@@ -397,7 +395,7 @@ public class InvocationExprent extends Exprent {
               start = (newNode.access & CodeConstants.ACC_STATIC) == 0 ? 1 : 0;
             }
           }
-          
+
           Set<VarType> commonGenerics = new HashSet<>();
           ClassNode currentNode = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_CLASS_NODE);
           MethodWrapper methodWrapper = DecompilerContext.getContextProperty(DecompilerContext.CURRENT_METHOD_WRAPPER);
@@ -410,7 +408,7 @@ public class InvocationExprent extends Exprent {
                 parents.add(search);
                 search = (search.access & CodeConstants.ACC_STATIC) == 0 ? search.parent : null;
               }
-              
+
               search = newNode;
               while (search != null) {
                 if (parents.contains(search) && search.classStruct.getSignature() != null) {
@@ -812,19 +810,18 @@ public class InvocationExprent extends Exprent {
           ClassNode instNode = DecompilerContext.getClassProcessor().getMapRootClasses().get(classname);
           // Don't cast to anonymous classes, since they by definition can't have a name
           // TODO: better fix may be to change equals to isSuperSet? all anonymous classes are superset of Object
-          if (rightType.equals(VarType.VARTYPE_OBJECT) && !leftType.equals(rightType) && (instNode != null && instNode.type != ClassNode.Type.ANONYMOUS)) {
+          if (!leftType.equals(rightType) &&
+            (rightType.equals(VarType.VARTYPE_OBJECT) ||
+              // try to preserve for navigation in certain cases: virtual call on variable
+              (rightType.type != CodeType.UNKNOWN && instance instanceof VarExprent && invocationType == InvocationType.VIRTUAL && !leftType.equals(VarType.VARTYPE_OBJECT))
+            )
+          ) {
             appendInstCast(buf, leftType, res);
           } else if (remappedInstType != null) {
             // If we have a remap inst type, do a cast
             appendInstCast(buf, remappedInstType, res);
           } else if (instance.getPrecedence() > getPrecedence() && !canSkipParenEnclose(instance)) {
             buf.append("(").append(res).append(")");
-          }
-          //Java 9+ adds some overrides to java/nio/Buffer's subclasses that alter the return types.
-          //This isn't properly handled by the compiler. So explicit casts are needed to retain J8 compatibility.
-          else if (JAVA_NIO_BUFFER.equals(descriptor.ret) && !JAVA_NIO_BUFFER.equals(rightType)
-              && DecompilerContext.getStructContext().instanceOf(rightType.value, JAVA_NIO_BUFFER.value)) {
-              buf.append("((").appendCastTypeName(JAVA_NIO_BUFFER).append(")").append(res).append(")");
           }
           else {
             buf.append(res);
