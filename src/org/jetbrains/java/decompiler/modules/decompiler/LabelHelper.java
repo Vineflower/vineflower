@@ -3,6 +3,7 @@ package org.jetbrains.java.decompiler.modules.decompiler;
 
 import org.jetbrains.java.decompiler.modules.decompiler.exps.ExitExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.exps.Exprent;
+import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement.EdgeDirection;
 
@@ -470,7 +471,13 @@ public final class LabelHelper {
       if (last >= 0) { // empty switch possible
         Statement stlast = swst.getCaseStatements().get(last);
 
-        if (stlast.getExprents() != null && stlast.getExprents().isEmpty()) {
+        boolean needsExhaustive = swst.getCaseValues().stream()
+            .flatMap(List::stream)
+            .filter(exp -> exp instanceof FunctionExprent)
+            .map(exp -> (FunctionExprent) exp)
+            .filter(exp -> exp.getFuncType() == FunctionExprent.FunctionType.INSTANCEOF)
+            .findAny().isPresent();
+        if (stlast.getExprents() != null && stlast.getExprents().isEmpty() && !needsExhaustive) {
           List<StatEdge> edges = stlast.getAllSuccessorEdges();
           // If we don't have an edge from this statement or if the edge that we have isn't explicit, delete the default edge
           if (edges.isEmpty() || !edges.get(0).explicit) {
