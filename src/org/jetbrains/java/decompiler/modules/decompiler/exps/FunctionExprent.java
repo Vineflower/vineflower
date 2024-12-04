@@ -737,7 +737,10 @@ public class FunctionExprent extends Exprent {
       if (parentheses) {
         if (expr instanceof FunctionExprent &&
             ((FunctionExprent)expr).getFuncType() == funcType) {
-          parentheses = !ASSOCIATIVITY.contains(funcType);
+          // Float operations are not assocative!
+          if (expr.getExprType() != VarType.VARTYPE_FLOAT && expr.getExprType() != VarType.VARTYPE_DOUBLE) {
+            parentheses = !ASSOCIATIVITY.contains(funcType);
+          }
         }
       }
     }

@@ -614,8 +614,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: test2 now successfully triggers the bug in Vineflower
     register(JAVA_8, "TestTryVar");
     register(JAVA_8_NODEBUG, "TestTryVarNoDebug");
-    // TODO: order of additions is wrong. Addition over floats isn't associative.
-    // Derived from IDEA-291735
     register(JAVA_8, "TestFloatOrderOfOperations");
     // TODO: not simplifying to `+=`
     register(JAVA_8, "TestMixedCompoundAssignment");
@@ -651,7 +649,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(SCALA, "TestCompanionObject", "TestCompanionObject$");
     // TODO: foreach array index increment is added into default branch of switch statement
     register(JAVA_8, "TestForeachMultiDimensionalArray");
-    // TODO: <unknown> value and cast, switch is eliminated, test2 contains entirely invalid code
     register(JAVA_17_PREVIEW, "TestUnknownCastJ17");
     // TODO: These variables shouldn't be merged, and should be split because each version is used once and has a different type use
     register(JAVA_8_NODEBUG, "TestVarIndex");
