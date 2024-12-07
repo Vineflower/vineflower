@@ -380,6 +380,7 @@ public interface IFernflowerPreferences {
   @Name("Mark Corresponding Synthetics")
   @Description("Mark lambdas and anonymous and local classes with their respective synthetic constructs")
   @ShortName("mcs")
+  @Type(Type.BOOLEAN)
   String MARK_CORRESPONDING_SYNTHETICS = "mark-corresponding-synthetics";
 
   Map<String, Object> DEFAULTS = getDefaults();
