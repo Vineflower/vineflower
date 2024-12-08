@@ -665,7 +665,7 @@ public class NewExprent extends Exprent {
               VarType curType = methodWrapper.varproc.getVarType(vpp);
               VarType infType = desc.getSignature().parameterTypes.get(j++).remap(tempMap);
 
-              if (infType != null && !infType.equals(VarType.VARTYPE_VOID)) {
+              if (infType != null && !infType.equals(VarType.VARTYPE_VOID) && curType != null) {
                 if (!curType.equals(infType) || (infType.isGeneric() && !((GenericType)infType).equalsExact(curType))) {
                   methodWrapper.varproc.setVarType(vpp, infType);
                   String paramName = methodWrapper.varproc.getVarName(vpp);

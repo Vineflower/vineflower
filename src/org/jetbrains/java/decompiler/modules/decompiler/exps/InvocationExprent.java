@@ -963,7 +963,7 @@ public class InvocationExprent extends Exprent {
     BitSet setAmbiguousParameters = getAmbiguousParameters(matches);
 
     // omit 'new Type[] {}' for the last parameter of a vararg method call
-    if (lstParameters.size() == descriptor.params.length && isVarArgCall()) {
+    if (lstParameters.size() == descriptor.params.length && isVarArgCall() && !lstParameters.isEmpty()) {
       Exprent lastParam = lstParameters.get(lstParameters.size() - 1);
       if (lastParam instanceof NewExprent && lastParam.getExprType().arrayDim >= 1) {
         ((NewExprent) lastParam).setVarArgParam(true);
