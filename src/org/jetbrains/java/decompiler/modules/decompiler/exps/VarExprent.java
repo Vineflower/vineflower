@@ -230,6 +230,7 @@ public class VarExprent extends Exprent implements Pattern {
           if (lvt.getSignature() != null) {
             GenericFieldDescriptor descriptor = GenericMain.parseFieldSignature(lvt.getSignature());
             if (descriptor != null) {
+              descriptor.verifyLoosely(lvt.getVarType());
               return descriptor.type;
             }
           }
@@ -245,28 +246,39 @@ public class VarExprent extends Exprent implements Pattern {
         }
         int visibleOffset = bytecode == null ? -1 : bytecode.length();
         if (originalIndex != null) {
-          // first try from signature
+          // Try loading the type from LVT attributes:
+          // First try the signature if it's available and matches a known descriptor.
+          // If signature not available, then try the descriptor.
+          // If neither are present, fall back to the context-inferred type.
+
+          VarType type = null;
+          StructLocalVariableTableAttribute lvt = method.methodStruct.getLocalVariableAttr();
+          if (lvt != null) {
+            String descriptor = lvt.getDescriptor(originalIndex, visibleOffset);
+            if (descriptor != null) {
+              type = new VarType(descriptor);
+            }
+          }
+
           if (DecompilerContext.getOption(IFernflowerPreferences.DECOMPILE_GENERIC_SIGNATURES)) {
-            StructLocalVariableTypeTableAttribute attr =
+            StructLocalVariableTypeTableAttribute lvtSignatures =
               method.methodStruct.getAttribute(StructGeneralAttribute.ATTRIBUTE_LOCAL_VARIABLE_TYPE_TABLE);
-            if (attr != null) {
-              String signature = attr.getSignature(originalIndex, visibleOffset);
+            if (lvtSignatures != null) {
+              String signature = lvtSignatures.getSignature(originalIndex, visibleOffset);
               if (signature != null) {
                 GenericFieldDescriptor descriptor = GenericMain.parseFieldSignature(signature);
                 if (descriptor != null) {
+                  if (type != null) {
+                    descriptor.verifyLoosely(type);
+                  }
                   return descriptor.type;
                 }
               }
             }
           }
 
-          // then try from descriptor
-          StructLocalVariableTableAttribute attr = method.methodStruct.getLocalVariableAttr();
-          if (attr != null) {
-            String descriptor = attr.getDescriptor(originalIndex, visibleOffset);
-            if (descriptor != null) {
-              return new VarType(descriptor);
-            }
+          if (type != null) {
+            return type;
           }
         }
       }

@@ -708,6 +708,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_21, "TestCastIntersectionJ21");
     register(JAVA_16, "TestRecordLocal");
     register(JAVA_8, "TestAnonymousClassToLambda");
+    registerRaw(CUSTOM, "TestCorruptedSignatures").setExpectedFileName("Signatures.java");
   }
 
   private void registerEntireClassPath() {
