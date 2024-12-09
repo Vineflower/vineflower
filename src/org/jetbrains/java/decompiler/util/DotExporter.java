@@ -177,7 +177,7 @@ public class DotExporter {
 
           String edgeType = getEdgeType(edge);
 
-          buffer.append(sourceId + "->" + destId + "[color=blue" + (edgeType != null ? ",fontcolor=blue,label=\"" + edgeType + "\"" : "") + "];\r\n");
+          buffer.append(sourceId + "->" + destId + "[color=pink" + (edgeType != null ? ",fontcolor=blue,label=\"" + edgeType + "\"" : "") + "];\r\n");
 
           referenced.add(edge.getSource().id);
 
@@ -776,7 +776,7 @@ public class DotExporter {
     }
   }
 
-  public static void toDotFile(VarVersionsGraph graph, StructMethod mt, String suffix, HashMap<VarVersionPair, VarVersionPair> varAssignmentMap) {
+  public static void toDotFile(VarVersionsGraph graph, StructMethod mt, String suffix, Map<VarVersionPair, VarVersionPair> varAssignmentMap) {
     if (!DUMP_DOTS)
       return;
     try{

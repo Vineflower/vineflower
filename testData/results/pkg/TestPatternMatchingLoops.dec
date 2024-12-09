@@ -1,0 +1,97 @@
+package pkg;
+
+import java.util.List;
+
+public class TestPatternMatchingLoops {
+   // $VF: One or more variable merging failures!
+   // $VF: Could not properly define all variable types!
+   public void test(TestPatternMatchingLoops.I i) {
+      System.out.println(i);// 20
+      if (i != null) {// 22
+         <unknown> var10000;
+         for (TestPatternMatchingLoops l : var10000_1) {// 28
+            if (l != null) {// 29
+               System.out.println(l);// 33
+            }
+         }
+      }
+   }// 23 35
+
+   public static class Holder implements TestPatternMatchingLoops.I {
+      public List<TestPatternMatchingLoops> list;
+
+      @Override
+      public List<TestPatternMatchingLoops> get() {
+         return List.of();// 15
+      }
+   }
+
+   public interface I {
+      List<TestPatternMatchingLoops> get();
+   }
+}
+
+class 'pkg/TestPatternMatchingLoops' {
+   method 'test (Lpkg/TestPatternMatchingLoops$I;)V' {
+      0      8
+      1      8
+      2      8
+      3      8
+      4      8
+      5      8
+      6      8
+      7      9
+      8      9
+      9      9
+      a      9
+      b      17
+      36      11
+      37      11
+      38      11
+      39      11
+      3a      11
+      3b      11
+      3c      11
+      3d      11
+      3e      11
+      3f      11
+      40      11
+      41      12
+      42      12
+      43      12
+      44      12
+      45      12
+      49      13
+      4a      13
+      4b      13
+      4c      13
+      4d      13
+      4e      13
+      4f      13
+      50      13
+      54      17
+   }
+}
+
+class 'pkg/TestPatternMatchingLoops$Holder' {
+   method 'get ()Ljava/util/List;' {
+      0      24
+      1      24
+      2      24
+      3      24
+   }
+}
+
+Lines mapping:
+15 <-> 25
+20 <-> 9
+22 <-> 10
+23 <-> 18
+28 <-> 12
+29 <-> 13
+33 <-> 14
+35 <-> 18
+Not mapped:
+26
+30
+34
