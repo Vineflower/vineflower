@@ -710,6 +710,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestAnonymousClassToLambda");
     // TODO: broken stack processing, deleted ternary!
     register(JAVA_17, "TestPatternMatchingLoops");
+    register(JAVA_8, "TestBoxingSuperclass");
   }
 
   private void registerEntireClassPath() {
