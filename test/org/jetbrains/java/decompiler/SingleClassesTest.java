@@ -12,6 +12,18 @@ import static org.jetbrains.java.decompiler.SingleClassesTestBase.TestDefinition
 public class SingleClassesTest extends SingleClassesTestBase {
   @Override
   protected void registerAll() {
+//    registerSet("Default", this::dum,
+//      IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
+//      IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
+//      IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR, "0",
+//      IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
+//      IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
+//      IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "0",
+//      IFernflowerPreferences.TERNARY_CONDITIONS, "1",
+//      IFernflowerPreferences.FORCE_JSR_INLINE, "1",
+//      IFernflowerPreferences.USE_DEBUG_VAR_NAMES, "1"
+//    );
+//    if (true) return;
     registerSet("Default", this::registerDefault,
       IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
       IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
@@ -152,6 +164,10 @@ public class SingleClassesTest extends SingleClassesTestBase {
       IFernflowerPreferences.LAMBDA_TO_ANONYMOUS_CLASS, "1"
     );
     // TODO: user renamer class test
+  }
+
+  private void dum() {
+    register(JAVA_8, "TestTryCatchFinally");
   }
 
   private void registerDefault() {

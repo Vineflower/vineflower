@@ -8,8 +8,8 @@ public class TestTryWithResourcesCatchFinallyJ16 {
    public void test(File file) {
       try (Scanner scanner = new Scanner(file)) {// 9
          scanner.next();// 10
-      } catch (FileNotFoundException var12) {// 11
-         var12.printStackTrace();// 12
+      } catch (FileNotFoundException e) {// 11
+         e.printStackTrace();// 12
       } finally {
          System.out.println("Hello");// 14
       }
@@ -18,8 +18,8 @@ public class TestTryWithResourcesCatchFinallyJ16 {
    public void testFunc(File file) {
       try (Scanner scanner = this.create(file)) {// 19
          scanner.next();// 20
-      } catch (FileNotFoundException var12) {// 21
-         var12.printStackTrace();// 22
+      } catch (FileNotFoundException e) {// 21
+         e.printStackTrace();// 22
       } finally {
          System.out.println("Hello");// 24
       }

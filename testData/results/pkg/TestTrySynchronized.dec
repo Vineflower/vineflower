@@ -15,7 +15,7 @@ public class TestTrySynchronized {
 
       try {
          stream = new FileInputStream("nul");// 17
-      } catch (Throwable var2) {// 18
+      } catch (Throwable e) {// 18
          stream.close();// 19
       }
    }// 21
@@ -32,7 +32,7 @@ public class TestTrySynchronized {
          synchronized (monitor) {// 33
             System.out.println("Inside second synchronized block.");// 34
          }// 35
-      } catch (Throwable var4) {// 37
+      } catch (Throwable e) {// 37
          stream.close();// 38
       }
    }// 41

@@ -34,8 +34,8 @@ public class TestForeachMultipleLoops {
 
             try {
                System.out.println(1);// 35
-            } catch (Exception var9) {// 36
-               var9.printStackTrace();// 37
+            } catch (Exception e) {// 36
+               e.printStackTrace();// 37
             }
          }
       }
