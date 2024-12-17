@@ -10,9 +10,11 @@ import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.main.extern.IResultSaver;
 import org.jetbrains.java.decompiler.util.TextBuffer;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystems;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -131,12 +133,14 @@ public class ContextUnit {
 
     // directory entries
     for (String dirEntry : dirEntries) {
+      if (dirEntry.contains("..")) { continue; }
       sink.acceptDirectory(dirEntry);
     }
 
     // non-class entries
     for (IContextSource.Entry otherEntry : otherEntries) {
-      sink.acceptOther(otherEntry.path());
+      String cleanedPath =  FileSystems.getDefault().getPath("/"+otherEntry.path()).normalize().toString();
+      sink.acceptOther(cleanedPath.substring(1)); // remove initial / needed for normalize to work
     }
 
     //Whooo threads!
