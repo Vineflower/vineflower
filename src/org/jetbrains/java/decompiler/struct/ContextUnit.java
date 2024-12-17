@@ -133,14 +133,12 @@ public class ContextUnit {
 
     // directory entries
     for (String dirEntry : dirEntries) {
-      if (dirEntry.contains("..")) { continue; }
       sink.acceptDirectory(dirEntry);
     }
 
     // non-class entries
     for (IContextSource.Entry otherEntry : otherEntries) {
-      String cleanedPath =  FileSystems.getDefault().getPath("/"+otherEntry.path()).normalize().toString();
-      sink.acceptOther(cleanedPath.substring(1)); // remove initial / needed for normalize to work
+      sink.acceptOther(otherEntry.path());
     }
 
     //Whooo threads!

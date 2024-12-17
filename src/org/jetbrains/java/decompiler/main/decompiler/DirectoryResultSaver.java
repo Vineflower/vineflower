@@ -5,6 +5,7 @@ import org.jetbrains.java.decompiler.main.extern.IResultSaver;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
 
 import java.io.*;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.jar.Manifest;
@@ -82,11 +83,19 @@ public final class DirectoryResultSaver implements IResultSaver {
 
   @Override
   public void copyEntry(String source, String path, String archiveName, String entryName) {
+    String rootPath = this.root.toString();
+
     try (ZipFile srcArchive = new ZipFile(new File(source))) {
       ZipEntry entry = srcArchive.getEntry(entryName);
       if (entry != null) {
         try (InputStream in = srcArchive.getInputStream(entry)) {
-          InterpreterUtil.copyStream(in, new FileOutputStream(this.root.resolve(entryName).toFile()));
+          String cleanedPath =  FileSystems.getDefault().getPath("/"+entryName).normalize().toString();
+          File joinedPath = java.nio.file.Paths.get(rootPath, cleanedPath).toFile();
+          if (!joinedPath.toString().startsWith(rootPath)) { 
+            throw new IOException("unable to verify safe file path"); 
+          }
+
+          InterpreterUtil.copyStream(in, new FileOutputStream(joinedPath));
         }
       }
     }
