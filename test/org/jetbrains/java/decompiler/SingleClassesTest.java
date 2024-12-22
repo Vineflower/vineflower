@@ -711,6 +711,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: broken stack processing, deleted ternary!
     register(JAVA_17, "TestPatternMatchingLoops");
     register(JAVA_8, "TestBoxingSuperclass");
+    // TODO: shouldBeOne is completely deleted
+    register(JAVA_8, "TestLVTReassignment");
   }
 
   private void registerEntireClassPath() {
