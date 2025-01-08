@@ -175,6 +175,14 @@ public class TestPatternMatching17 {
    public String multiCombo(Object o, String s) {
       return o instanceof String s2 && !s.isEmpty() ? s2 + s : s;// 175 176 178
    }
+
+   public void testInLoop(Object[] a) {
+      for (Object o : a) {// 182
+         if (o instanceof String s && !s.isEmpty()) {// 183
+            System.out.println(s);// 184
+         }
+      }
+   }// 187
 }
 
 class 'pkg/TestPatternMatching17' {
@@ -848,6 +856,47 @@ class 'pkg/TestPatternMatching17' {
       19      175
       1b      175
    }
+
+   method 'testInLoop ([Ljava/lang/Object;)V' {
+      0      179
+      1      179
+      2      179
+      4      179
+      6      179
+      7      179
+      12      179
+      13      179
+      14      180
+      15      180
+      16      180
+      17      180
+      18      180
+      19      180
+      1a      180
+      1b      180
+      21      180
+      22      180
+      23      180
+      24      180
+      25      180
+      26      180
+      27      180
+      28      180
+      29      180
+      2a      180
+      2b      181
+      2c      181
+      2d      181
+      2e      181
+      2f      181
+      30      181
+      31      181
+      32      181
+      33      179
+      34      179
+      35      179
+      39      184
+   }
 }
 
 Lines mapping:
@@ -943,6 +992,10 @@ Lines mapping:
 175 <-> 176
 176 <-> 176
 178 <-> 176
+182 <-> 180
+183 <-> 181
+184 <-> 182
+187 <-> 185
 Not mapped:
 42
 49
