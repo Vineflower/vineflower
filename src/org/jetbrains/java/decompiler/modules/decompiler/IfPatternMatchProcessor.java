@@ -226,7 +226,7 @@ public final class IfPatternMatchProcessor {
       for (StatEdge pred : st.getAllPredecessorEdges()) {
         Statement stat = pred.getSource();
         stack.add(stat);
-        if (stat == root) {
+        if (root.containsStatement(stat)) {
           continue;
         }
 
