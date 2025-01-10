@@ -729,8 +729,12 @@ public class SimplifyExprentsHelper {
       for (int i = exprents.size() - 1; i >= 0; i--) {
         Exprent ex = exprents.get(i);
 
-        // Skip LHS of assignment as it is invalid
-        if (expr instanceof AssignmentExprent asExpr && ex == asExpr.getLeft()) {
+        // Avoid making something like `++a = 5`. It shouldn't happen but better be safe than sorry.
+        if (expr instanceof AssignmentExprent asExpr &&
+          ex == asExpr.getLeft() &&
+          ex instanceof VarExprent innerEx &&
+          innerEx.getIndex() == match.getIndex()
+        ) {
           continue;
         }
 

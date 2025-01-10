@@ -38,11 +38,11 @@ public class TestArrayPPMM {
    }// 40
 
    public void test9(int[] array, int i) {
-      array[i] = ++i;// 43
+      array[++i] = i;// 43
    }// 44
 
    public void test10(int i) {
-      this.getArray()[i] = ++i;// 47
+      this.getArray()[++i] = i;// 47
    }// 48
 
    private void accept(int i, int j) {
@@ -207,7 +207,7 @@ class 'pkg/TestArrayPPMM' {
       1      40
       2      40
       3      40
-      4      40
+      5      40
       6      40
       7      41
    }
@@ -220,7 +220,7 @@ class 'pkg/TestArrayPPMM' {
       4      44
       5      44
       6      44
-      7      44
+      8      44
       9      44
       a      45
    }

@@ -98,6 +98,41 @@ public class TestPPMM {
       t2(a, a);
    }
 
+   public void ppiAssign() {
+      int a = 0;
+      ++a;
+      a = 5;
+      System.out.println();
+      ++a;
+      a = a + 5;
+      System.out.println();
+      ++a;
+      a = 5 * a;
+      System.out.println();
+      t(a);
+   }
+
+
+  public void ppiAssignPhi(boolean b) {
+    int a = 0;
+    if (b) {
+      ++a;
+      a = 5;
+    }
+    System.out.println();
+    if (b) {
+      ++a;
+      a = a + 5;
+    }
+    System.out.println();
+    if (b) {
+      ++a;
+      a = 5 * a;
+    }
+    System.out.println();
+    t(a);
+  }
+
    private static void t(int x){
    }
 
