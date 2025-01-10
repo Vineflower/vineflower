@@ -90,13 +90,13 @@ public class SimplifyExprentsHelper {
         }
       }
     } else {
-      res = simplifyStackVarsExprents(expressions, cl, firstInvocation);
+      res = simplifyStackVarsExprents(expressions, cl, stat, firstInvocation);
     }
 
     return res;
   }
 
-  private static boolean simplifyStackVarsExprents(List<Exprent> list, StructClass cl, boolean firstInvocation) {
+  private static boolean simplifyStackVarsExprents(List<Exprent> list, StructClass cl, Statement stat, boolean firstInvocation) {
     boolean res = false;
 
     int index = 0;
@@ -149,7 +149,7 @@ public class SimplifyExprentsHelper {
         }
       }
 
-      if (isAssignmentReturn(current, next)) {
+      if (isAssignmentReturn(current, next, stat)) {
         list.remove(index);
         res = true;
         continue;
@@ -396,7 +396,7 @@ public class SimplifyExprentsHelper {
    * Note that this is transformation will result into java that is less like the original.
    * TODO: put this behind a compiler option.
    */
-  private static boolean isAssignmentReturn(Exprent first, Exprent second) {
+  private static boolean isAssignmentReturn(Exprent first, Exprent second, Statement stat) {
     //If assignment then exit.
     if (first instanceof AssignmentExprent
         && second instanceof ExitExprent) {
@@ -406,12 +406,20 @@ public class SimplifyExprentsHelper {
       if (assignment.getCondType() == null
           && exit.getExitType() == ExitExprent.Type.RETURN
           && exit.getValue() != null
-          && assignment.getLeft() instanceof VarExprent
-          && exit.getValue() instanceof VarExprent) {
-        VarExprent assignmentLeft = (VarExprent) assignment.getLeft();
-        VarExprent exitValue = (VarExprent) exit.getValue();
+          && assignment.getLeft() instanceof VarExprent assignmentLeft
+          && exit.getValue() instanceof VarExprent exitValue) {
         //If the assignment before the return is immediately used in the return, inline it.
         if (assignmentLeft.equals(exitValue) && !assignmentLeft.isStack() && !exitValue.isStack()) {
+          // Avoid doing this transform for potential pattern matches, as they should be processed by the pattern matcher first.
+          if (stat.getTopParent().mt.getBytecodeVersion().hasIfPatternMatching()
+            && stat.getParent() instanceof IfStatement ifst && !ifst.isPatternMatched() && stat.getExprents().indexOf(first) == 0
+            && assignment.getRight() instanceof FunctionExprent func && func.getFuncType() == FunctionType.CAST
+            // Most expensive, do it last
+            && ifst.getHeadexprent().getAllExprents(true, false).stream().anyMatch(e -> e instanceof FunctionExprent f && f.getFuncType() == FunctionType.INSTANCEOF)
+          ) {
+            return false;
+          }
+
           exit.replaceExprent(exitValue, assignment.getRight());
           return true;
         }
