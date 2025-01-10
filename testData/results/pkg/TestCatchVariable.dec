@@ -1,0 +1,92 @@
+package pkg;
+
+import java.io.IOException;
+
+public class TestCatchVariable {
+   public void test1() {
+      try {
+         System.out.println("Hello world!");// 8
+      } catch (Exception var2) {// 9
+         var2.printStackTrace();// 10
+      }
+   }// 12
+
+   public void test2() {
+      try {
+         System.out.println("Hello world!");// 16
+      } catch (Throwable var2) {// 17
+         var2.printStackTrace();// 18
+      }
+   }// 20
+
+   public void test3() {
+      try {
+         throw new IOException();// 24
+      } catch (IOException var2) {// 25
+         var2.printStackTrace();// 26
+      }
+   }// 28
+}
+
+class 'pkg/TestCatchVariable' {
+   method 'test1 ()V' {
+      0      7
+      1      7
+      2      7
+      3      7
+      4      7
+      5      7
+      6      7
+      7      7
+      b      8
+      c      9
+      d      9
+      e      9
+      f      9
+      10      11
+   }
+
+   method 'test2 ()V' {
+      0      15
+      1      15
+      2      15
+      3      15
+      4      15
+      5      15
+      6      15
+      7      15
+      b      16
+      c      17
+      d      17
+      e      17
+      f      17
+      10      19
+   }
+
+   method 'test3 ()V' {
+      7      23
+      8      24
+      9      25
+      a      25
+      b      25
+      c      25
+      d      27
+   }
+}
+
+Lines mapping:
+8 <-> 8
+9 <-> 9
+10 <-> 10
+12 <-> 12
+16 <-> 16
+17 <-> 17
+18 <-> 18
+20 <-> 20
+24 <-> 24
+25 <-> 25
+26 <-> 26
+28 <-> 28
+Not mapped:
+11
+19

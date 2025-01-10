@@ -15,6 +15,8 @@ public class KotlinTests extends SingleClassesTestBase {
     Path reg = fixture.getTestDataDir().resolve("classes/" + version.directory + "/" + name + ".class");
     Path kt = fixture.getTestDataDir().resolve("classes/" + version.directory + "/" + name + "Kt.class");
 
+    int x = 0;
+
     return reg.toFile().exists() ? reg : kt;
   }
 

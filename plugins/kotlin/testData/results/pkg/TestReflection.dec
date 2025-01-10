@@ -27,6 +27,10 @@ public class TestReflection {
       System.out.println(<unknownclass>.INSTANCE as KFunction);// 24
       (f as Function1).invoke(new TestReflection());// 25
    }// 26
+
+   public fun testThis() {
+      System.out.println(this.getClass()::class);// 29 30
+   }// 31
 }
 
 class 'pkg/TestReflection' {
@@ -112,6 +116,20 @@ class 'pkg/TestReflection' {
       1d      27
       1f      28
    }
+
+   method 'testThis ()V' {
+      0      31
+      1      31
+      2      31
+      3      31
+      8      31
+      9      31
+      a      31
+      c      31
+      d      31
+      e      31
+      f      32
+   }
 }
 
 Lines mapping:
@@ -129,3 +147,6 @@ Lines mapping:
 24 <-> 27
 25 <-> 28
 26 <-> 29
+29 <-> 32
+30 <-> 32
+31 <-> 33
