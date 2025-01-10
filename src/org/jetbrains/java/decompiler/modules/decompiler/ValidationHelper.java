@@ -203,6 +203,12 @@ public final class ValidationHelper {
       return;
     }
 
+    if (stat.type == Statement.StatementType.BASIC_BLOCK) {
+      if (stat.getAllSuccessorEdges().isEmpty()) {
+        throw new IllegalStateException("Basic block " + stat + " has no edges");
+      }
+    }
+
     switch (stat.type) {
       case IF:
         validateIfStatement((IfStatement) stat);

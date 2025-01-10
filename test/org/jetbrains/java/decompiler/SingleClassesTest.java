@@ -712,6 +712,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestBoxingSuperclass");
     // TODO: shouldBeOne is completely deleted
     register(JAVA_8, "TestLVTReassignment");
+    register(JAVA_8, "TestCatchVariable");
+    register(JAVA_8, "TestExtraneousImports");
   }
 
   private void registerEntireClassPath() {

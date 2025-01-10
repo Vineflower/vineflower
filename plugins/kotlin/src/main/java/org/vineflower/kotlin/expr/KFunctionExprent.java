@@ -97,11 +97,13 @@ public class KFunctionExprent extends FunctionExprent implements KExprent {
               String value = constExprent.getValue().toString();
               VarType type = new VarType(value, !value.startsWith("["));
               buf.append(KTypes.getKotlinType(type));
-            } else {
-              FieldExprent fieldExprent = (FieldExprent) operand;
+            } else if (operand instanceof FieldExprent fieldExprent) {
               String primitiveType = fieldExprent.getClassname();
               VarType type = new VarType(primitiveType, true);
               buf.append(KTypes.getKotlinType(type));
+            } else {
+              // TODO: can end up being 'this.getClass()::class'!
+              buf.append(operand.toJava());
             }
             return buf.append("::class");
           }
