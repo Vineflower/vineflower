@@ -664,7 +664,7 @@ public class VarDefinitionHelper {
           VarType t1 = this.varproc.getVarType(ret.getKey());
           VarType t2 = this.varproc.getVarType(ret.getValue());
 
-          if (t1.isSuperset(t2) || t2.isSuperset(t1)) {
+          if (t1 != null && t2 != null && (t1.isSuperset(t2) || t2.isSuperset(t1))) {
             // TODO: this only checks for totally disjoint types, there are instances where merging is incorrect with primitives
 
             boolean ok = true;
