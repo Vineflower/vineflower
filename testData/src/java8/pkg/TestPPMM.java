@@ -89,6 +89,13 @@ public class TestPPMM {
       t2(a, ++a);
       ++a;
       t2(a, a++);
+      ++a;
+      t2(a, a);
+      t2(++a, a);
+      t2(a++, a);
+      t2(a, ++a);
+      t2(a, a++);
+      t2(a, a);
    }
 
    private static void t(int x){
