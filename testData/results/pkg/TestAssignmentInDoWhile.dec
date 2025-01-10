@@ -27,7 +27,7 @@ public class TestAssignmentInDoWhile {
       int[] array = new int[100];// 29
       int x = 3;// 31
 
-      while (x < 50 && (x = x + array[x]) < 100) {// 33 38
+      while (x < 50 && (x += array[x]) < 100) {// 33 38
       }
 
       System.out.println("Hi");// 39
@@ -37,7 +37,7 @@ public class TestAssignmentInDoWhile {
       int[] array = new int[100];// 43
       int x = 3;// 45
 
-      while (x < 50 && (x = x + (array[x] & 7)) < 100) {// 47 52
+      while (x < 50 && (x += array[x] & 7) < 100) {// 47 52
       }
 
       System.out.println("Hi");// 53
@@ -47,7 +47,7 @@ public class TestAssignmentInDoWhile {
       int[] array = new int[100];// 57
       int x = 3;// 59
 
-      while (x < 50 && (x = x + array[x]) < 100 && x > 10) {// 61 66
+      while (x < 50 && (x += array[x]) < 100 && x > 10) {// 61 66
       }
 
       System.out.println("Hi");// 67
@@ -57,7 +57,7 @@ public class TestAssignmentInDoWhile {
       int[] array = new int[100];// 71
       int x = 3;// 73
 
-      while (x < 50 && ((x = x + array[x]) < 100 || x > 10)) {// 75 80
+      while (x < 50 && ((x += array[x]) < 100 || x > 10)) {// 75 80
       }
 
       System.out.println("Hi");// 81
@@ -134,11 +134,9 @@ class 'pkg/TestAssignmentInDoWhile' {
       a      29
       b      29
       c      29
-      d      29
       e      29
       f      29
       10      29
-      11      29
       13      29
       14      29
       15      29
@@ -168,14 +166,12 @@ class 'pkg/TestAssignmentInDoWhile' {
       a      39
       b      39
       c      39
-      d      39
       e      39
       f      39
       10      39
       11      39
       12      39
       13      39
-      14      39
       16      39
       17      39
       18      39
@@ -205,11 +201,9 @@ class 'pkg/TestAssignmentInDoWhile' {
       a      49
       b      49
       c      49
-      d      49
       e      49
       f      49
       10      49
-      11      49
       13      49
       14      49
       15      49
@@ -245,11 +239,9 @@ class 'pkg/TestAssignmentInDoWhile' {
       a      59
       b      59
       c      59
-      d      59
       e      59
       f      59
       10      59
-      11      59
       13      59
       14      59
       15      59

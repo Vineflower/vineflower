@@ -672,7 +672,6 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: Param type information is lost for lambdas where a more specific type is not required by the context
     register(JAVA_8, "TestLambdaParamTypes");
     register(JAVA_8, "TestGenericComparison");
-    // TODO: Can't inline field initializer for a final field that depends on initialization in a static call
     register(JAVA_8, "TestStaticBlockFinalField");
     register(JAVA_8, "TestWhileLambda");
     register(JAVA_8, "TestTrySplit");
