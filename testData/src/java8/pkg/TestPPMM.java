@@ -76,6 +76,25 @@ public class TestPPMM {
       t(--a);
       t(--a);
    }
+   public void doubleppi() {
+      int a = 0;
+      ++a;
+      ++a;
+      t2(a, a);
+      ++a;
+      t2(a++, a);
+      ++a;
+      t2(++a, a);
+      ++a;
+      t2(a, ++a);
+      ++a;
+      t2(a, a++);
+   }
+
    private static void t(int x){
+   }
+
+   private static void t2(int x, int y){
+
    }
 }
