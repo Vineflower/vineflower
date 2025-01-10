@@ -399,8 +399,9 @@ public final class SwitchHelper {
         ClassesProcessor.ClassNode classNode = DecompilerContext.getClassProcessor().getMapRootClasses().get(field.getClassname());
         
         if (classNode == null || !"[I".equals(field.getDescriptor().descriptorString)) {
+          // TODO: tighten up this check to avoid false positives
           return field.getName().startsWith("$SwitchMap") || //This is non-standard but we don't have any more information so..
-            (index instanceof InvocationExprent && ((InvocationExprent) index).getName().equals("ordinal"));
+            (index instanceof InvocationExprent && ((InvocationExprent) index).getName().equals("ordinal")) && field.isStatic();
         }
 
         StructField stField;
