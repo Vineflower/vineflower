@@ -2,8 +2,8 @@ package pkg;
 
 public class TestPatternMatchingReturn {
    public String getPattern(Object obj) {
-      if (obj instanceof String) {// 5
-         return (String)obj;// 6
+      if (obj instanceof String s) {// 5
+         return s;// 6
       } else {
          System.out.println("filler");// 9
          return null;// 11
@@ -30,10 +30,8 @@ class 'pkg/TestPatternMatchingReturn' {
       6      4
       7      4
       8      4
-      9      5
-      a      5
-      b      5
-      c      5
+      d      4
+      e      5
       f      5
       10      7
       11      7
