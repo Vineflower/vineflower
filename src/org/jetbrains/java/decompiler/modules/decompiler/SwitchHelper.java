@@ -90,7 +90,7 @@ public final class SwitchHelper {
                       }
                     }
 
-                    if (targetsField) {
+                    if (targetsField && ((ArrayExprent) left).getIndex() instanceof InvocationExprent) {
                       mapping.put(assignment.getRight(), ((InvocationExprent) ((ArrayExprent) left).getIndex()).getInstance());
                     }
                   } else if (fieldAssignments.contains(exprent)) {
