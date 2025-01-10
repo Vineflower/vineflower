@@ -39,7 +39,19 @@ public class TestArrayPPMM {
     accept(array[i++], array[++i]);
   }
 
+  public void test9(int[] array, int i) {
+    array[++i] = i;
+  }
+
+  public void test10(int i) {
+    getArray()[++i] = i;
+  }
+
   private void accept(int i, int j) {
 
+  }
+
+  private int[] getArray() {
+    return new int[10];
   }
 }

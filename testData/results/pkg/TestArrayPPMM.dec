@@ -37,8 +37,20 @@ public class TestArrayPPMM {
       this.accept(array[i++], array[++i]);// 39
    }// 40
 
-   private void accept(int i, int j) {
+   public void test9(int[] array, int i) {
+      array[i] = ++i;// 43
    }// 44
+
+   public void test10(int i) {
+      this.getArray()[i] = ++i;// 47
+   }// 48
+
+   private void accept(int i, int j) {
+   }// 52
+
+   private int[] getArray() {
+      return new int[10];// 55
+   }
 }
 
 class 'pkg/TestArrayPPMM' {
@@ -190,8 +202,37 @@ class 'pkg/TestArrayPPMM' {
       10      37
    }
 
-   method 'accept (II)V' {
+   method 'test9 ([II)V' {
       0      40
+      1      40
+      2      40
+      3      40
+      4      40
+      6      40
+      7      41
+   }
+
+   method 'test10 (I)V' {
+      0      44
+      1      44
+      2      44
+      3      44
+      4      44
+      5      44
+      6      44
+      7      44
+      9      44
+      a      45
+   }
+
+   method 'accept (II)V' {
+      0      48
+   }
+
+   method 'getArray ()[I' {
+      0      51
+      1      51
+      4      51
    }
 }
 
@@ -214,4 +255,9 @@ Lines mapping:
 36 <-> 34
 39 <-> 37
 40 <-> 38
-44 <-> 41
+43 <-> 41
+44 <-> 42
+47 <-> 45
+48 <-> 46
+52 <-> 49
+55 <-> 52
