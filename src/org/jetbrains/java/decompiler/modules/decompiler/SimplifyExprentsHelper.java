@@ -683,20 +683,30 @@ public class SimplifyExprentsHelper {
   // Try to find the first valid usage of a variable for PPMM inlining.
   // Returns Pair{parent exprent, variable exprent to replace}
   private static Pair<Exprent, VarExprent> findFirstValidUsage(VarExprent match, Exprent next) {
-    Deque<Exprent> stack = new LinkedList<>();
+    List<Exprent> stack = new ArrayList<>();
+    List<Exprent> parent = new ArrayList<>();
     stack.add(next);
+    parent.add(null);
 
     while (!stack.isEmpty()) {
-      Exprent expr = stack.removeLast();
+      Exprent expr = stack.remove(stack.size() - 1);
+      Exprent parentExpr = parent.remove(parent.size() - 1);
 
       List<Exprent> exprents = expr.getAllExprents();
+
+      if (parentExpr != null &&
+        expr instanceof VarExprent ve &&
+        ve.getIndex() == match.getIndex() &&
+        ve.getVersion() == match.getVersion()) {
+        return Pair.of(parentExpr, ve);
+      }
 
       if (expr instanceof FunctionExprent) {
         FunctionExprent func = (FunctionExprent) expr;
 
         // Don't inline ppmm into more ppmm
         if (isPPMM(func)) {
-          continue;
+          return null;
         }
 
         // Don't consider || or &&
@@ -718,30 +728,14 @@ public class SimplifyExprentsHelper {
       // Reverse iteration to ensure DFS
       for (int i = exprents.size() - 1; i >= 0; i--) {
         Exprent ex = exprents.get(i);
-        boolean add = true;
 
         // Skip LHS of assignment as it is invalid
-        if (expr instanceof AssignmentExprent) {
-          add = ex != ((AssignmentExprent) expr).getLeft();
+        if (expr instanceof AssignmentExprent asExpr && ex == asExpr.getLeft()) {
+          continue;
         }
 
-        // Check var if we find
-        if (add && ex instanceof VarExprent) {
-          VarExprent ve = (VarExprent) ex;
-
-          if (ve.getIndex() == match.getIndex() && ve.getVersion() == match.getVersion()) {
-            return Pair.of(expr, ve);
-          }
-        }
-
-        // Ignore ++/-- exprents as they aren't valid usages to replace
-        if (ex instanceof FunctionExprent) {
-          add = !isPPMM((FunctionExprent) ex);
-        }
-
-        if (add) {
-          stack.add(ex);
-        }
+        stack.add(ex);
+        parent.add(expr);
       }
     }
 
