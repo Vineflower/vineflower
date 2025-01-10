@@ -6,6 +6,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.FunctionExprent.Fun
 import org.jetbrains.java.decompiler.modules.decompiler.exps.IfExprent;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.Statement.EdgeDirection;
+import org.jetbrains.java.decompiler.util.DotExporter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -53,6 +54,7 @@ public final class LoopExtractHelper {
 
     if (stat instanceof DoStatement) {
       if (extractLoop((DoStatement)stat)) {
+        ValidationHelper.validateStatement(stat.getTopParent());
         return 2;
       }
     }
@@ -195,7 +197,8 @@ public final class LoopExtractHelper {
                 extractIfBlockIntoLoop(stat, firstif, check.getSuccessorEdges(StatEdge.TYPE_REGULAR).get(0).getDestination());
 
                 if (newDest) {
-                  removeFrom.removeSuccessor(continues.get(0));
+                  // TODO: is this correct?
+//                  removeFrom.removeSuccessor(continues.get(0));
                 }
 
                 return true;
@@ -299,9 +302,9 @@ public final class LoopExtractHelper {
     loop.addLabeledEdge(ifedge);
     ifStat.setIfEdge(ifedge);
 
-    SequenceStatement block = new SequenceStatement(Arrays.asList(ifStat, target));
-    ifStat.replaceWith( block);
-    block.setAllParent();
+    SequenceStatement seq = new SequenceStatement(Arrays.asList(ifStat, target));
+    ifStat.replaceWith(seq);
+    seq.setAllParent();
 
     ifStat.addSuccessor(new StatEdge(StatEdge.TYPE_REGULAR, ifStat, target));
 

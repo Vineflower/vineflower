@@ -210,6 +210,8 @@ public class MergeHelper {
               if (firstif == stat.getFirst()) {
                 BasicBlockStatement bstat = BasicBlockStatement.create();
                 stat.replaceStatement(firstif, bstat);
+                // We destroyed the loop body, but now we need to add a continue edge to make sure the empty body stays correct
+                bstat.addSuccessor(new StatEdge(StatEdge.TYPE_CONTINUE, bstat, stat, stat));
               }
               else {
                 // precondition: sequence must contain more than one statement!
