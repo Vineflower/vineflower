@@ -714,6 +714,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestLVTReassignment");
     register(JAVA_8, "TestCatchVariable");
     register(JAVA_8, "TestExtraneousImports");
+    register(JAVA_17, "TestSwitchOnEnumFake");
   }
 
   private void registerEntireClassPath() {
@@ -829,6 +830,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: local variables aren't merged properly, bring out of nodebug when they are
     register(JAVA_16_NODEBUG, "TestPatternMatchingAssign");
     register(JAVA_16, "TestPatternMatchingLocalCapture");
+    register(JAVA_16, "TestPatternMatchingReturn");
 
     register(JAVA_17, "TestPatternMatching17");
     register(JAVA_17, "TestPatternMatching17Fake");
