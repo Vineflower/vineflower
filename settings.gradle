@@ -14,7 +14,8 @@ rootProject.name = 'vineflower'
 [
   'idea-not-null',
   'kotlin',
-  'variable-renaming'
+  'variable-renaming',
+  'unpick'
 ].each {
   include it
   project(":$it").projectDir = new File(rootProject.projectDir, "plugins/$it")

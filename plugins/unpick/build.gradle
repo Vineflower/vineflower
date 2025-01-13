@@ -1,0 +1,13 @@
+import org.vineflower.build.TestDataRuntimesProvider
+
+archivesBaseName = 'vineflower-unpick'
+
+dependencies {
+  implementation project(":")
+  testImplementation testFixtures(project(":"))
+}
+
+task testDataClasses {
+  group = 'build'
+}
+testClasses.dependsOn(testDataClasses)
