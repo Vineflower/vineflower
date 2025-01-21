@@ -439,6 +439,8 @@ public final class ExceptionDeobfuscator {
 
           for (BasicBlock succ : handler.getSuccExceptions()) {
             newBlock.addSuccessorException(succ);
+            var excRange = graph.getExceptionRange(succ, handler);
+            excRange.getProtectedRange().add(newBlock);
           }
         }
 
