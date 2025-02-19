@@ -1,0 +1,66 @@
+package pkg;
+
+public class TestOverrideApply {
+   public class A {
+      protected void a() {
+         System.out.println("hello");// 6
+      }// 7
+
+      private void b() {
+         System.out.println("hello");// 9
+      }// 10
+   }
+
+   public class B extends TestOverrideApply.A {
+      @Override
+      protected void a() {
+      }// 14
+
+      public void b() {
+      }// 15
+   }
+}
+
+class 'pkg/TestOverrideApply$A' {
+   method 'a ()V' {
+      0      5
+      1      5
+      2      5
+      3      5
+      4      5
+      5      5
+      6      5
+      7      5
+      8      6
+   }
+
+   method 'b ()V' {
+      0      9
+      1      9
+      2      9
+      3      9
+      4      9
+      5      9
+      6      9
+      7      9
+      8      10
+   }
+}
+
+class 'pkg/TestOverrideApply$B' {
+   method 'a ()V' {
+      0      16
+   }
+
+   method 'b ()V' {
+      0      19
+   }
+}
+
+Lines mapping:
+6 <-> 6
+7 <-> 7
+9 <-> 10
+10 <-> 11
+14 <-> 17
+15 <-> 20

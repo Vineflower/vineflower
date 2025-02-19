@@ -700,6 +700,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_21, "TestInnerClasses2J21");
     register(JAVA_8, "TestInnerClassesJ8");
     register(JAVA_8, "TestSwitchInTry");
+    register(JAVA_8, "TestOverrideApply");
   }
 
   private void registerEntireClassPath() {
