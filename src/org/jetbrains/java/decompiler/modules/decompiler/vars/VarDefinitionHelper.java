@@ -7,6 +7,7 @@ import org.jetbrains.java.decompiler.main.ClassesProcessor.ClassNode;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.collectors.VarNamesCollector;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
+import org.jetbrains.java.decompiler.main.extern.IVariableNameProvider;
 import org.jetbrains.java.decompiler.main.rels.MethodWrapper;
 import org.jetbrains.java.decompiler.modules.decompiler.ExprProcessor;
 import org.jetbrains.java.decompiler.modules.decompiler.ValidationHelper;
@@ -18,6 +19,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.vars.VarTypeProcessor.Fi
 import org.jetbrains.java.decompiler.struct.StructClass;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.attr.StructGeneralAttribute;
+import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribute;
 import org.jetbrains.java.decompiler.struct.attr.StructLocalVariableTableAttribute.LocalVariable;
 import org.jetbrains.java.decompiler.struct.attr.StructMethodParametersAttribute;
 import org.jetbrains.java.decompiler.struct.gen.CodeType;
@@ -27,7 +29,6 @@ import org.jetbrains.java.decompiler.struct.gen.VarType;
 import org.jetbrains.java.decompiler.struct.gen.generics.GenericType;
 import org.jetbrains.java.decompiler.util.ArrayHelper;
 import org.jetbrains.java.decompiler.util.InterpreterUtil;
-import org.jetbrains.java.decompiler.util.Pair;
 import org.jetbrains.java.decompiler.util.StatementIterator;
 
 import java.util.*;
@@ -998,6 +999,12 @@ public class VarDefinitionHelper {
     }
   }
 
+  record VariableNamingDataImpl(
+    VarType type,
+    String typeName,
+    StructLocalVariableTableAttribute.LocalVariable lvt
+  ) implements IVariableNameProvider.VariableNamingData {}
+
   private void propogateLVTs(Statement stat) {
     MethodDescriptor md = MethodDescriptor.parseDescriptor(mt.getDescriptor());
     Map<VarVersionPair, VarInfo> types = new LinkedHashMap<>();
@@ -1023,12 +1030,12 @@ public class VarDefinitionHelper {
 
     findTypes(stat, types);
 
-    Map<VarVersionPair, Pair<VarType, String>> typeNames = new LinkedHashMap<>();
+    Map<VarVersionPair, IVariableNameProvider.VariableNamingData> typeNames = new LinkedHashMap<>();
     for (Entry<VarVersionPair, VarInfo> e : types.entrySet()) {
-      typeNames.put(e.getKey(), Pair.of(e.getValue().getType(), e.getValue().getCast()));
+      typeNames.put(e.getKey(), new VariableNamingDataImpl(e.getValue().getType(), e.getValue().getCast(), e.getValue().getLVT()));
     }
 
-    Map<VarVersionPair, String> renames = this.mt.getVariableNamer().rename(typeNames);
+    Map<VarVersionPair, String> renames = this.mt.getVariableNamer().renameVariables(typeNames);
 
     Set<StructMethod> methods = new HashSet<>();
 
