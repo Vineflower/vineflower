@@ -10,8 +10,8 @@ public class TestFinallyThrow {
                if (b) {// 10
                   return;// 11
                }
-            } catch (Exception var22) {// 13
-               throw var22;// 14
+            } catch (Exception e) {// 13
+               throw e;// 14
             } finally {
                System.out.println(2);// 16
             }
@@ -23,8 +23,8 @@ public class TestFinallyThrow {
       try {
          System.out.println(1);// 24
          throw t;
-      } catch (Throwable var6) {// 25
-         var6.printStackTrace();// 26
+      } catch (Throwable e) {// 25
+         e.printStackTrace();// 26
       } finally {
          ;
       }
@@ -36,8 +36,8 @@ public class TestFinallyThrow {
       try {
          System.out.println(1);// 35
          throw t;// 36
-      } catch (Throwable var6) {// 37
-         var6.printStackTrace();// 38
+      } catch (Throwable e) {// 37
+         e.printStackTrace();// 38
       } finally {
          ;
       }

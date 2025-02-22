@@ -11,7 +11,7 @@ public class TestNestedLoops2 {
             }
 
             return j;// 17
-         } catch (RuntimeException var4) {// 11
+         } catch (RuntimeException re) {// 11
             i = 10;// 12
          }
       }

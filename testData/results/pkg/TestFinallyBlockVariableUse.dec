@@ -4,16 +4,16 @@ public class TestFinallyBlockVariableUse {
    public int test(String s, int i, int j) {
       System.out.println("a");// 5
 
-      int e;
+      int var10;
       try {
          System.out.println("b");// 7
 
          try {
             i = Integer.parseInt(s) - j;// 9
-            e = i;
-         } catch (NumberFormatException var10) {// 13
+            var10 = i;
+         } catch (NumberFormatException e) {// 13
             i = j;// 14
-            throw var10;// 15
+            throw e;// 15
          }
       } finally {
          int id = i - j;// 18
@@ -22,7 +22,7 @@ public class TestFinallyBlockVariableUse {
          }
       }
 
-      return e;// 11
+      return var10;// 11
    }
 
    private boolean condition(int i) {

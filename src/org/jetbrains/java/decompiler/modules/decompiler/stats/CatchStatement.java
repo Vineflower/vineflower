@@ -46,11 +46,25 @@ public class CatchStatement extends Statement {
       if (setHandlers.contains(stat)) {
         stats.addWithKey(stat, stat.id);
         exctstrings.add(new ArrayList<>(edge.getExceptions()));
-        
-        vars.add(new VarExprent(DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.VAR_COUNTER),
-                                new VarType(CodeType.OBJECT, 0, edge.getExceptions().get(0)),
-                                // FIXME: for now simply the first type. Should get the first common superclass when possible.
-                                DecompilerContext.getVarProcessor()));
+
+        // FIXME: for now simply the first type. Should get the first common superclass when possible.
+        VarType varType = new VarType(CodeType.OBJECT, 0, edge.getExceptions().get(0));
+        int varIndex;
+        if (stat instanceof BasicBlockStatement) {
+          BasicBlockStatement bbs = (BasicBlockStatement) stat;
+          varIndex = bbs.getBlock().getSeq().getInstr(0).operand(0);
+        } else if (stat instanceof SequenceStatement) {
+          SequenceStatement seq = (SequenceStatement) stat;
+          if (seq.getFirst() instanceof BasicBlockStatement) {
+            BasicBlockStatement bbs = (BasicBlockStatement) seq.getFirst();
+            varIndex = bbs.getBlock().getSeq().getInstr(0).operand(0);
+          } else {
+            varIndex = DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.VAR_COUNTER);
+          }
+        } else {
+          varIndex = DecompilerContext.getCounterContainer().getCounterAndIncrement(CounterContainer.VAR_COUNTER);
+        }
+        vars.add(new VarExprent(varIndex, varType, DecompilerContext.getVarProcessor()));
       }
     }
 
